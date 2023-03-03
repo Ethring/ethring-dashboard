@@ -1,0 +1,10 @@
+{
+  "sidebar": {
+    "main": "Main",
+    "swap": "Swap",
+    "stake": "Stake"
+  },
+  "connect": {
+    "emptyTitle": "Connect a wallet to manage your portfolio"
+  }
+}
