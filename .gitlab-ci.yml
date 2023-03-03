@@ -41,7 +41,7 @@ stages:
     - oc project $OPENSHIFT_PROJECT
     - DOCKERCONFIGJSON=$(echo -n "{\"auths\":{\"$DOCKER_REPO\":{\"username\":\"$DOCKER_USER_RO\",\"password\":\"$DOCKER_PASS_RO\"},\"$REGISTRY_URL\":{\"username\":\"$REGISTRY_USER\",\"password\":\"$REGISTRY_PASSWORD\"}}}" | base64 -w 0)
   script:
-    - oc process -f deploy/$TEMPLATE
+    - oc process -f deploy/template.yml
       --ignore-unknown-parameters=true
       -p DC_NAME=$NAME
       -p APP_NAME=$(echo $CI_PROJECT_NAMESPACE | sed -e 's/\//-/g')

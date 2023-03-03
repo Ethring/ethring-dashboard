@@ -1,0 +1,103 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+labels:
+  name: ${DC_NAME}
+  app: ${APP_NAME}
+  template: ${APP_NAME}
+metadata:
+  annotations:
+    description: ${DC_NAME} from Gitlab CI
+    iconClass: icon-gitlab
+    openshift.io/display-name: ${DC_NAME}
+    openshift.io/long-description: ${DC_NAME}
+    tags: gitlab, ${DC_NAME}
+  name: ${DC_NAME}
+objects:
+- kind: Deployment
+  apiVersion: apps/v1
+  metadata:
+    annotations:
+      description: Defines how to deploy the application server
+    name: ${DC_NAME}
+    namespace: ${NAMESPACE}
+    labels:
+      app: ${DC_NAME}
+      app.kubernetes.io/component: ${DC_NAME}
+      app.kubernetes.io/instance: ${DC_NAME}
+      app.kubernetes.io/part-of: ${APP_NAME}
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        name: ${DC_NAME}
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxUnavailable: 1
+        maxSurge: 0
+    template:
+      metadata:
+        labels:
+          name: ${DC_NAME}
+        name: ${DC_NAME}
+      spec:
+        containers:
+          - image: ${IMAGE_NAME}
+            name: ${DC_NAME}
+            imagePullPolicy: Always
+            ports:
+              - containerPort: ${{PORT}}
+                protocol: TCP
+            resources:
+              requests:
+                cpu: "10m"
+                memory: "64Mi"
+    triggers:
+      - type: ConfigChange
+
+- kind: Service
+  apiVersion: v1
+  labels:
+    app: ${DC_NAME}
+  metadata:
+    annotations:
+      description: Exposes and load balances the application pods
+    name: ${DC_NAME}
+    namespace: ${NAMESPACE}
+  spec:
+    ports:
+      - name: ${PORT}-tcp-${PORT}
+        protocol: TCP
+        port: ${{PORT}}
+        targetPort: ${{PORT}}
+    selector:
+      name: ${DC_NAME}
+
+- kind: Secret
+  apiVersion: v1
+  type: kubernetes.io/dockerconfigjson
+  metadata:
+    name: auth-docker
+    namespace: ${NAMESPACE}
+  data:
+    .dockerconfigjson: ${DOCKERCONFIGJSON}
+
+parameters:
+  - name: DOCKERCONFIGJSON
+    required: true
+
+  - name: IMAGE_NAME
+    required: true
+
+  - name: DC_NAME
+    required: true
+
+  - name: APP_NAME
+    required: true
+
+  - name: NAMESPACE
+    required: true
+
+  - name: PORT
+    required: true
+
