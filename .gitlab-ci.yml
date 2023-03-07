@@ -1,0 +1,69 @@
+variables:
+  NODE_VERSION: 16.9.0
+
+
+stages:
+  - build_docker
+  - deploy
+
+.dockerBuildJob:
+  cache: {}
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  stage: build_docker
+  variables:
+    IMAGE_TAG: $REGISTRY_URL/$CI_PROJECT_NAME/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHORT_SHA
+    VUE_APP_BACKEND_URL: https://api.3ahtim54r.ru
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"$REGISTRY_URL\":{\"username\":\"$REGISTRY_USER\",\"password\":\"$REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - time /kaniko/executor
+        --context $CI_PROJECT_DIR
+        --dockerfile $CI_PROJECT_DIR/Dockerfile
+        --destination $IMAGE_TAG
+        --cache=true
+        --cache-ttl=168h
+        --build-arg VUE_APP_BACKEND_URL
+
+.deployJob:
+  stage: deploy
+  image: widerin/openshift-cli:latest
+  cache: {}
+  variables:
+    IMAGE_TAG: $REGISTRY_URL/$CI_PROJECT_NAME/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHORT_SHA
+    REPLICAS: 1
+    PORT: 8080
+  before_script:
+    - apk add --update coreutils
+    - export NAME=$(echo $CI_PROJECT_NAME | sed -e 's/_/-/g')
+    - oc login --token $OPENSHIFT_TOKEN $OPENSHIFT_URL --insecure-skip-tls-verify
+    - oc project $OPENSHIFT_PROJECT
+    - DOCKERCONFIGJSON=$(echo -n "{\"auths\":{\"$DOCKER_REPO\":{\"username\":\"$DOCKER_USER_RO\",\"password\":\"$DOCKER_PASS_RO\"},\"$REGISTRY_URL\":{\"username\":\"$REGISTRY_USER\",\"password\":\"$REGISTRY_PASSWORD\"}}}" | base64 -w 0)
+  script:
+    - oc process -f deploy/template.yml
+      --ignore-unknown-parameters=true
+      -p DC_NAME=$NAME
+      -p APP_NAME=$(echo $CI_PROJECT_NAMESPACE | sed -e 's/\//-/g')
+      -p IMAGE_NAME=$IMAGE_TAG
+      -p NAMESPACE=$OPENSHIFT_PROJECT
+      -p PORT=$PORT
+      -p REPLICAS=$REPLICAS
+      -p DOCKERCONFIGJSON=$DOCKERCONFIGJSON | oc apply -f -
+    - oc secrets link default auth-docker --for=pull
+    - oc rollout status deploy $NAME -n $OPENSHIFT_PROJECT
+
+
+
+Build image:
+  extends: .dockerBuildJob
+  only:
+    - dev
+
+Deploy frontend:
+  variables:
+    OPENSHIFT_PROJECT: $OPENSHIFT_PROJECT
+    OPENSHIFT_TOKEN: $OPENSHIFT_TOKEN
+  extends: .deployJob
+  only:
+    - dev
