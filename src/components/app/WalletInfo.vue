@@ -115,6 +115,7 @@ export default {
     flex-direction: column;
 
     .address {
+      user-select: none;
       display: flex;
       align-items: center;
       font-family: "Poppins_Light";
@@ -129,6 +130,7 @@ export default {
     }
 
     .balance {
+      user-select: none;
       font-family: "Poppins_SemiBold";
       font-size: 18px;
       color: $colorBlack;

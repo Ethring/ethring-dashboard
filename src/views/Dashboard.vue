@@ -1,14 +1,18 @@
 <template>
   <div class="dashboard">
     <Head />
-    <div v-if="hasConnect" class="dashboard__wallet">
-      <WalletInfoLarge />
-      <div class="dashboard__controls">
-        <Button title="RECEIVE" />
-        <div class="ml" />
-        <Button title="SEND" />
+    <template v-if="hasConnect">
+      <div class="dashboard__wallet">
+        <WalletInfoLarge />
+        <div class="dashboard__controls">
+          <Button title="RECEIVE" />
+          <div class="ml" />
+          <Button title="SEND" />
+        </div>
       </div>
-    </div>
+      <ActionsMenu :menu-items="dashboardActions" class="dashboard__actions" />
+      <Tokens :tokens-items="tokensItems" />
+    </template>
   </div>
 </template>
 
@@ -16,7 +20,9 @@
 import WalletInfoLarge from "@/components/app/WalletInfoLarge";
 import Head from "@/components/app/Head";
 import Button from "@/components/ui/Button";
-import { onMounted } from "vue";
+import ActionsMenu from "@/components/app/ActionsMenu";
+import Tokens from "@/components/app/Tokens";
+import { onMounted, ref } from "vue";
 import { useStore } from "vuex";
 
 import useConnect from "@/compositions/useConnect";
@@ -27,10 +33,25 @@ export default {
     Head,
     WalletInfoLarge,
     Button,
+    ActionsMenu,
+    Tokens,
   },
   setup() {
     const store = useStore();
     const { hasConnect } = useConnect();
+
+    const dashboardActions = ref([
+      { $title: "actionTokens" },
+      { $title: "actionTransactions" },
+    ]);
+
+    const tokensItems = ref([
+      { network: "eth", amount: "51", procent: "-2.45%" },
+      { network: "bsc", amount: "12", procent: "-0.25%" },
+      { network: "arbitrum", amount: 4, procent: "+3.15%" },
+      { network: "polygon", amount: 33, procent: "+6.15%" },
+      { network: "optimism", amount: 14, procent: "+16.15%" },
+    ]);
 
     onMounted(async () => {
       await store.dispatch("networks/init");
@@ -41,6 +62,8 @@ export default {
 
     return {
       hasConnect,
+      dashboardActions,
+      tokensItems,
     };
   },
 };
@@ -63,6 +86,10 @@ export default {
   &__controls {
     display: flex;
     align-items: center;
+  }
+
+  &__actions {
+    margin: 15px 0;
   }
 
   .ml {

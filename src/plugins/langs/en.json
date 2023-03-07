@@ -6,5 +6,7 @@
   },
   "connect": {
     "emptyTitle": "Connect a wallet to manage your portfolio"
-  }
+  },
+  "actionTokens": "Tokens",
+  "actionTransactions": "Transactions"
 }

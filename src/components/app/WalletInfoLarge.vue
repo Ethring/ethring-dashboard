@@ -10,12 +10,14 @@
         <arrowSvg class="arrow" />
       </div>
       <div class="balance">
-        {{
-          showBalance
-            ? prettyNumber(metamaskConnect.balance.mainBalance)
-            : "****"
-        }}
-        <span>{{ networks[metamaskConnect.network]?.code }}</span>
+        <div class="value">
+          {{
+            showBalance
+              ? prettyNumber(metamaskConnect.balance.mainBalance)
+              : "****"
+          }}
+          <span>{{ networks[metamaskConnect.network]?.code }}</span>
+        </div>
         <eyeSvg @click="toggleViewBalance" />
       </div>
       <div class="change">
@@ -111,6 +113,7 @@ export default {
     flex-direction: column;
 
     .address {
+      user-select: none;
       display: flex;
       align-items: center;
       font-family: "Poppins_Light";
@@ -131,6 +134,11 @@ export default {
       font-size: 22px;
       color: $colorBlack;
       margin-top: -3px;
+      user-select: none;
+
+      .value {
+        min-width: 165px;
+      }
 
       span {
         font-family: "Poppins_Regular";
