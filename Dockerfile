@@ -7,6 +7,7 @@ RUN npm ci
 COPY . ./
 
 ARG VUE_APP_BACKEND_URL=//work.3ahtim54r.ru/api
+ARG VUE_APP_HOST=work.3ahtim54r.ru
 
 RUN npm run build
 

@@ -15,6 +15,7 @@ stages:
   variables:
     IMAGE_TAG: $REGISTRY_URL/$CI_PROJECT_NAME/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHORT_SHA
     VUE_APP_BACKEND_URL: https://api.3ahtim54r.ru
+    VUE_APP_HOST: work.3ahtim54r.ru
   script:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$REGISTRY_URL\":{\"username\":\"$REGISTRY_USER\",\"password\":\"$REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
@@ -25,6 +26,7 @@ stages:
         --cache=true
         --cache-ttl=168h
         --build-arg VUE_APP_BACKEND_URL
+        --build-arg VUE_APP_HOST
 
 .deployJob:
   stage: deploy
