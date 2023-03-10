@@ -1,49 +1,57 @@
 <template>
-  <div class="tokens">
-    <div
-      class="tokens__item"
-      v-for="(item, ndx) in tokensItems"
-      :key="ndx"
-      @click="setActive(ndx)"
-    >
-      <div class="network">
-        <div class="logo"></div>
-        <div class="info">
-          <div class="symbol">{{ networks[item.network]?.code }}</div>
-          <div class="name">{{ networks[item.network]?.name }}</div>
+  <div class="tokens" :class="{ empty: !tokens.length }">
+    <template v-if="tokens.length">
+      <div
+        class="tokens__item"
+        v-for="(item, ndx) in tokens"
+        :key="ndx"
+        @click="() => {}"
+      >
+        <div class="network">
+          <div class="logo">
+            <TokenIcon width="24" height="24" :token="item" />
+          </div>
+          <div class="info">
+            <div class="symbol">{{ item.code }}</div>
+            <div class="name">{{ item.name }}</div>
+          </div>
+        </div>
+        <div class="amount">
+          <div class="value">{{ prettyNumber(item.balance.amount) }}</div>
+          <div class="symbol">{{ item.code }}</div>
+        </div>
+        <div class="change">
+          <div class="label">-</div>
+          <div class="value">
+            {{ prettyNumber(item.balanceUsd) }}<span>$</span>
+          </div>
         </div>
       </div>
-      <div class="amount">
-        <div class="value">{{ item.amount }}</div>
-        <div class="symbol">{{ networks[item.network]?.code }}</div>
-      </div>
-      <div class="change">
-        <div class="label">{{ item.procent }}</div>
-        <div class="value">{{ item.amount }} <span>$</span></div>
-      </div>
-    </div>
+    </template>
+    <EmptyList v-else title="Tokens Not Found" />
   </div>
 </template>
 <script>
-import { useStore } from "vuex";
-import { computed } from "vue";
+import useTokens from "@/compositions/useTokens";
+import TokenIcon from "@/components/ui/TokenIcon";
+import EmptyList from "@/components/ui/EmptyList";
+
+import { getTokenIcon } from "@/helpers/utils";
+import { prettyNumber } from "@/helpers/prettyNumber";
 
 export default {
   name: "Tokens",
-  components: {},
-  props: {
-    tokensItems: {
-      type: Array,
-      required: true,
-    },
+  components: {
+    TokenIcon,
+    EmptyList,
   },
   setup() {
-    const store = useStore();
-
-    const networks = computed(() => store.getters["networks/networks"]);
+    const { tokens } = useTokens();
 
     return {
-      networks,
+      tokens,
+      getTokenIcon,
+      prettyNumber,
     };
   },
 };
@@ -52,6 +60,13 @@ export default {
 .tokens {
   display: flex;
   flex-direction: column;
+  min-height: calc(100vh - 310px);
+  height: calc(100vh - 310px);
+  overflow-y: auto;
+
+  &.empty {
+    justify-content: center;
+  }
 
   &__item {
     min-height: 72px;
@@ -78,6 +93,9 @@ export default {
         border-radius: 50%;
         background: $colorBlack;
         margin-right: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
 
       .symbol {

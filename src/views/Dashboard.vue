@@ -11,7 +11,7 @@
         </div>
       </div>
       <ActionsMenu :menu-items="dashboardActions" class="dashboard__actions" />
-      <Tokens :tokens-items="tokensItems" />
+      <Tokens />
     </template>
   </div>
 </template>

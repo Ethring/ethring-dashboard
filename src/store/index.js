@@ -2,6 +2,7 @@ import createPersistedState from "vuex-persistedstate";
 import { createStore } from "vuex";
 import metamask from "./metamask";
 import networks from "./networks";
+import tokens from "./tokens";
 import app from "./app";
 
 const dataState = createPersistedState({
@@ -22,6 +23,7 @@ export default createStore({
     app,
     metamask,
     networks,
+    tokens,
   },
   plugins: [dataState],
 });

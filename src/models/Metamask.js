@@ -1,6 +1,6 @@
 const Web3 = require("web3");
 import axios from "axios";
-// import store from '@/store';
+import store from "@/store";
 
 export default class MetamaskConnector {
   constructor() {
@@ -29,6 +29,24 @@ export default class MetamaskConnector {
     if (response.status === 200) {
       this.balance = response.data.data;
     }
+
+    // TOKENS
+    const tokensResponse = await axios.get(
+      `${process.env.VUE_APP_BACKEND_URL}/blockchain/${net}/${address}/tokens?version=1.1.0`
+    );
+
+    if (tokensResponse.status === 200) {
+      store.dispatch("tokens/setTokens", tokensResponse.data.data);
+    }
+
+    // MARKETCAP
+    const marketCapResponse = await axios.get(
+      `https://work.3ahtim54r.ru/api/currency/${net}/marketcap?version=1.1.0`
+    );
+
+    if (marketCapResponse.status === 200) {
+      store.dispatch("tokens/setMarketCap", marketCapResponse.data.data);
+    }
   }
 
   async connect() {
@@ -49,9 +67,11 @@ export default class MetamaskConnector {
         window.ethereum.on("accountsChanged", (accounts) => {
           this.accounts = accounts;
           this.fetchBalance(this.network, this.accounts[0]);
+          store.dispatch("tokens/setMarketCap", {});
         });
 
         window.ethereum.on("chainChanged", async () => {
+          store.dispatch("tokens/setMarketCap", {});
           this.chainId = parseInt(
             await window.ethereum.request({ method: "eth_chainId" }),
             16

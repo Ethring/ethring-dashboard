@@ -20,9 +20,13 @@
         </div>
         <eyeSvg @click="toggleViewBalance" />
       </div>
-      <div class="change">
+      <div
+        v-if="marketCap.priceUsdDelta24pct"
+        :class="{ minus: +marketCap.priceUsdDelta24pct < 0 }"
+        class="change"
+      >
         <arrowPriceSvg />
-        <div class="percent">+1.25%</div>
+        <div class="percent">{{ marketCap.priceUsdDelta24pct }}%</div>
       </div>
     </div>
   </div>
@@ -59,6 +63,7 @@ export default {
     );
 
     const networks = computed(() => store.getters["networks/networks"]);
+    const marketCap = computed(() => store.getters["tokens/marketCap"]);
     const showBalance = computed(() => store.getters["app/showBalance"]);
 
     const toggleViewBalance = () => {
@@ -71,6 +76,7 @@ export default {
       opened,
       metamaskConnect,
       networks,
+      marketCap,
       showBalance,
       openMenu,
       toggleViewBalance,
@@ -168,6 +174,12 @@ export default {
         margin-left: 5px;
         font-family: "Poppins_Regular";
         font-size: 14px;
+      }
+
+      &.minus {
+        svg {
+          transform: rotate(90deg);
+        }
       }
     }
   }
