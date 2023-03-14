@@ -1,6 +1,11 @@
 <template>
   <div class="sidebar-list">
-    <div v-for="(item, ndx) in menu" :key="ndx" class="sidebar-list__item">
+    <router-link
+      v-for="(item, ndx) in menu"
+      :key="ndx"
+      :to="item.to"
+      class="sidebar-list__item"
+    >
       <div class="sidebar-list__item-icon">
         <mainSvg v-if="item.key === 'main'" />
         <swapSvg v-if="item.key === 'swap'" />
@@ -9,7 +14,7 @@
       <div class="sidebar-list__item-title">
         {{ $t(`sidebar.${item.key}`) }}
       </div>
-    </div>
+    </router-link>
   </div>
 </template>
 <script>
@@ -26,9 +31,9 @@ export default {
   },
   setup() {
     const menu = [
-      { icon: "main", title: "Main", key: "main" },
-      { icon: "swap", title: "Swap", key: "swap" },
-      { icon: "stake", title: "Stake", key: "stake" },
+      { icon: "main", title: "Main", key: "main", to: "/main" },
+      { icon: "swap", title: "Swap", key: "swap", to: "/swap" },
+      { icon: "stake", title: "Stake", key: "stake", to: "/stake" },
     ];
 
     return {
@@ -50,13 +55,15 @@ export default {
     align-items: center;
     margin-bottom: 15px;
     transition: all 0.3s ease-in-out;
+    text-decoration: none;
+    color: $colorBlack;
     cursor: pointer;
 
     &:hover {
       opacity: 0.5;
     }
 
-    &:first-child {
+    &.router-link-exact-active {
       font-family: "Poppins_SemiBold";
     }
 
@@ -82,7 +89,7 @@ body.dark {
     &__item {
       color: $colorDarkGreen;
 
-      &:first-child {
+      &.router-link-exact-active {
         color: $colorWhite;
 
         svg {

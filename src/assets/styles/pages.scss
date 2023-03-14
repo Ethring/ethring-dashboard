@@ -1,0 +1,13 @@
+@mixin pageStructure {
+  box-sizing: border-box;
+  padding: 40px 150px 0;
+  width: calc(100% - 250px);
+  height: 100vh;    
+}
+
+@mixin pageFlexColumn {
+  margin-top: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

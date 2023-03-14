@@ -3,18 +3,28 @@ import Dashboard from "@/views/Dashboard.vue";
 
 const routes = [
   {
-    path: "/",
-    name: "Dashboard",
+    path: "/main",
+    name: "main",
     component: Dashboard,
   },
-  // {
-  //   path: '/about',
-  //   name: 'About',
-  //   // route level code-splitting
-  //   // this generates a separate chunk (about.[hash].js) for this route
-  //   // which is lazy-loaded when the route is visited.
-  //   component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
-  // }
+  {
+    path: "/swap",
+    name: "swap",
+    component: () =>
+      import(/* webpackChunkName: "about" */ "../views/Swap.vue"),
+  },
+  {
+    path: "/stake",
+    name: "stake",
+    component: () =>
+      import(/* webpackChunkName: "about" */ "../views/Stake.vue"),
+  },
+  {
+    path: "/:pathMatch(.*)*",
+    name: "notFound",
+    component: () =>
+      import(/* webpackChunkName: "about" */ "../views/NotFound.vue"),
+  },
 ];
 
 const router = createRouter({

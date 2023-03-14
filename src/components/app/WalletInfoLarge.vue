@@ -3,6 +3,11 @@
     <div class="wallet-info__network">
       <bscSvg v-if="metamaskConnect.chainId === 56" />
       <ethSvg v-if="metamaskConnect.chainId === 1" />
+      <polygonSvg v-if="metamaskConnect.chainId === 137" />
+      <optimismSvg v-if="metamaskConnect.chainId === 10" />
+      <arbitrumSvg v-if="metamaskConnect.chainId === 42161" />
+      <evmosethSvg v-if="metamaskConnect.chainId === 9001" />
+      <avalancheSvg v-if="metamaskConnect.chainId === 43114" />
     </div>
     <div class="wallet-info__wallet">
       <div class="address" @click="openMenu">
@@ -41,6 +46,11 @@ import bscSvg from "@/assets/icons/networks/bsc.svg";
 import ethSvg from "@/assets/icons/networks/eth.svg";
 import eyeSvg from "@/assets/icons/dashboard/eye.svg";
 import arrowPriceSvg from "@/assets/icons/dashboard/arrowprice.svg";
+import polygonSvg from "@/assets/icons/networks/polygon.svg";
+import optimismSvg from "@/assets/icons/networks/optimism.svg";
+import arbitrumSvg from "@/assets/icons/networks/arbitrum.svg";
+import evmosethSvg from "@/assets/icons/networks/evmoseth.svg";
+import avalancheSvg from "@/assets/icons/networks/avalanche.svg";
 
 export default {
   name: "WalletInfo",
@@ -50,6 +60,11 @@ export default {
     arrowPriceSvg,
     bscSvg,
     ethSvg,
+    polygonSvg,
+    optimismSvg,
+    arbitrumSvg,
+    evmosethSvg,
+    avalancheSvg,
   },
   setup() {
     const store = useStore();
@@ -171,6 +186,7 @@ export default {
       }
 
       .percent {
+        user-select: none;
         margin-left: 5px;
         font-family: "Poppins_Regular";
         font-size: 14px;
