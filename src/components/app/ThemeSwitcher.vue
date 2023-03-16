@@ -71,7 +71,7 @@ export default {
     border-radius: 50%;
     top: 4px;
     left: 3px;
-    background: $colorLightGray;
+    background: #9ca6c6;
   }
 }
 

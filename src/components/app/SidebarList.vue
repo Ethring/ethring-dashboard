@@ -65,6 +65,10 @@ export default {
 
     &.router-link-exact-active {
       font-family: "Poppins_SemiBold";
+
+      svg {
+        stroke: $colorMainBlue;
+      }
     }
 
     svg {

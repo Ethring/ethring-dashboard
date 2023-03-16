@@ -33,7 +33,7 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: $colorLightGray;
+    background: #f5f6ff;
     font-family: "Poppins_Regular";
     font-size: 24px;
     color: $colorBlack;

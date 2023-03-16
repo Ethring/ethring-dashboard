@@ -113,11 +113,11 @@ export default {
     align-items: center;
     border-radius: 50%;
     margin-right: 10px;
-    background: $colorLightGreenGray;
+    background: $colorMainBlue;
 
     svg {
       transform: scale(1.8);
-      fill: $themeGreen;
+      fill: $colorWhite;
       opacity: 1;
     }
   }
@@ -180,9 +180,10 @@ export default {
     .change {
       display: flex;
       align-items: center;
+      color: $colorGreen;
 
       svg {
-        fill: #5b5b5b;
+        fill: $colorGreen;
       }
 
       .percent {
@@ -193,7 +194,10 @@ export default {
       }
 
       &.minus {
+        color: $colorRed;
+
         svg {
+          fill: $colorRed;
           transform: rotate(90deg);
         }
       }

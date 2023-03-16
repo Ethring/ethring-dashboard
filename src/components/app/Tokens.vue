@@ -107,7 +107,7 @@ export default {
         margin-top: -3px;
         font-size: 14px;
         font-family: "Poppins_Regular";
-        color: #5b5b5b;
+        color: $colorMainBlue;
       }
     }
 
@@ -120,6 +120,7 @@ export default {
         font-size: 18px;
         font-family: "Poppins_SemiBold";
         margin-right: 5px;
+        color: $colorMainBlue;
       }
 
       .symbol {

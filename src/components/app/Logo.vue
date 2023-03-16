@@ -42,6 +42,7 @@ export default {
     color: $colorBlack;
 
     span {
+      color: $colorMainBlue;
       font-family: "Poppins_SemiBold";
     }
   }

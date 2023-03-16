@@ -108,11 +108,10 @@ export default {
     align-items: center;
     border-radius: 50%;
     margin-right: 10px;
-    background: $colorLightGreenGray;
+    background: $colorBlack;
 
     svg {
-      fill: $themeGreen;
-      opacity: 0.6;
+      fill: $colorWhite;
     }
   }
 
@@ -148,7 +147,7 @@ export default {
       user-select: none;
       font-family: "Poppins_SemiBold";
       font-size: 18px;
-      color: $colorBlack;
+      color: $colorMainBlue;
       margin-top: -3px;
 
       span {
