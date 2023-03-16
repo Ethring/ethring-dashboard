@@ -1,6 +1,7 @@
 const Web3 = require("web3");
 import axios from "axios";
 import store from "@/store";
+import { metamaskNets } from "@/config/availableNets";
 
 export default class MetamaskConnector {
   constructor() {
@@ -20,6 +21,30 @@ export default class MetamaskConnector {
     this.web3 = new Web3(Web3.givenProvider);
     this.chainId = window.ethereum && +window.ethereum.networkVersion;
     this.network = this.networks[this.chainId];
+  }
+
+  async fetchAllEvmBalance(address) {
+    store.dispatch("tokens/setLoader", true);
+    store.dispatch("tokens/setGroupTokens", {});
+    const tokens = {};
+
+    await Promise.all(
+      metamaskNets.map(async (net) => {
+        const tokenInfo = await axios.get(
+          `${process.env.VUE_APP_BACKEND_URL}/blockchain/${net}/${address}/tokens?version=1.1.0`
+        );
+        // check status and exist tokens in network
+        if (
+          tokenInfo.status === 200 &&
+          Object.keys(tokenInfo.data.data).length
+        ) {
+          tokens[net] = { list: tokenInfo.data.data };
+        }
+      })
+    );
+
+    store.dispatch("tokens/setGroupTokens", tokens);
+    store.dispatch("tokens/setLoader", false);
   }
 
   async fetchBalance(net, address) {
@@ -63,10 +88,12 @@ export default class MetamaskConnector {
         );
         this.network = this.networks[this.chainId];
         this.fetchBalance(this.network, this.accounts[0]);
+        this.fetchAllEvmBalance(this.accounts[0]);
 
         window.ethereum.on("accountsChanged", (accounts) => {
           this.accounts = accounts;
           this.fetchBalance(this.network, this.accounts[0]);
+          this.fetchAllEvmBalance(this.accounts[0]);
           store.dispatch("tokens/setMarketCap", {});
         });
 
@@ -78,6 +105,7 @@ export default class MetamaskConnector {
           );
           this.network = this.networks[this.chainId];
           this.fetchBalance(this.network, this.accounts[0]);
+          this.fetchAllEvmBalance(this.accounts[0]);
         });
 
         window.ethereum.on("close", () => {

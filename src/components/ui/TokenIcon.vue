@@ -1,5 +1,5 @@
 <template>
-  <div class="token-icon">
+  <div :class="{ dark }" class="token-icon">
     <img
       v-if="!showIconPlaceholder"
       :width="width"
@@ -23,6 +23,10 @@ import { getTokenIcon, tokenIconPlaceholder } from "@/helpers/utils";
 export default {
   name: "TokenIcon",
   props: {
+    dark: {
+      type: Boolean,
+      default: false,
+    },
     width: {
       required: true,
     },
@@ -55,6 +59,12 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+
+  &.dark {
+    img {
+      filter: brightness(0) invert(0);
+    }
+  }
 
   img {
     filter: brightness(0) invert(1);
