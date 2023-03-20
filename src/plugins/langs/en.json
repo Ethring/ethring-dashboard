@@ -1,4 +1,9 @@
 {
+  "modals": {
+    "addressModal": {
+      "title": "Receive"
+    }
+  },
   "sidebar": {
     "main": "Main",
     "swap": "Swap",

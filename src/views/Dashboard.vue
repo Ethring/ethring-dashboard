@@ -5,7 +5,7 @@
       <div class="dashboard__wallet">
         <WalletInfoLarge />
         <div class="dashboard__controls">
-          <Button title="RECEIVE" />
+          <Button title="RECEIVE" @click="showAddressModal = true" />
           <div class="ml" />
           <Button title="SEND" />
         </div>
@@ -13,10 +13,12 @@
       <ActionsMenu :menu-items="dashboardActions" class="dashboard__actions" />
       <Tokens />
     </template>
+    <AddressModal v-if="showAddressModal" @close="showAddressModal = false" />
   </div>
 </template>
 
 <script>
+import AddressModal from "@/components/app/modals/AddressModal";
 import WalletInfoLarge from "@/components/app/WalletInfoLarge";
 import Head from "@/components/app/Head";
 import Button from "@/components/ui/Button";
@@ -30,6 +32,7 @@ import useConnect from "@/compositions/useConnect";
 export default {
   name: "Dashboard",
   components: {
+    AddressModal,
     Head,
     WalletInfoLarge,
     Button,
@@ -39,6 +42,7 @@ export default {
   setup() {
     const store = useStore();
     const { hasConnect } = useConnect();
+    const showAddressModal = ref(false);
 
     const dashboardActions = ref([
       { $title: "actionTokens" },
@@ -61,6 +65,7 @@ export default {
     });
 
     return {
+      showAddressModal,
       hasConnect,
       dashboardActions,
       tokensItems,
