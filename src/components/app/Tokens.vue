@@ -81,4 +81,13 @@ export default {
     justify-content: center;
   }
 }
+
+body.dark {
+  .tokens {
+    &__group {
+      border-color: transparent;
+      background: $colorDarkBgGreen;
+    }
+  }
+}
 </style>

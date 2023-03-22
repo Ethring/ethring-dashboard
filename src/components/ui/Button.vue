@@ -30,7 +30,8 @@ export default {
   font-weight: 700;
   font-size: 14px;
   cursor: pointer;
-  transition: all 0.3s ease-in-out;
+
+  @include animateEasy;
 
   &:hover {
     background: $colorMainBlue;
@@ -40,11 +41,11 @@ export default {
 
 body.dark {
   .button {
-    background: $colorLightGreenGray;
-    color: $themeGreen;
+    background: $colorBlack;
+    color: $colorWhite;
 
     &:hover {
-      background: $themeGreen;
+      background: $colorLightGreen;
       color: $colorBlack;
     }
   }

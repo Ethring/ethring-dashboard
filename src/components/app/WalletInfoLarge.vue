@@ -1,27 +1,27 @@
 <template>
   <div :class="{ opened }" class="wallet-info">
     <div class="wallet-info__network">
-      <bscSvg v-if="metamaskConnect.chainId === 56" />
-      <ethSvg v-if="metamaskConnect.chainId === 1" />
-      <polygonSvg v-if="metamaskConnect.chainId === 137" />
-      <optimismSvg v-if="metamaskConnect.chainId === 10" />
-      <arbitrumSvg v-if="metamaskConnect.chainId === 42161" />
-      <evmosethSvg v-if="metamaskConnect.chainId === 9001" />
-      <avalancheSvg v-if="metamaskConnect.chainId === 43114" />
+      <bscSvg v-if="activeConnect.chainId === 56" />
+      <ethSvg v-if="activeConnect.chainId === 1" />
+      <polygonSvg v-if="activeConnect.chainId === 137" />
+      <optimismSvg v-if="activeConnect.chainId === 10" />
+      <arbitrumSvg v-if="activeConnect.chainId === 42161" />
+      <evmosethSvg v-if="activeConnect.chainId === 9001" />
+      <avalancheSvg v-if="activeConnect.chainId === 43114" />
     </div>
     <div class="wallet-info__wallet">
       <div class="address" @click="openMenu">
-        {{ cutAddress(metamaskConnect.accounts[0] || "") }}
+        {{ cutAddress(activeConnect.accounts[0] || "") }}
         <arrowSvg class="arrow" />
       </div>
       <div class="balance">
         <div class="value">
           {{
             showBalance
-              ? prettyNumber(metamaskConnect.balance.mainBalance)
+              ? prettyNumber(activeConnect.balance.mainBalance)
               : "****"
           }}
-          <span>{{ networks[metamaskConnect.network]?.code }}</span>
+          <span>{{ networks[activeConnect.network]?.code }}</span>
         </div>
         <eyeSvg @click="toggleViewBalance" />
       </div>
@@ -52,6 +52,8 @@ import arbitrumSvg from "@/assets/icons/networks/arbitrum.svg";
 import evmosethSvg from "@/assets/icons/networks/evmoseth.svg";
 import avalancheSvg from "@/assets/icons/networks/avalanche.svg";
 
+import useConnect from "@/compositions/useConnect";
+
 export default {
   name: "WalletInfo",
   components: {
@@ -73,9 +75,7 @@ export default {
       opened.value = !opened.value;
     };
 
-    const metamaskConnect = computed(
-      () => store.getters["metamask/metamaskConnector"]
-    );
+    const { activeConnect } = useConnect();
 
     const networks = computed(() => store.getters["networks/networks"]);
     const marketCap = computed(() => store.getters["tokens/marketCap"]);
@@ -89,7 +89,7 @@ export default {
       prettyNumber,
       cutAddress,
       opened,
-      metamaskConnect,
+      activeConnect,
       networks,
       marketCap,
       showBalance,
@@ -142,7 +142,7 @@ export default {
       cursor: pointer;
 
       svg {
-        transition: all 0.3s ease-in-out;
+        @include animateEasy;
         margin-left: 4px;
         stroke: $colorBlack;
       }
@@ -196,8 +196,12 @@ export default {
       &.minus {
         color: $colorRed;
 
+        .percent {
+          color: $colorRed;
+        }
+
         svg {
-          fill: $colorRed;
+          fill: $colorRed !important;
           transform: rotate(90deg);
         }
       }
@@ -218,16 +222,17 @@ body.dark {
     }
 
     &__network {
-      background: rgb(34, 51, 31);
+      background: $colorLightGreen;
 
       svg {
+        fill: #070c0e;
         opacity: 0.8;
       }
     }
 
     &__wallet {
       .address {
-        color: $colorWhite;
+        color: $colorLightBrown;
 
         svg {
           stroke: #636363;
@@ -235,10 +240,10 @@ body.dark {
       }
 
       .balance {
-        color: $themeGreen;
+        color: $colorWhite;
 
         span {
-          color: #636363;
+          color: $colorWhite;
         }
 
         svg {
@@ -250,6 +255,14 @@ body.dark {
       .change {
         display: flex;
         align-items: center;
+
+        &.minus {
+          color: $colorRed;
+
+          .percent {
+            color: $colorRed;
+          }
+        }
 
         svg {
           fill: $themeGreen;

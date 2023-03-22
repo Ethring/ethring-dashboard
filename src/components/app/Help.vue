@@ -58,13 +58,13 @@ body.dark {
   .help {
     &__item {
       background: $colorDarkGreenGray;
-      color: $colorDarkGreen;
+      color: $themeGreen;
 
       svg {
-        fill: $colorDarkGreen;
+        fill: $themeGreen;
 
         &.card-svg {
-          stroke: $colorDarkGreen;
+          stroke: $themeGreen;
           fill: none;
         }
       }

@@ -35,7 +35,8 @@ body {
   padding: 0;
   margin: 0;
   background: $bgLight;
-  transition: all 0.3s ease-in-out;
+
+  @include animateEasy;
 
   &.dark {
     background: $bgDark;

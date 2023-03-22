@@ -1,12 +1,10 @@
 import { computed } from "vue";
 import { useStore } from "vuex";
+import useConnect from "@/compositions/useConnect";
 
 export default function useTokens() {
   const store = useStore();
-
-  const metamaskConnect = computed(
-    () => store.getters["metamask/metamaskConnector"]
-  );
+  const { activeConnect } = useConnect();
 
   const networks = computed(() => store.getters["networks/networks"]);
   const tokensBalance = computed(() => store.getters["tokens/tokens"]);
@@ -16,7 +14,7 @@ export default function useTokens() {
 
   // all networks
   const groupTokens = computed(() => {
-    if (metamaskConnect.value.network) {
+    if (activeConnect.value.network) {
       const groupList = [];
 
       Object.keys(groupTokensBalance.value).forEach((parentNet) => {
@@ -55,7 +53,7 @@ export default function useTokens() {
       // show all without current network group
       return groupList.filter(
         (group) =>
-          group.net !== metamaskConnect.value.network && group.list.length
+          group.net !== activeConnect.value.network && group.list.length
       );
     }
     return [];
@@ -63,8 +61,8 @@ export default function useTokens() {
 
   // single network
   const tokens = computed(() => {
-    if (metamaskConnect.value.network) {
-      const tokens = networks.value[metamaskConnect.value.network]?.tokens;
+    if (activeConnect.value.network) {
+      const tokens = networks.value[activeConnect.value.network]?.tokens;
 
       return Object.keys(tokens)
         .map((item) => {

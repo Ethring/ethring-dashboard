@@ -2,26 +2,26 @@
   <div :class="{ opened }" class="wallet-info__wrap">
     <div :class="{ opened }" class="wallet-info">
       <div class="wallet-info__network">
-        <bscSvg v-if="metamaskConnect.chainId === 56" />
-        <ethSvg v-if="metamaskConnect.chainId === 1" />
-        <polygonSvg v-if="metamaskConnect.chainId === 137" />
-        <optimismSvg v-if="metamaskConnect.chainId === 10" />
-        <arbitrumSvg v-if="metamaskConnect.chainId === 42161" />
-        <evmosethSvg v-if="metamaskConnect.chainId === 9001" />
-        <avalancheSvg v-if="metamaskConnect.chainId === 43114" />
+        <bscSvg v-if="activeConnect.chainId === 56" />
+        <ethSvg v-if="activeConnect.chainId === 1" />
+        <polygonSvg v-if="activeConnect.chainId === 137" />
+        <optimismSvg v-if="activeConnect.chainId === 10" />
+        <arbitrumSvg v-if="activeConnect.chainId === 42161" />
+        <evmosethSvg v-if="activeConnect.chainId === 9001" />
+        <avalancheSvg v-if="activeConnect.chainId === 43114" />
       </div>
       <div class="wallet-info__wallet">
         <div class="address" @click="openMenu">
-          {{ cutAddress(metamaskConnect.accounts[0] || "") }}
+          {{ cutAddress(activeConnect.accounts[0] || "") }}
           <arrowSvg class="arrow" />
         </div>
         <div class="balance">
           {{
             showBalance
-              ? prettyNumber(metamaskConnect.balance.mainBalance)
+              ? prettyNumber(activeConnect.balance.mainBalance)
               : "****"
           }}
-          <span>{{ networks[metamaskConnect.network]?.code }}</span>
+          <span>{{ networks[activeConnect.network]?.code }}</span>
         </div>
       </div>
     </div>
@@ -32,6 +32,9 @@ import { computed, ref } from "vue";
 import { useStore } from "vuex";
 import { cutAddress } from "@/helpers/utils";
 import { prettyNumber } from "@/helpers/prettyNumber";
+
+import useConnect from "@/compositions/useConnect";
+
 import arrowSvg from "@/assets/icons/dashboard/arrowdown.svg";
 import bscSvg from "@/assets/icons/networks/bsc.svg";
 import ethSvg from "@/assets/icons/networks/eth.svg";
@@ -60,9 +63,7 @@ export default {
       opened.value = !opened.value;
     };
 
-    const metamaskConnect = computed(
-      () => store.getters["metamask/metamaskConnector"]
-    );
+    const { activeConnect } = useConnect();
 
     const networks = computed(() => store.getters["networks/networks"]);
     const showBalance = computed(() => store.getters["app/showBalance"]);
@@ -70,7 +71,7 @@ export default {
     return {
       cutAddress,
       opened,
-      metamaskConnect,
+      activeConnect,
       networks,
       showBalance,
       prettyNumber,
@@ -137,7 +138,7 @@ export default {
       cursor: pointer;
 
       svg {
-        transition: all 0.3s ease-in-out;
+        @include animateEasy;
         margin-left: 4px;
         stroke: $colorBlack;
       }
@@ -197,7 +198,7 @@ body.dark {
         color: $themeGreen;
 
         span {
-          color: #636363;
+          color: $themeGreen;
         }
       }
     }

@@ -8,11 +8,14 @@ export default function useConnect() {
     () => store.getters["metamask/metamaskConnector"]
   );
 
+  const activeConnect = computed(() => metamaskConnect.value);
+
   const hasConnect = computed(() => {
-    return metamaskConnect.value.accounts?.length;
+    return activeConnect.value.accounts?.length;
   });
 
   return {
     hasConnect,
+    activeConnect,
   };
 }

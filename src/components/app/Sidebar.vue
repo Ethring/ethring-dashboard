@@ -46,6 +46,7 @@ export default {
 body.dark {
   .sidebar {
     border-right: 1px solid $borderDark;
+    background: $colorDarkBgGreen;
   }
 }
 </style>

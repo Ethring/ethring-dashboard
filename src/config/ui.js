@@ -36,7 +36,13 @@ export const UIConfig = {
     sidebar: [...defaultSidebarItems],
   },
   avalanche: {
-    sidebar: [...defaultSidebarItems],
+    sidebar: [
+      ...defaultSidebarItems,
+      { component: "swapSvg", title: "Swap", key: "swap", to: "/swap" },
+    ],
+    swap: {
+      component: "DefaultSwap",
+    },
   },
   arbitrum: {
     sidebar: [...defaultSidebarItems],

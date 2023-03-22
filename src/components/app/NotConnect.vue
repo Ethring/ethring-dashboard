@@ -34,14 +34,15 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: all 0.3s ease-in-out;
+
+  @include animateEasy;
 
   &:hover {
     opacity: 0.7;
   }
 
   svg {
-    stroke: $colorWhite;
+    stroke: $colorLightBlue;
   }
 
   &__add {
@@ -51,7 +52,7 @@ export default {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: $colorBlack;
+    background: $borderLight;
   }
 
   .title {
@@ -59,6 +60,7 @@ export default {
     font-size: 14px;
     width: 162px;
     margin-left: 10px;
+    color: $colorLightBlue;
   }
 }
 

@@ -53,8 +53,9 @@ export default {
   border: 1px solid $borderLight;
   background: #f8f8f8;
   border-radius: 50px;
-  transition: all 0.3s ease-in-out;
   cursor: pointer;
+
+  @include animateEasy;
 
   &:hover {
     opacity: 0.8;
@@ -76,7 +77,7 @@ export default {
 }
 
 .theme-switcher.checked {
-  border: 1px solid $themeGreen;
+  border: 1px solid transparent;
   background: rgb(34, 51, 31);
 
   .theme-switcher__check {

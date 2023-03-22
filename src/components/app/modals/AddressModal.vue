@@ -10,7 +10,7 @@
         <div class="address-modal__qr">
           <qrcode-vue
             id="qr"
-            :value="metamaskConnect?.accounts[0]"
+            :value="activeConnect?.accounts[0]"
             :size="247"
             level="H"
             :margin="5"
@@ -19,7 +19,7 @@
         </div>
         <div class="address-modal__copy">
           <div class="address">
-            {{ cutAddress(metamaskConnect?.accounts[0]) }}
+            {{ cutAddress(activeConnect?.accounts[0]) }}
           </div>
           <div class="line" />
           <div class="icon">
@@ -33,10 +33,10 @@
 <script>
 import Modal from "@/components/app/Modal";
 import CopySvg from "@/assets/icons/app/copy.svg";
-import { useStore } from "vuex";
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { cutAddress, copyToClipboard } from "@/helpers/utils";
 import QrcodeVue from "qrcode.vue";
+import useConnect from "@/compositions/useConnect";
 
 export default {
   name: "AddressModal",
@@ -46,16 +46,13 @@ export default {
     QrcodeVue,
   },
   setup() {
-    const store = useStore();
     const copied = ref(false);
 
-    const metamaskConnect = computed(
-      () => store.getters["metamask/metamaskConnector"]
-    );
+    const { activeConnect } = useConnect();
 
     const copyAddress = () => {
       copied.value = true;
-      copyToClipboard(metamaskConnect?.value.accounts[0]);
+      copyToClipboard(activeConnect?.value.accounts[0]);
       setTimeout(() => {
         copied.value = false;
       }, 500);
@@ -64,7 +61,7 @@ export default {
     return {
       copied,
       cutAddress,
-      metamaskConnect,
+      activeConnect,
       copyAddress,
     };
   },
@@ -144,7 +141,7 @@ body.dark {
     }
 
     &__copy {
-      background: #27272b4f;
+      background: $colorDarkGreenGray;
 
       .address {
         color: $themeGreen;

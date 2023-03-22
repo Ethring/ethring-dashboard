@@ -5,19 +5,24 @@
       <div class="dashboard__wallet">
         <WalletInfoLarge />
         <div class="dashboard__controls">
-          <Button title="RECEIVE" @click="showAddressModal = true" />
+          <Button
+            :title="$t('dashboard.receive')"
+            @click="showAddressModal = true"
+          />
           <div class="ml" />
-          <Button title="SEND" />
+          <Button :title="$t('dashboard.send')" />
         </div>
       </div>
       <ActionsMenu :menu-items="dashboardActions" class="dashboard__actions" />
       <Tokens />
     </template>
+    <NotConnect v-else />
     <AddressModal v-if="showAddressModal" @close="showAddressModal = false" />
   </div>
 </template>
 
 <script>
+import NotConnect from "./NotConnect";
 import AddressModal from "@/components/app/modals/AddressModal";
 import WalletInfoLarge from "@/components/app/WalletInfoLarge";
 import Head from "@/components/app/Head";
@@ -31,6 +36,7 @@ import useConnect from "@/compositions/useConnect";
 export default {
   name: "Dashboard",
   components: {
+    NotConnect,
     AddressModal,
     Head,
     WalletInfoLarge,
@@ -63,11 +69,16 @@ export default {
   height: 100vh;
 
   &__wallet {
+    background: #f5f6ff;
+    padding: 15px;
+    box-sizing: border-box;
+    border-radius: 16px;
+
     display: flex;
     justify-content: space-between;
     margin-top: 40px;
     padding-bottom: 20px;
-    border-bottom: 1px solid $borderLight;
+    // border-bottom: 1px solid $borderLight;
   }
 
   &__controls {
@@ -87,7 +98,7 @@ export default {
 body.dark {
   .dashboard {
     &__wallet {
-      border-bottom: 1px solid $borderDark;
+      background: $colorLightBgGreen;
     }
   }
 }

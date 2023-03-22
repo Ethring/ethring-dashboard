@@ -160,12 +160,15 @@ export default {
 
 body.dark {
   .tokens__item {
+    background: $colorDarkBgGreen;
+    border-color: transparent;
+
     &.inGroup {
       border-color: transparent;
 
       .network {
         .logo {
-          background: #ccd5f0;
+          background: #22331f;
         }
       }
     }

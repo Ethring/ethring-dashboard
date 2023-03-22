@@ -16,9 +16,10 @@ import UniSwap from "@/components/dynamic/swaps/UniSwap";
 import DefaultSwap from "@/components/dynamic/swaps/DefaultSwap";
 
 import { UIConfig } from "@/config/ui";
-import { useStore } from "vuex";
 import { computed, watch } from "vue";
 import { useRouter } from "vue-router";
+
+import useConnect from "@/compositions/useConnect";
 
 export default {
   name: "Swap",
@@ -29,15 +30,12 @@ export default {
     DefaultSwap,
   },
   setup() {
-    const store = useStore();
     const router = useRouter();
 
-    const metamaskConnect = computed(
-      () => store.getters["metamask/metamaskConnector"]
-    );
+    const { activeConnect } = useConnect();
 
     const swapComponent = computed(() => {
-      return UIConfig[metamaskConnect.value.network]?.swap?.component;
+      return UIConfig[activeConnect.value.network]?.swap?.component;
     });
 
     watch(

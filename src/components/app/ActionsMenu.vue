@@ -68,7 +68,7 @@ export default {
 body.dark {
   .actions-menu {
     &__item {
-      color: $colorDarkGreen;
+      color: $colorLightBrown;
 
       &.active {
         color: $colorWhite;

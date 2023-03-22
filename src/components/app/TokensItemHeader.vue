@@ -32,6 +32,8 @@ export default {
 
 body.dark {
   .tokens__item-header {
+    border-color: #3c6651;
+
     .name {
       color: $colorWhite;
     }

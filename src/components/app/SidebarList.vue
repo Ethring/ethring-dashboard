@@ -20,9 +20,11 @@ import mainSvg from "@/assets/icons/sidebar/main.svg";
 import swapSvg from "@/assets/icons/sidebar/swap.svg";
 import stakeSvg from "@/assets/icons/sidebar/stake.svg";
 import sendSvg from "@/assets/icons/sidebar/send.svg";
+
+import useConnect from "@/compositions/useConnect";
+
 import { UIConfig } from "@/config/ui";
 
-import { useStore } from "vuex";
 import { computed } from "vue";
 
 export default {
@@ -34,18 +36,14 @@ export default {
     sendSvg,
   },
   setup() {
-    const store = useStore();
-
-    const metamaskConnect = computed(
-      () => store.getters["metamask/metamaskConnector"]
-    );
+    const { activeConnect } = useConnect();
 
     const menu = computed(() => {
-      if (!metamaskConnect.value.network) {
+      if (!activeConnect.value.network) {
         return [];
       }
 
-      return UIConfig[metamaskConnect.value.network].sidebar;
+      return UIConfig[activeConnect.value.network].sidebar;
     });
 
     return {
@@ -66,10 +64,11 @@ export default {
     display: flex;
     align-items: center;
     margin-bottom: 15px;
-    transition: all 0.3s ease-in-out;
     text-decoration: none;
     color: $colorBlack;
     cursor: pointer;
+
+    @include animateEasy;
 
     &:hover {
       opacity: 0.5;
@@ -103,7 +102,7 @@ export default {
 body.dark {
   .sidebar-list {
     &__item {
-      color: $colorDarkGreen;
+      color: $colorLightBrown;
 
       &.router-link-exact-active {
         color: $colorWhite;
@@ -114,7 +113,7 @@ body.dark {
       }
 
       svg {
-        stroke: $colorDarkGreen;
+        stroke: $colorLightBrown;
       }
     }
   }

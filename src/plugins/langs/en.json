@@ -4,6 +4,10 @@
       "title": "Receive"
     }
   },
+  "dashboard": {
+    "receive": "RECEIVE",
+    "send": "SEND"
+  },
   "sidebar": {
     "main": "Main",
     "swap": "Swap",
@@ -12,7 +16,11 @@
     "xct": "XCT"
   },
   "connect": {
-    "emptyTitle": "Connect a wallet to manage your portfolio"
+    "emptyTitle": "Connect a wallet to manage your portfolio",
+    "pageTitle": "Connecting wallet",
+    "blockTitle": "Connect with",
+    "mmTitle": "MetaMask",
+    "keplrTitle": "Keplr"
   },
   "actionTokens": "Tokens",
   "actionTransactions": "Transactions"

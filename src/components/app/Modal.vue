@@ -106,7 +106,8 @@ export default {
     right: 20px;
     top: 20px;
     cursor: pointer;
-    transition: all 0.3s ease-in-out;
+
+    @include animateEasy;
 
     &:hover {
       opacity: 0.7;
@@ -121,7 +122,7 @@ export default {
 body.dark {
   .modal {
     &__content {
-      background: #383e4af7;
+      background: $colorLightBgGreen;
     }
 
     &__content-title {

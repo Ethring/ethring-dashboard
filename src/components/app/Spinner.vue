@@ -10,8 +10,8 @@ export default {
 .loader,
 .loader:after {
   border-radius: 50%;
-  width: 80px;
-  height: 80px;
+  min-width: 80px;
+  min-height: 80px;
 }
 .loader {
   margin: 60px auto;
