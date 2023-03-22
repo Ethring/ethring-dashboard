@@ -3,16 +3,55 @@
     <Head />
     <div class="swap-page">
       <div class="swap-page__title">Swap</div>
+      <div class="swap-page__wrap">
+        <component v-if="swapComponent" :is="swapComponent" />
+      </div>
     </div>
   </div>
 </template>
 <script>
 import Head from "@/components/app/Head";
+import PancakeSwap from "@/components/dynamic/swaps/PancakeSwap";
+import UniSwap from "@/components/dynamic/swaps/UniSwap";
+import DefaultSwap from "@/components/dynamic/swaps/DefaultSwap";
+
+import { UIConfig } from "@/config/ui";
+import { useStore } from "vuex";
+import { computed, watch } from "vue";
+import { useRouter } from "vue-router";
 
 export default {
   name: "Swap",
   components: {
     Head,
+    PancakeSwap,
+    UniSwap,
+    DefaultSwap,
+  },
+  setup() {
+    const store = useStore();
+    const router = useRouter();
+
+    const metamaskConnect = computed(
+      () => store.getters["metamask/metamaskConnector"]
+    );
+
+    const swapComponent = computed(() => {
+      return UIConfig[metamaskConnect.value.network]?.swap?.component;
+    });
+
+    watch(
+      () => swapComponent.value,
+      (newV) => {
+        if (!newV) {
+          router.push("/main");
+        }
+      }
+    );
+
+    return {
+      swapComponent,
+    };
   },
 };
 </script>
@@ -27,6 +66,13 @@ export default {
       color: $colorBlack;
       font-size: 32px;
       font-family: "Poppins_SemiBold";
+    }
+
+    &__wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: calc(100vh - 200px);
     }
   }
 }

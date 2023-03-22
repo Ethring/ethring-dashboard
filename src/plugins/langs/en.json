@@ -7,7 +7,9 @@
   "sidebar": {
     "main": "Main",
     "swap": "Swap",
-    "stake": "Stake"
+    "stake": "Stake",
+    "send": "Send",
+    "xct": "XCT"
   },
   "connect": {
     "emptyTitle": "Connect a wallet to manage your portfolio"

@@ -7,9 +7,7 @@
       class="sidebar-list__item"
     >
       <div class="sidebar-list__item-icon">
-        <mainSvg v-if="item.key === 'main'" />
-        <swapSvg v-if="item.key === 'swap'" />
-        <stakeSvg v-if="item.key === 'stake'" />
+        <component v-if="item.component" :is="item.component" />
       </div>
       <div class="sidebar-list__item-title">
         {{ $t(`sidebar.${item.key}`) }}
@@ -21,6 +19,11 @@
 import mainSvg from "@/assets/icons/sidebar/main.svg";
 import swapSvg from "@/assets/icons/sidebar/swap.svg";
 import stakeSvg from "@/assets/icons/sidebar/stake.svg";
+import sendSvg from "@/assets/icons/sidebar/send.svg";
+import { UIConfig } from "@/config/ui";
+
+import { useStore } from "vuex";
+import { computed } from "vue";
 
 export default {
   name: "SidebarList",
@@ -28,13 +31,22 @@ export default {
     mainSvg,
     swapSvg,
     stakeSvg,
+    sendSvg,
   },
   setup() {
-    const menu = [
-      { icon: "main", title: "Main", key: "main", to: "/main" },
-      { icon: "swap", title: "Swap", key: "swap", to: "/swap" },
-      { icon: "stake", title: "Stake", key: "stake", to: "/stake" },
-    ];
+    const store = useStore();
+
+    const metamaskConnect = computed(
+      () => store.getters["metamask/metamaskConnector"]
+    );
+
+    const menu = computed(() => {
+      if (!metamaskConnect.value.network) {
+        return [];
+      }
+
+      return UIConfig[metamaskConnect.value.network].sidebar;
+    });
 
     return {
       menu,

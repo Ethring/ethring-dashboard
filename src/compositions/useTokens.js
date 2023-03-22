@@ -64,7 +64,7 @@ export default function useTokens() {
   // single network
   const tokens = computed(() => {
     if (metamaskConnect.value.network) {
-      const tokens = networks.value[metamaskConnect.value.network].tokens;
+      const tokens = networks.value[metamaskConnect.value.network]?.tokens;
 
       return Object.keys(tokens)
         .map((item) => {

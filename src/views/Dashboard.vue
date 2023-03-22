@@ -24,8 +24,7 @@ import Head from "@/components/app/Head";
 import Button from "@/components/ui/Button";
 import ActionsMenu from "@/components/app/ActionsMenu";
 import Tokens from "@/components/app/Tokens";
-import { onMounted, ref } from "vue";
-import { useStore } from "vuex";
+import { ref } from "vue";
 
 import useConnect from "@/compositions/useConnect";
 
@@ -40,7 +39,6 @@ export default {
     Tokens,
   },
   setup() {
-    const store = useStore();
     const { hasConnect } = useConnect();
     const showAddressModal = ref(false);
 
@@ -49,26 +47,10 @@ export default {
       { $title: "actionTransactions" },
     ]);
 
-    const tokensItems = ref([
-      { network: "eth", amount: "51", procent: "-2.45%" },
-      { network: "bsc", amount: "12", procent: "-0.25%" },
-      { network: "arbitrum", amount: 4, procent: "+3.15%" },
-      { network: "polygon", amount: 33, procent: "+6.15%" },
-      { network: "optimism", amount: 14, procent: "+16.15%" },
-    ]);
-
-    onMounted(async () => {
-      await store.dispatch("networks/init");
-      if (window.ethereum?.selectedAddress) {
-        await store.dispatch("metamask/connectToMetamask");
-      }
-    });
-
     return {
       showAddressModal,
       hasConnect,
       dashboardActions,
-      tokensItems,
     };
   },
 };

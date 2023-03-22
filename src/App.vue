@@ -6,11 +6,23 @@
 </template>
 <script>
 import Sidebar from "@/components/app/Sidebar";
+import { onMounted } from "vue";
+import { useStore } from "vuex";
 
 export default {
   name: "App",
   components: {
     Sidebar,
+  },
+  setup() {
+    const store = useStore();
+
+    onMounted(async () => {
+      await store.dispatch("networks/init");
+      if (window.ethereum?.selectedAddress) {
+        await store.dispatch("metamask/connectToMetamask");
+      }
+    });
   },
 };
 </script>

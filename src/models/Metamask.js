@@ -95,6 +95,7 @@ export default class MetamaskConnector {
           this.fetchBalance(this.network, this.accounts[0]);
           this.fetchAllEvmBalance(this.accounts[0]);
           store.dispatch("tokens/setMarketCap", {});
+          this.network = "";
         });
 
         window.ethereum.on("chainChanged", async () => {
