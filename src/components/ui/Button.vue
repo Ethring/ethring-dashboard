@@ -1,5 +1,5 @@
 <template>
-  <button class="button">
+  <button :class="{ xl }" class="button">
     {{ title }}
   </button>
 </template>
@@ -7,6 +7,10 @@
 export default {
   name: "Button",
   props: {
+    xl: {
+      type: Boolean,
+      default: false,
+    },
     title: {
       type: String,
       default: "",
@@ -24,28 +28,33 @@ export default {
   align-items: center;
   border: none;
   outline: none;
-  background: $colorBlack;
+  background: $colorMainBlue;
   color: $colorWhite;
   font-family: "Poppins_Regular";
   font-weight: 700;
   font-size: 14px;
   cursor: pointer;
 
+  &.xl {
+    font-size: 20px;
+    font-family: "Poppins_SemiBold";
+  }
+
   @include animateEasy;
 
   &:hover {
-    background: $colorMainBlue;
+    background: $colorBlack;
     color: $colorWhite;
   }
 }
 
 body.dark {
   .button {
-    background: $colorBlack;
-    color: $colorWhite;
+    background: $colorLightGreen;
+    color: $colorBlack;
 
     &:hover {
-      background: $colorLightGreen;
+      background: $colorLightBrown;
       color: $colorBlack;
     }
   }
