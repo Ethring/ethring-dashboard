@@ -7,47 +7,68 @@ export const UIConfig = {
   bsc: {
     sidebar: [
       ...defaultSidebarItems,
-      { component: "stakeSvg", title: "Stake", key: "stake", to: "/stake" },
-      { component: "swapSvg", title: "Swap", key: "swap", to: "/swap" },
+      // { component: "stakeSvg", title: "Stake", key: "stake", to: "/stake" },
+      // { component: "swapSvg", title: "Swap", key: "swap", to: "/swap" },
     ],
-    swap: {
-      component: "PancakeSwap",
+    send: {
+      component: "SimpleSend",
     },
+    // swap: {
+    //   component: "PancakeSwap",
+    // },
   },
   eth: {
     sidebar: [
       ...defaultSidebarItems,
-      { component: "swapSvg", title: "Swap", key: "swap", to: "/swap" },
+      // { component: "swapSvg", title: "Swap", key: "swap", to: "/swap" },
     ],
-    swap: {
-      component: "UniSwap",
+    send: {
+      component: "SimpleSend",
     },
+    // swap: {
+    //   component: "UniSwap",
+    // },
   },
   polygon: {
     sidebar: [
       ...defaultSidebarItems,
-      { component: "swapSvg", title: "Swap", key: "swap", to: "/swap" },
+      // { component: "swapSvg", title: "Swap", key: "swap", to: "/swap" },
     ],
-    swap: {
-      component: "DefaultSwap",
+    send: {
+      component: "SimpleSend",
     },
+    // swap: {
+    //   component: "DefaultSwap",
+    // },
   },
   optimism: {
     sidebar: [...defaultSidebarItems],
+    send: {
+      component: "SimpleSend",
+    },
   },
   avalanche: {
     sidebar: [
       ...defaultSidebarItems,
-      { component: "swapSvg", title: "Swap", key: "swap", to: "/swap" },
+      // { component: "swapSvg", title: "Swap", key: "swap", to: "/swap" },
     ],
-    swap: {
-      component: "DefaultSwap",
+    send: {
+      component: "SimpleSend",
     },
+    // swap: {
+    //   component: "DefaultSwap",
+    // },
   },
   arbitrum: {
     sidebar: [...defaultSidebarItems],
+    send: {
+      component: "SimpleSend",
+    },
   },
   evmoseth: {
     sidebar: [...defaultSidebarItems],
+    send: {
+      component: "SimpleSend",
+    },
   },
 };

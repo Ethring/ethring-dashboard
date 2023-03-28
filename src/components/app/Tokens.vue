@@ -1,8 +1,8 @@
 <template>
   <div class="tokens" :class="{ empty: emptyLists }">
-    <template v-if="tokens.length">
+    <!-- <template v-if="tokens.length">
       <TokensItem v-for="(item, ndx) in tokens" :item="item" :key="ndx" />
-    </template>
+    </template> -->
     <template v-if="groupTokens.length">
       <div v-for="(group, ndx) in groupTokens" :key="ndx" class="tokens__group">
         <TokensItemHeader v-if="group.list.length" :item="group" />
@@ -42,8 +42,6 @@ export default {
   setup() {
     const store = useStore();
     const { tokens, groupTokens } = useTokens();
-
-    console.log("groupTokens", groupTokens);
 
     const loader = computed(() => store.getters["tokens/loader"]);
     const emptyLists = computed(() => {

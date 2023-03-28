@@ -1,37 +1,62 @@
 <template>
-  <div :class="{ active }" class="select-address" @click="active = !active">
-    <div class="select-address__panel">
-      <div class="recipient">Recipient</div>
+  <div :class="{ active }" class="select-amount" @click="active = !active">
+    <div class="select-amount__panel">
+      <div class="recipient">Amount</div>
       <div class="info-wrap">
         <div class="info">
           <div class="network">
             <component
-              v-if="selectedNetwork?.net"
-              :is="`${selectedNetwork.net}Svg`"
+              v-if="selectedToken?.net"
+              :is="`${selectedToken.net}Svg`"
             />
           </div>
-          <input
-            v-model="address"
-            placeholder="Address"
-            @input="onInput"
-            @blur="onBlur"
-            class="input-address"
-          />
-          <!-- <div class="name">Address</div>-->
+          <div class="token">{{ selectedToken?.code }}</div>
+          <arrowSvg class="arrow" />
         </div>
-        <arrowSvg class="arrow" />
+        <input
+          v-model="amount"
+          placeholder="0"
+          @input="onInput"
+          @blur="onBlur"
+          @click.stop="() => {}"
+          class="input-balance"
+        />
+        <div class="max" @click.stop="setMax">MAX</div>
       </div>
-      <div class="address">{{ address }}</div>
+      <div class="balance" @click.stop="setMax">
+        Balance:
+        {{
+          selectedToken?.balance?.amount || selectedToken?.balance?.mainBalance
+        }}
+        {{ selectedToken.code }}
+        <div>
+          ${{
+            prettyNumber(
+              selectedToken?.balance?.amount *
+                selectedToken?.balance?.price?.USD
+            )
+          }}
+        </div>
+      </div>
     </div>
-    <div v-if="active" class="select-address__items" v-click-away="clickAway">
+    <div v-if="active" class="select-amount__items" v-click-away="clickAway">
       <div
         v-for="(item, ndx) in items"
         :key="ndx"
-        class="select-address__items-item"
-        @click="selectAddress(item)"
+        :class="{ active: item.name === selectedToken?.name }"
+        class="select-amount__items-item"
+        @click="setToken(item)"
       >
         <div class="info">
-          <div class="name">{{ item }}</div>
+          <div class="name">{{ item.name }}</div>
+        </div>
+        <div class="amount">
+          {{
+            prettyNumber(
+              item.balance?.amount || selectedToken?.balance?.mainBalance
+            )
+          }}
+          <span>{{ item.code }}</span>
         </div>
       </div>
     </div>
@@ -47,16 +72,18 @@ import arbitrumSvg from "@/assets/icons/networks/arbitrum.svg";
 import evmosethSvg from "@/assets/icons/networks/evmoseth.svg";
 import avalancheSvg from "@/assets/icons/networks/avalanche.svg";
 
-import { ref } from "vue";
+import { prettyNumber } from "@/helpers/prettyNumber";
+
+import { ref, watch, onMounted } from "vue";
 
 export default {
-  name: "SelectAddress",
+  name: "SelectAmount",
   props: {
     selectedNetwork: {
       required: true,
     },
     items: {
-      type: Array,
+      required: true,
     },
   },
   components: {
@@ -69,40 +96,69 @@ export default {
     evmosethSvg,
     avalancheSvg,
   },
-  setup(_, { emit }) {
+  setup(props, { emit }) {
     const active = ref(false);
-    const address = ref("");
+    const amount = ref("");
+    const selectedToken = ref(props.items[0]);
 
-    const onInput = () => {
-      emit("setAddress", address.value);
-    };
-
-    const onBlur = () => {
-      emit("setAddress", address.value);
-    };
-
-    const selectAddress = (addr) => {
-      address.value = addr;
-      emit("setAddress", address.value);
-    };
+    watch(
+      () => props.items,
+      (newV) => {
+        if (newV.length) {
+          selectedToken.value = newV[0];
+        }
+      }
+    );
 
     const clickAway = () => {
       active.value = false;
     };
 
-    return { active, address, clickAway, selectAddress, onInput, onBlur };
+    const onInput = () => {
+      emit("setAmount", amount.value);
+    };
+
+    const onBlur = () => {
+      active.value = false;
+      emit("setAmount", amount.value);
+    };
+
+    const setMax = () => {
+      amount.value =
+        selectedToken.value?.balance?.amount ||
+        selectedToken.value?.balance?.mainBalance;
+      emit("setAmount", amount.value);
+    };
+
+    const setToken = (item) => {
+      amount.value = "";
+      selectedToken.value = item;
+
+      emit("setAmount", amount.value);
+      emit("setToken", selectedToken.value);
+    };
+
+    onMounted(() => {
+      setToken(selectedToken.value);
+    });
+
+    return {
+      active,
+      amount,
+      selectedToken,
+      prettyNumber,
+      setToken,
+      setMax,
+      onInput,
+      onBlur,
+      clickAway,
+    };
   },
 };
 </script>
 <style lang="scss" scoped>
-.select-address {
+.select-amount {
   position: relative;
-
-  .name {
-    font-size: 16px;
-    color: #586897;
-    font-family: "Poppins_Regular";
-  }
 
   &__panel {
     position: relative;
@@ -122,9 +178,16 @@ export default {
       font-family: "Poppins_SemiBold";
     }
 
-    .address {
+    .balance {
+      display: flex;
+      justify-content: space-between;
       color: #586897;
       font-family: "Poppins_Regular";
+
+      div {
+        font-family: "Poppins_SemiBold";
+        color: #586897;
+      }
     }
 
     .info-wrap {
@@ -139,12 +202,27 @@ export default {
       align-items: center;
     }
 
-    .input-address {
-      width: 100%;
+    .token {
+      font-size: 28px;
+      font-family: "Poppins_SemiBold";
+      color: $colorBlack;
+      margin-right: 10px;
+    }
+
+    .input-balance {
+      text-align: right;
+      min-width: 100px;
       border: none;
       outline: none;
       background: transparent;
       font-size: 28px;
+      font-family: "Poppins_SemiBold";
+    }
+
+    .max {
+      margin-left: 10px;
+      font-size: 28px;
+      color: $colorMainBlue;
       font-family: "Poppins_SemiBold";
     }
 
@@ -180,7 +258,7 @@ export default {
   }
 
   &.active {
-    .select-address__panel {
+    .select-amount__panel {
       border: 2px solid $colorMainBlue;
       background: transparent;
 
@@ -215,7 +293,7 @@ export default {
 
     &.active {
       .info {
-        .address {
+        .name {
           color: $colorBlack;
           font-family: "Poppins_SemiBold";
         }
@@ -234,8 +312,18 @@ export default {
       display: flex;
       align-items: center;
 
-      .address {
+      .name {
         font-size: 16px;
+        color: $colorLightBlue;
+        font-family: "Poppins_Regular";
+      }
+    }
+
+    .amount {
+      color: $colorBlack;
+      font-family: "Poppins_SemiBold";
+
+      span {
         color: $colorLightBlue;
         font-family: "Poppins_Regular";
       }
@@ -244,20 +332,24 @@ export default {
 }
 
 body.dark {
-  .select-address {
+  .select-amount {
     &__panel {
       background: $colorDarkBgGreen;
 
       .recipient,
-      .address {
+      .balance {
         color: $colorLightGreen;
+
+        div {
+          color: $colorLightBrown;
+        }
       }
 
       svg.arrow {
         stroke: $colorLightGreen;
       }
 
-      .input-address {
+      .input-balance {
         color: $colorLightBrown;
       }
 
@@ -270,21 +362,29 @@ body.dark {
           color: $colorLightBrown;
         }
       }
+
+      .token {
+        color: $colorLightBrown;
+      }
+
+      .max {
+        color: $colorLightGreen;
+      }
     }
 
     &.active {
-      .select-address__panel {
+      .select-amount__panel {
         border: 2px solid $colorLightGreen;
         background: transparent;
       }
     }
 
-    .select-address__items {
+    .select-amount__items {
       background: $colorDarkBgGreen;
       border-color: $colorLightGreen;
     }
 
-    .select-address__items-item {
+    .select-amount__items-item {
       border-color: #e8e9c933;
 
       &:last-child {
@@ -306,9 +406,9 @@ body.dark {
       }
     }
 
-    .select-address__items-item.active {
+    .select-amount__items-item.active {
       .info {
-        .address {
+        .balance {
           color: $colorWhite;
         }
       }

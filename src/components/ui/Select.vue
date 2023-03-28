@@ -3,17 +3,17 @@
     <div class="select__panel">
       <div class="info">
         <div class="network">
-          <component v-if="network" :is="`${network}Svg`" />
+          <component :is="`${selectedItem?.net}Svg`" />
         </div>
-        <div class="name">{{ selectedItem.name || name }}</div>
+        <div class="name">{{ selectedItem?.name }}</div>
       </div>
       <arrowSvg class="arrow" />
     </div>
-    <div v-if="active" class="select__items">
+    <div v-if="active" class="select__items" v-click-away="clickAway">
       <div
-        v-for="(item, ndx) in [initialSelectItem, ...items]"
+        v-for="(item, ndx) in items"
         :key="ndx"
-        :class="{ active: item.name === selectedItem.name }"
+        :class="{ active: item.name === selectedItem?.name }"
         class="select__items-item"
         @click="setActive(item)"
       >
@@ -21,7 +21,8 @@
           <div class="name">{{ item.name }}</div>
         </div>
         <div class="amount">
-          {{ prettyNumber(item.balance?.amount) }} <span>{{ item.code }}</span>
+          {{ prettyNumber(item.balance?.mainBalance) }}
+          <span>{{ item.code }}</span>
         </div>
       </div>
     </div>
@@ -38,23 +39,11 @@ import avalancheSvg from "@/assets/icons/networks/avalanche.svg";
 import arrowSvg from "@/assets/icons/dashboard/arrowdownstroke.svg";
 import { prettyNumber } from "@/helpers/prettyNumber";
 
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 
 export default {
   name: "Select",
   props: {
-    network: {
-      type: String,
-    },
-    code: {
-      type: String,
-    },
-    name: {
-      type: String,
-    },
-    initialBalance: {
-      type: [String, Number],
-    },
     items: {
       type: Array,
     },
@@ -69,24 +58,24 @@ export default {
     evmosethSvg,
     avalancheSvg,
   },
-  setup(props) {
+  setup(props, { emit }) {
     const active = ref(false);
+    const selectedItem = ref(props.items[0]);
 
-    const initialSelectItem = ref({
-      name: props.name,
-      code: props.code,
-      balance: {
-        amount: props.initialBalance,
-      },
-    });
-
-    const selectedItem = ref(initialSelectItem.value);
+    const clickAway = () => {
+      active.value = false;
+    };
 
     const setActive = (item) => {
       selectedItem.value = item;
+      emit("select", selectedItem.value);
     };
 
-    return { active, initialSelectItem, selectedItem, prettyNumber, setActive };
+    onMounted(() => {
+      setActive(selectedItem.value);
+    });
+
+    return { active, selectedItem, prettyNumber, clickAway, setActive };
   },
 };
 </script>

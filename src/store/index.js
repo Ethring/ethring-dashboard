@@ -12,7 +12,7 @@ const dataState = createPersistedState({
     setItem: (key, value) => localStorage.setItem(key, value),
     removeItem: (key) => localStorage.removeItem(key),
   },
-  paths: ["app.showBalance"],
+  paths: ["app.showBalance", "tokens.favourites"],
 });
 
 export default createStore({

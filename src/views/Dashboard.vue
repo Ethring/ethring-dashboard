@@ -10,7 +10,10 @@
             @click="showAddressModal = true"
           />
           <div class="ml" />
-          <Button :title="$t('dashboard.send')" />
+          <Button
+            :title="$t('dashboard.send')"
+            @click="$router.push('/send')"
+          />
         </div>
       </div>
       <ActionsMenu :menu-items="dashboardActions" class="dashboard__actions" />
@@ -50,7 +53,7 @@ export default {
 
     const dashboardActions = ref([
       { $title: "actionTokens" },
-      { $title: "actionTransactions" },
+      // { $title: "actionTransactions" },
     ]);
 
     return {

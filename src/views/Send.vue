@@ -3,8 +3,12 @@
     <Head />
     <div class="send-page">
       <div class="send-page__title">Send</div>
-      <div class="send-page__wrap">
-        <SimpleSend />
+      <Spinner v-if="loader" />
+      <div
+        v-if="hasConnect && groupTokens.length && !loader"
+        class="send-page__wrap"
+      >
+        <component v-if="sendComponent" :is="sendComponent" />
       </div>
     </div>
   </div>
@@ -13,11 +17,56 @@
 import SimpleSend from "@/components/dynamic/send/SimpleSend";
 import Head from "@/components/app/Head";
 
+import { UIConfig } from "@/config/ui";
+import { useStore } from "vuex";
+import { computed, onMounted, watch } from "vue";
+import { useRouter } from "vue-router";
+import Spinner from "@/components/app/Spinner";
+
+import useConnect from "@/compositions/useConnect";
+import useTokens from "@/compositions/useTokens";
+
 export default {
   name: "Send",
   components: {
     Head,
     SimpleSend,
+    Spinner,
+  },
+  setup() {
+    const store = useStore();
+    const router = useRouter();
+    const { groupTokens } = useTokens();
+
+    const loader = computed(() => store.getters["tokens/loader"]);
+
+    const { activeConnect, hasConnect } = useConnect();
+
+    const sendComponent = computed(() => {
+      return UIConfig[activeConnect.value.network]?.send?.component;
+    });
+
+    onMounted(() => {
+      if (!activeConnect.value.network) {
+        // router.push("/main");
+      }
+    });
+
+    watch(
+      () => sendComponent.value,
+      (newV) => {
+        if (!newV) {
+          router.push("/main");
+        }
+      }
+    );
+
+    return {
+      loader,
+      groupTokens,
+      hasConnect,
+      sendComponent,
+    };
   },
 };
 </script>

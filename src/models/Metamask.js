@@ -30,6 +30,16 @@ export default class MetamaskConnector {
 
     await Promise.all(
       metamaskNets.map(async (net) => {
+        let balance = 0;
+        // balance parent network
+        const response = await axios.get(
+          `${process.env.VUE_APP_BACKEND_URL}/blockchain/${net}/${address}/balance`
+        );
+        if (response.status === 200) {
+          balance = response.data.data;
+        }
+
+        // tokens child
         const tokenInfo = await axios.get(
           `${process.env.VUE_APP_BACKEND_URL}/blockchain/${net}/${address}/tokens?version=1.1.0`
         );
@@ -38,7 +48,7 @@ export default class MetamaskConnector {
           tokenInfo.status === 200 &&
           Object.keys(tokenInfo.data.data).length
         ) {
-          tokens[net] = { list: tokenInfo.data.data };
+          tokens[net] = { list: tokenInfo.data.data, balance };
         }
       })
     );
@@ -96,6 +106,7 @@ export default class MetamaskConnector {
           this.fetchAllEvmBalance(this.accounts[0]);
           store.dispatch("tokens/setMarketCap", {});
           this.network = "";
+          window.location.reload();
         });
 
         window.ethereum.on("chainChanged", async () => {
@@ -107,6 +118,7 @@ export default class MetamaskConnector {
           this.network = this.networks[this.chainId];
           this.fetchBalance(this.network, this.accounts[0]);
           this.fetchAllEvmBalance(this.accounts[0]);
+          window.location.reload();
         });
 
         window.ethereum.on("close", () => {
@@ -132,7 +144,7 @@ export default class MetamaskConnector {
     });
   }
 
-  async sendMetamaskTransaction(rawTx, memTxId) {
+  async sendMetamaskTransaction(rawTx) {
     const transaction = rawTx.transaction || rawTx;
 
     if (Array.isArray(transaction)) {
@@ -161,14 +173,6 @@ export default class MetamaskConnector {
       } catch (err) {
         return { error: "Metamask sign txs error" };
       }
-
-      /* try {
-        const txHash = await window.ethereum.request({ method: 'eth_sendTransaction', params: txs });
-
-        return { txHash };
-      } catch(err) {
-        return { error: 'Metamask sign txs error' };
-      } */
     }
 
     const tx = {
@@ -189,13 +193,6 @@ export default class MetamaskConnector {
         method: "eth_sendTransaction",
         params: [tx],
       });
-
-      if (memTxId) {
-        // store.dispatch('extensions/putMempoolChangeStatus', {
-        //   hash: txHash,
-        //   mempool_id: memTxId,
-        // });
-      }
 
       return { txHash };
     } catch (err) {

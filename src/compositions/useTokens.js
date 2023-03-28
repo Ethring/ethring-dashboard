@@ -44,17 +44,20 @@ export default function useTokens() {
           });
 
         groupList.push({
+          priority: activeConnect.value.network === parentNet ? 1 : 0,
           net: parentNet,
           ...networks.value[parentNet],
+          balance: groupTokensBalance.value[parentNet]?.balance,
           list: childs,
         });
       });
 
       // show all without current network group
-      return groupList.filter(
-        (group) =>
-          group.net !== activeConnect.value.network && group.list.length
-      );
+      return [
+        ...groupList.filter((g) => g.net === activeConnect.value.network),
+        ...groupList.filter((g) => g.net !== activeConnect.value.network),
+      ];
+      // .filter(() => group.net !== activeConnect.value.network && group.list.length
     }
     return [];
   });

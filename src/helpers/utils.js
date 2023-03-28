@@ -5,6 +5,20 @@ export const getTokenIcon = (code) => {
   return `//${process.env.VUE_APP_HOST}/cryptofont/SVG/${code}.svg`;
 };
 
+export const getTxUrl = (net, hash) => {
+  const networks = {
+    bsc: `https://bscscan.com/tx/${hash}`,
+    eth: `https://etherscan.io/tx/${hash}`,
+    polygon: `https://polygonscan.com/tx/${hash}`,
+    optimism: `https://optimistic.etherscan.io/tx/${hash}`,
+    arbitrum: `https://arbiscan.io/tx/${hash}`,
+    avalanche: `https://snowtrace.io/tx/${hash}`,
+    evmoseth: `https://www.mintscan.io/evmos/txs/${hash}`,
+  };
+
+  return networks[net];
+};
+
 export const tokenIconPlaceholder = (tokenName) => {
   const name = tokenName.trim().split(" ");
   const nameAbbr = [];

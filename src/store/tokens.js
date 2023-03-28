@@ -1,13 +1,17 @@
+import axios from "axios";
+
 const types = {
   SET_TOKENS: "SET_TOKENS",
   SET_GROUP_TOKENS: "SET_GROUP_TOKENS",
   SET_MARKETCAP: "SET_MARKETCAP",
   SET_LOADER: "SET_LOADER",
+  SET_FAVOURITES: "SET_FAVOURITES",
 };
 
 export default {
   namespaced: true,
   state: () => ({
+    favourites: {},
     loader: false,
     tokens: {},
     groupTokens: {},
@@ -15,6 +19,7 @@ export default {
   }),
 
   getters: {
+    favourites: (state) => state.favourites,
     loader: (state) => state.loader,
     tokens: (state) => state.tokens,
     groupTokens: (state) => state.groupTokens,
@@ -34,6 +39,15 @@ export default {
     [types.SET_LOADER](state, value) {
       state.loader = value;
     },
+    [types.SET_FAVOURITES](state, { net, address }) {
+      if (!state.favourites[net]) {
+        state.favourites[net] = [];
+      }
+
+      if (!state.favourites[net].includes(address)) {
+        state.favourites[net].push(address);
+      }
+    },
   },
 
   actions: {
@@ -48,6 +62,32 @@ export default {
     },
     setLoader({ commit }, value) {
       commit(types.SET_LOADER, value);
+    },
+    setFavourites({ commit }, { net, address }) {
+      commit(types.SET_FAVOURITES, { net, address });
+    },
+    async prepareTransfer(_, { net, from, amount, toAddress }) {
+      let response;
+
+      try {
+        response = await axios.get(
+          `${process.env.VUE_APP_BACKEND_URL}/blockchain/${net}/${from}/builder/transfer?version=1.1.0`,
+          {
+            params: {
+              amount,
+              toAddress,
+            },
+          }
+        );
+
+        return {
+          transaction: response.data.data.transaction,
+        };
+      } catch (err) {
+        return {
+          error: err.response.data.error,
+        };
+      }
     },
   },
 };

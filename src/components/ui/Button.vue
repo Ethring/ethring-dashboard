@@ -1,5 +1,5 @@
 <template>
-  <button :class="{ xl }" class="button">
+  <button :class="{ xl, disabled }" class="button" :disabled="disabled">
     {{ title }}
   </button>
 </template>
@@ -8,6 +8,10 @@ export default {
   name: "Button",
   props: {
     xl: {
+      type: Boolean,
+      default: false,
+    },
+    disabled: {
       type: Boolean,
       default: false,
     },
@@ -45,6 +49,10 @@ export default {
   &:hover {
     background: $colorBlack;
     color: $colorWhite;
+  }
+
+  &.disabled {
+    background: #ccd5f0;
   }
 }
 
