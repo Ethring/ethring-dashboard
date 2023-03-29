@@ -6,6 +6,7 @@ const types = {
   SET_MARKETCAP: "SET_MARKETCAP",
   SET_LOADER: "SET_LOADER",
   SET_FAVOURITES: "SET_FAVOURITES",
+  REMOVE_FAVOURITE: "REMOVE_FAVOURITE",
 };
 
 export default {
@@ -39,6 +40,11 @@ export default {
     [types.SET_LOADER](state, value) {
       state.loader = value;
     },
+    [types.REMOVE_FAVOURITE](state, { net, address }) {
+      state.favourites[net] = state.favourites[net].filter(
+        (favAddr) => favAddr !== address
+      );
+    },
     [types.SET_FAVOURITES](state, { net, address }) {
       if (!state.favourites[net]) {
         state.favourites[net] = [];
@@ -65,6 +71,9 @@ export default {
     },
     setFavourites({ commit }, { net, address }) {
       commit(types.SET_FAVOURITES, { net, address });
+    },
+    removeFavourite({ commit }, { net, address }) {
+      commit(types.REMOVE_FAVOURITE, { net, address });
     },
     async prepareTransfer(_, { net, from, amount, toAddress }) {
       let response;

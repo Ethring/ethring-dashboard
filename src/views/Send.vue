@@ -19,7 +19,7 @@ import Head from "@/components/app/Head";
 
 import { UIConfig } from "@/config/ui";
 import { useStore } from "vuex";
-import { computed, onMounted, watch } from "vue";
+import { computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import Spinner from "@/components/app/Spinner";
 
@@ -46,12 +46,6 @@ export default {
       return UIConfig[activeConnect.value.network]?.send?.component;
     });
 
-    onMounted(() => {
-      if (!activeConnect.value.network) {
-        // router.push("/main");
-      }
-    });
-
     watch(
       () => sendComponent.value,
       (newV) => {
@@ -76,6 +70,11 @@ export default {
 
   .send-page {
     @include pageFlexColumn;
+
+    &::-webkit-scrollbar {
+      width: 0px;
+      background-color: transparent;
+    }
 
     &__title {
       color: $colorBlack;

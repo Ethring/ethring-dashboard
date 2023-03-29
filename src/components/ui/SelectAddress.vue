@@ -1,5 +1,9 @@
 <template>
-  <div :class="{ active }" class="select-address" @click="active = !active">
+  <div
+    :class="{ active: active && items.length }"
+    class="select-address"
+    @click="active = !active"
+  >
     <div class="select-address__panel">
       <div class="recipient">Recipient</div>
       <div class="info-wrap">
@@ -23,7 +27,11 @@
       </div>
       <div class="address">{{ address }}</div>
     </div>
-    <div v-if="active" class="select-address__items" v-click-away="clickAway">
+    <div
+      v-if="active && items.length"
+      class="select-address__items"
+      v-click-away="clickAway"
+    >
       <div
         v-for="(item, ndx) in items"
         :key="ndx"
@@ -33,11 +41,13 @@
         <div class="info">
           <div class="name">{{ item }}</div>
         </div>
+        <closeSvg class="remove" @click.stop="removeAddress(item)" />
       </div>
     </div>
   </div>
 </template>
 <script>
+import closeSvg from "@/assets/icons/app/close.svg";
 import arrowSvg from "@/assets/icons/dashboard/arrowdownstroke.svg";
 import bscSvg from "@/assets/icons/networks/bsc.svg";
 import ethSvg from "@/assets/icons/networks/eth.svg";
@@ -60,6 +70,7 @@ export default {
     },
   },
   components: {
+    closeSvg,
     arrowSvg,
     bscSvg,
     ethSvg,
@@ -69,12 +80,13 @@ export default {
     evmosethSvg,
     avalancheSvg,
   },
-  setup(_, { emit }) {
+  setup(props, { emit }) {
     const active = ref(false);
     const address = ref("");
 
     const onInput = () => {
       emit("setAddress", address.value);
+      active.value = false;
     };
 
     const onBlur = () => {
@@ -83,6 +95,7 @@ export default {
 
     const selectAddress = (addr) => {
       address.value = addr;
+
       emit("setAddress", address.value);
     };
 
@@ -90,7 +103,20 @@ export default {
       active.value = false;
     };
 
-    return { active, address, clickAway, selectAddress, onInput, onBlur };
+    const removeAddress = (address) => {
+      emit("removeAddress", { net: props.selectedNetwork.net, address });
+      active.value = false;
+    };
+
+    return {
+      active,
+      address,
+      removeAddress,
+      clickAway,
+      selectAddress,
+      onInput,
+      onBlur,
+    };
   },
 };
 </script>
@@ -212,6 +238,17 @@ export default {
     border-bottom: 1px solid #ccd5f0;
     cursor: pointer;
     @include animateEasy;
+
+    &:hover {
+      .remove {
+        opacity: 1;
+      }
+    }
+
+    .remove {
+      opacity: 0.2;
+      fill: $colorLightBlue;
+    }
 
     &.active {
       .info {

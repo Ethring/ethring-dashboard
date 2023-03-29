@@ -5,10 +5,7 @@
       <div class="info-wrap">
         <div class="info">
           <div class="network">
-            <component
-              v-if="selectedToken?.net"
-              :is="`${selectedToken.net}Svg`"
-            />
+            <TokenIcon width="24" height="24" :token="selectedToken" />
           </div>
           <div class="token">{{ selectedToken?.code }}</div>
           <arrowSvg class="arrow" />
@@ -64,16 +61,10 @@
 </template>
 <script>
 import arrowSvg from "@/assets/icons/dashboard/arrowdownstroke.svg";
-import bscSvg from "@/assets/icons/networks/bsc.svg";
-import ethSvg from "@/assets/icons/networks/eth.svg";
-import polygonSvg from "@/assets/icons/networks/polygon.svg";
-import optimismSvg from "@/assets/icons/networks/optimism.svg";
-import arbitrumSvg from "@/assets/icons/networks/arbitrum.svg";
-import evmosethSvg from "@/assets/icons/networks/evmoseth.svg";
-import avalancheSvg from "@/assets/icons/networks/avalanche.svg";
+
+import TokenIcon from "@/components/ui/TokenIcon";
 
 import { prettyNumber } from "@/helpers/prettyNumber";
-
 import { ref, watch, onMounted } from "vue";
 
 export default {
@@ -88,13 +79,7 @@ export default {
   },
   components: {
     arrowSvg,
-    bscSvg,
-    ethSvg,
-    polygonSvg,
-    optimismSvg,
-    arbitrumSvg,
-    evmosethSvg,
-    avalancheSvg,
+    TokenIcon,
   },
   setup(props, { emit }) {
     const active = ref(false);
@@ -116,6 +101,7 @@ export default {
 
     const onInput = () => {
       emit("setAmount", amount.value);
+      active.value = false;
     };
 
     const onBlur = () => {
@@ -124,6 +110,7 @@ export default {
     };
 
     const setMax = () => {
+      active.value = false;
       amount.value =
         selectedToken.value?.balance?.amount ||
         selectedToken.value?.balance?.mainBalance;
@@ -197,7 +184,6 @@ export default {
     }
 
     .info {
-      width: 90%;
       display: flex;
       align-items: center;
     }
@@ -210,6 +196,7 @@ export default {
     }
 
     .input-balance {
+      width: 75%;
       text-align: right;
       min-width: 100px;
       border: none;

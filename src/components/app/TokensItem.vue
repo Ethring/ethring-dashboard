@@ -2,7 +2,7 @@
   <div :class="{ inGroup }" class="tokens__item">
     <div class="network">
       <div class="logo">
-        <TokenIcon width="24" height="24" :token="item" :dark="inGroup" />
+        <TokenIcon width="24" height="24" :token="item" />
       </div>
       <div class="info">
         <div v-if="!inGroup" class="symbol">{{ item.code }}</div>
@@ -19,7 +19,7 @@
     <div class="change">
       <div class="label">-</div>
       <div class="value">
-        {{ showBalance ? prettyNumber(item.balanceUsd) : "****" }}<span>$</span>
+        <span>$</span>{{ showBalance ? prettyNumber(item.balanceUsd) : "****" }}
       </div>
     </div>
   </div>
@@ -78,7 +78,7 @@ export default {
 
     .network {
       .logo {
-        background: #ccd5f0;
+        // background: #ccd5f0;
       }
     }
   }
@@ -112,9 +112,9 @@ export default {
     }
 
     .blockchain {
-      // margin-top: -3px;
+      font-family: "Poppins_Bold";
       color: $colorRed;
-      font-size: 14px;
+      font-size: 12px;
       text-transform: uppercase;
     }
   }

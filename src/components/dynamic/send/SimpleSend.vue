@@ -1,10 +1,20 @@
 <template>
   <div class="simple-send">
     <Select :items="groupTokens" @select="onSelectNetwork" />
+    <InfoPanel
+      v-if="
+        activeConnect &&
+        selectedNetwork &&
+        activeConnect?.network !== selectedNetwork?.net
+      "
+      :title="'Please change network in Metamask'"
+      class="mt-10"
+    />
     <SelectAddress
       :selected-network="selectedNetwork"
       :items="favouritesList[selectedNetwork?.net] || []"
       class="mt-10"
+      @removeAddress="onRemoveFavourite"
       @setAddress="onSetAddress"
     />
     <InfoPanel v-if="errorAddress" :title="errorAddress" class="mt-10" />
@@ -122,6 +132,11 @@ export default {
       errorBalance.value = "";
     };
 
+    const onRemoveFavourite = (params) => {
+      console.log(params);
+      store.dispatch("tokens/removeFavourite", params);
+    };
+
     const send = async () => {
       if (disabledSend.value) {
         return;
@@ -178,6 +193,7 @@ export default {
       errorAddress,
       errorBalance,
       selectedNetwork,
+      onRemoveFavourite,
 
       onSelectNetwork,
       onSetAddress,

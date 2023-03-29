@@ -3,8 +3,14 @@
     <!-- <template v-if="tokens.length">
       <TokensItem v-for="(item, ndx) in tokens" :item="item" :key="ndx" />
     </template> -->
-    <template v-if="groupTokens.length">
-      <div v-for="(group, ndx) in groupTokens" :key="ndx" class="tokens__group">
+    <template v-if="groupTokens.length > 1">
+      <div
+        v-for="(group, ndx) in groupTokens"
+        :key="ndx"
+        :class="{ hide: groupHides[ndx] }"
+        class="tokens__group"
+        @click="toggleGroup(ndx)"
+      >
         <TokensItemHeader v-if="group.list.length" :item="group" />
         <TokensItem
           v-for="(listItem, n) in group.list"
@@ -15,7 +21,7 @@
       </div>
     </template>
     <Spinner v-if="loader" />
-    <EmptyList v-if="!loader && emptyLists" title="Tokens Not Found" />
+    <EmptyList v-if="!loader && emptyLists" title="You don't have any assets" />
   </div>
 </template>
 <script>
@@ -29,7 +35,7 @@ import TokensItem from "./TokensItem";
 import TokensItemHeader from "./TokensItemHeader";
 
 import { useStore } from "vuex";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 export default {
   name: "Tokens",
@@ -42,19 +48,26 @@ export default {
   setup() {
     const store = useStore();
     const { tokens, groupTokens } = useTokens();
+    const groupHides = ref({});
 
     const loader = computed(() => store.getters["tokens/loader"]);
     const emptyLists = computed(() => {
-      return !tokens.value.length && !groupTokens.value.length;
+      return !tokens.value.length && groupTokens.value.length <= 1; // <=1 - parent network
     });
 
+    const toggleGroup = (groupNdx) => {
+      groupHides.value[groupNdx] = !groupHides.value[groupNdx];
+    };
+
     return {
+      groupHides,
       tokens,
       groupTokens,
       getTokenIcon,
       prettyNumber,
       loader,
       emptyLists,
+      toggleGroup,
     };
   },
 };
@@ -67,12 +80,24 @@ export default {
   height: calc(100vh - 310px);
   overflow-y: auto;
 
+  &::-webkit-scrollbar {
+    width: 0px;
+    background-color: transparent;
+  }
+
   &__group {
     border: 1px solid $borderLight;
     border-radius: 16px;
     padding: 0 10px;
     margin-bottom: 7px;
     box-sizing: border-box;
+    @include animateEasy;
+
+    &.hide {
+      height: 74px;
+      min-height: 74px;
+      overflow: hidden;
+    }
   }
 
   &.empty {

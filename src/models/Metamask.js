@@ -106,7 +106,7 @@ export default class MetamaskConnector {
           this.fetchAllEvmBalance(this.accounts[0]);
           store.dispatch("tokens/setMarketCap", {});
           this.network = "";
-          window.location.reload();
+          // window.location.reload();
         });
 
         window.ethereum.on("chainChanged", async () => {
@@ -118,7 +118,7 @@ export default class MetamaskConnector {
           this.network = this.networks[this.chainId];
           this.fetchBalance(this.network, this.accounts[0]);
           this.fetchAllEvmBalance(this.accounts[0]);
-          window.location.reload();
+          // window.location.reload();
         });
 
         window.ethereum.on("close", () => {

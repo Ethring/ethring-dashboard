@@ -12,12 +12,11 @@
     />
     <div v-else class="token-icon__placeholder">
       <span>{{ iconPlaceholder[0] }}</span>
-      <span>{{ iconPlaceholder[1] }}</span>
     </div>
   </div>
 </template>
 <script>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { getTokenIcon, tokenIconPlaceholder } from "@/helpers/utils";
 
 export default {
@@ -41,6 +40,13 @@ export default {
     const showIconPlaceholder = ref(false);
     const iconPlaceholder = computed(() =>
       tokenIconPlaceholder(props.token.name)
+    );
+
+    watch(
+      () => props.token,
+      () => {
+        showIconPlaceholder.value = false;
+      }
     );
 
     return {
@@ -74,21 +80,16 @@ export default {
     position: relative;
     width: 100%;
     height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 1px;
 
     & span {
-      font-size: 14px;
+      font-size: 25px;
       line-height: 17px;
       color: $colorWhite;
       font-family: "Poppins_Bold";
-      position: absolute;
-      top: 7px;
-      left: 6px;
-
-      &:last-child {
-        top: 13px;
-        left: 19px;
-        right: 7px;
-      }
     }
   }
 }
