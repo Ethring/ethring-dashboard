@@ -5,7 +5,7 @@
     </template> -->
     <template v-if="groupTokens.length > 1">
       <div
-        v-for="(group, ndx) in groupTokens"
+        v-for="(group, ndx) in groupTokens.filter((g) => g.list.length)"
         :key="ndx"
         :class="{ hide: groupHides[ndx] }"
         class="tokens__group"
