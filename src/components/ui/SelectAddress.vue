@@ -5,7 +5,7 @@
     @click="active = !active"
   >
     <div class="select-address__panel">
-      <div class="recipient">Recipient</div>
+      <div class="recipient">{{ $t("simpleSend.recipient") }}</div>
       <div class="info-wrap">
         <div class="info">
           <div class="network">
@@ -21,7 +21,6 @@
             @blur="onBlur"
             class="input-address"
           />
-          <!-- <div class="name">Address</div>-->
         </div>
         <arrowSvg class="arrow" />
       </div>
@@ -57,7 +56,7 @@ import arbitrumSvg from "@/assets/icons/networks/arbitrum.svg";
 import evmosethSvg from "@/assets/icons/networks/evmoseth.svg";
 import avalancheSvg from "@/assets/icons/networks/avalanche.svg";
 
-import { ref } from "vue";
+import { ref, watch } from "vue";
 
 export default {
   name: "SelectAddress",
@@ -67,6 +66,10 @@ export default {
     },
     items: {
       type: Array,
+    },
+    onReset: {
+      type: [Boolean, String],
+      default: false,
     },
   },
   components: {
@@ -83,6 +86,17 @@ export default {
   setup(props, { emit }) {
     const active = ref(false);
     const address = ref("");
+
+    watch(
+      () => props.onReset,
+      () => {
+        if (props.onReset) {
+          address.value = "";
+          active.value = false;
+          emit("setAddress", address.value);
+        }
+      }
+    );
 
     const onInput = () => {
       emit("setAddress", address.value);

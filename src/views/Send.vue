@@ -2,14 +2,16 @@
   <div class="send">
     <Head />
     <div class="send-page">
-      <div class="send-page__title">Send</div>
       <Spinner v-if="loader" />
-      <div
-        v-if="hasConnect && groupTokens.length && !loader"
-        class="send-page__wrap"
-      >
-        <component v-if="sendComponent" :is="sendComponent" />
-      </div>
+      <template v-else>
+        <div class="send-page__title">{{ $t("simpleSend.title") }}</div>
+        <div
+          v-if="hasConnect && groupTokens.length && !loader"
+          class="send-page__wrap"
+        >
+          <component v-if="sendComponent" :is="sendComponent" />
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -19,7 +21,7 @@ import Head from "@/components/app/Head";
 
 import { UIConfig } from "@/config/ui";
 import { useStore } from "vuex";
-import { computed, watch } from "vue";
+import { computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import Spinner from "@/components/app/Spinner";
 
@@ -44,6 +46,12 @@ export default {
 
     const sendComponent = computed(() => {
       return UIConfig[activeConnect.value.network]?.send?.component;
+    });
+
+    onMounted(() => {
+      if (activeConnect.value.network) {
+        // activeConnect.value.updateBalances();
+      }
     });
 
     watch(

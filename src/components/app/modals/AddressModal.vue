@@ -45,6 +45,7 @@ export default {
     CopySvg,
     QrcodeVue,
   },
+  emits: ["close"],
   setup() {
     const copied = ref(false);
 

@@ -66,13 +66,13 @@ export default class MetamaskConnector {
     }
 
     // TOKENS
-    const tokensResponse = await axios.get(
-      `${process.env.VUE_APP_BACKEND_URL}/blockchain/${net}/${address}/tokens?version=1.1.0`
-    );
+    // const tokensResponse = await axios.get(
+    //   `${process.env.VUE_APP_BACKEND_URL}/blockchain/${net}/${address}/tokens?version=1.1.0`
+    // );
 
-    if (tokensResponse.status === 200) {
-      store.dispatch("tokens/setTokens", tokensResponse.data.data);
-    }
+    // if (tokensResponse.status === 200) {
+    //   store.dispatch("tokens/setTokens", tokensResponse.data.data);
+    // }
 
     // MARKETCAP
     const marketCapResponse = await axios.get(
@@ -81,6 +81,13 @@ export default class MetamaskConnector {
 
     if (marketCapResponse.status === 200) {
       store.dispatch("tokens/setMarketCap", marketCapResponse.data.data);
+    }
+  }
+
+  updateBalances() {
+    if (this.accounts[0]) {
+      this.fetchBalance(this.network, this.accounts[0]);
+      this.fetchAllEvmBalance(this.accounts[0]);
     }
   }
 

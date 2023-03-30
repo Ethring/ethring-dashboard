@@ -1,7 +1,7 @@
 <template>
   <div :class="{ active }" class="select-amount" @click="active = !active">
     <div class="select-amount__panel">
-      <div class="recipient">Amount</div>
+      <div class="recipient">{{ $t("simpleSend.amount") }}</div>
       <div class="info-wrap">
         <div class="info">
           <div class="network">
@@ -18,10 +18,12 @@
           @click.stop="() => {}"
           class="input-balance"
         />
-        <div class="max" @click.stop="setMax">MAX</div>
+        <div class="max" @click.stop="setMax">
+          {{ $t("simpleSend.max").toUpperCase() }}
+        </div>
       </div>
       <div class="balance" @click.stop="setMax">
-        Balance:
+        {{ $t("simpleSend.balance") }}:
         {{
           selectedToken?.balance?.amount || selectedToken?.balance?.mainBalance
         }}
@@ -76,6 +78,10 @@ export default {
     items: {
       required: true,
     },
+    onReset: {
+      type: [Boolean, String],
+      default: false,
+    },
   },
   components: {
     arrowSvg,
@@ -85,6 +91,17 @@ export default {
     const active = ref(false);
     const amount = ref("");
     const selectedToken = ref(props.items[0]);
+
+    watch(
+      () => props.onReset,
+      () => {
+        if (props.onReset) {
+          amount.value = "";
+          active.value = false;
+          emit("setAmount", amount.value);
+        }
+      }
+    );
 
     watch(
       () => props.items,

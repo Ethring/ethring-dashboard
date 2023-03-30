@@ -23,5 +23,14 @@
     "keplrTitle": "Keplr"
   },
   "actionTokens": "Tokens",
-  "actionTransactions": "Transactions"
+  "actionTransactions": "Transactions",
+  "simpleSend": {
+    "title": "Send",
+    "mmIncorrectNetwork": "Please change network in Metamask",
+    "confirm": "Confirm",
+    "recipient": "Recipient",
+    "amount": "Amount",
+    "balance": "Balance",
+    "max": "Max"
+  }
 }

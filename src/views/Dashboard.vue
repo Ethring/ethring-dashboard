@@ -32,7 +32,7 @@ import Head from "@/components/app/Head";
 import Button from "@/components/ui/Button";
 import ActionsMenu from "@/components/app/ActionsMenu";
 import Tokens from "@/components/app/Tokens";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 
 import useConnect from "@/compositions/useConnect";
 
@@ -48,13 +48,19 @@ export default {
     Tokens,
   },
   setup() {
-    const { hasConnect } = useConnect();
+    const { hasConnect, activeConnect } = useConnect();
     const showAddressModal = ref(false);
 
     const dashboardActions = ref([
       { $title: "actionTokens" },
       // { $title: "actionTransactions" },
     ]);
+
+    onMounted(() => {
+      if (activeConnect.value.network) {
+        activeConnect.value.updateBalances();
+      }
+    });
 
     return {
       showAddressModal,

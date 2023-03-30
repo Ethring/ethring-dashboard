@@ -7,13 +7,14 @@
         selectedNetwork &&
         activeConnect?.network !== selectedNetwork?.net
       "
-      :title="'Please change network in Metamask'"
+      :title="$t('simpleSend.mmIncorrectNetwork')"
       class="mt-10"
     />
     <SelectAddress
       :selected-network="selectedNetwork"
       :items="favouritesList[selectedNetwork?.net] || []"
       class="mt-10"
+      :on-reset="successHash"
       @removeAddress="onRemoveFavourite"
       @setAddress="onSetAddress"
     />
@@ -22,6 +23,7 @@
       v-if="tokensList.length"
       :selected-network="selectedNetwork"
       :items="tokensList"
+      :on-reset="successHash"
       class="mt-10"
       @setAmount="onSetAmount"
       @setToken="onSetToken"
@@ -31,7 +33,7 @@
     <InfoPanel v-if="successHash" :hash="successHash" success class="mt-10" />
     <Button
       xl
-      title="CONFIRM"
+      :title="$t('simpleSend.confirm').toUpperCase()"
       :disabled="!!disabledSend"
       class="simple-send__btn mt-10"
       @click="send"
