@@ -3,6 +3,7 @@
     <Head />
     <template v-if="hasConnect">
       <div class="dashboard__wallet">
+        <bgSvg class="bg" />
         <WalletInfoLarge />
         <div class="dashboard__controls">
           <Button
@@ -25,6 +26,7 @@
 </template>
 
 <script>
+import bgSvg from "@/assets/icons/dashboard/bginfo.svg";
 import NotConnect from "./NotConnect";
 import AddressModal from "@/components/app/modals/AddressModal";
 import WalletInfoLarge from "@/components/app/WalletInfoLarge";
@@ -46,6 +48,7 @@ export default {
     Button,
     ActionsMenu,
     Tokens,
+    bgSvg,
   },
   setup() {
     const { hasConnect, activeConnect } = useConnect();
@@ -78,7 +81,8 @@ export default {
   height: 100vh;
 
   &__wallet {
-    background: #f5f6ff;
+    position: relative;
+    background-color: $colorSlimLightBlue;
     padding: 15px;
     box-sizing: border-box;
     border-radius: 16px;
@@ -87,16 +91,25 @@ export default {
     justify-content: space-between;
     margin-top: 40px;
     padding-bottom: 20px;
-    // border-bottom: 1px solid $borderLight;
+    overflow: hidden;
+
+    .bg {
+      position: absolute;
+      right: -40px;
+      top: 0;
+      z-index: 0;
+    }
   }
 
   &__controls {
     display: flex;
     align-items: center;
+    z-index: 1;
   }
 
   &__actions {
     margin: 15px 0;
+    z-index: 1;
   }
 
   .ml {

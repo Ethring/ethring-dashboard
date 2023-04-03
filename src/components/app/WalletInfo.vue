@@ -148,7 +148,7 @@ export default {
       user-select: none;
       font-family: "Poppins_SemiBold";
       font-size: 18px;
-      color: $colorMainBlue;
+      color: $colorBlack;
       margin-top: -3px;
 
       span {

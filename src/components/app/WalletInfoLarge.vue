@@ -113,11 +113,11 @@ export default {
     align-items: center;
     border-radius: 50%;
     margin-right: 10px;
-    background: $colorMainBlue;
+    background: #3fdfae;
 
     svg {
       transform: scale(1.8);
-      fill: $colorWhite;
+      fill: $colorBlack;
       opacity: 1;
     }
   }

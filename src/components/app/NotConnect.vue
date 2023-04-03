@@ -52,7 +52,7 @@ export default {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: $borderLight;
+    background: $colorLightGreen;
   }
 
   .title {

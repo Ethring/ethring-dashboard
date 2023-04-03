@@ -65,7 +65,7 @@ export default {
     align-items: center;
     margin-bottom: 15px;
     text-decoration: none;
-    color: $colorBlack;
+    color: $colorLightGreen;
     cursor: pointer;
 
     @include animateEasy;
@@ -76,14 +76,15 @@ export default {
 
     &.router-link-exact-active {
       font-family: "Poppins_SemiBold";
+      color: $colorWhite;
 
       svg {
-        stroke: $colorMainBlue;
+        fill: $colorBrightGreen;
       }
     }
 
     svg {
-      stroke: $colorBlack;
+      fill: $colorLightGreen;
       transform: scale(0.8);
     }
   }
@@ -108,12 +109,12 @@ body.dark {
         color: $colorWhite;
 
         svg {
-          stroke: $themeGreen;
+          fill: $themeGreen;
         }
       }
 
       svg {
-        stroke: $colorLightBrown;
+        fill: $colorLightBrown;
       }
     }
   }

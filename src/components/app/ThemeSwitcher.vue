@@ -51,7 +51,7 @@ export default {
   height: 40px;
   position: relative;
   border: 1px solid $borderLight;
-  background: #f8f8f8;
+  background: $colorSlimLightBlue;
   border-radius: 50px;
   cursor: pointer;
 
@@ -72,7 +72,7 @@ export default {
     border-radius: 50%;
     top: 4px;
     left: 3px;
-    background: #9ca6c6;
+    background: #0d7e71;
   }
 }
 

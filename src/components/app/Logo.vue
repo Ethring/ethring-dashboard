@@ -3,11 +3,11 @@
     <div class="logo__round">
       <logoSvg />
     </div>
-    <div class="logo__text">P<span>O</span>I<span>N</span>T</div>
+    <div class="logo__text">Z<span>O</span>M<span>E</span>T</div>
   </div>
 </template>
 <script>
-import logoSvg from "@/assets/icons/app/logo.svg";
+import logoSvg from "@/assets/icons/app/logohead.svg";
 
 export default {
   name: "Logo",
@@ -22,27 +22,28 @@ export default {
   align-items: center;
 
   &__round {
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: $colorBlack;
-    margin-right: 5px;
+    margin-right: 10px;
+    // border-radius: 50%;
+    // width: 40px;
+    // height: 40px;
+    // display: flex;
+    // justify-content: center;
+    // align-items: center;
+    // background: $colorBrightGreen;
+    // margin-right: 5px;
 
     svg {
-      fill: $colorWhite;
+      // fill: $colorWhite;
     }
   }
 
   &__text {
     font-size: 24px;
     font-family: "Poppins_Light";
-    color: $colorBlack;
+    color: $colorWhite;
 
     span {
-      color: $colorMainBlue;
+      color: $colorBrightGreen;
       font-family: "Poppins_SemiBold";
     }
   }
@@ -51,10 +52,10 @@ export default {
 body.dark {
   .logo {
     &__round {
-      background: $colorWhite;
+      // background: $colorWhite;
 
       svg {
-        fill: $colorBlack;
+        // fill: $colorBlack;
       }
     }
 

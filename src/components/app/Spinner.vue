@@ -18,10 +18,10 @@ export default {
   font-size: 10px;
   position: relative;
   text-indent: -9999em;
-  border-top: 0.8em solid #f5f6ff;
-  border-right: 0.8em solid #f5f6ff;
-  border-bottom: 0.8em solid #f5f6ff;
-  border-left: 0.8em solid #9ca6c6;
+  border-top: 0.8em solid $colorLightGreen;
+  border-right: 0.8em solid $colorLightGreen;
+  border-bottom: 0.8em solid $colorLightGreen;
+  border-left: 0.8em solid #385c39;
   -webkit-transform: translateZ(0);
   -ms-transform: translateZ(0);
   transform: translateZ(0);

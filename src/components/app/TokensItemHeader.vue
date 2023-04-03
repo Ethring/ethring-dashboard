@@ -49,7 +49,7 @@ export default {
   justify-content: space-between;
   min-height: 73px;
   margin-bottom: 5px;
-  border-bottom: 1px dashed #9ca6c6;
+  border-bottom: 1px dashed $colorLightGreen;
   cursor: pointer;
 
   .balance {

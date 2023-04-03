@@ -32,7 +32,7 @@ export default {
   align-items: center;
   border: none;
   outline: none;
-  background: $colorMainBlue;
+  background: $colorBlack;
   color: $colorWhite;
   font-family: "Poppins_Regular";
   font-weight: 700;
@@ -47,12 +47,14 @@ export default {
   @include animateEasy;
 
   &:hover {
-    background: $colorBlack;
-    color: $colorWhite;
+    background: $colorWhite;
+    color: $colorBlack;
   }
 
   &.disabled {
-    background: #ccd5f0;
+    background: $colorLightGreen;
+
+    color: #73b1b1;
   }
 }
 

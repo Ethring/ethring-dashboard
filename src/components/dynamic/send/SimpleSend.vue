@@ -13,6 +13,7 @@
     <SelectAddress
       :selected-network="selectedNetwork"
       :items="favouritesList[selectedNetwork?.net] || []"
+      :error="!!errorAddress"
       class="mt-10"
       :on-reset="successHash"
       @removeAddress="onRemoveFavourite"
@@ -23,6 +24,7 @@
       v-if="tokensList.length"
       :selected-network="selectedNetwork"
       :items="tokensList"
+      :error="!!errorBalance"
       :on-reset="successHash"
       class="mt-10"
       @setAmount="onSetAmount"

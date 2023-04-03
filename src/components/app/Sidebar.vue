@@ -30,6 +30,7 @@ export default {
   height: 100vh;
   padding-left: 25px;
   border-right: 1px solid $borderLight;
+  background: #1c1f2c;
 
   &__socials {
     position: absolute;

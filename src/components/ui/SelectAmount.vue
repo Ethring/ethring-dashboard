@@ -1,5 +1,9 @@
 <template>
-  <div :class="{ active }" class="select-amount" @click="active = !active">
+  <div
+    :class="{ active, focused, error }"
+    class="select-amount"
+    @click="active = !active"
+  >
     <div class="select-amount__panel">
       <div class="recipient">{{ $t("simpleSend.amount") }}</div>
       <div class="info-wrap">
@@ -12,7 +16,8 @@
         </div>
         <input
           v-model="amount"
-          placeholder="0"
+          :placeholder="placeholder"
+          @focus="onFocus"
           @input="onInput"
           @blur="onBlur"
           @click.stop="() => {}"
@@ -62,7 +67,7 @@
   </div>
 </template>
 <script>
-import arrowSvg from "@/assets/icons/dashboard/arrowdownstroke.svg";
+import arrowSvg from "@/assets/icons/dashboard/arrowdowndropdown.svg";
 
 import TokenIcon from "@/components/ui/TokenIcon";
 
@@ -82,6 +87,10 @@ export default {
       type: [Boolean, String],
       default: false,
     },
+    error: {
+      type: Boolean,
+      default: false,
+    },
   },
   components: {
     arrowSvg,
@@ -89,8 +98,10 @@ export default {
   },
   setup(props, { emit }) {
     const active = ref(false);
+    const focused = ref(false);
     const amount = ref("");
     const selectedToken = ref(props.items[0]);
+    const placeholder = ref("0");
 
     watch(
       () => props.onReset,
@@ -116,6 +127,11 @@ export default {
       active.value = false;
     };
 
+    const onFocus = () => {
+      placeholder.value = "";
+      focused.value = true;
+    };
+
     const onInput = () => {
       emit("setAmount", amount.value);
       active.value = false;
@@ -124,6 +140,8 @@ export default {
     const onBlur = () => {
       active.value = false;
       emit("setAmount", amount.value);
+      placeholder.value = "0";
+      focused.value = false;
     };
 
     const setMax = () => {
@@ -148,13 +166,16 @@ export default {
 
     return {
       active,
+      focused,
       amount,
+      placeholder,
       selectedToken,
       prettyNumber,
       setToken,
       setMax,
       onInput,
       onBlur,
+      onFocus,
       clickAway,
     };
   },
@@ -169,28 +190,28 @@ export default {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    background: #f5f6ff;
+    background: $colorGray;
     border-radius: 8px;
     height: 160px;
-    padding: 10px 25px;
+    padding: 17px 32px;
     box-sizing: border-box;
     border: 2px solid transparent;
     cursor: pointer;
 
     .recipient {
-      color: #586897;
+      color: #486060;
       font-family: "Poppins_SemiBold";
     }
 
     .balance {
       display: flex;
       justify-content: space-between;
-      color: #586897;
+      color: #486060;
       font-family: "Poppins_Regular";
 
       div {
         font-family: "Poppins_SemiBold";
-        color: #586897;
+        color: #486060;
       }
     }
 
@@ -226,7 +247,7 @@ export default {
     .max {
       margin-left: 10px;
       font-size: 28px;
-      color: $colorMainBlue;
+      color: $colorBlack;
       font-family: "Poppins_SemiBold";
     }
 
@@ -238,37 +259,51 @@ export default {
       min-width: 40px;
       height: 40px;
       border-radius: 50%;
-      background: $colorBlack;
+      background: #3fdfae;
       margin-right: 10px;
 
       svg {
-        fill: $colorWhite;
+        fill: $colorBlack;
       }
     }
 
     .name {
       font-size: 28px;
       font-family: "Poppins_SemiBold";
-      color: #9ca6c6;
+      color: #73b1b1;
       user-select: none;
     }
 
     svg.arrow {
       cursor: pointer;
-      stroke: #9ca6c6;
-      transform: rotate(180deg);
+      fill: #73b1b1;
+      transform: rotate(0);
       @include animateEasy;
+    }
+  }
+
+  &.focused {
+    .select-amount__panel {
+      border: 2px solid $colorBaseGreen;
+      background: $colorWhite;
     }
   }
 
   &.active {
     .select-amount__panel {
-      border: 2px solid $colorMainBlue;
-      background: transparent;
+      border: 2px solid $colorBaseGreen;
+      background: $colorWhite;
 
       svg.arrow {
-        transform: rotate(0deg);
+        transform: rotate(180deg);
       }
+    }
+  }
+
+  &.error {
+    .select-amount__panel {
+      border-color: $colorRed;
+      background: $colorLightOrange;
     }
   }
 
@@ -277,11 +312,11 @@ export default {
     background: #fff;
     position: absolute;
     left: 0;
-    top: 170px;
+    top: 160px;
     width: 100%;
     min-height: 40px;
     border-radius: 8px;
-    border: 1px solid $colorMainBlue;
+    border: 2px solid $colorBaseGreen;
     padding: 20px 25px;
     box-sizing: border-box;
   }
@@ -291,7 +326,7 @@ export default {
     align-items: center;
     justify-content: space-between;
     min-height: 50px;
-    border-bottom: 1px solid #ccd5f0;
+    border-bottom: 1px dashed #73b1b1;
     cursor: pointer;
     @include animateEasy;
 
@@ -318,7 +353,7 @@ export default {
 
       .name {
         font-size: 16px;
-        color: $colorLightBlue;
+        color: #486060;
         font-family: "Poppins_Regular";
       }
     }
@@ -328,7 +363,7 @@ export default {
       font-family: "Poppins_SemiBold";
 
       span {
-        color: $colorLightBlue;
+        color: $colorBlack;
         font-family: "Poppins_Regular";
       }
     }
@@ -376,10 +411,24 @@ body.dark {
       }
     }
 
+    &.focused {
+      .select-amount__panel {
+        border: 2px solid $colorLightGreen;
+        background: transparent;
+      }
+    }
+
     &.active {
       .select-amount__panel {
         border: 2px solid $colorLightGreen;
         background: transparent;
+      }
+    }
+
+    &.error {
+      .select-amount__panel {
+        border-color: $colorRed;
+        background: $colorLightOrange;
       }
     }
 

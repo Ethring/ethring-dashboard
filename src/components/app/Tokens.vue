@@ -86,7 +86,7 @@ export default {
   }
 
   &__group {
-    border: 1px solid $borderLight;
+    border: 1px solid $colorLightGreen;
     border-radius: 16px;
     padding: 0 10px;
     margin-bottom: 7px;

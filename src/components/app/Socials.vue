@@ -31,13 +31,13 @@ export default {
     align-items: center;
     width: 87px;
     height: 46px;
-    border: 1px solid $borderLight;
+    border: 1px solid #494c56;
     border-radius: 8px;
     margin: 0 4px;
     cursor: pointer;
 
     svg {
-      fill: $colorBlack;
+      fill: $colorBrightGreen;
     }
   }
 }

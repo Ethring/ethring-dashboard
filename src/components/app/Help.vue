@@ -33,18 +33,17 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #f5f6ff;
+    background: $colorSlimLightBlue;
     font-family: "Poppins_Regular";
     font-size: 24px;
-    color: $colorBlack;
+    color: #486060;
     cursor: pointer;
 
     svg {
-      fill: $colorBlack;
+      fill: #486060;
 
       &.card-svg {
-        stroke: $colorBlack;
-        fill: none;
+        fill: #486060;
       }
     }
 
@@ -64,8 +63,7 @@ body.dark {
         fill: $themeGreen;
 
         &.card-svg {
-          stroke: $themeGreen;
-          fill: none;
+          fill: $themeGreen;
         }
       }
     }

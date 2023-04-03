@@ -114,7 +114,7 @@ export default {
     }
 
     svg {
-      fill: #586897;
+      fill: $colorLightGreen;
     }
   }
 }

@@ -16,3 +16,27 @@
 @mixin animateEasy {
   transition: all 0.3s ease-in-out;
 }
+
+$colorPl: #73B1B1;
+
+::-webkit-input-placeholder {
+  color:    $colorPl;
+}
+:-moz-placeholder {
+ color:    $colorPl;
+ opacity:  1;
+}
+::-moz-placeholder {
+ color:    $colorPl;
+ opacity:  1;
+}
+:-ms-input-placeholder {
+ color:    $colorPl;
+}
+::-ms-input-placeholder {
+ color:    $colorPl;
+}
+
+::placeholder {
+ color:    $colorPl;
+}

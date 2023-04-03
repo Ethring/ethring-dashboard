@@ -14,7 +14,7 @@
             :size="247"
             level="H"
             :margin="5"
-            background="#f0f3fd"
+            background="#C9E0E0"
           />
         </div>
         <div class="address-modal__copy">
@@ -80,7 +80,7 @@ export default {
     width: 250px;
     height: 250px;
     border-radius: 6px;
-    background: rgb(245, 246, 254);
+    background: $colorLightGreen;
 
     #qr {
       border-radius: 6px;
@@ -94,13 +94,13 @@ export default {
     border-radius: 6px;
     width: 250px;
     height: 56px;
-    background: rgb(245, 246, 254);
+    background: $colorLightGreen;
     box-sizing: border-box;
     padding: 0 12px;
     transition: all 0.3s ease-in-out;
 
     .address {
-      color: $colorMainBlue;
+      color: $colorBlack;
       font-size: 16px;
       font-family: "Poppins_SemiBold";
       width: 84%;
@@ -108,9 +108,9 @@ export default {
 
     .line {
       width: 1px;
-      margin: 0 10px;
+      margin: 0 11px;
       height: 30px;
-      background: $borderLight;
+      background: #73b1b1;
     }
 
     .icon {
@@ -125,7 +125,7 @@ export default {
     svg {
       transition: all 0.3s ease-in-out;
       position: absolute;
-      stroke: #586897;
+      stroke: $colorBlack;
       cursor: pointer;
 
       &:hover {

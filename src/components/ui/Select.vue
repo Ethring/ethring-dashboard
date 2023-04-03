@@ -36,7 +36,7 @@ import optimismSvg from "@/assets/icons/networks/optimism.svg";
 import arbitrumSvg from "@/assets/icons/networks/arbitrum.svg";
 import evmosethSvg from "@/assets/icons/networks/evmoseth.svg";
 import avalancheSvg from "@/assets/icons/networks/avalanche.svg";
-import arrowSvg from "@/assets/icons/dashboard/arrowdownstroke.svg";
+import arrowSvg from "@/assets/icons/dashboard/arrowdowndropdown.svg";
 import { prettyNumber } from "@/helpers/prettyNumber";
 
 import { onMounted, ref } from "vue";
@@ -87,10 +87,10 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: #f5f6ff;
+    background: $colorGray;
     border-radius: 8px;
     height: 80px;
-    padding: 0 25px;
+    padding: 17px 32px;
     box-sizing: border-box;
     border: 2px solid transparent;
     cursor: pointer;
@@ -107,11 +107,11 @@ export default {
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      background: $colorMainBlue;
+      background: #3fdfae;
       margin-right: 10px;
 
       svg {
-        fill: $colorWhite;
+        fill: $colorBlack;
       }
     }
 
@@ -124,19 +124,19 @@ export default {
 
     svg.arrow {
       cursor: pointer;
-      stroke: #9ca6c6;
-      transform: rotate(180deg);
+      fill: #73b1b1;
+      transform: rotate(0);
       @include animateEasy;
     }
   }
 
   &.active {
     .select__panel {
-      border: 2px solid $colorMainBlue;
-      background: transparent;
+      border: 2px solid $colorBaseGreen;
+      background: $colorWhite;
 
       svg.arrow {
-        transform: rotate(0deg);
+        transform: rotate(180deg);
       }
     }
   }
@@ -146,11 +146,11 @@ export default {
     background: #fff;
     position: absolute;
     left: 0;
-    top: 90px;
+    top: 80px;
     width: 100%;
     min-height: 40px;
     border-radius: 8px;
-    border: 1px solid $colorMainBlue;
+    border: 2px solid $colorBaseGreen;
     padding: 20px 25px;
     box-sizing: border-box;
   }
@@ -160,7 +160,7 @@ export default {
     align-items: center;
     justify-content: space-between;
     min-height: 50px;
-    border-bottom: 1px solid #ccd5f0;
+    border-bottom: 1px dashed #73b1b1;
     cursor: pointer;
     @include animateEasy;
 
@@ -187,7 +187,7 @@ export default {
 
       .name {
         font-size: 16px;
-        color: $colorLightBlue;
+        color: #486060;
         font-family: "Poppins_Regular";
       }
     }
@@ -197,7 +197,7 @@ export default {
       font-family: "Poppins_SemiBold";
 
       span {
-        color: $colorLightBlue;
+        color: $colorBlack;
         font-family: "Poppins_Regular";
       }
     }
