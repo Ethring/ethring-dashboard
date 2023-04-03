@@ -9,7 +9,7 @@
       <div class="info-wrap">
         <div class="info">
           <div class="network">
-            <TokenIcon width="24" height="24" :token="selectedToken" />
+            <TokenIcon width="24" height="24" :token="selectedToken" dark />
           </div>
           <div class="token">{{ selectedToken?.code }}</div>
           <arrowSvg class="arrow" />
