@@ -32,7 +32,12 @@
     />
     <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
     <InfoPanel v-if="txError" :title="txError" class="mt-10" />
-    <InfoPanel v-if="successHash" :hash="successHash" success class="mt-10" />
+    <InfoPanel
+      v-if="successHash"
+      :hash="successHash"
+      type="success"
+      class="mt-10"
+    />
     <Button
       xl
       :title="$t('simpleSend.confirm').toUpperCase()"

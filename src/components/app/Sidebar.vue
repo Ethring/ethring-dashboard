@@ -30,7 +30,7 @@ export default {
   height: 100vh;
   padding-left: 25px;
   border-right: 1px solid $borderLight;
-  background: #1c1f2c;
+  background: $colorDarkPanel;
 
   &__socials {
     position: absolute;
@@ -47,7 +47,7 @@ export default {
 body.dark {
   .sidebar {
     border-right: 1px solid $borderDark;
-    background: $colorDarkBgGreen;
+    // background: $colorDarkBgGreen;
   }
 }
 </style>

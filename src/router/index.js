@@ -37,6 +37,14 @@ const routes = [
       import(/* webpackChunkName: "about" */ "../views/Send.vue"),
   },
   {
+    path: "/kit",
+    name: "kit",
+    meta: {
+      isAuth: true,
+    },
+    component: () => import(/* webpackChunkName: "about" */ "../views/Kit.vue"),
+  },
+  {
     path: "/:pathMatch(.*)*",
     name: "notFound",
     component: () =>

@@ -1,5 +1,5 @@
 <template>
-  <div class="logo">
+  <div class="logo" @click="$router.push('/kit')">
     <div class="logo__round">
       <logoSvg />
     </div>
@@ -20,21 +20,10 @@ export default {
 .logo {
   display: flex;
   align-items: center;
+  cursor: pointer;
 
   &__round {
     margin-right: 10px;
-    // border-radius: 50%;
-    // width: 40px;
-    // height: 40px;
-    // display: flex;
-    // justify-content: center;
-    // align-items: center;
-    // background: $colorBrightGreen;
-    // margin-right: 5px;
-
-    svg {
-      // fill: $colorWhite;
-    }
   }
 
   &__text {
@@ -51,19 +40,11 @@ export default {
 
 body.dark {
   .logo {
-    &__round {
-      // background: $colorWhite;
-
-      svg {
-        // fill: $colorBlack;
-      }
-    }
-
     &__text {
       color: $colorWhite;
 
       span {
-        color: $themeGreen;
+        color: $colorBrightGreen;
       }
     }
   }

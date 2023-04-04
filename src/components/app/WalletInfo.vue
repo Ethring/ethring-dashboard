@@ -178,7 +178,7 @@ body.dark {
     }
 
     &__network {
-      background: rgb(34, 51, 31);
+      background: $colorDarkPanel;
 
       svg {
         opacity: 0.8;
@@ -187,7 +187,7 @@ body.dark {
 
     &__wallet {
       .address {
-        color: $colorWhite;
+        color: $colorBrightGreen;
 
         svg {
           stroke: #636363;
@@ -195,10 +195,10 @@ body.dark {
       }
 
       .balance {
-        color: $themeGreen;
+        color: $colorWhite;
 
         span {
-          color: $themeGreen;
+          color: $colorBrightGreen;
         }
       }
     }

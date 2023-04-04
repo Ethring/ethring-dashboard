@@ -222,7 +222,7 @@ body.dark {
     }
 
     &__network {
-      background: $colorLightGreen;
+      background: $colorBrightGreen;
 
       svg {
         fill: #070c0e;
@@ -232,7 +232,7 @@ body.dark {
 
     &__wallet {
       .address {
-        color: $colorLightBrown;
+        color: $colorWhite;
 
         svg {
           stroke: #636363;
@@ -247,8 +247,8 @@ body.dark {
         }
 
         svg {
-          fill: $themeGreen;
-          stroke: $themeGreen;
+          fill: $colorLightGreen;
+          stroke: $colorLightGreen;
         }
       }
 
@@ -265,11 +265,11 @@ body.dark {
         }
 
         svg {
-          fill: $themeGreen;
+          fill: $colorBrightGreen;
         }
 
         .percent {
-          color: $themeGreen;
+          color: $colorBrightGreen;
         }
       }
     }

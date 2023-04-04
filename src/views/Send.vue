@@ -101,6 +101,8 @@ export default {
 
 body.dark {
   .send {
+    background: rgb(12, 13, 23);
+
     .send-page {
       &__title {
         color: $colorWhite;

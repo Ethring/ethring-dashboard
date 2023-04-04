@@ -75,7 +75,7 @@ body.dark {
       }
 
       .arrow {
-        fill: $themeGreen;
+        fill: $colorBrightGreen;
       }
     }
   }

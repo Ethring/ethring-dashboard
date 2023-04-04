@@ -160,15 +160,16 @@ export default {
 
 body.dark {
   .tokens__item {
-    background: $colorDarkBgGreen;
+    background: $colorDarkPanel;
     border-color: transparent;
 
     &.inGroup {
       border-color: transparent;
 
       .network {
+        border-color: $colorBlack;
         .logo {
-          background: #22331f;
+          background: $colorBlack;
         }
       }
     }
@@ -184,18 +185,22 @@ body.dark {
         }
 
         .name {
-          color: $themeGreen;
+          color: $colorWhite;
+        }
+
+        .blockchain {
+          color: $colorBrightGreen;
         }
       }
     }
 
     .amount {
       .value {
-        color: $themeGreen;
+        color: $colorWhite;
       }
 
       .symbol {
-        color: $colorWhite;
+        color: #97ffd0;
       }
     }
 
@@ -205,7 +210,11 @@ body.dark {
       }
 
       .value {
-        color: $themeGreen;
+        color: $colorWhite;
+
+        span {
+          color: #97ffd0;
+        }
       }
     }
   }

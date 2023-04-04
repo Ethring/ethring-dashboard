@@ -73,7 +73,7 @@ export default {
 
 body.dark {
   .tokens__item-header {
-    border-color: #3c6651;
+    border-color: #494c56;
 
     .balance {
       color: $colorLightGreen;

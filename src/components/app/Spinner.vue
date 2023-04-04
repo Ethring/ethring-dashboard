@@ -51,10 +51,10 @@ export default {
 
 body.dark {
   .loader {
-    border-top: 0.8em solid #385c39;
-    border-right: 0.8em solid #385c39;
-    border-bottom: 0.8em solid #385c39;
-    border-left: 0.8em solid #22331f;
+    border-top: 0.8em solid $colorDarkPanel;
+    border-right: 0.8em solid $colorDarkPanel;
+    border-bottom: 0.8em solid $colorDarkPanel;
+    border-left: 0.8em solid $colorPl;
   }
 }
 </style>

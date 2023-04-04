@@ -33,6 +33,8 @@ export default {
 
 body.dark {
   .stake {
+    background: rgb(12, 13, 23);
+
     .stake-page {
       &__title {
         color: $colorWhite;

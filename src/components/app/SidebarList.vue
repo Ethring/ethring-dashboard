@@ -103,18 +103,18 @@ export default {
 body.dark {
   .sidebar-list {
     &__item {
-      color: $colorLightBrown;
+      color: $colorLightGreen;
 
       &.router-link-exact-active {
         color: $colorWhite;
 
         svg {
-          fill: $themeGreen;
+          fill: $colorBrightGreen;
         }
       }
 
       svg {
-        fill: $colorLightBrown;
+        fill: $colorLightGreen;
       }
     }
   }

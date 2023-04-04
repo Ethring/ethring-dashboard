@@ -34,8 +34,8 @@ export default {
   outline: none;
   background: $colorBlack;
   color: $colorWhite;
-  font-family: "Poppins_Regular";
-  font-weight: 700;
+  font-family: "Poppins_SemiBold";
+  // font-weight: 700;
   font-size: 14px;
   cursor: pointer;
 
@@ -60,12 +60,18 @@ export default {
 
 body.dark {
   .button {
-    background: $colorLightGreen;
+    background: $colorBrightGreen;
     color: $colorBlack;
 
+    &.disabled {
+      background: $colorDarkPanel;
+
+      color: #486060;
+    }
+
     &:hover {
-      background: $colorLightBrown;
-      color: $colorBlack;
+      background: $colorBlack;
+      color: $colorWhite;
     }
   }
 }

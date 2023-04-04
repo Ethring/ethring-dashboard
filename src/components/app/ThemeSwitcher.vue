@@ -77,8 +77,8 @@ export default {
 }
 
 .theme-switcher.checked {
-  border: 1px solid transparent;
-  background: rgb(34, 51, 31);
+  border: 1px solid #494c56;
+  background: $colorDarkPanel;
 
   .theme-switcher__check {
     background: #020c03;

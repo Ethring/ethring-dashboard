@@ -373,14 +373,14 @@ export default {
 body.dark {
   .select-amount {
     &__panel {
-      background: $colorDarkBgGreen;
+      background: $colorDarkPanel;
 
       .recipient,
       .balance {
         color: $colorLightGreen;
 
         div {
-          color: $colorLightBrown;
+          color: $colorLightGreen;
         }
       }
 
@@ -389,38 +389,38 @@ body.dark {
       }
 
       .input-balance {
-        color: $colorLightBrown;
+        color: $colorWhite;
       }
 
       .info {
         .network {
-          background: #22331f;
+          background: $colorBlack;
         }
 
         .name {
-          color: $colorLightBrown;
+          color: $colorWhite;
         }
       }
 
       .token {
-        color: $colorLightBrown;
+        color: $colorBrightGreen;
       }
 
       .max {
-        color: $colorLightGreen;
+        color: #97ffd0;
       }
     }
 
     &.focused {
       .select-amount__panel {
-        border: 2px solid $colorLightGreen;
+        border: 2px solid $colorBrightGreen;
         background: transparent;
       }
     }
 
     &.active {
       .select-amount__panel {
-        border: 2px solid $colorLightGreen;
+        border: 2px solid $colorBrightGreen;
         background: transparent;
       }
     }
@@ -428,13 +428,13 @@ body.dark {
     &.error {
       .select-amount__panel {
         border-color: $colorRed;
-        background: $colorLightOrange;
+        background: transparent;
       }
     }
 
     .select-amount__items {
-      background: $colorDarkBgGreen;
-      border-color: $colorLightGreen;
+      background: #0c0d18;
+      border-color: $colorBrightGreen;
     }
 
     .select-amount__items-item {
@@ -446,15 +446,15 @@ body.dark {
 
       .info {
         .name {
-          color: $colorLightBrown;
+          color: $colorPl;
         }
       }
 
       .amount {
-        color: $colorLightGreen;
+        color: $colorBrightGreen;
 
         span {
-          color: $colorWhite;
+          color: $colorPl;
         }
       }
     }

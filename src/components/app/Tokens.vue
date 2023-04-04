@@ -109,7 +109,7 @@ body.dark {
   .tokens {
     &__group {
       border-color: transparent;
-      background: $colorDarkBgGreen;
+      background: $colorDarkPanel;
     }
   }
 }

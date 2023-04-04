@@ -56,14 +56,14 @@ export default {
 body.dark {
   .help {
     &__item {
-      background: $colorDarkGreenGray;
-      color: $themeGreen;
+      background: #1c1f2c;
+      color: #c9e0e0;
 
       svg {
-        fill: $themeGreen;
+        fill: #c9e0e0;
 
         &.card-svg {
-          fill: $themeGreen;
+          fill: #c9e0e0;
         }
       }
     }

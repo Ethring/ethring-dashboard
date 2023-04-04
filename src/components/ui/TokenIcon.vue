@@ -93,4 +93,20 @@ export default {
     }
   }
 }
+
+body.dark {
+  .token-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &.dark {
+      img {
+        filter: brightness(0) invert(1);
+      }
+    }
+  }
+}
 </style>

@@ -328,7 +328,7 @@ export default {
 body.dark {
   .select-address {
     &__panel {
-      background: $colorDarkBgGreen;
+      background: $colorDarkPanel;
 
       .recipient,
       .address {
@@ -340,30 +340,34 @@ body.dark {
       }
 
       .input-address {
-        color: $colorLightBrown;
+        color: $colorWhite;
       }
 
       .info {
         .network {
-          background: #22331f;
+          background: $colorBlack;
+
+          svg {
+            fill: $colorWhite;
+          }
         }
 
         .name {
-          color: $colorLightBrown;
+          color: $colorWhite;
         }
       }
     }
 
     &.focused {
       .select-address__panel {
-        border: 2px solid $colorLightGreen;
+        border: 2px solid $colorBrightGreen;
         background: transparent;
       }
     }
 
     &.active {
       .select-address__panel {
-        border: 2px solid $colorLightGreen;
+        border: 2px solid $colorBrightGreen;
         background: transparent;
       }
     }
@@ -371,13 +375,13 @@ body.dark {
     &.error {
       .select-address__panel {
         border-color: $colorRed;
-        background: $colorLightOrange;
+        background: transparent;
       }
     }
 
     .select-address__items {
-      background: $colorDarkBgGreen;
-      border-color: $colorLightGreen;
+      background: #0c0d18;
+      border-color: $colorBrightGreen;
     }
 
     .select-address__items-item {
@@ -389,7 +393,7 @@ body.dark {
 
       .info {
         .name {
-          color: $colorLightBrown;
+          color: $colorPl;
         }
       }
 

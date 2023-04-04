@@ -119,8 +119,10 @@ export default {
 
 body.dark {
   .dashboard {
+    background: rgb(12, 13, 23);
+
     &__wallet {
-      background: $colorLightBgGreen;
+      background: $colorDarkPanel;
     }
   }
 }
