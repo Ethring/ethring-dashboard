@@ -36,11 +36,11 @@
       </div>
       <div class="ml-15">
         <div class="title">BUTTONS SECONDARY</div>
-        <Button title="Primary" secondary class="m-5" />
-        <Button title="Primary, disabled" secondary disabled class="m-5" />
-        <Button title="Primary, xl" secondary xl class="m-5" />
+        <Button title="Secondary" secondary class="m-5" />
+        <Button title="Secondary, disabled" secondary disabled class="m-5" />
+        <Button title="Secondary, xl" secondary xl class="m-5" />
         <Button
-          title="Primary, xl, disabled "
+          title="Secondary, xl, disabled "
           secondary
           xl
           disabled
@@ -75,6 +75,7 @@ export default {
     font-size: 24px;
     margin: 20px 0;
     font-family: "Poppins_SemiBold";
+    color: $colorBlack;
   }
 
   &__block {
@@ -97,5 +98,13 @@ export default {
 
 .mb-15 {
   margin-bottom: 15px;
+}
+
+body.dark {
+  .ui-kit {
+    .title {
+      color: $colorPl;
+    }
+  }
 }
 </style>
