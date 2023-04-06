@@ -191,7 +191,7 @@ export default {
     flex-direction: column;
     justify-content: space-between;
     background: $colorGray;
-    border-radius: 8px;
+    border-radius: 16px;
     height: 160px;
     padding: 17px 32px;
     box-sizing: border-box;
@@ -315,7 +315,7 @@ export default {
     top: 160px;
     width: 100%;
     min-height: 40px;
-    border-radius: 8px;
+    border-radius: 16px;
     border: 2px solid $colorBaseGreen;
     padding: 20px 25px;
     box-sizing: border-box;
@@ -385,7 +385,7 @@ body.dark {
       }
 
       svg.arrow {
-        stroke: $colorLightGreen;
+        fill: #486060;
       }
 
       .input-balance {
@@ -394,7 +394,7 @@ body.dark {
 
       .info {
         .network {
-          background: $colorBlack;
+          background: #0c0d18;
         }
 
         .name {
@@ -414,21 +414,21 @@ body.dark {
     &.focused {
       .select-amount__panel {
         border: 2px solid $colorBrightGreen;
-        background: transparent;
+        background: $colorDarkPanel;
       }
     }
 
     &.active {
       .select-amount__panel {
         border: 2px solid $colorBrightGreen;
-        background: transparent;
+        background: $colorDarkPanel;
       }
     }
 
     &.error {
       .select-amount__panel {
         border-color: $colorRed;
-        background: transparent;
+        background: $colorDarkPanel;
       }
     }
 

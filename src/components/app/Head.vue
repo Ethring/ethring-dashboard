@@ -40,7 +40,7 @@ export default {
 
   &__switcher {
     position: absolute;
-    right: 240px;
+    right: 257px;
   }
 }
 </style>

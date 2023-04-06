@@ -12,7 +12,6 @@
     <div class="wallet-info__wallet">
       <div class="address" @click="openMenu">
         {{ cutAddress(activeConnect.accounts[0] || "") }}
-        <arrowSvg class="arrow" />
       </div>
       <div class="balance">
         <div class="value">
@@ -41,7 +40,6 @@ import { computed, ref } from "vue";
 import { useStore } from "vuex";
 import { cutAddress } from "@/helpers/utils";
 import { prettyNumber } from "@/helpers/prettyNumber";
-import arrowSvg from "@/assets/icons/dashboard/arrowdown.svg";
 import bscSvg from "@/assets/icons/networks/bsc.svg";
 import ethSvg from "@/assets/icons/networks/eth.svg";
 import eyeSvg from "@/assets/icons/dashboard/eye.svg";
@@ -58,7 +56,6 @@ export default {
   name: "WalletInfo",
   components: {
     eyeSvg,
-    arrowSvg,
     arrowPriceSvg,
     bscSvg,
     ethSvg,
@@ -112,7 +109,7 @@ export default {
     justify-content: center;
     align-items: center;
     border-radius: 50%;
-    margin-right: 10px;
+    margin-right: 16px;
     background: #3fdfae;
 
     svg {
@@ -138,7 +135,7 @@ export default {
       display: flex;
       align-items: center;
       font-family: "Poppins_Light";
-      font-size: 17px;
+      font-size: 16px;
       cursor: pointer;
 
       svg {
@@ -152,24 +149,24 @@ export default {
       display: flex;
       align-items: center;
       font-family: "Poppins_SemiBold";
-      font-size: 22px;
+      font-size: 28px;
       color: $colorBlack;
       margin-top: -3px;
       user-select: none;
 
       .value {
-        min-width: 165px;
+        // min-width: 165px;
       }
 
       span {
         font-family: "Poppins_Regular";
-        margin: 0 20px 0 5px;
+        margin: 0 26px 0 5px;
       }
 
       svg {
         cursor: pointer;
         fill: #33363f;
-        stroke: #33363f;
+        // stroke: #33363f;
 
         &:hover {
           opacity: 0.7;
@@ -232,7 +229,7 @@ body.dark {
 
     &__wallet {
       .address {
-        color: $colorWhite;
+        color: $colorLightGreen;
 
         svg {
           stroke: #636363;
@@ -243,12 +240,12 @@ body.dark {
         color: $colorWhite;
 
         span {
-          color: $colorWhite;
+          color: #73b1b1;
         }
 
         svg {
           fill: $colorLightGreen;
-          stroke: $colorLightGreen;
+          // stroke: $colorLightGreen;
         }
       }
 

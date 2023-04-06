@@ -35,7 +35,7 @@ import { prettyNumber } from "@/helpers/prettyNumber";
 
 import useConnect from "@/compositions/useConnect";
 
-import arrowSvg from "@/assets/icons/dashboard/arrowdown.svg";
+import arrowSvg from "@/assets/icons/dashboard/arrowtopdown.svg";
 import bscSvg from "@/assets/icons/networks/bsc.svg";
 import ethSvg from "@/assets/icons/networks/eth.svg";
 import polygonSvg from "@/assets/icons/networks/polygon.svg";
@@ -87,7 +87,7 @@ export default {
   box-sizing: border-box;
   box-shadow: 0px 4px 40px transparent;
   position: absolute;
-  right: 0;
+  right: -19px;
   top: 0;
   border-radius: 8px;
 
@@ -108,10 +108,12 @@ export default {
     justify-content: center;
     align-items: center;
     border-radius: 50%;
-    margin-right: 10px;
-    background: $colorBlack;
+    margin-right: 17px;
+    background: #0c0d18;
+    padding-left: 1px;
 
     svg {
+      transform: scale(0.9);
       fill: $colorWhite;
     }
   }
@@ -134,12 +136,12 @@ export default {
       display: flex;
       align-items: center;
       font-family: "Poppins_Light";
-      font-size: 13px;
+      font-size: 14px;
       cursor: pointer;
 
       svg {
         @include animateEasy;
-        margin-left: 4px;
+        margin-left: 16px;
         stroke: $colorBlack;
       }
     }
@@ -149,7 +151,7 @@ export default {
       font-family: "Poppins_SemiBold";
       font-size: 18px;
       color: $colorBlack;
-      margin-top: -3px;
+      margin-top: -4px;
 
       span {
         font-family: "Poppins_Regular";
@@ -190,7 +192,7 @@ body.dark {
         color: $colorBrightGreen;
 
         svg {
-          stroke: #636363;
+          stroke: #486060;
         }
       }
 

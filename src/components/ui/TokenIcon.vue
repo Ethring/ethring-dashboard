@@ -88,7 +88,7 @@ export default {
     & span {
       font-size: 25px;
       line-height: 17px;
-      color: $colorBlack;
+      color: $colorWhite;
       font-family: "Poppins_Bold";
     }
   }

@@ -83,7 +83,7 @@ export default {
   &__wallet {
     position: relative;
     background-color: $colorSlimLightBlue;
-    padding: 15px;
+    padding: 24px 24px 28px 24px;
     box-sizing: border-box;
     border-radius: 16px;
 
