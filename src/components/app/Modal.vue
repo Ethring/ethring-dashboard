@@ -80,7 +80,7 @@ export default {
     height: 100%;
     background: $colorWhite;
     border-radius: 16px;
-    padding: 10px 20px 20px 20px;
+    padding: 24px 32px;
     box-sizing: border-box;
   }
 
@@ -103,8 +103,8 @@ export default {
 
   &__content-close {
     position: absolute;
-    right: 20px;
-    top: 20px;
+    right: 32px;
+    top: 30px;
     cursor: pointer;
 
     @include animateEasy;
@@ -114,7 +114,7 @@ export default {
     }
 
     svg {
-      fill: $colorLightGreen;
+      fill: #73b1b1;
     }
   }
 }
@@ -122,11 +122,22 @@ export default {
 body.dark {
   .modal {
     &__content {
-      background: $colorLightBgGreen;
+      background: #0c0d18;
     }
 
     &__content-title {
-      color: $themeGreen;
+      color: $colorWhite;
+    }
+
+    &__content-line {
+      margin: 10px 0;
+      border: 1px dashed #2e323e;
+    }
+
+    &__content-close {
+      svg {
+        fill: #73b1b1;
+      }
     }
   }
 }

@@ -79,6 +79,7 @@ export default {
   &__qr {
     width: 250px;
     height: 250px;
+    margin-top: -10px;
     border-radius: 6px;
     background: $colorLightGreen;
 
@@ -90,13 +91,13 @@ export default {
   &__copy {
     display: flex;
     align-items: center;
-    margin-top: 20px;
+    margin-top: 16px;
     border-radius: 6px;
     width: 250px;
     height: 56px;
     background: $colorLightGreen;
     box-sizing: border-box;
-    padding: 0 12px;
+    padding: 0 16px;
     transition: all 0.3s ease-in-out;
 
     .address {
@@ -125,7 +126,7 @@ export default {
     svg {
       transition: all 0.3s ease-in-out;
       position: absolute;
-      stroke: $colorBlack;
+      // fill: $colorBlack;
       cursor: pointer;
 
       &:hover {
@@ -138,15 +139,23 @@ export default {
 body.dark {
   .address-modal {
     &__qr {
-      background: #27272b4f;
+      background: $colorDarkPanel;
     }
 
     &__copy {
-      background: $colorDarkGreenGray;
+      background: $colorDarkPanel;
 
       .address {
-        color: $themeGreen;
+        color: $colorBrightGreen;
       }
+    }
+
+    &__line {
+      background: #494c56;
+    }
+
+    svg {
+      // stroke: #73B1B1;
     }
   }
 }
