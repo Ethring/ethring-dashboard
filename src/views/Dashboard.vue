@@ -1,6 +1,5 @@
 <template>
   <div class="dashboard">
-    <Head />
     <template v-if="hasConnect">
       <div class="dashboard__wallet">
         <bgSvg class="bg" />
@@ -30,7 +29,6 @@ import bgSvg from "@/assets/icons/dashboard/bginfo.svg";
 import NotConnect from "./NotConnect";
 import AddressModal from "@/components/app/modals/AddressModal";
 import WalletInfoLarge from "@/components/app/WalletInfoLarge";
-import Head from "@/components/app/Head";
 import Button from "@/components/ui/Button";
 import ActionsMenu from "@/components/app/ActionsMenu";
 import Tokens from "@/components/app/Tokens";
@@ -43,7 +41,6 @@ export default {
   components: {
     NotConnect,
     AddressModal,
-    Head,
     WalletInfoLarge,
     Button,
     ActionsMenu,
@@ -75,10 +72,12 @@ export default {
 </script>
 <style lang="scss" scoped>
 .dashboard {
-  box-sizing: border-box;
-  padding: 40px 150px 0;
-  width: calc(100% - 250px);
-  height: 100vh;
+  @include pageStructure;
+
+  &::-webkit-scrollbar {
+    width: 0px;
+    background-color: transparent;
+  }
 
   &__wallet {
     position: relative;
@@ -89,7 +88,7 @@ export default {
 
     display: flex;
     justify-content: space-between;
-    margin-top: 40px;
+    margin-top: 71px;
     padding-bottom: 20px;
     overflow: hidden;
 

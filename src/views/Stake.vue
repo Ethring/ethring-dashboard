@@ -1,19 +1,14 @@
 <template>
   <div class="stake">
-    <Head />
     <div class="stake-page">
       <div class="stake-page__title">Stake</div>
     </div>
   </div>
 </template>
 <script>
-import Head from "@/components/app/Head";
-
 export default {
   name: "Stake",
-  components: {
-    Head,
-  },
+  components: {},
 };
 </script>
 <style lang="scss" scoped>

@@ -1,6 +1,5 @@
 <template>
   <div class="send">
-    <Head />
     <div class="send-page">
       <Spinner v-if="loader" />
       <template v-else>
@@ -17,7 +16,6 @@
 </template>
 <script>
 import SimpleSend from "@/components/dynamic/send/SimpleSend";
-import Head from "@/components/app/Head";
 
 import { UIConfig } from "@/config/ui";
 import { useStore } from "vuex";
@@ -31,7 +29,6 @@ import useTokens from "@/compositions/useTokens";
 export default {
   name: "Send",
   components: {
-    Head,
     SimpleSend,
     Spinner,
   },
@@ -78,11 +75,6 @@ export default {
 
   .send-page {
     @include pageFlexColumn;
-
-    &::-webkit-scrollbar {
-      width: 0px;
-      background-color: transparent;
-    }
 
     &__title {
       color: $colorBlack;

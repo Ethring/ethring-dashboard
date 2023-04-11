@@ -21,7 +21,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .sidebar {
-  position: relative;
+  position: fixed;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;

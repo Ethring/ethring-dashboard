@@ -1,6 +1,5 @@
 <template>
   <div class="swap">
-    <Head />
     <div class="swap-page">
       <div class="swap-page__title">Swap</div>
       <div class="swap-page__wrap">
@@ -10,7 +9,6 @@
   </div>
 </template>
 <script>
-import Head from "@/components/app/Head";
 import PancakeSwap from "@/components/dynamic/swaps/PancakeSwap";
 import UniSwap from "@/components/dynamic/swaps/UniSwap";
 import DefaultSwap from "@/components/dynamic/swaps/DefaultSwap";
@@ -24,7 +22,6 @@ import useConnect from "@/compositions/useConnect";
 export default {
   name: "Swap",
   components: {
-    Head,
     PancakeSwap,
     UniSwap,
     DefaultSwap,

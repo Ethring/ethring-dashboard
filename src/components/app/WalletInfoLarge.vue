@@ -22,7 +22,8 @@
           }}
           <span>{{ networks[activeConnect.network]?.code }}</span>
         </div>
-        <eyeSvg @click="toggleViewBalance" />
+        <eyeSvg v-if="showBalance" @click="toggleViewBalance" />
+        <eyeOpenSvg v-if="!showBalance" @click="toggleViewBalance" />
       </div>
       <div
         v-if="marketCap.priceUsdDelta24pct"
@@ -43,6 +44,7 @@ import { prettyNumber } from "@/helpers/prettyNumber";
 import bscSvg from "@/assets/icons/networks/bsc.svg";
 import ethSvg from "@/assets/icons/networks/eth.svg";
 import eyeSvg from "@/assets/icons/dashboard/eye.svg";
+import eyeOpenSvg from "@/assets/icons/dashboard/eyeOpen.svg";
 import arrowPriceSvg from "@/assets/icons/dashboard/arrowprice.svg";
 import polygonSvg from "@/assets/icons/networks/polygon.svg";
 import optimismSvg from "@/assets/icons/networks/optimism.svg";
@@ -56,6 +58,7 @@ export default {
   name: "WalletInfo",
   components: {
     eyeSvg,
+    eyeOpenSvg,
     arrowPriceSvg,
     bscSvg,
     ethSvg,
@@ -129,6 +132,7 @@ export default {
   &__wallet {
     display: flex;
     flex-direction: column;
+    z-index: 10;
 
     .address {
       user-select: none;
@@ -155,7 +159,7 @@ export default {
       user-select: none;
 
       .value {
-        // min-width: 165px;
+        min-width: 165px;
       }
 
       span {
@@ -166,10 +170,9 @@ export default {
       svg {
         cursor: pointer;
         fill: #33363f;
-        // stroke: #33363f;
 
         &:hover {
-          opacity: 0.7;
+          fill: $colorBaseGreen;
         }
       }
     }
@@ -244,8 +247,12 @@ body.dark {
         }
 
         svg {
+          cursor: pointer;
           fill: $colorLightGreen;
-          // stroke: $colorLightGreen;
+
+          &:hover {
+            fill: $colorBrightGreen;
+          }
         }
       }
 

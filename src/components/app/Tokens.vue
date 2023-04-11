@@ -76,14 +76,9 @@ export default {
 .tokens {
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 310px);
-  height: calc(100vh - 310px);
+  // min-height: calc(100vh - 310px);
+  // height: calc(100vh - 310px);
   overflow-y: auto;
-
-  &::-webkit-scrollbar {
-    width: 0px;
-    background-color: transparent;
-  }
 
   &__group {
     border: 1px solid $colorLightGreen;

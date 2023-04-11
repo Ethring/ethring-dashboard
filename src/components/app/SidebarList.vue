@@ -71,7 +71,11 @@ export default {
     @include animateEasy;
 
     &:hover {
-      opacity: 0.5;
+      color: $colorPl;
+
+      svg {
+        fill: $colorPl;
+      }
     }
 
     &.router-link-exact-active {
@@ -110,6 +114,14 @@ body.dark {
 
         svg {
           fill: $colorBrightGreen;
+        }
+      }
+
+      &:hover {
+        color: $colorPl;
+
+        svg {
+          fill: $colorPl;
         }
       }
 

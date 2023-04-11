@@ -319,6 +319,13 @@ export default {
     border: 2px solid $colorBaseGreen;
     padding: 20px 25px;
     box-sizing: border-box;
+    max-height: 180px;
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+      width: 0px;
+      background-color: transparent;
+    }
   }
 
   &__items-item {

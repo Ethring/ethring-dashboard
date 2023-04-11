@@ -71,6 +71,10 @@ export default {
   display: flex;
   flex-direction: column;
 
+  @include pageStructure;
+
+  padding-left: 30px;
+
   .title {
     font-size: 24px;
     margin: 20px 0;
@@ -102,6 +106,8 @@ export default {
 
 body.dark {
   .ui-kit {
+    background: #14151a;
+
     .title {
       color: $colorPl;
     }
