@@ -54,6 +54,9 @@ export default {
 
   .notconnect-page {
     @include pageFlexColumn;
+    margin-top: 0;
+    justify-content: center;
+    height: 100vh;
 
     &__title {
       color: $colorBlack;
