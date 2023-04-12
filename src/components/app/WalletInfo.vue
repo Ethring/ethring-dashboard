@@ -2,13 +2,7 @@
   <div :class="{ opened }" class="wallet-info__wrap">
     <div :class="{ opened }" class="wallet-info">
       <div class="wallet-info__network">
-        <bscSvg v-if="activeConnect.chainId === 56" />
-        <ethSvg v-if="activeConnect.chainId === 1" />
-        <polygonSvg v-if="activeConnect.chainId === 137" />
-        <optimismSvg v-if="activeConnect.chainId === 10" />
-        <arbitrumSvg v-if="activeConnect.chainId === 42161" />
-        <evmosethSvg v-if="activeConnect.chainId === 9001" />
-        <avalancheSvg v-if="activeConnect.chainId === 43114" />
+        <component :is="`${activeConnect?.network}Svg`" />
       </div>
       <div class="wallet-info__wallet">
         <div class="address" @click="openMenu">

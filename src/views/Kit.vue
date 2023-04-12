@@ -1,6 +1,5 @@
 <template>
   <div class="ui-kit">
-    <ThemeSwitcher class="m-5 mb-15" />
     <!-- INFO PANEL -->
     <div class="title">INFOPANELS</div>
     <div class="ui-kit__block">
@@ -51,14 +50,12 @@
   </div>
 </template>
 <script>
-import ThemeSwitcher from "@/components/app/ThemeSwitcher.vue";
 import InfoPanel from "@/components/ui/InfoPanel";
 import Button from "@/components/ui/Button";
 
 export default {
   name: "UIKit",
   components: {
-    ThemeSwitcher,
     InfoPanel,
     Button,
   },
@@ -66,6 +63,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .ui-kit {
+  margin-top: 70px;
   padding: 20px;
   box-sizing: border-box;
   display: flex;
