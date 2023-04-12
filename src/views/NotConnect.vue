@@ -56,7 +56,7 @@ export default {
     @include pageFlexColumn;
     margin-top: 0;
     justify-content: center;
-    height: 100vh;
+    height: calc(100vh - 115px);
 
     &__title {
       color: $colorBlack;

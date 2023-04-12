@@ -90,6 +90,7 @@ export default {
     svg {
       fill: $colorLightGreen;
       transform: scale(0.8);
+      @include animateEasy;
     }
   }
 
