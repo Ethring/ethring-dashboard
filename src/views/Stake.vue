@@ -17,6 +17,7 @@ export default {
 
   .stake-page {
     @include pageFlexColumn;
+    height: calc(100vh - 125px);
 
     &__title {
       color: $colorBlack;
