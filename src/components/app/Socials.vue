@@ -44,13 +44,6 @@ export default {
 
 body.dark {
   .socials {
-    &__item {
-      border: 1px solid $colorLightBrown;
-
-      svg {
-        fill: $colorWhite;
-      }
-    }
   }
 }
 </style>
