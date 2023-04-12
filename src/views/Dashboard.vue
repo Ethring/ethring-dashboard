@@ -85,6 +85,7 @@ export default {
     padding: 24px 24px 28px 24px;
     box-sizing: border-box;
     border-radius: 16px;
+    min-height: 128px;
 
     display: flex;
     justify-content: space-between;

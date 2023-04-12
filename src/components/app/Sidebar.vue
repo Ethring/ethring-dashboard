@@ -39,7 +39,7 @@ export default {
 
   &__logo {
     position: absolute;
-    left: 25px;
+    left: 30px;
     top: 40px;
   }
 }

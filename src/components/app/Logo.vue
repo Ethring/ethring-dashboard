@@ -3,11 +3,11 @@
     <div class="logo__round">
       <logoSvg />
     </div>
-    <div class="logo__text">Z<span>O</span>M<span>E</span>T</div>
+    <!-- <div class="logo__text">Z<span>O</span>M<span>E</span>T</div> -->
   </div>
 </template>
 <script>
-import logoSvg from "@/assets/icons/app/logohead.svg";
+import logoSvg from "@/assets/icons/app/logo.svg";
 
 export default {
   name: "Logo",
@@ -24,6 +24,10 @@ export default {
 
   &__round {
     margin-right: 10px;
+
+    svg {
+      fill: $colorWhite;
+    }
   }
 
   &__text {
