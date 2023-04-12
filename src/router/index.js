@@ -37,6 +37,15 @@ const routes = [
       import(/* webpackChunkName: "about" */ "../views/Send.vue"),
   },
   {
+    path: "/swap",
+    name: "swap",
+    meta: {
+      isAuth: true,
+    },
+    component: () =>
+      import(/* webpackChunkName: "about" */ "../views/Swap.vue"),
+  },
+  {
     path: "/kit",
     name: "kit",
     meta: {

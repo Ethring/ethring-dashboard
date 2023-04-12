@@ -350,10 +350,6 @@ export default {
       border-bottom: 1px solid transparent;
     }
 
-    &:hover {
-      opacity: 0.7;
-    }
-
     .info {
       display: flex;
       align-items: center;
@@ -362,6 +358,14 @@ export default {
         font-size: 16px;
         color: #486060;
         font-family: "Poppins_Regular";
+      }
+    }
+
+    &:hover {
+      .info {
+        .name {
+          color: $colorBaseGreen;
+        }
       }
     }
 
@@ -454,6 +458,14 @@ body.dark {
       .info {
         .name {
           color: $colorPl;
+        }
+      }
+
+      &:hover {
+        .info {
+          .name {
+            color: #97ffd0;
+          }
         }
       }
 

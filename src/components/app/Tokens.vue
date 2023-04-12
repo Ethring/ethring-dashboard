@@ -52,7 +52,9 @@ export default {
 
     const loader = computed(() => store.getters["tokens/loader"]);
     const emptyLists = computed(() => {
-      return !tokens.value.length && groupTokens.value.length <= 1; // <=1 - parent network
+      return (
+        !tokens.value.length && groupTokens.value.every((g) => !g.list.length)
+      ); // <=1 - parent network
     });
 
     const toggleGroup = (groupNdx) => {

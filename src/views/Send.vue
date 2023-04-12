@@ -19,7 +19,7 @@ import SimpleSend from "@/components/dynamic/send/SimpleSend";
 
 import { UIConfig } from "@/config/ui";
 import { useStore } from "vuex";
-import { computed, onMounted, watch } from "vue";
+import { computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import Spinner from "@/components/app/Spinner";
 
@@ -43,12 +43,6 @@ export default {
 
     const sendComponent = computed(() => {
       return UIConfig[activeConnect.value.network]?.send?.component;
-    });
-
-    onMounted(() => {
-      if (activeConnect.value.network) {
-        // activeConnect.value.updateBalances();
-      }
     });
 
     watch(

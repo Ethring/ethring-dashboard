@@ -1,50 +1,52 @@
 <template>
-  <div class="simple-send">
+  <div class="simple-swap">
     <Select :items="groupTokens" @select="onSelectNetwork" />
-    <InfoPanel
-      v-if="
-        activeConnect &&
-        selectedNetwork &&
-        activeConnect?.network !== selectedNetwork?.net
-      "
-      :title="$t('simpleSend.mmIncorrectNetwork')"
-      class="mt-10"
-    />
-    <SelectAddress
-      :selected-network="selectedNetwork"
-      :items="favouritesList[selectedNetwork?.net] || []"
-      :error="!!errorAddress"
-      class="mt-10"
-      :on-reset="successHash"
-      @removeAddress="onRemoveFavourite"
-      @setAddress="onSetAddress"
-    />
-    <InfoPanel v-if="errorAddress" :title="errorAddress" class="mt-10" />
-    <SelectAmount
-      v-if="tokensList.length"
-      :selected-network="selectedNetwork"
-      :items="tokensList"
-      :error="!!errorBalance"
-      :on-reset="successHash"
-      class="mt-10"
-      @setAmount="onSetAmount"
-      @setToken="onSetToken"
-    />
-    <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
-    <InfoPanel v-if="txError" :title="txError" class="mt-10" />
-    <InfoPanel
-      v-if="successHash"
-      :hash="successHash"
-      title="Transaction hash"
-      type="success"
-      class="mt-10"
-    />
+    <template v-if="false">
+      <InfoPanel
+        v-if="
+          activeConnect &&
+          selectedNetwork &&
+          activeConnect?.network !== selectedNetwork?.net
+        "
+        :title="$t('simpleSend.mmIncorrectNetwork')"
+        class="mt-10"
+      />
+      <SelectAddress
+        :selected-network="selectedNetwork"
+        :items="favouritesList[selectedNetwork?.net] || []"
+        :error="!!errorAddress"
+        class="mt-10"
+        :on-reset="successHash"
+        @removeAddress="onRemoveFavourite"
+        @setAddress="onSetAddress"
+      />
+      <InfoPanel v-if="errorAddress" :title="errorAddress" class="mt-10" />
+      <SelectAmount
+        v-if="tokensList.length"
+        :selected-network="selectedNetwork"
+        :items="tokensList"
+        :error="!!errorBalance"
+        :on-reset="successHash"
+        class="mt-10"
+        @setAmount="onSetAmount"
+        @setToken="onSetToken"
+      />
+      <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
+      <InfoPanel v-if="txError" :title="txError" class="mt-10" />
+      <InfoPanel
+        v-if="successHash"
+        :hash="successHash"
+        title="Transaction hash"
+        type="success"
+        class="mt-10"
+      />
+    </template>
     <Button
       xl
-      :title="$t('simpleSend.confirm').toUpperCase()"
+      :title="$t('simpleSwap.swap').toUpperCase()"
       :disabled="!!disabledSend"
-      class="simple-send__btn mt-10"
-      @click="send"
+      class="simple-swap__btn mt-10"
+      @click="swap"
     />
   </div>
 </template>
@@ -65,7 +67,7 @@ import { useStore } from "vuex";
 import { getTxUrl } from "@/helpers/utils";
 
 export default {
-  name: "SimpleSend",
+  name: "SimpleSwap",
   components: {
     InfoPanel,
     Select,
@@ -147,7 +149,7 @@ export default {
       store.dispatch("tokens/removeFavourite", params);
     };
 
-    const send = async () => {
+    const swap = async () => {
       if (disabledSend.value) {
         return;
       }
@@ -209,7 +211,7 @@ export default {
       onSetAddress,
       onSetToken,
       onSetAmount,
-      send,
+      swap,
       txError,
       successHash,
     };
@@ -217,7 +219,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.simple-send {
+.simple-swap {
   width: 660px;
 
   .mt-10 {

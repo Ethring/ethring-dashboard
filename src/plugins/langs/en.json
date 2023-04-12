@@ -24,6 +24,7 @@
   },
   "actionTokens": "Tokens",
   "actionTransactions": "Transactions",
+
   "simpleSend": {
     "title": "Send",
     "mmIncorrectNetwork": "Please change network in Metamask",
@@ -32,5 +33,10 @@
     "amount": "Amount",
     "balance": "Balance",
     "max": "Max"
+  },
+
+  "simpleSwap": {
+    "title": "Swap",
+    "swap": "Swap"
   }
 }

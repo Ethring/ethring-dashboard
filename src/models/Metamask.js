@@ -45,8 +45,7 @@ export default class MetamaskConnector {
         );
         // check status and exist tokens in network
         if (
-          tokenInfo.status === 200 &&
-          Object.keys(tokenInfo.data.data).length
+          tokenInfo.status === 200 // && Object.keys(tokenInfo.data.data).length
         ) {
           tokens[net] = { list: tokenInfo.data.data, balance };
         }

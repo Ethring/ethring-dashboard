@@ -317,7 +317,22 @@ export default {
     }
 
     &:hover {
-      opacity: 0.7;
+      .info {
+        .name {
+          color: $colorBaseGreen;
+        }
+      }
+    }
+
+    .info {
+      display: flex;
+      align-items: center;
+
+      .name {
+        font-size: 16px;
+        color: #486060;
+        font-family: "Poppins_Regular";
+      }
     }
 
     .info {
@@ -402,6 +417,14 @@ body.dark {
       .info {
         .name {
           color: $colorPl;
+        }
+      }
+
+      &:hover {
+        .info {
+          .name {
+            color: #97ffd0;
+          }
         }
       }
 

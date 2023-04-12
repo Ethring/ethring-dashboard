@@ -172,10 +172,16 @@ export default {
     cursor: pointer;
     @include animateEasy;
 
+    .info {
+      .name {
+        color: #486060;
+      }
+    }
+
     &.active {
       .info {
         .name {
-          color: $colorBlack;
+          color: #1c1f2c;
           font-family: "Poppins_SemiBold";
         }
       }
@@ -186,7 +192,11 @@ export default {
     }
 
     &:hover {
-      opacity: 0.7;
+      .info {
+        .name {
+          color: $colorBaseGreen;
+        }
+      }
     }
 
     .info {
@@ -266,6 +276,14 @@ body.dark {
 
         span {
           color: $colorPl;
+        }
+      }
+
+      &:hover {
+        .info {
+          .name {
+            color: #97ffd0;
+          }
         }
       }
     }

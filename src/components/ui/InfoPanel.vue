@@ -1,9 +1,9 @@
 <template>
   <div :class="[type]" class="info-panel">
     <component :is="`${type}Svg`" />
-    <div v-if="title" class="info-panel__title">{{ title }}</div>
+    <div v-if="title && !hash" class="info-panel__title">{{ title }}</div>
     <a v-if="hash" :href="hash" target="_blank" class="info-panel__link">{{
-      hash
+      title
     }}</a>
   </div>
 </template>
