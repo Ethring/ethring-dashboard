@@ -16,6 +16,9 @@
 </template>
 <script>
 import SimpleSwap from "@/components/dynamic/swaps/SimpleSwap";
+import UniSwap from "@/components/dynamic/swaps/UniSwap";
+import PancakeSwap from "@/components/dynamic/swaps/PancakeSwap";
+import NotWorking from "@/components/dynamic/swaps/NotWorking";
 
 import { UIConfig } from "@/config/ui";
 import { useStore } from "vuex";
@@ -30,6 +33,9 @@ export default {
   name: "Swap",
   components: {
     SimpleSwap,
+    UniSwap,
+    PancakeSwap,
+    NotWorking,
     Spinner,
   },
   setup() {

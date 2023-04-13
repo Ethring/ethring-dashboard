@@ -1,46 +1,51 @@
 <template>
   <div class="simple-swap">
     <Select :items="groupTokens" @select="onSelectNetwork" />
-    <template v-if="false">
-      <InfoPanel
-        v-if="
-          activeConnect &&
-          selectedNetwork &&
-          activeConnect?.network !== selectedNetwork?.net
-        "
-        :title="$t('simpleSend.mmIncorrectNetwork')"
-        class="mt-10"
-      />
-      <SelectAddress
-        :selected-network="selectedNetwork"
-        :items="favouritesList[selectedNetwork?.net] || []"
-        :error="!!errorAddress"
-        class="mt-10"
-        :on-reset="successHash"
-        @removeAddress="onRemoveFavourite"
-        @setAddress="onSetAddress"
-      />
-      <InfoPanel v-if="errorAddress" :title="errorAddress" class="mt-10" />
+    <InfoPanel
+      v-if="
+        activeConnect &&
+        selectedNetwork &&
+        activeConnect?.network !== selectedNetwork?.net
+      "
+      :title="$t('simpleSend.mmIncorrectNetwork')"
+      class="mt-10"
+    />
+    <div class="simple-swap__switch-wrap">
       <SelectAmount
         v-if="tokensList.length"
         :selected-network="selectedNetwork"
         :items="tokensList"
         :error="!!errorBalance"
         :on-reset="successHash"
+        :label="$t('simpleSwap.pay')"
         class="mt-10"
         @setAmount="onSetAmount"
         @setToken="onSetToken"
       />
-      <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
-      <InfoPanel v-if="txError" :title="txError" class="mt-10" />
-      <InfoPanel
-        v-if="successHash"
-        :hash="successHash"
-        title="Transaction hash"
-        type="success"
+      <div class="simple-swap__switch">
+        <SwapSvg />
+      </div>
+      <SelectAmount
+        v-if="tokensList.length"
+        :selected-network="selectedNetwork"
+        :items="tokensList"
+        :error="!!errorBalance"
+        :on-reset="successHash"
+        :label="$t('simpleSwap.receive')"
         class="mt-10"
+        @setAmount="onSetAmount"
+        @setToken="onSetToken"
       />
-    </template>
+    </div>
+    <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
+    <InfoPanel v-if="txError" :title="txError" class="mt-10" />
+    <InfoPanel
+      v-if="successHash"
+      :hash="successHash"
+      :title="$t('tx.txHash')"
+      type="success"
+      class="mt-10"
+    />
     <Button
       xl
       :title="$t('simpleSwap.swap').toUpperCase()"
@@ -53,7 +58,6 @@
 <script>
 import InfoPanel from "@/components/ui/InfoPanel";
 import Select from "@/components/ui/Select";
-import SelectAddress from "@/components/ui/SelectAddress";
 import SelectAmount from "@/components/ui/SelectAmount";
 
 import Button from "@/components/ui/Button";
@@ -65,15 +69,16 @@ import { computed, ref } from "vue";
 import { useStore } from "vuex";
 
 import { getTxUrl } from "@/helpers/utils";
+import SwapSvg from "@/assets/icons/dashboard/swap.svg";
 
 export default {
   name: "SimpleSwap",
   components: {
     InfoPanel,
     Select,
-    SelectAddress,
     SelectAmount,
     Button,
+    SwapSvg,
   },
   setup() {
     const store = useStore();
@@ -222,6 +227,30 @@ export default {
 .simple-swap {
   width: 660px;
 
+  &__switch-wrap {
+    position: relative;
+  }
+
+  &__switch {
+    cursor: pointer;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 48px;
+    height: 48px;
+    z-index: 10;
+    border-radius: 50%;
+    left: calc(50% - 24px);
+    bottom: 138px;
+    background: $colorGray;
+    border: 4px solid $colorWhite;
+
+    svg {
+      fill: $colorPl;
+    }
+  }
+
   .mt-10 {
     margin-top: 10px;
   }
@@ -229,6 +258,19 @@ export default {
   &__btn {
     height: 64px;
     width: 100%;
+  }
+}
+
+body.dark {
+  .simple-swap {
+    &__switch {
+      background: $colorDarkPanel;
+      border: 4px solid #0c0d18;
+
+      svg {
+        fill: $colorBrightGreen;
+      }
+    }
   }
 }
 </style>

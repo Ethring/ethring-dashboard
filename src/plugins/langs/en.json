@@ -4,6 +4,9 @@
       "title": "Receive"
     }
   },
+  "tx": {
+    "txHash": "Transaction hash"
+  },
   "dashboard": {
     "receive": "RECEIVE",
     "send": "SEND"
@@ -37,6 +40,8 @@
 
   "simpleSwap": {
     "title": "Swap",
-    "swap": "Swap"
+    "swap": "Swap",
+    "pay": "Pay",
+    "receive": "Receive"
   }
 }

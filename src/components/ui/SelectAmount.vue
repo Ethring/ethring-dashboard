@@ -5,7 +5,7 @@
     @click="active = !active"
   >
     <div class="select-amount__panel">
-      <div class="recipient">{{ $t("simpleSend.amount") }}</div>
+      <div class="label">{{ label }}</div>
       <div class="info-wrap">
         <div class="info">
           <div class="network">
@@ -90,6 +90,10 @@ export default {
     error: {
       type: Boolean,
       default: false,
+    },
+    label: {
+      type: String,
+      required: true,
     },
   },
   components: {
@@ -198,7 +202,7 @@ export default {
     border: 2px solid transparent;
     cursor: pointer;
 
-    .recipient {
+    .label {
       color: #486060;
       font-family: "Poppins_SemiBold";
     }
@@ -386,7 +390,7 @@ body.dark {
     &__panel {
       background: $colorDarkPanel;
 
-      .recipient,
+      .label,
       .balance {
         color: $colorLightGreen;
 

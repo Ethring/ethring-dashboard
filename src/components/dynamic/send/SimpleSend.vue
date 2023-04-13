@@ -25,6 +25,7 @@
       :selected-network="selectedNetwork"
       :items="tokensList"
       :error="!!errorBalance"
+      :label="$t('simpleSend.amount')"
       :on-reset="successHash"
       class="mt-10"
       @setAmount="onSetAmount"
@@ -35,7 +36,7 @@
     <InfoPanel
       v-if="successHash"
       :hash="successHash"
-      title="Transaction hash"
+      :title="$t('tx.txHash')"
       type="success"
       class="mt-10"
     />
