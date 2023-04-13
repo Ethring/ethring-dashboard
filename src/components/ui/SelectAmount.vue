@@ -23,7 +23,7 @@
           @click.stop="() => {}"
           class="input-balance"
         />
-        <div class="max" @click.stop="setMax">
+        <div v-if="!hideMax" class="max" @click.stop="setMax">
           {{ $t("simpleSend.max").toUpperCase() }}
         </div>
       </div>
@@ -95,6 +95,17 @@ export default {
       type: String,
       required: true,
     },
+    hideMax: {
+      type: Boolean,
+      default: false,
+    },
+    isUpdate: {
+      type: Boolean,
+      default: false,
+    },
+    newValue: {
+      type: Object,
+    },
   },
   components: {
     arrowSvg,
@@ -123,6 +134,15 @@ export default {
       (newV) => {
         if (newV.length) {
           selectedToken.value = newV[0];
+        }
+      }
+    );
+
+    watch(
+      () => props.isUpdate,
+      (isUpdate) => {
+        if (isUpdate) {
+          setToken(props.newValue);
         }
       }
     );

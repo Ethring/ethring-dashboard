@@ -17,12 +17,14 @@
         :items="tokensList"
         :error="!!errorBalance"
         :on-reset="successHash"
+        :new-value="selectedTokenFrom"
+        :is-update="isUpdateSwapDirectionValue"
         :label="$t('simpleSwap.pay')"
         class="mt-10"
         @setAmount="onSetAmount"
-        @setToken="onSetToken"
+        @setToken="onSetTokenFrom"
       />
-      <div class="simple-swap__switch">
+      <div class="simple-swap__switch" @click="swapTokensDirection">
         <SwapSvg />
       </div>
       <SelectAmount
@@ -31,10 +33,12 @@
         :items="tokensList"
         :error="!!errorBalance"
         :on-reset="successHash"
+        :new-value="selectedTokenTo"
+        :is-update="isUpdateSwapDirectionValue"
         :label="$t('simpleSwap.receive')"
+        hide-max
         class="mt-10"
-        @setAmount="onSetAmount"
-        @setToken="onSetToken"
+        @setToken="onSetTokenTo"
       />
     </div>
     <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
@@ -49,7 +53,7 @@
     <Button
       xl
       :title="$t('simpleSwap.swap').toUpperCase()"
-      :disabled="!!disabledSend"
+      :disabled="!!disabledSwap"
       class="simple-swap__btn mt-10"
       @click="swap"
     />
@@ -68,7 +72,7 @@ import useConnect from "@/compositions/useConnect";
 import { computed, ref } from "vue";
 import { useStore } from "vuex";
 
-import { getTxUrl } from "@/helpers/utils";
+// import { getTxUrl } from "@/helpers/utils";
 import SwapSvg from "@/assets/icons/dashboard/swap.svg";
 
 export default {
@@ -87,26 +91,26 @@ export default {
     const successHash = ref("");
 
     const selectedNetwork = ref(null);
-    const selectedToken = ref(null);
-    const amount = ref("");
-    const address = ref("");
+    const selectedTokenFrom = ref(null);
+    const selectedTokenTo = ref(null);
+    const isUpdateSwapDirectionValue = ref(false);
 
-    const errorAddress = ref("");
+    const amount = ref("");
+
     const errorBalance = ref("");
 
     const { groupTokens } = useTokens();
     const { activeConnect } = useConnect();
     const favouritesList = computed(() => store.getters["tokens/favourites"]);
 
-    const disabledSend = computed(() => {
+    const disabledSwap = computed(() => {
       return (
         isLoading.value ||
-        errorAddress.value ||
         errorBalance.value ||
         !+amount.value ||
-        !address.value.length ||
         !selectedNetwork.value ||
-        !selectedToken.value
+        !selectedTokenFrom.value ||
+        !selectedTokenTo.value
       );
     });
 
@@ -124,19 +128,12 @@ export default {
       selectedNetwork.value = network;
     };
 
-    const onSetToken = (token) => {
-      selectedToken.value = token;
+    const onSetTokenFrom = (token) => {
+      selectedTokenFrom.value = token;
     };
 
-    const onSetAddress = (addr) => {
-      const reg = new RegExp(selectedNetwork.value.validating);
-      address.value = addr;
-
-      if (address.value.length && !reg.test(addr)) {
-        errorAddress.value = "Invalid address";
-        return;
-      }
-      errorAddress.value = "";
+    const onSetTokenTo = (token) => {
+      selectedTokenTo.value = token;
     };
 
     const onSetAmount = (value) => {
@@ -154,68 +151,67 @@ export default {
       store.dispatch("tokens/removeFavourite", params);
     };
 
+    const swapTokensDirection = () => {
+      const from = { ...selectedTokenFrom.value };
+      const to = { ...selectedTokenTo.value };
+
+      isUpdateSwapDirectionValue.value = true;
+      selectedTokenFrom.value = to;
+      selectedTokenTo.value = from;
+      setTimeout(() => {
+        isUpdateSwapDirectionValue.value = false;
+      }, 300);
+    };
+
     const swap = async () => {
-      if (disabledSend.value) {
+      if (disabledSwap.value) {
         return;
       }
+
+      console.log("FROM", selectedTokenFrom.value.name);
+      console.log("TO", selectedTokenTo.value.name);
+      console.log("AMOUNT TO SWAP", amount.value);
 
       isLoading.value = true;
-
       txError.value = "";
 
-      const resp = await store.dispatch("tokens/prepareTransfer", {
-        net: selectedToken.value.net || selectedToken.value.network,
-        from: activeConnect.value.accounts[0],
-        toAddress: address.value,
-        amount: amount.value,
-      });
-      if (resp.error) {
-        isLoading.value = false;
-        txError.value = resp.error;
-        setTimeout(() => {
-          txError.value = "";
-        }, 2000);
-        return;
-      }
+      // const res = await activeConnect.value.sendMetamaskTransaction(resp);
+      // if (res.error) {
+      //   txError.value = res.error;
+      //   isLoading.value = false;
+      //   setTimeout(() => {
+      //     txError.value = "";
+      //   }, 2000);
+      //   return;
+      // }
 
-      const res = await activeConnect.value.sendMetamaskTransaction(resp);
-      if (res.error) {
-        txError.value = res.error;
-        isLoading.value = false;
-        setTimeout(() => {
-          txError.value = "";
-        }, 2000);
-        return;
-      }
-
-      store.dispatch("tokens/setFavourites", {
-        net: selectedNetwork.value.net,
-        address: address.value,
-      });
-
-      successHash.value = getTxUrl(selectedNetwork.value.net, res.txHash);
+      // successHash.value = getTxUrl(selectedNetwork.value.net, res.txHash);
       isLoading.value = false;
       setTimeout(() => {
+        isLoading.value = false;
         successHash.value = "";
       }, 5000);
     };
 
     return {
-      disabledSend,
+      disabledSwap,
       activeConnect,
       networks,
       groupTokens,
       tokensList,
       favouritesList,
-      errorAddress,
       errorBalance,
       selectedNetwork,
       onRemoveFavourite,
 
       onSelectNetwork,
-      onSetAddress,
-      onSetToken,
+      onSetTokenFrom,
+      onSetTokenTo,
       onSetAmount,
+      isUpdateSwapDirectionValue,
+      swapTokensDirection,
+      selectedTokenFrom,
+      selectedTokenTo,
       swap,
       txError,
       successHash,
@@ -245,6 +241,19 @@ export default {
     bottom: 138px;
     background: $colorGray;
     border: 4px solid $colorWhite;
+    @include animateEasy;
+
+    svg {
+      @include animateEasy;
+    }
+
+    &:hover {
+      background: #97ffd0;
+
+      svg {
+        fill: $colorDarkPanel;
+      }
+    }
 
     svg {
       fill: $colorPl;
@@ -269,6 +278,14 @@ body.dark {
 
       svg {
         fill: $colorBrightGreen;
+      }
+
+      &:hover {
+        background: $colorBrightGreen;
+
+        svg {
+          fill: $colorBlack;
+        }
       }
     }
   }
