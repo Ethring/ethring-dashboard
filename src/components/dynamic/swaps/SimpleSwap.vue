@@ -7,7 +7,7 @@
         selectedNetwork &&
         activeConnect?.network !== selectedNetwork?.net
       "
-      :title="$t('simpleSend.mmIncorrectNetwork')"
+      :title="$t('mmIncorrectNetwork')"
       class="mt-10"
     />
     <div class="simple-swap__switch-wrap">
@@ -146,11 +146,6 @@ export default {
       errorBalance.value = "";
     };
 
-    const onRemoveFavourite = (params) => {
-      console.log(params);
-      store.dispatch("tokens/removeFavourite", params);
-    };
-
     const swapTokensDirection = () => {
       const from = { ...selectedTokenFrom.value };
       const to = { ...selectedTokenTo.value };
@@ -202,7 +197,6 @@ export default {
       favouritesList,
       errorBalance,
       selectedNetwork,
-      onRemoveFavourite,
 
       onSelectNetwork,
       onSetTokenFrom,

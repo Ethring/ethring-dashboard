@@ -7,7 +7,7 @@
         selectedNetwork &&
         activeConnect?.network !== selectedNetwork?.net
       "
-      :title="$t('simpleSend.mmIncorrectNetwork')"
+      :title="$t('mmIncorrectNetwork')"
       class="mt-10"
     />
     <SelectAddress

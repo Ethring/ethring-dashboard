@@ -1,4 +1,5 @@
 {
+  "mmIncorrectNetwork": "Please change network in Metamask",
   "modals": {
     "addressModal": {
       "title": "Receive"
@@ -30,7 +31,6 @@
 
   "simpleSend": {
     "title": "Send",
-    "mmIncorrectNetwork": "Please change network in Metamask",
     "confirm": "Confirm",
     "recipient": "Recipient",
     "amount": "Amount",
