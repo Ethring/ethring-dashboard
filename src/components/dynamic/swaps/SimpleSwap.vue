@@ -30,7 +30,7 @@
       <SelectAmount
         v-if="tokensList.length"
         :selected-network="selectedNetwork"
-        :items="tokensList.filter((t) => t.net !== selectedTokenFrom?.net)"
+        :items="tokensList"
         :error="!!errorBalance"
         :on-reset="successHash"
         :new-value="selectedTokenTo"
