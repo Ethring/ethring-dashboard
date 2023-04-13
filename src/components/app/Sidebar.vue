@@ -1,7 +1,7 @@
 <template>
   <div class="sidebar">
     <Logo class="sidebar__logo" />
-    <SidebarList />
+    <SidebarList v-if="hasConnect" />
     <Socials class="sidebar__socials" />
   </div>
 </template>
@@ -9,6 +9,7 @@
 import Logo from "./Logo";
 import Socials from "./Socials";
 import SidebarList from "./SidebarList";
+import useConnect from "@/compositions/useConnect";
 
 export default {
   name: "Sidebar",
@@ -16,6 +17,13 @@ export default {
     Logo,
     SidebarList,
     Socials,
+  },
+  setup() {
+    const { hasConnect } = useConnect();
+
+    return {
+      hasConnect,
+    };
   },
 };
 </script>
