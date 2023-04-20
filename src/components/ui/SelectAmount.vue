@@ -17,8 +17,9 @@
         <input
           v-model="amount"
           :placeholder="placeholder"
+          :disabled="disabled"
           @focus="onFocus"
-          @input="onInput"
+          v-debounce:1000ms="onInput"
           @blur="onBlur"
           @click.stop="() => {}"
           class="input-balance"
@@ -106,6 +107,14 @@ export default {
     newValue: {
       type: Object,
     },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
+    disabledValue: {
+      type: [String, Number],
+      default: "",
+    },
   },
   components: {
     arrowSvg,
@@ -126,6 +135,15 @@ export default {
           active.value = false;
           emit("setAmount", amount.value);
         }
+      }
+    );
+
+    watch(
+      () => props.disabledValue,
+      () => {
+        amount.value = props.disabledValue;
+        active.value = false;
+        emit("setAmount", amount.value);
       }
     );
 

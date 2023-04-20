@@ -1,13 +1,15 @@
 const defaultSidebarItems = [
   { component: "mainSvg", title: "Main", key: "main", to: "/main" },
   { component: "swapSvg", title: "Swap", key: "swap", to: "/swap" },
-  // { component: "stakeSvg", title: "Stake", key: "stake", to: "/stake" },
   // { component: "sendSvg", title: "Send", key: "send", to: "/send" },
 ];
 
 export const UIConfig = {
   bsc: {
-    sidebar: [...defaultSidebarItems],
+    sidebar: [
+      ...defaultSidebarItems,
+      // { component: "stakeSvg", title: "Stake", key: "stake", to: "/stake" },
+    ],
     send: {
       component: "SimpleSend",
     },

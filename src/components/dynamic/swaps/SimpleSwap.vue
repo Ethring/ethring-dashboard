@@ -36,6 +36,8 @@
         :new-value="selectedTokenTo"
         :is-update="isUpdateSwapDirectionValue"
         :label="$t('simpleSwap.receive')"
+        :disabled-value="receiveValue"
+        :disabled="true"
         hide-max
         class="mt-10"
         @setToken="onSetTokenTo"
@@ -72,8 +74,12 @@ import useConnect from "@/compositions/useConnect";
 import { computed, ref } from "vue";
 import { useStore } from "vuex";
 
-// import { getTxUrl } from "@/helpers/utils";
+import { getTxUrl } from "@/helpers/utils";
+// import { toMantissa, fromMantissa } from "@/helpers/numbers";
+
 import SwapSvg from "@/assets/icons/dashboard/swap.svg";
+
+const NATIVE_CONTRACT = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 
 export default {
   name: "SimpleSwap",
@@ -96,6 +102,7 @@ export default {
     const isUpdateSwapDirectionValue = ref(false);
 
     const amount = ref("");
+    const receiveValue = ref("");
 
     const errorBalance = ref("");
 
@@ -130,19 +137,23 @@ export default {
 
     const onSetTokenFrom = (token) => {
       selectedTokenFrom.value = token;
+      console.log("token", token);
     };
 
-    const onSetTokenTo = (token) => {
+    const onSetTokenTo = async (token) => {
       selectedTokenTo.value = token;
     };
 
-    const onSetAmount = (value) => {
-      amount.value = value;
-
+    const onSetAmount = async (value) => {
       if (isNaN(amount.value)) {
         errorBalance.value = "Incorrect amount";
         return;
       }
+      amount.value = value;
+      // const amountMantissa = toMantissa(value, selectedTokenFrom.value.decimals);
+
+      await getEstimateInfo();
+
       errorBalance.value = "";
     };
 
@@ -158,29 +169,73 @@ export default {
       }, 300);
     };
 
+    const getEstimateInfo = async () => {
+      if (
+        !selectedNetwork.value ||
+        !selectedTokenFrom.value ||
+        !selectedTokenTo.value ||
+        !+amount.value
+      ) {
+        return;
+      }
+
+      const resEstimate = await store.dispatch("oneInchSwap/estimateSwap", {
+        net: selectedNetwork.value.net,
+        from_token_address: selectedTokenFrom.value.list
+          ? NATIVE_CONTRACT
+          : selectedTokenFrom.value.address,
+        to_token_address: selectedTokenTo.value.list
+          ? NATIVE_CONTRACT
+          : selectedTokenTo.value.address,
+        amount: amount.value,
+      });
+
+      if (resEstimate.error) {
+        txError.value = resEstimate.error;
+        return;
+      }
+      txError.value = "";
+      receiveValue.value = resEstimate.toTokenAmount;
+    };
+
     const swap = async () => {
       if (disabledSwap.value) {
         return;
       }
 
-      console.log("FROM", selectedTokenFrom.value.name);
-      console.log("TO", selectedTokenTo.value.name);
-      console.log("AMOUNT TO SWAP", amount.value);
-
       isLoading.value = true;
       txError.value = "";
 
-      // const res = await activeConnect.value.sendMetamaskTransaction(resp);
-      // if (res.error) {
-      //   txError.value = res.error;
-      //   isLoading.value = false;
-      //   setTimeout(() => {
-      //     txError.value = "";
-      //   }, 2000);
-      //   return;
-      // }
+      const resSwap = await store.dispatch("oneInchSwap/getSwapTx", {
+        net: selectedNetwork.value.net,
+        from_token_address: selectedTokenFrom.value.list
+          ? NATIVE_CONTRACT
+          : selectedTokenFrom.value.address,
+        to_token_address: selectedTokenTo.value.list
+          ? NATIVE_CONTRACT
+          : selectedTokenTo.value.address,
+        amount: amount.value,
+        owner: activeConnect.value.accounts[0],
+        slippage: 0.5,
+      });
 
-      // successHash.value = getTxUrl(selectedNetwork.value.net, res.txHash);
+      if (resSwap.error) {
+        txError.value = resSwap.error;
+        isLoading.value = false;
+        return;
+      }
+
+      const resTx = await activeConnect.value.sendMetamaskTransaction(resSwap);
+      if (resTx.error) {
+        txError.value = resTx.error;
+        isLoading.value = false;
+        setTimeout(() => {
+          txError.value = "";
+        }, 2000);
+        return;
+      }
+
+      successHash.value = getTxUrl(selectedNetwork.value.net, resTx.txHash);
       isLoading.value = false;
       setTimeout(() => {
         isLoading.value = false;
@@ -206,6 +261,7 @@ export default {
       swapTokensDirection,
       selectedTokenFrom,
       selectedTokenTo,
+      receiveValue,
       swap,
       txError,
       successHash,

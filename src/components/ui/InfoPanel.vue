@@ -37,7 +37,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .info-panel {
-  height: 48px;
+  min-height: 48px;
   display: flex;
   align-items: center;
   padding: 0 16px;
@@ -50,6 +50,7 @@ export default {
   font-size: 16px;
 
   svg {
+    min-width: 24px;
     fill: $colorRed;
   }
 

@@ -4,6 +4,7 @@ import metamask from "./metamask";
 import networks from "./networks";
 import tokens from "./tokens";
 import app from "./app";
+import oneInchSwap from "./1inch/oneInchSwap";
 
 const dataState = createPersistedState({
   key: "citadelPoint",
@@ -24,6 +25,7 @@ export default createStore({
     metamask,
     networks,
     tokens,
+    oneInchSwap,
   },
   plugins: [dataState],
 });

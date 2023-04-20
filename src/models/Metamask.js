@@ -157,10 +157,12 @@ export default class MetamaskConnector {
           data: tx.data,
           from: tx.from,
           to: tx.to,
-          nonce: `0x${tx.nonce.toString(16)}`,
+          nonce: tx.nonce ? `0x${tx.nonce.toString(16)}` : null,
           chainId: `0x${tx.chainId.toString(16)}`,
-          gas: `0x${tx.gas.toString(16)}`,
-          gasPrice: `0x${parseInt(tx.gasPrice).toString(16)}`,
+          gas: tx.gas ? `0x${tx.gas.toString(16)}` : null,
+          gasPrice: tx.gasPrice
+            ? `0x${parseInt(tx.gasPrice).toString(16)}`
+            : null,
           value: tx.value ? `0x${parseInt(tx.value).toString(16)}` : "",
         };
       });
@@ -183,10 +185,12 @@ export default class MetamaskConnector {
       data: transaction.data,
       from: transaction.from,
       to: transaction.to,
-      nonce: `0x${transaction.nonce.toString(16)}`,
+      nonce: transaction.nonce ? `0x${transaction.nonce.toString(16)}` : null,
       chainId: `0x${transaction.chainId.toString(16)}`,
-      gas: `0x${transaction.gas.toString(16)}`,
-      gasPrice: `0x${parseInt(transaction.gasPrice).toString(16)}`,
+      gas: transaction.gas ? `0x${transaction.gas.toString(16)}` : null,
+      gasPrice: transaction.gasPrice
+        ? `0x${parseInt(transaction.gasPrice).toString(16)}`
+        : null,
       value: transaction.value
         ? `0x${parseInt(transaction.value).toString(16)}`
         : "",
