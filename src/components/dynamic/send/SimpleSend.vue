@@ -44,6 +44,7 @@
       xl
       :title="$t('simpleSend.confirm').toUpperCase()"
       :disabled="!!disabledSend"
+      :loading="isLoading"
       class="simple-send__btn mt-10"
       @click="send"
     />
@@ -195,6 +196,7 @@ export default {
     };
 
     return {
+      isLoading,
       disabledSend,
       activeConnect,
       networks,

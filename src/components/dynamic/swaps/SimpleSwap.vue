@@ -54,8 +54,9 @@
     />
     <Button
       xl
-      :title="$t('simpleSwap.swap').toUpperCase()"
+      :title="needApprove ? $t('simpleSwap.approve') : $t('simpleSwap.swap')"
       :disabled="!!disabledSwap"
+      :loading="isLoading"
       class="simple-swap__btn mt-10"
       @click="swap"
     />
@@ -75,7 +76,7 @@ import { computed, ref } from "vue";
 import { useStore } from "vuex";
 
 import { getTxUrl } from "@/helpers/utils";
-// import { toMantissa, fromMantissa } from "@/helpers/numbers";
+import { toMantissa } from "@/helpers/numbers";
 
 import SwapSvg from "@/assets/icons/dashboard/swap.svg";
 
@@ -93,6 +94,8 @@ export default {
   setup() {
     const store = useStore();
     const isLoading = ref(false);
+    const needApprove = ref(false);
+    const approveTx = ref(null);
     const txError = ref("");
     const successHash = ref("");
 
@@ -127,6 +130,7 @@ export default {
       if (!selectedNetwork.value) {
         return [];
       }
+      console.log(selectedNetwork.value.list);
 
       return [selectedNetwork.value, ...selectedNetwork.value.list];
     });
@@ -137,11 +141,12 @@ export default {
 
     const onSetTokenFrom = (token) => {
       selectedTokenFrom.value = token;
-      console.log("token", token);
     };
 
     const onSetTokenTo = async (token) => {
       selectedTokenTo.value = token;
+
+      onSetAmount(amount.value);
     };
 
     const onSetAmount = async (value) => {
@@ -149,15 +154,24 @@ export default {
         errorBalance.value = "Incorrect amount";
         return;
       }
+
+      if (!+value) {
+        return;
+      }
+      receiveValue.value = "";
       amount.value = value;
-      // const amountMantissa = toMantissa(value, selectedTokenFrom.value.decimals);
 
       await getEstimateInfo();
+      await getAllowance();
 
       errorBalance.value = "";
     };
 
     const swapTokensDirection = () => {
+      amount.value = "";
+      needApprove.value = false;
+      approveTx.value = null;
+
       const from = { ...selectedTokenFrom.value };
       const to = { ...selectedTokenTo.value };
 
@@ -198,6 +212,52 @@ export default {
       receiveValue.value = resEstimate.toTokenAmount;
     };
 
+    const getAllowance = async () => {
+      approveTx.value = null;
+      needApprove.value = false;
+
+      isLoading.value = true;
+      const resAllowance = await store.dispatch("oneInchSwap/getAllowance", {
+        net: selectedNetwork.value.net,
+        token_address: selectedTokenFrom.value.list
+          ? NATIVE_CONTRACT
+          : selectedTokenFrom.value.address,
+        owner: activeConnect.value.accounts[0],
+      });
+      isLoading.value = false;
+
+      if (resAllowance.error) {
+        return;
+      }
+
+      if (
+        resAllowance.allowance >
+        toMantissa(amount.value, selectedTokenFrom.value.decimals)
+      ) {
+        needApprove.value = false;
+      } else {
+        needApprove.value = true;
+        isLoading.value = true;
+        await getApproveTx();
+        isLoading.value = false;
+      }
+    };
+
+    const getApproveTx = async () => {
+      const resApproveTx = await store.dispatch("oneInchSwap/getApproveTx", {
+        net: selectedNetwork.value.net,
+        token_address: selectedTokenFrom.value.list
+          ? NATIVE_CONTRACT
+          : selectedTokenFrom.value.address,
+        owner: activeConnect.value.accounts[0],
+      });
+
+      if (resApproveTx.error) {
+        return;
+      }
+      approveTx.value = resApproveTx;
+    };
+
     const swap = async () => {
       if (disabledSwap.value) {
         return;
@@ -205,6 +265,32 @@ export default {
 
       isLoading.value = true;
       txError.value = "";
+
+      // APPROVE
+      if (approveTx.value) {
+        const resTx = await activeConnect.value.sendMetamaskTransaction(
+          approveTx.value.transaction,
+          activeConnect.value.accounts[0]
+        );
+        if (resTx.error) {
+          txError.value = resTx.error;
+          isLoading.value = false;
+          setTimeout(() => {
+            txError.value = "";
+          }, 2000);
+          return;
+        }
+
+        approveTx.value = null;
+        successHash.value = getTxUrl(selectedNetwork.value.net, resTx.txHash);
+        isLoading.value = false;
+        setTimeout(() => {
+          isLoading.value = false;
+          successHash.value = "";
+        }, 5000);
+        return;
+      }
+      //------
 
       const resSwap = await store.dispatch("oneInchSwap/getSwapTx", {
         net: selectedNetwork.value.net,
@@ -244,6 +330,8 @@ export default {
     };
 
     return {
+      isLoading,
+      needApprove,
       disabledSwap,
       activeConnect,
       networks,

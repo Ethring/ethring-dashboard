@@ -2,14 +2,20 @@
   <button
     :class="{ secondary, xl, disabled }"
     class="button"
-    :disabled="disabled"
+    :disabled="disabled || loading"
   >
-    {{ title }}
+    <loadingIcon v-if="loading" class="rotating" />
+    <div v-else>{{ title }}</div>
   </button>
 </template>
 <script>
+import loadingIcon from "@/assets/icons/dashboard/load-btn.svg";
+
 export default {
   name: "Button",
+  components: {
+    loadingIcon,
+  },
   props: {
     xl: {
       type: Boolean,
@@ -26,6 +32,10 @@ export default {
     title: {
       type: String,
       default: "",
+    },
+    loading: {
+      type: Boolean,
+      default: false,
     },
   },
 };
@@ -46,6 +56,7 @@ export default {
   color: $colorWhite;
   font-family: "Poppins_SemiBold";
   font-size: 14px;
+  text-transform: uppercase;
   cursor: pointer;
   border: 1px solid transparent;
 
@@ -135,5 +146,29 @@ body.dark {
       }
     }
   }
+}
+
+@keyframes rotating {
+  from {
+    -ms-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -ms-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+.rotating {
+  -webkit-animation: rotating 2s linear infinite;
+  -moz-animation: rotating 2s linear infinite;
+  -ms-animation: rotating 2s linear infinite;
+  -o-animation: rotating 2s linear infinite;
+  animation: rotating 2s linear infinite;
 }
 </style>

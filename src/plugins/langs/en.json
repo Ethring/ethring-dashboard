@@ -41,6 +41,7 @@
   "simpleSwap": {
     "title": "Swap",
     "swap": "Swap",
+    "approve": "Approve",
     "pay": "Pay",
     "receive": "Receive"
   }

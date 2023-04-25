@@ -19,7 +19,7 @@
           :placeholder="placeholder"
           :disabled="disabled"
           @focus="onFocus"
-          v-debounce:1000ms="onInput"
+          v-debounce:300ms="onInput"
           @blur="onBlur"
           @click.stop="() => {}"
           class="input-balance"

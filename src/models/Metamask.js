@@ -148,7 +148,7 @@ export default class MetamaskConnector {
     });
   }
 
-  async sendMetamaskTransaction(rawTx) {
+  async sendMetamaskTransaction(rawTx, from) {
     const transaction = rawTx.transaction || rawTx;
 
     if (Array.isArray(transaction)) {
@@ -177,13 +177,13 @@ export default class MetamaskConnector {
           })
         );
       } catch (err) {
-        return { error: "Metamask sign txs error" };
+        return { error: "Metamask operation cancelled" };
       }
     }
 
     const tx = {
       data: transaction.data,
-      from: transaction.from,
+      from: transaction.from || from,
       to: transaction.to,
       nonce: transaction.nonce ? `0x${transaction.nonce.toString(16)}` : null,
       chainId: `0x${transaction.chainId.toString(16)}`,
@@ -204,7 +204,7 @@ export default class MetamaskConnector {
 
       return { txHash };
     } catch (err) {
-      return { error: "Metamask sign tx error" };
+      return { error: "Metamask operation cancelled" };
     }
   }
 

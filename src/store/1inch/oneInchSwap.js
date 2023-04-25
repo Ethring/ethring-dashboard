@@ -52,7 +52,6 @@ export default {
             },
           }
         );
-        console.log("allowance", response.data.data);
         return response.data.data;
       } catch (err) {
         return { error: err.response.data.error };

@@ -70,6 +70,12 @@ export default {
     img {
       filter: brightness(0) invert(0);
     }
+
+    .token-icon__placeholder {
+      span {
+        color: $colorBlack;
+      }
+    }
   }
 
   img {
@@ -105,6 +111,12 @@ body.dark {
     &.dark {
       img {
         filter: brightness(0) invert(1);
+      }
+
+      .token-icon__placeholder {
+        span {
+          color: $colorWhite;
+        }
       }
     }
   }
