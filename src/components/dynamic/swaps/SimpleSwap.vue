@@ -109,8 +109,9 @@ export default {
 
     const errorBalance = ref("");
 
-    const { groupTokens } = useTokens();
+    const { groupTokens, allTokensFromNetwork } = useTokens();
     const { activeConnect } = useConnect();
+
     const favouritesList = computed(() => store.getters["tokens/favourites"]);
 
     const disabledSwap = computed(() => {
@@ -124,15 +125,29 @@ export default {
       );
     });
 
+    const clearApprove = () => {
+      needApprove.value = false;
+      approveTx.value = null;
+      receiveValue.value = "";
+    };
+
     const networks = computed(() => store.getters["networks/networks"]);
 
     const tokensList = computed(() => {
       if (!selectedNetwork.value) {
         return [];
       }
-      console.log(selectedNetwork.value.list);
 
-      return [selectedNetwork.value, ...selectedNetwork.value.list];
+      return [
+        selectedNetwork.value,
+        ...selectedNetwork.value.list,
+        ...allTokensFromNetwork(selectedNetwork.value.net).filter((token) => {
+          return (
+            token.net !== selectedNetwork.value.net &&
+            !selectedNetwork.value.list.find((t) => t.net === token.net)
+          );
+        }),
+      ];
     });
 
     const onSelectNetwork = (network) => {
@@ -141,10 +156,12 @@ export default {
 
     const onSetTokenFrom = (token) => {
       selectedTokenFrom.value = token;
+      clearApprove();
     };
 
     const onSetTokenTo = async (token) => {
       selectedTokenTo.value = token;
+      clearApprove();
 
       onSetAmount(amount.value);
     };
@@ -169,8 +186,7 @@ export default {
 
     const swapTokensDirection = () => {
       amount.value = "";
-      needApprove.value = false;
-      approveTx.value = null;
+      clearApprove();
 
       const from = { ...selectedTokenFrom.value };
       const to = { ...selectedTokenTo.value };
@@ -216,7 +232,6 @@ export default {
       approveTx.value = null;
       needApprove.value = false;
 
-      isLoading.value = true;
       const resAllowance = await store.dispatch("oneInchSwap/getAllowance", {
         net: selectedNetwork.value.net,
         token_address: selectedTokenFrom.value.list
@@ -224,7 +239,6 @@ export default {
           : selectedTokenFrom.value.address,
         owner: activeConnect.value.accounts[0],
       });
-      isLoading.value = false;
 
       if (resAllowance.error) {
         return;
@@ -237,9 +251,7 @@ export default {
         needApprove.value = false;
       } else {
         needApprove.value = true;
-        isLoading.value = true;
         await getApproveTx();
-        isLoading.value = false;
       }
     };
 
@@ -283,10 +295,10 @@ export default {
 
         approveTx.value = null;
         successHash.value = getTxUrl(selectedNetwork.value.net, resTx.txHash);
-        isLoading.value = false;
         setTimeout(() => {
           isLoading.value = false;
           successHash.value = "";
+          isLoading.value = false;
         }, 5000);
         return;
       }
@@ -322,10 +334,11 @@ export default {
       }
 
       successHash.value = getTxUrl(selectedNetwork.value.net, resTx.txHash);
-      isLoading.value = false;
+
       setTimeout(() => {
         isLoading.value = false;
         successHash.value = "";
+        isLoading.value = false;
       }, 5000);
     };
 

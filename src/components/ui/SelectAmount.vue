@@ -31,14 +31,20 @@
       <div class="balance" @click.stop="setMax">
         {{ $t("simpleSend.balance") }}:
         {{
-          selectedToken?.balance?.amount || selectedToken?.balance?.mainBalance
+          BigNumber(
+            selectedToken?.balance?.amount ||
+              selectedToken?.balance?.mainBalance ||
+              0
+          ).toFixed()
         }}
         {{ selectedToken.code }}
         <div>
           ${{
             prettyNumber(
-              selectedToken?.balance?.amount *
-                selectedToken?.balance?.price?.USD
+              BigNumber(
+                (selectedToken?.balance?.amount || 0) *
+                  (selectedToken?.balance?.price?.USD || 0)
+              ).toFixed()
             )
           }}
         </div>
@@ -58,7 +64,9 @@
         <div class="amount">
           {{
             prettyNumber(
-              item.balance?.amount || selectedToken?.balance?.mainBalance
+              item.name === selectedToken?.name
+                ? BigNumber(selectedToken?.balance?.mainBalance || 0).toFixed()
+                : BigNumber(item.balance?.amount || 0).toFixed()
             )
           }}
           <span>{{ item.code }}</span>
@@ -74,6 +82,7 @@ import TokenIcon from "@/components/ui/TokenIcon";
 
 import { prettyNumber } from "@/helpers/prettyNumber";
 import { ref, watch, onMounted } from "vue";
+import BigNumber from "bignumber.js";
 
 export default {
   name: "SelectAmount",
@@ -188,9 +197,10 @@ export default {
 
     const setMax = () => {
       active.value = false;
-      amount.value =
+      amount.value = BigNumber(
         selectedToken.value?.balance?.amount ||
-        selectedToken.value?.balance?.mainBalance;
+          selectedToken.value?.balance?.mainBalance
+      ).toFixed();
       emit("setAmount", amount.value);
     };
 
@@ -207,6 +217,7 @@ export default {
     });
 
     return {
+      BigNumber,
       active,
       focused,
       amount,
@@ -350,7 +361,7 @@ export default {
   }
 
   &__items {
-    z-index: 10;
+    z-index: 100;
     background: #fff;
     position: absolute;
     left: 0;
@@ -361,7 +372,7 @@ export default {
     border: 2px solid $colorBaseGreen;
     padding: 20px 25px;
     box-sizing: border-box;
-    max-height: 180px;
+    max-height: 430px;
     overflow-y: auto;
 
     &::-webkit-scrollbar {

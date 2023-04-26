@@ -12,6 +12,36 @@ export default function useTokens() {
     () => store.getters["tokens/groupTokens"]
   );
 
+  const allTokensFromNetwork = (net) =>
+    Object.keys(networks.value[net].tokens)
+      .map((tokenNet) => {
+        return networks.value[net].tokens[tokenNet];
+      })
+      .map((token) => ({
+        ...token,
+        balance: {
+          amount: 0,
+          price: {
+            BTC: 0,
+            USD: 0,
+          },
+        },
+        balanceUsd: 0,
+        price: {
+          BTC: 0,
+          USD: 0,
+        },
+      }))
+      .sort((a, b) => {
+        if (a.name > b.name) {
+          return 1;
+        }
+        if (a.name < b.name) {
+          return -1;
+        }
+        return 0;
+      });
+
   // all networks
   const groupTokens = computed(() => {
     if (activeConnect.value.network) {
@@ -99,5 +129,6 @@ export default function useTokens() {
   return {
     tokens,
     groupTokens,
+    allTokensFromNetwork,
   };
 }

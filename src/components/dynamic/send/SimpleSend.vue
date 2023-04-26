@@ -189,9 +189,10 @@ export default {
       });
 
       successHash.value = getTxUrl(selectedNetwork.value.net, res.txHash);
-      isLoading.value = false;
+
       setTimeout(() => {
         successHash.value = "";
+        isLoading.value = false;
       }, 5000);
     };
 

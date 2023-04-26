@@ -154,7 +154,7 @@ export default {
     padding: 20px 25px;
     box-sizing: border-box;
 
-    max-height: 180px;
+    max-height: 380px;
     overflow-y: auto;
 
     &::-webkit-scrollbar {

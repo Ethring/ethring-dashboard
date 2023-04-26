@@ -273,8 +273,7 @@ export default {
     border: 2px solid $colorBaseGreen;
     padding: 20px 25px;
     box-sizing: border-box;
-
-    max-height: 180px;
+    max-height: 430px;
     overflow-y: auto;
 
     &::-webkit-scrollbar {
