@@ -31,7 +31,6 @@
         v-if="tokensList.length"
         :selected-network="selectedNetwork"
         :items="tokensList"
-        :error="!!errorBalance"
         :on-reset="successHash"
         :new-value="selectedTokenTo"
         :is-update="isUpdateSwapDirectionValue"
@@ -167,7 +166,7 @@ export default {
     };
 
     const onSetAmount = async (value) => {
-      if (isNaN(amount.value)) {
+      if (isNaN(+value)) {
         errorBalance.value = "Incorrect amount";
         return;
       }
