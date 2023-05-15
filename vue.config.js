@@ -24,8 +24,8 @@ module.exports = {
       new SentryWebpackPlugin({
         org: "citadel",
         project: "zomet-dashboard",
-        include: "./",
-        ignore: ['node_modules'],
+        include: "./dist",
+        ignore: ['node_modules', 'deploy'],
         authToken: process.env.SENTRY_AUTH_TOKEN,
       }),
     ],
