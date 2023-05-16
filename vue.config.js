@@ -1,5 +1,3 @@
-const SentryWebpackPlugin = require('@sentry/webpack-plugin');
-
 module.exports = {
   publicPath: "./",
   parallel: false,
@@ -19,22 +17,13 @@ module.exports = {
       .use("vue-svg-loader")
       .loader("vue-svg-loader");
   },
-  configureWebpack: {
-    plugins: [
-      new SentryWebpackPlugin({
-        org: "citadel",
-        project: "zomet-dashboard",
-        include: "./dist",
-        ignore: ['node_modules', 'deploy'],
-        authToken: process.env.SENTRY_AUTH_TOKEN,
-      }),
-    ],
-    devtool: "source-map",
+  configureWebpack: (config) => {
+    config.devtool = "source-map"
   },
   devServer: {
     https: true,
   },
-  productionSourceMap: process.env.NODE_ENV !== "production",
+  productionSourceMap: true,
   css: {
     loaderOptions: {
       sass: {

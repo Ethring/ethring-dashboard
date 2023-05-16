@@ -1,5 +1,5 @@
 {
-  "name": "citadelpoint",
+  "name": "zomet-dashboard",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -26,7 +26,6 @@
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.12.16",
-    "@sentry/webpack-plugin": "^1.20.1",
     "@vue/cli-plugin-babel": "~4.5.12",
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-plugin-router": "~4.5.12",

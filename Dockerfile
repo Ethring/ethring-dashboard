@@ -9,6 +9,8 @@ COPY . ./
 ARG VUE_APP_BACKEND_URL=//work.3ahtim54r.ru/api
 ARG VUE_APP_HOST=work.3ahtim54r.ru
 ARG VUE_APP_1INCH_SWAP_API=https://apps.3ahtim54r.ru/srv-1inch-swap/api/
+ARG VUE_APP_RELEASE
+ARG NODE_ENV
 
 RUN npm run build
 

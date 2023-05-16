@@ -23,12 +23,14 @@ if (process.env.VUE_APP_SENTRY_DSN) {
     app,
     dsn: process.env.VUE_APP_SENTRY_DSN,
     tunnel: new URL(process.env.VUE_APP_SENTRY_DSN).origin + "/tunnel",
+    release: process.env.VUE_APP_RELEASE,
+    environment: process.env.NODE_ENV,
     integrations: [
       new BrowserTracing({
         routingInstrumentation: Sentry.vueRouterInstrumentation(router),
       }),
     ],
     environment: process.env.NODE_ENV,
-    tracesSampleRate: 1.0,
+    tracesSampleRate: 0.5,
   });
 }
