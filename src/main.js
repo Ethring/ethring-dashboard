@@ -10,13 +10,6 @@ import * as Sentry from "@sentry/vue";
 import { BrowserTracing } from "@sentry/browser";
 
 const app = createApp(App);
-app
-  .directive("debounce", vue3Debounce({ lock: true }))
-  .use(store)
-  .use(VueClickAway)
-  .use(router)
-  .use(i18n)
-  .mount("#app");
 
 if (process.env.VUE_APP_SENTRY_DSN) {
   Sentry.init({
@@ -34,3 +27,11 @@ if (process.env.VUE_APP_SENTRY_DSN) {
     tracesSampleRate: 0.5,
   });
 }
+
+app
+  .directive("debounce", vue3Debounce({ lock: true }))
+  .use(store)
+  .use(VueClickAway)
+  .use(router)
+  .use(i18n)
+  .mount("#app");
