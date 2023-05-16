@@ -18,7 +18,7 @@ module.exports = {
       .loader("vue-svg-loader");
   },
   configureWebpack: (config) => {
-    config.devtool = "source-map"
+    config.devtool = "source-map";
   },
   devServer: {
     https: true,

@@ -28,7 +28,7 @@
     <div class="ui-kit__block row">
       <div>
         <div class="title">BUTTONS PRIMARY</div>
-        <Button title="Primary" class="m-5" @click="onTestClick" />
+        <Button title="Primary" class="m-5" />
         <Button title="Primary, disabled" disabled class="m-5" />
         <Button title="Primary, xl" xl class="m-5" />
         <Button title="Primary, xl, disabled " xl disabled class="m-5" />
@@ -59,15 +59,6 @@ export default {
     InfoPanel,
     Button,
   },
-  setup() {
-    const onTestClick = () => {
-      gg();
-    }
-
-    return {
-      onTestClick
-    }
-  }
 };
 </script>
 <style lang="scss" scoped>
