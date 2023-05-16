@@ -17,10 +17,13 @@ module.exports = {
       .use("vue-svg-loader")
       .loader("vue-svg-loader");
   },
+  configureWebpack: (config) => {
+    config.devtool = "source-map"
+  },
   devServer: {
     https: true,
   },
-  productionSourceMap: process.env.NODE_ENV !== "production",
+  productionSourceMap: true,
   css: {
     loaderOptions: {
       sass: {

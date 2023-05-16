@@ -1,10 +1,7 @@
-variables:
-  NODE_VERSION: 16.9.0
-
-
 stages:
   - build_docker
   - deploy
+  - sentry
 
 .dockerBuildJob:
   cache: {}
@@ -16,6 +13,7 @@ stages:
     IMAGE_TAG: $REGISTRY_URL/$CI_PROJECT_NAME/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHORT_SHA
     VUE_APP_BACKEND_URL: https://api.3ahtim54r.ru
     VUE_APP_HOST: work.3ahtim54r.ru
+    NODE_ENV: development
   script:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$REGISTRY_URL\":{\"username\":\"$REGISTRY_USER\",\"password\":\"$REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
@@ -28,6 +26,9 @@ stages:
         --build-arg VUE_APP_BACKEND_URL
         --build-arg VUE_APP_HOST
         --build-arg VUE_APP_1INCH_SWAP_API
+        --build-arg VUE_APP_RELEASE
+        --build-arg VUE_APP_SENTRY_DSN
+        --build-arg NODE_ENV
 
 .deployJob:
   stage: deploy
@@ -57,16 +58,45 @@ stages:
     - oc rollout status deploy $NAME -n $OPENSHIFT_PROJECT
 
 
+Sentry release:
+  stage: sentry
+  image: node:14
+  only:
+    - master
+  before_script:
+    - export RELEASE_NAME=$(date +'%d.%m.%Y')-$CI_COMMIT_SHORT_SHA
+  script:
+    - npm ci
+    - NODE_ENV=production npm run build
+    - npm install @sentry/cli
+    - npx sentry-cli releases new $RELEASE_NAME --finalize
+    - npx sentry-cli sourcemaps upload --release $RELEASE_NAME ./dist/
 
-Build image:
+Build dev:
   extends: .dockerBuildJob
   only:
     - dev
 
-Deploy frontend:
+Build prod:
+  extends: .dockerBuildJob
+  #TODO: variables for prod
   variables:
-    OPENSHIFT_PROJECT: $OPENSHIFT_PROJECT
-    OPENSHIFT_TOKEN: $OPENSHIFT_TOKEN
+    NODE_ENV: production
+  before_script:
+    - export VUE_APP_RELEASE=$(date +'%d.%m.%Y')-$CI_COMMIT_SHORT_SHA
+  only:
+    - master
+
+Deploy dev:
   extends: .deployJob
+  environment:
+    name: dev
   only:
     - dev
+
+Deploy prod:
+  extends: .deployJob
+  environment:
+    name: prod
+  only:
+    - master
