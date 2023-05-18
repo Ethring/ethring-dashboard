@@ -3,6 +3,27 @@ import { cutAddress, getTxUrl } from "@/helpers/utils";
 describe("helpers/utils", () => {
   describe("cutAddress", () => {
     const address = "0x0000000000000000000000000000000000000001";
+    const emptyAddress = "";
+    const invalidAddress = 12345;
+    const shortIostAddress = "citfgkaidd12";
+
+    it("should return empty address when empty address", () => {
+      const extended = cutAddress(emptyAddress);
+
+      expect(extended).toEqual("");
+    });
+
+    it("should return empty address when invalid type address", () => {
+      const extended = cutAddress(invalidAddress);
+
+      expect(extended).toEqual("");
+    });
+
+    it("should return address when address so short", () => {
+      const extended = cutAddress(shortIostAddress);
+
+      expect(extended).toEqual(shortIostAddress);
+    });
 
     it("should return address short format", () => {
       const extended = cutAddress(address);
@@ -13,6 +34,26 @@ describe("helpers/utils", () => {
 
   describe("getTxUrl", () => {
     const hash = "0xfffffffffffffffffffffffffffffff";
+    const emptyHash = "";
+    const invalidTypeHash = 100000;
+
+    it("should return empty string when invalid net for hash", () => {
+      const extended = getTxUrl("btc", hash);
+
+      expect(extended).toEqual("");
+    });
+
+    it("should return empty string when empty hash", () => {
+      const extended = getTxUrl("bsc", emptyHash);
+
+      expect(extended).toEqual("");
+    });
+
+    it("should return empty string when invalid type hash", () => {
+      const extended = getTxUrl("bsc", invalidTypeHash);
+
+      expect(extended).toEqual("");
+    });
 
     it("should return BSC tx link", () => {
       const extended = getTxUrl("bsc", hash);

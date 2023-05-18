@@ -1,11 +1,23 @@
-export const cutAddress = (address) =>
-  `${address.slice(0, 10)}***${address.slice(-6)}`;
+export const cutAddress = (address) => {
+  if (!address || typeof address !== "string") {
+    return "";
+  }
+
+  if (address.length < 25) {
+    return address;
+  }
+  return `${address.slice(0, 10)}***${address.slice(-6)}`;
+};
 
 export const getTokenIcon = (code) => {
   return `//${process.env.VUE_APP_HOST}/cryptofont/SVG/${code}.svg`;
 };
 
 export const getTxUrl = (net, hash) => {
+  if (!hash || typeof hash !== "string") {
+    return "";
+  }
+
   const networks = {
     bsc: `https://bscscan.com/tx/${hash}`,
     eth: `https://etherscan.io/tx/${hash}`,
@@ -15,6 +27,10 @@ export const getTxUrl = (net, hash) => {
     avalanche: `https://snowtrace.io/tx/${hash}`,
     evmoseth: `https://www.mintscan.io/evmos/txs/${hash}`,
   };
+
+  if (!networks[net]) {
+    return "";
+  }
 
   return networks[net];
 };
