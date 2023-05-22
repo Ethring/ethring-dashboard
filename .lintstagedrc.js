@@ -1,3 +1,3 @@
 module.exports = {
-    '*.(js,vue)': ['npm run lint:code:fix', 'npm run test:unit'],
+    '*': ['npm run lint:code', 'npm run lint:code:fix'],
 };

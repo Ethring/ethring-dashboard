@@ -5,9 +5,10 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "test:unit": "vue-cli-service test:unit --passWithNoTests",
+    "lint": "vue-cli-service lint",
     "lint:code": "vue-cli-service lint",
-    "lint:code:fix": "vue-cli-service lint --fix",
-    "test:unit": "vue-cli-service test:unit --passWithNoTests"
+    "lint:code:fix": "vue-cli-service lint --fix"
   },
   "dependencies": {
     "@sentry/tracing": "^7.51.2",
@@ -26,6 +27,7 @@
     "web3": "^1.6.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.12.16",
     "@babel/eslint-parser": "^7.12.16",
     "@commitlint/cli": "^17.6.3",
     "@commitlint/config-conventional": "^17.6.3",
