@@ -7,7 +7,6 @@
     "build": "vue-cli-service build",
     "lint:code": "vue-cli-service lint",
     "lint:code:fix": "vue-cli-service lint --fix",
-    "lint:style": "stylelint 'src/**/*.vue' --fix",
     "test:unit": "vue-cli-service test:unit --passWithNoTests"
   },
   "dependencies": {
