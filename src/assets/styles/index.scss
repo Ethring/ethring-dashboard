@@ -1,1 +1,50 @@
-@import "fonts.scss";
+@import "./web3-onboard/style.css";
+
+@import "./fonts.scss";
+@import "./colors.scss";
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  background: $bgLight;
+  box-sizing: border-box;
+
+  @include animateEasy;
+
+  &.dark {
+    background: $bgDark;
+  }
+}
+
+.app-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  &__head {
+    top: 0;
+    right: 0;
+    width: calc(100% - 260px);
+    box-sizing: border-box;
+    padding: 41px 150px 31px;
+    background: $colorWhite;
+  }
+
+  &__layout {
+    flex-basis: 100%;
+
+    padding: 40px 0;
+    margin: 0 10%;
+
+    height: calc(100vh - 80px);
+  }
+}
+
+body.dark {
+  .app-wrap {
+    &__head {
+      background: #0c0d17;
+    }
+  }
+}
