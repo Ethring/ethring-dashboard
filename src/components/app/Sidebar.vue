@@ -1,61 +1,67 @@
 <template>
-  <div class="sidebar">
-    <Logo class="sidebar__logo" />
-    <SidebarList v-if="hasConnect" />
-    <Socials class="sidebar__socials" />
-  </div>
+    <div class="sidebar">
+        <div class="sidebar-items">
+            <Logo class="sidebar__logo" />
+            <SidebarList v-if="walletAddress" />
+            <Socials class="sidebar__socials" />
+        </div>
+    </div>
 </template>
 <script>
-import Logo from "./Logo";
-import Socials from "./Socials";
-import SidebarList from "./SidebarList";
-import useConnect from "@/compositions/useConnect";
+import Logo from './Logo';
+import Socials from './Socials';
+import SidebarList from './SidebarList';
+import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 
 export default {
-  name: "Sidebar",
-  components: {
-    Logo,
-    SidebarList,
-    Socials,
-  },
-  setup() {
-    const { hasConnect } = useConnect();
+    name: 'Sidebar',
+    components: {
+        Logo,
+        SidebarList,
+        Socials,
+    },
+    setup() {
+        const { walletAddress } = useWeb3Onboard();
 
-    return {
-      hasConnect,
-    };
-  },
+        return {
+            walletAddress,
+        };
+    },
 };
 </script>
 <style lang="scss" scoped>
 .sidebar {
-  position: fixed;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-  padding-top: 130px;
-  width: 260px;
-  height: 100vh;
-  padding-left: 25px;
-  border-right: 1px solid $borderLight;
-  background: $colorDarkPanel;
+    flex-basis: 20%;
+    max-width: 260px;
+    height: 100vh;
+    background: $colorDarkPanel;
+    padding: 40px 25px;
 
-  &__socials {
-    position: absolute;
-    bottom: 25px;
-  }
+    box-sizing: border-box;
 
-  &__logo {
-    position: absolute;
-    left: 30px;
-    top: 40px;
-  }
+    &-items {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+        max-width: 184px;
+        margin: 0 auto;
+    }
+
+    &__socials {
+        margin: auto auto 0;
+        width: 100%;
+    }
+
+    &__logo {
+        margin-bottom: 70px;
+    }
 }
 
 body.dark {
-  .sidebar {
-    border-right: 1px solid $borderDark;
-    // background: $colorDarkBgGreen;
-  }
+    .sidebar {
+        border-right: 1px solid $borderDark;
+        // background: $colorDarkBgGreen;
+    }
 }
 </style>
