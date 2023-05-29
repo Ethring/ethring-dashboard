@@ -29,17 +29,22 @@
         </div>
       </div>
       <div class="balance" @click.stop="setMax">
-        {{ $t("simpleSend.balance") }}:
-        {{
-          BigNumber(
-            selectedToken?.balance?.amount ||
-              selectedToken?.balance?.mainBalance ||
-              0
-          ).toFixed()
-        }}
-        {{ selectedToken.code }}
+        <p>
+          {{ $t("simpleSend.balance") }}:
+          <span>
+            {{
+              BigNumber(
+                selectedToken?.balance?.amount ||
+                  selectedToken?.balance?.mainBalance ||
+                  0
+              ).toFixed()
+            }}
+          </span>
+          {{ selectedToken.code }}
+        </p>
         <div>
-          ${{
+          <span>$</span
+          >{{
             prettyNumber(
               BigNumber(
                 (selectedToken?.balance?.amount || 0) *
@@ -133,6 +138,7 @@ export default {
     const active = ref(false);
     const focused = ref(false);
     const amount = ref("");
+    console.log(props.items);
     const selectedToken = ref(props.items[0]);
     const placeholder = ref("0");
 
@@ -259,12 +265,28 @@ export default {
     .balance {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       color: #486060;
       font-family: "Poppins_Regular";
-
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 21px;
+      span {
+        font-family: "Poppins_SemiBold";
+        font-weight: 600;
+        font-size: 16px;
+        color: $colorBaseGreen;
+      }
       div {
         font-family: "Poppins_SemiBold";
         color: #486060;
+        font-size: 14px;
+        line-height: 21px;
+        span {
+          font-family: "Poppins_Regular";
+          color: #486060;
+          font-weight: 400;
+        }
       }
     }
 

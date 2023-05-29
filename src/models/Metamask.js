@@ -17,6 +17,7 @@ export default class MetamaskConnector {
     this.balance = {
       mainBalance: 0,
     };
+
     this.accounts = [];
     this.web3 = new Web3(Web3.givenProvider);
     this.chainId = window.ethereum && +window.ethereum.networkVersion;
@@ -35,6 +36,7 @@ export default class MetamaskConnector {
         const response = await axios.get(
           `${process.env.VUE_APP_BACKEND_URL}/blockchain/${net}/${address}/balance`
         );
+
         if (response.status === 200) {
           balance = response.data.data;
         }
@@ -63,7 +65,6 @@ export default class MetamaskConnector {
     if (response.status === 200) {
       this.balance = response.data.data;
     }
-
     // TOKENS
     // const tokensResponse = await axios.get(
     //   `${process.env.VUE_APP_BACKEND_URL}/blockchain/${net}/${address}/tokens?version=1.1.0`
