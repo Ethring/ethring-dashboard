@@ -12,8 +12,6 @@
 </template>
 
 <script>
-import '@/config/web3-onboard/init';
-
 import { nextTick, onMounted, watch } from 'vue';
 
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
@@ -30,11 +28,11 @@ export default {
         NavBar,
     },
     setup() {
-        const { connectWallet, connectedWallet, walletAddress } = useWeb3Onboard();
-
         const store = useStore();
 
-        onMounted(() => {
+        const { connectWallet, connectedWallet, walletAddress } = useWeb3Onboard();
+
+        onMounted(async () => {
             store.dispatch('networks/init');
 
             if (walletAddress.value) {
