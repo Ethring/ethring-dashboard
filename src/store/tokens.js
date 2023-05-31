@@ -7,6 +7,9 @@ const types = {
     SET_LOADER: 'SET_LOADER',
     SET_FAVOURITES: 'SET_FAVOURITES',
     REMOVE_FAVOURITE: 'REMOVE_FAVOURITE',
+    SET_SELECT_TYPE: 'SET_SELECT_TYPE',
+    SET_FROM_TOKEN: 'SET_FROM_TOKEN',
+    SET_TO_TOKEN: 'SET_TO_TOKEN',
 };
 
 export default {
@@ -17,6 +20,9 @@ export default {
         tokens: {},
         groupTokens: {},
         marketCap: {},
+        selectType: 'from',
+        fromToken: null,
+        toToken: null,
     }),
 
     getters: {
@@ -25,6 +31,9 @@ export default {
         tokens: (state) => state.tokens,
         groupTokens: (state) => state.groupTokens,
         marketCap: (state) => state.marketCap,
+        selectType: (state) => state.selectType,
+        fromToken: (state) => state.fromToken,
+        toToken: (state) => state.toToken,
     },
 
     mutations: {
@@ -39,6 +48,15 @@ export default {
         },
         [types.SET_LOADER](state, value) {
             state.loader = value;
+        },
+        [types.SET_SELECT_TYPE](state, value) {
+            state.selectType = value;
+        },
+        [types.SET_FROM_TOKEN](state, value) {
+            state.fromToken = value;
+        },
+        [types.SET_TO_TOKEN](state, value) {
+            state.toToken = value;
         },
         [types.REMOVE_FAVOURITE](state, { net, address }) {
             state.favourites[net] = state.favourites[net].filter((favAddr) => favAddr !== address);
@@ -72,6 +90,15 @@ export default {
         },
         removeFavourite({ commit }, { net, address }) {
             commit(types.REMOVE_FAVOURITE, { net, address });
+        },
+        setSelectType({ commit }, value) {
+            commit(types.SET_SELECT_TYPE, value);
+        },
+        setFromToken({ commit }, value) {
+            commit(types.SET_FROM_TOKEN, value);
+        },
+        setToToken({ commit }, value) {
+            commit(types.SET_TO_TOKEN, value);
         },
         async prepareTransfer(_, { net, from, amount, toAddress }) {
             let response;

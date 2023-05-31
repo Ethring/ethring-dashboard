@@ -1,5 +1,14 @@
 <template>
-    <div :class="{ active, focused, error }" class="select-amount" @click="active = !active">
+    <div
+        :class="{ active, focused, error }"
+        class="select-amount"
+        @click="
+            {
+                active = !active;
+                emit('click');
+            }
+        "
+    >
         <div class="select-amount__panel">
             <div class="label">{{ label }}</div>
             <div class="info-wrap">
@@ -80,6 +89,9 @@ export default {
         selectedNetwork: {
             required: true,
         },
+        value: {
+            required: true,
+        },
         items: {
             required: true,
         },
@@ -123,7 +135,7 @@ export default {
         const active = ref(false);
         const focused = ref(false);
         const amount = ref('');
-        const selectedToken = ref(props.items[0]);
+        const selectedToken = ref(props.value);
         const placeholder = ref('0');
 
         watch(
@@ -187,7 +199,13 @@ export default {
 
         const setMax = () => {
             active.value = false;
-            amount.value = BigNumber(selectedToken.value?.balance?.amount || selectedToken.value?.balance?.mainBalance).toFixed();
+            let balance = selectedToken.value?.balance?.amount || selectedToken.value?.balance?.mainBalance;
+            if (balance > 0) {
+                balance = BigNumber(balance).toFixed();
+            } else {
+                balance = 0;
+            }
+            amount.value = balance;
             emit('setAmount', amount.value);
         };
 
@@ -217,6 +235,7 @@ export default {
             onBlur,
             onFocus,
             clickAway,
+            emit,
         };
     },
 };

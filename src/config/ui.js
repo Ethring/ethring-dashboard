@@ -1,7 +1,7 @@
 const defaultSidebarItems = [
     { component: 'mainSvg', title: 'Main', key: 'main', to: '/main' },
-    // { component: 'stakeSvg', title: 'Send', key: 'send', to: '/send' },
-    // { component: 'swapSvg', title: 'Swap', key: 'swap', to: '/swap' },
+    { component: 'stakeSvg', title: 'Send', key: 'send', to: '/send' },
+    { component: 'swapSvg', title: 'Swap', key: 'swap', to: '/swap' },
 ];
 
 export const UIConfig = {

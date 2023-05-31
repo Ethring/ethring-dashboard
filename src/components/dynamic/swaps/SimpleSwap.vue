@@ -11,14 +11,14 @@
                 v-if="tokensList.length"
                 :selected-network="selectedNetwork"
                 :items="tokensList"
+                :value="selectedTokenFrom"
                 :error="!!errorBalance"
                 :on-reset="successHash"
-                :new-value="selectedTokenFrom"
                 :is-update="isUpdateSwapDirectionValue"
                 :label="$t('simpleSwap.pay')"
+                @click="onSetTokenFrom"
                 class="mt-10"
                 @setAmount="onSetAmount"
-                @setToken="onSetTokenFrom"
             />
             <div class="simple-swap__switch" @click="swapTokensDirection">
                 <SwapSvg />
@@ -26,16 +26,16 @@
             <SelectAmount
                 v-if="tokensList.length"
                 :selected-network="selectedNetwork"
+                :value="selectedTokenTo"
                 :items="tokensList"
                 :on-reset="successHash"
-                :new-value="selectedTokenTo"
                 :is-update="isUpdateSwapDirectionValue"
                 :label="$t('simpleSwap.receive')"
                 :disabled-value="receiveValue"
                 :disabled="true"
                 hide-max
                 class="mt-10"
-                @setToken="onSetTokenTo"
+                @click="onSetTokenTo"
             />
         </div>
         <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
@@ -63,7 +63,8 @@ import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 
 import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
-
+import { ethers } from 'ethers';
+import { useRouter } from 'vue-router';
 import { getTxUrl } from '@/helpers/utils';
 import { toMantissa } from '@/helpers/numbers';
 
@@ -89,19 +90,20 @@ export default {
         const successHash = ref('');
 
         const selectedNetwork = ref(null);
-        const selectedTokenFrom = ref(null);
-        const selectedTokenTo = ref(null);
-        const isUpdateSwapDirectionValue = ref(false);
 
+        const isUpdateSwapDirectionValue = ref(false);
+        const router = useRouter();
         const amount = ref('');
         const receiveValue = ref('');
 
         const errorBalance = ref('');
 
         const { groupTokens, allTokensFromNetwork } = useTokens();
-        const { walletAddress, currentChainInfo } = useWeb3Onboard();
-        console.log(walletAddress.value, currentChainInfo.value, '-walletAddress, currentChainInfo');
+        const { walletAddress, currentChainInfo, connectedWallet } = useWeb3Onboard();
+
         const favouritesList = computed(() => store.getters['tokens/favourites']);
+        const selectedTokenFrom = computed(() => store.getters['tokens/fromToken']);
+        const selectedTokenTo = computed(() => store.getters['tokens/toToken']);
 
         const disabledSwap = computed(() => {
             return (
@@ -127,26 +129,39 @@ export default {
                 return [];
             }
 
-            return [
+            const list = [
                 selectedNetwork.value,
                 ...selectedNetwork.value.list,
                 ...allTokensFromNetwork(selectedNetwork.value.net).filter((token) => {
                     return token.net !== selectedNetwork.value.net && !selectedNetwork.value.list.find((t) => t.net === token.net);
                 }),
             ];
+            console.log(list);
+            if (!selectedTokenFrom.value) {
+                store.dispatch('tokens/setFromToken', list[0]);
+            }
+            if (!selectedTokenTo.value) {
+                store.dispatch('tokens/setToToken', list[1]);
+            }
+
+            return list;
         });
 
         const onSelectNetwork = (network) => {
             selectedNetwork.value = network;
+            store.dispatch('networks/setSelectedNetwork', network);
         };
 
-        const onSetTokenFrom = (token) => {
-            selectedTokenFrom.value = token;
+        const onSetTokenFrom = () => {
+            store.dispatch('tokens/setSelectType', 'from');
+            router.push('select-token');
+
             clearApprove();
         };
 
-        const onSetTokenTo = async (token) => {
-            selectedTokenTo.value = token;
+        const onSetTokenTo = async () => {
+            store.dispatch('tokens/setSelectType', 'to');
+            router.push('select-token');
             clearApprove();
 
             onSetAmount(amount.value);
@@ -219,7 +234,7 @@ export default {
                 return;
             }
 
-            if (resAllowance.allowance > toMantissa(amount.value, selectedTokenFrom.value.decimals)) {
+            if (resAllowance.allowance >= toMantissa(amount.value, selectedTokenFrom.value.decimals)) {
                 needApprove.value = false;
             } else {
                 needApprove.value = true;
@@ -240,6 +255,24 @@ export default {
             approveTx.value = resApproveTx;
         };
 
+        const sendMetamaskTransaction = async (tx) => {
+            const { provider, label } = connectedWallet.value || {};
+            if (provider && label) {
+                console.log(provider);
+                // create an ethers provider with the last connected wallet provider
+                const ethersProvider = new ethers.providers.Web3Provider(provider, 'any');
+
+                const signer = ethersProvider.getSigner();
+                console.log(signer);
+
+                const txn = await signer.sendTransaction(tx);
+
+                const receipt = await txn.wait();
+                console.log(receipt, '--receipt');
+                return receipt;
+            }
+        };
+
         const swap = async () => {
             if (disabledSwap.value) {
                 return;
@@ -250,7 +283,8 @@ export default {
 
             // APPROVE
             if (approveTx.value) {
-                const resTx = await activeConnect.value.sendMetamaskTransaction(approveTx.value.transaction, walletAddress.value);
+                console.log(approveTx.value.transaction, '-approveTx.value.transaction');
+                const resTx = await sendMetamaskTransaction({ ...approveTx.value.transaction, from: walletAddress.value });
                 if (resTx.error) {
                     txError.value = resTx.error;
                     isLoading.value = false;
@@ -285,8 +319,9 @@ export default {
                 isLoading.value = false;
                 return;
             }
+            console.log(resSwap, '---resSwap');
 
-            const resTx = await activeConnect.value.sendMetamaskTransaction(resSwap);
+            const resTx = await sendMetamaskTransaction(resSwap.transaction);
             if (resTx.error) {
                 txError.value = resTx.error;
                 isLoading.value = false;

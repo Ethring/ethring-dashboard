@@ -34,12 +34,12 @@ const routes = [
         component: () => import(/* webpackChunkName: "about" */ '../views/Send.vue'),
     },
     {
-        path: '/swap',
-        name: 'swap',
+        path: '/select-token',
+        name: 'select-token',
         meta: {
             isAuth: true,
         },
-        component: () => import(/* webpackChunkName: "about" */ '../views/Swap.vue'),
+        component: () => import(/* webpackChunkName: "about" */ '../components/app/SelectToken.vue'),
     },
     // {
     //     path: '/kit',
