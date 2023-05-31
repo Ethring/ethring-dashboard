@@ -87,6 +87,7 @@ Build dev:
 Build branch:
   extends: .dockerBuildJob
   when: manual
+  needs: []
   variables:
     IMAGE_TAG: $REGISTRY_URL/$CI_PROJECT_NAME/branches:$CI_COMMIT_REF_SLUG
   environment:
@@ -114,6 +115,7 @@ Deploy dev:
 
 Deploy branch:
   extends: .deployJob
+  needs: ["Build branch"]
   variables:
     NAME: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
     REDEPLOY: "YES"
