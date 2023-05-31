@@ -16,7 +16,7 @@ export default {
     name: 'NavBar',
     components: {
         Help,
-        NotConnect
+        NotConnect,
         // WalletInfo,
         // ThemeSwitcher
     },
@@ -24,9 +24,9 @@ export default {
         const { connectedWallet } = useWeb3Onboard();
 
         return {
-            connectedWallet
+            connectedWallet,
         };
-    }
+    },
 };
 </script>
 <style lang="scss" scoped>

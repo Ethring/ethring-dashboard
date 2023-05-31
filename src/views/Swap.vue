@@ -1,106 +1,103 @@
 <template>
-  <div class="swap">
-    <div class="swap-page">
-      <Spinner v-if="loader" />
-      <template v-else>
-        <div class="swap-page__title">{{ $t("simpleSwap.title") }}</div>
-        <div
-          v-if="hasConnect && groupTokens.length && !loader"
-          class="swap-page__wrap"
-        >
-          <component v-if="swapComponent" :is="swapComponent" />
+    <div class="swap">
+        <div class="swap-page">
+            <Spinner v-if="loader" />
+            <template v-else>
+                <div class="swap-page__title">{{ $t('simpleSwap.title') }}</div>
+                <div v-if="walletAddress && groupTokens.length && !loader" class="swap-page__wrap">
+                    <component v-if="swapComponent" :is="swapComponent" />
+                </div>
+            </template>
         </div>
-      </template>
     </div>
-  </div>
 </template>
 <script>
-import SimpleSwap from "@/components/dynamic/swaps/SimpleSwap";
-import UniSwap from "@/components/dynamic/swaps/UniSwap";
-import PancakeSwap from "@/components/dynamic/swaps/PancakeSwap";
-import NotWorking from "@/components/dynamic/swaps/NotWorking";
+import SimpleSwap from '@/components/dynamic/swaps/SimpleSwap';
+import UniSwap from '@/components/dynamic/swaps/UniSwap';
+import PancakeSwap from '@/components/dynamic/swaps/PancakeSwap';
+import NotWorking from '@/components/dynamic/swaps/NotWorking';
 
-import { UIConfig } from "@/config/ui";
-import { useStore } from "vuex";
-import { computed, watch } from "vue";
-import { useRouter } from "vue-router";
-import Spinner from "@/components/app/Spinner";
+import { UIConfig } from '@/config/ui';
+import { useStore } from 'vuex';
+import { computed, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import Spinner from '@/components/app/Spinner';
 
-import useConnect from "@/compositions/useConnect";
-import useTokens from "@/compositions/useTokens";
+import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+import useTokens from '@/compositions/useTokens';
 
 export default {
-  name: "Swap",
-  components: {
-    SimpleSwap,
-    UniSwap,
-    PancakeSwap,
-    NotWorking,
-    Spinner,
-  },
-  setup() {
-    const store = useStore();
-    const router = useRouter();
-    const { groupTokens } = useTokens();
+    name: 'Swap',
+    components: {
+        SimpleSwap,
+        UniSwap,
+        PancakeSwap,
+        NotWorking,
+        Spinner,
+    },
+    setup() {
+        const store = useStore();
+        const router = useRouter();
+        const { groupTokens } = useTokens();
 
-    const loader = computed(() => store.getters["tokens/loader"]);
+        const loader = computed(() => store.getters['tokens/loader']);
 
-    const { activeConnect, hasConnect } = useConnect();
+        const { walletAddress, currentChainInfo } = useWeb3Onboard();
 
-    const swapComponent = computed(() => {
-      return UIConfig[activeConnect.value.network]?.swap?.component;
-    });
+        const swapComponent = computed(() => {
+            return UIConfig[currentChainInfo.value.citadelNet]?.swap?.component;
+        });
 
-    watch(
-      () => swapComponent.value,
-      (newV) => {
-        if (!newV) {
-          router.push("/main");
-        }
-      }
-    );
+        watch(
+            () => swapComponent.value,
+            (newV) => {
+                if (!newV) {
+                    router.push('/main');
+                }
+            }
+        );
 
-    return {
-      loader,
-      groupTokens,
-      hasConnect,
-      swapComponent,
-    };
-  },
+        return {
+            loader,
+            groupTokens,
+            walletAddress,
+            swapComponent,
+        };
+    },
 };
 </script>
 <style lang="scss" scoped>
 .swap {
-  @include pageStructure;
+    @include pageStructure;
 
-  .swap-page {
-    @include pageFlexColumn;
-    height: calc(100vh - 125px);
+    .swap-page {
+        @include pageFlexColumn;
+        height: calc(100vh - 125px);
 
-    &__title {
-      color: $colorBlack;
-      font-size: 32px;
-      font-family: "Poppins_SemiBold";
-      margin-bottom: 30px;
+        &__title {
+            color: $colorBlack;
+            font-size: 32px;
+            font-family: 'Poppins_SemiBold';
+            margin-bottom: 30px;
+        }
+
+        &__wrap {
+            display: flex;
+            justify-content: center;
+            height: calc(100vh - 200px);
+        }
     }
-
-    &__wrap {
-      display: flex;
-      justify-content: center;
-      height: calc(100vh - 200px);
-    }
-  }
 }
 
 body.dark {
-  .swap {
-    background: rgb(12, 13, 23);
+    .swap {
+        background: rgb(12, 13, 23);
 
-    .swap-page {
-      &__title {
-        color: $colorWhite;
-      }
+        .swap-page {
+            &__title {
+                color: $colorWhite;
+            }
+        }
     }
-  }
 }
 </style>

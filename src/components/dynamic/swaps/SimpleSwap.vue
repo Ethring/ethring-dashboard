@@ -1,443 +1,408 @@
 <template>
-  <div class="simple-swap">
-    <Select :items="groupTokens" @select="onSelectNetwork" />
-    <InfoPanel
-      v-if="
-        activeConnect &&
-        selectedNetwork &&
-        activeConnect?.network !== selectedNetwork?.net
-      "
-      :title="$t('mmIncorrectNetwork')"
-      class="mt-10"
-    />
-    <div class="simple-swap__switch-wrap">
-      <SelectAmount
-        v-if="tokensList.length"
-        :selected-network="selectedNetwork"
-        :items="tokensList"
-        :error="!!errorBalance"
-        :on-reset="successHash"
-        :new-value="selectedTokenFrom"
-        :is-update="isUpdateSwapDirectionValue"
-        :label="$t('simpleSwap.pay')"
-        class="mt-10"
-        @setAmount="onSetAmount"
-        @setToken="onSetTokenFrom"
-      />
-      <div class="simple-swap__switch" @click="swapTokensDirection">
-        <SwapSvg />
-      </div>
-      <SelectAmount
-        v-if="tokensList.length"
-        :selected-network="selectedNetwork"
-        :items="tokensList"
-        :on-reset="successHash"
-        :new-value="selectedTokenTo"
-        :is-update="isUpdateSwapDirectionValue"
-        :label="$t('simpleSwap.receive')"
-        :disabled-value="receiveValue"
-        :disabled="true"
-        hide-max
-        class="mt-10"
-        @setToken="onSetTokenTo"
-      />
+    <div class="simple-swap">
+        <Select :items="groupTokens" @select="onSelectNetwork" />
+        <InfoPanel
+            v-if="walletAddress && selectedNetwork && currentChainInfo?.citadelNet !== selectedNetwork?.net"
+            :title="$t('mmIncorrectNetwork')"
+            class="mt-10"
+        />
+        <div class="simple-swap__switch-wrap">
+            <SelectAmount
+                v-if="tokensList.length"
+                :selected-network="selectedNetwork"
+                :items="tokensList"
+                :error="!!errorBalance"
+                :on-reset="successHash"
+                :new-value="selectedTokenFrom"
+                :is-update="isUpdateSwapDirectionValue"
+                :label="$t('simpleSwap.pay')"
+                class="mt-10"
+                @setAmount="onSetAmount"
+                @setToken="onSetTokenFrom"
+            />
+            <div class="simple-swap__switch" @click="swapTokensDirection">
+                <SwapSvg />
+            </div>
+            <SelectAmount
+                v-if="tokensList.length"
+                :selected-network="selectedNetwork"
+                :items="tokensList"
+                :on-reset="successHash"
+                :new-value="selectedTokenTo"
+                :is-update="isUpdateSwapDirectionValue"
+                :label="$t('simpleSwap.receive')"
+                :disabled-value="receiveValue"
+                :disabled="true"
+                hide-max
+                class="mt-10"
+                @setToken="onSetTokenTo"
+            />
+        </div>
+        <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
+        <InfoPanel v-if="txError" :title="txError" class="mt-10" />
+        <InfoPanel v-if="successHash" :hash="successHash" :title="$t('tx.txHash')" type="success" class="mt-10" />
+        <Button
+            xl
+            :title="needApprove ? $t('simpleSwap.approve') : $t('simpleSwap.swap')"
+            :disabled="!!disabledSwap"
+            :loading="isLoading"
+            class="simple-swap__btn mt-10"
+            @click="swap"
+        />
     </div>
-    <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
-    <InfoPanel v-if="txError" :title="txError" class="mt-10" />
-    <InfoPanel
-      v-if="successHash"
-      :hash="successHash"
-      :title="$t('tx.txHash')"
-      type="success"
-      class="mt-10"
-    />
-    <Button
-      xl
-      :title="needApprove ? $t('simpleSwap.approve') : $t('simpleSwap.swap')"
-      :disabled="!!disabledSwap"
-      :loading="isLoading"
-      class="simple-swap__btn mt-10"
-      @click="swap"
-    />
-  </div>
 </template>
 <script>
-import InfoPanel from "@/components/ui/InfoPanel";
-import Select from "@/components/ui/Select";
-import SelectAmount from "@/components/ui/SelectAmount";
+import InfoPanel from '@/components/ui/InfoPanel';
+import Select from '@/components/ui/Select';
+import SelectAmount from '@/components/ui/SelectAmount';
 
-import Button from "@/components/ui/Button";
+import Button from '@/components/ui/Button';
 
-import useTokens from "@/compositions/useTokens";
-import useConnect from "@/compositions/useConnect";
+import useTokens from '@/compositions/useTokens';
+import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 
-import { computed, ref } from "vue";
-import { useStore } from "vuex";
+import { computed, ref } from 'vue';
+import { useStore } from 'vuex';
 
-import { getTxUrl } from "@/helpers/utils";
-import { toMantissa } from "@/helpers/numbers";
+import { getTxUrl } from '@/helpers/utils';
+import { toMantissa } from '@/helpers/numbers';
 
-import SwapSvg from "@/assets/icons/dashboard/swap.svg";
+import SwapSvg from '@/assets/icons/dashboard/swap.svg';
 
-const NATIVE_CONTRACT = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
 export default {
-  name: "SimpleSwap",
-  components: {
-    InfoPanel,
-    Select,
-    SelectAmount,
-    Button,
-    SwapSvg,
-  },
-  setup() {
-    const store = useStore();
-    const isLoading = ref(false);
-    const needApprove = ref(false);
-    const approveTx = ref(null);
-    const txError = ref("");
-    const successHash = ref("");
+    name: 'SimpleSwap',
+    components: {
+        InfoPanel,
+        Select,
+        SelectAmount,
+        Button,
+        SwapSvg,
+    },
+    setup() {
+        const store = useStore();
+        const isLoading = ref(false);
+        const needApprove = ref(false);
+        const approveTx = ref(null);
+        const txError = ref('');
+        const successHash = ref('');
 
-    const selectedNetwork = ref(null);
-    const selectedTokenFrom = ref(null);
-    const selectedTokenTo = ref(null);
-    const isUpdateSwapDirectionValue = ref(false);
+        const selectedNetwork = ref(null);
+        const selectedTokenFrom = ref(null);
+        const selectedTokenTo = ref(null);
+        const isUpdateSwapDirectionValue = ref(false);
 
-    const amount = ref("");
-    const receiveValue = ref("");
+        const amount = ref('');
+        const receiveValue = ref('');
 
-    const errorBalance = ref("");
+        const errorBalance = ref('');
 
-    const { groupTokens, allTokensFromNetwork } = useTokens();
-    const { activeConnect } = useConnect();
+        const { groupTokens, allTokensFromNetwork } = useTokens();
+        const { walletAddress, currentChainInfo } = useWeb3Onboard();
+        console.log(walletAddress.value, currentChainInfo.value, '-walletAddress, currentChainInfo');
+        const favouritesList = computed(() => store.getters['tokens/favourites']);
 
-    const favouritesList = computed(() => store.getters["tokens/favourites"]);
+        const disabledSwap = computed(() => {
+            return (
+                isLoading.value ||
+                errorBalance.value ||
+                !+amount.value ||
+                !selectedNetwork.value ||
+                !selectedTokenFrom.value ||
+                !selectedTokenTo.value
+            );
+        });
 
-    const disabledSwap = computed(() => {
-      return (
-        isLoading.value ||
-        errorBalance.value ||
-        !+amount.value ||
-        !selectedNetwork.value ||
-        !selectedTokenFrom.value ||
-        !selectedTokenTo.value
-      );
-    });
+        const clearApprove = () => {
+            needApprove.value = false;
+            approveTx.value = null;
+            receiveValue.value = '';
+        };
 
-    const clearApprove = () => {
-      needApprove.value = false;
-      approveTx.value = null;
-      receiveValue.value = "";
-    };
+        const networks = computed(() => store.getters['networks/networks']);
 
-    const networks = computed(() => store.getters["networks/networks"]);
+        const tokensList = computed(() => {
+            if (!selectedNetwork.value) {
+                return [];
+            }
 
-    const tokensList = computed(() => {
-      if (!selectedNetwork.value) {
-        return [];
-      }
+            return [
+                selectedNetwork.value,
+                ...selectedNetwork.value.list,
+                ...allTokensFromNetwork(selectedNetwork.value.net).filter((token) => {
+                    return token.net !== selectedNetwork.value.net && !selectedNetwork.value.list.find((t) => t.net === token.net);
+                }),
+            ];
+        });
 
-      return [
-        selectedNetwork.value,
-        ...selectedNetwork.value.list,
-        ...allTokensFromNetwork(selectedNetwork.value.net).filter((token) => {
-          return (
-            token.net !== selectedNetwork.value.net &&
-            !selectedNetwork.value.list.find((t) => t.net === token.net)
-          );
-        }),
-      ];
-    });
+        const onSelectNetwork = (network) => {
+            selectedNetwork.value = network;
+        };
 
-    const onSelectNetwork = (network) => {
-      selectedNetwork.value = network;
-    };
+        const onSetTokenFrom = (token) => {
+            selectedTokenFrom.value = token;
+            clearApprove();
+        };
 
-    const onSetTokenFrom = (token) => {
-      selectedTokenFrom.value = token;
-      clearApprove();
-    };
+        const onSetTokenTo = async (token) => {
+            selectedTokenTo.value = token;
+            clearApprove();
 
-    const onSetTokenTo = async (token) => {
-      selectedTokenTo.value = token;
-      clearApprove();
+            onSetAmount(amount.value);
+        };
 
-      onSetAmount(amount.value);
-    };
+        const onSetAmount = async (value) => {
+            if (isNaN(+value)) {
+                errorBalance.value = 'Incorrect amount';
+                return;
+            }
 
-    const onSetAmount = async (value) => {
-      if (isNaN(+value)) {
-        errorBalance.value = "Incorrect amount";
-        return;
-      }
+            if (!+value) {
+                return;
+            }
+            receiveValue.value = '';
+            amount.value = value;
 
-      if (!+value) {
-        return;
-      }
-      receiveValue.value = "";
-      amount.value = value;
+            await getEstimateInfo();
+            await getAllowance();
 
-      await getEstimateInfo();
-      await getAllowance();
+            errorBalance.value = '';
+        };
 
-      errorBalance.value = "";
-    };
+        const swapTokensDirection = () => {
+            amount.value = '';
+            clearApprove();
 
-    const swapTokensDirection = () => {
-      amount.value = "";
-      clearApprove();
+            const from = { ...selectedTokenFrom.value };
+            const to = { ...selectedTokenTo.value };
 
-      const from = { ...selectedTokenFrom.value };
-      const to = { ...selectedTokenTo.value };
+            isUpdateSwapDirectionValue.value = true;
+            selectedTokenFrom.value = to;
+            selectedTokenTo.value = from;
+            setTimeout(() => {
+                isUpdateSwapDirectionValue.value = false;
+            }, 300);
+        };
 
-      isUpdateSwapDirectionValue.value = true;
-      selectedTokenFrom.value = to;
-      selectedTokenTo.value = from;
-      setTimeout(() => {
-        isUpdateSwapDirectionValue.value = false;
-      }, 300);
-    };
+        const getEstimateInfo = async () => {
+            if (!selectedNetwork.value || !selectedTokenFrom.value || !selectedTokenTo.value || !+amount.value) {
+                return;
+            }
 
-    const getEstimateInfo = async () => {
-      if (
-        !selectedNetwork.value ||
-        !selectedTokenFrom.value ||
-        !selectedTokenTo.value ||
-        !+amount.value
-      ) {
-        return;
-      }
+            const resEstimate = await store.dispatch('oneInchSwap/estimateSwap', {
+                net: selectedNetwork.value.net,
+                from_token_address: selectedTokenFrom.value.list ? NATIVE_CONTRACT : selectedTokenFrom.value.address,
+                to_token_address: selectedTokenTo.value.list ? NATIVE_CONTRACT : selectedTokenTo.value.address,
+                amount: amount.value,
+            });
 
-      const resEstimate = await store.dispatch("oneInchSwap/estimateSwap", {
-        net: selectedNetwork.value.net,
-        from_token_address: selectedTokenFrom.value.list
-          ? NATIVE_CONTRACT
-          : selectedTokenFrom.value.address,
-        to_token_address: selectedTokenTo.value.list
-          ? NATIVE_CONTRACT
-          : selectedTokenTo.value.address,
-        amount: amount.value,
-      });
+            if (resEstimate.error) {
+                txError.value = resEstimate.error;
+                return;
+            }
+            txError.value = '';
+            receiveValue.value = resEstimate.toTokenAmount;
+        };
 
-      if (resEstimate.error) {
-        txError.value = resEstimate.error;
-        return;
-      }
-      txError.value = "";
-      receiveValue.value = resEstimate.toTokenAmount;
-    };
+        const getAllowance = async () => {
+            approveTx.value = null;
+            needApprove.value = false;
 
-    const getAllowance = async () => {
-      approveTx.value = null;
-      needApprove.value = false;
+            const resAllowance = await store.dispatch('oneInchSwap/getAllowance', {
+                net: selectedNetwork.value.net,
+                token_address: selectedTokenFrom.value.list ? NATIVE_CONTRACT : selectedTokenFrom.value.address,
+                owner: walletAddress.value,
+            });
 
-      const resAllowance = await store.dispatch("oneInchSwap/getAllowance", {
-        net: selectedNetwork.value.net,
-        token_address: selectedTokenFrom.value.list
-          ? NATIVE_CONTRACT
-          : selectedTokenFrom.value.address,
-        owner: activeConnect.value.accounts[0],
-      });
+            if (resAllowance.error) {
+                return;
+            }
 
-      if (resAllowance.error) {
-        return;
-      }
+            if (resAllowance.allowance > toMantissa(amount.value, selectedTokenFrom.value.decimals)) {
+                needApprove.value = false;
+            } else {
+                needApprove.value = true;
+                await getApproveTx();
+            }
+        };
 
-      if (
-        resAllowance.allowance >
-        toMantissa(amount.value, selectedTokenFrom.value.decimals)
-      ) {
-        needApprove.value = false;
-      } else {
-        needApprove.value = true;
-        await getApproveTx();
-      }
-    };
+        const getApproveTx = async () => {
+            const resApproveTx = await store.dispatch('oneInchSwap/getApproveTx', {
+                net: selectedNetwork.value.net,
+                token_address: selectedTokenFrom.value.list ? NATIVE_CONTRACT : selectedTokenFrom.value.address,
+                owner: walletAddress.value,
+            });
 
-    const getApproveTx = async () => {
-      const resApproveTx = await store.dispatch("oneInchSwap/getApproveTx", {
-        net: selectedNetwork.value.net,
-        token_address: selectedTokenFrom.value.list
-          ? NATIVE_CONTRACT
-          : selectedTokenFrom.value.address,
-        owner: activeConnect.value.accounts[0],
-      });
+            if (resApproveTx.error) {
+                return;
+            }
+            approveTx.value = resApproveTx;
+        };
 
-      if (resApproveTx.error) {
-        return;
-      }
-      approveTx.value = resApproveTx;
-    };
+        const swap = async () => {
+            if (disabledSwap.value) {
+                return;
+            }
 
-    const swap = async () => {
-      if (disabledSwap.value) {
-        return;
-      }
+            isLoading.value = true;
+            txError.value = '';
 
-      isLoading.value = true;
-      txError.value = "";
+            // APPROVE
+            if (approveTx.value) {
+                const resTx = await activeConnect.value.sendMetamaskTransaction(approveTx.value.transaction, walletAddress.value);
+                if (resTx.error) {
+                    txError.value = resTx.error;
+                    isLoading.value = false;
+                    setTimeout(() => {
+                        txError.value = '';
+                    }, 2000);
+                    return;
+                }
 
-      // APPROVE
-      if (approveTx.value) {
-        const resTx = await activeConnect.value.sendMetamaskTransaction(
-          approveTx.value.transaction,
-          activeConnect.value.accounts[0]
-        );
-        if (resTx.error) {
-          txError.value = resTx.error;
-          isLoading.value = false;
-          setTimeout(() => {
-            txError.value = "";
-          }, 2000);
-          return;
-        }
+                approveTx.value = null;
+                successHash.value = getTxUrl(selectedNetwork.value.net, resTx.txHash);
+                setTimeout(() => {
+                    isLoading.value = false;
+                    successHash.value = '';
+                    isLoading.value = false;
+                }, 5000);
+                return;
+            }
+            //------
 
-        approveTx.value = null;
-        successHash.value = getTxUrl(selectedNetwork.value.net, resTx.txHash);
-        setTimeout(() => {
-          isLoading.value = false;
-          successHash.value = "";
-          isLoading.value = false;
-        }, 5000);
-        return;
-      }
-      //------
+            const resSwap = await store.dispatch('oneInchSwap/getSwapTx', {
+                net: selectedNetwork.value.net,
+                from_token_address: selectedTokenFrom.value.list ? NATIVE_CONTRACT : selectedTokenFrom.value.address,
+                to_token_address: selectedTokenTo.value.list ? NATIVE_CONTRACT : selectedTokenTo.value.address,
+                amount: amount.value,
+                owner: walletAddress.value,
+                slippage: 0.5,
+            });
 
-      const resSwap = await store.dispatch("oneInchSwap/getSwapTx", {
-        net: selectedNetwork.value.net,
-        from_token_address: selectedTokenFrom.value.list
-          ? NATIVE_CONTRACT
-          : selectedTokenFrom.value.address,
-        to_token_address: selectedTokenTo.value.list
-          ? NATIVE_CONTRACT
-          : selectedTokenTo.value.address,
-        amount: amount.value,
-        owner: activeConnect.value.accounts[0],
-        slippage: 0.5,
-      });
+            if (resSwap.error) {
+                txError.value = resSwap.error;
+                isLoading.value = false;
+                return;
+            }
 
-      if (resSwap.error) {
-        txError.value = resSwap.error;
-        isLoading.value = false;
-        return;
-      }
+            const resTx = await activeConnect.value.sendMetamaskTransaction(resSwap);
+            if (resTx.error) {
+                txError.value = resTx.error;
+                isLoading.value = false;
+                setTimeout(() => {
+                    txError.value = '';
+                }, 2000);
+                return;
+            }
 
-      const resTx = await activeConnect.value.sendMetamaskTransaction(resSwap);
-      if (resTx.error) {
-        txError.value = resTx.error;
-        isLoading.value = false;
-        setTimeout(() => {
-          txError.value = "";
-        }, 2000);
-        return;
-      }
+            successHash.value = getTxUrl(selectedNetwork.value.net, resTx.txHash);
 
-      successHash.value = getTxUrl(selectedNetwork.value.net, resTx.txHash);
+            setTimeout(() => {
+                isLoading.value = false;
+                successHash.value = '';
+                isLoading.value = false;
+            }, 5000);
+        };
 
-      setTimeout(() => {
-        isLoading.value = false;
-        successHash.value = "";
-        isLoading.value = false;
-      }, 5000);
-    };
+        return {
+            isLoading,
+            needApprove,
+            disabledSwap,
+            walletAddress,
+            networks,
+            groupTokens,
+            tokensList,
+            favouritesList,
+            errorBalance,
+            selectedNetwork,
 
-    return {
-      isLoading,
-      needApprove,
-      disabledSwap,
-      activeConnect,
-      networks,
-      groupTokens,
-      tokensList,
-      favouritesList,
-      errorBalance,
-      selectedNetwork,
-
-      onSelectNetwork,
-      onSetTokenFrom,
-      onSetTokenTo,
-      onSetAmount,
-      isUpdateSwapDirectionValue,
-      swapTokensDirection,
-      selectedTokenFrom,
-      selectedTokenTo,
-      receiveValue,
-      swap,
-      txError,
-      successHash,
-    };
-  },
+            onSelectNetwork,
+            onSetTokenFrom,
+            onSetTokenTo,
+            onSetAmount,
+            isUpdateSwapDirectionValue,
+            swapTokensDirection,
+            currentChainInfo,
+            selectedTokenFrom,
+            selectedTokenTo,
+            receiveValue,
+            swap,
+            txError,
+            successHash,
+        };
+    },
 };
 </script>
 <style lang="scss" scoped>
 .simple-swap {
-  width: 660px;
+    width: 660px;
 
-  &__switch-wrap {
-    position: relative;
-  }
-
-  &__switch {
-    cursor: pointer;
-    position: absolute;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 48px;
-    height: 48px;
-    z-index: 10;
-    border-radius: 50%;
-    left: calc(50% - 24px);
-    bottom: 138px;
-    background: $colorGray;
-    border: 4px solid $colorWhite;
-    @include animateEasy;
-
-    svg {
-      @include animateEasy;
+    &__switch-wrap {
+        position: relative;
     }
 
-    &:hover {
-      background: #97ffd0;
+    &__switch {
+        cursor: pointer;
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 48px;
+        height: 48px;
+        z-index: 10;
+        border-radius: 50%;
+        left: calc(50% - 24px);
+        bottom: 138px;
+        background: $colorGray;
+        border: 4px solid $colorWhite;
+        @include animateEasy;
 
-      svg {
-        fill: $colorDarkPanel;
-      }
+        svg {
+            @include animateEasy;
+        }
+
+        &:hover {
+            background: #97ffd0;
+
+            svg {
+                fill: $colorDarkPanel;
+            }
+        }
+
+        svg {
+            fill: $colorPl;
+        }
     }
 
-    svg {
-      fill: $colorPl;
+    .mt-10 {
+        margin-top: 10px;
     }
-  }
 
-  .mt-10 {
-    margin-top: 10px;
-  }
-
-  &__btn {
-    height: 64px;
-    width: 100%;
-  }
+    &__btn {
+        height: 64px;
+        width: 100%;
+    }
 }
 
 body.dark {
-  .simple-swap {
-    &__switch {
-      background: $colorDarkPanel;
-      border: 4px solid #0c0d18;
+    .simple-swap {
+        &__switch {
+            background: $colorDarkPanel;
+            border: 4px solid #0c0d18;
 
-      svg {
-        fill: $colorBrightGreen;
-      }
+            svg {
+                fill: $colorBrightGreen;
+            }
 
-      &:hover {
-        background: $colorBrightGreen;
+            &:hover {
+                background: $colorBrightGreen;
 
-        svg {
-          fill: $colorBlack;
+                svg {
+                    fill: $colorBlack;
+                }
+            }
         }
-      }
     }
-  }
 }
 </style>
