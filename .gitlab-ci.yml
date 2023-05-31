@@ -123,7 +123,7 @@ Deploy branch:
   after_script:
     - oc delete route $NAME --ignore-not-found=true
     - oc create route edge $NAME --service=$NAME --hostname=$NAME.$OPENSHIFT_ROUTE --insecure-policy=Redirect
-    - echo "Deployed here - https://NAME.$OPENSHIFT_ROUTE"
+    - echo "Deployed here - https://$NAME.$OPENSHIFT_ROUTE"
   environment:
     name: test
   except:
