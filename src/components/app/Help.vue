@@ -37,7 +37,7 @@ export default {
         font-family: 'Poppins_Regular';
         font-size: 24px;
         color: #486060;
-        cursor: pointer;
+        cursor: not-allowed;
 
         svg {
             fill: #486060;

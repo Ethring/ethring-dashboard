@@ -97,31 +97,33 @@ export default function useTokens() {
         if (currentChainInfo.value?.citadelNet) {
             const tokens = networks.value[currentChainInfo.value?.citadelNet]?.tokens;
 
-            return Object.keys(tokens)
-                .map((item) => {
-                    const balance = tokensBalance.value[tokens[item].net] || {
-                        amount: 0,
-                        price: {
-                            BTC: 0,
-                            USD: 0,
-                        },
-                    };
-                    return {
-                        ...tokens[item],
-                        balance,
-                        balanceUsd: balance.amount * balance.price.USD,
-                    };
-                })
-                .filter((item) => item.balance.amount > 0)
-                .sort((a, b) => {
-                    if (a.balanceUsd > b.balanceUsd) {
-                        return 1;
-                    }
-                    if (a.balanceUsd < b.balanceUsd) {
-                        return 0;
-                    }
-                    return -1;
-                });
+            if (tokens) {
+                return Object.keys(tokens)
+                    .map((item) => {
+                        const balance = tokensBalance.value[tokens[item].net] || {
+                            amount: 0,
+                            price: {
+                                BTC: 0,
+                                USD: 0,
+                            },
+                        };
+                        return {
+                            ...tokens[item],
+                            balance,
+                            balanceUsd: balance.amount * balance.price.USD,
+                        };
+                    })
+                    .filter((item) => item.balance.amount > 0)
+                    .sort((a, b) => {
+                        if (a.balanceUsd > b.balanceUsd) {
+                            return 1;
+                        }
+                        if (a.balanceUsd < b.balanceUsd) {
+                            return 0;
+                        }
+                        return -1;
+                    });
+            }
         }
         return [];
     });
