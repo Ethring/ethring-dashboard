@@ -1,9 +1,1 @@
-export const metamaskNets = [
-  "bsc",
-  "eth",
-  "polygon",
-  "optimism",
-  "arbitrum",
-  "evmoseth",
-  "avalanche",
-];
+export const metamaskNets = ['bsc', 'eth', 'polygon', 'optimism', 'arbitrum', 'evmoseth', 'avalanche'];
