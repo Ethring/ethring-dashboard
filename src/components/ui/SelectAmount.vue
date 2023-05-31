@@ -41,12 +41,7 @@
                     </span>
                     {{ selectedToken.code }}
                 </p>
-                <div>
-                    <span>$</span
-                    >{{
-                        prettyNumber(BigNumber((selectedToken?.balance?.amount || 0) * (selectedToken?.balance?.price?.USD || 0)).toFixed())
-                    }}
-                </div>
+                <div><span>$</span>{{ prettyNumber(BigNumber(selectedToken.balanceUsd).toFixed()) }}</div>
             </div>
         </div>
         <div v-if="active" class="select-amount__items" v-click-away="clickAway">
@@ -137,7 +132,7 @@ export default {
         const amount = ref('');
         const selectedToken = ref(props.value);
         const placeholder = ref('0');
-
+        console.log(selectedToken, '--selectedToken');
         watch(
             () => props.onReset,
             () => {

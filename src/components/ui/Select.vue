@@ -17,8 +17,13 @@
                 class="select__items-item"
                 @click="setActive(item)"
             >
-                <div class="info">
-                    <div class="name">{{ item.name }}</div>
+                <div class="row">
+                    <div class="select__items-item-logo">
+                        <component :is="`${item?.net}Svg`" />
+                    </div>
+                    <div class="info">
+                        <div class="name">{{ item.name }}</div>
+                    </div>
                 </div>
                 <div class="amount">
                     {{ prettyNumber(item.balance?.mainBalance) }}
@@ -38,7 +43,6 @@ import evmosethSvg from '@/assets/icons/networks/evmoseth.svg';
 import avalancheSvg from '@/assets/icons/networks/avalanche.svg';
 import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 import { prettyNumber } from '@/helpers/prettyNumber';
-
 import { onMounted, ref } from 'vue';
 
 export default {
@@ -82,7 +86,9 @@ export default {
 <style lang="scss" scoped>
 .select {
     position: relative;
-
+    .row {
+        display: flex;
+    }
     &__panel {
         display: flex;
         align-items: center;
@@ -142,7 +148,7 @@ export default {
     }
 
     &__items {
-        z-index: 10;
+        z-index: 11;
         background: #fff;
         position: absolute;
         left: 0;
@@ -161,13 +167,26 @@ export default {
             width: 0px;
             background-color: transparent;
         }
+        &-item-logo {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #d9f4f1;
+            border-radius: 50%;
+            margin-right: 12px;
+            svg {
+                fill: $colorBlack;
+            }
+        }
     }
 
     &__items-item {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        min-height: 50px;
+        min-height: 60px;
         border-bottom: 1px dashed #73b1b1;
         cursor: pointer;
         @include animateEasy;
@@ -196,6 +215,10 @@ export default {
                 .name {
                     color: $colorBaseGreen;
                 }
+            }
+            .select__items-item-logo {
+                transition: 0.5s;
+                background: #97ffd0;
             }
         }
 

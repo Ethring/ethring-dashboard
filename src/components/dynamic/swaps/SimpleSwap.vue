@@ -136,7 +136,7 @@ export default {
                     return token.net !== selectedNetwork.value.net && !selectedNetwork.value.list.find((t) => t.net === token.net);
                 }),
             ];
-            console.log(list);
+
             if (!selectedTokenFrom.value) {
                 store.dispatch('tokens/setFromToken', list[0]);
             }
@@ -148,8 +148,12 @@ export default {
         });
 
         const onSelectNetwork = (network) => {
-            selectedNetwork.value = network;
-            store.dispatch('networks/setSelectedNetwork', network);
+            console.log(selectedNetwork.value, network, '--network');
+            if (selectedNetwork.value !== network) {
+                selectedNetwork.value = network;
+
+                store.dispatch('networks/setSelectedNetwork', network);
+            }
         };
 
         const onSetTokenFrom = () => {

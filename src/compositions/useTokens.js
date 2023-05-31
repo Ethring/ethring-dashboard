@@ -78,6 +78,8 @@ export default function useTokens() {
                     net: parentNet,
                     ...networks.value[parentNet],
                     balance: groupTokensBalance.value[parentNet]?.balance,
+                    balanceUsd: groupTokensBalance.value[parentNet]?.balanceUsd,
+                    price: groupTokensBalance.value[parentNet]?.price,
                     list: childs,
                 });
             });
