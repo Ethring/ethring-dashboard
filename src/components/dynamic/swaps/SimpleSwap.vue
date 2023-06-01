@@ -185,14 +185,14 @@ export default {
 
         const onSetTokenFrom = () => {
             store.dispatch('tokens/setSelectType', 'from');
-            router.push('select-token');
+            router.push('/swap/select-token');
 
             clearApprove();
         };
 
         const onSetTokenTo = async () => {
             store.dispatch('tokens/setSelectType', 'to');
-            router.push('select-token');
+            router.push('/swap/select-token');
 
             onSetAmount(amount.value);
         };
