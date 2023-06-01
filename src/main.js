@@ -15,27 +15,35 @@ import '@/assets/styles/index.scss';
 
 import { i18n } from '@/shared/i18n';
 
-const app = createApp(App)
-    .directive('debounce', vue3Debounce({ lock: true }))
-    .use(store)
-    .use(VueClickAway)
-    .use(Router)
-    .use(i18n);
+import { initWeb3 } from '@/compositions/useWeb3Onboard';
 
-if (process.env.VUE_APP_SENTRY_DSN) {
-    Sentry.init({
-        app,
-        dsn: process.env.VUE_APP_SENTRY_DSN,
-        tunnel: new URL(process.env.VUE_APP_SENTRY_DSN).origin + '/tunnel',
-        release: process.env.VUE_APP_RELEASE,
-        environment: process.env.NODE_ENV,
-        integrations: [
-            new BrowserTracing({
-                routingInstrumentation: Sentry.vueRouterInstrumentation(Router),
-            }),
-        ],
-        tracesSampleRate: 0.5,
-    });
-}
+import { getChainList } from '@/api/networks';
 
-app.mount('#app');
+getChainList().then((chains) => {
+    initWeb3(chains);
+
+    const app = createApp(App)
+        .directive('debounce', vue3Debounce({ lock: true }))
+        .use(store)
+        .use(VueClickAway)
+        .use(Router)
+        .use(i18n);
+
+    if (process.env.VUE_APP_SENTRY_DSN) {
+        Sentry.init({
+            app,
+            dsn: process.env.VUE_APP_SENTRY_DSN,
+            tunnel: new URL(process.env.VUE_APP_SENTRY_DSN).origin + '/tunnel',
+            release: process.env.VUE_APP_RELEASE,
+            environment: process.env.NODE_ENV,
+            integrations: [
+                new BrowserTracing({
+                    routingInstrumentation: Sentry.vueRouterInstrumentation(Router),
+                }),
+            ],
+            tracesSampleRate: 0.5,
+        });
+    }
+
+    app.mount('#app');
+});

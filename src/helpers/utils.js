@@ -35,7 +35,7 @@ export const getTxUrl = (net, hash) => {
     return networks[net];
 };
 
-export const tokenIconPlaceholder = (tokenName) => {
+export const tokenIconPlaceholder = (tokenName = 'token') => {
     const name = tokenName.trim().split(' ');
     const nameAbbr = [];
 

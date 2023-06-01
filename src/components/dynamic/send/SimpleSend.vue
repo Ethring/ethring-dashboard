@@ -1,14 +1,9 @@
 <template>
     <div class="simple-send">
-        <Select :items="groupTokens" @select="onSelectNetwork" />
-        <InfoPanel
-            v-if="activeConnect && selectedNetwork && activeConnect?.network !== selectedNetwork?.net"
-            :title="$t('mmIncorrectNetwork')"
-            class="mt-10"
-        />
+        <SelectNetwork :items="zometNetworks" :current="currentChainInfo" @select="onSelectNetwork" />
         <SelectAddress
-            :selected-network="selectedNetwork"
-            :items="favouritesList[selectedNetwork?.net] || []"
+            :selected-network="currentChainInfo"
+            :items="[]"
             :error="!!errorAddress"
             class="mt-10"
             :on-reset="successHash"
@@ -18,7 +13,7 @@
         <InfoPanel v-if="errorAddress" :title="errorAddress" class="mt-10" />
         <SelectAmount
             v-if="tokensList.length"
-            :selected-network="selectedNetwork"
+            :selected-network="currentChainInfo"
             :items="tokensList"
             :error="!!errorBalance"
             :label="$t('simpleSend.amount')"
@@ -42,36 +37,40 @@
 </template>
 <script>
 import InfoPanel from '@/components/ui/InfoPanel';
-import Select from '@/components/ui/Select';
+import SelectNetwork from '@/components/ui/SelectNetwork';
 import SelectAddress from '@/components/ui/SelectAddress';
 import SelectAmount from '@/components/ui/SelectAmount';
 
 import Button from '@/components/ui/Button';
 
 import useTokens from '@/compositions/useTokens';
-import useConnect from '@/compositions/useConnect';
 
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
+import * as ethers from 'ethers';
 
-import { getTxUrl } from '@/helpers/utils';
+// import { getTxUrl } from '@/helpers/utils';
+import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 
 export default {
     name: 'SimpleSend',
     components: {
         InfoPanel,
-        Select,
+        SelectNetwork,
         SelectAddress,
         SelectAmount,
         Button,
     },
     setup() {
         const store = useStore();
+
+        const { walletAddress, connectedWallet, currentChainInfo, setChain } = useWeb3Onboard();
+
         const isLoading = ref(false);
         const txError = ref('');
         const successHash = ref('');
 
-        const selectedNetwork = ref(null);
+        const selectedNetwork = ref(currentChainInfo.value);
         const selectedToken = ref(null);
         const amount = ref('');
         const address = ref('');
@@ -80,8 +79,9 @@ export default {
         const errorBalance = ref('');
 
         const { groupTokens } = useTokens();
-        const { activeConnect } = useConnect();
-        const favouritesList = computed(() => store.getters['tokens/favourites']);
+
+        // const favouritesList = computed(() => store.getters['tokens/favourites']);
+        const zometNetworks = computed(() => store.getters['networks/zometNetworks']);
 
         const disabledSend = computed(() => {
             return (
@@ -101,12 +101,18 @@ export default {
             if (!selectedNetwork.value) {
                 return [];
             }
+            const currentNetworkToken = groupTokens.value[0];
 
-            return [selectedNetwork.value, ...selectedNetwork.value.list];
+            return [currentNetworkToken, ...groupTokens.value[0].list];
         });
 
-        const onSelectNetwork = (network) => {
-            selectedNetwork.value = network;
+        const onSelectNetwork = async (network) => {
+            if (network.id || network.chain_id) {
+                await setChain({
+                    chainId: network.id || network.chain_id,
+                });
+                selectedNetwork.value = network;
+            }
         };
 
         const onSetToken = (token) => {
@@ -114,13 +120,14 @@ export default {
         };
 
         const onSetAddress = (addr) => {
-            const reg = new RegExp(selectedNetwork.value.validating);
+            const reg = new RegExp(networks.value[currentChainInfo.value.citadelNet].validating);
             address.value = addr;
 
             if (address.value.length && !reg.test(addr)) {
                 errorAddress.value = 'Invalid address';
                 return;
             }
+
             errorAddress.value = '';
         };
 
@@ -144,59 +151,53 @@ export default {
                 return;
             }
 
+            const { provider, label } = connectedWallet.value || {};
+
+            if (!provider) {
+                alert('Wallet not ready');
+            }
+
+            if (provider && label) {
+                const ethersProvider = new ethers.providers.Web3Provider(provider, 'any');
+
+                const signer = ethersProvider.getSigner();
+
+                const response = await store.dispatch('tokens/prepareTransfer', {
+                    net: selectedToken.value.net || selectedToken.value.network,
+                    from: walletAddress.value,
+                    toAddress: address.value,
+                    amount: amount.value,
+                });
+
+                const tx = response.transaction || response;
+                tx.gasPrice = await signer.getGasPrice();
+
+                delete tx.gas;
+
+                const txn = await signer.sendTransaction(tx);
+
+                const receipt = await txn.wait();
+                console.log(receipt);
+            }
+
             isLoading.value = true;
-
             txError.value = '';
-
-            const resp = await store.dispatch('tokens/prepareTransfer', {
-                net: selectedToken.value.net || selectedToken.value.network,
-                from: activeConnect.value.accounts[0],
-                toAddress: address.value,
-                amount: amount.value,
-            });
-            if (resp.error) {
-                isLoading.value = false;
-                txError.value = resp.error;
-                setTimeout(() => {
-                    txError.value = '';
-                }, 2000);
-                return;
-            }
-
-            const res = await activeConnect.value.sendMetamaskTransaction(resp);
-            if (res.error) {
-                txError.value = res.error;
-                isLoading.value = false;
-                setTimeout(() => {
-                    txError.value = '';
-                }, 2000);
-                return;
-            }
-
-            store.dispatch('tokens/setFavourites', {
-                net: selectedNetwork.value.net,
-                address: address.value,
-            });
-
-            successHash.value = getTxUrl(selectedNetwork.value.net, res.txHash);
-
-            setTimeout(() => {
-                successHash.value = '';
-                isLoading.value = false;
-            }, 5000);
         };
+
+        onMounted(async () => {
+            await store.dispatch('networks/initZometNets');
+        });
 
         return {
             isLoading,
             disabledSend,
-            activeConnect,
             networks,
             groupTokens,
             tokensList,
-            favouritesList,
             errorAddress,
             errorBalance,
             selectedNetwork,
+
             onRemoveFavourite,
 
             onSelectNetwork,
@@ -206,6 +207,10 @@ export default {
             send,
             txError,
             successHash,
+            walletAddress,
+            connectedWallet,
+            zometNetworks,
+            currentChainInfo,
         };
     },
 };

@@ -13,7 +13,7 @@ export const getChainList = async () => {
     try {
         const chains = (await axios.get(`${process.env.VUE_APP_ZOMET_CORE_API_URL}/networks/chain-list`)).data;
 
-        if (!chains || !chains.length) {
+        if (!Array.isArray(chains) || !chains || !chains.length) {
             return defaultChains;
         }
 

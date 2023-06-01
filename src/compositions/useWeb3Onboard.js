@@ -3,13 +3,24 @@
 // import * as ethers from 'ethers';
 import { computed } from 'vue';
 
-import { useOnboard } from '@web3-onboard/vue';
+import { init, useOnboard } from '@web3-onboard/vue';
+
+import web3OnBoardConfig from '@/config/web3-onboard';
 
 import chainIdNetwork from '@/shared/constants/chains/chainid.network';
 import cryptoLogos from '@/shared/constants/chains/crypto.logos';
 import citadelNetworks from '@/shared/constants/chains/citadel.networks';
+import defaultChains from '@/api/networks/default-chains';
+
+let web3Onboard = null;
+
+const initWeb3 = (chains = defaultChains) => (web3Onboard = init({ ...web3OnBoardConfig, chains }));
 
 export default function useWeb3Onboard() {
+    if (!web3Onboard) {
+        return initWeb3();
+    }
+
     const { connectedWallet, connectedChain } = useOnboard();
 
     const currentChainInfo = computed(() => {
@@ -45,6 +56,8 @@ export default function useWeb3Onboard() {
         ...useOnboard(),
     };
 }
+
+export { initWeb3 };
 
 // import { chainNamespaceValidation, chainIdValidation, chainValidation, validate, weiToEth, ProviderRpcErrorCode } from '@web3-onboard/common';
 
