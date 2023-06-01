@@ -20,7 +20,7 @@ export default function useWeb3Onboard() {
             return {};
         }
 
-        chainInfo.icon = cryptoLogos[id] || '';
+        chainInfo.logo = cryptoLogos[id] || '';
         chainInfo.citadelNet = citadelNetworks[id] || '';
 
         return chainInfo;

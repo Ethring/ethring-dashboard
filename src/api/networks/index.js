@@ -3,7 +3,7 @@ import defaultChains from './default-chains';
 
 export const getNetworksConfig = async () => {
     try {
-        return (await axios.get(`${process.env.VUE_APP_ZOMET_CORE_API_URL}/networks`)).data;
+        return await axios.get(`${process.env.VUE_APP_ZOMET_CORE_API_URL}/networks`);
     } catch (err) {
         return { error: err.message };
     }

@@ -15,7 +15,9 @@ const coinbaseWalletSdk = coinbaseWalletModule();
 
 const ledger = ledgerModule();
 
-const initWeb3 = (chains) =>
+import defaultChains from '@/api/networks/default-chains';
+
+const initWeb3 = (chains = defaultChains) =>
     init({
         wallets: [injected, coinbaseWalletSdk, ledger],
         connect: {

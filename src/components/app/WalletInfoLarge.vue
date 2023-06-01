@@ -1,7 +1,7 @@
 <template>
     <div :class="{ opened }" class="wallet-info">
         <div class="wallet-info__network">
-            <img :src="currentChainInfo.icon" alt="current-chain-icon" srcset="" />
+            <img :src="currentChainInfo.logo" alt="current-chain-icon" srcset="" />
         </div>
         <div class="wallet-info__wallet">
             <div class="address" @click="openMenu">

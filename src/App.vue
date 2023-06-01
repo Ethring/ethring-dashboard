@@ -21,6 +21,9 @@ import Sidebar from '@/components/app/Sidebar';
 import { useStore } from 'vuex';
 import useCitadel from './compositions/useCitadel';
 
+import { getChainList } from './api/networks';
+import initWeb3 from './config/web3-onboard';
+
 export default {
     name: 'App',
     components: {
@@ -29,6 +32,10 @@ export default {
     },
     setup() {
         const store = useStore();
+
+        initWeb3();
+
+        getChainList().then((chains) => initWeb3(chains));
 
         const { connectWallet, connectedWallet, walletAddress } = useWeb3Onboard();
 
