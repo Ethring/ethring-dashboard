@@ -36,16 +36,17 @@ stages:
   cache: {}
   variables:
     IMAGE_TAG: $REGISTRY_URL/$CI_PROJECT_NAME/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHORT_SHA
+    NAME: $CI_PROJECT_NAME
+    TEMPLATE: template.yml
     REPLICAS: 1
     PORT: 8080
   before_script:
     - apk add --update coreutils
-    - export NAME=$(echo $CI_PROJECT_NAME | sed -e 's/_/-/g')
     - oc login --token $OPENSHIFT_TOKEN $OPENSHIFT_URL --insecure-skip-tls-verify
     - oc project $OPENSHIFT_PROJECT
     - DOCKERCONFIGJSON=$(echo -n "{\"auths\":{\"$DOCKER_REPO\":{\"username\":\"$DOCKER_USER_RO\",\"password\":\"$DOCKER_PASS_RO\"},\"$REGISTRY_URL\":{\"username\":\"$REGISTRY_USER\",\"password\":\"$REGISTRY_PASSWORD\"}}}" | base64 -w 0)
   script:
-    - oc process -f deploy/template.yml
+    - oc process -f deploy/$TEMPLATE
       --ignore-unknown-parameters=true
       -p DC_NAME=$NAME
       -p APP_NAME=$(echo $CI_PROJECT_NAMESPACE | sed -e 's/\//-/g')
@@ -55,6 +56,10 @@ stages:
       -p REPLICAS=$REPLICAS
       -p DOCKERCONFIGJSON=$DOCKERCONFIGJSON | oc apply -f -
     - oc secrets link default auth-docker --for=pull
+    - >
+      if [[ "$REDEPLOY" == "YES" ]]; then
+        oc rollout restart deploy $NAME
+      fi
     - oc rollout status deploy $NAME -n $OPENSHIFT_PROJECT
 
 
@@ -74,8 +79,22 @@ Sentry release:
 
 Build dev:
   extends: .dockerBuildJob
+  environment:
+    name: dev
   only:
     - dev
+
+Build branch:
+  extends: .dockerBuildJob
+  when: manual
+  needs: []
+  variables:
+    IMAGE_TAG: $REGISTRY_URL/$CI_PROJECT_NAME/branches:$CI_COMMIT_REF_SLUG
+  environment:
+    name: test
+  except:
+    - dev
+    - master
 
 Build prod:
   extends: .dockerBuildJob
@@ -93,6 +112,23 @@ Deploy dev:
     name: dev
   only:
     - dev
+
+Deploy branch:
+  extends: .deployJob
+  needs: ["Build branch"]
+  variables:
+    NAME: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
+    REDEPLOY: "YES"
+    IMAGE_TAG: $REGISTRY_URL/$CI_PROJECT_NAME/branches:$CI_COMMIT_REF_SLUG
+  after_script:
+    - oc delete route $NAME --ignore-not-found=true
+    - oc create route edge $NAME --service=$NAME --hostname=$NAME.$OPENSHIFT_ROUTE --insecure-policy=Redirect
+    - echo "Deployed here - https://$NAME.$OPENSHIFT_ROUTE"
+  environment:
+    name: test
+  except:
+    - dev
+    - master
 
 Deploy prod:
   extends: .deployJob
