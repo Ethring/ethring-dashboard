@@ -44,7 +44,7 @@
                 <div><span>$</span>{{ prettyNumber(BigNumber(selectedToken.balanceUsd).toFixed()) }}</div>
             </div>
         </div>
-        <div v-if="active" class="select-amount__items" v-click-away="clickAway">
+        <!-- <div v-if="active" class="select-amount__items" v-click-away="clickAway">
             <div
                 v-for="(item, ndx) in items"
                 :key="ndx"
@@ -66,7 +66,7 @@
                     <span>{{ item.code }}</span>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 </template>
 <script>
@@ -81,9 +81,6 @@ import BigNumber from 'bignumber.js';
 export default {
     name: 'SelectAmount',
     props: {
-        selectedNetwork: {
-            required: true,
-        },
         value: {
             required: true,
         },
@@ -109,9 +106,6 @@ export default {
         isUpdate: {
             type: Boolean,
             default: false,
-        },
-        newValue: {
-            type: Object,
         },
         disabled: {
             type: Boolean,
@@ -154,19 +148,19 @@ export default {
         );
 
         watch(
-            () => props.items,
-            (newV) => {
-                if (newV.length) {
-                    selectedToken.value = newV[0];
+            () => props.isUpdate,
+            (isUpdate) => {
+                if (isUpdate) {
+                    setToken(props.value);
                 }
             }
         );
 
         watch(
-            () => props.isUpdate,
-            (isUpdate) => {
-                if (isUpdate) {
-                    setToken(props.newValue);
+            () => props.value,
+            (val) => {
+                if (val) {
+                    setToken(val);
                 }
             }
         );

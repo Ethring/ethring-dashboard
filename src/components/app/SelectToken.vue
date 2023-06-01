@@ -91,6 +91,7 @@ export default {
         };
 
         const setToken = (item) => {
+            console.log(selectType.value, '--selectType.value ');
             if (selectType.value === 'from') {
                 store.dispatch('tokens/setFromToken', item);
             } else {

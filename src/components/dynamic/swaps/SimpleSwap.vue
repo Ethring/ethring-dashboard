@@ -89,7 +89,7 @@ export default {
         const txError = ref('');
         const successHash = ref('');
 
-        const selectedNetwork = ref(null);
+        const selectedNetwork = computed(() => store.getters['networks/selectedNetwork']);
 
         const isUpdateSwapDirectionValue = ref(false);
         const router = useRouter();
@@ -112,7 +112,8 @@ export default {
                 !+amount.value ||
                 !selectedNetwork.value ||
                 !selectedTokenFrom.value ||
-                !selectedTokenTo.value
+                !selectedTokenTo.value ||
+                currentChainInfo.value?.citadelNet !== selectedNetwork.value?.net
             );
         });
 
@@ -136,7 +137,7 @@ export default {
                     return token.net !== selectedNetwork.value.net && !selectedNetwork.value.list.find((t) => t.net === token.net);
                 }),
             ];
-
+            console.log(list, !selectedTokenFrom.value, !selectedTokenTo.value, '--list');
             if (!selectedTokenFrom.value) {
                 store.dispatch('tokens/setFromToken', list[0]);
             }
@@ -148,10 +149,9 @@ export default {
         });
 
         const onSelectNetwork = (network) => {
-            console.log(selectedNetwork.value, network, '--network');
             if (selectedNetwork.value !== network) {
-                selectedNetwork.value = network;
-
+                store.dispatch('tokens/setFromToken', null);
+                store.dispatch('tokens/setToToken', null);
                 store.dispatch('networks/setSelectedNetwork', network);
             }
         };
@@ -166,7 +166,6 @@ export default {
         const onSetTokenTo = async () => {
             store.dispatch('tokens/setSelectType', 'to');
             router.push('select-token');
-            clearApprove();
 
             onSetAmount(amount.value);
         };
@@ -197,8 +196,9 @@ export default {
             const to = { ...selectedTokenTo.value };
 
             isUpdateSwapDirectionValue.value = true;
-            selectedTokenFrom.value = to;
-            selectedTokenTo.value = from;
+
+            store.dispatch('tokens/setFromToken', to);
+            store.dispatch('tokens/setToToken', from);
             setTimeout(() => {
                 isUpdateSwapDirectionValue.value = false;
             }, 300);
@@ -259,20 +259,24 @@ export default {
             approveTx.value = resApproveTx;
         };
 
-        const sendMetamaskTransaction = async (tx) => {
+        const sendMetamaskTransaction = async (transaction) => {
             const { provider, label } = connectedWallet.value || {};
+            const tx = {
+                data: transaction.data,
+                from: transaction.from,
+                to: transaction.to,
+                chainId: `0x${transaction.chainId.toString(16)}`,
+                value: transaction.value ? `0x${parseInt(transaction.value).toString(16)}` : '',
+            };
+            console.log(tx, 'tx');
             if (provider && label) {
-                console.log(provider);
                 // create an ethers provider with the last connected wallet provider
                 const ethersProvider = new ethers.providers.Web3Provider(provider, 'any');
 
                 const signer = ethersProvider.getSigner();
-                console.log(signer);
-
                 const txn = await signer.sendTransaction(tx);
 
                 const receipt = await txn.wait();
-                console.log(receipt, '--receipt');
                 return receipt;
             }
         };
