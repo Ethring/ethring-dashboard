@@ -179,6 +179,7 @@ export default {
                 store.dispatch('tokens/setFromToken', null);
                 store.dispatch('tokens/setToToken', null);
                 store.dispatch('networks/setSelectedNetwork', network);
+                clearApprove();
             }
         };
 
@@ -388,6 +389,7 @@ export default {
                 ethers.BigNumber.from(res).toString(),
                 ethers.BigNumber.from(selectedNetwork.value.decimals)
             );
+            console.log(formatted, '--formatted');
             gasPrice.value = +formatted;
         };
         onMounted(async () => {

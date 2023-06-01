@@ -63,6 +63,8 @@ export default {
         const selectedNetwork = computed(() => store.getters['networks/selectedNetwork']);
         const selectType = computed(() => store.getters['tokens/selectType']);
         const { walletAddress } = useWeb3Onboard();
+        const selectedTokenFrom = computed(() => store.getters['tokens/fromToken']);
+        const selectedTokenTo = computed(() => store.getters['tokens/toToken']);
 
         const allTokens = computed(() => {
             if (!selectedNetwork.value) {
@@ -76,13 +78,16 @@ export default {
                     return token.net !== selectedNetwork.value.net && !selectedNetwork.value.list.find((t) => t.net === token.net);
                 }),
             ];
-
+            const secondToken = selectType.value === 'from' ? selectedTokenTo.value : selectedTokenFrom.value;
             return list.filter(
                 (elem) =>
-                    elem.name.toLowerCase().includes(searchValue.value.toLowerCase()) ||
-                    elem.code
-                        .toLowerCase()
-                        .includes(searchValue.value.toLowerCase() || elem.address.toLowerCase().includes(searchValue.value.toLowerCase()))
+                    elem.code !== secondToken.code &&
+                    (elem.name.toLowerCase().includes(searchValue.value.toLowerCase()) ||
+                        elem.code
+                            .toLowerCase()
+                            .includes(
+                                searchValue.value.toLowerCase() || elem.address.toLowerCase().includes(searchValue.value.toLowerCase())
+                            ))
             );
         });
 
@@ -91,7 +96,6 @@ export default {
         };
 
         const setToken = (item) => {
-            console.log(selectType.value, '--selectType.value ');
             if (selectType.value === 'from') {
                 store.dispatch('tokens/setFromToken', item);
             } else {
