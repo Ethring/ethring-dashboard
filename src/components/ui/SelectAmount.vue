@@ -29,9 +29,6 @@
                     @click.stop="() => {}"
                     class="input-balance"
                 />
-                <div v-if="!hideMax" class="max" @click.stop="setMax">
-                    {{ $t('simpleSend.max').toUpperCase() }}
-                </div>
             </div>
             <div class="balance" @click.stop="setMax">
                 <p>
@@ -44,29 +41,6 @@
                 <div><span>$</span>{{ prettyNumber(BigNumber(selectedToken.balanceUsd).toFixed()) }}</div>
             </div>
         </div>
-        <!-- <div v-if="active" class="select-amount__items" v-click-away="clickAway">
-            <div
-                v-for="(item, ndx) in items"
-                :key="ndx"
-                :class="{ active: item.name === selectedToken?.name }"
-                class="select-amount__items-item"
-                @click="setToken(item)"
-            >
-                <div class="info">
-                    <div class="name">{{ item.name }}</div>
-                </div>
-                <div class="amount">
-                    {{
-                        prettyNumber(
-                            item.name === selectedToken?.name
-                                ? BigNumber(selectedToken?.balance?.mainBalance || 0).toFixed()
-                                : BigNumber(item.balance?.amount || 0).toFixed()
-                        )
-                    }}
-                    <span>{{ item.code }}</span>
-                </div>
-            </div>
-        </div> -->
     </div>
 </template>
 <script>
@@ -205,14 +179,16 @@ export default {
 
         const setMax = () => {
             active.value = false;
-            let balance = selectedToken.value?.balance?.amount || selectedToken.value?.balance?.mainBalance;
-            if (balance > 0) {
-                balance = BigNumber(balance).toFixed();
-            } else {
-                balance = 0;
+            if (!props.hideMax) {
+                let balance = selectedToken.value?.balance?.amount || selectedToken.value?.balance?.mainBalance;
+                if (balance > 0) {
+                    balance = BigNumber(balance).toFixed();
+                } else {
+                    balance = 0;
+                }
+                amount.value = balance;
+                emit('setAmount', amount.value);
             }
-            amount.value = balance;
-            emit('setAmount', amount.value);
         };
 
         const setToken = (item) => {
