@@ -134,8 +134,8 @@ export default {
     &__items {
         height: 470px;
         overflow-y: auto;
-        margin: 0px -32px;
-        padding: 0px 32px;
+        margin: 0px -22px;
+        padding: 0px 22px;
     }
     svg.arrow {
         cursor: pointer;

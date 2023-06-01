@@ -1,0 +1,77 @@
+<template>
+    <div :class="{ active }" class="accordion" @click="active = !active">
+        <div class="accordion__header">
+            <div class="accordion__title" v-html="title"></div>
+            <arrowSvg class="arrow" />
+        </div>
+        <div class="accordion__content" :style="{ height: active ? 'auto' : '0' }">
+            <slot></slot>
+        </div>
+    </div>
+</template>
+<script>
+import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
+
+import { ref } from 'vue';
+
+export default {
+    name: 'Accordion',
+    components: {
+        arrowSvg,
+    },
+    props: {
+        title: {
+            type: String,
+            default: 'Receive',
+        },
+    },
+    setup() {
+        const active = ref(false);
+
+        const clickAway = () => {
+            active.value = !active.value;
+        };
+
+        return { active, clickAway };
+    },
+};
+</script>
+<style lang="scss" scoped>
+.accordion {
+    background: $colorWhite;
+    border: 1px solid $colorLightGreen;
+    border-radius: 16px;
+    padding: 27px 32px;
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    &__title {
+        color: #494c56;
+        font-size: 16px;
+        font-family: 'Poppins_Regular';
+    }
+
+    &__content {
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    svg.arrow {
+        cursor: pointer;
+        fill: #73b1b1;
+        transform: rotate(0);
+        @include animateEasy;
+    }
+
+    &.active {
+        svg.arrow {
+            transform: rotate(180deg);
+        }
+    }
+}
+</style>

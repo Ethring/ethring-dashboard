@@ -126,7 +126,7 @@ export default {
         const amount = ref('');
         const selectedToken = ref(props.value);
         const placeholder = ref('0');
-        console.log(selectedToken, '--selectedToken');
+
         watch(
             () => props.onReset,
             () => {
@@ -164,6 +164,23 @@ export default {
                 }
             }
         );
+
+        watch(amount, (val) => {
+            if (val) {
+                // eslint-disable-next-line
+                val = val.replace(/[^0-9\.]/g, '');
+                if (val.split('.').length - 1 !== 1 && val[val.length - 1] === '.') {
+                    return;
+                }
+                if (val.length === 2 && val[1] !== '.' && val[1] === '0' && val[0] === '0') {
+                    amount.value = val[0];
+                } else if (val[0] === '0' && val[1] !== '.') {
+                    amount.value = BigNumber(val).toFixed();
+                } else {
+                    amount.value = val;
+                }
+            }
+        });
 
         const clickAway = () => {
             active.value = false;

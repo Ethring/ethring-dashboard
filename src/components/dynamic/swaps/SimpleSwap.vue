@@ -41,6 +41,27 @@
         <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
         <InfoPanel v-if="txError" :title="txError" class="mt-10" />
         <InfoPanel v-if="successHash" :hash="successHash" :title="$t('tx.txHash')" type="success" class="mt-10" />
+        <Accordion
+            v-if="receiveValue"
+            :title="`Rate: <span style='font-family:Poppins_Semibold;'>1</span> ${selectedTokenFrom.code} = <span  style='font-family:Poppins_Semibold;'>${estimateRate}</span> ${selectedTokenTo.code}`"
+            class="mt-10"
+        >
+            <div class="accordion__content">
+                <div class="accordion__item">
+                    <div class="accordion__label">Network fee:</div>
+                    <div class="accordion__value">
+                        <span class="fee">{{ networkFee }}</span> <span class="symbol">{{ selectedNetwork.code }}</span>
+                    </div>
+                </div>
+                <div class="accordion__item">
+                    <div class="accordion__label">Bridge:</div>
+                    <div class="accordion__value">
+                        <img src="https://cryptologos.cc/logos/1inch-1inch-logo.svg?v=025" />
+                        <div class="name">1inch</div>
+                    </div>
+                </div>
+            </div>
+        </Accordion>
         <Button
             xl
             :title="needApprove ? $t('simpleSwap.approve') : $t('simpleSwap.swap')"
@@ -60,8 +81,8 @@ import Button from '@/components/ui/Button';
 
 import useTokens from '@/compositions/useTokens';
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
-
-import { computed, ref } from 'vue';
+import { prettyNumberTooltip } from '@/helpers/prettyNumber';
+import { computed, ref, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
 import { ethers } from 'ethers';
 import { useRouter } from 'vue-router';
@@ -69,6 +90,7 @@ import { getTxUrl } from '@/helpers/utils';
 import { toMantissa } from '@/helpers/numbers';
 
 import SwapSvg from '@/assets/icons/dashboard/swap.svg';
+import Accordion from '@/components/ui/Accordion.vue';
 
 const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
@@ -80,6 +102,7 @@ export default {
         SelectAmount,
         Button,
         SwapSvg,
+        Accordion,
     },
     setup() {
         const store = useStore();
@@ -88,7 +111,9 @@ export default {
         const approveTx = ref(null);
         const txError = ref('');
         const successHash = ref('');
-
+        const estimateRate = ref(0);
+        const networkFee = ref(0);
+        const gasPrice = ref(0);
         const selectedNetwork = computed(() => store.getters['networks/selectedNetwork']);
 
         const isUpdateSwapDirectionValue = ref(false);
@@ -137,7 +162,7 @@ export default {
                     return token.net !== selectedNetwork.value.net && !selectedNetwork.value.list.find((t) => t.net === token.net);
                 }),
             ];
-            console.log(list, !selectedTokenFrom.value, !selectedTokenTo.value, '--list');
+
             if (!selectedTokenFrom.value) {
                 store.dispatch('tokens/setFromToken', list[0]);
             }
@@ -150,6 +175,7 @@ export default {
 
         const onSelectNetwork = (network) => {
             if (selectedNetwork.value !== network) {
+                txError.value = '';
                 store.dispatch('tokens/setFromToken', null);
                 store.dispatch('tokens/setToToken', null);
                 store.dispatch('networks/setSelectedNetwork', network);
@@ -222,6 +248,9 @@ export default {
             }
             txError.value = '';
             receiveValue.value = resEstimate.toTokenAmount;
+            console.log(gasPrice.value, +resEstimate.estimatedGas);
+            networkFee.value = prettyNumberTooltip(gasPrice.value * +resEstimate.estimatedGas, 4);
+            estimateRate.value = prettyNumberTooltip(resEstimate.toTokenAmount / resEstimate.fromTokenAmount, 2);
         };
 
         const getAllowance = async () => {
@@ -259,8 +288,17 @@ export default {
             approveTx.value = resApproveTx;
         };
 
+        const getProvider = () => {
+            const { provider } = connectedWallet.value || {};
+            if (provider) {
+                // create an ethers provider with the last connected wallet provider
+                const ethersProvider = new ethers.providers.Web3Provider(provider, 'any');
+                return ethersProvider;
+            }
+        };
+
         const sendMetamaskTransaction = async (transaction) => {
-            const { provider, label } = connectedWallet.value || {};
+            const ethersProvider = getProvider();
             const tx = {
                 data: transaction.data,
                 from: transaction.from,
@@ -268,11 +306,8 @@ export default {
                 chainId: `0x${transaction.chainId.toString(16)}`,
                 value: transaction.value ? `0x${parseInt(transaction.value).toString(16)}` : '',
             };
-            console.log(tx, 'tx');
-            if (provider && label) {
-                // create an ethers provider with the last connected wallet provider
-                const ethersProvider = new ethers.providers.Web3Provider(provider, 'any');
 
+            if (ethersProvider) {
                 const signer = ethersProvider.getSigner();
                 const txn = await signer.sendTransaction(tx);
 
@@ -291,7 +326,6 @@ export default {
 
             // APPROVE
             if (approveTx.value) {
-                console.log(approveTx.value.transaction, '-approveTx.value.transaction');
                 const resTx = await sendMetamaskTransaction({ ...approveTx.value.transaction, from: walletAddress.value });
                 if (resTx.error) {
                     txError.value = resTx.error;
@@ -347,7 +381,22 @@ export default {
                 isLoading.value = false;
             }, 5000);
         };
+        const loadGasPrice = async () => {
+            const ethersProvider = getProvider();
+            const res = await ethersProvider.getGasPrice();
+            let formatted = ethers.utils.formatUnits(
+                ethers.BigNumber.from(res).toString(),
+                ethers.BigNumber.from(selectedNetwork.value.decimals)
+            );
+            gasPrice.value = +formatted;
+        };
+        onMounted(async () => {
+            await loadGasPrice();
+        });
 
+        watch(selectedNetwork, async () => {
+            await loadGasPrice();
+        });
         return {
             isLoading,
             needApprove,
@@ -372,7 +421,9 @@ export default {
             receiveValue,
             swap,
             txError,
+            estimateRate,
             successHash,
+            networkFee,
         };
     },
 };
@@ -445,6 +496,44 @@ body.dark {
                     fill: $colorBlack;
                 }
             }
+        }
+    }
+}
+.accordion {
+    &__item {
+        display: flex;
+        align-items: center;
+    }
+
+    &__label {
+        color: #494c56;
+        font-size: 16px;
+        font-family: 'Poppins_Regular';
+    }
+
+    &__value {
+        display: flex;
+        align-items: center;
+        font-size: 16px;
+        font-family: 'Poppins_SemiBold';
+        color: #1c1f2c;
+        margin-left: 6px;
+
+        img {
+            width: 16px;
+            height: 16px;
+            margin-right: 6px;
+        }
+
+        .fee {
+            color: $colorBaseGreen;
+            margin-right: 4px;
+        }
+
+        .symbol {
+            color: $colorPl;
+            font-weight: 300;
+            font-family: 'Poppins_Regular';
         }
     }
 }
