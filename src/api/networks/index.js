@@ -16,6 +16,7 @@ export const getChainList = async () => {
         if (!chains || !chains.length) {
             return defaultChains;
         }
+
         return chains;
     } catch (err) {
         console.error({ error: err.message });
