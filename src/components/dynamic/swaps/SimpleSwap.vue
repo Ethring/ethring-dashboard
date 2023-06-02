@@ -306,13 +306,13 @@ export default {
                 chainId: `0x${transaction.chainId.toString(16)}`,
                 value: transaction.value ? `0x${parseInt(transaction.value).toString(16)}` : '0x0',
             };
-            console.log(tx, '-tx');
+
             if (ethersProvider) {
                 const signer = ethersProvider.getSigner();
                 const txn = await signer.sendTransaction(tx);
 
                 const receipt = await txn.wait();
-                console.log(receipt, '--receipt');
+
                 return receipt;
             }
         };
