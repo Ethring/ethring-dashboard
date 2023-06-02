@@ -1,18 +1,9 @@
 <template>
-    <div
-        :class="{ active, focused, error }"
-        class="select-amount"
-        @click="
-            {
-                active = !active;
-                emit('click');
-            }
-        "
-    >
+    <div :class="{ active, focused, error }" class="select-amount" @click="setActive">
         <div class="select-amount__panel">
             <div class="label">{{ label }}</div>
             <div class="info-wrap">
-                <div class="info">
+                <div class="info" @click="clickToken">
                     <div class="network">
                         <TokenIcon width="24" height="24" :token="selectedToken" dark />
                     </div>
@@ -89,6 +80,10 @@ export default {
             default: false,
         },
         error: {
+            type: Boolean,
+            default: false,
+        },
+        showDropDown: {
             type: Boolean,
             default: false,
         },
@@ -213,7 +208,11 @@ export default {
                 emit('setAmount', amount.value);
             }
         };
-
+        const setActive = () => {
+            if (props.showDropDown) {
+                active.value = !active.value;
+            }
+        };
         const setToken = (item) => {
             amount.value = '';
             selectedToken.value = item;
@@ -221,7 +220,9 @@ export default {
             emit('setAmount', amount.value);
             emit('setToken', selectedToken.value);
         };
-
+        const clickToken = () => {
+            emit('clickToken');
+        };
         onMounted(() => {
             setToken(selectedToken.value);
         });
@@ -235,12 +236,14 @@ export default {
             selectedToken,
             prettyNumber,
             setToken,
+            setActive,
             setMax,
             onInput,
             onBlur,
             onFocus,
             clickAway,
             emit,
+            clickToken,
         };
     },
 };

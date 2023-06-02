@@ -16,6 +16,7 @@
             :selected-network="currentChainInfo"
             :items="tokensList"
             :value="tokensList[0]"
+            :showDropDown="true"
             :error="!!errorBalance"
             :label="$t('simpleSend.amount')"
             :on-reset="successHash"

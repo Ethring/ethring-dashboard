@@ -16,7 +16,7 @@
                 :on-reset="successHash"
                 :is-update="isUpdateSwapDirectionValue"
                 :label="$t('simpleSwap.pay')"
-                @click="onSetTokenFrom"
+                @clickToken="onSetTokenFrom"
                 class="mt-10"
                 @setAmount="onSetAmount"
             />
@@ -35,7 +35,7 @@
                 :disabled="true"
                 hide-max
                 class="mt-10"
-                @click="onSetTokenTo"
+                @clickToken="onSetTokenTo"
             />
         </div>
         <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
