@@ -124,7 +124,7 @@ export default {
         const errorBalance = ref('');
 
         const { groupTokens, allTokensFromNetwork } = useTokens();
-        const { walletAddress, currentChainInfo, connectedWallet } = useWeb3Onboard();
+        const { walletAddress, currentChainInfo, connectedWallet, setChain } = useWeb3Onboard();
 
         const favouritesList = computed(() => store.getters['tokens/favourites']);
         const selectedTokenFrom = computed(() => store.getters['tokens/fromToken']);
@@ -173,13 +173,17 @@ export default {
             return list;
         });
 
-        const onSelectNetwork = (network) => {
+        const onSelectNetwork = async (network) => {
             if (selectedNetwork.value !== network) {
                 txError.value = '';
+                if (network.id || network.chain_id) {
+                    await setChain({
+                        chainId: network.id || network.chain_id,
+                    });
+                }
                 store.dispatch('tokens/setFromToken', null);
                 store.dispatch('tokens/setToToken', null);
                 store.dispatch('networks/setSelectedNetwork', network);
-                clearApprove();
             }
         };
 

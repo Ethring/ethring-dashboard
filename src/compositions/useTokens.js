@@ -1,6 +1,7 @@
 import { computed } from 'vue';
 import { useStore } from 'vuex';
 import useWeb3Onboard from './useWeb3Onboard';
+import { chainIds } from '@/config/availableNets';
 
 export default function useTokens() {
     const store = useStore();
@@ -81,6 +82,7 @@ export default function useTokens() {
                     balanceUsd: groupTokensBalance.value[parentNet]?.balanceUsd,
                     price: groupTokensBalance.value[parentNet]?.price,
                     list: childs,
+                    chain_id: chainIds[parentNet],
                 });
             });
 
