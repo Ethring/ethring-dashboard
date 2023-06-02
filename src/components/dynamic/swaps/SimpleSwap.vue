@@ -120,7 +120,6 @@ export default {
         const router = useRouter();
         const amount = ref('');
         const receiveValue = ref('');
-
         const errorBalance = ref('');
 
         const { groupTokens, allTokensFromNetwork } = useTokens();
@@ -177,6 +176,7 @@ export default {
             if (selectedNetwork.value !== network) {
                 txError.value = '';
                 if (network.id || network.chain_id) {
+                    store.dispatch('tokens/setLoader', true);
                     await setChain({
                         chainId: network.id || network.chain_id,
                     });
@@ -216,7 +216,11 @@ export default {
             await getEstimateInfo();
             await getAllowance();
 
-            errorBalance.value = '';
+            if (+value > selectedTokenFrom.value.balance?.amount || +value > selectedTokenFrom.value.balance?.mainBalance) {
+                errorBalance.value = 'Insufficient balance';
+            } else {
+                errorBalance.value = '';
+            }
         };
 
         const swapTokensDirection = () => {
@@ -254,7 +258,7 @@ export default {
             txError.value = '';
             receiveValue.value = resEstimate.toTokenAmount;
             networkFee.value = prettyNumberTooltip(gasPrice.value * +resEstimate.estimatedGas, 4);
-            estimateRate.value = prettyNumberTooltip(resEstimate.toTokenAmount / resEstimate.fromTokenAmount, 2);
+            estimateRate.value = prettyNumberTooltip(resEstimate.toTokenAmount / resEstimate.fromTokenAmount, 6);
         };
 
         const getAllowance = async () => {
@@ -384,7 +388,7 @@ export default {
                 isLoading.value = false;
                 successHash.value = '';
                 isLoading.value = false;
-            }, 5000);
+            }, 1000);
         };
         const loadGasPrice = async () => {
             const ethersProvider = getProvider();
