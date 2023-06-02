@@ -2,6 +2,7 @@ const defaultSidebarItems = [
     { component: 'mainSvg', title: 'Main', key: 'main', to: '/main' },
     { component: 'stakeSvg', title: 'Send', key: 'send', to: '/send' },
     { component: 'swapSvg', title: 'Swap', key: 'swap', to: '/swap' },
+    { component: 'bridgeSvg', title: 'Bridge', key: 'bridge', to: '/bridge' },
 ];
 
 export const UIConfig = {
@@ -16,6 +17,9 @@ export const UIConfig = {
         swap: {
             component: 'SimpleSwap',
         },
+        bridge: {
+            component: 'SimpleBridge',
+        },
     },
     eth: {
         sidebar: [...defaultSidebarItems],
@@ -24,6 +28,9 @@ export const UIConfig = {
         },
         swap: {
             component: 'SimpleSwap',
+        },
+        bridge: {
+            component: 'SimpleBridge',
         },
     },
     polygon: {
@@ -34,6 +41,9 @@ export const UIConfig = {
         swap: {
             component: 'SimpleSwap',
         },
+        bridge: {
+            component: 'SimpleBridge',
+        },
     },
     optimism: {
         sidebar: [...defaultSidebarItems],
@@ -42,6 +52,9 @@ export const UIConfig = {
         },
         swap: {
             component: 'SimpleSwap',
+        },
+        bridge: {
+            component: 'SimpleBridge',
         },
     },
     avalanche: {
@@ -52,6 +65,9 @@ export const UIConfig = {
         swap: {
             component: 'SimpleSwap',
         },
+        bridge: {
+            component: 'SimpleBridge',
+        },
     },
     arbitrum: {
         sidebar: [...defaultSidebarItems],
@@ -60,6 +76,9 @@ export const UIConfig = {
         },
         swap: {
             component: 'SimpleSwap',
+        },
+        bridge: {
+            component: 'SimpleBridge',
         },
     },
 };

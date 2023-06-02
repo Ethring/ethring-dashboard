@@ -15,6 +15,7 @@ import mainSvg from '@/assets/icons/sidebar/main.svg';
 import swapSvg from '@/assets/icons/sidebar/swap.svg';
 import stakeSvg from '@/assets/icons/sidebar/stake.svg';
 import sendSvg from '@/assets/icons/sidebar/send.svg';
+import bridgeSvg from '@/assets/icons/sidebar/bridge.svg';
 
 import { UIConfig } from '@/config/ui';
 
@@ -28,6 +29,7 @@ export default {
         swapSvg,
         stakeSvg,
         sendSvg,
+        bridgeSvg,
     },
     setup() {
         const { currentChainInfo } = useWeb3Onboard();

@@ -22,6 +22,12 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: "Poppins";
+  src: url("../fonts/Poppins-Medium.ttf") format("truetype");
+  font-style: normal;
+}
+
 // OLD VERSION
 
 @font-face {
@@ -49,5 +55,12 @@
   font-family: "Poppins_Regular";
   src: url("../fonts/Poppins-Regular.ttf") format("truetype");
   font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Poppins_Medium";
+  src: url("../fonts/Poppins-Medium.ttf") format("truetype");
+  font-weight: 500;
   font-style: normal;
 }

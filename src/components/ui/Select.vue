@@ -5,7 +5,11 @@
                 <div class="network">
                     <component :is="`${selectedItem?.net}Svg`" />
                 </div>
-                <div class="name">{{ selectedItem?.name }}</div>
+                <div v-if="selectedItem" class="name">{{ selectedItem?.name }}</div>
+                <div v-else>
+                    <div class="label">{{ label }}</div>
+                    <div class="placeholder">{{ placeholder }}</div>
+                </div>
             </div>
             <arrowSvg class="arrow" />
         </div>
@@ -52,6 +56,12 @@ export default {
     props: {
         items: {
             type: Array,
+        },
+        label: {
+            type: String,
+        },
+        placeholder: {
+            type: String,
         },
     },
     components: {
@@ -131,6 +141,21 @@ export default {
             font-family: 'Poppins_SemiBold';
             color: $colorBlack;
             user-select: none;
+        }
+
+        .label {
+            color: #486060;
+            font-size: 14px;
+            font-family: 'Poppins_Medium';
+            user-select: none;
+        }
+
+        .placeholder {
+            color: #73b1b1;
+            font-size: 18px;
+            font-family: 'Poppins_SemiBold';
+            user-select: none;
+            line-height: 18px;
         }
 
         svg.arrow {

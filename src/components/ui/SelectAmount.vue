@@ -29,7 +29,7 @@
                     </span>
                     {{ selectedToken?.code }}
                 </p>
-                <div><span>$</span>{{ prettyNumber(BigNumber(selectedToken?.balanceUsd).toFixed()) }}</div>
+                <div><span>$</span>{{ prettyNumber(BigNumber(selectedToken?.balanceUsd || 0).toFixed()) }}</div>
             </div>
         </div>
         <div v-if="active" class="select-amount__items" v-click-away="clickAway">

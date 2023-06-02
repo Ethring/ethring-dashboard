@@ -55,6 +55,22 @@ const routes = [
         name: 'notFound',
         component: () => import(/* webpackChunkName: "about" */ '../views/NotFound.vue'),
     },
+    {
+        path: '/bridge',
+        name: 'bridge',
+        meta: {
+            isAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "about" */ '../views/Bridge.vue'),
+    },
+    {
+        path: '/bridge/select-token',
+        name: 'select-token',
+        meta: {
+            isAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "about" */ '../components/dynamic/bridge/SelectToken.vue'),
+    },
 ];
 
 const router = createRouter({
