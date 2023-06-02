@@ -4,7 +4,7 @@
             <Spinner v-if="loader" />
             <template v-else>
                 <div class="send-page__title">{{ $t('simpleSend.title') }}</div>
-                <div v-if="hasConnect && groupTokens.length && !loader" class="send-page__wrap">
+                <div v-if="walletAddress && groupTokens.length && !loader" class="send-page__wrap">
                     <component v-if="sendComponent" :is="sendComponent" />
                 </div>
             </template>
@@ -12,16 +12,18 @@
     </div>
 </template>
 <script>
+import { computed, watch } from 'vue';
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
+
 import SimpleSend from '@/components/dynamic/send/SimpleSend';
 
 import { UIConfig } from '@/config/ui';
-import { useStore } from 'vuex';
-import { computed, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import Spinner from '@/components/app/Spinner';
 
-import useConnect from '@/compositions/useConnect';
+import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 import useTokens from '@/compositions/useTokens';
+
+import Spinner from '@/components/app/Spinner';
 
 export default {
     name: 'Send',
@@ -33,13 +35,12 @@ export default {
         const store = useStore();
         const router = useRouter();
         const { groupTokens } = useTokens();
+        const { walletAddress, currentChainInfo } = useWeb3Onboard();
 
         const loader = computed(() => store.getters['tokens/loader']);
 
-        const { activeConnect, hasConnect } = useConnect();
-
         const sendComponent = computed(() => {
-            return UIConfig[activeConnect.value.network]?.send?.component;
+            return UIConfig[currentChainInfo.value.citadelNet]?.send?.component;
         });
 
         watch(
@@ -54,7 +55,7 @@ export default {
         return {
             loader,
             groupTokens,
-            hasConnect,
+            walletAddress,
             sendComponent,
         };
     },

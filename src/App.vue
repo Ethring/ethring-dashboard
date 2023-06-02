@@ -35,7 +35,7 @@ export default {
         onMounted(async () => {
             store.dispatch('networks/init');
 
-            if (walletAddress.value) {
+            if (connectedWallet.value) {
                 useCitadel(walletAddress.value, store);
             }
 
@@ -63,7 +63,7 @@ export default {
             });
         });
 
-        watch(walletAddress, () => useCitadel(walletAddress.value, store));
+        watch(connectedWallet, () => useCitadel(walletAddress.value, store));
     },
 };
 </script>

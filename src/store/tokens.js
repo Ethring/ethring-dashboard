@@ -95,11 +95,9 @@ export default {
             commit(types.SET_SELECT_TYPE, value);
         },
         setFromToken({ commit }, value) {
-            console.log(value, '--setFromToken');
             commit(types.SET_FROM_TOKEN, value);
         },
         setToToken({ commit }, value) {
-            console.log(value, '--setToToken');
             commit(types.SET_TO_TOKEN, value);
         },
         async prepareTransfer(_, { net, from, amount, toAddress }) {

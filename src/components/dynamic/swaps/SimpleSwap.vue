@@ -157,7 +157,7 @@ export default {
 
             const list = [
                 selectedNetwork.value,
-                ...selectedNetwork.value.list,
+                ...selectedNetwork.value?.list,
                 ...allTokensFromNetwork(selectedNetwork.value.net).filter((token) => {
                     return token.net !== selectedNetwork.value.net && !selectedNetwork.value.list.find((t) => t.net === token.net);
                 }),
@@ -249,7 +249,6 @@ export default {
             }
             txError.value = '';
             receiveValue.value = resEstimate.toTokenAmount;
-            console.log(gasPrice.value, +resEstimate.estimatedGas);
             networkFee.value = prettyNumberTooltip(gasPrice.value * +resEstimate.estimatedGas, 4);
             estimateRate.value = prettyNumberTooltip(resEstimate.toTokenAmount / resEstimate.fromTokenAmount, 2);
         };
@@ -305,14 +304,15 @@ export default {
                 from: transaction.from,
                 to: transaction.to,
                 chainId: `0x${transaction.chainId.toString(16)}`,
-                value: transaction.value ? `0x${parseInt(transaction.value).toString(16)}` : '',
+                value: transaction.value ? `0x${parseInt(transaction.value).toString(16)}` : '0x0',
             };
-
+            console.log(tx, '-tx');
             if (ethersProvider) {
                 const signer = ethersProvider.getSigner();
                 const txn = await signer.sendTransaction(tx);
 
                 const receipt = await txn.wait();
+                console.log(receipt, '--receipt');
                 return receipt;
             }
         };
@@ -338,7 +338,8 @@ export default {
                 }
 
                 approveTx.value = null;
-                successHash.value = getTxUrl(selectedNetwork.value.net, resTx.txHash);
+                successHash.value = getTxUrl(selectedNetwork.value.net, resTx.transactionHash);
+                await getAllowance();
                 setTimeout(() => {
                     isLoading.value = false;
                     successHash.value = '';
@@ -362,7 +363,6 @@ export default {
                 isLoading.value = false;
                 return;
             }
-            console.log(resSwap, '---resSwap');
 
             const resTx = await sendMetamaskTransaction(resSwap.transaction);
             if (resTx.error) {
@@ -374,7 +374,7 @@ export default {
                 return;
             }
 
-            successHash.value = getTxUrl(selectedNetwork.value.net, resTx.txHash);
+            successHash.value = getTxUrl(selectedNetwork.value.net, resTx.transactionHash);
 
             setTimeout(() => {
                 isLoading.value = false;
@@ -389,7 +389,6 @@ export default {
                 ethers.BigNumber.from(res).toString(),
                 ethers.BigNumber.from(selectedNetwork.value.decimals)
             );
-            console.log(formatted, '--formatted');
             gasPrice.value = +formatted;
         };
         onMounted(async () => {

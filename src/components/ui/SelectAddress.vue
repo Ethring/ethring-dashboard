@@ -5,7 +5,7 @@
             <div class="info-wrap">
                 <div class="info">
                     <div class="network">
-                        <component v-if="selectedNetwork?.net" :is="`${selectedNetwork.net}Svg`" />
+                        <component v-if="selectedNetwork?.citadelNet" :is="`${selectedNetwork.citadelNet}Svg`" />
                     </div>
                     <input
                         v-model="address"
@@ -16,7 +16,7 @@
                         class="input-address"
                     />
                 </div>
-                <arrowSvg class="arrow" />
+                <!-- <arrowSvg class="arrow" /> -->
             </div>
             <div class="address">{{ address || ' ' }}</div>
         </div>
@@ -116,7 +116,7 @@ export default {
         };
 
         const removeAddress = (address) => {
-            emit('removeAddress', { net: props.selectedNetwork.net, address });
+            emit('removeAddress', { net: props.selectedNetwork.citadelNet, address });
             active.value = false;
         };
 
@@ -174,7 +174,7 @@ export default {
         }
 
         .info {
-            width: 90%;
+            width: 95%;
             margin: 15px 0;
             display: flex;
             align-items: center;

@@ -36,9 +36,32 @@
                     <span>
                         {{ BigNumber(selectedToken?.balance?.amount || selectedToken?.balance?.mainBalance || 0).toFixed() }}
                     </span>
-                    {{ selectedToken.code }}
+                    {{ selectedToken?.code }}
                 </p>
-                <div><span>$</span>{{ prettyNumber(BigNumber(selectedToken.balanceUsd).toFixed()) }}</div>
+                <div><span>$</span>{{ prettyNumber(BigNumber(selectedToken?.balanceUsd).toFixed()) }}</div>
+            </div>
+        </div>
+        <div v-if="active" class="select-amount__items" v-click-away="clickAway">
+            <div
+                v-for="(item, ndx) in items"
+                :key="ndx"
+                :class="{ active: item.name === selectedToken?.name }"
+                class="select-amount__items-item"
+                @click="setToken(item)"
+            >
+                <div class="info">
+                    <div class="name">{{ item.name }}</div>
+                </div>
+                <div class="amount">
+                    {{
+                        prettyNumber(
+                            item.name === selectedToken?.name
+                                ? BigNumber(selectedToken?.balance?.mainBalance || 0).toFixed()
+                                : BigNumber(item.balance?.amount || 0).toFixed()
+                        )
+                    }}
+                    <span>{{ item.code }}</span>
+                </div>
             </div>
         </div>
     </div>
