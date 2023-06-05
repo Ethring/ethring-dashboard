@@ -1,6 +1,6 @@
 <template>
     <div class="simple-swap">
-        <Select :items="groupTokens" @select="onSelectNetwork" />
+        <Select :items="groupTokens" :current="currentChainInfo" @select="onSelectNetwork" />
         <InfoPanel
             v-if="walletAddress && selectedNetwork && currentChainInfo?.citadelNet !== selectedNetwork?.net"
             :title="$t('mmIncorrectNetwork')"
@@ -153,7 +153,7 @@ export default {
             if (!selectedNetwork.value) {
                 return [];
             }
-
+            console.log(selectedNetwork, '--selectedNetwork');
             const list = [
                 selectedNetwork.value,
                 ...selectedNetwork.value?.list,
@@ -161,12 +161,22 @@ export default {
                     return token.net !== selectedNetwork.value.net && !selectedNetwork.value.list.find((t) => t.net === token.net);
                 }),
             ];
-
+            console.log(list, '--lists');
             if (!selectedTokenFrom.value) {
                 store.dispatch('tokens/setFromToken', list[0]);
+            } else {
+                let tokenFrom = list.find((elem) => elem.code === selectedTokenFrom.value.code);
+                if (tokenFrom) {
+                    store.dispatch('tokens/setFromToken', tokenFrom);
+                }
             }
             if (!selectedTokenTo.value) {
                 store.dispatch('tokens/setToToken', list[1]);
+            } else {
+                let tokenTo = list.find((elem) => elem.code === selectedTokenTo.value.code);
+                if (tokenTo) {
+                    store.dispatch('tokens/setToToken', tokenTo);
+                }
             }
 
             return list;
@@ -176,7 +186,6 @@ export default {
             if (selectedNetwork.value !== network) {
                 txError.value = '';
                 if (network.id || network.chain_id) {
-                    store.dispatch('tokens/setLoader', true);
                     await setChain({
                         chainId: network.id || network.chain_id,
                     });
@@ -389,6 +398,11 @@ export default {
                 successHash.value = '';
                 isLoading.value = false;
             }, 1000);
+            store.dispatch('tokens/updateTokenBalances', {
+                net: selectedNetwork.value.net,
+                address: walletAddress.value,
+                info: selectedNetwork.value,
+            });
         };
         const loadGasPrice = async () => {
             const ethersProvider = getProvider();
