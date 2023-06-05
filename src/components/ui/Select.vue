@@ -47,9 +47,7 @@ import evmosethSvg from '@/assets/icons/networks/evmoseth.svg';
 import avalancheSvg from '@/assets/icons/networks/avalanche.svg';
 import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 import { prettyNumber } from '@/helpers/prettyNumber';
-import { onMounted, computed, ref } from 'vue';
-
-import { useStore } from 'vuex';
+import { onMounted, ref } from 'vue';
 
 export default {
     name: 'Select',
@@ -62,6 +60,10 @@ export default {
         },
         placeholder: {
             type: String,
+        },
+        current: {
+            type: Object,
+            default: () => {},
         },
     },
     components: {
@@ -76,10 +78,7 @@ export default {
     },
     setup(props, { emit }) {
         const active = ref(false);
-        const store = useStore();
-        const selectedNetwork = computed(() => store.getters['networks/selectedNetwork']);
-
-        const selectedItem = ref(selectedNetwork.value || props.items[0]);
+        const selectedItem = ref(props.items.find((elem) => elem.net === props.current.citadelNet));
 
         const clickAway = () => {
             active.value = false;

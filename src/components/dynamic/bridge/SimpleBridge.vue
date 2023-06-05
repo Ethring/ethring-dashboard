@@ -30,7 +30,7 @@
         />
         <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
         <SelectAmount
-            v-if="tokensDstListResolved.length"
+            v-if="selectedDstNetwork"
             :selected-netwoFrk="selectedDstNetwork"
             :items="tokensDstListResolved"
             :value="selectedDstToken"
@@ -205,8 +205,7 @@ export default {
         const onSelectSrcNetwork = async (network) => {
             if (selectedSrcNetwork.value !== network) {
                 txError.value = '';
-                if (network.id || network.chain_id) {
-                    store.dispatch('tokens/setLoader', true);
+                if (network?.id || network?.chain_id) {
                     await setChain({
                         chainId: network.id || network.chain_id,
                     });

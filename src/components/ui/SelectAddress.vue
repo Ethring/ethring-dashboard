@@ -149,7 +149,7 @@ export default {
         flex-direction: column;
         background: $colorGray;
         border-radius: 16px;
-        height: 160px;
+        height: 130px;
         padding: 17px 32px;
         box-sizing: border-box;
         border: 2px solid transparent;

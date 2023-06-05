@@ -1,6 +1,6 @@
 <template>
     <div class="simple-swap">
-        <Select :items="groupTokens" @select="onSelectNetwork" />
+        <Select :items="groupTokens" :current="currentChainInfo" @select="onSelectNetwork" />
         <InfoPanel
             v-if="walletAddress && selectedNetwork && currentChainInfo?.citadelNet !== selectedNetwork?.net"
             :title="$t('mmIncorrectNetwork')"
@@ -164,9 +164,19 @@ export default {
 
             if (!selectedTokenFrom.value) {
                 store.dispatch('tokens/setFromToken', list[0]);
+            } else {
+                let tokenFrom = list.find((elem) => elem.code === selectedTokenFrom.value.code);
+                if (tokenFrom) {
+                    store.dispatch('tokens/setFromToken', tokenFrom);
+                }
             }
             if (!selectedTokenTo.value) {
                 store.dispatch('tokens/setToToken', list[1]);
+            } else {
+                let tokenTo = list.find((elem) => elem.code === selectedTokenTo.value.code);
+                if (tokenTo) {
+                    store.dispatch('tokens/setToToken', tokenTo);
+                }
             }
 
             return list;
@@ -389,6 +399,12 @@ export default {
                 successHash.value = '';
                 isLoading.value = false;
             }, 1000);
+
+            store.dispatch('tokens/updateTokenBalances', {
+                net: selectedNetwork.value.net,
+                address: walletAddress.value,
+                info: selectedNetwork.value,
+            });
         };
         const loadGasPrice = async () => {
             const ethersProvider = getProvider();
