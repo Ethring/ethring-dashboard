@@ -33,6 +33,8 @@ export default function useWeb3Onboard() {
 
         chainInfo.logo = cryptoLogos[id] || '';
         chainInfo.citadelNet = citadelNetworks[id] || '';
+        chainInfo.net = citadelNetworks[id] || '';
+        chainInfo.code = chainInfo.chain;
 
         return chainInfo;
     });

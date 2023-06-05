@@ -9,5 +9,12 @@ export const services = [
             ARBITRUM: '< 1 min',
             AVANALNCHE: '< 1 min',
         },
+        protocolFee: {
+            ETH: '0.001',
+            BNB: '0.005',
+            MATIC: '0.5',
+            ARBITRUM: '0.001',
+            AVANALNCHE: '0.01',
+        },
     },
 ];

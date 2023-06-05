@@ -3,10 +3,13 @@
         <div class="select__panel">
             <div class="info">
                 <div class="network">
-                    <img :src="current.logo" alt="network-logo" class="network-logo" />
-                    <!-- <component :is="`${selectedItem?.net}Svg`" /> -->
+                    <component :is="`${selectedItem?.citadelNet || selectedItem?.net}Svg`" />
                 </div>
-                <div class="name">{{ selectedItem?.label || selectedItem?.name }}</div>
+                <div v-if="selectedItem" class="name">{{ selectedItem?.label || selectedItem?.name.replace(' Mainnet', '') }}</div>
+                <div v-else>
+                    <div class="label">{{ label }}</div>
+                    <div class="placeholder">{{ placeholder }}</div>
+                </div>
             </div>
             <arrowSvg class="arrow" />
         </div>
@@ -51,6 +54,12 @@ export default {
         current: {
             type: Object,
             default: () => {},
+        },
+        label: {
+            type: String,
+        },
+        placeholder: {
+            type: String,
         },
     },
     components: {
@@ -116,6 +125,7 @@ export default {
             align-items: center;
             width: 40px;
             height: 40px;
+            min-width: 40px;
             border-radius: 50%;
             background: #3fdfae;
             margin-right: 10px;
@@ -135,6 +145,21 @@ export default {
             font-family: 'Poppins_SemiBold';
             color: $colorBlack;
             user-select: none;
+        }
+
+        .label {
+            color: #486060;
+            font-size: 14px;
+            font-family: 'Poppins_Medium';
+            user-select: none;
+        }
+
+        .placeholder {
+            color: #73b1b1;
+            font-size: 18px;
+            font-family: 'Poppins_SemiBold';
+            user-select: none;
+            line-height: 18px;
         }
 
         svg.arrow {

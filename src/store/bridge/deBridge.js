@@ -4,6 +4,8 @@ const VUE_APP_DEBRIDGE_API = process.env.VUE_APP_DEBRIDGE_API;
 
 const types = {
     SET_SUPPORTED_CHAINS: 'SET_SUPPORTED_CHAINS',
+    SET_SRC_NETWORKS: 'SET_SRC_NETWORKS',
+    SET_DST_NETWORKS: 'SET_DST_NETWORKS',
     SET_TOKENS_BY_CHAINID: 'SET_TOKENS_BY_CHAINID',
 };
 
@@ -12,11 +14,15 @@ export default {
     state: () => ({
         supportedChains: [],
         tokensByChainID: [],
+        selectedSrcNetwork: null,
+        selectedDstNetwork: null,
     }),
 
     getters: {
         supportedChains: (state) => state.supportedChains,
         tokensByChainID: (state) => state.tokensByChainID,
+        selectedSrcNetwork: (state) => state.selectedSrcNetwork,
+        selectedDstNetwork: (state) => state.selectedDstNetwork,
     },
 
     mutations: {
@@ -26,9 +32,21 @@ export default {
         [types.SET_TOKENS_BY_CHAINID](state, value) {
             state.tokensByChainID = value;
         },
+        [types.SET_SRC_NETWORKS](state, value) {
+            state.selectedSrcNetwork = value;
+        },
+        [types.SET_DST_NETWORKS](state, value) {
+            state.selectedDstNetwork = value;
+        },
     },
 
     actions: {
+        setSelectedSrcNetwork({ commit }, value) {
+            commit(types.SET_SRC_NETWORKS, value);
+        },
+        setSelectedDstNetwork({ commit }, value) {
+            commit(types.SET_DST_NETWORKS, value);
+        },
         /* GET SUPPORTED CHAINS */
         async getSupportedChains({ commit }) {
             const res = await fetchData({
@@ -94,7 +112,7 @@ export default {
         /* GET BRIDGE TX */
         async getBridgeTx(
             _,
-            { srcNet, srcTokenAddress, srcTokenAmount, dstNet, dstTokenAddress, dstChainRecipientAddress, dstChainFallbackAddress }
+            { srcNet, srcTokenAddress, srcTokenAmount, dstNet, dstTokenAddress, dstChainRecipientAddress, dstChainFallbackAddress, owner }
         ) {
             return await fetchData({
                 url: VUE_APP_DEBRIDGE_API,
@@ -107,6 +125,7 @@ export default {
                     dstTokenAddress,
                     dstChainRecipientAddress,
                     dstChainFallbackAddress,
+                    owner,
                 },
             });
         },

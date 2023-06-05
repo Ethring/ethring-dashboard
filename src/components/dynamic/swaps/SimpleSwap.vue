@@ -395,7 +395,7 @@ export default {
             const res = await ethersProvider.getGasPrice();
             let formatted = ethers.utils.formatUnits(
                 ethers.BigNumber.from(res).toString(),
-                ethers.BigNumber.from(selectedNetwork.value.decimals)
+                ethers.BigNumber.from(selectedNetwork?.value?.decimals || 18)
             );
             gasPrice.value = +formatted;
         };

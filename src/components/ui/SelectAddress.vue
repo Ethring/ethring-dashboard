@@ -5,7 +5,7 @@
             <div class="info-wrap">
                 <div class="info">
                     <div class="network">
-                        <component v-if="selectedNetwork?.citadelNet" :is="`${selectedNetwork.citadelNet}Svg`" />
+                        <component v-if="selectedNetwork?.net" :is="`${selectedNetwork?.net}Svg`" />
                     </div>
                     <input
                         v-model="address"
@@ -16,9 +16,7 @@
                         class="input-address"
                     />
                 </div>
-                <!-- <arrowSvg class="arrow" /> -->
             </div>
-            <div class="address">{{ address || ' ' }}</div>
         </div>
         <div v-if="active && items.length" class="select-address__items" v-click-away="clickAway">
             <div v-for="(item, ndx) in items" :key="ndx" class="select-address__items-item" @click="selectAddress(item)">

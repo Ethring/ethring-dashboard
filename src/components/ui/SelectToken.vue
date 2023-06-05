@@ -16,10 +16,10 @@
                 </div>
                 <div class="amount">
                     <h3>
-                        {{ prettyNumber(item.balance.amount || item.balance.mainBalance) }}
+                        {{ prettyNumber(item?.balance?.amount || item?.balance?.mainBalance) }}
                         <span class="symbol">{{ item?.code }}</span>
                     </h3>
-                    <h5 class="value"><span>$</span>{{ prettyNumber(item.balanceUsd) }}</h5>
+                    <h5 class="value"><span>$</span>{{ prettyNumber(item?.balanceUsd) }}</h5>
                 </div>
             </div>
         </div>
@@ -51,6 +51,7 @@ export default {
             default: [],
         },
     },
+    emits: ['setToken', 'filterTokens'], // <--- add this line
     setup(props, { emit }) {
         const router = useRouter();
         const setToken = (item) => {

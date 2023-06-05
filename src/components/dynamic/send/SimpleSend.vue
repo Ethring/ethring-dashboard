@@ -144,7 +144,6 @@ export default {
         };
 
         const onRemoveFavourite = (params) => {
-            console.log(params);
             store.dispatch('tokens/removeFavourite', params);
         };
 
@@ -179,7 +178,7 @@ export default {
                 const txn = await signer.sendTransaction(tx);
 
                 const receipt = await txn.wait();
-                console.log(receipt);
+                console.log(receipt, '--receipt');
             }
 
             isLoading.value = true;
