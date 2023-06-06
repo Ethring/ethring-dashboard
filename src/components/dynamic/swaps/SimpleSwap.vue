@@ -192,7 +192,7 @@ export default {
                         chainId: network.id || network.chain_id,
                     });
                 }
-                store.dispatch('networks/setSelectedNetwork', network);
+                setTimeout(() => store.dispatch('networks/setSelectedNetwork', network), 1000);
             }
         };
 
@@ -323,14 +323,17 @@ export default {
                 chainId: `0x${transaction.chainId.toString(16)}`,
                 value: transaction.value ? `0x${parseInt(transaction.value).toString(16)}` : '0x0',
             };
+            try {
+                if (ethersProvider) {
+                    const signer = ethersProvider.getSigner();
+                    const txn = await signer.sendTransaction(tx);
 
-            if (ethersProvider) {
-                const signer = ethersProvider.getSigner();
-                const txn = await signer.sendTransaction(tx);
+                    const receipt = await txn.wait();
 
-                const receipt = await txn.wait();
-
-                return receipt;
+                    return receipt;
+                }
+            } catch (e) {
+                return { error: e.message };
             }
         };
 
@@ -361,7 +364,7 @@ export default {
                     isLoading.value = false;
                     successHash.value = '';
                     isLoading.value = false;
-                }, 5000);
+                }, 3000);
                 return;
             }
             //------
@@ -397,7 +400,7 @@ export default {
                 isLoading.value = false;
                 successHash.value = '';
                 isLoading.value = false;
-            }, 1000);
+            }, 3000);
             store.dispatch('tokens/updateTokenBalances', {
                 net: selectedNetwork.value.net,
                 address: walletAddress.value,
