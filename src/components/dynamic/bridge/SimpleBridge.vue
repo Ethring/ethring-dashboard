@@ -161,6 +161,7 @@ export default {
         onMounted(async () => {
             await store.dispatch('bridge/getSupportedChains');
             if (currentChainInfo.value) {
+                console.log(currentChainInfo, 'currentChainInfo')
                 const currentNetworkToken = groupTokens.value[0];
                 store.dispatch('bridge/setSelectedSrcNetwork', currentNetworkToken);
                 tokensSrcListResolved.value = [currentNetworkToken, ...groupTokens.value[0].list];
