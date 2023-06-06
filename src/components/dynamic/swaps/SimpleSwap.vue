@@ -192,7 +192,7 @@ export default {
                         chainId: network.id || network.chain_id,
                     });
                 }
-                setTimeout(() => store.dispatch('networks/setSelectedNetwork', network), 1000);
+                setTimeout(() => store.dispatch('networks/setSelectedNetwork', network), 2000);
             }
         };
 
