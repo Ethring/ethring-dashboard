@@ -30,8 +30,6 @@ export default {
                 ? computed(() => store.getters['bridge/selectedSrcNetwork'])
                 : computed(() => store.getters['bridge/selectedDstNetwork']);
         const { walletAddress } = useWeb3Onboard();
-        // const selectedTokenFrom = computed(() => store.getters['tokens/fromToken']);
-        // const selectedTokenTo = computed(() => store.getters['tokens/toToken']);
 
         const allTokens = computed(() => {
             if (!selectedNetwork.value) {

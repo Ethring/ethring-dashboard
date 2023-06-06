@@ -3,7 +3,7 @@
         <div class="select-group">
             <SelectNetwork
                 :items="filteredSupportedChains"
-                :current="selectedSrcNetwork"
+                :current="currentChainInfo"
                 @select="onSelectSrcNetwork"
                 label="From"
                 placeholder="Select network"
@@ -160,6 +160,14 @@ export default {
 
         onMounted(async () => {
             await store.dispatch('bridge/getSupportedChains');
+            if (currentChainInfo.value) {
+                const currentNetworkToken = groupTokens.value[0];
+                store.dispatch('bridge/setSelectedSrcNetwork', currentNetworkToken);
+                tokensSrcListResolved.value = [currentNetworkToken, ...groupTokens.value[0].list];
+                if (!selectedSrcToken.value) {
+                    store.dispatch('tokens/setFromToken', tokensSrcListResolved.value[0]);
+                }
+            }
         });
 
         const networks = computed(() => store.getters['networks/networks']);
@@ -264,9 +272,6 @@ export default {
                 errorBalance.value = 'Incorrect amount';
                 return;
             }
-            if (+value > +selectedSrcToken?.value?.balance?.amount) {
-                errorBalance.value = 'Insufficient balance';
-            }
 
             if (!+value) {
                 return;
@@ -278,7 +283,14 @@ export default {
             await getEstimateInfo();
             await getAllowance();
 
-            errorBalance.value = '';
+            if (
+                +networkFee.value > selectedSrcToken.value?.balance?.amount ||
+                +networkFee.value > selectedSrcToken.value?.balance?.mainBalance
+            ) {
+                errorBalance.value = 'Insufficient balance';
+            } else {
+                errorBalance.value = '';
+            }
         };
 
         const getAllowance = async () => {
