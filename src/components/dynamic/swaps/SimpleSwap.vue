@@ -108,6 +108,7 @@ export default {
         const store = useStore();
         const isLoading = ref(false);
         const needApprove = ref(false);
+        const balanceUpdated = ref(false);
         const approveTx = ref(null);
         const txError = ref('');
         const successHash = ref('');
@@ -161,10 +162,10 @@ export default {
                     return token.net !== selectedNetwork.value.net && !selectedNetwork.value.list.find((t) => t.net === token.net);
                 }),
             ];
-            console.log(list, '--lists');
+            console.log(list, balanceUpdated.value, !selectedTokenFrom.value, selectedTokenFrom, '--lists');
             if (!selectedTokenFrom.value) {
                 store.dispatch('tokens/setFromToken', list[0]);
-            } else {
+            } else if (balanceUpdated.value) {
                 let tokenFrom = list.find((elem) => elem.code === selectedTokenFrom.value.code);
                 if (tokenFrom) {
                     store.dispatch('tokens/setFromToken', tokenFrom);
@@ -172,7 +173,7 @@ export default {
             }
             if (!selectedTokenTo.value) {
                 store.dispatch('tokens/setToToken', list[1]);
-            } else {
+            } else if (balanceUpdated.value) {
                 let tokenTo = list.find((elem) => elem.code === selectedTokenTo.value.code);
                 if (tokenTo) {
                     store.dispatch('tokens/setToToken', tokenTo);
@@ -183,6 +184,7 @@ export default {
         });
 
         const onSelectNetwork = async (network) => {
+            console.log(network, '--network');
             if (selectedNetwork.value !== network) {
                 txError.value = '';
                 if (network.id || network.chain_id) {
@@ -190,8 +192,6 @@ export default {
                         chainId: network.id || network.chain_id,
                     });
                 }
-                store.dispatch('tokens/setFromToken', null);
-                store.dispatch('tokens/setToToken', null);
                 store.dispatch('networks/setSelectedNetwork', network);
             }
         };
@@ -199,14 +199,14 @@ export default {
         const onSetTokenFrom = () => {
             store.dispatch('tokens/setSelectType', 'from');
             router.push('/swap/select-token');
-
+            balanceUpdated.value = false;
             clearApprove();
         };
 
         const onSetTokenTo = async () => {
             store.dispatch('tokens/setSelectType', 'to');
             router.push('/swap/select-token');
-
+            balanceUpdated.value = false;
             onSetAmount(amount.value);
         };
 
@@ -403,6 +403,7 @@ export default {
                 address: walletAddress.value,
                 info: selectedNetwork.value,
             });
+            balanceUpdated.value = true;
         };
         const loadGasPrice = async () => {
             const ethersProvider = getProvider();
@@ -419,6 +420,11 @@ export default {
 
         watch(selectedNetwork, async () => {
             await loadGasPrice();
+        });
+        watch(currentChainInfo, async () => {
+            console.log(currentChainInfo, '--currentChainInfo');
+            store.dispatch('tokens/setFromToken', null);
+            store.dispatch('tokens/setToToken', null);
         });
         return {
             isLoading,

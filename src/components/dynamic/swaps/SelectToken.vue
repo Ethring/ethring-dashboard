@@ -60,6 +60,7 @@ export default {
         };
 
         const setToken = (item) => {
+            console.log(item, '--tem');
             if (selectType.value === 'from') {
                 store.dispatch('tokens/setFromToken', item);
             } else {
