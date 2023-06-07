@@ -3,8 +3,9 @@ import axios from 'axios';
 
 export default async function useCitadel(address, store) {
     store.dispatch('tokens/setLoader', true);
+    store.dispatch('tokens/setFromToken', null);
+    store.dispatch('tokens/setToToken', null);
     store.dispatch('tokens/setGroupTokens', {});
-
     const tokens = {};
 
     await Promise.all(

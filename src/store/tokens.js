@@ -96,7 +96,6 @@ export default {
             commit(types.SET_SELECT_TYPE, value);
         },
         setFromToken({ commit }, value) {
-            console.log(value, '--val');
             commit(types.SET_FROM_TOKEN, value);
         },
         setToToken({ commit }, value) {

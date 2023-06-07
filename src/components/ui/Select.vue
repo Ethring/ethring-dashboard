@@ -44,6 +44,7 @@ import avalancheSvg from '@/assets/icons/networks/avalanche.svg';
 import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 import { prettyNumber } from '@/helpers/prettyNumber';
 import { onMounted, ref } from 'vue';
+import { useStore } from 'vuex';
 
 export default {
     name: 'Select',
@@ -68,7 +69,7 @@ export default {
     },
     setup(props, { emit }) {
         const active = ref(false);
-
+        const store = useStore();
         const selectedItem = ref(props.items.find((elem) => elem.net === props.current.citadelNet));
 
         const clickAway = () => {
@@ -81,7 +82,7 @@ export default {
         };
 
         onMounted(() => {
-            setActive(selectedItem.value);
+            store.dispatch('networks/setSelectedNetwork', selectedItem.value);
         });
 
         return { active, selectedItem, prettyNumber, clickAway, setActive };

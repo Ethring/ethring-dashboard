@@ -125,7 +125,6 @@ export default {
 
         const { groupTokens, allTokensFromNetwork } = useTokens();
         const { walletAddress, currentChainInfo, connectedWallet, setChain } = useWeb3Onboard();
-
         const favouritesList = computed(() => store.getters['tokens/favourites']);
         const selectedTokenFrom = computed(() => store.getters['tokens/fromToken']);
         const selectedTokenTo = computed(() => store.getters['tokens/toToken']);
@@ -154,7 +153,7 @@ export default {
             if (!selectedNetwork.value) {
                 return [];
             }
-            console.log(selectedNetwork, '--selectedNetwork');
+
             const list = [
                 selectedNetwork.value,
                 ...selectedNetwork.value?.list,
@@ -162,7 +161,7 @@ export default {
                     return token.net !== selectedNetwork.value.net && !selectedNetwork.value.list.find((t) => t.net === token.net);
                 }),
             ];
-            console.log(list, balanceUpdated.value, !selectedTokenFrom.value, selectedTokenFrom, '--lists');
+
             if (!selectedTokenFrom.value) {
                 store.dispatch('tokens/setFromToken', list[0]);
             } else if (balanceUpdated.value) {
@@ -179,12 +178,10 @@ export default {
                     store.dispatch('tokens/setToToken', tokenTo);
                 }
             }
-
             return list;
         });
 
         const onSelectNetwork = async (network) => {
-            console.log(network, '--network');
             if (selectedNetwork.value !== network) {
                 txError.value = '';
                 if (network.id || network.chain_id) {
@@ -192,7 +189,9 @@ export default {
                         chainId: network.id || network.chain_id,
                     });
                 }
-                setTimeout(() => store.dispatch('networks/setSelectedNetwork', network), 2000);
+                setTimeout(() => {
+                    store.dispatch('networks/setSelectedNetwork', network);
+                }, 2000);
             }
         };
 
@@ -413,7 +412,7 @@ export default {
             const res = await ethersProvider.getGasPrice();
             let formatted = ethers.utils.formatUnits(
                 ethers.BigNumber.from(res).toString(),
-                ethers.BigNumber.from(selectedNetwork.value.decimals)
+                ethers.BigNumber.from(currentChainInfo.value.nativeCurrency?.decimals)
             );
             gasPrice.value = +formatted;
         };
@@ -424,11 +423,7 @@ export default {
         watch(selectedNetwork, async () => {
             await loadGasPrice();
         });
-        watch(currentChainInfo, async () => {
-            console.log(currentChainInfo, '--currentChainInfo');
-            store.dispatch('tokens/setFromToken', null);
-            store.dispatch('tokens/setToToken', null);
-        });
+
         return {
             isLoading,
             needApprove,
