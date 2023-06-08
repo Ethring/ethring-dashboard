@@ -153,7 +153,7 @@ export default {
             if (!selectedNetwork.value) {
                 return [];
             }
-
+            console.log(selectedNetwork, '--selectedNetwork');
             const list = [
                 selectedNetwork.value,
                 ...selectedNetwork.value?.list,
@@ -161,7 +161,7 @@ export default {
                     return token.net !== selectedNetwork.value.net && !selectedNetwork.value.list.find((t) => t.net === token.net);
                 }),
             ];
-
+            console.log(list, '--list');
             if (!selectedTokenFrom.value) {
                 store.dispatch('tokens/setFromToken', list[0]);
             } else if (balanceUpdated.value) {

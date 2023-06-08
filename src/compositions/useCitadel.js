@@ -2,6 +2,7 @@ import { metamaskNets } from '@/config/availableNets';
 import axios from 'axios';
 
 export default async function useCitadel(address, store) {
+    console.log(address, '--address');
     store.dispatch('tokens/setLoader', true);
     store.dispatch('tokens/setFromToken', null);
     store.dispatch('tokens/setToToken', null);

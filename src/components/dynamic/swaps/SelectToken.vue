@@ -34,14 +34,23 @@ export default {
             if (!selectedNetwork.value) {
                 return [];
             }
+            let list = [];
+            if (selectType.value === 'from') {
+                if (selectedNetwork.value.balance.mainBalance > 0) {
+                    list = [selectedNetwork.value, ...selectedNetwork.value.list];
+                } else {
+                    list = [...selectedNetwork.value.list];
+                }
+            } else {
+                list = [
+                    selectedNetwork.value,
+                    ...selectedNetwork.value.list,
+                    ...allTokensFromNetwork(selectedNetwork.value.net).filter((token) => {
+                        return token.net !== selectedNetwork.value.net && !selectedNetwork.value.list.find((t) => t.net === token.net);
+                    }),
+                ];
+            }
 
-            let list = [
-                selectedNetwork.value,
-                ...selectedNetwork.value.list,
-                ...allTokensFromNetwork(selectedNetwork.value.net).filter((token) => {
-                    return token.net !== selectedNetwork.value.net && !selectedNetwork.value.list.find((t) => t.net === token.net);
-                }),
-            ];
             const secondToken = selectType.value === 'from' ? selectedTokenTo.value : selectedTokenFrom.value;
             return list.filter(
                 (elem) =>
@@ -60,7 +69,6 @@ export default {
         };
 
         const setToken = (item) => {
-            console.log(item, '--tem');
             if (selectType.value === 'from') {
                 store.dispatch('tokens/setFromToken', item);
             } else {
