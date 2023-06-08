@@ -66,12 +66,12 @@ export default function useTokens() {
                     .filter((item) => item.balance.amount > 0)
                     .sort((a, b) => {
                         if (a.balanceUsd > b.balanceUsd) {
-                            return 1;
+                            return -1;
                         }
                         if (a.balanceUsd < b.balanceUsd) {
-                            return 0;
+                            return 1;
                         }
-                        return -1;
+                        return 0;
                     });
 
                 groupList.push({
@@ -120,12 +120,12 @@ export default function useTokens() {
                     .filter((item) => item.balance.amount > 0)
                     .sort((a, b) => {
                         if (a.balanceUsd > b.balanceUsd) {
-                            return 1;
+                            return -1;
                         }
                         if (a.balanceUsd < b.balanceUsd) {
-                            return 0;
+                            return 1;
                         }
-                        return -1;
+                        return 0;
                     });
             }
         }

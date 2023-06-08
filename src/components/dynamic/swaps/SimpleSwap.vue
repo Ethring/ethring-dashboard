@@ -153,15 +153,24 @@ export default {
             if (!selectedNetwork.value) {
                 return [];
             }
-            console.log(selectedNetwork, '--selectedNetwork');
+
+            let listWithBalances = [selectedNetwork.value, ...selectedNetwork.value?.list];
+
             const list = [
-                selectedNetwork.value,
-                ...selectedNetwork.value?.list,
+                ...listWithBalances.sort((a, b) => {
+                    if (a.balanceUsd > b.balanceUsd) {
+                        return -1;
+                    }
+                    if (a.balanceUsd < b.balanceUsd) {
+                        return 1;
+                    }
+                    return 0;
+                }),
                 ...allTokensFromNetwork(selectedNetwork.value.net).filter((token) => {
                     return token.net !== selectedNetwork.value.net && !selectedNetwork.value.list.find((t) => t.net === token.net);
                 }),
             ];
-            console.log(list, '--list');
+
             if (!selectedTokenFrom.value) {
                 store.dispatch('tokens/setFromToken', list[0]);
             } else if (balanceUpdated.value) {
