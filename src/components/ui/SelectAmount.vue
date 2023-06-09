@@ -16,6 +16,7 @@
                     :disabled="disabled"
                     @focus="onFocus"
                     v-debounce:300ms="onInput"
+                    @blur="onBlur"
                     @click.stop="() => {}"
                     class="input-balance"
                 />
@@ -187,6 +188,11 @@ export default {
             active.value = false;
         };
 
+        const onBlur = () => {
+            placeholder.value = '0';
+            focused.value = false;
+        };
+
         const setMax = () => {
             active.value = false;
             if (!props.hideMax) {
@@ -228,6 +234,7 @@ export default {
             selectedToken,
             prettyNumber,
             setToken,
+            onBlur,
             setActive,
             setMax,
             onInput,
