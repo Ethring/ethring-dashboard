@@ -3,7 +3,8 @@
         <div class="select__panel">
             <div class="info">
                 <div class="network">
-                    <component :is="`${selectedItem?.net}Svg`" />
+                    <img :src="current.logo" alt="network-logo" class="network-logo" />
+                    <!-- <component :is="`${selectedItem?.net}Svg`" /> -->
                 </div>
                 <div class="name">{{ selectedItem?.name }}</div>
             </div>
@@ -124,6 +125,11 @@ export default {
 
             svg {
                 fill: $colorBlack;
+            }
+
+            &-logo {
+                width: 70%;
+                height: 70%;
             }
         }
 
