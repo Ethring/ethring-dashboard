@@ -3,7 +3,7 @@
         <div class="select-group">
             <SelectNetwork
                 :items="filteredSupportedChains"
-                :current="currentChainInfo"
+                :current="selectedSrcNetwork || currentChainInfo"
                 @select="onSelectSrcNetwork"
                 label="From"
                 placeholder="Select network"
@@ -17,7 +17,7 @@
             />
         </div>
         <SelectAmount
-            v-if="selectedSrcNetwork"
+            v-if="tokensSrcListResolved"
             :selected-network="selectedSrcNetwork"
             :items="tokensSrcListResolved"
             :value="selectedSrcToken"
@@ -26,11 +26,11 @@
             :on-reset="successHash"
             class="mt-10"
             @setAmount="onSetAmount"
-            @click="onSetSrcToken"
+            @clickToken="onSetSrcToken"
         />
         <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
         <SelectAmount
-            v-if="selectedDstNetwork"
+            v-if="tokensDstListResolved.length"
             :selected-netwoFrk="selectedDstNetwork"
             :items="tokensDstListResolved"
             :value="selectedDstToken"
@@ -40,7 +40,7 @@
             :disabled="true"
             :on-reset="successHash"
             class="mt-10"
-            @click="onSetDstToken"
+            @clickToken="onSetDstToken"
         />
         <InfoPanel v-if="txError" :title="txError" class="mt-10" />
         <InfoPanel v-if="successHash" :hash="successHash" :title="$t('tx.txHash')" type="success" class="mt-10" />
@@ -62,13 +62,26 @@
             @setAddress="onSetAddress"
         />
         <Accordion
-            v-if="receiveValue"
-            :title="`Fee : <span style='font-family:Poppins_Semibold; color: #0D7E71;'>${prettyNumber(
-                networkFee
-            )}</span> <span  style='font-family:Poppins_Semibold;'>${selectedSrcToken?.code}</span>`"
-            class="mt-10"
+            :title="
+                receiveValue
+                    ? `Protocol Fee : <span style='font-family:Poppins_Semibold; color: #0D7E71;'>
+                ${serviceFee}
+                </span> <span  style='font-family:Poppins_Semibold;'>${
+                    selectedSrcNetwork?.code
+                } ~ <span style='font-family:Poppins_Semibold; color: #0D7E71;'>${prettyNumber(
+                          serviceFee * selectedSrcNetwork?.price?.USD
+                      )}</span> $</span>`
+                    : `<div class='skeleton skeleton__text'></div>`
+            "
+            :class="receiveValue ? 'mt-10' : 'mt-10 skeleton__content'"
         >
-            <div class="accordion__content">
+            <div v-if="receiveValue" class="accordion__content">
+                <div class="accordion__item">
+                    <div class="accordion__label">Service Fee:</div>
+                    <div class="accordion__value">
+                        <div class="name">{{ prettyNumber(networkFee * selectedSrcToken?.price?.USD) }} $</div>
+                    </div>
+                </div>
                 <div class="accordion__item">
                     <div class="accordion__label">Bridge:</div>
                     <div class="accordion__value">
@@ -151,6 +164,7 @@ export default {
         const receiveValue = ref('');
         const address = ref('');
         const estimateTime = ref('');
+        const serviceFee = ref('');
 
         const errorAddress = ref('');
         const errorBalance = ref('');
@@ -160,15 +174,6 @@ export default {
 
         onMounted(async () => {
             await store.dispatch('bridge/getSupportedChains');
-            if (currentChainInfo.value) {
-                console.log(currentChainInfo, 'currentChainInfo')
-                const currentNetworkToken = groupTokens.value[0];
-                store.dispatch('bridge/setSelectedSrcNetwork', currentNetworkToken);
-                tokensSrcListResolved.value = [currentNetworkToken, ...groupTokens.value[0].list];
-                if (!selectedSrcToken.value) {
-                    store.dispatch('tokens/setFromToken', tokensSrcListResolved.value[0]);
-                }
-            }
         });
 
         const networks = computed(() => store.getters['networks/networks']);
@@ -181,7 +186,7 @@ export default {
         });
 
         const activeSupportedChains = computed(() => {
-            return filteredSupportedChains?.value.filter((token) => token.net !== currentChainInfo?.value?.citadelNet);
+            return filteredSupportedChains?.value.filter((token) => token.net !== selectedSrcNetwork?.value?.net);
         });
 
         const disabledBtn = computed(() => {
@@ -206,29 +211,20 @@ export default {
             if (!network) {
                 return [];
             }
+
             return await store.dispatch('bridge/getTokensByChain', {
                 chainId: chainId,
             });
         };
 
         const onSelectSrcNetwork = async (network) => {
-            if (selectedSrcNetwork.value !== network) {
-                txError.value = '';
-                if (network?.id || network?.chain_id) {
-                    await setChain({
-                        chainId: network.id || network.chain_id,
-                    });
-                }
-            }
-
-            store.dispatch('bridge/setSelectedSrcNetwork', network);
-
-            tokensList(network, network?.chain_id).then((tokens) => {
+            tokensList(network, network?.chain_id || network?.chainId).then((tokens) => {
                 tokensSrcListResolved.value = tokens;
-                if (!selectedSrcToken.value) {
+                if (!selectedSrcToken.value || !tokens.find((elem) => elem.code === selectedSrcToken.value.code)) {
                     store.dispatch('tokens/setFromToken', tokens[0]);
                 }
             });
+            store.dispatch('bridge/setSelectedSrcNetwork', network);
         };
 
         const onSelectDstNetwork = async (network) => {
@@ -236,7 +232,7 @@ export default {
 
             tokensList(network, network?.chain_id).then((tokens) => {
                 tokensDstListResolved.value = tokens;
-                if (!selectedDstToken.value) {
+                if (!selectedDstToken.value || !tokens.find((elem) => elem.code === selectedDstToken.value.code)) {
                     store.dispatch('tokens/setToToken', tokens[0]);
                 }
             });
@@ -300,7 +296,7 @@ export default {
 
             if (!selectedSrcToken.value.chain_id) {
                 const resAllowance = await store.dispatch('bridge/getAllowance', {
-                    net: selectedSrcNetwork.value.net,
+                    net: selectedSrcNetwork.value.net || selectedSrcNetwork.value.citadelNet,
                     tokenAddress: selectedSrcToken.value.address,
                     owner: walletAddress.value,
                 });
@@ -320,7 +316,7 @@ export default {
 
         const getApproveTx = async () => {
             const resApproveTx = await store.dispatch('bridge/getApproveTx', {
-                net: selectedSrcNetwork.value.net,
+                net: selectedSrcNetwork.value.net || selectedSrcNetwork.value.citadelNet,
                 tokenAddress: selectedSrcToken.value.address,
                 owner: walletAddress.value,
             });
@@ -343,7 +339,7 @@ export default {
             }
 
             const resEstimate = await store.dispatch('bridge/estimateBridge', {
-                srcNet: selectedSrcNetwork.value.net,
+                srcNet: selectedSrcNetwork.value.net || selectedSrcNetwork.value.citadelNet,
                 srcTokenAddress: selectedSrcToken.value.address || NATIVE_CONTRACT,
                 srcTokenAmount: amount.value,
                 dstNet: selectedDstNetwork.value.net,
@@ -354,11 +350,14 @@ export default {
                 txError.value = resEstimate.error;
                 return;
             }
+
             txError.value = '';
             receiveValue.value = resEstimate.dstTokenAmount;
             networkFee.value = +resEstimate.estimatedGas;
             estimateTime.value =
                 services[0]?.etimatedTime[selectedSrcNetwork?.value?.code] || services[0]?.etimatedTime[selectedSrcNetwork?.value?.chain];
+            serviceFee.value =
+                services[0]?.protocolFee[selectedSrcNetwork?.value?.code] || services[0]?.protocolFee[selectedSrcNetwork?.value?.chain];
         };
 
         const getProvider = () => {
@@ -375,7 +374,7 @@ export default {
                 data: transaction.data,
                 from: transaction.from,
                 to: transaction.to,
-                chainId: `0x${transaction.chainId.toString(16)}`,
+                chainId: `0x${transaction?.chainId?.toString(16)}`,
                 value: transaction.value ? `0x${parseInt(transaction.value).toString(16)}` : '0x0',
             };
             if (ethersProvider) {
@@ -385,6 +384,16 @@ export default {
                 const receipt = await txn.wait();
                 console.log(receipt, '---receipt');
                 return receipt;
+            }
+        };
+
+        const changeNetwork = async () => {
+            if (selectedSrcNetwork.value !== currentChainInfo.value) {
+                if (selectedSrcNetwork.value.chain_id) {
+                    await setChain({
+                        chainId: selectedSrcNetwork.value.chain_id,
+                    });
+                }
             }
         };
 
@@ -398,6 +407,7 @@ export default {
 
             // APPROVE
             if (approveTx.value) {
+                changeNetwork();
                 const resTx = await sendMetamaskTransaction({ ...approveTx.value.transaction, from: walletAddress.value });
                 if (resTx.error) {
                     txError.value = resTx.error;
@@ -414,13 +424,12 @@ export default {
                 setTimeout(() => {
                     isLoading.value = false;
                     successHash.value = '';
-                    isLoading.value = false;
                 }, 5000);
                 return;
             }
 
             const resSwap = await store.dispatch('bridge/getBridgeTx', {
-                srcNet: selectedSrcNetwork.value.net,
+                srcNet: selectedSrcNetwork.value.net || selectedSrcNetwork.value.citadelNet,
                 srcTokenAddress: selectedSrcToken.value.address || NATIVE_CONTRACT,
                 srcTokenAmount: amount.value,
                 dstNet: selectedDstNetwork.value.net,
@@ -436,6 +445,8 @@ export default {
                 isLoading.value = false;
                 return;
             }
+
+            changeNetwork();
 
             const resTx = await sendMetamaskTransaction(resSwap.transaction);
             if (resTx.error) {
@@ -488,6 +499,7 @@ export default {
             onSetDstToken,
             onSetAmount,
             estimateTime,
+            serviceFee,
             swap,
             txError,
             successHash,
@@ -553,6 +565,33 @@ export default {
     &__btn {
         height: 64px;
         width: 100%;
+    }
+
+    .skeleton {
+        animation: skeleton-loading 1s linear infinite alternate;
+
+        &__content {
+            .accordion__title {
+                display: contents;
+            }
+        }
+
+        &__text {
+            width: 95%;
+            height: 0.5rem;
+            margin: 8px 0;
+            border-radius: 2px;
+        }
+    }
+
+    @keyframes skeleton-loading {
+        0% {
+            background-color: hsl(200, 20%, 80%);
+        }
+
+        100% {
+            background-color: hsl(200, 20%, 95%);
+        }
     }
 }
 </style>

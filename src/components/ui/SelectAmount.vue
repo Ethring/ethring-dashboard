@@ -16,7 +16,6 @@
                     :disabled="disabled"
                     @focus="onFocus"
                     v-debounce:300ms="onInput"
-                    @blur="onBlur"
                     @click.stop="() => {}"
                     class="input-balance"
                 />
@@ -29,7 +28,7 @@
                     </span>
                     {{ selectedToken?.code }}
                 </p>
-                <div><span>$</span>{{ prettyNumber(BigNumber(selectedToken?.balanceUsd || 0).toFixed()) }}</div>
+                <div><span>$</span>{{ prettyNumber(BigNumber(amount * selectedToken?.price?.USD || 0).toFixed()) }}</div>
             </div>
         </div>
         <div v-if="active" class="select-amount__items" v-click-away="clickAway">
@@ -188,13 +187,6 @@ export default {
             active.value = false;
         };
 
-        const onBlur = () => {
-            active.value = false;
-            emit('setAmount', amount.value);
-            placeholder.value = '0';
-            focused.value = false;
-        };
-
         const setMax = () => {
             active.value = false;
             if (!props.hideMax) {
@@ -239,7 +231,6 @@ export default {
             setActive,
             setMax,
             onInput,
-            onBlur,
             onFocus,
             clickAway,
             emit,

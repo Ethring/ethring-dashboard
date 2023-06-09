@@ -179,7 +179,6 @@ export default {
                     store.dispatch('tokens/setToToken', tokenTo);
                 }
             }
-
             return list;
         });
 
@@ -326,13 +325,17 @@ export default {
                 value: transaction.value ? `0x${parseInt(transaction.value).toString(16)}` : '0x0',
             };
 
-            if (ethersProvider) {
-                const signer = ethersProvider.getSigner();
-                const txn = await signer.sendTransaction(tx);
+            try {
+                if (ethersProvider) {
+                    const signer = ethersProvider.getSigner();
+                    const txn = await signer.sendTransaction(tx);
 
-                const receipt = await txn.wait();
+                    const receipt = await txn.wait();
 
-                return receipt;
+                    return receipt;
+                }
+            } catch (e) {
+                return { error: e.message };
             }
         };
 
