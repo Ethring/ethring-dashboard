@@ -318,7 +318,7 @@ export default {
             }
         };
 
-        const sendMetamaskTransaction = async (transaction) => {
+        const sendTransaction = async (transaction) => {
             const ethersProvider = getProvider();
             const tx = {
                 data: transaction.data,
@@ -327,6 +327,7 @@ export default {
                 chainId: `0x${transaction.chainId.toString(16)}`,
                 value: transaction.value ? `0x${parseInt(transaction.value).toString(16)}` : '0x0',
             };
+
             try {
                 if (ethersProvider) {
                     const signer = ethersProvider.getSigner();
@@ -351,7 +352,7 @@ export default {
 
             // APPROVE
             if (approveTx.value) {
-                const resTx = await sendMetamaskTransaction({ ...approveTx.value.transaction, from: walletAddress.value });
+                const resTx = await sendTransaction({ ...approveTx.value.transaction, from: walletAddress.value });
                 if (resTx.error) {
                     txError.value = resTx.error;
                     isLoading.value = false;
@@ -388,7 +389,7 @@ export default {
                 return;
             }
 
-            const resTx = await sendMetamaskTransaction(resSwap.transaction);
+            const resTx = await sendTransaction(resSwap.transaction);
             if (resTx.error) {
                 txError.value = resTx.error;
                 isLoading.value = false;
