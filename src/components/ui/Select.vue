@@ -82,6 +82,7 @@ export default {
         };
 
         onMounted(() => {
+            console.log(selectedItem.value, '--selectedItem.value');
             store.dispatch('networks/setSelectedNetwork', selectedItem.value);
         });
 

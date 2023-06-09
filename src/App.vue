@@ -30,7 +30,7 @@ export default {
     setup() {
         const store = useStore();
 
-        const { connectWallet, connectedWallet, walletAddress } = useWeb3Onboard();
+        const { connectWallet, connectedWallet, currentChainInfo, walletAddress } = useWeb3Onboard();
 
         onMounted(async () => {
             store.dispatch('networks/init');
@@ -63,7 +63,11 @@ export default {
             });
         });
 
-        watch(connectedWallet, () => useCitadel(walletAddress.value, store));
+        watch(currentChainInfo, () => {
+            if (walletAddress.value) {
+                useCitadel(walletAddress.value, store);
+            }
+        });
     },
 };
 </script>

@@ -153,7 +153,6 @@ export default {
             if (!selectedNetwork.value) {
                 return [];
             }
-
             let listWithBalances = [selectedNetwork.value, ...selectedNetwork.value?.list];
 
             const list = [
@@ -171,7 +170,7 @@ export default {
                 }),
             ];
 
-            if (!selectedTokenFrom.value) {
+            if (!selectedTokenFrom.value || !list.find((elem) => elem.net === selectedTokenFrom.value.net)) {
                 store.dispatch('tokens/setFromToken', list[0]);
             } else if (balanceUpdated.value) {
                 let tokenFrom = list.find((elem) => elem.code === selectedTokenFrom.value.code);
@@ -179,7 +178,7 @@ export default {
                     store.dispatch('tokens/setFromToken', tokenFrom);
                 }
             }
-            if (!selectedTokenTo.value) {
+            if (!selectedTokenTo.value || !list.find((elem) => elem.net === selectedTokenTo.value.net)) {
                 store.dispatch('tokens/setToToken', list[1]);
             } else if (balanceUpdated.value) {
                 let tokenTo = list.find((elem) => elem.code === selectedTokenTo.value.code);
@@ -198,9 +197,6 @@ export default {
                         chainId: network.id || network.chain_id,
                     });
                 }
-                setTimeout(() => {
-                    store.dispatch('networks/setSelectedNetwork', network);
-                }, 2000);
             }
         };
 
