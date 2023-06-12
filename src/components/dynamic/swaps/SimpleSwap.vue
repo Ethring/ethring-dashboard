@@ -352,7 +352,7 @@ export default {
 
             // APPROVE
             if (approveTx.value) {
-                const resTx = await sendTransaction({ ...approveTx.value.transaction, from: walletAddress.value });
+                const resTx = await sendTransaction({ ...approveTx.value, from: walletAddress.value });
                 if (resTx.error) {
                     txError.value = resTx.error;
                     isLoading.value = false;
@@ -389,7 +389,7 @@ export default {
                 return;
             }
 
-            const resTx = await sendTransaction(resSwap.transaction);
+            const resTx = await sendTransaction(resSwap);
             if (resTx.error) {
                 txError.value = resTx.error;
                 isLoading.value = false;
