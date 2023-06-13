@@ -35,7 +35,7 @@ const routes = [
     },
     {
         path: '/swap/select-token',
-        name: 'select-token',
+        name: 'swap/select-token',
         meta: {
             isAuth: true,
         },
@@ -65,7 +65,7 @@ const routes = [
     },
     {
         path: '/bridge/select-token',
-        name: 'select-token',
+        name: 'bridge/select-token',
         meta: {
             isAuth: true,
         },

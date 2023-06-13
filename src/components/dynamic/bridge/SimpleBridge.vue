@@ -180,12 +180,10 @@ export default {
 
         onMounted(async () => {
             await store.dispatch('bridge/getSupportedChains');
-            // if (currentChainInfo) {
-            //     store.dispatch(
-            //         'bridge/setSelectedSrcNetwork',
-            //         groupTokens.value.find((elem) => elem.net === currentChainInfo.value.net)
-            //     );
-            // }
+            store.dispatch(
+                'bridge/setSelectedSrcNetwork',
+                groupTokens.value.find((elem) => elem.net === currentChainInfo.value.net)
+            );
         });
 
         const filteredSupportedChains = computed(() => {
