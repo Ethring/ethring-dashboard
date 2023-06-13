@@ -46,7 +46,7 @@ export default {
         const { walletAddress, currentChainInfo } = useWeb3Onboard();
 
         const bridgeComponent = computed(() => {
-            return UIConfig[currentChainInfo?.value?.citadelNet]?.bridge?.component;
+            return UIConfig[currentChainInfo.value.net]?.bridge?.component;
         });
 
         watch(

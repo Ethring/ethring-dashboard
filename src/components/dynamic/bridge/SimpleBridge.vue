@@ -62,6 +62,7 @@
             @setAddress="onSetAddress"
         />
         <Accordion
+            v-if="receiveValue"
             :title="
                 receiveValue
                     ? `Protocol Fee : <span style='font-family:Poppins_Semibold; color: #0D7E71;'>
@@ -109,7 +110,7 @@
 import InfoPanel from '@/components/ui/InfoPanel';
 import SelectAmount from '@/components/ui/SelectAmount';
 import SelectAddress from '@/components/ui/SelectAddress';
-import SelectNetwork from '@/components/ui/SelectNetwork';
+import SelectNetwork from '@/components/dynamic/bridge/SelectNetwork';
 import Accordion from '@/components/ui/Accordion';
 import Checkbox from '@/components/ui/Checkbox';
 import Button from '@/components/ui/Button';
@@ -179,6 +180,12 @@ export default {
 
         onMounted(async () => {
             await store.dispatch('bridge/getSupportedChains');
+            // if (currentChainInfo) {
+            //     store.dispatch(
+            //         'bridge/setSelectedSrcNetwork',
+            //         groupTokens.value.find((elem) => elem.net === currentChainInfo.value.net)
+            //     );
+            // }
         });
 
         const filteredSupportedChains = computed(() => {
@@ -225,25 +232,26 @@ export default {
         const onSelectSrcNetwork = async (network) => {
             tokensList(network, network?.chain_id || network?.chainId).then((tokens) => {
                 tokensSrcListResolved.value = tokens;
-                if (
-                    !selectedSrcToken.value ||
-                    !tokens.find((elem) => elem.code === selectedSrcToken.value.code && elem.address === selectedSrcToken.value.address)
-                ) {
+                if (!selectedSrcToken.value || !tokens.find((elem) => elem.code === selectedSrcToken.value.code)) {
                     store.dispatch('tokens/setFromToken', tokens[0]);
                 }
             });
+            if (selectedSrcNetwork.value !== network) {
+                txError.value = '';
+                if (network.id || network.chain_id) {
+                    await setChain({
+                        chainId: network.id || network.chain_id,
+                    });
+                }
+            }
             store.dispatch('bridge/setSelectedSrcNetwork', network);
         };
 
         const onSelectDstNetwork = async (network) => {
             store.dispatch('bridge/setSelectedDstNetwork', network);
-
             tokensList(network, network?.chain_id).then((tokens) => {
                 tokensDstListResolved.value = tokens;
-                if (
-                    !selectedDstToken.value ||
-                    !tokens.find((elem) => elem.code === selectedDstToken.value.code && elem.address === selectedDstToken.value.address)
-                ) {
+                if (!selectedDstToken.value || !tokens.find((elem) => elem.code === selectedDstToken.value.code)) {
                     store.dispatch('tokens/setToToken', tokens[0]);
                 }
             });
@@ -292,7 +300,9 @@ export default {
             receiveValue.value = '';
             amount.value = value;
 
-            if (
+            if (+value > selectedSrcToken.value.balance?.amount || +value > selectedSrcToken.value.balance?.mainBalance) {
+                errorBalance.value = 'Insufficient balance';
+            } else if (
                 +networkFee.value > selectedSrcToken.value?.balance?.amount ||
                 +networkFee.value > selectedSrcToken.value?.balance?.mainBalance
             ) {
@@ -414,16 +424,6 @@ export default {
             }
         };
 
-        const changeNetwork = async () => {
-            if (selectedSrcNetwork.value !== currentChainInfo.value) {
-                if (selectedSrcNetwork.value.chain_id) {
-                    await setChain({
-                        chainId: selectedSrcNetwork.value.chain_id,
-                    });
-                }
-            }
-        };
-
         const swap = async () => {
             if (disabledBtn.value) {
                 return;
@@ -434,7 +434,6 @@ export default {
 
             // APPROVE
             if (approveTx.value) {
-                changeNetwork();
                 const resTx = await sendMetamaskTransaction({ ...approveTx.value.transaction, from: walletAddress.value });
                 if (resTx.error) {
                     txError.value = resTx.error;
@@ -473,8 +472,6 @@ export default {
                 isLoading.value = false;
                 return;
             }
-
-            changeNetwork();
 
             const resTx = await sendMetamaskTransaction(resSwap.transaction);
             if (resTx.error) {

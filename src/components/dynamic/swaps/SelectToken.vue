@@ -22,7 +22,7 @@ export default {
         const store = useStore();
         const router = useRouter();
         const searchValue = ref('');
-        const { groupTokens, allTokensFromNetwork } = useTokens();
+        const { groupTokens, allTokensFromNetwork, getTokenList } = useTokens();
         const loader = computed(() => store.getters['tokens/loader']);
         const selectedNetwork = computed(() => store.getters['networks/selectedNetwork']);
         const selectType = computed(() => store.getters['tokens/selectType']);
@@ -34,16 +34,9 @@ export default {
             if (!selectedNetwork.value) {
                 return [];
             }
+
             let list = [];
-            const listWithBalances = [selectedNetwork.value, ...selectedNetwork.value.list].sort((a, b) => {
-                if (a.balanceUsd > b.balanceUsd) {
-                    return -1;
-                }
-                if (a.balanceUsd < b.balanceUsd) {
-                    return 1;
-                }
-                return 0;
-            });
+            const listWithBalances = getTokenList(selectedNetwork.value);
             if (selectType.value === 'from') {
                 if (selectedNetwork.value.balance.mainBalance > 0) {
                     list = listWithBalances;

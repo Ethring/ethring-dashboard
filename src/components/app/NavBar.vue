@@ -31,9 +31,22 @@ export default {
 </script>
 <style lang="scss" scoped>
 .nav-bar {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+    right: 0;
+
+    z-index: 997;
+
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding-bottom: 35px;
+    justify-content: flex-start;
+
+    padding: 40px 0 30px 260px;
+
+    background-color: $colorWhite;
+
+    margin-left: inherit;
 }
 </style>

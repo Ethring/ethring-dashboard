@@ -29,7 +29,7 @@
                     </span>
                     {{ selectedToken?.code }}
                 </p>
-                <div><span>$</span>{{ prettyNumber(BigNumber(amount * coingeckoPrice || 0).toFixed()) }}</div>
+                <div><span>$</span>{{ prettyNumber(BigNumber(amount * selectedToken?.price?.USD || 0).toFixed()) }}</div>
             </div>
         </div>
         <div v-if="active" class="select-amount__items" v-click-away="clickAway">
@@ -44,13 +44,7 @@
                     <div class="name">{{ item.name }}</div>
                 </div>
                 <div class="amount">
-                    {{
-                        prettyNumber(
-                            item.name === selectedToken?.name
-                                ? BigNumber(selectedToken?.balance?.mainBalance || 0).toFixed()
-                                : BigNumber(item.balance?.amount || 0).toFixed()
-                        )
-                    }}
+                    {{ prettyNumber(item.name === selectedToken?.name ? setTokenBalance(selectedToken) : setTokenBalance(item)) }}
                     <span>{{ item.code }}</span>
                 </div>
             </div>
@@ -64,7 +58,6 @@ import TokenIcon from '@/components/ui/TokenIcon';
 
 import { prettyNumber } from '@/helpers/prettyNumber';
 import { ref, watch, onMounted } from 'vue';
-import { useStore } from 'vuex';
 import BigNumber from 'bignumber.js';
 
 export default {
@@ -118,12 +111,10 @@ export default {
     },
     setup(props, { emit }) {
         const active = ref(false);
-        const store = useStore();
         const focused = ref(false);
         const amount = ref('');
         const selectedToken = ref(props.value);
         const placeholder = ref('0');
-        const platform = ref('');
         const coingeckoPrice = ref(0);
 
         watch(
@@ -223,21 +214,25 @@ export default {
             selectedToken.value = item;
 
             emit('setAmount', amount.value);
-            emit('setToken', selectedToken.value);
+            emit('setToken', item);
         };
         const clickToken = () => {
             emit('clickToken');
         };
         onMounted(async () => {
             setToken(selectedToken.value);
-            if (props.selectedNetwork) {
-                platform.value = await store.dispatch('tokens/getCoingeckoPlatform', { chainId: props?.selectedNetwork?.chain_id });
-                coingeckoPrice.value = await store.dispatch('tokens/getCoingeckoPrice', {
-                    platform: platform.value,
-                    addresses: selectedToken.value.address,
-                });
-            }
+            // if (props.selectedNetwork) {
+            //     platform.value = await store.dispatch('tokens/getCoingeckoPlatform', { chainId: props?.selectedNetwork?.chain_id });
+            //     coingeckoPrice.value = await store.dispatch('tokens/getCoingeckoPrice', {
+            //         platform: platform.value,
+            //         addresses: selectedToken.value.address,
+            //     });
+            // }
         });
+
+        const setTokenBalance = (token) => {
+            return BigNumber(token.balance?.mainBalance || token.balance?.amount || 0).toFixed();
+        };
 
         return {
             BigNumber,
@@ -257,6 +252,7 @@ export default {
             emit,
             clickToken,
             coingeckoPrice,
+            setTokenBalance,
         };
     },
 };

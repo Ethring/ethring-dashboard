@@ -1,7 +1,8 @@
 <template>
     <div :class="{ opened }" class="wallet-info">
         <div class="wallet-info__network">
-            <img :src="currentChainInfo.logo" alt="current-chain-icon" srcset="" />
+            <img v-if="currentChainInfo.logo" :src="currentChainInfo.logo" alt="current-chain-icon" srcset="" />
+            <span v-else> ? </span>
         </div>
         <div class="wallet-info__wallet">
             <div class="address" @click="openMenu">

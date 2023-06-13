@@ -45,7 +45,7 @@ export default function useTokens() {
 
     // all networks
     const groupTokens = computed(() => {
-        if (currentChainInfo.value?.citadelNet) {
+        if (currentChainInfo.value?.net) {
             const groupList = [];
 
             Object.keys(groupTokensBalance.value).forEach((parentNet) => {
@@ -75,7 +75,7 @@ export default function useTokens() {
                     });
 
                 groupList.push({
-                    priority: currentChainInfo.value?.citadelNet === parentNet ? 1 : 0,
+                    priority: currentChainInfo.value?.net === parentNet ? 1 : 0,
                     net: parentNet,
                     ...networks.value[parentNet],
                     balance: groupTokensBalance.value[parentNet]?.balance,
@@ -88,18 +88,18 @@ export default function useTokens() {
 
             // show all without current network group
             return [
-                ...groupList.filter((g) => g.net === currentChainInfo.value?.citadelNet),
-                ...groupList.filter((g) => g.net !== currentChainInfo.value?.citadelNet),
+                ...groupList.filter((g) => g.net === currentChainInfo.value?.net),
+                ...groupList.filter((g) => g.net !== currentChainInfo.value?.net),
             ];
-            // .filter(() => group.net !== currentChainInfo.value?.citadelNet && group.list.length
+            // .filter(() => group.net !== currentChainInfo.value?.net && group.list.length
         }
         return [];
     });
 
     // single network
     const tokens = computed(() => {
-        if (currentChainInfo.value?.citadelNet) {
-            const tokens = networks.value[currentChainInfo.value?.citadelNet]?.tokens;
+        if (currentChainInfo.value?.net) {
+            const tokens = networks.value[currentChainInfo.value?.net]?.tokens;
 
             if (tokens) {
                 return Object.keys(tokens)
@@ -131,10 +131,22 @@ export default function useTokens() {
         }
         return [];
     });
-
+    const getTokenList = (network) => {
+        let listWithBalances = [network, ...network.list];
+        return listWithBalances.sort((a, b) => {
+            if (a.balanceUsd > b.balanceUsd) {
+                return -1;
+            }
+            if (a.balanceUsd < b.balanceUsd) {
+                return 1;
+            }
+            return 0;
+        });
+    };
     return {
         tokens,
         groupTokens,
         allTokensFromNetwork,
+        getTokenList,
     };
 }

@@ -9,7 +9,7 @@ import web3OnBoardConfig from '@/config/web3-onboard';
 
 import chainIdNetwork from '@/shared/constants/chains/chainid.network';
 import cryptoLogos from '@/shared/constants/chains/crypto.logos';
-import citadelNetworks from '@/shared/constants/chains/citadel.networks';
+import networks from '@/shared/constants/chains/citadel.networks';
 import defaultChains from '@/api/networks/default-chains';
 
 let web3Onboard = null;
@@ -32,7 +32,7 @@ export default function useWeb3Onboard() {
         }
 
         chainInfo.logo = cryptoLogos[id] || '';
-        chainInfo.citadelNet = citadelNetworks[id] || '';
+        chainInfo.net = networks[id] || '';
 
         return chainInfo;
     });

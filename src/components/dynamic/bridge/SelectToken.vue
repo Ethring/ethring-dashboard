@@ -48,10 +48,12 @@ export default {
 
             return list.filter(
                 (elem) =>
-                    elem.name.toLowerCase().includes(searchValue.value.toLowerCase()) ||
-                    elem.code
+                    elem.name?.toLowerCase().includes(searchValue.value?.toLowerCase()) ||
+                    elem?.code
                         .toLowerCase()
-                        .includes(searchValue.value.toLowerCase() || elem.address.toLowerCase().includes(searchValue.value.toLowerCase()))
+                        .includes(
+                            searchValue.value?.toLowerCase() || elem.address?.toLowerCase().includes(searchValue.value?.toLowerCase())
+                        )
             );
         });
 

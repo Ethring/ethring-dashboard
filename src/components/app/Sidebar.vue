@@ -31,8 +31,13 @@ export default {
 </script>
 <style lang="scss" scoped>
 .sidebar {
-    flex-basis: 20%;
+    position: fixed;
+    left: 0;
+
+    z-index: 999;
+
     max-width: 260px;
+    width: 100%;
     height: 100vh;
     background: $colorDarkPanel;
     padding: 40px 25px;
