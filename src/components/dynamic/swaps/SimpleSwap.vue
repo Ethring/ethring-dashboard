@@ -368,15 +368,13 @@ export default {
                 approveTx.value = null;
                 successHash.value = getTxUrl(selectedNetwork.value.net, resTx.transactionHash);
                 await getAllowance();
+                resetAmount.value = false;
                 setTimeout(() => {
                     isLoading.value = false;
                     successHash.value = '';
-                    isLoading.value = false;
-                    resetAmount.value = false;
-                }, 3000);
+                }, 5000);
                 return;
             }
-            //------
 
             const resSwap = await store.dispatch('oneInchSwap/getSwapTx', {
                 net: selectedNetwork.value.net,
@@ -403,13 +401,11 @@ export default {
             }
 
             successHash.value = getTxUrl(selectedNetwork.value.net, resTx.transactionHash);
-
+            isLoading.value = false;
+            resetAmount.value = true;
             setTimeout(() => {
-                isLoading.value = false;
                 successHash.value = '';
-                isLoading.value = false;
-                resetAmount.value = true;
-            }, 3000);
+            }, 5000);
             store.dispatch('tokens/updateTokenBalances', {
                 net: selectedNetwork.value.net,
                 address: walletAddress.value,
