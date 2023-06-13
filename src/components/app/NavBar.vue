@@ -46,7 +46,7 @@ export default {
     padding: 40px 0 30px 260px;
 
     background-color: $colorWhite;
-
+    margin-right: inherit;
     margin-left: inherit;
 }
 </style>
