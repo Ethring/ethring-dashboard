@@ -3,6 +3,7 @@ import { getNetworksConfig } from '@/api/networks';
 
 const types = {
     SET_NETWORKS: 'SET_NETWORKS',
+    SET_ZOMET_NETWORKS_LIST: 'SET_ZOMET_NETWORKS_LIST',
     SET_ZOMET_NETWORKS: 'SET_ZOMET_NETWORKS',
 };
 
@@ -10,17 +11,22 @@ export default {
     namespaced: true,
     state: () => ({
         networks: {},
-        zometNetworks: [],
+        zometNetworksList: [],
+        zometNetworks: {},
     }),
 
     getters: {
         networks: (state) => state.networks,
+        zometNetworksList: (state) => state.zometNetworksList,
         zometNetworks: (state) => state.zometNetworks,
     },
 
     mutations: {
         [types.SET_NETWORKS](state, value) {
             state.networks = value;
+        },
+        [types.SET_ZOMET_NETWORKS_LIST](state, value) {
+            state.zometNetworksList = value;
         },
         [types.SET_ZOMET_NETWORKS](state, value) {
             state.zometNetworks = value;
@@ -42,7 +48,8 @@ export default {
                 for (const network in response.data) {
                     nets.push(response.data[network]);
                 }
-                commit(types.SET_ZOMET_NETWORKS, nets);
+                commit(types.SET_ZOMET_NETWORKS_LIST, nets);
+                commit(types.SET_ZOMET_NETWORKS, response.data);
             }
         },
     },

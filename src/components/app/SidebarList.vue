@@ -37,6 +37,10 @@ export default {
                 return [];
             }
 
+            if (!UIConfig[currentChainInfo.value.citadelNet]) {
+                return [];
+            }
+
             return UIConfig[currentChainInfo.value.citadelNet].sidebar;
         });
 
