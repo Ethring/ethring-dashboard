@@ -33,15 +33,15 @@ export default {
         const { currentChainInfo } = useWeb3Onboard();
 
         const menu = computed(() => {
-            if (!currentChainInfo.value.citadelNet) {
+            if (!currentChainInfo.value.net) {
                 return [];
             }
 
-            if (!UIConfig[currentChainInfo.value.citadelNet]) {
+            if (!UIConfig[currentChainInfo.value.net]) {
                 return [];
             }
 
-            return UIConfig[currentChainInfo.value.citadelNet].sidebar;
+            return UIConfig[currentChainInfo.value.net].sidebar;
         });
 
         return {

@@ -46,6 +46,7 @@ export default {
         const groupHides = ref({});
 
         const loader = computed(() => store.getters['tokens/loader']);
+
         const emptyLists = computed(() => {
             return !tokens.value.length && groupTokens.value.every((g) => !g.list.length); // <=1 - parent network
         });
@@ -78,7 +79,7 @@ export default {
     &__group {
         border: 1px solid $colorLightGreen;
         border-radius: 16px;
-        padding: 0 10px;
+        padding: 0 16px;
         margin-bottom: 7px;
         box-sizing: border-box;
         @include animateEasy;

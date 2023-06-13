@@ -2,7 +2,7 @@
     <div class="simple-swap">
         <SelectNetwork :items="groupTokens" :current="currentChainInfo" @select="onSelectNetwork" />
         <InfoPanel
-            v-if="walletAddress && selectedNetwork && currentChainInfo?.citadelNet !== selectedNetwork?.net"
+            v-if="walletAddress && selectedNetwork && currentChainInfo?.net !== selectedNetwork?.net"
             :title="$t('mmIncorrectNetwork')"
             class="mt-10"
         />
@@ -137,7 +137,7 @@ export default {
                 !selectedNetwork.value ||
                 !selectedTokenFrom.value ||
                 !selectedTokenTo.value ||
-                currentChainInfo.value?.citadelNet !== selectedNetwork.value?.net
+                currentChainInfo.value?.net !== selectedNetwork.value?.net
             );
         });
 
@@ -289,7 +289,7 @@ export default {
             needApprove.value = false;
 
             const resAllowance = await store.dispatch('oneInchSwap/getAllowance', {
-                net: currentChainInfo.value.citadelNet,
+                net: currentChainInfo.value.net,
                 token_address: selectedTokenFrom.value.list ? NATIVE_CONTRACT : selectedTokenFrom.value.address,
                 owner: walletAddress.value,
             });
@@ -302,7 +302,7 @@ export default {
 
         const getApproveTx = async () => {
             const resApproveTx = await store.dispatch('oneInchSwap/getApproveTx', {
-                net: currentChainInfo.value.citadelNet,
+                net: currentChainInfo.value.net,
                 token_address: selectedTokenFrom.value.list ? NATIVE_CONTRACT : selectedTokenFrom.value.address,
                 owner: walletAddress.value,
             });
@@ -366,7 +366,7 @@ export default {
                 }
 
                 approveTx.value = null;
-                successHash.value = getTxUrl(currentChainInfo.value.citadelNet, resTx.transactionHash);
+                successHash.value = getTxUrl(currentChainInfo.value.net, resTx.transactionHash);
                 await getAllowance();
                 await checkAllowance();
                 resetAmount.value = false;
@@ -429,7 +429,7 @@ export default {
         onMounted(async () => {
             store.dispatch(
                 'networks/setSelectedNetwork',
-                groupTokens.value.find((elem) => elem.net === currentChainInfo.value.citadelNet)
+                groupTokens.value.find((elem) => elem.net === currentChainInfo.value.net)
             );
             await loadGasPrice();
         });

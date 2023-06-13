@@ -45,7 +45,7 @@ export default {
         const { walletAddress, currentChainInfo } = useWeb3Onboard();
 
         const swapComponent = computed(() => {
-            return UIConfig[currentChainInfo.value.citadelNet]?.swap?.component;
+            return UIConfig[currentChainInfo.value.net]?.swap?.component;
         });
 
         watch(

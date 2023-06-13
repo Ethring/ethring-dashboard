@@ -35,5 +35,6 @@ export default {
     align-items: center;
     justify-content: space-between;
     padding-bottom: 35px;
+    padding-left: 260px;
 }
 </style>

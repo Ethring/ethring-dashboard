@@ -40,7 +40,7 @@ export default {
         const loader = computed(() => store.getters['tokens/loader']);
 
         const sendComponent = computed(() => {
-            return UIConfig[currentChainInfo.value.citadelNet]?.send?.component;
+            return UIConfig[currentChainInfo.value.net]?.send?.component;
         });
 
         watch(
