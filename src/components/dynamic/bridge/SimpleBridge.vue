@@ -481,6 +481,8 @@ export default {
                 return;
             }
 
+            console.log(resTx, "--resTx")
+
             successHash.value = getTxUrl(selectedSrcNetwork.value.net, resTx.transactionHash);
             isLoading.value = false;
             resetAmount.value = true;
