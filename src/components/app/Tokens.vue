@@ -79,7 +79,7 @@ export default {
     &__group {
         border: 1px solid $colorLightGreen;
         border-radius: 16px;
-        padding: 0 10px;
+        padding: 0 16px;
         margin-bottom: 7px;
         box-sizing: border-box;
         @include animateEasy;
