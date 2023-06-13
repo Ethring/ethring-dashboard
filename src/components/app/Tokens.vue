@@ -72,9 +72,6 @@ export default {
 .tokens {
     display: flex;
     flex-direction: column;
-    // min-height: calc(100vh - 310px);
-    // height: calc(100vh - 310px);
-    overflow-y: auto;
 
     &__group {
         border: 1px solid $colorLightGreen;
@@ -93,6 +90,10 @@ export default {
 
     &.empty {
         justify-content: center;
+    }
+
+    &__group:hover {
+        box-shadow: 0px 4px 40px rgba(0, 0, 0, 0.2);
     }
 }
 

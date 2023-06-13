@@ -50,7 +50,7 @@
     /* CUSTOMIZE ACCOUNT CENTER*/
     --account-center-position-top: 20px;
     --account-center-position-right: 9%;
-    --account-center-z-index: 10;
+    --account-center-z-index: 999;
     --account-center-minimized-background: #D9F4F1;
     --account-center-minimized-chain-select-background: #FFFFFF;
     --account-center-box-shadow: none;
@@ -161,6 +161,7 @@
     --onboard-shadow-2: inset 0px -1px 0px rgba(0, 0, 0, 0.1); */
 
     /* MAIN MODAL POSITIONING */
+    --onboard-modal-z-index: 999;
     /* --onboard-modal-z-index
     --onboard-modal-top
     --onboard-modal-bottom
@@ -168,6 +169,7 @@
     --onboard-modal-left */
 
     /* HD WALLET ACCOUNT SELECT MODAL POSITIONING */
+    --onboard-account-select-modal-z-index: 999;
     /* --onboard-account-select-modal-z-index
     --onboard-account-select-modal-top
     --onboard-account-select-modal-bottom

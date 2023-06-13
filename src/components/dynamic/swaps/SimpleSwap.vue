@@ -1,6 +1,6 @@
 <template>
     <div class="simple-swap">
-        <SelectNetwork :items="groupTokens" :current="currentChainInfo" @select="onSelectNetwork" />
+        <SelectNetwork :items="zometNetworks" :current="currentChainInfo" @select="onSelectNetwork" />
         <InfoPanel
             v-if="walletAddress && selectedNetwork && currentChainInfo?.net !== selectedNetwork?.net"
             :title="$t('mmIncorrectNetwork')"
@@ -128,6 +128,7 @@ export default {
         const favouritesList = computed(() => store.getters['tokens/favourites']);
         const selectedTokenFrom = computed(() => store.getters['tokens/fromToken']);
         const selectedTokenTo = computed(() => store.getters['tokens/toToken']);
+        const zometNetworks = computed(() => store.getters['networks/zometNetworksList']);
 
         const disabledSwap = computed(() => {
             return (
@@ -441,6 +442,7 @@ export default {
             walletAddress,
             networks,
             groupTokens,
+            zometNetworks,
             tokensList,
             favouritesList,
             errorBalance,

@@ -17,13 +17,11 @@
                 class="select__items-item"
                 @click="$emit('select', item)"
             >
-                <div class="row">
-                    <!-- <div class="select__items-item-logo">
-                        <component :is="`${item?.net}Svg`" />
-                    </div> -->
-                    <div class="info">
-                        <div class="name">{{ item.name }}</div>
+                <div class="info">
+                    <div class="icon">
+                        <img :src="item.logo" alt="network-logo" class="network-logo" />
                     </div>
+                    <div class="name">{{ item.label || item.name }}</div>
                 </div>
             </div>
         </div>
@@ -162,7 +160,7 @@ export default {
         transform-origin: top;
         transition: transform 0.2s ease;
 
-        padding: 20px 25px;
+        padding: 20px 32px;
         box-sizing: border-box;
 
         max-height: 380px;
@@ -211,6 +209,27 @@ export default {
             .name {
                 color: #486060;
             }
+
+            .icon {
+                transition: 0.2s;
+
+                width: 32px;
+                height: 32px;
+                background-color: $colorSlimLightBlue;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                margin-right: 16px;
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                    max-width: 20px;
+                    max-height: 20px;
+                }
+            }
         }
 
         &.active {
@@ -218,6 +237,9 @@ export default {
                 .name {
                     color: #1c1f2c;
                     font-family: 'Poppins_SemiBold';
+                }
+                .icon {
+                    background-color: $colorLightGreen;
                 }
             }
         }
@@ -230,6 +252,10 @@ export default {
             .info {
                 .name {
                     color: $colorBaseGreen;
+                }
+
+                .icon {
+                    background-color: $colorLightGreen;
                 }
             }
             .select__items-item-logo {

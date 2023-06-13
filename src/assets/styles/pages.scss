@@ -1,9 +1,7 @@
 @mixin pageStructure {
   box-sizing: border-box;
-  overflow-y: auto;
   height: 88vh;
-  padding-bottom: 40px;
-  padding-left: 260px;
+  padding: 80px 0 40px 260px;
 }
 
 @mixin pageFlexColumn {
