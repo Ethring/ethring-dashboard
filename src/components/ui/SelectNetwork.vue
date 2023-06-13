@@ -17,7 +17,7 @@
             <div
                 v-for="(item, idx) in items"
                 :key="idx"
-                :class="{ active: item.net === selectedItem?.citadelNet }"
+                :class="{ active: item.net === selectedItem?.citadelNet || item.net === selectedItem?.net }"
                 class="select__items-item"
                 @click="setActive(item)"
             >

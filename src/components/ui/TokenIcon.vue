@@ -38,7 +38,7 @@ export default {
     },
     setup(props) {
         const showIconPlaceholder = ref(false);
-        const iconPlaceholder = computed(() => tokenIconPlaceholder(props.token.name));
+        const iconPlaceholder = computed(() => tokenIconPlaceholder(props.token?.name));
 
         watch(
             () => props.token,

@@ -34,14 +34,31 @@ export default {
             if (!selectedNetwork.value) {
                 return [];
             }
+            let list = [];
+            const listWithBalances = [selectedNetwork.value, ...selectedNetwork.value.list].sort((a, b) => {
+                if (a.balanceUsd > b.balanceUsd) {
+                    return -1;
+                }
+                if (a.balanceUsd < b.balanceUsd) {
+                    return 1;
+                }
+                return 0;
+            });
+            if (selectType.value === 'from') {
+                if (selectedNetwork.value.balance.mainBalance > 0) {
+                    list = listWithBalances;
+                } else {
+                    list = selectedNetwork.value.list;
+                }
+            } else {
+                list = [
+                    ...listWithBalances,
+                    ...allTokensFromNetwork(selectedNetwork.value.net).filter((token) => {
+                        return token.net !== selectedNetwork.value.net && !selectedNetwork.value.list.find((t) => t.net === token.net);
+                    }),
+                ];
+            }
 
-            let list = [
-                selectedNetwork.value,
-                ...selectedNetwork.value.list,
-                ...allTokensFromNetwork(selectedNetwork.value.net).filter((token) => {
-                    return token.net !== selectedNetwork.value.net && !selectedNetwork.value.list.find((t) => t.net === token.net);
-                }),
-            ];
             const secondToken = selectType.value === 'from' ? selectedTokenTo.value : selectedTokenFrom.value;
             return list.filter(
                 (elem) =>

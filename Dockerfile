@@ -10,6 +10,7 @@ ARG VUE_APP_BACKEND_URL=//work.3ahtim54r.ru/api
 ARG VUE_APP_HOST=work.3ahtim54r.ru
 ARG VUE_APP_1INCH_SWAP_API=https://apps.3ahtim54r.ru/srv-1inch-swap/api/
 ARG VUE_APP_DEBRIDGE_API=https://apps.3ahtim54r.ru/srv-debridge/api/
+ARG VUE_APP_PROXY_API=https://proxy-api.apps.citadel.okd.3ahtim54r.ru/token-price/coingecko
 ARG VUE_APP_ZOMET_CORE_API_URL
 ARG VUE_APP_RELEASE
 ARG VUE_APP_SENTRY_DSN

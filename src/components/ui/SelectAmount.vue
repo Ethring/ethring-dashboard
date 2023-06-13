@@ -16,6 +16,7 @@
                     :disabled="disabled"
                     @focus="onFocus"
                     v-debounce:300ms="onInput"
+                    @blur="onBlur"
                     @click.stop="() => {}"
                     class="input-balance"
                 />
@@ -28,7 +29,7 @@
                     </span>
                     {{ selectedToken?.code }}
                 </p>
-                <div><span>$</span>{{ prettyNumber(BigNumber(amount * selectedToken?.price?.USD || 0).toFixed()) }}</div>
+                <div><span>$</span>{{ prettyNumber(BigNumber(amount * coingeckoPrice || 0).toFixed()) }}</div>
             </div>
         </div>
         <div v-if="active" class="select-amount__items" v-click-away="clickAway">
@@ -63,6 +64,7 @@ import TokenIcon from '@/components/ui/TokenIcon';
 
 import { prettyNumber } from '@/helpers/prettyNumber';
 import { ref, watch, onMounted } from 'vue';
+import { useStore } from 'vuex';
 import BigNumber from 'bignumber.js';
 
 export default {
@@ -106,6 +108,9 @@ export default {
             type: [String, Number],
             default: '',
         },
+        selectedNetwork: {
+            type: Object,
+        },
     },
     components: {
         arrowSvg,
@@ -113,10 +118,13 @@ export default {
     },
     setup(props, { emit }) {
         const active = ref(false);
+        const store = useStore();
         const focused = ref(false);
         const amount = ref('');
         const selectedToken = ref(props.value);
         const placeholder = ref('0');
+        const platform = ref('');
+        const coingeckoPrice = ref(0);
 
         watch(
             () => props.onReset,
@@ -187,6 +195,11 @@ export default {
             active.value = false;
         };
 
+        const onBlur = () => {
+            placeholder.value = '0';
+            focused.value = false;
+        };
+
         const setMax = () => {
             active.value = false;
             if (!props.hideMax) {
@@ -215,8 +228,15 @@ export default {
         const clickToken = () => {
             emit('clickToken');
         };
-        onMounted(() => {
+        onMounted(async () => {
             setToken(selectedToken.value);
+            if (props.selectedNetwork) {
+                platform.value = await store.dispatch('tokens/getCoingeckoPlatform', { chainId: props?.selectedNetwork?.chain_id });
+                coingeckoPrice.value = await store.dispatch('tokens/getCoingeckoPrice', {
+                    platform: platform.value,
+                    addresses: selectedToken.value.address,
+                });
+            }
         });
 
         return {
@@ -228,6 +248,7 @@ export default {
             selectedToken,
             prettyNumber,
             setToken,
+            onBlur,
             setActive,
             setMax,
             onInput,
@@ -235,6 +256,7 @@ export default {
             clickAway,
             emit,
             clickToken,
+            coingeckoPrice,
         };
     },
 };

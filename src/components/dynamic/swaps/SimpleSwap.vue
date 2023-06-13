@@ -125,7 +125,6 @@ export default {
 
         const { groupTokens, allTokensFromNetwork } = useTokens();
         const { walletAddress, currentChainInfo, connectedWallet, setChain } = useWeb3Onboard();
-
         const favouritesList = computed(() => store.getters['tokens/favourites']);
         const selectedTokenFrom = computed(() => store.getters['tokens/fromToken']);
         const selectedTokenTo = computed(() => store.getters['tokens/toToken']);
@@ -154,16 +153,24 @@ export default {
             if (!selectedNetwork.value) {
                 return [];
             }
+            let listWithBalances = [selectedNetwork.value, ...selectedNetwork.value?.list];
 
             const list = [
-                selectedNetwork.value,
-                ...selectedNetwork.value?.list,
+                ...listWithBalances.sort((a, b) => {
+                    if (a.balanceUsd > b.balanceUsd) {
+                        return -1;
+                    }
+                    if (a.balanceUsd < b.balanceUsd) {
+                        return 1;
+                    }
+                    return 0;
+                }),
                 ...allTokensFromNetwork(selectedNetwork.value.net).filter((token) => {
                     return token.net !== selectedNetwork.value.net && !selectedNetwork.value.list.find((t) => t.net === token.net);
                 }),
             ];
 
-            if (!selectedTokenFrom.value) {
+            if (!selectedTokenFrom.value || !list.find((elem) => elem.net === selectedTokenFrom.value.net)) {
                 store.dispatch('tokens/setFromToken', list[0]);
             } else if (balanceUpdated.value) {
                 let tokenFrom = list.find((elem) => elem.code === selectedTokenFrom.value.code);
@@ -171,7 +178,7 @@ export default {
                     store.dispatch('tokens/setFromToken', tokenFrom);
                 }
             }
-            if (!selectedTokenTo.value) {
+            if (!selectedTokenTo.value || !list.find((elem) => elem.net === selectedTokenTo.value.net)) {
                 store.dispatch('tokens/setToToken', list[1]);
             } else if (balanceUpdated.value) {
                 let tokenTo = list.find((elem) => elem.code === selectedTokenTo.value.code);
@@ -186,19 +193,16 @@ export default {
             if (selectedNetwork.value !== network) {
                 txError.value = '';
                 if (network.id || network.chain_id) {
-                    store.dispatch('tokens/setLoader', true);
                     await setChain({
                         chainId: network.id || network.chain_id,
                     });
                 }
-                store.dispatch('networks/setSelectedNetwork', network);
             }
         };
 
         const onSetTokenFrom = () => {
             store.dispatch('tokens/setSelectType', 'from');
             router.push('/swap/select-token');
-
             balanceUpdated.value = false;
             clearApprove();
         };
@@ -206,7 +210,6 @@ export default {
         const onSetTokenTo = async () => {
             store.dispatch('tokens/setSelectType', 'to');
             router.push('/swap/select-token');
-
             balanceUpdated.value = false;
             onSetAmount(amount.value);
         };
@@ -315,7 +318,7 @@ export default {
             }
         };
 
-        const sendMetamaskTransaction = async (transaction) => {
+        const sendTransaction = async (transaction) => {
             const ethersProvider = getProvider();
             const tx = {
                 data: transaction.data,
@@ -349,7 +352,7 @@ export default {
 
             // APPROVE
             if (approveTx.value) {
-                const resTx = await sendMetamaskTransaction({ ...approveTx.value.transaction, from: walletAddress.value });
+                const resTx = await sendTransaction({ ...approveTx.value.transaction, from: walletAddress.value });
                 if (resTx.error) {
                     txError.value = resTx.error;
                     isLoading.value = false;
@@ -366,7 +369,7 @@ export default {
                     isLoading.value = false;
                     successHash.value = '';
                     isLoading.value = false;
-                }, 5000);
+                }, 3000);
                 return;
             }
             //------
@@ -386,7 +389,7 @@ export default {
                 return;
             }
 
-            const resTx = await sendMetamaskTransaction(resSwap.transaction);
+            const resTx = await sendTransaction(resSwap.transaction);
             if (resTx.error) {
                 txError.value = resTx.error;
                 isLoading.value = false;
@@ -402,8 +405,7 @@ export default {
                 isLoading.value = false;
                 successHash.value = '';
                 isLoading.value = false;
-            }, 1000);
-
+            }, 3000);
             store.dispatch('tokens/updateTokenBalances', {
                 net: selectedNetwork.value.net,
                 address: walletAddress.value,
@@ -416,7 +418,7 @@ export default {
             const res = await ethersProvider.getGasPrice();
             let formatted = ethers.utils.formatUnits(
                 ethers.BigNumber.from(res).toString(),
-                ethers.BigNumber.from(selectedNetwork?.value?.decimals || 18)
+                ethers.BigNumber.from(currentChainInfo.value.nativeCurrency?.decimals)
             );
             gasPrice.value = +formatted;
         };
@@ -426,11 +428,6 @@ export default {
 
         watch(selectedNetwork, async () => {
             await loadGasPrice();
-        });
-
-        watch(currentChainInfo, async () => {
-            store.dispatch('tokens/setFromToken', null);
-            store.dispatch('tokens/setToToken', null);
         });
 
         return {

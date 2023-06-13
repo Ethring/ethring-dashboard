@@ -28,10 +28,9 @@
             @setAmount="onSetAmount"
             @clickToken="onSetSrcToken"
         />
-        <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
         <SelectAmount
             v-if="tokensDstListResolved.length"
-            :selected-netwoFrk="selectedDstNetwork"
+            :selected-network="selectedDstNetwork"
             :items="tokensDstListResolved"
             :value="selectedDstToken"
             :error="!!errorBalance"
@@ -42,6 +41,7 @@
             class="mt-10"
             @clickToken="onSetDstToken"
         />
+        <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
         <InfoPanel v-if="txError" :title="txError" class="mt-10" />
         <InfoPanel v-if="successHash" :hash="successHash" :title="$t('tx.txHash')" type="success" class="mt-10" />
         <Checkbox
@@ -171,14 +171,13 @@ export default {
 
         const tokensSrcListResolved = ref([]);
         const tokensDstListResolved = ref([]);
+        const networks = computed(() => store.getters['networks/networks']);
+        const getSupportedChains = computed(() => store.getters['bridge/supportedChains']);
 
         onMounted(async () => {
             await store.dispatch('bridge/getSupportedChains');
         });
 
-        const networks = computed(() => store.getters['networks/networks']);
-
-        const getSupportedChains = computed(() => store.getters['bridge/supportedChains']);
         const filteredSupportedChains = computed(() => {
             return groupTokens?.value.filter((item) => {
                 return getSupportedChains?.value?.some((network) => network.net === item.net);
@@ -186,7 +185,9 @@ export default {
         });
 
         const activeSupportedChains = computed(() => {
-            return filteredSupportedChains?.value.filter((token) => token.net !== selectedSrcNetwork?.value?.net);
+            return filteredSupportedChains?.value.filter(
+                (token) => token.net !== selectedSrcNetwork?.value?.net || token.net !== selectedSrcNetwork?.value?.citadelNet
+            );
         });
 
         const disabledBtn = computed(() => {

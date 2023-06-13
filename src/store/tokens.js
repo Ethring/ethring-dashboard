@@ -101,6 +101,29 @@ export default {
         setToToken({ commit }, value) {
             commit(types.SET_TO_TOKEN, value);
         },
+        async getCoingeckoPrice(_, { platform, addresses, currencies = 'usd' }) {
+            let response;
+            try {
+                response = await axios.get(`${process.env.VUE_APP_PROXY_API}/${platform}`, {
+                    params: {
+                        addresses,
+                        currencies,
+                    },
+                });
+                return response.data.data[addresses].usd;
+            } catch (err) {
+                return err;
+            }
+        },
+        async getCoingeckoPlatform(_, { chainId }) {
+            let response;
+            try {
+                response = await axios.get(`https://api.coingecko.com/api/v3/asset_platforms`);
+                return response.data.filter((platform) => platform.chain_identifier === chainId)[0]?.id;
+            } catch (err) {
+                return err;
+            }
+        },
         async prepareTransfer(_, { net, from, amount, toAddress }) {
             let response;
 
