@@ -41,14 +41,14 @@ export default {
     setup(props) {
         const showIconPlaceholder = ref(false);
         const tokenIconFromZomet = ref(null);
-        const iconPlaceholder = computed(() => tokenIconPlaceholder(props.token.name || 'Token'));
+        const iconPlaceholder = computed(() => tokenIconPlaceholder(props.token?.name || 'Token'));
 
         const store = useStore();
 
         const tokens = computed(() => store.getters['networks/zometTokens']);
 
         const setTokenIcon = () => {
-            if (props.token.address && tokens.value[props.token.address]) {
+            if (props.token?.address && tokens.value[props.token?.address]) {
                 tokenIconFromZomet.value = tokens.value[props.token.address].logo;
             }
         };
