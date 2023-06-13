@@ -48,7 +48,7 @@ export default {
         const tokens = computed(() => store.getters['networks/zometTokens']);
 
         const setTokenIcon = () => {
-            if (tokens.value[props.token.address]) {
+            if (props.token.address && tokens.value[props.token.address]) {
                 tokenIconFromZomet.value = tokens.value[props.token.address].logo;
             }
         };
