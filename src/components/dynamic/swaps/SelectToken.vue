@@ -63,11 +63,11 @@ export default {
             return list.filter(
                 (elem) =>
                     elem.code !== secondToken.code &&
-                    (elem.name.toLowerCase().includes(searchValue.value.toLowerCase()) ||
+                    (elem.name?.toLowerCase().includes(searchValue.value.toLowerCase()) ||
                         elem.code
                             .toLowerCase()
                             .includes(
-                                searchValue.value.toLowerCase() || elem.address.toLowerCase().includes(searchValue.value.toLowerCase())
+                                searchValue.value.toLowerCase() || elem.address?.toLowerCase().includes(searchValue.value.toLowerCase())
                             ))
             );
         });

@@ -23,7 +23,7 @@
             :value="selectedSrcToken"
             :error="!!errorBalance"
             :label="$t('simpleBridge.send')"
-            :on-reset="successHash"
+            :on-reset="resetAmount"
             class="mt-10"
             @setAmount="onSetAmount"
             @clickToken="onSetSrcToken"
@@ -37,7 +37,7 @@
             :label="$t('simpleBridge.receive')"
             :disabled-value="prettyNumber(receiveValue)"
             :disabled="true"
-            :on-reset="successHash"
+            :on-reset="resetAmount"
             class="mt-10"
             @clickToken="onSetDstToken"
         />
@@ -147,10 +147,12 @@ export default {
         const store = useStore();
         const isLoading = ref(false);
         const needApprove = ref(false);
+        const balanceUpdated = ref(false);
         const receiveToken = ref(false);
         const approveTx = ref(null);
         const txError = ref('');
         const successHash = ref('');
+        const resetAmount = ref(false);
         const router = useRouter();
         const networkFee = ref(0);
 
@@ -165,6 +167,7 @@ export default {
         const address = ref('');
         const estimateTime = ref('');
         const serviceFee = ref('');
+        const allowance = ref(null);
 
         const errorAddress = ref('');
         const errorBalance = ref('');
@@ -186,7 +189,7 @@ export default {
 
         const activeSupportedChains = computed(() => {
             return filteredSupportedChains?.value.filter(
-                (token) => token.net !== selectedSrcNetwork?.value?.net || token.net !== selectedSrcNetwork?.value?.citadelNet
+                (token) => token.net !== (selectedSrcNetwork?.value?.net || selectedSrcNetwork?.value?.citadelNet)
             );
         });
 
@@ -206,6 +209,7 @@ export default {
             needApprove.value = false;
             approveTx.value = null;
             receiveValue.value = '';
+            allowance.value = null;
         };
 
         const tokensList = async (network, chainId) => {
@@ -221,7 +225,10 @@ export default {
         const onSelectSrcNetwork = async (network) => {
             tokensList(network, network?.chain_id || network?.chainId).then((tokens) => {
                 tokensSrcListResolved.value = tokens;
-                if (!selectedSrcToken.value || !tokens.find((elem) => elem.code === selectedSrcToken.value.code)) {
+                if (
+                    !selectedSrcToken.value ||
+                    !tokens.find((elem) => elem.code === selectedSrcToken.value.code && elem.address === selectedSrcToken.value.address)
+                ) {
                     store.dispatch('tokens/setFromToken', tokens[0]);
                 }
             });
@@ -233,7 +240,10 @@ export default {
 
             tokensList(network, network?.chain_id).then((tokens) => {
                 tokensDstListResolved.value = tokens;
-                if (!selectedDstToken.value || !tokens.find((elem) => elem.code === selectedDstToken.value.code)) {
+                if (
+                    !selectedDstToken.value ||
+                    !tokens.find((elem) => elem.code === selectedDstToken.value.code && elem.address === selectedDstToken.value.address)
+                ) {
                     store.dispatch('tokens/setToToken', tokens[0]);
                 }
             });
@@ -243,12 +253,16 @@ export default {
             store.dispatch('tokens/setSelectType', 'from');
             router.push('/bridge/select-token');
 
+            balanceUpdated.value = false;
+
             clearApprove();
         };
 
         const onSetDstToken = async () => {
             store.dispatch('tokens/setSelectType', 'to');
             router.push('/bridge/select-token');
+
+            balanceUpdated.value = false;
 
             clearApprove();
             onSetAmount(amount.value);
@@ -278,9 +292,6 @@ export default {
             receiveValue.value = '';
             amount.value = value;
 
-            await getEstimateInfo();
-            await getAllowance();
-
             if (
                 +networkFee.value > selectedSrcToken.value?.balance?.amount ||
                 +networkFee.value > selectedSrcToken.value?.balance?.mainBalance
@@ -288,6 +299,22 @@ export default {
                 errorBalance.value = 'Insufficient balance';
             } else {
                 errorBalance.value = '';
+            }
+            await getEstimateInfo();
+            if (!allowance.value) {
+                await getAllowance();
+            }
+            await checkAllowance();
+        };
+
+        const checkAllowance = async () => {
+            if (allowance.value >= toMantissa(amount.value, selectedSrcToken.value?.decimals)) {
+                needApprove.value = false;
+            } else {
+                needApprove.value = true;
+                if (!approveTx.value) {
+                    await getApproveTx();
+                }
             }
         };
 
@@ -306,12 +333,7 @@ export default {
                     return;
                 }
 
-                if (resAllowance >= toMantissa(amount.value, selectedSrcToken.value.decimals)) {
-                    needApprove.value = false;
-                } else {
-                    needApprove.value = true;
-                    await getApproveTx();
-                }
+                allowance.value = resAllowance;
             }
         };
 
@@ -378,13 +400,17 @@ export default {
                 chainId: `0x${transaction?.chainId?.toString(16)}`,
                 value: transaction.value ? `0x${parseInt(transaction.value).toString(16)}` : '0x0',
             };
-            if (ethersProvider) {
-                const signer = ethersProvider.getSigner();
-                const txn = await signer.sendTransaction(tx);
+            try {
+                if (ethersProvider) {
+                    const signer = ethersProvider.getSigner();
+                    const txn = await signer.sendTransaction(tx);
 
-                const receipt = await txn.wait();
-                console.log(receipt, '---receipt');
-                return receipt;
+                    const receipt = await txn.wait();
+
+                    return receipt;
+                }
+            } catch (e) {
+                return { error: e.message };
             }
         };
 
@@ -420,8 +446,9 @@ export default {
                 }
 
                 approveTx.value = null;
-                successHash.value = getTxUrl(selectedSrcNetwork.value.net, resTx.txHash);
+                successHash.value = getTxUrl(selectedSrcNetwork.value.net, resTx.transactionHash);
                 await getAllowance();
+                resetAmount.value = false;
                 setTimeout(() => {
                     isLoading.value = false;
                     successHash.value = '';
@@ -459,19 +486,29 @@ export default {
                 return;
             }
 
-            successHash.value = getTxUrl(selectedSrcNetwork.value.net, resTx.txHash);
-
+            successHash.value = getTxUrl(selectedSrcNetwork.value.net, resTx.transactionHash);
+            isLoading.value = false;
+            resetAmount.value = true;
             setTimeout(() => {
-                isLoading.value = false;
                 successHash.value = '';
-                isLoading.value = false;
             }, 5000);
+            store.dispatch('tokens/updateTokenBalances', {
+                net: selectedSrcNetwork.value.net,
+                address: walletAddress.value,
+                info: selectedSrcNetwork.value,
+                update(wallet) {
+                    store.dispatch('bridge/setSelectedSrcNetwork', wallet);
+                },
+            });
+
+            balanceUpdated.value = true;
         };
 
         return {
             isLoading,
             disabledBtn,
             needApprove,
+            resetAmount,
             receiveToken,
             receiveValue,
 

@@ -204,7 +204,7 @@ export default {
                 balanceUsd: tokens[selectedNet.net]?.balanceUsd,
                 list: childs,
             };
-            store.dispatch('networks/setSelectedNetwork', wallet);
+            selectedNet.update(wallet);
         },
     },
 };
