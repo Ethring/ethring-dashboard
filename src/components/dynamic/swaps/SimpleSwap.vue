@@ -1,6 +1,6 @@
 <template>
     <div class="simple-swap">
-        <Select :items="groupTokens" :current="currentChainInfo" @select="onSelectNetwork" />
+        <SelectNetwork :items="groupTokens" :current="currentChainInfo" @select="onSelectNetwork" />
         <InfoPanel
             v-if="walletAddress && selectedNetwork && currentChainInfo?.citadelNet !== selectedNetwork?.net"
             :title="$t('mmIncorrectNetwork')"
@@ -74,7 +74,7 @@
 </template>
 <script>
 import InfoPanel from '@/components/ui/InfoPanel';
-import Select from '@/components/ui/Select';
+import SelectNetwork from '@/components/ui/SelectNetwork';
 import SelectAmount from '@/components/ui/SelectAmount';
 
 import Button from '@/components/ui/Button';
@@ -82,7 +82,7 @@ import Button from '@/components/ui/Button';
 import useTokens from '@/compositions/useTokens';
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 import { prettyNumberTooltip } from '@/helpers/prettyNumber';
-import { computed, ref, onMounted, watch } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { ethers } from 'ethers';
 import { useRouter } from 'vue-router';
@@ -98,7 +98,7 @@ export default {
     name: 'SimpleSwap',
     components: {
         InfoPanel,
-        Select,
+        SelectNetwork,
         SelectAmount,
         Button,
         SwapSvg,
@@ -122,8 +122,8 @@ export default {
         const amount = ref('');
         const receiveValue = ref('');
         const errorBalance = ref('');
-
-        const { groupTokens, allTokensFromNetwork } = useTokens();
+        const allowance = ref(null);
+        const { groupTokens, allTokensFromNetwork, getTokenList } = useTokens();
         const { walletAddress, currentChainInfo, connectedWallet, setChain } = useWeb3Onboard();
         const favouritesList = computed(() => store.getters['tokens/favourites']);
         const selectedTokenFrom = computed(() => store.getters['tokens/fromToken']);
@@ -145,6 +145,7 @@ export default {
             needApprove.value = false;
             approveTx.value = null;
             receiveValue.value = '';
+            allowance.value = null;
         };
 
         const networks = computed(() => store.getters['networks/networks']);
@@ -153,20 +154,12 @@ export default {
             if (!selectedNetwork.value) {
                 return [];
             }
-            let listWithBalances = [selectedNetwork.value, ...selectedNetwork.value?.list];
+            let listWithBalances = getTokenList(selectedNetwork.value);
 
             const list = [
-                ...listWithBalances.sort((a, b) => {
-                    if (a.balanceUsd > b.balanceUsd) {
-                        return -1;
-                    }
-                    if (a.balanceUsd < b.balanceUsd) {
-                        return 1;
-                    }
-                    return 0;
-                }),
+                ...listWithBalances,
                 ...allTokensFromNetwork(selectedNetwork.value.net).filter((token) => {
-                    return token.net !== selectedNetwork.value.net && !selectedNetwork.value.list.find((t) => t.net === token.net);
+                    return token.net !== selectedNetwork.value.net && !groupTokens.value[0].list.find((t) => t.net === token.net);
                 }),
             ];
             if (!selectedTokenFrom.value || !list.find((elem) => elem.net === selectedTokenFrom.value.net)) {
@@ -225,19 +218,31 @@ export default {
                 errorBalance.value = 'Incorrect amount';
                 return;
             }
-
             if (!+value) {
                 return;
             }
             receiveValue.value = '';
             amount.value = value;
-            await getEstimateInfo();
-            await getAllowance();
-
             if (+value > selectedTokenFrom.value.balance?.amount || +value > selectedTokenFrom.value.balance?.mainBalance) {
                 errorBalance.value = 'Insufficient balance';
             } else {
                 errorBalance.value = '';
+            }
+            await getEstimateInfo();
+            if (!allowance.value) {
+                await getAllowance();
+            }
+            await checkAllowance();
+        };
+
+        const checkAllowance = async () => {
+            if (allowance.value >= toMantissa(amount.value, selectedTokenFrom.value?.decimals)) {
+                needApprove.value = false;
+            } else {
+                needApprove.value = true;
+                if (!approveTx.value) {
+                    await getApproveTx();
+                }
             }
         };
 
@@ -284,7 +289,7 @@ export default {
             needApprove.value = false;
 
             const resAllowance = await store.dispatch('oneInchSwap/getAllowance', {
-                net: selectedNetwork.value.net,
+                net: currentChainInfo.value.citadelNet,
                 token_address: selectedTokenFrom.value.list ? NATIVE_CONTRACT : selectedTokenFrom.value.address,
                 owner: walletAddress.value,
             });
@@ -292,17 +297,12 @@ export default {
             if (resAllowance.error) {
                 return;
             }
-            if (resAllowance.allowance >= toMantissa(amount.value, selectedTokenFrom.value.decimals)) {
-                needApprove.value = false;
-            } else {
-                needApprove.value = true;
-                await getApproveTx();
-            }
+            allowance.value = resAllowance.allowance;
         };
 
         const getApproveTx = async () => {
             const resApproveTx = await store.dispatch('oneInchSwap/getApproveTx', {
-                net: selectedNetwork.value.net,
+                net: currentChainInfo.value.citadelNet,
                 token_address: selectedTokenFrom.value.list ? NATIVE_CONTRACT : selectedTokenFrom.value.address,
                 owner: walletAddress.value,
             });
@@ -366,8 +366,9 @@ export default {
                 }
 
                 approveTx.value = null;
-                successHash.value = getTxUrl(selectedNetwork.value.net, resTx.transactionHash);
+                successHash.value = getTxUrl(currentChainInfo.value.citadelNet, resTx.transactionHash);
                 await getAllowance();
+                await checkAllowance();
                 resetAmount.value = false;
                 setTimeout(() => {
                     isLoading.value = false;
@@ -410,6 +411,9 @@ export default {
                 net: selectedNetwork.value.net,
                 address: walletAddress.value,
                 info: selectedNetwork.value,
+                update(wallet) {
+                    store.dispatch('networks/setSelectedNetwork', wallet);
+                },
             });
             balanceUpdated.value = true;
         };
@@ -423,10 +427,10 @@ export default {
             gasPrice.value = +formatted;
         };
         onMounted(async () => {
-            await loadGasPrice();
-        });
-
-        watch(selectedNetwork, async () => {
+            store.dispatch(
+                'networks/setSelectedNetwork',
+                groupTokens.value.find((elem) => elem.net === currentChainInfo.value.citadelNet)
+            );
             await loadGasPrice();
         });
 

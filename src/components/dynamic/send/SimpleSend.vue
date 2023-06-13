@@ -1,6 +1,7 @@
 <template>
     <div class="simple-send">
-        <SelectNetwork :items="zometNetworks" :current="currentChainInfo" @select="onSelectNetwork" />
+        <SelectNetwork :items="zometNetworks" @select="onSelectNetwork" />
+
         <SelectAddress
             :selected-network="currentChainInfo"
             :items="[]"
@@ -10,7 +11,9 @@
             @removeAddress="onRemoveFavourite"
             @setAddress="onSetAddress"
         />
+
         <InfoPanel v-if="errorAddress" :title="errorAddress" class="mt-10" />
+
         <SelectAmount
             v-if="tokensList.length"
             :selected-network="currentChainInfo"
@@ -24,9 +27,11 @@
             @setAmount="onSetAmount"
             @setToken="onSetToken"
         />
+
         <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
         <InfoPanel v-if="txError" :title="txError" class="mt-10" />
         <InfoPanel v-if="successHash" :hash="successHash" :title="$t('tx.txHash')" type="success" class="mt-10" />
+
         <Button
             xl
             :title="$t('simpleSend.confirm').toUpperCase()"
@@ -53,6 +58,7 @@ import * as ethers from 'ethers';
 
 // import { getTxUrl } from '@/helpers/utils';
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+import { onSelectNetwork } from '../../../helpers/chains';
 
 export default {
     name: 'SimpleSend',
@@ -66,13 +72,12 @@ export default {
     setup() {
         const store = useStore();
 
-        const { walletAddress, connectedWallet, currentChainInfo, setChain } = useWeb3Onboard();
+        const { walletAddress, connectedWallet, currentChainInfo } = useWeb3Onboard();
 
         const isLoading = ref(false);
         const txError = ref('');
         const successHash = ref('');
 
-        const selectedNetwork = ref(currentChainInfo.value);
         const selectedToken = ref(null);
         const amount = ref('');
         const address = ref('');
@@ -83,7 +88,7 @@ export default {
         const { groupTokens } = useTokens();
 
         // const favouritesList = computed(() => store.getters['tokens/favourites']);
-        const zometNetworks = computed(() => store.getters['networks/zometNetworks']);
+        const zometNetworks = computed(() => store.getters['networks/zometNetworksList']);
 
         const disabledSend = computed(() => {
             return (
@@ -92,7 +97,7 @@ export default {
                 errorBalance.value ||
                 !+amount.value ||
                 !address.value.length ||
-                !selectedNetwork.value ||
+                !currentChainInfo.value ||
                 !selectedToken.value
             );
         });
@@ -100,22 +105,13 @@ export default {
         const networks = computed(() => store.getters['networks/networks']);
 
         const tokensList = computed(() => {
-            if (!selectedNetwork.value) {
+            if (!currentChainInfo.value) {
                 return [];
             }
             const currentNetworkToken = groupTokens.value[0];
 
             return [currentNetworkToken, ...groupTokens.value[0].list];
         });
-
-        const onSelectNetwork = async (network) => {
-            if (network.id || network.chain_id) {
-                await setChain({
-                    chainId: network.id || network.chain_id,
-                });
-                selectedNetwork.value = network;
-            }
-        };
 
         const onSetToken = (token) => {
             selectedToken.value = token;
@@ -144,7 +140,6 @@ export default {
         };
 
         const onRemoveFavourite = (params) => {
-            console.log(params);
             store.dispatch('tokens/removeFavourite', params);
         };
 
@@ -152,6 +147,8 @@ export default {
             if (disabledSend.value) {
                 return;
             }
+
+            isLoading.value = true;
 
             const { provider, label } = connectedWallet.value || {};
 
@@ -163,7 +160,6 @@ export default {
                 const ethersProvider = new ethers.providers.Web3Provider(provider, 'any');
 
                 const signer = ethersProvider.getSigner();
-
                 const response = await store.dispatch('tokens/prepareTransfer', {
                     net: selectedToken.value.net || selectedToken.value.network,
                     from: walletAddress.value,
@@ -179,7 +175,22 @@ export default {
                 const txn = await signer.sendTransaction(tx);
 
                 const receipt = await txn.wait();
-                console.log(receipt);
+
+                if (receipt) {
+                    isLoading.value = false;
+                    const { explorers = [] } = currentChainInfo.value;
+
+                    if (!explorers.length) {
+                        return (successHash.value = receipt.transactionHash);
+                    }
+
+                    setTimeout(() => {
+                        isLoading.value = false;
+                        successHash.value = '';
+                    }, 4000);
+
+                    return (successHash.value = `${explorers[0].url}/tx/${receipt.transactionHash}`);
+                }
             }
 
             isLoading.value = true;
@@ -198,7 +209,6 @@ export default {
             tokensList,
             errorAddress,
             errorBalance,
-            selectedNetwork,
 
             onRemoveFavourite,
 

@@ -1,27 +1,26 @@
 <template>
-    <div :class="{ active }" class="select" @click="active = !active">
-        <div class="select__panel">
+    <div :class="{ active }" class="select" v-click-away="() => togglePanel(true)">
+        <div class="select__panel" @click="() => togglePanel(false)">
             <div class="info">
                 <div class="network">
-                    <img :src="current.logo" alt="network-logo" class="network-logo" />
-                    <!-- <component :is="`${selectedItem?.net}Svg`" /> -->
+                    <img :src="currentChainInfo.logo" alt="network-logo" class="network-logo" />
                 </div>
-                <div class="name">{{ selectedItem?.label || selectedItem?.name }}</div>
+                <div class="name">{{ currentChainInfo?.label || currentChainInfo?.name }}</div>
             </div>
             <arrowSvg class="arrow" />
         </div>
-        <div v-if="active" class="select__items" v-click-away="clickAway">
+        <div class="select__items">
             <div
                 v-for="(item, idx) in items"
                 :key="idx"
-                :class="{ active: item.net === selectedItem?.citadelNet }"
+                :class="{ active: item.net === currentChainInfo?.citadelNet }"
                 class="select__items-item"
-                @click="setActive(item)"
+                @click="$emit('select', item)"
             >
                 <div class="row">
-                    <div class="select__items-item-logo">
+                    <!-- <div class="select__items-item-logo">
                         <component :is="`${item?.net}Svg`" />
-                    </div>
+                    </div> -->
                     <div class="info">
                         <div class="name">{{ item.name }}</div>
                     </div>
@@ -30,17 +29,13 @@
         </div>
     </div>
 </template>
+
 <script>
+import { ref } from 'vue';
+
+import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+
 import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
-import bscSvg from '@/assets/icons/networks/bsc.svg';
-import ethSvg from '@/assets/icons/networks/eth.svg';
-import polygonSvg from '@/assets/icons/networks/polygon.svg';
-import optimismSvg from '@/assets/icons/networks/optimism.svg';
-import arbitrumSvg from '@/assets/icons/networks/arbitrum.svg';
-import evmosethSvg from '@/assets/icons/networks/evmoseth.svg';
-import avalancheSvg from '@/assets/icons/networks/avalanche.svg';
-import fantomSvg from '@/assets/icons/networks/fantom.svg';
-import { onMounted, ref } from 'vue';
 
 export default {
     name: 'SelectNetwork',
@@ -48,52 +43,39 @@ export default {
         items: {
             type: Array,
         },
-        current: {
-            type: Object,
-            default: () => {},
-        },
     },
     components: {
         arrowSvg,
-        bscSvg,
-        ethSvg,
-        polygonSvg,
-        optimismSvg,
-        arbitrumSvg,
-        evmosethSvg,
-        avalancheSvg,
-        fantomSvg,
     },
-    setup(props, { emit }) {
+    setup() {
+        const { currentChainInfo } = useWeb3Onboard();
+
         const active = ref(false);
-        const selectedItem = ref(props.current);
+
+        const togglePanel = (away = false) => {
+            if (away) {
+                return (active.value = false);
+            }
+            return (active.value = !active.value);
+        };
 
         const clickAway = () => {
             active.value = false;
         };
 
-        const setActive = (item) => {
-            selectedItem.value = item;
-            emit('select', selectedItem.value);
-        };
-
-        onMounted(() => {
-            if (selectedItem.value) {
-                setActive(selectedItem.value);
-            }
-        });
-
-        return { active, selectedItem, clickAway, setActive };
+        return { active, clickAway, togglePanel, currentChainInfo };
     },
 };
 </script>
+
 <style lang="scss" scoped>
 .select {
     position: relative;
-    .row {
-        display: flex;
-    }
+    z-index: 11;
     &__panel {
+        position: relative;
+        z-index: 2;
+
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -104,6 +86,8 @@ export default {
         box-sizing: border-box;
         border: 2px solid transparent;
         cursor: pointer;
+
+        transition: 0.2s;
 
         .info {
             display: flex;
@@ -147,7 +131,7 @@ export default {
 
     &.active {
         .select__panel {
-            border: 2px solid $colorBaseGreen;
+            border-color: $colorBaseGreen;
             background: $colorWhite;
 
             svg.arrow {
@@ -157,15 +141,27 @@ export default {
     }
 
     &__items {
-        z-index: 11;
+        z-index: 1;
         background: #fff;
         position: absolute;
+        top: 65px;
+
         left: 0;
-        top: 80px;
+        right: 0;
+
         width: 100%;
+
         min-height: 40px;
-        border-radius: 16px;
+
         border: 2px solid $colorBaseGreen;
+        border-radius: 0 0 16px 16px;
+
+        border-top: none;
+
+        transform: scaleY(0);
+        transform-origin: top;
+        transition: transform 0.2s ease;
+
         padding: 20px 25px;
         box-sizing: border-box;
 
@@ -191,7 +187,18 @@ export default {
         }
     }
 
+    &.active &__items {
+        transform: scaleY(1);
+        opacity: 1;
+    }
+
+    &.active &__items-item {
+        opacity: 1;
+    }
+
     &__items-item {
+        opacity: 0;
+
         display: flex;
         align-items: center;
         justify-content: space-between;
