@@ -13,7 +13,7 @@
                 :items="tokensList"
                 :value="selectedTokenFrom"
                 :error="!!errorBalance"
-                :on-reset="successHash"
+                :on-reset="resetAmount"
                 :is-update="isUpdateSwapDirectionValue"
                 :label="$t('simpleSwap.pay')"
                 @clickToken="onSetTokenFrom"
@@ -28,7 +28,7 @@
                 :selected-network="selectedNetwork"
                 :value="selectedTokenTo"
                 :items="tokensList"
-                :on-reset="successHash"
+                :on-reset="resetAmount"
                 :is-update="isUpdateSwapDirectionValue"
                 :label="$t('simpleSwap.receive')"
                 :disabled-value="receiveValue"
@@ -115,8 +115,8 @@ export default {
         const estimateRate = ref(0);
         const networkFee = ref(0);
         const gasPrice = ref(0);
+        const resetAmount = ref(false);
         const selectedNetwork = computed(() => store.getters['networks/selectedNetwork']);
-
         const isUpdateSwapDirectionValue = ref(false);
         const router = useRouter();
         const amount = ref('');
@@ -169,9 +169,12 @@ export default {
                     return token.net !== selectedNetwork.value.net && !selectedNetwork.value.list.find((t) => t.net === token.net);
                 }),
             ];
-
             if (!selectedTokenFrom.value || !list.find((elem) => elem.net === selectedTokenFrom.value.net)) {
-                store.dispatch('tokens/setFromToken', list[0]);
+                if (list[0].code !== 'USDC') {
+                    store.dispatch('tokens/setFromToken', list[0]);
+                } else {
+                    store.dispatch('tokens/setFromToken', list[1]);
+                }
             } else if (balanceUpdated.value) {
                 let tokenFrom = list.find((elem) => elem.code === selectedTokenFrom.value.code);
                 if (tokenFrom) {
@@ -179,7 +182,10 @@ export default {
                 }
             }
             if (!selectedTokenTo.value || !list.find((elem) => elem.net === selectedTokenTo.value.net)) {
-                store.dispatch('tokens/setToToken', list[1]);
+                store.dispatch(
+                    'tokens/setToToken',
+                    list.find((elem) => elem.code === 'USDC')
+                );
             } else if (balanceUpdated.value) {
                 let tokenTo = list.find((elem) => elem.code === selectedTokenTo.value.code);
                 if (tokenTo) {
@@ -225,7 +231,6 @@ export default {
             }
             receiveValue.value = '';
             amount.value = value;
-
             await getEstimateInfo();
             await getAllowance();
 
@@ -287,7 +292,6 @@ export default {
             if (resAllowance.error) {
                 return;
             }
-
             if (resAllowance.allowance >= toMantissa(amount.value, selectedTokenFrom.value.decimals)) {
                 needApprove.value = false;
             } else {
@@ -302,7 +306,6 @@ export default {
                 token_address: selectedTokenFrom.value.list ? NATIVE_CONTRACT : selectedTokenFrom.value.address,
                 owner: walletAddress.value,
             });
-
             if (resApproveTx.error) {
                 return;
             }
@@ -352,7 +355,7 @@ export default {
 
             // APPROVE
             if (approveTx.value) {
-                const resTx = await sendTransaction({ ...approveTx.value.transaction, from: walletAddress.value });
+                const resTx = await sendTransaction({ ...approveTx.value, from: walletAddress.value });
                 if (resTx.error) {
                     txError.value = resTx.error;
                     isLoading.value = false;
@@ -369,6 +372,7 @@ export default {
                     isLoading.value = false;
                     successHash.value = '';
                     isLoading.value = false;
+                    resetAmount.value = false;
                 }, 3000);
                 return;
             }
@@ -388,8 +392,7 @@ export default {
                 isLoading.value = false;
                 return;
             }
-
-            const resTx = await sendTransaction(resSwap.transaction);
+            const resTx = await sendTransaction(resSwap);
             if (resTx.error) {
                 txError.value = resTx.error;
                 isLoading.value = false;
@@ -405,6 +408,7 @@ export default {
                 isLoading.value = false;
                 successHash.value = '';
                 isLoading.value = false;
+                resetAmount.value = true;
             }, 3000);
             store.dispatch('tokens/updateTokenBalances', {
                 net: selectedNetwork.value.net,
@@ -441,11 +445,11 @@ export default {
             favouritesList,
             errorBalance,
             selectedNetwork,
-
             onSelectNetwork,
             onSetTokenFrom,
             onSetTokenTo,
             onSetAmount,
+            resetAmount,
             isUpdateSwapDirectionValue,
             swapTokensDirection,
             currentChainInfo,
