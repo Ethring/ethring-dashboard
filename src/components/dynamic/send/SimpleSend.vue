@@ -146,6 +146,8 @@ export default {
                 return;
             }
 
+            isLoading.value = true;
+
             const { provider, label } = connectedWallet.value || {};
 
             if (!provider) {
@@ -174,6 +176,18 @@ export default {
 
                 if (receipt) {
                     isLoading.value = false;
+                    const { explorers = [] } = currentChainInfo.value;
+
+                    if (!explorers.length) {
+                        return (successHash.value = receipt.transactionHash);
+                    }
+
+                    setTimeout(() => {
+                        isLoading.value = false;
+                        successHash.value = '';
+                    }, 4000);
+
+                    return (successHash.value = `${explorers[0].url}/tx/${receipt.transactionHash}`);
                 }
             }
 
