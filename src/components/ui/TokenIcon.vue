@@ -17,7 +17,7 @@
     </div>
 </template>
 <script>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { getTokenIcon, tokenIconPlaceholder } from '@/helpers/utils';
 import { useStore } from 'vuex';
 
@@ -45,19 +45,28 @@ export default {
 
         const store = useStore();
 
-        const tokens = ref(store.getters['networks/zometTokens']);
+        const tokens = computed(() => store.getters['networks/zometTokens']);
 
-        if (tokens.value[props.token.address]) {
-            tokenIconFromZomet.value = tokens.value[props.token.address].logo;
-            console.log(tokens.value[props.token.address]);
-        }
+        const setTokenIcon = () => {
+            if (tokens.value[props.token.address]) {
+                tokenIconFromZomet.value = tokens.value[props.token.address].logo;
+            }
+        };
+
+        onMounted(() => setTokenIcon());
 
         watch(
             () => props.token,
             () => {
+                setTokenIcon();
                 showIconPlaceholder.value = false;
             }
         );
+
+        watch(tokens, () => {
+            console.log('watch tokens', tokens);
+            setTokenIcon();
+        });
 
         return {
             showIconPlaceholder,
@@ -89,7 +98,17 @@ export default {
         }
     }
 
-    img:not(.nativeIcon) {
+    img.nativeIcon {
+        border-radius: 50%;
+        width: 100%;
+        height: 100%;
+        object-position: center;
+        object-fit: contain;
+
+        filter: none;
+    }
+
+    img {
         filter: brightness(0) invert(1);
     }
 

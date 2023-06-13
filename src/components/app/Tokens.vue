@@ -46,6 +46,7 @@ export default {
         const groupHides = ref({});
 
         const loader = computed(() => store.getters['tokens/loader']);
+
         const emptyLists = computed(() => {
             return !tokens.value.length && groupTokens.value.every((g) => !g.list.length); // <=1 - parent network
         });

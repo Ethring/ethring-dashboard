@@ -13,7 +13,7 @@
             <div
                 v-for="(item, idx) in items"
                 :key="idx"
-                :class="{ active: item.net === currentChainInfo?.citadelNet }"
+                :class="{ active: item.net === currentChainInfo?.net }"
                 class="select__items-item"
                 @click="$emit('select', item)"
             >

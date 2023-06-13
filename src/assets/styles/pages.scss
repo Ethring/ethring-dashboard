@@ -1,11 +1,11 @@
 @mixin pageStructure {
   box-sizing: border-box;
   overflow-y: auto;
-  height: 89vh;
+  height: 88vh;
+  padding-bottom: 40px;
 }
 
 @mixin pageFlexColumn {
-  margin-top: 65px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -15,26 +15,26 @@
   transition: all 0.24s ease-in-out;
 }
 
-$colorPl: #73B1B1;
+$colorPl: #73b1b1;
 
 ::-webkit-input-placeholder {
-  color:    $colorPl;
+  color: $colorPl;
 }
 :-moz-placeholder {
- color:    $colorPl;
- opacity:  1;
+  color: $colorPl;
+  opacity: 1;
 }
 ::-moz-placeholder {
- color:    $colorPl;
- opacity:  1;
+  color: $colorPl;
+  opacity: 1;
 }
 :-ms-input-placeholder {
- color:    $colorPl;
+  color: $colorPl;
 }
 ::-ms-input-placeholder {
- color:    $colorPl;
+  color: $colorPl;
 }
 
 ::placeholder {
- color:    $colorPl;
+  color: $colorPl;
 }

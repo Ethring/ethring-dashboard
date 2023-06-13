@@ -116,7 +116,7 @@ export default {
         };
 
         const onSetAddress = (addr) => {
-            const reg = new RegExp(networks.value[currentChainInfo.value.citadelNet].validating);
+            const reg = new RegExp(networks.value[currentChainInfo.value.net].validating);
             address.value = addr;
 
             if (address.value.length && !reg.test(addr)) {
@@ -196,7 +196,9 @@ export default {
         };
 
         onMounted(async () => {
-            await store.dispatch('networks/initZometNets');
+            if (!zometNetworks.value.length) {
+                await store.dispatch('networks/initZometNets');
+            }
         });
 
         return {

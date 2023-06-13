@@ -30,19 +30,11 @@ export default {
     setup() {
         const store = useStore();
 
-        const { connectWallet, connectedWallet, walletAddress, currentChainInfo } = useWeb3Onboard();
-        const { citadelNet = 'eth' } = currentChainInfo.value;
+        const { connectWallet, connectedWallet, walletAddress } = useWeb3Onboard();
 
         onMounted(async () => {
             store.dispatch('networks/init');
-
-            if (connectedWallet.value) {
-                useCitadel(walletAddress.value, store);
-            }
-
-            if (citadelNet) {
-                await store.dispatch('networks/initZometTokens', citadelNet);
-            }
+            store.dispatch('networks/initZometNets');
 
             nextTick(async () => {
                 const { label, provider } = connectedWallet.value || {};
