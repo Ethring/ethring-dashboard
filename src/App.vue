@@ -1,73 +1,66 @@
 <template>
     <div class="app-wrap">
         <Sidebar />
-        <div class="app-wrap__head">
-            <Head />
+
+        <div class="app-wrap__layout">
+            <NavBar />
+            <div>
+                <router-view />
+            </div>
         </div>
-        <router-view />
     </div>
 </template>
+
 <script>
+import { nextTick, onMounted, watch } from 'vue';
+
+import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+
+import NavBar from '@/components/app/NavBar';
 import Sidebar from '@/components/app/Sidebar';
-import Head from '@/components/app/Head';
-import { onMounted } from 'vue';
 import { useStore } from 'vuex';
+import useCitadel from './compositions/useCitadel';
 
 export default {
     name: 'App',
     components: {
         Sidebar,
-        Head,
+        NavBar,
     },
     setup() {
         const store = useStore();
 
+        const { connectWallet, connectedWallet, walletAddress } = useWeb3Onboard();
+
         onMounted(async () => {
-            await store.dispatch('networks/init');
-            if (window.ethereum?.selectedAddress) {
-                await store.dispatch('metamask/connectToMetamask');
-            }
+            store.dispatch('networks/init');
+            store.dispatch('networks/initZometNets');
+
+            nextTick(async () => {
+                const { label, provider } = connectedWallet.value || {};
+
+                const lastConnected = localStorage.getItem('onboard.js:last_connected_wallet');
+
+                if (!label && !provider && lastConnected) {
+                    const walletLabel = JSON.parse(lastConnected);
+
+                    if (walletLabel) {
+                        return await connectWallet({
+                            autoSelect: {
+                                label: walletLabel[0] || 'MetaMask',
+                                disableModals: true,
+                            },
+                        });
+                    }
+                }
+
+                if (!label && !provider) {
+                    return await connectWallet();
+                }
+            });
         });
+
+        watch(connectedWallet, () => useCitadel(walletAddress.value, store));
     },
 };
 </script>
-
-<style lang="scss">
-@import './assets/styles/colors.scss';
-
-html,
-body {
-    padding: 0;
-    margin: 0;
-    background: $bgLight;
-
-    @include animateEasy;
-
-    &.dark {
-        background: $bgDark;
-    }
-}
-
-.app-wrap {
-    display: flex;
-
-    &__head {
-        position: fixed;
-        top: 0;
-        right: 0;
-        width: calc(100% - 260px);
-        box-sizing: border-box;
-        padding: 41px 150px 31px;
-        z-index: 11;
-        background: $colorWhite;
-    }
-}
-
-body.dark {
-    .app-wrap {
-        &__head {
-            background: #0c0d17;
-        }
-    }
-}
-</style>

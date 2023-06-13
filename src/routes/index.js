@@ -41,14 +41,15 @@ const routes = [
         },
         component: () => import(/* webpackChunkName: "about" */ '../views/Swap.vue'),
     },
-    {
-        path: '/kit',
-        name: 'kit',
-        meta: {
-            isAuth: true,
-        },
-        component: () => import(/* webpackChunkName: "about" */ '../views/Kit.vue'),
-    },
+    // {
+    //     path: '/kit',
+    //     name: 'kit',
+    //     meta: {
+    //         isAuth: true,
+    //     },
+    //     component: () =>
+    //         import(/* webpackChunkName: "about" */ '../views/Kit.vue'),
+    // },
     {
         path: '/:pathMatch(.*)*',
         name: 'notFound',
@@ -60,6 +61,7 @@ const router = createRouter({
     history: createWebHashHistory(),
     routes,
 });
+
 router.beforeEach(guards);
 
 export default router;

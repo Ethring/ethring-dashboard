@@ -24,7 +24,7 @@ export default {
 .socials {
     display: flex;
     align-items: center;
-
+    justify-content: space-between;
     &__item {
         display: flex;
         justify-content: center;
@@ -33,7 +33,6 @@ export default {
         height: 46px;
         border: 1px solid #494c56;
         border-radius: 8px;
-        margin: 0 4px;
         cursor: pointer;
 
         svg {

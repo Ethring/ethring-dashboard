@@ -26,11 +26,16 @@
             </div>
             <div class="balance" @click.stop="setMax">
                 {{ $t('simpleSend.balance') }}:
-                {{ BigNumber(selectedToken?.balance?.amount || selectedToken?.balance?.mainBalance || 0).toFixed() }}
+                {{ setTokenBalance(selectedToken) }}
                 {{ selectedToken.code }}
                 <div>
                     ${{
-                        prettyNumber(BigNumber((selectedToken?.balance?.amount || 0) * (selectedToken?.balance?.price?.USD || 0)).toFixed())
+                        prettyNumber(
+                            BigNumber(
+                                (selectedToken?.balance?.amount || selectedToken?.balance?.mainBalance || 0) *
+                                    (selectedToken?.balance?.price?.USD || 0)
+                            ).toFixed()
+                        )
                     }}
                 </div>
             </div>
@@ -47,13 +52,7 @@
                     <div class="name">{{ item.name }}</div>
                 </div>
                 <div class="amount">
-                    {{
-                        prettyNumber(
-                            item.name === selectedToken?.name
-                                ? BigNumber(selectedToken?.balance?.mainBalance || 0).toFixed()
-                                : BigNumber(item.balance?.amount || 0).toFixed()
-                        )
-                    }}
+                    {{ prettyNumber(item.name === selectedToken?.name ? setTokenBalance(selectedToken) : setTokenBalance(item)) }}
                     <span>{{ item.code }}</span>
                 </div>
             </div>
@@ -191,12 +190,16 @@ export default {
             selectedToken.value = item;
 
             emit('setAmount', amount.value);
-            emit('setToken', selectedToken.value);
+            emit('setToken', item);
         };
 
         onMounted(() => {
             setToken(selectedToken.value);
         });
+
+        const setTokenBalance = (token) => {
+            return BigNumber(token.balance?.mainBalance || token.balance?.amount || 0).toFixed();
+        };
 
         return {
             BigNumber,
@@ -212,6 +215,7 @@ export default {
             onBlur,
             onFocus,
             clickAway,
+            setTokenBalance,
         };
     },
 };

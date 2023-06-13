@@ -16,11 +16,10 @@ import swapSvg from '@/assets/icons/sidebar/swap.svg';
 import stakeSvg from '@/assets/icons/sidebar/stake.svg';
 import sendSvg from '@/assets/icons/sidebar/send.svg';
 
-import useConnect from '@/compositions/useConnect';
-
 import { UIConfig } from '@/config/ui';
 
 import { computed } from 'vue';
+import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 
 export default {
     name: 'SidebarList',
@@ -31,14 +30,18 @@ export default {
         sendSvg,
     },
     setup() {
-        const { activeConnect } = useConnect();
+        const { currentChainInfo } = useWeb3Onboard();
 
         const menu = computed(() => {
-            if (!activeConnect.value.network) {
+            if (!currentChainInfo.value.net) {
                 return [];
             }
 
-            return UIConfig[activeConnect.value.network].sidebar;
+            if (!UIConfig[currentChainInfo.value.net]) {
+                return [];
+            }
+
+            return UIConfig[currentChainInfo.value.net].sidebar;
         });
 
         return {
@@ -49,11 +52,13 @@ export default {
 </script>
 <style lang="scss" scoped>
 .sidebar-list {
+    align-self: flex-start;
     display: flex;
+    align-items: flex-start;
     flex-direction: column;
     box-sizing: border-box;
     font-family: 'Poppins_Light';
-    font-size: 20px;
+    font-size: 24px;
 
     &__item {
         display: flex;
@@ -74,7 +79,6 @@ export default {
         }
 
         &.router-link-exact-active {
-            font-family: 'Poppins_SemiBold';
             color: $colorWhite;
 
             svg {

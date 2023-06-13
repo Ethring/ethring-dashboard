@@ -3,11 +3,11 @@
         <Modal :title="$t('modals.addressModal.title')" width="314px" height="460px" @close="$emit('close')">
             <div class="address-modal">
                 <div class="address-modal__qr">
-                    <qrcode-vue id="qr" :value="activeConnect?.accounts[0]" :size="247" level="H" :margin="5" background="#C9E0E0" />
+                    <qrcode-vue id="qr" :value="walletAddress" :size="247" level="H" :margin="5" background="#C9E0E0" />
                 </div>
                 <div class="address-modal__copy">
                     <div class="address">
-                        {{ cutAddress(activeConnect?.accounts[0]) }}
+                        {{ cutAddress(walletAddress) }}
                     </div>
                     <div class="line" />
                     <div class="icon">
@@ -19,12 +19,16 @@
     </teleport>
 </template>
 <script>
-import Modal from '@/components/app/Modal';
-import CopySvg from '@/assets/icons/app/copy.svg';
 import { ref } from 'vue';
-import { cutAddress, copyToClipboard } from '@/helpers/utils';
 import QrcodeVue from 'qrcode.vue';
-import useConnect from '@/compositions/useConnect';
+
+import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+
+import Modal from '@/components/app/Modal';
+
+import CopySvg from '@/assets/icons/app/copy.svg';
+
+import { cutAddress, copyToClipboard } from '@/helpers/utils';
 
 export default {
     name: 'AddressModal',
@@ -37,11 +41,11 @@ export default {
     setup() {
         const copied = ref(false);
 
-        const { activeConnect } = useConnect();
+        const { walletAddress } = useWeb3Onboard();
 
         const copyAddress = () => {
             copied.value = true;
-            copyToClipboard(activeConnect?.value.accounts[0]);
+            copyToClipboard(walletAddress?.value);
             setTimeout(() => {
                 copied.value = false;
             }, 500);
@@ -50,7 +54,7 @@ export default {
         return {
             copied,
             cutAddress,
-            activeConnect,
+            walletAddress,
             copyAddress,
         };
     },

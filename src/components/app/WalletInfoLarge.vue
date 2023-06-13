@@ -1,16 +1,17 @@
 <template>
     <div :class="{ opened }" class="wallet-info">
         <div class="wallet-info__network">
-            <component :is="`${activeConnect?.network}Svg`" />
+            <img v-if="currentChainInfo.logo" :src="currentChainInfo.logo" alt="current-chain-icon" srcset="" />
+            <span v-else> ? </span>
         </div>
         <div class="wallet-info__wallet">
             <div class="address" @click="openMenu">
-                {{ cutAddress(activeConnect.accounts[0] || '') }}
+                {{ cutAddress(walletAddress) }}
             </div>
             <div class="balance">
                 <div class="value">
-                    {{ showBalance ? prettyNumber(activeConnect.balance.mainBalance) : '****' }}
-                    <span>{{ networks[activeConnect.network]?.code }}</span>
+                    {{ showBalance && walletBalance.length ? prettyNumber(walletBalance[1]) : '****' }}
+                    <span>{{ walletBalance[0] }}</span>
                 </div>
                 <eyeSvg v-if="showBalance" @click="toggleViewBalance" />
                 <eyeOpenSvg v-if="!showBalance" @click="toggleViewBalance" />
@@ -23,22 +24,15 @@
     </div>
 </template>
 <script>
-import { computed, ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import { cutAddress } from '@/helpers/utils';
 import { prettyNumber } from '@/helpers/prettyNumber';
-import bscSvg from '@/assets/icons/networks/bsc.svg';
-import ethSvg from '@/assets/icons/networks/eth.svg';
 import eyeSvg from '@/assets/icons/dashboard/eye.svg';
 import eyeOpenSvg from '@/assets/icons/dashboard/eyeOpen.svg';
 import arrowPriceSvg from '@/assets/icons/dashboard/arrowprice.svg';
-import polygonSvg from '@/assets/icons/networks/polygon.svg';
-import optimismSvg from '@/assets/icons/networks/optimism.svg';
-import arbitrumSvg from '@/assets/icons/networks/arbitrum.svg';
-import evmosethSvg from '@/assets/icons/networks/evmoseth.svg';
-import avalancheSvg from '@/assets/icons/networks/avalanche.svg';
 
-import useConnect from '@/compositions/useConnect';
+import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 
 export default {
     name: 'WalletInfo',
@@ -46,24 +40,18 @@ export default {
         eyeSvg,
         eyeOpenSvg,
         arrowPriceSvg,
-        bscSvg,
-        ethSvg,
-        polygonSvg,
-        optimismSvg,
-        arbitrumSvg,
-        evmosethSvg,
-        avalancheSvg,
     },
     setup() {
         const store = useStore();
+
         const opened = ref(false);
+
         const openMenu = () => {
             opened.value = !opened.value;
         };
 
-        const { activeConnect } = useConnect();
+        const { walletIcon, walletAddress, walletBalance, currentChainInfo } = useWeb3Onboard();
 
-        const networks = computed(() => store.getters['networks/networks']);
         const marketCap = computed(() => store.getters['tokens/marketCap']);
         const showBalance = computed(() => store.getters['app/showBalance']);
 
@@ -72,11 +60,13 @@ export default {
         };
 
         return {
+            currentChainInfo,
+            walletIcon,
+            walletAddress,
+            walletBalance,
             prettyNumber,
             cutAddress,
             opened,
-            activeConnect,
-            networks,
             marketCap,
             showBalance,
             openMenu,
@@ -100,6 +90,10 @@ export default {
         border-radius: 50%;
         margin-right: 16px;
         background: #3fdfae;
+
+        img {
+            width: 60%;
+        }
 
         svg {
             transform: scale(1.8);

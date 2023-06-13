@@ -1,5 +1,5 @@
 <template>
-    <div class="not-connect" @click="connectToMetamask">
+    <div class="not-connect" @click="connect">
         <div class="not-connect__add">
             <plusSvg />
         </div>
@@ -8,7 +8,7 @@
 </template>
 <script>
 import plusSvg from '@/assets/icons/dashboard/plus.svg';
-import { useStore } from 'vuex';
+import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 
 export default {
     name: 'NotConnect',
@@ -16,14 +16,12 @@ export default {
         plusSvg,
     },
     setup() {
-        const store = useStore();
+        const { connectWallet } = useWeb3Onboard();
 
-        const connectToMetamask = async () => {
-            await store.dispatch('metamask/connectToMetamask');
-        };
+        const connect = async () => await connectWallet();
 
         return {
-            connectToMetamask,
+            connect,
         };
     },
 };

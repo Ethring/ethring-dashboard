@@ -5,10 +5,11 @@
             :width="width"
             :height="height"
             :key="token?.code"
-            :src="getTokenIcon(token?.code?.toLowerCase())"
+            :src="tokenIconFromZomet || getTokenIcon(token?.code?.toLowerCase())"
             :alt="token?.name"
             @error="showIconPlaceholder = true"
             @load="showIconPlaceholder = false"
+            :class="{ nativeIcon: tokenIconFromZomet }"
         />
         <div v-else class="token-icon__placeholder">
             <span>{{ iconPlaceholder[0] }}</span>
@@ -16,8 +17,9 @@
     </div>
 </template>
 <script>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { getTokenIcon, tokenIconPlaceholder } from '@/helpers/utils';
+import { useStore } from 'vuex';
 
 export default {
     name: 'TokenIcon',
@@ -38,20 +40,41 @@ export default {
     },
     setup(props) {
         const showIconPlaceholder = ref(false);
-        const iconPlaceholder = computed(() => tokenIconPlaceholder(props.token.name));
+        const tokenIconFromZomet = ref(null);
+        const iconPlaceholder = computed(() => tokenIconPlaceholder(props.token?.name || 'Token'));
+
+        const store = useStore();
+
+        const tokens = computed(() => store.getters['networks/zometTokens']);
+
+        const setTokenIcon = () => {
+            if (props.token?.address && tokens.value[props.token?.address]) {
+                return (tokenIconFromZomet.value = tokens.value[props.token.address].logo);
+            }
+            return (tokenIconFromZomet.value = null);
+        };
+
+        onMounted(() => setTokenIcon());
 
         watch(
             () => props.token,
             () => {
+                setTokenIcon();
                 showIconPlaceholder.value = false;
             }
         );
+
+        watch(tokens, () => {
+            console.log('watch tokens', tokens);
+            setTokenIcon();
+        });
 
         return {
             showIconPlaceholder,
             getTokenIcon,
             iconPlaceholder,
             tokenIconPlaceholder,
+            tokenIconFromZomet,
         };
     },
 };
@@ -74,6 +97,16 @@ export default {
                 color: $colorBlack;
             }
         }
+    }
+
+    img.nativeIcon {
+        border-radius: 50%;
+        width: 100%;
+        height: 100%;
+        object-position: center;
+        object-fit: contain;
+
+        filter: none;
     }
 
     img {

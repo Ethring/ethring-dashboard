@@ -1,15 +1,17 @@
 <template>
     <div class="sidebar">
-        <Logo class="sidebar__logo" />
-        <SidebarList v-if="hasConnect" />
-        <Socials class="sidebar__socials" />
+        <div class="sidebar-items">
+            <Logo class="sidebar__logo" />
+            <SidebarList v-if="walletAddress" />
+            <Socials class="sidebar__socials" />
+        </div>
     </div>
 </template>
 <script>
 import Logo from './Logo';
 import Socials from './Socials';
 import SidebarList from './SidebarList';
-import useConnect from '@/compositions/useConnect';
+import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 
 export default {
     name: 'Sidebar',
@@ -19,10 +21,10 @@ export default {
         Socials,
     },
     setup() {
-        const { hasConnect } = useConnect();
+        const { walletAddress } = useWeb3Onboard();
 
         return {
-            hasConnect,
+            walletAddress,
         };
     },
 };
@@ -30,25 +32,34 @@ export default {
 <style lang="scss" scoped>
 .sidebar {
     position: fixed;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-    padding-top: 130px;
-    width: 260px;
+    left: 0;
+
+    z-index: 999;
+
+    max-width: 260px;
+    width: 100%;
     height: 100vh;
-    padding-left: 25px;
-    border-right: 1px solid $borderLight;
     background: $colorDarkPanel;
+    padding: 40px 25px;
+
+    box-sizing: border-box;
+
+    &-items {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+        max-width: 184px;
+        margin: 0 auto;
+    }
 
     &__socials {
-        position: absolute;
-        bottom: 25px;
+        margin: auto auto 0;
+        width: 100%;
     }
 
     &__logo {
-        position: absolute;
-        left: 30px;
-        top: 40px;
+        margin-bottom: 70px;
     }
 }
 

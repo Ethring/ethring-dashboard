@@ -1,7 +1,7 @@
 const defaultSidebarItems = [
     { component: 'mainSvg', title: 'Main', key: 'main', to: '/main' },
     { component: 'stakeSvg', title: 'Send', key: 'send', to: '/send' },
-    { component: 'swapSvg', title: 'Swap', key: 'swap', to: '/swap' },
+    // { component: 'swapSvg', title: 'Swap', key: 'swap', to: '/swap' },
 ];
 
 export const UIConfig = {
@@ -54,15 +54,6 @@ export const UIConfig = {
         },
     },
     arbitrum: {
-        sidebar: [...defaultSidebarItems],
-        send: {
-            component: 'SimpleSend',
-        },
-        swap: {
-            component: 'SimpleSwap',
-        },
-    },
-    evmoseth: {
         sidebar: [...defaultSidebarItems],
         send: {
             component: 'SimpleSend',

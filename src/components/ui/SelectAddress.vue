@@ -16,7 +16,7 @@
                         class="input-address"
                     />
                 </div>
-                <arrowSvg class="arrow" />
+                <!-- <arrowSvg class="arrow" /> -->
             </div>
             <div class="address">{{ address || ' ' }}</div>
         </div>
@@ -174,7 +174,7 @@ export default {
         }
 
         .info {
-            width: 90%;
+            width: 95%;
             margin: 15px 0;
             display: flex;
             align-items: center;
