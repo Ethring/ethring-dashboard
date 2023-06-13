@@ -23,3 +23,12 @@ export const getChainList = async () => {
         return defaultChains;
     }
 };
+
+export const getTokensListByNetwork = async (network) => {
+    try {
+        return await axios.get(`${process.env.VUE_APP_ZOMET_CORE_API_URL}/networks/${network}/tokens`);
+    } catch (err) {
+        console.error({ error: err.message });
+        return {};
+    }
+};

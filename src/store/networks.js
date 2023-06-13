@@ -1,10 +1,12 @@
 import axios from 'axios';
 import { getNetworksConfig } from '@/api/networks';
+import { getTokensListByNetwork } from '../api/networks';
 
 const types = {
     SET_NETWORKS: 'SET_NETWORKS',
     SET_ZOMET_NETWORKS_LIST: 'SET_ZOMET_NETWORKS_LIST',
     SET_ZOMET_NETWORKS: 'SET_ZOMET_NETWORKS',
+    SET_ZOMET_TOKENS_BY_NET: 'SET_ZOMET_TOKENS_BY_NET',
 };
 
 export default {
@@ -13,12 +15,14 @@ export default {
         networks: {},
         zometNetworksList: [],
         zometNetworks: {},
+        zometTokensForNet: {},
     }),
 
     getters: {
         networks: (state) => state.networks,
         zometNetworksList: (state) => state.zometNetworksList,
         zometNetworks: (state) => state.zometNetworks,
+        zometTokens: (state) => state.zometTokensForNet,
     },
 
     mutations: {
@@ -30,6 +34,9 @@ export default {
         },
         [types.SET_ZOMET_NETWORKS](state, value) {
             state.zometNetworks = value;
+        },
+        [types.SET_ZOMET_TOKENS_BY_NET](state, value) {
+            state.zometTokensForNet = value;
         },
     },
 
@@ -50,6 +57,17 @@ export default {
                 }
                 commit(types.SET_ZOMET_NETWORKS_LIST, nets);
                 commit(types.SET_ZOMET_NETWORKS, response.data);
+            }
+        },
+
+        async initZometTokens({ commit }, network) {
+            if (!network) {
+                commit(types.SET_ZOMET_TOKENS_BY_NET, {});
+            }
+
+            const response = await getTokensListByNetwork(network);
+            if (response.status === 200) {
+                commit(types.SET_ZOMET_TOKENS_BY_NET, response.data);
             }
         },
     },

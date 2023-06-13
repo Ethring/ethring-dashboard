@@ -5,10 +5,11 @@
             :width="width"
             :height="height"
             :key="token?.code"
-            :src="getTokenIcon(token?.code?.toLowerCase())"
+            :src="tokenIconFromZomet || getTokenIcon(token?.code?.toLowerCase())"
             :alt="token?.name"
             @error="showIconPlaceholder = true"
             @load="showIconPlaceholder = false"
+            :class="{ nativeIcon: tokenIconFromZomet }"
         />
         <div v-else class="token-icon__placeholder">
             <span>{{ iconPlaceholder[0] }}</span>
@@ -18,6 +19,7 @@
 <script>
 import { ref, computed, watch } from 'vue';
 import { getTokenIcon, tokenIconPlaceholder } from '@/helpers/utils';
+import { useStore } from 'vuex';
 
 export default {
     name: 'TokenIcon',
@@ -38,7 +40,17 @@ export default {
     },
     setup(props) {
         const showIconPlaceholder = ref(false);
-        const iconPlaceholder = computed(() => tokenIconPlaceholder(props.token.name));
+        const tokenIconFromZomet = ref(null);
+        const iconPlaceholder = computed(() => tokenIconPlaceholder(props.token.name || 'Token'));
+
+        const store = useStore();
+
+        const tokens = ref(store.getters['networks/zometTokens']);
+
+        if (tokens.value[props.token.address]) {
+            tokenIconFromZomet.value = tokens.value[props.token.address].logo;
+            console.log(tokens.value[props.token.address]);
+        }
 
         watch(
             () => props.token,
@@ -52,6 +64,7 @@ export default {
             getTokenIcon,
             iconPlaceholder,
             tokenIconPlaceholder,
+            tokenIconFromZomet,
         };
     },
 };
@@ -76,7 +89,7 @@ export default {
         }
     }
 
-    img {
+    img:not(.nativeIcon) {
         filter: brightness(0) invert(1);
     }
 
