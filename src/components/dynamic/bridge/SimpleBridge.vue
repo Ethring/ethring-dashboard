@@ -209,6 +209,7 @@ export default {
                 isLoading.value ||
                 errorBalance.value ||
                 !+amount.value ||
+                !receiveValue.value ||
                 !selectedSrcNetwork.value ||
                 !selectedDstNetwork.value ||
                 !selectedSrcToken.value ||
@@ -327,7 +328,7 @@ export default {
             if (allowance.value >= toMantissa(amount.value, selectedSrcToken.value?.decimals)) {
                 needApprove.value = false;
             } else {
-                if (!approveTx.value && selectedSrcToken.value.address) {
+                if (!approveTx.value) {
                     needApprove.value = true;
                     await getApproveTx();
                 }
@@ -464,6 +465,7 @@ export default {
                 approveTx.value = null;
                 successHash.value = getTxUrl(selectedSrcNetwork.value.net, resTx.transactionHash);
                 await getAllowance();
+                await checkAllowance();
                 resetAmount.value = false;
                 setTimeout(() => {
                     isLoading.value = false;

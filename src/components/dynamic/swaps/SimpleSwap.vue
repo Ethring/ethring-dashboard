@@ -135,6 +135,7 @@ export default {
                 isLoading.value ||
                 errorBalance.value ||
                 !+amount.value ||
+                !receiveValue.value ||
                 !selectedNetwork.value ||
                 !selectedTokenFrom.value ||
                 !selectedTokenTo.value ||
@@ -229,10 +230,10 @@ export default {
             } else {
                 errorBalance.value = '';
             }
-            await getEstimateInfo();
             if (!allowance.value) {
                 await getAllowance();
             }
+            await getEstimateInfo();
             await checkAllowance();
         };
 
@@ -258,6 +259,7 @@ export default {
 
             store.dispatch('tokens/setFromToken', to);
             store.dispatch('tokens/setToToken', from);
+            getAllowance();
             setTimeout(() => {
                 isUpdateSwapDirectionValue.value = false;
             }, 300);
@@ -362,7 +364,7 @@ export default {
                     isLoading.value = false;
                     setTimeout(() => {
                         txError.value = '';
-                    }, 2000);
+                    }, 3000);
                     return;
                 }
 
@@ -393,12 +395,13 @@ export default {
                 return;
             }
             const resTx = await sendTransaction(resSwap);
+            console.log(resTx);
             if (resTx.error) {
                 txError.value = resTx.error;
                 isLoading.value = false;
                 setTimeout(() => {
                     txError.value = '';
-                }, 2000);
+                }, 3000);
                 return;
             }
 
@@ -432,7 +435,9 @@ export default {
                 'networks/setSelectedNetwork',
                 groupTokens.value.find((elem) => elem.net === currentChainInfo.value.net)
             );
+
             await loadGasPrice();
+            await getAllowance();
         });
 
         return {
