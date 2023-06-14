@@ -185,16 +185,17 @@ export default {
                 'bridge/setSelectedSrcNetwork',
                 groupTokens.value.find((elem) => elem.net === currentChainInfo.value.net)
             );
+            await getAllowance();
         });
 
         const filteredSupportedChains = computed(() => {
-            const list =  groupTokens?.value.filter((item) => {
+            const list = groupTokens?.value.filter((item) => {
                 return getSupportedChains?.value?.some((network) => network.net === item.net);
             });
-            if(selectedDstNetwork.value) {
-                return list.filter((chain) => chain.net !== selectedDstNetwork.value.net)
+            if (selectedDstNetwork.value) {
+                return list.filter((chain) => chain.net !== selectedDstNetwork.value.net);
             }
-            return list
+            return list;
         });
 
         const activeSupportedChains = computed(() => {
@@ -313,10 +314,10 @@ export default {
             } else {
                 errorBalance.value = '';
             }
-            await getEstimateInfo();
             if (!allowance.value) {
                 await getAllowance();
             }
+            await getEstimateInfo();
             await checkAllowance();
         };
 
@@ -324,8 +325,8 @@ export default {
             if (allowance.value >= toMantissa(amount.value, selectedSrcToken.value?.decimals)) {
                 needApprove.value = false;
             } else {
-                needApprove.value = true;
-                if (!approveTx.value) {
+                if (!approveTx.value && selectedSrcToken.value.address) {
+                    needApprove.value = true;
                     await getApproveTx();
                 }
             }

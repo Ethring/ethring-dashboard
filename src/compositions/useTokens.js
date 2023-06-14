@@ -49,8 +49,8 @@ export default function useTokens() {
             const groupList = [];
 
             Object.keys(groupTokensBalance.value).forEach((parentNet) => {
-                const tokens = groupTokensBalance.value[parentNet].list;
-                const parentTokens = networks.value[parentNet]?.tokens;
+                const tokens = groupTokensBalance?.value[parentNet]?.list;
+                const parentTokens = networks?.value[parentNet]?.tokens;
 
                 const childs = Object.keys(tokens)
                     .map((item) => {

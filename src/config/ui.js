@@ -6,10 +6,7 @@ const defaultSidebarItems = [
 
 export const UIConfig = {
     bsc: {
-        sidebar: [
-            ...defaultSidebarItems,
-            { component: 'bridgeSvg', title: 'Bridge', key: 'bridge', to: '/bridge' },
-        ],
+        sidebar: [...defaultSidebarItems, { component: 'bridgeSvg', title: 'Bridge', key: 'bridge', to: '/bridge' }],
         send: {
             component: 'SimpleSend',
         },
@@ -21,10 +18,7 @@ export const UIConfig = {
         },
     },
     eth: {
-        sidebar: [
-            ...defaultSidebarItems,
-            { component: 'bridgeSvg', title: 'Bridge', key: 'bridge', to: '/bridge' },
-        ],
+        sidebar: [...defaultSidebarItems, { component: 'bridgeSvg', title: 'Bridge', key: 'bridge', to: '/bridge' }],
         send: {
             component: 'SimpleSend',
         },
@@ -36,10 +30,7 @@ export const UIConfig = {
         },
     },
     polygon: {
-        sidebar: [
-            ...defaultSidebarItems,
-            { component: 'bridgeSvg', title: 'Bridge', key: 'bridge', to: '/bridge' },
-        ],
+        sidebar: [...defaultSidebarItems, { component: 'bridgeSvg', title: 'Bridge', key: 'bridge', to: '/bridge' }],
         send: {
             component: 'SimpleSend',
         },
@@ -57,13 +48,10 @@ export const UIConfig = {
         },
         swap: {
             component: 'SimpleSwap',
-        }
+        },
     },
     avalanche: {
-        sidebar: [
-            ...defaultSidebarItems,
-            { component: 'bridgeSvg', title: 'Bridge', key: 'bridge', to: '/bridge' },
-        ],
+        sidebar: [...defaultSidebarItems, { component: 'bridgeSvg', title: 'Bridge', key: 'bridge', to: '/bridge' }],
         send: {
             component: 'SimpleSend',
         },
@@ -75,10 +63,7 @@ export const UIConfig = {
         },
     },
     arbitrum: {
-        sidebar: [
-            ...defaultSidebarItems,
-            { component: 'bridgeSvg', title: 'Bridge', key: 'bridge', to: '/bridge' },
-        ],
+        sidebar: [...defaultSidebarItems, { component: 'bridgeSvg', title: 'Bridge', key: 'bridge', to: '/bridge' }],
         send: {
             component: 'SimpleSend',
         },
