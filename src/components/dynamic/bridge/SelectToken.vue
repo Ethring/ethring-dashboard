@@ -35,14 +35,12 @@ export default {
             if (!selectedNetwork.value) {
                 return [];
             }
+
             let list = [
                 selectedNetwork.value,
                 ...selectedNetwork?.value?.list,
-                ...allTokensFromNetwork(selectedNetwork.value?.net || selectedNetwork.value?.citadelNet).filter((token) => {
-                    return (
-                        token.net !== (selectedNetwork.value?.net || selectedNetwork.value?.citadelNet) &&
-                        !selectedNetwork.value?.list?.find((t) => t.net === token.net)
-                    );
+                ...allTokensFromNetwork(selectedNetwork.value?.net).filter((token) => {
+                    return token.net !== selectedNetwork.value?.net && !selectedNetwork.value?.list?.find((t) => t.net === token.net);
                 }),
             ];
 

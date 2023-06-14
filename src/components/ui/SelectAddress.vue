@@ -1,5 +1,5 @@
 <template>
-    <div :class="{ active: active && items.length, focused, error }" class="select-address" @click="active = !active">
+    <div :class="{ active: active && items?.length, focused, error }" class="select-address" @click="active = !active">
         <div class="select-address__panel">
             <div class="recipient">{{ $t('simpleSend.recipient') }}</div>
             <div class="info-wrap">
@@ -114,7 +114,7 @@ export default {
         };
 
         const removeAddress = (address) => {
-            emit('removeAddress', { net: props.selectedNetwork.citadelNet, address });
+            emit('removeAddress', { net: props.selectedNetwork.net, address });
             active.value = false;
         };
 

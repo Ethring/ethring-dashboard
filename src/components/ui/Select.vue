@@ -81,7 +81,7 @@ export default {
     setup(props, { emit }) {
         const active = ref(false);
         const store = useStore();
-        const selectedItem = ref(props.items.find((elem) => elem.net === props.current.citadelNet));
+        const selectedItem = ref(props.items.find((elem) => elem.net === props.current.net));
 
         const clickAway = () => {
             active.value = false;

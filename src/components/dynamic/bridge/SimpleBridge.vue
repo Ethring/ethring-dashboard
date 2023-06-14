@@ -185,7 +185,9 @@ export default {
                 'bridge/setSelectedSrcNetwork',
                 groupTokens.value.find((elem) => elem.net === currentChainInfo.value.net)
             );
-            await getAllowance();
+            if (selectedSrcToken.value) {
+                await getAllowance();
+            }
         });
 
         const filteredSupportedChains = computed(() => {
@@ -199,9 +201,7 @@ export default {
         });
 
         const activeSupportedChains = computed(() => {
-            return filteredSupportedChains?.value.filter(
-                (token) => token.net !== (selectedSrcNetwork?.value?.net || selectedSrcNetwork?.value?.citadelNet)
-            );
+            return filteredSupportedChains?.value.filter((token) => token.net !== selectedSrcNetwork?.value?.net);
         });
 
         const disabledBtn = computed(() => {
@@ -304,11 +304,13 @@ export default {
             receiveValue.value = '';
             amount.value = value;
 
-            if (+value > selectedSrcToken.value.balance?.amount || +value > selectedSrcToken.value.balance?.mainBalance) {
+            if (!Object.prototype.hasOwnProperty.call(selectedSrcToken.value, 'balance')) {
+                errorBalance.value = 'Insufficient balance';
+            } else if (+value > selectedSrcToken.value.balance.amount || +value > selectedSrcToken.value.balance.mainBalance) {
                 errorBalance.value = 'Insufficient balance';
             } else if (
-                +networkFee.value > selectedSrcToken.value?.balance?.amount ||
-                +networkFee.value > selectedSrcToken.value?.balance?.mainBalance
+                +networkFee.value > selectedSrcToken.value.balance.amount ||
+                +networkFee.value > selectedSrcToken.value.balance.mainBalance
             ) {
                 errorBalance.value = 'Insufficient balance';
             } else {
@@ -336,9 +338,9 @@ export default {
             approveTx.value = null;
             needApprove.value = false;
 
-            if (!selectedSrcToken.value.chain_id) {
+            if (!selectedSrcToken.value?.chain_id) {
                 const resAllowance = await store.dispatch('bridge/getAllowance', {
-                    net: selectedSrcNetwork.value.net || selectedSrcNetwork.value.citadelNet,
+                    net: selectedSrcNetwork.value.net,
                     tokenAddress: selectedSrcToken.value.address,
                     owner: walletAddress.value,
                 });
@@ -353,7 +355,7 @@ export default {
 
         const getApproveTx = async () => {
             const resApproveTx = await store.dispatch('bridge/getApproveTx', {
-                net: selectedSrcNetwork.value.net || selectedSrcNetwork.value.citadelNet,
+                net: selectedSrcNetwork.value.net,
                 tokenAddress: selectedSrcToken.value.address,
                 owner: walletAddress.value,
             });
@@ -376,7 +378,7 @@ export default {
             }
 
             const resEstimate = await store.dispatch('bridge/estimateBridge', {
-                srcNet: selectedSrcNetwork.value.net || selectedSrcNetwork.value.citadelNet,
+                srcNet: selectedSrcNetwork.value.net,
                 srcTokenAddress: selectedSrcToken.value.address || NATIVE_CONTRACT,
                 srcTokenAmount: amount.value,
                 dstNet: selectedDstNetwork.value.net,
@@ -471,7 +473,7 @@ export default {
             }
 
             const resSwap = await store.dispatch('bridge/getBridgeTx', {
-                srcNet: selectedSrcNetwork.value.net || selectedSrcNetwork.value.citadelNet,
+                srcNet: selectedSrcNetwork.value.net,
                 srcTokenAddress: selectedSrcToken.value.address || NATIVE_CONTRACT,
                 srcTokenAmount: amount.value,
                 dstNet: selectedDstNetwork.value.net,

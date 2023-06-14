@@ -3,7 +3,7 @@
         <div class="select__panel">
             <div class="info">
                 <div class="network">
-                    <component :is="`${selectedItem?.citadelNet || selectedItem?.net}Svg`" />
+                    <component :is="`${selectedItem?.net}Svg`" />
                 </div>
                 <div v-if="selectedItem" class="name">{{ selectedItem?.label || selectedItem?.name.replace(' Mainnet', '') }}</div>
                 <div v-else>
@@ -17,7 +17,7 @@
             <div
                 v-for="(item, idx) in items"
                 :key="idx"
-                :class="{ active: item.net === selectedItem?.citadelNet || item.net === selectedItem?.net }"
+                :class="{ active: item.net === selectedItem?.net }"
                 class="select__items-item"
                 @click="setActive(item)"
             >
