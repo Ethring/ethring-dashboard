@@ -62,7 +62,7 @@
             @setAddress="onSetAddress"
         />
         <Accordion
-            v-if="receiveValue"
+            v-if="selectedDstNetwork"
             :title="
                 receiveValue
                     ? `Protocol Fee : <span style='font-family:Poppins_Semibold; color: #0D7E71;'>
@@ -122,6 +122,7 @@ import { ethers } from 'ethers';
 
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 import useTokens from '@/compositions/useTokens';
+import axios from 'axios';
 
 import { toMantissa } from '@/helpers/numbers';
 import { prettyNumber } from '@/helpers/prettyNumber';
@@ -422,6 +423,17 @@ export default {
             }
         };
 
+        const getTransactionHash = async(txHash) => {
+            const response = await axios.get(`https://api.dln.trade/v1.0/dln/tx/${txHash}/order-ids`);
+            if(response.status === 200) {
+                const hash = await axios.get(`https://dln-api.debridge.finance/api/Orders/${response.data.orderIds[0]}`);
+                return {
+                    srcHash: hash.data.createdSrcEventMetadata.transactionHash.stringValue,
+                    dstHash: hash.data.fulfilledDstEventMetadata.transactionHash.stringValue
+                }
+            }
+        }
+
         const swap = async () => {
             if (disabledBtn.value) {
                 return;
@@ -481,9 +493,10 @@ export default {
                 return;
             }
 
-            console.log(resTx, "--resTx")
+            const hash = await getTransactionHash(resTx.transactionHash);
+            console.log(hash, '--hash')
 
-            successHash.value = getTxUrl(selectedSrcNetwork.value.net, resTx.transactionHash);
+            successHash.value = getTxUrl(selectedDstNetwork.value.net, hash.dstHash);
             isLoading.value = false;
             resetAmount.value = true;
             setTimeout(() => {

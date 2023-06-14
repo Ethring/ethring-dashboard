@@ -50,7 +50,7 @@ export default {
         const setTokenIcon = () => {
             if (props.token?.address && tokens.value[props.token?.address]) {
                 return (tokenIconFromZomet.value = tokens.value[props.token.address].logo);
-            } 
+            }
             return (tokenIconFromZomet.value = null);
         };
 
