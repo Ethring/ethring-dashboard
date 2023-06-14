@@ -324,20 +324,16 @@ export default {
             }
         };
 
-        const sendTransaction = async (transaction, addGas = true) => {
+        const sendTransaction = async (transaction) => {
             const ethersProvider = getProvider();
             const tx = {
                 data: transaction.data,
                 from: transaction.from,
                 to: transaction.to,
-                nonce: transaction.nonce ? `0x${transaction.nonce.toString(16)}` : null,
                 chainId: `0x${transaction.chainId.toString(16)}`,
                 value: transaction.value ? `0x${parseInt(transaction.value).toString(16)}` : '0x0',
             };
-            if (addGas) {
-                tx.gas = transaction.gas ? `0x${transaction.gas.toString(16)}` : null;
-                tx.gasPrice = transaction.gasPrice ? `0x${parseInt(transaction.gasPrice).toString(16)}` : null;
-            }
+
             try {
                 if (ethersProvider) {
                     const signer = ethersProvider.getSigner();
@@ -362,13 +358,13 @@ export default {
 
             // APPROVE
             if (approveTx.value) {
-                const resTx = await sendTransaction({ ...approveTx.value, from: walletAddress.value }, false);
+                const resTx = await sendTransaction({ ...approveTx.value, from: walletAddress.value });
                 if (resTx.error) {
                     txError.value = resTx.error;
                     isLoading.value = false;
                     setTimeout(() => {
                         txError.value = '';
-                    }, 2000);
+                    }, 3000);
                     return;
                 }
 
@@ -399,12 +395,13 @@ export default {
                 return;
             }
             const resTx = await sendTransaction(resSwap);
+            console.log(resTx);
             if (resTx.error) {
                 txError.value = resTx.error;
                 isLoading.value = false;
                 setTimeout(() => {
                     txError.value = '';
-                }, 2000);
+                }, 3000);
                 return;
             }
 

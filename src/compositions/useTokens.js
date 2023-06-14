@@ -52,27 +52,20 @@ export default function useTokens() {
                 const tokens = groupTokensBalance.value[parentNet].list;
                 const parentTokens = networks.value[parentNet].tokens;
 
-                const childs = Object.keys(tokens)
-                    .map((item) => {
-                        const balance = tokens[item];
+                const childs = sortByBalanceUsd(
+                    Object.keys(tokens)
+                        .map((item) => {
+                            const balance = tokens[item];
 
-                        return {
-                            ...tokens[item],
-                            ...parentTokens[item],
-                            balance,
-                            balanceUsd: balance.amount * balance.price.USD,
-                        };
-                    })
-                    .filter((item) => item.balance.amount > 0)
-                    .sort((a, b) => {
-                        if (a.balanceUsd > b.balanceUsd) {
-                            return -1;
-                        }
-                        if (a.balanceUsd < b.balanceUsd) {
-                            return 1;
-                        }
-                        return 0;
-                    });
+                            return {
+                                ...tokens[item],
+                                ...parentTokens[item],
+                                balance,
+                                balanceUsd: balance.amount * balance.price.USD,
+                            };
+                        })
+                        .filter((item) => item.balance.amount > 0)
+                );
 
                 groupList.push({
                     priority: currentChainInfo.value?.net === parentNet ? 1 : 0,
@@ -102,38 +95,34 @@ export default function useTokens() {
             const tokens = networks.value[currentChainInfo.value?.net]?.tokens;
 
             if (tokens) {
-                return Object.keys(tokens)
-                    .map((item) => {
-                        const balance = tokensBalance.value[tokens[item].net] || {
-                            amount: 0,
-                            price: {
-                                BTC: 0,
-                                USD: 0,
-                            },
-                        };
-                        return {
-                            ...tokens[item],
-                            balance,
-                            balanceUsd: balance.amount * balance.price.USD,
-                        };
-                    })
-                    .filter((item) => item.balance.amount > 0)
-                    .sort((a, b) => {
-                        if (a.balanceUsd > b.balanceUsd) {
-                            return -1;
-                        }
-                        if (a.balanceUsd < b.balanceUsd) {
-                            return 1;
-                        }
-                        return 0;
-                    });
+                return sortByBalanceUsd(
+                    Object.keys(tokens)
+                        .map((item) => {
+                            const balance = tokensBalance.value[tokens[item].net] || {
+                                amount: 0,
+                                price: {
+                                    BTC: 0,
+                                    USD: 0,
+                                },
+                            };
+                            return {
+                                ...tokens[item],
+                                balance,
+                                balanceUsd: balance.amount * balance.price.USD,
+                            };
+                        })
+                        .filter((item) => item.balance.amount > 0)
+                );
             }
         }
         return [];
     });
     const getTokenList = (network) => {
         let listWithBalances = [network, ...network.list];
-        return listWithBalances.sort((a, b) => {
+        return sortByBalanceUsd(listWithBalances);
+    };
+    const sortByBalanceUsd = (list) => {
+        return list?.sort((a, b) => {
             if (a.balanceUsd > b.balanceUsd) {
                 return -1;
             }

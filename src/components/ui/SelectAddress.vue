@@ -5,7 +5,7 @@
             <div class="info-wrap">
                 <div class="info">
                     <div class="network">
-                        <component v-if="selectedNetwork?.citadelNet" :is="`${selectedNetwork.citadelNet}Svg`" />
+                        <component v-if="selectedNetwork?.net" :is="`${selectedNetwork.net}Svg`" />
                     </div>
                     <input
                         v-model="address"
