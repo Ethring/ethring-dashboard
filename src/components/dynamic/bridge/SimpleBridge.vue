@@ -188,9 +188,13 @@ export default {
         });
 
         const filteredSupportedChains = computed(() => {
-            return groupTokens?.value.filter((item) => {
+            const list =  groupTokens?.value.filter((item) => {
                 return getSupportedChains?.value?.some((network) => network.net === item.net);
             });
+            if(selectedDstNetwork.value) {
+                return list.filter((chain) => chain.net !== selectedDstNetwork.value.net)
+            }
+            return list
         });
 
         const activeSupportedChains = computed(() => {
@@ -423,16 +427,16 @@ export default {
             }
         };
 
-        const getTransactionHash = async(txHash) => {
+        const getTransactionHash = async (txHash) => {
             const response = await axios.get(`https://api.dln.trade/v1.0/dln/tx/${txHash}/order-ids`);
-            if(response.status === 200) {
+            if (response.status === 200) {
                 const hash = await axios.get(`https://dln-api.debridge.finance/api/Orders/${response.data.orderIds[0]}`);
                 return {
                     srcHash: hash.data.createdSrcEventMetadata.transactionHash.stringValue,
-                    dstHash: hash.data.fulfilledDstEventMetadata.transactionHash.stringValue
-                }
+                    dstHash: hash.data.fulfilledDstEventMetadata.transactionHash.stringValue,
+                };
             }
-        }
+        };
 
         const swap = async () => {
             if (disabledBtn.value) {
@@ -494,7 +498,7 @@ export default {
             }
 
             const hash = await getTransactionHash(resTx.transactionHash);
-            console.log(hash, '--hash')
+            console.log(hash, '--hash');
 
             successHash.value = getTxUrl(selectedDstNetwork.value.net, hash.dstHash);
             isLoading.value = false;
