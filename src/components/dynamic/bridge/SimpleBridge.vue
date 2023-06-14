@@ -185,9 +185,7 @@ export default {
                 'bridge/setSelectedSrcNetwork',
                 groupTokens.value.find((elem) => elem.net === currentChainInfo.value.net)
             );
-            if (selectedSrcToken.value) {
-                await getAllowance();
-            }
+            await getAllowance();
         });
 
         const filteredSupportedChains = computed(() => {
@@ -328,7 +326,7 @@ export default {
             if (allowance.value >= toMantissa(amount.value, selectedSrcToken.value?.decimals)) {
                 needApprove.value = false;
             } else {
-                if (!approveTx.value) {
+                if (!approveTx.value && !selectedSrcToken.value?.chain_id) {
                     needApprove.value = true;
                     await getApproveTx();
                 }
@@ -355,16 +353,18 @@ export default {
         };
 
         const getApproveTx = async () => {
-            const resApproveTx = await store.dispatch('bridge/getApproveTx', {
-                net: selectedSrcNetwork.value.net,
-                tokenAddress: selectedSrcToken.value.address,
-                owner: walletAddress.value,
-            });
+            if(!selectedSrcToken.value?.chain_id) {
+                const resApproveTx = await store.dispatch('bridge/getApproveTx', {
+                    net: selectedSrcNetwork.value.net,
+                    tokenAddress: selectedSrcToken.value.address,
+                    owner: walletAddress.value,
+                });
 
-            if (resApproveTx.error) {
-                return;
+                if (resApproveTx.error) {
+                    return;
+                }
+                approveTx.value = resApproveTx;
             }
-            approveTx.value = resApproveTx;
         };
 
         const getEstimateInfo = async () => {
