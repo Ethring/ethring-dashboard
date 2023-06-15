@@ -116,7 +116,7 @@ export default {
         };
 
         const removeAddress = (address) => {
-            emit('removeAddress', { net: props.selectedNetwork.net, address });
+            emit('removeAddress', { net: props.selectedNetwork.citadelNet, address });
             active.value = false;
         };
 

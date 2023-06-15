@@ -4,7 +4,7 @@
             <Spinner v-if="loader" />
             <template v-else>
                 <div class="swap-page__title">{{ $t('simpleSwap.title') }}</div>
-                <div v-if="hasConnect && groupTokens.length && !loader" class="swap-page__wrap">
+                <div v-if="walletAddress && groupTokens.length && !loader" class="swap-page__wrap">
                     <component v-if="swapComponent" :is="swapComponent" />
                 </div>
             </template>
@@ -23,7 +23,7 @@ import { computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import Spinner from '@/components/app/Spinner';
 
-import useConnect from '@/compositions/useConnect';
+import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 import useTokens from '@/compositions/useTokens';
 
 export default {
@@ -42,10 +42,10 @@ export default {
 
         const loader = computed(() => store.getters['tokens/loader']);
 
-        const { activeConnect, hasConnect } = useConnect();
+        const { walletAddress, currentChainInfo } = useWeb3Onboard();
 
         const swapComponent = computed(() => {
-            return UIConfig[activeConnect.value.network]?.swap?.component;
+            return UIConfig[currentChainInfo.value.net]?.swap?.component;
         });
 
         watch(
@@ -60,7 +60,7 @@ export default {
         return {
             loader,
             groupTokens,
-            hasConnect,
+            walletAddress,
             swapComponent,
         };
     },

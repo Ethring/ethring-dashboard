@@ -4,6 +4,7 @@ import { getNetworksConfig, getTokensListByNetwork } from '@/api/networks';
 
 const types = {
     SET_NETWORKS: 'SET_NETWORKS',
+    SET_SELECTED_NETWORK: 'SET_SELECTED_NETWORK',
     SET_ZOMET_NETWORKS_LIST: 'SET_ZOMET_NETWORKS_LIST',
     SET_ZOMET_NETWORKS: 'SET_ZOMET_NETWORKS',
     SET_ZOMET_TOKENS_BY_NET: 'SET_ZOMET_TOKENS_BY_NET',
@@ -13,6 +14,7 @@ export default {
     namespaced: true,
     state: () => ({
         networks: {},
+        selectedNetwork: null,
         zometNetworksList: [],
         zometNetworks: {},
         zometTokens: {},
@@ -20,6 +22,7 @@ export default {
 
     getters: {
         networks: (state) => state.networks,
+        selectedNetwork: (state) => state.selectedNetwork,
         zometNetworksList: (state) => state.zometNetworksList,
         zometNetworks: (state) => state.zometNetworks,
         zometTokens: (state) => state.zometTokens || {},
@@ -28,6 +31,9 @@ export default {
     mutations: {
         [types.SET_NETWORKS](state, value) {
             state.networks = value;
+        },
+        [types.SET_SELECTED_NETWORK](state, value) {
+            state.selectedNetwork = value;
         },
         [types.SET_ZOMET_NETWORKS_LIST](state, value) {
             state.zometNetworksList = value;
@@ -45,6 +51,9 @@ export default {
     },
 
     actions: {
+        setSelectedNetwork({ commit }, value) {
+            commit(types.SET_SELECTED_NETWORK, value);
+        },
         async init({ commit }) {
             const response = await axios.get('https://work.3ahtim54r.ru/api/networks.json?version=1.1.0');
             if (response.status === 200) {

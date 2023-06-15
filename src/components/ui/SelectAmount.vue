@@ -1,9 +1,9 @@
 <template>
-    <div :class="{ active, focused, error }" class="select-amount" @click="active = !active">
+    <div :class="{ active, focused, error }" class="select-amount" @click="setActive">
         <div class="select-amount__panel">
             <div class="label">{{ label }}</div>
             <div class="info-wrap">
-                <div class="info">
+                <div class="info" @click="clickToken">
                     <div class="network">
                         <TokenIcon width="24" height="24" :token="selectedToken" dark />
                     </div>
@@ -20,24 +20,16 @@
                     @click.stop="() => {}"
                     class="input-balance"
                 />
-                <div v-if="!hideMax" class="max" @click.stop="setMax">
-                    {{ $t('simpleSend.max').toUpperCase() }}
-                </div>
             </div>
             <div class="balance" @click.stop="setMax">
-                {{ $t('simpleSend.balance') }}:
-                {{ setTokenBalance(selectedToken) }}
-                {{ selectedToken.code }}
-                <div>
-                    ${{
-                        prettyNumber(
-                            BigNumber(
-                                (selectedToken?.balance?.amount || selectedToken?.balance?.mainBalance || 0) *
-                                    (selectedToken?.balance?.price?.USD || 0)
-                            ).toFixed()
-                        )
-                    }}
-                </div>
+                <p>
+                    {{ $t('simpleSend.balance') }}:
+                    <span>
+                        {{ BigNumber(selectedToken?.balance?.amount || selectedToken?.balance?.mainBalance || 0).toFixed() }}
+                    </span>
+                    {{ selectedToken?.code }}
+                </p>
+                <div><span>$</span>{{ prettyNumber(BigNumber(amount * selectedToken?.price?.USD).toFixed()) }}</div>
             </div>
         </div>
         <div v-if="active" class="select-amount__items" v-click-away="clickAway">
@@ -60,18 +52,20 @@
     </div>
 </template>
 <script>
-import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
+import { ref, watch, onMounted } from 'vue';
+
+import BigNumber from 'bignumber.js';
 
 import TokenIcon from '@/components/ui/TokenIcon';
 
+import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
+
 import { prettyNumber } from '@/helpers/prettyNumber';
-import { ref, watch, onMounted } from 'vue';
-import BigNumber from 'bignumber.js';
 
 export default {
     name: 'SelectAmount',
     props: {
-        selectedNetwork: {
+        value: {
             required: true,
         },
         items: {
@@ -82,6 +76,10 @@ export default {
             default: false,
         },
         error: {
+            type: Boolean,
+            default: false,
+        },
+        showDropDown: {
             type: Boolean,
             default: false,
         },
@@ -96,9 +94,6 @@ export default {
         isUpdate: {
             type: Boolean,
             default: false,
-        },
-        newValue: {
-            type: Object,
         },
         disabled: {
             type: Boolean,
@@ -117,7 +112,7 @@ export default {
         const active = ref(false);
         const focused = ref(false);
         const amount = ref('');
-        const selectedToken = ref(props.items[0]);
+        const selectedToken = ref(props.value);
         const placeholder = ref('0');
 
         watch(
@@ -141,22 +136,39 @@ export default {
         );
 
         watch(
-            () => props.items,
-            (newV) => {
-                if (newV.length) {
-                    selectedToken.value = newV[0];
+            () => props.isUpdate,
+            (isUpdate) => {
+                if (isUpdate) {
+                    setToken(props.value);
                 }
             }
         );
 
         watch(
-            () => props.isUpdate,
-            (isUpdate) => {
-                if (isUpdate) {
-                    setToken(props.newValue);
+            () => props.value,
+            (val) => {
+                if (val) {
+                    setToken(val);
                 }
             }
         );
+
+        watch(amount, (val) => {
+            if (val) {
+                // eslint-disable-next-line
+                val = val.replace(/[^0-9\.]/g, '');
+                if (val.split('.').length - 1 !== 1 && val[val.length - 1] === '.') {
+                    return;
+                }
+                if (val.length === 2 && val[1] !== '.' && val[1] === '0' && val[0] === '0') {
+                    amount.value = val[0];
+                } else if (val[0] === '0' && val[1] !== '.') {
+                    amount.value = BigNumber(val).toFixed();
+                } else {
+                    amount.value = val;
+                }
+            }
+        });
 
         const clickAway = () => {
             active.value = false;
@@ -173,18 +185,28 @@ export default {
         };
 
         const onBlur = () => {
-            active.value = false;
-            emit('setAmount', amount.value);
             placeholder.value = '0';
             focused.value = false;
         };
 
         const setMax = () => {
             active.value = false;
-            amount.value = BigNumber(selectedToken.value?.balance?.amount || selectedToken.value?.balance?.mainBalance).toFixed();
-            emit('setAmount', amount.value);
+            if (!props.hideMax) {
+                let balance = selectedToken.value?.balance?.amount || selectedToken.value?.balance?.mainBalance;
+                if (balance > 0) {
+                    balance = BigNumber(balance).toFixed();
+                } else {
+                    balance = 0;
+                }
+                amount.value = balance;
+                emit('setAmount', amount.value);
+            }
         };
-
+        const setActive = () => {
+            if (props.showDropDown) {
+                active.value = !active.value;
+            }
+        };
         const setToken = (item) => {
             amount.value = '';
             selectedToken.value = item;
@@ -192,7 +214,9 @@ export default {
             emit('setAmount', amount.value);
             emit('setToken', item);
         };
-
+        const clickToken = () => {
+            emit('clickToken');
+        };
         onMounted(() => {
             setToken(selectedToken.value);
         });
@@ -210,16 +234,20 @@ export default {
             selectedToken,
             prettyNumber,
             setToken,
+            onBlur,
+            setActive,
             setMax,
             onInput,
-            onBlur,
             onFocus,
             clickAway,
+            emit,
+            clickToken,
             setTokenBalance,
         };
     },
 };
 </script>
+
 <style lang="scss" scoped>
 .select-amount {
     position: relative;
@@ -245,12 +273,28 @@ export default {
         .balance {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             color: #486060;
             font-family: 'Poppins_Regular';
-
+            font-weight: 400;
+            font-size: 14px;
+            line-height: 21px;
+            span {
+                font-family: 'Poppins_SemiBold';
+                font-weight: 600;
+                font-size: 16px;
+                color: $colorBaseGreen;
+            }
             div {
                 font-family: 'Poppins_SemiBold';
                 color: #486060;
+                font-size: 14px;
+                line-height: 21px;
+                span {
+                    font-family: 'Poppins_Regular';
+                    color: #486060;
+                    font-weight: 400;
+                }
             }
         }
 

@@ -69,7 +69,7 @@ export default {
 <style lang="scss" scoped>
 .select {
     position: relative;
-    z-index: 5;
+    z-index: 11;
     &__panel {
         position: relative;
         z-index: 2;
@@ -170,6 +170,19 @@ export default {
             width: 0px;
             background-color: transparent;
         }
+        &-item-logo {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #d9f4f1;
+            border-radius: 50%;
+            margin-right: 12px;
+            svg {
+                fill: $colorBlack;
+            }
+        }
     }
 
     &.active &__items {
@@ -187,7 +200,7 @@ export default {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        min-height: 50px;
+        min-height: 60px;
         border-bottom: 1px dashed #73b1b1;
         cursor: pointer;
         @include animateEasy;
@@ -244,6 +257,10 @@ export default {
                 .icon {
                     background-color: $colorLightGreen;
                 }
+            }
+            .select__items-item-logo {
+                transition: 0.5s;
+                background: #97ffd0;
             }
         }
 

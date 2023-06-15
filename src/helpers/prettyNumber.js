@@ -54,7 +54,7 @@ export const prettyNumber = (value) => {
     return `${prefix}${cutNumber(absoluteValue, maxDecimals)}`;
 };
 
-export const prettyNumberTooltip = (value) => {
+export const prettyNumberTooltip = (value, maxDecimals = 8) => {
     if (!value) {
         return '0';
     }
@@ -65,7 +65,6 @@ export const prettyNumberTooltip = (value) => {
     }
 
     const formatedValue = formatValue(value);
-    const maxDecimals = 8;
 
     return cutNumber(formatedValue, maxDecimals).toLocaleString('en', {
         maximumFractionDigits: maxDecimals,

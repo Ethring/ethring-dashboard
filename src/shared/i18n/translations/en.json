@@ -10,7 +10,9 @@
   },
   "dashboard": {
     "receive": "RECEIVE",
-    "send": "SEND"
+    "send": "SEND",
+    "search": "Search",
+    "notFound": "Nothing was found for your query"
   },
   "sidebar": {
     "main": "Main",
@@ -43,6 +45,7 @@
     "swap": "Swap",
     "approve": "Approve",
     "pay": "Pay",
-    "receive": "Receive"
+    "receive": "Receive",
+    "selectToken": "Select token"
   }
 }
