@@ -204,6 +204,7 @@ export default {
                 balanceUsd: tokens[selectedNet.net]?.balanceUsd,
                 list: childs,
             };
+            console.log(wallet, '--wallet');
             selectedNet.update(wallet);
         },
     },

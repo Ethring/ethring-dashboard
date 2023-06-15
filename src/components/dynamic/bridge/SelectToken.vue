@@ -7,10 +7,12 @@
 </template>
 <script>
 import { useStore } from 'vuex';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 import useTokens from '@/compositions/useTokens';
+
 import SelectToken from '@/components/ui/SelectToken.vue';
 
 export default {
@@ -29,7 +31,14 @@ export default {
             selectType.value === 'from'
                 ? computed(() => store.getters['bridge/selectedSrcNetwork'])
                 : computed(() => store.getters['bridge/selectedDstNetwork']);
+        const tokens = computed(() => store.getters['bridge/tokensByChainID']);
         const { walletAddress } = useWeb3Onboard();
+
+        onMounted(async () => {
+            await await store.dispatch('bridge/getTokensByChain', {
+                chainId: selectedNetwork.value.chain_id,
+            });
+        });
 
         const allTokens = computed(() => {
             if (!selectedNetwork.value) {
@@ -44,7 +53,13 @@ export default {
                 }),
             ];
 
-            return list.filter(
+            const matchingTokens = list.filter((token) => {
+                return tokens.value.some((listToken) => {
+                    return listToken.code === token.code;
+                });
+            });
+
+            return matchingTokens.filter(
                 (elem) =>
                     elem.name?.toLowerCase().includes(searchValue.value?.toLowerCase()) ||
                     elem?.code

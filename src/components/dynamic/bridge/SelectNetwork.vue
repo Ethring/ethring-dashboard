@@ -43,6 +43,7 @@ import arbitrumSvg from '@/assets/icons/networks/arbitrum.svg';
 import evmosethSvg from '@/assets/icons/networks/evmoseth.svg';
 import avalancheSvg from '@/assets/icons/networks/avalanche.svg';
 import fantomSvg from '@/assets/icons/networks/fantom.svg';
+
 import { onMounted, ref } from 'vue';
 
 export default {

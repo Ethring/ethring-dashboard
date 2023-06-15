@@ -57,15 +57,16 @@ export default {
         },
 
         /* GET TOKENS BY CHAIN ID */
-        async getTokensByChain(_, { chainId }) {
-            return await fetchData({
+        async getTokensByChain({ commit }, { chainId }) {
+            const tokens = await fetchData({
                 url: VUE_APP_DEBRIDGE_API,
                 route: 'getTokensByChain',
                 params: {
                     chainId,
                 },
             });
-            // commit(types.SET_TOKENS_BY_CHAINID, res)
+            commit(types.SET_TOKENS_BY_CHAINID, tokens);
+            return tokens;
         },
 
         /* ALLOWANCE */
