@@ -9,8 +9,9 @@
     </div>
 </template>
 <script>
-import Spinner from '@/components/app/Spinner';
 import { ref } from 'vue';
+
+import Spinner from '@/components/app/Spinner';
 
 export default {
     name: 'PancakeSwap',

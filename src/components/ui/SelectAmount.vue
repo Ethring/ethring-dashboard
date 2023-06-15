@@ -52,13 +52,15 @@
     </div>
 </template>
 <script>
-import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
+import { ref, watch, onMounted } from 'vue';
+
+import BigNumber from 'bignumber.js';
 
 import TokenIcon from '@/components/ui/TokenIcon';
 
+import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
+
 import { prettyNumber } from '@/helpers/prettyNumber';
-import { ref, watch, onMounted } from 'vue';
-import BigNumber from 'bignumber.js';
 
 export default {
     name: 'SelectAmount',

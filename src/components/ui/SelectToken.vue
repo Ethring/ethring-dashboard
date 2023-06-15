@@ -31,11 +31,14 @@
 </template>
 <script>
 import { useRouter } from 'vue-router';
+
 import SearchInput from '@/components/ui/SearchInput';
-import { prettyNumber } from '@/helpers/prettyNumber';
 import TokenIcon from '@/components/ui/TokenIcon';
+
 import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 import notFoundSvg from '@/assets/icons/app/notFound.svg';
+
+import { prettyNumber } from '@/helpers/prettyNumber';
 
 export default {
     name: 'SelectToken',
