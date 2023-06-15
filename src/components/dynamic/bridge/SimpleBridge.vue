@@ -439,16 +439,17 @@ export default {
         };
 
         const getTransactionHash = async (txHash) => {
-            const response = await axios.get(`https://api.dln.trade/v1.0/dln/tx/${txHash}/order-ids`);
-            setTimeout(async () => {
-                if (response.status === 200) {
-                    const hash = await axios.get(`https://dln-api.debridge.finance/api/Orders/${response.data.orderIds[0]}`);
-                    return {
-                        srcHash: hash.data.createdSrcEventMetadata.transactionHash.stringValue,
-                        dstHash: hash.data.fulfilledDstEventMetadata.transactionHash.stringValue,
-                    };
-                }
-            }, 2000);
+            let response = await axios.get(`https://api.dln.trade/v1.0/dln/tx/${txHash}/order-ids`);
+            let hash = '';
+            if (response.data.orderIds.length === 0) {
+                response = await axios.get(`https://api.dln.trade/v1.0/dln/tx/${txHash}/order-ids`);
+            } else {
+                hash = await axios.get(`https://dln-api.debridge.finance/api/Orders/${response.data.orderIds[0]}`);
+                return {
+                    srcHash: hash.data.createdSrcEventMetadata.transactionHash.stringValue,
+                    dstHash: hash.data.fulfilledDstEventMetadata.transactionHash.stringValue,
+                };
+            }
         };
 
         const swap = async () => {
@@ -516,7 +517,7 @@ export default {
             const hash = await getTransactionHash(resTx.transactionHash);
             console.log(hash, '--hash');
 
-            successHash.value = getTxUrl(selectedDstNetwork.value.net, hash.dstHash);
+            successHash.value = getTxUrl(selectedDstNetwork.value.net, hash.dstHash || resTx.transactionHash);
             isLoading.value = false;
             resetAmount.value = true;
             setTimeout(() => {
