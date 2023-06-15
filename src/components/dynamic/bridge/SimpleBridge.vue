@@ -185,7 +185,9 @@ export default {
                 'bridge/setSelectedSrcNetwork',
                 groupTokens.value.find((elem) => elem.net === currentChainInfo.value.net)
             );
-            await getAllowance();
+            if (selectedSrcToken.value) {
+                await getAllowance();
+            }
         });
 
         const filteredSupportedChains = computed(() => {
@@ -353,7 +355,7 @@ export default {
         };
 
         const getApproveTx = async () => {
-            if(!selectedSrcToken.value?.chain_id) {
+            if (!selectedSrcToken.value?.chain_id) {
                 const resApproveTx = await store.dispatch('bridge/getApproveTx', {
                     net: selectedSrcNetwork.value.net,
                     tokenAddress: selectedSrcToken.value.address,
