@@ -70,3 +70,5 @@ export const copyToClipboard = (text) => {
         document.getSelection().addRange(selected);
     }
 };
+
+export const delay = (ms) => new Promise((res) => setTimeout(res, ms));

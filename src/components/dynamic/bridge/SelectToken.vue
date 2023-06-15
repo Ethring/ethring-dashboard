@@ -35,7 +35,7 @@ export default {
         const { walletAddress } = useWeb3Onboard();
 
         onMounted(async () => {
-            await await store.dispatch('bridge/getTokensByChain', {
+            await store.dispatch('bridge/getTokensByChain', {
                 chainId: selectedNetwork.value.chain_id,
             });
         });

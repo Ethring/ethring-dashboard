@@ -42,7 +42,6 @@ export default function useTokens() {
                 }
                 return 0;
             });
-
     // all networks
     const groupTokens = computed(() => {
         if (currentChainInfo.value?.net) {

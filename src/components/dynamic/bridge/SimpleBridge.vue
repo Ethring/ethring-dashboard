@@ -127,7 +127,7 @@ import axios from 'axios';
 import { toMantissa } from '@/helpers/numbers';
 import { prettyNumber } from '@/helpers/prettyNumber';
 import { services } from '@/config/bridgeServices';
-import { getTxUrl } from '@/helpers/utils';
+import { getTxUrl, delay } from '@/helpers/utils';
 
 const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
@@ -438,18 +438,43 @@ export default {
             }
         };
 
-        const getTransactionHash = async (txHash) => {
-            let response = await axios.get(`https://api.dln.trade/v1.0/dln/tx/${txHash}/order-ids`);
-            let hash = '';
-            if (response.data.orderIds.length === 0) {
-                response = await axios.get(`https://api.dln.trade/v1.0/dln/tx/${txHash}/order-ids`);
-            } else {
-                hash = await axios.get(`https://dln-api.debridge.finance/api/Orders/${response.data.orderIds[0]}`);
-                return {
-                    srcHash: hash.data.createdSrcEventMetadata.transactionHash.stringValue,
-                    dstHash: hash.data.fulfilledDstEventMetadata.transactionHash.stringValue,
-                };
+        const getOrderIds = async (txHash) => {
+            await delay(2000); // Fix after integrating
+            const response = await axios.get(`https://api.dln.trade/v1.0/dln/tx/${txHash}/order-ids`);
+
+            if (response.status === 200) {
+                const { data = {} } = response;
+                const { orderIds = [] } = data;
+                return orderIds;
             }
+
+            return [];
+        };
+
+        const getTransactionHash = async (txHash) => {
+            let orderIds = await getOrderIds(txHash);
+
+            if (!orderIds.length) {
+                orderIds = await getOrderIds(txHash);
+            }
+
+            const responseHash = await axios.get(`https://dln-api.debridge.finance/api/Orders/${orderIds[0]}`);
+
+            const hash = {
+                srcHash: null,
+                dstHash: null,
+            };
+
+            if (responseHash.status === 200) {
+                const { data = {} } = responseHash;
+
+                const { createdSrcEventMetadata = {}, fulfilledDstEventMetadata = {} } = data;
+
+                hash.srcHash = createdSrcEventMetadata?.transactionHash?.stringValue || null;
+                hash.dstHash = fulfilledDstEventMetadata?.transactionHash?.stringValue || null;
+            }
+
+            return hash;
         };
 
         const swap = async () => {
@@ -503,6 +528,7 @@ export default {
             }
 
             const resTx = await sendMetamaskTransaction(resSwap.transaction);
+
             if (resTx.error) {
                 txError.value = resTx.error;
                 isLoading.value = false;
@@ -512,26 +538,27 @@ export default {
                 return;
             }
 
-            console.log(resTx, '--resTx');
-
             const hash = await getTransactionHash(resTx.transactionHash);
-            console.log(hash, '--hash');
 
-            successHash.value = getTxUrl(selectedDstNetwork.value.net, hash.dstHash || resTx.transactionHash);
-            isLoading.value = false;
-            resetAmount.value = true;
-            setTimeout(() => {
-                successHash.value = '';
-            }, 5000);
-            store.dispatch('tokens/updateTokenBalances', {
-                net: selectedSrcNetwork.value.net,
-                address: walletAddress.value,
-                info: selectedSrcNetwork.value,
-                update(wallet) {
-                    store.dispatch('bridge/setSelectedSrcNetwork', wallet);
-                },
-            });
+            if (hash) {
+                successHash.value = getTxUrl(selectedDstNetwork.value.net, hash.dstHash || resTx.transactionHash);
+                isLoading.value = false;
+                resetAmount.value = true;
 
+                setTimeout(() => {
+                    successHash.value = '';
+                    balanceUpdated.value = true;
+                }, 5000);
+
+                store.dispatch('tokens/updateTokenBalances', {
+                    net: selectedSrcNetwork.value.net,
+                    address: walletAddress.value,
+                    info: selectedSrcNetwork.value,
+                    update(wallet) {
+                        store.dispatch('bridge/setSelectedSrcNetwork', wallet);
+                    },
+                });
+            }
             balanceUpdated.value = true;
         };
 
