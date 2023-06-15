@@ -237,7 +237,7 @@ export default {
         const onSelectSrcNetwork = async (network) => {
             tokensList(network, network?.chain_id || network?.chainId).then((tokens) => {
                 tokensSrcListResolved.value = tokens;
-                if (!selectedSrcToken.value || !tokens.find((elem) => elem.code === selectedSrcToken.value.code)) {
+                if (!selectedSrcToken.value) {
                     store.dispatch('tokens/setFromToken', tokens[0]);
                 }
             });
@@ -256,8 +256,13 @@ export default {
             store.dispatch('bridge/setSelectedDstNetwork', network);
             tokensList(network, network?.chain_id).then((tokens) => {
                 tokensDstListResolved.value = tokens;
-                if (!selectedDstToken.value || !tokens.find((elem) => elem.code === selectedDstToken.value.code)) {
+                if (!selectedDstToken.value) {
                     store.dispatch('tokens/setToToken', tokens[0]);
+                } else {
+                    let tokenTo = tokens.find((elem) => elem.code === selectedDstToken.value.code);
+                    if (tokenTo) {
+                        store.dispatch('tokens/setToToken', tokenTo);
+                    }
                 }
             });
         };
