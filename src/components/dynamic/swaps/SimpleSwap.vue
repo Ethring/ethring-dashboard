@@ -168,6 +168,7 @@ export default {
                     return token.net !== selectedNetwork.value.net && !groupTokens.value[0].list.find((t) => t.net === token.net);
                 }),
             ];
+            console.log(list);
             if (!selectedTokenFrom.value || !list.find((elem) => elem.net === selectedTokenFrom.value.net)) {
                 if (list[0].code !== 'USDC') {
                     store.dispatch('tokens/setFromToken', list[0]);

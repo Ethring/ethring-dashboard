@@ -57,7 +57,7 @@ export default function useTokens() {
                         Object.keys(tokens)
                             .map((item) => {
                                 const balance = tokens[item];
-                                let { name = '', code = '' } = tokens[item];
+                                let { name = '', code = '' } = parentTokens[item];
 
                                 if ((!name || !code) && item.includes('_')) {
                                     const [net, token] = item.split('_');
