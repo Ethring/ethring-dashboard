@@ -34,6 +34,8 @@
 <script>
 import { onMounted, ref } from 'vue';
 
+import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
+
 export default {
     name: 'SelectNetwork',
     props: {
@@ -50,6 +52,9 @@ export default {
         placeholder: {
             type: String,
         },
+    },
+    components: {
+        arrowSvg,
     },
     setup(props, { emit }) {
         const active = ref(false);
