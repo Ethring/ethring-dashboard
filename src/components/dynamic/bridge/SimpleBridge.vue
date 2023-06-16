@@ -108,6 +108,15 @@
     </div>
 </template>
 <script>
+import { computed, ref, onMounted } from 'vue';
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
+import { ethers } from 'ethers';
+import axios from 'axios';
+
+import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+import useTokens from '@/compositions/useTokens';
+
 import InfoPanel from '@/components/ui/InfoPanel';
 import SelectAmount from '@/components/ui/SelectAmount';
 import SelectAddress from '@/components/ui/SelectAddress';
@@ -116,19 +125,11 @@ import Accordion from '@/components/ui/Accordion';
 import Checkbox from '@/components/ui/Checkbox';
 import Button from '@/components/ui/Button';
 
-import { computed, ref, onMounted } from 'vue';
-import { useStore } from 'vuex';
-import { useRouter } from 'vue-router';
-import { ethers } from 'ethers';
-
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
-import useTokens from '@/compositions/useTokens';
-import axios from 'axios';
-
 import { toMantissa } from '@/helpers/numbers';
 import { prettyNumber } from '@/helpers/prettyNumber';
-import { services } from '@/config/bridgeServices';
 import { getTxUrl, delay } from '@/helpers/utils';
+
+import { services } from '@/config/bridgeServices';
 
 const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
