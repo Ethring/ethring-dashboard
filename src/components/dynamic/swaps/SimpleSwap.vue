@@ -73,24 +73,28 @@
     </div>
 </template>
 <script>
-import InfoPanel from '@/components/ui/InfoPanel';
-import SelectNetwork from '@/components/ui/SelectNetwork';
-import SelectAmount from '@/components/ui/SelectAmount';
+import { computed, ref, onMounted } from 'vue';
 
-import Button from '@/components/ui/Button';
+import { useStore } from 'vuex';
+
+import { ethers } from 'ethers';
+
+import { useRouter } from 'vue-router';
 
 import useTokens from '@/compositions/useTokens';
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
-import { prettyNumberTooltip } from '@/helpers/prettyNumber';
-import { computed, ref, onMounted } from 'vue';
-import { useStore } from 'vuex';
-import { ethers } from 'ethers';
-import { useRouter } from 'vue-router';
-import { getTxUrl } from '@/helpers/utils';
-import { toMantissa } from '@/helpers/numbers';
+
+import Button from '@/components/ui/Button';
+import InfoPanel from '@/components/ui/InfoPanel';
+import SelectNetwork from '@/components/ui/SelectNetwork';
+import SelectAmount from '@/components/ui/SelectAmount';
+import Accordion from '@/components/ui/Accordion.vue';
 
 import SwapSvg from '@/assets/icons/dashboard/swap.svg';
-import Accordion from '@/components/ui/Accordion.vue';
+
+import { prettyNumberTooltip } from '@/helpers/prettyNumber';
+import { getTxUrl } from '@/helpers/utils';
+import { toMantissa } from '@/helpers/numbers';
 
 const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
@@ -157,7 +161,6 @@ export default {
                 return [];
             }
 
-            console.log(selectedNetwork, '--selected');
             let listWithBalances = getTokenList(selectedNetwork.value);
 
             const list = [

@@ -320,13 +320,12 @@ export default {
             receiveValue.value = '';
             amount.value = value;
 
-            if (!Object.prototype.hasOwnProperty.call(selectedSrcToken.value, 'balance')) {
-                errorBalance.value = 'Insufficient balance';
-            } else if (+value > selectedSrcToken.value.balance.amount || +value > selectedSrcToken.value.balance.mainBalance) {
-                errorBalance.value = 'Insufficient balance';
-            } else if (
+            if (
+                +value > selectedSrcToken.value.balance.amount ||
+                +value > selectedSrcToken.value.balance.mainBalance ||
                 +networkFee.value > selectedSrcToken.value.balance.amount ||
-                +networkFee.value > selectedSrcToken.value.balance.mainBalance
+                +networkFee.value > selectedSrcToken.value.balance.mainBalance ||
+                !Object.prototype.hasOwnProperty.call(selectedSrcToken.value, 'balance')
             ) {
                 errorBalance.value = 'Insufficient balance';
             } else {

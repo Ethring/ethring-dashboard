@@ -7,10 +7,14 @@
 </template>
 <script>
 import { useStore } from 'vuex';
+
 import { computed, ref } from 'vue';
+
 import { useRouter } from 'vue-router';
+
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 import useTokens from '@/compositions/useTokens';
+
 import SelectToken from '@/components/ui/SelectToken.vue';
 
 export default {
@@ -56,14 +60,17 @@ export default {
             return list.filter(
                 (elem) =>
                     elem.code !== secondToken.code &&
-                    (elem.name?.toLowerCase().includes(searchValue.value.toLowerCase()) ||
-                        elem.code
-                            .toLowerCase()
-                            .includes(
-                                searchValue.value.toLowerCase() || elem.address?.toLowerCase().includes(searchValue.value.toLowerCase())
-                            ))
+                    (byTokenKey(elem, searchValue.value, 'name') ||
+                        byTokenKey(elem, searchValue.value, 'code') ||
+                        byTokenKey(elem, searchValue.value, 'address'))
             );
         });
+
+        const byTokenKey = (token = {}, search = '', target = 'code') => {
+            const targetVal = token[target] ?? null;
+            const targetLC = targetVal ? targetVal.toLowerCase() : '';
+            return targetLC.includes(search.toLowerCase());
+        };
 
         const filterTokens = (val) => {
             searchValue.value = val;

@@ -41,32 +41,46 @@ export default {
     setup(props) {
         const showIconPlaceholder = ref(false);
         const tokenIconFromZomet = ref(null);
-        const iconPlaceholder = computed(() => tokenIconPlaceholder(props.token?.name || 'Token'));
+        const iconPlaceholder = computed(() => tokenIconPlaceholder(props.token?.name));
 
         const store = useStore();
 
         const tokens = computed(() => store.getters['networks/zometTokens']);
 
         const setTokenIcon = () => {
-            if (props.token?.address && tokens.value[props.token?.address]) {
-                return (tokenIconFromZomet.value = tokens.value[props.token.address].logo);
+            const { address = null, extensions = {} } = props.token;
+
+            let searchAddress = address?.toLowerCase();
+
+            if (extensions && extensions?.bridgeInfo) {
+                for (const key in extensions.bridgeInfo) {
+                    searchAddress = extensions.bridgeInfo[key].tokenAddress.toLowerCase();
+                    break;
+                }
             }
+
+            if (searchAddress && tokens.value[searchAddress]) {
+                return (tokenIconFromZomet.value = tokens.value[searchAddress].logo);
+            }
+
             return (tokenIconFromZomet.value = null);
         };
 
-        onMounted(() => setTokenIcon());
+        onMounted(() => {
+            if (props.token) {
+                setTokenIcon();
+            }
+        });
 
         watch(
             () => props.token,
             () => {
-                setTokenIcon();
-                showIconPlaceholder.value = false;
+                if (props.token) {
+                    showIconPlaceholder.value = false;
+                    setTokenIcon();
+                }
             }
         );
-
-        watch(tokens, () => {
-            setTokenIcon();
-        });
 
         return {
             showIconPlaceholder,
