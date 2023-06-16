@@ -194,8 +194,14 @@ export default {
 
         const filteredSupportedChains = computed(() => {
             const list = groupTokens?.value.filter((item) => {
-                return getSupportedChains?.value?.some((network) => network.net === item.net);
+                const supportedChain = getSupportedChains?.value?.find((network) => network.net === item.net);
+                if (supportedChain) {
+                    item.logoURI = supportedChain.logoURI;
+                    return true;
+                }
+                return false;
             });
+
             if (selectedDstNetwork.value) {
                 return list.filter((chain) => chain.net !== selectedDstNetwork.value.net);
             }

@@ -1,6 +1,7 @@
 import { computed } from 'vue';
 import { useStore } from 'vuex';
 import useWeb3Onboard from './useWeb3Onboard';
+
 import { chainIds } from '@/config/availableNets';
 
 export default function useTokens() {

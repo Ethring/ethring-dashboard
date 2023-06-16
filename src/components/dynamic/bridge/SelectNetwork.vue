@@ -3,7 +3,7 @@
         <div class="select__panel">
             <div class="info">
                 <div class="network">
-                    <component :is="`${selectedItem?.net}Svg`" />
+                    <img v-if="selectedItem" :src="selectedItem?.logo || selectedItem?.logoURI" alt="network-logo" class="network-logo" />
                 </div>
                 <div v-if="selectedItem" class="name">{{ selectedItem?.label || selectedItem?.name.replace(' Mainnet', '') }}</div>
                 <div v-else>
@@ -21,29 +21,17 @@
                 class="select__items-item"
                 @click="setActive(item)"
             >
-                <div class="row">
-                    <div class="select__items-item-logo">
-                        <component :is="`${item?.net}Svg`" />
+                <div class="info">
+                    <div class="icon">
+                        <img :src="item.logoURI" alt="network-logo" class="network-logo" />
                     </div>
-                    <div class="info">
-                        <div class="name">{{ item.name }}</div>
-                    </div>
+                    <div class="name">{{ item.label || item.name }}</div>
                 </div>
             </div>
         </div>
     </div>
 </template>
 <script>
-import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
-import bscSvg from '@/assets/icons/networks/bsc.svg';
-import ethSvg from '@/assets/icons/networks/eth.svg';
-import polygonSvg from '@/assets/icons/networks/polygon.svg';
-import optimismSvg from '@/assets/icons/networks/optimism.svg';
-import arbitrumSvg from '@/assets/icons/networks/arbitrum.svg';
-import evmosethSvg from '@/assets/icons/networks/evmoseth.svg';
-import avalancheSvg from '@/assets/icons/networks/avalanche.svg';
-import fantomSvg from '@/assets/icons/networks/fantom.svg';
-
 import { onMounted, ref } from 'vue';
 
 export default {
@@ -62,17 +50,6 @@ export default {
         placeholder: {
             type: String,
         },
-    },
-    components: {
-        arrowSvg,
-        bscSvg,
-        ethSvg,
-        polygonSvg,
-        optimismSvg,
-        arbitrumSvg,
-        evmosethSvg,
-        avalancheSvg,
-        fantomSvg,
     },
     setup(props, { emit }) {
         const active = ref(false);
@@ -230,6 +207,27 @@ export default {
             .name {
                 color: #486060;
             }
+
+            .icon {
+                transition: 0.2s;
+
+                width: 32px;
+                height: 32px;
+                background-color: $colorSlimLightBlue;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                margin-right: 16px;
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                    max-width: 20px;
+                    max-height: 20px;
+                }
+            }
         }
 
         &.active {
@@ -242,13 +240,17 @@ export default {
         }
 
         &:last-child {
-            border-bottom: 1px solid transparent;
+            border-bottom-color: transparent;
         }
 
         &:hover {
             .info {
                 .name {
                     color: $colorBaseGreen;
+                }
+
+                .icon {
+                    background-color: $colorLightGreen;
                 }
             }
             .select__items-item-logo {

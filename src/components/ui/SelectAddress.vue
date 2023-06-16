@@ -46,9 +46,11 @@ export default {
     props: {
         selectedNetwork: {
             required: true,
+            default: () => {},
         },
         items: {
             type: Array,
+            default: () => [],
         },
         onReset: {
             type: [Boolean, String],
