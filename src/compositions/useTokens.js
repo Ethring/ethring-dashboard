@@ -116,10 +116,12 @@ export default function useTokens() {
         }
         return [];
     });
+
     const getTokenList = (network) => {
-        let listWithBalances = [network, ...network.list];
+        let listWithBalances = [network, ...network?.list];
         return sortByBalanceUsd(listWithBalances);
     };
+
     const sortByBalanceUsd = (list) => {
         return list?.sort((a, b) => {
             if (a.balanceUsd > b.balanceUsd) {

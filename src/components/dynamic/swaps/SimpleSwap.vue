@@ -156,6 +156,8 @@ export default {
             if (!selectedNetwork.value) {
                 return [];
             }
+
+            console.log(selectedNetwork, '--selected');
             let listWithBalances = getTokenList(selectedNetwork.value);
 
             const list = [

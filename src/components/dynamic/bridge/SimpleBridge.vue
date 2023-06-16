@@ -40,6 +40,7 @@
             :on-reset="resetAmount"
             class="mt-10"
             @clickToken="onSetDstToken"
+            hide-max
         />
         <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
         <InfoPanel v-if="txError" :title="txError" class="mt-10" />
@@ -144,7 +145,7 @@ export default {
     },
     setup() {
         const { walletAddress, currentChainInfo, connectedWallet, setChain } = useWeb3Onboard();
-        const { groupTokens } = useTokens();
+        const { groupTokens, allTokensFromNetwork } = useTokens();
 
         const store = useStore();
         const isLoading = ref(false);
@@ -180,7 +181,7 @@ export default {
         const getSupportedChains = computed(() => store.getters['bridge/supportedChains']);
 
         onMounted(async () => {
-            await store.dispatch('bridge/getSupportedChains');
+            store.dispatch('bridge/getSupportedChains');
             store.dispatch(
                 'bridge/setSelectedSrcNetwork',
                 groupTokens.value.find((elem) => elem.net === currentChainInfo.value.net)
@@ -224,23 +225,32 @@ export default {
             allowance.value = null;
         };
 
-        const tokensList = async (network, chainId) => {
+        const tokensList = async (network) => {
             if (!network) {
                 return [];
             }
 
-            return await store.dispatch('bridge/getTokensByChain', {
-                chainId: chainId,
-            });
+            const currentNetworkToken = groupTokens.value.find((elem) => elem.net === network.net);
+
+            const listWithBalances = [currentNetworkToken, ...currentNetworkToken?.list];
+
+            const list = [
+                ...listWithBalances,
+                ...allTokensFromNetwork(network.net).filter((token) => {
+                    return token.net !== network.net && !groupTokens?.value[0]?.list.find((t) => t.net === token.net);
+                }),
+            ];
+            return list;
         };
 
         const onSelectSrcNetwork = async (network) => {
-            tokensList(network, network?.chain_id || network?.chainId).then((tokens) => {
+            tokensList(network).then((tokens) => {
                 tokensSrcListResolved.value = tokens;
                 if (!selectedSrcToken.value) {
                     store.dispatch('tokens/setFromToken', tokens[0]);
                 }
             });
+
             if (selectedSrcNetwork.value !== network) {
                 txError.value = '';
                 if (network.id || network.chain_id) {
@@ -254,7 +264,7 @@ export default {
 
         const onSelectDstNetwork = async (network) => {
             store.dispatch('bridge/setSelectedDstNetwork', network);
-            tokensList(network, network?.chain_id).then((tokens) => {
+            tokensList(network).then((tokens) => {
                 tokensDstListResolved.value = tokens;
                 if (!selectedDstToken.value || !tokens.find((elem) => elem.code === selectedDstToken.value.code)) {
                     store.dispatch('tokens/setToToken', tokens[0]);
