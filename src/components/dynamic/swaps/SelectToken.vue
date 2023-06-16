@@ -57,9 +57,10 @@ export default {
             }
 
             const secondToken = selectType.value === 'from' ? selectedTokenTo.value : selectedTokenFrom.value;
+
             return list.filter(
                 (elem) =>
-                    elem.code !== secondToken.code &&
+                    elem?.code !== secondToken?.code &&
                     (byTokenKey(elem, searchValue.value, 'name') ||
                         byTokenKey(elem, searchValue.value, 'code') ||
                         byTokenKey(elem, searchValue.value, 'address'))
