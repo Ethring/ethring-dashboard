@@ -13,33 +13,45 @@ export default async function useCitadel(address, store) {
     const tokens = {};
 
     const balanceInfo = async (net) => {
-        let balance = 0;
-        const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/blockchain/${net}/${address}/balance`);
+        try {
+            let balance = 0;
+            const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/blockchain/${net}/${address}/balance`);
 
-        if (response.status === 200) {
-            return response.data.data;
+            if (response.status === 200) {
+                return response.data.data;
+            }
+
+            return balance;
+        } catch {
+            return {};
         }
-
-        return balance;
     };
 
     const tokensInfo = async (net) => {
-        const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/blockchain/${net}/${address}/tokens?version=1.1.0`);
+        try {
+            const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/blockchain/${net}/${address}/tokens?version=1.1.0`);
 
-        if (response.status === 200) {
-            return response.data.data;
+            if (response.status === 200) {
+                return response.data.data;
+            }
+
+            return {};
+        } catch {
+            return {};
         }
-
-        return {};
     };
 
     const priceInfo = async (net) => {
-        let price = null;
-        const result = await axios.get(`https://work.3ahtim54r.ru/api/currency/${net}/`);
-        if (result.status === 200) {
-            price = result.data.data;
+        try {
+            let price = null;
+            const result = await axios.get(`https://work.3ahtim54r.ru/api/currency/${net}/`);
+            if (result.status === 200) {
+                price = result.data.data;
+            }
+            return price;
+        } catch {
+            return {};
         }
-        return price;
     };
 
     const promises = metamaskNets.map(async (net) => {
@@ -47,7 +59,7 @@ export default async function useCitadel(address, store) {
         const tokenList = await tokensInfo(net);
         const price = await priceInfo(net);
 
-        tokens[net] = { list: tokenList, balance, price, balanceUsd: balance.mainBalance * price.USD };
+        tokens[net] = { list: tokenList, balance, price, balanceUsd: balance?.mainBalance * price?.USD };
     });
 
     await Promise.all(promises);
