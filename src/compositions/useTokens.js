@@ -57,10 +57,19 @@ export default function useTokens() {
                         Object.keys(tokens)
                             .map((item) => {
                                 const balance = tokens[item];
+                                let { name = '', code = '' } = tokens[item];
+
+                                if ((!name || !code) && item.includes('_')) {
+                                    const [net, token] = item.split('_');
+                                    name = `${net} ${token}`;
+                                    code = token.toUpperCase();
+                                }
 
                                 return {
                                     ...tokens[item],
                                     ...parentTokens[item],
+                                    name,
+                                    code,
                                     balance,
                                     balanceUsd: balance.amount * balance.price.USD,
                                 };
