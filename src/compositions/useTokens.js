@@ -45,7 +45,7 @@ export default function useTokens() {
             });
     // all networks
     const groupTokens = computed(() => {
-        if (currentChainInfo.value?.net) {
+        if (currentChainInfo.value?.net && groupTokensBalance.value) {
             const groupList = [];
 
             Object.keys(groupTokensBalance.value)?.forEach((parentNet) => {
