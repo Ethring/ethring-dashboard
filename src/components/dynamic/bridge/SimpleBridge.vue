@@ -108,7 +108,7 @@
     </div>
 </template>
 <script>
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { ethers } from 'ethers';
@@ -146,7 +146,7 @@ export default {
     },
     setup() {
         const { walletAddress, currentChainInfo, connectedWallet, setChain } = useWeb3Onboard();
-        const { groupTokens, allTokensFromNetwork } = useTokens();
+        const { groupTokens, allTokensFromNetwork, getTokenList } = useTokens();
 
         const store = useStore();
         const isLoading = ref(false);
@@ -178,7 +178,6 @@ export default {
 
         const tokensSrcListResolved = ref([]);
         const tokensDstListResolved = ref([]);
-        const networks = computed(() => store.getters['networks/networks']);
         const getSupportedChains = computed(() => store.getters['bridge/supportedChains']);
 
         onMounted(async () => {
@@ -237,9 +236,13 @@ export default {
                 return [];
             }
 
-            const currentNetworkToken = groupTokens.value.find((elem) => elem.net === network.net);
+            let listWithBalances = [];
 
-            const listWithBalances = [currentNetworkToken, ...currentNetworkToken?.list];
+            if (network.list) {
+                listWithBalances = getTokenList(network);
+            } else {
+                listWithBalances = [groupTokens.value[0], ...groupTokens.value[0].list];
+            }
 
             const list = [
                 ...listWithBalances,
@@ -247,6 +250,7 @@ export default {
                     return token.net !== network.net && !groupTokens?.value[0]?.list.find((t) => t.net === token.net);
                 }),
             ];
+
             return list;
         };
 
@@ -255,11 +259,6 @@ export default {
                 tokensSrcListResolved.value = tokens;
                 if (!selectedSrcToken.value) {
                     store.dispatch('tokens/setFromToken', tokens[0]);
-                } else if (balanceUpdated.value) {
-                    let tokenFrom = tokens.find((elem) => elem.code === selectedSrcToken.value.code);
-                    if (tokenFrom) {
-                        store.dispatch('tokens/setFromToken', tokenFrom);
-                    }
                 }
             });
 
@@ -460,7 +459,7 @@ export default {
         };
 
         const getOrderIds = async (txHash) => {
-            await delay(2000); // Fix after integrating
+            await delay(3000); // Fix after integrating
             const response = await axios.get(`https://api.dln.trade/v1.0/dln/tx/${txHash}/order-ids`);
 
             if (response.status === 200) {
@@ -560,7 +559,18 @@ export default {
             }
 
             const hash = await getTransactionHash(resTx.transactionHash);
-            balanceUpdated.value = true;
+
+            if (hash) {
+                successHash.value = getTxUrl(selectedDstNetwork.value.net, hash.dstHash);
+            } else {
+                successHash.value = getTxUrl(selectedDstNetwork.value.net, resTx.transactionHash);
+            }
+            isLoading.value = false;
+            resetAmount.value = true;
+
+            setTimeout(() => {
+                successHash.value = '';
+            }, 5000);
 
             store.dispatch('tokens/updateTokenBalances', {
                 net: selectedSrcNetwork.value.net,
@@ -578,16 +588,30 @@ export default {
                     store.dispatch('bridge/setSelectedDstNetwork', wallet);
                 },
             });
-            if (hash) {
-                successHash.value = getTxUrl(selectedDstNetwork.value.net, hash.dstHash || resTx.transactionHash);
-                isLoading.value = false;
-                resetAmount.value = true;
 
-                setTimeout(() => {
-                    successHash.value = '';
-                }, 5000);
-            }
+            balanceUpdated.value = true;
         };
+
+        watch(balanceUpdated, () => {
+            if (balanceUpdated.value) {
+                setTimeout(() => {
+                    tokensList(selectedSrcNetwork.value).then((tokens) => {
+                        tokensSrcListResolved.value = tokens;
+                        let tokenFrom = tokens.find((elem) => elem.code === selectedSrcToken.value.code);
+                        if (tokenFrom) {
+                            store.dispatch('tokens/setFromToken', tokenFrom);
+                        }
+                    });
+                    tokensList(selectedDstNetwork.value).then((tokens) => {
+                        tokensDstListResolved.value = tokens;
+                        let tokenTo = tokens.find((elem) => elem.code === selectedDstToken.value.code);
+                        if (tokenTo) {
+                            store.dispatch('tokens/setToToken', tokenTo);
+                        }
+                    });
+                }, 2000);
+            }
+        });
 
         return {
             isLoading,
@@ -597,7 +621,6 @@ export default {
             receiveToken,
             receiveValue,
 
-            networks,
             groupTokens,
             getSupportedChains,
             filteredSupportedChains,
