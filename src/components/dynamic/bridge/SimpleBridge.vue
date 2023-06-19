@@ -33,7 +33,6 @@
             :selected-network="selectedDstNetwork"
             :items="tokensDstListResolved"
             :value="selectedDstToken"
-            :error="!!errorBalance"
             :label="$t('simpleBridge.receive')"
             :disabled-value="prettyNumber(receiveValue)"
             :disabled="true"
