@@ -3,7 +3,7 @@
         <div class="bridge-page">
             <Spinner v-if="loader" />
             <template v-else>
-                <div class="bridge-page-tab">
+                <div v-if="isShow" class="bridge-page-tab">
                     <router-link class="bridge-page__title" to="/send">{{ $t('simpleSend.title') }}</router-link>
                     <div class="bridge-page__title bridge-page-tab__active">
                         {{ $t('simpleBridge.title') }}
@@ -13,28 +13,31 @@
                 <div v-if="walletAddress && !loader" class="bridge-page__wrap">
                     <component v-if="bridgeComponent" :is="bridgeComponent" />
                 </div>
+                <EmptyList v-else title="Bridge under maintenance" />
             </template>
         </div>
     </div>
 </template>
 <script>
+import { computed, watch } from 'vue';
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
+
+import Spinner from '@/components/app/Spinner';
 import SimpleBridge from '@/components/dynamic/bridge/SimpleBridge';
+import EmptyList from '@/components/ui/EmptyList';
 import arrowupSvg from '@/assets/icons/dashboard/arrowup.svg';
 
 import { UIConfig } from '@/config/ui';
-import { useStore } from 'vuex';
-import { computed, watch } from 'vue';
-import { useRouter } from 'vue-router';
 
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
-
-import Spinner from '@/components/app/Spinner';
 
 export default {
     name: 'Bridge',
     components: {
         SimpleBridge,
         Spinner,
+        EmptyList,
         arrowupSvg,
     },
     setup() {
@@ -42,6 +45,7 @@ export default {
         const router = useRouter();
 
         const loader = computed(() => store.getters['tokens/loader']);
+        const isShow = computed(() => store.getters['bridge/isShow']);
 
         const { walletAddress, currentChainInfo } = useWeb3Onboard();
 
@@ -62,6 +66,7 @@ export default {
             loader,
             walletAddress,
             bridgeComponent,
+            isShow,
         };
     },
 };

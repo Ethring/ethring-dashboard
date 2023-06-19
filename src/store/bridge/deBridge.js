@@ -16,6 +16,7 @@ export default {
         tokensByChainID: [],
         selectedSrcNetwork: null,
         selectedDstNetwork: null,
+        isShow: false,
     }),
 
     getters: {
@@ -23,6 +24,7 @@ export default {
         tokensByChainID: (state) => state.tokensByChainID,
         selectedSrcNetwork: (state) => state.selectedSrcNetwork,
         selectedDstNetwork: (state) => state.selectedDstNetwork,
+        isShow: (state) => state.isShow,
     },
 
     mutations: {
@@ -48,12 +50,17 @@ export default {
             commit(types.SET_DST_NETWORKS, value);
         },
         /* GET SUPPORTED CHAINS */
-        async getSupportedChains({ commit }) {
-            const res = await fetchData({
-                url: VUE_APP_DEBRIDGE_API,
-                route: 'getSupportedChains',
-            });
-            commit(types.SET_SUPPORTED_CHAINS, res);
+        async getSupportedChains({ commit, state }) {
+            try {
+                const res = await fetchData({
+                    url: VUE_APP_DEBRIDGE_API,
+                    route: 'getSupportedChains',
+                });
+                commit(types.SET_SUPPORTED_CHAINS, res);
+                state.isShow = false;
+            } catch (e) {
+                state.isShow = true;
+            }
         },
 
         /* GET TOKENS BY CHAIN ID */

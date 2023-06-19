@@ -420,10 +420,8 @@ export default {
             txError.value = '';
             receiveValue.value = resEstimate.dstTokenAmount;
             networkFee.value = +resEstimate.estimatedGas;
-            estimateTime.value =
-                services[0]?.etimatedTime[selectedSrcNetwork?.value?.code] || services[0]?.etimatedTime[selectedSrcNetwork?.value?.chain];
-            serviceFee.value =
-                services[0]?.protocolFee[selectedSrcNetwork?.value?.code] || services[0]?.protocolFee[selectedSrcNetwork?.value?.chain];
+            estimateTime.value = services[0]?.etimatedTime[selectedSrcNetwork?.value?.chain_id];
+            serviceFee.value = services[0]?.protocolFee[selectedSrcNetwork?.value?.chain_id];
         };
 
         const getProvider = () => {
