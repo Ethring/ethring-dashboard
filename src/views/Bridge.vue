@@ -3,7 +3,7 @@
         <div class="bridge-page">
             <Spinner v-if="loader" />
             <template v-else>
-                <div v-if="isShow" class="bridge-page-tab">
+                <div class="bridge-page-tab">
                     <router-link class="bridge-page__title" to="/send">{{ $t('simpleSend.title') }}</router-link>
                     <div class="bridge-page__title bridge-page-tab__active">
                         {{ $t('simpleBridge.title') }}
@@ -45,7 +45,6 @@ export default {
         const router = useRouter();
 
         const loader = computed(() => store.getters['tokens/loader']);
-        const isShow = computed(() => store.getters['bridge/isShow']);
 
         const { walletAddress, currentChainInfo } = useWeb3Onboard();
 
@@ -66,7 +65,6 @@ export default {
             loader,
             walletAddress,
             bridgeComponent,
-            isShow,
         };
     },
 };
