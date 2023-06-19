@@ -48,19 +48,28 @@ export default function useTokens() {
         if (currentChainInfo.value?.net) {
             const groupList = [];
 
-            Object.keys(groupTokensBalance.value).forEach((parentNet) => {
-                const tokens = groupTokensBalance.value[parentNet].list;
-                const parentTokens = networks.value[parentNet].tokens;
+            Object.keys(groupTokensBalance.value)?.forEach((parentNet) => {
+                const tokens = groupTokensBalance.value[parentNet]?.list;
+                const parentTokens = networks.value[parentNet]?.tokens;
                 let childs = [];
                 if (tokens && parentTokens) {
                     childs = sortByBalanceUsd(
                         Object.keys(tokens)
                             .map((item) => {
                                 const balance = tokens[item];
+                                let { name = '', code = '' } = parentTokens[item];
+
+                                if ((!name || !code) && item.includes('_')) {
+                                    const [net, token] = item.split('_');
+                                    name = `${net} ${token}`;
+                                    code = token.toUpperCase();
+                                }
 
                                 return {
                                     ...tokens[item],
                                     ...parentTokens[item],
+                                    name,
+                                    code,
                                     balance,
                                     balanceUsd: balance.amount * balance.price.USD,
                                 };
