@@ -420,7 +420,7 @@ export default {
             txError.value = '';
             receiveValue.value = resEstimate.dstTokenAmount;
             networkFee.value = +resEstimate.estimatedGas;
-            estimateTime.value = services[0]?.etimatedTime[selectedSrcNetwork?.value?.chain_id];
+            estimateTime.value = services[0]?.estimatedTime[selectedSrcNetwork?.value?.chain_id];
             serviceFee.value = services[0]?.protocolFee[selectedSrcNetwork?.value?.chain_id];
         };
 
