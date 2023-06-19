@@ -66,7 +66,7 @@
             v-if="selectedDstNetwork"
             :title="
                 receiveValue
-                    ? `Protocol Fee : <span style='font-family:Poppins_Semibold; color: #0D7E71;'>
+                    ? `${$t('simpleBridge.protocolFee')} : <span style='font-family:Poppins_Semibold; color: #0D7E71;'>
                 ${serviceFee}
                 </span> <span  style='font-family:Poppins_Semibold;'>${
                     selectedSrcNetwork?.code
@@ -79,20 +79,20 @@
         >
             <div v-if="receiveValue" class="accordion__content">
                 <div class="accordion__item">
-                    <div class="accordion__label">Service Fee:</div>
+                    <div class="accordion__label">{{ $t('simpleBridge.serviceFee') }} :</div>
                     <div class="accordion__value">
                         <div class="name">{{ prettyNumber(networkFee * selectedSrcToken?.price?.USD) }} $</div>
                     </div>
                 </div>
                 <div class="accordion__item">
-                    <div class="accordion__label">Bridge:</div>
+                    <div class="accordion__label">{{ $t('simpleBridge.title') }} :</div>
                     <div class="accordion__value">
                         <img src="https://app.debridge.finance/assets/images/bridge.svg" />
                         <div class="name">{{ services[0].name }}</div>
                     </div>
                 </div>
                 <div class="accordion__item">
-                    <div class="accordion__label">Time:</div>
+                    <div class="accordion__label">{{ $t('simpleBridge.time') }} :</div>
                     <div class="accordion__value">{{ estimateTime }}</div>
                 </div>
             </div>
@@ -255,6 +255,11 @@ export default {
                 tokensSrcListResolved.value = tokens;
                 if (!selectedSrcToken.value) {
                     store.dispatch('tokens/setFromToken', tokens[0]);
+                } else if (balanceUpdated.value) {
+                    let tokenFrom = tokens.find((elem) => elem.code === selectedSrcToken.value.code);
+                    if (tokenFrom) {
+                        store.dispatch('tokens/setFromToken', tokenFrom);
+                    }
                 }
             });
 
@@ -555,7 +560,24 @@ export default {
             }
 
             const hash = await getTransactionHash(resTx.transactionHash);
+            balanceUpdated.value = true;
 
+            store.dispatch('tokens/updateTokenBalances', {
+                net: selectedSrcNetwork.value.net,
+                address: walletAddress.value,
+                info: selectedSrcNetwork.value,
+                update(wallet) {
+                    store.dispatch('bridge/setSelectedSrcNetwork', wallet);
+                },
+            });
+            store.dispatch('tokens/updateTokenBalances', {
+                net: selectedDstNetwork.value.net,
+                address: walletAddress.value,
+                info: selectedDstNetwork.value,
+                update(wallet) {
+                    store.dispatch('bridge/setSelectedDstNetwork', wallet);
+                },
+            });
             if (hash) {
                 successHash.value = getTxUrl(selectedDstNetwork.value.net, hash.dstHash || resTx.transactionHash);
                 isLoading.value = false;
@@ -563,19 +585,8 @@ export default {
 
                 setTimeout(() => {
                     successHash.value = '';
-                    balanceUpdated.value = true;
                 }, 5000);
-
-                store.dispatch('tokens/updateTokenBalances', {
-                    net: selectedSrcNetwork.value.net,
-                    address: walletAddress.value,
-                    info: selectedSrcNetwork.value,
-                    update(wallet) {
-                        store.dispatch('bridge/setSelectedSrcNetwork', wallet);
-                    },
-                });
             }
-            balanceUpdated.value = true;
         };
 
         return {

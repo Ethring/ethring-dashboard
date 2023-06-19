@@ -56,6 +56,9 @@
     "receive": "Receive",
     "amount": "Amount",
     "balance": "Balance",
-    "max": "Max"
+    "max": "Max",
+    "protocolFee": "Protocol Fee",
+    "serviceFee": "Service Fee",
+    "time": "Time"
   }
 }
