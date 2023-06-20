@@ -98,6 +98,7 @@ export default {
             align-items: center;
             width: 40px;
             height: 40px;
+            min-width: 40px;
             border-radius: 50%;
             background: #3fdfae;
             margin-right: 10px;
@@ -117,6 +118,21 @@ export default {
             font-family: 'Poppins_SemiBold';
             color: $colorBlack;
             user-select: none;
+        }
+
+        .label {
+            color: #486060;
+            font-size: 14px;
+            font-family: 'Poppins_Medium';
+            user-select: none;
+        }
+
+        .placeholder {
+            color: #73b1b1;
+            font-size: 18px;
+            font-family: 'Poppins_SemiBold';
+            user-select: none;
+            line-height: 18px;
         }
 
         svg.arrow {

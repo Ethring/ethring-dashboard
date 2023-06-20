@@ -160,6 +160,7 @@ export default {
             if (!selectedNetwork.value) {
                 return [];
             }
+
             let listWithBalances = getTokenList(selectedNetwork.value);
 
             const list = [
@@ -399,8 +400,9 @@ export default {
                 isLoading.value = false;
                 return;
             }
+
             const resTx = await sendTransaction(resSwap);
-            console.log(resTx);
+
             if (resTx.error) {
                 txError.value = resTx.error;
                 isLoading.value = false;

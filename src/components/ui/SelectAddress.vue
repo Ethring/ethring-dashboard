@@ -1,11 +1,11 @@
 <template>
-    <div :class="{ active: active && items.length, focused, error }" class="select-address" @click="active = !active">
+    <div :class="{ active: active && items?.length, focused, error }" class="select-address" @click="active = !active">
         <div class="select-address__panel">
             <div class="recipient">{{ $t('simpleSend.recipient') }}</div>
             <div class="info-wrap">
                 <div class="info">
                     <div class="network">
-                        <component v-if="selectedNetwork?.net" :is="`${selectedNetwork.net}Svg`" />
+                        <component v-if="selectedNetwork?.net" :is="`${selectedNetwork?.net}Svg`" />
                     </div>
                     <input
                         v-model="address"
@@ -16,9 +16,7 @@
                         class="input-address"
                     />
                 </div>
-                <!-- <arrowSvg class="arrow" /> -->
             </div>
-            <div class="address">{{ address || ' ' }}</div>
         </div>
         <div v-if="active && items.length" class="select-address__items" v-click-away="clickAway">
             <div v-for="(item, ndx) in items" :key="ndx" class="select-address__items-item" @click="selectAddress(item)">
@@ -48,9 +46,11 @@ export default {
     props: {
         selectedNetwork: {
             required: true,
+            default: () => {},
         },
         items: {
             type: Array,
+            default: () => [],
         },
         onReset: {
             type: [Boolean, String],
@@ -116,7 +116,7 @@ export default {
         };
 
         const removeAddress = (address) => {
-            emit('removeAddress', { net: props.selectedNetwork.citadelNet, address });
+            emit('removeAddress', { net: props.selectedNetwork.net, address });
             active.value = false;
         };
 
@@ -151,7 +151,7 @@ export default {
         flex-direction: column;
         background: $colorGray;
         border-radius: 16px;
-        height: 160px;
+        height: 130px;
         padding: 17px 32px;
         box-sizing: border-box;
         border: 2px solid transparent;

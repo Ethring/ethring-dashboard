@@ -1,17 +1,17 @@
 <template>
-    <div class="send">
-        <div class="send-page">
+    <div class="bridge">
+        <div class="bridge-page">
             <Spinner v-if="loader" />
             <template v-else>
-                <div class="send-page-tab">
-                    <div class="send-page__title send-page-tab__active">
-                        {{ $t('simpleSend.title') }}
+                <div class="bridge-page-tab">
+                    <router-link class="bridge-page__title" to="/send">{{ $t('simpleSend.title') }}</router-link>
+                    <div class="bridge-page__title bridge-page-tab__active">
+                        {{ $t('simpleBridge.title') }}
                         <arrowupSvg class="arrow" />
                     </div>
-                    <router-link class="send-page__title" to="/bridge">{{ $t('simpleBridge.title') }}</router-link>
                 </div>
-                <div v-if="walletAddress && groupTokens.length && !loader" class="send-page__wrap">
-                    <component v-if="sendComponent" :is="sendComponent" />
+                <div v-if="walletAddress && !loader" class="bridge-page__wrap">
+                    <component v-if="bridgeComponent" :is="bridgeComponent" />
                 </div>
             </template>
         </div>
@@ -22,37 +22,35 @@ import { computed, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
-import SimpleSend from '@/components/dynamic/send/SimpleSend';
+import Spinner from '@/components/app/Spinner';
+import SimpleBridge from '@/components/dynamic/bridge/SimpleBridge';
 import arrowupSvg from '@/assets/icons/dashboard/arrowup.svg';
 
 import { UIConfig } from '@/config/ui';
 
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
-import useTokens from '@/compositions/useTokens';
-
-import Spinner from '@/components/app/Spinner';
 
 export default {
-    name: 'Send',
+    name: 'Bridge',
     components: {
-        SimpleSend,
+        SimpleBridge,
         Spinner,
         arrowupSvg,
     },
     setup() {
         const store = useStore();
         const router = useRouter();
-        const { groupTokens } = useTokens();
-        const { walletAddress, currentChainInfo } = useWeb3Onboard();
 
         const loader = computed(() => store.getters['tokens/loader']);
 
-        const sendComponent = computed(() => {
-            return UIConfig[currentChainInfo.value.net]?.send?.component;
+        const { walletAddress, currentChainInfo } = useWeb3Onboard();
+
+        const bridgeComponent = computed(() => {
+            return UIConfig[currentChainInfo.value.net]?.bridge?.component;
         });
 
         watch(
-            () => sendComponent.value,
+            () => bridgeComponent.value,
             (newV) => {
                 if (!newV) {
                     router.push('/main');
@@ -62,22 +60,21 @@ export default {
 
         return {
             loader,
-            groupTokens,
             walletAddress,
-            sendComponent,
+            bridgeComponent,
         };
     },
 };
 </script>
 <style lang="scss" scoped>
-.send {
+.bridge {
     @include pageStructure;
 
-    .send-page {
+    .bridge-page {
         @include pageFlexColumn;
         height: calc(100vh - 125px);
 
-        .send-page-tab {
+        .bridge-page-tab {
             display: flex;
             justify-content: space-around;
             align-items: baseline;
@@ -112,10 +109,10 @@ export default {
 }
 
 body.dark {
-    .send {
+    .bridge {
         background: rgb(12, 13, 23);
 
-        .send-page {
+        .bridge-page {
             &__title {
                 color: $colorWhite;
             }

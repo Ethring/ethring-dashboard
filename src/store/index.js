@@ -5,6 +5,7 @@ import networks from './networks';
 import tokens from './tokens';
 import app from './app';
 import oneInchSwap from './1inch/oneInchSwap';
+import bridge from './bridge/deBridge';
 
 const dataState = createPersistedState({
     key: 'citadelPoint',
@@ -26,6 +27,7 @@ export default createStore({
         networks,
         tokens,
         oneInchSwap,
+        bridge,
     },
     plugins: [dataState],
 });

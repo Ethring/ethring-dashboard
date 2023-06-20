@@ -6,33 +6,39 @@ const defaultSidebarItems = [
 
 export const UIConfig = {
     bsc: {
-        sidebar: [
-            ...defaultSidebarItems,
-            // { component: "stakeSvg", title: "Stake", key: "stake", to: "/stake" },
-        ],
+        sidebar: [...defaultSidebarItems, { component: 'bridgeSvg', title: 'Bridge', key: 'bridge', to: '/bridge' }],
         send: {
             component: 'SimpleSend',
         },
         swap: {
             component: 'SimpleSwap',
+        },
+        bridge: {
+            component: 'SimpleBridge',
         },
     },
     eth: {
-        sidebar: [...defaultSidebarItems],
+        sidebar: [...defaultSidebarItems, { component: 'bridgeSvg', title: 'Bridge', key: 'bridge', to: '/bridge' }],
         send: {
             component: 'SimpleSend',
         },
         swap: {
             component: 'SimpleSwap',
+        },
+        bridge: {
+            component: 'SimpleBridge',
         },
     },
     polygon: {
-        sidebar: [...defaultSidebarItems],
+        sidebar: [...defaultSidebarItems, { component: 'bridgeSvg', title: 'Bridge', key: 'bridge', to: '/bridge' }],
         send: {
             component: 'SimpleSend',
         },
         swap: {
             component: 'SimpleSwap',
+        },
+        bridge: {
+            component: 'SimpleBridge',
         },
     },
     optimism: {
@@ -45,21 +51,27 @@ export const UIConfig = {
         },
     },
     avalanche: {
-        sidebar: [...defaultSidebarItems],
+        sidebar: [...defaultSidebarItems, { component: 'bridgeSvg', title: 'Bridge', key: 'bridge', to: '/bridge' }],
         send: {
             component: 'SimpleSend',
         },
         swap: {
             component: 'SimpleSwap',
+        },
+        bridge: {
+            component: 'SimpleBridge',
         },
     },
     arbitrum: {
-        sidebar: [...defaultSidebarItems],
+        sidebar: [...defaultSidebarItems, { component: 'bridgeSvg', title: 'Bridge', key: 'bridge', to: '/bridge' }],
         send: {
             component: 'SimpleSend',
         },
         swap: {
             component: 'SimpleSwap',
+        },
+        bridge: {
+            component: 'SimpleBridge',
         },
     },
 };

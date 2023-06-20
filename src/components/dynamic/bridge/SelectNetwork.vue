@@ -3,10 +3,9 @@
         <div class="select__panel">
             <div class="info">
                 <div class="network">
-                    <img :src="current.logo" alt="network-logo" class="network-logo" />
-                    <!-- <component :is="`${selectedItem?.net}Svg`" /> -->
+                    <img v-if="selectedItem" :src="selectedItem?.logo || selectedItem?.logoURI" alt="network-logo" class="network-logo" />
                 </div>
-                <div v-if="selectedItem" class="name">{{ selectedItem?.name }}</div>
+                <div v-if="selectedItem" class="name">{{ selectedItem?.label || selectedItem?.name.replace(' Mainnet', '') }}</div>
                 <div v-else>
                     <div class="label">{{ label }}</div>
                     <div class="placeholder">{{ placeholder }}</div>
@@ -16,46 +15,36 @@
         </div>
         <div v-if="active" class="select__items" v-click-away="clickAway">
             <div
-                v-for="(item, ndx) in items"
-                :key="ndx"
-                :class="{ active: item.name === selectedItem?.name }"
+                v-for="(item, idx) in items"
+                :key="idx"
+                :class="{ active: item.net === selectedItem?.net }"
                 class="select__items-item"
                 @click="setActive(item)"
             >
-                <div class="row">
-                    <div class="select__items-item-logo">
-                        <component :is="`${item?.net}Svg`" />
+                <div class="info">
+                    <div class="icon">
+                        <img :src="item.logoURI" alt="network-logo" class="network-logo" />
                     </div>
-                    <div class="info">
-                        <div class="name">{{ item.name }}</div>
-                    </div>
-                </div>
-                <div class="amount">
-                    {{ prettyNumber(item.balance?.mainBalance) }}
-                    <span>{{ item.code }}</span>
+                    <div class="name">{{ item.label || item.name }}</div>
                 </div>
             </div>
         </div>
     </div>
 </template>
 <script>
-import bscSvg from '@/assets/icons/networks/bsc.svg';
-import ethSvg from '@/assets/icons/networks/eth.svg';
-import polygonSvg from '@/assets/icons/networks/polygon.svg';
-import optimismSvg from '@/assets/icons/networks/optimism.svg';
-import arbitrumSvg from '@/assets/icons/networks/arbitrum.svg';
-import evmosethSvg from '@/assets/icons/networks/evmoseth.svg';
-import avalancheSvg from '@/assets/icons/networks/avalanche.svg';
-import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
-import { prettyNumber } from '@/helpers/prettyNumber';
 import { onMounted, ref } from 'vue';
-import { useStore } from 'vuex';
+
+import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
 export default {
-    name: 'Select',
+    name: 'SelectNetwork',
     props: {
         items: {
             type: Array,
+        },
+        current: {
+            type: Object,
+            default: () => {},
         },
         label: {
             type: String,
@@ -63,25 +52,13 @@ export default {
         placeholder: {
             type: String,
         },
-        current: {
-            type: Object,
-            default: () => {},
-        },
     },
     components: {
         arrowSvg,
-        bscSvg,
-        ethSvg,
-        polygonSvg,
-        optimismSvg,
-        arbitrumSvg,
-        evmosethSvg,
-        avalancheSvg,
     },
     setup(props, { emit }) {
         const active = ref(false);
-        const store = useStore();
-        const selectedItem = ref(props.items.find((elem) => elem.net === props.current.net));
+        const selectedItem = ref(props.current);
 
         const clickAway = () => {
             active.value = false;
@@ -93,10 +70,12 @@ export default {
         };
 
         onMounted(() => {
-            store.dispatch('networks/setSelectedNetwork', selectedItem.value);
+            if (selectedItem.value) {
+                setActive(selectedItem.value);
+            }
         });
 
-        return { active, selectedItem, prettyNumber, clickAway, setActive };
+        return { active, selectedItem, clickAway, setActive };
     },
 };
 </script>
@@ -129,6 +108,7 @@ export default {
             align-items: center;
             width: 40px;
             height: 40px;
+            min-width: 40px;
             border-radius: 50%;
             background: #3fdfae;
             margin-right: 10px;
@@ -232,6 +212,27 @@ export default {
             .name {
                 color: #486060;
             }
+
+            .icon {
+                transition: 0.2s;
+
+                width: 32px;
+                height: 32px;
+                background-color: $colorSlimLightBlue;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                margin-right: 16px;
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                    max-width: 20px;
+                    max-height: 20px;
+                }
+            }
         }
 
         &.active {
@@ -244,13 +245,17 @@ export default {
         }
 
         &:last-child {
-            border-bottom: 1px solid transparent;
+            border-bottom-color: transparent;
         }
 
         &:hover {
             .info {
                 .name {
                     color: $colorBaseGreen;
+                }
+
+                .icon {
+                    background-color: $colorLightGreen;
                 }
             }
             .select__items-item-logo {

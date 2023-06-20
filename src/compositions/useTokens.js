@@ -1,6 +1,7 @@
 import { computed } from 'vue';
 import { useStore } from 'vuex';
 import useWeb3Onboard from './useWeb3Onboard';
+
 import { chainIds } from '@/config/availableNets';
 
 export default function useTokens() {
@@ -42,15 +43,14 @@ export default function useTokens() {
                 }
                 return 0;
             });
-
     // all networks
     const groupTokens = computed(() => {
-        if (currentChainInfo.value?.net) {
+        if (currentChainInfo.value?.net && groupTokensBalance.value) {
             const groupList = [];
 
-            Object.keys(groupTokensBalance.value).forEach((parentNet) => {
-                const tokens = groupTokensBalance.value[parentNet].list;
-                const parentTokens = networks.value[parentNet].tokens;
+            Object.keys(groupTokensBalance.value)?.forEach((parentNet) => {
+                const tokens = groupTokensBalance.value[parentNet]?.list;
+                const parentTokens = networks.value[parentNet]?.tokens;
                 let childs = [];
                 if (tokens && parentTokens) {
                     childs = sortByBalanceUsd(
@@ -128,10 +128,12 @@ export default function useTokens() {
         }
         return [];
     });
+
     const getTokenList = (network) => {
-        let listWithBalances = [network, ...network.list];
+        let listWithBalances = [network, ...network?.list];
         return sortByBalanceUsd(listWithBalances);
     };
+
     const sortByBalanceUsd = (list) => {
         return list?.sort((a, b) => {
             if (a.balanceUsd > b.balanceUsd) {

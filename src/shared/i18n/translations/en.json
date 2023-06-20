@@ -19,6 +19,7 @@
     "swap": "Swap",
     "stake": "Stake",
     "send": "Send",
+    "bridge": "Bridge",
     "xct": "XCT"
   },
   "connect": {
@@ -30,7 +31,6 @@
   },
   "actionTokens": "Tokens",
   "actionTransactions": "Transactions",
-
   "simpleSend": {
     "title": "Send",
     "confirm": "Confirm",
@@ -39,7 +39,6 @@
     "balance": "Balance",
     "max": "Max"
   },
-
   "simpleSwap": {
     "title": "Swap",
     "swap": "Swap",
@@ -47,5 +46,19 @@
     "pay": "Pay",
     "receive": "Receive",
     "selectToken": "Select token"
+  },
+  "simpleBridge": {
+    "title": "Bridge",
+    "confirm": "Confirm",
+    "recipient": "Recipient",
+    "approve": "Approve",
+    "send": "Send",
+    "receive": "Receive",
+    "amount": "Amount",
+    "balance": "Balance",
+    "max": "Max",
+    "protocolFee": "Protocol Fee",
+    "serviceFee": "Service Fee",
+    "time": "Time"
   }
 }

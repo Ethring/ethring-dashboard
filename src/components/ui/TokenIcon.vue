@@ -66,13 +66,19 @@ export default {
             return (tokenIconFromZomet.value = null);
         };
 
-        onMounted(() => setTokenIcon());
+        onMounted(() => {
+            if (props.token) {
+                setTokenIcon();
+            }
+        });
 
         watch(
             () => props.token,
             () => {
-                showIconPlaceholder.value = false;
-                setTokenIcon();
+                if (props.token) {
+                    showIconPlaceholder.value = false;
+                    setTokenIcon();
+                }
             }
         );
 

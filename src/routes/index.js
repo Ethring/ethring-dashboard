@@ -35,7 +35,7 @@ const routes = [
     },
     {
         path: '/swap/select-token',
-        name: 'select-token',
+        name: 'swap/select-token',
         meta: {
             isAuth: true,
         },
@@ -54,6 +54,22 @@ const routes = [
         path: '/:pathMatch(.*)*',
         name: 'notFound',
         component: () => import(/* webpackChunkName: "about" */ '../views/NotFound.vue'),
+    },
+    {
+        path: '/bridge',
+        name: 'bridge',
+        meta: {
+            isAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "about" */ '../views/Bridge.vue'),
+    },
+    {
+        path: '/bridge/select-token',
+        name: 'bridge/select-token',
+        meta: {
+            isAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "about" */ '../components/dynamic/bridge/SelectToken.vue'),
     },
 ];
 

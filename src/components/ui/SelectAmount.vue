@@ -29,7 +29,7 @@
                     </span>
                     {{ selectedToken?.code }}
                 </p>
-                <div><span>$</span>{{ prettyNumber(BigNumber(amount * selectedToken?.price?.USD).toFixed()) }}</div>
+                <div><span>$</span>{{ prettyNumber(BigNumber(amount * selectedToken?.price?.USD || 0).toFixed()) }}</div>
             </div>
         </div>
         <div v-if="active" class="select-amount__items" v-click-away="clickAway">
@@ -103,6 +103,9 @@ export default {
             type: [String, Number],
             default: '',
         },
+        selectedNetwork: {
+            type: Object,
+        },
     },
     components: {
         arrowSvg,
@@ -114,6 +117,7 @@ export default {
         const amount = ref('');
         const selectedToken = ref(props.value);
         const placeholder = ref('0');
+        const coingeckoPrice = ref(0);
 
         watch(
             () => props.onReset,
@@ -217,8 +221,15 @@ export default {
         const clickToken = () => {
             emit('clickToken');
         };
-        onMounted(() => {
+        onMounted(async () => {
             setToken(selectedToken.value);
+            // if (props.selectedNetwork) {
+            //     platform.value = await store.dispatch('tokens/getCoingeckoPlatform', { chainId: props?.selectedNetwork?.chain_id });
+            //     coingeckoPrice.value = await store.dispatch('tokens/getCoingeckoPrice', {
+            //         platform: platform.value,
+            //         addresses: selectedToken.value.address,
+            //     });
+            // }
         });
 
         const setTokenBalance = (token) => {
@@ -242,6 +253,7 @@ export default {
             clickAway,
             emit,
             clickToken,
+            coingeckoPrice,
             setTokenBalance,
         };
     },
