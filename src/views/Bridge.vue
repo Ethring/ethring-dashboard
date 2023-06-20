@@ -13,7 +13,6 @@
                 <div v-if="walletAddress && !loader" class="bridge-page__wrap">
                     <component v-if="bridgeComponent" :is="bridgeComponent" />
                 </div>
-                <EmptyList v-else title="Bridge under maintenance" />
             </template>
         </div>
     </div>
@@ -25,7 +24,6 @@ import { useRouter } from 'vue-router';
 
 import Spinner from '@/components/app/Spinner';
 import SimpleBridge from '@/components/dynamic/bridge/SimpleBridge';
-import EmptyList from '@/components/ui/EmptyList';
 import arrowupSvg from '@/assets/icons/dashboard/arrowup.svg';
 
 import { UIConfig } from '@/config/ui';
@@ -37,7 +35,6 @@ export default {
     components: {
         SimpleBridge,
         Spinner,
-        EmptyList,
         arrowupSvg,
     },
     setup() {

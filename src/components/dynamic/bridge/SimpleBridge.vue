@@ -191,6 +191,10 @@ export default {
         });
 
         const filteredSupportedChains = computed(() => {
+            if (!getSupportedChains.value) {
+                return [];
+            }
+
             const list = groupTokens?.value.filter((item) => {
                 const supportedChain = getSupportedChains?.value?.find((network) => network.net === item.net);
                 if (supportedChain) {
