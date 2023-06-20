@@ -64,17 +64,22 @@
         <Accordion
             v-if="selectedDstNetwork"
             :title="
-                receiveValue
-                    ? `${$t('simpleBridge.protocolFee')} : <span style='font-family:Poppins_Semibold; color: #0D7E71;'>
-                ${serviceFee}
-                </span> <span  style='font-family:Poppins_Semibold;'>${
-                    selectedSrcNetwork?.code
-                } ~ <span style='font-family:Poppins_Semibold; color: #0D7E71;'>${prettyNumber(
-                          serviceFee * selectedSrcNetwork?.price?.USD
-                      )}</span> $</span>`
+                selectedSrcNetwork
+                    ? `<span>${$t('simpleBridge.protocolFee')} </span>: ${
+                          serviceFee
+                              ? `<span style='font-family:Poppins_Semibold; color: #0D7E71;'>${serviceFee}</span> 
+                                    <span style='font-family:Poppins_Semibold;'>
+                                        ${selectedSrcNetwork.code} ~ 
+                                        <span style='font-family:Poppins_Semibold; color: #0D7E71;'>
+                                            ${prettyNumber(serviceFee * selectedSrcNetwork.price.USD)}
+                                        </span> $
+                                    </span>`
+                              : `<div class='skeleton skeleton__text'></div>`
+                      }`
                     : `<div class='skeleton skeleton__text'></div>`
             "
-            :class="receiveValue ? 'mt-10' : 'mt-10 skeleton__content'"
+            :hide="!receiveValue"
+            :class="serviceFee ? 'mt-10' : 'mt-10 skeleton__content'"
         >
             <div v-if="receiveValue" class="accordion__content">
                 <div class="accordion__item">
@@ -187,6 +192,9 @@ export default {
             );
             if (selectedSrcToken.value) {
                 await getAllowance();
+            }
+            if (selectedSrcNetwork.value) {
+                serviceFee.value = services[0]?.protocolFee[selectedSrcNetwork?.value?.chain_id];
             }
         });
 
@@ -425,7 +433,6 @@ export default {
             receiveValue.value = resEstimate.dstTokenAmount;
             networkFee.value = +resEstimate.estimatedGas;
             estimateTime.value = services[0]?.estimatedTime[selectedSrcNetwork?.value?.chain_id];
-            serviceFee.value = services[0]?.protocolFee[selectedSrcNetwork?.value?.chain_id];
         };
 
         const getProvider = () => {
@@ -644,6 +651,7 @@ export default {
             onSetAddress,
             onSetSrcToken,
             onSetDstToken,
+            amount,
             onSetAmount,
             estimateTime,
             serviceFee,
@@ -719,14 +727,15 @@ export default {
 
         &__content {
             .accordion__title {
-                display: contents;
+                display: flex;
+                width: 100%;
             }
         }
 
         &__text {
-            width: 95%;
+            width: 80%;
             height: 0.5rem;
-            margin: 8px 0;
+            margin: 8px 0 0 8px;
             border-radius: 2px;
         }
     }

@@ -2,9 +2,9 @@
     <div :class="{ active }" class="accordion" @click="active = !active">
         <div class="accordion__header">
             <div class="accordion__title" v-html="title"></div>
-            <arrowSvg class="arrow" />
+            <arrowSvg class="arrow" v-if="!hide" />
         </div>
-        <div class="accordion__content" :style="{ height: active ? 'auto' : '0' }">
+        <div v-if="!hide" class="accordion__content" :style="{ height: active ? 'auto' : '0' }">
             <slot></slot>
         </div>
     </div>
@@ -23,6 +23,10 @@ export default {
         title: {
             type: String,
             default: 'Receive',
+        },
+        hide: {
+            type: Boolean,
+            default: false,
         },
     },
     setup() {
