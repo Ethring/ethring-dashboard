@@ -16,9 +16,44 @@ let web3Onboard = null;
 
 const initWeb3 = (chains = defaultChains) => (web3Onboard = init({ ...web3OnBoardConfig, chains }));
 
+const setUniqueDataQA = (DOM) => {
+    const walletConnectItems = DOM.querySelectorAll('.wallet-button-container');
+
+    if (!walletConnectItems) {
+        return;
+    }
+
+    return walletConnectItems.forEach((item) => {
+        const name = item.querySelector('.name').innerHTML;
+        item.setAttribute('data-qa', name);
+    });
+};
+
+const setEventToActionBtn = (DOM) => {
+    const connectWallet = DOM.querySelector('.action-container');
+
+    if (!connectWallet) {
+        return;
+    }
+
+    return connectWallet.addEventListener('click', () => setTimeout(() => setUniqueDataQA(DOM)));
+};
+
 export default function useWeb3Onboard() {
     if (!web3Onboard) {
         return initWeb3();
+    }
+
+    const onBoardDOM = document.querySelector('onboard-v2').shadowRoot;
+
+    const state = web3Onboard.state.select('accountCenter');
+
+    if (onBoardDOM) {
+        state.subscribe(() => {
+            setTimeout(() => setEventToActionBtn(onBoardDOM));
+        });
+
+        setTimeout(() => setUniqueDataQA(onBoardDOM));
     }
 
     const { connectedWallet, connectedChain } = useOnboard();
