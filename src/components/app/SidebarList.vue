@@ -1,15 +1,16 @@
 <template>
     <div class="sidebar-list">
-        <router-link v-for="(item, ndx) in menu" :key="ndx" :to="item.to" class="sidebar-list__item">
+        <router-link v-for="(item, ndx) in menu" :key="ndx" :to="item.to" class="sidebar-list__item" :data-qa="item.key">
             <div class="sidebar-list__item-icon">
                 <component v-if="item.component" :is="item.component" />
             </div>
-            <div class="sidebar-list__item-title">
+            <div class="sidebar-list__item-title" :data-qa="`sidebar-item-${item.key}`">
                 {{ $t(`sidebar.${item.key}`) }}
             </div>
         </router-link>
     </div>
 </template>
+
 <script>
 import mainSvg from '@/assets/icons/sidebar/main.svg';
 import swapSvg from '@/assets/icons/sidebar/swap.svg';

@@ -46,7 +46,6 @@ const config = {
     chainWebpack,
     devServer: {
         historyApiFallback: true,
-        noInfo: false,
         https: process.env.NODE_ENV === 'production',
     },
     productionSourceMap: process.env.NODE_ENV !== 'production',
