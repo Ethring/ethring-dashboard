@@ -379,7 +379,7 @@ export default {
                 const resAllowance = await store.dispatch('bridge/getAllowance', {
                     net: selectedSrcNetwork.value.net,
                     tokenAddress: selectedSrcToken.value.address,
-                    owner: walletAddress.value,
+                    ownerAddress: walletAddress.value,
                 });
 
                 if (resAllowance.error) {
@@ -395,7 +395,7 @@ export default {
                 const resApproveTx = await store.dispatch('bridge/getApproveTx', {
                     net: selectedSrcNetwork.value.net,
                     tokenAddress: selectedSrcToken.value.address,
-                    owner: walletAddress.value,
+                    ownerAddress: walletAddress.value,
                 });
 
                 if (resApproveTx.error) {
@@ -417,11 +417,11 @@ export default {
             }
 
             const resEstimate = await store.dispatch('bridge/estimateBridge', {
-                srcNet: selectedSrcNetwork.value.net,
-                srcTokenAddress: selectedSrcToken.value.address || NATIVE_CONTRACT,
-                srcTokenAmount: amount.value,
-                dstNet: selectedDstNetwork.value.net,
-                dstTokenAddress: selectedDstToken.value.address || NATIVE_CONTRACT,
+                fromNet: selectedSrcNetwork.value.net,
+                fromTokenAddress: selectedSrcToken.value.address || NATIVE_CONTRACT,
+                amount: amount.value,
+                toNet: selectedDstNetwork.value.net,
+                toTokenAddress: selectedDstToken.value.address || NATIVE_CONTRACT,
             });
 
             if (resEstimate.error) {
@@ -430,7 +430,7 @@ export default {
             }
 
             txError.value = '';
-            receiveValue.value = resEstimate.dstTokenAmount;
+            receiveValue.value = resEstimate.toTokenAmount;
             networkFee.value = +resEstimate.estimatedGas;
             estimateTime.value = services[0]?.estimatedTime[selectedSrcNetwork?.value?.chain_id];
         };
@@ -538,14 +538,14 @@ export default {
             }
 
             const resSwap = await store.dispatch('bridge/getBridgeTx', {
-                srcNet: selectedSrcNetwork.value.net,
-                srcTokenAddress: selectedSrcToken.value.address || NATIVE_CONTRACT,
-                srcTokenAmount: amount.value,
-                dstNet: selectedDstNetwork.value.net,
-                dstTokenAddress: selectedDstToken.value.address || NATIVE_CONTRACT,
-                dstChainRecipientAddress: address.value || walletAddress.value,
-                dstChainFallbackAddress: walletAddress.value || NATIVE_CONTRACT,
-                owner: walletAddress.value,
+                fromNet: selectedSrcNetwork.value.net,
+                fromTokenAddress: selectedSrcToken.value.address || NATIVE_CONTRACT,
+                amount: amount.value,
+                toNet: selectedDstNetwork.value.net,
+                toTokenAddress: selectedDstToken.value.address || NATIVE_CONTRACT,
+                recipientAddress: address.value || walletAddress.value,
+                fallbackAddress: walletAddress.value || NATIVE_CONTRACT,
+                ownerAddress: walletAddress.value,
                 slippage: 1,
             });
 
