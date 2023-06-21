@@ -70,42 +70,42 @@ export default {
         },
 
         /* ALLOWANCE */
-        async getAllowance(_, { net, tokenAddress, owner }) {
+        async getAllowance(_, { net, tokenAddress, ownerAddress }) {
             return await fetchData({
                 url: VUE_APP_DEBRIDGE_API,
                 route: 'getAllowance',
                 params: {
                     net,
                     tokenAddress,
-                    owner,
+                    ownerAddress,
                 },
             });
         },
 
         /* APPROVE TX */
-        async getApproveTx(_, { net, tokenAddress, owner }) {
+        async getApproveTx(_, { net, tokenAddress, ownerAddress }) {
             return await fetchData({
                 url: VUE_APP_DEBRIDGE_API,
                 route: 'getApproveTx',
                 params: {
                     net,
                     tokenAddress,
-                    owner,
+                    ownerAddress,
                 },
             });
         },
 
         /* ESTIMATE BRIDGE */
-        async estimateBridge(_, { srcNet, srcTokenAddress, srcTokenAmount, dstNet, dstTokenAddress }) {
+        async estimateBridge(_, { fromNet, fromTokenAddress, amount, toNet, toTokenAddress }) {
             return await fetchData({
                 url: VUE_APP_DEBRIDGE_API,
                 route: 'estimateBridge',
                 params: {
-                    srcNet,
-                    srcTokenAddress,
-                    srcTokenAmount,
-                    dstNet,
-                    dstTokenAddress,
+                    fromNet,
+                    fromTokenAddress,
+                    amount,
+                    toNet,
+                    toTokenAddress,
                 },
             });
         },
@@ -113,20 +113,20 @@ export default {
         /* GET BRIDGE TX */
         async getBridgeTx(
             _,
-            { srcNet, srcTokenAddress, srcTokenAmount, dstNet, dstTokenAddress, dstChainRecipientAddress, dstChainFallbackAddress, owner }
+            { fromNet, fromTokenAddress, amount, toNet, toTokenAddress, recipientAddress, fallbackAddress, ownerAddress }
         ) {
             return await fetchData({
                 url: VUE_APP_DEBRIDGE_API,
                 route: 'getBridgeTx',
                 params: {
-                    srcNet,
-                    srcTokenAddress,
-                    srcTokenAmount,
-                    dstNet,
-                    dstTokenAddress,
-                    dstChainRecipientAddress,
-                    dstChainFallbackAddress,
-                    owner,
+                    fromNet,
+                    fromTokenAddress,
+                    amount,
+                    toNet,
+                    toTokenAddress,
+                    recipientAddress,
+                    fallbackAddress,
+                    ownerAddress,
                 },
             });
         },
