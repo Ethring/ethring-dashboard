@@ -15,8 +15,8 @@ export default function useTokens() {
     const groupTokensBalance = computed(() => store.getters['tokens/groupTokens']);
 
     const allTokensFromNetwork = (net) =>
-        Object.keys(networks.value[net].tokens)
-            .map((tokenNet) => {
+        Object.keys(networks.value[net]?.tokens)
+            ?.map((tokenNet) => {
                 return networks.value[net].tokens[tokenNet];
             })
             .map((token) => ({
