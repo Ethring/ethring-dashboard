@@ -278,8 +278,8 @@ export default {
 
             const resEstimate = await store.dispatch('oneInchSwap/estimateSwap', {
                 net: selectedNetwork.value.net,
-                from_token_address: selectedTokenFrom.value.list ? NATIVE_CONTRACT : selectedTokenFrom.value.address,
-                to_token_address: selectedTokenTo.value.list ? NATIVE_CONTRACT : selectedTokenTo.value.address,
+                fromTokenAddress: selectedTokenFrom.value.list ? NATIVE_CONTRACT : selectedTokenFrom.value.address,
+                toTokenAddress: selectedTokenTo.value.list ? NATIVE_CONTRACT : selectedTokenTo.value.address,
                 amount: amount.value,
             });
 
@@ -299,8 +299,8 @@ export default {
 
             const resAllowance = await store.dispatch('oneInchSwap/getAllowance', {
                 net: currentChainInfo.value.net,
-                token_address: selectedTokenFrom.value.list ? NATIVE_CONTRACT : selectedTokenFrom.value.address,
-                owner: walletAddress.value,
+                tokenAddress: selectedTokenFrom.value.list ? NATIVE_CONTRACT : selectedTokenFrom.value.address,
+                ownerAddress: walletAddress.value,
             });
 
             if (resAllowance.error) {
@@ -312,8 +312,8 @@ export default {
         const getApproveTx = async () => {
             const resApproveTx = await store.dispatch('oneInchSwap/getApproveTx', {
                 net: currentChainInfo.value.net,
-                token_address: selectedTokenFrom.value.list ? NATIVE_CONTRACT : selectedTokenFrom.value.address,
-                owner: walletAddress.value,
+                tokenAddress: selectedTokenFrom.value.list ? NATIVE_CONTRACT : selectedTokenFrom.value.address,
+                ownerAddress: walletAddress.value,
             });
             if (resApproveTx.error) {
                 return;
@@ -388,10 +388,10 @@ export default {
 
             const resSwap = await store.dispatch('oneInchSwap/getSwapTx', {
                 net: selectedNetwork.value.net,
-                from_token_address: selectedTokenFrom.value.list ? NATIVE_CONTRACT : selectedTokenFrom.value.address,
-                to_token_address: selectedTokenTo.value.list ? NATIVE_CONTRACT : selectedTokenTo.value.address,
+                fromTokenAddress: selectedTokenFrom.value.list ? NATIVE_CONTRACT : selectedTokenFrom.value.address,
+                toTokenAddress: selectedTokenTo.value.list ? NATIVE_CONTRACT : selectedTokenTo.value.address,
                 amount: amount.value,
-                owner: walletAddress.value,
+                ownerAddress: walletAddress.value,
                 slippage: 0.5,
             });
 

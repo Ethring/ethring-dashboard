@@ -13,56 +13,56 @@ export default {
 
     actions: {
         /* ESTIMATE SWAP */
-        async estimateSwap(_, { net, from_token_address, to_token_address, amount }) {
+        async estimateSwap(_, { net, fromTokenAddress, toTokenAddress, amount }) {
             return await fetchData({
                 url: VUE_APP_1INCH_SWAP_API,
                 route: 'estimateSwap',
                 params: {
                     net,
-                    from_token_address,
-                    to_token_address,
+                    fromTokenAddress,
+                    toTokenAddress,
                     amount,
                 },
             });
         },
 
         /* ALLOWANCE */
-        async getAllowance(_, { net, token_address, owner }) {
+        async getAllowance(_, { net, tokenAddress, ownerAddress }) {
             return await fetchData({
                 url: VUE_APP_1INCH_SWAP_API,
                 route: 'getAllowance',
                 params: {
                     net,
-                    token_address,
-                    owner,
+                    tokenAddress,
+                    ownerAddress,
                 },
             });
         },
 
         /* APPROVE TX */
-        async getApproveTx(_, { net, token_address, owner }) {
+        async getApproveTx(_, { net, tokenAddress, ownerAddress }) {
             return await fetchData({
                 url: VUE_APP_1INCH_SWAP_API,
                 route: 'getApproveTx',
                 params: {
                     net,
-                    token_address,
-                    owner,
+                    tokenAddress,
+                    ownerAddress,
                 },
             });
         },
 
         /* GET SWAP TX */
-        async getSwapTx(_, { net, from_token_address, to_token_address, amount, owner, slippage }) {
+        async getSwapTx(_, { net, fromTokenAddress, toTokenAddress, amount, ownerAddress, slippage }) {
             return await fetchData({
                 url: VUE_APP_1INCH_SWAP_API,
                 route: 'getSwapTx',
                 params: {
                     net,
-                    from_token_address,
-                    to_token_address,
+                    fromTokenAddress,
+                    toTokenAddress,
                     amount,
-                    owner,
+                    ownerAddress,
                     slippage,
                 },
             });
