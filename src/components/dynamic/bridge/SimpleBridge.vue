@@ -248,17 +248,16 @@ export default {
             }
 
             let listWithBalances = [];
-
             if (network.list) {
                 listWithBalances = getTokenList(network);
             } else {
-                listWithBalances = [groupTokens.value[0], ...groupTokens.value[0].list];
+                const selectedNetwork = groupTokens.value.find((elem) => elem?.chain_id === network?.chainId);
+                listWithBalances = [selectedNetwork, ...selectedNetwork?.list];
             }
-
             const list = [
                 ...listWithBalances,
                 ...allTokensFromNetwork(network.net).filter((token) => {
-                    return token.net !== network.net && !groupTokens?.value[0]?.list.find((t) => t.net === token.net);
+                    return token.net !== network.net && !groupTokens.value[0].list.find((t) => t.net === token.net);
                 }),
             ];
 

@@ -45,11 +45,15 @@ export default {
                 return [];
             }
 
+            const currentNetwork = groupTokens.value.find(
+                (elem) => elem?.chain_id === (selectedNetwork?.value?.chain_id || selectedNetwork?.value?.chainId)
+            );
+
             let list = [
-                selectedNetwork.value,
-                ...selectedNetwork?.value?.list,
+                currentNetwork,
+                ...currentNetwork?.list,
                 ...allTokensFromNetwork(selectedNetwork.value?.net).filter((token) => {
-                    return token.net !== selectedNetwork.value?.net && !selectedNetwork.value?.list?.find((t) => t.net === token.net);
+                    return token.net !== selectedNetwork.value?.net && !currentNetwork?.list?.find((t) => t.net === token.net);
                 }),
             ];
 

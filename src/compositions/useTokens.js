@@ -14,35 +14,40 @@ export default function useTokens() {
 
     const groupTokensBalance = computed(() => store.getters['tokens/groupTokens']);
 
-    const allTokensFromNetwork = (net) =>
-        Object.keys(networks.value[net]?.tokens)
-            ?.map((tokenNet) => {
-                return networks.value[net].tokens[tokenNet];
-            })
-            .map((token) => ({
-                ...token,
-                balance: {
-                    amount: 0,
+    const allTokensFromNetwork = (net) => {
+        if (networks.value[net]) {
+            return Object.keys(networks.value[net].tokens)
+                .map((tokenNet) => {
+                    return networks.value[net].tokens[tokenNet];
+                })
+                .map((token) => ({
+                    ...token,
+                    balance: {
+                        amount: 0,
+                        price: {
+                            BTC: 0,
+                            USD: 0,
+                        },
+                    },
+                    balanceUsd: 0,
                     price: {
                         BTC: 0,
                         USD: 0,
                     },
-                },
-                balanceUsd: 0,
-                price: {
-                    BTC: 0,
-                    USD: 0,
-                },
-            }))
-            .sort((a, b) => {
-                if (a.name > b.name) {
-                    return 1;
-                }
-                if (a.name < b.name) {
-                    return -1;
-                }
-                return 0;
-            });
+                }))
+                .sort((a, b) => {
+                    if (a.name > b.name) {
+                        return 1;
+                    }
+                    if (a.name < b.name) {
+                        return -1;
+                    }
+                    return 0;
+                });
+        }
+
+        return [];
+    };
     // all networks
     const groupTokens = computed(() => {
         if (currentChainInfo.value?.net && groupTokensBalance.value) {

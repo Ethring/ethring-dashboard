@@ -3,9 +3,14 @@
         <div class="select__panel">
             <div class="info">
                 <div class="network">
-                    <img v-if="selectedItem" :src="selectedItem?.logo || selectedItem?.logoURI" alt="network-logo" class="network-logo" />
+                    <img
+                        v-if="selectedItem"
+                        :src="selectedItem?.logo || selectedItem?.logoURI || currentChainInfo?.logo"
+                        alt="network-logo"
+                        class="network-logo"
+                    />
                 </div>
-                <div v-if="selectedItem" class="name">{{ selectedItem?.label || selectedItem?.name.replace(' Mainnet', '') }}</div>
+                <div v-if="selectedItem" class="name">{{ selectedItem?.label || selectedItem?.name?.replace(' Mainnet', '') }}</div>
                 <div v-else>
                     <div class="label">{{ label }}</div>
                     <div class="placeholder">{{ placeholder }}</div>
