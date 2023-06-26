@@ -3,15 +3,17 @@
         <div class="bridge-page">
             <Spinner v-if="loader" />
             <template v-else>
-                <div class="bridge-page-tab">
-                    <router-link class="bridge-page__title" to="/send">{{ $t('simpleSend.title') }}</router-link>
-                    <div class="bridge-page__title bridge-page-tab__active">
-                        {{ $t('simpleBridge.title') }}
-                        <arrowupSvg class="arrow" />
+                <div v-if="walletAddress && groupTokens[0].name && !loader">
+                    <div class="bridge-page-tab">
+                        <router-link class="bridge-page__title" to="/send">{{ $t('simpleSend.title') }}</router-link>
+                        <div class="bridge-page__title bridge-page-tab__active">
+                            {{ $t('simpleBridge.title') }}
+                            <arrowupSvg class="arrow" />
+                        </div>
                     </div>
-                </div>
-                <div v-if="walletAddress && !loader" class="bridge-page__wrap">
-                    <component v-if="bridgeComponent" :is="bridgeComponent" />
+                    <div class="bridge-page__wrap">
+                        <component v-if="bridgeComponent" :is="bridgeComponent" />
+                    </div>
                 </div>
             </template>
         </div>
@@ -29,6 +31,7 @@ import arrowupSvg from '@/assets/icons/dashboard/arrowup.svg';
 import { UIConfig } from '@/config/ui';
 
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+import useTokens from '@/compositions/useTokens';
 
 export default {
     name: 'Bridge',
@@ -41,9 +44,10 @@ export default {
         const store = useStore();
         const router = useRouter();
 
-        const loader = computed(() => store.getters['tokens/loader']);
-
+        const { groupTokens } = useTokens();
         const { walletAddress, currentChainInfo } = useWeb3Onboard();
+
+        const loader = computed(() => store.getters['tokens/loader']);
 
         const bridgeComponent = computed(() => {
             return UIConfig[currentChainInfo.value.net]?.bridge?.component;
@@ -59,6 +63,7 @@ export default {
         );
 
         return {
+            groupTokens,
             loader,
             walletAddress,
             bridgeComponent,
@@ -78,7 +83,6 @@ export default {
             display: flex;
             justify-content: space-around;
             align-items: baseline;
-            width: calc(100% - 260px);
 
             &__active {
                 display: flex;
