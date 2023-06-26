@@ -2,7 +2,7 @@
     <div class="bridge">
         <div class="bridge-page">
             <Spinner v-if="loader || !groupTokens[0]?.name || !walletAddress" />
-            <template v-if="walletAddress && groupTokens[0]?.name && !loader">
+            <template v-else>
                 <div class="bridge-page-tab">
                     <router-link class="bridge-page__title" to="/send">{{ $t('simpleSend.title') }}</router-link>
                     <div class="bridge-page__title bridge-page-tab__active">

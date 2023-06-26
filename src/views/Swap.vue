@@ -2,7 +2,7 @@
     <div class="swap">
         <div class="swap-page">
             <Spinner v-if="loader || !walletAddress || !groupTokens[0]?.name" />
-            <template v-if="walletAddress && groupTokens[0]?.name && !loader">
+            <template v-else>
                 <div class="swap-page__title">{{ $t('simpleSwap.title') }}</div>
                 <div class="swap-page__wrap">
                     <component v-if="swapComponent" :is="swapComponent" />
@@ -12,16 +12,17 @@
     </div>
 </template>
 <script>
+import { computed, watch } from 'vue';
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
+
 import SimpleSwap from '@/components/dynamic/swaps/SimpleSwap';
 import UniSwap from '@/components/dynamic/swaps/UniSwap';
 import PancakeSwap from '@/components/dynamic/swaps/PancakeSwap';
 import NotWorking from '@/components/dynamic/swaps/NotWorking';
+import Spinner from '@/components/app/Spinner';
 
 import { UIConfig } from '@/config/ui';
-import { useStore } from 'vuex';
-import { computed, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import Spinner from '@/components/app/Spinner';
 
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 import useTokens from '@/compositions/useTokens';

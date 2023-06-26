@@ -2,7 +2,7 @@
     <div class="send">
         <div class="send-page">
             <Spinner v-if="loader || !walletAddress || !groupTokens[0]?.name" />
-            <template v-if="walletAddress && groupTokens[0]?.name && !loader">
+            <template v-else>
                 <div class="send-page-tab">
                     <div class="send-page__title send-page-tab__active">
                         {{ $t('simpleSend.title') }}
