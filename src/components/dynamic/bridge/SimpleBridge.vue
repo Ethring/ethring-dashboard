@@ -251,7 +251,6 @@ export default {
             if (network.list) {
                 listWithBalances = getTokenList(network);
             } else {
-                // const selectedNetwork = groupTokens.value.find((elem) => elem?.chain_id === network?.chainId);
                 listWithBalances = [groupTokens.value[0], ...groupTokens.value[0].list];
             }
 
