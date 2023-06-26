@@ -1,12 +1,13 @@
-import axios from 'axios';
+import HttpRequest from '@/shared/utils/request';
 
 export const fetchData = async ({ url, route, params }) => {
-    let response;
-
     try {
-        response = await axios.get(`${url}${route}`, { params });
-        return response.data.data;
+        return (await HttpRequest.get(`${url}${route}`, { params })).data.data;
     } catch (err) {
-        return { error: err.response.data.error };
+        if (err && err.response) {
+            return { error: err.response.data.error };
+        }
+
+        return { error: err };
     }
 };

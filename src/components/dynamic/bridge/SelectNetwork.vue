@@ -5,7 +5,7 @@
                 <div class="network">
                     <img v-if="selectedItem" :src="selectedItem?.logo || selectedItem?.logoURI" alt="network-logo" class="network-logo" />
                 </div>
-                <div v-if="selectedItem" class="name">{{ selectedItem?.label || selectedItem?.name.replace(' Mainnet', '') }}</div>
+                <div v-if="selectedItem" class="name">{{ networkName }}</div>
                 <div v-else>
                     <div class="label">{{ label }}</div>
                     <div class="placeholder">{{ placeholder }}</div>
@@ -32,7 +32,7 @@
     </div>
 </template>
 <script>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 
 import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
@@ -75,7 +75,14 @@ export default {
             }
         });
 
-        return { active, selectedItem, clickAway, setActive };
+        const networkName = computed(() => {
+            if (selectedItem.value?.name?.includes(' Mainnet')) {
+                return selectedItem.value.name.replace(' Mainnet', '') || selectedItem.value.name;
+            }
+            return selectedItem.value?.label || selectedItem.value?.name;
+        });
+
+        return { active, selectedItem, networkName, clickAway, setActive };
     },
 };
 </script>
