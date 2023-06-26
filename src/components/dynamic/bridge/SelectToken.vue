@@ -24,7 +24,10 @@ export default {
         const store = useStore();
         const router = useRouter();
         const searchValue = ref('');
+
+        const { walletAddress } = useWeb3Onboard();
         const { groupTokens, allTokensFromNetwork } = useTokens();
+
         const loader = computed(() => store.getters['tokens/loader']);
         const selectType = computed(() => store.getters['tokens/selectType']);
         const selectedNetwork =
@@ -32,7 +35,6 @@ export default {
                 ? computed(() => store.getters['bridge/selectedSrcNetwork'])
                 : computed(() => store.getters['bridge/selectedDstNetwork']);
         const tokens = computed(() => store.getters['bridge/tokensByChainID']);
-        const { walletAddress } = useWeb3Onboard();
 
         onMounted(async () => {
             await store.dispatch('bridge/getTokensByChain', {

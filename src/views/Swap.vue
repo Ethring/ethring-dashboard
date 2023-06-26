@@ -1,7 +1,7 @@
 <template>
     <div class="swap">
         <div class="swap-page">
-            <Spinner v-if="loader || !walletAddress || !groupTokens[0]?.name" />
+            <Spinner v-if="spinnerLoader" />
             <template v-else>
                 <div class="swap-page__title">{{ $t('simpleSwap.title') }}</div>
                 <div class="swap-page__wrap">
@@ -49,6 +49,10 @@ export default {
             return UIConfig[currentChainInfo.value.net]?.swap?.component;
         });
 
+        const spinnerLoader = computed(() => {
+            return loader.value || !groupTokens.value[0]?.name || !walletAddress.value;
+        });
+
         watch(
             () => swapComponent.value,
             (newV) => {
@@ -63,6 +67,7 @@ export default {
             groupTokens,
             walletAddress,
             swapComponent,
+            spinnerLoader,
         };
     },
 };

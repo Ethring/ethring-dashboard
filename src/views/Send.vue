@@ -1,7 +1,7 @@
 <template>
     <div class="send">
         <div class="send-page">
-            <Spinner v-if="loader || !walletAddress || !groupTokens[0]?.name" />
+            <Spinner v-if="spinnerLoader" />
             <template v-else>
                 <div class="send-page-tab">
                     <div class="send-page__title send-page-tab__active">
@@ -51,6 +51,10 @@ export default {
             return UIConfig[currentChainInfo.value.net]?.send?.component;
         });
 
+        const spinnerLoader = computed(() => {
+            return loader.value || !groupTokens.value[0]?.name || !walletAddress.value;
+        });
+
         watch(
             () => sendComponent.value,
             (newV) => {
@@ -65,6 +69,7 @@ export default {
             groupTokens,
             walletAddress,
             sendComponent,
+            spinnerLoader,
         };
     },
 };
