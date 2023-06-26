@@ -1,10 +1,10 @@
 <template>
     <div class="swap">
         <div class="swap-page">
-            <Spinner v-if="loader" />
-            <template v-else>
+            <Spinner v-if="loader || !walletAddress || !groupTokens[0]?.name" />
+            <template v-if="walletAddress && groupTokens[0]?.name && !loader">
                 <div class="swap-page__title">{{ $t('simpleSwap.title') }}</div>
-                <div v-if="walletAddress && groupTokens.length && !loader" class="swap-page__wrap">
+                <div class="swap-page__wrap">
                     <component v-if="swapComponent" :is="swapComponent" />
                 </div>
             </template>
