@@ -1,10 +1,10 @@
 <template>
     <div class="swap">
         <div class="swap-page">
-            <Spinner v-if="loader" />
+            <Spinner v-if="spinnerLoader" />
             <template v-else>
                 <div class="swap-page__title">{{ $t('simpleSwap.title') }}</div>
-                <div v-if="walletAddress && groupTokens.length && !loader" class="swap-page__wrap">
+                <div class="swap-page__wrap">
                     <component v-if="swapComponent" :is="swapComponent" />
                 </div>
             </template>
@@ -12,16 +12,17 @@
     </div>
 </template>
 <script>
+import { computed, watch } from 'vue';
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
+
 import SimpleSwap from '@/components/dynamic/swaps/SimpleSwap';
 import UniSwap from '@/components/dynamic/swaps/UniSwap';
 import PancakeSwap from '@/components/dynamic/swaps/PancakeSwap';
 import NotWorking from '@/components/dynamic/swaps/NotWorking';
+import Spinner from '@/components/app/Spinner';
 
 import { UIConfig } from '@/config/ui';
-import { useStore } from 'vuex';
-import { computed, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import Spinner from '@/components/app/Spinner';
 
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 import useTokens from '@/compositions/useTokens';
@@ -48,6 +49,10 @@ export default {
             return UIConfig[currentChainInfo.value.net]?.swap?.component;
         });
 
+        const spinnerLoader = computed(() => {
+            return loader.value || !groupTokens.value[0]?.name || !walletAddress.value;
+        });
+
         watch(
             () => swapComponent.value,
             (newV) => {
@@ -62,6 +67,7 @@ export default {
             groupTokens,
             walletAddress,
             swapComponent,
+            spinnerLoader,
         };
     },
 };

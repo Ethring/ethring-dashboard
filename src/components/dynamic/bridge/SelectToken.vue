@@ -24,7 +24,10 @@ export default {
         const store = useStore();
         const router = useRouter();
         const searchValue = ref('');
+
+        const { walletAddress } = useWeb3Onboard();
         const { groupTokens, allTokensFromNetwork } = useTokens();
+
         const loader = computed(() => store.getters['tokens/loader']);
         const selectType = computed(() => store.getters['tokens/selectType']);
         const selectedNetwork =
@@ -32,7 +35,6 @@ export default {
                 ? computed(() => store.getters['bridge/selectedSrcNetwork'])
                 : computed(() => store.getters['bridge/selectedDstNetwork']);
         const tokens = computed(() => store.getters['bridge/tokensByChainID']);
-        const { walletAddress } = useWeb3Onboard();
 
         onMounted(async () => {
             await store.dispatch('bridge/getTokensByChain', {
@@ -45,11 +47,15 @@ export default {
                 return [];
             }
 
+            const currentNetwork = groupTokens.value.find(
+                (elem) => elem?.chain_id === (selectedNetwork?.value?.chain_id || selectedNetwork?.value?.chainId)
+            );
+
             let list = [
-                selectedNetwork.value,
-                ...selectedNetwork?.value?.list,
+                currentNetwork,
+                ...currentNetwork?.list,
                 ...allTokensFromNetwork(selectedNetwork.value?.net).filter((token) => {
-                    return token.net !== selectedNetwork.value?.net && !selectedNetwork.value?.list?.find((t) => t.net === token.net);
+                    return token.net !== selectedNetwork.value?.net && !currentNetwork?.list?.find((t) => t.net === token.net);
                 }),
             ];
 

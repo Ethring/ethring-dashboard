@@ -14,9 +14,13 @@ export default function useTokens() {
 
     const groupTokensBalance = computed(() => store.getters['tokens/groupTokens']);
 
-    const allTokensFromNetwork = (net) =>
-        Object.keys(networks.value[net]?.tokens)
-            ?.map((tokenNet) => {
+    const allTokensFromNetwork = (net) => {
+        if (!networks.value[net]) {
+            return [];
+        }
+
+        return Object.keys(networks.value[net].tokens)
+            .map((tokenNet) => {
                 return networks.value[net].tokens[tokenNet];
             })
             .map((token) => ({
@@ -43,39 +47,43 @@ export default function useTokens() {
                 }
                 return 0;
             });
+    };
+
     // all networks
     const groupTokens = computed(() => {
         if (currentChainInfo.value?.net && groupTokensBalance.value) {
             const groupList = [];
 
             Object.keys(groupTokensBalance.value)?.forEach((parentNet) => {
-                const tokens = groupTokensBalance.value[parentNet]?.list;
-                const parentTokens = networks.value[parentNet]?.tokens;
                 let childs = [];
-                if (tokens && parentTokens) {
-                    childs = sortByBalanceUsd(
-                        Object.keys(tokens)
-                            .map((item) => {
-                                const balance = tokens[item];
-                                let { name = '', code = '' } = parentTokens[item];
+                if (networks.value[parentNet]) {
+                    const tokens = groupTokensBalance.value[parentNet]?.list;
+                    const parentTokens = networks.value[parentNet]?.tokens;
+                    if (tokens && parentTokens) {
+                        childs = sortByBalanceUsd(
+                            Object.keys(tokens)
+                                .map((item) => {
+                                    const balance = tokens[item];
+                                    let { name = '', code = '' } = parentTokens[item];
 
-                                if ((!name || !code) && item.includes('_')) {
-                                    const [net, token] = item.split('_');
-                                    name = `${net} ${token}`;
-                                    code = token.toUpperCase();
-                                }
+                                    if ((!name || !code) && item.includes('_')) {
+                                        const [net, token] = item.split('_');
+                                        name = `${net} ${token}`;
+                                        code = token.toUpperCase();
+                                    }
 
-                                return {
-                                    ...tokens[item],
-                                    ...parentTokens[item],
-                                    name,
-                                    code,
-                                    balance,
-                                    balanceUsd: balance.amount * balance.price.USD,
-                                };
-                            })
-                            .filter((item) => item.balance.amount > 0)
-                    );
+                                    return {
+                                        ...tokens[item],
+                                        ...parentTokens[item],
+                                        name,
+                                        code,
+                                        balance,
+                                        balanceUsd: balance.amount * balance.price.USD,
+                                    };
+                                })
+                                .filter((item) => item.balance.amount > 0)
+                        );
+                    }
                 }
 
                 groupList.push({

@@ -1,7 +1,7 @@
 <template>
     <div class="send">
         <div class="send-page">
-            <Spinner v-if="loader" />
+            <Spinner v-if="spinnerLoader" />
             <template v-else>
                 <div class="send-page-tab">
                     <div class="send-page__title send-page-tab__active">
@@ -10,7 +10,7 @@
                     </div>
                     <router-link class="send-page__title" to="/bridge">{{ $t('simpleBridge.title') }}</router-link>
                 </div>
-                <div v-if="walletAddress && groupTokens.length && !loader" class="send-page__wrap">
+                <div class="send-page__wrap">
                     <component v-if="sendComponent" :is="sendComponent" />
                 </div>
             </template>
@@ -51,6 +51,10 @@ export default {
             return UIConfig[currentChainInfo.value.net]?.send?.component;
         });
 
+        const spinnerLoader = computed(() => {
+            return loader.value || !groupTokens.value[0]?.name || !walletAddress.value;
+        });
+
         watch(
             () => sendComponent.value,
             (newV) => {
@@ -65,6 +69,7 @@ export default {
             groupTokens,
             walletAddress,
             sendComponent,
+            spinnerLoader,
         };
     },
 };

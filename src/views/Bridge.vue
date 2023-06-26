@@ -1,7 +1,7 @@
 <template>
     <div class="bridge">
         <div class="bridge-page">
-            <Spinner v-if="loader" />
+            <Spinner v-if="spinnerLoader" />
             <template v-else>
                 <div class="bridge-page-tab">
                     <router-link class="bridge-page__title" to="/send">{{ $t('simpleSend.title') }}</router-link>
@@ -10,7 +10,7 @@
                         <arrowupSvg class="arrow" />
                     </div>
                 </div>
-                <div v-if="walletAddress && !loader" class="bridge-page__wrap">
+                <div class="bridge-page__wrap">
                     <component v-if="bridgeComponent" :is="bridgeComponent" />
                 </div>
             </template>
@@ -29,6 +29,7 @@ import arrowupSvg from '@/assets/icons/dashboard/arrowup.svg';
 import { UIConfig } from '@/config/ui';
 
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+import useTokens from '@/compositions/useTokens';
 
 export default {
     name: 'Bridge',
@@ -41,12 +42,17 @@ export default {
         const store = useStore();
         const router = useRouter();
 
-        const loader = computed(() => store.getters['tokens/loader']);
-
+        const { groupTokens } = useTokens();
         const { walletAddress, currentChainInfo } = useWeb3Onboard();
+
+        const loader = computed(() => store.getters['tokens/loader']);
 
         const bridgeComponent = computed(() => {
             return UIConfig[currentChainInfo.value.net]?.bridge?.component;
+        });
+
+        const spinnerLoader = computed(() => {
+            return loader.value || !groupTokens.value[0]?.name || !walletAddress.value;
         });
 
         watch(
@@ -59,9 +65,11 @@ export default {
         );
 
         return {
+            groupTokens,
             loader,
             walletAddress,
             bridgeComponent,
+            spinnerLoader,
         };
     },
 };
