@@ -61,7 +61,7 @@ export default {
 
             const matchingTokens = list.filter((token) => {
                 return tokens.value.some((listToken) => {
-                    return listToken.code === token.code;
+                    return listToken.symbol === token.code;
                 });
             });
 

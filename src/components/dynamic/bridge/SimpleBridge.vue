@@ -385,7 +385,7 @@ export default {
                     return;
                 }
 
-                allowance.value = resAllowance;
+                allowance.value = resAllowance.allowance;
             }
         };
 
@@ -514,7 +514,7 @@ export default {
 
             // APPROVE
             if (approveTx.value) {
-                const resTx = await sendMetamaskTransaction({ ...approveTx.value.transaction, from: walletAddress.value });
+                const resTx = await sendMetamaskTransaction({ ...approveTx.value, from: walletAddress.value });
                 if (resTx.error) {
                     txError.value = resTx.error;
                     isLoading.value = false;
@@ -554,7 +554,7 @@ export default {
                 return;
             }
 
-            const resTx = await sendMetamaskTransaction(resSwap.transaction);
+            const resTx = await sendMetamaskTransaction(resSwap);
 
             if (resTx.error) {
                 txError.value = resTx.error;

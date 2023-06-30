@@ -1,4 +1,5 @@
 import { fetchData } from '@/api/fetchData';
+import axios from 'axios';
 
 // const types = {};
 const VUE_APP_1INCH_SWAP_API = process.env.VUE_APP_1INCH_SWAP_API;
@@ -28,15 +29,19 @@ export default {
 
         /* ALLOWANCE */
         async getAllowance(_, { net, tokenAddress, ownerAddress }) {
-            return await fetchData({
-                url: VUE_APP_1INCH_SWAP_API,
-                route: 'getAllowance',
-                params: {
-                    net,
-                    tokenAddress,
-                    ownerAddress,
-                },
-            });
+            let response;
+            try {
+                response = await axios.get(`${VUE_APP_1INCH_SWAP_API}getAllowance`, {
+                    params: {
+                        net,
+                        tokenAddress,
+                        ownerAddress,
+                    },
+                });
+                return response.data.data;
+            } catch (err) {
+                return { error: err.response.data.error };
+            }
         },
 
         /* APPROVE TX */
