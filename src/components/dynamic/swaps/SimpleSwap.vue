@@ -73,7 +73,7 @@
     </div>
 </template>
 <script>
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 
 import { useStore } from 'vuex';
 
@@ -445,6 +445,10 @@ export default {
 
             await loadGasPrice();
             await getAllowance();
+        });
+
+        onUnmounted(() => {
+            store.dispatch('tokens/setFromToken', null);
         });
 
         return {

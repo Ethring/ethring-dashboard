@@ -18,14 +18,13 @@
             v-if="tokensList.length"
             :selected-network="currentChainInfo"
             :items="tokensList"
-            :value="tokensList[0]"
-            :showDropDown="true"
+            :value="selectedToken || tokensList[0]"
             :error="!!errorBalance"
             :label="$t('simpleSend.amount')"
             :on-reset="successHash"
             class="mt-10"
             @setAmount="onSetAmount"
-            @setToken="onSetToken"
+            @clickToken="onSetToken"
         />
 
         <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
@@ -52,9 +51,10 @@ import Button from '@/components/ui/Button';
 
 import useTokens from '@/compositions/useTokens';
 
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 import * as ethers from 'ethers';
+import { useRouter } from 'vue-router';
 
 // import { getTxUrl } from '@/helpers/utils';
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
@@ -71,14 +71,13 @@ export default {
     },
     setup() {
         const store = useStore();
-
+        const router = useRouter();
         const { walletAddress, connectedWallet, currentChainInfo } = useWeb3Onboard();
 
         const isLoading = ref(false);
         const txError = ref('');
         const successHash = ref('');
 
-        const selectedToken = ref(null);
         const amount = ref('');
         const address = ref('');
 
@@ -89,6 +88,7 @@ export default {
 
         // const favouritesList = computed(() => store.getters['tokens/favourites']);
         const zometNetworks = computed(() => store.getters['networks/zometNetworksList']);
+        const selectedToken = computed(() => store.getters['tokens/fromToken']);
 
         const disabledSend = computed(() => {
             return (
@@ -113,8 +113,8 @@ export default {
             return [currentNetworkToken, ...groupTokens.value[0].list];
         });
 
-        const onSetToken = (token) => {
-            selectedToken.value = token;
+        const onSetToken = () => {
+            router.push('/send/select-token');
         };
 
         const onSetAddress = (addr) => {
@@ -203,6 +203,10 @@ export default {
             }
         });
 
+        onUnmounted(() => {
+            store.dispatch('tokens/setFromToken', null);
+        });
+
         return {
             isLoading,
             disabledSend,
@@ -211,6 +215,7 @@ export default {
             tokensList,
             errorAddress,
             errorBalance,
+            selectedToken,
 
             onRemoveFavourite,
 

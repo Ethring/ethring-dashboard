@@ -112,7 +112,7 @@
     </div>
 </template>
 <script>
-import { computed, ref, onMounted, watch } from 'vue';
+import { computed, ref, onMounted, watch, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { ethers } from 'ethers';
@@ -618,6 +618,10 @@ export default {
                     });
                 }, 2000);
             }
+        });
+
+        onUnmounted(() => {
+            store.dispatch('tokens/setFromToken', null);
         });
 
         return {
