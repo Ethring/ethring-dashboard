@@ -61,6 +61,8 @@ import { useRouter } from 'vue-router';
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 import { onSelectNetwork } from '../../../helpers/chains';
 
+import { getTxUrl } from '@/helpers/utils';
+
 export default {
     name: 'SimpleSend',
     components: {
@@ -98,8 +100,7 @@ export default {
                 errorBalance.value ||
                 !+amount.value ||
                 !address.value.length ||
-                !currentChainInfo.value ||
-                !selectedToken.value
+                !currentChainInfo.value
             );
         });
 
@@ -110,7 +111,9 @@ export default {
                 return [];
             }
             const currentNetworkToken = groupTokens.value[0];
-
+            if (!selectedToken.value) {
+                store.dispatch('tokens/setFromToken', currentNetworkToken);
+            }
             return [currentNetworkToken, ...groupTokens.value[0].list];
         });
 
@@ -139,11 +142,48 @@ export default {
                 errorBalance.value = 'Incorrect amount';
                 return;
             }
-            errorBalance.value = '';
+            if (+value > selectedToken.value?.balance?.amount || +value > selectedToken.value?.balance?.mainBalance) {
+                errorBalance.value = 'Insufficient balance';
+            } else {
+                errorBalance.value = '';
+            }
         };
 
         const onRemoveFavourite = (params) => {
             store.dispatch('tokens/removeFavourite', params);
+        };
+
+        const getProvider = () => {
+            const { provider } = connectedWallet.value || {};
+            if (provider) {
+                // create an ethers provider with the last connected wallet provider
+                const ethersProvider = new ethers.providers.Web3Provider(provider, 'any');
+                return ethersProvider;
+            }
+        };
+
+        const sendTransaction = async (transaction) => {
+            const ethersProvider = getProvider();
+            const tx = {
+                data: transaction.data,
+                from: transaction.from,
+                to: transaction.to,
+                chainId: `0x${transaction.chainId.toString(16)}`,
+                value: transaction.value ? `0x${parseInt(transaction.value).toString(16)}` : '0x0',
+            };
+
+            try {
+                if (ethersProvider) {
+                    const signer = ethersProvider.getSigner();
+                    const txn = await signer.sendTransaction(tx);
+
+                    const receipt = await txn.wait();
+
+                    return receipt;
+                }
+            } catch (e) {
+                return { error: e.message };
+            }
         };
 
         const send = async () => {
@@ -153,51 +193,30 @@ export default {
 
             isLoading.value = true;
 
-            const { provider, label } = connectedWallet.value || {};
+            const response = await store.dispatch('tokens/prepareTransfer', {
+                net: selectedToken.value.net || selectedToken.value.network,
+                from: walletAddress.value,
+                toAddress: address.value,
+                amount: amount.value,
+            });
 
-            if (!provider) {
-                alert('Wallet not ready');
+            const tx = response.transaction || response;
+            const resTx = await sendTransaction(tx);
+
+            if (resTx.error) {
+                txError.value = resTx.error;
+                isLoading.value = false;
+                setTimeout(() => {
+                    txError.value = '';
+                }, 3000);
+                return;
             }
+            successHash.value = getTxUrl(currentChainInfo.value.net, resTx.transactionHash);
+            isLoading.value = false;
 
-            if (provider && label) {
-                const ethersProvider = new ethers.providers.Web3Provider(provider, 'any');
-
-                const signer = ethersProvider.getSigner();
-                const response = await store.dispatch('tokens/prepareTransfer', {
-                    net: selectedToken.value.net || selectedToken.value.network,
-                    from: walletAddress.value,
-                    toAddress: address.value,
-                    amount: amount.value,
-                });
-
-                const tx = response.transaction || response;
-                tx.gasPrice = await signer.getGasPrice();
-
-                delete tx.gas;
-
-                const txn = await signer.sendTransaction(tx);
-
-                const receipt = await txn.wait();
-
-                if (receipt) {
-                    isLoading.value = false;
-                    const { explorers = [] } = currentChainInfo.value;
-
-                    if (!explorers.length) {
-                        return (successHash.value = receipt.transactionHash);
-                    }
-
-                    setTimeout(() => {
-                        isLoading.value = false;
-                        successHash.value = '';
-                    }, 4000);
-
-                    return (successHash.value = `${explorers[0].url}/tx/${receipt.transactionHash}`);
-                }
-            }
-
-            isLoading.value = true;
-            txError.value = '';
+            setTimeout(() => {
+                successHash.value = '';
+            }, 4000);
         };
 
         onMounted(async () => {
