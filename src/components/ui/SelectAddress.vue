@@ -39,11 +39,15 @@ import arbitrumSvg from '@/assets/icons/networks/arbitrum.svg';
 import evmosethSvg from '@/assets/icons/networks/evmoseth.svg';
 import avalancheSvg from '@/assets/icons/networks/avalanche.svg';
 
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 
 export default {
     name: 'SelectAddress',
     props: {
+        value: {
+            type: String,
+            default: '',
+        },
         selectedNetwork: {
             required: true,
             default: () => {},
@@ -75,7 +79,7 @@ export default {
     setup(props, { emit }) {
         const active = ref(false);
         const focused = ref(false);
-        const address = ref('');
+        const address = ref(props.value);
         const placeholder = ref('Address');
 
         watch(
@@ -93,6 +97,12 @@ export default {
             placeholder.value = '';
             focused.value = true;
         };
+
+        onMounted(() => {
+            if (props.value) {
+                address.value = props.value;
+            }
+        });
 
         const onInput = () => {
             emit('setAddress', address.value);

@@ -5,6 +5,7 @@
         <SelectAddress
             :selected-network="currentChainInfo"
             :items="[]"
+            :value="address"
             :error="!!errorAddress"
             class="mt-10"
             :on-reset="successHash"
@@ -79,8 +80,8 @@ export default {
         const successHash = ref('');
 
         const amount = ref('');
-        const address = ref('');
-
+        const address = ref(store.getters['tokens/address']);
+        const clearAddress = ref(false);
         const errorAddress = ref('');
         const errorBalance = ref('');
 
@@ -114,12 +115,14 @@ export default {
         });
 
         const onSetToken = () => {
+            clearAddress.value = true;
             router.push('/send/select-token');
         };
 
         const onSetAddress = (addr) => {
             const reg = new RegExp(networks.value[currentChainInfo.value.net].validating);
             address.value = addr;
+            store.dispatch('tokens/setAddress', addr);
 
             if (address.value.length && !reg.test(addr)) {
                 errorAddress.value = 'Invalid address';
@@ -205,6 +208,9 @@ export default {
 
         onUnmounted(() => {
             store.dispatch('tokens/setFromToken', null);
+            if (!clearAddress.value) {
+                store.dispatch('tokens/setAddress', '');
+            }
         });
 
         return {
@@ -216,6 +222,7 @@ export default {
             errorAddress,
             errorBalance,
             selectedToken,
+            address,
 
             onRemoveFavourite,
 

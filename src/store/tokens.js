@@ -11,6 +11,7 @@ const types = {
     SET_SELECT_TYPE: 'SET_SELECT_TYPE',
     SET_FROM_TOKEN: 'SET_FROM_TOKEN',
     SET_TO_TOKEN: 'SET_TO_TOKEN',
+    SET_ADDRESS: 'SET_ADDRESS',
 };
 
 export default {
@@ -24,6 +25,7 @@ export default {
         selectType: 'from',
         fromToken: null,
         toToken: null,
+        address: '',
     }),
 
     getters: {
@@ -35,11 +37,15 @@ export default {
         selectType: (state) => state.selectType,
         fromToken: (state) => state.fromToken,
         toToken: (state) => state.toToken,
+        address: (state) => state.address,
     },
 
     mutations: {
         [types.SET_TOKENS](state, value) {
             state.tokens = value;
+        },
+        [types.SET_ADDRESS](state, value) {
+            state.address = value;
         },
         [types.SET_GROUP_TOKENS](state, value) {
             state.groupTokens = value;
@@ -76,6 +82,9 @@ export default {
     actions: {
         setTokens({ commit }, value) {
             commit(types.SET_TOKENS, value);
+        },
+        setAddress({ commit }, value) {
+            commit(types.SET_ADDRESS, value);
         },
         setGroupTokens({ commit }, value) {
             commit(types.SET_GROUP_TOKENS, value);
