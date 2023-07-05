@@ -151,6 +151,7 @@ Deploy branch:
   except:
     - dev
     - master
+    - beta
 
 Deploy prod:
   extends: .deployJob
