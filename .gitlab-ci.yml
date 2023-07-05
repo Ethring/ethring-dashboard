@@ -54,6 +54,8 @@ stages:
       -p APP_NAME=$(echo $CI_PROJECT_NAMESPACE | sed -e 's/\//-/g')
       -p IMAGE_NAME=$IMAGE_TAG
       -p NAMESPACE=$OPENSHIFT_PROJECT
+      -p AUTH_USER=$AUTH_USER
+      -p AUTH_PASSWORD=$AUTH_PASSWORD
       -p PORT=$PORT
       -p REPLICAS=$REPLICAS
       -p DOCKERCONFIGJSON=$DOCKERCONFIGJSON | oc apply -f -
@@ -86,6 +88,13 @@ Build dev:
   only:
     - dev
 
+Build beta:
+  extends: .dockerBuildJob
+  environment:
+    name: dev
+  only:
+    - beta
+
 Build branch:
   extends: .dockerBuildJob
   when: manual
@@ -97,6 +106,7 @@ Build branch:
   except:
     - dev
     - master
+    - beta
 
 Build prod:
   extends: .dockerBuildJob
@@ -114,6 +124,16 @@ Deploy dev:
     name: dev
   only:
     - dev
+
+Deploy beta:
+  extends: .deployJob
+  variables:
+    NAME: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
+    TEMPLATE: auth-template.yml
+  environment:
+    name: dev
+  only:
+    - beta
 
 Deploy branch:
   extends: .deployJob
