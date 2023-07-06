@@ -60,6 +60,12 @@ export default {
             });
         });
 
+        watch(walletAddress, () => {
+            if (walletAddress.value) {
+                useCitadel(walletAddress.value, store);
+            }
+        });
+
         watch(currentChainInfo, () => {
             if (walletAddress.value) {
                 useCitadel(walletAddress.value, store);

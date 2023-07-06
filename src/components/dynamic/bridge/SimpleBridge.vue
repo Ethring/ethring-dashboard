@@ -621,7 +621,10 @@ export default {
         });
 
         onUnmounted(() => {
-            store.dispatch('tokens/setFromToken', null);
+            if (router.options.history.state.current !== '/bridge/select-token') {
+                store.dispatch('tokens/setFromToken', null);
+                store.dispatch('tokens/setToToken', null);
+            }
         });
 
         return {

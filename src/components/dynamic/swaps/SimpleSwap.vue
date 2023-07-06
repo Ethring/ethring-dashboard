@@ -448,7 +448,10 @@ export default {
         });
 
         onUnmounted(() => {
-            store.dispatch('tokens/setFromToken', null);
+            if (router.options.history.state.current !== '/swap/select-token') {
+                store.dispatch('tokens/setFromToken', null);
+                store.dispatch('tokens/setToToken', null);
+            }
         });
 
         return {
