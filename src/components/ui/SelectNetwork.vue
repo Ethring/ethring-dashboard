@@ -1,6 +1,6 @@
 <template>
     <div :class="{ active }" class="select" v-click-away="() => togglePanel(true)">
-        <div class="select__panel" @click="() => togglePanel(false)">
+        <div class="select__panel" @click="() => togglePanel(false)" data-qa="select-network">
             <div class="info">
                 <div class="network">
                     <img :src="currentChainInfo.logo" alt="network-logo" class="network-logo" />
