@@ -3,7 +3,7 @@
         <div class="select-amount__panel">
             <div class="label">{{ label }}</div>
             <div class="info-wrap">
-                <div class="info" @click="clickToken">
+                <div class="info" @click="clickToken" data-qa="select-token">
                     <div class="network">
                         <TokenIcon width="24" height="24" :token="selectedToken" dark />
                     </div>
@@ -18,6 +18,7 @@
                     v-debounce:300ms="onInput"
                     @blur="onBlur"
                     @click.stop="() => {}"
+                    data-qa="input-amount"
                     class="input-balance"
                 />
             </div>

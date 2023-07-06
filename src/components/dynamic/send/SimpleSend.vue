@@ -9,7 +9,6 @@
             :error="!!errorAddress"
             class="mt-10"
             :on-reset="successHash"
-            data-qa="input-address"
             @removeAddress="onRemoveFavourite"
             @setAddress="onSetAddress"
         />
@@ -24,7 +23,6 @@
             :error="!!errorBalance"
             :label="$t('simpleSend.amount')"
             :on-reset="successHash"
-            data-qa="input-amount"
             class="mt-10"
             @setAmount="onSetAmount"
             @clickToken="onSetToken"

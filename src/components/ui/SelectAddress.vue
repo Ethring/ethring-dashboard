@@ -13,6 +13,7 @@
                         @focus="onFocus"
                         @input="onInput"
                         @blur="onBlur"
+                        data-qa="input-address"
                         class="input-address"
                     />
                 </div>
