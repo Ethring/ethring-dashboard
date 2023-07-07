@@ -200,6 +200,15 @@ export default {
                 amount: amount.value,
             });
 
+            if (response.error) {
+                txError.value = response.error;
+                isLoading.value = false;
+                setTimeout(() => {
+                    txError.value = '';
+                }, 3000);
+                return;
+            }
+
             const tx = response.transaction || response;
             const resTx = await sendTransaction(tx);
 
