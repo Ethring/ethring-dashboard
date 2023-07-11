@@ -10,8 +10,8 @@
             </div>
             <div class="balance">
                 <div class="value">
-                    {{ showBalance && walletBalance.length ? prettyNumber(walletBalance[1]) : '****' }}
-                    <span>{{ walletBalance[0] }}</span>
+                    <span>$</span>
+                    {{ showBalance && totalBalance ? prettyNumber(totalBalance) : '****' }}
                 </div>
                 <eyeSvg v-if="showBalance" @click="toggleViewBalance" />
                 <eyeOpenSvg v-if="!showBalance" @click="toggleViewBalance" />
@@ -33,6 +33,7 @@ import eyeOpenSvg from '@/assets/icons/dashboard/eyeOpen.svg';
 import arrowPriceSvg from '@/assets/icons/dashboard/arrowprice.svg';
 
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+import useTokens from '@/compositions/useTokens';
 
 export default {
     name: 'WalletInfo',
@@ -51,15 +52,19 @@ export default {
         };
 
         const { walletIcon, walletAddress, walletBalance, currentChainInfo } = useWeb3Onboard();
+        const { groupTokens } = useTokens();
 
         const marketCap = computed(() => store.getters['tokens/marketCap']);
         const showBalance = computed(() => store.getters['app/showBalance']);
+
+        const totalBalance = computed(() => groupTokens.value?.reduce((acc, net) => acc + net.totalSumUSD, 0) ?? 0);
 
         const toggleViewBalance = () => {
             store.dispatch('app/toggleViewBalance');
         };
 
         return {
+            totalBalance,
             currentChainInfo,
             walletIcon,
             walletAddress,
@@ -144,7 +149,6 @@ export default {
 
             span {
                 font-family: 'Poppins_Regular';
-                margin: 0 26px 0 5px;
             }
 
             svg {
