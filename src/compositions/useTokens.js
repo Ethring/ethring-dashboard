@@ -55,12 +55,12 @@ export default function useTokens() {
             const groupList = [];
 
             Object.keys(groupTokensBalance.value)?.forEach((parentNet) => {
-                let childs = [];
+                let children = [];
                 if (networks.value[parentNet]) {
                     const tokens = groupTokensBalance.value[parentNet]?.list;
                     const parentTokens = networks.value[parentNet]?.tokens;
                     if (tokens && parentTokens) {
-                        childs = sortByBalanceUsd(
+                        children = sortByBalanceUsd(
                             Object.keys(tokens)
                                 .map((item) => {
                                     const balance = tokens[item];
@@ -72,14 +72,19 @@ export default function useTokens() {
                                         code = token.toUpperCase();
                                     }
 
-                                    return {
+                                    const tokenInfo = {
                                         ...tokens[item],
                                         ...parentTokens[item],
                                         name,
                                         code,
                                         balance,
-                                        balanceUsd: balance.amount * balance.price.USD,
+                                        balanceUsd: 0,
                                     };
+
+                                    if (balance.price.USD > 0) {
+                                        tokenInfo.balanceUsd = balance.amount * tokenInfo.price.USD;
+                                    }
+                                    return tokenInfo;
                                 })
                                 .filter((item) => item.balance.amount > 0)
                         );
@@ -93,17 +98,19 @@ export default function useTokens() {
                     balance: groupTokensBalance.value[parentNet]?.balance,
                     balanceUsd: groupTokensBalance.value[parentNet]?.balanceUsd,
                     price: groupTokensBalance.value[parentNet]?.price,
-                    list: childs,
+                    list: children,
+                    totalSumUSD: children?.reduce((acc, item) => acc + item.balanceUsd, 0) ?? 0,
                     chain_id: chainIds[parentNet],
                 });
             });
 
             // show all without current network group
-            return [
+            const result = [
                 ...groupList.filter((g) => g.net === currentChainInfo.value?.net),
                 ...groupList.filter((g) => g.net !== currentChainInfo.value?.net),
-            ];
-            // .filter(() => group.net !== currentChainInfo.value?.net && group.list.length
+            ].sort((prev, next) => next.totalSumUSD - prev.totalSumUSD);
+
+            return result.sort((prev, next) => next.priority - prev.priority);
         }
         return [];
     });
