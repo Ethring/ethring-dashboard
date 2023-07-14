@@ -50,7 +50,7 @@
                 <div class="accordion__item">
                     <div class="accordion__label">Network fee:</div>
                     <div class="accordion__value">
-                        <span class="fee">{{ networkFee }}</span> <span class="symbol">{{ selectedNetwork.code }}</span>
+                        <span class="fee">{{ networkFee }}</span> <span class="symbol">$</span>
                     </div>
                 </div>
                 <div class="accordion__item">
@@ -73,7 +73,7 @@
     </div>
 </template>
 <script>
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 
 import { useStore } from 'vuex';
 
@@ -118,7 +118,6 @@ export default {
         const successHash = ref('');
         const estimateRate = ref(0);
         const networkFee = ref(0);
-        const gasPrice = ref(0);
         const resetAmount = ref(false);
         const selectedNetwork = computed(() => store.getters['networks/selectedNetwork']);
         const isUpdateSwapDirectionValue = ref(false);
@@ -240,7 +239,10 @@ export default {
                 await getAllowance();
             }
             await getEstimateInfo();
-            await checkAllowance();
+
+            if (selectedTokenFrom.value.address) {
+                await checkAllowance();
+            }
         };
 
         const checkAllowance = async () => {
@@ -289,7 +291,7 @@ export default {
             }
             txError.value = '';
             receiveValue.value = resEstimate.toTokenAmount;
-            networkFee.value = prettyNumberTooltip(gasPrice.value * +resEstimate.estimatedGas, 4);
+            networkFee.value = prettyNumberTooltip(+resEstimate.fee.amount * selectedNetwork.value.price.USD, 4);
             estimateRate.value = prettyNumberTooltip(resEstimate.toTokenAmount / resEstimate.fromTokenAmount, 6);
         };
 
@@ -297,28 +299,31 @@ export default {
             approveTx.value = null;
             needApprove.value = false;
 
-            const resAllowance = await store.dispatch('oneInchSwap/getAllowance', {
-                net: currentChainInfo.value.net,
-                tokenAddress: selectedTokenFrom.value.list ? NATIVE_CONTRACT : selectedTokenFrom.value.address,
-                ownerAddress: walletAddress.value,
-            });
-
-            if (resAllowance.error) {
-                return;
+            if (selectedTokenFrom.value?.address) {
+                const resAllowance = await store.dispatch('oneInchSwap/getAllowance', {
+                    net: currentChainInfo.value.net,
+                    tokenAddress: selectedTokenFrom.value.address,
+                    ownerAddress: walletAddress.value,
+                });
+                if (resAllowance.error) {
+                    return;
+                }
+                allowance.value = resAllowance.allowance;
             }
-            allowance.value = resAllowance.allowance;
         };
 
         const getApproveTx = async () => {
-            const resApproveTx = await store.dispatch('oneInchSwap/getApproveTx', {
-                net: currentChainInfo.value.net,
-                tokenAddress: selectedTokenFrom.value.list ? NATIVE_CONTRACT : selectedTokenFrom.value.address,
-                ownerAddress: walletAddress.value,
-            });
-            if (resApproveTx.error) {
-                return;
+            if (selectedTokenFrom.value?.address) {
+                const resApproveTx = await store.dispatch('oneInchSwap/getApproveTx', {
+                    net: currentChainInfo.value.net,
+                    tokenAddress: selectedTokenFrom.value.address,
+                    ownerAddress: walletAddress.value,
+                });
+                if (resApproveTx.error) {
+                    return;
+                }
+                approveTx.value = resApproveTx;
             }
-            approveTx.value = resApproveTx;
         };
 
         const getProvider = () => {
@@ -428,23 +433,19 @@ export default {
             });
             balanceUpdated.value = true;
         };
-        const loadGasPrice = async () => {
-            const ethersProvider = getProvider();
-            const res = await ethersProvider.getGasPrice();
-            let formatted = ethers.utils.formatUnits(
-                ethers.BigNumber.from(res).toString(),
-                ethers.BigNumber.from(currentChainInfo.value.nativeCurrency?.decimals)
-            );
-            gasPrice.value = +formatted;
-        };
         onMounted(async () => {
             store.dispatch(
                 'networks/setSelectedNetwork',
                 groupTokens.value.find((elem) => elem.net === currentChainInfo.value.net)
             );
-
-            await loadGasPrice();
             await getAllowance();
+        });
+
+        onUnmounted(() => {
+            if (router.options.history.state.current !== '/swap/select-token') {
+                store.dispatch('tokens/setFromToken', null);
+                store.dispatch('tokens/setToToken', null);
+            }
         });
 
         return {

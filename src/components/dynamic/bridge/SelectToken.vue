@@ -52,16 +52,15 @@ export default {
             );
 
             let list = [
-                currentNetwork,
                 ...currentNetwork?.list,
                 ...allTokensFromNetwork(selectedNetwork.value?.net).filter((token) => {
                     return token.net !== selectedNetwork.value?.net && !currentNetwork?.list?.find((t) => t.net === token.net);
                 }),
             ];
 
-            const matchingTokens = list.filter((token) => {
+            const matchingTokens = list?.filter((token) => {
                 return tokens.value.some((listToken) => {
-                    return listToken.code === token.code;
+                    return listToken.symbol === token.code;
                 });
             });
 
@@ -71,7 +70,7 @@ export default {
                 return targetLC.includes(search.toLowerCase());
             };
 
-            return matchingTokens.filter(
+            return matchingTokens?.filter(
                 (elem) =>
                     byTokenKey(elem, searchValue.value, 'name') ||
                     byTokenKey(elem, searchValue.value, 'code') ||

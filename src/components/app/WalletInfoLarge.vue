@@ -1,8 +1,9 @@
 <template>
     <div :class="{ opened }" class="wallet-info">
         <div class="wallet-info__network">
-            <img v-if="currentChainInfo.logo" :src="currentChainInfo.logo" alt="current-chain-icon" srcset="" />
-            <span v-else> ? </span>
+            <!-- <img v-if="currentChainInfo.logo" :src="currentChainInfo.logo" alt="current-chain-icon" srcset="" /> -->
+            <!-- <span v-else> ? </span> -->
+            <WalletSvg />
         </div>
         <div class="wallet-info__wallet">
             <div class="address" @click="openMenu">
@@ -10,8 +11,8 @@
             </div>
             <div class="balance">
                 <div class="value">
-                    {{ showBalance && walletBalance.length ? prettyNumber(walletBalance[1]) : '****' }}
-                    <span>{{ walletBalance[0] }}</span>
+                    <span>$</span>
+                    {{ showBalance && totalBalance ? prettyNumber(totalBalance) : '****' }}
                 </div>
                 <eyeSvg v-if="showBalance" @click="toggleViewBalance" />
                 <eyeOpenSvg v-if="!showBalance" @click="toggleViewBalance" />
@@ -31,8 +32,10 @@ import { prettyNumber } from '@/helpers/prettyNumber';
 import eyeSvg from '@/assets/icons/dashboard/eye.svg';
 import eyeOpenSvg from '@/assets/icons/dashboard/eyeOpen.svg';
 import arrowPriceSvg from '@/assets/icons/dashboard/arrowprice.svg';
+import WalletSvg from '@/assets/icons/dashboard/wallet.svg';
 
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+import useTokens from '@/compositions/useTokens';
 
 export default {
     name: 'WalletInfo',
@@ -40,6 +43,7 @@ export default {
         eyeSvg,
         eyeOpenSvg,
         arrowPriceSvg,
+        WalletSvg,
     },
     setup() {
         const store = useStore();
@@ -51,15 +55,19 @@ export default {
         };
 
         const { walletIcon, walletAddress, walletBalance, currentChainInfo } = useWeb3Onboard();
+        const { groupTokens } = useTokens();
 
-        const marketCap = computed(() => store.getters['tokens/marketCap']);
+        const marketCap = computed(() => store.getters['tokens/groupTokens']);
         const showBalance = computed(() => store.getters['app/showBalance']);
+
+        const totalBalance = computed(() => groupTokens.value?.reduce((acc, net) => acc + net.totalSumUSD, 0) ?? 0);
 
         const toggleViewBalance = () => {
             store.dispatch('app/toggleViewBalance');
         };
 
         return {
+            totalBalance,
             currentChainInfo,
             walletIcon,
             walletAddress,
@@ -96,7 +104,6 @@ export default {
         }
 
         svg {
-            transform: scale(1.8);
             fill: $colorBlack;
             opacity: 1;
         }
@@ -144,7 +151,6 @@ export default {
 
             span {
                 font-family: 'Poppins_Regular';
-                margin: 0 26px 0 5px;
             }
 
             svg {

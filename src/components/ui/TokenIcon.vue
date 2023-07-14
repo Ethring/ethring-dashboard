@@ -12,7 +12,7 @@
             :class="{ nativeIcon: tokenIconFromZomet }"
         />
         <div v-else class="token-icon__placeholder">
-            <span>{{ iconPlaceholder[0] }}</span>
+            <a-avatar>{{ iconPlaceholder }}</a-avatar>
         </div>
     </div>
 </template>
@@ -41,7 +41,7 @@ export default {
     setup(props) {
         const showIconPlaceholder = ref(false);
         const tokenIconFromZomet = ref(null);
-        const iconPlaceholder = computed(() => tokenIconPlaceholder(props.token?.name));
+        const iconPlaceholder = computed(() => props.token?.code);
 
         const store = useStore();
 
@@ -127,19 +127,10 @@ export default {
     }
 
     &__placeholder {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding-top: 1px;
+        font-size: 12px;
 
         & span {
-            font-size: 25px;
-            line-height: 17px;
             color: $colorWhite;
-            font-family: 'Poppins_Bold';
         }
     }
 }

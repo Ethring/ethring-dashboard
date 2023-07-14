@@ -112,7 +112,7 @@
     </div>
 </template>
 <script>
-import { computed, ref, onMounted, watch } from 'vue';
+import { computed, ref, onMounted, watch, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { ethers } from 'ethers';
@@ -385,7 +385,7 @@ export default {
                     return;
                 }
 
-                allowance.value = resAllowance;
+                allowance.value = resAllowance.allowance;
             }
         };
 
@@ -430,7 +430,7 @@ export default {
 
             txError.value = '';
             receiveValue.value = resEstimate.toTokenAmount;
-            networkFee.value = +resEstimate.estimatedGas;
+            networkFee.value = +resEstimate.fee.amount;
             estimateTime.value = services[0]?.estimatedTime[selectedSrcNetwork?.value?.chain_id];
         };
 
@@ -514,7 +514,7 @@ export default {
 
             // APPROVE
             if (approveTx.value) {
-                const resTx = await sendMetamaskTransaction({ ...approveTx.value.transaction, from: walletAddress.value });
+                const resTx = await sendMetamaskTransaction({ ...approveTx.value, from: walletAddress.value });
                 if (resTx.error) {
                     txError.value = resTx.error;
                     isLoading.value = false;
@@ -554,7 +554,7 @@ export default {
                 return;
             }
 
-            const resTx = await sendMetamaskTransaction(resSwap.transaction);
+            const resTx = await sendMetamaskTransaction(resSwap);
 
             if (resTx.error) {
                 txError.value = resTx.error;
@@ -617,6 +617,13 @@ export default {
                         }
                     });
                 }, 2000);
+            }
+        });
+
+        onUnmounted(() => {
+            if (router.options.history.state.current !== '/bridge/select-token') {
+                store.dispatch('tokens/setFromToken', null);
+                store.dispatch('tokens/setToToken', null);
             }
         });
 

@@ -1,8 +1,5 @@
 <template>
     <div class="tokens" :class="{ empty: emptyLists }">
-        <!-- <template v-if="tokens.length">
-      <TokensItem v-for="(item, ndx) in tokens" :item="item" :key="ndx" />
-    </template> -->
         <template v-if="groupTokens.length > 1">
             <div
                 v-for="(group, ndx) in groupTokens.filter((g) => g.list.length)"
@@ -15,14 +12,21 @@
                 <TokensItem v-for="(listItem, n) in group.list" :key="n" :item="listItem" in-group />
             </div>
         </template>
-        <Spinner v-if="loader" />
-        <EmptyList v-if="!loader && emptyLists" title="You don't have any assets" />
+
+        <template v-if="loader">
+            <div v-for="(_, ndx) in 5" :key="ndx" class="tokens__group" @click="toggleGroup(ndx)">
+                <a-skeleton active avatar :paragraph="{ rows: 0 }" :style="{ paddingTop: '15px' }" />
+            </div>
+        </template>
+
+        <template v-if="!loader && !groupTokens.length">
+            <EmptyList title="You don't have any assets" />
+        </template>
     </div>
 </template>
 <script>
 import useTokens from '@/compositions/useTokens';
 import EmptyList from '@/components/ui/EmptyList';
-import Spinner from '@/components/app/Spinner';
 
 import { getTokenIcon } from '@/helpers/utils';
 import { prettyNumber } from '@/helpers/prettyNumber';
@@ -38,7 +42,6 @@ export default {
         TokensItemHeader,
         TokensItem,
         EmptyList,
-        Spinner,
     },
     setup() {
         const store = useStore();

@@ -1,7 +1,7 @@
 <template>
     <div class="tokens__item-header">
         <div class="name">{{ item.name }}</div>
-        <Button :title="!showBalance ? '****' : '$' + prettyNumber(totalSumUSD)" />
+        <Button :title="!showBalance ? '****' : '$' + prettyNumber(item.totalSumUSD)" />
     </div>
 </template>
 <script>
@@ -20,22 +20,11 @@ export default {
     components: {
         Button,
     },
-    setup(props) {
+    setup() {
         const store = useStore();
         const showBalance = computed(() => store.getters['app/showBalance']);
 
-        const totalSumUSD = computed(() => {
-            if (!props.item?.list) {
-                return 0;
-            }
-
-            return props.item.list.reduce((prev, token) => {
-                return token.balanceUsd + prev;
-            }, 0);
-        });
-
         return {
-            totalSumUSD,
             showBalance,
             prettyNumber,
         };

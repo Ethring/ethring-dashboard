@@ -3,7 +3,7 @@
         <div class="select-amount__panel">
             <div class="label">{{ label }}</div>
             <div class="info-wrap">
-                <div class="info" @click="clickToken">
+                <div class="info" @click="clickToken" data-qa="select-token">
                     <div class="network">
                         <TokenIcon width="24" height="24" :token="selectedToken" dark />
                     </div>
@@ -18,6 +18,7 @@
                     v-debounce:300ms="onInput"
                     @blur="onBlur"
                     @click.stop="() => {}"
+                    data-qa="input-amount"
                     class="input-balance"
                 />
             </div>
@@ -25,11 +26,11 @@
                 <p>
                     {{ $t('simpleSend.balance') }}:
                     <span>
-                        {{ BigNumber(selectedToken?.balance?.amount || selectedToken?.balance?.mainBalance || 0).toFixed() }}
+                        {{ setTokenBalance(selectedToken) }}
                     </span>
                     {{ selectedToken?.code }}
                 </p>
-                <div><span>$</span>{{ prettyNumber(BigNumber(amount * selectedToken?.price?.USD || 0).toFixed()) }}</div>
+                <div><span>$</span>{{ payTokenPrice }}</div>
             </div>
         </div>
         <div v-if="active" class="select-amount__items" v-click-away="clickAway">
@@ -115,6 +116,7 @@ export default {
         const active = ref(false);
         const focused = ref(false);
         const amount = ref('');
+        const payTokenPrice = ref(0);
         const selectedToken = ref(props.value);
         const placeholder = ref('0');
         const coingeckoPrice = ref(0);
@@ -171,6 +173,8 @@ export default {
                 } else {
                     amount.value = val;
                 }
+
+                payTokenPrice.value = prettyNumber(BigNumber(amount.value * selectedToken?.value?.balance?.price?.USD || 0).toFixed()) || 0;
             }
         });
 
@@ -206,6 +210,7 @@ export default {
                 emit('setAmount', amount.value);
             }
         };
+
         const setActive = () => {
             if (props.showDropDown) {
                 active.value = !active.value;
@@ -218,9 +223,11 @@ export default {
             emit('setAmount', amount.value);
             emit('setToken', item);
         };
+
         const clickToken = () => {
             emit('clickToken');
         };
+
         onMounted(async () => {
             setToken(selectedToken.value);
             // if (props.selectedNetwork) {
@@ -255,6 +262,7 @@ export default {
             clickToken,
             coingeckoPrice,
             setTokenBalance,
+            payTokenPrice,
         };
     },
 };

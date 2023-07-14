@@ -15,10 +15,6 @@ export default function useTokens() {
     const groupTokensBalance = computed(() => store.getters['tokens/groupTokens']);
 
     const allTokensFromNetwork = (net) => {
-        if (!networks.value[net]) {
-            return [];
-        }
-
         return Object.keys(networks.value[net].tokens)
             .map((tokenNet) => {
                 return networks.value[net].tokens[tokenNet];
@@ -55,55 +51,35 @@ export default function useTokens() {
             const groupList = [];
 
             Object.keys(groupTokensBalance.value)?.forEach((parentNet) => {
-                let childs = [];
-                if (networks.value[parentNet]) {
-                    const tokens = groupTokensBalance.value[parentNet]?.list;
-                    const parentTokens = networks.value[parentNet]?.tokens;
-                    if (tokens && parentTokens) {
-                        childs = sortByBalanceUsd(
-                            Object.keys(tokens)
-                                .map((item) => {
-                                    const balance = tokens[item];
-                                    let { name = '', code = '' } = parentTokens[item];
+                let children = [];
 
-                                    if ((!name || !code) && item.includes('_')) {
-                                        const [net, token] = item.split('_');
-                                        name = `${net} ${token}`;
-                                        code = token.toUpperCase();
-                                    }
+                const tokens = groupTokensBalance.value[parentNet]?.list;
 
-                                    return {
-                                        ...tokens[item],
-                                        ...parentTokens[item],
-                                        name,
-                                        code,
-                                        balance,
-                                        balanceUsd: balance.amount * balance.price.USD,
-                                    };
-                                })
-                                .filter((item) => item.balance.amount > 0)
-                        );
-                    }
+                if (tokens && tokens.length > 0) {
+                    children = sortByBalanceUsd(tokens?.filter((item) => item.balance.amount > 0) ?? []);
                 }
 
                 groupList.push({
                     priority: currentChainInfo.value?.net === parentNet ? 1 : 0,
                     net: parentNet,
+                    name: parentNet,
                     ...networks.value[parentNet],
-                    balance: groupTokensBalance.value[parentNet]?.balance,
-                    balanceUsd: groupTokensBalance.value[parentNet]?.balanceUsd,
-                    price: groupTokensBalance.value[parentNet]?.price,
-                    list: childs,
+                    balance: groupTokensBalance.value[parentNet]?.balance || 0,
+                    balanceUsd: groupTokensBalance.value[parentNet]?.balanceUsd || 0,
+                    price: groupTokensBalance.value[parentNet]?.price || 0,
+                    list: children,
+                    totalSumUSD: children?.reduce((acc, item) => acc + item.balanceUsd, 0) ?? 0,
                     chain_id: chainIds[parentNet],
                 });
             });
 
             // show all without current network group
-            return [
+            const result = [
                 ...groupList.filter((g) => g.net === currentChainInfo.value?.net),
                 ...groupList.filter((g) => g.net !== currentChainInfo.value?.net),
-            ];
-            // .filter(() => group.net !== currentChainInfo.value?.net && group.list.length
+            ].sort((prev, next) => next.totalSumUSD - prev.totalSumUSD);
+
+            return result.sort((prev, next) => next.priority - prev.priority);
         }
         return [];
     });
@@ -138,7 +114,7 @@ export default function useTokens() {
     });
 
     const getTokenList = (network) => {
-        let listWithBalances = [network, ...network?.list];
+        const listWithBalances = network?.list || [];
         return sortByBalanceUsd(listWithBalances);
     };
 

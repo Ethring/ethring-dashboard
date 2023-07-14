@@ -19,7 +19,7 @@ import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 import NavBar from '@/components/app/NavBar';
 import Sidebar from '@/components/app/Sidebar';
 import { useStore } from 'vuex';
-import useCitadel from './compositions/useCitadel';
+import useInit from './compositions/useInit';
 
 export default {
     name: 'App',
@@ -34,13 +34,16 @@ export default {
 
         onMounted(async () => {
             store.dispatch('networks/init');
-            store.dispatch('networks/initZometNets');
+            await store.dispatch('networks/initZometNets');
+
+            if (walletAddress.value && walletAddress.value !== undefined) {
+                await useInit(walletAddress.value, store);
+            }
 
             nextTick(async () => {
                 const { label, provider } = connectedWallet.value || {};
 
                 const lastConnected = localStorage.getItem('onboard.js:last_connected_wallet');
-
                 if (!label && !provider && lastConnected) {
                     const walletLabel = JSON.parse(lastConnected);
 
@@ -60,9 +63,9 @@ export default {
             });
         });
 
-        watch(currentChainInfo, () => {
-            if (walletAddress.value) {
-                useCitadel(walletAddress.value, store);
+        watch(currentChainInfo, async () => {
+            if (walletAddress.value && walletAddress.value !== undefined) {
+                await useInit(walletAddress.value, store);
             }
         });
     },
