@@ -240,7 +240,7 @@ export default {
         });
 
         const setTokenBalance = (token) => {
-            return BigNumber(token.balance?.mainBalance || token.balance?.amount || 0).toFixed();
+            return BigNumber(token?.balance?.mainBalance || token?.balance?.amount || 0).toFixed();
         };
 
         return {

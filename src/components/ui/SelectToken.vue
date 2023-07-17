@@ -3,27 +3,38 @@
     <div class="select-token__wrap">
         <arrowSvg class="arrow" @click="router.push(router.options.history.state.back)" />
         <SearchInput @onChange="filterTokens" />
-        <div v-if="tokens?.length" class="select-token__items">
-            <div v-for="(item, ndx) in tokens" :key="ndx" @click="() => setToken(item)" class="select-token__item">
-                <div class="network">
-                    <div class="logo">
-                        <TokenIcon width="24" height="24" :token="item" />
+
+        <template v-if="tokensLoading || tokens.length">
+            <div class="select-token__items">
+                <template v-if="tokensLoading">
+                    <div v-for="(_, ndx) in 8" :key="ndx" class="select-token__item">
+                        <a-skeleton active avatar :paragraph="{ rows: 0 }" :style="{ paddingTop: '15px' }" />
                     </div>
-                    <div class="info">
-                        <div class="symbol">{{ item.code }}</div>
-                        <div class="name">{{ item.name }}</div>
+                </template>
+                <template v-if="!tokensLoading && tokens.length > 0">
+                    <div v-for="(item, ndx) in tokens" :key="ndx" @click="() => setToken(item)" class="select-token__item">
+                        <div class="network">
+                            <div class="logo">
+                                <TokenIcon width="24" height="24" :token="item" />
+                            </div>
+                            <div class="info">
+                                <div class="symbol">{{ item.code }}</div>
+                                <div class="name">{{ item.name }}</div>
+                            </div>
+                        </div>
+                        <div class="amount">
+                            <h3>
+                                {{ prettyNumber(item?.balance?.amount || item?.balance?.mainBalance) }}
+                                <span class="symbol">{{ item?.code }}</span>
+                            </h3>
+                            <h5 class="value"><span>$</span>{{ prettyNumber(item?.balanceUsd) }}</h5>
+                        </div>
                     </div>
-                </div>
-                <div class="amount">
-                    <h3>
-                        {{ prettyNumber(item?.balance?.amount || item?.balance?.mainBalance) }}
-                        <span class="symbol">{{ item?.code }}</span>
-                    </h3>
-                    <h5 class="value"><span>$</span>{{ prettyNumber(item?.balanceUsd) }}</h5>
-                </div>
+                </template>
             </div>
-        </div>
-        <div v-else class="select-token__not-found">
+        </template>
+
+        <div v-if="!tokensLoading && tokens.length === 0" class="select-token__not-found">
             <notFoundSvg />
             <p>{{ $t('dashboard.notFound') }}</p>
         </div>
@@ -52,6 +63,11 @@ export default {
         tokens: {
             required: true,
             default: [],
+        },
+        tokensLoading: {
+            type: Boolean,
+            required: true,
+            default: true,
         },
     },
     emits: ['setToken', 'filterTokens'],

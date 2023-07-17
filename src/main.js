@@ -20,6 +20,7 @@ import { initWeb3 } from '@/compositions/useWeb3Onboard';
 import { getChainList } from '@/api/networks';
 
 import Antd from 'ant-design-vue';
+
 import 'ant-design-vue/dist/antd.css';
 
 getChainList().then((chains) => {

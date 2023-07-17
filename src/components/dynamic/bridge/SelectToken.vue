@@ -1,7 +1,7 @@
 <template>
     <div class="select-token">
         <div class="select-token__page">
-            <SelectToken :tokens="allTokens" @filterTokens="filterTokens" @setToken="setToken" />
+            <SelectToken :tokensLoading="loader" :tokens="allTokens" @filterTokens="filterTokens" @setToken="setToken" />
         </div>
     </div>
 </template>
@@ -25,11 +25,12 @@ export default {
         const router = useRouter();
         const searchValue = ref('');
 
-        const { walletAddress } = useWeb3Onboard();
+        const { walletAddress, currentChainInfo } = useWeb3Onboard();
         const { groupTokens, allTokensFromNetwork } = useTokens();
 
         const loader = computed(() => store.getters['tokens/loader']);
         const selectType = computed(() => store.getters['tokens/selectType']);
+
         const selectedNetwork =
             selectType.value === 'from'
                 ? computed(() => store.getters['bridge/selectedSrcNetwork'])
@@ -37,8 +38,15 @@ export default {
         const tokens = computed(() => store.getters['bridge/tokensByChainID']);
 
         onMounted(async () => {
+            if (!selectedNetwork.value) {
+                store.dispatch(
+                    'bridge/setSelectedSrcNetwork',
+                    groupTokens.value.find((elem) => elem.net === currentChainInfo.value.net)
+                );
+            }
+            const chainId = selectedNetwork.value?.chain_id || selectedNetwork.value?.chainId;
             await store.dispatch('bridge/getTokensByChain', {
-                chainId: selectedNetwork.value.chain_id,
+                chainId,
             });
         });
 
@@ -59,7 +67,7 @@ export default {
             ];
 
             const matchingTokens = list?.filter((token) => {
-                return tokens.value.some((listToken) => {
+                return tokens.value?.some((listToken) => {
                     return listToken.symbol === token.code;
                 });
             });

@@ -1,7 +1,7 @@
 <template>
     <div class="select-token">
         <div class="select-token__page">
-            <SelectToken :tokens="allTokens" @filterTokens="filterTokens" @setToken="setToken" />
+            <SelectToken :tokensLoading="loader" :tokens="allTokens" @filterTokens="filterTokens" @setToken="setToken" />
         </div>
     </div>
 </template>

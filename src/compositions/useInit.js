@@ -31,7 +31,7 @@ export default async function useInit(address, store) {
 
     const tokensInfo = async (net) => {
         try {
-            const response = await axios.get(`${process.env.VUE_APP_ZOMET_CORE_API_URL}/balances/${net}/${address}`);
+            const response = await axios.get(`http://localhost:3000/balances/${net}/${address}`);
 
             if (response.status === 200) {
                 return response.data;
