@@ -57,12 +57,15 @@ export default {
     emits: ['setToken', 'filterTokens'],
     setup(props, { emit }) {
         const router = useRouter();
+
         const setToken = (item) => {
             emit('setToken', item);
         };
+
         const filterTokens = (val) => {
             emit('filterTokens', val);
         };
+
         return {
             emit,
             router,

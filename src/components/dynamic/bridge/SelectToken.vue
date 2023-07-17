@@ -26,9 +26,8 @@ export default {
         const searchValue = ref('');
 
         const { walletAddress } = useWeb3Onboard();
-        const { groupTokens, allTokensFromNetwork } = useTokens();
+        const { groupTokens, allTokensFromNetwork, getTokenList } = useTokens();
 
-        const loader = computed(() => store.getters['tokens/loader']);
         const selectType = computed(() => store.getters['tokens/selectType']);
         const selectedNetwork =
             selectType.value === 'from'
@@ -51,13 +50,24 @@ export default {
                 (elem) => elem?.chain_id === (selectedNetwork?.value?.chain_id || selectedNetwork?.value?.chainId)
             );
 
-            let list = [
-                currentNetwork,
-                ...currentNetwork?.list,
-                ...allTokensFromNetwork(selectedNetwork.value?.net).filter((token) => {
-                    return token.net !== selectedNetwork.value?.net && !currentNetwork?.list?.find((t) => t.net === token.net);
-                }),
-            ];
+            let list = [];
+
+            const listWithBalances = getTokenList(selectedNetwork.value);
+
+            if (selectType.value === 'from') {
+                if (selectedNetwork.value.balance.mainBalance > 0) {
+                    list = listWithBalances;
+                } else {
+                    list = selectedNetwork.value.list;
+                }
+            } else {
+                list = [
+                    ...listWithBalances,
+                    ...allTokensFromNetwork(selectedNetwork.value?.net).filter((token) => {
+                        return token.net !== selectedNetwork.value?.net && !currentNetwork?.list?.find((t) => t.net === token.net);
+                    }),
+                ];
+            }
 
             const matchingTokens = list?.filter((token) => {
                 return tokens.value.some((listToken) => {
@@ -93,7 +103,6 @@ export default {
         };
 
         return {
-            loader,
             groupTokens,
             walletAddress,
             router,

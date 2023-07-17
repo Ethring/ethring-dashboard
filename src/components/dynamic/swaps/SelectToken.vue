@@ -26,11 +26,12 @@ export default {
         const store = useStore();
         const router = useRouter();
         const searchValue = ref('');
+
+        const { walletAddress } = useWeb3Onboard();
         const { groupTokens, allTokensFromNetwork, getTokenList } = useTokens();
-        const loader = computed(() => store.getters['tokens/loader']);
+
         const selectedNetwork = computed(() => store.getters['networks/selectedNetwork']);
         const selectType = computed(() => store.getters['tokens/selectType']);
-        const { walletAddress } = useWeb3Onboard();
         const selectedTokenFrom = computed(() => store.getters['tokens/fromToken']);
         const selectedTokenTo = computed(() => store.getters['tokens/toToken']);
 
@@ -85,8 +86,8 @@ export default {
             }
             router.push(router.options.history.state.back);
         };
+
         return {
-            loader,
             groupTokens,
             walletAddress,
             router,
