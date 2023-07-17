@@ -63,8 +63,14 @@ export default {
             });
         });
 
+        watch(walletAddress, async () => {
+            if (walletAddress?.value) {
+                await useInit(walletAddress.value, store);
+            }
+        });
+
         watch(currentChainInfo, async () => {
-            if (walletAddress.value && walletAddress.value !== undefined) {
+            if (walletAddress?.value) {
                 await useInit(walletAddress.value, store);
             }
         });
