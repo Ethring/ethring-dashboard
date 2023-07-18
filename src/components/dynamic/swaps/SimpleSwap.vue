@@ -280,8 +280,8 @@ export default {
 
             const resEstimate = await store.dispatch('oneInchSwap/estimateSwap', {
                 net: selectedNetwork.value.net,
-                fromTokenAddress: selectedTokenFrom.value.list ? NATIVE_CONTRACT : selectedTokenFrom.value.address,
-                toTokenAddress: selectedTokenTo.value.list ? NATIVE_CONTRACT : selectedTokenTo.value.address,
+                fromTokenAddress: selectedTokenFrom.value.address || NATIVE_CONTRACT,
+                toTokenAddress: selectedTokenTo.value.address || NATIVE_CONTRACT,
                 amount: amount.value,
             });
 
@@ -393,8 +393,8 @@ export default {
 
             const resSwap = await store.dispatch('oneInchSwap/getSwapTx', {
                 net: selectedNetwork.value.net,
-                fromTokenAddress: selectedTokenFrom.value.list ? NATIVE_CONTRACT : selectedTokenFrom.value.address,
-                toTokenAddress: selectedTokenTo.value.list ? NATIVE_CONTRACT : selectedTokenTo.value.address,
+                fromTokenAddress: selectedTokenFrom.value.address || NATIVE_CONTRACT,
+                toTokenAddress: selectedTokenTo.value.address || NATIVE_CONTRACT,
                 amount: amount.value,
                 ownerAddress: walletAddress.value,
                 slippage: 0.5,
