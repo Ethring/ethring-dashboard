@@ -127,7 +127,7 @@ import { getTxUrl } from '@/helpers/utils';
 
 import { services } from '@/config/bridgeServices';
 
-import findBestRoute from '@/modules/superSwap/baseScript.js';
+import findBestRoute from '@/modules/superSwap/baseScript';
 
 const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
