@@ -134,6 +134,7 @@ async function findRoute(params) {
         for (let i = 0; i < services.length; i++) {
             const service = services[i];
             params.url = service.url;
+            console.log(params, service.url, '--params');
             const resEstimate = await store.dispatch(apiRoute, params);
             if (resEstimate.error) {
                 if (resEstimate.error === BRIDGE_ERROR) {
