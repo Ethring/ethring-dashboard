@@ -102,6 +102,7 @@ export default {
                         BTC: price[item.address.toLowerCase()]?.btc,
                         USD: price[item.address.toLowerCase()]?.usd,
                     };
+
                     store.dispatch('tokens/setToToken', item);
                 }
             }

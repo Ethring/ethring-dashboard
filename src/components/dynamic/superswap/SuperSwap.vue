@@ -418,7 +418,7 @@ export default {
             }
             isLoading.value = true;
             const resEstimate = await findBestRoute(amount.value, walletAddress.value);
-            console.log(resEstimate, '--bestroute');
+
             if (resEstimate?.error) {
                 txError.value = resEstimate.error;
                 isLoading.value = false;
@@ -484,7 +484,6 @@ export default {
                 needNetworkChange.value = false;
 
                 setTimeout(async () => {
-                    console.log(currentRoute.value.net, currentChainInfo.value.net, '------');
                     if (currentRoute.value.net === currentChainInfo.value.net) {
                         await swap();
                     }
