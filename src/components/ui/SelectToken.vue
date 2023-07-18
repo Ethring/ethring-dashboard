@@ -11,7 +11,7 @@
                         <a-skeleton active avatar :paragraph="{ rows: 0 }" :style="{ paddingTop: '15px' }" />
                     </div>
                 </template>
-                <template v-if="tokens.length > 0">
+                <template v-if="!tokensLoading && tokens.length > 0">
                     <div v-for="(item, ndx) in tokens" :key="ndx" @click="() => setToken(item)" class="select-token__item">
                         <div class="network">
                             <div class="logo">
