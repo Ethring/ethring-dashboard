@@ -48,7 +48,7 @@
         >
             <div class="accordion__content">
                 <div class="accordion__item">
-                    <div class="accordion__label">Network fee:</div>
+                    <div class="accordion__label">{{ $t('simpleSwap.networkFee') }}:</div>
                     <div class="accordion__value">
                         <span class="fee">{{ networkFee }}</span> <span class="symbol">$</span>
                     </div>
@@ -278,7 +278,7 @@ export default {
                 return;
             }
 
-            const resEstimate = await store.dispatch('oneInchSwap/estimateSwap', {
+            const resEstimate = await store.dispatch('swap/estimateSwap', {
                 net: selectedNetwork.value.net,
                 fromTokenAddress: selectedTokenFrom.value.address || NATIVE_CONTRACT,
                 toTokenAddress: selectedTokenTo.value.address || NATIVE_CONTRACT,
@@ -300,7 +300,7 @@ export default {
             needApprove.value = false;
 
             if (selectedTokenFrom.value?.address) {
-                const resAllowance = await store.dispatch('oneInchSwap/getAllowance', {
+                const resAllowance = await store.dispatch('swap/getAllowance', {
                     net: currentChainInfo.value.net,
                     tokenAddress: selectedTokenFrom.value.address,
                     ownerAddress: walletAddress.value,
@@ -314,7 +314,7 @@ export default {
 
         const getApproveTx = async () => {
             if (selectedTokenFrom.value?.address) {
-                const resApproveTx = await store.dispatch('oneInchSwap/getApproveTx', {
+                const resApproveTx = await store.dispatch('swap/getApproveTx', {
                     net: currentChainInfo.value.net,
                     tokenAddress: selectedTokenFrom.value.address,
                     ownerAddress: walletAddress.value,
@@ -391,7 +391,7 @@ export default {
                 return;
             }
 
-            const resSwap = await store.dispatch('oneInchSwap/getSwapTx', {
+            const resSwap = await store.dispatch('swap/getSwapTx', {
                 net: selectedNetwork.value.net,
                 fromTokenAddress: selectedTokenFrom.value.address || NATIVE_CONTRACT,
                 toTokenAddress: selectedTokenTo.value.address || NATIVE_CONTRACT,

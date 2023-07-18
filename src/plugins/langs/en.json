@@ -19,6 +19,7 @@
     "stake": "Stake",
     "send": "Send",
     "bridge": "Bridge",
+    "superSwap": "SuperSwap",
     "xct": "XCT"
   },
   "connect": {
@@ -44,7 +45,8 @@
     "approve": "Approve",
     "pay": "Pay",
     "receive": "Receive",
-    "selectToken": "Select token"
+    "selectToken": "Select token",
+    "networkFee": "Network fee"
   },
   "simpleBridge": {
     "title": "Bridge",
@@ -56,5 +58,19 @@
     "amount": "Amount",
     "balance": "Balance",
     "max": "Max"
+  },
+  "superSwap": {
+    "title": "SuperSwap",
+    "confirm": "Confirm",
+    "recipient": "Recipient",
+    "approve": "Approve",
+    "send": "Send",
+    "receive": "Receive",
+    "amount": "Amount",
+    "balance": "Balance",
+    "max": "Max",
+    "networkFee": "Network fee",
+    "changeNetwork": "Change network to",
+    "estimateTime": "Estimate time"
   }
 }

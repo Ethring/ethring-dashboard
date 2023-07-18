@@ -1,22 +1,35 @@
 import { fetchData } from '@/api/fetchData';
 import axios from 'axios';
 
-// const types = {};
-const VUE_APP_1INCH_SWAP_API = process.env.VUE_APP_1INCH_SWAP_API;
+const DEFAULT_URL = process.env.VUE_APP_1INCH_SWAP_API;
+
+const types = {
+    SET_BEST_ROUTE: 'SET_BEST_ROUTE',
+};
 
 export default {
     namespaced: true,
-    state: () => ({}),
+    state: () => ({
+        bestRoute: null,
+    }),
 
-    getters: {},
+    getters: {
+        bestRoute: (state) => state.bestRoute,
+    },
 
-    mutations: {},
-
+    mutations: {
+        [types.SET_BEST_ROUTE](state, value) {
+            state.bestRoute = value;
+        },
+    },
     actions: {
+        setBestRoute({ commit }, value) {
+            commit(types.SET_BEST_ROUTE, value);
+        },
         /* ESTIMATE SWAP */
-        async estimateSwap(_, { net, fromTokenAddress, toTokenAddress, amount }) {
+        async estimateSwap(_, { url, net, fromTokenAddress, toTokenAddress, amount }) {
             return await fetchData({
-                url: VUE_APP_1INCH_SWAP_API,
+                url: url || DEFAULT_URL,
                 route: 'estimateSwap',
                 params: {
                     net,
@@ -28,10 +41,10 @@ export default {
         },
 
         /* ALLOWANCE */
-        async getAllowance(_, { net, tokenAddress, ownerAddress }) {
+        async getAllowance(_, { url, net, tokenAddress, ownerAddress }) {
             let response;
             try {
-                response = await axios.get(`${VUE_APP_1INCH_SWAP_API}getAllowance`, {
+                response = await axios.get(`${url || DEFAULT_URL}getAllowance`, {
                     params: {
                         net,
                         tokenAddress,
@@ -45,9 +58,9 @@ export default {
         },
 
         /* APPROVE TX */
-        async getApproveTx(_, { net, tokenAddress, ownerAddress }) {
+        async getApproveTx(_, { url, net, tokenAddress, ownerAddress }) {
             return await fetchData({
-                url: VUE_APP_1INCH_SWAP_API,
+                url: url || DEFAULT_URL,
                 route: 'getApproveTx',
                 params: {
                     net,
@@ -58,9 +71,9 @@ export default {
         },
 
         /* GET SWAP TX */
-        async getSwapTx(_, { net, fromTokenAddress, toTokenAddress, amount, ownerAddress, slippage }) {
+        async getSwapTx(_, { url, net, fromTokenAddress, toTokenAddress, amount, ownerAddress, slippage }) {
             return await fetchData({
-                url: VUE_APP_1INCH_SWAP_API,
+                url: url || DEFAULT_URL,
                 route: 'getSwapTx',
                 params: {
                     net,

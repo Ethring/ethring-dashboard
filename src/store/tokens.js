@@ -12,6 +12,7 @@ const types = {
     SET_FROM_TOKEN: 'SET_FROM_TOKEN',
     SET_TO_TOKEN: 'SET_TO_TOKEN',
     SET_ADDRESS: 'SET_ADDRESS',
+    SET_DISABLE_LOADER: 'SET_DISABLE_LOADER',
 };
 
 export default {
@@ -26,6 +27,7 @@ export default {
         fromToken: null,
         toToken: null,
         address: '',
+        disableLoader: false,
     }),
 
     getters: {
@@ -38,11 +40,15 @@ export default {
         fromToken: (state) => state.fromToken,
         toToken: (state) => state.toToken,
         address: (state) => state.address,
+        disableLoader: (state) => state.disableLoader,
     },
 
     mutations: {
         [types.SET_TOKENS](state, value) {
             state.tokens = value;
+        },
+        [types.SET_DISABLE_LOADER](state, value) {
+            state.disableLoader = value;
         },
         [types.SET_ADDRESS](state, value) {
             state.address = value;
@@ -94,6 +100,9 @@ export default {
         },
         setLoader({ commit }, value) {
             commit(types.SET_LOADER, value);
+        },
+        setDisableLoader({ commit }, value) {
+            commit(types.SET_DISABLE_LOADER, value);
         },
         setFavourites({ commit }, { net, address }) {
             commit(types.SET_FAVOURITES, { net, address });
@@ -173,7 +182,7 @@ export default {
                         balanceUsd: balance.amount * balance.price.USD,
                     };
                 })
-                .filter((item) => item.balance.amount > 0)
+                ?.filter((item) => item.balance.amount > 0)
                 .sort((a, b) => {
                     if (a.balanceUsd > b.balanceUsd) {
                         return 1;

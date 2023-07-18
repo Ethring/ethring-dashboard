@@ -27,13 +27,15 @@ export default {
         Sidebar,
         NavBar,
     },
+    created() {
+        const store = useStore();
+        store.dispatch('networks/init');
+    },
     setup() {
         const store = useStore();
-
         const { connectWallet, connectedWallet, walletAddress, currentChainInfo } = useWeb3Onboard();
 
         onMounted(async () => {
-            store.dispatch('networks/init');
             await store.dispatch('networks/initZometNets');
 
             if (walletAddress.value && walletAddress.value !== undefined) {

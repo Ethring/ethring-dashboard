@@ -1,15 +1,15 @@
 <template>
-    <div class="simple-bridge">
+    <div class="superswap-panel">
         <div class="select-group">
             <SelectNetwork
-                :items="filteredSupportedChains"
+                :items="zometNetworks"
                 :current="selectedSrcNetwork || currentChainInfo"
                 @select="onSelectSrcNetwork"
                 label="From"
                 placeholder="Select network"
             />
             <SelectNetwork
-                :items="activeSupportedChains"
+                :items="filteredSupportedChains"
                 :current="selectedDstNetwork"
                 @select="onSelectDstNetwork"
                 label="To"
@@ -17,23 +17,21 @@
             />
         </div>
         <SelectAmount
-            v-if="tokensSrcListResolved"
+            v-if="selectedSrcToken"
             :selected-network="selectedSrcNetwork"
-            :items="tokensSrcListResolved"
             :value="selectedSrcToken"
             :error="!!errorBalance"
-            :label="$t('simpleBridge.send')"
+            :label="$t('superSwap.send')"
             :on-reset="resetAmount"
             class="mt-10"
             @setAmount="onSetAmount"
             @clickToken="onSetSrcToken"
         />
         <SelectAmount
-            v-if="tokensDstListResolved.length"
+            v-if="selectedDstToken"
             :selected-network="selectedDstNetwork"
-            :items="tokensDstListResolved"
             :value="selectedDstToken"
-            :label="$t('simpleBridge.receive')"
+            :label="$t('superSwap.receive')"
             :disabled-value="prettyNumber(receiveValue)"
             :disabled="true"
             :on-reset="resetAmount"
@@ -45,10 +43,10 @@
         <InfoPanel v-if="txError" :title="txError" class="mt-10" />
         <InfoPanel v-if="successHash" :hash="successHash" :title="$t('tx.txHash')" type="success" class="mt-10" />
         <Checkbox
-            v-if="selectedDstToken"
+            v-if="selectedSrcNetwork && selectedDstNetwork && selectedSrcNetwork?.chain_id !== selectedDstNetwork?.chain_id"
             id="receiveToken"
             v-model:value="receiveToken"
-            :label="`Receive ${selectedDstToken?.code} to another wallet`"
+            :label="`Recipient's ${selectedDstNetwork?.name} address`"
             class="mt-10"
         >
         </Checkbox>
@@ -62,61 +60,55 @@
             @setAddress="onSetAddress"
         />
         <Accordion
-            v-if="selectedDstNetwork"
-            :title="
-                selectedSrcNetwork
-                    ? `<span>${$t('simpleBridge.protocolFee')} </span>: ${
-                          serviceFee
-                              ? `<span style='font-family:Poppins_Semibold; color: #0D7E71;'>${serviceFee}</span> 
-                                    <span style='font-family:Poppins_Semibold;'>
-                                        ${selectedSrcNetwork.code} ~ 
-                                        <span style='font-family:Poppins_Semibold; color: #0D7E71;'>
-                                            ${prettyNumber(serviceFee * selectedSrcNetwork.price.USD)}
-                                        </span> $
-                                    </span>`
-                              : `<div class='skeleton skeleton__text'></div>`
-                      }`
-                    : `<div class='skeleton skeleton__text'></div>`
-            "
-            :hide="!receiveValue"
-            :class="serviceFee ? 'mt-10' : 'mt-10 skeleton__content'"
+            v-if="receiveValue"
+            :title="`Rate: <span style='font-family:Poppins_Semibold;'>1</span> ${
+                selectedSrcToken?.code || ''
+            } = <span  style='font-family:Poppins_Semibold;'>${estimateRate}</span> ${selectedDstToken?.code || ''}`"
+            class="mt-10"
         >
-            <div v-if="receiveValue" class="accordion__content">
+            <div class="accordion__content">
                 <div class="accordion__item">
-                    <div class="accordion__label">{{ $t('simpleBridge.serviceFee') }} :</div>
+                    <div class="accordion__label">{{ $t('superSwap.networkFee') }}:</div>
                     <div class="accordion__value">
-                        <div class="name">{{ prettyNumber(networkFee * selectedSrcToken?.price?.USD) }} $</div>
+                        <span class="fee">{{ networkFee }}</span> <span class="symbol"> $</span>
                     </div>
                 </div>
                 <div class="accordion__item">
-                    <div class="accordion__label">{{ $t('simpleBridge.title') }} :</div>
+                    <div class="accordion__label">{{ $t('superSwap.estimateTime') }}:</div>
                     <div class="accordion__value">
-                        <img src="https://app.debridge.finance/assets/images/bridge.svg" />
-                        <div class="name">{{ services[0].name }}</div>
+                        <span class="fee"> {{ '< ' + Math.round(bestRoute.estimateTime / 60) + ' min' }}</span>
                     </div>
                 </div>
                 <div class="accordion__item">
-                    <div class="accordion__label">{{ $t('simpleBridge.time') }} :</div>
-                    <div class="accordion__value">{{ estimateTime }}</div>
+                    <div class="accordion__label">Routes:</div>
+                    <div class="accordion__value" v-for="item in bestRoute.routes" :key="item">
+                        <img :src="item.service.icon" />
+                        <div class="name">{{ item.service.name }}</div>
+                    </div>
                 </div>
             </div>
         </Accordion>
         <Button
             xl
-            :title="needApprove ? $t('simpleBridge.approve') : $t('simpleBridge.confirm').toUpperCase()"
+            :title="
+                needApprove
+                    ? $t('superSwap.approve')
+                    : needNetworkChange
+                    ? $t('superSwap.changeNetwork') + ' ' + selectedDstNetwork.name
+                    : $t('superSwap.confirm').toUpperCase()
+            "
             :disabled="!!disabledBtn"
             :loading="isLoading"
-            class="simple-bridge__btn mt-10"
+            class="superswap-panel__btn mt-10"
             @click="swap"
         />
     </div>
 </template>
 <script>
-import { computed, ref, onMounted, watch, onUnmounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { ethers } from 'ethers';
-import axios from 'axios';
 
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 import useTokens from '@/compositions/useTokens';
@@ -130,15 +122,17 @@ import Checkbox from '@/components/ui/Checkbox';
 import Button from '@/components/ui/Button';
 
 import { toMantissa } from '@/helpers/numbers';
-import { prettyNumber } from '@/helpers/prettyNumber';
-import { getTxUrl, delay } from '@/helpers/utils';
+import { prettyNumber, prettyNumberTooltip } from '@/helpers/prettyNumber';
+import { getTxUrl } from '@/helpers/utils';
 
 import { services } from '@/config/bridgeServices';
+
+import findBestRoute from '@/modules/superSwap/baseScript.js';
 
 const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
 export default {
-    name: 'SimpleBridge',
+    name: 'SuperSwap',
     components: {
         InfoPanel,
         SelectAmount,
@@ -158,68 +152,39 @@ export default {
         const balanceUpdated = ref(false);
         const receiveToken = ref(false);
         const approveTx = ref(null);
+        const bestRoute = ref({});
+        const currentRoute = ref({});
         const txError = ref('');
         const successHash = ref('');
         const resetAmount = ref(false);
         const router = useRouter();
         const networkFee = ref(0);
+        const estimateRate = ref(0);
+        const needNetworkChange = ref(false);
+        const callEstimate = ref(false);
+
+        const zometNetworks = computed(() => store.getters['networks/zometNetworksList']);
 
         const selectedSrcNetwork = computed(() => store.getters['bridge/selectedSrcNetwork']);
+
         const selectedDstNetwork = computed(() => store.getters['bridge/selectedDstNetwork']);
+        const supportedChains = computed(() => store.getters['bridge/supportedChains']);
 
         const selectedSrcToken = computed(() => store.getters['tokens/fromToken']);
         const selectedDstToken = computed(() => store.getters['tokens/toToken']);
-
         const amount = ref('');
         const receiveValue = ref('');
         const address = ref('');
-        const estimateTime = ref('');
-        const serviceFee = ref('');
         const allowance = ref(null);
 
         const errorAddress = ref('');
         const errorBalance = ref('');
 
-        const tokensSrcListResolved = ref([]);
-        const tokensDstListResolved = ref([]);
-        const getSupportedChains = computed(() => store.getters['bridge/supportedChains']);
-
         onMounted(async () => {
             store.dispatch('bridge/getSupportedChains');
-            store.dispatch(
-                'bridge/setSelectedSrcNetwork',
-                groupTokens.value.find((elem) => elem.net === currentChainInfo.value.net)
-            );
-            if (selectedSrcToken.value) {
-                await getAllowance();
-            }
-            if (selectedSrcNetwork.value) {
-                serviceFee.value = services[0]?.protocolFee[selectedSrcNetwork?.value?.chain_id];
-            }
-        });
-
-        const filteredSupportedChains = computed(() => {
-            if (!getSupportedChains.value && getSupportedChains.value.length) {
-                return [];
-            }
-
-            const list = groupTokens?.value.filter((item) => {
-                const supportedChain = getSupportedChains.value?.find((network) => network.net === item.net);
-                if (supportedChain) {
-                    item.logoURI = supportedChain.logoURI;
-                    return true;
-                }
-                return false;
+            await store.dispatch('bridge/getTokensByChain', {
+                chainId: currentChainInfo.value.chainId,
             });
-
-            if (selectedDstNetwork.value) {
-                return list.filter((chain) => chain.net !== selectedDstNetwork.value.net);
-            }
-            return list;
-        });
-
-        const activeSupportedChains = computed(() => {
-            return filteredSupportedChains.value.filter((token) => token.net !== selectedSrcNetwork?.value?.net);
         });
 
         const disabledBtn = computed(() => {
@@ -231,6 +196,7 @@ export default {
                 !selectedSrcNetwork.value ||
                 !selectedDstNetwork.value ||
                 !selectedSrcToken.value ||
+                !selectedDstToken.value ||
                 txError.value
             );
         });
@@ -248,25 +214,55 @@ export default {
             }
 
             let listWithBalances = [];
-            if (network.list) {
+            let selectedNetwork = {};
+            if (network.list?.length) {
                 listWithBalances = getTokenList(network);
             } else {
-                listWithBalances = [groupTokens.value[0], ...groupTokens.value[0].list];
+                selectedNetwork = groupTokens.value.find((elem) => elem?.chain_id === (network?.chain_id || network?.chainId));
+                listWithBalances = getTokenList(selectedNetwork);
             }
 
             const list = [
                 ...listWithBalances,
                 ...allTokensFromNetwork(network.net).filter((token) => {
-                    return token.net !== network.net && !groupTokens.value[0].list.find((t) => t.net === token.net);
+                    return token.net !== network.net && !listWithBalances?.find((t) => t.net === token.net);
                 }),
             ];
-
             return list;
         };
 
+        const filteredSupportedChains = computed(() => {
+            if (!supportedChains.value && !supportedChains.value.length) {
+                return [];
+            }
+            if (selectedSrcNetwork.value) {
+                if (!supportedChains.value.find((elem) => selectedSrcNetwork.value.net === elem.net)) {
+                    return [
+                        {
+                            ...selectedSrcNetwork.value,
+                            logoURI: zometNetworks.value?.find((elem) => selectedSrcNetwork.value?.net === elem?.net)?.logo,
+                        },
+                    ];
+                }
+            }
+
+            const list = groupTokens?.value.filter((item) => {
+                const supportedChain = supportedChains.value.find((network) => network.net === item.net);
+                if (supportedChain) {
+                    item.logoURI = supportedChain.logoURI;
+                    return true;
+                }
+                return false;
+            });
+
+            if (selectedDstNetwork.value) {
+                return list.filter((chain) => chain.net !== selectedDstNetwork.value.net);
+            }
+            return list;
+        });
+
         const onSelectSrcNetwork = async (network) => {
             tokensList(network).then((tokens) => {
-                tokensSrcListResolved.value = tokens;
                 if (!selectedSrcToken.value) {
                     store.dispatch('tokens/setFromToken', tokens[0]);
                 }
@@ -280,27 +276,41 @@ export default {
                     });
                 }
             }
-            store.dispatch('bridge/setSelectedSrcNetwork', network);
+            const srcNetwork = groupTokens.value?.find((elem) => elem.net === network.net);
+            store.dispatch('bridge/setSelectedSrcNetwork', srcNetwork || network);
         };
 
         const onSelectDstNetwork = async (network) => {
+            callEstimate.value = true;
+
             store.dispatch('bridge/setSelectedDstNetwork', network);
             tokensList(network).then((tokens) => {
-                tokensDstListResolved.value = tokens;
                 if (!selectedDstToken.value || !tokens.find((elem) => elem.code === selectedDstToken.value.code)) {
-                    store.dispatch('tokens/setToToken', tokens[0]);
+                    if (selectedSrcNetwork.value.net === selectedDstNetwork.value.net) {
+                        const tokenTo = tokens.find((elem) => elem.code !== selectedSrcToken.value.code);
+                        if (tokenTo) {
+                            store.dispatch('tokens/setToToken', tokenTo);
+                        }
+                    } else {
+                        store.dispatch('tokens/setToToken', tokens[0]);
+                    }
+                } else if (selectedDstNetwork.value?.net === network?.net) {
+                    store.dispatch('tokens/setToToken', selectedDstToken.value);
                 } else {
                     let tokenTo = tokens.find((elem) => elem.code === selectedDstToken.value.code);
                     if (tokenTo) {
                         store.dispatch('tokens/setToToken', tokenTo);
                     }
                 }
+
+                clearApprove();
+                onSetAmount(amount.value);
             });
         };
 
         const onSetSrcToken = () => {
             store.dispatch('tokens/setSelectType', 'from');
-            router.push('/bridge/select-token');
+            router.push('/superSwap/select-token');
 
             balanceUpdated.value = false;
 
@@ -309,7 +319,7 @@ export default {
 
         const onSetDstToken = async () => {
             store.dispatch('tokens/setSelectType', 'to');
-            router.push('/bridge/select-token');
+            router.push('/superSwap/select-token');
 
             balanceUpdated.value = false;
 
@@ -337,33 +347,25 @@ export default {
             if (!+value) {
                 return;
             }
+            if (amount.value !== value || callEstimate.value) {
+                receiveValue.value = '';
+                amount.value = value;
+                await getEstimateInfo();
+                callEstimate.value = false;
+            }
 
-            receiveValue.value = '';
-            amount.value = value;
-
-            if (
-                +value > selectedSrcToken.value.balance.amount ||
-                +value > selectedSrcToken.value.balance.mainBalance ||
-                +networkFee.value > selectedSrcToken.value.balance.amount ||
-                +networkFee.value > selectedSrcToken.value.balance.mainBalance ||
-                !Object.prototype.hasOwnProperty.call(selectedSrcToken.value, 'balance')
-            ) {
+            if (+value > selectedSrcToken.value.balance.amount || +value > selectedSrcToken.value.balance.mainBalance) {
                 errorBalance.value = 'Insufficient balance';
             } else {
                 errorBalance.value = '';
             }
-            if (!allowance.value) {
-                await getAllowance();
-            }
-            await getEstimateInfo();
-            await checkAllowance();
         };
 
-        const checkAllowance = async () => {
-            if (allowance.value >= toMantissa(amount.value, selectedSrcToken.value?.decimals)) {
+        const checkAllowance = async (amount) => {
+            if (allowance.value >= toMantissa(amount, currentRoute.value.fromToken?.decimals)) {
                 needApprove.value = false;
             } else {
-                if (!approveTx.value && !selectedSrcToken.value?.chain_id) {
+                if (!approveTx.value && currentRoute.value.fromToken?.address) {
                     needApprove.value = true;
                     await getApproveTx();
                 }
@@ -373,27 +375,27 @@ export default {
         const getAllowance = async () => {
             approveTx.value = null;
             needApprove.value = false;
-
-            if (!selectedSrcToken.value?.chain_id) {
-                const resAllowance = await store.dispatch('bridge/getAllowance', {
-                    net: selectedSrcNetwork.value.net,
-                    tokenAddress: selectedSrcToken.value.address,
+            if (currentRoute.value.fromToken?.address && currentRoute.value?.service) {
+                const resAllowance = await store.dispatch(currentRoute.value.service.type + '/getAllowance', {
+                    url: currentRoute.value.service.url,
+                    net: currentRoute.value.net,
+                    tokenAddress: currentRoute.value.fromToken?.address,
                     ownerAddress: walletAddress.value,
                 });
-
                 if (resAllowance.error) {
                     return;
                 }
 
-                allowance.value = resAllowance.allowance;
+                allowance.value = resAllowance.allowance || resAllowance;
             }
         };
 
         const getApproveTx = async () => {
-            if (!selectedSrcToken.value?.chain_id) {
-                const resApproveTx = await store.dispatch('bridge/getApproveTx', {
-                    net: selectedSrcNetwork.value.net,
-                    tokenAddress: selectedSrcToken.value.address,
+            if (currentRoute.value.fromToken?.address && currentRoute.value?.service) {
+                const resApproveTx = await store.dispatch(currentRoute.value.service.type + '/getApproveTx', {
+                    url: currentRoute.value.service.url,
+                    net: currentRoute.value.net,
+                    tokenAddress: currentRoute.value.fromToken?.address,
                     ownerAddress: walletAddress.value,
                 });
 
@@ -414,24 +416,26 @@ export default {
             ) {
                 return;
             }
-
-            const resEstimate = await store.dispatch('bridge/estimateBridge', {
-                fromNet: selectedSrcNetwork.value.net,
-                fromTokenAddress: selectedSrcToken.value.address || NATIVE_CONTRACT,
-                amount: amount.value,
-                toNet: selectedDstNetwork.value.net,
-                toTokenAddress: selectedDstToken.value.address || NATIVE_CONTRACT,
-            });
-
-            if (resEstimate.error) {
+            isLoading.value = true;
+            const resEstimate = await findBestRoute(amount.value, walletAddress.value);
+            console.log(resEstimate, '--bestroute');
+            if (resEstimate?.error) {
                 txError.value = resEstimate.error;
+                isLoading.value = false;
                 return;
             }
-
+            store.dispatch('swap/setBestRoute', resEstimate.bestRoute);
+            currentRoute.value = resEstimate.bestRoute.routes.find((elem) => elem.status === 'signing');
+            if (currentRoute.value.needApprove) {
+                needApprove.value = true;
+                getApproveTx();
+            }
+            bestRoute.value = resEstimate.bestRoute;
             txError.value = '';
-            receiveValue.value = resEstimate.toTokenAmount;
-            networkFee.value = +resEstimate.fee.amount;
-            estimateTime.value = '< ' + Math.round(services[0]?.estimatedTime[selectedSrcNetwork?.value?.chain_id] / 60) + ' min';
+            receiveValue.value = resEstimate.bestRoute?.toTokenAmount;
+            networkFee.value = prettyNumberTooltip(resEstimate.bestRoute?.estimateFeeUsd, 4);
+            estimateRate.value = prettyNumberTooltip(resEstimate.bestRoute.toTokenAmount / resEstimate.bestRoute.fromTokenAmount, 6);
+            isLoading.value = false;
         };
 
         const getProvider = () => {
@@ -442,7 +446,7 @@ export default {
             }
         };
 
-        const sendMetamaskTransaction = async (transaction) => {
+        const sendTransaction = async (transaction) => {
             const ethersProvider = getProvider();
             const tx = {
                 data: transaction.data,
@@ -465,56 +469,33 @@ export default {
             }
         };
 
-        const getOrderIds = async (txHash) => {
-            await delay(3000); // Fix after integrating
-            const response = await axios.get(`https://api.dln.trade/v1.0/dln/tx/${txHash}/order-ids`);
-
-            if (response.status === 200) {
-                const { data = {} } = response;
-                const { orderIds = [] } = data;
-                return orderIds;
+        const getRecipientAddress = () => {
+            if (currentRoute.value.service.type === 'swap') {
+                return walletAddress.value;
             }
-
-            return [];
-        };
-
-        const getTransactionHash = async (txHash) => {
-            let orderIds = await getOrderIds(txHash);
-
-            if (!orderIds.length) {
-                orderIds = await getOrderIds(txHash);
-            }
-
-            const responseHash = await axios.get(`https://dln-api.debridge.finance/api/Orders/${orderIds[0]}`);
-
-            const hash = {
-                srcHash: null,
-                dstHash: null,
-            };
-
-            if (responseHash.status === 200) {
-                const { data = {} } = responseHash;
-
-                const { createdSrcEventMetadata = {}, fulfilledDstEventMetadata = {} } = data;
-
-                hash.srcHash = createdSrcEventMetadata?.transactionHash?.stringValue || null;
-                hash.dstHash = fulfilledDstEventMetadata?.transactionHash?.stringValue || null;
-            }
-
-            return hash;
+            return address.value || walletAddress.value;
         };
 
         const swap = async () => {
-            if (disabledBtn.value) {
+            if (needNetworkChange.value) {
+                await setChain({
+                    chainId: selectedDstNetwork.value.chain_id,
+                });
+                needNetworkChange.value = false;
+
+                setTimeout(async () => {
+                    console.log(currentRoute.value.net, currentChainInfo.value.net, '------');
+                    if (currentRoute.value.net === currentChainInfo.value.net) {
+                        await swap();
+                    }
+                }, 2000);
                 return;
             }
-
             isLoading.value = true;
             txError.value = '';
-
             // APPROVE
             if (approveTx.value) {
-                const resTx = await sendMetamaskTransaction({ ...approveTx.value, from: walletAddress.value });
+                const resTx = await sendTransaction({ ...approveTx.value, from: walletAddress.value });
                 if (resTx.error) {
                     txError.value = resTx.error;
                     isLoading.value = false;
@@ -525,37 +506,48 @@ export default {
                 }
 
                 approveTx.value = null;
-                successHash.value = getTxUrl(selectedSrcNetwork.value.net, resTx.transactionHash);
-                await getAllowance();
-                await checkAllowance();
+                successHash.value = getTxUrl(currentRoute.value.net, resTx.transactionHash);
                 resetAmount.value = false;
-                setTimeout(() => {
+                setTimeout(async () => {
+                    await getAllowance();
+                    await checkAllowance(amount.value);
                     isLoading.value = false;
                     successHash.value = '';
                 }, 5000);
                 return;
             }
-
-            const resSwap = await store.dispatch('bridge/getBridgeTx', {
-                fromNet: selectedSrcNetwork.value.net,
-                fromTokenAddress: selectedSrcToken.value.address || NATIVE_CONTRACT,
-                amount: amount.value,
-                toNet: selectedDstNetwork.value.net,
-                toTokenAddress: selectedDstToken.value.address || NATIVE_CONTRACT,
-                recipientAddress: address.value || walletAddress.value,
-                fallbackAddress: walletAddress.value || NATIVE_CONTRACT,
+            let serviceApi = null;
+            if (currentRoute.value.service?.type === 'bridge') {
+                serviceApi = currentRoute.value.service.type + '/getBridgeTx';
+            } else {
+                serviceApi = currentRoute.value.service.type + '/getSwapTx';
+            }
+            const params = {
+                url: currentRoute.value.service.url,
+                net: currentRoute.value.net,
+                fromTokenAddress: currentRoute.value.fromToken?.address || NATIVE_CONTRACT,
+                fromNet: currentRoute.value.net,
+                amount: prettyNumber(currentRoute.value.amount, 6),
+                toNet: currentRoute.value.toNet,
+                toTokenAddress: currentRoute.value.toToken?.address || NATIVE_CONTRACT,
                 ownerAddress: walletAddress.value,
                 slippage: 1,
-            });
-
+            };
+            if (currentRoute.value.service?.recipientAddress) {
+                params.recipientAddress = getRecipientAddress();
+                params.fallbackAddress = walletAddress.value || NATIVE_CONTRACT;
+            }
+            const resSwap = await store.dispatch(serviceApi, params);
             if (resSwap.error) {
                 txError.value = resSwap.error;
                 isLoading.value = false;
+                setTimeout(() => {
+                    txError.value = '';
+                }, 2000);
                 return;
             }
 
-            const resTx = await sendMetamaskTransaction(resSwap);
-
+            const resTx = await sendTransaction(resSwap);
             if (resTx.error) {
                 txError.value = resTx.error;
                 isLoading.value = false;
@@ -565,15 +557,39 @@ export default {
                 return;
             }
 
-            const hash = await getTransactionHash(resTx.transactionHash);
-
-            if (hash) {
-                successHash.value = getTxUrl(selectedDstNetwork.value.net, hash.dstHash);
-            } else {
-                successHash.value = getTxUrl(selectedDstNetwork.value.net, resTx.transactionHash);
-            }
+            successHash.value = getTxUrl(currentRoute.value.net, resTx.transactionHash);
             isLoading.value = false;
-            resetAmount.value = true;
+
+            bestRoute.value.routes = bestRoute.value.routes?.map((elem, i) => {
+                if (elem.status === 'signing') {
+                    elem.status = 'complete';
+                }
+                if (elem.status === 'pending' && bestRoute.value.routes[i - 1]?.status == 'complete') {
+                    elem.status = 'signing';
+                }
+                return elem;
+            });
+            console.log(bestRoute.value, '--bestRoute.value');
+            currentRoute.value = bestRoute.value.routes?.find((elem) => elem.status === 'signing');
+            if (currentRoute.value) {
+                resetAmount.value = false;
+                if (currentRoute.value.net === selectedSrcNetwork.value.net) {
+                    needNetworkChange.value = false;
+                    if (currentRoute.value.needApprove) {
+                        needApprove.value = true;
+                        await getApproveTx();
+                    }
+                    await swap();
+                } else {
+                    store.dispatch('tokens/setDisableLoader', true);
+                    needNetworkChange.value = true;
+                }
+            } else {
+                receiveValue.value = null;
+                resetAmount.value = true;
+                errorBalance.value = '';
+                store.dispatch('swap/setBestRoute', null);
+            }
 
             setTimeout(() => {
                 successHash.value = '';
@@ -584,33 +600,32 @@ export default {
                 address: walletAddress.value,
                 info: selectedSrcNetwork.value,
                 update(wallet) {
+                    balanceUpdated.value = true;
                     store.dispatch('bridge/setSelectedSrcNetwork', wallet);
                 },
             });
+            balanceUpdated.value = false;
             store.dispatch('tokens/updateTokenBalances', {
                 net: selectedDstNetwork.value.net,
                 address: walletAddress.value,
                 info: selectedDstNetwork.value,
                 update(wallet) {
+                    balanceUpdated.value = true;
                     store.dispatch('bridge/setSelectedDstNetwork', wallet);
                 },
             });
-
-            balanceUpdated.value = true;
         };
 
         watch(balanceUpdated, () => {
             if (balanceUpdated.value) {
                 setTimeout(() => {
                     tokensList(selectedSrcNetwork.value).then((tokens) => {
-                        tokensSrcListResolved.value = tokens;
                         let tokenFrom = tokens.find((elem) => elem.code === selectedSrcToken.value.code);
                         if (tokenFrom) {
                             store.dispatch('tokens/setFromToken', tokenFrom);
                         }
                     });
                     tokensList(selectedDstNetwork.value).then((tokens) => {
-                        tokensDstListResolved.value = tokens;
                         let tokenTo = tokens.find((elem) => elem.code === selectedDstToken.value.code);
                         if (tokenTo) {
                             store.dispatch('tokens/setToToken', tokenTo);
@@ -619,61 +634,47 @@ export default {
                 }, 2000);
             }
         });
-
-        onUnmounted(() => {
-            if (router.options.history.state.current !== '/bridge/select-token') {
-                store.dispatch('tokens/setFromToken', null);
-                store.dispatch('tokens/setToToken', null);
-            }
-        });
-
         return {
+            amount,
             isLoading,
             disabledBtn,
             needApprove,
             resetAmount,
             receiveToken,
             receiveValue,
-
+            estimateRate,
+            zometNetworks,
             groupTokens,
-            getSupportedChains,
-            filteredSupportedChains,
-            activeSupportedChains,
-            tokensSrcListResolved,
-            tokensDstListResolved,
             services,
-            tokensList,
-
+            bestRoute,
             errorAddress,
             errorBalance,
-
+            filteredSupportedChains,
             selectedSrcNetwork,
             selectedDstNetwork,
             selectedSrcToken,
             selectedDstToken,
-
-            onSelectSrcNetwork,
-            onSelectDstNetwork,
-            onSetAddress,
-            onSetSrcToken,
-            onSetDstToken,
-            amount,
-            onSetAmount,
-            estimateTime,
-            serviceFee,
-            swap,
             txError,
             successHash,
             prettyNumber,
             walletAddress,
             currentChainInfo,
             networkFee,
+            needNetworkChange,
+
+            onSelectSrcNetwork,
+            onSelectDstNetwork,
+            onSetAddress,
+            onSetSrcToken,
+            onSetDstToken,
+            onSetAmount,
+            swap,
         };
     },
 };
 </script>
 <style lang="scss">
-.simple-bridge {
+.superswap-panel {
     width: 660px;
 
     .mt-10 {
@@ -726,34 +727,6 @@ export default {
     &__btn {
         height: 64px;
         width: 100%;
-    }
-
-    .skeleton {
-        animation: skeleton-loading 1s linear infinite alternate;
-
-        &__content {
-            .accordion__title {
-                display: flex;
-                width: 100%;
-            }
-        }
-
-        &__text {
-            width: 80%;
-            height: 0.5rem;
-            margin: 8px 0 0 8px;
-            border-radius: 2px;
-        }
-    }
-
-    @keyframes skeleton-loading {
-        0% {
-            background-color: hsl(200, 20%, 80%);
-        }
-
-        100% {
-            background-color: hsl(200, 20%, 95%);
-        }
     }
 }
 </style>

@@ -15,41 +15,42 @@ export default function useTokens() {
     const groupTokensBalance = computed(() => store.getters['tokens/groupTokens']);
 
     const allTokensFromNetwork = (net) => {
-        return Object.keys(networks.value[net].tokens)
-            .map((tokenNet) => {
-                return networks.value[net].tokens[tokenNet];
-            })
-            .map((token) => ({
-                ...token,
-                balance: {
-                    amount: 0,
-                    price: {
-                        BTC: 0,
-                        USD: 0,
-                    },
-                },
-                balanceUsd: 0,
-                price: {
-                    BTC: 0,
-                    USD: 0,
-                },
-            }))
-            .sort((a, b) => {
-                if (a.name > b.name) {
-                    return 1;
-                }
-                if (a.name < b.name) {
-                    return -1;
-                }
-                return 0;
-            });
+        return networks.value[net]
+            ? Object.keys(networks.value[net].tokens)
+                  .map((tokenNet) => {
+                      return networks.value[net].tokens[tokenNet];
+                  })
+                  .map((token) => ({
+                      ...token,
+                      balance: {
+                          amount: 0,
+                          price: {
+                              BTC: 0,
+                              USD: 0,
+                          },
+                      },
+                      balanceUsd: 0,
+                      price: {
+                          BTC: 0,
+                          USD: 0,
+                      },
+                  }))
+                  .sort((a, b) => {
+                      if (a.name > b.name) {
+                          return 1;
+                      }
+                      if (a.name < b.name) {
+                          return -1;
+                      }
+                      return 0;
+                  })
+            : [];
     };
 
     // all networks
     const groupTokens = computed(() => {
         if (currentChainInfo.value?.net && groupTokensBalance.value) {
             const groupList = [];
-
             Object.keys(groupTokensBalance.value)?.forEach((parentNet) => {
                 let children = [];
 
@@ -58,16 +59,14 @@ export default function useTokens() {
                 if (tokens && tokens.length > 0) {
                     children = sortByBalanceUsd(tokens?.filter((item) => item.balance.amount > 0) ?? []);
                 }
-
                 groupList.push({
                     priority: currentChainInfo.value?.net === parentNet ? 1 : 0,
                     net: parentNet,
                     name: parentNet,
                     ...networks.value[parentNet],
                     balance: groupTokensBalance.value[parentNet]?.balance || 0,
-                    balanceUsd: groupTokensBalance.value[parentNet]?.balanceUsd || 0,
-                    price: groupTokensBalance.value[parentNet]?.price || 0,
                     list: children,
+                    price: groupTokensBalance.value[parentNet]?.price,
                     totalSumUSD: children?.reduce((acc, item) => acc + item.balanceUsd, 0) ?? 0,
                     chain_id: chainIds[parentNet],
                 });
@@ -106,7 +105,7 @@ export default function useTokens() {
                                 balanceUsd: balance.amount * balance.price.USD,
                             };
                         })
-                        .filter((item) => item.balance.amount > 0)
+                        ?.filter((item) => item.balance.amount > 0)
                 );
             }
         }
