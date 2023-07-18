@@ -305,6 +305,7 @@ export default {
                     tokenAddress: selectedTokenFrom.value.address,
                     ownerAddress: walletAddress.value,
                 });
+
                 if (resAllowance.error) {
                     return;
                 }

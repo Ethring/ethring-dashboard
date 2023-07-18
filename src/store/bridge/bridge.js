@@ -104,7 +104,6 @@ export default {
         async estimateBridge(_, { fromNet, fromTokenAddress, amount, toNet, toTokenAddress, url }) {
             let response;
             try {
-                console.log(url, '-url');
                 response = await axios.get(`${url || DEFAULT_URL}estimateBridge`, {
                     params: {
                         fromNet,

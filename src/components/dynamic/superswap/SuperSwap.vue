@@ -294,8 +294,6 @@ export default {
                     } else {
                         store.dispatch('tokens/setToToken', tokens[0]);
                     }
-                } else if (selectedDstNetwork.value?.net === network?.net) {
-                    store.dispatch('tokens/setToToken', selectedDstToken.value);
                 } else {
                     let tokenTo = tokens.find((elem) => elem.code === selectedDstToken.value.code);
                     if (tokenTo) {
@@ -382,6 +380,7 @@ export default {
                     tokenAddress: currentRoute.value.fromToken?.address,
                     ownerAddress: walletAddress.value,
                 });
+                // console.log(resAllowance, '--resAllowance');
                 if (resAllowance.error) {
                     return;
                 }
@@ -424,6 +423,7 @@ export default {
                 isLoading.value = false;
                 return;
             }
+            console.log(resEstimate.bestRoute, '--resEstimate.bestRoute');
             store.dispatch('swap/setBestRoute', resEstimate.bestRoute);
             currentRoute.value = resEstimate.bestRoute.routes.find((elem) => elem.status === 'signing');
             if (currentRoute.value.needApprove) {
