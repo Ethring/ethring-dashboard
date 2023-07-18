@@ -374,7 +374,7 @@ export default {
             approveTx.value = null;
             needApprove.value = false;
 
-            if (!selectedSrcToken.value?.chain_id) {
+            if (selectedSrcToken.value?.name.includes('Native Token')) {
                 const resAllowance = await store.dispatch('bridge/getAllowance', {
                     net: selectedSrcNetwork.value.net,
                     tokenAddress: selectedSrcToken.value.address,
@@ -390,7 +390,7 @@ export default {
         };
 
         const getApproveTx = async () => {
-            if (!selectedSrcToken.value?.chain_id) {
+            if (selectedSrcToken.value?.name.includes('Native Token')) {
                 const resApproveTx = await store.dispatch('bridge/getApproveTx', {
                     net: selectedSrcNetwork.value.net,
                     tokenAddress: selectedSrcToken.value.address,

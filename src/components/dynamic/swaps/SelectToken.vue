@@ -1,7 +1,7 @@
 <template>
     <div class="select-token">
         <div class="select-token__page">
-            <SelectToken :tokens="allTokens" @filterTokens="filterTokens" @setToken="setToken" />
+            <SelectToken :tokensLoading="loader" :tokens="allTokens" @filterTokens="filterTokens" @setToken="setToken" />
         </div>
     </div>
 </template>
@@ -34,6 +34,7 @@ export default {
         const selectType = computed(() => store.getters['tokens/selectType']);
         const selectedTokenFrom = computed(() => store.getters['tokens/fromToken']);
         const selectedTokenTo = computed(() => store.getters['tokens/toToken']);
+        const loader = computed(() => store.getters['tokens/loader']);
 
         const allTokens = computed(() => {
             if (!selectedNetwork.value) {
@@ -88,6 +89,7 @@ export default {
         };
 
         return {
+            loader,
             groupTokens,
             walletAddress,
             router,
