@@ -192,5 +192,6 @@ export default {
             };
             selectedNet.update(wallet);
         },
+        async getListNonZeroTokens() {},
     },
 };

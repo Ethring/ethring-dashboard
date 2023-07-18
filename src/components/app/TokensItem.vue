@@ -17,7 +17,7 @@
             <div class="symbol">{{ item?.code }}</div>
         </div>
         <div class="change">
-            <div class="label">-</div>
+            <!-- <div class="label">-</div> -->
             <div class="value"><span>$</span>{{ showBalance ? prettyNumber(item.balanceUsd) : '****' }}</div>
         </div>
     </div>

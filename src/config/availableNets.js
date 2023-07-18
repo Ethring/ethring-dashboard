@@ -1,4 +1,4 @@
-export const metamaskNets = ['bsc', 'eth', 'polygon', 'optimism', 'arbitrum', 'avalanche'];
+export const metamaskNets = ['bsc', 'eth', 'polygon', 'optimism', 'arbitrum', 'avalanche', 'fantom'];
 
 export const chainIds = {
     eth: 1,
@@ -8,4 +8,5 @@ export const chainIds = {
     arbitrum: 42161,
     evmoseth: 9001,
     avalanche: 43114,
+    fantom: 250,
 };

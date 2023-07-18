@@ -11,26 +11,28 @@ stages:
   stage: build_docker
   variables:
     IMAGE_TAG: $REGISTRY_URL/$CI_PROJECT_NAME/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHORT_SHA
-    VUE_APP_BACKEND_URL: https://api.3ahtim54r.ru
     VUE_APP_HOST: work.3ahtim54r.ru
+    VUE_APP_BACKEND_URL: https://api.3ahtim54r.ru
+    VUE_APP_PROXY_API: https://proxy-api.apps.citadel.okd.3ahtim54r.ru
     VUE_APP_ZOMET_CORE_API_URL: https://zomet-core.3ahtim54r.ru
     NODE_ENV: development
   script:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$REGISTRY_URL\":{\"username\":\"$REGISTRY_USER\",\"password\":\"$REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
     - time /kaniko/executor
-        --context $CI_PROJECT_DIR
-        --dockerfile $CI_PROJECT_DIR/Dockerfile
-        --destination $IMAGE_TAG
-        --cache=true
-        --cache-ttl=168h
-        --build-arg VUE_APP_BACKEND_URL
-        --build-arg VUE_APP_HOST
-        --build-arg VUE_APP_1INCH_SWAP_API
-        --build-arg VUE_APP_RELEASE
-        --build-arg VUE_APP_SENTRY_DSN
-        --build-arg VUE_APP_ZOMET_CORE_API_URL
-        --build-arg NODE_ENV
+      --context $CI_PROJECT_DIR
+      --dockerfile $CI_PROJECT_DIR/Dockerfile
+      --destination $IMAGE_TAG
+      --cache=true
+      --cache-ttl=168h
+      --build-arg VUE_APP_BACKEND_URL
+      --build-arg VUE_APP_HOST
+      --build-arg VUE_APP_1INCH_SWAP_API
+      --build-arg VUE_APP_RELEASE
+      --build-arg VUE_APP_SENTRY_DSN
+      --build-arg VUE_APP_ZOMET_CORE_API_URL
+      --build-arg VUE_APP_PROXY_API
+      --build-arg NODE_ENV
 
 .deployJob:
   stage: deploy
@@ -63,7 +65,6 @@ stages:
         oc rollout restart deploy $NAME
       fi
     - oc rollout status deploy $NAME -n $OPENSHIFT_PROJECT
-
 
 Sentry release:
   stage: sentry

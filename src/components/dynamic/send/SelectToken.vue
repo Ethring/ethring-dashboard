@@ -1,7 +1,7 @@
 <template>
     <div class="select-token">
         <div class="select-token__page">
-            <SelectToken :tokens="allTokens" @filterTokens="filterTokens" @setToken="setToken" />
+            <SelectToken :tokensLoading="loader" :tokens="allTokens" @filterTokens="filterTokens" @setToken="setToken" />
         </div>
     </div>
 </template>
@@ -34,8 +34,8 @@ export default {
             if (!currentChainInfo.value) {
                 return [];
             }
-            const currentNetworkToken = groupTokens.value[0];
-            const list = [currentNetworkToken, ...groupTokens.value[0].list];
+
+            const list = groupTokens.value[0].list;
 
             return list.filter(
                 (elem) =>
