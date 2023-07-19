@@ -568,7 +568,6 @@ export default {
                 }
                 return elem;
             });
-            console.log(bestRoute.value, '--bestRoute.value');
             currentRoute.value = bestRoute.value.routes?.find((elem) => elem.status === 'signing');
             if (currentRoute.value) {
                 resetAmount.value = false;
@@ -594,25 +593,27 @@ export default {
                 successHash.value = '';
             }, 5000);
 
-            store.dispatch('tokens/updateTokenBalances', {
-                net: selectedSrcNetwork.value.net,
-                address: walletAddress.value,
-                info: selectedSrcNetwork.value,
-                update(wallet) {
-                    balanceUpdated.value = true;
-                    store.dispatch('bridge/setSelectedSrcNetwork', wallet);
-                },
-            });
-            balanceUpdated.value = false;
-            store.dispatch('tokens/updateTokenBalances', {
-                net: selectedDstNetwork.value.net,
-                address: walletAddress.value,
-                info: selectedDstNetwork.value,
-                update(wallet) {
-                    balanceUpdated.value = true;
-                    store.dispatch('bridge/setSelectedDstNetwork', wallet);
-                },
-            });
+            setTimeout(() => {
+                store.dispatch('tokens/updateTokenBalances', {
+                    net: selectedSrcNetwork.value.net,
+                    address: walletAddress.value,
+                    info: selectedSrcNetwork.value,
+                    update(wallet) {
+                        balanceUpdated.value = true;
+                        store.dispatch('bridge/setSelectedSrcNetwork', wallet);
+                    },
+                });
+                balanceUpdated.value = false;
+                store.dispatch('tokens/updateTokenBalances', {
+                    net: selectedDstNetwork.value.net,
+                    address: walletAddress.value,
+                    info: selectedDstNetwork.value,
+                    update(wallet) {
+                        balanceUpdated.value = true;
+                        store.dispatch('bridge/setSelectedDstNetwork', wallet);
+                    },
+                });
+            }, 3000);
         };
 
         watch(balanceUpdated, () => {
