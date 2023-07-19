@@ -22,7 +22,7 @@
             :items="tokensSrcListResolved"
             :value="selectedSrcToken"
             :error="!!errorBalance"
-            :label="$t('simpleBridge.send')"
+            :label="$t('tokenOperations.send')"
             :on-reset="resetAmount"
             class="mt-10"
             @setAmount="onSetAmount"
@@ -33,7 +33,7 @@
             :selected-network="selectedDstNetwork"
             :items="tokensDstListResolved"
             :value="selectedDstToken"
-            :label="$t('simpleBridge.receive')"
+            :label="$t('tokenOperations.receive')"
             :disabled-value="prettyNumber(receiveValue)"
             :disabled="true"
             :on-reset="resetAmount"
@@ -96,14 +96,14 @@
                     </div>
                 </div>
                 <div class="accordion__item">
-                    <div class="accordion__label">{{ $t('simpleBridge.time') }} :</div>
+                    <div class="accordion__label">{{ $t('tokenOperations.time') }} :</div>
                     <div class="accordion__value">{{ estimateTime }}</div>
                 </div>
             </div>
         </Accordion>
         <Button
             xl
-            :title="needApprove ? $t('simpleBridge.approve') : $t('simpleBridge.confirm').toUpperCase()"
+            :title="needApprove ? $t('tokenOperations.approve') : $t('tokenOperations.confirm').toUpperCase()"
             :disabled="!!disabledBtn"
             :loading="isLoading"
             class="simple-bridge__btn mt-10"

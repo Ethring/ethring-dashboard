@@ -24,7 +24,7 @@
             </div>
             <div class="balance" @click.stop="setMax">
                 <p>
-                    {{ $t('simpleSend.balance') }}:
+                    {{ $t('tokenOperations.balance') }}:
                     <span>
                         {{ setTokenBalance(selectedToken) }}
                     </span>

@@ -1,5 +1,4 @@
 {
-  "mmIncorrectNetwork": "Please change network in Metamask",
   "modals": {
     "addressModal": {
       "title": "Receive"
@@ -12,7 +11,7 @@
     "receive": "RECEIVE",
     "send": "SEND",
     "search": "Search",
-    "notFound": "Nothing was found for your query"
+    "notFound": "Not found"
   },
   "sidebar": {
     "main": "Main",
@@ -32,49 +31,34 @@
   },
   "actionTokens": "Tokens",
   "actionTransactions": "Transactions",
-  "simpleSend": {
-    "title": "Send",
+  "tokenOperations": {
     "confirm": "Confirm",
     "recipient": "Recipient",
     "amount": "Amount",
     "balance": "Balance",
-    "max": "Max"
+    "max": "Max",
+    "approve": "Approve",
+    "swap": "Swap",
+    "send": "Send",
+    "receive": "Receive",
+    "pay": "Pay",
+    "selectToken": "Select token",
+    "networkFee": "Network fee",
+    "time": "Estimate time"
+  },
+  "simpleSend": {
+    "title": "Send"
   },
   "simpleSwap": {
-    "title": "Swap",
-    "swap": "Swap",
-    "approve": "Approve",
-    "pay": "Pay",
-    "receive": "Receive",
-    "selectToken": "Select token",
-    "networkFee": "Network fee"
+    "title": "Swap"
   },
   "simpleBridge": {
     "title": "Bridge",
-    "confirm": "Confirm",
-    "recipient": "Recipient",
-    "approve": "Approve",
-    "send": "Send",
-    "receive": "Receive",
-    "amount": "Amount",
-    "balance": "Balance",
-    "max": "Max",
     "protocolFee": "Protocol Fee",
-    "serviceFee": "Service Fee",
-    "time": "Time"
+    "serviceFee": "Service Fee"
   },
   "superSwap": {
     "title": "SuperSwap",
-    "confirm": "Confirm",
-    "recipient": "Recipient",
-    "approve": "Approve",
-    "send": "Send",
-    "receive": "Receive",
-    "amount": "Amount",
-    "balance": "Balance",
-    "max": "Max",
-    "networkFee": "Network fee",
-    "changeNetwork": "Change network to",
-    "estimateTime": "Estimate time"
+    "changeNetwork": "Change network to"
   }
 }

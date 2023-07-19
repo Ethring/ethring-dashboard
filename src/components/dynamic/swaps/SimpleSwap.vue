@@ -1,11 +1,6 @@
 <template>
     <div class="simple-swap">
         <SelectNetwork :items="zometNetworks" :current="currentChainInfo" @select="onSelectNetwork" />
-        <InfoPanel
-            v-if="walletAddress && selectedNetwork && currentChainInfo?.net !== selectedNetwork?.net"
-            :title="$t('mmIncorrectNetwork')"
-            class="mt-10"
-        />
         <div class="simple-swap__switch-wrap">
             <SelectAmount
                 v-if="tokensList.length"
@@ -15,7 +10,7 @@
                 :error="!!errorBalance"
                 :on-reset="resetAmount"
                 :is-update="isUpdateSwapDirectionValue"
-                :label="$t('simpleSwap.pay')"
+                :label="$t('tokenOperations.pay')"
                 @clickToken="onSetTokenFrom"
                 class="mt-10"
                 @setAmount="onSetAmount"
@@ -30,7 +25,7 @@
                 :items="tokensList"
                 :on-reset="resetAmount"
                 :is-update="isUpdateSwapDirectionValue"
-                :label="$t('simpleSwap.receive')"
+                :label="$t('tokenOperations.receive')"
                 :disabled-value="receiveValue"
                 :disabled="true"
                 hide-max
@@ -48,7 +43,7 @@
         >
             <div class="accordion__content">
                 <div class="accordion__item">
-                    <div class="accordion__label">{{ $t('simpleSwap.networkFee') }}:</div>
+                    <div class="accordion__label">{{ $t('tokenOperations.networkFee') }}:</div>
                     <div class="accordion__value">
                         <span class="fee">{{ networkFee }}</span> <span class="symbol">$</span>
                     </div>
@@ -64,7 +59,7 @@
         </Accordion>
         <Button
             xl
-            :title="needApprove ? $t('simpleSwap.approve') : $t('simpleSwap.swap')"
+            :title="needApprove ? $t('tokenOperations.approve') : $t('tokenOperations.swap')"
             :disabled="!!disabledSwap"
             :loading="isLoading"
             class="simple-swap__btn mt-10"

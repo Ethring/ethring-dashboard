@@ -21,7 +21,7 @@
             :selected-network="selectedSrcNetwork"
             :value="selectedSrcToken"
             :error="!!errorBalance"
-            :label="$t('simpleBridge.send')"
+            :label="$t('tokenOperations.send')"
             :on-reset="resetAmount"
             class="mt-10"
             @setAmount="onSetAmount"
@@ -31,7 +31,7 @@
             v-if="selectedDstToken"
             :selected-network="selectedDstNetwork"
             :value="selectedDstToken"
-            :label="$t('simpleBridge.receive')"
+            :label="$t('tokenOperations.receive')"
             :disabled-value="prettyNumber(receiveValue)"
             :disabled="true"
             :on-reset="resetAmount"
@@ -68,13 +68,13 @@
         >
             <div class="accordion__content">
                 <div class="accordion__item">
-                    <div class="accordion__label">{{ $t('simpleBridge.networkFee') }}:</div>
+                    <div class="accordion__label">{{ $t('tokenOperations.networkFee') }}:</div>
                     <div class="accordion__value">
                         <span class="fee">{{ networkFee }}</span> <span class="symbol"> $</span>
                     </div>
                 </div>
                 <div class="accordion__item">
-                    <div class="accordion__label">{{ $t('superSwap.estimateTime') }}:</div>
+                    <div class="accordion__label">{{ $t('tokenOperations.time') }}:</div>
                     <div class="accordion__value">
                         <span class="fee"> {{ '< ' + Math.round(bestRoute.estimateTime / 60) + ' min' }}</span>
                     </div>
@@ -92,10 +92,10 @@
             xl
             :title="
                 needApprove
-                    ? $t('simpleBridge.approve')
+                    ? $t('tokenOperations.approve')
                     : needNetworkChange
                     ? $t('superSwap.changeNetwork') + ' ' + selectedDstNetwork.name
-                    : $t('simpleBridge.confirm').toUpperCase()
+                    : $t('tokenOperations.confirm').toUpperCase()
             "
             :disabled="!!disabledBtn"
             :loading="isLoading"
