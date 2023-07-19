@@ -282,28 +282,30 @@ export default {
 
         const onSelectDstNetwork = async (network) => {
             callEstimate.value = true;
-
-            store.dispatch('bridge/setSelectedDstNetwork', network);
-            tokensList(network).then((tokens) => {
-                if (!selectedDstToken.value || !tokens.find((elem) => elem.code === selectedDstToken.value.code)) {
-                    if (selectedSrcNetwork.value.net === selectedDstNetwork.value.net) {
-                        const tokenTo = tokens.find((elem) => elem.code !== selectedSrcToken.value.code);
+            if (selectedDstNetwork.value?.net === network?.net) {
+                store.dispatch('tokens/setToToken', selectedDstToken.value);
+            } else {
+                store.dispatch('bridge/setSelectedDstNetwork', network);
+                tokensList(network).then((tokens) => {
+                    if (!selectedDstToken.value || !tokens.find((elem) => elem.code === selectedDstToken.value.code)) {
+                        if (selectedSrcNetwork.value.net === selectedDstNetwork.value.net) {
+                            const tokenTo = tokens.find((elem) => elem.code !== selectedSrcToken.value.code);
+                            if (tokenTo) {
+                                store.dispatch('tokens/setToToken', tokenTo);
+                            }
+                        } else {
+                            store.dispatch('tokens/setToToken', tokens[0]);
+                        }
+                    } else {
+                        let tokenTo = tokens.find((elem) => elem.code === selectedDstToken.value.code);
                         if (tokenTo) {
                             store.dispatch('tokens/setToToken', tokenTo);
                         }
-                    } else {
-                        store.dispatch('tokens/setToToken', tokens[0]);
                     }
-                } else {
-                    let tokenTo = tokens.find((elem) => elem.code === selectedDstToken.value.code);
-                    if (tokenTo) {
-                        store.dispatch('tokens/setToToken', tokenTo);
-                    }
-                }
-
-                clearApprove();
-                onSetAmount(amount.value);
-            });
+                    clearApprove();
+                    onSetAmount(amount.value);
+                });
+            }
         };
 
         const onSetSrcToken = () => {

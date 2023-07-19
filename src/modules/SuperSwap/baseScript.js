@@ -200,7 +200,7 @@ async function checkAllowance(net, tokenAddress, ownerAddress, amount, decimals,
     }
     let needApprove = false;
     if (tokenAddress) {
-        const resAllowance = await store.dispatch(service.type + '/getAllowance', {
+        const resAllowance = await store.dispatch(service?.type + '/getAllowance', {
             net,
             tokenAddress,
             ownerAddress,
