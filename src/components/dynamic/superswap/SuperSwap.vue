@@ -262,12 +262,6 @@ export default {
         });
 
         const onSelectSrcNetwork = async (network) => {
-            tokensList(network).then((tokens) => {
-                if (!selectedSrcToken.value) {
-                    store.dispatch('tokens/setFromToken', tokens[0]);
-                }
-            });
-
             if (selectedSrcNetwork.value !== network) {
                 txError.value = '';
                 if (network.id || network.chain_id) {
@@ -275,7 +269,13 @@ export default {
                         chainId: network.id || network.chain_id,
                     });
                 }
+                store.dispatch('tokens/setFromToken', null);
             }
+            tokensList(network).then((tokens) => {
+                if (!selectedSrcToken.value) {
+                    store.dispatch('tokens/setFromToken', tokens[0]);
+                }
+            });
             const srcNetwork = groupTokens.value?.find((elem) => elem.net === network.net);
             store.dispatch('bridge/setSelectedSrcNetwork', srcNetwork || network);
         };

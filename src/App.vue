@@ -33,7 +33,7 @@ export default {
     },
     setup() {
         const store = useStore();
-        const { connectWallet, connectedWallet, walletAddress, currentChainInfo } = useWeb3Onboard();
+        const { connectWallet, connectedWallet, walletAddress } = useWeb3Onboard();
 
         onMounted(async () => {
             await store.dispatch('networks/initZometNets');
@@ -66,12 +66,6 @@ export default {
         });
 
         watch(walletAddress, async () => {
-            if (walletAddress?.value) {
-                await useInit(walletAddress.value, store);
-            }
-        });
-
-        watch(currentChainInfo, async () => {
             if (walletAddress?.value) {
                 await useInit(walletAddress.value, store);
             }

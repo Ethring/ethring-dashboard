@@ -8,6 +8,8 @@ export default async function useInit(address, store) {
         store.dispatch('tokens/setLoader', true);
         store.dispatch('tokens/setFromToken', null);
         store.dispatch('tokens/setToToken', null);
+        store.dispatch('bridge/setSelectedSrcNetwork', null);
+        store.dispatch('bridge/setSelectedDstNetwork', null);
     } else {
         store.dispatch('tokens/setDisableLoader', false);
     }

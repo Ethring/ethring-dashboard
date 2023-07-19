@@ -174,6 +174,8 @@ export default {
                     amount.value = val;
                 }
                 payTokenPrice.value = prettyNumber(BigNumber(amount.value * selectedToken?.value?.balance?.price?.USD || 0).toFixed()) || 0;
+            } else {
+                payTokenPrice.value = '0';
             }
         });
 

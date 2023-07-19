@@ -34,8 +34,6 @@
 <script>
 import { ref, computed, onMounted } from 'vue';
 
-import { useStore } from 'vuex';
-
 import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
 export default {
@@ -61,7 +59,6 @@ export default {
     setup(props, { emit }) {
         const active = ref(false);
         const selectedItem = ref(props.current);
-        const store = useStore();
 
         const clickAway = () => {
             active.value = false;
@@ -69,9 +66,6 @@ export default {
 
         const setActive = (item) => {
             selectedItem.value = item;
-            if (props.label === 'From') {
-                store.dispatch('tokens/setFromToken', null);
-            }
             emit('select', selectedItem.value);
         };
 
