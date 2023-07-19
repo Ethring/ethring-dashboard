@@ -61,15 +61,6 @@
   },
   "superSwap": {
     "title": "SuperSwap",
-    "confirm": "Confirm",
-    "recipient": "Recipient",
-    "approve": "Approve",
-    "send": "Send",
-    "receive": "Receive",
-    "amount": "Amount",
-    "balance": "Balance",
-    "max": "Max",
-    "networkFee": "Network fee",
     "changeNetwork": "Change network to",
     "estimateTime": "Estimate time"
   }

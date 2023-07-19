@@ -21,7 +21,7 @@
             :selected-network="selectedSrcNetwork"
             :value="selectedSrcToken"
             :error="!!errorBalance"
-            :label="$t('superSwap.send')"
+            :label="$t('simpleBridge.send')"
             :on-reset="resetAmount"
             class="mt-10"
             @setAmount="onSetAmount"
@@ -31,7 +31,7 @@
             v-if="selectedDstToken"
             :selected-network="selectedDstNetwork"
             :value="selectedDstToken"
-            :label="$t('superSwap.receive')"
+            :label="$t('simpleBridge.receive')"
             :disabled-value="prettyNumber(receiveValue)"
             :disabled="true"
             :on-reset="resetAmount"
@@ -68,7 +68,7 @@
         >
             <div class="accordion__content">
                 <div class="accordion__item">
-                    <div class="accordion__label">{{ $t('superSwap.networkFee') }}:</div>
+                    <div class="accordion__label">{{ $t('simpleBridge.networkFee') }}:</div>
                     <div class="accordion__value">
                         <span class="fee">{{ networkFee }}</span> <span class="symbol"> $</span>
                     </div>
@@ -92,10 +92,10 @@
             xl
             :title="
                 needApprove
-                    ? $t('superSwap.approve')
+                    ? $t('simpleBridge.approve')
                     : needNetworkChange
                     ? $t('superSwap.changeNetwork') + ' ' + selectedDstNetwork.name
-                    : $t('superSwap.confirm').toUpperCase()
+                    : $t('simpleBridge.confirm').toUpperCase()
             "
             :disabled="!!disabledBtn"
             :loading="isLoading"
@@ -382,7 +382,6 @@ export default {
                     tokenAddress: currentRoute.value.fromToken?.address,
                     ownerAddress: walletAddress.value,
                 });
-                // console.log(resAllowance, '--resAllowance');
                 if (resAllowance.error) {
                     return;
                 }
@@ -425,7 +424,6 @@ export default {
                 isLoading.value = false;
                 return;
             }
-            console.log(resEstimate.bestRoute, '--resEstimate.bestRoute');
             store.dispatch('swap/setBestRoute', resEstimate.bestRoute);
             currentRoute.value = resEstimate.bestRoute.routes.find((elem) => elem.status === 'signing');
             if (currentRoute.value.needApprove) {
@@ -536,7 +534,7 @@ export default {
             };
             if (currentRoute.value.service?.recipientAddress) {
                 params.recipientAddress = getRecipientAddress();
-                params.fallbackAddress = walletAddress.value || NATIVE_CONTRACT;
+                params.fallbackAddress = walletAddress.value;
             }
             const resSwap = await store.dispatch(serviceApi, params);
             if (resSwap.error) {
