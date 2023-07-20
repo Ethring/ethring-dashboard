@@ -43,6 +43,7 @@
         />
         <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
         <InfoPanel v-if="txError" :title="txError" class="mt-10" />
+        <InfoPanel v-if="networkError" :title="$t('tokenOperations.changeNetwork')" class="mt-10" />
         <InfoPanel v-if="successHash" :hash="successHash" :title="$t('tx.txHash')" type="success" class="mt-10" />
         <Checkbox
             v-if="selectedDstToken"
@@ -160,6 +161,7 @@ export default {
         const approveTx = ref(null);
         const txError = ref('');
         const successHash = ref('');
+        const networkError = ref(false);
         const resetAmount = ref(false);
         const router = useRouter();
         const networkFee = ref(0);
@@ -231,7 +233,8 @@ export default {
                 !selectedSrcNetwork.value ||
                 !selectedDstNetwork.value ||
                 !selectedSrcToken.value ||
-                txError.value
+                txError.value ||
+                networkError.value
             );
         });
 
@@ -265,6 +268,10 @@ export default {
         };
 
         const onSelectSrcNetwork = async (network) => {
+            if (network?.net === currentChainInfo.value?.net) {
+                networkError.value = false;
+            }
+            clearApprove();
             tokensList(network).then((tokens) => {
                 tokensSrcListResolved.value = tokens;
                 if (!selectedSrcToken.value) {
@@ -414,7 +421,9 @@ export default {
             ) {
                 return;
             }
-
+            if (selectedSrcNetwork.value.net !== currentChainInfo.value.net) {
+                networkError.value = true;
+            }
             const resEstimate = await store.dispatch('bridge/estimateBridge', {
                 fromNet: selectedSrcNetwork.value.net,
                 fromTokenAddress: selectedSrcToken.value.address || NATIVE_CONTRACT,
@@ -642,32 +651,34 @@ export default {
             tokensSrcListResolved,
             tokensDstListResolved,
             services,
-            tokensList,
 
             errorAddress,
             errorBalance,
+            networkError,
 
             selectedSrcNetwork,
             selectedDstNetwork,
             selectedSrcToken,
             selectedDstToken,
 
-            onSelectSrcNetwork,
-            onSelectDstNetwork,
-            onSetAddress,
-            onSetSrcToken,
-            onSetDstToken,
             amount,
-            onSetAmount,
             estimateTime,
             serviceFee,
-            swap,
             txError,
             successHash,
             prettyNumber,
             walletAddress,
             currentChainInfo,
             networkFee,
+
+            onSelectSrcNetwork,
+            onSelectDstNetwork,
+            onSetAddress,
+            onSetSrcToken,
+            onSetDstToken,
+            tokensList,
+            onSetAmount,
+            swap,
         };
     },
 };
