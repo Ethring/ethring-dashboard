@@ -236,7 +236,7 @@ export default {
                 return [];
             }
             if (selectedSrcNetwork.value) {
-                if (!supportedChains.value.find((elem) => selectedSrcNetwork.value.net === elem.net)) {
+                if (!supportedChains.value?.find((elem) => selectedSrcNetwork.value.net === elem.net)) {
                     return [
                         {
                             ...selectedSrcNetwork.value,
@@ -247,7 +247,7 @@ export default {
             }
 
             const list = groupTokens?.value.filter((item) => {
-                const supportedChain = supportedChains.value.find((network) => network.net === item.net);
+                const supportedChain = supportedChains.value?.find((network) => network.net === item.net);
                 if (supportedChain) {
                     item.logoURI = supportedChain.logoURI;
                     return true;
