@@ -149,10 +149,10 @@ async function findRoute(params) {
             error = null;
             resEstimate.estimateTime = service.estimatedTime[chainIds[params.net]];
 
-            if (apiRoute === 'swap/estimateSwap') {
-                resEstimate.estimateFeeUsd = resEstimate.fee.amount * params.fromNetUSDPrice;
-            } else {
+            if (resEstimate.fee.currency === params.fromToken.code) {
                 resEstimate.estimateFeeUsd = resEstimate.fee.amount * params.fromToken.balance.price?.USD;
+            } else {
+                resEstimate.estimateFeeUsd = resEstimate.fee.amount * params.fromNetUSDPrice;
             }
 
             if (!bestRoute?.toTokenAmount) {

@@ -49,10 +49,10 @@ export default async function useInit(address, store) {
     };
 
     await Promise.all(
-        networksList.value.map(async ({ net, coingecko_id }) => {
+        networksList.value.map(async ({ net, native_token }) => {
             const balance = await balanceInfo(net);
             const tokenList = await tokensInfo(net);
-            const price = await prices.Coingecko.marketCapForNativeCoin(coingecko_id);
+            const price = await prices.Coingecko.marketCapForNativeCoin(native_token?.coingecko_id);
             return (tokens[net] = {
                 list: tokenList,
                 balance,
