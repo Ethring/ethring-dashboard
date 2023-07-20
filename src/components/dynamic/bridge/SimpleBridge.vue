@@ -22,7 +22,7 @@
             :items="tokensSrcListResolved"
             :value="selectedSrcToken"
             :error="!!errorBalance"
-            :label="$t('simpleBridge.send')"
+            :label="$t('tokenOperations.send')"
             :on-reset="resetAmount"
             class="mt-10"
             @setAmount="onSetAmount"
@@ -33,7 +33,7 @@
             :selected-network="selectedDstNetwork"
             :items="tokensDstListResolved"
             :value="selectedDstToken"
-            :label="$t('simpleBridge.receive')"
+            :label="$t('tokenOperations.receive')"
             :disabled-value="prettyNumber(receiveValue)"
             :disabled="true"
             :on-reset="resetAmount"
@@ -43,6 +43,7 @@
         />
         <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
         <InfoPanel v-if="txError" :title="txError" class="mt-10" />
+        <InfoPanel v-if="networkError" :title="$t('tokenOperations.changeNetwork')" class="mt-10" />
         <InfoPanel v-if="successHash" :hash="successHash" :title="$t('tx.txHash')" type="success" class="mt-10" />
         <Checkbox
             v-if="selectedDstToken"
@@ -68,22 +69,21 @@
             :class="serviceFee ? 'mt-10' : 'mt-10 skeleton__content'"
         >
             <div v-if="receiveValue" class="accordion__content">
-                <AccordionItem
-                    :label="$t('simpleBridge.serviceFee') + ' :'"
-                    :value="`<span>${prettyNumber(networkFee * selectedSrcToken?.price?.USD)}</span> <span class='symbol'>$</span>`"
-                />
-                <AccordionItem
-                    :label="$t('simpleBridge.title') + ' :'"
-                    :value="`<img src='https://app.debridge.finance/assets/images/bridge.svg'/>
-                        <span class='symbol'>${services[0].name}</span>
-                        `"
-                />
-                <AccordionItem :label="$t('simpleBridge.time') + ' :'" :value="estimateTime" />
+                <AccordionItem :label="$t('simpleBridge.serviceFee') + ' :'">
+                    <span>{{ prettyNumber(networkFee * selectedSrcToken?.price?.USD) }}</span> <span class="symbol">$</span>
+                </AccordionItem>
+                <AccordionItem :label="$t('simpleBridge.title') + ' :'">
+                    <img src="https://app.debridge.finance/assets/images/bridge.svg" />
+                    <span class="symbol">{{ services[0].name }}</span>
+                </AccordionItem>
+                <AccordionItem :label="$t('tokenOperations.time') + ' :'">
+                    {{ estimateTime }}
+                </AccordionItem>
             </div>
         </Accordion>
         <Button
             xl
-            :title="needApprove ? $t('simpleBridge.approve') : $t('simpleBridge.confirm').toUpperCase()"
+            :title="needApprove ? $t('tokenOperations.approve') : $t('tokenOperations.confirm').toUpperCase()"
             :disabled="!!disabledBtn"
             :loading="isLoading"
             class="simple-bridge__btn mt-10"
@@ -142,6 +142,7 @@ export default {
         const approveTx = ref(null);
         const txError = ref('');
         const successHash = ref('');
+        const networkError = ref(false);
         const resetAmount = ref(false);
         const router = useRouter();
         const networkFee = ref(0);
@@ -191,12 +192,12 @@ export default {
         });
 
         const filteredSupportedChains = computed(() => {
-            if (!getSupportedChains.value) {
+            if (!getSupportedChains.value && getSupportedChains.value.length) {
                 return [];
             }
 
             const list = groupTokens?.value.filter((item) => {
-                const supportedChain = getSupportedChains?.value?.find((network) => network.net === item.net);
+                const supportedChain = getSupportedChains.value?.find((network) => network.net === item.net);
                 if (supportedChain) {
                     item.logoURI = supportedChain.logoURI;
                     return true;
@@ -211,7 +212,7 @@ export default {
         });
 
         const activeSupportedChains = computed(() => {
-            return filteredSupportedChains?.value.filter((token) => token.net !== selectedSrcNetwork?.value?.net);
+            return filteredSupportedChains.value.filter((token) => token.net !== selectedSrcNetwork?.value?.net);
         });
 
         const disabledBtn = computed(() => {
@@ -223,7 +224,8 @@ export default {
                 !selectedSrcNetwork.value ||
                 !selectedDstNetwork.value ||
                 !selectedSrcToken.value ||
-                txError.value
+                txError.value ||
+                networkError.value
             );
         });
 
@@ -257,6 +259,10 @@ export default {
         };
 
         const onSelectSrcNetwork = async (network) => {
+            if (network?.net === currentChainInfo.value?.net) {
+                networkError.value = false;
+            }
+            clearApprove();
             tokensList(network).then((tokens) => {
                 tokensSrcListResolved.value = tokens;
                 if (!selectedSrcToken.value) {
@@ -406,7 +412,9 @@ export default {
             ) {
                 return;
             }
-
+            if (selectedSrcNetwork.value.net !== currentChainInfo.value.net) {
+                networkError.value = true;
+            }
             const resEstimate = await store.dispatch('bridge/estimateBridge', {
                 fromNet: selectedSrcNetwork.value.net,
                 fromTokenAddress: selectedSrcToken.value.address || NATIVE_CONTRACT,
@@ -423,7 +431,7 @@ export default {
             txError.value = '';
             receiveValue.value = resEstimate.toTokenAmount;
             networkFee.value = +resEstimate.fee.amount;
-            estimateTime.value = services[0]?.estimatedTime[selectedSrcNetwork?.value?.chain_id];
+            estimateTime.value = '< ' + Math.round(services[0]?.estimatedTime[selectedSrcNetwork?.value?.chain_id] / 60) + ' min';
         };
 
         const getProvider = () => {
@@ -634,26 +642,19 @@ export default {
             tokensSrcListResolved,
             tokensDstListResolved,
             services,
-            tokensList,
 
             errorAddress,
             errorBalance,
+            networkError,
 
             selectedSrcNetwork,
             selectedDstNetwork,
             selectedSrcToken,
             selectedDstToken,
 
-            onSelectSrcNetwork,
-            onSelectDstNetwork,
-            onSetAddress,
-            onSetSrcToken,
-            onSetDstToken,
             amount,
-            onSetAmount,
             estimateTime,
             serviceFee,
-            swap,
             txError,
             successHash,
             prettyNumber,
@@ -661,6 +662,15 @@ export default {
             currentChainInfo,
             networkFee,
             setReceiveValue,
+
+            onSelectSrcNetwork,
+            onSelectDstNetwork,
+            onSetAddress,
+            onSetSrcToken,
+            onSetDstToken,
+            tokensList,
+            onSetAmount,
+            swap,
         };
     },
 };

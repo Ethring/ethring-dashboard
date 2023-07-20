@@ -3,7 +3,7 @@ import { PLATFORMS } from '@/modules/prices/coingecko/shared/constants';
 
 const PROXY_API = process.env.VUE_APP_PROXY_API;
 
-const priceByPlatformContracts = async ({ chainId = '0x56', addresses, currencies = 'usd,btc' } = {}) => {
+const priceByPlatformContracts = async ({ chainId = 56, addresses, currencies = 'usd,btc' } = {}) => {
     if (!PROXY_API) {
         return {};
     }
@@ -28,7 +28,7 @@ const priceByPlatformContracts = async ({ chainId = '0x56', addresses, currencie
     return prices;
 };
 
-const marketCapForNativeCoin = async ({ tickers = 'binancecoin' } = {}) => {
+const marketCapForNativeCoin = async (tickers = 'binancecoin') => {
     if (!PROXY_API) {
         return {};
     }

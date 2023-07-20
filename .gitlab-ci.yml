@@ -28,6 +28,9 @@ stages:
       --build-arg VUE_APP_BACKEND_URL
       --build-arg VUE_APP_HOST
       --build-arg VUE_APP_1INCH_SWAP_API
+      --build-arg VUE_APP_PARASWAP_API
+      --build-arg VUE_APP_SQUID_ROUTER_API
+      --build-arg VUE_APP_SYNAPSE_SWAP_API
       --build-arg VUE_APP_RELEASE
       --build-arg VUE_APP_SENTRY_DSN
       --build-arg VUE_APP_ZOMET_CORE_API_URL

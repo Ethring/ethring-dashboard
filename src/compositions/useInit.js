@@ -1,14 +1,19 @@
 import axios from 'axios';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import prices from '@/modules/prices/';
 
 export default async function useInit(address, store) {
-    store.dispatch('tokens/setLoader', true);
-    store.dispatch('tokens/setFromToken', null);
-    store.dispatch('tokens/setToToken', null);
-
+    const disableLoader = computed(() => store.getters['tokens/disableLoader']);
+    if (!disableLoader.value) {
+        store.dispatch('tokens/setLoader', true);
+        store.dispatch('tokens/setFromToken', null);
+        store.dispatch('tokens/setToToken', null);
+        store.dispatch('bridge/setSelectedSrcNetwork', null);
+        store.dispatch('bridge/setSelectedDstNetwork', null);
+    } else {
+        store.dispatch('tokens/setDisableLoader', false);
+    }
     const networksList = ref(store.getters['networks/zometNetworksList']);
-
-    // const groupTokens = computed(() => store.getters['tokens/groupTokens']);
 
     const tokens = {};
 
@@ -44,13 +49,17 @@ export default async function useInit(address, store) {
     };
 
     await Promise.all(
-        networksList.value.map(async ({ net }) => {
+        networksList.value.map(async ({ net, native_token }) => {
             const balance = await balanceInfo(net);
             const tokenList = await tokensInfo(net);
-
+            const price = await prices.Coingecko.marketCapForNativeCoin(native_token?.coingecko_id);
             return (tokens[net] = {
                 list: tokenList,
                 balance,
+                price: {
+                    BTC: price.btc?.price,
+                    USD: price.usd?.price,
+                },
             });
         })
     );

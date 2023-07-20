@@ -3,7 +3,9 @@
         <div class="accordion-item__label">
             {{ label }}
         </div>
-        <div class="accordion-item__value"  v-html="value"/>
+        <div class="accordion-item__value">
+            <slot></slot>
+        </div>
     </div>
 </template>
 <script>

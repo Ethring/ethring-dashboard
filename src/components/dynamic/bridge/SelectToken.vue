@@ -26,7 +26,7 @@ export default {
         const searchValue = ref('');
 
         const { walletAddress, currentChainInfo } = useWeb3Onboard();
-        const { groupTokens, allTokensFromNetwork } = useTokens();
+        const { groupTokens, allTokensFromNetwork, getTokenList } = useTokens();
 
         const loader = computed(() => store.getters['tokens/loader']);
         const selectType = computed(() => store.getters['tokens/selectType']);
@@ -55,16 +55,23 @@ export default {
                 return [];
             }
 
-            const currentNetwork = groupTokens.value.find(
-                (elem) => elem?.chain_id === (selectedNetwork?.value?.chain_id || selectedNetwork?.value?.chainId)
-            );
+            let list = [];
+            const listWithBalances = getTokenList(selectedNetwork.value);
 
-            let list = [
-                ...currentNetwork?.list,
-                ...allTokensFromNetwork(selectedNetwork.value?.net).filter((token) => {
-                    return token.net !== selectedNetwork.value?.net && !currentNetwork?.list?.find((t) => t.net === token.net);
-                }),
-            ];
+            if (selectType.value === 'from') {
+                if (selectedNetwork.value.balance.mainBalance > 0) {
+                    list = listWithBalances;
+                } else {
+                    list = selectedNetwork.value.list;
+                }
+            } else {
+                list = [
+                    ...listWithBalances,
+                    ...allTokensFromNetwork(selectedNetwork.value.net).filter((token) => {
+                        return token.net !== selectedNetwork.value.net && !selectedNetwork.value.list.find((t) => t.net === token.net);
+                    }),
+                ];
+            }
 
             const matchingTokens = list?.filter((token) => {
                 return tokens.value?.some((listToken) => {
