@@ -44,7 +44,8 @@
     "pay": "Pay",
     "selectToken": "Select token",
     "networkFee": "Network fee",
-    "time": "Estimate time"
+    "time": "Estimate time",
+    "changeNetwork": "Please change network"
   },
   "simpleSend": {
     "title": "Send"

@@ -41,6 +41,7 @@
         />
         <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
         <InfoPanel v-if="txError" :title="txError" class="mt-10" />
+        <InfoPanel v-if="networkError" :title="$t('tokenOperations.changeNetwork')" class="mt-10" />
         <InfoPanel v-if="successHash" :hash="successHash" :title="$t('tx.txHash')" type="success" class="mt-10" />
         <Checkbox
             v-if="selectedSrcNetwork && selectedDstNetwork && selectedSrcNetwork?.chain_id !== selectedDstNetwork?.chain_id"
@@ -94,7 +95,7 @@
                 needApprove
                     ? $t('tokenOperations.approve')
                     : needNetworkChange
-                    ? $t('superSwap.changeNetwork') + ' ' + selectedDstNetwork.name
+                    ? $t('superSwap.changeNetwork') + ' ' + networkName
                     : $t('tokenOperations.confirm').toUpperCase()
             "
             :disabled="!!disabledBtn"
@@ -155,7 +156,9 @@ export default {
         const bestRoute = ref({});
         const currentRoute = ref({});
         const txError = ref('');
+        const networkError = ref(false);
         const successHash = ref('');
+        const networkName = ref('');
         const resetAmount = ref(false);
         const router = useRouter();
         const networkFee = ref(0);
@@ -172,6 +175,7 @@ export default {
 
         const selectedSrcToken = computed(() => store.getters['tokens/fromToken']);
         const selectedDstToken = computed(() => store.getters['tokens/toToken']);
+
         const amount = ref('');
         const receiveValue = ref('');
         const address = ref('');
@@ -197,7 +201,8 @@ export default {
                 !selectedDstNetwork.value ||
                 !selectedSrcToken.value ||
                 !selectedDstToken.value ||
-                txError.value
+                txError.value ||
+                networkError.value
             );
         });
 
@@ -271,6 +276,10 @@ export default {
                 }
                 store.dispatch('tokens/setFromToken', null);
             }
+            if (network?.net === currentChainInfo.value?.net) {
+                networkError.value = false;
+            }
+            clearApprove();
             tokensList(network).then((tokens) => {
                 if (!selectedSrcToken.value) {
                     store.dispatch('tokens/setFromToken', tokens[0]);
@@ -282,7 +291,7 @@ export default {
 
         const onSelectDstNetwork = async (network) => {
             callEstimate.value = true;
-            if (selectedDstNetwork.value?.net === network?.net) {
+            if (selectedDstNetwork.value?.net === network?.net && selectedDstToken.value) {
                 store.dispatch('tokens/setToToken', selectedDstToken.value);
             } else {
                 store.dispatch('bridge/setSelectedDstNetwork', network);
@@ -415,6 +424,9 @@ export default {
                 !+amount.value
             ) {
                 return;
+            }
+            if (selectedSrcNetwork.value.net !== currentChainInfo.value.net) {
+                networkError.value = true;
             }
             isLoading.value = true;
             const resEstimate = await findBestRoute(amount.value, walletAddress.value);
@@ -580,6 +592,7 @@ export default {
                     await swap();
                 } else {
                     store.dispatch('tokens/setDisableLoader', true);
+                    networkName.value = selectedDstNetwork.value.name;
                     needNetworkChange.value = true;
                 }
             } else {
@@ -661,6 +674,8 @@ export default {
             currentChainInfo,
             networkFee,
             needNetworkChange,
+            networkName,
+            networkError,
 
             onSelectSrcNetwork,
             onSelectDstNetwork,
