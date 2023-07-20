@@ -1,11 +1,6 @@
 <template>
     <div class="simple-swap">
         <SelectNetwork :items="zometNetworks" :current="currentChainInfo" @select="onSelectNetwork" />
-        <InfoPanel
-            v-if="walletAddress && selectedNetwork && currentChainInfo?.net !== selectedNetwork?.net"
-            :title="$t('mmIncorrectNetwork')"
-            class="mt-10"
-        />
         <div class="simple-swap__switch-wrap">
             <SelectAmount
                 v-if="tokensList.length"
@@ -15,7 +10,7 @@
                 :error="!!errorBalance"
                 :on-reset="resetAmount"
                 :is-update="isUpdateSwapDirectionValue"
-                :label="$t('simpleSwap.pay')"
+                :label="$t('tokenOperations.pay')"
                 @clickToken="onSetTokenFrom"
                 class="mt-10"
                 @setAmount="onSetAmount"
@@ -30,7 +25,7 @@
                 :items="tokensList"
                 :on-reset="resetAmount"
                 :is-update="isUpdateSwapDirectionValue"
-                :label="$t('simpleSwap.receive')"
+                :label="$t('tokenOperations.receive')"
                 :disabled-value="receiveValue"
                 :disabled="true"
                 hide-max
@@ -48,7 +43,7 @@
         >
             <div class="accordion__content">
                 <div class="accordion__item">
-                    <div class="accordion__label">Network fee:</div>
+                    <div class="accordion__label">{{ $t('tokenOperations.networkFee') }}:</div>
                     <div class="accordion__value">
                         <span class="fee">{{ networkFee }}</span> <span class="symbol">$</span>
                     </div>
@@ -64,7 +59,7 @@
         </Accordion>
         <Button
             xl
-            :title="needApprove ? $t('simpleSwap.approve') : $t('simpleSwap.swap')"
+            :title="needApprove ? $t('tokenOperations.approve') : $t('tokenOperations.swap')"
             :disabled="!!disabledSwap"
             :loading="isLoading"
             class="simple-swap__btn mt-10"
@@ -278,7 +273,7 @@ export default {
                 return;
             }
 
-            const resEstimate = await store.dispatch('oneInchSwap/estimateSwap', {
+            const resEstimate = await store.dispatch('swap/estimateSwap', {
                 net: selectedNetwork.value.net,
                 fromTokenAddress: selectedTokenFrom.value.address || NATIVE_CONTRACT,
                 toTokenAddress: selectedTokenTo.value.address || NATIVE_CONTRACT,
@@ -300,11 +295,12 @@ export default {
             needApprove.value = false;
 
             if (selectedTokenFrom.value?.address) {
-                const resAllowance = await store.dispatch('oneInchSwap/getAllowance', {
+                const resAllowance = await store.dispatch('swap/getAllowance', {
                     net: currentChainInfo.value.net,
                     tokenAddress: selectedTokenFrom.value.address,
                     ownerAddress: walletAddress.value,
                 });
+
                 if (resAllowance.error) {
                     return;
                 }
@@ -314,7 +310,7 @@ export default {
 
         const getApproveTx = async () => {
             if (selectedTokenFrom.value?.address) {
-                const resApproveTx = await store.dispatch('oneInchSwap/getApproveTx', {
+                const resApproveTx = await store.dispatch('swap/getApproveTx', {
                     net: currentChainInfo.value.net,
                     tokenAddress: selectedTokenFrom.value.address,
                     ownerAddress: walletAddress.value,
@@ -391,7 +387,7 @@ export default {
                 return;
             }
 
-            const resSwap = await store.dispatch('oneInchSwap/getSwapTx', {
+            const resSwap = await store.dispatch('swap/getSwapTx', {
                 net: selectedNetwork.value.net,
                 fromTokenAddress: selectedTokenFrom.value.address || NATIVE_CONTRACT,
                 toTokenAddress: selectedTokenTo.value.address || NATIVE_CONTRACT,

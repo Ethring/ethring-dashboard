@@ -79,6 +79,22 @@ const routes = [
         },
         component: () => import(/* webpackChunkName: "about" */ '../components/dynamic/bridge/SelectToken.vue'),
     },
+    {
+        path: '/superSwap',
+        name: 'superSwap',
+        meta: {
+            isAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "about" */ '../views/SuperSwap.vue'),
+    },
+    {
+        path: '/superSwap/select-token',
+        name: 'superSwap/select-token',
+        meta: {
+            isAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "about" */ '../components/dynamic/superswap/SelectToken.vue'),
+    },
 ];
 
 const router = createRouter({

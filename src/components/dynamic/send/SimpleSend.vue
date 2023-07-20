@@ -21,7 +21,7 @@
             :items="tokensList"
             :value="selectedToken || tokensList[0]"
             :error="!!errorBalance"
-            :label="$t('simpleSend.amount')"
+            :label="$t('tokenOperations.amount')"
             :on-reset="successHash"
             class="mt-10"
             @setAmount="onSetAmount"
@@ -34,7 +34,7 @@
 
         <Button
             xl
-            :title="$t('simpleSend.confirm').toUpperCase()"
+            :title="$t('tokenOperations.confirm').toUpperCase()"
             :disabled="!!disabledSend"
             :loading="isLoading"
             class="simple-send__btn mt-10"

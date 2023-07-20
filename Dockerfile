@@ -10,8 +10,12 @@ ARG VUE_APP_BACKEND_URL=//work.3ahtim54r.ru/api
 
 ARG VUE_APP_HOST=work.3ahtim54r.ru
 
+ARG VUE_APP_PARASWAP_API=https://apps.3ahtim54r.ru/srv-paraswap/api/
 ARG VUE_APP_1INCH_SWAP_API=https://apps.3ahtim54r.ru/srv-1inch-swap/api/
 ARG VUE_APP_DEBRIDGE_API=https://apps.3ahtim54r.ru/srv-debridge/api/
+ARG VUE_APP_SQUID_ROUTER_API=https://apps.3ahtim54r.ru/srv-squidrouter/api/
+ARG VUE_APP_SYNAPSE_SWAP_API=https://apps.3ahtim54r.ru/srv-synapse-swap/api/
+
 
 ARG VUE_APP_PROXY_API=https://proxy-api.apps.citadel.okd.3ahtim54r.ru
 
@@ -19,7 +23,6 @@ ARG VUE_APP_ZOMET_CORE_API_URL=https://zomet-core.3ahtim54r.ru
 
 ARG VUE_APP_RELEASE
 ARG VUE_APP_SENTRY_DSN
-
 ARG NODE_ENV
 
 RUN npm run build
