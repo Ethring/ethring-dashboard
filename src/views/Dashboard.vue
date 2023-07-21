@@ -18,6 +18,7 @@
 import { ref } from 'vue';
 
 import AddressModal from '@/components/app/modals/AddressModal';
+
 import WalletInfoLarge from '@/components/app/WalletInfoLarge';
 import Button from '@/components/ui/Button';
 import ActionsMenu from '@/components/app/ActionsMenu';

@@ -69,7 +69,7 @@ export default async function findBestRoute(amount, walletAddress) {
                 const { bestRoute } = result1;
                 const result2 = await findRoute(getParams(toNetwork, toNetwork, toNetwork, toToken, result1.bestRoute.toTokenAmount));
                 if (result2.bestRoute) {
-                    return { bestRoute: getRouteCalculated(bestRoute, result2) };
+                    return { bestRoute: getRouteCalculated(bestRoute, result2), otherRoutes: [] };
                 }
             } else if (fromToken.address) {
                 const result3 = await getBestRoute(getParams(fromNetwork, fromToken, fromNetwork, fromNetwork, amount));
@@ -78,7 +78,7 @@ export default async function findBestRoute(amount, walletAddress) {
                     const params2 = getParams(fromNetwork, fromNetwork, toNetwork, toToken, result3.bestRoute.toTokenAmount);
                     const result4 = await findRoute(params2);
                     if (result4.bestRoute) {
-                        return { bestRoute: getRouteCalculated(bestRoute1, result4) };
+                        return { bestRoute: getRouteCalculated(bestRoute1, result4), otherRoutes: [] };
                     } else if (toToken.address) {
                         params2.toTokenAddress = NATIVE_CONTRACT;
                         params2.toToken = toNetwork;
@@ -91,7 +91,7 @@ export default async function findBestRoute(amount, walletAddress) {
                             const swapParams2 = getParams(toNetwork, toNetwork, toNetwork, toToken, result5.bestRoute.toTokenAmount);
                             const result6 = await findRoute(swapParams2);
                             if (result6.bestRoute) {
-                                return { bestRoute: getRouteCalculated(bestRoute1, result6, 2) };
+                                return { bestRoute: getRouteCalculated(bestRoute1, result6, 2), otherRoutes: [] };
                             }
                         }
                     }
@@ -154,17 +154,44 @@ async function findRoute(params) {
             } else {
                 resEstimate.estimateFeeUsd = resEstimate.fee.amount * params.fromNetUSDPrice;
             }
+            resEstimate.toAmountUsd = +resEstimate?.toTokenAmount * params.toToken.balance.price?.USD;
 
             if (!bestRoute?.toTokenAmount) {
                 bestRoute = resEstimate;
                 bestRoute.service = service;
             }
             if (+resEstimate?.toTokenAmount > +bestRoute?.toTokenAmount) {
-                otherRoutes.push({ ...bestRoute, service: bestRoute.service, fromToken: params.fromToken, toToken: params.toToken });
+                const route = {
+                    ...bestRoute,
+                    routes: [
+                        {
+                            ...bestRoute,
+                            service: bestRoute.service,
+                            net: params.net,
+                            toNet: params.toNet,
+                            fromToken: params.fromToken,
+                            toToken: params.toToken,
+                        },
+                    ],
+                };
+                otherRoutes.push(route);
                 bestRoute = resEstimate;
                 bestRoute.service = service;
             } else if (resEstimate?.toTokenAmount && bestRouteExist) {
-                otherRoutes.push({ ...resEstimate, service, fromToken: params.fromToken, toToken: params.toToken });
+                const route = {
+                    ...resEstimate,
+                    routes: [
+                        {
+                            ...resEstimate,
+                            service,
+                            net: params.net,
+                            toNet: params.toNet,
+                            fromToken: params.fromToken,
+                            toToken: params.toToken,
+                        },
+                    ],
+                };
+                otherRoutes.push(route);
             }
             bestRouteExist = true;
         }
@@ -192,7 +219,7 @@ async function findRoute(params) {
     }
 }
 
-async function checkAllowance(net, tokenAddress, ownerAddress, amount, decimals, service) {
+export async function checkAllowance(net, tokenAddress, ownerAddress, amount, decimals, service) {
     if (checkAllowance.cache[ownerAddress]) {
         if (checkAllowance.cache[ownerAddress].tokenAddress === tokenAddress && checkAllowance.cache[ownerAddress].service === service) {
             return toMantissa(amount, decimals) > checkAllowance.cache[ownerAddress].allowance;

@@ -9,6 +9,7 @@
                 </div>
             </template>
         </div>
+        <RoutesModal v-if="showRoutesModal" @close="closeRoutesModal" />
     </div>
 </template>
 <script>
@@ -18,6 +19,7 @@ import { useRouter } from 'vue-router';
 
 import Spinner from '@/components/app/Spinner';
 import SuperSwap from '@/components/dynamic/superswap/SuperSwap';
+import RoutesModal from '@/components/app/modals/RoutesModal';
 
 import { UIConfig } from '@/config/ui';
 
@@ -28,10 +30,12 @@ export default {
     components: {
         SuperSwap,
         Spinner,
+        RoutesModal,
     },
     setup() {
         const store = useStore();
         const router = useRouter();
+        const showRoutesModal = computed(() => store.getters['swap/showRoutes']);
 
         const loader = computed(() => store.getters['tokens/loader']);
 
@@ -40,6 +44,10 @@ export default {
         const superSwapComponent = computed(() => {
             return UIConfig[currentChainInfo.value.net]?.superSwap?.component;
         });
+
+        const closeRoutesModal = () => {
+            store.dispatch('swap/setShowRoutes', false);
+        };
 
         watch(
             () => superSwapComponent.value,
@@ -54,6 +62,9 @@ export default {
             loader,
             walletAddress,
             superSwapComponent,
+            showRoutesModal,
+
+            closeRoutesModal,
         };
     },
 };

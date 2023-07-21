@@ -81,10 +81,15 @@
                     </div>
                 </div>
                 <div class="accordion__item">
-                    <div class="accordion__label">Routes:</div>
-                    <div class="accordion__value" v-for="item in bestRoute.routes" :key="item">
-                        <img :src="item.service.icon" />
-                        <div class="name">{{ item.service.name }}</div>
+                    <div class="accordion__row">
+                        <div class="accordion__label">Routes:</div>
+                        <div class="accordion__value" v-for="item in bestRoute.routes" :key="item">
+                            <img :src="item.service.icon" />
+                            <div class="name">{{ item.service.name }}</div>
+                        </div>
+                    </div>
+                    <div v-if="otherRoutes.length" class="other-routes" v-on:click.stop="showRoutesModal">
+                        +{{ otherRoutes.length }} routes
                     </div>
                 </div>
             </div>
@@ -154,6 +159,7 @@ export default {
         const receiveToken = ref(false);
         const approveTx = ref(null);
         const bestRoute = ref({});
+        const otherRoutes = ref([]);
         const currentRoute = ref({});
         const txError = ref('');
         const networkError = ref(false);
@@ -336,6 +342,10 @@ export default {
             onSetAmount(amount.value);
         };
 
+        const showRoutesModal = () => {
+            store.dispatch('swap/setShowRoutes', true);
+        };
+
         const onSetAddress = (addr) => {
             const reg = new RegExp(selectedDstNetwork.value.validating);
             address.value = addr;
@@ -436,13 +446,15 @@ export default {
                 isLoading.value = false;
                 return;
             }
-            store.dispatch('swap/setBestRoute', resEstimate.bestRoute);
+            store.dispatch('swap/setBestRoute', resEstimate);
             currentRoute.value = resEstimate.bestRoute.routes.find((elem) => elem.status === 'signing');
             if (currentRoute.value.needApprove) {
                 needApprove.value = true;
                 getApproveTx();
             }
+            console.log(resEstimate, '-resEstimate');
             bestRoute.value = resEstimate.bestRoute;
+            otherRoutes.value = resEstimate.otherRoutes || [];
             txError.value = '';
             receiveValue.value = resEstimate.bestRoute?.toTokenAmount;
             networkFee.value = prettyNumberTooltip(resEstimate.bestRoute?.estimateFeeUsd, 4);
@@ -660,6 +672,7 @@ export default {
             groupTokens,
             services,
             bestRoute,
+            otherRoutes,
             errorAddress,
             errorBalance,
             filteredSupportedChains,
@@ -684,6 +697,7 @@ export default {
             onSetDstToken,
             onSetAmount,
             swap,
+            showRoutesModal,
         };
     },
 };
@@ -715,6 +729,7 @@ export default {
         &__item {
             display: flex;
             align-items: center;
+            position: relative;
         }
 
         &__label {
@@ -737,6 +752,20 @@ export default {
                 margin-right: 6px;
             }
         }
+        &__row {
+            display: flex;
+        }
+    }
+    .other-routes {
+        background-color: #97ffd0;
+        border-radius: 15px;
+        padding: 4px 10px;
+        color: #00839f;
+        font-weight: 600;
+        position: absolute;
+        right: 0;
+        bottom: 8px;
+        cursor: pointer;
     }
 
     &__btn {

@@ -76,8 +76,8 @@ export default {
 
     &__content {
         position: relative;
-        width: 100%;
-        height: 100%;
+        min-width: 40vw;
+        height: max-content;
         background: $colorWhite;
         border-radius: 16px;
         padding: 24px 32px;
