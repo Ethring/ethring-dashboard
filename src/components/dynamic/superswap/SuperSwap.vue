@@ -598,6 +598,7 @@ export default {
             } else {
                 receiveValue.value = null;
                 resetAmount.value = true;
+                amount.value = '';
                 errorBalance.value = '';
                 store.dispatch('swap/setBestRoute', null);
             }
