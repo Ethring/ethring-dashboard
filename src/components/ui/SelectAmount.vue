@@ -218,12 +218,8 @@ export default {
             }
         };
         const setToken = (item) => {
-            if (selectedToken.value?.net !== item?.net || selectedToken.value?.balance !== item?.balance) {
-                amount.value = '';
-                selectedToken.value = item;
-                emit('setAmount', amount.value);
-                emit('setToken', item);
-            }
+            selectedToken.value = item;
+            emit('setToken', item);
         };
 
         const clickToken = () => {
