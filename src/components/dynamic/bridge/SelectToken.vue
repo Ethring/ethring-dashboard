@@ -49,6 +49,8 @@ export default {
                 await store.dispatch('bridge/getTokensByChain', {
                     chainId,
                 });
+            } else {
+                router.push('/bridge');
             }
         });
 
