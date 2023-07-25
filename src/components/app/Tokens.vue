@@ -46,7 +46,6 @@ export default {
     setup() {
         const store = useStore();
         const { tokens, groupTokens } = useTokens();
-        console.log(groupTokens, '--groupTokens');
         const groupHides = ref({});
 
         const loader = computed(() => store.getters['tokens/loader']);

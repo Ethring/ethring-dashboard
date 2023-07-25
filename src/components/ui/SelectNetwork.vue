@@ -54,7 +54,7 @@ export default {
 
         const setActive = (item) => {
             selectedItem.value = item;
-            console.log(item);
+
             emit('select', selectedItem.value);
         };
         const clickAway = () => {

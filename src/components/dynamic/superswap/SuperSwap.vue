@@ -202,7 +202,6 @@ export default {
 
         watch(showRoutesModal, () => {
             if (!showRoutesModal.value) {
-                console.log('---is updated', bestRouteInfo.value);
                 bestRoute.value = bestRouteInfo.value.bestRoute;
                 otherRoutes.value = bestRouteInfo.value.otherRoutes;
                 currentRoute.value = bestRoute.value.routes.find((elem) => elem.status === 'signing');
@@ -470,7 +469,7 @@ export default {
                 needApprove.value = true;
                 getApproveTx();
             }
-            console.log(resEstimate, '-resEstimate');
+
             bestRoute.value = resEstimate.bestRoute;
             otherRoutes.value = resEstimate.otherRoutes || [];
             txError.value = '';

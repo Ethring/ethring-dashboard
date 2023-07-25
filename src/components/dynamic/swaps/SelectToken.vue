@@ -41,7 +41,6 @@ export default {
                 return [];
             }
             let wallet = groupTokens.value.find((elem) => elem.net === selectedNetwork.value.net);
-            console.log(wallet);
             let list = [];
             const listWithBalances = getTokenList(wallet);
             if (selectType.value === 'from') {

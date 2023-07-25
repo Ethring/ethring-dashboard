@@ -28,7 +28,7 @@ export default async function findBestRoute(amount, walletAddress) {
             toTokenAddress: toToken.address || NATIVE_CONTRACT,
             fromToken,
             toToken,
-            fromNetUSDPrice: fromNetwork?.price?.USD,
+            fromNetwork,
             walletAddress,
         });
 
@@ -211,13 +211,19 @@ async function findRoute(params) {
                 }
                 continue;
             }
+            if (resEstimate.fee.currency === params.fromNetwork.code) {
+                if (resEstimate.fee.amount > params.fromNetwork.balance?.mainBalance) {
+                    error = 'Insufficient balance for network fees';
+                    continue;
+                }
+            }
             error = null;
             resEstimate.estimateTime = service.estimatedTime[chainIds[params.net]];
 
             if (resEstimate.fee.currency === params.fromToken.code) {
                 resEstimate.estimateFeeUsd = resEstimate.fee.amount * (params.fromToken.balance.price?.USD || params.fromToken.price?.USD);
             } else {
-                resEstimate.estimateFeeUsd = resEstimate.fee.amount * params.fromNetUSDPrice;
+                resEstimate.estimateFeeUsd = resEstimate.fee.amount * params.fromNetwork?.price?.USD;
             }
             resEstimate.toAmountUsd = +resEstimate?.toTokenAmount * (params.toToken.balance.price?.USD || params.toToken.price?.USD);
 
@@ -225,7 +231,8 @@ async function findRoute(params) {
                 bestRoute = resEstimate;
                 bestRoute.service = service;
             }
-            if (+resEstimate?.toTokenAmount > +bestRoute?.toTokenAmount) {
+
+            if (+resEstimate?.toAmountUsd - resEstimate.estimateFeeUsd > +bestRoute?.toAmountUsd - bestRoute.estimateFeeUsd) {
                 const route = {
                     ...bestRoute,
                     routes: [

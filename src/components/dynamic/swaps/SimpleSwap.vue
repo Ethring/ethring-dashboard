@@ -128,7 +128,6 @@ export default {
         const selectedTokenFrom = computed(() => store.getters['tokens/fromToken']);
         const selectedTokenTo = computed(() => store.getters['tokens/toToken']);
         const zometNetworks = computed(() => store.getters['networks/zometNetworksList']);
-        console.log(selectedTokenFrom, '--selectedTokenFrom');
         const disabledSwap = computed(() => {
             return (
                 isLoading.value ||
@@ -200,7 +199,7 @@ export default {
                     });
                 }
             }
-            console.log(zometNetworks.value?.find((elem) => network?.net === elem?.net)?.logo, '-');
+
             store.dispatch('networks/setSelectedNetwork', {
                 ...network,
                 logo: zometNetworks.value?.find((elem) => network?.net === elem?.net)?.logo,
