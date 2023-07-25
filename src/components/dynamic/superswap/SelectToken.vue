@@ -7,9 +7,7 @@
 </template>
 <script>
 import { useStore } from 'vuex';
-
 import { computed, ref } from 'vue';
-
 import { useRouter } from 'vue-router';
 
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
@@ -27,55 +25,65 @@ export default {
     setup() {
         const store = useStore();
         const router = useRouter();
-        const searchValue = ref('');
-
         const { walletAddress } = useWeb3Onboard();
         const { groupTokens, allTokensFromNetwork, getTokenList } = useTokens();
 
-        const selectedNetwork = computed(() => store.getters['networks/selectedNetwork']);
+        const searchValue = ref('');
+
+        const loader = computed(() => store.getters['tokens/loader']);
         const selectType = computed(() => store.getters['tokens/selectType']);
         const selectedTokenFrom = computed(() => store.getters['tokens/fromToken']);
         const selectedTokenTo = computed(() => store.getters['tokens/toToken']);
-        const loader = computed(() => store.getters['tokens/loader']);
+        const selectedSrcNetwork = computed(() => store.getters['bridge/selectedSrcNetwork']);
+        const selectedDstNetwork = computed(() => store.getters['bridge/selectedDstNetwork']);
+
+        const selectedNetwork = selectType.value === 'from' ? selectedSrcNetwork : selectedDstNetwork;
 
         const allTokens = computed(() => {
             if (!selectedNetwork.value) {
                 return [];
             }
-
+            let wallet = groupTokens.value.find((elem) => elem.net === selectedNetwork.value.net);
             let list = [];
-            const listWithBalances = getTokenList(selectedNetwork.value);
+
+            const listWithBalances = getTokenList(wallet);
             if (selectType.value === 'from') {
-                if (selectedNetwork.value.balance.mainBalance > 0) {
+                if (wallet.balance.mainBalance > 0) {
                     list = listWithBalances;
                 } else {
-                    list = selectedNetwork.value.list;
+                    list = wallet.list;
                 }
             } else {
                 list = [
                     ...listWithBalances,
-                    ...allTokensFromNetwork(selectedNetwork.value.net).filter((token) => {
-                        return token.net !== selectedNetwork.value.net && !selectedNetwork.value.list.find((t) => t.net === token.net);
+                    ...allTokensFromNetwork(wallet.net).filter((token) => {
+                        return token.net !== wallet.net && !wallet.list.find((t) => t.net === token.net);
                     }),
                 ];
             }
+            const byTokenKey = (token = {}, search = '', target = 'code') => {
+                const targetVal = token[target] ?? null;
+                const targetLC = targetVal ? targetVal.toLowerCase() : '';
+                return targetLC.includes(search.toLowerCase());
+            };
 
             const secondToken = selectType.value === 'from' ? selectedTokenTo.value : selectedTokenFrom.value;
-
+            if (selectedSrcNetwork.value?.net === selectedDstNetwork.value?.net) {
+                return list.filter(
+                    (elem) =>
+                        elem?.code !== secondToken?.code &&
+                        (byTokenKey(elem, searchValue.value, 'name') ||
+                            byTokenKey(elem, searchValue.value, 'code') ||
+                            byTokenKey(elem, searchValue.value, 'address'))
+                );
+            }
             return list.filter(
                 (elem) =>
-                    elem?.code !== secondToken?.code &&
-                    (byTokenKey(elem, searchValue.value, 'name') ||
-                        byTokenKey(elem, searchValue.value, 'code') ||
-                        byTokenKey(elem, searchValue.value, 'address'))
+                    byTokenKey(elem, searchValue.value, 'name') ||
+                    byTokenKey(elem, searchValue.value, 'code') ||
+                    byTokenKey(elem, searchValue.value, 'address')
             );
         });
-
-        const byTokenKey = (token = {}, search = '', target = 'code') => {
-            const targetVal = token[target] ?? null;
-            const targetLC = targetVal ? targetVal.toLowerCase() : '';
-            return targetLC.includes(search.toLowerCase());
-        };
 
         const filterTokens = (val) => {
             searchValue.value = val;
@@ -89,13 +97,14 @@ export default {
                     store.dispatch('tokens/setToToken', item);
                 } else {
                     const price = await prices.Coingecko.priceByPlatformContracts({
-                        chainId: selectedNetwork.value?.chain_id || selectedNetwork.value?.chainId,
+                        chainId: selectedDstNetwork.value?.chain_id || selectedDstNetwork.value?.chainId,
                         addresses: item.address,
                     });
                     item.balance.price = {
-                        BTC: price[item.address]?.btc,
-                        USD: price[item.address]?.usd,
+                        BTC: price[item.address.toLowerCase()]?.btc,
+                        USD: price[item.address.toLowerCase()]?.usd,
                     };
+
                     store.dispatch('tokens/setToToken', item);
                 }
             }

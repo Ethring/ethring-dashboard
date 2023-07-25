@@ -27,13 +27,15 @@ export default {
         Sidebar,
         NavBar,
     },
+    created() {
+        const store = useStore();
+        store.dispatch('networks/init');
+    },
     setup() {
         const store = useStore();
-
-        const { connectWallet, connectedWallet, walletAddress, currentChainInfo } = useWeb3Onboard();
+        const { connectWallet, connectedWallet, walletAddress } = useWeb3Onboard();
 
         onMounted(async () => {
-            store.dispatch('networks/init');
             await store.dispatch('networks/initZometNets');
 
             if (walletAddress.value && walletAddress.value !== undefined) {
@@ -64,12 +66,6 @@ export default {
         });
 
         watch(walletAddress, async () => {
-            if (walletAddress?.value) {
-                await useInit(walletAddress.value, store);
-            }
-        });
-
-        watch(currentChainInfo, async () => {
             if (walletAddress?.value) {
                 await useInit(walletAddress.value, store);
             }

@@ -21,7 +21,7 @@
             :items="tokensList"
             :value="selectedToken || tokensList[0]"
             :error="!!errorBalance"
-            :label="$t('simpleSend.amount')"
+            :label="$t('tokenOperations.amount')"
             :on-reset="successHash"
             class="mt-10"
             @setAmount="onSetAmount"
@@ -34,7 +34,7 @@
 
         <Button
             xl
-            :title="$t('simpleSend.confirm').toUpperCase()"
+            :title="$t('tokenOperations.confirm').toUpperCase()"
             :disabled="!!disabledSend"
             :loading="isLoading"
             class="simple-send__btn mt-10"
@@ -76,6 +76,7 @@ export default {
         const store = useStore();
         const router = useRouter();
         const { walletAddress, connectedWallet, currentChainInfo } = useWeb3Onboard();
+        const { groupTokens } = useTokens();
 
         const isLoading = ref(false);
         const txError = ref('');
@@ -86,8 +87,6 @@ export default {
         const clearAddress = ref(false);
         const errorAddress = ref('');
         const errorBalance = ref('');
-
-        const { groupTokens } = useTokens();
 
         // const favouritesList = computed(() => store.getters['tokens/favourites']);
         const zometNetworks = computed(() => store.getters['networks/zometNetworksList']);

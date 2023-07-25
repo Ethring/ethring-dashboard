@@ -1,5 +1,5 @@
 <template>
-    <div class="select-token__title">{{ $t('simpleSwap.selectToken') }}</div>
+    <div class="select-token__title">{{ $t('tokenOperations.selectToken') }}</div>
     <div class="select-token__wrap">
         <arrowSvg class="arrow" @click="router.push(router.options.history.state.back)" />
         <SearchInput @onChange="filterTokens" />

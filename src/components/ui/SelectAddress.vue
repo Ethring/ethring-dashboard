@@ -1,7 +1,7 @@
 <template>
     <div :class="{ active: active && items?.length, focused, error }" class="select-address" @click="active = !active">
         <div class="select-address__panel">
-            <div class="recipient">{{ $t('simpleSend.recipient') }}</div>
+            <div class="recipient">{{ $t('tokenOperations.recipient') }}</div>
             <div class="info-wrap">
                 <div class="info">
                     <div class="network">

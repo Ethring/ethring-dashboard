@@ -45,9 +45,11 @@ export default {
                 );
             }
             const chainId = selectedNetwork.value?.chain_id || selectedNetwork.value?.chainId;
-            await store.dispatch('bridge/getTokensByChain', {
-                chainId,
-            });
+            if (chainId) {
+                await store.dispatch('bridge/getTokensByChain', {
+                    chainId,
+                });
+            }
         });
 
         const allTokens = computed(() => {
@@ -55,12 +57,7 @@ export default {
                 return [];
             }
 
-            const currentNetwork = groupTokens.value.find(
-                (elem) => elem?.chain_id === (selectedNetwork?.value?.chain_id || selectedNetwork?.value?.chainId)
-            );
-
             let list = [];
-
             const listWithBalances = getTokenList(selectedNetwork.value);
 
             if (selectType.value === 'from') {
@@ -72,8 +69,8 @@ export default {
             } else {
                 list = [
                     ...listWithBalances,
-                    ...allTokensFromNetwork(selectedNetwork.value?.net).filter((token) => {
-                        return token.net !== selectedNetwork.value?.net && !currentNetwork?.list?.find((t) => t.net === token.net);
+                    ...allTokensFromNetwork(selectedNetwork.value.net).filter((token) => {
+                        return token.net !== selectedNetwork.value.net && !selectedNetwork.value.list.find((t) => t.net === token.net);
                     }),
                 ];
             }

@@ -3,12 +3,7 @@
         <div class="select__panel">
             <div class="info">
                 <div class="network">
-                    <img
-                        v-if="selectedItem"
-                        :src="selectedItem?.logo || selectedItem?.logoURI || currentChainInfo?.logo"
-                        alt="network-logo"
-                        class="network-logo"
-                    />
+                    <img v-if="selectedItem" :src="selectedItem?.logo || selectedItem?.logoURI" alt="network-logo" class="network-logo" />
                 </div>
                 <div v-if="selectedItem" class="name">{{ networkName }}</div>
                 <div v-else>
@@ -28,7 +23,7 @@
             >
                 <div class="info">
                     <div class="icon">
-                        <img :src="item.logoURI" alt="network-logo" class="network-logo" />
+                        <img :src="item.logo || item.logoURI" alt="network-logo" class="network-logo" />
                     </div>
                     <div class="name">{{ item.label || item.name }}</div>
                 </div>
@@ -37,7 +32,7 @@
     </div>
 </template>
 <script>
-import { onMounted, ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 
 import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
@@ -75,8 +70,9 @@ export default {
         };
 
         onMounted(() => {
-            if (selectedItem.value) {
-                setActive(selectedItem.value);
+            if (props.current) {
+                selectedItem.value = props.current;
+                emit('select', selectedItem.value);
             }
         });
 

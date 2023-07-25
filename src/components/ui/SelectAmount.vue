@@ -24,7 +24,7 @@
             </div>
             <div class="balance" @click.stop="setMax">
                 <p>
-                    {{ $t('simpleSend.balance') }}:
+                    {{ $t('tokenOperations.balance') }}:
                     <span>
                         {{ setTokenBalance(selectedToken) }}
                     </span>
@@ -70,7 +70,7 @@ export default {
             required: true,
         },
         items: {
-            required: true,
+            required: false,
         },
         onReset: {
             type: [Boolean, String],
@@ -173,8 +173,9 @@ export default {
                 } else {
                     amount.value = val;
                 }
-
                 payTokenPrice.value = prettyNumber(BigNumber(amount.value * selectedToken?.value?.balance?.price?.USD || 0).toFixed()) || 0;
+            } else {
+                payTokenPrice.value = '0';
             }
         });
 
@@ -217,10 +218,7 @@ export default {
             }
         };
         const setToken = (item) => {
-            amount.value = '';
             selectedToken.value = item;
-
-            emit('setAmount', amount.value);
             emit('setToken', item);
         };
 
@@ -230,13 +228,6 @@ export default {
 
         onMounted(async () => {
             setToken(selectedToken.value);
-            // if (props.selectedNetwork) {
-            //     platform.value = await store.dispatch('tokens/getCoingeckoPlatform', { chainId: props?.selectedNetwork?.chain_id });
-            //     coingeckoPrice.value = await store.dispatch('tokens/getCoingeckoPrice', {
-            //         platform: platform.value,
-            //         addresses: selectedToken.value.address,
-            //     });
-            // }
         });
 
         const setTokenBalance = (token) => {
