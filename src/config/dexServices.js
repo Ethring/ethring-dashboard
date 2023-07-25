@@ -25,19 +25,6 @@ export const services = [
             43114: 30,
         },
     },
-    {
-        name: 'ParaSwap 2',
-        type: 'swap',
-        icon: 'https://stakingcrypto.info/static/assets/coins/paraswap-logo.png',
-        url: process.env.VUE_APP_PARASWAP_API,
-        estimatedTime: {
-            1: 60,
-            56: 30,
-            137: 30,
-            42161: 30,
-            43114: 30,
-        },
-    },
     // {
     //     name: 'SynapseSwap',
     //     type: 'swap',

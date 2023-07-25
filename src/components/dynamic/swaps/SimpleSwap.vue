@@ -1,6 +1,6 @@
 <template>
     <div class="simple-swap">
-        <SelectNetwork :items="zometNetworks" :current="currentChainInfo" @select="onSelectNetwork" />
+        <SelectNetwork :items="zometNetworks" :current="selectedNetwork || currentChainInfo" @select="onSelectNetwork" />
         <div class="simple-swap__switch-wrap">
             <SelectAmount
                 v-if="tokensList.length"
@@ -68,7 +68,7 @@
     </div>
 </template>
 <script>
-import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 
 import { useStore } from 'vuex';
 
@@ -115,6 +115,7 @@ export default {
         const networkFee = ref(0);
         const resetAmount = ref(false);
         const selectedNetwork = computed(() => store.getters['networks/selectedNetwork']);
+
         const isUpdateSwapDirectionValue = ref(false);
         const router = useRouter();
         const amount = ref('');
@@ -127,7 +128,7 @@ export default {
         const selectedTokenFrom = computed(() => store.getters['tokens/fromToken']);
         const selectedTokenTo = computed(() => store.getters['tokens/toToken']);
         const zometNetworks = computed(() => store.getters['networks/zometNetworksList']);
-
+        console.log(selectedTokenFrom, '--selectedTokenFrom');
         const disabledSwap = computed(() => {
             return (
                 isLoading.value ||
@@ -199,6 +200,11 @@ export default {
                     });
                 }
             }
+            console.log(zometNetworks.value?.find((elem) => network?.net === elem?.net)?.logo, '-');
+            store.dispatch('networks/setSelectedNetwork', {
+                ...network,
+                logo: zometNetworks.value?.find((elem) => network?.net === elem?.net)?.logo,
+            });
         };
 
         const onSetTokenFrom = () => {
@@ -430,18 +436,14 @@ export default {
             balanceUpdated.value = true;
         };
         onMounted(async () => {
-            store.dispatch(
-                'networks/setSelectedNetwork',
-                groupTokens.value.find((elem) => elem.net === currentChainInfo.value.net)
-            );
-            await getAllowance();
-        });
-
-        onUnmounted(() => {
-            if (router.options.history.state.current !== '/swap/select-token') {
-                store.dispatch('tokens/setFromToken', null);
-                store.dispatch('tokens/setToToken', null);
+            if (!selectedNetwork.value) {
+                store.dispatch('networks/setSelectedNetwork', {
+                    ...groupTokens.value.find((elem) => elem.net === currentChainInfo.value.net),
+                    logo: zometNetworks.value?.find((elem) => currentChainInfo?.net === elem?.net)?.logo,
+                });
             }
+
+            await getAllowance();
         });
 
         return {

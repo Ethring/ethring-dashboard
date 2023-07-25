@@ -40,20 +40,21 @@ export default {
             if (!selectedNetwork.value) {
                 return [];
             }
-
+            let wallet = groupTokens.value.find((elem) => elem.net === selectedNetwork.value.net);
+            console.log(wallet);
             let list = [];
-            const listWithBalances = getTokenList(selectedNetwork.value);
+            const listWithBalances = getTokenList(wallet);
             if (selectType.value === 'from') {
-                if (selectedNetwork.value.balance.mainBalance > 0) {
+                if (wallet.balance.mainBalance > 0) {
                     list = listWithBalances;
                 } else {
-                    list = selectedNetwork.value.list;
+                    list = wallet.list;
                 }
             } else {
                 list = [
                     ...listWithBalances,
-                    ...allTokensFromNetwork(selectedNetwork.value.net).filter((token) => {
-                        return token.net !== selectedNetwork.value.net && !selectedNetwork.value.list.find((t) => t.net === token.net);
+                    ...allTokensFromNetwork(wallet.net).filter((token) => {
+                        return token.net !== wallet.net && !wallet.list.find((t) => t.net === token.net);
                     }),
                 ];
             }

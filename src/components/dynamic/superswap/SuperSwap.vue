@@ -88,7 +88,7 @@
                             <div class="name">{{ item.service.name }}</div>
                         </div>
                     </div>
-                    <div v-if="otherRoutes.length" class="other-routes" v-on:click.stop="showRoutesModal">
+                    <div v-if="otherRoutes.length" class="other-routes" v-on:click.stop="setShowRoutesModal">
                         +{{ otherRoutes.length }} routes
                     </div>
                 </div>
@@ -182,6 +182,9 @@ export default {
         const selectedSrcToken = computed(() => store.getters['tokens/fromToken']);
         const selectedDstToken = computed(() => store.getters['tokens/toToken']);
 
+        const bestRouteInfo = computed(() => store.getters['swap/bestRoute']);
+        const showRoutesModal = computed(() => store.getters['swap/showRoutes']);
+
         const amount = ref('');
         const receiveValue = ref('');
         const address = ref('');
@@ -195,6 +198,21 @@ export default {
             await store.dispatch('bridge/getTokensByChain', {
                 chainId: currentChainInfo.value.chainId,
             });
+        });
+
+        watch(showRoutesModal, () => {
+            if (!showRoutesModal.value) {
+                console.log('---is updated', bestRouteInfo.value);
+                bestRoute.value = bestRouteInfo.value.bestRoute;
+                otherRoutes.value = bestRouteInfo.value.otherRoutes;
+                currentRoute.value = bestRoute.value.routes.find((elem) => elem.status === 'signing');
+                receiveValue.value = bestRouteInfo.value.bestRoute?.toTokenAmount;
+                networkFee.value = prettyNumberTooltip(bestRouteInfo.value.bestRoute?.estimateFeeUsd, 4);
+                estimateRate.value = prettyNumberTooltip(
+                    bestRouteInfo.value.bestRoute.toTokenAmount / bestRouteInfo.value.bestRoute.fromTokenAmount,
+                    6
+                );
+            }
         });
 
         const disabledBtn = computed(() => {
@@ -342,7 +360,7 @@ export default {
             onSetAmount(amount.value);
         };
 
-        const showRoutesModal = () => {
+        const setShowRoutesModal = () => {
             store.dispatch('swap/setShowRoutes', true);
         };
 
@@ -610,6 +628,7 @@ export default {
             } else {
                 receiveValue.value = null;
                 resetAmount.value = true;
+                amount.value = '';
                 errorBalance.value = '';
                 store.dispatch('swap/setBestRoute', null);
             }
@@ -697,7 +716,7 @@ export default {
             onSetDstToken,
             onSetAmount,
             swap,
-            showRoutesModal,
+            setShowRoutesModal,
         };
     },
 };
@@ -747,8 +766,8 @@ export default {
             margin-left: 6px;
 
             img {
-                width: 16px;
-                height: 16px;
+                width: 20px;
+                height: 20px;
                 margin-right: 6px;
             }
         }

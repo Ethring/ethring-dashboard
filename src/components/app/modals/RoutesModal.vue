@@ -16,7 +16,11 @@
                                     <img :src="elem.service?.icon" />
                                 </div>
                                 <h3 class="routes-service__name">{{ elem.service?.name }}</h3>
+                                <h1 v-if="j != item.routes.length - 1">-</h1>
                             </div>
+                            <p class="routes-service__status" v-for="(status, k) in getStatus(item)" :class="status.class" :key="k">
+                                {{ status.value }}
+                            </p>
                         </div>
                         <div class="routes-modal__row">
                             Time: ~
@@ -75,17 +79,16 @@ export default {
         const { walletAddress } = useWeb3Onboard();
 
         const routeInfo = computed(() => store.getters['swap/bestRoute']);
-        console.log(routeInfo.value, '--bestRoute');
 
         const confirm = async () => {
             isLoading.value = true;
             for (let i = 0; i < selectedRoute.value.routes.length; i++) {
                 selectedRoute.value.routes[i].needApprove = await checkAllowance(
                     selectedRoute.value.routes[i].net,
-                    selectedRoute.value.routes[i].fromToken.address,
+                    selectedRoute.value.routes[i].fromToken?.address,
                     walletAddress.value,
                     selectedRoute.value.routes[i].fromTokenAmount,
-                    selectedRoute.value.routes[i].fromToken.decimals,
+                    selectedRoute.value.routes[i].fromToken?.decimals,
                     selectedRoute.value.routes[i].service
                 );
             }
@@ -98,7 +101,6 @@ export default {
                     return elem;
                 }),
             };
-            console.log(data);
             store.dispatch('swap/setBestRoute', data);
             isLoading.value = false;
             store.dispatch('swap/setShowRoutes', false);
@@ -112,6 +114,32 @@ export default {
             selectedRoute.value = item;
         };
 
+        const getStatus = (item) => {
+            let isLowFee = true;
+            let isBestReturn = true;
+            let isFastest = true;
+            let routes = routeInfo.value.otherRoutes.concat(routeInfo.value.bestRoute);
+            routes
+                .filter((el) => el !== item)
+                ?.forEach((elem) => {
+                    if (elem.estimateFeeUsd <= item.estimateFeeUsd) {
+                        isLowFee = false;
+                    }
+                    if (elem.estimateTime <= item.estimateTime) {
+                        isFastest = false;
+                    }
+                    if (elem.toTokenAmount >= item.toTokenAmount) {
+                        isBestReturn = false;
+                    }
+                });
+            let statusList = [
+                { status: isLowFee, value: 'Low fee', class: 'low-fee' },
+                { status: isBestReturn, value: 'Best return', class: 'best-return' },
+                { status: isFastest, value: 'Fastest', class: 'fastest' },
+            ];
+            return statusList.filter((elem) => elem.status);
+        };
+
         return {
             routeInfo,
             selectedRoute,
@@ -119,6 +147,7 @@ export default {
             prettyNumberTooltip,
             confirm,
             setActiveRoute,
+            getStatus,
         };
     },
 };
@@ -196,6 +225,7 @@ export default {
         &__icon {
             border-radius: 50%;
             width: 32px;
+            padding: 4px;
             height: 32px;
             border: 1px solid #364de8;
             img {
@@ -209,6 +239,27 @@ export default {
                 margin: 0 10px 0 2px;
                 font-weight: 700;
             }
+        }
+        h1 {
+            font-weight: 700;
+            margin: 3px;
+        }
+        &__status {
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 400;
+            color: $colorBlack;
+            padding: 1px 10px;
+            margin: 2px 0 0 6px;
+        }
+        .low-fee {
+            background-color: $themeGreen;
+        }
+        .best-return {
+            background-color: #3fdfae;
+        }
+        .fastest {
+            background-color: #02e7f6;
         }
     }
 }

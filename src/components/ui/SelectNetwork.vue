@@ -1,21 +1,21 @@
 <template>
-    <div :class="{ active }" class="select" v-click-away="() => togglePanel(true)">
-        <div class="select__panel" @click="() => togglePanel(false)" data-qa="select-network">
+    <div :class="{ active }" class="select" @click="active = !active">
+        <div class="select__panel" data-qa="select-network">
             <div class="info">
                 <div class="network">
-                    <img :src="currentChainInfo.logo" alt="network-logo" class="network-logo" />
+                    <img :src="selectedItem.logo" alt="network-logo" class="network-logo" />
                 </div>
-                <div class="name">{{ currentChainInfo?.label || currentChainInfo?.name }}</div>
+                <div class="name">{{ selectedItem?.label || selectedItem?.name }}</div>
             </div>
             <arrowSvg class="arrow" />
         </div>
-        <div class="select__items">
+        <div v-if="active" class="select__items" v-click-away="clickAway">
             <div
                 v-for="(item, idx) in items"
                 :key="idx"
-                :class="{ active: item.net === currentChainInfo?.net }"
+                :class="{ active: item.net === selectedItem?.net }"
                 class="select__items-item"
-                @click="$emit('select', item)"
+                @click="setActive(item)"
             >
                 <div class="info">
                     <div class="icon">
@@ -31,8 +31,6 @@
 <script>
 import { ref } from 'vue';
 
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
-
 import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
 export default {
@@ -41,27 +39,29 @@ export default {
         items: {
             type: Array,
         },
+        current: {
+            type: Object,
+            default: () => {},
+        },
     },
     components: {
         arrowSvg,
     },
-    setup() {
-        const { currentChainInfo } = useWeb3Onboard();
+    setup(props, { emit }) {
+        const selectedItem = ref(props.current);
 
         const active = ref(false);
 
-        const togglePanel = (away = false) => {
-            if (away) {
-                return (active.value = false);
-            }
-            return (active.value = !active.value);
+        const setActive = (item) => {
+            selectedItem.value = item;
+            console.log(item);
+            emit('select', selectedItem.value);
         };
-
         const clickAway = () => {
             active.value = false;
         };
 
-        return { active, clickAway, togglePanel, currentChainInfo };
+        return { active, selectedItem, clickAway, setActive };
     },
 };
 </script>
