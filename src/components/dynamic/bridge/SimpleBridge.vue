@@ -274,8 +274,14 @@ export default {
             clearApprove();
             tokensList(network).then((tokens) => {
                 tokensSrcListResolved.value = tokens;
-                if (!selectedSrcToken.value) {
+                if (!selectedSrcToken.value || !tokens.find((elem) => elem.code === selectedSrcToken.value.code)) {
                     store.dispatch('tokens/setFromToken', tokens[0]);
+                } else {
+                    let listWithBalances = getTokenList(network);
+                    let tokenFrom = listWithBalances.find((elem) => elem.code === selectedSrcToken.value.code);
+                    if (tokenFrom) {
+                        store.dispatch('tokens/setFromToken', tokenFrom);
+                    }
                 }
             });
 
@@ -286,8 +292,8 @@ export default {
                         chainId: network.id || network.chain_id,
                     });
                 }
+                store.dispatch('bridge/setSelectedSrcNetwork', network);
             }
-            store.dispatch('bridge/setSelectedSrcNetwork', network);
         };
 
         const onSelectDstNetwork = async (network) => {
