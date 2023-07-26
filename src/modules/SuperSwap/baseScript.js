@@ -196,6 +196,20 @@ async function findRoute(params) {
             }
         }
 
+        const checkFee = (resEstimate) => {
+            if (+params.fromNetwork.balance?.mainBalance === 0) {
+                return true;
+            }
+            if (resEstimate.fee.currency === params.fromNetwork.code && resEstimate.fee.amount > params.fromNetwork.balance?.mainBalance) {
+                return true;
+            }
+            if (
+                resEstimate.fee.currency === params.fromToken.code &&
+                +resEstimate.fee.amount + +params.amount > params.fromToken.balance?.amount
+            ) {
+                return true;
+            }
+        };
         for (let i = 0; i < services.length; i++) {
             const service = services[i];
             params.url = service.url;
@@ -212,11 +226,7 @@ async function findRoute(params) {
                 continue;
             }
 
-            if (
-                (resEstimate.fee.currency === params.fromNetwork.code &&
-                    resEstimate.fee.amount > params.fromNetwork.balance?.mainBalance) ||
-                +params.fromNetwork.balance?.mainBalance === 0
-            ) {
+            if (checkFee(resEstimate)) {
                 error = 'Insufficient balance for network fees';
                 continue;
             }
@@ -227,6 +237,9 @@ async function findRoute(params) {
                 resEstimate.estimateFeeUsd = resEstimate.fee.amount * (params.fromToken.balance.price?.USD || params.fromToken.price?.USD);
             } else {
                 resEstimate.estimateFeeUsd = resEstimate.fee.amount * params.fromNetwork?.price?.USD;
+            }
+            if (service.protocolFee) {
+                resEstimate.estimateFeeUsd += +service.protocolFee[params.fromNetwork.chain_id] * params.fromNetwork?.price?.USD;
             }
             resEstimate.toAmountUsd = +resEstimate?.toTokenAmount * (params.toToken.balance.price?.USD || params.toToken.price?.USD);
 
