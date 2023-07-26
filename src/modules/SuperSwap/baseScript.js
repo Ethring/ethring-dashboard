@@ -165,7 +165,7 @@ export default async function findBestRoute(amount, walletAddress) {
                 return { error: result.error };
             }
         }
-        return { error: 'Route not found' };
+        return { error: result.error };
     } catch (e) {
         return { error: e.message || e };
     }
@@ -211,11 +211,14 @@ async function findRoute(params) {
                 }
                 continue;
             }
-            if (resEstimate.fee.currency === params.fromNetwork.code) {
-                if (resEstimate.fee.amount > params.fromNetwork.balance?.mainBalance) {
-                    error = 'Insufficient balance for network fees';
-                    continue;
-                }
+
+            if (
+                (resEstimate.fee.currency === params.fromNetwork.code &&
+                    resEstimate.fee.amount > params.fromNetwork.balance?.mainBalance) ||
+                +params.fromNetwork.balance?.mainBalance === 0
+            ) {
+                error = 'Insufficient balance for network fees';
+                continue;
             }
             error = null;
             resEstimate.estimateTime = service.estimatedTime[chainIds[params.net]];
@@ -271,6 +274,9 @@ async function findRoute(params) {
             }
             bestRouteExist = true;
         }
+        if (error && !bestRoute.toTokenAmount) {
+            return { error };
+        }
         bestRoute.needApprove = await checkAllowance(
             params.net,
             params.fromToken.address,
@@ -285,9 +291,6 @@ async function findRoute(params) {
         bestRoute.status = 'signing';
         bestRoute.net = params.net;
         bestRoute.toNet = params.toNet;
-        if (error && !bestRoute.toTokenAmount) {
-            return { error };
-        }
         return { bestRoute, otherRoutes };
     } catch (e) {
         console.log(e);
