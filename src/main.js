@@ -34,7 +34,8 @@ getChainList().then((chains) => {
                 lock: true,
                 listenTo: ['input', 'keyup'],
                 defaultTime: '1s',
-            }))
+            })
+        )
         .use(store)
         .use(VueClickAway)
         .use(Router)

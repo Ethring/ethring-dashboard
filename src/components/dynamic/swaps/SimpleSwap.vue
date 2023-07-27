@@ -193,6 +193,7 @@ export default {
                         chainId: network.id || network.chain_id,
                     });
                 }
+                store.dispatch('networks/setSelectedNetwork', network);
             }
         };
 
@@ -412,9 +413,11 @@ export default {
             successHash.value = getTxUrl(selectedNetwork.value.net, resTx.transactionHash);
             isLoading.value = false;
             resetAmount.value = true;
+
             setTimeout(() => {
                 successHash.value = '';
             }, 5000);
+
             store.dispatch('tokens/updateTokenBalances', {
                 net: selectedNetwork.value.net,
                 address: walletAddress.value,

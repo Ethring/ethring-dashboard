@@ -15,7 +15,7 @@
                 :key="idx"
                 :class="{ active: item.net === currentChainInfo?.net }"
                 class="select__items-item"
-                @click="$emit('select', item)"
+                @click="onSelectNetwork(item)"
             >
                 <div class="info">
                     <div class="icon">
@@ -45,7 +45,7 @@ export default {
     components: {
         arrowSvg,
     },
-    setup() {
+    setup(_, { emit }) {
         const { currentChainInfo } = useWeb3Onboard();
 
         const active = ref(false);
@@ -57,11 +57,16 @@ export default {
             return (active.value = !active.value);
         };
 
+        const onSelectNetwork = (network) => {
+            emit('select', network);
+            return togglePanel(false);
+        };
+
         const clickAway = () => {
             active.value = false;
         };
 
-        return { active, clickAway, togglePanel, currentChainInfo };
+        return { active, clickAway, togglePanel, currentChainInfo, onSelectNetwork };
     },
 };
 </script>

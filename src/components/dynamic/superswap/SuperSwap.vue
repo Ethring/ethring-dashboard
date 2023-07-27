@@ -429,6 +429,7 @@ export default {
                 needApprove.value = true;
                 getApproveTx();
             }
+
             bestRoute.value = resEstimate.bestRoute;
             txError.value = '';
             receiveValue.value = resEstimate.bestRoute?.toTokenAmount;
@@ -538,7 +539,9 @@ export default {
                 params.recipientAddress = getRecipientAddress();
                 params.fallbackAddress = walletAddress.value;
             }
+
             const resSwap = await store.dispatch(serviceApi, params);
+
             if (resSwap.error) {
                 txError.value = resSwap.error;
                 isLoading.value = false;
@@ -570,7 +573,9 @@ export default {
                 }
                 return elem;
             });
+
             currentRoute.value = bestRoute.value.routes?.find((elem) => elem.status === 'signing');
+
             if (currentRoute.value) {
                 resetAmount.value = false;
                 if (currentRoute.value.net === selectedSrcNetwork.value.net) {
