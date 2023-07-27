@@ -173,7 +173,12 @@ export default {
                 } else {
                     amount.value = val;
                 }
-                payTokenPrice.value = prettyNumber(BigNumber(amount.value * selectedToken?.value?.balance?.price?.USD || 0).toFixed()) || 0;
+                payTokenPrice.value =
+                    prettyNumber(
+                        BigNumber(
+                            amount.value * (selectedToken?.value?.balance?.price?.USD || selectedToken?.value?.price?.USD) || 0
+                        ).toFixed()
+                    ) || 0;
             } else {
                 payTokenPrice.value = '0';
             }
@@ -211,6 +216,9 @@ export default {
                 emit('setAmount', amount.value);
             }
         };
+
+        console.log(payTokenPrice, '--payTokenPrice');
+        console.log(selectedToken, '-selected token');
 
         const setActive = () => {
             if (props.showDropDown) {
