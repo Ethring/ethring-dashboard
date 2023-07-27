@@ -60,46 +60,69 @@ export default async function findBestRoute(amount, walletAddress) {
         };
 
         const getOtherRoutes = (bestRoute, result) => {
-            let otherRoutesList = [];
-            const getOtherRoutes = (otherRoutes, bestRoute) => {
-                otherRoutes.forEach((route) => {
-                    let currentBestRoute = {
-                        estimateFeeUsd: bestRoute.routes[0].estimateFeeUsd,
-                        estimateTime: bestRoute.routes[0].estimateTime,
-                        routes: [],
-                        fromTokenAmount: bestRoute.routes[0].fromTokenAmount,
-                    };
-                    currentBestRoute.routes.push({ ...bestRoute.routes[0], status: STATUSES.SIGNING });
-                    currentBestRoute.toTokenAmount = route.toTokenAmount;
-                    currentBestRoute.estimateFeeUsd += route.estimateFeeUsd;
-                    const usdPrice = route.routes[0].toToken.balance?.price?.USD || route.routes[0].toToken?.price?.USD;
-                    currentBestRoute.toAmountUsd = route.toTokenAmount * usdPrice;
-                    currentBestRoute.estimateTime += route.estimateTime;
-                    currentBestRoute.routes.push({ ...route.routes[0], status: STATUSES.PENDING });
-                    otherRoutesList.push(currentBestRoute);
-                });
+            const otherRoutesList = [];
+
+            const otherRoutesInfo = (bestRoute, otherRoutes) => {
+                const { routes = [] } = otherRoutes;
+
+                const [currentRouteInfo] = routes;
+
+                const usdPrice = currentRouteInfo.toToken.balance?.price?.USD || currentRouteInfo.toToken?.price?.USD;
+
+                const currentBestRoute = {
+                    estimateFeeUsd: bestRoute.estimateFeeUsd + otherRoutes.estimateFeeUsd,
+                    estimateTime: bestRoute.estimateTime + otherRoutes.estimateTime,
+                    routes: [
+                        {
+                            ...bestRoute,
+                            status: STATUSES.PENDING,
+                        },
+                        {
+                            ...currentRouteInfo,
+                            status: STATUSES.PENDING,
+                        },
+                    ],
+                    fromTokenAmount: bestRoute.fromTokenAmount,
+                    toTokenAmount: otherRoutes.toTokenAmount,
+                    toAmountUsd: otherRoutes.toTokenAmount * usdPrice,
+                };
+
+                otherRoutesList.push(currentBestRoute);
             };
+
             if (bestRoute.otherRoutes.length) {
                 bestRoute.otherRoutes.forEach((route) => {
                     route.toTokenAmount = result.bestRoute.toTokenAmount;
+
                     route.estimateFeeUsd += result.bestRoute.estimateFeeUsd;
-                    const usdPrice = result.bestRoute.toToken.balance.price?.USD || result.bestRoute.toToken.price?.USD;
-                    route.toAmountUsd = result.bestRoute.toTokenAmount * usdPrice;
+
+                    route.toAmountUsd =
+                        result.bestRoute.toTokenAmount *
+                        (result.bestRoute.toToken.balance.price?.USD || result.bestRoute.toToken.price?.USD);
+
                     route.estimateTime += result.bestRoute.estimateTime;
-                    route.routes.push({ ...result.bestRoute, status: STATUSES.PENDING });
+
+                    route.routes.push({ ...result.bestRoute, status: 'pending' });
                     delete route.service;
                     delete route.fee;
                     otherRoutesList.push(route);
                 });
             }
+
             if (result.otherRoutes.length) {
-                getOtherRoutes(result.otherRoutes, bestRoute.bestRoute);
+                for (const route of result.otherRoutes) {
+                    otherRoutesInfo(bestRoute.bestRoute.routes[0], route);
+                }
             }
+
             if (bestRoute.otherRoutes.length && result.otherRoutes.length) {
-                bestRoute.otherRoutes.forEach((route1) => {
-                    getOtherRoutes(result.otherRoutes, route1);
-                });
+                for (const mainRoute of bestRoute.otherRoutes) {
+                    for (const otherRoute of result.otherRoutes) {
+                        otherRoutesInfo(mainRoute.routes, otherRoute);
+                    }
+                }
             }
+
             return otherRoutesList;
         };
 
