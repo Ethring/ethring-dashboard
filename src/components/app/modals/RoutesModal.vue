@@ -225,7 +225,7 @@ export default {
         &__icon {
             border-radius: 50%;
             width: 32px;
-            padding: 4px;
+            padding: 3px 4px;
             height: 32px;
             border: 1px solid #364de8;
             img {
