@@ -59,8 +59,8 @@ import { useRouter } from 'vue-router';
 
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 import { onSelectNetwork } from '../../../helpers/chains';
-import { abi } from '@/config/abi';
 
+import { abi } from '@/config/abi';
 import { getTxUrl } from '@/helpers/utils';
 
 const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
