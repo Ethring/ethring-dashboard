@@ -59,38 +59,11 @@ import { useRouter } from 'vue-router';
 
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 import { onSelectNetwork } from '../../../helpers/chains';
+import { abi } from '@/config/abi';
 
 import { getTxUrl } from '@/helpers/utils';
 
 const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
-
-const ABI = [
-    {
-        inputs: [
-            {
-                internalType: 'address',
-                name: 'recipient',
-                type: 'address',
-            },
-            {
-                internalType: 'uint256',
-                name: 'amount',
-                type: 'uint256',
-            },
-        ],
-        name: 'transfer',
-        outputs: [
-            {
-                internalType: 'bool',
-                name: '',
-                type: 'bool',
-            },
-        ],
-        payable: false,
-        stateMutability: 'nonpayable',
-        type: 'function',
-    },
-];
 
 export default {
     name: 'SimpleSend',
@@ -199,7 +172,7 @@ export default {
             try {
                 if (ethersProvider) {
                     const signer = ethersProvider.getSigner();
-                    const tokenContract = new ethers.Contract(selectedToken.value.address || NATIVE_CONTRACT, ABI, ethersProvider);
+                    const tokenContract = new ethers.Contract(selectedToken.value.address || NATIVE_CONTRACT, abi, ethersProvider);
 
                     const res = await tokenContract.populateTransaction.transfer(
                         transaction.toAddress,

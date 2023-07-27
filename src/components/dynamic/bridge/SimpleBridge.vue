@@ -64,42 +64,21 @@
         />
         <Accordion
             v-if="selectedDstNetwork"
-            :title="
-                selectedSrcNetwork
-                    ? `<span>${$t('simpleBridge.protocolFee')} </span>: ${
-                          serviceFee
-                              ? `<span style='font-family:Poppins_Semibold; color: #0D7E71;'>${serviceFee}</span> 
-                                    <span style='font-family:Poppins_Semibold;'>
-                                        ${selectedSrcNetwork.code} ~ 
-                                        <span style='font-family:Poppins_Semibold; color: #0D7E71;'>
-                                            ${prettyNumber(serviceFee * selectedSrcNetwork.price.USD)}
-                                        </span> $
-                                    </span>`
-                              : `<div class='skeleton skeleton__text'></div>`
-                      }`
-                    : `<div class='skeleton skeleton__text'></div>`
-            "
+            :title="setReceiveValue"
             :hide="!receiveValue"
             :class="serviceFee ? 'mt-10' : 'mt-10 skeleton__content'"
         >
             <div v-if="receiveValue" class="accordion__content">
-                <div class="accordion__item">
-                    <div class="accordion__label">{{ $t('simpleBridge.serviceFee') }} :</div>
-                    <div class="accordion__value">
-                        <div class="name">{{ prettyNumber(networkFee * selectedSrcToken?.price?.USD) }} $</div>
-                    </div>
-                </div>
-                <div class="accordion__item">
-                    <div class="accordion__label">{{ $t('simpleBridge.title') }} :</div>
-                    <div class="accordion__value">
-                        <img src="https://app.debridge.finance/assets/images/bridge.svg" />
-                        <div class="name">{{ services[0].name }}</div>
-                    </div>
-                </div>
-                <div class="accordion__item">
-                    <div class="accordion__label">{{ $t('tokenOperations.time') }} :</div>
-                    <div class="accordion__value">{{ estimateTime }}</div>
-                </div>
+                <AccordionItem :label="$t('simpleBridge.serviceFee') + ' :'">
+                    <span>{{ prettyNumber(networkFee * selectedSrcToken?.price?.USD) }}</span> <span class="symbol">$</span>
+                </AccordionItem>
+                <AccordionItem :label="$t('simpleBridge.title') + ' :'">
+                    <img src="https://app.debridge.finance/assets/images/bridge.svg" />
+                    <span class="symbol">{{ services[0].name }}</span>
+                </AccordionItem>
+                <AccordionItem :label="$t('tokenOperations.time') + ' :'">
+                    {{ estimateTime }}
+                </AccordionItem>
             </div>
         </Accordion>
         <Button
@@ -127,6 +106,7 @@ import SelectAmount from '@/components/ui/SelectAmount';
 import SelectAddress from '@/components/ui/SelectAddress';
 import SelectNetwork from '@/components/dynamic/bridge/SelectNetwork';
 import Accordion from '@/components/ui/Accordion';
+import AccordionItem from '@/components/ui/AccordionItem';
 import Checkbox from '@/components/ui/Checkbox';
 import Button from '@/components/ui/Button';
 
@@ -147,6 +127,7 @@ export default {
         SelectAddress,
         Button,
         Accordion,
+        AccordionItem,
         Checkbox,
     },
     setup() {
@@ -180,6 +161,7 @@ export default {
         const estimateTime = ref('');
         const serviceFee = ref('');
         const allowance = ref(null);
+        const setReceiveValue = ref('');
 
         const errorAddress = ref('');
         const errorBalance = ref('');
@@ -198,6 +180,15 @@ export default {
             }
             if (selectedSrcNetwork.value) {
                 serviceFee.value = services[0]?.protocolFee[selectedSrcNetwork?.value?.chain_id];
+                setReceiveValue.value = selectedSrcNetwork.value
+                    ? `<span>Protocol Fee</span> : ${
+                          serviceFee.value
+                              ? `<span class='service-fee'>${serviceFee.value}</span> 
+                        <span class='symbol'> ${selectedSrcNetwork.value.code} ~ 
+                        <span class='service-fee'> ${prettyNumber(serviceFee.value * selectedSrcNetwork.value.price.USD)}</span> $ </span>`
+                              : `<div class='skeleton skeleton__text'></div>`
+                      }`
+                    : `<div class='skeleton skeleton__text'></div>`;
             }
         });
 
@@ -677,6 +668,7 @@ export default {
             walletAddress,
             currentChainInfo,
             networkFee,
+            setReceiveValue,
 
             onSelectSrcNetwork,
             onSelectDstNetwork,
@@ -713,31 +705,23 @@ export default {
         }
     }
 
-    .accordion {
-        &__item {
-            display: flex;
-            align-items: center;
+    .accordion__content {
+        img {
+            width: 16px;
+            height: 16px;
         }
-
-        &__label {
-            color: #494c56;
-            font-size: 16px;
-            font-family: 'Poppins_Regular';
+        .symbol {
+            margin-left: 5px;
         }
+    }
 
-        &__value {
-            display: flex;
-            align-items: center;
-            font-size: 16px;
+    .accordion__title {
+        .service-fee {
             font-family: 'Poppins_SemiBold';
-            color: #1c1f2c;
-            margin-left: 6px;
-
-            img {
-                width: 16px;
-                height: 16px;
-                margin-right: 6px;
-            }
+            color: #0d7e71;
+        }
+        .symbol {
+            font-family: 'Poppins_SemiBold';
         }
     }
 
