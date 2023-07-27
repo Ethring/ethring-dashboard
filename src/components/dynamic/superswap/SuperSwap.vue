@@ -133,7 +133,7 @@ import { getTxUrl } from '@/helpers/utils';
 
 import { services } from '@/config/bridgeServices';
 
-import findBestRoute from '@/modules/SuperSwap/baseScript';
+import { findBestRoute, getTokensByService } from '@/modules/SuperSwap/baseScript';
 
 const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
@@ -195,9 +195,7 @@ export default {
 
         onMounted(async () => {
             store.dispatch('bridge/getSupportedChains');
-            await store.dispatch('bridge/getTokensByChain', {
-                chainId: currentChainInfo.value.chainId,
-            });
+            await getTokensByService(currentChainInfo.value.chainId);
         });
 
         watch(showRoutesModal, () => {
@@ -576,6 +574,9 @@ export default {
             if (currentRoute.value.service?.recipientAddress) {
                 params.recipientAddress = getRecipientAddress();
                 params.fallbackAddress = walletAddress.value;
+            }
+            if (currentRoute.value.service?.isStableSwap) {
+                delete params.slippage;
             }
             const resSwap = await store.dispatch(serviceApi, params);
             if (resSwap.error) {
