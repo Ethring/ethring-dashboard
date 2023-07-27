@@ -180,7 +180,6 @@ export default {
 
         onMounted(async () => {
             store.dispatch('bridge/getSupportedChains');
-            await getTokensByService(currentChainInfo.value.chainId);
         });
 
         watch(showRoutesModal, () => {
@@ -223,7 +222,6 @@ export default {
             if (!network) {
                 return [];
             }
-            console.log(network, '--network');
             let listWithBalances = [];
             let selectedNetwork = {};
             if (network.list?.length) {
@@ -275,12 +273,13 @@ export default {
         const onSelectSrcNetwork = async (network) => {
             if (selectedSrcNetwork.value !== network) {
                 txError.value = '';
-                if (network.id || network.chain_id) {
+                if (network.chainId || network.chain_id) {
                     await setChain({
-                        chainId: network.id || network.chain_id,
+                        chainId: network.chainId || network.chain_id,
                     });
                 }
                 store.dispatch('tokens/setFromToken', null);
+                await getTokensByService(network.chainId || network.chain_id || currentChainInfo.value.chainId);
             }
             if (network?.net === currentChainInfo.value?.net) {
                 networkError.value = false;

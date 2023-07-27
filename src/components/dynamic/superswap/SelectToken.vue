@@ -63,8 +63,8 @@ export default {
             } else {
                 list = [
                     ...listWithBalances,
-                    ...allTokensFromNetwork(wallet.net).filter((token) => {
-                        return token.net !== wallet.net && !wallet.list.find((t) => t.net === token.net);
+                    ...allTokensFromNetwork(selectedNetwork.value.net).filter((token) => {
+                        return !listWithBalances.find((t) => t.address?.toLowerCase() === token.address?.toLowerCase());
                     }),
                 ];
             }
