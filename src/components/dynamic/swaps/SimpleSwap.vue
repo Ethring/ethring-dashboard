@@ -105,6 +105,10 @@ export default {
     },
     setup() {
         const store = useStore();
+        const router = useRouter();
+        const { groupTokens, allTokensFromNetwork, getTokenList } = useTokens();
+        const { walletAddress, currentChainInfo, connectedWallet, setChain } = useWeb3Onboard();
+
         const isLoading = ref(false);
         const needApprove = ref(false);
         const balanceUpdated = ref(false);
@@ -114,15 +118,13 @@ export default {
         const estimateRate = ref(0);
         const networkFee = ref(0);
         const resetAmount = ref(false);
-        const selectedNetwork = computed(() => store.getters['networks/selectedNetwork']);
         const isUpdateSwapDirectionValue = ref(false);
-        const router = useRouter();
         const amount = ref('');
         const receiveValue = ref('');
         const errorBalance = ref('');
         const allowance = ref(null);
-        const { groupTokens, allTokensFromNetwork, getTokenList } = useTokens();
-        const { walletAddress, currentChainInfo, connectedWallet, setChain } = useWeb3Onboard();
+
+        const selectedNetwork = computed(() => store.getters['networks/selectedNetwork']);
         const favouritesList = computed(() => store.getters['tokens/favourites']);
         const selectedTokenFrom = computed(() => store.getters['tokens/fromToken']);
         const selectedTokenTo = computed(() => store.getters['tokens/toToken']);
