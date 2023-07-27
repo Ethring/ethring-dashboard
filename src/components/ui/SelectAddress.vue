@@ -11,8 +11,8 @@
                         v-model="address"
                         :placeholder="placeholder"
                         @focus="onFocus"
-                        @input="onInput"
                         @blur="onBlur"
+                        v-debounce:1s="onInput"
                         data-qa="input-address"
                         class="input-address"
                     />

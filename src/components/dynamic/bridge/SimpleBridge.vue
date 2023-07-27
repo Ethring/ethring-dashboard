@@ -154,6 +154,8 @@ export default {
         const { groupTokens, allTokensFromNetwork, getTokenList } = useTokens();
 
         const store = useStore();
+        const router = useRouter();
+
         const isLoading = ref(false);
         const needApprove = ref(false);
         const balanceUpdated = ref(false);
@@ -163,7 +165,6 @@ export default {
         const successHash = ref('');
         const networkError = ref(false);
         const resetAmount = ref(false);
-        const router = useRouter();
         const networkFee = ref(0);
 
         const selectedSrcNetwork = computed(() => store.getters['bridge/selectedSrcNetwork']);
@@ -171,6 +172,7 @@ export default {
 
         const selectedSrcToken = computed(() => store.getters['tokens/fromToken']);
         const selectedDstToken = computed(() => store.getters['tokens/toToken']);
+        const getSupportedChains = computed(() => store.getters['bridge/supportedChains']);
 
         const amount = ref('');
         const receiveValue = ref('');
@@ -184,7 +186,6 @@ export default {
 
         const tokensSrcListResolved = ref([]);
         const tokensDstListResolved = ref([]);
-        const getSupportedChains = computed(() => store.getters['bridge/supportedChains']);
 
         onMounted(async () => {
             store.dispatch('bridge/getSupportedChains');
@@ -381,7 +382,7 @@ export default {
             approveTx.value = null;
             needApprove.value = false;
 
-            if (!selectedSrcToken.value?.chain_id) {
+            if (!selectedSrcToken.value?.name.includes('Native Token')) {
                 const resAllowance = await store.dispatch('bridge/getAllowance', {
                     net: selectedSrcNetwork.value.net,
                     tokenAddress: selectedSrcToken.value.address,
@@ -397,7 +398,7 @@ export default {
         };
 
         const getApproveTx = async () => {
-            if (!selectedSrcToken.value?.chain_id) {
+            if (!selectedSrcToken.value?.name.includes('Native Token')) {
                 const resApproveTx = await store.dispatch('bridge/getApproveTx', {
                     net: selectedSrcNetwork.value.net,
                     tokenAddress: selectedSrcToken.value.address,
