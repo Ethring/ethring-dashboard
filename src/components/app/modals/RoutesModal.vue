@@ -22,7 +22,7 @@
                                 {{ status.value }}
                             </p>
                         </div>
-                        <div class="routes-modal__row">
+                        <div class="routes-modal__row routes-time">
                             Time: ~
                             <h4>{{ item.estimateTime }}s</h4>
                             Fee: $
@@ -180,6 +180,7 @@ export default {
     }
     &__row {
         display: flex;
+        margin: 0;
         align-items: center;
     }
     &__output {
@@ -215,9 +216,10 @@ export default {
     }
 
     .routes-service {
+        margin-top: -8px;
         &__name {
             font-size: 18px;
-            margin: auto;
+            margin: 0;
             margin-left: 8px;
             font-weight: 700;
             color: $colorDarkPanel;
@@ -233,6 +235,9 @@ export default {
                 border-radius: 50%;
             }
         }
+        .routes-time {
+            margin-top: 2px;
+        }
         div {
             color: #486060;
             h4 {
@@ -242,7 +247,7 @@ export default {
         }
         h1 {
             font-weight: 700;
-            margin: 3px;
+            margin: 0px 3px;
         }
         &__status {
             border-radius: 20px;

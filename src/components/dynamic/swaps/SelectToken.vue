@@ -27,10 +27,10 @@ export default {
     setup() {
         const store = useStore();
         const router = useRouter();
-        const searchValue = ref('');
-
         const { walletAddress } = useWeb3Onboard();
-        const { groupTokens, allTokensFromNetwork, getTokenList } = useTokens();
+        const { groupTokens, allTokensFromNetwork } = useTokens();
+
+        const searchValue = ref('');
 
         const selectedNetwork = computed(() => store.getters['networks/selectedNetwork']);
         const selectType = computed(() => store.getters['tokens/selectType']);
@@ -51,13 +51,11 @@ export default {
             }
             let wallet = groupTokens.value.find((elem) => elem.net === selectedNetwork.value.net);
             let list = [];
-            const listWithBalances = getTokenList(wallet);
+
+            const listWithBalances = groupTokens.value[0].list;
+
             if (selectType.value === 'from') {
-                if (wallet.balance.mainBalance > 0) {
-                    list = listWithBalances;
-                } else {
-                    list = wallet.list;
-                }
+                list = listWithBalances;
             } else {
                 list = [
                     ...listWithBalances,

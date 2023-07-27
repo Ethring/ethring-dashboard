@@ -223,7 +223,7 @@ export default {
             if (!network) {
                 return [];
             }
-
+            console.log(network, '--network');
             let listWithBalances = [];
             let selectedNetwork = {};
             if (network.list?.length) {
@@ -567,6 +567,7 @@ export default {
                 delete params.slippage;
             }
             const resSwap = await store.dispatch(serviceApi, params);
+
             if (resSwap.error) {
                 txError.value = resSwap.error;
                 isLoading.value = false;
@@ -705,7 +706,6 @@ export default {
             onSetAmount,
             swap,
             setShowRoutesModal,
-
             setReceiveValue,
         };
     },
