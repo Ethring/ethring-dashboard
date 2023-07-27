@@ -62,6 +62,36 @@ import { onSelectNetwork } from '../../../helpers/chains';
 
 import { getTxUrl } from '@/helpers/utils';
 
+const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+
+const ABI = [
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'recipient',
+                type: 'address',
+            },
+            {
+                internalType: 'uint256',
+                name: 'amount',
+                type: 'uint256',
+            },
+        ],
+        name: 'transfer',
+        outputs: [
+            {
+                internalType: 'bool',
+                name: '',
+                type: 'bool',
+            },
+        ],
+        payable: false,
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+];
+
 export default {
     name: 'SimpleSend',
     components: {
@@ -166,35 +196,11 @@ export default {
 
         const sendTransaction = async (transaction) => {
             const ethersProvider = getProvider();
-            const ABI = [
-                {
-                    constant: false,
-                    inputs: [
-                        {
-                            name: '_to',
-                            type: 'address',
-                        },
-                        {
-                            name: '_value',
-                            type: 'uint256',
-                        },
-                    ],
-                    name: 'transfer',
-                    outputs: [
-                        {
-                            name: '',
-                            type: 'bool',
-                        },
-                    ],
-                    payable: false,
-                    stateMutability: 'nonpayable',
-                    type: 'function',
-                },
-            ];
             try {
                 if (ethersProvider) {
                     const signer = ethersProvider.getSigner();
-                    const tokenContract = new ethers.Contract(transaction.toAddress, ABI, ethersProvider);
+                    const tokenContract = new ethers.Contract(selectedToken.value.address || NATIVE_CONTRACT, ABI, ethersProvider);
+
                     const res = await tokenContract.populateTransaction.transfer(
                         transaction.toAddress,
                         ethers.utils.parseUnits(transaction.amount, selectedToken.value.decimals)
@@ -202,8 +208,8 @@ export default {
 
                     const txData = {
                         ...res,
-                        from: walletAddress.value,
-                        value: ethers.utils.parseEther(amount.value),
+                        from: transaction.fromAddress,
+                        value: !selectedToken.value.address ? ethers.utils.parseEther(amount.value) : ethers.utils.parseUnits('0'),
                         nonce: await ethersProvider.getTransactionCount(walletAddress.value),
                     };
 

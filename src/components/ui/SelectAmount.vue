@@ -217,9 +217,6 @@ export default {
             }
         };
 
-        console.log(payTokenPrice, '--payTokenPrice');
-        console.log(selectedToken, '-selected token');
-
         const setActive = () => {
             if (props.showDropDown) {
                 active.value = !active.value;
