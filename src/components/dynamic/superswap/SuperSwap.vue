@@ -73,6 +73,9 @@
                         <img :src="item.service.icon" />
                         <div class="name">{{ item.service.name }}</div>
                     </div>
+                    <div v-if="otherRoutes.length" class="other-routes" v-on:click.stop="setShowRoutesModal">
+                        +{{ otherRoutes.length }} routes
+                    </div>
                 </AccordionItem>
             </div>
         </Accordion>
@@ -118,7 +121,7 @@ import { services } from '@/config/bridgeServices';
 
 import findBestRoute from '@/modules/SuperSwap/baseScript';
 
-const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+import { STATUSES, NATIVE_CONTRACT } from '@/shared/constants/superswap/constants';
 
 export default {
     name: 'SuperSwap',
@@ -144,6 +147,7 @@ export default {
         const receiveToken = ref(false);
         const approveTx = ref(null);
         const bestRoute = ref({});
+        const otherRoutes = ref([]);
         const currentRoute = ref({});
         const txError = ref('');
         const networkError = ref(false);
@@ -163,6 +167,9 @@ export default {
         const selectedSrcToken = computed(() => store.getters['tokens/fromToken']);
         const selectedDstToken = computed(() => store.getters['tokens/toToken']);
 
+        const bestRouteInfo = computed(() => store.getters['swap/bestRoute']);
+        const showRoutesModal = computed(() => store.getters['swap/showRoutes']);
+
         const amount = ref('');
         const receiveValue = ref('');
         const address = ref('');
@@ -176,6 +183,20 @@ export default {
             await store.dispatch('bridge/getTokensByChain', {
                 chainId: currentChainInfo.value.chainId,
             });
+        });
+
+        watch(showRoutesModal, () => {
+            if (!showRoutesModal.value) {
+                bestRoute.value = bestRouteInfo.value.bestRoute;
+                otherRoutes.value = bestRouteInfo.value.otherRoutes;
+                currentRoute.value = bestRoute.value.routes.find((elem) => elem.status === STATUSES.SIGNING);
+                receiveValue.value = bestRouteInfo.value.bestRoute?.toTokenAmount;
+                networkFee.value = prettyNumberTooltip(bestRouteInfo.value.bestRoute?.estimateFeeUsd, 4);
+                estimateRate.value = prettyNumberTooltip(
+                    bestRouteInfo.value.bestRoute.toTokenAmount / bestRouteInfo.value.bestRoute.fromTokenAmount,
+                    6
+                );
+            }
         });
 
         const disabledBtn = computed(() => {
@@ -204,7 +225,7 @@ export default {
             if (!network) {
                 return [];
             }
-
+            console.log(network, '--network');
             let listWithBalances = [];
             let selectedNetwork = {};
             if (network.list?.length) {
@@ -323,6 +344,10 @@ export default {
             onSetAmount(amount.value);
         };
 
+        const setShowRoutesModal = () => {
+            store.dispatch('swap/setShowRoutes', true);
+        };
+
         const onSetAddress = (addr) => {
             const reg = new RegExp(selectedDstNetwork.value.validating);
             address.value = addr;
@@ -423,14 +448,15 @@ export default {
                 isLoading.value = false;
                 return;
             }
-            store.dispatch('swap/setBestRoute', resEstimate.bestRoute);
-            currentRoute.value = resEstimate.bestRoute.routes.find((elem) => elem.status === 'signing');
+            store.dispatch('swap/setBestRoute', resEstimate);
+            currentRoute.value = resEstimate.bestRoute.routes.find((elem) => elem.status === STATUSES.SIGNING);
             if (currentRoute.value.needApprove) {
                 needApprove.value = true;
                 getApproveTx();
             }
 
             bestRoute.value = resEstimate.bestRoute;
+            otherRoutes.value = resEstimate.otherRoutes || [];
             txError.value = '';
             receiveValue.value = resEstimate.bestRoute?.toTokenAmount;
             networkFee.value = prettyNumberTooltip(resEstimate.bestRoute?.estimateFeeUsd, 4);
@@ -565,17 +591,15 @@ export default {
             isLoading.value = false;
 
             bestRoute.value.routes = bestRoute.value.routes?.map((elem, i) => {
-                if (elem.status === 'signing') {
-                    elem.status = 'complete';
+                if (elem.status === STATUSES.SIGNING) {
+                    elem.status = STATUSES.COMPLETED;
                 }
-                if (elem.status === 'pending' && bestRoute.value.routes[i - 1]?.status == 'complete') {
-                    elem.status = 'signing';
+                if (elem.status === STATUSES.PENDING && bestRoute.value.routes[i - 1]?.status == STATUSES.COMPLETED) {
+                    elem.status = STATUSES.SIGNING;
                 }
                 return elem;
             });
-
-            currentRoute.value = bestRoute.value.routes?.find((elem) => elem.status === 'signing');
-
+            currentRoute.value = bestRoute.value.routes?.find((elem) => elem.status === STATUSES.SIGNING);
             if (currentRoute.value) {
                 resetAmount.value = false;
                 if (currentRoute.value.net === selectedSrcNetwork.value.net) {
@@ -656,6 +680,7 @@ export default {
             groupTokens,
             services,
             bestRoute,
+            otherRoutes,
             errorAddress,
             errorBalance,
             filteredSupportedChains,
@@ -680,6 +705,7 @@ export default {
             onSetDstToken,
             onSetAmount,
             swap,
+            setShowRoutesModal,
             setReceiveValue,
         };
     },
@@ -725,6 +751,7 @@ export default {
     }
 
     .accordion-item {
+        position: relative;
         &__value {
             .route {
                 display: flex;
@@ -736,6 +763,20 @@ export default {
                 }
             }
         }
+        &__row {
+            display: flex;
+        }
+    }
+    .other-routes {
+        background-color: #97ffd0;
+        border-radius: 15px;
+        padding: 4px 10px;
+        color: #00839f;
+        font-weight: 600;
+        position: absolute;
+        right: 0;
+        bottom: 8px;
+        cursor: pointer;
     }
 
     &__btn {

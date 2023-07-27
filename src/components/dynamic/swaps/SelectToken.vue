@@ -49,7 +49,7 @@ export default {
             if (!selectedNetwork.value) {
                 return [];
             }
-
+            let wallet = groupTokens.value.find((elem) => elem.net === selectedNetwork.value.net);
             let list = [];
 
             const listWithBalances = groupTokens.value[0].list;
@@ -59,8 +59,8 @@ export default {
             } else {
                 list = [
                     ...listWithBalances,
-                    ...allTokensFromNetwork(selectedNetwork.value.net).filter((token) => {
-                        return token.net !== selectedNetwork.value.net && !selectedNetwork.value.list.find((t) => t.net === token.net);
+                    ...allTokensFromNetwork(wallet.net).filter((token) => {
+                        return token.net !== wallet.net && !wallet.list.find((t) => t.net === token.net);
                     }),
                 ];
             }

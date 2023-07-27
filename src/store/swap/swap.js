@@ -5,26 +5,35 @@ const DEFAULT_URL = process.env.VUE_APP_1INCH_SWAP_API;
 
 const types = {
     SET_BEST_ROUTE: 'SET_BEST_ROUTE',
+    SET_SHOW_ROUTES: 'SET_SHOW_ROUTES',
 };
 
 export default {
     namespaced: true,
     state: () => ({
         bestRoute: null,
+        showRoutes: false,
     }),
 
     getters: {
         bestRoute: (state) => state.bestRoute,
+        showRoutes: (state) => state.showRoutes,
     },
 
     mutations: {
         [types.SET_BEST_ROUTE](state, value) {
             state.bestRoute = value;
         },
+        [types.SET_SHOW_ROUTES](state, value) {
+            state.showRoutes = value;
+        },
     },
     actions: {
         setBestRoute({ commit }, value) {
             commit(types.SET_BEST_ROUTE, value);
+        },
+        setShowRoutes({ commit }, value) {
+            commit(types.SET_SHOW_ROUTES, value);
         },
         /* ESTIMATE SWAP */
         async estimateSwap(_, { url, net, fromTokenAddress, toTokenAddress, amount }) {
