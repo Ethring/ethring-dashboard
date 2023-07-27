@@ -64,7 +64,6 @@ export default async function findBestRoute(amount, walletAddress) {
 
             const otherRoutesInfo = (bestRoute, otherRoutes) => {
                 const { routes = [] } = otherRoutes;
-
                 const [currentRouteInfo] = routes;
 
                 const usdPrice = currentRouteInfo.toToken.balance?.price?.USD || currentRouteInfo.toToken?.price?.USD;
@@ -118,7 +117,7 @@ export default async function findBestRoute(amount, walletAddress) {
             if (bestRoute.otherRoutes.length && result.otherRoutes.length) {
                 for (const mainRoute of bestRoute.otherRoutes) {
                     for (const otherRoute of result.otherRoutes) {
-                        otherRoutesInfo(mainRoute.routes, otherRoute);
+                        otherRoutesInfo(mainRoute.routes[0], otherRoute);
                     }
                 }
             }
@@ -186,7 +185,6 @@ async function findRoute(params) {
         let services = [];
         let apiRoute = null;
         let error = null;
-        const deBridgeTokens = store.getters['bridge/tokensByChainID'];
 
         if (params.fromNet === params.toNet) {
             services = swapServices;
@@ -195,10 +193,11 @@ async function findRoute(params) {
             services = bridgeServices;
             apiRoute = 'bridge/estimateBridge';
 
-            if (
-                params.fromToken.address &&
-                !deBridgeTokens.find((elem) => elem.address.toLowerCase() === params.fromToken.address.toLowerCase())
-            ) {
+            const deBridgeTokens = store.getters['bridge/tokensByChainID'];
+
+            const notFound = !deBridgeTokens.find((elem) => elem.address.toLowerCase() === params.fromToken.address?.toLowerCase());
+
+            if (params.fromToken.address && notFound) {
                 return { error: ERRORS.BRIDGE_ERROR };
             }
         }
@@ -207,9 +206,11 @@ async function findRoute(params) {
             if (+params.fromNetwork.balance?.mainBalance === 0) {
                 return true;
             }
+
             if (resEstimate.fee.currency === params.fromNetwork.code && resEstimate.fee.amount > params.fromNetwork.balance?.mainBalance) {
                 return true;
             }
+
             if (
                 resEstimate.fee.currency === params.fromToken.code &&
                 +resEstimate.fee.amount + +params.amount > params.fromToken.balance?.amount
@@ -218,88 +219,93 @@ async function findRoute(params) {
             }
         };
 
-        await Promise.all(
-            services.map(async (service) => {
-                params.url = service.url;
-                const resEstimate = await store.dispatch(apiRoute, params);
-                if (resEstimate.error) {
-                    if (resEstimate.error === ERRORS.BRIDGE_ERROR) {
-                        return { error: ERRORS.BRIDGE_ERROR };
-                    }
-                    if (resEstimate.error?.error === 'Bad Request') {
-                        error = ERRORS.ROUTE_NOT_FOUND;
-                    } else {
-                        error = resEstimate.error;
-                    }
-                    return;
-                }
+        const formatRouteInfo = (bestRoute, params, service) => ({
+            ...bestRoute,
+            routes: [
+                {
+                    ...bestRoute,
+                    service,
+                    net: params.net,
+                    toNet: params.toNet,
+                    fromToken: params.fromToken,
+                    toToken: params.toToken,
+                    status: STATUSES.SIGNING,
+                    amount: params.amount,
+                },
+            ],
+        });
 
-                if (checkFee(resEstimate)) {
-                    error = ERRORS.NOT_ENOUGH_BALANCE;
-                    return;
-                }
-                error = null;
-                resEstimate.estimateTime = service.estimatedTime[chainIds[params.net]];
+        const getFeeInfo = (info, params, service) => {
+            if (service.protocolFee) {
+                return +service.protocolFee[params.fromNetwork.chain_id] * params.fromNetwork?.price?.USD;
+            }
 
-                if (resEstimate.fee.currency === params.fromToken.code) {
-                    resEstimate.estimateFeeUsd =
-                        resEstimate.fee.amount * (params.fromToken.balance.price?.USD || params.fromToken.price?.USD);
+            if (info.fee.currency === params.fromToken.code) {
+                return info.fee.amount * (params.fromToken.balance.price?.USD || params.fromToken.price?.USD);
+            }
+
+            return info.fee.amount * params.fromNetwork?.price?.USD;
+        };
+
+        const promises = services.map(async (service) => {
+            params.url = service.url;
+
+            const resEstimate = await store.dispatch(apiRoute, params);
+
+            if (resEstimate.error) {
+                if (resEstimate.error === ERRORS.BRIDGE_ERROR) {
+                    return { error: ERRORS.BRIDGE_ERROR };
+                }
+                if (resEstimate.error?.error === 'Bad Request') {
+                    error = ERRORS.ROUTE_NOT_FOUND;
                 } else {
-                    resEstimate.estimateFeeUsd = resEstimate.fee.amount * params.fromNetwork?.price?.USD;
+                    error = resEstimate.error;
                 }
-                if (service.protocolFee) {
-                    resEstimate.estimateFeeUsd += +service.protocolFee[params.fromNetwork.chain_id] * params.fromNetwork?.price?.USD;
-                }
-                resEstimate.toAmountUsd = +resEstimate?.toTokenAmount * (params.toToken.balance.price?.USD || params.toToken.price?.USD);
+                return;
+            }
 
-                if (!bestRoute?.toTokenAmount) {
-                    bestRoute = resEstimate;
-                    bestRoute.service = service;
-                }
+            if (checkFee(resEstimate)) {
+                error = ERRORS.NOT_ENOUGH_BALANCE;
+                return;
+            }
 
-                if (+resEstimate?.toAmountUsd - resEstimate.estimateFeeUsd > +bestRoute?.toAmountUsd - bestRoute.estimateFeeUsd) {
-                    const route = {
-                        ...bestRoute,
-                        routes: [
-                            {
-                                ...bestRoute,
-                                service: bestRoute.service,
-                                net: params.net,
-                                toNet: params.toNet,
-                                fromToken: params.fromToken,
-                                toToken: params.toToken,
-                                status: STATUSES.SIGNING,
-                                amount: params.amount,
-                            },
-                        ],
-                    };
-                    otherRoutes.push(route);
-                    bestRoute = resEstimate;
-                    bestRoute.service = service;
-                } else if (resEstimate?.toTokenAmount && bestRouteExist) {
-                    const route = {
-                        ...resEstimate,
-                        routes: [
-                            {
-                                ...resEstimate,
-                                service,
-                                net: params.net,
-                                toNet: params.toNet,
-                                fromToken: params.fromToken,
-                                toToken: params.toToken,
-                                status: STATUSES.SIGNING,
-                                amount: params.amount,
-                            },
-                        ],
-                    };
-                    otherRoutes.push(route);
-                }
-                bestRouteExist = true;
-            })
-        );
+            error = null;
+
+            resEstimate.estimateTime = service.estimatedTime[chainIds[params.net]];
+
+            resEstimate.estimateFeeUsd = getFeeInfo(resEstimate, params, service);
+
+            resEstimate.toAmountUsd = +resEstimate?.toTokenAmount * (params.toToken.balance.price?.USD || params.toToken.price?.USD);
+
+            if (!bestRoute?.toTokenAmount) {
+                bestRoute = resEstimate;
+                bestRoute.service = service;
+            }
+
+            const BEST_LOW_FEE =
+                +resEstimate?.toAmountUsd - resEstimate.estimateFeeUsd > +bestRoute?.toAmountUsd - bestRoute.estimateFeeUsd;
+
+            const BEST_LOW_AMOUNT = resEstimate?.toTokenAmount && bestRouteExist;
+
+            if (BEST_LOW_FEE) {
+                const route = formatRouteInfo(bestRoute, params, bestRoute.service);
+                otherRoutes.push(route);
+                bestRoute = resEstimate;
+                bestRoute.service = service;
+            } else if (BEST_LOW_AMOUNT) {
+                const route = formatRouteInfo(resEstimate, params, service);
+                otherRoutes.push(route);
+            }
+
+            bestRouteExist = true;
+        });
+
+        await Promise.all(promises); // finding best route
+
         if (error && !bestRoute.toTokenAmount) {
             return { error };
         }
+
         bestRoute.needApprove = await checkAllowance(
             params.net,
             params.fromToken.address,
@@ -308,38 +314,51 @@ async function findRoute(params) {
             params.fromToken.decimals,
             bestRoute.service
         );
+
         bestRoute.amount = params.amount;
         bestRoute.fromToken = params.fromToken;
         bestRoute.toToken = params.toToken;
         bestRoute.status = STATUSES.SIGNING;
         bestRoute.net = params.net;
         bestRoute.toNet = params.toNet;
+
         return { bestRoute, otherRoutes };
     } catch (e) {
         console.log(e);
         return { error: e.message || e };
     }
 }
-
 export async function checkAllowance(net, tokenAddress, ownerAddress, amount, decimals, service) {
-    if (checkAllowance.cache[ownerAddress]) {
-        if (checkAllowance.cache[ownerAddress].tokenAddress === tokenAddress && checkAllowance.cache[ownerAddress].service === service) {
-            return toMantissa(amount, decimals) > checkAllowance.cache[ownerAddress].allowance;
-        }
-    }
     let needApprove = false;
-    if (tokenAddress) {
-        const resAllowance = await store.dispatch(service?.type + '/getAllowance', {
-            net,
-            tokenAddress,
-            ownerAddress,
-            url: service.url,
-        });
-        if (toMantissa(amount, decimals) > resAllowance.allowance) {
-            needApprove = true;
+
+    if (checkAllowance.cache[ownerAddress]) {
+        const { tokenAddress: cachedTokenAddress, service: cachedService, allowance } = checkAllowance.cache[ownerAddress];
+        const checkCacheInfo = cachedTokenAddress === tokenAddress && cachedService.name === service.name;
+
+        if (checkCacheInfo) {
+            return toMantissa(amount, decimals) > allowance;
         }
-        checkAllowance.cache[ownerAddress] = { tokenAddress, service, allowance: resAllowance.allowance };
     }
+
+    if (!tokenAddress) {
+        return needApprove;
+    }
+
+    const resAllowance = await store.dispatch(service?.type + '/getAllowance', {
+        net,
+        tokenAddress,
+        ownerAddress,
+        url: service.url,
+    });
+
+    const { allowance } = resAllowance;
+
+    if (toMantissa(amount, decimals) > allowance) {
+        needApprove = true;
+    }
+
+    checkAllowance.cache[ownerAddress] = { tokenAddress, service, allowance };
+
     return needApprove;
 }
 checkAllowance.cache = {};

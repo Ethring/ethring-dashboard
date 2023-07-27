@@ -36,25 +36,15 @@
         <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
         <InfoPanel v-if="txError" :title="txError" class="mt-10" />
         <InfoPanel v-if="successHash" :hash="successHash" :title="$t('tx.txHash')" type="success" class="mt-10" />
-        <Accordion
-            v-if="receiveValue"
-            :title="`Rate: <span style='font-family:Poppins_Semibold;'>1</span> ${selectedTokenFrom.code} = <span  style='font-family:Poppins_Semibold;'>${estimateRate}</span> ${selectedTokenTo.code}`"
-            class="mt-10"
-        >
+        <Accordion v-if="receiveValue" :title="setReceiveValue" class="mt-10">
             <div class="accordion__content">
-                <div class="accordion__item">
-                    <div class="accordion__label">{{ $t('tokenOperations.networkFee') }}:</div>
-                    <div class="accordion__value">
-                        <span class="fee">{{ networkFee }}</span> <span class="symbol">$</span>
-                    </div>
-                </div>
-                <div class="accordion__item">
-                    <div class="accordion__label">Bridge:</div>
-                    <div class="accordion__value">
-                        <img src="https://cryptologos.cc/logos/1inch-1inch-logo.svg?v=025" />
-                        <div class="name">1inch</div>
-                    </div>
-                </div>
+                <AccordionItem :label="$t('tokenOperations.networkFee') + ' : '">
+                    <span class="fee">{{ networkFee }}</span> <span class="fee-symbol">$</span>
+                </AccordionItem>
+                <AccordionItem :label="$t('simpleSwap.service') + ' : '">
+                    <img src="https://cryptologos.cc/logos/1inch-1inch-logo.svg?v=025" />
+                    <span class="symbol">1inch</span>
+                </AccordionItem>
             </div>
         </Accordion>
         <Button
@@ -84,6 +74,7 @@ import InfoPanel from '@/components/ui/InfoPanel';
 import SelectNetwork from '@/components/ui/SelectNetwork';
 import SelectAmount from '@/components/ui/SelectAmount';
 import Accordion from '@/components/ui/Accordion.vue';
+import AccordionItem from '@/components/ui/AccordionItem.vue';
 
 import SwapSvg from '@/assets/icons/dashboard/swap.svg';
 
@@ -102,6 +93,7 @@ export default {
         Button,
         SwapSvg,
         Accordion,
+        AccordionItem,
     },
     setup() {
         const store = useStore();
@@ -123,6 +115,7 @@ export default {
         const receiveValue = ref('');
         const errorBalance = ref('');
         const allowance = ref(null);
+        const setReceiveValue = ref('');
 
         const selectedNetwork = computed(() => store.getters['networks/selectedNetwork']);
         const favouritesList = computed(() => store.getters['tokens/favourites']);
@@ -294,6 +287,7 @@ export default {
             receiveValue.value = resEstimate.toTokenAmount;
             networkFee.value = prettyNumberTooltip(+resEstimate.fee.amount * selectedNetwork.value.price.USD, 4);
             estimateRate.value = prettyNumberTooltip(resEstimate.toTokenAmount / resEstimate.fromTokenAmount, 6);
+            setReceiveValue.value = `Rate: <span class='symbol'>1</span> ${selectedTokenFrom.value.code} = <span class='symbol'>${estimateRate.value}</span> ${selectedTokenTo.value.code}`;
         };
 
         const getAllowance = async () => {
@@ -474,11 +468,12 @@ export default {
             estimateRate,
             successHash,
             networkFee,
+            setReceiveValue,
         };
     },
 };
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
 .simple-swap {
     width: 660px;
 
@@ -527,6 +522,32 @@ export default {
         height: 64px;
         width: 100%;
     }
+
+    .accordion__content {
+        img {
+            width: 16px;
+            height: 16px;
+        }
+        .symbol {
+            margin-left: 5px;
+        }
+        .fee {
+            color: $colorBaseGreen;
+            margin-right: 4px;
+        }
+
+        .fee-symbol {
+            color: $colorPl;
+            font-weight: 300;
+            font-family: 'Poppins_Regular';
+        }
+    }
+
+    .accordion__title {
+        .symbol {
+            font-family: 'Poppins_SemiBold';
+        }
+    }
 }
 
 body.dark {
@@ -549,42 +570,19 @@ body.dark {
         }
     }
 }
-.accordion {
-    &__item {
-        display: flex;
-        align-items: center;
-    }
 
-    &__label {
-        color: #494c56;
-        font-size: 16px;
-        font-family: 'Poppins_Regular';
-    }
+// .accordion {
 
-    &__value {
-        display: flex;
-        align-items: center;
-        font-size: 16px;
-        font-family: 'Poppins_SemiBold';
-        color: #1c1f2c;
-        margin-left: 6px;
+//         .fee {
+//             color: $colorBaseGreen;
+//             margin-right: 4px;
+//         }
 
-        img {
-            width: 16px;
-            height: 16px;
-            margin-right: 6px;
-        }
-
-        .fee {
-            color: $colorBaseGreen;
-            margin-right: 4px;
-        }
-
-        .symbol {
-            color: $colorPl;
-            font-weight: 300;
-            font-family: 'Poppins_Regular';
-        }
-    }
-}
+//         .symbol {
+//             color: $colorPl;
+//             font-weight: 300;
+//             font-family: 'Poppins_Regular';
+//         }
+//     }
+// }
 </style>
