@@ -75,6 +75,7 @@ export default {
     &.active {
         svg.arrow {
             transform: rotate(180deg);
+            transition: 0.6s;
         }
     }
 }

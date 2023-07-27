@@ -28,7 +28,13 @@ getChainList().then((chains) => {
 
     const app = createApp(App)
         .use(Antd)
-        .directive('debounce', vue3Debounce({ lock: true }))
+        .directive(
+            'debounce',
+            vue3Debounce({
+                lock: true,
+                listenTo: ['input', 'keyup'],
+                defaultTime: '1s',
+            }))
         .use(store)
         .use(VueClickAway)
         .use(Router)

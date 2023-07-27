@@ -27,8 +27,9 @@ export default {
         const router = useRouter();
         const searchValue = ref('');
         const { groupTokens } = useTokens();
-        const loader = computed(() => store.getters['tokens/loader']);
         const { walletAddress, currentChainInfo } = useWeb3Onboard();
+
+        const loader = computed(() => store.getters['tokens/loader']);
 
         const allTokens = computed(() => {
             if (!currentChainInfo.value) {

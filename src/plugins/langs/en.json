@@ -11,7 +11,7 @@
     "receive": "RECEIVE",
     "send": "SEND",
     "search": "Search",
-    "notFound": "Not found"
+    "notFound": "Nothing was found for your query"
   },
   "sidebar": {
     "main": "Main",

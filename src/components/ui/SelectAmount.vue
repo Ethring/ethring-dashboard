@@ -15,7 +15,7 @@
                     :placeholder="placeholder"
                     :disabled="disabled"
                     @focus="onFocus"
-                    v-debounce:300ms="onInput"
+                    v-debounce:1s="onInput"
                     @blur="onBlur"
                     @click.stop="() => {}"
                     data-qa="input-amount"
@@ -218,12 +218,8 @@ export default {
             }
         };
         const setToken = (item) => {
-            if (selectedToken.value?.net !== item?.net || selectedToken.value?.balance !== item?.balance) {
-                amount.value = '';
-                selectedToken.value = item;
-                emit('setAmount', amount.value);
-                emit('setToken', item);
-            }
+            selectedToken.value = item;
+            emit('setToken', item);
         };
 
         const clickToken = () => {
