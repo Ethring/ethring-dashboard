@@ -7,7 +7,7 @@
 </template>
 <script>
 import { useStore } from 'vuex';
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
@@ -25,8 +25,11 @@ export default {
     setup() {
         const store = useStore();
         const router = useRouter();
-        const searchValue = ref('');
+        const { walletAddress } = useWeb3Onboard();
         const { groupTokens, allTokensFromNetwork, getTokenList } = useTokens();
+
+        const searchValue = ref('');
+
         const loader = computed(() => store.getters['tokens/loader']);
         const selectType = computed(() => store.getters['tokens/selectType']);
         const selectedTokenFrom = computed(() => store.getters['tokens/fromToken']);
@@ -35,7 +38,13 @@ export default {
         const selectedDstNetwork = computed(() => store.getters['bridge/selectedDstNetwork']);
 
         const selectedNetwork = selectType.value === 'from' ? selectedSrcNetwork : selectedDstNetwork;
-        const { walletAddress } = useWeb3Onboard();
+
+        onMounted(async () => {
+            const chainId = selectedNetwork.value?.chain_id || selectedNetwork.value?.chainId;
+            if (!chainId) {
+                router.push('/superSwap');
+            }
+        });
 
         const allTokens = computed(() => {
             if (!selectedNetwork.value) {

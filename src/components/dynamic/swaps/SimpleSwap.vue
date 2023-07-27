@@ -118,7 +118,6 @@ export default {
         const estimateRate = ref(0);
         const networkFee = ref(0);
         const resetAmount = ref(false);
-
         const isUpdateSwapDirectionValue = ref(false);
         const amount = ref('');
         const receiveValue = ref('');

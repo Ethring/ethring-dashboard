@@ -144,10 +144,11 @@ export default {
         Checkbox,
     },
     setup() {
+        const store = useStore();
+        const router = useRouter();
         const { walletAddress, currentChainInfo, connectedWallet, setChain } = useWeb3Onboard();
         const { groupTokens, allTokensFromNetwork, getTokenList } = useTokens();
 
-        const store = useStore();
         const isLoading = ref(false);
         const needApprove = ref(false);
         const balanceUpdated = ref(false);
@@ -160,19 +161,15 @@ export default {
         const successHash = ref('');
         const networkName = ref('');
         const resetAmount = ref(false);
-        const router = useRouter();
         const networkFee = ref(0);
         const estimateRate = ref(0);
         const needNetworkChange = ref(false);
         const callEstimate = ref(false);
 
         const zometNetworks = computed(() => store.getters['networks/zometNetworksList']);
-
         const selectedSrcNetwork = computed(() => store.getters['bridge/selectedSrcNetwork']);
-
         const selectedDstNetwork = computed(() => store.getters['bridge/selectedDstNetwork']);
         const supportedChains = computed(() => store.getters['bridge/supportedChains']);
-
         const selectedSrcToken = computed(() => store.getters['tokens/fromToken']);
         const selectedDstToken = computed(() => store.getters['tokens/toToken']);
 

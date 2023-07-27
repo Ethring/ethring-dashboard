@@ -8,7 +8,7 @@
 <script>
 import { useStore } from 'vuex';
 
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 
 import { useRouter } from 'vue-router';
 
@@ -32,11 +32,18 @@ export default {
 
         const searchValue = ref('');
 
-        const loader = computed(() => store.getters['tokens/loader']);
         const selectedNetwork = computed(() => store.getters['networks/selectedNetwork']);
         const selectType = computed(() => store.getters['tokens/selectType']);
         const selectedTokenFrom = computed(() => store.getters['tokens/fromToken']);
         const selectedTokenTo = computed(() => store.getters['tokens/toToken']);
+        const loader = computed(() => store.getters['tokens/loader']);
+
+        onMounted(async () => {
+            const chainId = selectedNetwork.value?.chain_id || selectedNetwork.value?.chainId;
+            if (!chainId) {
+                router.push('/swap');
+            }
+        });
 
         const allTokens = computed(() => {
             if (!selectedNetwork.value) {
