@@ -135,7 +135,7 @@ import { services } from '@/config/bridgeServices';
 
 import findBestRoute from '@/modules/SuperSwap/baseScript';
 
-const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+import { STATUSES, NATIVE_CONTRACT } from '@/shared/constants/superswap/constants';
 
 export default {
     name: 'SuperSwap',
@@ -201,7 +201,7 @@ export default {
             if (!showRoutesModal.value) {
                 bestRoute.value = bestRouteInfo.value.bestRoute;
                 otherRoutes.value = bestRouteInfo.value.otherRoutes;
-                currentRoute.value = bestRoute.value.routes.find((elem) => elem.status === 'signing');
+                currentRoute.value = bestRoute.value.routes.find((elem) => elem.status === STATUSES.SIGNING);
                 receiveValue.value = bestRouteInfo.value.bestRoute?.toTokenAmount;
                 networkFee.value = prettyNumberTooltip(bestRouteInfo.value.bestRoute?.estimateFeeUsd, 4);
                 estimateRate.value = prettyNumberTooltip(
@@ -461,7 +461,7 @@ export default {
                 return;
             }
             store.dispatch('swap/setBestRoute', resEstimate);
-            currentRoute.value = resEstimate.bestRoute.routes.find((elem) => elem.status === 'signing');
+            currentRoute.value = resEstimate.bestRoute.routes.find((elem) => elem.status === STATUSES.SIGNING);
             if (currentRoute.value.needApprove) {
                 needApprove.value = true;
                 getApproveTx();
@@ -598,15 +598,15 @@ export default {
             isLoading.value = false;
 
             bestRoute.value.routes = bestRoute.value.routes?.map((elem, i) => {
-                if (elem.status === 'signing') {
-                    elem.status = 'complete';
+                if (elem.status === STATUSES.SIGNING) {
+                    elem.status = STATUSES.COMPLETED;
                 }
-                if (elem.status === 'pending' && bestRoute.value.routes[i - 1]?.status == 'complete') {
-                    elem.status = 'signing';
+                if (elem.status === STATUSES.PENDING && bestRoute.value.routes[i - 1]?.status == STATUSES.COMPLETED) {
+                    elem.status = STATUSES.SIGNING;
                 }
                 return elem;
             });
-            currentRoute.value = bestRoute.value.routes?.find((elem) => elem.status === 'signing');
+            currentRoute.value = bestRoute.value.routes?.find((elem) => elem.status === STATUSES.SIGNING);
             if (currentRoute.value) {
                 resetAmount.value = false;
                 if (currentRoute.value.net === selectedSrcNetwork.value.net) {
