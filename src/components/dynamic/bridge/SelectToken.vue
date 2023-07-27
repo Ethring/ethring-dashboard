@@ -28,7 +28,6 @@ export default {
         const { walletAddress, currentChainInfo } = useWeb3Onboard();
         const { groupTokens, allTokensFromNetwork, getTokenList } = useTokens();
 
-        const loader = computed(() => store.getters['tokens/loader']);
         const selectType = computed(() => store.getters['tokens/selectType']);
 
         const selectedNetwork =
@@ -36,6 +35,7 @@ export default {
                 ? computed(() => store.getters['bridge/selectedSrcNetwork'])
                 : computed(() => store.getters['bridge/selectedDstNetwork']);
         const tokens = computed(() => store.getters['bridge/tokensByChainID']);
+        const loader = computed(() => !tokens.value.length);
 
         onMounted(async () => {
             if (!selectedNetwork.value) {
@@ -45,9 +45,13 @@ export default {
                 );
             }
             const chainId = selectedNetwork.value?.chain_id || selectedNetwork.value?.chainId;
-            await store.dispatch('bridge/getTokensByChain', {
-                chainId,
-            });
+            if (chainId) {
+                await store.dispatch('bridge/getTokensByChain', {
+                    chainId,
+                });
+            } else {
+                router.push('/bridge');
+            }
         });
 
         const allTokens = computed(() => {
