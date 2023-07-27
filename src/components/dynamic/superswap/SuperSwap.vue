@@ -565,7 +565,9 @@ export default {
                 params.recipientAddress = getRecipientAddress();
                 params.fallbackAddress = walletAddress.value;
             }
+
             const resSwap = await store.dispatch(serviceApi, params);
+
             if (resSwap.error) {
                 txError.value = resSwap.error;
                 isLoading.value = false;

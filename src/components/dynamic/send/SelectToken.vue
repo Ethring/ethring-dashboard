@@ -25,9 +25,10 @@ export default {
     setup() {
         const store = useStore();
         const router = useRouter();
-        const searchValue = ref('');
         const { groupTokens } = useTokens();
         const { walletAddress, currentChainInfo } = useWeb3Onboard();
+
+        const searchValue = ref('');
 
         const loader = computed(() => store.getters['tokens/loader']);
 
@@ -36,7 +37,7 @@ export default {
                 return [];
             }
 
-            const list = groupTokens.value[0].list;
+            const list = groupTokens.value[0]?.list;
 
             return list.filter(
                 (elem) =>

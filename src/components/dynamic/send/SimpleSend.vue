@@ -57,11 +57,13 @@ import { useStore } from 'vuex';
 import * as ethers from 'ethers';
 import { useRouter } from 'vue-router';
 
-// import { getTxUrl } from '@/helpers/utils';
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 import { onSelectNetwork } from '../../../helpers/chains';
 
+import { abi } from '@/config/abi';
 import { getTxUrl } from '@/helpers/utils';
+
+const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
 export default {
     name: 'SimpleSend',
@@ -91,6 +93,7 @@ export default {
         // const favouritesList = computed(() => store.getters['tokens/favourites']);
         const zometNetworks = computed(() => store.getters['networks/zometNetworksList']);
         const selectedToken = computed(() => store.getters['tokens/fromToken']);
+        const networks = computed(() => store.getters['networks/networks']);
 
         const disabledSend = computed(() => {
             return (
@@ -103,17 +106,20 @@ export default {
             );
         });
 
-        const networks = computed(() => store.getters['networks/networks']);
-
         const tokensList = computed(() => {
             if (!currentChainInfo.value) {
                 return [];
             }
-            const currentNetworkToken = groupTokens.value[0];
+
+            const currentNetwork = groupTokens.value[0];
+
             if (!selectedToken.value) {
-                store.dispatch('tokens/setFromToken', currentNetworkToken);
+                store.dispatch('tokens/setFromToken', currentNetwork);
+            } else {
+                let token = groupTokens.value[0].list.find((elem) => elem.code === selectedToken.value.code);
+                store.dispatch('tokens/setFromToken', token);
             }
-            return [currentNetworkToken, ...groupTokens.value[0].list];
+            return [currentNetwork, ...groupTokens.value[0].list];
         });
 
         const onSetToken = () => {
@@ -163,25 +169,30 @@ export default {
 
         const sendTransaction = async (transaction) => {
             const ethersProvider = getProvider();
-            const tx = {
-                data: transaction.data,
-                from: transaction.from,
-                to: transaction.to,
-                chainId: `0x${transaction.chainId.toString(16)}`,
-                value: transaction.value ? `0x${parseInt(transaction.value).toString(16)}` : '0x0',
-            };
-
             try {
                 if (ethersProvider) {
                     const signer = ethersProvider.getSigner();
-                    const txn = await signer.sendTransaction(tx);
+                    const tokenContract = new ethers.Contract(selectedToken.value.address || NATIVE_CONTRACT, abi, ethersProvider);
+
+                    const res = await tokenContract.populateTransaction.transfer(
+                        transaction.toAddress,
+                        ethers.utils.parseUnits(transaction.amount, selectedToken.value.decimals)
+                    );
+
+                    const txData = {
+                        ...res,
+                        from: transaction.fromAddress,
+                        value: !selectedToken.value.address ? ethers.utils.parseEther(amount.value) : ethers.utils.parseUnits('0'),
+                        nonce: await ethersProvider.getTransactionCount(walletAddress.value),
+                    };
+
+                    const txn = await signer.sendTransaction(txData);
 
                     const receipt = await txn.wait();
-
                     return receipt;
                 }
             } catch (e) {
-                return { error: e.message };
+                return { error: e?.data?.message || e.message };
             }
         };
 
@@ -192,24 +203,13 @@ export default {
 
             isLoading.value = true;
 
-            const response = await store.dispatch('tokens/prepareTransfer', {
-                net: selectedToken.value.net || selectedToken.value.network,
-                from: walletAddress.value,
+            const response = {
+                fromAddress: walletAddress.value,
                 toAddress: address.value,
                 amount: amount.value,
-            });
+            };
 
-            if (response.error) {
-                txError.value = response.error;
-                isLoading.value = false;
-                setTimeout(() => {
-                    txError.value = '';
-                }, 3000);
-                return;
-            }
-
-            const tx = response.transaction || response;
-            const resTx = await sendTransaction(tx);
+            const resTx = await sendTransaction(response);
 
             if (resTx.error) {
                 txError.value = resTx.error;
