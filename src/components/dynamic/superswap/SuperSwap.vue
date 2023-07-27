@@ -60,38 +60,23 @@
             :on-reset="successHash"
             @setAddress="onSetAddress"
         />
-        <Accordion
-            v-if="receiveValue"
-            :title="`Rate: <span style='font-family:Poppins_Semibold;'>1</span> ${
-                selectedSrcToken?.code || ''
-            } = <span  style='font-family:Poppins_Semibold;'>${estimateRate}</span> ${selectedDstToken?.code || ''}`"
-            class="mt-10"
-        >
+        <Accordion v-if="receiveValue" :title="setReceiveValue" class="mt-10">
             <div class="accordion__content">
-                <div class="accordion__item">
-                    <div class="accordion__label">{{ $t('tokenOperations.networkFee') }}:</div>
-                    <div class="accordion__value">
-                        <span class="fee">{{ networkFee }}</span> <span class="symbol"> $</span>
-                    </div>
-                </div>
-                <div class="accordion__item">
-                    <div class="accordion__label">{{ $t('tokenOperations.time') }}:</div>
-                    <div class="accordion__value">
-                        <span class="fee"> {{ '< ' + Math.round(bestRoute.estimateTime / 60) + ' min' }}</span>
-                    </div>
-                </div>
-                <div class="accordion__item">
-                    <div class="accordion__row">
-                        <div class="accordion__label">Routes:</div>
-                        <div class="accordion__value" v-for="item in bestRoute.routes" :key="item">
-                            <img :src="item.service.icon" />
-                            <div class="name">{{ item.service.name }}</div>
-                        </div>
+                <AccordionItem :label="$t('tokenOperations.networkFee') + ' : '">
+                    <span class="fee">{{ networkFee }}</span> <span class="symbol"> $</span>
+                </AccordionItem>
+                <AccordionItem :label="$t('tokenOperations.time') + ' : '">
+                    <span class="fee"> {{ '< ' + Math.round(bestRoute.estimateTime / 60) + ' min' }}</span>
+                </AccordionItem>
+                <AccordionItem label="Routes : ">
+                    <div class="route" v-for="item in bestRoute.routes" :key="item">
+                        <img :src="item.service.icon" />
+                        <div class="name">{{ item.service.name }}</div>
                     </div>
                     <div v-if="otherRoutes.length" class="other-routes" v-on:click.stop="setShowRoutesModal">
                         +{{ otherRoutes.length }} routes
                     </div>
-                </div>
+                </AccordionItem>
             </div>
         </Accordion>
         <Button
@@ -124,6 +109,7 @@ import SelectAmount from '@/components/ui/SelectAmount';
 import SelectAddress from '@/components/ui/SelectAddress';
 import SelectNetwork from '@/components/dynamic/bridge/SelectNetwork';
 import Accordion from '@/components/ui/Accordion';
+import AccordionItem from '@/components/ui/AccordionItem';
 import Checkbox from '@/components/ui/Checkbox';
 import Button from '@/components/ui/Button';
 
@@ -146,6 +132,7 @@ export default {
         SelectAddress,
         Button,
         Accordion,
+        AccordionItem,
         Checkbox,
     },
     setup() {
@@ -171,6 +158,7 @@ export default {
         const estimateRate = ref(0);
         const needNetworkChange = ref(false);
         const callEstimate = ref(false);
+        const setReceiveValue = ref('');
 
         const zometNetworks = computed(() => store.getters['networks/zometNetworksList']);
         const selectedSrcNetwork = computed(() => store.getters['bridge/selectedSrcNetwork']);
@@ -471,6 +459,9 @@ export default {
             receiveValue.value = resEstimate.bestRoute?.toTokenAmount;
             networkFee.value = prettyNumberTooltip(resEstimate.bestRoute?.estimateFeeUsd, 4);
             estimateRate.value = prettyNumberTooltip(resEstimate.bestRoute.toTokenAmount / resEstimate.bestRoute.fromTokenAmount, 6);
+            setReceiveValue.value = `Rate: <span class='symbol'>1</span> ${selectedSrcToken?.value.code || ''} = <span class='symbol'>${
+                estimateRate.value
+            }</span> ${selectedDstToken?.value.code || ''}`;
             isLoading.value = false;
         };
 
@@ -714,6 +705,8 @@ export default {
             onSetAmount,
             swap,
             setShowRoutesModal,
+
+            setReceiveValue,
         };
     },
 };
@@ -741,31 +734,33 @@ export default {
         }
     }
 
-    .accordion {
-        &__item {
-            display: flex;
-            align-items: center;
-            position: relative;
+    .accordion__content {
+        img {
+            width: 16px;
+            height: 16px;
         }
-
-        &__label {
-            color: #494c56;
-            font-size: 16px;
-            font-family: 'Poppins_Regular';
+        .symbol {
+            margin-left: 5px;
         }
+    }
 
-        &__value {
-            display: flex;
-            align-items: center;
-            font-size: 16px;
+    .accordion__title {
+        .symbol {
             font-family: 'Poppins_SemiBold';
-            color: #1c1f2c;
-            margin-left: 6px;
+        }
+    }
 
-            img {
-                width: 20px;
-                height: 20px;
-                margin-right: 6px;
+    .accordion-item {
+        position: relative;
+        &__value {
+            .route {
+                display: flex;
+                align-items: center;
+                margin-left: 6px;
+
+                .name {
+                    margin-left: 6px;
+                }
             }
         }
         &__row {

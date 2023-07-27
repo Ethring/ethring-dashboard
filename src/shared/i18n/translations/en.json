@@ -51,7 +51,8 @@
     "title": "Send"
   },
   "simpleSwap": {
-    "title": "Swap"
+    "title": "Swap",
+    "service": "Service"
   },
   "simpleBridge": {
     "title": "Bridge",
