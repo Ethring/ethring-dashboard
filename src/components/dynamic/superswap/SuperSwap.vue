@@ -32,7 +32,7 @@
             :selected-network="selectedDstNetwork"
             :value="selectedDstToken"
             :label="$t('tokenOperations.receive')"
-            :disabled-value="prettyNumber(receiveValue)"
+            :disabled-value="prettyNumberTooltip(receiveValue)"
             :disabled="true"
             :on-reset="resetAmount"
             class="mt-10"
@@ -714,6 +714,7 @@ export default {
             onSetAmount,
             swap,
             setShowRoutesModal,
+            prettyNumberTooltip,
             setReceiveValue,
         };
     },
