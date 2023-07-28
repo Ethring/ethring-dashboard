@@ -28,7 +28,7 @@
             @clickToken="onSetSrcToken"
         />
         <SelectAmount
-            v-if="selectedDstToken"
+            v-if="selectedDstToken && selectedDstNetwork"
             :selected-network="selectedDstNetwork"
             :value="selectedDstToken"
             :label="$t('tokenOperations.receive')"
