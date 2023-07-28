@@ -193,6 +193,10 @@ export default {
                     bestRouteInfo.value.bestRoute.toTokenAmount / bestRouteInfo.value.bestRoute.fromTokenAmount,
                     6
                 );
+                needApprove.value = currentRoute.value?.needApprove;
+                if (needApprove.value) {
+                    getApproveTx();
+                }
             }
         });
 
