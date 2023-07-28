@@ -22,15 +22,15 @@
                                 {{ status.value }}
                             </p>
                         </div>
-                        <div class="routes-modal__row">
-                            Time: ~
+                        <div class="routes-modal__row routes-time">
+                            {{ $t('superSwap.time') }}: ~
                             <h4>{{ item.estimateTime }}s</h4>
-                            Fee: $
+                            {{ $t('superSwap.fee') }}: $
                             <h4>{{ prettyNumberTooltip(item.estimateFeeUsd, 4) }}</h4>
                         </div>
                     </div>
                     <div class="routes-modal__output">
-                        <p>Output</p>
+                        <p>{{ $t('superSwap.output') }}</p>
                         <div class="routes-modal__row">
                             <h3>
                                 {{ prettyNumberTooltip(item.toTokenAmount, 4) }}
@@ -180,11 +180,12 @@ export default {
     }
     &__row {
         display: flex;
+        margin: 0;
         align-items: center;
     }
     &__output {
         text-align: right;
-        margin-top: 8px;
+        margin-top: 2px;
         p {
             color: #486060;
             font-size: 14px;
@@ -215,9 +216,10 @@ export default {
     }
 
     .routes-service {
+        margin-top: -8px;
         &__name {
             font-size: 18px;
-            margin: auto;
+            margin: 0;
             margin-left: 8px;
             font-weight: 700;
             color: $colorDarkPanel;
@@ -225,13 +227,16 @@ export default {
         &__icon {
             border-radius: 50%;
             width: 32px;
-            padding: 4px;
+            padding: 3px 4px;
             height: 32px;
             border: 1px solid #364de8;
             img {
                 width: 100%;
                 border-radius: 50%;
             }
+        }
+        .routes-time {
+            margin-top: 2px;
         }
         div {
             color: #486060;
@@ -242,7 +247,7 @@ export default {
         }
         h1 {
             font-weight: 700;
-            margin: 3px;
+            margin: 0px 3px;
         }
         &__status {
             border-radius: 20px;

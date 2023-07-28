@@ -72,7 +72,7 @@ export default {
                 list = [
                     ...listWithBalances,
                     ...allTokensFromNetwork(selectedNetwork.value.net).filter((token) => {
-                        return token.net !== selectedNetwork.value.net && !selectedNetwork.value.list.find((t) => t.net === token.net);
+                        return !listWithBalances.find((t) => t.address?.toLowerCase() === token.address?.toLowerCase());
                     }),
                 ];
             }

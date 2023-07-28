@@ -10,7 +10,7 @@ import { chainIds } from '../../config/availableNets';
 
 import { STATUSES, ERRORS, NATIVE_CONTRACT } from '@/shared/constants/superswap/constants';
 
-export default async function findBestRoute(amount, walletAddress) {
+export async function findBestRoute(amount, walletAddress) {
     try {
         const fromNetwork = store.getters['bridge/selectedSrcNetwork'];
         const toNetwork = store.getters['bridge/selectedDstNetwork'];
@@ -184,6 +184,7 @@ async function findRoute(params) {
         let services = [];
         let apiRoute = null;
         let error = null;
+        const tokensByService = store.getters['bridge/tokensByService'];
 
         if (params.fromNet === params.toNet) {
             services = swapServices;
@@ -191,14 +192,6 @@ async function findRoute(params) {
         } else {
             services = bridgeServices;
             apiRoute = 'bridge/estimateBridge';
-
-            const deBridgeTokens = store.getters['bridge/tokensByChainID'];
-
-            const notFound = !deBridgeTokens.find((elem) => elem.address.toLowerCase() === params.fromToken.address?.toLowerCase());
-
-            if (params.fromToken.address && notFound) {
-                return { error: ERRORS.BRIDGE_ERROR };
-            }
         }
 
         const checkFee = (resEstimate) => {
@@ -246,8 +239,21 @@ async function findRoute(params) {
             return info.fee.amount * params.fromNetwork?.price?.USD;
         };
 
+        const notFoundInTokens = (key = 'fromTokenAddress', service) =>
+            params[key] && !tokensByService[service.name]?.find((elem) => elem.address.toLowerCase() === params[key].toLowerCase());
+
         const promises = services.map(async (service) => {
             params.url = service.url;
+
+            if (service.tokensByChain && notFoundInTokens('fromTokenAddres', service)) {
+                error = ERRORS.BRIDGE_ERROR;
+                return;
+            }
+
+            if (service.isStableSwap && notFoundInTokens('toTokenAddres', service)) {
+                error = ERRORS.BRIDGE_ERROR;
+                return;
+            }
 
             const resEstimate = await store.dispatch(apiRoute, params);
 
@@ -361,3 +367,18 @@ export async function checkAllowance(net, tokenAddress, ownerAddress, amount, de
     return needApprove;
 }
 checkAllowance.cache = {};
+
+export async function getTokensByService(chainId) {
+    const allService = swapServices.concat(bridgeServices).filter((elem) => elem.tokensByChain);
+    const allTokens = {};
+    for (const service of allService) {
+        const params = {
+            chainId,
+            url: service.url,
+        };
+
+        const list = await store.dispatch(`bridge/getTokensByChain`, params);
+        allTokens[service.name] = list;
+    }
+    store.dispatch(`bridge/setTokensByChain`, allTokens);
+}

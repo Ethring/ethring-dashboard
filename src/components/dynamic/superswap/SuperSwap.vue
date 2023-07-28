@@ -119,7 +119,7 @@ import { getTxUrl } from '@/helpers/utils';
 
 import { services } from '@/config/bridgeServices';
 
-import findBestRoute from '@/modules/SuperSwap/baseScript';
+import { findBestRoute, getTokensByService } from '@/modules/SuperSwap/baseScript';
 
 import { STATUSES, NATIVE_CONTRACT } from '@/shared/constants/superswap/constants';
 
@@ -159,7 +159,7 @@ export default {
         const needNetworkChange = ref(false);
         const callEstimate = ref(false);
         const setReceiveValue = ref('');
-
+        const updateFromToken = ref(false);
         const zometNetworks = computed(() => store.getters['networks/zometNetworksList']);
         const selectedSrcNetwork = computed(() => store.getters['bridge/selectedSrcNetwork']);
         const selectedDstNetwork = computed(() => store.getters['bridge/selectedDstNetwork']);
@@ -180,9 +180,6 @@ export default {
 
         onMounted(async () => {
             store.dispatch('bridge/getSupportedChains');
-            await store.dispatch('bridge/getTokensByChain', {
-                chainId: currentChainInfo.value.chainId,
-            });
         });
 
         watch(showRoutesModal, () => {
@@ -221,17 +218,19 @@ export default {
             allowance.value = null;
         };
 
-        const tokensList = async (network) => {
+        const tokensList = async (network, field) => {
             if (!network) {
                 return [];
             }
-            console.log(network, '--network');
             let listWithBalances = [];
             let selectedNetwork = {};
             if (network.list?.length) {
                 listWithBalances = getTokenList(network);
             } else {
                 selectedNetwork = groupTokens.value.find((elem) => elem?.chain_id === (network?.chain_id || network?.chainId));
+                if (!selectedNetwork && field === 'from') {
+                    return [];
+                }
                 listWithBalances = getTokenList(selectedNetwork);
             }
 
@@ -277,20 +276,27 @@ export default {
         const onSelectSrcNetwork = async (network) => {
             if (selectedSrcNetwork.value !== network) {
                 txError.value = '';
-                if (network.id || network.chain_id) {
+                if (network.chainId || network.chain_id) {
                     await setChain({
-                        chainId: network.id || network.chain_id,
+                        chainId: network.chainId || network.chain_id,
                     });
                 }
-                store.dispatch('tokens/setFromToken', null);
+                updateFromToken.value = true;
+                await getTokensByService(network.chainId || network.chain_id || currentChainInfo.value.chainId);
             }
             if (network?.net === currentChainInfo.value?.net) {
                 networkError.value = false;
             }
             clearApprove();
-            tokensList(network).then((tokens) => {
-                if (!selectedSrcToken.value) {
-                    store.dispatch('tokens/setFromToken', tokens[0]);
+            tokensList(network, 'from').then((tokens) => {
+                if (!selectedSrcToken.value || updateFromToken.value) {
+                    if (!tokens[0]?.balanceUsd) {
+                        const usdcToken = tokens.find((elem) => elem.code === 'USDC');
+                        store.dispatch('tokens/setFromToken', usdcToken || tokens[0]);
+                    } else {
+                        store.dispatch('tokens/setFromToken', tokens[0]);
+                    }
+                    updateFromToken.value = false;
                 }
             });
             const srcNetwork = groupTokens.value?.find((elem) => elem.net === network.net);
@@ -303,7 +309,7 @@ export default {
                 store.dispatch('tokens/setToToken', selectedDstToken.value);
             } else {
                 store.dispatch('bridge/setSelectedDstNetwork', network);
-                tokensList(network).then((tokens) => {
+                tokensList(network, 'to').then((tokens) => {
                     if (!selectedDstToken.value || !tokens.find((elem) => elem.code === selectedDstToken.value.code)) {
                         if (selectedSrcNetwork.value.net === selectedDstNetwork.value.net) {
                             const tokenTo = tokens.find((elem) => elem.code !== selectedSrcToken.value.code);
@@ -565,7 +571,9 @@ export default {
                 params.recipientAddress = getRecipientAddress();
                 params.fallbackAddress = walletAddress.value;
             }
-
+            if (currentRoute.value.service?.isStableSwap) {
+                delete params.slippage;
+            }
             const resSwap = await store.dispatch(serviceApi, params);
 
             if (resSwap.error) {

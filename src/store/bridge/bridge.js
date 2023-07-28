@@ -8,6 +8,7 @@ const types = {
     SET_SRC_NETWORKS: 'SET_SRC_NETWORKS',
     SET_DST_NETWORKS: 'SET_DST_NETWORKS',
     SET_TOKENS_BY_CHAINID: 'SET_TOKENS_BY_CHAINID',
+    SET_TOKENS_BY_SERVICE: 'SET_TOKENS_BY_SERVICE',
 };
 
 export default {
@@ -17,6 +18,7 @@ export default {
         tokensByChainID: [],
         selectedSrcNetwork: null,
         selectedDstNetwork: null,
+        tokensByService: {},
     }),
 
     getters: {
@@ -24,6 +26,7 @@ export default {
         tokensByChainID: (state) => state.tokensByChainID,
         selectedSrcNetwork: (state) => state.selectedSrcNetwork,
         selectedDstNetwork: (state) => state.selectedDstNetwork,
+        tokensByService: (state) => state.tokensByService,
     },
 
     mutations: {
@@ -38,6 +41,9 @@ export default {
         },
         [types.SET_DST_NETWORKS](state, value) {
             state.selectedDstNetwork = value;
+        },
+        [types.SET_TOKENS_BY_SERVICE](state, value) {
+            state.tokensByService = value;
         },
     },
 
@@ -55,6 +61,11 @@ export default {
                 route: 'getSupportedChains',
             });
             commit(types.SET_SUPPORTED_CHAINS, res);
+        },
+
+        /* SET TOKENS BY SERVICE */
+        setTokensByChain({ commit }, tokens) {
+            commit(types.SET_TOKENS_BY_SERVICE, tokens);
         },
 
         /* GET TOKENS BY CHAIN ID */

@@ -5,6 +5,7 @@ export const services = [
         icon: 'https://app.debridge.finance/assets/images/bridge.svg',
         url: process.env.VUE_APP_DEBRIDGE_API,
         recipientAddress: true,
+        tokensByChain: true,
         estimatedTime: {
             1: 150,
             56: 60,
@@ -25,6 +26,7 @@ export const services = [
         type: 'bridge',
         icon: 'https://app.squidrouter.com/images/icons/squid_logo.svg',
         url: process.env.VUE_APP_SQUID_ROUTER_API,
+        tokensByChain: true,
         estimatedTime: {
             1: 60,
             56: 60,

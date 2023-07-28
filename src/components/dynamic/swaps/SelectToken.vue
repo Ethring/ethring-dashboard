@@ -60,7 +60,7 @@ export default {
                 list = [
                     ...listWithBalances,
                     ...allTokensFromNetwork(wallet.net).filter((token) => {
-                        return token.net !== wallet.net && !wallet.list.find((t) => t.net === token.net);
+                        return !listWithBalances.find((t) => t.address?.toLowerCase() === token.address?.toLowerCase());
                     }),
                 ];
             }
