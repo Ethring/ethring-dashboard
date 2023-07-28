@@ -23,14 +23,14 @@
                             </p>
                         </div>
                         <div class="routes-modal__row routes-time">
-                            Time: ~
+                            {{ $t('superSwap.time') }}: ~
                             <h4>{{ item.estimateTime }}s</h4>
-                            Fee: $
+                            {{ $t('superSwap.fee') }}: $
                             <h4>{{ prettyNumberTooltip(item.estimateFeeUsd, 4) }}</h4>
                         </div>
                     </div>
                     <div class="routes-modal__output">
-                        <p>Output</p>
+                        <p>{{ $t('superSwap.output') }}</p>
                         <div class="routes-modal__row">
                             <h3>
                                 {{ prettyNumberTooltip(item.toTokenAmount, 4) }}

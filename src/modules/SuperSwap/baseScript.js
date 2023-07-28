@@ -239,26 +239,22 @@ async function findRoute(params) {
             return info.fee.amount * params.fromNetwork?.price?.USD;
         };
 
+        const notFoundInTokens = (key = 'fromTokenAddress', service) =>
+            params[key] && !tokensByService[service.name]?.find((elem) => elem.address.toLowerCase() === params[key].toLowerCase());
+
         const promises = services.map(async (service) => {
             params.url = service.url;
-            if (service.tokensByChain) {
-                if (
-                    params.fromTokenAddress &&
-                    !tokensByService[service.name]?.find((elem) => elem.address.toLowerCase() === params.fromTokenAddress.toLowerCase())
-                ) {
-                    error = ERRORS.BRIDGE_ERROR;
-                    return;
-                }
-                if (service.isStableSwap) {
-                    if (
-                        params.toTokenAddress &&
-                        !tokensByService[service.name]?.find((elem) => elem.address.toLowerCase() === params.toTokenAddress.toLowerCase())
-                    ) {
-                        error = ERRORS.BRIDGE_ERROR;
-                        return;
-                    }
-                }
+
+            if (service.tokensByChain && notFoundInTokens('fromTokenAddres', service)) {
+                error = ERRORS.BRIDGE_ERROR;
+                return;
             }
+
+            if (service.isStableSwap && notFoundInTokens('toTokenAddres', service)) {
+                error = ERRORS.BRIDGE_ERROR;
+                return;
+            }
+
             const resEstimate = await store.dispatch(apiRoute, params);
 
             if (resEstimate.error) {
@@ -375,14 +371,14 @@ checkAllowance.cache = {};
 export async function getTokensByService(chainId) {
     const allService = swapServices.concat(bridgeServices).filter((elem) => elem.tokensByChain);
     const allTokens = {};
-    for (let i = 0; i < allService.length; i++) {
+    for (const service of allService) {
         const params = {
             chainId,
-            url: allService[i].url,
+            url: service.url,
         };
 
         const list = await store.dispatch(`bridge/getTokensByChain`, params);
-        allTokens[allService[i].name] = list;
+        allTokens[service.name] = list;
     }
     store.dispatch(`bridge/setTokensByChain`, allTokens);
 }

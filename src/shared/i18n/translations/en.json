@@ -62,6 +62,9 @@
   "superSwap": {
     "title": "SuperSwap",
     "changeNetwork": "Change network to",
-    "selectRoutes": "Routes for select"
+    "selectRoutes": "Routes for select",
+    "time": "Time",
+    "fee": "Fee",
+    "output": "Output"
   }
 }
