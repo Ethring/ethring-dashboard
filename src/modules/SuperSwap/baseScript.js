@@ -1,7 +1,6 @@
 import store from '../../store/index';
 
 import { toMantissa } from '@/helpers/numbers';
-import { prettyNumberTooltip } from '@/helpers/prettyNumber';
 
 import { services as bridgeServices } from '../../config/bridgeServices';
 
@@ -22,7 +21,7 @@ export async function findBestRoute(amount, walletAddress) {
             net: fromNetwork.net,
             fromNet: fromNetwork.net,
             fromTokenAddress: fromToken.address || NATIVE_CONTRACT,
-            amount: prettyNumberTooltip(amount, fromToken.decimals),
+            amount: amount,
             toNet: toNetwork.net,
             toTokenAddress: toToken.address || NATIVE_CONTRACT,
             fromToken,

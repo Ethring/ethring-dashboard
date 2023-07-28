@@ -185,7 +185,7 @@ export default {
     }
     &__output {
         text-align: right;
-        margin-top: 8px;
+        margin-top: 2px;
         p {
             color: #486060;
             font-size: 14px;
