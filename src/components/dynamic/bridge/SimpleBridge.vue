@@ -92,7 +92,7 @@
     </div>
 </template>
 <script>
-import { computed, ref, onMounted, watch, onUnmounted } from 'vue';
+import { computed, ref, onMounted, watch, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { ethers } from 'ethers';
@@ -150,7 +150,6 @@ export default {
 
         const selectedSrcNetwork = computed(() => store.getters['bridge/selectedSrcNetwork']);
         const selectedDstNetwork = computed(() => store.getters['bridge/selectedDstNetwork']);
-
         const selectedSrcToken = computed(() => store.getters['tokens/fromToken']);
         const selectedDstToken = computed(() => store.getters['tokens/toToken']);
         const getSupportedChains = computed(() => store.getters['bridge/supportedChains']);
@@ -627,10 +626,11 @@ export default {
             }
         });
 
-        onUnmounted(() => {
+        onBeforeUnmount(() => {
             if (router.options.history.state.current !== '/bridge/select-token') {
                 store.dispatch('tokens/setFromToken', null);
                 store.dispatch('tokens/setToToken', null);
+                store.dispatch('bridge/setSelectedDstNetwork', null);
             }
         });
 
