@@ -27,7 +27,10 @@
     "pageTitle": "Connecting wallet",
     "blockTitle": "Connect with",
     "mmTitle": "MetaMask",
-    "keplrTitle": "Keplr"
+    "keplrTitle": "Keplr",
+    "anotherWallet": "Connect another Wallet",
+    "disconnectWallets": "Disconnect all Wallets",
+    "currentNetwork": "Current Network"
   },
   "actionTokens": "Tokens",
   "actionTransactions": "Transactions",
