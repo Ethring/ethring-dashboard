@@ -96,7 +96,7 @@
     </div>
 </template>
 <script>
-import { computed, ref, onMounted, watch } from 'vue';
+import { computed, ref, onMounted, watch, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { ethers } from 'ethers';
@@ -161,9 +161,11 @@ export default {
         const setReceiveValue = ref('');
         const updateFromToken = ref(false);
         const zometNetworks = computed(() => store.getters['networks/zometNetworksList']);
+
         const selectedSrcNetwork = computed(() => store.getters['bridge/selectedSrcNetwork']);
         const selectedDstNetwork = computed(() => store.getters['bridge/selectedDstNetwork']);
         const supportedChains = computed(() => store.getters['bridge/supportedChains']);
+
         const selectedSrcToken = computed(() => store.getters['tokens/fromToken']);
         const selectedDstToken = computed(() => store.getters['tokens/toToken']);
 
@@ -679,6 +681,15 @@ export default {
                 }, 2000);
             }
         });
+
+        onBeforeUnmount(() => {
+            if (router.options.history.state.current !== '/superSwap/select-token') {
+                store.dispatch('tokens/setFromToken', null);
+                store.dispatch('tokens/setToToken', null);
+                store.dispatch('bridge/setSelectedDstNetwork', null);
+            }
+        });
+
         return {
             amount,
             isLoading,

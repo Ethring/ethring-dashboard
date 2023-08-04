@@ -58,7 +58,7 @@
     </div>
 </template>
 <script>
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
 
 import { useStore } from 'vuex';
 
@@ -432,6 +432,7 @@ export default {
             });
             balanceUpdated.value = true;
         };
+
         onMounted(async () => {
             if (!selectedNetwork.value) {
                 store.dispatch('networks/setSelectedNetwork', {
@@ -441,6 +442,13 @@ export default {
             }
 
             await getAllowance();
+        });
+
+        onBeforeUnmount(() => {
+            if (router.options.history.state.current !== '/swap/select-token') {
+                store.dispatch('tokens/setFromToken', null);
+                store.dispatch('tokens/setToToken', null);
+            }
         });
 
         return {
