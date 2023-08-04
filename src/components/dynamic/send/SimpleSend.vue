@@ -52,7 +52,7 @@ import Button from '@/components/ui/Button';
 
 import useTokens from '@/compositions/useTokens';
 
-import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 import * as ethers from 'ethers';
 import { useRouter } from 'vue-router';
@@ -233,10 +233,12 @@ export default {
             }
         });
 
-        onUnmounted(() => {
-            store.dispatch('tokens/setFromToken', null);
+        onBeforeUnmount(() => {
             if (!clearAddress.value) {
                 store.dispatch('tokens/setAddress', '');
+            }
+            if (router.options.history.state.current !== '/send/select-token') {
+                store.dispatch('tokens/setFromToken', null);
             }
         });
 
