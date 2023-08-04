@@ -33,6 +33,7 @@ module.exports = [
                 standard: 'EIP3091',
             },
         ],
+        address_validating: '^0x([a-zA-Z0-9]{40})$',
     },
     {
         name: 'Ubiq',
@@ -78,6 +79,7 @@ module.exports = [
                 standard: 'EIP3091',
             },
         ],
+        address_validating: '^0x([a-zA-Z0-9]{40})$',
     },
     {
         name: 'Songbird Canary-Network',
@@ -341,6 +343,7 @@ module.exports = [
                 standard: 'EIP3091',
             },
         ],
+        address_validating: '^0x([a-zA-Z0-9]{40})$',
     },
     {
         name: 'Syscoin Mainnet',
@@ -677,6 +680,7 @@ module.exports = [
                 standard: 'EIP3091',
             },
         ],
+        address_validating: '^0x([a-zA-Z0-9]{40})$',
     },
     {
         name: 'Arbitrum on xDai',
@@ -750,6 +754,7 @@ module.exports = [
                 standard: 'EIP3091',
             },
         ],
+        address_validating: '^0x([a-zA-Z0-9]{40})$',
     },
     {
         name: 'High Performance Blockchain',
@@ -1736,6 +1741,7 @@ module.exports = [
                 },
             ],
         },
+        address_validating: '^0x([a-zA-Z0-9]{40})$',
     },
     {
         name: 'Arbitrum Nova',
@@ -1847,6 +1853,7 @@ module.exports = [
                 standard: 'EIP3091',
             },
         ],
+        address_validating: '^0x([a-zA-Z0-9]{40})$',
     },
     {
         name: 'REI Network',
