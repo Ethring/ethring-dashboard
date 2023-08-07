@@ -40,19 +40,16 @@ const marketCapForNativeCoin = async (tickers = 'binancecoin') => {
         url,
     };
 
-    const response = await HttpRequest(config);
+    try {
+        const response = await HttpRequest(config);
 
-    if (response.status !== 200) {
+        const { data = {} } = response.data;
+
+        return data[tickers];
+    } catch (error) {
+        console.error({ error: error.message });
         return {};
     }
-
-    const { data = {} } = response.data;
-
-    if (!data[tickers]) {
-        return {};
-    }
-
-    return data[tickers];
 };
 
 export default {
