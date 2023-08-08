@@ -5,7 +5,7 @@
                 <div class="network">
                     <img :src="selectedItem.logo" alt="network-logo" class="network-logo" />
                 </div>
-                <div class="name">{{ networkName }}</div>
+                <div class="name">{{ selectedItem.name }}</div>
             </div>
             <arrowSvg class="arrow" />
         </div>
@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 
@@ -45,11 +45,12 @@ export default {
     components: {
         arrowSvg,
     },
-    setup(_, { emit }) {
+    setup(props, { emit }) {
         const { currentChainInfo } = useWeb3Onboard();
+        const currentNetwork = props.items.find((item) => item.chain_id === currentChainInfo.value.chainId) || currentChainInfo;
 
         const active = ref(false);
-        const selectedItem = ref(currentChainInfo);
+        const selectedItem = ref(currentNetwork);
 
         const togglePanel = (away = false) => {
             if (away) {
@@ -68,14 +69,7 @@ export default {
             active.value = false;
         };
 
-        const networkName = computed(() => {
-            if (selectedItem.value?.name?.includes(' Mainnet')) {
-                return selectedItem.value.name.replace(' Mainnet', '') || selectedItem.value.name;
-            }
-            return selectedItem.value?.label || selectedItem.value?.name;
-        });
-
-        return { active, clickAway, togglePanel, currentChainInfo, onSelectNetwork, networkName, selectedItem };
+        return { active, clickAway, togglePanel, currentChainInfo, onSelectNetwork, selectedItem };
     },
 };
 </script>
