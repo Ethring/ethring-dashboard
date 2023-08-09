@@ -98,7 +98,7 @@ export default {
     setup() {
         const store = useStore();
         const router = useRouter();
-        const { groupTokens, allTokensFromNetwork, getTokenList } = useTokens();
+        const { groupTokens, allTokensFromNetwork } = useTokens();
         const { walletAddress, currentChainInfo, connectedWallet, setChain } = useWeb3Onboard();
 
         const isLoading = ref(false);
@@ -149,7 +149,7 @@ export default {
                 return [];
             }
 
-            let listWithBalances = getTokenList(selectedNetwork.value);
+            let listWithBalances = groupTokens.value[0].list;
 
             const list = [
                 ...listWithBalances,
@@ -158,19 +158,16 @@ export default {
                 }),
             ];
 
-            if (!selectedTokenFrom.value || !list.find((elem) => elem.net === selectedTokenFrom.value.net)) {
-                if (list[0].code !== 'USDC') {
-                    store.dispatch('tokens/setFromToken', list[0]);
-                } else {
-                    store.dispatch('tokens/setFromToken', list[1]);
-                }
+            if (!selectedTokenFrom.value || !listWithBalances.find((elem) => elem.code === selectedTokenFrom.value.code)) {
+                let filterTokens = listWithBalances.filter((elem) => elem.code !== 'USDC');
+                store.dispatch('tokens/setFromToken', filterTokens[0]);
             } else if (balanceUpdated.value) {
                 let tokenFrom = list.find((elem) => elem.code === selectedTokenFrom.value.code);
                 if (tokenFrom) {
                     store.dispatch('tokens/setFromToken', tokenFrom);
                 }
             }
-            if (!selectedTokenTo.value || !list.find((elem) => elem.net === selectedTokenTo.value.net)) {
+            if (!selectedTokenTo.value || !list.find((elem) => elem.address === selectedTokenTo.value.address)) {
                 store.dispatch(
                     'tokens/setToToken',
                     list.find((elem) => elem.code === 'USDC')
