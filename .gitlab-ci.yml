@@ -155,7 +155,6 @@ Run tests schedules:
         SHARD_INDEX: [1]
         SHARD_TOTAL: 1
   script:
-    - java -version
     - pwd
     - ls
     - npm i
