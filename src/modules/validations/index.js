@@ -6,7 +6,6 @@ export function validateAddress(address) {
 
         const reg = new RegExp(currentChainInfo.value.address_validating);
         return reg.test(address);
-
     } catch (e) {
         return false;
     }
