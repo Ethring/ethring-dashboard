@@ -2,7 +2,7 @@ const path = require('path');
 const axios = require('axios');
 const fs = require('fs');
 const AdmZip = require('adm-zip');
-const { test: setup, expect } = require('@playwright/test');
+const { test: setup } = require('@playwright/test');
 
 async function download(url, archivePath) {
     try {
@@ -16,14 +16,23 @@ async function download(url, archivePath) {
             writer.on('error', reject);
         });
     } catch (error) {
-        throw new Error(`Ошибка при скачивании: ${error.message}`);
+        throw new Error(`Download error: ${error.message}`);
     }
 }
 
 async function dowonloadAndUnzipMmEx() {
-    const url = 'https://github.com/MetaMask/metamask-extension/releases/download/v10.34.0/metamask-chrome-10.34.0.zip';
-    const dataFolderPath = path.resolve(__dirname, '..', 'data', 'metamask-chrome-10.34.0');
-    const pathToArchive = path.resolve(dataFolderPath, 'metamask-chrome-10.34.0.zip');
+    const mmVersion = 'metamask-chrome-10.34.0';
+    const url = `https://github.com/MetaMask/metamask-extension/releases/download/v10.34.0/${mmVersion}.zip`;
+    const dataFolderPath = path.resolve(__dirname, '..', 'data', mmVersion);
+    const pathToArchive = path.resolve(dataFolderPath, `${mmVersion}.zip`);
+
+    fs.mkdir(dataFolderPath, (err) => {
+        if (err) {
+            console.error('Error creating folder:', err);
+        } else {
+            console.log('Folder created successfully.');
+        }
+    });
 
     await download(url, pathToArchive);
 
@@ -31,17 +40,13 @@ async function dowonloadAndUnzipMmEx() {
     await zip.extractAllTo(dataFolderPath);
     fs.unlink(pathToArchive, (err) => {
         if (err) {
-            console.error('Ошибка удаления файла:', err);
+            console.error('Error deleting file:', err);
             return;
         }
-        console.log('Файл успешно удален.');
+        console.log('File successfully deleted.');
     });
 }
 
 setup('Download and unzip metamask extension', async () => {
-    console.log('Start setup');
-
     await dowonloadAndUnzipMmEx();
-
-    console.log('Finish setup');
 });
