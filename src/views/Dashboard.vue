@@ -1,6 +1,6 @@
 <template>
     <div class="dashboard">
-        <template v-if="connectedWallet">
+        <template v-if="walletAddress">
             <div class="dashboard__wallet">
                 <WalletInfoLarge />
                 <div class="dashboard__controls">
@@ -17,14 +17,14 @@
 <script>
 import { ref } from 'vue';
 
-import AddressModal from '@/components/app/modals/AddressModal';
+import useAdapter from '@/compositions/useAdapter';
 
 import WalletInfoLarge from '@/components/app/WalletInfoLarge';
-import Button from '@/components/ui/Button';
 import ActionsMenu from '@/components/app/ActionsMenu';
+import AddressModal from '@/components/app/modals/AddressModal';
 import Tokens from '@/components/app/Tokens';
 
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+import Button from '@/components/ui/Button';
 
 export default {
     name: 'Dashboard',
@@ -36,7 +36,8 @@ export default {
         Tokens,
     },
     setup() {
-        const { connectedWallet } = useWeb3Onboard();
+        const { walletAddress } = useAdapter();
+
         const showAddressModal = ref(false);
 
         const dashboardActions = ref([
@@ -45,8 +46,8 @@ export default {
         ]);
 
         return {
+            walletAddress,
             showAddressModal,
-            connectedWallet,
             dashboardActions,
         };
     },

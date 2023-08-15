@@ -15,7 +15,7 @@ const routes = [
             isAuth: true,
             isSwap: true,
         },
-        component: () => import(/* webpackChunkName: "about" */ '../layouts/SwapLayout.vue'),
+        component: () => import('../layouts/SwapLayout.vue'),
     },
     {
         path: '/stake',
@@ -23,7 +23,7 @@ const routes = [
         meta: {
             isAuth: true,
         },
-        component: () => import(/* webpackChunkName: "about" */ '../views/Stake.vue'),
+        component: () => import('../views/Stake.vue'),
     },
     {
         path: '/send',
@@ -31,7 +31,7 @@ const routes = [
         meta: {
             isAuth: true,
         },
-        component: () => import(/* webpackChunkName: "about" */ '../layouts/SendLayout.vue'),
+        component: () => import('../layouts/SendLayout.vue'),
     },
     {
         path: '/swap/select-token',
@@ -39,7 +39,7 @@ const routes = [
         meta: {
             isAuth: true,
         },
-        component: () => import(/* webpackChunkName: "about" */ '../components/dynamic/swaps/SelectToken.vue'),
+        component: () => import('../components/dynamic/swaps/SelectToken.vue'),
     },
     {
         path: '/send/select-token',
@@ -47,21 +47,12 @@ const routes = [
         meta: {
             isAuth: true,
         },
-        component: () => import(/* webpackChunkName: "about" */ '../components/dynamic/send/SelectToken.vue'),
+        component: () => import('../components/dynamic/send/SelectToken.vue'),
     },
-    // {
-    //     path: '/kit',
-    //     name: 'kit',
-    //     meta: {
-    //         isAuth: true,
-    //     },
-    //     component: () =>
-    //         import(/* webpackChunkName: "about" */ '../views/Kit.vue'),
-    // },
     {
         path: '/:pathMatch(.*)*',
         name: 'notFound',
-        component: () => import(/* webpackChunkName: "about" */ '../views/NotFound.vue'),
+        component: () => import('../views/NotFound.vue'),
     },
     {
         path: '/bridge',
@@ -69,7 +60,7 @@ const routes = [
         meta: {
             isAuth: true,
         },
-        component: () => import(/* webpackChunkName: "about" */ '../layouts/BridgeLayout.vue'),
+        component: () => import('../layouts/BridgeLayout.vue'),
     },
     {
         path: '/bridge/select-token',
@@ -77,7 +68,7 @@ const routes = [
         meta: {
             isAuth: true,
         },
-        component: () => import(/* webpackChunkName: "about" */ '../components/dynamic/bridge/SelectToken.vue'),
+        component: () => import('../components/dynamic/bridge/SelectToken.vue'),
     },
     {
         path: '/superSwap',
@@ -85,7 +76,7 @@ const routes = [
         meta: {
             isAuth: true,
         },
-        component: () => import(/* webpackChunkName: "about" */ '../layouts/SuperSwapLayout.vue'),
+        component: () => import('../layouts/SuperSwapLayout.vue'),
     },
     {
         path: '/superSwap/select-token',
@@ -93,7 +84,7 @@ const routes = [
         meta: {
             isAuth: true,
         },
-        component: () => import(/* webpackChunkName: "about" */ '../components/dynamic/superswap/SelectToken.vue'),
+        component: () => import('../components/dynamic/superswap/SelectToken.vue'),
     },
 ];
 

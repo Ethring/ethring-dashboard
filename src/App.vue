@@ -1,75 +1,61 @@
 <template>
     <div class="app-wrap">
         <Sidebar />
+        <NavBar />
 
         <div class="app-wrap__layout">
-            <NavBar />
             <div>
                 <router-view />
             </div>
         </div>
     </div>
+    <WalletsModal />
 </template>
 
 <script>
-import { nextTick, onMounted, watch } from 'vue';
+import { onMounted, onBeforeMount, watch } from 'vue';
+import { useStore } from 'vuex';
 
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+import { ECOSYSTEMS } from '@/Adapter/config';
+import WalletsModal from '@/Adapter/UI/Modal/WalletsModal.vue';
+
+import useInit from '@/compositions/useInit';
+import useAdapter from '@/compositions/useAdapter';
 
 import NavBar from '@/components/app/NavBar';
 import Sidebar from '@/components/app/Sidebar';
-import { useStore } from 'vuex';
-import useInit from './compositions/useInit';
 
 export default {
     name: 'App',
     components: {
         Sidebar,
         NavBar,
+        WalletsModal,
     },
-    created() {
-        const store = useStore();
-        store.dispatch('networks/init');
-    },
+
     setup() {
         const store = useStore();
-        const { connectWallet, connectedWallet, walletAddress } = useWeb3Onboard();
 
-        onMounted(async () => {
-            await store.dispatch('networks/initZometNets');
+        const { initAdapter, walletAddress, connectLastConnectedWallet } = useAdapter();
 
-            if (walletAddress.value && walletAddress.value !== undefined) {
+        const callInit = async () => {
+            if (walletAddress.value) {
                 await useInit(walletAddress.value, store);
             }
+        };
 
-            nextTick(async () => {
-                const { label, provider } = connectedWallet.value || {};
+        onBeforeMount(async () => {
+            store.dispatch('networks/initZometNets');
 
-                const lastConnected = localStorage.getItem('onboard.js:last_connected_wallet');
-                if (!label && !provider && lastConnected) {
-                    const walletLabel = JSON.parse(lastConnected);
+            initAdapter(ECOSYSTEMS.EVM);
+            initAdapter(ECOSYSTEMS.COSMOS);
 
-                    if (walletLabel) {
-                        return await connectWallet({
-                            autoSelect: {
-                                label: walletLabel[0] || 'MetaMask',
-                                disableModals: true,
-                            },
-                        });
-                    }
-                }
-
-                if (!label && !provider) {
-                    return await connectWallet();
-                }
-            });
+            await connectLastConnectedWallet();
+            await callInit();
         });
 
-        watch(walletAddress, async () => {
-            if (walletAddress?.value) {
-                await useInit(walletAddress.value, store);
-            }
-        });
+        watch(walletAddress, async () => await callInit());
+        onMounted(async () => await callInit());
     },
 };
 </script>

@@ -1,20 +1,21 @@
 import createPersistedState from 'vuex-persistedstate';
 import { createStore } from 'vuex';
-import metamask from './metamask';
+
 import networks from './networks';
 import tokens from './tokens';
 import app from './app';
 import bridge from './bridge/bridge';
 import swap from './swap/swap';
+import adapter from './adapter';
 
 const dataState = createPersistedState({
-    key: 'citadelPoint',
+    key: 'zomet-app',
     storage: {
         getItem: (key) => localStorage.getItem(key),
         setItem: (key, value) => localStorage.setItem(key, value),
         removeItem: (key) => localStorage.removeItem(key),
     },
-    paths: ['app.showBalance', 'tokens.favourites'],
+    paths: ['app.showBalance', 'tokens.favorites'],
 });
 
 export default createStore({
@@ -23,7 +24,7 @@ export default createStore({
     actions: {},
     modules: {
         app,
-        metamask,
+        adapter,
         networks,
         tokens,
         bridge,

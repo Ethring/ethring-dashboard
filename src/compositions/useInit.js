@@ -4,6 +4,8 @@ import prices from '@/modules/prices/';
 
 export default async function useInit(address, store) {
     const disableLoader = computed(() => store.getters['tokens/disableLoader']);
+    store.dispatch('tokens/setLoader', true);
+
     if (!disableLoader.value) {
         store.dispatch('tokens/setLoader', true);
         store.dispatch('tokens/setFromToken', null);
@@ -13,26 +15,27 @@ export default async function useInit(address, store) {
     } else {
         store.dispatch('tokens/setDisableLoader', false);
     }
+
     const networksList = ref(store.getters['networks/zometNetworksList']);
 
     const tokens = {};
 
-    const balanceInfo = async (net) => {
-        try {
-            let balance = 0;
-            if (net !== 'fantom') {
-                const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/blockchain/${net}/${address}/balance`);
+    // const balanceInfo = async (net) => {
+    //     try {
+    //         let balance = 0;
+    //         if (net !== 'fantom') {
+    //             const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/blockchain/${net}/${address}/balance`);
 
-                if (response.status === 200) {
-                    return response.data.data;
-                }
-            }
+    //             if (response.status === 200) {
+    //                 return response.data.data;
+    //             }
+    //         }
 
-            return balance;
-        } catch {
-            return {};
-        }
-    };
+    //         return balance;
+    //     } catch {
+    //         return {};
+    //     }
+    // };
 
     const tokensInfo = async (net) => {
         try {
@@ -50,17 +53,28 @@ export default async function useInit(address, store) {
 
     await Promise.all(
         networksList.value.map(async ({ net, native_token }) => {
-            const balance = await balanceInfo(net);
             const tokenList = await tokensInfo(net);
-            const price = await prices.Coingecko.marketCapForNativeCoin(native_token?.coingecko_id);
-            return (tokens[net] = {
+            const balance = tokenList[0];
+
+            tokens[net] = {
                 list: tokenList,
                 balance,
                 price: {
+                    BTC: 0,
+                    USD: 0,
+                },
+            };
+
+            try {
+                const price = await prices.Coingecko.marketCapForNativeCoin(native_token?.coingecko_id);
+                tokens[net].price = {
                     BTC: price.btc?.price,
                     USD: price.usd?.price,
-                },
-            });
+                };
+            } catch (error) {
+                console.log(error);
+            }
+            return tokens;
         })
     );
 

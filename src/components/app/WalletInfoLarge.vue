@@ -34,8 +34,8 @@ import eyeOpenSvg from '@/assets/icons/dashboard/eyeOpen.svg';
 import arrowPriceSvg from '@/assets/icons/dashboard/arrowprice.svg';
 import WalletSvg from '@/assets/icons/dashboard/wallet.svg';
 
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 import useTokens from '@/compositions/useTokens';
+import useAdapter from '@/compositions/useAdapter';
 
 export default {
     name: 'WalletInfo',
@@ -54,7 +54,8 @@ export default {
             opened.value = !opened.value;
         };
 
-        const { walletIcon, walletAddress, walletBalance, currentChainInfo } = useWeb3Onboard();
+        const { walletAddress, currentChainInfo } = useAdapter();
+
         const { groupTokens } = useTokens();
 
         const marketCap = computed(() => store.getters['tokens/groupTokens']);
@@ -69,9 +70,7 @@ export default {
         return {
             totalBalance,
             currentChainInfo,
-            walletIcon,
             walletAddress,
-            walletBalance,
             prettyNumber,
             cutAddress,
             opened,
@@ -119,6 +118,7 @@ export default {
     &__wallet {
         display: flex;
         flex-direction: column;
+        justify-content: center;
         z-index: 10;
 
         .address {
@@ -127,6 +127,8 @@ export default {
             align-items: center;
             font-family: 'Poppins_Light';
             font-size: 16px;
+            margin-bottom: 15px;
+
             cursor: pointer;
 
             svg {

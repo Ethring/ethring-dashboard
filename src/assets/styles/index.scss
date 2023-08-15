@@ -3,18 +3,19 @@
 @import "./fonts.scss";
 @import "./colors.scss";
 
+// @import "./base/reset";
+
 html,
 body {
   padding: 0;
   margin: 0;
-  background: $bgLight;
   box-sizing: border-box;
 
   @include animateEasy;
+}
 
-  &.dark {
-    background: $bgDark;
-  }
+* {
+  font-family: "Poppins", sans-serif;
 }
 
 .app-wrap {
@@ -36,10 +37,10 @@ body {
 
     padding: 40px 0;
     margin: 0 10%;
+    // margin-left: 260px;
 
     height: calc(100vh - 80px);
   }
-
 }
 
 body.dark {
@@ -49,4 +50,3 @@ body.dark {
     }
   }
 }
-

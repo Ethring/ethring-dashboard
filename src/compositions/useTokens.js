@@ -1,8 +1,8 @@
 import { computed } from 'vue';
 import { useStore } from 'vuex';
-import useWeb3Onboard from './useWeb3Onboard';
 
 import { chainIds } from '@/config/availableNets';
+import useAdapter from './useAdapter';
 
 export default function useTokens() {
     const store = useStore();
@@ -10,7 +10,7 @@ export default function useTokens() {
     const networks = computed(() => store.getters['networks/networks']);
     const tokensBalance = computed(() => store.getters['tokens/tokens']);
 
-    const { currentChainInfo } = useWeb3Onboard();
+    const { currentChainInfo } = useAdapter();
 
     const groupTokensBalance = computed(() => store.getters['tokens/groupTokens']);
 

@@ -1,5 +1,5 @@
 <template>
-    <div class="logo" @click="$router.push('/kit')">
+    <div class="logo">
         <div class="logo__round">
             <logoSvg />
         </div>
