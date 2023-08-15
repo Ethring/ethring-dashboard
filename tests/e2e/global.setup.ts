@@ -42,7 +42,6 @@ setup('Download and unzip metamask extension', async () => {
     console.log('Start setup');
 
     await dowonloadAndUnzipMmEx();
-    expect(true).toBe(true);
 
     console.log('Finish setup');
 });

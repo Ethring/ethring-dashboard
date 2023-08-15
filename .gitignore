@@ -30,4 +30,3 @@ pnpm-debug.log*
 /playwright-report/
 /playwright/.cache/
 .history
-package-lock.json
