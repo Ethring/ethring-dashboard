@@ -155,8 +155,9 @@ Run tests schedules:
         SHARD_INDEX: [1]
         SHARD_TOTAL: 1
   script:
-    - node -v
-    - npm -v
+    - java -version
+    - pwd
+    - ls
     - npm i
     - npx playwright test --workers 1 --project=$PROJECT --shard=$SHARD_INDEX/$SHARD_TOTAL
   timeout: 20 hours 30 minutes
