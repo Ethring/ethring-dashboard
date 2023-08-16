@@ -146,7 +146,7 @@ Deploy prod:
 
 Run tests schedules:
   stage: test_ui
-  image: mcr.microsoft.com/playwright:v1.34.0-jammy
+  image: mcr.microsoft.com/playwright:v1.37.0-jammy
   only:
     - schedules
   parallel:
