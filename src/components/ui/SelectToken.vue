@@ -202,7 +202,7 @@ export default {
             display: flex;
             align-items: center;
             justify-content: center;
-            background: $colorDarkPanel;
+            background: #3fdfae;
             border-radius: 50%;
             margin-right: 12px;
         }

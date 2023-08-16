@@ -14,7 +14,7 @@
 <script>
 import { computed } from 'vue';
 
-import useAdapter from '@/compositions/useAdapter';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 import UIConfig from '@/config/ui';
 
 import mainSvg from '@/assets/icons/sidebar/main.svg';

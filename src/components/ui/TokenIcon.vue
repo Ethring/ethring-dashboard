@@ -1,11 +1,11 @@
 <template>
-    <div :class="{ dark }" class="token-icon">
+    <div class="token-icon">
         <img
             v-if="!showIconPlaceholder"
             :width="width"
             :height="height"
             :key="token?.code"
-            :src="tokenIconFromZomet || getTokenIcon(token?.code?.toLowerCase())"
+            :src="token?.logo || tokenIconFromZomet || getTokenIcon(token?.code?.toLowerCase())"
             :alt="token?.name"
             @error="showIconPlaceholder = true"
             @load="showIconPlaceholder = false"
@@ -100,19 +100,7 @@ export default {
     justify-content: center;
     align-items: center;
 
-    &.dark {
-        img {
-            filter: brightness(0) invert(0);
-        }
-
-        .token-icon__placeholder {
-            span {
-                color: $colorBlack;
-            }
-        }
-    }
-
-    img.nativeIcon {
+    img {
         border-radius: 50%;
         width: 100%;
         height: 100%;
@@ -122,37 +110,11 @@ export default {
         filter: none;
     }
 
-    img {
-        filter: brightness(0) invert(1);
-    }
-
     &__placeholder {
         font-size: 12px;
 
         & span {
             color: $colorWhite;
-        }
-    }
-}
-
-body.dark {
-    .token-icon {
-        width: 32px;
-        height: 32px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        &.dark {
-            img {
-                filter: brightness(0) invert(1);
-            }
-
-            .token-icon__placeholder {
-                span {
-                    color: $colorWhite;
-                }
-            }
         }
     }
 }

@@ -11,7 +11,7 @@
 import Logo from './Logo';
 // import Socials from './Socials';
 import SidebarList from './SidebarList';
-import useAdapter from '@/compositions/useAdapter';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 
 export default {
     name: 'Sidebar',

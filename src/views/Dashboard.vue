@@ -17,7 +17,7 @@
 <script>
 import { ref } from 'vue';
 
-import useAdapter from '@/compositions/useAdapter';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import WalletInfoLarge from '@/components/app/WalletInfoLarge';
 import ActionsMenu from '@/components/app/ActionsMenu';

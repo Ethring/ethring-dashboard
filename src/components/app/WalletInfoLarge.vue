@@ -35,7 +35,7 @@ import arrowPriceSvg from '@/assets/icons/dashboard/arrowprice.svg';
 import WalletSvg from '@/assets/icons/dashboard/wallet.svg';
 
 import useTokens from '@/compositions/useTokens';
-import useAdapter from '@/compositions/useAdapter';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 
 export default {
     name: 'WalletInfo',

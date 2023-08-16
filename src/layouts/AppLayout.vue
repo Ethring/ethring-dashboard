@@ -17,7 +17,7 @@ import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
 import useTokens from '@/compositions/useTokens';
-import useAdapter from '@/compositions/useAdapter';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import UIConfig from '@/config/ui';
 
@@ -54,11 +54,11 @@ export default {
         const loader = computed(() => store.getters['tokens/loader']);
 
         const spinnerLoader = computed(() => {
-            return loader.value || !groupTokens.value[0]?.name || !walletAddress.value;
+            return loader.value || !walletAddress.value;
         });
 
         const layoutComponent = computed(() => {
-            const config = UIConfig(currentChainInfo.value?.net);
+            const config = UIConfig(currentChainInfo.value?.net, currentChainInfo.value?.ecosystem);
             if (!config) {
                 return null;
             }

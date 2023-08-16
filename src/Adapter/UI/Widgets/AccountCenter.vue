@@ -30,7 +30,7 @@ import zometLogo from '@/assets/icons/app/zometLogo.svg';
 import checkIcon from '@/assets/icons/app/checkIcon.svg';
 import metamaskLogo from '@/assets/icons/wallets/mm.svg';
 
-import useAdapter from '@/compositions/useAdapter';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 
 export default {
     name: 'AccountCenter',

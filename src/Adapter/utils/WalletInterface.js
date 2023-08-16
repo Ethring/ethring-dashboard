@@ -19,6 +19,14 @@ class WalletInterface {
         throw new Error('Method not implemented.');
     }
 
+    async getChainList() {
+        throw new Error('Method not implemented.');
+    }
+
+    async setChain() {
+        throw new Error('Method not implemented.');
+    }
+
     async getAccount() {
         throw new Error('Method not implemented.');
     }
@@ -28,6 +36,9 @@ class WalletInterface {
     }
 
     getWalletLogo() {
+        throw new Error('Method not implemented.');
+    }
+    validateAddress() {
         throw new Error('Method not implemented.');
     }
 }

@@ -5,7 +5,7 @@
             <div class="info-wrap">
                 <div class="info" @click="clickToken" data-qa="select-token">
                     <div class="network">
-                        <TokenIcon width="24" height="24" :token="selectedToken" dark />
+                        <TokenIcon width="24" height="24" :token="selectedToken" />
                     </div>
                     <div class="token">{{ selectedToken?.code }}</div>
                     <arrowSvg class="arrow" />
@@ -279,6 +279,9 @@ export default {
         padding: 17px 32px;
         box-sizing: border-box;
         border: 2px solid transparent;
+
+        transition: 0.2s;
+
         cursor: pointer;
 
         .label {

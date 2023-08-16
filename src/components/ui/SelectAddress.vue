@@ -5,7 +5,7 @@
             <div class="info-wrap">
                 <div class="info">
                     <div class="network">
-                        <component v-if="selectedNetwork?.net" :is="`${selectedNetwork?.net}Svg`" />
+                        <img :src="selectedNetwork.logo" alt="network-logo" class="network-logo" />
                     </div>
                     <input
                         v-model="address"
@@ -30,17 +30,9 @@
     </div>
 </template>
 <script>
-import closeSvg from '@/assets/icons/app/close.svg';
-import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
-import bscSvg from '@/assets/icons/networks/bsc.svg';
-import ethSvg from '@/assets/icons/networks/eth.svg';
-import polygonSvg from '@/assets/icons/networks/polygon.svg';
-import optimismSvg from '@/assets/icons/networks/optimism.svg';
-import arbitrumSvg from '@/assets/icons/networks/arbitrum.svg';
-import evmosethSvg from '@/assets/icons/networks/evmoseth.svg';
-import avalancheSvg from '@/assets/icons/networks/avalanche.svg';
-
 import { ref, watch, onMounted } from 'vue';
+
+import closeSvg from '@/assets/icons/app/close.svg';
 
 export default {
     name: 'SelectAddress',
@@ -68,14 +60,6 @@ export default {
     },
     components: {
         closeSvg,
-        arrowSvg,
-        bscSvg,
-        ethSvg,
-        polygonSvg,
-        optimismSvg,
-        arbitrumSvg,
-        evmosethSvg,
-        avalancheSvg,
     },
     setup(props, { emit }) {
         const active = ref(false);
@@ -166,6 +150,8 @@ export default {
         padding: 17px 32px;
         box-sizing: border-box;
         border: 2px solid transparent;
+        transition: 0.2s;
+
         cursor: pointer;
 
         .recipient {
@@ -438,6 +424,23 @@ body.dark {
                 }
             }
         }
+    }
+}
+
+.network {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 50%;
+    background: #3fdfae;
+    margin-right: 10px;
+
+    &-logo {
+        width: 80%;
+        height: 80%;
     }
 }
 </style>

@@ -29,7 +29,7 @@
 <script>
 import { useStore } from 'vuex';
 
-import useAdapter from '@/compositions/useAdapter';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import ConnectTo from '@/Adapter/UI/Features/ConnectTo';
 import ConnectedWallet from '@/Adapter/UI/Features/ConnectedWallet';

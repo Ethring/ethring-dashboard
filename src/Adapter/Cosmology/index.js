@@ -3,7 +3,7 @@ import WalletInterface from '@/Adapter/utils/WalletInterface';
 import { ECOSYSTEMS } from '@/Adapter/config';
 
 import { Logger, WalletManager } from '@cosmos-kit/core';
-import { chains, assets } from 'chain-registry';
+import { chains, assets, ibc } from 'chain-registry';
 import { wallets as KeplrWallets } from '@cosmos-kit/keplr';
 import { wallets as LeapWallets } from '@cosmos-kit/leap';
 
@@ -49,8 +49,13 @@ class CosmosAdapter extends WalletInterface {
     }
 
     getCurrentChain() {
-        const chainInfo = this.currentWallet.chain;
-        const walletInfo = this.currentWallet.walletInfo;
+        const chainInfo = this.currentWallet?.chain;
+        const walletInfo = this.currentWallet?.walletInfo;
+
+        if (!chainInfo || !walletInfo) {
+            return null;
+        }
+
         return {
             ...chainInfo,
             walletName: walletInfo.name,
@@ -58,8 +63,11 @@ class CosmosAdapter extends WalletInterface {
             net: chainInfo.chain_id,
             chain_id: chainInfo.chain_name,
             ecosystem: ECOSYSTEMS.COSMOS,
+            logo: chainInfo.logo_URIs?.png || chainInfo.logo_URIs?.svg || null,
         };
     }
+
+    getChainList() {}
 
     getWalletLogo() {
         return this.currentWallet?.walletInfo?.logo || null;

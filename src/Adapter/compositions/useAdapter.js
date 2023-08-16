@@ -15,6 +15,7 @@ function useAdapter() {
     const store = useStore();
 
     const currEcosystem = computed(() => store.getters['adapter/getEcosystem']);
+
     const connectedWallets = computed(() => store.getters['adapter/getWallets']);
     const walletsModule = computed(() => store.getters['adapter/getWalletsModule']);
 
@@ -24,6 +25,8 @@ function useAdapter() {
     const currentChainInfo = computed(() => (adapter.value ? adapter.value.getCurrentChain(store) : []));
     const walletAddress = computed(() => (adapter.value ? adapter.value.getAccount() : null));
 
+    const chainList = computed(() => (adapter.value ? adapter.value.getChainList(store) : []));
+
     if (adapter.value?.subscribeToWalletsChange) {
         const wallets = adapter.value?.subscribeToWalletsChange();
         wallets.subscribe(() => {
@@ -31,7 +34,7 @@ function useAdapter() {
         });
     }
 
-    function initAdapter(ecosystem) {
+    function initAdapter(ecosystem, chains = []) {
         if (adapter.value && currEcosystem.value === ecosystem) {
             return;
         }
@@ -40,6 +43,10 @@ function useAdapter() {
 
         if (!availableAdapter) {
             return;
+        }
+
+        if (chains.length) {
+            availableAdapter.reInit(chains);
         }
 
         store.dispatch('adapter/setAdapter', { adapter: availableAdapter, ecosystem });
@@ -115,6 +122,10 @@ function useAdapter() {
         }
     };
 
+    const setChain = (...args) => {
+        return adapter.value.setChain(...args);
+    };
+
     const disconnectAllWallets = async (...args) => {
         for (const ecosystem in ECOSYSTEMS) {
             const adapter = store.getters['adapter/getAdapterByEcosystem'](ecosystem);
@@ -122,6 +133,24 @@ function useAdapter() {
             await adapter.disconnectAllWallets(...args);
         }
         store.dispatch('adapter/disconnectAll');
+    };
+
+    const validateAddress = (address) => {
+        if (!adapter.value) {
+            return false;
+        }
+        const validation = currentChainInfo.value.address_validating || currentChainInfo.value.bech32_prefix;
+
+        return adapter.value.validateAddress(address, validation);
+    };
+
+    const prepareTransaction = async (...args) => {
+        console.log('prepareTransaction', ...args);
+        return await adapter.value.prepareTransaction(...args);
+    };
+
+    const signSend = async (transaction) => {
+        return await adapter.value.signSend(transaction);
     };
 
     return {
@@ -132,6 +161,7 @@ function useAdapter() {
 
         currentChainInfo,
         connectedWallets,
+        chainList,
 
         initAdapter,
 
@@ -140,6 +170,12 @@ function useAdapter() {
         connectLastConnectedWallet,
 
         getWalletsModule,
+        setChain,
+
+        validateAddress,
+
+        prepareTransaction,
+        signSend,
 
         disconnectAllWallets,
     };

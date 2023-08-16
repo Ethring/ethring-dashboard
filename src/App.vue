@@ -13,14 +13,14 @@
 </template>
 
 <script>
-import { onMounted, onBeforeMount, watch } from 'vue';
+import { onMounted, onUpdated, onBeforeMount, watch, computed } from 'vue';
 import { useStore } from 'vuex';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 import WalletsModal from '@/Adapter/UI/Modal/WalletsModal.vue';
 
 import useInit from '@/compositions/useInit';
-import useAdapter from '@/compositions/useAdapter';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import NavBar from '@/components/app/NavBar';
 import Sidebar from '@/components/app/Sidebar';
@@ -37,25 +37,31 @@ export default {
         const store = useStore();
 
         const { initAdapter, walletAddress, connectLastConnectedWallet } = useAdapter();
+        const EVM_CHAINS = computed(() => store.getters['networks/chainsForConnect']);
 
         const callInit = async () => {
-            if (walletAddress.value) {
+            if (walletAddress.value !== undefined) {
                 await useInit(walletAddress.value, store);
             }
         };
 
         onBeforeMount(async () => {
-            store.dispatch('networks/initZometNets');
+            const storePromises = [store.dispatch('networks/initBlocknativeChains'), store.dispatch('networks/initZometNets')];
+            await Promise.all(storePromises);
+            await Promise.all([connectLastConnectedWallet(), callInit()]);
+        });
 
-            initAdapter(ECOSYSTEMS.EVM);
+        onMounted(() => {
+            initAdapter(ECOSYSTEMS.EVM, EVM_CHAINS.value);
             initAdapter(ECOSYSTEMS.COSMOS);
-
-            await connectLastConnectedWallet();
-            await callInit();
         });
 
         watch(walletAddress, async () => await callInit());
-        onMounted(async () => await callInit());
+
+        onUpdated(async () => {
+            console.log('onUpdated');
+            await callInit();
+        });
     },
 };
 </script>

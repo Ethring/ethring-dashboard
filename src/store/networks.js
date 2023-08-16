@@ -1,11 +1,12 @@
 import axios from 'axios';
 
-import { getNetworksConfig, getTokensListByNetwork } from '@/api/networks';
+import { getNetworksConfig, getTokensListByNetwork, getChainList } from '@/api/networks';
 
 const types = {
     SET_NETWORKS: 'SET_NETWORKS',
     SET_SELECTED_NETWORK: 'SET_SELECTED_NETWORK',
     SET_ZOMET_NETWORKS_LIST: 'SET_ZOMET_NETWORKS_LIST',
+    SET_BLOCKNATIVE_CHAINS: 'SET_BLOCKNATIVE_CHAINS',
     SET_ZOMET_NETWORKS: 'SET_ZOMET_NETWORKS',
     SET_ZOMET_TOKENS_BY_NET: 'SET_ZOMET_TOKENS_BY_NET',
 };
@@ -20,9 +21,11 @@ export default {
         tokensByNetwork: {},
         zometTokens: {},
         tokensAddressesByNet: {},
+        chainsForConnect: [],
     }),
 
     getters: {
+        chainsForConnect: (state) => state.chainsForConnect,
         networks: (state) => state.networks,
         selectedNetwork: (state) => state.selectedNetwork,
         zometNetworksList: (state) => state.zometNetworksList,
@@ -48,6 +51,9 @@ export default {
         },
         [types.SET_ZOMET_NETWORKS](state, value) {
             state.zometNetworks = value;
+        },
+        [types.SET_BLOCKNATIVE_CHAINS](state, value) {
+            state.chainsForConnect = value;
         },
         [types.SET_ZOMET_TOKENS_BY_NET](state, { tokens, network } = {}) {
             const exists = JSON.parse(JSON.stringify(state.zometTokens)) || {};
@@ -93,6 +99,11 @@ export default {
                 }
                 commit(types.SET_ZOMET_NETWORKS_LIST, nets);
             }
+        },
+
+        async initBlocknativeChains({ commit }) {
+            const response = await getChainList();
+            commit(types.SET_BLOCKNATIVE_CHAINS, response);
         },
 
         async initZometTokens({ commit }, network) {

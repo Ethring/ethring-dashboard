@@ -38,7 +38,7 @@ const defaultConfig = {
     [ECOSYSTEMS.EVM]: {
         sidebar: [
             MAIN_DASHBOARD,
-            // SEND,
+            SEND,
             // SWAP,
             // BRIDGE,
             // SUPER_SWAP,

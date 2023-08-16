@@ -31,7 +31,7 @@
 <script>
 import { ref } from 'vue';
 
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
@@ -46,7 +46,7 @@ export default {
         arrowSvg,
     },
     setup(_, { emit }) {
-        const { currentChainInfo } = useWeb3Onboard();
+        const { currentChainInfo } = useAdapter();
 
         const active = ref(false);
 
@@ -107,10 +107,6 @@ export default {
             border-radius: 50%;
             background: #3fdfae;
             margin-right: 10px;
-
-            svg {
-                fill: $colorBlack;
-            }
 
             &-logo {
                 width: 70%;

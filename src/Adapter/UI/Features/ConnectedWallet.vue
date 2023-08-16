@@ -18,7 +18,7 @@
 
 <script>
 import { cutAddress } from '@/helpers/utils';
-import useAdapter from '@/compositions/useAdapter';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 
 export default {
     name: 'ConnectedWallet',

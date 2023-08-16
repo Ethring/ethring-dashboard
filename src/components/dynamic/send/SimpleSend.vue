@@ -1,6 +1,6 @@
 <template>
     <div class="simple-send">
-        <SelectNetwork :items="zometNetworks" @select="onSelectNetwork" />
+        <SelectNetwork :items="chainList" @select="onSelectNetwork" />
 
         <SelectAddress
             :selected-network="currentChainInfo"
@@ -9,7 +9,6 @@
             :error="!!errorAddress"
             class="mt-10"
             :on-reset="successHash"
-            @removeAddress="onRemoveFavourite"
             @setAddress="onSetAddress"
         />
 
@@ -43,27 +42,20 @@
     </div>
 </template>
 <script>
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
+
+import useAdapter from '@/Adapter/compositions/useAdapter';
+import useTokens from '@/compositions/useTokens';
+
+import Button from '@/components/ui/Button';
 import InfoPanel from '@/components/ui/InfoPanel';
 import SelectNetwork from '@/components/ui/SelectNetwork';
 import SelectAddress from '@/components/ui/SelectAddress';
 import SelectAmount from '@/components/ui/SelectAmount';
 
-import Button from '@/components/ui/Button';
-
-import useTokens from '@/compositions/useTokens';
-
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
-import { useStore } from 'vuex';
-import * as ethers from 'ethers';
-import { useRouter } from 'vue-router';
-
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
-import { onSelectNetwork } from '../../../helpers/chains';
-
-import { abi } from '@/config/abi';
 import { getTxUrl } from '@/helpers/utils';
-
-const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
 export default {
     name: 'SimpleSend',
@@ -77,7 +69,10 @@ export default {
     setup() {
         const store = useStore();
         const router = useRouter();
-        const { walletAddress, connectedWallet, currentChainInfo } = useWeb3Onboard();
+
+        const { walletAddress, connectedWallet, currentChainInfo, validateAddress, chainList, prepareTransaction, signSend, setChain } =
+            useAdapter();
+
         const { groupTokens } = useTokens();
 
         const isLoading = ref(false);
@@ -90,10 +85,8 @@ export default {
         const errorAddress = ref('');
         const errorBalance = ref('');
 
-        // const favouritesList = computed(() => store.getters['tokens/favourites']);
         const zometNetworks = computed(() => store.getters['networks/zometNetworksList']);
         const selectedToken = computed(() => store.getters['tokens/fromToken']);
-        const networks = computed(() => store.getters['networks/networks']);
 
         const disabledSend = computed(() => {
             return (
@@ -107,19 +100,19 @@ export default {
         });
 
         const tokensList = computed(() => {
-            if (!currentChainInfo.value) {
+            if (!currentChainInfo.value || !groupTokens.value.length) {
                 return [];
             }
 
-            const currentNetwork = groupTokens.value[0];
+            const [firstToken] = groupTokens.value[0].list;
 
             if (!selectedToken.value) {
-                store.dispatch('tokens/setFromToken', currentNetwork);
+                store.dispatch('tokens/setFromToken', firstToken);
             } else {
                 let token = groupTokens.value[0].list.find((elem) => elem.code === selectedToken.value.code);
                 store.dispatch('tokens/setFromToken', token);
             }
-            return [currentNetwork, ...groupTokens.value[0].list];
+            return groupTokens.value[0].list;
         });
 
         const onSetToken = () => {
@@ -128,16 +121,22 @@ export default {
         };
 
         const onSetAddress = (addr) => {
-            const reg = new RegExp(networks.value[currentChainInfo.value.net].validating);
-            address.value = addr;
-            store.dispatch('tokens/setAddress', addr);
+            if (!addr) {
+                return;
+            }
 
-            if (address.value.length && !reg.test(addr)) {
+            if (!validateAddress(addr)) {
                 errorAddress.value = 'Invalid address';
                 return;
             }
 
+            store.dispatch('tokens/setAddress', addr);
+            address.value = addr;
             errorAddress.value = '';
+        };
+
+        const onSelectNetwork = async (network) => {
+            await setChain(network);
         };
 
         const onSetAmount = (value) => {
@@ -154,71 +153,68 @@ export default {
             }
         };
 
-        const onRemoveFavourite = (params) => {
-            store.dispatch('tokens/removeFavourite', params);
-        };
+        // const getProvider = () => {
+        //     const { provider } = connectedWallet.value || {};
+        //     if (provider) {
+        //         // create an ethers provider with the last connected wallet provider
+        //         const ethersProvider = new ethers.providers.Web3Provider(provider, 'any');
+        //         return ethersProvider;
+        //     }
+        // };
 
-        const getProvider = () => {
-            const { provider } = connectedWallet.value || {};
-            if (provider) {
-                // create an ethers provider with the last connected wallet provider
-                const ethersProvider = new ethers.providers.Web3Provider(provider, 'any');
-                return ethersProvider;
-            }
-        };
+        // const sendTransaction = async (transaction) => {
+        //     const ethersProvider = getProvider();
+        //     try {
+        //         if (ethersProvider) {
+        //             const signer = ethersProvider.getSigner();
+        //             const tokenContract = new ethers.Contract(selectedToken.value.address || NATIVE_CONTRACT, abi, ethersProvider);
 
-        const sendTransaction = async (transaction) => {
-            const ethersProvider = getProvider();
-            try {
-                if (ethersProvider) {
-                    const signer = ethersProvider.getSigner();
-                    const tokenContract = new ethers.Contract(selectedToken.value.address || NATIVE_CONTRACT, abi, ethersProvider);
+        //             const res = await tokenContract.populateTransaction.transfer(
+        //                 transaction.toAddress,
+        //                 ethers.utils.parseUnits(transaction.amount, selectedToken.value.decimals)
+        //             );
 
-                    const res = await tokenContract.populateTransaction.transfer(
-                        transaction.toAddress,
-                        ethers.utils.parseUnits(transaction.amount, selectedToken.value.decimals)
-                    );
+        //             const txData = {
+        //                 ...res,
+        //                 from: transaction.fromAddress,
+        //                 value: !selectedToken.value.address ? ethers.utils.parseEther(amount.value) : ethers.utils.parseUnits('0'),
+        //                 nonce: await ethersProvider.getTransactionCount(walletAddress.value),
+        //             };
 
-                    const txData = {
-                        ...res,
-                        from: transaction.fromAddress,
-                        value: !selectedToken.value.address ? ethers.utils.parseEther(amount.value) : ethers.utils.parseUnits('0'),
-                        nonce: await ethersProvider.getTransactionCount(walletAddress.value),
-                    };
+        //             const txn = await signer.sendTransaction(txData);
 
-                    const txn = await signer.sendTransaction(txData);
-
-                    const receipt = await txn.wait();
-                    return receipt;
-                }
-            } catch (e) {
-                return { error: e?.data?.message || e.message };
-            }
-        };
+        //             const receipt = await txn.wait();
+        //             return receipt;
+        //         }
+        //     } catch (e) {
+        //         return { error: e?.data?.message || e.message };
+        //     }
+        // };
 
         const send = async () => {
+            const showError = (error) => {
+                txError.value = error;
+                setTimeout(() => {
+                    txError.value = '';
+                }, 3000);
+            };
+
             if (disabledSend.value) {
                 return;
             }
 
-            isLoading.value = true;
+            const tx = await prepareTransaction(walletAddress.value, address.value, amount.value, selectedToken.value);
 
-            const response = {
-                fromAddress: walletAddress.value,
-                toAddress: address.value,
-                amount: amount.value,
-            };
+            if (tx.error) {
+                showError(tx.error);
+            }
 
-            const resTx = await sendTransaction(response);
+            const resTx = await signSend(tx);
 
             if (resTx.error) {
-                txError.value = resTx.error;
-                isLoading.value = false;
-                setTimeout(() => {
-                    txError.value = '';
-                }, 3000);
-                return;
+                showError(resTx.error);
             }
+
             successHash.value = getTxUrl(currentChainInfo.value.net, resTx.transactionHash);
             isLoading.value = false;
 
@@ -245,15 +241,13 @@ export default {
         return {
             isLoading,
             disabledSend,
-            networks,
+
             groupTokens,
             tokensList,
             errorAddress,
             errorBalance,
             selectedToken,
             address,
-
-            onRemoveFavourite,
 
             onSelectNetwork,
             onSetAddress,
@@ -265,6 +259,7 @@ export default {
             walletAddress,
             connectedWallet,
             zometNetworks,
+            chainList,
             currentChainInfo,
         };
     },

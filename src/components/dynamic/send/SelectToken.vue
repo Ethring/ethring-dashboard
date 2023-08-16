@@ -12,7 +12,7 @@ import { computed, ref } from 'vue';
 
 import { useRouter } from 'vue-router';
 
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 import useTokens from '@/compositions/useTokens';
 
 import SelectToken from '@/components/ui/SelectToken.vue';
@@ -26,14 +26,14 @@ export default {
         const store = useStore();
         const router = useRouter();
         const { groupTokens } = useTokens();
-        const { walletAddress, currentChainInfo } = useWeb3Onboard();
+        const { walletAddress, currentChainInfo } = useAdapter();
 
         const searchValue = ref('');
 
         const loader = computed(() => store.getters['tokens/loader']);
 
         const allTokens = computed(() => {
-            if (!currentChainInfo.value) {
+            if (!currentChainInfo.value || !groupTokens.value.length) {
                 return [];
             }
 

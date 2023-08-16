@@ -17,7 +17,7 @@
 import { computed, watch } from 'vue';
 import { useStore } from 'vuex';
 
-import useAdapter from '@/compositions/useAdapter';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import WalletItem from '@/Adapter/UI/Modal/WalletItem';
 import { ECOSYSTEMS } from '@/Adapter/config';

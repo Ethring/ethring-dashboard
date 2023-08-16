@@ -2,15 +2,24 @@ import { computed } from 'vue';
 import { useStore } from 'vuex';
 
 import { chainIds } from '@/config/availableNets';
-import useAdapter from './useAdapter';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 
 export default function useTokens() {
     const store = useStore();
 
+    const { walletAddress, currentChainInfo } = useAdapter();
+
+    if (!walletAddress.value) {
+        return {
+            tokens: [],
+            groupTokens: [],
+            allTokensFromNetwork: () => [],
+            getTokenList: () => [],
+        };
+    }
+
     const networks = computed(() => store.getters['networks/networks']);
     const tokensBalance = computed(() => store.getters['tokens/tokens']);
-
-    const { currentChainInfo } = useAdapter();
 
     const groupTokensBalance = computed(() => store.getters['tokens/groupTokens']);
 
