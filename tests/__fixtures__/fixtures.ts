@@ -28,7 +28,7 @@ export const test = base.extend<{
                     '--disable-background-timer-throttling',
                     '--disable-backgrounding-occluded-windows',
                     '--disable-renderer-backgrounding',
-                    '--headless=new'
+                    // '--headless=new'
                 ],
             });
         } else {
