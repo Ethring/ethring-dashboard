@@ -14,7 +14,23 @@ export const test = base.extend<{
     context: async ({}, use) => {
         let context;
         if (process.env.CI) {
-            context = '';
+            context = await chromium.launchPersistentContext('', {
+                headless: false,
+                ignoreHTTPSErrors: true,
+                args: [
+                    `--disable-extensions-except=${getPathToEx()}`,
+                    `--load-extension=${getPathToEx()}`,
+                    '--force-fieldtrials',
+                    '--disable-http2',
+
+                    '--ignore-certificate-errors',
+
+                    '--disable-background-timer-throttling',
+                    '--disable-backgrounding-occluded-windows',
+                    '--disable-renderer-backgrounding',
+                    '--headless=new'
+                ],
+            });
         } else {
             context = await chromium.launchPersistentContext('', {
                 headless: false,
