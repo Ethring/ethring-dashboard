@@ -157,7 +157,7 @@ Run tests schedules:
   script:
     - apt update && apt install -y default-jre
     - npm i
-    - xvfb-run npx playwright test --workers 1 --project=$PROJECT --shard=$SHARD_INDEX/$SHARD_TOTAL
+    - xvfb-run npx playwright test --trace on --workers 1 --project=$PROJECT --shard=$SHARD_INDEX/$SHARD_TOTAL
   timeout: 20 hours 30 minutes
   artifacts:
     paths:

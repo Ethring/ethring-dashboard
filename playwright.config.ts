@@ -13,6 +13,7 @@ export default defineConfig({
         },
         trace: 'on-first-retry',
         testIdAttribute: 'data-qa',
+        screenshot: 'only-on-failure',
     },
 
     webServer: {

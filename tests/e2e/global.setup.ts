@@ -43,7 +43,7 @@ async function dowonloadAndUnzipMmEx() {
             console.error('Error deleting file:', err);
             return;
         }
-        console.log('File successfully deleted.');
+        console.log('Zip archive with MM successfully deleted.');
     });
 }
 
