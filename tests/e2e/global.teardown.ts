@@ -26,5 +26,7 @@ const clearDirectory = (dirPath) => {
 teardown(`Delete extension's files`, () => {
     const directoryPath = path.resolve(__dirname, '..', 'data', 'metamask-chrome-10.34.0');
 
-    clearDirectory(directoryPath);
+    if (!process.env.CI) {
+        clearDirectory(directoryPath);
+    }
 });
