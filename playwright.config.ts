@@ -32,7 +32,7 @@ export default defineConfig({
             name: 'chromium',
             use: { ...devices['Desktop Chrome'] },
             dependencies: ['setup'],
-            testMatch: './tests/e2e/*.spec.ts',
+            testMatch: '**/tests/e2e/*.spec.ts',
             teardown: 'delete mm',
         },
         {
