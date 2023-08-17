@@ -81,3 +81,22 @@ test('Assert networks name', async ({ browser, context, page: Page, swapPage }) 
 
     expect(netsNameList).toStrictEqual(supportedNetsBySwap);
 });
+
+test('Swap in Poligon: Matic to USDC', async ({ browser, context, page: Page, swapPage }) => {
+    const testedNet = 'Polygon';
+    const tokenFrom = 'MATIC';
+
+    await swapPage.changeNetworkBySwap(testedNet);
+
+    const notyfMM = new MetaMaskNotifyPage(context.pages()[2]);
+    await notyfMM.addAndAcceptChangeNetwork();
+
+    expect(await swapPage.getCurrentNetInSwap()).toContain(testedNet);
+    await swapPage.setTokenFromInSwap(tokenFrom);
+
+    await swapPage.swapTokens('0.1');
+    const notyfMM2 = new MetaMaskNotifyPage(context.pages()[2]);
+    await notyfMM2.signTx();
+
+    expect(await swapPage.getLinkFromSuccessPanell()).toContain('0x722a02331325f538c740391d0d0948935250e19eda6cf355b0c89198d2f8a0e4');
+});
