@@ -1,5 +1,5 @@
 <template>
-    <div class="app-wrap">
+    <div class="app-wrap" :class="{ 'lock-scroll': isOpen }">
         <Sidebar />
         <NavBar />
 
@@ -35,33 +35,46 @@ export default {
 
     setup() {
         const store = useStore();
+        const isOpen = computed(() => store.getters['adapter/isOpen']);
 
-        const { initAdapter, walletAddress, connectLastConnectedWallet } = useAdapter();
+        const { initAdapter, walletAddress, currentChainInfo, connectLastConnectedWallet } = useAdapter();
         const EVM_CHAINS = computed(() => store.getters['networks/chainsForConnect']);
 
         const callInit = async () => {
-            if (walletAddress.value !== undefined) {
-                await useInit(walletAddress.value, store);
+            if ((currentChainInfo.value && walletAddress.value !== undefined) || walletAddress.value !== null) {
+                await useInit(currentChainInfo.value.ecosystem, walletAddress.value, store);
             }
         };
 
         onBeforeMount(async () => {
-            const storePromises = [store.dispatch('networks/initBlocknativeChains'), store.dispatch('networks/initZometNets')];
-            await Promise.all(storePromises);
-            await Promise.all([connectLastConnectedWallet(), callInit()]);
+            await Promise.all([store.dispatch('networks/initBlocknativeChains'), store.dispatch('networks/initZometNets')]);
         });
 
-        onMounted(() => {
-            initAdapter(ECOSYSTEMS.EVM, EVM_CHAINS.value);
+        onMounted(async () => {
+            // wait while EVM_CHAINS value is empty
+            while (!EVM_CHAINS.value.length) {
+                await new Promise((resolve) => setTimeout(resolve, 100));
+            }
+
             initAdapter(ECOSYSTEMS.COSMOS);
+            initAdapter(ECOSYSTEMS.EVM, EVM_CHAINS.value);
+
+            await Promise.all([connectLastConnectedWallet(), callInit()]);
         });
 
         watch(walletAddress, async () => await callInit());
 
-        onUpdated(async () => {
-            console.log('onUpdated');
-            await callInit();
-        });
+        onUpdated(async () => await callInit());
+
+        return {
+            isOpen,
+        };
     },
 };
 </script>
+
+<style lang="scss" scoped>
+.app-wrap.lock-scroll {
+    overflow: hidden;
+}
+</style>

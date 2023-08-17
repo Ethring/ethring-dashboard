@@ -7,28 +7,46 @@
                     <div class="close" @click="(event) => close(event, true)">X</div>
                 </div>
                 <div class="content" v-if="isOpen">
-                    <WalletItem v-for="wallet in walletsModule" :key="wallet" :wallet="wallet" :connect="connect" />
+                    <a-select
+                        show-search
+                        v-model:value="selectedChain"
+                        placeholder="Select chain for connect"
+                        option-label-prop="children"
+                        class="content-chain"
+                    >
+                        <a-select-option v-for="chain in chainList" :key="chain.chain_id" :value="chain.chain_id">
+                            <ChainRecord :chain="chain" />
+                        </a-select-option>
+                    </a-select>
+                    <div class="content-wallets">
+                        <WalletItem v-for="wallet in walletsModule" :key="wallet" :wallet="wallet" :connect="connect" />
+                    </div>
                 </div>
             </div>
         </div>
     </teleport>
 </template>
 <script>
-import { computed, watch } from 'vue';
+import { computed, watch, ref } from 'vue';
 import { useStore } from 'vuex';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import WalletItem from '@/Adapter/UI/Modal/WalletItem';
+import ChainRecord from '@/Adapter/UI/Entities/ChainRecord';
+
 import { ECOSYSTEMS } from '@/Adapter/config';
 
 export default {
     name: 'WalletsModal',
     components: {
         WalletItem,
+        ChainRecord,
     },
     setup() {
         const store = useStore();
+        const selectedChain = ref('cosmoshub');
+
         const isOpen = computed(() => store.getters['adapter/isOpen']);
 
         const close = (e, closeBtn = false) => {
@@ -39,12 +57,14 @@ export default {
             }
         };
 
-        const { connectTo, walletsModule, getWalletsModule } = useAdapter();
+        const { connectTo, walletsModule, getWalletsModule, getChainListByEcosystem } = useAdapter();
 
         const count = computed(() => (walletsModule.value ? walletsModule.value.length : 0));
 
+        const chainList = computed(() => getChainListByEcosystem(ECOSYSTEMS.COSMOS));
+
         const connect = async (wallet) => {
-            const result = await connectTo(ECOSYSTEMS.COSMOS, wallet);
+            const result = await connectTo(ECOSYSTEMS.COSMOS, wallet, selectedChain.value);
 
             if (!result) {
                 return;
@@ -63,6 +83,8 @@ export default {
             isOpen,
             count,
             walletsModule,
+            chainList,
+            selectedChain,
 
             close,
             connect,
@@ -121,42 +143,18 @@ export default {
         .content {
             padding: 16px;
 
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            .wallet-record {
-                cursor: pointer;
-                flex: 1 45%;
-                display: flex;
-                align-items: center;
-                border: 1px solid #d0d4f7;
-                border-radius: 16px;
-                gap: 16px;
-                padding: 16px;
+            &-chain {
+                margin-bottom: 16px;
+                width: 100%;
 
-                max-height: 80px;
-
-                transition: background-color 250ms ease-in-out;
-
-                &:hover {
-                    background-color: #eff1fc;
+                .ant-select-selector {
+                    border-color: #d0d4f7;
                 }
-
-                .icon {
-                    width: 48px;
-                    height: 48px;
-
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-
-                    border: 1px solid #d0d4f7;
-                    border-radius: 12px;
-                    img {
-                        width: 30px;
-                        height: 30px;
-                    }
-                }
+            }
+            &-wallets {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
             }
         }
     }

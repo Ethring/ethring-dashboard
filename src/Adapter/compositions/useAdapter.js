@@ -45,7 +45,7 @@ function useAdapter() {
             return;
         }
 
-        if (chains.length) {
+        if (chains.length > 0) {
             availableAdapter.reInit(chains);
         }
 
@@ -72,7 +72,7 @@ function useAdapter() {
     }
 
     const connectLastConnectedWallet = async () => {
-        if (!connectedWallets.value || !lastConnectedWallet.value) {
+        if (!connectedWallets.value.length || !lastConnectedWallet.value || walletAddress.value) {
             return;
         }
 
@@ -145,12 +145,38 @@ function useAdapter() {
     };
 
     const prepareTransaction = async (...args) => {
-        console.log('prepareTransaction', ...args);
         return await adapter.value.prepareTransaction(...args);
     };
 
     const signSend = async (transaction) => {
         return await adapter.value.signSend(transaction);
+    };
+
+    const getChainListByEcosystem = (ecosystem) => {
+        const adapter = store.getters['adapter/getAdapterByEcosystem'](ecosystem);
+        return adapter.getChainList(store);
+    };
+
+    const getChainByChainId = (ecosystem, chainId) => {
+        const adapter = store.getters['adapter/getAdapterByEcosystem'](ecosystem);
+        const chainList = adapter.getChainList(store);
+        const chain = chainList.find((chain) => chain.chain_id === chainId);
+
+        return {
+            chain: chain?.chain_id,
+            name: chain?.name,
+            logo: chain?.logo,
+        };
+    };
+
+    const setNewChain = async (ecosystem, newChainInfo) => {
+        const adapter = store.getters['adapter/getAdapterByEcosystem'](ecosystem);
+        await adapter.setChain(newChainInfo);
+
+        store.dispatch('adapter/setEcosystem', ecosystem);
+        store.dispatch('adapter/setAdapter', { adapter, ecosystem });
+
+        storeWalletInfo();
     };
 
     return {
@@ -170,7 +196,11 @@ function useAdapter() {
         connectLastConnectedWallet,
 
         getWalletsModule,
+        getChainListByEcosystem,
+        getChainByChainId,
+
         setChain,
+        setNewChain,
 
         validateAddress,
 

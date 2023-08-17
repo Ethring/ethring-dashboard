@@ -5,8 +5,6 @@ import { init, useOnboard } from '@web3-onboard/vue';
 
 import { web3OnBoardConfig, ECOSYSTEMS, NATIVE_CONTRACT, TRANSFER_ABI } from '@/Adapter/config';
 
-import defaultChains from '@/api/networks/default-chains';
-
 import { validateEthAddress } from '@/Adapter/utils/validations';
 
 let web3Onboard = null;
@@ -14,10 +12,9 @@ let web3Onboard = null;
 class EthereumAdapter extends WalletInterface {
     constructor() {
         super();
-        this.reInit(defaultChains);
     }
 
-    reInit(chains = defaultChains) {
+    reInit(chains) {
         web3Onboard = init({ ...web3OnBoardConfig, chains });
     }
 
@@ -88,17 +85,17 @@ class EthereumAdapter extends WalletInterface {
     }
 
     async setChain(chainInfo) {
-        const { chain_id } = chainInfo;
+        const { chain_id, chain } = chainInfo;
         const { setChain } = useOnboard();
 
+        const id = chain_id || chain;
+
         return await setChain({
-            chainId: chain_id,
+            chainId: id,
         });
     }
 
     getWalletLogo() {
-        // const { connectedWallet } = useOnboard();
-        // console.log('connected wallet logo', connectedWallet.value, '\n');
         return null;
     }
 
@@ -124,7 +121,6 @@ class EthereumAdapter extends WalletInterface {
 
         try {
             if (ethersProvider) {
-                console.log('pro', fromAddress, toAddress, amount, token);
                 const contractAddress = token?.address || NATIVE_CONTRACT;
                 const tokenContract = new ethers.Contract(contractAddress, TRANSFER_ABI, ethersProvider);
 

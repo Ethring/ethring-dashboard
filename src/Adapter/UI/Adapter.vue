@@ -1,5 +1,5 @@
 <template>
-    <div class="wallet-adapter-container">
+    <div class="wallet-adapter-container" v-click-away="() => closeDropdown()">
         <AccountCenter v-if="walletAddress" @toggle-dropdown="toggleDropdown" @close-dropdown="closeDropdown" />
         <NotConnected v-else @toggle-dropdown="toggleDropdown" @close-dropdown="closeDropdown" />
         <AdapterDropdown v-if="showDropdown" @close-dropdown="closeDropdown" />

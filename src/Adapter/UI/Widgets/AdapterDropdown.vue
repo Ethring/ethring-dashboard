@@ -15,9 +15,18 @@
 
         <div v-if="connectedWallets.length" class="adapter-dropdown__body">
             Connected wallets ({{ connectedWallets.length || 0 }})
-            <div class="connected-wallets-container">
-                <ConnectedWallet v-for="wallet in connectedWallets" :key="wallet" :wallet="wallet" />
-            </div>
+
+            <a-collapse class="connected-wallets-group" expandIconPosition="end" :bordered="false">
+                <a-collapse-panel :header="`${wallet} (${accounts.length})`" v-for="(accounts, wallet) in walletsGroup" :key="wallet">
+                    <div class="connected-wallets-container">
+                        <ConnectedWallet v-for="account in accounts" :key="account" :wallet="account" />
+                    </div>
+                </a-collapse-panel>
+            </a-collapse>
+
+            <!-- <div class="connected-wallets-container">
+                <ConnectedWallet v-for="account in connectedWallets" :key="account" :wallet="account" />
+            </div> -->
         </div>
 
         <div v-if="walletAddress" class="adapter-dropdown__footer">
@@ -31,11 +40,13 @@ import { useStore } from 'vuex';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
-import ConnectTo from '@/Adapter/UI/Features/ConnectTo';
+import ConnectTo from '@/Adapter/UI/Entities/ConnectTo';
+
 import ConnectedWallet from '@/Adapter/UI/Features/ConnectedWallet';
 import DisconnectAll from '@/Adapter/UI/Features/DisconnectAll';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
+import { computed } from 'vue';
 
 export default {
     name: 'AdapterDropdown',
@@ -66,11 +77,27 @@ export default {
             emit('close-dropdown');
         };
 
+        const walletsGroup = computed(() => {
+            const groupedData = {};
+            const key = 'walletName';
+            for (const wallet of connectedWallets.value) {
+                const value = wallet[key];
+
+                if (!groupedData[value]) {
+                    groupedData[value] = [];
+                }
+
+                groupedData[value].push(wallet);
+            }
+
+            return groupedData;
+        });
+
         return {
             ECOSYSTEMS,
             walletAddress,
             connectedWallets,
-
+            walletsGroup,
             connect,
             disconnectAll,
         };
@@ -79,12 +106,15 @@ export default {
 </script>
 <style lang="scss" scoped>
 .adapter-dropdown {
+    max-width: 450px;
+    min-width: 400px;
+    width: 100%;
     box-shadow: 0px 4px 40px 0px #00000033;
     border-radius: 16px;
     padding: 16px;
     position: absolute;
     top: 60px;
-    left: -5%;
+    left: -7%;
     z-index: 999;
     background: #fff;
 
@@ -103,8 +133,22 @@ export default {
         margin-bottom: 20px;
     }
 
-    .connected-wallets-container > div {
-        margin-top: 10px;
+    .connected-wallets {
+        &-group {
+            margin-top: 10px;
+            border: 1px solid #c9e0e0;
+            background-color: transparent;
+            .ant-collapse-item {
+                border-bottom-color: #c9e0e0;
+            }
+        }
+        &-container {
+            max-height: 320px;
+            overflow: auto;
+            & > div {
+                margin-top: 10px;
+            }
+        }
     }
 }
 </style>

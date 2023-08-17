@@ -83,7 +83,7 @@ const UIConfig = {
     optimism: {
         sidebar: [
             MAIN_DASHBOARD,
-            // SEND,
+            SEND,
             // SWAP,
             // BRIDGE,
             // SUPER_SWAP,
@@ -103,7 +103,11 @@ const UIConfig = {
 const getUIConfig = (network, ecosystem) => {
     switch (ecosystem) {
         case ECOSYSTEMS.EVM:
-            return UIConfig[network] || defaultConfig[ecosystem];
+            if (UIConfig[network]) {
+                return UIConfig[network];
+            }
+            return defaultConfig[ecosystem];
+
         case ECOSYSTEMS.COSMOS:
             return UIConfig[network] || defaultConfig[ecosystem];
         default:

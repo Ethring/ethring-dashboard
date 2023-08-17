@@ -1,6 +1,6 @@
 <template>
     <div class="wallet-adapter">
-        <div class="wallet-adapter__account" @click.stop="$emit('toggleDropdown')" v-click-away="() => $emit('closeDropdown')">
+        <div class="wallet-adapter__account" @click.stop="$emit('toggleDropdown')">
             <div class="wallet-adapter__logos">
                 <div class="logo-container main-logo">
                     <zometLogo />
@@ -13,8 +13,7 @@
             </div>
 
             <div class="wallet-adapter__info">
-                <p v-if="connectedWallets.length > 1">Portfolio</p>
-                <p v-else>{{ cutAddress(walletAddress, 11, 4) }}</p>
+                <p>{{ cutAddress(walletAddress, 11, 4) }}</p>
                 <p>$ ***</p>
             </div>
         </div>

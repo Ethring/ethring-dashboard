@@ -1,8 +1,13 @@
 import axios from 'axios';
 import { ref, computed } from 'vue';
 import prices from '@/modules/prices/';
+import { ECOSYSTEMS } from '@/Adapter/config';
 
-export default async function useInit(address, store) {
+export default async function useInit(ecosystem, address, store) {
+    if (!address) {
+        return;
+    }
+
     const disableLoader = computed(() => store.getters['tokens/disableLoader']);
     store.dispatch('tokens/setLoader', true);
 
@@ -53,6 +58,9 @@ export default async function useInit(address, store) {
 
     await Promise.all(
         networksList.value.map(async ({ net, native_token }) => {
+            if (ecosystem !== ECOSYSTEMS.EVM) {
+                return;
+            }
             const tokenList = await tokensInfo(net);
             const balance = tokenList[0];
 

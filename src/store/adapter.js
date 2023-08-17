@@ -12,6 +12,12 @@ const TYPES = {
 const cached = window.localStorage.getItem('adapter:connectedWallets');
 const connectedWallets = cached ? JSON.parse(cached) : [];
 
+function findKeyDifferences(oldRecord, newRecord) {
+    return Object.keys(oldRecord)
+        .concat(Object.keys(newRecord))
+        .filter((key) => oldRecord[key] !== newRecord[key]);
+}
+
 export default {
     namespaced: true,
 
@@ -49,12 +55,19 @@ export default {
         [TYPES.SET_WALLET](state, value) {
             window.localStorage.setItem('adapter:lastConnectedWallet', JSON.stringify(value));
 
-            const found = state.wallets.some((wallet) => wallet.address === value.address);
+            const found = state.wallets.filter((wallet) => wallet.address === value.address);
+            const [exist] = found;
 
-            if (!found) {
+            if (!exist) {
                 state.wallets.push(value);
-                window.localStorage.setItem('adapter:connectedWallets', JSON.stringify(state.wallets));
+                return window.localStorage.setItem('adapter:connectedWallets', JSON.stringify(state.wallets));
             }
+
+            findKeyDifferences(exist, value).forEach((key) => {
+                exist[key] = value[key];
+            });
+
+            return window.localStorage.setItem('adapter:connectedWallets', JSON.stringify(state.wallets));
         },
         [TYPES.DISCONNECT_ALL_WALLETS](state) {
             state.wallets = [];
