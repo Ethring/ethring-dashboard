@@ -51,8 +51,7 @@ export class MetaMaskHomePage {
         await this.page.click('[data-testid="pin-extension-next"]');
         await this.page.click('[data-testid="pin-extension-done"]');
         await this.page.getByText('Try it out').click();
-        await this.page.getByText('Нет, спасибо.').click();
-        await this.page.getByTitle('Отмена').click();
+        await this.page.getByText('Enable smart swaps').click();
     }
 
     async unlockWallet() {
