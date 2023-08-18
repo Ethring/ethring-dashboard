@@ -50,33 +50,17 @@ export default {
         flex-direction: column;
         align-items: center;
         font-family: 'Poppins_Light';
-        font-size: 22px;
-        color: $colorBlack;
+        font-size: var(--#{$prefix}h4-fs);
+        color: var(--#{$prefix}black);
         margin-right: 25px;
         cursor: pointer;
 
         .arrow {
-            fill: $colorBlack;
+            fill: var(--#{$prefix}black);
         }
 
         &.active {
             font-family: 'Poppins_SemiBold';
-        }
-    }
-}
-
-body.dark {
-    .actions-menu {
-        &__item {
-            color: $colorLightBrown;
-
-            &.active {
-                color: $colorWhite;
-            }
-
-            .arrow {
-                fill: $colorBrightGreen;
-            }
         }
     }
 }

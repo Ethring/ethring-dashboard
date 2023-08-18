@@ -50,8 +50,8 @@ export default {
     width: 80px;
     height: 40px;
     position: relative;
-    border: 1px solid $borderLight;
-    background: $colorSlimLightBlue;
+    border: 1px solid var(--#{$prefix}blue);
+    background: var(--#{$prefix}iceberg);
     border-radius: 50px;
     cursor: pointer;
 
@@ -72,13 +72,13 @@ export default {
         border-radius: 50%;
         top: 4px;
         left: 3px;
-        background: #0d7e71;
+        background: var(--#{$prefix}surfieGreen);
     }
 }
 
 .theme-switcher.checked {
-    border: 1px solid #494c56;
-    background: $colorDarkPanel;
+    border: 1px solid var(--#{$prefix}trout);
+    background: var(--#{$prefix}primary);
 
     .theme-switcher__check {
         background: #020c03;

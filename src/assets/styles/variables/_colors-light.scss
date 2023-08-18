@@ -1,0 +1,161 @@
+//  ===========================================================================
+//  ******************************* WHITE THEME *******************************
+//  ===========================================================================
+
+//  ===========================================================================
+//  PRIMARY COLORS
+//  ===========================================================================
+
+$ebonyClay: #1c1f2c;
+$white: #ffffff;
+$black: #000000;
+$grey: #5b5b5b;
+
+$springGreen: #14ec8a;
+$turquoise: #3fdfae;
+$surfieGreen: #0d7e71;
+$aquamarine: #97ffd0;
+$gallery: #f0f0f0;
+
+//  ===========================================================================
+//  SECONDARY COLORS
+//  ===========================================================================
+
+$charade: #2e323e;
+$trout: #494c56;
+$mineralGreen: #486060;
+$gulfStream: #73b1b1;
+$geyser: #c9e0e0;
+$iceberg: #d9f4f1;
+$wildWatermelon: #ff677e;
+$deepCerulean: #00839f;
+$japaneseLaurel: #038d00;
+$blazeOrange: #ff6b00;
+$ligthOrange: #fff2f2;
+$red: #fa3c58;
+$pizazz: #f69502;
+$green: #027a00;
+$lightBlue: #586897;
+$brightGreen: hsl(153, 85%, 50%);
+$lightGreen: #85bb65;
+$blue: #CCD5F0;
+
+//  ===========================================================================
+//  GRADIENTS
+//  ===========================================================================
+
+$gradient-1: linear-gradient(0deg, #00e3ae 0%, #9be15d 100%);
+$gradient-2: linear-gradient(198.01deg, #00bf57 0.44%, #005f91 108.3%);
+
+//  ===========================================================================
+//  THEME COLORS
+//  ===========================================================================
+
+$primary: $ebonyClay !default;
+$secondary: $iceberg !default;
+
+$main-background: $white !default;
+
+$banner-color: $iceberg !default;
+$banner-logo-color: $turquoise !default;
+
+$sub-text: $surfieGreen !default;
+$mute-text: $trout !default;
+
+$checkbox-text: $gulfStream !default;
+
+$border-color: $geyser !default;
+
+$btn-hover: $turquoise !default;
+$btn-secondary-hover: $surfieGreen !default;
+
+$btn-active: $ebonyClay !default;
+$btn-disabled: $geyser !default;
+$btn-disabled-text: $gulfStream !default;
+$btn-disabled-icon: $iceberg !default;
+
+$select-bg-color: $gallery !default;
+
+$success: $japaneseLaurel !default;
+$success-op-01: rgba($success, 0.1) !default;
+
+$danger: $wildWatermelon !default;
+$danger-op-01: rgba($danger, 0.1) !default;
+
+$warning: $blazeOrange !default;
+$warning-op-01: rgba($warning, 0.1) !default;
+
+$info: $deepCerulean !default;
+$info-op-01: rgba($info, 0.1) !default;
+
+$white: $white !default;
+
+$icon-active: $mineralGreen !default;
+$icon-hover: $springGreen !default;
+$icon-disabled: $gulfStream !default;
+
+//  ===========================================================================
+//  THEME MAP
+//  ===========================================================================
+
+$theme-colors: (
+    "primary": $primary,
+    "secondary": $secondary,
+
+    "main-background": $main-background,
+    "banner-color": $banner-color,
+    "banner-logo-color": $banner-logo-color,
+
+    "sub-text": $sub-text,
+    "mute-text": $mute-text,
+    "checkbox-text": $checkbox-text,
+
+    "border-color": $border-color,
+
+    "btn-hover": $btn-hover,
+    "btn-secondary-hover": $btn-secondary-hover,
+
+    "btn-active": $btn-active,
+    "btn-disabled": $btn-disabled,
+    "btn-disabled-text": $btn-disabled-text,
+    "btn-disabled-icon": $btn-disabled-icon,
+
+    "select-bg-color": $select-bg-color,
+
+    "icon-active": $icon-active,
+    "icon-hover": $icon-hover,
+    "icon-disabled": $icon-disabled,
+
+    "success": $success,
+    "success-op-01": $success-op-01,
+
+    "danger": $danger,
+    "danger-op-01": $danger-op-01,
+
+    "warning": $warning,
+    "warning-op-01": $warning-op-01,
+
+    "info": $info,
+    "info-op-01": $info-op-01,
+
+    "white": $white,
+    "black": $black,
+    "grey": $grey,
+    "gulfStream": $gulfStream,
+    "turquoise": $turquoise,
+    "surfieGreen": $surfieGreen,
+    "geyser": $geyser,
+    "trout": $trout,
+    "mineralGreen": $mineralGreen,
+    "aquamarine": $aquamarine,
+    "ligthOrange": $ligthOrange,
+    "red": $red,
+    "blazeOrange": $blazeOrange,
+    "pizazz": $pizazz,
+    "iceberg": $iceberg,
+    "green": $green,
+    "lightBlue": $lightBlue,
+    "brightGreen": $brightGreen,
+    "lightGreen": $lightGreen,
+    "blue": $blue,
+) !default;

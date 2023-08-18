@@ -28,26 +28,14 @@ export default {
     align-items: center;
 
     svg {
-        stroke: $colorBlack;
+        stroke: var(--#{$prefix}black);
     }
 
     &__title {
         font-weight: 600;
-        font-size: 32px;
+        font-size: var(--#{$prefix}h1-fs);
         font-family: 'Poppins_Regular';
-        color: $colorBlack;
-    }
-}
-
-body.dark {
-    .empty-list {
-        &__title {
-            color: $colorWhite;
-        }
-
-        svg {
-            stroke: $themeGreen;
-        }
+        color: var(--#{$prefix}black);
     }
 }
 </style>

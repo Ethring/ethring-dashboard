@@ -32,20 +32,20 @@ export default {
         display: flex;
         flex-direction: column;
         align-items: center;
-        color: $colorBlack;
+        color: var(--#{$prefix}black);
     }
 }
 
 .bridge-page__title {
     color: #486060;
-    font-size: 32px;
+    font-size: var(--#{$prefix}h1-fs);
     font-family: 'Poppins_SemiBold';
     margin-bottom: 30px;
     text-decoration: none;
 
     &__active {
-        color: $colorBlack;
-        font-size: 32px;
+        color: var(--#{$prefix}black);
+        font-size: var(--#{$prefix}h1-fs);
         font-family: 'Poppins_SemiBold';
         margin-bottom: 30px;
         text-decoration: none;
@@ -53,6 +53,6 @@ export default {
 }
 
 .arrow {
-    fill: $colorBlack;
+    fill: var(--#{$prefix}black);
 }
 </style>

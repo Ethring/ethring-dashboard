@@ -59,8 +59,8 @@ export default {
         height: calc(100vh - 115px);
 
         &__title {
-            color: $colorBlack;
-            font-size: 32px;
+            color: var(--#{$prefix}black);
+            font-size: var(--#{$prefix}h1-fs);
             font-family: 'Poppins_SemiBold';
             margin-bottom: 30px;
         }
@@ -73,7 +73,7 @@ export default {
             width: 240px;
             height: 82px;
             border-radius: 8px;
-            border: 1px solid $borderLight;
+            border: 1px solid var(--#{$prefix}blue);
             margin-bottom: 12px;
 
             @include animateEasy;
@@ -89,41 +89,21 @@ export default {
                 margin-left: 12px;
 
                 .title {
-                    font-size: 14px;
+                    font-size: var(--#{$prefix}small-lg-fs);
                     font-family: 'Poppins_Regular';
-                    color: $colorLightBlue;
+                    color: var(--#{$prefix}lightBlue);
                 }
 
                 .wallet {
                     margin-top: -5px;
-                    font-size: 18px;
+                    font-size: var(--#{$prefix}h6-fs);
                     font-family: 'Poppins_SemiBold';
-                    color: $colorBlack;
+                    color: var(--#{$prefix}black);
                 }
             }
 
             &.keplr {
                 opacity: 0.4;
-            }
-        }
-    }
-}
-
-body.dark {
-    .notconnect {
-        .notconnect-page {
-            &__title {
-                color: $colorWhite;
-            }
-
-            &__block {
-                border-color: $borderDark;
-
-                .description {
-                    .wallet {
-                        color: $colorLightGreen;
-                    }
-                }
             }
         }
     }

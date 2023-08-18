@@ -188,21 +188,21 @@ export default {
         margin-top: 2px;
         p {
             color: #486060;
-            font-size: 14px;
+            font-size: var(--#{$prefix}small-lg-fs);
             margin: 0;
         }
         h3 {
             font-weight: 700;
-            font-size: 18px;
-            color: #494c56;
+            font-size: var(--#{$prefix}h6-fs);
+            color: var(--#{$prefix}trout);
             margin: 0;
             span {
-                color: #1c1f2c;
+                color: var(--#{$prefix}primary);
                 font-weight: 400;
             }
         }
         h4 {
-            font-size: 20px;
+            font-size: var(--#{$prefix}h5-fs);
             margin: 0 6px;
             color: #a0b3c3;
         }
@@ -218,11 +218,11 @@ export default {
     .routes-service {
         margin-top: -8px;
         &__name {
-            font-size: 18px;
+            font-size: var(--#{$prefix}h6-fs);
             margin: 0;
             margin-left: 8px;
             font-weight: 700;
-            color: $colorDarkPanel;
+            color: var(--#{$prefix}primary);
         }
         &__icon {
             border-radius: 50%;
@@ -251,17 +251,17 @@ export default {
         }
         &__status {
             border-radius: 20px;
-            font-size: 14px;
+            font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 400;
-            color: $colorBlack;
+            color: var(--#{$prefix}black);
             padding: 1px 10px;
             margin: 2px 0 0 6px;
         }
         .low-fee {
-            background-color: $themeGreen;
+            background-color: var(--#{$prefix}green);
         }
         .best-return {
-            background-color: #3fdfae;
+            background-color: var(--#{$prefix}turquoise);
         }
         .fastest {
             background-color: #02e7f6;

@@ -33,27 +33,27 @@ export default {
         display: flex;
         flex-direction: column;
         align-items: center;
-        color: $colorBlack;
+        color: var(--#{$prefix}black);
     }
 }
 
 .send-page__title {
     color: #486060;
-    font-size: 32px;
+    font-size: var(--#{$prefix}h1-fs);
     font-family: 'Poppins_SemiBold';
     margin-bottom: 30px;
     text-decoration: none;
 
     &__active {
-        font-size: 32px;
+        font-size: var(--#{$prefix}h1-fs);
         font-family: 'Poppins_SemiBold';
         margin-bottom: 30px;
         text-decoration: none;
-        color: $colorBlack;
+        color: var(--#{$prefix}black);
     }
 }
 
 .arrow {
-    fill: $colorBlack;
+    fill: var(--#{$prefix}black);
 }
 </style>

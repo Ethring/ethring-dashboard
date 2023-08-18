@@ -98,8 +98,8 @@ export default {
         width: 660px;
     }
     &__title {
-        color: $colorBlack;
-        font-size: 32px;
+        color: var(--#{$prefix}black);
+        font-size: var(--#{$prefix}h1-fs);
         font-family: 'Poppins_SemiBold';
         margin-bottom: 30px;
     }
@@ -111,7 +111,7 @@ export default {
     }
     svg.arrow {
         cursor: pointer;
-        fill: $colorDarkGray;
+        fill: var(--#{$prefix}icon-active);
         position: absolute;
         transform: rotate(90deg);
         top: 20px;
@@ -124,9 +124,9 @@ export default {
             font-family: 'Poppins';
             font-style: normal;
             font-weight: 500;
-            font-size: 20px;
+            font-size: var(--#{$prefix}h5-fs);
             line-height: 27px;
-            color: #494c56;
+            color: var(--#{$prefix}mute-text);
         }
     }
 
@@ -135,7 +135,7 @@ export default {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        border: 1px solid $colorLightGreen;
+        border: 1px solid var(--#{$prefix}border-color);
         padding: 16px;
         border-radius: 16px;
         margin-top: 8px;
@@ -152,21 +152,21 @@ export default {
             font-family: 'Poppins_SemiBold';
             font-style: normal;
             font-weight: 700;
-            font-size: 20px;
+            font-size: var(--#{$prefix}h5-fs);
             text-align: right;
             margin: 0;
-            color: $colorDarkPanel;
+            color: var(--#{$prefix}primary);
         }
         span {
             font-family: 'Poppins';
-            font-size: 16px;
+            font-size: var(--#{$prefix}default-fs);
             font-weight: 300;
-            color: $colorDarkGray;
+            color: var(--#{$prefix}mineralGreen);
         }
         h5 {
-            font-size: 14px;
+            font-size: var(--#{$prefix}small-lg-fs);
             line-height: 21px;
-            color: $colorDarkGray;
+            color: var(--#{$prefix}mineralGreen);
             span {
                 font-weight: 12px;
                 font-weight: 300;
@@ -181,19 +181,19 @@ export default {
                 font-family: 'Poppins_SemiBold';
                 font-style: normal;
                 font-weight: 700;
-                font-size: 18px;
+                font-size: var(--#{$prefix}h6-fs);
                 line-height: 27px;
                 text-transform: uppercase;
-                color: $colorDarkPanel;
+                color: var(--#{$prefix}primary);
             }
 
             .name {
                 font-family: 'Poppins';
                 font-style: normal;
                 font-weight: 400;
-                font-size: 14px;
+                font-size: var(--#{$prefix}small-lg-fs);
                 line-height: 21px;
-                color: #0d7e71;
+                color: var(--#{$prefix}sub-text);
             }
         }
         .logo {
@@ -202,12 +202,10 @@ export default {
             display: flex;
             align-items: center;
             justify-content: center;
-            background: $colorDarkPanel;
+            background: var(--#{$prefix}primary);
             border-radius: 50%;
             margin-right: 12px;
         }
     }
-}
-body.dark {
 }
 </style>

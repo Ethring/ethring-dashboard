@@ -16,8 +16,8 @@ export default {
 <style lang="scss" scoped>
 .swap-page {
     &__title {
-        color: $colorBlack;
-        font-size: 32px;
+        color: var(--#{$prefix}black);
+        font-size: var(--#{$prefix}h1-fs);
         font-family: 'Poppins_SemiBold';
         margin-bottom: 30px;
     }

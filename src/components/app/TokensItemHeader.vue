@@ -6,9 +6,11 @@
 </template>
 <script>
 import { computed } from 'vue';
-import { prettyNumber } from '@/helpers/prettyNumber';
 import { useStore } from 'vuex';
+
 import Button from '@/components/ui/Button';
+
+import { prettyNumber } from '@/helpers/prettyNumber';
 
 export default {
     name: 'TokensItemHeader',
@@ -36,41 +38,30 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
+
     min-height: 73px;
     margin-bottom: 5px;
-    border-bottom: 1px dashed $colorLightGreen;
+    border-bottom: 1px dashed var(--#{$prefix}geyser);
     cursor: pointer;
 
     .balance {
-        font-size: 16px;
-        font-family: 'Poppins_SemiBold';
-        text-align: center;
         width: 88px;
         height: 40px;
+
+        font-size: var(--#{$prefix}default-fs);
+        font-family: 'Poppins_SemiBold';
         line-height: 40px;
+        text-align: center;
+
         border-radius: 8px;
-        border: 1px solid $colorBlack;
+        border: 1px solid var(--#{$prefix}black);
     }
 
     .name {
-        text-transform: uppercase;
-        color: $colorBlack;
-        font-size: 18px;
+        font-size: var(--#{$prefix}h6-fs);
         font-family: 'Poppins_SemiBold';
-    }
-}
-
-body.dark {
-    .tokens__item-header {
-        border-color: #494c56;
-
-        .balance {
-            color: $colorLightGreen;
-        }
-
-        .name {
-            color: $colorWhite;
-        }
+        color: var(--#{$prefix}black);
+        text-transform: uppercase;
     }
 }
 </style>

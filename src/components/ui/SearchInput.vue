@@ -52,12 +52,12 @@ export default {
     position: relative;
     border: 2px solid #fff;
     span {
-        color: $colorDarkGray;
+        color: var(--#{$prefix}mineralGreen);
         display: block;
         font-family: 'Poppins';
         font-style: normal;
         font-weight: 500;
-        font-size: 14px;
+        font-size: var(--#{$prefix}small-lg-fs);
         line-height: 21px;
     }
 
@@ -69,7 +69,7 @@ export default {
         min-width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: $colorLightGreen;
+        background: var(--#{$prefix}geyser);
         margin-right: 10px;
     }
 
@@ -83,9 +83,9 @@ export default {
         font-family: 'Poppins_SemiBold';
         font-style: normal;
         font-weight: 700;
-        font-size: 22px;
+        font-size: var(--#{$prefix}h4-fs);
         line-height: 33px;
-        color: #73b1b1;
+        color: var(--#{$prefix}gulfStream);
         border: none;
         background-color: transparent;
         outline: none;
@@ -93,12 +93,12 @@ export default {
 }
 .active {
     background: #ffffff;
-    border: 2px solid #0d7e71;
+    border: 2px solid var(--#{$prefix}sub-text);
     .search-input__logo {
-        background: #3fdfae;
+        background: var(--#{$prefix}turquoise);
     }
     input {
-        color: $colorBlack;
+        color: var(--#{$prefix}black);
     }
 }
 </style>

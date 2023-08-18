@@ -57,10 +57,11 @@ input[type='checkbox'] {
     & + label {
         display: inline-flex;
         align-items: center;
-        font-size: 18px;
+
+        font-size: var(--#{$prefix}h6-fs);
         font-family: 'Poppins_Regular';
         line-height: 19px;
-        color: #73b1b1;
+        color: var(--#{$prefix}gulfStream);
         cursor: pointer;
     }
 
@@ -68,12 +69,12 @@ input[type='checkbox'] {
         .checkbox {
             &__checkmark {
                 transition: all 0.3s ease-in-out;
-                background: #3fdfae;
-                border: 1px solid #97ffd0;
+                background: var(--#{$prefix}turquoise);
+                border: 1px solid var(--#{$prefix}aquamarine);
             }
 
             &__label {
-                color: $colorDarkPanel;
+                color: var(--#{$prefix}black);
             }
         }
     }
@@ -85,11 +86,11 @@ input[type='checkbox'] {
             .checkbox {
                 &__checkmark {
                     background: transparent;
-                    border: 1px solid $colorDarkPanel;
+                    border: 1px solid var(--#{$prefix}turquoise);
                 }
 
                 &__label {
-                    color: $colorDarkPanel;
+                    color: var(--#{$prefix}turquoise);
                 }
             }
         }
@@ -107,7 +108,7 @@ input[type='checkbox'] {
         justify-content: center;
         width: 32px;
         height: 32px;
-        background: $colorLightGreen;
+        background: var(--#{$prefix}geyser);
         border-radius: 4px;
         margin-right: 14px;
         transition: all 0.2s;

@@ -9,18 +9,12 @@ export default {
 <style lang="scss" scoped>
 .swap-not-working {
     font-weight: 600;
-    font-size: 32px;
+    font-size: var(--#{$prefix}h1-fs);
     font-family: 'Poppins_Regular';
-    color: $colorBlack;
+    color: var(--#{$prefix}black);
     height: 90%;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-body.dark {
-    .swap-not-working {
-        color: $colorWhite;
-    }
 }
 </style>

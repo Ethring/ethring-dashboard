@@ -85,7 +85,7 @@ export default {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        background: $colorGray;
+        background: var(--#{$prefix}select-bg-color);
         border-radius: 16px;
         height: 80px;
         padding: 17px 32px;
@@ -108,11 +108,11 @@ export default {
             height: 40px;
             min-width: 40px;
             border-radius: 50%;
-            background: #3fdfae;
+            background: var(--#{$prefix}turquoise);
             margin-right: 10px;
 
             svg {
-                fill: $colorBlack;
+                fill: var(--#{$prefix}black);
             }
 
             &-logo {
@@ -122,22 +122,22 @@ export default {
         }
 
         .name {
-            font-size: 28px;
+            font-size: var(--#{$prefix}h2-fs);
             font-family: 'Poppins_SemiBold';
-            color: $colorBlack;
+            color: var(--#{$prefix}black);
             user-select: none;
         }
 
         .label {
             color: #486060;
-            font-size: 14px;
+            font-size: var(--#{$prefix}small-lg-fs);
             font-family: 'Poppins_Medium';
             user-select: none;
         }
 
         .placeholder {
             color: #73b1b1;
-            font-size: 18px;
+            font-size: var(--#{$prefix}h6-fs);
             font-family: 'Poppins_SemiBold';
             user-select: none;
             line-height: 18px;
@@ -153,8 +153,8 @@ export default {
 
     &.active {
         .select__panel {
-            border-color: $colorBaseGreen;
-            background: $colorWhite;
+            border-color: var(--#{$prefix}surfieGreen);
+            background: var(--#{$prefix}white);
 
             svg.arrow {
                 transform: rotate(180deg);
@@ -175,7 +175,7 @@ export default {
 
         min-height: 40px;
 
-        border: 2px solid $colorBaseGreen;
+        border: 2px solid var(--#{$prefix}surfieGreen);
         border-radius: 0 0 16px 16px;
 
         border-top: none;
@@ -204,7 +204,7 @@ export default {
             border-radius: 50%;
             margin-right: 12px;
             svg {
-                fill: $colorBlack;
+                fill: var(--#{$prefix}black);
             }
         }
     }
@@ -239,7 +239,7 @@ export default {
 
                 width: 32px;
                 height: 32px;
-                background-color: $colorSlimLightBlue;
+                background-color: var(--#{$prefix}iceberg);
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
@@ -259,11 +259,11 @@ export default {
         &.active {
             .info {
                 .name {
-                    color: #1c1f2c;
+                    color: var(--#{$prefix}primary);
                     font-family: 'Poppins_SemiBold';
                 }
                 .icon {
-                    background-color: $colorLightGreen;
+                    background-color: var(--#{$prefix}geyser);
                 }
             }
         }
@@ -275,11 +275,11 @@ export default {
         &:hover {
             .info {
                 .name {
-                    color: $colorBaseGreen;
+                    color: var(--#{$prefix}sub-text);
                 }
 
                 .icon {
-                    background-color: $colorLightGreen;
+                    background-color: var(--#{$prefix}geyser);
                 }
             }
             .select__items-item-logo {
@@ -293,95 +293,19 @@ export default {
             align-items: center;
 
             .name {
-                font-size: 16px;
+                font-size: var(--#{$prefix}default-fs);
                 color: #486060;
                 font-family: 'Poppins_Regular';
             }
         }
 
         .amount {
-            color: $colorBlack;
+            color: var(--#{$prefix}black);
             font-family: 'Poppins_SemiBold';
 
             span {
-                color: $colorBlack;
+                color: var(--#{$prefix}black);
                 font-family: 'Poppins_Regular';
-            }
-        }
-    }
-}
-
-body.dark {
-    .select {
-        &__panel {
-            background: $colorDarkPanel;
-
-            svg.arrow {
-                fill: #486060;
-            }
-
-            .info {
-                .network {
-                    background: #0c0d18;
-
-                    svg {
-                        fill: $colorWhite;
-                    }
-                }
-
-                .name {
-                    color: $colorWhite;
-                }
-            }
-        }
-
-        &.active {
-            .select__panel {
-                border: 2px solid $colorBrightGreen;
-                background: $colorDarkPanel;
-            }
-        }
-
-        .select__items {
-            background: #0c0d18;
-            border-color: $colorBrightGreen;
-        }
-
-        .select__items-item {
-            border-color: #e8e9c933;
-
-            &:last-child {
-                border-color: transparent;
-            }
-
-            .info {
-                .name {
-                    color: $colorPl;
-                }
-            }
-
-            .amount {
-                color: $colorBrightGreen;
-
-                span {
-                    color: $colorPl;
-                }
-            }
-
-            &:hover {
-                .info {
-                    .name {
-                        color: #97ffd0;
-                    }
-                }
-            }
-        }
-
-        .select__items-item.active {
-            .info {
-                .name {
-                    color: $colorWhite;
-                }
             }
         }
     }

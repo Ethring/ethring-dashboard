@@ -78,14 +78,14 @@ export default {
         position: relative;
         min-width: 40vw;
         height: max-content;
-        background: $colorWhite;
+        background: var(--#{$prefix}white);
         border-radius: 16px;
         padding: 24px 32px;
         box-sizing: border-box;
     }
 
     &__content-title {
-        font-size: 24px;
+        font-size: var(--#{$prefix}h3-fs);
         font-family: 'Poppins_SemiBold';
     }
 
@@ -115,29 +115,6 @@ export default {
 
         svg {
             fill: #73b1b1;
-        }
-    }
-}
-
-body.dark {
-    .modal {
-        &__content {
-            background: #0c0d18;
-        }
-
-        &__content-title {
-            color: $colorWhite;
-        }
-
-        &__content-line {
-            margin: 10px 0;
-            border: 1px dashed #2e323e;
-        }
-
-        &__content-close {
-            svg {
-                fill: #73b1b1;
-            }
         }
     }
 }

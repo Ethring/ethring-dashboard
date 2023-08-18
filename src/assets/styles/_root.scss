@@ -1,0 +1,12 @@
+:root {
+    @each $size, $value in $font-sizes {
+        --#{$prefix}#{$size}: #{$value};
+    }
+}
+
+:root,
+[data-theme="light"] {
+    @each $color, $value in $theme-colors {
+        --#{$prefix}#{$color}: #{$value};
+    }
+}

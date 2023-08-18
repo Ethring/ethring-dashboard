@@ -45,7 +45,7 @@ export default {
 
     padding: 40px 0 30px 260px;
 
-    background-color: $colorWhite;
+    background-color: var(--#{$prefix}white);
     margin-right: inherit;
     margin-left: inherit;
 }

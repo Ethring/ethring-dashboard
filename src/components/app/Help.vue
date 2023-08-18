@@ -33,9 +33,9 @@ export default {
         display: flex;
         justify-content: center;
         align-items: center;
-        background: $colorSlimLightBlue;
+        background: var(--#{$prefix}iceberg);
         font-family: 'Poppins_Regular';
-        font-size: 24px;
+        font-size: var(--#{$prefix}h3-fs);
         color: #486060;
         cursor: not-allowed;
 
@@ -49,23 +49,6 @@ export default {
 
         &.mt {
             margin: 0 10px;
-        }
-    }
-}
-
-body.dark {
-    .help {
-        &__item {
-            background: #1c1f2c;
-            color: #c9e0e0;
-
-            svg {
-                fill: #c9e0e0;
-
-                &.card-svg {
-                    fill: #c9e0e0;
-                }
-            }
         }
     }
 }

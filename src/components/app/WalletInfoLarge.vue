@@ -97,14 +97,14 @@ export default {
         align-items: center;
         border-radius: 50%;
         margin-right: 16px;
-        background: #3fdfae;
+        background: var(--#{$prefix}turquoise);
 
         img {
             width: 60%;
         }
 
         svg {
-            fill: $colorBlack;
+            fill: var(--#{$prefix}black);
             opacity: 1;
         }
     }
@@ -126,13 +126,14 @@ export default {
             display: flex;
             align-items: center;
             font-family: 'Poppins_Light';
-            font-size: 16px;
+            font-size: var(--#{$prefix}default-fs);
             cursor: pointer;
+            color: var(--#{$prefix}mute-text);
 
             svg {
                 @include animateEasy;
                 margin-left: 4px;
-                stroke: $colorBlack;
+                stroke: var(--#{$prefix}black);
             }
         }
 
@@ -140,13 +141,14 @@ export default {
             display: flex;
             align-items: center;
             font-family: 'Poppins_SemiBold';
-            font-size: 28px;
-            color: $colorBlack;
+            font-size: var(--#{$prefix}h2-fs);
+            color: var(--#{$prefix}black);
             margin-top: -3px;
             user-select: none;
 
             .value {
                 min-width: 165px;
+                font-family: 'Poppins_SemiBold';
             }
 
             span {
@@ -158,7 +160,7 @@ export default {
                 fill: #33363f;
 
                 &:hover {
-                    fill: $colorBaseGreen;
+                    fill: var(--#{$prefix}btn-secondary-hover);
                 }
             }
         }
@@ -166,28 +168,28 @@ export default {
         .change {
             display: flex;
             align-items: center;
-            color: $colorGreen;
+            color: var(--#{$prefix}green);
 
             svg {
-                fill: $colorGreen;
+                fill: var(--#{$prefix}green);
             }
 
             .percent {
                 user-select: none;
                 margin-left: 5px;
                 font-family: 'Poppins_Regular';
-                font-size: 14px;
+                font-size: var(--#{$prefix}small-lg-fs);
             }
 
             &.minus {
-                color: $colorRed;
+                color: var(--#{$prefix}red);
 
                 .percent {
-                    color: $colorRed;
+                    color: var(--#{$prefix}red);
                 }
 
                 svg {
-                    fill: $colorRed !important;
+                    fill: var(--#{$prefix}red) !important;
                     transform: rotate(90deg);
                 }
             }
@@ -197,72 +199,7 @@ export default {
     .line {
         width: 100%;
         height: 1px;
-        background: $borderLight;
-    }
-}
-
-body.dark {
-    .wallet-info {
-        &.opened {
-            // background: #0f1910;
-        }
-
-        &__network {
-            background: $colorBrightGreen;
-
-            svg {
-                fill: #070c0e;
-                opacity: 0.8;
-            }
-        }
-
-        &__wallet {
-            .address {
-                color: $colorLightGreen;
-
-                svg {
-                    stroke: #636363;
-                }
-            }
-
-            .balance {
-                color: $colorWhite;
-
-                span {
-                    color: #73b1b1;
-                }
-
-                svg {
-                    cursor: pointer;
-                    fill: $colorLightGreen;
-
-                    &:hover {
-                        fill: $colorBrightGreen;
-                    }
-                }
-            }
-
-            .change {
-                display: flex;
-                align-items: center;
-
-                &.minus {
-                    color: $colorRed;
-
-                    .percent {
-                        color: $colorRed;
-                    }
-                }
-
-                svg {
-                    fill: $colorBrightGreen;
-                }
-
-                .percent {
-                    color: $colorBrightGreen;
-                }
-            }
-        }
+        background: var(--#{$prefix}blue);
     }
 }
 </style>

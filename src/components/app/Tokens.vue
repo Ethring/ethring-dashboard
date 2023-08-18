@@ -77,7 +77,7 @@ export default {
     flex-direction: column;
 
     &__group {
-        border: 1px solid $colorLightGreen;
+        border: 1px solid var(--#{$prefix}border-color);
         border-radius: 16px;
         padding: 0 16px;
         margin-bottom: 7px;
@@ -97,15 +97,6 @@ export default {
 
     &__group:hover {
         box-shadow: 0px 4px 40px rgba(0, 0, 0, 0.2);
-    }
-}
-
-body.dark {
-    .tokens {
-        &__group {
-            border-color: transparent;
-            background: $colorDarkPanel;
-        }
     }
 }
 </style>

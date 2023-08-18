@@ -82,12 +82,12 @@
             </div>
         </Accordion>
         <Button
-            xl
             :title="needApprove ? $t('tokenOperations.approve') : $t('tokenOperations.confirm').toUpperCase()"
             :disabled="!!disabledBtn"
             :loading="isLoading"
             class="simple-bridge__btn mt-10"
             @click="swap"
+            size="large"
         />
     </div>
 </template>
@@ -699,7 +699,7 @@ export default {
             width: 48%;
 
             .name {
-                font-size: 18px;
+                font-size: var(--#{$prefix}h6-fs);
                 line-height: 16px;
             }
         }
@@ -718,7 +718,7 @@ export default {
     .accordion__title {
         .service-fee {
             font-family: 'Poppins_SemiBold';
-            color: #0d7e71;
+            color: var(--#{$prefix}sub-text);
         }
         .symbol {
             font-family: 'Poppins_SemiBold';

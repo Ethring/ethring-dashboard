@@ -80,7 +80,6 @@
             </div>
         </Accordion>
         <Button
-            xl
             :title="
                 needApprove
                     ? $t('tokenOperations.approve')
@@ -92,6 +91,7 @@
             :loading="isLoading"
             class="superswap-panel__btn mt-10"
             @click="swap"
+            size="large"
         />
     </div>
 </template>
@@ -752,7 +752,7 @@ export default {
             width: 48%;
 
             .name {
-                font-size: 18px;
+                font-size: var(--#{$prefix}h6-fs);
                 line-height: 16px;
             }
         }

@@ -52,10 +52,10 @@ export default {
     padding-left: 30px;
 
     .title {
-        font-size: 24px;
+        font-size: var(--#{$prefix}h3-fs);
         margin: 20px 0;
         font-family: 'Poppins_SemiBold';
-        color: $colorBlack;
+        color: var(--#{$prefix}black);
     }
 
     &__block {
@@ -78,15 +78,5 @@ export default {
 
 .mb-15 {
     margin-bottom: 15px;
-}
-
-body.dark {
-    .ui-kit {
-        background: #14151a;
-
-        .title {
-            color: $colorPl;
-        }
-    }
 }
 </style>

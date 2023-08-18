@@ -132,6 +132,4 @@ export default {
         position: relative;
     }
 }
-body.dark {
-}
 </style>

@@ -26,30 +26,18 @@ export default {
         margin-right: 10px;
 
         svg {
-            fill: $colorWhite;
+            fill: var(--#{$prefix}white);
         }
     }
 
     &__text {
-        font-size: 24px;
+        font-size: var(--#{$prefix}h3-fs);
         font-family: 'Poppins_Light';
-        color: $colorWhite;
+        color: var(--#{$prefix}white);
 
         span {
-            color: $colorBrightGreen;
+            color: var(--#{$prefix}brightGreen);
             font-family: 'Poppins_SemiBold';
-        }
-    }
-}
-
-body.dark {
-    .logo {
-        &__text {
-            color: $colorWhite;
-
-            span {
-                color: $colorBrightGreen;
-            }
         }
     }
 }

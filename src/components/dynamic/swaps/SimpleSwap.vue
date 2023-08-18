@@ -48,12 +48,12 @@
             </div>
         </Accordion>
         <Button
-            xl
             :title="needApprove ? $t('tokenOperations.approve') : $t('tokenOperations.swap')"
             :disabled="!!disabledSwap"
             :loading="isLoading"
             class="simple-swap__btn mt-10"
             @click="swap"
+            size="large"
         />
     </div>
 </template>
@@ -501,8 +501,8 @@ export default {
         border-radius: 50%;
         left: calc(50% - 24px);
         bottom: 138px;
-        background: $colorGray;
-        border: 4px solid $colorWhite;
+        background: var(--#{$prefix}select-bg-color);
+        border: 4px solid var(--#{$prefix}white);
         @include animateEasy;
 
         svg {
@@ -513,7 +513,7 @@ export default {
             background: #97ffd0;
 
             svg {
-                fill: $colorDarkPanel;
+                fill: var(--#{$prefix}primary);
             }
         }
 
@@ -540,7 +540,7 @@ export default {
             margin-left: 5px;
         }
         .fee {
-            color: $colorBaseGreen;
+            color: var(--#{$prefix}sub-text);
             margin-right: 4px;
         }
 
@@ -557,40 +557,4 @@ export default {
         }
     }
 }
-
-body.dark {
-    .simple-swap {
-        &__switch {
-            background: $colorDarkPanel;
-            border: 4px solid #0c0d18;
-
-            svg {
-                fill: $colorBrightGreen;
-            }
-
-            &:hover {
-                background: $colorBrightGreen;
-
-                svg {
-                    fill: $colorBlack;
-                }
-            }
-        }
-    }
-}
-
-// .accordion {
-
-//         .fee {
-//             color: $colorBaseGreen;
-//             margin-right: 4px;
-//         }
-
-//         .symbol {
-//             color: $colorPl;
-//             font-weight: 300;
-//             font-family: 'Poppins_Regular';
-//         }
-//     }
-// }
 </style>
