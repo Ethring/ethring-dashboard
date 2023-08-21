@@ -1,5 +1,10 @@
+import { Page } from '@playwright/test';
 import { test, expect } from '../__fixtures__/fixtures';
 import { MetaMaskNotifyPage } from '../model/metaMaskPages';
+import { DashboardPage } from '../model/zometPages';
+
+export const supportedServiceByBridge = ['srv-debridge', 'srv-squidrouter'];
+const supportedServiceBySwap = [];
 
 test.describe('SuperSwap e2e tests', () => {
     test('Case#1: Super Swap tx from ETH to BSC wEth to USDC', async ({ browser, context, page: Page, superSwapPage }) => {
@@ -18,9 +23,40 @@ test.describe('SuperSwap e2e tests', () => {
         const tokenInSuperSwap = superSwapPage.getTokenTo();
 
         const swapPage = await superSwapPage.goToSwap();
-        await swapPage.page.waitForLoadState();
         const currentTokenTo = await swapPage.getTokenTo();
 
         expect(tokenInSuperSwap).not.toBe(currentTokenTo);
+    });
+
+    test('Case#3: Verifying if all service responce errors', async ({ page, dashboard }: { page; dashboard: DashboardPage }) => {
+        await await dashboard.page.route('**/getSupportedChains', (route) => {
+            route.fulfill({
+                status: 500,
+                json: {
+                    ok: false,
+                    data: '',
+                    error: 'Ooops, sorry bro',
+                },
+            });
+        });
+
+        const superSwapPage = await dashboard.goToSuperSwap();
+        await superSwapPage.setNetworkToWithSleep('Arbitrum One');
+        // todo тут определить поведение которое отображает дашборд при отсутсвии данных о поддерживаемых чейнах
+    });
+
+    test('Case#4: Checking polled services for bridge', async ({ page, dashboard }: { page: Page; dashboard: DashboardPage }) => {
+        let requestedService: string[] = [];
+
+        await dashboard.page.route('**/getSupportedChains', (route) => {
+            const regex = /\/([^/]+)\/api/;
+            requestedService.push(route.request().url().match(regex)[1]);
+            route.continue();
+        });
+
+        const superSwapPage = await dashboard.goToSuperSwap();
+        await superSwapPage.setAmount('1');
+
+        expect(requestedService).toEqual(supportedServiceByBridge);
     });
 });

@@ -3,13 +3,30 @@ import path from 'path';
 import { MetaMaskHomePage, MetaMaskNotifyPage, waitMmNotifyWindow } from '../model/metaMaskPages';
 import { DashboardPage, SwapPage, SuperSwapPage } from '../model/zometPages';
 
-const getPathToEx = () => path.join(__dirname, '..', '/data/metamask-chrome-10.34.0');
 export const metaMaskId = 'lbbfnfejpmmaenbngdgdmpabdfgiceii';
+const getPathToEx = () => path.join(__dirname, '..', '/data/metamask-chrome-10.34.0');
+
+const authInDashboard = async (context: BrowserContext): Promise<DashboardPage> => {
+    await waitMmNotifyWindow();
+    await context.pages()[0].close();
+    await context.pages()[0].close();
+
+    const metaMaskPage = new MetaMaskHomePage(context.pages()[0]);
+    await metaMaskPage.importExistWallet();
+
+    const zometPage = new DashboardPage(await context.newPage());
+    await zometPage.goToPage();
+    await zometPage.loginByMetaMask();
+    let notyfMM = new MetaMaskNotifyPage(context.pages()[2]);
+    await notyfMM.assignPage();
+    return zometPage;
+};
 
 export const test = base.extend<{
-    context: BrowserContext | Browser;
+    context: BrowserContext;
     swapPage: SwapPage;
     superSwapPage: SuperSwapPage;
+    dashboard: DashboardPage;
 }>({
     context: async ({}, use) => {
         let context;
@@ -54,40 +71,18 @@ export const test = base.extend<{
         await context.close();
     },
     swapPage: async ({ context }, use) => {
-        let [background] = context.serviceWorkers();
-
-        await waitMmNotifyWindow();
-        await context.pages()[0].close();
-        await context.pages()[0].close();
-
-        const metaMaskPage = new MetaMaskHomePage(context.pages()[0]);
-        await metaMaskPage.importExistWallet();
-
-        const zometPage = new DashboardPage(await context.newPage());
-        await zometPage.goToPage();
-        await zometPage.loginByMetaMask();
-        let notyfMM = new MetaMaskNotifyPage(context.pages()[2]);
-        await notyfMM.assignPage();
-
+        const zometPage = await authInDashboard(context);
         const swapPage = await zometPage.goToSwap();
         await use(swapPage);
     },
     superSwapPage: async ({ context }, use) => {
-        await waitMmNotifyWindow();
-        await context.pages()[0].close();
-        await context.pages()[0].close();
-
-        const metaMaskPage = new MetaMaskHomePage(context.pages()[0]);
-        await metaMaskPage.importExistWallet();
-
-        const zometPage = new DashboardPage(await context.newPage());
-        await zometPage.goToPage();
-        await zometPage.loginByMetaMask();
-        let notyfMM = new MetaMaskNotifyPage(context.pages()[2]);
-        await notyfMM.assignPage();
-
+        const zometPage = await authInDashboard(context);
         const superSwapPage = await zometPage.goToSuperSwap();
         await use(superSwapPage);
+    },
+    dashboard: async ({ context }, use) => {
+        const zometPage = await authInDashboard(context);
+        await use(zometPage);
     },
 });
 export const expect = test.expect;

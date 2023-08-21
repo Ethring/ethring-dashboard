@@ -9,10 +9,6 @@ export class DashboardPage {
 
     constructor(page: Page) {
         this.page = page;
-        this.page.route('**', (route) => route.continue());
-        this.page.on('console', (msg) => {
-            if (msg.type() === 'error') console.log(`Error text: "${msg.text()}"`);
-        });
     }
 
     async goToPage() {
@@ -26,6 +22,7 @@ export class DashboardPage {
 
     async goToSwap() {
         await this.page.getByTestId('sidebar-item-swap').click();
+        await this.page.waitForLoadState();
         return new SwapPage(this.page);
     }
 
@@ -36,6 +33,16 @@ export class DashboardPage {
 
     async getLinkFromSuccessPanell() {
         return await this.page.locator('//div[@class="success info-panel mt-10"]//a').getAttribute('href');
+    }
+
+    async mockResponseByService(url: String, mockData: object) {
+        await this.page.route('**/transfer**', (route) => {
+            route.fulfill({
+                status: 404,
+                contentType: 'text/plain',
+                body: 'Not Found!',
+            });
+        });
     }
 }
 
@@ -122,23 +129,5 @@ export class SuperSwapPage extends DashboardPage {
 
     async getTokenTo() {
         return await this.page.locator('(//*[@data-qa="select-token"]/div[@class="token"])[2]').textContent();
-    }
-
-    async mockResponseByService(servicName: String, mockData: object) {
-        await this.page.route('**/transfer**', (route) => {
-            route.fulfill({
-                status: 404,
-                contentType: 'text/plain',
-                body: 'Not Found!',
-            });
-        });
-
-        // await this.page.route('**bsc-dataseed1**', (route) => {
-        //     route.fulfill({
-        //         status: 500,
-        //         contentType: 'text/plain',
-        //         body: '{error: 123}',
-        //     });
-        // });
     }
 }
