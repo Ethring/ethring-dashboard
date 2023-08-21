@@ -169,12 +169,12 @@ export default {
         cursor: pointer;
 
         .recipient {
-            color: var(--#{$prefix}mineralGreen);
+            color: var(--#{$prefix}select-label-color);
             font-family: 'Poppins_SemiBold';
         }
 
         .address {
-            color: var(--#{$prefix}mineralGreen);
+            color: var(--#{$prefix}select-label-color);
             font-family: 'Poppins_Regular';
         }
 
@@ -208,7 +208,7 @@ export default {
             min-width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: var(--#{$prefix}turquoise);
+            background: var(--#{$prefix}icon-logo-bg-color);
             margin-right: 10px;
 
             svg {
@@ -219,13 +219,13 @@ export default {
         .name {
             font-size: var(--#{$prefix}h2-fs);
             font-family: 'Poppins_SemiBold';
-            color: var(--#{$prefix}gulfStream);
+            color: var(--#{$prefix}select-placeholder-text);
             user-select: none;
         }
 
         svg.arrow {
             cursor: pointer;
-            fill: var(--#{$prefix}gulfStream);
+            fill: var(--#{$prefix}select-icon-color);
             transform: rotate(0);
             @include animateEasy;
         }
@@ -233,14 +233,14 @@ export default {
 
     &.focused {
         .select-address__panel {
-            border: 2px solid var(--#{$prefix}surfieGreen);
+            border: 2px solid var(--#{$prefix}select-active-border-color);
             background: var(--#{$prefix}white);
         }
     }
 
     &.active {
         .select-address__panel {
-            border: 2px solid var(--#{$prefix}surfieGreen);
+            border: 2px solid var(--#{$prefix}select-active-border-color);
             background: var(--#{$prefix}white);
 
             svg.arrow {
@@ -251,8 +251,8 @@ export default {
 
     &.error {
         .select-address__panel {
-            border-color: var(--#{$prefix}watermelon);
-            background: var(--#{$prefix}sefidWhite);
+            border-color: var(--#{$prefix}danger-color);
+            background: var(--#{$prefix}danger-op-01);
         }
     }
 
@@ -265,7 +265,7 @@ export default {
         width: 100%;
         min-height: 40px;
         border-radius: 16px;
-        border: 2px solid var(--#{$prefix}surfieGreen);
+        border: 2px solid var(--#{$prefix}select-active-border-color);
         padding: 20px 25px;
         box-sizing: border-box;
         max-height: 430px;
@@ -282,7 +282,7 @@ export default {
         align-items: center;
         justify-content: space-between;
         min-height: 50px;
-        border-bottom: 1px dashed var(--#{$prefix}gulfStream);
+        border-bottom: 1px dashed var(--#{$prefix}select-border-color);
         cursor: pointer;
         @include animateEasy;
 
@@ -294,7 +294,7 @@ export default {
 
         .remove {
             opacity: 0.2;
-            fill: var(--#{$prefix}surfieGreen);
+            fill: var(--#{$prefix}select-active-border-color);
         }
 
         &.active {
@@ -313,7 +313,7 @@ export default {
         &:hover {
             .info {
                 .name {
-                    color: var(--#{$prefix}surfieGreen);
+                    color: var(--#{$prefix}select-active-border-color);
                 }
             }
         }
@@ -324,7 +324,7 @@ export default {
 
             .name {
                 font-size: var(--#{$prefix}default-fs);
-                color: var(--#{$prefix}mineralGreen);
+                color: var(--#{$prefix}base-text);
                 font-family: 'Poppins_Regular';
             }
         }

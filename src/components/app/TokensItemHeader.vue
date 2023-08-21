@@ -41,7 +41,7 @@ export default {
 
     min-height: 73px;
     margin-bottom: 5px;
-    border-bottom: 1px dashed var(--#{$prefix}geyser);
+    border-bottom: 1px dashed var(--#{$prefix}border-color);
     cursor: pointer;
 
     .balance {

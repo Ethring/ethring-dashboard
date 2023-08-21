@@ -73,7 +73,7 @@ export default {
         height: 250px;
         margin-top: -10px;
         border-radius: 6px;
-        background: var(--#{$prefix}geyser);
+        background: var(--#{$prefix}secondary-background);
 
         #qr {
             border-radius: 6px;
@@ -90,7 +90,7 @@ export default {
         margin-top: 16px;
         padding: 0 16px;
         border-radius: 6px;
-        background: var(--#{$prefix}geyser);
+        background: var(--#{$prefix}secondary-background);
         box-sizing: border-box;
         transition: all 0.3s ease-in-out;
 
@@ -106,7 +106,7 @@ export default {
             height: 30px;
 
             margin: 0 11px;
-            background: var(--#{$prefix}gulfStream);
+            background: var(--#{$prefix}icon-color);
         }
 
         .icon {

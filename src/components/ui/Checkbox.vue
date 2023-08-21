@@ -69,8 +69,8 @@ input[type='checkbox'] {
         .checkbox {
             &__checkmark {
                 transition: all 0.3s ease-in-out;
-                background: var(--#{$prefix}turquoise);
-                border: 1px solid var(--#{$prefix}aquamarine);
+                background: var(--#{$prefix}icon-logo-bg-color);
+                border: 1px solid var(--#{$prefix}checkbox-checked);
             }
 
             &__label {
@@ -86,11 +86,11 @@ input[type='checkbox'] {
             .checkbox {
                 &__checkmark {
                     background: transparent;
-                    border: 1px solid var(--#{$prefix}turquoise);
+                    border: 1px solid var(--#{$prefix}checkbox-disabled);
                 }
 
                 &__label {
-                    color: var(--#{$prefix}turquoise);
+                    color: var(--#{$prefix}checkbox-disabled-text);
                 }
             }
         }
@@ -108,7 +108,7 @@ input[type='checkbox'] {
         justify-content: center;
         width: 32px;
         height: 32px;
-        background: var(--#{$prefix}geyser);
+        background: var(--#{$prefix}checkbox-bg-color);
         border-radius: 4px;
         margin-right: 14px;
         transition: all 0.2s;

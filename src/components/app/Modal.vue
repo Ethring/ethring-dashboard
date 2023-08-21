@@ -70,7 +70,7 @@ export default {
     right: 0;
     bottom: 0;
     left: 0;
-    background: rgba(0, 0, 0, 0.85);
+    background: var(--#{$prefix}modal-bg-color);
     z-index: 1000;
     overflow: auto;
 
@@ -91,7 +91,7 @@ export default {
 
     &__content-line {
         margin: 10px 0;
-        border: 1px dashed var(--#{$prefix}blue);
+        border: 1px dashed var(--#{$prefix}border-color);
     }
 
     &__content-inner {
@@ -114,7 +114,7 @@ export default {
         }
 
         svg {
-            fill: var(--#{$prefix}gulfStream);
+            fill: var(--#{$prefix}icon-color);
         }
     }
 }

@@ -50,8 +50,8 @@ export default {
     width: 80px;
     height: 40px;
     position: relative;
-    border: 1px solid var(--#{$prefix}gulfStream);
-    background: var(--#{$prefix}iceberg);
+    border: 1px solid var(--#{$prefix}theme-swither-border-color);
+    background: var(--#{$prefix}theme-swither);
     border-radius: 50px;
     cursor: pointer;
 
@@ -72,16 +72,16 @@ export default {
         border-radius: 50%;
         top: 4px;
         left: 3px;
-        background: var(--#{$prefix}surfieGreen);
+        background: var(--#{$prefix}theme-swither-bg-color);
     }
 }
 
 .theme-switcher.checked {
-    border: 1px solid var(--#{$prefix}trout);
+    border: 1px solid var(--#{$prefix}border-secondary-color);
     background: var(--#{$prefix}primary);
 
     .theme-switcher__check {
-        background: #020c03;
+        background: var(--#{$prefix}theme-swither-active-bg-color);
         left: initial;
         right: 3px;
     }

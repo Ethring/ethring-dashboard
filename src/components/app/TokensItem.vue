@@ -58,7 +58,7 @@ export default {
 <style lang="scss" scoped>
 .tokens__item {
     min-height: 72px;
-    border: 1px solid var(--#{$prefix}turquoise);
+    border: 1px solid var(--#{$prefix}icon-logo-bg-color);
     border-radius: 16px;
     margin-bottom: 7px;
 
@@ -110,7 +110,7 @@ export default {
 
         .blockchain {
             font-family: 'Poppins_Regular';
-            color: var(--#{$prefix}surfieGreen);
+            color: var(--#{$prefix}sub-text);
             font-size: var(--#{$prefix}small-sm-fs);
             text-transform: uppercase;
         }
@@ -131,7 +131,7 @@ export default {
         .symbol {
             font-size: var(--#{$prefix}small-lg-fs);
             font-family: 'Poppins_Regular';
-            color: var(--#{$prefix}grey);
+            color: var(--#{$prefix}mute-text);
         }
     }
 
@@ -143,7 +143,7 @@ export default {
         .label {
             font-size: var(--#{$prefix}small-lg-fs);
             font-family: 'Poppins_Regular';
-            color: var(--#{$prefix}grey);
+            color: var(--#{$prefix}mute-text);
             text-align: right;
         }
 

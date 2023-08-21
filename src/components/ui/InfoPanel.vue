@@ -41,19 +41,19 @@ export default {
     padding: 0 16px;
     box-sizing: border-box;
     border-radius: 8px;
-    background: var(--#{$prefix}sefidWhite);
-    border: 1px solid var(--#{$prefix}watermelon);
-    color: var(--#{$prefix}watermelon);
+    background: var(--#{$prefix}danger-op-01);
+    border: 1px solid var(--#{$prefix}danger-color);
+    color: var(--#{$prefix}danger-color);
     font-family: 'Poppins_Regular';
     font-size: var(--#{$prefix}default-fs);
 
     svg {
         min-width: 24px;
-        fill: var(--#{$prefix}watermelon);
+        fill: var(--#{$prefix}danger-color);
     }
 
     &.success {
-        background: #e8f0e4;
+        background: var(--#{$prefix}success-op-01);
         border: 1px solid var(--#{$prefix}success);
         color: var(--#{$prefix}success);
 
@@ -67,7 +67,7 @@ export default {
     }
 
     &.warning {
-        background: rgba(255, 107, 0, 0.1);
+        background: var(--#{$prefix}warning-op-01);
         border: 1px solid var(--#{$prefix}warning);
         color: var(--#{$prefix}warning);
 
@@ -81,7 +81,7 @@ export default {
     }
 
     &.info {
-        background: rgba(0, 131, 159, 0.1);
+        background: var(--#{$prefix}info-op-01);
         border: 1px solid var(--#{$prefix}info);
         color: var(--#{$prefix}info);
 
@@ -97,7 +97,7 @@ export default {
     &__link {
         margin-left: 7px;
         text-decoration: underline;
-        color: var(--#{$prefix}watermelon);
+        color: var(--#{$prefix}danger-color);
     }
 
     &__title {

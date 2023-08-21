@@ -97,7 +97,7 @@ export default {
         align-items: center;
         border-radius: 50%;
         margin-right: 16px;
-        background: var(--#{$prefix}turquoise);
+        background: var(--#{$prefix}banner-logo-color);
 
         img {
             width: 60%;
@@ -157,7 +157,7 @@ export default {
 
             svg {
                 cursor: pointer;
-                fill: #33363f;
+                fill: var(--#{$prefix}eye-logo);
 
                 &:hover {
                     fill: var(--#{$prefix}btn-secondary-hover);
@@ -182,24 +182,18 @@ export default {
             }
 
             &.minus {
-                color: var(--#{$prefix}watermelon);
+                color: var(--#{$prefix}negative-percentage);
 
                 .percent {
-                    color: var(--#{$prefix}watermelon);
+                    color: var(--#{$prefix}negative-percentage);
                 }
 
                 svg {
-                    fill: var(--#{$prefix}watermelon) !important;
+                    fill: var(--#{$prefix}negative-percentage) !important;
                     transform: rotate(90deg);
                 }
             }
         }
-    }
-
-    .line {
-        width: 100%;
-        height: 1px;
-        background: var(--#{$prefix}gulfStream);
     }
 }
 </style>

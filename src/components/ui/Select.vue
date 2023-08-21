@@ -130,7 +130,7 @@ export default {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: var(--#{$prefix}turquoise);
+            background: var(--#{$prefix}icon-logo-bg-color);
             margin-right: 10px;
 
             svg {
@@ -151,14 +151,14 @@ export default {
         }
 
         .label {
-            color: var(--#{$prefix}mineralGreen);
+            color: var(--#{$prefix}select-label-color);
             font-size: var(--#{$prefix}small-lg-fs);
             font-family: 'Poppins_Medium';
             user-select: none;
         }
 
         .placeholder {
-            color: var(--#{$prefix}gulfStream);
+            color: var(--#{$prefix}select-placeholder-text);
             font-size: var(--#{$prefix}h6-fs);
             font-family: 'Poppins_SemiBold';
             user-select: none;
@@ -167,7 +167,7 @@ export default {
 
         svg.arrow {
             cursor: pointer;
-            fill: var(--#{$prefix}gulfStream);
+            fill: var(--#{$prefix}select-icon-color);
             transform: rotate(0);
             @include animateEasy;
         }
@@ -193,7 +193,7 @@ export default {
         width: 100%;
         min-height: 40px;
         border-radius: 16px;
-        border: 2px solid var(--#{$prefix}surfieGreen);
+        border: 2px solid var(--#{$prefix}select-active-border-color);
         padding: 20px 25px;
         box-sizing: border-box;
 
@@ -210,7 +210,7 @@ export default {
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--#{$prefix}iceberg);
+            background: var(--#{$prefix}icon-secondary-bg-color);
             border-radius: 50%;
             margin-right: 12px;
             svg {
@@ -224,13 +224,13 @@ export default {
         align-items: center;
         justify-content: space-between;
         min-height: 60px;
-        border-bottom: 1px dashed var(--#{$prefix}gulfStream);
+        border-bottom: 1px dashed var(--#{$prefix}select-border-color);
         cursor: pointer;
         @include animateEasy;
 
         .info {
             .name {
-                color: var(--#{$prefix}mineralGreen);
+                color: var(--#{$prefix}base-text);
             }
         }
 
@@ -255,7 +255,7 @@ export default {
             }
             .select__items-item-logo {
                 transition: 0.5s;
-                background: var(--#{$prefix}aquamarine);
+                background: var(--#{$prefix}icon-logo-bg-hover);
             }
         }
 
@@ -265,7 +265,7 @@ export default {
 
             .name {
                 font-size: var(--#{$prefix}default-fs);
-                color: var(--#{$prefix}mineralGreen);
+                color: var(--#{$prefix}base-text);
                 font-family: 'Poppins_Regular';
             }
         }

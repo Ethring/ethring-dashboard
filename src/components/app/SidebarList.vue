@@ -67,7 +67,7 @@ export default {
         align-items: center;
         margin-bottom: 15px;
         text-decoration: none;
-        color: var(--#{$prefix}geyser);
+        color: var(--#{$prefix}sidebar-text);
         cursor: pointer;
 
         @include animateEasy;
@@ -84,12 +84,12 @@ export default {
             color: var(--#{$prefix}white);
 
             svg {
-                fill: var(--#{$prefix}brightGreen);
+                fill: var(--#{$prefix}sidebar-icon-color);
             }
         }
 
         svg {
-            fill: var(--#{$prefix}geyser);
+            fill: var(--#{$prefix}sidebar-text);
             transform: scale(0.8);
             @include animateEasy;
         }

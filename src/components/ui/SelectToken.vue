@@ -161,12 +161,12 @@ export default {
             font-family: 'Poppins';
             font-size: var(--#{$prefix}default-fs);
             font-weight: 400;
-            color: var(--#{$prefix}mineralGreen);
+            color: var(--#{$prefix}base-text);
         }
         h5 {
             font-size: var(--#{$prefix}small-lg-fs);
             line-height: 21px;
-            color: var(--#{$prefix}mineralGreen);
+            color: var(--#{$prefix}base-text);
             span {
                 font-weight: 12px;
                 font-weight: 300;

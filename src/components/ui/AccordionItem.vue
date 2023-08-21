@@ -30,7 +30,7 @@ export default {
     align-items: center;
 
     &__label {
-        color: var(--#{$prefix}mineralGreen);
+        color: var(--#{$prefix}accordion-label-color);
         font-size: var(--#{$prefix}default-fs);
         font-family: 'Poppins_Regular';
     }

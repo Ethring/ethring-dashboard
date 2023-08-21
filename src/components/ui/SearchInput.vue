@@ -44,7 +44,7 @@ export default {
 
 <style lang="scss" scoped>
 .search-input {
-    background: var(--#{$prefix}gallery);
+    background: var(--#{$prefix}select-bg-color);
     border-radius: 16px;
     padding: 20px 32px;
     display: flex;
@@ -52,7 +52,7 @@ export default {
     position: relative;
     border: 2px solid var(--#{$prefix}white);
     span {
-        color: var(--#{$prefix}mineralGreen);
+        color: var(--#{$prefix}base-text);
         display: block;
         font-family: 'Poppins';
         font-style: normal;
@@ -69,7 +69,7 @@ export default {
         min-width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: var(--#{$prefix}geyser);
+        background: var(--#{$prefix}icon-secondary-bg-hover);
         margin-right: 10px;
     }
 
@@ -85,7 +85,6 @@ export default {
         font-weight: 700;
         font-size: var(--#{$prefix}h4-fs);
         line-height: 33px;
-        color: var(--#{$prefix}gulfStream);
         border: none;
         background-color: transparent;
         outline: none;
@@ -95,7 +94,7 @@ export default {
     background: var(--#{$prefix}white);
     border: 2px solid var(--#{$prefix}sub-text);
     .search-input__logo {
-        background: var(--#{$prefix}turquoise);
+        background: var(--#{$prefix}btn-hover);
     }
     input {
         color: var(--#{$prefix}black);

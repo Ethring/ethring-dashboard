@@ -21,7 +21,7 @@ export default {
     border-top: 0.8em solid var(--#{$prefix}border-color);
     border-right: 0.8em solid var(--#{$prefix}border-color);
     border-bottom: 0.8em solid var(--#{$prefix}border-color);
-    border-left: 0.8em solid #385c39;
+    border-left: 0.8em solid var(--#{$prefix}loader-border-color);
     -webkit-transform: translateZ(0);
     -ms-transform: translateZ(0);
     transform: translateZ(0);

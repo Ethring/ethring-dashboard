@@ -37,7 +37,7 @@ export default {
 }
 
 .bridge-page__title {
-    color: #486060;
+    color: var(--#{$prefix}base-text);
     font-size: var(--#{$prefix}h1-fs);
     font-family: 'Poppins_SemiBold';
     margin-bottom: 30px;

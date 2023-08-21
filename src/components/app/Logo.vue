@@ -36,7 +36,7 @@ export default {
         color: var(--#{$prefix}white);
 
         span {
-            color: var(--#{$prefix}brightGreen);
+            color: var(--#{$prefix}sidebar-icon-color);
             font-family: 'Poppins_SemiBold';
         }
     }

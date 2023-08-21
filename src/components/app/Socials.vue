@@ -31,12 +31,12 @@ export default {
         align-items: center;
         width: 87px;
         height: 46px;
-        border: 1px solid var(--#{$prefix}trout);
+        border: 1px solid var(--#{$prefix}border-secondary-color);
         border-radius: 8px;
         cursor: pointer;
 
         svg {
-            fill: var(--#{$prefix}brightGreen);
+            fill: var(--#{$prefix}sidebar-icon-color);
         }
     }
 }

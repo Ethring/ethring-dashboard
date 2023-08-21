@@ -33,7 +33,7 @@ export default {
         display: flex;
         justify-content: center;
         align-items: center;
-        background: var(--#{$prefix}iceberg);
+        background: var(--#{$prefix}icon-secondary-bg-color);
         font-family: 'Poppins_Regular';
         font-size: var(--#{$prefix}h3-fs);
         color: var(--#{$prefix}icon-active);

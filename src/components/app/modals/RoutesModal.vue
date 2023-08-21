@@ -163,20 +163,20 @@ export default {
 
     &__item {
         border-radius: 20px;
-        background-color: #f4f6ff;
+        background-color: var(--#{$prefix}modal-block-bg-color);
         padding: 16px;
         width: 100%;
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 16px;
-        border: 2px solid #f4f6ff;
+        border: 2px solid var(--#{$prefix}modal-block-bg-color);
         cursor: pointer;
         transition: 0.5s;
     }
     &__active-item {
-        border: 2px solid #364de8;
-        background-color: #e7ecff;
+        border: 2px solid var(--#{$prefix}icon-border);
+        background-color: var(--#{$prefix}modal-active-block-bg-color);
     }
     &__row {
         display: flex;
@@ -187,14 +187,14 @@ export default {
         text-align: right;
         margin-top: 2px;
         p {
-            color: #486060;
+            color: var(--#{$prefix}base-text);
             font-size: var(--#{$prefix}small-lg-fs);
             margin: 0;
         }
         h3 {
             font-weight: 700;
             font-size: var(--#{$prefix}h6-fs);
-            color: var(--#{$prefix}trout);
+            color: var(--#{$prefix}mute-text);
             margin: 0;
             span {
                 color: var(--#{$prefix}primary);
@@ -204,10 +204,10 @@ export default {
         h4 {
             font-size: var(--#{$prefix}h5-fs);
             margin: 0 6px;
-            color: #a0b3c3;
+            color: var(--#{$prefix}modal-block-text);
         }
         .blue-text {
-            color: #00839f;
+            color: var(--#{$prefix}modal-item-text);
         }
     }
     &__btn {
@@ -229,7 +229,7 @@ export default {
             width: 32px;
             padding: 3px 4px;
             height: 32px;
-            border: 1px solid #364de8;
+            border: 1px solid var(--#{$prefix}icon-border);
             img {
                 width: 100%;
                 border-radius: 50%;
@@ -239,7 +239,7 @@ export default {
             margin-top: 2px;
         }
         div {
-            color: #486060;
+            color: var(--#{$prefix}base-text);
             h4 {
                 margin: 0 10px 0 2px;
                 font-weight: 700;
@@ -258,13 +258,13 @@ export default {
             margin: 2px 0 0 6px;
         }
         .low-fee {
-            background-color: var(--#{$prefix}greenHills);
+            background-color: var(--#{$prefix}tag-03);
         }
         .best-return {
-            background-color: var(--#{$prefix}turquoise);
+            background-color: var(--#{$prefix}icon-logo-bg-color);
         }
         .fastest {
-            background-color: #02e7f6;
+            background-color: var(--#{$prefix}tag-02);
         }
     }
 }

@@ -73,7 +73,7 @@ export default {
             width: 240px;
             height: 82px;
             border-radius: 8px;
-            border: 1px solid var(--#{$prefix}blue);
+            border: 1px solid var(--#{$prefix}border-color);
             margin-bottom: 12px;
 
             @include animateEasy;
@@ -91,7 +91,7 @@ export default {
                 .title {
                     font-size: var(--#{$prefix}small-lg-fs);
                     font-family: 'Poppins_Regular';
-                    color: var(--#{$prefix}harborBlue);
+                    color: var(--#{$prefix}secondary-text);
                 }
 
                 .wallet {

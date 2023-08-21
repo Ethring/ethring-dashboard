@@ -40,7 +40,7 @@ export default {
     }
 
     svg {
-        stroke: var(--#{$prefix}harborBlue);
+        stroke: var(--#{$prefix}secondary-text);
     }
 
     &__add {
@@ -50,7 +50,7 @@ export default {
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: var(--#{$prefix}geyser);
+        background: var(--#{$prefix}icon-secondary-bg-color);
     }
 
     .title {
@@ -58,7 +58,7 @@ export default {
         font-size: var(--#{$prefix}small-lg-fs);
         width: 162px;
         margin-left: 10px;
-        color: var(--#{$prefix}harborBlue);
+        color: var(--#{$prefix}secondary-text);
     }
 }
 </style>

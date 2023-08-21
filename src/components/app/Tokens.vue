@@ -96,7 +96,7 @@ export default {
     }
 
     &__group:hover {
-        box-shadow: 0px 4px 40px rgba(0, 0, 0, 0.2);
+        box-shadow: 0px 4px 40px var(--#{$prefix}block-box-shadow);
     }
 }
 </style>
