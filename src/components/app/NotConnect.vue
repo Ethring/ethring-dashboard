@@ -40,7 +40,7 @@ export default {
     }
 
     svg {
-        stroke: var(--#{$prefix}lightBlue);
+        stroke: var(--#{$prefix}harborBlue);
     }
 
     &__add {
@@ -58,7 +58,7 @@ export default {
         font-size: var(--#{$prefix}small-lg-fs);
         width: 162px;
         margin-left: 10px;
-        color: var(--#{$prefix}lightBlue);
+        color: var(--#{$prefix}harborBlue);
     }
 }
 </style>

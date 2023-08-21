@@ -9,13 +9,10 @@
 $ebonyClay: #1c1f2c;
 $white: #ffffff;
 $black: #000000;
-$grey: #5b5b5b;
 
 $springGreen: #14ec8a;
 $turquoise: #3fdfae;
 $surfieGreen: #0d7e71;
-$aquamarine: #97ffd0;
-$gallery: #f0f0f0;
 
 //  ===========================================================================
 //  SECONDARY COLORS
@@ -31,14 +28,17 @@ $wildWatermelon: #ff677e;
 $deepCerulean: #00839f;
 $japaneseLaurel: #038d00;
 $blazeOrange: #ff6b00;
-$ligthOrange: #fff2f2;
-$red: #fa3c58;
+
+$sefidWhite: #fff2f2;
+$watermelon: #fa3c58;
 $pizazz: #f69502;
-$green: #027a00;
-$lightBlue: #586897;
+$greenHills: #027a00;
+$harborBlue: #586897;
 $brightGreen: hsl(153, 85%, 50%);
-$lightGreen: #85bb65;
 $blue: #CCD5F0;
+$aquamarine: #97ffd0;
+$gallery: #f0f0f0;
+$grey: #5b5b5b;
 
 //  ===========================================================================
 //  GRADIENTS
@@ -148,14 +148,13 @@ $theme-colors: (
     "trout": $trout,
     "mineralGreen": $mineralGreen,
     "aquamarine": $aquamarine,
-    "ligthOrange": $ligthOrange,
-    "red": $red,
+    "sefidWhite": $sefidWhite,
+    "watermelon": $watermelon,
     "blazeOrange": $blazeOrange,
     "pizazz": $pizazz,
     "iceberg": $iceberg,
-    "green": $green,
-    "lightBlue": $lightBlue,
+    "greenHills": $greenHills,
+    "harborBlue": $harborBlue,
     "brightGreen": $brightGreen,
-    "lightGreen": $lightGreen,
     "blue": $blue,
 ) !default;

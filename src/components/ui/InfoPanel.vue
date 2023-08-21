@@ -41,15 +41,15 @@ export default {
     padding: 0 16px;
     box-sizing: border-box;
     border-radius: 8px;
-    background: var(--#{$prefix}ligthOrange);
-    border: 1px solid var(--#{$prefix}red);
-    color: var(--#{$prefix}red);
+    background: var(--#{$prefix}sefidWhite);
+    border: 1px solid var(--#{$prefix}watermelon);
+    color: var(--#{$prefix}watermelon);
     font-family: 'Poppins_Regular';
     font-size: var(--#{$prefix}default-fs);
 
     svg {
         min-width: 24px;
-        fill: var(--#{$prefix}red);
+        fill: var(--#{$prefix}watermelon);
     }
 
     &.success {
@@ -68,36 +68,36 @@ export default {
 
     &.warning {
         background: rgba(255, 107, 0, 0.1);
-        border: 1px solid var(--#{$prefix}blazeOrange);
-        color: var(--#{$prefix}blazeOrange);
+        border: 1px solid var(--#{$prefix}warning);
+        color: var(--#{$prefix}warning);
 
         svg {
-            fill: var(--#{$prefix}blazeOrange);
+            fill: var(--#{$prefix}warning);
         }
 
         .info-panel__link {
-            color: var(--#{$prefix}blazeOrange);
+            color: var(--#{$prefix}warning);
         }
     }
 
     &.info {
         background: rgba(0, 131, 159, 0.1);
-        border: 1px solid #00839f;
-        color: #00839f;
+        border: 1px solid var(--#{$prefix}info);
+        color: var(--#{$prefix}info);
 
         svg {
-            fill: #00839f;
+            fill: var(--#{$prefix}info);
         }
 
         .info-panel__link {
-            color: #00839f;
+            color: var(--#{$prefix}info);
         }
     }
 
     &__link {
         margin-left: 7px;
         text-decoration: underline;
-        color: var(--#{$prefix}red);
+        color: var(--#{$prefix}watermelon);
     }
 
     &__title {

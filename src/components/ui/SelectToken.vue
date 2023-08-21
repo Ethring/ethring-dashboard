@@ -160,7 +160,7 @@ export default {
         span {
             font-family: 'Poppins';
             font-size: var(--#{$prefix}default-fs);
-            font-weight: 300;
+            font-weight: 400;
             color: var(--#{$prefix}mineralGreen);
         }
         h5 {

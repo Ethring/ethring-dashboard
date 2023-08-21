@@ -510,7 +510,7 @@ export default {
         }
 
         &:hover {
-            background: #97ffd0;
+            background: var(--#{$prefix}aquamarine);
 
             svg {
                 fill: var(--#{$prefix}primary);

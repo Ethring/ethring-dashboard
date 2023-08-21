@@ -792,10 +792,10 @@ export default {
         }
     }
     .other-routes {
-        background-color: #97ffd0;
+        background-color: var(--#{$prefix}aquamarine);
         border-radius: 15px;
         padding: 4px 10px;
-        color: #00839f;
+        color: var(--#{$prefix}info);
         font-weight: 600;
         position: absolute;
         right: 0;

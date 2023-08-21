@@ -91,7 +91,7 @@ export default {
 
     &__content-line {
         margin: 10px 0;
-        border: 1px dashed #ccd5f0;
+        border: 1px dashed var(--#{$prefix}blue);
     }
 
     &__content-inner {
@@ -114,7 +114,7 @@ export default {
         }
 
         svg {
-            fill: #73b1b1;
+            fill: var(--#{$prefix}gulfStream);
         }
     }
 }

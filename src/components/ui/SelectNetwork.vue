@@ -129,14 +129,14 @@ export default {
         }
 
         .label {
-            color: #486060;
+            color: var(--#{$prefix}mineralGreen);
             font-size: var(--#{$prefix}small-lg-fs);
             font-family: 'Poppins_Medium';
             user-select: none;
         }
 
         .placeholder {
-            color: #73b1b1;
+            color: var(--#{$prefix}gulfStream);
             font-size: var(--#{$prefix}h6-fs);
             font-family: 'Poppins_SemiBold';
             user-select: none;
@@ -145,7 +145,7 @@ export default {
 
         svg.arrow {
             cursor: pointer;
-            fill: #73b1b1;
+            fill: var(--#{$prefix}gulfStream);
             transform: rotate(0);
             @include animateEasy;
         }
@@ -164,7 +164,7 @@ export default {
 
     &__items {
         z-index: 1;
-        background: #fff;
+        background: var(--#{$prefix}white);
         position: absolute;
         top: 65px;
 
@@ -200,7 +200,7 @@ export default {
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #d9f4f1;
+            background: var(--#{$prefix}iceberg);
             border-radius: 50%;
             margin-right: 12px;
             svg {
@@ -225,13 +225,13 @@ export default {
         align-items: center;
         justify-content: space-between;
         min-height: 60px;
-        border-bottom: 1px dashed #73b1b1;
+        border-bottom: 1px dashed var(--#{$prefix}gulfStream);
         cursor: pointer;
         @include animateEasy;
 
         .info {
             .name {
-                color: #486060;
+                color: var(--#{$prefix}mineralGreen);
             }
 
             .icon {
@@ -284,7 +284,7 @@ export default {
             }
             .select__items-item-logo {
                 transition: 0.5s;
-                background: #97ffd0;
+                background: var(--#{$prefix}aquamarine);
             }
         }
 

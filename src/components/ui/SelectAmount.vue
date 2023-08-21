@@ -282,7 +282,7 @@ export default {
         cursor: pointer;
 
         .label {
-            color: #486060;
+            color: var(--#{$prefix}mineralGreen);
             font-family: 'Poppins_SemiBold';
         }
 
@@ -290,7 +290,7 @@ export default {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: #486060;
+            color: var(--#{$prefix}mineralGreen);
             font-family: 'Poppins_Regular';
             font-weight: 400;
             font-size: var(--#{$prefix}small-lg-fs);
@@ -303,12 +303,12 @@ export default {
             }
             div {
                 font-family: 'Poppins_SemiBold';
-                color: #486060;
+                color: var(--#{$prefix}mineralGreen);
                 font-size: var(--#{$prefix}small-lg-fs);
                 line-height: 21px;
                 span {
                     font-family: 'Poppins_Regular';
-                    color: #486060;
+                    color: var(--#{$prefix}mineralGreen);
                     font-weight: 400;
                 }
             }
@@ -369,13 +369,13 @@ export default {
         .name {
             font-size: var(--#{$prefix}h2-fs);
             font-family: 'Poppins_SemiBold';
-            color: #73b1b1;
+            color: var(--#{$prefix}gulfStream);
             user-select: none;
         }
 
         svg.arrow {
             cursor: pointer;
-            fill: #73b1b1;
+            fill: var(--#{$prefix}gulfStream);
             transform: rotate(0);
             @include animateEasy;
         }
@@ -401,14 +401,14 @@ export default {
 
     &.error {
         .select-amount__panel {
-            border-color: var(--#{$prefix}red);
-            background: var(--#{$prefix}lightOrange);
+            border-color: var(--#{$prefix}watermelon);
+            background: var(--#{$prefix}sefidWhite);
         }
     }
 
     &__items {
         z-index: 100;
-        background: #fff;
+        background: var(--#{$prefix}white);
         position: absolute;
         left: 0;
         top: 160px;
@@ -432,7 +432,7 @@ export default {
         align-items: center;
         justify-content: space-between;
         min-height: 50px;
-        border-bottom: 1px dashed #73b1b1;
+        border-bottom: 1px dashed var(--#{$prefix}gulfStream);
         cursor: pointer;
         @include animateEasy;
 
@@ -455,7 +455,7 @@ export default {
 
             .name {
                 font-size: var(--#{$prefix}default-fs);
-                color: #486060;
+                color: var(--#{$prefix}mineralGreen);
                 font-family: 'Poppins_Regular';
             }
         }

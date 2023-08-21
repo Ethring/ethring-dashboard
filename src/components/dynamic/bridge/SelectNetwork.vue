@@ -155,7 +155,7 @@ export default {
 
         svg.arrow {
             cursor: pointer;
-            fill: #73b1b1;
+            fill: var(--#{$prefix}gulfStream);
             transform: rotate(0);
             @include animateEasy;
         }
@@ -212,13 +212,13 @@ export default {
         align-items: center;
         justify-content: space-between;
         min-height: 60px;
-        border-bottom: 1px dashed #73b1b1;
+        border-bottom: 1px dashed var(--#{$prefix}gulfStream);
         cursor: pointer;
         @include animateEasy;
 
         .info {
             .name {
-                color: #486060;
+                color: var(--#{$prefix}mineralGreen);
             }
 
             .icon {
@@ -268,7 +268,7 @@ export default {
             }
             .select__items-item-logo {
                 transition: 0.5s;
-                background: #97ffd0;
+                background: var(--#{$prefix}aquamarine);
             }
         }
 
@@ -278,7 +278,7 @@ export default {
 
             .name {
                 font-size: var(--#{$prefix}default-fs);
-                color: #486060;
+                color: var(--#{$prefix}mineralGreen);
                 font-family: 'Poppins_Regular';
             }
         }

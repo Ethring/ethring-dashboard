@@ -258,7 +258,7 @@ export default {
             margin: 2px 0 0 6px;
         }
         .low-fee {
-            background-color: var(--#{$prefix}green);
+            background-color: var(--#{$prefix}greenHills);
         }
         .best-return {
             background-color: var(--#{$prefix}turquoise);

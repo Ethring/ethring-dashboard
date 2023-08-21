@@ -36,14 +36,14 @@ export default {
         background: var(--#{$prefix}iceberg);
         font-family: 'Poppins_Regular';
         font-size: var(--#{$prefix}h3-fs);
-        color: #486060;
+        color: var(--#{$prefix}icon-active);
         cursor: not-allowed;
 
         svg {
-            fill: #486060;
+            fill: var(--#{$prefix}icon-active);
 
             &.card-svg {
-                fill: #486060;
+                fill: var(--#{$prefix}icon-active);
             }
         }
 

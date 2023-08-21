@@ -168,10 +168,10 @@ export default {
         .change {
             display: flex;
             align-items: center;
-            color: var(--#{$prefix}green);
+            color: var(--#{$prefix}sub-text);
 
             svg {
-                fill: var(--#{$prefix}green);
+                fill: var(--#{$prefix}sub-text);
             }
 
             .percent {
@@ -182,14 +182,14 @@ export default {
             }
 
             &.minus {
-                color: var(--#{$prefix}red);
+                color: var(--#{$prefix}watermelon);
 
                 .percent {
-                    color: var(--#{$prefix}red);
+                    color: var(--#{$prefix}watermelon);
                 }
 
                 svg {
-                    fill: var(--#{$prefix}red) !important;
+                    fill: var(--#{$prefix}watermelon) !important;
                     transform: rotate(90deg);
                 }
             }
@@ -199,7 +199,7 @@ export default {
     .line {
         width: 100%;
         height: 1px;
-        background: var(--#{$prefix}blue);
+        background: var(--#{$prefix}gulfStream);
     }
 }
 </style>

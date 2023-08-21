@@ -50,7 +50,7 @@ export default {
     width: 80px;
     height: 40px;
     position: relative;
-    border: 1px solid var(--#{$prefix}blue);
+    border: 1px solid var(--#{$prefix}gulfStream);
     background: var(--#{$prefix}iceberg);
     border-radius: 50px;
     cursor: pointer;

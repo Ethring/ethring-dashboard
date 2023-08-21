@@ -52,9 +52,8 @@ const config = {
     css: {
         loaderOptions: {
             sass: {
-                additionalData:
-                    `@import "@/assets/styles/colors.scss";
-                    @import "@/assets/styles/variables";`
+                additionalData: `@import "@/assets/styles/colors.scss";
+                    @import "@/assets/styles/variables";`,
             },
         },
     },

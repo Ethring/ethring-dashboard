@@ -91,7 +91,7 @@ export default {
                 .title {
                     font-size: var(--#{$prefix}small-lg-fs);
                     font-family: 'Poppins_Regular';
-                    color: var(--#{$prefix}lightBlue);
+                    color: var(--#{$prefix}harborBlue);
                 }
 
                 .wallet {

@@ -44,13 +44,13 @@ export default {
 
 <style lang="scss" scoped>
 .search-input {
-    background: #f0f0f0;
+    background: var(--#{$prefix}gallery);
     border-radius: 16px;
     padding: 20px 32px;
     display: flex;
     align-items: center;
     position: relative;
-    border: 2px solid #fff;
+    border: 2px solid var(--#{$prefix}white);
     span {
         color: var(--#{$prefix}mineralGreen);
         display: block;
@@ -92,7 +92,7 @@ export default {
     }
 }
 .active {
-    background: #ffffff;
+    background: var(--#{$prefix}white);
     border: 2px solid var(--#{$prefix}sub-text);
     .search-input__logo {
         background: var(--#{$prefix}turquoise);

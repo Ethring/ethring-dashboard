@@ -169,12 +169,12 @@ export default {
         cursor: pointer;
 
         .recipient {
-            color: #486060;
+            color: var(--#{$prefix}mineralGreen);
             font-family: 'Poppins_SemiBold';
         }
 
         .address {
-            color: #486060;
+            color: var(--#{$prefix}mineralGreen);
             font-family: 'Poppins_Regular';
         }
 
@@ -219,13 +219,13 @@ export default {
         .name {
             font-size: var(--#{$prefix}h2-fs);
             font-family: 'Poppins_SemiBold';
-            color: #73b1b1;
+            color: var(--#{$prefix}gulfStream);
             user-select: none;
         }
 
         svg.arrow {
             cursor: pointer;
-            fill: #73b1b1;
+            fill: var(--#{$prefix}gulfStream);
             transform: rotate(0);
             @include animateEasy;
         }
@@ -251,14 +251,14 @@ export default {
 
     &.error {
         .select-address__panel {
-            border-color: var(--#{$prefix}red);
-            background: var(--#{$prefix}lightOrange);
+            border-color: var(--#{$prefix}watermelon);
+            background: var(--#{$prefix}sefidWhite);
         }
     }
 
     &__items {
         z-index: 10;
-        background: #fff;
+        background: var(--#{$prefix}white);
         position: absolute;
         left: 0;
         top: 160px;
@@ -282,7 +282,7 @@ export default {
         align-items: center;
         justify-content: space-between;
         min-height: 50px;
-        border-bottom: 1px dashed #73b1b1;
+        border-bottom: 1px dashed var(--#{$prefix}gulfStream);
         cursor: pointer;
         @include animateEasy;
 
@@ -324,7 +324,7 @@ export default {
 
             .name {
                 font-size: var(--#{$prefix}default-fs);
-                color: #486060;
+                color: var(--#{$prefix}mineralGreen);
                 font-family: 'Poppins_Regular';
             }
         }
