@@ -427,6 +427,7 @@ export default {
                 amount: amount.value,
                 toNet: selectedDstNetwork.value.net,
                 toTokenAddress: selectedDstToken.value.address || NATIVE_CONTRACT,
+                ownerAddress: walletAddress.value,
             });
 
             if (resEstimate.error) {

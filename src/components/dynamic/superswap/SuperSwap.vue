@@ -317,7 +317,7 @@ export default {
                 store.dispatch('bridge/setSelectedDstNetwork', network);
                 tokensList(network, 'to').then((tokens) => {
                     if (!selectedDstToken.value || !tokens.find((elem) => elem.code === selectedDstToken.value.code)) {
-                        if (selectedSrcNetwork.value.net === selectedDstNetwork.value.net) {
+                        if (selectedSrcNetwork?.value?.net === selectedDstNetwork?.value?.net) {
                             const tokenTo = tokens.find((elem) => elem.code !== selectedSrcToken.value.code);
                             if (tokenTo) {
                                 store.dispatch('tokens/setToToken', tokenTo);

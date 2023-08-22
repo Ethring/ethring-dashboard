@@ -36,7 +36,7 @@ export default {
             commit(types.SET_SHOW_ROUTES, value);
         },
         /* ESTIMATE SWAP */
-        async estimateSwap(_, { url, net, fromTokenAddress, toTokenAddress, amount }) {
+        async estimateSwap(_, { url, net, fromTokenAddress, toTokenAddress, amount, ownerAddress }) {
             return await fetchData({
                 url: url || DEFAULT_URL,
                 route: 'estimateSwap',
@@ -45,6 +45,7 @@ export default {
                     fromTokenAddress,
                     toTokenAddress,
                     amount,
+                    ownerAddress,
                 },
             });
         },

@@ -112,7 +112,7 @@ export default {
         },
 
         /* ESTIMATE BRIDGE */
-        async estimateBridge(_, { fromNet, fromTokenAddress, amount, toNet, toTokenAddress, url }) {
+        async estimateBridge(_, { fromNet, fromTokenAddress, amount, toNet, toTokenAddress, url, ownerAddress }) {
             let response;
             try {
                 response = await axios.get(`${url || DEFAULT_URL}estimateBridge`, {
@@ -122,6 +122,7 @@ export default {
                         amount,
                         toNet,
                         toTokenAddress,
+                        ownerAddress,
                     },
                 });
                 return response.data.data;

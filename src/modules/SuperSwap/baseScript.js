@@ -17,7 +17,7 @@ export async function findBestRoute(amount, walletAddress) {
         const fromToken = store.getters['tokens/fromToken'];
         const toToken = store.getters['tokens/toToken'];
 
-        const getParams = (fromNetwork, fromToken, toNetwork, toToken, amount) => ({
+        const getParams = (fromNetwork, fromToken, toNetwork, toToken, amount, ownerAddress) => ({
             net: fromNetwork.net,
             fromNet: fromNetwork.net,
             fromTokenAddress: fromToken.address || NATIVE_CONTRACT,
@@ -28,6 +28,7 @@ export async function findBestRoute(amount, walletAddress) {
             toToken,
             fromNetwork,
             walletAddress,
+            ownerAddress: ownerAddress,
         });
 
         const getBestRoute = async (params) => {
@@ -124,25 +125,24 @@ export async function findBestRoute(amount, walletAddress) {
             return otherRoutesList;
         };
 
-        const result = await getBestRoute(getParams(fromNetwork, fromToken, toNetwork, toToken, amount));
+        const result = await getBestRoute(getParams(fromNetwork, fromToken, toNetwork, toToken, amount, walletAddress));
         if (result.bestRoute) {
             return result;
         }
 
         if (fromNetwork.net !== toNetwork.net) {
-            const result1 = await getBestRoute(getParams(fromNetwork, fromToken, toNetwork, toNetwork, amount));
+            const result1 = await getBestRoute(getParams(fromNetwork, fromToken, toNetwork, toNetwork, amount, walletAddress));
             if (result1.bestRoute) {
                 const { bestRoute } = result1;
-                const result2 = await findRoute(getParams(toNetwork, toNetwork, toNetwork, toToken, result1.bestRoute.toTokenAmount));
-
+                const result2 = await findRoute(getParams(toNetwork, toNetwork, toNetwork, toToken, result1.bestRoute.toTokenAmount, walletAddress));
                 if (result2.bestRoute) {
                     return { bestRoute: getRouteCalculated(bestRoute, result2), otherRoutes: getOtherRoutes(result1, result2) };
                 }
             } else if (fromToken.address) {
-                const result3 = await getBestRoute(getParams(fromNetwork, fromToken, fromNetwork, fromNetwork, amount));
+                const result3 = await getBestRoute(getParams(fromNetwork, fromToken, fromNetwork, fromNetwork, amount, walletAddress));
                 if (result3.bestRoute) {
                     const { bestRoute: bestRoute1 } = result3;
-                    const params2 = getParams(fromNetwork, fromNetwork, toNetwork, toToken, result3.bestRoute.toTokenAmount);
+                    const params2 = getParams(fromNetwork, fromNetwork, toNetwork, toToken, result3.bestRoute.toTokenAmount, walletAddress);
                     const result4 = await findRoute(params2);
                     if (result4.bestRoute) {
                         return { bestRoute: getRouteCalculated(bestRoute1, result4), otherRoutes: getOtherRoutes(result3, result4) };
@@ -155,7 +155,7 @@ export async function findBestRoute(amount, walletAddress) {
                             bestRoute1.estimateFeeUsd += result5.bestRoute.estimateFeeUsd;
                             bestRoute1.estimateTime += result5.bestRoute.estimateTime;
                             bestRoute1.routes.push({ ...result5.bestRoute, status: STATUSES.PENDING });
-                            const swapParams2 = getParams(toNetwork, toNetwork, toNetwork, toToken, result5.bestRoute.toTokenAmount);
+                            const swapParams2 = getParams(toNetwork, toNetwork, toNetwork, toToken, result5.bestRoute.toTokenAmount, walletAddress);
                             const result6 = await findRoute(swapParams2);
                             if (result6.bestRoute) {
                                 return {
@@ -361,7 +361,6 @@ export async function checkAllowance(net, tokenAddress, ownerAddress, amount, de
     if (toMantissa(amount, decimals) > allowance) {
         needApprove = true;
     }
-
     checkAllowance.cache[ownerAddress] = { tokenAddress, service, allowance };
 
     return needApprove;
