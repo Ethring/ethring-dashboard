@@ -9,6 +9,7 @@ stages:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
   stage: build_docker
+  allow_failure: false
   variables:
     IMAGE_TAG: $REGISTRY_URL/$CI_PROJECT_NAME/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHORT_SHA
     VUE_APP_HOST: work.3ahtim54r.ru
