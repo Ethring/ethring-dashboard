@@ -717,11 +717,11 @@ export default {
 
     .accordion__title {
         .service-fee {
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
             color: var(--#{$prefix}sub-text);
         }
         .symbol {
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
         }
     }
 

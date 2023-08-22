@@ -86,7 +86,7 @@ export default {
 
     &__content-title {
         font-size: var(--#{$prefix}h3-fs);
-        font-family: 'Poppins_SemiBold';
+        font-weight: 600;
     }
 
     &__content-line {

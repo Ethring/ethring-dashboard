@@ -49,7 +49,7 @@ export default {
         display: flex;
         flex-direction: column;
         align-items: center;
-        font-family: 'Poppins_Light';
+        font-weight: 300;
         font-size: var(--#{$prefix}h4-fs);
         color: var(--#{$prefix}black);
         margin-right: 25px;
@@ -60,7 +60,7 @@ export default {
         }
 
         &.active {
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
         }
     }
 }

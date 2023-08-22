@@ -32,14 +32,14 @@ export default {
     &__label {
         color: var(--#{$prefix}accordion-label-color);
         font-size: var(--#{$prefix}default-fs);
-        font-family: 'Poppins_Regular';
+        font-weight: 400;
     }
 
     &__value {
         display: flex;
         align-items: center;
         font-size: var(--#{$prefix}default-fs);
-        font-family: 'Poppins_SemiBold';
+        font-weight: 600;
         color: var(--#{$prefix}ebonyClay);
         margin-left: 6px;
     }

@@ -51,15 +51,15 @@ $caneelBay: #00839f;
 //  GRADIENTS
 //  ===========================================================================
 
-$gradient-1: linear-gradient(0deg, #00e3ae 0%, #9be15d 100%);
-$gradient-2: linear-gradient(198.01deg, #00bf57 0.44%, #005f91 108.3%);
+$gradient-light-green: linear-gradient(0deg, #00e3ae 0%, #9be15d 100%);
+$gradient-dark-green: linear-gradient(198.01deg, #00bf57 0.44%, #005f91 108.3%);
 
 //  ===========================================================================
 //  RGB
 //  ===========================================================================
 
-$rgb-1: rgba(0, 0, 0, 0.85);
-$rgb-2: rgba(0, 0, 0, 0.2);
+$black-op-085: rgba(0, 0, 0, 0.85);
+$black-op-02: rgba(0, 0, 0, 0.2);
 
 //  ===========================================================================
 //  THEME COLORS
@@ -121,11 +121,6 @@ $warning-op-01: rgba($warning, 0.1) !default;
 $info: $deepCerulean !default;
 $info-op-01: rgba($info, 0.1) !default;
 
-$theme-swither: $iceberg !default;
-$theme-swither-border-color: $gulfStream !default;
-$theme-swither-bg-color: $surfieGreen !default;
-$theme-swither-active-bg-color: $chineseBlack !default;
-
 $white: $white !default;
 
 $icon-color: $gulfStream !default;
@@ -144,13 +139,13 @@ $sidebar-icon-color: $brightGreen !default;
 $negative-percentage: $watermelon !default;
 $positive-percentage: $surfieGreen !default;
 
-$modal-bg-color: $rgb-1 !default;
+$modal-bg-color: $black-op-085 !default;
 $modal-block-bg-color: $ghostWhite !default;
 $modal-active-block-bg-color: $carteblanche !default;
 $modal-block-text: $perfectLanding !default;
 $modal-item-text: $caneelBay !default;
 
-$block-box-shadow: $rgb-2 !default;
+$block-box-shadow: $black-op-02 !default;
 $loader-border-color: $ficus !default;
 
 $tag-01: $aquamarine !default;
@@ -227,11 +222,6 @@ $theme-colors: (
 
     "info": $info,
     "info-op-01": $info-op-01,
-
-    "theme-swither": $theme-swither,
-    "theme-swither-border-color": $theme-swither-border-color,
-    "theme-swither-bg-color": $theme-swither-bg-color,
-    "theme-swither-active-bg-color": $theme-swither-active-bg-color,
 
     "sidebar-icon-color": $sidebar-icon-color,
 

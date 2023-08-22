@@ -145,7 +145,7 @@ export default {
 
         .name {
             font-size: var(--#{$prefix}h2-fs);
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
             color: var(--#{$prefix}black);
             user-select: none;
         }
@@ -153,14 +153,14 @@ export default {
         .label {
             color: var(--#{$prefix}select-label-color);
             font-size: var(--#{$prefix}small-lg-fs);
-            font-family: 'Poppins_Medium';
+            font-weight: 500;
             user-select: none;
         }
 
         .placeholder {
             color: var(--#{$prefix}select-placeholder-text);
             font-size: var(--#{$prefix}h6-fs);
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
             user-select: none;
             line-height: 18px;
         }
@@ -238,7 +238,7 @@ export default {
             .info {
                 .name {
                     color: var(--#{$prefix}primary);
-                    font-family: 'Poppins_SemiBold';
+                    font-weight: 600;
                 }
             }
         }
@@ -266,17 +266,17 @@ export default {
             .name {
                 font-size: var(--#{$prefix}default-fs);
                 color: var(--#{$prefix}base-text);
-                font-family: 'Poppins_Regular';
+                font-weight: 400;
             }
         }
 
         .amount {
             color: var(--#{$prefix}black);
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
 
             span {
                 color: var(--#{$prefix}black);
-                font-family: 'Poppins_Regular';
+                font-weight: 400;
             }
         }
     }

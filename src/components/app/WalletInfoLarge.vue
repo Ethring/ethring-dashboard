@@ -125,7 +125,7 @@ export default {
             user-select: none;
             display: flex;
             align-items: center;
-            font-family: 'Poppins_Light';
+            font-weight: 300;
             font-size: var(--#{$prefix}default-fs);
             cursor: pointer;
             color: var(--#{$prefix}mute-text);
@@ -140,7 +140,7 @@ export default {
         .balance {
             display: flex;
             align-items: center;
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
             font-size: var(--#{$prefix}h2-fs);
             color: var(--#{$prefix}black);
             margin-top: -3px;
@@ -148,11 +148,11 @@ export default {
 
             .value {
                 min-width: 165px;
-                font-family: 'Poppins_SemiBold';
+                font-weight: 600;
             }
 
             span {
-                font-family: 'Poppins_Regular';
+                font-weight: 400;
             }
 
             svg {
@@ -177,7 +177,7 @@ export default {
             .percent {
                 user-select: none;
                 margin-left: 5px;
-                font-family: 'Poppins_Regular';
+                font-weight: 400;
                 font-size: var(--#{$prefix}small-lg-fs);
             }
 

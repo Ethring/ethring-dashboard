@@ -32,12 +32,12 @@ export default {
 
     &__text {
         font-size: var(--#{$prefix}h3-fs);
-        font-family: 'Poppins_Light';
+        font-weight: 300;
         color: var(--#{$prefix}white);
 
         span {
             color: var(--#{$prefix}sidebar-icon-color);
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
         }
     }
 }

@@ -1,7 +1,6 @@
 <template>
     <div class="nav-bar">
         <Help />
-        <!-- <ThemeSwitcher class="head__switcher" /> -->
         <NotConnect v-if="!connectedWallet" />
     </div>
 </template>
@@ -18,7 +17,6 @@ export default {
         Help,
         NotConnect,
         // WalletInfo,
-        // ThemeSwitcher
     },
     setup() {
         const { connectedWallet } = useWeb3Onboard();

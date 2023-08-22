@@ -40,13 +40,13 @@ export default {
 .send-page__title {
     color: var(--#{$prefix}base-text);
     font-size: var(--#{$prefix}h1-fs);
-    font-family: 'Poppins_SemiBold';
+    font-weight: 600;
     margin-bottom: 30px;
     text-decoration: none;
 
     &__active {
         font-size: var(--#{$prefix}h1-fs);
-        font-family: 'Poppins_SemiBold';
+        font-weight: 600;
         margin-bottom: 30px;
         text-decoration: none;
         color: var(--#{$prefix}black);

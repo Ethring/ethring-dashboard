@@ -56,7 +56,7 @@ export default {
     &__title {
         color: var(--#{$prefix}mute-text);
         font-size: var(--#{$prefix}default-fs);
-        font-family: 'Poppins_Regular';
+        font-weight: 400;
     }
 
     &__content {

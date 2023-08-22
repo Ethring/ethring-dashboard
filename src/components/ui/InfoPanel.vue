@@ -44,7 +44,7 @@ export default {
     background: var(--#{$prefix}danger-op-01);
     border: 1px solid var(--#{$prefix}danger-color);
     color: var(--#{$prefix}danger-color);
-    font-family: 'Poppins_Regular';
+    font-weight: 400;
     font-size: var(--#{$prefix}default-fs);
 
     svg {

@@ -770,7 +770,7 @@ export default {
 
     .accordion__title {
         .symbol {
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
         }
     }
 

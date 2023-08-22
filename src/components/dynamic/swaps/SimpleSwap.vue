@@ -546,14 +546,13 @@ export default {
 
         .fee-symbol {
             color: $colorPl;
-            font-weight: 300;
-            font-family: 'Poppins_Regular';
+            font-weight: 400;
         }
     }
 
     .accordion__title {
         .symbol {
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
         }
     }
 }

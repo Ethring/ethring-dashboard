@@ -42,12 +42,12 @@
                     </div>
                 </div>
                 <Button
-                    xl
                     :loading="isLoading"
                     :disabled="!selectedRoute"
                     :title="$t('tokenOperations.confirm')"
                     class="routes-modal__btn"
                     @click="confirm"
+                    size="large"
                 />
             </div>
         </Modal>
@@ -192,7 +192,7 @@ export default {
             margin: 0;
         }
         h3 {
-            font-weight: 700;
+            font-weight: 600;
             font-size: var(--#{$prefix}h6-fs);
             color: var(--#{$prefix}mute-text);
             margin: 0;
@@ -221,7 +221,7 @@ export default {
             font-size: var(--#{$prefix}h6-fs);
             margin: 0;
             margin-left: 8px;
-            font-weight: 700;
+            font-weight: 600;
             color: var(--#{$prefix}primary);
         }
         &__icon {
@@ -242,11 +242,11 @@ export default {
             color: var(--#{$prefix}base-text);
             h4 {
                 margin: 0 10px 0 2px;
-                font-weight: 700;
+                font-weight: 600;
             }
         }
         h1 {
-            font-weight: 700;
+            font-weight: 600;
             margin: 0px 3px;
         }
         &__status {

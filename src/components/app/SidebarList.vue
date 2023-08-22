@@ -103,7 +103,7 @@ export default {
 
     &__item-title {
         margin-left: 10px;
-        font-family: 'Poppins_Light';
+        font-weight: 300;
     }
 }
 </style>

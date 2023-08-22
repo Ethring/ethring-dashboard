@@ -64,7 +64,7 @@ export default {
 
     display: flex;
     align-items: center;
-    font-family: 'Poppins_Light';
+    font-weight: 300;
     font-size: var(--#{$prefix}h4-fs);
     color: var(--#{$prefix}black);
     cursor: pointer;
@@ -98,18 +98,18 @@ export default {
 
         .symbol {
             font-size: var(--#{$prefix}h6-fs);
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
         }
 
         .name {
             margin-top: -3px;
             font-size: var(--#{$prefix}small-lg-fs);
-            font-family: 'Poppins_Regular';
+            font-weight: 400;
             color: var(--#{$prefix}black);
         }
 
         .blockchain {
-            font-family: 'Poppins_Regular';
+            font-weight: 400;
             color: var(--#{$prefix}sub-text);
             font-size: var(--#{$prefix}small-sm-fs);
             text-transform: uppercase;
@@ -123,14 +123,14 @@ export default {
 
         .value {
             font-size: var(--#{$prefix}h6-fs);
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
             margin-right: 5px;
             color: var(--#{$prefix}black);
         }
 
         .symbol {
             font-size: var(--#{$prefix}small-lg-fs);
-            font-family: 'Poppins_Regular';
+            font-weight: 400;
             color: var(--#{$prefix}mute-text);
         }
     }
@@ -142,14 +142,14 @@ export default {
 
         .label {
             font-size: var(--#{$prefix}small-lg-fs);
-            font-family: 'Poppins_Regular';
+            font-weight: 400;
             color: var(--#{$prefix}mute-text);
             text-align: right;
         }
 
         .value {
             font-size: var(--#{$prefix}default-fs);
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
             text-align: right;
         }
     }

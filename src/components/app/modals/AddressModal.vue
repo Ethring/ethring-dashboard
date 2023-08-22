@@ -97,7 +97,7 @@ export default {
         .address {
             color: var(--#{$prefix}black);
             font-size: var(--#{$prefix}default-fs);
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
             width: 84%;
         }
 

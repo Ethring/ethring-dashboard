@@ -54,7 +54,7 @@ export default {
     }
 
     .title {
-        font-family: 'Poppins_Light';
+        font-weight: 300;
         font-size: var(--#{$prefix}small-lg-fs);
         width: 162px;
         margin-left: 10px;

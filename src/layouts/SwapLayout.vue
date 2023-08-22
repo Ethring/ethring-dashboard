@@ -18,7 +18,7 @@ export default {
     &__title {
         color: var(--#{$prefix}black);
         font-size: var(--#{$prefix}h1-fs);
-        font-family: 'Poppins_SemiBold';
+        font-weight: 600;
         margin-bottom: 30px;
     }
 }

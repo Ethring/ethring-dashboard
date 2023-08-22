@@ -34,7 +34,7 @@ export default {
         justify-content: center;
         align-items: center;
         background: var(--#{$prefix}icon-secondary-bg-color);
-        font-family: 'Poppins_Regular';
+        font-weight: 400;
         font-size: var(--#{$prefix}h3-fs);
         color: var(--#{$prefix}icon-active);
         cursor: not-allowed;

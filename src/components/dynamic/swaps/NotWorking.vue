@@ -10,7 +10,6 @@ export default {
 .swap-not-working {
     font-weight: 600;
     font-size: var(--#{$prefix}h1-fs);
-    font-family: 'Poppins_Regular';
     color: var(--#{$prefix}black);
     height: 90%;
     display: flex;

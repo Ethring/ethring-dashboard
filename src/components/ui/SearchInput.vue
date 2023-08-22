@@ -54,7 +54,6 @@ export default {
     span {
         color: var(--#{$prefix}base-text);
         display: block;
-        font-family: 'Poppins';
         font-style: normal;
         font-weight: 500;
         font-size: var(--#{$prefix}small-lg-fs);
@@ -80,9 +79,8 @@ export default {
     }
 
     input {
-        font-family: 'Poppins_SemiBold';
         font-style: normal;
-        font-weight: 700;
+        font-weight: 600;
         font-size: var(--#{$prefix}h4-fs);
         line-height: 33px;
         border: none;

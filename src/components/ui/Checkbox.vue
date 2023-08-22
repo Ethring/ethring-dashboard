@@ -59,7 +59,7 @@ input[type='checkbox'] {
         align-items: center;
 
         font-size: var(--#{$prefix}h6-fs);
-        font-family: 'Poppins_Regular';
+        font-weight: 400;
         line-height: 19px;
         color: var(--#{$prefix}checkbox-text);
         cursor: pointer;

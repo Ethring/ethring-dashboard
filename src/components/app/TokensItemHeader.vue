@@ -49,7 +49,7 @@ export default {
         height: 40px;
 
         font-size: var(--#{$prefix}default-fs);
-        font-family: 'Poppins_SemiBold';
+        font-weight: 600;
         line-height: 40px;
         text-align: center;
 
@@ -59,7 +59,7 @@ export default {
 
     .name {
         font-size: var(--#{$prefix}h6-fs);
-        font-family: 'Poppins_SemiBold';
+        font-weight: 600;
         color: var(--#{$prefix}black);
         text-transform: uppercase;
     }

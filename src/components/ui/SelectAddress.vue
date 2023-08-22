@@ -153,7 +153,7 @@ export default {
     .name {
         font-size: var(--#{$prefix}default-fs);
         color: var(--#{$prefix}black);
-        font-family: 'Poppins_Regular';
+        font-weight: 400;
     }
 
     &__panel {
@@ -170,12 +170,12 @@ export default {
 
         .recipient {
             color: var(--#{$prefix}select-label-color);
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
         }
 
         .address {
             color: var(--#{$prefix}select-label-color);
-            font-family: 'Poppins_Regular';
+            font-weight: 400;
         }
 
         .info-wrap {
@@ -197,7 +197,7 @@ export default {
             outline: none;
             background: transparent;
             font-size: var(--#{$prefix}h2-fs);
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
         }
 
         .network {
@@ -218,7 +218,7 @@ export default {
 
         .name {
             font-size: var(--#{$prefix}h2-fs);
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
             color: var(--#{$prefix}select-placeholder-text);
             user-select: none;
         }
@@ -301,7 +301,7 @@ export default {
             .info {
                 .address {
                     color: var(--#{$prefix}black);
-                    font-family: 'Poppins_SemiBold';
+                    font-weight: 600;
                 }
             }
         }
@@ -325,7 +325,7 @@ export default {
             .name {
                 font-size: var(--#{$prefix}default-fs);
                 color: var(--#{$prefix}base-text);
-                font-family: 'Poppins_Regular';
+                font-weight: 400;
             }
         }
 
@@ -336,7 +336,7 @@ export default {
             .address {
                 font-size: var(--#{$prefix}default-fs);
                 color: var(--#{$prefix}black);
-                font-family: 'Poppins_Regular';
+                font-weight: 400;
             }
         }
     }

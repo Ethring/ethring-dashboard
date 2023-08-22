@@ -61,7 +61,7 @@ export default {
         &__title {
             color: var(--#{$prefix}black);
             font-size: var(--#{$prefix}h1-fs);
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
             margin-bottom: 30px;
         }
 
@@ -90,14 +90,14 @@ export default {
 
                 .title {
                     font-size: var(--#{$prefix}small-lg-fs);
-                    font-family: 'Poppins_Regular';
+                    font-weight: 400;
                     color: var(--#{$prefix}secondary-text);
                 }
 
                 .wallet {
                     margin-top: -5px;
                     font-size: var(--#{$prefix}h6-fs);
-                    font-family: 'Poppins_SemiBold';
+                    font-weight: 600;
                     color: var(--#{$prefix}black);
                 }
             }

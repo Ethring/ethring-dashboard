@@ -100,7 +100,7 @@ export default {
     &__title {
         color: var(--#{$prefix}black);
         font-size: var(--#{$prefix}h1-fs);
-        font-family: 'Poppins_SemiBold';
+        font-weight: 600;
         margin-bottom: 30px;
     }
     &__items {
@@ -121,7 +121,6 @@ export default {
         text-align: center;
         margin-top: 15%;
         p {
-            font-family: 'Poppins';
             font-style: normal;
             font-weight: 500;
             font-size: var(--#{$prefix}h5-fs);
@@ -131,7 +130,6 @@ export default {
     }
 
     &__item {
-        font-family: 'Poppins';
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -149,16 +147,14 @@ export default {
         }
         h3,
         h5 {
-            font-family: 'Poppins_SemiBold';
             font-style: normal;
-            font-weight: 700;
+            font-weight: 600;
             font-size: var(--#{$prefix}h5-fs);
             text-align: right;
             margin: 0;
             color: var(--#{$prefix}primary);
         }
         span {
-            font-family: 'Poppins';
             font-size: var(--#{$prefix}default-fs);
             font-weight: 400;
             color: var(--#{$prefix}base-text);
@@ -168,9 +164,8 @@ export default {
             line-height: 21px;
             color: var(--#{$prefix}base-text);
             span {
-                font-weight: 12px;
-                font-weight: 300;
-                font-family: 'Poppins_Regular';
+                font-size: var(--#{$prefix}small-sm-fs);
+                font-weight: 400;
             }
         }
         .amount {
@@ -178,9 +173,8 @@ export default {
         }
         .info {
             .symbol {
-                font-family: 'Poppins_SemiBold';
                 font-style: normal;
-                font-weight: 700;
+                font-weight: 600;
                 font-size: var(--#{$prefix}h6-fs);
                 line-height: 27px;
                 text-transform: uppercase;
@@ -188,7 +182,6 @@ export default {
             }
 
             .name {
-                font-family: 'Poppins';
                 font-style: normal;
                 font-weight: 400;
                 font-size: var(--#{$prefix}small-lg-fs);

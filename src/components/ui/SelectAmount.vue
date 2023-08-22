@@ -283,7 +283,7 @@ export default {
 
         .label {
             color: var(--#{$prefix}select-label-color);
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
         }
 
         .balance {
@@ -291,23 +291,20 @@ export default {
             justify-content: space-between;
             align-items: center;
             color: var(--#{$prefix}base-text);
-            font-family: 'Poppins_Regular';
             font-weight: 400;
             font-size: var(--#{$prefix}small-lg-fs);
             line-height: 21px;
             span {
-                font-family: 'Poppins_SemiBold';
                 font-weight: 600;
                 font-size: var(--#{$prefix}default-fs);
                 color: var(--#{$prefix}sub-text);
             }
             div {
-                font-family: 'Poppins_SemiBold';
+                font-weight: 600;
                 color: var(--#{$prefix}base-text);
                 font-size: var(--#{$prefix}small-lg-fs);
                 line-height: 21px;
                 span {
-                    font-family: 'Poppins_Regular';
                     color: var(--#{$prefix}base-text);
                     font-weight: 400;
                 }
@@ -327,7 +324,7 @@ export default {
 
         .token {
             font-size: var(--#{$prefix}h2-fs);
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
             color: var(--#{$prefix}black);
             margin-right: 10px;
         }
@@ -340,14 +337,14 @@ export default {
             outline: none;
             background: transparent;
             font-size: var(--#{$prefix}h2-fs);
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
         }
 
         .max {
             margin-left: 10px;
             font-size: var(--#{$prefix}h2-fs);
             color: var(--#{$prefix}black);
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
         }
 
         .network {
@@ -368,7 +365,7 @@ export default {
 
         .name {
             font-size: var(--#{$prefix}h2-fs);
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
             color: var(--#{$prefix}select-placeholder-text);
             user-select: none;
         }
@@ -440,7 +437,7 @@ export default {
             .info {
                 .name {
                     color: var(--#{$prefix}black);
-                    font-family: 'Poppins_SemiBold';
+                    font-weight: 600;
                 }
             }
         }
@@ -456,7 +453,7 @@ export default {
             .name {
                 font-size: var(--#{$prefix}default-fs);
                 color: var(--#{$prefix}base-text);
-                font-family: 'Poppins_Regular';
+                font-weight: 400;
             }
         }
 
@@ -470,11 +467,11 @@ export default {
 
         .amount {
             color: var(--#{$prefix}black);
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
 
             span {
                 color: var(--#{$prefix}black);
-                font-family: 'Poppins_Regular';
+                font-weight: 400;
             }
         }
     }
