@@ -3,11 +3,13 @@ const chainWebpack = (config) => {
     const sassRule = config.module.rule('sass');
     const svgRule = config.module.rule('svg');
     const mjsRule = config.module.rule('mjs');
+    const wcRule = config.module.rule('walletConnect');
 
     // Очистить существующие загрузчики
     sassRule.uses.clear();
     svgRule.uses.clear();
     mjsRule.uses.clear();
+    wcRule.uses.clear()
 
     svgRule.delete('type');
     svgRule.delete('generator');
@@ -32,6 +34,10 @@ const chainWebpack = (config) => {
         .include.add(/node_modules/)
         .end()
         .type('javascript/auto');
+    wcRule
+        .test(/node_modules[\\/]@walletconnect/)
+        .use('babel-loader')
+        .loader('babel-loader')
 };
 
 const config = {
