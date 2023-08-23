@@ -1,7 +1,7 @@
 import { ECOSYSTEMS } from '@/Adapter/config';
 
-import EthereumAdapter from '@/Adapter/Blocknative';
-import CosmosAdapter from '@/Adapter/Cosmology';
+import EthereumAdapter from '@/Adapter/ecosystems/ethereum';
+import CosmosAdapter from '@/Adapter/ecosystems/cosmos';
 
 const checkAdapter = (ecosystem = ECOSYSTEMS.EVM) => {
     switch (ecosystem) {

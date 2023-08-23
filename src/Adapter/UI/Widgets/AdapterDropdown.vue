@@ -41,9 +41,9 @@ import { useStore } from 'vuex';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import ConnectTo from '@/Adapter/UI/Entities/ConnectTo';
+import DisconnectAll from '@/Adapter/UI/Entities/DisconnectAll';
 
 import ConnectedWallet from '@/Adapter/UI/Features/ConnectedWallet';
-import DisconnectAll from '@/Adapter/UI/Features/DisconnectAll';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 import { computed } from 'vue';

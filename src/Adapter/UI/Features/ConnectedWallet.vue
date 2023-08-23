@@ -1,11 +1,9 @@
 <template>
     <div class="connected-wallet">
         <div class="left-side">
-            <div class="icon-container">
-                {{ wallet.walletName }}
-            </div>
-            <div class="">
-                {{ cutAddress(wallet.address, 10, 4) }}
+            <ModuleIcon :ecosystem="wallet.ecosystem" :module="wallet.walletModule" />
+            <div class="account-name">
+                {{ cutAddress(wallet.account, 10, 4) }}
             </div>
         </div>
 
@@ -26,14 +24,19 @@
 </template>
 
 <script>
+import { computed, ref, watch } from 'vue';
+
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
+import ModuleIcon from '@/Adapter/UI/Entities/ModuleIcon.vue';
+
 import { cutAddress } from '@/helpers/utils';
-import { computed, ref, watch } from 'vue';
 
 export default {
     name: 'ConnectedWallet',
-    components: {},
+    components: {
+        ModuleIcon,
+    },
     props: {
         wallet: {
             type: Object,
@@ -71,10 +74,11 @@ export default {
         });
 
         return {
-            cutAddress,
             chainInfo,
             chainList,
             selectedChain,
+
+            cutAddress,
         };
     },
 };
@@ -98,18 +102,8 @@ export default {
         align-items: center;
         justify-content: center;
 
-        .icon-container {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background-color: #d9f4f1;
-            margin-right: 8px;
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            font-size: 5px;
+        .account-name {
+            margin-left: 8px;
         }
 
         .change-network {

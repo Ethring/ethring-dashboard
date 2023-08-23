@@ -12,7 +12,7 @@ import { useStore } from 'vuex';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
-import NotConnected from '@/Adapter/UI/Features/NotConnected';
+import NotConnected from '@/Adapter/UI/Entities/NotConnected';
 
 import AdapterDropdown from '@/Adapter/UI/Widgets/AdapterDropdown';
 import AccountCenter from '@/Adapter/UI/Widgets/AccountCenter';

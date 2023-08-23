@@ -7,7 +7,7 @@
         </div>
         <div class="wallet-info__wallet">
             <div class="address" @click="openMenu">
-                {{ cutAddress(walletAddress) }}
+                {{ cutAddress(walletAccount) }}
             </div>
             <div class="balance">
                 <div class="value">
@@ -54,7 +54,7 @@ export default {
             opened.value = !opened.value;
         };
 
-        const { walletAddress, currentChainInfo } = useAdapter();
+        const { walletAccount, currentChainInfo } = useAdapter();
 
         const { groupTokens } = useTokens();
 
@@ -70,7 +70,7 @@ export default {
         return {
             totalBalance,
             currentChainInfo,
-            walletAddress,
+            walletAccount,
             prettyNumber,
             cutAddress,
             opened,

@@ -15,7 +15,7 @@ class EthereumAdapter extends WalletInterface {
     }
 
     reInit(chains) {
-        web3Onboard = init({ ...web3OnBoardConfig, chains });
+        !web3Onboard && (web3Onboard = init({ ...web3OnBoardConfig, chains }));
     }
 
     subscribeToWalletsChange() {
@@ -58,7 +58,17 @@ class EthereumAdapter extends WalletInterface {
         return [];
     }
 
+    getWalletModule() {
+        const { connectedWallet } = useOnboard();
+        const { label = null } = connectedWallet.value || {};
+        return label;
+    }
+
     getAccount() {
+        return this.getAccountAddress();
+    }
+
+    getAccountAddress() {
         const { connectedWallet } = useOnboard();
         return connectedWallet.value?.accounts[0]?.address;
     }
@@ -80,6 +90,17 @@ class EthereumAdapter extends WalletInterface {
         return chainInfo;
     }
 
+    getConnectedWallet() {
+        const connectedWallet = {
+            account: this.getAccount(),
+            address: this.getAccountAddress(),
+            walletModule: this.getWalletModule(),
+            ecosystem: ECOSYSTEMS.EVM,
+        };
+
+        return connectedWallet || null;
+    }
+
     getChainList(store) {
         return store.getters['networks/zometNetworksList'];
     }
@@ -95,8 +116,19 @@ class EthereumAdapter extends WalletInterface {
         });
     }
 
-    getWalletLogo() {
-        return null;
+    async getWalletLogo(walletModule) {
+        if (!walletModule) {
+            return null;
+        }
+
+        const { walletModules } = web3Onboard.state.get() || {};
+        const exist = walletModules.find((module) => module.label === walletModule);
+
+        if (!exist) {
+            return null;
+        }
+
+        return (await exist.getIcon()) || null;
     }
 
     validateAddress(...args) {

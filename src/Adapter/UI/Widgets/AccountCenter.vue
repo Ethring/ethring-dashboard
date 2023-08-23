@@ -3,17 +3,22 @@
         <div class="wallet-adapter__account" @click.stop="$emit('toggleDropdown')">
             <div class="wallet-adapter__logos">
                 <div class="logo-container main-logo">
-                    <zometLogo />
+                    <ZometLogo />
                 </div>
                 <div class="logo-container">
-                    <metamaskLogo v-if="!walletLogo" />
-                    <img v-else :src="walletLogo" alt="wallet logo" />
-                    <checkIcon class="check-icon" />
+                    <ModuleIcon
+                        width="40px"
+                        height="40px"
+                        :ecosystem="connectedWallet.ecosystem"
+                        :module="connectedWallet.walletModule"
+                        background="#1c1f2c"
+                    />
+                    <CheckIcon class="check-icon" />
                 </div>
             </div>
 
             <div class="wallet-adapter__info">
-                <p>{{ cutAddress(walletAddress, 11, 4) }}</p>
+                <p>{{ cutAddress(walletAccount, 11, 4) }}</p>
                 <p>$ ***</p>
             </div>
         </div>
@@ -22,30 +27,34 @@
 <script>
 import { watch } from 'vue';
 
+import useAdapter from '@/Adapter/compositions/useAdapter';
+
+import ModuleIcon from '@/Adapter/UI/Entities/ModuleIcon.vue';
+
+import ZometLogo from '@/assets/icons/app/zometLogo.svg';
+import CheckIcon from '@/assets/icons/app/checkIcon.svg';
+
 import { cutAddress } from '@/helpers/utils';
 import { prettyNumberTooltip } from '@/helpers/prettyNumber';
 
-import zometLogo from '@/assets/icons/app/zometLogo.svg';
-import checkIcon from '@/assets/icons/app/checkIcon.svg';
-import metamaskLogo from '@/assets/icons/wallets/mm.svg';
-
-import useAdapter from '@/Adapter/compositions/useAdapter';
-
 export default {
     name: 'AccountCenter',
-    components: { zometLogo, checkIcon, metamaskLogo },
+    components: { ModuleIcon, ZometLogo, CheckIcon },
     emits: ['toggleDropdown', 'closeDropdown'],
     setup(_, { emit }) {
-        const { walletAddress, walletLogo, connectedWallets } = useAdapter();
+        const { walletAddress, walletAccount, connectedWallet, connectedWallets } = useAdapter();
+
+        console.log('AccountCenter -> connectedWallet', connectedWallet);
 
         watch(walletAddress, () => {
             emit('closeDropdown');
         });
 
         return {
+            connectedWallet,
             connectedWallets,
             walletAddress,
-            walletLogo,
+            walletAccount,
 
             cutAddress,
             prettyNumberTooltip,
@@ -87,6 +96,8 @@ export default {
         margin-right: 8px;
 
         .logo-container {
+            position: relative;
+
             display: flex;
             align-items: center;
             justify-content: center;
@@ -103,10 +114,10 @@ export default {
             }
 
             .check-icon {
-                margin-top: 22px;
-                margin-left: 26px;
                 transform: scale(1.1);
                 position: absolute;
+                right: 0;
+                bottom: 0;
             }
 
             img {

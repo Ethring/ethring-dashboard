@@ -55,7 +55,7 @@ export default {
         [TYPES.SET_WALLET](state, value) {
             window.localStorage.setItem('adapter:lastConnectedWallet', JSON.stringify(value));
 
-            const found = state.wallets.filter((wallet) => wallet.address === value.address);
+            const found = state.wallets.filter((wallet) => wallet.account === value.account);
             const [exist] = found;
 
             if (!exist) {
