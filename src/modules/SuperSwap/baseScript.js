@@ -134,7 +134,9 @@ export async function findBestRoute(amount, walletAddress) {
             const result1 = await getBestRoute(getParams(fromNetwork, fromToken, toNetwork, toNetwork, amount, walletAddress));
             if (result1.bestRoute) {
                 const { bestRoute } = result1;
-                const result2 = await findRoute(getParams(toNetwork, toNetwork, toNetwork, toToken, result1.bestRoute.toTokenAmount, walletAddress));
+                const result2 = await findRoute(
+                    getParams(toNetwork, toNetwork, toNetwork, toToken, result1.bestRoute.toTokenAmount, walletAddress)
+                );
                 if (result2.bestRoute) {
                     return { bestRoute: getRouteCalculated(bestRoute, result2), otherRoutes: getOtherRoutes(result1, result2) };
                 }
@@ -155,7 +157,14 @@ export async function findBestRoute(amount, walletAddress) {
                             bestRoute1.estimateFeeUsd += result5.bestRoute.estimateFeeUsd;
                             bestRoute1.estimateTime += result5.bestRoute.estimateTime;
                             bestRoute1.routes.push({ ...result5.bestRoute, status: STATUSES.PENDING });
-                            const swapParams2 = getParams(toNetwork, toNetwork, toNetwork, toToken, result5.bestRoute.toTokenAmount, walletAddress);
+                            const swapParams2 = getParams(
+                                toNetwork,
+                                toNetwork,
+                                toNetwork,
+                                toToken,
+                                result5.bestRoute.toTokenAmount,
+                                walletAddress
+                            );
                             const result6 = await findRoute(swapParams2);
                             if (result6.bestRoute) {
                                 return {

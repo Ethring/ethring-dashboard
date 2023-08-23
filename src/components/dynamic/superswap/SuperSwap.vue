@@ -17,8 +17,9 @@
             />
         </div>
         <SelectAmount
-            v-if="selectedSrcToken"
+            v-if="zometNetworks"
             :selected-network="selectedSrcNetwork"
+            :items="zometNetworks"
             :value="selectedSrcToken"
             :error="!!errorBalance"
             :label="$t('tokenOperations.send')"
@@ -280,16 +281,6 @@ export default {
         });
 
         const onSelectSrcNetwork = async (network) => {
-            if (selectedSrcNetwork.value !== network) {
-                txError.value = '';
-                if (network.chainId || network.chain_id) {
-                    await setChain({
-                        chainId: network.chainId || network.chain_id,
-                    });
-                }
-                updateFromToken.value = true;
-                await getTokensByService(network.chainId || network.chain_id || currentChainInfo.value.chainId);
-            }
             if (network?.net === currentChainInfo.value?.net) {
                 networkError.value = false;
             }
@@ -307,6 +298,16 @@ export default {
             });
             const srcNetwork = groupTokens.value?.find((elem) => elem.net === network.net);
             store.dispatch('bridge/setSelectedSrcNetwork', srcNetwork || network);
+            if (selectedSrcNetwork.value !== network) {
+                txError.value = '';
+                if (network.chainId || network.chain_id) {
+                    await setChain({
+                        chainId: network.chainId || network.chain_id,
+                    });
+                }
+                updateFromToken.value = true;
+                await getTokensByService(network.chainId || network.chain_id || currentChainInfo.value.chainId);
+            }
         };
 
         const onSelectDstNetwork = async (network) => {
