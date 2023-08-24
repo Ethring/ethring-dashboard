@@ -19,7 +19,7 @@ test.describe('SuperSwap e2e tests', () => {
     });
 
     test('Case#2: Verifying data reset when navigating to swap page', async ({ page: Page, superSwapPage }) => {
-        await superSwapPage.setNetworkToWithSleep('Arbitrum One');
+        await superSwapPage.setNetworkTo('Arbitrum One');
         const tokenInSuperSwap = superSwapPage.getTokenTo();
 
         const swapPage = await superSwapPage.goToSwap();
@@ -41,7 +41,7 @@ test.describe('SuperSwap e2e tests', () => {
         });
 
         const superSwapPage = await dashboard.goToSuperSwap();
-        await superSwapPage.setNetworkToWithSleep('Arbitrum One');
+        await superSwapPage.setNetworkTo('Arbitrum One');
         // todo тут определить поведение которое отображает дашборд при отсутсвии данных о поддерживаемых чейнах
     });
 

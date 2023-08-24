@@ -108,9 +108,7 @@ export class SuperSwapPage extends DashboardPage {
         super(page);
     }
 
-    async setNetworkToWithSleep(netName: string) {
-        await sleep(8000);
-
+    async setNetworkTo(netName: string) {
         await this.page.locator('(//div[@class="select__panel"])[2]').click();
         await this.page.locator(`//div[@class="select__items"]//div[text()="${netName}"]`).click();
     }
@@ -120,7 +118,7 @@ export class SuperSwapPage extends DashboardPage {
     }
 
     async setDataAndClickSwap(net: string, amount: string) {
-        await this.setNetworkToWithSleep(net);
+        await this.setNetworkTo(net);
         await this.setAmount(amount);
         await this.page.click('//button/div[text()="CONFIRM"]');
 
