@@ -275,6 +275,7 @@ export default {
                 fromTokenAddress: selectedTokenFrom.value.address || NATIVE_CONTRACT,
                 toTokenAddress: selectedTokenTo.value.address || NATIVE_CONTRACT,
                 amount: amount.value,
+                ownerAddress: walletAddress.value,
             });
 
             if (resEstimate.error) {
