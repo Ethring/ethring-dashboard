@@ -318,8 +318,7 @@ export default {
             callEstimate.value = true;
 
             if (selectedDstNetwork.value?.net === network?.net && selectedDstToken.value) {
-                store.dispatch('tokens/setToToken', selectedDstToken.value);
-                return;
+                return store.dispatch('tokens/setToToken', selectedDstToken.value);
             }
 
             store.dispatch('bridge/setSelectedDstNetwork', network);
