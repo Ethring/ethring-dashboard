@@ -467,6 +467,10 @@ export default {
                     return receipt;
                 }
             } catch (e) {
+                if (e && e.data) {
+                    return { error: e.data.message };
+                }
+
                 return { error: e.message };
             }
         };

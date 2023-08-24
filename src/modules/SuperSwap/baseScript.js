@@ -172,6 +172,10 @@ export async function findBestRoute(amount, walletAddress) {
         }
         return { error: result.error };
     } catch (e) {
+        if (e && e.data) {
+            return { error: e.data.message };
+        }
+
         return { error: e.message || e };
     }
 }
@@ -329,7 +333,10 @@ async function findRoute(params) {
 
         return { bestRoute, otherRoutes };
     } catch (e) {
-        console.log(e);
+        if (e && e.data) {
+            return { error: e.data.message };
+        }
+
         return { error: e.message || e };
     }
 }
