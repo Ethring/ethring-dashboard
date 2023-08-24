@@ -192,7 +192,11 @@ export default {
                     return receipt;
                 }
             } catch (e) {
-                return { error: e?.data?.message || e.message };
+                if (e && e.data) {
+                    return { error: e.data.message };
+                }
+
+                return { error: e.message };
             }
         };
 
