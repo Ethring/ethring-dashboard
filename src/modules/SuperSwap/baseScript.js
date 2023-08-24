@@ -28,7 +28,7 @@ export async function findBestRoute(amount, walletAddress) {
             toToken,
             fromNetwork,
             walletAddress,
-            ownerAddress: ownerAddress,
+            ownerAddress,
         });
 
         const getBestRoute = async (params) => {

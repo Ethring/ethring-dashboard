@@ -284,20 +284,24 @@ export default {
             if (network?.net === currentChainInfo.value?.net) {
                 networkError.value = false;
             }
+
             clearApprove();
-            tokensList(network, 'from').then((tokens) => {
-                if (!selectedSrcToken.value || updateFromToken.value) {
-                    if (!tokens[0]?.balanceUsd) {
-                        const usdcToken = tokens.find((elem) => elem.code === 'USDC');
-                        store.dispatch('tokens/setFromToken', usdcToken || tokens[0]);
-                    } else {
-                        store.dispatch('tokens/setFromToken', tokens[0]);
-                    }
-                    updateFromToken.value = false;
-                }
-            });
+
+            const tokens = await tokensList(network, 'from');
             const srcNetwork = groupTokens.value?.find((elem) => elem.net === network.net);
+
+            if (!selectedSrcToken.value || updateFromToken.value) {
+                if (!tokens[0]?.balanceUsd) {
+                    const usdcToken = tokens.find((elem) => elem.code === 'USDC');
+                    store.dispatch('tokens/setFromToken', usdcToken || tokens[0]);
+                } else {
+                    store.dispatch('tokens/setFromToken', tokens[0]);
+                }
+                updateFromToken.value = false;
+            }
+
             store.dispatch('bridge/setSelectedSrcNetwork', srcNetwork || network);
+
             if (selectedSrcNetwork.value !== network) {
                 txError.value = '';
                 if (network.chainId || network.chain_id) {
@@ -312,30 +316,29 @@ export default {
 
         const onSelectDstNetwork = async (network) => {
             callEstimate.value = true;
+
             if (selectedDstNetwork.value?.net === network?.net && selectedDstToken.value) {
                 store.dispatch('tokens/setToToken', selectedDstToken.value);
-            } else {
-                store.dispatch('bridge/setSelectedDstNetwork', network);
-                tokensList(network, 'to').then((tokens) => {
-                    if (!selectedDstToken.value || !tokens.find((elem) => elem.code === selectedDstToken.value.code)) {
-                        if (selectedSrcNetwork?.value?.net === selectedDstNetwork?.value?.net) {
-                            const tokenTo = tokens.find((elem) => elem.code !== selectedSrcToken.value.code);
-                            if (tokenTo) {
-                                store.dispatch('tokens/setToToken', tokenTo);
-                            }
-                        } else {
-                            store.dispatch('tokens/setToToken', tokens[0]);
-                        }
-                    } else {
-                        let tokenTo = tokens.find((elem) => elem.code === selectedDstToken.value.code);
-                        if (tokenTo) {
-                            store.dispatch('tokens/setToToken', tokenTo);
-                        }
-                    }
-                    clearApprove();
-                    onSetAmount(amount.value);
-                });
+                return;
             }
+
+            store.dispatch('bridge/setSelectedDstNetwork', network);
+
+            const tokens = await tokensList(network, 'to');
+            const foundToken = tokens.find((elem) => elem.code === selectedDstToken?.value?.code);
+            if (!selectedDstToken.value || !foundToken) {
+                const tokenTo = tokens.find((elem) => elem.code !== selectedSrcToken.value.code);
+                if (tokenTo) {
+                    store.dispatch('tokens/setToToken', tokenTo);
+                } else {
+                    store.dispatch('tokens/setToToken', tokens[0]);
+                }
+            } else {
+                store.dispatch('tokens/setToToken', foundToken);
+            }
+
+            clearApprove();
+            onSetAmount(amount.value);
         };
 
         const onSetSrcToken = () => {
