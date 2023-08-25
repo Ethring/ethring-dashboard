@@ -44,9 +44,7 @@ export default {
     setup(_, { emit }) {
         const { walletAddress, walletAccount, connectedWallet, connectedWallets } = useAdapter();
 
-        console.log('AccountCenter -> connectedWallet', connectedWallet);
-
-        watch(walletAddress, () => {
+        watch(connectedWallet, () => {
             emit('closeDropdown');
         });
 

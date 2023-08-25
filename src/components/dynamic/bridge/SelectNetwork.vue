@@ -77,10 +77,14 @@ export default {
         });
 
         const networkName = computed(() => {
-            if (selectedItem.value?.name?.includes(' Mainnet')) {
-                return selectedItem.value.name.replace(' Mainnet', '') || selectedItem.value.name;
+            const { name, label } = selectedItem.value || {};
+
+            if (name?.includes(' Mainnet')) {
+                const replaced = name.replace(' Mainnet', '');
+                return replaced || name;
             }
-            return selectedItem.value?.label || selectedItem.value?.name;
+
+            return label || name;
         });
 
         return { active, selectedItem, networkName, clickAway, setActive };
@@ -132,6 +136,7 @@ export default {
         }
 
         .name {
+            text-transform: uppercase;
             font-size: 28px;
             font-family: 'Poppins_SemiBold';
             color: $colorBlack;
@@ -219,6 +224,7 @@ export default {
         .info {
             .name {
                 color: #486060;
+                text-transform: uppercase;
             }
 
             .icon {

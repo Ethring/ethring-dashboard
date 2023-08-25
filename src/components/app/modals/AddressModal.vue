@@ -22,7 +22,7 @@
 import { ref } from 'vue';
 import QrcodeVue from 'qrcode.vue';
 
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import Modal from '@/components/app/Modal';
 
@@ -41,20 +41,19 @@ export default {
     setup() {
         const copied = ref(false);
 
-        const { walletAddress } = useWeb3Onboard();
+        const { walletAddress } = useAdapter();
 
         const copyAddress = () => {
             copied.value = true;
             copyToClipboard(walletAddress?.value);
-            setTimeout(() => {
-                copied.value = false;
-            }, 500);
+            setTimeout(() => (copied.value = false), 500);
         };
 
         return {
             copied,
             cutAddress,
             walletAddress,
+
             copyAddress,
         };
     },

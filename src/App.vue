@@ -1,4 +1,5 @@
 <template>
+    <LoadingOverlay v-if="isConnecting" />
     <div class="app-wrap" :class="{ 'lock-scroll': isOpen }">
         <Sidebar />
         <NavBar />
@@ -13,7 +14,7 @@
 </template>
 
 <script>
-import { onMounted, onUpdated, onBeforeMount, watch, computed } from 'vue';
+import { onMounted, onUpdated, onBeforeMount, watch, ref, computed } from 'vue';
 import { useStore } from 'vuex';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
@@ -24,6 +25,7 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import NavBar from '@/components/app/NavBar';
 import Sidebar from '@/components/app/Sidebar';
+import LoadingOverlay from '@/components/ui/LoadingOverlay';
 
 export default {
     name: 'App',
@@ -31,22 +33,29 @@ export default {
         Sidebar,
         NavBar,
         WalletsModal,
+        LoadingOverlay,
     },
 
     setup() {
         const store = useStore();
+        const lastConnectedCall = ref(false);
         const isOpen = computed(() => store.getters['adapter/isOpen']);
+        const isConnecting = computed(() => store.getters['adapter/isConnecting']);
 
-        const { initAdapter, walletAddress, currentChainInfo, connectLastConnectedWallet } = useAdapter();
+        const { initAdapter, walletAddress, walletAccount, currentChainInfo, connectLastConnectedWallet } = useAdapter();
+
         const EVM_CHAINS = computed(() => store.getters['networks/chainsForConnect']);
 
         const callInit = async () => {
-            if ((currentChainInfo.value && walletAddress.value !== undefined) || walletAddress.value !== null) {
-                await useInit(currentChainInfo.value.ecosystem, walletAddress.value, store);
+            if (!currentChainInfo.value || !currentChainInfo.value?.walletModule || !walletAddress.value) {
+                return;
             }
+            await useInit(currentChainInfo.value.ecosystem, walletAddress.value, store);
         };
 
         onBeforeMount(async () => {
+            store.dispatch('adapter/initializeAdapter', ECOSYSTEMS.COSMOS);
+            store.dispatch('adapter/initializeAdapter', ECOSYSTEMS.EVM);
             await Promise.all([store.dispatch('networks/initBlocknativeChains'), store.dispatch('networks/initZometNets')]);
         });
 
@@ -56,18 +65,23 @@ export default {
                 await new Promise((resolve) => setTimeout(resolve, 100));
             }
 
-            initAdapter(ECOSYSTEMS.COSMOS);
             initAdapter(ECOSYSTEMS.EVM, EVM_CHAINS.value);
+            initAdapter(ECOSYSTEMS.COSMOS);
 
-            await Promise.all([connectLastConnectedWallet(), callInit()]);
+            !lastConnectedCall.value && connectLastConnectedWallet().then(() => (lastConnectedCall.value = true));
+
+            await callInit();
         });
 
         watch(walletAddress, async () => await callInit());
+
+        watch(walletAccount, async () => await callInit());
 
         onUpdated(async () => await callInit());
 
         return {
             isOpen,
+            isConnecting,
         };
     },
 };

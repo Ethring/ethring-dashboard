@@ -1,8 +1,8 @@
 <template>
     <div
         class="wallet-item"
-        :class="{ connected: wallet.isDone, connecting: wallet.isWalletConnecting }"
-        @click="() => connect(wallet.walletName)"
+        :class="{ connected: wallet.isDone, connecting: wallet.isWalletConnecting, 'not-found': !wallet.client }"
+        @click="connectOrDownload"
     >
         <div class="icon">
             <img :src="wallet.walletInfo.logo" alt="logo" />
@@ -32,6 +32,16 @@ export default {
         connect: {
             type: Function,
             required: true,
+        },
+    },
+
+    methods: {
+        connectOrDownload() {
+            if (this.wallet.client) {
+                return this.connect(this.wallet.walletName);
+            }
+
+            window.open(this.wallet.downloadInfo.link, '_blank');
         },
     },
 };
@@ -110,6 +120,13 @@ export default {
             & > div {
                 display: initial;
             }
+        }
+    }
+
+    &.not-found {
+        border-color: #f7d0d0;
+        .icon {
+            border-color: #f7d0d0;
         }
     }
 }

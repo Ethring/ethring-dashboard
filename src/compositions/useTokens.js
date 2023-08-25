@@ -4,12 +4,14 @@ import { useStore } from 'vuex';
 import { chainIds } from '@/config/availableNets';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
+import { ECOSYSTEMS } from '@/Adapter/config';
+
 export default function useTokens() {
     const store = useStore();
 
     const { walletAddress, currentChainInfo } = useAdapter();
 
-    if (!walletAddress.value) {
+    if (!walletAddress.value || currentChainInfo.value?.ecosystem === ECOSYSTEMS.COSMOS) {
         return {
             tokens: [],
             groupTokens: [],

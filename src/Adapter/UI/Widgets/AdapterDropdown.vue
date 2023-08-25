@@ -29,7 +29,7 @@
             </div> -->
         </div>
 
-        <div v-if="walletAddress" class="adapter-dropdown__footer">
+        <div v-if="walletAddress && connectedWallets" class="adapter-dropdown__footer">
             <DisconnectAll :disconnect-all="disconnectAll" />
         </div>
     </div>
@@ -67,12 +67,14 @@ export default {
                 return;
             }
 
-            await connectTo(ecosystem);
-            emit('close-dropdown');
+            const status = await connectTo(ecosystem);
+
+            if (status) {
+                emit('close-dropdown');
+            }
         };
 
-        const disconnectAll = async (ecosystem = ECOSYSTEMS.EVM) => {
-            console.log('disconnectAll', ecosystem);
+        const disconnectAll = async () => {
             await disconnectAllWallets();
             emit('close-dropdown');
         };

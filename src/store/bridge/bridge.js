@@ -70,6 +70,7 @@ export default {
 
         /* GET TOKENS BY CHAIN ID */
         async getTokensByChain({ commit }, { chainId, url }) {
+            console.log('getTokensByChain', chainId, url);
             const tokens = await fetchData({
                 url: url || DEFAULT_URL,
                 route: 'getTokensByChain',

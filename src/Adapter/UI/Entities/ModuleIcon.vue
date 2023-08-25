@@ -8,7 +8,7 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
     </div>
 </template>
 <script>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUpdated } from 'vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
@@ -44,6 +44,10 @@ export default {
         const { getWalletLogo } = useAdapter();
 
         onMounted(async () => {
+            logo.value = await getWalletLogo(props.ecosystem, props.module);
+        });
+
+        onUpdated(async () => {
             logo.value = await getWalletLogo(props.ecosystem, props.module);
         });
 

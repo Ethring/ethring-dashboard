@@ -3,7 +3,11 @@ import { ECOSYSTEMS } from '@/Adapter/config';
 import EthereumAdapter from '@/Adapter/ecosystems/ethereum';
 import CosmosAdapter from '@/Adapter/ecosystems/cosmos';
 
-const checkAdapter = (ecosystem = ECOSYSTEMS.EVM) => {
+const AdapterFacade = (ecosystem = ECOSYSTEMS.EVM) => {
+    if (!ecosystem) {
+        return null;
+    }
+
     switch (ecosystem) {
         case ECOSYSTEMS.EVM:
             return EthereumAdapter;
@@ -17,4 +21,4 @@ const checkAdapter = (ecosystem = ECOSYSTEMS.EVM) => {
     }
 };
 
-export default checkAdapter;
+export default AdapterFacade;

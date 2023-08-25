@@ -1,5 +1,5 @@
 <template>
-    <div class="connected-wallet">
+    <div class="connected-wallet" @click="handleOnClickConnectedWallet(wallet)">
         <div class="left-side">
             <ModuleIcon :ecosystem="wallet.ecosystem" :module="wallet.walletModule" />
             <div class="account-name">
@@ -46,7 +46,7 @@ export default {
     setup(props) {
         const selectedChain = ref(props.wallet.chain);
 
-        const { getChainListByEcosystem, getChainByChainId, setNewChain } = useAdapter();
+        const { getChainListByEcosystem, getChainByChainId, setNewChain, connectTo } = useAdapter();
 
         const chainList = computed(() => getChainListByEcosystem(props.wallet.ecosystem));
         const chainInfo = computed(() => getChainByChainId(props.wallet.ecosystem, selectedChain.value));
@@ -73,12 +73,16 @@ export default {
             }
         });
 
+        const handleOnClickConnectedWallet = (wallet) => connectTo(wallet.ecosystem, wallet.walletModule);
+
         return {
             chainInfo,
             chainList,
             selectedChain,
 
             cutAddress,
+
+            handleOnClickConnectedWallet,
         };
     },
 };

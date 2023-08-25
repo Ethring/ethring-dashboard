@@ -1,4 +1,6 @@
-import WalletInterface from '@/Adapter/utils/WalletInterface';
+/* eslint-disable no-unused-vars */
+
+import AdapterBase from '@/Adapter/utils/AdapterBase';
 
 import * as ethers from 'ethers';
 import { init, useOnboard } from '@web3-onboard/vue';
@@ -9,7 +11,11 @@ import { validateEthAddress } from '@/Adapter/utils/validations';
 
 let web3Onboard = null;
 
-class EthereumAdapter extends WalletInterface {
+const STORAGE = {
+    WALLET: 'onboard.js:last_connected_wallet',
+};
+
+class EthereumAdapter extends AdapterBase {
     constructor() {
         super();
     }
@@ -23,11 +29,11 @@ class EthereumAdapter extends WalletInterface {
     }
 
     async connectWallet(walletName) {
-        const { connectingWallet, connectWallet } = useOnboard();
+        const { connectedWallet, connectWallet } = useOnboard();
 
         if (!walletName) {
             await connectWallet();
-            return !connectingWallet.value;
+            return connectedWallet.value;
         }
 
         const connectionOption = {
@@ -39,7 +45,7 @@ class EthereumAdapter extends WalletInterface {
 
         await connectWallet(connectionOption);
 
-        return !connectingWallet.value;
+        return connectedWallet.value;
     }
 
     async disconnectWallet(label) {
@@ -70,7 +76,8 @@ class EthereumAdapter extends WalletInterface {
 
     getAccountAddress() {
         const { connectedWallet } = useOnboard();
-        return connectedWallet.value?.accounts[0]?.address;
+        const [primaryAccount] = connectedWallet.value?.accounts || [];
+        return primaryAccount?.address;
     }
 
     getCurrentChain(store) {

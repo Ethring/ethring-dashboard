@@ -7,7 +7,7 @@
                     <div class="close" @click="(event) => close(event, true)">X</div>
                 </div>
                 <div class="content" v-if="isOpen">
-                    <a-select
+                    <!-- <a-select
                         show-search
                         v-model:value="selectedChain"
                         placeholder="Select chain for connect"
@@ -17,7 +17,7 @@
                         <a-select-option v-for="chain in chainList" :key="chain.chain_id" :value="chain.chain_id">
                             <ChainRecord :chain="chain" />
                         </a-select-option>
-                    </a-select>
+                    </a-select> -->
                     <div class="content-wallets">
                         <WalletItem v-for="wallet in walletsModule" :key="wallet" :wallet="wallet" :connect="connect" />
                     </div>
@@ -32,8 +32,8 @@ import { useStore } from 'vuex';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
-import WalletItem from '@/Adapter/UI/Modal/WalletItem';
-import ChainRecord from '@/Adapter/UI/Entities/ChainRecord';
+import WalletItem from '@/Adapter/UI/Entities/WalletItem';
+// import ChainRecord from '@/Adapter/UI/Entities/ChainRecord';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
@@ -41,7 +41,7 @@ export default {
     name: 'WalletsModal',
     components: {
         WalletItem,
-        ChainRecord,
+        // ChainRecord,
     },
     setup() {
         const store = useStore();
@@ -64,13 +64,9 @@ export default {
         const chainList = computed(() => getChainListByEcosystem(ECOSYSTEMS.COSMOS));
 
         const connect = async (wallet) => {
-            const result = await connectTo(ECOSYSTEMS.COSMOS, wallet, selectedChain.value);
+            const status = await connectTo(ECOSYSTEMS.COSMOS, wallet, selectedChain.value);
 
-            if (!result) {
-                return;
-            }
-
-            store.dispatch('adapter/close');
+            status && store.dispatch('adapter/close');
         };
 
         watch(isOpen, () => {

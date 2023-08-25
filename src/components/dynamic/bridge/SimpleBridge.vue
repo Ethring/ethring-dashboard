@@ -98,7 +98,7 @@ import { useRouter } from 'vue-router';
 import { ethers } from 'ethers';
 import axios from 'axios';
 
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 import useTokens from '@/compositions/useTokens';
 
 import InfoPanel from '@/components/ui/InfoPanel';
@@ -131,7 +131,7 @@ export default {
         Checkbox,
     },
     setup() {
-        const { walletAddress, currentChainInfo, connectedWallet, setChain } = useWeb3Onboard();
+        const { walletAddress, currentChainInfo, connectedWallet, setChain } = useAdapter();
         const { groupTokens, allTokensFromNetwork, getTokenList } = useTokens();
 
         const store = useStore();
@@ -169,21 +169,23 @@ export default {
         const tokensDstListResolved = ref([]);
 
         onMounted(async () => {
-            store.dispatch('bridge/getSupportedChains');
-            store.dispatch(
-                'bridge/setSelectedSrcNetwork',
-                groupTokens.value.find((elem) => elem.net === currentChainInfo.value.net)
-            );
+            await store.dispatch('bridge/getSupportedChains');
+
+            const srcNetwork = groupTokens.value.find((elem) => elem.net === currentChainInfo.value.net);
+
+            store.dispatch('bridge/setSelectedSrcNetwork', srcNetwork);
+
             if (selectedSrcToken.value) {
                 await getAllowance();
             }
+
             if (selectedSrcNetwork.value) {
                 serviceFee.value = services[0]?.protocolFee[selectedSrcNetwork?.value?.chain_id];
                 setReceiveValue.value = selectedSrcNetwork.value
                     ? `<span>Protocol Fee</span> : ${
                           serviceFee.value
-                              ? `<span class='service-fee'>${serviceFee.value}</span> 
-                        <span class='symbol'> ${selectedSrcNetwork.value.code} ~ 
+                              ? `<span class='service-fee'>${serviceFee.value}</span>
+                        <span class='symbol'> ${selectedSrcNetwork.value.code} ~
                         <span class='service-fee'> ${prettyNumber(serviceFee.value * selectedSrcNetwork.value.price.USD)}</span> $ </span>`
                               : `<div class='skeleton skeleton__text'></div>`
                       }`
@@ -262,19 +264,25 @@ export default {
             if (network?.net === currentChainInfo.value?.net) {
                 networkError.value = false;
             }
+
             clearApprove();
-            tokensList(network).then((tokens) => {
-                tokensSrcListResolved.value = tokens;
-                if (!selectedSrcToken.value || !tokens.find((elem) => elem.code === selectedSrcToken.value.code)) {
-                    store.dispatch('tokens/setFromToken', tokens[0]);
-                } else {
-                    let listWithBalances = getTokenList(network);
-                    let tokenFrom = listWithBalances.find((elem) => elem.code === selectedSrcToken.value.code);
-                    if (tokenFrom) {
-                        store.dispatch('tokens/setFromToken', tokenFrom);
-                    }
+            const tokens = await tokensList(network);
+            tokensSrcListResolved.value = tokens;
+
+            const tokenFrom = tokens.find((elem) => elem.code === selectedSrcToken.value?.code);
+
+            if (!selectedSrcToken.value || !tokenFrom) {
+                const [tokenWithHighBalance] = tokens;
+                store.dispatch('tokens/setFromToken', tokenWithHighBalance);
+            } else {
+                const listWithBalances = getTokenList(network);
+
+                const tokenFrom = listWithBalances.find((elem) => elem.code === selectedSrcToken.value.code);
+
+                if (tokenFrom) {
+                    store.dispatch('tokens/setFromToken', tokenFrom);
                 }
-            });
+            }
 
             if (selectedSrcNetwork.value !== network) {
                 txError.value = '';

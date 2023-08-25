@@ -7,8 +7,7 @@
 </template>
 
 <script>
-import { ref } from 'vue';
-import { useStore } from 'vuex';
+import { ref, watch } from 'vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
@@ -27,15 +26,19 @@ export default {
         AccountCenter,
     },
     setup() {
-        const store = useStore();
-
         const showDropdown = ref(false);
 
-        const { walletAddress } = useAdapter(store);
+        const { walletAddress } = useAdapter();
 
         const toggleDropdown = () => (showDropdown.value = !showDropdown.value);
 
         const closeDropdown = () => (showDropdown.value = false);
+
+        watch(walletAddress, () => {
+            if (walletAddress.value) {
+                closeDropdown();
+            }
+        });
 
         return {
             ECOSYSTEMS,

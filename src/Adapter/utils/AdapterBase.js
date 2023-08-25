@@ -1,4 +1,4 @@
-class WalletInterface {
+class AdapterBase {
     async connectWallet() {
         throw new Error('Method not implemented.');
     }
@@ -43,4 +43,4 @@ class WalletInterface {
     }
 }
 
-export default WalletInterface;
+export default AdapterBase;
