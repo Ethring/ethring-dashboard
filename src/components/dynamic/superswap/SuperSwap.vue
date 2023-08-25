@@ -116,6 +116,7 @@ import Button from '@/components/ui/Button';
 import { toMantissa } from '@/helpers/numbers';
 import { prettyNumber, prettyNumberTooltip } from '@/helpers/prettyNumber';
 import { getTxUrl } from '@/helpers/utils';
+import { checkErrors } from '@/helpers/checkErrors';
 
 import { services } from '@/config/bridgeServices';
 
@@ -506,11 +507,7 @@ export default {
                     return receipt;
                 }
             } catch (e) {
-                if (e && e.data) {
-                    return { error: e.data.message };
-                }
-
-                return { error: e.message };
+                return checkErrors(e);
             }
         };
 
