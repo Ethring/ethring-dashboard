@@ -3,5 +3,5 @@ export const checkErrors = (error) => {
         return { error: error.data.message };
     }
 
-    return { error: error.message };
+    return { error: error.message || error };
 };
