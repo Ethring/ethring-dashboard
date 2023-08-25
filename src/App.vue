@@ -77,6 +77,8 @@ export default {
 
         watch(walletAccount, async () => await callInit());
 
+        watch(currentChainInfo, async () => await callInit());
+
         onUpdated(async () => await callInit());
 
         return {

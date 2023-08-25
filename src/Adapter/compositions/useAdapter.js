@@ -56,6 +56,8 @@ function useAdapter() {
 
     const currentChainInfo = computed(() => (mainAdapter.value ? mainAdapter.value.getCurrentChain(store) : []));
 
+    const chainWithAddress = computed(() => (mainAdapter.value ? mainAdapter?.value?.getChainWithAddresses() : {}));
+
     const walletAddress = computed(() => {
         forceUpdate.value;
         return mainAdapter.value ? mainAdapter.value.getAccountAddress() : null;
@@ -154,11 +156,10 @@ function useAdapter() {
     };
 
     const connectTo = async (ecosystem, ...args) => {
-        store.dispatch(STORE_ACTIONS.SET_IS_CONNECTING, true);
-
         const adapter = Adapters(ecosystem);
 
         const status = await adapter.connectWallet(...args);
+        store.dispatch(STORE_ACTIONS.SET_IS_CONNECTING, true);
 
         if (status) {
             store.dispatch(STORE_ACTIONS.SET_ECOSYSTEM, ecosystem);
@@ -248,7 +249,9 @@ function useAdapter() {
 
         currentChainInfo,
         connectedWallets,
+
         chainList,
+        chainWithAddress,
 
         initAdapter,
         subscribeToWalletsChange,

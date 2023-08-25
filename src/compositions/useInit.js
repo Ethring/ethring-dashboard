@@ -11,7 +11,7 @@ export default async function useInit(ecosystem, address, store) {
     const disableLoader = computed(() => store.getters['tokens/disableLoader']);
     store.dispatch('tokens/setLoader', true);
 
-    if (!disableLoader.value) {
+    if (!disableLoader.value || ecosystem === ECOSYSTEMS.COSMOS) {
         store.dispatch('tokens/setLoader', true);
         store.dispatch('tokens/setFromToken', null);
         store.dispatch('tokens/setToToken', null);

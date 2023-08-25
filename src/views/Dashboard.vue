@@ -8,6 +8,7 @@
                 </div>
             </div>
             <ActionsMenu :menu-items="dashboardActions" class="dashboard__actions" />
+            <ChainWithAddress v-if="chainWithAddress" :chainWithAddress="chainWithAddress" :chainList="chainList" />
             <Tokens />
         </template>
         <AddressModal v-if="showAddressModal" @close="showAddressModal = false" />
@@ -15,7 +16,7 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
@@ -26,17 +27,23 @@ import Tokens from '@/components/app/Tokens';
 
 import Button from '@/components/ui/Button';
 
+import { ECOSYSTEMS } from '@/Adapter/config';
+import ChainWithAddress from '@/Adapter/UI/Entities/ChainWithAddress';
+
 export default {
     name: 'Dashboard',
     components: {
         AddressModal,
         WalletInfoLarge,
+        ChainWithAddress,
         Button,
         ActionsMenu,
         Tokens,
     },
     setup() {
-        const { walletAddress } = useAdapter();
+        const { walletAddress, chainWithAddress, getChainListByEcosystem } = useAdapter();
+
+        const chainList = computed(() => getChainListByEcosystem(ECOSYSTEMS.COSMOS));
 
         const showAddressModal = ref(false);
 
@@ -47,6 +54,8 @@ export default {
 
         return {
             walletAddress,
+            chainList,
+            chainWithAddress,
             showAddressModal,
             dashboardActions,
         };

@@ -225,6 +225,10 @@ class CosmosAdapter extends AdapterBase {
         const module = walletManager.mainWallets.find((wallet) => wallet.walletName === walletModule);
         return module?.walletInfo?.logo || null;
     }
+
+    getChainWithAddresses() {
+        return this._chainWithAddress;
+    }
 }
 
 export default new CosmosAdapter();

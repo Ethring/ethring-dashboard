@@ -196,6 +196,10 @@ class EthereumAdapter extends AdapterBase {
             return { error: e?.data?.message || e.message };
         }
     }
+
+    getChainWithAddresses() {
+        return {};
+    }
 }
 
 export default new EthereumAdapter();
