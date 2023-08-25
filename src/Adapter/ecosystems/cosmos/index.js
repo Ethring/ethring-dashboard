@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 
 import { fromEvent } from 'rxjs';
 
@@ -61,6 +61,12 @@ class CosmosAdapter extends AdapterBase {
         const walletModule = this._getCurrentWallet();
 
         if (!walletModule?.value) {
+            return;
+        }
+
+        const listeners = walletManager.coreEmitter.listeners('refresh_connection');
+
+        if (listeners.length > 0) {
             return;
         }
 
