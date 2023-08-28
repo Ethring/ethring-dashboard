@@ -376,17 +376,17 @@ export async function checkAllowance(net, tokenAddress, ownerAddress, amount, de
 }
 checkAllowance.cache = {};
 
-export async function getTokensByService(chainId) {
-    const allService = swapServices.concat(bridgeServices).filter((elem) => elem.tokensByChain);
-    const allTokens = {};
-    for (const service of allService) {
-        const params = {
-            chainId,
-            url: service.url,
-        };
+// export async function getTokensByService(chainId) {
+//     const allService = swapServices.concat(bridgeServices).filter((elem) => elem.tokensByChain);
+//     const allTokens = {};
+//     for (const service of allService) {
+//         const params = {
+//             chainId,
+//             url: service.url,
+//         };
 
-        const list = await store.dispatch(`bridge/getTokensByChain`, params);
-        allTokens[service.name] = list;
-    }
-    store.dispatch(`bridge/setTokensByChain`, allTokens);
-}
+//         const list = await store.dispatch(`bridge/getTokensByChain`, params);
+//         allTokens[service.name] = list;
+//     }
+//     store.dispatch(`bridge/setTokensByChain`, allTokens);
+// }

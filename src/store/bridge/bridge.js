@@ -4,46 +4,28 @@ import axios from 'axios';
 const DEFAULT_URL = process.env.VUE_APP_DEBRIDGE_API;
 
 const types = {
-    SET_SUPPORTED_CHAINS: 'SET_SUPPORTED_CHAINS',
     SET_SRC_NETWORKS: 'SET_SRC_NETWORKS',
     SET_DST_NETWORKS: 'SET_DST_NETWORKS',
-    SET_TOKENS_BY_CHAINID: 'SET_TOKENS_BY_CHAINID',
-    SET_TOKENS_BY_SERVICE: 'SET_TOKENS_BY_SERVICE',
 };
 
 export default {
     namespaced: true,
     state: () => ({
-        supportedChains: [],
-        tokensByChainID: [],
         selectedSrcNetwork: null,
         selectedDstNetwork: null,
-        tokensByService: {},
     }),
 
     getters: {
-        supportedChains: (state) => state.supportedChains,
-        tokensByChainID: (state) => state.tokensByChainID,
         selectedSrcNetwork: (state) => state.selectedSrcNetwork,
         selectedDstNetwork: (state) => state.selectedDstNetwork,
-        tokensByService: (state) => state.tokensByService,
     },
 
     mutations: {
-        [types.SET_SUPPORTED_CHAINS](state, value) {
-            state.supportedChains = value;
-        },
-        [types.SET_TOKENS_BY_CHAINID](state, value) {
-            state.tokensByChainID = value;
-        },
         [types.SET_SRC_NETWORKS](state, value) {
             state.selectedSrcNetwork = value;
         },
         [types.SET_DST_NETWORKS](state, value) {
             state.selectedDstNetwork = value;
-        },
-        [types.SET_TOKENS_BY_SERVICE](state, value) {
-            state.tokensByService = value;
         },
     },
 
@@ -53,32 +35,6 @@ export default {
         },
         setSelectedDstNetwork({ commit }, value) {
             commit(types.SET_DST_NETWORKS, value);
-        },
-        /* GET SUPPORTED CHAINS */
-        async getSupportedChains({ commit }, url) {
-            const res = await fetchData({
-                url: url || DEFAULT_URL,
-                route: 'getSupportedChains',
-            });
-            commit(types.SET_SUPPORTED_CHAINS, res);
-        },
-
-        /* SET TOKENS BY SERVICE */
-        setTokensByChain({ commit }, tokens) {
-            commit(types.SET_TOKENS_BY_SERVICE, tokens);
-        },
-
-        /* GET TOKENS BY CHAIN ID */
-        async getTokensByChain({ commit }, { chainId, url }) {
-            const tokens = await fetchData({
-                url: url || DEFAULT_URL,
-                route: 'getTokensByChain',
-                params: {
-                    chainId,
-                },
-            });
-            commit(types.SET_TOKENS_BY_CHAINID, tokens);
-            return tokens;
         },
 
         /* ALLOWANCE */
