@@ -246,7 +246,19 @@ export default {
         };
 
         const filteredSupportedChains = computed(() => {
-            return zometNetworks.value.filter((token) => token.net !== selectedSrcNetwork?.value?.net);
+            const list = groupTokens?.value.filter((item) => {
+                const supportedChain = zometNetworks.value?.find((network) => network.net === item.net);
+                if (supportedChain) {
+                    item.logoURI = supportedChain.logo;
+                    return true;
+                }
+                return false;
+            });
+
+            if (selectedDstNetwork.value) {
+                return list.filter((chain) => chain.net !== selectedDstNetwork.value.net);
+            }
+            return list;
         });
 
         const onSelectSrcNetwork = async (network) => {
