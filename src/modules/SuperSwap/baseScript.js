@@ -10,6 +10,8 @@ import { chainIds } from '../../config/availableNets';
 
 import { STATUSES, ERRORS, NATIVE_CONTRACT } from '@/shared/constants/superswap/constants';
 
+import { checkErrors } from '../../helpers/checkErrors';
+
 export async function findBestRoute(amount, walletAddress) {
     try {
         const fromNetwork = store.getters['bridge/selectedSrcNetwork'];
@@ -181,7 +183,7 @@ export async function findBestRoute(amount, walletAddress) {
         }
         return { error: result.error };
     } catch (e) {
-        return { error: e.message || e };
+        return checkErrors(e);
     }
 }
 
@@ -338,8 +340,7 @@ async function findRoute(params) {
 
         return { bestRoute, otherRoutes };
     } catch (e) {
-        console.log(e);
-        return { error: e.message || e };
+        return checkErrors(e);
     }
 }
 export async function checkAllowance(net, tokenAddress, ownerAddress, amount, decimals, service) {

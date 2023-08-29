@@ -81,6 +81,7 @@ import SwapSvg from '@/assets/icons/dashboard/swap.svg';
 import { prettyNumberTooltip } from '@/helpers/prettyNumber';
 import { getTxUrl } from '@/helpers/utils';
 import { toMantissa } from '@/helpers/numbers';
+import { checkErrors } from '@/helpers/checkErrors';
 
 const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
@@ -350,7 +351,7 @@ export default {
                     return receipt;
                 }
             } catch (e) {
-                return { error: e.message };
+                return checkErrors(e);
             }
         };
 

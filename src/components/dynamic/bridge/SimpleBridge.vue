@@ -113,6 +113,7 @@ import Button from '@/components/ui/Button';
 import { toMantissa } from '@/helpers/numbers';
 import { prettyNumber } from '@/helpers/prettyNumber';
 import { getTxUrl, delay } from '@/helpers/utils';
+import { checkErrors } from '@/helpers/checkErrors';
 
 import { services } from '@/config/bridgeServices';
 
@@ -452,7 +453,7 @@ export default {
                     return receipt;
                 }
             } catch (e) {
-                return { error: e.message };
+                return checkErrors(e);
             }
         };
 
