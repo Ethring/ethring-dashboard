@@ -3,7 +3,6 @@ stages:
   - deploy
   - sentry
   - test_ui
-  - deploy-test-page
 
 .dockerBuildJob:
   cache: {}
@@ -166,12 +165,3 @@ Run tests schedules:
       - ./Screenshot/
     when: always
     expire_in: 4 days
-
-pages:
-  stage: deploy-test-page
-  only:
-    - schedules
-  artifacts:
-    paths:
-      - ./playwright-report/
-  publish: ./playwright-report/
