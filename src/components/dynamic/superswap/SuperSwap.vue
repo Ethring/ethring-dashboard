@@ -97,7 +97,7 @@
     </div>
 </template>
 <script>
-import { computed, ref, onMounted, watch, onBeforeUnmount } from 'vue';
+import { computed, ref, watch, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { ethers } from 'ethers';
@@ -120,7 +120,7 @@ import { getTxUrl } from '@/helpers/utils';
 
 import { services } from '@/config/bridgeServices';
 
-import { findBestRoute, getTokensByService } from '@/modules/SuperSwap/baseScript';
+import { findBestRoute } from '@/modules/SuperSwap/baseScript';
 
 import { STATUSES, NATIVE_CONTRACT } from '@/shared/constants/superswap/constants';
 
@@ -165,7 +165,6 @@ export default {
 
         const selectedSrcNetwork = computed(() => store.getters['bridge/selectedSrcNetwork']);
         const selectedDstNetwork = computed(() => store.getters['bridge/selectedDstNetwork']);
-        const supportedChains = computed(() => store.getters['bridge/supportedChains']);
 
         const selectedSrcToken = computed(() => store.getters['tokens/fromToken']);
         const selectedDstToken = computed(() => store.getters['tokens/toToken']);
@@ -180,10 +179,6 @@ export default {
 
         const errorAddress = ref('');
         const errorBalance = ref('');
-
-        onMounted(async () => {
-            store.dispatch('bridge/getSupportedChains');
-        });
 
         watch(showRoutesModal, () => {
             if (!showRoutesModal.value) {
@@ -251,24 +246,10 @@ export default {
         };
 
         const filteredSupportedChains = computed(() => {
-            if (!supportedChains.value && !supportedChains.value.length) {
-                return [];
-            }
-            if (selectedSrcNetwork.value) {
-                if (!supportedChains.value?.find((elem) => selectedSrcNetwork.value.net === elem.net)) {
-                    return [
-                        {
-                            ...selectedSrcNetwork.value,
-                            logoURI: zometNetworks.value?.find((elem) => selectedSrcNetwork.value?.net === elem?.net)?.logo,
-                        },
-                    ];
-                }
-            }
-
             const list = groupTokens?.value.filter((item) => {
-                const supportedChain = supportedChains.value?.find((network) => network.net === item.net);
+                const supportedChain = zometNetworks.value?.find((network) => network.net === item.net);
                 if (supportedChain) {
-                    item.logoURI = supportedChain.logoURI;
+                    item.logoURI = supportedChain.logo;
                     return true;
                 }
                 return false;
@@ -310,7 +291,6 @@ export default {
                     });
                 }
                 updateFromToken.value = true;
-                await getTokensByService(network.chainId || network.chain_id || currentChainInfo.value.chainId);
             }
         };
 

@@ -579,19 +579,4 @@ body.dark {
         }
     }
 }
-
-// .accordion {
-
-//         .fee {
-//             color: $colorBaseGreen;
-//             margin-right: 4px;
-//         }
-
-//         .symbol {
-//             color: $colorPl;
-//             font-weight: 300;
-//             font-family: 'Poppins_Regular';
-//         }
-//     }
-// }
 </style>
