@@ -2,7 +2,8 @@
     <div class="asset__item-header">
         <div class="asset__item-header-info">
             <div class="asset__item-header-logo">
-                <TokenLogo class="token__logo" />
+                <img v-if="logoURI" :src="logoURI" class="token__logo" />
+                <TokenLogo v-else class="token__logo" />
             </div>
             <div class="asset__item-header-name">
                 {{ title }}
@@ -14,12 +15,12 @@
         </div>
         <div class="asset__item-header-reward" v-if="showRewards">
             {{ $t('tokenOperations.rewards') + ':' }}
-            <div class="asset__item-header-value">65.05</div>
+            <div class="asset__item-header-value">{{ reward }}</div>
             <span class="asset__item-header-symbol__left"> $ </span>
         </div>
         <div class="asset__item-header-balance">
             <span class="asset__item-header-symbol">$</span>
-            12 510
+            {{ totalBalance }}
         </div>
     </div>
 </template>
@@ -27,9 +28,9 @@
 import { computed } from 'vue';
 import { useStore } from 'vuex';
 
-import { prettyNumber } from '@/helpers/prettyNumber';
-
 import TokenLogo from '@/assets/icons/dashboard/tokenLogo.svg';
+
+import { prettyNumber } from '@/helpers/prettyNumber';
 
 export default {
     name: 'AssetItemHeader',
@@ -40,9 +41,21 @@ export default {
         value: {
             required: true,
         },
+        reward: {
+            type: String,
+            default: '0',
+        },
         showRewards: {
             type: Boolean,
             default: false,
+        },
+        totalBalance: {
+            type: String,
+            default: '0',
+        },
+        logoURI: {
+            type: String,
+            default: '',
         },
     },
     components: {
@@ -133,7 +146,6 @@ export default {
 }
 
 .token__logo {
-    fill: #0d7e71;
     width: 18px;
     height: 18px;
 }

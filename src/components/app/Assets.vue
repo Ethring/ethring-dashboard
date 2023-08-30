@@ -2,10 +2,17 @@
     <div class="tokens" :class="{ empty: emptyLists }">
         <template v-if="groupTokens.length > 1">
             <div class="tokens__group">
-                <AssetItemHeader v-if="groupTokens.length" title="Tokens" value="40" :showRewards="true" />
+                <AssetItemHeader
+                    v-if="groupTokens.length"
+                    title="Tokens"
+                    value="40"
+                    :showRewards="true"
+                    reward="65.05"
+                    totalBalance="12 510"
+                />
                 <AssetItemSubHeader type="Asset" />
                 <div v-for="(group, ndx) in groupTokens.filter((g) => g.list.length)" :key="ndx">
-                    <AssetItem v-for="(listItem, n) in group.list" :key="n" :item="listItem" in-group type="Asset" />
+                    <AssetItem v-for="(listItem, n) in group.list" :key="n" :item="listItem" in-group />
                 </div>
             </div>
         </template>
