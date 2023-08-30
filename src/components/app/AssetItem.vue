@@ -3,11 +3,13 @@
         <div class="network">
             <div class="logo">
                 <TokenIcon width="24" height="24" :token="item" />
+                <div class="chain">
+                    <img :src="item.chainLogo" />
+                </div>
             </div>
             <div class="info">
                 <div v-if="!inGroup" class="symbol">{{ item.code }}</div>
                 <div class="name">{{ item.name }}</div>
-                <div v-if="inGroup" class="blockchain">{{ item.standard }}</div>
             </div>
         </div>
         <div class="amount">
@@ -17,7 +19,6 @@
             <div class="symbol">{{ item?.code }}</div>
         </div>
         <div class="change">
-            <!-- <div class="label">-</div> -->
             <div class="value"><span>$</span>{{ showBalance ? prettyNumber(item.balanceUsd) : '****' }}</div>
         </div>
     </div>
@@ -29,7 +30,7 @@ import { computed } from 'vue';
 import { useStore } from 'vuex';
 
 export default {
-    name: 'TokensItem',
+    name: 'AssetItem',
     props: {
         item: {
             required: true,
@@ -53,7 +54,7 @@ export default {
     },
 };
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
 .tokens__item {
     min-height: 72px;
     border: 1px solid $colorLightGreen;
@@ -73,12 +74,6 @@ export default {
         margin-bottom: 3px;
         padding: 3px 0 0 0;
         min-height: 55px;
-
-        .network {
-            .logo {
-                // background: #ccd5f0;
-            }
-        }
     }
 
     .network {
@@ -90,11 +85,38 @@ export default {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: $colorBlack;
+            background: #d9f4f1;
             margin-right: 10px;
             display: flex;
             justify-content: center;
             align-items: center;
+            position: relative;
+
+            .token-icon img {
+                filter: none;
+            }
+        }
+
+        .chain {
+            width: 16px;
+            height: 16px;
+            background: #0c0d18;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            position: absolute;
+            top: 26px;
+            left: 30px;
+
+            img {
+                border-radius: 50%;
+                object-position: center;
+                object-fit: contain;
+                width: 80%;
+                height: 80%;
+            }
         }
 
         .symbol {
@@ -103,17 +125,9 @@ export default {
         }
 
         .name {
-            margin-top: -3px;
-            font-size: 14px;
+            font-size: 16px;
             font-family: 'Poppins_Regular';
-            color: $colorBlack;
-        }
-
-        .blockchain {
-            font-family: 'Poppins_Regular';
-            color: $colorBaseGreen;
-            font-size: 12px;
-            text-transform: uppercase;
+            color: #1c1f2c;
         }
     }
 
@@ -123,16 +137,16 @@ export default {
         align-items: center;
 
         .value {
-            font-size: 18px;
+            font-size: 16px;
             font-family: 'Poppins_SemiBold';
             margin-right: 5px;
-            color: $colorBlack;
+            color: #1c1f2c;
         }
 
         .symbol {
             font-size: 14px;
             font-family: 'Poppins_Regular';
-            color: #5b5b5b;
+            color: #494c56;
         }
     }
 
@@ -141,79 +155,19 @@ export default {
         display: flex;
         flex-direction: column;
 
-        .label {
+        span {
             font-size: 14px;
             font-family: 'Poppins_Regular';
-            color: #5b5b5b;
+            color: #494c56;
             text-align: right;
+            margin-right: 5px;
         }
 
         .value {
             font-size: 16px;
             font-family: 'Poppins_SemiBold';
             text-align: right;
-        }
-    }
-}
-
-body.dark {
-    .tokens__item {
-        background: $colorDarkPanel;
-        border-color: transparent;
-
-        &.inGroup {
-            border-color: transparent;
-
-            .network {
-                border-color: $colorBlack;
-                .logo {
-                    background: $colorBlack;
-                }
-            }
-        }
-
-        .network {
-            .logo {
-                background: #22331f;
-            }
-
-            .info {
-                .symbol {
-                    color: $colorWhite;
-                }
-
-                .name {
-                    color: $colorWhite;
-                }
-
-                .blockchain {
-                    color: $colorBrightGreen;
-                }
-            }
-        }
-
-        .amount {
-            .value {
-                color: $colorWhite;
-            }
-
-            .symbol {
-                color: #97ffd0;
-            }
-        }
-
-        .change {
-            .label {
-                color: $colorWhite;
-            }
-
-            .value {
-                color: $colorWhite;
-
-                span {
-                    color: #97ffd0;
-                }
-            }
+            color: #2e323e;
         }
     }
 }

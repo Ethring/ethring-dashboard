@@ -1,15 +1,12 @@
 <template>
     <div class="tokens" :class="{ empty: emptyLists }">
         <template v-if="groupTokens.length > 1">
-            <div
-                v-for="(group, ndx) in groupTokens.filter((g) => g.list.length)"
-                :key="ndx"
-                :class="{ hide: groupHides[ndx] }"
-                class="tokens__group"
-                @click="toggleGroup(ndx)"
-            >
-                <TokensItemHeader v-if="group.list.length" :item="group" />
-                <TokensItem v-for="(listItem, n) in group.list" :key="n" :item="listItem" in-group />
+            <div class="tokens__group">
+                <AssetItemHeader v-if="groupTokens.length" title="Tokens" value="40" :showRewards="true" />
+                <AssetItemSubHeader type="Asset" />
+                <div v-for="(group, ndx) in groupTokens.filter((g) => g.list.length)" :key="ndx">
+                    <AssetItem v-for="(listItem, n) in group.list" :key="n" :item="listItem" in-group type="Asset" />
+                </div>
             </div>
         </template>
 
@@ -25,22 +22,24 @@
     </div>
 </template>
 <script>
+import { computed, ref, watch } from 'vue';
+import { useStore } from 'vuex';
+
 import useTokens from '@/compositions/useTokens';
 import EmptyList from '@/components/ui/EmptyList';
+import AssetItem from './AssetItem';
+import AssetItemHeader from './AssetItemHeader';
+import AssetItemSubHeader from './AssetItemSubHeader.vue';
 
 import { getTokenIcon } from '@/helpers/utils';
 import { prettyNumber } from '@/helpers/prettyNumber';
-import TokensItem from './TokensItem';
-import TokensItemHeader from './TokensItemHeader';
-
-import { useStore } from 'vuex';
-import { computed, ref } from 'vue';
 
 export default {
     name: 'Tokens',
     components: {
-        TokensItemHeader,
-        TokensItem,
+        AssetItemSubHeader,
+        AssetItemHeader,
+        AssetItem,
         EmptyList,
     },
     setup() {
@@ -49,9 +48,23 @@ export default {
         const groupHides = ref({});
 
         const loader = computed(() => store.getters['tokens/loader']);
+        const zometNetworks = computed(() => store.getters['networks/zometNetworksList']);
 
         const emptyLists = computed(() => {
             return !tokens.value.length && groupTokens.value.every((g) => !g.list.length); // <=1 - parent network
+        });
+
+        watch(groupTokens, () => {
+            if (groupTokens.value) {
+                groupTokens.value.map((chain) => {
+                    const matchingNetwork = zometNetworks.value.find((network) => network.net === chain.net);
+                    if (matchingNetwork) {
+                        chain.list.forEach((token) => {
+                            token.chainLogo = matchingNetwork.logo;
+                        });
+                    }
+                });
+            }
         });
 
         const toggleGroup = (groupNdx) => {
@@ -75,6 +88,7 @@ export default {
 .tokens {
     display: flex;
     flex-direction: column;
+    margin-top: 24px;
 
     &__group {
         border: 1px solid $colorLightGreen;
