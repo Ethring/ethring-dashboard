@@ -36,6 +36,7 @@ stages:
       --build-arg VUE_APP_SENTRY_DSN
       --build-arg VUE_APP_ZOMET_CORE_API_URL
       --build-arg VUE_APP_PROXY_API
+      --build-arg VUE_APP_DATA_PROVIDER_URL
       --build-arg NODE_ENV
 
 .deployJob:
