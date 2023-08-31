@@ -136,7 +136,7 @@ export default {
 
     &-reward {
         display: flex;
-        align-items: center;
+        align-items: baseline;
         width: 20%;
 
         color: #494c56;

@@ -12,7 +12,12 @@
                 />
                 <AssetItemSubHeader type="Asset" />
                 <div v-for="(group, ndx) in groupTokens.filter((g) => g.list.length)" :key="ndx">
-                    <AssetItem v-for="(listItem, n) in group.list" :key="n" :item="listItem" in-group />
+                    <AssetItem v-for="(listItem, n) in group.list" :key="n" :item="listItem">
+                        <!-- <div class="asset-item__info">
+                            <div class="asset-item__type">Deposit</div>
+                            <div class="asset-item__unlock">Unlock 27/05/2026</div>
+                        </div> -->
+                    </AssetItem>
                 </div>
             </div>
         </template>
@@ -121,12 +126,25 @@ export default {
     }
 }
 
-body.dark {
-    .tokens {
-        &__group {
-            border-color: transparent;
-            background: $colorDarkPanel;
+.asset-item__info {
+    display: flex;
+    font-size: 14px;
+    font-family: 'Poppins_Medium';
+
+    div {
+        &::before {
+            content: '\2022';
+            margin: 0 4px;
         }
+    }
+
+    .asset-item__type {
+        color: #0d7e71;
+    }
+
+    .asset-item__unlock {
+        color: #6d747a;
+        font-family: 'Poppins_Regular';
     }
 }
 </style>

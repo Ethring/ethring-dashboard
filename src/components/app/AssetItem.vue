@@ -1,5 +1,5 @@
 <template>
-    <div :class="{ inGroup }" class="tokens__item">
+    <div class="tokens__item">
         <div class="network">
             <div class="logo">
                 <TokenIcon width="24" height="24" :token="item" />
@@ -8,8 +8,8 @@
                 </div>
             </div>
             <div class="info">
-                <div v-if="!inGroup" class="symbol">{{ item.code }}</div>
                 <div class="name">{{ item.name }}</div>
+                <slot></slot>
             </div>
         </div>
         <div class="amount">
@@ -34,10 +34,6 @@ export default {
     props: {
         item: {
             required: true,
-        },
-        inGroup: {
-            type: Boolean,
-            default: false,
         },
     },
     components: {
@@ -68,13 +64,6 @@ export default {
     cursor: pointer;
     padding: 0 10px;
     box-sizing: border-box;
-
-    &.inGroup {
-        border-color: transparent;
-        margin-bottom: 3px;
-        padding: 3px 0 0 0;
-        min-height: 55px;
-    }
 
     .network {
         width: 60%;
@@ -131,10 +120,15 @@ export default {
         }
     }
 
+    .info {
+        display: flex;
+        align-items: center;
+    }
+
     .amount {
         width: 20%;
         display: flex;
-        align-items: center;
+        align-items: baseline;
 
         .value {
             font-size: 16px;
@@ -152,8 +146,6 @@ export default {
 
     .change {
         width: 20%;
-        display: flex;
-        flex-direction: column;
 
         span {
             font-size: 14px;
