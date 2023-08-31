@@ -13,6 +13,7 @@ const types = {
     SET_TO_TOKEN: 'SET_TO_TOKEN',
     SET_ADDRESS: 'SET_ADDRESS',
     SET_DISABLE_LOADER: 'SET_DISABLE_LOADER',
+    SET_INTEGRATIONS: 'SET_INTEGRATIONS',
 };
 
 export default {
@@ -28,6 +29,7 @@ export default {
         toToken: null,
         address: '',
         disableLoader: false,
+        integrations: [],
     }),
 
     getters: {
@@ -41,6 +43,7 @@ export default {
         toToken: (state) => state.toToken,
         address: (state) => state.address,
         disableLoader: (state) => state.disableLoader,
+        integrations: (state) => state.integrations,
     },
 
     mutations: {
@@ -83,6 +86,9 @@ export default {
                 state.favourites[net].push(address);
             }
         },
+        [types.SET_INTEGRATIONS](state, value) {
+            state.integrations = value;
+        },
     },
 
     actions: {
@@ -118,6 +124,9 @@ export default {
         },
         setToToken({ commit }, value) {
             commit(types.SET_TO_TOKEN, value);
+        },
+        setIntegrations({ commit }, value) {
+            commit(types.SET_INTEGRATIONS, value);
         },
         async prepareTransfer(_, { net, from, amount, toAddress }) {
             let response;

@@ -2,24 +2,24 @@
     <div class="tokens__item">
         <div class="network">
             <div class="logo">
-                <TokenIcon width="24" height="24" :token="item" />
+                <TokenIcon width="24" height="24" :token="item.token" :src="item.token.image" />
                 <div class="chain">
                     <img :src="item.chainLogo" />
                 </div>
             </div>
             <div class="info">
-                <div class="name">{{ item.name }}</div>
+                <div class="name">{{ item.token.name }}</div>
                 <slot></slot>
             </div>
         </div>
         <div class="amount">
             <div class="value">
-                {{ showBalance ? prettyNumber(item.balance.amount) : '****' }}
+                {{ showBalance ? prettyNumber(item.balance) : '****' }}
             </div>
-            <div class="symbol">{{ item?.code }}</div>
+            <div class="symbol">{{ item?.token.denom }}</div>
         </div>
         <div class="change">
-            <div class="value"><span>$</span>{{ showBalance ? prettyNumber(item.balanceUsd) : '****' }}</div>
+            <div class="value"><span>$</span>{{ showBalance ? prettyNumber(item.usd_value) : '****' }}</div>
         </div>
     </div>
 </template>
@@ -52,17 +52,14 @@ export default {
 </script>
 <style lang="scss">
 .tokens__item {
-    min-height: 72px;
-    border: 1px solid $colorLightGreen;
     border-radius: 16px;
-    margin-bottom: 7px;
     display: flex;
     align-items: center;
     font-family: 'Poppins_Light';
     font-size: 22px;
     color: $colorBlack;
     cursor: pointer;
-    padding: 0 10px;
+    padding: 4px 10px 10px 0;
     box-sizing: border-box;
 
     .network {
@@ -71,8 +68,8 @@ export default {
         align-items: center;
 
         .logo {
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             background: #d9f4f1;
             margin-right: 10px;
@@ -81,8 +78,15 @@ export default {
             align-items: center;
             position: relative;
 
-            .token-icon img {
-                filter: none;
+            .token-icon {
+                width: 24px;
+                height: 24px;
+
+                img {
+                    filter: none;
+                    width: 80%;
+                    height: 80%;
+                }
             }
         }
 
@@ -96,8 +100,8 @@ export default {
             align-items: center;
 
             position: absolute;
-            top: 26px;
-            left: 30px;
+            top: 16px;
+            left: 26px;
 
             img {
                 border-radius: 50%;
@@ -117,6 +121,7 @@ export default {
             font-size: 16px;
             font-family: 'Poppins_Regular';
             color: #1c1f2c;
+            margin-left: 8px;
         }
     }
 

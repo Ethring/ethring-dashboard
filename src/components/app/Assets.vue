@@ -2,23 +2,15 @@
     <div class="tokens" :class="{ empty: emptyLists }">
         <template v-if="groupTokens.length > 1">
             <div class="tokens__group">
-                <AssetItemHeader
-                    v-if="groupTokens.length"
-                    title="Tokens"
-                    value="40"
-                    :showRewards="true"
-                    reward="65.05"
-                    totalBalance="12 510"
-                />
+                <AssetItemHeader v-if="groupTokens.length" title="Tokens" value="40" :totalBalance="tokensTotalBalance" />
                 <AssetItemSubHeader type="Asset" />
-                <div v-for="(group, ndx) in groupTokens.filter((g) => g.list.length)" :key="ndx">
-                    <AssetItem v-for="(listItem, n) in group.list" :key="n" :item="listItem">
-                        <!-- <div class="asset-item__info">
+
+                <AssetItem v-for="(listItem, n) in allTokens" :key="n" :item="listItem">
+                    <!-- <div class="asset-item__info">
                             <div class="asset-item__type">Deposit</div>
                             <div class="asset-item__unlock">Unlock 27/05/2026</div>
                         </div> -->
-                    </AssetItem>
-                </div>
+                </AssetItem>
             </div>
         </template>
 
@@ -34,7 +26,7 @@
     </div>
 </template>
 <script>
-import { computed, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 
 import useTokens from '@/compositions/useTokens';
@@ -60,23 +52,15 @@ export default {
         const groupHides = ref({});
 
         const loader = computed(() => store.getters['tokens/loader']);
-        const zometNetworks = computed(() => store.getters['networks/zometNetworksList']);
+
+        const allTokens = computed(() => store.getters['tokens/tokens']);
 
         const emptyLists = computed(() => {
             return !tokens.value.length && groupTokens.value.every((g) => !g.list.length); // <=1 - parent network
         });
 
-        watch(groupTokens, () => {
-            if (groupTokens.value) {
-                groupTokens.value.map((chain) => {
-                    const matchingNetwork = zometNetworks.value.find((network) => network.net === chain.net);
-                    if (matchingNetwork) {
-                        chain.list.forEach((token) => {
-                            token.chainLogo = matchingNetwork.logo;
-                        });
-                    }
-                });
-            }
+        const tokensTotalBalance = computed(() => {
+            return allTokens.value.reduce((sum, token) => sum + +token.usd_value, 0);
         });
 
         const toggleGroup = (groupNdx) => {
@@ -91,6 +75,8 @@ export default {
             prettyNumber,
             loader,
             emptyLists,
+            allTokens,
+            tokensTotalBalance,
             toggleGroup,
         };
     },
@@ -105,7 +91,7 @@ export default {
     &__group {
         border: 1px solid $colorLightGreen;
         border-radius: 16px;
-        padding: 0 16px;
+        padding: 16px;
         margin-bottom: 7px;
         box-sizing: border-box;
         @include animateEasy;
