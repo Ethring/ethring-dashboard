@@ -31,7 +31,7 @@ export default {
     color: #486060;
     font-size: 12px;
     font-family: 'Poppins_Regular';
-    margin: 16px 0 8px 0;
+    margin: 16px 0;
 
     display: flex;
     align-items: center;

@@ -77,8 +77,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    min-height: 73px;
-    margin-bottom: 5px;
+    padding-bottom: 16px;
     border-bottom: 1px dashed #73b1b1;
     cursor: pointer;
 
