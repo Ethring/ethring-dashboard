@@ -81,6 +81,7 @@ import SwapSvg from '@/assets/icons/dashboard/swap.svg';
 import { prettyNumberTooltip } from '@/helpers/prettyNumber';
 import { getTxUrl } from '@/helpers/utils';
 import { toMantissa } from '@/helpers/numbers';
+import { checkErrors } from '@/helpers/checkErrors';
 
 const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
@@ -275,6 +276,7 @@ export default {
                 fromTokenAddress: selectedTokenFrom.value.address || NATIVE_CONTRACT,
                 toTokenAddress: selectedTokenTo.value.address || NATIVE_CONTRACT,
                 amount: amount.value,
+                ownerAddress: walletAddress.value,
             });
 
             if (resEstimate.error) {
@@ -349,7 +351,7 @@ export default {
                     return receipt;
                 }
             } catch (e) {
-                return { error: e.message };
+                return checkErrors(e);
             }
         };
 

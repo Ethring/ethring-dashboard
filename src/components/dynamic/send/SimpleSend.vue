@@ -62,6 +62,7 @@ import { onSelectNetwork } from '../../../helpers/chains';
 
 import { abi } from '@/config/abi';
 import { getTxUrl } from '@/helpers/utils';
+import { checkErrors } from '@/helpers/checkErrors';
 
 const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
@@ -192,7 +193,7 @@ export default {
                     return receipt;
                 }
             } catch (e) {
-                return { error: e?.data?.message || e.message };
+                return checkErrors(e);
             }
         };
 

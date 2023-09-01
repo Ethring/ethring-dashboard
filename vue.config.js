@@ -9,7 +9,7 @@ const chainWebpack = (config) => {
     sassRule.uses.clear();
     svgRule.uses.clear();
     mjsRule.uses.clear();
-    wcRule.uses.clear()
+    wcRule.uses.clear();
 
     svgRule.delete('type');
     svgRule.delete('generator');
@@ -37,7 +37,7 @@ const chainWebpack = (config) => {
     wcRule
         .test(/node_modules[\\/]@walletconnect/)
         .use('babel-loader')
-        .loader('babel-loader')
+        .loader('babel-loader');
 };
 
 const config = {

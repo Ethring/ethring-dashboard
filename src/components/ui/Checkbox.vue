@@ -74,7 +74,7 @@ input[type='checkbox'] {
             }
 
             &__label {
-                color: var(--#{$prefix}black);
+                color: var(--#{$prefix}primary-text);
             }
         }
     }

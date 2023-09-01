@@ -3,11 +3,12 @@ const defaultSidebarItems = [
     { component: 'stakeSvg', title: 'Send', key: 'send', to: '/send' },
     { component: 'swapSvg', title: 'Swap', key: 'swap', to: '/swap' },
     { component: 'swapSvg', title: 'SuperSwap', key: 'superSwap', to: '/superSwap' },
+    { component: 'bridgeSvg', title: 'Bridge', key: 'bridge', to: '/bridge' },
 ];
 
 export const UIConfig = {
     bsc: {
-        sidebar: [...defaultSidebarItems, { component: 'bridgeSvg', title: 'Bridge', key: 'bridge', to: '/bridge' }],
+        sidebar: [...defaultSidebarItems],
         send: {
             component: 'SimpleSend',
         },
@@ -22,7 +23,7 @@ export const UIConfig = {
         },
     },
     eth: {
-        sidebar: [...defaultSidebarItems, { component: 'bridgeSvg', title: 'Bridge', key: 'bridge', to: '/bridge' }],
+        sidebar: [...defaultSidebarItems],
         send: {
             component: 'SimpleSend',
         },
@@ -37,7 +38,7 @@ export const UIConfig = {
         },
     },
     polygon: {
-        sidebar: [...defaultSidebarItems, { component: 'bridgeSvg', title: 'Bridge', key: 'bridge', to: '/bridge' }],
+        sidebar: [...defaultSidebarItems],
         send: {
             component: 'SimpleSend',
         },
@@ -59,12 +60,15 @@ export const UIConfig = {
         swap: {
             component: 'SimpleSwap',
         },
+        bridge: {
+            component: 'SimpleBridge',
+        },
         superSwap: {
             component: 'SuperSwap',
         },
     },
     avalanche: {
-        sidebar: [...defaultSidebarItems, { component: 'bridgeSvg', title: 'Bridge', key: 'bridge', to: '/bridge' }],
+        sidebar: [...defaultSidebarItems],
         send: {
             component: 'SimpleSend',
         },
@@ -79,7 +83,7 @@ export const UIConfig = {
         },
     },
     arbitrum: {
-        sidebar: [...defaultSidebarItems, { component: 'bridgeSvg', title: 'Bridge', key: 'bridge', to: '/bridge' }],
+        sidebar: [...defaultSidebarItems],
         send: {
             component: 'SimpleSend',
         },
