@@ -8,13 +8,13 @@
 
 @import "./variables";
 
-@import "./root";
+@import "./root.scss";
 
 @import "./ui/button";
 
 html,
 body {
-  background: var(--#{$prefix}main-background);
+  background: var(--#{$prefix}main-background) !important;
   font-size: var(--#{$prefix}default-fs);
 }
 

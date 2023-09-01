@@ -198,6 +198,7 @@ export default {
             background: transparent;
             font-size: var(--#{$prefix}h2-fs);
             font-weight: 600;
+            color: var(--#{$prefix}primary-text);
         }
 
         .network {
@@ -234,14 +235,14 @@ export default {
     &.focused {
         .select-address__panel {
             border: 2px solid var(--#{$prefix}select-active-border-color);
-            background: var(--#{$prefix}white);
+            background: var(--#{$prefix}select-bg-color);
         }
     }
 
     &.active {
         .select-address__panel {
             border: 2px solid var(--#{$prefix}select-active-border-color);
-            background: var(--#{$prefix}white);
+            background: var(--#{$prefix}select-bg-color);
 
             svg.arrow {
                 transform: rotate(180deg);

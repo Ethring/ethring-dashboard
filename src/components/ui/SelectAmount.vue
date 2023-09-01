@@ -325,7 +325,7 @@ export default {
         .token {
             font-size: var(--#{$prefix}h2-fs);
             font-weight: 600;
-            color: var(--#{$prefix}black);
+            color: var(--#{$prefix}select-item-secondary-color);
             margin-right: 10px;
         }
 
@@ -338,6 +338,7 @@ export default {
             background: transparent;
             font-size: var(--#{$prefix}h2-fs);
             font-weight: 600;
+            color: var(--#{$prefix}primary-text);
         }
 
         .max {
@@ -381,7 +382,7 @@ export default {
     &.focused {
         .select-amount__panel {
             border: 2px solid var(--#{$prefix}select-active-border-color);
-            background: var(--#{$prefix}white);
+            background: var(--#{$prefix}select-bg-color);
         }
     }
 

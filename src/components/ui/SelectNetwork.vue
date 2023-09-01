@@ -124,7 +124,7 @@ export default {
         .name {
             font-size: var(--#{$prefix}h2-fs);
             font-weight: 600;
-            color: var(--#{$prefix}black);
+            color: var(--#{$prefix}select-item-color);
             user-select: none;
         }
 
@@ -154,7 +154,7 @@ export default {
     &.active {
         .select__panel {
             border-color: var(--#{$prefix}select-active-border-color);
-            background: var(--#{$prefix}white);
+            background: var(--#{$prefix}select-bg-color);
 
             svg.arrow {
                 transform: rotate(180deg);
@@ -164,7 +164,7 @@ export default {
 
     &__items {
         z-index: 1;
-        background: var(--#{$prefix}white);
+        background: var(--#{$prefix}select-dropdown-bg-color);
         position: absolute;
         top: 65px;
 
@@ -225,7 +225,7 @@ export default {
         align-items: center;
         justify-content: space-between;
         min-height: 60px;
-        border-bottom: 1px dashed var(--#{$prefix}border-color);
+        border-bottom: 1px dashed var(--#{$prefix}border-secondary-color);
         cursor: pointer;
         @include animateEasy;
 
@@ -259,7 +259,7 @@ export default {
         &.active {
             .info {
                 .name {
-                    color: var(--#{$prefix}primary);
+                    color: var(--#{$prefix}select-item-active-color);
                     font-weight: 600;
                 }
                 .icon {

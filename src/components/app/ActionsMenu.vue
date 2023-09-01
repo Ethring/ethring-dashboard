@@ -51,7 +51,7 @@ export default {
         align-items: center;
         font-weight: 300;
         font-size: var(--#{$prefix}h4-fs);
-        color: var(--#{$prefix}black);
+        color: var(--#{$prefix}primary-text);
         margin-right: 25px;
         cursor: pointer;
 

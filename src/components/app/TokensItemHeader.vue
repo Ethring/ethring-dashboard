@@ -41,7 +41,7 @@ export default {
 
     min-height: 73px;
     margin-bottom: 5px;
-    border-bottom: 1px dashed var(--#{$prefix}border-color);
+    border-bottom: 1px dashed var(--#{$prefix}border-secondary-color);
     cursor: pointer;
 
     .balance {
@@ -60,7 +60,7 @@ export default {
     .name {
         font-size: var(--#{$prefix}h6-fs);
         font-weight: 600;
-        color: var(--#{$prefix}black);
+        color: var(--#{$prefix}primary-text);
         text-transform: uppercase;
     }
 }

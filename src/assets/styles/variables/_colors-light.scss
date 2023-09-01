@@ -65,92 +65,115 @@ $black-op-02: rgba(0, 0, 0, 0.2);
 //  THEME COLORS
 //  ===========================================================================
 
-$primary: $ebonyClay !default;
-$secondary: $iceberg !default;
+$primary: $ebonyClay;
 
-$main-background: $white !default;
-$secondary-background: $geyser !default;
+$main-background: $white;
+$secondary-background: $white;
 
-$banner-color: $iceberg !default;
-$banner-logo-color: $turquoise !default;
-$eye-logo: $trout !default;
+$banner-color: $iceberg;
+$banner-logo-color: $turquoise;
 
-$sub-text: $surfieGreen !default;
-$mute-text: $trout !default;
-$base-text: $mineralGreen !default;
-$sidebar-text: $geyser !default;
-$secondary-text: $harborBlue !default;
+$eye-logo: $trout;
+$eye-logo-hover: $surfieGreen;
 
-$checkbox-text: $gulfStream !default;
-$checkbox-disabled-text: $mineralGreen !default;
-$checkbox-checked: $aquamarine !default;
-$checkbox-bg-color: $geyser !default;
-$checkbox-disabled: $mineralGreen !default;
+// Text
+$sub-text: $surfieGreen;
+$mute-text: $trout;
+$base-text: $mineralGreen;
+$sidebar-text: $geyser;
+$primary-text: $ebonyClay;
+$secondary-text: $trout; // harborBlue Not connect
 
-$border-color: $geyser !default;
-$border-secondary-color: $trout !default;
+// Checkbox
+$checkbox-text: $gulfStream;
+$checkbox-disabled-text: $mineralGreen;
+$checkbox-checked: $aquamarine;
+$checkbox-bg-color: $geyser;
+$checkbox-disabled: $mineralGreen;
 
-$btn-hover: $turquoise !default;
-$btn-secondary-hover: $surfieGreen !default;
+// Border
 
-$btn-active: $ebonyClay !default;
-$btn-disabled: $geyser !default;
-$btn-disabled-text: $gulfStream !default;
-$btn-disabled-icon: $iceberg !default;
+$border-color: $geyser;
+$border-secondary-color: $gulfStream;
 
-$select-bg-color: $gallery !default;
-$select-label-color: $mineralGreen !default;
-$select-border-color: $gulfStream !default;
-$select-active-border-color: $surfieGreen !default;
-$select-icon-color: $gulfStream !default;
-$select-placeholder-text: $gulfStream !default;
+// Button
+$btn-text-color: $white;
+$btn-text-hover-color: $ebonyClay;
+$btn-hover: $turquoise;
+$btn-secondary-hover: $surfieGreen;
+$btn-active: $ebonyClay;
+$btn-disabled: $geyser;
+$btn-disabled-text: $gulfStream;
+$btn-disabled-icon: $iceberg;
 
-$accordion-label-color: $mineralGreen !default;
-$accordion-border-color: $geyser !default;
 
-$success: $japaneseLaurel !default;
-$success-op-01: rgba($success, 0.1) !default;
+// Select
+$select-bg-color: $gallery;
+$select-dropdown-bg-color: $white;
 
-$danger: $wildWatermelon !default;
-$danger-op-01: rgba($danger, 0.1) !default;
-$danger-color: $watermelon !default;
+$select-label-color: $mineralGreen;
+$select-item-secondary-color: $ebonyClay;
+$select-item-color: $ebonyClay;
+$select-item-active-color: $ebonyClay;
+$select-placeholder-text: $gulfStream;
 
-$warning: $blazeOrange !default;
-$warning-op-01: rgba($warning, 0.1) !default;
+$select-border-color: $gulfStream;
+$select-active-border-color: $surfieGreen;
+$select-icon-color: $gulfStream;
 
-$info: $deepCerulean !default;
-$info-op-01: rgba($info, 0.1) !default;
+// Accordion
+$accordion-bg-color: $white;
+$accordion-label-color: $mineralGreen;
+$accordion-border-color: $geyser;
 
-$white: $white !default;
+// Info
+$success: $japaneseLaurel;
+$success-op-01: rgba($success, 0.1);
 
-$icon-color: $gulfStream !default;
-$icon-active: $mineralGreen !default;
-$icon-hover: $springGreen !default;
-$icon-disabled: $gulfStream !default;
-$icon-border: $dinastyDragon !default;
+$danger: $wildWatermelon;
+$danger-op-01: rgba($danger, 0.1);
+$danger-color: $watermelon;
 
-$icon-logo-bg-color: $turquoise !default;
-$icon-logo-bg-hover: $aquamarine !default;
-$icon-secondary-bg-color: $iceberg !default;
-$icon-secondary-bg-hover: $geyser !default;
+$warning: $blazeOrange;
+$warning-op-01: rgba($warning, 0.1);
 
-$sidebar-icon-color: $brightGreen !default;
+$info: $deepCerulean;
+$info-op-01: rgba($info, 0.1);
 
-$negative-percentage: $watermelon !default;
-$positive-percentage: $surfieGreen !default;
+$white: $white;
 
-$modal-bg-color: $black-op-085 !default;
-$modal-block-bg-color: $ghostWhite !default;
-$modal-active-block-bg-color: $carteblanche !default;
-$modal-block-text: $perfectLanding !default;
-$modal-item-text: $caneelBay !default;
+// Icon
+$icon-color: $gulfStream;
+$icon-active: $mineralGreen;
+$icon-hover: $springGreen;
+$icon-disabled: $gulfStream;
+$icon-border: $dinastyDragon;
 
-$block-box-shadow: $black-op-02 !default;
-$loader-border-color: $ficus !default;
+$icon-logo-bg-color: $turquoise;
+$icon-logo-bg-hover: $aquamarine;
+$icon-secondary-bg-color: $iceberg;
+$icon-secondary-bg-hover: $geyser;
+$sidebar-icon-color: $brightGreen;
 
-$tag-01: $aquamarine !default;
-$tag-02: $cyan !default;
-$tag-03: $lightGreen !default;
+// Modal
+$modal-bg-color: $black-op-085;
+$modal-content-bg-color: $white;
+$modal-block-bg-color: $ghostWhite;
+$modal-active-block-bg-color: $carteblanche;
+$modal-block-text: $perfectLanding;
+$modal-item-text: $caneelBay;
+
+$nav-bar-bg-color: $white;
+
+$negative-percentage: $watermelon;
+$positive-percentage: $surfieGreen;
+
+$block-box-shadow: $black-op-02;
+$loader-border-color: $ficus;
+
+$tag-01: $aquamarine;
+$tag-02: $cyan;
+$tag-03: $lightGreen;
 
 //  ===========================================================================
 //  THEME MAP
@@ -158,18 +181,19 @@ $tag-03: $lightGreen !default;
 
 $theme-colors: (
     "primary": $primary,
-    "secondary": $secondary,
 
     "main-background": $main-background,
     "secondary-background": $secondary-background,
     "banner-color": $banner-color,
     "banner-logo-color": $banner-logo-color,
     "eye-logo": $eye-logo,
+    "eye-logo-hover": $eye-logo-hover,
 
     "sub-text": $sub-text,
     "mute-text": $mute-text,
     "base-text": $base-text,
     "sidebar-text": $sidebar-text,
+    "primary-text": $primary-text,
     "secondary-text": $secondary-text,
 
     "checkbox-text": $checkbox-text,
@@ -181,21 +205,27 @@ $theme-colors: (
     "border-color": $border-color,
     "border-secondary-color": $border-secondary-color,
 
+    "btn-text-color": $btn-text-color,
+    "btn-text-hover-color": $btn-text-hover-color,
     "btn-hover": $btn-hover,
     "btn-secondary-hover": $btn-secondary-hover,
-
     "btn-active": $btn-active,
     "btn-disabled": $btn-disabled,
     "btn-disabled-text": $btn-disabled-text,
     "btn-disabled-icon": $btn-disabled-icon,
 
     "select-bg-color": $select-bg-color,
+    "select-dropdown-bg-color": $select-dropdown-bg-color,
     "select-label-color": $select-label-color,
+    "select-item-color": $select-item-color,
+    "select-item-secondary-color": $select-item-secondary-color,
+    "select-item-active-color": $select-item-active-color,
     "select-border-color": $select-border-color,
     "select-active-border-color": $select-active-border-color,
     "select-icon-color": $select-icon-color,
     "select-placeholder-text": $select-placeholder-text,
 
+    "accordion-bg-color": $accordion-bg-color,
     "accordion-label-color": $accordion-label-color,
     "accordion-border-color": $accordion-border-color,
 
@@ -229,14 +259,16 @@ $theme-colors: (
     "black": $black,
 
     "modal-bg-color": $modal-bg-color,
+    "modal-content-bg-color": $modal-content-bg-color,
     "modal-block-bg-color": $modal-block-bg-color,
     "modal-active-block-bg-color": $modal-active-block-bg-color,
     "modal-block-text": $modal-block-text,
     "modal-item-text": $modal-item-text,
     "block-box-shadow": $block-box-shadow,
     "loader-border-color": $loader-border-color,
+    "nav-bar-bg-color": $nav-bar-bg-color,
 
     "tag-01": $tag-01,
     "tag-02": $tag-02,
     "tag-03": $tag-03,
-) !default;
+);

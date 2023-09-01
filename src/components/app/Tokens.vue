@@ -77,6 +77,7 @@ export default {
     flex-direction: column;
 
     &__group {
+        background: var(--#{$prefix}secondary-background);
         border: 1px solid var(--#{$prefix}border-color);
         border-radius: 16px;
         padding: 0 16px;

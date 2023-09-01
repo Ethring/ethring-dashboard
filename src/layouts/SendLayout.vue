@@ -49,7 +49,7 @@ export default {
         font-weight: 600;
         margin-bottom: 30px;
         text-decoration: none;
-        color: var(--#{$prefix}black);
+        color: var(--#{$prefix}primary-text);
     }
 }
 

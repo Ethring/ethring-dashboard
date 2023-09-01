@@ -1,12 +1,19 @@
+@import './variables/colors-dark';
+
 :root {
     @each $size, $value in $font-sizes {
         --#{$prefix}#{$size}: #{$value};
     }
 }
 
-:root,
-[data-theme="light"] {
+:root, [data-theme="light"] {
     @each $color, $value in $theme-colors {
+        --#{$prefix}#{$color}: #{$value};
+    }
+}
+
+[data-theme="dark"] {
+    @each $color, $value in $theme-colors-dark {
         --#{$prefix}#{$color}: #{$value};
     }
 }

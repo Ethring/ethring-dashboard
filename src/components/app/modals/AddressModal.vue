@@ -95,7 +95,7 @@ export default {
         transition: all 0.3s ease-in-out;
 
         .address {
-            color: var(--#{$prefix}black);
+            color: var(--#{$prefix}primary-text);
             font-size: var(--#{$prefix}default-fs);
             font-weight: 600;
             width: 84%;

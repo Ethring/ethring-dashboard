@@ -88,12 +88,15 @@ export default {
         outline: none;
     }
 }
+
 .active {
-    background: var(--#{$prefix}white);
+    background: var(--#{$prefix}select-bg-color);
     border: 2px solid var(--#{$prefix}sub-text);
+
     .search-input__logo {
         background: var(--#{$prefix}btn-hover);
     }
+
     input {
         color: var(--#{$prefix}black);
     }

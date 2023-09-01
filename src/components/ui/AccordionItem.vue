@@ -40,7 +40,7 @@ export default {
         align-items: center;
         font-size: var(--#{$prefix}default-fs);
         font-weight: 600;
-        color: var(--#{$prefix}ebonyClay);
+        color: var(--#{$prefix}primary-text);
         margin-left: 6px;
     }
 }

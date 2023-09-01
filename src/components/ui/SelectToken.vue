@@ -98,7 +98,7 @@ export default {
         width: 660px;
     }
     &__title {
-        color: var(--#{$prefix}black);
+        color: var(--#{$prefix}primary-text);
         font-size: var(--#{$prefix}h1-fs);
         font-weight: 600;
         margin-bottom: 30px;
@@ -133,7 +133,7 @@ export default {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        border: 1px solid var(--#{$prefix}border-color);
+        border: 1px solid var(--#{$prefix}border-secondary-color);
         padding: 16px;
         border-radius: 16px;
         margin-top: 8px;
@@ -152,17 +152,17 @@ export default {
             font-size: var(--#{$prefix}h5-fs);
             text-align: right;
             margin: 0;
-            color: var(--#{$prefix}primary);
+            color: var(--#{$prefix}primary-text);
         }
         span {
             font-size: var(--#{$prefix}default-fs);
             font-weight: 400;
-            color: var(--#{$prefix}base-text);
+            color: var(--#{$prefix}secondary-text);
         }
         h5 {
             font-size: var(--#{$prefix}small-lg-fs);
             line-height: 21px;
-            color: var(--#{$prefix}base-text);
+            color: var(--#{$prefix}primary-text);
             span {
                 font-size: var(--#{$prefix}small-sm-fs);
                 font-weight: 400;
@@ -178,7 +178,7 @@ export default {
                 font-size: var(--#{$prefix}h6-fs);
                 line-height: 27px;
                 text-transform: uppercase;
-                color: var(--#{$prefix}primary);
+                color: var(--#{$prefix}primary-text);
             }
 
             .name {

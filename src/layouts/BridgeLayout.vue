@@ -44,7 +44,7 @@ export default {
     text-decoration: none;
 
     &__active {
-        color: var(--#{$prefix}black);
+        color: var(--#{$prefix}primary-text);
         font-size: var(--#{$prefix}h1-fs);
         font-weight: 600;
         margin-bottom: 30px;

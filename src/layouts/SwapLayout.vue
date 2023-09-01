@@ -16,7 +16,7 @@ export default {
 <style lang="scss" scoped>
 .swap-page {
     &__title {
-        color: var(--#{$prefix}black);
+        color: var(--#{$prefix}primary-text);
         font-size: var(--#{$prefix}h1-fs);
         font-weight: 600;
         margin-bottom: 30px;

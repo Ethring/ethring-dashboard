@@ -78,13 +78,14 @@ export default {
         position: relative;
         min-width: 40vw;
         height: max-content;
-        background: var(--#{$prefix}white);
+        background: var(--#{$prefix}modal-content-bg-color);
         border-radius: 16px;
         padding: 24px 32px;
         box-sizing: border-box;
     }
 
     &__content-title {
+        color: var(--#{$prefix}primary-text);
         font-size: var(--#{$prefix}h3-fs);
         font-weight: 600;
     }

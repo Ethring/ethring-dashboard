@@ -142,7 +142,7 @@ export default {
             align-items: center;
             font-weight: 600;
             font-size: var(--#{$prefix}h2-fs);
-            color: var(--#{$prefix}black);
+            color: var(--#{$prefix}primary-text);
             margin-top: -3px;
             user-select: none;
 
@@ -160,7 +160,7 @@ export default {
                 fill: var(--#{$prefix}eye-logo);
 
                 &:hover {
-                    fill: var(--#{$prefix}btn-secondary-hover);
+                    fill: var(--#{$prefix}eye-logo-hover);
                 }
             }
         }

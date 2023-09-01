@@ -63,7 +63,7 @@ export default {
 
     &__wallet {
         position: relative;
-        background-color: var(--#{$prefix}icon-secondary-bg-color);
+        background-color: var(--#{$prefix}banner-color);
         padding: 24px 24px 28px 24px;
         box-sizing: border-box;
         border-radius: 16px;

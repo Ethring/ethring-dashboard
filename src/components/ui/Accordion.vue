@@ -42,7 +42,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .accordion {
-    background: var(--#{$prefix}white);
+    background: var(--#{$prefix}accordion-bg-color);
     border: 1px solid var(--#{$prefix}accordion-border-color);
     border-radius: 16px;
     padding: 27px 32px;

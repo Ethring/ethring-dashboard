@@ -105,7 +105,7 @@ export default {
             margin-top: -3px;
             font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 400;
-            color: var(--#{$prefix}black);
+            color: var(--#{$prefix}primary-text);
         }
 
         .blockchain {
@@ -125,13 +125,13 @@ export default {
             font-size: var(--#{$prefix}h6-fs);
             font-weight: 600;
             margin-right: 5px;
-            color: var(--#{$prefix}black);
+            color: var(--#{$prefix}primary-text);
         }
 
         .symbol {
             font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 400;
-            color: var(--#{$prefix}mute-text);
+            color: var(--#{$prefix}secondary-text);
         }
     }
 
@@ -149,8 +149,13 @@ export default {
 
         .value {
             font-size: var(--#{$prefix}default-fs);
+            color: var(--#{$prefix}primary-text);
             font-weight: 600;
             text-align: right;
+
+            span {
+                color: var(--#{$prefix}secondary-text);
+            }
         }
     }
 }

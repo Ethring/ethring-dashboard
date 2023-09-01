@@ -17,7 +17,7 @@
     outline: none;
 
     background: var(--#{$prefix}btn-active);
-    color: var(--#{$prefix}white);
+    color: var(--#{$prefix}btn-text-color);
 
     font-size: var(--#{$prefix}small-lg-fs);
     font-weight: 600;
@@ -30,7 +30,7 @@
 
     &:not(.disabled):hover {
         background: var(--#{$prefix}btn-hover);
-        color: var(--#{$prefix}primary);
+        color: var(--#{$prefix}btn-text-hover-color);
 
         &-icon {
             fill: var(--#{$prefix}--#{$prefix}icon-hover);
