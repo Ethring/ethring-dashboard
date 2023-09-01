@@ -46,6 +46,7 @@ const chainWebpack = (config) => {
     const modulesToInclude = [
         // { name: '@cosmos-kit' },
         // { name: 'cosmjs-types' },
+        { name: '@metamask/utils' },
         { name: '@walletconnect' },
         // { name: '@vueuse/core' },
         // { name: '@cosmjs[\\\\/]', exclude: '@cosmjs[\\\\/].*\\.json$' },
