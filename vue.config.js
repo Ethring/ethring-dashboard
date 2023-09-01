@@ -44,11 +44,11 @@ const chainWebpack = (config) => {
     configureRule(config, 'svg', [{ name: 'vue-loader-v16' }, { name: 'vue-svg-loader' }]);
 
     const modulesToInclude = [
-        { name: '@cosmos-kit' },
-        { name: 'cosmjs-types' },
+        // { name: '@cosmos-kit' },
+        // { name: 'cosmjs-types' },
         { name: '@walletconnect' },
-        { name: '@vueuse/core' },
-        { name: '@cosmjs[\\\\/]', exclude: '@cosmjs[\\\\/].*\\.json$' },
+        // { name: '@vueuse/core' },
+        // { name: '@cosmjs[\\\\/]', exclude: '@cosmjs[\\\\/].*\\.json$' },
     ];
 
     // Применяем общие правила для каждого указанного модуля
