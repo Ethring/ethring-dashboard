@@ -1,5 +1,3 @@
-@import './variables/colors-dark';
-
 :root {
     @each $size, $value in $font-sizes {
         --#{$prefix}#{$size}: #{$value};

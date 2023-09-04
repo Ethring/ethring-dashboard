@@ -1,9 +1,6 @@
 <template>
     <div class="nav-bar">
         <Help />
-        <button @click="toggleTheme" aria-label="Toggle themes" id="theme-toggle">
-            <span>Toggle Theme</span>
-        </button>
         <NotConnect v-if="!connectedWallet" />
     </div>
 </template>
@@ -22,27 +19,8 @@ export default {
     setup() {
         const { connectedWallet } = useWeb3Onboard();
 
-        var storedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        if (storedTheme) {
-            document.documentElement.setAttribute('data-theme', storedTheme);
-        }
-
-        const toggleTheme = () => {
-            console.log('11');
-            let currentTheme = document.documentElement.getAttribute('data-theme');
-            let targetTheme = 'light';
-
-            if (currentTheme === 'light') {
-                targetTheme = 'dark';
-            }
-
-            document.documentElement.setAttribute('data-theme', targetTheme);
-            localStorage.setItem('theme', targetTheme);
-        };
-
         return {
             connectedWallet,
-            toggleTheme,
         };
     },
 };

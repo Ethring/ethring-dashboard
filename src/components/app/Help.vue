@@ -7,15 +7,21 @@
         <div class="help__item">
             <cardSvg class="card-svg" />
         </div>
+        <div class="mt">
+            <ThemeSwitcher class="head__switcher" />
+        </div>
     </div>
 </template>
 <script>
+import ThemeSwitcher from '@/components/app/ThemeSwitcher';
+
 import settingsSvg from '@/assets/icons/dashboard/settings.svg';
 import cardSvg from '@/assets/icons/dashboard/card.svg';
 
 export default {
     name: 'Help',
     components: {
+        ThemeSwitcher,
         settingsSvg,
         cardSvg,
     },
@@ -46,10 +52,10 @@ export default {
                 fill: var(--#{$prefix}icon-active);
             }
         }
+    }
 
-        &.mt {
-            margin: 0 10px;
-        }
+    .mt {
+        margin: 0 10px;
     }
 }
 </style>

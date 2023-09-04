@@ -56,7 +56,7 @@ export default {
         cursor: pointer;
 
         .arrow {
-            fill: var(--#{$prefix}black);
+            fill: var(--#{$prefix}arrow-color);
         }
 
         &.active {

@@ -104,7 +104,6 @@ $select-active-border-color: $springGreen;
 $select-icon-color: $mineralGreen;
 $select-placeholder-text: $trout;
 
-
 // Accordion
 $accordion-bg-color: $charade;
 $accordion-label-color: $geyser;
@@ -139,6 +138,7 @@ $icon-logo-bg-hover: $aquamarine;
 $icon-secondary-bg-color: $ebonyClay;
 $icon-secondary-bg-hover: $mineralGreen;
 $sidebar-icon-color: $springGreen;
+$arrow-color: $white;
 
 $negative-percentage: $wildWatermelon;
 $positive-percentage: $springGreen;
@@ -227,6 +227,7 @@ $theme-colors-dark: (
     "icon-logo-bg-hover": $icon-logo-bg-hover,
     "icon-secondary-bg-color": $icon-secondary-bg-color,
     "icon-secondary-bg-hover": $icon-secondary-bg-hover,
+    "arrow-color": $arrow-color,
 
     "success": $success,
     "success-op-01": $success-op-01,
