@@ -3,7 +3,7 @@
         <div class="wallets-modal" :class="{ active: isOpen }" @click="close" id="wallet-modal-overview">
             <div class="wallets-modal__body">
                 <div class="top">
-                    <div>Available wallets ({{ count }})</div>
+                    <div>Available wallets</div>
                     <div class="close" @click="(event) => close(event, true)">X</div>
                 </div>
                 <div class="content" v-if="isOpen">
@@ -19,7 +19,12 @@
                         </a-select-option>
                     </a-select> -->
                     <div class="content-wallets">
-                        <WalletItem v-for="wallet in walletsModule" :key="wallet" :wallet="wallet" :connect="connect" />
+                        <WalletItem
+                            v-for="wallet in getWalletsModuleByEcosystem(ecosystem)"
+                            :key="wallet"
+                            :wallet="wallet"
+                            :connect="connect"
+                        />
                     </div>
                 </div>
             </div>
@@ -27,7 +32,7 @@
     </teleport>
 </template>
 <script>
-import { computed, watch, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
@@ -47,40 +52,32 @@ export default {
         const store = useStore();
         const selectedChain = ref('cosmoshub');
 
-        const isOpen = computed(() => store.getters['adapter/isOpen']);
+        const isOpen = computed(() => store.getters['adapters/isOpen']);
 
         const close = (e, closeBtn = false) => {
             const modal = document.getElementById('wallet-modal-overview');
 
             if (e.target === modal || closeBtn) {
-                store.dispatch('adapter/close');
+                store.dispatch('adapters/SET_MODAL_STATE', false);
             }
         };
 
-        const { connectTo, walletsModule, getWalletsModule, getChainListByEcosystem } = useAdapter();
-
-        const count = computed(() => (walletsModule.value ? walletsModule.value.length : 0));
+        const { connectTo, getChainListByEcosystem, getWalletsModuleByEcosystem } = useAdapter();
 
         const chainList = computed(() => getChainListByEcosystem(ECOSYSTEMS.COSMOS));
 
         const connect = async (wallet) => {
             const status = await connectTo(ECOSYSTEMS.COSMOS, wallet, selectedChain.value);
 
-            status && store.dispatch('adapter/close');
+            status && store.dispatch('adapters/SET_MODAL_STATE', false);
         };
-
-        watch(isOpen, () => {
-            if (isOpen.value) {
-                getWalletsModule(ECOSYSTEMS.COSMOS);
-            }
-        });
 
         return {
             isOpen,
-            count,
-            walletsModule,
             chainList,
             selectedChain,
+            ecosystem: ECOSYSTEMS.COSMOS,
+            getWalletsModuleByEcosystem,
 
             close,
             connect,

@@ -5,7 +5,7 @@
                 <DisconnectIcon />
             </div>
             <span class="text">
-                {{ $t('connect.disconnectWallets') }}
+                {{ $t('adapter.disconnectAll') }}
             </span>
         </div>
     </div>
@@ -31,6 +31,7 @@ export default {
 .disconnect-all {
     cursor: pointer;
     transition: 0.2s;
+    padding: 0 8px;
     .item {
         display: flex;
         align-items: center;

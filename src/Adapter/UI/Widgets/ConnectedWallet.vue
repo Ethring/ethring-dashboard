@@ -18,13 +18,34 @@
                     </option>
                 </select>
             </div>
-            <div></div>
+
+            <div class="more-options">
+                <a-dropdown>
+                    <a class="ant-dropdown-link" @click.prevent>
+                        <MoreOutlined />
+                    </a>
+                    <template #overlay>
+                        <a-menu>
+                            <a-menu-item key="copy-address" @click="() => handleOnCopyAddress(wallet.ecosystem)">
+                                <CopyOutlined />
+                                {{ $t('adapter.copyAddress') }}
+                            </a-menu-item>
+
+                            <a-menu-item key="disconnect-account" @click="handleOnDisconnectAccount">
+                                <DisconnectOutlined />
+                                {{ $t('adapter.disconnectAccount') }}
+                            </a-menu-item>
+                        </a-menu>
+                    </template>
+                </a-dropdown>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
 import { computed, ref, watch } from 'vue';
+import { MoreOutlined, CopyOutlined, DisconnectOutlined } from '@ant-design/icons-vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
@@ -36,6 +57,9 @@ export default {
     name: 'ConnectedWallet',
     components: {
         ModuleIcon,
+        MoreOutlined,
+        CopyOutlined,
+        DisconnectOutlined,
     },
     props: {
         wallet: {
@@ -43,10 +67,11 @@ export default {
             required: true,
         },
     },
-    setup(props) {
+    emits: ['open-addresses'],
+    setup(props, { emit }) {
         const selectedChain = ref(props.wallet.chain);
 
-        const { getChainListByEcosystem, getChainByChainId, setNewChain, connectTo } = useAdapter();
+        const { getChainListByEcosystem, getChainByChainId, setNewChain, connectTo, disconnectWallet } = useAdapter();
 
         const chainList = computed(() => getChainListByEcosystem(props.wallet.ecosystem));
         const chainInfo = computed(() => getChainByChainId(props.wallet.ecosystem, selectedChain.value));
@@ -73,7 +98,11 @@ export default {
             }
         });
 
-        const handleOnClickConnectedWallet = (wallet) => connectTo(wallet.ecosystem, wallet.walletModule);
+        const handleOnClickConnectedWallet = async (wallet) => await connectTo(wallet.ecosystem, wallet.walletModule);
+
+        const handleOnCopyAddress = (ecosystem) => emit('open-addresses', ecosystem);
+
+        const handleOnDisconnectAccount = async () => await disconnectWallet(props.wallet.ecosystem, props.wallet);
 
         return {
             chainInfo,
@@ -83,6 +112,8 @@ export default {
             cutAddress,
 
             handleOnClickConnectedWallet,
+            handleOnCopyAddress,
+            handleOnDisconnectAccount,
         };
     },
 };
@@ -92,7 +123,7 @@ export default {
 .connected-wallet {
     border: 1px solid #d9f4f1;
     border-radius: 16px;
-    padding: 8px 16px;
+    padding: 8px;
     cursor: pointer;
     max-height: 48px;
 
@@ -100,6 +131,12 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    transition: 0.2s;
+
+    &:hover {
+        background-color: #fff;
+    }
 
     & > div {
         display: flex;
@@ -143,5 +180,8 @@ export default {
             }
         }
     }
+}
+.more-options {
+    margin-left: 8px;
 }
 </style>

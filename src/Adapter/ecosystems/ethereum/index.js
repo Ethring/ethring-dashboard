@@ -11,17 +11,16 @@ import { validateEthAddress } from '@/Adapter/utils/validations';
 
 let web3Onboard = null;
 
-const STORAGE = {
-    WALLET: 'onboard.js:last_connected_wallet',
-};
+// const STORAGE = {
+//     WALLET: 'onboard.js:last_connected_wallet',
+// };
 
 class EthereumAdapter extends AdapterBase {
     constructor() {
         super();
-    }
+        !web3Onboard && (web3Onboard = init({ ...web3OnBoardConfig }));
 
-    reInit(chains) {
-        !web3Onboard && (web3Onboard = init({ ...web3OnBoardConfig, chains }));
+        web3Onboard.state.select('wallets').subscribe(() => this.setAddressForChains());
     }
 
     subscribeToWalletsChange() {
@@ -29,12 +28,7 @@ class EthereumAdapter extends AdapterBase {
     }
 
     async connectWallet(walletName) {
-        const { connectedWallet, connectWallet } = useOnboard();
-
-        if (!walletName) {
-            await connectWallet();
-            return connectedWallet.value;
-        }
+        const { connectWallet, connectingWallet } = useOnboard();
 
         const connectionOption = {
             autoSelect: {
@@ -42,22 +36,59 @@ class EthereumAdapter extends AdapterBase {
                 disableModals: true,
             },
         };
+        try {
+            await connectWallet(walletName ? connectionOption : null);
 
-        await connectWallet(connectionOption);
+            if (!connectingWallet.value) {
+                this.setAddressForChains();
+            }
 
-        return connectedWallet.value;
+            return !connectingWallet.value;
+        } catch (error) {
+            console.error('Failed to connect to:', walletName, error);
+            return false;
+        }
+    }
+
+    setAddressForChains() {
+        if (!this.addressByNetwork) {
+            this.addressByNetwork = {};
+        }
+
+        const { chains } = web3Onboard.state.get();
+
+        const mainAddress = this.getAccountAddress();
+
+        if (!mainAddress) {
+            return null;
+        }
+
+        for (const { id } of chains) {
+            this.addressByNetwork[+id] = mainAddress;
+        }
     }
 
     async disconnectWallet(label) {
         const { disconnectWallet } = useOnboard();
 
-        return await disconnectWallet(label);
+        try {
+            console.log('Disconnecting from', label);
+            await disconnectWallet({ label });
+            this.addressByNetwork = {};
+        } catch (error) {
+            console.error(`Error while disconnect from ${label}`, error);
+        }
     }
 
     async disconnectAllWallets() {
         const { disconnectConnectedWallet } = useOnboard();
 
-        return await disconnectConnectedWallet();
+        try {
+            await disconnectConnectedWallet();
+            this.addressByNetwork = {};
+        } catch (error) {
+            console.error('Error while disconnect all wallets', error);
+        }
     }
 
     getMainWallets() {
@@ -83,6 +114,7 @@ class EthereumAdapter extends AdapterBase {
     getCurrentChain(store) {
         const { connectedWallet, connectedChain } = useOnboard();
         const { label = null } = connectedWallet.value || {};
+
         const chainFromStore = (chainId) => {
             if (!store?.getters) {
                 return {};
@@ -197,8 +229,8 @@ class EthereumAdapter extends AdapterBase {
         }
     }
 
-    getChainWithAddresses() {
-        return {};
+    getAddressesWithChains() {
+        return this.addressByNetwork || {};
     }
 }
 

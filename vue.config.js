@@ -1,113 +1,72 @@
-const chainWebpack = (config) => {
-    // Найти правило для обработки файлов SASS/SCSS, SVG, MJS
-    const sassRule = config.module.rule('sass');
-    const svgRule = config.module.rule('svg');
-    const mjsRule = config.module.rule('mjs');
+const IS_PROD = process.env.NODE_ENV === 'production';
 
-    // Очистить существующие загрузчики
-    sassRule.uses.clear();
-    svgRule.uses.clear();
-    mjsRule.uses.clear();
+// * Утилита для настройки базового правила Webpack для обработки различных типов модулей
+const configureGeneralRule = (config, { name, exclude }) => {
+    const BABEL_OPTIONS = {
+        presets: ['@babel/preset-env', '@babel/preset-react', '@babel/preset-typescript'],
+        plugins: ['@babel/plugin-proposal-nullish-coalescing-operator', '@babel/plugin-proposal-optional-chaining'],
+        cacheDirectory: true, // Включение кэширования для ускорения процесса сборки
+    };
 
-    svgRule.delete('type');
-    svgRule.delete('generator');
+    const generalRule = config.module.rule('general').test(/\.(cjs|mjs|js|jsx|ts|tsx)$/);
 
-    // Добавить нужные загрузчики (включая vue-svg-loader)
-    svgRule.use('vue-loader').loader('vue-loader-v16').end().use('vue-svg-loader').loader('vue-svg-loader');
+    // Добавляем новый модуль для обработки
+    generalRule.include.add(new RegExp(name));
 
-    // Добавить нужные загрузчики (включая sass-loader)
-    sassRule
-        .use('vue-style-loader')
-        .loader('vue-style-loader')
-        .end()
-        .use('css-loader')
-        .loader('css-loader')
-        .end()
-        .use('sass-loader')
-        .loader('sass-loader')
-        .end();
+    // Если предоставлен паттерн для исключения, то добавляем его
+    if (exclude) {
+        generalRule.exclude.add(new RegExp(exclude));
+    }
 
-    // mjsRule
-    //     .test(/\.[cm]js$/)
-    //     .include.add(/node_modules/)
-    //     .end()
-    //     .type('javascript/auto');
-
-    config.module
-        .rule('js')
-        .test(/\.js$/)
-        .exclude.add(/node_modules/) // исключаем node_modules
-        .end()
-        .use('babel-loader')
-        .loader('babel-loader')
-        .end();
-
-    config.module
-        .rule('typescript')
-        .test(/\.(js|jsx|ts|tsx)$/)
-        // add @cosmos-kit to exclude node_modules
-        .include.add(/@cosmos-kit/)
-        .end()
-        .include.add(/cosmjs-types/) // Include cosmjs-types package
-        .end()
-        .use('babel-loader')
-        .loader('babel-loader')
-        .options({
-            presets: ['@babel/preset-env', '@babel/preset-react', '@babel/preset-typescript'],
-        });
-
-    config.module
-        .rule('protobuf')
-        .test(/\.proto$/)
-        .use('protobuf-loader')
-        .loader('protobuf-loader')
-        .end();
-
-    // Add a rule for all @cosmjs/ packages
-    config.module
-        .rule('cosmjs-packages')
-        .test(/@cosmjs[\\/]/) // Match any package under @cosmjs
-        .use('babel-loader')
-        .loader('babel-loader')
-        .end()
-        .exclude // Exclude JSON files from processing
-        .add(/@cosmjs[\\/].*\.json$/);
-
-    // Add a rule for ES6 modules in @walletconnect packages
-    config.module
-        .rule('walletconnect-packages')
-        .test(/@walletconnect[\\/].*\.js$/)
-        .use('babel-loader')
-        .loader('babel-loader')
-        .options({
-            presets: [
-                [
-                    '@babel/preset-env',
-                    {
-                        targets: {
-                            esmodules: true, // Use ES modules target for modern browsers
-                        },
-                    },
-                ],
-            ],
-        });
+    // Устанавливаем опции для babel-loader
+    generalRule.use('babel-loader').loader('babel-loader').options(BABEL_OPTIONS);
 };
 
-const config = {
+// * Утилита для настройки правил Webpack для обработки по типам модулей (css, svg, sass и т.д.)
+const configureRule = (config, ruleName, loaders) => {
+    const rule = config.module.rule(ruleName);
+    rule.uses.clear();
+    rule.delete('type').delete('generator');
+
+    loaders.forEach((loader) => {
+        rule.use(loader.name)
+            .loader(loader.name)
+            .options(loader.options || {});
+    });
+};
+
+const chainWebpack = (config) => {
+    configureRule(config, 'sass', [{ name: 'vue-style-loader' }, { name: 'css-loader' }, { name: 'sass-loader' }]);
+    configureRule(config, 'svg', [{ name: 'vue-loader-v16' }, { name: 'vue-svg-loader' }]);
+
+    const modulesToInclude = [
+        { name: '@cosmos-kit' },
+        { name: 'cosmjs-types' },
+        { name: '@walletconnect' },
+        { name: '@vueuse/core' },
+        { name: '@cosmjs[\\\\/]', exclude: '@cosmjs[\\\\/].*\\.json$' },
+    ];
+
+    // Применяем общие правила для каждого указанного модуля
+    for (const moduleConfig of modulesToInclude) {
+        configureGeneralRule(config, moduleConfig);
+    }
+};
+
+module.exports = {
     publicPath: '/',
     parallel: false,
     configureWebpack: {
         devtool: 'source-map',
     },
-    lintOnSave: process.env.NODE_ENV !== 'production',
+    lintOnSave: IS_PROD,
     runtimeCompiler: true,
-    transpileDependencies: ['@metamask/utils'],
     chainWebpack,
     devServer: {
         historyApiFallback: true,
-        https: process.env.NODE_ENV === 'production',
+        https: IS_PROD,
     },
-    productionSourceMap: process.env.NODE_ENV !== 'production',
+    productionSourceMap: IS_PROD,
     css: {
         loaderOptions: {
             sass: {
@@ -116,5 +75,3 @@ const config = {
         },
     },
 };
-
-module.exports = config;

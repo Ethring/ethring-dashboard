@@ -26,11 +26,17 @@
     "emptyTitle": "Connect a wallet to manage your portfolio",
     "pageTitle": "Connecting wallet",
     "blockTitle": "Connect with",
+    "anotherWallet": "Connect Another Wallet"
+  },
+  "adapter": {
+    "accountsGroup": "Connected accounts",
+    "accountModalTitle": "Account addresses",
+    "copyAddress": "Copy address",
+    "disconnectAccount": "Disconnect",
+    "ecosystemsGroup": "Connect to",
+    "disconnectAll": "Disconnect all wallets",
     "cosmosWallets": "Cosmos Ecosystem",
-    "ethereumWallets": "EVM Ecosystem",
-    "anotherWallet": "Connect Another Wallet",
-    "disconnectWallets": "Disconnect All Wallets",
-    "currentNetwork": "Current Network"
+    "ethereumWallets": "EVM Ecosystem"
   },
   "actionTokens": "Tokens",
   "actionTransactions": "Transactions",

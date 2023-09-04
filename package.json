@@ -12,12 +12,15 @@
     "lint:code:fix": "vue-cli-service lint --fix"
   },
   "dependencies": {
+    "@ant-design/icons-vue": "^6.1.0",
     "@cosmjs/cosmwasm-stargate": "^0.31.0",
     "@cosmos-kit/core": "^2.2.2",
     "@cosmos-kit/keplr": "^2.1.7",
     "@cosmos-kit/leap": "^2.1.7",
     "@sentry/tracing": "^7.51.2",
     "@sentry/vue": "^7.51.2",
+    "@vueuse/core": "^10.4.0",
+    "@vueuse/rxjs": "^10.4.0",
     "@web3-onboard/coinbase": "^2.2.3",
     "@web3-onboard/injected-wallets": "^2.8.6",
     "@web3-onboard/ledger": "^2.4.5",
@@ -45,6 +48,7 @@
   "devDependencies": {
     "@babel/core": "^7.12.16",
     "@babel/eslint-parser": "^7.12.16",
+    "@babel/plugin-proposal-optional-chaining": "^7.21.0",
     "@babel/preset-react": "^7.22.5",
     "@babel/preset-typescript": "^7.22.5",
     "@commitlint/cli": "^17.6.3",

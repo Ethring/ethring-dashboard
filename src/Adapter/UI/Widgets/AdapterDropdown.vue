@@ -1,156 +1,73 @@
 <template>
-    <div class="adapter-dropdown">
-        <div class="adapter-dropdown__header">
-            <ConnectTo
-                :name="$t('connect.ethereumWallets')"
-                :connect="() => connect(ECOSYSTEMS.EVM)"
-                :logos="['Metamask', 'Coinbase', 'Ledger']"
-            />
-            <ConnectTo
-                :connect="() => connect(ECOSYSTEMS.COSMOS)"
-                :name="$t('connect.cosmosWallets')"
-                :logos="['Keplr', 'Leap', 'Ledger']"
-            />
-        </div>
+    <a-menu-divider class="divider" />
 
-        <div v-if="connectedWallets.length" class="adapter-dropdown__body">
-            Connected wallets ({{ connectedWallets.length || 0 }})
+    <a-menu-item-group key="accounts" :title="$t('adapter.accountsGroup')" class="connected-wallets-container">
+        <a-menu-item v-for="account in connectedWallets" :key="account">
+            <ConnectedWallet :wallet="account" @open-addresses="handleOpenAddresses" />
+        </a-menu-item>
+    </a-menu-item-group>
 
-            <a-collapse class="connected-wallets-group" expandIconPosition="end" :bordered="false">
-                <a-collapse-panel :header="`${wallet} (${accounts.length})`" v-for="(accounts, wallet) in walletsGroup" :key="wallet">
-                    <div class="connected-wallets-container">
-                        <ConnectedWallet v-for="account in accounts" :key="account" :wallet="account" />
-                    </div>
-                </a-collapse-panel>
-            </a-collapse>
+    <a-menu-divider class="divider" />
 
-            <!-- <div class="connected-wallets-container">
-                <ConnectedWallet v-for="account in connectedWallets" :key="account" :wallet="account" />
-            </div> -->
-        </div>
+    <a-menu-item>
+        <DisconnectAll :disconnect-all="disconnectAll" />
+    </a-menu-item>
 
-        <div v-if="walletAddress && connectedWallets" class="adapter-dropdown__footer">
-            <DisconnectAll :disconnect-all="disconnectAll" />
-        </div>
-    </div>
+    <a-modal
+        v-model:open="accountsModal"
+        :title="$t('adapter.accountModalTitle')"
+        centered
+        :footer="null"
+        width="720px"
+        :bodyStyle="{ height: '500px', overflowY: 'overlay' }"
+    >
+        <ChainWithAddress v-if="addressesWithChains" :chainWithAddress="addressesWithChains" :chainList="chainList" />
+    </a-modal>
 </template>
 
 <script>
-import { useStore } from 'vuex';
+import { ref } from 'vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
-import ConnectTo from '@/Adapter/UI/Entities/ConnectTo';
+import ConnectedWallet from '@/Adapter/UI/Widgets/ConnectedWallet';
+
 import DisconnectAll from '@/Adapter/UI/Entities/DisconnectAll';
-
-import ConnectedWallet from '@/Adapter/UI/Features/ConnectedWallet';
-
-import { ECOSYSTEMS } from '@/Adapter/config';
-import { computed } from 'vue';
+import ChainWithAddress from '@/Adapter/UI/Entities/ChainWithAddress';
 
 export default {
     name: 'AdapterDropdown',
     components: {
-        ConnectTo,
         DisconnectAll,
         ConnectedWallet,
+        ChainWithAddress,
     },
-    emits: ['close-dropdown'],
-    setup(_, { emit }) {
-        const store = useStore();
+    setup() {
+        const accountsModal = ref(false);
 
-        const { walletAddress, disconnectAllWallets, connectedWallets = [], connectTo } = useAdapter();
+        const addressesWithChains = ref([]);
+        const chainList = ref([]);
 
-        const connect = async (ecosystem = ECOSYSTEMS.EVM) => {
-            if (ecosystem === ECOSYSTEMS.COSMOS) {
-                store.dispatch('adapter/open');
-                return;
-            }
+        const { disconnectAllWallets, getAddressesWithChainsByEcosystem, getChainListByEcosystem, connectedWallets = [] } = useAdapter();
 
-            const status = await connectTo(ecosystem);
+        const disconnectAll = async () => await disconnectAllWallets();
 
-            if (status) {
-                emit('close-dropdown');
-            }
+        const handleOpenAddresses = (ecosystem) => {
+            accountsModal.value = true;
+            addressesWithChains.value = getAddressesWithChainsByEcosystem(ecosystem);
+            chainList.value = getChainListByEcosystem(ecosystem);
         };
-
-        const disconnectAll = async () => {
-            await disconnectAllWallets();
-            emit('close-dropdown');
-        };
-
-        const walletsGroup = computed(() => {
-            const groupedData = {};
-            const key = 'walletName';
-            for (const wallet of connectedWallets.value) {
-                const value = wallet[key];
-
-                if (!groupedData[value]) {
-                    groupedData[value] = [];
-                }
-
-                groupedData[value].push(wallet);
-            }
-
-            return groupedData;
-        });
 
         return {
-            ECOSYSTEMS,
-            walletAddress,
+            accountsModal,
             connectedWallets,
-            walletsGroup,
-            connect,
+
+            addressesWithChains,
+            chainList,
+
             disconnectAll,
+            handleOpenAddresses,
         };
     },
 };
 </script>
-<style lang="scss" scoped>
-.adapter-dropdown {
-    max-width: 450px;
-    min-width: 400px;
-    width: 100%;
-    box-shadow: 0px 4px 40px 0px #00000033;
-    border-radius: 16px;
-    padding: 16px;
-    position: absolute;
-    top: 60px;
-    left: -7%;
-    z-index: 999;
-    background: #fff;
-
-    &::after {
-        content: '';
-        position: absolute;
-        top: -24px;
-        left: 45%;
-
-        border-width: 13px;
-        border-style: solid;
-        border-color: transparent transparent white transparent;
-    }
-
-    & > div:not(:last-child) {
-        margin-bottom: 20px;
-    }
-
-    .connected-wallets {
-        &-group {
-            margin-top: 10px;
-            border: 1px solid #c9e0e0;
-            background-color: transparent;
-            .ant-collapse-item {
-                border-bottom-color: #c9e0e0;
-            }
-        }
-        &-container {
-            max-height: 320px;
-            overflow: auto;
-            & > div {
-                margin-top: 10px;
-            }
-        }
-    }
-}
-</style>

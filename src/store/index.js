@@ -6,7 +6,8 @@ import tokens from './tokens';
 import app from './app';
 import bridge from './bridge/bridge';
 import swap from './swap/swap';
-import adapter from './adapter';
+// import adapter from './adapter';
+import adapters from '../Adapter/store';
 
 const dataState = createPersistedState({
     key: 'zomet-app',
@@ -24,7 +25,8 @@ export default createStore({
     actions: {},
     modules: {
         app,
-        adapter,
+        // adapter,
+        adapters,
         networks,
         tokens,
         bridge,

@@ -23,8 +23,21 @@ export default {
     align-items: center;
     justify-content: flex-end;
 
+    padding: 8px 16px;
+    border-radius: 16px;
+    background-color: #d9f4f1;
+    border: 1px solid transparent;
+
     cursor: pointer;
-    transition: 0.5s;
+
+    width: fit-content !important;
+    margin-left: auto;
+
+    transition: 0.2s;
+
+    &:hover {
+        border-color: #3fdfae;
+    }
 
     .icon-container {
         display: flex;

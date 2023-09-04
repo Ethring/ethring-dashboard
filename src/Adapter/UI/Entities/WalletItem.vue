@@ -37,11 +37,9 @@ export default {
 
     methods: {
         connectOrDownload() {
-            if (this.wallet.client) {
-                return this.connect(this.wallet.walletName);
-            }
+            !this.wallet.client && window.open(this.wallet.downloadInfo.link, '_blank');
 
-            window.open(this.wallet.downloadInfo.link, '_blank');
+            return this.connect(this.wallet.walletName);
         },
     },
 };

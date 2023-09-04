@@ -1,16 +1,12 @@
-/* eslint-disable no-unused-vars */
-
 import { ref } from 'vue';
 
 import { fromEvent } from 'rxjs';
 
-import { chains, assets } from 'chain-registry';
-
 import { Logger, WalletManager } from '@cosmos-kit/core';
 import { wallets as KeplrWallets } from '@cosmos-kit/keplr';
-import { wallets as LeapWallets } from '@cosmos-kit/leap';
+// import { wallets as LeapWallets } from '@cosmos-kit/leap';
 
-import { ECOSYSTEMS } from '@/Adapter/config';
+import { ECOSYSTEMS, cosmologyConfig } from '@/Adapter/config';
 
 import AdapterBase from '@/Adapter/utils/AdapterBase';
 
@@ -18,43 +14,36 @@ import { reEncodeWithNewPrefix } from '@/Adapter/utils';
 
 // import { cosmos } from 'juno-network';
 
-const NET_TYPE = 'mainnet';
-const NET_STATUS = 'live';
-const EXPLORER_KIND = 'mintscan';
 const DEFAULT_CHAIN = 'cosmoshub';
 
-const [KEPLR_EXT, KEPLR_MOB] = KeplrWallets;
-const [LEAP_EXT, LEAP_MOB] = LeapWallets;
-
-const ACTIVE_CHAINS = chains.filter(
-    (chain) =>
-        chain.network_type === NET_TYPE &&
-        chain.status === NET_STATUS &&
-        chain.explorers.find((explorer) => explorer.kind === EXPLORER_KIND) &&
-        chain.staking &&
-        chain.chain_id
-);
-
-const walletManager = new WalletManager(ACTIVE_CHAINS, assets, [KEPLR_EXT], new Logger());
+const [KEPLR_EXT] = KeplrWallets;
 
 const STORAGE = {
     WALLET: 'cosmos-kit@2:core//current-wallet',
     ACCOUNTS: 'cosmos-kit@2:core//accounts',
 };
 
-class CosmosAdapter extends AdapterBase {
-    _chainWithAddress = {};
+const REFRESH_EVENT = 'refresh_connection';
 
+const connectedAccounts = () => JSON.parse(window?.localStorage?.getItem(STORAGE.ACCOUNTS)) || [];
+const connectedWalletModule = () => window?.localStorage.getItem(STORAGE.WALLET) || null;
+
+class CosmosAdapter extends AdapterBase {
     constructor() {
         super();
-        walletManager.onMounted();
+        const { chains, assets } = cosmologyConfig;
+        const logger = new Logger('INFO');
+        this.walletManager = new WalletManager(chains, assets, [KEPLR_EXT], logger);
+        this.walletManager.onMounted();
     }
 
     getConnectedWallets() {
-        const accounts = window.localStorage.getItem(STORAGE.ACCOUNTS);
-        const wallets = JSON.parse(accounts);
+        for (const wallet of connectedAccounts()) {
+            wallet.ecosystem = ECOSYSTEMS.COSMOS;
+            delete wallet.namespace;
+        }
 
-        return wallets;
+        return connectedAccounts();
     }
 
     subscribeToWalletsChange() {
@@ -64,19 +53,20 @@ class CosmosAdapter extends AdapterBase {
             return;
         }
 
-        const listeners = walletManager.coreEmitter.listeners('refresh_connection');
+        const listeners = this.walletManager.coreEmitter.listeners(REFRESH_EVENT);
 
         if (listeners.length > 0) {
             return;
         }
 
-        return fromEvent(walletManager, 'refresh_connection', async () => {
+        return fromEvent(this.walletManager, REFRESH_EVENT, async () => {
             const chainWallet = this._getCurrentWallet();
             chainWallet?.value?.activate();
-            chainWallet?.value?.connect(false);
-            chainWallet?.value?.update({ connect: false });
-            this._chainWithAddress = {};
-            await this.getChainAddrFromAddress();
+
+            await chainWallet?.value?.connect(false);
+            await chainWallet?.value?.update({ connect: false });
+
+            await this.setAddressForChains();
         });
     }
 
@@ -86,42 +76,49 @@ class CosmosAdapter extends AdapterBase {
     }
 
     _getCurrentWallet() {
-        const accountStr = window.localStorage.getItem(STORAGE.ACCOUNTS);
-        const wallet = this._walletModule || window.localStorage.getItem(STORAGE.WALLET);
+        const accounts = connectedAccounts();
 
-        if (!accountStr || accountStr === '[]' || !wallet) {
+        const wallet = this.walletName || connectedWalletModule();
+
+        if (!wallet || !accounts.length) {
             return null;
         }
 
-        const [account] = JSON.parse(accountStr);
+        const [account] = accounts;
 
-        const chainRecord = walletManager.chainRecords.find((record) => record.chain.chain_id === account.chainId);
+        const chainRecord = this.walletManager.chainRecords.find(({ chain }) => chain.chain_id === account.chainId);
 
         if (!chainRecord) {
             return null;
         }
 
-        const chainWallet = ref(walletManager.getChainWallet(chainRecord.name, wallet));
+        const chainWallet = ref(this.walletManager.getChainWallet(chainRecord.name, wallet));
 
-        if (chainWallet.value?.emitter) {
-            chainWallet.value.emitter.setMaxListeners(1000);
-        }
+        chainWallet.value?.emitter && chainWallet.value.emitter.setMaxListeners(1000);
 
         return chainWallet;
     }
 
     async connectWallet(walletName, chain = DEFAULT_CHAIN) {
         try {
-            walletManager.getChainWallet(chain, walletName).activate();
-            await walletManager.getChainWallet(chain, walletName).initClient();
+            this.walletName = walletName;
 
-            await walletManager.getChainWallet(chain, walletName).connect(true);
+            const chainWallet = this.walletManager.getChainWallet(chain, walletName);
 
-            await this.getChainAddrFromAddress();
+            chainWallet.activate();
+            await chainWallet.initClient();
+            await chainWallet.connect(true);
 
-            return walletManager.getChainWallet(chain, walletName).isWalletConnected;
+            const isConnected = chainWallet.isWalletConnected;
+
+            if (isConnected) {
+                await this.setAddressForChains();
+                await chainWallet.update({ connect: true });
+            }
+
+            return isConnected;
         } catch (error) {
-            console.log(error, walletManager.isError);
+            console.error(error, this.walletManager.isError);
             return false;
         }
     }
@@ -131,43 +128,50 @@ class CosmosAdapter extends AdapterBase {
         return await this.connectWallet(walletName, chain);
     }
 
-    async getChainAddrFromAddress() {
+    async setAddressForChains() {
+        if (!this.addressByNetwork) {
+            this.addressByNetwork = {};
+        }
+
         const mainAddress = this.getAccountAddress();
 
         if (!mainAddress) {
-            return;
+            return null;
         }
 
-        const promises = walletManager.chainRecords.map(({ chain }) => {
-            const { bech32_prefix } = chain;
-            const chainAddress = reEncodeWithNewPrefix(bech32_prefix, mainAddress);
-            return this.setChainWithAddress(chain.chain_name, chainAddress);
-        });
-
-        await Promise.all(promises);
-    }
-
-    setChainWithAddress(chain, address) {
-        this._chainWithAddress[chain] = address;
+        for (const { chain } of this.walletManager.chainRecords) {
+            const { bech32_prefix, chain_name } = chain;
+            const chainAddress = await reEncodeWithNewPrefix(bech32_prefix, mainAddress);
+            this.addressByNetwork[chain_name] = chainAddress;
+        }
     }
 
     getMainWallets() {
-        return walletManager.mainWallets || [];
+        return this.walletManager.mainWallets || [];
     }
 
-    async disconnectWallet() {}
+    async disconnectWallet(wallet) {
+        const walletModule = this.walletManager.getMainWallet(wallet);
+        await walletModule?.value?.disconnect(true);
+        await walletModule?.value?.update({ connect: false });
+
+        window.localStorage.removeItem(STORAGE.WALLET);
+        window.localStorage.removeItem(STORAGE.ACCOUNTS);
+        this.addressByNetwork = {};
+    }
 
     async disconnectAllWallets() {
         const walletModule = this._getCurrentWallet();
         await walletModule?.value?.disconnect(true);
         await walletModule?.value?.update({ connect: false });
+
         window.localStorage.removeItem(STORAGE.WALLET);
         window.localStorage.removeItem(STORAGE.ACCOUNTS);
+        this.addressByNetwork = {};
     }
 
     getWalletModule() {
-        const walletModule = window.localStorage.getItem(STORAGE.WALLET);
-        return walletModule || null;
+        return connectedWalletModule() || null;
     }
 
     getAccount() {
@@ -214,7 +218,7 @@ class CosmosAdapter extends AdapterBase {
     }
 
     getChainList() {
-        const chainList = walletManager.chainRecords.map((record) => {
+        const chainList = this.walletManager.chainRecords.map((record) => {
             const { chain } = record;
             const chainRecord = {
                 chain_id: chain.chain_name,
@@ -228,12 +232,12 @@ class CosmosAdapter extends AdapterBase {
     }
 
     getWalletLogo(walletModule) {
-        const module = walletManager.mainWallets.find((wallet) => wallet.walletName === walletModule);
+        const module = this.walletManager.mainWallets.find((wallet) => wallet.walletName === walletModule);
         return module?.walletInfo?.logo || null;
     }
 
-    getChainWithAddresses() {
-        return this._chainWithAddress;
+    getAddressesWithChains() {
+        return this.addressByNetwork || {};
     }
 }
 

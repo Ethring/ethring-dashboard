@@ -1,52 +1,50 @@
 <template>
-    <div class="wallet-adapter-container" v-click-away="() => closeDropdown()">
-        <AccountCenter v-if="walletAddress" @toggle-dropdown="toggleDropdown" @close-dropdown="closeDropdown" />
-        <NotConnected v-else @toggle-dropdown="toggleDropdown" @close-dropdown="closeDropdown" />
-        <AdapterDropdown v-if="showDropdown" @close-dropdown="closeDropdown" />
-    </div>
+    <a-dropdown v-model:open="activeDropdown" :arrow="{ pointAtCenter: true }" placement="bottom" class="wallet-adapter-container">
+        <AccountCenter v-if="walletAddress" class="ant-dropdown-link" />
+        <NotConnected v-else class="ant-dropdown-link" />
+
+        <template #overlay>
+            <a-menu>
+                <ConnectToEcosystems />
+                <AdapterDropdown v-if="walletAddress" />
+            </a-menu>
+        </template>
+    </a-dropdown>
 </template>
 
 <script>
-import { ref, watch } from 'vue';
-
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
-import NotConnected from '@/Adapter/UI/Entities/NotConnected';
-
-import AdapterDropdown from '@/Adapter/UI/Widgets/AdapterDropdown';
 import AccountCenter from '@/Adapter/UI/Widgets/AccountCenter';
+import AdapterDropdown from '@/Adapter/UI/Widgets/AdapterDropdown';
+import ConnectToEcosystems from '@/Adapter/UI/Widgets/ConnectToEcosystems';
 
-import { ECOSYSTEMS } from '@/Adapter/config';
+import NotConnected from '@/Adapter/UI/Entities/NotConnected';
+import { ref } from 'vue';
 
 export default {
     name: 'Adapter',
     components: {
-        NotConnected,
-        AdapterDropdown,
         AccountCenter,
+        AdapterDropdown,
+        ConnectToEcosystems,
+        NotConnected,
     },
     setup() {
-        const showDropdown = ref(false);
+        const activeDropdown = ref(false);
 
-        const { walletAddress } = useAdapter();
+        const { walletAddress, disconnectAllWallets, connectedWallets } = useAdapter();
 
-        const toggleDropdown = () => (showDropdown.value = !showDropdown.value);
-
-        const closeDropdown = () => (showDropdown.value = false);
-
-        watch(walletAddress, () => {
-            if (walletAddress.value) {
-                closeDropdown();
-            }
-        });
+        const disconnectAll = async () => {
+            await disconnectAllWallets();
+        };
 
         return {
-            ECOSYSTEMS,
+            activeDropdown,
             walletAddress,
-            showDropdown,
+            connectedWallets,
 
-            toggleDropdown,
-            closeDropdown,
+            disconnectAll,
         };
     },
 };
@@ -55,7 +53,7 @@ export default {
 .wallet-adapter-container {
     position: relative;
 
-    max-width: 350px;
+    max-width: 400px;
     width: 100%;
 }
 </style>

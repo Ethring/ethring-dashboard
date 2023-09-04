@@ -1,5 +1,5 @@
 <template>
-    <div class="wallets-item" @click.stop="connect" :class="{ disabled }">
+    <div class="wallets-item" @click.stop="connect" :class="{ disabled }" :data-qa="`${name} wallet`">
         <div class="wallets-item__logos">
             <div class="wallets-item__logo" v-for="logo in logos" :key="logo">
                 <component :is="logo" />
@@ -13,6 +13,8 @@
 </template>
 
 <script>
+import { PlusOutlined } from '@ant-design/icons-vue';
+
 import Metamask from '@/assets/icons/wallets/mm.svg';
 import Ledger from '@/assets/icons/wallets/ledger.svg';
 import Coinbase from '@/assets/icons/wallets/coinbase.svg';
@@ -27,6 +29,7 @@ export default {
         Coinbase,
         Keplr,
         Leap,
+        PlusOutlined,
     },
     props: {
         connect: {
@@ -54,26 +57,29 @@ export default {
 .wallets-item {
     display: flex;
     align-items: center;
+    justify-content: flex-start;
 
+    background-color: #e6eeff;
     &.disabled {
         opacity: 0.5;
         cursor: not-allowed;
     }
 
-    min-width: 350px;
+    min-width: 300px;
     max-width: 500px;
     width: auto;
 
     border: 1px solid #c9e0e0;
 
     border-radius: 8px;
-    padding: 12px;
+    padding: 8px;
 
     cursor: pointer;
 
+    transition: 0.2s;
+
     &:hover:not(.disabled) {
-        background: #97ffd0;
-        transition: 0.2s;
+        background: #d9f4f1;
     }
 
     &:not(:last-child) {
@@ -81,8 +87,6 @@ export default {
     }
 
     &__info {
-        margin-left: 10px;
-
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -98,7 +102,7 @@ export default {
     &__logos {
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start;
         width: 100px;
     }
 
@@ -118,15 +122,18 @@ export default {
         }
     }
 
+    &__logo:nth-child(2),
+    &__logo:nth-child(3) {
+        margin-left: -16px;
+    }
+
     &__logo:nth-child(2) {
         background-color: #02e7f6;
-        margin-left: -16px;
         z-index: 2;
     }
 
     &__logo:nth-child(3) {
         background-color: #d9f4f1;
-        margin-left: -16px;
         z-index: 1;
     }
 }

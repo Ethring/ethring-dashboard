@@ -1,91 +1,51 @@
-import Adapters from '@/Adapter';
+// import EcosystemAdapter from '@/Adapter/ecosystems';
 
-import { ref, computed } from 'vue';
-
+import { computed } from 'vue';
 import { useStore } from 'vuex';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
-const lastConnectedWallet = computed(() =>
-    window.localStorage.getItem('adapter:lastConnectedWallet')
-        ? JSON.parse(window.localStorage.getItem('adapter:lastConnectedWallet'))
-        : null
-);
-
-const STORE_ACTIONS = {
-    SET_ECOSYSTEM: 'adapter/setEcosystem',
-    SET_WALLET: 'adapter/setWallet',
-    SET_WALLETS_MODULE: 'adapter/setWalletsModule',
-    DISCONNECT_ALL_WALLETS: 'adapter/disconnectAll',
-    SET_IS_CONNECTING: 'adapter/setIsConnecting',
-};
-
-const STORE_GETTERS = {
-    GET_WALLETS: 'adapter/getWallets',
-    GET_WALLETS_MODULE: 'adapter/getWalletsModule',
-    GET_ECOSYSTEM: 'adapter/getEcosystem',
-    GET_ADAPTER_BY_ECOSYSTEM: 'adapter/getAdapterByEcosystem',
-};
-
-function initAdapter(ecosystem, chains = []) {
-    const adapter = Adapters(ecosystem);
-
-    if (chains.length > 0) {
-        adapter.reInit(chains);
-    }
-}
+import * as GETTERS from '../store/getters';
+import * as TYPES from '../store/types';
 
 function useAdapter() {
+    // * Store Module
     const store = useStore();
+    const storeModule = 'adapters';
 
-    const forceUpdate = ref(false);
+    // * Store Getters & Dispatch
+    const adaptersGetter = (getter) => store.getters[`${storeModule}/${getter}`];
+    const adaptersDispatch = (dispatch, ...args) => store.dispatch(`${storeModule}/${dispatch}`, ...args);
 
-    const currEcosystem = computed(() => {
-        forceUpdate.value;
-        return store.getters[STORE_GETTERS.GET_ECOSYSTEM];
-    });
+    // * Last Connected Wallet
+    const lastConnectedWallet = computed(() => adaptersGetter(GETTERS.LAST_CONNECTED_WALLET));
 
-    const mainAdapter = computed(() => {
-        forceUpdate.value;
-        return currEcosystem.value ? store.getters[STORE_GETTERS.GET_ADAPTER_BY_ECOSYSTEM](currEcosystem.value) : null;
-    });
+    const currEcosystem = computed(() => adaptersGetter(GETTERS.CURRENT_ECOSYSTEM));
 
-    const connectedWallets = computed(() => store.getters[STORE_GETTERS.GET_WALLETS]);
+    // * Main Adapter for current ecosystem
+    const mainAdapter = computed(() => adaptersGetter(GETTERS.CURRENT_ADAPTER));
 
-    const walletsModule = computed(() => store.getters[STORE_GETTERS.GET_WALLETS_MODULE]);
+    // * Main Variables
+    const isConnecting = computed(() => adaptersGetter(GETTERS.IS_CONNECTING));
 
+    const connectedWallets = computed(() => adaptersGetter(GETTERS.CONNECTED_WALLETS));
     const currentChainInfo = computed(() => (mainAdapter.value ? mainAdapter.value.getCurrentChain(store) : []));
-
-    const chainWithAddress = computed(() => (mainAdapter.value ? mainAdapter?.value?.getChainWithAddresses() : {}));
-
-    const walletAddress = computed(() => {
-        forceUpdate.value;
-        return mainAdapter.value ? mainAdapter.value.getAccountAddress() : null;
-    });
-
-    const walletAccount = computed(() => {
-        forceUpdate.value;
-        return mainAdapter.value ? mainAdapter.value.getAccount() : null;
-    });
-
-    const connectedWalletModule = computed(() => {
-        forceUpdate.value;
-        return mainAdapter.value ? mainAdapter.value.getWalletModule() : null;
-    });
-
-    const connectedWallet = computed(() => {
-        forceUpdate.value;
-        return mainAdapter.value ? mainAdapter.value.getConnectedWallet() : null;
-    });
 
     const chainList = computed(() => (mainAdapter.value ? mainAdapter.value.getChainList(store) : []));
 
+    const walletAddress = computed(() => (mainAdapter.value ? mainAdapter.value.getAccountAddress() : null));
+    const walletAccount = computed(() => (mainAdapter.value ? mainAdapter.value.getAccount() : null));
+
+    const connectedWallet = computed(() => (mainAdapter.value ? mainAdapter.value.getConnectedWallet() : null));
+    const connectedWalletModule = computed(() => (mainAdapter.value ? mainAdapter.value.getWalletModule() : null));
+
+    // * Functions
     function subscribeToWalletsChange() {
+        adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
+
         if (!mainAdapter.value?.subscribeToWalletsChange) {
             return;
         }
-
-        store.dispatch(STORE_ACTIONS.SET_IS_CONNECTING, false);
 
         const wallets = mainAdapter.value?.subscribeToWalletsChange();
 
@@ -94,20 +54,22 @@ function useAdapter() {
         }
 
         return wallets.subscribe(async () => {
-            forceUpdate.value = true;
             await new Promise((resolve) => setTimeout(resolve, 500));
+
             if (mainAdapter.value?.updateStates) {
                 await mainAdapter.value?.updateStates();
             }
+
             storeWalletInfo();
-            forceUpdate.value = false;
         });
     }
 
+    // * Store Wallet Info
     function storeWalletInfo() {
-        forceUpdate.value = true;
+        adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
 
         const walletInfo = {
+            id: `${currEcosystem.value}-${mainAdapter.value?.getAccount()}`,
             account: mainAdapter.value?.getAccount(),
             address: mainAdapter.value?.getAccountAddress(),
             chain: currentChainInfo.value?.chainName || currentChainInfo.value?.chain_id,
@@ -120,15 +82,33 @@ function useAdapter() {
             return;
         }
 
-        store.dispatch(STORE_ACTIONS.SET_WALLET, walletInfo);
+        adaptersDispatch(TYPES.SET_WALLET, { ecosystem: currEcosystem.value, wallet: walletInfo });
 
-        forceUpdate.value = false;
-
-        store.dispatch(STORE_ACTIONS.SET_IS_CONNECTING, false);
-
-        subscribeToWalletsChange();
+        return subscribeToWalletsChange();
     }
 
+    // * Connect to Wallet by Ecosystem
+    const connectTo = async (ecosystem, ...args) => {
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+
+        try {
+            await adapter.connectWallet(...args);
+
+            adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
+
+            adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
+            storeWalletInfo();
+
+            return true;
+        } catch (error) {
+            console.error('Failed to connect to:', ecosystem, error);
+            adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
+
+            return false;
+        }
+    };
+
+    // * Connect to Last Connected Wallet
     const connectLastConnectedWallet = async () => {
         if (!lastConnectedWallet.value || walletAddress.value) {
             return;
@@ -136,60 +116,44 @@ function useAdapter() {
 
         const { ecosystem, chain, walletModule } = lastConnectedWallet.value;
 
-        const lwAdapter = Adapters(ecosystem);
-        store.dispatch(STORE_ACTIONS.SET_IS_CONNECTING, true);
+        if (!ecosystem || !chain || !walletModule) {
+            return;
+        }
 
-        await lwAdapter.connectWallet(walletModule, chain);
+        adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
 
-        store.dispatch(STORE_ACTIONS.SET_ECOSYSTEM, ecosystem);
+        await connectTo(ecosystem, walletModule, chain);
 
         return subscribeToWalletsChange();
     };
 
-    const connectWallet = async (...args) => {
-        store.dispatch(STORE_ACTIONS.SET_IS_CONNECTING, true);
-        const status = await mainAdapter.value.connectWallet(...args);
-
-        status && storeWalletInfo();
-
-        return status;
+    // * Get Wallets Module by Ecosystem
+    const getWalletsModuleByEcosystem = (ecosystem) => {
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+        return adapter.getMainWallets() || [];
     };
 
-    const connectTo = async (ecosystem, ...args) => {
-        const adapter = Adapters(ecosystem);
+    // * Set Chain for current ecosystem
+    const setChain = (...args) => mainAdapter.value.setChain(...args);
 
-        const status = await adapter.connectWallet(...args);
-        store.dispatch(STORE_ACTIONS.SET_IS_CONNECTING, true);
-
-        if (status) {
-            store.dispatch(STORE_ACTIONS.SET_ECOSYSTEM, ecosystem);
-            storeWalletInfo();
-        }
-
-        return status;
+    // * Disconnect Wallet by Ecosystem
+    const disconnectWallet = async (ecosystem, wallet) => {
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+        adaptersDispatch(TYPES.DISCONNECT_WALLET, wallet);
+        await adapter.disconnectWallet(wallet.walletModule);
     };
 
-    const getWalletsModule = (ecosystem) => {
-        const adapter = Adapters(ecosystem);
-        const modules = adapter.getMainWallets();
-
-        if (modules) {
-            store.dispatch(STORE_ACTIONS.SET_WALLETS_MODULE, modules);
-        }
-    };
-
-    const setChain = (...args) => {
-        return mainAdapter.value.setChain(...args);
-    };
-
+    // * Disconnect All Wallets
     const disconnectAllWallets = async (...args) => {
         for (const ecosystem in ECOSYSTEMS) {
-            const adapter = Adapters(ecosystem);
+            const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
             await adapter.disconnectAllWallets(...args);
         }
-        store.dispatch(STORE_ACTIONS.DISCONNECT_ALL_WALLETS);
+
+        adaptersDispatch(TYPES.DISCONNECT_ALL_WALLETS);
     };
 
+    // * Validate Address
     const validateAddress = (address) => {
         if (!mainAdapter.value) {
             return false;
@@ -200,21 +164,25 @@ function useAdapter() {
         return mainAdapter.value.validateAddress(address, validation);
     };
 
+    // * Prepare Transaction
     const prepareTransaction = async (...args) => {
         return await mainAdapter.value.prepareTransaction(...args);
     };
 
+    // * Sign & Send Transaction
     const signSend = async (transaction) => {
         return await mainAdapter.value.signSend(transaction);
     };
 
+    // * Get Chain List by Ecosystem
     const getChainListByEcosystem = (ecosystem) => {
-        const adapter = Adapters(ecosystem);
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
         return adapter.getChainList(store);
     };
 
+    // * Get Chain by Chain ID
     const getChainByChainId = (ecosystem, chainId) => {
-        const adapter = Adapters(ecosystem);
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
         const chainList = adapter.getChainList(store);
         const chain = chainList.find((chain) => chain.chain_id === chainId);
 
@@ -225,43 +193,50 @@ function useAdapter() {
         };
     };
 
+    // * Set New Chain by Ecosystem
     const setNewChain = async (ecosystem, newChainInfo) => {
-        const adapter = Adapters(ecosystem);
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
         await adapter.setChain(newChainInfo);
 
-        store.dispatch(STORE_ACTIONS.SET_ECOSYSTEM, ecosystem);
+        adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
 
         storeWalletInfo();
     };
 
+    // * Get Wallet Logo by Ecosystem
     const getWalletLogo = async (ecosystem, module) => {
-        const adapter = Adapters(ecosystem);
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
         return await adapter.getWalletLogo(module);
     };
 
+    // * Get addressesWithChains by Ecosystem
+    const getAddressesWithChainsByEcosystem = (ecosystem) => {
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+        return adapter.getAddressesWithChains();
+    };
+
     return {
+        isConnecting,
+
+        ecosystem: currEcosystem,
         connectedWallet,
 
         walletAccount,
         walletAddress,
 
-        walletsModule,
-
         currentChainInfo,
         connectedWallets,
 
         chainList,
-        chainWithAddress,
 
-        initAdapter,
         subscribeToWalletsChange,
 
         connectTo,
-        connectWallet,
         connectLastConnectedWallet,
 
         getWalletLogo,
-        getWalletsModule,
+        getWalletsModuleByEcosystem,
+        getAddressesWithChainsByEcosystem,
         getChainListByEcosystem,
         getChainByChainId,
 
@@ -273,6 +248,7 @@ function useAdapter() {
         prepareTransaction,
         signSend,
 
+        disconnectWallet,
         disconnectAllWallets,
     };
 }

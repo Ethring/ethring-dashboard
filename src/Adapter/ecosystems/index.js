@@ -3,7 +3,7 @@ import { ECOSYSTEMS } from '@/Adapter/config';
 import EthereumAdapter from '@/Adapter/ecosystems/ethereum';
 import CosmosAdapter from '@/Adapter/ecosystems/cosmos';
 
-const AdapterFacade = (ecosystem = ECOSYSTEMS.EVM) => {
+const AdapterFacade = (ecosystem) => {
     if (!ecosystem) {
         return null;
     }

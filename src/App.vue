@@ -11,13 +11,13 @@
         </div>
     </div>
     <WalletsModal />
+    <!-- <AccountsModal /> -->
 </template>
 
 <script>
 import { onMounted, onUpdated, onBeforeMount, watch, ref, computed } from 'vue';
 import { useStore } from 'vuex';
 
-import { ECOSYSTEMS } from '@/Adapter/config';
 import WalletsModal from '@/Adapter/UI/Modal/WalletsModal.vue';
 
 import useInit from '@/compositions/useInit';
@@ -39,12 +39,10 @@ export default {
     setup() {
         const store = useStore();
         const lastConnectedCall = ref(false);
-        const isOpen = computed(() => store.getters['adapter/isOpen']);
-        const isConnecting = computed(() => store.getters['adapter/isConnecting']);
 
-        const { initAdapter, walletAddress, walletAccount, currentChainInfo, connectLastConnectedWallet } = useAdapter();
+        const isOpen = computed(() => store.getters['adapters/isOpen']);
 
-        const EVM_CHAINS = computed(() => store.getters['networks/chainsForConnect']);
+        const { isConnecting, walletAddress, walletAccount, currentChainInfo, connectLastConnectedWallet } = useAdapter();
 
         const callInit = async () => {
             if (!currentChainInfo.value || !currentChainInfo.value?.walletModule || !walletAddress.value) {
@@ -53,21 +51,9 @@ export default {
             await useInit(currentChainInfo.value.ecosystem, walletAddress.value, store);
         };
 
-        onBeforeMount(async () => {
-            store.dispatch('adapter/initializeAdapter', ECOSYSTEMS.COSMOS);
-            store.dispatch('adapter/initializeAdapter', ECOSYSTEMS.EVM);
-            await Promise.all([store.dispatch('networks/initBlocknativeChains'), store.dispatch('networks/initZometNets')]);
-        });
+        onBeforeMount(async () => await store.dispatch('networks/initZometNets'));
 
         onMounted(async () => {
-            // wait while EVM_CHAINS value is empty
-            while (!EVM_CHAINS.value.length) {
-                await new Promise((resolve) => setTimeout(resolve, 100));
-            }
-
-            initAdapter(ECOSYSTEMS.EVM, EVM_CHAINS.value);
-            initAdapter(ECOSYSTEMS.COSMOS);
-
             !lastConnectedCall.value && connectLastConnectedWallet().then(() => (lastConnectedCall.value = true));
 
             await callInit();

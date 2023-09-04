@@ -18,14 +18,16 @@
             </div>
 
             <div class="wallet-adapter__info">
-                <p>{{ cutAddress(walletAccount, 11, 4) }}</p>
-                <p>$ ***</p>
+                <p class="account">{{ cutAddress(walletAccount, 11, 4) }}</p>
+                <p class="ecosystem">{{ ecosystem }}</p>
             </div>
         </div>
+        <caret-down-outlined />
     </div>
 </template>
 <script>
 import { watch } from 'vue';
+import { CaretDownOutlined } from '@ant-design/icons-vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
@@ -39,16 +41,17 @@ import { prettyNumberTooltip } from '@/helpers/prettyNumber';
 
 export default {
     name: 'AccountCenter',
-    components: { ModuleIcon, ZometLogo, CheckIcon },
+    components: { ModuleIcon, ZometLogo, CheckIcon, CaretDownOutlined },
     emits: ['toggleDropdown', 'closeDropdown'],
     setup(_, { emit }) {
-        const { walletAddress, walletAccount, connectedWallet, connectedWallets } = useAdapter();
+        const { ecosystem, walletAddress, walletAccount, connectedWallet, connectedWallets } = useAdapter();
 
         watch(connectedWallet, () => {
             emit('closeDropdown');
         });
 
         return {
+            ecosystem,
             connectedWallet,
             connectedWallets,
             walletAddress,
@@ -70,11 +73,21 @@ export default {
     display: flex;
     align-items: center;
     width: 100%;
+    min-width: 300px;
     height: 58px;
     position: relative;
+
     background-color: #d9f4f1;
+    border: 1px solid transparent;
+
+    transition: 0.3s;
+
     border-radius: 16px;
     padding: 8px 16px;
+
+    &:hover {
+        border-color: #3fdfae;
+    }
 
     .row {
         display: flex;
@@ -132,9 +145,20 @@ export default {
 
     &__info {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
+        flex-direction: column;
         width: 100%;
+
+        .account {
+            font-size: 14px;
+            font-weight: 500;
+            color: #000;
+        }
+
+        .ecosystem {
+            font-size: 10px;
+            font-weight: 400;
+            color: #486060;
+        }
     }
 }
 </style>
