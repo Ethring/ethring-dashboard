@@ -103,7 +103,6 @@ function useAdapter() {
         } catch (error) {
             console.error('Failed to connect to:', ecosystem, error);
             adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
-
             return false;
         }
     };
@@ -118,6 +117,13 @@ function useAdapter() {
 
         if (!ecosystem || !chain || !walletModule) {
             return;
+        }
+
+        for (const wallet of connectedWallets.value) {
+            if (wallet.id === lastConnectedWallet.value.id) {
+                continue;
+            }
+            await connectTo(wallet.ecosystem, wallet.walletModule, wallet.chain);
         }
 
         adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
