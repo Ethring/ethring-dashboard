@@ -49,7 +49,7 @@ export default {
         const { currentChainInfo } = useAdapter();
 
         const active = ref(false);
-        const selectedItem = ref(currentNetwork);
+        const selectedItem = ref(currentChainInfo.value);
 
         const togglePanel = (away = false) => {
             if (away) {

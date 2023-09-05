@@ -9,6 +9,8 @@ import { web3OnBoardConfig, ECOSYSTEMS, NATIVE_CONTRACT, TRANSFER_ABI } from '@/
 
 import { validateEthAddress } from '@/Adapter/utils/validations';
 
+import { checkErrors } from '@/helpers/checkErrors';
+
 let web3Onboard = null;
 
 // const STORAGE = {
@@ -208,7 +210,7 @@ class EthereumAdapter extends AdapterBase {
                 };
             }
         } catch (e) {
-            return { error: e?.data?.message || e.message };
+            return checkErrors(e);
         }
     }
 
@@ -225,7 +227,7 @@ class EthereumAdapter extends AdapterBase {
                 return receipt;
             }
         } catch (e) {
-            return { error: e?.data?.message || e.message };
+            return checkErrors(e);
         }
     }
 
