@@ -1,4 +1,3 @@
-import useAdapter from '@/Adapter/compositions/useAdapter';
 <template>
     <div class="wallet-module--icon-container" :style="iconContainerStyle">
         <span v-if="isSVG(logo)" v-html="logo" />
