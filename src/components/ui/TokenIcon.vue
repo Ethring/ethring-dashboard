@@ -5,7 +5,7 @@
             :width="width"
             :height="height"
             :key="token?.code"
-            :src="tokenIconFromZomet || getTokenIcon(token?.code?.toLowerCase())"
+            :src="src || tokenIconFromZomet || getTokenIcon(token?.code?.toLowerCase())"
             :alt="token?.name"
             @error="showIconPlaceholder = true"
             @load="showIconPlaceholder = false"
@@ -36,6 +36,9 @@ export default {
         },
         token: {
             required: true,
+        },
+        src: {
+            type: String,
         },
     },
     setup(props) {
@@ -114,8 +117,6 @@ export default {
 
     img.nativeIcon {
         border-radius: 50%;
-        width: 100%;
-        height: 100%;
         object-position: center;
         object-fit: contain;
 
@@ -124,6 +125,8 @@ export default {
 
     img {
         filter: brightness(0) invert(1);
+        width: 100%;
+        height: 100%;
     }
 
     &__placeholder {

@@ -45,7 +45,9 @@
     "selectToken": "Select token",
     "networkFee": "Network fee",
     "time": "Estimate time",
-    "changeNetwork": "Please change network"
+    "changeNetwork": "Please change network",
+    "rewards": "Rewards",
+    "value": "Value"
   },
   "simpleSend": {
     "title": "Send"

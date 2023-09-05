@@ -7,8 +7,7 @@
                     <Button :title="$t('dashboard.receive')" @click="showAddressModal = true" />
                 </div>
             </div>
-            <ActionsMenu :menu-items="dashboardActions" class="dashboard__actions" />
-            <Tokens />
+            <Assets />
         </template>
         <AddressModal v-if="showAddressModal" @close="showAddressModal = false" />
     </div>
@@ -21,8 +20,7 @@ import AddressModal from '@/components/app/modals/AddressModal';
 
 import WalletInfoLarge from '@/components/app/WalletInfoLarge';
 import Button from '@/components/ui/Button';
-import ActionsMenu from '@/components/app/ActionsMenu';
-import Tokens from '@/components/app/Tokens';
+import Assets from '@/components/app/Assets';
 
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 
@@ -32,22 +30,15 @@ export default {
         AddressModal,
         WalletInfoLarge,
         Button,
-        ActionsMenu,
-        Tokens,
+        Assets,
     },
     setup() {
         const { connectedWallet } = useWeb3Onboard();
         const showAddressModal = ref(false);
 
-        const dashboardActions = ref([
-            { $title: 'actionTokens' },
-            // { $title: "actionTransactions" },
-        ]);
-
         return {
             showAddressModal,
             connectedWallet,
-            dashboardActions,
         };
     },
 };

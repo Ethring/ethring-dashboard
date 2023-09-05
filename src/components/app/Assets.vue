@@ -1,15 +1,16 @@
 <template>
     <div class="tokens" :class="{ empty: emptyLists }">
         <template v-if="groupTokens.length > 1">
-            <div
-                v-for="(group, ndx) in groupTokens.filter((g) => g.list.length)"
-                :key="ndx"
-                :class="{ hide: groupHides[ndx] }"
-                class="tokens__group"
-                @click="toggleGroup(ndx)"
-            >
-                <TokensItemHeader v-if="group.list.length" :item="group" />
-                <TokensItem v-for="(listItem, n) in group.list" :key="n" :item="listItem" in-group />
+            <div class="tokens__group">
+                <AssetItemHeader v-if="groupTokens.length" title="Tokens" value="40" :totalBalance="tokensTotalBalance" />
+                <AssetItemSubHeader type="Asset" />
+
+                <AssetItem v-for="(listItem, n) in allTokens" :key="n" :item="listItem">
+                    <!-- <div class="asset-item__info">
+                            <div class="asset-item__type">Deposit</div>
+                            <div class="asset-item__unlock">Unlock 27/05/2026</div>
+                        </div> -->
+                </AssetItem>
             </div>
         </template>
 
@@ -25,22 +26,24 @@
     </div>
 </template>
 <script>
+import { computed, ref } from 'vue';
+import { useStore } from 'vuex';
+
 import useTokens from '@/compositions/useTokens';
 import EmptyList from '@/components/ui/EmptyList';
+import AssetItem from './AssetItem';
+import AssetItemHeader from './AssetItemHeader';
+import AssetItemSubHeader from './AssetItemSubHeader.vue';
 
 import { getTokenIcon } from '@/helpers/utils';
 import { prettyNumber } from '@/helpers/prettyNumber';
-import TokensItem from './TokensItem';
-import TokensItemHeader from './TokensItemHeader';
-
-import { useStore } from 'vuex';
-import { computed, ref } from 'vue';
 
 export default {
     name: 'Tokens',
     components: {
-        TokensItemHeader,
-        TokensItem,
+        AssetItemSubHeader,
+        AssetItemHeader,
+        AssetItem,
         EmptyList,
     },
     setup() {
@@ -50,8 +53,14 @@ export default {
 
         const loader = computed(() => store.getters['tokens/loader']);
 
+        const allTokens = computed(() => store.getters['tokens/tokens']);
+
         const emptyLists = computed(() => {
             return !tokens.value.length && groupTokens.value.every((g) => !g.list.length); // <=1 - parent network
+        });
+
+        const tokensTotalBalance = computed(() => {
+            return allTokens.value.reduce((sum, token) => sum + +token.usd_value, 0);
         });
 
         const toggleGroup = (groupNdx) => {
@@ -66,6 +75,8 @@ export default {
             prettyNumber,
             loader,
             emptyLists,
+            allTokens,
+            tokensTotalBalance,
             toggleGroup,
         };
     },
@@ -75,11 +86,12 @@ export default {
 .tokens {
     display: flex;
     flex-direction: column;
+    margin-top: 24px;
 
     &__group {
         border: 1px solid $colorLightGreen;
         border-radius: 16px;
-        padding: 0 16px;
+        padding: 16px;
         margin-bottom: 7px;
         box-sizing: border-box;
         @include animateEasy;
@@ -100,12 +112,25 @@ export default {
     }
 }
 
-body.dark {
-    .tokens {
-        &__group {
-            border-color: transparent;
-            background: $colorDarkPanel;
+.asset-item__info {
+    display: flex;
+    font-size: 14px;
+    font-family: 'Poppins_Medium';
+
+    div {
+        &::before {
+            content: '\2022';
+            margin: 0 4px;
         }
+    }
+
+    .asset-item__type {
+        color: #0d7e71;
+    }
+
+    .asset-item__unlock {
+        color: #6d747a;
+        font-family: 'Poppins_Regular';
     }
 }
 </style>
