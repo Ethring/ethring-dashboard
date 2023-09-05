@@ -26,7 +26,8 @@
     "emptyTitle": "Connect a wallet to manage your portfolio",
     "pageTitle": "Connecting wallet",
     "blockTitle": "Connect with",
-    "anotherWallet": "Connect Another Wallet"
+    "anotherWallet": "Connect Another Wallet",
+    "availableWallets": "Available wallets"
   },
   "adapter": {
     "accountsGroup": "Connected accounts",

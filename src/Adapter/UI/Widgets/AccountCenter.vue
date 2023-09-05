@@ -89,11 +89,6 @@ export default {
         border-color: #3fdfae;
     }
 
-    .row {
-        display: flex;
-        align-items: center;
-    }
-
     &__account {
         display: flex;
         align-items: center;

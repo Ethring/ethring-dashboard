@@ -1,6 +1,6 @@
 <template>
     <div class="disconnect-all">
-        <div class="item" @click="() => disconnectAll()">
+        <div class="item" @click="disconnectAll">
             <div class="icon-container">
                 <DisconnectIcon />
             </div>

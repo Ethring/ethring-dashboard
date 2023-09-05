@@ -1,6 +1,6 @@
 import useAdapter from '@/Adapter/compositions/useAdapter';
 <template>
-    <div class="wallet-module--icon-container" :style="`width: ${width}; height: ${height}; background: ${background};`">
+    <div class="wallet-module--icon-container" :style="iconContainerStyle">
         <span v-if="isSVG(logo)" v-html="logo" />
         <span v-else>
             <img :src="logo" />
@@ -43,15 +43,20 @@ export default {
 
         const { getWalletLogo } = useAdapter();
 
-        onMounted(async () => {
-            logo.value = await getWalletLogo(props.ecosystem, props.module);
+        const iconContainerStyle = ref({
+            width: props.width,
+            height: props.height,
+            background: props.background,
         });
 
-        onUpdated(async () => {
-            logo.value = await getWalletLogo(props.ecosystem, props.module);
-        });
+        const getLogo = async () => (logo.value = await getWalletLogo(props.ecosystem, props.module));
+
+        onMounted(async () => await getLogo());
+        onUpdated(async () => await getLogo());
 
         return {
+            iconContainerStyle,
+
             logo,
             isSVG,
         };

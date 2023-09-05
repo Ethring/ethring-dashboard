@@ -3,21 +3,10 @@
         <div class="wallets-modal" :class="{ active: isOpen }" @click="close" id="wallet-modal-overview">
             <div class="wallets-modal__body">
                 <div class="top">
-                    <div>Available wallets</div>
+                    <div>{{ $t('connect.availableWallets') }}</div>
                     <div class="close" @click="(event) => close(event, true)">X</div>
                 </div>
                 <div class="content" v-if="isOpen">
-                    <!-- <a-select
-                        show-search
-                        v-model:value="selectedChain"
-                        placeholder="Select chain for connect"
-                        option-label-prop="children"
-                        class="content-chain"
-                    >
-                        <a-select-option v-for="chain in chainList" :key="chain.chain_id" :value="chain.chain_id">
-                            <ChainRecord :chain="chain" />
-                        </a-select-option>
-                    </a-select> -->
                     <div class="content-wallets">
                         <WalletItem
                             v-for="wallet in getWalletsModuleByEcosystem(ecosystem)"
@@ -38,7 +27,6 @@ import { useStore } from 'vuex';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import WalletItem from '@/Adapter/UI/Entities/WalletItem';
-// import ChainRecord from '@/Adapter/UI/Entities/ChainRecord';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
@@ -46,7 +34,6 @@ export default {
     name: 'WalletsModal',
     components: {
         WalletItem,
-        // ChainRecord,
     },
     setup() {
         const store = useStore();
