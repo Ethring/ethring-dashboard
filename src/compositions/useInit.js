@@ -71,7 +71,7 @@ export default async function useInit(address, store) {
     for (const { net, logo } of networksList.value) {
         const assets = await assetsInfo(net);
 
-        if (assets.tokens?.length) {
+        if (assets?.tokens?.length) {
             allTokens.push(
                 ...assets.tokens.map((token) => {
                     token.chainLogo = logo;
@@ -82,7 +82,7 @@ export default async function useInit(address, store) {
             store.dispatch('tokens/setTokens', allTokens);
         }
 
-        if (assets.integrations?.length) {
+        if (assets?.integrations?.length) {
             assets.integrations.forEach((item) => {
                 item.balances.forEach((token) => {
                     token.chainLogo = logo;
