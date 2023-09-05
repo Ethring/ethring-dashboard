@@ -99,7 +99,6 @@ export default {
         .chain {
             width: 16px;
             height: 16px;
-            background: #0c0d18;
             border-radius: 50%;
             display: flex;
             justify-content: center;
@@ -113,8 +112,8 @@ export default {
                 border-radius: 50%;
                 object-position: center;
                 object-fit: contain;
-                width: 80%;
-                height: 80%;
+                width: 100%;
+                height: 100%;
             }
         }
 

@@ -13,7 +13,7 @@
             </div>
             <div class="asset__item-header-name">
                 {{ title }}
-                <div class="asset__item-header-value">
+                <div class="asset__item-header-value" v-if="value > 0">
                     {{ value }}
                     <span class="asset__item-header-symbol"> % </span>
                 </div>

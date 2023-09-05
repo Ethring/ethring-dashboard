@@ -10,6 +10,9 @@ export default async function useInit(address, store) {
         store.dispatch('tokens/setToToken', null);
         store.dispatch('bridge/setSelectedSrcNetwork', null);
         store.dispatch('bridge/setSelectedDstNetwork', null);
+        store.dispatch('tokens/setTokens', []);
+        store.dispatch('tokens/setTotalBalance', 0);
+        store.dispatch('tokens/setIntegrations', []);
     } else {
         store.dispatch('tokens/setDisableLoader', false);
     }
