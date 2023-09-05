@@ -151,16 +151,16 @@ export default {
     position: relative;
 
     .name {
-        font-size: 16px;
-        color: $colorBlack;
-        font-family: 'Poppins_Regular';
+        font-size: var(--#{$prefix}default-fs);
+        color: var(--#{$prefix}black);
+        font-weight: 400;
     }
 
     &__panel {
         position: relative;
         display: flex;
         flex-direction: column;
-        background: $colorGray;
+        background: var(--#{$prefix}select-bg-color);
         border-radius: 16px;
         height: 130px;
         padding: 17px 32px;
@@ -169,13 +169,13 @@ export default {
         cursor: pointer;
 
         .recipient {
-            color: #486060;
-            font-family: 'Poppins_SemiBold';
+            color: var(--#{$prefix}select-label-color);
+            font-weight: 600;
         }
 
         .address {
-            color: #486060;
-            font-family: 'Poppins_Regular';
+            color: var(--#{$prefix}select-label-color);
+            font-weight: 400;
         }
 
         .info-wrap {
@@ -196,8 +196,9 @@ export default {
             border: none;
             outline: none;
             background: transparent;
-            font-size: 28px;
-            font-family: 'Poppins_SemiBold';
+            font-size: var(--#{$prefix}h2-fs);
+            font-weight: 600;
+            color: var(--#{$prefix}primary-text);
         }
 
         .network {
@@ -208,24 +209,24 @@ export default {
             min-width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: #3fdfae;
+            background: var(--#{$prefix}icon-logo-bg-color);
             margin-right: 10px;
 
             svg {
-                fill: $colorBlack;
+                fill: var(--#{$prefix}black);
             }
         }
 
         .name {
-            font-size: 28px;
-            font-family: 'Poppins_SemiBold';
-            color: #73b1b1;
+            font-size: var(--#{$prefix}h2-fs);
+            font-weight: 600;
+            color: var(--#{$prefix}select-placeholder-text);
             user-select: none;
         }
 
         svg.arrow {
             cursor: pointer;
-            fill: #73b1b1;
+            fill: var(--#{$prefix}select-icon-color);
             transform: rotate(0);
             @include animateEasy;
         }
@@ -233,15 +234,15 @@ export default {
 
     &.focused {
         .select-address__panel {
-            border: 2px solid $colorBaseGreen;
-            background: $colorWhite;
+            border: 2px solid var(--#{$prefix}select-active-border-color);
+            background: var(--#{$prefix}select-bg-color);
         }
     }
 
     &.active {
         .select-address__panel {
-            border: 2px solid $colorBaseGreen;
-            background: $colorWhite;
+            border: 2px solid var(--#{$prefix}select-active-border-color);
+            background: var(--#{$prefix}select-bg-color);
 
             svg.arrow {
                 transform: rotate(180deg);
@@ -251,21 +252,21 @@ export default {
 
     &.error {
         .select-address__panel {
-            border-color: $colorRed;
-            background: $colorLightOrange;
+            border-color: var(--#{$prefix}danger-color);
+            background: var(--#{$prefix}danger-op-01);
         }
     }
 
     &__items {
         z-index: 10;
-        background: #fff;
+        background: var(--#{$prefix}white);
         position: absolute;
         left: 0;
         top: 160px;
         width: 100%;
         min-height: 40px;
         border-radius: 16px;
-        border: 2px solid $colorBaseGreen;
+        border: 2px solid var(--#{$prefix}select-active-border-color);
         padding: 20px 25px;
         box-sizing: border-box;
         max-height: 430px;
@@ -282,7 +283,7 @@ export default {
         align-items: center;
         justify-content: space-between;
         min-height: 50px;
-        border-bottom: 1px dashed #73b1b1;
+        border-bottom: 1px dashed var(--#{$prefix}select-border-color);
         cursor: pointer;
         @include animateEasy;
 
@@ -294,14 +295,14 @@ export default {
 
         .remove {
             opacity: 0.2;
-            fill: $colorBaseGreen;
+            fill: var(--#{$prefix}select-active-border-color);
         }
 
         &.active {
             .info {
                 .address {
-                    color: $colorBlack;
-                    font-family: 'Poppins_SemiBold';
+                    color: var(--#{$prefix}black);
+                    font-weight: 600;
                 }
             }
         }
@@ -313,7 +314,7 @@ export default {
         &:hover {
             .info {
                 .name {
-                    color: $colorBaseGreen;
+                    color: var(--#{$prefix}select-active-border-color);
                 }
             }
         }
@@ -323,9 +324,9 @@ export default {
             align-items: center;
 
             .name {
-                font-size: 16px;
-                color: #486060;
-                font-family: 'Poppins_Regular';
+                font-size: var(--#{$prefix}default-fs);
+                color: var(--#{$prefix}base-text);
+                font-weight: 400;
             }
         }
 
@@ -334,108 +335,9 @@ export default {
             align-items: center;
 
             .address {
-                font-size: 16px;
-                color: $colorBlack;
-                font-family: 'Poppins_Regular';
-            }
-        }
-    }
-}
-
-body.dark {
-    .select-address {
-        &__panel {
-            background: $colorDarkPanel;
-
-            .recipient,
-            .address {
-                color: $colorLightGreen;
-            }
-
-            svg.arrow {
-                fill: #486060;
-            }
-
-            .input-address {
-                color: $colorWhite;
-            }
-
-            .info {
-                .network {
-                    background: #0c0d18;
-
-                    svg {
-                        fill: $colorWhite;
-                    }
-                }
-
-                .name {
-                    color: $colorWhite;
-                }
-            }
-        }
-
-        &.focused {
-            .select-address__panel {
-                border: 2px solid $colorBrightGreen;
-                background: $colorDarkPanel;
-            }
-        }
-
-        &.active {
-            .select-address__panel {
-                border: 2px solid $colorBrightGreen;
-                background: $colorDarkPanel;
-            }
-        }
-
-        &.error {
-            .select-address__panel {
-                border-color: $colorRed;
-                background: $colorDarkPanel;
-            }
-        }
-
-        .select-address__items {
-            background: #0c0d18;
-            border-color: $colorBrightGreen;
-        }
-
-        .select-address__items-item {
-            border-color: #e8e9c933;
-
-            &:last-child {
-                border-color: transparent;
-            }
-
-            .info {
-                .name {
-                    color: $colorPl;
-                }
-            }
-
-            &:hover {
-                .info {
-                    .name {
-                        color: #97ffd0;
-                    }
-                }
-            }
-
-            .amount {
-                color: $colorLightGreen;
-
-                span {
-                    color: $colorWhite;
-                }
-            }
-        }
-
-        .select-address__items-item.active {
-            .info {
-                .address {
-                    color: $colorWhite;
-                }
+                font-size: var(--#{$prefix}default-fs);
+                color: var(--#{$prefix}black);
+                font-weight: 400;
             }
         }
     }

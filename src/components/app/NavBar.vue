@@ -1,12 +1,10 @@
 <template>
     <div class="nav-bar">
         <Help />
-        <!-- <ThemeSwitcher class="head__switcher" /> -->
         <NotConnect v-if="!connectedWallet" />
     </div>
 </template>
 <script>
-// import { useOnboard } from '@web3-onboard/vue';
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 
 import Help from './Help';
@@ -17,8 +15,6 @@ export default {
     components: {
         Help,
         NotConnect,
-        // WalletInfo,
-        // ThemeSwitcher
     },
     setup() {
         const { connectedWallet } = useWeb3Onboard();
@@ -30,6 +26,8 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+@import '../../assets/styles/_root.scss';
+
 .nav-bar {
     position: fixed;
 
@@ -45,7 +43,7 @@ export default {
 
     padding: 40px 0 30px 260px;
 
-    background-color: $colorWhite;
+    background-color: var(--#{$prefix}nav-bar-bg-color);
     margin-right: inherit;
     margin-left: inherit;
 }

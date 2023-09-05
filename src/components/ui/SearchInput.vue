@@ -44,20 +44,19 @@ export default {
 
 <style lang="scss" scoped>
 .search-input {
-    background: #f0f0f0;
+    background: var(--#{$prefix}select-bg-color);
     border-radius: 16px;
     padding: 20px 32px;
     display: flex;
     align-items: center;
     position: relative;
-    border: 2px solid #fff;
+    border: 2px solid var(--#{$prefix}white);
     span {
-        color: $colorDarkGray;
+        color: var(--#{$prefix}base-text);
         display: block;
-        font-family: 'Poppins';
         font-style: normal;
         font-weight: 500;
-        font-size: 14px;
+        font-size: var(--#{$prefix}small-lg-fs);
         line-height: 21px;
     }
 
@@ -69,7 +68,7 @@ export default {
         min-width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: $colorLightGreen;
+        background: var(--#{$prefix}icon-secondary-bg-hover);
         margin-right: 10px;
     }
 
@@ -80,25 +79,26 @@ export default {
     }
 
     input {
-        font-family: 'Poppins_SemiBold';
         font-style: normal;
-        font-weight: 700;
-        font-size: 22px;
+        font-weight: 600;
+        font-size: var(--#{$prefix}h4-fs);
         line-height: 33px;
-        color: #73b1b1;
         border: none;
         background-color: transparent;
         outline: none;
     }
 }
+
 .active {
-    background: #ffffff;
-    border: 2px solid #0d7e71;
+    background: var(--#{$prefix}select-bg-color);
+    border: 2px solid var(--#{$prefix}sub-text);
+
     .search-input__logo {
-        background: #3fdfae;
+        background: var(--#{$prefix}btn-hover);
     }
+
     input {
-        color: $colorBlack;
+        color: var(--#{$prefix}black);
     }
 }
 </style>

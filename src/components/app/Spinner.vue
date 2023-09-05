@@ -18,10 +18,10 @@ export default {
     font-size: 10px;
     position: relative;
     text-indent: -9999em;
-    border-top: 0.8em solid $colorLightGreen;
-    border-right: 0.8em solid $colorLightGreen;
-    border-bottom: 0.8em solid $colorLightGreen;
-    border-left: 0.8em solid #385c39;
+    border-top: 0.8em solid var(--#{$prefix}border-color);
+    border-right: 0.8em solid var(--#{$prefix}border-color);
+    border-bottom: 0.8em solid var(--#{$prefix}border-color);
+    border-left: 0.8em solid var(--#{$prefix}loader-border-color);
     -webkit-transform: translateZ(0);
     -ms-transform: translateZ(0);
     transform: translateZ(0);
@@ -46,15 +46,6 @@ export default {
     100% {
         -webkit-transform: rotate(360deg);
         transform: rotate(360deg);
-    }
-}
-
-body.dark {
-    .loader {
-        border-top: 0.8em solid $colorDarkPanel;
-        border-right: 0.8em solid $colorDarkPanel;
-        border-bottom: 0.8em solid $colorDarkPanel;
-        border-left: 0.8em solid $colorPl;
     }
 }
 </style>

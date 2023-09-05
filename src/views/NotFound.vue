@@ -24,6 +24,6 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: 'Poppins_Bold';
+    font-weight: 700;
 }
 </style>

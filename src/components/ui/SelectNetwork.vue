@@ -85,7 +85,7 @@ export default {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        background: $colorGray;
+        background: var(--#{$prefix}select-bg-color);
         border-radius: 16px;
         height: 80px;
         padding: 17px 32px;
@@ -108,11 +108,11 @@ export default {
             height: 40px;
             min-width: 40px;
             border-radius: 50%;
-            background: #3fdfae;
+            background: var(--#{$prefix}icon-logo-bg-color);
             margin-right: 10px;
 
             svg {
-                fill: $colorBlack;
+                fill: var(--#{$prefix}black);
             }
 
             &-logo {
@@ -122,30 +122,30 @@ export default {
         }
 
         .name {
-            font-size: 28px;
-            font-family: 'Poppins_SemiBold';
-            color: $colorBlack;
+            font-size: var(--#{$prefix}h2-fs);
+            font-weight: 600;
+            color: var(--#{$prefix}select-item-color);
             user-select: none;
         }
 
         .label {
-            color: #486060;
-            font-size: 14px;
+            color: var(--#{$prefix}select-label-color);
+            font-size: var(--#{$prefix}small-lg-fs);
             font-family: 'Poppins_Medium';
             user-select: none;
         }
 
         .placeholder {
-            color: #73b1b1;
-            font-size: 18px;
-            font-family: 'Poppins_SemiBold';
+            color: var(--#{$prefix}select-placeholder-text);
+            font-size: var(--#{$prefix}h6-fs);
+            font-weight: 600;
             user-select: none;
             line-height: 18px;
         }
 
         svg.arrow {
             cursor: pointer;
-            fill: #73b1b1;
+            fill: var(--#{$prefix}select-icon-color);
             transform: rotate(0);
             @include animateEasy;
         }
@@ -153,8 +153,8 @@ export default {
 
     &.active {
         .select__panel {
-            border-color: $colorBaseGreen;
-            background: $colorWhite;
+            border-color: var(--#{$prefix}select-active-border-color);
+            background: var(--#{$prefix}select-bg-color);
 
             svg.arrow {
                 transform: rotate(180deg);
@@ -164,7 +164,7 @@ export default {
 
     &__items {
         z-index: 1;
-        background: #fff;
+        background: var(--#{$prefix}select-dropdown-bg-color);
         position: absolute;
         top: 65px;
 
@@ -175,7 +175,7 @@ export default {
 
         min-height: 40px;
 
-        border: 2px solid $colorBaseGreen;
+        border: 2px solid var(--#{$prefix}select-active-border-color);
         border-radius: 0 0 16px 16px;
 
         border-top: none;
@@ -200,11 +200,11 @@ export default {
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #d9f4f1;
+            background: var(--#{$prefix}icon-secondary-bg-color);
             border-radius: 50%;
             margin-right: 12px;
             svg {
-                fill: $colorBlack;
+                fill: var(--#{$prefix}black);
             }
         }
     }
@@ -225,13 +225,13 @@ export default {
         align-items: center;
         justify-content: space-between;
         min-height: 60px;
-        border-bottom: 1px dashed #73b1b1;
+        border-bottom: 1px dashed var(--#{$prefix}border-secondary-color);
         cursor: pointer;
         @include animateEasy;
 
         .info {
             .name {
-                color: #486060;
+                color: var(--#{$prefix}base-text);
             }
 
             .icon {
@@ -239,7 +239,7 @@ export default {
 
                 width: 32px;
                 height: 32px;
-                background-color: $colorSlimLightBlue;
+                background-color: var(--#{$prefix}icon-secondary-bg-color);
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
@@ -259,11 +259,11 @@ export default {
         &.active {
             .info {
                 .name {
-                    color: #1c1f2c;
-                    font-family: 'Poppins_SemiBold';
+                    color: var(--#{$prefix}select-item-active-color);
+                    font-weight: 600;
                 }
                 .icon {
-                    background-color: $colorLightGreen;
+                    background-color: var(--#{$prefix}icon-secondary-bg-hover);
                 }
             }
         }
@@ -275,16 +275,16 @@ export default {
         &:hover {
             .info {
                 .name {
-                    color: $colorBaseGreen;
+                    color: var(--#{$prefix}sub-text);
                 }
 
                 .icon {
-                    background-color: $colorLightGreen;
+                    background-color: var(--#{$prefix}icon-secondary-bg-hover);
                 }
             }
             .select__items-item-logo {
                 transition: 0.5s;
-                background: #97ffd0;
+                background: var(--#{$prefix}icon-logo-bg-hover);
             }
         }
 
@@ -293,95 +293,19 @@ export default {
             align-items: center;
 
             .name {
-                font-size: 16px;
-                color: #486060;
-                font-family: 'Poppins_Regular';
+                font-size: var(--#{$prefix}default-fs);
+                color: var(--#{$prefix}base-text);
+                font-weight: 400;
             }
         }
 
         .amount {
-            color: $colorBlack;
-            font-family: 'Poppins_SemiBold';
+            color: var(--#{$prefix}black);
+            font-weight: 600;
 
             span {
-                color: $colorBlack;
-                font-family: 'Poppins_Regular';
-            }
-        }
-    }
-}
-
-body.dark {
-    .select {
-        &__panel {
-            background: $colorDarkPanel;
-
-            svg.arrow {
-                fill: #486060;
-            }
-
-            .info {
-                .network {
-                    background: #0c0d18;
-
-                    svg {
-                        fill: $colorWhite;
-                    }
-                }
-
-                .name {
-                    color: $colorWhite;
-                }
-            }
-        }
-
-        &.active {
-            .select__panel {
-                border: 2px solid $colorBrightGreen;
-                background: $colorDarkPanel;
-            }
-        }
-
-        .select__items {
-            background: #0c0d18;
-            border-color: $colorBrightGreen;
-        }
-
-        .select__items-item {
-            border-color: #e8e9c933;
-
-            &:last-child {
-                border-color: transparent;
-            }
-
-            .info {
-                .name {
-                    color: $colorPl;
-                }
-            }
-
-            .amount {
-                color: $colorBrightGreen;
-
-                span {
-                    color: $colorPl;
-                }
-            }
-
-            &:hover {
-                .info {
-                    .name {
-                        color: #97ffd0;
-                    }
-                }
-            }
-        }
-
-        .select__items-item.active {
-            .info {
-                .name {
-                    color: $colorWhite;
-                }
+                color: var(--#{$prefix}black);
+                font-weight: 400;
             }
         }
     }

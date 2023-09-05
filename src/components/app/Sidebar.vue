@@ -39,7 +39,7 @@ export default {
     max-width: 260px;
     width: 100%;
     height: 100vh;
-    background: $colorDarkPanel;
+    background: var(--#{$prefix}primary);
     padding: 40px 25px;
 
     box-sizing: border-box;
@@ -60,13 +60,6 @@ export default {
 
     &__logo {
         margin-bottom: 70px;
-    }
-}
-
-body.dark {
-    .sidebar {
-        border-right: 1px solid $borderDark;
-        // background: $colorDarkBgGreen;
     }
 }
 </style>

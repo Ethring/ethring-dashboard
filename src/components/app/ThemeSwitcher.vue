@@ -7,9 +7,10 @@
     </div>
 </template>
 <script>
+import { onMounted, ref } from 'vue';
+
 import sunSvg from '@/assets/icons/dashboard/sun.svg';
 import moonSvg from '@/assets/icons/dashboard/moon.svg';
-import { onMounted, ref } from 'vue';
 
 export default {
     name: 'ThemeSwitcher',
@@ -18,23 +19,26 @@ export default {
         moonSvg,
     },
     setup() {
-        const checked = ref(!!localStorage.getItem('theme'));
+        const checked = ref(localStorage.getItem('theme') === 'dark');
 
         const toggleTheme = () => {
-            if (window.document.body.className.includes('dark')) {
-                window.document.body.classList.remove('dark');
-                localStorage.setItem('theme', '');
-                checked.value = false;
-            } else {
-                window.document.body.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
+            let currentTheme = document.documentElement.getAttribute('data-theme');
+            let targetTheme = 'light';
+
+            checked.value = false;
+
+            if (currentTheme === 'light') {
+                targetTheme = 'dark';
                 checked.value = true;
             }
+
+            document.documentElement.setAttribute('data-theme', targetTheme);
+            localStorage.setItem('theme', targetTheme);
         };
 
         onMounted(() => {
             if (localStorage.getItem('theme')) {
-                window.document.body.classList.add(localStorage.getItem('theme'));
+                document.documentElement.setAttribute('data-theme', localStorage.getItem('theme'));
             }
         });
 
@@ -50,8 +54,8 @@ export default {
     width: 80px;
     height: 40px;
     position: relative;
-    border: 1px solid $borderLight;
-    background: $colorSlimLightBlue;
+    border: 1px solid var(--#{$prefix}border-color);
+    background: var(--#{$prefix}icon-secondary-bg-color);
     border-radius: 50px;
     cursor: pointer;
 
@@ -78,7 +82,7 @@ export default {
 
 .theme-switcher.checked {
     border: 1px solid #494c56;
-    background: $colorDarkPanel;
+    background: var(--#{$prefix}icon-secondary-bg-color);
 
     .theme-switcher__check {
         background: #020c03;

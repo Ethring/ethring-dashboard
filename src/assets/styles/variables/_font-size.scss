@@ -1,0 +1,35 @@
+//  ============================================================================
+//  FONT SIZES
+//  ============================================================================
+
+$h1-fs: 32px !default;
+$h2-fs: 28px !default;
+$h3-fs: 24px !default;
+$h4-fs: 22px !default;
+$h5-fs: 20px !default;
+$h6-fs: 18px !default;
+
+$default-fs: 16px !default;
+
+$small-lg-fs: 14px !default;
+$small-md-fs: 13px !default;
+$small-sm-fs: 12px !default;
+
+//  ===========================================================================
+//  FONT SIZE MAP
+//  ===========================================================================
+
+$font-sizes: (
+    "h1-fs": $h1-fs,
+    "h2-fs": $h2-fs,
+    "h3-fs": $h3-fs,
+    "h4-fs": $h4-fs,
+    "h5-fs": $h5-fs,
+    "h6-fs": $h6-fs,
+
+    "default-fs": $default-fs,
+
+    "small-lg-fs": $small-lg-fs,
+    "small-md-fs": $small-md-fs,
+    "small-sm-fs": $small-sm-fs,
+) !default;

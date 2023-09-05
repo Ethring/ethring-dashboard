@@ -41,120 +41,67 @@ export default {
     padding: 0 16px;
     box-sizing: border-box;
     border-radius: 8px;
-    background: $colorLightOrange;
-    border: 1px solid $colorRed;
-    color: $colorRed;
-    font-family: 'Poppins_Regular';
-    font-size: 16px;
+    background: var(--#{$prefix}danger-op-01);
+    border: 1px solid var(--#{$prefix}danger-color);
+    color: var(--#{$prefix}danger-color);
+    font-weight: 400;
+    font-size: var(--#{$prefix}default-fs);
 
     svg {
         min-width: 24px;
-        fill: $colorRed;
+        fill: var(--#{$prefix}danger-color);
     }
 
     &.success {
-        background: #e8f0e4;
-        border: 1px solid #038d00;
-        color: #038d00;
+        background: var(--#{$prefix}success-op-01);
+        border: 1px solid var(--#{$prefix}success);
+        color: var(--#{$prefix}success);
 
         svg {
-            fill: #038d00;
+            fill: var(--#{$prefix}success);
         }
 
         .info-panel__link {
-            color: #038d00;
+            color: var(--#{$prefix}success);
         }
     }
 
     &.warning {
-        background: rgba(255, 107, 0, 0.1);
-        border: 1px solid #ff6b00;
-        color: #ff6b00;
+        background: var(--#{$prefix}warning-op-01);
+        border: 1px solid var(--#{$prefix}warning);
+        color: var(--#{$prefix}warning);
 
         svg {
-            fill: #ff6b00;
+            fill: var(--#{$prefix}warning);
         }
 
         .info-panel__link {
-            color: #ff6b00;
+            color: var(--#{$prefix}warning);
         }
     }
 
     &.info {
-        background: rgba(0, 131, 159, 0.1);
-        border: 1px solid #00839f;
-        color: #00839f;
+        background: var(--#{$prefix}info-op-01);
+        border: 1px solid var(--#{$prefix}info);
+        color: var(--#{$prefix}info);
 
         svg {
-            fill: #00839f;
+            fill: var(--#{$prefix}info);
         }
 
         .info-panel__link {
-            color: #00839f;
+            color: var(--#{$prefix}info);
         }
     }
 
     &__link {
         margin-left: 7px;
         text-decoration: underline;
-        color: $colorRed;
+        color: var(--#{$prefix}danger-color);
     }
 
     &__title {
         margin-left: 10px;
-    }
-}
-
-body.dark {
-    .info-panel {
-        border: 1px solid transparent;
-
-        background: rgba(228, 69, 93, 0.1);
-        border: 1px solid $colorRed;
-
-        &.success {
-            background: rgba(4, 182, 0, 0.1);
-            border: 1px solid #04b600;
-            color: #04b600;
-
-            svg {
-                fill: #04b600;
-            }
-
-            .info-panel__link {
-                color: #04b600;
-            }
-        }
-
-        &.warning {
-            background: rgba(246, 149, 2, 0.1);
-            border: 1px solid #f69502;
-
-            svg {
-                fill: #f69502;
-            }
-
-            .info-panel__link {
-                color: #f69502;
-            }
-        }
-
-        &.info {
-            background: rgba(2, 231, 246, 0.1);
-            border: 1px solid #02e7f6;
-
-            svg {
-                fill: #02e7f6;
-            }
-
-            .info-panel__link {
-                color: #02e7f6;
-            }
-        }
-
-        &__link {
-            color: $colorRed;
-        }
     }
 }
 </style>

@@ -81,7 +81,6 @@
             </div>
         </Accordion>
         <Button
-            xl
             :title="
                 needApprove
                     ? $t('tokenOperations.approve')
@@ -93,6 +92,7 @@
             :loading="isLoading"
             class="superswap-panel__btn mt-10"
             @click="swap"
+            size="large"
         />
     </div>
 </template>
@@ -736,7 +736,7 @@ export default {
             width: 48%;
 
             .name {
-                font-size: 18px;
+                font-size: var(--#{$prefix}h6-fs);
                 line-height: 16px;
             }
         }
@@ -754,7 +754,7 @@ export default {
 
     .accordion__title {
         .symbol {
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
         }
     }
 
@@ -776,10 +776,10 @@ export default {
         }
     }
     .other-routes {
-        background-color: #97ffd0;
+        background-color: var(--#{$prefix}tag-01);
         border-radius: 15px;
         padding: 4px 10px;
-        color: #00839f;
+        color: var(--#{$prefix}info);
         font-weight: 600;
         position: absolute;
         right: 0;

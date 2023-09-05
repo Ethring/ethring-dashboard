@@ -1,5 +1,5 @@
 <template>
-    <div :class="{ dark }" class="token-icon">
+    <div class="token-icon">
         <img
             v-if="!showIconPlaceholder"
             :width="width"
@@ -24,10 +24,6 @@ import { useStore } from 'vuex';
 export default {
     name: 'TokenIcon',
     props: {
-        dark: {
-            type: Boolean,
-            default: false,
-        },
         width: {
             required: true,
         },
@@ -96,21 +92,10 @@ export default {
 .token-icon {
     width: 32px;
     height: 32px;
+
     display: flex;
     justify-content: center;
     align-items: center;
-
-    &.dark {
-        img {
-            filter: brightness(0) invert(0);
-        }
-
-        .token-icon__placeholder {
-            span {
-                color: $colorBlack;
-            }
-        }
-    }
 
     img.nativeIcon {
         border-radius: 50%;
@@ -127,32 +112,10 @@ export default {
     }
 
     &__placeholder {
-        font-size: 12px;
+        font-size: var(--#{$prefix}small-sm-fs);
 
         & span {
-            color: $colorWhite;
-        }
-    }
-}
-
-body.dark {
-    .token-icon {
-        width: 32px;
-        height: 32px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        &.dark {
-            img {
-                filter: brightness(0) invert(1);
-            }
-
-            .token-icon__placeholder {
-                span {
-                    color: $colorWhite;
-                }
-            }
+            color: var(--#{$prefix}white);
         }
     }
 }

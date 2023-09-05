@@ -98,9 +98,9 @@ export default {
         width: 660px;
     }
     &__title {
-        color: $colorBlack;
-        font-size: 32px;
-        font-family: 'Poppins_SemiBold';
+        color: var(--#{$prefix}primary-text);
+        font-size: var(--#{$prefix}h1-fs);
+        font-weight: 600;
         margin-bottom: 30px;
     }
     &__items {
@@ -111,7 +111,7 @@ export default {
     }
     svg.arrow {
         cursor: pointer;
-        fill: $colorDarkGray;
+        fill: var(--#{$prefix}icon-active);
         position: absolute;
         transform: rotate(90deg);
         top: 20px;
@@ -121,21 +121,19 @@ export default {
         text-align: center;
         margin-top: 15%;
         p {
-            font-family: 'Poppins';
             font-style: normal;
             font-weight: 500;
-            font-size: 20px;
+            font-size: var(--#{$prefix}h5-fs);
             line-height: 27px;
-            color: #494c56;
+            color: var(--#{$prefix}mute-text);
         }
     }
 
     &__item {
-        font-family: 'Poppins';
         display: flex;
         align-items: center;
         justify-content: space-between;
-        border: 1px solid $colorLightGreen;
+        border: 1px solid var(--#{$prefix}border-secondary-color);
         padding: 16px;
         border-radius: 16px;
         margin-top: 8px;
@@ -149,28 +147,25 @@ export default {
         }
         h3,
         h5 {
-            font-family: 'Poppins_SemiBold';
             font-style: normal;
-            font-weight: 700;
-            font-size: 20px;
+            font-weight: 600;
+            font-size: var(--#{$prefix}h5-fs);
             text-align: right;
             margin: 0;
-            color: $colorDarkPanel;
+            color: var(--#{$prefix}primary-text);
         }
         span {
-            font-family: 'Poppins';
-            font-size: 16px;
-            font-weight: 300;
-            color: $colorDarkGray;
+            font-size: var(--#{$prefix}default-fs);
+            font-weight: 400;
+            color: var(--#{$prefix}secondary-text);
         }
         h5 {
-            font-size: 14px;
+            font-size: var(--#{$prefix}small-lg-fs);
             line-height: 21px;
-            color: $colorDarkGray;
+            color: var(--#{$prefix}primary-text);
             span {
-                font-weight: 12px;
-                font-weight: 300;
-                font-family: 'Poppins_Regular';
+                font-size: var(--#{$prefix}small-sm-fs);
+                font-weight: 400;
             }
         }
         .amount {
@@ -178,22 +173,20 @@ export default {
         }
         .info {
             .symbol {
-                font-family: 'Poppins_SemiBold';
                 font-style: normal;
-                font-weight: 700;
-                font-size: 18px;
+                font-weight: 600;
+                font-size: var(--#{$prefix}h6-fs);
                 line-height: 27px;
                 text-transform: uppercase;
-                color: $colorDarkPanel;
+                color: var(--#{$prefix}primary-text);
             }
 
             .name {
-                font-family: 'Poppins';
                 font-style: normal;
                 font-weight: 400;
-                font-size: 14px;
+                font-size: var(--#{$prefix}small-lg-fs);
                 line-height: 21px;
-                color: #0d7e71;
+                color: var(--#{$prefix}sub-text);
             }
         }
         .logo {
@@ -202,12 +195,10 @@ export default {
             display: flex;
             align-items: center;
             justify-content: center;
-            background: $colorDarkPanel;
+            background: var(--#{$prefix}primary);
             border-radius: 50%;
             margin-right: 12px;
         }
     }
-}
-body.dark {
 }
 </style>
