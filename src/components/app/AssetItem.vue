@@ -58,7 +58,6 @@ export default {
     font-family: 'Poppins_Light';
     font-size: 22px;
     color: $colorBlack;
-    cursor: pointer;
     padding: 0 10px 12px 0;
     margin: 4px 0;
     box-sizing: border-box;

@@ -2,8 +2,14 @@
     <div class="asset__item-header">
         <div class="asset__item-header-info">
             <div class="asset__item-header-logo">
-                <img v-if="logoURI" :src="logoURI" class="token__logo" />
-                <TokenLogo v-else class="token__logo" />
+                <img
+                    v-if="logoURI && !showImagePlaceholder"
+                    :src="logoURI"
+                    class="token__logo"
+                    @error="showImagePlaceholder = true"
+                    @load="showImagePlaceholder = false"
+                />
+                <TokenLogo v-if="!logoURI || showImagePlaceholder" class="token__logo" />
             </div>
             <div class="asset__item-header-name">
                 {{ title }}
@@ -25,7 +31,7 @@
     </div>
 </template>
 <script>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 
 import TokenLogo from '@/assets/icons/dashboard/tokenLogo.svg';
@@ -65,8 +71,12 @@ export default {
         const store = useStore();
         const showBalance = computed(() => store.getters['app/showBalance']);
 
+        const showImagePlaceholder = ref(false);
+
         return {
             showBalance,
+            showImagePlaceholder,
+
             formatNumber,
         };
     },

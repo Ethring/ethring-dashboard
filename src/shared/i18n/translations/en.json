@@ -11,7 +11,8 @@
     "receive": "RECEIVE",
     "send": "SEND",
     "search": "Search",
-    "notFound": "Nothing was found for your query"
+    "notFound": "Nothing was found for your query",
+    "emptyAssets": "You don't have any assets"
   },
   "sidebar": {
     "main": "Main",
