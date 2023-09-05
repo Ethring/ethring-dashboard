@@ -94,6 +94,9 @@ const UIConfig = {
         swap: {
             component: 'SimpleSwap',
         },
+        bridge: {
+            component: 'SimpleBridge',
+        },
         superSwap: {
             component: 'SuperSwap',
         },

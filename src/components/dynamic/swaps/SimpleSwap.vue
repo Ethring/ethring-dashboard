@@ -81,6 +81,7 @@ import SwapSvg from '@/assets/icons/dashboard/swap.svg';
 import { prettyNumberTooltip } from '@/helpers/prettyNumber';
 import { getTxUrl } from '@/helpers/utils';
 import { toMantissa } from '@/helpers/numbers';
+import { checkErrors } from '@/helpers/checkErrors';
 
 const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
@@ -98,7 +99,7 @@ export default {
     setup() {
         const store = useStore();
         const router = useRouter();
-        const { groupTokens, allTokensFromNetwork, getTokenList } = useTokens();
+        const { groupTokens, allTokensFromNetwork } = useTokens();
         const { walletAddress, currentChainInfo, connectedWallet, setChain } = useWeb3Onboard();
 
         const isLoading = ref(false);
@@ -149,7 +150,7 @@ export default {
                 return [];
             }
 
-            let listWithBalances = getTokenList(selectedNetwork.value);
+            let listWithBalances = groupTokens.value[0].list;
 
             const list = [
                 ...listWithBalances,
@@ -158,19 +159,16 @@ export default {
                 }),
             ];
 
-            if (!selectedTokenFrom.value || !list.find((elem) => elem.net === selectedTokenFrom.value.net)) {
-                if (list[0].code !== 'USDC') {
-                    store.dispatch('tokens/setFromToken', list[0]);
-                } else {
-                    store.dispatch('tokens/setFromToken', list[1]);
-                }
+            if (!selectedTokenFrom.value || !listWithBalances.find((elem) => elem.code === selectedTokenFrom.value.code)) {
+                let filterTokens = listWithBalances.filter((elem) => elem.code !== 'USDC');
+                store.dispatch('tokens/setFromToken', filterTokens[0]);
             } else if (balanceUpdated.value) {
                 let tokenFrom = list.find((elem) => elem.code === selectedTokenFrom.value.code);
                 if (tokenFrom) {
                     store.dispatch('tokens/setFromToken', tokenFrom);
                 }
             }
-            if (!selectedTokenTo.value || !list.find((elem) => elem.net === selectedTokenTo.value.net)) {
+            if (!selectedTokenTo.value || !list.find((elem) => elem.address === selectedTokenTo.value.address)) {
                 store.dispatch(
                     'tokens/setToToken',
                     list.find((elem) => elem.code === 'USDC')
@@ -278,6 +276,7 @@ export default {
                 fromTokenAddress: selectedTokenFrom.value.address || NATIVE_CONTRACT,
                 toTokenAddress: selectedTokenTo.value.address || NATIVE_CONTRACT,
                 amount: amount.value,
+                ownerAddress: walletAddress.value,
             });
 
             if (resEstimate.error) {
@@ -352,7 +351,7 @@ export default {
                     return receipt;
                 }
             } catch (e) {
-                return { error: e.message };
+                return checkErrors(e);
             }
         };
 
@@ -581,19 +580,4 @@ body.dark {
         }
     }
 }
-
-// .accordion {
-
-//         .fee {
-//             color: $colorBaseGreen;
-//             margin-right: 4px;
-//         }
-
-//         .symbol {
-//             color: $colorPl;
-//             font-weight: 300;
-//             font-family: 'Poppins_Regular';
-//         }
-//     }
-// }
 </style>

@@ -1,6 +1,8 @@
 const IS_PROD = process.env.NODE_ENV === 'production';
 
+//  ===========================================================================
 // * Утилита для настройки базового правила Webpack для обработки различных типов модулей
+//  ===========================================================================
 const configureGeneralRule = (config, { name, exclude }) => {
     const BABEL_OPTIONS = {
         presets: ['@babel/preset-env', '@babel/preset-react', '@babel/preset-typescript'],
@@ -22,7 +24,9 @@ const configureGeneralRule = (config, { name, exclude }) => {
     generalRule.use('babel-loader').loader('babel-loader').options(BABEL_OPTIONS);
 };
 
+//  ===========================================================================
 // * Утилита для настройки правил Webpack для обработки по типам модулей (css, svg, sass и т.д.)
+//  ===========================================================================
 const configureRule = (config, ruleName, loaders) => {
     const rule = config.module.rule(ruleName);
     rule.uses.clear();

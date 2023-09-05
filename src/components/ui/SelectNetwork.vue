@@ -3,9 +3,9 @@
         <div class="select__panel" @click="() => togglePanel(false)" data-qa="select-network">
             <div class="info">
                 <div class="network">
-                    <img :src="currentChainInfo.logo" alt="network-logo" class="network-logo" />
+                    <img :src="selectedItem.logo" alt="network-logo" class="network-logo" />
                 </div>
-                <div class="name">{{ currentChainInfo?.label || currentChainInfo?.name }}</div>
+                <div class="name">{{ selectedItem.name }}</div>
             </div>
             <arrowSvg class="arrow" />
         </div>
@@ -13,7 +13,7 @@
             <div
                 v-for="(item, idx) in items"
                 :key="idx"
-                :class="{ active: item.net === currentChainInfo?.net }"
+                :class="{ active: item.net === selectedItem?.net }"
                 class="select__items-item"
                 @click="onSelectNetwork(item)"
             >
@@ -49,6 +49,7 @@ export default {
         const { currentChainInfo } = useAdapter();
 
         const active = ref(false);
+        const selectedItem = ref(currentNetwork);
 
         const togglePanel = (away = false) => {
             if (away) {
@@ -58,6 +59,7 @@ export default {
         };
 
         const onSelectNetwork = (network) => {
+            selectedItem.value = network;
             emit('select', network);
             return togglePanel(false);
         };
@@ -66,7 +68,7 @@ export default {
             active.value = false;
         };
 
-        return { active, clickAway, togglePanel, currentChainInfo, onSelectNetwork };
+        return { active, clickAway, togglePanel, currentChainInfo, onSelectNetwork, selectedItem };
     },
 };
 </script>

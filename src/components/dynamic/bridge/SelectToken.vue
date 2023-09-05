@@ -34,9 +34,7 @@ export default {
             selectType.value === 'from'
                 ? computed(() => store.getters['bridge/selectedSrcNetwork'])
                 : computed(() => store.getters['bridge/selectedDstNetwork']);
-
-        const tokens = computed(() => store.getters['bridge/tokensByChainID']);
-        const loader = computed(() => !tokens.value.length);
+        const loader = computed(() => store.getters['tokens/loader']);
 
         onMounted(async () => {
             console.log(
@@ -51,12 +49,7 @@ export default {
                 );
             }
             const chainId = selectedNetwork.value?.chain_id || selectedNetwork.value?.chainId;
-
-            if (chainId) {
-                await store.dispatch('bridge/getTokensByChain', {
-                    chainId,
-                });
-            } else {
+            if (!chainId) {
                 router.push('/bridge');
             }
         });
@@ -66,14 +59,16 @@ export default {
                 return [];
             }
 
+            let wallet = groupTokens.value.find((elem) => elem.net === selectedNetwork.value.net);
+
             let list = [];
-            const listWithBalances = getTokenList(selectedNetwork.value);
+            const listWithBalances = getTokenList(wallet);
 
             if (selectType.value === 'from') {
-                if (selectedNetwork.value.balance.mainBalance > 0) {
+                if (wallet.balance.mainBalance > 0) {
                     list = listWithBalances;
                 } else {
-                    list = selectedNetwork.value.list;
+                    list = wallet.list;
                 }
             } else {
                 list = [
@@ -84,19 +79,13 @@ export default {
                 ];
             }
 
-            const matchingTokens = list?.filter((token) => {
-                return tokens.value?.some((listToken) => {
-                    return listToken.symbol === token.code;
-                });
-            });
-
             const byTokenKey = (token = {}, search = '', target = 'code') => {
                 const targetVal = token[target] ?? null;
                 const targetLC = targetVal ? targetVal.toLowerCase() : '';
                 return targetLC.includes(search.toLowerCase());
             };
 
-            return matchingTokens?.filter(
+            return list?.filter(
                 (elem) =>
                     byTokenKey(elem, searchValue.value, 'name') ||
                     byTokenKey(elem, searchValue.value, 'code') ||
@@ -138,7 +127,5 @@ export default {
         height: calc(100vh - 125px);
         position: relative;
     }
-}
-body.dark {
 }
 </style>

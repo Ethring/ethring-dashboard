@@ -17,8 +17,9 @@
             />
         </div>
         <SelectAmount
-            v-if="selectedSrcToken"
+            v-if="zometNetworks"
             :selected-network="selectedSrcNetwork"
+            :items="zometNetworks"
             :value="selectedSrcToken"
             :error="!!errorBalance"
             :label="$t('tokenOperations.send')"
@@ -96,7 +97,7 @@
     </div>
 </template>
 <script>
-import { computed, ref, onMounted, watch, onBeforeUnmount } from 'vue';
+import { computed, ref, watch, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { ethers } from 'ethers';
@@ -116,10 +117,11 @@ import Button from '@/components/ui/Button';
 import { toMantissa } from '@/helpers/numbers';
 import { prettyNumber, prettyNumberTooltip } from '@/helpers/prettyNumber';
 import { getTxUrl } from '@/helpers/utils';
+import { checkErrors } from '@/helpers/checkErrors';
 
 import { services } from '@/config/bridgeServices';
 
-import { findBestRoute, getTokensByService } from '@/modules/SuperSwap/baseScript';
+import { findBestRoute } from '@/modules/SuperSwap/baseScript';
 
 import { STATUSES, NATIVE_CONTRACT } from '@/shared/constants/superswap/constants';
 
@@ -164,7 +166,6 @@ export default {
 
         const selectedSrcNetwork = computed(() => store.getters['bridge/selectedSrcNetwork']);
         const selectedDstNetwork = computed(() => store.getters['bridge/selectedDstNetwork']);
-        const supportedChains = computed(() => store.getters['bridge/supportedChains']);
 
         const selectedSrcToken = computed(() => store.getters['tokens/fromToken']);
         const selectedDstToken = computed(() => store.getters['tokens/toToken']);
@@ -179,10 +180,6 @@ export default {
 
         const errorAddress = ref('');
         const errorBalance = ref('');
-
-        onMounted(async () => {
-            store.dispatch('bridge/getSupportedChains');
-        });
 
         watch(showRoutesModal, () => {
             if (!showRoutesModal.value) {
@@ -250,24 +247,10 @@ export default {
         };
 
         const filteredSupportedChains = computed(() => {
-            if (!supportedChains.value && !supportedChains.value.length) {
-                return [];
-            }
-            if (selectedSrcNetwork.value) {
-                if (!supportedChains.value?.find((elem) => selectedSrcNetwork.value.net === elem.net)) {
-                    return [
-                        {
-                            ...selectedSrcNetwork.value,
-                            logoURI: zometNetworks.value?.find((elem) => selectedSrcNetwork.value?.net === elem?.net)?.logo,
-                        },
-                    ];
-                }
-            }
-
             const list = groupTokens?.value.filter((item) => {
-                const supportedChain = supportedChains.value?.find((network) => network.net === item.net);
+                const supportedChain = zometNetworks.value?.find((network) => network.net === item.net);
                 if (supportedChain) {
-                    item.logoURI = supportedChain.logoURI;
+                    item.logoURI = supportedChain.logo;
                     return true;
                 }
                 return false;
@@ -280,6 +263,27 @@ export default {
         });
 
         const onSelectSrcNetwork = async (network) => {
+            if (network?.net === currentChainInfo.value?.net) {
+                networkError.value = false;
+            }
+
+            clearApprove();
+
+            const tokens = await tokensList(network, 'from');
+            const srcNetwork = groupTokens.value?.find((elem) => elem.net === network.net);
+
+            if (!selectedSrcToken.value || updateFromToken.value) {
+                if (!tokens[0]?.balanceUsd) {
+                    const usdcToken = tokens.find((elem) => elem.code === 'USDC');
+                    store.dispatch('tokens/setFromToken', usdcToken || tokens[0]);
+                } else {
+                    store.dispatch('tokens/setFromToken', tokens[0]);
+                }
+                updateFromToken.value = false;
+            }
+
+            store.dispatch('bridge/setSelectedSrcNetwork', srcNetwork || network);
+
             if (selectedSrcNetwork.value !== network) {
                 txError.value = '';
                 if (network.chainId || network.chain_id) {
@@ -288,53 +292,33 @@ export default {
                     });
                 }
                 updateFromToken.value = true;
-                await getTokensByService(network.chainId || network.chain_id || currentChainInfo.value.chainId);
             }
-            if (network?.net === currentChainInfo.value?.net) {
-                networkError.value = false;
-            }
-            clearApprove();
-            tokensList(network, 'from').then((tokens) => {
-                if (!selectedSrcToken.value || updateFromToken.value) {
-                    if (!tokens[0]?.balanceUsd) {
-                        const usdcToken = tokens.find((elem) => elem.code === 'USDC');
-                        store.dispatch('tokens/setFromToken', usdcToken || tokens[0]);
-                    } else {
-                        store.dispatch('tokens/setFromToken', tokens[0]);
-                    }
-                    updateFromToken.value = false;
-                }
-            });
-            const srcNetwork = groupTokens.value?.find((elem) => elem.net === network.net);
-            store.dispatch('bridge/setSelectedSrcNetwork', srcNetwork || network);
         };
 
         const onSelectDstNetwork = async (network) => {
             callEstimate.value = true;
+
             if (selectedDstNetwork.value?.net === network?.net && selectedDstToken.value) {
-                store.dispatch('tokens/setToToken', selectedDstToken.value);
-            } else {
-                store.dispatch('bridge/setSelectedDstNetwork', network);
-                tokensList(network, 'to').then((tokens) => {
-                    if (!selectedDstToken.value || !tokens.find((elem) => elem.code === selectedDstToken.value.code)) {
-                        if (selectedSrcNetwork.value.net === selectedDstNetwork.value.net) {
-                            const tokenTo = tokens.find((elem) => elem.code !== selectedSrcToken.value.code);
-                            if (tokenTo) {
-                                store.dispatch('tokens/setToToken', tokenTo);
-                            }
-                        } else {
-                            store.dispatch('tokens/setToToken', tokens[0]);
-                        }
-                    } else {
-                        let tokenTo = tokens.find((elem) => elem.code === selectedDstToken.value.code);
-                        if (tokenTo) {
-                            store.dispatch('tokens/setToToken', tokenTo);
-                        }
-                    }
-                    clearApprove();
-                    onSetAmount(amount.value);
-                });
+                return store.dispatch('tokens/setToToken', selectedDstToken.value);
             }
+
+            store.dispatch('bridge/setSelectedDstNetwork', network);
+
+            const tokens = await tokensList(network, 'to');
+            const foundToken = tokens.find((elem) => elem.code === selectedDstToken?.value?.code);
+            if (!selectedDstToken.value || !foundToken) {
+                const tokenTo = tokens.find((elem) => elem.code !== selectedSrcToken.value.code);
+                if (tokenTo) {
+                    store.dispatch('tokens/setToToken', tokenTo);
+                } else {
+                    store.dispatch('tokens/setToToken', tokens[0]);
+                }
+            } else {
+                store.dispatch('tokens/setToToken', foundToken);
+            }
+
+            clearApprove();
+            onSetAmount(amount.value);
         };
 
         const onSetSrcToken = () => {
@@ -506,7 +490,7 @@ export default {
                     return receipt;
                 }
             } catch (e) {
-                return { error: e.message };
+                return checkErrors(e);
             }
         };
 
