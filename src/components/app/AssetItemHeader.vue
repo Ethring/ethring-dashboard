@@ -42,8 +42,8 @@ export default {
             required: true,
         },
         reward: {
-            type: String,
-            default: '0',
+            type: Number,
+            default: 0,
         },
         showRewards: {
             type: Boolean,
