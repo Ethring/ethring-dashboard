@@ -8,7 +8,7 @@
                 </div>
             </div>
             <div class="info">
-                <div class="name">{{ item.name }}</div>
+                <a-typography-text class="name" :style="{ width: '200px' }" :ellipsis="{ tooltip: item.name }" :content="item.name" />
                 <slot></slot>
             </div>
         </div>
@@ -24,10 +24,12 @@
     </div>
 </template>
 <script>
-import { formatNumber } from '@/helpers/prettyNumber';
-import TokenIcon from '@/components/ui/TokenIcon';
 import { computed } from 'vue';
 import { useStore } from 'vuex';
+
+import TokenIcon from '@/components/ui/TokenIcon';
+
+import { formatNumber } from '@/helpers/prettyNumber';
 
 export default {
     name: 'AssetItem',

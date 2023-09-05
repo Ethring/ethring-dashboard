@@ -130,7 +130,7 @@ export default {
         });
 
         const getAssetsShare = (balance) => {
-            if (!balance) {
+            if (!balance || !totalBalance.value) {
                 return 0;
             }
 
