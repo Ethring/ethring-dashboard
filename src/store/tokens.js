@@ -14,6 +14,7 @@ const types = {
     SET_ADDRESS: 'SET_ADDRESS',
     SET_DISABLE_LOADER: 'SET_DISABLE_LOADER',
     SET_INTEGRATIONS: 'SET_INTEGRATIONS',
+    SET_TOTAL_BALANCE: 'SET_TOTAL_BALANCE',
 };
 
 export default {
@@ -30,6 +31,7 @@ export default {
         address: '',
         disableLoader: false,
         integrations: [],
+        totalBalance: 0,
     }),
 
     getters: {
@@ -44,6 +46,7 @@ export default {
         address: (state) => state.address,
         disableLoader: (state) => state.disableLoader,
         integrations: (state) => state.integrations,
+        totalBalance: (state) => state.totalBalance,
     },
 
     mutations: {
@@ -89,6 +92,9 @@ export default {
         [types.SET_INTEGRATIONS](state, value) {
             state.integrations = value;
         },
+        [types.SET_TOTAL_BALANCE](state, value) {
+            state.totalBalance = value;
+        },
     },
 
     actions: {
@@ -128,6 +134,9 @@ export default {
         setIntegrations({ commit }, value) {
             commit(types.SET_INTEGRATIONS, value);
         },
+        setTotalBalance({ commit }, value) {
+            commit(types.SET_TOTAL_BALANCE, value);
+        },
         async prepareTransfer(_, { net, from, amount, toAddress }) {
             let response;
 
@@ -148,7 +157,7 @@ export default {
                 };
             }
         },
-        // async updateTokenBalances(_, selectedNet) {
+
         //     let balance = 0;
         //     let price = 0;
         //     const tokens = _.getters['groupTokens'];

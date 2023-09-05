@@ -14,6 +14,7 @@
   "dependencies": {
     "@sentry/tracing": "^7.51.2",
     "@sentry/vue": "^7.51.2",
+    "@vueuse/core": "^10.4.1",
     "@web3-onboard/coinbase": "^2.2.3",
     "@web3-onboard/injected-wallets": "^2.8.6",
     "@web3-onboard/ledger": "^2.4.5",

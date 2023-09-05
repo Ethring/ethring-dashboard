@@ -35,7 +35,6 @@ import arrowPriceSvg from '@/assets/icons/dashboard/arrowprice.svg';
 import WalletSvg from '@/assets/icons/dashboard/wallet.svg';
 
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
-import useTokens from '@/compositions/useTokens';
 
 export default {
     name: 'WalletInfo',
@@ -55,12 +54,11 @@ export default {
         };
 
         const { walletIcon, walletAddress, walletBalance, currentChainInfo } = useWeb3Onboard();
-        const { groupTokens } = useTokens();
 
         const marketCap = computed(() => store.getters['tokens/groupTokens']);
         const showBalance = computed(() => store.getters['app/showBalance']);
 
-        const totalBalance = computed(() => groupTokens.value?.reduce((acc, net) => acc + net.totalSumUSD, 0) ?? 0);
+        const totalBalance = computed(() => store.getters['tokens/totalBalance']);
 
         const toggleViewBalance = () => {
             store.dispatch('app/toggleViewBalance');

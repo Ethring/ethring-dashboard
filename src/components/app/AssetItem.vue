@@ -2,29 +2,29 @@
     <div class="tokens__item">
         <div class="network">
             <div class="logo">
-                <TokenIcon width="24" height="24" :token="item.token" :src="item.token.image" />
+                <TokenIcon width="24" height="24" :token="item" />
                 <div class="chain">
                     <img :src="item.chainLogo" />
                 </div>
             </div>
             <div class="info">
-                <div class="name">{{ item.token.name }}</div>
+                <div class="name">{{ item.name }}</div>
                 <slot></slot>
             </div>
         </div>
         <div class="amount">
             <div class="value">
-                {{ showBalance ? prettyNumber(item.balance) : '****' }}
+                {{ showBalance ? formatNumber(item.balance) : '****' }}
             </div>
-            <div class="symbol">{{ item?.token.denom }}</div>
+            <div class="symbol">{{ item?.code }}</div>
         </div>
         <div class="change">
-            <div class="value"><span>$</span>{{ showBalance ? prettyNumber(item.usd_value) : '****' }}</div>
+            <div class="value"><span>$</span>{{ showBalance ? formatNumber(item.balanceUsd, 2) : '****' }}</div>
         </div>
     </div>
 </template>
 <script>
-import { prettyNumber } from '@/helpers/prettyNumber';
+import { formatNumber } from '@/helpers/prettyNumber';
 import TokenIcon from '@/components/ui/TokenIcon';
 import { computed } from 'vue';
 import { useStore } from 'vuex';
@@ -44,7 +44,7 @@ export default {
         const showBalance = computed(() => store.getters['app/showBalance']);
 
         return {
-            prettyNumber,
+            formatNumber,
             showBalance,
         };
     },
@@ -59,8 +59,13 @@ export default {
     font-size: 22px;
     color: $colorBlack;
     cursor: pointer;
-    padding: 4px 10px 10px 0;
+    padding: 0 10px 12px 0;
+    margin: 4px 0;
     box-sizing: border-box;
+
+    &:last-child {
+        padding-bottom: 0;
+    }
 
     .network {
         width: 60%;

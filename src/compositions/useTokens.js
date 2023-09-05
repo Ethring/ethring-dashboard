@@ -133,5 +133,6 @@ export default function useTokens() {
         groupTokens,
         allTokensFromNetwork,
         getTokenList,
+        sortByBalanceUsd,
     };
 }

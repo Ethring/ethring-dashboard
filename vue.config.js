@@ -48,7 +48,7 @@ const chainWebpack = (config) => {
         // { name: 'cosmjs-types' },
         { name: '@metamask/utils' },
         { name: '@walletconnect' },
-        // { name: '@vueuse/core' },
+        { name: '@vueuse/core' },
         // { name: '@cosmjs[\\\\/]', exclude: '@cosmjs[\\\\/].*\\.json$' },
     ];
 

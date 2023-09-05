@@ -21,6 +21,8 @@ export default async function useInit(address, store) {
 
     const allIntegrations = [];
 
+    let totalBalance = 0;
+
     const balanceInfo = async (net) => {
         try {
             let balance = 0;
@@ -54,9 +56,7 @@ export default async function useInit(address, store) {
 
     const assetsInfo = async (net) => {
         try {
-            const response = await axios.get(`${process.env.VUE_APP_DATA_PROVIDER_URL}?net=${net}&address=${address}`, {
-                timeout: 20000,
-            });
+            const response = await axios.get(`${process.env.VUE_APP_DATA_PROVIDER_URL}?net=${net}&address=${address}`);
 
             if (response.status === 200) {
                 return response.data.data;
@@ -67,6 +67,34 @@ export default async function useInit(address, store) {
             return null;
         }
     };
+
+    for (const { net, logo } of networksList.value) {
+        const assets = await assetsInfo(net);
+
+        if (assets.tokens?.length) {
+            allTokens.push(
+                ...assets.tokens.map((token) => {
+                    token.chainLogo = logo;
+                    totalBalance += +token.balanceUsd;
+                    return token;
+                })
+            );
+            store.dispatch('tokens/setTokens', allTokens);
+        }
+
+        if (assets.integrations?.length) {
+            assets.integrations.forEach((item) => {
+                item.balances.forEach((token) => {
+                    token.chainLogo = logo;
+                });
+                totalBalance += +item.balances.reduce((sum, token) => sum + +token.balanceUsd, 0);
+            });
+            allIntegrations.push(...assets.integrations);
+            store.dispatch('tokens/setIntegrations', allIntegrations);
+        }
+    }
+
+    store.dispatch('tokens/setTotalBalance', totalBalance);
 
     await Promise.all(
         networksList.value.map(async ({ net, native_token }) => {
@@ -83,28 +111,6 @@ export default async function useInit(address, store) {
             });
         })
     );
-
-    await Promise.all(
-        networksList.value.map(async ({ net, logo }) => {
-            const assets = await assetsInfo(net);
-
-            if (assets?.tokens && assets.tokens.length) {
-                allTokens.push(
-                    ...assets.tokens.map((token) => {
-                        token.chainLogo = logo;
-                        return token;
-                    })
-                );
-            }
-
-            if (assets?.integrations && assets.integrations.length) {
-                allIntegrations.push(...assets.integrations);
-            }
-        })
-    );
-
-    store.dispatch('tokens/setTokens', allTokens);
-    store.dispatch('tokens/setIntegrations', allIntegrations);
 
     store.dispatch('tokens/setGroupTokens', tokens);
     store.dispatch('tokens/setLoader', false);

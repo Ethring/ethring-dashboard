@@ -15,12 +15,12 @@
         </div>
         <div class="asset__item-header-reward" v-if="showRewards">
             {{ $t('tokenOperations.rewards') + ':' }}
-            <div class="asset__item-header-value">{{ reward }}</div>
+            <div class="asset__item-header-value">{{ showBalance ? formatNumber(reward) : '***' }}</div>
             <span class="asset__item-header-symbol__left"> $ </span>
         </div>
         <div class="asset__item-header-balance">
             <span class="asset__item-header-symbol">$</span>
-            {{ prettyNumber(totalBalance) }}
+            {{ showBalance ? formatNumber(totalBalance, 2) : '***' }}
         </div>
     </div>
 </template>
@@ -30,7 +30,7 @@ import { useStore } from 'vuex';
 
 import TokenLogo from '@/assets/icons/dashboard/tokenLogo.svg';
 
-import { prettyNumber } from '@/helpers/prettyNumber';
+import { formatNumber } from '@/helpers/prettyNumber';
 
 export default {
     name: 'AssetItemHeader',
@@ -50,8 +50,8 @@ export default {
             default: false,
         },
         totalBalance: {
-            type: String,
-            default: '0',
+            type: Number,
+            default: 0,
         },
         logoURI: {
             type: String,
@@ -67,7 +67,7 @@ export default {
 
         return {
             showBalance,
-            prettyNumber,
+            formatNumber,
         };
     },
 };

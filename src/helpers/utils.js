@@ -72,3 +72,15 @@ export const copyToClipboard = (text) => {
 };
 
 export const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+
+export const sortByKey = (list, key) => {
+    return list?.sort((a, b) => {
+        if (+a[key] > +b[key]) {
+            return -1;
+        }
+        if (+a[key] < +b[key]) {
+            return 1;
+        }
+        return 0;
+    });
+};

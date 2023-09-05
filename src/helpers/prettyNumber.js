@@ -29,12 +29,12 @@ export const prettyNumber = (value) => {
         return value;
     }
 
-    const formatedValue = formatValue(value);
+    const formattedValue = formatValue(value);
 
     const abbDecimals = 2;
     const maxDecimals = 5;
-    const prefix = +formatedValue < 0 ? '-' : '';
-    const absoluteValue = Math.abs(formatedValue);
+    const prefix = +formattedValue < 0 ? '-' : '';
+    const absoluteValue = Math.abs(formattedValue);
     const intPart = Math.floor(absoluteValue);
     const valueRank = intPart === 0 ? 0 : intPart.toString().length;
 
@@ -59,14 +59,28 @@ export const prettyNumberTooltip = (value, maxDecimals = 8) => {
         return '0';
     }
 
-    // for string with range (iost APY "4.8-36.13" etc)
     if (Number.isNaN(+value)) {
         return value;
     }
 
-    const formatedValue = formatValue(value);
+    const formattedValue = formatValue(value);
 
-    return cutNumber(formatedValue, maxDecimals).toLocaleString('en', {
+    return cutNumber(formattedValue, maxDecimals).toLocaleString('en', {
         maximumFractionDigits: maxDecimals,
     });
+};
+
+export const formatNumber = (number, maximumFractionDigits = 4) => {
+    const formatter = new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits,
+        useGrouping: true,
+    });
+    const formattedNumber = formatter.format(number);
+
+    if (+formattedNumber === 0) {
+        return '~0';
+    }
+
+    return formattedNumber;
 };
