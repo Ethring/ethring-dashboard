@@ -95,14 +95,14 @@ export default {
         align-items: center;
         border-radius: 50%;
         margin-right: 16px;
-        background: #3fdfae;
+        background: var(--#{$prefix}banner-logo-color);
 
         img {
             width: 60%;
         }
 
         svg {
-            fill: $colorBlack;
+            fill: var(--#{$prefix}black);
             opacity: 1;
         }
     }
@@ -123,40 +123,43 @@ export default {
             user-select: none;
             display: flex;
             align-items: center;
-            font-family: 'Poppins_Light';
-            font-size: 16px;
+            font-weight: 300;
+            font-size: var(--#{$prefix}default-fs);
             cursor: pointer;
+            color: var(--#{$prefix}mute-text);
 
             svg {
                 @include animateEasy;
                 margin-left: 4px;
-                stroke: $colorBlack;
+                stroke: var(--#{$prefix}black);
             }
         }
 
         .balance {
             display: flex;
             align-items: center;
-            font-family: 'Poppins_SemiBold';
-            font-size: 28px;
-            color: $colorBlack;
+            font-weight: 600;
+            font-size: var(--#{$prefix}h2-fs);
+            color: var(--#{$prefix}primary-text);
             margin-top: -3px;
             user-select: none;
 
             .value {
                 min-width: 165px;
+                font-weight: 600;
             }
 
             span {
-                font-family: 'Poppins_Regular';
+                font-weight: 400;
+                color: var(--#{$prefix}base-text);
             }
 
             svg {
                 cursor: pointer;
-                fill: #33363f;
+                fill: var(--#{$prefix}eye-logo);
 
                 &:hover {
-                    fill: $colorBaseGreen;
+                    fill: var(--#{$prefix}eye-logo-hover);
                 }
             }
         }
@@ -164,100 +167,29 @@ export default {
         .change {
             display: flex;
             align-items: center;
-            color: $colorGreen;
+            color: var(--#{$prefix}sub-text);
 
             svg {
-                fill: $colorGreen;
+                fill: var(--#{$prefix}sub-text);
             }
 
             .percent {
                 user-select: none;
                 margin-left: 5px;
-                font-family: 'Poppins_Regular';
-                font-size: 14px;
+                font-weight: 400;
+                font-size: var(--#{$prefix}small-lg-fs);
             }
 
             &.minus {
-                color: $colorRed;
+                color: var(--#{$prefix}negative-percentage);
 
                 .percent {
-                    color: $colorRed;
+                    color: var(--#{$prefix}negative-percentage);
                 }
 
                 svg {
-                    fill: $colorRed !important;
+                    fill: var(--#{$prefix}negative-percentage) !important;
                     transform: rotate(90deg);
-                }
-            }
-        }
-    }
-
-    .line {
-        width: 100%;
-        height: 1px;
-        background: $borderLight;
-    }
-}
-
-body.dark {
-    .wallet-info {
-        &.opened {
-            // background: #0f1910;
-        }
-
-        &__network {
-            background: $colorBrightGreen;
-
-            svg {
-                fill: #070c0e;
-                opacity: 0.8;
-            }
-        }
-
-        &__wallet {
-            .address {
-                color: $colorLightGreen;
-
-                svg {
-                    stroke: #636363;
-                }
-            }
-
-            .balance {
-                color: $colorWhite;
-
-                span {
-                    color: #73b1b1;
-                }
-
-                svg {
-                    cursor: pointer;
-                    fill: $colorLightGreen;
-
-                    &:hover {
-                        fill: $colorBrightGreen;
-                    }
-                }
-            }
-
-            .change {
-                display: flex;
-                align-items: center;
-
-                &.minus {
-                    color: $colorRed;
-
-                    .percent {
-                        color: $colorRed;
-                    }
-                }
-
-                svg {
-                    fill: $colorBrightGreen;
-                }
-
-                .percent {
-                    color: $colorBrightGreen;
                 }
             }
         }

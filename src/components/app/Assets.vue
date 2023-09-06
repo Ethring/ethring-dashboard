@@ -194,9 +194,11 @@ export default {
     flex-direction: column;
     margin-top: 24px;
     padding-bottom: 24px;
+    background-color: var(--#{$prefix}secondary-background);
+    border-radius: 16px;
 
     &__group {
-        border: 1px solid $colorLightGreen;
+        border: 1px solid var(--#{$prefix}border-color);
         border-radius: 16px;
         padding: 16px;
         margin-bottom: 7px;
@@ -218,7 +220,7 @@ export default {
 .asset-item__info {
     display: flex;
     font-size: 14px;
-    font-family: 'Poppins_Medium';
+    font-weight: 500;
 
     div {
         &::before {
@@ -228,12 +230,12 @@ export default {
     }
 
     .asset-item__type {
-        color: #0d7e71;
+        color: var(--#{$prefix}base-text);
+        font-weight: 400;
     }
 
     .asset-item__unlock {
         color: #6d747a;
-        font-family: 'Poppins_Regular';
     }
 }
 </style>

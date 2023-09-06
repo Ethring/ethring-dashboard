@@ -42,8 +42,8 @@ export default {
 </script>
 <style lang="scss" scoped>
 .accordion {
-    background: $colorWhite;
-    border: 1px solid $colorLightGreen;
+    background: var(--#{$prefix}accordion-bg-color);
+    border: 1px solid var(--#{$prefix}accordion-border-color);
     border-radius: 16px;
     padding: 27px 32px;
 
@@ -54,9 +54,9 @@ export default {
     }
 
     &__title {
-        color: #494c56;
-        font-size: 16px;
-        font-family: 'Poppins_Regular';
+        color: var(--#{$prefix}mute-text);
+        font-size: var(--#{$prefix}default-fs);
+        font-weight: 400;
     }
 
     &__content {
@@ -67,7 +67,7 @@ export default {
 
     svg.arrow {
         cursor: pointer;
-        fill: #73b1b1;
+        fill: var(--#{$prefix}select-icon-color);
         transform: rotate(0);
         @include animateEasy;
     }

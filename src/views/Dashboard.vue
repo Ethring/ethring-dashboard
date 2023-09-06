@@ -54,7 +54,7 @@ export default {
 
     &__wallet {
         position: relative;
-        background-color: $colorSlimLightBlue;
+        background-color: var(--#{$prefix}banner-color);
         padding: 24px 24px 28px 24px;
         box-sizing: border-box;
         border-radius: 16px;
@@ -79,16 +79,6 @@ export default {
     &__actions {
         margin: 15px 0;
         z-index: 1;
-    }
-}
-
-body.dark {
-    .dashboard {
-        background: rgb(12, 13, 23);
-
-        &__wallet {
-            background: $colorDarkPanel;
-        }
     }
 }
 </style>

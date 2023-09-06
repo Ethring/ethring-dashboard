@@ -24,13 +24,12 @@ export default {
 </script>
 <style lang="scss" scoped>
 .asset__item-sub-header {
-    background: #d9f4f1;
+    background: var(--#{$prefix}banner-bg-color);
     border-radius: 4px;
     padding: 7px 16px;
 
-    color: #486060;
+    color: var(--#{$prefix}base-text);
     font-size: 12px;
-    font-family: 'Poppins_Regular';
     margin: 16px 0;
 
     display: flex;

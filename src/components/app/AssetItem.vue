@@ -8,7 +8,7 @@
                 </div>
             </div>
             <div class="info">
-                <a-typography-text class="name" :ellipsis="{ tooltip: item.name }" :content="item.name" />
+                <div class="name">{{ item.name }}</div>
                 <slot></slot>
             </div>
         </div>
@@ -57,9 +57,8 @@ export default {
     border-radius: 16px;
     display: flex;
     align-items: center;
-    font-family: 'Poppins_Light';
     font-size: 22px;
-    color: $colorBlack;
+    color: $black;
     padding: 0 10px 12px 0;
     margin: 4px 0;
     box-sizing: border-box;
@@ -119,13 +118,13 @@ export default {
 
         .symbol {
             font-size: 18px;
-            font-family: 'Poppins_SemiBold';
+            font-weight: 500;
+            color: var(--#{$prefix}secondary-text);
         }
 
         .name {
             font-size: 16px;
-            font-family: 'Poppins_Regular';
-            color: #1c1f2c;
+            color: var(--#{$prefix}primary-text);
             margin-left: 8px;
         }
     }
@@ -142,15 +141,15 @@ export default {
 
         .value {
             font-size: 16px;
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
             margin-right: 5px;
-            color: #1c1f2c;
+            color: var(--#{$prefix}primary-text);
         }
 
         .symbol {
             font-size: 14px;
-            font-family: 'Poppins_Regular';
-            color: #494c56;
+            font-weight: 400;
+            color: var(--#{$prefix}secondary-text);
         }
     }
 
@@ -159,17 +158,17 @@ export default {
 
         span {
             font-size: 14px;
-            font-family: 'Poppins_Regular';
-            color: #494c56;
+            color: var(--#{$prefix}mute-text);
             text-align: right;
+            font-weight: 400;
             margin-right: 5px;
         }
 
         .value {
             font-size: 16px;
-            font-family: 'Poppins_SemiBold';
+            font-weight: 600;
             text-align: right;
-            color: #2e323e;
+            color: var(--#{$prefix}primary-text);
         }
     }
 }

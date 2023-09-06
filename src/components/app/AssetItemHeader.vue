@@ -88,7 +88,7 @@ export default {
     align-items: center;
     justify-content: space-between;
     padding-bottom: 16px;
-    border-bottom: 1px dashed #73b1b1;
+    border-bottom: 1px dashed var(--#{$prefix}border-secondary-color);
     cursor: pointer;
 
     &-info {
@@ -100,7 +100,7 @@ export default {
     &-logo {
         width: 40px;
         height: 40px;
-        border: 1px solid #1c1f2c;
+        border: 1px solid var(--#{$prefix}primary-text);
         border-radius: 50%;
 
         display: flex;
@@ -109,9 +109,9 @@ export default {
     }
 
     &-name {
-        color: #1c1f2c;
+        color: var(--#{$prefix}primary-text);
         font-size: 20px;
-        font-family: 'Poppins_SemiBold';
+        font-weight: 600;
 
         display: flex;
         align-items: baseline;
@@ -120,25 +120,24 @@ export default {
 
     &-value {
         font-size: 18px;
-        color: #0d7e71;
-        font-family: 'Poppins_Semibold';
+        color: var(--#{$prefix}eye-logo-hover);
+        font-weight: 600;
         margin-left: 8px;
     }
 
     &-symbol {
         font-size: 14px;
-        font-family: 'Poppins_Regular';
-        color: #494c56;
-
+        color: var(--#{$prefix}mute-text);
+        font-weight: 400;
         &__left {
             margin-left: 5px;
         }
     }
 
     &-balance {
-        color: #1c1f2c;
+        color: var(--#{$prefix}primary-text);
         font-size: 16px;
-        font-family: 'Poppins_Semibold';
+        font-weight: 600;
         text-align: right;
         width: 20%;
     }
@@ -148,9 +147,8 @@ export default {
         align-items: baseline;
         width: 20%;
 
-        color: #494c56;
+        color: var(--#{$prefix}mute-text);
         font-size: 14px;
-        font-family: 'Poppins_Regular';
     }
 }
 

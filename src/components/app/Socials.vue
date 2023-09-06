@@ -31,18 +31,13 @@ export default {
         align-items: center;
         width: 87px;
         height: 46px;
-        border: 1px solid #494c56;
+        border: 1px solid var(--#{$prefix}border-secondary-color);
         border-radius: 8px;
         cursor: pointer;
 
         svg {
-            fill: $colorBrightGreen;
+            fill: var(--#{$prefix}sidebar-icon-color);
         }
-    }
-}
-
-body.dark {
-    .socials {
     }
 }
 </style>

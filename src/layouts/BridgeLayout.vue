@@ -32,27 +32,27 @@ export default {
         display: flex;
         flex-direction: column;
         align-items: center;
-        color: $colorBlack;
+        color: var(--#{$prefix}black);
     }
 }
 
 .bridge-page__title {
-    color: #486060;
-    font-size: 32px;
-    font-family: 'Poppins_SemiBold';
+    color: var(--#{$prefix}base-text);
+    font-size: var(--#{$prefix}h1-fs);
+    font-weight: 600;
     margin-bottom: 30px;
     text-decoration: none;
 
     &__active {
-        color: $colorBlack;
-        font-size: 32px;
-        font-family: 'Poppins_SemiBold';
+        color: var(--#{$prefix}primary-text);
+        font-size: var(--#{$prefix}h1-fs);
+        font-weight: 600;
         margin-bottom: 30px;
         text-decoration: none;
     }
 }
 
 .arrow {
-    fill: $colorBlack;
+    fill: var(--#{$prefix}arrow-color);
 }
 </style>

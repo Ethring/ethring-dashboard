@@ -40,7 +40,7 @@ export default {
     }
 
     svg {
-        stroke: $colorLightBlue;
+        stroke: var(--#{$prefix}secondary-text);
     }
 
     &__add {
@@ -50,31 +50,15 @@ export default {
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: $colorLightGreen;
+        background: var(--#{$prefix}icon-secondary-bg-color);
     }
 
     .title {
-        font-family: 'Poppins_Light';
-        font-size: 14px;
+        font-weight: 300;
+        font-size: var(--#{$prefix}small-lg-fs);
         width: 162px;
         margin-left: 10px;
-        color: $colorLightBlue;
-    }
-}
-
-body.dark {
-    .not-connect {
-        &__add {
-            background: $colorLightGreenGray;
-        }
-
-        svg {
-            stroke: $themeGreen;
-        }
-
-        .title {
-            color: $colorWhite;
-        }
+        color: var(--#{$prefix}secondary-text);
     }
 }
 </style>
