@@ -194,11 +194,11 @@ export default {
     flex-direction: column;
     margin-top: 24px;
     padding-bottom: 24px;
-    background-color: var(--#{$prefix}secondary-background);
     border-radius: 16px;
 
     &__group {
         border: 1px solid var(--#{$prefix}border-color);
+        background-color: var(--#{$prefix}secondary-background);
         border-radius: 16px;
         padding: 16px;
         margin-bottom: 7px;
