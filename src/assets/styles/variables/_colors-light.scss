@@ -96,6 +96,7 @@ $checkbox-disabled: $mineralGreen;
 
 $border-color: $geyser;
 $border-secondary-color: $gulfStream;
+$border-color-op-05: rgba($border-color, 0.5);
 
 // Button
 $btn-text-color: $white;
@@ -207,6 +208,7 @@ $theme-colors: (
 
     "border-color": $border-color,
     "border-secondary-color": $border-secondary-color,
+    "border-color-op-05": $border-color-op-05,
 
     "btn-text-color": $btn-text-color,
     "btn-text-hover-color": $btn-text-hover-color,

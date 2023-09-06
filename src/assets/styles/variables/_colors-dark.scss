@@ -80,6 +80,7 @@ $checkbox-disabled: $mineralGreen;
 // Border
 $border-color: 'transparent';
 $border-secondary-color: $trout;
+$border-color-op-05: rgba($border-secondary-color, 0.5);
 
 // Button
 $btn-text-color: $ebonyClay;
@@ -194,6 +195,7 @@ $theme-colors-dark: (
 
     "border-color": $border-color,
     "border-secondary-color": $border-secondary-color,
+    "border-color-op-05": $border-color-op-05,
 
     "btn-text-color": $btn-text-color,
     "btn-text-hover-color": $btn-text-hover-color,

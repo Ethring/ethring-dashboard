@@ -54,17 +54,20 @@ export default {
 </script>
 <style lang="scss">
 .tokens__item {
-    border-radius: 16px;
     display: flex;
     align-items: center;
     font-size: 22px;
     color: $black;
-    padding: 0 10px 12px 0;
+    padding: 5px 10px 10px 0;
     margin: 4px 0;
     box-sizing: border-box;
 
     &:last-child {
         padding-bottom: 0;
+    }
+
+    &:not(:last-child) {
+        border-bottom: 1px solid var(--#{$prefix}border-color-op-05);
     }
 
     .network {
@@ -140,9 +143,9 @@ export default {
         align-items: baseline;
 
         .value {
-            font-size: 16px;
-            font-weight: 600;
-            margin-right: 5px;
+            font-size: 14px;
+            font-weight: 400;
+            margin-right: 3px;
             color: var(--#{$prefix}primary-text);
         }
 
@@ -161,12 +164,12 @@ export default {
             color: var(--#{$prefix}mute-text);
             text-align: right;
             font-weight: 400;
-            margin-right: 5px;
+            margin-right: 3px;
         }
 
         .value {
-            font-size: 16px;
-            font-weight: 600;
+            font-size: 14px;
+            font-weight: 400;
             text-align: right;
             color: var(--#{$prefix}primary-text);
         }
