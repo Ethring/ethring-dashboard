@@ -8,7 +8,7 @@
                 </div>
             </div>
             <div class="info">
-                <a-typography-text class="name" :style="{ width: '200px' }" :ellipsis="{ tooltip: item.name }" :content="item.name" />
+                <a-typography-text class="name" :ellipsis="{ tooltip: item.name }" :content="item.name" />
                 <slot></slot>
             </div>
         </div>

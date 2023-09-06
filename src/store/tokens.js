@@ -30,8 +30,8 @@ export default {
         toToken: null,
         address: '',
         disableLoader: false,
-        integrations: [],
-        totalBalance: 0,
+        integrations: {},
+        totalBalances: {},
     }),
 
     getters: {
@@ -46,12 +46,12 @@ export default {
         address: (state) => state.address,
         disableLoader: (state) => state.disableLoader,
         integrations: (state) => state.integrations,
-        totalBalance: (state) => state.totalBalance,
+        totalBalances: (state) => state.totalBalances,
     },
 
     mutations: {
         [types.SET_TOKENS](state, value) {
-            state.tokens = value;
+            state.tokens[value.address] = value.data;
         },
         [types.SET_DISABLE_LOADER](state, value) {
             state.disableLoader = value;
@@ -90,10 +90,10 @@ export default {
             }
         },
         [types.SET_INTEGRATIONS](state, value) {
-            state.integrations = value;
+            state.integrations[value.address] = value.data;
         },
         [types.SET_TOTAL_BALANCE](state, value) {
-            state.totalBalance = value;
+            state.totalBalances[value.address] = value.data;
         },
     },
 
@@ -134,7 +134,7 @@ export default {
         setIntegrations({ commit }, value) {
             commit(types.SET_INTEGRATIONS, value);
         },
-        setTotalBalance({ commit }, value) {
+        setTotalBalances({ commit }, value) {
             commit(types.SET_TOTAL_BALANCE, value);
         },
         async prepareTransfer(_, { net, from, amount, toAddress }) {

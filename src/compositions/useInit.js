@@ -10,9 +10,6 @@ export default async function useInit(address, store) {
         store.dispatch('tokens/setToToken', null);
         store.dispatch('bridge/setSelectedSrcNetwork', null);
         store.dispatch('bridge/setSelectedDstNetwork', null);
-        store.dispatch('tokens/setTokens', []);
-        store.dispatch('tokens/setTotalBalance', 0);
-        store.dispatch('tokens/setIntegrations', []);
     } else {
         store.dispatch('tokens/setDisableLoader', false);
     }
@@ -82,7 +79,6 @@ export default async function useInit(address, store) {
                     return token;
                 })
             );
-            store.dispatch('tokens/setTokens', allTokens);
         }
 
         if (assets?.integrations?.length) {
@@ -93,11 +89,12 @@ export default async function useInit(address, store) {
                 totalBalance += +item.balances.reduce((sum, token) => sum + +token.balanceUsd, 0);
             });
             allIntegrations.push(...assets.integrations);
-            store.dispatch('tokens/setIntegrations', allIntegrations);
         }
     }
 
-    store.dispatch('tokens/setTotalBalance', totalBalance);
+    store.dispatch('tokens/setTokens', { address, data: allTokens });
+    store.dispatch('tokens/setIntegrations', { address, data: allIntegrations });
+    store.dispatch('tokens/setTotalBalances', { address, data: totalBalance });
 
     await Promise.all(
         networksList.value.map(async ({ net, native_token }) => {

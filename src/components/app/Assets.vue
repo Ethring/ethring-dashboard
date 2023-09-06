@@ -59,6 +59,8 @@ import AssetItem from './AssetItem';
 import AssetItemHeader from './AssetItemHeader';
 import AssetItemSubHeader from './AssetItemSubHeader.vue';
 
+import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+
 import { getTokenIcon, sortByKey } from '@/helpers/utils';
 import { prettyNumber } from '@/helpers/prettyNumber';
 
@@ -75,16 +77,18 @@ export default {
 
         const groupHides = ref({});
 
+        const { walletAddress } = useWeb3Onboard();
+
         const loader = computed(() => store.getters['tokens/loader']);
 
-        const allTokens = computed(() => store.getters['tokens/tokens']);
+        const allTokens = computed(() => store.getters['tokens/tokens'][walletAddress.value] || []);
 
-        const totalBalance = computed(() => store.getters['tokens/totalBalance']);
+        const totalBalance = computed(() => store.getters['tokens/totalBalances'][walletAddress.value] || 0);
 
-        const allIntegrations = computed(() => store.getters['tokens/integrations']);
+        const allIntegrations = computed(() => store.getters['tokens/integrations'][walletAddress.value] || []);
 
         const emptyLists = computed(() => {
-            return !allTokens.value.length && !allIntegrations.value.length;
+            return !allTokens.value?.length && !allIntegrations.value?.length;
         });
 
         const tokensTotalBalance = computed(() => {

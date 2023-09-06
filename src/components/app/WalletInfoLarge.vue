@@ -58,7 +58,7 @@ export default {
         const marketCap = computed(() => store.getters['tokens/groupTokens']);
         const showBalance = computed(() => store.getters['app/showBalance']);
 
-        const totalBalance = computed(() => store.getters['tokens/totalBalance']);
+        const totalBalance = computed(() => store.getters['tokens/totalBalances'][walletAddress.value]);
 
         const toggleViewBalance = () => {
             store.dispatch('app/toggleViewBalance');
