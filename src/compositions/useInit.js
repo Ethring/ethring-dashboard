@@ -96,6 +96,8 @@ export default async function useInit(address, store) {
     store.dispatch('tokens/setIntegrations', { address, data: allIntegrations });
     store.dispatch('tokens/setTotalBalances', { address, data: totalBalance });
 
+    store.dispatch('tokens/setLoader', false);
+
     await Promise.all(
         networksList.value.map(async ({ net, native_token }) => {
             const balance = await balanceInfo(net);
@@ -113,5 +115,4 @@ export default async function useInit(address, store) {
     );
 
     store.dispatch('tokens/setGroupTokens', tokens);
-    store.dispatch('tokens/setLoader', false);
 }
