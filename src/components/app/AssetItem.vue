@@ -2,7 +2,7 @@
     <div class="tokens__item">
         <div class="network">
             <div class="logo">
-                <TokenIcon width="24" height="24" :token="item" />
+                <TokenIcon width="24" height="24" :token="item" :src="item.logo" />
                 <div class="chain">
                     <img :src="item.chainLogo" />
                 </div>
