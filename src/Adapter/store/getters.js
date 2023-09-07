@@ -10,6 +10,8 @@ export const CURRENT_CHAIN_INFO = 'getCurrentChainInfo';
 export const WALLET_ADDRESS = 'getWalletAddress';
 export const WALLET_ACCOUNT = 'getWalletAccount';
 
+export const MODAL_ECOSYSTEM = 'getModalEcosystem';
+
 export const CONNECTED_WALLET_MODULE = 'getConnectedWalletModule';
 
 export const CONNECTED_WALLETS = 'getConnectedWallets';

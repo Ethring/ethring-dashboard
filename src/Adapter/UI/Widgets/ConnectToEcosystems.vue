@@ -37,7 +37,7 @@ export default {
 
         const connect = async (ecosystem = ECOSYSTEMS.EVM) => {
             if (ecosystem === ECOSYSTEMS.COSMOS) {
-                return action('SET_MODAL_STATE', true);
+                return action('SET_MODAL_STATE', { name: 'wallets', isOpen: true });
             }
 
             try {

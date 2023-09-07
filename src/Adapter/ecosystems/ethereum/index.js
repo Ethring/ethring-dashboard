@@ -199,7 +199,8 @@ class EthereumAdapter extends AdapterBase {
 
                 const res = await tokenContract.populateTransaction.transfer(toAddress, ethers.utils.parseUnits(amount, token.decimals));
 
-                const value = !token?.address ? ethers.utils.parseEther(amount.value) : ethers.utils.parseUnits('0');
+                const value = !token?.address ? ethers.utils.parseEther(amount) : ethers.utils.parseUnits('0');
+
                 const nonce = await ethersProvider.getTransactionCount(fromAddress);
 
                 return {

@@ -27,7 +27,7 @@
         </div>
 
         <div class="wallet-adapter__actions">
-            <CopyOutlined />
+            <CopyOutlined @click="handleOnCopyAddress" />
             <CaretDownOutlined />
         </div>
     </div>
@@ -51,11 +51,16 @@ export default {
     components: { ModuleIcon, ZometLogo, CheckIcon, CaretDownOutlined, CopyOutlined },
     emits: ['toggleDropdown', 'closeDropdown'],
     setup(_, { emit }) {
-        const { ecosystem, walletAddress, walletAccount, connectedWallet, connectedWallets, isConnecting } = useAdapter();
+        const { ecosystem, walletAddress, walletAccount, connectedWallet, connectedWallets, isConnecting, action } = useAdapter();
 
         watch(connectedWallet, () => {
             emit('closeDropdown');
         });
+
+        const handleOnCopyAddress = () => {
+            action('SET_MODAL_ECOSYSTEM', ecosystem.value);
+            return action('SET_MODAL_STATE', { name: 'addresses', isOpen: true });
+        };
 
         return {
             isConnecting,
@@ -68,6 +73,8 @@ export default {
 
             cutAddress,
             prettyNumberTooltip,
+
+            handleOnCopyAddress,
         };
     },
 };
@@ -154,7 +161,7 @@ export default {
         width: 100%;
 
         .account {
-            font-size: 14px;
+            font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 500;
             color: var(--#{$prefix}mute-text);
         }

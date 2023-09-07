@@ -39,24 +39,24 @@ export default {
         const store = useStore();
         const selectedChain = ref('cosmoshub');
 
-        const isOpen = computed(() => store.getters['adapters/isOpen']);
+        const isOpen = computed(() => store.getters['adapters/isOpen']('wallets'));
+
+        const { connectTo, getChainListByEcosystem, getWalletsModuleByEcosystem, action } = useAdapter();
 
         const close = (e, closeBtn = false) => {
             const modal = document.getElementById('wallet-modal-overview');
 
             if (e.target === modal || closeBtn) {
-                store.dispatch('adapters/SET_MODAL_STATE', false);
+                return action('SET_MODAL_STATE', { name: 'wallets', isOpen: false });
             }
         };
-
-        const { connectTo, getChainListByEcosystem, getWalletsModuleByEcosystem } = useAdapter();
 
         const chainList = computed(() => getChainListByEcosystem(ECOSYSTEMS.COSMOS));
 
         const connect = async (wallet) => {
             const status = await connectTo(ECOSYSTEMS.COSMOS, wallet, selectedChain.value);
 
-            status && store.dispatch('adapters/SET_MODAL_STATE', false);
+            status && action('SET_MODAL_STATE', { name: 'wallets', isOpen: false });
         };
 
         return {

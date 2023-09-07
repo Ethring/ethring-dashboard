@@ -12,6 +12,7 @@
             </div>
         </div>
         <WalletsModal />
+        <AddressModal />
     </a-config-provider>
 </template>
 
@@ -19,10 +20,11 @@
 import { onMounted, onUpdated, onBeforeMount, watch, ref, computed } from 'vue';
 import { useStore } from 'vuex';
 
-import WalletsModal from '@/Adapter/UI/Modal/WalletsModal.vue';
-
 import useInit from '@/compositions/useInit';
 import useAdapter from '@/Adapter/compositions/useAdapter';
+
+import WalletsModal from '@/Adapter/UI/Modal/WalletsModal';
+import AddressModal from '@/Adapter/UI/Modal/AddressModal';
 
 import NavBar from '@/components/app/NavBar';
 import Sidebar from '@/components/app/Sidebar';
@@ -34,16 +36,16 @@ export default {
         Sidebar,
         NavBar,
         WalletsModal,
+        AddressModal,
         LoadingOverlay,
     },
 
     setup() {
         const store = useStore();
         const lastConnectedCall = ref(false);
-
-        const isOpen = computed(() => store.getters['adapters/isOpen']);
-
         const { isConnecting, walletAddress, walletAccount, currentChainInfo, connectLastConnectedWallet } = useAdapter();
+
+        const isOpen = computed(() => store.getters['adapters/isOpen']('wallets'));
 
         const callInit = async () => {
             if (!currentChainInfo.value || !currentChainInfo.value?.walletModule || !walletAddress.value) {

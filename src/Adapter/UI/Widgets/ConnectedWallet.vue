@@ -67,8 +67,7 @@ export default {
             required: true,
         },
     },
-    emits: ['open-addresses'],
-    setup(props, { emit }) {
+    setup(props) {
         const selectedChain = ref(props.wallet.chain);
 
         const { getChainListByEcosystem, getChainByChainId, setNewChain, connectTo, disconnectWallet, action, connectedWallet } =
@@ -116,7 +115,10 @@ export default {
             }
         };
 
-        const handleOnCopyAddress = (ecosystem) => emit('open-addresses', ecosystem);
+        const handleOnCopyAddress = (ecosystem) => {
+            action('SET_MODAL_ECOSYSTEM', ecosystem);
+            return action('SET_MODAL_STATE', { name: 'addresses', isOpen: true });
+        };
 
         const handleOnDisconnectAccount = async () => await disconnectWallet(props.wallet.ecosystem, props.wallet);
 

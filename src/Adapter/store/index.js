@@ -18,6 +18,11 @@ function findKeyDifferences(oldRecord, newRecord) {
         .filter((key) => oldRecord[key] !== newRecord[key]);
 }
 
+const MODALS = {
+    WALLETS: 'wallets',
+    ADDRESSES: 'addresses',
+};
+
 export default {
     namespaced: true,
     state: {
@@ -26,7 +31,13 @@ export default {
             [ECOSYSTEMS.COSMOS]: EcosystemAdapter(ECOSYSTEMS.COSMOS),
         },
 
-        isOpen: false,
+        modals: {
+            [MODALS.WALLETS]: false,
+            [MODALS.ADDRESSES]: false,
+        },
+
+        modalEcosystem: null,
+
         isConnecting: false,
 
         ecosystem: null,
@@ -35,8 +46,14 @@ export default {
         lastConnectedWallet: lastConnectedWalletStorage.value,
     },
     getters: {
-        [GETTERS.IS_OPEN]: (state) => state.isOpen,
+        [GETTERS.IS_OPEN]:
+            (state) =>
+            (name = MODALS.WALLETS) =>
+                state.modals[name],
+
         [GETTERS.IS_CONNECTING]: (state) => state.isConnecting,
+
+        [GETTERS.MODAL_ECOSYSTEM]: (state) => state.modalEcosystem || state.ecosystem,
 
         [GETTERS.CURRENT_ECOSYSTEM]: (state) => state.ecosystem,
 
@@ -48,9 +65,15 @@ export default {
         [GETTERS.LAST_CONNECTED_WALLET]: (state) => state.lastConnectedWallet,
     },
     actions: {
-        [TYPES.SET_MODAL_STATE]({ commit }, modalState) {
-            commit(TYPES.SET_MODAL_STATE, modalState);
+        // * Actions for Modals
+        [TYPES.SET_MODAL_STATE]({ commit }, { name, isOpen }) {
+            commit(TYPES.SET_MODAL_STATE, { name, isOpen });
         },
+        [TYPES.SET_MODAL_ECOSYSTEM]({ commit }, ecosystem) {
+            commit(TYPES.SET_MODAL_ECOSYSTEM, ecosystem);
+        },
+
+        // * Actions for Adapters
         [TYPES.SWITCH_ECOSYSTEM]({ commit }, ecosystem) {
             commit(TYPES.SWITCH_ECOSYSTEM, ecosystem);
         },
@@ -88,8 +111,11 @@ export default {
 
             return (connectedWalletsStorage.value = state.wallets);
         },
-        [TYPES.SET_MODAL_STATE](state, value) {
-            state.isOpen = value;
+        [TYPES.SET_MODAL_STATE](state, { name, isOpen }) {
+            state.modals[name] = isOpen;
+        },
+        [TYPES.SET_MODAL_ECOSYSTEM](state, value) {
+            state.modalEcosystem = value;
         },
         [TYPES.SET_IS_CONNECTING](state, value) {
             state.isConnecting = value;
