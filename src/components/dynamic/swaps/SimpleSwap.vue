@@ -101,7 +101,7 @@ export default {
         const router = useRouter();
         const { groupTokens, allTokensFromNetwork } = useTokens();
         const { walletAddress, currentChainInfo, connectedWallet, setChain } = useWeb3Onboard();
-        console.log(groupTokens, '--groupTokens');
+
         const isLoading = ref(false);
         const needApprove = ref(false);
         const balanceUpdated = ref(false);

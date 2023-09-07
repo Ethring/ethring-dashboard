@@ -54,7 +54,6 @@ export default {
 </script>
 <style lang="scss">
 .tokens__item {
-    border-radius: 16px;
     display: flex;
     align-items: center;
     font-weight: 300;
@@ -66,6 +65,10 @@ export default {
 
     &:last-child {
         padding-bottom: 0;
+    }
+
+    &:not(:last-child) {
+        border-bottom: 1px solid var(--#{$prefix}border-color-op-05);
     }
 
     .network {
@@ -163,7 +166,7 @@ export default {
             color: var(--#{$prefix}mute-text);
             text-align: right;
             font-weight: 400;
-            margin-right: 5px;
+            margin-right: 3px;
         }
 
         .value {

@@ -5,7 +5,7 @@
             <div class="info-wrap">
                 <div class="info" @click="clickToken" data-qa="select-token">
                     <div class="network">
-                        <TokenIcon width="24" height="24" :token="selectedToken" :src="selectedToken?.logo" dark />
+                        <TokenIcon width="24" height="24" :token="selectedToken" :src="selectedToken?.logo" />
                     </div>
                     <div class="token">{{ selectedToken?.code }}</div>
                     <arrowSvg class="arrow" />
@@ -33,27 +33,10 @@
                 <div><span>$</span>{{ payTokenPrice }}</div>
             </div>
         </div>
-        <div v-if="active" class="select-amount__items" v-click-away="clickAway">
-            <div
-                v-for="(item, ndx) in items"
-                :key="ndx"
-                :class="{ active: item.name === selectedToken?.name }"
-                class="select-amount__items-item"
-                @click="setToken(item)"
-            >
-                <div class="info">
-                    <div class="name">{{ item.name }}</div>
-                </div>
-                <div class="amount">
-                    {{ prettyNumber(item.name === selectedToken?.name ? setTokenBalance(selectedToken) : setTokenBalance(item)) }}
-                    <span>{{ item.code }}</span>
-                </div>
-            </div>
-        </div>
     </div>
 </template>
 <script>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 
 import BigNumber from 'bignumber.js';
 
@@ -68,9 +51,6 @@ export default {
     props: {
         value: {
             required: true,
-        },
-        items: {
-            required: false,
         },
         onReset: {
             type: [Boolean, String],
@@ -118,6 +98,7 @@ export default {
         const amount = ref('');
         const payTokenPrice = ref(0);
         const selectedToken = ref(props.value);
+
         const placeholder = ref('0');
         const coingeckoPrice = ref(0);
 
@@ -225,10 +206,6 @@ export default {
         const clickToken = () => {
             emit('clickToken');
         };
-
-        onMounted(async () => {
-            setToken(selectedToken.value);
-        });
 
         const setTokenBalance = (token) => {
             return BigNumber(token?.balance).toFixed();
