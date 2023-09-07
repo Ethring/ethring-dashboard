@@ -29,7 +29,7 @@ export default {
     padding: 7px 16px;
 
     color: var(--#{$prefix}base-text);
-    font-size: 12px;
+    font-size: var(--#{$prefix}small-sm-fs);
     margin: 16px 0;
 
     display: flex;

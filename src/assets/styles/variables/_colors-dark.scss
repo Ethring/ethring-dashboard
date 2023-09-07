@@ -138,6 +138,8 @@ $icon-logo-bg-color: $chineseBlack;
 $icon-logo-bg-hover: $aquamarine;
 $icon-secondary-bg-color: $ebonyClay;
 $icon-secondary-bg-hover: $mineralGreen;
+$icon-bg-color: $white;
+
 $sidebar-icon-color: $springGreen;
 $arrow-color: $white;
 
@@ -224,6 +226,7 @@ $theme-colors-dark: (
     "icon-hover": $icon-hover,
     "icon-disabled": $icon-disabled,
     "icon-border": $icon-border,
+    "icon-bg-color": $icon-bg-color,
 
     "icon-logo-bg-color": $icon-logo-bg-color,
     "icon-logo-bg-hover": $icon-logo-bg-hover,

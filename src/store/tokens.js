@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 import store from './index';
 
 const types = {
@@ -98,7 +99,7 @@ export default {
     },
 
     actions: {
-        setTokens({ commit }, value) {
+        async setTokens({ commit }, value) {
             commit(types.SET_TOKENS, value);
         },
         setAddress({ commit }, value) {
@@ -131,7 +132,8 @@ export default {
         setToToken({ commit }, value) {
             commit(types.SET_TO_TOKEN, value);
         },
-        setIntegrations({ commit }, value) {
+
+        async setIntegrations({ commit }, value) {
             commit(types.SET_INTEGRATIONS, value);
         },
         setTotalBalances({ commit }, value) {
@@ -158,65 +160,6 @@ export default {
             }
         },
 
-        //     let balance = 0;
-        //     let price = 0;
-        //     const tokens = _.getters['groupTokens'];
-
-        //     // balance parent network
-        //     const response = await axios.get(
-        //         `${process.env.VUE_APP_BACKEND_URL}/blockchain/${selectedNet.net}/${selectedNet.address}/balance`
-        //     );
-        //     if (response.status === 200) {
-        //         balance = response.data.data;
-        //     }
-        //     const result = await axios.get(`https://work.3ahtim54r.ru/api/currency/${selectedNet.net}/`);
-        //     if (result.status === 200) {
-        //         price = result.data.data;
-        //     }
-
-        //     // tokens child
-        //     const tokenInfo = await axios.get(
-        //         `${process.env.VUE_APP_BACKEND_URL}/blockchain/${selectedNet.net}/${selectedNet.address}/tokens?version=1.1.0`
-        //     );
-        //     // check status and exist tokens in network
-
-        //     const networks = store.getters['networks/networks'];
-        //     const tokensList = tokenInfo.data.data;
-        //     const parentTokens = networks[selectedNet.net]?.tokens;
-
-        //     const childs = Object.keys(tokensList)
-        //         .map((item) => {
-        //             const balance = tokensList[item];
-
-        //             return {
-        //                 ...tokensList[item],
-        //                 ...parentTokens[item],
-        //                 balance,
-        //                 balanceUsd: balance.amount * balance.price.USD,
-        //             };
-        //         })
-        //         ?.filter((item) => item.balance.amount > 0)
-        //         .sort((a, b) => {
-        //             if (a.balanceUsd > b.balanceUsd) {
-        //                 return 1;
-        //             }
-        //             if (a.balanceUsd < b.balanceUsd) {
-        //                 return 0;
-        //             }
-        //             return -1;
-        //         });
-        //     if (tokenInfo.status === 200) {
-        //         tokens[selectedNet.net] = { list: childs, balance, price, balanceUsd: balance.mainBalance * price.USD };
-        //     }
-        //     _.dispatch('setGroupTokens', tokens);
-        //     const wallet = {
-        //         ...selectedNet.info,
-        //         balance: tokens[selectedNet.net]?.balance,
-        //         balanceUsd: tokens[selectedNet.net]?.balanceUsd,
-        //     };
-        //     wallet.list = [...childs, wallet];
-        //     selectedNet.update(wallet);
-        // },
         async updateTokenBalances(_, selectedNet) {
             const balanceInfo = async () => {
                 try {

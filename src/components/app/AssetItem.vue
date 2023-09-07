@@ -57,8 +57,9 @@ export default {
     border-radius: 16px;
     display: flex;
     align-items: center;
-    font-size: 22px;
-    color: $black;
+    font-weight: 300;
+    font-size: var(--#{$prefix}h4-fs);
+    color: var(--#{$prefix}black);
     padding: 0 10px 12px 0;
     margin: 4px 0;
     box-sizing: border-box;
@@ -76,7 +77,7 @@ export default {
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: #d9f4f1;
+            background: var(--#{$prefix}icon-bg-color);
             margin-right: 10px;
             display: flex;
             justify-content: center;
@@ -117,14 +118,15 @@ export default {
         }
 
         .symbol {
-            font-size: 18px;
+            font-size: var(--#{$prefix}h6-fs);
             font-weight: 500;
             color: var(--#{$prefix}secondary-text);
         }
 
         .name {
-            font-size: 16px;
+            font-size: var(--#{$prefix}default-fs);
             color: var(--#{$prefix}primary-text);
+            font-weight: 400;
             margin-left: 8px;
         }
     }
@@ -140,14 +142,14 @@ export default {
         align-items: baseline;
 
         .value {
-            font-size: 16px;
+            font-size: var(--#{$prefix}default-fs);
             font-weight: 600;
             margin-right: 5px;
             color: var(--#{$prefix}primary-text);
         }
 
         .symbol {
-            font-size: 14px;
+            font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 400;
             color: var(--#{$prefix}secondary-text);
         }
@@ -157,7 +159,7 @@ export default {
         width: 20%;
 
         span {
-            font-size: 14px;
+            font-size: var(--#{$prefix}default-fs);
             color: var(--#{$prefix}mute-text);
             text-align: right;
             font-weight: 400;
@@ -165,7 +167,7 @@ export default {
         }
 
         .value {
-            font-size: 16px;
+            font-size: var(--#{$prefix}default-fs);
             font-weight: 600;
             text-align: right;
             color: var(--#{$prefix}primary-text);

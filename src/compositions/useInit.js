@@ -56,7 +56,7 @@ export default async function useInit(address, store) {
 
     const assetsInfo = async (net) => {
         try {
-            const response = await axios.get(`${process.env.VUE_APP_DATA_PROVIDER_URL}?net=${net}&address=${address}`);
+            const response = await axios.get(`${process.env.VUE_APP_DATA_PROVIDER_URL}/balances?net=${net}&address=${address}`);
 
             if (response.status === 200) {
                 return response.data.data;

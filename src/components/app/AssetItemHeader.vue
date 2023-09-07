@@ -110,7 +110,7 @@ export default {
 
     &-name {
         color: var(--#{$prefix}primary-text);
-        font-size: 20px;
+        font-size: var(--#{$prefix}h5-fs);
         font-weight: 600;
 
         display: flex;
@@ -119,14 +119,14 @@ export default {
     }
 
     &-value {
-        font-size: 18px;
+        font-size: var(--#{$prefix}h6-fs);
         color: var(--#{$prefix}eye-logo-hover);
         font-weight: 600;
         margin-left: 8px;
     }
 
     &-symbol {
-        font-size: 14px;
+        font-size: var(--#{$prefix}small-lg-fs);
         color: var(--#{$prefix}mute-text);
         font-weight: 400;
         &__left {
@@ -136,7 +136,7 @@ export default {
 
     &-balance {
         color: var(--#{$prefix}primary-text);
-        font-size: 16px;
+        font-size: var(--#{$prefix}default-fs);
         font-weight: 600;
         text-align: right;
         width: 20%;
@@ -148,7 +148,7 @@ export default {
         width: 20%;
 
         color: var(--#{$prefix}mute-text);
-        font-size: 14px;
+        font-size: var(--#{$prefix}small-lg-fs);
     }
 }
 
