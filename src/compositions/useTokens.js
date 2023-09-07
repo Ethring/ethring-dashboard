@@ -22,18 +22,8 @@ export default function useTokens() {
                   })
                   .map((token) => ({
                       ...token,
-                      balance: {
-                          amount: 0,
-                          price: {
-                              BTC: 0,
-                              USD: 0,
-                          },
-                      },
+                      balance: 0,
                       balanceUsd: 0,
-                      price: {
-                          BTC: 0,
-                          USD: 0,
-                      },
                   }))
                   .sort((a, b) => {
                       if (a.name > b.name) {
@@ -57,17 +47,18 @@ export default function useTokens() {
                 const tokens = groupTokensBalance.value[parentNet]?.list;
 
                 if (tokens && tokens.length > 0) {
-                    children = sortByBalanceUsd(tokens?.filter((item) => item.balance.amount > 0) ?? []);
+                    children = sortByBalanceUsd(tokens?.filter((item) => item.balance > 0) ?? []);
                 }
+                const nativeToken = tokens.find((elem) => elem.chain.toLowerCase() === parentNet);
                 groupList.push({
                     priority: currentChainInfo.value?.net === parentNet ? 1 : 0,
                     net: parentNet,
                     name: parentNet,
                     ...networks.value[parentNet],
-                    balance: groupTokensBalance.value[parentNet]?.balance || 0,
+                    balance: nativeToken?.balance || 0,
+                    latest_price: nativeToken?.latest_price || 0,
                     list: children,
-                    price: groupTokensBalance.value[parentNet]?.price,
-                    totalSumUSD: children?.reduce((acc, item) => acc + item.balanceUsd, 0) ?? 0,
+                    totalSumUSD: children?.reduce((acc, item) => acc + +item.balanceUsd, 0) ?? 0,
                     chain_id: chainIds[parentNet],
                 });
             });
@@ -92,20 +83,13 @@ export default function useTokens() {
                 return sortByBalanceUsd(
                     Object.keys(tokens)
                         .map((item) => {
-                            const balance = tokensBalance.value[tokens[item].net] || {
-                                amount: 0,
-                                price: {
-                                    BTC: 0,
-                                    USD: 0,
-                                },
-                            };
+                            const balance = tokensBalance.value[tokens[item].net] || 0;
                             return {
                                 ...tokens[item],
                                 balance,
-                                balanceUsd: balance.amount * balance.price.USD,
                             };
                         })
-                        ?.filter((item) => item.balance.amount > 0)
+                        ?.filter((item) => item.balance > 0)
                 );
             }
         }

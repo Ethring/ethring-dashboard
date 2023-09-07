@@ -101,7 +101,7 @@ export default {
         const router = useRouter();
         const { groupTokens, allTokensFromNetwork } = useTokens();
         const { walletAddress, currentChainInfo, connectedWallet, setChain } = useWeb3Onboard();
-
+        console.log(groupTokens, '--groupTokens');
         const isLoading = ref(false);
         const needApprove = ref(false);
         const balanceUpdated = ref(false);
@@ -223,7 +223,7 @@ export default {
             }
             receiveValue.value = '';
             amount.value = value;
-            if (+value > selectedTokenFrom.value.balance?.amount || +value > selectedTokenFrom.value.balance?.mainBalance) {
+            if (+value > selectedTokenFrom.value.balance) {
                 errorBalance.value = 'Insufficient balance';
             } else {
                 errorBalance.value = '';
@@ -285,7 +285,7 @@ export default {
             }
             txError.value = '';
             receiveValue.value = resEstimate.toTokenAmount;
-            networkFee.value = prettyNumberTooltip(+resEstimate.fee.amount * selectedNetwork.value.price.USD, 4);
+            networkFee.value = prettyNumberTooltip(+resEstimate.fee.amount * selectedNetwork.value.latest_price, 4);
             estimateRate.value = prettyNumberTooltip(resEstimate.toTokenAmount / resEstimate.fromTokenAmount, 6);
             setReceiveValue.value = `Rate: <span class='symbol'>1</span> ${selectedTokenFrom.value.code} = <span class='symbol'>${estimateRate.value}</span> ${selectedTokenTo.value.code}`;
         };

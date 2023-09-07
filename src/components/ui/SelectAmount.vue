@@ -5,7 +5,7 @@
             <div class="info-wrap">
                 <div class="info" @click="clickToken" data-qa="select-token">
                     <div class="network">
-                        <TokenIcon width="24" height="24" :token="selectedToken" dark />
+                        <TokenIcon width="24" height="24" :token="selectedToken" :src="selectedToken?.logo" dark />
                     </div>
                     <div class="token">{{ selectedToken?.code }}</div>
                     <arrowSvg class="arrow" />
@@ -173,12 +173,7 @@ export default {
                 } else {
                     amount.value = val;
                 }
-                payTokenPrice.value =
-                    prettyNumber(
-                        BigNumber(
-                            amount.value * (selectedToken?.value?.balance?.price?.USD || selectedToken?.value?.price?.USD) || 0
-                        ).toFixed()
-                    ) || 0;
+                payTokenPrice.value = prettyNumber(BigNumber(amount.value * +selectedToken?.value?.latest_price || 0).toFixed()) || 0;
             } else {
                 payTokenPrice.value = '0';
             }
@@ -206,7 +201,7 @@ export default {
         const setMax = () => {
             active.value = false;
             if (!props.hideMax) {
-                let balance = selectedToken.value?.balance?.amount || selectedToken.value?.balance?.mainBalance;
+                let balance = selectedToken.value?.balance;
                 if (balance > 0) {
                     balance = BigNumber(balance).toFixed();
                 } else {
@@ -236,7 +231,7 @@ export default {
         });
 
         const setTokenBalance = (token) => {
-            return BigNumber(token?.balance?.mainBalance || token?.balance?.amount || 0).toFixed();
+            return BigNumber(token?.balance).toFixed();
         };
 
         return {

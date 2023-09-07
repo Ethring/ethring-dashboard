@@ -97,10 +97,7 @@ export default {
                         chainId: selectedNetwork.value?.chain_id || selectedNetwork.value?.chainId,
                         addresses: item.address,
                     });
-                    item.balance.price = {
-                        BTC: price[item.address]?.btc,
-                        USD: price[item.address]?.usd,
-                    };
+                    item.latest_price = price[item.address]?.usd;
                     store.dispatch('tokens/setToToken', item);
                 }
             }

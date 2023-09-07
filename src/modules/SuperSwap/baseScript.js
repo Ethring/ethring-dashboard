@@ -43,7 +43,7 @@ export async function findBestRoute(amount, walletAddress) {
                 fromTokenAmount: amount,
                 toTokenAmount: result.bestRoute.toTokenAmount,
                 toAmountUsd:
-                    result.bestRoute.toTokenAmount * (result.bestRoute.toToken.balance.price?.USD || result.bestRoute.toToken.price?.USD),
+                    result.bestRoute.toTokenAmount * (+result.bestRoute.toToken.latest_price || +result.bestRoute.toToken.latest_price),
                 estimateFeeUsd: result.bestRoute.estimateFeeUsd,
                 estimateTime: result.bestRoute.estimateTime,
                 routes: [result.bestRoute],
@@ -55,7 +55,7 @@ export async function findBestRoute(amount, walletAddress) {
             bestRoute.toTokenAmount = result.bestRoute.toTokenAmount;
             bestRoute.estimateFeeUsd += result.bestRoute.estimateFeeUsd;
             bestRoute.toAmountUsd =
-                result.bestRoute.toTokenAmount * (result.bestRoute.toToken.balance.price?.USD || result.bestRoute.toToken.price?.USD);
+                result.bestRoute.toTokenAmount * (+result.bestRoute.toToken.latest_price || +result.bestRoute.toToken.latest_price);
             bestRoute.estimateTime += result.bestRoute.estimateTime;
             bestRoute.routes.push({ ...result.bestRoute, status: STATUSES.PENDING });
             return bestRoute;
@@ -68,7 +68,7 @@ export async function findBestRoute(amount, walletAddress) {
                 const { routes = [] } = otherRoutes;
                 const [currentRouteInfo] = routes;
 
-                const usdPrice = currentRouteInfo.toToken.balance?.price?.USD || currentRouteInfo.toToken?.price?.USD;
+                const usdPrice = +currentRouteInfo.toToken.latest_price || +currentRouteInfo.toToken?.latest_price;
 
                 const currentBestRoute = {
                     estimateFeeUsd: bestRoute.estimateFeeUsd + otherRoutes.estimateFeeUsd,
@@ -98,12 +98,11 @@ export async function findBestRoute(amount, walletAddress) {
                     route.estimateFeeUsd += result.bestRoute.estimateFeeUsd;
 
                     route.toAmountUsd =
-                        result.bestRoute.toTokenAmount *
-                        (result.bestRoute.toToken.balance.price?.USD || result.bestRoute.toToken.price?.USD);
+                        result.bestRoute.toTokenAmount * (+result.bestRoute.toToken.latest_price || +result.bestRoute.toToken.latest_price);
 
                     route.estimateTime += result.bestRoute.estimateTime;
 
-                    route.routes.push({ ...result.bestRoute, status: 'pending' });
+                    route.routes.push({ ...result.bestRoute, status: STATUSES.PENDING });
                     delete route.service;
                     delete route.fee;
                     otherRoutesList.push(route);
@@ -189,6 +188,7 @@ export async function findBestRoute(amount, walletAddress) {
 
 async function findRoute(params) {
     try {
+        console.log(params);
         let bestRoute = {};
         let otherRoutes = [];
         let bestRouteExist = false;
@@ -196,7 +196,7 @@ async function findRoute(params) {
         let apiRoute = null;
         let error = null;
         const tokensByService = store.getters['bridge/tokensByService'];
-
+        console.log(tokensByService, '--tokensByService');
         if (params.fromNet === params.toNet) {
             services = swapServices;
             apiRoute = 'swap/estimateSwap';
@@ -206,18 +206,15 @@ async function findRoute(params) {
         }
 
         const checkFee = (resEstimate) => {
-            if (+params.fromNetwork.balance?.mainBalance === 0) {
+            if (+params.fromNetwork.balance === 0) {
                 return true;
             }
 
-            if (resEstimate.fee.currency === params.fromNetwork.code && resEstimate.fee.amount > params.fromNetwork.balance?.mainBalance) {
+            if (resEstimate.fee.currency === params.fromNetwork.code && resEstimate.fee.amount > params.fromNetwork.balance) {
                 return true;
             }
 
-            if (
-                resEstimate.fee.currency === params.fromToken.code &&
-                +resEstimate.fee.amount + +params.amount > params.fromToken.balance?.amount
-            ) {
+            if (resEstimate.fee.currency === params.fromToken.code && +resEstimate.fee.amount + +params.amount > params.fromToken.balance) {
                 return true;
             }
         };
@@ -240,31 +237,18 @@ async function findRoute(params) {
 
         const getFeeInfo = (info, params, service) => {
             if (service.protocolFee) {
-                return +service.protocolFee[params.fromNetwork.chain_id] * params.fromNetwork?.price?.USD;
+                return +service.protocolFee[params.fromNetwork.chain_id] * +params.fromNetwork?.latest_price;
             }
 
             if (info.fee.currency === params.fromToken.code) {
-                return info.fee.amount * (params.fromToken.balance.price?.USD || params.fromToken.price?.USD);
+                return info.fee.amount * (+params.fromToken.latest_price || +params.fromToken.latest_price);
             }
 
-            return info.fee.amount * params.fromNetwork?.price?.USD;
+            return info.fee.amount * +params.fromNetwork?.latest_price;
         };
-
-        const notFoundInTokens = (key = 'fromTokenAddress', service) =>
-            params[key] && !tokensByService[service.name]?.find((elem) => elem.address.toLowerCase() === params[key].toLowerCase());
 
         const promises = services.map(async (service) => {
             params.url = service.url;
-
-            if (service.tokensByChain && notFoundInTokens('fromTokenAddres', service)) {
-                error = ERRORS.BRIDGE_ERROR;
-                return;
-            }
-
-            if (service.isStableSwap && notFoundInTokens('toTokenAddres', service)) {
-                error = ERRORS.BRIDGE_ERROR;
-                return;
-            }
 
             const resEstimate = await store.dispatch(apiRoute, params);
 
@@ -291,7 +275,7 @@ async function findRoute(params) {
 
             resEstimate.estimateFeeUsd = getFeeInfo(resEstimate, params, service);
 
-            resEstimate.toAmountUsd = +resEstimate?.toTokenAmount * (params.toToken.balance.price?.USD || params.toToken.price?.USD);
+            resEstimate.toAmountUsd = +resEstimate?.toTokenAmount * (+params.toToken.latest_price || +params.toToken.latest_price);
 
             if (!bestRoute?.toTokenAmount) {
                 bestRoute = resEstimate;
@@ -340,6 +324,7 @@ async function findRoute(params) {
 
         return { bestRoute, otherRoutes };
     } catch (e) {
+        console.log(e);
         return checkErrors(e);
     }
 }

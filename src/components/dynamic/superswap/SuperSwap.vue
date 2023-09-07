@@ -371,7 +371,7 @@ export default {
                 callEstimate.value = false;
             }
 
-            if (+value > selectedSrcToken.value.balance.amount || +value > selectedSrcToken.value.balance.mainBalance) {
+            if (+value > selectedSrcToken.value.balance || +value > selectedSrcToken.value.balance) {
                 errorBalance.value = 'Insufficient balance';
             } else {
                 errorBalance.value = '';

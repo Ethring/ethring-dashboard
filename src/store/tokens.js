@@ -214,7 +214,7 @@ export default {
                 ...selectedNet.info,
                 balance: tokens[selectedNet.net]?.balance,
                 balanceUsd: tokens[selectedNet.net]?.balance.mainBalance * tokens[selectedNet.net]?.price.USD,
-                list: sortByBalanceUsd(tokens[selectedNet.net].list?.filter((item) => item.balance.amount > 0) ?? []),
+                list: sortByBalanceUsd(tokens[selectedNet.net].list?.filter((item) => item.balance > 0) ?? []),
             };
             selectedNet.update(wallet);
         },

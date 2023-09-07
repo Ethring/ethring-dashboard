@@ -91,7 +91,6 @@ export default {
         const errorAddress = ref('');
         const errorBalance = ref('');
 
-        // const favouritesList = computed(() => store.getters['tokens/favourites']);
         const zometNetworks = computed(() => store.getters['networks/zometNetworksList']);
         const selectedToken = computed(() => store.getters['tokens/fromToken']);
         const networks = computed(() => store.getters['networks/networks']);
@@ -148,7 +147,7 @@ export default {
                 errorBalance.value = 'Incorrect amount';
                 return;
             }
-            if (+value > selectedToken.value?.balance?.amount || +value > selectedToken.value?.balance?.mainBalance) {
+            if (+value > selectedToken.value?.balance) {
                 errorBalance.value = 'Insufficient balance';
             } else {
                 errorBalance.value = '';
