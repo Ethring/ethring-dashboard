@@ -23,10 +23,12 @@
     </div>
 </template>
 <script>
-import { prettyNumber } from '@/helpers/prettyNumber';
-import TokenIcon from '@/components/ui/TokenIcon';
 import { computed } from 'vue';
 import { useStore } from 'vuex';
+
+import TokenIcon from '@/components/ui/TokenIcon';
+
+import { prettyNumber } from '@/helpers/prettyNumber';
 
 export default {
     name: 'TokensItem',
@@ -56,14 +58,15 @@ export default {
 <style lang="scss" scoped>
 .tokens__item {
     min-height: 72px;
-    border: 1px solid $colorLightGreen;
+    border: 1px solid var(--#{$prefix}icon-logo-bg-color);
     border-radius: 16px;
     margin-bottom: 7px;
+
     display: flex;
     align-items: center;
-    font-family: 'Poppins_Light';
-    font-size: 22px;
-    color: $colorBlack;
+    font-weight: 300;
+    font-size: var(--#{$prefix}h4-fs);
+    color: var(--#{$prefix}black);
     cursor: pointer;
     padding: 0 10px;
     box-sizing: border-box;
@@ -73,12 +76,6 @@ export default {
         margin-bottom: 3px;
         padding: 3px 0 0 0;
         min-height: 55px;
-
-        .network {
-            .logo {
-                // background: #ccd5f0;
-            }
-        }
     }
 
     .network {
@@ -89,30 +86,32 @@ export default {
         .logo {
             width: 40px;
             height: 40px;
+
             border-radius: 50%;
-            background: $colorBlack;
+            background: var(--#{$prefix}black);
             margin-right: 10px;
+
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
         .symbol {
-            font-size: 18px;
-            font-family: 'Poppins_SemiBold';
+            font-size: var(--#{$prefix}h6-fs);
+            font-weight: 600;
         }
 
         .name {
             margin-top: -3px;
-            font-size: 14px;
-            font-family: 'Poppins_Regular';
-            color: $colorBlack;
+            font-size: var(--#{$prefix}small-lg-fs);
+            font-weight: 400;
+            color: var(--#{$prefix}primary-text);
         }
 
         .blockchain {
-            font-family: 'Poppins_Regular';
-            color: $colorBaseGreen;
-            font-size: 12px;
+            font-weight: 400;
+            color: var(--#{$prefix}sub-text);
+            font-size: var(--#{$prefix}small-sm-fs);
             text-transform: uppercase;
         }
     }
@@ -123,16 +122,16 @@ export default {
         align-items: center;
 
         .value {
-            font-size: 18px;
-            font-family: 'Poppins_SemiBold';
+            font-size: var(--#{$prefix}h6-fs);
+            font-weight: 600;
             margin-right: 5px;
-            color: $colorBlack;
+            color: var(--#{$prefix}primary-text);
         }
 
         .symbol {
-            font-size: 14px;
-            font-family: 'Poppins_Regular';
-            color: #5b5b5b;
+            font-size: var(--#{$prefix}small-lg-fs);
+            font-weight: 400;
+            color: var(--#{$prefix}secondary-text);
         }
     }
 
@@ -142,77 +141,20 @@ export default {
         flex-direction: column;
 
         .label {
-            font-size: 14px;
-            font-family: 'Poppins_Regular';
-            color: #5b5b5b;
+            font-size: var(--#{$prefix}small-lg-fs);
+            font-weight: 400;
+            color: var(--#{$prefix}mute-text);
             text-align: right;
         }
 
         .value {
-            font-size: 16px;
-            font-family: 'Poppins_SemiBold';
+            font-size: var(--#{$prefix}default-fs);
+            color: var(--#{$prefix}primary-text);
+            font-weight: 600;
             text-align: right;
-        }
-    }
-}
 
-body.dark {
-    .tokens__item {
-        background: $colorDarkPanel;
-        border-color: transparent;
-
-        &.inGroup {
-            border-color: transparent;
-
-            .network {
-                border-color: $colorBlack;
-                .logo {
-                    background: $colorBlack;
-                }
-            }
-        }
-
-        .network {
-            .logo {
-                background: #22331f;
-            }
-
-            .info {
-                .symbol {
-                    color: $colorWhite;
-                }
-
-                .name {
-                    color: $colorWhite;
-                }
-
-                .blockchain {
-                    color: $colorBrightGreen;
-                }
-            }
-        }
-
-        .amount {
-            .value {
-                color: $colorWhite;
-            }
-
-            .symbol {
-                color: #97ffd0;
-            }
-        }
-
-        .change {
-            .label {
-                color: $colorWhite;
-            }
-
-            .value {
-                color: $colorWhite;
-
-                span {
-                    color: #97ffd0;
-                }
+            span {
+                color: var(--#{$prefix}secondary-text);
             }
         }
     }

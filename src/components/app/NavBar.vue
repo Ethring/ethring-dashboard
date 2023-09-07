@@ -31,7 +31,7 @@ export default {
 
         padding: 40px 0 20px;
 
-        background-color: #fff;
+        background-color: var(--#{$prefix}nav-bar-bg-color);
         margin-right: auto;
         margin-left: auto;
     }

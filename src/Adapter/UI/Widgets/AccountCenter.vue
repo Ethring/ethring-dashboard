@@ -18,16 +18,23 @@
             </div>
 
             <div class="wallet-adapter__info">
-                <p class="account">{{ cutAddress(walletAccount, 11, 4) }}</p>
-                <p class="ecosystem">{{ ecosystem }}</p>
+                <a-skeleton-button v-if="isConnecting" :loading="isConnecting" active block />
+                <template v-else>
+                    <p class="account">{{ cutAddress(walletAccount, 11, 4) }}</p>
+                    <p class="ecosystem">{{ ecosystem }}</p>
+                </template>
             </div>
         </div>
-        <caret-down-outlined />
+
+        <div class="wallet-adapter__actions">
+            <CopyOutlined />
+            <CaretDownOutlined />
+        </div>
     </div>
 </template>
 <script>
 import { watch } from 'vue';
-import { CaretDownOutlined } from '@ant-design/icons-vue';
+import { CaretDownOutlined, CopyOutlined } from '@ant-design/icons-vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
@@ -41,16 +48,18 @@ import { prettyNumberTooltip } from '@/helpers/prettyNumber';
 
 export default {
     name: 'AccountCenter',
-    components: { ModuleIcon, ZometLogo, CheckIcon, CaretDownOutlined },
+    components: { ModuleIcon, ZometLogo, CheckIcon, CaretDownOutlined, CopyOutlined },
     emits: ['toggleDropdown', 'closeDropdown'],
     setup(_, { emit }) {
-        const { ecosystem, walletAddress, walletAccount, connectedWallet, connectedWallets } = useAdapter();
+        const { ecosystem, walletAddress, walletAccount, connectedWallet, connectedWallets, isConnecting } = useAdapter();
 
         watch(connectedWallet, () => {
             emit('closeDropdown');
         });
 
         return {
+            isConnecting,
+
             ecosystem,
             connectedWallet,
             connectedWallets,
@@ -77,7 +86,8 @@ export default {
     height: 58px;
     position: relative;
 
-    background-color: #d9f4f1;
+    background-color: var(--#{$prefix}banner-color);
+
     border: 1px solid transparent;
 
     transition: 0.3s;
@@ -86,7 +96,7 @@ export default {
     padding: 8px 16px;
 
     &:hover {
-        border-color: #3fdfae;
+        border-color: var(--#{$prefix}btn-hover);
     }
 
     &__account {
@@ -116,7 +126,7 @@ export default {
 
             &.main-logo {
                 margin-left: 0;
-                background-color: #3fdfae;
+                background-color: var(--#{$prefix}banner-logo-color);
             }
 
             .check-icon {
@@ -146,13 +156,30 @@ export default {
         .account {
             font-size: 14px;
             font-weight: 500;
-            color: #000;
+            color: var(--#{$prefix}mute-text);
         }
 
         .ecosystem {
             font-size: 10px;
             font-weight: 400;
-            color: #486060;
+            color: var(--#{$prefix}base-text);
+        }
+    }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+
+        gap: 8px;
+
+        color: var(--#{$prefix}icon-active);
+
+        span {
+            cursor: pointer;
+        }
+
+        span:hover {
+            color: var(--#{$prefix}icon-hover);
         }
     }
 }

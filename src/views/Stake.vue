@@ -20,21 +20,9 @@ export default {
         height: calc(100vh - 125px);
 
         &__title {
-            color: $colorBlack;
-            font-size: 32px;
-            font-family: 'Poppins_SemiBold';
-        }
-    }
-}
-
-body.dark {
-    .stake {
-        background: rgb(12, 13, 23);
-
-        .stake-page {
-            &__title {
-                color: $colorWhite;
-            }
+            color: var(--#{$prefix}black);
+            font-size: var(--#{$prefix}h1-fs);
+            font-weight: 600;
         }
     }
 }

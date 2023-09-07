@@ -7,8 +7,6 @@
 </template>
 
 <script>
-import { useStore } from 'vuex';
-
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
@@ -35,16 +33,20 @@ export default {
             },
         ];
 
-        const store = useStore();
-
-        const { connectTo } = useAdapter();
+        const { connectTo, action } = useAdapter();
 
         const connect = async (ecosystem = ECOSYSTEMS.EVM) => {
             if (ecosystem === ECOSYSTEMS.COSMOS) {
-                return store.dispatch('adapters/SET_MODAL_STATE', true);
+                return action('SET_MODAL_STATE', true);
             }
 
-            return await connectTo(ecosystem);
+            try {
+                const status = await connectTo(ecosystem);
+                status && action('SET_IS_CONNECTING', false);
+            } catch (error) {
+                action('SET_IS_CONNECTING', false);
+                console.log(error);
+            }
         };
 
         return {

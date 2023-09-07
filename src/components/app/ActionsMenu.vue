@@ -49,34 +49,18 @@ export default {
         display: flex;
         flex-direction: column;
         align-items: center;
-        font-family: 'Poppins_Light';
-        font-size: 22px;
-        color: $colorBlack;
+        font-weight: 300;
+        font-size: var(--#{$prefix}h4-fs);
+        color: var(--#{$prefix}primary-text);
         margin-right: 25px;
         cursor: pointer;
 
         .arrow {
-            fill: $colorBlack;
+            fill: var(--#{$prefix}arrow-color);
         }
 
         &.active {
-            font-family: 'Poppins_SemiBold';
-        }
-    }
-}
-
-body.dark {
-    .actions-menu {
-        &__item {
-            color: $colorLightBrown;
-
-            &.active {
-                color: $colorWhite;
-            }
-
-            .arrow {
-                fill: $colorBrightGreen;
-            }
+            font-weight: 600;
         }
     }
 }

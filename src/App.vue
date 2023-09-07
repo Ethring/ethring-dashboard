@@ -1,17 +1,18 @@
 <template>
-    <LoadingOverlay v-if="isConnecting" />
-    <div class="app-wrap" :class="{ 'lock-scroll': isOpen }">
-        <Sidebar />
-        <NavBar />
+    <a-config-provider>
+        <LoadingOverlay v-if="isConnecting" />
+        <div class="app-wrap" :class="{ 'lock-scroll': isOpen }">
+            <Sidebar />
+            <NavBar />
 
-        <div class="app-wrap__layout">
-            <div>
-                <router-view />
+            <div class="app-wrap__layout">
+                <div>
+                    <router-view />
+                </div>
             </div>
         </div>
-    </div>
-    <WalletsModal />
-    <!-- <AccountsModal /> -->
+        <WalletsModal />
+    </a-config-provider>
 </template>
 
 <script>

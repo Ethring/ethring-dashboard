@@ -41,8 +41,6 @@ function useAdapter() {
 
     // * Functions
     function subscribeToWalletsChange() {
-        adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
-
         if (!mainAdapter.value?.subscribeToWalletsChange) {
             return;
         }
@@ -66,8 +64,6 @@ function useAdapter() {
 
     // * Store Wallet Info
     function storeWalletInfo() {
-        adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
-
         const walletInfo = {
             id: `${currEcosystem.value}-${mainAdapter.value?.getAccount()}`,
             account: mainAdapter.value?.getAccount(),
@@ -83,6 +79,7 @@ function useAdapter() {
         }
 
         adaptersDispatch(TYPES.SET_WALLET, { ecosystem: currEcosystem.value, wallet: walletInfo });
+        adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
 
         return subscribeToWalletsChange();
     }
@@ -97,6 +94,7 @@ function useAdapter() {
             adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
 
             adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
+
             storeWalletInfo();
 
             return true;
@@ -119,14 +117,14 @@ function useAdapter() {
             return;
         }
 
+        adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
+
         for (const wallet of connectedWallets.value) {
             if (wallet.id === lastConnectedWallet.value.id) {
                 continue;
             }
             await connectTo(wallet.ecosystem, wallet.walletModule, wallet.chain);
         }
-
-        adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
 
         await connectTo(ecosystem, walletModule, chain);
 
@@ -235,7 +233,7 @@ function useAdapter() {
 
         chainList,
 
-        subscribeToWalletsChange,
+        action: (action, ...args) => adaptersDispatch(TYPES[action], ...args),
 
         connectTo,
         connectLastConnectedWallet,

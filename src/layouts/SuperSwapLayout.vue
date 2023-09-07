@@ -34,14 +34,14 @@ export default {
 </script>
 <style lang="scss" scoped>
 .superswap-page__title {
-    color: $colorBlack;
-    font-size: 32px;
-    font-family: 'Poppins_SemiBold';
+    color: var(--#{$prefix}primary-text);
+    font-size: var(--#{$prefix}h1-fs);
+    font-weight: 600;
     margin-bottom: 30px;
     text-decoration: none;
 }
 
 .arrow {
-    fill: $colorBlack;
+    fill: var(--#{$prefix}arrow-color);
 }
 </style>

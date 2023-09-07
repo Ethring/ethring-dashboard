@@ -1,36 +1,27 @@
-@import "./web3-onboard/style.css";
+@import "./web3-onboard/custom-style.scss";
 
 @import "./fonts.scss";
+
+@import "./reset";
+
 @import "./colors.scss";
 
-// @import "./base/reset";
+@import "./variables";
+
+@import "./root.scss";
+
+@import "./ui/button";
 
 html,
 body {
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-
-  @include animateEasy;
-}
-
-* {
-  font-family: "Poppins", sans-serif;
+  background: var(--#{$prefix}main-background) !important;
+  font-size: var(--#{$prefix}default-fs);
 }
 
 .app-wrap {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-
-  &__head {
-    top: 0;
-    right: 0;
-    width: calc(100% - 260px);
-    box-sizing: border-box;
-    padding: 41px 150px 31px;
-    background: $colorWhite;
-  }
 
   &__layout {
     flex-basis: 100%;
@@ -40,13 +31,5 @@ body {
     // margin-left: 260px;
 
     height: calc(100vh - 80px);
-  }
-}
-
-body.dark {
-  .app-wrap {
-    &__head {
-      background: #0c0d17;
-    }
   }
 }

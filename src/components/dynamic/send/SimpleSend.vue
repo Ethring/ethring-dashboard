@@ -32,12 +32,12 @@
         <InfoPanel v-if="successHash" :hash="successHash" :title="$t('tx.txHash')" type="success" class="mt-10" />
 
         <Button
-            xl
             :title="$t('tokenOperations.confirm').toUpperCase()"
             :disabled="!!disabledSend"
             :loading="isLoading"
             class="simple-send__btn mt-10"
             @click="send"
+            size="large"
         />
     </div>
 </template>

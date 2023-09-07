@@ -71,7 +71,8 @@ export default {
     setup(props, { emit }) {
         const selectedChain = ref(props.wallet.chain);
 
-        const { getChainListByEcosystem, getChainByChainId, setNewChain, connectTo, disconnectWallet } = useAdapter();
+        const { getChainListByEcosystem, getChainByChainId, setNewChain, connectTo, disconnectWallet, action, connectedWallet } =
+            useAdapter();
 
         const chainList = computed(() => getChainListByEcosystem(props.wallet.ecosystem));
         const chainInfo = computed(() => getChainByChainId(props.wallet.ecosystem, selectedChain.value));
@@ -98,7 +99,22 @@ export default {
             }
         });
 
-        const handleOnClickConnectedWallet = async (wallet) => await connectTo(wallet.ecosystem, wallet.walletModule);
+        const handleOnClickConnectedWallet = async (wallet) => {
+            const { account } = connectedWallet.value || {};
+            if (wallet.account === account) {
+                return;
+            }
+
+            action('SET_IS_CONNECTING', true);
+
+            try {
+                const status = await connectTo(wallet.ecosystem, wallet.walletModule);
+                status && action('SET_IS_CONNECTING', false);
+            } catch (error) {
+                console.error(error);
+                action('SET_IS_CONNECTING', false);
+            }
+        };
 
         const handleOnCopyAddress = (ecosystem) => emit('open-addresses', ecosystem);
 

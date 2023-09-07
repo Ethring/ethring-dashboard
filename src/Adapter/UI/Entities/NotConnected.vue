@@ -25,7 +25,7 @@ export default {
 
     padding: 8px 16px;
     border-radius: 16px;
-    background-color: #d9f4f1;
+    background-color: var(--#{$prefix}banner-color);
     border: 1px solid transparent;
 
     cursor: pointer;
@@ -35,31 +35,27 @@ export default {
 
     transition: 0.2s;
 
-    &:hover {
-        border-color: #3fdfae;
-    }
-
     .icon-container {
         display: flex;
         align-items: center;
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: #c9e0e0;
+        background: var(--#{$prefix}border-color);
         justify-content: center;
         margin-right: 8px;
     }
 
     p {
         width: 160px;
-        font-size: 14px;
-        color: #486060;
+        font-size: var(--#{$prefix}small-lg-fs);
+        color: var(--#{$prefix}base-text);
         line-height: 1.5;
         margin: 0;
     }
 
     &:hover {
-        opacity: 0.7;
+        border-color: var(--#{$prefix}btn-hover);
     }
 }
 </style>

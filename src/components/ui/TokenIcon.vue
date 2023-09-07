@@ -24,10 +24,6 @@ import { useStore } from 'vuex';
 export default {
     name: 'TokenIcon',
     props: {
-        dark: {
-            type: Boolean,
-            default: false,
-        },
         width: {
             required: true,
         },
@@ -96,11 +92,12 @@ export default {
 .token-icon {
     width: 32px;
     height: 32px;
+
     display: flex;
     justify-content: center;
     align-items: center;
 
-    img {
+    img.nativeIcon {
         border-radius: 50%;
         width: 100%;
         height: 100%;
@@ -111,10 +108,10 @@ export default {
     }
 
     &__placeholder {
-        font-size: 12px;
+        font-size: var(--#{$prefix}small-sm-fs);
 
         & span {
-            color: $colorWhite;
+            color: var(--#{$prefix}white);
         }
     }
 }

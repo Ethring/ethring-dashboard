@@ -1,0 +1,263 @@
+//  ===========================================================================
+//  ******************************* DARK THEME *******************************
+//  ===========================================================================
+
+//  ===========================================================================
+//  PRIMARY COLORS
+//  ===========================================================================
+
+$chineseBlack: #0c0d18;
+$ebonyClay: #1c1f2c;
+$white: #ffffff;
+$springGreen: #14ec8a;
+
+//  ===========================================================================
+//  SECONDARY COLORS
+//  ===========================================================================
+
+$charade: #2e323e;
+$trout: #494c56;
+$mineralGreen: #486060;
+$gulfStream: #73b1b1;
+$aquamarine: #97ffd0;
+$geyser: #c9e0e0;
+$pizazz: #f69502;
+$green: #04b600;
+$cyan: #02e7f6;
+$ficus: #385c39;
+
+$wildWatermelon: #ff677e;
+$deepCerulean: #00839f;
+$japaneseLaurel: #038d00;
+$blazeOrange: #ff6b00;
+
+//  ===========================================================================
+//  GRADIENTS
+//  ===========================================================================
+
+$gradient-light-green: linear-gradient(0deg, #00e3ae 0%, #9be15d 100%);
+$gradient-dark-green: linear-gradient(198.01deg, #00bf57 0.44%, #005f91 108.3%);
+
+//  ===========================================================================
+//  RGB
+//  ===========================================================================
+
+$black-op-085: rgba(0, 0, 0, 0.85);
+$black-op-02: rgba(0, 0, 0, 0.2);
+
+//  ===========================================================================
+//  COLORS MAP
+//  ===========================================================================
+
+$primary: $ebonyClay;
+
+$main-background: $chineseBlack;
+$secondary-background: $ebonyClay;
+
+$banner-color: $ebonyClay;
+$banner-logo-color: $springGreen;
+
+$eye-logo: $geyser;
+$eye-logo-hover: $springGreen;
+
+
+// Text
+$sub-text: $springGreen;
+$mute-text: $geyser;
+$base-text: $gulfStream;
+$sidebar-text: $geyser;
+$primary-text: $white;
+$secondary-text: $aquamarine;
+
+// Checkbox
+$checkbox-text: $gulfStream;
+$checkbox-disabled-text: $mineralGreen;
+$checkbox-checked: $aquamarine;
+$checkbox-bg-color: $ebonyClay;
+$checkbox-disabled: $mineralGreen;
+
+// Border
+$border-color: 'transparent';
+$border-secondary-color: $trout;
+
+// Button
+$btn-text-color: $ebonyClay;
+$btn-text-hover-color: $white;
+$btn-active: $springGreen;
+$btn-hover: $black;
+$btn-secondary-hover: $wildWatermelon;
+$btn-disabled: $ebonyClay;
+$btn-disabled-text: $mineralGreen;
+$btn-disabled-icon: $wildWatermelon;
+
+// Select
+$select-bg-color: $ebonyClay;
+$select-dropdown-bg-color: $chineseBlack;
+
+$select-item-color: $white;
+$select-item-active-color: $white;
+$select-item-secondary-color: $springGreen;
+$select-label-color: $geyser;
+
+$select-border-color: $springGreen;
+$select-active-border-color: $springGreen;
+$select-icon-color: $mineralGreen;
+$select-placeholder-text: $trout;
+
+// Accordion
+$accordion-bg-color: $charade;
+$accordion-label-color: $geyser;
+$accordion-border-color: 'transparent';
+
+
+// Info
+$success: $japaneseLaurel;
+$success-op-01: rgba($success, 0.1);
+
+$danger: $wildWatermelon;
+$danger-op-01: rgba($danger, 0.1);
+$danger-color: $wildWatermelon;
+
+$warning: $blazeOrange;
+$warning-op-01: rgba($warning, 0.1);
+
+$info: $deepCerulean;
+$info-op-01: rgba($info, 0.1);
+
+$white: $white;
+
+// Icon
+$icon-color: $gulfStream;
+$icon-active: $geyser;
+$icon-hover: $black;
+$icon-disabled: $gulfStream;
+$icon-border: $gulfStream;
+
+$icon-logo-bg-color: $chineseBlack;
+$icon-logo-bg-hover: $aquamarine;
+$icon-secondary-bg-color: $ebonyClay;
+$icon-secondary-bg-hover: $mineralGreen;
+$sidebar-icon-color: $springGreen;
+$arrow-color: $white;
+
+$negative-percentage: $wildWatermelon;
+$positive-percentage: $springGreen;
+
+// Modal
+$modal-bg-color: $black-op-085;
+$modal-content-bg-color: $chineseBlack;
+$modal-block-bg-color: $ebonyClay;
+$modal-active-block-bg-color: $ebonyClay;
+$modal-block-text: $ebonyClay;
+$modal-item-text: $ebonyClay;
+
+$block-box-shadow: 'transparent';
+$loader-border-color: $ficus;
+
+$nav-bar-bg-color: $chineseBlack;
+
+$tag-01: $aquamarine;
+$tag-02: $cyan;
+$tag-03: $cyan;
+
+
+//  ===========================================================================
+//  THEME MAP
+//  ===========================================================================
+
+$theme-colors-dark: (
+    "primary": $primary,
+
+    "main-background": $main-background,
+    "secondary-background": $secondary-background,
+
+    "banner-color": $banner-color,
+    "banner-logo-color": $banner-logo-color,
+
+    "eye-logo": $eye-logo,
+    "eye-logo-hover": $eye-logo-hover,
+
+    "sub-text": $sub-text,
+    "mute-text": $mute-text,
+    "base-text": $base-text,
+    "sidebar-text": $sidebar-text,
+    "primary-text": $primary-text,
+    "secondary-text": $secondary-text,
+
+    "checkbox-text": $checkbox-text,
+    "checkbox-disabled-text": $checkbox-disabled-text,
+    "checkbox-checked": $checkbox-checked,
+    "checkbox-bg-color": $checkbox-bg-color,
+    "checkbox-disabled": $checkbox-disabled,
+
+    "border-color": $border-color,
+    "border-secondary-color": $border-secondary-color,
+
+    "btn-text-color": $btn-text-color,
+    "btn-text-hover-color": $btn-text-hover-color,
+    "btn-hover": $btn-hover,
+    "btn-secondary-hover": $btn-secondary-hover,
+    "btn-active": $btn-active,
+    "btn-disabled": $btn-disabled,
+    "btn-disabled-text": $btn-disabled-text,
+    "btn-disabled-icon": $btn-disabled-icon,
+
+    "select-bg-color": $select-bg-color,
+    "select-dropdown-bg-color": $select-dropdown-bg-color,
+    "select-item-color": $select-item-color,
+    "select-item-secondary-color": $select-item-secondary-color,
+    "select-item-active-color": $select-item-active-color,
+    "select-label-color": $select-label-color,
+    "select-border-color": $select-border-color,
+    "select-active-border-color": $select-active-border-color,
+    "select-icon-color": $select-icon-color,
+    "select-placeholder-text": $select-placeholder-text,
+
+    "accordion-bg-color": $accordion-bg-color,
+    "accordion-label-color": $accordion-label-color,
+    "accordion-border-color": $accordion-border-color,
+
+    "icon-color": $icon-color,
+    "icon-active": $icon-active,
+    "icon-hover": $icon-hover,
+    "icon-disabled": $icon-disabled,
+    "icon-border": $icon-border,
+
+    "icon-logo-bg-color": $icon-logo-bg-color,
+    "icon-logo-bg-hover": $icon-logo-bg-hover,
+    "icon-secondary-bg-color": $icon-secondary-bg-color,
+    "icon-secondary-bg-hover": $icon-secondary-bg-hover,
+    "arrow-color": $arrow-color,
+
+    "success": $success,
+    "success-op-01": $success-op-01,
+
+    "danger": $danger,
+    "danger-op-01": $danger-op-01,
+    "danger-color": $danger-color,
+
+    "warning": $warning,
+    "warning-op-01": $warning-op-01,
+
+    "info": $info,
+    "info-op-01": $info-op-01,
+
+    "sidebar-icon-color": $sidebar-icon-color,
+
+    "white": $white,
+    "black": $black,
+
+    "modal-bg-color": $modal-bg-color,
+    "modal-content-bg-color": $modal-content-bg-color,
+    "modal-block-bg-color": $modal-block-bg-color,
+    "modal-active-block-bg-color": $modal-active-block-bg-color,
+    "modal-block-text": $modal-block-text,
+    "modal-item-text": $modal-item-text,
+    "block-box-shadow": $block-box-shadow,
+    "loader-border-color": $loader-border-color,
+    "nav-bar-bg-color": $nav-bar-bg-color,
+
+    "tag-01": $tag-01,
+    "tag-02": $tag-02,
+    "tag-03": $tag-03,
+);
