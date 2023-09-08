@@ -31,7 +31,7 @@
                     </div>
                 </div>
                 <div class="amount">
-                    {{ prettyNumber(item.balance?.mainBalance) }}
+                    {{ prettyNumber(item.balance) }}
                     <span>{{ item.code }}</span>
                 </div>
             </div>

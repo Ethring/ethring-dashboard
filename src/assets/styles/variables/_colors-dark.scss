@@ -56,6 +56,7 @@ $secondary-background: $ebonyClay;
 
 $banner-color: $ebonyClay;
 $banner-logo-color: $springGreen;
+$banner-bg-color: $charade;
 
 $eye-logo: $geyser;
 $eye-logo-hover: $springGreen;
@@ -79,6 +80,7 @@ $checkbox-disabled: $mineralGreen;
 // Border
 $border-color: 'transparent';
 $border-secondary-color: $trout;
+$border-color-op-05: rgba($border-secondary-color, 0.5);
 
 // Button
 $btn-text-color: $ebonyClay;
@@ -137,6 +139,8 @@ $icon-logo-bg-color: $chineseBlack;
 $icon-logo-bg-hover: $aquamarine;
 $icon-secondary-bg-color: $ebonyClay;
 $icon-secondary-bg-hover: $mineralGreen;
+$icon-bg-color: $white;
+
 $sidebar-icon-color: $springGreen;
 $arrow-color: $white;
 
@@ -173,6 +177,7 @@ $theme-colors-dark: (
 
     "banner-color": $banner-color,
     "banner-logo-color": $banner-logo-color,
+    "banner-bg-color": $banner-bg-color,
 
     "eye-logo": $eye-logo,
     "eye-logo-hover": $eye-logo-hover,
@@ -192,6 +197,7 @@ $theme-colors-dark: (
 
     "border-color": $border-color,
     "border-secondary-color": $border-secondary-color,
+    "border-color-op-05": $border-color-op-05,
 
     "btn-text-color": $btn-text-color,
     "btn-text-hover-color": $btn-text-hover-color,
@@ -222,6 +228,7 @@ $theme-colors-dark: (
     "icon-hover": $icon-hover,
     "icon-disabled": $icon-disabled,
     "icon-border": $icon-border,
+    "icon-bg-color": $icon-bg-color,
 
     "icon-logo-bg-color": $icon-logo-bg-color,
     "icon-logo-bg-hover": $icon-logo-bg-hover,

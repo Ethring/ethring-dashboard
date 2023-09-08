@@ -131,7 +131,7 @@ export default {
         .label {
             color: var(--#{$prefix}select-label-color);
             font-size: var(--#{$prefix}small-lg-fs);
-            font-family: 'Poppins_Medium';
+            font-weight: 500;
             user-select: none;
         }
 

@@ -91,7 +91,6 @@ export default {
         const errorAddress = ref('');
         const errorBalance = ref('');
 
-        // const favouritesList = computed(() => store.getters['tokens/favourites']);
         const zometNetworks = computed(() => store.getters['networks/zometNetworksList']);
         const selectedToken = computed(() => store.getters['tokens/fromToken']);
         const networks = computed(() => store.getters['networks/networks']);
@@ -112,15 +111,24 @@ export default {
                 return [];
             }
 
-            const currentNetwork = groupTokens.value[0];
+            if (groupTokens.value.length === 0) {
+                return [];
+            }
+
+            const [chainTokens = []] = groupTokens.value;
+
+            const [tokenWithMaxBalance = {}] = chainTokens.list || [];
 
             if (!selectedToken.value) {
-                store.dispatch('tokens/setFromToken', currentNetwork);
-            } else {
-                let token = groupTokens.value[0].list.find((elem) => elem.code === selectedToken.value.code);
-                store.dispatch('tokens/setFromToken', token);
+                store.dispatch('tokens/setFromToken', tokenWithMaxBalance);
+                return chainTokens.list || [];
             }
-            return [currentNetwork, ...groupTokens.value[0].list];
+
+            const token = chainTokens.list.find((tkn) => tkn.code === selectedToken.value.code);
+
+            store.dispatch('tokens/setFromToken', token);
+
+            return chainTokens.list || [];
         });
 
         const onSetToken = () => {
@@ -148,7 +156,7 @@ export default {
                 errorBalance.value = 'Incorrect amount';
                 return;
             }
-            if (+value > selectedToken.value?.balance?.amount || +value > selectedToken.value?.balance?.mainBalance) {
+            if (+value > selectedToken.value?.balance) {
                 errorBalance.value = 'Insufficient balance';
             } else {
                 errorBalance.value = '';

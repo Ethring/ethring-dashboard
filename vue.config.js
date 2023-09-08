@@ -1,7 +1,7 @@
 const IS_PROD = process.env.NODE_ENV === 'production';
 
 //  ===========================================================================
-// * Утилита для настройки базового правила Webpack для обработки различных типов модулей
+// *  Утилита для настройки базового правила Webpack для обработки различных типов модулей
 //  ===========================================================================
 const configureGeneralRule = (config, { name, exclude }) => {
     const BABEL_OPTIONS = {
@@ -48,7 +48,8 @@ const chainWebpack = (config) => {
         // { name: 'cosmjs-types' },
         { name: '@metamask/utils' },
         { name: '@walletconnect' },
-        // { name: '@vueuse/core' },
+        { name: '@vueuse/core' },
+        { name: '@intlify/core-base' },
         // { name: '@cosmjs[\\\\/]', exclude: '@cosmjs[\\\\/].*\\.json$' },
     ];
 

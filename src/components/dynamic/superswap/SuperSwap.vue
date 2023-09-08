@@ -240,9 +240,10 @@ export default {
             const list = [
                 ...listWithBalances,
                 ...allTokensFromNetwork(network.net).filter((token) => {
-                    return token.net !== network.net && !listWithBalances?.find((t) => t.net === token.net);
+                    return token.net !== network.net && !listWithBalances?.find((t) => t.code === token.code);
                 }),
             ];
+
             return list;
         };
 
@@ -270,6 +271,7 @@ export default {
             clearApprove();
 
             const tokens = await tokensList(network, 'from');
+
             const srcNetwork = groupTokens.value?.find((elem) => elem.net === network.net);
 
             if (!selectedSrcToken.value || updateFromToken.value) {
@@ -371,7 +373,7 @@ export default {
                 callEstimate.value = false;
             }
 
-            if (+value > selectedSrcToken.value.balance.amount || +value > selectedSrcToken.value.balance.mainBalance) {
+            if (+value > selectedSrcToken.value.balance || +value > selectedSrcToken.value.balance) {
                 errorBalance.value = 'Insufficient balance';
             } else {
                 errorBalance.value = '';

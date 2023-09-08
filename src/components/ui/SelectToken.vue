@@ -24,7 +24,7 @@
                         </div>
                         <div class="amount">
                             <h3>
-                                {{ prettyNumber(item?.balance?.amount || item?.balance?.mainBalance) }}
+                                {{ prettyNumber(item?.balance) }}
                                 <span class="symbol">{{ item?.code }}</span>
                             </h3>
                             <h5 class="value"><span>$</span>{{ prettyNumber(item?.balanceUsd) }}</h5>

@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { ref, computed } from 'vue';
-import prices from '@/modules/prices/';
 
 export default async function useInit(address, store) {
     const disableLoader = computed(() => store.getters['tokens/disableLoader']);
@@ -17,52 +16,61 @@ export default async function useInit(address, store) {
 
     const tokens = {};
 
-    const balanceInfo = async (net) => {
-        try {
-            let balance = 0;
-            if (net !== 'fantom') {
-                const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/blockchain/${net}/${address}/balance`);
+    const allTokens = [];
 
-                if (response.status === 200) {
-                    return response.data.data;
-                }
-            }
+    const allIntegrations = [];
 
-            return balance;
-        } catch {
-            return {};
+    let totalBalance = 0;
+
+    const assetsInfo = async (net, { fetchTokens = true, fetchIntegrations = true, fetchNfts = false } = {}) => {
+        if (!net || !address) {
+            return null;
         }
-    };
 
-    const tokensInfo = async (net) => {
         try {
-            const response = await axios.get(`${process.env.VUE_APP_ZOMET_CORE_API_URL}/balances/${net}/${address}`);
+            const URL = `${process.env.VUE_APP_DATA_PROVIDER_URL}/balances?net=${net}&address=${address}&tokens=${fetchTokens}&integrations=${fetchIntegrations}&nfts=${fetchNfts}`;
+
+            const response = await axios.get(URL);
 
             if (response.status === 200) {
-                return response.data;
+                return response.data.data;
             }
 
-            return [];
+            return null;
         } catch {
-            return [];
+            return null;
         }
     };
 
-    await Promise.all(
-        networksList.value.map(async ({ net, native_token }) => {
-            const balance = await balanceInfo(net);
-            const tokenList = await tokensInfo(net);
-            const price = await prices.Coingecko.marketCapForNativeCoin(native_token?.coingecko_id);
-            return (tokens[net] = {
-                list: tokenList,
-                balance,
-                price: {
-                    BTC: price.btc?.price,
-                    USD: price.usd?.price,
-                },
+    for (const { net, logo } of networksList.value) {
+        const assets = await assetsInfo(net);
+
+        if (assets?.tokens?.length) {
+            tokens[net] = {
+                list: assets?.tokens,
+            };
+            allTokens.push(
+                ...assets.tokens.map((token) => {
+                    token.chainLogo = logo;
+                    totalBalance += +token.balanceUsd;
+                    return token;
+                })
+            );
+        }
+
+        if (assets?.integrations?.length) {
+            assets.integrations.forEach((item) => {
+                item.balances.forEach((token) => {
+                    token.chainLogo = logo;
+                });
+                totalBalance += +item.balances.reduce((sum, token) => sum + +token.balanceUsd, 0);
             });
-        })
-    );
+            allIntegrations.push(...assets.integrations);
+        }
+        store.dispatch('tokens/setTokens', { address, data: allTokens });
+        store.dispatch('tokens/setIntegrations', { address, data: allIntegrations });
+        store.dispatch('tokens/setTotalBalances', { address, data: totalBalance });
+    }
 
     store.dispatch('tokens/setGroupTokens', tokens);
     store.dispatch('tokens/setLoader', false);

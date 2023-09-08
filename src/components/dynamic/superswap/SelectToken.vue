@@ -55,7 +55,7 @@ export default {
 
             const listWithBalances = getTokenList(wallet);
             if (selectType.value === 'from') {
-                if (wallet.balance.mainBalance > 0) {
+                if (wallet.balance > 0) {
                     list = listWithBalances;
                 } else {
                     list = wallet.list;
@@ -100,17 +100,14 @@ export default {
             if (selectType.value === 'from') {
                 store.dispatch('tokens/setFromToken', item);
             } else {
-                if (item.balance?.price?.USD) {
+                if (item.latest_price) {
                     store.dispatch('tokens/setToToken', item);
                 } else {
                     const price = await prices.Coingecko.priceByPlatformContracts({
                         chainId: selectedDstNetwork.value?.chain_id || selectedDstNetwork.value?.chainId,
                         addresses: item.address,
                     });
-                    item.balance.price = {
-                        BTC: price[item.address.toLowerCase()]?.btc,
-                        USD: price[item.address.toLowerCase()]?.usd,
-                    };
+                    item.latest_price = price[item.address.toLowerCase()]?.usd;
 
                     store.dispatch('tokens/setToToken', item);
                 }

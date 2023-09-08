@@ -100,6 +100,7 @@ export default {
         const store = useStore();
         const router = useRouter();
         const { groupTokens, allTokensFromNetwork } = useTokens();
+
         const { walletAddress, currentChainInfo, connectedWallet, setChain } = useWeb3Onboard();
 
         const isLoading = ref(false);
@@ -155,7 +156,7 @@ export default {
             const list = [
                 ...listWithBalances,
                 ...allTokensFromNetwork(selectedNetwork.value.net).filter((token) => {
-                    return token.net !== selectedNetwork.value.net && !groupTokens.value[0].list.find((t) => t.net === token.net);
+                    return token.net !== selectedNetwork.value.net && !groupTokens.value[0].list.find((t) => t.code === token.code);
                 }),
             ];
 
@@ -223,7 +224,7 @@ export default {
             }
             receiveValue.value = '';
             amount.value = value;
-            if (+value > selectedTokenFrom.value.balance?.amount || +value > selectedTokenFrom.value.balance?.mainBalance) {
+            if (+value > selectedTokenFrom.value.balance) {
                 errorBalance.value = 'Insufficient balance';
             } else {
                 errorBalance.value = '';
@@ -285,7 +286,7 @@ export default {
             }
             txError.value = '';
             receiveValue.value = resEstimate.toTokenAmount;
-            networkFee.value = prettyNumberTooltip(+resEstimate.fee.amount * selectedNetwork.value.price.USD, 4);
+            networkFee.value = prettyNumberTooltip(+resEstimate.fee.amount * selectedNetwork.value.latest_price, 4);
             estimateRate.value = prettyNumberTooltip(resEstimate.toTokenAmount / resEstimate.fromTokenAmount, 6);
             setReceiveValue.value = `Rate: <span class='symbol'>1</span> ${selectedTokenFrom.value.code} = <span class='symbol'>${estimateRate.value}</span> ${selectedTokenTo.value.code}`;
         };
