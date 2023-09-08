@@ -89,7 +89,6 @@ export default {
     justify-content: space-between;
     padding-bottom: 16px;
     border-bottom: 1px dashed var(--#{$prefix}border-secondary-color);
-    cursor: pointer;
 
     &-info {
         display: flex;

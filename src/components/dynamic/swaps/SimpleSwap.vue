@@ -100,6 +100,7 @@ export default {
         const store = useStore();
         const router = useRouter();
         const { groupTokens, allTokensFromNetwork } = useTokens();
+
         const { walletAddress, currentChainInfo, connectedWallet, setChain } = useWeb3Onboard();
 
         const isLoading = ref(false);

@@ -22,9 +22,15 @@ export default async function useInit(address, store) {
 
     let totalBalance = 0;
 
-    const assetsInfo = async (net) => {
+    const assetsInfo = async (net, { fetchTokens = true, fetchIntegrations = true, fetchNfts = false } = {}) => {
+        if (!net || !address) {
+            return null;
+        }
+
         try {
-            const response = await axios.get(`${process.env.VUE_APP_DATA_PROVIDER_URL}/balances?net=${net}&address=${address}`);
+            const URL = `${process.env.VUE_APP_DATA_PROVIDER_URL}/balances?net=${net}&address=${address}&tokens=${fetchTokens}&integrations=${fetchIntegrations}&nfts=${fetchNfts}`;
+
+            const response = await axios.get(URL);
 
             if (response.status === 200) {
                 return response.data.data;
@@ -61,11 +67,10 @@ export default async function useInit(address, store) {
             });
             allIntegrations.push(...assets.integrations);
         }
+        store.dispatch('tokens/setTokens', { address, data: allTokens });
+        store.dispatch('tokens/setIntegrations', { address, data: allIntegrations });
+        store.dispatch('tokens/setTotalBalances', { address, data: totalBalance });
     }
-
-    store.dispatch('tokens/setTokens', { address, data: allTokens });
-    store.dispatch('tokens/setIntegrations', { address, data: allIntegrations });
-    store.dispatch('tokens/setTotalBalances', { address, data: totalBalance });
 
     store.dispatch('tokens/setGroupTokens', tokens);
     store.dispatch('tokens/setLoader', false);

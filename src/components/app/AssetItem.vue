@@ -2,7 +2,7 @@
     <div class="tokens__item">
         <div class="network">
             <div class="logo">
-                <TokenIcon width="24" height="24" :token="item" :src="item.logo" />
+                <TokenIcon width="24" height="24" :token="item" />
                 <div class="chain">
                     <img :src="item.chainLogo" />
                 </div>
@@ -56,15 +56,11 @@ export default {
 .tokens__item {
     display: flex;
     align-items: center;
-    font-weight: 300;
-    font-size: var(--#{$prefix}h4-fs);
     color: var(--#{$prefix}black);
-    padding: 0 10px 12px 0;
-    margin: 4px 0;
-    box-sizing: border-box;
+    padding-right: 10px;
 
-    &:last-child {
-        padding-bottom: 0;
+    &:not(:last-child) {
+        margin-bottom: 10px;
     }
 
     .network {
@@ -89,8 +85,8 @@ export default {
 
                 img {
                     filter: none;
-                    width: 80%;
-                    height: 80%;
+                    width: 100%;
+                    height: 100%;
                 }
             }
         }
@@ -118,7 +114,7 @@ export default {
 
         .symbol {
             font-size: var(--#{$prefix}h6-fs);
-            font-weight: 500;
+            font-weight: 400;
             color: var(--#{$prefix}secondary-text);
         }
 
@@ -141,9 +137,9 @@ export default {
         align-items: baseline;
 
         .value {
-            font-size: var(--#{$prefix}default-fs);
-            font-weight: 600;
-            margin-right: 5px;
+            font-size: var(--#{$prefix}small-lg-fs);
+            font-weight: 400;
+            margin-right: 3px;
             color: var(--#{$prefix}primary-text);
         }
 
@@ -158,16 +154,16 @@ export default {
         width: 20%;
 
         span {
-            font-size: var(--#{$prefix}default-fs);
-            color: var(--#{$prefix}mute-text);
-            text-align: right;
+            font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 400;
+            text-align: right;
             margin-right: 3px;
         }
 
         .value {
-            font-size: var(--#{$prefix}default-fs);
-            font-weight: 600;
+            font-size: var(--#{$prefix}small-lg-fs);
+            font-weight: 400;
+
             text-align: right;
             color: var(--#{$prefix}primary-text);
         }

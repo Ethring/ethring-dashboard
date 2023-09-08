@@ -5,11 +5,10 @@
             :width="width"
             :height="height"
             :key="token?.code"
-            :src="src || tokenIconFromZomet || getTokenIcon(token?.code?.toLowerCase())"
+            :src="token?.logo || tokenIconFromZomet || getTokenIcon(token?.code?.toLowerCase())"
             :alt="token?.name"
             @error="showIconPlaceholder = true"
             @load="showIconPlaceholder = false"
-            :class="{ nativeIcon: tokenIconFromZomet }"
         />
         <div v-else class="token-icon__placeholder">
             <a-avatar>{{ iconPlaceholder }}</a-avatar>
@@ -32,9 +31,6 @@ export default {
         },
         token: {
             required: true,
-        },
-        src: {
-            type: String,
         },
     },
     setup(props) {
@@ -100,24 +96,19 @@ export default {
     justify-content: center;
     align-items: center;
 
-    img.nativeIcon {
-        border-radius: 50%;
-        object-position: center;
-        object-fit: contain;
-
-        filter: none;
-    }
-
     img {
-        filter: brightness(0) invert(1);
         width: 100%;
         height: 100%;
+        border-radius: 50%;
+
+        object-position: center;
+        object-fit: contain;
     }
 
     &__placeholder {
         font-size: var(--#{$prefix}small-sm-fs);
 
-        & span {
+        span {
             color: var(--#{$prefix}white);
         }
     }

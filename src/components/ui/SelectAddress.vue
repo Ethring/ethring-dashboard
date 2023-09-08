@@ -5,7 +5,7 @@
             <div class="info-wrap">
                 <div class="info">
                     <div class="network">
-                        <component v-if="selectedNetwork?.net" :is="`${selectedNetwork?.net}Svg`" />
+                        <img class="network-logo" alt="network-logo" :src="selectedNetwork.logo" />
                     </div>
                     <input
                         v-model="address"
@@ -24,21 +24,13 @@
                 <div class="info">
                     <div class="name">{{ item }}</div>
                 </div>
-                <closeSvg class="remove" @click.stop="removeAddress(item)" />
+                <CloseSvg class="remove" @click.stop="removeAddress(item)" />
             </div>
         </div>
     </div>
 </template>
 <script>
-import closeSvg from '@/assets/icons/app/close.svg';
-import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
-import bscSvg from '@/assets/icons/networks/bsc.svg';
-import ethSvg from '@/assets/icons/networks/eth.svg';
-import polygonSvg from '@/assets/icons/networks/polygon.svg';
-import optimismSvg from '@/assets/icons/networks/optimism.svg';
-import arbitrumSvg from '@/assets/icons/networks/arbitrum.svg';
-import evmosethSvg from '@/assets/icons/networks/evmoseth.svg';
-import avalancheSvg from '@/assets/icons/networks/avalanche.svg';
+import CloseSvg from '@/assets/icons/app/close.svg';
 
 import { ref, watch, onMounted } from 'vue';
 
@@ -67,15 +59,7 @@ export default {
         },
     },
     components: {
-        closeSvg,
-        arrowSvg,
-        bscSvg,
-        ethSvg,
-        polygonSvg,
-        optimismSvg,
-        arbitrumSvg,
-        evmosethSvg,
-        avalancheSvg,
+        CloseSvg,
     },
     setup(props, { emit }) {
         const active = ref(false);
@@ -212,8 +196,8 @@ export default {
             background: var(--#{$prefix}icon-logo-bg-color);
             margin-right: 10px;
 
-            svg {
-                fill: var(--#{$prefix}black);
+            &-logo {
+                width: 28px;
             }
         }
 
@@ -222,13 +206,6 @@ export default {
             font-weight: 600;
             color: var(--#{$prefix}select-placeholder-text);
             user-select: none;
-        }
-
-        svg.arrow {
-            cursor: pointer;
-            fill: var(--#{$prefix}select-icon-color);
-            transform: rotate(0);
-            @include animateEasy;
         }
     }
 

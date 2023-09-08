@@ -250,7 +250,7 @@ async function findRoute(params) {
             params.url = service.url;
 
             const resEstimate = await store.dispatch(apiRoute, params);
-            console.log(resEstimate, '--resEstimate');
+
             if (resEstimate.error) {
                 if (resEstimate.error === ERRORS.BRIDGE_ERROR) {
                     error = ERRORS.BRIDGE_ERROR;
@@ -262,7 +262,7 @@ async function findRoute(params) {
                 }
                 return;
             }
-            console.log(error, '--error');
+
             if (checkFee(resEstimate)) {
                 error = ERRORS.NOT_ENOUGH_BALANCE;
                 return;

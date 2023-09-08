@@ -5,7 +5,7 @@
             <div class="info-wrap">
                 <div class="info" @click="clickToken" data-qa="select-token">
                     <div class="network">
-                        <TokenIcon width="24" height="24" :token="selectedToken" :src="selectedToken?.logo" />
+                        <TokenIcon width="24" height="24" :token="selectedToken" />
                     </div>
                     <div class="token">{{ selectedToken?.code }}</div>
                     <arrowSvg class="arrow" />
@@ -98,7 +98,6 @@ export default {
         const amount = ref('');
         const payTokenPrice = ref(0);
         const selectedToken = ref(props.value);
-
         const placeholder = ref('0');
         const coingeckoPrice = ref(0);
 
