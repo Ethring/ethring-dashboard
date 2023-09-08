@@ -127,6 +127,7 @@ export async function findBestRoute(amount, walletAddress) {
         };
 
         const result = await getBestRoute(getParams(fromNetwork, fromToken, toNetwork, toToken, amount, walletAddress));
+
         if (result.bestRoute) {
             return result;
         }
@@ -188,15 +189,13 @@ export async function findBestRoute(amount, walletAddress) {
 
 async function findRoute(params) {
     try {
-        console.log(params);
         let bestRoute = {};
         let otherRoutes = [];
         let bestRouteExist = false;
         let services = [];
         let apiRoute = null;
         let error = null;
-        const tokensByService = store.getters['bridge/tokensByService'];
-        console.log(tokensByService, '--tokensByService');
+
         if (params.fromNet === params.toNet) {
             services = swapServices;
             apiRoute = 'swap/estimateSwap';
@@ -251,10 +250,10 @@ async function findRoute(params) {
             params.url = service.url;
 
             const resEstimate = await store.dispatch(apiRoute, params);
-
+            console.log(resEstimate, '--resEstimate');
             if (resEstimate.error) {
                 if (resEstimate.error === ERRORS.BRIDGE_ERROR) {
-                    return { error: ERRORS.BRIDGE_ERROR };
+                    error = ERRORS.BRIDGE_ERROR;
                 }
                 if (resEstimate.error?.error === 'Bad Request') {
                     error = ERRORS.ROUTE_NOT_FOUND;
@@ -263,7 +262,7 @@ async function findRoute(params) {
                 }
                 return;
             }
-
+            console.log(error, '--error');
             if (checkFee(resEstimate)) {
                 error = ERRORS.NOT_ENOUGH_BALANCE;
                 return;
@@ -324,7 +323,6 @@ async function findRoute(params) {
 
         return { bestRoute, otherRoutes };
     } catch (e) {
-        console.log(e);
         return checkErrors(e);
     }
 }

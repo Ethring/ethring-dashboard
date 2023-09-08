@@ -1,7 +1,7 @@
 <template>
     <div class="token-icon">
         <img
-            v-if="!showIconPlaceholder"
+            v-if="!showIconPlaceholder && token"
             :width="width"
             :height="height"
             :key="token?.code"

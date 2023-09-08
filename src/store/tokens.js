@@ -2,6 +2,8 @@ import axios from 'axios';
 
 import store from './index';
 
+import { sortByKey } from '@/helpers/utils';
+
 const types = {
     SET_TOKENS: 'SET_TOKENS',
     SET_GROUP_TOKENS: 'SET_GROUP_TOKENS',
@@ -161,60 +163,38 @@ export default {
         },
 
         async updateTokenBalances(_, selectedNet) {
-            const balanceInfo = async () => {
+            const assetsInfo = async () => {
                 try {
-                    let balance = 0;
-
                     const response = await axios.get(
-                        `${process.env.VUE_APP_BACKEND_URL}/blockchain/${selectedNet.net}/${selectedNet.address}/balance`
+                        `${process.env.VUE_APP_DATA_PROVIDER_URL}/balances?net=${selectedNet.net}&address=${selectedNet.address}&tokens=true`
                     );
 
                     if (response.status === 200) {
                         return response.data.data;
                     }
 
-                    return balance;
+                    return null;
                 } catch {
-                    return {};
+                    return null;
                 }
-            };
-
-            const tokensInfo = async () => {
-                try {
-                    const response = await axios.get(
-                        `${process.env.VUE_APP_ZOMET_CORE_API_URL}/balances/${selectedNet.net}/${selectedNet.address}`
-                    );
-
-                    if (response.status === 200) {
-                        return response.data;
-                    }
-
-                    return [];
-                } catch {
-                    return [];
-                }
-            };
-            const sortByBalanceUsd = (list) => {
-                return list?.sort((a, b) => {
-                    if (a.balanceUsd > b.balanceUsd) {
-                        return -1;
-                    }
-                    if (a.balanceUsd < b.balanceUsd) {
-                        return 1;
-                    }
-                    return 0;
-                });
             };
 
             const tokens = _.getters['groupTokens'];
-            tokens[selectedNet.net].balance = await balanceInfo();
-            tokens[selectedNet.net].list = await tokensInfo();
+            const result = await assetsInfo();
+
+            if (result.tokens && result.tokens.length) {
+                const nativeToken = result.tokens.find((elem) => elem.code === selectedNet.info.code);
+                tokens[selectedNet.net].balance = nativeToken?.balance;
+                tokens[selectedNet.net].balanceUsd = nativeToken?.balanceUsd;
+                tokens[selectedNet.net].list = result.tokens;
+            }
+
             store.dispatch('tokens/setGroupTokens', tokens);
             const wallet = {
                 ...selectedNet.info,
                 balance: tokens[selectedNet.net]?.balance,
-                balanceUsd: tokens[selectedNet.net]?.balance.mainBalance * tokens[selectedNet.net]?.price.USD,
-                list: sortByBalanceUsd(tokens[selectedNet.net].list?.filter((item) => item.balance > 0) ?? []),
+                balanceUsd: tokens[selectedNet.net].balanceUsd,
+                list: sortByKey(tokens[selectedNet.net].list, 'balanceUsd'),
             };
             selectedNet.update(wallet);
         },

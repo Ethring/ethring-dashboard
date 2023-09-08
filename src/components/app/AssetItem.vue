@@ -67,10 +67,6 @@ export default {
         padding-bottom: 0;
     }
 
-    &:not(:last-child) {
-        border-bottom: 1px solid var(--#{$prefix}border-color-op-05);
-    }
-
     .network {
         width: 60%;
         display: flex;

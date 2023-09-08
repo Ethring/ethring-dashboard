@@ -60,7 +60,7 @@ export default {
             const listWithBalances = getTokenList(wallet);
 
             if (selectType.value === 'from') {
-                if (wallet.balance.mainBalance > 0) {
+                if (wallet.balance > 0) {
                     list = listWithBalances;
                 } else {
                     list = wallet.list;

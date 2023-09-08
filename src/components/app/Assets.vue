@@ -219,7 +219,7 @@ export default {
 
 .asset-item__info {
     display: flex;
-    font-size: 14px;
+    color: var(--#{$prefix}small-lg-fs);
     font-weight: 500;
 
     div {
@@ -231,7 +231,8 @@ export default {
 
     .asset-item__type {
         color: var(--#{$prefix}base-text);
-        font-weight: 400;
+        font-size: var(--#{$prefix}small-lg-fs);
+        font-weight: 500;
     }
 
     .asset-item__unlock {

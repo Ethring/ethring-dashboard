@@ -49,7 +49,7 @@ const chainWebpack = (config) => {
         { name: '@metamask/utils' },
         { name: '@walletconnect' },
         { name: '@vueuse/core' },
-	{ name: '@intlify/core-base' },
+        { name: '@intlify/core-base' },
         // { name: '@cosmjs[\\\\/]', exclude: '@cosmjs[\\\\/].*\\.json$' },
     ];
 

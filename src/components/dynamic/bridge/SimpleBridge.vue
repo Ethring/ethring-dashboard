@@ -234,7 +234,7 @@ export default {
             const list = [
                 ...listWithBalances,
                 ...allTokensFromNetwork(network.net).filter((token) => {
-                    return token.net !== network.net && !groupTokens.value[0].list.find((t) => t.net === token.net);
+                    return token.net !== network.net && !groupTokens.value[0].list.find((t) => t.code === token.code);
                 }),
             ];
 

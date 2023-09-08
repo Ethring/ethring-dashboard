@@ -90,7 +90,7 @@ export default {
             if (selectType.value === 'from') {
                 store.dispatch('tokens/setFromToken', item);
             } else {
-                if (item.balance?.price?.USD) {
+                if (item.latest_price) {
                     store.dispatch('tokens/setToToken', item);
                 } else {
                     const price = await prices.Coingecko.priceByPlatformContracts({

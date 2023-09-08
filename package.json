@@ -14,7 +14,6 @@
   "dependencies": {
     "@sentry/tracing": "^7.51.2",
     "@sentry/vue": "^7.51.2",
-    "@vueuse/core": "^10.4.1",
     "@web3-onboard/coinbase": "^2.2.3",
     "@web3-onboard/injected-wallets": "^2.8.6",
     "@web3-onboard/ledger": "^2.4.5",
@@ -25,7 +24,6 @@
     "axios-extensions": "^3.1.6",
     "bignumber.js": "^9.1.1",
     "core-js": "^3.6.5",
-    "idb": "^7.1.1",
     "qrcode.vue": "^3.2.2",
     "vue": "^3.0.0",
     "vue-debounce": "^4.0.0",
