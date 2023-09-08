@@ -54,6 +54,8 @@
 import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 
+import BigNumber from 'bignumber.js';
+
 import EmptyList from '@/components/ui/EmptyList';
 import AssetItem from './AssetItem';
 import AssetItemHeader from './AssetItemHeader';
@@ -138,13 +140,9 @@ export default {
                 return 0;
             }
 
-            const share = (balance / totalBalance.value) * 100;
+            const share = BigNumber(balance).dividedBy(totalBalance.value).multipliedBy(100);
 
-            if (share < 1) {
-                return share.toFixed(2);
-            }
-
-            return Math.round(share);
+            return share.toFixed(2);
         };
 
         const toggleGroup = (groupNdx) => {
