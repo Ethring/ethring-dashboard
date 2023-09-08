@@ -5,7 +5,7 @@
             <div class="info-wrap">
                 <div class="info">
                     <div class="network">
-                        <img :src="selectedNetwork.logo" alt="network-logo" class="network-logo" />
+                        <img alt="network-logo" :src="selectedNetwork.logo" class="network-logo" />
                     </div>
                     <input
                         v-model="address"
@@ -340,9 +340,9 @@ export default {
     background: #3fdfae;
     margin-right: 10px;
 
-    &-logo {
-        width: 80%;
-        height: 80%;
+    & > img.network-logo {
+        width: 80% !important;
+        height: 80% !important;
     }
 }
 </style>

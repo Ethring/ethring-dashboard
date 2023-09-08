@@ -45,13 +45,18 @@ export default {
     },
     setup() {
         const store = useStore();
-        const { tokens, groupTokens } = useTokens();
         const groupHides = ref({});
+
+        const { tokens, groupTokens } = useTokens();
 
         const loader = computed(() => store.getters['tokens/loader']);
 
         const emptyLists = computed(() => {
-            return !tokens.value?.length && groupTokens.value?.every((g) => !g.list.length); // <=1 - parent network
+            if (!tokens.value?.length) {
+                return true;
+            }
+
+            return groupTokens.value?.every((g) => !g.list.length);
         });
 
         const toggleGroup = (groupNdx) => {
