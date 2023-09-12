@@ -29,8 +29,6 @@ export default {
         NavBar,
     },
     created() {
-        const store = useStore();
-        store.dispatch('networks/init');
         this.mixpanel?.track('App:created');
     },
     setup() {
