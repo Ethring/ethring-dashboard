@@ -5,6 +5,8 @@ import { vue3Debounce } from 'vue-debounce';
 import * as Sentry from '@sentry/vue';
 import { BrowserTracing } from '@sentry/browser';
 
+import VueMixpanel from 'vue-mixpanel';
+
 import App from './App.vue';
 
 import Router from './routes';
@@ -64,6 +66,17 @@ getChainList().then((chains) => {
                 new Sentry.Replay(),
             ],
             tracesSampleRate: 0.5,
+        });
+    }
+
+    if (process.env.VUE_APP_MIXPANEL_TOKEN) {
+        app.use(VueMixpanel, {
+            token: process.env.VUE_APP_MIXPANEL_TOKEN,
+            config: {
+                debug: true,
+                track_pageview: true,
+                persistence: 'localStorage',
+            },
         });
     }
 
