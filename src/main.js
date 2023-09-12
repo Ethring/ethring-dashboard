@@ -71,6 +71,7 @@ getChainList().then((chains) => {
 
     if (process.env.VUE_APP_MIXPANEL_TOKEN) {
         Mixpanel.init(process.env.MIXPANEL_TOKEN, { debug: true, track_pageview: true, persistence: 'localStorage' });
+        Mixpanel.track('App Loaded');
     }
 
     app.mount('#app');
