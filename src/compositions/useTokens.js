@@ -7,23 +7,25 @@ import { chainIds } from '@/config/availableNets';
 export default function useTokens() {
     const store = useStore();
 
-    const networks = computed(() => store.getters['networks/networks']);
     const tokensBalance = computed(() => store.getters['tokens/tokens']);
 
+    const zometNetworks = computed(() => store.getters['networks/zometNetworks']);
+    
     const { currentChainInfo } = useWeb3Onboard();
 
     const groupTokensBalance = computed(() => store.getters['tokens/groupTokens']);
 
     const allTokensFromNetwork = (net) => {
-        return networks.value[net]
-            ? Object.keys(networks.value[net].tokens)
+        return zometNetworks.value[net]
+            ? Object.keys(zometNetworks.value[net].tokens)
                   .map((tokenNet) => {
-                      return networks.value[net].tokens[tokenNet];
+                      return zometNetworks.value[net].tokens[tokenNet];
                   })
                   .map((token) => ({
                       ...token,
                       balance: 0,
                       balanceUsd: 0,
+                      code: token.symbol,
                   }))
                   .sort((a, b) => {
                       if (a.name > b.name) {
@@ -54,7 +56,7 @@ export default function useTokens() {
                     priority: currentChainInfo.value?.net === parentNet ? 1 : 0,
                     net: parentNet,
                     name: parentNet,
-                    ...networks.value[parentNet],
+                    ...zometNetworks.value[parentNet],
                     balance: nativeToken?.balance || 0,
                     latest_price: nativeToken?.latest_price || 0,
                     list: children,
@@ -77,7 +79,7 @@ export default function useTokens() {
     // single network
     const tokens = computed(() => {
         if (currentChainInfo.value?.net) {
-            const tokens = networks.value[currentChainInfo.value?.net]?.tokens;
+            const tokens = zometNetworks.value[currentChainInfo.value?.net]?.tokens;
 
             if (tokens) {
                 return sortByBalanceUsd(
