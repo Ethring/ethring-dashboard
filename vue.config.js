@@ -50,7 +50,6 @@ const chainWebpack = (config) => {
         { name: '@web3-onboard' },
         { name: '@vueuse/core' },
         { name: '@cosmjs[\\\\/]', exclude: '@cosmjs[\\\\/].*\\.json$' },
-        { name: '@intlify/core-base' },
     ];
 
     // Применяем общие правила для каждого указанного модуля
