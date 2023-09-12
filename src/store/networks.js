@@ -1,9 +1,6 @@
-import axios from 'axios';
-
-import { getNetworksConfig, getTokensListByNetwork, getChainList } from '@/api/networks';
+import { getNetworksConfig, getTokensListByNetwork } from '@/api/networks';
 
 const types = {
-    SET_NETWORKS: 'SET_NETWORKS',
     SET_SELECTED_NETWORK: 'SET_SELECTED_NETWORK',
     SET_ZOMET_NETWORKS_LIST: 'SET_ZOMET_NETWORKS_LIST',
     SET_BLOCKNATIVE_CHAINS: 'SET_BLOCKNATIVE_CHAINS',
@@ -14,7 +11,6 @@ const types = {
 export default {
     namespaced: true,
     state: () => ({
-        networks: {},
         selectedNetwork: null,
         zometNetworksList: [],
         zometNetworks: {},
@@ -25,8 +21,6 @@ export default {
     }),
 
     getters: {
-        chainsForConnect: (state) => state.chainsForConnect,
-        networks: (state) => state.networks,
         selectedNetwork: (state) => state.selectedNetwork,
         zometNetworksList: (state) => state.zometNetworksList,
         zometNetworks: (state) => state.zometNetworks,
@@ -40,9 +34,6 @@ export default {
     },
 
     mutations: {
-        [types.SET_NETWORKS](state, value) {
-            state.networks = value;
-        },
         [types.SET_SELECTED_NETWORK](state, value) {
             state.selectedNetwork = value;
         },
@@ -80,12 +71,6 @@ export default {
         setSelectedNetwork({ commit }, value) {
             commit(types.SET_SELECTED_NETWORK, value);
         },
-        async init({ commit }) {
-            const response = await axios.get('https://work.3ahtim54r.ru/api/networks.json?version=1.1.0');
-            if (response.status === 200) {
-                commit(types.SET_NETWORKS, response.data);
-            }
-        },
 
         async initZometNets({ commit, dispatch }) {
             const response = await getNetworksConfig();
@@ -99,11 +84,6 @@ export default {
                 }
                 commit(types.SET_ZOMET_NETWORKS_LIST, nets);
             }
-        },
-
-        async initBlocknativeChains({ commit }) {
-            const response = await getChainList();
-            commit(types.SET_BLOCKNATIVE_CHAINS, response);
         },
 
         async initZometTokens({ commit }, network) {
