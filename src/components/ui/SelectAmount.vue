@@ -33,27 +33,10 @@
                 <div><span>$</span>{{ payTokenPrice }}</div>
             </div>
         </div>
-        <div v-if="active" class="select-amount__items" v-click-away="clickAway">
-            <div
-                v-for="(item, ndx) in items"
-                :key="ndx"
-                :class="{ active: item.name === selectedToken?.name }"
-                class="select-amount__items-item"
-                @click="setToken(item)"
-            >
-                <div class="info">
-                    <div class="name">{{ item.name }}</div>
-                </div>
-                <div class="amount">
-                    {{ prettyNumber(item.name === selectedToken?.name ? setTokenBalance(selectedToken) : setTokenBalance(item)) }}
-                    <span>{{ item.code }}</span>
-                </div>
-            </div>
-        </div>
     </div>
 </template>
 <script>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 
 import BigNumber from 'bignumber.js';
 
@@ -68,9 +51,6 @@ export default {
     props: {
         value: {
             required: true,
-        },
-        items: {
-            required: false,
         },
         onReset: {
             type: [Boolean, String],
@@ -173,12 +153,7 @@ export default {
                 } else {
                     amount.value = val;
                 }
-                payTokenPrice.value =
-                    prettyNumber(
-                        BigNumber(
-                            amount.value * (selectedToken?.value?.balance?.price?.USD || selectedToken?.value?.price?.USD) || 0
-                        ).toFixed()
-                    ) || 0;
+                payTokenPrice.value = prettyNumber(BigNumber(amount.value * +selectedToken?.value?.latest_price || 0).toFixed()) || 0;
             } else {
                 payTokenPrice.value = '0';
             }
@@ -206,7 +181,7 @@ export default {
         const setMax = () => {
             active.value = false;
             if (!props.hideMax) {
-                let balance = selectedToken.value?.balance?.amount || selectedToken.value?.balance?.mainBalance;
+                let balance = selectedToken.value?.balance;
                 if (balance > 0) {
                     balance = BigNumber(balance).toFixed();
                 } else {
@@ -231,12 +206,8 @@ export default {
             emit('clickToken');
         };
 
-        onMounted(async () => {
-            setToken(selectedToken.value);
-        });
-
         const setTokenBalance = (token) => {
-            return BigNumber(token?.balance?.mainBalance || token?.balance?.amount || 0).toFixed();
+            return BigNumber(token?.balance).toFixed();
         };
 
         return {

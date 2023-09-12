@@ -104,15 +104,24 @@ export default {
                 return [];
             }
 
-            const [firstToken] = groupTokens.value[0].list;
+            if (groupTokens.value.length === 0) {
+                return [];
+            }
+
+            const [chainTokens = []] = groupTokens.value;
+
+            const [tokenWithMaxBalance = {}] = chainTokens.list || [];
 
             if (!selectedToken.value) {
-                store.dispatch('tokens/setFromToken', firstToken);
-            } else {
-                let token = groupTokens.value[0].list.find((elem) => elem.code === selectedToken.value.code);
-                store.dispatch('tokens/setFromToken', token);
+                store.dispatch('tokens/setFromToken', tokenWithMaxBalance);
+                return chainTokens.list || [];
             }
-            return groupTokens.value[0].list;
+
+            const token = chainTokens.list.find((tkn) => tkn.code === selectedToken.value.code);
+
+            store.dispatch('tokens/setFromToken', token);
+
+            return chainTokens.list || [];
         });
 
         const onSetToken = () => {
@@ -146,7 +155,7 @@ export default {
                 errorBalance.value = 'Incorrect amount';
                 return;
             }
-            if (+value > selectedToken.value?.balance?.amount || +value > selectedToken.value?.balance?.mainBalance) {
+            if (+value > selectedToken.value?.balance) {
                 errorBalance.value = 'Insufficient balance';
             } else {
                 errorBalance.value = '';

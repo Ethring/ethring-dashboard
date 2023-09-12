@@ -70,7 +70,7 @@
         >
             <div v-if="receiveValue" class="accordion__content">
                 <AccordionItem :label="$t('simpleBridge.serviceFee') + ' :'">
-                    <span>{{ prettyNumber(networkFee * selectedSrcToken?.price?.USD) }}</span> <span class="symbol">$</span>
+                    <span>{{ prettyNumber(networkFee * +selectedSrcToken?.latest_price) }}</span> <span class="symbol">$</span>
                 </AccordionItem>
                 <AccordionItem :label="$t('simpleBridge.title') + ' :'">
                     <img src="https://app.debridge.finance/assets/images/bridge.svg" />
@@ -183,9 +183,11 @@ export default {
                 setReceiveValue.value = selectedSrcNetwork.value
                     ? `<span>Protocol Fee</span> : ${
                           serviceFee.value
-                              ? `<span class='service-fee'>${serviceFee.value}</span> 
-                        <span class='symbol'> ${selectedSrcNetwork.value.code || selectedSrcNetwork.value?.nativeCurrency?.symbol} ~ 
-                        <span class='service-fee'> ${prettyNumber(serviceFee.value * selectedSrcNetwork.value.price?.USD)}</span> $ </span>`
+                              ? `<span class='service-fee'>${serviceFee.value}</span>
+                        <span class='symbol'> ${selectedSrcNetwork.value.code || selectedSrcNetwork.value?.nativeCurrency?.symbol} ~
+                        <span class='service-fee'> ${prettyNumber(
+                            serviceFee.value * +selectedSrcNetwork.value.latest_price
+                        )}</span> $ </span>`
                               : `<div class='skeleton skeleton__text'></div>`
                       }`
                     : `<div class='skeleton skeleton__text'></div>`;
@@ -233,7 +235,7 @@ export default {
             const list = [
                 ...listWithBalances,
                 ...allTokensFromNetwork(network.net).filter((token) => {
-                    return token.net !== network.net && !groupTokens.value[0].list.find((t) => t.net === token.net);
+                    return token.net !== network.net && !groupTokens.value[0].list.find((t) => t.code === token.code);
                 }),
             ];
 
@@ -330,10 +332,8 @@ export default {
             amount.value = value;
 
             if (
-                +value > selectedSrcToken.value.balance.amount ||
-                +value > selectedSrcToken.value.balance.mainBalance ||
-                +networkFee.value > selectedSrcToken.value.balance.amount ||
-                +networkFee.value > selectedSrcToken.value.balance.mainBalance ||
+                +value > selectedSrcToken.value.balance ||
+                +networkFee.value > selectedSrcToken.value.balance ||
                 !Object.prototype.hasOwnProperty.call(selectedSrcToken.value, 'balance')
             ) {
                 errorBalance.value = 'Insufficient balance';
@@ -402,6 +402,7 @@ export default {
             ) {
                 return;
             }
+
             if (selectedSrcNetwork.value.net !== currentChainInfo.value.net) {
                 networkError.value = true;
             }

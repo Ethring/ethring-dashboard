@@ -1,5 +1,8 @@
 import axios from 'axios';
+
 import store from './index';
+
+import { sortByKey } from '@/helpers/utils';
 
 const types = {
     SET_TOKENS: 'SET_TOKENS',
@@ -13,6 +16,8 @@ const types = {
     SET_TO_TOKEN: 'SET_TO_TOKEN',
     SET_ADDRESS: 'SET_ADDRESS',
     SET_DISABLE_LOADER: 'SET_DISABLE_LOADER',
+    SET_INTEGRATIONS: 'SET_INTEGRATIONS',
+    SET_TOTAL_BALANCE: 'SET_TOTAL_BALANCE',
 };
 
 export default {
@@ -28,6 +33,8 @@ export default {
         toToken: null,
         address: '',
         disableLoader: false,
+        integrations: {},
+        totalBalances: {},
     }),
 
     getters: {
@@ -41,11 +48,13 @@ export default {
         toToken: (state) => state.toToken,
         address: (state) => state.address,
         disableLoader: (state) => state.disableLoader,
+        integrations: (state) => state.integrations,
+        totalBalances: (state) => state.totalBalances,
     },
 
     mutations: {
         [types.SET_TOKENS](state, value) {
-            state.tokens = value;
+            state.tokens[value.address] = value.data;
         },
         [types.SET_DISABLE_LOADER](state, value) {
             state.disableLoader = value;
@@ -83,10 +92,16 @@ export default {
                 state.favourites[net].push(address);
             }
         },
+        [types.SET_INTEGRATIONS](state, value) {
+            state.integrations[value.address] = value.data;
+        },
+        [types.SET_TOTAL_BALANCE](state, value) {
+            state.totalBalances[value.address] = value.data;
+        },
     },
 
     actions: {
-        setTokens({ commit }, value) {
+        async setTokens({ commit }, value) {
             commit(types.SET_TOKENS, value);
         },
         setAddress({ commit }, value) {
@@ -119,6 +134,13 @@ export default {
         setToToken({ commit }, value) {
             commit(types.SET_TO_TOKEN, value);
         },
+
+        async setIntegrations({ commit }, value) {
+            commit(types.SET_INTEGRATIONS, value);
+        },
+        setTotalBalances({ commit }, value) {
+            commit(types.SET_TOTAL_BALANCE, value);
+        },
         async prepareTransfer(_, { net, from, amount, toAddress }) {
             let response;
 
@@ -139,121 +161,40 @@ export default {
                 };
             }
         },
-        // async updateTokenBalances(_, selectedNet) {
-        //     let balance = 0;
-        //     let price = 0;
-        //     const tokens = _.getters['groupTokens'];
 
-        //     // balance parent network
-        //     const response = await axios.get(
-        //         `${process.env.VUE_APP_BACKEND_URL}/blockchain/${selectedNet.net}/${selectedNet.address}/balance`
-        //     );
-        //     if (response.status === 200) {
-        //         balance = response.data.data;
-        //     }
-        //     const result = await axios.get(`https://work.3ahtim54r.ru/api/currency/${selectedNet.net}/`);
-        //     if (result.status === 200) {
-        //         price = result.data.data;
-        //     }
-
-        //     // tokens child
-        //     const tokenInfo = await axios.get(
-        //         `${process.env.VUE_APP_BACKEND_URL}/blockchain/${selectedNet.net}/${selectedNet.address}/tokens?version=1.1.0`
-        //     );
-        //     // check status and exist tokens in network
-
-        //     const networks = store.getters['networks/networks'];
-        //     const tokensList = tokenInfo.data.data;
-        //     const parentTokens = networks[selectedNet.net]?.tokens;
-
-        //     const childs = Object.keys(tokensList)
-        //         .map((item) => {
-        //             const balance = tokensList[item];
-
-        //             return {
-        //                 ...tokensList[item],
-        //                 ...parentTokens[item],
-        //                 balance,
-        //                 balanceUsd: balance.amount * balance.price.USD,
-        //             };
-        //         })
-        //         ?.filter((item) => item.balance.amount > 0)
-        //         .sort((a, b) => {
-        //             if (a.balanceUsd > b.balanceUsd) {
-        //                 return 1;
-        //             }
-        //             if (a.balanceUsd < b.balanceUsd) {
-        //                 return 0;
-        //             }
-        //             return -1;
-        //         });
-        //     if (tokenInfo.status === 200) {
-        //         tokens[selectedNet.net] = { list: childs, balance, price, balanceUsd: balance.mainBalance * price.USD };
-        //     }
-        //     _.dispatch('setGroupTokens', tokens);
-        //     const wallet = {
-        //         ...selectedNet.info,
-        //         balance: tokens[selectedNet.net]?.balance,
-        //         balanceUsd: tokens[selectedNet.net]?.balanceUsd,
-        //     };
-        //     wallet.list = [...childs, wallet];
-        //     selectedNet.update(wallet);
-        // },
         async updateTokenBalances(_, selectedNet) {
-            const balanceInfo = async () => {
+            const assetsInfo = async () => {
                 try {
-                    let balance = 0;
-
                     const response = await axios.get(
-                        `${process.env.VUE_APP_BACKEND_URL}/blockchain/${selectedNet.net}/${selectedNet.address}/balance`
+                        `${process.env.VUE_APP_DATA_PROVIDER_URL}/balances?net=${selectedNet.net}&address=${selectedNet.address}&tokens=true`
                     );
 
                     if (response.status === 200) {
                         return response.data.data;
                     }
 
-                    return balance;
+                    return null;
                 } catch {
-                    return {};
+                    return null;
                 }
-            };
-
-            const tokensInfo = async () => {
-                try {
-                    const response = await axios.get(
-                        `${process.env.VUE_APP_ZOMET_CORE_API_URL}/balances/${selectedNet.net}/${selectedNet.address}`
-                    );
-
-                    if (response.status === 200) {
-                        return response.data;
-                    }
-
-                    return [];
-                } catch {
-                    return [];
-                }
-            };
-            const sortByBalanceUsd = (list) => {
-                return list?.sort((a, b) => {
-                    if (a.balanceUsd > b.balanceUsd) {
-                        return -1;
-                    }
-                    if (a.balanceUsd < b.balanceUsd) {
-                        return 1;
-                    }
-                    return 0;
-                });
             };
 
             const tokens = _.getters['groupTokens'];
-            tokens[selectedNet.net].balance = await balanceInfo();
-            tokens[selectedNet.net].list = await tokensInfo();
+            const result = await assetsInfo();
+
+            if (result.tokens && result.tokens.length) {
+                const nativeToken = result.tokens.find((elem) => elem.code === selectedNet.info.code);
+                tokens[selectedNet.net].balance = nativeToken?.balance;
+                tokens[selectedNet.net].balanceUsd = nativeToken?.balanceUsd;
+                tokens[selectedNet.net].list = result.tokens;
+            }
+
             store.dispatch('tokens/setGroupTokens', tokens);
             const wallet = {
                 ...selectedNet.info,
                 balance: tokens[selectedNet.net]?.balance,
-                balanceUsd: tokens[selectedNet.net]?.balance.mainBalance * tokens[selectedNet.net]?.price.USD,
-                list: sortByBalanceUsd(tokens[selectedNet.net].list?.filter((item) => item.balance.amount > 0) ?? []),
+                balanceUsd: tokens[selectedNet.net].balanceUsd,
+                list: sortByKey(tokens[selectedNet.net].list, 'balanceUsd'),
             };
             selectedNet.update(wallet);
         },

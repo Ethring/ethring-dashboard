@@ -50,7 +50,7 @@ export default {
                 });
                 return response.data.data;
             } catch (err) {
-                return { error: err.response.data.error };
+                return { error: err.response?.data?.error || err?.message };
             }
         },
 
@@ -81,9 +81,9 @@ export default {
                         ownerAddress,
                     },
                 });
-                return response.data.data;
+                return response.data?.data;
             } catch (err) {
-                return { error: err.response.data.error };
+                return { error: err.response?.data?.error || err?.message };
             }
         },
 

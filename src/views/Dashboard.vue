@@ -4,39 +4,28 @@
             <div class="dashboard__wallet">
                 <WalletInfoLarge />
             </div>
-            <ActionsMenu :menu-items="dashboardActions" class="dashboard__actions" />
-            <Tokens />
+            <Assets />
         </template>
     </div>
 </template>
 
 <script>
-import { ref } from 'vue';
-
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
+import Assets from '@/components/app/Assets';
 import WalletInfoLarge from '@/components/app/WalletInfoLarge';
-import ActionsMenu from '@/components/app/ActionsMenu';
-import Tokens from '@/components/app/Tokens';
 
 export default {
     name: 'Dashboard',
     components: {
         WalletInfoLarge,
-        ActionsMenu,
-        Tokens,
+        Assets,
     },
     setup() {
         const { walletAddress } = useAdapter();
 
-        const dashboardActions = ref([
-            { $title: 'actionTokens' },
-            // { $title: "actionTransactions" },
-        ]);
-
         return {
             walletAddress,
-            dashboardActions,
         };
     },
 };

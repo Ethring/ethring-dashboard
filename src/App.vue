@@ -32,6 +32,7 @@ import LoadingOverlay from '@/components/ui/LoadingOverlay';
 
 export default {
     name: 'App',
+    inject: ['mixpanel'],
     components: {
         Sidebar,
         NavBar,
@@ -39,7 +40,9 @@ export default {
         AddressModal,
         LoadingOverlay,
     },
-
+    created() {
+        this.mixpanel?.track('App:created');
+    },
     setup() {
         const store = useStore();
         const lastConnectedCall = ref(false);

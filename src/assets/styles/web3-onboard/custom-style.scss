@@ -45,16 +45,15 @@
     --onboard-warning-600: #cc8c00;
     --onboard-warning-700: #664600; */
 
-
-
     /* CUSTOMIZE ACCOUNT CENTER*/
-    --account-center-position-top: 20px;
+    --account-center-position-top: 0;
     --account-center-position-right: 9%;
+    --account-center-position-bottom: auto;
     --account-center-z-index: 999;
-    --account-center-minimized-background: #D9F4F1;
-    --account-center-minimized-chain-select-background: #FFFFFF;
+    --account-center-minimized-background: #d9f4f1;
+    --account-center-minimized-chain-select-background: #ffffff;
     --account-center-box-shadow: none;
-  
+
     --account-center-z-index: -1;
 
     /* --account-center-z-index
@@ -94,11 +93,9 @@
 
     /* CUSTOMIZE SECTIONS OF THE CONNECT MODAL */
 
-    --onboard-connect-sidebar-progress-background: #73B1B1;
-    --onboard-connect-sidebar-progress-color: #3FDFAE;
-    --onboard-link-color: #0D7E71;
-  
-
+    --onboard-connect-sidebar-progress-background: #73b1b1;
+    --onboard-connect-sidebar-progress-color: #3fdfae;
+    --onboard-link-color: #0d7e71;
 
     /*
     --onboard-connect-content-width
@@ -164,7 +161,7 @@
 
     /* MAIN MODAL POSITIONING */
     --onboard-modal-z-index: 999;
- 
+
     /* --onboard-modal-z-index
     --onboard-modal-top
     --onboard-modal-bottom
@@ -173,7 +170,7 @@
 
     /* HD WALLET ACCOUNT SELECT MODAL POSITIONING */
     --onboard-account-select-modal-z-index: 999;
-   
+
     /* --onboard-account-select-modal-z-index
     --onboard-account-select-modal-top
     --onboard-account-select-modal-bottom

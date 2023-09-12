@@ -23,7 +23,6 @@ import { computed } from 'vue';
 import { useStore } from 'vuex';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
-import useTokens from '@/compositions/useTokens';
 
 import { cutAddress } from '@/helpers/utils';
 import { prettyNumber } from '@/helpers/prettyNumber';
@@ -38,13 +37,11 @@ export default {
     setup() {
         const store = useStore();
 
-        const { walletAccount, currentChainInfo } = useAdapter();
-
-        const { groupTokens } = useTokens();
+        const { walletAddress, walletAccount, currentChainInfo } = useAdapter();
 
         const showBalance = computed(() => store.getters['app/showBalance']);
 
-        const totalBalance = computed(() => groupTokens.value?.reduce((acc, net) => acc + net.totalSumUSD, 0) ?? 0);
+        const totalBalance = computed(() => store.getters['tokens/totalBalances'][walletAddress.value]);
 
         return {
             totalBalance,
@@ -123,6 +120,7 @@ export default {
 
             span {
                 font-weight: 400;
+                color: var(--#{$prefix}base-text);
             }
 
             svg {

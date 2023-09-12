@@ -1,7 +1,7 @@
 <template>
     <div class="token-icon">
         <img
-            v-if="!showIconPlaceholder"
+            v-if="!showIconPlaceholder && token"
             :width="width"
             :height="height"
             :key="token?.code"
@@ -9,7 +9,6 @@
             :alt="token?.name"
             @error="showIconPlaceholder = true"
             @load="showIconPlaceholder = false"
-            :class="{ nativeIcon: tokenIconFromZomet }"
         />
         <div v-else class="token-icon__placeholder">
             <a-avatar>{{ iconPlaceholder }}</a-avatar>
@@ -97,20 +96,19 @@ export default {
     justify-content: center;
     align-items: center;
 
-    img.nativeIcon {
-        border-radius: 50%;
+    img {
         width: 100%;
         height: 100%;
+        border-radius: 50%;
+
         object-position: center;
         object-fit: contain;
-
-        filter: none;
     }
 
     &__placeholder {
         font-size: var(--#{$prefix}small-sm-fs);
 
-        & span {
+        span {
             color: var(--#{$prefix}white);
         }
     }

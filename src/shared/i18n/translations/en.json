@@ -12,7 +12,7 @@
     "send": "SEND",
     "search": "Search",
     "notFound": "Nothing was found for your query",
-    "empty": "You don't have any assets"
+    "emptyAssets": "You don't have any assets"
   },
   "sidebar": {
     "main": "Main",
@@ -58,7 +58,9 @@
     "selectToken": "Select token",
     "networkFee": "Network fee",
     "time": "Estimate time",
-    "changeNetwork": "Please change network"
+    "changeNetwork": "Please change network",
+    "rewards": "Rewards",
+    "value": "Value"
   },
   "simpleSend": {
     "title": "Send"

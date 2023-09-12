@@ -5,7 +5,7 @@
             <div class="info-wrap">
                 <div class="info">
                     <div class="network">
-                        <img alt="network-logo" :src="selectedNetwork.logo" class="network-logo" />
+                        <img class="network-logo" alt="network-logo" :src="selectedNetwork.logo" />
                     </div>
                     <input
                         v-model="address"
@@ -24,15 +24,15 @@
                 <div class="info">
                     <div class="name">{{ item }}</div>
                 </div>
-                <closeSvg class="remove" @click.stop="removeAddress(item)" />
+                <CloseSvg class="remove" @click.stop="removeAddress(item)" />
             </div>
         </div>
     </div>
 </template>
 <script>
-import { ref, watch, onMounted } from 'vue';
+import CloseSvg from '@/assets/icons/app/close.svg';
 
-import closeSvg from '@/assets/icons/app/close.svg';
+import { ref, watch, onMounted } from 'vue';
 
 export default {
     name: 'SelectAddress',
@@ -59,7 +59,7 @@ export default {
         },
     },
     components: {
-        closeSvg,
+        CloseSvg,
     },
     setup(props, { emit }) {
         const active = ref(false);
@@ -198,8 +198,8 @@ export default {
             background: var(--#{$prefix}icon-logo-bg-color);
             margin-right: 10px;
 
-            svg {
-                fill: var(--#{$prefix}black);
+            &-logo {
+                width: 28px;
             }
         }
 
@@ -208,13 +208,6 @@ export default {
             font-weight: 600;
             color: var(--#{$prefix}select-placeholder-text);
             user-select: none;
-        }
-
-        svg.arrow {
-            cursor: pointer;
-            fill: var(--#{$prefix}select-icon-color);
-            transform: rotate(0);
-            @include animateEasy;
         }
     }
 
