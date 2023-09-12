@@ -23,6 +23,7 @@ import useInit from './compositions/useInit';
 
 export default {
     name: 'App',
+    inject: ['mixpanel'],
     components: {
         Sidebar,
         NavBar,
@@ -30,6 +31,7 @@ export default {
     created() {
         const store = useStore();
         store.dispatch('networks/init');
+        this.mixpanel?.track('App:created');
     },
     setup() {
         const store = useStore();

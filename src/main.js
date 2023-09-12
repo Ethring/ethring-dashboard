@@ -5,7 +5,7 @@ import { vue3Debounce } from 'vue-debounce';
 import * as Sentry from '@sentry/vue';
 import { BrowserTracing } from '@sentry/browser';
 
-import Mixpanel from 'mixpanel-browser';
+import VueMixpanel from 'vue-mixpanel';
 
 import App from './App.vue';
 
@@ -70,8 +70,14 @@ getChainList().then((chains) => {
     }
 
     if (process.env.VUE_APP_MIXPANEL_TOKEN) {
-        Mixpanel.init(process.env.MIXPANEL_TOKEN, { debug: true, track_pageview: true, persistence: 'localStorage' });
-        Mixpanel.track('App Loaded');
+        app.use(VueMixpanel, {
+            token: process.env.VUE_APP_MIXPANEL_TOKEN,
+            config: {
+                debug: true,
+                track_pageview: true,
+                persistence: 'localStorage',
+            },
+        });
     }
 
     app.mount('#app');
