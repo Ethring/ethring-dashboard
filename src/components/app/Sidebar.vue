@@ -3,25 +3,25 @@
         <div class="sidebar-items">
             <Logo class="sidebar__logo" />
             <SidebarList v-if="walletAddress" />
-            <Socials class="sidebar__socials" />
+            <!-- <Socials class="sidebar__socials" /> -->
         </div>
     </div>
 </template>
 <script>
 import Logo from './Logo';
-import Socials from './Socials';
+// import Socials from './Socials';
 import SidebarList from './SidebarList';
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 
 export default {
     name: 'Sidebar',
     components: {
         Logo,
         SidebarList,
-        Socials,
+        // Socials,
     },
     setup() {
-        const { walletAddress } = useWeb3Onboard();
+        const { walletAddress } = useAdapter();
 
         return {
             walletAddress,

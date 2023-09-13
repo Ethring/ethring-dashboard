@@ -1,8 +1,12 @@
 import axios from 'axios';
 import { ref, computed } from 'vue';
-
-export default async function useInit(address, store) {
+export default async function useInit(ecosystem, address, store) {
+    if (!address) {
+        return;
+    }
     const disableLoader = computed(() => store.getters['tokens/disableLoader']);
+    store.dispatch('tokens/setLoader', true);
+
     if (!disableLoader.value) {
         store.dispatch('tokens/setLoader', true);
         store.dispatch('tokens/setFromToken', null);
@@ -12,6 +16,7 @@ export default async function useInit(address, store) {
     } else {
         store.dispatch('tokens/setDisableLoader', false);
     }
+
     const networksList = ref(store.getters['networks/zometNetworksList']);
 
     const tokens = {};

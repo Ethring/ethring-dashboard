@@ -56,12 +56,13 @@ import { useStore } from 'vuex';
 
 import BigNumber from 'bignumber.js';
 
+import useAdapter from '@/Adapter/compositions/useAdapter';
+
 import EmptyList from '@/components/ui/EmptyList';
+
 import AssetItem from './AssetItem';
 import AssetItemHeader from './AssetItemHeader';
 import AssetItemSubHeader from './AssetItemSubHeader.vue';
-
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 
 import { getTokenIcon, sortByKey } from '@/helpers/utils';
 import { prettyNumber } from '@/helpers/prettyNumber';
@@ -79,7 +80,7 @@ export default {
 
         const groupHides = ref({});
 
-        const { walletAddress } = useWeb3Onboard();
+        const { walletAddress } = useAdapter();
 
         const loader = computed(() => store.getters['tokens/loader']);
 

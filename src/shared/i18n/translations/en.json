@@ -27,8 +27,20 @@
     "emptyTitle": "Connect a wallet to manage your portfolio",
     "pageTitle": "Connecting wallet",
     "blockTitle": "Connect with",
-    "mmTitle": "MetaMask",
-    "keplrTitle": "Keplr"
+    "anotherWallet": "Connect Another Wallet",
+    "availableWallets": "Available wallets"
+  },
+  "adapter": {
+    "accountsGroup": "Connected accounts",
+    "accountModalTitle": "Account addresses",
+    "copyAddress": "Copy address",
+    "disconnectAccount": "Disconnect",
+    "ecosystemsGroup": "Connect to",
+    "disconnectAll": "Disconnect all wallets",
+    "cosmosWallets": "Cosmos Ecosystem",
+    "ethereumWallets": "EVM Ecosystem",
+    "copyAddressTooltip": "Copy address to clipboard",
+    "copiedAddressTooltip": "Address copied"
   },
   "actionTokens": "Tokens",
   "actionTransactions": "Transactions",

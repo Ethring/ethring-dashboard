@@ -98,7 +98,7 @@ import { useRouter } from 'vue-router';
 import { ethers } from 'ethers';
 import axios from 'axios';
 
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 import useTokens from '@/compositions/useTokens';
 
 import InfoPanel from '@/components/ui/InfoPanel';
@@ -132,7 +132,7 @@ export default {
         Checkbox,
     },
     setup() {
-        const { walletAddress, currentChainInfo, connectedWallet, setChain } = useWeb3Onboard();
+        const { walletAddress, currentChainInfo, connectedWallet, setChain } = useAdapter();
         const { groupTokens, allTokensFromNetwork, getTokenList } = useTokens();
 
         const store = useStore();
@@ -177,6 +177,7 @@ export default {
             if (selectedSrcToken.value) {
                 await getAllowance();
             }
+
             if (selectedSrcNetwork.value) {
                 serviceFee.value = services[0]?.protocolFee[selectedSrcNetwork?.value?.chain_id || selectedSrcNetwork?.value?.chainId];
                 setReceiveValue.value = selectedSrcNetwork.value
@@ -245,6 +246,7 @@ export default {
             if (network?.net === currentChainInfo.value?.net) {
                 networkError.value = false;
             }
+
             clearApprove();
 
             tokensSrcListResolved.value = await tokensList(network);

@@ -44,13 +44,12 @@ const chainWebpack = (config) => {
     configureRule(config, 'svg', [{ name: 'vue-loader-v16' }, { name: 'vue-svg-loader' }]);
 
     const modulesToInclude = [
-        // { name: '@cosmos-kit' },
-        // { name: 'cosmjs-types' },
-        { name: '@metamask/utils' },
+        { name: '@cosmos-kit' },
+        { name: 'cosmjs-types' },
         { name: '@walletconnect' },
+        { name: '@web3-onboard' },
         { name: '@vueuse/core' },
-        { name: '@intlify/core-base' },
-        // { name: '@cosmjs[\\\\/]', exclude: '@cosmjs[\\\\/].*\\.json$' },
+        { name: '@cosmjs[\\\\/]', exclude: '@cosmjs[\\\\/].*\\.json$' },
     ];
 
     // Применяем общие правила для каждого указанного модуля
@@ -76,8 +75,10 @@ module.exports = {
     css: {
         loaderOptions: {
             sass: {
-                additionalData: `@import "@/assets/styles/colors.scss";
-                    @import "@/assets/styles/variables";`,
+                additionalData: `
+                    @import "@/assets/styles/colors.scss";
+                    @import "@/assets/styles/variables";
+                `,
             },
         },
     },

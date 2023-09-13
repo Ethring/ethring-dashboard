@@ -3,6 +3,7 @@ import { getNetworksConfig, getTokensListByNetwork } from '@/api/networks';
 const types = {
     SET_SELECTED_NETWORK: 'SET_SELECTED_NETWORK',
     SET_ZOMET_NETWORKS_LIST: 'SET_ZOMET_NETWORKS_LIST',
+    SET_BLOCKNATIVE_CHAINS: 'SET_BLOCKNATIVE_CHAINS',
     SET_ZOMET_NETWORKS: 'SET_ZOMET_NETWORKS',
     SET_ZOMET_TOKENS_BY_NET: 'SET_ZOMET_TOKENS_BY_NET',
 };
@@ -16,6 +17,7 @@ export default {
         tokensByNetwork: {},
         zometTokens: {},
         tokensAddressesByNet: {},
+        chainsForConnect: [],
     }),
 
     getters: {
@@ -40,6 +42,9 @@ export default {
         },
         [types.SET_ZOMET_NETWORKS](state, value) {
             state.zometNetworks = value;
+        },
+        [types.SET_BLOCKNATIVE_CHAINS](state, value) {
+            state.chainsForConnect = value;
         },
         [types.SET_ZOMET_TOKENS_BY_NET](state, { tokens, network } = {}) {
             const exists = JSON.parse(JSON.stringify(state.zometTokens)) || {};

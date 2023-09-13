@@ -31,7 +31,7 @@
 <script>
 import { ref } from 'vue';
 
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
@@ -45,12 +45,11 @@ export default {
     components: {
         arrowSvg,
     },
-    setup(props, { emit }) {
-        const { currentChainInfo } = useWeb3Onboard();
-        const currentNetwork = props.items.find((item) => item.chain_id === currentChainInfo.value.chainId) || currentChainInfo;
+    setup(_, { emit }) {
+        const { currentChainInfo } = useAdapter();
 
         const active = ref(false);
-        const selectedItem = ref(currentNetwork);
+        const selectedItem = ref(currentChainInfo.value);
 
         const togglePanel = (away = false) => {
             if (away) {

@@ -1,14 +1,48 @@
-const defaultSidebarItems = [
-    { component: 'mainSvg', title: 'Main', key: 'main', to: '/main' },
-    { component: 'stakeSvg', title: 'Send', key: 'send', to: '/send' },
-    { component: 'swapSvg', title: 'Swap', key: 'swap', to: '/swap' },
-    { component: 'swapSvg', title: 'SuperSwap', key: 'superSwap', to: '/superSwap' },
-    { component: 'bridgeSvg', title: 'Bridge', key: 'bridge', to: '/bridge' },
-];
+/* eslint-disable no-unused-vars */
+import { ECOSYSTEMS } from '@/Adapter/config';
 
-export const UIConfig = {
-    bsc: {
-        sidebar: [...defaultSidebarItems],
+const MAIN_DASHBOARD = {
+    component: 'mainSvg',
+    title: 'Main',
+    key: 'main',
+    to: '/main',
+};
+
+const SEND = {
+    component: 'stakeSvg',
+    title: 'Send',
+    key: 'send',
+    to: '/send',
+};
+const BRIDGE = {
+    component: 'bridgeSvg',
+    title: 'Bridge',
+    key: 'bridge',
+    to: '/bridge',
+};
+const SWAP = {
+    component: 'swapSvg',
+    title: 'Swap',
+    key: 'swap',
+    to: '/swap',
+};
+
+const SUPER_SWAP = {
+    component: 'swapSvg',
+    title: 'SuperSwap',
+    key: 'superSwap',
+    to: '/superSwap',
+};
+
+const defaultConfig = {
+    [ECOSYSTEMS.EVM]: {
+        sidebar: [
+            MAIN_DASHBOARD,
+            SEND,
+            // SWAP,
+            // BRIDGE,
+            // SUPER_SWAP,
+        ],
         send: {
             component: 'SimpleSend',
         },
@@ -22,68 +56,14 @@ export const UIConfig = {
             component: 'SuperSwap',
         },
     },
-    eth: {
-        sidebar: [...defaultSidebarItems],
-        send: {
-            component: 'SimpleSend',
-        },
-        swap: {
-            component: 'SimpleSwap',
-        },
-        bridge: {
-            component: 'SimpleBridge',
-        },
-        superSwap: {
-            component: 'SuperSwap',
-        },
-    },
-    polygon: {
-        sidebar: [...defaultSidebarItems],
-        send: {
-            component: 'SimpleSend',
-        },
-        swap: {
-            component: 'SimpleSwap',
-        },
-        bridge: {
-            component: 'SimpleBridge',
-        },
-        superSwap: {
-            component: 'SuperSwap',
-        },
-    },
-    optimism: {
-        sidebar: [...defaultSidebarItems],
-        send: {
-            component: 'SimpleSend',
-        },
-        swap: {
-            component: 'SimpleSwap',
-        },
-        bridge: {
-            component: 'SimpleBridge',
-        },
-        superSwap: {
-            component: 'SuperSwap',
-        },
-    },
-    avalanche: {
-        sidebar: [...defaultSidebarItems],
-        send: {
-            component: 'SimpleSend',
-        },
-        swap: {
-            component: 'SimpleSwap',
-        },
-        bridge: {
-            component: 'SimpleBridge',
-        },
-        superSwap: {
-            component: 'SuperSwap',
-        },
-    },
-    arbitrum: {
-        sidebar: [...defaultSidebarItems],
+    [ECOSYSTEMS.COSMOS]: {
+        sidebar: [
+            MAIN_DASHBOARD,
+            // SEND,
+            // SWAP,
+            // BRIDGE,
+            // SUPER_SWAP,
+        ],
         send: {
             component: 'SimpleSend',
         },
@@ -98,3 +78,44 @@ export const UIConfig = {
         },
     },
 };
+
+const UIConfig = {
+    optimism: {
+        sidebar: [
+            MAIN_DASHBOARD,
+            SEND,
+            // SWAP,
+            // BRIDGE,
+            // SUPER_SWAP,
+        ],
+        send: {
+            component: 'SimpleSend',
+        },
+        swap: {
+            component: 'SimpleSwap',
+        },
+        bridge: {
+            component: 'SimpleBridge',
+        },
+        superSwap: {
+            component: 'SuperSwap',
+        },
+    },
+};
+
+const getUIConfig = (network, ecosystem) => {
+    switch (ecosystem) {
+        case ECOSYSTEMS.EVM:
+            if (UIConfig[network]) {
+                return UIConfig[network];
+            }
+            return defaultConfig[ecosystem];
+
+        case ECOSYSTEMS.COSMOS:
+            return UIConfig[network] || defaultConfig[ecosystem];
+        default:
+            return UIConfig[network] || defaultConfig[ecosystem];
+    }
+};
+
+export default getUIConfig;

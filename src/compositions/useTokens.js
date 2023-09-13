@@ -1,17 +1,28 @@
 import { computed } from 'vue';
 import { useStore } from 'vuex';
-import useWeb3Onboard from './useWeb3Onboard';
 
 import { chainIds } from '@/config/availableNets';
+import useAdapter from '@/Adapter/compositions/useAdapter';
+
+import { ECOSYSTEMS } from '@/Adapter/config';
 
 export default function useTokens() {
     const store = useStore();
 
+    const { walletAddress, currentChainInfo } = useAdapter();
+
+    if (!walletAddress.value || currentChainInfo.value?.ecosystem === ECOSYSTEMS.COSMOS) {
+        return {
+            tokens: [],
+            groupTokens: [],
+            allTokensFromNetwork: () => [],
+            getTokenList: () => [],
+        };
+    }
+
     const tokensBalance = computed(() => store.getters['tokens/tokens']);
 
     const zometNetworks = computed(() => store.getters['networks/zometNetworks']);
-    
-    const { currentChainInfo } = useWeb3Onboard();
 
     const groupTokensBalance = computed(() => store.getters['tokens/groupTokens']);
 

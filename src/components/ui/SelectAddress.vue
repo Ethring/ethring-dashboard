@@ -150,6 +150,8 @@ export default {
         padding: 17px 32px;
         box-sizing: border-box;
         border: 2px solid transparent;
+        transition: 0.2s;
+
         cursor: pointer;
 
         .recipient {
@@ -317,6 +319,23 @@ export default {
                 font-weight: 400;
             }
         }
+    }
+}
+
+.network {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 50%;
+    background: #3fdfae;
+    margin-right: 10px;
+
+    & > img.network-logo {
+        width: 80% !important;
+        height: 80% !important;
     }
 }
 </style>

@@ -10,7 +10,7 @@ import { useStore } from 'vuex';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 import useTokens from '@/compositions/useTokens';
 
 import SelectToken from '@/components/ui/SelectToken.vue';
@@ -25,7 +25,7 @@ export default {
         const router = useRouter();
         const searchValue = ref('');
 
-        const { walletAddress, currentChainInfo } = useWeb3Onboard();
+        const { walletAddress, currentChainInfo } = useAdapter();
         const { groupTokens, allTokensFromNetwork, getTokenList } = useTokens();
 
         const selectType = computed(() => store.getters['tokens/selectType']);
@@ -37,6 +37,11 @@ export default {
         const loader = computed(() => store.getters['tokens/loader']);
 
         onMounted(async () => {
+            console.log(
+                'selectedNetwork',
+                selectedNetwork,
+                groupTokens.value.find((elem) => elem.net === currentChainInfo.value.net)
+            );
             if (!selectedNetwork.value) {
                 store.dispatch(
                     'bridge/setSelectedSrcNetwork',

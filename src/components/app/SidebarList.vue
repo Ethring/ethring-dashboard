@@ -12,16 +12,16 @@
 </template>
 
 <script>
+import { computed } from 'vue';
+
+import useAdapter from '@/Adapter/compositions/useAdapter';
+import UIConfig from '@/config/ui';
+
 import mainSvg from '@/assets/icons/sidebar/main.svg';
 import swapSvg from '@/assets/icons/sidebar/swap.svg';
 import stakeSvg from '@/assets/icons/sidebar/stake.svg';
 import sendSvg from '@/assets/icons/sidebar/send.svg';
 import bridgeSvg from '@/assets/icons/sidebar/bridge.svg';
-
-import { UIConfig } from '@/config/ui';
-
-import { computed } from 'vue';
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 
 export default {
     name: 'SidebarList',
@@ -33,18 +33,20 @@ export default {
         bridgeSvg,
     },
     setup() {
-        const { currentChainInfo } = useWeb3Onboard();
+        const { currentChainInfo } = useAdapter();
 
         const menu = computed(() => {
-            if (!currentChainInfo.value.net) {
+            if (!currentChainInfo.value?.ecosystem || !currentChainInfo.value?.net) {
                 return [];
             }
 
-            if (!UIConfig[currentChainInfo.value.net]) {
+            const config = UIConfig(currentChainInfo.value?.net, currentChainInfo.value?.ecosystem);
+
+            if (!config) {
                 return [];
             }
 
-            return UIConfig[currentChainInfo.value.net].sidebar;
+            return config.sidebar;
         });
 
         return {

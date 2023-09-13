@@ -16,10 +16,10 @@ import { computed, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 import useTokens from '@/compositions/useTokens';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 
-import { UIConfig } from '@/config/ui';
+import UIConfig from '@/config/ui';
 
 import Spinner from '@/components/app/Spinner';
 import SimpleBridge from '@/components/dynamic/bridge/SimpleBridge.vue';
@@ -49,16 +49,23 @@ export default {
         const router = useRouter();
 
         const { groupTokens } = useTokens();
-        const { walletAddress, currentChainInfo } = useWeb3Onboard();
+        const { walletAddress, currentChainInfo } = useAdapter();
 
         const loader = computed(() => store.getters['tokens/loader']);
 
         const spinnerLoader = computed(() => {
-            return loader.value || !groupTokens.value[0]?.name || !walletAddress.value;
+            return loader.value || !walletAddress.value;
         });
 
         const layoutComponent = computed(() => {
-            return UIConfig[currentChainInfo.value.net]?.[props.component].component;
+            const config = UIConfig(currentChainInfo.value?.net, currentChainInfo.value?.ecosystem);
+            if (!config) {
+                return null;
+            }
+            if (config[props.component].component) {
+                return config[props.component].component;
+            }
+            return null;
         });
 
         watch(

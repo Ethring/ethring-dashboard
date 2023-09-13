@@ -250,6 +250,9 @@ export default {
         padding: 17px 32px;
         box-sizing: border-box;
         border: 2px solid transparent;
+
+        transition: 0.2s;
+
         cursor: pointer;
 
         .label {

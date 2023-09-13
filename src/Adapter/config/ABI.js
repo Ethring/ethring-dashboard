@@ -1,4 +1,6 @@
-export const abi = [
+export const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+
+export const TRANSFER_ABI = [
     {
         inputs: [
             {

@@ -1,11 +1,9 @@
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 
 export const onSelectNetwork = async (network) => {
-    const { setChain, connectedWallet } = useWeb3Onboard();
+    const { setChain, currentChainInfo } = useAdapter();
 
-    const { provider } = connectedWallet.value;
-
-    const { chainId } = provider;
+    const chainId = currentChainInfo.value?.chain_id;
 
     try {
         await setChain({
