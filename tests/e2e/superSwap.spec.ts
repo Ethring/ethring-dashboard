@@ -8,7 +8,7 @@ const supportedServiceBySwap = [];
 
 test.describe('SuperSwap e2e tests', () => {
     test('Case#1: Super Swap tx from ETH to BSC wEth to USDC', async ({ browser, context, page: Page, superSwapPage }) => {
-        await superSwapPage.setDataAndClickSwap('Binance Smart Chain', '0.05');
+        await superSwapPage.setDataAndClickSwap('Binance Smart Chain', '0.01');
 
         const notyfMM = new MetaMaskNotifyPage(context.pages()[2]);
         await notyfMM.signTx();
@@ -48,7 +48,7 @@ test.describe('SuperSwap e2e tests', () => {
     test('Case#4: Checking polled services for bridge', async ({ page, dashboard }: { page: Page; dashboard: DashboardPage }) => {
         let requestedService: string[] = [];
 
-        await dashboard.page.route('**/getSupportedChains', (route) => {
+        await dashboard.page.route('**/estimateBridge', (route) => {
             const regex = /\/([^/]+)\/api/;
             requestedService.push(route.request().url().match(regex)[1]);
             route.continue();

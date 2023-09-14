@@ -53,7 +53,7 @@ export class SwapPage extends DashboardPage {
 
     async swapTokens(amount: string) {
         await this.page.locator("//div[text() = 'Pay']/following-sibling::div//input").type(amount);
-        await this.page.click('[class="xl button simple-swap__btn mt-10"]');
+        await this.page.click('button.simple-swap__btn');
         await this.page.waitForLoadState();
         await this.page.waitForLoadState('domcontentloaded');
         await waitMmNotifyWindow();

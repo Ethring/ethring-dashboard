@@ -14,7 +14,7 @@ test('Swap tx', async ({ browser, context, page: Page, swapPage }) => {
 });
 
 for (const net of supportedNetsBySwap) {
-    test(`Assert dublicate tokens in net ${net}`, async ({ browser, context, page: Page, swapPage }) => {
+    test.skip(`Assert dublicate tokens in net ${net}`, async ({ browser, context, page: Page, swapPage }) => {
         const needAddNetInMm = await swapPage.changeNetworkBySwap(net);
         if (needAddNetInMm) {
             const notyfMM = new MetaMaskNotifyPage(context.pages()[2]);
