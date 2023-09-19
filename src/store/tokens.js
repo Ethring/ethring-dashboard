@@ -4,13 +4,12 @@ import store from './index';
 
 import { sortByKey } from '@/helpers/utils';
 
-const types = {
+const TYPES = {
+    SET_DATA_FOR: 'SET_DATA_FOR',
     SET_TOKENS: 'SET_TOKENS',
     SET_GROUP_TOKENS: 'SET_GROUP_TOKENS',
     SET_MARKETCAP: 'SET_MARKETCAP',
     SET_LOADER: 'SET_LOADER',
-    SET_FAVOURITES: 'SET_FAVOURITES',
-    REMOVE_FAVOURITE: 'REMOVE_FAVOURITE',
     SET_SELECT_TYPE: 'SET_SELECT_TYPE',
     SET_FROM_TOKEN: 'SET_FROM_TOKEN',
     SET_TO_TOKEN: 'SET_TO_TOKEN',
@@ -23,7 +22,6 @@ const types = {
 export default {
     namespaced: true,
     state: () => ({
-        favourites: {},
         loader: false,
         tokens: {},
         groupTokens: {},
@@ -38,7 +36,6 @@ export default {
     }),
 
     getters: {
-        favourites: (state) => state.favourites,
         loader: (state) => state.loader,
         tokens: (state) => state.tokens,
         groupTokens: (state) => state.groupTokens,
@@ -53,113 +50,86 @@ export default {
     },
 
     mutations: {
-        [types.SET_TOKENS](state, value) {
-            state.tokens[value.address] = value.data;
-        },
-        [types.SET_DISABLE_LOADER](state, value) {
-            state.disableLoader = value;
-        },
-        [types.SET_ADDRESS](state, value) {
-            state.address = value;
-        },
-        [types.SET_GROUP_TOKENS](state, value) {
-            state.groupTokens = value;
-        },
-        [types.SET_MARKETCAP](state, value) {
-            state.marketCap = value;
-        },
-        [types.SET_LOADER](state, value) {
-            state.loader = value;
-        },
-        [types.SET_SELECT_TYPE](state, value) {
-            state.selectType = value;
-        },
-        [types.SET_FROM_TOKEN](state, value) {
-            state.fromToken = value;
-        },
-        [types.SET_TO_TOKEN](state, value) {
-            state.toToken = value;
-        },
-        [types.REMOVE_FAVOURITE](state, { net, address }) {
-            state.favourites[net] = state.favourites[net].filter((favAddr) => favAddr !== address);
-        },
-        [types.SET_FAVOURITES](state, { net, address }) {
-            if (!state.favourites[net]) {
-                state.favourites[net] = [];
+        [TYPES.SET_DATA_FOR](state, { type, account, data }) {
+            if (!state[type][account]) {
+                state[type][account] = {};
             }
 
-            if (!state.favourites[net].includes(address)) {
-                state.favourites[net].push(address);
+            state[type][account] = data;
+        },
+
+        [TYPES.SET_TOTAL_BALANCE](state, { account, data }) {
+            if (!state.totalBalances[account]) {
+                state.totalBalances[account] = {};
             }
+
+            state.totalBalances[account] = data;
         },
-        [types.SET_INTEGRATIONS](state, value) {
-            state.integrations[value.address] = value.data;
+
+        [TYPES.SET_DISABLE_LOADER](state, value) {
+            state.disableLoader = value;
         },
-        [types.SET_TOTAL_BALANCE](state, value) {
-            state.totalBalances[value.address] = value.data;
+        [TYPES.SET_ADDRESS](state, value) {
+            state.address = value;
+        },
+        [TYPES.SET_GROUP_TOKENS](state, { chain, data }) {
+            if (!state.groupTokens[chain]) {
+                state.groupTokens[chain] = {};
+            }
+
+            state.groupTokens[chain] = data;
+        },
+        [TYPES.SET_MARKETCAP](state, value) {
+            state.marketCap = value;
+        },
+        [TYPES.SET_LOADER](state, value) {
+            state.loader = value;
+        },
+        [TYPES.SET_SELECT_TYPE](state, value) {
+            state.selectType = value;
+        },
+        [TYPES.SET_FROM_TOKEN](state, value) {
+            state.fromToken = value;
+        },
+        [TYPES.SET_TO_TOKEN](state, value) {
+            state.toToken = value;
         },
     },
 
     actions: {
-        async setTokens({ commit }, value) {
-            commit(types.SET_TOKENS, value);
+        setDataFor({ commit }, value) {
+            commit(TYPES.SET_DATA_FOR, value);
+        },
+        setTokens({ commit }, value) {
+            commit(TYPES.SET_TOKENS, value);
         },
         setAddress({ commit }, value) {
-            commit(types.SET_ADDRESS, value);
+            commit(TYPES.SET_ADDRESS, value);
         },
         setGroupTokens({ commit }, value) {
-            commit(types.SET_GROUP_TOKENS, value);
+            commit(TYPES.SET_GROUP_TOKENS, value);
         },
         setMarketCap({ commit }, value) {
-            commit(types.SET_MARKETCAP, value);
+            commit(TYPES.SET_MARKETCAP, value);
         },
         setLoader({ commit }, value) {
-            commit(types.SET_LOADER, value);
+            commit(TYPES.SET_LOADER, value);
         },
         setDisableLoader({ commit }, value) {
-            commit(types.SET_DISABLE_LOADER, value);
-        },
-        setFavourites({ commit }, { net, address }) {
-            commit(types.SET_FAVOURITES, { net, address });
-        },
-        removeFavourite({ commit }, { net, address }) {
-            commit(types.REMOVE_FAVOURITE, { net, address });
+            commit(TYPES.SET_DISABLE_LOADER, value);
         },
         setSelectType({ commit }, value) {
-            commit(types.SET_SELECT_TYPE, value);
+            commit(TYPES.SET_SELECT_TYPE, value);
         },
         setFromToken({ commit }, value) {
-            commit(types.SET_FROM_TOKEN, value);
+            commit(TYPES.SET_FROM_TOKEN, value);
         },
         setToToken({ commit }, value) {
-            commit(types.SET_TO_TOKEN, value);
+            commit(TYPES.SET_TO_TOKEN, value);
         },
 
-        async setIntegrations({ commit }, value) {
-            commit(types.SET_INTEGRATIONS, value);
-        },
         setTotalBalances({ commit }, value) {
-            commit(types.SET_TOTAL_BALANCE, value);
-        },
-        async prepareTransfer(_, { net, from, amount, toAddress }) {
-            let response;
-
-            try {
-                response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/blockchain/${net}/${from}/builder/transfer?version=1.1.0`, {
-                    params: {
-                        amount,
-                        toAddress,
-                    },
-                });
-
-                return {
-                    transaction: response.data.data.transaction,
-                };
-            } catch (err) {
-                return {
-                    error: err.response.data.error,
-                };
-            }
+            commit(TYPES.SET_TOTAL_BALANCE, value);
         },
 
         async updateTokenBalances(_, selectedNet) {

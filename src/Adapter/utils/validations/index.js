@@ -1,4 +1,5 @@
 import { bech32 } from 'bech32';
+
 export function validateCosmosAddress(address, prefix) {
     try {
         const result = bech32.decode(address);

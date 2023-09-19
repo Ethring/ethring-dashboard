@@ -4,16 +4,16 @@
             <div class="chain-info">
                 <ChainRecord :chain="record" />
                 <a-tooltip placement="right" :title="copied ? $t('adapter.copiedAddressTooltip') : $t('adapter.copyAddressTooltip')">
-                    <span class="chain-address" @click="copy(chainWithAddress[record.chain_id])">
-                        {{ cutAddress(chainWithAddress[record.chain_id]) }}
+                    <span class="chain-address" @click="copy(chainWithAddress[record.net]?.address)">
+                        {{ cutAddress(chainWithAddress[record.net]?.address) }}
                     </span>
                 </a-tooltip>
             </div>
             <div class="chain-actions">
-                <a-typography-paragraph :copyable="{ text: chainWithAddress[record.chain_id], tooltip: false }" />
+                <a-typography-paragraph :copyable="{ text: chainWithAddress[record.net]?.address, tooltip: false }" />
                 <a-popover :overlay-inner-style="{ padding: 0 }">
                     <template #content>
-                        <a-qrcode error-level="H" :value="chainWithAddress[record.chain_id]" :bordered="false" icon="/zomet-logo.svg" />
+                        <a-qrcode error-level="H" :value="chainWithAddress[record.net]?.address" :bordered="false" icon="/zomet-logo.svg" />
                     </template>
                     <QrcodeOutlined />
                 </a-popover>

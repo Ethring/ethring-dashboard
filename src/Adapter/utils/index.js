@@ -13,6 +13,8 @@ export function reEncodeWithNewPrefix(prefix, originalAddress) {
     return bech32.encode(prefix, bech32.toWords(decoded.data));
 }
 
+export const isDifferentSlip44 = (chainName, differentSlip44) => differentSlip44.some((diffChain) => diffChain.chain_name === chainName);
+
 export function isSVG(str) {
     return str.includes('<svg');
 }

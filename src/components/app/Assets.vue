@@ -80,15 +80,15 @@ export default {
 
         const groupHides = ref({});
 
-        const { walletAddress } = useAdapter();
+        const { walletAccount } = useAdapter();
 
         const loader = computed(() => store.getters['tokens/loader']);
 
-        const allTokens = computed(() => store.getters['tokens/tokens'][walletAddress.value] || []);
+        const allTokens = computed(() => store.getters['tokens/tokens'][walletAccount.value] || []);
 
-        const totalBalance = computed(() => store.getters['tokens/totalBalances'][walletAddress.value] || 0);
+        const totalBalance = computed(() => store.getters['tokens/totalBalances'][walletAccount.value] || 0);
 
-        const allIntegrations = computed(() => store.getters['tokens/integrations'][walletAddress.value] || []);
+        const allIntegrations = computed(() => store.getters['tokens/integrations'][walletAccount.value] || []);
 
         const emptyLists = computed(() => {
             return !allTokens.value?.length && !allIntegrations.value?.length;
@@ -177,10 +177,10 @@ export default {
             allIntegrations,
             tokensTotalBalance,
             integrationAssetsByPlatform,
+            sortByKey,
 
             getAssetsShare,
             toggleGroup,
-            sortByKey,
             getFormattedName,
             getFormattedDate,
         };

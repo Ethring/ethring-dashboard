@@ -3,9 +3,10 @@
 import AdapterBase from '@/Adapter/utils/AdapterBase';
 
 import * as ethers from 'ethers';
+
 import { init, useOnboard } from '@web3-onboard/vue';
 
-import { web3OnBoardConfig, ECOSYSTEMS, NATIVE_CONTRACT, TRANSFER_ABI } from '@/Adapter/config';
+import { web3OnBoardConfig, ECOSYSTEMS, NATIVE_CONTRACT, TRANSFER_ABI, EVM_CHAINS } from '@/Adapter/config';
 
 import { validateEthAddress } from '@/Adapter/utils/validations';
 
@@ -58,7 +59,6 @@ class EthereumAdapter extends AdapterBase {
         }
 
         const { chains } = web3Onboard.state.get();
-
         const mainAddress = this.getAccountAddress();
 
         if (!mainAddress) {
@@ -66,7 +66,26 @@ class EthereumAdapter extends AdapterBase {
         }
 
         for (const { id } of chains) {
-            this.addressByNetwork[+id] = mainAddress;
+            if (!id) {
+                continue;
+            }
+
+            const chainInfo = EVM_CHAINS[+id] || {};
+
+            if (!chainInfo) {
+                continue;
+            }
+
+            const { net } = chainInfo || {};
+
+            if (!this.addressByNetwork[net]) {
+                this.addressByNetwork[net] = null;
+            }
+
+            this.addressByNetwork[net] = {
+                address: mainAddress,
+                logo: chainInfo.logo,
+            };
         }
     }
 
@@ -230,6 +249,13 @@ class EthereumAdapter extends AdapterBase {
         } catch (e) {
             return checkErrors(e);
         }
+    }
+
+    getTxExplorerLink(txHash, chainInfo) {
+        const { explorers } = chainInfo || {};
+        const [explorer] = explorers || [];
+
+        return `${explorer}/tx/${txHash}`;
     }
 
     getAddressesWithChains() {

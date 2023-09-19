@@ -1,17 +1,15 @@
 import { computed } from 'vue';
 import { useStore } from 'vuex';
 
-import { chainIds } from '@/config/availableNets';
 import useAdapter from '@/Adapter/compositions/useAdapter';
-
 import { ECOSYSTEMS } from '@/Adapter/config';
 
 export default function useTokens() {
     const store = useStore();
 
-    const { walletAddress, currentChainInfo } = useAdapter();
+    const { walletAccount, currentChainInfo } = useAdapter();
 
-    if (!walletAddress.value || currentChainInfo.value?.ecosystem === ECOSYSTEMS.COSMOS) {
+    if (!walletAccount.value) {
         return {
             tokens: [],
             groupTokens: [],
@@ -52,39 +50,59 @@ export default function useTokens() {
 
     // all networks
     const groupTokens = computed(() => {
-        if (currentChainInfo.value?.net && groupTokensBalance.value) {
-            const groupList = [];
-            Object.keys(groupTokensBalance.value)?.forEach((parentNet) => {
-                let children = [];
+        const { net, ecosystem, asset = {} } = currentChainInfo.value || {};
 
-                const tokens = groupTokensBalance.value[parentNet]?.list;
-
-                if (tokens && tokens.length > 0) {
-                    children = sortByBalanceUsd(tokens?.filter((item) => item.balance > 0) ?? []);
-                }
-                const nativeToken = tokens.find((elem) => elem.chain.toLowerCase() === parentNet);
-                groupList.push({
-                    priority: currentChainInfo.value?.net === parentNet ? 1 : 0,
-                    net: parentNet,
-                    name: parentNet,
-                    ...zometNetworks.value[parentNet],
-                    balance: nativeToken?.balance || 0,
-                    latest_price: nativeToken?.latest_price || 0,
-                    list: children,
-                    totalSumUSD: children?.reduce((acc, item) => acc + +item.balanceUsd, 0) ?? 0,
-                    chain_id: chainIds[parentNet],
-                });
-            });
-
-            // show all without current network group
-            const result = [
-                ...groupList.filter((g) => g.net === currentChainInfo.value?.net),
-                ...groupList.filter((g) => g.net !== currentChainInfo.value?.net),
-            ].sort((prev, next) => next.totalSumUSD - prev.totalSumUSD);
-
-            return result.sort((prev, next) => next.priority - prev.priority);
+        if (!net && !groupTokensBalance.value) {
+            return [];
         }
-        return [];
+
+        const groupList = [];
+        let children = [];
+
+        for (const network in groupTokensBalance.value) {
+            const tokens = groupTokensBalance.value[network]?.list;
+
+            const record = {
+                priority: net === network ? 1 : 0,
+                net: network,
+                name: network,
+            };
+
+            if (tokens && tokens.length > 0) {
+                children = sortByBalanceUsd(tokens?.filter((item) => item.balance > 0) ?? []);
+                record.list = children;
+
+                const nativeToken = tokens.find(({ chain }) => chain.toLowerCase() === network);
+
+                record.balance = nativeToken?.balance || 0;
+                record.latest_price = nativeToken?.latest_price || 0;
+
+                // TODO: remove this after adding tokens to the cosmos network
+                if (ecosystem === ECOSYSTEMS.COSMOS) {
+                    const baseToken = tokens.find(({ code }) => code === asset.code);
+
+                    const tokenInfo = {
+                        ...asset,
+                        ...baseToken,
+                        balance: baseToken?.balance || 0,
+                        balanceUsd: baseToken?.balanceUsd || 0,
+                    };
+
+                    record.list = [tokenInfo];
+                }
+
+                record.totalSumUSD = record.list?.reduce((acc, item) => acc + +item.balanceUsd, 0) ?? 0;
+
+                groupList.push(record);
+            }
+        }
+
+        // show all without current network group
+        const result = [...groupList.filter((g) => g.net === net), ...groupList.filter((g) => g.net !== net)].sort(
+            (prev, next) => next.totalSumUSD - prev.totalSumUSD
+        );
+
+        return result.sort((prev, next) => next.priority - prev.priority);
     });
 
     // single network
@@ -125,6 +143,7 @@ export default function useTokens() {
             return 0;
         });
     };
+
     return {
         tokens,
         groupTokens,

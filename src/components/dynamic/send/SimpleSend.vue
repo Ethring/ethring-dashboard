@@ -42,7 +42,8 @@
     </div>
 </template>
 <script>
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, onBeforeUnmount } from 'vue';
+
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
@@ -54,8 +55,6 @@ import InfoPanel from '@/components/ui/InfoPanel';
 import SelectNetwork from '@/components/ui/SelectNetwork';
 import SelectAddress from '@/components/ui/SelectAddress';
 import SelectAmount from '@/components/ui/SelectAmount';
-
-import { getTxUrl } from '@/helpers/utils';
 
 export default {
     name: 'SimpleSend',
@@ -70,8 +69,17 @@ export default {
         const store = useStore();
         const router = useRouter();
 
-        const { walletAddress, connectedWallet, currentChainInfo, validateAddress, chainList, prepareTransaction, signSend, setChain } =
-            useAdapter();
+        const {
+            walletAddress,
+            connectedWallet,
+            currentChainInfo,
+            validateAddress,
+            chainList,
+            prepareTransaction,
+            signSend,
+            setChain,
+            getTxExplorerLink,
+        } = useAdapter();
 
         const { groupTokens } = useTokens();
 
@@ -85,7 +93,6 @@ export default {
         const errorAddress = ref('');
         const errorBalance = ref('');
 
-        const zometNetworks = computed(() => store.getters['networks/zometNetworksList']);
         const selectedToken = computed(() => store.getters['tokens/fromToken']);
 
         const disabledSend = computed(() => {
@@ -100,7 +107,7 @@ export default {
         });
 
         const tokensList = computed(() => {
-            if (!currentChainInfo.value || !groupTokens.value.length) {
+            if (!currentChainInfo.value || !groupTokens.value?.length) {
                 return [];
             }
 
@@ -162,44 +169,6 @@ export default {
             }
         };
 
-        // const getProvider = () => {
-        //     const { provider } = connectedWallet.value || {};
-        //     if (provider) {
-        //         // create an ethers provider with the last connected wallet provider
-        //         const ethersProvider = new ethers.providers.Web3Provider(provider, 'any');
-        //         return ethersProvider;
-        //     }
-        // };
-
-        // const sendTransaction = async (transaction) => {
-        //     const ethersProvider = getProvider();
-        //     try {
-        //         if (ethersProvider) {
-        //             const signer = ethersProvider.getSigner();
-        //             const tokenContract = new ethers.Contract(selectedToken.value.address || NATIVE_CONTRACT, abi, ethersProvider);
-
-        //             const res = await tokenContract.populateTransaction.transfer(
-        //                 transaction.toAddress,
-        //                 ethers.utils.parseUnits(transaction.amount, selectedToken.value.decimals)
-        //             );
-
-        //             const txData = {
-        //                 ...res,
-        //                 from: transaction.fromAddress,
-        //                 value: !selectedToken.value.address ? ethers.utils.parseEther(amount.value) : ethers.utils.parseUnits('0'),
-        //                 nonce: await ethersProvider.getTransactionCount(walletAddress.value),
-        //             };
-
-        //             const txn = await signer.sendTransaction(txData);
-
-        //             const receipt = await txn.wait();
-        //             return receipt;
-        //         }
-        //     } catch (e) {
-        //         return { error: e?.data?.message || e.message };
-        //     }
-        // };
-
         const send = async () => {
             const showError = (error) => {
                 txError.value = error;
@@ -215,28 +184,22 @@ export default {
             const tx = await prepareTransaction(walletAddress.value, address.value, amount.value, selectedToken.value);
 
             if (tx.error) {
-                showError(tx.error);
+                return showError(tx.error);
             }
 
             const resTx = await signSend(tx);
 
             if (resTx.error) {
-                showError(resTx.error);
+                return showError(resTx.error);
             }
 
-            successHash.value = getTxUrl(currentChainInfo.value.net, resTx.transactionHash);
+            successHash.value = getTxExplorerLink(resTx.transactionHash, currentChainInfo.value);
             isLoading.value = false;
 
             setTimeout(() => {
                 successHash.value = '';
             }, 4000);
         };
-
-        onMounted(async () => {
-            if (!zometNetworks.value.length) {
-                await store.dispatch('networks/initZometNets');
-            }
-        });
 
         onBeforeUnmount(() => {
             if (!clearAddress.value) {
@@ -267,7 +230,6 @@ export default {
             successHash,
             walletAddress,
             connectedWallet,
-            zometNetworks,
             chainList,
             currentChainInfo,
         };
