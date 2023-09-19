@@ -267,6 +267,10 @@ export default {
                         cursor: 'pointer',
                     },
                 });
+
+                setTimeout(() => {
+                    successHash.value = '';
+                }, 5000);
             } catch (error) {
                 closeNotification('prepare-send-tx');
 
