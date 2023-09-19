@@ -8,7 +8,7 @@
             :value="address"
             :error="!!errorAddress"
             class="mt-10"
-            :on-reset="successHash"
+            :on-reset="successHash || clearAddress"
             @setAddress="onSetAddress"
         />
 
@@ -21,7 +21,7 @@
             :value="selectedToken"
             :error="!!errorBalance"
             :label="$t('tokenOperations.amount')"
-            :on-reset="successHash"
+            :on-reset="successHash || clearAddress"
             class="mt-10"
             @setAmount="onSetAmount"
             @clickToken="onSetToken"
@@ -32,7 +32,7 @@
         <InfoPanel v-if="successHash" :hash="successHash" :title="$t('tx.txHash')" type="success" class="mt-10" />
 
         <Button
-            :title="$t('tokenOperations.confirm').toUpperCase()"
+            :title="$t('tokenOperations.confirm')"
             :disabled="!!disabledSend"
             :loading="isLoading"
             class="simple-send__btn mt-10"
@@ -147,24 +147,27 @@ export default {
         const onSetToken = () => {
             clearAddress.value = true;
             router.push('/send/select-token');
+            clearAddress.value = false;
         };
 
         const onSetAddress = (addr) => {
-            if (!addr) {
-                return;
+            address.value = addr;
+
+            if (!addr.length) {
+                return (errorAddress.value = '');
             }
 
             if (!validateAddress(addr)) {
                 return (errorAddress.value = 'Invalid address');
             }
 
-            store.dispatch('tokens/setAddress', addr);
-            address.value = addr;
             return (errorAddress.value = '');
         };
 
         const onSelectNetwork = async (network) => {
+            clearAddress.value = true;
             await setChain(network);
+            clearAddress.value = false;
         };
 
         const onSetAmount = (value) => {
@@ -194,71 +197,87 @@ export default {
             };
 
             // reset values for next send
+            clearAddress.value = true;
+
             amount.value = '';
             address.value = '';
 
-            console.log('dataForPrepare', dataForPrepare, amount, address);
+            clearAddress.value = false;
 
-            showNotification({
-                key: 'prepare-send-tx',
-                type: 'info',
-                title: `Sending ${dataForPrepare.amount} ${dataForPrepare.token.code} ...`,
-                icon: h(LoadingOutlined, {
-                    spin: true,
-                }),
-                duration: 0,
-            });
+            try {
+                showNotification({
+                    key: 'prepare-send-tx',
+                    type: 'info',
+                    title: `Sending ${dataForPrepare.amount} ${dataForPrepare.token.code} ...`,
+                    icon: h(LoadingOutlined, {
+                        spin: true,
+                    }),
+                    duration: 0,
+                });
 
-            const tx = await prepareTransaction(
-                dataForPrepare.fromAddress,
-                dataForPrepare.toAddress,
-                dataForPrepare.amount,
-                dataForPrepare.token
-            );
+                const tx = await prepareTransaction(
+                    dataForPrepare.fromAddress,
+                    dataForPrepare.toAddress,
+                    dataForPrepare.amount,
+                    dataForPrepare.token
+                );
 
-            if (tx.error) {
+                if (tx.error) {
+                    closeNotification('prepare-send-tx');
+
+                    return showNotification({
+                        key: 'error-send-tx',
+                        type: 'error',
+                        title: 'Transaction error',
+                        description: tx.error,
+                        duration: 4,
+                    });
+                }
+
+                const resTx = await signSend(tx);
+
+                if (resTx.error) {
+                    closeNotification('prepare-send-tx');
+
+                    return showNotification({
+                        key: 'error-send-tx',
+                        type: 'error',
+                        title: 'Transaction error',
+                        description: resTx.error,
+                        duration: 4,
+                    });
+                }
+
+                successHash.value = getTxExplorerLink(resTx.transactionHash, currentChainInfo.value);
+                isLoading.value = false;
+
                 closeNotification('prepare-send-tx');
 
-                return useNotification({
+                showNotification({
+                    key: 'success-send-tx',
+                    type: 'success',
+                    title: 'Click to view transaction',
+                    onClick: () => {
+                        window.open(successHash.value, '_blank');
+                        closeNotification('success-send-tx');
+                        successHash.value = '';
+                    },
+                    duration: 4,
+                    style: {
+                        cursor: 'pointer',
+                    },
+                });
+            } catch (error) {
+                closeNotification('prepare-send-tx');
+
+                showNotification({
                     key: 'error-send-tx',
                     type: 'error',
-                    title: tx.error,
+                    title: 'Transaction error',
+                    description: error.message,
                     duration: 4,
                 });
             }
-
-            const resTx = await signSend(tx);
-
-            if (resTx.error) {
-                closeNotification('prepare-send-tx');
-
-                return useNotification({
-                    key: 'error-send-tx',
-                    type: 'error',
-                    title: resTx.error,
-                    duration: 4,
-                });
-            }
-
-            successHash.value = getTxExplorerLink(resTx.transactionHash, currentChainInfo.value);
-            isLoading.value = false;
-
-            closeNotification('prepare-send-tx');
-
-            showNotification({
-                key: 'success-send-tx',
-                type: 'success',
-                title: 'Click to view transaction',
-                onClick: () => {
-                    window.open(successHash.value, '_blank');
-                    closeNotification('success-send-tx');
-                    successHash.value = '';
-                },
-                duration: 4,
-                style: {
-                    cursor: 'pointer',
-                },
-            });
         };
 
         watch(currentChainInfo, async () => {
@@ -282,6 +301,7 @@ export default {
             isLoading,
             disabledSend,
 
+            clearAddress,
             groupTokens,
             tokensList,
             errorAddress,
@@ -294,6 +314,7 @@ export default {
             onSetToken,
             onSetAmount,
             send,
+
             txError,
             successHash,
             walletAddress,
