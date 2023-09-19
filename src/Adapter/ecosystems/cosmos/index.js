@@ -83,7 +83,7 @@ class CosmosAdapter extends AdapterBase {
 
     async updateStates() {
         const chainWallet = this._getCurrentWallet();
-        await chainWallet?.value?.update({ connect: false });
+        await chainWallet?.value?.update({ connect: true });
     }
 
     _getCurrentWallet() {
@@ -116,10 +116,6 @@ class CosmosAdapter extends AdapterBase {
 
     async connectWallet(walletName, chain = DEFAULT_CHAIN) {
         try {
-            this.walletName = walletName;
-
-            this.currentChain = chain;
-
             const chainWallet = this.walletManager.getChainWallet(chain, walletName);
 
             chainWallet.activate();
@@ -131,6 +127,9 @@ class CosmosAdapter extends AdapterBase {
             if (!isConnected) {
                 return false;
             }
+
+            this.walletName = walletName;
+            this.currentChain = chain;
 
             await this.setAddressForChains(walletName);
             await chainWallet.update({ connect: true });
@@ -278,8 +277,10 @@ class CosmosAdapter extends AdapterBase {
         }
 
         const [asset] = assets;
+
         asset.code = asset.symbol;
         asset.logo = asset.logo_URIs?.svg || asset.logo_URIs?.png || null;
+        asset.decimals = asset.denom_units[1].exponent;
 
         const currentChain = {
             ...chain,
@@ -371,7 +372,6 @@ class CosmosAdapter extends AdapterBase {
 
         try {
             const response = await chainWallet.value.signAndBroadcast([msg], fee);
-
             return response;
         } catch (error) {
             console.error('error while signAndSend', error);

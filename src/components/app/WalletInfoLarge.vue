@@ -37,11 +37,11 @@ export default {
     setup() {
         const store = useStore();
 
-        const { walletAddress, walletAccount, currentChainInfo } = useAdapter();
+        const { walletAccount, currentChainInfo } = useAdapter();
 
         const showBalance = computed(() => store.getters['app/showBalance']);
 
-        const totalBalance = computed(() => store.getters['tokens/totalBalances'][walletAddress.value]);
+        const totalBalance = computed(() => store.getters['tokens/totalBalances'][walletAccount.value]);
 
         return {
             totalBalance,

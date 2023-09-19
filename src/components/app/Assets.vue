@@ -1,5 +1,11 @@
 <template>
     <div class="tokens" :class="{ empty: emptyLists }">
+        <template v-if="loader">
+            <div v-for="(_, ndx) in 5" :key="ndx" class="tokens__group">
+                <a-skeleton active avatar :paragraph="{ rows: 0 }" :style="{ paddingTop: '15px' }" />
+            </div>
+        </template>
+
         <template v-if="allTokens.length > 1">
             <div class="tokens__group">
                 <AssetItemHeader
@@ -13,7 +19,8 @@
                 <AssetItem v-for="(listItem, n) in sortByKey(allTokens, 'balanceUsd')" :key="n" :item="listItem" />
             </div>
         </template>
-        <template v-if="allTokens.length > 1">
+
+        <template v-if="integrationAssetsByPlatform.length > 1">
             <div class="tokens__group" v-for="(item, i) in integrationAssetsByPlatform" :key="i">
                 <AssetItemHeader
                     v-if="item.data.length"
@@ -36,12 +43,6 @@
                         </div>
                     </AssetItem>
                 </div>
-            </div>
-        </template>
-
-        <template v-if="loader">
-            <div v-for="(_, ndx) in 5" :key="ndx" class="tokens__group" @click="toggleGroup(ndx)">
-                <a-skeleton active avatar :paragraph="{ rows: 0 }" :style="{ paddingTop: '15px' }" />
             </div>
         </template>
 

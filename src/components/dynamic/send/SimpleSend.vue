@@ -18,7 +18,7 @@
             v-if="tokensList.length"
             :selected-network="currentChainInfo"
             :items="tokensList"
-            :value="selectedToken || tokensList[0]"
+            :value="selectedToken"
             :error="!!errorBalance"
             :label="$t('tokenOperations.amount')"
             :on-reset="successHash"
@@ -42,13 +42,15 @@
     </div>
 </template>
 <script>
-import { ref, computed, onBeforeUnmount } from 'vue';
+import { h, ref, computed, onBeforeUnmount, watch } from 'vue';
 
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import { LoadingOutlined } from '@ant-design/icons-vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 import useTokens from '@/compositions/useTokens';
+import useNotification from '@/compositions/useNotification';
 
 import Button from '@/components/ui/Button';
 import InfoPanel from '@/components/ui/InfoPanel';
@@ -69,6 +71,8 @@ export default {
         const store = useStore();
         const router = useRouter();
 
+        const { showNotification, closeNotification } = useNotification();
+
         const {
             walletAddress,
             connectedWallet,
@@ -88,7 +92,16 @@ export default {
         const successHash = ref('');
 
         const amount = ref('');
-        const address = ref(store.getters['tokens/address']);
+
+        const address = computed({
+            get() {
+                return store.getters['tokens/address'];
+            },
+            set(addr) {
+                store.dispatch('tokens/setAddress', addr);
+            },
+        });
+
         const clearAddress = ref(false);
         const errorAddress = ref('');
         const errorBalance = ref('');
@@ -142,13 +155,12 @@ export default {
             }
 
             if (!validateAddress(addr)) {
-                errorAddress.value = 'Invalid address';
-                return;
+                return (errorAddress.value = 'Invalid address');
             }
 
             store.dispatch('tokens/setAddress', addr);
             address.value = addr;
-            errorAddress.value = '';
+            return (errorAddress.value = '');
         };
 
         const onSelectNetwork = async (network) => {
@@ -159,47 +171,103 @@ export default {
             amount.value = value;
 
             if (isNaN(amount.value)) {
-                errorBalance.value = 'Incorrect amount';
-                return;
+                return (errorBalance.value = 'Incorrect amount');
             }
+
             if (+value > selectedToken.value?.balance) {
-                errorBalance.value = 'Insufficient balance';
-            } else {
-                errorBalance.value = '';
+                return (errorBalance.value = 'Insufficient balance');
             }
+
+            return (errorBalance.value = '');
         };
 
         const send = async () => {
-            const showError = (error) => {
-                txError.value = error;
-                setTimeout(() => {
-                    txError.value = '';
-                }, 3000);
-            };
-
             if (disabledSend.value) {
                 return;
             }
 
-            const tx = await prepareTransaction(walletAddress.value, address.value, amount.value, selectedToken.value);
+            const dataForPrepare = {
+                fromAddress: walletAddress.value,
+                toAddress: address.value,
+                amount: amount.value,
+                token: selectedToken.value,
+            };
+
+            // reset values for next send
+            amount.value = '';
+            address.value = '';
+
+            console.log('dataForPrepare', dataForPrepare, amount, address);
+
+            showNotification({
+                key: 'prepare-send-tx',
+                type: 'info',
+                title: `Sending ${dataForPrepare.amount} ${dataForPrepare.token.code} ...`,
+                icon: h(LoadingOutlined, {
+                    spin: true,
+                }),
+                duration: 0,
+            });
+
+            const tx = await prepareTransaction(
+                dataForPrepare.fromAddress,
+                dataForPrepare.toAddress,
+                dataForPrepare.amount,
+                dataForPrepare.token
+            );
 
             if (tx.error) {
-                return showError(tx.error);
+                closeNotification('prepare-send-tx');
+
+                return useNotification({
+                    key: 'error-send-tx',
+                    type: 'error',
+                    title: tx.error,
+                    duration: 4,
+                });
             }
 
             const resTx = await signSend(tx);
 
             if (resTx.error) {
-                return showError(resTx.error);
+                closeNotification('prepare-send-tx');
+
+                return useNotification({
+                    key: 'error-send-tx',
+                    type: 'error',
+                    title: resTx.error,
+                    duration: 4,
+                });
             }
 
             successHash.value = getTxExplorerLink(resTx.transactionHash, currentChainInfo.value);
             isLoading.value = false;
 
-            setTimeout(() => {
-                successHash.value = '';
-            }, 4000);
+            closeNotification('prepare-send-tx');
+
+            showNotification({
+                key: 'success-send-tx',
+                type: 'success',
+                title: 'Click to view transaction',
+                onClick: () => {
+                    window.open(successHash.value, '_blank');
+                    closeNotification('success-send-tx');
+                    successHash.value = '';
+                },
+                duration: 4,
+                style: {
+                    cursor: 'pointer',
+                },
+            });
         };
+
+        watch(currentChainInfo, async () => {
+            const [chainTokens = []] = groupTokens.value;
+
+            const [tokenWithMaxBalance = {}] = chainTokens.list || [];
+
+            store.dispatch('tokens/setFromToken', tokenWithMaxBalance);
+        });
 
         onBeforeUnmount(() => {
             if (!clearAddress.value) {

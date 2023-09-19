@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
@@ -67,6 +67,10 @@ export default {
         const clickAway = () => {
             active.value = false;
         };
+
+        watch(currentChainInfo, () => {
+            selectedItem.value = currentChainInfo.value;
+        });
 
         return { active, clickAway, togglePanel, currentChainInfo, onSelectNetwork, selectedItem };
     },
