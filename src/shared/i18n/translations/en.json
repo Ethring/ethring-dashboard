@@ -60,7 +60,8 @@
     "time": "Estimate time",
     "changeNetwork": "Please change network",
     "rewards": "Rewards",
-    "value": "Value"
+    "value": "Value",
+    "switchNetwork": "Switch network"
   },
   "simpleSend": {
     "title": "Send"

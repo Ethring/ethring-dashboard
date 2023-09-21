@@ -12,12 +12,13 @@ import { computed, ref, onMounted } from 'vue';
 
 import { useRouter } from 'vue-router';
 
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 import useTokens from '@/compositions/useTokens';
 
 import SelectToken from '@/components/ui/SelectToken.vue';
 
-import prices from '@/modules/prices/';
+import PricesModule from '@/modules/prices/';
+
+import { sortByKey, searchByKey } from '@/helpers/utils';
 
 export default {
     name: 'SelectTokenPage',
@@ -27,90 +28,95 @@ export default {
     setup() {
         const store = useStore();
         const router = useRouter();
-        const { walletAddress } = useWeb3Onboard();
-        const { groupTokens, allTokensFromNetwork } = useTokens();
+
+        const loader = computed(() => store.getters['tokens/loader']);
+
+        const { allTokensFromNetwork } = useTokens();
 
         const searchValue = ref('');
 
-        const selectedNetwork = computed(() => store.getters['networks/selectedNetwork']);
-        const selectType = computed(() => store.getters['tokens/selectType']);
-        const selectedTokenFrom = computed(() => store.getters['tokens/fromToken']);
-        const selectedTokenTo = computed(() => store.getters['tokens/toToken']);
-        const loader = computed(() => store.getters['tokens/loader']);
+        const selectType = computed(() => store.getters['swapOps/selectType']);
 
-        onMounted(async () => {
-            const chainId = selectedNetwork.value?.chain_id || selectedNetwork.value?.chainId;
-            if (!chainId) {
-                router.push('/swap');
+        const selectedNetwork = computed(() => store.getters['swapOps/selectedNetwork']);
+
+        const selectedTokenFrom = computed(() => store.getters['swapOps/fromToken']);
+        const selectedTokenTo = computed(() => store.getters['swapOps/toToken']);
+
+        onMounted(() => {
+            const { chain_id, chainId } = selectedNetwork.value || {};
+
+            if (!chain_id && !chainId) {
+                return router.push('/main');
             }
+        });
+
+        const tokensList = computed(() => {
+            const { net } = selectedNetwork.value || {};
+            const list = store.getters['tokens/getTokensListForChain'](net);
+            return sortByKey(list, 'balanceUsd');
         });
 
         const allTokens = computed(() => {
-            if (!selectedNetwork.value) {
+            if (!selectedNetwork.value || !tokensList.value) {
                 return [];
             }
-            let wallet = groupTokens.value.find((elem) => elem.net === selectedNetwork.value.net);
-            let list = [];
 
-            const listWithBalances = groupTokens.value[0].list;
+            const { net } = selectedNetwork.value || {};
 
-            if (selectType.value === 'from') {
-                list = listWithBalances;
-            } else {
-                list = [
-                    ...listWithBalances,
-                    ...allTokensFromNetwork(wallet.net).filter((token) => {
-                        return !listWithBalances.find((t) => t.address?.toLowerCase() === token.address?.toLowerCase());
-                    }),
-                ];
+            const isFrom = selectType.value === 'from';
+
+            const tokens = isFrom ? tokensList.value : [...tokensList.value, ...allTokensFromNetwork(net)];
+
+            const secondToken = isFrom ? selectedTokenTo.value : selectedTokenFrom.value;
+
+            if (!searchValue.value) {
+                return tokens;
             }
 
-            const secondToken = selectType.value === 'from' ? selectedTokenTo.value : selectedTokenFrom.value;
-
-            return list.filter(
+            return tokens.filter(
                 (elem) =>
                     elem?.code !== secondToken?.code &&
-                    (byTokenKey(elem, searchValue.value, 'name') ||
-                        byTokenKey(elem, searchValue.value, 'code') ||
-                        byTokenKey(elem, searchValue.value, 'address'))
+                    (searchByKey(elem, searchValue.value, 'name') ||
+                        searchByKey(elem, searchValue.value, 'code') ||
+                        searchByKey(elem, searchValue.value, 'address'))
             );
         });
 
-        const byTokenKey = (token = {}, search = '', target = 'code') => {
-            const targetVal = token[target] ?? null;
-            const targetLC = targetVal ? targetVal.toLowerCase() : '';
-            return targetLC.includes(search.toLowerCase());
-        };
-
-        const filterTokens = (val) => {
-            searchValue.value = val;
-        };
+        const filterTokens = (val) => (searchValue.value = val);
 
         const setToken = async (item) => {
             if (selectType.value === 'from') {
-                store.dispatch('tokens/setFromToken', item);
-            } else {
-                if (item.latest_price) {
-                    store.dispatch('tokens/setToToken', item);
-                } else {
-                    const price = await prices.Coingecko.priceByPlatformContracts({
-                        chainId: selectedNetwork.value?.chain_id || selectedNetwork.value?.chainId,
-                        addresses: item.address,
-                    });
-                    item.latest_price = price[item.address]?.usd;
-                    store.dispatch('tokens/setToToken', item);
-                }
+                store.dispatch('swapOps/setFromToken', item);
             }
-            router.push(router.options.history.state.back);
+
+            if (selectType.value === 'to' && item.latest_price) {
+                store.dispatch('swapOps/setToToken', item);
+            }
+
+            if (!item.latest_price) {
+                const { chain_id, chainId } = selectedNetwork.value || {};
+
+                const requestPriceFor = {
+                    chainId: chain_id || chainId,
+                    addresses: item.address,
+                };
+
+                const price = await PricesModule.Coingecko.priceByPlatformContracts(requestPriceFor);
+
+                item.latest_price = price[item.address]?.usd;
+
+                store.dispatch('swapOps/setToToken', item);
+            }
+
+            return router.push(router.options.history.state.back);
         };
 
         return {
             loader,
-            groupTokens,
-            walletAddress,
-            router,
+
             allTokens,
             searchValue,
+
             filterTokens,
             setToken,
         };

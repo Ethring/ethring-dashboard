@@ -1,7 +1,9 @@
-import { fetchData } from '@/api/fetchData';
 import axios from 'axios';
+import { fetchData } from '@/api/fetchData';
 
 const DEFAULT_URL = process.env.VUE_APP_1INCH_SWAP_API;
+
+import { checkErrors } from '@/helpers/checkErrors';
 
 const types = {
     SET_BEST_ROUTE: 'SET_BEST_ROUTE',
@@ -69,31 +71,51 @@ export default {
 
         /* APPROVE TX */
         async getApproveTx(_, { url, net, tokenAddress, ownerAddress }) {
-            return await fetchData({
-                url: url || DEFAULT_URL,
-                route: 'getApproveTx',
-                params: {
-                    net,
-                    tokenAddress,
-                    ownerAddress,
-                },
-            });
+            try {
+                const response = await fetchData({
+                    url: url || DEFAULT_URL,
+                    route: 'getApproveTx',
+                    params: {
+                        net,
+                        tokenAddress,
+                        ownerAddress,
+                    },
+                });
+
+                if (!response.ok) {
+                    return checkErrors(response.error);
+                }
+
+                return response;
+            } catch (error) {
+                return checkErrors(error);
+            }
         },
 
         /* GET SWAP TX */
         async getSwapTx(_, { url, net, fromTokenAddress, toTokenAddress, amount, ownerAddress, slippage }) {
-            return await fetchData({
-                url: url || DEFAULT_URL,
-                route: 'getSwapTx',
-                params: {
-                    net,
-                    fromTokenAddress,
-                    toTokenAddress,
-                    amount,
-                    ownerAddress,
-                    slippage,
-                },
-            });
+            try {
+                const response = await fetchData({
+                    url: url || DEFAULT_URL,
+                    route: 'getSwapTx',
+                    params: {
+                        net,
+                        fromTokenAddress,
+                        toTokenAddress,
+                        amount,
+                        ownerAddress,
+                        slippage,
+                    },
+                });
+
+                if (!response.ok) {
+                    return checkErrors(response.error);
+                }
+
+                return response;
+            } catch (error) {
+                return checkErrors(error);
+            }
         },
     },
 };

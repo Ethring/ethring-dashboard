@@ -1,6 +1,8 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
-import Dashboard from '@/views/Dashboard.vue';
+
 import guards from './guards';
+
+import Dashboard from '@/views/Dashboard.vue';
 
 const routes = [
     {
@@ -16,14 +18,6 @@ const routes = [
             isSwap: true,
         },
         component: () => import('../layouts/SwapLayout.vue'),
-    },
-    {
-        path: '/stake',
-        name: 'stake',
-        meta: {
-            isAuth: true,
-        },
-        component: () => import('../views/Stake.vue'),
     },
     {
         path: '/send',
@@ -54,22 +48,22 @@ const routes = [
         name: 'notFound',
         component: () => import('../views/NotFound.vue'),
     },
-    {
-        path: '/bridge',
-        name: 'bridge',
-        meta: {
-            isAuth: true,
-        },
-        component: () => import('../layouts/BridgeLayout.vue'),
-    },
-    {
-        path: '/bridge/select-token',
-        name: 'bridge/select-token',
-        meta: {
-            isAuth: true,
-        },
-        component: () => import('../components/dynamic/bridge/SelectToken.vue'),
-    },
+    // {
+    //     path: '/bridge',
+    //     name: 'bridge',
+    //     meta: {
+    //         isAuth: true,
+    //     },
+    //     component: () => import('../layouts/BridgeLayout.vue'),
+    // },
+    // {
+    //     path: '/bridge/select-token',
+    //     name: 'bridge/select-token',
+    //     meta: {
+    //         isAuth: true,
+    //     },
+    //     component: () => import('../components/dynamic/bridge/SelectToken.vue'),
+    // },
     {
         path: '/superSwap',
         name: 'superSwap',

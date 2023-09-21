@@ -155,8 +155,13 @@ export default {
         cursor: pointer;
 
         .recipient {
+            display: flex;
+            align-items: center;
+
             color: var(--#{$prefix}select-label-color);
             font-weight: 600;
+            height: 32px;
+            max-height: 32px;
         }
 
         .address {
@@ -336,6 +341,7 @@ export default {
     & > img.network-logo {
         width: 80% !important;
         height: 80% !important;
+        border-radius: 50%;
     }
 }
 </style>

@@ -18,11 +18,13 @@ export default function useTokens() {
         };
     }
 
-    const tokensBalance = computed(() => store.getters['tokens/tokens']);
-
     const zometNetworks = computed(() => store.getters['networks/zometNetworks']);
 
     const groupTokensBalance = computed(() => store.getters['tokens/groupTokens']);
+
+    const sortByBalanceUsd = (list = []) => {
+        return list.sort((a, b) => b.balanceUsd - a.balanceUsd);
+    };
 
     const allTokensFromNetwork = (net) => {
         return zometNetworks.value[net]
@@ -57,6 +59,7 @@ export default function useTokens() {
         }
 
         const groupList = [];
+
         let children = [];
 
         for (const network in groupTokensBalance.value) {
@@ -105,50 +108,8 @@ export default function useTokens() {
         return result.sort((prev, next) => next.priority - prev.priority);
     });
 
-    // single network
-    const tokens = computed(() => {
-        if (currentChainInfo.value?.net) {
-            const tokens = zometNetworks.value[currentChainInfo.value?.net]?.tokens;
-
-            if (tokens) {
-                return sortByBalanceUsd(
-                    Object.keys(tokens)
-                        .map((item) => {
-                            const balance = tokensBalance.value[tokens[item].net] || 0;
-                            return {
-                                ...tokens[item],
-                                balance,
-                            };
-                        })
-                        ?.filter((item) => item.balance > 0)
-                );
-            }
-        }
-        return [];
-    });
-
-    const getTokenList = (network) => {
-        const listWithBalances = network?.list || [];
-        return sortByBalanceUsd(listWithBalances);
-    };
-
-    const sortByBalanceUsd = (list) => {
-        return list?.sort((a, b) => {
-            if (a.balanceUsd > b.balanceUsd) {
-                return -1;
-            }
-            if (a.balanceUsd < b.balanceUsd) {
-                return 1;
-            }
-            return 0;
-        });
-    };
-
     return {
-        tokens,
         groupTokens,
         allTokensFromNetwork,
-        getTokenList,
-        sortByBalanceUsd,
     };
 }

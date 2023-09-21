@@ -1,6 +1,6 @@
 <template>
     <div class="simple-send">
-        <SelectNetwork :items="chainList" @select="onSelectNetwork" />
+        <SelectNetwork :items="chainList" :current="currentChainInfo" @select="onSelectNetwork" />
 
         <SelectAddress
             :selected-network="currentChainInfo"
@@ -16,8 +16,6 @@
 
         <SelectAmount
             v-if="tokensList.length"
-            :selected-network="currentChainInfo"
-            :items="tokensList"
             :value="selectedToken"
             :error="!!errorBalance"
             :label="$t('tokenOperations.amount')"
@@ -42,14 +40,13 @@
     </div>
 </template>
 <script>
-import { h, ref, computed, onBeforeUnmount, watch } from 'vue';
+import { h, ref, computed, onBeforeUnmount, onMounted, onUpdated, watch } from 'vue';
 
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { LoadingOutlined } from '@ant-design/icons-vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
-import useTokens from '@/compositions/useTokens';
 import useNotification from '@/compositions/useNotification';
 
 import Button from '@/components/ui/Button';
@@ -57,6 +54,7 @@ import InfoPanel from '@/components/ui/InfoPanel';
 import SelectNetwork from '@/components/ui/SelectNetwork';
 import SelectAddress from '@/components/ui/SelectAddress';
 import SelectAmount from '@/components/ui/SelectAmount';
+import { sortByKey } from '@/helpers/utils';
 
 export default {
     name: 'SimpleSend',
@@ -71,8 +69,10 @@ export default {
         const store = useStore();
         const router = useRouter();
 
+        // * Notification
         const { showNotification, closeNotification } = useNotification();
 
+        // * Adapter for wallet
         const {
             walletAddress,
             connectedWallet,
@@ -85,10 +85,8 @@ export default {
             getTxExplorerLink,
         } = useAdapter();
 
-        const { groupTokens } = useTokens();
-
-        const isLoading = ref(false);
         const txError = ref('');
+        const isLoading = ref(false);
         const successHash = ref('');
 
         const amount = ref('');
@@ -108,6 +106,12 @@ export default {
 
         const selectedToken = computed(() => store.getters['tokens/fromToken']);
 
+        const tokensList = computed(() => {
+            const { net } = currentChainInfo.value;
+            const listFromStore = store.getters['tokens/getTokensListForChain'](net);
+            return sortByKey(listFromStore, 'balanceUsd');
+        });
+
         const disabledSend = computed(() => {
             return (
                 isLoading.value ||
@@ -119,30 +123,19 @@ export default {
             );
         });
 
-        const tokensList = computed(() => {
-            if (!currentChainInfo.value || !groupTokens.value?.length) {
-                return [];
+        const setTokenOnChange = () => {
+            const [defaultToken = null] = tokensList.value || [];
+
+            if (!selectedToken.value && defaultToken) {
+                return store.dispatch('tokens/setFromToken', defaultToken);
             }
 
-            if (groupTokens.value.length === 0) {
-                return [];
-            }
+            const { code } = selectedToken.value || {};
 
-            const [chainTokens = []] = groupTokens.value;
+            const token = tokensList.value.find((tkn) => tkn.code === code);
 
-            const [tokenWithMaxBalance = {}] = chainTokens.list || [];
-
-            if (!selectedToken.value) {
-                store.dispatch('tokens/setFromToken', tokenWithMaxBalance);
-                return chainTokens.list || [];
-            }
-
-            const token = chainTokens.list.find((tkn) => tkn.code === selectedToken.value.code);
-
-            store.dispatch('tokens/setFromToken', token);
-
-            return chainTokens.list || [];
-        });
+            return store.dispatch('tokens/setFromToken', token);
+        };
 
         const onSetToken = () => {
             clearAddress.value = true;
@@ -209,6 +202,7 @@ export default {
                     key: 'prepare-send-tx',
                     type: 'info',
                     title: `Sending ${dataForPrepare.amount} ${dataForPrepare.token.code} ...`,
+                    description: 'Please wait, transaction is preparing',
                     icon: h(LoadingOutlined, {
                         spin: true,
                     }),
@@ -284,21 +278,31 @@ export default {
             }
         };
 
-        watch(currentChainInfo, async () => {
-            const [chainTokens = []] = groupTokens.value;
-
-            const [tokenWithMaxBalance = {}] = chainTokens.list || [];
-
-            store.dispatch('tokens/setFromToken', tokenWithMaxBalance);
-        });
-
+        // * Reset Values before leave page
         onBeforeUnmount(() => {
             if (!clearAddress.value) {
                 store.dispatch('tokens/setAddress', '');
             }
+
             if (router.options.history.state.current !== '/send/select-token') {
                 store.dispatch('tokens/setFromToken', null);
             }
+        });
+
+        onMounted(() => setTokenOnChange());
+        onUpdated(() => setTokenOnChange());
+
+        watch(txError, (err) => {
+            if (!err) {
+                return;
+            }
+
+            closeNotification('prepare-send-tx');
+            isLoading.value = false;
+
+            return setTimeout(() => {
+                txError.value = '';
+            }, 3000);
         });
 
         return {
@@ -306,7 +310,7 @@ export default {
             disabledSend,
 
             clearAddress,
-            groupTokens,
+
             tokensList,
             errorAddress,
             errorBalance,

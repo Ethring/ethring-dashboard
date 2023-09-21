@@ -24,8 +24,9 @@ async function performActions(actions, store) {
 const arrayFromObject = (object) => Object.entries(object).map(([key, value]) => ({ chain: key, info: value }));
 
 export default async function useInit(store, { addressesWithChains = {}, account = null } = {}) {
-    const disableLoader = computed(() => store.getters['tokens/disableLoader']);
     store.dispatch('tokens/setLoader', true);
+
+    const disableLoader = computed(() => store.getters['tokens/disableLoader']);
 
     const disableLoaderActions = [['tokens/setDisableLoader', false]];
 
@@ -87,7 +88,6 @@ export default async function useInit(store, { addressesWithChains = {}, account
 
             store.dispatch('tokens/setGroupTokens', { chain, data: { list: tokens } });
         }
+        store.dispatch('tokens/setLoader', false);
     }
-
-    store.dispatch('tokens/setLoader', false);
 }

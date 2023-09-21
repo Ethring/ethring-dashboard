@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
@@ -40,16 +40,25 @@ export default {
     props: {
         items: {
             type: Array,
+            default() {
+                return [];
+            },
+        },
+        current: {
+            type: Object,
+            default() {
+                return {};
+            },
         },
     },
     components: {
         arrowSvg,
     },
-    setup(_, { emit }) {
+    setup(props, { emit }) {
         const { currentChainInfo } = useAdapter();
 
         const active = ref(false);
-        const selectedItem = ref(currentChainInfo.value);
+        const selectedItem = ref(props.current || currentChainInfo.value);
 
         const togglePanel = (away = false) => {
             if (away) {
@@ -68,11 +77,7 @@ export default {
             active.value = false;
         };
 
-        watch(currentChainInfo, () => {
-            selectedItem.value = currentChainInfo.value;
-        });
-
-        return { active, clickAway, togglePanel, currentChainInfo, onSelectNetwork, selectedItem };
+        return { active, clickAway, togglePanel, onSelectNetwork, selectedItem };
     },
 };
 </script>
@@ -111,7 +116,8 @@ export default {
             height: 40px;
             min-width: 40px;
             border-radius: 50%;
-            background: var(--#{$prefix}icon-logo-bg-color);
+
+            background: var(--#{$prefix}primary);
             margin-right: 10px;
 
             svg {
@@ -121,6 +127,7 @@ export default {
             &-logo {
                 width: 70%;
                 height: 70%;
+                border-radius: 50%;
             }
         }
 

@@ -12,10 +12,12 @@ import { computed, ref } from 'vue';
 
 import { useRouter } from 'vue-router';
 
+import { ECOSYSTEMS } from '@/Adapter/config';
 import useAdapter from '@/Adapter/compositions/useAdapter';
-import useTokens from '@/compositions/useTokens';
 
 import SelectToken from '@/components/ui/SelectToken.vue';
+
+import { sortByKey, searchByKey } from '@/helpers/utils';
 
 export default {
     name: 'SelectTokenPage',
@@ -25,37 +27,53 @@ export default {
     setup() {
         const store = useStore();
         const router = useRouter();
-        const { groupTokens } = useTokens();
         const { walletAddress, currentChainInfo } = useAdapter();
 
         const searchValue = ref('');
 
         const loader = computed(() => store.getters['tokens/loader']);
 
+        const tokensList = computed(() => {
+            const { net, ecosystem, asset = {} } = currentChainInfo.value;
+            const listFromStore = store.getters['tokens/getTokensListForChain'](net);
+
+            // TODO: remove this after adding tokens to the cosmos network
+            if (ecosystem === ECOSYSTEMS.COSMOS) {
+                const baseToken = listFromStore.find(({ code }) => code === asset.code);
+
+                const tokenInfo = {
+                    ...asset,
+                    ...baseToken,
+                    balance: baseToken?.balance || 0,
+                    balanceUsd: baseToken?.balanceUsd || 0,
+                };
+
+                return [tokenInfo];
+            }
+
+            return sortByKey(listFromStore, 'balance');
+        });
+
         const allTokens = computed(() => {
-            if (!currentChainInfo.value || !groupTokens.value.length) {
+            if (!currentChainInfo.value || !tokensList.value) {
                 return [];
             }
 
-            const list = groupTokens.value[0]?.list;
+            const list = tokensList.value;
+
+            if (!searchValue.value) {
+                return list;
+            }
 
             return list.filter(
-                (elem) =>
-                    byTokenKey(elem, searchValue.value, 'name') ||
-                    byTokenKey(elem, searchValue.value, 'code') ||
-                    byTokenKey(elem, searchValue.value, 'address')
+                (tkn) =>
+                    searchByKey(tkn, searchValue.value, 'name') ||
+                    searchByKey(tkn, searchValue.value, 'code') ||
+                    searchByKey(tkn, searchValue.value, 'address')
             );
         });
 
-        const byTokenKey = (token = {}, search = '', target = 'code') => {
-            const targetVal = token[target] ?? null;
-            const targetLC = targetVal ? targetVal.toLowerCase() : '';
-            return targetLC.includes(search.toLowerCase());
-        };
-
-        const filterTokens = (val) => {
-            searchValue.value = val;
-        };
+        const filterTokens = (val) => (searchValue.value = val);
 
         const setToken = (item) => {
             store.dispatch('tokens/setFromToken', item);
@@ -64,7 +82,6 @@ export default {
 
         return {
             loader,
-            groupTokens,
             walletAddress,
             router,
             allTokens,

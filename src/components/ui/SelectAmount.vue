@@ -10,17 +10,23 @@
                     <div class="token">{{ selectedToken?.code }}</div>
                     <arrowSvg class="arrow" />
                 </div>
-                <input
-                    v-model="amount"
-                    :placeholder="placeholder"
-                    :disabled="disabled"
-                    @focus="onFocus"
-                    v-debounce:1s="onInput"
-                    @blur="onBlur"
-                    @click.stop="() => {}"
-                    data-qa="input-amount"
-                    class="input-balance"
-                />
+
+                <template v-if="isAmountLoading">
+                    <a-skeleton-input active class="input-balance" />
+                </template>
+                <template v-else>
+                    <input
+                        v-model="amount"
+                        :placeholder="placeholder"
+                        :disabled="disabled"
+                        @focus="onFocus"
+                        v-debounce:1s="onInput"
+                        @blur="onBlur"
+                        @click.stop="() => {}"
+                        data-qa="input-amount"
+                        class="input-balance"
+                    />
+                </template>
             </div>
             <div class="balance" @click.stop="setMax">
                 <p>
@@ -30,7 +36,12 @@
                     </span>
                     {{ selectedToken?.code }}
                 </p>
-                <div><span>$</span>{{ payTokenPrice }}</div>
+                <div>
+                    <template v-if="isAmountLoading">
+                        <a-skeleton-input active />
+                    </template>
+                    <template v-else> <span>$</span>{{ payTokenPrice }} </template>
+                </div>
             </div>
         </div>
     </div>
@@ -72,6 +83,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        isAmountLoading: {
+            type: Boolean,
+            default: false,
+        },
         isUpdate: {
             type: Boolean,
             default: false,
@@ -83,9 +98,6 @@ export default {
         disabledValue: {
             type: [String, Number],
             default: '',
-        },
-        selectedNetwork: {
-            type: Object,
         },
     },
     components: {
@@ -256,8 +268,13 @@ export default {
         cursor: pointer;
 
         .label {
+            display: flex;
+            align-items: center;
+
             color: var(--#{$prefix}select-label-color);
             font-weight: 600;
+            max-height: 32px;
+            height: 32px;
         }
 
         .balance {
@@ -267,7 +284,10 @@ export default {
             color: var(--#{$prefix}base-text);
             font-weight: 400;
             font-size: var(--#{$prefix}small-lg-fs);
-            line-height: 21px;
+
+            height: 32px;
+            max-height: 32px;
+
             span {
                 font-weight: 600;
                 font-size: var(--#{$prefix}default-fs);
@@ -277,7 +297,7 @@ export default {
                 font-weight: 600;
                 color: var(--#{$prefix}base-text);
                 font-size: var(--#{$prefix}small-lg-fs);
-                line-height: 21px;
+
                 span {
                     color: var(--#{$prefix}base-text);
                     font-weight: 400;
@@ -330,7 +350,9 @@ export default {
             min-width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: var(--#{$prefix}icon-logo-bg-color);
+
+            background: var(--#{$prefix}primary);
+
             margin-right: 10px;
 
             svg {
