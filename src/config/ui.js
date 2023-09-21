@@ -59,7 +59,7 @@ const defaultConfig = {
     [ECOSYSTEMS.COSMOS]: {
         sidebar: [
             MAIN_DASHBOARD,
-            // SEND,
+            SEND,
             // SWAP,
             // BRIDGE,
             // SUPER_SWAP,

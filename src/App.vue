@@ -32,7 +32,6 @@ import LoadingOverlay from '@/components/ui/LoadingOverlay';
 
 export default {
     name: 'App',
-    inject: ['mixpanel'],
     components: {
         Sidebar,
         NavBar,
@@ -40,21 +39,32 @@ export default {
         AddressModal,
         LoadingOverlay,
     },
-    created() {
-        this.mixpanel?.track('App:created');
-    },
+
     setup() {
         const store = useStore();
         const lastConnectedCall = ref(false);
-        const { isConnecting, walletAddress, walletAccount, currentChainInfo, connectLastConnectedWallet } = useAdapter();
+
+        const {
+            isConnecting,
+            walletAddress,
+            walletAccount,
+            currentChainInfo,
+            connectLastConnectedWallet,
+            getAddressesWithChainsByEcosystem,
+        } = useAdapter();
 
         const isOpen = computed(() => store.getters['adapters/isOpen']('wallets'));
 
         const callInit = async () => {
-            if (!currentChainInfo.value || !currentChainInfo.value?.walletModule || !walletAddress.value) {
+            const { ecosystem, walletModule } = currentChainInfo.value || {};
+
+            if (!walletModule || !ecosystem || !walletAddress.value) {
                 return;
             }
-            await useInit(currentChainInfo.value.ecosystem, walletAddress.value, store);
+
+            const addressesWithChains = getAddressesWithChainsByEcosystem(ecosystem);
+
+            await useInit(store, { account: walletAccount.value, addressesWithChains });
         };
 
         onBeforeMount(async () => await store.dispatch('networks/initZometNets'));

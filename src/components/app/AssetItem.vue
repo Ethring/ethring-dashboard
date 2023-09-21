@@ -13,13 +13,13 @@
             </div>
         </div>
         <div class="amount">
-            <div class="value">
-                {{ showBalance ? formatNumber(item.balance) : '****' }}
+            <div class="value" :title="balance.value">
+                {{ balance.pretty }}
             </div>
             <div class="symbol">{{ item?.code }}</div>
         </div>
         <div class="change">
-            <div class="value"><span>$</span>{{ showBalance ? formatNumber(item.balanceUsd, 2) : '****' }}</div>
+            <div class="value" :title="balanceUsd.value"><span>$</span>{{ balanceUsd.pretty }}</div>
         </div>
     </div>
 </template>
@@ -41,13 +41,40 @@ export default {
     components: {
         TokenIcon,
     },
-    setup() {
+    setup(props) {
         const store = useStore();
         const showBalance = computed(() => store.getters['app/showBalance']);
 
+        const defaultVal = {
+            pretty: '****',
+            value: '****',
+        };
+
+        const balance = computed(() => {
+            if (!showBalance.value) {
+                return defaultVal;
+            }
+
+            return {
+                pretty: formatNumber(props.item?.balance, 2),
+                value: props.item?.balance,
+            };
+        });
+
+        const balanceUsd = computed(() => {
+            if (!showBalance.value) {
+                return defaultVal;
+            }
+
+            return {
+                pretty: formatNumber(props.item?.balanceUsd, 2),
+                value: props.item?.balanceUsd,
+            };
+        });
+
         return {
-            formatNumber,
-            showBalance,
+            balance,
+            balanceUsd,
         };
     },
 };

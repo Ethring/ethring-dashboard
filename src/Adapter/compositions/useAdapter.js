@@ -65,14 +65,16 @@ function useAdapter() {
     // * Store Wallet Info
     function storeWalletInfo() {
         const walletInfo = {
-            id: `${currEcosystem.value}-${mainAdapter.value?.getAccount()}`,
+            id: `${currEcosystem.value}-${currentChainInfo.value?.walletName}`,
             account: mainAdapter.value?.getAccount(),
             address: mainAdapter.value?.getAccountAddress(),
             chain: currentChainInfo.value?.chainName || currentChainInfo.value?.chain_id,
             ecosystem: currEcosystem.value,
-            walletName: currentChainInfo.value?.walletPrettyName || currentChainInfo.value?.walletName,
+            walletName: currentChainInfo.value?.walletName,
             walletModule: connectedWalletModule.value,
         };
+
+        // adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
 
         if (!walletInfo.address || !walletInfo.walletName || !walletInfo.chain) {
             return;
@@ -89,15 +91,15 @@ function useAdapter() {
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
         try {
-            await adapter.connectWallet(...args);
+            const isConnected = await adapter.connectWallet(...args);
 
             adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
 
             adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
 
-            storeWalletInfo();
+            isConnected && storeWalletInfo();
 
-            return true;
+            return isConnected;
         } catch (error) {
             console.error('Failed to connect to:', ecosystem, error);
             adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
@@ -123,10 +125,15 @@ function useAdapter() {
             if (wallet.id === lastConnectedWallet.value.id) {
                 continue;
             }
+
             await connectTo(wallet.ecosystem, wallet.walletModule, wallet.chain);
         }
 
-        await connectTo(ecosystem, walletModule, chain);
+        const isConnect = await connectTo(ecosystem, walletModule, chain);
+
+        if (!isConnect) {
+            return adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
+        }
 
         return subscribeToWalletsChange();
     };
@@ -171,6 +178,11 @@ function useAdapter() {
     // * Prepare Transaction
     const prepareTransaction = async (...args) => {
         return await mainAdapter.value.prepareTransaction(...args);
+    };
+
+    // * Get Explorer Link by Tx Hash
+    const getTxExplorerLink = (...args) => {
+        return mainAdapter.value.getTxExplorerLink(...args);
     };
 
     // * Sign & Send Transaction
@@ -243,6 +255,8 @@ function useAdapter() {
         getAddressesWithChainsByEcosystem,
         getChainListByEcosystem,
         getChainByChainId,
+
+        getTxExplorerLink,
 
         setChain,
         setNewChain,

@@ -8,7 +8,7 @@
             :value="address"
             :error="!!errorAddress"
             class="mt-10"
-            :on-reset="successHash"
+            :on-reset="successHash || clearAddress"
             @setAddress="onSetAddress"
         />
 
@@ -18,10 +18,10 @@
             v-if="tokensList.length"
             :selected-network="currentChainInfo"
             :items="tokensList"
-            :value="selectedToken || tokensList[0]"
+            :value="selectedToken"
             :error="!!errorBalance"
             :label="$t('tokenOperations.amount')"
-            :on-reset="successHash"
+            :on-reset="successHash || clearAddress"
             class="mt-10"
             @setAmount="onSetAmount"
             @clickToken="onSetToken"
@@ -32,7 +32,7 @@
         <InfoPanel v-if="successHash" :hash="successHash" :title="$t('tx.txHash')" type="success" class="mt-10" />
 
         <Button
-            :title="$t('tokenOperations.confirm').toUpperCase()"
+            :title="$t('tokenOperations.confirm')"
             :disabled="!!disabledSend"
             :loading="isLoading"
             class="simple-send__btn mt-10"
@@ -42,20 +42,21 @@
     </div>
 </template>
 <script>
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
+import { h, ref, computed, onBeforeUnmount, watch } from 'vue';
+
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import { LoadingOutlined } from '@ant-design/icons-vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 import useTokens from '@/compositions/useTokens';
+import useNotification from '@/compositions/useNotification';
 
 import Button from '@/components/ui/Button';
 import InfoPanel from '@/components/ui/InfoPanel';
 import SelectNetwork from '@/components/ui/SelectNetwork';
 import SelectAddress from '@/components/ui/SelectAddress';
 import SelectAmount from '@/components/ui/SelectAmount';
-
-import { getTxUrl } from '@/helpers/utils';
 
 export default {
     name: 'SimpleSend',
@@ -70,8 +71,19 @@ export default {
         const store = useStore();
         const router = useRouter();
 
-        const { walletAddress, connectedWallet, currentChainInfo, validateAddress, chainList, prepareTransaction, signSend, setChain } =
-            useAdapter();
+        const { showNotification, closeNotification } = useNotification();
+
+        const {
+            walletAddress,
+            connectedWallet,
+            currentChainInfo,
+            validateAddress,
+            chainList,
+            prepareTransaction,
+            signSend,
+            setChain,
+            getTxExplorerLink,
+        } = useAdapter();
 
         const { groupTokens } = useTokens();
 
@@ -80,12 +92,20 @@ export default {
         const successHash = ref('');
 
         const amount = ref('');
-        const address = ref(store.getters['tokens/address']);
+
+        const address = computed({
+            get() {
+                return store.getters['tokens/address'];
+            },
+            set(addr) {
+                store.dispatch('tokens/setAddress', addr);
+            },
+        });
+
         const clearAddress = ref(false);
         const errorAddress = ref('');
         const errorBalance = ref('');
 
-        const zometNetworks = computed(() => store.getters['networks/zometNetworksList']);
         const selectedToken = computed(() => store.getters['tokens/fromToken']);
 
         const disabledSend = computed(() => {
@@ -100,7 +120,7 @@ export default {
         });
 
         const tokensList = computed(() => {
-            if (!currentChainInfo.value || !groupTokens.value.length) {
+            if (!currentChainInfo.value || !groupTokens.value?.length) {
                 return [];
             }
 
@@ -127,115 +147,149 @@ export default {
         const onSetToken = () => {
             clearAddress.value = true;
             router.push('/send/select-token');
+            clearAddress.value = false;
         };
 
         const onSetAddress = (addr) => {
-            if (!addr) {
-                return;
+            address.value = addr;
+
+            if (!addr.length) {
+                return (errorAddress.value = '');
             }
 
             if (!validateAddress(addr)) {
-                errorAddress.value = 'Invalid address';
-                return;
+                return (errorAddress.value = 'Invalid address');
             }
 
-            store.dispatch('tokens/setAddress', addr);
-            address.value = addr;
-            errorAddress.value = '';
+            return (errorAddress.value = '');
         };
 
         const onSelectNetwork = async (network) => {
+            clearAddress.value = true;
             await setChain(network);
+            clearAddress.value = false;
         };
 
         const onSetAmount = (value) => {
             amount.value = value;
 
             if (isNaN(amount.value)) {
-                errorBalance.value = 'Incorrect amount';
-                return;
+                return (errorBalance.value = 'Incorrect amount');
             }
+
             if (+value > selectedToken.value?.balance) {
-                errorBalance.value = 'Insufficient balance';
-            } else {
-                errorBalance.value = '';
+                return (errorBalance.value = 'Insufficient balance');
             }
+
+            return (errorBalance.value = '');
         };
 
-        // const getProvider = () => {
-        //     const { provider } = connectedWallet.value || {};
-        //     if (provider) {
-        //         // create an ethers provider with the last connected wallet provider
-        //         const ethersProvider = new ethers.providers.Web3Provider(provider, 'any');
-        //         return ethersProvider;
-        //     }
-        // };
-
-        // const sendTransaction = async (transaction) => {
-        //     const ethersProvider = getProvider();
-        //     try {
-        //         if (ethersProvider) {
-        //             const signer = ethersProvider.getSigner();
-        //             const tokenContract = new ethers.Contract(selectedToken.value.address || NATIVE_CONTRACT, abi, ethersProvider);
-
-        //             const res = await tokenContract.populateTransaction.transfer(
-        //                 transaction.toAddress,
-        //                 ethers.utils.parseUnits(transaction.amount, selectedToken.value.decimals)
-        //             );
-
-        //             const txData = {
-        //                 ...res,
-        //                 from: transaction.fromAddress,
-        //                 value: !selectedToken.value.address ? ethers.utils.parseEther(amount.value) : ethers.utils.parseUnits('0'),
-        //                 nonce: await ethersProvider.getTransactionCount(walletAddress.value),
-        //             };
-
-        //             const txn = await signer.sendTransaction(txData);
-
-        //             const receipt = await txn.wait();
-        //             return receipt;
-        //         }
-        //     } catch (e) {
-        //         return { error: e?.data?.message || e.message };
-        //     }
-        // };
-
         const send = async () => {
-            const showError = (error) => {
-                txError.value = error;
-                setTimeout(() => {
-                    txError.value = '';
-                }, 3000);
-            };
-
             if (disabledSend.value) {
                 return;
             }
 
-            const tx = await prepareTransaction(walletAddress.value, address.value, amount.value, selectedToken.value);
+            const dataForPrepare = {
+                fromAddress: walletAddress.value,
+                toAddress: address.value,
+                amount: amount.value,
+                token: selectedToken.value,
+            };
 
-            if (tx.error) {
-                showError(tx.error);
+            // reset values for next send
+            clearAddress.value = true;
+
+            amount.value = '';
+            address.value = '';
+
+            clearAddress.value = false;
+
+            try {
+                showNotification({
+                    key: 'prepare-send-tx',
+                    type: 'info',
+                    title: `Sending ${dataForPrepare.amount} ${dataForPrepare.token.code} ...`,
+                    icon: h(LoadingOutlined, {
+                        spin: true,
+                    }),
+                    duration: 0,
+                });
+
+                const tx = await prepareTransaction(
+                    dataForPrepare.fromAddress,
+                    dataForPrepare.toAddress,
+                    dataForPrepare.amount,
+                    dataForPrepare.token
+                );
+
+                if (tx.error) {
+                    closeNotification('prepare-send-tx');
+
+                    return showNotification({
+                        key: 'error-send-tx',
+                        type: 'error',
+                        title: 'Transaction error',
+                        description: tx.error,
+                        duration: 4,
+                    });
+                }
+
+                const resTx = await signSend(tx);
+
+                if (resTx.error) {
+                    closeNotification('prepare-send-tx');
+
+                    return showNotification({
+                        key: 'error-send-tx',
+                        type: 'error',
+                        title: 'Transaction error',
+                        description: resTx.error,
+                        duration: 4,
+                    });
+                }
+
+                successHash.value = getTxExplorerLink(resTx.transactionHash, currentChainInfo.value);
+                isLoading.value = false;
+
+                closeNotification('prepare-send-tx');
+
+                showNotification({
+                    key: 'success-send-tx',
+                    type: 'success',
+                    title: 'Click to view transaction',
+                    onClick: () => {
+                        window.open(successHash.value, '_blank');
+                        closeNotification('success-send-tx');
+                        successHash.value = '';
+                    },
+                    duration: 4,
+                    style: {
+                        cursor: 'pointer',
+                    },
+                });
+
+                setTimeout(() => {
+                    successHash.value = '';
+                }, 5000);
+            } catch (error) {
+                closeNotification('prepare-send-tx');
+
+                showNotification({
+                    key: 'error-send-tx',
+                    type: 'error',
+                    title: 'Transaction error',
+                    description: error.message,
+                    duration: 4,
+                });
             }
-
-            const resTx = await signSend(tx);
-
-            if (resTx.error) {
-                showError(resTx.error);
-            }
-
-            successHash.value = getTxUrl(currentChainInfo.value.net, resTx.transactionHash);
-            isLoading.value = false;
-
-            setTimeout(() => {
-                successHash.value = '';
-            }, 4000);
         };
 
-        onMounted(async () => {
-            if (!zometNetworks.value.length) {
-                await store.dispatch('networks/initZometNets');
-            }
+        watch(currentChainInfo, async () => {
+            const [chainTokens = []] = groupTokens.value;
+
+            const [tokenWithMaxBalance = {}] = chainTokens.list || [];
+
+            store.dispatch('tokens/setFromToken', tokenWithMaxBalance);
         });
 
         onBeforeUnmount(() => {
@@ -251,6 +305,7 @@ export default {
             isLoading,
             disabledSend,
 
+            clearAddress,
             groupTokens,
             tokensList,
             errorAddress,
@@ -263,11 +318,11 @@ export default {
             onSetToken,
             onSetAmount,
             send,
+
             txError,
             successHash,
             walletAddress,
             connectedWallet,
-            zometNetworks,
             chainList,
             currentChainInfo,
         };

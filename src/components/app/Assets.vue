@@ -1,5 +1,11 @@
 <template>
     <div class="tokens" :class="{ empty: emptyLists }">
+        <template v-if="loader">
+            <div v-for="(_, ndx) in 5" :key="ndx" class="tokens__group">
+                <a-skeleton active avatar :paragraph="{ rows: 0 }" :style="{ paddingTop: '15px' }" />
+            </div>
+        </template>
+
         <template v-if="allTokens.length > 1">
             <div class="tokens__group">
                 <AssetItemHeader
@@ -13,7 +19,8 @@
                 <AssetItem v-for="(listItem, n) in sortByKey(allTokens, 'balanceUsd')" :key="n" :item="listItem" />
             </div>
         </template>
-        <template v-if="allTokens.length > 1">
+
+        <template v-if="integrationAssetsByPlatform.length > 1">
             <div class="tokens__group" v-for="(item, i) in integrationAssetsByPlatform" :key="i">
                 <AssetItemHeader
                     v-if="item.data.length"
@@ -36,12 +43,6 @@
                         </div>
                     </AssetItem>
                 </div>
-            </div>
-        </template>
-
-        <template v-if="loader">
-            <div v-for="(_, ndx) in 5" :key="ndx" class="tokens__group" @click="toggleGroup(ndx)">
-                <a-skeleton active avatar :paragraph="{ rows: 0 }" :style="{ paddingTop: '15px' }" />
             </div>
         </template>
 
@@ -80,15 +81,15 @@ export default {
 
         const groupHides = ref({});
 
-        const { walletAddress } = useAdapter();
+        const { walletAccount } = useAdapter();
 
         const loader = computed(() => store.getters['tokens/loader']);
 
-        const allTokens = computed(() => store.getters['tokens/tokens'][walletAddress.value] || []);
+        const allTokens = computed(() => store.getters['tokens/tokens'][walletAccount.value] || []);
 
-        const totalBalance = computed(() => store.getters['tokens/totalBalances'][walletAddress.value] || 0);
+        const totalBalance = computed(() => store.getters['tokens/totalBalances'][walletAccount.value] || 0);
 
-        const allIntegrations = computed(() => store.getters['tokens/integrations'][walletAddress.value] || []);
+        const allIntegrations = computed(() => store.getters['tokens/integrations'][walletAccount.value] || []);
 
         const emptyLists = computed(() => {
             return !allTokens.value?.length && !allIntegrations.value?.length;
@@ -177,10 +178,10 @@ export default {
             allIntegrations,
             tokensTotalBalance,
             integrationAssetsByPlatform,
+            sortByKey,
 
             getAssetsShare,
             toggleGroup,
-            sortByKey,
             getFormattedName,
             getFormattedDate,
         };

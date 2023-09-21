@@ -1,82 +1,93 @@
-import axios from 'axios';
-import { ref, computed } from 'vue';
-export default async function useInit(ecosystem, address, store) {
-    if (!address) {
-        return;
-    }
+import { computed } from 'vue';
+import { chunk } from 'lodash';
+
+import { getBalancesByAddress } from '@/api/data-provider';
+
+const CHUNK_SIZE = 5;
+
+const COSMOS_CHAIN_ID = {
+    cosmoshub: 'cosmos',
+};
+
+const RESET_ACTIONS = [
+    ['tokens/setLoader', true],
+    ['tokens/setFromToken', null],
+    ['tokens/setToToken', null],
+    ['bridge/setSelectedSrcNetwork', null],
+    ['bridge/setSelectedDstNetwork', null],
+];
+
+async function performActions(actions, store) {
+    await Promise.all(actions.map(([action, payload]) => store.dispatch(action, payload)));
+}
+
+const arrayFromObject = (object) => Object.entries(object).map(([key, value]) => ({ chain: key, info: value }));
+
+export default async function useInit(store, { addressesWithChains = {}, account = null } = {}) {
     const disableLoader = computed(() => store.getters['tokens/disableLoader']);
     store.dispatch('tokens/setLoader', true);
 
-    if (!disableLoader.value) {
-        store.dispatch('tokens/setLoader', true);
-        store.dispatch('tokens/setFromToken', null);
-        store.dispatch('tokens/setToToken', null);
-        store.dispatch('bridge/setSelectedSrcNetwork', null);
-        store.dispatch('bridge/setSelectedDstNetwork', null);
-    } else {
-        store.dispatch('tokens/setDisableLoader', false);
-    }
+    const disableLoaderActions = [['tokens/setDisableLoader', false]];
 
-    const networksList = ref(store.getters['networks/zometNetworksList']);
+    const actionsToPerform = disableLoader.value ? disableLoaderActions : RESET_ACTIONS;
 
-    const tokens = {};
-
-    const allTokens = [];
-
-    const allIntegrations = [];
+    performActions(actionsToPerform, store).catch((error) => {
+        console.error('An error occurred:', error);
+    });
 
     let totalBalance = 0;
 
-    const assetsInfo = async (net, { fetchTokens = true, fetchIntegrations = true, fetchNfts = false } = {}) => {
-        if (!net || !address) {
-            return null;
-        }
+    const addresses = arrayFromObject(addressesWithChains);
+    const chunkedAddresses = chunk(addresses, CHUNK_SIZE);
 
-        try {
-            const URL = `${process.env.VUE_APP_DATA_PROVIDER_URL}/balances?net=${net}&address=${address}&tokens=${fetchTokens}&integrations=${fetchIntegrations}&nfts=${fetchNfts}`;
+    const allTokens = [];
+    const allIntegrations = [];
 
-            const response = await axios.get(URL);
+    for (const part in chunkedAddresses) {
+        for (const { chain, info } of chunkedAddresses[part]) {
+            const { logo, address: chainAddress } = info;
 
-            if (response.status === 200) {
-                return response.data.data;
+            const chainForRequest = COSMOS_CHAIN_ID[chain] || chain;
+
+            const { tokens = [], integrations = [], nfts = [] } = (await getBalancesByAddress(chainForRequest, chainAddress)) || {};
+
+            if (!tokens.length && integrations.length && nfts.length) {
+                continue;
             }
 
-            return null;
-        } catch {
-            return null;
-        }
-    };
-
-    for (const { net, logo } of networksList.value) {
-        const assets = await assetsInfo(net);
-
-        if (assets?.tokens?.length) {
-            tokens[net] = {
-                list: assets?.tokens,
-            };
             allTokens.push(
-                ...assets.tokens.map((token) => {
+                ...tokens.map((token) => {
+                    token.id = `${chain}_${chainAddress}_${token.code}`;
+                    token.chain = chain;
                     token.chainLogo = logo;
                     totalBalance += +token.balanceUsd;
                     return token;
                 })
             );
-        }
 
-        if (assets?.integrations?.length) {
-            assets.integrations.forEach((item) => {
-                item.balances.forEach((token) => {
-                    token.chainLogo = logo;
-                });
-                totalBalance += +item.balances.reduce((sum, token) => sum + +token.balanceUsd, 0);
-            });
-            allIntegrations.push(...assets.integrations);
+            if (integrations.length) {
+                for (const integration of integrations) {
+                    integration.balances = integration.balances.map((token) => {
+                        token.id = `${chain}_${chainAddress}_${token.code}`;
+                        token.chainLogo = logo;
+                        token.chain = chain;
+                        return token;
+                    });
+
+                    totalBalance += +integration.balances.reduce((sum, token) => sum + +token.balanceUsd, 0);
+                }
+
+                allIntegrations.push(...integrations);
+            }
+
+            store.dispatch('tokens/setDataFor', { type: 'tokens', account, data: allTokens });
+            store.dispatch('tokens/setDataFor', { type: 'integrations', account, data: allIntegrations });
+
+            store.dispatch('tokens/setTotalBalances', { account, data: totalBalance });
+
+            store.dispatch('tokens/setGroupTokens', { chain, data: { list: tokens } });
         }
-        store.dispatch('tokens/setTokens', { address, data: allTokens });
-        store.dispatch('tokens/setIntegrations', { address, data: allIntegrations });
-        store.dispatch('tokens/setTotalBalances', { address, data: totalBalance });
     }
 
-    store.dispatch('tokens/setGroupTokens', tokens);
     store.dispatch('tokens/setLoader', false);
 }

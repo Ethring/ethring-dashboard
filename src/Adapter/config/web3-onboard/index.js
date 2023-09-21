@@ -4,7 +4,7 @@ import injectedModule from '@web3-onboard/injected-wallets';
 // import ledgerModule from '@web3-onboard/ledger';
 
 import appMetadata from '@/Adapter/config/web3-onboard/meta-data';
-import chains from '@/Adapter/config/web3-onboard/chains';
+import { chainConfig } from '@/Adapter/config/web3-onboard/chains';
 
 const injected = injectedModule();
 // const coinbaseWalletSdk = coinbaseWalletModule();
@@ -33,5 +33,5 @@ export default {
     },
     appMetadata,
     theme: 'light',
-    chains,
+    chains: chainConfig,
 };
