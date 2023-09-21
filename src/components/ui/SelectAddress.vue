@@ -335,7 +335,7 @@ export default {
     height: 40px;
     min-width: 40px;
     border-radius: 50%;
-    background: #3fdfae;
+    background: var(--#{$prefix}primary);
     margin-right: 10px;
 
     & > img.network-logo {

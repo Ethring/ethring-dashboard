@@ -577,7 +577,7 @@ export default {
             showNotification({
                 key: 'prepare-swap-tx',
                 type: 'info',
-                title: `Swap ${amount.value} ${selectedTokenFrom.value.code} to ${selectedTokenTo.value.code}`,
+                title: `Swap ${amount.value} ${selectedTokenFrom.value.code} to ~${receiveValue.value} ${selectedTokenTo.value.code}`,
                 description: 'Please wait, transaction is preparing',
                 icon: h(LoadingOutlined, {
                     spin: true,
@@ -646,7 +646,6 @@ export default {
         // * Watchers
         watch(selectedNetwork, (newValue, oldValue) => {
             if (newValue?.net !== oldValue?.net) {
-                opTitle.value = 'tokenOperations.switchNetwork';
                 resetValues();
                 selectedTokenFrom.value = null;
                 selectedTokenTo.value = null;

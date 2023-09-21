@@ -40,7 +40,7 @@
             </div>
         </template>
 
-        <template v-if="!allTokens.length">
+        <template v-if="!allTokens.length && !loader">
             <EmptyList :title="$t('dashboard.emptyAssets')" />
         </template>
 
