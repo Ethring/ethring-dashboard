@@ -88,6 +88,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
 
             store.dispatch('tokens/setGroupTokens', { chain, data: { list: tokens } });
         }
-        store.dispatch('tokens/setLoader', false);
     }
+
+    store.dispatch('tokens/setLoader', false);
 }

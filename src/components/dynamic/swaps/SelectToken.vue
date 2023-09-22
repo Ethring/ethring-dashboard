@@ -65,17 +65,19 @@ export default {
 
             const isFrom = selectType.value === 'from';
 
-            const tokens = isFrom ? tokensList.value : [...tokensList.value, ...allTokensFromNetwork(net)];
+            const tokens = isFrom ? tokensList.value : [...tokensList.value, ...allTokensFromNetwork(net, selectedTokenFrom.value)];
 
             const secondToken = isFrom ? selectedTokenTo.value : selectedTokenFrom.value;
 
+            const isNotEqualToSelected = (tkn) => tkn.address !== secondToken.address || tkn.code !== secondToken.code;
+
             if (!searchValue.value) {
-                return tokens;
+                return tokens.filter((elem) => isNotEqualToSelected(elem));
             }
 
             return tokens.filter(
                 (elem) =>
-                    elem?.code !== secondToken?.code &&
+                    isNotEqualToSelected(elem) &&
                     (searchByKey(elem, searchValue.value, 'name') ||
                         searchByKey(elem, searchValue.value, 'code') ||
                         searchByKey(elem, searchValue.value, 'address'))

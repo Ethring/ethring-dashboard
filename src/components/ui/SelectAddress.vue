@@ -200,7 +200,7 @@ export default {
             min-width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: var(--#{$prefix}icon-logo-bg-color);
+            background: var(--#{$prefix}primary);
             margin-right: 10px;
 
             &-logo {
