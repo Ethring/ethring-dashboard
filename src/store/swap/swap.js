@@ -64,8 +64,8 @@ export default {
                     },
                 });
                 return response.data.data;
-            } catch (err) {
-                return { error: err.response.data.error };
+            } catch (error) {
+                return checkErrors(error);
             }
         },
 

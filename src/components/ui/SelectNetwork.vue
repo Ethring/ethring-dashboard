@@ -125,8 +125,8 @@ export default {
             }
 
             &-logo {
-                width: 70%;
-                height: 70%;
+                width: 80%;
+                height: 80%;
                 border-radius: 50%;
             }
         }

@@ -117,23 +117,27 @@ function useAdapter() {
             return;
         }
 
-        adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
+        try {
+            adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
 
-        for (const wallet of connectedWallets.value) {
-            if (wallet.id === lastConnectedWallet.value.id) {
-                continue;
+            for (const wallet of connectedWallets.value) {
+                if (wallet.id === lastConnectedWallet.value.id) {
+                    continue;
+                }
+
+                await connectTo(wallet.ecosystem, wallet.walletModule, wallet.chain);
             }
 
-            await connectTo(wallet.ecosystem, wallet.walletModule, wallet.chain);
+            const isConnect = await connectTo(ecosystem, walletModule, chain);
+
+            if (!isConnect) {
+                return adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
+            }
+
+            return subscribeToWalletsChange();
+        } catch (error) {
+            adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
         }
-
-        const isConnect = await connectTo(ecosystem, walletModule, chain);
-
-        if (!isConnect) {
-            return adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
-        }
-
-        return subscribeToWalletsChange();
     };
 
     // * Get Wallets Module by Ecosystem

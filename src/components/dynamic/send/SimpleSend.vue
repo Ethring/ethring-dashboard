@@ -56,6 +56,8 @@ import SelectAddress from '@/components/ui/SelectAddress';
 import SelectAmount from '@/components/ui/SelectAmount';
 import { sortByKey } from '@/helpers/utils';
 
+import { DIRECTIONS, TOKEN_SELECT_TYPES } from '../../../shared/constants/operations';
+
 export default {
     name: 'SimpleSend',
     components: {
@@ -91,26 +93,42 @@ export default {
 
         const amount = ref('');
 
-        const address = computed({
-            get() {
-                return store.getters['tokens/address'];
-            },
-            set(addr) {
-                store.dispatch('tokens/setAddress', addr);
-            },
-        });
-
         const clearAddress = ref(false);
         const errorAddress = ref('');
         const errorBalance = ref('');
 
-        const selectedToken = computed(() => store.getters['tokens/fromToken']);
+        // =================================================================================================================
+
+        const selectedToken = computed({
+            get: () => store.getters['tokenOps/srcToken'],
+            set: (value) => {
+                store.dispatch('tokenOps/setSrcToken', value);
+            },
+        });
+
+        const selectedNetwork = computed({
+            get: () => store.getters['tokenOps/srcNetwork'],
+            set: (value) => {
+                store.dispatch('tokenOps/setSrcNetwork', value);
+            },
+        });
+
+        // =================================================================================================================
+
+        const address = computed({
+            get: () => store.getters['tokenOps/receiverAddress'],
+            set: (value) => store.dispatch('tokenOps/setReceiverAddress', value),
+        });
+
+        // =================================================================================================================
 
         const tokensList = computed(() => {
             const { net } = currentChainInfo.value;
             const listFromStore = store.getters['tokens/getTokensListForChain'](net);
             return sortByKey(listFromStore, 'balanceUsd');
         });
+
+        // =================================================================================================================
 
         const disabledSend = computed(() => {
             return (
@@ -123,19 +141,25 @@ export default {
             );
         });
 
+        // =================================================================================================================
+
         const setTokenOnChange = () => {
+            selectedNetwork.value = currentChainInfo.value;
+
             const [defaultToken = null] = tokensList.value || [];
 
             if (!selectedToken.value && defaultToken) {
-                return store.dispatch('tokens/setFromToken', defaultToken);
+                return (selectedToken.value = defaultToken);
             }
 
             const { code } = selectedToken.value || {};
 
             const token = tokensList.value.find((tkn) => tkn.code === code);
 
-            return store.dispatch('tokens/setFromToken', token);
+            return (selectedToken.value = token || null);
         };
+
+        // =================================================================================================================
 
         const onSetToken = () => {
             clearAddress.value = true;
@@ -143,7 +167,7 @@ export default {
             clearAddress.value = false;
         };
 
-        const onSetAddress = (addr) => {
+        const onSetAddress = (addr = '') => {
             address.value = addr;
 
             if (!addr.length) {
@@ -176,6 +200,8 @@ export default {
 
             return (errorBalance.value = '');
         };
+
+        // =================================================================================================================
 
         const send = async () => {
             if (disabledSend.value) {
@@ -280,16 +306,22 @@ export default {
 
         // * Reset Values before leave page
         onBeforeUnmount(() => {
-            if (!clearAddress.value) {
-                store.dispatch('tokens/setAddress', '');
+            if (router.options.history.state.current !== '/send/select-token') {
+                selectedToken.value = null;
+                selectedNetwork.value = null;
+                address.value = '';
             }
 
-            if (router.options.history.state.current !== '/send/select-token') {
-                store.dispatch('tokens/setFromToken', null);
-            }
+            amount.value = null;
         });
 
-        onMounted(() => setTokenOnChange());
+        onMounted(() => {
+            store.dispatch('tokenOps/setSelectType', TOKEN_SELECT_TYPES.FROM);
+            store.dispatch('tokenOps/setDirection', DIRECTIONS.SEND);
+            store.dispatch('tokenOps/setOnlyWithBalance', true);
+            setTokenOnChange();
+        });
+
         onUpdated(() => setTokenOnChange());
 
         watch(txError, (err) => {
@@ -303,6 +335,10 @@ export default {
             return setTimeout(() => {
                 txError.value = '';
             }, 3000);
+        });
+
+        watch(currentChainInfo, () => {
+            selectedNetwork.value = currentChainInfo.value;
         });
 
         return {

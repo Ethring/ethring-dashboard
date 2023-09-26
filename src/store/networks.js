@@ -1,4 +1,5 @@
 import { getNetworksConfig, getTokensListByNetwork } from '@/api/networks';
+import _ from 'lodash';
 
 const TYPES = {
     SET_ZOMET_NETWORKS: 'SET_ZOMET_NETWORKS',
@@ -17,7 +18,6 @@ export default {
         zometNetworks: {},
         tokensByNetwork: {},
         zometTokens: {},
-        tokensAddressesByNet: {},
         chainsForConnect: [],
     }),
 
@@ -29,8 +29,10 @@ export default {
         networkByChainId: (state) => (chainId) => state.zometNetworksList.find((network) => network.chain_id === chainId) || {},
 
         tokensByNetwork: (state) => (network) => state.tokensByNetwork[network] || {},
-
-        tokensAddressesByNet: (state) => (network) => state.tokensAddressesByNet[network] || [],
+        getTokensListForChain: (state) => (network) => {
+            const tokens = Object.entries(state.tokensByNetwork[network]).map((tkn) => tkn[1]) || [];
+            return _.sortBy(tokens, ['name']);
+        },
     },
 
     mutations: {
@@ -53,18 +55,20 @@ export default {
                 state.zometTokens[network] = {};
             }
 
-            state.tokensByNetwork[network] = tokens;
+            for (const token in tokens) {
+                // tokens[token].id = `${network}_${token}_${tokens[token].symbol}`;
+                tokens[token].chain = network;
+                tokens[token].balance = 0;
+                tokens[token].balanceUsd = 0;
+                tokens[token].code = tokens[token].symbol;
+            }
 
-            const tokensList = Object.keys(tokens);
+            state.tokensByNetwork[network] = tokens;
 
             state.zometTokens = {
                 ...exists,
                 ...tokens,
             };
-
-            state.zometNetworks[network].tokens = tokens;
-
-            state.tokensAddressesByNet[network] = tokensList;
         },
     },
 

@@ -11,7 +11,7 @@ import bridge from './bridge/bridge';
 import swap from './swap/swap';
 
 // Operations
-import swapOps from './operations/swap';
+import operations from './operations';
 
 // Adapters for different networks
 import adapters from '../Adapter/store';
@@ -38,7 +38,7 @@ export default createStore({
         tokens,
         bridge,
         swap,
-        swapOps: swapOps,
+        tokenOps: operations,
     },
     plugins: [dataState],
 });

@@ -16,22 +16,21 @@
                 placeholder="Select network"
             />
         </div>
+
         <SelectAmount
-            v-if="tokensSrcListResolved"
-            :selected-network="selectedSrcNetwork"
-            :items="tokensSrcListResolved"
+            v-if="selectedSrcNetwork"
             :value="selectedSrcToken"
             :error="!!errorBalance"
             :label="$t('tokenOperations.send')"
             :on-reset="resetAmount"
+            :disabled="!selectedSrcToken"
             class="mt-10"
             @setAmount="onSetAmount"
             @clickToken="onSetSrcToken"
         />
+
         <SelectAmount
-            v-if="tokensDstListResolved.length"
-            :selected-network="selectedDstNetwork"
-            :items="tokensDstListResolved"
+            v-if="selectedDstNetwork"
             :value="selectedDstToken"
             :label="$t('tokenOperations.receive')"
             :disabled-value="prettyNumber(receiveValue)"
@@ -41,10 +40,12 @@
             @clickToken="onSetDstToken"
             hide-max
         />
+
         <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
         <InfoPanel v-if="txError" :title="txError" class="mt-10" />
         <InfoPanel v-if="networkError" :title="$t('tokenOperations.changeNetwork')" class="mt-10" />
         <InfoPanel v-if="successHash" :hash="successHash" :title="$t('tx.txHash')" type="success" class="mt-10" />
+
         <Checkbox
             v-if="selectedDstToken"
             id="receiveToken"
@@ -53,6 +54,7 @@
             class="mt-10"
         >
         </Checkbox>
+
         <SelectAddress
             v-if="receiveToken"
             :selected-network="selectedDstNetwork"
@@ -62,6 +64,7 @@
             :on-reset="successHash"
             @setAddress="onSetAddress"
         />
+
         <Accordion
             v-if="selectedDstNetwork"
             :title="setReceiveValue"
@@ -92,14 +95,14 @@
     </div>
 </template>
 <script>
+import axios from 'axios';
+
 import { computed, ref, onMounted, watch, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { ethers } from 'ethers';
-import axios from 'axios';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
-import useTokens from '@/compositions/useTokens';
 
 import InfoPanel from '@/components/ui/InfoPanel';
 import SelectAmount from '@/components/ui/SelectAmount';
@@ -116,6 +119,7 @@ import { getTxUrl, delay } from '@/helpers/utils';
 import { checkErrors } from '@/helpers/checkErrors';
 
 import { services } from '@/config/bridgeServices';
+import { DIRECTIONS, TOKEN_SELECT_TYPES } from '../../../shared/constants/operations';
 
 const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
@@ -132,8 +136,12 @@ export default {
         Checkbox,
     },
     setup() {
-        const { walletAddress, currentChainInfo, connectedWallet, setChain } = useAdapter();
-        const { groupTokens, allTokensFromNetwork, getTokenList } = useTokens();
+        const {
+            walletAddress,
+            currentChainInfo,
+            connectedWallet,
+            // setChain
+        } = useAdapter();
 
         const store = useStore();
         const router = useRouter();
@@ -150,10 +158,45 @@ export default {
         const networkFee = ref(0);
 
         const zometNetworks = computed(() => store.getters['networks/zometNetworksList']);
-        const selectedSrcNetwork = computed(() => store.getters['bridge/selectedSrcNetwork']);
-        const selectedDstNetwork = computed(() => store.getters['bridge/selectedDstNetwork']);
-        const selectedSrcToken = computed(() => store.getters['tokens/fromToken']);
-        const selectedDstToken = computed(() => store.getters['tokens/toToken']);
+
+        // =================================================================================================================
+
+        const selectType = computed({
+            get: () => store.getters['tokenOps/selectType'],
+            set: (value) => store.dispatch('tokenOps/setSelectType', value),
+        });
+
+        const selectedSrcToken = computed({
+            get: () => store.getters['tokenOps/srcToken'],
+            set: (value) => store.dispatch('tokenOps/setSrcToken', value),
+        });
+
+        const selectedDstToken = computed({
+            get: () => store.getters['tokenOps/dstToken'],
+            set: (value) => store.dispatch('tokenOps/setDstToken', value),
+        });
+
+        const selectedSrcNetwork = computed({
+            get: () => store.getters['tokenOps/srcNetwork'],
+            set: (value) => store.dispatch('tokenOps/setSrcNetwork', value),
+        });
+
+        const selectedDstNetwork = computed({
+            get: () => store.getters['tokenOps/dstNetwork'],
+            set: (value) => store.dispatch('tokenOps/setDstNetwork', value),
+        });
+
+        const targetDirection = computed({
+            get: () => store.getters['tokenOps/direction'],
+            set: (value) => store.dispatch('tokenOps/setDirection', value),
+        });
+
+        const onlyWithBalance = computed({
+            get: () => store.getters['tokenOps/onlyWithBalance'],
+            set: (value) => store.dispatch('tokenOps/setOnlyWithBalance', value),
+        });
+
+        // =================================================================================================================
 
         const amount = ref('');
         const receiveValue = ref('');
@@ -166,16 +209,48 @@ export default {
         const errorAddress = ref('');
         const errorBalance = ref('');
 
-        const tokensSrcListResolved = ref([]);
-        const tokensDstListResolved = ref([]);
+        // =================================================================================================================
 
-        onMounted(async () => {
-            store.dispatch(
-                'bridge/setSelectedSrcNetwork',
-                groupTokens.value.find((elem) => elem.net === currentChainInfo.value.net)
-            );
-            if (selectedSrcToken.value) {
-                await getAllowance();
+        const tokensList = computed(() => {
+            const { net } = selectedSrcNetwork.value || {};
+            const listFromStore = store.getters['tokens/getTokensListForChain'](net);
+
+            return listFromStore || [];
+        });
+
+        // =================================================================================================================
+
+        const setTokenOnChange = () => {
+            console.log('setTokenOnChange', tokensList.value, selectedSrcToken.value);
+            const [defaultToken = null] = tokensList.value || [];
+
+            if (!selectedSrcToken.value && defaultToken) {
+                selectedSrcToken.value = defaultToken;
+            }
+            const { code: targetCode } = selectedSrcToken.value || {};
+
+            const searchTokens = [targetCode];
+
+            const updatedList = tokensList.value?.filter((tkn) => searchTokens.includes(tkn.code)) || [];
+
+            if (!updatedList.length) {
+                return;
+            }
+
+            const [token = null] = updatedList;
+
+            if (token) {
+                return (selectedSrcToken.value = token);
+            }
+        };
+
+        // =================================================================================================================
+
+        onMounted(() => {
+            onlyWithBalance.value = true;
+
+            if (!selectedSrcNetwork.value) {
+                selectedSrcNetwork.value = currentChainInfo.value;
             }
 
             if (selectedSrcNetwork.value) {
@@ -192,7 +267,17 @@ export default {
                       }`
                     : `<div class='skeleton skeleton__text'></div>`;
             }
+
+            setTokenOnChange();
         });
+
+        watch(selectedSrcToken, async () => {
+            if (selectedSrcToken.value) {
+                await getAllowance();
+            }
+        });
+
+        // =================================================================================================================
 
         const activeSupportedChains = computed(() => {
             return zometNetworks.value.filter((token) => token.net !== selectedSrcNetwork?.value?.net);
@@ -219,77 +304,22 @@ export default {
             allowance.value = null;
         };
 
-        const tokensList = async (network) => {
-            if (!network) {
-                return [];
-            }
+        // =================================================================================================================
 
-            let listWithBalances = [];
-            if (network.list) {
-                listWithBalances = getTokenList(network);
-            } else {
-                const selectedNetwork = groupTokens.value.find((elem) => elem?.chain_id === (network?.chain_id || network?.chainId));
-                listWithBalances = getTokenList(selectedNetwork);
-            }
-
-            const list = [
-                ...listWithBalances,
-                ...allTokensFromNetwork(network.net).filter((token) => {
-                    return token.net !== network.net && !groupTokens.value[0].list.find((t) => t.code === token.code);
-                }),
-            ];
-
-            return list;
-        };
-
-        const onSelectSrcNetwork = async (network) => {
-            if (network?.net === currentChainInfo.value?.net) {
-                networkError.value = false;
-            }
-
+        const onSelectSrcNetwork = (network) => {
+            selectedSrcNetwork.value = network;
             clearApprove();
-
-            tokensSrcListResolved.value = await tokensList(network);
-            const tokens = tokensSrcListResolved.value;
-            if (!selectedSrcToken.value || !tokens.find((elem) => elem.code === selectedSrcToken.value.code)) {
-                store.dispatch('tokens/setFromToken', tokens[0]);
-            } else {
-                let listWithBalances = getTokenList(network);
-                let tokenFrom = listWithBalances.find((elem) => elem.code === selectedSrcToken.value.code);
-                if (tokenFrom) {
-                    store.dispatch('tokens/setFromToken', tokenFrom);
-                }
-            }
-
-            if (selectedSrcNetwork.value !== network) {
-                txError.value = '';
-                if (network.id || network.chain_id) {
-                    await setChain({
-                        chainId: network.id || network.chain_id,
-                    });
-                }
-                store.dispatch('bridge/setSelectedSrcNetwork', network);
-            }
         };
 
-        const onSelectDstNetwork = async (network) => {
-            store.dispatch('bridge/setSelectedDstNetwork', network);
-
-            tokensDstListResolved.value = await tokensList(network);
-            const tokens = tokensDstListResolved.value;
-
-            if (!selectedDstToken.value || !tokens.find((elem) => elem.code === selectedDstToken.value.code)) {
-                store.dispatch('tokens/setToToken', tokens[0]);
-            } else {
-                let tokenTo = tokens.find((elem) => elem.code === selectedDstToken.value.code);
-                if (tokenTo) {
-                    store.dispatch('tokens/setToToken', tokenTo);
-                }
-            }
+        const onSelectDstNetwork = (network) => {
+            selectedDstNetwork.value = network;
         };
 
         const onSetSrcToken = () => {
-            store.dispatch('tokens/setSelectType', 'from');
+            onlyWithBalance.value = true;
+            targetDirection.value = DIRECTIONS.SOURCE;
+            selectType.value = TOKEN_SELECT_TYPES.FROM;
+
             router.push('/bridge/select-token');
 
             balanceUpdated.value = false;
@@ -297,13 +327,17 @@ export default {
             clearApprove();
         };
 
-        const onSetDstToken = async () => {
-            store.dispatch('tokens/setSelectType', 'to');
+        const onSetDstToken = () => {
+            targetDirection.value = DIRECTIONS.DESTINATION;
+            selectType.value = TOKEN_SELECT_TYPES.TO;
+            onlyWithBalance.value = false;
+
             router.push('/bridge/select-token');
 
             balanceUpdated.value = false;
 
             clearApprove();
+
             onSetAmount(amount.value);
         };
 
@@ -346,6 +380,8 @@ export default {
             await getEstimateInfo();
             await checkAllowance();
         };
+
+        // =================================================================================================================
 
         const checkAllowance = async () => {
             if (allowance.value >= toMantissa(amount.value, selectedSrcToken.value?.decimals)) {
@@ -436,6 +472,7 @@ export default {
                 return ethersProvider;
             }
         };
+        // =================================================================================================================
 
         const sendMetamaskTransaction = async (transaction) => {
             const ethersProvider = getProvider();
@@ -579,47 +616,29 @@ export default {
                 address: walletAddress.value,
                 info: selectedSrcNetwork.value,
                 update(wallet) {
-                    store.dispatch('bridge/setSelectedSrcNetwork', wallet);
+                    selectedSrcNetwork.value = wallet;
                 },
             });
+
             store.dispatch('tokens/updateTokenBalances', {
                 net: selectedDstNetwork.value.net,
                 address: walletAddress.value,
                 info: selectedDstNetwork.value,
                 update(wallet) {
-                    store.dispatch('bridge/setSelectedDstNetwork', wallet);
+                    selectedDstNetwork.value = wallet;
                 },
             });
 
             balanceUpdated.value = true;
         };
 
-        watch(balanceUpdated, () => {
-            if (balanceUpdated.value) {
-                setTimeout(() => {
-                    tokensList(selectedSrcNetwork.value).then((tokens) => {
-                        tokensSrcListResolved.value = tokens;
-                        let tokenFrom = tokens.find((elem) => elem.code === selectedSrcToken.value.code);
-                        if (tokenFrom) {
-                            store.dispatch('tokens/setFromToken', tokenFrom);
-                        }
-                    });
-                    tokensList(selectedDstNetwork.value).then((tokens) => {
-                        tokensDstListResolved.value = tokens;
-                        let tokenTo = tokens.find((elem) => elem.code === selectedDstToken.value.code);
-                        if (tokenTo) {
-                            store.dispatch('tokens/setToToken', tokenTo);
-                        }
-                    });
-                }, 2000);
-            }
-        });
-
         onBeforeUnmount(() => {
             if (router.options.history.state.current !== '/bridge/select-token') {
-                store.dispatch('tokens/setFromToken', null);
-                store.dispatch('tokens/setToToken', null);
-                store.dispatch('bridge/setSelectedDstNetwork', null);
+                targetDirection.value = DIRECTIONS.SOURCE;
+                selectedSrcNetwork.value = null;
+                selectedSrcToken.value = null;
+                selectedDstNetwork.value = null;
+                selectedDstToken.value = null;
             }
         });
 
@@ -631,11 +650,9 @@ export default {
             receiveToken,
             receiveValue,
 
-            groupTokens,
             zometNetworks,
             activeSupportedChains,
-            tokensSrcListResolved,
-            tokensDstListResolved,
+
             services,
 
             errorAddress,
@@ -663,7 +680,6 @@ export default {
             onSetAddress,
             onSetSrcToken,
             onSetDstToken,
-            tokensList,
             onSetAmount,
             swap,
         };

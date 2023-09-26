@@ -27,6 +27,8 @@ export default function useTokens() {
     };
 
     const allTokensFromNetwork = (net) => {
+        const tokensForNet = store.getters['networks/tokensByNetwork'](net) || [];
+        console.log('tokensForNet', tokensForNet);
         return zometNetworks.value[net]
             ? Object.keys(zometNetworks.value[net].tokens)
                   .map((tokenNet) => {

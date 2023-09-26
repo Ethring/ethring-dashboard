@@ -87,6 +87,8 @@ import { sortByKey } from '@/helpers/utils';
 import { toMantissa } from '@/helpers/numbers';
 import { checkErrors } from '@/helpers/checkErrors';
 
+import { TOKEN_SELECT_TYPES } from '../../../shared/constants/operations';
+
 const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
 export default {
@@ -140,34 +142,41 @@ export default {
         const receiveValue = ref('');
         const setReceiveValue = ref('');
 
+        // =================================================================================================================
+
         // * Main data for swap
         const selectType = computed({
-            get: () => store.getters['swapOps/selectType'],
-            set: (value) => {
-                store.dispatch('swapOps/setSelectType', value);
-            },
+            get: () => store.getters['tokenOps/selectType'],
+            set: (value) => store.dispatch('tokenOps/setSelectType', value),
+        });
+
+        const onlyWithBalance = computed({
+            get: () => store.getters['tokenOps/onlyWithBalance'],
+            set: (value) => store.dispatch('tokenOps/setOnlyWithBalance', value),
         });
 
         const selectedNetwork = computed({
-            get: () => store.getters['swapOps/selectedNetwork'],
+            get: () => store.getters['tokenOps/srcNetwork'],
             set: (value) => {
-                store.dispatch('swapOps/setSelectedNetwork', value);
+                store.dispatch('tokenOps/setSrcNetwork', value);
             },
         });
 
         const selectedTokenFrom = computed({
-            get: () => store.getters['swapOps/fromToken'],
+            get: () => store.getters['tokenOps/srcToken'],
             set: (value) => {
-                store.dispatch('swapOps/setFromToken', value);
+                store.dispatch('tokenOps/setSrcToken', value);
             },
         });
 
         const selectedTokenTo = computed({
-            get: () => store.getters['swapOps/toToken'],
+            get: () => store.getters['tokenOps/dstToken'],
             set: (value) => {
-                store.dispatch('swapOps/setToToken', value);
+                store.dispatch('tokenOps/setDstToken', value);
             },
         });
+
+        // =================================================================================================================
 
         // * Tokens list for validation
         const tokensList = computed(() => {
@@ -258,14 +267,16 @@ export default {
         const onSelectNetwork = (network) => (selectedNetwork.value = network);
 
         const onSetTokenFrom = () => {
-            selectType.value = 'from';
+            selectType.value = TOKEN_SELECT_TYPES.FROM;
+            onlyWithBalance.value = true;
             router.push('/swap/select-token');
             balanceUpdated.value = false;
             clearApprove();
         };
 
         const onSetTokenTo = async () => {
-            selectType.value = 'to';
+            selectType.value = TOKEN_SELECT_TYPES.TO;
+            onlyWithBalance.value = false;
             router.push('/swap/select-token');
             balanceUpdated.value = false;
             await onSetAmount(amount.value);
@@ -681,6 +692,8 @@ export default {
         // =================================================================================================================
 
         onMounted(async () => {
+            selectType.value = TOKEN_SELECT_TYPES.FROM;
+
             if (!selectedNetwork.value) {
                 selectedNetwork.value = currentChainInfo.value;
             }
@@ -693,6 +706,7 @@ export default {
             if (router.options.history.state.current !== '/swap/select-token') {
                 selectedTokenFrom.value = null;
                 selectedTokenTo.value = null;
+                selectedNetwork.value = null;
             }
         });
 

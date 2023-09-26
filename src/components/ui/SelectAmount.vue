@@ -14,6 +14,7 @@
                 <template v-if="isAmountLoading">
                     <a-skeleton-input active class="input-balance" />
                 </template>
+
                 <template v-else>
                     <input
                         v-model="amount"
@@ -25,10 +26,11 @@
                         @click.stop="() => {}"
                         data-qa="input-amount"
                         class="input-balance"
+                        :class="{ disabled }"
                     />
                 </template>
             </div>
-            <div class="balance" @click.stop="setMax">
+            <div class="balance" :class="{ disabled }" @click.stop="setMax">
                 <p>
                     {{ $t('tokenOperations.balance') }}:
                     <span>
@@ -47,7 +49,7 @@
     </div>
 </template>
 <script>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 
 import BigNumber from 'bignumber.js';
 
@@ -109,7 +111,14 @@ export default {
         const focused = ref(false);
         const amount = ref('');
         const payTokenPrice = ref(0);
-        const selectedToken = ref(props.value);
+
+        const selectedToken = computed({
+            get: () => props.value,
+            set: (value) => {
+                emit('setToken', value);
+            },
+        });
+
         const placeholder = ref('0');
         const coingeckoPrice = ref(0);
 
@@ -153,8 +162,7 @@ export default {
 
         watch(amount, (val) => {
             if (val) {
-                // eslint-disable-next-line
-                val = val.replace(/[^0-9\.]/g, '');
+                val = val.replace(/[^0-9.]/g, '');
                 if (val.split('.').length - 1 !== 1 && val[val.length - 1] === '.') {
                     return;
                 }
@@ -165,10 +173,11 @@ export default {
                 } else {
                     amount.value = val;
                 }
-                payTokenPrice.value = prettyNumber(BigNumber(amount.value * +selectedToken?.value?.latest_price || 0).toFixed()) || 0;
-            } else {
-                payTokenPrice.value = '0';
+                return (payTokenPrice.value =
+                    prettyNumber(BigNumber(amount.value * +selectedToken?.value?.latest_price || 0).toFixed()) || 0);
             }
+
+            return (payTokenPrice.value = '0');
         });
 
         const clickAway = () => {
@@ -209,9 +218,9 @@ export default {
                 active.value = !active.value;
             }
         };
+
         const setToken = (item) => {
             selectedToken.value = item;
-            emit('setToken', item);
         };
 
         const clickToken = () => {
@@ -219,11 +228,10 @@ export default {
         };
 
         const setTokenBalance = (token) => {
-            return BigNumber(token?.balance).toFixed();
+            return BigNumber(token?.balance || 0).toFixed();
         };
 
         return {
-            BigNumber,
             active,
             focused,
             amount,
@@ -250,6 +258,10 @@ export default {
 <style lang="scss" scoped>
 .select-amount {
     position: relative;
+
+    & :has(> *.disabled) {
+        cursor: not-allowed !important;
+    }
 
     &__panel {
         position: relative;
@@ -314,6 +326,7 @@ export default {
         .info {
             display: flex;
             align-items: center;
+            cursor: pointer;
         }
 
         .token {
@@ -333,6 +346,16 @@ export default {
             font-size: var(--#{$prefix}h2-fs);
             font-weight: 600;
             color: var(--#{$prefix}primary-text);
+
+            &::placeholder {
+                color: var(--#{$prefix}select-placeholder-text);
+            }
+
+            &:disabled {
+                color: var(--#{$prefix}select-placeholder-text);
+                cursor: not-allowed;
+                user-select: none;
+            }
         }
 
         .max {
