@@ -3,7 +3,6 @@
         <div class="logo__round">
             <logoSvg />
         </div>
-        <!-- <div class="logo__text">Z<span>O</span>M<span>E</span>T</div> -->
     </div>
 </template>
 <script>
@@ -27,17 +26,6 @@ export default {
 
         svg {
             fill: var(--#{$prefix}white);
-        }
-    }
-
-    &__text {
-        font-size: var(--#{$prefix}h3-fs);
-        font-weight: 300;
-        color: var(--#{$prefix}white);
-
-        span {
-            color: var(--#{$prefix}sidebar-icon-color);
-            font-weight: 600;
         }
     }
 }

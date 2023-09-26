@@ -21,7 +21,8 @@
     "send": "Send",
     "bridge": "Bridge",
     "superSwap": "SuperSwap",
-    "xct": "XCT"
+    "xct": "XCT",
+    "type": "BETA"
   },
   "connect": {
     "emptyTitle": "Connect a wallet to manage your portfolio",

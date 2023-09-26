@@ -33,7 +33,6 @@ $watermelon: #fa3c58;
 $pizazz: #f69502;
 $greenHills: #027a00;
 $harborBlue: #586897;
-$brightGreen: hsl(153, 85%, 50%);
 $blue: #CCD5F0;
 $aquamarine: #97ffd0;
 $gallery: #f0f0f0;
@@ -97,6 +96,7 @@ $checkbox-disabled: $mineralGreen;
 $border-color: $geyser;
 $border-secondary-color: $gulfStream;
 $border-color-op-05: rgba($border-color, 0.5);
+$social-border-color: $trout;
 
 // Button
 $btn-text-color: $white;
@@ -157,7 +157,7 @@ $icon-logo-bg-color: $turquoise;
 $icon-logo-bg-hover: $aquamarine;
 $icon-secondary-bg-color: $iceberg;
 $icon-secondary-bg-hover: $geyser;
-$sidebar-icon-color: $brightGreen;
+$sidebar-active-color: $springGreen;
 $arrow-color: $ebonyClay;
 
 // Modal
@@ -211,6 +211,7 @@ $theme-colors: (
     "border-color": $border-color,
     "border-secondary-color": $border-secondary-color,
     "border-color-op-05": $border-color-op-05,
+    "social-border-color": $social-border-color,
 
     "btn-text-color": $btn-text-color,
     "btn-text-hover-color": $btn-text-hover-color,
@@ -262,7 +263,7 @@ $theme-colors: (
     "info": $info,
     "info-op-01": $info-op-01,
 
-    "sidebar-icon-color": $sidebar-icon-color,
+    "sidebar-active-color": $sidebar-active-color,
 
     "white": $white,
     "black": $black,

@@ -1,16 +1,20 @@
 <template>
     <div class="sidebar">
         <div class="sidebar-items">
-            <Logo class="sidebar__logo" />
+            <div class="sidebar__logo-item">
+                <Logo class="sidebar__logo" />
+                <div class="sidebar__logo-type">{{ $t('sidebar.type') }}</div>
+            </div>
             <SidebarList v-if="walletAddress" />
-            <!-- <Socials class="sidebar__socials" /> -->
+            <Socials class="sidebar__socials" />
         </div>
     </div>
 </template>
 <script>
 import Logo from './Logo';
-// import Socials from './Socials';
+import Socials from './Socials';
 import SidebarList from './SidebarList';
+
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
 export default {
@@ -18,7 +22,7 @@ export default {
     components: {
         Logo,
         SidebarList,
-        // Socials,
+        Socials,
     },
     setup() {
         const { walletAddress } = useAdapter();
@@ -60,6 +64,17 @@ export default {
 
     &__logo {
         margin-bottom: 70px;
+
+        &-item {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        &-type {
+            color: var(--#{$prefix}sidebar-active-color);
+            font-size: 12px;
+            font-weight: 700;
+        }
     }
 }
 </style>

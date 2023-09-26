@@ -1,22 +1,22 @@
 <template>
     <div class="socials">
-        <div class="socials__item apple">
-            <appleSvg />
-        </div>
-        <div class="socials__item android">
-            <androidSvg />
-        </div>
+        <a class="socials__item telegram">
+            <TelegramSvg />
+        </a>
+        <a class="socials__item twitter" target="_blank" href="https://twitter.com/zometapp">
+            <TwitterSvg />
+        </a>
     </div>
 </template>
 <script>
-import appleSvg from '@/assets/icons/socials/apple.svg';
-import androidSvg from '@/assets/icons/socials/android.svg';
+import TelegramSvg from '@/assets/icons/socials/telegram.svg';
+import TwitterSvg from '@/assets/icons/socials/twitter.svg';
 
 export default {
     name: 'Socials',
     components: {
-        appleSvg,
-        androidSvg,
+        TelegramSvg,
+        TwitterSvg,
     },
 };
 </script>
@@ -31,13 +31,17 @@ export default {
         align-items: center;
         width: 87px;
         height: 46px;
-        border: 1px solid var(--#{$prefix}border-secondary-color);
+        border: 1px solid var(--#{$prefix}social-border-color);
         border-radius: 8px;
         cursor: pointer;
 
         svg {
-            fill: var(--#{$prefix}sidebar-icon-color);
+            fill: var(--#{$prefix}sidebar-active-color);
         }
+    }
+
+    .telegram {
+        cursor: not-allowed;
     }
 }
 </style>
