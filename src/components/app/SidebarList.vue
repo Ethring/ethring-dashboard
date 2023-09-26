@@ -86,7 +86,7 @@ export default {
             color: var(--#{$prefix}white);
 
             svg {
-                fill: var(--#{$prefix}sidebar-icon-color);
+                fill: var(--#{$prefix}sidebar-active-color);
             }
         }
 
