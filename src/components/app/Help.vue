@@ -1,54 +1,23 @@
 <template>
     <div class="help">
-        <div class="help__item disabled">
-            <SettingsSvg />
-        </div>
-        <div class="help__item disabled">?</div>
-        <div class="help__item disabled">
+        <div class="help__item">?</div>
+        <div class="help__item">
             <CardSvg class="card-svg" />
         </div>
 
-        <div class="help__item" @click="toggleViewBalance">
-            <EyeOutlined v-if="showBalance" />
-            <EyeInvisibleOutlined v-else />
-        </div>
-
-        <div class="mt">
-            <ThemeSwitcher class="head__switcher" />
-        </div>
+        <ThemeSwitcher class="head__switcher" />
     </div>
 </template>
 <script>
-import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons-vue';
-
 import ThemeSwitcher from '@/components/app/ThemeSwitcher';
 
-import SettingsSvg from '@/assets/icons/dashboard/settings.svg';
 import CardSvg from '@/assets/icons/dashboard/card.svg';
-import { useStore } from 'vuex';
-import { computed } from 'vue';
 
 export default {
     name: 'Help',
     components: {
         ThemeSwitcher,
-        SettingsSvg,
         CardSvg,
-        EyeOutlined,
-        EyeInvisibleOutlined,
-    },
-
-    setup() {
-        const store = useStore();
-
-        const showBalance = computed(() => store.getters['app/showBalance']);
-
-        const toggleViewBalance = () => store.dispatch('app/toggleViewBalance');
-
-        return {
-            showBalance,
-            toggleViewBalance,
-        };
     },
 };
 </script>
@@ -71,14 +40,13 @@ export default {
         font-size: var(--#{$prefix}h3-fs);
         color: var(--#{$prefix}icon-active);
 
-        &.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
         &:not(.disabled):hover {
             background: var(--#{$prefix}icon-active);
             color: var(--#{$prefix}icon-secondary-bg-color);
+
+            svg {
+                fill: var(--#{$prefix}icon-secondary-bg-color);
+            }
         }
 
         &:not(:last-child) {

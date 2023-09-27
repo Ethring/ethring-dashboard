@@ -6,13 +6,18 @@
 
         <div class="wallet-info__wallet">
             <div class="address">
-                {{ walletAccount }}
+                {{ cutAddress(walletAccount) }}
             </div>
 
             <div class="balance">
                 <div class="value">
                     <span>$</span>
-                    {{ showBalance && totalBalance ? prettyNumber(totalBalance) : '****' }}
+                    {{ showBalance ? prettyNumber(totalBalance) : '****' }}
+                </div>
+
+                <div class="balance-eye">
+                    <EyeOutlinedSvg v-if="showBalance" @click="toggleViewBalance" />
+                    <EyeInvisibleOutlinedSvg v-if="!showBalance" @click="toggleViewBalance" />
                 </div>
             </div>
         </div>
@@ -28,11 +33,15 @@ import { cutAddress } from '@/helpers/utils';
 import { prettyNumber } from '@/helpers/prettyNumber';
 
 import WalletSvg from '@/assets/icons/dashboard/wallet.svg';
+import EyeOutlinedSvg from '@/assets/icons/dashboard/eye.svg';
+import EyeInvisibleOutlinedSvg from '@/assets/icons/dashboard/eyeOpen.svg';
 
 export default {
     name: 'WalletInfo',
     components: {
         WalletSvg,
+        EyeOutlinedSvg,
+        EyeInvisibleOutlinedSvg,
     },
     setup() {
         const store = useStore();
@@ -43,6 +52,10 @@ export default {
 
         const totalBalance = computed(() => store.getters['tokens/totalBalances'][walletAccount.value]);
 
+        const toggleViewBalance = () => {
+            store.dispatch('app/toggleViewBalance');
+        };
+
         return {
             totalBalance,
             currentChainInfo,
@@ -50,6 +63,7 @@ export default {
             prettyNumber,
             cutAddress,
             showBalance,
+            toggleViewBalance,
         };
     },
 };
@@ -95,7 +109,7 @@ export default {
         .address {
             color: var(--#{$prefix}mute-text);
 
-            font-weight: 300;
+            font-weight: 400;
             font-size: var(--#{$prefix}default-fs);
 
             svg {
@@ -120,7 +134,7 @@ export default {
 
             span {
                 font-weight: 400;
-                color: var(--#{$prefix}base-text);
+                color: var(--#{$prefix}symbol-text);
             }
 
             svg {
@@ -131,37 +145,13 @@ export default {
                     fill: var(--#{$prefix}eye-logo-hover);
                 }
             }
+
+            &-eye {
+                svg {
+                    fill: var(--#{$prefix}eye-logo);
+                }
+            }
         }
-
-        // .change {
-        //     display: flex;
-        //     align-items: center;
-        //     color: var(--#{$prefix}sub-text);
-
-        //     svg {
-        //         fill: var(--#{$prefix}sub-text);
-        //     }
-
-        //     .percent {
-        //         user-select: none;
-        //         margin-left: 5px;
-        //         font-weight: 400;
-        //         font-size: var(--#{$prefix}small-lg-fs);
-        //     }
-
-        //     &.minus {
-        //         color: var(--#{$prefix}negative-percentage);
-
-        //         .percent {
-        //             color: var(--#{$prefix}negative-percentage);
-        //         }
-
-        //         svg {
-        //             fill: var(--#{$prefix}negative-percentage) !important;
-        //             transform: rotate(90deg);
-        //         }
-        //     }
-        // }
     }
 }
 </style>

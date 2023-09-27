@@ -5,7 +5,7 @@
                 <img
                     v-if="logoURI && !showImagePlaceholder"
                     :src="logoURI"
-                    class="token__logo"
+                    class="token__logo-img"
                     @error="showImagePlaceholder = true"
                     @load="showImagePlaceholder = false"
                 />
@@ -152,7 +152,13 @@ export default {
 }
 
 .token__logo {
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 20px;
+
+    &-img {
+        width: 70%;
+        height: 70%;
+        border-radius: 50%;
+    }
 }
 </style>

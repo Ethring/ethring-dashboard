@@ -55,5 +55,6 @@ export default {
 
 .arrow {
     fill: var(--#{$prefix}arrow-color);
+    margin-top: 10px;
 }
 </style>

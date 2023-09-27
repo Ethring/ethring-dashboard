@@ -67,7 +67,7 @@ export default {
     &__item {
         display: flex;
         align-items: center;
-        margin-bottom: 15px;
+        margin-bottom: 30px;
         text-decoration: none;
         color: var(--#{$prefix}sidebar-text);
         cursor: pointer;

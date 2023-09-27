@@ -16,6 +16,9 @@
                         data-qa="input-address"
                         class="input-address"
                     />
+                    <div v-if="address.length" class="select-address__clear" @click="clearValue">
+                        <ClearSvg />
+                    </div>
                 </div>
             </div>
         </div>
@@ -31,6 +34,7 @@
 </template>
 <script>
 import CloseSvg from '@/assets/icons/app/close.svg';
+import ClearSvg from '@/assets/icons/app/xmark.svg';
 
 import { ref, watch, onMounted } from 'vue';
 
@@ -60,6 +64,7 @@ export default {
     },
     components: {
         CloseSvg,
+        ClearSvg,
     },
     setup(props, { emit }) {
         const active = ref(false);
@@ -115,6 +120,10 @@ export default {
             active.value = false;
         };
 
+        const clearValue = () => {
+            address.value = '';
+        };
+
         return {
             active,
             focused,
@@ -126,6 +135,7 @@ export default {
             onInput,
             onBlur,
             onFocus,
+            clearValue,
         };
     },
 };
@@ -146,7 +156,6 @@ export default {
         flex-direction: column;
         background: var(--#{$prefix}select-bg-color);
         border-radius: 16px;
-        height: 130px;
         padding: 17px 32px;
         box-sizing: border-box;
         border: 2px solid transparent;
@@ -172,7 +181,7 @@ export default {
 
         .info {
             width: 95%;
-            margin: 15px 0;
+            margin-top: 15px;
             display: flex;
             align-items: center;
         }
@@ -182,8 +191,8 @@ export default {
             border: none;
             outline: none;
             background: transparent;
-            font-size: var(--#{$prefix}h2-fs);
-            font-weight: 600;
+            font-size: var(--#{$prefix}h6-fs);
+            font-weight: 500;
             color: var(--#{$prefix}primary-text);
         }
 
@@ -209,6 +218,12 @@ export default {
             color: var(--#{$prefix}select-placeholder-text);
             user-select: none;
         }
+    }
+
+    &__clear {
+        position: absolute;
+        right: 32px;
+        cursor: pointer;
     }
 
     &.focused {
@@ -274,7 +289,7 @@ export default {
 
         .remove {
             opacity: 0.2;
-            fill: var(--#{$prefix}select-active-border-color);
+            fill: red;
         }
 
         &.active {

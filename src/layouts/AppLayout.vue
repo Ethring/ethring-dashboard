@@ -94,6 +94,7 @@ export default {
     .layout-page {
         @include pageFlexColumn;
         height: calc(100vh - 125px);
+        margin-top: 20px;
     }
 }
 </style>
