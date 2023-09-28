@@ -1,4 +1,4 @@
-import { createI18n } from 'vue-i18n/index';
+import { createI18n } from 'vue-i18n/dist/vue-i18n.esm-bundler.js';
 
 const getProp = (object, path) => {
     if (path.length === 1) {

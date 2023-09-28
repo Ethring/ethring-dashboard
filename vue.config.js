@@ -49,6 +49,7 @@ const chainWebpack = (config) => {
         { name: '@walletconnect' },
         { name: '@web3-onboard' },
         { name: '@vueuse/core' },
+        { name: '@intlify/core-base' },
         { name: '@cosmjs[\\\\/]', exclude: '@cosmjs[\\\\/].*\\.json$' },
     ];
 
@@ -80,6 +81,14 @@ module.exports = {
                     @import "@/assets/styles/variables";
                 `,
             },
+        },
+    },
+    pwa: {
+        name: 'Zomet Dashboard',
+        // Конфигурация кэширования
+        workboxPluginMode: 'InjectManifest',
+        workboxOptions: {
+            swSrc: 'src/service-worker.js',
         },
     },
 };
