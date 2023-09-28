@@ -20,7 +20,7 @@
             </div>
         </template>
 
-        <template v-if="integrationAssetsByPlatform.length > 1">
+        <template v-if="integrationAssetsByPlatform.length > 0">
             <div class="tokens__group" v-for="(item, i) in integrationAssetsByPlatform" :key="i">
                 <AssetItemHeader
                     v-if="item.data.length"

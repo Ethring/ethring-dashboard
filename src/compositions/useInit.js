@@ -3,6 +3,8 @@ import { chunk } from 'lodash';
 
 import { getBalancesByAddress } from '@/api/data-provider';
 
+import IndexedDBService from '@/modules/indexedDb';
+
 const CHUNK_SIZE = 5;
 
 const COSMOS_CHAIN_ID = {
@@ -22,6 +24,18 @@ async function performActions(actions, store) {
 }
 
 const arrayFromObject = (object) => Object.entries(object).map(([key, value]) => ({ chain: key, info: value }));
+
+const saveOrGetDataFromCache = async (key, data) => {
+    const dataExist = Object.keys(data).length;
+
+    if (dataExist) {
+        await IndexedDBService.saveData(key, data);
+        return data;
+    }
+    const cachedData = await IndexedDBService.getData(key);
+
+    return cachedData || {};
+};
 
 export default async function useInit(store, { addressesWithChains = {}, account = null } = {}) {
     const disableLoader = computed(() => store.getters['tokens/disableLoader']);
@@ -49,7 +63,13 @@ export default async function useInit(store, { addressesWithChains = {}, account
 
             const chainForRequest = COSMOS_CHAIN_ID[chain] || chain;
 
-            const { tokens = [], integrations = [], nfts = [] } = (await getBalancesByAddress(chainForRequest, chainAddress)) || {};
+            const response = (await getBalancesByAddress(chainForRequest, chainAddress)) || {};
+
+            const {
+                tokens = [],
+                integrations = [],
+                nfts = [],
+            } = await saveOrGetDataFromCache(`${account}-${chainForRequest}-${chainAddress}`, response);
 
             if (!tokens.length && integrations.length && nfts.length) {
                 continue;
