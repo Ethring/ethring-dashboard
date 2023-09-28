@@ -288,11 +288,11 @@ export default {
             }
 
             showNotification({
-                key: 'error-send-tx',
+                key: 'error-tx',
                 type: 'error',
                 title: 'Transaction error',
-                description: txError.value,
-                duration: 4,
+                description: JSON.stringify(txError.value || 'Unknown error'),
+                duration: 5,
             });
 
             closeNotification('prepare-send-tx');

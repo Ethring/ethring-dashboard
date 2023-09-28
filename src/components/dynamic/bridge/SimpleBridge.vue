@@ -826,8 +826,8 @@ export default {
                 key: 'error-tx',
                 type: 'error',
                 title: txErrorTitle.value,
-                description: txError.value,
-                duration: 4,
+                description: JSON.stringify(txError.value || 'Unknown error'),
+                duration: 5,
             });
 
             closeNotification('prepare-tx');
