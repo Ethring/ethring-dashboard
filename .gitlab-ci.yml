@@ -13,7 +13,6 @@ stages:
   variables:
     IMAGE_TAG: $REGISTRY_URL/$CI_PROJECT_NAME/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHORT_SHA
     VUE_APP_HOST: work.3ahtim54r.ru
-    VUE_APP_BACKEND_URL: https://api.3ahtim54r.ru
     VUE_APP_PROXY_API: https://proxy-api.apps.citadel.okd.3ahtim54r.ru
     VUE_APP_ZOMET_CORE_API_URL: https://zomet-core.3ahtim54r.ru
     VUE_APP_DATA_PROVIDER_URL: https://apps.3ahtim54r.ru/srv-data-provider/api
@@ -27,7 +26,6 @@ stages:
       --destination $IMAGE_TAG
       --cache=true
       --cache-ttl=168h
-      --build-arg VUE_APP_BACKEND_URL
       --build-arg VUE_APP_HOST
       --build-arg VUE_APP_1INCH_SWAP_API
       --build-arg VUE_APP_PARASWAP_API

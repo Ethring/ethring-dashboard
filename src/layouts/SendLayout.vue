@@ -5,7 +5,7 @@
                 {{ $t('simpleSend.title') }}
                 <arrowupSvg class="arrow" />
             </div>
-            <router-link class="send-page__title" to="/bridge">{{ $t('simpleBridge.title') }}</router-link>
+            <!-- <router-link class="send-page__title" to="/bridge">{{ $t('simpleBridge.title') }}</router-link> -->
         </div>
     </AppLayout>
 </template>
