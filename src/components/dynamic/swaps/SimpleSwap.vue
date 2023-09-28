@@ -556,13 +556,7 @@ export default {
 
                 successHash.value = getTxExplorerLink(responseSendTx.transactionHash, currentChainInfo.value);
 
-                showNotification({
-                    key: 'success-approve-tx',
-                    type: 'success',
-                    title: 'Approve transaction success',
-                    description: 'You can swap now',
-                    duration: 2,
-                });
+                closeNotification('approve-tx');
 
                 await makeAllowanceRequest();
                 await isEnoughAllowance();
@@ -635,6 +629,8 @@ export default {
             if (approveTx.value) {
                 return (isLoading.value = false);
             }
+
+            opTitle.value = 'tokenOperations.swap';
 
             const responseSwap = await makeSwapTx();
 

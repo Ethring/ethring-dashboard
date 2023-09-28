@@ -658,12 +658,7 @@ export default {
 
                 successHash.value = getTxExplorerLink(responseSendTx.transactionHash, currentChainInfo.value);
 
-                showNotification({
-                    key: 'success-approve-tx',
-                    type: 'success',
-                    title: 'Approve transaction success',
-                    duration: 2,
-                });
+                closeNotification('approve-tx');
 
                 await makeAllowanceRequest();
                 await isEnoughAllowance();
@@ -739,6 +734,8 @@ export default {
             if (approveTx.value) {
                 return (isLoading.value = false);
             }
+
+            opTitle.value = 'tokenOperations.confirm';
 
             const responseBridge = await makeBridgeTx();
 
