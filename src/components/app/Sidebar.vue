@@ -44,7 +44,7 @@ export default {
     width: 100%;
     height: 100vh;
     background: var(--#{$prefix}primary);
-    padding: 40px 25px;
+    padding: 30px 25px;
 
     box-sizing: border-box;
 

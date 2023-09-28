@@ -9,7 +9,7 @@
                     @error="showImagePlaceholder = true"
                     @load="showImagePlaceholder = false"
                 />
-                <TokenLogo v-if="!logoURI || showImagePlaceholder" class="token__logo" />
+                <TokenLogo v-else class="token__logo" />
             </div>
             <div class="asset__item-header-name">
                 {{ title }}

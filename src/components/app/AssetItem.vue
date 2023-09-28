@@ -88,6 +88,8 @@ export default {
 
     &:not(:last-child) {
         margin-bottom: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--#{$prefix}border-color-op-05);
     }
 
     .network {
