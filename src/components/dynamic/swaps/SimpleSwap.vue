@@ -553,6 +553,7 @@ export default {
                 }
 
                 approveTx.value = null;
+                isNeedApprove.value = false;
 
                 successHash.value = getTxExplorerLink(responseSendTx.transactionHash, currentChainInfo.value);
 
