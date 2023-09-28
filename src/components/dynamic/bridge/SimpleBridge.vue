@@ -370,6 +370,10 @@ export default {
         // =================================================================================================================
 
         const handleOnSelectNetwork = (network, direction) => {
+            if (currentChainInfo.value.net !== selectedSrcNetwork.value.net) {
+                opTitle.value = 'tokenOperations.switchNetwork';
+            }
+
             if (direction === DIRECTIONS.SOURCE) {
                 selectedSrcNetwork.value = network;
                 return clearApprove();
@@ -377,7 +381,9 @@ export default {
 
             selectedDstNetwork.value = network;
 
-            return (selectedDstToken.value = null);
+            selectedDstToken.value = null;
+
+            return (opTitle.value = 'tokenOperations.swap');
         };
 
         // =================================================================================================================
@@ -619,13 +625,7 @@ export default {
 
                 const signedTx = await signSend(tx);
 
-                if (signedTx.error) {
-                    return signedTx;
-                }
-
-                const receipt = await signedTx.wait();
-
-                return receipt;
+                return signedTx;
             } catch (e) {
                 return checkErrors(e);
             }
@@ -650,6 +650,7 @@ export default {
                 if (responseSendTx.error) {
                     txErrorTitle.value = 'Approve transaction error';
                     txError.value = responseSendTx.error;
+                    closeNotification('approve-tx');
                     return (isLoading.value = false);
                 }
 

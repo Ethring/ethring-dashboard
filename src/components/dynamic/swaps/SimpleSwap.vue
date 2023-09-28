@@ -397,13 +397,7 @@ export default {
 
                 const signedTx = await signSend(tx);
 
-                if (signedTx.error) {
-                    return signedTx;
-                }
-
-                const receipt = await signedTx.wait();
-
-                return receipt;
+                return signedTx;
             } catch (e) {
                 return checkErrors(e);
             }
@@ -522,6 +516,7 @@ export default {
             opTitle.value = 'tokenOperations.approve';
 
             if (response.error) {
+                isLoading.value = false;
                 return;
             }
 
@@ -551,6 +546,9 @@ export default {
                 if (responseSendTx.error) {
                     txError.value = responseSendTx.error;
                     txErrorTitle.value = 'Send approve transaction error';
+
+                    closeNotification('approve-tx');
+
                     return (isLoading.value = false);
                 }
 
