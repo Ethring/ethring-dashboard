@@ -1,9 +1,14 @@
 import { fetchData } from '@/api/fetchData';
 import axios from 'axios';
+import { getServices, SERVICE_TYPE } from '@/config/services';
 
 const DEFAULT_URL = process.env.VUE_APP_DEBRIDGE_API;
 
-const types = {
+const DEFAULT_SERVICE_ID = 'bridge-debridge';
+
+const TYPES = {
+    SET_SERVICE: 'SET_SERVICE',
+
     SET_SRC_NETWORKS: 'SET_SRC_NETWORKS',
     SET_DST_NETWORKS: 'SET_DST_NETWORKS',
 };
@@ -11,32 +16,46 @@ const types = {
 export default {
     namespaced: true,
     state: () => ({
+        service: getServices(SERVICE_TYPE.BRIDGE).find((service) => service.id === DEFAULT_SERVICE_ID),
+        services: getServices(SERVICE_TYPE.BRIDGE),
         selectedSrcNetwork: null,
         selectedDstNetwork: null,
     }),
 
     getters: {
+        service: (state) => state.service,
+
         selectedSrcNetwork: (state) => state.selectedSrcNetwork,
         selectedDstNetwork: (state) => state.selectedDstNetwork,
     },
 
     mutations: {
-        [types.SET_SRC_NETWORKS](state, value) {
+        [TYPES.SET_SRC_NETWORKS](state, value) {
             state.selectedSrcNetwork = value;
         },
-        [types.SET_DST_NETWORKS](state, value) {
+        [TYPES.SET_DST_NETWORKS](state, value) {
             state.selectedDstNetwork = value;
+        },
+        [TYPES.SET_SERVICE](state, value) {
+            state.service = value;
         },
     },
 
     actions: {
-        setSelectedSrcNetwork({ commit }, value) {
-            commit(types.SET_SRC_NETWORKS, value);
-        },
-        setSelectedDstNetwork({ commit }, value) {
-            commit(types.SET_DST_NETWORKS, value);
+        setService({ commit }, value) {
+            commit(TYPES.SET_SERVICE, value);
         },
 
+        setSelectedSrcNetwork({ commit }, value) {
+            commit(TYPES.SET_SRC_NETWORKS, value);
+        },
+
+        setSelectedDstNetwork({ commit }, value) {
+            commit(TYPES.SET_DST_NETWORKS, value);
+        },
+
+        // TODO: move to api
+        // TODO: remove from store
         /* ALLOWANCE */
         async getAllowance(_, { net, tokenAddress, ownerAddress, url }) {
             let response;

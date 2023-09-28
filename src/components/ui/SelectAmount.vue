@@ -4,11 +4,22 @@
             <div class="label">{{ label }}</div>
             <div class="info-wrap">
                 <div class="info" @click="clickToken" data-qa="select-token">
-                    <div class="network">
-                        <TokenIcon width="24" height="24" :token="selectedToken" />
-                    </div>
-                    <div class="token">{{ selectedToken?.code }}</div>
-                    <arrowSvg class="arrow" />
+                    <template v-if="isTokenLoading">
+                        <a-space>
+                            <a-skeleton-avatar active />
+                            <a-skeleton-input active />
+                        </a-space>
+                    </template>
+                    <template v-else>
+                        <div class="network">
+                            <TokenIcon width="24" height="24" :token="selectedToken" />
+                        </div>
+
+                        <div class="token" v-if="selectedToken">{{ selectedToken?.code }}</div>
+                        <div class="token placeholder" v-else>{{ $t(selectPlaceholder) }}</div>
+
+                        <arrowSvg class="arrow" />
+                    </template>
                 </div>
 
                 <template v-if="isAmountLoading">
@@ -30,15 +41,23 @@
                     />
                 </template>
             </div>
+
             <div class="balance" :class="{ disabled }" @click.stop="setMax">
-                <p>
-                    {{ $t('tokenOperations.balance') }}:
-                    <span>
-                        {{ setTokenBalance(selectedToken) }}
-                    </span>
-                    {{ selectedToken?.code }}
-                </p>
-                <div>
+                <div class="balance-value">
+                    <template v-if="isTokenLoading">
+                        <a-skeleton-input active />
+                    </template>
+                    <template v-else>
+                        <p class="balance-value">
+                            {{ $t('tokenOperations.balance') }}:
+                            <span>
+                                {{ setTokenBalance(selectedToken) }}
+                            </span>
+                            {{ selectedToken?.code }}
+                        </p>
+                    </template>
+                </div>
+                <div class="balance-price">
                     <template v-if="isAmountLoading">
                         <a-skeleton-input active />
                     </template>
@@ -85,6 +104,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        isTokenLoading: {
+            type: Boolean,
+            default: false,
+        },
         isAmountLoading: {
             type: Boolean,
             default: false,
@@ -109,14 +132,22 @@ export default {
     setup(props, { emit }) {
         const active = ref(false);
         const focused = ref(false);
+
         const amount = ref('');
+
         const payTokenPrice = ref(0);
+
+        const selectPlaceholder = computed(() => {
+            if (!props.value) {
+                return 'tokenOperations.select';
+            }
+
+            return '';
+        });
 
         const selectedToken = computed({
             get: () => props.value,
-            set: (value) => {
-                emit('setToken', value);
-            },
+            set: (value) => emit('setToken', value),
         });
 
         const placeholder = ref('0');
@@ -156,11 +187,15 @@ export default {
             (val) => {
                 if (val) {
                     setToken(val);
+                    amount.value = '';
+                    active.value = false;
+                    emit('setAmount', amount.value);
                 }
             }
         );
 
         watch(amount, (val) => {
+            amount.value = val;
             if (val) {
                 val = val.replace(/[^0-9.]/g, '');
                 if (val.split('.').length - 1 !== 1 && val[val.length - 1] === '.') {
@@ -238,6 +273,8 @@ export default {
             placeholder,
             selectedToken,
             prettyNumber,
+            selectPlaceholder,
+
             setToken,
             onBlur,
             setActive,
@@ -293,22 +330,28 @@ export default {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: var(--#{$prefix}base-text);
-            font-weight: 400;
-            font-size: var(--#{$prefix}small-lg-fs);
 
             height: 32px;
             max-height: 32px;
 
-            span {
-                font-weight: 600;
-                font-size: var(--#{$prefix}default-fs);
-                color: var(--#{$prefix}sub-text);
-            }
-            div {
-                font-weight: 600;
+            &-value,
+            &-price {
                 color: var(--#{$prefix}base-text);
                 font-size: var(--#{$prefix}small-lg-fs);
+            }
+
+            &-value {
+                font-weight: 400;
+
+                span {
+                    font-weight: 600;
+                    font-size: var(--#{$prefix}default-fs);
+                    color: var(--#{$prefix}sub-text);
+                }
+            }
+
+            &-price {
+                font-weight: 600;
 
                 span {
                     color: var(--#{$prefix}base-text);
@@ -321,12 +364,16 @@ export default {
             display: flex;
             justify-content: space-between;
             align-items: center;
+
+            width: 100%;
         }
 
         .info {
             display: flex;
             align-items: center;
             cursor: pointer;
+            width: 100%;
+            max-width: 220px;
         }
 
         .token {
@@ -334,6 +381,10 @@ export default {
             font-weight: 600;
             color: var(--#{$prefix}select-item-secondary-color);
             margin-right: 10px;
+
+            &.placeholder {
+                color: var(--#{$prefix}select-placeholder-text);
+            }
         }
 
         .input-balance {

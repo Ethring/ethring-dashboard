@@ -42,7 +42,7 @@ const defaultConfig = {
             MAIN_DASHBOARD,
             SEND,
             SWAP,
-            // BRIDGE,
+            BRIDGE,
             // SUPER_SWAP,
         ],
         send: {
@@ -106,18 +106,7 @@ const UIConfig = {
 };
 
 const getUIConfig = (network, ecosystem) => {
-    switch (ecosystem) {
-        case ECOSYSTEMS.EVM:
-            if (UIConfig[network]) {
-                return UIConfig[network];
-            }
-            return defaultConfig[ecosystem];
-
-        case ECOSYSTEMS.COSMOS:
-            return UIConfig[network] || defaultConfig[ecosystem];
-        default:
-            return UIConfig[network] || defaultConfig[ecosystem];
-    }
+    return UIConfig[network] || defaultConfig[ecosystem];
 };
 
 export default getUIConfig;

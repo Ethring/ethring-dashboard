@@ -5,7 +5,7 @@
         <SelectAddress
             :selected-network="currentChainInfo"
             :items="[]"
-            :value="address"
+            :value="receiverAddress"
             :error="!!errorAddress"
             class="mt-10"
             :on-reset="successHash || clearAddress"
@@ -15,11 +15,11 @@
         <InfoPanel v-if="errorAddress" :title="errorAddress" class="mt-10" />
 
         <SelectAmount
-            v-if="tokensList.length"
             :value="selectedToken"
             :error="!!errorBalance"
             :label="$t('tokenOperations.amount')"
             :on-reset="successHash || clearAddress"
+            :is-token-loading="isTokensLoading"
             class="mt-10"
             @setAmount="onSetAmount"
             @clickToken="onSetToken"
@@ -97,25 +97,23 @@ export default {
         const errorAddress = ref('');
         const errorBalance = ref('');
 
+        const isTokensLoading = computed(() => store.getters['tokens/loader']);
+
         // =================================================================================================================
 
         const selectedToken = computed({
             get: () => store.getters['tokenOps/srcToken'],
-            set: (value) => {
-                store.dispatch('tokenOps/setSrcToken', value);
-            },
+            set: (value) => store.dispatch('tokenOps/setSrcToken', value),
         });
 
         const selectedNetwork = computed({
             get: () => store.getters['tokenOps/srcNetwork'],
-            set: (value) => {
-                store.dispatch('tokenOps/setSrcNetwork', value);
-            },
+            set: (value) => store.dispatch('tokenOps/setSrcNetwork', value),
         });
 
         // =================================================================================================================
 
-        const address = computed({
+        const receiverAddress = computed({
             get: () => store.getters['tokenOps/receiverAddress'],
             set: (value) => store.dispatch('tokenOps/setReceiverAddress', value),
         });
@@ -136,7 +134,7 @@ export default {
                 errorAddress.value ||
                 errorBalance.value ||
                 !+amount.value ||
-                !address.value.length ||
+                !receiverAddress.value.length ||
                 !currentChainInfo.value
             );
         });
@@ -168,9 +166,10 @@ export default {
         };
 
         const onSetAddress = (addr = '') => {
-            address.value = addr;
+            receiverAddress.value = addr;
+            errorAddress.value = '';
 
-            if (!addr.length) {
+            if (!addr?.length) {
                 return (errorAddress.value = '');
             }
 
@@ -210,7 +209,7 @@ export default {
 
             const dataForPrepare = {
                 fromAddress: walletAddress.value,
-                toAddress: address.value,
+                toAddress: receiverAddress.value,
                 amount: amount.value,
                 token: selectedToken.value,
             };
@@ -219,7 +218,7 @@ export default {
             clearAddress.value = true;
 
             amount.value = '';
-            address.value = '';
+            receiverAddress.value = '';
 
             clearAddress.value = false;
 
@@ -244,72 +243,31 @@ export default {
 
                 if (tx.error) {
                     closeNotification('prepare-send-tx');
-
-                    return showNotification({
-                        key: 'error-send-tx',
-                        type: 'error',
-                        title: 'Transaction error',
-                        description: tx.error,
-                        duration: 4,
-                    });
+                    return (txError.value = tx.error);
                 }
 
                 const resTx = await signSend(tx);
 
                 if (resTx.error) {
                     closeNotification('prepare-send-tx');
-
-                    return showNotification({
-                        key: 'error-send-tx',
-                        type: 'error',
-                        title: 'Transaction error',
-                        description: resTx.error,
-                        duration: 4,
-                    });
+                    return (txError.value = resTx.error);
                 }
 
                 successHash.value = getTxExplorerLink(resTx.transactionHash, currentChainInfo.value);
                 isLoading.value = false;
-
-                closeNotification('prepare-send-tx');
-
-                showNotification({
-                    key: 'success-send-tx',
-                    type: 'success',
-                    title: 'Click to view transaction',
-                    onClick: () => {
-                        window.open(successHash.value, '_blank');
-                        closeNotification('success-send-tx');
-                        successHash.value = '';
-                    },
-                    duration: 4,
-                    style: {
-                        cursor: 'pointer',
-                    },
-                });
-
-                setTimeout(() => {
-                    successHash.value = '';
-                }, 5000);
             } catch (error) {
                 closeNotification('prepare-send-tx');
-
-                showNotification({
-                    key: 'error-send-tx',
-                    type: 'error',
-                    title: 'Transaction error',
-                    description: error.message,
-                    duration: 4,
-                });
             }
         };
+
+        // =================================================================================================================
 
         // * Reset Values before leave page
         onBeforeUnmount(() => {
             if (router.options.history.state.current !== '/send/select-token') {
                 selectedToken.value = null;
                 selectedNetwork.value = null;
-                address.value = '';
+                receiverAddress.value = '';
             }
 
             amount.value = null;
@@ -317,7 +275,7 @@ export default {
 
         onMounted(() => {
             store.dispatch('tokenOps/setSelectType', TOKEN_SELECT_TYPES.FROM);
-            store.dispatch('tokenOps/setDirection', DIRECTIONS.SEND);
+            store.dispatch('tokenOps/setDirection', DIRECTIONS.SOURCE);
             store.dispatch('tokenOps/setOnlyWithBalance', true);
             setTokenOnChange();
         });
@@ -329,29 +287,68 @@ export default {
                 return;
             }
 
-            closeNotification('prepare-send-tx');
-            isLoading.value = false;
+            showNotification({
+                key: 'error-send-tx',
+                type: 'error',
+                title: 'Transaction error',
+                description: txError.value,
+                duration: 4,
+            });
 
-            return setTimeout(() => {
-                txError.value = '';
-            }, 3000);
+            closeNotification('prepare-send-tx');
+
+            isLoading.value = false;
         });
 
         watch(currentChainInfo, () => {
             selectedNetwork.value = currentChainInfo.value;
         });
 
+        watch(isTokensLoading, (loading) => {
+            if (!loading) {
+                setTokenOnChange();
+            }
+        });
+
+        watch(successHash, () => {
+            if (!successHash.value) {
+                return;
+            }
+
+            showNotification({
+                key: 'success-send-tx',
+                type: 'success',
+                title: 'Click to view transaction',
+                onClick: () => {
+                    window.open(successHash.value, '_blank');
+                    closeNotification('success-send-tx');
+                    successHash.value = '';
+                },
+                duration: 4,
+                style: {
+                    cursor: 'pointer',
+                },
+            });
+
+            closeNotification('prepare-tx');
+
+            return setTimeout(() => {
+                successHash.value = '';
+            }, 5000);
+        });
+
         return {
             isLoading,
+            isTokensLoading,
+
             disabledSend,
 
             clearAddress,
 
-            tokensList,
             errorAddress,
             errorBalance,
             selectedToken,
-            address,
+            receiverAddress,
 
             onSelectNetwork,
             onSetAddress,

@@ -3,19 +3,23 @@
         <div class="select__panel" @click="() => togglePanel(false)" data-qa="select-network">
             <div class="info">
                 <div class="network">
-                    <img :src="selectedItem.logo" alt="network-logo" class="network-logo" />
+                    <img v-if="current?.logo" :src="current?.logo" alt="network-logo" class="network-logo" />
                 </div>
-                <div class="name">{{ selectedItem.name }}</div>
+                <div v-if="visibleName" class="name">{{ visibleName }}</div>
+                <div v-else>
+                    <div class="label">{{ label }}</div>
+                    <div class="placeholder">{{ placeholder }}</div>
+                </div>
             </div>
-            <arrowSvg class="arrow" />
+            <ArrowDownIcon class="arrow" />
         </div>
         <div class="select__items">
             <div
                 v-for="(item, idx) in items"
                 :key="idx"
-                :class="{ active: item.net === selectedItem?.net }"
+                :class="{ active: item.net === current?.net }"
                 class="select__items-item"
-                @click="onSelectNetwork(item)"
+                @click="() => onSelectNetwork(item)"
             >
                 <div class="info">
                     <div class="icon">
@@ -29,11 +33,9 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
-import useAdapter from '@/Adapter/compositions/useAdapter';
-
-import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
+import ArrowDownIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
 export default {
     name: 'SelectNetwork',
@@ -50,25 +52,38 @@ export default {
                 return {};
             },
         },
+        label: {
+            type: String,
+        },
+        placeholder: {
+            type: String,
+        },
     },
     components: {
-        arrowSvg,
+        ArrowDownIcon,
     },
     setup(props, { emit }) {
-        const { currentChainInfo } = useAdapter();
-
         const active = ref(false);
-        const selectedItem = ref(props.current || currentChainInfo.value);
+
+        const visibleName = computed(() => {
+            const name = props.current?.name || props.current?.label || props.current?.net || '';
+
+            if (name.length > 10) {
+                return `${name.slice(0, 14)}...`;
+            }
+
+            return name;
+        });
 
         const togglePanel = (away = false) => {
             if (away) {
                 return (active.value = false);
             }
+
             return (active.value = !active.value);
         };
 
         const onSelectNetwork = (network) => {
-            selectedItem.value = network;
             emit('select', network);
             return togglePanel(false);
         };
@@ -77,7 +92,13 @@ export default {
             active.value = false;
         };
 
-        return { active, clickAway, togglePanel, onSelectNetwork, selectedItem };
+        return {
+            active,
+            visibleName,
+            clickAway,
+            togglePanel,
+            onSelectNetwork,
+        };
     },
 };
 </script>
@@ -125,9 +146,13 @@ export default {
             }
 
             &-logo {
-                width: 80%;
-                height: 80%;
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                object-position: center;
                 border-radius: 50%;
+                max-width: 32px;
+                max-height: 32px;
             }
         }
 
@@ -204,6 +229,7 @@ export default {
             width: 0px;
             background-color: transparent;
         }
+
         &-item-logo {
             width: 40px;
             height: 40px;
@@ -213,6 +239,7 @@ export default {
             background: var(--#{$prefix}icon-secondary-bg-color);
             border-radius: 50%;
             margin-right: 12px;
+
             svg {
                 fill: var(--#{$prefix}black);
             }

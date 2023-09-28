@@ -15,7 +15,7 @@ import useTokensList from '@/compositions/useTokensList';
 import SelectToken from '@/components/ui/SelectToken.vue';
 
 import PricesModule from '@/modules/prices/';
-import { TOKEN_SELECT_TYPES, DIRECTIONS } from '../../shared/constants/operations';
+import { TOKEN_SELECT_TYPES, DIRECTIONS } from '@/shared/constants/operations';
 
 export default {
     name: 'SearchSelectToken',
@@ -85,6 +85,8 @@ export default {
             toToken: toToken.value,
         });
 
+        // =================================================================================================================
+
         onMounted(() => {
             const { chain_id, chainId } = selectedNetwork.value || {};
 
@@ -92,6 +94,8 @@ export default {
                 return router.push('/main');
             }
         });
+
+        // =================================================================================================================
 
         const setToken = async (item) => {
             if (!item.latest_price) {

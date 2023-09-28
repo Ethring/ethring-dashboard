@@ -13,7 +13,6 @@
 </template>
 <script>
 import { computed, watch } from 'vue';
-import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
@@ -42,15 +41,12 @@ export default {
         },
     },
     setup(props) {
-        const store = useStore();
         const router = useRouter();
 
         const { walletAccount, currentChainInfo } = useAdapter();
 
-        const isTokensLoading = computed(() => store.getters['tokens/loader']);
-
         const spinnerLoader = computed(() => {
-            return !walletAccount.value || !currentChainInfo.value || isTokensLoading.value;
+            return !walletAccount.value || !currentChainInfo.value;
         });
 
         const layoutComponent = computed(() => {

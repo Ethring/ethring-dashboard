@@ -7,8 +7,8 @@ import networks from './networks';
 import tokens from './tokens';
 
 // Services
-import bridge from './bridge/bridge';
-import swap from './swap/swap';
+import bridge from './services/bridge';
+import swap from './services/swap';
 
 // Operations
 import operations from './operations';

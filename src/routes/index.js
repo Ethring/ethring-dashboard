@@ -6,6 +6,11 @@ import Dashboard from '@/views/Dashboard.vue';
 
 const routes = [
     {
+        path: '/',
+        name: 'Home',
+        component: Dashboard,
+    },
+    {
         path: '/main',
         name: 'Main Dashboard',
         component: Dashboard,
@@ -27,14 +32,14 @@ const routes = [
         },
         component: () => import('../layouts/SendLayout.vue'),
     },
-    // {
-    //     path: '/bridge',
-    //     name: 'Bridge Page',
-    //     meta: {
-    //         isAuth: true,
-    //     },
-    //     component: () => import('../layouts/BridgeLayout.vue'),
-    // },
+    {
+        path: '/bridge',
+        name: 'Bridge Page',
+        meta: {
+            isAuth: true,
+        },
+        component: () => import('../layouts/BridgeLayout.vue'),
+    },
     // {
     //     path: '/superSwap',
     //     name: 'Super Swap Page',

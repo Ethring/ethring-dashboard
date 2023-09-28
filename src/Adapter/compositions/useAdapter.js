@@ -147,7 +147,18 @@ function useAdapter() {
     };
 
     // * Set Chain for current ecosystem
-    const setChain = (...args) => mainAdapter.value.setChain(...args);
+    const setChain = (...args) => {
+        if (!mainAdapter.value) {
+            return;
+        }
+
+        try {
+            return mainAdapter.value.setChain(...args);
+        } catch (error) {
+            console.log('Failed to set chain', error);
+            return false;
+        }
+    };
 
     // * Disconnect Wallet by Ecosystem
     const disconnectWallet = async (ecosystem, wallet) => {
@@ -175,6 +186,15 @@ function useAdapter() {
         const validation = currentChainInfo.value.address_validating || currentChainInfo.value.bech32_prefix;
 
         return mainAdapter.value.validateAddress(address, validation);
+    };
+
+    // * Format Tx for Ecosystem
+    const formatTransactionForSign = (transaction) => {
+        if (!mainAdapter.value) {
+            return null;
+        }
+
+        return mainAdapter.value.formatTransactionForSign(transaction);
     };
 
     // * Prepare Transaction
@@ -259,6 +279,7 @@ function useAdapter() {
         getChainByChainId,
 
         getTxExplorerLink,
+        formatTransactionForSign,
 
         setChain,
         setNewChain,

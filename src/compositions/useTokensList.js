@@ -8,6 +8,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
     const onlyWithBalance = computed(() => store.getters['tokenOps/onlyWithBalance']);
 
+    // TODO: loading tokens list for Super_Swap
     const tokensWithBalance = computed(() => {
         const { net } = network || {};
 

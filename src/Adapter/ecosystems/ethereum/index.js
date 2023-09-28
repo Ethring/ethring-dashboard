@@ -171,9 +171,14 @@ class EthereumAdapter extends AdapterBase {
 
         const id = chain_id || chain;
 
-        return await setChain({
-            chainId: id,
-        });
+        try {
+            return await setChain({
+                chainId: id,
+            });
+        } catch (error) {
+            console.log('Failed to set chain', error);
+            return false;
+        }
     }
 
     async getWalletLogo(walletModule) {
@@ -206,6 +211,16 @@ class EthereumAdapter extends AdapterBase {
         const ethersProvider = new ethers.providers.Web3Provider(provider, 'any');
 
         return ethersProvider;
+    }
+
+    formatTransactionForSign(transaction) {
+        if (typeof transaction.chainId === 'number') {
+            transaction.chainId = `0x${transaction.chainId.toString(16)}`;
+        }
+
+        transaction.value = transaction.value ? `0x${parseInt(transaction.value).toString(16)}` : '0x0';
+
+        return transaction;
     }
 
     async prepareTransaction(fromAddress, toAddress, amount, token) {

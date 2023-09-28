@@ -55,6 +55,7 @@
     "send": "Send",
     "receive": "Receive",
     "pay": "Pay",
+    "select": "Select",
     "selectToken": "Select token",
     "networkFee": "Network fee",
     "time": "Estimate time",

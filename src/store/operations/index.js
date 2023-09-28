@@ -1,4 +1,4 @@
-import { DIRECTIONS, TOKEN_SELECT_TYPES } from '../../shared/constants/operations';
+import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 
 const TYPES = {
     SET_SRC_NETWORK: 'SET_FROM_NETWORK',
@@ -27,23 +27,28 @@ export default {
     state: () => ({
         direction: DIRECTIONS.SOURCE,
         selectType: TOKEN_SELECT_TYPES.FROM,
+        onlyWithBalance: false,
+
         srcNetwork: null,
         srcToken: null,
         dstNetwork: null,
         dstToken: null,
+
         receiverAddress: null,
-        onlyWithBalance: false,
     }),
 
     getters: {
+        direction: (state) => state.direction,
         selectType: (state) => state.selectType,
+        onlyWithBalance: (state) => state.onlyWithBalance,
+
         srcNetwork: (state) => state.srcNetwork,
         srcToken: (state) => state.srcToken,
+
         dstNetwork: (state) => state.dstNetwork,
         dstToken: (state) => state.dstToken,
+
         receiverAddress: (state) => state.receiverAddress,
-        onlyWithBalance: (state) => state.onlyWithBalance,
-        direction: (state) => state.direction,
     },
 
     mutations: {
