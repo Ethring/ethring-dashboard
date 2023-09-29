@@ -154,8 +154,8 @@ export default {
     height: 28px;
 
     &-img {
-        width: 70%;
-        height: 70%;
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
     }
 }

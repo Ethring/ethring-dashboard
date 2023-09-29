@@ -98,19 +98,12 @@ export default {
         align-items: center;
 
         .logo {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: var(--#{$prefix}icon-bg-color);
             margin-right: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             position: relative;
 
             .token-icon {
-                width: 24px;
-                height: 24px;
+                width: 32px;
+                height: 32px;
 
                 img {
                     filter: none;
