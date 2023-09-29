@@ -49,13 +49,18 @@ const getTotalBalance = (records, totalBalance) => {
     return totalBalance;
 };
 
-const integrationsForSave = (integrations, { chain, logo, chainAddress, totalBalance }) => {
+const integrationsForSave = (integrations, { chain, logo, chainAddress }) => {
+    let balance = BigNumber(0);
+
     for (const integration of integrations) {
         integration.balances = formatRecords(integration.balances, { chain, chainAddress, logo });
-        totalBalance = getTotalBalance(integration.balances, totalBalance);
+        balance = getTotalBalance(integration.balances, balance);
     }
 
-    return integrations;
+    return {
+        list: integrations,
+        balance,
+    };
 };
 
 // =================================================================================================================
@@ -110,9 +115,11 @@ export default async function useInit(store, { addressesWithChains = {}, account
             }
 
             if (integrations.length) {
-                const forSave = integrationsForSave(integrations, { chain, logo, chainAddress, totalBalance });
+                const { list, balance } = integrationsForSave(integrations, { chain, logo, chainAddress });
 
-                allIntegrations.push(...forSave);
+                totalBalance = totalBalance.plus(balance);
+
+                allIntegrations.push(...list);
             }
 
             store.dispatch('tokens/setGroupTokens', { chain, data: { list: tokens } });

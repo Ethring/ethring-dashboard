@@ -43,7 +43,7 @@ export default {
     setup(props) {
         const router = useRouter();
 
-        const { walletAccount, currentChainInfo } = useAdapter();
+        const { isConnecting, walletAccount, currentChainInfo } = useAdapter();
 
         const isAccountExist = () => {
             return walletAccount.value || currentChainInfo.value;
@@ -75,12 +75,20 @@ export default {
         );
 
         onMounted(() => {
+            if (isConnecting.value) {
+                return;
+            }
+
             if (!isAccountExist()) {
                 router.push('/main');
             }
         });
 
         onUpdated(() => {
+            if (isConnecting.value) {
+                return;
+            }
+
             if (!isAccountExist()) {
                 router.push('/main');
             }
