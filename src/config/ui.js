@@ -30,10 +30,17 @@ const SWAP = {
 };
 
 const SUPER_SWAP = {
-    component: 'swapSvg',
+    component: 'superSwapSvg',
     title: 'SuperSwap',
     key: 'superSwap',
     to: '/superSwap',
+};
+
+const BUY_CRYPTO = {
+    component: 'buyCryptoSvg',
+    title: 'Buy Crypto',
+    key: 'buyCrypto',
+    to: '/buy',
 };
 
 const defaultConfig = {
@@ -44,6 +51,7 @@ const defaultConfig = {
             SWAP,
             BRIDGE,
             // SUPER_SWAP,
+            // BUY_CRYPTO,
         ],
         send: {
             component: 'SimpleSend',

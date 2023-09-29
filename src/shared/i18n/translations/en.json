@@ -21,7 +21,9 @@
     "send": "Send",
     "bridge": "Bridge",
     "superSwap": "SuperSwap",
-    "type": "BETA"
+    "settings": "Settings",
+    "type": "BETA",
+    "buyCrypto": "Buy crypto"
   },
   "connect": {
     "emptyTitle": "Connect a wallet to manage your portfolio",

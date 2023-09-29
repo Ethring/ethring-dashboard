@@ -6,6 +6,14 @@
                 <div class="sidebar__logo-type">{{ $t('sidebar.type') }}</div>
             </div>
             <SidebarList v-if="walletAddress" />
+            <div class="sidebar__settings">
+                <div class="sidebar__settings-icon">
+                    <SettingsSvg />
+                </div>
+                <div class="sidebar__settings-title" :data-qa="`sidebar-item-settings`">
+                    {{ $t(`sidebar.settings`) }}
+                </div>
+            </div>
             <Socials class="sidebar__socials" />
         </div>
     </div>
@@ -17,12 +25,15 @@ import SidebarList from './SidebarList';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
+import SettingsSvg from '@/assets/icons/dashboard/settings.svg';
+
 export default {
     name: 'Sidebar',
     components: {
         Logo,
         SidebarList,
         Socials,
+        SettingsSvg,
     },
     setup() {
         const { walletAddress } = useAdapter();
@@ -60,6 +71,34 @@ export default {
     &__socials {
         margin: auto auto 0;
         width: 100%;
+    }
+
+    &__settings {
+        display: flex;
+        align-self: flex-start;
+        align-items: center;
+        color: var(--#{$prefix}sidebar-text);
+        cursor: not-allowed;
+        margin-top: 150px;
+
+        @include animateEasy;
+
+        &-icon {
+            display: flex;
+            justify-content: center;
+            width: 32px;
+        }
+
+        svg {
+            fill: var(--#{$prefix}sidebar-text);
+        }
+
+        &-title {
+            font-size: var(--#{$prefix}h3-fs);
+            font-weight: 300;
+            color: var(--zmt-sidebar-text);
+            margin-left: 10px;
+        }
     }
 
     &__logo {

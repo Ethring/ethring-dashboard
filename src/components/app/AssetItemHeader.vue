@@ -113,6 +113,13 @@ export default {
         display: flex;
         align-items: baseline;
         margin-left: 8px;
+
+        .asset__item-header-value {
+            &::before {
+                content: '\2022';
+                margin-right: 8px;
+            }
+        }
     }
 
     &-value {

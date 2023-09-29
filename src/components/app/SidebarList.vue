@@ -22,6 +22,8 @@ import swapSvg from '@/assets/icons/sidebar/swap.svg';
 import stakeSvg from '@/assets/icons/sidebar/stake.svg';
 import sendSvg from '@/assets/icons/sidebar/send.svg';
 import bridgeSvg from '@/assets/icons/sidebar/bridge.svg';
+import superSwapSvg from '@/assets/icons/sidebar/superSwap.svg';
+import buyCryptoSvg from '@/assets/icons/sidebar/buy.svg';
 
 export default {
     name: 'SidebarList',
@@ -31,6 +33,8 @@ export default {
         stakeSvg,
         sendSvg,
         bridgeSvg,
+        superSwapSvg,
+        buyCryptoSvg,
     },
     setup() {
         const { currentChainInfo } = useAdapter();
