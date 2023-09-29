@@ -24,7 +24,7 @@
             :on-reset="resetAmount"
             :disabled="!selectedSrcToken"
             :label="$t('tokenOperations.send')"
-            :is-token-loading="isTokensLoading"
+            :is-token-loading="isTokensLoadingForSrc"
             class="mt-10"
             @setAmount="onSetAmount"
             @clickToken="onSetSrcToken"
@@ -36,7 +36,7 @@
             disabled
             :value="selectedDstToken"
             :is-amount-loading="isEstimating"
-            :is-token-loading="isTokensLoading"
+            :is-token-loading="isTokensLoadingForDst"
             :label="$t('tokenOperations.receive')"
             :disabled-value="prettyNumber(receiveValue)"
             :on-reset="resetAmount"
@@ -173,8 +173,6 @@ export default {
 
         const isEstimating = ref(false);
 
-        const isTokensLoading = computed(() => store.getters['tokens/loader']);
-
         // =================================================================================================================
 
         const selectedService = computed({
@@ -235,6 +233,12 @@ export default {
         const amount = ref('');
         const receiveValue = ref('');
         const estimateTime = ref('');
+
+        // =================================================================================================================
+
+        const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
+        const isTokensLoadingForSrc = computed(() => store.getters['tokens/loadingByChain'](selectedSrcNetwork.value?.net));
+        const isTokensLoadingForDst = computed(() => store.getters['tokens/loadingByChain'](selectedDstNetwork.value?.net));
 
         // =================================================================================================================
 
@@ -793,11 +797,8 @@ export default {
 
         // =================================================================================================================
 
-        watch(isTokensLoading, (loading) => {
-            if (!loading) {
-                setTokenOnChange();
-            }
-        });
+        watch(isAllTokensLoading, () => setTokenOnChange());
+        watch(isTokensLoadingForSrc, () => setTokenOnChange());
 
         watch(selectedSrcNetwork, (newValue, oldValue) => {
             if (newValue?.net !== oldValue?.net) {
@@ -859,12 +860,6 @@ export default {
             }, 5000);
         });
 
-        watch(isTokensLoading, (loading) => {
-            if (!loading) {
-                setTokenOnChange();
-            }
-        });
-
         // =================================================================================================================
 
         onBeforeUnmount(() => {
@@ -881,8 +876,10 @@ export default {
         return {
             // Loading
             isLoading,
-            isTokensLoading,
             isEstimating,
+            isAllTokensLoading,
+            isTokensLoadingForSrc,
+            isTokensLoadingForDst,
 
             disabledBtn,
             isNeedApprove,
