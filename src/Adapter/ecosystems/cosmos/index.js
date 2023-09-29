@@ -355,6 +355,7 @@ class CosmosAdapter extends AdapterBase {
                 gas: '200000', // TODO: get from chain
             };
 
+            console.log('-msg', msg);
             return {
                 msg,
                 fee,

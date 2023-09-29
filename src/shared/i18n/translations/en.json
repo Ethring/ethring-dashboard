@@ -15,7 +15,7 @@
     "emptyAssets": "You don't have any assets"
   },
   "sidebar": {
-    "main": "Main",
+    "main": "Overview",
     "swap": "Swap",
     "stake": "Stake",
     "send": "Send",
@@ -55,12 +55,14 @@
     "send": "Send",
     "receive": "Receive",
     "pay": "Pay",
+    "select": "Select",
     "selectToken": "Select token",
     "networkFee": "Network fee",
     "time": "Estimate time",
     "changeNetwork": "Please change network",
     "rewards": "Rewards",
-    "value": "Value"
+    "value": "Value",
+    "switchNetwork": "Switch network"
   },
   "simpleSend": {
     "title": "Send"

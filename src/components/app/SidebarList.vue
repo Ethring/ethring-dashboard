@@ -17,7 +17,7 @@ import { computed } from 'vue';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 import UIConfig from '@/config/ui';
 
-import mainSvg from '@/assets/icons/sidebar/main.svg';
+import overviewSvg from '@/assets/icons/sidebar/main.svg';
 import swapSvg from '@/assets/icons/sidebar/swap.svg';
 import stakeSvg from '@/assets/icons/sidebar/stake.svg';
 import sendSvg from '@/assets/icons/sidebar/send.svg';
@@ -26,7 +26,7 @@ import bridgeSvg from '@/assets/icons/sidebar/bridge.svg';
 export default {
     name: 'SidebarList',
     components: {
-        mainSvg,
+        overviewSvg,
         swapSvg,
         stakeSvg,
         sendSvg,

@@ -99,8 +99,6 @@ export default {
     &-logo {
         width: 40px;
         height: 40px;
-        border: 1px solid var(--#{$prefix}primary-text);
-        border-radius: 50%;
 
         display: flex;
         align-items: center;
@@ -152,8 +150,8 @@ export default {
 }
 
 .token__logo {
-    width: 24px;
-    height: 20px;
+    width: 28px;
+    height: 28px;
 
     &-img {
         width: 70%;

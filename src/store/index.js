@@ -1,12 +1,19 @@
 import createPersistedState from 'vuex-persistedstate';
 import { createStore } from 'vuex';
 
+// Main Modules
+import app from './app';
 import networks from './networks';
 import tokens from './tokens';
-import app from './app';
-import bridge from './bridge/bridge';
-import swap from './swap/swap';
-// import adapter from './adapter';
+
+// Services
+import bridge from './services/bridge';
+import swap from './services/swap';
+
+// Operations
+import operations from './operations';
+
+// Adapters for different networks
 import adapters from '../Adapter/store';
 
 const dataState = createPersistedState({
@@ -31,6 +38,7 @@ export default createStore({
         tokens,
         bridge,
         swap,
+        tokenOps: operations,
     },
     plugins: [dataState],
 });
