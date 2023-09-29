@@ -44,7 +44,7 @@
             <EmptyList :title="$t('dashboard.emptyAssets')" />
         </template>
 
-        <template v-if="isLoading">
+        <template v-if="isAllTokensLoading">
             <div v-for="(_, ndx) in 3" :key="ndx" class="tokens__group">
                 <a-skeleton active avatar :paragraph="{ rows: 0 }" :style="{ paddingTop: '15px' }" />
             </div>
@@ -79,21 +79,22 @@ export default {
     setup() {
         const store = useStore();
 
-        const { walletAccount } = useAdapter();
+        const { walletAccount, currentChainInfo } = useAdapter();
 
         const BALANCES_TYPES = {
             ALL: 'ALL',
             PENDING: 'PENDING_REWARD',
         };
 
-        const isLoading = computed(() => store.getters['tokens/loader']);
+        const isLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](currentChainInfo.value?.net));
+        const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
 
         const allTokens = computed(() => store.getters['tokens/tokens'][walletAccount.value] || []);
         const totalBalance = computed(() => store.getters['tokens/totalBalances'][walletAccount.value] || 0);
         const allIntegrations = computed(() => store.getters['tokens/integrations'][walletAccount.value] || []);
 
         const isEmpty = computed(() => {
-            return !allTokens.value?.length && !allIntegrations.value?.length && !isLoading.value;
+            return !allTokens.value?.length && !allIntegrations.value?.length && !isLoadingForChain.value && !isAllTokensLoading.value;
         });
 
         const tokensTotalBalance = computed(() => {
@@ -186,7 +187,8 @@ export default {
             sortByKey,
             prettyNumber,
 
-            isLoading,
+            isLoadingForChain,
+            isAllTokensLoading,
 
             isEmpty,
             getTokenIcon,

@@ -5,7 +5,7 @@ const PROVIDER_URL = process.env.VUE_APP_DATA_PROVIDER_URL || null;
 const dataProviderIns = axios.create({
     baseURL: PROVIDER_URL,
     headers: { 'Cache-Control': 'no-cache' },
-    timeout: 10000,
+    timeout: 15000,
     timeoutErrorMessage: 'Request timed out',
 });
 

@@ -8,7 +8,7 @@
                 :value="selectedTokenFrom"
                 :error="!!errorBalance"
                 :on-reset="resetAmount"
-                :is-token-loading="isTokensLoading"
+                :is-token-loading="isTokensLoadingForChain"
                 :is-update="isUpdateSwapDirectionValue"
                 :label="$t('tokenOperations.pay')"
                 @clickToken="onSetTokenFrom"
@@ -23,7 +23,7 @@
                 class="mt-10"
                 disabled
                 hide-max
-                :is-token-loading="isTokensLoading"
+                :is-token-loading="isTokensLoadingForChain"
                 :is-amount-loading="isEstimating"
                 :value="selectedTokenTo"
                 :on-reset="resetAmount"
@@ -145,8 +145,6 @@ export default {
         const receiveValue = ref('');
         const setReceiveValue = ref('');
 
-        const isTokensLoading = computed(() => store.getters['tokens/loader']);
-
         // =================================================================================================================
 
         const selectedService = computed({
@@ -181,6 +179,10 @@ export default {
             get: () => store.getters['tokenOps/dstToken'],
             set: (value) => store.dispatch('tokenOps/setDstToken', value),
         });
+
+        // =================================================================================================================
+
+        const isTokensLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](selectedNetwork.value?.net));
 
         // =================================================================================================================
 
@@ -721,11 +723,7 @@ export default {
             }, 5000);
         });
 
-        watch(isTokensLoading, (loading) => {
-            if (!loading) {
-                setTokenOnChange();
-            }
-        });
+        watch(isTokensLoadingForChain, () => setTokenOnChange());
 
         // =================================================================================================================
 
@@ -750,9 +748,9 @@ export default {
 
         return {
             isLoading,
-            isTokensLoading,
             isEstimating,
             isNeedApprove,
+            isTokensLoadingForChain,
 
             opTitle,
 
