@@ -6,8 +6,6 @@ RUN npm ci
 
 COPY . ./
 
-ARG VUE_APP_BACKEND_URL=//work.3ahtim54r.ru/api
-
 ARG VUE_APP_HOST=work.3ahtim54r.ru
 
 ARG VUE_APP_PARASWAP_API=https://apps.3ahtim54r.ru/srv-paraswap/api/

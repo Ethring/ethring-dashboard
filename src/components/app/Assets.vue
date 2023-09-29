@@ -1,12 +1,6 @@
 <template>
-    <div class="tokens" :class="{ empty: emptyLists }">
-        <template v-if="loader">
-            <div v-for="(_, ndx) in 5" :key="ndx" class="tokens__group">
-                <a-skeleton active avatar :paragraph="{ rows: 0 }" :style="{ paddingTop: '15px' }" />
-            </div>
-        </template>
-
-        <template v-if="allTokens.length > 1">
+    <div class="tokens" :class="{ empty: isEmpty }">
+        <template v-if="allTokens.length > 0">
             <div class="tokens__group">
                 <AssetItemHeader
                     v-if="allTokens.length"
@@ -20,7 +14,7 @@
             </div>
         </template>
 
-        <template v-if="integrationAssetsByPlatform.length > 0">
+        <template v-if="allIntegrations.length > 0">
             <div class="tokens__group" v-for="(item, i) in integrationAssetsByPlatform" :key="i">
                 <AssetItemHeader
                     v-if="item.data.length"
@@ -46,13 +40,19 @@
             </div>
         </template>
 
-        <template v-if="!loader && !allTokens.length">
+        <template v-if="isEmpty">
             <EmptyList :title="$t('dashboard.emptyAssets')" />
+        </template>
+
+        <template v-if="isLoading">
+            <div v-for="(_, ndx) in 3" :key="ndx" class="tokens__group">
+                <a-skeleton active avatar :paragraph="{ rows: 0 }" :style="{ paddingTop: '15px' }" />
+            </div>
         </template>
     </div>
 </template>
 <script>
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { useStore } from 'vuex';
 
 import BigNumber from 'bignumber.js';
@@ -79,20 +79,21 @@ export default {
     setup() {
         const store = useStore();
 
-        const groupHides = ref({});
-
         const { walletAccount } = useAdapter();
 
-        const loader = computed(() => store.getters['tokens/loader']);
+        const BALANCES_TYPES = {
+            ALL: 'ALL',
+            PENDING: 'PENDING_REWARD',
+        };
+
+        const isLoading = computed(() => store.getters['tokens/loader']);
 
         const allTokens = computed(() => store.getters['tokens/tokens'][walletAccount.value] || []);
-
         const totalBalance = computed(() => store.getters['tokens/totalBalances'][walletAccount.value] || 0);
-
         const allIntegrations = computed(() => store.getters['tokens/integrations'][walletAccount.value] || []);
 
-        const emptyLists = computed(() => {
-            return !allTokens.value?.length && !allIntegrations.value?.length;
+        const isEmpty = computed(() => {
+            return !allTokens.value?.length && !allIntegrations.value?.length && !isLoading.value;
         });
 
         const tokensTotalBalance = computed(() => {
@@ -104,37 +105,54 @@ export default {
         });
 
         const integrationAssetsByPlatform = computed(() => {
-            const separatedArray = [];
+            const groupByPlatforms = [];
 
-            if (allIntegrations.value.length) {
-                allIntegrations.value?.forEach((obj) => {
-                    const existingGroup = separatedArray?.find((group) => group?.platform === obj.integration.platform);
-
-                    if (existingGroup) {
-                        existingGroup.totalGroupBalance += obj.balances?.reduce((sum, token) => sum + +token.balanceUsd, 0);
-                        existingGroup.totalRewardsBalance += obj.balances
-                            ?.filter((elem) => elem.balance_type === 'PENDING_REWARD')
-                            ?.reduce((sum, token) => sum + +token.balanceUsd, 0);
-
-                        existingGroup.data.push(obj);
-                    } else {
-                        const totalGroupBalance = obj.balances?.reduce((sum, token) => sum + +token.balanceUsd, 0);
-                        const totalRewardsBalance = obj.balances
-                            .filter((elem) => elem.balance_type === 'PENDING_REWARD')
-                            ?.reduce((sum, token) => sum + +token.balanceUsd, 0);
-
-                        separatedArray.push({
-                            platform: obj.integration.platform,
-                            data: [obj],
-                            logoURI: obj.integration.logo,
-                            totalGroupBalance,
-                            totalRewardsBalance,
-                        });
-                    }
-                });
+            if (!allIntegrations.value.length) {
+                return groupByPlatforms;
             }
 
-            return separatedArray;
+            const getTotalBalanceByType = (balances, balanceType = BALANCES_TYPES.ALL) => {
+                if (!balances.length) {
+                    return 0;
+                }
+
+                if (balanceType === BALANCES_TYPES.ALL) {
+                    return balances.reduce((sum, token) => sum + +token.balanceUsd, 0);
+                }
+
+                return balances
+                    .filter(({ balance_type }) => balance_type === balanceType)
+                    .reduce((sum, token) => sum + +token.balanceUsd, 0);
+            };
+
+            const getDataForIntegrations = (record, balances) => {
+                const { integration = {} } = record || {};
+
+                return {
+                    platform: integration.platform,
+                    data: [record],
+                    logoURI: integration.logo,
+                    totalGroupBalance: getTotalBalanceByType(balances, BALANCES_TYPES.ALL),
+                    totalRewardsBalance: getTotalBalanceByType(balances, BALANCES_TYPES.PENDING),
+                };
+            };
+
+            for (const record of allIntegrations.value) {
+                const { integration = {}, balances = [] } = record || {};
+
+                const existingGroup = groupByPlatforms.find(({ platform }) => platform === integration.platform);
+
+                if (existingGroup) {
+                    existingGroup.totalGroupBalance += getTotalBalanceByType(balances, BALANCES_TYPES.ALL);
+                    existingGroup.totalRewardsBalance += getTotalBalanceByType(balances, BALANCES_TYPES.PENDING);
+                    existingGroup.data.push(record);
+                    continue;
+                }
+
+                groupByPlatforms.push(getDataForIntegrations(record, balances));
+            }
+
+            return groupByPlatforms;
         });
 
         const getAssetsShare = (balance) => {
@@ -145,10 +163,6 @@ export default {
             const share = BigNumber(balance).dividedBy(totalBalance.value).multipliedBy(100);
 
             return share.toFixed(2);
-        };
-
-        const toggleGroup = (groupNdx) => {
-            groupHides.value[groupNdx] = !groupHides.value[groupNdx];
         };
 
         const getFormattedName = (str) => {
@@ -169,19 +183,21 @@ export default {
         };
 
         return {
-            groupHides,
-            getTokenIcon,
+            sortByKey,
             prettyNumber,
-            loader,
-            emptyLists,
+
+            isLoading,
+
+            isEmpty,
+            getTokenIcon,
+
             allTokens,
             allIntegrations,
+
             tokensTotalBalance,
             integrationAssetsByPlatform,
-            sortByKey,
 
             getAssetsShare,
-            toggleGroup,
             getFormattedName,
             getFormattedDate,
         };

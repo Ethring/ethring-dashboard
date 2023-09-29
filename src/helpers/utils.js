@@ -73,14 +73,13 @@ export const copyToClipboard = (text) => {
 
 export const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
-export const sortByKey = (list, key) => {
-    return list?.sort((a, b) => {
-        if (+a[key] > +b[key]) {
-            return -1;
-        }
-        if (+a[key] < +b[key]) {
-            return 1;
-        }
-        return 0;
-    });
+export const sortByKey = (list = [], key) => {
+    return list.sort((a, b) => b[key] - a[key]);
+};
+
+export const searchByKey = (obj = {}, search = '', target = 'code') => {
+    const targetVal = obj[target] ?? null;
+    const targetLC = targetVal ? targetVal.toLowerCase() : '';
+
+    return targetLC.includes(search.toLowerCase());
 };

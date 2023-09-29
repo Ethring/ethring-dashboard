@@ -155,8 +155,13 @@ export default {
         cursor: pointer;
 
         .recipient {
+            display: flex;
+            align-items: center;
+
             color: var(--#{$prefix}select-label-color);
             font-weight: 600;
+            height: 32px;
+            max-height: 32px;
         }
 
         .address {
@@ -195,7 +200,7 @@ export default {
             min-width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: var(--#{$prefix}icon-logo-bg-color);
+            background: var(--#{$prefix}primary);
             margin-right: 10px;
 
             &-logo {
@@ -330,12 +335,13 @@ export default {
     height: 40px;
     min-width: 40px;
     border-radius: 50%;
-    background: #3fdfae;
+    background: var(--#{$prefix}primary);
     margin-right: 10px;
 
     & > img.network-logo {
         width: 80% !important;
         height: 80% !important;
+        border-radius: 50%;
     }
 }
 </style>

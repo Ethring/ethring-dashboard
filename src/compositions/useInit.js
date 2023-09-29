@@ -38,8 +38,9 @@ const saveOrGetDataFromCache = async (key, data) => {
 };
 
 export default async function useInit(store, { addressesWithChains = {}, account = null } = {}) {
-    const disableLoader = computed(() => store.getters['tokens/disableLoader']);
     store.dispatch('tokens/setLoader', true);
+
+    const disableLoader = computed(() => store.getters['tokens/disableLoader']);
 
     const disableLoaderActions = [['tokens/setDisableLoader', false]];
 
