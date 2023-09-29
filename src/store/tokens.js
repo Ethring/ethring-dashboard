@@ -24,12 +24,15 @@ const TYPES = {
     SET_DISABLE_LOADER: 'SET_DISABLE_LOADER',
 
     SET_TOTAL_BALANCE: 'SET_TOTAL_BALANCE',
+
+    SET_LOADING_BY_CHAIN: 'SET_LOADING_BY_CHAIN',
 };
 
 export default {
     namespaced: true,
 
     state: () => ({
+        loadingByChain: {},
         fetchingBalances: false,
         loader: false,
         tokens: {},
@@ -63,6 +66,8 @@ export default {
         address: (state) => state.address,
         disableLoader: (state) => state.disableLoader,
         totalBalances: (state) => state.totalBalances,
+
+        loadingByChain: (state) => (chain) => state.loadingByChain[chain] || false,
     },
 
     mutations: {
@@ -117,6 +122,10 @@ export default {
         [TYPES.SET_TO_TOKEN](state, value) {
             state.toToken = value;
         },
+
+        [TYPES.SET_LOADING_BY_CHAIN](state, { chain, value }) {
+            state.loadingByChain[chain] = value || false;
+        },
     },
 
     actions: {
@@ -153,6 +162,10 @@ export default {
 
         setTotalBalances({ commit }, value) {
             commit(TYPES.SET_TOTAL_BALANCE, value);
+        },
+
+        setLoadingByChain({ commit }, value) {
+            commit(TYPES.SET_LOADING_BY_CHAIN, value);
         },
 
         async updateTokenBalances(_, selectedNet) {

@@ -1,7 +1,7 @@
 <template>
     <div class="select-token">
         <div class="select-token__page">
-            <SelectToken :tokens="allTokens" :tokens-loading="isTokensLoading" @setToken="setToken" />
+            <SelectToken :tokens="allTokens" :tokens-loading="isTokensLoadingForChain" @setToken="setToken" />
         </div>
     </div>
 </template>
@@ -25,8 +25,6 @@ export default {
     setup() {
         const store = useStore();
         const router = useRouter();
-
-        const isTokensLoading = computed(() => store.getters['tokens/loader']);
 
         // =================================================================================================================
 
@@ -79,6 +77,10 @@ export default {
 
         // =================================================================================================================
 
+        const isTokensLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](selectedNetwork.value?.net));
+
+        // =================================================================================================================
+
         const { allTokensList } = useTokensList({
             network: selectedNetwork.value,
             fromToken: fromToken.value,
@@ -124,7 +126,7 @@ export default {
 
         return {
             // loaders
-            isTokensLoading,
+            isTokensLoadingForChain,
 
             // computed values
             allTokens: allTokensList,

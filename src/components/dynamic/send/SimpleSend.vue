@@ -19,7 +19,7 @@
             :error="!!errorBalance"
             :label="$t('tokenOperations.amount')"
             :on-reset="successHash || clearAddress"
-            :is-token-loading="isTokensLoading"
+            :is-token-loading="isTokensLoadingForChain"
             class="mt-10"
             @setAmount="onSetAmount"
             @clickToken="onSetToken"
@@ -97,7 +97,7 @@ export default {
         const errorAddress = ref('');
         const errorBalance = ref('');
 
-        const isTokensLoading = computed(() => store.getters['tokens/loader']);
+        const isTokensLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](currentChainInfo.value?.net));
 
         // =================================================================================================================
 
@@ -304,11 +304,7 @@ export default {
             selectedNetwork.value = currentChainInfo.value;
         });
 
-        watch(isTokensLoading, (loading) => {
-            if (!loading) {
-                setTokenOnChange();
-            }
-        });
+        watch(isTokensLoadingForChain, () => setTokenOnChange());
 
         watch(successHash, () => {
             if (!successHash.value) {
@@ -339,7 +335,7 @@ export default {
 
         return {
             isLoading,
-            isTokensLoading,
+            isTokensLoadingForChain,
 
             disabledSend,
 

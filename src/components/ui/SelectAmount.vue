@@ -208,8 +208,7 @@ export default {
                 } else {
                     amount.value = val;
                 }
-                return (payTokenPrice.value =
-                    prettyNumber(BigNumber(amount.value * +selectedToken?.value?.price || 0).toFixed()) || 0);
+                return (payTokenPrice.value = prettyNumber(BigNumber(amount.value * +selectedToken?.value?.price || 0).toFixed()) || 0);
             }
 
             return (payTokenPrice.value = '0');
