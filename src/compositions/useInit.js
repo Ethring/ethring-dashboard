@@ -58,7 +58,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
 
             allTokens.push(
                 ...tokens.map((token) => {
-                    token.id = `${chain}_${chainAddress}_${token.code}`;
+                    token.id = `${chain}_${chainAddress}_${token.symbol}`;
                     token.chain = chain;
                     token.chainLogo = logo;
                     totalBalance += +token.balanceUsd;
@@ -69,7 +69,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
             if (integrations.length) {
                 for (const integration of integrations) {
                     integration.balances = integration.balances.map((token) => {
-                        token.id = `${chain}_${chainAddress}_${token.code}`;
+                        token.id = `${chain}_${chainAddress}_${token.symbol}`;
                         token.chainLogo = logo;
                         token.chain = chain;
                         return token;

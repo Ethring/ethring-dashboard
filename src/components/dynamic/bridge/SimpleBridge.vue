@@ -52,7 +52,7 @@
             v-if="selectedDstToken"
             id="receiveToken"
             v-model:value="receiveToken"
-            :label="`Receive ${selectedDstToken?.code} to another wallet`"
+            :label="`Receive ${selectedDstToken?.symbol} to another wallet`"
             class="mt-10"
         />
 
@@ -74,7 +74,7 @@
         >
             <div v-if="receiveValue" class="accordion__content">
                 <AccordionItem :label="$t('simpleBridge.serviceFee') + ' :'">
-                    <span>{{ prettyNumber(networkFee * +selectedSrcToken?.latest_price) }}</span> <span class="symbol">$</span>
+                    <span>{{ prettyNumber(networkFee * +selectedSrcToken?.price) }}</span> <span class="symbol">$</span>
                 </AccordionItem>
                 <AccordionItem :label="$t('simpleBridge.title') + ' :'">
                     <img src="https://app.debridge.finance/assets/images/bridge.svg" />
@@ -270,7 +270,7 @@ export default {
                 <span class='service-fee'>${serviceFee.value}</span>
                 <span class='symbol'> ${symbol} ~
                     <span class='service-fee'>
-                        ${prettyNumber(serviceFee.value * +selectedSrcNetwork.value.latest_price)}
+                        ${prettyNumber(serviceFee.value * +selectedSrcNetwork.value.price)}
                         </span> $
                     </span>`;
 
@@ -303,11 +303,11 @@ export default {
                 selectedSrcToken.value = defaultToken;
             }
 
-            const { code: targetCode } = selectedSrcToken.value || {};
+            const { symbol: targetSymbol } = selectedSrcToken.value || {};
 
-            const searchTokens = [targetCode];
+            const searchTokens = [targetSymbol];
 
-            const updatedList = tokensList.value?.filter((tkn) => searchTokens.includes(tkn.code)) || [];
+            const updatedList = tokensList.value?.filter((tkn) => searchTokens.includes(tkn.symbol)) || [];
 
             if (!updatedList.length) {
                 return;
@@ -637,7 +637,7 @@ export default {
             showNotification({
                 key: 'approve-tx',
                 type: 'info',
-                title: `Getting Approve for ${selectedSrcToken.value.code}`,
+                title: `Getting Approve for ${selectedSrcToken.value.symbol}`,
                 icon: h(LoadingOutlined, {
                     spin: true,
                 }),
@@ -676,7 +676,7 @@ export default {
             showNotification({
                 key: 'prepare-tx',
                 type: 'info',
-                title: `Bridge ${amount.value} ${selectedSrcToken.value.code} to ~${receiveValue.value} ${selectedDstToken.value.code}`,
+                title: `Bridge ${amount.value} ${selectedSrcToken.value.symbol} to ~${receiveValue.value} ${selectedDstToken.value.symbol}`,
                 description: 'Please wait, transaction is preparing',
                 icon: h(LoadingOutlined, {
                     spin: true,

@@ -98,7 +98,7 @@ export default {
         // =================================================================================================================
 
         const setToken = async (item) => {
-            if (!item.latest_price) {
+            if (!item.price) {
                 const { chain_id, chainId } = selectedNetwork.value || {};
 
                 const requestPriceFor = {
@@ -108,7 +108,7 @@ export default {
 
                 const price = await PricesModule.Coingecko.priceByPlatformContracts(requestPriceFor);
 
-                item.latest_price = price[item.address]?.usd;
+                item.price = price[item.address]?.usd;
             }
 
             if (selectType.value === TOKEN_SELECT_TYPES.FROM) {

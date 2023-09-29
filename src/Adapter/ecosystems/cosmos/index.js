@@ -278,7 +278,6 @@ class CosmosAdapter extends AdapterBase {
 
         const [asset] = assets;
 
-        asset.code = asset.symbol;
         asset.logo = asset.logo_URIs?.svg || asset.logo_URIs?.png || null;
         asset.decimals = asset.denom_units[1].exponent;
 

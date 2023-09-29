@@ -34,7 +34,7 @@
                         <div class="routes-modal__row">
                             <h3>
                                 {{ prettyNumberTooltip(item.toTokenAmount, 4) }}
-                                <span>{{ item.routes[item.routes.length - 1]?.toToken?.code }}</span>
+                                <span>{{ item.routes[item.routes.length - 1]?.toToken?.symbol }}</span>
                             </h3>
                             <h4>/</h4>
                             <h3 class="blue-text"><span>$</span> {{ prettyNumberTooltip(item.toAmountUsd, 2) }}</h3>

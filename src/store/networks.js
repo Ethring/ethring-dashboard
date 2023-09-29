@@ -60,7 +60,6 @@ export default {
                 tokens[token].chain = network;
                 tokens[token].balance = 0;
                 tokens[token].balanceUsd = 0;
-                tokens[token].code = tokens[token].symbol;
             }
 
             state.tokensByNetwork[network] = tokens;
