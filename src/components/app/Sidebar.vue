@@ -6,7 +6,7 @@
                 <div class="sidebar__logo-type">{{ $t('sidebar.type') }}</div>
             </div>
             <SidebarList v-if="walletAddress" />
-            <div class="sidebar__settings">
+            <div class="sidebar__settings" v-if="walletAddress">
                 <div class="sidebar__settings-icon">
                     <SettingsSvg />
                 </div>

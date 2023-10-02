@@ -51,8 +51,8 @@ export default {
         }
     }
 
-    .telegram, 
-    .discord, 
+    .telegram,
+    .discord,
     .gitbook {
         cursor: not-allowed;
     }

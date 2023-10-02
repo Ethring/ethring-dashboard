@@ -34,6 +34,7 @@ const SUPER_SWAP = {
     title: 'SuperSwap',
     key: 'superSwap',
     to: '/superSwap',
+    status: 'BETA',
 };
 
 const BUY_CRYPTO = {
@@ -41,6 +42,8 @@ const BUY_CRYPTO = {
     title: 'Buy Crypto',
     key: 'buyCrypto',
     to: '/buy',
+    status: 'SOON',
+    disabled: true,
 };
 
 const defaultConfig = {
@@ -50,8 +53,8 @@ const defaultConfig = {
             SEND,
             SWAP,
             BRIDGE,
-            // SUPER_SWAP,
-            // BUY_CRYPTO,
+            SUPER_SWAP,
+            BUY_CRYPTO,
         ],
         send: {
             component: 'SimpleSend',

@@ -1,11 +1,12 @@
 <template>
     <div class="sidebar-list">
-        <router-link v-for="(item, ndx) in menu" :key="ndx" :to="item.to" class="sidebar-list__item" :data-qa="item.key">
+        <router-link v-for="(item, ndx) in menu" :key="ndx" :to="item.to" class="sidebar-list__item" :data-qa="item.key" :class="{ disabled: item.disabled }">
             <div class="sidebar-list__item-icon">
                 <component v-if="item.component" :is="item.component" />
             </div>
             <div class="sidebar-list__item-title" :data-qa="`sidebar-item-${item.key}`">
                 {{ $t(`sidebar.${item.key}`) }}
+                <div v-if="item.status" class="sidebar-list__item-status">{{ item.status }}</div>
             </div>
         </router-link>
     </div>
@@ -99,6 +100,19 @@ export default {
             transform: scale(0.8);
             @include animateEasy;
         }
+
+        &.disabled {
+            color: var(--#{$prefix}base-text);
+            cursor: not-allowed;
+
+            .sidebar-list__item-status {
+                color: var(--#{$prefix}checkbox-text);
+            }
+
+            .sidebar-list__item-icon svg {
+                fill: none;
+            }
+        }
     }
 
     &__item-icon {
@@ -110,6 +124,15 @@ export default {
     &__item-title {
         margin-left: 10px;
         font-weight: 300;
+        font-size: 20px;
+        display: flex;
+        align-items: flex-start;
+    }
+
+    &__item-status {
+        color: var(--#{$prefix}sidebar-active-color);
+        font-size: 12px;
+        font-weight: 500;
     }
 }
 </style>

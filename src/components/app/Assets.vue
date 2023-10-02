@@ -237,17 +237,18 @@ export default {
     display: flex;
     color: var(--#{$prefix}small-lg-fs);
     font-weight: 500;
+    font-size: var(--#{$prefix}small-lg-fs);
 
     div {
         &::before {
             content: '\2022';
             margin: 0 4px;
+            color: var(---#{$prefix}checkbox-text);
         }
     }
 
     .asset-item__type {
-        color: var(--#{$prefix}base-text);
-        font-size: var(--#{$prefix}small-lg-fs);
+        color: var(--#{$prefix}sub-text);
         font-weight: 500;
     }
 

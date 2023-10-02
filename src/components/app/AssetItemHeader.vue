@@ -118,6 +118,7 @@ export default {
             &::before {
                 content: '\2022';
                 margin-right: 8px;
+                color: #73B1B1;
             }
         }
     }

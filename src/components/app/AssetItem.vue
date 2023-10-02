@@ -151,6 +151,7 @@ export default {
     .info {
         display: flex;
         align-items: center;
+        line-height: 20px;
     }
 
     .amount {
