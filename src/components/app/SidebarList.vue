@@ -1,6 +1,13 @@
 <template>
     <div class="sidebar-list">
-        <router-link v-for="(item, ndx) in menu" :key="ndx" :to="item.to" class="sidebar-list__item" :data-qa="item.key" :class="{ disabled: item.disabled }">
+        <router-link
+            v-for="(item, ndx) in menu"
+            :key="ndx"
+            :to="item.to"
+            class="sidebar-list__item"
+            :data-qa="item.key"
+            :class="{ disabled: item.disabled }"
+        >
             <div class="sidebar-list__item-icon">
                 <component v-if="item.component" :is="item.component" />
             </div>
@@ -132,7 +139,8 @@ export default {
     &__item-status {
         color: var(--#{$prefix}sidebar-active-color);
         font-size: 12px;
-        font-weight: 500;
+        font-weight: 600;
+        margin-left: 6px;
     }
 }
 </style>

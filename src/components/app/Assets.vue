@@ -243,7 +243,7 @@ export default {
         &::before {
             content: '\2022';
             margin: 0 4px;
-            color: var(---#{$prefix}checkbox-text);
+            color: var(--#{$prefix}checkbox-text);
         }
     }
 
