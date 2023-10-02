@@ -145,8 +145,11 @@ export default {
                 if (existingGroup) {
                     existingGroup.totalGroupBalance += getTotalBalanceByType(balances, BALANCES_TYPES.ALL);
                     existingGroup.totalRewardsBalance += getTotalBalanceByType(balances, BALANCES_TYPES.PENDING);
-                    existingGroup.healthRate = integration?.healthRate;
                     existingGroup.data.push(integration);
+
+                    if (integration.healthRate) {
+                        existingGroup.healthRate = integration.healthRate;
+                    }
                     continue;
                 }
 
