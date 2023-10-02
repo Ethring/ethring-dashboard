@@ -167,7 +167,7 @@ export default {
 
     &-symbol {
         font-size: var(--#{$prefix}small-sm-fs);
-        line-height: var(--#{$prefix}small-sm-fs);
+        line-height: 13px;
         color: var(--#{$prefix}mute-text);
         font-weight: 400;
 
@@ -185,7 +185,7 @@ export default {
         h4 {
             color: var(--#{$prefix}primary-text);
             font-size: var(--#{$prefix}h6-fs);
-            line-height: var(--#{$prefix}default-fs);
+            line-height: 16px;
             font-weight: 600;
             margin-left: 2px;
         }
