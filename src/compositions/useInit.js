@@ -57,7 +57,7 @@ const formatRecords = (records, { chain, chainAddress, logo }) => {
 
 const getTotalBalance = (records, totalBalance) => {
     const totalSum = records.reduce((acc, token) => {
-        return acc.plus(token.balanceUsd);
+        return acc.plus(+token.balanceUsd || 0);
     }, BigNumber(0));
 
     totalBalance = totalBalance.plus(totalSum);
