@@ -213,7 +213,7 @@ export default {
     border-radius: 16px;
 
     &__group {
-        border: 2px solid var(--#{$prefix}border-color);
+        border: 1px solid var(--#{$prefix}border-color);
         background-color: var(--#{$prefix}secondary-background);
         border-radius: 16px;
         padding: 16px;
