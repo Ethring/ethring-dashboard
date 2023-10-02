@@ -14,12 +14,14 @@ const SEND = {
     key: 'send',
     to: '/send',
 };
+
 const BRIDGE = {
     component: 'bridgeSvg',
     title: 'Bridge',
     key: 'bridge',
     to: '/bridge',
 };
+
 const SWAP = {
     component: 'swapSvg',
     title: 'Swap',
@@ -39,8 +41,8 @@ const defaultConfig = {
         sidebar: [
             MAIN_DASHBOARD,
             SEND,
-            // SWAP,
-            // BRIDGE,
+            SWAP,
+            BRIDGE,
             // SUPER_SWAP,
         ],
         send: {
@@ -104,18 +106,7 @@ const UIConfig = {
 };
 
 const getUIConfig = (network, ecosystem) => {
-    switch (ecosystem) {
-        case ECOSYSTEMS.EVM:
-            if (UIConfig[network]) {
-                return UIConfig[network];
-            }
-            return defaultConfig[ecosystem];
-
-        case ECOSYSTEMS.COSMOS:
-            return UIConfig[network] || defaultConfig[ecosystem];
-        default:
-            return UIConfig[network] || defaultConfig[ecosystem];
-    }
+    return UIConfig[network] || defaultConfig[ecosystem];
 };
 
 export default getUIConfig;

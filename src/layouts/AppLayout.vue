@@ -12,11 +12,9 @@
     </div>
 </template>
 <script>
-import { computed, watch } from 'vue';
-import { useStore } from 'vuex';
+import { computed, watch, onMounted, onUpdated } from 'vue';
 import { useRouter } from 'vue-router';
 
-import useTokens from '@/compositions/useTokens';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import UIConfig from '@/config/ui';
@@ -26,7 +24,6 @@ import SimpleBridge from '@/components/dynamic/bridge/SimpleBridge.vue';
 import SimpleSwap from '@/components/dynamic/swaps/SimpleSwap.vue';
 import SimpleSend from '@/components/dynamic/send/SimpleSend.vue';
 import SuperSwap from '@/components/dynamic/superswap/SuperSwap.vue';
-import arrowupSvg from '@/assets/icons/dashboard/arrowup.svg';
 
 export default {
     name: 'AppLayout',
@@ -36,7 +33,6 @@ export default {
         SimpleSend,
         SimpleSwap,
         SuperSwap,
-        arrowupSvg,
     },
     props: {
         component: {
@@ -45,26 +41,27 @@ export default {
         },
     },
     setup(props) {
-        const store = useStore();
         const router = useRouter();
 
-        const { groupTokens } = useTokens();
-        const { walletAddress, currentChainInfo } = useAdapter();
+        const { isConnecting, walletAccount, currentChainInfo } = useAdapter();
 
-        const loader = computed(() => store.getters['tokens/loader']);
+        const isAccountExist = () => {
+            return walletAccount.value || currentChainInfo.value;
+        };
 
-        const spinnerLoader = computed(() => {
-            return loader.value || !walletAddress.value;
-        });
+        const spinnerLoader = computed(() => !walletAccount.value || !currentChainInfo.value);
 
         const layoutComponent = computed(() => {
             const config = UIConfig(currentChainInfo.value?.net, currentChainInfo.value?.ecosystem);
+
             if (!config) {
                 return null;
             }
+
             if (config[props.component].component) {
                 return config[props.component].component;
             }
+
             return null;
         });
 
@@ -77,10 +74,27 @@ export default {
             }
         );
 
+        onMounted(() => {
+            if (isConnecting.value) {
+                return;
+            }
+
+            if (!isAccountExist()) {
+                router.push('/main');
+            }
+        });
+
+        onUpdated(() => {
+            if (isConnecting.value) {
+                return;
+            }
+
+            if (!isAccountExist()) {
+                router.push('/main');
+            }
+        });
+
         return {
-            loader,
-            groupTokens,
-            walletAddress,
             layoutComponent,
             spinnerLoader,
         };

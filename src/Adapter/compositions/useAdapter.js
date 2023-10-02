@@ -29,7 +29,7 @@ function useAdapter() {
     const isConnecting = computed(() => adaptersGetter(GETTERS.IS_CONNECTING));
 
     const connectedWallets = computed(() => adaptersGetter(GETTERS.CONNECTED_WALLETS));
-    const currentChainInfo = computed(() => (mainAdapter.value ? mainAdapter.value.getCurrentChain(store) : []));
+    const currentChainInfo = computed(() => (mainAdapter.value ? mainAdapter.value.getCurrentChain(store) : null));
 
     const chainList = computed(() => (mainAdapter.value ? mainAdapter.value.getChainList(store) : []));
 
@@ -74,8 +74,6 @@ function useAdapter() {
             walletModule: connectedWalletModule.value,
         };
 
-        // adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
-
         if (!walletInfo.address || !walletInfo.walletName || !walletInfo.chain) {
             return;
         }
@@ -119,23 +117,27 @@ function useAdapter() {
             return;
         }
 
-        adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
+        try {
+            adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
 
-        for (const wallet of connectedWallets.value) {
-            if (wallet.id === lastConnectedWallet.value.id) {
-                continue;
+            for (const wallet of connectedWallets.value) {
+                if (wallet.id === lastConnectedWallet.value.id) {
+                    continue;
+                }
+
+                await connectTo(wallet.ecosystem, wallet.walletModule, wallet.chain);
             }
 
-            await connectTo(wallet.ecosystem, wallet.walletModule, wallet.chain);
+            const isConnect = await connectTo(ecosystem, walletModule, chain);
+
+            if (!isConnect) {
+                return adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
+            }
+
+            return subscribeToWalletsChange();
+        } catch (error) {
+            adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
         }
-
-        const isConnect = await connectTo(ecosystem, walletModule, chain);
-
-        if (!isConnect) {
-            return adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
-        }
-
-        return subscribeToWalletsChange();
     };
 
     // * Get Wallets Module by Ecosystem
@@ -145,7 +147,18 @@ function useAdapter() {
     };
 
     // * Set Chain for current ecosystem
-    const setChain = (...args) => mainAdapter.value.setChain(...args);
+    const setChain = (...args) => {
+        if (!mainAdapter.value) {
+            return;
+        }
+
+        try {
+            return mainAdapter.value.setChain(...args);
+        } catch (error) {
+            console.log('Failed to set chain', error);
+            return false;
+        }
+    };
 
     // * Disconnect Wallet by Ecosystem
     const disconnectWallet = async (ecosystem, wallet) => {
@@ -173,6 +186,15 @@ function useAdapter() {
         const validation = currentChainInfo.value.address_validating || currentChainInfo.value.bech32_prefix;
 
         return mainAdapter.value.validateAddress(address, validation);
+    };
+
+    // * Format Tx for Ecosystem
+    const formatTransactionForSign = (transaction) => {
+        if (!mainAdapter.value) {
+            return null;
+        }
+
+        return mainAdapter.value.formatTransactionForSign(transaction);
     };
 
     // * Prepare Transaction
@@ -257,6 +279,7 @@ function useAdapter() {
         getChainByChainId,
 
         getTxExplorerLink,
+        formatTransactionForSign,
 
         setChain,
         setNewChain,

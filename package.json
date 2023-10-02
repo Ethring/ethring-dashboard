@@ -34,6 +34,7 @@
     "bignumber.js": "^9.1.1",
     "chain-registry": "^1.19.0",
     "core-js": "^3.6.5",
+    "dexie": "^3.2.4",
     "juno-network": "^0.15.1",
     "lodash": "^4.17.21",
     "mixpanel-browser": "^2.47.0",

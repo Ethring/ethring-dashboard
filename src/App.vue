@@ -64,7 +64,7 @@ export default {
 
             const addressesWithChains = getAddressesWithChainsByEcosystem(ecosystem);
 
-            await useInit(store, { account: walletAccount.value, addressesWithChains });
+            await useInit(store, { account: walletAccount.value, addressesWithChains, currentChainInfo: currentChainInfo.value });
         };
 
         onBeforeMount(async () => await store.dispatch('networks/initZometNets'));

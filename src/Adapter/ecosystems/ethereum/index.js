@@ -11,6 +11,7 @@ import { web3OnBoardConfig, ECOSYSTEMS, NATIVE_CONTRACT, TRANSFER_ABI, EVM_CHAIN
 import { validateEthAddress } from '@/Adapter/utils/validations';
 
 import { checkErrors } from '@/helpers/checkErrors';
+import BigNumber from 'bignumber.js';
 
 let web3Onboard = null;
 
@@ -171,9 +172,14 @@ class EthereumAdapter extends AdapterBase {
 
         const id = chain_id || chain;
 
-        return await setChain({
-            chainId: id,
-        });
+        try {
+            return await setChain({
+                chainId: id,
+            });
+        } catch (error) {
+            console.log('Failed to set chain', error);
+            return false;
+        }
     }
 
     async getWalletLogo(walletModule) {
@@ -208,12 +214,29 @@ class EthereumAdapter extends AdapterBase {
         return ethersProvider;
     }
 
+    formatTransactionForSign(transaction) {
+        if (typeof transaction.chainId === 'number') {
+            transaction.chainId = `0x${transaction.chainId.toString(16)}`;
+        }
+
+        if (typeof transaction.gasPrice === 'string') {
+            transaction.gasPrice = `0x${parseInt(transaction.gasPrice).toString(16)}`;
+        }
+
+        delete transaction.gas;
+
+        transaction.value = transaction.value ? `0x${parseInt(transaction.value).toString(16)}` : '0x0';
+
+        return transaction;
+    }
+
     async prepareTransaction(fromAddress, toAddress, amount, token) {
         const ethersProvider = this.getProvider();
 
         try {
             if (ethersProvider) {
                 const contractAddress = token?.address || NATIVE_CONTRACT;
+
                 const tokenContract = new ethers.Contract(contractAddress, TRANSFER_ABI, ethersProvider);
 
                 const res = await tokenContract.populateTransaction.transfer(toAddress, ethers.utils.parseUnits(amount, token.decimals));

@@ -7,6 +7,7 @@ const putInCache = async (request, response) => {
 
 const cacheFirst = async ({ request, fallbackUrl }) => {
     const responseFromCache = await caches.match(request);
+
     if (responseFromCache) {
         return responseFromCache;
     }
@@ -15,9 +16,11 @@ const cacheFirst = async ({ request, fallbackUrl }) => {
         const responseFromNetwork = await fetch(request);
 
         putInCache(request, responseFromNetwork.clone());
+
         return responseFromNetwork;
     } catch (error) {
         const fallbackResponse = await caches.match(fallbackUrl);
+
         if (fallbackResponse) {
             return fallbackResponse;
         }
@@ -30,13 +33,14 @@ const cacheFirst = async ({ request, fallbackUrl }) => {
 };
 
 self.addEventListener('fetch', (event) => {
-    const checkImageDomen = DOMEN_LIST.some((item) => event.request.url.startsWith(item));
+    const { request } = event;
+    const checkImageDomen = DOMEN_LIST.some((item) => request.url.startsWith(item));
 
     if (checkImageDomen) {
         event.respondWith(
             cacheFirst({
-                request: event.request,
-                fallbackUrl: event.request.url,
+                request: request,
+                fallbackUrl: request.url,
             })
         );
     }
