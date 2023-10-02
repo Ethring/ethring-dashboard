@@ -33,15 +33,19 @@ const cacheFirst = async ({ request, fallbackUrl }) => {
 };
 
 self.addEventListener('fetch', (event) => {
-    const { request } = event;
-    const checkImageDomen = DOMEN_LIST.some((item) => request.url.startsWith(item));
+    const { request = {} } = event || {};
+    const { url } = request;
 
-    if (checkImageDomen) {
-        event.respondWith(
-            cacheFirst({
-                request: request,
-                fallbackUrl: request.url,
-            })
-        );
+    const checkImageDomen = DOMEN_LIST.some((item) => url.startsWith(item));
+
+    if (!checkImageDomen) {
+        return;
     }
+
+    const paramsForCache = {
+        request,
+        fallbackUrl: url,
+    };
+
+    event.respondWith(cacheFirst(paramsForCache));
 });
