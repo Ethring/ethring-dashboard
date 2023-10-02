@@ -43,7 +43,7 @@
     "rxjs": "^7.8.1",
     "vue": "^3.0.0",
     "vue-debounce": "^4.0.0",
-    "vue-i18n": "^9.2.2",
+    "vue-i18n": "9.2.2",
     "vue-mixpanel": "^2.0.0",
     "vue-router": "^4.0.0-0",
     "vue3-click-away": "^1.2.4",
