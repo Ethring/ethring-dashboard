@@ -32,6 +32,7 @@ export default {
     cursor: pointer;
     transition: 0.2s;
     padding: 0 8px;
+
     .item {
         display: flex;
         align-items: center;
@@ -41,7 +42,7 @@ export default {
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: #d9f4f1;
+        background-color: var(--#{$prefix}banner-secondary-color);
         width: 20px;
         height: 20px;
         border-radius: 50%;
@@ -49,7 +50,7 @@ export default {
     }
 
     .text {
-        color: #0d7e71;
+        color: var(--#{$prefix}sub-text);
         font-size: 14px;
         font-weight: 500;
     }

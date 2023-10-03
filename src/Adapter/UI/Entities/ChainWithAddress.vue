@@ -67,7 +67,7 @@ export default {
         align-items: center;
         padding: 16px;
         &:not(:last-child) {
-            border-bottom: 1px solid #d0d4f7;
+            border-bottom: 1px solid var(--#{$prefix}border-color-op-05);
         }
     }
 

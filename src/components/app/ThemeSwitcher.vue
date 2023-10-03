@@ -1,22 +1,22 @@
 <template>
     <div :class="{ checked }" class="theme-switcher" @click="toggleTheme">
         <div class="theme-switcher__check">
-            <sunSvg v-if="!checked" />
-            <moonSvg v-if="checked" />
+            <SunSvg v-if="!checked" />
+            <MoonSvg v-if="checked" />
         </div>
     </div>
 </template>
 <script>
 import { onMounted, ref } from 'vue';
 
-import sunSvg from '@/assets/icons/dashboard/sun.svg';
-import moonSvg from '@/assets/icons/dashboard/moon.svg';
+import SunSvg from '@/assets/icons/dashboard/sun.svg';
+import MoonSvg from '@/assets/icons/dashboard/moon.svg';
 
 export default {
     name: 'ThemeSwitcher',
     components: {
-        sunSvg,
-        moonSvg,
+        SunSvg,
+        MoonSvg,
     },
     setup() {
         const checked = ref(localStorage.getItem('theme') === 'dark');
@@ -76,16 +76,16 @@ export default {
         border-radius: 50%;
         top: 4px;
         left: 3px;
-        background: #0d7e71;
+        background: var(--#{$prefix}theme-switcher-color); 
     }
 }
 
 .theme-switcher.checked {
-    border: 1px solid #494c56;
+    border: 1px solid var(--#{$prefix}social-border-color);
     background: var(--#{$prefix}icon-secondary-bg-color);
 
     .theme-switcher__check {
-        background: #020c03;
+        background: var(--#{$prefix}secondary-background-color);
         left: initial;
         right: 3px;
     }

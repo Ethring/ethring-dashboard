@@ -24,7 +24,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .asset__item-sub-header {
-    background: var(--#{$prefix}banner-bg-color);
+    background: var(--#{$prefix}banner-secondary-color);
     border-radius: 4px;
     padding: 7px 16px;
 

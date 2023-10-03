@@ -26,7 +26,7 @@
                     :reward="item.totalRewardsBalance"
                 />
                 <div v-for="(groupItem, n) in item.data" :key="n">
-                    <AssetItemSubHeader :type="getFormattedName(groupItem.integration.type)" />
+                    <AssetItemSubHeader :type="getFormattedName(groupItem.integration?.type)" />
 
                     <AssetItem v-for="(balanceItem, i) in sortByKey(groupItem.balances, 'balanceUsd')" :key="i" :item="balanceItem">
                         <div class="asset-item__info" v-if="balanceItem.balance_type">
@@ -213,7 +213,7 @@ export default {
     border-radius: 16px;
 
     &__group {
-        border: 2px solid var(--#{$prefix}border-color);
+        border: 1px solid var(--#{$prefix}border-color);
         background-color: var(--#{$prefix}secondary-background);
         border-radius: 16px;
         padding: 16px;
@@ -253,7 +253,7 @@ export default {
     }
 
     .asset-item__unlock {
-        color: #6d747a;
+        color: #6d747a; // *
     }
 }
 </style>

@@ -10,9 +10,9 @@
     </div>
 </template>
 <script>
-import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
-
 import { ref } from 'vue';
+
+import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
 export default {
     name: 'Accordion',

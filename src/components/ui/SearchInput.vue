@@ -128,7 +128,7 @@ $padding-lr: 32px;
     border: 2px solid var(--#{$prefix}sub-text);
 
     .search-input__logo {
-        background: var(--#{$prefix}btn-hover);
+        background: var(--#{$prefix}btn-bg-color-hover);
     }
 
     input {

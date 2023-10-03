@@ -103,7 +103,7 @@ export default {
     padding: 8px 16px;
 
     &:hover {
-        border-color: var(--#{$prefix}btn-hover);
+        border-color: var(--#{$prefix}btn-bg-color-hover);
     }
 
     &__account {
@@ -126,7 +126,7 @@ export default {
             justify-content: center;
             width: 40px;
             height: 40px;
-            background-color: #1c1f2c;
+            background-color: var(--#{$prefix}primary);
 
             border-radius: 50%;
             margin-left: -16px;
@@ -149,12 +149,7 @@ export default {
             }
         }
     }
-
-    p {
-        color: #486060;
-        font-size: 12px;
-    }
-
+    
     &__info {
         display: flex;
         flex-direction: column;

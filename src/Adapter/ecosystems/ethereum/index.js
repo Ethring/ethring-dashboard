@@ -11,7 +11,6 @@ import { web3OnBoardConfig, ECOSYSTEMS, NATIVE_CONTRACT, TRANSFER_ABI, EVM_CHAIN
 import { validateEthAddress } from '@/Adapter/utils/validations';
 
 import { checkErrors } from '@/helpers/checkErrors';
-import BigNumber from 'bignumber.js';
 
 let web3Onboard = null;
 

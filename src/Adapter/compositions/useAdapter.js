@@ -1,5 +1,3 @@
-// import EcosystemAdapter from '@/Adapter/ecosystems';
-
 import { computed } from 'vue';
 import { useStore } from 'vuex';
 

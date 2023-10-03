@@ -51,3 +51,8 @@ export default {
     },
 };
 </script>
+<style lang="scss">
+.ant-dropdown-menu-item-group-title {
+    color: var(--#{$prefix}adapter-text) !important;
+}
+</style>

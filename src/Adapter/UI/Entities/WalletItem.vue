@@ -54,7 +54,7 @@ export default {
     align-items: center;
     gap: 16px;
 
-    border: 1px solid #d0d4f7;
+    border: 1px solid var(--#{$prefix}adapter-border-color);
     border-radius: 16px;
 
     padding: 16px;
@@ -65,6 +65,7 @@ export default {
 
     &:hover {
         background-color: #eff1fc;
+        color: var(--#{$prefix}black);
     }
 
     .icon {
@@ -75,8 +76,9 @@ export default {
         align-items: center;
         justify-content: center;
 
-        border: 1px solid #d0d4f7;
+        border: 1px solid var(--#{$prefix}adapter-border-color);
         border-radius: 12px;
+        
         img {
             width: 30px;
             height: 30px;

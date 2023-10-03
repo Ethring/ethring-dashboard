@@ -16,7 +16,7 @@
             @click.stop="() => {}"
         >
             <div class="modal__content-close">
-                <closeSvg @click="$emit('close')" />
+                <CloseSvg @click="$emit('close')" />
             </div>
             <div class="modal__content-title">{{ title }}</div>
             <div class="modal__content-line" />
@@ -28,12 +28,12 @@
 </template>
 
 <script>
-import closeSvg from '@/assets/icons/app/close.svg';
+import CloseSvg from '@/assets/icons/app/close.svg';
 
 export default {
     name: 'Modal',
     components: {
-        closeSvg,
+        CloseSvg,
     },
     props: {
         title: {

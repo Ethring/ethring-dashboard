@@ -180,6 +180,7 @@ export default {
     &__not-found {
         text-align: center;
         margin-top: 15%;
+        
         p {
             font-style: normal;
             font-weight: 500;

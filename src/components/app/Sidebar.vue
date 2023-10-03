@@ -94,7 +94,7 @@ export default {
         }
 
         &-title {
-            font-size: var(--#{$prefix}h3-fs);
+            font-size: var(--#{$prefix}h5-fs);
             font-weight: 300;
             color: var(--zmt-sidebar-text);
             margin-left: 10px;

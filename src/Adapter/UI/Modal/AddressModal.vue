@@ -51,3 +51,20 @@ export default {
     },
 };
 </script>
+<style lang="scss">
+.ant-modal {
+    .ant-modal-content,
+    .ant-modal-header {
+        color: var(--#{$prefix}primary-text);
+        background-color: var(--#{$prefix}secondary-background);
+    }
+
+    .ant-modal-title {
+        color: var(--#{$prefix}primary-text);
+    }
+
+    .ant-modal-close-x {
+        color: var(--#{$prefix}primary-text);
+    }
+}
+</style>

@@ -25,6 +25,7 @@ $pizazz: #f69502;
 $green: #04b600;
 $cyan: #02e7f6;
 $ficus: #385c39;
+$blueHalk: #e6eeff;
 
 $wildWatermelon: #ff677e;
 $deepCerulean: #00839f;
@@ -56,11 +57,10 @@ $secondary-background: $ebonyClay;
 
 $banner-color: $ebonyClay;
 $banner-logo-color: $springGreen;
-$banner-bg-color: $charade;
+$banner-secondary-color: $charade;
 
 $eye-logo: $geyser;
 $eye-logo-hover: $springGreen;
-
 
 // Text
 $sub-text: $springGreen;
@@ -70,6 +70,14 @@ $sidebar-text: $geyser;
 $primary-text: $white;
 $secondary-text: $aquamarine;
 $symbol-text: $gulfStream;
+
+// Adapter text
+$adapter-text: $gulfStream;
+$adapter-ecosystem-bg: $blueHalk;
+$adapter-logo-main-color: $gallery;
+$adapter-logo-base-color: $cyan;
+$adapter-logo-secondary-color: $iceberg;
+$adapter-border-color: $iceberg;
 
 // Checkbox
 $checkbox-text: $gulfStream;
@@ -86,13 +94,15 @@ $social-border-color: $trout;
 
 // Button
 $btn-text-color: $ebonyClay;
-$btn-text-hover-color: $white;
-$btn-active: $springGreen;
-$btn-hover: $black;
+$btn-bg-color: $springGreen;
+
+$btn-text-hover: $white;
+$btn-bg-color-hover: $black;
 $btn-secondary-hover: $wildWatermelon;
+
 $btn-disabled: $ebonyClay;
 $btn-disabled-text: $mineralGreen;
-$btn-disabled-icon: $wildWatermelon;
+$btn-disabled-icon: $geyser;
 
 // Select
 $select-bg-color: $ebonyClay;
@@ -160,6 +170,8 @@ $modal-item-text: $ebonyClay;
 $block-box-shadow: 'transparent';
 $loader-border-color: $ficus;
 
+$theme-switcher-color: $gulfStream;
+
 $nav-bar-bg-color: $chineseBlack;
 
 $tag-01: $aquamarine;
@@ -179,7 +191,7 @@ $theme-colors-dark: (
 
     "banner-color": $banner-color,
     "banner-logo-color": $banner-logo-color,
-    "banner-bg-color": $banner-bg-color,
+    "banner-secondary-color": $banner-secondary-color,
 
     "eye-logo": $eye-logo,
     "eye-logo-hover": $eye-logo-hover,
@@ -191,6 +203,13 @@ $theme-colors-dark: (
     "primary-text": $primary-text,
     "secondary-text": $secondary-text,
     "symbol-text": $symbol-text,
+
+    "adapter-text": $adapter-text,
+    "adapter-ecosystem-bg": $adapter-ecosystem-bg,
+    "adapter-logo-main-color": $adapter-logo-main-color,
+    "adapter-logo-base-color": $adapter-logo-base-color,
+    "adapter-logo-secondary-color": $adapter-logo-secondary-color,
+    "adapter-border-color": $adapter-border-color,
 
     "checkbox-text": $checkbox-text,
     "checkbox-disabled-text": $checkbox-disabled-text,
@@ -204,10 +223,10 @@ $theme-colors-dark: (
     "social-border-color": $social-border-color,
 
     "btn-text-color": $btn-text-color,
-    "btn-text-hover-color": $btn-text-hover-color,
-    "btn-hover": $btn-hover,
+    "btn-text-hover": $btn-text-hover,
+    "btn-bg-color-hover": $btn-bg-color-hover,
     "btn-secondary-hover": $btn-secondary-hover,
-    "btn-active": $btn-active,
+    "btn-bg-color": $btn-bg-color,
     "btn-disabled": $btn-disabled,
     "btn-disabled-text": $btn-disabled-text,
     "btn-disabled-icon": $btn-disabled-icon,
@@ -267,6 +286,8 @@ $theme-colors-dark: (
     "block-box-shadow": $block-box-shadow,
     "loader-border-color": $loader-border-color,
     "nav-bar-bg-color": $nav-bar-bg-color,
+
+    "theme-switcher-color": $theme-switcher-color,
 
     "tag-01": $tag-01,
     "tag-02": $tag-02,
