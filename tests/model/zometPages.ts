@@ -1,8 +1,9 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 import { waitMmNotifyWindow } from './metaMaskPages';
+
 const sleep = require('util').promisify(setTimeout);
 
-const url = 'https://zomet-dev.3ahtim54r.ru/';
+const url: string = process.env.DEV_URL;
 
 export class DashboardPage {
     readonly page: Page;
@@ -16,8 +17,15 @@ export class DashboardPage {
     }
 
     async loginByMetaMask() {
+        await this.page.locator('div.wallet-adapter-container').click();
+        await this.page.getByTestId('EVM Ecosystem wallet').click();
         await this.page.getByText('MetaMask').click();
         await waitMmNotifyWindow();
+    }
+
+    async goToSend() {
+        await this.page.getByTestId('sidebar-item-send').click();
+        return new SendPage(this.page);
     }
 
     async goToSwap() {
@@ -52,7 +60,7 @@ export class SwapPage extends DashboardPage {
     }
 
     async swapTokens(amount: string) {
-        await this.page.locator("//div[text() = 'Pay']/following-sibling::div//input").type(amount);
+        await this.page.locator("//div[text() = 'Pay']/following-sibling::div//input").fill(amount);
         await this.page.click('button.simple-swap__btn');
         await this.page.waitForLoadState();
         await this.page.waitForLoadState('domcontentloaded');
@@ -114,7 +122,7 @@ export class SuperSwapPage extends DashboardPage {
     }
 
     async setAmount(amount: string) {
-        await this.page.locator('(//input[@data-qa="input-amount"])[1]').type(amount);
+        await this.page.locator('(//input[@data-qa="input-amount"])[1]').fill(amount);
     }
 
     async setDataAndClickSwap(net: string, amount: string) {
@@ -123,6 +131,43 @@ export class SuperSwapPage extends DashboardPage {
         await this.page.click('//button/div[text()="CONFIRM"]');
 
         await sleep(10000);
+    }
+
+    async getTokenTo() {
+        return await this.page.locator('(//*[@data-qa="select-token"]/div[@class="token"])[2]').textContent();
+    }
+}
+
+export class SendPage extends DashboardPage {
+    constructor(page: Page) {
+        super(page);
+    }
+
+    async setNetworkTo(netName: string) {
+        await this.page.getByTestId('select-network').click();
+        await this.page.locator(`//div[@class="select__items"]//div[text()="${netName}"]`).click();
+    }
+
+    async setAddressTo(address: string) {
+        await this.page.getByTestId('input-address').fill(address);
+    }
+
+    async setAmount(amount: string) {
+        await sleep(5000);
+        await this.page.getByTestId('input-amount').fill(amount);
+    }
+
+    async clickConfirm() {
+        // await this.page.getByTestId('confirm').click();
+        await this.page.click('//button/div[text()="Confirm"]');
+        await sleep(10000);
+    }
+
+    async setDataAndClickConfirm(net: string, address: string, amount: string) {
+        await this.setNetworkTo(net);
+        await this.setAddressTo(address);
+        await this.setAmount(amount);
+        await this.clickConfirm();
     }
 
     async getTokenTo() {

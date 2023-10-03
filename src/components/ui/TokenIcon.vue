@@ -1,15 +1,14 @@
 <template>
-    <div :class="{ dark }" class="token-icon">
+    <div class="token-icon">
         <img
-            v-if="!showIconPlaceholder"
+            v-if="!showIconPlaceholder && token"
             :width="width"
             :height="height"
-            :key="token?.code"
-            :src="tokenIconFromZomet || getTokenIcon(token?.code?.toLowerCase())"
+            :key="token?.symbol"
+            :src="token?.logo || tokenIconFromZomet || getTokenIcon(token?.symbol?.toLowerCase())"
             :alt="token?.name"
             @error="showIconPlaceholder = true"
             @load="showIconPlaceholder = false"
-            :class="{ nativeIcon: tokenIconFromZomet }"
         />
         <div v-else class="token-icon__placeholder">
             <a-avatar>{{ iconPlaceholder }}</a-avatar>
@@ -24,10 +23,6 @@ import { useStore } from 'vuex';
 export default {
     name: 'TokenIcon',
     props: {
-        dark: {
-            type: Boolean,
-            default: false,
-        },
         width: {
             required: true,
         },
@@ -41,7 +36,7 @@ export default {
     setup(props) {
         const showIconPlaceholder = ref(false);
         const tokenIconFromZomet = ref(null);
-        const iconPlaceholder = computed(() => props.token?.code);
+        const iconPlaceholder = computed(() => props.token?.symbol);
 
         const store = useStore();
 
@@ -96,63 +91,25 @@ export default {
 .token-icon {
     width: 32px;
     height: 32px;
+
     display: flex;
     justify-content: center;
     align-items: center;
 
-    &.dark {
-        img {
-            filter: brightness(0) invert(0);
-        }
-
-        .token-icon__placeholder {
-            span {
-                color: $colorBlack;
-            }
-        }
-    }
-
-    img.nativeIcon {
-        border-radius: 50%;
+    img {
         width: 100%;
         height: 100%;
+        border-radius: 50%;
+
         object-position: center;
         object-fit: contain;
-
-        filter: none;
-    }
-
-    img {
-        filter: brightness(0) invert(1);
     }
 
     &__placeholder {
-        font-size: 12px;
+        font-size: var(--#{$prefix}small-sm-fs);
 
-        & span {
-            color: $colorWhite;
-        }
-    }
-}
-
-body.dark {
-    .token-icon {
-        width: 32px;
-        height: 32px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        &.dark {
-            img {
-                filter: brightness(0) invert(1);
-            }
-
-            .token-icon__placeholder {
-                span {
-                    color: $colorWhite;
-                }
-            }
+        span {
+            color: var(--#{$prefix}white);
         }
     }
 }

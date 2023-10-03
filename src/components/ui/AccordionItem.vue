@@ -30,17 +30,17 @@ export default {
     align-items: center;
 
     &__label {
-        color: #486060;
-        font-size: 16px;
-        font-family: 'Poppins_Regular';
+        color: var(--#{$prefix}accordion-label-color);
+        font-size: var(--#{$prefix}default-fs);
+        font-weight: 400;
     }
 
     &__value {
         display: flex;
         align-items: center;
-        font-size: 16px;
-        font-family: 'Poppins_SemiBold';
-        color: #1c1f2c;
+        font-size: var(--#{$prefix}default-fs);
+        font-weight: 600;
+        color: var(--#{$prefix}primary-text);
         margin-left: 6px;
     }
 }

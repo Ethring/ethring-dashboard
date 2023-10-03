@@ -11,7 +11,8 @@
     "receive": "RECEIVE",
     "send": "SEND",
     "search": "Search",
-    "notFound": "Nothing was found for your query"
+    "notFound": "Nothing was found for your query",
+    "emptyAssets": "You don't have any assets"
   },
   "sidebar": {
     "main": "Main",
@@ -20,14 +21,26 @@
     "send": "Send",
     "bridge": "Bridge",
     "superSwap": "SuperSwap",
-    "xct": "XCT"
+    "type": "BETA"
   },
   "connect": {
     "emptyTitle": "Connect a wallet to manage your portfolio",
     "pageTitle": "Connecting wallet",
     "blockTitle": "Connect with",
-    "mmTitle": "MetaMask",
-    "keplrTitle": "Keplr"
+    "anotherWallet": "Connect Another Wallet",
+    "availableWallets": "Available wallets"
+  },
+  "adapter": {
+    "accountsGroup": "Connected accounts",
+    "accountModalTitle": "Account addresses",
+    "copyAddress": "Copy address",
+    "disconnectAccount": "Disconnect",
+    "ecosystemsGroup": "Connect to",
+    "disconnectAll": "Disconnect all wallets",
+    "cosmosWallets": "Cosmos Ecosystem",
+    "ethereumWallets": "EVM Ecosystem",
+    "copyAddressTooltip": "Copy address to clipboard",
+    "copiedAddressTooltip": "Address copied"
   },
   "actionTokens": "Tokens",
   "actionTransactions": "Transactions",
@@ -42,10 +55,14 @@
     "send": "Send",
     "receive": "Receive",
     "pay": "Pay",
+    "select": "Select",
     "selectToken": "Select token",
     "networkFee": "Network fee",
     "time": "Estimate time",
-    "changeNetwork": "Please change network"
+    "changeNetwork": "Please change network",
+    "rewards": "Rewards",
+    "value": "Value",
+    "switchNetwork": "Switch network"
   },
   "simpleSend": {
     "title": "Send"

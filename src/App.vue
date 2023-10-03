@@ -1,75 +1,94 @@
 <template>
-    <div class="app-wrap">
-        <Sidebar />
-
-        <div class="app-wrap__layout">
+    <a-config-provider>
+        <LoadingOverlay v-if="isConnecting" />
+        <div class="app-wrap" :class="{ 'lock-scroll': isOpen }">
+            <Sidebar />
             <NavBar />
-            <div>
-                <router-view />
+
+            <div class="app-wrap__layout">
+                <div>
+                    <router-view />
+                </div>
             </div>
         </div>
-    </div>
+        <WalletsModal />
+        <AddressModal />
+    </a-config-provider>
 </template>
 
 <script>
-import { nextTick, onMounted, watch } from 'vue';
+import { onMounted, onUpdated, onBeforeMount, watch, ref, computed } from 'vue';
+import { useStore } from 'vuex';
 
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+import useInit from '@/compositions/useInit';
+import useAdapter from '@/Adapter/compositions/useAdapter';
+
+import WalletsModal from '@/Adapter/UI/Modal/WalletsModal';
+import AddressModal from '@/Adapter/UI/Modal/AddressModal';
 
 import NavBar from '@/components/app/NavBar';
 import Sidebar from '@/components/app/Sidebar';
-import { useStore } from 'vuex';
-import useInit from './compositions/useInit';
+import LoadingOverlay from '@/components/ui/LoadingOverlay';
 
 export default {
     name: 'App',
     components: {
         Sidebar,
         NavBar,
+        WalletsModal,
+        AddressModal,
+        LoadingOverlay,
     },
-    created() {
-        const store = useStore();
-        store.dispatch('networks/init');
-    },
+
     setup() {
         const store = useStore();
-        const { connectWallet, connectedWallet, walletAddress } = useWeb3Onboard();
+        const lastConnectedCall = ref(false);
+
+        const {
+            isConnecting,
+            walletAddress,
+            walletAccount,
+            currentChainInfo,
+            connectLastConnectedWallet,
+            getAddressesWithChainsByEcosystem,
+        } = useAdapter();
+
+        const isOpen = computed(() => store.getters['adapters/isOpen']('wallets'));
+
+        const callInit = async () => {
+            const { ecosystem, walletModule } = currentChainInfo.value || {};
+
+            if (!walletModule || !ecosystem || !walletAddress.value) {
+                return;
+            }
+
+            const addressesWithChains = getAddressesWithChainsByEcosystem(ecosystem);
+
+            await useInit(store, { account: walletAccount.value, addressesWithChains, currentChainInfo: currentChainInfo.value });
+        };
+
+        onBeforeMount(async () => await store.dispatch('networks/initZometNets'));
 
         onMounted(async () => {
-            await store.dispatch('networks/initZometNets');
+            !lastConnectedCall.value && connectLastConnectedWallet().then(() => (lastConnectedCall.value = true));
 
-            if (walletAddress.value && walletAddress.value !== undefined) {
-                await useInit(walletAddress.value, store);
-            }
-
-            nextTick(async () => {
-                const { label, provider } = connectedWallet.value || {};
-
-                const lastConnected = localStorage.getItem('onboard.js:last_connected_wallet');
-                if (!label && !provider && lastConnected) {
-                    const walletLabel = JSON.parse(lastConnected);
-
-                    if (walletLabel) {
-                        return await connectWallet({
-                            autoSelect: {
-                                label: walletLabel[0] || 'MetaMask',
-                                disableModals: true,
-                            },
-                        });
-                    }
-                }
-
-                if (!label && !provider) {
-                    return await connectWallet();
-                }
-            });
+            await callInit();
         });
 
-        watch(walletAddress, async () => {
-            if (walletAddress?.value) {
-                await useInit(walletAddress.value, store);
-            }
-        });
+        watch(walletAccount, async () => await callInit());
+
+        onUpdated(async () => await callInit());
+
+        return {
+            isOpen,
+            isConnecting,
+        };
     },
 };
 </script>
+
+<style lang="scss" scoped>
+.app-wrap.lock-scroll {
+    overflow: hidden;
+}
+</style>

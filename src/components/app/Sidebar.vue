@@ -1,7 +1,10 @@
 <template>
     <div class="sidebar">
         <div class="sidebar-items">
-            <Logo class="sidebar__logo" />
+            <div class="sidebar__logo-item">
+                <Logo class="sidebar__logo" />
+                <div class="sidebar__logo-type">{{ $t('sidebar.type') }}</div>
+            </div>
             <SidebarList v-if="walletAddress" />
             <Socials class="sidebar__socials" />
         </div>
@@ -11,7 +14,8 @@
 import Logo from './Logo';
 import Socials from './Socials';
 import SidebarList from './SidebarList';
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+
+import useAdapter from '@/Adapter/compositions/useAdapter';
 
 export default {
     name: 'Sidebar',
@@ -21,7 +25,7 @@ export default {
         Socials,
     },
     setup() {
-        const { walletAddress } = useWeb3Onboard();
+        const { walletAddress } = useAdapter();
 
         return {
             walletAddress,
@@ -39,7 +43,7 @@ export default {
     max-width: 260px;
     width: 100%;
     height: 100vh;
-    background: $colorDarkPanel;
+    background: var(--#{$prefix}primary);
     padding: 40px 25px;
 
     box-sizing: border-box;
@@ -60,13 +64,17 @@ export default {
 
     &__logo {
         margin-bottom: 70px;
-    }
-}
 
-body.dark {
-    .sidebar {
-        border-right: 1px solid $borderDark;
-        // background: $colorDarkBgGreen;
+        &-item {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        &-type {
+            color: var(--#{$prefix}sidebar-active-color);
+            font-size: 12px;
+            font-weight: 700;
+        }
     }
 }
 </style>

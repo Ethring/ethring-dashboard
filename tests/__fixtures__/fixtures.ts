@@ -1,7 +1,7 @@
 import { test as base, chromium, type BrowserContext, Browser } from '@playwright/test';
 import path from 'path';
 import { MetaMaskHomePage, MetaMaskNotifyPage, waitMmNotifyWindow } from '../model/metaMaskPages';
-import { DashboardPage, SwapPage, SuperSwapPage } from '../model/zometPages';
+import { DashboardPage, SwapPage, SuperSwapPage, SendPage } from '../model/zometPages';
 
 export const metaMaskId = 'lbbfnfejpmmaenbngdgdmpabdfgiceii';
 const getPathToEx = () => path.join(__dirname, '..', '/data/metamask-chrome-10.34.0');
@@ -24,9 +24,10 @@ const authInDashboard = async (context: BrowserContext): Promise<DashboardPage> 
 
 export const test = base.extend<{
     context: BrowserContext;
+    dashboard: DashboardPage;
+    sendPage: SendPage;
     swapPage: SwapPage;
     superSwapPage: SuperSwapPage;
-    dashboard: DashboardPage;
 }>({
     context: async ({}, use) => {
         let context;
@@ -79,6 +80,11 @@ export const test = base.extend<{
         const zometPage = await authInDashboard(context);
         const superSwapPage = await zometPage.goToSuperSwap();
         await use(superSwapPage);
+    },
+    sendPage: async ({ context }, use) => {
+        const zometPage = await authInDashboard(context);
+        const sendPage = await zometPage.goToSend();
+        await use(sendPage);
     },
     dashboard: async ({ context }, use) => {
         const zometPage = await authInDashboard(context);

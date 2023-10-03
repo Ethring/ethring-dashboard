@@ -3,6 +3,7 @@ const axios = require('axios');
 const fs = require('fs');
 const AdmZip = require('adm-zip');
 const { test: setup } = require('@playwright/test');
+const dotenv = require('dotenv');
 
 async function download(url, archivePath) {
     try {
@@ -47,6 +48,10 @@ async function dowonloadAndUnzipMmEx() {
     });
 }
 
-setup('Download and unzip metamask extension', async () => {
+setup('Set env and download metamask extension', async () => {
+    await dotenv.config({
+        path: '.env.test',
+        override: true
+      });
     await dowonloadAndUnzipMmEx();
 });

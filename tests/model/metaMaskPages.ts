@@ -1,8 +1,9 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 import { metaMaskId } from '../__fixtures__/fixtures';
+
 const sleep = require('util').promisify(setTimeout);
 
-const testSeedPhrase = 'endorse boat cream purpose north toddler panda frame ecology way smile success';
+const testSeedPhrase = process.env.TEST_SEED;
 const password = '7v2$O3sS0ZY!';
 
 export const waitMmNotifyWindow = async () => {
@@ -40,11 +41,11 @@ export class MetaMaskHomePage {
         await this.page.locator('button[data-testid=metametrics-i-agree]').click();
         const myArray = testSeedPhrase.split(' ');
         for (let i = 0; i < myArray.length; i++) {
-            await this.page.locator(`input[data-testid=import-srp__srp-word-${i}]`).type(myArray[i]);
+            await this.page.locator(`input[data-testid=import-srp__srp-word-${i}]`).fill(myArray[i]);
         }
         await this.page.click('[data-testid="import-srp-confirm"]');
-        await this.page.type('input[data-testid=create-password-new]', password);
-        await this.page.type('input[data-testid=create-password-confirm]', password);
+        await this.page.fill('input[data-testid=create-password-new]', password);
+        await this.page.fill('input[data-testid=create-password-confirm]', password);
         await this.page.locator('input[data-testid=create-password-terms]').click();
         await this.page.click('[data-testid="create-password-import"]');
         await this.page.click('[data-testid="onboarding-complete-done"]');
@@ -55,7 +56,7 @@ export class MetaMaskHomePage {
     }
 
     async unlockWallet() {
-        await this.page.type('[data-testid="unlock-password"]', password);
+        await this.page.fill('[data-testid="unlock-password"]', password);
         await this.page.click('[data-testid="unlock-submit"]');
         await this.page.waitForLoadState();
         await this.page.waitForLoadState('domcontentloaded');
@@ -88,6 +89,13 @@ export class MetaMaskNotifyPage {
 
     async signTx() {
         await this.page.click('[data-testid="page-container-footer-next"]');
+    }
+
+    async getReciverAddress() {
+        await this.page.click('[data-testid="sender-to-recipient__name"]');
+        const result = await this.page.innerText('div.nickname-popover__public-address__constant');
+        await this.page.click('[data-testid="popover-close"]');
+        return result;
     }
 
     async addAndAcceptChangeNetwork() {

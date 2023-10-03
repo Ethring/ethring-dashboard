@@ -10,6 +10,8 @@ import { chainIds } from '../../config/availableNets';
 
 import { STATUSES, ERRORS, NATIVE_CONTRACT } from '@/shared/constants/superswap/constants';
 
+import { checkErrors } from '../../helpers/checkErrors';
+
 export async function findBestRoute(amount, walletAddress) {
     try {
         const fromNetwork = store.getters['bridge/selectedSrcNetwork'];
@@ -17,7 +19,7 @@ export async function findBestRoute(amount, walletAddress) {
         const fromToken = store.getters['tokens/fromToken'];
         const toToken = store.getters['tokens/toToken'];
 
-        const getParams = (fromNetwork, fromToken, toNetwork, toToken, amount) => ({
+        const getParams = (fromNetwork, fromToken, toNetwork, toToken, amount, ownerAddress) => ({
             net: fromNetwork.net,
             fromNet: fromNetwork.net,
             fromTokenAddress: fromToken.address || NATIVE_CONTRACT,
@@ -28,6 +30,7 @@ export async function findBestRoute(amount, walletAddress) {
             toToken,
             fromNetwork,
             walletAddress,
+            ownerAddress,
         });
 
         const getBestRoute = async (params) => {
@@ -39,8 +42,7 @@ export async function findBestRoute(amount, walletAddress) {
             const bestRoute = {
                 fromTokenAmount: amount,
                 toTokenAmount: result.bestRoute.toTokenAmount,
-                toAmountUsd:
-                    result.bestRoute.toTokenAmount * (result.bestRoute.toToken.balance.price?.USD || result.bestRoute.toToken.price?.USD),
+                toAmountUsd: result.bestRoute.toTokenAmount * (+result.bestRoute.toToken.price || +result.bestRoute.toToken.price),
                 estimateFeeUsd: result.bestRoute.estimateFeeUsd,
                 estimateTime: result.bestRoute.estimateTime,
                 routes: [result.bestRoute],
@@ -51,8 +53,7 @@ export async function findBestRoute(amount, walletAddress) {
         const getRouteCalculated = (bestRoute, result) => {
             bestRoute.toTokenAmount = result.bestRoute.toTokenAmount;
             bestRoute.estimateFeeUsd += result.bestRoute.estimateFeeUsd;
-            bestRoute.toAmountUsd =
-                result.bestRoute.toTokenAmount * (result.bestRoute.toToken.balance.price?.USD || result.bestRoute.toToken.price?.USD);
+            bestRoute.toAmountUsd = result.bestRoute.toTokenAmount * (+result.bestRoute.toToken.price || +result.bestRoute.toToken.price);
             bestRoute.estimateTime += result.bestRoute.estimateTime;
             bestRoute.routes.push({ ...result.bestRoute, status: STATUSES.PENDING });
             return bestRoute;
@@ -65,7 +66,7 @@ export async function findBestRoute(amount, walletAddress) {
                 const { routes = [] } = otherRoutes;
                 const [currentRouteInfo] = routes;
 
-                const usdPrice = currentRouteInfo.toToken.balance?.price?.USD || currentRouteInfo.toToken?.price?.USD;
+                const usdPrice = +currentRouteInfo.toToken.price || +currentRouteInfo.toToken?.price;
 
                 const currentBestRoute = {
                     estimateFeeUsd: bestRoute.estimateFeeUsd + otherRoutes.estimateFeeUsd,
@@ -95,12 +96,11 @@ export async function findBestRoute(amount, walletAddress) {
                     route.estimateFeeUsd += result.bestRoute.estimateFeeUsd;
 
                     route.toAmountUsd =
-                        result.bestRoute.toTokenAmount *
-                        (result.bestRoute.toToken.balance.price?.USD || result.bestRoute.toToken.price?.USD);
+                        result.bestRoute.toTokenAmount * (+result.bestRoute.toToken.price || +result.bestRoute.toToken.price);
 
                     route.estimateTime += result.bestRoute.estimateTime;
 
-                    route.routes.push({ ...result.bestRoute, status: 'pending' });
+                    route.routes.push({ ...result.bestRoute, status: STATUSES.PENDING });
                     delete route.service;
                     delete route.fee;
                     otherRoutesList.push(route);
@@ -124,25 +124,27 @@ export async function findBestRoute(amount, walletAddress) {
             return otherRoutesList;
         };
 
-        const result = await getBestRoute(getParams(fromNetwork, fromToken, toNetwork, toToken, amount));
+        const result = await getBestRoute(getParams(fromNetwork, fromToken, toNetwork, toToken, amount, walletAddress));
+
         if (result.bestRoute) {
             return result;
         }
 
         if (fromNetwork.net !== toNetwork.net) {
-            const result1 = await getBestRoute(getParams(fromNetwork, fromToken, toNetwork, toNetwork, amount));
+            const result1 = await getBestRoute(getParams(fromNetwork, fromToken, toNetwork, toNetwork, amount, walletAddress));
             if (result1.bestRoute) {
                 const { bestRoute } = result1;
-                const result2 = await findRoute(getParams(toNetwork, toNetwork, toNetwork, toToken, result1.bestRoute.toTokenAmount));
-
+                const result2 = await findRoute(
+                    getParams(toNetwork, toNetwork, toNetwork, toToken, result1.bestRoute.toTokenAmount, walletAddress)
+                );
                 if (result2.bestRoute) {
                     return { bestRoute: getRouteCalculated(bestRoute, result2), otherRoutes: getOtherRoutes(result1, result2) };
                 }
             } else if (fromToken.address) {
-                const result3 = await getBestRoute(getParams(fromNetwork, fromToken, fromNetwork, fromNetwork, amount));
+                const result3 = await getBestRoute(getParams(fromNetwork, fromToken, fromNetwork, fromNetwork, amount, walletAddress));
                 if (result3.bestRoute) {
                     const { bestRoute: bestRoute1 } = result3;
-                    const params2 = getParams(fromNetwork, fromNetwork, toNetwork, toToken, result3.bestRoute.toTokenAmount);
+                    const params2 = getParams(fromNetwork, fromNetwork, toNetwork, toToken, result3.bestRoute.toTokenAmount, walletAddress);
                     const result4 = await findRoute(params2);
                     if (result4.bestRoute) {
                         return { bestRoute: getRouteCalculated(bestRoute1, result4), otherRoutes: getOtherRoutes(result3, result4) };
@@ -155,7 +157,14 @@ export async function findBestRoute(amount, walletAddress) {
                             bestRoute1.estimateFeeUsd += result5.bestRoute.estimateFeeUsd;
                             bestRoute1.estimateTime += result5.bestRoute.estimateTime;
                             bestRoute1.routes.push({ ...result5.bestRoute, status: STATUSES.PENDING });
-                            const swapParams2 = getParams(toNetwork, toNetwork, toNetwork, toToken, result5.bestRoute.toTokenAmount);
+                            const swapParams2 = getParams(
+                                toNetwork,
+                                toNetwork,
+                                toNetwork,
+                                toToken,
+                                result5.bestRoute.toTokenAmount,
+                                walletAddress
+                            );
                             const result6 = await findRoute(swapParams2);
                             if (result6.bestRoute) {
                                 return {
@@ -172,7 +181,7 @@ export async function findBestRoute(amount, walletAddress) {
         }
         return { error: result.error };
     } catch (e) {
-        return { error: e.message || e };
+        return checkErrors(e);
     }
 }
 
@@ -184,7 +193,6 @@ async function findRoute(params) {
         let services = [];
         let apiRoute = null;
         let error = null;
-        const tokensByService = store.getters['bridge/tokensByService'];
 
         if (params.fromNet === params.toNet) {
             services = swapServices;
@@ -195,17 +203,17 @@ async function findRoute(params) {
         }
 
         const checkFee = (resEstimate) => {
-            if (+params.fromNetwork.balance?.mainBalance === 0) {
+            if (+params.fromNetwork.balance === 0) {
                 return true;
             }
 
-            if (resEstimate.fee.currency === params.fromNetwork.code && resEstimate.fee.amount > params.fromNetwork.balance?.mainBalance) {
+            if (resEstimate.fee.currency === params.fromNetwork.symbol && resEstimate.fee.amount > params.fromNetwork.balance) {
                 return true;
             }
 
             if (
-                resEstimate.fee.currency === params.fromToken.code &&
-                +resEstimate.fee.amount + +params.amount > params.fromToken.balance?.amount
+                resEstimate.fee.currency === params.fromToken.symbol &&
+                +resEstimate.fee.amount + +params.amount > params.fromToken.balance
             ) {
                 return true;
             }
@@ -229,37 +237,24 @@ async function findRoute(params) {
 
         const getFeeInfo = (info, params, service) => {
             if (service.protocolFee) {
-                return +service.protocolFee[params.fromNetwork.chain_id] * params.fromNetwork?.price?.USD;
+                return +service.protocolFee[params.fromNetwork.chain_id] * +params.fromNetwork?.price;
             }
 
-            if (info.fee.currency === params.fromToken.code) {
-                return info.fee.amount * (params.fromToken.balance.price?.USD || params.fromToken.price?.USD);
+            if (info.fee.currency === params.fromToken.symbol) {
+                return info.fee.amount * (+params.fromToken.price || +params.fromToken.price);
             }
 
-            return info.fee.amount * params.fromNetwork?.price?.USD;
+            return info.fee.amount * +params.fromNetwork?.price;
         };
-
-        const notFoundInTokens = (key = 'fromTokenAddress', service) =>
-            params[key] && !tokensByService[service.name]?.find((elem) => elem.address.toLowerCase() === params[key].toLowerCase());
 
         const promises = services.map(async (service) => {
             params.url = service.url;
-
-            if (service.tokensByChain && notFoundInTokens('fromTokenAddres', service)) {
-                error = ERRORS.BRIDGE_ERROR;
-                return;
-            }
-
-            if (service.isStableSwap && notFoundInTokens('toTokenAddres', service)) {
-                error = ERRORS.BRIDGE_ERROR;
-                return;
-            }
 
             const resEstimate = await store.dispatch(apiRoute, params);
 
             if (resEstimate.error) {
                 if (resEstimate.error === ERRORS.BRIDGE_ERROR) {
-                    return { error: ERRORS.BRIDGE_ERROR };
+                    error = ERRORS.BRIDGE_ERROR;
                 }
                 if (resEstimate.error?.error === 'Bad Request') {
                     error = ERRORS.ROUTE_NOT_FOUND;
@@ -280,7 +275,7 @@ async function findRoute(params) {
 
             resEstimate.estimateFeeUsd = getFeeInfo(resEstimate, params, service);
 
-            resEstimate.toAmountUsd = +resEstimate?.toTokenAmount * (params.toToken.balance.price?.USD || params.toToken.price?.USD);
+            resEstimate.toAmountUsd = +resEstimate?.toTokenAmount * (+params.toToken.price || +params.toToken.price);
 
             if (!bestRoute?.toTokenAmount) {
                 bestRoute = resEstimate;
@@ -329,8 +324,7 @@ async function findRoute(params) {
 
         return { bestRoute, otherRoutes };
     } catch (e) {
-        console.log(e);
-        return { error: e.message || e };
+        return checkErrors(e);
     }
 }
 export async function checkAllowance(net, tokenAddress, ownerAddress, amount, decimals, service) {
@@ -361,24 +355,23 @@ export async function checkAllowance(net, tokenAddress, ownerAddress, amount, de
     if (toMantissa(amount, decimals) > allowance) {
         needApprove = true;
     }
-
     checkAllowance.cache[ownerAddress] = { tokenAddress, service, allowance };
 
     return needApprove;
 }
 checkAllowance.cache = {};
 
-export async function getTokensByService(chainId) {
-    const allService = swapServices.concat(bridgeServices).filter((elem) => elem.tokensByChain);
-    const allTokens = {};
-    for (const service of allService) {
-        const params = {
-            chainId,
-            url: service.url,
-        };
+// export async function getTokensByService(chainId) {
+//     const allService = swapServices.concat(bridgeServices).filter((elem) => elem.tokensByChain);
+//     const allTokens = {};
+//     for (const service of allService) {
+//         const params = {
+//             chainId,
+//             url: service.url,
+//         };
 
-        const list = await store.dispatch(`bridge/getTokensByChain`, params);
-        allTokens[service.name] = list;
-    }
-    store.dispatch(`bridge/setTokensByChain`, allTokens);
-}
+//         const list = await store.dispatch(`bridge/getTokensByChain`, params);
+//         allTokens[service.name] = list;
+//     }
+//     store.dispatch(`bridge/setTokensByChain`, allTokens);
+// }

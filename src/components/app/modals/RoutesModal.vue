@@ -34,7 +34,7 @@
                         <div class="routes-modal__row">
                             <h3>
                                 {{ prettyNumberTooltip(item.toTokenAmount, 4) }}
-                                <span>{{ item.routes[item.routes.length - 1]?.toToken?.code }}</span>
+                                <span>{{ item.routes[item.routes.length - 1]?.toToken?.symbol }}</span>
                             </h3>
                             <h4>/</h4>
                             <h3 class="blue-text"><span>$</span> {{ prettyNumberTooltip(item.toAmountUsd, 2) }}</h3>
@@ -42,12 +42,12 @@
                     </div>
                 </div>
                 <Button
-                    xl
                     :loading="isLoading"
                     :disabled="!selectedRoute"
                     :title="$t('tokenOperations.confirm')"
                     class="routes-modal__btn"
                     @click="confirm"
+                    size="large"
                 />
             </div>
         </Modal>
@@ -163,20 +163,20 @@ export default {
 
     &__item {
         border-radius: 20px;
-        background-color: #f4f6ff;
+        background-color: var(--#{$prefix}modal-block-bg-color);
         padding: 16px;
         width: 100%;
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 16px;
-        border: 2px solid #f4f6ff;
+        border: 2px solid var(--#{$prefix}modal-block-bg-color);
         cursor: pointer;
         transition: 0.5s;
     }
     &__active-item {
-        border: 2px solid #364de8;
-        background-color: #e7ecff;
+        border: 2px solid var(--#{$prefix}icon-border);
+        background-color: var(--#{$prefix}modal-active-block-bg-color);
     }
     &__row {
         display: flex;
@@ -187,27 +187,27 @@ export default {
         text-align: right;
         margin-top: 2px;
         p {
-            color: #486060;
-            font-size: 14px;
+            color: var(--#{$prefix}base-text);
+            font-size: var(--#{$prefix}small-lg-fs);
             margin: 0;
         }
         h3 {
-            font-weight: 700;
-            font-size: 18px;
-            color: #494c56;
+            font-weight: 600;
+            font-size: var(--#{$prefix}h6-fs);
+            color: var(--#{$prefix}mute-text);
             margin: 0;
             span {
-                color: #1c1f2c;
+                color: var(--#{$prefix}primary);
                 font-weight: 400;
             }
         }
         h4 {
-            font-size: 20px;
+            font-size: var(--#{$prefix}h5-fs);
             margin: 0 6px;
-            color: #a0b3c3;
+            color: var(--#{$prefix}modal-block-text);
         }
         .blue-text {
-            color: #00839f;
+            color: var(--#{$prefix}modal-item-text);
         }
     }
     &__btn {
@@ -218,18 +218,18 @@ export default {
     .routes-service {
         margin-top: -8px;
         &__name {
-            font-size: 18px;
+            font-size: var(--#{$prefix}h6-fs);
             margin: 0;
             margin-left: 8px;
-            font-weight: 700;
-            color: $colorDarkPanel;
+            font-weight: 600;
+            color: var(--#{$prefix}primary);
         }
         &__icon {
             border-radius: 50%;
             width: 32px;
             padding: 3px 4px;
             height: 32px;
-            border: 1px solid #364de8;
+            border: 1px solid var(--#{$prefix}icon-border);
             img {
                 width: 100%;
                 border-radius: 50%;
@@ -239,32 +239,32 @@ export default {
             margin-top: 2px;
         }
         div {
-            color: #486060;
+            color: var(--#{$prefix}base-text);
             h4 {
                 margin: 0 10px 0 2px;
-                font-weight: 700;
+                font-weight: 600;
             }
         }
         h1 {
-            font-weight: 700;
+            font-weight: 600;
             margin: 0px 3px;
         }
         &__status {
             border-radius: 20px;
-            font-size: 14px;
+            font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 400;
-            color: $colorBlack;
+            color: var(--#{$prefix}black);
             padding: 1px 10px;
             margin: 2px 0 0 6px;
         }
         .low-fee {
-            background-color: $themeGreen;
+            background-color: var(--#{$prefix}tag-03);
         }
         .best-return {
-            background-color: #3fdfae;
+            background-color: var(--#{$prefix}icon-logo-bg-color);
         }
         .fastest {
-            background-color: #02e7f6;
+            background-color: var(--#{$prefix}tag-02);
         }
     }
 }

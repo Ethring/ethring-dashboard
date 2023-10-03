@@ -5,7 +5,7 @@
                 {{ $t('simpleSend.title') }}
                 <arrowupSvg class="arrow" />
             </div>
-            <router-link class="send-page__title" to="/bridge">{{ $t('simpleBridge.title') }}</router-link>
+            <!-- <router-link class="send-page__title" to="/bridge">{{ $t('simpleBridge.title') }}</router-link> -->
         </div>
     </AppLayout>
 </template>
@@ -33,27 +33,27 @@ export default {
         display: flex;
         flex-direction: column;
         align-items: center;
-        color: $colorBlack;
+        color: var(--#{$prefix}black);
     }
 }
 
 .send-page__title {
-    color: #486060;
-    font-size: 32px;
-    font-family: 'Poppins_SemiBold';
+    color: var(--#{$prefix}base-text);
+    font-size: var(--#{$prefix}h1-fs);
+    font-weight: 600;
     margin-bottom: 30px;
     text-decoration: none;
 
     &__active {
-        font-size: 32px;
-        font-family: 'Poppins_SemiBold';
+        font-size: var(--#{$prefix}h1-fs);
+        font-weight: 600;
         margin-bottom: 30px;
         text-decoration: none;
-        color: $colorBlack;
+        color: var(--#{$prefix}primary-text);
     }
 }
 
 .arrow {
-    fill: $colorBlack;
+    fill: var(--#{$prefix}arrow-color);
 }
 </style>

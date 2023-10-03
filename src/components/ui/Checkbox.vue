@@ -57,10 +57,11 @@ input[type='checkbox'] {
     & + label {
         display: inline-flex;
         align-items: center;
-        font-size: 18px;
-        font-family: 'Poppins_Regular';
+
+        font-size: var(--#{$prefix}h6-fs);
+        font-weight: 400;
         line-height: 19px;
-        color: #73b1b1;
+        color: var(--#{$prefix}checkbox-text);
         cursor: pointer;
     }
 
@@ -68,12 +69,12 @@ input[type='checkbox'] {
         .checkbox {
             &__checkmark {
                 transition: all 0.3s ease-in-out;
-                background: #3fdfae;
-                border: 1px solid #97ffd0;
+                background: var(--#{$prefix}icon-logo-bg-color);
+                border: 1px solid var(--#{$prefix}checkbox-checked);
             }
 
             &__label {
-                color: $colorDarkPanel;
+                color: var(--#{$prefix}primary-text);
             }
         }
     }
@@ -85,11 +86,11 @@ input[type='checkbox'] {
             .checkbox {
                 &__checkmark {
                     background: transparent;
-                    border: 1px solid $colorDarkPanel;
+                    border: 1px solid var(--#{$prefix}checkbox-disabled);
                 }
 
                 &__label {
-                    color: $colorDarkPanel;
+                    color: var(--#{$prefix}checkbox-disabled-text);
                 }
             }
         }
@@ -107,7 +108,7 @@ input[type='checkbox'] {
         justify-content: center;
         width: 32px;
         height: 32px;
-        background: $colorLightGreen;
+        background: var(--#{$prefix}checkbox-bg-color);
         border-radius: 4px;
         margin-right: 14px;
         transition: all 0.2s;

@@ -12,16 +12,16 @@
 </template>
 
 <script>
+import { computed } from 'vue';
+
+import useAdapter from '@/Adapter/compositions/useAdapter';
+import UIConfig from '@/config/ui';
+
 import mainSvg from '@/assets/icons/sidebar/main.svg';
 import swapSvg from '@/assets/icons/sidebar/swap.svg';
 import stakeSvg from '@/assets/icons/sidebar/stake.svg';
 import sendSvg from '@/assets/icons/sidebar/send.svg';
 import bridgeSvg from '@/assets/icons/sidebar/bridge.svg';
-
-import { UIConfig } from '@/config/ui';
-
-import { computed } from 'vue';
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 
 export default {
     name: 'SidebarList',
@@ -33,18 +33,20 @@ export default {
         bridgeSvg,
     },
     setup() {
-        const { currentChainInfo } = useWeb3Onboard();
+        const { currentChainInfo } = useAdapter();
 
         const menu = computed(() => {
-            if (!currentChainInfo.value.net) {
+            if (!currentChainInfo.value?.ecosystem || !currentChainInfo.value?.net) {
                 return [];
             }
 
-            if (!UIConfig[currentChainInfo.value.net]) {
+            const config = UIConfig(currentChainInfo.value?.net, currentChainInfo.value?.ecosystem);
+
+            if (!config) {
                 return [];
             }
 
-            return UIConfig[currentChainInfo.value.net].sidebar;
+            return config.sidebar;
         });
 
         return {
@@ -55,20 +57,19 @@ export default {
 </script>
 <style lang="scss" scoped>
 .sidebar-list {
-    align-self: flex-start;
     display: flex;
+    align-self: flex-start;
     align-items: flex-start;
     flex-direction: column;
     box-sizing: border-box;
-    font-family: 'Poppins_Light';
-    font-size: 24px;
+    font-size: var(--#{$prefix}h3-fs);
 
     &__item {
         display: flex;
         align-items: center;
         margin-bottom: 15px;
         text-decoration: none;
-        color: $colorLightGreen;
+        color: var(--#{$prefix}sidebar-text);
         cursor: pointer;
 
         @include animateEasy;
@@ -82,15 +83,15 @@ export default {
         }
 
         &.router-link-exact-active {
-            color: $colorWhite;
+            color: var(--#{$prefix}white);
 
             svg {
-                fill: $colorBrightGreen;
+                fill: var(--#{$prefix}sidebar-active-color);
             }
         }
 
         svg {
-            fill: $colorLightGreen;
+            fill: var(--#{$prefix}sidebar-text);
             transform: scale(0.8);
             @include animateEasy;
         }
@@ -104,34 +105,7 @@ export default {
 
     &__item-title {
         margin-left: 10px;
-    }
-}
-
-body.dark {
-    .sidebar-list {
-        &__item {
-            color: $colorLightGreen;
-
-            &.router-link-exact-active {
-                color: $colorWhite;
-
-                svg {
-                    fill: $colorBrightGreen;
-                }
-            }
-
-            &:hover {
-                color: $colorPl;
-
-                svg {
-                    fill: $colorPl;
-                }
-            }
-
-            svg {
-                fill: $colorLightGreen;
-            }
-        }
+        font-weight: 300;
     }
 }
 </style>

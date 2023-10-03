@@ -22,7 +22,7 @@
 import { ref } from 'vue';
 import QrcodeVue from 'qrcode.vue';
 
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import Modal from '@/components/app/Modal';
 
@@ -41,20 +41,19 @@ export default {
     setup() {
         const copied = ref(false);
 
-        const { walletAddress } = useWeb3Onboard();
+        const { walletAddress } = useAdapter();
 
         const copyAddress = () => {
             copied.value = true;
             copyToClipboard(walletAddress?.value);
-            setTimeout(() => {
-                copied.value = false;
-            }, 500);
+            setTimeout(() => (copied.value = false), 500);
         };
 
         return {
             copied,
             cutAddress,
             walletAddress,
+
             copyAddress,
         };
     },
@@ -73,7 +72,7 @@ export default {
         height: 250px;
         margin-top: -10px;
         border-radius: 6px;
-        background: $colorLightGreen;
+        background: var(--#{$prefix}secondary-background);
 
         #qr {
             border-radius: 6px;
@@ -83,33 +82,37 @@ export default {
     &__copy {
         display: flex;
         align-items: center;
-        margin-top: 16px;
-        border-radius: 6px;
+
         width: 250px;
         height: 56px;
-        background: $colorLightGreen;
-        box-sizing: border-box;
+
+        margin-top: 16px;
         padding: 0 16px;
+        border-radius: 6px;
+        background: var(--#{$prefix}secondary-background);
+        box-sizing: border-box;
         transition: all 0.3s ease-in-out;
 
         .address {
-            color: $colorBlack;
-            font-size: 16px;
-            font-family: 'Poppins_SemiBold';
+            color: var(--#{$prefix}primary-text);
+            font-size: var(--#{$prefix}default-fs);
+            font-weight: 600;
             width: 84%;
         }
 
         .line {
             width: 1px;
-            margin: 0 11px;
             height: 30px;
-            background: #73b1b1;
+
+            margin: 0 11px;
+            background: var(--#{$prefix}icon-color);
         }
 
         .icon {
             display: flex;
             justify-content: center;
             align-items: center;
+
             width: 14px;
             height: 18px;
             position: relative;
@@ -118,36 +121,11 @@ export default {
         svg {
             transition: all 0.3s ease-in-out;
             position: absolute;
-            // fill: $colorBlack;
             cursor: pointer;
 
             &:hover {
                 opacity: 0.7;
             }
-        }
-    }
-}
-
-body.dark {
-    .address-modal {
-        &__qr {
-            background: $colorDarkPanel;
-        }
-
-        &__copy {
-            background: $colorDarkPanel;
-
-            .address {
-                color: $colorBrightGreen;
-            }
-        }
-
-        &__line {
-            background: #494c56;
-        }
-
-        svg {
-            // stroke: #73B1B1;
         }
     }
 }
