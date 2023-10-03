@@ -14,11 +14,6 @@
                     <span>$</span>
                     {{ showBalance ? prettyNumber(totalBalance) : '****' }}
                 </div>
-
-                <div class="balance-eye">
-                    <EyeOutlinedSvg v-if="showBalance" @click="toggleViewBalance" />
-                    <EyeInvisibleOutlinedSvg v-if="!showBalance" @click="toggleViewBalance" />
-                </div>
             </div>
         </div>
     </div>
@@ -33,15 +28,11 @@ import { cutAddress } from '@/helpers/utils';
 import { prettyNumber } from '@/helpers/prettyNumber';
 
 import WalletSvg from '@/assets/icons/dashboard/wallet.svg';
-import EyeOutlinedSvg from '@/assets/icons/dashboard/eye.svg';
-import EyeInvisibleOutlinedSvg from '@/assets/icons/dashboard/eyeOpen.svg';
 
 export default {
     name: 'WalletInfo',
     components: {
         WalletSvg,
-        EyeOutlinedSvg,
-        EyeInvisibleOutlinedSvg,
     },
     setup() {
         const store = useStore();
@@ -52,10 +43,6 @@ export default {
 
         const totalBalance = computed(() => store.getters['tokens/totalBalances'][walletAccount.value]);
 
-        const toggleViewBalance = () => {
-            store.dispatch('app/toggleViewBalance');
-        };
-
         return {
             totalBalance,
             currentChainInfo,
@@ -63,7 +50,6 @@ export default {
             prettyNumber,
             cutAddress,
             showBalance,
-            toggleViewBalance,
         };
     },
 };
@@ -143,12 +129,6 @@ export default {
 
                 &:hover {
                     fill: var(--#{$prefix}eye-logo-hover);
-                }
-            }
-
-            &-eye {
-                svg {
-                    fill: var(--#{$prefix}eye-logo);
                 }
             }
         }

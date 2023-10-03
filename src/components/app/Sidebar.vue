@@ -1,11 +1,13 @@
 <template>
     <div class="sidebar">
         <div class="sidebar-items">
-            <div class="sidebar__logo-item">
-                <Logo class="sidebar__logo" />
-                <div class="sidebar__logo-type">{{ $t('sidebar.type') }}</div>
+            <div class="sidebar-items-list">
+                <div class="sidebar__logo-item">
+                    <Logo class="sidebar__logo" />
+                    <div class="sidebar__logo-type">{{ $t('sidebar.type') }}</div>
+                </div>
+                <SidebarList v-if="walletAddress" />
             </div>
-            <SidebarList v-if="walletAddress" />
             <div class="sidebar__settings" v-if="walletAddress">
                 <div class="sidebar__settings-icon">
                     <SettingsSvg />
@@ -63,13 +65,13 @@ export default {
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: space-between;
         height: 100%;
         max-width: 184px;
         margin: 0 auto;
     }
 
     &__socials {
-        margin: auto auto 0;
         width: 100%;
     }
 
@@ -79,7 +81,7 @@ export default {
         align-items: center;
         color: var(--#{$prefix}sidebar-text);
         cursor: not-allowed;
-        margin-top: 150px;
+        opacity: 0.5;
 
         @include animateEasy;
 

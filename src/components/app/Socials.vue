@@ -1,6 +1,6 @@
 <template>
     <div class="socials">
-        <a class="socials__item telegram">
+        <a class="socials__item telegram disabled">
             <TelegramSvg />
         </a>
         <a class="socials__item twitter" target="_blank" href="https://twitter.com/zometapp">
@@ -55,6 +55,7 @@ export default {
     .discord,
     .gitbook {
         cursor: not-allowed;
+        opacity: 0.5;
     }
 }
 </style>

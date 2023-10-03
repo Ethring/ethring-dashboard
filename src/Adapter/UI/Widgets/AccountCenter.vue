@@ -126,7 +126,6 @@ export default {
             justify-content: center;
             width: 40px;
             height: 40px;
-            background-color: var(--#{$prefix}primary);
 
             border-radius: 50%;
             margin-left: -16px;
