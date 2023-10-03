@@ -78,7 +78,7 @@ export default {
 
         border: 1px solid var(--#{$prefix}adapter-border-color);
         border-radius: 12px;
-        
+
         img {
             width: 30px;
             height: 30px;

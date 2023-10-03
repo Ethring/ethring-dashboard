@@ -149,7 +149,7 @@ export default {
             }
         }
     }
-    
+
     &__info {
         display: flex;
         flex-direction: column;

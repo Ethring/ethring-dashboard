@@ -48,13 +48,7 @@ const BUY_CRYPTO = {
 
 const defaultConfig = {
     [ECOSYSTEMS.EVM]: {
-        sidebar: [
-            MAIN_DASHBOARD,
-            SEND,
-            SWAP,
-            BRIDGE,
-            SUPER_SWAP,
-            BUY_CRYPTO],
+        sidebar: [MAIN_DASHBOARD, SEND, SWAP, BRIDGE, SUPER_SWAP, BUY_CRYPTO],
         send: {
             component: 'SimpleSend',
         },

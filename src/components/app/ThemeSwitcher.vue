@@ -76,7 +76,7 @@ export default {
         border-radius: 50%;
         top: 4px;
         left: 3px;
-        background: var(--#{$prefix}theme-switcher-color); 
+        background: var(--#{$prefix}theme-switcher-color);
     }
 }
 

@@ -34,7 +34,7 @@ export default {
             font-weight: 500;
             color: var(--#{$prefix}primary-text);
         }
-        
+
         &__logo-container {
             width: 20px;
             height: 20px;
