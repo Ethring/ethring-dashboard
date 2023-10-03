@@ -15,6 +15,7 @@
 
 <script>
 import { ref, watch } from 'vue';
+
 import SearchIcon from '@/assets/icons/app/search.svg';
 import ClearIcon from '@/assets/icons/app/xmark.svg';
 

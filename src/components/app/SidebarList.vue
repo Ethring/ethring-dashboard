@@ -25,24 +25,24 @@ import { computed } from 'vue';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 import UIConfig from '@/config/ui';
 
-import overviewSvg from '@/assets/icons/sidebar/main.svg';
-import swapSvg from '@/assets/icons/sidebar/swap.svg';
-import stakeSvg from '@/assets/icons/sidebar/stake.svg';
-import sendSvg from '@/assets/icons/sidebar/send.svg';
-import bridgeSvg from '@/assets/icons/sidebar/bridge.svg';
-import superSwapSvg from '@/assets/icons/sidebar/superSwap.svg';
-import buyCryptoSvg from '@/assets/icons/sidebar/buy.svg';
+import overviewIcon from '@/assets/icons/sidebar/main.svg';
+import swapIcon from '@/assets/icons/sidebar/swap.svg';
+import stakeIcon from '@/assets/icons/sidebar/stake.svg';
+import sendIcon from '@/assets/icons/sidebar/send.svg';
+import bridgeIcon from '@/assets/icons/sidebar/bridge.svg';
+import superSwapIcon from '@/assets/icons/sidebar/superSwap.svg';
+import buyCryptoIcon from '@/assets/icons/sidebar/buy.svg';
 
 export default {
     name: 'SidebarList',
     components: {
-        overviewSvg,
-        swapSvg,
-        stakeSvg,
-        sendSvg,
-        bridgeSvg,
-        superSwapSvg,
-        buyCryptoSvg,
+        overviewIcon,
+        swapIcon,
+        stakeIcon,
+        sendIcon,
+        bridgeIcon,
+        superSwapIcon,
+        buyCryptoIcon,
     },
     setup() {
         const { currentChainInfo } = useAdapter();

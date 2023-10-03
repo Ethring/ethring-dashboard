@@ -17,7 +17,7 @@
                         class="input-address"
                     />
                     <div v-if="address?.length" class="select-address__clear" @click="clearValue">
-                        <ClearSvg />
+                        <ClearIcon />
                     </div>
                 </div>
             </div>
@@ -27,14 +27,14 @@
                 <div class="info">
                     <div class="name">{{ item }}</div>
                 </div>
-                <CloseSvg class="remove" @click.stop="removeAddress(item)" />
+                <CloseIcon class="remove" @click.stop="removeAddress(item)" />
             </div>
         </div>
     </div>
 </template>
 <script>
-import CloseSvg from '@/assets/icons/app/close.svg';
-import ClearSvg from '@/assets/icons/app/xmark.svg';
+import CloseIcon from '@/assets/icons/app/close.svg';
+import ClearIcon from '@/assets/icons/app/xmark.svg';
 
 import { ref, watch, onMounted } from 'vue';
 
@@ -63,8 +63,8 @@ export default {
         },
     },
     components: {
-        CloseSvg,
-        ClearSvg,
+        CloseIcon,
+        ClearIcon,
     },
     setup(props, { emit }) {
         const active = ref(false);

@@ -2,35 +2,35 @@
 import { ECOSYSTEMS } from '@/Adapter/config';
 
 const MAIN_DASHBOARD = {
-    component: 'overviewSvg',
+    component: 'overviewIcon',
     title: 'Main',
     key: 'main',
     to: '/main',
 };
 
 const SEND = {
-    component: 'sendSvg',
+    component: 'sendIcon',
     title: 'Send',
     key: 'send',
     to: '/send',
 };
 
 const BRIDGE = {
-    component: 'bridgeSvg',
+    component: 'bridgeIcon',
     title: 'Bridge',
     key: 'bridge',
     to: '/bridge',
 };
 
 const SWAP = {
-    component: 'swapSvg',
+    component: 'swapIcon',
     title: 'Swap',
     key: 'swap',
     to: '/swap',
 };
 
 const SUPER_SWAP = {
-    component: 'superSwapSvg',
+    component: 'superSwapIcon',
     title: 'SuperSwap',
     key: 'superSwap',
     to: '/superSwap',
@@ -38,7 +38,7 @@ const SUPER_SWAP = {
 };
 
 const BUY_CRYPTO = {
-    component: 'buyCryptoSvg',
+    component: 'buyCryptoIcon',
     title: 'Buy Crypto',
     key: 'buyCrypto',
     to: '/buy',

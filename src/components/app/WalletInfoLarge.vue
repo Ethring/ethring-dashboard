@@ -1,7 +1,7 @@
 <template>
     <div class="wallet-info">
         <div class="wallet-info__network">
-            <WalletSvg />
+            <WalletIcon />
         </div>
 
         <div class="wallet-info__wallet">
@@ -27,12 +27,12 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 import { cutAddress } from '@/helpers/utils';
 import { prettyNumber } from '@/helpers/prettyNumber';
 
-import WalletSvg from '@/assets/icons/dashboard/wallet.svg';
+import WalletIcon from '@/assets/icons/dashboard/wallet.svg';
 
 export default {
     name: 'WalletInfo',
     components: {
-        WalletSvg,
+        WalletIcon,
     },
     setup() {
         const store = useStore();

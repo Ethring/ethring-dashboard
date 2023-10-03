@@ -1,7 +1,7 @@
 <template>
     <div class="select-token__title">{{ $t('tokenOperations.selectToken') }}</div>
     <div class="select-token__wrap">
-        <arrowSvg class="arrow" @click="router.push(router.options.history.state.back)" />
+        <ArrowIcon class="arrow" @click="router.push(router.options.history.state.back)" />
         <SearchInput @onChange="handleOnFilterTokens" />
 
         <template v-if="tokensLoading || tokensList.length">
@@ -40,7 +40,7 @@
         </template>
 
         <div v-else class="select-token__not-found">
-            <notFoundSvg />
+            <NotFoundIcon />
             <p>{{ $t('dashboard.notFound') }}</p>
         </div>
     </div>
@@ -54,8 +54,8 @@ import SearchInput from '@/components/ui/SearchInput';
 import TokenIcon from '@/components/ui/TokenIcon';
 import Button from '@/components/ui/Button';
 
-import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
-import notFoundSvg from '@/assets/icons/app/notFound.svg';
+import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
+import NotFoundIcon from '@/assets/icons/app/notFound.svg';
 
 import { prettyNumber } from '@/helpers/prettyNumber';
 import { searchByKey } from '@/helpers/utils';
@@ -66,8 +66,8 @@ export default {
         SearchInput,
         TokenIcon,
         Button,
-        arrowSvg,
-        notFoundSvg,
+        ArrowIcon,
+        NotFoundIcon,
     },
     props: {
         tokens: {

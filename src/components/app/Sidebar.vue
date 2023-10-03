@@ -11,7 +11,7 @@
             <div class="sidebar-items__list">
                 <div class="sidebar__settings" v-if="walletAddress">
                     <div class="sidebar__settings-icon">
-                        <SettingsSvg />
+                        <SettingsIcon />
                     </div>
                     <div class="sidebar__settings-title" :data-qa="`sidebar-item-settings`">
                         {{ $t(`sidebar.settings`) }}
@@ -29,7 +29,7 @@ import SidebarList from './SidebarList';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
-import SettingsSvg from '@/assets/icons/dashboard/settings.svg';
+import SettingsIcon from '@/assets/icons/dashboard/settings.svg';
 
 export default {
     name: 'Sidebar',
@@ -37,7 +37,7 @@ export default {
         Logo,
         SidebarList,
         Socials,
-        SettingsSvg,
+        SettingsIcon,
     },
     setup() {
         const { walletAddress } = useAdapter();

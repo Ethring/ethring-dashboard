@@ -4,20 +4,20 @@
             <router-link class="bridge-page__title" to="/send">{{ $t('simpleSend.title') }}</router-link>
             <div class="bridge-page__title__active bridge-page-tab__active">
                 {{ $t('simpleBridge.title') }}
-                <arrowupSvg class="arrow" />
+                <ArrowUpIcon class="arrow" />
             </div>
         </div>
     </AppLayout>
 </template>
 <script>
 import AppLayout from '@/layouts/AppLayout.vue';
-import arrowupSvg from '@/assets/icons/dashboard/arrowup.svg';
+import ArrowUpIcon from '@/assets/icons/dashboard/arrowup.svg';
 
 export default {
     name: 'Bridge',
     components: {
         AppLayout,
-        arrowupSvg,
+        ArrowUpIcon,
     },
 };
 </script>
