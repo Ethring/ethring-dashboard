@@ -1,22 +1,24 @@
 <template>
     <div class="sidebar">
         <div class="sidebar-items">
-            <div class="sidebar-items-list">
+            <div class="sidebar-items__list">
                 <div class="sidebar__logo-item">
                     <Logo class="sidebar__logo" />
                     <div class="sidebar__logo-type">{{ $t('sidebar.type') }}</div>
                 </div>
                 <SidebarList v-if="walletAddress" />
             </div>
-            <div class="sidebar__settings" v-if="walletAddress">
-                <div class="sidebar__settings-icon">
-                    <SettingsSvg />
+            <div class="sidebar-items__list">
+                <div class="sidebar__settings" v-if="walletAddress">
+                    <div class="sidebar__settings-icon">
+                        <SettingsSvg />
+                    </div>
+                    <div class="sidebar__settings-title" :data-qa="`sidebar-item-settings`">
+                        {{ $t(`sidebar.settings`) }}
+                    </div>
                 </div>
-                <div class="sidebar__settings-title" :data-qa="`sidebar-item-settings`">
-                    {{ $t(`sidebar.settings`) }}
-                </div>
+                <Socials class="sidebar__socials" />
             </div>
-            <Socials class="sidebar__socials" />
         </div>
     </div>
 </template>
@@ -64,11 +66,16 @@ export default {
     &-items {
         display: flex;
         flex-direction: column;
-        align-items: center;
         justify-content: space-between;
         height: 100%;
         max-width: 184px;
         margin: 0 auto;
+
+        &__list {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
     }
 
     &__socials {
@@ -80,6 +87,8 @@ export default {
         align-self: flex-start;
         align-items: center;
         color: var(--#{$prefix}sidebar-text);
+        margin-bottom: 50px;
+
         cursor: not-allowed;
         opacity: 0.5;
 
