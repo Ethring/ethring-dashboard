@@ -70,15 +70,18 @@ $sidebar-text: $geyser;
 $primary-text: $white;
 $secondary-text: $aquamarine;
 $symbol-text: $gulfStream;
+$mute-apr-text: $gulfStream;
 
 // Adapter text
 $adapter-text: $gulfStream;
-$adapter-ecosystem-bg: $blueHalk;
+$adapter-ecosystem-bg: 'transparent';
+$adapter-ecosystem-border-color: $trout;
 $adapter-logo-main-color: $gallery;
 $adapter-logo-base-color: $cyan;
 $adapter-logo-secondary-color: $iceberg;
 $adapter-border-color: $trout;
-$mute-apr-text: $gulfStream;
+$adapter-icon-color: $lightGreen;
+$adapter-secondary-border-color: $pastelPink;
 
 // Checkbox
 $checkbox-text: $gulfStream;
@@ -211,15 +214,18 @@ $theme-colors-dark: (
     "primary-text": $primary-text,
     "secondary-text": $secondary-text,
     "symbol-text": $symbol-text,
+    "mute-apr-text": $mute-apr-text,
 
     "adapter-text": $adapter-text,
     "adapter-ecosystem-bg": $adapter-ecosystem-bg,
+    "adapter-ecosystem-border-color": $adapter-ecosystem-border-color,
     "adapter-logo-main-color": $adapter-logo-main-color,
     "adapter-logo-base-color": $adapter-logo-base-color,
     "adapter-logo-secondary-color": $adapter-logo-secondary-color,
     "adapter-border-color": $adapter-border-color,
-    "mute-apr-text": $mute-apr-text,
-
+    "adapter-icon-color": $adapter-icon-color,
+    "adapter-secondary-border-color": $adapter-secondary-border-color,
+    
     "checkbox-text": $checkbox-text,
     "checkbox-disabled-text": $checkbox-disabled-text,
     "checkbox-checked": $checkbox-checked,

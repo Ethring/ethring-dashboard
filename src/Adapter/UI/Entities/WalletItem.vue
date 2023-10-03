@@ -91,7 +91,7 @@ export default {
 
     .check-icon {
         margin-left: auto;
-        background-color: #5aec99;
+        background-color: var(--#{$prefix}adapter-icon-color);
         border-radius: 50%;
         width: 20px;
         height: 20px;
@@ -108,7 +108,7 @@ export default {
 
     &.connected,
     &.connected > .icon {
-        border-color: #5aec99;
+        border-color: var(--#{$prefix}adapter-icon-color);
     }
 
     &.connecting {
@@ -124,9 +124,9 @@ export default {
     }
 
     &.not-found {
-        border-color: #f7d0d0;
+        border-color: var(--#{$prefix}adapter-secondary-border-color);
         .icon {
-            border-color: #f7d0d0;
+            border-color: var(--#{$prefix}adapter-secondary-border-color);
         }
     }
 }

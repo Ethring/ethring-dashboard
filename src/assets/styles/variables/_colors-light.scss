@@ -47,7 +47,7 @@ $carteblanche: #e7ecff;
 $perfectLanding: #a0b3c3;
 $caneelBay: #00839f;
 $blueHalk: #e6eeff;
-
+$pastelPink: #f7d0d0;
 
 //  ===========================================================================
 //  GRADIENTS
@@ -87,17 +87,20 @@ $mute-text: $trout;
 $base-text: $mineralGreen;
 $sidebar-text: $geyser;
 $primary-text: $ebonyClay;
-$secondary-text: $trout; // harborBlue Not connect
+$secondary-text: $trout;
 $symbol-text: $charade;
+$mute-apr-text: $paleSky;
 
 // Adapter text
 $adapter-text: rgba($black, 0.45);
 $adapter-ecosystem-bg: $blueHalk;
+$adapter-ecosystem-border-color: $geyser;
 $adapter-logo-main-color: $gallery;
 $adapter-logo-base-color: $cyan;
 $adapter-logo-secondary-color: $iceberg;
 $adapter-border-color: $iceberg;
-$mute-apr-text: $paleSky;
+$adapter-icon-color: $lightGreen;
+$adapter-secondary-border-color: $pastelPink;
 
 // Checkbox
 $checkbox-text: $gulfStream;
@@ -225,14 +228,17 @@ $theme-colors: (
     "primary-text": $primary-text,
     "secondary-text": $secondary-text,
     "symbol-text": $symbol-text,
+    "mute-apr-text": $mute-apr-text,
 
     "adapter-text": $adapter-text,
     "adapter-ecosystem-bg": $adapter-ecosystem-bg,
+    "adapter-ecosystem-border-color": $adapter-ecosystem-border-color,
     "adapter-logo-main-color": $adapter-logo-main-color,
     "adapter-logo-base-color": $adapter-logo-base-color,
     "adapter-logo-secondary-color": $adapter-logo-secondary-color,
     "adapter-border-color": $adapter-border-color,
-    "mute-apr-text": $mute-apr-text,
+    "adapter-icon-color": $adapter-icon-color,
+    "adapter-secondary-border-color": $adapter-secondary-border-color,
 
     "checkbox-text": $checkbox-text,
     "checkbox-disabled-text": $checkbox-disabled-text,

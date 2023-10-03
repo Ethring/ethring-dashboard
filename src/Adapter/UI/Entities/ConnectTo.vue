@@ -60,6 +60,7 @@ export default {
     justify-content: flex-start;
 
     background-color: var(--#{$prefix}adapter-ecosystem-bg);
+    color: var(--#{$prefix}primary-text);
 
     &.disabled {
         opacity: 0.5;
@@ -70,7 +71,7 @@ export default {
     max-width: 500px;
     width: auto;
 
-    border: 1px solid var(--#{$prefix}border-color);
+    border: 1px solid var(--#{$prefix}adapter-ecosystem-border-color);
 
     border-radius: 8px;
     padding: 8px;
@@ -81,6 +82,7 @@ export default {
 
     &:hover:not(.disabled) {
         background: var(--#{$prefix}btn-disabled-icon);
+        color: var(--#{$prefix}black);
     }
 
     &:not(:last-child) {
