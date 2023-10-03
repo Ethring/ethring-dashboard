@@ -16,7 +16,7 @@
             <div class="value" :title="balance.value">
                 {{ balance.pretty }}
             </div>
-            <div class="symbol">{{ item?.code }}</div>
+            <div class="symbol">{{ item?.symbol }}</div>
         </div>
         <div class="change">
             <div class="value" :title="balanceUsd.value"><span>$</span>{{ balanceUsd.pretty }}</div>

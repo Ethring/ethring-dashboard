@@ -19,14 +19,14 @@
                                 <TokenIcon width="24" height="24" :token="item" />
                             </div>
                             <div class="info">
-                                <div class="symbol">{{ item.code }}</div>
+                                <div class="symbol">{{ item.symbol }}</div>
                                 <div class="name">{{ item.name }}</div>
                             </div>
                         </div>
                         <div class="amount">
                             <h3>
                                 {{ prettyNumber(item?.balance) }}
-                                <span class="symbol">{{ item?.code }}</span>
+                                <span class="symbol">{{ item?.symbol }}</span>
                             </h3>
                             <h5 class="value"><span>$</span>{{ prettyNumber(item?.balanceUsd) }}</h5>
                         </div>

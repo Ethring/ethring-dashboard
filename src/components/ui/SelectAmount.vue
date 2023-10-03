@@ -15,7 +15,7 @@
                             <TokenIcon width="24" height="24" :token="selectedToken" />
                         </div>
 
-                        <div class="token" v-if="selectedToken">{{ selectedToken?.code }}</div>
+                        <div class="token" v-if="selectedToken">{{ selectedToken?.symbol }}</div>
                         <div class="token placeholder" v-else>{{ $t(selectPlaceholder) }}</div>
 
                         <arrowSvg class="arrow" />
@@ -53,7 +53,7 @@
                             <span>
                                 {{ setTokenBalance(selectedToken) }}
                             </span>
-                            {{ selectedToken?.code }}
+                            {{ selectedToken?.symbol }}
                         </p>
                     </template>
                 </div>
@@ -208,8 +208,7 @@ export default {
                 } else {
                     amount.value = val;
                 }
-                return (payTokenPrice.value =
-                    prettyNumber(BigNumber(amount.value * +selectedToken?.value?.latest_price || 0).toFixed()) || 0);
+                return (payTokenPrice.value = prettyNumber(BigNumber(amount.value * +selectedToken?.value?.price || 0).toFixed()) || 0);
             }
 
             return (payTokenPrice.value = '0');

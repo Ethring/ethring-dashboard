@@ -82,4 +82,12 @@ module.exports = {
             },
         },
     },
+    pwa: {
+        name: 'Zomet Dashboard',
+        // Конфигурация кэширования
+        workboxPluginMode: 'InjectManifest',
+        workboxOptions: {
+            swSrc: 'src/service-worker.js',
+        },
+    },
 };

@@ -8,7 +8,7 @@
                 :value="selectedTokenFrom"
                 :error="!!errorBalance"
                 :on-reset="resetAmount"
-                :is-token-loading="isTokensLoading"
+                :is-token-loading="isTokensLoadingForChain"
                 :is-update="isUpdateSwapDirectionValue"
                 :label="$t('tokenOperations.pay')"
                 @clickToken="onSetTokenFrom"
@@ -23,7 +23,7 @@
                 class="mt-10"
                 disabled
                 hide-max
-                :is-token-loading="isTokensLoading"
+                :is-token-loading="isTokensLoadingForChain"
                 :is-amount-loading="isEstimating"
                 :value="selectedTokenTo"
                 :on-reset="resetAmount"
@@ -145,8 +145,6 @@ export default {
         const receiveValue = ref('');
         const setReceiveValue = ref('');
 
-        const isTokensLoading = computed(() => store.getters['tokens/loader']);
-
         // =================================================================================================================
 
         const selectedService = computed({
@@ -184,6 +182,10 @@ export default {
 
         // =================================================================================================================
 
+        const isTokensLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](selectedNetwork.value?.net));
+
+        // =================================================================================================================
+
         // * Tokens list for validation
         const tokensList = computed(() => {
             const { net } = selectedNetwork.value || {};
@@ -213,12 +215,12 @@ export default {
                 return;
             }
 
-            const { code: fromCode } = selectedTokenFrom.value || {};
-            const { code: toCode } = selectedTokenFrom.value || {};
+            const { symbol: fromSymbol } = selectedTokenFrom.value || {};
+            const { symbol: toSymbol } = selectedTokenFrom.value || {};
 
-            const searchTokens = [fromCode, toCode];
+            const searchTokens = [fromSymbol, toSymbol];
 
-            const updatedList = tokensList.value.filter((tkn) => searchTokens.includes(tkn.code)) || [];
+            const updatedList = tokensList.value.filter((tkn) => searchTokens.includes(tkn.symbol)) || [];
 
             if (!updatedList.length) {
                 return;
@@ -488,11 +490,11 @@ export default {
             receiveValue.value = response.toTokenAmount;
 
             // TODO: add fee
-            networkFee.value = prettyNumberTooltip(+response.fee.amount * selectedNetwork.value.latest_price, 4);
+            networkFee.value = prettyNumberTooltip(+response.fee.amount * selectedNetwork.value.price, 4);
 
             estimateRate.value = prettyNumberTooltip(response.toTokenAmount / response.fromTokenAmount, 6);
 
-            setReceiveValue.value = `Rate: <span class='symbol'>1</span> ${selectedTokenFrom.value.code} = <span class='symbol'>${estimateRate.value}</span> ${selectedTokenTo.value.code}`;
+            setReceiveValue.value = `Rate: <span class='symbol'>1</span> ${selectedTokenFrom.value.symbol} = <span class='symbol'>${estimateRate.value}</span> ${selectedTokenTo.value.symbol}`;
         };
 
         // =================================================================================================================
@@ -533,7 +535,7 @@ export default {
             showNotification({
                 key: 'approve-tx',
                 type: 'info',
-                title: `Getting Approve for ${selectedTokenFrom.value.code}`,
+                title: `Getting Approve for ${selectedTokenFrom.value.symbol}`,
                 icon: h(LoadingOutlined, {
                     spin: true,
                 }),
@@ -574,7 +576,7 @@ export default {
             showNotification({
                 key: 'prepare-tx',
                 type: 'info',
-                title: `Swap ${amount.value} ${selectedTokenFrom.value.code} to ~${receiveValue.value} ${selectedTokenTo.value.code}`,
+                title: `Swap ${amount.value} ${selectedTokenFrom.value.symbol} to ~${receiveValue.value} ${selectedTokenTo.value.symbol}`,
                 description: 'Please wait, transaction is preparing',
                 icon: h(LoadingOutlined, {
                     spin: true,
@@ -721,11 +723,7 @@ export default {
             }, 5000);
         });
 
-        watch(isTokensLoading, (loading) => {
-            if (!loading) {
-                setTokenOnChange();
-            }
-        });
+        watch(isTokensLoadingForChain, () => setTokenOnChange());
 
         // =================================================================================================================
 
@@ -750,9 +748,9 @@ export default {
 
         return {
             isLoading,
-            isTokensLoading,
             isEstimating,
             isNeedApprove,
+            isTokensLoadingForChain,
 
             opTitle,
 

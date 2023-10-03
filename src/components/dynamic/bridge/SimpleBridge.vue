@@ -24,7 +24,7 @@
             :on-reset="resetAmount"
             :disabled="!selectedSrcToken"
             :label="$t('tokenOperations.send')"
-            :is-token-loading="isTokensLoading"
+            :is-token-loading="isTokensLoadingForSrc"
             class="mt-10"
             @setAmount="onSetAmount"
             @clickToken="onSetSrcToken"
@@ -36,7 +36,7 @@
             disabled
             :value="selectedDstToken"
             :is-amount-loading="isEstimating"
-            :is-token-loading="isTokensLoading"
+            :is-token-loading="isTokensLoadingForDst"
             :label="$t('tokenOperations.receive')"
             :disabled-value="prettyNumber(receiveValue)"
             :on-reset="resetAmount"
@@ -52,7 +52,7 @@
             v-if="selectedDstToken"
             id="receiveToken"
             v-model:value="receiveToken"
-            :label="`Receive ${selectedDstToken?.code} to another wallet`"
+            :label="`Receive ${selectedDstToken?.symbol} to another wallet`"
             class="mt-10"
         />
 
@@ -74,7 +74,7 @@
         >
             <div v-if="receiveValue" class="accordion__content">
                 <AccordionItem :label="$t('simpleBridge.serviceFee') + ' :'">
-                    <span>{{ prettyNumber(networkFee * +selectedSrcToken?.latest_price) }}</span> <span class="symbol">$</span>
+                    <span>{{ prettyNumber(networkFee * +selectedSrcToken?.price) }}</span> <span class="symbol">$</span>
                 </AccordionItem>
                 <AccordionItem :label="$t('simpleBridge.title') + ' :'">
                     <img src="https://app.debridge.finance/assets/images/bridge.svg" />
@@ -173,8 +173,6 @@ export default {
 
         const isEstimating = ref(false);
 
-        const isTokensLoading = computed(() => store.getters['tokens/loader']);
-
         // =================================================================================================================
 
         const selectedService = computed({
@@ -238,6 +236,12 @@ export default {
 
         // =================================================================================================================
 
+        const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
+        const isTokensLoadingForSrc = computed(() => store.getters['tokens/loadingByChain'](selectedSrcNetwork.value?.net));
+        const isTokensLoadingForDst = computed(() => store.getters['tokens/loadingByChain'](selectedDstNetwork.value?.net));
+
+        // =================================================================================================================
+
         const serviceFee = computed(() => {
             const { protocolFee = null } = selectedService.value || {};
 
@@ -270,7 +274,7 @@ export default {
                 <span class='service-fee'>${serviceFee.value}</span>
                 <span class='symbol'> ${symbol} ~
                     <span class='service-fee'>
-                        ${prettyNumber(serviceFee.value * +selectedSrcNetwork.value.latest_price)}
+                        ${prettyNumber(serviceFee.value * +selectedSrcNetwork.value.price)}
                         </span> $
                     </span>`;
 
@@ -303,11 +307,11 @@ export default {
                 selectedSrcToken.value = defaultToken;
             }
 
-            const { code: targetCode } = selectedSrcToken.value || {};
+            const { symbol: targetSymbol } = selectedSrcToken.value || {};
 
-            const searchTokens = [targetCode];
+            const searchTokens = [targetSymbol];
 
-            const updatedList = tokensList.value?.filter((tkn) => searchTokens.includes(tkn.code)) || [];
+            const updatedList = tokensList.value?.filter((tkn) => searchTokens.includes(tkn.symbol)) || [];
 
             if (!updatedList.length) {
                 return;
@@ -637,7 +641,7 @@ export default {
             showNotification({
                 key: 'approve-tx',
                 type: 'info',
-                title: `Getting Approve for ${selectedSrcToken.value.code}`,
+                title: `Getting Approve for ${selectedSrcToken.value.symbol}`,
                 icon: h(LoadingOutlined, {
                     spin: true,
                 }),
@@ -676,7 +680,7 @@ export default {
             showNotification({
                 key: 'prepare-tx',
                 type: 'info',
-                title: `Bridge ${amount.value} ${selectedSrcToken.value.code} to ~${receiveValue.value} ${selectedDstToken.value.code}`,
+                title: `Bridge ${amount.value} ${selectedSrcToken.value.symbol} to ~${receiveValue.value} ${selectedDstToken.value.symbol}`,
                 description: 'Please wait, transaction is preparing',
                 icon: h(LoadingOutlined, {
                     spin: true,
@@ -793,11 +797,8 @@ export default {
 
         // =================================================================================================================
 
-        watch(isTokensLoading, (loading) => {
-            if (!loading) {
-                setTokenOnChange();
-            }
-        });
+        watch(isAllTokensLoading, () => setTokenOnChange());
+        watch(isTokensLoadingForSrc, () => setTokenOnChange());
 
         watch(selectedSrcNetwork, (newValue, oldValue) => {
             if (newValue?.net !== oldValue?.net) {
@@ -859,12 +860,6 @@ export default {
             }, 5000);
         });
 
-        watch(isTokensLoading, (loading) => {
-            if (!loading) {
-                setTokenOnChange();
-            }
-        });
-
         // =================================================================================================================
 
         onBeforeUnmount(() => {
@@ -881,8 +876,10 @@ export default {
         return {
             // Loading
             isLoading,
-            isTokensLoading,
             isEstimating,
+            isAllTokensLoading,
+            isTokensLoadingForSrc,
+            isTokensLoadingForDst,
 
             disabledBtn,
             isNeedApprove,

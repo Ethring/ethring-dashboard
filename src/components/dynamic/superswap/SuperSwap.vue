@@ -240,7 +240,7 @@ export default {
             const list = [
                 ...listWithBalances,
                 ...allTokensFromNetwork(network.net).filter((token) => {
-                    return token.net !== network.net && !listWithBalances?.find((t) => t.code === token.code);
+                    return token.net !== network.net && !listWithBalances?.find((t) => t.symbol === token.symbol);
                 }),
             ];
 
@@ -276,7 +276,7 @@ export default {
 
             if (!selectedSrcToken.value || updateFromToken.value) {
                 if (!tokens[0]?.balanceUsd) {
-                    const usdcToken = tokens.find((elem) => elem.code === 'USDC');
+                    const usdcToken = tokens.find((elem) => elem.symbol === 'USDC');
                     store.dispatch('tokens/setFromToken', usdcToken || tokens[0]);
                 } else {
                     store.dispatch('tokens/setFromToken', tokens[0]);
@@ -307,9 +307,9 @@ export default {
             store.dispatch('bridge/setSelectedDstNetwork', network);
 
             const tokens = await tokensList(network, 'to');
-            const foundToken = tokens.find((elem) => elem.code === selectedDstToken?.value?.code);
+            const foundToken = tokens.find((elem) => elem.symbol === selectedDstToken?.value?.symbol);
             if (!selectedDstToken.value || !foundToken) {
-                const tokenTo = tokens.find((elem) => elem.code !== selectedSrcToken.value.code);
+                const tokenTo = tokens.find((elem) => elem.symbol !== selectedSrcToken.value.symbol);
                 if (tokenTo) {
                     store.dispatch('tokens/setToToken', tokenTo);
                 } else {
@@ -459,9 +459,9 @@ export default {
             receiveValue.value = resEstimate.bestRoute?.toTokenAmount;
             networkFee.value = prettyNumberTooltip(resEstimate.bestRoute?.estimateFeeUsd, 4);
             estimateRate.value = prettyNumberTooltip(resEstimate.bestRoute.toTokenAmount / resEstimate.bestRoute.fromTokenAmount, 6);
-            setReceiveValue.value = `Rate: <span class='symbol'>1</span> ${selectedSrcToken?.value.code || ''} = <span class='symbol'>${
+            setReceiveValue.value = `Rate: <span class='symbol'>1</span> ${selectedSrcToken?.value.symbol || ''} = <span class='symbol'>${
                 estimateRate.value
-            }</span> ${selectedDstToken?.value.code || ''}`;
+            }</span> ${selectedDstToken?.value.symbol || ''}`;
             isLoading.value = false;
         };
 
@@ -653,13 +653,13 @@ export default {
             if (balanceUpdated.value) {
                 setTimeout(() => {
                     tokensList(selectedSrcNetwork.value).then((tokens) => {
-                        let tokenFrom = tokens.find((elem) => elem.code === selectedSrcToken.value.code);
+                        let tokenFrom = tokens.find((elem) => elem.symbol === selectedSrcToken.value.symbol);
                         if (tokenFrom) {
                             store.dispatch('tokens/setFromToken', tokenFrom);
                         }
                     });
                     tokensList(selectedDstNetwork.value).then((tokens) => {
-                        let tokenTo = tokens.find((elem) => elem.code === selectedDstToken.value.code);
+                        let tokenTo = tokens.find((elem) => elem.symbol === selectedDstToken.value.symbol);
                         if (tokenTo) {
                             store.dispatch('tokens/setToToken', tokenTo);
                         }

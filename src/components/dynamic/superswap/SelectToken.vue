@@ -78,7 +78,7 @@ export default {
             if (selectedSrcNetwork.value?.net === selectedDstNetwork.value?.net) {
                 return list.filter(
                     (elem) =>
-                        elem?.code !== secondToken?.code &&
+                        elem?.symbol !== secondToken?.symbol &&
                         (byTokenKey(elem, searchValue.value, 'name') ||
                             byTokenKey(elem, searchValue.value, 'code') ||
                             byTokenKey(elem, searchValue.value, 'address'))
@@ -100,14 +100,14 @@ export default {
             if (selectType.value === 'from') {
                 store.dispatch('tokens/setFromToken', item);
             } else {
-                if (item.latest_price) {
+                if (item.price) {
                     store.dispatch('tokens/setToToken', item);
                 } else {
                     const price = await prices.Coingecko.priceByPlatformContracts({
                         chainId: selectedDstNetwork.value?.chain_id || selectedDstNetwork.value?.chainId,
                         addresses: item.address,
                     });
-                    item.latest_price = price[item.address.toLowerCase()]?.usd;
+                    item.price = price[item.address.toLowerCase()]?.usd;
 
                     store.dispatch('tokens/setToToken', item);
                 }

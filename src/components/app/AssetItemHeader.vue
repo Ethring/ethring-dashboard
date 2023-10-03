@@ -19,14 +19,27 @@
                 </div>
             </div>
         </div>
-        <div class="asset__item-header-reward" v-if="showRewards">
-            {{ $t('tokenOperations.rewards') + ':' }}
-            <div class="asset__item-header-value">{{ showBalance ? formatNumber(reward) : '***' }}</div>
-            <span class="asset__item-header-symbol__left"> $ </span>
+
+        <div class="column">
+            <div class="asset__item-header-health" v-if="healthRate">
+                <h5>{{ formatNumber(healthRate, 2) }} <span>%</span></h5>
+                <div
+                    class="asset__item-header-health-bar"
+                    :class="`asset__item-header-health-bar-${getPercentageQuarter(healthRate)}`"
+                    :style="{ width: `${healthRate > 0 ? healthRate : 1}%` }"
+                ></div>
+            </div>
         </div>
-        <div class="asset__item-header-balance">
-            <span class="asset__item-header-symbol">$</span>
-            {{ showBalance ? formatNumber(totalBalance, 2) : '***' }}
+        <div class="column">
+            <div class="asset__item-header-balance">
+                <span class="asset__item-header-symbol">$</span>
+                <h4>{{ showBalance ? formatNumber(totalBalance, 2) : '***' }}</h4>
+            </div>
+            <div class="asset__item-header-reward" v-if="showRewards">
+                <span class="asset__item-header-symbol"> $ </span>
+                <p>{{ showBalance ? formatNumber(reward) : '***' }}</p>
+                <RewardsIcon class="asset__item-header-reward-icon" />
+            </div>
         </div>
     </div>
 </template>
@@ -35,6 +48,7 @@ import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 
 import TokenLogo from '@/assets/icons/dashboard/tokenLogo.svg';
+import RewardsIcon from '@/assets/icons/dashboard/rewards.svg';
 
 import { formatNumber } from '@/helpers/prettyNumber';
 
@@ -59,6 +73,10 @@ export default {
             type: Number,
             default: 0,
         },
+        healthRate: {
+            type: Number,
+            default: 0,
+        },
         logoURI: {
             type: String,
             default: '',
@@ -66,6 +84,7 @@ export default {
     },
     components: {
         TokenLogo,
+        RewardsIcon,
     },
     setup() {
         const store = useStore();
@@ -73,16 +92,35 @@ export default {
 
         const showImagePlaceholder = ref(false);
 
+        const getPercentageQuarter = (val) => {
+            if (val > 75) {
+                return 100;
+            } else if (val > 50) {
+                return 75;
+            } else if (val > 25) {
+                return 50;
+            }
+
+            return 25;
+        };
+
         return {
             showBalance,
             showImagePlaceholder,
 
+            getPercentageQuarter,
             formatNumber,
         };
     },
 };
 </script>
 <style lang="scss" scoped>
+.column {
+    display: flex;
+    flex-direction: column;
+    width: 20%;
+}
+
 .asset__item-header {
     display: flex;
     align-items: center;
@@ -131,29 +169,84 @@ export default {
     }
 
     &-symbol {
-        font-size: var(--#{$prefix}small-lg-fs);
+        font-size: var(--#{$prefix}small-sm-fs);
+        line-height: 13px;
         color: var(--#{$prefix}mute-text);
         font-weight: 400;
+
         &__left {
             margin-left: 5px;
         }
     }
 
     &-balance {
-        color: var(--#{$prefix}primary-text);
-        font-size: var(--#{$prefix}default-fs);
-        font-weight: 600;
-        text-align: right;
-        width: 20%;
+        display: flex;
+        align-items: flex-end;
+        margin-bottom: 4px;
+        align-self: flex-end;
+
+        h4 {
+            color: var(--#{$prefix}primary-text);
+            font-size: var(--#{$prefix}h6-fs);
+            line-height: 16px;
+            font-weight: 600;
+            margin-left: 2px;
+        }
     }
 
     &-reward {
         display: flex;
-        align-items: baseline;
-        width: 20%;
+        align-items: flex-end;
+        align-self: flex-end;
 
-        color: var(--#{$prefix}mute-text);
-        font-size: var(--#{$prefix}small-lg-fs);
+        p {
+            color: var(--#{$prefix}mute-text);
+            font-size: var(--#{$prefix}small-md-fs);
+            margin: 0 2px;
+        }
+        &-icon {
+            margin-bottom: 1px;
+            stroke: var(--#{$prefix}mute-text);
+        }
+    }
+    &-health {
+        width: 64px;
+        height: 24px;
+        border-radius: 24px;
+        background-color: var(--#{$prefix}percentage-bar-bg-color);
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        h5 {
+            z-index: 1;
+            font-weight: 700;
+            font-size: var(--#{$prefix}small-md-fs);
+
+            span {
+                font-weight: 400;
+                margin-left: -2px;
+            }
+        }
+        &-bar {
+            height: 24px;
+            position: absolute;
+            left: 0;
+
+            &-100 {
+                background-color: var(--#{$prefix}percentage-bar-100);
+            }
+            &-75 {
+                background-color: var(--#{$prefix}percentage-bar-75);
+            }
+            &-50 {
+                background-color: var(--#{$prefix}percentage-bar-50);
+            }
+            &-25 {
+                background-color: var(--#{$prefix}percentage-bar-25);
+            }
+        }
     }
 }
 
