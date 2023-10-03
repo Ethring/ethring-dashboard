@@ -59,11 +59,7 @@ export default {
         background-color: var(--#{$prefix}secondary-background);
     }
 
-    .ant-modal-title {
-        color: var(--#{$prefix}primary-text);
-    }
-
-    .ant-modal-close-x {
+    .ant-modal-title, .ant-modal-close-x {
         color: var(--#{$prefix}primary-text);
     }
 }
