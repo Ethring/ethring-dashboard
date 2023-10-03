@@ -22,11 +22,11 @@
 
         <div class="column">
             <div class="asset__item-header-health" v-if="healthRate">
-                <h5>{{ healthPercentage }} <span>%</span></h5>
+                <h5>{{ formatNumber(healthRate, 2) }} <span>%</span></h5>
                 <div
                     class="asset__item-header-health-bar"
-                    :class="`asset__item-header-health-bar-${getPercentageQuarter(healthPercentage)}`"
-                    :style="{ width: `${healthPercentage > 0 ? healthPercentage : 1}%` }"
+                    :class="`asset__item-header-health-bar-${getPercentageQuarter(healthRate)}`"
+                    :style="{ width: `${healthRate > 0 ? healthRate : 1}%` }"
                 ></div>
             </div>
         </div>
@@ -86,29 +86,26 @@ export default {
         TokenLogo,
         RewardsIcon,
     },
-    setup(props) {
+    setup() {
         const store = useStore();
         const showBalance = computed(() => store.getters['app/showBalance']);
 
         const showImagePlaceholder = ref(false);
-        const healthPercentage = formatNumber(props.healthRate, 2);
 
         const getPercentageQuarter = (val) => {
             if (val > 75) {
                 return 100;
-            }
-            if (val > 50) {
+            } else if (val > 50) {
                 return 75;
-            }
-            if (val > 25) {
+            } else if (val > 25) {
                 return 50;
             }
+
             return 25;
         };
 
         return {
             showBalance,
-            healthPercentage,
             showImagePlaceholder,
 
             getPercentageQuarter,
