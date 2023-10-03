@@ -80,11 +80,11 @@ export default function useTokens() {
                 const nativeToken = tokens.find(({ chain }) => chain.toLowerCase() === network);
 
                 record.balance = nativeToken?.balance || 0;
-                record.latest_price = nativeToken?.latest_price || 0;
+                record.price = nativeToken?.price || 0;
 
                 // TODO: remove this after adding tokens to the cosmos network
                 if (ecosystem === ECOSYSTEMS.COSMOS) {
-                    const baseToken = tokens.find(({ code }) => code === asset.code);
+                    const baseToken = tokens.find(({ symbol }) => symbol === asset.symbol);
 
                     const tokenInfo = {
                         ...asset,

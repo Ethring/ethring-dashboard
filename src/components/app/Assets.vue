@@ -24,16 +24,18 @@
                     :totalBalance="item.totalGroupBalance"
                     :showRewards="item.totalRewardsBalance > 0"
                     :reward="item.totalRewardsBalance"
+                    :healthRate="item.healthRate"
                 />
                 <div v-for="(groupItem, n) in item.data" :key="n">
-                    <AssetItemSubHeader :type="getFormattedName(groupItem.integration.type)" />
+                    <AssetItemSubHeader :type="getFormattedName(groupItem.type)" />
 
                     <AssetItem v-for="(balanceItem, i) in sortByKey(groupItem.balances, 'balanceUsd')" :key="i" :item="balanceItem">
-                        <div class="asset-item__info" v-if="balanceItem.balance_type">
-                            <div class="asset-item__type">{{ getFormattedName(balanceItem.balance_type) }}</div>
-                            <div class="asset-item__unlock" v-if="balanceItem.unlock_timestamp">
-                                Unlock {{ getFormattedDate(balanceItem.unlock_timestamp) }}
+                        <div class="asset-item__info" v-if="balanceItem.balanceType">
+                            <div class="asset-item__type">{{ getFormattedName(balanceItem.balanceType) }}</div>
+                            <div class="asset-item__unlock" v-if="balanceItem.unlockTimestamp">
+                                Unlock {{ getFormattedDate(balanceItem.unlockTimestamp) }}
                             </div>
+                            <div class="asset-item__apr" v-if="groupItem.apr"><span>APR </span> {{ prettyNumber(groupItem.apr, 2) }}%</div>
                         </div>
                     </AssetItem>
                 </div>
@@ -63,7 +65,7 @@ import EmptyList from '@/components/ui/EmptyList';
 
 import AssetItem from './AssetItem';
 import AssetItemHeader from './AssetItemHeader';
-import AssetItemSubHeader from './AssetItemSubHeader.vue';
+import AssetItemSubHeader from './AssetItemSubHeader';
 
 import { getTokenIcon, sortByKey } from '@/helpers/utils';
 import { prettyNumber } from '@/helpers/prettyNumber';
@@ -112,45 +114,46 @@ export default {
                 return groupByPlatforms;
             }
 
-            const getTotalBalanceByType = (balances, balanceType = BALANCES_TYPES.ALL) => {
+            const getTotalBalanceByType = (balances, type = BALANCES_TYPES.ALL) => {
                 if (!balances.length) {
                     return 0;
                 }
 
-                if (balanceType === BALANCES_TYPES.ALL) {
+                if (type === BALANCES_TYPES.ALL) {
                     return balances.reduce((sum, token) => sum + +token.balanceUsd, 0);
                 }
 
-                return balances
-                    .filter(({ balance_type }) => balance_type === balanceType)
-                    .reduce((sum, token) => sum + +token.balanceUsd, 0);
+                return balances.filter(({ balanceType }) => balanceType === type).reduce((sum, token) => sum + +token.balanceUsd, 0);
             };
 
-            const getDataForIntegrations = (record, balances) => {
-                const { integration = {} } = record || {};
-
+            const getDataForIntegrations = (integration, balances) => {
                 return {
                     platform: integration.platform,
-                    data: [record],
+                    data: [integration],
                     logoURI: integration.logo,
+                    healthRate: integration?.healthRate,
                     totalGroupBalance: getTotalBalanceByType(balances, BALANCES_TYPES.ALL),
                     totalRewardsBalance: getTotalBalanceByType(balances, BALANCES_TYPES.PENDING),
                 };
             };
 
-            for (const record of allIntegrations.value) {
-                const { integration = {}, balances = [] } = record || {};
+            for (const integration of allIntegrations.value) {
+                const { balances = [] } = integration || {};
 
                 const existingGroup = groupByPlatforms.find(({ platform }) => platform === integration.platform);
 
                 if (existingGroup) {
                     existingGroup.totalGroupBalance += getTotalBalanceByType(balances, BALANCES_TYPES.ALL);
                     existingGroup.totalRewardsBalance += getTotalBalanceByType(balances, BALANCES_TYPES.PENDING);
-                    existingGroup.data.push(record);
+                    existingGroup.data.push(integration);
+
+                    if (integration.healthRate) {
+                        existingGroup.healthRate = integration.healthRate;
+                    }
                     continue;
                 }
 
-                groupByPlatforms.push(getDataForIntegrations(record, balances));
+                groupByPlatforms.push(getDataForIntegrations(integration, balances));
             }
 
             return groupByPlatforms;
@@ -247,14 +250,24 @@ export default {
         }
     }
 
-    .asset-item__type {
-        color: var(--#{$prefix}base-text);
+    .asset-item__type,
+    .asset-item__apr {
+        color: var(--#{$prefix}sub-text);
         font-size: var(--#{$prefix}small-lg-fs);
         font-weight: 500;
     }
 
+    .asset-item__apr {
+        span {
+            font-weight: 400;
+            color: var(--#{$prefix}mute-apr-text);
+        }
+    }
+
     .asset-item__unlock {
-        color: #6d747a;
+        color: var(--#{$prefix}mute-apr-text);
+        font-weight: 400;
+        font-size: var(--#{$prefix}small-lg-fs);
     }
 }
 </style>

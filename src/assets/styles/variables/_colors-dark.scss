@@ -69,6 +69,7 @@ $base-text: $gulfStream;
 $sidebar-text: $geyser;
 $primary-text: $white;
 $secondary-text: $aquamarine;
+$mute-apr-text: $gulfStream;
 
 // Checkbox
 $checkbox-text: $gulfStream;
@@ -148,6 +149,13 @@ $arrow-color: $white;
 $negative-percentage: $wildWatermelon;
 $positive-percentage: $springGreen;
 
+// Percentage bar
+$percentage-bar-bg-color: $iceberg;
+$percentage-bar-100: $springGreen;
+$percentage-bar-75: $lightGreen;
+$percentage-bar-50: $blazeOrange;
+$percentage-bar-25: $wildWatermelon;
+
 // Modal
 $modal-bg-color: $black-op-085;
 $modal-content-bg-color: $chineseBlack;
@@ -189,6 +197,7 @@ $theme-colors-dark: (
     "sidebar-text": $sidebar-text,
     "primary-text": $primary-text,
     "secondary-text": $secondary-text,
+    "mute-apr-text": $mute-apr-text,
 
     "checkbox-text": $checkbox-text,
     "checkbox-disabled-text": $checkbox-disabled-text,
@@ -265,6 +274,12 @@ $theme-colors-dark: (
     "block-box-shadow": $block-box-shadow,
     "loader-border-color": $loader-border-color,
     "nav-bar-bg-color": $nav-bar-bg-color,
+
+    "percentage-bar-bg-color": $percentage-bar-bg-color,
+    "percentage-bar-100": $percentage-bar-100,
+    "percentage-bar-75": $percentage-bar-75,
+    "percentage-bar-50": $percentage-bar-50,
+    "percentage-bar-25": $percentage-bar-25,
 
     "tag-01": $tag-01,
     "tag-02": $tag-02,

@@ -190,7 +190,7 @@ export default {
             const result = await assetsInfo();
 
             if (result.tokens && result.tokens.length) {
-                const nativeToken = result.tokens.find((elem) => elem.code === selectedNet.info.code);
+                const nativeToken = result.tokens.find((elem) => elem.symbol === selectedNet.info.symbol);
                 tokens[selectedNet.net].balance = nativeToken?.balance;
                 tokens[selectedNet.net].balanceUsd = nativeToken?.balanceUsd;
                 tokens[selectedNet.net].list = result.tokens;

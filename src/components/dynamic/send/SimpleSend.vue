@@ -150,9 +150,9 @@ export default {
                 return (selectedToken.value = defaultToken);
             }
 
-            const { code } = selectedToken.value || {};
+            const { symbol } = selectedToken.value || {};
 
-            const token = tokensList.value.find((tkn) => tkn.code === code);
+            const token = tokensList.value.find((tkn) => tkn.symbol === symbol);
 
             return (selectedToken.value = token || null);
         };
@@ -226,7 +226,7 @@ export default {
                 showNotification({
                     key: 'prepare-send-tx',
                     type: 'info',
-                    title: `Sending ${dataForPrepare.amount} ${dataForPrepare.token.code} ...`,
+                    title: `Sending ${dataForPrepare.amount} ${dataForPrepare.token.symbol} ...`,
                     description: 'Please wait, transaction is preparing',
                     icon: h(LoadingOutlined, {
                         spin: true,

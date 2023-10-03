@@ -4,8 +4,8 @@
             v-if="!showIconPlaceholder && token"
             :width="width"
             :height="height"
-            :key="token?.code"
-            :src="token?.logo || tokenIconFromZomet || getTokenIcon(token?.code?.toLowerCase())"
+            :key="token?.symbol"
+            :src="token?.logo || tokenIconFromZomet || getTokenIcon(token?.symbol?.toLowerCase())"
             :alt="token?.name"
             @error="showIconPlaceholder = true"
             @load="showIconPlaceholder = false"
@@ -36,7 +36,7 @@ export default {
     setup(props) {
         const showIconPlaceholder = ref(false);
         const tokenIconFromZomet = ref(null);
-        const iconPlaceholder = computed(() => props.token?.code);
+        const iconPlaceholder = computed(() => props.token?.symbol);
 
         const store = useStore();
 
