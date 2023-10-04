@@ -1,14 +1,21 @@
+import useAdapter from '@/Adapter/compositions/useAdapter';
+
 export default async (to, from, next) => {
     const isAuthRequired = to.meta.isAuth;
 
-    if (isAuthRequired) {
+    const { walletAccount } = useAdapter();
 
-        const isAuthenticated = true; // TODO
+    const isAccountExist = () => {
+        return walletAccount.value;
+    };
+
+    if (isAuthRequired) {
+        const isAuthenticated = isAccountExist();
 
         if (!isAuthenticated) {
-            return next({ params: { redirect: '/login' }});
+            return next({ name: "Home" });
         }
     }
 
-    next();
+    return next();
 };

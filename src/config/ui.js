@@ -116,7 +116,7 @@ const getUIConfig = (network, ecosystem) => {
 
     config.sidebar = config.sidebar?.map((item) => ({
         ...item,
-        disabled: !isDisableModule(item)
+        disabled: !isDisableModule(item),
     }));
 
     if (UIConfig[network]) {
@@ -125,7 +125,7 @@ const getUIConfig = (network, ecosystem) => {
         config.sidebar.forEach((item) => {
             if (!networkConfig.sidebar.some((networkItem) => networkItem.key === item.key)) {
                 item.disabled = true;
-            } 
+            }
         });
     }
 

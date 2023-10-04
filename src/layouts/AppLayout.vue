@@ -58,15 +58,15 @@ export default {
                 return null;
             }
 
-            if (config[props.component].component) {
-                return config[props.component].component;
+            if (config[props.component]?.component) {
+                return config[props.component]?.component;
             }
 
             return null;
         });
 
         watch(
-            () => layoutComponent.value,
+            () => layoutComponent?.value,
             (newV) => {
                 if (!newV) {
                     router.push('/main');
