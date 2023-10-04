@@ -234,21 +234,30 @@ class EthereumAdapter extends AdapterBase {
 
         try {
             if (ethersProvider) {
-                const contractAddress = token?.address || NATIVE_CONTRACT;
+                const value = !token?.address ? ethers.utils.parseEther(amount) : ethers.utils.parseUnits('0');
+
+                const nonce = await ethersProvider.getTransactionCount(fromAddress);
+
+                const contractAddress = token?.address;
+
+                const response = {
+                    from: fromAddress,
+                    to: toAddress,
+                    value,
+                    nonce,
+                };
+
+                if (!contractAddress) {
+                    return response;
+                }
 
                 const tokenContract = new ethers.Contract(contractAddress, TRANSFER_ABI, ethersProvider);
 
                 const res = await tokenContract.populateTransaction.transfer(toAddress, ethers.utils.parseUnits(amount, token.decimals));
 
-                const value = !token?.address ? ethers.utils.parseEther(amount) : ethers.utils.parseUnits('0');
-
-                const nonce = await ethersProvider.getTransactionCount(fromAddress);
-
                 return {
+                    ...response,
                     ...res,
-                    from: fromAddress,
-                    value,
-                    nonce,
                 };
             }
         } catch (e) {
