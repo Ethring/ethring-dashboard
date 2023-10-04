@@ -256,7 +256,7 @@ export default {
     .asset-item__apr {
         color: var(--#{$prefix}sub-text);
         font-size: var(--#{$prefix}small-lg-fs);
-        font-weight: 500;
+        font-weight: 300;
     }
 
     .asset-item__apr {
