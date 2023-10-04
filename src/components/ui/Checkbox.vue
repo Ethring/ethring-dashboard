@@ -3,7 +3,7 @@
         <input :id="id" type="checkbox" :value="value" :checked="value" :disabled="disabled" @change="changeHandler" />
         <label :for="id">
             <span class="checkbox__checkmark">
-                <checkmark v-if="value" />
+                <CheckmarkIcon v-if="value" />
             </span>
             <span class="checkbox__label" v-html="label" />
         </label>
@@ -11,12 +11,12 @@
 </template>
 
 <script>
-import checkmark from '@/assets/icons/app/checkmark.svg';
+import CheckmarkIcon from '@/assets/icons/app/checkmark.svg';
 
 export default {
     name: 'Checkbox',
     components: {
-        checkmark,
+        CheckmarkIcon,
     },
     props: {
         label: {

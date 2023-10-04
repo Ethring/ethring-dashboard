@@ -77,7 +77,7 @@
                     <span>{{ prettyNumber(networkFee * +selectedSrcToken?.price) }}</span> <span class="symbol">$</span>
                 </AccordionItem>
                 <AccordionItem :label="$t('simpleBridge.title') + ' :'">
-                    <img src="https://app.debridge.finance/assets/images/bridge.svg" />
+                    <img src="https://app.debridge.finance/assets/images/bridge.svg" alt="service-logo" />
                     <span class="symbol">{{ services[0].name }}</span>
                 </AccordionItem>
                 <AccordionItem :label="$t('tokenOperations.time') + ' :'">

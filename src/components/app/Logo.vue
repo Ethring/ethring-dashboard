@@ -1,17 +1,17 @@
 <template>
     <div class="logo">
         <div class="logo__round">
-            <logoSvg />
+            <LogoIcon />
         </div>
     </div>
 </template>
 <script>
-import logoSvg from '@/assets/icons/app/logo.svg';
+import LogoIcon from '@/assets/icons/app/logo.svg';
 
 export default {
     name: 'Logo',
     components: {
-        logoSvg,
+        LogoIcon,
     },
 };
 </script>

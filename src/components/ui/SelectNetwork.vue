@@ -5,7 +5,7 @@
                 <div class="network">
                     <img v-if="current?.logo" :src="current?.logo" alt="network-logo" class="network-logo" />
                 </div>
-                <div v-if="visibleName" class="name">{{ visibleName }}</div>
+                <div v-if="name" class="name">{{ name }}</div>
                 <div v-else>
                     <div class="label">{{ label }}</div>
                     <div class="placeholder">{{ placeholder }}</div>
@@ -65,13 +65,8 @@ export default {
     setup(props, { emit }) {
         const active = ref(false);
 
-        const visibleName = computed(() => {
-            const name = props.current?.name || props.current?.label || props.current?.net || '';
-
-            if (name.length > 10) {
-                return `${name.slice(0, 14)}...`;
-            }
-
+        const name = computed(() => {
+            const name = props.current?.name;
             return name;
         });
 
@@ -94,7 +89,7 @@ export default {
 
         return {
             active,
-            visibleName,
+            name,
             clickAway,
             togglePanel,
             onSelectNetwork,
@@ -127,6 +122,7 @@ export default {
         .info {
             display: flex;
             align-items: center;
+            overflow: hidden;
         }
 
         .network {
@@ -161,6 +157,11 @@ export default {
             font-weight: 600;
             color: var(--#{$prefix}select-item-color);
             user-select: none;
+            display: inline-block;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+            max-width: 100%;
         }
 
         .label {
@@ -183,6 +184,8 @@ export default {
             fill: var(--#{$prefix}select-icon-color);
             transform: rotate(0);
             @include animateEasy;
+            display: inline;
+            margin-left: 10px;
         }
     }
 

@@ -108,7 +108,7 @@ import useTokens from '@/compositions/useTokens';
 import InfoPanel from '@/components/ui/InfoPanel';
 import SelectAmount from '@/components/ui/SelectAmount';
 import SelectAddress from '@/components/ui/SelectAddress';
-import SelectNetwork from '@/components/dynamic/bridge/SelectNetwork';
+import SelectNetwork from '@/components/ui/SelectNetwork';
 import Accordion from '@/components/ui/Accordion';
 import AccordionItem from '@/components/ui/AccordionItem';
 import Checkbox from '@/components/ui/Checkbox';

@@ -29,7 +29,7 @@ export default {
 
         z-index: 100;
 
-        padding: 40px 0 20px;
+        padding: 20px 0 20px;
 
         background-color: var(--#{$prefix}nav-bar-bg-color);
         margin-right: auto;

@@ -8,18 +8,18 @@
             @click="setActive(ndx)"
         >
             <div class="title">{{ $t(item.$title) }}</div>
-            <arrowupSvg v-if="activeIndex === ndx" class="arrow" />
+            <arrowUpIcon v-if="activeIndex === ndx" class="arrow" />
         </div>
     </div>
 </template>
 <script>
-import arrowupSvg from '@/assets/icons/dashboard/arrowup.svg';
+import arrowUpIcon from '@/assets/icons/dashboard/arrowup.svg';
 import { ref } from 'vue';
 
 export default {
     name: 'ActionsMenu',
     components: {
-        arrowupSvg,
+        arrowUpIcon,
     },
     props: {
         menuItems: {

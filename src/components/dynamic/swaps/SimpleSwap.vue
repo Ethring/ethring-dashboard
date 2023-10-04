@@ -16,7 +16,7 @@
             />
 
             <div class="simple-swap__switch" :class="{ disabled: isUpdateSwapDirectionValue }" @click="swapTokensDirection">
-                <SwapSvg />
+                <SwapIcon />
             </div>
 
             <SelectAmount
@@ -44,7 +44,7 @@
                     <span class="fee">{{ networkFee }}</span> <span class="fee-symbol">$</span>
                 </AccordionItem>
                 <AccordionItem :label="$t('simpleSwap.service') + ' : '">
-                    <img src="https://cryptologos.cc/logos/1inch-1inch-logo.svg?v=025" />
+                    <img src="https://cryptologos.cc/logos/1inch-1inch-logo.svg?v=025" alt="service-logo"/>
                     <span class="symbol">1inch</span>
                 </AccordionItem>
             </div>
@@ -81,7 +81,7 @@ import SelectAmount from '@/components/ui/SelectAmount';
 import Accordion from '@/components/ui/Accordion.vue';
 import AccordionItem from '@/components/ui/AccordionItem.vue';
 
-import SwapSvg from '@/assets/icons/dashboard/swap.svg';
+import SwapIcon from '@/assets/icons/dashboard/swap.svg';
 
 import { prettyNumberTooltip } from '@/helpers/prettyNumber';
 
@@ -99,7 +99,7 @@ export default {
         SelectNetwork,
         SelectAmount,
         Button,
-        SwapSvg,
+        SwapIcon,
         Accordion,
         AccordionItem,
     },

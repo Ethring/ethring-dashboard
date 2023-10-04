@@ -3,21 +3,21 @@
         <div class="send-page-tab">
             <div class="send-page__title__active send-page-tab__active">
                 {{ $t('simpleSend.title') }}
-                <arrowupSvg class="arrow" />
+                <ArrowUpIcon class="arrow" />
             </div>
-            <!-- <router-link class="send-page__title" to="/bridge">{{ $t('simpleBridge.title') }}</router-link> -->
+            <router-link class="send-page__title" to="/bridge">{{ $t('simpleBridge.title') }}</router-link>
         </div>
     </AppLayout>
 </template>
 <script>
 import AppLayout from '@/layouts/AppLayout.vue';
-import arrowupSvg from '@/assets/icons/dashboard/arrowup.svg';
+import ArrowUpIcon from '@/assets/icons/dashboard/arrowup.svg';
 
 export default {
     name: 'Send',
     components: {
         AppLayout,
-        arrowupSvg,
+        ArrowUpIcon,
     },
     setup() {},
 };
@@ -55,5 +55,6 @@ export default {
 
 .arrow {
     fill: var(--#{$prefix}arrow-color);
+    margin-top: 10px;
 }
 </style>

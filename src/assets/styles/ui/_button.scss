@@ -16,7 +16,7 @@
 
     outline: none;
 
-    background: var(--#{$prefix}btn-active);
+    background: var(--#{$prefix}btn-bg-color);
     color: var(--#{$prefix}btn-text-color);
 
     font-size: var(--#{$prefix}small-lg-fs);
@@ -29,8 +29,8 @@
     transition: 0.2s;
 
     &:not(.disabled):hover {
-        background: var(--#{$prefix}btn-hover);
-        color: var(--#{$prefix}btn-text-hover-color);
+        background: var(--#{$prefix}btn-bg-color-hover);
+        color: var(--#{$prefix}btn-text-hover);
 
         &-icon {
             fill: var(--#{$prefix}--#{$prefix}icon-hover);

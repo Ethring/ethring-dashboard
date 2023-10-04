@@ -2,49 +2,53 @@
 import { ECOSYSTEMS } from '@/Adapter/config';
 
 const MAIN_DASHBOARD = {
-    component: 'mainSvg',
+    component: 'overviewIcon',
     title: 'Main',
     key: 'main',
     to: '/main',
 };
 
 const SEND = {
-    component: 'stakeSvg',
+    component: 'sendIcon',
     title: 'Send',
     key: 'send',
     to: '/send',
 };
 
 const BRIDGE = {
-    component: 'bridgeSvg',
+    component: 'bridgeIcon',
     title: 'Bridge',
     key: 'bridge',
     to: '/bridge',
 };
 
 const SWAP = {
-    component: 'swapSvg',
+    component: 'swapIcon',
     title: 'Swap',
     key: 'swap',
     to: '/swap',
 };
 
 const SUPER_SWAP = {
-    component: 'swapSvg',
+    component: 'superSwapIcon',
     title: 'SuperSwap',
     key: 'superSwap',
     to: '/superSwap',
+    status: 'BETA',
+};
+
+const BUY_CRYPTO = {
+    component: 'buyCryptoIcon',
+    title: 'Buy Crypto',
+    key: 'buyCrypto',
+    to: '/buy',
+    status: 'SOON',
+    disabled: true,
 };
 
 const defaultConfig = {
     [ECOSYSTEMS.EVM]: {
-        sidebar: [
-            MAIN_DASHBOARD,
-            SEND,
-            SWAP,
-            BRIDGE,
-            // SUPER_SWAP,
-        ],
+        sidebar: [MAIN_DASHBOARD, SEND, SWAP, BRIDGE, SUPER_SWAP, BUY_CRYPTO],
         send: {
             component: 'SimpleSend',
         },

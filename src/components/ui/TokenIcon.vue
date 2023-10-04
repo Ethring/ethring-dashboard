@@ -17,8 +17,9 @@
 </template>
 <script>
 import { ref, computed, watch, onMounted } from 'vue';
-import { getTokenIcon, tokenIconPlaceholder } from '@/helpers/utils';
 import { useStore } from 'vuex';
+
+import { getTokenIcon, tokenIconPlaceholder } from '@/helpers/utils';
 
 export default {
     name: 'TokenIcon',

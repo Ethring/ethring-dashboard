@@ -86,6 +86,7 @@ export default {
     transition: opacity 250ms ease-in;
 
     background-color: rgba(0, 0, 0, 0.6);
+    color: var(--#{$prefix}primary-text);
 
     display: flex;
     align-items: center;
@@ -106,14 +107,14 @@ export default {
         min-height: 448px;
         margin: auto;
         border-radius: 16px;
-        background-color: #fff;
+        background-color: var(--#{$prefix}secondary-background);
 
         .top {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 16px;
-            border-bottom: 1px solid #d0d4f7;
+            border-bottom: 1px solid var(--#{$prefix}border-color-op-05);
 
             .close {
                 cursor: pointer;
@@ -128,7 +129,7 @@ export default {
                 width: 100%;
 
                 .ant-select-selector {
-                    border-color: #d0d4f7;
+                    border: 1px solid var(--#{$prefix}border-color-op-05);
                 }
             }
             &-wallets {

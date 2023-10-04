@@ -2,7 +2,7 @@
     <div class="wallet-module--icon-container" :style="iconContainerStyle">
         <span v-if="isSVG(logo)" v-html="logo" />
         <span v-else>
-            <img :src="logo" />
+            <img :src="logo" alt="logo" />
         </span>
     </div>
 </template>
@@ -68,7 +68,7 @@ export default {
         width: 32px;
         height: 32px;
         border-radius: 50%;
-        background-color: #d9f4f1;
+        background-color: var(--#{$prefix}banner-secondary-color);
 
         display: flex;
         justify-content: center;

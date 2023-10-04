@@ -18,7 +18,7 @@
                         <div class="token" v-if="selectedToken">{{ selectedToken?.symbol }}</div>
                         <div class="token placeholder" v-else>{{ $t(selectPlaceholder) }}</div>
 
-                        <arrowSvg class="arrow" />
+                        <ArrowIcon class="arrow" />
                     </template>
                 </div>
 
@@ -74,7 +74,7 @@ import BigNumber from 'bignumber.js';
 
 import TokenIcon from '@/components/ui/TokenIcon';
 
-import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
+import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
 import { prettyNumber } from '@/helpers/prettyNumber';
 
@@ -126,7 +126,7 @@ export default {
         },
     },
     components: {
-        arrowSvg,
+        ArrowIcon,
         TokenIcon,
     },
     setup(props, { emit }) {

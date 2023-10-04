@@ -59,7 +59,9 @@ export default {
     align-items: center;
     justify-content: flex-start;
 
-    background-color: #e6eeff;
+    background-color: var(--#{$prefix}adapter-ecosystem-bg);
+    color: var(--#{$prefix}primary-text);
+
     &.disabled {
         opacity: 0.5;
         cursor: not-allowed;
@@ -69,7 +71,7 @@ export default {
     max-width: 500px;
     width: auto;
 
-    border: 1px solid #c9e0e0;
+    border: 1px solid var(--#{$prefix}adapter-ecosystem-border-color);
 
     border-radius: 8px;
     padding: 8px;
@@ -79,7 +81,8 @@ export default {
     transition: 0.2s;
 
     &:hover:not(.disabled) {
-        background: #d9f4f1;
+        background: var(--#{$prefix}btn-disabled-icon);
+        color: var(--#{$prefix}black);
     }
 
     &:not(:last-child) {
@@ -113,7 +116,7 @@ export default {
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background-color: #f0f0f0;
+        background-color: var(--#{$prefix}adapter-logo-main-color);
         z-index: 3;
 
         svg {
@@ -128,12 +131,12 @@ export default {
     }
 
     &__logo:nth-child(2) {
-        background-color: #02e7f6;
+        background-color: var(--#{$prefix}adapter-logo-base-color);
         z-index: 2;
     }
 
     &__logo:nth-child(3) {
-        background-color: #d9f4f1;
+        background-color: var(--#{$prefix}adapter-logo-secondary-color);
         z-index: 1;
     }
 }

@@ -222,7 +222,7 @@ export default {
         background-color: var(--#{$prefix}secondary-background);
         border-radius: 16px;
         padding: 16px;
-        margin-bottom: 7px;
+        margin-bottom: 32px;
         box-sizing: border-box;
         @include animateEasy;
 
@@ -242,11 +242,13 @@ export default {
     display: flex;
     color: var(--#{$prefix}small-lg-fs);
     font-weight: 500;
+    font-size: var(--#{$prefix}small-lg-fs);
 
     div {
         &::before {
             content: '\2022';
             margin: 0 4px;
+            color: var(--#{$prefix}checkbox-text);
         }
     }
 

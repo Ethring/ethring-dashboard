@@ -25,13 +25,17 @@
                         <MoreOutlined />
                     </a>
                     <template #overlay>
-                        <a-menu>
-                            <a-menu-item key="copy-address" @click="() => handleOnCopyAddress(wallet.ecosystem)">
+                        <a-menu class="wallet__options">
+                            <a-menu-item
+                                key="copy-address"
+                                @click="() => handleOnCopyAddress(wallet.ecosystem)"
+                                class="wallet__options-item"
+                            >
                                 <CopyOutlined />
                                 {{ $t('adapter.copyAddress') }}
                             </a-menu-item>
 
-                            <a-menu-item key="disconnect-account" @click="handleOnDisconnectAccount">
+                            <a-menu-item key="disconnect-account" @click="handleOnDisconnectAccount" class="wallet__options-item">
                                 <DisconnectOutlined />
                                 {{ $t('adapter.disconnectAccount') }}
                             </a-menu-item>
@@ -137,9 +141,9 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .connected-wallet {
-    border: 1px solid #d9f4f1;
+    border: 1px solid var(--#{$prefix}adapter-border-color);
     border-radius: 16px;
     padding: 8px;
     cursor: pointer;
@@ -152,10 +156,6 @@ export default {
 
     transition: 0.2s;
 
-    &:hover {
-        background-color: #fff;
-    }
-
     & > div {
         display: flex;
         align-items: center;
@@ -163,13 +163,14 @@ export default {
 
         .account-name {
             margin-left: 8px;
+            color: var(--#{$prefix}primary-text);
         }
 
         .change-network {
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            border: 1px solid #d9f4f1;
+            border: 1px solid var(--#{$prefix}adapter-border-color);
             border-radius: 16px;
 
             &-logo {
@@ -195,11 +196,20 @@ export default {
                 font-weight: 500;
                 outline: none;
                 margin-right: 5px;
+                color: var(--#{$prefix}primary-text);
             }
         }
     }
 }
 .more-options {
     margin-left: 8px;
+}
+
+.wallet__options {
+    &-item {
+        .ant-dropdown-menu-title-content {
+            color: var(--#{$prefix}black) !important;
+        }
+    }
 }
 </style>

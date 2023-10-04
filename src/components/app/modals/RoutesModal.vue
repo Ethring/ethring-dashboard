@@ -13,7 +13,7 @@
                         <div class="routes-modal__row">
                             <div class="routes-modal__row" v-for="(elem, j) in item.routes" :key="j">
                                 <div class="routes-service__icon">
-                                    <img :src="elem.service?.icon" />
+                                    <img :src="elem.service?.icon" alt="service-logo" />
                                 </div>
                                 <h3 class="routes-service__name">{{ elem.service?.name }}</h3>
                                 <h1 v-if="j != item.routes.length - 1">-</h1>
@@ -57,13 +57,13 @@
 import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 
+import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+
 import Modal from '@/components/app/Modal';
 import Button from '@/components/ui/Button';
 
 import { prettyNumberTooltip } from '@/helpers/prettyNumber';
 import { checkAllowance } from '@/modules/SuperSwap/baseScript';
-
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 
 export default {
     name: 'RoutesModal',
