@@ -169,8 +169,8 @@ export default {
     }
 
     &-symbol {
-        font-size: var(--#{$prefix}small-sm-fs);
-        line-height: 13px;
+        font-size: var(--#{$prefix}h6-fs);
+        line-height: 16px;
         color: var(--#{$prefix}mute-text);
         font-weight: 400;
 
@@ -181,7 +181,7 @@ export default {
 
     &-balance {
         display: flex;
-        align-items: flex-end;
+        align-items: baseline;
         margin-bottom: 4px;
         align-self: flex-end;
 
