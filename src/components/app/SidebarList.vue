@@ -3,7 +3,7 @@
         <router-link
             v-for="(item, ndx) in menu"
             :key="ndx"
-            :to="item.to"
+            :to="item.disabled ? '' : item.to"
             class="sidebar-list__item"
             :data-qa="item.key"
             :class="{ disabled: item.disabled }"
@@ -86,7 +86,7 @@ export default {
 
         @include animateEasy;
 
-        &:hover {
+        &:hover:not(.disabled) {
             color: $colorPl;
 
             svg {
@@ -94,7 +94,7 @@ export default {
             }
         }
 
-        &.router-link-exact-active {
+        &.router-link-exact-active:not(.disabled) {
             color: var(--#{$prefix}white);
 
             svg {
@@ -109,7 +109,7 @@ export default {
         }
 
         &.disabled {
-            color: var(--#{$prefix}base-text);
+            opacity: 0.5;
             cursor: not-allowed;
 
             .sidebar-list__item-status {
@@ -117,7 +117,7 @@ export default {
             }
 
             .sidebar-list__item-icon svg {
-                fill: none;
+                opacity: 0.5;
             }
         }
     }

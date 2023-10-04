@@ -110,7 +110,26 @@ const UIConfig = {
 };
 
 const getUIConfig = (network, ecosystem) => {
-    return UIConfig[network] || defaultConfig[ecosystem];
+    const config = { ...defaultConfig[ecosystem] };
+
+    const isDisableModule = (item) => item.key !== 'buyCrypto';
+
+    config.sidebar = config.sidebar?.map((item) => ({
+        ...item,
+        disabled: !isDisableModule(item)
+    }));
+
+    if (UIConfig[network]) {
+        const networkConfig = UIConfig[network];
+
+        config.sidebar.forEach((item) => {
+            if (!networkConfig.sidebar.some((networkItem) => networkItem.key === item.key)) {
+                item.disabled = true;
+            } 
+        });
+    }
+
+    return config;
 };
 
 export default getUIConfig;

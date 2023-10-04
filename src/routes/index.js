@@ -20,7 +20,6 @@ const routes = [
         name: 'Swap Page',
         meta: {
             isAuth: true,
-            isSwap: true,
         },
         component: () => import('../layouts/SwapLayout.vue'),
     },
