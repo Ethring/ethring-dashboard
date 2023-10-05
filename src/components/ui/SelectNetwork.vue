@@ -2,7 +2,7 @@
     <div :class="{ active }" class="select" v-click-away="() => togglePanel(true)">
         <div class="select__panel" @click="() => togglePanel(false)" data-qa="select-network">
             <div class="info">
-                <div class="network">
+                <div class="network" :class="{ 'default-network-logo': !name }">
                     <img v-if="current?.logo" :src="current?.logo" alt="network-logo" class="network-logo" />
                 </div>
                 <div v-if="name" class="name">{{ name }}</div>
@@ -134,6 +134,7 @@ export default {
             height: 40px;
             min-width: 40px;
 
+            border-radius: 50%;
             margin-right: 10px;
 
             svg {
@@ -149,6 +150,10 @@ export default {
                 max-width: 32px;
                 max-height: 32px;
             }
+        }
+
+        .default-network-logo {
+            background: var(--#{$prefix}primary);
         }
 
         .name {

@@ -945,7 +945,7 @@ export default {
 
             .name {
                 font-size: var(--#{$prefix}h6-fs);
-                line-height: 16px;
+                line-height: 26px;
             }
         }
     }
