@@ -186,7 +186,7 @@ export default {
 
         .info {
             width: 95%;
-            margin-top: 15px;
+            margin-top: 8px;
             display: flex;
             align-items: center;
         }
