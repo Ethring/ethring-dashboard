@@ -1,15 +1,15 @@
 import { test as base, chromium, type BrowserContext, Browser } from '@playwright/test';
 import path from 'path';
-import { MetaMaskHomePage, MetaMaskNotifyPage, waitMmNotifyWindow } from '../model/metaMaskPages';
+import { MetaMaskHomePage, MetaMaskNotifyPage, getNotifyMmPage, closeEmptyPages } from '../model/metaMaskPages';
 import { DashboardPage, SwapPage, SuperSwapPage, SendPage } from '../model/zometPages';
+import { getTestVar, TEST_CONST } from '../envHelper';
 
-export const metaMaskId = 'lbbfnfejpmmaenbngdgdmpabdfgiceii';
-const getPathToEx = () => path.join(__dirname, '..', '/data/metamask-chrome-10.34.0');
+export const metaMaskId = getTestVar(TEST_CONST.MM_ID);
+const metamaskVersion = getTestVar(TEST_CONST.MM_VERSION);
+const getPathToEx = () => path.join(__dirname, '..', `/data/metamask-chrome-${metamaskVersion}`);
 
 const authInDashboard = async (context: BrowserContext): Promise<DashboardPage> => {
-    await waitMmNotifyWindow();
-    await context.pages()[0].close();
-    await context.pages()[0].close();
+    await closeEmptyPages(context);
 
     const metaMaskPage = new MetaMaskHomePage(context.pages()[0]);
     await metaMaskPage.importExistWallet();
@@ -17,8 +17,8 @@ const authInDashboard = async (context: BrowserContext): Promise<DashboardPage> 
     const zometPage = new DashboardPage(await context.newPage());
     await zometPage.goToPage();
     await zometPage.loginByMetaMask();
-    let notyfMM = new MetaMaskNotifyPage(context.pages()[2]);
-    await notyfMM.assignPage();
+    const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
+    await notifyMM.assignPage();
     return zometPage;
 };
 
@@ -30,43 +30,23 @@ export const test = base.extend<{
     superSwapPage: SuperSwapPage;
 }>({
     context: async ({}, use) => {
-        let context;
-        if (process.env.CI) {
-            context = await chromium.launchPersistentContext('', {
-                headless: false,
-                ignoreHTTPSErrors: true,
-                args: [
-                    `--disable-extensions-except=${getPathToEx()}`,
-                    `--load-extension=${getPathToEx()}`,
-                    '--force-fieldtrials',
-                    '--disable-http2',
+        const context = await chromium.launchPersistentContext('', {
+            headless: false,
+            ignoreHTTPSErrors: true,
+            args: [
+                `--disable-extensions-except=${getPathToEx()}`,
+                `--load-extension=${getPathToEx()}`,
+                '--force-fieldtrials',
+                '--disable-http2',
 
-                    '--ignore-certificate-errors',
+                '--ignore-certificate-errors',
 
-                    '--disable-background-timer-throttling',
-                    '--disable-backgrounding-occluded-windows',
-                    '--disable-renderer-backgrounding',
-                    // '--headless=new'
-                ],
-            });
-        } else {
-            context = await chromium.launchPersistentContext('', {
-                headless: false,
-                ignoreHTTPSErrors: true,
-                args: [
-                    `--disable-extensions-except=${getPathToEx()}`,
-                    `--load-extension=${getPathToEx()}`,
-                    '--force-fieldtrials',
-                    '--disable-http2',
-
-                    '--ignore-certificate-errors',
-
-                    '--disable-background-timer-throttling',
-                    '--disable-backgrounding-occluded-windows',
-                    '--disable-renderer-backgrounding',
-                ],
-            });
-        }
+                '--disable-background-timer-throttling',
+                '--disable-backgrounding-occluded-windows',
+                '--disable-renderer-backgrounding',
+                process.env.CI ? '--headless=new' : '',
+            ],
+        });
 
         await use(context);
         await context.close();

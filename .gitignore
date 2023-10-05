@@ -1,7 +1,7 @@
 .DS_Store
 node_modules
 /dist
-/tests/data/metamask-chrome-10.34.0
+/tests/data/metamask-*
 
 
 # local env files

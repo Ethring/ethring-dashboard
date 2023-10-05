@@ -1,6 +1,7 @@
-const fs = require('fs');
-const path = require('path');
-const { test: teardown, expect } = require('@playwright/test');
+import fs from 'fs';
+import path from 'path';
+import { getTestVar, TEST_CONST } from '../envHelper';
+import { test as teardown, expect } from '@playwright/test';
 
 const clearDirectory = (dirPath) => {
     if (fs.existsSync(dirPath)) {
@@ -24,7 +25,7 @@ const clearDirectory = (dirPath) => {
 };
 
 teardown(`Delete extension's files`, () => {
-    const directoryPath = path.resolve(__dirname, '..', 'data', 'metamask-chrome-10.34.0');
+    const directoryPath = path.resolve(__dirname, '..', 'data', `metamask-chrome-${getTestVar(TEST_CONST.MM_VERSION)}`);
 
     if (!process.env.CI) {
         clearDirectory(directoryPath);

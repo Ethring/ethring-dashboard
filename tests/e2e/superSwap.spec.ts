@@ -2,18 +2,20 @@ import { Page } from '@playwright/test';
 import { test, expect } from '../__fixtures__/fixtures';
 import { MetaMaskNotifyPage } from '../model/metaMaskPages';
 import { DashboardPage } from '../model/zometPages';
+import { getServices, SERVICE_TYPE } from '../../src/config/services';
+import { getNotifyMmPage } from '../model/metaMaskPages';
 
-export const supportedServiceByBridge = ['srv-debridge', 'srv-squidrouter'];
-const supportedServiceBySwap = [];
+const supportedServiceByBridge = getServices(SERVICE_TYPE.BRIDGE);
+const supportedServiceBySwap = getServices(SERVICE_TYPE.SWAP);
 
 test.describe('SuperSwap e2e tests', () => {
     test('Case#1: Super Swap tx from ETH to BSC wEth to USDC', async ({ browser, context, page: Page, superSwapPage }) => {
         await superSwapPage.setDataAndClickSwap('Binance Smart Chain', '0.01');
 
-        const notyfMM = new MetaMaskNotifyPage(context.pages()[2]);
-        await notyfMM.signTx();
+        const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
+        await notifyMM.signTx();
 
-        expect(await superSwapPage.getLinkFromSuccessPanell()).toContain(
+        expect(await superSwapPage.getLinkFromSuccessPanel()).toContain(
             '0x722a02331325f538c740391d0d0948935250e19eda6cf355b0c89198d2f8a0e4'
         );
     });
@@ -28,21 +30,21 @@ test.describe('SuperSwap e2e tests', () => {
         expect(tokenInSuperSwap).not.toBe(currentTokenTo);
     });
 
-    test('Case#3: Verifying if all service responce errors', async ({ page, dashboard }: { page; dashboard: DashboardPage }) => {
-        await await dashboard.page.route('**/getSupportedChains', (route) => {
+    test('Case#3: Verifying if all service response errors', async ({ page, dashboard }: { page; dashboard: DashboardPage }) => {
+        await dashboard.page.route('**/getSupportedChains', (route) => {
             route.fulfill({
                 status: 500,
                 json: {
                     ok: false,
                     data: '',
-                    error: 'Ooops, sorry bro',
+                    error: 'Oops, sorry bro',
                 },
             });
         });
 
         const superSwapPage = await dashboard.goToSuperSwap();
         await superSwapPage.setNetworkTo('Arbitrum One');
-        // todo тут определить поведение которое отображает дашборд при отсутсвии данных о поддерживаемых чейнах
+        // TODO тут определить поведение которое отображает дашборд при отсутствии данных о поддерживаемых чейнах
     });
 
     test('Case#4: Checking polled services for bridge', async ({ page, dashboard }: { page: Page; dashboard: DashboardPage }) => {

@@ -1,9 +1,9 @@
-const path = require('path');
-const axios = require('axios');
-const fs = require('fs');
-const AdmZip = require('adm-zip');
-const { test: setup } = require('@playwright/test');
-const dotenv = require('dotenv');
+import path from 'path';
+import axios from 'axios';
+import fs from 'fs';
+import AdmZip from 'adm-zip';
+import { test as setup } from '@playwright/test';
+import { getTestVar, TEST_CONST } from '../envHelper';
 
 async function download(url, archivePath) {
     try {
@@ -17,15 +17,17 @@ async function download(url, archivePath) {
             writer.on('error', reject);
         });
     } catch (error) {
-        throw new Error(`Download error: ${error.message}`);
+        throw new Error(`Download from ${url} finish with error: ${error.message}`);
     }
 }
 
-async function dowonloadAndUnzipMmEx() {
-    const mmVersion = 'metamask-chrome-10.34.0';
-    const url = `https://github.com/MetaMask/metamask-extension/releases/download/v10.34.0/${mmVersion}.zip`;
-    const dataFolderPath = path.resolve(__dirname, '..', 'data', mmVersion);
-    const pathToArchive = path.resolve(dataFolderPath, `${mmVersion}.zip`);
+async function downloadAndUnzipMmEx() {
+    const mmVersion = getTestVar(TEST_CONST.MM_VERSION);
+    const extensionName = `metamask-chrome-${mmVersion}`;
+
+    const url = `https://github.com/MetaMask/metamask-extension/releases/download/v${mmVersion}/${extensionName}.zip`;
+    const dataFolderPath = path.resolve(__dirname, '..', 'data', extensionName);
+    const pathToArchive = path.resolve(dataFolderPath, `${extensionName}.zip`);
 
     fs.mkdir(dataFolderPath, (err) => {
         if (err) {
@@ -49,9 +51,5 @@ async function dowonloadAndUnzipMmEx() {
 }
 
 setup('Set env and download metamask extension', async () => {
-    await dotenv.config({
-        path: '.env.test',
-        override: true
-      });
-    await dowonloadAndUnzipMmEx();
+    await downloadAndUnzipMmEx();
 });

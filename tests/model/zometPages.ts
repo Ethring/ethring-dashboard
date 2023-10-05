@@ -1,9 +1,10 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 import { waitMmNotifyWindow } from './metaMaskPages';
+import { getTestVar, TEST_CONST } from '../envHelper';
 
 const sleep = require('util').promisify(setTimeout);
 
-const url: string = process.env.DEV_URL;
+const url: string = getTestVar(TEST_CONST.DEV_URL);
 
 export class DashboardPage {
     readonly page: Page;
@@ -39,7 +40,7 @@ export class DashboardPage {
         return new SuperSwapPage(this.page);
     }
 
-    async getLinkFromSuccessPanell() {
+    async getLinkFromSuccessPanel() {
         return await this.page.locator('//div[@class="success info-panel mt-10"]//a').getAttribute('href');
     }
 

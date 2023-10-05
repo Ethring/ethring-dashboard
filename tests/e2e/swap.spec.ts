@@ -1,5 +1,6 @@
 import { test, expect } from '../__fixtures__/fixtures';
 import { MetaMaskNotifyPage } from '../model/metaMaskPages';
+import { getNotifyMmPage } from '../model/metaMaskPages';
 const sleep = require('util').promisify(setTimeout);
 
 const supportedNetsBySwap = ['Ethereum', 'Binance Smart Chain', 'Arbitrum', 'Polygon', 'Avalanche', 'Optimism', 'Fantom'];
@@ -7,18 +8,18 @@ const supportedNetsBySwap = ['Ethereum', 'Binance Smart Chain', 'Arbitrum', 'Pol
 test('Swap tx', async ({ browser, context, page: Page, swapPage }) => {
     await swapPage.swapTokens('0.0001');
 
-    const notyfMM = new MetaMaskNotifyPage(context.pages()[2]);
-    await notyfMM.signTx();
+    const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
+    await notifyMM.signTx();
 
-    expect(await swapPage.getLinkFromSuccessPanell()).toContain('0x722a02331325f538c740391d0d0948935250e19eda6cf355b0c89198d2f8a0e4');
+    expect(await swapPage.getLinkFromSuccessPanel()).toContain('0x722a02331325f538c740391d0d0948935250e19eda6cf355b0c89198d2f8a0e4');
 });
 
 for (const net of supportedNetsBySwap) {
-    test.skip(`Assert dublicate tokens in net ${net}`, async ({ browser, context, page: Page, swapPage }) => {
+    test.skip(`Assert duplicate tokens in net ${net}`, async ({ browser, context, page: Page, swapPage }) => {
         const needAddNetInMm = await swapPage.changeNetworkBySwap(net);
         if (needAddNetInMm) {
-            const notyfMM = new MetaMaskNotifyPage(context.pages()[2]);
-            await notyfMM.addAndAcceptChangeNetwork();
+            const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
+            await notifyMM.addAndAcceptChangeNetwork();
         }
 
         await sleep(3000);
@@ -57,8 +58,8 @@ test('Try change token after change network', async ({ browser, context, page: P
 
     await swapPage.changeNetworkBySwap(testedNet);
 
-    const notyfMM = new MetaMaskNotifyPage(context.pages()[2]);
-    await notyfMM.addAndAcceptChangeNetwork();
+    const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
+    await notifyMM.addAndAcceptChangeNetwork();
 
     expect(await swapPage.getCurrentNetInSwap()).toContain(testedNet);
     await swapPage.setTokenFromInSwap(tokenFrom);
@@ -82,21 +83,21 @@ test('Assert networks name', async ({ browser, context, page: Page, swapPage }) 
     expect(netsNameList).toStrictEqual(supportedNetsBySwap);
 });
 
-test('Swap in Poligon: Matic to USDC', async ({ browser, context, page: Page, swapPage }) => {
+test('Swap in Polygon: Matic to USDC', async ({ browser, context, page: Page, swapPage }) => {
     const testedNet = 'Polygon';
     const tokenFrom = 'MATIC';
 
     await swapPage.changeNetworkBySwap(testedNet);
 
-    const notyfMM = new MetaMaskNotifyPage(context.pages()[2]);
-    await notyfMM.addAndAcceptChangeNetwork();
+    const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
+    await notifyMM.addAndAcceptChangeNetwork();
 
     expect(await swapPage.getCurrentNetInSwap()).toContain(testedNet);
     await swapPage.setTokenFromInSwap(tokenFrom);
 
     await swapPage.swapTokens('0.1');
-    const notyfMM2 = new MetaMaskNotifyPage(context.pages()[2]);
-    await notyfMM2.signTx();
+    const notifyMM2 = new MetaMaskNotifyPage(await getNotifyMmPage(context));
+    await notifyMM2.signTx();
 
-    expect(await swapPage.getLinkFromSuccessPanell()).toContain('0x722a02331325f538c740391d0d0948935250e19eda6cf355b0c89198d2f8a0e4');
+    expect(await swapPage.getLinkFromSuccessPanel()).toContain('0x722a02331325f538c740391d0d0948935250e19eda6cf355b0c89198d2f8a0e4');
 });

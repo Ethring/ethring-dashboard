@@ -1,13 +1,38 @@
-import { expect, type Locator, type Page } from '@playwright/test';
+import { BrowserContext, expect, type Locator, type Page } from '@playwright/test';
 import { metaMaskId } from '../__fixtures__/fixtures';
+import { getTestVar, TEST_CONST } from '../envHelper';
 
 const sleep = require('util').promisify(setTimeout);
 
-const testSeedPhrase = process.env.TEST_SEED;
+const testSeedPhrase = getTestVar(TEST_CONST.TEST_SEED);
 const password = '7v2$O3sS0ZY!';
 
 export const waitMmNotifyWindow = async () => {
     await sleep(5000);
+};
+
+export const getNotifyMmPage = async (context: BrowserContext): Promise<Page> => {
+    const expectedMmPageTitle = 'MetaMask Notification';
+    const notifyPage = context.pages()[2];
+    const titlePage = await notifyPage.title();
+
+    if (titlePage !== expectedMmPageTitle) {
+        throw new Error(`Oops, this is didn\`t notify MM page. Current title ${titlePage}`);
+    }
+
+    return notifyPage;
+};
+
+export const closeEmptyPages = async (context: BrowserContext) => {
+    await waitMmNotifyWindow();
+    const allStartPages = context.pages();
+
+    for (const page of allStartPages) {
+        const pageTitle = await page.title();
+        if (pageTitle === '') {
+            await page.close();
+        }
+    }
 };
 
 export class MetaMaskHomePage {
@@ -91,7 +116,7 @@ export class MetaMaskNotifyPage {
         await this.page.click('[data-testid="page-container-footer-next"]');
     }
 
-    async getReciverAddress() {
+    async getReceiverAddress() {
         await this.page.click('[data-testid="sender-to-recipient__name"]');
         const result = await this.page.innerText('div.nickname-popover__public-address__constant');
         await this.page.click('[data-testid="popover-close"]');
