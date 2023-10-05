@@ -93,14 +93,19 @@ function useAdapter() {
 
             adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
 
+            adaptersDispatch(TYPES.SET_IS_CONNECTED, true);
+
             adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
 
             isConnected && storeWalletInfo();
+
+            router.push('/main');
 
             return isConnected;
         } catch (error) {
             console.error('Failed to connect to:', ecosystem, error);
             adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
+            adaptersDispatch(TYPES.SET_IS_CONNECTED, false);
             return false;
         }
     };
@@ -165,7 +170,6 @@ function useAdapter() {
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
         adaptersDispatch(TYPES.DISCONNECT_WALLET, wallet);
 
-        window.localStorage.setItem('isAuthenticated', false);
         router.push('/connect-wallet');
 
         await adapter.disconnectWallet(wallet.walletModule);
@@ -178,7 +182,6 @@ function useAdapter() {
             await adapter.disconnectAllWallets(...args);
         }
 
-        window.localStorage.setItem('isAuthenticated', false);
         router.push('/connect-wallet');
 
         adaptersDispatch(TYPES.DISCONNECT_ALL_WALLETS);

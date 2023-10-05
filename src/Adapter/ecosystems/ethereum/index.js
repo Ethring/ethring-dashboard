@@ -48,9 +48,6 @@ class EthereumAdapter extends AdapterBase {
                 this.setAddressForChains();
             }
 
-            window.localStorage.setItem('isAuthenticated', !connectingWallet.value);
-            router.push('/main');
-
             return !connectingWallet.value;
         } catch (error) {
             console.error('Failed to connect to:', walletName, error);

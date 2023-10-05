@@ -1,9 +1,11 @@
 export default async (to, from, next) => {
-    const isAuthenticated = JSON.parse(localStorage.getItem('isAuthenticated'));
+    const isAuthRequired = to.meta.isAuth;
 
-    if (!isAuthenticated && to.name !== 'Connect wallet') {
+    const isConnected = JSON.parse(localStorage.getItem('adapter:isConnected'));
+
+    if (!isConnected && to.name !== 'Connect wallet' && isAuthRequired) {
         return next('/connect-wallet');
-    } else if (to.name == 'Connect wallet' && isAuthenticated) {
+    } else if (to.name == 'Connect wallet' && isConnected) {
         return next('/');
     }
 
