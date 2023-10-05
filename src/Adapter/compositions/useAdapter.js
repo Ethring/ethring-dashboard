@@ -6,6 +6,8 @@ import { ECOSYSTEMS } from '@/Adapter/config';
 import * as GETTERS from '../store/getters';
 import * as TYPES from '../store/types';
 
+import router from '../../routes';
+
 function useAdapter() {
     // * Store Module
     const store = useStore();
@@ -162,6 +164,10 @@ function useAdapter() {
     const disconnectWallet = async (ecosystem, wallet) => {
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
         adaptersDispatch(TYPES.DISCONNECT_WALLET, wallet);
+
+        window.localStorage.setItem('isAuthenticated', false);
+        router.push('/connect-wallet');
+
         await adapter.disconnectWallet(wallet.walletModule);
     };
 
@@ -171,6 +177,9 @@ function useAdapter() {
             const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
             await adapter.disconnectAllWallets(...args);
         }
+
+        window.localStorage.setItem('isAuthenticated', false);
+        router.push('/connect-wallet');
 
         adaptersDispatch(TYPES.DISCONNECT_ALL_WALLETS);
     };

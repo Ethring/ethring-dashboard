@@ -12,6 +12,8 @@ import { validateEthAddress } from '@/Adapter/utils/validations';
 
 import { checkErrors } from '@/helpers/checkErrors';
 
+import router from '@/routes';
+
 let web3Onboard = null;
 
 // const STORAGE = {
@@ -46,6 +48,8 @@ class EthereumAdapter extends AdapterBase {
                 this.setAddressForChains();
             }
 
+            window.localStorage.setItem('isAuthenticated', true);
+            router.push('/main');
             return !connectingWallet.value;
         } catch (error) {
             console.error('Failed to connect to:', walletName, error);

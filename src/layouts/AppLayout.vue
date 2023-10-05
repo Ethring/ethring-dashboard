@@ -12,8 +12,7 @@
     </div>
 </template>
 <script>
-import { computed, watch, onMounted, onUpdated } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed } from 'vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
@@ -41,13 +40,7 @@ export default {
         },
     },
     setup(props) {
-        const router = useRouter();
-
-        const { isConnecting, walletAccount, currentChainInfo } = useAdapter();
-
-        const isAccountExist = () => {
-            return walletAccount.value || currentChainInfo.value;
-        };
+        const { walletAccount, currentChainInfo } = useAdapter();
 
         const spinnerLoader = computed(() => !walletAccount.value || !currentChainInfo.value);
 
@@ -63,35 +56,6 @@ export default {
             }
 
             return null;
-        });
-
-        watch(
-            () => layoutComponent?.value,
-            (newV) => {
-                if (!newV) {
-                    router.push('/main');
-                }
-            }
-        );
-
-        onMounted(() => {
-            if (isConnecting.value) {
-                return;
-            }
-
-            if (!isAccountExist()) {
-                router.push('/main');
-            }
-        });
-
-        onUpdated(() => {
-            if (isConnecting.value) {
-                return;
-            }
-
-            if (!isAccountExist()) {
-                router.push('/main');
-            }
         });
 
         return {

@@ -6,7 +6,7 @@ import Dashboard from '@/views/Dashboard.vue';
 
 const routes = [
     {
-        path: '/login',
+        path: '/',
         name: 'Home',
         component: Dashboard,
     },
@@ -38,6 +38,11 @@ const routes = [
             isAuth: true,
         },
         component: () => import('../layouts/BridgeLayout.vue'),
+    },
+    {
+        path: '/connect-wallet',
+        name: 'Connect wallet',
+        component: () => import('../views/ConnectWallet.vue'),
     },
     // {
     //     path: '/superSwap',

@@ -1,21 +1,13 @@
-import useAdapter from '@/Adapter/compositions/useAdapter';
-
 export default async (to, from, next) => {
-    const isAuthRequired = to.meta.isAuth;
+    const isAuthenticated = JSON.parse(localStorage.getItem('isAuthenticated'));
 
-    const { walletAccount } = useAdapter();
-
-    const isAccountExist = () => {
-        return walletAccount.value;
-    };
-
-    if (isAuthRequired) {
-        const isAuthenticated = isAccountExist();
-
-        if (!isAuthenticated) {
-            return next({ name: "Home" });
+    if (!isAuthenticated) {
+        if (to.name !== 'Connect wallet') {
+            return next('/connect-wallet');
         }
-    }
+    } else if (to.name == 'Connect wallet' && isAuthenticated) {
+        return next('/');
+    } 
 
     return next();
 };

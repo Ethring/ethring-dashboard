@@ -19,6 +19,7 @@
 <script>
 import { onMounted, onUpdated, onBeforeMount, watch, ref, computed } from 'vue';
 import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 
 import useInit from '@/compositions/useInit';
 import useAdapter from '@/Adapter/compositions/useAdapter';
@@ -42,6 +43,8 @@ export default {
 
     setup() {
         const store = useStore();
+        const router = useRouter();
+
         const lastConnectedCall = ref(false);
 
         const {
@@ -71,6 +74,12 @@ export default {
 
         onMounted(async () => {
             !lastConnectedCall.value && connectLastConnectedWallet().then(() => (lastConnectedCall.value = true));
+
+            const isAuthenticated = JSON.parse(localStorage.getItem('isAuthenticated'));
+
+            if(!isAuthenticated) {
+                router.push('/connect-wallet');
+            }
 
             await callInit();
         });

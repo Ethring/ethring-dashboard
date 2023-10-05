@@ -13,6 +13,8 @@ import { ECOSYSTEMS, cosmologyConfig } from '@/Adapter/config';
 
 import AdapterBase from '@/Adapter/utils/AdapterBase';
 
+import router from '@/routes';
+
 import { validateCosmosAddress } from '@/Adapter/utils/validations';
 import { reEncodeWithNewPrefix, isDifferentSlip44 } from '@/Adapter/utils';
 import { checkErrors } from '@/helpers/checkErrors';
@@ -133,6 +135,9 @@ class CosmosAdapter extends AdapterBase {
 
             await this.setAddressForChains(walletName);
             await chainWallet.update({ connect: true });
+
+            window.localStorage.setItem('isAuthenticated', true);
+            router.push('/main');
 
             return isConnected;
         } catch (error) {
