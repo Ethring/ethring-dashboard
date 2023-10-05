@@ -129,12 +129,11 @@ export default {
             display: flex;
             justify-content: center;
             align-items: center;
+            
             width: 40px;
             height: 40px;
             min-width: 40px;
-            border-radius: 50%;
-
-            background: var(--#{$prefix}primary);
+        
             margin-right: 10px;
 
             svg {
