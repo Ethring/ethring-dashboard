@@ -327,7 +327,7 @@ export default {
                 },
             });
 
-            closeNotification('prepare-send-tx');
+            closeNotification('prepare-tx');
 
             return setTimeout(() => {
                 successHash.value = '';
