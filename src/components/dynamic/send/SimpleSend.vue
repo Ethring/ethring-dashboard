@@ -296,7 +296,7 @@ export default {
                 duration: 5,
             });
 
-            closeNotification('prepare-send-tx');
+            closeNotification('prepare-tx');
 
             isLoading.value = false;
         });
