@@ -8,7 +8,7 @@ test.describe('Send e2e tests', () => {
     test('Case#1: Send native token to another address in ETH net', async ({ browser, context, page: Page, sendPage }) => {
         const addressTo = getTestVar(TEST_CONST.TEST_RECIPIENT_ADDRESS);
         const amount = '0.0001';
-        const SUCCESS_HASH = '0x722a02331325f538c740391d0d0948935250e19eda6cf355b0c89198d2f8a0e4';
+        const txHash = getTestVar(TEST_CONST.SUCCESS_TX_HASH_BY_MOCK);
 
         await sendPage.setAddressTo(addressTo);
         await sendPage.setAmount(amount);
@@ -16,11 +16,13 @@ test.describe('Send e2e tests', () => {
 
         const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
         const recipientAddress = await notifyMM.getReceiverAddress();
+        const amountFromMM = await notifyMM.getAmount();
 
         expect(recipientAddress).toBe(addressTo);
+        expect(amountFromMM).toBe(amount);
 
         await notifyMM.signTx();
 
-        expect(await sendPage.getLinkFromSuccessPanel()).toContain(SUCCESS_HASH);
+        expect(await sendPage.getLinkFromSuccessPanel()).toContain(txHash);
     });
 });

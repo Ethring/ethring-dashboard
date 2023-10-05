@@ -1,4 +1,4 @@
-var mockserver = require('mockserver-node');
+const mockserver = require('mockserver-node');
 const path = require('path');
 const fs = require('fs');
 

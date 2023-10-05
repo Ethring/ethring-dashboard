@@ -154,12 +154,10 @@ export class SendPage extends DashboardPage {
     }
 
     async setAmount(amount: string) {
-        await sleep(5000);
+        await this.page.waitForSelector('span.ant-skeleton-input', { state: 'hidden', timeout: 10000 });
         await this.page.getByTestId('input-amount').fill(amount);
     }
-
     async clickConfirm() {
-        // await this.page.getByTestId('confirm').click();
         await this.page.click('//button/div[text()="Confirm"]');
         await sleep(10000);
     }

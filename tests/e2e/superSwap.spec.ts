@@ -4,24 +4,29 @@ import { MetaMaskNotifyPage } from '../model/metaMaskPages';
 import { DashboardPage } from '../model/zometPages';
 import { getServices, SERVICE_TYPE } from '../../src/config/services';
 import { getNotifyMmPage } from '../model/metaMaskPages';
+import { TEST_CONST, getTestVar } from '../envHelper';
 
 const supportedServiceByBridge = getServices(SERVICE_TYPE.BRIDGE);
 const supportedServiceBySwap = getServices(SERVICE_TYPE.SWAP);
 
 test.describe('SuperSwap e2e tests', () => {
     test('Case#1: Super Swap tx from ETH to BSC wEth to USDC', async ({ browser, context, page: Page, superSwapPage }) => {
-        await superSwapPage.setDataAndClickSwap('Binance Smart Chain', '0.01');
+        const netTo = 'Binance Smart Chain';
+        const amount = '0.01';
+        const txHash = getTestVar(TEST_CONST.SUCCESS_TX_HASH_BY_MOCK);
+
+        await superSwapPage.setDataAndClickSwap(netTo, amount);
 
         const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
         await notifyMM.signTx();
 
-        expect(await superSwapPage.getLinkFromSuccessPanel()).toContain(
-            '0x722a02331325f538c740391d0d0948935250e19eda6cf355b0c89198d2f8a0e4'
-        );
+        expect(await superSwapPage.getLinkFromSuccessPanel()).toContain(txHash);
     });
 
     test('Case#2: Verifying data reset when navigating to swap page', async ({ page: Page, superSwapPage }) => {
-        await superSwapPage.setNetworkTo('Arbitrum One');
+        const netTo = 'Arbitrum One';
+
+        await superSwapPage.setNetworkTo(netTo);
         const tokenInSuperSwap = superSwapPage.getTokenTo();
 
         const swapPage = await superSwapPage.goToSwap();
@@ -30,34 +35,21 @@ test.describe('SuperSwap e2e tests', () => {
         expect(tokenInSuperSwap).not.toBe(currentTokenTo);
     });
 
-    test('Case#3: Verifying if all service response errors', async ({ page, dashboard }: { page; dashboard: DashboardPage }) => {
-        await dashboard.page.route('**/getSupportedChains', (route) => {
-            route.fulfill({
-                status: 500,
-                json: {
-                    ok: false,
-                    data: '',
-                    error: 'Oops, sorry bro',
-                },
-            });
-        });
-
-        const superSwapPage = await dashboard.goToSuperSwap();
-        await superSwapPage.setNetworkTo('Arbitrum One');
-        // TODO тут определить поведение которое отображает дашборд при отсутствии данных о поддерживаемых чейнах
-    });
-
-    test('Case#4: Checking polled services for bridge', async ({ page, dashboard }: { page: Page; dashboard: DashboardPage }) => {
-        let requestedService: string[] = [];
+    test('Case#3: Checking polled services for bridge', async ({ page, dashboard }: { page: Page; dashboard: DashboardPage }) => {
+        const amount = '1';
+        const requestedService: string[] = [];
 
         await dashboard.page.route('**/estimateBridge', (route) => {
             const regex = /\/([^/]+)\/api/;
-            requestedService.push(route.request().url().match(regex)[1]);
+            const match = route.request().url().match(regex);
+            if (match && match[1]) {
+                requestedService.push(match[1]);
+            }
             route.continue();
         });
 
         const superSwapPage = await dashboard.goToSuperSwap();
-        await superSwapPage.setAmount('1');
+        await superSwapPage.setAmount(amount);
 
         expect(requestedService).toEqual(supportedServiceByBridge);
     });

@@ -1,80 +1,47 @@
 import { test, expect } from '../__fixtures__/fixtures';
+import { TEST_CONST, getTestVar } from '../envHelper';
 import { MetaMaskNotifyPage } from '../model/metaMaskPages';
 import { getNotifyMmPage } from '../model/metaMaskPages';
-const sleep = require('util').promisify(setTimeout);
 
 const supportedNetsBySwap = ['Ethereum', 'Binance Smart Chain', 'Arbitrum', 'Polygon', 'Avalanche', 'Optimism', 'Fantom'];
+const txHash = getTestVar(TEST_CONST.SUCCESS_TX_HASH_BY_MOCK);
 
-test('Swap tx', async ({ browser, context, page: Page, swapPage }) => {
-    await swapPage.swapTokens('0.0001');
+test('Case#1: Swap tx', async ({ browser, context, page: Page, swapPage }) => {
+    const amount = '0.0001';
+    
+    await swapPage.swapTokens(amount);
 
     const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
     await notifyMM.signTx();
 
-    expect(await swapPage.getLinkFromSuccessPanel()).toContain('0x722a02331325f538c740391d0d0948935250e19eda6cf355b0c89198d2f8a0e4');
+    expect(await swapPage.getLinkFromSuccessPanel()).toContain(txHash);
 });
 
-for (const net of supportedNetsBySwap) {
-    test.skip(`Assert duplicate tokens in net ${net}`, async ({ browser, context, page: Page, swapPage }) => {
-        const needAddNetInMm = await swapPage.changeNetworkBySwap(net);
-        if (needAddNetInMm) {
-            const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
-            await notifyMM.addAndAcceptChangeNetwork();
-        }
-
-        await sleep(3000);
-
-        await swapPage.page.click('(//div[@data-qa="select-token"])[2]');
-
-        const tokensCodeLocators = await swapPage.page.locator('//div[@class="select-token__item"]//span[@class="symbol"]').all();
-        const codeArr: string[] = await Promise.all(
-            tokensCodeLocators.map(async (locator) => {
-                const text = await locator.textContent();
-                return text ?? '';
-            })
-        );
-
-        function findDuplicates(arr: any[]): any[] {
-            const duplicates: any[] = [];
-            const countMap: { [key: string]: number } = {};
-
-            for (const element of arr) {
-                countMap[element] = (countMap[element] || 0) + 1;
-                if (countMap[element] > 1) {
-                    duplicates.push(element);
-                }
-            }
-
-            return duplicates;
-        }
-
-        expect(findDuplicates(codeArr)).toEqual([]);
-    });
-}
-
-test('Try change token after change network', async ({ browser, context, page: Page, swapPage }) => {
-    const testedNet = 'Arbitrum';
+test('Case#2: Try change token after change network', async ({ browser, context, page: Page, swapPage }) => {
+    const net = 'Arbitrum';
     const tokenFrom = 'SUSHI';
 
-    await swapPage.changeNetworkBySwap(testedNet);
+    await swapPage.changeNetworkBySwap(net);
 
     const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
     await notifyMM.addAndAcceptChangeNetwork();
 
-    expect(await swapPage.getCurrentNetInSwap()).toContain(testedNet);
+    expect(await swapPage.getCurrentNetInSwap()).toContain(net);
     await swapPage.setTokenFromInSwap(tokenFrom);
 
     const result = await swapPage.getTokenFrom();
     expect(result).toBe(tokenFrom);
 });
 
-test('Assert networks name', async ({ browser, context, page: Page, swapPage }) => {
+test('Case#3: Assert networks name', async ({ browser, context, page: Page, swapPage }) => {
+    const netsLocator = '//div[@class="select__items"]//div[text()]';
+
     await swapPage.openAccordionWithNetworks();
 
-    const netsLocatorList = await swapPage.page.locator('//div[@class="select__items"]//div[text()]').all();
+    const netsList = await swapPage.page.locator(netsLocator).all();
 
     const netsNameList: string[] = await Promise.all(
-        netsLocatorList.map(async (locator) => {
+        netsList.map(async (locator) => {
             const text = await locator.textContent();
             return text ?? '';
         })
@@ -83,7 +50,7 @@ test('Assert networks name', async ({ browser, context, page: Page, swapPage }) 
     expect(netsNameList).toStrictEqual(supportedNetsBySwap);
 });
 
-test('Swap in Polygon: Matic to USDC', async ({ browser, context, page: Page, swapPage }) => {
+test('Case#4: Swap in Polygon: Matic to USDC', async ({ browser, context, page: Page, swapPage }) => {
     const testedNet = 'Polygon';
     const tokenFrom = 'MATIC';
 
@@ -99,5 +66,5 @@ test('Swap in Polygon: Matic to USDC', async ({ browser, context, page: Page, sw
     const notifyMM2 = new MetaMaskNotifyPage(await getNotifyMmPage(context));
     await notifyMM2.signTx();
 
-    expect(await swapPage.getLinkFromSuccessPanel()).toContain('0x722a02331325f538c740391d0d0948935250e19eda6cf355b0c89198d2f8a0e4');
+    expect(await swapPage.getLinkFromSuccessPanel()).toContain(txHash);
 });

@@ -17,7 +17,7 @@ export const getNotifyMmPage = async (context: BrowserContext): Promise<Page> =>
     const titlePage = await notifyPage.title();
 
     if (titlePage !== expectedMmPageTitle) {
-        throw new Error(`Oops, this is didn\`t notify MM page. Current title ${titlePage}`);
+        throw new Error(`Oops, this is did not notify MM page. Current title ${titlePage}`);
     }
 
     return notifyPage;
@@ -121,6 +121,11 @@ export class MetaMaskNotifyPage {
         const result = await this.page.innerText('div.nickname-popover__public-address__constant');
         await this.page.click('[data-testid="popover-close"]');
         return result;
+    }
+
+    async getAmount() {
+        const amount = await this.page.innerText('h3.mm-text span.currency-display-component__text');
+        return amount;
     }
 
     async addAndAcceptChangeNetwork() {
