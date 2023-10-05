@@ -136,7 +136,7 @@ class CosmosAdapter extends AdapterBase {
             await this.setAddressForChains(walletName);
             await chainWallet.update({ connect: true });
 
-            window.localStorage.setItem('isAuthenticated', true);
+            window.localStorage.setItem('isAuthenticated', isConnected);
             router.push('/main');
 
             return isConnected;

@@ -1,12 +1,12 @@
 import { computed } from 'vue';
 import { useStore } from 'vuex';
 
+import router from '@/routes';
+
 import { ECOSYSTEMS } from '@/Adapter/config';
 
 import * as GETTERS from '../store/getters';
 import * as TYPES from '../store/types';
-
-import router from '../../routes';
 
 function useAdapter() {
     // * Store Module

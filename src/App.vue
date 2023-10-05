@@ -77,10 +77,10 @@ export default {
 
             const isAuthenticated = JSON.parse(localStorage.getItem('isAuthenticated'));
 
-            if(!isAuthenticated) {
+            if (!isAuthenticated) {
                 router.push('/connect-wallet');
             }
-
+            
             await callInit();
         });
 

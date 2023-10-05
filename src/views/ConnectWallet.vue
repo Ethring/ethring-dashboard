@@ -4,8 +4,7 @@
 <script>
 export default {
     name: 'Login',
-    setup() {
-    },
+    setup() {},
 };
 </script>
 <style lang="scss" scoped>
