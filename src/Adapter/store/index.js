@@ -163,7 +163,7 @@ export default {
         },
         [TYPES.SET_IS_CONNECTED](state, value) {
             state.isConnected = value;
-            
+
             return (isConnectedStorage.value = value);
         },
     },

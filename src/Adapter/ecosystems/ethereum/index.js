@@ -12,8 +12,6 @@ import { validateEthAddress } from '@/Adapter/utils/validations';
 
 import { checkErrors } from '@/helpers/checkErrors';
 
-import router from '@/routes';
-
 let web3Onboard = null;
 
 // const STORAGE = {

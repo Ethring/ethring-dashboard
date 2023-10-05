@@ -42,7 +42,7 @@ export default {
 
     setup() {
         const store = useStore();
-        
+
         const lastConnectedCall = ref(false);
 
         const {
