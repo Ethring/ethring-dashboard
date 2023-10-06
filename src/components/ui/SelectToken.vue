@@ -104,7 +104,7 @@ export default {
 
         const searchInTokens = (tokens, value) => {
             return _.filter(tokens, (elem) => {
-                return searchByKey(elem, value, 'name') || searchByKey(elem, value, 'code') || searchByKey(elem, value, 'address');
+                return searchByKey(elem, value, 'name') || searchByKey(elem, value, 'symbol') || searchByKey(elem, value, 'address');
             });
         };
 
