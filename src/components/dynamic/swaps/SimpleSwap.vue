@@ -775,6 +775,7 @@ export default {
             successHash,
             networkFee,
             setReceiveValue,
+            selectedService,
 
             onSelectNetwork,
             onSetTokenFrom,
@@ -782,7 +783,6 @@ export default {
             onSetAmount,
             swapTokensDirection,
             handleOnSwap,
-            selectedService,
         };
     },
 };
