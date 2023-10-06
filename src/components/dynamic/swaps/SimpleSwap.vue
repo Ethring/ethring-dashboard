@@ -44,7 +44,7 @@
                     <span class="fee">{{ networkFee }}</span> <span class="fee-symbol">$</span>
                 </AccordionItem>
                 <AccordionItem :label="$t('simpleSwap.service') + ' : '">
-                    <img src="https://cryptologos.cc/logos/1inch-1inch-logo.svg?v=025" alt="service-logo" />
+                    <img :src="selectedService.icon" alt="service-logo" />
                     <span class="symbol">1inch</span>
                 </AccordionItem>
             </div>
@@ -782,6 +782,7 @@ export default {
             onSetAmount,
             swapTokensDirection,
             handleOnSwap,
+            selectedService,
         };
     },
 };
