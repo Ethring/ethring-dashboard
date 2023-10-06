@@ -1,5 +1,6 @@
 export const IS_OPEN = 'isOpen';
 export const IS_CONNECTING = 'isConnecting';
+export const IS_CONNECTED = 'isConnected';
 
 export const CURRENT_ADAPTER = 'getCurrentAdapter';
 export const CURRENT_ECOSYSTEM = 'getCurrentEcosystem';

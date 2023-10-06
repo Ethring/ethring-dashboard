@@ -42,6 +42,7 @@ export default {
 
     setup() {
         const store = useStore();
+
         const lastConnectedCall = ref(false);
 
         const {
@@ -71,7 +72,6 @@ export default {
 
         onMounted(async () => {
             !lastConnectedCall.value && connectLastConnectedWallet().then(() => (lastConnectedCall.value = true));
-
             await callInit();
         });
 

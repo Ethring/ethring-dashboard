@@ -1,6 +1,8 @@
 import { computed } from 'vue';
 import { useStore } from 'vuex';
 
+import router from '@/routes';
+
 import { ECOSYSTEMS } from '@/Adapter/config';
 
 import * as GETTERS from '../store/getters';
@@ -91,14 +93,19 @@ function useAdapter() {
 
             adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
 
+            adaptersDispatch(TYPES.SET_IS_CONNECTED, true);
+
             adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
 
             isConnected && storeWalletInfo();
+
+            router.push('/main');
 
             return isConnected;
         } catch (error) {
             console.error('Failed to connect to:', ecosystem, error);
             adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
+            adaptersDispatch(TYPES.SET_IS_CONNECTED, false);
             return false;
         }
     };
@@ -162,6 +169,9 @@ function useAdapter() {
     const disconnectWallet = async (ecosystem, wallet) => {
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
         adaptersDispatch(TYPES.DISCONNECT_WALLET, wallet);
+
+        router.push('/connect-wallet');
+
         await adapter.disconnectWallet(wallet.walletModule);
     };
 
@@ -171,6 +181,8 @@ function useAdapter() {
             const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
             await adapter.disconnectAllWallets(...args);
         }
+
+        router.push('/connect-wallet');
 
         adaptersDispatch(TYPES.DISCONNECT_ALL_WALLETS);
     };

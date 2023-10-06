@@ -20,7 +20,6 @@ const routes = [
         name: 'Swap Page',
         meta: {
             isAuth: true,
-            isSwap: true,
         },
         component: () => import('../layouts/SwapLayout.vue'),
     },
@@ -39,6 +38,11 @@ const routes = [
             isAuth: true,
         },
         component: () => import('../layouts/BridgeLayout.vue'),
+    },
+    {
+        path: '/connect-wallet',
+        name: 'Connect wallet',
+        component: () => import('../views/ConnectWallet.vue'),
     },
     // {
     //     path: '/superSwap',
