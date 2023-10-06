@@ -5,7 +5,9 @@
                 {{ $t('simpleSend.title') }}
                 <ArrowUpIcon class="arrow" />
             </div>
-            <router-link v-if="!isModuleDisabled(config, '/bridge')" class="send-page__title" to="/bridge">{{ $t('simpleBridge.title') }}</router-link>
+            <router-link v-if="!isModuleDisabled(config, '/bridge')" class="send-page__title" to="/bridge">{{
+                $t('simpleBridge.title')
+            }}</router-link>
         </div>
     </AppLayout>
 </template>
@@ -42,7 +44,7 @@ export default {
         return {
             config,
             isModuleDisabled,
-        }
+        };
     },
 };
 </script>
