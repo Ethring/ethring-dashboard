@@ -46,9 +46,11 @@ const BUY_CRYPTO = {
     disabled: true,
 };
 
+const SIDEBAR_MODULES = [MAIN_DASHBOARD, SEND, SWAP, BRIDGE, SUPER_SWAP, BUY_CRYPTO];
+
 const defaultConfig = {
     [ECOSYSTEMS.EVM]: {
-        sidebar: [MAIN_DASHBOARD, SEND, SWAP, BRIDGE, SUPER_SWAP, BUY_CRYPTO],
+        sidebar: SIDEBAR_MODULES,
         send: {
             component: 'SimpleSend',
         },
@@ -66,9 +68,6 @@ const defaultConfig = {
         sidebar: [
             MAIN_DASHBOARD,
             SEND,
-            // SWAP,
-            // BRIDGE,
-            // SUPER_SWAP,
         ],
         send: {
             component: 'SimpleSend',
@@ -90,9 +89,6 @@ const UIConfig = {
         sidebar: [
             MAIN_DASHBOARD,
             SEND,
-            // SWAP,
-            // BRIDGE,
-            // SUPER_SWAP,
         ],
         send: {
             component: 'SimpleSend',
@@ -119,11 +115,19 @@ const getUIConfig = (network, ecosystem) => {
         disabled: !isDisableModule(item),
     }));
 
+    SIDEBAR_MODULES.forEach(item => {
+        const isExist = config.sidebar.some(existItem => existItem.key === item.key);
+
+        if (!isExist) {
+            config.sidebar.push({ ...item, disabled: true });
+        }
+    });
+
     if (UIConfig[network]) {
-        const networkConfig = UIConfig[network];
+        const networkConfig = UIConfig[network].sidebar;
 
         config.sidebar.forEach((item) => {
-            if (!networkConfig.sidebar.some((networkItem) => networkItem.key === item.key)) {
+            if (!networkConfig.some((networkItem) => networkItem.key === item.key)) {
                 item.disabled = true;
             }
         });
@@ -131,5 +135,6 @@ const getUIConfig = (network, ecosystem) => {
 
     return config;
 };
+
 
 export default getUIConfig;

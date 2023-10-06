@@ -1,5 +1,5 @@
 <template>
-    <div class="login-page">Connect wallet</div>
+    <div class="login-page"></div>
 </template>
 <script>
 export default {
