@@ -6,6 +6,7 @@ const MAIN_DASHBOARD = {
     title: 'Main',
     key: 'main',
     to: '/main',
+    disabled: false,
 };
 
 const SEND = {
@@ -13,6 +14,7 @@ const SEND = {
     title: 'Send',
     key: 'send',
     to: '/send',
+    disabled: false,
 };
 
 const BRIDGE = {
@@ -20,6 +22,7 @@ const BRIDGE = {
     title: 'Bridge',
     key: 'bridge',
     to: '/bridge',
+    disabled: false,
 };
 
 const SWAP = {
@@ -27,6 +30,7 @@ const SWAP = {
     title: 'Swap',
     key: 'swap',
     to: '/swap',
+    disabled: false,
 };
 
 const SUPER_SWAP = {
@@ -35,6 +39,7 @@ const SUPER_SWAP = {
     key: 'superSwap',
     to: '/superSwap',
     status: 'BETA',
+    disabled: false,
 };
 
 const BUY_CRYPTO = {
@@ -81,7 +86,7 @@ const defaultConfig = {
     },
 };
 
-const UIConfig = {
+const CUSTOM_UI_BY_CHAIN = {
     optimism: {
         sidebar: [MAIN_DASHBOARD, SEND],
         send: {
@@ -99,35 +104,40 @@ const UIConfig = {
     },
 };
 
-const getUIConfig = (network, ecosystem) => {
-    const config = { ...defaultConfig[ecosystem] };
-
-    const isDisableModule = (item) => item.key !== 'buyCrypto';
-
-    config.sidebar = config.sidebar?.map((item) => ({
-        ...item,
-        disabled: !isDisableModule(item),
-    }));
-
-    SIDEBAR_MODULES.forEach((item) => {
-        const isExist = config.sidebar.some((existItem) => existItem.key === item.key);
-
-        if (!isExist) {
-            config.sidebar.push({ ...item, disabled: true });
+const checkIsDisabled = (config, sidebar) => {
+    for (const module of config) {
+        if (module.disabled) {
+            continue;
         }
-    });
 
-    if (UIConfig[network]) {
-        const networkConfig = UIConfig[network].sidebar;
+        if (sidebar.some((item) => item.key === module.key)) {
+            module.disabled = false;
+            continue;
+        }
 
-        config.sidebar.forEach((item) => {
-            if (!networkConfig.some((networkItem) => networkItem.key === item.key)) {
-                item.disabled = true;
-            }
-        });
+        module.disabled = true;
     }
 
     return config;
+};
+
+const getUIConfig = (network, ecosystem) => {
+    // Copy without reference, to avoid changing the default config
+    const config = JSON.parse(JSON.stringify(defaultConfig[ecosystem]));
+    const defaultSidebar = JSON.parse(JSON.stringify(SIDEBAR_MODULES));
+
+    let { sidebar = [] } = config || {};
+
+    if (CUSTOM_UI_BY_CHAIN[network] && CUSTOM_UI_BY_CHAIN[network].sidebar) {
+        const networkConfig = CUSTOM_UI_BY_CHAIN[network].sidebar;
+        sidebar = checkIsDisabled(sidebar, networkConfig);
+
+        return { ...config, sidebar };
+    }
+
+    sidebar = checkIsDisabled(defaultSidebar, sidebar);
+
+    return { ...config, sidebar };
 };
 
 export default getUIConfig;
