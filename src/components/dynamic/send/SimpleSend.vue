@@ -224,7 +224,7 @@ export default {
 
             try {
                 showNotification({
-                    key: 'prepare-send-tx',
+                    key: 'prepare-tx',
                     type: 'info',
                     title: `Sending ${dataForPrepare.amount} ${dataForPrepare.token.symbol} ...`,
                     description: 'Please wait, transaction is preparing',
@@ -242,21 +242,21 @@ export default {
                 );
 
                 if (tx.error) {
-                    closeNotification('prepare-send-tx');
+                    closeNotification('prepare-tx');
                     return (txError.value = tx.error);
                 }
 
                 const resTx = await signSend(tx);
 
                 if (resTx.error) {
-                    closeNotification('prepare-send-tx');
+                    closeNotification('prepare-tx');
                     return (txError.value = resTx.error);
                 }
 
                 successHash.value = getTxExplorerLink(resTx.transactionHash, currentChainInfo.value);
                 isLoading.value = false;
             } catch (error) {
-                closeNotification('prepare-send-tx');
+                closeNotification('prepare-tx');
             }
         };
 
@@ -295,7 +295,7 @@ export default {
                 duration: 5,
             });
 
-            closeNotification('prepare-send-tx');
+            closeNotification('prepare-tx');
 
             isLoading.value = false;
         });

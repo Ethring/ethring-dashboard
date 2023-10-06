@@ -186,7 +186,7 @@ export default {
 
         .info {
             width: 95%;
-            margin-top: 15px;
+            margin-top: 8px;
             display: flex;
             align-items: center;
         }
@@ -205,15 +205,18 @@ export default {
             display: flex;
             justify-content: center;
             align-items: center;
+
             width: 40px;
             min-width: 40px;
             height: 40px;
+
             border-radius: 50%;
-            background: var(--#{$prefix}primary);
             margin-right: 10px;
 
             &-logo {
-                width: 28px;
+                width: 80%;
+                height: 80%;
+                border-radius: 50%;
             }
         }
 
@@ -339,24 +342,6 @@ export default {
                 font-weight: 400;
             }
         }
-    }
-}
-
-.network {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
-    border-radius: 50%;
-    background: var(--#{$prefix}primary);
-    margin-right: 10px;
-
-    & > img.network-logo {
-        width: 80% !important;
-        height: 80% !important;
-        border-radius: 50%;
     }
 }
 </style>

@@ -77,7 +77,7 @@
                     <span>{{ prettyNumber(networkFee * +selectedSrcToken?.price) }}</span> <span class="symbol">$</span>
                 </AccordionItem>
                 <AccordionItem :label="$t('simpleBridge.title') + ' :'">
-                    <img src="https://app.debridge.finance/assets/images/bridge.svg" alt="service-logo" />
+                    <img :src="selectedService.icon" alt="service-logo" />
                     <span class="symbol">{{ services[0].name }}</span>
                 </AccordionItem>
                 <AccordionItem :label="$t('tokenOperations.time') + ' :'">
@@ -915,6 +915,7 @@ export default {
             currentChainInfo,
             networkFee,
             setReceiveValue,
+            selectedService,
 
             // Handlers
             handleOnSelectNetwork,
@@ -945,7 +946,7 @@ export default {
 
             .name {
                 font-size: var(--#{$prefix}h6-fs);
-                line-height: 16px;
+                line-height: 26px;
             }
         }
     }

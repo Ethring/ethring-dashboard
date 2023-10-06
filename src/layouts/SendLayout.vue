@@ -5,7 +5,7 @@
                 {{ $t('simpleSend.title') }}
                 <ArrowUpIcon class="arrow" />
             </div>
-            <router-link v-if="!isModuleDisabled(config, '/bridge')" class="send-page__title" to="/bridge">{{
+            <router-link v-if="!isModuleDisabled('/bridge')" class="send-page__title" to="/bridge">{{
                 $t('simpleBridge.title')
             }}</router-link>
         </div>
@@ -31,7 +31,7 @@ export default {
 
         const config = UIConfig(currentChainInfo.value?.net, currentChainInfo.value?.ecosystem);
 
-        const isModuleDisabled = (config, sidebarItem) => {
+        const isModuleDisabled = (sidebarItem) => {
             const sidebarModule = config.sidebar.find((module) => module.to === sidebarItem);
 
             if (sidebarModule) {
@@ -42,7 +42,6 @@ export default {
         };
 
         return {
-            config,
             isModuleDisabled,
         };
     },

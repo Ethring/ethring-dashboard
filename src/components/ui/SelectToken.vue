@@ -261,10 +261,11 @@ export default {
         .logo {
             width: 40px;
             height: 40px;
+
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--#{$prefix}primary);
+
             border-radius: 50%;
             margin-right: 12px;
         }
