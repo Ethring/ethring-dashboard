@@ -5,12 +5,17 @@
                 {{ $t('simpleSend.title') }}
                 <ArrowUpIcon class="arrow" />
             </div>
-            <router-link class="send-page__title" to="/bridge">{{ $t('simpleBridge.title') }}</router-link>
+            <router-link v-if="!isModuleDisabled(config, '/bridge')" class="send-page__title" to="/bridge">{{ $t('simpleBridge.title') }}</router-link>
         </div>
     </AppLayout>
 </template>
 <script>
+import useAdapter from '@/Adapter/compositions/useAdapter';
+
+import UIConfig from '@/config/ui';
+
 import AppLayout from '@/layouts/AppLayout.vue';
+
 import ArrowUpIcon from '@/assets/icons/dashboard/arrowup.svg';
 
 export default {
@@ -19,7 +24,26 @@ export default {
         AppLayout,
         ArrowUpIcon,
     },
-    setup() {},
+    setup() {
+        const { currentChainInfo } = useAdapter();
+
+        const config = UIConfig(currentChainInfo.value?.net, currentChainInfo.value?.ecosystem);
+
+        const isModuleDisabled = (config, sidebarItem) => {
+            const sidebarModule = config.sidebar.find((module) => module.to === sidebarItem);
+
+            if (sidebarModule) {
+                return sidebarModule.disabled === true;
+            }
+
+            return false;
+        };
+
+        return {
+            config,
+            isModuleDisabled,
+        }
+    },
 };
 </script>
 <style lang="scss" scoped>

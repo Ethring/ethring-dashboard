@@ -65,10 +65,7 @@ const defaultConfig = {
         },
     },
     [ECOSYSTEMS.COSMOS]: {
-        sidebar: [
-            MAIN_DASHBOARD,
-            SEND,
-        ],
+        sidebar: [MAIN_DASHBOARD, SEND],
         send: {
             component: 'SimpleSend',
         },
@@ -86,10 +83,7 @@ const defaultConfig = {
 
 const UIConfig = {
     optimism: {
-        sidebar: [
-            MAIN_DASHBOARD,
-            SEND,
-        ],
+        sidebar: [MAIN_DASHBOARD, SEND],
         send: {
             component: 'SimpleSend',
         },
@@ -115,8 +109,8 @@ const getUIConfig = (network, ecosystem) => {
         disabled: !isDisableModule(item),
     }));
 
-    SIDEBAR_MODULES.forEach(item => {
-        const isExist = config.sidebar.some(existItem => existItem.key === item.key);
+    SIDEBAR_MODULES.forEach((item) => {
+        const isExist = config.sidebar.some((existItem) => existItem.key === item.key);
 
         if (!isExist) {
             config.sidebar.push({ ...item, disabled: true });
@@ -135,6 +129,5 @@ const getUIConfig = (network, ecosystem) => {
 
     return config;
 };
-
 
 export default getUIConfig;
