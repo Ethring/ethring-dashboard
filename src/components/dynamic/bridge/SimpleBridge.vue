@@ -197,8 +197,6 @@ export default {
             set: (value) => store.dispatch('tokenOps/setSrcToken', value),
         });
 
-        console.log(estimateErrorTitle.value, '--');
-
         const selectedDstToken = computed({
             get: () => store.getters['tokenOps/dstToken'],
             set: (value) => store.dispatch('tokenOps/setDstToken', value),
@@ -981,6 +979,7 @@ export default {
         .route-info-title {
             color: var(--#{$prefix}warning);
             font-weight: 500;
+            line-height: 20px;
             opacity: 0.8;
 
             display: inline;

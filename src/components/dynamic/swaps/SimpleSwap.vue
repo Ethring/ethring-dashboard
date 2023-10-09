@@ -126,8 +126,6 @@ export default {
         const isEstimating = ref(false);
         const isUpdateSwapDirectionValue = ref(false);
 
-        console.log(isEstimating.value, '--isEstimating');
-
         // * Swap data
         const opTitle = ref('tokenOperations.swap');
 
@@ -312,14 +310,20 @@ export default {
             return await onSetAmount(amount.value);
         };
 
+        const checkBalanceAllowed = () => {
+            const isBalanceAllowed = +amount.value > +selectedTokenFrom.value?.balance;
+
+            isBalanceError.value = isBalanceAllowed;
+        };
+
         const onSetAmount = async (value) => {
             amount.value = value;
 
             txError.value = '';
             receiveValue.value = '';
 
-            if (!+value) {
-                return;
+            if (!+value) {       
+                return checkBalanceAllowed();
             }
 
             if (!allowance.value) {
@@ -332,9 +336,7 @@ export default {
 
             await makeEstimateSwapRequest();
 
-            const isBalanceAllowed = +value > +selectedTokenFrom.value?.balance;
-
-            isBalanceError.value = isBalanceAllowed;
+            return checkBalanceAllowed();
         };
 
         const swapTokensDirection = async () => {
@@ -881,6 +883,7 @@ export default {
         .route-info-title {
             color: var(--#{$prefix}warning);
             font-weight: 500;
+            line-height: 20px;
             opacity: 0.8;
 
             display: inline;
