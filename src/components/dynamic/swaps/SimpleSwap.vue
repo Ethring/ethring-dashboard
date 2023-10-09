@@ -6,7 +6,7 @@
             <SelectAmount
                 class="mt-10"
                 :value="selectedTokenFrom"
-                :error="!!errorBalance"
+                :error="!!isBalanceError"
                 :on-reset="resetAmount"
                 :is-token-loading="isTokensLoadingForChain"
                 :is-update="isUpdateSwapDirectionValue"
@@ -33,10 +33,6 @@
                 @clickToken="onSetTokenTo"
             />
         </div>
-
-        <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
-        <InfoPanel v-if="txError" :title="txError" class="mt-10" />
-        <InfoPanel v-if="successHash" :hash="successHash" :title="$t('tx.txHash')" type="success" class="mt-10" />
 
         <Accordion v-if="receiveValue" :title="setReceiveValue" class="mt-10">
             <div class="accordion__content">
@@ -73,7 +69,6 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 import useNotification from '@/compositions/useNotification';
 
 import Button from '@/components/ui/Button';
-import InfoPanel from '@/components/ui/InfoPanel';
 import SelectNetwork from '@/components/ui/SelectNetwork';
 
 import SelectAmount from '@/components/ui/SelectAmount';
@@ -95,7 +90,6 @@ export default {
     name: 'SimpleSwap',
 
     components: {
-        InfoPanel,
         SelectNetwork,
         SelectAmount,
         Button,
@@ -130,7 +124,7 @@ export default {
         // * Errors
         const txError = ref('');
         const txErrorTitle = ref('Transaction error');
-        const errorBalance = ref('');
+        const isBalanceError = ref(false);
 
         // * Success
         const successHash = ref('');
@@ -242,7 +236,7 @@ export default {
         const disabledSwap = computed(() => {
             return (
                 isLoading.value ||
-                errorBalance.value ||
+                isBalanceError.value ||
                 txError.value ||
                 !+amount.value ||
                 !receiveValue.value ||
@@ -305,13 +299,8 @@ export default {
         const onSetAmount = async (value) => {
             amount.value = value;
 
-            errorBalance.value = '';
             txError.value = '';
             receiveValue.value = '';
-
-            if (isNaN(+value)) {
-                return (errorBalance.value = 'Incorrect amount');
-            }
 
             if (!+value) {
                 return;
@@ -327,9 +316,9 @@ export default {
 
             await makeEstimateSwapRequest();
 
-            if (+value > selectedTokenFrom.value.balance) {
-                return (errorBalance.value = 'Insufficient balance');
-            }
+            const isBalanceAllowed = +value > +selectedTokenFrom.value?.balance;
+            
+            isBalanceError.value = isBalanceAllowed;
         };
 
         const swapTokensDirection = async () => {
@@ -759,7 +748,7 @@ export default {
 
             chainList,
 
-            errorBalance,
+            isBalanceError,
             selectedNetwork,
 
             resetAmount,

@@ -20,7 +20,7 @@
         <SelectAmount
             v-if="selectedSrcNetwork"
             :value="selectedSrcToken"
-            :error="!!errorBalance"
+            :error="!!isBalanceError"
             :on-reset="resetAmount"
             :disabled="!selectedSrcToken"
             :label="$t('tokenOperations.send')"
@@ -43,10 +43,6 @@
             class="mt-10"
             @clickToken="onSetDstToken"
         />
-
-        <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
-        <InfoPanel v-if="txError" :title="txError" class="mt-10" />
-        <InfoPanel v-if="successHash" :hash="successHash" :title="$t('tx.txHash')" type="success" class="mt-10" />
 
         <Checkbox
             v-if="selectedDstToken"
@@ -109,8 +105,6 @@ import useNotification from '@/compositions/useNotification';
 
 import { getAllowance, getApproveTx, estimateBridge, getBridgeTx, getDebridgeTxHashForOrder } from '@/api/services';
 
-import InfoPanel from '@/components/ui/InfoPanel';
-
 import SelectAmount from '@/components/ui/SelectAmount';
 import SelectAddress from '@/components/ui/SelectAddress';
 import SelectNetwork from '@/components/ui/SelectNetwork';
@@ -130,7 +124,6 @@ import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 export default {
     name: 'SimpleBridge',
     components: {
-        InfoPanel,
         SelectAmount,
         SelectNetwork,
         SelectAddress,
@@ -286,7 +279,7 @@ export default {
         const allowance = ref(null);
 
         const errorAddress = ref('');
-        const errorBalance = ref('');
+        const isBalanceError = ref(false);
 
         // =================================================================================================================
 
@@ -352,7 +345,7 @@ export default {
         const disabledBtn = computed(() => {
             return (
                 isLoading.value ||
-                errorBalance.value ||
+                isBalanceError.value ||
                 !+amount.value ||
                 !receiveValue.value ||
                 !selectedSrcNetwork.value ||
@@ -432,12 +425,7 @@ export default {
             amount.value = value;
             txError.value = '';
             errorAddress.value = '';
-            errorBalance.value = '';
             receiveValue.value = '';
-
-            if (isNaN(amount.value)) {
-                return (errorBalance.value = 'Incorrect amount');
-            }
 
             if (!allowance.value) {
                 await makeAllowanceRequest();
@@ -449,11 +437,9 @@ export default {
 
             await makeEstimateBridgeRequest();
 
-            if (+value > selectedSrcToken.value.balance || +networkFee.value > selectedSrcToken.value.balance) {
-                return (errorBalance.value = 'Insufficient balance');
-            }
-
-            return (errorBalance.value = '');
+            const isBalanceAllowed = +value > selectedSrcToken.value?.balance || +networkFee.value > selectedSrcToken.value.balance;
+            
+            isBalanceError.value = isBalanceAllowed;
         };
 
         // =================================================================================================================
@@ -898,7 +884,7 @@ export default {
             services,
 
             errorAddress,
-            errorBalance,
+            isBalanceError,
 
             selectedSrcNetwork,
             selectedDstNetwork,
