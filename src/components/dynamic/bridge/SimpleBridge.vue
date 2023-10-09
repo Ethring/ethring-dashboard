@@ -62,16 +62,17 @@
             @setAddress="onSetAddress"
         />
 
-        <Accordion v-if="receiveValue" :hide="!receiveValue" class="mt-10">
+        <Accordion v-if="receiveValue || estimateErrorTitle" :hide="!receiveValue" class="mt-10">
             <template #header>
-                <div v-if="!estimateErrorTitle"  class="accordion__title">
+                <div v-if="!estimateErrorTitle" class="accordion__title">
                     <div v-html="setReceiveValue"></div>
                 </div>
 
-                <div v-else class="accordion__title">
+                <a-tooltip v-else class="accordion__title">
+                    <template #title>{{ estimateErrorTitle }}</template>
                     {{ $t('tokenOperations.routeInfo') }}:
                     <span class="route-info-title">{{ estimateErrorTitle }}</span>
-                </div>
+                </a-tooltip>
             </template>
 
             <template #content>
@@ -195,6 +196,8 @@ export default {
             get: () => store.getters['tokenOps/srcToken'],
             set: (value) => store.dispatch('tokenOps/setSrcToken', value),
         });
+
+        console.log(estimateErrorTitle.value, '--');
 
         const selectedDstToken = computed({
             get: () => store.getters['tokenOps/dstToken'],
@@ -980,11 +983,11 @@ export default {
             font-weight: 500;
             opacity: 0.8;
 
-            display: inline-block;
+            display: inline;
             text-overflow: ellipsis;
             overflow: hidden;
             white-space: nowrap;
-            max-width: 100%;
+            width: 500px;
             margin-left: 4px;
         }
     }

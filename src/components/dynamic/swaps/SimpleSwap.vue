@@ -883,11 +883,11 @@ export default {
             font-weight: 500;
             opacity: 0.8;
 
-            display: inline-block;
+            display: inline;
             text-overflow: ellipsis;
             overflow: hidden;
             white-space: nowrap;
-            max-width: 100%;
+            width: 500px;
             margin-left: 4px;
         }
     }
