@@ -176,7 +176,7 @@ export default {
             amount.value = value;
 
             const isBalanceAllowed = +value > +selectedToken.value?.balance;
-            
+
             isBalanceError.value = isBalanceAllowed;
         };
 

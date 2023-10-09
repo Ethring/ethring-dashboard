@@ -34,17 +34,30 @@
             />
         </div>
 
-        <Accordion v-if="receiveValue" :title="setReceiveValue" class="mt-10">
-            <div class="accordion__content">
-                <AccordionItem :label="$t('tokenOperations.networkFee') + ' : '">
-                    <span class="fee">{{ networkFee }}</span> <span class="fee-symbol">$</span>
-                </AccordionItem>
-                <AccordionItem :label="$t('simpleSwap.service') + ' : '">
-                    <img :src="selectedService.icon" alt="service-logo" />
-                    <span class="symbol">1inch</span>
-                </AccordionItem>
-            </div>
+        <Accordion v-if="receiveValue || estimateErrorTitle" :loading="isEstimating" class="mt-10" :hide="estimateErrorTitle.length > 0">
+            <template #header>
+                <div v-if="!estimateErrorTitle" class="accordion__title">
+                    <div v-html="setReceiveValue"></div>
+                </div>
+
+                <div v-else class="accordion__title">
+                    {{ $t('tokenOperations.routeInfo') }}:
+                    <span class="route-info-title">{{ estimateErrorTitle }}</span>
+                </div>
+            </template>
+            <template #content>
+                <div class="accordion__content">
+                    <AccordionItem :label="$t('tokenOperations.networkFee') + ' : '">
+                        <span class="fee">{{ networkFee }}</span> <span class="fee-symbol">$</span>
+                    </AccordionItem>
+                    <AccordionItem :label="$t('simpleSwap.service') + ' : '">
+                        <img :src="selectedService.icon" alt="service-logo" />
+                        <span class="symbol">1inch</span>
+                    </AccordionItem>
+                </div>
+            </template>
         </Accordion>
+
         <Button
             :title="$t(opTitle)"
             :disabled="!!disabledSwap"
@@ -113,6 +126,8 @@ export default {
         const isEstimating = ref(false);
         const isUpdateSwapDirectionValue = ref(false);
 
+        console.log(isEstimating.value, '--isEstimating');
+
         // * Swap data
         const opTitle = ref('tokenOperations.swap');
 
@@ -124,6 +139,7 @@ export default {
         // * Errors
         const txError = ref('');
         const txErrorTitle = ref('Transaction error');
+        const estimateErrorTitle = ref('');
         const isBalanceError = ref(false);
 
         // * Success
@@ -317,7 +333,7 @@ export default {
             await makeEstimateSwapRequest();
 
             const isBalanceAllowed = +value > +selectedTokenFrom.value?.balance;
-            
+
             isBalanceError.value = isBalanceAllowed;
         };
 
@@ -466,17 +482,16 @@ export default {
 
             if (response.error) {
                 isEstimating.value = false;
-                txErrorTitle.value = 'Estimate error';
-                txError.value = response.error;
+                estimateErrorTitle.value = response.error;
 
                 return (receiveValue.value = '');
             }
 
             isEstimating.value = false;
 
-            txError.value = '';
-
             receiveValue.value = response.toTokenAmount;
+
+            estimateErrorTitle.value = '';
 
             // TODO: add fee
             networkFee.value = prettyNumberTooltip(+response.fee.amount * selectedNetwork.value.price, 4);
@@ -749,6 +764,7 @@ export default {
             chainList,
 
             isBalanceError,
+            estimateErrorTitle,
             selectedNetwork,
 
             resetAmount,
@@ -851,8 +867,28 @@ export default {
     }
 
     .accordion__title {
+        display: flex;
+        align-items: center;
+
+        font-weight: 400;
+        color: var(--zmt-accordion-label-color);
+        font-size: var(--zmt-default-fs);
+
         .symbol {
             font-weight: 600;
+        }
+
+        .route-info-title {
+            color: var(--#{$prefix}warning);
+            font-weight: 500;
+            opacity: 0.8;
+
+            display: inline-block;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+            max-width: 100%;
+            margin-left: 4px;
         }
     }
 }

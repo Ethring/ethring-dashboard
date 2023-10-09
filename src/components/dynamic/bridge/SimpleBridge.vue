@@ -62,24 +62,32 @@
             @setAddress="onSetAddress"
         />
 
-        <Accordion
-            v-if="selectedDstNetwork"
-            :title="setReceiveValue"
-            :hide="!receiveValue"
-            :class="serviceFee ? 'mt-10' : 'mt-10 skeleton__content'"
-        >
-            <div v-if="receiveValue" class="accordion__content">
-                <AccordionItem :label="$t('simpleBridge.serviceFee') + ' :'">
-                    <span>{{ prettyNumber(networkFee * +selectedSrcToken?.price) }}</span> <span class="symbol">$</span>
-                </AccordionItem>
-                <AccordionItem :label="$t('simpleBridge.title') + ' :'">
-                    <img :src="selectedService.icon" alt="service-logo" />
-                    <span class="symbol">{{ services[0].name }}</span>
-                </AccordionItem>
-                <AccordionItem :label="$t('tokenOperations.time') + ' :'">
-                    {{ estimateTime }}
-                </AccordionItem>
-            </div>
+        <Accordion v-if="receiveValue" :hide="!receiveValue" class="mt-10">
+            <template #header>
+                <div v-if="!estimateErrorTitle"  class="accordion__title">
+                    <div v-html="setReceiveValue"></div>
+                </div>
+
+                <div v-else class="accordion__title">
+                    {{ $t('tokenOperations.routeInfo') }}:
+                    <span class="route-info-title">{{ estimateErrorTitle }}</span>
+                </div>
+            </template>
+
+            <template #content>
+                <div class="accordion__content">
+                    <AccordionItem :label="$t('simpleBridge.serviceFee') + ' :'">
+                        <span>{{ prettyNumber(networkFee * +selectedSrcToken?.price) }}</span> <span class="symbol">$</span>
+                    </AccordionItem>
+                    <AccordionItem :label="$t('simpleBridge.title') + ' :'">
+                        <img :src="selectedService.icon" alt="service-logo" />
+                        <span class="symbol">{{ services[0].name }}</span>
+                    </AccordionItem>
+                    <AccordionItem :label="$t('tokenOperations.time') + ' :'">
+                        {{ estimateTime }}
+                    </AccordionItem>
+                </div>
+            </template>
         </Accordion>
 
         <Button
@@ -159,6 +167,7 @@ export default {
 
         const txError = ref('');
         const txErrorTitle = ref('Transaction error');
+        const estimateErrorTitle = ref('');
 
         const successHash = ref('');
         const resetAmount = ref(false);
@@ -268,8 +277,8 @@ export default {
                 <span class='symbol'> ${symbol} ~
                     <span class='service-fee'>
                         ${prettyNumber(serviceFee.value * +selectedSrcNetwork.value.price)}
-                        </span> $
-                    </span>`;
+                    </span> $
+                </span>`;
 
             return serviceFee.value ? msg() : '';
         });
@@ -438,7 +447,7 @@ export default {
             await makeEstimateBridgeRequest();
 
             const isBalanceAllowed = +value > selectedSrcToken.value?.balance || +networkFee.value > selectedSrcToken.value.balance;
-            
+
             isBalanceError.value = isBalanceAllowed;
         };
 
@@ -553,14 +562,15 @@ export default {
 
             if (response.error) {
                 isEstimating.value = false;
-                txError.value = response.error;
-                txErrorTitle.value = 'Estimate error';
+                estimateErrorTitle.value = response.error;
                 return (isEstimating.value = false);
             }
 
             isEstimating.value = false;
 
             receiveValue.value = response.toTokenAmount;
+
+            estimateErrorTitle.value = '';
 
             // TODO: add fee
             isEstimating.value = false;
@@ -895,6 +905,7 @@ export default {
             estimateTime,
             serviceFee,
             txError,
+            estimateErrorTitle,
             successHash,
             prettyNumber,
             walletAddress,
@@ -948,46 +959,39 @@ export default {
     }
 
     .accordion__title {
+        display: flex;
+        align-items: center;
+
+        font-weight: 400;
+        color: var(--zmt-accordion-label-color);
+        font-size: var(--zmt-default-fs);
+
+        .symbol {
+            font-weight: 600;
+        }
+
         .service-fee {
             font-weight: 600;
             color: var(--#{$prefix}sub-text);
         }
-        .symbol {
-            font-weight: 600;
+
+        .route-info-title {
+            color: var(--#{$prefix}warning);
+            font-weight: 500;
+            opacity: 0.8;
+
+            display: inline-block;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+            max-width: 100%;
+            margin-left: 4px;
         }
     }
 
     &__btn {
         height: 64px;
         width: 100%;
-    }
-
-    .skeleton {
-        animation: skeleton-loading 1s linear infinite alternate;
-
-        &__content {
-            .accordion__title {
-                display: flex;
-                width: 100%;
-            }
-        }
-
-        &__text {
-            width: 80%;
-            height: 0.5rem;
-            margin: 8px 0 0 8px;
-            border-radius: 2px;
-        }
-    }
-
-    @keyframes skeleton-loading {
-        0% {
-            background-color: hsl(200, 20%, 80%);
-        }
-
-        100% {
-            background-color: hsl(200, 20%, 95%);
-        }
     }
 }
 </style>

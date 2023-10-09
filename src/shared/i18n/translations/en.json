@@ -59,7 +59,8 @@
     "changeNetwork": "Please change network",
     "rewards": "Rewards",
     "value": "Value",
-    "switchNetwork": "Switch network"
+    "switchNetwork": "Switch network",
+    "routeInfo": "Route info"
   },
   "simpleSend": {
     "title": "Send"
