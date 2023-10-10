@@ -1,5 +1,5 @@
 <template>
-    <div :class="{ active: active && items?.length, focused, error }" class="select-address" @click="active = !active">
+    <div :class="{ active: active && items?.length, focused, error: isError }" class="select-address" @click="active = !active">
         <div class="select-address__panel">
             <div class="recipient">{{ $t('tokenOperations.recipient') }}</div>
             <div class="info-wrap">
@@ -22,18 +22,9 @@
                 </div>
             </div>
         </div>
-        <div v-if="active && items.length" class="select-address__items" v-click-away="clickAway">
-            <div v-for="(item, ndx) in items" :key="ndx" class="select-address__items-item" @click="selectAddress(item)">
-                <div class="info">
-                    <div class="name">{{ item }}</div>
-                </div>
-                <CloseIcon class="remove" @click.stop="removeAddress(item)" />
-            </div>
-        </div>
     </div>
 </template>
 <script>
-import CloseIcon from '@/assets/icons/app/close.svg';
 import ClearIcon from '@/assets/icons/app/xmark.svg';
 
 import { ref, watch, onMounted } from 'vue';
@@ -63,13 +54,14 @@ export default {
         },
     },
     components: {
-        CloseIcon,
         ClearIcon,
     },
     setup(props, { emit }) {
         const active = ref(false);
         const focused = ref(false);
         const address = ref(props.value);
+        const isError = ref(props.error);
+
         const placeholder = ref('Address');
 
         watch(
@@ -80,6 +72,13 @@ export default {
                     active.value = false;
                     emit('setAddress', address.value);
                 }
+            }
+        );
+
+        watch(
+            () => props.error,
+            () => {
+                isError.value = props.error;
             }
         );
 
@@ -115,21 +114,21 @@ export default {
             active.value = false;
         };
 
-        const removeAddress = (address) => {
-            emit('removeAddress', { net: props.selectedNetwork.net, address });
-            active.value = false;
-        };
-
         const clearValue = () => {
             address.value = '';
+            isError.value = false;
+
+            emit('setAddress', address.value);
         };
 
         return {
             active,
             focused,
+            isError,
+
             address,
             placeholder,
-            removeAddress,
+
             clickAway,
             selectAddress,
             onInput,

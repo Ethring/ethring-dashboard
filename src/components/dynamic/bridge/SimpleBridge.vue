@@ -447,7 +447,7 @@ export default {
                 await makeAllowanceRequest();
             }
 
-            if (selectedSrcToken.value.address) {
+            if (selectedSrcToken.value && selectedSrcToken.value.address) {
                 await isEnoughAllowance();
             }
 

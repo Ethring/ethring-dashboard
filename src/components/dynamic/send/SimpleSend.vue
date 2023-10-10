@@ -163,7 +163,7 @@ export default {
 
             const isAddressAllowed = !validateAddress(addr) && addr.length > 0;
 
-            isAddressError.value = isAddressAllowed;
+            return (isAddressError.value = isAddressAllowed);
         };
 
         const onSelectNetwork = async (network) => {
