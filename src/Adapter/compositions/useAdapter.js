@@ -125,19 +125,18 @@ function useAdapter() {
         try {
             adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
 
-            for (const wallet of connectedWallets.value) {
-                if (wallet.id === lastConnectedWallet.value.id) {
-                    continue;
-                }
-
-                await connectTo(wallet.ecosystem, wallet.walletModule, wallet.chain);
-            }
-
             const isConnect = await connectTo(ecosystem, walletModule, chain);
 
             if (!isConnect) {
+                console.log('Failed to connect to last connected wallet', ecosystem, chain, walletModule);
                 return adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
             }
+
+            if (currentChainInfo.value === 404) {
+                await setChain(lastConnectedWallet.value);
+            }
+
+            adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
 
             return subscribeToWalletsChange();
         } catch (error) {
@@ -238,6 +237,7 @@ function useAdapter() {
             chain: chain?.chain_id,
             name: chain?.name,
             logo: chain?.logo,
+            ecosystem,
         };
     };
 

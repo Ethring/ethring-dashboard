@@ -37,7 +37,8 @@
     "cosmosWallets": "Cosmos Ecosystem",
     "ethereumWallets": "EVM Ecosystem",
     "copyAddressTooltip": "Copy address to clipboard",
-    "copiedAddressTooltip": "Address copied"
+    "copiedAddressTooltip": "Address copied",
+    "unsupportedNetwork": "Unsupported network"
   },
   "actionTokens": "Tokens",
   "actionTransactions": "Transactions",

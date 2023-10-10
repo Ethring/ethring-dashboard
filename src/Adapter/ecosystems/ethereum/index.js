@@ -6,7 +6,7 @@ import * as ethers from 'ethers';
 
 import { init, useOnboard } from '@web3-onboard/vue';
 
-import { web3OnBoardConfig, ECOSYSTEMS, NATIVE_CONTRACT, TRANSFER_ABI, EVM_CHAINS } from '@/Adapter/config';
+import { web3OnBoardConfig, ECOSYSTEMS, chainConfig, NATIVE_CONTRACT, TRANSFER_ABI, EVM_CHAINS } from '@/Adapter/config';
 
 import { validateEthAddress } from '@/Adapter/utils/validations';
 
@@ -17,6 +17,8 @@ let web3Onboard = null;
 // const STORAGE = {
 //     WALLET: 'onboard.js:last_connected_wallet',
 // };
+
+const [DEFAULT_CHAIN] = chainConfig;
 
 class EthereumAdapter extends AdapterBase {
     constructor() {
@@ -39,6 +41,7 @@ class EthereumAdapter extends AdapterBase {
                 disableModals: true,
             },
         };
+
         try {
             await connectWallet(walletName ? connectionOption : null);
 
@@ -143,7 +146,18 @@ class EthereumAdapter extends AdapterBase {
             return store.getters['networks/networkByChainId'](chainId);
         };
 
-        const chainInfo = chainFromStore(+connectedChain.value?.id);
+        const { id = null } = connectedChain.value || {};
+
+        if (!id && isNaN(+id)) {
+            return null;
+        }
+
+        const chainInfo = chainFromStore(+id);
+
+        if (JSON.stringify(chainInfo) === '{}') {
+            return null;
+        }
+
         chainInfo.walletName = chainInfo.walletModule = label;
         chainInfo.ecosystem = ECOSYSTEMS.EVM;
 

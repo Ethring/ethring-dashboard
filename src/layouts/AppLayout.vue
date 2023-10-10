@@ -42,10 +42,16 @@ export default {
     setup(props) {
         const { walletAccount, currentChainInfo } = useAdapter();
 
-        const spinnerLoader = computed(() => !walletAccount.value || !currentChainInfo.value);
+        const spinnerLoader = computed(() => !walletAccount.value);
 
         const layoutComponent = computed(() => {
-            const config = UIConfig(currentChainInfo.value?.net, currentChainInfo.value?.ecosystem);
+            const { net = null, ecosystem = null } = currentChainInfo.value || {};
+
+            if (!net || !ecosystem) {
+                return null;
+            }
+
+            const config = UIConfig(net, ecosystem);
 
             if (!config) {
                 return null;
