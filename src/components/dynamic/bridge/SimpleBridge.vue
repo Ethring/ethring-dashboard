@@ -390,6 +390,12 @@ export default {
 
             selectedDstToken.value = null;
 
+            isEstimating.value = false;
+
+            resetAmount.value = true;
+
+            estimateErrorTitle.value = '';
+
             return (opTitle.value = 'tokenOperations.swap');
         };
 

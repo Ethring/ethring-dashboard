@@ -322,7 +322,7 @@ export default {
             txError.value = '';
             receiveValue.value = '';
 
-            if (!+value) {       
+            if (!+value) {
                 return checkBalanceAllowed();
             }
 
