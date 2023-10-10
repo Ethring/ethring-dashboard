@@ -491,6 +491,8 @@ export default {
 
             isEstimating.value = false;
 
+            isLoading.value = false;
+
             receiveValue.value = response.toTokenAmount;
 
             estimateErrorTitle.value = '';
@@ -524,6 +526,7 @@ export default {
             opTitle.value = 'tokenOperations.approve';
 
             if (response.error) {
+                approveTx.value = response.error;
                 isLoading.value = false;
                 return;
             }
@@ -554,6 +557,8 @@ export default {
                 if (responseSendTx.error) {
                     txError.value = responseSendTx.error;
                     txErrorTitle.value = 'Send approve transaction error';
+
+                    isNeedApprove.value = false;
 
                     closeNotification('approve-tx');
 
@@ -666,6 +671,8 @@ export default {
                         store.dispatch('networks/setSelectedNetwork', wallet);
                     },
                 });
+
+                isLoading.value = false;
 
                 balanceUpdated.value = true;
             } catch (error) {
