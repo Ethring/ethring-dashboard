@@ -49,6 +49,7 @@ const chainWebpack = (config) => {
         { name: '@walletconnect' },
         { name: '@web3-onboard' },
         { name: '@vueuse/core' },
+        { name: '@metamask/utils' },
         { name: '@cosmjs[\\\\/]', exclude: '@cosmjs[\\\\/].*\\.json$' },
     ];
 
