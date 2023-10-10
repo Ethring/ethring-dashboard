@@ -393,6 +393,7 @@ export default {
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 170px;
+            white-space: nowrap;
 
             &.placeholder {
                 color: var(--#{$prefix}select-placeholder-text);
