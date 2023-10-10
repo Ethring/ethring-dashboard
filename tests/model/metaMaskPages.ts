@@ -5,7 +5,7 @@ import { getTestVar, TEST_CONST } from '../envHelper';
 const sleep = require('util').promisify(setTimeout);
 
 const testSeedPhrase = getTestVar(TEST_CONST.TEST_SEED);
-const password = '7v2$O3sS0ZY!';
+const password = getTestVar(TEST_CONST.PASS_BY_MM_WALLET);
 
 export const waitMmNotifyWindow = async () => {
     await sleep(5000);
