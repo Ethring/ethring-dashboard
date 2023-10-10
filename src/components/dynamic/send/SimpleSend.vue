@@ -1,9 +1,9 @@
 <template>
     <div class="simple-send">
-        <SelectNetwork :items="chainList" :current="currentChainInfo" @select="onSelectNetwork" />
+        <SelectNetwork :items="chainList" :current="selectedNetwork" @select="onSelectNetwork" />
 
         <SelectAddress
-            :selected-network="currentChainInfo"
+            :selected-network="selectedNetwork"
             :items="[]"
             :value="receiverAddress"
             :error="!!errorAddress"
@@ -30,7 +30,7 @@
         <InfoPanel v-if="successHash" :hash="successHash" :title="$t('tx.txHash')" type="success" class="mt-10" />
 
         <Button
-            :title="$t('tokenOperations.confirm')"
+            :title="$t(opTitle)"
             :disabled="!!disabledSend"
             :loading="isLoading"
             class="simple-send__btn mt-10"
@@ -93,6 +93,8 @@ export default {
 
         const amount = ref('');
 
+        const opTitle = ref('tokenOperations.confirm');
+
         const clearAddress = ref(false);
         const errorAddress = ref('');
         const errorBalance = ref('');
@@ -121,7 +123,7 @@ export default {
         // =================================================================================================================
 
         const tokensList = computed(() => {
-            const { net } = currentChainInfo.value;
+            const { net } = selectedNetwork.value;
             const listFromStore = store.getters['tokens/getTokensListForChain'](net);
             return sortByKey(listFromStore, 'balanceUsd');
         });
@@ -142,8 +144,6 @@ export default {
         // =================================================================================================================
 
         const setTokenOnChange = () => {
-            selectedNetwork.value = currentChainInfo.value;
-
             const [defaultToken = null] = tokensList.value || [];
 
             if (!selectedToken.value && defaultToken) {
@@ -180,10 +180,17 @@ export default {
             return (errorAddress.value = '');
         };
 
-        const onSelectNetwork = async (network) => {
+        const onSelectNetwork = (network) => {
             clearAddress.value = true;
-            await setChain(network);
+            selectedNetwork.value = network;
+
+            if (currentChainInfo.value.net !== selectedNetwork.value.net) {
+                return (opTitle.value = 'tokenOperations.switchNetwork');
+            }
+
             clearAddress.value = false;
+
+            return (opTitle.value = 'tokenOperations.confirm');
         };
 
         const onSetAmount = (value) => {
@@ -202,10 +209,53 @@ export default {
 
         // =================================================================================================================
 
+        const isCorrectChain = async () => {
+            if (currentChainInfo.value.net === selectedNetwork.value.net) {
+                opTitle.value = 'tokenOperations.confirm';
+                return true;
+            }
+
+            opTitle.value = 'tokenOperations.switchNetwork';
+
+            showNotification({
+                key: 'switch-network',
+                type: 'info',
+                title: `Switch network to ${selectedNetwork.value.name}`,
+                icon: h(LoadingOutlined, {
+                    spin: true,
+                }),
+                duration: 0,
+            });
+
+            try {
+                await setChain(selectedNetwork.value);
+                closeNotification('switch-network');
+                return true;
+            } catch (error) {
+                closeNotification('switch-network');
+                txError.value = error?.message || error?.error || error;
+                return false;
+            }
+        };
+
+        // =================================================================================================================
+
         const send = async () => {
             if (disabledSend.value) {
                 return;
             }
+
+            const isCurrChain = await isCorrectChain();
+
+            if (!isCurrChain) {
+                isLoading.value = false;
+
+                closeNotification('switch-network');
+
+                return (opTitle.value = 'tokenOperations.switchNetwork');
+            }
+
+            opTitle.value = 'tokenOperations.confirm';
 
             const dataForPrepare = {
                 fromAddress: walletAddress.value,
@@ -274,9 +324,14 @@ export default {
         });
 
         onMounted(() => {
+            if (!selectedNetwork.value) {
+                selectedNetwork.value = currentChainInfo.value;
+            }
+
             store.dispatch('tokenOps/setSelectType', TOKEN_SELECT_TYPES.FROM);
             store.dispatch('tokenOps/setDirection', DIRECTIONS.SOURCE);
             store.dispatch('tokenOps/setOnlyWithBalance', true);
+
             setTokenOnChange();
         });
 
@@ -352,9 +407,12 @@ export default {
             onSetAmount,
             send,
 
+            opTitle,
+
             txError,
             successHash,
             walletAddress,
+            selectedNetwork,
             connectedWallet,
             chainList,
             currentChainInfo,
