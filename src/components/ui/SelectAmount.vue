@@ -390,9 +390,9 @@ export default {
             margin-right: 10px;
 
             display: inline-block;
-            max-width: 100%;
             overflow: hidden;
             text-overflow: ellipsis;
+            max-width: 170px;
 
             &.placeholder {
                 color: var(--#{$prefix}select-placeholder-text);
