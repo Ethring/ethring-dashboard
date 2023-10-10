@@ -380,7 +380,7 @@ export default {
             align-items: center;
             cursor: pointer;
             width: 100%;
-            max-width: 220px;
+            max-width: 250px;
         }
 
         .token {
@@ -388,6 +388,11 @@ export default {
             font-weight: 600;
             color: var(--#{$prefix}select-item-secondary-color);
             margin-right: 10px;
+
+            display: inline-block;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
 
             &.placeholder {
                 color: var(--#{$prefix}select-placeholder-text);
