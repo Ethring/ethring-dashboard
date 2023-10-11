@@ -11,3 +11,5 @@ export const ERRORS = {
 };
 
 export const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+
+export const SUPPORTED_CHAINS = ['eth', 'bsc', 'arbitrum', 'polygon', 'optimism', 'avalanche'];

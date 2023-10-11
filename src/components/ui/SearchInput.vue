@@ -83,11 +83,13 @@ $padding-lr: 32px;
         min-width: 40px;
         height: 40px;
         max-height: 40px;
-
         border-radius: 50%;
-
         background: var(--#{$prefix}icon-secondary-bg-hover);
         margin-right: 10px;
+
+        svg {
+            fill: var(--#{$prefix}sub-text);
+        }
     }
 
     &__clear {

@@ -80,6 +80,7 @@ function useAdapter() {
 
         adaptersDispatch(TYPES.SET_WALLET, { ecosystem: currEcosystem.value, wallet: walletInfo });
         adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
+        adaptersDispatch(TYPES.SET_IS_CONNECTED, true);
 
         return subscribeToWalletsChange();
     }
@@ -93,13 +94,9 @@ function useAdapter() {
 
             adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
 
-            adaptersDispatch(TYPES.SET_IS_CONNECTED, true);
-
             adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
 
             isConnected && storeWalletInfo();
-
-            router.push('/main');
 
             return isConnected;
         } catch (error) {
@@ -141,6 +138,7 @@ function useAdapter() {
             return subscribeToWalletsChange();
         } catch (error) {
             adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
+            adaptersDispatch(TYPES.SET_IS_CONNECTED, false);
         }
     };
 

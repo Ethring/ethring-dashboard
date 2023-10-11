@@ -90,6 +90,7 @@ import { toMantissa } from '@/helpers/numbers';
 import { checkErrors } from '@/helpers/checkErrors';
 
 import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+import { isCorrectChain } from '@/shared/utils/operations';
 
 export default {
     name: 'SimpleSwap',
@@ -362,37 +363,6 @@ export default {
 
         // =================================================================================================================
 
-        const isCorrectChain = async () => {
-            if (currentChainInfo.value.net === selectedNetwork.value.net) {
-                opTitle.value = 'tokenOperations.swap';
-                return true;
-            }
-
-            opTitle.value = 'tokenOperations.switchNetwork';
-
-            showNotification({
-                key: 'switch-network',
-                type: 'info',
-                title: `Switch network to ${selectedNetwork.value.name}`,
-                icon: h(LoadingOutlined, {
-                    spin: true,
-                }),
-                duration: 0,
-            });
-
-            try {
-                await setChain(selectedNetwork.value);
-                closeNotification('switch-network');
-                return true;
-            } catch (error) {
-                closeNotification('switch-network');
-                txError.value = error?.message || error?.error || error;
-                return false;
-            }
-        };
-
-        // =================================================================================================================
-
         const sendTransaction = async (transaction) => {
             try {
                 const tx = formatTransactionForSign(transaction);
@@ -612,14 +582,12 @@ export default {
             isLoading.value = true;
             txError.value = '';
 
-            const isCurrChain = await isCorrectChain();
+            const { isChanged, btnTitle } = await isCorrectChain(selectedNetwork, currentChainInfo, setChain);
 
-            if (!isCurrChain) {
-                isLoading.value = false;
+            opTitle.value = btnTitle;
 
-                closeNotification('switch-network');
-
-                return (opTitle.value = 'tokenOperations.switchNetwork');
+            if (!isChanged) {
+                return (isLoading.value = false);
             }
 
             opTitle.value = 'tokenOperations.swap';

@@ -69,7 +69,7 @@ input[type='checkbox'] {
         .checkbox {
             &__checkmark {
                 transition: all 0.3s ease-in-out;
-                background: var(--#{$prefix}icon-logo-bg-color);
+                background: var(--#{$prefix}checkbox-checked);
                 border: 1px solid var(--#{$prefix}checkbox-checked);
             }
 
