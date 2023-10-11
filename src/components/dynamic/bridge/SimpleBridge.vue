@@ -20,7 +20,7 @@
         <SelectAmount
             v-if="selectedSrcNetwork"
             :value="selectedSrcToken"
-            :error="!!errorBalance"
+            :error="!!isBalanceError"
             :on-reset="resetAmount"
             :disabled="!selectedSrcToken"
             :label="$t('tokenOperations.send')"
@@ -44,10 +44,6 @@
             @clickToken="onSetDstToken"
         />
 
-        <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
-        <InfoPanel v-if="txError" :title="txError" class="mt-10" />
-        <InfoPanel v-if="successHash" :hash="successHash" :title="$t('tx.txHash')" type="success" class="mt-10" />
-
         <Checkbox
             v-if="selectedDstToken"
             id="receiveToken"
@@ -66,24 +62,33 @@
             @setAddress="onSetAddress"
         />
 
-        <Accordion
-            v-if="receiveValue"
-            :title="setReceiveValue"
-            :hide="!receiveValue"
-            :class="serviceFee ? 'mt-10' : 'mt-10 skeleton__content'"
-        >
-            <div v-if="receiveValue" class="accordion__content">
-                <AccordionItem :label="$t('simpleBridge.serviceFee') + ' :'">
-                    <span>{{ prettyNumber(networkFee * +selectedSrcToken?.price) }}</span> <span class="symbol">$</span>
-                </AccordionItem>
-                <AccordionItem :label="$t('simpleBridge.title') + ' :'">
-                    <img :src="selectedService.icon" alt="service-logo" />
-                    <span class="symbol">{{ services[0].name }}</span>
-                </AccordionItem>
-                <AccordionItem :label="$t('tokenOperations.time') + ' :'">
-                    {{ estimateTime }}
-                </AccordionItem>
-            </div>
+        <Accordion v-if="receiveValue || estimateErrorTitle" :hide="!receiveValue" class="mt-10">
+            <template #header>
+                <div v-if="!estimateErrorTitle" class="accordion__title">
+                    <div v-html="setReceiveValue"></div>
+                </div>
+
+                <a-tooltip v-else class="accordion__title">
+                    <template #title>{{ estimateErrorTitle }}</template>
+                    {{ $t('tokenOperations.routeInfo') }}:
+                    <span class="route-info-title">{{ estimateErrorTitle }}</span>
+                </a-tooltip>
+            </template>
+
+            <template #content>
+                <div class="accordion__content">
+                    <AccordionItem :label="$t('simpleBridge.serviceFee') + ' :'">
+                        <span>{{ prettyNumber(networkFee * +selectedSrcToken?.price) }}</span> <span class="symbol">$</span>
+                    </AccordionItem>
+                    <AccordionItem :label="$t('simpleBridge.title') + ' :'">
+                        <img :src="selectedService.icon" alt="service-logo" />
+                        <span class="symbol">{{ services[0].name }}</span>
+                    </AccordionItem>
+                    <AccordionItem :label="$t('tokenOperations.time') + ' :'">
+                        {{ estimateTime }}
+                    </AccordionItem>
+                </div>
+            </template>
         </Accordion>
 
         <Button
@@ -109,8 +114,6 @@ import useNotification from '@/compositions/useNotification';
 
 import { getAllowance, getApproveTx, estimateBridge, getBridgeTx, getDebridgeTxHashForOrder } from '@/api/services';
 
-import InfoPanel from '@/components/ui/InfoPanel';
-
 import SelectAmount from '@/components/ui/SelectAmount';
 import SelectAddress from '@/components/ui/SelectAddress';
 import SelectNetwork from '@/components/ui/SelectNetwork';
@@ -132,7 +135,6 @@ import { isCorrectChain } from '@/shared/utils/operations';
 export default {
     name: 'SimpleBridge',
     components: {
-        InfoPanel,
         SelectAmount,
         SelectNetwork,
         SelectAddress,
@@ -168,6 +170,7 @@ export default {
 
         const txError = ref('');
         const txErrorTitle = ref('Transaction error');
+        const estimateErrorTitle = ref('');
 
         const successHash = ref('');
         const resetAmount = ref(false);
@@ -279,8 +282,8 @@ export default {
                 <span class='symbol'> ${symbol} ~
                     <span class='service-fee'>
                         ${prettyNumber(serviceFee.value * +selectedSrcNetwork.value.price)}
-                        </span> $
-                    </span>`;
+                    </span> $
+                </span>`;
 
             return serviceFee.value ? msg() : '';
         });
@@ -290,7 +293,7 @@ export default {
         const allowance = ref(null);
 
         const errorAddress = ref('');
-        const errorBalance = ref('');
+        const isBalanceError = ref(false);
 
         // =================================================================================================================
 
@@ -356,7 +359,7 @@ export default {
         const disabledBtn = computed(() => {
             return (
                 isLoading.value ||
-                errorBalance.value ||
+                isBalanceError.value ||
                 !+amount.value ||
                 !receiveValue.value ||
                 !selectedSrcNetwork.value ||
@@ -390,6 +393,12 @@ export default {
             selectedDstNetwork.value = network;
 
             selectedDstToken.value = null;
+
+            isEstimating.value = false;
+
+            resetAmount.value = true;
+
+            estimateErrorTitle.value = '';
 
             return (opTitle.value = 'tokenOperations.swap');
         };
@@ -436,28 +445,21 @@ export default {
             amount.value = value;
             txError.value = '';
             errorAddress.value = '';
-            errorBalance.value = '';
             receiveValue.value = '';
-
-            if (isNaN(amount.value)) {
-                return (errorBalance.value = 'Incorrect amount');
-            }
 
             if (!allowance.value) {
                 await makeAllowanceRequest();
             }
 
-            if (selectedSrcToken.value.address) {
+            if (selectedSrcToken.value && selectedSrcToken.value.address) {
                 await isEnoughAllowance();
             }
 
             await makeEstimateBridgeRequest();
 
-            if (+value > selectedSrcToken.value.balance || +networkFee.value > selectedSrcToken.value.balance) {
-                return (errorBalance.value = 'Insufficient balance');
-            }
+            const isBalanceAllowed = +value > selectedSrcToken.value?.balance || +networkFee.value > selectedSrcToken.value.balance;
 
-            return (errorBalance.value = '');
+            isBalanceError.value = isBalanceAllowed;
         };
 
         // =================================================================================================================
@@ -571,14 +573,15 @@ export default {
 
             if (response.error) {
                 isEstimating.value = false;
-                txError.value = response.error;
-                txErrorTitle.value = 'Estimate error';
+                estimateErrorTitle.value = response.error;
                 return (isEstimating.value = false);
             }
 
             isEstimating.value = false;
 
             receiveValue.value = response.toTokenAmount;
+
+            estimateErrorTitle.value = '';
 
             // TODO: add fee
             isEstimating.value = false;
@@ -868,7 +871,7 @@ export default {
             services,
 
             errorAddress,
-            errorBalance,
+            isBalanceError,
 
             selectedSrcNetwork,
             selectedDstNetwork,
@@ -879,6 +882,7 @@ export default {
             estimateTime,
             serviceFee,
             txError,
+            estimateErrorTitle,
             successHash,
             prettyNumber,
             walletAddress,
@@ -932,46 +936,40 @@ export default {
     }
 
     .accordion__title {
+        display: flex;
+        align-items: center;
+
+        font-weight: 400;
+        color: var(--zmt-accordion-label-color);
+        font-size: var(--zmt-default-fs);
+
+        .symbol {
+            font-weight: 600;
+        }
+
         .service-fee {
             font-weight: 600;
             color: var(--#{$prefix}sub-text);
         }
-        .symbol {
-            font-weight: 600;
+
+        .route-info-title {
+            color: var(--#{$prefix}warning);
+            font-weight: 500;
+            line-height: 20px;
+            opacity: 0.8;
+
+            display: inline;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+            width: 500px;
+            margin-left: 4px;
         }
     }
 
     &__btn {
         height: 64px;
         width: 100%;
-    }
-
-    .skeleton {
-        animation: skeleton-loading 1s linear infinite alternate;
-
-        &__content {
-            .accordion__title {
-                display: flex;
-                width: 100%;
-            }
-        }
-
-        &__text {
-            width: 80%;
-            height: 0.5rem;
-            margin: 8px 0 0 8px;
-            border-radius: 2px;
-        }
-    }
-
-    @keyframes skeleton-loading {
-        0% {
-            background-color: hsl(200, 20%, 80%);
-        }
-
-        100% {
-            background-color: hsl(200, 20%, 95%);
-        }
     }
 }
 </style>

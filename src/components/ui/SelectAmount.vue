@@ -1,5 +1,5 @@
 <template>
-    <div :class="{ active, focused, error }" class="select-amount" @click="setActive">
+    <div :class="{ active, focused }" class="select-amount" @click="setActive">
         <div class="select-amount__panel">
             <div class="label">{{ label }}</div>
             <div class="info-wrap">
@@ -42,7 +42,7 @@
                 </template>
             </div>
 
-            <div class="balance" :class="{ disabled }" @click.stop="setMax">
+            <div class="balance" :class="{ disabled, error }" @click.stop="setMax">
                 <div class="balance-value">
                     <template v-if="isTokenLoading">
                         <a-skeleton-input active />
@@ -76,7 +76,7 @@ import TokenIcon from '@/components/ui/TokenIcon';
 
 import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
-import { prettyNumber } from '@/helpers/prettyNumber';
+import { prettyNumber, formatNumber } from '@/helpers/prettyNumber';
 
 export default {
     name: 'SelectAmount',
@@ -208,7 +208,7 @@ export default {
                 } else {
                     amount.value = val;
                 }
-                return (payTokenPrice.value = prettyNumber(BigNumber(amount.value * +selectedToken?.value?.price || 0).toFixed()) || 0);
+                return (payTokenPrice.value = formatNumber(BigNumber(amount.value * +selectedToken?.value?.price || 0).toFixed()) || 0);
             }
 
             return (payTokenPrice.value = '0');
@@ -351,10 +351,18 @@ export default {
 
             &-price {
                 font-weight: 600;
+                color: var(--#{$prefix}sub-text);
 
                 span {
                     color: var(--#{$prefix}base-text);
                     font-weight: 400;
+                    margin-right: 2px;
+                }
+            }
+
+            &.error {
+                .balance-value * {
+                    color: var(--#{$prefix}danger) !important;
                 }
             }
         }
@@ -372,7 +380,7 @@ export default {
             align-items: center;
             cursor: pointer;
             width: 100%;
-            max-width: 220px;
+            max-width: 250px;
         }
 
         .token {
@@ -380,6 +388,12 @@ export default {
             font-weight: 600;
             color: var(--#{$prefix}select-item-secondary-color);
             margin-right: 10px;
+
+            display: inline-block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 170px;
+            white-space: nowrap;
 
             &.placeholder {
                 color: var(--#{$prefix}select-placeholder-text);
@@ -463,13 +477,6 @@ export default {
             svg.arrow {
                 transform: rotate(180deg);
             }
-        }
-    }
-
-    &.error {
-        .select-amount__panel {
-            border-color: var(--#{$prefix}danger-color);
-            background: var(--#{$prefix}danger-op-01);
         }
     }
 
