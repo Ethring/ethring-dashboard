@@ -656,7 +656,7 @@ export default {
         };
 
         const swap = async () => {
-            const network = networkName.value === selectedDstNetwork.value.name ? selectedDstNetwork.value : selectedSrcNetwork.value;
+            const network = networkName.value === selectedDstNetwork.value.name ? selectedDstNetwork : selectedSrcNetwork;
 
             const { isChanged, btnTitle } = await isCorrectChain(network, currentChainInfo, setChain);
 
