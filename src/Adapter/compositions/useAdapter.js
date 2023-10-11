@@ -125,7 +125,7 @@ function useAdapter() {
             const isConnect = await connectTo(ecosystem, walletModule, chain);
 
             if (!isConnect) {
-                console.log('Failed to connect to last connected wallet', ecosystem, chain, walletModule);
+                console.warn('Failed to connect to last connected wallet', ecosystem, chain, walletModule);
                 return adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
             }
 

@@ -6,17 +6,15 @@
             :selected-network="selectedNetwork"
             :items="[]"
             :value="receiverAddress"
-            :error="!!errorAddress"
+            :error="!!isAddressError"
             class="mt-10"
             :on-reset="successHash || clearAddress"
             @setAddress="onSetAddress"
         />
 
-        <InfoPanel v-if="errorAddress" :title="errorAddress" class="mt-10" />
-
         <SelectAmount
             :value="selectedToken"
-            :error="!!errorBalance"
+            :error="!!isBalanceError"
             :label="$t('tokenOperations.amount')"
             :on-reset="successHash || clearAddress"
             :is-token-loading="isTokensLoadingForChain"
@@ -24,10 +22,6 @@
             @setAmount="onSetAmount"
             @clickToken="onSetToken"
         />
-
-        <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
-        <InfoPanel v-if="txError" :title="txError" class="mt-10" />
-        <InfoPanel v-if="successHash" :hash="successHash" :title="$t('tx.txHash')" type="success" class="mt-10" />
 
         <Button
             :title="$t(opTitle)"
@@ -50,7 +44,6 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 import useNotification from '@/compositions/useNotification';
 
 import Button from '@/components/ui/Button';
-import InfoPanel from '@/components/ui/InfoPanel';
 import SelectNetwork from '@/components/ui/SelectNetwork';
 import SelectAddress from '@/components/ui/SelectAddress';
 import SelectAmount from '@/components/ui/SelectAmount';
@@ -63,7 +56,6 @@ import { isCorrectChain } from '@/shared/utils/operations';
 export default {
     name: 'SimpleSend',
     components: {
-        InfoPanel,
         SelectNetwork,
         SelectAddress,
         SelectAmount,
@@ -98,8 +90,8 @@ export default {
         const opTitle = ref('tokenOperations.confirm');
 
         const clearAddress = ref(false);
-        const errorAddress = ref('');
-        const errorBalance = ref('');
+        const isAddressError = ref(false);
+        const isBalanceError = ref(false);
 
         const isTokensLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](currentChainInfo.value?.net));
 
@@ -135,8 +127,8 @@ export default {
         const disabledSend = computed(() => {
             return (
                 isLoading.value ||
-                errorAddress.value ||
-                errorBalance.value ||
+                isAddressError.value ||
+                isBalanceError.value ||
                 !+amount.value ||
                 !receiverAddress.value.length ||
                 !currentChainInfo.value
@@ -169,17 +161,10 @@ export default {
 
         const onSetAddress = (addr = '') => {
             receiverAddress.value = addr;
-            errorAddress.value = '';
 
-            if (!addr?.length) {
-                return (errorAddress.value = '');
-            }
+            const isAddressAllowed = !validateAddress(addr) && addr.length > 0;
 
-            if (!validateAddress(addr)) {
-                return (errorAddress.value = 'Invalid address');
-            }
-
-            return (errorAddress.value = '');
+            return (isAddressError.value = isAddressAllowed);
         };
 
         const onSelectNetwork = (network) => {
@@ -198,15 +183,9 @@ export default {
         const onSetAmount = (value) => {
             amount.value = value;
 
-            if (isNaN(amount.value)) {
-                return (errorBalance.value = 'Incorrect amount');
-            }
+            const isBalanceAllowed = +value > +selectedToken.value?.balance;
 
-            if (+value > selectedToken.value?.balance) {
-                return (errorBalance.value = 'Insufficient balance');
-            }
-
-            return (errorBalance.value = '');
+            isBalanceError.value = isBalanceAllowed;
         };
 
         // =================================================================================================================
@@ -367,8 +346,9 @@ export default {
 
             clearAddress,
 
-            errorAddress,
-            errorBalance,
+            isAddressError,
+            isBalanceError,
+
             selectedToken,
             receiverAddress,
 

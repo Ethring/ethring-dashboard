@@ -129,6 +129,13 @@ const getUIConfig = (network, ecosystem) => {
     }
 
     // Copy without reference, to avoid changing the default config
+
+    if (!network || !ecosystem) {
+        return {
+            sidebar: [],
+        };
+    }
+
     const config = JSON.parse(JSON.stringify(defaultConfig[ecosystem]));
     const defaultSidebar = JSON.parse(JSON.stringify(SIDEBAR_MODULES));
 

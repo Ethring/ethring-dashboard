@@ -160,6 +160,8 @@ export default {
             font-size: var(--#{$prefix}h2-fs);
             font-weight: 600;
             color: var(--#{$prefix}select-item-color);
+            line-height: 40px;
+
             user-select: none;
             display: inline-block;
             text-overflow: ellipsis;
