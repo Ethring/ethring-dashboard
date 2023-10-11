@@ -56,10 +56,12 @@ export default {
 
         const isOpen = computed(() => store.getters['adapters/isOpen']('wallets'));
 
+        const showRoutesModal = computed(() => store.getters['swap/showRoutes']);
+
         const callInit = async () => {
             const { ecosystem, walletModule } = currentChainInfo.value || {};
 
-            if (!walletModule || !ecosystem || !walletAddress.value) {
+            if (!walletModule || !ecosystem || !walletAddress.value || showRoutesModal.value) {
                 return;
             }
 

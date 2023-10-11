@@ -115,9 +115,9 @@ export default {
             active.value = false;
         };
 
-        const removeAddress = (address) => {
-            emit('removeAddress', { net: props.selectedNetwork.net, address });
-            active.value = false;
+        const removeAddress = () => {
+            address.value = '';
+            emit('setAddress', address.value);
         };
 
         const clearValue = () => {
@@ -156,7 +156,7 @@ export default {
         flex-direction: column;
         background: var(--#{$prefix}select-bg-color);
         border-radius: 16px;
-        padding: 17px 32px;
+        padding: 16px 24px;
         box-sizing: border-box;
         border: 2px solid transparent;
         transition: 0.2s;

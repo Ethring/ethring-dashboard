@@ -77,7 +77,7 @@ export const sortByKey = (list = [], key) => {
     return list.sort((a, b) => b[key] - a[key]);
 };
 
-export const searchByKey = (obj = {}, search = '', target = 'code') => {
+export const searchByKey = (obj = {}, search = '', target = 'symbol') => {
     const targetVal = obj[target] ?? null;
     const targetLC = targetVal ? targetVal.toLowerCase() : '';
 
