@@ -34,7 +34,7 @@
             :disabled="!!disabledSend"
             :loading="isLoading"
             class="simple-send__btn mt-10"
-            @click="send"
+            @click="handleOnSend"
             size="large"
         />
     </div>
@@ -54,9 +54,11 @@ import InfoPanel from '@/components/ui/InfoPanel';
 import SelectNetwork from '@/components/ui/SelectNetwork';
 import SelectAddress from '@/components/ui/SelectAddress';
 import SelectAmount from '@/components/ui/SelectAmount';
+
 import { sortByKey } from '@/helpers/utils';
 
-import { DIRECTIONS, TOKEN_SELECT_TYPES } from '../../../shared/constants/operations';
+import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+import { isCorrectChain } from '@/shared/utils/operations';
 
 export default {
     name: 'SimpleSend',
@@ -209,59 +211,19 @@ export default {
 
         // =================================================================================================================
 
-        const isCorrectChain = async () => {
-            if (currentChainInfo.value.net === selectedNetwork.value.net) {
-                opTitle.value = 'tokenOperations.confirm';
-                return true;
-            }
-
-            opTitle.value = 'tokenOperations.switchNetwork';
-
-            showNotification({
-                key: 'switch-network',
-                type: 'info',
-                title: `Switch network to ${selectedNetwork.value.name}`,
-                icon: h(LoadingOutlined, {
-                    spin: true,
-                }),
-                duration: 0,
-            });
-
-            try {
-                const isChanged = await setChain(selectedNetwork.value);
-                if (!isChanged) {
-                    showNotification({
-                        key: 'switch-network-error',
-                        type: 'error',
-                        title: `Failed to switch network to ${selectedNetwork.value.name}`,
-                        description: 'Please try again',
-                        duration: 5,
-                    });
-                }
-                closeNotification('switch-network');
-                return isChanged;
-            } catch (error) {
-                closeNotification('switch-network');
-                txError.value = error?.message || error?.error || error;
-                return false;
-            }
-        };
-
-        // =================================================================================================================
-
-        const send = async () => {
+        const handleOnSend = async () => {
             if (disabledSend.value) {
                 return;
             }
 
-            const isCurrChain = await isCorrectChain();
+            isLoading.value = true;
 
-            if (!isCurrChain) {
-                isLoading.value = false;
+            const { isChanged, btnTitle } = await isCorrectChain(selectedNetwork, currentChainInfo, setChain);
 
-                closeNotification('switch-network');
+            opTitle.value = btnTitle;
 
-                return (opTitle.value = 'tokenOperations.switchNetwork');
+            if (!isChanged) {
+                return (isLoading.value = false);
             }
 
             opTitle.value = 'tokenOperations.confirm';
@@ -414,7 +376,8 @@ export default {
             onSetAddress,
             onSetToken,
             onSetAmount,
-            send,
+
+            handleOnSend,
 
             opTitle,
 

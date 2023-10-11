@@ -159,6 +159,7 @@ import prices from '@/modules/prices/';
 
 import { STATUSES, NATIVE_CONTRACT, SUPPORTED_CHAINS } from '@/shared/constants/superswap/constants';
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+import { isCorrectChain } from '@/shared/utils/operations';
 
 export default {
     name: 'SuperSwap',
@@ -552,45 +553,6 @@ export default {
             return address.value || walletAddress.value;
         };
 
-        const isCorrectChain = async () => {
-            if (!isNeedNetworkChange.value) {
-                opTitle.value = 'tokenOperations.swap';
-                return true;
-            }
-            const network = networkName.value === selectedDstNetwork.value.name ? selectedDstNetwork.value : selectedSrcNetwork.value;
-
-            opTitle.value = 'tokenOperations.switchNetwork';
-
-            showNotification({
-                key: 'switch-network',
-                type: 'info',
-                title: `Switch network to ${network.name}`,
-                icon: h(LoadingOutlined, {
-                    spin: true,
-                }),
-                duration: 0,
-            });
-
-            try {
-                const isChanged = await setChain(network);
-                if (!isChanged) {
-                    showNotification({
-                        key: 'switch-network-error',
-                        type: 'error',
-                        title: `Failed to switch network to ${network.name}`,
-                        description: 'Please try again',
-                        duration: 5,
-                    });
-                }
-                closeNotification('switch-network');
-                return isChanged;
-            } catch (error) {
-                closeNotification('switch-network');
-                txError.value = error?.message || error?.error || error;
-                return false;
-            }
-        };
-
         // =================================================================================================================
 
         const getEstimateInfo = async () => {
@@ -694,19 +656,20 @@ export default {
         };
 
         const swap = async () => {
-            const isCurrChain = await isCorrectChain();
+            const network = networkName.value === selectedDstNetwork.value.name ? selectedDstNetwork.value : selectedSrcNetwork.value;
 
-            if (!isCurrChain) {
+            const { isChanged, btnTitle } = await isCorrectChain(network, currentChainInfo, setChain);
+
+            opTitle.value = btnTitle;
+
+            if (!isChanged) {
                 isLoading.value = false;
 
-                closeNotification('switch-network');
-
-                setTimeout(async () => {
+                return setTimeout(async () => {
                     if (currentRoute.value.net === currentChainInfo.value.net) {
                         await swap();
                     }
                 }, 5000);
-                return;
             }
 
             opTitle.value = 'tokenOperations.swap';
