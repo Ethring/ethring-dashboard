@@ -228,9 +228,18 @@ export default {
             });
 
             try {
-                await setChain(selectedNetwork.value);
+                const isChanged = await setChain(selectedNetwork.value);
+                if (!isChanged) {
+                    showNotification({
+                        key: 'switch-network-error',
+                        type: 'error',
+                        title: `Failed to switch network to ${selectedNetwork.value.name}`,
+                        description: 'Please try again',
+                        duration: 5,
+                    });
+                }
                 closeNotification('switch-network');
-                return true;
+                return isChanged;
             } catch (error) {
                 closeNotification('switch-network');
                 txError.value = error?.message || error?.error || error;

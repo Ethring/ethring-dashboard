@@ -613,13 +613,23 @@ export default {
             });
 
             try {
-                const isNetworkChanged = await setChain(selectedSrcNetwork.value);
+                const isChanged = await setChain(selectedSrcNetwork.value);
+                if (!isChanged) {
+                    showNotification({
+                        key: 'switch-network-error',
+                        type: 'error',
+                        title: `Failed to switch network to ${selectedSrcNetwork.value.name}`,
+                        description: 'Please try again',
+                        duration: 5,
+                    });
+                }
+
                 closeNotification('switch-network');
-                return isNetworkChanged;
+
+                return isChanged;
             } catch (error) {
-                txError.value = error.message || error.error || error;
-                opTitle.value = 'tokenOperations.switchNetwork';
                 closeNotification('switch-network');
+                txError.value = error?.message || error?.error || error;
                 return false;
             }
         };
