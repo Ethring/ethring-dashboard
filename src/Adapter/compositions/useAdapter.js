@@ -121,7 +121,13 @@ function useAdapter() {
 
         try {
             adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
-            await connectTo(ecosystem, walletModule, chain);
+
+            const isConnect = await connectTo(ecosystem, walletModule, chain);
+
+            if (!isConnect) {
+                return adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
+            }
+
             return subscribeToWalletsChange();
         } catch (error) {
             adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
