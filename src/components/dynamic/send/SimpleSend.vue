@@ -1,9 +1,9 @@
 <template>
     <div class="simple-send">
-        <SelectNetwork :items="chainList" :current="currentChainInfo" @select="onSelectNetwork" />
+        <SelectNetwork :items="chainList" :current="selectedNetwork" @select="onSelectNetwork" />
 
         <SelectAddress
-            :selected-network="currentChainInfo"
+            :selected-network="selectedNetwork"
             :items="[]"
             :value="receiverAddress"
             :error="!!errorAddress"
@@ -30,11 +30,11 @@
         <InfoPanel v-if="successHash" :hash="successHash" :title="$t('tx.txHash')" type="success" class="mt-10" />
 
         <Button
-            :title="$t('tokenOperations.confirm')"
+            :title="$t(opTitle)"
             :disabled="!!disabledSend"
             :loading="isLoading"
             class="simple-send__btn mt-10"
-            @click="send"
+            @click="handleOnSend"
             size="large"
         />
     </div>
@@ -54,9 +54,11 @@ import InfoPanel from '@/components/ui/InfoPanel';
 import SelectNetwork from '@/components/ui/SelectNetwork';
 import SelectAddress from '@/components/ui/SelectAddress';
 import SelectAmount from '@/components/ui/SelectAmount';
+
 import { sortByKey } from '@/helpers/utils';
 
-import { DIRECTIONS, TOKEN_SELECT_TYPES } from '../../../shared/constants/operations';
+import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+import { isCorrectChain } from '@/shared/utils/operations';
 
 export default {
     name: 'SimpleSend',
@@ -93,6 +95,8 @@ export default {
 
         const amount = ref('');
 
+        const opTitle = ref('tokenOperations.confirm');
+
         const clearAddress = ref(false);
         const errorAddress = ref('');
         const errorBalance = ref('');
@@ -121,7 +125,7 @@ export default {
         // =================================================================================================================
 
         const tokensList = computed(() => {
-            const { net } = currentChainInfo.value;
+            const { net } = selectedNetwork.value;
             const listFromStore = store.getters['tokens/getTokensListForChain'](net);
             return sortByKey(listFromStore, 'balanceUsd');
         });
@@ -142,8 +146,6 @@ export default {
         // =================================================================================================================
 
         const setTokenOnChange = () => {
-            selectedNetwork.value = currentChainInfo.value;
-
             const [defaultToken = null] = tokensList.value || [];
 
             if (!selectedToken.value && defaultToken) {
@@ -180,10 +182,17 @@ export default {
             return (errorAddress.value = '');
         };
 
-        const onSelectNetwork = async (network) => {
+        const onSelectNetwork = (network) => {
             clearAddress.value = true;
-            await setChain(network);
+            selectedNetwork.value = network;
+
+            if (currentChainInfo.value.net !== selectedNetwork.value.net) {
+                return (opTitle.value = 'tokenOperations.switchNetwork');
+            }
+
             clearAddress.value = false;
+
+            return (opTitle.value = 'tokenOperations.confirm');
         };
 
         const onSetAmount = (value) => {
@@ -202,10 +211,22 @@ export default {
 
         // =================================================================================================================
 
-        const send = async () => {
+        const handleOnSend = async () => {
             if (disabledSend.value) {
                 return;
             }
+
+            isLoading.value = true;
+
+            const { isChanged, btnTitle } = await isCorrectChain(selectedNetwork, currentChainInfo, setChain);
+
+            opTitle.value = btnTitle;
+
+            if (!isChanged) {
+                return (isLoading.value = false);
+            }
+
+            opTitle.value = 'tokenOperations.confirm';
 
             const dataForPrepare = {
                 fromAddress: walletAddress.value,
@@ -274,9 +295,14 @@ export default {
         });
 
         onMounted(() => {
+            if (!selectedNetwork.value) {
+                selectedNetwork.value = currentChainInfo.value;
+            }
+
             store.dispatch('tokenOps/setSelectType', TOKEN_SELECT_TYPES.FROM);
             store.dispatch('tokenOps/setDirection', DIRECTIONS.SOURCE);
             store.dispatch('tokenOps/setOnlyWithBalance', true);
+
             setTokenOnChange();
         });
 
@@ -350,11 +376,15 @@ export default {
             onSetAddress,
             onSetToken,
             onSetAmount,
-            send,
+
+            handleOnSend,
+
+            opTitle,
 
             txError,
             successHash,
             walletAddress,
+            selectedNetwork,
             connectedWallet,
             chainList,
             currentChainInfo,

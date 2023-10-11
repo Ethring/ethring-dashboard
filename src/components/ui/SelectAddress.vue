@@ -5,7 +5,7 @@
             <div class="info-wrap">
                 <div class="info">
                     <div class="network">
-                        <img class="network-logo" alt="network-logo" :src="selectedNetwork.logo" />
+                        <img class="network-logo" alt="network-logo" :src="selectedNetwork?.logo" />
                     </div>
                     <input
                         v-model="address"

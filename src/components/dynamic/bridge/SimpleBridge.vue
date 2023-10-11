@@ -127,6 +127,7 @@ import { checkErrors } from '@/helpers/checkErrors';
 import { getServices, SERVICE_TYPE } from '@/config/services';
 
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+import { isCorrectChain } from '@/shared/utils/operations';
 
 export default {
     name: 'SimpleBridge',
@@ -594,38 +595,6 @@ export default {
 
         // =================================================================================================================
 
-        const isCorrectChain = async () => {
-            if (currentChainInfo.value.net === selectedSrcNetwork.value.net) {
-                opTitle.value = 'tokenOperations.confirm';
-                return true;
-            }
-
-            opTitle.value = 'tokenOperations.switchNetwork';
-
-            showNotification({
-                key: 'switch-network',
-                type: 'info',
-                title: `Switch network to ${selectedSrcNetwork.value.name}`,
-                icon: h(LoadingOutlined, {
-                    spin: true,
-                }),
-                duration: 0,
-            });
-
-            try {
-                const isNetworkChanged = await setChain(selectedSrcNetwork.value);
-                closeNotification('switch-network');
-                return isNetworkChanged;
-            } catch (error) {
-                txError.value = error.message || error.error || error;
-                opTitle.value = 'tokenOperations.switchNetwork';
-                closeNotification('switch-network');
-                return false;
-            }
-        };
-
-        // =================================================================================================================
-
         const sendTransaction = async (transaction) => {
             try {
                 const tx = formatTransactionForSign(transaction);
@@ -725,14 +694,12 @@ export default {
 
             isLoading.value = true;
 
-            const isCorrect = await isCorrectChain();
+            const { isChanged, btnTitle } = await isCorrectChain(selectedSrcNetwork, currentChainInfo, setChain);
 
-            if (!isCorrect) {
-                isLoading.value = false;
+            opTitle.value = btnTitle;
 
-                closeNotification('switch-network');
-
-                return (opTitle.value = 'tokenOperations.switchNetwork');
+            if (!isChanged) {
+                return (isLoading.value = false);
             }
 
             if (approveTx.value) {
