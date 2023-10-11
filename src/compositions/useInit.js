@@ -1,7 +1,9 @@
 import { computed } from 'vue';
 import _ from 'lodash';
 
+import { ECOSYSTEMS } from '@/Adapter/config';
 import { getBalancesByAddress } from '@/api/data-provider';
+
 import BigNumber from 'bignumber.js';
 
 import IndexedDBService from '@/modules/indexedDb';
@@ -10,6 +12,14 @@ const CHUNK_SIZE = 5;
 
 const COSMOS_CHAIN_ID = {
     cosmoshub: 'cosmos',
+    osmosis: 'osmosis',
+    juno: 'juno',
+    injective: 'injective',
+    kujira: 'kujira',
+    crescent: 'crescent',
+    mars: 'mars',
+    stargaze: 'stargaze',
+    terra2: 'terra2',
 };
 // =================================================================================================================
 
@@ -84,6 +94,13 @@ const integrationsForSave = (integrations, { chain, logo, chainAddress }) => {
 export default async function useInit(store, { addressesWithChains = {}, account = null, currentChainInfo } = {}) {
     store.dispatch('tokens/setLoader', true);
 
+    const allTokensForAccount = computed(() => store.getters['tokens/tokens'][account] || []);
+    const allTokensBalance = computed(() => store.getters['tokens/totalBalances'][account] || 0);
+
+    if (allTokensForAccount.value.length && allTokensBalance.value) {
+        return store.dispatch('tokens/setLoader', false);
+    }
+
     const disableLoader = computed(() => store.getters['tokens/disableLoader']);
 
     const disableLoaderActions = [['tokens/setDisableLoader', false]];
@@ -96,11 +113,20 @@ export default async function useInit(store, { addressesWithChains = {}, account
 
     let totalBalance = BigNumber(0);
 
-    const { net: currentChain } = currentChainInfo;
+    const { net: currentChain, ecosystem } = currentChainInfo;
 
     const addresses = arrayFromObject(addressesWithChains);
 
-    const sortedByCurrChain = _.orderBy(addresses, [(record) => (record.chain === currentChain ? 0 : 1)]);
+    const sortedByCurrChain = _.orderBy(
+        addresses,
+        [
+            // Current chain first
+            (item) => (item.chain === currentChain ? 0 : 1),
+            // Then by chain
+            (item) => _.indexOf(Object.keys(COSMOS_CHAIN_ID), item.chain),
+        ],
+        ['asc', 'desc']
+    );
 
     const chunkedAddresses = _.chunk(sortedByCurrChain, CHUNK_SIZE);
 
@@ -114,6 +140,11 @@ export default async function useInit(store, { addressesWithChains = {}, account
             const { logo, address: chainAddress } = info;
 
             const chainForRequest = COSMOS_CHAIN_ID[chain] || chain;
+
+            if (ecosystem === ECOSYSTEMS.COSMOS && !COSMOS_CHAIN_ID[chain]) {
+                store.dispatch('tokens/setLoadingByChain', { chain, value: false });
+                continue;
+            }
 
             const response = (await getBalancesByAddress(chainForRequest, chainAddress)) || {};
 

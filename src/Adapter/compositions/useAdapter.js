@@ -125,13 +125,13 @@ function useAdapter() {
         try {
             adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
 
-            for (const wallet of connectedWallets.value) {
-                if (wallet.id === lastConnectedWallet.value.id) {
-                    continue;
-                }
+            // for (const wallet of connectedWallets.value) {
+            //     if (wallet.id === lastConnectedWallet.value.id) {
+            //         continue;
+            //     }
 
-                await connectTo(wallet.ecosystem, wallet.walletModule, wallet.chain);
-            }
+            //     await connectTo(wallet.ecosystem, wallet.walletModule, wallet.chain);
+            // }
 
             const isConnect = await connectTo(ecosystem, walletModule, chain);
 
