@@ -381,9 +381,9 @@ export default {
             });
 
             try {
-                await setChain(selectedNetwork.value);
+                const isNetworkChanged = await setChain(selectedNetwork.value);
                 closeNotification('switch-network');
-                return true;
+                return isNetworkChanged;
             } catch (error) {
                 closeNotification('switch-network');
                 txError.value = error?.message || error?.error || error;
