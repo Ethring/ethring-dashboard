@@ -44,22 +44,14 @@ const routes = [
         name: 'Connect wallet',
         component: () => import('../views/ConnectWallet.vue'),
     },
-    // {
-    //     path: '/superSwap',
-    //     name: 'Super Swap Page',
-    //     meta: {
-    //         isAuth: true,
-    //     },
-    //     component: () => import('../layouts/SuperSwapLayout.vue'),
-    // },
-    // {
-    //     path: '/superSwap/select-token',
-    //     name: 'superSwap/select-token',
-    //     meta: {
-    //         isAuth: true,
-    //     },
-    //     component: () => import('../components/dynamic/superswap/SelectToken.vue'),
-    // },
+    {
+        path: '/superSwap',
+        name: 'Super Swap Page',
+        meta: {
+            isAuth: true,
+        },
+        component: () => import('../layouts/SuperSwapLayout.vue'),
+    },
     {
         path: '/:module/select-token',
         name: 'Select Token Page',

@@ -52,6 +52,8 @@
     "send": "Send",
     "receive": "Receive",
     "pay": "Pay",
+    "from": "From",
+    "to": "To",
     "select": "Select",
     "selectToken": "Select token",
     "networkFee": "Network fee",
@@ -59,8 +61,11 @@
     "changeNetwork": "Please change network",
     "rewards": "Rewards",
     "value": "Value",
+    "notSupported": "Not supported chain",
     "switchNetwork": "Switch network",
-    "routeInfo": "Route info"
+    "routeInfo": "Route info",
+    "emptyAssets": "No tokens",
+    "chooseAddress": "Choose another address"
   },
   "simpleSend": {
     "title": "Send"

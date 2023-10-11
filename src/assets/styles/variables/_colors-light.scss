@@ -30,6 +30,7 @@ $japaneseLaurel: #038d00;
 $blazeOrange: #ff6b00;
 $paleSky: #6D747A;
 
+
 $watermelon: #fa3c58;
 $pizazz: #f69502;
 $greenHills: #027a00;
@@ -127,8 +128,11 @@ $btn-disabled: $geyser;
 $btn-disabled-text: $gulfStream;
 $btn-disabled-icon: $iceberg;
 
+$swap-btn-bg-color: $aquamarine;
+
 // Select
 $select-bg-color: $gallery;
+$select-secondary-bg-color: $geyser;
 $select-dropdown-bg-color: $white;
 
 $select-label-color: $mineralGreen;
@@ -139,12 +143,18 @@ $select-placeholder-text: $gulfStream;
 
 $select-border-color: $gulfStream;
 $select-active-border-color: $surfieGreen;
+$select-active-bg-color: $iceberg;
 $select-icon-color: $gulfStream;
+$select-icon-bg-color: $turquoise;
+
 
 // Accordion
 $accordion-bg-color: $white;
 $accordion-label-color: $mineralGreen;
 $accordion-border-color: $geyser;
+
+// Collapse
+$collapse-border-color: $geyser;
 
 // Info
 $success: $japaneseLaurel;
@@ -184,6 +194,8 @@ $modal-active-block-bg-color: $carteblanche;
 $modal-block-text: $perfectLanding;
 $modal-item-text: $caneelBay;
 
+// Search
+$search-bg-color: $iceberg;
 // ThemeSwitcher
 $theme-switcher-color: $surfieGreen;
 
@@ -251,8 +263,6 @@ $theme-colors: (
     "border-color-op-05": $border-color-op-05,
     "social-border-color": $social-border-color,
 
-    "btn-text-color": $btn-text-color,
-    "btn-bg-color": $btn-bg-color,
 
     "btn-text-hover": $btn-text-hover,
     "btn-bg-color-hover": $btn-bg-color-hover,
@@ -262,7 +272,12 @@ $theme-colors: (
     "btn-disabled-text": $btn-disabled-text,
     "btn-disabled-icon": $btn-disabled-icon,
 
+    "btn-text-color": $btn-text-color,
+    "btn-bg-color": $btn-bg-color,
+    "swap-btn-bg-color": $swap-btn-bg-color,
+
     "select-bg-color": $select-bg-color,
+    "select-secondary-bg-color": $select-secondary-bg-color,
     "select-dropdown-bg-color": $select-dropdown-bg-color,
     "select-label-color": $select-label-color,
     "select-item-color": $select-item-color,
@@ -270,12 +285,16 @@ $theme-colors: (
     "select-item-active-color": $select-item-active-color,
     "select-border-color": $select-border-color,
     "select-active-border-color": $select-active-border-color,
+    "select-active-bg-color": $select-active-bg-color,
     "select-icon-color": $select-icon-color,
+    "select-icon-bg-color": $select-icon-bg-color,
     "select-placeholder-text": $select-placeholder-text,
 
     "accordion-bg-color": $accordion-bg-color,
     "accordion-label-color": $accordion-label-color,
     "accordion-border-color": $accordion-border-color,
+
+    "collapse-border-color": $collapse-border-color,
 
     "icon-color": $icon-color,
     "icon-active": $icon-active,
@@ -289,6 +308,8 @@ $theme-colors: (
     "icon-secondary-bg-color": $icon-secondary-bg-color,
     "icon-secondary-bg-hover": $icon-secondary-bg-hover,
     "arrow-color": $arrow-color,
+
+    "search-bg-color": $search-bg-color,
 
     "success": $success,
     "success-op-01": $success-op-01,

@@ -70,7 +70,10 @@ export const prettyNumberTooltip = (value, maxDecimals = 8) => {
     });
 };
 
-export const formatNumber = (number, maximumFractionDigits = 4) => {
+export const formatNumber = (number, maximumFractionDigits = 6) => {
+    if (+number === 0 || isNaN(number)) {
+        return 0;
+    }
     const formatter = new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 0,
         maximumFractionDigits,

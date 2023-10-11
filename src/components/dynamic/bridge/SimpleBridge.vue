@@ -127,7 +127,8 @@ import { toMantissa } from '@/helpers/numbers';
 import { prettyNumber } from '@/helpers/prettyNumber';
 import { checkErrors } from '@/helpers/checkErrors';
 
-import { services } from '@/config/bridgeServices';
+import { getServices, SERVICE_TYPE } from '@/config/services';
+
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 
 export default {
@@ -175,6 +176,8 @@ export default {
         const networkFee = ref(0);
 
         const isEstimating = ref(false);
+
+        const services = getServices(SERVICE_TYPE.BRIDGE);
 
         // =================================================================================================================
 
@@ -613,9 +616,9 @@ export default {
             });
 
             try {
-                await setChain(selectedSrcNetwork.value);
+                const isNetworkChanged = await setChain(selectedSrcNetwork.value);
                 closeNotification('switch-network');
-                return true;
+                return isNetworkChanged;
             } catch (error) {
                 txError.value = error.message || error.error || error;
                 opTitle.value = 'tokenOperations.switchNetwork';
