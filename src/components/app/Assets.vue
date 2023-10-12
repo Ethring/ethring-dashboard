@@ -100,8 +100,11 @@ export default {
             if (!allTokens.value.length) {
                 return 0;
             }
+            const totalSum = allTokens.value.reduce((acc, token) => {
+                return acc.plus(+token.balanceUsd || 0);
+            }, BigNumber(0));
 
-            return allTokens.value.reduce((sum, token) => sum + +token.balanceUsd, 0);
+            return totalSum.toNumber();
         });
 
         const integrationAssetsByPlatform = ref(getIntegrationsGroupedByPlatform(allIntegrations.value));
@@ -113,7 +116,7 @@ export default {
 
             const share = BigNumber(balance).dividedBy(allTokensBalance.value).multipliedBy(100);
 
-            return share.toFixed(2);
+            return share.toNumber();
         };
 
         watch(isAllTokensLoading, () => {

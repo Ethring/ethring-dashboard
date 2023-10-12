@@ -8,6 +8,8 @@ import BigNumber from 'bignumber.js';
 
 import IndexedDBService from '@/modules/indexedDb';
 
+import { getTotalFuturesBalance, BALANCES_TYPES } from '@/shared/utils/assets';
+
 const CHUNK_SIZE = 5;
 
 const COSMOS_CHAIN_ID = {
@@ -80,7 +82,12 @@ const integrationsForSave = (integrations, { chain, logo, chainAddress }) => {
 
     for (const integration of integrations) {
         integration.balances = formatRecords(integration.balances, { chain, chainAddress, logo });
-        balance = getTotalBalance(integration.balances, balance);
+
+        if (integration.type === BALANCES_TYPES.FUTURES) {
+            balance = getTotalFuturesBalance(integration.balances, balance);
+        } else {
+            balance = getTotalBalance(integration.balances, balance);
+        }
     }
 
     return {
@@ -154,7 +161,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
                 nfts = [],
             } = await saveOrGetDataFromCache(`${account}-${chainForRequest}-${chainAddress}`, response);
 
-            if (!tokens.length && integrations.length && nfts.length) {
+            if (!tokens.length && !integrations.length && !nfts.length) {
                 store.dispatch('tokens/setLoadingByChain', { chain, value: false });
                 continue;
             }
@@ -181,7 +188,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
 
             store.dispatch('tokens/setDataFor', { type: 'integrations', account, data: allIntegrations });
 
-            store.dispatch('tokens/setTotalBalances', { account, data: totalBalance.toFixed(2) });
+            store.dispatch('tokens/setTotalBalances', { account, data: totalBalance.toNumber() });
 
             store.dispatch('tokens/setLoadingByChain', { chain, value: false });
         }

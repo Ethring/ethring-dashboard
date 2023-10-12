@@ -1,6 +1,13 @@
-const BALANCES_TYPES = {
+import BigNumber from 'bignumber.js';
+
+import { sortByKey } from '@/helpers/utils';
+
+export const BALANCES_TYPES = {
     ALL: 'ALL',
     PENDING: 'PENDING_REWARD',
+    FUTURES: 'FUTURES',
+    LEVERAGE_POSITION: 'LEVERAGE_POSITION',
+    BORROW: 'BORROW',
 };
 
 export const getTotalBalanceByType = (balances, type = BALANCES_TYPES.ALL) => {
@@ -8,20 +15,30 @@ export const getTotalBalanceByType = (balances, type = BALANCES_TYPES.ALL) => {
         return 0;
     }
 
-    if (type === BALANCES_TYPES.ALL) {
-        return balances.reduce((sum, token) => sum + +token.balanceUsd, 0);
+    if (type === BALANCES_TYPES.FUTURES) {
+        const totalBalance = getTotalFuturesBalance(balances, BigNumber(0));
+        return totalBalance.toNumber();
     }
 
-    return balances.filter(({ balanceType }) => balanceType === type).reduce((sum, token) => sum + +token.balanceUsd, 0);
+    if (type === BALANCES_TYPES.ALL) {
+        return balances.reduce((sum, token) => sum.plus(+token.balanceUsd), BigNumber(0)).toNumber();
+    }
+
+    return balances
+        .filter(({ balanceType }) => balanceType === type)
+        .reduce((sum, token) => sum.plus(+token.balanceUsd), BigNumber(0))
+        .toNumber();
 };
 
 export const getDataForIntegrations = (integration, balances) => {
+    const balanceType = integration.type === BALANCES_TYPES.FUTURES ? BALANCES_TYPES.FUTURES : BALANCES_TYPES.ALL;
+
     return {
         platform: integration.platform,
         data: [integration],
         logoURI: integration.logo,
         healthRate: integration?.healthRate,
-        totalGroupBalance: getTotalBalanceByType(balances, BALANCES_TYPES.ALL),
+        totalGroupBalance: getTotalBalanceByType(balances, balanceType),
         totalRewardsBalance: getTotalBalanceByType(balances, BALANCES_TYPES.PENDING),
     };
 };
@@ -39,8 +56,11 @@ export const getIntegrationsGroupedByPlatform = (allIntegrations = []) => {
         const existingGroup = groupByPlatforms.find(({ platform }) => platform === integration.platform);
 
         if (existingGroup) {
-            existingGroup.totalGroupBalance += getTotalBalanceByType(balances, BALANCES_TYPES.ALL);
+            const balanceType = integration.type === BALANCES_TYPES.FUTURES ? BALANCES_TYPES.FUTURES : BALANCES_TYPES.ALL;
+
+            existingGroup.totalGroupBalance += getTotalBalanceByType(balances, balanceType);
             existingGroup.totalRewardsBalance += getTotalBalanceByType(balances, BALANCES_TYPES.PENDING);
+
             existingGroup.data.push(integration);
 
             if (integration.healthRate) {
@@ -53,7 +73,7 @@ export const getIntegrationsGroupedByPlatform = (allIntegrations = []) => {
         groupByPlatforms.push(getDataForIntegrations(integration, balances));
     }
 
-    return groupByPlatforms;
+    return sortByKey(groupByPlatforms, 'totalGroupBalance');
 };
 
 export const getFormattedName = (str) => {
@@ -71,4 +91,21 @@ export const getFormattedDate = (timestamp) => {
     const day = date.getDate();
 
     return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
+};
+
+export const getTotalFuturesBalance = (records, totalBalance) => {
+    let leverageTotalUsd = BigNumber(0);
+    let borrowTotalUsd = BigNumber(0);
+
+    for (let token of records) {
+        if (token.balanceType === BALANCES_TYPES.LEVERAGE_POSITION) {
+            leverageTotalUsd = leverageTotalUsd.plus(+token.balanceUsd);
+        } else if (token.balanceType === BALANCES_TYPES.BORROW) {
+            borrowTotalUsd = borrowTotalUsd.plus(+token.balanceUsd);
+        }
+    }
+
+    totalBalance = totalBalance.plus(leverageTotalUsd.minus(borrowTotalUsd));
+
+    return totalBalance;
 };

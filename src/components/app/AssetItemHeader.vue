@@ -14,7 +14,7 @@
             <div class="asset__item-header-name">
                 {{ title }}
                 <div class="asset__item-header-value" v-if="value > 0">
-                    {{ value }}
+                    {{ formatNumber(value, 2) }}
                     <span class="asset__item-header-symbol"> % </span>
                 </div>
             </div>
