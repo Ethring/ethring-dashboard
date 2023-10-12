@@ -12,7 +12,7 @@
             <div class="balance">
                 <div class="value">
                     <span>$</span>
-                    {{ showBalance ? prettyNumber(totalBalance) : '****' }}
+                    {{ showBalance ? formatNumber(totalBalance, 2) : '****' }}
                 </div>
             </div>
         </div>
@@ -25,7 +25,7 @@ import { useStore } from 'vuex';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import { cutAddress } from '@/helpers/utils';
-import { prettyNumber } from '@/helpers/prettyNumber';
+import { formatNumber } from '@/helpers/prettyNumber';
 
 import WalletIcon from '@/assets/icons/dashboard/wallet.svg';
 
@@ -47,7 +47,7 @@ export default {
             totalBalance,
             currentChainInfo,
             walletAccount,
-            prettyNumber,
+            formatNumber,
             cutAddress,
             showBalance,
         };
