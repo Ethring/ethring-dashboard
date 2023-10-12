@@ -1,23 +1,26 @@
 import injectedModule from '@web3-onboard/injected-wallets';
 
-// import coinbaseWalletModule from '@web3-onboard/coinbase';
-// import ledgerModule from '@web3-onboard/ledger';
+import coinbaseWalletModule from '@web3-onboard/coinbase';
+import ledgerModule from '@web3-onboard/ledger';
 
 import appMetadata from '@/Adapter/config/web3-onboard/meta-data';
 import { chainConfig } from '@/Adapter/config/web3-onboard/chains';
 
 const injected = injectedModule();
-// const coinbaseWalletSdk = coinbaseWalletModule();
-// const ledger = ledgerModule({
-//     projectId: '475917632e4a0f8c4e28e74577035011',
-// });
+const coinbaseWalletSdk = coinbaseWalletModule();
+
+const wallets = [injected, coinbaseWalletSdk];
+
+if (process.env.VUE_APP_WC_PROJECT_ID && process.env.VUE_APP_WC_PROJECT_ID !== 'null') {
+    const ledger = ledgerModule({
+        projectId: process.env.VUE_APP_WC_PROJECT_ID,
+    });
+
+    wallets.push(ledger);
+}
 
 export default {
-    wallets: [
-        injected,
-        // coinbaseWalletSdk,
-        // ledger,
-    ],
+    wallets,
     connect: {
         showSidebar: false,
         disableClose: false,

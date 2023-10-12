@@ -15,6 +15,7 @@
 
 <script>
 import { ref, watch } from 'vue';
+
 import SearchIcon from '@/assets/icons/app/search.svg';
 import ClearIcon from '@/assets/icons/app/xmark.svg';
 
@@ -82,11 +83,13 @@ $padding-lr: 32px;
         min-width: 40px;
         height: 40px;
         max-height: 40px;
-
         border-radius: 50%;
-
         background: var(--#{$prefix}icon-secondary-bg-hover);
         margin-right: 10px;
+
+        svg {
+            fill: var(--#{$prefix}sub-text);
+        }
     }
 
     &__clear {
@@ -128,7 +131,7 @@ $padding-lr: 32px;
     border: 2px solid var(--#{$prefix}sub-text);
 
     .search-input__logo {
-        background: var(--#{$prefix}btn-hover);
+        background: var(--#{$prefix}btn-bg-color-hover);
     }
 
     input {

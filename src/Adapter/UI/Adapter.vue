@@ -4,7 +4,7 @@
         <NotConnected v-else class="ant-dropdown-link" />
 
         <template #overlay>
-            <a-menu>
+            <a-menu class="adapter__dropdown">
                 <ConnectToEcosystems />
                 <AdapterDropdown v-if="walletAddress" />
             </a-menu>
@@ -13,6 +13,8 @@
 </template>
 
 <script>
+import { ref } from 'vue';
+
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import AccountCenter from '@/Adapter/UI/Widgets/AccountCenter';
@@ -20,7 +22,6 @@ import AdapterDropdown from '@/Adapter/UI/Widgets/AdapterDropdown';
 import ConnectToEcosystems from '@/Adapter/UI/Widgets/ConnectToEcosystems';
 
 import NotConnected from '@/Adapter/UI/Entities/NotConnected';
-import { ref } from 'vue';
 
 export default {
     name: 'Adapter',
@@ -55,5 +56,8 @@ export default {
 
     max-width: 400px;
     width: 100%;
+}
+.adapter__dropdown {
+    background: var(--#{$prefix}secondary-background);
 }
 </style>

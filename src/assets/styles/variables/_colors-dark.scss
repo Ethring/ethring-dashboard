@@ -25,8 +25,9 @@ $pizazz: #f69502;
 $green: #04b600;
 $cyan: #02e7f6;
 $ficus: #385c39;
+$blueHalk: #e6eeff;
 
-$wildWatermelon: #ff677e;
+$wildWatermelon: #e4455d;
 $deepCerulean: #00839f;
 $japaneseLaurel: #038d00;
 $blazeOrange: #ff6b00;
@@ -56,11 +57,10 @@ $secondary-background: $ebonyClay;
 
 $banner-color: $ebonyClay;
 $banner-logo-color: $springGreen;
-$banner-bg-color: $charade;
+$banner-secondary-color: $charade;
 
 $eye-logo: $geyser;
 $eye-logo-hover: $springGreen;
-
 
 // Text
 $sub-text: $springGreen;
@@ -69,7 +69,19 @@ $base-text: $gulfStream;
 $sidebar-text: $geyser;
 $primary-text: $white;
 $secondary-text: $aquamarine;
+$symbol-text: $gulfStream;
 $mute-apr-text: $gulfStream;
+
+// Adapter text
+$adapter-text: $gulfStream;
+$adapter-ecosystem-bg: 'transparent';
+$adapter-ecosystem-border-color: $trout;
+$adapter-logo-main-color: $gallery;
+$adapter-logo-base-color: $cyan;
+$adapter-logo-secondary-color: $iceberg;
+$adapter-border-color: $trout;
+$adapter-icon-color: $lightGreen;
+$adapter-secondary-border-color: $pastelPink;
 
 // Checkbox
 $checkbox-text: $gulfStream;
@@ -79,23 +91,27 @@ $checkbox-bg-color: $ebonyClay;
 $checkbox-disabled: $mineralGreen;
 
 // Border
-$border-color: 'transparent';
+$border-color: $charade;
 $border-secondary-color: $trout;
 $border-color-op-05: rgba($border-secondary-color, 0.5);
 $social-border-color: $trout;
 
 // Button
 $btn-text-color: $ebonyClay;
-$btn-text-hover-color: $white;
-$btn-active: $springGreen;
-$btn-hover: $black;
+$btn-bg-color: $springGreen;
+
+$btn-text-hover: $white;
+$btn-bg-color-hover: $black;
 $btn-secondary-hover: $wildWatermelon;
+
 $btn-disabled: $ebonyClay;
 $btn-disabled-text: $mineralGreen;
-$btn-disabled-icon: $wildWatermelon;
+$btn-disabled-icon: $geyser;
+$swap-btn-bg-color: $ebonyClay;
 
 // Select
 $select-bg-color: $ebonyClay;
+$select-secondary-bg-color: $chineseBlack;
 $select-dropdown-bg-color: $chineseBlack;
 
 $select-item-color: $white;
@@ -106,12 +122,17 @@ $select-label-color: $geyser;
 $select-border-color: $springGreen;
 $select-active-border-color: $springGreen;
 $select-icon-color: $mineralGreen;
+$select-icon-bg-color: $charade;
 $select-placeholder-text: $trout;
+$select-active-bg-color: $chineseBlack;
 
 // Accordion
 $accordion-bg-color: $charade;
 $accordion-label-color: $geyser;
 $accordion-border-color: 'transparent';
+
+// Collapse
+$collapse-border-color: $charade;
 
 
 // Info
@@ -122,7 +143,7 @@ $danger: $wildWatermelon;
 $danger-op-01: rgba($danger, 0.1);
 $danger-color: $wildWatermelon;
 
-$warning: $blazeOrange;
+$warning: $pizazz;
 $warning-op-01: rgba($warning, 0.1);
 
 $info: $deepCerulean;
@@ -164,8 +185,13 @@ $modal-active-block-bg-color: $ebonyClay;
 $modal-block-text: $ebonyClay;
 $modal-item-text: $ebonyClay;
 
+// Search
+$search-bg-color: $ebonyClay;
+
 $block-box-shadow: 'transparent';
 $loader-border-color: $ficus;
+
+$theme-switcher-color: $gulfStream;
 
 $nav-bar-bg-color: $chineseBlack;
 
@@ -186,7 +212,7 @@ $theme-colors-dark: (
 
     "banner-color": $banner-color,
     "banner-logo-color": $banner-logo-color,
-    "banner-bg-color": $banner-bg-color,
+    "banner-secondary-color": $banner-secondary-color,
 
     "eye-logo": $eye-logo,
     "eye-logo-hover": $eye-logo-hover,
@@ -197,7 +223,18 @@ $theme-colors-dark: (
     "sidebar-text": $sidebar-text,
     "primary-text": $primary-text,
     "secondary-text": $secondary-text,
+    "symbol-text": $symbol-text,
     "mute-apr-text": $mute-apr-text,
+
+    "adapter-text": $adapter-text,
+    "adapter-ecosystem-bg": $adapter-ecosystem-bg,
+    "adapter-ecosystem-border-color": $adapter-ecosystem-border-color,
+    "adapter-logo-main-color": $adapter-logo-main-color,
+    "adapter-logo-base-color": $adapter-logo-base-color,
+    "adapter-logo-secondary-color": $adapter-logo-secondary-color,
+    "adapter-border-color": $adapter-border-color,
+    "adapter-icon-color": $adapter-icon-color,
+    "adapter-secondary-border-color": $adapter-secondary-border-color,
 
     "checkbox-text": $checkbox-text,
     "checkbox-disabled-text": $checkbox-disabled-text,
@@ -211,15 +248,17 @@ $theme-colors-dark: (
     "social-border-color": $social-border-color,
 
     "btn-text-color": $btn-text-color,
-    "btn-text-hover-color": $btn-text-hover-color,
-    "btn-hover": $btn-hover,
+    "btn-text-hover": $btn-text-hover,
+    "btn-bg-color-hover": $btn-bg-color-hover,
     "btn-secondary-hover": $btn-secondary-hover,
-    "btn-active": $btn-active,
+    "btn-bg-color": $btn-bg-color,
     "btn-disabled": $btn-disabled,
     "btn-disabled-text": $btn-disabled-text,
     "btn-disabled-icon": $btn-disabled-icon,
+    "swap-btn-bg-color": $swap-btn-bg-color,
 
     "select-bg-color": $select-bg-color,
+    "select-secondary-bg-color": $select-secondary-bg-color,
     "select-dropdown-bg-color": $select-dropdown-bg-color,
     "select-item-color": $select-item-color,
     "select-item-secondary-color": $select-item-secondary-color,
@@ -227,12 +266,16 @@ $theme-colors-dark: (
     "select-label-color": $select-label-color,
     "select-border-color": $select-border-color,
     "select-active-border-color": $select-active-border-color,
+    "select-active-bg-color": $select-active-bg-color,
     "select-icon-color": $select-icon-color,
+    "select-icon-bg-color": $select-icon-bg-color,
     "select-placeholder-text": $select-placeholder-text,
 
     "accordion-bg-color": $accordion-bg-color,
     "accordion-label-color": $accordion-label-color,
     "accordion-border-color": $accordion-border-color,
+
+    "collapse-border-color": $collapse-border-color,
 
     "icon-color": $icon-color,
     "icon-active": $icon-active,
@@ -246,6 +289,8 @@ $theme-colors-dark: (
     "icon-secondary-bg-color": $icon-secondary-bg-color,
     "icon-secondary-bg-hover": $icon-secondary-bg-hover,
     "arrow-color": $arrow-color,
+
+    "search-bg-color": $search-bg-color,
 
     "success": $success,
     "success-op-01": $success-op-01,
@@ -275,6 +320,7 @@ $theme-colors-dark: (
     "loader-border-color": $loader-border-color,
     "nav-bar-bg-color": $nav-bar-bg-color,
 
+    "theme-switcher-color": $theme-switcher-color,
     "percentage-bar-bg-color": $percentage-bar-bg-color,
     "percentage-bar-100": $percentage-bar-100,
     "percentage-bar-75": $percentage-bar-75,

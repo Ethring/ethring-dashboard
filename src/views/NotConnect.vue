@@ -4,7 +4,7 @@
             <div class="notconnect-page__title">{{ $t('connect.pageTitle') }}</div>
             <div class="notconnect-page__block" @click="connectToMetamask">
                 <div>
-                    <mmSvg />
+                    <MmIcon />
                 </div>
                 <div class="description">
                     <div class="title">{{ $t('connect.blockTitle') }}</div>
@@ -13,7 +13,7 @@
             </div>
             <div class="notconnect-page__block keplr">
                 <div>
-                    <keplrSvg />
+                    <KeplrIcon />
                 </div>
                 <div class="description">
                     <div class="title">{{ $t('connect.blockTitle') }}</div>
@@ -24,15 +24,16 @@
     </div>
 </template>
 <script>
-import mmSvg from '@/assets/icons/wallets/mm.svg';
-import keplrSvg from '@/assets/icons/wallets/keplr.svg';
 import { useStore } from 'vuex';
+
+import MmIcon from '@/assets/icons/wallets/mm.svg';
+import KeplrIcon from '@/assets/icons/wallets/keplr.svg';
 
 export default {
     name: 'NotConnect',
     components: {
-        mmSvg,
-        keplrSvg,
+        MmIcon,
+        KeplrIcon,
     },
     setup() {
         const store = useStore();

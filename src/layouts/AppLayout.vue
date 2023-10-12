@@ -12,8 +12,7 @@
     </div>
 </template>
 <script>
-import { computed, watch, onMounted, onUpdated } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed } from 'vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
@@ -41,57 +40,28 @@ export default {
         },
     },
     setup(props) {
-        const router = useRouter();
+        const { walletAccount, currentChainInfo } = useAdapter();
 
-        const { isConnecting, walletAccount, currentChainInfo } = useAdapter();
-
-        const isAccountExist = () => {
-            return walletAccount.value || currentChainInfo.value;
-        };
-
-        const spinnerLoader = computed(() => !walletAccount.value || !currentChainInfo.value);
+        const spinnerLoader = computed(() => !walletAccount.value);
 
         const layoutComponent = computed(() => {
-            const config = UIConfig(currentChainInfo.value?.net, currentChainInfo.value?.ecosystem);
+            const { net = null, ecosystem = null } = currentChainInfo.value || {};
+
+            if (!net || !ecosystem) {
+                return null;
+            }
+
+            const config = UIConfig(net, ecosystem);
 
             if (!config) {
                 return null;
             }
 
-            if (config[props.component].component) {
-                return config[props.component].component;
+            if (config[props.component]?.component) {
+                return config[props.component]?.component;
             }
 
             return null;
-        });
-
-        watch(
-            () => layoutComponent.value,
-            (newV) => {
-                if (!newV) {
-                    router.push('/main');
-                }
-            }
-        );
-
-        onMounted(() => {
-            if (isConnecting.value) {
-                return;
-            }
-
-            if (!isAccountExist()) {
-                router.push('/main');
-            }
-        });
-
-        onUpdated(() => {
-            if (isConnecting.value) {
-                return;
-            }
-
-            if (!isAccountExist()) {
-                router.push('/main');
-            }
         });
 
         return {
@@ -108,6 +78,7 @@ export default {
     .layout-page {
         @include pageFlexColumn;
         height: calc(100vh - 125px);
+        margin-top: 20px;
     }
 }
 </style>

@@ -1,18 +1,18 @@
 <template>
     <div class="not-connected" @click="$emit('toggleDropdown')" v-click-away="() => $emit('closeDropdown')">
         <div class="icon-container">
-            <plusIcon />
+            <PlusIcon />
         </div>
         <p>{{ $t('connect.emptyTitle') }}</p>
     </div>
 </template>
 
 <script>
-import plusIcon from '@/assets/icons/dashboard/plus.svg';
+import PlusIcon from '@/assets/icons/dashboard/plus.svg';
 
 export default {
     name: 'NotConnected',
-    components: { plusIcon },
+    components: { PlusIcon },
     emits: ['toggleDropdown', 'closeDropdown'],
 };
 </script>
@@ -55,7 +55,7 @@ export default {
     }
 
     &:hover {
-        border-color: var(--#{$prefix}btn-hover);
+        border-color: var(--#{$prefix}btn-bg-color-hover);
     }
 }
 </style>

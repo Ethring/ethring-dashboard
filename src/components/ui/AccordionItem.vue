@@ -28,6 +28,7 @@ export default {
 .accordion-item {
     display: flex;
     align-items: center;
+    margin: 8px 0;
 
     &__label {
         color: var(--#{$prefix}accordion-label-color);

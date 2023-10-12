@@ -6,7 +6,7 @@
             <SelectAmount
                 class="mt-10"
                 :value="selectedTokenFrom"
-                :error="!!errorBalance"
+                :error="!!isBalanceError"
                 :on-reset="resetAmount"
                 :is-token-loading="isTokensLoadingForChain"
                 :is-update="isUpdateSwapDirectionValue"
@@ -16,7 +16,7 @@
             />
 
             <div class="simple-swap__switch" :class="{ disabled: isUpdateSwapDirectionValue }" @click="swapTokensDirection">
-                <SwapSvg />
+                <SwapIcon />
             </div>
 
             <SelectAmount
@@ -34,21 +34,30 @@
             />
         </div>
 
-        <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
-        <InfoPanel v-if="txError" :title="txError" class="mt-10" />
-        <InfoPanel v-if="successHash" :hash="successHash" :title="$t('tx.txHash')" type="success" class="mt-10" />
+        <Accordion v-if="receiveValue || estimateErrorTitle" :loading="isEstimating" class="mt-10" :hide="estimateErrorTitle.length > 0">
+            <template #header>
+                <div v-if="!estimateErrorTitle" class="accordion__title">
+                    <div v-html="setReceiveValue"></div>
+                </div>
 
-        <Accordion v-if="receiveValue" :title="setReceiveValue" class="mt-10">
-            <div class="accordion__content">
-                <AccordionItem :label="$t('tokenOperations.networkFee') + ' : '">
-                    <span class="fee">{{ networkFee }}</span> <span class="fee-symbol">$</span>
-                </AccordionItem>
-                <AccordionItem :label="$t('simpleSwap.service') + ' : '">
-                    <img src="https://cryptologos.cc/logos/1inch-1inch-logo.svg?v=025" />
-                    <span class="symbol">1inch</span>
-                </AccordionItem>
-            </div>
+                <div v-else class="accordion__title">
+                    {{ $t('tokenOperations.routeInfo') }}:
+                    <span class="route-info-title">{{ estimateErrorTitle }}</span>
+                </div>
+            </template>
+            <template #content>
+                <div class="accordion__content">
+                    <AccordionItem :label="$t('tokenOperations.networkFee') + ' : '">
+                        <span class="fee">{{ networkFee }}</span> <span class="fee-symbol">$</span>
+                    </AccordionItem>
+                    <AccordionItem :label="$t('simpleSwap.service') + ' : '">
+                        <img :src="selectedService.icon" alt="service-logo" />
+                        <span class="symbol">1inch</span>
+                    </AccordionItem>
+                </div>
+            </template>
         </Accordion>
+
         <Button
             :title="$t(opTitle)"
             :disabled="!!disabledSwap"
@@ -73,7 +82,6 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 import useNotification from '@/compositions/useNotification';
 
 import Button from '@/components/ui/Button';
-import InfoPanel from '@/components/ui/InfoPanel';
 import SelectNetwork from '@/components/ui/SelectNetwork';
 
 import SelectAmount from '@/components/ui/SelectAmount';
@@ -81,7 +89,7 @@ import SelectAmount from '@/components/ui/SelectAmount';
 import Accordion from '@/components/ui/Accordion.vue';
 import AccordionItem from '@/components/ui/AccordionItem.vue';
 
-import SwapSvg from '@/assets/icons/dashboard/swap.svg';
+import SwapIcon from '@/assets/icons/dashboard/swap.svg';
 
 import { prettyNumberTooltip } from '@/helpers/prettyNumber';
 
@@ -90,16 +98,16 @@ import { toMantissa } from '@/helpers/numbers';
 import { checkErrors } from '@/helpers/checkErrors';
 
 import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+import { isCorrectChain } from '@/shared/utils/operations';
 
 export default {
     name: 'SimpleSwap',
 
     components: {
-        InfoPanel,
         SelectNetwork,
         SelectAmount,
         Button,
-        SwapSvg,
+        SwapIcon,
         Accordion,
         AccordionItem,
     },
@@ -130,7 +138,8 @@ export default {
         // * Errors
         const txError = ref('');
         const txErrorTitle = ref('Transaction error');
-        const errorBalance = ref('');
+        const estimateErrorTitle = ref('');
+        const isBalanceError = ref(false);
 
         // * Success
         const successHash = ref('');
@@ -242,7 +251,7 @@ export default {
         const disabledSwap = computed(() => {
             return (
                 isLoading.value ||
-                errorBalance.value ||
+                isBalanceError.value ||
                 txError.value ||
                 !+amount.value ||
                 !receiveValue.value ||
@@ -302,19 +311,20 @@ export default {
             return await onSetAmount(amount.value);
         };
 
+        const checkBalanceAllowed = () => {
+            const isBalanceAllowed = +amount.value > +selectedTokenFrom.value?.balance;
+
+            isBalanceError.value = isBalanceAllowed;
+        };
+
         const onSetAmount = async (value) => {
             amount.value = value;
 
-            errorBalance.value = '';
             txError.value = '';
             receiveValue.value = '';
 
-            if (isNaN(+value)) {
-                return (errorBalance.value = 'Incorrect amount');
-            }
-
             if (!+value) {
-                return;
+                return checkBalanceAllowed();
             }
 
             if (!allowance.value) {
@@ -327,9 +337,7 @@ export default {
 
             await makeEstimateSwapRequest();
 
-            if (+value > selectedTokenFrom.value.balance) {
-                return (errorBalance.value = 'Insufficient balance');
-            }
+            return checkBalanceAllowed();
         };
 
         const swapTokensDirection = async () => {
@@ -358,37 +366,6 @@ export default {
             setTimeout(() => {
                 isUpdateSwapDirectionValue.value = false;
             }, 1000);
-        };
-
-        // =================================================================================================================
-
-        const isCorrectChain = async () => {
-            if (currentChainInfo.value.net === selectedNetwork.value.net) {
-                opTitle.value = 'tokenOperations.swap';
-                return true;
-            }
-
-            opTitle.value = 'tokenOperations.switchNetwork';
-
-            showNotification({
-                key: 'switch-network',
-                type: 'info',
-                title: `Switch network to ${selectedNetwork.value.name}`,
-                icon: h(LoadingOutlined, {
-                    spin: true,
-                }),
-                duration: 0,
-            });
-
-            try {
-                await setChain(selectedNetwork.value);
-                closeNotification('switch-network');
-                return true;
-            } catch (error) {
-                closeNotification('switch-network');
-                txError.value = error?.message || error?.error || error;
-                return false;
-            }
         };
 
         // =================================================================================================================
@@ -477,17 +454,18 @@ export default {
 
             if (response.error) {
                 isEstimating.value = false;
-                txErrorTitle.value = 'Estimate error';
-                txError.value = response.error;
+                estimateErrorTitle.value = response.error;
 
                 return (receiveValue.value = '');
             }
 
             isEstimating.value = false;
 
-            txError.value = '';
+            isLoading.value = false;
 
             receiveValue.value = response.toTokenAmount;
+
+            estimateErrorTitle.value = '';
 
             // TODO: add fee
             networkFee.value = prettyNumberTooltip(+response.fee.amount * selectedNetwork.value.price, 4);
@@ -518,6 +496,7 @@ export default {
             opTitle.value = 'tokenOperations.approve';
 
             if (response.error) {
+                approveTx.value = response.error;
                 isLoading.value = false;
                 return;
             }
@@ -548,6 +527,8 @@ export default {
                 if (responseSendTx.error) {
                     txError.value = responseSendTx.error;
                     txErrorTitle.value = 'Send approve transaction error';
+
+                    isNeedApprove.value = false;
 
                     closeNotification('approve-tx');
 
@@ -612,14 +593,12 @@ export default {
             isLoading.value = true;
             txError.value = '';
 
-            const isCurrChain = await isCorrectChain();
+            const { isChanged, btnTitle } = await isCorrectChain(selectedNetwork, currentChainInfo, setChain);
 
-            if (!isCurrChain) {
-                isLoading.value = false;
+            opTitle.value = btnTitle;
 
-                closeNotification('switch-network');
-
-                return (opTitle.value = 'tokenOperations.switchNetwork');
+            if (!isChanged) {
+                return (isLoading.value = false);
             }
 
             opTitle.value = 'tokenOperations.swap';
@@ -660,6 +639,8 @@ export default {
                         store.dispatch('networks/setSelectedNetwork', wallet);
                     },
                 });
+
+                isLoading.value = false;
 
                 balanceUpdated.value = true;
             } catch (error) {
@@ -759,7 +740,8 @@ export default {
 
             chainList,
 
-            errorBalance,
+            isBalanceError,
+            estimateErrorTitle,
             selectedNetwork,
 
             resetAmount,
@@ -775,6 +757,7 @@ export default {
             successHash,
             networkFee,
             setReceiveValue,
+            selectedService,
 
             onSelectNetwork,
             onSetTokenFrom,
@@ -861,8 +844,29 @@ export default {
     }
 
     .accordion__title {
+        display: flex;
+        align-items: center;
+
+        font-weight: 400;
+        color: var(--zmt-accordion-label-color);
+        font-size: var(--zmt-default-fs);
+
         .symbol {
             font-weight: 600;
+        }
+
+        .route-info-title {
+            color: var(--#{$prefix}warning);
+            font-weight: 500;
+            line-height: 20px;
+            opacity: 0.8;
+
+            display: inline;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+            width: 500px;
+            margin-left: 4px;
         }
     }
 }

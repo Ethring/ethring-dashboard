@@ -5,11 +5,11 @@
                 <img
                     v-if="logoURI && !showImagePlaceholder"
                     :src="logoURI"
-                    class="token__logo"
+                    class="token__logo-img"
                     @error="showImagePlaceholder = true"
                     @load="showImagePlaceholder = false"
                 />
-                <TokenLogo v-if="!logoURI || showImagePlaceholder" class="token__logo" />
+                <TokenLogo v-else class="token__logo" />
             </div>
             <div class="asset__item-header-name">
                 {{ title }}
@@ -137,8 +137,6 @@ export default {
     &-logo {
         width: 40px;
         height: 40px;
-        border: 1px solid var(--#{$prefix}primary-text);
-        border-radius: 50%;
 
         display: flex;
         align-items: center;
@@ -153,6 +151,14 @@ export default {
         display: flex;
         align-items: baseline;
         margin-left: 8px;
+
+        .asset__item-header-value {
+            &::before {
+                content: '\2022';
+                margin-right: 8px;
+                color: var(--#{$prefix}checkbox-text);
+            }
+        }
     }
 
     &-value {
@@ -163,8 +169,8 @@ export default {
     }
 
     &-symbol {
-        font-size: var(--#{$prefix}small-sm-fs);
-        line-height: 13px;
+        font-size: var(--#{$prefix}h6-fs);
+        line-height: 16px;
         color: var(--#{$prefix}mute-text);
         font-weight: 400;
 
@@ -175,7 +181,7 @@ export default {
 
     &-balance {
         display: flex;
-        align-items: flex-end;
+        align-items: baseline;
         margin-bottom: 4px;
         align-self: flex-end;
 
@@ -245,7 +251,13 @@ export default {
 }
 
 .token__logo {
-    width: 18px;
-    height: 18px;
+    width: 28px;
+    height: 28px;
+
+    &-img {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+    }
 }
 </style>

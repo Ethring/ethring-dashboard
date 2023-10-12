@@ -1,11 +1,11 @@
 <template>
-    <div :class="{ active: active && items?.length, focused, error }" class="select-address" @click="active = !active">
+    <div :class="{ active: active && items?.length, focused, error: isError }" class="select-address" @click="active = !active">
         <div class="select-address__panel">
             <div class="recipient">{{ $t('tokenOperations.recipient') }}</div>
             <div class="info-wrap">
                 <div class="info">
                     <div class="network">
-                        <img class="network-logo" alt="network-logo" :src="selectedNetwork.logo" />
+                        <img class="network-logo" alt="network-logo" :src="selectedNetwork?.logo" />
                     </div>
                     <input
                         v-model="address"
@@ -16,21 +16,16 @@
                         data-qa="input-address"
                         class="input-address"
                     />
+                    <div v-if="address?.length" class="select-address__clear" @click="clearValue">
+                        <ClearIcon />
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div v-if="active && items.length" class="select-address__items" v-click-away="clickAway">
-            <div v-for="(item, ndx) in items" :key="ndx" class="select-address__items-item" @click="selectAddress(item)">
-                <div class="info">
-                    <div class="name">{{ item }}</div>
-                </div>
-                <CloseSvg class="remove" @click.stop="removeAddress(item)" />
             </div>
         </div>
     </div>
 </template>
 <script>
-import CloseSvg from '@/assets/icons/app/close.svg';
+import ClearIcon from '@/assets/icons/app/xmark.svg';
 
 import { ref, watch, onMounted } from 'vue';
 
@@ -59,12 +54,14 @@ export default {
         },
     },
     components: {
-        CloseSvg,
+        ClearIcon,
     },
     setup(props, { emit }) {
         const active = ref(false);
         const focused = ref(false);
         const address = ref(props.value);
+        const isError = ref(props.error);
+
         const placeholder = ref('Address');
 
         watch(
@@ -75,6 +72,13 @@ export default {
                     active.value = false;
                     emit('setAddress', address.value);
                 }
+            }
+        );
+
+        watch(
+            () => props.error,
+            () => {
+                isError.value = props.error;
             }
         );
 
@@ -110,22 +114,27 @@ export default {
             active.value = false;
         };
 
-        const removeAddress = (address) => {
-            emit('removeAddress', { net: props.selectedNetwork.net, address });
-            active.value = false;
+        const clearValue = () => {
+            address.value = '';
+            isError.value = false;
+
+            emit('setAddress', address.value);
         };
 
         return {
             active,
             focused,
+            isError,
+
             address,
             placeholder,
-            removeAddress,
+
             clickAway,
             selectAddress,
             onInput,
             onBlur,
             onFocus,
+            clearValue,
         };
     },
 };
@@ -146,8 +155,7 @@ export default {
         flex-direction: column;
         background: var(--#{$prefix}select-bg-color);
         border-radius: 16px;
-        height: 130px;
-        padding: 17px 32px;
+        padding: 16px 24px;
         box-sizing: border-box;
         border: 2px solid transparent;
         transition: 0.2s;
@@ -177,7 +185,7 @@ export default {
 
         .info {
             width: 95%;
-            margin: 15px 0;
+            margin-top: 8px;
             display: flex;
             align-items: center;
         }
@@ -187,8 +195,8 @@ export default {
             border: none;
             outline: none;
             background: transparent;
-            font-size: var(--#{$prefix}h2-fs);
-            font-weight: 600;
+            font-size: var(--#{$prefix}h6-fs);
+            font-weight: 500;
             color: var(--#{$prefix}primary-text);
         }
 
@@ -196,15 +204,18 @@ export default {
             display: flex;
             justify-content: center;
             align-items: center;
+
             width: 40px;
             min-width: 40px;
             height: 40px;
+
             border-radius: 50%;
-            background: var(--#{$prefix}primary);
             margin-right: 10px;
 
             &-logo {
-                width: 28px;
+                width: 80%;
+                height: 80%;
+                border-radius: 50%;
             }
         }
 
@@ -214,6 +225,12 @@ export default {
             color: var(--#{$prefix}select-placeholder-text);
             user-select: none;
         }
+    }
+
+    &__clear {
+        position: absolute;
+        right: 32px;
+        cursor: pointer;
     }
 
     &.focused {
@@ -279,7 +296,7 @@ export default {
 
         .remove {
             opacity: 0.2;
-            fill: var(--#{$prefix}select-active-border-color);
+            fill: red;
         }
 
         &.active {
@@ -324,24 +341,6 @@ export default {
                 font-weight: 400;
             }
         }
-    }
-}
-
-.network {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
-    border-radius: 50%;
-    background: var(--#{$prefix}primary);
-    margin-right: 10px;
-
-    & > img.network-logo {
-        width: 80% !important;
-        height: 80% !important;
-        border-radius: 50%;
     }
 }
 </style>

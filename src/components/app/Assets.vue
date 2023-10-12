@@ -54,7 +54,7 @@
     </div>
 </template>
 <script>
-import { computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useStore } from 'vuex';
 
 import BigNumber from 'bignumber.js';
@@ -70,6 +70,8 @@ import AssetItemSubHeader from './AssetItemSubHeader';
 import { getTokenIcon, sortByKey } from '@/helpers/utils';
 import { prettyNumber } from '@/helpers/prettyNumber';
 
+import { getIntegrationsGroupedByPlatform, getFormattedName, getFormattedDate } from '@/shared/utils/assets';
+
 export default {
     name: 'Tokens',
     components: {
@@ -83,16 +85,11 @@ export default {
 
         const { walletAccount, currentChainInfo } = useAdapter();
 
-        const BALANCES_TYPES = {
-            ALL: 'ALL',
-            PENDING: 'PENDING_REWARD',
-        };
-
         const isLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](currentChainInfo.value?.net));
         const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
 
         const allTokens = computed(() => store.getters['tokens/tokens'][walletAccount.value] || []);
-        const totalBalance = computed(() => store.getters['tokens/totalBalances'][walletAccount.value] || 0);
+        const allTokensBalance = computed(() => store.getters['tokens/totalBalances'][walletAccount.value] || 0);
         const allIntegrations = computed(() => store.getters['tokens/integrations'][walletAccount.value] || []);
 
         const isEmpty = computed(() => {
@@ -107,84 +104,29 @@ export default {
             return allTokens.value.reduce((sum, token) => sum + +token.balanceUsd, 0);
         });
 
-        const integrationAssetsByPlatform = computed(() => {
-            const groupByPlatforms = [];
-
-            if (!allIntegrations.value.length) {
-                return groupByPlatforms;
-            }
-
-            const getTotalBalanceByType = (balances, type = BALANCES_TYPES.ALL) => {
-                if (!balances.length) {
-                    return 0;
-                }
-
-                if (type === BALANCES_TYPES.ALL) {
-                    return balances.reduce((sum, token) => sum + +token.balanceUsd, 0);
-                }
-
-                return balances.filter(({ balanceType }) => balanceType === type).reduce((sum, token) => sum + +token.balanceUsd, 0);
-            };
-
-            const getDataForIntegrations = (integration, balances) => {
-                return {
-                    platform: integration.platform,
-                    data: [integration],
-                    logoURI: integration.logo,
-                    healthRate: integration?.healthRate,
-                    totalGroupBalance: getTotalBalanceByType(balances, BALANCES_TYPES.ALL),
-                    totalRewardsBalance: getTotalBalanceByType(balances, BALANCES_TYPES.PENDING),
-                };
-            };
-
-            for (const integration of allIntegrations.value) {
-                const { balances = [] } = integration || {};
-
-                const existingGroup = groupByPlatforms.find(({ platform }) => platform === integration.platform);
-
-                if (existingGroup) {
-                    existingGroup.totalGroupBalance += getTotalBalanceByType(balances, BALANCES_TYPES.ALL);
-                    existingGroup.totalRewardsBalance += getTotalBalanceByType(balances, BALANCES_TYPES.PENDING);
-                    existingGroup.data.push(integration);
-
-                    if (integration.healthRate) {
-                        existingGroup.healthRate = integration.healthRate;
-                    }
-                    continue;
-                }
-
-                groupByPlatforms.push(getDataForIntegrations(integration, balances));
-            }
-
-            return groupByPlatforms;
-        });
+        const integrationAssetsByPlatform = ref(getIntegrationsGroupedByPlatform(allIntegrations.value));
 
         const getAssetsShare = (balance) => {
-            if (!balance || !totalBalance.value) {
+            if (!balance || !allTokensBalance.value) {
                 return 0;
             }
 
-            const share = BigNumber(balance).dividedBy(totalBalance.value).multipliedBy(100);
+            const share = BigNumber(balance).dividedBy(allTokensBalance.value).multipliedBy(100);
 
             return share.toFixed(2);
         };
 
-        const getFormattedName = (str) => {
-            if (!str) {
-                return str;
+        watch(isAllTokensLoading, () => {
+            if (!isAllTokensLoading.value) {
+                integrationAssetsByPlatform.value = getIntegrationsGroupedByPlatform(allIntegrations.value);
             }
+        });
 
-            return str.charAt(0).toUpperCase() + str.replaceAll('_', ' ').toLowerCase().slice(1);
-        };
-
-        const getFormattedDate = (timestamp) => {
-            const date = new Date(+timestamp * 1000);
-            const year = date.getFullYear();
-            const month = date.getMonth() + 1;
-            const day = date.getDate();
-
-            return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
-        };
+        watch(isLoadingForChain, () => {
+            if (!isLoadingForChain.value) {
+                integrationAssetsByPlatform.value = getIntegrationsGroupedByPlatform(allIntegrations.value);
+            }
+        });
 
         return {
             sortByKey,
@@ -199,9 +141,11 @@ export default {
             allTokens,
             allIntegrations,
 
+            allTokensBalance,
             tokensTotalBalance,
             integrationAssetsByPlatform,
 
+            // utils for Assets templates
             getAssetsShare,
             getFormattedName,
             getFormattedDate,
@@ -222,7 +166,7 @@ export default {
         background-color: var(--#{$prefix}secondary-background);
         border-radius: 16px;
         padding: 16px;
-        margin-bottom: 7px;
+        margin-bottom: 32px;
         box-sizing: border-box;
         @include animateEasy;
 
@@ -242,11 +186,13 @@ export default {
     display: flex;
     color: var(--#{$prefix}small-lg-fs);
     font-weight: 500;
+    font-size: var(--#{$prefix}small-lg-fs);
 
     div {
         &::before {
             content: '\2022';
             margin: 0 4px;
+            color: var(--#{$prefix}checkbox-text);
         }
     }
 
@@ -254,7 +200,7 @@ export default {
     .asset-item__apr {
         color: var(--#{$prefix}sub-text);
         font-size: var(--#{$prefix}small-lg-fs);
-        font-weight: 500;
+        font-weight: 300;
     }
 
     .asset-item__apr {

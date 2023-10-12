@@ -1,11 +1,19 @@
 <template>
     <div class="sidebar-list">
-        <router-link v-for="(item, ndx) in menu" :key="ndx" :to="item.to" class="sidebar-list__item" :data-qa="item.key">
+        <router-link
+            v-for="(item, ndx) in menu"
+            :key="ndx"
+            :to="item.disabled ? '' : item.to"
+            class="sidebar-list__item"
+            :data-qa="item.key"
+            :class="{ disabled: item.disabled }"
+        >
             <div class="sidebar-list__item-icon">
                 <component v-if="item.component" :is="item.component" />
             </div>
             <div class="sidebar-list__item-title" :data-qa="`sidebar-item-${item.key}`">
                 {{ $t(`sidebar.${item.key}`) }}
+                <div v-if="item.status" class="sidebar-list__item-status">{{ item.status }}</div>
             </div>
         </router-link>
     </div>
@@ -17,20 +25,24 @@ import { computed } from 'vue';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 import UIConfig from '@/config/ui';
 
-import mainSvg from '@/assets/icons/sidebar/main.svg';
-import swapSvg from '@/assets/icons/sidebar/swap.svg';
-import stakeSvg from '@/assets/icons/sidebar/stake.svg';
-import sendSvg from '@/assets/icons/sidebar/send.svg';
-import bridgeSvg from '@/assets/icons/sidebar/bridge.svg';
+import overviewIcon from '@/assets/icons/sidebar/main.svg';
+import swapIcon from '@/assets/icons/sidebar/swap.svg';
+import stakeIcon from '@/assets/icons/sidebar/stake.svg';
+import sendIcon from '@/assets/icons/sidebar/send.svg';
+import bridgeIcon from '@/assets/icons/sidebar/bridge.svg';
+import superSwapIcon from '@/assets/icons/sidebar/superSwap.svg';
+import buyCryptoIcon from '@/assets/icons/sidebar/buy.svg';
 
 export default {
     name: 'SidebarList',
     components: {
-        mainSvg,
-        swapSvg,
-        stakeSvg,
-        sendSvg,
-        bridgeSvg,
+        overviewIcon,
+        swapIcon,
+        stakeIcon,
+        sendIcon,
+        bridgeIcon,
+        superSwapIcon,
+        buyCryptoIcon,
     },
     setup() {
         const { currentChainInfo } = useAdapter();
@@ -67,14 +79,14 @@ export default {
     &__item {
         display: flex;
         align-items: center;
-        margin-bottom: 15px;
+        margin-bottom: 30px;
         text-decoration: none;
         color: var(--#{$prefix}sidebar-text);
         cursor: pointer;
 
         @include animateEasy;
 
-        &:hover {
+        &:hover:not(.disabled) {
             color: $colorPl;
 
             svg {
@@ -82,7 +94,7 @@ export default {
             }
         }
 
-        &.router-link-exact-active {
+        &.router-link-exact-active:not(.disabled) {
             color: var(--#{$prefix}white);
 
             svg {
@@ -95,6 +107,19 @@ export default {
             transform: scale(0.8);
             @include animateEasy;
         }
+
+        &.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+
+            .sidebar-list__item-status {
+                color: var(--#{$prefix}checkbox-text);
+            }
+
+            .sidebar-list__item-icon svg {
+                opacity: 0.5;
+            }
+        }
     }
 
     &__item-icon {
@@ -106,6 +131,16 @@ export default {
     &__item-title {
         margin-left: 10px;
         font-weight: 300;
+        font-size: 20px;
+        display: flex;
+        align-items: flex-start;
+    }
+
+    &__item-status {
+        color: var(--#{$prefix}sidebar-active-color);
+        font-size: 12px;
+        font-weight: 600;
+        margin-left: 6px;
     }
 }
 </style>

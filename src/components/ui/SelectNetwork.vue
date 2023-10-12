@@ -2,10 +2,10 @@
     <div :class="{ active }" class="select" v-click-away="() => togglePanel(true)">
         <div class="select__panel" @click="() => togglePanel(false)" data-qa="select-network">
             <div class="info">
-                <div class="network">
+                <div class="network" :class="{ 'default-network-logo': !name }">
                     <img v-if="current?.logo" :src="current?.logo" alt="network-logo" class="network-logo" />
                 </div>
-                <div v-if="visibleName" class="name">{{ visibleName }}</div>
+                <div v-if="name" class="name">{{ name }}</div>
                 <div v-else>
                     <div class="label">{{ label }}</div>
                     <div class="placeholder">{{ placeholder }}</div>
@@ -65,13 +65,8 @@ export default {
     setup(props, { emit }) {
         const active = ref(false);
 
-        const visibleName = computed(() => {
-            const name = props.current?.name || props.current?.label || props.current?.net || '';
-
-            if (name.length > 10) {
-                return `${name.slice(0, 14)}...`;
-            }
-
+        const name = computed(() => {
+            const name = props.current?.name;
             return name;
         });
 
@@ -94,7 +89,7 @@ export default {
 
         return {
             active,
-            visibleName,
+            name,
             clickAway,
             togglePanel,
             onSelectNetwork,
@@ -117,7 +112,7 @@ export default {
         background: var(--#{$prefix}select-bg-color);
         border-radius: 16px;
         height: 80px;
-        padding: 17px 32px;
+        padding: 16px 24px;
         box-sizing: border-box;
         border: 2px solid transparent;
         cursor: pointer;
@@ -127,18 +122,19 @@ export default {
         .info {
             display: flex;
             align-items: center;
+            overflow: hidden;
         }
 
         .network {
             display: flex;
             justify-content: center;
             align-items: center;
+
             width: 40px;
             height: 40px;
             min-width: 40px;
-            border-radius: 50%;
 
-            background: var(--#{$prefix}primary);
+            border-radius: 50%;
             margin-right: 10px;
 
             svg {
@@ -156,11 +152,22 @@ export default {
             }
         }
 
+        .default-network-logo {
+            background: var(--#{$prefix}primary);
+        }
+
         .name {
             font-size: var(--#{$prefix}h2-fs);
             font-weight: 600;
             color: var(--#{$prefix}select-item-color);
+            line-height: 40px;
+
             user-select: none;
+            display: inline-block;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+            max-width: 100%;
         }
 
         .label {
@@ -183,6 +190,8 @@ export default {
             fill: var(--#{$prefix}select-icon-color);
             transform: rotate(0);
             @include animateEasy;
+            display: inline;
+            margin-left: 10px;
         }
     }
 

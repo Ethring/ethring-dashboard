@@ -23,7 +23,7 @@ export default {
 
     span,
     div {
-        color: #000;
+        color: var(--#{$prefix}black);
     }
 
     i {

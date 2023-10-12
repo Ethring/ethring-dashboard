@@ -1,7 +1,7 @@
 <template>
     <div class="select-token__title">{{ $t('tokenOperations.selectToken') }}</div>
     <div class="select-token__wrap">
-        <arrowSvg class="arrow" @click="router.push(router.options.history.state.back)" />
+        <ArrowIcon class="arrow" @click="router.push(router.options.history.state.back)" />
         <SearchInput @onChange="handleOnFilterTokens" />
 
         <template v-if="tokensLoading || tokensList.length">
@@ -39,25 +39,25 @@
             </div>
         </template>
 
-        <div v-if="!tokensLoading && tokens.length === 0" class="select-token__not-found">
-            <notFoundSvg />
+        <div v-else class="select-token__not-found">
+            <NotFoundIcon />
             <p>{{ $t('dashboard.notFound') }}</p>
         </div>
     </div>
 </template>
 <script>
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import _ from 'lodash';
 
 import SearchInput from '@/components/ui/SearchInput';
 import TokenIcon from '@/components/ui/TokenIcon';
 import Button from '@/components/ui/Button';
 
-import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
-import notFoundSvg from '@/assets/icons/app/notFound.svg';
+import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
+import NotFoundIcon from '@/assets/icons/app/notFound.svg';
 
 import { prettyNumber } from '@/helpers/prettyNumber';
-import { ref, computed } from 'vue';
-import _ from 'lodash';
 import { searchByKey } from '@/helpers/utils';
 
 export default {
@@ -66,8 +66,8 @@ export default {
         SearchInput,
         TokenIcon,
         Button,
-        arrowSvg,
-        notFoundSvg,
+        ArrowIcon,
+        NotFoundIcon,
     },
     props: {
         tokens: {
@@ -104,7 +104,7 @@ export default {
 
         const searchInTokens = (tokens, value) => {
             return _.filter(tokens, (elem) => {
-                return searchByKey(elem, value, 'name') || searchByKey(elem, value, 'code') || searchByKey(elem, value, 'address');
+                return searchByKey(elem, value, 'name') || searchByKey(elem, value, 'symbol') || searchByKey(elem, value, 'address');
             });
         };
 
@@ -180,6 +180,7 @@ export default {
     &__not-found {
         text-align: center;
         margin-top: 15%;
+
         p {
             font-style: normal;
             font-weight: 500;
@@ -260,10 +261,11 @@ export default {
         .logo {
             width: 40px;
             height: 40px;
+
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--#{$prefix}primary);
+
             border-radius: 50%;
             margin-right: 12px;
         }

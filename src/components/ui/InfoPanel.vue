@@ -1,15 +1,15 @@
 <template>
     <div :class="[type]" class="info-panel">
-        <component :is="`${type}Svg`" />
+        <component :is="`${type}Icon`" />
         <div v-if="title && !hash" class="info-panel__title">{{ title }}</div>
         <a v-if="hash" :href="hash" target="_blank" class="info-panel__link">{{ title }}</a>
     </div>
 </template>
 <script>
-import errorSvg from '@/assets/icons/dashboard/cancel.svg';
-import successSvg from '@/assets/icons/dashboard/success.svg';
-import warningSvg from '@/assets/icons/dashboard/warning.svg';
-import infoSvg from '@/assets/icons/dashboard/info.svg';
+import errorIcon from '@/assets/icons/dashboard/cancel.svg';
+import successIcon from '@/assets/icons/dashboard/success.svg';
+import warningIcon from '@/assets/icons/dashboard/warning.svg';
+import infoIcon from '@/assets/icons/dashboard/info.svg';
 
 export default {
     name: 'InfoPanel',
@@ -26,10 +26,10 @@ export default {
         },
     },
     components: {
-        errorSvg,
-        successSvg,
-        warningSvg,
-        infoSvg,
+        errorIcon,
+        successIcon,
+        warningIcon,
+        infoIcon,
     },
 };
 </script>

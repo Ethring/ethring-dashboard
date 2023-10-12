@@ -8,9 +8,11 @@ import EcosystemAdapter from '@/Adapter/ecosystems';
 
 const LAST_CONNECTED_WALLET_KEY = 'adapter:lastConnectedWallet';
 const CONNECTED_WALLETS_KEY = 'adapter:connectedWallets';
+const IS_CONNECTED_KEY = 'adapter:isConnected';
 
 const connectedWalletsStorage = useLocalStorage(CONNECTED_WALLETS_KEY, [], { mergeDefaults: true });
 const lastConnectedWalletStorage = useLocalStorage(LAST_CONNECTED_WALLET_KEY, {}, { mergeDefaults: true });
+const isConnectedStorage = useLocalStorage(IS_CONNECTED_KEY, false, { mergeDefaults: true });
 
 function findKeyDifferences(oldRecord, newRecord) {
     return Object.keys(oldRecord)
@@ -44,6 +46,7 @@ export default {
 
         wallets: connectedWalletsStorage.value,
         lastConnectedWallet: lastConnectedWalletStorage.value,
+        isConnected: isConnectedStorage.value,
     },
     getters: {
         [GETTERS.IS_OPEN]:
@@ -63,6 +66,8 @@ export default {
 
         [GETTERS.CONNECTED_WALLETS]: (state) => state.wallets,
         [GETTERS.LAST_CONNECTED_WALLET]: (state) => state.lastConnectedWallet,
+
+        [GETTERS.IS_CONNECTED]: (state) => state.isConnected,
     },
     actions: {
         // * Actions for Modals
@@ -91,6 +96,9 @@ export default {
         },
         [TYPES.DISCONNECT_ALL_WALLETS]({ commit }) {
             commit(TYPES.DISCONNECT_ALL_WALLETS);
+        },
+        [TYPES.SET_IS_CONNECTED]({ commit }, isConnected) {
+            commit(TYPES.SET_IS_CONNECTED, isConnected);
         },
     },
     mutations: {
@@ -141,6 +149,8 @@ export default {
                 state.ecosystem = null;
             }
 
+            isConnectedStorage.value = false;
+
             return (connectedWalletsStorage.value = state.wallets);
         },
         [TYPES.DISCONNECT_ALL_WALLETS](state) {
@@ -149,6 +159,10 @@ export default {
 
             connectedWalletsStorage.value = [];
             lastConnectedWalletStorage.value = {};
+            isConnectedStorage.value = false;
+        },
+        [TYPES.SET_IS_CONNECTED](state, value) {
+            state.isConnected = value;
         },
     },
 };

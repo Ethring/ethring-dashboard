@@ -1,18 +1,18 @@
 <template>
     <div class="wallet-info">
         <div class="wallet-info__network">
-            <WalletSvg />
+            <WalletIcon />
         </div>
 
         <div class="wallet-info__wallet">
             <div class="address">
-                {{ walletAccount }}
+                {{ cutAddress(walletAccount) }}
             </div>
 
             <div class="balance">
                 <div class="value">
                     <span>$</span>
-                    {{ showBalance && totalBalance ? prettyNumber(totalBalance) : '****' }}
+                    {{ showBalance ? prettyNumber(totalBalance) : '****' }}
                 </div>
             </div>
         </div>
@@ -27,12 +27,12 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 import { cutAddress } from '@/helpers/utils';
 import { prettyNumber } from '@/helpers/prettyNumber';
 
-import WalletSvg from '@/assets/icons/dashboard/wallet.svg';
+import WalletIcon from '@/assets/icons/dashboard/wallet.svg';
 
 export default {
     name: 'WalletInfo',
     components: {
-        WalletSvg,
+        WalletIcon,
     },
     setup() {
         const store = useStore();
@@ -95,7 +95,7 @@ export default {
         .address {
             color: var(--#{$prefix}mute-text);
 
-            font-weight: 300;
+            font-weight: 400;
             font-size: var(--#{$prefix}default-fs);
 
             svg {
@@ -120,7 +120,7 @@ export default {
 
             span {
                 font-weight: 400;
-                color: var(--#{$prefix}base-text);
+                color: var(--#{$prefix}symbol-text);
             }
 
             svg {
@@ -132,36 +132,6 @@ export default {
                 }
             }
         }
-
-        // .change {
-        //     display: flex;
-        //     align-items: center;
-        //     color: var(--#{$prefix}sub-text);
-
-        //     svg {
-        //         fill: var(--#{$prefix}sub-text);
-        //     }
-
-        //     .percent {
-        //         user-select: none;
-        //         margin-left: 5px;
-        //         font-weight: 400;
-        //         font-size: var(--#{$prefix}small-lg-fs);
-        //     }
-
-        //     &.minus {
-        //         color: var(--#{$prefix}negative-percentage);
-
-        //         .percent {
-        //             color: var(--#{$prefix}negative-percentage);
-        //         }
-
-        //         svg {
-        //             fill: var(--#{$prefix}negative-percentage) !important;
-        //             transform: rotate(90deg);
-        //         }
-        //     }
-        // }
     }
 }
 </style>

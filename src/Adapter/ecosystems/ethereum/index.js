@@ -6,18 +6,19 @@ import * as ethers from 'ethers';
 
 import { init, useOnboard } from '@web3-onboard/vue';
 
-import { web3OnBoardConfig, ECOSYSTEMS, NATIVE_CONTRACT, TRANSFER_ABI, EVM_CHAINS } from '@/Adapter/config';
+import { web3OnBoardConfig, ECOSYSTEMS, chainConfig, NATIVE_CONTRACT, TRANSFER_ABI, EVM_CHAINS } from '@/Adapter/config';
 
 import { validateEthAddress } from '@/Adapter/utils/validations';
 
 import { checkErrors } from '@/helpers/checkErrors';
-import BigNumber from 'bignumber.js';
 
 let web3Onboard = null;
 
 // const STORAGE = {
 //     WALLET: 'onboard.js:last_connected_wallet',
 // };
+
+const [DEFAULT_CHAIN] = chainConfig;
 
 class EthereumAdapter extends AdapterBase {
     constructor() {
@@ -40,6 +41,7 @@ class EthereumAdapter extends AdapterBase {
                 disableModals: true,
             },
         };
+
         try {
             await connectWallet(walletName ? connectionOption : null);
 
@@ -144,7 +146,18 @@ class EthereumAdapter extends AdapterBase {
             return store.getters['networks/networkByChainId'](chainId);
         };
 
-        const chainInfo = chainFromStore(+connectedChain.value?.id);
+        const { id = null } = connectedChain.value || {};
+
+        if (!id && isNaN(+id)) {
+            return null;
+        }
+
+        const chainInfo = chainFromStore(+id);
+
+        if (JSON.stringify(chainInfo) === '{}') {
+            return null;
+        }
+
         chainInfo.walletName = chainInfo.walletModule = label;
         chainInfo.ecosystem = ECOSYSTEMS.EVM;
 
@@ -168,12 +181,11 @@ class EthereumAdapter extends AdapterBase {
 
     async setChain(chainInfo) {
         const { chain_id, chain } = chainInfo;
-        const { setChain } = useOnboard();
 
         const id = chain_id || chain;
 
         try {
-            return await setChain({
+            return await web3Onboard.setChain({
                 chainId: id,
             });
         } catch (error) {
@@ -235,21 +247,30 @@ class EthereumAdapter extends AdapterBase {
 
         try {
             if (ethersProvider) {
-                const contractAddress = token?.address || NATIVE_CONTRACT;
+                const value = !token?.address ? ethers.utils.parseEther(amount) : ethers.utils.parseUnits('0');
+
+                const nonce = await ethersProvider.getTransactionCount(fromAddress);
+
+                const contractAddress = token?.address;
+
+                const response = {
+                    from: fromAddress,
+                    to: toAddress,
+                    value,
+                    nonce,
+                };
+
+                if (!contractAddress) {
+                    return response;
+                }
 
                 const tokenContract = new ethers.Contract(contractAddress, TRANSFER_ABI, ethersProvider);
 
                 const res = await tokenContract.populateTransaction.transfer(toAddress, ethers.utils.parseUnits(amount, token.decimals));
 
-                const value = !token?.address ? ethers.utils.parseEther(amount) : ethers.utils.parseUnits('0');
-
-                const nonce = await ethersProvider.getTransactionCount(fromAddress);
-
                 return {
+                    ...response,
                     ...res,
-                    from: fromAddress,
-                    value,
-                    nonce,
                 };
             }
         } catch (e) {

@@ -32,8 +32,9 @@ export default {
         &__name {
             font-size: 14px;
             font-weight: 500;
-            color: #000000;
+            color: var(--#{$prefix}primary-text);
         }
+
         &__logo-container {
             width: 20px;
             height: 20px;
@@ -44,6 +45,7 @@ export default {
             display: flex;
             align-items: center;
             justify-content: center;
+
             img {
                 width: 100%;
                 height: 100%;

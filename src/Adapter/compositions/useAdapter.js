@@ -1,7 +1,7 @@
-// import EcosystemAdapter from '@/Adapter/ecosystems';
-
 import { computed } from 'vue';
 import { useStore } from 'vuex';
+
+import router from '@/routes';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
@@ -80,6 +80,7 @@ function useAdapter() {
 
         adaptersDispatch(TYPES.SET_WALLET, { ecosystem: currEcosystem.value, wallet: walletInfo });
         adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
+        adaptersDispatch(TYPES.SET_IS_CONNECTED, true);
 
         return subscribeToWalletsChange();
     }
@@ -101,6 +102,7 @@ function useAdapter() {
         } catch (error) {
             console.error('Failed to connect to:', ecosystem, error);
             adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
+            adaptersDispatch(TYPES.SET_IS_CONNECTED, false);
             return false;
         }
     };
@@ -120,23 +122,23 @@ function useAdapter() {
         try {
             adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
 
-            for (const wallet of connectedWallets.value) {
-                if (wallet.id === lastConnectedWallet.value.id) {
-                    continue;
-                }
-
-                await connectTo(wallet.ecosystem, wallet.walletModule, wallet.chain);
-            }
-
             const isConnect = await connectTo(ecosystem, walletModule, chain);
 
             if (!isConnect) {
+                console.warn('Failed to connect to last connected wallet', ecosystem, chain, walletModule);
                 return adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
             }
+
+            if (currentChainInfo.value === 404) {
+                await setChain(lastConnectedWallet.value);
+            }
+
+            adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
 
             return subscribeToWalletsChange();
         } catch (error) {
             adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
+            adaptersDispatch(TYPES.SET_IS_CONNECTED, false);
         }
     };
 
@@ -164,6 +166,9 @@ function useAdapter() {
     const disconnectWallet = async (ecosystem, wallet) => {
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
         adaptersDispatch(TYPES.DISCONNECT_WALLET, wallet);
+
+        router.push('/connect-wallet');
+
         await adapter.disconnectWallet(wallet.walletModule);
     };
 
@@ -173,6 +178,8 @@ function useAdapter() {
             const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
             await adapter.disconnectAllWallets(...args);
         }
+
+        router.push('/connect-wallet');
 
         adaptersDispatch(TYPES.DISCONNECT_ALL_WALLETS);
     };
@@ -228,6 +235,7 @@ function useAdapter() {
             chain: chain?.chain_id,
             name: chain?.name,
             logo: chain?.logo,
+            ecosystem,
         };
     };
 
