@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 
 import guards from './guards';
 
@@ -7,12 +7,12 @@ import Dashboard from '@/views/Dashboard.vue';
 const routes = [
     {
         path: '/',
-        name: 'Home',
+        name: 'Overview',
         component: Dashboard,
     },
     {
         path: '/main',
-        name: 'Main Dashboard',
+        name: 'Overview',
         component: Dashboard,
     },
     {
@@ -25,7 +25,7 @@ const routes = [
     },
     {
         path: '/send',
-        name: 'Send Page',
+        name: 'Zomet - Send',
         meta: {
             isAuth: true,
         },
@@ -33,7 +33,7 @@ const routes = [
     },
     {
         path: '/bridge',
-        name: 'Bridge Page',
+        name: 'Zomet - Bridge',
         meta: {
             isAuth: true,
         },
@@ -54,21 +54,29 @@ const routes = [
     },
     {
         path: '/:module/select-token',
-        name: 'Select Token Page',
+        name: 'Select Token',
         component: () => import('../components/dynamic/SearchSelectToken.vue'),
     },
     {
         path: '/:pathMatch(.*)*',
-        name: 'notFound',
+        name: 'Not Found',
         component: () => import('../views/NotFound.vue'),
     },
 ];
 
 const router = createRouter({
-    history: createWebHashHistory(),
+    history: createWebHistory(),
     routes,
 });
 
 router.beforeEach(guards);
+
+router.beforeResolve((to, from, next) => {
+    if (to.name) {
+        document.title = to.name;
+    }
+
+    next();
+});
 
 export default router;

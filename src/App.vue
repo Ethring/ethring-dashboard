@@ -17,8 +17,9 @@
 </template>
 
 <script>
-import { onMounted, onUpdated, onBeforeMount, watch, ref, computed } from 'vue';
+import { onMounted, onUpdated, onBeforeMount, watchEffect, watch, ref, computed } from 'vue';
 import { useStore } from 'vuex';
+import { useRoute, useRouter } from 'vue-router';
 
 import useInit from '@/compositions/useInit';
 import useAdapter from '@/Adapter/compositions/useAdapter';
@@ -29,6 +30,8 @@ import AddressModal from '@/Adapter/UI/Modal/AddressModal';
 import NavBar from '@/components/app/NavBar';
 import Sidebar from '@/components/app/Sidebar';
 import LoadingOverlay from '@/components/ui/LoadingOverlay';
+
+import redirectOrStay from '@/shared/utils/routes';
 
 export default {
     name: 'App',
@@ -45,6 +48,9 @@ export default {
 
         const lastConnectedCall = ref(false);
 
+        const route = useRoute();
+        const router = useRouter();
+
         const {
             isConnecting,
             walletAddress,
@@ -53,6 +59,8 @@ export default {
             connectLastConnectedWallet,
             getAddressesWithChainsByEcosystem,
         } = useAdapter();
+
+        const initCalled = ref(false);
 
         const isOpen = computed(() => store.getters['adapters/isOpen']('wallets'));
 
@@ -68,12 +76,37 @@ export default {
             const addressesWithChains = getAddressesWithChainsByEcosystem(ecosystem);
 
             await useInit(store, { account: walletAccount.value, addressesWithChains, currentChainInfo: currentChainInfo.value });
+
+            initCalled.value = true;
         };
 
         onBeforeMount(async () => await store.dispatch('networks/initZometNets'));
 
         onMounted(async () => {
-            !lastConnectedCall.value && connectLastConnectedWallet().then(() => (lastConnectedCall.value = true));
+            if (!lastConnectedCall.value) {
+                await connectLastConnectedWallet();
+                lastConnectedCall.value = true;
+            }
+            await callInit();
+        });
+
+        watchEffect(async () => {
+            if (!redirectOrStay(route.path, currentChainInfo.value)) {
+                return router.push('/main');
+            }
+
+            const { net = null } = currentChainInfo.value || {};
+
+            if (!net) {
+                return router.push('/main');
+            }
+        });
+
+        watch(currentChainInfo, async () => {
+            if (initCalled.value) {
+                return;
+            }
+
             await callInit();
         });
 
