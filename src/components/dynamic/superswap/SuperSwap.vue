@@ -308,6 +308,9 @@ export default {
             isLoading.value = false;
             estimateRate.value = 0;
             networkFee.value = 0;
+            differPercentage.value = null;
+            isNeedApprove.value = false;
+            receiveValue.value = '';
             bestRoute.value = null;
             clearApprove();
         };
@@ -327,9 +330,7 @@ export default {
 
             selectedDstToken.value = null;
 
-            receiveValue.value = 0;
-
-            differPercentage.value = null;
+            resetValues();
 
             return (opTitle.value = 'tokenOperations.swap');
         };
