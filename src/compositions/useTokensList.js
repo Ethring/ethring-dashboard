@@ -4,6 +4,8 @@ import { computed } from 'vue';
 
 import { useStore } from 'vuex';
 
+import { ECOSYSTEMS } from '@/Adapter/config';
+
 export default function useTokensList({ network = null, fromToken = null, toToken = null } = {}) {
     const store = useStore();
 
@@ -61,6 +63,21 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             allTokens = tokensWithBalance;
         } else {
             allTokens = _.unionBy(tokensWithBalance, tokensListFromNet, (tkn) => tkn.address?.toLowerCase());
+        }
+
+        if (ECOSYSTEMS.COSMOS === network?.ecosystem) {
+            const { asset } = network || {};
+
+            const baseToken = allTokens.find(({ symbol }) => symbol === asset.symbol);
+
+            const tokenInfo = {
+                ...asset,
+                ...baseToken,
+                balance: baseToken?.balance || 0,
+                balanceUsd: baseToken?.balanceUsd || 0,
+            };
+
+            allTokens = [tokenInfo];
         }
 
         allTokens = _.filter(allTokens, isNotEqualToSelected);

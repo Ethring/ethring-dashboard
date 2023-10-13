@@ -34,21 +34,20 @@
     </div>
 </template>
 <script>
-import { h, ref, computed, onBeforeUnmount, onMounted, onUpdated, watch } from 'vue';
+import { h, ref, computed, onBeforeUnmount, onMounted, watch } from 'vue';
 
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { LoadingOutlined } from '@ant-design/icons-vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
+import useTokensList from '@/compositions/useTokensList';
 import useNotification from '@/compositions/useNotification';
 
 import Button from '@/components/ui/Button';
 import SelectNetwork from '@/components/ui/SelectNetwork';
 import SelectAddress from '@/components/ui/SelectAddress';
 import SelectAmount from '@/components/ui/SelectAmount';
-
-import { sortByKey } from '@/helpers/utils';
 
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { isCorrectChain } from '@/shared/utils/operations';
@@ -116,11 +115,9 @@ export default {
 
         // =================================================================================================================
 
-        const tokensList = computed(() => {
-            const { net } = selectedNetwork.value;
-            const listFromStore = store.getters['tokens/getTokensListForChain'](net);
-            return sortByKey(listFromStore, 'balanceUsd');
-        });
+        const { getTokensList } = useTokensList();
+
+        const tokensList = ref([]);
 
         // =================================================================================================================
 
@@ -138,6 +135,12 @@ export default {
         // =================================================================================================================
 
         const setTokenOnChange = () => {
+            selectedToken.value = null;
+
+            tokensList.value = getTokensList({
+                srcNet: selectedNetwork.value,
+            });
+
             const [defaultToken = null] = tokensList.value || [];
 
             if (!selectedToken.value && defaultToken) {
@@ -171,12 +174,13 @@ export default {
             clearAddress.value = true;
             selectedNetwork.value = network;
 
+            setTokenOnChange();
+
             if (currentChainInfo.value.net !== selectedNetwork.value.net) {
                 return (opTitle.value = 'tokenOperations.switchNetwork');
             }
 
             clearAddress.value = false;
-
             return (opTitle.value = 'tokenOperations.confirm');
         };
 
@@ -285,8 +289,6 @@ export default {
             setTokenOnChange();
         });
 
-        onUpdated(() => setTokenOnChange());
-
         watch(txError, (err) => {
             if (!err) {
                 return;
@@ -307,6 +309,7 @@ export default {
 
         watch(currentChainInfo, () => {
             selectedNetwork.value = currentChainInfo.value;
+            setTokenOnChange();
         });
 
         watch(isTokensLoadingForChain, () => setTokenOnChange());

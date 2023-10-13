@@ -32,6 +32,10 @@ export default {
 
         tokensByNetwork: (state) => (network) => state.tokensByNetwork[network] || {},
         getTokensListForChain: (state) => (network) => {
+            if (!state.tokensByNetwork[network]) {
+                return [];
+            }
+
             const tokens = Object.entries(state.tokensByNetwork[network]).map((tkn) => tkn[1]) || [];
             return _.sortBy(tokens, ['name']);
         },

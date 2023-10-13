@@ -300,8 +300,19 @@ class CosmosAdapter extends AdapterBase {
 
     getChainList() {
         const chainList = this.walletManager.chainRecords.map((record) => {
-            const { chain } = record;
+            const { chain, assetList = {} } = record || {};
+
+            const { assets = [] } = assetList || {};
+
+            const [asset = {}] = assets || [];
+
+            asset.logo = asset.logo_URIs?.svg || asset.logo_URIs?.png || null;
+            asset.decimals = asset.denom_units[1].exponent;
+
             const chainRecord = {
+                ...chain,
+                asset,
+                ecosystem: ECOSYSTEMS.COSMOS,
                 id: chain.chain_id,
                 net: chain.chain_name,
                 chain_id: chain.chain_name,
@@ -309,6 +320,7 @@ class CosmosAdapter extends AdapterBase {
                 walletName: this.walletName,
                 logo: chain.logo_URIs?.svg || chain.logo_URIs?.png || null,
             };
+
             return chainRecord;
         });
 
