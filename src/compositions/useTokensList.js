@@ -5,9 +5,12 @@ import { computed } from 'vue';
 import { useStore } from 'vuex';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 
 export default function useTokensList({ network = null, fromToken = null, toToken = null } = {}) {
     const store = useStore();
+
+    const { walletAccount } = useAdapter();
 
     const onlyWithBalance = computed(() => store.getters['tokenOps/onlyWithBalance']);
 
@@ -18,7 +21,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             return [];
         }
 
-        const list = store.getters[`${storeModule}/getTokensListForChain`](net);
+        const list = store.getters[`${storeModule}/getTokensListForChain`](net, { account: walletAccount.value });
 
         return _.orderBy(list, (tkn) => Number(tkn.balanceUsd), ['desc']);
     };

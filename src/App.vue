@@ -60,8 +60,6 @@ export default {
             getAddressesWithChainsByEcosystem,
         } = useAdapter();
 
-        const initCalled = ref(false);
-
         const isOpen = computed(() => store.getters['adapters/isOpen']('wallets'));
 
         const showRoutesModal = computed(() => store.getters['swap/showRoutes']);
@@ -76,8 +74,6 @@ export default {
             const addressesWithChains = getAddressesWithChainsByEcosystem(ecosystem);
 
             await useInit(store, { account: walletAccount.value, addressesWithChains, currentChainInfo: currentChainInfo.value });
-
-            initCalled.value = true;
         };
 
         onBeforeMount(async () => await store.dispatch('networks/initZometNets'));
@@ -91,7 +87,13 @@ export default {
         });
 
         watchEffect(async () => {
-            if (!redirectOrStay(route.path, currentChainInfo.value)) {
+            if (isConnecting) {
+                return;
+            }
+
+            const isStay = await redirectOrStay(route.path, currentChainInfo.value);
+
+            if (!isStay) {
                 return router.push('/main');
             }
 
@@ -102,13 +104,7 @@ export default {
             }
         });
 
-        watch(currentChainInfo, async () => {
-            if (initCalled.value) {
-                return;
-            }
-
-            await callInit();
-        });
+        watch(currentChainInfo, async () => await callInit());
 
         watch(walletAccount, async () => await callInit());
 

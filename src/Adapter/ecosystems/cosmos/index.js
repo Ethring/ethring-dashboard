@@ -77,7 +77,7 @@ class CosmosAdapter extends AdapterBase {
             await chainWallet?.value?.connect(false);
             await chainWallet?.value?.update({ connect: false });
 
-            await this.setAddressForChains();
+            await this.setAddressForChains(chainWallet?.value?.walletName);
         });
     }
 

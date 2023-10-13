@@ -69,6 +69,7 @@ export default {
 
         // * Adapter for wallet
         const {
+            walletAccount,
             walletAddress,
             connectedWallet,
             currentChainInfo,
@@ -305,6 +306,11 @@ export default {
             closeNotification('prepare-tx');
 
             isLoading.value = false;
+        });
+
+        watch(walletAccount, () => {
+            selectedNetwork.value = currentChainInfo.value;
+            setTokenOnChange();
         });
 
         watch(currentChainInfo, () => {
