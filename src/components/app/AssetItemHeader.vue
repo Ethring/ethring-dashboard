@@ -36,7 +36,7 @@
                 <h4>{{ showBalance ? formatNumber(totalBalance, 2) : '***' }}</h4>
             </div>
             <div class="asset__item-header-reward" v-if="showRewards">
-                <span class="asset__item-header-symbol"> $ </span>
+                <span class="asset__item-header-reward-symbol"> $ </span>
                 <p>{{ showBalance ? formatNumber(reward) : '***' }}</p>
                 <RewardsIcon class="asset__item-header-reward-icon" />
             </div>
@@ -182,7 +182,6 @@ export default {
     &-balance {
         display: flex;
         align-items: baseline;
-        margin-bottom: 4px;
         align-self: flex-end;
 
         h4 {
@@ -199,16 +198,26 @@ export default {
         align-items: flex-end;
         align-self: flex-end;
 
+        margin-top: 6px;
+
+        &-symbol {
+            font-size: var(--#{$prefix}small-md-fs);
+            font-weight: 400;
+            color: var(--#{$prefix}mute-text);
+        }
+
         p {
             color: var(--#{$prefix}mute-text);
             font-size: var(--#{$prefix}small-md-fs);
             margin: 0 2px;
         }
+
         &-icon {
             margin-bottom: 1px;
             stroke: var(--#{$prefix}mute-text);
         }
     }
+
     &-health {
         width: 64px;
         height: 24px;
@@ -219,6 +228,7 @@ export default {
         align-items: center;
         justify-content: center;
         overflow: hidden;
+
         h5 {
             z-index: 1;
             font-weight: 700;
@@ -229,6 +239,7 @@ export default {
                 margin-left: -2px;
             }
         }
+
         &-bar {
             height: 24px;
             position: absolute;

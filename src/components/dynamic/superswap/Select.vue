@@ -216,10 +216,12 @@ export default {
         &-active {
             background-color: var(--#{$prefix}select-active-bg-color);
             border: 1px solid var(--#{$prefix}select-active-border-color);
+
             .arrow {
                 transform: scale(0.8) rotate(180deg) !important;
             }
         }
+
         h3 {
             white-space: nowrap;
             text-overflow: ellipsis;
@@ -230,7 +232,7 @@ export default {
 
     h3 {
         font-size: var(--#{$prefix}default-fs);
-        color: var(--#{$prefix}primary-text);
+        color: var(--#{$prefix}primary-text) !important;
         line-height: var(--#{$prefix}h5-fs);
         font-weight: 600;
         margin: auto 0 auto 6px;
@@ -274,7 +276,6 @@ export default {
 
         h3 {
             font-weight: 600;
-            color: var(--#{$prefix}base-text);
             margin: 0;
         }
 
@@ -343,6 +344,7 @@ export default {
                     margin: 0;
                     line-height: var(--#{$prefix}h5-fs);
                 }
+                
                 h6 {
                     color: var(--#{$prefix}sub-text);
                     font-size: var(--#{$prefix}small-sm-fs);
