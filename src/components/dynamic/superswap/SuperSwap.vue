@@ -327,6 +327,10 @@ export default {
 
             selectedDstToken.value = null;
 
+            receiveValue.value = 0;
+
+            differPercentage.value = null;
+
             return (opTitle.value = 'tokenOperations.swap');
         };
 
