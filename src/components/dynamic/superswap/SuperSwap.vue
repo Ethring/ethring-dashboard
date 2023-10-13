@@ -376,20 +376,18 @@ export default {
         };
 
         const setTokenOnChange = () => {
+            selectedDstToken.value = null;
+
             tokensList.value = getTokensList({
                 srcNet: selectedSrcNetwork.value,
                 srcToken: selectedSrcToken.value,
                 dstToken: selectedDstToken.value,
             });
 
-            const [defaultFromToken = null, defaultToToken = null] = tokensList.value || [];
+            const [defaultFromToken = null] = tokensList.value || [];
 
             if (!selectedSrcToken.value && defaultFromToken) {
                 selectedSrcToken.value = defaultFromToken;
-            }
-
-            if (!selectedDstToken.value && defaultToToken) {
-                selectedDstToken.value = defaultToToken;
             }
 
             if (!isBalanceUpdated.value) {
