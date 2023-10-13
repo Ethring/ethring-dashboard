@@ -182,6 +182,8 @@ export default async function useInit(store, { addressesWithChains = {}, account
                 allIntegrations.push(...list);
             }
 
+            console.log('Tokens/setGroupTokens', { chain, data: { list: tokens } });
+
             store.dispatch('tokens/setGroupTokens', { chain, data: { list: tokens } });
 
             store.dispatch('tokens/setDataFor', { type: 'tokens', account, data: allTokens });
