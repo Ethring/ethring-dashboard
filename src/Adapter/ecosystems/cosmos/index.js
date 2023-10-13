@@ -332,8 +332,12 @@ class CosmosAdapter extends AdapterBase {
         return module?.walletInfo?.logo || null;
     }
 
-    validateAddress(...args) {
-        return validateCosmosAddress(...args);
+    validateAddress(address, { chainId }) {
+        const { chain } = this.walletManager.getChainRecord(chainId) || {};
+
+        const { bech32_prefix } = chain || {};
+
+        return validateCosmosAddress(address, bech32_prefix);
     }
 
     async prepareTransaction(fromAddress, toAddress, amount, token) {

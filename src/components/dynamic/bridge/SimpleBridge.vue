@@ -436,7 +436,7 @@ export default {
                 return (errorAddress.value = '');
             }
 
-            if (!validateAddress(addr)) {
+            if (!validateAddress(addr, { chainId: selectedDstNetwork?.value?.net })) {
                 return (errorAddress.value = 'Invalid address');
             }
 

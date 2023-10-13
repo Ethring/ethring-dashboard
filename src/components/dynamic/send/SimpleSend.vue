@@ -166,7 +166,7 @@ export default {
         const onSetAddress = (addr = '') => {
             receiverAddress.value = addr;
 
-            const isAddressAllowed = !validateAddress(addr) && addr.length > 0;
+            const isAddressAllowed = !validateAddress(addr, { chainId: selectedNetwork?.value?.net }) && addr?.length > 0;
 
             return (isAddressError.value = isAddressAllowed);
         };
