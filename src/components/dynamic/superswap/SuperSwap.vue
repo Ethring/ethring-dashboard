@@ -303,7 +303,6 @@ export default {
         };
 
         const resetValues = () => {
-            onSetAmount('');
             receiveValue.value = '';
             isLoading.value = false;
             estimateRate.value = 0;
@@ -809,6 +808,7 @@ export default {
 
         watch(selectedSrcNetwork, () => {
             resetValues();
+            onSetAmount('');
             selectedSrcToken.value = null;
             setTokenOnChange();
         });
