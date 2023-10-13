@@ -120,6 +120,8 @@ $padding-lr: 32px;
         font-weight: 600;
         font-size: var(--#{$prefix}h4-fs);
 
+        color: var(--#{$prefix}primary-text);
+
         background-color: transparent;
         outline: none;
         border: none;
@@ -135,7 +137,7 @@ $padding-lr: 32px;
     }
 
     input {
-        color: var(--#{$prefix}black);
+        color: var(--#{$prefix}primary-text);
     }
 }
 </style>
