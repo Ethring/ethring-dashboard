@@ -182,8 +182,16 @@ export default {
         const store = useStore();
         const router = useRouter();
 
-        const { walletAddress, chainList, currentChainInfo, formatTransactionForSign, setChain, signSend, getTxExplorerLink } =
-            useAdapter();
+        const {
+            walletAccount,
+            walletAddress,
+            chainList,
+            currentChainInfo,
+            formatTransactionForSign,
+            setChain,
+            signSend,
+            getTxExplorerLink,
+        } = useAdapter();
 
         const { showNotification, closeNotification } = useNotification();
 
@@ -881,6 +889,11 @@ export default {
                 }
             }
         );
+
+        watch(walletAccount, () => {
+            selectedSrcNetwork.value = currentChainInfo.value;
+            setTokenOnChange();
+        });
 
         onBeforeUnmount(() => {
             selectedSrcNetwork.value = null;
