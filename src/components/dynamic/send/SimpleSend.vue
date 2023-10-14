@@ -195,12 +195,55 @@ export default {
 
         // =================================================================================================================
 
+        const resetValues = () => {
+            receiverAddress.value = '';
+            amount.value = null;
+        };
+
+        // =================================================================================================================
+
+        const onPrepareTx = async (dataForPrepare) => {
+            showNotification({
+                key: 'prepare-tx',
+                type: 'info',
+                title: `Sending ${dataForPrepare.amount} ${dataForPrepare.token.symbol} ...`,
+                description: 'Please wait, transaction is preparing',
+                icon: h(LoadingOutlined, {
+                    spin: true,
+                }),
+                duration: 0,
+            });
+
+            try {
+                const tx = await prepareTransaction(
+                    dataForPrepare.fromAddress,
+                    dataForPrepare.toAddress,
+                    dataForPrepare.amount,
+                    dataForPrepare.token
+                );
+
+                return tx;
+            } catch (error) {
+                console.error('Error on prepare tx', error);
+                return {
+                    error,
+                };
+            }
+        };
+
         const handleOnSend = async () => {
             if (disabledSend.value) {
                 return;
             }
 
             isLoading.value = true;
+
+            const dataForPrepare = {
+                fromAddress: walletAddress.value,
+                toAddress: receiverAddress.value,
+                amount: amount.value,
+                token: selectedToken.value,
+            };
 
             const { isChanged, btnTitle } = await isCorrectChain(selectedNetwork, currentChainInfo, setChain);
 
@@ -212,45 +255,16 @@ export default {
 
             opTitle.value = 'tokenOperations.confirm';
 
-            const dataForPrepare = {
-                fromAddress: walletAddress.value,
-                toAddress: receiverAddress.value,
-                amount: amount.value,
-                token: selectedToken.value,
-            };
+            // Reset values
 
-            // reset values for next send
-            clearAddress.value = true;
+            const tx = await onPrepareTx(dataForPrepare);
 
-            amount.value = '';
-            receiverAddress.value = '';
-
-            clearAddress.value = false;
+            if (tx.error) {
+                closeNotification('prepare-tx');
+                return (txError.value = tx.error);
+            }
 
             try {
-                showNotification({
-                    key: 'prepare-tx',
-                    type: 'info',
-                    title: `Sending ${dataForPrepare.amount} ${dataForPrepare.token.symbol} ...`,
-                    description: 'Please wait, transaction is preparing',
-                    icon: h(LoadingOutlined, {
-                        spin: true,
-                    }),
-                    duration: 0,
-                });
-
-                const tx = await prepareTransaction(
-                    dataForPrepare.fromAddress,
-                    dataForPrepare.toAddress,
-                    dataForPrepare.amount,
-                    dataForPrepare.token
-                );
-
-                if (tx.error) {
-                    closeNotification('prepare-tx');
-                    return (txError.value = tx.error);
-                }
-
                 const resTx = await signSend(tx);
 
                 if (resTx.error) {
@@ -258,10 +272,15 @@ export default {
                     return (txError.value = resTx.error);
                 }
 
+                closeNotification('prepare-tx');
+
+                resetValues();
+
                 successHash.value = getTxExplorerLink(resTx.transactionHash, currentChainInfo.value);
-                isLoading.value = false;
             } catch (error) {
                 closeNotification('prepare-tx');
+            } finally {
+                isLoading.value = false;
             }
         };
 

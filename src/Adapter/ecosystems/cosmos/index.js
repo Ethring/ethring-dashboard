@@ -21,6 +21,9 @@ import { checkErrors } from '@/helpers/checkErrors';
 const DEFAULT_CHAIN = 'cosmoshub';
 const { chains, assets, differentSlip44 } = cosmologyConfig;
 
+// const DEFAULT_RPC = 'https://rpc.cosmos.directory';
+// const DEFAULT_REST = 'https://rest.cosmos.directory';
+
 // * Constants for localStorage
 const STORAGE = {
     WALLET: 'cosmos-kit@2:core//current-wallet',
@@ -119,6 +122,10 @@ class CosmosAdapter extends AdapterBase {
             const chainWallet = this.walletManager.getChainWallet(chain, walletName);
 
             chainWallet.activate();
+
+            // chainWallet.restEndpoints = [`${DEFAULT_REST}/${chain}`];
+            // chainWallet.rpcEndpoints = [`${DEFAULT_RPC}/${chain}`];
+
             await chainWallet.initClient();
             await chainWallet.connect(true);
 
@@ -146,7 +153,13 @@ class CosmosAdapter extends AdapterBase {
 
         const chainForConnect = chain || chain_id || DEFAULT_CHAIN;
 
-        return await this.connectWallet(walletName, chainForConnect);
+        try {
+            const connected = await this.connectWallet(walletName, chainForConnect);
+            return connected;
+        } catch (error) {
+            console.error('Error in setChain', error);
+            return false;
+        }
     }
 
     async chainsWithDifferentSlip44(walletName) {
