@@ -153,7 +153,7 @@ export default {
         }
 
         .default-network-logo {
-            background: var(--#{$prefix}primary);
+            background: var(--#{$prefix}select-secondary-bg-color);
         }
 
         .name {

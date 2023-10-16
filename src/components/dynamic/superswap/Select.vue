@@ -38,7 +38,7 @@
                     </div>
                 </div>
 
-                <template v-if="isListloading">
+                <template v-if="isListLoading">
                     <div class="select__items-item">
                         <a-space size="large">
                             <a-skeleton-avatar active />
@@ -102,8 +102,10 @@ export default {
         },
     },
     setup(props, { emit }) {
-        const count = ref(10);
-        const isListloading = ref(false);
+        const MAX_TOKENS_PER_PAGE = 20;
+        const currentIndex = ref(MAX_TOKENS_PER_PAGE);
+
+        const isListLoading = ref(false);
         const selectBlock = ref(null);
 
         onClickOutside(selectBlock, () => (showOptions.value = false));
@@ -111,7 +113,9 @@ export default {
         const selectedItem = ref(props.value);
         const searchValue = ref();
         const showOptions = ref(false);
-        const optionsList = ref(props.options.slice(0, count.value));
+        const optionsList = ref(props.options.slice(0, currentIndex.value));
+
+        const timer = ref(null);
 
         const onSelect = (value) => {
             emit('onChange', value);
@@ -120,8 +124,8 @@ export default {
         };
 
         const toggleOptions = () => {
-            count.value = 10;
-            optionsList.value = props.options.slice(0, count.value);
+            currentIndex.value = MAX_TOKENS_PER_PAGE;
+            optionsList.value = props.options.slice(0, currentIndex.value);
             searchValue.value = '';
             showOptions.value = !showOptions.value;
         };
@@ -133,39 +137,58 @@ export default {
         };
 
         const loadMore = () => {
-            if (count.value > props.options.length || isListloading.value) {
+            if (currentIndex.value > props.options.length) {
                 return;
             }
+
             const masonry = document.querySelector('.select__items-list');
 
             if (masonry.scrollTop + masonry.clientHeight + 1 < masonry.scrollHeight) {
                 return;
             }
 
-            isListloading.value = true;
+            clearTimeout(timer.value);
 
-            setTimeout(() => {
-                count.value += 10;
-                isListloading.value = false;
-                if (searchValue.value) {
-                    return (optionsList.value = searchInTokens(props.options, searchValue.value)?.slice(0, count.value));
-                }
-                return (optionsList.value = props.options.slice(0, count.value));
-            }, 500);
+            let tokens = props.options || [];
+
+            if (searchValue.value) {
+                tokens = searchInTokens(props.options, searchValue.value);
+            }
+
+            if (tokens.length <= MAX_TOKENS_PER_PAGE) {
+                isListLoading.value = false;
+                return (optionsList.value = tokens);
+            }
+
+            if (tokens.length <= currentIndex.value) {
+                isListLoading.value = false;
+                return;
+            }
+
+            isListLoading.value = true;
+
+            currentIndex.value += MAX_TOKENS_PER_PAGE;
+
+            optionsList.value = _.slice(tokens, 0, currentIndex.value);
+
+            return (timer.value = setTimeout(() => {
+                isListLoading.value = false;
+            }, 500));
         };
 
         watch(searchValue, (val) => {
             if (val.length) {
-                optionsList.value = searchInTokens(props.options, searchValue.value)?.slice(0, count.value);
+                clearTimeout(timer.value);
+                optionsList.value = searchInTokens(props.options, searchValue.value)?.slice(0, currentIndex.value);
                 return;
             }
-            optionsList.value = props.options.slice(0, count.value);
+            optionsList.value = props.options.slice(0, currentIndex.value);
         });
 
         watch(
             () => props.options,
             () => {
-                optionsList.value = props.options.slice(0, count.value);
+                optionsList.value = props.options.slice(0, currentIndex.value);
             }
         );
 
@@ -179,7 +202,7 @@ export default {
         return {
             selectedItem,
             selectBlock,
-            isListloading,
+            isListLoading,
             searchValue,
             optionsList,
             showOptions,
@@ -216,10 +239,12 @@ export default {
         &-active {
             background-color: var(--#{$prefix}select-active-bg-color);
             border: 1px solid var(--#{$prefix}select-active-border-color);
+
             .arrow {
                 transform: scale(0.8) rotate(180deg) !important;
             }
         }
+
         h3 {
             white-space: nowrap;
             text-overflow: ellipsis;
@@ -230,7 +255,7 @@ export default {
 
     h3 {
         font-size: var(--#{$prefix}default-fs);
-        color: var(--#{$prefix}primary-text);
+        color: var(--#{$prefix}primary-text) !important;
         line-height: var(--#{$prefix}h5-fs);
         font-weight: 600;
         margin: auto 0 auto 6px;
@@ -274,7 +299,6 @@ export default {
 
         h3 {
             font-weight: 600;
-            color: var(--#{$prefix}base-text);
             margin: 0;
         }
 
@@ -343,6 +367,7 @@ export default {
                     margin: 0;
                     line-height: var(--#{$prefix}h5-fs);
                 }
+                
                 h6 {
                     color: var(--#{$prefix}sub-text);
                     font-size: var(--#{$prefix}small-sm-fs);
