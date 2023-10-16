@@ -242,7 +242,7 @@ class EthereumAdapter extends AdapterBase {
         return transaction;
     }
 
-    async prepareTransaction(fromAddress, toAddress, amount, token) {
+    async prepareTransaction({ fromAddress, toAddress, amount, token }) {
         const ethersProvider = this.getProvider();
 
         try {
@@ -287,8 +287,12 @@ class EthereumAdapter extends AdapterBase {
 
                 const txn = await signer.sendTransaction(transaction);
 
-                const receipt = await txn.wait();
-                return receipt;
+                const { hash } = txn;
+
+                return {
+                    transactionHash: hash,
+                    ...txn,
+                };
             }
         } catch (e) {
             return checkErrors(e);

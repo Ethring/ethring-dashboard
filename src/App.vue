@@ -24,6 +24,8 @@ import { useRoute, useRouter } from 'vue-router';
 import useInit from '@/compositions/useInit';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
+import Socket from '@/modules/Socket';
+
 import WalletsModal from '@/Adapter/UI/Modal/WalletsModal';
 import AddressModal from '@/Adapter/UI/Modal/AddressModal';
 
@@ -78,6 +80,8 @@ export default {
             await useInit(store, { account: walletAccount.value, addressesWithChains, currentChainInfo: currentChainInfo.value });
 
             initCalled.value = true;
+
+            Socket.addressSubscription(walletAddress.value);
         };
 
         onBeforeMount(async () => await store.dispatch('networks/initZometNets'));

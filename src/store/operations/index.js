@@ -20,6 +20,37 @@ const TYPES = {
     SET_DIRECTION: 'SET_DIRECTION',
 
     SET_TOKEN_SELECT_TYPE: 'SET_TOKEN_SELECT_TYPE',
+
+    SET_ALLOWANCE_FOR_ACCOUNT_ADDRESS: 'SET_ALLOWANCE_FOR_ACCOUNT_ADDRESS',
+    SET_APPROVE_FOR_ACCOUNT_ADDRESS: 'SET_APPROVE_FOR_ACCOUNT_ADDRESS',
+
+    SET_CLEAR_APPROVE_FOR_TOKEN: 'SET_CLEAR_APPROVE_FOR_TOKEN',
+};
+
+const getApproveOrAllowance = (state, target, { account = null, chain = null, tokenAddress = null, service = null }) => {
+    if (!account) {
+        return null;
+    }
+
+    if (!chain) {
+        return null;
+    }
+
+    if (!tokenAddress) {
+        return null;
+    }
+
+    if (!service) {
+        return null;
+    }
+
+    if (!state[target]) {
+        return null;
+    }
+
+    const targetKey = `${account}:${chain}:${service}:${tokenAddress}`;
+
+    return state[target][targetKey];
 };
 
 export default {
@@ -33,6 +64,10 @@ export default {
         srcToken: null,
         dstNetwork: null,
         dstToken: null,
+
+        allowance: {},
+
+        approve: {},
 
         receiverAddress: null,
     }),
@@ -49,6 +84,12 @@ export default {
         dstToken: (state) => state.dstToken,
 
         receiverAddress: (state) => state.receiverAddress,
+
+        allowanceForToken: (state) => (account, chain, tokenAddress, service) =>
+            getApproveOrAllowance(state, 'allowance', { account, chain, tokenAddress, service }),
+
+        approveForToken: (state) => (account, chain, tokenAddress, service) =>
+            getApproveOrAllowance(state, 'approve', { account, chain, tokenAddress, service }),
     },
 
     mutations: {
@@ -76,6 +117,29 @@ export default {
         [TYPES.SET_TOKEN_SELECT_TYPE](state, value) {
             state.selectType = value;
         },
+        [TYPES.SET_ALLOWANCE_FOR_ACCOUNT_ADDRESS](state, { account, chain, tokenAddress, allowance, service }) {
+            const targetKey = `${account}:${chain}:${service}:${tokenAddress}`;
+
+            if (!state.allowance[targetKey]) {
+                state.allowance[targetKey] = null;
+            }
+
+            state.allowance[targetKey] = allowance;
+        },
+        [TYPES.SET_APPROVE_FOR_ACCOUNT_ADDRESS](state, { account, chain, tokenAddress, approve, service }) {
+            const targetKey = `${account}:${chain}:${service}:${tokenAddress}`;
+
+            if (!state.allowance[targetKey]) {
+                state.approve[targetKey] = null;
+            }
+
+            state.approve[targetKey] = approve;
+        },
+        [TYPES.SET_CLEAR_APPROVE_FOR_TOKEN](state, targetKey) {
+            if (!state.approve[targetKey]) {
+                state.approve[targetKey] = null;
+            }
+        },
     },
 
     actions: {
@@ -102,6 +166,15 @@ export default {
         },
         setSelectType({ commit }, value) {
             commit(TYPES.SET_TOKEN_SELECT_TYPE, value);
+        },
+        setAllowance({ commit }, value) {
+            commit(TYPES.SET_ALLOWANCE_FOR_ACCOUNT_ADDRESS, value);
+        },
+        setApprove({ commit }, value) {
+            commit(TYPES.SET_APPROVE_FOR_ACCOUNT_ADDRESS, value);
+        },
+        clearApproveForToken({ commit }, value) {
+            commit(TYPES.SET_APPROVE_FOR_ACCOUNT_ADDRESS, value);
         },
     },
 };

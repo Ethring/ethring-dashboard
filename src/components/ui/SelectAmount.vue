@@ -195,23 +195,19 @@ export default {
         );
 
         watch(amount, (val) => {
-            amount.value = val;
-            if (val) {
-                val = val.replace(/[^0-9.]/g, '');
-                if (val.split('.').length - 1 !== 1 && val[val.length - 1] === '.') {
-                    return;
-                }
-                if (val.length === 2 && val[1] !== '.' && val[1] === '0' && val[0] === '0') {
-                    amount.value = val[0];
-                } else if (val[0] === '0' && val[1] !== '.') {
-                    amount.value = BigNumber(val).toFixed();
-                } else {
-                    amount.value = val;
-                }
-                return (payTokenPrice.value = formatNumber(BigNumber(amount.value * +selectedToken?.value?.price || 0).toFixed()) || 0);
+            if (!val) {
+                return (payTokenPrice.value = '0');
             }
 
-            return (payTokenPrice.value = '0');
+            val = val.replace(/[^0-9.]+/g, '').replace(/\.{2,}/g, '.');
+
+            if (val.indexOf('.') !== val.lastIndexOf('.')) {
+                val = val.substr(0, val.lastIndexOf('.'));
+            }
+
+            amount.value = val;
+
+            return (payTokenPrice.value = formatNumber(BigNumber(amount.value).multipliedBy(selectedToken?.value?.price || 0)) || 0);
         });
 
         const clickAway = () => {

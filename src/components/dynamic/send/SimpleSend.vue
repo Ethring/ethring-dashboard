@@ -8,7 +8,7 @@
             :value="receiverAddress"
             :error="!!isAddressError"
             class="mt-10"
-            :on-reset="successHash || clearAddress"
+            :on-reset="clearAddress"
             @setAddress="onSetAddress"
         />
 
@@ -16,7 +16,7 @@
             :value="selectedToken"
             :error="!!isBalanceError"
             :label="$t('tokenOperations.amount')"
-            :on-reset="successHash || clearAddress"
+            :on-reset="clearAddress"
             :is-token-loading="isTokensLoadingForChain"
             class="mt-10"
             @setAmount="onSetAmount"
@@ -42,6 +42,7 @@ import { LoadingOutlined } from '@ant-design/icons-vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 import useNotification from '@/compositions/useNotification';
+import useTransactions from '../../../Transactions/compositions/useTransactions';
 
 import Button from '@/components/ui/Button';
 import SelectNetwork from '@/components/ui/SelectNetwork';
@@ -51,6 +52,8 @@ import SelectAmount from '@/components/ui/SelectAmount';
 import { sortByKey } from '@/helpers/utils';
 
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+import { STATUSES } from '../../../Transactions/shared/constants';
+
 import { isCorrectChain } from '@/shared/utils/operations';
 
 export default {
@@ -65,25 +68,17 @@ export default {
         const store = useStore();
         const router = useRouter();
 
+        const { name: module } = router.currentRoute.value;
+
         // * Notification
         const { showNotification, closeNotification } = useNotification();
 
         // * Adapter for wallet
-        const {
-            walletAddress,
-            connectedWallet,
-            currentChainInfo,
-            validateAddress,
-            chainList,
-            prepareTransaction,
-            signSend,
-            setChain,
-            getTxExplorerLink,
-        } = useAdapter();
+        const { walletAddress, connectedWallet, currentChainInfo, validateAddress, chainList, walletAccount, setChain } = useAdapter();
 
-        const txError = ref('');
+        const { createTransactions, signAndSend, transactionForSign } = useTransactions();
+
         const isLoading = ref(false);
-        const successHash = ref('');
 
         const amount = ref('');
 
@@ -162,7 +157,11 @@ export default {
         const onSetAddress = (addr = '') => {
             receiverAddress.value = addr;
 
-            const isAddressAllowed = !validateAddress(addr) && addr.length > 0;
+            if (!addr) {
+                return (isAddressError.value = false);
+            }
+
+            const isAddressAllowed = !validateAddress(addr) && addr?.length > 0;
 
             return (isAddressError.value = isAddressAllowed);
         };
@@ -195,6 +194,7 @@ export default {
                 return;
             }
 
+            clearAddress.value = false;
             isLoading.value = true;
 
             const { isChanged, btnTitle } = await isCorrectChain(selectedNetwork, currentChainInfo, setChain);
@@ -214,49 +214,57 @@ export default {
                 token: selectedToken.value,
             };
 
-            // reset values for next send
-            clearAddress.value = true;
+            console.log('dataForPrepare', dataForPrepare);
 
-            amount.value = '';
-            receiverAddress.value = '';
-
-            clearAddress.value = false;
+            showNotification({
+                key: 'prepare-tx',
+                type: 'info',
+                title: `Sending ${dataForPrepare.amount} ${dataForPrepare.token.symbol} ...`,
+                description: 'Please wait, transaction is preparing',
+                icon: h(LoadingOutlined, {
+                    spin: true,
+                }),
+                duration: 0,
+            });
 
             try {
-                showNotification({
-                    key: 'prepare-tx',
-                    type: 'info',
-                    title: `Sending ${dataForPrepare.amount} ${dataForPrepare.token.symbol} ...`,
-                    description: 'Please wait, transaction is preparing',
-                    icon: h(LoadingOutlined, {
-                        spin: true,
-                    }),
-                    duration: 0,
-                });
+                // TODO: multiple transactions for send module
+                const txs = [
+                    {
+                        index: 0,
+                        ecosystem: selectedNetwork.value?.ecosystem,
+                        module,
+                        status: STATUSES.IN_PROGRESS,
+                        parameters: {
+                            ...dataForPrepare,
+                        },
+                        account: walletAccount.value,
+                        chainId: `${selectedNetwork.value?.chain_id}`,
+                        metaData: {
+                            action: 'prepareTransaction',
+                            type: 'Transfer',
+                        },
+                    },
+                ];
 
-                const tx = await prepareTransaction(
-                    dataForPrepare.fromAddress,
-                    dataForPrepare.toAddress,
-                    dataForPrepare.amount,
-                    dataForPrepare.token
-                );
+                await createTransactions(txs);
 
-                if (tx.error) {
-                    closeNotification('prepare-tx');
-                    return (txError.value = tx.error);
-                }
+                const resTx = await signAndSend(transactionForSign.value);
 
-                const resTx = await signSend(tx);
+                closeNotification('prepare-tx');
 
                 if (resTx.error) {
-                    closeNotification('prepare-tx');
-                    return (txError.value = resTx.error);
+                    clearAddress.value = false;
+                    return (isLoading.value = false);
                 }
 
-                successHash.value = getTxExplorerLink(resTx.transactionHash, currentChainInfo.value);
-                isLoading.value = false;
+                clearAddress.value = true;
+
+                return (isLoading.value = false);
             } catch (error) {
                 closeNotification('prepare-tx');
+                isLoading.value = false;
+                clearAddress.value = false;
             }
         };
 
@@ -281,62 +289,18 @@ export default {
             store.dispatch('tokenOps/setSelectType', TOKEN_SELECT_TYPES.FROM);
             store.dispatch('tokenOps/setDirection', DIRECTIONS.SOURCE);
             store.dispatch('tokenOps/setOnlyWithBalance', true);
+            store.dispatch('txManager/setCurrentRequestID', null);
 
             setTokenOnChange();
         });
 
         onUpdated(() => setTokenOnChange());
 
-        watch(txError, (err) => {
-            if (!err) {
-                return;
-            }
-
-            showNotification({
-                key: 'error-tx',
-                type: 'error',
-                title: 'Transaction error',
-                description: JSON.stringify(txError.value || 'Unknown error'),
-                duration: 5,
-            });
-
-            closeNotification('prepare-tx');
-
-            isLoading.value = false;
-        });
-
         watch(currentChainInfo, () => {
             selectedNetwork.value = currentChainInfo.value;
         });
 
         watch(isTokensLoadingForChain, () => setTokenOnChange());
-
-        watch(successHash, () => {
-            if (!successHash.value) {
-                return;
-            }
-
-            showNotification({
-                key: 'success-send-tx',
-                type: 'success',
-                title: 'Click to view transaction',
-                onClick: () => {
-                    window.open(successHash.value, '_blank');
-                    closeNotification('success-send-tx');
-                    successHash.value = '';
-                },
-                duration: 4,
-                style: {
-                    cursor: 'pointer',
-                },
-            });
-
-            closeNotification('prepare-tx');
-
-            return setTimeout(() => {
-                successHash.value = '';
-            }, 5000);
-        });
 
         return {
             isLoading,
@@ -361,12 +325,10 @@ export default {
 
             opTitle,
 
-            txError,
-            successHash,
+            chainList,
             walletAddress,
             selectedNetwork,
             connectedWallet,
-            chainList,
             currentChainInfo,
         };
     },
