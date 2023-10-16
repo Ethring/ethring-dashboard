@@ -453,16 +453,26 @@ export default {
 
         // =================================================================================================================
 
-        const checkAllowance = async (amount) => {
-            if (allowance.value >= toMantissa(amount, currentRoute.value.fromToken?.decimals)) {
-                isNeedApprove.value = false;
+        const isEnoughAllowance = async () => {
+            if (!selectedSrcNetwork.value || !walletAddress.value) {
                 return;
             }
 
-            if (!approveTx.value && currentRoute.value.fromToken?.address) {
-                isNeedApprove.value = true;
-                await getApproveTx();
+            isLoading.value = true;
+
+            if (allowance.value >= toMantissa(amount.value, currentRoute.value.fromToken?.decimals)) {
+                isLoading.value = false;
+                opTitle.value = 'tokenOperations.swap';
+                return (isNeedApprove.value = false);
             }
+
+            isNeedApprove.value = true;
+
+            if (approveTx.value) {
+                return;
+            }
+
+            return await makeApproveRequest();
         };
 
         const getAllowance = async () => {
@@ -488,7 +498,7 @@ export default {
 
         // =================================================================================================================
 
-        const getApproveTx = async () => {
+        const makeApproveRequest = async () => {
             if (!currentRoute.value.fromToken?.address) {
                 return;
             }
@@ -532,7 +542,7 @@ export default {
 
             setTimeout(async () => {
                 await getAllowance();
-                await checkAllowance(amount.value);
+                await isEnoughAllowance();
                 isSwapLoading.value = false;
             }, 5000);
         };
@@ -595,7 +605,7 @@ export default {
 
                 if (currentRoute.value.needApprove) {
                     isNeedApprove.value = true;
-                    getApproveTx();
+                    makeApproveRequest();
                 } else {
                     opTitle.value = 'tokenOperations.swap';
                 }
@@ -680,7 +690,7 @@ export default {
             // APPROVE
             if (approveTx.value && isNeedApprove.value) {
                 opTitle.value = 'tokenOperations.approve';
-                return await makeApproveTx();
+                await makeApproveTx();
             }
 
             const SERVICE_API = getServiceApi(currentRoute.value.service.type);
@@ -771,7 +781,7 @@ export default {
             isNeedNetworkChange.value = false;
             if (currentRoute.value.isNeedApprove) {
                 isNeedApprove.value = true;
-                await getApproveTx();
+                await makeApproveRequest();
             }
             await swap();
         };
@@ -866,10 +876,11 @@ export default {
                 bestRouteInfo.value.bestRoute.toTokenAmount / bestRouteInfo.value.bestRoute.fromTokenAmount,
                 6
             );
+
             isNeedApprove.value = currentRoute.value?.isNeedApprove;
 
             if (isNeedApprove.value) {
-                getApproveTx();
+                makeApproveRequest();
             }
         });
 

@@ -320,7 +320,7 @@ async function findRoute(params) {
             return { error };
         }
 
-        bestRoute.needApprove = await checkAllowance(
+        bestRoute.isNeedApprove = await checkAllowance(
             params.net,
             params.fromToken.address,
             params.walletAddress,

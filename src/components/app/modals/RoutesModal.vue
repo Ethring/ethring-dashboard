@@ -81,7 +81,7 @@ export default {
         const confirm = async () => {
             isLoading.value = true;
             for (let i = 0; i < selectedRoute.value.routes.length; i++) {
-                selectedRoute.value.routes[i].needApprove = await checkAllowance(
+                selectedRoute.value.routes[i].isNeedApprove = await checkAllowance(
                     selectedRoute.value.routes[i].net,
                     selectedRoute.value.routes[i].fromToken?.address,
                     walletAddress.value,
