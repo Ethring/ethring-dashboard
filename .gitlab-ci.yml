@@ -107,6 +107,7 @@ Build branch:
   except:
     - dev
     - master
+    - schedules
 
 Build prod:
   extends: .dockerBuildJob
@@ -141,6 +142,7 @@ Deploy branch:
   except:
     - dev
     - master
+    - schedules
 
 Deploy prod:
   extends: .deployJob
