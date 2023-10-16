@@ -124,14 +124,6 @@ export async function findBestRoute(amount, walletAddress, fromToken, toToken) {
             return result;
         }
 
-        if (result.error?.message === ERRORS.INTERNAL_ERROR) {
-            return { error: ERRORS.ROUTE_NOT_FOUND };
-        }
-
-        if (result.error?.message?.includes(ERRORS.NOT_SUPPORTED_TOKEN)) {
-            return { error: ERRORS.ROUTE_NOT_FOUND };
-        }
-
         if (fromNetwork.net !== toNetwork.net) {
             const result1 = await getBestRoute(getParams(fromNetwork, fromToken, toNetwork, toNetwork, amount, walletAddress));
             if (result1.bestRoute) {
@@ -270,14 +262,7 @@ async function findRoute(params) {
             error = null;
 
             if (resEstimate.error) {
-                if (resEstimate.error === ERRORS.BRIDGE_ERROR) {
-                    error = ERRORS.BRIDGE_ERROR;
-                }
-                if (resEstimate.error?.error === 'Bad Request') {
-                    error = ERRORS.ROUTE_NOT_FOUND;
-                } else {
-                    error = resEstimate.error;
-                }
+                error = ERRORS.ROUTE_NOT_FOUND;
                 return;
             }
 

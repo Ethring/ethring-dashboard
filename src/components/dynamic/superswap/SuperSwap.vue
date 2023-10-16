@@ -301,7 +301,6 @@ export default {
             estimateRate.value = 0;
             networkFee.value = 0;
             bestRoute.value = null;
-            clearApprove();
         };
 
         const handleOnSelectNetwork = (network, direction) => {
@@ -318,6 +317,8 @@ export default {
             selectedDstNetwork.value = network;
 
             selectedDstToken.value = null;
+
+            resetValues();
 
             return (opTitle.value = 'tokenOperations.swap');
         };
@@ -798,6 +799,7 @@ export default {
 
         watch(selectedSrcNetwork, () => {
             resetValues();
+            clearApprove();
             selectedSrcToken.value = null;
             setTokenOnChange();
         });
