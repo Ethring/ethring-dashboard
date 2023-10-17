@@ -1,6 +1,6 @@
 <template>
     <div class="simple-swap">
-        <SelectNetwork :items="chains" :current="selectedNetwork" @select="onSelectNetwork" />
+        <SelectNetwork :items="chains" :current="selectedSrcNetwork" @select="onSelectNetwork" />
 
         <div class="simple-swap__switch-wrap">
             <SelectAmount
