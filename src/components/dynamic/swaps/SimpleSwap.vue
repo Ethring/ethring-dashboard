@@ -335,7 +335,6 @@ export default {
 
             if (!+value) {
                 estimateErrorTitle.value = '';
-                
                 return checkBalanceAllowed();
             }
 
@@ -631,7 +630,7 @@ export default {
             if (!responseSwap) {
                 return (isLoading.value = false);
             }
-            
+
             try {
                 const responseSendTx = await sendTransaction(responseSwap);
 
