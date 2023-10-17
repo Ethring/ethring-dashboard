@@ -66,7 +66,9 @@
     "switchNetwork": "Switch network",
     "routeInfo": "Route info",
     "emptyAssets": "No tokens",
-    "chooseAddress": "Choose another address"
+    "chooseAddress": "Choose another address",
+    "selectDstToken": "Please select token to receive",
+    "selectSrcToken": "Please select token to send"
   },
   "simpleSend": {
     "title": "Send"

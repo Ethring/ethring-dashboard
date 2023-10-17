@@ -311,7 +311,6 @@ export default {
             isNeedApprove.value = false;
             receiveValue.value = '';
             bestRoute.value = null;
-            clearApprove();
         };
 
         const handleOnSelectNetwork = (network, direction) => {

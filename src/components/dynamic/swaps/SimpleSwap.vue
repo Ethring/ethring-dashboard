@@ -334,6 +334,8 @@ export default {
             receiveValue.value = '';
 
             if (!+value) {
+                estimateErrorTitle.value = '';
+                
                 return checkBalanceAllowed();
             }
 
@@ -629,7 +631,7 @@ export default {
             if (!responseSwap) {
                 return (isLoading.value = false);
             }
-
+            
             try {
                 const responseSendTx = await sendTransaction(responseSwap);
 
@@ -649,6 +651,8 @@ export default {
                         store.dispatch('networks/setSelectedNetwork', wallet);
                     },
                 });
+
+                resetAmount.value = true;
 
                 isLoading.value = false;
 
