@@ -572,8 +572,7 @@ export default {
                 !selectedDstToken.value ||
                 !+amount.value
             ) {
-                estimateError.value = 'Select all fields';
-                return;
+                return (estimateError.value = 'Select all fields');
             }
 
             isLoading.value = true;
@@ -810,6 +809,11 @@ export default {
             onSetAmount('');
             selectedSrcToken.value = null;
             setTokenOnChange();
+            getEstimateInfo();
+        });
+
+        watch(selectedDstNetwork, () => {
+            getEstimateInfo();
         });
 
         watch(txError, (err) => {
