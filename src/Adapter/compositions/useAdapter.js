@@ -242,7 +242,7 @@ function useAdapter() {
     // * Set New Chain by Ecosystem
     const setNewChain = async (ecosystem, newChainInfo) => {
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
-       
+
         const changed = await adapter.setChain(newChainInfo);
 
         if (changed) {
