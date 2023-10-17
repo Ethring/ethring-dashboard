@@ -34,24 +34,17 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
         const isNotEqualToSelected = (tkn) => {
             const addresses = [];
-            const symbols = [];
 
             if (fromToken && fromToken.address) {
                 addresses.push(fromToken.address.toLowerCase());
-            } else if (fromToken && fromToken.symbol) {
-                symbols.push(fromToken.symbol);
             }
 
             if (toToken && toToken.address) {
                 addresses.push(toToken.address.toLowerCase());
-            } else if (toToken && toToken.symbol) {
-                symbols.push(toToken.symbol);
             }
 
             if (tkn.address) {
                 return !addresses.includes(tkn.address.toLowerCase());
-            } else if (tkn.symbol) {
-                return !symbols.includes(tkn.symbol);
             }
 
             return true;
