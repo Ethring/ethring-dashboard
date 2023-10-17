@@ -32,6 +32,7 @@ import Sidebar from '@/components/app/Sidebar';
 import LoadingOverlay from '@/components/ui/LoadingOverlay';
 
 import redirectOrStay from '@/shared/utils/routes';
+import { delay } from '@/helpers/utils';
 
 export default {
     name: 'App',
@@ -71,8 +72,13 @@ export default {
                 return;
             }
 
+            store.dispatch('tokens/setLoader', true);
+
+            await delay(1000);
+
             const addressesWithChains = getAddressesWithChainsByEcosystem(ecosystem);
 
+            console.log('addressesWithChains', addressesWithChains, ecosystem);
             await useInit(store, { account: walletAccount.value, addressesWithChains, currentChainInfo: currentChainInfo.value });
         };
 
@@ -88,8 +94,6 @@ export default {
         });
 
         watchEffect(async () => {
-            console.log('isStay', currentChainInfo.value);
-
             if (isConnecting) {
                 return;
             }
