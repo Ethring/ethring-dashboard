@@ -129,6 +129,10 @@ export default function useTransactions() {
             formatTransactionForSign: (parameters) => formatTransactionForSign(parameters),
         };
 
+        if (!transaction) {
+            return;
+        }
+
         const { id, ...txBody } = transaction;
 
         const { parameters, metaData } = txBody;

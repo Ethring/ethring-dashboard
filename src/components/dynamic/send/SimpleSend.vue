@@ -214,8 +214,6 @@ export default {
                 token: selectedToken.value,
             };
 
-            console.log('dataForPrepare', dataForPrepare);
-
             showNotification({
                 key: 'prepare-tx',
                 type: 'info',

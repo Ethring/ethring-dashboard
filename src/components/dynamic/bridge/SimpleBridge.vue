@@ -63,55 +63,15 @@
             @setAddress="onSetAddress"
         />
 
-        <Accordion v-if="receiveValue || estimateErrorTitle" :hide="!receiveValue" class="mt-10">
-            <template #header>
-                <div v-if="!estimateErrorTitle" class="accordion__title">
-                    <div>
-                        <span>Protocol Fee</span> :
-                        <span class="service-fee"> {{ protocolFeeInfo.inCurrency.amount }} </span>
-                        <span class="symbol">
-                            {{ protocolFeeInfo.inCurrency.symbol }} ~
-                            <span class="service-fee">
-                                {{ protocolFeeInfo.inUSD.amount }}
-                            </span>
-
-                            <span class="symbol">
-                                {{ protocolFeeInfo.inUSD.symbol }}
-                            </span>
-                        </span>
-                    </div>
-                </div>
-
-                <a-tooltip v-else class="accordion__title">
-                    <template #title>{{ estimateErrorTitle }}</template>
-                    {{ $t('tokenOperations.routeInfo') }}:
-                    <span class="route-info-title">{{ estimateErrorTitle }}</span>
-                </a-tooltip>
-            </template>
-
-            <template #content>
-                <div>
-                    <AccordionItem :label="$t('simpleBridge.serviceFee') + ' :'">
-                        <span class="service-fee"> {{ networkFeeInfo.inCurrency.amount }} </span>
-                        <span class="symbol">
-                            {{ networkFeeInfo.inCurrency.symbol }} ~
-                            <span class="service-fee">
-                                {{ networkFeeInfo.inUSD.amount }}
-                            </span>
-                            {{ networkFeeInfo.inUSD.symbol }}
-                        </span>
-                    </AccordionItem>
-
-                    <AccordionItem :label="$t('simpleBridge.title') + ' :'">
-                        <img :src="selectedService.icon" alt="service-logo" />
-                        <span class="symbol">{{ selectedService.name }}</span>
-                    </AccordionItem>
-                    <AccordionItem :label="$t('tokenOperations.time') + ' :'">
-                        {{ estimateTime }}
-                    </AccordionItem>
-                </div>
-            </template>
-        </Accordion>
+        <EstimateInfo
+            v-if="receiveValue || estimateErrorTitle"
+            :loading="isEstimating"
+            :service="selectedService"
+            :title="$t('tokenOperations.routeInfo')"
+            :main-fee="protocolFeeMain"
+            :fees="[feeInfo, estimateTimeInfo]"
+            :error="estimateErrorTitle"
+        />
 
         <Button
             :title="$t(opTitle)"
@@ -152,10 +112,9 @@ import SelectAmount from '@/components/ui/SelectAmount';
 import SelectAddress from '@/components/ui/SelectAddress';
 import SelectNetwork from '@/components/ui/SelectNetwork';
 
-import Accordion from '@/components/ui/Accordion';
-import AccordionItem from '@/components/ui/AccordionItem';
 import Checkbox from '@/components/ui/Checkbox';
 import Button from '@/components/ui/Button';
+import EstimateInfo from '@/components/ui/EstimateInfo.vue';
 
 import { prettyNumber } from '@/helpers/prettyNumber';
 
@@ -171,9 +130,8 @@ export default {
         SelectNetwork,
         SelectAddress,
         Button,
-        Accordion,
-        AccordionItem,
         Checkbox,
+        EstimateInfo,
     },
     setup() {
         const store = useStore();
@@ -203,19 +161,27 @@ export default {
         // Errors
         const txError = ref('');
         const txErrorTitle = ref('Transaction error');
+
         const estimateErrorTitle = ref('');
 
         const resetAmount = ref(false);
 
-        const networkFeeInfo = ref({
-            inCurrency: {
-                amount: 0,
-                symbol: '',
-            },
-            inUSD: {
-                amount: 0,
-                symbol: '$',
-            },
+        const feeInfo = ref({
+            title: '',
+            symbolBetween: '',
+            fromAmount: '',
+            fromSymbol: '',
+            toAmount: '',
+            toSymbol: '',
+        });
+
+        const estimateTimeInfo = ref({
+            title: '',
+            symbolBetween: '',
+            fromAmount: '',
+            fromSymbol: '',
+            toAmount: '',
+            toSymbol: '',
         });
 
         // Bridge Data
@@ -330,7 +296,7 @@ export default {
             return fee;
         });
 
-        const protocolFeeInfo = computed(() => {
+        const protocolFeeMain = computed(() => {
             const { protocolFee = null } = selectedService.value || {};
 
             if (!protocolFee) {
@@ -354,14 +320,12 @@ export default {
             const feeInUSD = prettyNumber(BigNumber(fee).multipliedBy(price).toString());
 
             return {
-                inCurrency: {
-                    amount: fee,
-                    symbol: symbol,
-                },
-                inUSD: {
-                    amount: feeInUSD,
-                    symbol: '$',
-                },
+                title: 'tokenOperations.protocolFee',
+                symbolBetween: '~',
+                fromAmount: fee,
+                fromSymbol: symbol,
+                toAmount: feeInUSD,
+                toSymbol: '$',
             };
         });
 
@@ -549,7 +513,7 @@ export default {
                 await isEnoughAllowance();
             }
 
-            const isEnoughForFee = BigNumber(selectedSrcToken.value?.balance).gt(networkFeeInfo.value.inCurrency.amount);
+            const isEnoughForFee = BigNumber(selectedSrcToken.value?.balance).gt(feeInfo.value.fromAmount);
 
             if (!isNotEnoughBalance || isEnoughForFee) {
                 return await makeEstimateBridgeRequest();
@@ -569,6 +533,11 @@ export default {
 
             if (!selectedSrcToken.value) {
                 estimateErrorTitle.value = t('tokenOperations.selectSrcToken');
+                return false;
+            }
+
+            if (!selectedDstNetwork.value) {
+                estimateErrorTitle.value = t('tokenOperations.selectDstNetwork');
                 return false;
             }
 
@@ -701,10 +670,6 @@ export default {
                 return (isEstimating.value = false);
             }
 
-            isEstimating.value = false;
-
-            receiveValue.value = response.toTokenAmount;
-
             estimateErrorTitle.value = '';
 
             isEstimating.value = false;
@@ -713,19 +678,33 @@ export default {
             // TODO: add fee
             receiveValue.value = response.toTokenAmount;
 
-            networkFeeInfo.value.inCurrency = {
-                amount: prettyNumber(response.fee.amount),
-                symbol: response.fee.currency,
+            feeInfo.value = {
+                title: 'tokenOperations.serviceFee',
+                symbolBetween: '~',
+                fromAmount: prettyNumber(response.fee.amount),
+                fromSymbol: response.fee.currency,
+                toAmount: prettyNumber(BigNumber(response.fee.amount).multipliedBy(selectedSrcToken.value?.price).toString()),
+                toSymbol: '$',
             };
 
-            networkFeeInfo.value.inUSD.amount = prettyNumber(
-                BigNumber(response.fee.amount).multipliedBy(selectedSrcToken.value?.price).toString()
-            );
+            const { estimatedTime = {} } = selectedService.value || {};
 
-            estimateTime.value =
-                '< ' +
-                Math.round(services[0]?.estimatedTime[selectedSrcNetwork?.value?.chain_id || selectedSrcNetwork?.value?.chainId] / 60) +
-                ' min';
+            const { chainId, chain_id } = selectedSrcNetwork.value || {};
+
+            const chain = chainId || chain_id;
+
+            if (estimatedTime[chain]) {
+                const time = Math.round(estimatedTime[chain] / 60);
+
+                estimateTimeInfo.value = {
+                    title: 'tokenOperations.time',
+                    symbolBetween: '<',
+                    fromAmount: '',
+                    fromSymbol: '',
+                    toAmount: time,
+                    toSymbol: 'min',
+                };
+            }
         };
 
         // =================================================================================================================
@@ -1018,8 +997,9 @@ export default {
             amount,
 
             // Information for accordion
-            networkFeeInfo,
-            protocolFeeInfo,
+            protocolFeeMain,
+            feeInfo,
+            estimateTimeInfo,
             estimateTime,
             serviceFee,
             txError,
@@ -1081,6 +1061,7 @@ export default {
         margin-left: 5px;
         font-weight: 600;
     }
+
     .accordion__title {
         display: flex;
         align-items: center;

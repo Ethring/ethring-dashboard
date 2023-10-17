@@ -34,29 +34,15 @@
             />
         </div>
 
-        <Accordion v-if="receiveValue || estimateErrorTitle" :loading="isEstimating" class="mt-10" :hide="estimateErrorTitle.length > 0">
-            <template #header>
-                <div v-if="!estimateErrorTitle" class="accordion__title">
-                    <div v-html="setReceiveValue"></div>
-                </div>
-
-                <div v-else class="accordion__title">
-                    {{ $t('tokenOperations.routeInfo') }}:
-                    <span class="route-info-title">{{ estimateErrorTitle }}</span>
-                </div>
-            </template>
-            <template #content>
-                <div class="accordion__content">
-                    <AccordionItem :label="$t('tokenOperations.networkFee') + ' : '">
-                        <span class="fee">{{ networkFee }}</span> <span class="fee-symbol">$</span>
-                    </AccordionItem>
-                    <AccordionItem :label="$t('simpleSwap.service') + ' : '">
-                        <img :src="selectedService.icon" alt="service-logo" />
-                        <span class="symbol">{{ selectedService.name }}</span>
-                    </AccordionItem>
-                </div>
-            </template>
-        </Accordion>
+        <EstimateInfo
+            v-if="receiveValue || estimateErrorTitle"
+            :loading="isEstimating"
+            :service="selectedService"
+            :title="$t('tokenOperations.routeInfo')"
+            :main-fee="rateInfo"
+            :fees="[feeInfo]"
+            :error="estimateErrorTitle"
+        />
 
         <Button
             :title="$t(opTitle)"
@@ -99,8 +85,7 @@ import SelectNetwork from '@/components/ui/SelectNetwork';
 
 import SelectAmount from '@/components/ui/SelectAmount';
 
-import Accordion from '@/components/ui/Accordion.vue';
-import AccordionItem from '@/components/ui/AccordionItem.vue';
+import EstimateInfo from '@/components/ui/EstimateInfo.vue';
 
 import SwapIcon from '@/assets/icons/dashboard/swap.svg';
 
@@ -120,8 +105,7 @@ export default {
         SelectAmount,
         Button,
         SwapIcon,
-        Accordion,
-        AccordionItem,
+        EstimateInfo,
     },
 
     setup() {
@@ -158,14 +142,29 @@ export default {
         const isBalanceError = ref(false);
 
         // * Estimate data
-        const estimateRate = ref(0);
-        const networkFee = ref(0);
+        const rateInfo = ref({
+            title: '',
+            symbolBetween: '',
+            fromAmount: '',
+            fromSymbol: '',
+            toAmount: '',
+            toSymbol: '',
+        });
+
+        const feeInfo = ref({
+            title: '',
+            symbolBetween: '',
+            fromAmount: '',
+            fromSymbol: '',
+            toAmount: '',
+            toSymbol: '',
+        });
+
         const resetAmount = ref(false);
 
         // * Amount data
         const amount = ref('');
         const receiveValue = ref('');
-        const setReceiveValue = ref('');
 
         // =================================================================================================================
 
@@ -308,9 +307,6 @@ export default {
             resetAmount.value = true;
             estimateErrorTitle.value = '';
             receiveValue.value = '';
-            setReceiveValue.value = '';
-            estimateRate.value = 0;
-            networkFee.value = 0;
             resetAmount.value = false;
             clearApprove();
             onSetAmount('');
@@ -365,7 +361,7 @@ export default {
                 await makeAllowanceRequest();
             }
 
-            if (selectedSrcToken.value && selectedSrcToken.value.address) {
+            if (allowanceForToken.value && selectedSrcToken.value && selectedSrcToken.value.address) {
                 await isEnoughAllowance();
             }
 
@@ -525,11 +521,23 @@ export default {
 
             const { price = 0 } = native_token || {};
 
-            networkFee.value = prettyNumberTooltip(+response.fee.amount * price, 4);
+            feeInfo.value = {
+                title: 'tokenOperations.networkFee',
+                symbolBetween: '~',
+                fromAmount: prettyNumberTooltip(response.fee.amount),
+                fromSymbol: response.fee.currency,
+                toAmount: prettyNumberTooltip(+response.fee.amount * price, 4),
+                toSymbol: '$',
+            };
 
-            estimateRate.value = prettyNumberTooltip(response.toTokenAmount / response.fromTokenAmount, 6);
-
-            setReceiveValue.value = `Rate: <span class='symbol'>1</span> ${selectedSrcToken.value.symbol} = <span class='symbol'>${estimateRate.value}</span> ${selectedDstToken.value.symbol}`;
+            rateInfo.value = {
+                title: 'tokenOperations.rate',
+                symbolBetween: '=',
+                fromAmount: '1',
+                fromSymbol: selectedSrcToken.value.symbol,
+                toAmount: prettyNumberTooltip(response.toTokenAmount / response.fromTokenAmount, 6),
+                toSymbol: selectedDstToken.value.symbol,
+            };
         };
 
         // =================================================================================================================
@@ -767,6 +775,12 @@ export default {
 
         watch(isTokensLoadingForChain, () => setTokenOnChange());
 
+        watch(selectedSrcToken, async () => {
+            if (!allowanceForToken.value) {
+                await makeAllowanceRequest();
+            }
+        });
+
         // =================================================================================================================
 
         onMounted(async () => {
@@ -817,9 +831,9 @@ export default {
             selectedDstToken,
             receiveValue,
 
-            estimateRate,
-            networkFee,
-            setReceiveValue,
+            feeInfo,
+            rateInfo,
+
             selectedService,
 
             onSelectNetwork,
@@ -887,6 +901,23 @@ export default {
         width: 100%;
     }
 
+    .service-fee {
+        font-weight: 600;
+        color: var(--#{$prefix}sub-text);
+    }
+
+    .symbol {
+        margin-left: 5px;
+        font-weight: 600;
+    }
+
+    .accordion__title {
+        img {
+            width: 16px;
+            height: 16px;
+        }
+    }
+
     .accordion__content {
         img {
             width: 16px;
@@ -903,33 +934,6 @@ export default {
         .fee-symbol {
             color: $colorPl;
             font-weight: 400;
-        }
-    }
-
-    .accordion__title {
-        display: flex;
-        align-items: center;
-
-        font-weight: 400;
-        color: var(--zmt-accordion-label-color);
-        font-size: var(--zmt-default-fs);
-
-        .symbol {
-            font-weight: 600;
-        }
-
-        .route-info-title {
-            color: var(--#{$prefix}warning);
-            font-weight: 500;
-            line-height: 20px;
-            opacity: 0.8;
-
-            display: inline;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            white-space: nowrap;
-            width: 500px;
-            margin-left: 4px;
         }
     }
 }

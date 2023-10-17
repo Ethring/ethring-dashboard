@@ -67,8 +67,12 @@
     "routeInfo": "Route info",
     "emptyAssets": "No tokens",
     "chooseAddress": "Choose another address",
+    "selectDstNetwork": "Please select network to receive",
     "selectDstToken": "Please select token to receive",
-    "selectSrcToken": "Please select token to send"
+    "selectSrcToken": "Please select token to send",
+    "rate": "Rate",
+    "protocolFee": "Protocol Fee",
+    "serviceFee": "Service Fee"
   },
   "simpleSend": {
     "title": "Send"
