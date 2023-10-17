@@ -898,6 +898,9 @@ export default {
 
         watch(walletAccount, () => {
             selectedSrcNetwork.value = currentChainInfo.value;
+            selectedSrcToken.value = null;
+            selectedDstNetwork.value = currentChainInfo.value;
+            selectedDstToken.value = null;
             setTokenOnChange();
         });
 

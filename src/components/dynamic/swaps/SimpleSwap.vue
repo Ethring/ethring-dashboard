@@ -209,9 +209,6 @@ export default {
         // =================================================================================================================
 
         const setTokenOnChange = () => {
-            selectedTokenFrom.value = null;
-            selectedTokenTo.value = null;
-
             tokensList.value = getTokensList({
                 srcNet: selectedNetwork.value,
             });
@@ -721,6 +718,8 @@ export default {
 
         watch(walletAccount, () => {
             selectedNetwork.value = currentChainInfo.value;
+            selectedTokenFrom.value = null;
+            selectedTokenTo.value = null;
             setTokenOnChange();
         });
 
@@ -734,6 +733,7 @@ export default {
             }
 
             setTokenOnChange();
+
             await makeAllowanceRequest();
         });
 
