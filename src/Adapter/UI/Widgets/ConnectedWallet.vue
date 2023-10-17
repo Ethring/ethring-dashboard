@@ -107,7 +107,12 @@ export default {
             };
 
             try {
-                await setNewChain(props.wallet.ecosystem, chainInfo);
+                const changed = await setNewChain(props.wallet.ecosystem, chainInfo);
+
+                if(!changed) {
+                    selectedChain.value = oldChain;
+                }
+
             } catch (error) {
                 console.error(error);
                 await setNewChain(props.wallet.ecosystem, {
