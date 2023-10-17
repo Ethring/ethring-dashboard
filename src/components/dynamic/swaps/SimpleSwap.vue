@@ -99,6 +99,8 @@ import { checkErrors } from '@/helpers/checkErrors';
 import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { isCorrectChain } from '@/shared/utils/operations';
 
+import { updateWalletBalances } from '@/shared/utils/balances';
+
 export default {
     name: 'SimpleSwap',
 
@@ -226,16 +228,12 @@ export default {
                 selectedTokenTo.value = defaultToToken;
             }
 
-            if (!balanceUpdated.value) {
-                return;
-            }
-
             if (!selectedTokenFrom.value && !selectedTokenTo.value) {
                 return;
             }
 
             const { symbol: fromSymbol } = selectedTokenFrom.value || {};
-            const { symbol: toSymbol } = selectedTokenFrom.value || {};
+            const { symbol: toSymbol } = selectedTokenTo.value || {};
 
             const searchTokens = [fromSymbol, toSymbol];
 
@@ -335,7 +333,7 @@ export default {
 
             if (!+value) {
                 estimateErrorTitle.value = '';
-                
+
                 return checkBalanceAllowed();
             }
 
@@ -631,7 +629,7 @@ export default {
             if (!responseSwap) {
                 return (isLoading.value = false);
             }
-            
+
             try {
                 const responseSendTx = await sendTransaction(responseSwap);
 
@@ -643,20 +641,15 @@ export default {
 
                 successHash.value = getTxExplorerLink(responseSendTx.transactionHash, currentChainInfo.value);
 
-                store.dispatch('tokens/updateTokenBalances', {
-                    net: selectedNetwork.value.net,
-                    address: walletAddress.value,
-                    info: selectedNetwork.value,
-                    update(wallet) {
-                        store.dispatch('networks/setSelectedNetwork', wallet);
-                    },
-                });
+                setTimeout(() => {
+                    updateWalletBalances(walletAddress.value, selectedNetwork.value, () => {
+                        balanceUpdated.value = true;
+                    });
+                }, 10000);
 
                 resetAmount.value = true;
 
                 isLoading.value = false;
-
-                balanceUpdated.value = true;
             } catch (error) {
                 txError.value = error?.message || error?.error || error;
             }
@@ -669,6 +662,12 @@ export default {
                 resetValues();
                 selectedTokenFrom.value = null;
                 selectedTokenTo.value = null;
+                setTokenOnChange();
+            }
+        });
+
+        watch(balanceUpdated, () => {
+            if (balanceUpdated.value) {
                 setTokenOnChange();
             }
         });

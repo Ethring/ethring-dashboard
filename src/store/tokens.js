@@ -1,9 +1,3 @@
-import { getBalancesByAddress } from '@/api/data-provider';
-
-import store from './index';
-
-import { sortByKey } from '@/helpers/utils';
-
 const TYPES = {
     SET_DATA_FOR: 'SET_DATA_FOR',
 
@@ -177,52 +171,5 @@ export default {
         setLoadingByChain({ commit }, value) {
             commit(TYPES.SET_LOADING_BY_CHAIN, value);
         },
-
-        async updateTokenBalances(_, selectedNet) {
-            const tokens = _.getters['groupTokens'];
-            const tokensByAddress = _.getters['tokens'];
-
-            const result = await getBalancesByAddress(selectedNet.net, selectedNet.address, {
-                fetchTokens: true,
-                fetchIntegrations: false,
-            });
-
-            if (result.tokens && result.tokens.length) {
-                const nativeToken = result.tokens.find((elem) => elem.symbol === selectedNet.info.symbol);
-                tokens[selectedNet.net].balance = nativeToken?.balance;
-                tokens[selectedNet.net].balanceUsd = nativeToken?.balanceUsd;
-                tokens[selectedNet.net].list = result.tokens;
-                for (const item of result.tokens) {
-                    const index = tokensByAddress[selectedNet.address].findIndex(
-                        (elem) =>
-                            (elem.symbol === item.symbol && elem.address === item.address) || (!item.address && elem.symbol === item.symbol)
-                    );
-                    if (index !== -1) {
-                        item.chainLogo = selectedNet.info?.logo;
-                        tokensByAddress[selectedNet.address][index] = item;
-                    } else {
-                        tokensByAddress[selectedNet.address].push(item);
-                    }
-                }
-            }
-
-            store.dispatch('tokens/setDataFor', {
-                type: 'tokens',
-                account: selectedNet.address,
-                data: tokensByAddress[selectedNet.address],
-            });
-
-            // store.dispatch('tokens/setGroupTokens', tokens);
-
-            const wallet = {
-                ...selectedNet.info,
-                balance: tokens[selectedNet.net]?.balance,
-                balanceUsd: tokens[selectedNet.net].balanceUsd,
-                list: sortByKey(tokens[selectedNet.net].list, 'balanceUsd'),
-            };
-
-            selectedNet.update(wallet);
-        },
-        async getListNonZeroTokens() {},
     },
 };

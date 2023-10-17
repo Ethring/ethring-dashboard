@@ -161,6 +161,8 @@ import { STATUSES, NATIVE_CONTRACT, SUPPORTED_CHAINS } from '@/shared/constants/
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { isCorrectChain } from '@/shared/utils/operations';
 
+import { updateWalletBalances } from '@/shared/utils/balances';
+
 export default {
     name: 'SuperSwap',
     components: {
@@ -392,30 +394,19 @@ export default {
                 return;
             }
 
-            if (!selectedSrcToken.value && !selectedDstToken.value) {
+            if (!selectedSrcToken.value) {
                 return;
             }
 
             const { symbol: fromSymbol } = selectedSrcToken.value || {};
-            const { symbol: toSymbol } = selectedSrcToken.value || {};
 
-            const searchTokens = [fromSymbol, toSymbol];
-
-            const updatedList = tokensList.value?.filter((tkn) => searchTokens.includes(tkn.symbol)) || [];
-
-            if (!updatedList.length) {
-                return;
-            }
-
-            const [fromToken = null, toToken = null] = updatedList;
+            const fromToken = tokensList.value?.find((tkn) => fromSymbol === tkn.symbol) || [];
 
             if (fromToken) {
                 selectedSrcToken.value = fromToken;
             }
 
-            if (toToken) {
-                selectedDstToken.value = toToken;
-            }
+            isBalanceUpdated.value = false;
         };
 
         // =================================================================================================================
@@ -652,18 +643,6 @@ export default {
             return currentRoute.value.service.type + '/getSwapTx';
         };
 
-        const updateBalances = (network, setNetwork) => {
-            store.dispatch('tokens/updateTokenBalances', {
-                net: network.value.net,
-                address: walletAddress.value,
-                info: network.value,
-                update(wallet) {
-                    isBalanceUpdated.value = true;
-                    setNetwork(wallet);
-                },
-            });
-        };
-
         const swap = async () => {
             const network = networkName.value === selectedDstNetwork.value.name ? selectedDstNetwork : selectedSrcNetwork;
 
@@ -755,12 +734,14 @@ export default {
             currentRoute.value = bestRoute.value.routes.find((elem) => elem.status === STATUSES.SIGNING);
 
             setTimeout(() => {
-                updateBalances(selectedSrcNetwork, (network) => handleOnSelectNetwork(network, DIRECTIONS.SOURCE));
+                updateWalletBalances(walletAddress.value, selectedSrcNetwork.value, () => {
+                    isBalanceUpdated.value = true;
+                });
 
-                isBalanceUpdated.value = false;
-
-                updateBalances(selectedDstNetwork, (network) => handleOnSelectNetwork(network, DIRECTIONS.DESTINATION));
-            }, 5000);
+                if (selectedSrcNetwork.value.net !== selectedDstNetwork.value.net) {
+                    updateWalletBalances(walletAddress.value, selectedDstNetwork.value);
+                }
+            }, 10000);
 
             if (!currentRoute.value) {
                 receiveValue.value = null;
@@ -880,6 +861,12 @@ export default {
 
             if (isNeedApprove.value) {
                 getApproveTx();
+            }
+        });
+
+        watch(isBalanceUpdated, () => {
+            if (isBalanceUpdated.value) {
+                setTokenOnChange();
             }
         });
 

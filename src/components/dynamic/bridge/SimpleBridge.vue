@@ -133,6 +133,8 @@ import { getServices, SERVICE_TYPE } from '@/config/services';
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { isCorrectChain } from '@/shared/utils/operations';
 
+import { updateWalletBalances } from '@/shared/utils/balances';
+
 export default {
     name: 'SimpleBridge',
     components: {
@@ -307,7 +309,7 @@ export default {
 
         const setTokenOnChange = () => {
             tokensList.value = getTokensList({
-                srcNet: selectedSrcToken.value,
+                srcNet: selectedSrcNetwork.value,
             });
 
             const [defaultToken = null] = tokensList.value;
@@ -316,20 +318,16 @@ export default {
                 selectedSrcToken.value = defaultToken;
             }
 
-            const { symbol: targetSymbol } = selectedSrcToken.value || {};
-
-            const searchTokens = [targetSymbol];
-
-            const updatedList = tokensList.value?.filter((tkn) => searchTokens.includes(tkn.symbol)) || [];
-
-            if (!updatedList.length) {
+            if (!selectedSrcToken.value) {
                 return;
             }
 
-            const [token = null] = updatedList;
+            const { symbol: fromSymbol } = selectedSrcToken.value || {};
 
-            if (token) {
-                return (selectedSrcToken.value = token);
+            const fromToken = tokensList.value?.find((tkn) => fromSymbol === tkn.symbol) || [];
+
+            if (fromToken) {
+                selectedSrcToken.value = fromToken;
             }
         };
 
@@ -750,25 +748,12 @@ export default {
                 isLoading.value = false;
                 resetAmount.value = true;
 
-                store.dispatch('tokens/updateTokenBalances', {
-                    net: selectedSrcNetwork.value.net,
-                    address: walletAddress.value,
-                    info: selectedSrcNetwork.value,
-                    update(wallet) {
-                        selectedSrcNetwork.value = wallet;
-                    },
-                });
-
-                store.dispatch('tokens/updateTokenBalances', {
-                    net: selectedDstNetwork.value.net,
-                    address: walletAddress.value,
-                    info: selectedDstNetwork.value,
-                    update(wallet) {
-                        selectedDstNetwork.value = wallet;
-                    },
-                });
-
-                balanceUpdated.value = true;
+                setTimeout(() => {
+                    updateWalletBalances(walletAddress.value, selectedSrcNetwork.value, () => {
+                        balanceUpdated.value = true;
+                    });
+                    updateWalletBalances(walletAddress.value, selectedDstNetwork.value, () => {});
+                }, 10000);
             } catch (error) {
                 txError.value = error?.message || error?.error || error;
             }
@@ -781,6 +766,12 @@ export default {
         watch(walletAccount, () => {
             selectedSrcNetwork.value = currentChainInfo.value;
             setTokenOnChange();
+        });
+
+        watch(balanceUpdated, () => {
+            if (balanceUpdated.value) {
+                setTokenOnChange();
+            }
         });
 
         watch(isTokensLoadingForSrc, () => setTokenOnChange());
