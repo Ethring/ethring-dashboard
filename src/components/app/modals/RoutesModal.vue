@@ -13,7 +13,7 @@
                         <div class="routes-modal__row">
                             <div class="routes-modal__row" v-for="(elem, j) in item.routes" :key="j">
                                 <div class="routes-service__icon">
-                                    <img :src="elem.service?.icon" />
+                                    <img :src="elem.service?.icon" alt="service-logo" />
                                 </div>
                                 <h3 class="routes-service__name">{{ elem.service?.name }}</h3>
                                 <h1 v-if="j != item.routes.length - 1">-</h1>
@@ -24,21 +24,18 @@
                         </div>
                         <div class="routes-modal__row routes-time">
                             {{ $t('superSwap.time') }}: ~
-                            <h4>{{ item.estimateTime }}s</h4>
-                            {{ $t('superSwap.fee') }}: $
-                            <h4>{{ prettyNumberTooltip(item.estimateFeeUsd, 4) }}</h4>
+                            <h4 class="mr-20">{{ item.estimateTime }}s</h4>
+                            {{ $t('superSwap.fee') }}:
+                            <h4>{{ prettyNumberTooltip(item.estimateFeeUsd, 6) }}</h4>
+                            $
                         </div>
                     </div>
                     <div class="routes-modal__output">
-                        <p>{{ $t('superSwap.output') }}</p>
-                        <div class="routes-modal__row">
-                            <h3>
-                                {{ prettyNumberTooltip(item.toTokenAmount, 4) }}
-                                <span>{{ item.routes[item.routes.length - 1]?.toToken?.code }}</span>
-                            </h3>
-                            <h4>/</h4>
-                            <h3 class="blue-text"><span>$</span> {{ prettyNumberTooltip(item.toAmountUsd, 2) }}</h3>
-                        </div>
+                        <h3>
+                            {{ prettyNumberTooltip(item.toTokenAmount, 4) }}
+                            <span>{{ item.routes[item.routes.length - 1]?.toToken?.symbol }}</span>
+                        </h3>
+                        <h3 class="blue-text">{{ prettyNumberTooltip(item.toAmountUsd, 2) }} <span>$</span></h3>
                     </div>
                 </div>
                 <Button
@@ -63,7 +60,7 @@ import Button from '@/components/ui/Button';
 import { prettyNumberTooltip } from '@/helpers/prettyNumber';
 import { checkAllowance } from '@/modules/SuperSwap/baseScript';
 
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 
 export default {
     name: 'RoutesModal',
@@ -76,7 +73,8 @@ export default {
         const store = useStore();
         const selectedRoute = ref(null);
         const isLoading = ref(false);
-        const { walletAddress } = useWeb3Onboard();
+
+        const { walletAddress } = useAdapter();
 
         const routeInfo = computed(() => store.getters['swap/bestRoute']);
 
@@ -101,6 +99,7 @@ export default {
                     return elem;
                 }),
             };
+
             store.dispatch('swap/setBestRoute', data);
             isLoading.value = false;
             store.dispatch('swap/setShowRoutes', false);
@@ -161,6 +160,10 @@ export default {
     align-items: flex-start;
     padding: 8px 0;
 
+    .mr-20 {
+        margin-right: 20px !important;
+    }
+
     &__item {
         border-radius: 20px;
         background-color: var(--#{$prefix}modal-block-bg-color);
@@ -170,13 +173,13 @@ export default {
         justify-content: space-between;
         align-items: center;
         margin-bottom: 16px;
-        border: 2px solid var(--#{$prefix}modal-block-bg-color);
+        border: 1px solid var(--#{$prefix}modal-block-bg-color);
         cursor: pointer;
         transition: 0.5s;
     }
     &__active-item {
-        border: 2px solid var(--#{$prefix}icon-border);
-        background-color: var(--#{$prefix}modal-active-block-bg-color);
+        border: 1px solid var(--#{$prefix}banner-logo-color);
+        background-color: var(--#{$prefix}icon-secondary-bg-color);
     }
     &__row {
         display: flex;
@@ -189,25 +192,32 @@ export default {
         p {
             color: var(--#{$prefix}base-text);
             font-size: var(--#{$prefix}small-lg-fs);
+            line-height: var(--#{$prefix}default-fs);
             margin: 0;
         }
         h3 {
             font-weight: 600;
-            font-size: var(--#{$prefix}h6-fs);
-            color: var(--#{$prefix}mute-text);
+            font-size: var(--#{$prefix}default-fs);
+            color: var(--#{$prefix}primary-text);
             margin: 0;
+            margin-top: -6px;
             span {
-                color: var(--#{$prefix}primary);
+                color: var(--#{$prefix}mute-text);
                 font-weight: 400;
             }
         }
         h4 {
             font-size: var(--#{$prefix}h5-fs);
             margin: 0 6px;
-            color: var(--#{$prefix}modal-block-text);
+            color: var(--#{$prefix}sub-text);
         }
         .blue-text {
-            color: var(--#{$prefix}modal-item-text);
+            color: var(--#{$prefix}sub-text) !important;
+            font-size: var(--#{$prefix}small-lg-fs);
+            margin-top: 4px;
+            span {
+                color: var(--#{$prefix}sub-text);
+            }
         }
     }
     &__btn {
@@ -218,30 +228,34 @@ export default {
     .routes-service {
         margin-top: -8px;
         &__name {
-            font-size: var(--#{$prefix}h6-fs);
+            font-size: var(--#{$prefix}default-fs);
             margin: 0;
             margin-left: 8px;
             font-weight: 600;
-            color: var(--#{$prefix}primary);
+            color: var(--#{$prefix}primary-text);
         }
         &__icon {
             border-radius: 50%;
             width: 32px;
             padding: 3px 4px;
             height: 32px;
-            border: 1px solid var(--#{$prefix}icon-border);
+            border: 2px solid var(--#{$prefix}banner-logo-color);
             img {
                 width: 100%;
                 border-radius: 50%;
             }
         }
         .routes-time {
-            margin-top: 2px;
+            margin-top: 4px;
+            font-size: var(--#{$prefix}small-lg-fs);
+            h4 {
+                color: var(--#{$prefix}secondary-text);
+            }
         }
         div {
             color: var(--#{$prefix}base-text);
             h4 {
-                margin: 0 10px 0 2px;
+                margin: 0 2px;
                 font-weight: 600;
             }
         }
@@ -251,7 +265,7 @@ export default {
         }
         &__status {
             border-radius: 20px;
-            font-size: var(--#{$prefix}small-lg-fs);
+            font-size: var(--#{$prefix}small-sm-fs);
             font-weight: 400;
             color: var(--#{$prefix}black);
             padding: 1px 10px;

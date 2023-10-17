@@ -34,7 +34,7 @@ export default {
     &__title {
         font-weight: 600;
         font-size: var(--#{$prefix}h1-fs);
-        color: var(--#{$prefix}black);
+        color: var(--#{$prefix}base-text);
     }
 }
 </style>

@@ -1,11 +1,11 @@
 <template>
-    <div :class="{ active: active && items?.length, focused, error }" class="select-address" @click="active = !active">
+    <div :class="{ active: active && items?.length, focused, error: isError }" class="select-address" @click="active = !active">
         <div class="select-address__panel">
             <div class="recipient">{{ $t('tokenOperations.recipient') }}</div>
             <div class="info-wrap">
                 <div class="info">
                     <div class="network">
-                        <component v-if="selectedNetwork?.net" :is="`${selectedNetwork?.net}Svg`" />
+                        <img class="network-logo" alt="network-logo" :src="selectedNetwork?.logo" />
                     </div>
                     <input
                         v-model="address"
@@ -16,29 +16,16 @@
                         data-qa="input-address"
                         class="input-address"
                     />
+                    <div v-if="address?.length" class="select-address__clear" @click="clearValue">
+                        <ClearIcon />
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div v-if="active && items.length" class="select-address__items" v-click-away="clickAway">
-            <div v-for="(item, ndx) in items" :key="ndx" class="select-address__items-item" @click="selectAddress(item)">
-                <div class="info">
-                    <div class="name">{{ item }}</div>
-                </div>
-                <closeSvg class="remove" @click.stop="removeAddress(item)" />
             </div>
         </div>
     </div>
 </template>
 <script>
-import closeSvg from '@/assets/icons/app/close.svg';
-import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
-import bscSvg from '@/assets/icons/networks/bsc.svg';
-import ethSvg from '@/assets/icons/networks/eth.svg';
-import polygonSvg from '@/assets/icons/networks/polygon.svg';
-import optimismSvg from '@/assets/icons/networks/optimism.svg';
-import arbitrumSvg from '@/assets/icons/networks/arbitrum.svg';
-import evmosethSvg from '@/assets/icons/networks/evmoseth.svg';
-import avalancheSvg from '@/assets/icons/networks/avalanche.svg';
+import ClearIcon from '@/assets/icons/app/xmark.svg';
 
 import { ref, watch, onMounted } from 'vue';
 
@@ -67,20 +54,14 @@ export default {
         },
     },
     components: {
-        closeSvg,
-        arrowSvg,
-        bscSvg,
-        ethSvg,
-        polygonSvg,
-        optimismSvg,
-        arbitrumSvg,
-        evmosethSvg,
-        avalancheSvg,
+        ClearIcon,
     },
     setup(props, { emit }) {
         const active = ref(false);
         const focused = ref(false);
         const address = ref(props.value);
+        const isError = ref(props.error);
+
         const placeholder = ref('Address');
 
         watch(
@@ -91,6 +72,13 @@ export default {
                     active.value = false;
                     emit('setAddress', address.value);
                 }
+            }
+        );
+
+        watch(
+            () => props.error,
+            () => {
+                isError.value = props.error;
             }
         );
 
@@ -126,22 +114,27 @@ export default {
             active.value = false;
         };
 
-        const removeAddress = (address) => {
-            emit('removeAddress', { net: props.selectedNetwork.net, address });
-            active.value = false;
+        const clearValue = () => {
+            address.value = '';
+            isError.value = false;
+
+            emit('setAddress', address.value);
         };
 
         return {
             active,
             focused,
+            isError,
+
             address,
             placeholder,
-            removeAddress,
+
             clickAway,
             selectAddress,
             onInput,
             onBlur,
             onFocus,
+            clearValue,
         };
     },
 };
@@ -162,15 +155,21 @@ export default {
         flex-direction: column;
         background: var(--#{$prefix}select-bg-color);
         border-radius: 16px;
-        height: 130px;
-        padding: 17px 32px;
+        padding: 16px 24px;
         box-sizing: border-box;
         border: 2px solid transparent;
+        transition: 0.2s;
+
         cursor: pointer;
 
         .recipient {
+            display: flex;
+            align-items: center;
+
             color: var(--#{$prefix}select-label-color);
             font-weight: 600;
+            height: 32px;
+            max-height: 32px;
         }
 
         .address {
@@ -186,7 +185,7 @@ export default {
 
         .info {
             width: 95%;
-            margin: 15px 0;
+            margin-top: 8px;
             display: flex;
             align-items: center;
         }
@@ -196,8 +195,8 @@ export default {
             border: none;
             outline: none;
             background: transparent;
-            font-size: var(--#{$prefix}h2-fs);
-            font-weight: 600;
+            font-size: var(--#{$prefix}h6-fs);
+            font-weight: 500;
             color: var(--#{$prefix}primary-text);
         }
 
@@ -205,15 +204,18 @@ export default {
             display: flex;
             justify-content: center;
             align-items: center;
+
             width: 40px;
             min-width: 40px;
             height: 40px;
+
             border-radius: 50%;
-            background: var(--#{$prefix}icon-logo-bg-color);
             margin-right: 10px;
 
-            svg {
-                fill: var(--#{$prefix}black);
+            &-logo {
+                width: 80%;
+                height: 80%;
+                border-radius: 50%;
             }
         }
 
@@ -223,13 +225,12 @@ export default {
             color: var(--#{$prefix}select-placeholder-text);
             user-select: none;
         }
+    }
 
-        svg.arrow {
-            cursor: pointer;
-            fill: var(--#{$prefix}select-icon-color);
-            transform: rotate(0);
-            @include animateEasy;
-        }
+    &__clear {
+        position: absolute;
+        right: 32px;
+        cursor: pointer;
     }
 
     &.focused {
@@ -295,7 +296,7 @@ export default {
 
         .remove {
             opacity: 0.2;
-            fill: var(--#{$prefix}select-active-border-color);
+            fill: red;
         }
 
         &.active {

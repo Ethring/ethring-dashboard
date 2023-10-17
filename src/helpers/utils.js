@@ -1,4 +1,4 @@
-export const cutAddress = (address) => {
+export const cutAddress = (address, start = 10, end = 6) => {
     if (!address || typeof address !== 'string') {
         return '';
     }
@@ -6,7 +6,7 @@ export const cutAddress = (address) => {
     if (address.length < 25) {
         return address;
     }
-    return `${address.slice(0, 10)}***${address.slice(-6)}`;
+    return `${address.slice(0, start)}***${address.slice(-end)}`;
 };
 
 export const getTokenIcon = (code) => {
@@ -72,3 +72,14 @@ export const copyToClipboard = (text) => {
 };
 
 export const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+
+export const sortByKey = (list = [], key) => {
+    return list.sort((a, b) => b[key] - a[key]);
+};
+
+export const searchByKey = (obj = {}, search = '', target = 'symbol') => {
+    const targetVal = obj[target] ?? null;
+    const targetLC = targetVal ? targetVal.toLowerCase() : '';
+
+    return targetLC.includes(search.toLowerCase());
+};

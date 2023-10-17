@@ -1,84 +1,55 @@
 <template>
-    <div :class="{ opened }" class="wallet-info">
+    <div class="wallet-info">
         <div class="wallet-info__network">
-            <!-- <img v-if="currentChainInfo.logo" :src="currentChainInfo.logo" alt="current-chain-icon" srcset="" /> -->
-            <!-- <span v-else> ? </span> -->
-            <WalletSvg />
+            <WalletIcon />
         </div>
+
         <div class="wallet-info__wallet">
-            <div class="address" @click="openMenu">
-                {{ cutAddress(walletAddress) }}
+            <div class="address">
+                {{ cutAddress(walletAccount) }}
             </div>
+
             <div class="balance">
                 <div class="value">
                     <span>$</span>
-                    {{ showBalance && totalBalance ? prettyNumber(totalBalance) : '****' }}
+                    {{ showBalance ? formatNumber(totalBalance, 2) : '****' }}
                 </div>
-                <eyeSvg v-if="showBalance" @click="toggleViewBalance" />
-                <eyeOpenSvg v-if="!showBalance" @click="toggleViewBalance" />
-            </div>
-            <div v-if="marketCap.priceUsdDelta24pct" :class="{ minus: +marketCap.priceUsdDelta24pct < 0 }" class="change">
-                <arrowPriceSvg />
-                <div class="percent">{{ marketCap.priceUsdDelta24pct }}%</div>
             </div>
         </div>
     </div>
 </template>
 <script>
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
 import { useStore } from 'vuex';
-import { cutAddress } from '@/helpers/utils';
-import { prettyNumber } from '@/helpers/prettyNumber';
-import eyeSvg from '@/assets/icons/dashboard/eye.svg';
-import eyeOpenSvg from '@/assets/icons/dashboard/eyeOpen.svg';
-import arrowPriceSvg from '@/assets/icons/dashboard/arrowprice.svg';
-import WalletSvg from '@/assets/icons/dashboard/wallet.svg';
 
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
-import useTokens from '@/compositions/useTokens';
+import useAdapter from '@/Adapter/compositions/useAdapter';
+
+import { cutAddress } from '@/helpers/utils';
+import { formatNumber } from '@/helpers/prettyNumber';
+
+import WalletIcon from '@/assets/icons/dashboard/wallet.svg';
 
 export default {
     name: 'WalletInfo',
     components: {
-        eyeSvg,
-        eyeOpenSvg,
-        arrowPriceSvg,
-        WalletSvg,
+        WalletIcon,
     },
     setup() {
         const store = useStore();
 
-        const opened = ref(false);
+        const { walletAccount, currentChainInfo } = useAdapter();
 
-        const openMenu = () => {
-            opened.value = !opened.value;
-        };
-
-        const { walletIcon, walletAddress, walletBalance, currentChainInfo } = useWeb3Onboard();
-        const { groupTokens } = useTokens();
-
-        const marketCap = computed(() => store.getters['tokens/groupTokens']);
         const showBalance = computed(() => store.getters['app/showBalance']);
 
-        const totalBalance = computed(() => groupTokens.value?.reduce((acc, net) => acc + net.totalSumUSD, 0) ?? 0);
-
-        const toggleViewBalance = () => {
-            store.dispatch('app/toggleViewBalance');
-        };
+        const totalBalance = computed(() => store.getters['tokens/totalBalances'][walletAccount.value]);
 
         return {
             totalBalance,
             currentChainInfo,
-            walletIcon,
-            walletAddress,
-            walletBalance,
-            prettyNumber,
+            walletAccount,
+            formatNumber,
             cutAddress,
-            opened,
-            marketCap,
             showBalance,
-            openMenu,
-            toggleViewBalance,
         };
     },
 };
@@ -86,8 +57,7 @@ export default {
 <style lang="scss" scoped>
 .wallet-info {
     display: flex;
-    align-items: flex-start;
-    box-sizing: border-box;
+    align-items: center;
 
     &__network {
         width: 78px;
@@ -109,29 +79,26 @@ export default {
         }
     }
 
-    &.opened {
-        svg.arrow {
-            margin-top: -5px;
-            transform: rotate(-180deg);
-        }
-    }
-
     &__wallet {
         display: flex;
         flex-direction: column;
-        z-index: 10;
+        justify-content: center;
+
+        & > div {
+            height: auto;
+        }
+
+        & > div:first-child {
+            margin-bottom: 15px;
+        }
 
         .address {
-            user-select: none;
-            display: flex;
-            align-items: center;
-            font-weight: 300;
-            font-size: var(--#{$prefix}default-fs);
-            cursor: pointer;
             color: var(--#{$prefix}mute-text);
 
+            font-weight: 400;
+            font-size: var(--#{$prefix}default-fs);
+
             svg {
-                @include animateEasy;
                 margin-left: 4px;
                 stroke: var(--#{$prefix}black);
             }
@@ -153,6 +120,7 @@ export default {
 
             span {
                 font-weight: 400;
+                color: var(--#{$prefix}symbol-text);
             }
 
             svg {
@@ -161,36 +129,6 @@ export default {
 
                 &:hover {
                     fill: var(--#{$prefix}eye-logo-hover);
-                }
-            }
-        }
-
-        .change {
-            display: flex;
-            align-items: center;
-            color: var(--#{$prefix}sub-text);
-
-            svg {
-                fill: var(--#{$prefix}sub-text);
-            }
-
-            .percent {
-                user-select: none;
-                margin-left: 5px;
-                font-weight: 400;
-                font-size: var(--#{$prefix}small-lg-fs);
-            }
-
-            &.minus {
-                color: var(--#{$prefix}negative-percentage);
-
-                .percent {
-                    color: var(--#{$prefix}negative-percentage);
-                }
-
-                svg {
-                    fill: var(--#{$prefix}negative-percentage) !important;
-                    transform: rotate(90deg);
                 }
             }
         }

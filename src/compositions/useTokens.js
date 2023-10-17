@@ -1,39 +1,44 @@
 import { computed } from 'vue';
 import { useStore } from 'vuex';
-import useWeb3Onboard from './useWeb3Onboard';
 
-import { chainIds } from '@/config/availableNets';
+import useAdapter from '@/Adapter/compositions/useAdapter';
+import { ECOSYSTEMS } from '@/Adapter/config';
 
 export default function useTokens() {
     const store = useStore();
 
-    const networks = computed(() => store.getters['networks/networks']);
-    const tokensBalance = computed(() => store.getters['tokens/tokens']);
+    const { walletAccount, currentChainInfo } = useAdapter();
 
-    const { currentChainInfo } = useWeb3Onboard();
+    if (!walletAccount.value) {
+        return {
+            tokens: [],
+            groupTokens: [],
+            allTokensFromNetwork: () => [],
+            getTokenList: () => [],
+        };
+    }
+
+    const zometNetworks = computed(() => store.getters['networks/zometNetworks']);
 
     const groupTokensBalance = computed(() => store.getters['tokens/groupTokens']);
 
+    const sortByBalanceUsd = (list = []) => {
+        return list.sort((a, b) => b.balanceUsd - a.balanceUsd);
+    };
+
     const allTokensFromNetwork = (net) => {
-        return networks.value[net]
-            ? Object.keys(networks.value[net].tokens)
+        const tokensForNet = store.getters['networks/tokensByNetwork'](net) || [];
+        console.log('tokensForNet', tokensForNet);
+        return zometNetworks.value[net]
+            ? Object.keys(zometNetworks.value[net].tokens)
                   .map((tokenNet) => {
-                      return networks.value[net].tokens[tokenNet];
+                      return zometNetworks.value[net].tokens[tokenNet];
                   })
                   .map((token) => ({
                       ...token,
-                      balance: {
-                          amount: 0,
-                          price: {
-                              BTC: 0,
-                              USD: 0,
-                          },
-                      },
+                      balance: 0,
                       balanceUsd: 0,
-                      price: {
-                          BTC: 0,
-                          USD: 0,
-                      },
+                      code: token.symbol,
                   }))
                   .sort((a, b) => {
                       if (a.name > b.name) {
@@ -49,89 +54,64 @@ export default function useTokens() {
 
     // all networks
     const groupTokens = computed(() => {
-        if (currentChainInfo.value?.net && groupTokensBalance.value) {
-            const groupList = [];
-            Object.keys(groupTokensBalance.value)?.forEach((parentNet) => {
-                let children = [];
+        const { net, ecosystem, asset = {} } = currentChainInfo.value || {};
 
-                const tokens = groupTokensBalance.value[parentNet]?.list;
+        if (!net && !groupTokensBalance.value) {
+            return [];
+        }
 
-                if (tokens && tokens.length > 0) {
-                    children = sortByBalanceUsd(tokens?.filter((item) => item.balance.amount > 0) ?? []);
+        const groupList = [];
+
+        let children = [];
+
+        for (const network in groupTokensBalance.value) {
+            const tokens = groupTokensBalance.value[network]?.list;
+
+            const record = {
+                priority: net === network ? 1 : 0,
+                net: network,
+                name: network,
+            };
+
+            if (tokens && tokens.length > 0) {
+                children = sortByBalanceUsd(tokens?.filter((item) => item.balance > 0) ?? []);
+                record.list = children;
+
+                const nativeToken = tokens.find(({ chain }) => chain.toLowerCase() === network);
+
+                record.balance = nativeToken?.balance || 0;
+                record.price = nativeToken?.price || 0;
+
+                // TODO: remove this after adding tokens to the cosmos network
+                if (ecosystem === ECOSYSTEMS.COSMOS) {
+                    const baseToken = tokens.find(({ symbol }) => symbol === asset.symbol);
+
+                    const tokenInfo = {
+                        ...asset,
+                        ...baseToken,
+                        balance: baseToken?.balance || 0,
+                        balanceUsd: baseToken?.balanceUsd || 0,
+                    };
+
+                    record.list = [tokenInfo];
                 }
-                groupList.push({
-                    priority: currentChainInfo.value?.net === parentNet ? 1 : 0,
-                    net: parentNet,
-                    name: parentNet,
-                    ...networks.value[parentNet],
-                    balance: groupTokensBalance.value[parentNet]?.balance || 0,
-                    list: children,
-                    price: groupTokensBalance.value[parentNet]?.price,
-                    totalSumUSD: children?.reduce((acc, item) => acc + item.balanceUsd, 0) ?? 0,
-                    chain_id: chainIds[parentNet],
-                });
-            });
 
-            // show all without current network group
-            const result = [
-                ...groupList.filter((g) => g.net === currentChainInfo.value?.net),
-                ...groupList.filter((g) => g.net !== currentChainInfo.value?.net),
-            ].sort((prev, next) => next.totalSumUSD - prev.totalSumUSD);
+                record.totalSumUSD = record.list?.reduce((acc, item) => acc + +item.balanceUsd, 0) ?? 0;
 
-            return result.sort((prev, next) => next.priority - prev.priority);
-        }
-        return [];
-    });
-
-    // single network
-    const tokens = computed(() => {
-        if (currentChainInfo.value?.net) {
-            const tokens = networks.value[currentChainInfo.value?.net]?.tokens;
-
-            if (tokens) {
-                return sortByBalanceUsd(
-                    Object.keys(tokens)
-                        .map((item) => {
-                            const balance = tokensBalance.value[tokens[item].net] || {
-                                amount: 0,
-                                price: {
-                                    BTC: 0,
-                                    USD: 0,
-                                },
-                            };
-                            return {
-                                ...tokens[item],
-                                balance,
-                                balanceUsd: balance.amount * balance.price.USD,
-                            };
-                        })
-                        ?.filter((item) => item.balance.amount > 0)
-                );
+                groupList.push(record);
             }
         }
-        return [];
+
+        // show all without current network group
+        const result = [...groupList.filter((g) => g.net === net), ...groupList.filter((g) => g.net !== net)].sort(
+            (prev, next) => next.totalSumUSD - prev.totalSumUSD
+        );
+
+        return result.sort((prev, next) => next.priority - prev.priority);
     });
 
-    const getTokenList = (network) => {
-        const listWithBalances = network?.list || [];
-        return sortByBalanceUsd(listWithBalances);
-    };
-
-    const sortByBalanceUsd = (list) => {
-        return list?.sort((a, b) => {
-            if (a.balanceUsd > b.balanceUsd) {
-                return -1;
-            }
-            if (a.balanceUsd < b.balanceUsd) {
-                return 1;
-            }
-            return 0;
-        });
-    };
     return {
-        tokens,
         groupTokens,
         allTokensFromNetwork,
-        getTokenList,
     };
 }

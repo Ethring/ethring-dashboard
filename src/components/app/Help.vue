@@ -1,29 +1,44 @@
 <template>
     <div class="help">
-        <div class="help__item">
-            <settingsSvg />
-        </div>
-        <div class="help__item mt">?</div>
-        <div class="help__item">
-            <cardSvg class="card-svg" />
-        </div>
-        <div class="mt">
-            <ThemeSwitcher class="head__switcher" />
+        <ThemeSwitcher class="head__switcher" />
+
+        <div v-if="isDashboard" class="help__item" @click="toggleViewBalance">
+            <EyeOutlined v-if="showBalance" />
+            <EyeInvisibleOutlined v-else />
         </div>
     </div>
 </template>
 <script>
-import ThemeSwitcher from '@/components/app/ThemeSwitcher';
+import { computed } from 'vue';
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 
-import settingsSvg from '@/assets/icons/dashboard/settings.svg';
-import cardSvg from '@/assets/icons/dashboard/card.svg';
+import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons-vue';
+
+import ThemeSwitcher from '@/components/app/ThemeSwitcher';
 
 export default {
     name: 'Help',
     components: {
         ThemeSwitcher,
-        settingsSvg,
-        cardSvg,
+        EyeOutlined,
+        EyeInvisibleOutlined,
+    },
+    setup() {
+        const store = useStore();
+        const router = useRouter();
+
+        const isDashboard = computed(() => router.currentRoute.value.path === '/main' || router.currentRoute.value.path === '/');
+
+        const showBalance = computed(() => store.getters['app/showBalance']);
+
+        const toggleViewBalance = () => store.dispatch('app/toggleViewBalance');
+
+        return {
+            showBalance,
+            toggleViewBalance,
+            isDashboard,
+        };
     },
 };
 </script>
@@ -36,26 +51,29 @@ export default {
         width: 40px;
         height: 40px;
         border-radius: 50%;
+
         display: flex;
         justify-content: center;
         align-items: center;
+
         background: var(--#{$prefix}icon-secondary-bg-color);
+        color: var(--#{$prefix}icon-active);
+
         font-weight: 400;
         font-size: var(--#{$prefix}h3-fs);
-        color: var(--#{$prefix}icon-active);
-        cursor: not-allowed;
+
+        margin-left: 10px;
+
+        cursor: pointer;
+
+        &:hover {
+            background: var(--#{$prefix}icon-active);
+            color: var(--#{$prefix}icon-secondary-bg-color);
+        }
 
         svg {
             fill: var(--#{$prefix}icon-active);
-
-            &.card-svg {
-                fill: var(--#{$prefix}icon-active);
-            }
         }
-    }
-
-    .mt {
-        margin: 0 10px;
     }
 }
 </style>

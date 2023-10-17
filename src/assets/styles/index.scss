@@ -1,7 +1,5 @@
 @import "./web3-onboard/custom-style.scss";
 
-@import "./fonts.scss";
-
 @import "./reset";
 
 @import "./colors.scss";
@@ -26,8 +24,9 @@ body {
   &__layout {
     flex-basis: 100%;
 
-    padding: 40px 0;
+    padding: 20px 0;
     margin: 0 10%;
+    // margin-left: 260px;
 
     height: calc(100vh - 80px);
   }

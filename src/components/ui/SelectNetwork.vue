@@ -2,20 +2,24 @@
     <div :class="{ active }" class="select" v-click-away="() => togglePanel(true)">
         <div class="select__panel" @click="() => togglePanel(false)" data-qa="select-network">
             <div class="info">
-                <div class="network">
-                    <img :src="selectedItem.logo" alt="network-logo" class="network-logo" />
+                <div class="network" :class="{ 'default-network-logo': !name }">
+                    <img v-if="current?.logo" :src="current?.logo" alt="network-logo" class="network-logo" />
                 </div>
-                <div class="name">{{ selectedItem.name }}</div>
+                <div v-if="name" class="name">{{ name }}</div>
+                <div v-else>
+                    <div class="label">{{ label }}</div>
+                    <div class="placeholder">{{ placeholder }}</div>
+                </div>
             </div>
-            <arrowSvg class="arrow" />
+            <ArrowDownIcon class="arrow" />
         </div>
         <div class="select__items">
             <div
                 v-for="(item, idx) in items"
                 :key="idx"
-                :class="{ active: item.net === selectedItem?.net }"
+                :class="{ active: item.net === current?.net }"
                 class="select__items-item"
-                @click="onSelectNetwork(item)"
+                @click="() => onSelectNetwork(item)"
             >
                 <div class="info">
                     <div class="icon">
@@ -29,38 +33,52 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
-import useWeb3Onboard from '@/compositions/useWeb3Onboard';
-
-import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
+import ArrowDownIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
 export default {
     name: 'SelectNetwork',
     props: {
         items: {
             type: Array,
+            default() {
+                return [];
+            },
+        },
+        current: {
+            type: Object,
+            default() {
+                return {};
+            },
+        },
+        label: {
+            type: String,
+        },
+        placeholder: {
+            type: String,
         },
     },
     components: {
-        arrowSvg,
+        ArrowDownIcon,
     },
     setup(props, { emit }) {
-        const { currentChainInfo } = useWeb3Onboard();
-        const currentNetwork = props.items.find((item) => item.chain_id === currentChainInfo.value.chainId) || currentChainInfo;
-
         const active = ref(false);
-        const selectedItem = ref(currentNetwork);
+
+        const name = computed(() => {
+            const name = props.current?.name;
+            return name;
+        });
 
         const togglePanel = (away = false) => {
             if (away) {
                 return (active.value = false);
             }
+
             return (active.value = !active.value);
         };
 
         const onSelectNetwork = (network) => {
-            selectedItem.value = network;
             emit('select', network);
             return togglePanel(false);
         };
@@ -69,7 +87,13 @@ export default {
             active.value = false;
         };
 
-        return { active, clickAway, togglePanel, currentChainInfo, onSelectNetwork, selectedItem };
+        return {
+            active,
+            name,
+            clickAway,
+            togglePanel,
+            onSelectNetwork,
+        };
     },
 };
 </script>
@@ -88,7 +112,7 @@ export default {
         background: var(--#{$prefix}select-bg-color);
         border-radius: 16px;
         height: 80px;
-        padding: 17px 32px;
+        padding: 16px 24px;
         box-sizing: border-box;
         border: 2px solid transparent;
         cursor: pointer;
@@ -98,17 +122,19 @@ export default {
         .info {
             display: flex;
             align-items: center;
+            overflow: hidden;
         }
 
         .network {
             display: flex;
             justify-content: center;
             align-items: center;
+
             width: 40px;
             height: 40px;
             min-width: 40px;
+
             border-radius: 50%;
-            background: var(--#{$prefix}icon-logo-bg-color);
             margin-right: 10px;
 
             svg {
@@ -116,22 +142,38 @@ export default {
             }
 
             &-logo {
-                width: 70%;
-                height: 70%;
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                object-position: center;
+                border-radius: 50%;
+                max-width: 32px;
+                max-height: 32px;
             }
+        }
+
+        .default-network-logo {
+            background: var(--#{$prefix}select-secondary-bg-color);
         }
 
         .name {
             font-size: var(--#{$prefix}h2-fs);
             font-weight: 600;
             color: var(--#{$prefix}select-item-color);
+            line-height: 40px;
+
             user-select: none;
+            display: inline-block;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+            max-width: 100%;
         }
 
         .label {
             color: var(--#{$prefix}select-label-color);
             font-size: var(--#{$prefix}small-lg-fs);
-            font-family: 'Poppins_Medium';
+            font-weight: 500;
             user-select: none;
         }
 
@@ -148,6 +190,8 @@ export default {
             fill: var(--#{$prefix}select-icon-color);
             transform: rotate(0);
             @include animateEasy;
+            display: inline;
+            margin-left: 10px;
         }
     }
 
@@ -194,6 +238,7 @@ export default {
             width: 0px;
             background-color: transparent;
         }
+
         &-item-logo {
             width: 40px;
             height: 40px;
@@ -203,6 +248,7 @@ export default {
             background: var(--#{$prefix}icon-secondary-bg-color);
             border-radius: 50%;
             margin-right: 12px;
+
             svg {
                 fill: var(--#{$prefix}black);
             }

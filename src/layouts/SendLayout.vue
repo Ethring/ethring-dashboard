@@ -3,23 +3,48 @@
         <div class="send-page-tab">
             <div class="send-page__title__active send-page-tab__active">
                 {{ $t('simpleSend.title') }}
-                <arrowupSvg class="arrow" />
+                <ArrowUpIcon class="arrow" />
             </div>
-            <router-link class="send-page__title" to="/bridge">{{ $t('simpleBridge.title') }}</router-link>
+            <router-link v-if="!isModuleDisabled('/bridge')" class="send-page__title" to="/bridge">{{
+                $t('simpleBridge.title')
+            }}</router-link>
         </div>
     </AppLayout>
 </template>
 <script>
+import useAdapter from '@/Adapter/compositions/useAdapter';
+
+import UIConfig from '@/config/ui';
+
 import AppLayout from '@/layouts/AppLayout.vue';
-import arrowupSvg from '@/assets/icons/dashboard/arrowup.svg';
+
+import ArrowUpIcon from '@/assets/icons/dashboard/arrowup.svg';
 
 export default {
     name: 'Send',
     components: {
         AppLayout,
-        arrowupSvg,
+        ArrowUpIcon,
     },
-    setup() {},
+    setup() {
+        const { currentChainInfo } = useAdapter();
+
+        const config = UIConfig(currentChainInfo.value?.net, currentChainInfo.value?.ecosystem);
+
+        const isModuleDisabled = (sidebarItem) => {
+            const sidebarModule = config.sidebar.find((module) => module.to === sidebarItem);
+
+            if (sidebarModule) {
+                return sidebarModule.disabled === true;
+            }
+
+            return false;
+        };
+
+        return {
+            isModuleDisabled,
+        };
+    },
 };
 </script>
 <style lang="scss" scoped>
@@ -55,5 +80,6 @@ export default {
 
 .arrow {
     fill: var(--#{$prefix}arrow-color);
+    margin-top: 10px;
 }
 </style>

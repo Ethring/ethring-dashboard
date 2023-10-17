@@ -1,22 +1,32 @@
 <template>
     <div class="socials">
-        <div class="socials__item apple">
-            <appleSvg />
-        </div>
-        <div class="socials__item android">
-            <androidSvg />
-        </div>
+        <a class="socials__item telegram disabled">
+            <TelegramIcon />
+        </a>
+        <a class="socials__item twitter" target="_blank" href="https://twitter.com/zometapp">
+            <TwitterIcon />
+        </a>
+        <a class="socials__item discord disabled">
+            <DiscordIcon />
+        </a>
+        <a class="socials__item gitbook disabled">
+            <GitbookIcon />
+        </a>
     </div>
 </template>
 <script>
-import appleSvg from '@/assets/icons/socials/apple.svg';
-import androidSvg from '@/assets/icons/socials/android.svg';
+import TelegramIcon from '@/assets/icons/socials/telegram.svg';
+import TwitterIcon from '@/assets/icons/socials/twitter.svg';
+import DiscordIcon from '@/assets/icons/socials/discord.svg';
+import GitbookIcon from '@/assets/icons/socials/gitbook.svg';
 
 export default {
     name: 'Socials',
     components: {
-        appleSvg,
-        androidSvg,
+        TelegramIcon,
+        TwitterIcon,
+        DiscordIcon,
+        GitbookIcon,
     },
 };
 </script>
@@ -25,19 +35,32 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
+
     &__item {
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 87px;
-        height: 46px;
-        border: 1px solid var(--#{$prefix}border-secondary-color);
+
+        width: 40px;
+        height: 40px;
+
+        border: 1px solid var(--#{$prefix}social-border-color);
         border-radius: 8px;
+
         cursor: pointer;
 
-        svg {
-            fill: var(--#{$prefix}sidebar-icon-color);
+        &:not(.disabled):hover {
+            background: var(--#{$prefix}black);
         }
+
+        svg {
+            fill: var(--#{$prefix}sidebar-active-color);
+        }
+    }
+
+    .disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
     }
 }
 </style>

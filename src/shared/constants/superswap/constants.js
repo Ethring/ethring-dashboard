@@ -5,9 +5,10 @@ export const STATUSES = {
 };
 
 export const ERRORS = {
-    BRIDGE_ERROR: 'Internal error',
-    ROUTE_NOT_FOUND: 'Bad Request',
+    ROUTE_NOT_FOUND: 'Insufficient liquidity',
     NOT_ENOUGH_BALANCE: 'Insufficient balance for network fees',
 };
 
 export const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+
+export const SUPPORTED_CHAINS = ['eth', 'bsc', 'arbitrum', 'polygon', 'optimism', 'avalanche'];

@@ -1,23 +1,26 @@
 <template>
     <div :class="{ active }" class="accordion" @click="active = !active">
-        <div class="accordion__header">
-            <div class="accordion__title" v-html="title"></div>
-            <arrowSvg class="arrow" v-if="!hide" />
+        <div v-if="!loading" class="accordion__header">
+            <slot name="header"></slot>
+            <ArrowIcon class="arrow" v-if="!hide" />
+        </div>
+        <div v-else class="accordion__skeleton">
+            <a-skeleton-input active />
         </div>
         <div v-if="!hide" class="accordion__content" :style="{ height: active ? 'auto' : '0' }">
-            <slot></slot>
+            <slot name="content"></slot>
         </div>
     </div>
 </template>
 <script>
-import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
-
 import { ref } from 'vue';
+
+import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
 export default {
     name: 'Accordion',
     components: {
-        arrowSvg,
+        ArrowIcon,
     },
     props: {
         title: {
@@ -26,6 +29,10 @@ export default {
         },
         hide: {
             type: Boolean,
+            default: false,
+        },
+        loading: {
+            required: false,
             default: false,
         },
     },
@@ -51,12 +58,6 @@ export default {
         display: flex;
         align-items: center;
         justify-content: space-between;
-    }
-
-    &__title {
-        color: var(--#{$prefix}mute-text);
-        font-size: var(--#{$prefix}default-fs);
-        font-weight: 400;
     }
 
     &__content {

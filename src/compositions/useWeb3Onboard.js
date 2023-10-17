@@ -2,7 +2,7 @@ import { computed } from 'vue';
 
 import { init, useOnboard } from '@web3-onboard/vue';
 
-import web3OnBoardConfig from '@/config/web3-onboard';
+import { web3OnBoardConfig } from '@/Adapter/config';
 
 import chainIdNetwork from '@/shared/constants/chains/chainid.network';
 import cryptoLogos from '@/shared/constants/chains/crypto.logos';

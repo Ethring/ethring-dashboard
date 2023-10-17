@@ -1,3 +1,23 @@
+import { useLocalStorage } from '@vueuse/core';
+
+import useAdapter from '@/Adapter/compositions/useAdapter';
+
+import redirectOrStay from '@/shared/utils/routes';
+
+const adapterIsConnected = useLocalStorage('adapter:isConnected', false);
+
 export default async (to, from, next) => {
-    next();
+    const isAuthRequired = to.meta.isAuth;
+
+    if (!adapterIsConnected && to.name !== 'Connect wallet' && isAuthRequired) {
+        return next('/connect-wallet');
+    }
+
+    if (to.name === 'Connect wallet' && adapterIsConnected) {
+        return next('/');
+    }
+
+    const { currentChainInfo } = useAdapter();
+
+    next(redirectOrStay(to.path, currentChainInfo.value));
 };

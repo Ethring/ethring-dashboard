@@ -1,0 +1,57 @@
+import { h } from 'vue';
+import { LoadingOutlined } from '@ant-design/icons-vue';
+
+import useNotification from '@/compositions/useNotification';
+
+export const isCorrectChain = async (selectedNetwork, currentChainInfo, setChain) => {
+    let btnTitle = 'tokenOperations.confirm';
+
+    const { showNotification, closeNotification } = useNotification();
+
+    if (currentChainInfo.value.net === selectedNetwork.value.net) {
+        return {
+            isChanged: true,
+            btnTitle,
+        };
+    }
+
+    btnTitle = 'tokenOperations.switchNetwork';
+
+    showNotification({
+        key: 'switch-network',
+        type: 'info',
+        title: `Switch network to ${selectedNetwork.value.name}`,
+        icon: h(LoadingOutlined, {
+            spin: true,
+        }),
+        duration: 0,
+    });
+
+    try {
+        const isChanged = await setChain(selectedNetwork.value);
+
+        if (!isChanged) {
+            showNotification({
+                key: 'switch-network-error',
+                type: 'error',
+                title: `Failed to switch network to ${selectedNetwork.value.name}`,
+                description: 'Please try again',
+                duration: 5,
+            });
+        }
+
+        closeNotification('switch-network');
+
+        return {
+            isChanged,
+            btnTitle,
+        };
+    } catch (error) {
+        closeNotification('switch-network');
+
+        return {
+            isChanged: false,
+            btnTitle,
+        };
+    }
+};

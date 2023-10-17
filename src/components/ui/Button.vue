@@ -1,16 +1,16 @@
 <template>
     <button :class="{ [type]: type, disabled, [shape]: shape, [size]: size }" class="button" :disabled="disabled || loading">
-        <loadingIcon v-if="loading" class="rotating" />
+        <LoadingIcon v-if="loading" class="rotating" />
         <div v-else>{{ title }}</div>
     </button>
 </template>
 <script>
-import loadingIcon from '@/assets/icons/dashboard/load-btn.svg';
+import LoadingIcon from '@/assets/icons/dashboard/load-btn.svg';
 
 export default {
     name: 'Button',
     components: {
-        loadingIcon,
+        LoadingIcon,
     },
     props: {
         title: {

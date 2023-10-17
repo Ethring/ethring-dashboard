@@ -1,7 +1,7 @@
 const IS_PROD = process.env.NODE_ENV === 'production';
 
 //  ===========================================================================
-// * Утилита для настройки базового правила Webpack для обработки различных типов модулей
+// *  Утилита для настройки базового правила Webpack для обработки различных типов модулей
 //  ===========================================================================
 const configureGeneralRule = (config, { name, exclude }) => {
     const BABEL_OPTIONS = {
@@ -44,12 +44,13 @@ const chainWebpack = (config) => {
     configureRule(config, 'svg', [{ name: 'vue-loader-v16' }, { name: 'vue-svg-loader' }]);
 
     const modulesToInclude = [
-        // { name: '@cosmos-kit' },
-        // { name: 'cosmjs-types' },
-        { name: '@metamask/utils' },
+        { name: '@cosmos-kit' },
+        { name: 'cosmjs-types' },
         { name: '@walletconnect' },
-        // { name: '@vueuse/core' },
-        // { name: '@cosmjs[\\\\/]', exclude: '@cosmjs[\\\\/].*\\.json$' },
+        { name: '@web3-onboard' },
+        { name: '@vueuse/core' },
+        { name: '@metamask/utils' },
+        { name: '@cosmjs[\\\\/]', exclude: '@cosmjs[\\\\/].*\\.json$' },
     ];
 
     // Применяем общие правила для каждого указанного модуля
@@ -75,9 +76,19 @@ module.exports = {
     css: {
         loaderOptions: {
             sass: {
-                additionalData: `@import "@/assets/styles/colors.scss";
-                    @import "@/assets/styles/variables";`,
+                additionalData: `
+                    @import "@/assets/styles/colors.scss";
+                    @import "@/assets/styles/variables";
+                `,
             },
+        },
+    },
+    pwa: {
+        name: 'Zomet Dashboard',
+        // Конфигурация кэширования
+        workboxPluginMode: 'InjectManifest',
+        workboxOptions: {
+            swSrc: 'src/service-worker.js',
         },
     },
 };

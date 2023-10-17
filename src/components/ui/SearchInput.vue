@@ -1,38 +1,42 @@
 <template>
     <div class="search-input" :class="isActive">
         <div class="search-input__logo">
-            <searchSvg />
+            <SearchIcon />
         </div>
         <div>
             <span>{{ $t('dashboard.search') }}</span>
             <input @focus="isActive = 'active'" @blur="isActive = ''" v-model="text" placeholder="Token name" />
         </div>
         <div v-if="text.length" class="search-input__clear" @click="clearValue">
-            <clearSvg />
+            <ClearIcon />
         </div>
     </div>
 </template>
 
 <script>
 import { ref, watch } from 'vue';
-import searchSvg from '@/assets/icons/app/search.svg';
-import clearSvg from '@/assets/icons/app/xmark.svg';
+
+import SearchIcon from '@/assets/icons/app/search.svg';
+import ClearIcon from '@/assets/icons/app/xmark.svg';
 
 export default {
     name: 'SearchInput',
     components: {
-        searchSvg,
-        clearSvg,
+        SearchIcon,
+        ClearIcon,
     },
     setup(props, { emit }) {
         const text = ref(props.value || '');
         const isActive = ref('');
+
         const clearValue = () => {
             text.value = '';
         };
+
         watch(text, (val) => {
             emit('onChange', val);
         });
+
         return {
             text,
             isActive,
@@ -43,14 +47,25 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+$padding-tb: 20px;
+$padding-lr: 32px;
+
 .search-input {
-    background: var(--#{$prefix}select-bg-color);
-    border-radius: 16px;
-    padding: 20px 32px;
+    position: relative;
+
     display: flex;
     align-items: center;
-    position: relative;
+
+    height: 100%;
+    max-height: 100px;
+
+    padding: $padding-tb $padding-lr;
+
     border: 2px solid var(--#{$prefix}white);
+    border-radius: 16px;
+
+    background: var(--#{$prefix}select-bg-color);
+
     span {
         color: var(--#{$prefix}base-text);
         display: block;
@@ -67,25 +82,49 @@ export default {
         width: 40px;
         min-width: 40px;
         height: 40px;
+        max-height: 40px;
         border-radius: 50%;
         background: var(--#{$prefix}icon-secondary-bg-hover);
         margin-right: 10px;
+
+        svg {
+            fill: var(--#{$prefix}sub-text);
+        }
     }
 
     &__clear {
         position: absolute;
-        right: 32px;
+        right: $padding-lr;
+
+        top: 0;
+        bottom: 0;
+        margin: auto 0;
+
         cursor: pointer;
+
+        max-width: 20px;
+        max-height: 20px;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        svg {
+            width: 20px;
+            height: 20px;
+        }
     }
 
     input {
         font-style: normal;
         font-weight: 600;
         font-size: var(--#{$prefix}h4-fs);
-        line-height: 33px;
-        border: none;
+
+        color: var(--#{$prefix}primary-text);
+
         background-color: transparent;
         outline: none;
+        border: none;
     }
 }
 
@@ -94,11 +133,11 @@ export default {
     border: 2px solid var(--#{$prefix}sub-text);
 
     .search-input__logo {
-        background: var(--#{$prefix}btn-hover);
+        background: var(--#{$prefix}btn-bg-color-hover);
     }
 
     input {
-        color: var(--#{$prefix}black);
+        color: var(--#{$prefix}primary-text);
     }
 }
 </style>

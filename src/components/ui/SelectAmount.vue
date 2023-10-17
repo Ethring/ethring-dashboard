@@ -1,76 +1,88 @@
 <template>
-    <div :class="{ active, focused, error }" class="select-amount" @click="setActive">
+    <div :class="{ active, focused }" class="select-amount" @click="setActive">
         <div class="select-amount__panel">
             <div class="label">{{ label }}</div>
             <div class="info-wrap">
                 <div class="info" @click="clickToken" data-qa="select-token">
-                    <div class="network">
-                        <TokenIcon width="24" height="24" :token="selectedToken" dark />
-                    </div>
-                    <div class="token">{{ selectedToken?.code }}</div>
-                    <arrowSvg class="arrow" />
+                    <template v-if="isTokenLoading">
+                        <a-space>
+                            <a-skeleton-avatar active />
+                            <a-skeleton-input active />
+                        </a-space>
+                    </template>
+                    <template v-else>
+                        <div class="network">
+                            <TokenIcon width="24" height="24" :token="selectedToken" />
+                        </div>
+
+                        <div class="token" v-if="selectedToken">{{ selectedToken?.symbol }}</div>
+                        <div class="token placeholder" v-else>{{ $t(selectPlaceholder) }}</div>
+
+                        <ArrowIcon class="arrow" />
+                    </template>
                 </div>
-                <input
-                    v-model="amount"
-                    :placeholder="placeholder"
-                    :disabled="disabled"
-                    @focus="onFocus"
-                    v-debounce:1s="onInput"
-                    @blur="onBlur"
-                    @click.stop="() => {}"
-                    data-qa="input-amount"
-                    class="input-balance"
-                />
+
+                <template v-if="isAmountLoading">
+                    <a-skeleton-input active class="input-balance" />
+                </template>
+
+                <template v-else>
+                    <input
+                        v-model="amount"
+                        :placeholder="placeholder"
+                        :disabled="disabled"
+                        @focus="onFocus"
+                        v-debounce:1s="onInput"
+                        @blur="onBlur"
+                        @click.stop="() => {}"
+                        data-qa="input-amount"
+                        class="input-balance"
+                        :class="{ disabled }"
+                    />
+                </template>
             </div>
-            <div class="balance" @click.stop="setMax">
-                <p>
-                    {{ $t('tokenOperations.balance') }}:
-                    <span>
-                        {{ setTokenBalance(selectedToken) }}
-                    </span>
-                    {{ selectedToken?.code }}
-                </p>
-                <div><span>$</span>{{ payTokenPrice }}</div>
-            </div>
-        </div>
-        <div v-if="active" class="select-amount__items" v-click-away="clickAway">
-            <div
-                v-for="(item, ndx) in items"
-                :key="ndx"
-                :class="{ active: item.name === selectedToken?.name }"
-                class="select-amount__items-item"
-                @click="setToken(item)"
-            >
-                <div class="info">
-                    <div class="name">{{ item.name }}</div>
+
+            <div class="balance" :class="{ disabled, error }" @click.stop="setMax">
+                <div class="balance-value">
+                    <template v-if="isTokenLoading">
+                        <a-skeleton-input active />
+                    </template>
+                    <template v-else>
+                        <p class="balance-value">
+                            {{ $t('tokenOperations.balance') }}:
+                            <span>
+                                {{ setTokenBalance(selectedToken) }}
+                            </span>
+                            {{ selectedToken?.symbol }}
+                        </p>
+                    </template>
                 </div>
-                <div class="amount">
-                    {{ prettyNumber(item.name === selectedToken?.name ? setTokenBalance(selectedToken) : setTokenBalance(item)) }}
-                    <span>{{ item.code }}</span>
+                <div class="balance-price">
+                    <template v-if="isAmountLoading">
+                        <a-skeleton-input active />
+                    </template>
+                    <template v-else> <span>$</span>{{ payTokenPrice }} </template>
                 </div>
             </div>
         </div>
     </div>
 </template>
 <script>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, computed } from 'vue';
 
 import BigNumber from 'bignumber.js';
 
 import TokenIcon from '@/components/ui/TokenIcon';
 
-import arrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
+import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
-import { prettyNumber } from '@/helpers/prettyNumber';
+import { prettyNumber, formatNumber } from '@/helpers/prettyNumber';
 
 export default {
     name: 'SelectAmount',
     props: {
         value: {
             required: true,
-        },
-        items: {
-            required: false,
         },
         onReset: {
             type: [Boolean, String],
@@ -92,6 +104,14 @@ export default {
             type: Boolean,
             default: false,
         },
+        isTokenLoading: {
+            type: Boolean,
+            default: false,
+        },
+        isAmountLoading: {
+            type: Boolean,
+            default: false,
+        },
         isUpdate: {
             type: Boolean,
             default: false,
@@ -104,20 +124,32 @@ export default {
             type: [String, Number],
             default: '',
         },
-        selectedNetwork: {
-            type: Object,
-        },
     },
     components: {
-        arrowSvg,
+        ArrowIcon,
         TokenIcon,
     },
     setup(props, { emit }) {
         const active = ref(false);
         const focused = ref(false);
+
         const amount = ref('');
+
         const payTokenPrice = ref(0);
-        const selectedToken = ref(props.value);
+
+        const selectPlaceholder = computed(() => {
+            if (!props.value) {
+                return 'tokenOperations.select';
+            }
+
+            return '';
+        });
+
+        const selectedToken = computed({
+            get: () => props.value,
+            set: (value) => emit('setToken', value),
+        });
+
         const placeholder = ref('0');
         const coingeckoPrice = ref(0);
 
@@ -155,14 +187,17 @@ export default {
             (val) => {
                 if (val) {
                     setToken(val);
+                    amount.value = '';
+                    active.value = false;
+                    emit('setAmount', amount.value);
                 }
             }
         );
 
         watch(amount, (val) => {
+            amount.value = val;
             if (val) {
-                // eslint-disable-next-line
-                val = val.replace(/[^0-9\.]/g, '');
+                val = val.replace(/[^0-9.]/g, '');
                 if (val.split('.').length - 1 !== 1 && val[val.length - 1] === '.') {
                     return;
                 }
@@ -173,15 +208,10 @@ export default {
                 } else {
                     amount.value = val;
                 }
-                payTokenPrice.value =
-                    prettyNumber(
-                        BigNumber(
-                            amount.value * (selectedToken?.value?.balance?.price?.USD || selectedToken?.value?.price?.USD) || 0
-                        ).toFixed()
-                    ) || 0;
-            } else {
-                payTokenPrice.value = '0';
+                return (payTokenPrice.value = formatNumber(BigNumber(amount.value * +selectedToken?.value?.price || 0).toFixed()) || 0);
             }
+
+            return (payTokenPrice.value = '0');
         });
 
         const clickAway = () => {
@@ -206,7 +236,7 @@ export default {
         const setMax = () => {
             active.value = false;
             if (!props.hideMax) {
-                let balance = selectedToken.value?.balance?.amount || selectedToken.value?.balance?.mainBalance;
+                let balance = selectedToken.value?.balance;
                 if (balance > 0) {
                     balance = BigNumber(balance).toFixed();
                 } else {
@@ -222,31 +252,28 @@ export default {
                 active.value = !active.value;
             }
         };
+
         const setToken = (item) => {
             selectedToken.value = item;
-            emit('setToken', item);
         };
 
         const clickToken = () => {
             emit('clickToken');
         };
 
-        onMounted(async () => {
-            setToken(selectedToken.value);
-        });
-
         const setTokenBalance = (token) => {
-            return BigNumber(token?.balance?.mainBalance || token?.balance?.amount || 0).toFixed();
+            return BigNumber(token?.balance || 0).toFixed();
         };
 
         return {
-            BigNumber,
             active,
             focused,
             amount,
             placeholder,
             selectedToken,
             prettyNumber,
+            selectPlaceholder,
+
             setToken,
             onBlur,
             setActive,
@@ -268,6 +295,10 @@ export default {
 .select-amount {
     position: relative;
 
+    & :has(> *.disabled) {
+        cursor: not-allowed !important;
+    }
+
     &__panel {
         position: relative;
         display: flex;
@@ -276,37 +307,62 @@ export default {
         background: var(--#{$prefix}select-bg-color);
         border-radius: 16px;
         height: 160px;
-        padding: 17px 32px;
+        padding: 16px 24px;
         box-sizing: border-box;
         border: 2px solid transparent;
+
+        transition: 0.2s;
+
         cursor: pointer;
 
         .label {
+            display: flex;
+            align-items: center;
+
             color: var(--#{$prefix}select-label-color);
             font-weight: 600;
+            max-height: 32px;
+            height: 32px;
         }
 
         .balance {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: var(--#{$prefix}base-text);
-            font-weight: 400;
-            font-size: var(--#{$prefix}small-lg-fs);
-            line-height: 21px;
-            span {
-                font-weight: 600;
-                font-size: var(--#{$prefix}default-fs);
-                color: var(--#{$prefix}sub-text);
-            }
-            div {
-                font-weight: 600;
+
+            height: 32px;
+            max-height: 32px;
+
+            &-value,
+            &-price {
                 color: var(--#{$prefix}base-text);
                 font-size: var(--#{$prefix}small-lg-fs);
-                line-height: 21px;
+            }
+
+            &-value {
+                font-weight: 400;
+
+                span {
+                    font-weight: 600;
+                    font-size: var(--#{$prefix}default-fs);
+                    color: var(--#{$prefix}sub-text);
+                }
+            }
+
+            &-price {
+                font-weight: 600;
+                color: var(--#{$prefix}sub-text);
+
                 span {
                     color: var(--#{$prefix}base-text);
                     font-weight: 400;
+                    margin-right: 2px;
+                }
+            }
+
+            &.error {
+                .balance-value * {
+                    color: var(--#{$prefix}danger) !important;
                 }
             }
         }
@@ -315,11 +371,16 @@ export default {
             display: flex;
             justify-content: space-between;
             align-items: center;
+
+            width: 100%;
         }
 
         .info {
             display: flex;
             align-items: center;
+            cursor: pointer;
+            width: 100%;
+            max-width: 250px;
         }
 
         .token {
@@ -327,6 +388,16 @@ export default {
             font-weight: 600;
             color: var(--#{$prefix}select-item-secondary-color);
             margin-right: 10px;
+
+            display: inline-block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 170px;
+            white-space: nowrap;
+
+            &.placeholder {
+                color: var(--#{$prefix}select-placeholder-text);
+            }
         }
 
         .input-balance {
@@ -339,6 +410,16 @@ export default {
             font-size: var(--#{$prefix}h2-fs);
             font-weight: 600;
             color: var(--#{$prefix}primary-text);
+
+            &::placeholder {
+                color: var(--#{$prefix}select-placeholder-text);
+            }
+
+            &:disabled {
+                color: var(--#{$prefix}select-placeholder-text);
+                cursor: not-allowed;
+                user-select: none;
+            }
         }
 
         .max {
@@ -352,11 +433,13 @@ export default {
             display: flex;
             justify-content: center;
             align-items: center;
+
             width: 40px;
             min-width: 40px;
             height: 40px;
+
             border-radius: 50%;
-            background: var(--#{$prefix}icon-logo-bg-color);
+
             margin-right: 10px;
 
             svg {
@@ -394,13 +477,6 @@ export default {
             svg.arrow {
                 transform: rotate(180deg);
             }
-        }
-    }
-
-    &.error {
-        .select-amount__panel {
-            border-color: var(--#{$prefix}danger-color);
-            background: var(--#{$prefix}danger-op-01);
         }
     }
 
