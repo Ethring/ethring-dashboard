@@ -74,11 +74,25 @@ export default {
     setup(props) {
         const selectedChain = ref(props.wallet.chain);
 
-        const { getChainListByEcosystem, getChainByChainId, setNewChain, connectTo, disconnectWallet, action, connectedWallet } =
-            useAdapter();
+        const {
+            getChainListByEcosystem,
+            getChainByChainId,
+            setNewChain,
+            connectTo,
+            disconnectWallet,
+            action,
+            connectedWallet,
+            currentChainInfo,
+        } = useAdapter();
 
         const chainList = computed(() => getChainListByEcosystem(props.wallet.ecosystem));
         const chainInfo = computed(() => getChainByChainId(props.wallet.ecosystem, selectedChain.value));
+
+        watch(currentChainInfo, () => {
+            if (props.wallet.ecosystem === 'EVM') {
+                selectedChain.value = currentChainInfo.value.chain_id;
+            }
+        });
 
         watch(selectedChain, async (newChain, oldChain) => {
             if (newChain === oldChain) {
