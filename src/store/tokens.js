@@ -55,9 +55,15 @@ export default {
 
         groupTokens: (state) => state.groupTokens,
 
-        getTokensListForChain: (state) => (chain) => {
-            return state.groupTokens[chain]?.list || [];
-        },
+        getTokensListForChain:
+            (state) =>
+            (chain, { account = null } = {}) => {
+                if (!state.groupTokens[account] || !state.groupTokens[account][chain]) {
+                    return [];
+                }
+
+                return state.groupTokens[account][chain]?.list || [];
+            },
 
         marketCap: (state) => state.marketCap,
         selectType: (state) => state.selectType,
@@ -95,12 +101,16 @@ export default {
             state.address = value;
         },
 
-        [TYPES.SET_GROUP_TOKENS](state, { chain, data }) {
-            if (!state.groupTokens[chain]) {
-                state.groupTokens[chain] = {};
+        [TYPES.SET_GROUP_TOKENS](state, { chain, account, data }) {
+            if (!state.groupTokens[account]) {
+                state.groupTokens[account] = {};
             }
 
-            state.groupTokens[chain] = data;
+            if (!state.groupTokens[account][chain]) {
+                state.groupTokens[account][chain] = {};
+            }
+
+            state.groupTokens[account][chain] = data;
         },
 
         [TYPES.SET_MARKETCAP](state, value) {
@@ -201,7 +211,8 @@ export default {
                 account: selectedNet.address,
                 data: tokensByAddress[selectedNet.address],
             });
-            store.dispatch('tokens/setGroupTokens', tokens);
+
+            // store.dispatch('tokens/setGroupTokens', tokens);
 
             const wallet = {
                 ...selectedNet.info,

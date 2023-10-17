@@ -4,8 +4,13 @@ import { computed } from 'vue';
 
 import { useStore } from 'vuex';
 
+import { ECOSYSTEMS } from '@/Adapter/config';
+import useAdapter from '@/Adapter/compositions/useAdapter';
+
 export default function useTokensList({ network = null, fromToken = null, toToken = null } = {}) {
     const store = useStore();
+
+    const { walletAccount } = useAdapter();
 
     const onlyWithBalance = computed(() => store.getters['tokenOps/onlyWithBalance']);
 
@@ -16,7 +21,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             return [];
         }
 
-        const list = store.getters[`${storeModule}/getTokensListForChain`](net);
+        const list = store.getters[`${storeModule}/getTokensListForChain`](net, { account: walletAccount.value });
 
         return _.orderBy(list, (tkn) => Number(tkn.balanceUsd), ['desc']);
     };
@@ -54,6 +59,21 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             allTokens = tokensWithBalance;
         } else {
             allTokens = _.unionBy(tokensWithBalance, tokensListFromNet, (tkn) => tkn.address?.toLowerCase());
+        }
+
+        if (ECOSYSTEMS.COSMOS === network?.ecosystem) {
+            const { asset } = network || {};
+
+            const baseToken = allTokens.find(({ symbol }) => symbol === asset.symbol);
+
+            const tokenInfo = {
+                ...asset,
+                ...baseToken,
+                balance: baseToken?.balance || 0,
+                balanceUsd: baseToken?.balanceUsd || 0,
+            };
+
+            allTokens = [tokenInfo];
         }
 
         allTokens = _.filter(allTokens, isNotEqualToSelected);

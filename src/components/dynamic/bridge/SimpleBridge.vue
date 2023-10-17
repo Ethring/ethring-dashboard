@@ -110,6 +110,7 @@ import { useRouter } from 'vue-router';
 import { LoadingOutlined } from '@ant-design/icons-vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
+import useTokensList from '@/compositions/useTokensList';
 import useNotification from '@/compositions/useNotification';
 
 import { getAllowance, getApproveTx, estimateBridge, getBridgeTx, getDebridgeTxHashForOrder } from '@/api/services';
@@ -145,6 +146,7 @@ export default {
     },
     setup() {
         const {
+            walletAccount,
             walletAddress,
             currentChainInfo,
             chainList,
@@ -297,17 +299,17 @@ export default {
 
         // =================================================================================================================
 
-        const tokensList = computed(() => {
-            const { net } = selectedSrcNetwork.value || {};
+        const { getTokensList } = useTokensList();
 
-            const listFromStore = store.getters['tokens/getTokensListForChain'](net);
-
-            return listFromStore || [];
-        });
+        const tokensList = ref([]);
 
         // =================================================================================================================
 
         const setTokenOnChange = () => {
+            tokensList.value = getTokensList({
+                srcNet: selectedSrcToken.value,
+            });
+
             const [defaultToken = null] = tokensList.value;
 
             if (!selectedSrcToken.value && defaultToken) {
@@ -434,7 +436,7 @@ export default {
                 return (errorAddress.value = '');
             }
 
-            if (!validateAddress(addr)) {
+            if (!validateAddress(addr, { chainId: selectedDstNetwork?.value?.net })) {
                 return (errorAddress.value = 'Invalid address');
             }
 
@@ -446,6 +448,10 @@ export default {
             txError.value = '';
             errorAddress.value = '';
             receiveValue.value = '';
+
+            if (!selectedSrcToken.value) {
+                return;
+            }
 
             if (!allowance.value) {
                 await makeAllowanceRequest();
@@ -497,7 +503,7 @@ export default {
                 return;
             }
 
-            if (!selectedSrcToken.value.address) {
+            if (!selectedSrcToken.value && !selectedSrcToken.value.address) {
                 return;
             }
 
@@ -771,6 +777,16 @@ export default {
         // =================================================================================================================
 
         watch(isAllTokensLoading, () => setTokenOnChange());
+
+        watch(walletAccount, () => {
+            selectedSrcNetwork.value = currentChainInfo.value;
+
+            selectedSrcToken.value = null;
+            selectedDstToken.value = null;
+
+            setTokenOnChange();
+        });
+
         watch(isTokensLoadingForSrc, () => setTokenOnChange());
 
         watch(selectedSrcNetwork, (newValue, oldValue) => {

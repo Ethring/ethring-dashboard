@@ -34,21 +34,20 @@
     </div>
 </template>
 <script>
-import { h, ref, computed, onBeforeUnmount, onMounted, onUpdated, watch } from 'vue';
+import { h, ref, computed, onBeforeUnmount, onMounted, watch } from 'vue';
 
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { LoadingOutlined } from '@ant-design/icons-vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
+import useTokensList from '@/compositions/useTokensList';
 import useNotification from '@/compositions/useNotification';
 
 import Button from '@/components/ui/Button';
 import SelectNetwork from '@/components/ui/SelectNetwork';
 import SelectAddress from '@/components/ui/SelectAddress';
 import SelectAmount from '@/components/ui/SelectAmount';
-
-import { sortByKey } from '@/helpers/utils';
 
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { isCorrectChain } from '@/shared/utils/operations';
@@ -70,6 +69,7 @@ export default {
 
         // * Adapter for wallet
         const {
+            walletAccount,
             walletAddress,
             connectedWallet,
             currentChainInfo,
@@ -116,11 +116,9 @@ export default {
 
         // =================================================================================================================
 
-        const tokensList = computed(() => {
-            const { net } = selectedNetwork.value;
-            const listFromStore = store.getters['tokens/getTokensListForChain'](net);
-            return sortByKey(listFromStore, 'balanceUsd');
-        });
+        const { getTokensList } = useTokensList();
+
+        const tokensList = ref([]);
 
         // =================================================================================================================
 
@@ -138,6 +136,10 @@ export default {
         // =================================================================================================================
 
         const setTokenOnChange = () => {
+            tokensList.value = getTokensList({
+                srcNet: selectedNetwork.value,
+            });
+
             const [defaultToken = null] = tokensList.value || [];
 
             if (!selectedToken.value && defaultToken) {
@@ -162,7 +164,7 @@ export default {
         const onSetAddress = (addr = '') => {
             receiverAddress.value = addr;
 
-            const isAddressAllowed = !validateAddress(addr) && addr.length > 0;
+            const isAddressAllowed = !validateAddress(addr, { chainId: selectedNetwork?.value?.net }) && addr?.length > 0;
 
             return (isAddressError.value = isAddressAllowed);
         };
@@ -171,12 +173,13 @@ export default {
             clearAddress.value = true;
             selectedNetwork.value = network;
 
+            setTokenOnChange();
+
             if (currentChainInfo.value.net !== selectedNetwork.value.net) {
                 return (opTitle.value = 'tokenOperations.switchNetwork');
             }
 
             clearAddress.value = false;
-
             return (opTitle.value = 'tokenOperations.confirm');
         };
 
@@ -190,12 +193,55 @@ export default {
 
         // =================================================================================================================
 
+        const resetValues = () => {
+            receiverAddress.value = '';
+            amount.value = null;
+        };
+
+        // =================================================================================================================
+
+        const onPrepareTx = async (dataForPrepare) => {
+            showNotification({
+                key: 'prepare-tx',
+                type: 'info',
+                title: `Sending ${dataForPrepare.amount} ${dataForPrepare.token.symbol} ...`,
+                description: 'Please wait, transaction is preparing',
+                icon: h(LoadingOutlined, {
+                    spin: true,
+                }),
+                duration: 0,
+            });
+
+            try {
+                const tx = await prepareTransaction(
+                    dataForPrepare.fromAddress,
+                    dataForPrepare.toAddress,
+                    dataForPrepare.amount,
+                    dataForPrepare.token
+                );
+
+                return tx;
+            } catch (error) {
+                console.error('Error on prepare tx', error);
+                return {
+                    error,
+                };
+            }
+        };
+
         const handleOnSend = async () => {
             if (disabledSend.value) {
                 return;
             }
 
             isLoading.value = true;
+
+            const dataForPrepare = {
+                fromAddress: walletAddress.value,
+                toAddress: receiverAddress.value,
+                amount: amount.value,
+                token: selectedToken.value,
+            };
 
             const { isChanged, btnTitle } = await isCorrectChain(selectedNetwork, currentChainInfo, setChain);
 
@@ -207,45 +253,16 @@ export default {
 
             opTitle.value = 'tokenOperations.confirm';
 
-            const dataForPrepare = {
-                fromAddress: walletAddress.value,
-                toAddress: receiverAddress.value,
-                amount: amount.value,
-                token: selectedToken.value,
-            };
+            // Reset values
 
-            // reset values for next send
-            clearAddress.value = true;
+            const tx = await onPrepareTx(dataForPrepare);
 
-            amount.value = '';
-            receiverAddress.value = '';
-
-            clearAddress.value = false;
+            if (tx.error) {
+                closeNotification('prepare-tx');
+                return (txError.value = tx.error);
+            }
 
             try {
-                showNotification({
-                    key: 'prepare-tx',
-                    type: 'info',
-                    title: `Sending ${dataForPrepare.amount} ${dataForPrepare.token.symbol} ...`,
-                    description: 'Please wait, transaction is preparing',
-                    icon: h(LoadingOutlined, {
-                        spin: true,
-                    }),
-                    duration: 0,
-                });
-
-                const tx = await prepareTransaction(
-                    dataForPrepare.fromAddress,
-                    dataForPrepare.toAddress,
-                    dataForPrepare.amount,
-                    dataForPrepare.token
-                );
-
-                if (tx.error) {
-                    closeNotification('prepare-tx');
-                    return (txError.value = tx.error);
-                }
-
                 const resTx = await signSend(tx);
 
                 if (resTx.error) {
@@ -253,10 +270,15 @@ export default {
                     return (txError.value = resTx.error);
                 }
 
+                closeNotification('prepare-tx');
+
+                resetValues();
+
                 successHash.value = getTxExplorerLink(resTx.transactionHash, currentChainInfo.value);
-                isLoading.value = false;
             } catch (error) {
                 closeNotification('prepare-tx');
+            } finally {
+                isLoading.value = false;
             }
         };
 
@@ -285,8 +307,6 @@ export default {
             setTokenOnChange();
         });
 
-        onUpdated(() => setTokenOnChange());
-
         watch(txError, (err) => {
             if (!err) {
                 return;
@@ -305,8 +325,15 @@ export default {
             isLoading.value = false;
         });
 
+        watch(walletAccount, () => {
+            selectedNetwork.value = currentChainInfo.value;
+            selectedToken.value = null;
+            setTokenOnChange();
+        });
+
         watch(currentChainInfo, () => {
             selectedNetwork.value = currentChainInfo.value;
+            setTokenOnChange();
         });
 
         watch(isTokensLoadingForChain, () => setTokenOnChange());
