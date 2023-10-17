@@ -351,8 +351,14 @@ export default {
 
         // =================================================================================================================
 
-        const srcNets = computed(() => chainList.value.filter((network) => network.net !== selectedDstNetwork?.value?.net));
-        const dstNets = computed(() => chainList.value.filter((network) => network.net !== selectedSrcNetwork?.value?.net));
+        const NOT_SUPPORT = ['fantom', 'optimism'];
+
+        const srcNets = computed(() =>
+            chainList.value.filter((network) => network.net !== selectedDstNetwork?.value?.net && !NOT_SUPPORT.includes(network.net))
+        );
+        const dstNets = computed(() =>
+            chainList.value.filter((network) => network.net !== selectedSrcNetwork?.value?.net && !NOT_SUPPORT.includes(network.net))
+        );
 
         // =================================================================================================================
 
