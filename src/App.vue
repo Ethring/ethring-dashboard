@@ -83,16 +83,22 @@ export default {
                 await connectLastConnectedWallet();
                 lastConnectedCall.value = true;
             }
+
             await callInit();
         });
 
         watchEffect(async () => {
+            console.log('isStay', currentChainInfo.value);
+
             if (isConnecting) {
                 return;
             }
 
             const isStay = await redirectOrStay(route.path, currentChainInfo.value);
 
+            if (!currentChainInfo.value) {
+                return router.push('/main');
+            }
             if (!isStay) {
                 return router.push('/main');
             }

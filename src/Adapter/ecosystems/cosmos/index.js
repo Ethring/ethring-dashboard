@@ -165,12 +165,17 @@ class CosmosAdapter extends AdapterBase {
     async chainsWithDifferentSlip44(walletName) {
         try {
             const walletList = this.walletManager.walletRepos;
+            const mainAccount = this.getAccount();
 
             if (!walletList) {
                 return null;
             }
 
             const promises = walletList.map(async (wallet) => {
+                if (!this.addressByNetwork[mainAccount]) {
+                    this.addressByNetwork[mainAccount] = {};
+                }
+
                 const { chainName } = wallet;
 
                 if (!isDifferentSlip44(chainName, differentSlip44)) {
@@ -187,7 +192,7 @@ class CosmosAdapter extends AdapterBase {
                 const isConnected = diffChain.isWalletConnected;
 
                 if (isConnected) {
-                    this.addressByNetwork[chainName] = {
+                    this.addressByNetwork[mainAccount][chainName] = {
                         address: diffChain.address,
                         logo: diffChain.chain.logo_URIs?.svg || diffChain.chain.logo_URIs?.png || null,
                     };
@@ -206,9 +211,14 @@ class CosmosAdapter extends AdapterBase {
         }
 
         const mainAddress = this.getAccountAddress();
+        const mainAccount = this.getAccount();
 
         if (!mainAddress) {
             return null;
+        }
+
+        if (!this.addressByNetwork[mainAccount]) {
+            this.addressByNetwork[mainAccount] = {};
         }
 
         const promises = this.walletManager.chainRecords.map(async ({ chain }) => {
@@ -220,7 +230,7 @@ class CosmosAdapter extends AdapterBase {
 
             const chainAddress = await reEncodeWithNewPrefix(bech32_prefix, mainAddress);
 
-            this.addressByNetwork[chain_name] = {
+            this.addressByNetwork[mainAccount][chain_name] = {
                 address: chainAddress,
                 logo: chain.logo_URIs?.svg || chain.logo_URIs?.png || null,
             };
@@ -242,6 +252,7 @@ class CosmosAdapter extends AdapterBase {
 
         window.localStorage.removeItem(STORAGE.WALLET);
         window.localStorage.removeItem(STORAGE.ACCOUNTS);
+
         this.addressByNetwork = {};
     }
 
@@ -419,7 +430,8 @@ class CosmosAdapter extends AdapterBase {
     }
 
     getAddressesWithChains() {
-        return this.addressByNetwork || {};
+        const mainAccount = this.getAccount();
+        return this.addressByNetwork[mainAccount] || {};
     }
 }
 

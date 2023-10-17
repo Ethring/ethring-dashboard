@@ -344,7 +344,6 @@ export default {
                     margin: 0;
                     line-height: var(--#{$prefix}h5-fs);
                 }
-                
                 h6 {
                     color: var(--#{$prefix}sub-text);
                     font-size: var(--#{$prefix}small-sm-fs);
