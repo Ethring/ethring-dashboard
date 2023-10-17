@@ -5,8 +5,7 @@ export const STATUSES = {
 };
 
 export const ERRORS = {
-    BRIDGE_ERROR: 'Internal error',
-    ROUTE_NOT_FOUND: 'Bad Request',
+    ROUTE_NOT_FOUND: 'Insufficient liquidity',
     NOT_ENOUGH_BALANCE: 'Insufficient balance for network fees',
 };
 

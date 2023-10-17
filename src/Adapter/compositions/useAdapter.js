@@ -185,14 +185,14 @@ function useAdapter() {
     };
 
     // * Validate Address
-    const validateAddress = (address) => {
+    const validateAddress = (address, { chainId }) => {
         if (!mainAdapter.value) {
             return false;
         }
 
-        const validation = currentChainInfo.value.address_validating || currentChainInfo.value.bech32_prefix;
+        const validation = currentChainInfo.value.address_validating;
 
-        return mainAdapter.value.validateAddress(address, validation);
+        return mainAdapter.value.validateAddress(address, { validation, chainId });
     };
 
     // * Format Tx for Ecosystem

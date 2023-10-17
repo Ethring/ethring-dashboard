@@ -12,7 +12,7 @@ const dataProviderIns = axios.create({
 export const getBalancesByAddress = async (
     net,
     address = null,
-    { fetchTokens = true, fetchIntegrations = true, fetchNfts = false } = {}
+    { fetchTokens = true, fetchIntegrations = true, fetchNfts = false, signal } = {}
 ) => {
     if (!PROVIDER_URL || !net || !address) {
         return null;
@@ -20,7 +20,10 @@ export const getBalancesByAddress = async (
 
     try {
         const URL = `${PROVIDER_URL}/balances?net=${net}&address=${address}&tokens=${fetchTokens}&integrations=${fetchIntegrations}&nfts=${fetchNfts}`;
-        const response = await dataProviderIns.get(URL);
+
+        const response = await dataProviderIns.get(URL, {
+            signal,
+        });
 
         if (response.status === 200) {
             return response.data.data;
