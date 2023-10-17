@@ -39,6 +39,7 @@ export const getTransactionForAccount = async (account, ecosystem, chainId) => {
 
 export const createTransactionsQueue = async (transactions = []) => {
     try {
+        console.log('TX_MANAGER_URL', TX_MANAGER_URL);
         const URL = `${TX_MANAGER_URL}/transactions`;
 
         const response = await txMangerIns.post(URL, {
