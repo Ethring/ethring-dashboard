@@ -55,6 +55,8 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import ModuleIcon from '@/Adapter/UI/Entities/ModuleIcon.vue';
 
+import { ECOSYSTEMS } from '@/Adapter/config';
+
 import { cutAddress } from '@/helpers/utils';
 
 export default {
@@ -89,7 +91,7 @@ export default {
         const chainInfo = computed(() => getChainByChainId(props.wallet.ecosystem, selectedChain.value));
 
         watch(currentChainInfo, () => {
-            if (props.wallet.ecosystem === 'EVM') {
+            if (props.wallet.ecosystem === ECOSYSTEMS.EVM) {
                 selectedChain.value = currentChainInfo.value.chain_id;
             }
         });
