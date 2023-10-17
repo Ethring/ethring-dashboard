@@ -88,7 +88,7 @@
                         <FeeIcon />
                         <span class="fee">{{ networkFee }}</span> <span class="symbol"> $</span>
                         <TimeIcon />
-                        <span class="fee"> {{ '~ ' + bestRoute.estimateTime + ' s' }}</span>
+                        <span class="fee"> {{ '~ ' + bestRoute?.estimateTime + ' s' }}</span>
                         <h4>1 {{ selectedSrcToken?.symbol || '' }} = {{ estimateRate }} {{ selectedDstToken?.symbol || '' }}</h4>
                     </div>
 
@@ -100,10 +100,10 @@
             </template>
             <template #content>
                 <div class="routes">
-                    <div class="route" v-for="(item, i) in bestRoute.routes" :key="i">
+                    <div class="route" v-for="(item, i) in bestRoute?.routes" :key="i">
                         <img :src="item.service.icon" />
                         <div class="name">{{ item.service.name }}</div>
-                        <ArrowIcon class="arrow" v-if="i != bestRoute.routes.length - 1" />
+                        <ArrowIcon class="arrow" v-if="i != bestRoute?.routes?.length - 1" />
                     </div>
                     <ExpandIcon v-if="otherRoutes.length" class="expand" @click="setShowRoutesModal" />
                 </div>

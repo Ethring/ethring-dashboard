@@ -78,7 +78,6 @@ export default {
 
             const addressesWithChains = getAddressesWithChainsByEcosystem(ecosystem);
 
-            console.log('addressesWithChains', addressesWithChains, ecosystem);
             await useInit(store, { account: walletAccount.value, addressesWithChains, currentChainInfo: currentChainInfo.value });
         };
 
