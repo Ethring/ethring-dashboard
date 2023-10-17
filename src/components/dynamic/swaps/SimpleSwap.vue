@@ -1,6 +1,6 @@
 <template>
     <div class="simple-swap">
-        <SelectNetwork :items="chainList" :current="selectedNetwork" @select="onSelectNetwork" />
+        <SelectNetwork :items="chains" :current="selectedNetwork" @select="onSelectNetwork" />
 
         <div class="simple-swap__switch-wrap">
             <SelectAmount
@@ -98,6 +98,7 @@ import { checkErrors } from '@/helpers/checkErrors';
 
 import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { isCorrectChain } from '@/shared/utils/operations';
+import { SUPPORTED_CHAINS } from '@/shared/constants/superswap/constants';
 
 export default {
     name: 'SimpleSwap',
@@ -128,6 +129,8 @@ export default {
             signSend,
             setChain,
         } = useAdapter();
+
+        const chains = computed(() => chainList.value?.filter((chain) => SUPPORTED_CHAINS.includes(chain.net)));
 
         // * Loaders
         const isLoading = ref(false);
@@ -756,7 +759,7 @@ export default {
             disabledSwap,
             walletAddress,
 
-            chainList,
+            chains,
 
             isBalanceError,
             estimateErrorTitle,
