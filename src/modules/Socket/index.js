@@ -4,10 +4,6 @@ const TX_MANAGER_URL = process.env.VUE_APP_TX_MANAGER || undefined;
 
 class SocketInstance {
     constructor() {
-        if (!TX_MANAGER_URL) {
-            throw new Error('TX_MANAGER_URL is not defined');
-        }
-
         this.socket = io(TX_MANAGER_URL, {
             path: '/socket.io',
             transports: ['websocket'],
