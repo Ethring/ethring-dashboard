@@ -19,7 +19,7 @@ import useWeb3Onboard from '@/compositions/useWeb3Onboard';
 import NavBar from '@/components/app/NavBar';
 import Sidebar from '@/components/app/Sidebar';
 import { useStore } from 'vuex';
-import useCitadel from './compositions/useCitadel';
+import useInit from './compositions/useInit';
 
 export default {
     name: 'App',
@@ -27,20 +27,25 @@ export default {
         Sidebar,
         NavBar,
     },
+    created() {
+        const store = useStore();
+        store.dispatch('networks/init');
+    },
     setup() {
         const store = useStore();
-
-        const { connectWallet, connectedWallet, walletAddress, currentChainInfo } = useWeb3Onboard();
+        const { connectWallet, connectedWallet, walletAddress } = useWeb3Onboard();
 
         onMounted(async () => {
-            store.dispatch('networks/init');
-            store.dispatch('networks/initZometNets');
+            await store.dispatch('networks/initZometNets');
+
+            if (walletAddress.value && walletAddress.value !== undefined) {
+                await useInit(walletAddress.value, store);
+            }
 
             nextTick(async () => {
                 const { label, provider } = connectedWallet.value || {};
 
                 const lastConnected = localStorage.getItem('onboard.js:last_connected_wallet');
-
                 if (!label && !provider && lastConnected) {
                     const walletLabel = JSON.parse(lastConnected);
 
@@ -60,9 +65,9 @@ export default {
             });
         });
 
-        watch(currentChainInfo, () => {
-            if (walletAddress.value) {
-                useCitadel(walletAddress.value, store);
+        watch(walletAddress, async () => {
+            if (walletAddress?.value) {
+                await useInit(walletAddress.value, store);
             }
         });
     },

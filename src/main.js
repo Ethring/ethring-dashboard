@@ -19,11 +19,23 @@ import { initWeb3 } from '@/compositions/useWeb3Onboard';
 
 import { getChainList } from '@/api/networks';
 
+import Antd from 'ant-design-vue';
+
+import 'ant-design-vue/dist/antd.css';
+
 getChainList().then((chains) => {
     initWeb3(chains);
 
     const app = createApp(App)
-        .directive('debounce', vue3Debounce({ lock: true }))
+        .use(Antd)
+        .directive(
+            'debounce',
+            vue3Debounce({
+                lock: true,
+                listenTo: ['input', 'keyup'],
+                defaultTime: '1s',
+            })
+        )
         .use(store)
         .use(VueClickAway)
         .use(Router)

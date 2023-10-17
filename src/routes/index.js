@@ -15,7 +15,7 @@ const routes = [
             isAuth: true,
             isSwap: true,
         },
-        component: () => import(/* webpackChunkName: "about" */ '../views/Swap.vue'),
+        component: () => import(/* webpackChunkName: "about" */ '../layouts/SwapLayout.vue'),
     },
     {
         path: '/stake',
@@ -31,7 +31,7 @@ const routes = [
         meta: {
             isAuth: true,
         },
-        component: () => import(/* webpackChunkName: "about" */ '../views/Send.vue'),
+        component: () => import(/* webpackChunkName: "about" */ '../layouts/SendLayout.vue'),
     },
     {
         path: '/swap/select-token',
@@ -40,6 +40,14 @@ const routes = [
             isAuth: true,
         },
         component: () => import(/* webpackChunkName: "about" */ '../components/dynamic/swaps/SelectToken.vue'),
+    },
+    {
+        path: '/send/select-token',
+        name: 'send/select-token',
+        meta: {
+            isAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "about" */ '../components/dynamic/send/SelectToken.vue'),
     },
     // {
     //     path: '/kit',
@@ -61,7 +69,7 @@ const routes = [
         meta: {
             isAuth: true,
         },
-        component: () => import(/* webpackChunkName: "about" */ '../views/Bridge.vue'),
+        component: () => import(/* webpackChunkName: "about" */ '../layouts/BridgeLayout.vue'),
     },
     {
         path: '/bridge/select-token',
@@ -70,6 +78,22 @@ const routes = [
             isAuth: true,
         },
         component: () => import(/* webpackChunkName: "about" */ '../components/dynamic/bridge/SelectToken.vue'),
+    },
+    {
+        path: '/superSwap',
+        name: 'superSwap',
+        meta: {
+            isAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "about" */ '../layouts/SuperSwapLayout.vue'),
+    },
+    {
+        path: '/superSwap/select-token',
+        name: 'superSwap/select-token',
+        meta: {
+            isAuth: true,
+        },
+        component: () => import(/* webpackChunkName: "about" */ '../components/dynamic/superswap/SelectToken.vue'),
     },
 ];
 

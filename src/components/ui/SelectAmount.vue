@@ -3,7 +3,7 @@
         <div class="select-amount__panel">
             <div class="label">{{ label }}</div>
             <div class="info-wrap">
-                <div class="info" @click="clickToken">
+                <div class="info" @click="clickToken" data-qa="select-token">
                     <div class="network">
                         <TokenIcon width="24" height="24" :token="selectedToken" dark />
                     </div>
@@ -15,21 +15,22 @@
                     :placeholder="placeholder"
                     :disabled="disabled"
                     @focus="onFocus"
-                    v-debounce:300ms="onInput"
+                    v-debounce:1s="onInput"
                     @blur="onBlur"
                     @click.stop="() => {}"
+                    data-qa="input-amount"
                     class="input-balance"
                 />
             </div>
             <div class="balance" @click.stop="setMax">
                 <p>
-                    {{ $t('simpleSend.balance') }}:
+                    {{ $t('tokenOperations.balance') }}:
                     <span>
-                        {{ BigNumber(selectedToken?.balance?.amount || selectedToken?.balance?.mainBalance || 0).toFixed() }}
+                        {{ setTokenBalance(selectedToken) }}
                     </span>
                     {{ selectedToken?.code }}
                 </p>
-                <div><span>$</span>{{ prettyNumber(BigNumber(amount * selectedToken?.price?.USD || 0).toFixed()) }}</div>
+                <div><span>$</span>{{ payTokenPrice }}</div>
             </div>
         </div>
         <div v-if="active" class="select-amount__items" v-click-away="clickAway">
@@ -69,7 +70,7 @@ export default {
             required: true,
         },
         items: {
-            required: true,
+            required: false,
         },
         onReset: {
             type: [Boolean, String],
@@ -115,6 +116,7 @@ export default {
         const active = ref(false);
         const focused = ref(false);
         const amount = ref('');
+        const payTokenPrice = ref(0);
         const selectedToken = ref(props.value);
         const placeholder = ref('0');
         const coingeckoPrice = ref(0);
@@ -171,6 +173,14 @@ export default {
                 } else {
                     amount.value = val;
                 }
+                payTokenPrice.value =
+                    prettyNumber(
+                        BigNumber(
+                            amount.value * (selectedToken?.value?.balance?.price?.USD || selectedToken?.value?.price?.USD) || 0
+                        ).toFixed()
+                    ) || 0;
+            } else {
+                payTokenPrice.value = '0';
             }
         });
 
@@ -206,34 +216,27 @@ export default {
                 emit('setAmount', amount.value);
             }
         };
+
         const setActive = () => {
             if (props.showDropDown) {
                 active.value = !active.value;
             }
         };
         const setToken = (item) => {
-            amount.value = '';
             selectedToken.value = item;
-
-            emit('setAmount', amount.value);
             emit('setToken', item);
         };
+
         const clickToken = () => {
             emit('clickToken');
         };
+
         onMounted(async () => {
             setToken(selectedToken.value);
-            // if (props.selectedNetwork) {
-            //     platform.value = await store.dispatch('tokens/getCoingeckoPlatform', { chainId: props?.selectedNetwork?.chain_id });
-            //     coingeckoPrice.value = await store.dispatch('tokens/getCoingeckoPrice', {
-            //         platform: platform.value,
-            //         addresses: selectedToken.value.address,
-            //     });
-            // }
         });
 
         const setTokenBalance = (token) => {
-            return BigNumber(token.balance?.mainBalance || token.balance?.amount || 0).toFixed();
+            return BigNumber(token?.balance?.mainBalance || token?.balance?.amount || 0).toFixed();
         };
 
         return {
@@ -255,6 +258,7 @@ export default {
             clickToken,
             coingeckoPrice,
             setTokenBalance,
+            payTokenPrice,
         };
     },
 };
@@ -269,7 +273,7 @@ export default {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        background: $colorGray;
+        background: var(--#{$prefix}select-bg-color);
         border-radius: 16px;
         height: 160px;
         padding: 17px 32px;
@@ -278,33 +282,30 @@ export default {
         cursor: pointer;
 
         .label {
-            color: #486060;
-            font-family: 'Poppins_SemiBold';
+            color: var(--#{$prefix}select-label-color);
+            font-weight: 600;
         }
 
         .balance {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: #486060;
-            font-family: 'Poppins_Regular';
+            color: var(--#{$prefix}base-text);
             font-weight: 400;
-            font-size: 14px;
+            font-size: var(--#{$prefix}small-lg-fs);
             line-height: 21px;
             span {
-                font-family: 'Poppins_SemiBold';
                 font-weight: 600;
-                font-size: 16px;
-                color: $colorBaseGreen;
+                font-size: var(--#{$prefix}default-fs);
+                color: var(--#{$prefix}sub-text);
             }
             div {
-                font-family: 'Poppins_SemiBold';
-                color: #486060;
-                font-size: 14px;
+                font-weight: 600;
+                color: var(--#{$prefix}base-text);
+                font-size: var(--#{$prefix}small-lg-fs);
                 line-height: 21px;
                 span {
-                    font-family: 'Poppins_Regular';
-                    color: #486060;
+                    color: var(--#{$prefix}base-text);
                     font-weight: 400;
                 }
             }
@@ -322,9 +323,9 @@ export default {
         }
 
         .token {
-            font-size: 28px;
-            font-family: 'Poppins_SemiBold';
-            color: $colorBlack;
+            font-size: var(--#{$prefix}h2-fs);
+            font-weight: 600;
+            color: var(--#{$prefix}select-item-secondary-color);
             margin-right: 10px;
         }
 
@@ -335,15 +336,16 @@ export default {
             border: none;
             outline: none;
             background: transparent;
-            font-size: 28px;
-            font-family: 'Poppins_SemiBold';
+            font-size: var(--#{$prefix}h2-fs);
+            font-weight: 600;
+            color: var(--#{$prefix}primary-text);
         }
 
         .max {
             margin-left: 10px;
-            font-size: 28px;
-            color: $colorBlack;
-            font-family: 'Poppins_SemiBold';
+            font-size: var(--#{$prefix}h2-fs);
+            color: var(--#{$prefix}black);
+            font-weight: 600;
         }
 
         .network {
@@ -354,24 +356,24 @@ export default {
             min-width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: #3fdfae;
+            background: var(--#{$prefix}icon-logo-bg-color);
             margin-right: 10px;
 
             svg {
-                fill: $colorBlack;
+                fill: var(--#{$prefix}black);
             }
         }
 
         .name {
-            font-size: 28px;
-            font-family: 'Poppins_SemiBold';
-            color: #73b1b1;
+            font-size: var(--#{$prefix}h2-fs);
+            font-weight: 600;
+            color: var(--#{$prefix}select-placeholder-text);
             user-select: none;
         }
 
         svg.arrow {
             cursor: pointer;
-            fill: #73b1b1;
+            fill: var(--#{$prefix}select-icon-color);
             transform: rotate(0);
             @include animateEasy;
         }
@@ -379,15 +381,15 @@ export default {
 
     &.focused {
         .select-amount__panel {
-            border: 2px solid $colorBaseGreen;
-            background: $colorWhite;
+            border: 2px solid var(--#{$prefix}select-active-border-color);
+            background: var(--#{$prefix}select-bg-color);
         }
     }
 
     &.active {
         .select-amount__panel {
-            border: 2px solid $colorBaseGreen;
-            background: $colorWhite;
+            border: 2px solid var(--#{$prefix}select-active-border-color);
+            background: var(--#{$prefix}white);
 
             svg.arrow {
                 transform: rotate(180deg);
@@ -397,21 +399,21 @@ export default {
 
     &.error {
         .select-amount__panel {
-            border-color: $colorRed;
-            background: $colorLightOrange;
+            border-color: var(--#{$prefix}danger-color);
+            background: var(--#{$prefix}danger-op-01);
         }
     }
 
     &__items {
         z-index: 100;
-        background: #fff;
+        background: var(--#{$prefix}white);
         position: absolute;
         left: 0;
         top: 160px;
         width: 100%;
         min-height: 40px;
         border-radius: 16px;
-        border: 2px solid $colorBaseGreen;
+        border: 2px solid var(--#{$prefix}select-active-border-color);
         padding: 20px 25px;
         box-sizing: border-box;
         max-height: 430px;
@@ -428,15 +430,15 @@ export default {
         align-items: center;
         justify-content: space-between;
         min-height: 50px;
-        border-bottom: 1px dashed #73b1b1;
+        border-bottom: 1px dashed var(--#{$prefix}select-border-color);
         cursor: pointer;
         @include animateEasy;
 
         &.active {
             .info {
                 .name {
-                    color: $colorBlack;
-                    font-family: 'Poppins_SemiBold';
+                    color: var(--#{$prefix}black);
+                    font-weight: 600;
                 }
             }
         }
@@ -450,134 +452,27 @@ export default {
             align-items: center;
 
             .name {
-                font-size: 16px;
-                color: #486060;
-                font-family: 'Poppins_Regular';
+                font-size: var(--#{$prefix}default-fs);
+                color: var(--#{$prefix}base-text);
+                font-weight: 400;
             }
         }
 
         &:hover {
             .info {
                 .name {
-                    color: $colorBaseGreen;
+                    color: var(--#{$prefix}sub-text);
                 }
             }
         }
 
         .amount {
-            color: $colorBlack;
-            font-family: 'Poppins_SemiBold';
+            color: var(--#{$prefix}black);
+            font-weight: 600;
 
             span {
-                color: $colorBlack;
-                font-family: 'Poppins_Regular';
-            }
-        }
-    }
-}
-
-body.dark {
-    .select-amount {
-        &__panel {
-            background: $colorDarkPanel;
-
-            .label,
-            .balance {
-                color: $colorLightGreen;
-
-                div {
-                    color: $colorLightGreen;
-                }
-            }
-
-            svg.arrow {
-                fill: #486060;
-            }
-
-            .input-balance {
-                color: $colorWhite;
-            }
-
-            .info {
-                .network {
-                    background: #0c0d18;
-                }
-
-                .name {
-                    color: $colorWhite;
-                }
-            }
-
-            .token {
-                color: $colorBrightGreen;
-            }
-
-            .max {
-                color: #97ffd0;
-            }
-        }
-
-        &.focused {
-            .select-amount__panel {
-                border: 2px solid $colorBrightGreen;
-                background: $colorDarkPanel;
-            }
-        }
-
-        &.active {
-            .select-amount__panel {
-                border: 2px solid $colorBrightGreen;
-                background: $colorDarkPanel;
-            }
-        }
-
-        &.error {
-            .select-amount__panel {
-                border-color: $colorRed;
-                background: $colorDarkPanel;
-            }
-        }
-
-        .select-amount__items {
-            background: #0c0d18;
-            border-color: $colorBrightGreen;
-        }
-
-        .select-amount__items-item {
-            border-color: #e8e9c933;
-
-            &:last-child {
-                border-color: transparent;
-            }
-
-            .info {
-                .name {
-                    color: $colorPl;
-                }
-            }
-
-            &:hover {
-                .info {
-                    .name {
-                        color: #97ffd0;
-                    }
-                }
-            }
-
-            .amount {
-                color: $colorBrightGreen;
-
-                span {
-                    color: $colorPl;
-                }
-            }
-        }
-
-        .select-amount__items-item.active {
-            .info {
-                .balance {
-                    color: $colorWhite;
-                }
+                color: var(--#{$prefix}black);
+                font-weight: 400;
             }
         }
     }

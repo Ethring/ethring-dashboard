@@ -1,5 +1,4 @@
 {
-  "mmIncorrectNetwork": "Please change network in Metamask",
   "modals": {
     "addressModal": {
       "title": "Receive"
@@ -20,6 +19,7 @@
     "stake": "Stake",
     "send": "Send",
     "bridge": "Bridge",
+    "superSwap": "SuperSwap",
     "xct": "XCT"
   },
   "connect": {
@@ -31,34 +31,40 @@
   },
   "actionTokens": "Tokens",
   "actionTransactions": "Transactions",
-  "simpleSend": {
-    "title": "Send",
+  "tokenOperations": {
     "confirm": "Confirm",
     "recipient": "Recipient",
-    "amount": "Amount",
-    "balance": "Balance",
-    "max": "Max"
-  },
-  "simpleSwap": {
-    "title": "Swap",
-    "swap": "Swap",
-    "approve": "Approve",
-    "pay": "Pay",
-    "receive": "Receive",
-    "selectToken": "Select token"
-  },
-  "simpleBridge": {
-    "title": "Bridge",
-    "confirm": "Confirm",
-    "recipient": "Recipient",
-    "approve": "Approve",
-    "send": "Send",
-    "receive": "Receive",
     "amount": "Amount",
     "balance": "Balance",
     "max": "Max",
+    "approve": "Approve",
+    "swap": "Swap",
+    "send": "Send",
+    "receive": "Receive",
+    "pay": "Pay",
+    "selectToken": "Select token",
+    "networkFee": "Network fee",
+    "time": "Estimate time",
+    "changeNetwork": "Please change network"
+  },
+  "simpleSend": {
+    "title": "Send"
+  },
+  "simpleSwap": {
+    "title": "Swap",
+    "service": "Service"
+  },
+  "simpleBridge": {
+    "title": "Bridge",
     "protocolFee": "Protocol Fee",
-    "serviceFee": "Service Fee",
-    "time": "Time"
+    "serviceFee": "Service Fee"
+  },
+  "superSwap": {
+    "title": "SuperSwap",
+    "changeNetwork": "Change network to",
+    "selectRoutes": "Routes for select",
+    "time": "Time",
+    "fee": "Fee",
+    "output": "Output"
   }
 }

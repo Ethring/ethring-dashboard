@@ -2,7 +2,7 @@
     <div class="simple-bridge">
         <div class="select-group">
             <SelectNetwork
-                :items="filteredSupportedChains"
+                :items="zometNetworks"
                 :current="selectedSrcNetwork || currentChainInfo"
                 @select="onSelectSrcNetwork"
                 label="From"
@@ -22,7 +22,7 @@
             :items="tokensSrcListResolved"
             :value="selectedSrcToken"
             :error="!!errorBalance"
-            :label="$t('simpleBridge.send')"
+            :label="$t('tokenOperations.send')"
             :on-reset="resetAmount"
             class="mt-10"
             @setAmount="onSetAmount"
@@ -33,7 +33,7 @@
             :selected-network="selectedDstNetwork"
             :items="tokensDstListResolved"
             :value="selectedDstToken"
-            :label="$t('simpleBridge.receive')"
+            :label="$t('tokenOperations.receive')"
             :disabled-value="prettyNumber(receiveValue)"
             :disabled="true"
             :on-reset="resetAmount"
@@ -43,6 +43,7 @@
         />
         <InfoPanel v-if="errorBalance" :title="errorBalance" class="mt-10" />
         <InfoPanel v-if="txError" :title="txError" class="mt-10" />
+        <InfoPanel v-if="networkError" :title="$t('tokenOperations.changeNetwork')" class="mt-10" />
         <InfoPanel v-if="successHash" :hash="successHash" :title="$t('tx.txHash')" type="success" class="mt-10" />
         <Checkbox
             v-if="selectedDstToken"
@@ -63,56 +64,35 @@
         />
         <Accordion
             v-if="selectedDstNetwork"
-            :title="
-                selectedSrcNetwork
-                    ? `<span>${$t('simpleBridge.protocolFee')} </span>: ${
-                          serviceFee
-                              ? `<span style='font-family:Poppins_Semibold; color: #0D7E71;'>${serviceFee}</span> 
-                                    <span style='font-family:Poppins_Semibold;'>
-                                        ${selectedSrcNetwork.code} ~ 
-                                        <span style='font-family:Poppins_Semibold; color: #0D7E71;'>
-                                            ${prettyNumber(serviceFee * selectedSrcNetwork.price.USD)}
-                                        </span> $
-                                    </span>`
-                              : `<div class='skeleton skeleton__text'></div>`
-                      }`
-                    : `<div class='skeleton skeleton__text'></div>`
-            "
+            :title="setReceiveValue"
             :hide="!receiveValue"
             :class="serviceFee ? 'mt-10' : 'mt-10 skeleton__content'"
         >
             <div v-if="receiveValue" class="accordion__content">
-                <div class="accordion__item">
-                    <div class="accordion__label">{{ $t('simpleBridge.serviceFee') }} :</div>
-                    <div class="accordion__value">
-                        <div class="name">{{ prettyNumber(networkFee * selectedSrcToken?.price?.USD) }} $</div>
-                    </div>
-                </div>
-                <div class="accordion__item">
-                    <div class="accordion__label">{{ $t('simpleBridge.title') }} :</div>
-                    <div class="accordion__value">
-                        <img src="https://app.debridge.finance/assets/images/bridge.svg" />
-                        <div class="name">{{ services[0].name }}</div>
-                    </div>
-                </div>
-                <div class="accordion__item">
-                    <div class="accordion__label">{{ $t('simpleBridge.time') }} :</div>
-                    <div class="accordion__value">{{ estimateTime }}</div>
-                </div>
+                <AccordionItem :label="$t('simpleBridge.serviceFee') + ' :'">
+                    <span>{{ prettyNumber(networkFee * selectedSrcToken?.price?.USD) }}</span> <span class="symbol">$</span>
+                </AccordionItem>
+                <AccordionItem :label="$t('simpleBridge.title') + ' :'">
+                    <img src="https://app.debridge.finance/assets/images/bridge.svg" />
+                    <span class="symbol">{{ services[0].name }}</span>
+                </AccordionItem>
+                <AccordionItem :label="$t('tokenOperations.time') + ' :'">
+                    {{ estimateTime }}
+                </AccordionItem>
             </div>
         </Accordion>
         <Button
-            xl
-            :title="needApprove ? $t('simpleBridge.approve') : $t('simpleBridge.confirm').toUpperCase()"
+            :title="needApprove ? $t('tokenOperations.approve') : $t('tokenOperations.confirm').toUpperCase()"
             :disabled="!!disabledBtn"
             :loading="isLoading"
             class="simple-bridge__btn mt-10"
             @click="swap"
+            size="large"
         />
     </div>
 </template>
 <script>
-import { computed, ref, onMounted, watch } from 'vue';
+import { computed, ref, onMounted, watch, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { ethers } from 'ethers';
@@ -126,12 +106,14 @@ import SelectAmount from '@/components/ui/SelectAmount';
 import SelectAddress from '@/components/ui/SelectAddress';
 import SelectNetwork from '@/components/dynamic/bridge/SelectNetwork';
 import Accordion from '@/components/ui/Accordion';
+import AccordionItem from '@/components/ui/AccordionItem';
 import Checkbox from '@/components/ui/Checkbox';
 import Button from '@/components/ui/Button';
 
 import { toMantissa } from '@/helpers/numbers';
 import { prettyNumber } from '@/helpers/prettyNumber';
 import { getTxUrl, delay } from '@/helpers/utils';
+import { checkErrors } from '@/helpers/checkErrors';
 
 import { services } from '@/config/bridgeServices';
 
@@ -146,6 +128,7 @@ export default {
         SelectAddress,
         Button,
         Accordion,
+        AccordionItem,
         Checkbox,
     },
     setup() {
@@ -153,6 +136,8 @@ export default {
         const { groupTokens, allTokensFromNetwork, getTokenList } = useTokens();
 
         const store = useStore();
+        const router = useRouter();
+
         const isLoading = ref(false);
         const needApprove = ref(false);
         const balanceUpdated = ref(false);
@@ -160,13 +145,13 @@ export default {
         const approveTx = ref(null);
         const txError = ref('');
         const successHash = ref('');
+        const networkError = ref(false);
         const resetAmount = ref(false);
-        const router = useRouter();
         const networkFee = ref(0);
 
+        const zometNetworks = computed(() => store.getters['networks/zometNetworksList']);
         const selectedSrcNetwork = computed(() => store.getters['bridge/selectedSrcNetwork']);
         const selectedDstNetwork = computed(() => store.getters['bridge/selectedDstNetwork']);
-
         const selectedSrcToken = computed(() => store.getters['tokens/fromToken']);
         const selectedDstToken = computed(() => store.getters['tokens/toToken']);
 
@@ -176,16 +161,15 @@ export default {
         const estimateTime = ref('');
         const serviceFee = ref('');
         const allowance = ref(null);
+        const setReceiveValue = ref('');
 
         const errorAddress = ref('');
         const errorBalance = ref('');
 
         const tokensSrcListResolved = ref([]);
         const tokensDstListResolved = ref([]);
-        const getSupportedChains = computed(() => store.getters['bridge/supportedChains']);
 
         onMounted(async () => {
-            store.dispatch('bridge/getSupportedChains');
             store.dispatch(
                 'bridge/setSelectedSrcNetwork',
                 groupTokens.value.find((elem) => elem.net === currentChainInfo.value.net)
@@ -194,32 +178,21 @@ export default {
                 await getAllowance();
             }
             if (selectedSrcNetwork.value) {
-                serviceFee.value = services[0]?.protocolFee[selectedSrcNetwork?.value?.chain_id];
+                serviceFee.value = services[0]?.protocolFee[selectedSrcNetwork?.value?.chain_id || selectedSrcNetwork?.value?.chainId];
+                setReceiveValue.value = selectedSrcNetwork.value
+                    ? `<span>Protocol Fee</span> : ${
+                          serviceFee.value
+                              ? `<span class='service-fee'>${serviceFee.value}</span> 
+                        <span class='symbol'> ${selectedSrcNetwork.value.code || selectedSrcNetwork.value?.nativeCurrency?.symbol} ~ 
+                        <span class='service-fee'> ${prettyNumber(serviceFee.value * selectedSrcNetwork.value.price?.USD)}</span> $ </span>`
+                              : `<div class='skeleton skeleton__text'></div>`
+                      }`
+                    : `<div class='skeleton skeleton__text'></div>`;
             }
-        });
-
-        const filteredSupportedChains = computed(() => {
-            if (!getSupportedChains.value) {
-                return [];
-            }
-
-            const list = groupTokens?.value.filter((item) => {
-                const supportedChain = getSupportedChains?.value?.find((network) => network.net === item.net);
-                if (supportedChain) {
-                    item.logoURI = supportedChain.logoURI;
-                    return true;
-                }
-                return false;
-            });
-
-            if (selectedDstNetwork.value) {
-                return list.filter((chain) => chain.net !== selectedDstNetwork.value.net);
-            }
-            return list;
         });
 
         const activeSupportedChains = computed(() => {
-            return filteredSupportedChains?.value.filter((token) => token.net !== selectedSrcNetwork?.value?.net);
+            return zometNetworks.value.filter((token) => token.net !== selectedSrcNetwork?.value?.net);
         });
 
         const disabledBtn = computed(() => {
@@ -231,7 +204,8 @@ export default {
                 !selectedSrcNetwork.value ||
                 !selectedDstNetwork.value ||
                 !selectedSrcToken.value ||
-                txError.value
+                txError.value ||
+                networkError.value
             );
         });
 
@@ -251,7 +225,8 @@ export default {
             if (network.list) {
                 listWithBalances = getTokenList(network);
             } else {
-                listWithBalances = [groupTokens.value[0], ...groupTokens.value[0].list];
+                const selectedNetwork = groupTokens.value.find((elem) => elem?.chain_id === (network?.chain_id || network?.chainId));
+                listWithBalances = getTokenList(selectedNetwork);
             }
 
             const list = [
@@ -265,12 +240,22 @@ export default {
         };
 
         const onSelectSrcNetwork = async (network) => {
-            tokensList(network).then((tokens) => {
-                tokensSrcListResolved.value = tokens;
-                if (!selectedSrcToken.value) {
-                    store.dispatch('tokens/setFromToken', tokens[0]);
+            if (network?.net === currentChainInfo.value?.net) {
+                networkError.value = false;
+            }
+            clearApprove();
+
+            tokensSrcListResolved.value = await tokensList(network);
+            const tokens = tokensSrcListResolved.value;
+            if (!selectedSrcToken.value || !tokens.find((elem) => elem.code === selectedSrcToken.value.code)) {
+                store.dispatch('tokens/setFromToken', tokens[0]);
+            } else {
+                let listWithBalances = getTokenList(network);
+                let tokenFrom = listWithBalances.find((elem) => elem.code === selectedSrcToken.value.code);
+                if (tokenFrom) {
+                    store.dispatch('tokens/setFromToken', tokenFrom);
                 }
-            });
+            }
 
             if (selectedSrcNetwork.value !== network) {
                 txError.value = '';
@@ -279,23 +264,24 @@ export default {
                         chainId: network.id || network.chain_id,
                     });
                 }
+                store.dispatch('bridge/setSelectedSrcNetwork', network);
             }
-            store.dispatch('bridge/setSelectedSrcNetwork', network);
         };
 
         const onSelectDstNetwork = async (network) => {
             store.dispatch('bridge/setSelectedDstNetwork', network);
-            tokensList(network).then((tokens) => {
-                tokensDstListResolved.value = tokens;
-                if (!selectedDstToken.value || !tokens.find((elem) => elem.code === selectedDstToken.value.code)) {
-                    store.dispatch('tokens/setToToken', tokens[0]);
-                } else {
-                    let tokenTo = tokens.find((elem) => elem.code === selectedDstToken.value.code);
-                    if (tokenTo) {
-                        store.dispatch('tokens/setToToken', tokenTo);
-                    }
+
+            tokensDstListResolved.value = await tokensList(network);
+            const tokens = tokensDstListResolved.value;
+
+            if (!selectedDstToken.value || !tokens.find((elem) => elem.code === selectedDstToken.value.code)) {
+                store.dispatch('tokens/setToToken', tokens[0]);
+            } else {
+                let tokenTo = tokens.find((elem) => elem.code === selectedDstToken.value.code);
+                if (tokenTo) {
+                    store.dispatch('tokens/setToToken', tokenTo);
                 }
-            });
+            }
         };
 
         const onSetSrcToken = () => {
@@ -374,7 +360,7 @@ export default {
             approveTx.value = null;
             needApprove.value = false;
 
-            if (!selectedSrcToken.value?.chain_id) {
+            if (selectedSrcToken.value?.address) {
                 const resAllowance = await store.dispatch('bridge/getAllowance', {
                     net: selectedSrcNetwork.value.net,
                     tokenAddress: selectedSrcToken.value.address,
@@ -390,7 +376,7 @@ export default {
         };
 
         const getApproveTx = async () => {
-            if (!selectedSrcToken.value?.chain_id) {
+            if (selectedSrcToken.value?.address) {
                 const resApproveTx = await store.dispatch('bridge/getApproveTx', {
                     net: selectedSrcNetwork.value.net,
                     tokenAddress: selectedSrcToken.value.address,
@@ -414,13 +400,16 @@ export default {
             ) {
                 return;
             }
-
+            if (selectedSrcNetwork.value.net !== currentChainInfo.value.net) {
+                networkError.value = true;
+            }
             const resEstimate = await store.dispatch('bridge/estimateBridge', {
                 fromNet: selectedSrcNetwork.value.net,
                 fromTokenAddress: selectedSrcToken.value.address || NATIVE_CONTRACT,
                 amount: amount.value,
                 toNet: selectedDstNetwork.value.net,
                 toTokenAddress: selectedDstToken.value.address || NATIVE_CONTRACT,
+                ownerAddress: walletAddress.value,
             });
 
             if (resEstimate.error) {
@@ -430,8 +419,11 @@ export default {
 
             txError.value = '';
             receiveValue.value = resEstimate.toTokenAmount;
-            networkFee.value = +resEstimate.estimatedGas;
-            estimateTime.value = services[0]?.estimatedTime[selectedSrcNetwork?.value?.chain_id];
+            networkFee.value = +resEstimate.fee.amount;
+            estimateTime.value =
+                '< ' +
+                Math.round(services[0]?.estimatedTime[selectedSrcNetwork?.value?.chain_id || selectedSrcNetwork?.value?.chainId] / 60) +
+                ' min';
         };
 
         const getProvider = () => {
@@ -461,7 +453,7 @@ export default {
                     return receipt;
                 }
             } catch (e) {
-                return { error: e.message };
+                return checkErrors(e);
             }
         };
 
@@ -620,6 +612,14 @@ export default {
             }
         });
 
+        onBeforeUnmount(() => {
+            if (router.options.history.state.current !== '/bridge/select-token') {
+                store.dispatch('tokens/setFromToken', null);
+                store.dispatch('tokens/setToToken', null);
+                store.dispatch('bridge/setSelectedDstNetwork', null);
+            }
+        });
+
         return {
             isLoading,
             disabledBtn,
@@ -629,38 +629,40 @@ export default {
             receiveValue,
 
             groupTokens,
-            getSupportedChains,
-            filteredSupportedChains,
+            zometNetworks,
             activeSupportedChains,
             tokensSrcListResolved,
             tokensDstListResolved,
             services,
-            tokensList,
 
             errorAddress,
             errorBalance,
+            networkError,
 
             selectedSrcNetwork,
             selectedDstNetwork,
             selectedSrcToken,
             selectedDstToken,
 
-            onSelectSrcNetwork,
-            onSelectDstNetwork,
-            onSetAddress,
-            onSetSrcToken,
-            onSetDstToken,
             amount,
-            onSetAmount,
             estimateTime,
             serviceFee,
-            swap,
             txError,
             successHash,
             prettyNumber,
             walletAddress,
             currentChainInfo,
             networkFee,
+            setReceiveValue,
+
+            onSelectSrcNetwork,
+            onSelectDstNetwork,
+            onSetAddress,
+            onSetSrcToken,
+            onSetDstToken,
+            tokensList,
+            onSetAmount,
+            swap,
         };
     },
 };
@@ -682,37 +684,29 @@ export default {
             width: 48%;
 
             .name {
-                font-size: 18px;
+                font-size: var(--#{$prefix}h6-fs);
                 line-height: 16px;
             }
         }
     }
 
-    .accordion {
-        &__item {
-            display: flex;
-            align-items: center;
+    .accordion__content {
+        img {
+            width: 16px;
+            height: 16px;
         }
-
-        &__label {
-            color: #494c56;
-            font-size: 16px;
-            font-family: 'Poppins_Regular';
+        .symbol {
+            margin-left: 5px;
         }
+    }
 
-        &__value {
-            display: flex;
-            align-items: center;
-            font-size: 16px;
-            font-family: 'Poppins_SemiBold';
-            color: #1c1f2c;
-            margin-left: 6px;
-
-            img {
-                width: 16px;
-                height: 16px;
-                margin-right: 6px;
-            }
+    .accordion__title {
+        .service-fee {
+            font-weight: 600;
+            color: var(--#{$prefix}sub-text);
+        }
+        .symbol {
+            font-weight: 600;
         }
     }
 

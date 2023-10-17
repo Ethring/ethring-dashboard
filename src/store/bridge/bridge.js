@@ -1,38 +1,26 @@
 import { fetchData } from '@/api/fetchData';
 import axios from 'axios';
 
-const VUE_APP_DEBRIDGE_API = process.env.VUE_APP_DEBRIDGE_API;
+const DEFAULT_URL = process.env.VUE_APP_DEBRIDGE_API;
 
 const types = {
-    SET_SUPPORTED_CHAINS: 'SET_SUPPORTED_CHAINS',
     SET_SRC_NETWORKS: 'SET_SRC_NETWORKS',
     SET_DST_NETWORKS: 'SET_DST_NETWORKS',
-    SET_TOKENS_BY_CHAINID: 'SET_TOKENS_BY_CHAINID',
 };
 
 export default {
     namespaced: true,
     state: () => ({
-        supportedChains: [],
-        tokensByChainID: [],
         selectedSrcNetwork: null,
         selectedDstNetwork: null,
     }),
 
     getters: {
-        supportedChains: (state) => state.supportedChains,
-        tokensByChainID: (state) => state.tokensByChainID,
         selectedSrcNetwork: (state) => state.selectedSrcNetwork,
         selectedDstNetwork: (state) => state.selectedDstNetwork,
     },
 
     mutations: {
-        [types.SET_SUPPORTED_CHAINS](state, value) {
-            state.supportedChains = value;
-        },
-        [types.SET_TOKENS_BY_CHAINID](state, value) {
-            state.tokensByChainID = value;
-        },
         [types.SET_SRC_NETWORKS](state, value) {
             state.selectedSrcNetwork = value;
         },
@@ -48,33 +36,12 @@ export default {
         setSelectedDstNetwork({ commit }, value) {
             commit(types.SET_DST_NETWORKS, value);
         },
-        /* GET SUPPORTED CHAINS */
-        async getSupportedChains({ commit }) {
-            const res = await fetchData({
-                url: VUE_APP_DEBRIDGE_API,
-                route: 'getSupportedChains',
-            });
-            commit(types.SET_SUPPORTED_CHAINS, res);
-        },
-
-        /* GET TOKENS BY CHAIN ID */
-        async getTokensByChain({ commit }, { chainId }) {
-            const tokens = await fetchData({
-                url: VUE_APP_DEBRIDGE_API,
-                route: 'getTokensByChain',
-                params: {
-                    chainId,
-                },
-            });
-            commit(types.SET_TOKENS_BY_CHAINID, tokens);
-            return tokens;
-        },
 
         /* ALLOWANCE */
-        async getAllowance(_, { net, tokenAddress, ownerAddress }) {
+        async getAllowance(_, { net, tokenAddress, ownerAddress, url }) {
             let response;
             try {
-                response = await axios.get(`${VUE_APP_DEBRIDGE_API}getAllowance`, {
+                response = await axios.get(`${url || DEFAULT_URL}getAllowance`, {
                     params: {
                         net,
                         tokenAddress,
@@ -88,9 +55,9 @@ export default {
         },
 
         /* APPROVE TX */
-        async getApproveTx(_, { net, tokenAddress, ownerAddress }) {
+        async getApproveTx(_, { net, tokenAddress, ownerAddress, url }) {
             return await fetchData({
-                url: VUE_APP_DEBRIDGE_API,
+                url: url || DEFAULT_URL,
                 route: 'getApproveTx',
                 params: {
                     net,
@@ -101,27 +68,32 @@ export default {
         },
 
         /* ESTIMATE BRIDGE */
-        async estimateBridge(_, { fromNet, fromTokenAddress, amount, toNet, toTokenAddress }) {
-            return await fetchData({
-                url: VUE_APP_DEBRIDGE_API,
-                route: 'estimateBridge',
-                params: {
-                    fromNet,
-                    fromTokenAddress,
-                    amount,
-                    toNet,
-                    toTokenAddress,
-                },
-            });
+        async estimateBridge(_, { fromNet, fromTokenAddress, amount, toNet, toTokenAddress, url, ownerAddress }) {
+            let response;
+            try {
+                response = await axios.get(`${url || DEFAULT_URL}estimateBridge`, {
+                    params: {
+                        fromNet,
+                        fromTokenAddress,
+                        amount,
+                        toNet,
+                        toTokenAddress,
+                        ownerAddress,
+                    },
+                });
+                return response.data.data;
+            } catch (err) {
+                return { error: err.response.data.error };
+            }
         },
 
         /* GET BRIDGE TX */
         async getBridgeTx(
             _,
-            { fromNet, fromTokenAddress, amount, toNet, toTokenAddress, recipientAddress, fallbackAddress, ownerAddress }
+            { fromNet, fromTokenAddress, amount, toNet, toTokenAddress, recipientAddress, fallbackAddress, ownerAddress, url }
         ) {
             return await fetchData({
-                url: VUE_APP_DEBRIDGE_API,
+                url: url || DEFAULT_URL,
                 route: 'getBridgeTx',
                 params: {
                     fromNet,

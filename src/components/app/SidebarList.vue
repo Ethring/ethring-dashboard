@@ -55,20 +55,19 @@ export default {
 </script>
 <style lang="scss" scoped>
 .sidebar-list {
-    align-self: flex-start;
     display: flex;
+    align-self: flex-start;
     align-items: flex-start;
     flex-direction: column;
     box-sizing: border-box;
-    font-family: 'Poppins_Light';
-    font-size: 24px;
+    font-size: var(--#{$prefix}h3-fs);
 
     &__item {
         display: flex;
         align-items: center;
         margin-bottom: 15px;
         text-decoration: none;
-        color: $colorLightGreen;
+        color: var(--#{$prefix}sidebar-text);
         cursor: pointer;
 
         @include animateEasy;
@@ -82,15 +81,15 @@ export default {
         }
 
         &.router-link-exact-active {
-            color: $colorWhite;
+            color: var(--#{$prefix}white);
 
             svg {
-                fill: $colorBrightGreen;
+                fill: var(--#{$prefix}sidebar-icon-color);
             }
         }
 
         svg {
-            fill: $colorLightGreen;
+            fill: var(--#{$prefix}sidebar-text);
             transform: scale(0.8);
             @include animateEasy;
         }
@@ -104,34 +103,7 @@ export default {
 
     &__item-title {
         margin-left: 10px;
-    }
-}
-
-body.dark {
-    .sidebar-list {
-        &__item {
-            color: $colorLightGreen;
-
-            &.router-link-exact-active {
-                color: $colorWhite;
-
-                svg {
-                    fill: $colorBrightGreen;
-                }
-            }
-
-            &:hover {
-                color: $colorPl;
-
-                svg {
-                    fill: $colorPl;
-                }
-            }
-
-            svg {
-                fill: $colorLightGreen;
-            }
-        }
+        font-weight: 300;
     }
 }
 </style>

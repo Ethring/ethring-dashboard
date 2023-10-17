@@ -17,7 +17,9 @@ export default {
         selectedNetwork: null,
         zometNetworksList: [],
         zometNetworks: {},
+        tokensByNetwork: {},
         zometTokens: {},
+        tokensAddressesByNet: {},
     }),
 
     getters: {
@@ -26,6 +28,12 @@ export default {
         zometNetworksList: (state) => state.zometNetworksList,
         zometNetworks: (state) => state.zometNetworks,
         zometTokens: (state) => state.zometTokens || {},
+
+        networkByChainId: (state) => (chainId) => state.zometNetworksList.find((network) => network.chain_id === chainId) || {},
+
+        tokensByNetwork: (state) => (network) => state.tokensByNetwork[network] || {},
+
+        tokensAddressesByNet: (state) => (network) => state.tokensAddressesByNet[network] || [],
     },
 
     mutations: {
@@ -41,12 +49,24 @@ export default {
         [types.SET_ZOMET_NETWORKS](state, value) {
             state.zometNetworks = value;
         },
-        [types.SET_ZOMET_TOKENS_BY_NET](state, value = {}) {
-            const tokens = JSON.parse(JSON.stringify(state.zometTokens)) || {};
+        [types.SET_ZOMET_TOKENS_BY_NET](state, { tokens, network } = {}) {
+            const exists = JSON.parse(JSON.stringify(state.zometTokens)) || {};
+
+            if (!state.zometTokens[network]) {
+                state.zometTokens[network] = {};
+            }
+            state.tokensByNetwork[network] = tokens;
+
+            const tokensList = Object.keys(tokens);
+
             state.zometTokens = {
+                ...exists,
                 ...tokens,
-                ...value,
             };
+
+            state.zometNetworks[network].tokens = tokens;
+
+            state.tokensAddressesByNet[network] = tokensList;
         },
     },
 
@@ -83,7 +103,7 @@ export default {
             const response = await getTokensListByNetwork(network);
 
             if (response.status === 200) {
-                commit(types.SET_ZOMET_TOKENS_BY_NET, response.data);
+                commit(types.SET_ZOMET_TOKENS_BY_NET, { tokens: response.data, network });
             }
         },
     },

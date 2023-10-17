@@ -70,28 +70,29 @@ export default {
     right: 0;
     bottom: 0;
     left: 0;
-    background: rgba(0, 0, 0, 0.85);
+    background: var(--#{$prefix}modal-bg-color);
     z-index: 1000;
     overflow: auto;
 
     &__content {
         position: relative;
-        width: 100%;
-        height: 100%;
-        background: $colorWhite;
+        min-width: 40vw;
+        height: max-content;
+        background: var(--#{$prefix}modal-content-bg-color);
         border-radius: 16px;
         padding: 24px 32px;
         box-sizing: border-box;
     }
 
     &__content-title {
-        font-size: 24px;
-        font-family: 'Poppins_SemiBold';
+        color: var(--#{$prefix}primary-text);
+        font-size: var(--#{$prefix}h3-fs);
+        font-weight: 600;
     }
 
     &__content-line {
         margin: 10px 0;
-        border: 1px dashed #ccd5f0;
+        border: 1px dashed var(--#{$prefix}border-color);
     }
 
     &__content-inner {
@@ -114,30 +115,7 @@ export default {
         }
 
         svg {
-            fill: #73b1b1;
-        }
-    }
-}
-
-body.dark {
-    .modal {
-        &__content {
-            background: #0c0d18;
-        }
-
-        &__content-title {
-            color: $colorWhite;
-        }
-
-        &__content-line {
-            margin: 10px 0;
-            border: 1px dashed #2e323e;
-        }
-
-        &__content-close {
-            svg {
-                fill: #73b1b1;
-            }
+            fill: var(--#{$prefix}icon-color);
         }
     }
 }

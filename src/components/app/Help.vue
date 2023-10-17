@@ -7,15 +7,21 @@
         <div class="help__item">
             <cardSvg class="card-svg" />
         </div>
+        <div class="mt">
+            <ThemeSwitcher class="head__switcher" />
+        </div>
     </div>
 </template>
 <script>
+import ThemeSwitcher from '@/components/app/ThemeSwitcher';
+
 import settingsSvg from '@/assets/icons/dashboard/settings.svg';
 import cardSvg from '@/assets/icons/dashboard/card.svg';
 
 export default {
     name: 'Help',
     components: {
+        ThemeSwitcher,
         settingsSvg,
         cardSvg,
     },
@@ -33,40 +39,23 @@ export default {
         display: flex;
         justify-content: center;
         align-items: center;
-        background: $colorSlimLightBlue;
-        font-family: 'Poppins_Regular';
-        font-size: 24px;
-        color: #486060;
+        background: var(--#{$prefix}icon-secondary-bg-color);
+        font-weight: 400;
+        font-size: var(--#{$prefix}h3-fs);
+        color: var(--#{$prefix}icon-active);
         cursor: not-allowed;
 
         svg {
-            fill: #486060;
+            fill: var(--#{$prefix}icon-active);
 
             &.card-svg {
-                fill: #486060;
+                fill: var(--#{$prefix}icon-active);
             }
-        }
-
-        &.mt {
-            margin: 0 10px;
         }
     }
-}
 
-body.dark {
-    .help {
-        &__item {
-            background: #1c1f2c;
-            color: #c9e0e0;
-
-            svg {
-                fill: #c9e0e0;
-
-                &.card-svg {
-                    fill: #c9e0e0;
-                }
-            }
-        }
+    .mt {
+        margin: 0 10px;
     }
 }
 </style>

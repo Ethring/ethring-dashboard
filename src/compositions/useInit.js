@@ -1,0 +1,69 @@
+import axios from 'axios';
+import { ref, computed } from 'vue';
+import prices from '@/modules/prices/';
+
+export default async function useInit(address, store) {
+    const disableLoader = computed(() => store.getters['tokens/disableLoader']);
+    if (!disableLoader.value) {
+        store.dispatch('tokens/setLoader', true);
+        store.dispatch('tokens/setFromToken', null);
+        store.dispatch('tokens/setToToken', null);
+        store.dispatch('bridge/setSelectedSrcNetwork', null);
+        store.dispatch('bridge/setSelectedDstNetwork', null);
+    } else {
+        store.dispatch('tokens/setDisableLoader', false);
+    }
+    const networksList = ref(store.getters['networks/zometNetworksList']);
+
+    const tokens = {};
+
+    const balanceInfo = async (net) => {
+        try {
+            let balance = 0;
+            if (net !== 'fantom') {
+                const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/blockchain/${net}/${address}/balance`);
+
+                if (response.status === 200) {
+                    return response.data.data;
+                }
+            }
+
+            return balance;
+        } catch {
+            return {};
+        }
+    };
+
+    const tokensInfo = async (net) => {
+        try {
+            const response = await axios.get(`${process.env.VUE_APP_ZOMET_CORE_API_URL}/balances/${net}/${address}`);
+
+            if (response.status === 200) {
+                return response.data;
+            }
+
+            return [];
+        } catch {
+            return [];
+        }
+    };
+
+    await Promise.all(
+        networksList.value.map(async ({ net, native_token }) => {
+            const balance = await balanceInfo(net);
+            const tokenList = await tokensInfo(net);
+            const price = await prices.Coingecko.marketCapForNativeCoin(native_token?.coingecko_id);
+            return (tokens[net] = {
+                list: tokenList,
+                balance,
+                price: {
+                    BTC: price.btc?.price,
+                    USD: price.usd?.price,
+                },
+            });
+        })
+    );
+
+    store.dispatch('tokens/setGroupTokens', tokens);
+    store.dispatch('tokens/setLoader', false);
+}

@@ -1,8 +1,9 @@
 <template>
     <div :class="{ opened }" class="wallet-info">
         <div class="wallet-info__network">
-            <img v-if="currentChainInfo.logo" :src="currentChainInfo.logo" alt="current-chain-icon" srcset="" />
-            <span v-else> ? </span>
+            <!-- <img v-if="currentChainInfo.logo" :src="currentChainInfo.logo" alt="current-chain-icon" srcset="" /> -->
+            <!-- <span v-else> ? </span> -->
+            <WalletSvg />
         </div>
         <div class="wallet-info__wallet">
             <div class="address" @click="openMenu">
@@ -10,8 +11,8 @@
             </div>
             <div class="balance">
                 <div class="value">
-                    {{ showBalance && walletBalance.length ? prettyNumber(walletBalance[1]) : '****' }}
-                    <span>{{ walletBalance[0] }}</span>
+                    <span>$</span>
+                    {{ showBalance && totalBalance ? prettyNumber(totalBalance) : '****' }}
                 </div>
                 <eyeSvg v-if="showBalance" @click="toggleViewBalance" />
                 <eyeOpenSvg v-if="!showBalance" @click="toggleViewBalance" />
@@ -31,8 +32,10 @@ import { prettyNumber } from '@/helpers/prettyNumber';
 import eyeSvg from '@/assets/icons/dashboard/eye.svg';
 import eyeOpenSvg from '@/assets/icons/dashboard/eyeOpen.svg';
 import arrowPriceSvg from '@/assets/icons/dashboard/arrowprice.svg';
+import WalletSvg from '@/assets/icons/dashboard/wallet.svg';
 
 import useWeb3Onboard from '@/compositions/useWeb3Onboard';
+import useTokens from '@/compositions/useTokens';
 
 export default {
     name: 'WalletInfo',
@@ -40,6 +43,7 @@ export default {
         eyeSvg,
         eyeOpenSvg,
         arrowPriceSvg,
+        WalletSvg,
     },
     setup() {
         const store = useStore();
@@ -51,15 +55,19 @@ export default {
         };
 
         const { walletIcon, walletAddress, walletBalance, currentChainInfo } = useWeb3Onboard();
+        const { groupTokens } = useTokens();
 
-        const marketCap = computed(() => store.getters['tokens/marketCap']);
+        const marketCap = computed(() => store.getters['tokens/groupTokens']);
         const showBalance = computed(() => store.getters['app/showBalance']);
+
+        const totalBalance = computed(() => groupTokens.value?.reduce((acc, net) => acc + net.totalSumUSD, 0) ?? 0);
 
         const toggleViewBalance = () => {
             store.dispatch('app/toggleViewBalance');
         };
 
         return {
+            totalBalance,
             currentChainInfo,
             walletIcon,
             walletAddress,
@@ -89,15 +97,14 @@ export default {
         align-items: center;
         border-radius: 50%;
         margin-right: 16px;
-        background: #3fdfae;
+        background: var(--#{$prefix}banner-logo-color);
 
         img {
             width: 60%;
         }
 
         svg {
-            transform: scale(1.8);
-            fill: $colorBlack;
+            fill: var(--#{$prefix}black);
             opacity: 1;
         }
     }
@@ -118,41 +125,42 @@ export default {
             user-select: none;
             display: flex;
             align-items: center;
-            font-family: 'Poppins_Light';
-            font-size: 16px;
+            font-weight: 300;
+            font-size: var(--#{$prefix}default-fs);
             cursor: pointer;
+            color: var(--#{$prefix}mute-text);
 
             svg {
                 @include animateEasy;
                 margin-left: 4px;
-                stroke: $colorBlack;
+                stroke: var(--#{$prefix}black);
             }
         }
 
         .balance {
             display: flex;
             align-items: center;
-            font-family: 'Poppins_SemiBold';
-            font-size: 28px;
-            color: $colorBlack;
+            font-weight: 600;
+            font-size: var(--#{$prefix}h2-fs);
+            color: var(--#{$prefix}primary-text);
             margin-top: -3px;
             user-select: none;
 
             .value {
                 min-width: 165px;
+                font-weight: 600;
             }
 
             span {
-                font-family: 'Poppins_Regular';
-                margin: 0 26px 0 5px;
+                font-weight: 400;
             }
 
             svg {
                 cursor: pointer;
-                fill: #33363f;
+                fill: var(--#{$prefix}eye-logo);
 
                 &:hover {
-                    fill: $colorBaseGreen;
+                    fill: var(--#{$prefix}eye-logo-hover);
                 }
             }
         }
@@ -160,100 +168,29 @@ export default {
         .change {
             display: flex;
             align-items: center;
-            color: $colorGreen;
+            color: var(--#{$prefix}sub-text);
 
             svg {
-                fill: $colorGreen;
+                fill: var(--#{$prefix}sub-text);
             }
 
             .percent {
                 user-select: none;
                 margin-left: 5px;
-                font-family: 'Poppins_Regular';
-                font-size: 14px;
+                font-weight: 400;
+                font-size: var(--#{$prefix}small-lg-fs);
             }
 
             &.minus {
-                color: $colorRed;
+                color: var(--#{$prefix}negative-percentage);
 
                 .percent {
-                    color: $colorRed;
+                    color: var(--#{$prefix}negative-percentage);
                 }
 
                 svg {
-                    fill: $colorRed !important;
+                    fill: var(--#{$prefix}negative-percentage) !important;
                     transform: rotate(90deg);
-                }
-            }
-        }
-    }
-
-    .line {
-        width: 100%;
-        height: 1px;
-        background: $borderLight;
-    }
-}
-
-body.dark {
-    .wallet-info {
-        &.opened {
-            // background: #0f1910;
-        }
-
-        &__network {
-            background: $colorBrightGreen;
-
-            svg {
-                fill: #070c0e;
-                opacity: 0.8;
-            }
-        }
-
-        &__wallet {
-            .address {
-                color: $colorLightGreen;
-
-                svg {
-                    stroke: #636363;
-                }
-            }
-
-            .balance {
-                color: $colorWhite;
-
-                span {
-                    color: #73b1b1;
-                }
-
-                svg {
-                    cursor: pointer;
-                    fill: $colorLightGreen;
-
-                    &:hover {
-                        fill: $colorBrightGreen;
-                    }
-                }
-            }
-
-            .change {
-                display: flex;
-                align-items: center;
-
-                &.minus {
-                    color: $colorRed;
-
-                    .percent {
-                        color: $colorRed;
-                    }
-                }
-
-                svg {
-                    fill: $colorBrightGreen;
-                }
-
-                .percent {
-                    color: $colorBrightGreen;
                 }
             }
         }
