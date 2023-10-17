@@ -32,6 +32,7 @@ import Sidebar from '@/components/app/Sidebar';
 import LoadingOverlay from '@/components/ui/LoadingOverlay';
 
 import redirectOrStay from '@/shared/utils/routes';
+import { delay } from '@/helpers/utils';
 
 export default {
     name: 'App',
@@ -60,8 +61,6 @@ export default {
             getAddressesWithChainsByEcosystem,
         } = useAdapter();
 
-        const initCalled = ref(false);
-
         const isOpen = computed(() => store.getters['adapters/isOpen']('wallets'));
 
         const showRoutesModal = computed(() => store.getters['swap/showRoutes']);
@@ -73,11 +72,13 @@ export default {
                 return;
             }
 
+            store.dispatch('tokens/setLoader', true);
+
+            await delay(1000);
+
             const addressesWithChains = getAddressesWithChainsByEcosystem(ecosystem);
 
             await useInit(store, { account: walletAccount.value, addressesWithChains, currentChainInfo: currentChainInfo.value });
-
-            initCalled.value = true;
         };
 
         onBeforeMount(async () => await store.dispatch('networks/initZometNets'));
@@ -87,11 +88,21 @@ export default {
                 await connectLastConnectedWallet();
                 lastConnectedCall.value = true;
             }
+
             await callInit();
         });
 
         watchEffect(async () => {
-            if (!redirectOrStay(route.path, currentChainInfo.value)) {
+            if (isConnecting) {
+                return;
+            }
+
+            const isStay = await redirectOrStay(route.path, currentChainInfo.value);
+
+            if (!currentChainInfo.value) {
+                return router.push('/main');
+            }
+            if (!isStay) {
                 return router.push('/main');
             }
 
@@ -102,13 +113,7 @@ export default {
             }
         });
 
-        watch(currentChainInfo, async () => {
-            if (initCalled.value) {
-                return;
-            }
-
-            await callInit();
-        });
+        watch(currentChainInfo, async () => await callInit());
 
         watch(walletAccount, async () => await callInit());
 

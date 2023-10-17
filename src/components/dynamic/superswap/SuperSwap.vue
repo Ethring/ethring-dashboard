@@ -88,7 +88,7 @@
                         <FeeIcon />
                         <span class="fee">{{ networkFee }}</span> <span class="symbol"> $</span>
                         <TimeIcon />
-                        <span class="fee"> {{ '~ ' + bestRoute.estimateTime + ' s' }}</span>
+                        <span class="fee"> {{ '~ ' + bestRoute?.estimateTime + ' s' }}</span>
                         <h4>1 {{ selectedSrcToken?.symbol || '' }} = {{ estimateRate }} {{ selectedDstToken?.symbol || '' }}</h4>
                     </div>
 
@@ -100,10 +100,10 @@
             </template>
             <template #content>
                 <div class="routes">
-                    <div class="route" v-for="(item, i) in bestRoute.routes" :key="i">
+                    <div class="route" v-for="(item, i) in bestRoute?.routes" :key="i">
                         <img :src="item.service.icon" />
                         <div class="name">{{ item.service.name }}</div>
-                        <ArrowIcon class="arrow" v-if="i != bestRoute.routes.length - 1" />
+                        <ArrowIcon class="arrow" v-if="i != bestRoute?.routes?.length - 1" />
                     </div>
                     <ExpandIcon v-if="otherRoutes.length" class="expand" @click="setShowRoutesModal" />
                 </div>
@@ -182,8 +182,16 @@ export default {
         const store = useStore();
         const router = useRouter();
 
-        const { walletAddress, chainList, currentChainInfo, formatTransactionForSign, setChain, signSend, getTxExplorerLink } =
-            useAdapter();
+        const {
+            walletAccount,
+            walletAddress,
+            chainList,
+            currentChainInfo,
+            formatTransactionForSign,
+            setChain,
+            signSend,
+            getTxExplorerLink,
+        } = useAdapter();
 
         const { showNotification, closeNotification } = useNotification();
 
@@ -295,11 +303,13 @@ export default {
         };
 
         const resetValues = () => {
-            onSetAmount('');
             receiveValue.value = '';
             isLoading.value = false;
             estimateRate.value = 0;
             networkFee.value = 0;
+            differPercentage.value = null;
+            isNeedApprove.value = false;
+            receiveValue.value = '';
             bestRoute.value = null;
         };
 
@@ -364,20 +374,18 @@ export default {
         };
 
         const setTokenOnChange = () => {
+            selectedDstToken.value = null;
+
             tokensList.value = getTokensList({
                 srcNet: selectedSrcNetwork.value,
                 srcToken: selectedSrcToken.value,
                 dstToken: selectedDstToken.value,
             });
 
-            const [defaultFromToken = null, defaultToToken = null] = tokensList.value || [];
+            const [defaultFromToken = null] = tokensList.value || [];
 
             if (!selectedSrcToken.value && defaultFromToken) {
                 selectedSrcToken.value = defaultFromToken;
-            }
-
-            if (!selectedDstToken.value && defaultToToken) {
-                selectedDstToken.value = defaultToToken;
             }
 
             if (!isBalanceUpdated.value) {
@@ -564,8 +572,7 @@ export default {
                 !selectedDstToken.value ||
                 !+amount.value
             ) {
-                estimateError.value = 'Select all fields';
-                return;
+                return (estimateError.value = 'Select all fields');
             }
 
             isLoading.value = true;
@@ -799,9 +806,14 @@ export default {
 
         watch(selectedSrcNetwork, () => {
             resetValues();
-            clearApprove();
+            onSetAmount('');
             selectedSrcToken.value = null;
             setTokenOnChange();
+            getEstimateInfo();
+        });
+
+        watch(selectedDstNetwork, () => {
+            getEstimateInfo();
         });
 
         watch(txError, (err) => {
@@ -883,6 +895,14 @@ export default {
                 }
             }
         );
+
+        watch(walletAccount, () => {
+            selectedSrcNetwork.value = currentChainInfo.value;
+            selectedSrcToken.value = null;
+            selectedDstNetwork.value = currentChainInfo.value;
+            selectedDstToken.value = null;
+            setTokenOnChange();
+        });
 
         onBeforeUnmount(() => {
             selectedSrcNetwork.value = null;

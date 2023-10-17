@@ -79,6 +79,7 @@ import { LoadingOutlined } from '@ant-design/icons-vue';
 import { getAllowance, getApproveTx, estimateSwap, getSwapTx } from '@/api/services';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
+import useTokensList from '@/compositions/useTokensList';
 import useNotification from '@/compositions/useNotification';
 
 import Button from '@/components/ui/Button';
@@ -92,8 +93,6 @@ import AccordionItem from '@/components/ui/AccordionItem.vue';
 import SwapIcon from '@/assets/icons/dashboard/swap.svg';
 
 import { prettyNumberTooltip } from '@/helpers/prettyNumber';
-
-import { sortByKey } from '@/helpers/utils';
 import { toMantissa } from '@/helpers/numbers';
 import { checkErrors } from '@/helpers/checkErrors';
 
@@ -120,8 +119,16 @@ export default {
         // * Notification
         const { showNotification, closeNotification } = useNotification();
 
-        const { walletAddress, currentChainInfo, chainList, getTxExplorerLink, formatTransactionForSign, signSend, setChain } =
-            useAdapter();
+        const {
+            walletAccount,
+            walletAddress,
+            currentChainInfo,
+            chainList,
+            getTxExplorerLink,
+            formatTransactionForSign,
+            signSend,
+            setChain,
+        } = useAdapter();
 
         const chains = computed(() => chainList.value?.filter((chain) => SUPPORTED_CHAINS.includes(chain.net)));
 
@@ -198,17 +205,17 @@ export default {
 
         // =================================================================================================================
 
-        // * Tokens list for validation
-        const tokensList = computed(() => {
-            const { net } = selectedNetwork.value || {};
-            const listFromStore = store.getters['tokens/getTokensListForChain'](net);
+        const { getTokensList } = useTokensList();
 
-            return sortByKey(listFromStore, 'balanceUsd');
-        });
+        const tokensList = ref([]);
 
         // =================================================================================================================
 
         const setTokenOnChange = () => {
+            tokensList.value = getTokensList({
+                srcNet: selectedNetwork.value,
+            });
+
             const [defaultFromToken = null, defaultToToken = null] = tokensList.value || [];
 
             if (!selectedTokenFrom.value && defaultFromToken) {
@@ -328,7 +335,6 @@ export default {
 
             if (!+value) {
                 estimateErrorTitle.value = '';
-
                 return checkBalanceAllowed();
             }
 
@@ -713,6 +719,13 @@ export default {
 
         watch(isTokensLoadingForChain, () => setTokenOnChange());
 
+        watch(walletAccount, () => {
+            selectedNetwork.value = currentChainInfo.value;
+            selectedTokenFrom.value = null;
+            selectedTokenTo.value = null;
+            setTokenOnChange();
+        });
+
         // =================================================================================================================
 
         onMounted(async () => {
@@ -723,6 +736,7 @@ export default {
             }
 
             setTokenOnChange();
+
             await makeAllowanceRequest();
         });
 
