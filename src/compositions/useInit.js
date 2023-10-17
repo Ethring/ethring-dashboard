@@ -10,6 +10,21 @@ import IndexedDBService from '@/modules/indexedDb';
 
 import { getTotalFuturesBalance, BALANCES_TYPES } from '@/shared/utils/assets';
 
+// =================================================================================================================
+
+// Cancel request
+
+let abortController = new AbortController();
+let { signal } = abortController;
+
+function cancelCurrentOperations() {
+    abortController.abort(); // Отмена всех текущих операций
+    abortController = new AbortController(); // Создание нового AbortController
+    signal = abortController.signal; // Получение нового сигнала
+}
+
+// =================================================================================================================
+
 const CHUNK_SIZE = 5;
 
 const COSMOS_CHAIN_ID = {
@@ -99,12 +114,14 @@ const integrationsForSave = (integrations, { chain, logo, chainAddress }) => {
 // =================================================================================================================
 
 export default async function useInit(store, { addressesWithChains = {}, account = null, currentChainInfo } = {}) {
+    cancelCurrentOperations();
+
     store.dispatch('tokens/setLoader', true);
 
     const allTokensForAccount = computed(() => store.getters['tokens/tokens'][account] || []);
     const allTokensBalance = computed(() => store.getters['tokens/totalBalances'][account] || 0);
 
-    if (allTokensForAccount.value.length && allTokensBalance.value) {
+    if (allTokensForAccount.value.length > 0 && allTokensBalance.value) {
         return store.dispatch('tokens/setLoader', false);
     }
 
@@ -153,7 +170,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
                 continue;
             }
 
-            const response = (await getBalancesByAddress(chainForRequest, chainAddress)) || {};
+            const response = (await getBalancesByAddress(chainForRequest, chainAddress, { signal })) || {};
 
             const {
                 tokens = [],
@@ -182,7 +199,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
                 allIntegrations.push(...list);
             }
 
-            store.dispatch('tokens/setGroupTokens', { chain, data: { list: tokens } });
+            store.dispatch('tokens/setGroupTokens', { chain, account, data: { list: tokens } });
 
             store.dispatch('tokens/setDataFor', { type: 'tokens', account, data: allTokens });
 
@@ -190,7 +207,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
 
             store.dispatch('tokens/setTotalBalances', { account, data: totalBalance.toNumber() });
 
-            store.dispatch('tokens/setLoadingByChain', { chain, value: false });
+            store.dispatch('tokens/setLoadingByChain', { chain, account, value: false });
         }
     };
 

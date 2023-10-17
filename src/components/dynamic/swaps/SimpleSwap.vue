@@ -1,6 +1,6 @@
 <template>
     <div class="simple-swap">
-        <SelectNetwork :items="chainList" :current="selectedSrcNetwork" @select="onSelectNetwork" />
+        <SelectNetwork :items="chains" :current="selectedNetwork" @select="onSelectNetwork" />
 
         <div class="simple-swap__switch-wrap">
             <SelectAmount
@@ -74,6 +74,7 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 
 // Notification
 import useNotification from '@/compositions/useNotification';
+import useTokensList from '@/compositions/useTokensList';
 
 // Transaction Management
 import useTransactions from '../../../Transactions/compositions/useTransactions';
@@ -91,11 +92,12 @@ import SwapIcon from '@/assets/icons/dashboard/swap.svg';
 
 // Helpers
 import { prettyNumberTooltip } from '@/helpers/prettyNumber';
-import { sortByKey } from '@/helpers/utils';
+
 import { isCorrectChain } from '@/shared/utils/operations';
 
 // Constants
 import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+import { SUPPORTED_CHAINS } from '@/shared/constants/superswap/constants';
 
 export default {
     name: 'SimpleSwap',
@@ -120,6 +122,8 @@ export default {
         const { showNotification, closeNotification } = useNotification();
 
         const { walletAddress, currentChainInfo, chainList, walletAccount, setChain } = useAdapter();
+
+        const chains = computed(() => chainList.value?.filter((chain) => SUPPORTED_CHAINS.includes(chain.net)));
 
         // * Transaction Manager
         const { currentRequestID, transactionForSign, createTransactions, signAndSend, addTransactionToRequestID } = useTransactions();
@@ -227,17 +231,17 @@ export default {
 
         // =================================================================================================================
 
-        // * Tokens list for validation
-        const tokensList = computed(() => {
-            const { net } = selectedSrcNetwork.value || {};
-            const listFromStore = store.getters['tokens/getTokensListForChain'](net);
+        const { getTokensList } = useTokensList();
 
-            return sortByKey(listFromStore, 'balanceUsd');
-        });
+        const tokensList = ref([]);
 
         // =================================================================================================================
 
         const setTokenOnChange = () => {
+            tokensList.value = getTokensList({
+                srcNet: selectedSrcNetwork.value,
+            });
+
             const [defaultFromToken = null, defaultToToken = null] = tokensList.value || [];
 
             if (!selectedSrcToken.value && defaultFromToken) {
@@ -781,6 +785,14 @@ export default {
             }
         });
 
+        watch(walletAccount, () => {
+            selectedSrcNetwork.value = currentChainInfo.value;
+            selectedSrcToken.value = null;
+            selectedDstToken.value = null;
+
+            setTokenOnChange();
+        });
+
         // =================================================================================================================
 
         onMounted(async () => {
@@ -817,7 +829,7 @@ export default {
             disabledSwap,
             walletAddress,
 
-            chainList,
+            chains,
 
             isBalanceError,
             estimateErrorTitle,

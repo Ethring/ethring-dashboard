@@ -125,6 +125,10 @@ export default {
             }
         });
 
+        watch(walletAccount, () => {
+            integrationAssetsByPlatform.value = getIntegrationsGroupedByPlatform(allIntegrations.value);
+        });
+
         watch(isLoadingForChain, () => {
             if (!isLoadingForChain.value) {
                 integrationAssetsByPlatform.value = getIntegrationsGroupedByPlatform(allIntegrations.value);

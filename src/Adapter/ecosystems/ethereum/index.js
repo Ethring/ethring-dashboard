@@ -209,8 +209,8 @@ class EthereumAdapter extends AdapterBase {
         return (await exist.getIcon()) || null;
     }
 
-    validateAddress(...args) {
-        return validateEthAddress(...args);
+    validateAddress(address, { validation }) {
+        return validateEthAddress(address, validation);
     }
 
     getProvider() {

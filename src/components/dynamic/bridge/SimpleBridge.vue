@@ -99,6 +99,8 @@ import { LoadingOutlined } from '@ant-design/icons-vue';
 import { ECOSYSTEMS } from '@/Adapter/config';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
+import useTokensList from '@/compositions/useTokensList';
+
 // Notification
 import useNotification from '@/compositions/useNotification';
 
@@ -336,17 +338,17 @@ export default {
 
         // =================================================================================================================
 
-        const tokensList = computed(() => {
-            const { net } = selectedSrcNetwork.value || {};
+        const { getTokensList } = useTokensList();
 
-            const listFromStore = store.getters['tokens/getTokensListForChain'](net);
-
-            return listFromStore || [];
-        });
+        const tokensList = ref([]);
 
         // =================================================================================================================
 
         const setTokenOnChange = () => {
+            tokensList.value = getTokensList({
+                srcNet: selectedSrcToken.value,
+            });
+
             const [defaultToken = null] = tokensList.value;
 
             if (!selectedSrcToken.value && defaultToken) {
@@ -388,8 +390,15 @@ export default {
 
         // =================================================================================================================
 
-        const srcNets = computed(() => chainList.value.filter((network) => network.net !== selectedDstNetwork?.value?.net));
-        const dstNets = computed(() => chainList.value.filter((network) => network.net !== selectedSrcNetwork?.value?.net));
+        const NOT_SUPPORT = ['fantom', 'optimism'];
+
+        const srcNets = computed(() =>
+            chainList.value.filter((network) => network.net !== selectedDstNetwork?.value?.net && !NOT_SUPPORT.includes(network.net))
+        );
+
+        const dstNets = computed(() =>
+            chainList.value.filter((network) => network.net !== selectedSrcNetwork?.value?.net && !NOT_SUPPORT.includes(network.net))
+        );
 
         // =================================================================================================================
 
@@ -484,7 +493,7 @@ export default {
                 return (errorAddress.value = '');
             }
 
-            if (!validateAddress(addr)) {
+            if (!validateAddress(addr, { chainId: selectedDstNetwork?.value?.net })) {
                 return (errorAddress.value = 'Invalid address');
             }
 
@@ -590,7 +599,9 @@ export default {
                 return;
             }
 
-            clearApprove();
+            if (!selectedSrcToken.value && !selectedSrcToken.value.address) {
+                return;
+            }
 
             const response = await getAllowance({
                 url: selectedService.value.url,
@@ -907,6 +918,16 @@ export default {
         // =================================================================================================================
 
         watch(isAllTokensLoading, () => setTokenOnChange());
+
+        watch(walletAccount, () => {
+            selectedSrcNetwork.value = currentChainInfo.value;
+
+            selectedSrcToken.value = null;
+            selectedDstToken.value = null;
+
+            setTokenOnChange();
+        });
+
         watch(isTokensLoadingForSrc, () => setTokenOnChange());
 
         watch(selectedSrcNetwork, (newValue, oldValue) => {

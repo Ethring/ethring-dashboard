@@ -34,13 +34,14 @@
     </div>
 </template>
 <script>
-import { h, ref, computed, onBeforeUnmount, onMounted, onUpdated, watch } from 'vue';
+import { h, ref, computed, onBeforeUnmount, onMounted, watch } from 'vue';
 
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { LoadingOutlined } from '@ant-design/icons-vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
+import useTokensList from '@/compositions/useTokensList';
 import useNotification from '@/compositions/useNotification';
 import useTransactions from '../../../Transactions/compositions/useTransactions';
 
@@ -48,8 +49,6 @@ import Button from '@/components/ui/Button';
 import SelectNetwork from '@/components/ui/SelectNetwork';
 import SelectAddress from '@/components/ui/SelectAddress';
 import SelectAmount from '@/components/ui/SelectAmount';
-
-import { sortByKey } from '@/helpers/utils';
 
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { STATUSES } from '../../../Transactions/shared/constants';
@@ -111,11 +110,9 @@ export default {
 
         // =================================================================================================================
 
-        const tokensList = computed(() => {
-            const { net } = selectedNetwork.value;
-            const listFromStore = store.getters['tokens/getTokensListForChain'](net);
-            return sortByKey(listFromStore, 'balanceUsd');
-        });
+        const { getTokensList } = useTokensList();
+
+        const tokensList = ref([]);
 
         // =================================================================================================================
 
@@ -125,7 +122,7 @@ export default {
                 isAddressError.value ||
                 isBalanceError.value ||
                 !+amount.value ||
-                !receiverAddress.value.length ||
+                !receiverAddress.value?.length ||
                 !currentChainInfo.value
             );
         });
@@ -133,6 +130,10 @@ export default {
         // =================================================================================================================
 
         const setTokenOnChange = () => {
+            tokensList.value = getTokensList({
+                srcNet: selectedNetwork.value,
+            });
+
             const [defaultToken = null] = tokensList.value || [];
 
             if (!selectedToken.value && defaultToken) {
@@ -161,7 +162,7 @@ export default {
                 return (isAddressError.value = false);
             }
 
-            const isAddressAllowed = !validateAddress(addr) && addr?.length > 0;
+            const isAddressAllowed = !validateAddress(addr, { chainId: selectedNetwork?.value?.net }) && addr?.length > 0;
 
             return (isAddressError.value = isAddressAllowed);
         };
@@ -170,12 +171,13 @@ export default {
             clearAddress.value = true;
             selectedNetwork.value = network;
 
+            setTokenOnChange();
+
             if (currentChainInfo.value.net !== selectedNetwork.value.net) {
                 return (opTitle.value = 'tokenOperations.switchNetwork');
             }
 
             clearAddress.value = false;
-
             return (opTitle.value = 'tokenOperations.confirm');
         };
 
@@ -197,6 +199,13 @@ export default {
             clearAddress.value = false;
             isLoading.value = true;
 
+            const dataForPrepare = {
+                fromAddress: walletAddress.value,
+                toAddress: receiverAddress.value,
+                amount: amount.value,
+                token: selectedToken.value,
+            };
+
             const { isChanged, btnTitle } = await isCorrectChain(selectedNetwork, currentChainInfo, setChain);
 
             opTitle.value = btnTitle;
@@ -207,12 +216,7 @@ export default {
 
             opTitle.value = 'tokenOperations.confirm';
 
-            const dataForPrepare = {
-                fromAddress: walletAddress.value,
-                toAddress: receiverAddress.value,
-                amount: amount.value,
-                token: selectedToken.value,
-            };
+            // Reset values
 
             showNotification({
                 key: 'prepare-tx',
@@ -292,10 +296,15 @@ export default {
             setTokenOnChange();
         });
 
-        onUpdated(() => setTokenOnChange());
+        watch(walletAccount, () => {
+            selectedNetwork.value = currentChainInfo.value;
+            selectedToken.value = null;
+            setTokenOnChange();
+        });
 
         watch(currentChainInfo, () => {
             selectedNetwork.value = currentChainInfo.value;
+            setTokenOnChange();
         });
 
         watch(isTokensLoadingForChain, () => setTokenOnChange());
