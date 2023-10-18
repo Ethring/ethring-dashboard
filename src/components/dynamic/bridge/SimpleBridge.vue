@@ -93,7 +93,7 @@ import { useI18n } from 'vue-i18n';
 import BigNumber from 'bignumber.js';
 import { utils } from 'ethers';
 
-import { LoadingOutlined } from '@ant-design/icons-vue';
+import { SettingOutlined } from '@ant-design/icons-vue';
 
 // Adapter
 import { ECOSYSTEMS } from '@/Adapter/config';
@@ -705,7 +705,7 @@ export default {
                 type: 'info',
                 title: `Bridge ${srcAmount.value} ${selectedSrcToken.value.symbol} to ~${dstAmount.value} ${selectedDstToken.value.symbol}`,
                 description: 'Please wait, transaction is preparing',
-                icon: h(LoadingOutlined, {
+                icon: h(SettingOutlined, {
                     spin: true,
                 }),
                 duration: 0,

@@ -51,8 +51,6 @@ const statusNotification = (status, { store, type = 'Transfer', displayHash, exp
             }
 
             if (successCallback) {
-                console.log('successCallback', successCallback);
-
                 const { action, requestParams } = successCallback;
 
                 if (!action || !SUCCESS_CALLBACKS[action]) {
