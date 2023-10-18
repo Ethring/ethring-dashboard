@@ -1,5 +1,4 @@
 export const checkErrors = (error) => {
-    console.log('error', error.message);
     if (error && error.data) {
         return { error: error?.data?.message || error };
     }

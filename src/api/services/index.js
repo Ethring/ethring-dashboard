@@ -194,8 +194,6 @@ export const getBridgeTx = async ({
             },
         });
 
-        console.log('response, getBridgeTx', response);
-
         if (response.error) {
             return checkErrors(response.error);
         }

@@ -967,8 +967,6 @@ export default {
 
             isLoading.value = false;
 
-            console.log('txError', txError.value);
-
             showNotification({
                 key: 'error-tx',
                 type: 'error',
