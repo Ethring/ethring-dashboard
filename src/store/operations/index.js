@@ -65,6 +65,9 @@ export default {
         dstNetwork: null,
         dstToken: null,
 
+        srcAmount: 0,
+        dstAmount: 0,
+
         allowance: {},
 
         approve: {},
@@ -73,6 +76,9 @@ export default {
     }),
 
     getters: {
+        srcAmount: (state) => state.srcAmount,
+        dstAmount: (state) => state.dstAmount,
+
         direction: (state) => state.direction,
         selectType: (state) => state.selectType,
         onlyWithBalance: (state) => state.onlyWithBalance,
@@ -93,21 +99,32 @@ export default {
     },
 
     mutations: {
+        // =========== AMOUNTS ===========
+        [TYPES.SET_SRC_AMOUNT](state, value) {
+            state.srcAmount = value;
+        },
+        [TYPES.SET_DST_AMOUNT](state, value) {
+            state.dstAmount = value;
+        },
+        // =========== TOKENS ===========
         [TYPES.SET_SRC_TOKEN](state, value) {
             state.srcToken = value;
         },
         [TYPES.SET_DST_TOKEN](state, value) {
             state.dstToken = value;
         },
+        // =========== NETWORKS ===========
         [TYPES.SET_SRC_NETWORK](state, value) {
             state.srcNetwork = value;
         },
         [TYPES.SET_DST_NETWORK](state, value) {
             state.dstNetwork = value;
         },
+        // =========== RECEIVER ADDRESS ===========
         [TYPES.SET_RECEIVER_ADDRESS](state, value) {
             state.receiverAddress = value;
         },
+        // =========== OTHER ===========
         [TYPES.SET_ONLY_BALANCE](state, value) {
             state.onlyWithBalance = value;
         },
@@ -117,6 +134,7 @@ export default {
         [TYPES.SET_TOKEN_SELECT_TYPE](state, value) {
             state.selectType = value;
         },
+        // =========== APPROVE & ALLOWANCE ===========
         [TYPES.SET_ALLOWANCE_FOR_ACCOUNT_ADDRESS](state, { account, chain, tokenAddress, allowance, service }) {
             const targetKey = `${account}:${chain}:${service}:${tokenAddress}`;
 
@@ -143,6 +161,12 @@ export default {
     },
 
     actions: {
+        setSrcAmount({ commit }, value) {
+            commit(TYPES.SET_SRC_AMOUNT, value);
+        },
+        setDstAmount({ commit }, value) {
+            commit(TYPES.SET_DST_AMOUNT, value);
+        },
         setSrcToken({ commit }, value) {
             commit(TYPES.SET_SRC_TOKEN, value);
         },

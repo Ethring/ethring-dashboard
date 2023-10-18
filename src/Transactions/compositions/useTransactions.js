@@ -80,7 +80,7 @@ export default function useTransactions() {
     };
 
     // * Handle signed tx response
-    const handleSignedTxResponse = async (id, signedTx, { metaData }) => {
+    const handleSignedTxResponse = async (id, signedTx, { metaData, module }) => {
         if (signedTx.error && id) {
             showNotification({
                 key: 'error-tx',
@@ -90,10 +90,14 @@ export default function useTransactions() {
                 duration: 5,
             });
 
+            store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
+
             await updateTransactionById(id, { status: STATUSES.REJECTED });
 
             return signedTx;
         }
+
+        store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: true });
 
         return handleSuccessfulSign(id, signedTx, { metaData });
     };
@@ -149,7 +153,7 @@ export default function useTransactions() {
             return;
         }
 
-        const { id, ...txBody } = transaction;
+        const { id, module, ...txBody } = transaction;
 
         const { parameters, metaData } = txBody;
 
@@ -162,10 +166,8 @@ export default function useTransactions() {
         }
 
         try {
-            console.log('txFoSign', txFoSign);
             const signedTx = await signSend(txFoSign);
-
-            return await handleSignedTxResponse(id, signedTx, { metaData });
+            return await handleSignedTxResponse(id, signedTx, { metaData, module });
         } catch (error) {
             console.error('signSend error', error);
         }

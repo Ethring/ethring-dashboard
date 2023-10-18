@@ -21,9 +21,12 @@ export const getBalancesByAddress = async (
     try {
         const URL = `${PROVIDER_URL}/balances?net=${net}&address=${address}&tokens=${fetchTokens}&integrations=${fetchIntegrations}&nfts=${fetchNfts}`;
 
-        const response = await dataProviderIns.get(URL, {
-            signal,
-        });
+        const response = await dataProviderIns.get(
+            URL,
+            signal && {
+                signal,
+            }
+        );
 
         if (response.status === 200) {
             return response.data.data;

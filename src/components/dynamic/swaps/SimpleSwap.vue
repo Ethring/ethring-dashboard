@@ -29,13 +29,13 @@
                 :on-reset="resetAmount"
                 :is-update="isUpdateSwapDirectionValue"
                 :label="$t('tokenOperations.receive')"
-                :disabled-value="receiveValue"
+                :disabled-value="dstAmount"
                 @clickToken="onSetTokenTo"
             />
         </div>
 
         <EstimateInfo
-            v-if="receiveValue || estimateErrorTitle"
+            v-if="dstAmount || estimateErrorTitle"
             :loading="isEstimating"
             :service="selectedService"
             :title="$t('tokenOperations.routeInfo')"
@@ -47,7 +47,7 @@
         <Button
             :title="$t(opTitle)"
             :disabled="!!disabledSwap"
-            :loading="isLoading"
+            :loading="isWaitingTxStatusForModule || isLoading"
             class="simple-swap__btn mt-10"
             @click="handleOnSwap"
             size="large"
@@ -64,7 +64,7 @@ import { useI18n } from 'vue-i18n';
 import BigNumber from 'bignumber.js';
 import { utils } from 'ethers';
 
-import { LoadingOutlined } from '@ant-design/icons-vue';
+import { SettingOutlined } from '@ant-design/icons-vue';
 
 import { getAllowance, getApproveTx, estimateSwap, getSwapTx } from '@/api/services';
 
@@ -128,6 +128,8 @@ export default {
         // * Transaction Manager
         const { currentRequestID, transactionForSign, createTransactions, signAndSend, addTransactionToRequestID } = useTransactions();
 
+        const isWaitingTxStatusForModule = computed(() => store.getters['txManager/isWaitingTxStatusForModule'](module));
+
         // * Loaders
         const isLoading = ref(false);
         const isEstimating = ref(false);
@@ -136,7 +138,6 @@ export default {
         // * Swap data
         const opTitle = ref('tokenOperations.swap');
 
-        const isNeedApprove = ref(false);
         const balanceUpdated = ref(false);
 
         // * Errors
@@ -166,9 +167,23 @@ export default {
 
         const resetAmount = ref(false);
 
-        // * Amount data
-        const amount = ref('');
-        const receiveValue = ref('');
+        // =================================================================================================================
+
+        const isNeedApprove = computed(() => {
+            if (!srcAmount.value) {
+                return false;
+            }
+
+            if (!selectedSrcToken.value?.address && !allowanceForToken.value) {
+                return false;
+            }
+
+            const currentAmount = utils.parseUnits(srcAmount.value, selectedSrcToken.value?.decimals).toString();
+
+            const isEnough = BigNumber(currentAmount).lte(allowanceForToken.value);
+
+            return !isEnough;
+        });
 
         // =================================================================================================================
 
@@ -203,6 +218,18 @@ export default {
         const selectedDstToken = computed({
             get: () => store.getters['tokenOps/dstToken'],
             set: (value) => store.dispatch('tokenOps/setDstToken', value),
+        });
+
+        // * Amount data
+
+        const srcAmount = computed({
+            get: () => store.getters['tokenOps/srcAmount'],
+            set: (value) => store.dispatch('tokenOps/setSrcAmount', value),
+        });
+
+        const dstAmount = computed({
+            get: () => store.getters['tokenOps/dstAmount'],
+            set: (value) => store.dispatch('tokenOps/setDstAmount', value),
         });
 
         // =================================================================================================================
@@ -288,16 +315,23 @@ export default {
             () =>
                 isLoading.value ||
                 isBalanceError.value ||
-                !+amount.value ||
-                !receiveValue.value ||
+                isWaitingTxStatusForModule.value ||
+                !+srcAmount.value ||
+                !dstAmount.value ||
                 !selectedSrcNetwork.value ||
                 !selectedSrcToken.value ||
                 !selectedDstToken.value
         );
 
         const clearApprove = () => {
-            isNeedApprove.value = false;
-            receiveValue.value = '';
+            store.dispatch('tokenOps/setAllowance', {
+                chain: selectedSrcNetwork.value.net,
+                account: walletAccount.value,
+                tokenAddress: selectedSrcToken.value?.address,
+                allowance: null,
+                service: selectedService.value?.id,
+            });
+
             return store.dispatch('tokenOps/setApprove', {
                 chain: selectedSrcNetwork.value.net,
                 account: walletAccount.value,
@@ -305,15 +339,6 @@ export default {
                 approve: null,
                 service: selectedService.value?.id,
             });
-        };
-
-        const resetValues = () => {
-            resetAmount.value = true;
-            estimateErrorTitle.value = '';
-            receiveValue.value = '';
-            resetAmount.value = false;
-            clearApprove();
-            onSetAmount('');
         };
 
         // =================================================================================================================
@@ -345,28 +370,24 @@ export default {
 
             router.push('/swap/select-token');
 
-            return await onSetAmount(amount.value);
+            return await onSetAmount(srcAmount.value);
         };
 
         const onSetAmount = async (value) => {
-            amount.value = value;
+            srcAmount.value = value;
 
             txError.value = '';
-            receiveValue.value = '';
+            dstAmount.value = '';
             isBalanceError.value = false;
 
             if (!+value) {
-                return (isBalanceError.value = BigNumber(amount.value).gt(selectedSrcToken.value?.balance));
+                return (isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance));
             }
 
-            isBalanceError.value = BigNumber(amount.value).gt(selectedSrcToken.value?.balance);
+            isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance);
 
             if (!allowanceForToken.value) {
                 await makeAllowanceRequest();
-            }
-
-            if (allowanceForToken.value && selectedSrcToken.value && selectedSrcToken.value?.address) {
-                await isEnoughAllowance();
             }
 
             return await makeEstimateSwapRequest();
@@ -377,7 +398,7 @@ export default {
                 return;
             }
 
-            amount.value = '';
+            srcAmount.value = '';
 
             clearApprove();
 
@@ -426,39 +447,7 @@ export default {
 
         // =================================================================================================================
 
-        const isEnoughAllowance = async () => {
-            if (!isAllowForRequest()) {
-                return (isNeedApprove.value = false);
-            }
-
-            if (isBalanceError.value) {
-                return (isNeedApprove.value = false);
-            }
-
-            const currentAmount = utils.parseUnits(amount.value, selectedSrcToken.value?.decimals).toString();
-
-            const isEnough = BigNumber(currentAmount).lte(allowanceForToken.value);
-
-            if (isEnough) {
-                opTitle.value = 'tokenOperations.swap';
-                return (isNeedApprove.value = false);
-            }
-
-            opTitle.value = 'tokenOperations.approve';
-            isNeedApprove.value = true;
-
-            if (!isEnough && !isBalanceError.value) {
-                return await makeApproveRequest();
-            }
-
-            return (isLoading.value = false);
-        };
-
-        // =================================================================================================================
-
         const makeAllowanceRequest = async () => {
-            isNeedApprove.value = false;
-
             if (!isAllowForRequest() || !selectedSrcToken.value?.address) {
                 return;
             }
@@ -470,25 +459,19 @@ export default {
                 net: selectedSrcNetwork.value.net,
                 tokenAddress: selectedSrcToken.value.address,
                 ownerAddress: walletAddress.value,
+                store,
+                service: selectedService.value,
             });
 
             if (response.error) {
                 return;
             }
-
-            return store.dispatch('tokenOps/setAllowance', {
-                chain: selectedSrcNetwork.value.net,
-                account: walletAccount.value,
-                tokenAddress: selectedSrcToken.value.address,
-                allowance: response.allowance,
-                service: selectedService.value.id,
-            });
         };
 
         // =================================================================================================================
 
         const makeEstimateSwapRequest = async () => {
-            if (!isAllowForRequest() || !selectedDstToken.value || +amount.value === 0) {
+            if (!isAllowForRequest() || !selectedDstToken.value || +srcAmount.value === 0) {
                 isEstimating.value = false;
                 return (isLoading.value = false);
             }
@@ -500,22 +483,20 @@ export default {
                 net: selectedSrcNetwork.value.net,
                 fromTokenAddress: selectedSrcToken.value?.address,
                 toTokenAddress: selectedDstToken.value?.address,
-                amount: amount.value,
+                amount: srcAmount.value,
                 ownerAddress: walletAddress.value,
             });
 
             if (response.error) {
                 isEstimating.value = false;
-                estimateErrorTitle.value = response.error;
-
-                return (receiveValue.value = '');
+                return (estimateErrorTitle.value = response.error);
             }
 
             isEstimating.value = false;
-
             isLoading.value = false;
 
-            receiveValue.value = response.toTokenAmount;
+            dstAmount.value = response.toTokenAmount;
+            dstAmount.value = response.toTokenAmount;
 
             estimateErrorTitle.value = '';
 
@@ -528,9 +509,9 @@ export default {
             feeInfo.value = {
                 title: 'tokenOperations.networkFee',
                 symbolBetween: '~',
-                fromAmount: prettyNumberTooltip(response.fee.amount),
+                fromAmount: prettyNumberTooltip(response.fee.srcAmount),
                 fromSymbol: response.fee.currency,
-                toAmount: prettyNumberTooltip(+response.fee.amount * price, 4),
+                toAmount: prettyNumberTooltip(+response.fee.srcAmount * price, 4),
                 toSymbol: '$',
             };
 
@@ -556,6 +537,8 @@ export default {
                 net: selectedSrcNetwork.value.net,
                 tokenAddress: selectedSrcToken.value.address,
                 ownerAddress: walletAddress.value,
+                store,
+                service: selectedService.value,
             });
 
             opTitle.value = 'tokenOperations.approve';
@@ -566,15 +549,6 @@ export default {
             }
 
             isLoading.value = false;
-            isNeedApprove.value = true;
-
-            return store.dispatch('tokenOps/setApprove', {
-                chain: selectedSrcNetwork.value.net,
-                account: walletAccount.value,
-                tokenAddress: selectedSrcToken.value.address,
-                approve: response,
-                service: selectedService.value?.id,
-            });
         };
 
         // =================================================================================================================
@@ -583,9 +557,9 @@ export default {
             showNotification({
                 key: 'prepare-tx',
                 type: 'info',
-                title: `Swap ${amount.value} ${selectedSrcToken.value.symbol} to ~${receiveValue.value} ${selectedDstToken.value.symbol}`,
+                title: `Swap ${srcAmount.value} ${selectedSrcToken.value.symbol} to ~${dstAmount.value} ${selectedDstToken.value.symbol}`,
                 description: 'Please wait, transaction is preparing',
-                icon: h(LoadingOutlined, {
+                icon: h(SettingOutlined, {
                     spin: true,
                 }),
                 duration: 0,
@@ -597,7 +571,7 @@ export default {
                     net: selectedSrcNetwork.value.net,
                     fromTokenAddress: selectedSrcToken.value.address,
                     toTokenAddress: selectedDstToken.value.address,
-                    amount: amount.value,
+                    amount: srcAmount.value,
                     ownerAddress: walletAddress.value,
                 });
 
@@ -630,8 +604,6 @@ export default {
             txError.value = '';
             txErrorTitle.value = '';
 
-            const targetKey = `${walletAccount.value}:${selectedSrcNetwork.value.net}${selectedService.value?.id}:${selectedSrcToken.value?.address}`;
-
             const txToSave = {
                 index: 0,
                 ecosystem: selectedSrcNetwork.value.ecosystem,
@@ -647,8 +619,14 @@ export default {
                     action: 'formatTransactionForSign',
                     type: 'Approve',
                     successCallback: {
-                        action: 'tokenOps/clearApproveForToken',
-                        targetKey,
+                        action: 'GET_ALLOWANCE',
+                        requestParams: {
+                            url: selectedService.value.url,
+                            net: selectedSrcNetwork.value.net,
+                            tokenAddress: selectedSrcToken.value.address,
+                            ownerAddress: walletAddress.value,
+                            service: selectedService.value,
+                        },
                     },
                 },
             };
@@ -675,6 +653,9 @@ export default {
                 metaData: {
                     action: 'formatTransactionForSign',
                     type: 'SWAP',
+                    successCallback: {
+                        action: 'CLEAR_AMOUNTS',
+                    },
                 },
             };
 
@@ -722,6 +703,10 @@ export default {
                 await handleSwap();
             }
 
+            if (!transactionForSign.value) {
+                return (isLoading.value = false);
+            }
+
             try {
                 isLoading.value = true;
 
@@ -738,7 +723,6 @@ export default {
                     return (isLoading.value = false);
                 }
 
-                resetValues();
                 isLoading.value = false;
                 balanceUpdated.value = true;
 
@@ -752,7 +736,6 @@ export default {
 
         watch(selectedSrcNetwork, (newValue, oldValue) => {
             if (newValue?.net !== oldValue?.net) {
-                resetValues();
                 selectedSrcToken.value = null;
                 selectedDstToken.value = null;
                 setTokenOnChange();
@@ -777,11 +760,30 @@ export default {
             isLoading.value = false;
         });
 
-        watch(isTokensLoadingForChain, () => setTokenOnChange());
+        watch(isTokensLoadingForChain, () => {
+            selectedSrcToken.value = null;
+            selectedDstToken.value = null;
+            setTokenOnChange();
+        });
+
+        watch(isNeedApprove, () => {
+            console.log('isNeedApprove', isNeedApprove.value);
+            if (isNeedApprove.value) {
+                return (opTitle.value = 'tokenOperations.approve');
+            }
+
+            return (opTitle.value = 'tokenOperations.swap');
+        });
 
         watch(selectedSrcToken, async () => {
             if (!allowanceForToken.value) {
                 await makeAllowanceRequest();
+            }
+        });
+
+        watch(srcAmount, () => {
+            if (srcAmount.value === 0) {
+                resetAmount.value = true;
             }
         });
 
@@ -823,6 +825,7 @@ export default {
             isEstimating,
             isNeedApprove,
             isTokensLoadingForChain,
+            isWaitingTxStatusForModule,
 
             opTitle,
 
@@ -841,7 +844,9 @@ export default {
 
             selectedSrcToken,
             selectedDstToken,
-            receiveValue,
+
+            srcAmount,
+            dstAmount,
 
             feeInfo,
             rateInfo,

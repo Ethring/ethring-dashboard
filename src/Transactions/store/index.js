@@ -5,6 +5,7 @@ const TYPES = {
     SET_TRANSACTIONS_BY_REQUEST_ID: 'SET_TRANSACTIONS_BY_REQUEST_ID',
     SET_TRANSACTION_FOR_SIGN: 'SET_TRANSACTION_FOR_SIGN',
     SET_CURRENT_REQUEST_ID: 'SET_CURRENT_REQUEST_ID',
+    SET_IS_WAITING_TX_STATUS_FOR_MODULE: 'SET_IS_WAITING_TX_STATUS_FOR_MODULE',
 };
 
 export default {
@@ -15,12 +16,16 @@ export default {
         transactionsByRequestID: {},
         transactionForSign: null,
 
+        isWaitingTxStatus: {},
+
         currentRequestID: null,
     }),
 
     getters: {
         transactionForSign: (state) => state.transactionForSign,
         currentRequestID: (state) => state.currentRequestID,
+
+        isWaitingTxStatusForModule: (state) => (module) => state.isWaitingTxStatus[module] || false,
     },
 
     mutations: {
@@ -49,6 +54,10 @@ export default {
         [TYPES.SET_CURRENT_REQUEST_ID](state, requestID) {
             state.currentRequestID = requestID;
         },
+
+        [TYPES.SET_IS_WAITING_TX_STATUS_FOR_MODULE](state, { module, isWaiting }) {
+            state.isWaitingTxStatus[module] = isWaiting;
+        },
     },
 
     actions: {
@@ -63,6 +72,9 @@ export default {
         },
         setCurrentRequestID({ commit }, requestID) {
             commit(TYPES.SET_CURRENT_REQUEST_ID, requestID);
+        },
+        setIsWaitingTxStatusForModule({ commit }, value) {
+            commit(TYPES.SET_IS_WAITING_TX_STATUS_FOR_MODULE, value);
         },
     },
 };

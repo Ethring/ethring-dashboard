@@ -16,7 +16,7 @@
             :value="selectedToken"
             :error="!!isBalanceError"
             :label="$t('tokenOperations.amount')"
-            :on-reset="clearAddress"
+            :on-reset="clearAddress || resetAmount"
             :is-token-loading="isTokensLoadingForChain"
             class="mt-10"
             @setAmount="onSetAmount"
@@ -26,7 +26,7 @@
         <Button
             :title="$t(opTitle)"
             :disabled="!!disabledSend"
-            :loading="isLoading"
+            :loading="isWaitingTxStatusForModule || isLoading"
             class="simple-send__btn mt-10"
             @click="handleOnSend"
             size="large"
@@ -76,14 +76,16 @@ export default {
         const { walletAddress, connectedWallet, currentChainInfo, validateAddress, chainList, walletAccount, setChain } = useAdapter();
 
         const { createTransactions, signAndSend, transactionForSign } = useTransactions();
+        const isWaitingTxStatusForModule = computed(() => store.getters['txManager/isWaitingTxStatusForModule'](module));
 
         const isLoading = ref(false);
 
-        const amount = ref('');
+        const srcAmount = ref('');
 
         const opTitle = ref('tokenOperations.confirm');
 
         const clearAddress = ref(false);
+        const resetAmount = ref(false);
         const isAddressError = ref(false);
         const isBalanceError = ref(false);
 
@@ -116,16 +118,16 @@ export default {
 
         // =================================================================================================================
 
-        const disabledSend = computed(() => {
-            return (
+        const disabledSend = computed(
+            () =>
                 isLoading.value ||
                 isAddressError.value ||
                 isBalanceError.value ||
-                !+amount.value ||
+                isWaitingTxStatusForModule.value ||
+                !+srcAmount.value ||
                 !receiverAddress.value?.length ||
                 !currentChainInfo.value
-            );
-        });
+        );
 
         // =================================================================================================================
 
@@ -182,7 +184,7 @@ export default {
         };
 
         const onSetAmount = (value) => {
-            amount.value = value;
+            srcAmount.value = value;
 
             const isBalanceAllowed = +value > +selectedToken.value?.balance;
 
@@ -202,7 +204,7 @@ export default {
             const dataForPrepare = {
                 fromAddress: walletAddress.value,
                 toAddress: receiverAddress.value,
-                amount: amount.value,
+                amount: srcAmount.value,
                 token: selectedToken.value,
             };
 
@@ -245,6 +247,9 @@ export default {
                         metaData: {
                             action: 'prepareTransaction',
                             type: 'Transfer',
+                            successCallback: {
+                                action: 'CLEAR_AMOUNTS',
+                            },
                         },
                     },
                 ];
@@ -259,8 +264,6 @@ export default {
                     clearAddress.value = false;
                     return (isLoading.value = false);
                 }
-
-                clearAddress.value = true;
 
                 return (isLoading.value = false);
             } catch (error) {
@@ -280,7 +283,7 @@ export default {
                 receiverAddress.value = '';
             }
 
-            amount.value = null;
+            srcAmount.value = null;
         });
 
         onMounted(() => {
@@ -307,15 +310,29 @@ export default {
             setTokenOnChange();
         });
 
+        watch(srcAmount, () => {
+            if (srcAmount.value === 0) {
+                resetAmount.value = true;
+            }
+        });
+
+        watch(receiverAddress, () => {
+            if (receiverAddress.value === null) {
+                clearAddress.value = true;
+            }
+        });
+
         watch(isTokensLoadingForChain, () => setTokenOnChange());
 
         return {
             isLoading,
             isTokensLoadingForChain,
+            isWaitingTxStatusForModule,
 
             disabledSend,
 
             clearAddress,
+            resetAmount,
 
             isAddressError,
             isBalanceError,

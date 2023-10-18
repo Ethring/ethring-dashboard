@@ -14,14 +14,14 @@ import { getTotalFuturesBalance, BALANCES_TYPES } from '@/shared/utils/assets';
 
 // Cancel request
 
-let abortController = new AbortController();
-let { signal } = abortController;
+// let abortController = new AbortController();
+// let { signal } = abortController;
 
-function cancelCurrentOperations() {
-    abortController.abort(); // Отмена всех текущих операций
-    abortController = new AbortController(); // Создание нового AbortController
-    signal = abortController.signal; // Получение нового сигнала
-}
+// function cancelCurrentOperations() {
+//     abortController.abort(); // Отмена всех текущих операций
+//     abortController = new AbortController(); // Создание нового AbortController
+//     signal = abortController.signal; // Получение нового сигнала
+// }
 
 // =================================================================================================================
 
@@ -133,7 +133,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
         console.error('An error occurred:', error);
     });
 
-    cancelCurrentOperations();
+    // cancelCurrentOperations();
 
     let totalBalance = BigNumber(0);
 
@@ -170,7 +170,8 @@ export default async function useInit(store, { addressesWithChains = {}, account
                 continue;
             }
 
-            const response = (await getBalancesByAddress(chainForRequest, chainAddress, { signal })) || {};
+            // const response = (await getBalancesByAddress(chainForRequest, chainAddress, { signal })) || {};
+            const response = (await getBalancesByAddress(chainForRequest, chainAddress)) || {};
 
             const {
                 tokens = [],
