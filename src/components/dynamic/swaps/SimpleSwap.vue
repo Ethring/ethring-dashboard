@@ -335,7 +335,6 @@ export default {
 
             if (!+value) {
                 estimateErrorTitle.value = '';
-                
                 return checkBalanceAllowed();
             }
 
@@ -480,7 +479,12 @@ export default {
             estimateErrorTitle.value = '';
 
             // TODO: add fee
-            networkFee.value = prettyNumberTooltip(+response.fee.amount * selectedNetwork.value.price, 4);
+
+            const { native_token } = selectedNetwork.value || {};
+
+            const { price = 0 } = native_token || {};
+
+            networkFee.value = prettyNumberTooltip(+response.fee.amount * price, 4);
 
             estimateRate.value = prettyNumberTooltip(response.toTokenAmount / response.fromTokenAmount, 6);
 
@@ -631,7 +635,7 @@ export default {
             if (!responseSwap) {
                 return (isLoading.value = false);
             }
-            
+
             try {
                 const responseSendTx = await sendTransaction(responseSwap);
 

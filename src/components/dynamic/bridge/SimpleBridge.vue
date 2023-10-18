@@ -78,7 +78,7 @@
             <template #content>
                 <div class="accordion__content">
                     <AccordionItem :label="$t('simpleBridge.serviceFee') + ' :'">
-                        <span>{{ prettyNumber(networkFee * +selectedSrcToken?.price) }}</span> <span class="symbol">$</span>
+                        <span>{{ networkFee }}</span> <span class="symbol">$</span>
                     </AccordionItem>
                     <AccordionItem :label="$t('simpleBridge.title') + ' :'">
                         <img :src="selectedService.icon" alt="service-logo" />
@@ -594,7 +594,11 @@ export default {
 
             receiveValue.value = response.toTokenAmount;
 
-            networkFee.value = +response.fee.amount;
+            const { native_token } = selectedSrcNetwork.value || {};
+
+            const { price = 0 } = native_token || {};
+
+            networkFee.value = prettyNumber(+response.fee.amount * price, 4);
 
             estimateTime.value =
                 '< ' +
