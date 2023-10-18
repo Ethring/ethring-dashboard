@@ -1,5 +1,7 @@
-import { computed } from 'vue';
+import { computed, h } from 'vue';
 import { useStore } from 'vuex';
+
+import { LoadingOutlined } from '@ant-design/icons-vue';
 
 import { addTransactionToExistingQueue, createTransactionsQueue, getTransactionsByRequestID, updateTransaction } from '../api';
 
@@ -119,6 +121,19 @@ export default function useTransactions() {
             },
         });
 
+        const displayHash = transactionHash.slice(0, 8) + '...' + transactionHash.slice(-8);
+
+        showNotification({
+            key: `waiting-${transactionHash}-tx`,
+            type: 'info',
+            title: `Waiting for transaction ${displayHash} confirmation`,
+            description: 'Please wait for transaction confirmation',
+            icon: h(LoadingOutlined, {
+                spin: true,
+            }),
+            duration: 0,
+        });
+
         return signedTx;
     };
 
@@ -146,6 +161,7 @@ export default function useTransactions() {
         }
 
         try {
+            console.log('txFoSign', txFoSign);
             const signedTx = await signSend(txFoSign);
 
             return await handleSignedTxResponse(id, signedTx, { metaData });

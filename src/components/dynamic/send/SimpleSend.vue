@@ -38,7 +38,7 @@ import { h, ref, computed, onBeforeUnmount, onMounted, watch } from 'vue';
 
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { LoadingOutlined } from '@ant-design/icons-vue';
+import { SettingOutlined } from '@ant-design/icons-vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 import useTokensList from '@/compositions/useTokensList';
@@ -223,7 +223,7 @@ export default {
                 type: 'info',
                 title: `Sending ${dataForPrepare.amount} ${dataForPrepare.token.symbol} ...`,
                 description: 'Please wait, transaction is preparing',
-                icon: h(LoadingOutlined, {
+                icon: h(SettingOutlined, {
                     spin: true,
                 }),
                 duration: 0,

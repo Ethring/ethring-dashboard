@@ -48,12 +48,15 @@ const statusNotification = (status, { store, type = 'Transfer', displayHash, exp
 
 export const handleTransactionStatus = (transaction, store) => {
     store.dispatch('txManager/setTransactionForSign', null);
+    const { closeNotification } = useNotification();
 
     const { metaData, status, txHash = '' } = transaction;
 
     const { explorerLink, type, successCallback = null, failCallback = null } = metaData || {};
 
     const displayHash = txHash.slice(0, 8) + '...' + txHash.slice(-8);
+
+    closeNotification(`waiting-${txHash}-tx`);
 
     return statusNotification(status, { store, type, displayHash, explorerLink, successCallback, failCallback });
 };

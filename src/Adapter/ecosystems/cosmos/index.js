@@ -21,7 +21,7 @@ import { checkErrors } from '@/helpers/checkErrors';
 const DEFAULT_CHAIN = 'cosmoshub';
 const { chains, assets, differentSlip44 } = cosmologyConfig;
 
-// const DEFAULT_RPC = 'https://rpc.cosmos.directory';
+const DEFAULT_RPC = 'https://rpc.cosmos.directory';
 // const DEFAULT_REST = 'https://rest.cosmos.directory';
 
 // * Constants for localStorage
@@ -371,7 +371,6 @@ class CosmosAdapter extends AdapterBase {
 
         try {
             const { send } = cosmos.bank.v1beta1.MessageComposer.withTypeUrl;
-            console.log('token', token);
             const amountFormatted = utils.parseUnits(amount, token.decimals).toString();
 
             const msg = send({
@@ -412,7 +411,16 @@ class CosmosAdapter extends AdapterBase {
         const chainWallet = this._getCurrentWallet();
 
         try {
+            console.log('msg, fee', msg, fee);
+
+            console.log('chainWallet.value.getRpcEndpoint();', chainWallet.value.getRpcEndpoint());
+
+            chainWallet.value.rpcEndpoints = [`${DEFAULT_RPC}/${chainWallet.value.chainName}`];
+
             const response = await chainWallet.value.signAndBroadcast([msg], fee);
+
+            console.log('response', response);
+
             return response;
         } catch (error) {
             console.error('error while signAndSend', error);
