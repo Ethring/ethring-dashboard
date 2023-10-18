@@ -314,10 +314,8 @@ export default {
         };
 
         const handleOnSelectNetwork = (network, direction) => {
-            if (currentChainInfo.value.net !== network.net) {
+            if (currentChainInfo.value.net !== selectedSrcNetwork.value.net) {
                 opTitle.value = 'tokenOperations.switchNetwork';
-            } else {
-                opTitle.value = 'tokenOperations.swap';
             }
 
             if (direction === DIRECTIONS.SOURCE) {
@@ -331,6 +329,8 @@ export default {
             selectedDstToken.value = null;
 
             resetValues();
+
+            return (opTitle.value = 'tokenOperations.swap');
         };
 
         // =================================================================================================================

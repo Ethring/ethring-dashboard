@@ -389,13 +389,9 @@ export default {
         // =================================================================================================================
 
         const handleOnSelectNetwork = (network, direction) => {
-            if (currentChainInfo.value.net !== network.net) {
+            if (currentChainInfo.value.net !== selectedSrcNetwork.value.net) {
                 opTitle.value = 'tokenOperations.switchNetwork';
-            } else {
-                opTitle.value = 'tokenOperations.confirm';
             }
-
-            resetAmount.value = true;
 
             if (direction === DIRECTIONS.SOURCE) {
                 selectedSrcNetwork.value = network;
@@ -408,7 +404,11 @@ export default {
 
             isEstimating.value = false;
 
+            resetAmount.value = true;
+
             estimateErrorTitle.value = '';
+
+            return (opTitle.value = 'tokenOperations.swap');
         };
 
         // =================================================================================================================
