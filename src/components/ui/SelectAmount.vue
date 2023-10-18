@@ -35,7 +35,7 @@
                         type="text"
                         v-debounce:1s="onInput"
                         @blur="onBlur"
-                        @keypress="formatAmount"
+                        @keypress="onKeyPressHandler"
                         @click.stop="() => {}"
                         data-qa="input-amount"
                         class="input-balance"
@@ -198,8 +198,9 @@ export default {
                 }
             }
         );
-        const formatAmount = (e) => {
-            if (e.code === 'Period') {
+
+        const onKeyPressHandler = (e) => {
+            if (e.code === 'Period' || e.code === 'Comma') {
                 symbolForReplace.value = e.key;
             }
         };
@@ -279,7 +280,7 @@ export default {
             prettyNumber,
             selectPlaceholder,
 
-            formatAmount,
+            onKeyPressHandler,
             setToken,
             onBlur,
             setActive,
