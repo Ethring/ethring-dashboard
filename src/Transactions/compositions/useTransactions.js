@@ -130,6 +130,7 @@ export default function useTransactions() {
             description: 'Please wait for transaction confirmation',
             icon: h(LoadingOutlined, {
                 spin: true,
+                'data-qa': `waiting-${transactionHash}-tx`,
             }),
             duration: 0,
         });

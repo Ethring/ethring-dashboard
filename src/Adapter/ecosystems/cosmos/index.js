@@ -413,13 +413,9 @@ class CosmosAdapter extends AdapterBase {
         try {
             console.log('msg, fee', msg, fee);
 
-            console.log('chainWallet.value.getRpcEndpoint();', chainWallet.value.getRpcEndpoint());
-
             chainWallet.value.rpcEndpoints = [`${DEFAULT_RPC}/${chainWallet.value.chainName}`];
 
             const response = await chainWallet.value.signAndBroadcast([msg], fee);
-
-            console.log('response', response);
 
             return response;
         } catch (error) {
