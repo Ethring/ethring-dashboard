@@ -549,6 +549,8 @@ export default {
             });
 
             if (response.error) {
+                txErrorTitle.value = 'Approve transaction error';
+                txError.value = response.error.message || response.error;
                 return;
             }
 

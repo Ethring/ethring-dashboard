@@ -335,6 +335,7 @@ export default {
 
             if (!+value) {
                 estimateErrorTitle.value = '';
+
                 return checkBalanceAllowed();
             }
 
@@ -515,15 +516,15 @@ export default {
                 ownerAddress: walletAddress.value,
             });
 
+            isLoading.value = false;
+
             if (response.error) {
-                approveTx.value = response.error;
-                isLoading.value = false;
+                txErrorTitle.value = 'Approve transaction error';
+                txError.value = response.error.message || response.error;
                 return;
             }
 
             approveTx.value = response;
-
-            isLoading.value = false;
 
             return (isNeedApprove.value = true);
         };

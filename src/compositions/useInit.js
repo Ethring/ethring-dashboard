@@ -114,8 +114,6 @@ const integrationsForSave = (integrations, { chain, logo, chainAddress }) => {
 // =================================================================================================================
 
 export default async function useInit(store, { addressesWithChains = {}, account = null, currentChainInfo } = {}) {
-    cancelCurrentOperations();
-
     store.dispatch('tokens/setLoader', true);
 
     const allTokensForAccount = computed(() => store.getters['tokens/tokens'][account] || []);
@@ -134,6 +132,8 @@ export default async function useInit(store, { addressesWithChains = {}, account
     performActions(actionsToPerform, store).catch((error) => {
         console.error('An error occurred:', error);
     });
+
+    cancelCurrentOperations();
 
     let totalBalance = BigNumber(0);
 

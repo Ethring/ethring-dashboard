@@ -514,14 +514,20 @@ export default {
             }
             opTitle.value = 'tokenOperations.approve';
 
-            const resApproveTx = await store.dispatch(currentRoute.value.service.type + '/getApproveTx', {
+            const response = await store.dispatch(currentRoute.value.service.type + '/getApproveTx', {
                 url: currentRoute.value.service.url,
                 net: currentRoute.value.net,
                 tokenAddress: currentRoute.value.fromToken?.address,
                 ownerAddress: walletAddress.value,
             });
 
-            approveTx.value = resApproveTx;
+            if (response.error) {
+                txErrorTitle.value = 'Approve transaction error';
+                txError.value = response.error.message || response.error;
+                return;
+            }
+
+            approveTx.value = response;
         };
 
         const makeApproveTx = async () => {
