@@ -509,9 +509,9 @@ export default {
             feeInfo.value = {
                 title: 'tokenOperations.networkFee',
                 symbolBetween: '~',
-                fromAmount: prettyNumberTooltip(response.fee.srcAmount),
+                fromAmount: prettyNumberTooltip(response.fee.amount),
                 fromSymbol: response.fee.currency,
-                toAmount: prettyNumberTooltip(+response.fee.srcAmount * price, 4),
+                toAmount: prettyNumberTooltip(+response.fee.amount * price, 4),
                 toSymbol: '$',
             };
 
