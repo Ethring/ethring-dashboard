@@ -32,8 +32,10 @@
                         :placeholder="placeholder"
                         :disabled="disabled"
                         @focus="onFocus"
+                        type="text"
                         v-debounce:1s="onInput"
                         @blur="onBlur"
+                        @keypress="formatAmount"
                         @click.stop="() => {}"
                         data-qa="input-amount"
                         class="input-balance"
@@ -77,6 +79,8 @@ import TokenIcon from '@/components/ui/TokenIcon';
 import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
 import { prettyNumber, formatNumber } from '@/helpers/prettyNumber';
+
+import { formatInputNumber } from '@/helpers/numbers';
 
 export default {
     name: 'SelectAmount',
@@ -132,6 +136,7 @@ export default {
     setup(props, { emit }) {
         const active = ref(false);
         const focused = ref(false);
+        const symbolForReplace = ref(null);
 
         const amount = ref('');
 
@@ -193,21 +198,21 @@ export default {
                 }
             }
         );
+        const formatAmount = (e) => {
+            if (e.code === 'Period') {
+                symbolForReplace.value = e.key;
+            }
+        };
 
         watch(amount, (val) => {
             amount.value = val;
+
             if (val) {
-                val = val.replace(/[^0-9.]/g, '');
-                if (val.split('.').length - 1 !== 1 && val[val.length - 1] === '.') {
-                    return;
+                if (symbolForReplace.value) {
+                    val = val.replace(symbolForReplace.value, '.');
                 }
-                if (val.length === 2 && val[1] !== '.' && val[1] === '0' && val[0] === '0') {
-                    amount.value = val[0];
-                } else if (val[0] === '0' && val[1] !== '.') {
-                    amount.value = BigNumber(val).toFixed();
-                } else {
-                    amount.value = val;
-                }
+                amount.value = formatInputNumber(val);
+
                 return (payTokenPrice.value = formatNumber(BigNumber(amount.value * +selectedToken?.value?.price || 0).toFixed()) || 0);
             }
 
@@ -274,6 +279,7 @@ export default {
             prettyNumber,
             selectPlaceholder,
 
+            formatAmount,
             setToken,
             onBlur,
             setActive,

@@ -128,7 +128,7 @@ export default {
                 isAddressError.value ||
                 isBalanceError.value ||
                 !+amount.value ||
-                !receiverAddress.value.length ||
+                !receiverAddress.value?.length ||
                 !currentChainInfo.value
             );
         });
