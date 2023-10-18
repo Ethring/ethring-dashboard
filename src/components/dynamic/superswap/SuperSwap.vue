@@ -88,7 +88,7 @@
                         <FeeIcon />
                         <span class="fee">{{ networkFee }}</span> <span class="symbol"> $</span>
                         <TimeIcon />
-                        <span class="fee"> {{ '~ ' + bestRoute.estimateTime + ' s' }}</span>
+                        <span class="fee"> {{ '~ ' + bestRoute?.estimateTime + ' s' }}</span>
                         <h4>1 {{ selectedSrcToken?.symbol || '' }} = {{ estimateRate }} {{ selectedDstToken?.symbol || '' }}</h4>
                     </div>
 
@@ -100,10 +100,10 @@
             </template>
             <template #content>
                 <div class="routes">
-                    <div class="route" v-for="(item, i) in bestRoute.routes" :key="i">
+                    <div class="route" v-for="(item, i) in bestRoute?.routes" :key="i">
                         <img :src="item.service.icon" />
                         <div class="name">{{ item.service.name }}</div>
-                        <ArrowIcon class="arrow" v-if="i != bestRoute.routes.length - 1" />
+                        <ArrowIcon class="arrow" v-if="i != bestRoute?.routes?.length - 1" />
                     </div>
                     <ExpandIcon v-if="otherRoutes.length" class="expand" @click="setShowRoutesModal" />
                 </div>
@@ -202,7 +202,6 @@ export default {
         const isSwapLoading = ref(false);
         const isNeedApprove = ref(false);
 
-        const isBalanceUpdated = ref(false);
         const isReceiveToken = ref(false);
         const approveTx = ref(null);
         const bestRoute = ref({});
@@ -376,8 +375,6 @@ export default {
         };
 
         const setTokenOnChange = () => {
-            selectedDstToken.value = null;
-
             tokensList.value = getTokensList({
                 srcNet: selectedSrcNetwork.value,
                 srcToken: selectedSrcToken.value,
@@ -389,24 +386,6 @@ export default {
             if (!selectedSrcToken.value && defaultFromToken) {
                 selectedSrcToken.value = defaultFromToken;
             }
-
-            if (!isBalanceUpdated.value) {
-                return;
-            }
-
-            if (!selectedSrcToken.value) {
-                return;
-            }
-
-            const { symbol: fromSymbol } = selectedSrcToken.value || {};
-
-            const fromToken = tokensList.value?.find((tkn) => fromSymbol === tkn.symbol) || [];
-
-            if (fromToken) {
-                selectedSrcToken.value = fromToken;
-            }
-
-            isBalanceUpdated.value = false;
         };
 
         // =================================================================================================================
@@ -563,8 +542,7 @@ export default {
                 !selectedDstToken.value ||
                 !+amount.value
             ) {
-                estimateError.value = 'Select all fields';
-                return;
+                return (estimateError.value = 'Select all fields');
             }
 
             isLoading.value = true;
@@ -734,14 +712,17 @@ export default {
             currentRoute.value = bestRoute.value.routes.find((elem) => elem.status === STATUSES.SIGNING);
 
             setTimeout(() => {
-                updateWalletBalances(walletAddress.value, selectedSrcNetwork.value, () => {
-                    isBalanceUpdated.value = true;
+                updateWalletBalances(walletAccount.value, walletAddress.value, selectedSrcNetwork.value, (list) => {
+                    const fromToken = list.find((elem) => elem.symbol === selectedSrcToken.value.symbol);
+                    if (fromToken) {
+                        selectedSrcToken.value = fromToken;
+                    }
                 });
 
                 if (selectedSrcNetwork.value.net !== selectedDstNetwork.value.net) {
-                    updateWalletBalances(walletAddress.value, selectedDstNetwork.value);
+                    updateWalletBalances(walletAccount.value, walletAddress.value, selectedDstNetwork.value);
                 }
-            }, 10000);
+            }, 7000);
 
             if (!currentRoute.value) {
                 receiveValue.value = null;
@@ -791,6 +772,11 @@ export default {
             onSetAmount('');
             selectedSrcToken.value = null;
             setTokenOnChange();
+            getEstimateInfo();
+        });
+
+        watch(selectedDstNetwork, () => {
+            getEstimateInfo();
         });
 
         watch(txError, (err) => {
@@ -864,12 +850,6 @@ export default {
             }
         });
 
-        watch(isBalanceUpdated, () => {
-            if (isBalanceUpdated.value) {
-                setTokenOnChange();
-            }
-        });
-
         watch(
             () => currentChainInfo.value,
             () => {
@@ -881,6 +861,9 @@ export default {
 
         watch(walletAccount, () => {
             selectedSrcNetwork.value = currentChainInfo.value;
+            selectedSrcToken.value = null;
+            selectedDstNetwork.value = currentChainInfo.value;
+            selectedDstToken.value = null;
             setTokenOnChange();
         });
 

@@ -317,18 +317,6 @@ export default {
             if (!selectedSrcToken.value && defaultToken) {
                 selectedSrcToken.value = defaultToken;
             }
-
-            if (!selectedSrcToken.value) {
-                return;
-            }
-
-            const { symbol: fromSymbol } = selectedSrcToken.value || {};
-
-            const fromToken = tokensList.value?.find((tkn) => fromSymbol === tkn.symbol) || [];
-
-            if (fromToken) {
-                selectedSrcToken.value = fromToken;
-            }
         };
 
         // =================================================================================================================
@@ -351,8 +339,14 @@ export default {
 
         // =================================================================================================================
 
-        const srcNets = computed(() => chainList.value.filter((network) => network.net !== selectedDstNetwork?.value?.net));
-        const dstNets = computed(() => chainList.value.filter((network) => network.net !== selectedSrcNetwork?.value?.net));
+        const NOT_SUPPORT = ['fantom', 'optimism'];
+
+        const srcNets = computed(() =>
+            chainList.value.filter((network) => network.net !== selectedDstNetwork?.value?.net && !NOT_SUPPORT.includes(network.net))
+        );
+        const dstNets = computed(() =>
+            chainList.value.filter((network) => network.net !== selectedSrcNetwork?.value?.net && !NOT_SUPPORT.includes(network.net))
+        );
 
         // =================================================================================================================
 
@@ -749,11 +743,20 @@ export default {
                 resetAmount.value = true;
 
                 setTimeout(() => {
-                    updateWalletBalances(walletAddress.value, selectedSrcNetwork.value, () => {
-                        balanceUpdated.value = true;
+                    updateWalletBalances(walletAccount.value, walletAddress.value, selectedSrcNetwork.value, (list) => {
+                        const fromToken = list.find((elem) => elem.symbol === selectedSrcToken.value.symbol);
+                        if (fromToken) {
+                            selectedSrcToken.value = fromToken;
+                        }
                     });
-                    updateWalletBalances(walletAddress.value, selectedDstNetwork.value, () => {});
-                }, 10000);
+
+                    updateWalletBalances(walletAccount.value, walletAddress.value, selectedDstNetwork.value, (list) => {
+                        const toToken = list.find((elem) => elem.symbol === selectedDstToken.value.symbol);
+                        if (toToken) {
+                            selectedDstToken.value = toToken;
+                        }
+                    });
+                }, 7000);
             } catch (error) {
                 txError.value = error?.message || error?.error || error;
             }
@@ -765,13 +768,11 @@ export default {
 
         watch(walletAccount, () => {
             selectedSrcNetwork.value = currentChainInfo.value;
-            setTokenOnChange();
-        });
 
-        watch(balanceUpdated, () => {
-            if (balanceUpdated.value) {
-                setTokenOnChange();
-            }
+            selectedSrcToken.value = null;
+            selectedDstToken.value = null;
+
+            setTokenOnChange();
         });
 
         watch(isTokensLoadingForSrc, () => setTokenOnChange());

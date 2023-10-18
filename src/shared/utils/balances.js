@@ -1,10 +1,10 @@
 import { getBalancesByAddress } from '@/api/data-provider';
 
+import IndexedDBService from '@/modules/indexedDb';
+
 import store from '@/store/';
 
-export async function updateWalletBalances(address, network, balanceUpdated = () => {}) {
-    const tokensByChain = store.getters['tokens/groupTokens'];
-
+export async function updateWalletBalances(account, address, network, balanceUpdated = () => {}) {
     const tokensByAccount = store.getters['tokens/tokens'];
 
     const { net, logo } = network;
@@ -14,31 +14,48 @@ export async function updateWalletBalances(address, network, balanceUpdated = ()
         fetchIntegrations: false,
     });
 
-    if (!result.tokens || !result.tokens.length) {
+    if (!result || !result.tokens || !result.tokens.length) {
         return;
     }
 
-    tokensByChain[net].list = result.tokens;
-
-    for (const item of result.tokens) {
+    for (let item of result.tokens) {
         const index = tokensByAccount[address].findIndex(
             (elem) => (elem.symbol === item.symbol && elem.address === item.address) || (!item.address && elem.symbol === item.symbol)
         );
+        item = formatRecord(item, { net, address, logo });
         if (index !== -1) {
-            item.chainLogo = logo;
-            tokensByAccount[address][index] = item;
+            tokensByAccount[account][index] = item;
         } else {
-            tokensByAccount[address].push(item);
+            tokensByAccount[account].push(item);
         }
     }
 
     store.dispatch('tokens/setDataFor', {
         type: 'tokens',
-        account: address,
-        data: tokensByAccount[address],
+        account,
+        data: tokensByAccount[account],
     });
 
-    store.dispatch('tokens/setGroupTokens', tokensByChain);
+    const tokens = result.tokens.map((elem) => {
+        return formatRecord(elem, { net, address, logo });
+    });
 
-    balanceUpdated();
+    store.dispatch('tokens/setGroupTokens', { chain: net, account, data: { list: tokens } });
+
+    balanceUpdated(tokens);
+
+    const key = `${account}-${net}-${address}`;
+
+    const cachedData = await IndexedDBService.getData(key);
+    cachedData.tokens = result.tokens;
+
+    await IndexedDBService.saveData(key, cachedData);
 }
+
+const formatRecord = (record, { net, address, logo }) => {
+    record.id = `${net}_${address}_${record.symbol}`;
+    record.chainLogo = logo;
+    record.chain = net;
+
+    return record;
+};

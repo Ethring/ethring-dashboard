@@ -136,8 +136,6 @@ export default {
         // =================================================================================================================
 
         const setTokenOnChange = () => {
-            selectedToken.value = null;
-
             tokensList.value = getTokensList({
                 srcNet: selectedNetwork.value,
             });
@@ -329,6 +327,7 @@ export default {
 
         watch(walletAccount, () => {
             selectedNetwork.value = currentChainInfo.value;
+            selectedToken.value = null;
             setTokenOnChange();
         });
 

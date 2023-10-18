@@ -1,6 +1,6 @@
 <template>
     <div class="simple-swap">
-        <SelectNetwork :items="chainList" :current="selectedNetwork" @select="onSelectNetwork" />
+        <SelectNetwork :items="chains" :current="selectedNetwork" @select="onSelectNetwork" />
 
         <div class="simple-swap__switch-wrap">
             <SelectAmount
@@ -98,6 +98,7 @@ import { checkErrors } from '@/helpers/checkErrors';
 
 import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { isCorrectChain } from '@/shared/utils/operations';
+import { SUPPORTED_CHAINS } from '@/shared/constants/superswap/constants';
 
 import { updateWalletBalances } from '@/shared/utils/balances';
 
@@ -131,6 +132,8 @@ export default {
             setChain,
         } = useAdapter();
 
+        const chains = computed(() => chainList.value?.filter((chain) => SUPPORTED_CHAINS.includes(chain.net)));
+
         // * Loaders
         const isLoading = ref(false);
         const isEstimating = ref(false);
@@ -140,7 +143,6 @@ export default {
         const opTitle = ref('tokenOperations.swap');
 
         const isNeedApprove = ref(false);
-        const balanceUpdated = ref(false);
         const approveTx = ref(null);
         const allowance = ref(null);
 
@@ -211,9 +213,6 @@ export default {
         // =================================================================================================================
 
         const setTokenOnChange = () => {
-            selectedTokenFrom.value = null;
-            selectedTokenTo.value = null;
-
             tokensList.value = getTokensList({
                 srcNet: selectedNetwork.value,
             });
@@ -227,33 +226,25 @@ export default {
             if (!selectedTokenTo.value && defaultToToken) {
                 selectedTokenTo.value = defaultToToken;
             }
+        };
 
+        const updateTokens = (list) => {
             if (!selectedTokenFrom.value && !selectedTokenTo.value) {
                 return;
             }
 
-            const { symbol: fromSymbol } = selectedTokenFrom.value || {};
-            const { symbol: toSymbol } = selectedTokenTo.value || {};
-
-            const searchTokens = [fromSymbol, toSymbol];
-
-            const updatedList = tokensList.value.filter((tkn) => searchTokens.includes(tkn.symbol)) || [];
-
-            if (!updatedList.length) {
-                return;
-            }
-
-            const [fromToken = null, toToken = null] = updatedList;
+            const fromToken = list.find((elem) => elem.symbol === selectedTokenFrom.value.symbol);
 
             if (fromToken) {
                 selectedTokenFrom.value = fromToken;
             }
 
+            const toToken = list.find((elem) => elem.symbol === selectedTokenTo.value.symbol);
+
             if (toToken) {
                 selectedTokenTo.value = toToken;
             }
         };
-
         // =================================================================================================================
 
         const disabledSwap = computed(() => {
@@ -302,7 +293,6 @@ export default {
         const onSetTokenFrom = () => {
             selectType.value = TOKEN_SELECT_TYPES.FROM;
             onlyWithBalance.value = true;
-            balanceUpdated.value = false;
 
             router.push('/swap/select-token');
 
@@ -312,7 +302,6 @@ export default {
         const onSetTokenTo = async () => {
             selectType.value = TOKEN_SELECT_TYPES.TO;
             onlyWithBalance.value = false;
-            balanceUpdated.value = false;
 
             router.push('/swap/select-token');
 
@@ -333,7 +322,6 @@ export default {
 
             if (!+value) {
                 estimateErrorTitle.value = '';
-
                 return checkBalanceAllowed();
             }
 
@@ -642,10 +630,10 @@ export default {
                 successHash.value = getTxExplorerLink(responseSendTx.transactionHash, currentChainInfo.value);
 
                 setTimeout(() => {
-                    updateWalletBalances(walletAddress.value, selectedNetwork.value, () => {
-                        balanceUpdated.value = true;
+                    updateWalletBalances(walletAccount.value, walletAddress.value, selectedNetwork.value, (list) => {
+                        updateTokens(list);
                     });
-                }, 10000);
+                }, 7000);
 
                 resetAmount.value = true;
 
@@ -662,12 +650,6 @@ export default {
                 resetValues();
                 selectedTokenFrom.value = null;
                 selectedTokenTo.value = null;
-                setTokenOnChange();
-            }
-        });
-
-        watch(balanceUpdated, () => {
-            if (balanceUpdated.value) {
                 setTokenOnChange();
             }
         });
@@ -721,6 +703,8 @@ export default {
 
         watch(walletAccount, () => {
             selectedNetwork.value = currentChainInfo.value;
+            selectedTokenFrom.value = null;
+            selectedTokenTo.value = null;
             setTokenOnChange();
         });
 
@@ -734,6 +718,7 @@ export default {
             }
 
             setTokenOnChange();
+
             await makeAllowanceRequest();
         });
 
@@ -756,7 +741,7 @@ export default {
             disabledSwap,
             walletAddress,
 
-            chainList,
+            chains,
 
             isBalanceError,
             estimateErrorTitle,
