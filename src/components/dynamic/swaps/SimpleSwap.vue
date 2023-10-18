@@ -544,7 +544,7 @@ export default {
             opTitle.value = 'tokenOperations.approve';
 
             if (response.error) {
-                txError.value = response.error;
+                txError.value = response?.error || response;
                 return (isLoading.value = false);
             }
 
@@ -575,8 +575,8 @@ export default {
                     ownerAddress: walletAddress.value,
                 });
 
-                if (response.error && response.error !== '') {
-                    txError.value = response.error;
+                if (response.error) {
+                    txError.value = response?.error || response;
                     txErrorTitle.value = 'Swap error';
                     closeNotification('prepare-tx');
 

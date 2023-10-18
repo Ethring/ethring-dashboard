@@ -629,7 +629,7 @@ export default {
             opTitle.value = 'tokenOperations.approve';
 
             if (response.error) {
-                txError.value = response.error;
+                txError.value = response?.error || response;
                 return (isLoading.value = false);
             }
 
