@@ -1,6 +1,6 @@
 <template>
     <div class="simple-swap">
-        <SelectNetwork :items="chainList" :current="selectedNetwork" @select="onSelectNetwork" />
+        <SelectNetwork :items="chains" :current="selectedNetwork" @select="onSelectNetwork" />
 
         <div class="simple-swap__switch-wrap">
             <SelectAmount
@@ -98,6 +98,7 @@ import { checkErrors } from '@/helpers/checkErrors';
 
 import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { isCorrectChain } from '@/shared/utils/operations';
+import { SUPPORTED_CHAINS } from '@/shared/constants/superswap/constants';
 
 export default {
     name: 'SimpleSwap',
@@ -128,6 +129,8 @@ export default {
             signSend,
             setChain,
         } = useAdapter();
+
+        const chains = computed(() => chainList.value?.filter((chain) => SUPPORTED_CHAINS.includes(chain.net)));
 
         // * Loaders
         const isLoading = ref(false);
@@ -209,9 +212,6 @@ export default {
         // =================================================================================================================
 
         const setTokenOnChange = () => {
-            selectedTokenFrom.value = null;
-            selectedTokenTo.value = null;
-
             tokensList.value = getTokensList({
                 srcNet: selectedNetwork.value,
             });
@@ -404,10 +404,12 @@ export default {
 
             if (allowance.value >= toMantissa(amount.value, selectedTokenFrom.value?.decimals)) {
                 isLoading.value = false;
+                opTitle.value = 'tokenOperations.swap';
                 return (isNeedApprove.value = false);
             }
 
             isNeedApprove.value = true;
+            opTitle.value = 'tokenOperations.approve';
 
             if (approveTx.value) {
                 return;
@@ -453,6 +455,10 @@ export default {
             }
 
             isEstimating.value = true;
+
+            if (currentChainInfo.value.net !== selectedNetwork.value.net) {
+                opTitle.value = 'tokenOperations.switchNetwork';
+            }
 
             const response = await estimateSwap({
                 url: selectedService.value.url,
@@ -508,8 +514,6 @@ export default {
                 tokenAddress: selectedTokenFrom.value.address,
                 ownerAddress: walletAddress.value,
             });
-
-            opTitle.value = 'tokenOperations.approve';
 
             if (response.error) {
                 approveTx.value = response.error;
@@ -617,18 +621,13 @@ export default {
                 return (isLoading.value = false);
             }
 
-            opTitle.value = 'tokenOperations.swap';
-
             if (approveTx.value && isNeedApprove.value) {
-                opTitle.value = 'tokenOperations.approve';
                 await makeApproveTx();
             }
 
             if (approveTx.value) {
                 return (isLoading.value = false);
             }
-
-            opTitle.value = 'tokenOperations.swap';
 
             const responseSwap = await makeSwapTx();
 
@@ -726,6 +725,8 @@ export default {
 
         watch(walletAccount, () => {
             selectedNetwork.value = currentChainInfo.value;
+            selectedTokenFrom.value = null;
+            selectedTokenTo.value = null;
             setTokenOnChange();
         });
 
@@ -739,6 +740,7 @@ export default {
             }
 
             setTokenOnChange();
+
             await makeAllowanceRequest();
         });
 
@@ -761,7 +763,7 @@ export default {
             disabledSwap,
             walletAddress,
 
-            chainList,
+            chains,
 
             isBalanceError,
             estimateErrorTitle,

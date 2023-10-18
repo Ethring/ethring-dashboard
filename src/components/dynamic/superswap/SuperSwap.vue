@@ -88,7 +88,7 @@
                         <FeeIcon />
                         <span class="fee">{{ networkFee }}</span> <span class="symbol"> $</span>
                         <TimeIcon />
-                        <span class="fee"> {{ '~ ' + bestRoute.estimateTime + ' s' }}</span>
+                        <span class="fee"> {{ '~ ' + bestRoute?.estimateTime + ' s' }}</span>
                         <h4>1 {{ selectedSrcToken?.symbol || '' }} = {{ estimateRate }} {{ selectedDstToken?.symbol || '' }}</h4>
                     </div>
 
@@ -100,10 +100,10 @@
             </template>
             <template #content>
                 <div class="routes">
-                    <div class="route" v-for="(item, i) in bestRoute.routes" :key="i">
+                    <div class="route" v-for="(item, i) in bestRoute?.routes" :key="i">
                         <img :src="item.service.icon" />
                         <div class="name">{{ item.service.name }}</div>
-                        <ArrowIcon class="arrow" v-if="i != bestRoute.routes.length - 1" />
+                        <ArrowIcon class="arrow" v-if="i != bestRoute?.routes?.length - 1" />
                     </div>
                     <ExpandIcon v-if="otherRoutes.length" class="expand" @click="setShowRoutesModal" />
                 </div>
@@ -314,8 +314,10 @@ export default {
         };
 
         const handleOnSelectNetwork = (network, direction) => {
-            if (currentChainInfo.value.net !== selectedSrcNetwork.value.net) {
+            if (currentChainInfo.value.net !== network.net) {
                 opTitle.value = 'tokenOperations.switchNetwork';
+            } else {
+                opTitle.value = 'tokenOperations.swap';
             }
 
             if (direction === DIRECTIONS.SOURCE) {
@@ -329,8 +331,6 @@ export default {
             selectedDstToken.value = null;
 
             resetValues();
-
-            return (opTitle.value = 'tokenOperations.swap');
         };
 
         // =================================================================================================================
@@ -476,6 +476,7 @@ export default {
             }
 
             isNeedApprove.value = true;
+            opTitle.value = 'tokenOperations.approve';
 
             if (approveTx.value) {
                 return;
@@ -512,6 +513,7 @@ export default {
                 return;
             }
             opTitle.value = 'tokenOperations.approve';
+
             const resApproveTx = await store.dispatch(currentRoute.value.service.type + '/getApproveTx', {
                 url: currentRoute.value.service.url,
                 net: currentRoute.value.net,
@@ -582,8 +584,7 @@ export default {
                 !selectedDstToken.value ||
                 !+amount.value
             ) {
-                estimateError.value = 'Select all fields';
-                return;
+                return (estimateError.value = 'Select all fields');
             }
 
             isLoading.value = true;
@@ -612,7 +613,7 @@ export default {
                 store.dispatch('swap/setBestRoute', resEstimate);
                 currentRoute.value = resEstimate.bestRoute.routes.find((elem) => elem.status === STATUSES.SIGNING);
 
-                if (currentRoute.value.needApprove) {
+                if (currentRoute.value.isNeedApprove) {
                     isNeedApprove.value = true;
                     makeApproveRequest();
                 } else {
@@ -698,7 +699,6 @@ export default {
 
             // APPROVE
             if (approveTx.value && isNeedApprove.value) {
-                opTitle.value = 'tokenOperations.approve';
                 await makeApproveTx();
             }
 
@@ -820,6 +820,11 @@ export default {
             onSetAmount('');
             selectedSrcToken.value = null;
             setTokenOnChange();
+            getEstimateInfo();
+        });
+
+        watch(selectedDstNetwork, () => {
+            getEstimateInfo();
         });
 
         watch(txError, (err) => {
@@ -905,6 +910,9 @@ export default {
 
         watch(walletAccount, () => {
             selectedSrcNetwork.value = currentChainInfo.value;
+            selectedSrcToken.value = null;
+            selectedDstNetwork.value = currentChainInfo.value;
+            selectedDstToken.value = null;
             setTokenOnChange();
         });
 

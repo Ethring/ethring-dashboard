@@ -199,7 +199,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
                 allIntegrations.push(...list);
             }
 
-            store.dispatch('tokens/setGroupTokens', { chain, data: { list: tokens } });
+            store.dispatch('tokens/setGroupTokens', { chain, account, data: { list: tokens } });
 
             store.dispatch('tokens/setDataFor', { type: 'tokens', account, data: allTokens });
 

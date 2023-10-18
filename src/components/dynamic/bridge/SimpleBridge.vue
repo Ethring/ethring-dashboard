@@ -353,8 +353,14 @@ export default {
 
         // =================================================================================================================
 
-        const srcNets = computed(() => chainList.value.filter((network) => network.net !== selectedDstNetwork?.value?.net));
-        const dstNets = computed(() => chainList.value.filter((network) => network.net !== selectedSrcNetwork?.value?.net));
+        const NOT_SUPPORT = ['fantom', 'optimism'];
+
+        const srcNets = computed(() =>
+            chainList.value.filter((network) => network.net !== selectedDstNetwork?.value?.net && !NOT_SUPPORT.includes(network.net))
+        );
+        const dstNets = computed(() =>
+            chainList.value.filter((network) => network.net !== selectedSrcNetwork?.value?.net && !NOT_SUPPORT.includes(network.net))
+        );
 
         // =================================================================================================================
 
@@ -383,9 +389,13 @@ export default {
         // =================================================================================================================
 
         const handleOnSelectNetwork = (network, direction) => {
-            if (currentChainInfo.value.net !== selectedSrcNetwork.value.net) {
+            if (currentChainInfo.value.net !== network.net) {
                 opTitle.value = 'tokenOperations.switchNetwork';
+            } else {
+                opTitle.value = 'tokenOperations.confirm';
             }
+
+            resetAmount.value = true;
 
             if (direction === DIRECTIONS.SOURCE) {
                 selectedSrcNetwork.value = network;
@@ -398,11 +408,7 @@ export default {
 
             isEstimating.value = false;
 
-            resetAmount.value = true;
-
             estimateErrorTitle.value = '';
-
-            return (opTitle.value = 'tokenOperations.swap');
         };
 
         // =================================================================================================================
@@ -479,11 +485,14 @@ export default {
 
             if (allowance.value >= toMantissa(amount.value, selectedSrcToken.value?.decimals)) {
                 isLoading.value = false;
+                opTitle.value = 'tokenOperations.confirm';
                 return (isNeedApprove.value = false);
             }
 
             isLoading.value = false;
             isNeedApprove.value = true;
+
+            opTitle.value = 'tokenOperations.approve';
 
             if (approveTx.value) {
                 return;
@@ -539,8 +548,6 @@ export default {
                 ownerAddress: walletAddress.value,
             });
 
-            // opTitle.value = 'tokenOperations.approve';
-
             if (response.error) {
                 return;
             }
@@ -565,6 +572,9 @@ export default {
                 return;
             }
 
+            if (currentChainInfo.value.net !== selectedSrcNetwork.value.net) {
+                opTitle.value = 'tokenOperations.switchNetwork';
+            }
             isEstimating.value = true;
 
             const response = await estimateBridge({
@@ -623,6 +633,8 @@ export default {
         // =================================================================================================================
 
         const makeApproveTx = async () => {
+            opTitle.value = 'tokenOperations.approve';
+
             showNotification({
                 key: 'approve-tx',
                 type: 'info',
@@ -716,7 +728,6 @@ export default {
             }
 
             if (approveTx.value) {
-                opTitle.value = 'tokenOperations.approve';
                 await makeApproveTx();
             }
 
@@ -784,6 +795,10 @@ export default {
 
         watch(walletAccount, () => {
             selectedSrcNetwork.value = currentChainInfo.value;
+
+            selectedSrcToken.value = null;
+            selectedDstToken.value = null;
+
             setTokenOnChange();
         });
 
