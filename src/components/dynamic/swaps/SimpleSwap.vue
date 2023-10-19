@@ -97,7 +97,7 @@ import { toMantissa } from '@/helpers/numbers';
 import { checkErrors } from '@/helpers/checkErrors';
 
 import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
-import { isCorrectChain } from '@/shared/utils/operations';
+import { isCorrectChain, getOperationTitle } from '@/shared/utils/operations';
 import { SUPPORTED_CHAINS } from '@/shared/constants/superswap/constants';
 
 export default {
@@ -630,6 +630,8 @@ export default {
                 return (isLoading.value = false);
             }
 
+            opTitle.value = 'tokenOperations.swap';
+
             const responseSwap = await makeSwapTx();
 
             if (!responseSwap) {
@@ -724,6 +726,13 @@ export default {
 
         watch(isTokensLoadingForChain, () => setTokenOnChange());
 
+        watch(
+            () => currentChainInfo.value,
+            () => {
+                opTitle.value = getOperationTitle(selectedNetwork.value.net, currentChainInfo.value.net, approveTx.value);
+            }
+        );
+
         watch(walletAccount, () => {
             selectedNetwork.value = currentChainInfo.value;
             selectedTokenFrom.value = null;
@@ -741,6 +750,8 @@ export default {
             }
 
             setTokenOnChange();
+
+            opTitle.value = getOperationTitle(selectedNetwork.value.net, currentChainInfo.value.net, approveTx.value);
 
             await makeAllowanceRequest();
         });

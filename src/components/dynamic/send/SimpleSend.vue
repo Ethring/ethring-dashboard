@@ -50,7 +50,7 @@ import SelectAddress from '@/components/ui/SelectAddress';
 import SelectAmount from '@/components/ui/SelectAmount';
 
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
-import { isCorrectChain } from '@/shared/utils/operations';
+import { isCorrectChain, getOperationTitle } from '@/shared/utils/operations';
 
 export default {
     name: 'SimpleSend',
@@ -305,6 +305,7 @@ export default {
             store.dispatch('tokenOps/setOnlyWithBalance', true);
 
             setTokenOnChange();
+            opTitle.value = getOperationTitle(selectedNetwork.value.net, currentChainInfo.value.net, false, false);
         });
 
         watch(txError, (err) => {
@@ -334,6 +335,7 @@ export default {
         watch(currentChainInfo, () => {
             selectedNetwork.value = currentChainInfo.value;
             setTokenOnChange();
+            opTitle.value = getOperationTitle(selectedNetwork.value.net, currentChainInfo.value.net, false, false);
         });
 
         watch(isTokensLoadingForChain, () => setTokenOnChange());

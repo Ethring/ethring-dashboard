@@ -155,11 +155,11 @@ import { checkErrors } from '@/helpers/checkErrors';
 
 import { findBestRoute } from '@/modules/SuperSwap/baseScript';
 
-import prices from '@/modules/prices/';
+import PricesModule from '@/modules/prices/';
 
 import { STATUSES, NATIVE_CONTRACT, SUPPORTED_CHAINS } from '@/shared/constants/superswap/constants';
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
-import { isCorrectChain } from '@/shared/utils/operations';
+import { isCorrectChain, getOperationTitle } from '@/shared/utils/operations';
 
 export default {
     name: 'SuperSwap',
@@ -214,7 +214,6 @@ export default {
 
         const networkFee = ref(0);
         const estimateRate = ref(0);
-        const isNeedNetworkChange = ref(false);
         const isCallEstimate = ref(false);
 
         const amount = ref('');
@@ -314,14 +313,14 @@ export default {
         };
 
         const handleOnSelectNetwork = (network, direction) => {
-            if (currentChainInfo.value.net !== selectedSrcNetwork.value.net) {
-                opTitle.value = 'tokenOperations.switchNetwork';
-            }
-
             if (direction === DIRECTIONS.SOURCE) {
                 selectedSrcNetwork.value = network;
+                clearApprove();
 
-                return clearApprove();
+                if (currentChainInfo.value.net !== selectedSrcNetwork.value.net) {
+                    return (opTitle.value = 'tokenOperations.switchNetwork');
+                }
+                return (opTitle.value = 'tokenOperations.swap');
             }
 
             selectedDstNetwork.value = network;
@@ -329,8 +328,6 @@ export default {
             selectedDstToken.value = null;
 
             resetValues();
-
-            return (opTitle.value = 'tokenOperations.swap');
         };
 
         // =================================================================================================================
@@ -354,7 +351,7 @@ export default {
                 const chainId =
                     direction === TOKEN_SELECT_TYPES.FROM ? selectedSrcNetwork.value?.chain_id : selectedDstNetwork.value?.chain_id;
 
-                const price = await prices.Coingecko.priceByPlatformContracts({
+                const price = await PricesModule.Coingecko.priceByPlatformContracts({
                     chainId: chainId,
                     addresses: token.address,
                 });
@@ -446,6 +443,7 @@ export default {
 
             differPercentage.value = null;
             receiveValue.value = '';
+            txError.value = '';
 
             if (!+value) {
                 return;
@@ -640,7 +638,6 @@ export default {
             }
 
             if (selectedSrcNetwork.value.net !== currentChainInfo.value.net) {
-                isNeedNetworkChange.value = true;
                 networkName.value = selectedSrcNetwork.value.name;
                 opTitle.value = 'tokenOperations.switchNetwork';
             }
@@ -789,11 +786,9 @@ export default {
             if (currentRoute.value.net !== selectedSrcNetwork.value.net) {
                 store.dispatch('tokens/setDisableLoader', true);
                 networkName.value = selectedDstNetwork.value.name;
-                isNeedNetworkChange.value = true;
                 return;
             }
 
-            isNeedNetworkChange.value = false;
             if (currentRoute.value.isNeedApprove) {
                 isNeedApprove.value = true;
                 await makeApproveRequest();
@@ -908,6 +903,8 @@ export default {
         watch(
             () => currentChainInfo.value,
             () => {
+                opTitle.value = getOperationTitle(currentRoute.value.net, currentChainInfo.value.net, approveTx.value);
+
                 if ((!currentChainInfo.value.net || !SUPPORTED_CHAINS.includes(currentChainInfo.value?.net)) && !isShowRoutesModal.value) {
                     router.push('/main');
                 }

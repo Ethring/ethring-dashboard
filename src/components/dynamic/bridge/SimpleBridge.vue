@@ -131,7 +131,7 @@ import { checkErrors } from '@/helpers/checkErrors';
 import { getServices, SERVICE_TYPE } from '@/config/services';
 
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
-import { isCorrectChain } from '@/shared/utils/operations';
+import { isCorrectChain, getOperationTitle } from '@/shared/utils/operations';
 
 export default {
     name: 'SimpleBridge',
@@ -348,6 +348,8 @@ export default {
                 setServiceFee();
             }
 
+            opTitle.value = getOperationTitle(selectedSrcNetwork.value.net, currentChainInfo.value.net, approveTx.value);
+
             setTokenOnChange();
         });
 
@@ -389,13 +391,14 @@ export default {
         // =================================================================================================================
 
         const handleOnSelectNetwork = (network, direction) => {
-            if (currentChainInfo.value.net !== selectedSrcNetwork.value.net) {
-                opTitle.value = 'tokenOperations.switchNetwork';
-            }
-
             if (direction === DIRECTIONS.SOURCE) {
                 selectedSrcNetwork.value = network;
-                return clearApprove();
+                clearApprove();
+
+                if (currentChainInfo.value.net !== selectedSrcNetwork.value.net) {
+                    return (opTitle.value = 'tokenOperations.switchNetwork');
+                }
+                return (opTitle.value = 'tokenOperations.confirm');
             }
 
             selectedDstNetwork.value = network;
@@ -407,8 +410,6 @@ export default {
             resetAmount.value = true;
 
             estimateErrorTitle.value = '';
-
-            return (opTitle.value = 'tokenOperations.swap');
         };
 
         // =================================================================================================================
@@ -812,6 +813,13 @@ export default {
                 setTokenOnChange();
             }
         });
+
+        watch(
+            () => currentChainInfo.value,
+            () => {
+                opTitle.value = getOperationTitle(selectedSrcNetwork.value.net, currentChainInfo.value.net, approveTx.value, false);
+            }
+        );
 
         watch(selectedSrcToken, async () => {
             if (!selectedSrcToken.value) {

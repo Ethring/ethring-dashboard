@@ -271,14 +271,14 @@ export default {
             padding: 1px 10px;
             margin: 2px 0 0 6px;
         }
-        .low-fee {
-            background-color: var(--#{$prefix}tag-03);
-        }
         .best-return {
-            background-color: var(--#{$prefix}icon-logo-bg-color);
+            background-color: var(--#{$prefix}tag-01);
         }
         .fastest {
             background-color: var(--#{$prefix}tag-02);
+        }
+        .low-fee {
+            background-color: var(--#{$prefix}tag-03);
         }
     }
 }
