@@ -253,8 +253,6 @@ export default {
         // * Transaction Manager
         const { currentRequestID, transactionForSign, createTransactions, signAndSend, addTransactionToRequestID } = useTransactions();
 
-        // const isWaitingTxStatusForModule = computed(() => store.getters['txManager/isWaitingTxStatusForModule'](module));
-
         const isBalanceUpdated = ref(false);
         const isReceiveToken = ref(false);
 
@@ -343,10 +341,11 @@ export default {
         const bestRouteInfo = computed(() => store.getters['swap/bestRoute']);
         const isShowRoutesModal = computed(() => store.getters['swap/showRoutes']);
 
-        const disabledBtn = computed(() => {
-            return (
+        const disabledBtn = computed(
+            () =>
                 isLoading.value ||
                 isBalanceError.value ||
+                isSwapLoading.value ||
                 isWaitingTxStatusForModule.value ||
                 !+srcAmount.value ||
                 !dstAmount.value ||
@@ -354,8 +353,7 @@ export default {
                 !selectedDstNetwork.value ||
                 !selectedSrcToken.value ||
                 !selectedDstToken.value
-            );
-        });
+        );
 
         const getSelectedNetwork = () => {
             if (targetDirection.value === DIRECTIONS.SOURCE) {
