@@ -1,9 +1,9 @@
 <template>
     <div class="simple-send">
-        <SelectNetwork :items="chainList" :current="selectedNetwork" @select="onSelectNetwork" />
+        <SelectNetwork :items="chainList" :current="selectedSrcNetwork" @select="onSelectNetwork" />
 
         <SelectAddress
-            :selected-network="selectedNetwork"
+            :selected-network="selectedSrcNetwork"
             :items="[]"
             :value="receiverAddress"
             :error="!!isAddressError"
@@ -13,7 +13,7 @@
         />
 
         <SelectAmount
-            :value="selectedToken"
+            :value="selectedSrcToken"
             :error="!!isBalanceError"
             :label="$t('tokenOperations.amount')"
             :on-reset="clearAddress || resetAmount"
@@ -41,9 +41,9 @@ import { useRouter } from 'vue-router';
 import { SettingOutlined } from '@ant-design/icons-vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
-import useTokensList from '@/compositions/useTokensList';
 import useNotification from '@/compositions/useNotification';
 import useTransactions from '../../../Transactions/compositions/useTransactions';
+import useServices from '../../../compositions/useServices';
 
 import Button from '@/components/ui/Button';
 import SelectNetwork from '@/components/ui/SelectNetwork';
@@ -69,6 +69,18 @@ export default {
 
         const { name: module } = router.currentRoute.value;
 
+        const {
+            //
+            selectedSrcToken,
+            selectedSrcNetwork,
+            receiverAddress,
+            srcAmount,
+            opTitle,
+            setTokenOnChange,
+        } = useServices({
+            module,
+        });
+
         // * Notification
         const { showNotification, closeNotification } = useNotification();
 
@@ -76,13 +88,9 @@ export default {
         const { walletAddress, connectedWallet, currentChainInfo, validateAddress, chainList, walletAccount, setChain } = useAdapter();
 
         const { createTransactions, signAndSend, transactionForSign } = useTransactions();
-        const isWaitingTxStatusForModule = computed(() => store.getters['txManager/isWaitingTxStatusForModule'](module));
 
         const isLoading = ref(false);
-
-        const srcAmount = ref('');
-
-        const opTitle = ref('tokenOperations.confirm');
+        const isWaitingTxStatusForModule = computed(() => store.getters['txManager/isWaitingTxStatusForModule'](module));
 
         const clearAddress = ref(false);
         const resetAmount = ref(false);
@@ -90,31 +98,6 @@ export default {
         const isBalanceError = ref(false);
 
         const isTokensLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](currentChainInfo.value?.net));
-
-        // =================================================================================================================
-
-        const selectedToken = computed({
-            get: () => store.getters['tokenOps/srcToken'],
-            set: (value) => store.dispatch('tokenOps/setSrcToken', value),
-        });
-
-        const selectedNetwork = computed({
-            get: () => store.getters['tokenOps/srcNetwork'],
-            set: (value) => store.dispatch('tokenOps/setSrcNetwork', value),
-        });
-
-        // =================================================================================================================
-
-        const receiverAddress = computed({
-            get: () => store.getters['tokenOps/receiverAddress'],
-            set: (value) => store.dispatch('tokenOps/setReceiverAddress', value),
-        });
-
-        // =================================================================================================================
-
-        const { getTokensList } = useTokensList();
-
-        const tokensList = ref([]);
 
         // =================================================================================================================
 
@@ -129,28 +112,6 @@ export default {
                 !currentChainInfo.value
         );
 
-        // =================================================================================================================
-
-        const setTokenOnChange = () => {
-            tokensList.value = getTokensList({
-                srcNet: selectedNetwork.value,
-            });
-
-            const [defaultToken = null] = tokensList.value || [];
-
-            if (!selectedToken.value && defaultToken) {
-                return (selectedToken.value = defaultToken);
-            }
-
-            const { symbol } = selectedToken.value || {};
-
-            const token = tokensList.value.find((tkn) => tkn.symbol === symbol);
-
-            return (selectedToken.value = token || null);
-        };
-
-        // =================================================================================================================
-
         const onSetToken = () => {
             clearAddress.value = true;
             router.push('/send/select-token');
@@ -164,18 +125,18 @@ export default {
                 return (isAddressError.value = false);
             }
 
-            const isAddressAllowed = !validateAddress(addr, { chainId: selectedNetwork?.value?.net }) && addr?.length > 0;
+            const isAddressAllowed = !validateAddress(addr, { chainId: selectedSrcNetwork?.value?.net }) && addr?.length > 0;
 
             return (isAddressError.value = isAddressAllowed);
         };
 
         const onSelectNetwork = (network) => {
             clearAddress.value = true;
-            selectedNetwork.value = network;
+            selectedSrcNetwork.value = network;
 
             setTokenOnChange();
 
-            if (currentChainInfo.value.net !== selectedNetwork.value.net) {
+            if (currentChainInfo.value.net !== selectedSrcNetwork.value.net) {
                 return (opTitle.value = 'tokenOperations.switchNetwork');
             }
 
@@ -186,7 +147,7 @@ export default {
         const onSetAmount = (value) => {
             srcAmount.value = value;
 
-            const isBalanceAllowed = +value > +selectedToken.value?.balance;
+            const isBalanceAllowed = +value > +selectedSrcToken.value?.balance;
 
             isBalanceError.value = isBalanceAllowed;
         };
@@ -205,10 +166,10 @@ export default {
                 fromAddress: walletAddress.value,
                 toAddress: receiverAddress.value,
                 amount: srcAmount.value,
-                token: selectedToken.value,
+                token: selectedSrcToken.value,
             };
 
-            const { isChanged, btnTitle } = await isCorrectChain(selectedNetwork, currentChainInfo, setChain);
+            const { isChanged, btnTitle } = await isCorrectChain(selectedSrcNetwork, currentChainInfo, setChain);
 
             opTitle.value = btnTitle;
 
@@ -236,14 +197,14 @@ export default {
                 const txs = [
                     {
                         index: 0,
-                        ecosystem: selectedNetwork.value?.ecosystem,
+                        ecosystem: selectedSrcNetwork.value?.ecosystem,
                         module,
                         status: STATUSES.IN_PROGRESS,
                         parameters: {
                             ...dataForPrepare,
                         },
                         account: walletAccount.value,
-                        chainId: `${selectedNetwork.value?.chain_id}`,
+                        chainId: `${selectedSrcNetwork.value?.chain_id}`,
                         metaData: {
                             action: 'prepareTransaction',
                             type: 'Transfer',
@@ -275,41 +236,6 @@ export default {
 
         // =================================================================================================================
 
-        // * Reset Values before leave page
-        onBeforeUnmount(() => {
-            if (router.options.history.state.current !== '/send/select-token') {
-                selectedToken.value = null;
-                selectedNetwork.value = null;
-                receiverAddress.value = '';
-            }
-
-            srcAmount.value = null;
-        });
-
-        onMounted(() => {
-            if (!selectedNetwork.value) {
-                selectedNetwork.value = currentChainInfo.value;
-            }
-
-            store.dispatch('tokenOps/setSelectType', TOKEN_SELECT_TYPES.FROM);
-            store.dispatch('tokenOps/setDirection', DIRECTIONS.SOURCE);
-            store.dispatch('tokenOps/setOnlyWithBalance', true);
-            store.dispatch('txManager/setCurrentRequestID', null);
-
-            setTokenOnChange();
-        });
-
-        watch(walletAccount, () => {
-            selectedNetwork.value = currentChainInfo.value;
-            selectedToken.value = null;
-            setTokenOnChange();
-        });
-
-        watch(currentChainInfo, () => {
-            selectedNetwork.value = currentChainInfo.value;
-            setTokenOnChange();
-        });
-
         watch(srcAmount, () => {
             if (srcAmount.value === 0) {
                 resetAmount.value = true;
@@ -324,6 +250,32 @@ export default {
 
         watch(isTokensLoadingForChain, () => setTokenOnChange());
 
+        // =================================================================================================================
+
+        // * Reset Values before leave page
+        onBeforeUnmount(() => {
+            if (router.options.history.state.current !== '/send/select-token') {
+                selectedSrcToken.value = null;
+                selectedSrcNetwork.value = null;
+                receiverAddress.value = '';
+            }
+
+            srcAmount.value = null;
+        });
+
+        onMounted(() => {
+            if (!selectedSrcNetwork.value) {
+                selectedSrcNetwork.value = currentChainInfo.value;
+            }
+
+            store.dispatch('tokenOps/setSelectType', TOKEN_SELECT_TYPES.FROM);
+            store.dispatch('tokenOps/setDirection', DIRECTIONS.SOURCE);
+            store.dispatch('tokenOps/setOnlyWithBalance', true);
+            store.dispatch('txManager/setCurrentRequestID', null);
+
+            setTokenOnChange();
+        });
+
         return {
             isLoading,
             isTokensLoadingForChain,
@@ -337,7 +289,7 @@ export default {
             isAddressError,
             isBalanceError,
 
-            selectedToken,
+            selectedSrcToken,
             receiverAddress,
 
             onSelectNetwork,
@@ -351,7 +303,7 @@ export default {
 
             chainList,
             walletAddress,
-            selectedNetwork,
+            selectedSrcNetwork,
             connectedWallet,
             currentChainInfo,
         };

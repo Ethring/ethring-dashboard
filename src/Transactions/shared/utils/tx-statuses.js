@@ -11,8 +11,8 @@ const SUCCESS_CALLBACKS = {
     GET_APPROVE_TX: getApproveTx,
     CLEAR_AMOUNTS: ({ store }) => {
         store.dispatch('tokenOps/setReceiverAddress', null);
-        store.dispatch('tokenOps/setSrcAmount', 0);
-        store.dispatch('tokenOps/setDstAmount', 0);
+        store.dispatch('tokenOps/setSrcAmount', null);
+        store.dispatch('tokenOps/setDstAmount', null);
     },
 };
 
