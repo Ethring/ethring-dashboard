@@ -33,6 +33,8 @@ export const getTotalBalanceByType = (balances, type = BALANCES_TYPES.ALL) => {
 export const getDataForIntegrations = (integration, balances) => {
     const balanceType = integration.type === BALANCES_TYPES.FUTURES ? BALANCES_TYPES.FUTURES : BALANCES_TYPES.ALL;
 
+    integration.totalBalanceUsd = integration.balances.reduce((sum, token) => sum.plus(+token.balanceUsd), BigNumber(0)).toNumber();
+
     return {
         platform: integration.platform,
         data: [integration],
@@ -60,6 +62,8 @@ export const getIntegrationsGroupedByPlatform = (allIntegrations = []) => {
 
             existingGroup.totalGroupBalance += getTotalBalanceByType(balances, balanceType);
             existingGroup.totalRewardsBalance += getTotalBalanceByType(balances, BALANCES_TYPES.PENDING);
+
+            integration.totalBalanceUsd = integration.balances.reduce((sum, token) => sum.plus(+token.balanceUsd), BigNumber(0)).toNumber();
 
             existingGroup.data.push(integration);
 

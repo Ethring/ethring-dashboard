@@ -26,7 +26,7 @@
                     :reward="item.totalRewardsBalance"
                     :healthRate="item.healthRate"
                 />
-                <div v-for="(groupItem, n) in item.data" :key="n">
+                <div v-for="(groupItem, n) in sortByKey(item.data, 'totalBalanceUsd')" :key="n">
                     <AssetItemSubHeader :type="getFormattedName(groupItem.type)" />
 
                     <AssetItem v-for="(balanceItem, i) in sortByKey(groupItem.balances, 'balanceUsd')" :key="i" :item="balanceItem">
