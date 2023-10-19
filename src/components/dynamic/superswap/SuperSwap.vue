@@ -524,6 +524,7 @@ export default {
             });
 
             const resTx = await sendTransaction({ ...approveTx.value, from: walletAddress.value });
+            
             closeNotification('approve-swap-tx');
 
             if (resTx.error) {
