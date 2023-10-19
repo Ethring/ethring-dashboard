@@ -40,7 +40,6 @@
     "juno-network": "^0.15.1",
     "lodash": "^4.17.21",
     "mixpanel-browser": "^2.47.0",
-    "motion": "^10.16.4",
     "osmojs": "^16.5.1",
     "qrcode.vue": "^3.2.2",
     "register-service-worker": "^1.7.2",
