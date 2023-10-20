@@ -273,8 +273,20 @@ export default function useModule({ module, moduleType }) {
         return (opTitle.value = 'tokenOperations.switchNetwork');
     };
 
+    const resetTokensForModules = () => {
+        const MODULES = ['swap', 'send'];
+        if (MODULES.includes(moduleType)) {
+            selectedSrcToken.value = null;
+            selectedDstToken.value = null;
+            setTokenOnChange('reset');
+        } else {
+            setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
+        }
+    };
+
     watch(currentChainInfo, () => {
         selectedSrcNetwork.value = currentChainInfo.value;
+        resetTokensForModules();
     });
 
     watch(walletAccount, () => {
@@ -284,14 +296,7 @@ export default function useModule({ module, moduleType }) {
     });
 
     watch(selectedSrcNetwork, () => {
-        if (moduleType === 'swap') {
-            selectedSrcToken.value = null;
-            selectedDstToken.value = null;
-            setTokenOnChange();
-        } else {
-            setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
-        }
-
+        resetTokensForModules();
         checkSelectedNetwork();
     });
 

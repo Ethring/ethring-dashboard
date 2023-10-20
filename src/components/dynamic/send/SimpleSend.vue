@@ -133,16 +133,9 @@ export default {
 
         const onSelectNetwork = (network) => {
             clearAddress.value = true;
+            selectedSrcToken.value = null;
             selectedSrcNetwork.value = network;
-
             setTokenOnChange();
-
-            if (currentChainInfo.value.net !== selectedSrcNetwork.value.net) {
-                return (opTitle.value = 'tokenOperations.switchNetwork');
-            }
-
-            clearAddress.value = false;
-            return (opTitle.value = 'tokenOperations.confirm');
         };
 
         const onSetAmount = (value) => {

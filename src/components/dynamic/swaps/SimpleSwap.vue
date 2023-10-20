@@ -247,7 +247,7 @@ export default {
         // =================================================================================================================
 
         const onSelectNetwork = (network) => {
-            selectedSrcNetwork.value = network;
+            store.dispatch('tokenOps/setSrcNetwork', network);
         };
 
         const onSetTokenFrom = () => {
