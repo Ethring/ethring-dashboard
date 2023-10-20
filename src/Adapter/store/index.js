@@ -152,6 +152,7 @@ export default {
             }
 
             isConnectedStorage.value = false;
+            lastConnectedWalletStorage.value = {};
 
             return (connectedWalletsStorage.value = state.wallets);
         },
