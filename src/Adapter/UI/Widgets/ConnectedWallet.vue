@@ -55,6 +55,8 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import ModuleIcon from '@/Adapter/UI/Entities/ModuleIcon.vue';
 
+import { ECOSYSTEMS } from '@/Adapter/config';
+
 import { cutAddress } from '@/helpers/utils';
 
 export default {
@@ -74,11 +76,25 @@ export default {
     setup(props) {
         const selectedChain = ref(props.wallet.chain);
 
-        const { getChainListByEcosystem, getChainByChainId, setNewChain, connectTo, disconnectWallet, action, connectedWallet } =
-            useAdapter();
+        const {
+            getChainListByEcosystem,
+            getChainByChainId,
+            setNewChain,
+            connectTo,
+            disconnectWallet,
+            action,
+            connectedWallet,
+            currentChainInfo,
+        } = useAdapter();
 
         const chainList = computed(() => getChainListByEcosystem(props.wallet.ecosystem));
         const chainInfo = computed(() => getChainByChainId(props.wallet.ecosystem, selectedChain.value));
+
+        watch(currentChainInfo, () => {
+            if (props.wallet.ecosystem === ECOSYSTEMS.EVM) {
+                selectedChain.value = currentChainInfo.value.chain_id;
+            }
+        });
 
         watch(selectedChain, async (newChain, oldChain) => {
             if (newChain === oldChain) {
@@ -91,7 +107,11 @@ export default {
             };
 
             try {
-                await setNewChain(props.wallet.ecosystem, chainInfo);
+                const changed = await setNewChain(props.wallet.ecosystem, chainInfo);
+
+                if (!changed) {
+                    selectedChain.value = oldChain;
+                }
             } catch (error) {
                 console.error(error);
                 await setNewChain(props.wallet.ecosystem, {

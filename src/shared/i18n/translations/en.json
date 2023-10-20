@@ -67,9 +67,9 @@
     "routeInfo": "Route info",
     "emptyAssets": "No tokens",
     "chooseAddress": "Choose another address",
-    "selectDstNetwork": "Please select network to receive",
-    "selectDstToken": "Please select token to receive",
-    "selectSrcToken": "Please select token to send",
+    "selectDstNetwork": "Please select destination network",
+    "selectDstToken": "Please select token destination token",
+    "selectSrcToken": "Please select token source token",
     "rate": "Rate",
     "protocolFee": "Protocol Fee",
     "serviceFee": "Service Fee"

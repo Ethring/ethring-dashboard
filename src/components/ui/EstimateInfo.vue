@@ -14,8 +14,8 @@
                         <div v-else class="title">{{ title }}:</div>
                     </template>
 
-                    <div v-if="error" class="error">
-                        <p v-if="error.length <= 30">
+                    <div v-if="error && !loading" class="error">
+                        <p v-if="error.length <= MAX_LENGTH">
                             {{ error }}
                         </p>
 
@@ -24,7 +24,7 @@
                                 {{ error }}
                             </template>
 
-                            {{ error.slice(0, 30) + '...' }}
+                            {{ error.slice(0, MAX_LENGTH) + '...' }}
                         </a-tooltip>
                     </div>
                 </div>
@@ -84,6 +84,8 @@ export default {
     },
     components: { ServiceIcon, EstimateStats },
     setup(props) {
+        const MAX_LENGTH = 60;
+
         const isCollapsible = computed(() => {
             const { fees } = props;
             if (!fees.length) {
@@ -100,6 +102,8 @@ export default {
 
         return {
             isCollapsible,
+
+            MAX_LENGTH,
         };
     },
 };

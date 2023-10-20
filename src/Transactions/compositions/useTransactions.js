@@ -68,6 +68,10 @@ export default function useTransactions() {
 
         const tx = await addTransactionToExistingQueue(requestID, txToSave);
 
+        if (!tx) {
+            return;
+        }
+
         store.dispatch('txManager/setTransactionForSign', tx);
 
         const { requestID: reqID } = tx;
