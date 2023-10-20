@@ -56,7 +56,7 @@ export default {
             }
 
             return {
-                pretty: formatNumber(props.item?.balance, 2),
+                pretty: formatNumber(props.item?.balance, 4),
                 value: props.item?.balance,
             };
         });
