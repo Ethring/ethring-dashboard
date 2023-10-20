@@ -181,7 +181,7 @@ export default function useModule({ module, moduleType }) {
             selectedSrcToken.value = null;
         }
 
-        if (toToken) {
+        if (toToken && !selectedDstToken.value) {
             selectedDstToken.value = toToken;
         }
     };
