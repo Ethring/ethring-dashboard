@@ -174,7 +174,9 @@ export default {
 
             opTitle.value = 'tokenOperations.confirm';
 
-            // Reset values
+            if (selectedSrcNetwork.value?.net !== currentChainInfo.value?.net) {
+                return (isLoading.value = false);
+            }
 
             showNotification({
                 key: 'prepare-tx',
@@ -192,14 +194,14 @@ export default {
                 const txs = [
                     {
                         index: 0,
-                        ecosystem: currentChainInfo.value.ecosystem,
+                        ecosystem: selectedSrcNetwork.value.ecosystem,
                         module,
                         status: STATUSES.IN_PROGRESS,
                         parameters: {
                             ...dataForPrepare,
                         },
                         account: walletAccount.value,
-                        chainId: `${selectedSrcNetwork.value?.chain_id}`,
+                        chainId: `${selectedSrcNetwork.value.chain_id}`,
                         metaData: {
                             action: 'prepareTransaction',
                             type: 'Transfer',
