@@ -245,6 +245,7 @@ export default {
             setTokenOnChange,
             makeAllowanceRequest,
             makeApproveRequest,
+            checkSelectedNetwork,
         } = useServices({
             module,
             moduleType: 'swap',
@@ -324,6 +325,10 @@ export default {
             console.log('allowanceForToken', allowanceForToken.value);
 
             if (!selectedSrcToken.value?.address && !allowanceForToken.value) {
+                return false;
+            }
+
+            if (!selectedSrcToken.value?.decimals) {
                 return false;
             }
 
@@ -948,11 +953,11 @@ export default {
         );
 
         watch(isNeedApprove, () => {
-            if (isNeedApprove.value) {
+            if (isNeedApprove.value && opTitle.value !== 'tokenOperations.switchNetwork') {
                 return (opTitle.value = 'tokenOperations.approve');
             }
 
-            return (opTitle.value = 'tokenOperations.confirm');
+            checkSelectedNetwork();
         });
 
         watch(walletAccount, () => {

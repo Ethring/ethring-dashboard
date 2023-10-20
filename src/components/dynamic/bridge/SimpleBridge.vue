@@ -193,6 +193,7 @@ export default {
             setTokenOnChangeForNet,
             makeAllowanceRequest,
             makeApproveRequest,
+            checkSelectedNetwork,
         } = useServices({
             selectedService: selectedService.value,
             module,
@@ -355,10 +356,6 @@ export default {
         // =================================================================================================================
 
         const handleOnSelectNetwork = (network, direction) => {
-            if (currentChainInfo.value.net !== selectedSrcNetwork.value.net) {
-                opTitle.value = 'tokenOperations.switchNetwork';
-            }
-
             if (direction === DIRECTIONS.SOURCE) {
                 selectedSrcNetwork.value = network;
                 selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
@@ -377,8 +374,6 @@ export default {
             resetAmount.value = true;
 
             estimateErrorTitle.value = '';
-
-            return (opTitle.value = 'tokenOperations.confirm');
         };
 
         // =================================================================================================================
@@ -454,6 +449,10 @@ export default {
             }
 
             if (!selectedSrcToken.value?.address && !allowanceForToken.value) {
+                return false;
+            }
+
+            if (!selectedSrcToken.value?.decimals) {
                 return false;
             }
 
@@ -859,11 +858,11 @@ export default {
         });
 
         watch(isNeedApprove, () => {
-            if (isNeedApprove.value) {
+            if (isNeedApprove.value && opTitle.value !== 'tokenOperations.switchNetwork') {
                 return (opTitle.value = 'tokenOperations.approve');
             }
 
-            return (opTitle.value = 'tokenOperations.confirm');
+            checkSelectedNetwork();
         });
 
         watch(srcAmount, () => {

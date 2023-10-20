@@ -153,6 +153,7 @@ export default {
             setTokenOnChange,
             makeAllowanceRequest,
             makeApproveRequest,
+            checkSelectedNetwork,
         } = useServices({
             module,
             moduleType: 'swap',
@@ -247,12 +248,6 @@ export default {
 
         const onSelectNetwork = (network) => {
             selectedSrcNetwork.value = network;
-
-            if (currentChainInfo.value.net !== selectedSrcNetwork.value.net) {
-                return (opTitle.value = 'tokenOperations.switchNetwork');
-            }
-
-            return (opTitle.value = 'tokenOperations.swap');
         };
 
         const onSetTokenFrom = () => {
@@ -661,11 +656,11 @@ export default {
         });
 
         watch(isNeedApprove, () => {
-            if (isNeedApprove.value) {
+            if (isNeedApprove.value && opTitle.value !== 'tokenOperations.switchNetwork') {
                 return (opTitle.value = 'tokenOperations.approve');
             }
 
-            return (opTitle.value = 'tokenOperations.swap');
+            checkSelectedNetwork();
         });
 
         // =================================================================================================================

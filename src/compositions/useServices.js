@@ -226,10 +226,14 @@ export default function useModule({ module, moduleType }) {
             service: currentService,
         });
 
-        opTitle.value = 'tokenOperations.approve';
-
         if (response.error) {
             return (txError.value = response?.error || response);
+        }
+
+        checkSelectedNetwork();
+
+        if (opTitle.value !== 'tokenOperations.switchNetwork') {
+            opTitle.value = 'tokenOperations.approve';
         }
     };
 
@@ -258,7 +262,7 @@ export default function useModule({ module, moduleType }) {
     // =================================================================================================================
 
     const checkSelectedNetwork = () => {
-        if (currentChainInfo.value.net === selectedSrcNetwork.value.net) {
+        if (currentChainInfo.value?.net === selectedSrcNetwork.value?.net) {
             return (opTitle.value = DEFAULT_TITLE);
         }
 
@@ -304,6 +308,8 @@ export default function useModule({ module, moduleType }) {
         closeNotification('prepare-tx');
     });
 
+    checkSelectedNetwork();
+
     return {
         // Main information for operation
         selectedSrcToken,
@@ -333,6 +339,7 @@ export default function useModule({ module, moduleType }) {
         setTokenOnChange,
         setTokenOnChangeForNet,
         clearApproveForService,
+        checkSelectedNetwork,
 
         // Requests to API services
         makeAllowanceRequest,

@@ -1,5 +1,5 @@
 import { h } from 'vue';
-import { LoadingOutlined } from '@ant-design/icons-vue';
+import { DoubleRightOutlined } from '@ant-design/icons-vue';
 
 import useNotification from '@/compositions/useNotification';
 
@@ -21,8 +21,10 @@ export const isCorrectChain = async (selectedNetwork, currentChainInfo, setChain
         key: 'switch-network',
         type: 'info',
         title: `Switch network to ${selectedNetwork.value.name}`,
-        icon: h(LoadingOutlined, {
-            spin: true,
+        icon: h(DoubleRightOutlined, {
+            style: {
+                animation: 'arrowMovement 1.2s linear infinite',
+            },
         }),
         duration: 0,
     });
@@ -36,7 +38,7 @@ export const isCorrectChain = async (selectedNetwork, currentChainInfo, setChain
                 type: 'error',
                 title: `Failed to switch network to ${selectedNetwork.value.name}`,
                 description: 'Please try again',
-                duration: 5,
+                duration: 2,
             });
         }
 
