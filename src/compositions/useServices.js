@@ -273,12 +273,18 @@ export default function useModule({ module, moduleType }) {
         return (opTitle.value = 'tokenOperations.switchNetwork');
     };
 
-    const resetTokensForModules = () => {
+    const resetTokensForModules = (isReset = true) => {
         const MODULES = ['swap', 'send'];
-        if (MODULES.includes(moduleType)) {
+
+        if (moduleType === 'swap' && isReset && opTitle.value !== DEFAULT_TITLE) {
             selectedSrcToken.value = null;
             selectedDstToken.value = null;
-            setTokenOnChange('reset');
+        } else if (moduleType === 'send' && isReset && opTitle.value !== DEFAULT_TITLE) {
+            selectedSrcToken.value = null;
+        }
+
+        if (MODULES.includes(moduleType)) {
+            setTokenOnChange();
         } else {
             setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
         }

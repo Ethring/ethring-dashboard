@@ -111,6 +111,7 @@ export default {
                 isWaitingTxStatusForModule.value ||
                 !+srcAmount.value ||
                 !receiverAddress.value?.length ||
+                !selectedSrcToken.value ||
                 !currentChainInfo.value
         );
 
@@ -135,8 +136,8 @@ export default {
         const onSelectNetwork = (network) => {
             clearAddress.value = true;
             selectedSrcToken.value = null;
+            selectedSrcToken.value = null;
             selectedSrcNetwork.value = network;
-            setTokenOnChange();
         };
 
         const onSetAmount = (value) => {
@@ -174,9 +175,7 @@ export default {
 
             opTitle.value = 'tokenOperations.confirm';
 
-            if (selectedSrcNetwork.value?.net !== currentChainInfo.value?.net) {
-                return (isLoading.value = false);
-            }
+            // Reset values
 
             showNotification({
                 key: 'prepare-tx',
@@ -201,7 +200,7 @@ export default {
                             ...dataForPrepare,
                         },
                         account: walletAccount.value,
-                        chainId: `${selectedSrcNetwork.value.chain_id}`,
+                        chainId: `${selectedSrcNetwork.value?.chain_id}`,
                         metaData: {
                             action: 'prepareTransaction',
                             type: 'Transfer',

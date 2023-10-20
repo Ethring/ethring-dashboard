@@ -247,7 +247,11 @@ export default {
         // =================================================================================================================
 
         const onSelectNetwork = (network) => {
-            store.dispatch('tokenOps/setSrcNetwork', network);
+            selectedSrcNetwork.value = network;
+            selectedSrcToken.value = null;
+            isEstimating.value = false;
+            estimateErrorTitle.value = '';
+            dstAmount.value = '';
         };
 
         const onSetTokenFrom = () => {
@@ -581,10 +585,6 @@ export default {
             opTitle.value = btnTitle;
 
             if (!isChanged) {
-                return (isLoading.value = false);
-            }
-
-            if (selectedSrcNetwork.value?.net !== currentChainInfo.value?.net) {
                 return (isLoading.value = false);
             }
 

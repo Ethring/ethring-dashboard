@@ -176,7 +176,13 @@ class EthereumAdapter extends AdapterBase {
     }
 
     getChainList(store) {
-        return store.getters['networks/zometNetworksList'];
+        const chains = store.getters['networks/zometNetworksList'];
+        for (const chain of chains) {
+            chain.walletName = this.getWalletModule();
+            chain.ecosystem = ECOSYSTEMS.EVM;
+        }
+
+        return chains;
     }
 
     async setChain(chainInfo) {
