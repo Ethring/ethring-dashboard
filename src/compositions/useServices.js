@@ -280,11 +280,13 @@ export default function useModule({ module, moduleType }) {
         setTokenOnChange();
     });
 
-    watch(selectedSrcNetwork, (newValue, oldValue) => {
-        if (newValue?.net !== oldValue?.net) {
+    watch(selectedSrcNetwork, () => {
+        if (moduleType === 'swap') {
             selectedSrcToken.value = null;
             selectedDstToken.value = null;
             setTokenOnChange();
+        } else {
+            setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
         }
 
         checkSelectedNetwork();
