@@ -732,6 +732,10 @@ export default {
                 return (isLoading.value = false);
             }
 
+            if (selectedSrcNetwork.value?.net !== currentChainInfo.value?.net) {
+                return (isLoading.value = false);
+            }
+
             opTitle.value = 'tokenOperations.confirm';
 
             if (isNeedApprove.value) {
