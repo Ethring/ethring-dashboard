@@ -147,9 +147,9 @@ export default {
 
             if (!state.wallets.length) {
                 state.ecosystem = null;
+            } else {
+                state.ecosystem = state.wallets[0].ecosystem;
             }
-
-            state.ecosystem = state.wallets[0].ecosystem;
 
             isConnectedStorage.value = false;
 
