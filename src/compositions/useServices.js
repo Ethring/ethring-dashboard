@@ -144,12 +144,18 @@ export default function useModule({ module, moduleType }) {
     const setTokenOnChange = () => {
         tokensList.value = getTokensList({
             srcNet: selectedSrcNetwork.value,
+            srcToken: selectedSrcToken.value,
+            dstNet: selectedDstNetwork.value,
         });
 
         const [defaultFromToken = null, defaultToToken = null] = tokensList.value || [];
 
         if (!selectedSrcToken.value && defaultFromToken) {
             selectedSrcToken.value = defaultFromToken;
+        }
+
+        if (selectedSrcToken.value?.address === selectedDstToken.value?.address) {
+            selectedDstToken.value = null;
         }
 
         if (!selectedDstToken.value && defaultToToken) {
@@ -271,7 +277,6 @@ export default function useModule({ module, moduleType }) {
 
     watch(currentChainInfo, () => {
         selectedSrcNetwork.value = currentChainInfo.value;
-        setTokenOnChange();
     });
 
     watch(walletAccount, () => {
