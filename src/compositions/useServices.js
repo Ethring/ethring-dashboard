@@ -144,8 +144,6 @@ export default function useModule({ module, moduleType }) {
     const setTokenOnChange = () => {
         tokensList.value = getTokensList({
             srcNet: selectedSrcNetwork.value,
-            srcToken: selectedSrcToken.value,
-            dstNet: selectedDstNetwork.value,
         });
 
         const [defaultFromToken = null, defaultToToken = null] = tokensList.value || [];
