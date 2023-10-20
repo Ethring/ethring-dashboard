@@ -50,6 +50,7 @@ export default {
         const store = useStore();
 
         const lastConnectedCall = ref(false);
+        const isInitCall = ref({});
 
         const route = useRoute();
         const router = useRouter();
@@ -82,7 +83,12 @@ export default {
 
             await useInit(store, { account: walletAccount.value, addressesWithChains, currentChainInfo: currentChainInfo.value });
 
-            Socket.addressSubscription(walletAddress.value);
+            Socket.addressSubscription(walletAccount.value);
+
+            isInitCall.value = {
+                ...isInitCall.value,
+                [walletAddress.value]: true,
+            };
         };
 
         onBeforeMount(async () => await store.dispatch('networks/initZometNets'));
@@ -119,9 +125,21 @@ export default {
 
         watch(currentChainInfo, async () => await callInit());
 
-        watch(walletAccount, async () => await callInit());
+        watch(walletAccount, async () => {
+            if (isInitCall.value[walletAddress.value]) {
+                return;
+            }
 
-        onUpdated(async () => await callInit());
+            await callInit();
+        });
+
+        onUpdated(async () => {
+            if (isInitCall.value[walletAddress.value]) {
+                return;
+            }
+
+            await callInit();
+        });
 
         return {
             isOpen,
