@@ -292,7 +292,7 @@ export default function useModule({ module, moduleType }) {
     watch(walletAccount, () => {
         selectedSrcNetwork.value = currentChainInfo.value;
         selectedSrcToken.value = null;
-        setTokenOnChange();
+        resetTokensForModules();
     });
 
     watch(selectedSrcNetwork, () => {

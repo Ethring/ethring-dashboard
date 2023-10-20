@@ -80,6 +80,7 @@ export default {
             setTokenOnChange,
         } = useServices({
             module,
+            moduleType: 'send',
         });
 
         // * Notification
@@ -191,7 +192,7 @@ export default {
                 const txs = [
                     {
                         index: 0,
-                        ecosystem: selectedSrcNetwork.value?.ecosystem,
+                        ecosystem: currentChainInfo.value.ecosystem,
                         module,
                         status: STATUSES.IN_PROGRESS,
                         parameters: {
