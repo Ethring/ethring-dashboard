@@ -2,6 +2,9 @@ stages:
   - build_docker
   - deploy
   - sentry
+  - test_ui
+  - test_ui_build
+  - test_ui_deploy
 
 .dockerBuildJob:
   cache: {}
@@ -105,6 +108,7 @@ Build branch:
   except:
     - dev
     - master
+    - schedules
 
 Build prod:
   extends: .dockerBuildJob
@@ -139,6 +143,7 @@ Deploy branch:
   except:
     - dev
     - master
+    - schedules
 
 Deploy prod:
   extends: .deployJob
@@ -146,3 +151,70 @@ Deploy prod:
     name: prod
   only:
     - master
+
+
+# Tests stuff
+
+Run tests schedules:
+  stage: test_ui
+  image: mcr.microsoft.com/playwright:v1.37.0-jammy
+  only:
+    - schedules
+  allow_failure: true
+  parallel:
+    matrix:
+      - PROJECT: ['chromium']
+        SHARD_INDEX: [1]
+        SHARD_TOTAL: 1
+  script:
+    - apt update && apt install -y default-jre
+    - npm i
+    - xvfb-run npx playwright test --workers 1 --project=$PROJECT --shard=$SHARD_INDEX/$SHARD_TOTAL
+  timeout: 20 hours 30 minutes
+  artifacts:
+    paths:
+      - ./playwright-report/
+      - ./Screenshot/
+    when: always
+    expire_in: 4 days
+
+Build tests report image:
+  stage: test_ui_build
+  only:
+    - schedules
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  before_script:
+    - export IMAGE_TAG=$REGISTRY_URL/$CI_PROJECT_NAME/report:$(date +'%d.%m.%Y')-$CI_COMMIT_SHORT_SHA
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"$REGISTRY_URL\":{\"username\":\"$REGISTRY_USER\",\"password\":\"$REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - time /kaniko/executor
+        --context $CI_PROJECT_DIR
+        --dockerfile $CI_PROJECT_DIR/tests/build/Dockerfile
+        --destination $IMAGE_TAG
+        --cache=false
+
+Deploy tests report page:
+  stage: test_ui_deploy
+  only:
+    - schedules
+  image: yoep/openshift-client-4:4.6
+  variables:
+    NAME: "dashboard-test-reports"
+  before_script:
+    - export IMAGE_TAG=$REGISTRY_URL/$CI_PROJECT_NAME/report:$(date +'%d.%m.%Y')-$CI_COMMIT_SHORT_SHA
+    - apk add --update coreutils
+    - oc login --token $OPENSHIFT_TOKEN $OPENSHIFT_URL --insecure-skip-tls-verify
+    - oc project $OPENSHIFT_PROJECT
+  script:
+    - oc process -f tests/build/template.yml
+      --ignore-unknown-parameters=true
+      -p DC_NAME=$NAME
+      -p APP_NAME=$(echo $CI_PROJECT_NAMESPACE | sed -e 's/\//-/g')
+      -p IMAGE_NAME=$IMAGE_TAG
+      -p NAMESPACE=$OPENSHIFT_PROJECT
+      -p PORT=8080
+      -p AUTH_USERNAME=$REPORTS_AUTH_USERNAME
+      -p AUTH_PASSWORD=$REPORTS_AUTH_PASSWORD | oc apply -f -

@@ -28,6 +28,7 @@
             :disabled="!!disabledSend"
             :loading="isWaitingTxStatusForModule || isLoading"
             class="simple-send__btn mt-10"
+            data-qa="confirm"
             @click="handleOnSend"
             size="large"
         />
