@@ -31,9 +31,9 @@ async function downloadAndUnzipMmEx() {
 
     fs.mkdir(dataFolderPath, (err) => {
         if (err) {
-            console.error('Error creating folder:', err);
+            console.error('Error creating folder by MM extension:', err);
         } else {
-            console.log('Folder created successfully.');
+            console.log('Folder by MM extension created successfully.');
         }
     });
 
