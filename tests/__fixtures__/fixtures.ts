@@ -13,12 +13,10 @@ const seedPhraseEmptyWallet = getTestVar(TEST_CONST.EMPTY_SEED);
 const getPathToEx = () => path.join(__dirname, '..', `/data/metamask-chrome-${metamaskVersion}`);
 
 const addWalletToMm = async (context: BrowserContext, seed: String) => {
-    console.log('Test started')
     await closeEmptyPages(context);
 
     const metaMaskPage = new MetaMaskHomePage(context.pages()[0]);
     await metaMaskPage.addWallet(seed);
-    console.log('Wallet added')
 };
 
 const authInDashboardByMm = async (context: BrowserContext, seed: String): Promise<DashboardPage> => {
