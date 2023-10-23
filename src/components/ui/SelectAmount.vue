@@ -190,7 +190,6 @@ export default {
         watch(
             () => props.value,
             (val) => {
-                console.log('props.value', val);
                 if (val) {
                     setToken(val);
                     amount.value = '';
