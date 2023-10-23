@@ -131,7 +131,9 @@ import { checkErrors } from '@/helpers/checkErrors';
 import { getServices, SERVICE_TYPE } from '@/config/services';
 
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
-import { isCorrectChain, getOperationTitle } from '@/shared/utils/operations';
+import { isCorrectChain } from '@/shared/utils/operations';
+
+import { updateWalletBalances } from '@/shared/utils/balances';
 
 export default {
     name: 'SimpleBridge',
@@ -307,29 +309,13 @@ export default {
 
         const setTokenOnChange = () => {
             tokensList.value = getTokensList({
-                srcNet: selectedSrcToken.value,
+                srcNet: selectedSrcNetwork.value,
             });
 
             const [defaultToken = null] = tokensList.value;
 
             if (!selectedSrcToken.value && defaultToken) {
                 selectedSrcToken.value = defaultToken;
-            }
-
-            const { symbol: targetSymbol } = selectedSrcToken.value || {};
-
-            const searchTokens = [targetSymbol];
-
-            const updatedList = tokensList.value?.filter((tkn) => searchTokens.includes(tkn.symbol)) || [];
-
-            if (!updatedList.length) {
-                return;
-            }
-
-            const [token = null] = updatedList;
-
-            if (token) {
-                return (selectedSrcToken.value = token);
             }
         };
 
@@ -347,8 +333,6 @@ export default {
             if (selectedSrcNetwork.value) {
                 setServiceFee();
             }
-
-            opTitle.value = getOperationTitle(selectedSrcNetwork.value.net, currentChainInfo.value.net, approveTx.value);
 
             setTokenOnChange();
         });
@@ -391,14 +375,13 @@ export default {
         // =================================================================================================================
 
         const handleOnSelectNetwork = (network, direction) => {
+            if (currentChainInfo.value.net !== selectedSrcNetwork.value.net) {
+                opTitle.value = 'tokenOperations.switchNetwork';
+            }
+
             if (direction === DIRECTIONS.SOURCE) {
                 selectedSrcNetwork.value = network;
-                clearApprove();
-
-                if (currentChainInfo.value.net !== selectedSrcNetwork.value.net) {
-                    return (opTitle.value = 'tokenOperations.switchNetwork');
-                }
-                return (opTitle.value = 'tokenOperations.confirm');
+                return clearApprove();
             }
 
             selectedDstNetwork.value = network;
@@ -410,6 +393,8 @@ export default {
             resetAmount.value = true;
 
             estimateErrorTitle.value = '';
+
+            return (opTitle.value = 'tokenOperations.swap');
         };
 
         // =================================================================================================================
@@ -486,14 +471,11 @@ export default {
 
             if (allowance.value >= toMantissa(amount.value, selectedSrcToken.value?.decimals)) {
                 isLoading.value = false;
-                opTitle.value = 'tokenOperations.confirm';
                 return (isNeedApprove.value = false);
             }
 
             isLoading.value = false;
             isNeedApprove.value = true;
-
-            opTitle.value = 'tokenOperations.approve';
 
             if (approveTx.value) {
                 return;
@@ -549,9 +531,9 @@ export default {
                 ownerAddress: walletAddress.value,
             });
 
+            // opTitle.value = 'tokenOperations.approve';
+
             if (response.error) {
-                txErrorTitle.value = 'Approve transaction error';
-                txError.value = response.error.message || response.error;
                 return;
             }
 
@@ -575,9 +557,6 @@ export default {
                 return;
             }
 
-            if (currentChainInfo.value.net !== selectedSrcNetwork.value.net) {
-                opTitle.value = 'tokenOperations.switchNetwork';
-            }
             isEstimating.value = true;
 
             const response = await estimateBridge({
@@ -636,8 +615,6 @@ export default {
         // =================================================================================================================
 
         const makeApproveTx = async () => {
-            opTitle.value = 'tokenOperations.approve';
-
             showNotification({
                 key: 'approve-tx',
                 type: 'info',
@@ -731,6 +708,7 @@ export default {
             }
 
             if (approveTx.value) {
+                opTitle.value = 'tokenOperations.approve';
                 await makeApproveTx();
             }
 
@@ -768,25 +746,21 @@ export default {
                 isLoading.value = false;
                 resetAmount.value = true;
 
-                store.dispatch('tokens/updateTokenBalances', {
-                    net: selectedSrcNetwork.value.net,
-                    address: walletAddress.value,
-                    info: selectedSrcNetwork.value,
-                    update(wallet) {
-                        selectedSrcNetwork.value = wallet;
-                    },
-                });
+                setTimeout(() => {
+                    updateWalletBalances(walletAccount.value, walletAddress.value, selectedSrcNetwork.value, (list) => {
+                        const fromToken = list.find((elem) => elem.symbol === selectedSrcToken.value.symbol);
+                        if (fromToken) {
+                            selectedSrcToken.value = fromToken;
+                        }
+                    });
 
-                store.dispatch('tokens/updateTokenBalances', {
-                    net: selectedDstNetwork.value.net,
-                    address: walletAddress.value,
-                    info: selectedDstNetwork.value,
-                    update(wallet) {
-                        selectedDstNetwork.value = wallet;
-                    },
-                });
-
-                balanceUpdated.value = true;
+                    updateWalletBalances(walletAccount.value, walletAddress.value, selectedDstNetwork.value, (list) => {
+                        const toToken = list.find((elem) => elem.symbol === selectedDstToken.value.symbol);
+                        if (toToken) {
+                            selectedDstToken.value = toToken;
+                        }
+                    });
+                }, 7000);
             } catch (error) {
                 txError.value = error?.message || error?.error || error;
             }
@@ -813,13 +787,6 @@ export default {
                 setTokenOnChange();
             }
         });
-
-        watch(
-            () => currentChainInfo.value,
-            () => {
-                opTitle.value = getOperationTitle(selectedSrcNetwork.value.net, currentChainInfo.value.net, approveTx.value, false);
-            }
-        );
 
         watch(selectedSrcToken, async () => {
             if (!selectedSrcToken.value) {

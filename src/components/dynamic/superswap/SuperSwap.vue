@@ -161,6 +161,8 @@ import { STATUSES, NATIVE_CONTRACT, SUPPORTED_CHAINS } from '@/shared/constants/
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { isCorrectChain, getOperationTitle } from '@/shared/utils/operations';
 
+import { updateWalletBalances } from '@/shared/utils/balances';
+
 export default {
     name: 'SuperSwap',
     components: {
@@ -200,7 +202,6 @@ export default {
         const isSwapLoading = ref(false);
         const isNeedApprove = ref(false);
 
-        const isBalanceUpdated = ref(false);
         const isReceiveToken = ref(false);
         const approveTx = ref(null);
         const bestRoute = ref({});
@@ -371,8 +372,6 @@ export default {
         };
 
         const setTokenOnChange = () => {
-            selectedDstToken.value = null;
-
             tokensList.value = getTokensList({
                 srcNet: selectedSrcNetwork.value,
                 srcToken: selectedSrcToken.value,
@@ -383,35 +382,6 @@ export default {
 
             if (!selectedSrcToken.value && defaultFromToken) {
                 selectedSrcToken.value = defaultFromToken;
-            }
-
-            if (!isBalanceUpdated.value) {
-                return;
-            }
-
-            if (!selectedSrcToken.value && !selectedDstToken.value) {
-                return;
-            }
-
-            const { symbol: fromSymbol } = selectedSrcToken.value || {};
-            const { symbol: toSymbol } = selectedSrcToken.value || {};
-
-            const searchTokens = [fromSymbol, toSymbol];
-
-            const updatedList = tokensList.value?.filter((tkn) => searchTokens.includes(tkn.symbol)) || [];
-
-            if (!updatedList.length) {
-                return;
-            }
-
-            const [fromToken = null, toToken = null] = updatedList;
-
-            if (fromToken) {
-                selectedSrcToken.value = fromToken;
-            }
-
-            if (toToken) {
-                selectedDstToken.value = toToken;
             }
         };
 
@@ -666,18 +636,6 @@ export default {
             return currentRoute.value.service.type + '/getSwapTx';
         };
 
-        const updateBalances = (network, setNetwork) => {
-            store.dispatch('tokens/updateTokenBalances', {
-                net: network.value.net,
-                address: walletAddress.value,
-                info: network.value,
-                update(wallet) {
-                    isBalanceUpdated.value = true;
-                    setNetwork(wallet);
-                },
-            });
-        };
-
         const swap = async () => {
             const network = networkName.value === selectedDstNetwork.value.name ? selectedDstNetwork : selectedSrcNetwork;
 
@@ -768,12 +726,17 @@ export default {
             currentRoute.value = bestRoute.value.routes.find((elem) => elem.status === STATUSES.SIGNING);
 
             setTimeout(() => {
-                updateBalances(selectedSrcNetwork, (network) => handleOnSelectNetwork(network, DIRECTIONS.SOURCE));
+                updateWalletBalances(walletAccount.value, walletAddress.value, selectedSrcNetwork.value, (list) => {
+                    const fromToken = list.find((elem) => elem.symbol === selectedSrcToken.value.symbol);
+                    if (fromToken) {
+                        selectedSrcToken.value = fromToken;
+                    }
+                });
 
-                isBalanceUpdated.value = false;
-
-                updateBalances(selectedDstNetwork, (network) => handleOnSelectNetwork(network, DIRECTIONS.DESTINATION));
-            }, 5000);
+                if (selectedSrcNetwork.value.net !== selectedDstNetwork.value.net) {
+                    updateWalletBalances(walletAccount.value, walletAddress.value, selectedDstNetwork.value);
+                }
+            }, 7000);
 
             if (!currentRoute.value) {
                 receiveValue.value = null;
