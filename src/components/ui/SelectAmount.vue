@@ -199,7 +199,19 @@ export default {
                 return (payTokenPrice.value = '0');
             }
 
-            val = val.replace(/[^0-9.]+/g, '').replace(/\.{2,}/g, '.');
+            // val = val.replace(/[^0-9.]+/g, '').replace(/\.{2,}/g, '.');
+
+            val = val
+                .toString()
+                // remove spaces
+                .replace(/\s+/g, '')
+                .replace(',', '.')
+                // only number
+                .replace(/[^.\d]+/g, '')
+                // remove extra 0 before decimal
+                .replace(/^0+/, '0')
+                // remove extra dots
+                .replace(/^0+(\d+)/, '$1');
 
             if (val.indexOf('.') !== val.lastIndexOf('.')) {
                 val = val.substr(0, val.lastIndexOf('.'));

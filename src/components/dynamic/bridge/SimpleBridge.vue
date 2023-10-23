@@ -638,7 +638,7 @@ export default {
                     ...approveForToken.value,
                     from: walletAddress.value,
                 },
-                account: walletAccount.value,
+                account: walletAddress.value,
                 chainId: `${selectedSrcNetwork.value?.chain_id}`,
                 metaData: {
                     action: 'formatTransactionForSign',
@@ -675,7 +675,7 @@ export default {
                 module,
                 status: STATUSES.IN_PROGRESS,
                 parameters: responseBridge,
-                account: walletAccount.value,
+                account: walletAddress.value,
                 chainId: `${selectedSrcNetwork.value?.chain_id}`,
                 metaData: {
                     action: 'formatTransactionForSign',

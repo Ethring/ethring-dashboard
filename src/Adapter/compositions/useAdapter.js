@@ -1,7 +1,6 @@
 import { computed } from 'vue';
 import { useStore } from 'vuex';
-
-import router from '@/routes';
+import { useRouter } from 'vue-router';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
@@ -11,6 +10,8 @@ import * as TYPES from '../store/types';
 function useAdapter() {
     // * Store Module
     const store = useStore();
+    const router = useRouter();
+
     const storeModule = 'adapters';
 
     // * Store Getters & Dispatch
@@ -126,7 +127,9 @@ function useAdapter() {
 
             if (!isConnect) {
                 console.warn('Failed to connect to last connected wallet', ecosystem, chain, walletModule);
-                return adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
+                adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
+                adaptersDispatch(TYPES.SET_IS_CONNECTED, false);
+                return router.push('/connect-wallet');
             }
 
             if (currentChainInfo.value === 404) {

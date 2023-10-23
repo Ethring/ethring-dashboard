@@ -83,7 +83,7 @@ export default {
 
             await useInit(store, { account: walletAccount.value, addressesWithChains, currentChainInfo: currentChainInfo.value });
 
-            Socket.addressSubscription(walletAccount.value);
+            Socket.addressSubscription(walletAddress.value);
 
             isInitCall.value = {
                 ...isInitCall.value,

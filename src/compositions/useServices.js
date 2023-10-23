@@ -248,7 +248,7 @@ export default function useModule({ module, moduleType }) {
 
         store.dispatch('tokenOps/setAllowance', {
             chain: selectedSrcNetwork.value.net,
-            account: walletAccount.value,
+            account: walletAddress.value,
             tokenAddress: selectedSrcToken.value?.address,
             allowance: null,
             service: currentService?.id,
@@ -256,7 +256,7 @@ export default function useModule({ module, moduleType }) {
 
         store.dispatch('tokenOps/setApprove', {
             chain: selectedSrcNetwork.value.net,
-            account: walletAccount.value,
+            account: walletAddress.value,
             tokenAddress: selectedSrcToken.value?.address,
             approve: null,
             service: currentService?.id,

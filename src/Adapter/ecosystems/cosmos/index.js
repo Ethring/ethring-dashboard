@@ -98,6 +98,10 @@ class CosmosAdapter extends AdapterBase {
             return null;
         }
 
+        if (!this.currentChain) {
+            this.currentChain = DEFAULT_CHAIN;
+        }
+
         let chainRecord = this.walletManager.getChainRecord(this.currentChain);
 
         if (!chainRecord) {
@@ -117,8 +121,32 @@ class CosmosAdapter extends AdapterBase {
         return chainWallet;
     }
 
+    checkClient(walletName) {
+        const client = this.walletManager.getMainWallet(walletName);
+
+        if (!client) {
+            return false;
+        }
+        const { clientMutable } = client || {};
+
+        if (clientMutable.message === 'Client Not Exist!') {
+            return false;
+        }
+
+        if (clientMutable.state === 'Error') {
+            return false;
+        }
+
+        return true;
+    }
+
     async connectWallet(walletName, chain = DEFAULT_CHAIN) {
         try {
+            console.log('walletName, chain', walletName, chain);
+
+            console.log('this.checkClient(walletName)', this.checkClient(walletName));
+
+            console.log('this.walletManager.getMainWallet(walletName);', this.walletManager.getMainWallet(walletName));
             const chainWallet = this.walletManager.getChainWallet(chain, walletName);
 
             chainWallet.activate();

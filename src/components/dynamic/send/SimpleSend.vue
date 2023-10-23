@@ -87,7 +87,7 @@ export default {
         const { showNotification, closeNotification } = useNotification();
 
         // * Adapter for wallet
-        const { walletAddress, connectedWallet, currentChainInfo, validateAddress, chainList, walletAccount, setChain } = useAdapter();
+        const { walletAddress, connectedWallet, currentChainInfo, validateAddress, chainList, setChain } = useAdapter();
 
         const { createTransactions, signAndSend, transactionForSign } = useTransactions();
 
@@ -199,7 +199,7 @@ export default {
                         parameters: {
                             ...dataForPrepare,
                         },
-                        account: walletAccount.value,
+                        account: walletAddress.value,
                         chainId: `${selectedSrcNetwork.value?.chain_id}`,
                         metaData: {
                             action: 'prepareTransaction',
