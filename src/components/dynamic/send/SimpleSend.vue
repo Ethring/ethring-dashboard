@@ -118,7 +118,6 @@ export default {
         const onSetToken = () => {
             clearAddress.value = true;
             router.push('/send/select-token');
-            clearAddress.value = false;
         };
 
         const onSetAddress = (addr = '') => {

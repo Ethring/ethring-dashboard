@@ -181,10 +181,6 @@ export default function useModule({ module, moduleType }) {
             selectedSrcToken.value = fromToken;
         }
 
-        if (onlyWithBalance.value && selectedSrcToken.value?.balance === 0) {
-            selectedSrcToken.value = null;
-        }
-
         if (toToken && !selectedDstToken.value) {
             selectedDstToken.value = toToken;
         }

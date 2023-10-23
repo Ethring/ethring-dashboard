@@ -142,11 +142,6 @@ class CosmosAdapter extends AdapterBase {
 
     async connectWallet(walletName, chain = DEFAULT_CHAIN) {
         try {
-            console.log('walletName, chain', walletName, chain);
-
-            console.log('this.checkClient(walletName)', this.checkClient(walletName));
-
-            console.log('this.walletManager.getMainWallet(walletName);', this.walletManager.getMainWallet(walletName));
             const chainWallet = this.walletManager.getChainWallet(chain, walletName);
 
             chainWallet.activate();

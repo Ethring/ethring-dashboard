@@ -152,13 +152,17 @@ function useAdapter() {
     };
 
     // * Set Chain for current ecosystem
-    const setChain = (...args) => {
+    const setChain = async (...args) => {
         if (!mainAdapter.value) {
             return;
         }
 
         try {
-            return mainAdapter.value.setChain(...args);
+            const changed = await mainAdapter.value.setChain(...args);
+
+            storeWalletInfo();
+
+            return changed;
         } catch (error) {
             console.log('Failed to set chain', error);
             return false;
