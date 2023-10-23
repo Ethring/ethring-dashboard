@@ -89,32 +89,23 @@ export default {
         const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
 
         const allTokens = computed(() => store.getters['tokens/tokens'][walletAccount.value] || []);
-        const allTokensBalance = computed(() => store.getters['tokens/totalBalances'][walletAccount.value] || 0);
         const allIntegrations = computed(() => store.getters['tokens/integrations'][walletAccount.value] || []);
+
+        const allAssetsBalance = computed(() => store.getters['tokens/totalBalances'][walletAccount.value] || 0);
+        const tokensTotalBalance = computed(() => store.getters['tokens/tokensBalances'][walletAccount.value] || 0);
 
         const isEmpty = computed(() => {
             return !allTokens.value?.length && !allIntegrations.value?.length && !isLoadingForChain.value && !isAllTokensLoading.value;
         });
 
-        const tokensTotalBalance = computed(() => {
-            if (!allTokens.value.length) {
-                return 0;
-            }
-            const totalSum = allTokens.value.reduce((acc, token) => {
-                return acc.plus(+token.balanceUsd || 0);
-            }, BigNumber(0));
-
-            return totalSum.toNumber();
-        });
-
         const integrationAssetsByPlatform = ref(getIntegrationsGroupedByPlatform(allIntegrations.value));
 
         const getAssetsShare = (balance) => {
-            if (!balance || !allTokensBalance.value) {
+            if (!balance || !allAssetsBalance.value) {
                 return 0;
             }
 
-            const share = BigNumber(balance).dividedBy(allTokensBalance.value).multipliedBy(100);
+            const share = BigNumber(balance).dividedBy(allAssetsBalance.value).multipliedBy(100);
 
             return share.toNumber();
         };
@@ -148,7 +139,7 @@ export default {
             allTokens,
             allIntegrations,
 
-            allTokensBalance,
+            allAssetsBalance,
             tokensTotalBalance,
             integrationAssetsByPlatform,
 

@@ -82,14 +82,12 @@ const formatRecords = (records, { chain, chainAddress, logo }) => {
     return records;
 };
 
-const getTotalBalance = (records, totalBalance) => {
+const getTotalBalance = (records, totalBalance = BigNumber(0)) => {
     const totalSum = records.reduce((acc, token) => {
         return acc.plus(+token.balanceUsd || 0);
     }, BigNumber(0));
 
-    totalBalance = totalBalance.plus(totalSum);
-
-    return totalBalance;
+    return totalBalance.plus(totalSum);
 };
 
 const integrationsForSave = (integrations, { chain, logo, chainAddress }) => {
@@ -136,6 +134,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
     cancelCurrentOperations();
 
     let totalBalance = BigNumber(0);
+    let tokensBalance = BigNumber(0);
 
     const { net: currentChain, ecosystem } = currentChainInfo;
 
@@ -186,7 +185,10 @@ export default async function useInit(store, { addressesWithChains = {}, account
             if (tokens.length) {
                 const tokensForSave = formatRecords(tokens, { chain, chainAddress, logo });
 
-                totalBalance = getTotalBalance(tokensForSave, totalBalance);
+                const balance = getTotalBalance(tokensForSave);
+
+                totalBalance = totalBalance.plus(balance);
+                tokensBalance = tokensBalance.plus(balance);
 
                 allTokens.push(...tokensForSave);
             }
@@ -206,6 +208,8 @@ export default async function useInit(store, { addressesWithChains = {}, account
             store.dispatch('tokens/setDataFor', { type: 'integrations', account, data: allIntegrations });
 
             store.dispatch('tokens/setTotalBalances', { account, data: totalBalance.toNumber() });
+
+            store.dispatch('tokens/setTokensBalances', { account, data: tokensBalance.toNumber() });
 
             store.dispatch('tokens/setLoadingByChain', { chain, account, value: false });
         }
