@@ -735,9 +735,10 @@ export default {
             const resTx = await sendTransaction(resSwap);
 
             if (resTx.error) {
-                console.log(resTx, '--');
                 txError.value = resTx.error;
+
                 txErrorTitle.value = 'Swap Transaction error';
+                
                 return;
             }
 
