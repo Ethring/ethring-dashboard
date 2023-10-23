@@ -17,7 +17,7 @@ const TYPES = {
 
     SET_DISABLE_LOADER: 'SET_DISABLE_LOADER',
 
-    SET_TOTAL_BALANCE: 'SET_TOTAL_BALANCE',
+    SET_ASSETS_BALANCE: 'SET_ASSETS_BALANCE',
 
     SET_LOADING_BY_CHAIN: 'SET_LOADING_BY_CHAIN',
 
@@ -40,7 +40,7 @@ export default {
         address: '',
         disableLoader: false,
         integrations: {},
-        totalBalances: {},
+        assetsBalances: {},
         tokensBalances: {},
     }),
 
@@ -68,7 +68,7 @@ export default {
         toToken: (state) => state.toToken,
         address: (state) => state.address,
         disableLoader: (state) => state.disableLoader,
-        totalBalances: (state) => state.totalBalances,
+        assetsBalances: (state) => state.assetsBalances,
         tokensBalances: (state) => state.tokensBalances,
 
         loadingByChain: (state) => (chain) => state.loadingByChain[chain] || false,
@@ -83,12 +83,12 @@ export default {
             state[type][account] = data;
         },
 
-        [TYPES.SET_TOTAL_BALANCE](state, { account, data }) {
-            if (!state.totalBalances[account]) {
-                state.totalBalances[account] = {};
+        [TYPES.SET_ASSETS_BALANCE](state, { account, data }) {
+            if (!state.assetsBalances[account]) {
+                state.assetsBalances[account] = {};
             }
 
-            state.totalBalances[account] = data;
+            state.assetsBalances[account] = data;
         },
 
         [TYPES.SET_TOKENS_BALANCE](state, { account, data }) {
@@ -175,8 +175,8 @@ export default {
         setToToken({ commit }, value) {
             commit(TYPES.SET_TO_TOKEN, value);
         },
-        setTotalBalances({ commit }, value) {
-            commit(TYPES.SET_TOTAL_BALANCE, value);
+        setAssetsBalances({ commit }, value) {
+            commit(TYPES.SET_ASSETS_BALANCE, value);
         },
         setTokensBalances({ commit }, value) {
             commit(TYPES.SET_TOKENS_BALANCE, value);

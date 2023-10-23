@@ -41,7 +41,7 @@ export default {
 
         const showBalance = computed(() => store.getters['app/showBalance']);
 
-        const totalBalance = computed(() => store.getters['tokens/totalBalances'][walletAccount.value]);
+        const totalBalance = computed(() => store.getters['tokens/assetsBalances'][walletAccount.value]);
 
         return {
             totalBalance,

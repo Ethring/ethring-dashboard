@@ -91,7 +91,7 @@ export default {
         const allTokens = computed(() => store.getters['tokens/tokens'][walletAccount.value] || []);
         const allIntegrations = computed(() => store.getters['tokens/integrations'][walletAccount.value] || []);
 
-        const allAssetsBalance = computed(() => store.getters['tokens/totalBalances'][walletAccount.value] || 0);
+        const allAssetsBalance = computed(() => store.getters['tokens/assetsBalances'][walletAccount.value] || 0);
         const tokensTotalBalance = computed(() => store.getters['tokens/tokensBalances'][walletAccount.value] || 0);
 
         const isEmpty = computed(() => {
