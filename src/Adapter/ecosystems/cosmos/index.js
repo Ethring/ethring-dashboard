@@ -268,8 +268,8 @@ class CosmosAdapter extends AdapterBase {
         return this.walletManager.mainWallets || [];
     }
 
-    async disconnectWallet(wallet) {
-        const walletModule = this.walletManager.getMainWallet(wallet);
+    async disconnectWallet() {
+        const walletModule = this._getCurrentWallet();
         await walletModule?.value?.disconnect(true);
         await walletModule?.value?.update({ connect: false });
 

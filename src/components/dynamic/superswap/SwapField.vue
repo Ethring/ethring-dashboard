@@ -28,6 +28,7 @@
                     :disabled="disabled"
                     @focus="onFocus"
                     v-debounce:1s="onInput"
+                    @keypress="onKeyPressHandler"
                     @blur="onBlur"
                     @click.stop="() => {}"
                     data-qa="input-amount"
@@ -106,9 +107,11 @@ export default {
     },
     setup(props, { emit }) {
         const amount = ref(props.value);
+
         const placeholder = ref('0');
         const focused = ref(false);
         const error = ref(false);
+        const symbolForReplace = ref(null);
 
         const setMax = () => {
             amount.value = props.token?.balance;
@@ -134,9 +137,20 @@ export default {
             focused.value = false;
         };
 
+        const onKeyPressHandler = (e) => {
+            if (e.code === 'Period' || e.code === 'Comma') {
+                symbolForReplace.value = e.key;
+            }
+        };
+
         watch(amount, (val) => {
             if (val) {
+                if (symbolForReplace.value) {
+                    val = val.replace(symbolForReplace.value, '.');
+                }
+
                 amount.value = formatInputNumber(val);
+
                 return checkBalanceAllowed();
             }
 
@@ -159,7 +173,20 @@ export default {
             }
         );
 
-        return { amount, placeholder, focused, error, setMax, formatNumber, onInput, onFocus, onBlur };
+        return {
+            amount,
+            placeholder,
+
+            focused,
+            error,
+
+            setMax,
+            formatNumber,
+            onInput,
+            onFocus,
+            onBlur,
+            onKeyPressHandler,
+        };
     },
 };
 </script>

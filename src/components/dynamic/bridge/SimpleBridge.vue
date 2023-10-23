@@ -128,6 +128,8 @@ import { getServices, SERVICE_TYPE } from '@/config/services';
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { isCorrectChain } from '@/shared/utils/operations';
 
+import { updateWalletBalances } from '@/shared/utils/balances';
+
 export default {
     name: 'SimpleBridge',
     components: {
@@ -698,23 +700,21 @@ export default {
         // =================================================================================================================
 
         const handleUpdateBalance = (network, targetDirection = 'SrcNetwork') => {
-            if (!network) {
-                return;
-            }
+            const isSrc = targetDirection === 'SrcNetwork';
 
-            const { net = null } = network || {};
+            const selectedToken = isSrc ? selectedSrcToken.value : selectedDstToken.value;
 
-            if (!net) {
-                return;
-            }
+            updateWalletBalances(walletAccount.value, walletAddress.value, network, (list) => {
+                const token = list.find((elem) => elem.symbol === selectedToken.symbol);
+                if (!token) {
+                    return;
+                }
 
-            store.dispatch('tokens/updateTokenBalances', {
-                net: net,
-                address: walletAddress.value,
-                info: network,
-                update(wallet) {
-                    store.dispatch(`tokenOps/set${targetDirection}`, wallet);
-                },
+                if (isSrc) {
+                    selectedSrcToken.value = token;
+                } else {
+                    selectedDstToken.value = token;
+                }
             });
         };
 

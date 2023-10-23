@@ -1,9 +1,3 @@
-import { getBalancesByAddress } from '@/api/data-provider';
-
-import store from './index';
-
-import { sortByKey } from '@/helpers/utils';
-
 const TYPES = {
     SET_DATA_FOR: 'SET_DATA_FOR',
 
@@ -23,9 +17,11 @@ const TYPES = {
 
     SET_DISABLE_LOADER: 'SET_DISABLE_LOADER',
 
-    SET_TOTAL_BALANCE: 'SET_TOTAL_BALANCE',
+    SET_ASSETS_BALANCE: 'SET_ASSETS_BALANCE',
 
     SET_LOADING_BY_CHAIN: 'SET_LOADING_BY_CHAIN',
+
+    SET_TOTAL_BALANCE: 'SET_TOTAL_BALANCE',
 };
 
 export default {
@@ -44,6 +40,7 @@ export default {
         address: '',
         disableLoader: false,
         integrations: {},
+        assetsBalances: {},
         totalBalances: {},
     }),
 
@@ -71,6 +68,7 @@ export default {
         toToken: (state) => state.toToken,
         address: (state) => state.address,
         disableLoader: (state) => state.disableLoader,
+        assetsBalances: (state) => state.assetsBalances,
         totalBalances: (state) => state.totalBalances,
 
         loadingByChain: (state) => (chain) => state.loadingByChain[chain] || false,
@@ -83,6 +81,14 @@ export default {
             }
 
             state[type][account] = data;
+        },
+
+        [TYPES.SET_ASSETS_BALANCE](state, { account, data }) {
+            if (!state.assetsBalances[account]) {
+                state.assetsBalances[account] = {};
+            }
+
+            state.assetsBalances[account] = data;
         },
 
         [TYPES.SET_TOTAL_BALANCE](state, { account, data }) {
@@ -169,60 +175,14 @@ export default {
         setToToken({ commit }, value) {
             commit(TYPES.SET_TO_TOKEN, value);
         },
-
+        setAssetsBalances({ commit }, value) {
+            commit(TYPES.SET_ASSETS_BALANCE, value);
+        },
         setTotalBalances({ commit }, value) {
             commit(TYPES.SET_TOTAL_BALANCE, value);
         },
-
         setLoadingByChain({ commit }, value) {
             commit(TYPES.SET_LOADING_BY_CHAIN, value);
         },
-
-        async updateTokenBalances(_, selectedNet) {
-            const tokens = _.getters['groupTokens'];
-            const tokensByAddress = _.getters['tokens'];
-
-            const result = await getBalancesByAddress(selectedNet.net, selectedNet.address, {
-                fetchTokens: true,
-                fetchIntegrations: false,
-            });
-
-            if (result.tokens && result.tokens.length) {
-                const nativeToken = result.tokens.find((elem) => elem.symbol === selectedNet.info.symbol);
-                tokens[selectedNet.net].balance = nativeToken?.balance;
-                tokens[selectedNet.net].balanceUsd = nativeToken?.balanceUsd;
-                tokens[selectedNet.net].list = result.tokens;
-                for (const item of result.tokens) {
-                    const index = tokensByAddress[selectedNet.address].findIndex(
-                        (elem) =>
-                            (elem.symbol === item.symbol && elem.address === item.address) || (!item.address && elem.symbol === item.symbol)
-                    );
-                    if (index !== -1) {
-                        item.chainLogo = selectedNet.info?.logo;
-                        tokensByAddress[selectedNet.address][index] = item;
-                    } else {
-                        tokensByAddress[selectedNet.address].push(item);
-                    }
-                }
-            }
-
-            store.dispatch('tokens/setDataFor', {
-                type: 'tokens',
-                account: selectedNet.address,
-                data: tokensByAddress[selectedNet.address],
-            });
-
-            // store.dispatch('tokens/setGroupTokens', tokens);
-
-            const wallet = {
-                ...selectedNet.info,
-                balance: tokens[selectedNet.net]?.balance,
-                balanceUsd: tokens[selectedNet.net].balanceUsd,
-                list: sortByKey(tokens[selectedNet.net].list, 'balanceUsd'),
-            };
-
-            selectedNet.update(wallet);
-        },
-        async getListNonZeroTokens() {},
     },
 };

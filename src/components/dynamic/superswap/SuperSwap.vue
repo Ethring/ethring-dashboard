@@ -155,11 +155,13 @@ import { checkErrors } from '@/helpers/checkErrors';
 
 import { findBestRoute } from '@/modules/SuperSwap/baseScript';
 
-import prices from '@/modules/prices/';
+import PricesModule from '@/modules/prices/';
 
 import { STATUSES, NATIVE_CONTRACT, SUPPORTED_CHAINS } from '@/shared/constants/superswap/constants';
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
-import { isCorrectChain } from '@/shared/utils/operations';
+import { isCorrectChain, getOperationTitle } from '@/shared/utils/operations';
+
+import { updateWalletBalances } from '@/shared/utils/balances';
 
 export default {
     name: 'SuperSwap',
@@ -200,7 +202,6 @@ export default {
         const isSwapLoading = ref(false);
         const isNeedApprove = ref(false);
 
-        const isBalanceUpdated = ref(false);
         const isReceiveToken = ref(false);
         const approveTx = ref(null);
         const bestRoute = ref({});
@@ -214,7 +215,6 @@ export default {
 
         const networkFee = ref(0);
         const estimateRate = ref(0);
-        const isNeedNetworkChange = ref(false);
         const isCallEstimate = ref(false);
 
         const amount = ref('');
@@ -314,14 +314,14 @@ export default {
         };
 
         const handleOnSelectNetwork = (network, direction) => {
-            if (currentChainInfo.value.net !== selectedSrcNetwork.value.net) {
-                opTitle.value = 'tokenOperations.switchNetwork';
-            }
-
             if (direction === DIRECTIONS.SOURCE) {
                 selectedSrcNetwork.value = network;
+                clearApprove();
 
-                return clearApprove();
+                if (currentChainInfo.value.net !== selectedSrcNetwork.value.net) {
+                    return (opTitle.value = 'tokenOperations.switchNetwork');
+                }
+                return (opTitle.value = 'tokenOperations.swap');
             }
 
             selectedDstNetwork.value = network;
@@ -329,8 +329,6 @@ export default {
             selectedDstToken.value = null;
 
             resetValues();
-
-            return (opTitle.value = 'tokenOperations.swap');
         };
 
         // =================================================================================================================
@@ -354,7 +352,7 @@ export default {
                 const chainId =
                     direction === TOKEN_SELECT_TYPES.FROM ? selectedSrcNetwork.value?.chain_id : selectedDstNetwork.value?.chain_id;
 
-                const price = await prices.Coingecko.priceByPlatformContracts({
+                const price = await PricesModule.Coingecko.priceByPlatformContracts({
                     chainId: chainId,
                     addresses: token.address,
                 });
@@ -374,8 +372,6 @@ export default {
         };
 
         const setTokenOnChange = () => {
-            selectedDstToken.value = null;
-
             tokensList.value = getTokensList({
                 srcNet: selectedSrcNetwork.value,
                 srcToken: selectedSrcToken.value,
@@ -386,35 +382,6 @@ export default {
 
             if (!selectedSrcToken.value && defaultFromToken) {
                 selectedSrcToken.value = defaultFromToken;
-            }
-
-            if (!isBalanceUpdated.value) {
-                return;
-            }
-
-            if (!selectedSrcToken.value && !selectedDstToken.value) {
-                return;
-            }
-
-            const { symbol: fromSymbol } = selectedSrcToken.value || {};
-            const { symbol: toSymbol } = selectedSrcToken.value || {};
-
-            const searchTokens = [fromSymbol, toSymbol];
-
-            const updatedList = tokensList.value?.filter((tkn) => searchTokens.includes(tkn.symbol)) || [];
-
-            if (!updatedList.length) {
-                return;
-            }
-
-            const [fromToken = null, toToken = null] = updatedList;
-
-            if (fromToken) {
-                selectedSrcToken.value = fromToken;
-            }
-
-            if (toToken) {
-                selectedDstToken.value = toToken;
             }
         };
 
@@ -446,6 +413,7 @@ export default {
 
             differPercentage.value = null;
             receiveValue.value = '';
+            txError.value = '';
 
             if (!+value) {
                 return;
@@ -462,16 +430,27 @@ export default {
 
         // =================================================================================================================
 
-        const checkAllowance = async (amount) => {
-            if (allowance.value >= toMantissa(amount, currentRoute.value.fromToken?.decimals)) {
-                isNeedApprove.value = false;
+        const isEnoughAllowance = async () => {
+            if (!selectedSrcNetwork.value || !walletAddress.value) {
                 return;
             }
 
-            if (!approveTx.value && currentRoute.value.fromToken?.address) {
-                isNeedApprove.value = true;
-                await getApproveTx();
+            isLoading.value = true;
+
+            if (allowance.value >= toMantissa(amount.value, currentRoute.value.fromToken?.decimals)) {
+                isLoading.value = false;
+                opTitle.value = 'tokenOperations.swap';
+                return (isNeedApprove.value = false);
             }
+
+            isNeedApprove.value = true;
+            opTitle.value = 'tokenOperations.approve';
+
+            if (approveTx.value) {
+                return;
+            }
+
+            return await makeApproveRequest();
         };
 
         const getAllowance = async () => {
@@ -497,19 +476,26 @@ export default {
 
         // =================================================================================================================
 
-        const getApproveTx = async () => {
+        const makeApproveRequest = async () => {
             if (!currentRoute.value.fromToken?.address) {
                 return;
             }
             opTitle.value = 'tokenOperations.approve';
-            const resApproveTx = await store.dispatch(currentRoute.value.service.type + '/getApproveTx', {
+
+            const response = await store.dispatch(currentRoute.value.service.type + '/getApproveTx', {
                 url: currentRoute.value.service.url,
                 net: currentRoute.value.net,
                 tokenAddress: currentRoute.value.fromToken?.address,
                 ownerAddress: walletAddress.value,
             });
 
-            approveTx.value = resApproveTx;
+            if (response.error) {
+                txErrorTitle.value = 'Approve transaction error';
+                txError.value = response.error.message || response.error;
+                return;
+            }
+
+            approveTx.value = response;
         };
 
         const makeApproveTx = async () => {
@@ -524,6 +510,7 @@ export default {
             });
 
             const resTx = await sendTransaction({ ...approveTx.value, from: walletAddress.value });
+
             closeNotification('approve-swap-tx');
 
             if (resTx.error) {
@@ -541,7 +528,7 @@ export default {
 
             setTimeout(async () => {
                 await getAllowance();
-                await checkAllowance(amount.value);
+                await isEnoughAllowance();
                 isSwapLoading.value = false;
             }, 5000);
         };
@@ -601,9 +588,9 @@ export default {
                 store.dispatch('swap/setBestRoute', resEstimate);
                 currentRoute.value = resEstimate.bestRoute.routes.find((elem) => elem.status === STATUSES.SIGNING);
 
-                if (currentRoute.value.needApprove) {
+                if (currentRoute.value.isNeedApprove) {
                     isNeedApprove.value = true;
-                    getApproveTx();
+                    makeApproveRequest();
                 } else {
                     opTitle.value = 'tokenOperations.swap';
                 }
@@ -622,7 +609,6 @@ export default {
             }
 
             if (selectedSrcNetwork.value.net !== currentChainInfo.value.net) {
-                isNeedNetworkChange.value = true;
                 networkName.value = selectedSrcNetwork.value.name;
                 opTitle.value = 'tokenOperations.switchNetwork';
             }
@@ -651,18 +637,6 @@ export default {
             return currentRoute.value.service.type + '/getSwapTx';
         };
 
-        const updateBalances = (network, setNetwork) => {
-            store.dispatch('tokens/updateTokenBalances', {
-                net: network.value.net,
-                address: walletAddress.value,
-                info: network.value,
-                update(wallet) {
-                    isBalanceUpdated.value = true;
-                    setNetwork(wallet);
-                },
-            });
-        };
-
         const swap = async () => {
             const network = networkName.value === selectedDstNetwork.value.name ? selectedDstNetwork : selectedSrcNetwork;
 
@@ -687,8 +661,7 @@ export default {
 
             // APPROVE
             if (approveTx.value && isNeedApprove.value) {
-                opTitle.value = 'tokenOperations.approve';
-                return await makeApproveTx();
+                await makeApproveTx();
             }
 
             const SERVICE_API = getServiceApi(currentRoute.value.service.type);
@@ -731,11 +704,13 @@ export default {
                 return;
             }
 
-            const resTx = await await sendTransaction(resSwap);
+            const resTx = await sendTransaction(resSwap);
 
             if (resTx.error) {
                 txError.value = resTx.error;
+
                 txErrorTitle.value = 'Swap Transaction error';
+
                 return;
             }
 
@@ -754,12 +729,17 @@ export default {
             currentRoute.value = bestRoute.value.routes.find((elem) => elem.status === STATUSES.SIGNING);
 
             setTimeout(() => {
-                updateBalances(selectedSrcNetwork, (network) => handleOnSelectNetwork(network, DIRECTIONS.SOURCE));
+                updateWalletBalances(walletAccount.value, walletAddress.value, selectedSrcNetwork.value, (list) => {
+                    const fromToken = list.find((elem) => elem.symbol === selectedSrcToken.value.symbol);
+                    if (fromToken) {
+                        selectedSrcToken.value = fromToken;
+                    }
+                });
 
-                isBalanceUpdated.value = false;
-
-                updateBalances(selectedDstNetwork, (network) => handleOnSelectNetwork(network, DIRECTIONS.DESTINATION));
-            }, 5000);
+                if (selectedSrcNetwork.value.net !== selectedDstNetwork.value.net) {
+                    updateWalletBalances(walletAccount.value, walletAddress.value, selectedDstNetwork.value);
+                }
+            }, 7000);
 
             if (!currentRoute.value) {
                 receiveValue.value = null;
@@ -772,14 +752,12 @@ export default {
             if (currentRoute.value.net !== selectedSrcNetwork.value.net) {
                 store.dispatch('tokens/setDisableLoader', true);
                 networkName.value = selectedDstNetwork.value.name;
-                isNeedNetworkChange.value = true;
                 return;
             }
 
-            isNeedNetworkChange.value = false;
             if (currentRoute.value.isNeedApprove) {
                 isNeedApprove.value = true;
-                await getApproveTx();
+                await makeApproveRequest();
             }
             await swap();
         };
@@ -880,16 +858,19 @@ export default {
                 bestRouteInfo.value.bestRoute.toTokenAmount / bestRouteInfo.value.bestRoute.fromTokenAmount,
                 6
             );
+
             isNeedApprove.value = currentRoute.value?.isNeedApprove;
 
             if (isNeedApprove.value) {
-                getApproveTx();
+                makeApproveRequest();
             }
         });
 
         watch(
             () => currentChainInfo.value,
             () => {
+                opTitle.value = getOperationTitle(currentRoute.value.net, currentChainInfo.value.net, approveTx.value);
+
                 if ((!currentChainInfo.value.net || !SUPPORTED_CHAINS.includes(currentChainInfo.value?.net)) && !isShowRoutesModal.value) {
                     router.push('/main');
                 }

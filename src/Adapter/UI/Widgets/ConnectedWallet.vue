@@ -12,7 +12,7 @@
                 <div class="change-network-logo">
                     <img :src="chainInfo.logo" alt="current-chain-logo" />
                 </div>
-                <select v-model="selectedChain">
+                <select v-model="selectedChain" @change="handleSelectedChainChange">
                     <option v-for="chain in chainList" :key="chain" :selected="chain.chain_id === wallet.chain" :value="chain.chain_id">
                         {{ chain.name }}
                     </option>
@@ -91,12 +91,15 @@ export default {
         const chainInfo = computed(() => getChainByChainId(props.wallet.ecosystem, selectedChain.value));
 
         watch(currentChainInfo, () => {
-            if (props.wallet.ecosystem === ECOSYSTEMS.EVM) {
+            if (props.wallet.ecosystem === ECOSYSTEMS.EVM && currentChainInfo.value?.ecosystem === ECOSYSTEMS.EVM) {
                 selectedChain.value = currentChainInfo.value.chain_id;
             }
         });
 
-        watch(selectedChain, async (newChain, oldChain) => {
+        const handleSelectedChainChange = async () => {
+            const newChain = selectedChain.value;
+            const oldChain = props.wallet.chain;
+
             if (newChain === oldChain) {
                 return;
             }
@@ -120,7 +123,7 @@ export default {
                 });
                 selectedChain.value = oldChain;
             }
-        });
+        };
 
         const handleOnClickConnectedWallet = async (wallet) => {
             const { account } = connectedWallet.value || {};
@@ -156,6 +159,7 @@ export default {
             handleOnClickConnectedWallet,
             handleOnCopyAddress,
             handleOnDisconnectAccount,
+            handleSelectedChainChange,
         };
     },
 };

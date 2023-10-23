@@ -346,7 +346,7 @@ export default {
 
             &:hover {
                 h3 {
-                    color: var(--#{$prefix}btn-text-hover-color);
+                    color: var(--#{$prefix}btn-text-hover);
                     cursor: pointer;
                 }
             }

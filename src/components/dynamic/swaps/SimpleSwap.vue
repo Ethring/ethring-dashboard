@@ -95,6 +95,9 @@ import { prettyNumberTooltip } from '@/helpers/prettyNumber';
 
 import { isCorrectChain } from '@/shared/utils/operations';
 
+import { updateWalletBalances } from '@/shared/utils/balances';
+import { checkErrors } from '@/helpers/checkErrors';
+
 // Constants
 import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { SUPPORTED_CHAINS } from '@/shared/constants/superswap/constants';
@@ -257,7 +260,6 @@ export default {
         const onSetTokenFrom = () => {
             selectType.value = TOKEN_SELECT_TYPES.FROM;
             onlyWithBalance.value = true;
-            balanceUpdated.value = false;
 
             router.push('/swap/select-token');
 
@@ -267,7 +269,6 @@ export default {
         const onSetTokenTo = async () => {
             selectType.value = TOKEN_SELECT_TYPES.TO;
             onlyWithBalance.value = false;
-            balanceUpdated.value = false;
 
             router.push('/swap/select-token');
 
@@ -563,14 +564,27 @@ export default {
 
         // =================================================================================================================
 
-        const handleUpdateBalance = () => {
-            store.dispatch('tokens/updateTokenBalances', {
-                net: selectedSrcNetwork.value.net,
-                address: walletAddress.value,
-                info: selectedSrcNetwork.value,
-                update(wallet) {
-                    store.dispatch('tokenOps/setSrcNetwork', wallet);
-                },
+        const updateTokens = (list) => {
+            if (!selectedSrcToken.value && !selectedDstToken.value) {
+                return;
+            }
+
+            const fromToken = list.find((elem) => elem.symbol === selectedSrcToken.value.symbol);
+
+            if (fromToken) {
+                selectedSrcToken.value = fromToken;
+            }
+
+            const toToken = list.find((elem) => elem.symbol === selectedDstToken.value.symbol);
+
+            if (toToken) {
+                selectedDstToken.value = toToken;
+            }
+        };
+
+        const handleUpdateBalance = async () => {
+            await updateWalletBalances(walletAccount.value, walletAddress.value, selectedSrcNetwork.value, (list) => {
+                updateTokens(list);
             });
         };
 
@@ -613,6 +627,9 @@ export default {
                     resetAmount.value = false;
                     txError.value = responseSendTx.error;
                     txErrorTitle.value = 'Sign transaction error';
+
+                    txError.value = checkErrors(responseSendTx.error);
+
                     return (isLoading.value = false);
                 }
 
