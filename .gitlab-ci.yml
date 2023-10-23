@@ -166,7 +166,6 @@ Run test before mr:
         SHARD_INDEX: [1]
         SHARD_TOTAL: 1
   script:
-    - apt update && apt install -y default-jre
     - npm i
     - npm run test:e2e:ci
   timeout: 20 hours 30 minutes
@@ -190,7 +189,6 @@ Run tests schedules:
         SHARD_INDEX: [1]
         SHARD_TOTAL: 1
   script:
-    - apt update && apt install -y default-jre
     - npm i
     - npm run test:e2e:ci
   timeout: 20 hours 30 minutes
