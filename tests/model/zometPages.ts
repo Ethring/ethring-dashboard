@@ -4,7 +4,7 @@ import { getTestVar, TEST_CONST } from '../envHelper';
 
 const sleep = require('util').promisify(setTimeout);
 
-const url: string = getTestVar(TEST_CONST.DEV_URL);
+const url: string = '/';
 
 export class DashboardPage {
     readonly page: Page;

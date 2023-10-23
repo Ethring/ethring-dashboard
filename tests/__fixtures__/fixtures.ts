@@ -6,16 +6,25 @@ import { getTestVar, TEST_CONST } from '../envHelper';
 
 export const metaMaskId = getTestVar(TEST_CONST.MM_ID);
 const metamaskVersion = getTestVar(TEST_CONST.MM_VERSION);
+const seedPhraseByTx = getTestVar(TEST_CONST.SEED_BY_MOCK_TX);
+const seedPhraseByProtocol = getTestVar(TEST_CONST.SEED_BY_PROTOCOL_TEST);
+const seedPhraseEmptyWallet = getTestVar(TEST_CONST.EMPTY_SEED);
+
 const getPathToEx = () => path.join(__dirname, '..', `/data/metamask-chrome-${metamaskVersion}`);
 
-const authInDashboard = async (context: BrowserContext): Promise<DashboardPage> => {
+const addWalletToMm = async (context: BrowserContext, seed: String) => {
     await closeEmptyPages(context);
 
     const metaMaskPage = new MetaMaskHomePage(context.pages()[0]);
-    await metaMaskPage.importExistWallet();
+    await metaMaskPage.addWallet(seed);
+};
+
+const authInDashboardByMm = async (context: BrowserContext, seed: String): Promise<DashboardPage> => {
+    await addWalletToMm(context, seed);
 
     const zometPage = new DashboardPage(await context.newPage());
     await zometPage.goToPage();
+
     await zometPage.loginByMetaMask();
     const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
     await notifyMM.assignPage();
@@ -24,7 +33,12 @@ const authInDashboard = async (context: BrowserContext): Promise<DashboardPage> 
 
 export const test = base.extend<{
     context: BrowserContext;
+    authPage: DashboardPage;
+    authPageEmptyWallet: DashboardPage;
+
     dashboard: DashboardPage;
+    dashboardProtocol: DashboardPage;
+
     sendPage: SendPage;
     swapPage: SwapPage;
     superSwapPage: SuperSwapPage;
@@ -37,7 +51,6 @@ export const test = base.extend<{
                 `--disable-extensions-except=${getPathToEx()}`,
                 `--load-extension=${getPathToEx()}`,
                 '--force-fieldtrials',
-                '--disable-http2',
 
                 '--ignore-certificate-errors',
 
@@ -51,24 +64,40 @@ export const test = base.extend<{
         await use(context);
         await context.close();
     },
+    authPage: async ({ context }, use) => {
+        await addWalletToMm(context, seedPhraseByTx);
+        const zometPage = new DashboardPage(await context.newPage());
+        await zometPage.goToPage();
+        await use(zometPage);
+    },
+    authPageEmptyWallet: async ({ context }, use) => {
+        await addWalletToMm(context, seedPhraseEmptyWallet);
+        const zometPage = new DashboardPage(await context.newPage());
+        await zometPage.goToPage();
+        await use(zometPage);
+    },
+    dashboard: async ({ context }, use) => {
+        const zometPage = await authInDashboardByMm(context, seedPhraseByTx);
+        await use(zometPage);
+    },
+    dashboardProtocol: async ({ context }, use) => {
+        const zometPage = await authInDashboardByMm(context, seedPhraseByProtocol);
+        await use(zometPage);
+    },
     swapPage: async ({ context }, use) => {
-        const zometPage = await authInDashboard(context);
+        const zometPage = await authInDashboardByMm(context, seedPhraseByTx);
         const swapPage = await zometPage.goToSwap();
         await use(swapPage);
     },
     superSwapPage: async ({ context }, use) => {
-        const zometPage = await authInDashboard(context);
+        const zometPage = await authInDashboardByMm(context, seedPhraseByTx);
         const superSwapPage = await zometPage.goToSuperSwap();
         await use(superSwapPage);
     },
     sendPage: async ({ context }, use) => {
-        const zometPage = await authInDashboard(context);
+        const zometPage = await authInDashboardByMm(context, seedPhraseByTx);
         const sendPage = await zometPage.goToSend();
         await use(sendPage);
-    },
-    dashboard: async ({ context }, use) => {
-        const zometPage = await authInDashboard(context);
-        await use(zometPage);
     },
 });
 export const expect = test.expect;

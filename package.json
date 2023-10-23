@@ -63,7 +63,7 @@
     "@babel/preset-typescript": "^7.22.5",
     "@commitlint/cli": "^17.6.3",
     "@commitlint/config-conventional": "^17.6.3",
-    "@playwright/test": "^1.37.0",
+    "@playwright/test": "^1.39.0",
     "@types/node": "^20.5.0",
     "@vue/cli-plugin-babel": "~4.5.12",
     "@vue/cli-plugin-eslint": "~5.0.0",
