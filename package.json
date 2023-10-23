@@ -7,7 +7,7 @@
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit --passWithNoTests",
     "test:mockRpc": "node ./tests/mockServer/mockServer.js",
-    "test:e2e:debug": "npx playwright test --workers 1 -debug",
+    "test:e2e:debug": "npx playwright test --workers 1 --debug",
     "test:e2e:ci": "xvfb-run npx playwright test --workers 1 --project=$PROJECT --shard=$SHARD_INDEX/$SHARD_TOTAL",
     "lint": "vue-cli-service lint",
     "lint:code": "vue-cli-service lint",
