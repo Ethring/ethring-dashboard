@@ -133,8 +133,8 @@ export default async function useInit(store, { addressesWithChains = {}, account
 
     cancelCurrentOperations();
 
+    let totalBalance = BigNumber(0);
     let assetsBalance = BigNumber(0);
-    let tokensBalance = BigNumber(0);
 
     const { net: currentChain, ecosystem } = currentChainInfo;
 
@@ -187,8 +187,8 @@ export default async function useInit(store, { addressesWithChains = {}, account
 
                 const balance = getTotalBalance(tokensForSave);
 
+                totalBalance = totalBalance.plus(balance);
                 assetsBalance = assetsBalance.plus(balance);
-                tokensBalance = tokensBalance.plus(balance);
 
                 allTokens.push(...tokensForSave);
             }
@@ -196,7 +196,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
             if (integrations.length) {
                 const { list, balance } = integrationsForSave(integrations, { chain, logo, chainAddress });
 
-                assetsBalance = assetsBalance.plus(balance);
+                totalBalance = totalBalance.plus(balance);
 
                 allIntegrations.push(...list);
             }
@@ -209,7 +209,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
 
             store.dispatch('tokens/setAssetsBalances', { account, data: assetsBalance.toNumber() });
 
-            store.dispatch('tokens/setTokensBalances', { account, data: tokensBalance.toNumber() });
+            store.dispatch('tokens/setTotalBalances', { account, data: totalBalance.toNumber() });
 
             store.dispatch('tokens/setLoadingByChain', { chain, account, value: false });
         }

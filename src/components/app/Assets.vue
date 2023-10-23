@@ -5,8 +5,8 @@
                 <AssetItemHeader
                     v-if="allTokens.length"
                     title="Tokens"
-                    :value="getAssetsShare(tokensTotalBalance)"
-                    :totalBalance="tokensTotalBalance"
+                    :value="getAssetsShare(assetsTotalBalances)"
+                    :totalBalance="assetsTotalBalances"
                 />
                 <AssetItemSubHeader type="Asset" />
 
@@ -91,8 +91,8 @@ export default {
         const allTokens = computed(() => store.getters['tokens/tokens'][walletAccount.value] || []);
         const allIntegrations = computed(() => store.getters['tokens/integrations'][walletAccount.value] || []);
 
-        const allAssetsBalance = computed(() => store.getters['tokens/assetsBalances'][walletAccount.value] || 0);
-        const tokensTotalBalance = computed(() => store.getters['tokens/tokensBalances'][walletAccount.value] || 0);
+        const totalBalances = computed(() => store.getters['tokens/totalBalances'][walletAccount.value] || 0);
+        const assetsTotalBalances = computed(() => store.getters['tokens/assetsBalances'][walletAccount.value] || 0);
 
         const isEmpty = computed(() => {
             return !allTokens.value?.length && !allIntegrations.value?.length && !isLoadingForChain.value && !isAllTokensLoading.value;
@@ -101,11 +101,11 @@ export default {
         const integrationAssetsByPlatform = ref(getIntegrationsGroupedByPlatform(allIntegrations.value));
 
         const getAssetsShare = (balance) => {
-            if (!balance || !allAssetsBalance.value) {
+            if (!balance || !totalBalances.value) {
                 return 0;
             }
 
-            const share = BigNumber(balance).dividedBy(allAssetsBalance.value).multipliedBy(100);
+            const share = BigNumber(balance).dividedBy(totalBalances.value).multipliedBy(100);
 
             return share.toNumber();
         };
@@ -139,8 +139,7 @@ export default {
             allTokens,
             allIntegrations,
 
-            allAssetsBalance,
-            tokensTotalBalance,
+            assetsTotalBalances,
             integrationAssetsByPlatform,
 
             // utils for Assets templates
