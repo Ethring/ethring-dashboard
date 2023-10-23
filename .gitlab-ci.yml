@@ -160,7 +160,6 @@ Run test before mr:
   only:
     - merge_requests
     - dev
-  allow_failure: true
   parallel:
     matrix:
       - PROJECT: ['chromium']
@@ -169,14 +168,14 @@ Run test before mr:
   script:
     - npm i
     - npm run test:e2e:ci
-  timeout: 20 hours 30 minutes
+  timeout: 20 minutes
   artifacts:
     paths:
       - ./playwright-report/
       - ./Screenshot/
-      - ./tests/e2e/dashboard.spec.ts-snapshots/
+      - ./tests/e2e/*.spec.ts-snapshots/
     when: always
-    expire_in: 4 days
+    expire_in: 1 days
 
 
 Run tests schedules:
