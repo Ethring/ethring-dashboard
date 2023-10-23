@@ -32,6 +32,8 @@ export const isCorrectChain = async (selectedNetwork, currentChainInfo, setChain
     try {
         const isChanged = await setChain(selectedNetwork.value);
 
+        await delay(1200);
+
         if (!isChanged) {
             showNotification({
                 key: 'switch-network-error',
