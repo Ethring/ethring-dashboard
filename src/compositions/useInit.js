@@ -74,7 +74,7 @@ const saveOrGetDataFromCache = async (key, data) => {
 
 const formatRecords = (records, { chain, chainAddress, logo }) => {
     for (const record of records) {
-        record.id = `${chain}_${chainAddress}_${record.code}`;
+        record.id = `${chain}_${chainAddress}_${record.symbol}`;
         record.chainLogo = logo;
         record.chain = chain;
     }

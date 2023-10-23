@@ -31,10 +31,6 @@ export const getTotalBalanceByType = (balances, type = BALANCES_TYPES.ALL) => {
 };
 
 export const getDataForIntegrations = (integration, balances) => {
-    const balanceType = integration.type === BALANCES_TYPES.FUTURES ? BALANCES_TYPES.FUTURES : BALANCES_TYPES.ALL;
-
-    integration.totalBalanceUsd = getTotalBalanceByType(balances, balanceType);
-
     return {
         platform: integration.platform,
         data: [integration],
@@ -55,13 +51,14 @@ export const getIntegrationsGroupedByPlatform = (allIntegrations = []) => {
     for (const integration of allIntegrations) {
         const { balances = [] } = integration || {};
 
+        const balanceType = integration.type === BALANCES_TYPES.FUTURES ? BALANCES_TYPES.FUTURES : BALANCES_TYPES.ALL;
+
+        integration.totalBalanceUsd = getTotalBalanceByType(balances, balanceType);
+        integration.balances = sortByKey(balances, 'balanceUsd');
+
         const existingGroup = groupByPlatforms.find(({ platform }) => platform === integration.platform);
 
         if (existingGroup) {
-            const balanceType = integration.type === BALANCES_TYPES.FUTURES ? BALANCES_TYPES.FUTURES : BALANCES_TYPES.ALL;
-
-            integration.totalBalanceUsd = getTotalBalanceByType(balances, balanceType);
-
             existingGroup.totalGroupBalance += integration.totalBalanceUsd;
             existingGroup.totalRewardsBalance += getTotalBalanceByType(balances, BALANCES_TYPES.PENDING);
 
@@ -76,6 +73,10 @@ export const getIntegrationsGroupedByPlatform = (allIntegrations = []) => {
 
         groupByPlatforms.push(getDataForIntegrations(integration, balances));
     }
+
+    groupByPlatforms.forEach((groupItem, i) => {
+        groupByPlatforms[i].data = sortByKey(groupItem.data, 'totalBalanceUsd');
+    });
 
     return sortByKey(groupByPlatforms, 'totalGroupBalance');
 };

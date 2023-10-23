@@ -100,6 +100,8 @@ import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { isCorrectChain } from '@/shared/utils/operations';
 import { SUPPORTED_CHAINS } from '@/shared/constants/superswap/constants';
 
+import { updateWalletBalances } from '@/shared/utils/balances';
+
 export default {
     name: 'SimpleSwap',
 
@@ -141,7 +143,6 @@ export default {
         const opTitle = ref('tokenOperations.swap');
 
         const isNeedApprove = ref(false);
-        const balanceUpdated = ref(false);
         const approveTx = ref(null);
         const allowance = ref(null);
 
@@ -225,37 +226,25 @@ export default {
             if (!selectedTokenTo.value && defaultToToken) {
                 selectedTokenTo.value = defaultToToken;
             }
+        };
 
-            if (!balanceUpdated.value) {
-                return;
-            }
-
+        const updateTokens = (list) => {
             if (!selectedTokenFrom.value && !selectedTokenTo.value) {
                 return;
             }
 
-            const { symbol: fromSymbol } = selectedTokenFrom.value || {};
-            const { symbol: toSymbol } = selectedTokenFrom.value || {};
-
-            const searchTokens = [fromSymbol, toSymbol];
-
-            const updatedList = tokensList.value.filter((tkn) => searchTokens.includes(tkn.symbol)) || [];
-
-            if (!updatedList.length) {
-                return;
-            }
-
-            const [fromToken = null, toToken = null] = updatedList;
+            const fromToken = list.find((elem) => elem.symbol === selectedTokenFrom.value.symbol);
 
             if (fromToken) {
                 selectedTokenFrom.value = fromToken;
             }
 
+            const toToken = list.find((elem) => elem.symbol === selectedTokenTo.value.symbol);
+
             if (toToken) {
                 selectedTokenTo.value = toToken;
             }
         };
-
         // =================================================================================================================
 
         const disabledSwap = computed(() => {
@@ -304,7 +293,6 @@ export default {
         const onSetTokenFrom = () => {
             selectType.value = TOKEN_SELECT_TYPES.FROM;
             onlyWithBalance.value = true;
-            balanceUpdated.value = false;
 
             router.push('/swap/select-token');
 
@@ -314,7 +302,6 @@ export default {
         const onSetTokenTo = async () => {
             selectType.value = TOKEN_SELECT_TYPES.TO;
             onlyWithBalance.value = false;
-            balanceUpdated.value = false;
 
             router.push('/swap/select-token');
 
@@ -648,20 +635,15 @@ export default {
 
                 successHash.value = getTxExplorerLink(responseSendTx.transactionHash, currentChainInfo.value);
 
-                store.dispatch('tokens/updateTokenBalances', {
-                    net: selectedNetwork.value.net,
-                    address: walletAddress.value,
-                    info: selectedNetwork.value,
-                    update(wallet) {
-                        store.dispatch('networks/setSelectedNetwork', wallet);
-                    },
-                });
+                setTimeout(() => {
+                    updateWalletBalances(walletAccount.value, walletAddress.value, selectedNetwork.value, (list) => {
+                        updateTokens(list);
+                    });
+                }, 7000);
 
                 resetAmount.value = true;
 
                 isLoading.value = false;
-
-                balanceUpdated.value = true;
             } catch (error) {
                 txError.value = error?.message || error?.error || error;
             }
