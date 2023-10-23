@@ -1,16 +1,16 @@
 <template>
     <div class="tokens" :class="{ empty: isEmpty }">
-        <template v-if="allTokens.length > 0">
+        <template v-if="allTokensSorted.length > 0">
             <div class="tokens__group">
                 <AssetItemHeader
-                    v-if="allTokens.length"
+                    v-if="allTokensSorted.length"
                     title="Tokens"
                     :value="getAssetsShare(tokensTotalBalance)"
                     :totalBalance="tokensTotalBalance"
                 />
                 <AssetItemSubHeader type="Asset" />
 
-                <AssetItem v-for="(listItem, n) in sortByKey(allTokens, 'balanceUsd')" :key="n" :item="listItem" />
+                <AssetItem v-for="(listItem, n) in allTokensSorted" :key="n" :item="listItem" />
             </div>
         </template>
 
@@ -29,7 +29,7 @@
                 <div v-for="(groupItem, n) in item.data" :key="n">
                     <AssetItemSubHeader :type="getFormattedName(groupItem.type)" />
 
-                    <AssetItem v-for="(balanceItem, i) in sortByKey(groupItem.balances, 'balanceUsd')" :key="i" :item="balanceItem">
+                    <AssetItem v-for="(balanceItem, i) in groupItem.balances" :key="i" :item="balanceItem">
                         <div class="asset-item__info" v-if="balanceItem.balanceType">
                             <div class="asset-item__type">{{ getFormattedName(balanceItem.balanceType) }}</div>
                             <div class="asset-item__unlock" v-if="balanceItem.unlockTimestamp">
@@ -92,15 +92,17 @@ export default {
         const allTokensBalance = computed(() => store.getters['tokens/totalBalances'][walletAccount.value] || 0);
         const allIntegrations = computed(() => store.getters['tokens/integrations'][walletAccount.value] || []);
 
+        const allTokensSorted = computed(() => sortByKey(allTokens.value, 'balanceUsd'));
+
         const isEmpty = computed(() => {
             return !allTokens.value?.length && !allIntegrations.value?.length && !isLoadingForChain.value && !isAllTokensLoading.value;
         });
 
         const tokensTotalBalance = computed(() => {
-            if (!allTokens.value.length) {
+            if (!allTokensSorted.value.length) {
                 return 0;
             }
-            const totalSum = allTokens.value.reduce((acc, token) => {
+            const totalSum = allTokensSorted.value.reduce((acc, token) => {
                 return acc.plus(+token.balanceUsd || 0);
             }, BigNumber(0));
 
@@ -136,7 +138,6 @@ export default {
         });
 
         return {
-            sortByKey,
             prettyNumber,
 
             isLoadingForChain,
@@ -145,7 +146,7 @@ export default {
             isEmpty,
             getTokenIcon,
 
-            allTokens,
+            allTokensSorted,
             allIntegrations,
 
             allTokensBalance,
