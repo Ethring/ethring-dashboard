@@ -551,7 +551,7 @@ export default {
                 txErrorTitle.value = 'Approve transaction error';
 
                 txError.value = response.error.message || response.error;
-                
+
                 return;
             }
 

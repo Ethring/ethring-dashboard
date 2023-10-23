@@ -98,7 +98,7 @@ import { checkErrors } from '@/helpers/checkErrors';
 
 import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { isCorrectChain } from '@/shared/utils/operations';
-import { SUPPORTED_CHAINS, ERRORS } from '@/shared/constants/superswap/constants';
+import { SUPPORTED_CHAINS } from '@/shared/constants/superswap/constants';
 
 export default {
     name: 'SimpleSwap',
@@ -643,15 +643,10 @@ export default {
                 const responseSendTx = await sendTransaction(responseSwap);
 
                 if (responseSendTx.error) {
-                    const errorCodes = responseSendTx.error.match(/INSUFFICIENT_FUNDS/);
-
-                    if (errorCodes) {
-                        txError.value = ERRORS[errorCodes];
-                    } else {
-                        txError.value = responseSendTx.error;
-                    }
-
                     txErrorTitle.value = 'Sign transaction error';
+
+                    txError.value = checkErrors(responseSendTx.error);
+
                     return (isLoading.value = false);
                 }
 
