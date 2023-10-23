@@ -159,6 +159,7 @@ Run test before mr:
   image: mcr.microsoft.com/playwright:v1.37.0-jammy
   only:
     - merge_requests
+    - dev
   allow_failure: true
   parallel:
     matrix:
