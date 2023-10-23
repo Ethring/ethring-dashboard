@@ -497,17 +497,19 @@ export default {
                 ownerAddress: walletAddress.value,
             });
 
+            isLoading.value = false;
+
             opTitle.value = 'tokenOperations.approve';
 
             if (response.error) {
-                approveTx.value = response.error;
-                isLoading.value = false;
+                txErrorTitle.value = 'Approve transaction error';
+
+                txError.value = response.error.message || response.error;
+
                 return;
             }
 
             approveTx.value = response;
-
-            isLoading.value = false;
 
             return (isNeedApprove.value = true);
         };
@@ -628,8 +630,10 @@ export default {
                 const responseSendTx = await sendTransaction(responseSwap);
 
                 if (responseSendTx.error) {
-                    txError.value = responseSendTx.error;
                     txErrorTitle.value = 'Sign transaction error';
+
+                    txError.value = checkErrors(responseSendTx.error);
+
                     return (isLoading.value = false);
                 }
 
