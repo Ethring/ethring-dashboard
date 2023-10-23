@@ -1,4 +1,5 @@
 stages:
+  - test_before_mr
   - build_docker
   - deploy
   - sentry
@@ -153,6 +154,29 @@ Deploy prod:
 
 
 # Tests stuff
+Run test before mr:
+  stage: test_before_mr
+  image: mcr.microsoft.com/playwright:v1.37.0-jammy
+  only:
+    - merge_requests
+  allow_failure: true
+  parallel:
+    matrix:
+      - PROJECT: ['chromium']
+        SHARD_INDEX: [1]
+        SHARD_TOTAL: 1
+  script:
+    - apt update && apt install -y default-jre
+    - npm i
+    - npm run test:e2e:ci
+  timeout: 20 hours 30 minutes
+  artifacts:
+    paths:
+      - ./playwright-report/
+      - ./Screenshot/
+    when: always
+    expire_in: 4 days
+
 
 Run tests schedules:
   stage: test_ui
@@ -168,7 +192,7 @@ Run tests schedules:
   script:
     - apt update && apt install -y default-jre
     - npm i
-    - xvfb-run npx playwright test --workers 1 --project=$PROJECT --shard=$SHARD_INDEX/$SHARD_TOTAL
+    - npm run test:e2e:ci
   timeout: 20 hours 30 minutes
   artifacts:
     paths:
