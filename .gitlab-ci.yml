@@ -156,7 +156,7 @@ Deploy prod:
 # Tests stuff
 Run test before mr:
   stage: test_before_mr
-  image: mcr.microsoft.com/playwright:v1.37.0-jammy
+  image: mcr.microsoft.com/playwright:v1.39.0-jammy
   only:
     - merge_requests
     - dev
@@ -180,7 +180,7 @@ Run test before mr:
 
 Run tests schedules:
   stage: test_ui
-  image: mcr.microsoft.com/playwright:v1.37.0-jammy
+  image: mcr.microsoft.com/playwright:v1.39.0-jammy
   only:
     - schedules
   allow_failure: true
