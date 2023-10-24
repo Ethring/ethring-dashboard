@@ -154,11 +154,10 @@ export default {
                 return;
             }
 
-            clearAddress.value = false;
             isLoading.value = true;
 
             const dataForPrepare = {
-                fromAddress: walletAddress.value,
+                fromAddress: null,
                 toAddress: receiverAddress.value,
                 amount: srcAmount.value,
                 token: selectedSrcToken.value,
@@ -171,8 +170,6 @@ export default {
             if (!isChanged) {
                 return (isLoading.value = false);
             }
-
-            clearAddress.value = false;
 
             opTitle.value = 'tokenOperations.confirm';
 
