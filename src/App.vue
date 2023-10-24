@@ -83,8 +83,6 @@ export default {
 
             await useInit(store, { account: walletAccount.value, addressesWithChains, currentChainInfo: currentChainInfo.value });
 
-            Socket.addressSubscription(walletAddress.value);
-
             isInitCall.value = {
                 ...isInitCall.value,
                 [walletAddress.value]: true,
@@ -121,6 +119,10 @@ export default {
             if (!net) {
                 return router.push('/main');
             }
+        });
+
+        watch(currentChainInfo, () => {
+            Socket.addressSubscription(walletAddress.value);
         });
 
         watch(walletAccount, async () => {
