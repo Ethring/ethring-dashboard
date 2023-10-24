@@ -2,8 +2,9 @@
     <div class="asset__item-header">
         <div class="asset__item-header-info">
             <div class="asset__item-header-logo">
+                <NftsLogo v-if="title === 'NFT'" />
                 <img
-                    v-if="logoURI && !showImagePlaceholder"
+                    v-else-if="logoURI && !showImagePlaceholder"
                     :src="logoURI"
                     class="token__logo-img"
                     @error="showImagePlaceholder = true"
@@ -49,6 +50,7 @@ import { useStore } from 'vuex';
 
 import TokenLogo from '@/assets/icons/dashboard/tokenLogo.svg';
 import RewardsIcon from '@/assets/icons/dashboard/rewards.svg';
+import NftsLogo from '@/assets/icons/dashboard/nfts.svg';
 
 import { formatNumber } from '@/helpers/prettyNumber';
 
@@ -59,7 +61,7 @@ export default {
             required: true,
         },
         value: {
-            required: true,
+            required: false,
         },
         reward: {
             type: Number,
@@ -85,6 +87,7 @@ export default {
     components: {
         TokenLogo,
         RewardsIcon,
+        NftsLogo,
     },
     setup() {
         const store = useStore();

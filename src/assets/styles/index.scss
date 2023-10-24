@@ -31,3 +31,16 @@ body {
     height: calc(100vh - 80px);
   }
 }
+
+::-webkit-scrollbar-thumb {
+  background: $gulfStream;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: $trout;
+}

@@ -114,3 +114,50 @@ export const getTotalFuturesBalance = (records, totalBalance) => {
 
     return totalBalance;
 };
+
+const getDataForCollection = (nft) => {
+    const { collection = {}, token = {} } = nft;
+
+    return {
+        ...collection,
+        chainLogo: nft.chainLogo,
+        totalGroupBalance: BigNumber(+nft.price || 0)
+            .multipliedBy(+token.price || 0)
+            .toNumber(),
+        floorPriceUsd: BigNumber(+collection.floorPrice || 0)
+            .multipliedBy(+token.price || 0)
+            .toNumber(),
+        nfts: [nft],
+        token: nft.token,
+    };
+};
+
+export const getNftsByCollection = (allNfts = []) => {
+    const groupByCollection = [];
+
+    if (!allNfts.length) {
+        return groupByCollection;
+    }
+
+    for (const nft of allNfts) {
+        const { collection = {}, token = {} } = nft || {};
+
+        const existingCollection = groupByCollection.find((item) => item.address === collection.address);
+
+        if (existingCollection) {
+            existingCollection.totalGroupBalance += BigNumber(+nft.price || 0)
+                .multipliedBy(+token.price || 0)
+                .toNumber();
+            existingCollection.floorPriceUsd += BigNumber(+collection.floorPrice || 0)
+                .multipliedBy(+token.price || 0)
+                .toNumber();
+            existingCollection.nfts.push(nft);
+
+            continue;
+        }
+
+        groupByCollection.push(getDataForCollection(nft));
+    }
+
+    return sortByKey(groupByCollection, 'totalGroupBalance');
+};

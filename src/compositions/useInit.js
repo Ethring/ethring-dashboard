@@ -112,6 +112,8 @@ const integrationsForSave = (integrations, { chain, logo, chainAddress }) => {
 // =================================================================================================================
 
 export default async function useInit(store, { addressesWithChains = {}, account = null, currentChainInfo } = {}) {
+    cancelCurrentOperations();
+
     store.dispatch('tokens/setLoader', true);
 
     const allTokensForAccount = computed(() => store.getters['tokens/tokens'][account] || []);
@@ -130,8 +132,6 @@ export default async function useInit(store, { addressesWithChains = {}, account
     performActions(actionsToPerform, store).catch((error) => {
         console.error('An error occurred:', error);
     });
-
-    cancelCurrentOperations();
 
     let totalBalance = BigNumber(0);
     let assetsBalance = BigNumber(0);
@@ -155,6 +155,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
 
     const allTokens = [];
     const allIntegrations = [];
+    const allNfts = [];
 
     const progressChunk = async (chunk) => {
         for (const { chain, info } of chunk) {
@@ -201,11 +202,19 @@ export default async function useInit(store, { addressesWithChains = {}, account
                 allIntegrations.push(...list);
             }
 
+            if (nfts.length) {
+                const list = formatRecords(nfts, { chain, logo, chainAddress });
+
+                allNfts.push(...list);
+            }
+
             store.dispatch('tokens/setGroupTokens', { chain, account, data: { list: tokens } });
 
             store.dispatch('tokens/setDataFor', { type: 'tokens', account, data: allTokens });
 
             store.dispatch('tokens/setDataFor', { type: 'integrations', account, data: allIntegrations });
+
+            store.dispatch('tokens/setDataFor', { type: 'nfts', account, data: allNfts });
 
             store.dispatch('tokens/setAssetsBalances', { account, data: assetsBalance.toNumber() });
 

@@ -4,10 +4,10 @@
             {{ type }}
         </div>
         <div class="asset__item-sub-header-label">
-            {{ $t('tokenOperations.balance') }}
+            {{ secondColumnType || $t('tokenOperations.balance') }}
         </div>
         <div class="asset__item-sub-header-label__right">
-            {{ $t('tokenOperations.value') }}
+            {{ thirdColumnType || $t('tokenOperations.value') }}
         </div>
     </div>
 </template>
@@ -17,6 +17,14 @@ export default {
     props: {
         type: {
             required: true,
+        },
+        secondColumnType: {
+            required: false,
+            default: null,
+        },
+        thirdColumnType: {
+            required: false,
+            default: null,
         },
     },
     setup() {},

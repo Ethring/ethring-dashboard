@@ -40,6 +40,7 @@ export default {
         address: '',
         disableLoader: false,
         integrations: {},
+        nfts: {},
         assetsBalances: {},
         totalBalances: {},
     }),
@@ -49,6 +50,7 @@ export default {
 
         tokens: (state) => state.tokens,
         integrations: (state) => state.integrations,
+        nfts: (state) => state.nfts,
 
         groupTokens: (state) => state.groupTokens,
 

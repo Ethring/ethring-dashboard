@@ -8,7 +8,7 @@
                     :value="getAssetsShare(assetsTotalBalances)"
                     :totalBalance="assetsTotalBalances"
                 />
-                <AssetItemSubHeader type="Asset" />
+                <AssetItemSubHeader :type="$t('dashboard.asset')" />
 
                 <AssetItem v-for="(listItem, n) in allTokensSorted" :key="n" :item="listItem" />
             </div>
@@ -42,6 +42,18 @@
             </div>
         </template>
 
+        <template v-if="nftsByCollection.length > 0">
+            <div class="tokens__group">
+                <AssetItemHeader title="NFT" :totalBalance="totalNftBalances" />
+                <AssetItemSubHeader
+                    :type="$t('dashboard.collectionName')"
+                    :secondColumnType="$t('dashboard.holdings')"
+                    :thirdColumnType="$t('dashboard.floorPrice')"
+                />
+                <AssetNftItem v-for="(collection, i) in nftsByCollection" :item="collection" :key="i" />
+            </div>
+        </template>
+
         <template v-if="isEmpty">
             <EmptyList :title="$t('dashboard.emptyAssets')" />
         </template>
@@ -66,11 +78,12 @@ import EmptyList from '@/components/ui/EmptyList';
 import AssetItem from './AssetItem';
 import AssetItemHeader from './AssetItemHeader';
 import AssetItemSubHeader from './AssetItemSubHeader';
+import AssetNftItem from './AssetNftItem';
 
 import { getTokenIcon, sortByKey } from '@/helpers/utils';
 import { prettyNumber } from '@/helpers/prettyNumber';
 
-import { getIntegrationsGroupedByPlatform, getFormattedName, getFormattedDate } from '@/shared/utils/assets';
+import { getIntegrationsGroupedByPlatform, getFormattedName, getFormattedDate, getNftsByCollection } from '@/shared/utils/assets';
 
 export default {
     name: 'Tokens',
@@ -79,6 +92,7 @@ export default {
         AssetItemHeader,
         AssetItem,
         EmptyList,
+        AssetNftItem,
     },
     setup() {
         const store = useStore();
@@ -90,6 +104,7 @@ export default {
 
         const allTokens = computed(() => store.getters['tokens/tokens'][walletAccount.value] || []);
         const allIntegrations = computed(() => store.getters['tokens/integrations'][walletAccount.value] || []);
+        const allNfts = computed(() => store.getters['tokens/nfts'][walletAccount.value] || []);
 
         const totalBalances = computed(() => store.getters['tokens/totalBalances'][walletAccount.value] || 0);
         const assetsTotalBalances = computed(() => store.getters['tokens/assetsBalances'][walletAccount.value] || 0);
@@ -101,6 +116,20 @@ export default {
         });
 
         const integrationAssetsByPlatform = ref(getIntegrationsGroupedByPlatform(allIntegrations.value));
+
+        const nftsByCollection = ref(getNftsByCollection(allNfts.value));
+
+        const totalNftBalances = computed(() => {
+            if (!nftsByCollection.value.length) {
+                return 0;
+            }
+
+            const totalSum = nftsByCollection.value.reduce((totalBalance, collection) => {
+                return totalBalance.plus(+collection.totalGroupBalance || 0);
+            }, BigNumber(0));
+
+            return totalSum.toNumber();
+        });
 
         const getAssetsShare = (balance) => {
             if (!balance || !totalBalances.value) {
@@ -115,16 +144,19 @@ export default {
         watch(isAllTokensLoading, () => {
             if (!isAllTokensLoading.value) {
                 integrationAssetsByPlatform.value = getIntegrationsGroupedByPlatform(allIntegrations.value);
+                nftsByCollection.value = getNftsByCollection(allNfts.value);
             }
         });
 
         watch(walletAccount, () => {
             integrationAssetsByPlatform.value = getIntegrationsGroupedByPlatform(allIntegrations.value);
+            nftsByCollection.value = getNftsByCollection(allNfts.value);
         });
 
         watch(isLoadingForChain, () => {
             if (!isLoadingForChain.value) {
                 integrationAssetsByPlatform.value = getIntegrationsGroupedByPlatform(allIntegrations.value);
+                nftsByCollection.value = getNftsByCollection(allNfts.value);
             }
         });
 
@@ -142,6 +174,8 @@ export default {
 
             assetsTotalBalances,
             integrationAssetsByPlatform,
+            nftsByCollection,
+            totalNftBalances,
 
             // utils for Assets templates
             getAssetsShare,
