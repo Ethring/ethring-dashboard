@@ -276,12 +276,6 @@ export default {
         cursor: pointer;
     }
 
-    &:last-child .tokens__item {
-        margin-bottom: 0;
-        padding-bottom: 0;
-        border-bottom: none;
-    }
-
     .mt-10 {
         margin-top: 10px;
     }
