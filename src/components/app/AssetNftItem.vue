@@ -17,7 +17,7 @@
                                 <MaskIcon v-else class="avatar-placeholder"></MaskIcon>
                                 <p>{{ nft.name }}</p>
                                 <h5 v-if="nft.price">
-                                    {{ formatNumber(nft.price, 2) }} <span>{{ nft.token.symbol }}</span>
+                                    {{ formatNumber(nft.price, 2) }} <span> {{ nft.token.symbol }}</span>
                                 </h5>
                             </div>
                         </Slide>
