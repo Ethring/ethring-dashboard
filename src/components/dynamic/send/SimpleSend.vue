@@ -99,7 +99,7 @@ export default {
         const isAddressError = ref(false);
         const isBalanceError = ref(false);
 
-        const isTokensLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](currentChainInfo.value?.net));
+        const isTokensLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](selectedSrcNetwork.value?.net));
 
         // =================================================================================================================
 
