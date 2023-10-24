@@ -16,8 +16,8 @@
                                 <img :src="nft.avatar" v-if="nft.avatar" :alt="nft.name" @error="() => (nft.avatar = null)" />
                                 <MaskIcon v-else class="avatar-placeholder"></MaskIcon>
                                 <p>{{ nft.name }}</p>
-                                <h5>
-                                    4.4 <span>{{ nft.token.symbol }}</span>
+                                <h5 v-if="nft.price">
+                                    {{ formatNumber(nft.price, 2) }} <span>{{ nft.token.symbol }}</span>
                                 </h5>
                             </div>
                         </Slide>
@@ -143,6 +143,7 @@ import AssetItem from './AssetItem';
 import { CopyOutlined } from '@ant-design/icons-vue';
 
 import { cutAddress } from '@/helpers/utils';
+import { formatNumber } from '@/helpers/prettyNumber';
 
 import ArrowIcon from '@/assets/icons/dashboard/arrow.svg';
 import LinkIcon from '@/assets/icons/dashboard/link.svg';
@@ -262,6 +263,7 @@ export default {
             showDescription,
             showNftDescription,
             hideNftInformation,
+            formatNumber,
         };
     },
 };
