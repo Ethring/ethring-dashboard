@@ -187,8 +187,6 @@ export default {
             });
 
             try {
-                dataForPrepare.fromAddress = walletAddress.value;
-
                 // TODO: multiple transactions for send module
                 const txs = [
                     {
@@ -198,6 +196,7 @@ export default {
                         status: STATUSES.IN_PROGRESS,
                         parameters: {
                             ...dataForPrepare,
+                            fromAddress: walletAddress.value,
                         },
                         account: walletAddress.value,
                         chainId: `${selectedSrcNetwork.value?.chain_id}`,
