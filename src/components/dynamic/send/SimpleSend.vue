@@ -172,6 +172,8 @@ export default {
                 return (isLoading.value = false);
             }
 
+            clearAddress.value = false;
+
             opTitle.value = 'tokenOperations.confirm';
 
             // Reset values
@@ -188,6 +190,8 @@ export default {
             });
 
             try {
+                dataForPrepare.fromAddress = walletAddress.value;
+
                 // TODO: multiple transactions for send module
                 const txs = [
                     {

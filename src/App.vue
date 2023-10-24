@@ -123,8 +123,6 @@ export default {
             }
         });
 
-        watch(currentChainInfo, async () => await callInit());
-
         watch(walletAccount, async () => {
             if (isInitCall.value[walletAddress.value]) {
                 return;
