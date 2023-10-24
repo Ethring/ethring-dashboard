@@ -107,7 +107,7 @@ export default {
     },
     setup(props, { emit }) {
         const amount = ref(props.value);
-        
+
         const placeholder = ref('0');
         const focused = ref(false);
         const error = ref(false);

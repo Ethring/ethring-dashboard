@@ -51,8 +51,8 @@ export default {
     getters: {
         [GETTERS.IS_OPEN]:
             (state) =>
-                (name = MODALS.WALLETS) =>
-                    state.modals[name],
+            (name = MODALS.WALLETS) =>
+                state.modals[name],
 
         [GETTERS.IS_CONNECTING]: (state) => state.isConnecting,
 
