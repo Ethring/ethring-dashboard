@@ -46,9 +46,9 @@
             <div class="tokens__group">
                 <AssetItemHeader title="NFT" :totalBalance="totalNftBalances" />
                 <AssetItemSubHeader
-                    :type="$t('dashboard.collectionName')"
-                    :secondColumnType="$t('dashboard.holdings')"
-                    :thirdColumnType="$t('dashboard.floorPrice')"
+                    :type="$t('dashboard.nft.collectionName')"
+                    :secondColumnType="$t('dashboard.nft.holdings')"
+                    :thirdColumnType="$t('dashboard.nft.floorPrice')"
                 />
                 <AssetNftItem v-for="(collection, i) in nftsByCollection" :item="collection" :key="i" />
             </div>

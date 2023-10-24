@@ -42,10 +42,10 @@
                     </div>
                     <div class="mt-10">
                         <p :class="{ activeOption: activeNftOption === 1 }" @click="activeNftOption = 1">
-                            {{ $t('dashboard.details') }}
+                            {{ $t('dashboard.nft.details') }}
                         </p>
                         <p :class="{ activeOption: activeNftOption === 2, disabled: !selectedNft.description }" @click="showNftDescription">
-                            {{ $t('dashboard.description') }}
+                            {{ $t('dashboard.nft.description') }}
                         </p>
                     </div>
                     <div v-if="activeNftOption === 1" class="collection__content-info-details">
@@ -55,7 +55,7 @@
                             <span>{{ selectedNft.tokenId }}</span>
                         </div>
                         <div>
-                            <p>{{ $t('dashboard.ownerAddress') }}</p>
+                            <p>{{ $t('dashboard.nft.ownerAddress') }}</p>
                             <div class="delimetr"></div>
 
                             <span>{{ cutAddress(selectedNft.ownerAddress) }}</span>
@@ -78,46 +78,46 @@
             <div class="collection__content-info">
                 <div>
                     <p :class="{ activeOption: activeOption === 1 }" @click="activeOption = 1">
-                        {{ $t('dashboard.collectionInformation') }}
+                        {{ $t('dashboard.nft.collectionInformation') }}
                     </p>
                     <p :class="{ activeOption: activeOption === 2, disabled: !item.description }" @click="showDescription">
-                        {{ $t('dashboard.description') }}
+                        {{ $t('dashboard.nft.description') }}
                     </p>
                 </div>
                 <div v-if="activeOption === 1" class="collection__content-info-details">
                     <div>
-                        <p>{{ $t('dashboard.floorPrice') }}</p>
+                        <p>{{ $t('dashboard.nft.floorPrice') }}</p>
                         <div class="delimetr"></div>
                         <h4>
                             {{ item.floorPrice || 0 }} <span>{{ item.token.symbol }}</span>
                         </h4>
                     </div>
                     <div>
-                        <p>{{ $t('dashboard.volume') }}</p>
+                        <p>{{ $t('dashboard.nft.volume') }}</p>
                         <div class="delimetr"></div>
                         <h4>
                             {{ item.volume || 0 }} <span>{{ item.token.symbol }}</span>
                         </h4>
                     </div>
                     <div>
-                        <p>{{ $t('dashboard.marketCap') }}</p>
+                        <p>{{ $t('dashboard.nft.marketCap') }}</p>
                         <div class="delimetr"></div>
                         <h4>
                             {{ item.marketCap || 0 }} <span>{{ item.token.symbol }}</span>
                         </h4>
                     </div>
                     <div>
-                        <p>{{ $t('dashboard.numberOfItems') }}</p>
+                        <p>{{ $t('dashboard.nft.numberOfItems') }}</p>
                         <div class="delimetr"></div>
                         <span>{{ item.numberOfAssets || '-' }}</span>
                     </div>
                     <div>
-                        <p>{{ $t('dashboard.marketplaces') }}</p>
+                        <p>{{ $t('dashboard.nft.marketplaces') }}</p>
                         <div class="delimetr"></div>
                         <h4 class="name">{{ item.marketplaces[0]?.name }}</h4>
                     </div>
                     <div>
-                        <p>{{ $t('dashboard.contractAddress') }}</p>
+                        <p>{{ $t('dashboard.nft.contractAddress') }}</p>
                         <div class="delimetr"></div>
 
                         <span>{{ cutAddress(item.address) }}</span>
@@ -338,8 +338,6 @@ export default {
                 overflow-x: hidden;
                 overflow-y: scroll;
                 height: 160px;
-                width: 105%;
-                padding-right: 10px;
 
                 .title {
                     color: var(--#{$prefix}primary-text);
