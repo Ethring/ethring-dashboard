@@ -20,7 +20,7 @@
         </div>
         <div class="change">
             <template v-if="isTooltip">
-                <a-tooltip placement="right">
+                <a-tooltip placement="topRight">
                     <template #title>{{ balanceUsd.value }}</template>
                     <div class="value" :title="balanceUsd.value"><span>$</span>{{ balanceUsd.pretty }}</div>
                 </a-tooltip>
