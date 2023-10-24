@@ -20,7 +20,7 @@
                             </div>
                             <div class="info">
                                 <div class="symbol">{{ item.symbol }}</div>
-                                <div class="name">{{ item.name }}</div>
+                                <div class="name">{{ item.name || item.symbol }}</div>
                             </div>
                         </div>
                         <div class="amount">

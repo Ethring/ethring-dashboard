@@ -8,7 +8,7 @@
                 </div>
             </div>
             <div class="info">
-                <div class="name">{{ item.name }}</div>
+                <div class="name">{{ item.name || item.symbol }}</div>
                 <slot></slot>
             </div>
         </div>

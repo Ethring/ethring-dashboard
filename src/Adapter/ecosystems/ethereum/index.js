@@ -235,13 +235,18 @@ class EthereumAdapter extends AdapterBase {
         return ethersProvider;
     }
 
-    formatTransactionForSign(transaction) {
+    async formatTransactionForSign(transaction) {
         if (typeof transaction.chainId === 'number') {
             transaction.chainId = `0x${transaction.chainId.toString(16)}`;
         }
 
         if (typeof transaction.gasPrice === 'string') {
             transaction.gasPrice = `0x${parseInt(transaction.gasPrice).toString(16)}`;
+        }
+
+        if (typeof transaction.nonce === 'number') {
+            const ethersProvider = this.getProvider();
+            transaction.nonce = await ethersProvider.getTransactionCount(transaction.from);
         }
 
         delete transaction.gas;
