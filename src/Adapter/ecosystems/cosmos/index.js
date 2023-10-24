@@ -164,7 +164,10 @@ class CosmosAdapter extends AdapterBase {
             await this.setAddressForChains(walletName);
             await chainWallet.update({ connect: true });
 
-            return isConnected;
+            return {
+                isConnected: isConnected,
+                walletName: walletName,
+            };
         } catch (error) {
             console.error(error, this.walletManager.isError);
             return false;

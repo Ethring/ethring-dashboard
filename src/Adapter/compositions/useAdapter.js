@@ -91,11 +91,14 @@ function useAdapter() {
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
         try {
-            const isConnected = await adapter.connectWallet(...args);
+            const { isConnected, walletName } = await adapter.connectWallet(...args);
 
             adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
 
-            adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
+            if (walletName) {
+                adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
+                adaptersDispatch(TYPES.SET_IS_CONNECTED, true);
+            }
 
             isConnected && storeWalletInfo();
 
@@ -171,12 +174,23 @@ function useAdapter() {
 
     // * Disconnect Wallet by Ecosystem
     const disconnectWallet = async (ecosystem, wallet) => {
+        const { walletModule } = wallet || {};
+
+        if (ecosystem === currEcosystem.value) {
+            console.log('disconnectWallet curr', ecosystem, walletModule);
+        }
+
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+
         adaptersDispatch(TYPES.DISCONNECT_WALLET, wallet);
 
-        router.push('/connect-wallet');
+        await adapter.disconnectWallet(walletModule);
 
-        await adapter.disconnectWallet(wallet.walletModule);
+        if (!connectedWallets.value.length) {
+            router.push('/connect-wallet');
+        }
+
+        storeWalletInfo();
     };
 
     // * Disconnect All Wallets

@@ -82,7 +82,13 @@ export default {
         });
 
         const isTooltip = computed(() => {
-            return balanceUsd.value.pretty.includes('~');
+            const { pretty = '' } = balanceUsd.value || {};
+
+            if (!pretty) {
+                return false;
+            }
+
+            return pretty?.includes('~') || false;
         });
 
         return {

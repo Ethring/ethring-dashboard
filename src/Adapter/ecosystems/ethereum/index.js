@@ -33,7 +33,7 @@ class EthereumAdapter extends AdapterBase {
     }
 
     async connectWallet(walletName) {
-        const { connectWallet, connectingWallet } = useOnboard();
+        const { connectWallet, connectingWallet, connectedWallet } = useOnboard();
 
         const connectionOption = {
             autoSelect: {
@@ -49,7 +49,10 @@ class EthereumAdapter extends AdapterBase {
                 this.setAddressForChains();
             }
 
-            return !connectingWallet.value;
+            return {
+                isConnected: !connectingWallet.value,
+                walletName: connectedWallet.value?.label || null,
+            };
         } catch (error) {
             console.error('Failed to connect to:', walletName, error);
             return false;

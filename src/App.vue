@@ -97,7 +97,7 @@ export default {
                 lastConnectedCall.value = true;
             }
 
-            await delay(1000);
+            await delay(500);
 
             await callInit();
         });
