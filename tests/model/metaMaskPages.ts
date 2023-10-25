@@ -6,12 +6,26 @@ const sleep = require('util').promisify(setTimeout);
 
 const password = getTestVar(TEST_CONST.PASS_BY_MM_WALLET);
 
-export const waitMmNotifyWindow = async () => {
+export const sleepFiveSecond = async () => {
     await sleep(5000);
+};
+
+export const waitMmNotifyPage = async (context: BrowserContext) => {
+    try {
+        await sleepFiveSecond();
+        await context.pages()[2].title();
+    } catch (error) {
+        console.error('First try get mm notify page is failed.', error, ' Second try...');
+        await sleepFiveSecond();
+        await context.pages()[2].title();
+    }
 };
 
 export const getNotifyMmPage = async (context: BrowserContext): Promise<Page> => {
     const expectedMmPageTitle = 'MetaMask Notification';
+
+    await waitMmNotifyPage(context);
+
     const notifyPage = context.pages()[2];
     const titlePage = await notifyPage.title();
 
@@ -23,7 +37,7 @@ export const getNotifyMmPage = async (context: BrowserContext): Promise<Page> =>
 };
 
 export const closeEmptyPages = async (context: BrowserContext) => {
-    await waitMmNotifyWindow();
+    await sleepFiveSecond();
     const allStartPages = context.pages();
 
     for (const page of allStartPages) {
@@ -58,7 +72,7 @@ export class MetaMaskHomePage {
     }
 
     async addWallet(seed: String) {
-        await waitMmNotifyWindow();
+        await sleepFiveSecond();
         await this.page.reload();
         await this.page.locator('input[data-testid=onboarding-terms-checkbox]').click();
         await this.page.locator('button[data-testid=onboarding-import-wallet]').click();
