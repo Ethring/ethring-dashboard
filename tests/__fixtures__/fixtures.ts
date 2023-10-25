@@ -25,9 +25,13 @@ const authInDashboardByMm = async (context: BrowserContext, seed: String): Promi
     const zometPage = new DashboardPage(await context.newPage());
     await zometPage.goToPage();
 
-    await zometPage.loginByMetaMask();
+    await zometPage.clickLoginByMetaMask();
     const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
     await notifyMM.assignPage();
+
+    const providerModal = zometPage.page.getByText('Connection Successful');
+    await providerModal.waitFor({ state: 'detached', timeout: 20000 }); 
+
     return zometPage;
 };
 
@@ -38,6 +42,7 @@ export const test = base.extend<{
 
     dashboard: DashboardPage;
     dashboardProtocol: DashboardPage;
+    dashboardEmptyWallet: DashboardPage;
 
     sendPage: SendPage;
     swapPage: SwapPage;
@@ -57,7 +62,6 @@ export const test = base.extend<{
                 '--disable-background-timer-throttling',
                 '--disable-backgrounding-occluded-windows',
                 '--disable-renderer-backgrounding',
-                process.env.CI ? '--headless=new' : '',
             ],
         });
 
@@ -78,6 +82,10 @@ export const test = base.extend<{
     },
     dashboard: async ({ context }, use) => {
         const zometPage = await authInDashboardByMm(context, seedPhraseByTx);
+        await use(zometPage);
+    },
+    dashboardEmptyWallet: async ({ context }, use) => {
+        const zometPage = await authInDashboardByMm(context, seedPhraseEmptyWallet);
         await use(zometPage);
     },
     dashboardProtocol: async ({ context }, use) => {
