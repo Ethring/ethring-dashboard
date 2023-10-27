@@ -66,8 +66,6 @@ stages:
       -p APP_NAME=$(echo $CI_PROJECT_NAMESPACE | sed -e 's/\//-/g')
       -p IMAGE_NAME=$IMAGE_TAG
       -p NAMESPACE=$OPENSHIFT_PROJECT
-      -p AUTH_USER=$AUTH_USER
-      -p AUTH_PASSWORD=$AUTH_PASSWORD
       -p PORT=$PORT
       -p REPLICAS=$REPLICAS
       -p DOCKERCONFIGJSON=$DOCKERCONFIGJSON | oc apply -f -
@@ -77,6 +75,7 @@ stages:
         oc rollout restart deploy $NAME
       fi
     - oc rollout status deploy $NAME -n $OPENSHIFT_PROJECT
+
 
 Sentry release:
   stage: sentry
