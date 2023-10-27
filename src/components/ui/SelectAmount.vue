@@ -219,6 +219,10 @@ export default {
 
             // val = val.replace(/[^0-9.]+/g, '').replace(/\.{2,}/g, '.');
 
+            if (val === '' || !val?.toString()) {
+                return (payTokenPrice.value = 0);
+            }
+
             val = val
                 .toString()
                 // remove spaces
