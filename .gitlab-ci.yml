@@ -66,6 +66,8 @@ stages:
       -p APP_NAME=$(echo $CI_PROJECT_NAMESPACE | sed -e 's/\//-/g')
       -p IMAGE_NAME=$IMAGE_TAG
       -p NAMESPACE=$OPENSHIFT_PROJECT
+      -p AUTH_USER=$BETA_AUTH_USER
+      -p AUTH_PASSWORD=$BETA_AUTH_PASSWORD
       -p PORT=$PORT
       -p REPLICAS=$REPLICAS
       -p DOCKERCONFIGJSON=$DOCKERCONFIGJSON | oc apply -f -
