@@ -871,14 +871,17 @@ export default {
         });
 
         watch(srcAmount, () => {
-            if (srcAmount.value === 0) {
-                resetSrcAmount.value = false;
-            }
+            resetSrcAmount.value = srcAmount.value === null;
         });
 
         watch(dstAmount, () => {
-            if (dstAmount.value === 0) {
-                resetDstAmount.value = false;
+            resetDstAmount.value = dstAmount.value === null;
+        });
+
+        watch(isWaitingTxStatusForModule, () => {
+            if (!isWaitingTxStatusForModule.value) {
+                selectedSrcNetwork.value && handleUpdateBalance(selectedSrcNetwork.value, 'SrcNetwork');
+                selectedDstNetwork.value && handleUpdateBalance(selectedDstNetwork.value, 'DstNetwork');
             }
         });
 

@@ -663,18 +663,18 @@ export default {
             setTokenOnChange();
         });
 
-        watch(srcAmount, () => {
-            if (srcAmount.value === 0) {
-                console.log('srcAmount', srcAmount.value);
-                resetSrcAmount.value = true;
+        watch(isWaitingTxStatusForModule, async () => {
+            if (!isWaitingTxStatusForModule.value) {
+                await handleUpdateBalance();
             }
         });
 
+        watch(srcAmount, () => {
+            resetSrcAmount.value = srcAmount.value === null;
+        });
+
         watch(dstAmount, () => {
-            if (dstAmount.value === 0) {
-                console.log('dstAmount', dstAmount.value);
-                resetDstAmount.value = true;
-            }
+            resetDstAmount.value = dstAmount.value === null;
         });
 
         watch(selectedSrcToken, () => {

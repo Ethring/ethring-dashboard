@@ -99,7 +99,9 @@ export default {
 
             await delay(100);
 
-            await callInit();
+            if (currentChainInfo.value) {
+                await callInit();
+            }
         });
 
         watchEffect(async () => {
@@ -141,7 +143,9 @@ export default {
                 return;
             }
 
-            await callInit();
+            if (currentChainInfo.value) {
+                return await callInit();
+            }
         });
 
         return {

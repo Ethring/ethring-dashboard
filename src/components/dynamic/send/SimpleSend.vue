@@ -232,9 +232,7 @@ export default {
         // =================================================================================================================
 
         watch(srcAmount, () => {
-            if (srcAmount.value === 0) {
-                resetAmount.value = true;
-            }
+            resetAmount.value = srcAmount.value === null;
         });
 
         watch(receiverAddress, () => {
