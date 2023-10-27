@@ -72,7 +72,7 @@ export default {
             const { ecosystem, walletModule } = currentChainInfo.value || {};
 
             if (!walletModule || !ecosystem || !walletAddress.value || showRoutesModal.value) {
-                return;
+                return setTimeout(callInit, 1000);
             }
 
             store.dispatch('tokens/setLoader', true);
@@ -97,7 +97,7 @@ export default {
                 lastConnectedCall.value = true;
             }
 
-            await delay(500);
+            await delay(100);
 
             await callInit();
         });
@@ -128,6 +128,7 @@ export default {
         });
 
         watch(walletAccount, async () => {
+            console.log('walletAccount', walletAccount.value, isInitCall.value);
             if (isInitCall.value[walletAddress.value]) {
                 return;
             }

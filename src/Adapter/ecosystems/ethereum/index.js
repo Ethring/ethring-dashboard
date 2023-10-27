@@ -82,7 +82,7 @@ class EthereumAdapter extends AdapterBase {
                 continue;
             }
 
-            const { net } = chainInfo || {};
+            const { net, logo } = chainInfo || {};
 
             if (!this.addressByNetwork[net]) {
                 this.addressByNetwork[net] = null;
@@ -90,7 +90,7 @@ class EthereumAdapter extends AdapterBase {
 
             this.addressByNetwork[net] = {
                 address: mainAddress,
-                logo: chainInfo.logo,
+                logo,
             };
         }
     }
@@ -318,6 +318,13 @@ class EthereumAdapter extends AdapterBase {
         const [explorer] = explorers || [];
 
         return `${explorer}/tx/${txHash}`;
+    }
+
+    getTokenExplorerLink(tokenAddress, chainInfo) {
+        const { explorers } = chainInfo || {};
+        const [explorer] = explorers || [];
+
+        return `${explorer}/token/${tokenAddress}`;
     }
 
     getAddressesWithChains() {

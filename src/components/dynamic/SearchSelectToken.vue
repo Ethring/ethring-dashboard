@@ -131,12 +131,13 @@ export default {
 
             try {
                 const price = await PricesModule.Coingecko.priceByPlatformContracts(requestPriceFor);
+                const address = tokenAddress?.toLowerCase() || tokenAddress;
 
-                if (!price[tokenAddress]) {
+                if (!price[address]) {
                     return 0;
                 }
 
-                const { usd = 0 } = price[tokenAddress] || {};
+                const { usd = 0 } = price[address] || {};
 
                 return usd;
             } catch (error) {

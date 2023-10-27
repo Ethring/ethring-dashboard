@@ -232,7 +232,20 @@ function useAdapter() {
 
     // * Get Explorer Link by Tx Hash
     const getTxExplorerLink = (...args) => {
-        return mainAdapter.value.getTxExplorerLink(...args);
+        return mainAdapter.value.getTxExplorerLink(...args) || null;
+    };
+
+    // * Get Explorer Link by Tx Hash
+    const getTokenExplorerLink = (tokenAddress, chain) => {
+        const chains = getChainListByEcosystem(currEcosystem.value);
+
+        if (!chains?.length) {
+            return null;
+        }
+
+        const chainInfo = chains.find(({ net }) => net === chain);
+
+        return mainAdapter.value.getTokenExplorerLink(tokenAddress, chainInfo) || null;
     };
 
     // * Sign & Send Transaction
@@ -250,9 +263,11 @@ function useAdapter() {
     const getChainByChainId = (ecosystem, chainId) => {
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
         const chainList = adapter.getChainList(store);
+
         const chain = chainList.find((chain) => chain.chain_id === chainId);
 
         return {
+            ...chain,
             chain: chain?.chain_id,
             name: chain?.name,
             logo: chain?.logo,
@@ -315,6 +330,8 @@ function useAdapter() {
         getChainByChainId,
 
         getTxExplorerLink,
+        getTokenExplorerLink,
+
         formatTransactionForSign,
 
         setChain,

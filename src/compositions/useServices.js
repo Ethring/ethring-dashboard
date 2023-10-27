@@ -184,6 +184,10 @@ export default function useModule({ module, moduleType }) {
         if (toToken && !selectedDstToken.value) {
             selectedDstToken.value = toToken;
         }
+
+        if (moduleType === 'send') {
+            selectedDstToken.value = null;
+        }
     };
 
     // =================================================================================================================

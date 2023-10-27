@@ -13,25 +13,7 @@
                 </template>
 
                 <template v-if="!tokensLoading && tokensList.length > 0">
-                    <div v-for="(item, ndx) in tokensList" :key="ndx" @click="() => setToken(item)" class="select-token__item">
-                        <div class="network">
-                            <div class="logo">
-                                <TokenIcon width="24" height="24" :token="item" />
-                            </div>
-                            <div class="info">
-                                <div class="symbol">{{ item.symbol }}</div>
-                                <div class="name">{{ item.name || item.symbol }}</div>
-                            </div>
-                        </div>
-                        <div class="amount">
-                            <h3>
-                                {{ prettyNumber(item?.balance) }}
-                                <span class="symbol">{{ item?.symbol }}</span>
-                            </h3>
-                            <h5 class="value"><span>$</span>{{ prettyNumber(item?.balanceUsd) }}</h5>
-                        </div>
-                    </div>
-
+                    <TokenRecord v-for="(item, ndx) in tokensList" :key="ndx" :record="item" @select-token="(token) => setToken(token)" />
                     <div v-if="isLoadMore" class="select-token__load-more">
                         <Button title="Load More" @click="handleLoadMore" />
                     </div>
@@ -51,12 +33,13 @@ import { useRouter } from 'vue-router';
 import _ from 'lodash';
 
 import SearchInput from '@/components/ui/SearchInput';
-import TokenIcon from '@/components/ui/TokenIcon';
+
+import TokenRecord from '@/components/ui/Tokens/TokenRecord';
+
 import Button from '@/components/ui/Button';
 
 import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 import NotFoundIcon from '@/assets/icons/app/notFound.svg';
-
 import { prettyNumber } from '@/helpers/prettyNumber';
 import { searchByKey } from '@/helpers/utils';
 
@@ -64,10 +47,10 @@ export default {
     name: 'SelectToken',
     components: {
         SearchInput,
-        TokenIcon,
         Button,
         ArrowIcon,
         NotFoundIcon,
+        TokenRecord,
     },
     props: {
         tokens: {
@@ -93,20 +76,18 @@ export default {
 
         const allTokens = computed(() => props.tokens || []);
 
-        const setToken = (item) => {
-            emit('setToken', item);
-        };
+        const setToken = (item) => emit('setToken', item);
 
         const handleOnFilterTokens = (val) => {
             searchValue.value = val;
             currentIndex.value = MAX_TOKENS_PER_PAGE;
         };
 
-        const searchInTokens = (tokens, value) => {
-            return _.filter(tokens, (elem) => {
-                return searchByKey(elem, value, 'name') || searchByKey(elem, value, 'symbol') || searchByKey(elem, value, 'address');
-            });
-        };
+        const searchInTokens = (tokens, value) =>
+            _.filter(
+                tokens,
+                (elem) => searchByKey(elem, value, 'name') || searchByKey(elem, value, 'symbol') || searchByKey(elem, value, 'address')
+            );
 
         const getTokensList = () => {
             isLoadMore.value = false;
@@ -142,7 +123,6 @@ export default {
             isLoadMore,
 
             handleLoadMore,
-
             handleOnFilterTokens,
             setToken,
         };
@@ -190,86 +170,86 @@ export default {
         }
     }
 
-    &__item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+    // &__item {
+    //     display: flex;
+    //     align-items: center;
+    //     justify-content: space-between;
 
-        border: 1px solid var(--#{$prefix}border-secondary-color);
+    //     border: 1px solid var(--#{$prefix}border-secondary-color);
 
-        padding: 16px;
+    //     padding: 16px;
 
-        border-radius: 16px;
+    //     border-radius: 16px;
 
-        &:not(:last-child) {
-            margin-bottom: 8px;
-        }
+    //     &:not(:last-child) {
+    //         margin-bottom: 8px;
+    //     }
 
-        &:hover {
-            box-shadow: 0px 4px 30px rgba(0, 0, 0, 0.15);
-        }
+    //     &:hover {
+    //         box-shadow: 0px 4px 30px rgba(0, 0, 0, 0.15);
+    //     }
 
-        cursor: pointer;
-        .network {
-            display: flex;
-            align-items: center;
-        }
-        h3,
-        h5 {
-            font-style: normal;
-            font-weight: 600;
-            font-size: var(--#{$prefix}h5-fs);
-            text-align: right;
-            margin: 0;
-            color: var(--#{$prefix}primary-text);
-        }
-        span {
-            font-size: var(--#{$prefix}default-fs);
-            font-weight: 400;
-            color: var(--#{$prefix}secondary-text);
-        }
-        h5 {
-            font-size: var(--#{$prefix}small-lg-fs);
-            line-height: 21px;
-            color: var(--#{$prefix}primary-text);
-            span {
-                font-size: var(--#{$prefix}small-sm-fs);
-                font-weight: 400;
-            }
-        }
-        .amount {
-            text-align: right;
-        }
-        .info {
-            .symbol {
-                font-style: normal;
-                font-weight: 600;
-                font-size: var(--#{$prefix}h6-fs);
-                line-height: 27px;
-                text-transform: uppercase;
-                color: var(--#{$prefix}primary-text);
-            }
+    //     cursor: pointer;
+    //     .network {
+    //         display: flex;
+    //         align-items: center;
+    //     }
+    //     h3,
+    //     h5 {
+    //         font-style: normal;
+    //         font-weight: 600;
+    //         font-size: var(--#{$prefix}h5-fs);
+    //         text-align: right;
+    //         margin: 0;
+    //         color: var(--#{$prefix}primary-text);
+    //     }
+    //     span {
+    //         font-size: var(--#{$prefix}default-fs);
+    //         font-weight: 400;
+    //         color: var(--#{$prefix}secondary-text);
+    //     }
+    //     h5 {
+    //         font-size: var(--#{$prefix}small-lg-fs);
+    //         line-height: 21px;
+    //         color: var(--#{$prefix}primary-text);
+    //         span {
+    //             font-size: var(--#{$prefix}small-sm-fs);
+    //             font-weight: 400;
+    //         }
+    //     }
+    //     .amount {
+    //         text-align: right;
+    //     }
+    //     .info {
+    //         .symbol {
+    //             font-style: normal;
+    //             font-weight: 600;
+    //             font-size: var(--#{$prefix}h6-fs);
+    //             line-height: 27px;
+    //             text-transform: uppercase;
+    //             color: var(--#{$prefix}primary-text);
+    //         }
 
-            .name {
-                font-style: normal;
-                font-weight: 400;
-                font-size: var(--#{$prefix}small-lg-fs);
-                line-height: 21px;
-                color: var(--#{$prefix}sub-text);
-            }
-        }
-        .logo {
-            width: 40px;
-            height: 40px;
+    //         .name {
+    //             font-style: normal;
+    //             font-weight: 400;
+    //             font-size: var(--#{$prefix}small-lg-fs);
+    //             line-height: 21px;
+    //             color: var(--#{$prefix}sub-text);
+    //         }
+    //     }
+    //     .logo {
+    //         width: 40px;
+    //         height: 40px;
 
-            display: flex;
-            align-items: center;
-            justify-content: center;
+    //         display: flex;
+    //         align-items: center;
+    //         justify-content: center;
 
-            border-radius: 50%;
-            margin-right: 12px;
-        }
-    }
+    //         border-radius: 50%;
+    //         margin-right: 12px;
+    //     }
+    // }
 
     &__load-more {
         display: flex;

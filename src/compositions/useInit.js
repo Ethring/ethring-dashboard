@@ -136,8 +136,6 @@ export default async function useInit(store, { addressesWithChains = {}, account
         console.error('An error occurred:', error);
     });
 
-    // cancelCurrentOperations();
-
     let totalBalance = BigNumber(0);
     let assetsBalance = BigNumber(0);
 
@@ -145,16 +143,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
 
     const addresses = arrayFromObject(addressesWithChains);
 
-    const sortedByCurrChain = _.orderBy(
-        addresses,
-        [
-            // Current chain first
-            (item) => (item.chain === currentChain ? 0 : 1),
-            // Then by chain
-            (item) => _.indexOf(Object.keys(COSMOS_CHAIN_ID), item.chain),
-        ],
-        ['asc', 'desc']
-    );
+    const sortedByCurrChain = _.orderBy(addresses, (item) => (item.chain === currentChain ? 0 : 1), ['asc']);
 
     const chunkedAddresses = _.chunk(sortedByCurrChain, CHUNK_SIZE);
 
@@ -162,6 +151,8 @@ export default async function useInit(store, { addressesWithChains = {}, account
     const allIntegrations = [];
 
     const progressChunk = async (chunk) => {
+        let requests = {};
+
         for (const { chain, info } of chunk) {
             store.dispatch('tokens/setLoadingByChain', { chain, value: true });
 
@@ -174,14 +165,24 @@ export default async function useInit(store, { addressesWithChains = {}, account
                 continue;
             }
 
-            // const response = (await getBalancesByAddress(chainForRequest, chainAddress, { signal })) || {};
-            const response = (await getBalancesByAddress(chainForRequest, chainAddress)) || {};
+            // =========================================================================================================
+
+            if (!requests[chainForRequest]) {
+                requests[chain] = await getBalancesByAddress(chainForRequest, chainAddress);
+            }
+
+            if (!requests[chainForRequest]) {
+                store.dispatch('tokens/setLoadingByChain', { chain, value: false });
+                continue;
+            }
+
+            // =========================================================================================================
 
             const {
                 tokens = [],
                 integrations = [],
                 nfts = [],
-            } = await saveOrGetDataFromCache(`${account}-${chainForRequest}-${chainAddress}`, response);
+            } = await saveOrGetDataFromCache(`${account}-${chainForRequest}-${chainAddress}`, requests[chainForRequest]);
 
             if (!tokens.length && !integrations.length && !nfts.length) {
                 store.dispatch('tokens/setLoadingByChain', { chain, value: false });
@@ -207,6 +208,8 @@ export default async function useInit(store, { addressesWithChains = {}, account
                 allIntegrations.push(...list);
             }
 
+            // =========================================================================================================
+
             store.dispatch('tokens/setGroupTokens', { chain, account, data: { list: tokens } });
 
             store.dispatch('tokens/setDataFor', { type: 'tokens', account, data: allTokens });
@@ -219,6 +222,8 @@ export default async function useInit(store, { addressesWithChains = {}, account
 
             store.dispatch('tokens/setLoadingByChain', { chain, account, value: false });
         }
+
+        requests = {};
     };
 
     // Проходим по chunk и обрабатываем их
