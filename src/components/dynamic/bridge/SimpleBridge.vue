@@ -21,7 +21,7 @@
             v-if="selectedSrcNetwork"
             :value="selectedSrcToken"
             :error="!!isBalanceError"
-            :on-reset="resetAmount"
+            :on-reset="resetSrcAmount"
             :disabled="!selectedSrcToken"
             :label="$t('tokenOperations.send')"
             :is-token-loading="isTokensLoadingForSrc"
@@ -39,7 +39,7 @@
             :is-token-loading="isTokensLoadingForDst"
             :label="$t('tokenOperations.receive')"
             :disabled-value="formatNumber(dstAmount)"
-            :on-reset="resetAmount"
+            :on-reset="resetDstAmount"
             class="mt-10"
             @clickToken="onSetDstToken"
         />
@@ -242,7 +242,8 @@ export default {
 
         const estimateErrorTitle = ref('');
 
-        const resetAmount = ref(false);
+        const resetSrcAmount = ref(false);
+        const resetDstAmount = ref(false);
 
         const feeInfo = ref({
             title: '',
@@ -373,7 +374,8 @@ export default {
 
             isEstimating.value = false;
 
-            resetAmount.value = true;
+            resetSrcAmount.value = true;
+            resetDstAmount.value = true;
 
             estimateErrorTitle.value = '';
         };
@@ -754,7 +756,8 @@ export default {
                 clearApproveForService();
 
                 if (responseSendTx.error) {
-                    resetAmount.value = false;
+                    resetSrcAmount.value = false;
+                    resetDstAmount.value = false;
                     txError.value = responseSendTx.error;
                     txErrorTitle.value = 'Sign transaction error';
                     return (isLoading.value = false);
@@ -868,7 +871,15 @@ export default {
         });
 
         watch(srcAmount, () => {
-            resetAmount.value = srcAmount.value === null;
+            if (srcAmount.value === 0) {
+                resetSrcAmount.value = false;
+            }
+        });
+
+        watch(dstAmount, () => {
+            if (dstAmount.value === 0) {
+                resetDstAmount.value = false;
+            }
         });
 
         // =================================================================================================================
@@ -908,7 +919,10 @@ export default {
 
             disabledBtn,
             isNeedApprove,
-            resetAmount,
+
+            resetSrcAmount,
+            resetDstAmount,
+
             isSendToAnotherAddress,
 
             chainList,

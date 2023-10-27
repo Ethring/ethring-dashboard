@@ -7,7 +7,7 @@
                 class="mt-10"
                 :value="selectedSrcToken"
                 :error="!!isBalanceError"
-                :on-reset="resetAmount"
+                :on-reset="resetSrcAmount"
                 :is-token-loading="isTokensLoadingForChain"
                 :is-update="isUpdateSwapDirectionValue"
                 :label="$t('tokenOperations.pay')"
@@ -26,7 +26,7 @@
                 :is-token-loading="isTokensLoadingForChain"
                 :is-amount-loading="isEstimating"
                 :value="selectedDstToken"
-                :on-reset="resetAmount"
+                :on-reset="resetDstAmount"
                 :is-update="isUpdateSwapDirectionValue"
                 :label="$t('tokenOperations.receive')"
                 :disabled-value="dstAmount"
@@ -227,7 +227,10 @@ export default {
             toSymbol: '',
         });
 
-        const resetAmount = ref(false);
+        // =================================================================================================================
+
+        const resetSrcAmount = ref(false);
+        const resetDstAmount = ref(false);
 
         // =================================================================================================================
 
@@ -624,7 +627,9 @@ export default {
                 clearApproveForService();
 
                 if (responseSendTx.error) {
-                    resetAmount.value = false;
+                    resetSrcAmount.value = false;
+                    resetDstAmount.value = false;
+
                     txError.value = responseSendTx.error;
                     txErrorTitle.value = 'Sign transaction error';
 
@@ -659,7 +664,17 @@ export default {
         });
 
         watch(srcAmount, () => {
-            resetAmount.value = srcAmount.value === null;
+            if (srcAmount.value === 0) {
+                console.log('srcAmount', srcAmount.value);
+                resetSrcAmount.value = true;
+            }
+        });
+
+        watch(dstAmount, () => {
+            if (dstAmount.value === 0) {
+                console.log('dstAmount', dstAmount.value);
+                resetDstAmount.value = true;
+            }
         });
 
         watch(selectedSrcToken, () => {
@@ -727,7 +742,9 @@ export default {
             estimateErrorTitle,
             selectedSrcNetwork,
 
-            resetAmount,
+            resetSrcAmount,
+            resetDstAmount,
+
             isUpdateSwapDirectionValue,
             currentChainInfo,
 

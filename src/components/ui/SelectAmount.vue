@@ -189,9 +189,13 @@ export default {
 
         watch(
             () => props.value,
-            (val) => {
-                if (val) {
-                    setToken(val);
+            (tkn, oldTkn) => {
+                if (tkn?.id === oldTkn?.id || tkn?.address === oldTkn?.address) {
+                    return;
+                }
+
+                if (tkn) {
+                    setToken(tkn);
                     amount.value = '';
                     active.value = false;
                     emit('setAmount', amount.value);
