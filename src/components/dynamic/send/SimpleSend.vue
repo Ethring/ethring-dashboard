@@ -151,6 +151,8 @@ export default {
 
             const token = tokensList.value.find((tkn) => tkn.symbol === symbol);
 
+            onSetAddress(receiverAddress.value);
+
             return (selectedToken.value = token || null);
         };
 

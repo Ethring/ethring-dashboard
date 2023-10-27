@@ -458,6 +458,8 @@ export default {
             const isBalanceAllowed = +value > selectedSrcToken.value?.balance || +networkFee.value > selectedSrcToken.value.balance;
 
             isBalanceError.value = isBalanceAllowed;
+
+            onSetAddress(receiverAddress.value);
         };
 
         // =================================================================================================================
