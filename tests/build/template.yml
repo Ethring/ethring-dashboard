@@ -1,0 +1,110 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+labels:
+  name: ${DC_NAME}
+  app: ${APP_NAME}
+  template: ${APP_NAME}
+metadata:
+  annotations:
+    description: ${DC_NAME} from Gitlab CI
+    iconClass: icon-gitlab
+    openshift.io/display-name: ${DC_NAME}
+    openshift.io/long-description: ${DC_NAME}
+    tags: gitlab, ${DC_NAME}
+  name: ${DC_NAME}
+objects:
+- kind: Deployment
+  apiVersion: apps/v1
+  metadata:
+    annotations:
+      description: Defines how to deploy the application server
+    name: ${DC_NAME}
+    namespace: ${NAMESPACE}
+    labels:
+      app: ${DC_NAME}
+      app.kubernetes.io/component: ${DC_NAME}
+      app.kubernetes.io/instance: ${DC_NAME}
+      app.kubernetes.io/part-of: ${APP_NAME}
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        name: ${DC_NAME}
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxUnavailable: 1
+        maxSurge: 0
+    template:
+      metadata:
+        labels:
+          name: ${DC_NAME}
+        name: ${DC_NAME}
+      spec:
+        containers:
+          - image: ${IMAGE_NAME}
+            name: ${DC_NAME}
+            imagePullPolicy: Always
+            ports:
+              - containerPort: ${{PORT}}
+                protocol: TCP
+            resources:
+              requests:
+                cpu: "10m"
+                memory: "64Mi"
+          - name: auth-sidecar
+            image: 'xscys/nginx-sidecar-basic-auth:latest'
+            ports:
+              - containerPort: 8087
+                protocol: TCP
+            env:
+              - name: FORWARD_PORT
+                value: ${PORT}
+              - name: BASIC_AUTH_USERNAME
+                value: ${AUTH_USERNAME}
+              - name: BASIC_AUTH_PASSWORD
+                value: ${AUTH_PASSWORD}
+            resources:
+              requests:
+                cpu: 5m
+                memory: 64Mi
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+            imagePullPolicy: IfNotPresent
+    triggers:
+      - type: ConfigChange
+
+- kind: Service
+  apiVersion: v1
+  labels:
+    app: ${DC_NAME}
+  metadata:
+    annotations:
+      description: Exposes and load balances the application pods
+    name: ${DC_NAME}
+    namespace: ${NAMESPACE}
+  spec:
+    ports:
+      - name: http
+        protocol: TCP
+        port: 8087
+        targetPort: 8087
+    selector:
+      name: ${DC_NAME}
+
+parameters:
+  - name: IMAGE_NAME
+    required: true
+  - name: DC_NAME
+    required: true
+  - name: APP_NAME
+    required: true
+  - name: NAMESPACE
+    required: true
+  - name: PORT
+    required: true
+  - name: AUTH_USERNAME
+    required: true
+  - name: AUTH_PASSWORD
+    required: true
+

@@ -19,5 +19,9 @@ export default async (to, from, next) => {
 
     const { currentChainInfo } = useAdapter();
 
+    if (!redirectOrStay(to.path, currentChainInfo.value)) {
+        return next('/');
+    }
+
     next(redirectOrStay(to.path, currentChainInfo.value));
 };

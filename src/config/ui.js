@@ -88,6 +88,21 @@ const defaultConfig = {
 
 const CUSTOM_UI_BY_CHAIN = {
     optimism: {
+        sidebar: [MAIN_DASHBOARD, SEND, SWAP],
+        send: {
+            component: 'SimpleSend',
+        },
+        swap: {
+            component: 'SimpleSwap',
+        },
+        bridge: {
+            component: 'SimpleBridge',
+        },
+        superSwap: {
+            component: 'SuperSwap',
+        },
+    },
+    fantom: {
         sidebar: [MAIN_DASHBOARD, SEND],
         send: {
             component: 'SimpleSend',

@@ -8,7 +8,7 @@
                 </div>
             </div>
             <div class="info">
-                <div class="name">{{ item.name }}</div>
+                <div class="name">{{ item.name || item.symbol }}</div>
                 <slot></slot>
             </div>
         </div>
@@ -19,7 +19,15 @@
             <div class="symbol">{{ item?.symbol }}</div>
         </div>
         <div class="change">
-            <div class="value" :title="balanceUsd.value"><span>$</span>{{ balanceUsd.pretty }}</div>
+            <template v-if="isTooltip">
+                <a-tooltip placement="topRight">
+                    <template #title>{{ balanceUsd.value }}</template>
+                    <div class="value" :title="balanceUsd.value"><span>$</span>{{ balanceUsd.pretty }}</div>
+                </a-tooltip>
+            </template>
+            <template v-else>
+                <div class="value" :title="balanceUsd.value"><span>$</span>{{ balanceUsd.pretty }}</div>
+            </template>
         </div>
     </div>
 </template>
@@ -30,6 +38,7 @@ import { useStore } from 'vuex';
 import TokenIcon from '@/components/ui/TokenIcon';
 
 import { formatNumber } from '@/helpers/prettyNumber';
+import BigNumber from 'bignumber.js';
 
 export default {
     name: 'AssetItem',
@@ -56,8 +65,8 @@ export default {
             }
 
             return {
-                pretty: formatNumber(props.item?.balance, 2),
-                value: props.item?.balance,
+                pretty: formatNumber(props.item?.balance, 6),
+                value: BigNumber(props.item?.balance).toString(),
             };
         });
 
@@ -67,14 +76,25 @@ export default {
             }
 
             return {
-                pretty: formatNumber(props.item?.balanceUsd, 2),
-                value: props.item?.balanceUsd,
+                pretty: formatNumber(props.item?.balanceUsd, 4),
+                value: BigNumber(props.item?.balanceUsd).toString(),
             };
+        });
+
+        const isTooltip = computed(() => {
+            const { pretty = '' } = balanceUsd.value || {};
+
+            if (!pretty) {
+                return false;
+            }
+
+            return pretty?.includes('~') || false;
         });
 
         return {
             balance,
             balanceUsd,
+            isTooltip,
         };
     },
 };

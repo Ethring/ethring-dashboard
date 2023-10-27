@@ -21,6 +21,9 @@ import { checkErrors } from '@/helpers/checkErrors';
 const DEFAULT_CHAIN = 'cosmoshub';
 const { chains, assets, differentSlip44 } = cosmologyConfig;
 
+// const DEFAULT_RPC = 'https://rpc.cosmos.directory';
+// const DEFAULT_REST = 'https://rest.cosmos.directory';
+
 // * Constants for localStorage
 const STORAGE = {
     WALLET: 'cosmos-kit@2:core//current-wallet',
@@ -77,7 +80,7 @@ class CosmosAdapter extends AdapterBase {
             await chainWallet?.value?.connect(false);
             await chainWallet?.value?.update({ connect: false });
 
-            await this.setAddressForChains();
+            await this.setAddressForChains(chainWallet?.value?.walletName);
         });
     }
 
@@ -93,6 +96,10 @@ class CosmosAdapter extends AdapterBase {
 
         if (!wallet || !accounts.length) {
             return null;
+        }
+
+        if (!this.currentChain) {
+            this.currentChain = DEFAULT_CHAIN;
         }
 
         let chainRecord = this.walletManager.getChainRecord(this.currentChain);
@@ -114,11 +121,34 @@ class CosmosAdapter extends AdapterBase {
         return chainWallet;
     }
 
+    checkClient(walletName) {
+        const client = this.walletManager.getMainWallet(walletName);
+
+        if (!client) {
+            return false;
+        }
+        const { clientMutable } = client || {};
+
+        if (clientMutable.message === 'Client Not Exist!') {
+            return false;
+        }
+
+        if (clientMutable.state === 'Error') {
+            return false;
+        }
+
+        return true;
+    }
+
     async connectWallet(walletName, chain = DEFAULT_CHAIN) {
         try {
             const chainWallet = this.walletManager.getChainWallet(chain, walletName);
 
             chainWallet.activate();
+
+            // chainWallet.restEndpoints = [`${DEFAULT_REST}/${chain}`];
+            // chainWallet.rpcEndpoints = [`${DEFAULT_RPC}/${chain}`];
+
             await chainWallet.initClient();
             await chainWallet.connect(true);
 
@@ -134,7 +164,10 @@ class CosmosAdapter extends AdapterBase {
             await this.setAddressForChains(walletName);
             await chainWallet.update({ connect: true });
 
-            return isConnected;
+            return {
+                isConnected: isConnected,
+                walletName: walletName,
+            };
         } catch (error) {
             console.error(error, this.walletManager.isError);
             return false;
@@ -146,18 +179,29 @@ class CosmosAdapter extends AdapterBase {
 
         const chainForConnect = chain || chain_id || DEFAULT_CHAIN;
 
-        return await this.connectWallet(walletName, chainForConnect);
+        try {
+            const connected = await this.connectWallet(walletName, chainForConnect);
+            return connected;
+        } catch (error) {
+            console.error('Error in setChain', error);
+            return false;
+        }
     }
 
     async chainsWithDifferentSlip44(walletName) {
         try {
             const walletList = this.walletManager.walletRepos;
+            const mainAccount = this.getAccount();
 
             if (!walletList) {
                 return null;
             }
 
             const promises = walletList.map(async (wallet) => {
+                if (!this.addressByNetwork[mainAccount]) {
+                    this.addressByNetwork[mainAccount] = {};
+                }
+
                 const { chainName } = wallet;
 
                 if (!isDifferentSlip44(chainName, differentSlip44)) {
@@ -174,7 +218,7 @@ class CosmosAdapter extends AdapterBase {
                 const isConnected = diffChain.isWalletConnected;
 
                 if (isConnected) {
-                    this.addressByNetwork[chainName] = {
+                    this.addressByNetwork[mainAccount][chainName] = {
                         address: diffChain.address,
                         logo: diffChain.chain.logo_URIs?.svg || diffChain.chain.logo_URIs?.png || null,
                     };
@@ -193,9 +237,14 @@ class CosmosAdapter extends AdapterBase {
         }
 
         const mainAddress = this.getAccountAddress();
+        const mainAccount = this.getAccount();
 
         if (!mainAddress) {
             return null;
+        }
+
+        if (!this.addressByNetwork[mainAccount]) {
+            this.addressByNetwork[mainAccount] = {};
         }
 
         const promises = this.walletManager.chainRecords.map(async ({ chain }) => {
@@ -207,7 +256,7 @@ class CosmosAdapter extends AdapterBase {
 
             const chainAddress = await reEncodeWithNewPrefix(bech32_prefix, mainAddress);
 
-            this.addressByNetwork[chain_name] = {
+            this.addressByNetwork[mainAccount][chain_name] = {
                 address: chainAddress,
                 logo: chain.logo_URIs?.svg || chain.logo_URIs?.png || null,
             };
@@ -222,13 +271,14 @@ class CosmosAdapter extends AdapterBase {
         return this.walletManager.mainWallets || [];
     }
 
-    async disconnectWallet(wallet) {
-        const walletModule = this.walletManager.getMainWallet(wallet);
+    async disconnectWallet() {
+        const walletModule = this._getCurrentWallet();
         await walletModule?.value?.disconnect(true);
         await walletModule?.value?.update({ connect: false });
 
         window.localStorage.removeItem(STORAGE.WALLET);
         window.localStorage.removeItem(STORAGE.ACCOUNTS);
+
         this.addressByNetwork = {};
     }
 
@@ -300,8 +350,19 @@ class CosmosAdapter extends AdapterBase {
 
     getChainList() {
         const chainList = this.walletManager.chainRecords.map((record) => {
-            const { chain } = record;
+            const { chain, assetList = {} } = record || {};
+
+            const { assets = [] } = assetList || {};
+
+            const [asset = {}] = assets || [];
+
+            asset.logo = asset.logo_URIs?.svg || asset.logo_URIs?.png || null;
+            asset.decimals = asset.denom_units[1].exponent;
+
             const chainRecord = {
+                ...chain,
+                asset,
+                ecosystem: ECOSYSTEMS.COSMOS,
                 id: chain.chain_id,
                 net: chain.chain_name,
                 chain_id: chain.chain_name,
@@ -309,6 +370,7 @@ class CosmosAdapter extends AdapterBase {
                 walletName: this.walletName,
                 logo: chain.logo_URIs?.svg || chain.logo_URIs?.png || null,
             };
+
             return chainRecord;
         });
 
@@ -320,11 +382,15 @@ class CosmosAdapter extends AdapterBase {
         return module?.walletInfo?.logo || null;
     }
 
-    validateAddress(...args) {
-        return validateCosmosAddress(...args);
+    validateAddress(address, { chainId }) {
+        const { chain } = this.walletManager.getChainRecord(chainId) || {};
+
+        const { bech32_prefix } = chain || {};
+
+        return validateCosmosAddress(address, bech32_prefix);
     }
 
-    async prepareTransaction(fromAddress, toAddress, amount, token) {
+    async prepareTransaction({ fromAddress, toAddress, amount, token }) {
         const chainWallet = this._getCurrentWallet();
 
         const [feeInfo = {}] = chainWallet.value.chainRecord.chain.fees.fee_tokens || [];
@@ -371,7 +437,10 @@ class CosmosAdapter extends AdapterBase {
         const chainWallet = this._getCurrentWallet();
 
         try {
+            // chainWallet.value.rpcEndpoints = [`${DEFAULT_RPC}/${chainWallet.value.chainName}`];
+
             const response = await chainWallet.value.signAndBroadcast([msg], fee);
+
             return response;
         } catch (error) {
             console.error('error while signAndSend', error);
@@ -390,7 +459,8 @@ class CosmosAdapter extends AdapterBase {
     }
 
     getAddressesWithChains() {
-        return this.addressByNetwork || {};
+        const mainAccount = this.getAccount();
+        return this.addressByNetwork[mainAccount] || {};
     }
 }
 

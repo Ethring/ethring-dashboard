@@ -1,7 +1,6 @@
 import { computed } from 'vue';
 import { useStore } from 'vuex';
-
-import router from '@/routes';
+import { useRouter } from 'vue-router';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
@@ -11,6 +10,8 @@ import * as TYPES from '../store/types';
 function useAdapter() {
     // * Store Module
     const store = useStore();
+    const router = useRouter();
+
     const storeModule = 'adapters';
 
     // * Store Getters & Dispatch
@@ -90,11 +91,14 @@ function useAdapter() {
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
         try {
-            const isConnected = await adapter.connectWallet(...args);
+            const { isConnected, walletName } = await adapter.connectWallet(...args);
 
             adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
 
-            adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
+            if (walletName) {
+                adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
+                adaptersDispatch(TYPES.SET_IS_CONNECTED, true);
+            }
 
             isConnected && storeWalletInfo();
 
@@ -126,7 +130,9 @@ function useAdapter() {
 
             if (!isConnect) {
                 console.warn('Failed to connect to last connected wallet', ecosystem, chain, walletModule);
-                return adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
+                adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
+                adaptersDispatch(TYPES.SET_IS_CONNECTED, false);
+                return router.push('/connect-wallet');
             }
 
             if (currentChainInfo.value === 404) {
@@ -149,13 +155,17 @@ function useAdapter() {
     };
 
     // * Set Chain for current ecosystem
-    const setChain = (...args) => {
+    const setChain = async (...args) => {
         if (!mainAdapter.value) {
             return;
         }
 
         try {
-            return mainAdapter.value.setChain(...args);
+            const changed = await mainAdapter.value.setChain(...args);
+
+            storeWalletInfo();
+
+            return changed;
         } catch (error) {
             console.log('Failed to set chain', error);
             return false;
@@ -164,12 +174,23 @@ function useAdapter() {
 
     // * Disconnect Wallet by Ecosystem
     const disconnectWallet = async (ecosystem, wallet) => {
+        const { walletModule } = wallet || {};
+
+        if (ecosystem === currEcosystem.value) {
+            console.log('disconnectWallet curr', ecosystem, walletModule);
+        }
+
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+
         adaptersDispatch(TYPES.DISCONNECT_WALLET, wallet);
 
-        router.push('/connect-wallet');
+        await adapter.disconnectWallet(walletModule);
 
-        await adapter.disconnectWallet(wallet.walletModule);
+        if (!connectedWallets.value.length) {
+            router.push('/connect-wallet');
+        }
+
+        storeWalletInfo();
     };
 
     // * Disconnect All Wallets
@@ -185,14 +206,14 @@ function useAdapter() {
     };
 
     // * Validate Address
-    const validateAddress = (address) => {
+    const validateAddress = (address, { chainId }) => {
         if (!mainAdapter.value) {
             return false;
         }
 
-        const validation = currentChainInfo.value.address_validating || currentChainInfo.value.bech32_prefix;
+        const validation = currentChainInfo.value.address_validating;
 
-        return mainAdapter.value.validateAddress(address, validation);
+        return mainAdapter.value.validateAddress(address, { validation, chainId });
     };
 
     // * Format Tx for Ecosystem
@@ -211,7 +232,20 @@ function useAdapter() {
 
     // * Get Explorer Link by Tx Hash
     const getTxExplorerLink = (...args) => {
-        return mainAdapter.value.getTxExplorerLink(...args);
+        return mainAdapter.value.getTxExplorerLink(...args) || null;
+    };
+
+    // * Get Explorer Link by Tx Hash
+    const getTokenExplorerLink = (tokenAddress, chain) => {
+        const chains = getChainListByEcosystem(currEcosystem.value);
+
+        if (!chains?.length) {
+            return null;
+        }
+
+        const chainInfo = chains.find(({ net }) => net === chain);
+
+        return mainAdapter.value.getTokenExplorerLink(tokenAddress, chainInfo) || null;
     };
 
     // * Sign & Send Transaction
@@ -229,9 +263,11 @@ function useAdapter() {
     const getChainByChainId = (ecosystem, chainId) => {
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
         const chainList = adapter.getChainList(store);
+
         const chain = chainList.find((chain) => chain.chain_id === chainId);
 
         return {
+            ...chain,
             chain: chain?.chain_id,
             name: chain?.name,
             logo: chain?.logo,
@@ -242,11 +278,18 @@ function useAdapter() {
     // * Set New Chain by Ecosystem
     const setNewChain = async (ecosystem, newChainInfo) => {
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
-        await adapter.setChain(newChainInfo);
 
-        adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
+        const changed = await adapter.setChain(newChainInfo);
+
+        if (changed) {
+            adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
+
+            return true;
+        }
 
         storeWalletInfo();
+
+        return false;
     };
 
     // * Get Wallet Logo by Ecosystem
@@ -287,6 +330,8 @@ function useAdapter() {
         getChainByChainId,
 
         getTxExplorerLink,
+        getTokenExplorerLink,
+
         formatTransactionForSign,
 
         setChain,

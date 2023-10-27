@@ -1,4 +1,4 @@
-FROM node:14 as builder
+FROM node:16.14 as builder
 WORKDIR /app
 
 COPY package*.json ./
@@ -19,6 +19,7 @@ ARG VUE_APP_DATA_PROVIDER_URL=https://apps.3ahtim54r.ru/srv-data-provider/api
 ARG VUE_APP_PROXY_API=https://proxy-api.apps.citadel.okd.3ahtim54r.ru
 
 ARG VUE_APP_ZOMET_CORE_API_URL=https://zomet-core.3ahtim54r.ru
+ARG VUE_APP_TX_MANAGER=https://zomet-tx-manager.3ahtim54r.ru
 
 ARG VUE_APP_RELEASE
 ARG VUE_APP_SENTRY_DSN

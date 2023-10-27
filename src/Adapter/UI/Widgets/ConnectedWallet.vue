@@ -12,7 +12,7 @@
                 <div class="change-network-logo">
                     <img :src="chainInfo.logo" alt="current-chain-logo" />
                 </div>
-                <select v-model="selectedChain">
+                <select v-model="selectedChain" @change="handleSelectedChainChange">
                     <option v-for="chain in chainList" :key="chain" :selected="chain.chain_id === wallet.chain" :value="chain.chain_id">
                         {{ chain.name }}
                     </option>
@@ -35,7 +35,11 @@
                                 {{ $t('adapter.copyAddress') }}
                             </a-menu-item>
 
-                            <a-menu-item key="disconnect-account" @click="handleOnDisconnectAccount" class="wallet__options-item">
+                            <a-menu-item
+                                key="disconnect-account"
+                                @click="() => handleOnDisconnectAccount(wallet.ecosystem, wallet)"
+                                class="wallet__options-item"
+                            >
                                 <DisconnectOutlined />
                                 {{ $t('adapter.disconnectAccount') }}
                             </a-menu-item>
@@ -54,6 +58,8 @@ import { MoreOutlined, CopyOutlined, DisconnectOutlined } from '@ant-design/icon
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import ModuleIcon from '@/Adapter/UI/Entities/ModuleIcon.vue';
+
+import { ECOSYSTEMS } from '@/Adapter/config';
 
 import { cutAddress } from '@/helpers/utils';
 
@@ -74,13 +80,30 @@ export default {
     setup(props) {
         const selectedChain = ref(props.wallet.chain);
 
-        const { getChainListByEcosystem, getChainByChainId, setNewChain, connectTo, disconnectWallet, action, connectedWallet } =
-            useAdapter();
+        const {
+            getChainListByEcosystem,
+            getChainByChainId,
+            setNewChain,
+            connectTo,
+            disconnectWallet,
+            action,
+            connectedWallet,
+            currentChainInfo,
+        } = useAdapter();
 
         const chainList = computed(() => getChainListByEcosystem(props.wallet.ecosystem));
         const chainInfo = computed(() => getChainByChainId(props.wallet.ecosystem, selectedChain.value));
 
-        watch(selectedChain, async (newChain, oldChain) => {
+        watch(currentChainInfo, () => {
+            if (props.wallet.ecosystem === ECOSYSTEMS.EVM && currentChainInfo.value?.ecosystem === ECOSYSTEMS.EVM) {
+                selectedChain.value = currentChainInfo.value.chain_id;
+            }
+        });
+
+        const handleSelectedChainChange = async () => {
+            const newChain = selectedChain.value;
+            const oldChain = props.wallet.chain;
+
             if (newChain === oldChain) {
                 return;
             }
@@ -91,7 +114,11 @@ export default {
             };
 
             try {
-                await setNewChain(props.wallet.ecosystem, chainInfo);
+                const changed = await setNewChain(props.wallet.ecosystem, chainInfo);
+
+                if (!changed) {
+                    selectedChain.value = oldChain;
+                }
             } catch (error) {
                 console.error(error);
                 await setNewChain(props.wallet.ecosystem, {
@@ -100,7 +127,7 @@ export default {
                 });
                 selectedChain.value = oldChain;
             }
-        });
+        };
 
         const handleOnClickConnectedWallet = async (wallet) => {
             const { account } = connectedWallet.value || {};
@@ -124,7 +151,7 @@ export default {
             return action('SET_MODAL_STATE', { name: 'addresses', isOpen: true });
         };
 
-        const handleOnDisconnectAccount = async () => await disconnectWallet(props.wallet.ecosystem, props.wallet);
+        const handleOnDisconnectAccount = async (ecosystem, wallet) => await disconnectWallet(ecosystem, wallet);
 
         return {
             chainInfo,
@@ -136,6 +163,7 @@ export default {
             handleOnClickConnectedWallet,
             handleOnCopyAddress,
             handleOnDisconnectAccount,
+            handleSelectedChainChange,
         };
     },
 };

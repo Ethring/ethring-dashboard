@@ -24,6 +24,8 @@ import { useRoute, useRouter } from 'vue-router';
 import useInit from '@/compositions/useInit';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
+import Socket from '@/modules/Socket';
+
 import WalletsModal from '@/Adapter/UI/Modal/WalletsModal';
 import AddressModal from '@/Adapter/UI/Modal/AddressModal';
 
@@ -32,6 +34,7 @@ import Sidebar from '@/components/app/Sidebar';
 import LoadingOverlay from '@/components/ui/LoadingOverlay';
 
 import redirectOrStay from '@/shared/utils/routes';
+import { delay } from '@/helpers/utils';
 
 export default {
     name: 'App',
@@ -47,6 +50,7 @@ export default {
         const store = useStore();
 
         const lastConnectedCall = ref(false);
+        const isInitCall = ref({});
 
         const route = useRoute();
         const router = useRouter();
@@ -60,8 +64,6 @@ export default {
             getAddressesWithChainsByEcosystem,
         } = useAdapter();
 
-        const initCalled = ref(false);
-
         const isOpen = computed(() => store.getters['adapters/isOpen']('wallets'));
 
         const showRoutesModal = computed(() => store.getters['swap/showRoutes']);
@@ -70,14 +72,21 @@ export default {
             const { ecosystem, walletModule } = currentChainInfo.value || {};
 
             if (!walletModule || !ecosystem || !walletAddress.value || showRoutesModal.value) {
-                return;
+                return setTimeout(callInit, 1000);
             }
+
+            store.dispatch('tokens/setLoader', true);
+
+            await delay(1000);
 
             const addressesWithChains = getAddressesWithChainsByEcosystem(ecosystem);
 
             await useInit(store, { account: walletAccount.value, addressesWithChains, currentChainInfo: currentChainInfo.value });
 
-            initCalled.value = true;
+            isInitCall.value = {
+                ...isInitCall.value,
+                [walletAddress.value]: true,
+            };
         };
 
         onBeforeMount(async () => await store.dispatch('networks/initZometNets'));
@@ -87,11 +96,25 @@ export default {
                 await connectLastConnectedWallet();
                 lastConnectedCall.value = true;
             }
-            await callInit();
+
+            await delay(100);
+
+            if (currentChainInfo.value) {
+                await callInit();
+            }
         });
 
         watchEffect(async () => {
-            if (!redirectOrStay(route.path, currentChainInfo.value)) {
+            if (isConnecting) {
+                return;
+            }
+
+            const isStay = await redirectOrStay(route.path, currentChainInfo.value);
+
+            if (!currentChainInfo.value) {
+                return router.push('/main');
+            }
+            if (!isStay) {
                 return router.push('/main');
             }
 
@@ -102,17 +125,28 @@ export default {
             }
         });
 
-        watch(currentChainInfo, async () => {
-            if (initCalled.value) {
+        watch(currentChainInfo, () => {
+            Socket.addressSubscription(walletAddress.value);
+        });
+
+        watch(walletAccount, async () => {
+            console.log('walletAccount', walletAccount.value, isInitCall.value);
+            if (isInitCall.value[walletAddress.value]) {
                 return;
             }
 
             await callInit();
         });
 
-        watch(walletAccount, async () => await callInit());
+        onUpdated(async () => {
+            if (isInitCall.value[walletAddress.value]) {
+                return;
+            }
 
-        onUpdated(async () => await callInit());
+            if (currentChainInfo.value) {
+                return await callInit();
+            }
+        });
 
         return {
             isOpen,
