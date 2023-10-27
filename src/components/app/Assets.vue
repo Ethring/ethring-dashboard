@@ -27,7 +27,7 @@
                     :healthRate="item.healthRate"
                 />
                 <div v-for="(groupItem, n) in item.data" :key="n">
-                    <AssetItemSubHeader :type="getFormattedName(groupItem.type)" />
+                    <AssetItemSubHeader :type="getSubHeaderName(groupItem)" />
 
                     <AssetItem v-for="(balanceItem, i) in groupItem.balances" :key="i" :item="balanceItem">
                         <div class="asset-item__info" v-if="balanceItem.balanceType">
@@ -70,7 +70,7 @@ import AssetItemSubHeader from './AssetItemSubHeader';
 import { getTokenIcon, sortByKey } from '@/helpers/utils';
 import { prettyNumber } from '@/helpers/prettyNumber';
 
-import { getIntegrationsGroupedByPlatform, getFormattedName, getFormattedDate } from '@/shared/utils/assets';
+import { getIntegrationsGroupedByPlatform, getFormattedName, getFormattedDate, getSubHeaderName } from '@/shared/utils/assets';
 
 export default {
     name: 'Tokens',
@@ -147,6 +147,7 @@ export default {
             getAssetsShare,
             getFormattedName,
             getFormattedDate,
+            getSubHeaderName,
         };
     },
 };
