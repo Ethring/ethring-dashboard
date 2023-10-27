@@ -710,7 +710,7 @@ export default {
                 txError.value = resTx.error;
 
                 txErrorTitle.value = 'Swap Transaction error';
-                
+
                 return;
             }
 
@@ -808,11 +808,6 @@ export default {
             });
 
             isSwapLoading.value = false;
-
-            return setTimeout(() => {
-                closeNotification('error-tx');
-                txError.value = '';
-            }, 5000);
         });
 
         watch(successHash, () => {
@@ -869,7 +864,11 @@ export default {
         watch(
             () => currentChainInfo.value,
             () => {
-                opTitle.value = getOperationTitle(currentRoute.value.net, currentChainInfo.value.net, approveTx.value);
+                opTitle.value = getOperationTitle(
+                    currentRoute.value.net || selectedSrcNetwork.value.net,
+                    currentChainInfo.value.net,
+                    approveTx.value
+                );
 
                 if ((!currentChainInfo.value.net || !SUPPORTED_CHAINS.includes(currentChainInfo.value?.net)) && !isShowRoutesModal.value) {
                     router.push('/main');
