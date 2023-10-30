@@ -80,6 +80,7 @@
             :on-reset="successHash"
             @setAddress="onSetAddress"
         />
+
         <Collapse v-if="+srcAmount > 0" :loading="isLoading" :hideContent="estimateErrorTitle">
             <template #header>
                 <div class="route-info">
@@ -169,7 +170,7 @@ import { findBestRoute } from '@/modules/SuperSwap/baseScript';
 
 import PricesModule from '@/modules/prices/';
 
-import { STATUSES, NATIVE_CONTRACT, SUPPORTED_CHAINS } from '@/shared/constants/superswap/constants';
+import { STATUSES, NATIVE_CONTRACT, SUPPORTED_CHAINS } from '@/shared/constants/super-swap/constants';
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { isCorrectChain } from '@/shared/utils/operations';
 
@@ -286,9 +287,7 @@ export default {
         // =================================================================================================================
 
         const allowanceForToken = computed(() => {
-            const currentService = currentRoute.value?.service;
-
-            if (!selectedSrcToken.value?.address || !currentService?.id || !walletAccount.value) {
+            if (!selectedSrcToken.value?.address || !currentRoute.value?.service?.id || !walletAccount.value) {
                 return null;
             }
 
@@ -296,14 +295,12 @@ export default {
                 walletAccount.value,
                 selectedSrcNetwork.value.net,
                 selectedSrcToken.value.address,
-                currentService.id
+                currentRoute.value?.service?.id
             );
         });
 
         const approveForToken = computed(() => {
-            const currentService = currentRoute.value?.service;
-
-            if (!selectedSrcToken.value?.address || !currentService?.id || !walletAccount.value) {
+            if (!selectedSrcToken.value?.address || !currentRoute.value?.service?.id || !walletAccount.value) {
                 return null;
             }
 
@@ -311,7 +308,7 @@ export default {
                 walletAccount.value,
                 selectedSrcNetwork.value.net,
                 selectedSrcToken.value.address,
-                currentService.id
+                currentRoute.value?.service?.id
             );
         });
 
@@ -321,8 +318,6 @@ export default {
             if (!srcAmount.value) {
                 return false;
             }
-
-            console.log('allowanceForToken', allowanceForToken.value);
 
             if (!selectedSrcToken.value?.address && !allowanceForToken.value) {
                 return false;
@@ -596,19 +591,6 @@ export default {
 
         // =================================================================================================================
 
-        const updateBalances = (network, setNetwork) => {
-            store.dispatch('tokens/updateTokenBalances', {
-                net: network.value.net,
-                address: walletAddress.value,
-                info: network.value,
-                update(wallet) {
-                    setNetwork(wallet);
-                },
-            });
-        };
-
-        // =================================================================================================================
-
         const makeSwapRequest = async (params) => {
             showNotification({
                 key: 'prepare-tx',
@@ -835,26 +817,19 @@ export default {
 
                 currentRoute.value = bestRoute.value.routes.find((elem) => elem.status === STATUSES.SIGNING);
 
-                setTimeout(() => {
-                    updateBalances(selectedSrcNetwork, (network) => handleOnSelectNetwork(network, DIRECTIONS.SOURCE));
-                    updateBalances(selectedDstNetwork, (network) => handleOnSelectNetwork(network, DIRECTIONS.DESTINATION));
-                }, 5000);
-
-                // if (!currentRoute.value) {
-                //     dstAmount.value = null;
-                //     srcAmount.value = '';
-                //     isBalanceError.value = '';
-                //     store.dispatch('swap/setBestRoute', null);
-                //     return;
-                // }
+                if (!currentRoute.value) {
+                    dstAmount.value = null;
+                    srcAmount.value = '';
+                    isBalanceError.value = '';
+                    store.dispatch('swap/setBestRoute', null);
+                    return;
+                }
 
                 if (currentRoute.value.net !== selectedSrcNetwork.value.net) {
                     store.dispatch('tokens/setDisableLoader', true);
                     networkName.value = selectedDstNetwork.value.name;
                     return;
                 }
-
-                await swap();
             } catch (error) {
                 txError.value = error?.message || error?.error || error;
                 txErrorTitle.value = 'Swap Transaction error';
@@ -922,10 +897,14 @@ export default {
         });
 
         //
-        watch(currentRoute, () => {
+        watch(currentRoute, async () => {
             console.log('-'.repeat(20));
             console.log('currentRoute', currentRoute.value);
             console.log('-'.repeat(20));
+
+            if (!allowanceForToken.value) {
+                await requestAllowance(currentRoute.value?.service);
+            }
         });
 
         // watch(

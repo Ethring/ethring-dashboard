@@ -100,7 +100,7 @@ import { checkErrors } from '@/helpers/checkErrors';
 
 // Constants
 import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
-import { SUPPORTED_CHAINS } from '@/shared/constants/superswap/constants';
+import { SUPPORTED_CHAINS } from '@/shared/constants/super-swap/constants';
 
 export default {
     name: 'SimpleSwap',
