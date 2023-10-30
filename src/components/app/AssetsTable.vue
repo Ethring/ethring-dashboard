@@ -44,6 +44,8 @@ export default {
                 key: 'balanceUsd',
                 width: '20%',
                 align: 'right',
+                defaultSortOrder: 'descend',
+                sorter: (a, b) => a.balanceUsd - b.balanceUsd,
             },
         ]);
 

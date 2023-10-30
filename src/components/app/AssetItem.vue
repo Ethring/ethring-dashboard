@@ -16,18 +16,29 @@
                 </div>
             </div>
         </template>
-        <template v-if="column === 'balance'">
-            <div class="amount">
+        <template v-else-if="column === 'balance'">
+            <a-tooltip v-if="isTooltip(balance.pretty)" placement="topRight">
+                <template #title>{{ balance.value }}</template>
+                <div class="amount">
+                    <div class="value">
+                        {{ balance.pretty }}
+                    </div>
+                    <div class="symbol">{{ item?.symbol }}</div>
+                </div>
+            </a-tooltip>
+            <div v-else class="amount">
                 <div class="value" :title="balance.value">
                     {{ balance.pretty }}
                 </div>
                 <div class="symbol">{{ item?.symbol }}</div>
-            </div></template
-        >
-        <template v-if="column === 'balanceUsd'"
-            ><div class="amount">
-                <div class="value" :title="balanceUsd.value"><span>$</span>{{ balanceUsd.pretty }}</div>
             </div>
+        </template>
+        <template v-else-if="column === 'balanceUsd'">
+            <a-tooltip v-if="isTooltip(balanceUsd.pretty)" placement="topRight">
+                <template #title>{{ balanceUsd.value }}</template>
+                <div class="value"><span>$</span>{{ balanceUsd.pretty }}</div>
+            </a-tooltip>
+            <div v-else class="value" :title="balanceUsd.value"><span> $ </span>{{ balanceUsd.pretty }}</div>
         </template>
     </div>
 </template>
@@ -38,6 +49,7 @@ import { useStore } from 'vuex';
 import TokenIcon from '@/components/ui/TokenIcon';
 
 import { formatNumber } from '@/helpers/prettyNumber';
+
 import BigNumber from 'bignumber.js';
 
 import { getFormattedName, getFormattedDate } from '@/shared/utils/assets';
@@ -86,19 +98,18 @@ export default {
             };
         });
 
-        const isTooltip = computed(() => {
-            const { pretty = '' } = balanceUsd.value || {};
-
-            if (!pretty) {
+        const isTooltip = (value) => {
+            if (!value) {
                 return false;
             }
 
-            return pretty?.includes('~') || false;
-        });
+            return value?.includes('~') || false;
+        };
 
         return {
             balance,
             balanceUsd,
+
             isTooltip,
             getFormattedName,
             getFormattedDate,
@@ -206,18 +217,18 @@ export default {
     .amount {
         display: inline-flex;
 
-        .value {
-            font-size: var(--#{$prefix}small-lg-fs);
-            font-weight: 400;
-            margin-right: 3px;
-            color: var(--#{$prefix}primary-text);
-        }
-
         .symbol {
             font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 400;
             color: var(--#{$prefix}secondary-text);
         }
+    }
+
+    .value {
+        font-size: var(--#{$prefix}small-lg-fs);
+        font-weight: 400;
+        margin-right: 3px;
+        color: var(--#{$prefix}primary-text);
     }
 }
 </style>

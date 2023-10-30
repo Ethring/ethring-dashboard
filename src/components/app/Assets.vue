@@ -1,15 +1,15 @@
 <template>
     <div class="tokens" :class="{ empty: isEmpty }">
-        <template v-if="allTokensSorted.length > 0">
+        <template v-if="allTokens.length > 0">
             <div class="tokens__group">
                 <AssetItemHeader
-                    v-if="allTokensSorted.length"
+                    v-if="allTokens.length"
                     title="Tokens"
                     :value="getAssetsShare(assetsTotalBalances)"
                     :totalBalance="assetsTotalBalances"
                 />
                 <AssetItemSubHeader type="Asset" />
-                <AssetsTable :data-source="allTokensSorted" />
+                <AssetsTable :data-source="allTokens" />
             </div>
         </template>
 
@@ -57,10 +57,7 @@ import AssetItemHeader from './AssetItemHeader';
 import AssetItemSubHeader from './AssetItemSubHeader';
 import AssetsTable from './AssetsTable';
 
-import { getTokenIcon, sortByKey } from '@/helpers/utils';
-import { prettyNumber } from '@/helpers/prettyNumber';
-
-import { getIntegrationsGroupedByPlatform, getFormattedName, getFormattedDate } from '@/shared/utils/assets';
+import { getIntegrationsGroupedByPlatform, getFormattedName } from '@/shared/utils/assets';
 
 export default {
     name: 'Tokens',
@@ -84,8 +81,6 @@ export default {
         const totalBalances = computed(() => store.getters['tokens/totalBalances'][walletAccount.value] || 0);
         const assetsTotalBalances = computed(() => store.getters['tokens/assetsBalances'][walletAccount.value] || 0);
 
-        const allTokensSorted = computed(() => sortByKey(allTokens.value, 'balanceUsd'));
-
         const isEmpty = computed(() => {
             return !allTokens.value?.length && !allIntegrations.value?.length && !isLoadingForChain.value && !isAllTokensLoading.value;
         });
@@ -105,7 +100,6 @@ export default {
         watch(isAllTokensLoading, () => {
             if (!isAllTokensLoading.value) {
                 integrationAssetsByPlatform.value = getIntegrationsGroupedByPlatform(allIntegrations.value);
-                console.log(integrationAssetsByPlatform.value);
             }
         });
 
@@ -120,15 +114,12 @@ export default {
         });
 
         return {
-            prettyNumber,
-
             isLoadingForChain,
             isAllTokensLoading,
 
             isEmpty,
-            getTokenIcon,
 
-            allTokensSorted,
+            allTokens,
             allIntegrations,
 
             assetsTotalBalances,
@@ -137,7 +128,6 @@ export default {
             // utils for Assets templates
             getAssetsShare,
             getFormattedName,
-            getFormattedDate,
         };
     },
 };
