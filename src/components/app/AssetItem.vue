@@ -1,34 +1,34 @@
 <template>
-    <div class="tokens__item">
-        <div class="network">
-            <div class="logo">
-                <TokenIcon width="24" height="24" :token="item" />
-                <div class="chain">
-                    <img :src="item.chainLogo" />
+    <div class="assets__item">
+        <template v-if="column === 'name'">
+            <div class="network">
+                <div class="logo">
+                    <TokenIcon width="24" height="24" :token="item" />
+                    <div class="chain">
+                        <img :src="item.chainLogo" />
+                    </div>
+                </div>
+                <div class="info">
+                    <div class="name">{{ item.name || item.symbol }}</div>
+                    <div class="type" v-if="item.balanceType">{{ getFormattedName(item.balanceType) }}</div>
+                    <div class="unlock" v-if="item.unlockTimestamp">Unlock {{ getFormattedDate(item.unlockTimestamp) }}</div>
+                    <div class="apr" v-if="item.apr"><span>APR </span> {{ formatNumber(item.apr, 2) }}%</div>
                 </div>
             </div>
-            <div class="info">
-                <div class="name">{{ item.name || item.symbol }}</div>
-                <slot></slot>
-            </div>
-        </div>
-        <div class="amount">
-            <div class="value" :title="balance.value">
-                {{ balance.pretty }}
-            </div>
-            <div class="symbol">{{ item?.symbol }}</div>
-        </div>
-        <div class="change">
-            <template v-if="isTooltip">
-                <a-tooltip placement="topRight">
-                    <template #title>{{ balanceUsd.value }}</template>
-                    <div class="value" :title="balanceUsd.value"><span>$</span>{{ balanceUsd.pretty }}</div>
-                </a-tooltip>
-            </template>
-            <template v-else>
+        </template>
+        <template v-if="column === 'balance'">
+            <div class="amount">
+                <div class="value" :title="balance.value">
+                    {{ balance.pretty }}
+                </div>
+                <div class="symbol">{{ item?.symbol }}</div>
+            </div></template
+        >
+        <template v-if="column === 'balanceUsd'"
+            ><div class="amount">
                 <div class="value" :title="balanceUsd.value"><span>$</span>{{ balanceUsd.pretty }}</div>
-            </template>
-        </div>
+            </div>
+        </template>
     </div>
 </template>
 <script>
@@ -40,10 +40,15 @@ import TokenIcon from '@/components/ui/TokenIcon';
 import { formatNumber } from '@/helpers/prettyNumber';
 import BigNumber from 'bignumber.js';
 
+import { getFormattedName, getFormattedDate } from '@/shared/utils/assets';
+
 export default {
     name: 'AssetItem',
     props: {
         item: {
+            required: true,
+        },
+        column: {
             required: true,
         },
     },
@@ -95,27 +100,20 @@ export default {
             balance,
             balanceUsd,
             isTooltip,
+            getFormattedName,
+            getFormattedDate,
+            formatNumber,
         };
     },
 };
 </script>
 <style lang="scss">
-.tokens__item {
-    display: flex;
-    align-items: center;
+.assets__item {
+    vertical-align: center !important;
     color: var(--#{$prefix}black);
-    padding-right: 10px;
-
-    &:not(:last-child) {
-        margin-bottom: 10px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid var(--#{$prefix}border-color-op-05);
-    }
 
     .network {
-        width: 60%;
-        display: flex;
-        align-items: center;
+        display: inline-flex;
 
         .logo {
             margin-right: 10px;
@@ -140,7 +138,6 @@ export default {
             display: flex;
             justify-content: center;
             align-items: center;
-
             position: absolute;
             top: 16px;
             left: 26px;
@@ -172,12 +169,42 @@ export default {
         display: flex;
         align-items: center;
         line-height: 20px;
+
+        color: var(--#{$prefix}small-lg-fs);
+        font-weight: 500;
+        font-size: var(--#{$prefix}small-lg-fs);
+
+        div:not(:first-child) {
+            &::before {
+                content: '\2022';
+                margin: 0 4px;
+                color: var(--#{$prefix}checkbox-text);
+            }
+        }
+
+        .type,
+        .apr {
+            color: var(--#{$prefix}sub-text);
+            font-size: var(--#{$prefix}small-lg-fs);
+            font-weight: 300;
+        }
+
+        .apr {
+            span {
+                font-weight: 400;
+                color: var(--#{$prefix}mute-apr-text);
+            }
+        }
+
+        .unlock {
+            color: var(--#{$prefix}mute-apr-text);
+            font-weight: 400;
+            font-size: var(--#{$prefix}small-lg-fs);
+        }
     }
 
     .amount {
-        width: 20%;
-        display: flex;
-        align-items: baseline;
+        display: inline-flex;
 
         .value {
             font-size: var(--#{$prefix}small-lg-fs);
@@ -190,25 +217,6 @@ export default {
             font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 400;
             color: var(--#{$prefix}secondary-text);
-        }
-    }
-
-    .change {
-        width: 20%;
-
-        span {
-            font-size: var(--#{$prefix}small-lg-fs);
-            font-weight: 400;
-            text-align: right;
-            margin-right: 3px;
-        }
-
-        .value {
-            font-size: var(--#{$prefix}small-lg-fs);
-            font-weight: 400;
-
-            text-align: right;
-            color: var(--#{$prefix}primary-text);
         }
     }
 }

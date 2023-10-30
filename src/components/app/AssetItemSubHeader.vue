@@ -30,7 +30,7 @@ export default {
 
     color: var(--#{$prefix}base-text);
     font-size: var(--#{$prefix}small-sm-fs);
-    margin: 16px 0;
+    margin: 16px 0 8px;
 
     display: flex;
     align-items: center;

@@ -9,8 +9,7 @@
                     :totalBalance="assetsTotalBalances"
                 />
                 <AssetItemSubHeader type="Asset" />
-
-                <AssetItem v-for="(listItem, n) in allTokensSorted" :key="n" :item="listItem" />
+                <AssetsTable :data-source="allTokensSorted" />
             </div>
         </template>
 
@@ -28,16 +27,7 @@
                 />
                 <div v-for="(groupItem, n) in item.data" :key="n">
                     <AssetItemSubHeader :type="getFormattedName(groupItem.type)" />
-
-                    <AssetItem v-for="(balanceItem, i) in groupItem.balances" :key="i" :item="balanceItem">
-                        <div class="asset-item__info" v-if="balanceItem.balanceType">
-                            <div class="asset-item__type">{{ getFormattedName(balanceItem.balanceType) }}</div>
-                            <div class="asset-item__unlock" v-if="balanceItem.unlockTimestamp">
-                                Unlock {{ getFormattedDate(balanceItem.unlockTimestamp) }}
-                            </div>
-                            <div class="asset-item__apr" v-if="groupItem.apr"><span>APR </span> {{ prettyNumber(groupItem.apr, 2) }}%</div>
-                        </div>
-                    </AssetItem>
+                    <AssetsTable :data-source="groupItem.balances" />
                 </div>
             </div>
         </template>
@@ -63,9 +53,9 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import EmptyList from '@/components/ui/EmptyList';
 
-import AssetItem from './AssetItem';
 import AssetItemHeader from './AssetItemHeader';
 import AssetItemSubHeader from './AssetItemSubHeader';
+import AssetsTable from './AssetsTable';
 
 import { getTokenIcon, sortByKey } from '@/helpers/utils';
 import { prettyNumber } from '@/helpers/prettyNumber';
@@ -77,7 +67,7 @@ export default {
     components: {
         AssetItemSubHeader,
         AssetItemHeader,
-        AssetItem,
+        AssetsTable,
         EmptyList,
     },
     setup() {
@@ -115,6 +105,7 @@ export default {
         watch(isAllTokensLoading, () => {
             if (!isAllTokensLoading.value) {
                 integrationAssetsByPlatform.value = getIntegrationsGroupedByPlatform(allIntegrations.value);
+                console.log(integrationAssetsByPlatform.value);
             }
         });
 
@@ -177,41 +168,6 @@ export default {
 
     &.empty {
         justify-content: center;
-    }
-}
-
-.asset-item__info {
-    display: flex;
-    color: var(--#{$prefix}small-lg-fs);
-    font-weight: 500;
-    font-size: var(--#{$prefix}small-lg-fs);
-
-    div {
-        &::before {
-            content: '\2022';
-            margin: 0 4px;
-            color: var(--#{$prefix}checkbox-text);
-        }
-    }
-
-    .asset-item__type,
-    .asset-item__apr {
-        color: var(--#{$prefix}sub-text);
-        font-size: var(--#{$prefix}small-lg-fs);
-        font-weight: 300;
-    }
-
-    .asset-item__apr {
-        span {
-            font-weight: 400;
-            color: var(--#{$prefix}mute-apr-text);
-        }
-    }
-
-    .asset-item__unlock {
-        color: var(--#{$prefix}mute-apr-text);
-        font-weight: 400;
-        font-size: var(--#{$prefix}small-lg-fs);
     }
 }
 </style>
