@@ -79,6 +79,7 @@ export const formatNumber = (number, maximumFractionDigits = 6) => {
         maximumFractionDigits,
         useGrouping: true,
     });
+
     const formattedNumber = formatter.format(number);
 
     if (+formattedNumber === 0) {

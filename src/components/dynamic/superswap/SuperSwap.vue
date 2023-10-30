@@ -710,7 +710,7 @@ export default {
                 txError.value = resTx.error;
 
                 txErrorTitle.value = 'Swap Transaction error';
-                
+
                 return;
             }
 

@@ -1,4 +1,4 @@
-const DOMEN_LIST = ['https://assets.coingecko.com', 'https://cryptologos.cc/logos'];
+const DOMAIN_LIST = ['https://assets.coingecko.com', 'https://cryptologos.cc/logos'];
 
 const putInCache = async (request, response) => {
     const cache = await caches.open('external-image-cache');
@@ -36,9 +36,9 @@ self.addEventListener('fetch', (event) => {
     const { request = {} } = event || {};
     const { url } = request;
 
-    const checkImageDomen = DOMEN_LIST.some((item) => url.startsWith(item));
+    const checkImageDomain = DOMAIN_LIST.some((item) => url.startsWith(item));
 
-    if (!checkImageDomen) {
+    if (!checkImageDomain) {
         return;
     }
 

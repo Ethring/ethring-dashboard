@@ -1,8 +1,8 @@
 import { ERRORS } from '@/shared/constants/superswap/constants';
 
 export const checkErrors = (error) => {
-    if (error && error.data && error.data.message) {
-        return { error: error.data.message };
+    if (error && error?.data && error?.data?.message) {
+        return { error: error?.data?.message };
     } else if (typeof error === 'string') {
         const errorCodes = error.match(/INSUFFICIENT_FUNDS/);
 
@@ -13,5 +13,5 @@ export const checkErrors = (error) => {
         return error;
     }
 
-    return { error: error.message || error };
+    return { error: error.message || JSON.stringify(error) };
 };
