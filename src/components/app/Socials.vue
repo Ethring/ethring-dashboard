@@ -1,5 +1,5 @@
 <template>
-    <div class="socials">
+    <div class="socials" :class="{ collapsed: collapsed }">
         <a class="socials__item telegram disabled">
             <TelegramIcon />
         </a>
@@ -27,6 +27,12 @@ export default {
         TwitterIcon,
         DiscordIcon,
         GitbookIcon,
+    },
+    props: {
+        collapsed: {
+            type: Boolean,
+            required: false,
+        },
     },
 };
 </script>
@@ -59,6 +65,14 @@ export default {
     .disabled {
         cursor: not-allowed;
         opacity: 0.5;
+    }
+
+    &.collapsed {
+        .socials__item {
+            &:not(:last-child) {
+                margin-bottom: 10px;
+            }
+        }
     }
 }
 </style>

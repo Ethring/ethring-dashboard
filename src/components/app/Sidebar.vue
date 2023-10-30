@@ -1,28 +1,30 @@
 <template>
-    <div class="sidebar">
+    <div class="sidebar" :class="{ collapsed: isCollapsed }">
         <div class="sidebar-items">
             <div class="sidebar-items__list">
-                <div class="sidebar__logo-item">
+                <div v-if="!isCollapsed" class="sidebar__logo-item" @click="toggleSidebar">
                     <Logo class="sidebar__logo" />
                     <div class="sidebar__logo-type">{{ $t('sidebar.type') }}</div>
                 </div>
-                <SidebarList v-if="walletAddress" />
+                <LogoIcon v-else @click="toggleSidebar" class="logo" />
+                <SidebarList v-if="walletAddress" :collapsed="isCollapsed" />
             </div>
             <div class="sidebar-items__list">
                 <div class="sidebar__settings" v-if="walletAddress">
                     <div class="sidebar__settings-icon">
                         <SettingsIcon />
                     </div>
-                    <div class="sidebar__settings-title" :data-qa="`sidebar-item-settings`">
+                    <div v-if="!isCollapsed" class="sidebar__settings-title" :data-qa="`sidebar-item-settings`">
                         {{ $t(`sidebar.settings`) }}
                     </div>
                 </div>
-                <Socials class="sidebar__socials" />
+                <Socials class="sidebar__socials" :collapsed="isCollapsed" />
             </div>
         </div>
     </div>
 </template>
 <script>
+import { ref } from 'vue';
 import Logo from './Logo';
 import Socials from './Socials';
 import SidebarList from './SidebarList';
@@ -30,6 +32,7 @@ import SidebarList from './SidebarList';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import SettingsIcon from '@/assets/icons/dashboard/settings.svg';
+import LogoIcon from '@/assets/icons/sidebar/logo.svg';
 
 export default {
     name: 'Sidebar',
@@ -38,12 +41,27 @@ export default {
         SidebarList,
         Socials,
         SettingsIcon,
+        LogoIcon,
     },
-    setup() {
+    props: {
+        collapsed: {
+            type: Boolean,
+        },
+    },
+    setup(props, { emit }) {
         const { walletAddress } = useAdapter();
+
+        const isCollapsed = ref(false);
+
+        const toggleSidebar = () => {
+            emit('toggle-sidebar', !props.collapsed);
+            isCollapsed.value = !props.collapsed;
+        };
 
         return {
             walletAddress,
+            toggleSidebar,
+            isCollapsed,
         };
     },
 };
@@ -55,12 +73,10 @@ export default {
 
     z-index: 999;
 
-    max-width: 260px;
-    width: 100%;
     height: 100vh;
 
     background: var(--#{$prefix}primary);
-    
+
     padding: 30px 25px;
 
     box-sizing: border-box;
@@ -71,7 +87,6 @@ export default {
         justify-content: space-between;
 
         height: 100%;
-        max-width: 184px;
 
         margin: 0 auto;
 
@@ -129,6 +144,21 @@ export default {
             font-size: 12px;
             font-weight: 700;
         }
+    }
+
+    &.collapsed {
+        .sidebar__socials {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .logo {
+            margin-bottom: 70px;
+        }
+    }
+
+    .menu {
+        color: var(--#{$prefix}white);
     }
 }
 </style>

@@ -111,7 +111,7 @@ export default {
             font-weight: 600;
             font-size: var(--#{$prefix}h2-fs);
             color: var(--#{$prefix}primary-text);
-            
+
             margin-top: -3px;
             user-select: none;
 

@@ -64,7 +64,7 @@ export default {
     &-item {
         @include pageFlexRow;
         justify-content: space-between;
-        
+
         padding: 16px;
         &:not(:last-child) {
             border-bottom: 1px solid var(--#{$prefix}border-color-op-05);

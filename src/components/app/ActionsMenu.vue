@@ -47,7 +47,7 @@ export default {
 
     &__item {
         @include pageFlexColumn;
-        
+
         font-weight: 300;
         font-size: var(--#{$prefix}h4-fs);
         color: var(--#{$prefix}primary-text);

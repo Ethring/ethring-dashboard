@@ -11,7 +11,7 @@
             <div class="sidebar-list__item-icon">
                 <component v-if="item.component" :is="item.component" />
             </div>
-            <div class="sidebar-list__item-title" :data-qa="`sidebar-item-${item.key}`">
+            <div v-if="!collapsed" class="sidebar-list__item-title" :data-qa="`sidebar-item-${item.key}`">
                 {{ $t(`sidebar.${item.key}`) }}
                 <div v-if="item.status" class="sidebar-list__item-status">{{ item.status }}</div>
             </div>
@@ -43,6 +43,12 @@ export default {
         bridgeIcon,
         superSwapIcon,
         buyCryptoIcon,
+    },
+    props: {
+        collapsed: {
+            type: Boolean,
+            default: false,
+        },
     },
     setup() {
         const { currentChainInfo } = useAdapter();
