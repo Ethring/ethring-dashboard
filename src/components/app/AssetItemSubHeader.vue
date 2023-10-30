@@ -37,11 +37,11 @@ export default {
 
     &-title {
         display: flex;
-        width: 60%;
+        width: 58%;
     }
 
     &-label {
-        width: 20%;
+        width: 22%;
 
         &__right {
             width: 20%;
