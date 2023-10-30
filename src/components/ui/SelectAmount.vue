@@ -32,8 +32,10 @@
                         :placeholder="placeholder"
                         :disabled="disabled"
                         @focus="onFocus"
+                        type="text"
                         v-debounce:1s="onInput"
                         @blur="onBlur"
+                        @keypress="onKeyPressHandler"
                         @click.stop="() => {}"
                         data-qa="input-amount"
                         class="input-balance"
@@ -77,6 +79,8 @@ import TokenIcon from '@/components/ui/TokenIcon';
 import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
 import { prettyNumber, formatNumber } from '@/helpers/prettyNumber';
+
+import { formatInputNumber } from '@/helpers/numbers';
 
 export default {
     name: 'SelectAmount',
@@ -132,6 +136,7 @@ export default {
     setup(props, { emit }) {
         const active = ref(false);
         const focused = ref(false);
+        const symbolForReplace = ref(null);
 
         const amount = ref('');
 
@@ -184,9 +189,13 @@ export default {
 
         watch(
             () => props.value,
-            (val) => {
-                if (val) {
-                    setToken(val);
+            (tkn, oldTkn) => {
+                if (tkn?.id === oldTkn?.id || tkn?.address === oldTkn?.address) {
+                    return;
+                }
+
+                if (tkn) {
+                    setToken(tkn);
                     amount.value = '';
                     active.value = false;
                     emit('setAmount', amount.value);
@@ -194,12 +203,41 @@ export default {
             }
         );
 
+        const onKeyPressHandler = (e) => {
+            if (e.code === 'Period' || e.code === 'Comma') {
+                symbolForReplace.value = e.key;
+            }
+        };
+
         watch(amount, (val) => {
-            if (!val) {
-                return (payTokenPrice.value = '0');
+            amount.value = val;
+
+            if (val) {
+                if (symbolForReplace.value) {
+                    val = val.replace(symbolForReplace.value, '.');
+                }
+                amount.value = formatInputNumber(val);
+
+                return (payTokenPrice.value = formatNumber(BigNumber(amount.value * +selectedToken?.value?.price || 0).toFixed()) || 0);
             }
 
-            val = val.replace(/[^0-9.]+/g, '').replace(/\.{2,}/g, '.');
+            // val = val.replace(/[^0-9.]+/g, '').replace(/\.{2,}/g, '.');
+
+            if (val === '' || !val?.toString()) {
+                return (payTokenPrice.value = 0);
+            }
+
+            val = val
+                .toString()
+                // remove spaces
+                .replace(/\s+/g, '')
+                .replace(',', '.')
+                // only number
+                .replace(/[^.\d]+/g, '')
+                // remove extra 0 before decimal
+                .replace(/^0+/, '0')
+                // remove extra dots
+                .replace(/^0+(\d+)/, '$1');
 
             if (val.indexOf('.') !== val.lastIndexOf('.')) {
                 val = val.substr(0, val.lastIndexOf('.'));
@@ -270,6 +308,7 @@ export default {
             prettyNumber,
             selectPlaceholder,
 
+            onKeyPressHandler,
             setToken,
             onBlur,
             setActive,

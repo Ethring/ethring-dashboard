@@ -7,7 +7,7 @@
                 class="mt-10"
                 :value="selectedSrcToken"
                 :error="!!isBalanceError"
-                :on-reset="resetAmount"
+                :on-reset="resetSrcAmount"
                 :is-token-loading="isTokensLoadingForChain"
                 :is-update="isUpdateSwapDirectionValue"
                 :label="$t('tokenOperations.pay')"
@@ -26,7 +26,7 @@
                 :is-token-loading="isTokensLoadingForChain"
                 :is-amount-loading="isEstimating"
                 :value="selectedDstToken"
-                :on-reset="resetAmount"
+                :on-reset="resetDstAmount"
                 :is-update="isUpdateSwapDirectionValue"
                 :label="$t('tokenOperations.receive')"
                 :disabled-value="dstAmount"
@@ -94,6 +94,9 @@ import SwapIcon from '@/assets/icons/dashboard/swap.svg';
 import { prettyNumberTooltip } from '@/helpers/prettyNumber';
 
 import { isCorrectChain } from '@/shared/utils/operations';
+
+import { updateWalletBalances } from '@/shared/utils/balances';
+import { checkErrors } from '@/helpers/checkErrors';
 
 // Constants
 import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
@@ -224,7 +227,10 @@ export default {
             toSymbol: '',
         });
 
-        const resetAmount = ref(false);
+        // =================================================================================================================
+
+        const resetSrcAmount = ref(false);
+        const resetDstAmount = ref(false);
 
         // =================================================================================================================
 
@@ -248,12 +254,15 @@ export default {
 
         const onSelectNetwork = (network) => {
             selectedSrcNetwork.value = network;
+            selectedSrcToken.value = null;
+            isEstimating.value = false;
+            estimateErrorTitle.value = '';
+            dstAmount.value = '';
         };
 
         const onSetTokenFrom = () => {
             selectType.value = TOKEN_SELECT_TYPES.FROM;
             onlyWithBalance.value = true;
-            balanceUpdated.value = false;
 
             router.push('/swap/select-token');
 
@@ -263,7 +272,6 @@ export default {
         const onSetTokenTo = async () => {
             selectType.value = TOKEN_SELECT_TYPES.TO;
             onlyWithBalance.value = false;
-            balanceUpdated.value = false;
 
             router.push('/swap/select-token');
 
@@ -502,7 +510,7 @@ export default {
                     ...approveForToken.value,
                     from: walletAddress.value,
                 },
-                account: walletAccount.value,
+                account: walletAddress.value,
                 chainId: `${selectedSrcNetwork.value?.chain_id}`,
                 metaData: {
                     action: 'formatTransactionForSign',
@@ -537,7 +545,7 @@ export default {
                 module,
                 status: STATUSES.IN_PROGRESS,
                 parameters: responseSwap,
-                account: walletAccount.value,
+                account: walletAddress.value,
                 chainId: `${selectedSrcNetwork.value?.chain_id}`,
                 metaData: {
                     action: 'formatTransactionForSign',
@@ -559,14 +567,27 @@ export default {
 
         // =================================================================================================================
 
-        const handleUpdateBalance = () => {
-            store.dispatch('tokens/updateTokenBalances', {
-                net: selectedSrcNetwork.value.net,
-                address: walletAddress.value,
-                info: selectedSrcNetwork.value,
-                update(wallet) {
-                    store.dispatch('tokenOps/setSrcNetwork', wallet);
-                },
+        const updateTokens = (list) => {
+            if (!selectedSrcToken.value && !selectedDstToken.value) {
+                return;
+            }
+
+            const fromToken = list.find((elem) => elem.symbol === selectedSrcToken.value.symbol);
+
+            if (fromToken) {
+                selectedSrcToken.value = fromToken;
+            }
+
+            const toToken = list.find((elem) => elem.symbol === selectedDstToken.value.symbol);
+
+            if (toToken) {
+                selectedDstToken.value = toToken;
+            }
+        };
+
+        const handleUpdateBalance = async () => {
+            await updateWalletBalances(walletAccount.value, walletAddress.value, selectedSrcNetwork.value, (list) => {
+                updateTokens(list);
             });
         };
 
@@ -606,9 +627,14 @@ export default {
                 clearApproveForService();
 
                 if (responseSendTx.error) {
-                    resetAmount.value = false;
+                    resetSrcAmount.value = false;
+                    resetDstAmount.value = false;
+
                     txError.value = responseSendTx.error;
                     txErrorTitle.value = 'Sign transaction error';
+
+                    txError.value = checkErrors(responseSendTx.error);
+
                     return (isLoading.value = false);
                 }
 
@@ -637,8 +663,18 @@ export default {
             setTokenOnChange();
         });
 
+        watch(isWaitingTxStatusForModule, async () => {
+            if (!isWaitingTxStatusForModule.value) {
+                await handleUpdateBalance();
+            }
+        });
+
         watch(srcAmount, () => {
-            resetAmount.value = srcAmount.value === null;
+            resetSrcAmount.value = srcAmount.value === null;
+        });
+
+        watch(dstAmount, () => {
+            resetDstAmount.value = dstAmount.value === null;
         });
 
         watch(selectedSrcToken, () => {
@@ -706,7 +742,9 @@ export default {
             estimateErrorTitle,
             selectedSrcNetwork,
 
-            resetAmount,
+            resetSrcAmount,
+            resetDstAmount,
+
             isUpdateSwapDirectionValue,
             currentChainInfo,
 

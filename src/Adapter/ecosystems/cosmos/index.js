@@ -21,7 +21,7 @@ import { checkErrors } from '@/helpers/checkErrors';
 const DEFAULT_CHAIN = 'cosmoshub';
 const { chains, assets, differentSlip44 } = cosmologyConfig;
 
-const DEFAULT_RPC = 'https://rpc.cosmos.directory';
+// const DEFAULT_RPC = 'https://rpc.cosmos.directory';
 // const DEFAULT_REST = 'https://rest.cosmos.directory';
 
 // * Constants for localStorage
@@ -98,6 +98,10 @@ class CosmosAdapter extends AdapterBase {
             return null;
         }
 
+        if (!this.currentChain) {
+            this.currentChain = DEFAULT_CHAIN;
+        }
+
         let chainRecord = this.walletManager.getChainRecord(this.currentChain);
 
         if (!chainRecord) {
@@ -115,6 +119,25 @@ class CosmosAdapter extends AdapterBase {
         chainWallet.value?.emitter && chainWallet.value.emitter.setMaxListeners(100);
 
         return chainWallet;
+    }
+
+    checkClient(walletName) {
+        const client = this.walletManager.getMainWallet(walletName);
+
+        if (!client) {
+            return false;
+        }
+        const { clientMutable } = client || {};
+
+        if (clientMutable.message === 'Client Not Exist!') {
+            return false;
+        }
+
+        if (clientMutable.state === 'Error') {
+            return false;
+        }
+
+        return true;
     }
 
     async connectWallet(walletName, chain = DEFAULT_CHAIN) {
@@ -141,7 +164,10 @@ class CosmosAdapter extends AdapterBase {
             await this.setAddressForChains(walletName);
             await chainWallet.update({ connect: true });
 
-            return isConnected;
+            return {
+                isConnected: isConnected,
+                walletName: walletName,
+            };
         } catch (error) {
             console.error(error, this.walletManager.isError);
             return false;
@@ -245,8 +271,8 @@ class CosmosAdapter extends AdapterBase {
         return this.walletManager.mainWallets || [];
     }
 
-    async disconnectWallet(wallet) {
-        const walletModule = this.walletManager.getMainWallet(wallet);
+    async disconnectWallet() {
+        const walletModule = this._getCurrentWallet();
         await walletModule?.value?.disconnect(true);
         await walletModule?.value?.update({ connect: false });
 
@@ -411,9 +437,7 @@ class CosmosAdapter extends AdapterBase {
         const chainWallet = this._getCurrentWallet();
 
         try {
-            console.log('msg, fee', msg, fee);
-
-            chainWallet.value.rpcEndpoints = [`${DEFAULT_RPC}/${chainWallet.value.chainName}`];
+            // chainWallet.value.rpcEndpoints = [`${DEFAULT_RPC}/${chainWallet.value.chainName}`];
 
             const response = await chainWallet.value.signAndBroadcast([msg], fee);
 

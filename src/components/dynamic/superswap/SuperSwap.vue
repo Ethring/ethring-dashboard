@@ -167,11 +167,13 @@ import { prettyNumber, prettyNumberTooltip } from '@/helpers/prettyNumber';
 
 import { findBestRoute } from '@/modules/SuperSwap/baseScript';
 
-import prices from '@/modules/prices/';
+import PricesModule from '@/modules/prices/';
 
 import { STATUSES, NATIVE_CONTRACT, SUPPORTED_CHAINS } from '@/shared/constants/superswap/constants';
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { isCorrectChain } from '@/shared/utils/operations';
+
+// import { updateWalletBalances } from '@/shared/utils/balances';
 
 export default {
     name: 'SuperSwap',
@@ -254,7 +256,6 @@ export default {
         // * Transaction Manager
         const { currentRequestID, transactionForSign, createTransactions, signAndSend, addTransactionToRequestID } = useTransactions();
 
-        const isBalanceUpdated = ref(false);
         const isReceiveToken = ref(false);
 
         //  =================================================================================================================
@@ -266,7 +267,6 @@ export default {
 
         const networkFee = ref(0);
         const estimateRate = ref(0);
-        const isNeedNetworkChange = ref(false);
         const isCallEstimate = ref(false);
 
         const differPercentage = ref(0);
@@ -377,13 +377,8 @@ export default {
         };
 
         const handleOnSelectNetwork = (network, direction) => {
-            if (currentChainInfo.value.net !== selectedSrcNetwork.value.net) {
-                opTitle.value = 'tokenOperations.switchNetwork';
-            }
-
             if (direction === DIRECTIONS.SOURCE) {
                 selectedSrcNetwork.value = network;
-
                 return clearApproveForService();
             }
 
@@ -392,8 +387,6 @@ export default {
             selectedDstToken.value = null;
 
             resetValues();
-
-            return (opTitle.value = 'tokenOperations.swap');
         };
 
         // =================================================================================================================
@@ -417,7 +410,7 @@ export default {
                 const chainId =
                     direction === TOKEN_SELECT_TYPES.FROM ? selectedSrcNetwork.value?.chain_id : selectedDstNetwork.value?.chain_id;
 
-                const price = await prices.Coingecko.priceByPlatformContracts({
+                const price = await PricesModule.Coingecko.priceByPlatformContracts({
                     chainId: chainId,
                     addresses: token.address,
                 });
@@ -596,7 +589,6 @@ export default {
             }
 
             if (selectedSrcNetwork.value.net !== currentChainInfo.value.net) {
-                isNeedNetworkChange.value = true;
                 networkName.value = selectedSrcNetwork.value.name;
                 opTitle.value = 'tokenOperations.switchNetwork';
             }
@@ -610,7 +602,6 @@ export default {
                 address: walletAddress.value,
                 info: network.value,
                 update(wallet) {
-                    isBalanceUpdated.value = true;
                     setNetwork(wallet);
                 },
             });
@@ -846,9 +837,6 @@ export default {
 
                 setTimeout(() => {
                     updateBalances(selectedSrcNetwork, (network) => handleOnSelectNetwork(network, DIRECTIONS.SOURCE));
-
-                    isBalanceUpdated.value = false;
-
                     updateBalances(selectedDstNetwork, (network) => handleOnSelectNetwork(network, DIRECTIONS.DESTINATION));
                 }, 5000);
 
@@ -863,11 +851,8 @@ export default {
                 if (currentRoute.value.net !== selectedSrcNetwork.value.net) {
                     store.dispatch('tokens/setDisableLoader', true);
                     networkName.value = selectedDstNetwork.value.name;
-                    isNeedNetworkChange.value = true;
                     return;
                 }
-
-                isNeedNetworkChange.value = false;
 
                 await swap();
             } catch (error) {
@@ -943,14 +928,16 @@ export default {
             console.log('-'.repeat(20));
         });
 
-        watch(
-            () => currentChainInfo.value,
-            () => {
-                if ((!currentChainInfo.value.net || !SUPPORTED_CHAINS.includes(currentChainInfo.value?.net)) && !isShowRoutesModal.value) {
-                    router.push('/main');
-                }
-            }
-        );
+        // watch(
+        //     () => currentChainInfo.value,
+        //     () => {
+        //         opTitle.value = getOperationTitle(currentRoute.value.net, currentChainInfo.value.net, approveTx.value);
+
+        //         if ((!currentChainInfo.value.net || !SUPPORTED_CHAINS.includes(currentChainInfo.value?.net)) && !isShowRoutesModal.value) {
+        //             router.push('/main');
+        //         }
+        //     }
+        // );
 
         watch(isNeedApprove, () => {
             if (isNeedApprove.value && opTitle.value !== 'tokenOperations.switchNetwork') {

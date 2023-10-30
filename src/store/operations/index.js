@@ -65,8 +65,8 @@ export default {
         dstNetwork: null,
         dstToken: null,
 
-        srcAmount: 0,
-        dstAmount: 0,
+        srcAmount: null,
+        dstAmount: null,
 
         allowance: {},
 

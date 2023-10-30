@@ -144,8 +144,6 @@ export default function useModule({ module, moduleType }) {
     const setTokenOnChange = () => {
         tokensList.value = getTokensList({
             srcNet: selectedSrcNetwork.value,
-            srcToken: selectedSrcToken.value,
-            dstNet: selectedDstNetwork.value,
         });
 
         const [defaultFromToken = null, defaultToToken = null] = tokensList.value || [];
@@ -183,12 +181,12 @@ export default function useModule({ module, moduleType }) {
             selectedSrcToken.value = fromToken;
         }
 
-        if (onlyWithBalance.value && selectedSrcToken.value?.balance === 0) {
-            selectedSrcToken.value = null;
-        }
-
         if (toToken && !selectedDstToken.value) {
             selectedDstToken.value = toToken;
+        }
+
+        if (moduleType === 'send') {
+            selectedDstToken.value = null;
         }
     };
 
@@ -250,7 +248,7 @@ export default function useModule({ module, moduleType }) {
 
         store.dispatch('tokenOps/setAllowance', {
             chain: selectedSrcNetwork.value.net,
-            account: walletAccount.value,
+            account: walletAddress.value,
             tokenAddress: selectedSrcToken.value?.address,
             allowance: null,
             service: currentService?.id,
@@ -258,7 +256,7 @@ export default function useModule({ module, moduleType }) {
 
         store.dispatch('tokenOps/setApprove', {
             chain: selectedSrcNetwork.value.net,
-            account: walletAccount.value,
+            account: walletAddress.value,
             tokenAddress: selectedSrcToken.value?.address,
             approve: null,
             service: currentService?.id,
@@ -275,25 +273,36 @@ export default function useModule({ module, moduleType }) {
         return (opTitle.value = 'tokenOperations.switchNetwork');
     };
 
+    const resetTokensForModules = (isReset = true) => {
+        const MODULES = ['swap', 'send'];
+
+        if (moduleType === 'swap' && isReset && opTitle.value !== DEFAULT_TITLE) {
+            selectedSrcToken.value = null;
+            selectedDstToken.value = null;
+        } else if (moduleType === 'send' && isReset && opTitle.value !== DEFAULT_TITLE) {
+            selectedSrcToken.value = null;
+        }
+
+        if (MODULES.includes(moduleType)) {
+            setTokenOnChange();
+        } else {
+            setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
+        }
+    };
+
     watch(currentChainInfo, () => {
         selectedSrcNetwork.value = currentChainInfo.value;
+        resetTokensForModules();
     });
 
     watch(walletAccount, () => {
         selectedSrcNetwork.value = currentChainInfo.value;
         selectedSrcToken.value = null;
-        setTokenOnChange();
+        resetTokensForModules();
     });
 
     watch(selectedSrcNetwork, () => {
-        if (moduleType === 'swap') {
-            selectedSrcToken.value = null;
-            selectedDstToken.value = null;
-            setTokenOnChange();
-        } else {
-            setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
-        }
-
+        resetTokensForModules();
         checkSelectedNetwork();
     });
 

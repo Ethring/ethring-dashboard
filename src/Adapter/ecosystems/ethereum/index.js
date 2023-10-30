@@ -33,7 +33,7 @@ class EthereumAdapter extends AdapterBase {
     }
 
     async connectWallet(walletName) {
-        const { connectWallet, connectingWallet } = useOnboard();
+        const { connectWallet, connectingWallet, connectedWallet } = useOnboard();
 
         const connectionOption = {
             autoSelect: {
@@ -49,7 +49,10 @@ class EthereumAdapter extends AdapterBase {
                 this.setAddressForChains();
             }
 
-            return !connectingWallet.value;
+            return {
+                isConnected: !connectingWallet.value,
+                walletName: connectedWallet.value?.label || null,
+            };
         } catch (error) {
             console.error('Failed to connect to:', walletName, error);
             return false;
@@ -79,7 +82,7 @@ class EthereumAdapter extends AdapterBase {
                 continue;
             }
 
-            const { net } = chainInfo || {};
+            const { net, logo } = chainInfo || {};
 
             if (!this.addressByNetwork[net]) {
                 this.addressByNetwork[net] = null;
@@ -87,7 +90,7 @@ class EthereumAdapter extends AdapterBase {
 
             this.addressByNetwork[net] = {
                 address: mainAddress,
-                logo: chainInfo.logo,
+                logo,
             };
         }
     }
@@ -176,7 +179,13 @@ class EthereumAdapter extends AdapterBase {
     }
 
     getChainList(store) {
-        return store.getters['networks/zometNetworksList'];
+        const chains = store.getters['networks/zometNetworksList'];
+        for (const chain of chains) {
+            chain.walletName = this.getWalletModule();
+            chain.ecosystem = ECOSYSTEMS.EVM;
+        }
+
+        return chains;
     }
 
     async setChain(chainInfo) {
@@ -226,13 +235,18 @@ class EthereumAdapter extends AdapterBase {
         return ethersProvider;
     }
 
-    formatTransactionForSign(transaction) {
+    async formatTransactionForSign(transaction) {
         if (typeof transaction.chainId === 'number') {
             transaction.chainId = `0x${transaction.chainId.toString(16)}`;
         }
 
         if (typeof transaction.gasPrice === 'string') {
             transaction.gasPrice = `0x${parseInt(transaction.gasPrice).toString(16)}`;
+        }
+
+        if (typeof transaction.nonce === 'number') {
+            const ethersProvider = this.getProvider();
+            transaction.nonce = await ethersProvider.getTransactionCount(transaction.from);
         }
 
         delete transaction.gas;
@@ -304,6 +318,13 @@ class EthereumAdapter extends AdapterBase {
         const [explorer] = explorers || [];
 
         return `${explorer}/tx/${txHash}`;
+    }
+
+    getTokenExplorerLink(tokenAddress, chainInfo) {
+        const { explorers } = chainInfo || {};
+        const [explorer] = explorers || [];
+
+        return `${explorer}/token/${tokenAddress}`;
     }
 
     getAddressesWithChains() {

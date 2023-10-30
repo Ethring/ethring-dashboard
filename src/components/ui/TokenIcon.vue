@@ -110,7 +110,7 @@ export default {
         font-size: var(--#{$prefix}small-sm-fs);
 
         span {
-            color: var(--#{$prefix}white);
+            background: var(--#{$prefix}select-icon-bg-color);
         }
     }
 }

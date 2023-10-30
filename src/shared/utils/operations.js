@@ -3,6 +3,8 @@ import { DoubleRightOutlined } from '@ant-design/icons-vue';
 
 import useNotification from '@/compositions/useNotification';
 
+import { delay } from '@/helpers/utils';
+
 export const isCorrectChain = async (selectedNetwork, currentChainInfo, setChain) => {
     let btnTitle = 'tokenOperations.confirm';
 
@@ -32,6 +34,8 @@ export const isCorrectChain = async (selectedNetwork, currentChainInfo, setChain
     try {
         const isChanged = await setChain(selectedNetwork.value);
 
+        await delay(1200);
+
         if (!isChanged) {
             showNotification({
                 key: 'switch-network-error',
@@ -56,4 +60,16 @@ export const isCorrectChain = async (selectedNetwork, currentChainInfo, setChain
             btnTitle,
         };
     }
+};
+
+export const getOperationTitle = (selectedNet, currentNet, isApprove = false, isSwap = true) => {
+    if (selectedNet !== currentNet) {
+        return 'tokenOperations.switchNetwork';
+    } else if (isApprove) {
+        return 'tokenOperations.approve';
+    } else if (!isSwap) {
+        return 'tokenOperations.confirm';
+    }
+
+    return 'tokenOperations.swap';
 };

@@ -21,7 +21,7 @@
             v-if="selectedSrcNetwork"
             :value="selectedSrcToken"
             :error="!!isBalanceError"
-            :on-reset="resetAmount"
+            :on-reset="resetSrcAmount"
             :disabled="!selectedSrcToken"
             :label="$t('tokenOperations.send')"
             :is-token-loading="isTokensLoadingForSrc"
@@ -38,8 +38,8 @@
             :is-amount-loading="isEstimating"
             :is-token-loading="isTokensLoadingForDst"
             :label="$t('tokenOperations.receive')"
-            :disabled-value="prettyNumber(dstAmount)"
-            :on-reset="resetAmount"
+            :disabled-value="formatNumber(dstAmount)"
+            :on-reset="resetDstAmount"
             class="mt-10"
             @clickToken="onSetDstToken"
         />
@@ -121,12 +121,14 @@ import Checkbox from '@/components/ui/Checkbox';
 import Button from '@/components/ui/Button';
 import EstimateInfo from '@/components/ui/EstimateInfo.vue';
 
-import { prettyNumber } from '@/helpers/prettyNumber';
+import { formatNumber, prettyNumber } from '@/helpers/prettyNumber';
 
 import { getServices, SERVICE_TYPE } from '@/config/services';
 
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { isCorrectChain } from '@/shared/utils/operations';
+
+import { updateWalletBalances } from '@/shared/utils/balances';
 
 export default {
     name: 'SimpleBridge',
@@ -240,7 +242,8 @@ export default {
 
         const estimateErrorTitle = ref('');
 
-        const resetAmount = ref(false);
+        const resetSrcAmount = ref(false);
+        const resetDstAmount = ref(false);
 
         const feeInfo = ref({
             title: '',
@@ -371,7 +374,8 @@ export default {
 
             isEstimating.value = false;
 
-            resetAmount.value = true;
+            resetSrcAmount.value = true;
+            resetDstAmount.value = true;
 
             estimateErrorTitle.value = '';
         };
@@ -541,14 +545,16 @@ export default {
             isEstimating.value = false;
             isLoading.value = false;
 
+            console.log('response', response);
+
             dstAmount.value = response.toTokenAmount;
 
             feeInfo.value = {
                 title: 'tokenOperations.serviceFee',
                 symbolBetween: '~',
-                fromAmount: prettyNumber(response.fee.amount),
+                fromAmount: formatNumber(response.fee.amount),
                 fromSymbol: response.fee.currency,
-                toAmount: prettyNumber(BigNumber(response.fee.amount).multipliedBy(selectedSrcToken.value?.price).toString()),
+                toAmount: formatNumber(BigNumber(response.fee.amount).multipliedBy(selectedSrcToken.value?.price).toString()),
                 toSymbol: '$',
             };
 
@@ -636,7 +642,7 @@ export default {
                     ...approveForToken.value,
                     from: walletAddress.value,
                 },
-                account: walletAccount.value,
+                account: walletAddress.value,
                 chainId: `${selectedSrcNetwork.value?.chain_id}`,
                 metaData: {
                     action: 'formatTransactionForSign',
@@ -673,7 +679,7 @@ export default {
                 module,
                 status: STATUSES.IN_PROGRESS,
                 parameters: responseBridge,
-                account: walletAccount.value,
+                account: walletAddress.value,
                 chainId: `${selectedSrcNetwork.value?.chain_id}`,
                 metaData: {
                     action: 'formatTransactionForSign',
@@ -696,23 +702,21 @@ export default {
         // =================================================================================================================
 
         const handleUpdateBalance = (network, targetDirection = 'SrcNetwork') => {
-            if (!network) {
-                return;
-            }
+            const isSrc = targetDirection === 'SrcNetwork';
 
-            const { net = null } = network || {};
+            const selectedToken = isSrc ? selectedSrcToken.value : selectedDstToken.value;
 
-            if (!net) {
-                return;
-            }
+            updateWalletBalances(walletAccount.value, walletAddress.value, network, (list) => {
+                const token = list.find((elem) => elem.symbol === selectedToken.symbol);
+                if (!token) {
+                    return;
+                }
 
-            store.dispatch('tokens/updateTokenBalances', {
-                net: net,
-                address: walletAddress.value,
-                info: network,
-                update(wallet) {
-                    store.dispatch(`tokenOps/set${targetDirection}`, wallet);
-                },
+                if (isSrc) {
+                    selectedSrcToken.value = token;
+                } else {
+                    selectedDstToken.value = token;
+                }
             });
         };
 
@@ -752,7 +756,8 @@ export default {
                 clearApproveForService();
 
                 if (responseSendTx.error) {
-                    resetAmount.value = false;
+                    resetSrcAmount.value = false;
+                    resetDstAmount.value = false;
                     txError.value = responseSendTx.error;
                     txErrorTitle.value = 'Sign transaction error';
                     return (isLoading.value = false);
@@ -866,7 +871,18 @@ export default {
         });
 
         watch(srcAmount, () => {
-            resetAmount.value = srcAmount.value === null;
+            resetSrcAmount.value = srcAmount.value === null;
+        });
+
+        watch(dstAmount, () => {
+            resetDstAmount.value = dstAmount.value === null;
+        });
+
+        watch(isWaitingTxStatusForModule, () => {
+            if (!isWaitingTxStatusForModule.value) {
+                selectedSrcNetwork.value && handleUpdateBalance(selectedSrcNetwork.value, 'SrcNetwork');
+                selectedDstNetwork.value && handleUpdateBalance(selectedDstNetwork.value, 'DstNetwork');
+            }
         });
 
         // =================================================================================================================
@@ -906,7 +922,10 @@ export default {
 
             disabledBtn,
             isNeedApprove,
-            resetAmount,
+
+            resetSrcAmount,
+            resetDstAmount,
+
             isSendToAnotherAddress,
 
             chainList,
@@ -941,7 +960,7 @@ export default {
             estimateErrorTitle,
             clearAddress,
 
-            prettyNumber,
+            formatNumber,
             walletAddress,
             currentChainInfo,
             selectedService,

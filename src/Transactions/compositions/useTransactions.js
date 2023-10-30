@@ -150,7 +150,7 @@ export default function useTransactions() {
     const signAndSend = async (transaction) => {
         const ACTIONS_FOR_TX = {
             prepareTransaction: async (parameters) => await prepareTransaction(parameters),
-            formatTransactionForSign: (parameters) => formatTransactionForSign(parameters),
+            formatTransactionForSign: async (parameters) => await formatTransactionForSign(parameters),
         };
 
         if (!transaction) {

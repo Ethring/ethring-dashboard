@@ -28,6 +28,7 @@
             :disabled="!!disabledSend"
             :loading="isWaitingTxStatusForModule || isLoading"
             class="simple-send__btn mt-10"
+            data-qa="confirm"
             @click="handleOnSend"
             size="large"
         />
@@ -79,13 +80,14 @@ export default {
             setTokenOnChange,
         } = useServices({
             module,
+            moduleType: 'send',
         });
 
         // * Notification
         const { showNotification, closeNotification } = useNotification();
 
         // * Adapter for wallet
-        const { walletAddress, connectedWallet, currentChainInfo, validateAddress, chainList, walletAccount, setChain } = useAdapter();
+        const { walletAddress, connectedWallet, currentChainInfo, validateAddress, chainList, setChain } = useAdapter();
 
         const { createTransactions, signAndSend, transactionForSign } = useTransactions();
 
@@ -97,7 +99,7 @@ export default {
         const isAddressError = ref(false);
         const isBalanceError = ref(false);
 
-        const isTokensLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](currentChainInfo.value?.net));
+        const isTokensLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](selectedSrcNetwork.value?.net));
 
         // =================================================================================================================
 
@@ -109,13 +111,13 @@ export default {
                 isWaitingTxStatusForModule.value ||
                 !+srcAmount.value ||
                 !receiverAddress.value?.length ||
+                !selectedSrcToken.value ||
                 !currentChainInfo.value
         );
 
         const onSetToken = () => {
             clearAddress.value = true;
             router.push('/send/select-token');
-            clearAddress.value = false;
         };
 
         const onSetAddress = (addr = '') => {
@@ -132,16 +134,9 @@ export default {
 
         const onSelectNetwork = (network) => {
             clearAddress.value = true;
+            selectedSrcToken.value = null;
+            selectedSrcToken.value = null;
             selectedSrcNetwork.value = network;
-
-            setTokenOnChange();
-
-            if (currentChainInfo.value.net !== selectedSrcNetwork.value.net) {
-                return (opTitle.value = 'tokenOperations.switchNetwork');
-            }
-
-            clearAddress.value = false;
-            return (opTitle.value = 'tokenOperations.confirm');
         };
 
         const onSetAmount = (value) => {
@@ -159,11 +154,10 @@ export default {
                 return;
             }
 
-            clearAddress.value = false;
             isLoading.value = true;
 
             const dataForPrepare = {
-                fromAddress: walletAddress.value,
+                fromAddress: null,
                 toAddress: receiverAddress.value,
                 amount: srcAmount.value,
                 token: selectedSrcToken.value,
@@ -197,13 +191,14 @@ export default {
                 const txs = [
                     {
                         index: 0,
-                        ecosystem: selectedSrcNetwork.value?.ecosystem,
+                        ecosystem: selectedSrcNetwork.value.ecosystem,
                         module,
                         status: STATUSES.IN_PROGRESS,
                         parameters: {
                             ...dataForPrepare,
+                            fromAddress: walletAddress.value,
                         },
-                        account: walletAccount.value,
+                        account: walletAddress.value,
                         chainId: `${selectedSrcNetwork.value?.chain_id}`,
                         metaData: {
                             action: 'prepareTransaction',
@@ -237,9 +232,7 @@ export default {
         // =================================================================================================================
 
         watch(srcAmount, () => {
-            if (srcAmount.value === 0) {
-                resetAmount.value = true;
-            }
+            resetAmount.value = srcAmount.value === null;
         });
 
         watch(receiverAddress, () => {
