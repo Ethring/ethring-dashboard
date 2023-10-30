@@ -93,6 +93,18 @@ export const getFormattedName = (str) => {
     return str.charAt(0).toUpperCase() + str.replaceAll('_', ' ').toLowerCase().slice(1);
 };
 
+export const getSubHeaderName = (item) => {
+    const { type = '', validator = {} } = item;
+
+    const name = getFormattedName(type);
+
+    if (validator?.name && validator?.name.length) {
+        return name + ' - ' + validator?.name;
+    }
+
+    return name;
+};
+
 export const getFormattedDate = (timestamp) => {
     const date = new Date(+timestamp * 1000);
     const year = date.getFullYear();
