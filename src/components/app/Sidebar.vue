@@ -2,11 +2,11 @@
     <div class="sidebar" :class="{ collapsed: isCollapsed }">
         <div class="sidebar-items">
             <div class="sidebar-items__list">
-                <div v-if="!isCollapsed" class="sidebar__logo-item" @click="toggleSidebar">
+                <div v-if="!isCollapsed" class="sidebar__logo-item">
                     <Logo class="sidebar__logo" />
                     <div class="sidebar__logo-type">{{ $t('sidebar.type') }}</div>
                 </div>
-                <LogoIcon v-else @click="toggleSidebar" class="logo" />
+                <LogoIcon v-else class="logo" />
                 <SidebarList v-if="walletAddress" :collapsed="isCollapsed" />
             </div>
             <div class="sidebar-items__list">
@@ -24,7 +24,7 @@
     </div>
 </template>
 <script>
-import { ref } from 'vue';
+import { computed } from 'vue';
 import Logo from './Logo';
 import Socials from './Socials';
 import SidebarList from './SidebarList';
@@ -46,21 +46,16 @@ export default {
     props: {
         collapsed: {
             type: Boolean,
+            required: false,
         },
     },
-    setup(props, { emit }) {
+    setup(props) {
         const { walletAddress } = useAdapter();
 
-        const isCollapsed = ref(false);
-
-        const toggleSidebar = () => {
-            emit('toggle-sidebar', !props.collapsed);
-            isCollapsed.value = !props.collapsed;
-        };
+        const isCollapsed = computed(() => props.collapsed || false);
 
         return {
             walletAddress,
-            toggleSidebar,
             isCollapsed,
         };
     },
@@ -92,6 +87,10 @@ export default {
 
         &__list {
             @include pageFlexColumn;
+        }
+
+        &__list:last-child {
+            margin-bottom: 40px;
         }
     }
 

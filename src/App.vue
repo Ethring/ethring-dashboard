@@ -2,8 +2,8 @@
     <a-config-provider>
         <LoadingOverlay v-if="isConnecting" />
         <a-layout>
-            <a-layout-sider class="sidebar" v-model:collapsed="collapsed" :trigger="null" collapsible>
-                <Sidebar :collapsed="collapsed" @toggle-sidebar="toggleSidebar" />
+            <a-layout-sider class="sidebar" v-model:collapsed="collapsed" collapsible>
+                <Sidebar :collapsed="collapsed" />
             </a-layout-sider>
             <a-layout class="layout">
                 <a-layout-header class="header">
@@ -51,12 +51,11 @@ export default {
 
     setup() {
         const store = useStore();
+        const route = useRoute();
+        const router = useRouter();
 
         const lastConnectedCall = ref(false);
         const collapsed = ref(false);
-
-        const route = useRoute();
-        const router = useRouter();
 
         const {
             isConnecting,
@@ -125,15 +124,10 @@ export default {
 
         onUpdated(async () => await callInit());
 
-        const toggleSidebar = (newCollapsed) => {
-            collapsed.value = newCollapsed;
-        };
-
         return {
             isOpen,
             isConnecting,
             collapsed,
-            toggleSidebar,
         };
     },
 };
