@@ -405,7 +405,6 @@ export default {
         };
 
         const onSetAddress = (addr) => {
-            console.log(addr, '--address');
             receiverAddress.value = addr;
 
             if (!addr.length) {
