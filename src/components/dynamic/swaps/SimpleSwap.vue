@@ -791,20 +791,24 @@ export default {
     }
 
     &__switch {
+        @include pageFlexRow;
+        justify-content: center;
+
+        @include animateEasy;
+
         cursor: pointer;
         position: absolute;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        z-index: 10;
+
         width: 48px;
         height: 48px;
-        z-index: 10;
+
         border-radius: 50%;
         left: calc(50% - 24px);
         bottom: 138px;
+
         background: var(--#{$prefix}select-bg-color);
         border: 4px solid var(--#{$prefix}white);
-        @include animateEasy;
 
         svg {
             @include animateEasy;

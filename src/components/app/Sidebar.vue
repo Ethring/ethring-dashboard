@@ -58,7 +58,9 @@ export default {
     max-width: 260px;
     width: 100%;
     height: 100vh;
+
     background: var(--#{$prefix}primary);
+    
     padding: 30px 25px;
 
     box-sizing: border-box;
@@ -67,14 +69,14 @@ export default {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+
         height: 100%;
         max-width: 184px;
+
         margin: 0 auto;
 
         &__list {
-            display: flex;
-            align-items: center;
-            flex-direction: column;
+            @include pageFlexColumn;
         }
     }
 
@@ -83,9 +85,9 @@ export default {
     }
 
     &__settings {
-        display: flex;
+        @include pageFlexRow;
         align-self: flex-start;
-        align-items: center;
+
         color: var(--#{$prefix}sidebar-text);
         margin-bottom: 50px;
 
@@ -97,6 +99,7 @@ export default {
         &-icon {
             display: flex;
             justify-content: center;
+
             width: 32px;
         }
 
@@ -108,6 +111,7 @@ export default {
             font-size: var(--#{$prefix}h5-fs);
             font-weight: 300;
             color: var(--zmt-sidebar-text);
+
             margin-left: 10px;
         }
     }

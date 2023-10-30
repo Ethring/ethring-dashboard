@@ -37,8 +37,7 @@ export default {
     }
 
     &-row {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         justify-content: space-between;
         width: 75%;
         margin: 0 auto;

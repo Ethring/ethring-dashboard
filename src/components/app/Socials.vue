@@ -32,14 +32,12 @@ export default {
 </script>
 <style lang="scss" scoped>
 .socials {
-    display: flex;
-    align-items: center;
+    @include pageFlexRow;
     justify-content: space-between;
 
     &__item {
-        display: flex;
+        @include pageFlexRow;
         justify-content: center;
-        align-items: center;
 
         width: 40px;
         height: 40px;

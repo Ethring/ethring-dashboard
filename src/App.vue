@@ -1,16 +1,21 @@
 <template>
     <a-config-provider>
         <LoadingOverlay v-if="isConnecting" />
-        <div class="app-wrap" :class="{ 'lock-scroll': isOpen }">
-            <Sidebar />
-            <NavBar />
-
-            <div class="app-wrap__layout">
-                <div>
-                    <router-view />
-                </div>
-            </div>
-        </div>
+        <a-layout>
+            <a-layout-sider class="sidebar">
+                <Sidebar />
+            </a-layout-sider>
+            <a-layout class="layout">
+                <a-layout-header class="header">
+                    <NavBar />
+                </a-layout-header>
+                <a-layout-content class="content">
+                    <div>
+                        <router-view />
+                    </div>
+                </a-layout-content>
+            </a-layout>
+        </a-layout>
         <WalletsModal />
         <AddressModal />
     </a-config-provider>
@@ -130,5 +135,26 @@ export default {
 <style lang="scss" scoped>
 .app-wrap.lock-scroll {
     overflow: hidden;
+}
+
+.sidebar {
+    width: 260px !important;
+    max-width: 260px !important;
+    min-width: 260px !important;
+    flex: 0 0 260px !important;
+}
+
+.layout {
+    background: var(--#{$prefix}main-background);
+}
+
+.header {
+    height: 80px;
+    background: var(--#{$prefix}main-background);
+}
+
+.content {
+    width: 75%;
+    margin: 20px auto;
 }
 </style>

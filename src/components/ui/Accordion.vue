@@ -55,8 +55,7 @@ export default {
     padding: 27px 32px;
 
     &__header {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         justify-content: space-between;
     }
 

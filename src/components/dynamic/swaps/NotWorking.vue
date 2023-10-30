@@ -11,9 +11,10 @@ export default {
     font-weight: 600;
     font-size: var(--#{$prefix}h1-fs);
     color: var(--#{$prefix}black);
+    
     height: 90%;
-    display: flex;
-    align-items: center;
+
+   @include pageFlexRow;
     justify-content: center;
 }
 </style>

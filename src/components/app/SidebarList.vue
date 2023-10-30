@@ -74,17 +74,17 @@ export default {
     align-items: flex-start;
     flex-direction: column;
     box-sizing: border-box;
+
     font-size: var(--#{$prefix}h3-fs);
 
     &__item {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
+        @include animateEasy;
+
         margin-bottom: 30px;
         text-decoration: none;
         color: var(--#{$prefix}sidebar-text);
         cursor: pointer;
-
-        @include animateEasy;
 
         &:hover:not(.disabled) {
             color: $colorPl;
@@ -130,8 +130,10 @@ export default {
 
     &__item-title {
         margin-left: 10px;
+
         font-weight: 300;
         font-size: 20px;
+
         display: flex;
         align-items: flex-start;
     }
@@ -140,6 +142,7 @@ export default {
         color: var(--#{$prefix}sidebar-active-color);
         font-size: 12px;
         font-weight: 600;
+
         margin-left: 6px;
     }
 }

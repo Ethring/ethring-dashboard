@@ -923,8 +923,7 @@ export default {
     }
 
     .select-group {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         justify-content: space-between;
 
         .select {
@@ -948,8 +947,7 @@ export default {
     }
 
     .accordion__title {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
 
         font-weight: 400;
         color: var(--zmt-accordion-label-color);

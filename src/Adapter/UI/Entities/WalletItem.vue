@@ -46,12 +46,12 @@ export default {
 </script>
 <style lang="scss" scoped>
 .wallet-item {
+    @include pageFlexRow;
+
     cursor: pointer;
 
     flex: 1 45%;
 
-    display: flex;
-    align-items: center;
     gap: 16px;
 
     border: 1px solid var(--#{$prefix}adapter-border-color);
@@ -72,8 +72,7 @@ export default {
         width: 48px;
         height: 48px;
 
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         justify-content: center;
 
         border: 1px solid var(--#{$prefix}adapter-border-color);
@@ -96,8 +95,8 @@ export default {
         width: 20px;
         height: 20px;
 
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
+
         justify-content: center;
 
         svg {

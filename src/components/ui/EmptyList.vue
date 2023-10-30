@@ -22,10 +22,8 @@ export default {
 </script>
 <style lang="scss" scoped>
 .empty-list {
-    display: flex;
-    flex-direction: column;
+    @include pageFlexColumn;
     justify-content: center;
-    align-items: center;
 
     svg {
         stroke: var(--#{$prefix}black);

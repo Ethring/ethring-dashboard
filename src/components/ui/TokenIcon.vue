@@ -93,9 +93,8 @@ export default {
     width: 32px;
     height: 32px;
 
-    display: flex;
+    @include pageFlexRow;
     justify-content: center;
-    align-items: center;
 
     img {
         width: 100%;

@@ -191,8 +191,7 @@ export default {
     }
 
     &__item {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         justify-content: space-between;
 
         border: 1px solid var(--#{$prefix}border-secondary-color);
@@ -211,8 +210,7 @@ export default {
 
         cursor: pointer;
         .network {
-            display: flex;
-            align-items: center;
+            @include pageFlexRow;
         }
         h3,
         h5 {
@@ -262,8 +260,7 @@ export default {
             width: 40px;
             height: 40px;
 
-            display: flex;
-            align-items: center;
+            @include pageFlexRow;
             justify-content: center;
 
             border-radius: 50%;
