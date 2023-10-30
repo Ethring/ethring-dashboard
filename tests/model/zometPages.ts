@@ -33,6 +33,12 @@ export class DashboardPage {
         return new SwapPage(this.page);
     }
 
+    async goToBridge() {
+        await this.page.getByTestId('sidebar-item-bridge').click();
+        await this.page.waitForLoadState();
+        return new BridgePage(this.page);
+    }
+
     async goToSuperSwap() {
         await this.page.getByTestId('sidebar-item-superSwap').click();
         return new SuperSwapPage(this.page);
@@ -169,5 +175,11 @@ export class SendPage extends DashboardPage {
 
     async getTokenTo() {
         return await this.page.locator('(//*[@data-qa="select-token"]/div[@class="token"])[2]').textContent();
+    }
+}
+
+export class BridgePage extends DashboardPage {
+    constructor(page: Page) {
+        super(page);
     }
 }

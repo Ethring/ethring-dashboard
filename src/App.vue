@@ -24,6 +24,8 @@ import { useRoute, useRouter } from 'vue-router';
 import useInit from '@/compositions/useInit';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
+import Socket from '@/modules/Socket';
+
 import WalletsModal from '@/Adapter/UI/Modal/WalletsModal';
 import AddressModal from '@/Adapter/UI/Modal/AddressModal';
 
@@ -48,6 +50,7 @@ export default {
         const store = useStore();
 
         const lastConnectedCall = ref(false);
+        const isInitCall = ref({});
 
         const route = useRoute();
         const router = useRouter();
@@ -69,7 +72,7 @@ export default {
             const { ecosystem, walletModule } = currentChainInfo.value || {};
 
             if (!walletModule || !ecosystem || !walletAddress.value || showRoutesModal.value) {
-                return;
+                return setTimeout(callInit, 1000);
             }
 
             store.dispatch('tokens/setLoader', true);
@@ -79,6 +82,11 @@ export default {
             const addressesWithChains = getAddressesWithChainsByEcosystem(ecosystem);
 
             await useInit(store, { account: walletAccount.value, addressesWithChains, currentChainInfo: currentChainInfo.value });
+
+            isInitCall.value = {
+                ...isInitCall.value,
+                [walletAddress.value]: true,
+            };
         };
 
         onBeforeMount(async () => await store.dispatch('networks/initZometNets'));
@@ -89,7 +97,11 @@ export default {
                 lastConnectedCall.value = true;
             }
 
-            await callInit();
+            await delay(100);
+
+            if (currentChainInfo.value) {
+                await callInit();
+            }
         });
 
         watchEffect(async () => {
@@ -113,11 +125,28 @@ export default {
             }
         });
 
-        watch(currentChainInfo, async () => await callInit());
+        watch(currentChainInfo, () => {
+            Socket.addressSubscription(walletAddress.value);
+        });
 
-        watch(walletAccount, async () => await callInit());
+        watch(walletAccount, async () => {
+            console.log('walletAccount', walletAccount.value, isInitCall.value);
+            if (isInitCall.value[walletAddress.value]) {
+                return;
+            }
 
-        onUpdated(async () => await callInit());
+            await callInit();
+        });
+
+        onUpdated(async () => {
+            if (isInitCall.value[walletAddress.value]) {
+                return;
+            }
+
+            if (currentChainInfo.value) {
+                return await callInit();
+            }
+        });
 
         return {
             isOpen,

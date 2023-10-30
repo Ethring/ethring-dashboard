@@ -1,22 +1,22 @@
 <template>
     <div class="simple-send">
-        <SelectNetwork :items="chainList" :current="selectedNetwork" @select="onSelectNetwork" />
+        <SelectNetwork :items="chainList" :current="selectedSrcNetwork" @select="onSelectNetwork" />
 
         <SelectAddress
-            :selected-network="selectedNetwork"
+            :selected-network="selectedSrcNetwork"
             :items="[]"
             :value="receiverAddress"
             :error="!!isAddressError"
             class="mt-10"
-            :on-reset="successHash || clearAddress"
+            :on-reset="clearAddress"
             @setAddress="onSetAddress"
         />
 
         <SelectAmount
-            :value="selectedToken"
+            :value="selectedSrcToken"
             :error="!!isBalanceError"
             :label="$t('tokenOperations.amount')"
-            :on-reset="successHash || clearAddress"
+            :on-reset="clearAddress || resetAmount"
             :is-token-loading="isTokensLoadingForChain"
             class="mt-10"
             @setAmount="onSetAmount"
@@ -26,7 +26,7 @@
         <Button
             :title="$t(opTitle)"
             :disabled="!!disabledSend"
-            :loading="isLoading"
+            :loading="isWaitingTxStatusForModule || isLoading"
             class="simple-send__btn mt-10"
             data-qa="confirm"
             @click="handleOnSend"
@@ -39,11 +39,12 @@ import { h, ref, computed, onBeforeUnmount, onMounted, watch } from 'vue';
 
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { LoadingOutlined } from '@ant-design/icons-vue';
+import { SettingOutlined } from '@ant-design/icons-vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
-import useTokensList from '@/compositions/useTokensList';
 import useNotification from '@/compositions/useNotification';
+import useTransactions from '../../../Transactions/compositions/useTransactions';
+import useServices from '../../../compositions/useServices';
 
 import Button from '@/components/ui/Button';
 import SelectNetwork from '@/components/ui/SelectNetwork';
@@ -51,6 +52,8 @@ import SelectAddress from '@/components/ui/SelectAddress';
 import SelectAmount from '@/components/ui/SelectAmount';
 
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+import { STATUSES } from '../../../Transactions/shared/constants';
+
 import { isCorrectChain } from '@/shared/utils/operations';
 
 export default {
@@ -65,172 +68,86 @@ export default {
         const store = useStore();
         const router = useRouter();
 
+        const { name: module } = router.currentRoute.value;
+
+        const {
+            //
+            selectedSrcToken,
+            selectedSrcNetwork,
+            receiverAddress,
+            srcAmount,
+            opTitle,
+            setTokenOnChange,
+        } = useServices({
+            module,
+            moduleType: 'send',
+        });
+
         // * Notification
         const { showNotification, closeNotification } = useNotification();
 
         // * Adapter for wallet
-        const {
-            walletAccount,
-            walletAddress,
-            connectedWallet,
-            currentChainInfo,
-            validateAddress,
-            chainList,
-            prepareTransaction,
-            signSend,
-            setChain,
-            getTxExplorerLink,
-        } = useAdapter();
+        const { walletAddress, connectedWallet, currentChainInfo, validateAddress, chainList, setChain } = useAdapter();
 
-        const txError = ref('');
+        const { createTransactions, signAndSend, transactionForSign } = useTransactions();
+
         const isLoading = ref(false);
-        const successHash = ref('');
-
-        const amount = ref('');
-
-        const opTitle = ref('tokenOperations.confirm');
+        const isWaitingTxStatusForModule = computed(() => store.getters['txManager/isWaitingTxStatusForModule'](module));
 
         const clearAddress = ref(false);
+        const resetAmount = ref(false);
         const isAddressError = ref(false);
         const isBalanceError = ref(false);
 
-        const isTokensLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](currentChainInfo.value?.net));
+        const isTokensLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](selectedSrcNetwork.value?.net));
 
         // =================================================================================================================
 
-        const selectedToken = computed({
-            get: () => store.getters['tokenOps/srcToken'],
-            set: (value) => store.dispatch('tokenOps/setSrcToken', value),
-        });
-
-        const selectedNetwork = computed({
-            get: () => store.getters['tokenOps/srcNetwork'],
-            set: (value) => store.dispatch('tokenOps/setSrcNetwork', value),
-        });
-
-        // =================================================================================================================
-
-        const receiverAddress = computed({
-            get: () => store.getters['tokenOps/receiverAddress'],
-            set: (value) => store.dispatch('tokenOps/setReceiverAddress', value),
-        });
-
-        // =================================================================================================================
-
-        const { getTokensList } = useTokensList();
-
-        const tokensList = ref([]);
-
-        // =================================================================================================================
-
-        const disabledSend = computed(() => {
-            return (
+        const disabledSend = computed(
+            () =>
                 isLoading.value ||
                 isAddressError.value ||
                 isBalanceError.value ||
-                !+amount.value ||
+                isWaitingTxStatusForModule.value ||
+                !+srcAmount.value ||
                 !receiverAddress.value?.length ||
+                !selectedSrcToken.value ||
                 !currentChainInfo.value
-            );
-        });
-
-        // =================================================================================================================
-
-        const setTokenOnChange = () => {
-            tokensList.value = getTokensList({
-                srcNet: selectedNetwork.value,
-            });
-
-            const [defaultToken = null] = tokensList.value || [];
-
-            if (!selectedToken.value && defaultToken) {
-                return (selectedToken.value = defaultToken);
-            }
-
-            const { symbol } = selectedToken.value || {};
-
-            const token = tokensList.value.find((tkn) => tkn.symbol === symbol);
-
-            onSetAddress(receiverAddress.value);
-
-            return (selectedToken.value = token || null);
-        };
-
-        // =================================================================================================================
+        );
 
         const onSetToken = () => {
             clearAddress.value = true;
             router.push('/send/select-token');
-            clearAddress.value = false;
         };
 
         const onSetAddress = (addr = '') => {
             receiverAddress.value = addr;
 
-            const isAddressAllowed = !validateAddress(addr, { chainId: selectedNetwork?.value?.net }) && addr?.length > 0;
+            if (!addr) {
+                return (isAddressError.value = false);
+            }
+
+            const isAddressAllowed = !validateAddress(addr, { chainId: selectedSrcNetwork?.value?.net }) && addr?.length > 0;
 
             return (isAddressError.value = isAddressAllowed);
         };
 
         const onSelectNetwork = (network) => {
             clearAddress.value = true;
-            selectedNetwork.value = network;
-
-            setTokenOnChange();
-
-            if (currentChainInfo.value.net !== selectedNetwork.value.net) {
-                return (opTitle.value = 'tokenOperations.switchNetwork');
-            }
-
-            clearAddress.value = false;
-            return (opTitle.value = 'tokenOperations.confirm');
+            selectedSrcToken.value = null;
+            selectedSrcToken.value = null;
+            selectedSrcNetwork.value = network;
         };
 
         const onSetAmount = (value) => {
-            amount.value = value;
+            srcAmount.value = value;
 
-            const isBalanceAllowed = +value > +selectedToken.value?.balance;
+            const isBalanceAllowed = +value > +selectedSrcToken.value?.balance;
 
             isBalanceError.value = isBalanceAllowed;
         };
 
         // =================================================================================================================
-
-        const resetValues = () => {
-            receiverAddress.value = '';
-            amount.value = null;
-        };
-
-        // =================================================================================================================
-
-        const onPrepareTx = async (dataForPrepare) => {
-            showNotification({
-                key: 'prepare-tx',
-                type: 'info',
-                title: `Sending ${dataForPrepare.amount} ${dataForPrepare.token.symbol} ...`,
-                description: 'Please wait, transaction is preparing',
-                icon: h(LoadingOutlined, {
-                    spin: true,
-                }),
-                duration: 0,
-            });
-
-            try {
-                const tx = await prepareTransaction(
-                    dataForPrepare.fromAddress,
-                    dataForPrepare.toAddress,
-                    dataForPrepare.amount,
-                    dataForPrepare.token
-                );
-
-                return tx;
-            } catch (error) {
-                console.error('Error on prepare tx', error);
-                return {
-                    error,
-                };
-            }
-        };
 
         const handleOnSend = async () => {
             if (disabledSend.value) {
@@ -240,13 +157,13 @@ export default {
             isLoading.value = true;
 
             const dataForPrepare = {
-                fromAddress: walletAddress.value,
+                fromAddress: null,
                 toAddress: receiverAddress.value,
-                amount: amount.value,
-                token: selectedToken.value,
+                amount: srcAmount.value,
+                token: selectedSrcToken.value,
             };
 
-            const { isChanged, btnTitle } = await isCorrectChain(selectedNetwork, currentChainInfo, setChain);
+            const { isChanged, btnTitle } = await isCorrectChain(selectedSrcNetwork, currentChainInfo, setChain);
 
             opTitle.value = btnTitle;
 
@@ -258,128 +175,114 @@ export default {
 
             // Reset values
 
-            const tx = await onPrepareTx(dataForPrepare);
-
-            if (tx.error) {
-                closeNotification('prepare-tx');
-                return (txError.value = tx.error);
-            }
+            showNotification({
+                key: 'prepare-tx',
+                type: 'info',
+                title: `Sending ${dataForPrepare.amount} ${dataForPrepare.token.symbol} ...`,
+                description: 'Please wait, transaction is preparing',
+                icon: h(SettingOutlined, {
+                    spin: true,
+                }),
+                duration: 0,
+            });
 
             try {
-                const resTx = await signSend(tx);
+                // TODO: multiple transactions for send module
+                const txs = [
+                    {
+                        index: 0,
+                        ecosystem: selectedSrcNetwork.value.ecosystem,
+                        module,
+                        status: STATUSES.IN_PROGRESS,
+                        parameters: {
+                            ...dataForPrepare,
+                            fromAddress: walletAddress.value,
+                        },
+                        account: walletAddress.value,
+                        chainId: `${selectedSrcNetwork.value?.chain_id}`,
+                        metaData: {
+                            action: 'prepareTransaction',
+                            type: 'Transfer',
+                            successCallback: {
+                                action: 'CLEAR_AMOUNTS',
+                            },
+                        },
+                    },
+                ];
+
+                await createTransactions(txs);
+
+                const resTx = await signAndSend(transactionForSign.value);
+
+                closeNotification('prepare-tx');
 
                 if (resTx.error) {
-                    closeNotification('prepare-tx');
-                    return (txError.value = resTx.error);
+                    clearAddress.value = false;
+                    return (isLoading.value = false);
                 }
 
-                closeNotification('prepare-tx');
-
-                resetValues();
-
-                successHash.value = getTxExplorerLink(resTx.transactionHash, currentChainInfo.value);
+                return (isLoading.value = false);
             } catch (error) {
                 closeNotification('prepare-tx');
-            } finally {
                 isLoading.value = false;
+                clearAddress.value = false;
             }
         };
+
+        // =================================================================================================================
+
+        watch(srcAmount, () => {
+            resetAmount.value = srcAmount.value === null;
+        });
+
+        watch(receiverAddress, () => {
+            if (receiverAddress.value === null) {
+                clearAddress.value = true;
+            }
+        });
+
+        watch(isTokensLoadingForChain, () => setTokenOnChange());
 
         // =================================================================================================================
 
         // * Reset Values before leave page
         onBeforeUnmount(() => {
             if (router.options.history.state.current !== '/send/select-token') {
-                selectedToken.value = null;
-                selectedNetwork.value = null;
+                selectedSrcToken.value = null;
+                selectedSrcNetwork.value = null;
                 receiverAddress.value = '';
             }
 
-            amount.value = null;
+            srcAmount.value = null;
         });
 
         onMounted(() => {
-            if (!selectedNetwork.value) {
-                selectedNetwork.value = currentChainInfo.value;
+            if (!selectedSrcNetwork.value) {
+                selectedSrcNetwork.value = currentChainInfo.value;
             }
 
             store.dispatch('tokenOps/setSelectType', TOKEN_SELECT_TYPES.FROM);
             store.dispatch('tokenOps/setDirection', DIRECTIONS.SOURCE);
             store.dispatch('tokenOps/setOnlyWithBalance', true);
+            store.dispatch('txManager/setCurrentRequestID', null);
 
             setTokenOnChange();
-        });
-
-        watch(txError, (err) => {
-            if (!err) {
-                return;
-            }
-
-            showNotification({
-                key: 'error-tx',
-                type: 'error',
-                title: 'Transaction error',
-                description: JSON.stringify(txError.value || 'Unknown error'),
-                duration: 5,
-            });
-
-            closeNotification('prepare-tx');
-
-            isLoading.value = false;
-        });
-
-        watch(walletAccount, () => {
-            selectedNetwork.value = currentChainInfo.value;
-            selectedToken.value = null;
-            setTokenOnChange();
-        });
-
-        watch(currentChainInfo, () => {
-            selectedNetwork.value = currentChainInfo.value;
-            setTokenOnChange();
-        });
-
-        watch(isTokensLoadingForChain, () => setTokenOnChange());
-
-        watch(successHash, () => {
-            if (!successHash.value) {
-                return;
-            }
-
-            showNotification({
-                key: 'success-send-tx',
-                type: 'success',
-                title: 'Click to view transaction',
-                onClick: () => {
-                    window.open(successHash.value, '_blank');
-                    closeNotification('success-send-tx');
-                    successHash.value = '';
-                },
-                duration: 4,
-                style: {
-                    cursor: 'pointer',
-                },
-            });
-
-            closeNotification('prepare-tx');
-
-            return setTimeout(() => {
-                successHash.value = '';
-            }, 5000);
         });
 
         return {
             isLoading,
             isTokensLoadingForChain,
+            isWaitingTxStatusForModule,
 
             disabledSend,
 
             clearAddress,
+            resetAmount,
 
             isAddressError,
             isBalanceError,
 
-            selectedToken,
+            selectedSrcToken,
             receiverAddress,
 
             onSelectNetwork,
@@ -391,12 +294,10 @@ export default {
 
             opTitle,
 
-            txError,
-            successHash,
-            walletAddress,
-            selectedNetwork,
-            connectedWallet,
             chainList,
+            walletAddress,
+            selectedSrcNetwork,
+            connectedWallet,
             currentChainInfo,
         };
     },

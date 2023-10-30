@@ -98,6 +98,10 @@ class CosmosAdapter extends AdapterBase {
             return null;
         }
 
+        if (!this.currentChain) {
+            this.currentChain = DEFAULT_CHAIN;
+        }
+
         let chainRecord = this.walletManager.getChainRecord(this.currentChain);
 
         if (!chainRecord) {
@@ -115,6 +119,25 @@ class CosmosAdapter extends AdapterBase {
         chainWallet.value?.emitter && chainWallet.value.emitter.setMaxListeners(100);
 
         return chainWallet;
+    }
+
+    checkClient(walletName) {
+        const client = this.walletManager.getMainWallet(walletName);
+
+        if (!client) {
+            return false;
+        }
+        const { clientMutable } = client || {};
+
+        if (clientMutable.message === 'Client Not Exist!') {
+            return false;
+        }
+
+        if (clientMutable.state === 'Error') {
+            return false;
+        }
+
+        return true;
     }
 
     async connectWallet(walletName, chain = DEFAULT_CHAIN) {
@@ -141,7 +164,10 @@ class CosmosAdapter extends AdapterBase {
             await this.setAddressForChains(walletName);
             await chainWallet.update({ connect: true });
 
-            return isConnected;
+            return {
+                isConnected: isConnected,
+                walletName: walletName,
+            };
         } catch (error) {
             console.error(error, this.walletManager.isError);
             return false;
@@ -364,7 +390,7 @@ class CosmosAdapter extends AdapterBase {
         return validateCosmosAddress(address, bech32_prefix);
     }
 
-    async prepareTransaction(fromAddress, toAddress, amount, token) {
+    async prepareTransaction({ fromAddress, toAddress, amount, token }) {
         const chainWallet = this._getCurrentWallet();
 
         const [feeInfo = {}] = chainWallet.value.chainRecord.chain.fees.fee_tokens || [];
@@ -411,7 +437,10 @@ class CosmosAdapter extends AdapterBase {
         const chainWallet = this._getCurrentWallet();
 
         try {
+            // chainWallet.value.rpcEndpoints = [`${DEFAULT_RPC}/${chainWallet.value.chainName}`];
+
             const response = await chainWallet.value.signAndBroadcast([msg], fee);
+
             return response;
         } catch (error) {
             console.error('error while signAndSend', error);
