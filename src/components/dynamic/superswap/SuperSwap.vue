@@ -808,6 +808,11 @@ export default {
             });
 
             isSwapLoading.value = false;
+            
+            return setTimeout(() => {
+                closeNotification('error-tx');
+                txError.value = '';
+            }, 5000);
         });
 
         watch(successHash, () => {
