@@ -1,16 +1,16 @@
 <template>
     <div class="tokens" :class="{ empty: isEmpty }">
-        <template v-if="allTokensSorted.length > 0">
+        <template v-if="allTokens.length > 0">
             <div class="tokens__group">
                 <AssetItemHeader
-                    v-if="allTokensSorted.length"
+                    v-if="allTokens.length"
                     title="Tokens"
                     :value="getAssetsShare(assetsTotalBalances)"
                     :totalBalance="assetsTotalBalances"
                 />
                 <AssetItemSubHeader type="Asset" />
 
-                <AssetItem v-for="(listItem, n) in allTokensSorted" :key="n" :item="listItem" />
+                <AssetItem v-for="(listItem, n) in allTokens" :key="n" :item="listItem" />
             </div>
         </template>
 
@@ -67,7 +67,7 @@ import AssetItem from './AssetItem';
 import AssetItemHeader from './AssetItemHeader';
 import AssetItemSubHeader from './AssetItemSubHeader';
 
-import { getTokenIcon, sortByKey } from '@/helpers/utils';
+import { getTokenIcon } from '@/helpers/utils';
 import { prettyNumber } from '@/helpers/prettyNumber';
 
 import { getIntegrationsGroupedByPlatform, getFormattedName, getFormattedDate } from '@/shared/utils/assets';
@@ -93,8 +93,6 @@ export default {
 
         const totalBalances = computed(() => store.getters['tokens/totalBalances'][walletAccount.value] || 0);
         const assetsTotalBalances = computed(() => store.getters['tokens/assetsBalances'][walletAccount.value] || 0);
-
-        const allTokensSorted = computed(() => sortByKey(allTokens.value, 'balanceUsd'));
 
         const isEmpty = computed(() => {
             return !allTokens.value?.length && !allIntegrations.value?.length && !isLoadingForChain.value && !isAllTokensLoading.value;
@@ -137,7 +135,7 @@ export default {
             isEmpty,
             getTokenIcon,
 
-            allTokensSorted,
+            allTokens,
             allIntegrations,
 
             assetsTotalBalances,
