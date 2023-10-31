@@ -115,7 +115,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
                 // Sorting by balance
                 (tkn) => Number(tkn.balanceUsd),
                 // Sorting by Native Token
-                (tkn) => tkn.name === 'Native Token',
+                (tkn) => tkn?.name?.includes('Native Token'),
             ],
             ['desc', 'desc']
         );
