@@ -66,7 +66,7 @@ export const estimateBridge = async ({ url, fromNet, toNet, fromTokenAddress, to
     }
 };
 
-export const getAllowance = async ({ url, net, tokenAddress, ownerAddress }) => {
+export const getAllowance = async ({ url, net, tokenAddress, ownerAddress, store, service }) => {
     if (!url) {
         throw new Error('url is required');
     }
@@ -88,13 +88,25 @@ export const getAllowance = async ({ url, net, tokenAddress, ownerAddress }) => 
             return checkErrors(error);
         }
 
+        if (store) {
+            const { allowance = 0 } = data || {};
+
+            store.dispatch('tokenOps/setAllowance', {
+                chain: net,
+                account: ownerAddress,
+                tokenAddress,
+                allowance,
+                service: service.id,
+            });
+        }
+
         return data;
     } catch (error) {
         return checkErrors(error);
     }
 };
 
-export const getApproveTx = async ({ url, net, tokenAddress, ownerAddress }) => {
+export const getApproveTx = async ({ url, net, tokenAddress, ownerAddress, store, service }) => {
     if (!url) {
         throw new Error('url is required');
     }
@@ -112,6 +124,16 @@ export const getApproveTx = async ({ url, net, tokenAddress, ownerAddress }) => 
 
         if (response.error) {
             return checkErrors(response.error);
+        }
+
+        if (store && service) {
+            store.dispatch('tokenOps/setApprove', {
+                chain: net,
+                account: ownerAddress,
+                tokenAddress,
+                approve: response,
+                service: service.id,
+            });
         }
 
         return response;

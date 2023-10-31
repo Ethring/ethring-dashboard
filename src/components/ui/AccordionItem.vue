@@ -44,5 +44,11 @@ export default {
         color: var(--#{$prefix}primary-text);
         margin-left: 6px;
     }
+
+    img {
+        width: 16px;
+        height: 16px;
+        margin-left: 6px;
+    }
 }
 </style>

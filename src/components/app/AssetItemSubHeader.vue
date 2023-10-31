@@ -2,6 +2,7 @@
     <div class="asset__item-sub-header">
         <div class="asset__item-sub-header-title">
             {{ type }}
+            <span v-if="name">{{ name.trim() }}</span>
         </div>
         <div class="asset__item-sub-header-label">
             {{ $t('tokenOperations.balance') }}
@@ -17,6 +18,9 @@ export default {
     props: {
         type: {
             required: true,
+        },
+        name: {
+            default: null,
         },
     },
     setup() {},
@@ -38,6 +42,12 @@ export default {
     &-title {
         display: flex;
         width: 60%;
+
+        span::before {
+            content: '\2022';
+            margin: 0 4px;
+            color: var(--#{$prefix}checkbox-text);
+        }
     }
 
     &-label {
