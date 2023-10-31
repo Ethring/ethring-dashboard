@@ -219,9 +219,7 @@ async function findRoute(params) {
     let bestRouteExist = false;
 
     try {
-        const promises = [];
-
-        for (const service of services) {
+        const promises = services.map(async (service) => {
             error = null;
 
             const estimateResponse = await ESTIMATE[service.type]({ ...params, url: service.url, service, store });
@@ -229,7 +227,7 @@ async function findRoute(params) {
             // * Check error
             if (estimateResponse.error) {
                 error = ERRORS.ROUTE_NOT_FOUND;
-                continue;
+                return;
             }
 
             const isNotEnoughForPayFee = checkFee({
@@ -244,7 +242,7 @@ async function findRoute(params) {
             // * Check Fee not enough error
             if (isNotEnoughForPayFee) {
                 error = ERRORS.NOT_ENOUGH_BALANCE;
-                continue;
+                return;
             }
 
             // ==============================================================================
@@ -278,7 +276,7 @@ async function findRoute(params) {
             }
 
             bestRouteExist = true;
-        }
+        });
 
         await Promise.all(promises); // finding best route
 

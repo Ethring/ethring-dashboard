@@ -251,7 +251,7 @@ export default {
             checkSelectedNetwork,
         } = useServices({
             module,
-            moduleType: 'swap',
+            moduleType: 'super-swap',
         });
 
         // * Transaction Manager
@@ -330,6 +330,8 @@ export default {
             const currentAmount = utils.parseUnits(srcAmount.value, selectedSrcToken.value?.decimals).toString();
 
             const isEnough = BigNumber(currentAmount).lte(allowanceForToken.value);
+
+            console.log('isEnough', isEnough);
 
             return !isEnough;
         });
@@ -421,7 +423,9 @@ export default {
                 selectedDstToken.value = token;
             }
 
-            onSetAmount(srcAmount.value);
+            onSetAmount('');
+
+            isLoading.value = false;
         };
 
         // =================================================================================================================
@@ -551,14 +555,14 @@ export default {
             if (resEstimate?.error) {
                 estimateErrorTitle.value = resEstimate.error;
                 dstAmount.value = 0;
-                isLoading.value = false;
-                return;
+
+                return (isLoading.value = false);
             }
 
             if (!+srcAmount.value) {
                 dstAmount.value = 0;
-                isLoading.value = false;
-                return;
+
+                return (isLoading.value = false);
             }
 
             const checkRoute =
@@ -580,6 +584,7 @@ export default {
                 estimateRate.value = prettyNumberTooltip(resEstimate.bestRoute.toTokenAmount / resEstimate.bestRoute.fromTokenAmount, 6);
 
                 differPercentage.value = getDifferPercentage();
+
                 isLoading.value = false;
             }
 
@@ -783,7 +788,6 @@ export default {
             // APPROVE
             if (isNeedApprove.value) {
                 opTitle.value = 'tokenOperations.approve';
-                console.log('APPROVE');
                 await handleApprove();
             } else {
                 await handleOperationByType();
@@ -818,17 +822,13 @@ export default {
                 currentRoute.value = bestRoute.value.routes.find((elem) => elem.status === STATUSES.SIGNING);
 
                 if (!currentRoute.value) {
-                    dstAmount.value = null;
-                    srcAmount.value = '';
                     isBalanceError.value = '';
-                    store.dispatch('swap/setBestRoute', null);
-                    return;
+                    return store.dispatch('swap/setBestRoute', null);
                 }
 
                 if (currentRoute.value.net !== selectedSrcNetwork.value.net) {
                     store.dispatch('tokens/setDisableLoader', true);
-                    networkName.value = selectedDstNetwork.value.name;
-                    return;
+                    return (networkName.value = selectedDstNetwork.value.name);
                 }
             } catch (error) {
                 txError.value = error?.message || error?.error || error;
@@ -881,6 +881,8 @@ export default {
             if (isShowRoutesModal.value) {
                 return;
             }
+
+            console.log('bestRouteInfo', bestRouteInfo.value);
 
             bestRoute.value = bestRouteInfo.value.bestRoute;
             otherRoutes.value = bestRouteInfo.value.otherRoutes;
