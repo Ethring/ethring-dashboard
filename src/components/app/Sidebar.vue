@@ -74,6 +74,8 @@ export default {
 
     padding: 30px 25px;
 
+    display: inline-block;
+    min-width: 239px;
     box-sizing: border-box;
 
     &-items {
@@ -146,6 +148,8 @@ export default {
     }
 
     &.collapsed {
+        min-width: 80px;
+
         .sidebar-items__list {
             align-items: center;
         }
