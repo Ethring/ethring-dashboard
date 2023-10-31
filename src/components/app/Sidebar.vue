@@ -154,6 +154,10 @@ export default {
         .logo {
             margin-bottom: 70px;
         }
+
+        .sidebar__settings-icon svg {
+            transform: scale(1.2);
+        }
     }
 
     .menu {

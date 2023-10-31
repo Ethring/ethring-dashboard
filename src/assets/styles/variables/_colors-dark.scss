@@ -134,7 +134,6 @@ $accordion-border-color: 'transparent';
 // Collapse
 $collapse-border-color: $charade;
 
-
 // Info
 $success: $japaneseLaurel;
 $success-op-01: rgba($success, 0.1);
@@ -165,6 +164,7 @@ $icon-secondary-bg-hover: $mineralGreen;
 $icon-bg-color: $white;
 
 $sidebar-active-color: $springGreen;
+$sidebar-collapse-color: $chineseBlack;
 $arrow-color: $white;
 
 $negative-percentage: $wildWatermelon;
@@ -306,6 +306,7 @@ $theme-colors-dark: (
     "info-op-01": $info-op-01,
 
     "sidebar-active-color": $sidebar-active-color,
+    "sidebar-collapse-color": $sidebar-collapse-color,
 
     "white": $white,
     "black": $black,

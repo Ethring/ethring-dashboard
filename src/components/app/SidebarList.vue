@@ -1,5 +1,5 @@
 <template>
-    <div class="sidebar-list">
+    <div class="sidebar-list" :class="{ collapsed: collapsed }">
         <router-link
             v-for="(item, ndx) in menu"
             :key="ndx"
@@ -150,6 +150,12 @@ export default {
         font-weight: 600;
 
         margin-left: 6px;
+    }
+
+    &.collapsed {
+        .sidebar-list__item-icon svg {
+            transform: scale(1);
+        }
     }
 }
 </style>
