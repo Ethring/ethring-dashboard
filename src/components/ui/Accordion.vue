@@ -54,6 +54,50 @@ export default {
     border-radius: 16px;
     padding: 27px 32px;
 
+    .header {
+        img {
+            width: 16px;
+            height: 16px;
+        }
+    }
+
+    &__title {
+        display: flex;
+        align-items: center;
+
+        font-weight: 400;
+        color: var(--zmt-accordion-label-color);
+        font-size: var(--zmt-default-fs);
+
+        .symbol {
+            font-weight: 600;
+        }
+
+        .route-info-title {
+            color: var(--#{$prefix}warning);
+            font-weight: 500;
+            line-height: 20px;
+            opacity: 0.8;
+
+            display: inline;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+            width: 500px;
+            margin-left: 4px;
+        }
+    }
+
+    .service-fee {
+        font-weight: 600;
+        color: var(--#{$prefix}sub-text);
+    }
+
+    .symbol {
+        margin-left: 5px;
+        font-weight: 600;
+    }
+
     &__header {
         @include pageFlexRow;
         justify-content: space-between;

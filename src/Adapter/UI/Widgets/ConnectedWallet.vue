@@ -35,7 +35,11 @@
                                 {{ $t('adapter.copyAddress') }}
                             </a-menu-item>
 
-                            <a-menu-item key="disconnect-account" @click="handleOnDisconnectAccount" class="wallet__options-item">
+                            <a-menu-item
+                                key="disconnect-account"
+                                @click="() => handleOnDisconnectAccount(wallet.ecosystem, wallet)"
+                                class="wallet__options-item"
+                            >
                                 <DisconnectOutlined />
                                 {{ $t('adapter.disconnectAccount') }}
                             </a-menu-item>
@@ -147,7 +151,7 @@ export default {
             return action('SET_MODAL_STATE', { name: 'addresses', isOpen: true });
         };
 
-        const handleOnDisconnectAccount = async () => await disconnectWallet(props.wallet.ecosystem, props.wallet);
+        const handleOnDisconnectAccount = async (ecosystem, wallet) => await disconnectWallet(ecosystem, wallet);
 
         return {
             chainInfo,
