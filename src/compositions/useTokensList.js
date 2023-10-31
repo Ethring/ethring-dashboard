@@ -68,6 +68,35 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             allTokens = _.unionBy(tokensWithBalance, tokensListFromNet, (tkn) => tkn.address?.toLowerCase());
         }
 
+        if (ECOSYSTEMS.EVM === network?.ecosystem) {
+            const { native_token: nativeToken } = network || {};
+
+            const baseToken = allTokens.find(({ address }) => !address);
+
+            const tokenInfo = {
+                ...nativeToken,
+                balance: 0,
+                balanceUsd: 0,
+            };
+
+            if (!tokenInfo.name) {
+                tokenInfo.name = nativeToken.symbol;
+            }
+
+            if (!tokenInfo.name.includes('Native Token')) {
+                tokenInfo.name += ' Native Token';
+            }
+
+            if (baseToken) {
+                tokenInfo.balance = baseToken?.balance || 0;
+                tokenInfo.balanceUsd = baseToken?.balanceUsd || 0;
+
+                allTokens = allTokens.filter(({ symbol }) => symbol !== nativeToken.symbol);
+            }
+
+            allTokens.push(tokenInfo);
+        }
+
         if (ECOSYSTEMS.COSMOS === network?.ecosystem) {
             const { asset } = network || {};
 
@@ -85,7 +114,18 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
         allTokens = _.filter(allTokens, isNotEqualToSelected);
 
-        return _.orderBy(allTokens, (tkn) => Number(tkn.balanceUsd), ['desc']);
+        return _.orderBy(
+            allTokens,
+            [
+                // Sorting by balance
+                (tkn) => Number(tkn.balanceUsd),
+                // Sorting by address
+                (tkn) => !tkn.address,
+                // Sorting by Native Token
+                (tkn) => tkn.name === 'Native Token',
+            ],
+            ['desc', 'desc', 'desc']
+        );
     };
 
     const allTokensList = computed(() => getAllTokensList(network));

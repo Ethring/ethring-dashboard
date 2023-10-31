@@ -157,6 +157,8 @@ export default {
             makeAllowanceRequest,
             makeApproveRequest,
             checkSelectedNetwork,
+
+            onSelectSrcNetwork,
         } = useServices({
             module,
             moduleType: 'swap',
@@ -253,11 +255,14 @@ export default {
         // =================================================================================================================
 
         const onSelectNetwork = (network) => {
-            selectedSrcNetwork.value = network;
-            selectedSrcToken.value = null;
+            if (!onSelectSrcNetwork(network)) {
+                return;
+            }
+
             isEstimating.value = false;
             estimateErrorTitle.value = '';
-            dstAmount.value = '';
+            resetSrcAmount.value = true;
+            resetDstAmount.value = true;
         };
 
         const onSetTokenFrom = () => {
@@ -708,6 +713,8 @@ export default {
             if (!selectedSrcNetwork.value) {
                 selectedSrcNetwork.value = currentChainInfo.value;
             }
+
+            onlyWithBalance.value = true;
 
             setTokenOnChange();
 
