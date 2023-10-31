@@ -26,6 +26,7 @@ export default defineConfig({
         command: 'npm run serve',
         url: localFrontUrl,
         reuseExistingServer: !process.env.CI,
+        timeout: 180 * 1000,
     },
 
     projects: [
