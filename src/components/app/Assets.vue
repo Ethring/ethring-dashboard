@@ -26,7 +26,7 @@
                     :healthRate="item.healthRate"
                 />
                 <div v-for="(groupItem, n) in item.data" :key="n">
-                    <AssetItemSubHeader :type="getSubHeaderName(groupItem)" />
+                    <AssetItemSubHeader :type="getFormattedName(groupItem.type)" :name="groupItem?.validator?.name" />
                     <AssetsTable :data-source="groupItem.balances" />
                 </div>
             </div>
@@ -57,7 +57,7 @@ import AssetItemHeader from './AssetItemHeader';
 import AssetItemSubHeader from './AssetItemSubHeader';
 import AssetsTable from './AssetsTable';
 
-import { getIntegrationsGroupedByPlatform, getFormattedName, getSubHeaderName } from '@/shared/utils/assets';
+import { getIntegrationsGroupedByPlatform, getFormattedName } from '@/shared/utils/assets';
 
 export default {
     name: 'Tokens',
@@ -129,7 +129,6 @@ export default {
             // utils for Assets templates
             getAssetsShare,
             getFormattedName,
-            getSubHeaderName,
         };
     },
 };
