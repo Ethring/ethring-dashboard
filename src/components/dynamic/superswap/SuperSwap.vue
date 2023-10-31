@@ -270,6 +270,7 @@ export default {
         // =================================================================================================================
 
         const isTokensLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](currentChainInfo.value?.net));
+        const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
 
         const bestRouteInfo = computed(() => store.getters['swap/bestRoute']);
         const isShowRoutesModal = computed(() => store.getters['swap/showRoutes']);
@@ -780,6 +781,10 @@ export default {
             if (!val && selectedSrcNetwork.value) {
                 setTokenOnChange();
             }
+        });
+
+        watch(isAllTokensLoading, () => {
+            setTokenOnChange();
         });
 
         watch(selectedSrcNetwork, () => {
