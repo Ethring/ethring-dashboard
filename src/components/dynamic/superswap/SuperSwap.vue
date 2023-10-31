@@ -808,7 +808,7 @@ export default {
             });
 
             isSwapLoading.value = false;
-
+            
             return setTimeout(() => {
                 closeNotification('error-tx');
                 txError.value = '';
@@ -869,7 +869,11 @@ export default {
         watch(
             () => currentChainInfo.value,
             () => {
-                opTitle.value = getOperationTitle(currentRoute.value.net, currentChainInfo.value.net, approveTx.value);
+                opTitle.value = getOperationTitle(
+                    currentRoute.value.net || selectedSrcNetwork.value.net,
+                    currentChainInfo.value.net,
+                    approveTx.value
+                );
 
                 if ((!currentChainInfo.value.net || !SUPPORTED_CHAINS.includes(currentChainInfo.value?.net)) && !isShowRoutesModal.value) {
                     router.push('/main');
