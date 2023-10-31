@@ -97,6 +97,12 @@ export default {
             await callInit();
         });
 
+        const updateCollapsedState = () => {
+            collapsed.value = window.innerWidth <= 1024;
+        };
+
+        window.addEventListener('resize', updateCollapsedState);
+
         watchEffect(async () => {
             if (isConnecting) {
                 return;
