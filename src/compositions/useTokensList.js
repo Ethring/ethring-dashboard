@@ -33,50 +33,47 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
         const tokensWithBalance = getTokensWithAndWithoutBalance('tokens', network);
 
-        const tokensListFromNet = getTokensWithAndWithoutBalance('networks', network);
-
         let allTokens = [];
 
         const isNotEqualToSelected = (tkn) => {
-            const addresses = [];
-            const symbols = [];
+            const ids = [];
 
-            if (fromToken && fromToken.address) {
-                addresses.push(fromToken.address.toLowerCase());
-            } else if (fromToken && fromToken.symbol) {
-                symbols.push(fromToken.symbol);
+            if (fromToken && fromToken.id) {
+                ids.push(fromToken.id);
             }
 
-            if (toToken && toToken.address) {
-                addresses.push(toToken.address.toLowerCase());
-            } else if (toToken && toToken.symbol) {
-                symbols.push(toToken.symbol);
+            if (toToken && toToken.id) {
+                ids.push(toToken.id);
             }
 
-            if (tkn.address) {
-                return !addresses.includes(tkn.address.toLowerCase());
-            } else if (tkn.symbol) {
-                return !symbols.includes(tkn.symbol);
+            if (tkn.id) {
+                return !ids.includes(tkn.id);
             }
 
             return true;
         };
 
+        // Target tokens list with or without balance
         if (onlyWithBalance.value) {
             allTokens = tokensWithBalance;
         } else {
+            const tokensListFromNet = getTokensWithAndWithoutBalance('networks', network);
             allTokens = _.unionBy(tokensWithBalance, tokensListFromNet, (tkn) => tkn.address?.toLowerCase());
         }
 
+        // Native token
         if (ECOSYSTEMS.EVM === network?.ecosystem) {
             const { native_token: nativeToken } = network || {};
 
-            const baseToken = allTokens.find(({ address }) => !address);
+            const searchId = `${network.net}:asset__native:${nativeToken.symbol}`;
+
+            const baseToken = allTokens.find(({ id }) => id === searchId);
 
             const tokenInfo = {
-                ...nativeToken,
                 balance: 0,
                 balanceUsd: 0,
+                ...baseToken,
+                ...nativeToken,
             };
 
             if (!tokenInfo.name) {
@@ -88,15 +85,13 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             }
 
             if (baseToken) {
-                tokenInfo.balance = baseToken?.balance || 0;
-                tokenInfo.balanceUsd = baseToken?.balanceUsd || 0;
-
-                allTokens = allTokens.filter(({ symbol }) => symbol !== nativeToken.symbol);
+                allTokens = allTokens.filter(({ id }) => id !== searchId);
             }
 
             allTokens.push(tokenInfo);
         }
 
+        // Native token only for COSMOS
         if (ECOSYSTEMS.COSMOS === network?.ecosystem) {
             const { asset } = network || {};
 
@@ -119,12 +114,10 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             [
                 // Sorting by balance
                 (tkn) => Number(tkn.balanceUsd),
-                // Sorting by address
-                (tkn) => !tkn.address,
                 // Sorting by Native Token
                 (tkn) => tkn.name === 'Native Token',
             ],
-            ['desc', 'desc', 'desc']
+            ['desc', 'desc']
         );
     };
 
