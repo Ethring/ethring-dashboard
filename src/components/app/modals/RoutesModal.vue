@@ -185,7 +185,6 @@ export default {
         margin-bottom: 16px;
         border: 1px solid var(--#{$prefix}modal-block-bg-color);
         cursor: pointer;
-        transition: 0.5s;
     }
     &__active-item {
         border: 1px solid var(--#{$prefix}banner-logo-color);
