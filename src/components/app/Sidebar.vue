@@ -146,6 +146,10 @@ export default {
     }
 
     &.collapsed {
+        .sidebar-items__list {
+            align-items: center;
+        }
+
         .sidebar__socials {
             flex-direction: column;
             align-items: flex-start;
@@ -155,8 +159,12 @@ export default {
             margin-bottom: 70px;
         }
 
-        .sidebar__settings-icon svg {
-            transform: scale(1.2);
+        .sidebar__settings {
+            align-self: center;
+
+            &-icon svg {
+                transform: scale(1.2);
+            }
         }
     }
 

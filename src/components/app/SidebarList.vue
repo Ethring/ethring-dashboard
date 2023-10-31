@@ -153,8 +153,14 @@ export default {
     }
 
     &.collapsed {
+        align-self: center !important;
+
         .sidebar-list__item-icon svg {
             transform: scale(1);
+        }
+
+        .sidebar-list {
+            align-self: center !important;
         }
     }
 }
