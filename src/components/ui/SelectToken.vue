@@ -33,13 +33,13 @@ import { useRouter } from 'vue-router';
 import _ from 'lodash';
 
 import SearchInput from '@/components/ui/SearchInput';
-
 import TokenRecord from '@/components/ui/Tokens/TokenRecord';
 
 import Button from '@/components/ui/Button';
 
 import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 import NotFoundIcon from '@/assets/icons/app/notFound.svg';
+
 import { prettyNumber } from '@/helpers/prettyNumber';
 import { searchByKey } from '@/helpers/utils';
 

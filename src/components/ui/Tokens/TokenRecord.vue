@@ -1,5 +1,10 @@
 <template>
-    <div class="token-record" :data-key="record?.id || record?.address" @click="(event) => sendTokenInfo(event, record)">
+    <div
+        class="token-record"
+        :data-key="record?.id || record?.address"
+        @click="(event) => sendTokenInfo(event, record)"
+        :class="{ selected: record.selected }"
+    >
         <div class="network">
             <TokenIcon width="24" height="24" :token="record" class="logo" />
 
@@ -107,6 +112,11 @@ export default {
     padding: 12px 16px;
 
     border-radius: 16px;
+
+    &.selected {
+        border: 1px solid var(--zmt-banner-logo-color);
+        background-color: var(--zmt-icon-secondary-bg-color);
+    }
 
     &:not(:last-child) {
         margin-bottom: 8px;

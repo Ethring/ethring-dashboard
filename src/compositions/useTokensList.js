@@ -5,6 +5,9 @@ import { computed } from 'vue';
 import { useStore } from 'vuex';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
+
+import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
 export default function useTokensList({ network = null, fromToken = null, toToken = null } = {}) {
@@ -13,6 +16,8 @@ export default function useTokensList({ network = null, fromToken = null, toToke
     const { walletAccount } = useAdapter();
 
     const onlyWithBalance = computed(() => store.getters['tokenOps/onlyWithBalance']);
+
+    const selectType = computed(() => store.getters['tokenOps/selectType']);
 
     const getTokensWithAndWithoutBalance = (storeModule = 'tokens', network) => {
         const { net } = network || {};
@@ -26,7 +31,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         return _.orderBy(list, (tkn) => Number(tkn.balanceUsd), ['desc']);
     };
 
-    const getAllTokensList = (network) => {
+    const getAllTokensList = (network, fromToken, toToken) => {
         if (!network) {
             return [];
         }
@@ -37,20 +42,14 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
         let allTokens = [];
 
-        const isNotEqualToSelected = (tkn) => {
+        const isNotEqualToSelected = (tkn, selectedToken) => {
             const addresses = [];
             const symbols = [];
 
-            if (fromToken && fromToken.address) {
-                addresses.push(fromToken.address.toLowerCase());
-            } else if (fromToken && fromToken.symbol) {
-                symbols.push(fromToken.symbol);
-            }
-
-            if (toToken && toToken.address) {
-                addresses.push(toToken.address.toLowerCase());
-            } else if (toToken && toToken.symbol) {
-                symbols.push(toToken.symbol);
+            if (selectedToken && selectedToken.address && selectedToken.chain === network.net) {
+                addresses.push(selectedToken.address.toLowerCase());
+            } else if (selectedToken && selectedToken.symbol && selectedToken.chain === network.net) {
+                symbols.push(selectedToken.symbol);
             }
 
             if (tkn.address) {
@@ -83,19 +82,39 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             allTokens = [tokenInfo];
         }
 
-        allTokens = _.filter(allTokens, isNotEqualToSelected);
+        if (selectType.value === TOKEN_SELECT_TYPES.FROM) {
+            allTokens = allTokens.filter((tkn) => isNotEqualToSelected(tkn, toToken)).map((tkn) => {
+                if ((tkn.address === fromToken?.address || tkn.symbol === fromToken?.symbol) && tkn.chain === fromToken.chain && fromToken.chain === network.net) {
+                    return {
+                        ...tkn,
+                        selected: true,
+                    };
+                }
+                return tkn;
+            });
+        } else if (selectType.value === TOKEN_SELECT_TYPES.TO) {
+            allTokens = allTokens.filter((tkn) => isNotEqualToSelected(tkn, fromToken)).map((tkn) => {
+                if ((tkn.address === toToken?.address || tkn.symbol === toToken?.symbol) && toToken.chain === network.net) {
+                    return {
+                        ...tkn,
+                        selected: true,
+                    };
+                }
+                return tkn;
+            });
+        }
 
         return _.orderBy(allTokens, (tkn) => Number(tkn.balanceUsd), ['desc']);
     };
 
-    const allTokensList = computed(() => getAllTokensList(network));
+    const allTokensList = computed(() => getAllTokensList(network, fromToken, toToken));
 
     const getTokensList = ({ srcNet = null, srcToken = null, dstToken = null } = {}) => {
         network = srcNet;
         fromToken = srcToken;
         toToken = dstToken;
 
-        return getAllTokensList(network);
+        return getAllTokensList(network, fromToken, toToken);
     };
 
     return {
