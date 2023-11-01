@@ -30,8 +30,9 @@ const authInDashboardByMm = async (context: BrowserContext, seed: String): Promi
     await notifyMM.assignPage();
 
     const providerModal = zometPage.page.getByText('Connection Successful');
-    await providerModal.waitFor({ state: 'detached', timeout: 20000 }); 
+    await providerModal.waitFor({ state: 'detached', timeout: 20000 });
 
+    await zometPage.waitMainElementVisible();
     return zometPage;
 };
 
