@@ -944,6 +944,7 @@ export default {
             selectedSrcToken.value = null;
             selectedDstNetwork.value = null;
             selectedDstToken.value = null;
+            receiverAddress.value = '';
         });
 
         return {
