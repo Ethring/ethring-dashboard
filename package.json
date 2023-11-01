@@ -9,6 +9,7 @@
     "test:mockRpc": "node ./tests/mockServer/mockServer.js",
     "test:e2e:debug": "npx playwright test --workers 1 --debug",
     "test:e2e:updateSnapshot": "xvfb-run npx playwright test --update-snapshots",
+    "test:e2e:ci:updateSnapshot": "xvfb-run npx playwright test --update-snapshots --workers 1 --project=$PROJECT --shard=$SHARD_INDEX/$SHARD_TOTAL",
     "test:e2e:ci": "xvfb-run npx playwright test --workers 1 --project=$PROJECT --shard=$SHARD_INDEX/$SHARD_TOTAL",
     "test:report": "npx playwright show-report",
     "lint": "vue-cli-service lint",

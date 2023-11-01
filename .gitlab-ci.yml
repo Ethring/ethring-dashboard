@@ -1,4 +1,5 @@
 stages:
+  - update_snapshot
   - test_before_mr
   - build_docker
   - deploy
@@ -176,6 +177,28 @@ Deploy prod:
 
 
 # Tests stuff
+Update snapshot:
+  stage: update_snapshot
+  image: mcr.microsoft.com/playwright:v1.39.0-jammy
+  only:
+    - manual
+  parallel:
+    matrix:
+      - PROJECT: ['chromium']
+        SHARD_INDEX: [1]
+        SHARD_TOTAL: 1
+  script:
+    - npm i
+    - npm run test:e2e:ci:updateSnapshot
+  timeout: 20 minutes
+  artifacts:
+    paths:
+      - ./playwright-report/
+      - ./Screenshot/
+      - ./tests/e2e/*.spec.ts-snapshots/
+    when: always
+    expire_in: 1 days
+
 Run test before mr:
   stage: test_before_mr
   image: mcr.microsoft.com/playwright:v1.39.0-jammy
