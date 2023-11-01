@@ -39,11 +39,12 @@ export default {
     height: 100%;
 
     .spin {
+        @include pageFlexRow;
+        justify-content: center;
+
         width: 100%;
         height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+
         position: absolute;
         z-index: 0;
         left: 0;

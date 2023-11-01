@@ -106,8 +106,7 @@ export default {
         position: relative;
         z-index: 2;
 
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         justify-content: space-between;
         background: var(--#{$prefix}select-bg-color);
         border-radius: 16px;
@@ -120,15 +119,13 @@ export default {
         transition: 0.2s;
 
         .info {
-            display: flex;
-            align-items: center;
+            @include pageFlexRow;
             overflow: hidden;
         }
 
         .network {
-            display: flex;
+            @include pageFlexRow;
             justify-content: center;
-            align-items: center;
 
             width: 40px;
             height: 40px;
@@ -179,7 +176,7 @@ export default {
 
         .placeholder {
             color: var(--#{$prefix}select-placeholder-text);
-            font-size: var(--#{$prefix}h6-fs);
+            font-size: var(--#{$prefix}default-fs);
             font-weight: 600;
             user-select: none;
             line-height: 18px;
@@ -242,8 +239,7 @@ export default {
         &-item-logo {
             width: 40px;
             height: 40px;
-            display: flex;
-            align-items: center;
+            @include pageFlexRow;
             justify-content: center;
             background: var(--#{$prefix}icon-secondary-bg-color);
             border-radius: 50%;
@@ -267,8 +263,7 @@ export default {
     &__items-item {
         opacity: 0;
 
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         justify-content: space-between;
         min-height: 60px;
         border-bottom: 1px dashed var(--#{$prefix}border-secondary-color);
@@ -287,8 +282,7 @@ export default {
                 height: 32px;
                 background-color: var(--#{$prefix}icon-secondary-bg-color);
                 border-radius: 50%;
-                display: flex;
-                align-items: center;
+                @include pageFlexRow;
                 justify-content: center;
 
                 margin-right: 16px;
@@ -335,8 +329,7 @@ export default {
         }
 
         .info {
-            display: flex;
-            align-items: center;
+            @include pageFlexRow;
 
             .name {
                 font-size: var(--#{$prefix}default-fs);

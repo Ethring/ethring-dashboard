@@ -86,8 +86,8 @@ export default {
 .wallet-adapter {
     cursor: pointer;
 
-    display: flex;
-    align-items: center;
+    @include pageFlexRow;
+
     width: 100%;
     min-width: 300px;
     height: 58px;
@@ -107,23 +107,21 @@ export default {
     }
 
     &__account {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         width: 100%;
         transition: 0.5s;
     }
 
     &__logos {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         margin-right: 8px;
 
         .logo-container {
             position: relative;
 
-            display: flex;
-            align-items: center;
+            @include pageFlexRow;
             justify-content: center;
+
             width: 40px;
             height: 40px;
 
@@ -153,6 +151,7 @@ export default {
         display: flex;
         flex-direction: column;
         width: 100%;
+        line-height: 16px;
 
         .account {
             font-size: var(--#{$prefix}small-lg-fs);
@@ -168,8 +167,7 @@ export default {
     }
 
     &__actions {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
 
         gap: 8px;
 

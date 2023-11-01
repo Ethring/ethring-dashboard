@@ -34,13 +34,11 @@ export default {
     padding: 0 8px;
 
     .item {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
     }
 
     .icon-container {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         justify-content: center;
         background-color: var(--#{$prefix}banner-secondary-color);
         width: 20px;

@@ -163,8 +163,7 @@ export default {
         cursor: pointer;
 
         .recipient {
-            display: flex;
-            align-items: center;
+            @include pageFlexRow;
 
             color: var(--#{$prefix}select-label-color);
             font-weight: 600;
@@ -178,16 +177,15 @@ export default {
         }
 
         .info-wrap {
-            display: flex;
+            @include pageFlexRow;
             justify-content: space-between;
-            align-items: center;
         }
 
         .info {
+            @include pageFlexRow;
+
             width: 95%;
             margin-top: 8px;
-            display: flex;
-            align-items: center;
         }
 
         .input-address {
@@ -280,12 +278,13 @@ export default {
     }
 
     &__items-item {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         justify-content: space-between;
+
         min-height: 50px;
         border-bottom: 1px dashed var(--#{$prefix}select-border-color);
         cursor: pointer;
+
         @include animateEasy;
 
         &:hover {
@@ -321,8 +320,7 @@ export default {
         }
 
         .info {
-            display: flex;
-            align-items: center;
+            @include pageFlexRow;
 
             .name {
                 font-size: var(--#{$prefix}default-fs);
@@ -332,8 +330,7 @@ export default {
         }
 
         .info {
-            display: flex;
-            align-items: center;
+            @include pageFlexRow;
 
             .address {
                 font-size: var(--#{$prefix}default-fs);

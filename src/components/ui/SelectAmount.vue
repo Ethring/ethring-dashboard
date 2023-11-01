@@ -351,8 +351,7 @@ export default {
         cursor: pointer;
 
         .label {
-            display: flex;
-            align-items: center;
+            @include pageFlexRow;
 
             color: var(--#{$prefix}select-label-color);
             font-weight: 600;
@@ -361,9 +360,8 @@ export default {
         }
 
         .balance {
-            display: flex;
+            @include pageFlexRow;
             justify-content: space-between;
-            align-items: center;
 
             height: 32px;
             max-height: 32px;
@@ -403,16 +401,14 @@ export default {
         }
 
         .info-wrap {
-            display: flex;
+            @include pageFlexRow;
             justify-content: space-between;
-            align-items: center;
 
             width: 100%;
         }
 
         .info {
-            display: flex;
-            align-items: center;
+            @include pageFlexRow;
             cursor: pointer;
             width: 100%;
             max-width: 250px;
@@ -537,9 +533,9 @@ export default {
     }
 
     &__items-item {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         justify-content: space-between;
+
         min-height: 50px;
         border-bottom: 1px dashed var(--#{$prefix}select-border-color);
         cursor: pointer;
@@ -559,8 +555,7 @@ export default {
         }
 
         .info {
-            display: flex;
-            align-items: center;
+            @include pageFlexRow;
 
             .name {
                 font-size: var(--#{$prefix}default-fs);

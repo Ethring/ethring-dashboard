@@ -421,7 +421,6 @@ export default {
         const onSetAmount = async (value) => {
             srcAmount.value = value;
             txError.value = '';
-            errorAddress.value = '';
             dstAmount.value = '';
 
             if (!+value) {
@@ -441,6 +440,8 @@ export default {
             if (!isNotEnoughBalance || isEnoughForFee) {
                 return await makeEstimateBridgeRequest();
             }
+
+            onSetAddress(receiverAddress.value);
 
             return (isBalanceError.value = isNotEnoughBalance || !isEnoughForFee);
         };
@@ -985,8 +986,7 @@ export default {
     }
 
     .select-group {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         justify-content: space-between;
 
         .select {
@@ -1017,8 +1017,7 @@ export default {
     }
 
     .accordion__title {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
 
         font-weight: 400;
         color: var(--zmt-accordion-label-color);

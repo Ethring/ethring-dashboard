@@ -99,8 +99,7 @@ export default {
     }
 
     &__header {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         justify-content: space-between;
     }
 
