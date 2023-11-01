@@ -813,7 +813,7 @@ export default {
             });
 
             isSwapLoading.value = false;
-            
+
             return setTimeout(() => {
                 closeNotification('error-tx');
                 txError.value = '';
