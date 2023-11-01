@@ -801,7 +801,7 @@ export default {
                 return (isLoading.value = false);
             }
 
-            closeNotification('prepare-swap-tx');
+            closeNotification('prepare-tx');
 
             try {
                 const responseSendTx = await signAndSend(transactionForSign.value);
