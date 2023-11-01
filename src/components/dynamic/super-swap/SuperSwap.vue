@@ -355,7 +355,8 @@ export default {
                 !selectedSrcNetwork.value ||
                 !selectedDstNetwork.value ||
                 !selectedSrcToken.value ||
-                !selectedDstToken.value
+                !selectedDstToken.value ||
+                (isReceiveToken.value && (errorAddress.value || !receiverAddress.value))
         );
 
         const getSelectedNetwork = () => {
@@ -424,7 +425,7 @@ export default {
                 selectedDstToken.value = token;
             }
 
-            onSetAmount('');
+            await onSetAmount(srcAmount.value);
 
             isLoading.value = false;
         };
