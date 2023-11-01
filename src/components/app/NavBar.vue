@@ -21,26 +21,15 @@ export default {
 <style lang="scss" scoped>
 .nav-bar {
     &-container {
-        position: fixed;
-
-        top: 0;
-        left: 260px;
-        right: 0;
-
-        z-index: 100;
-
         padding: 20px 0 20px;
-
         background-color: var(--#{$prefix}nav-bar-bg-color);
-        margin-right: auto;
-        margin-left: auto;
     }
 
     &-row {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         justify-content: space-between;
-        width: 75%;
+
+        width: 80%;
         margin: 0 auto;
     }
 }

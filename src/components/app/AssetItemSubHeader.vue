@@ -36,8 +36,7 @@ export default {
     font-size: var(--#{$prefix}small-sm-fs);
     margin: 16px 0 8px;
 
-    display: flex;
-    align-items: center;
+    @include pageFlexRow;
 
     &-title {
         display: flex;

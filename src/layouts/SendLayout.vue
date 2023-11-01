@@ -55,9 +55,7 @@ export default {
     width: calc(100% - 260px);
 
     &__active {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        @include pageFlexColumn;
         color: var(--#{$prefix}black);
     }
 }

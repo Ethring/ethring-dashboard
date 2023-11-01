@@ -104,7 +104,7 @@ export default {
                 return tokens;
             }
 
-            isLoadMore.value = allTokens.value.length > MAX_TOKENS_PER_PAGE && currentIndex.value <= allTokens.value.length;
+            isLoadMore.value = allTokens.value.length > MAX_TOKENS_PER_PAGE && currentIndex.value <= tokens.length;
 
             return _.slice(tokens, 0, currentIndex.value);
         };
@@ -114,7 +114,13 @@ export default {
             set: getTokensList,
         });
 
-        const handleLoadMore = () => (currentIndex.value += MAX_TOKENS_PER_PAGE);
+        const handleLoadMore = () => {
+            currentIndex.value += MAX_TOKENS_PER_PAGE;
+
+            if (currentIndex.value >= allTokens.value.length) {
+                isLoadMore.value = false;
+            }
+        };
 
         return {
             prettyNumber,

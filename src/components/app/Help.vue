@@ -44,17 +44,15 @@ export default {
 </script>
 <style lang="scss" scoped>
 .help {
-    display: flex;
-    align-items: center;
+    @include pageFlexRow;
 
     &__item {
         width: 40px;
         height: 40px;
         border-radius: 50%;
 
-        display: flex;
+        @include pageFlexRow;
         justify-content: center;
-        align-items: center;
 
         background: var(--#{$prefix}icon-secondary-bg-color);
         color: var(--#{$prefix}icon-active);

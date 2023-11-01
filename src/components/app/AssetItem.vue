@@ -11,8 +11,12 @@
                 <div class="info">
                     <div class="name">{{ item.name || item.symbol }}</div>
                     <div class="type" v-if="item.balanceType">{{ getFormattedName(item.balanceType) }}</div>
-                    <div class="unlock" v-if="item.unlockTimestamp">Unlock {{ getFormattedDate(item.unlockTimestamp) }}</div>
-                    <div class="apr" v-if="item.apr"><span>APR </span> {{ formatNumber(item.apr, 2) }}%</div>
+                    <div class="unlock" v-if="item.unlockTimestamp">
+                        Unlock <span> {{ getFormattedDate(item.unlockTimestamp) }} </span>
+                    </div>
+                    <div class="apr" v-if="item.apr">
+                        APR <span> {{ formatNumber(item.apr, 2) }}% </span>
+                    </div>
                 </div>
             </div>
         </template>
@@ -146,8 +150,10 @@ export default {
             width: 16px;
             height: 16px;
             border-radius: 50%;
+
             @include pageFlexRow;
             justify-content: center;
+
             position: absolute;
             top: 16px;
             left: 26px;
@@ -178,9 +184,7 @@ export default {
     .info {
         @include pageFlexRow;
         line-height: 20px;
-
-        color: var(--#{$prefix}small-lg-fs);
-        font-weight: 500;
+        font-weight: 400;
         font-size: var(--#{$prefix}small-lg-fs);
 
         div:not(:first-child) {
@@ -194,21 +198,19 @@ export default {
         .type,
         .apr {
             color: var(--#{$prefix}sub-text);
-            font-size: var(--#{$prefix}small-lg-fs);
-            font-weight: 300;
         }
 
-        .apr {
+        .apr,
+        .unlock {
             span {
-                font-weight: 400;
                 color: var(--#{$prefix}mute-apr-text);
+                font-weight: 400;
             }
         }
 
         .unlock {
             color: var(--#{$prefix}mute-apr-text);
-            font-weight: 400;
-            font-size: var(--#{$prefix}small-lg-fs);
+            font-weight: 300;
         }
     }
 

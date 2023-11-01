@@ -62,9 +62,9 @@ export default {
 <style lang="scss" scoped>
 .chain {
     &-item {
-        display: flex;
+        @include pageFlexRow;
         justify-content: space-between;
-        align-items: center;
+
         padding: 16px;
         &:not(:last-child) {
             border-bottom: 1px solid var(--#{$prefix}border-color-op-05);
@@ -72,8 +72,8 @@ export default {
     }
 
     &-actions {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
+
         gap: 16px;
         & > div {
             margin: 0 !important;

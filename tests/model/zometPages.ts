@@ -44,6 +44,10 @@ export class DashboardPage {
         return new SuperSwapPage(this.page);
     }
 
+    async waitMainElementVisible() {
+        await this.page.locator('div.dashboard').waitFor({ state: 'visible', timeout: 20000 });
+    }
+
     async getLinkFromSuccessPanel() {
         return await this.page.locator('//div[@class="success info-panel mt-10"]//a').getAttribute('href');
     }

@@ -88,8 +88,7 @@ export default {
     background-color: rgba(0, 0, 0, 0.6);
     color: var(--#{$prefix}primary-text);
 
-    display: flex;
-    align-items: center;
+    @include pageFlexRow;
     justify-content: center;
 
     &.active {
@@ -110,8 +109,7 @@ export default {
         background-color: var(--#{$prefix}secondary-background);
 
         .top {
-            display: flex;
-            align-items: center;
+            @include pageFlexRow;
             justify-content: space-between;
             padding: 16px;
             border-bottom: 1px solid var(--#{$prefix}border-color-op-05);
