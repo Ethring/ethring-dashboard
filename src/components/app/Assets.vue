@@ -100,7 +100,6 @@ export default {
         watch(isAllTokensLoading, () => {
             if (!isAllTokensLoading.value) {
                 integrationAssetsByPlatform.value = getIntegrationsGroupedByPlatform(allIntegrations.value);
-                console.log(integrationAssetsByPlatform.value);
             }
         });
 

@@ -146,9 +146,8 @@ export default {
             width: 16px;
             height: 16px;
             border-radius: 50%;
-            display: flex;
+            @include pageFlexRow;
             justify-content: center;
-            align-items: center;
             position: absolute;
             top: 16px;
             left: 26px;
@@ -177,8 +176,7 @@ export default {
     }
 
     .info {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         line-height: 20px;
 
         color: var(--#{$prefix}small-lg-fs);
