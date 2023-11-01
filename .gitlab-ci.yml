@@ -1,5 +1,4 @@
 stages:
-  - update_snapshot
   - test_before_mr
   - build_docker
   - deploy
@@ -178,10 +177,11 @@ Deploy prod:
 
 # Tests stuff
 Update snapshot:
-  stage: update_snapshot
+  stage: test_before_mr
   image: mcr.microsoft.com/playwright:v1.39.0-jammy
   only:
-    - manual
+    - merge_requests
+  when: manual
   parallel:
     matrix:
       - PROJECT: ['chromium']
