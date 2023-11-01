@@ -667,6 +667,7 @@ export default {
         // =================================================================================================================
 
         const handleApprove = async () => {
+            console.log('handleApprove', currentRoute.value?.service);
             await requestApprove(currentRoute.value?.service);
 
             if (!approveForToken.value) {
@@ -796,6 +797,7 @@ export default {
             }
 
             if (!transactionForSign.value) {
+                isSwapLoading.value = false;
                 return (isLoading.value = false);
             }
 
@@ -812,14 +814,16 @@ export default {
 
                 isSwapLoading.value = false;
 
-                bestRoute.value.routes = bestRoute.value.routes.map((elem, i) => {
-                    if (elem.status === STATUSES.SIGNING) {
-                        elem.status = STATUSES.COMPLETED;
-                    } else if (elem.status === STATUSES.PENDING && bestRoute.value.routes[i - 1]?.status == STATUSES.COMPLETED) {
-                        elem.status = STATUSES.SIGNING;
-                    }
-                    return elem;
-                });
+                if (!isNeedApprove.value) {
+                    bestRoute.value.routes = bestRoute.value.routes.map((elem, i) => {
+                        if (elem.status === STATUSES.SIGNING) {
+                            elem.status = STATUSES.COMPLETED;
+                        } else if (elem.status === STATUSES.PENDING && bestRoute.value.routes[i - 1]?.status == STATUSES.COMPLETED) {
+                            elem.status = STATUSES.SIGNING;
+                        }
+                        return elem;
+                    });
+                }
 
                 currentRoute.value = bestRoute.value.routes.find((elem) => elem.status === STATUSES.SIGNING);
 
@@ -835,6 +839,8 @@ export default {
             } catch (error) {
                 txError.value = error?.message || error?.error || error;
                 txErrorTitle.value = 'Swap Transaction error';
+                isLoading.value = false;
+                isSwapLoading.value = false;
             }
         };
 
