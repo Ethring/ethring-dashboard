@@ -70,16 +70,14 @@ export default {
         border-radius: 50%;
         background-color: var(--#{$prefix}banner-secondary-color);
 
-        display: flex;
+        @include pageFlexRow;
         justify-content: center;
-        align-items: center;
 
         font-size: 5px;
 
         span {
-            display: flex;
+            @include pageFlexRow;
             justify-content: center;
-            align-items: center;
             width: 80%;
             height: 80%;
 

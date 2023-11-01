@@ -9,12 +9,13 @@ export default {
 </script>
 <style lang="scss" scoped>
 .login-page {
-    font-size: 100px;
+    @include pageFlexRow;
+    justify-content: center;
+
     width: 100%;
     height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+
+    font-size: 100px;
     font-weight: 700;
 }
 </style>

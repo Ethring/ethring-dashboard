@@ -1,16 +1,21 @@
 <template>
     <a-config-provider>
         <LoadingOverlay v-if="isConnecting" />
-        <div class="app-wrap" :class="{ 'lock-scroll': isOpen }">
-            <Sidebar />
-            <NavBar />
-
-            <div class="app-wrap__layout">
-                <div>
-                    <router-view />
-                </div>
-            </div>
-        </div>
+        <a-layout>
+            <a-layout-sider class="sidebar" v-model:collapsed="collapsed" collapsible>
+                <Sidebar :collapsed="collapsed" />
+            </a-layout-sider>
+            <a-layout class="layout">
+                <a-layout-header class="header">
+                    <NavBar />
+                </a-layout-header>
+                <a-layout-content class="content">
+                    <div>
+                        <router-view />
+                    </div>
+                </a-layout-content>
+            </a-layout>
+        </a-layout>
         <WalletsModal />
         <AddressModal />
     </a-config-provider>
@@ -48,12 +53,12 @@ export default {
 
     setup() {
         const store = useStore();
+        const route = useRoute();
+        const router = useRouter();
 
         const lastConnectedCall = ref(false);
         const isInitCall = ref({});
-
-        const route = useRoute();
-        const router = useRouter();
+        const collapsed = ref(false);
 
         const {
             isConnecting,
@@ -104,6 +109,12 @@ export default {
             }
         });
 
+        const updateCollapsedState = () => {
+            collapsed.value = window.innerWidth <= 1024;
+        };
+
+        window.addEventListener('resize', updateCollapsedState);
+
         watchEffect(async () => {
             if (isConnecting) {
                 return;
@@ -151,6 +162,7 @@ export default {
         return {
             isOpen,
             isConnecting,
+            collapsed,
         };
     },
 };
@@ -159,5 +171,28 @@ export default {
 <style lang="scss" scoped>
 .app-wrap.lock-scroll {
     overflow: hidden;
+}
+
+.sidebar {
+    background: var(--zmt-primary);
+}
+
+.layout {
+    background: var(--#{$prefix}main-background);
+}
+
+.header {
+    height: 80px;
+
+    position: sticky;
+    top: 0;
+    z-index: 100;
+
+    background-color: var(--#{$prefix}nav-bar-bg-color);
+}
+
+.content {
+    width: 75%;
+    margin: 20px auto;
 }
 </style>

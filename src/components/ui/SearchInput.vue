@@ -53,8 +53,7 @@ $padding-lr: 32px;
 .search-input {
     position: relative;
 
-    display: flex;
-    align-items: center;
+    @include pageFlexRow;
 
     height: 100%;
     max-height: 100px;
@@ -67,22 +66,24 @@ $padding-lr: 32px;
     background: var(--#{$prefix}select-bg-color);
 
     span {
-        color: var(--#{$prefix}base-text);
         display: block;
+
         font-style: normal;
         font-weight: 500;
         font-size: var(--#{$prefix}small-lg-fs);
+        color: var(--#{$prefix}base-text);
         line-height: 21px;
     }
 
     &__logo {
-        display: flex;
+        @include pageFlexRow;
         justify-content: center;
-        align-items: center;
+
         width: 40px;
         min-width: 40px;
         height: 40px;
         max-height: 40px;
+
         border-radius: 50%;
         background: var(--#{$prefix}icon-secondary-bg-hover);
         margin-right: 10px;
@@ -105,9 +106,8 @@ $padding-lr: 32px;
         max-width: 20px;
         max-height: 20px;
 
-        display: flex;
+        @include pageFlexRow;
         justify-content: center;
-        align-items: center;
 
         svg {
             width: 20px;

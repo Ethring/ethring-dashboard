@@ -47,8 +47,6 @@ export default {
     display: flex;
     flex-direction: column;
 
-    @include pageStructure;
-
     padding-left: 30px;
 
     .title {

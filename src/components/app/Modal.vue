@@ -63,8 +63,7 @@ export default {
 <style lang="scss" scoped>
 .modal {
     height: 100%;
-    display: flex;
-    align-items: center;
+    @include pageFlexRow;
     justify-content: center;
     top: 0;
     right: 0;

@@ -181,7 +181,6 @@ export default {
 </script>
 <style lang="scss" scoped>
 .select-token {
-    @include pageStructure;
     &__page {
         @include pageFlexColumn;
         height: calc(100vh - 125px);
