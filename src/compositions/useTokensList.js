@@ -83,25 +83,33 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         }
 
         if (selectType.value === TOKEN_SELECT_TYPES.FROM) {
-            allTokens = allTokens.filter((tkn) => isNotEqualToSelected(tkn, toToken)).map((tkn) => {
-                if ((tkn.address === fromToken?.address || tkn.symbol === fromToken?.symbol) && tkn.chain === fromToken.chain && fromToken.chain === network.net) {
-                    return {
-                        ...tkn,
-                        selected: true,
-                    };
-                }
-                return tkn;
-            });
+            allTokens = allTokens
+                .filter((tkn) => isNotEqualToSelected(tkn, toToken))
+                .map((tkn) => {
+                    if (
+                        (tkn.address === fromToken?.address || tkn.symbol === fromToken?.symbol) &&
+                        tkn.chain === fromToken.chain &&
+                        fromToken.chain === network.net
+                    ) {
+                        return {
+                            ...tkn,
+                            selected: true,
+                        };
+                    }
+                    return tkn;
+                });
         } else if (selectType.value === TOKEN_SELECT_TYPES.TO) {
-            allTokens = allTokens.filter((tkn) => isNotEqualToSelected(tkn, fromToken)).map((tkn) => {
-                if ((tkn.address === toToken?.address || tkn.symbol === toToken?.symbol) && toToken.chain === network.net) {
-                    return {
-                        ...tkn,
-                        selected: true,
-                    };
-                }
-                return tkn;
-            });
+            allTokens = allTokens
+                .filter((tkn) => isNotEqualToSelected(tkn, fromToken))
+                .map((tkn) => {
+                    if ((tkn.address === toToken?.address || tkn.symbol === toToken?.symbol) && toToken.chain === network.net) {
+                        return {
+                            ...tkn,
+                            selected: true,
+                        };
+                    }
+                    return tkn;
+                });
         }
 
         return _.orderBy(allTokens, (tkn) => Number(tkn.balanceUsd), ['desc']);
