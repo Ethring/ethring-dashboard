@@ -421,6 +421,8 @@ export default {
             if (direction === TOKEN_SELECT_TYPES.FROM) {
                 selectedSrcToken.value = token;
                 clearApproveForService();
+                currentRoute.value = null;
+                bestRoute.value = null;
             } else {
                 selectedDstToken.value = token;
             }
@@ -864,7 +866,7 @@ export default {
 
         watch(selectedSrcNetwork, () => {
             resetValues();
-            onSetAmount('');
+            onSetAmount(null);
             selectedSrcToken.value = null;
             setTokenOnChange();
             getEstimateInfo();
@@ -949,6 +951,7 @@ export default {
             selectedSrcToken.value = null;
             selectedDstNetwork.value = currentChainInfo.value;
             selectedDstToken.value = null;
+            onSetAmount(null);
             setTokenOnChange();
         });
 
