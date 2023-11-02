@@ -38,7 +38,7 @@
             :is-amount-loading="isEstimating"
             :is-token-loading="isTokensLoadingForDst"
             :label="$t('tokenOperations.receive')"
-            :disabled-value="formatNumber(dstAmount)"
+            :disabled-value="dstAmount"
             :on-reset="resetDstAmount"
             class="mt-10"
             @clickToken="onSetDstToken"
@@ -437,13 +437,11 @@ export default {
 
             const isEnoughForFee = BigNumber(selectedSrcToken.value?.balance).gt(feeInfo.value.fromAmount);
 
-            if (!isNotEnoughBalance || isEnoughForFee) {
-                return await makeEstimateBridgeRequest();
-            }
-
             onSetAddress(receiverAddress.value);
 
-            return (isBalanceError.value = isNotEnoughBalance || !isEnoughForFee);
+            isBalanceError.value = isNotEnoughBalance || !isEnoughForFee;
+
+            return await makeEstimateBridgeRequest();
         };
 
         // =================================================================================================================
@@ -546,9 +544,7 @@ export default {
             isEstimating.value = false;
             isLoading.value = false;
 
-            console.log('response', response);
-
-            dstAmount.value = response.toTokenAmount;
+            dstAmount.value = BigNumber(response.toTokenAmount).toFixed(6);
 
             feeInfo.value = {
                 title: 'tokenOperations.serviceFee',
