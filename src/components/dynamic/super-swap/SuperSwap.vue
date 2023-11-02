@@ -912,7 +912,13 @@ export default {
             console.log('currentRoute', currentRoute.value);
             console.log('-'.repeat(20));
 
-            if (!currentRoute.value) {
+            if (!allowanceForToken.value) {
+                await requestAllowance(currentRoute.value?.service);
+            }
+        });
+
+        watch(isWaitingTxStatusForModule, () => {
+            if (!currentRoute.value && !isWaitingTxStatusForModule.value) {
                 // reset values
 
                 onSetAmount(null);
@@ -925,10 +931,6 @@ export default {
                 isSwapLoading.value = false;
                 isLoading.value = false;
                 return;
-            }
-
-            if (!allowanceForToken.value) {
-                await requestAllowance(currentRoute.value?.service);
             }
         });
 
