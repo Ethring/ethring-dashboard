@@ -164,7 +164,7 @@ import TimeIcon from '@/assets/icons/app/time.svg';
 import ExpandIcon from '@/assets/icons/app/expand.svg';
 import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
-import { prettyNumber, prettyNumberTooltip } from '@/helpers/prettyNumber';
+import { prettyNumberTooltip } from '@/helpers/prettyNumber';
 
 import { findBestRoute } from '@/modules/SuperSwap/baseScript';
 
@@ -730,7 +730,7 @@ export default {
                 net: currentRoute.value.net,
                 fromTokenAddress: currentRoute.value.fromToken?.address || NATIVE_CONTRACT,
                 fromNet: currentRoute.value.net,
-                amount: prettyNumber(currentRoute.value.amount, 6),
+                amount: currentRoute.value.amount,
                 toNet: currentRoute.value.toNet,
                 toTokenAddress: currentRoute.value.toToken?.address || NATIVE_CONTRACT,
                 ownerAddress: walletAddress.value,
@@ -775,15 +775,9 @@ export default {
 
             if (!isChanged) {
                 isLoading.value = false;
-
-                return setTimeout(async () => {
-                    if (currentRoute.value.net === currentChainInfo.value.net) {
-                        await swap();
-                    }
-                }, 5000);
             }
 
-            opTitle.value = 'tokenOperations.swap';
+            opTitle.value = 'tokenOperations.confirm';
 
             isSwapLoading.value = true;
             txError.value = '';
@@ -915,6 +909,21 @@ export default {
             console.log('-'.repeat(20));
             console.log('currentRoute', currentRoute.value);
             console.log('-'.repeat(20));
+
+            if (!currentRoute.value) {
+                // reset values
+
+                onSetAmount(null);
+                estimateRate.value = 0;
+                networkFee.value = 0;
+                differPercentage.value = null;
+                bestRoute.value = null;
+                otherRoutes.value = [];
+                estimateErrorTitle.value = '';
+                isSwapLoading.value = false;
+                isLoading.value = false;
+                return;
+            }
 
             if (!allowanceForToken.value) {
                 await requestAllowance(currentRoute.value?.service);

@@ -1,5 +1,5 @@
 <template>
-    <div class="sidebar-list" :class="{ collapsed: collapsed }">
+    <div class="sidebar-list" :class="{ collapsed }">
         <router-link
             v-for="(item, ndx) in menu"
             :key="ndx"
@@ -8,9 +8,15 @@
             :data-qa="item.key"
             :class="{ disabled: item.disabled }"
         >
-            <div class="sidebar-list__item-icon">
-                <component v-if="item.component" :is="item.component" />
-            </div>
+            <a-tooltip placement="right">
+                <template #title v-if="collapsed">
+                    {{ $t(`sidebar.${item.key}`) }}
+                </template>
+                <div class="sidebar-list__item-icon">
+                    <component v-if="item.component" :is="item.component" />
+                </div>
+            </a-tooltip>
+
             <div v-if="!collapsed" class="sidebar-list__item-title" :data-qa="`sidebar-item-${item.key}`">
                 {{ $t(`sidebar.${item.key}`) }}
                 <div v-if="item.status" class="sidebar-list__item-status">{{ item.status }}</div>
@@ -110,7 +116,6 @@ export default {
 
         svg {
             fill: var(--#{$prefix}sidebar-text);
-            transform: scale(0.8);
             @include animateEasy;
         }
 
@@ -154,10 +159,6 @@ export default {
 
     &.collapsed {
         align-self: center !important;
-
-        .sidebar-list__item-icon svg {
-            transform: scale(1);
-        }
 
         .sidebar-list {
             align-self: center !important;
