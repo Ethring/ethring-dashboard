@@ -74,7 +74,7 @@ export default {
         const showRoutesModal = computed(() => store.getters['swap/showRoutes']);
 
         const callInit = async () => {
-            if (isInitCall.value[walletAddress.value]) {
+            if (isInitCall.value[walletAccount.value]) {
                 return;
             }
 
@@ -86,11 +86,14 @@ export default {
 
             store.dispatch('tokens/setLoader', true);
 
-            const addressesWithChains = getAddressesWithChainsByEcosystem(ecosystem);
             isInitCall.value = {
                 ...isInitCall.value,
-                [walletAddress.value]: true,
+                [walletAccount.value]: true,
             };
+
+            await delay(1000);
+
+            const addressesWithChains = getAddressesWithChainsByEcosystem(ecosystem);
 
             await useInit(store, { account: walletAccount.value, addressesWithChains, currentChainInfo: currentChainInfo.value });
         };

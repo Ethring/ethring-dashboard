@@ -118,8 +118,6 @@ const integrationsForSave = (integrations, { chain, logo, chainAddress }) => {
 // =================================================================================================================
 
 export default async function useInit(store, { addressesWithChains = {}, account = null, currentChainInfo } = {}) {
-    store.dispatch('tokens/setLoader', true);
-
     const allTokensForAccount = computed(() => store.getters['tokens/tokens'][account] || []);
     const allTokensBalance = computed(() => store.getters['tokens/totalBalances'][account] || 0);
 
@@ -169,7 +167,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
             // =========================================================================================================
 
             if (!requests[chainForRequest]) {
-                requests[chain] = await getBalancesByAddress(chainForRequest, chainAddress);
+                requests[chainForRequest] = await getBalancesByAddress(chainForRequest, chainAddress);
             }
 
             if (!requests[chainForRequest]) {
