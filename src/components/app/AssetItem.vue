@@ -101,8 +101,8 @@ export default {
 </script>
 <style lang="scss">
 .tokens__item {
-    display: flex;
-    align-items: center;
+    @include pageFlexRow;
+
     color: var(--#{$prefix}black);
     padding-right: 10px;
 
@@ -113,9 +113,9 @@ export default {
     }
 
     .network {
+        @include pageFlexRow;
+
         width: 60%;
-        display: flex;
-        align-items: center;
 
         .logo {
             margin-right: 10px;
@@ -137,9 +137,9 @@ export default {
             width: 16px;
             height: 16px;
             border-radius: 50%;
-            display: flex;
+
+            @include pageFlexRow;
             justify-content: center;
-            align-items: center;
 
             position: absolute;
             top: 16px;
@@ -169,8 +169,7 @@ export default {
     }
 
     .info {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         line-height: 20px;
     }
 

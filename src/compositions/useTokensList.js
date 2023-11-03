@@ -38,35 +38,61 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
         const tokensWithBalance = getTokensWithAndWithoutBalance('tokens', network);
 
-        const tokensListFromNet = getTokensWithAndWithoutBalance('networks', network);
-
         let allTokens = [];
 
         const isNotEqualToSelected = (tkn, selectedToken) => {
-            const addresses = [];
-            const symbols = [];
+            const ids = [];
 
-            if (selectedToken && selectedToken.address && selectedToken.chain === network.net) {
-                addresses.push(selectedToken.address.toLowerCase());
-            } else if (selectedToken && selectedToken.symbol && selectedToken.chain === network.net) {
-                symbols.push(selectedToken.symbol);
+            if (selectedToken && selectedToken.id && selectedToken.chain === network.net) {
+                ids.push(selectedToken.id);
             }
 
-            if (tkn.address) {
-                return !addresses.includes(tkn.address.toLowerCase());
-            } else if (tkn.symbol) {
-                return !symbols.includes(tkn.symbol);
+            if (tkn.id) {
+                return !ids.includes(tkn.id);
             }
 
             return true;
         };
 
+        // Target tokens list with or without balance
         if (onlyWithBalance.value) {
             allTokens = tokensWithBalance;
         } else {
+            const tokensListFromNet = getTokensWithAndWithoutBalance('networks', network);
             allTokens = _.unionBy(tokensWithBalance, tokensListFromNet, (tkn) => tkn.address?.toLowerCase());
         }
 
+        // Native token
+        if (ECOSYSTEMS.EVM === network?.ecosystem) {
+            const { native_token: nativeToken } = network || {};
+
+            const searchId = `${network.net}:asset__native:${nativeToken.symbol}`;
+
+            const baseToken = allTokens.find(({ id }) => id === searchId);
+
+            const tokenInfo = {
+                balance: 0,
+                balanceUsd: 0,
+                ...baseToken,
+                ...nativeToken,
+            };
+
+            if (!tokenInfo.name) {
+                tokenInfo.name = nativeToken.symbol;
+            }
+
+            if (!tokenInfo.name.includes('Native Token')) {
+                tokenInfo.name += ' Native Token';
+            }
+
+            if (baseToken) {
+                allTokens = allTokens.filter(({ id }) => id !== searchId);
+            }
+
+            allTokens.push(tokenInfo);
+        }
+
+        // Native token only for COSMOS
         if (ECOSYSTEMS.COSMOS === network?.ecosystem) {
             const { asset } = network || {};
 
@@ -82,37 +108,37 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             allTokens = [tokenInfo];
         }
 
-        if (selectType.value === TOKEN_SELECT_TYPES.FROM) {
-            allTokens = allTokens
-                .filter((tkn) => isNotEqualToSelected(tkn, toToken))
-                .map((tkn) => {
-                    if (
-                        (tkn.address === fromToken?.address || tkn.symbol === fromToken?.symbol) &&
-                        tkn.chain === fromToken.chain &&
-                        fromToken.chain === network.net
-                    ) {
-                        return {
-                            ...tkn,
-                            selected: true,
-                        };
-                    }
-                    return tkn;
-                });
-        } else if (selectType.value === TOKEN_SELECT_TYPES.TO) {
-            allTokens = allTokens
-                .filter((tkn) => isNotEqualToSelected(tkn, fromToken))
-                .map((tkn) => {
-                    if ((tkn.address === toToken?.address || tkn.symbol === toToken?.symbol) && toToken.chain === network.net) {
-                        return {
-                            ...tkn,
-                            selected: true,
-                        };
-                    }
-                    return tkn;
-                });
-        }
+        const isFromSelected = selectType.value === TOKEN_SELECT_TYPES.FROM;
 
-        return _.orderBy(allTokens, (tkn) => Number(tkn.balanceUsd), ['desc']);
+        const selectedToken = isFromSelected ? toToken : fromToken;
+
+        allTokens = allTokens.filter((tkn) => isNotEqualToSelected(tkn, selectedToken));
+
+        allTokens = allTokens.map((tkn) => {
+            if (isFromSelected && tkn.id === fromToken?.id) {
+                return {
+                    ...tkn,
+                    selected: true,
+                }
+            } else if (tkn.id === toToken?.id) {
+                return {
+                    ...tkn,
+                    selected: true,
+                }
+            }
+            return tkn;
+        })
+
+        return _.orderBy(
+            allTokens,
+            [
+                // Sorting by balance
+                (tkn) => Number(tkn.balanceUsd),
+                // Sorting by Native Token
+                (tkn) => tkn?.name?.includes('Native Token'),
+            ],
+            ['desc', 'desc']
+        );
     };
 
     const allTokensList = computed(() => getAllTokensList(network, fromToken, toToken));

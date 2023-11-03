@@ -46,9 +46,8 @@ export default {
     display: flex;
 
     &__item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        @include pageFlexColumn;
+
         font-weight: 300;
         font-size: var(--#{$prefix}h4-fs);
         color: var(--#{$prefix}primary-text);

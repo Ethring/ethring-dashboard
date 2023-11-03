@@ -35,14 +35,16 @@ export default {
 </script>
 <style lang="scss" scoped>
 .info-panel {
+    @include pageFlexRow;
+
     min-height: 48px;
-    display: flex;
-    align-items: center;
     padding: 0 16px;
     box-sizing: border-box;
     border-radius: 8px;
+
     background: var(--#{$prefix}danger-op-01);
     border: 1px solid var(--#{$prefix}danger-color);
+
     color: var(--#{$prefix}danger-color);
     font-weight: 400;
     font-size: var(--#{$prefix}default-fs);

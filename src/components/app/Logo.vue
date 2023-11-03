@@ -17,8 +17,8 @@ export default {
 </script>
 <style lang="scss" scoped>
 .logo {
-    display: flex;
-    align-items: center;
+    @include pageFlexRow;
+
     cursor: pointer;
 
     &__round {

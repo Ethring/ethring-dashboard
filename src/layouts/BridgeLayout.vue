@@ -26,12 +26,11 @@ export default {
     display: flex;
     justify-content: space-around;
     align-items: baseline;
+
     width: calc(100% - 260px);
 
     &__active {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        @include pageFlexColumn;
         color: var(--#{$prefix}black);
     }
 }
@@ -40,6 +39,7 @@ export default {
     color: var(--#{$prefix}base-text);
     font-size: var(--#{$prefix}h1-fs);
     font-weight: 600;
+
     margin-bottom: 30px;
     text-decoration: none;
 

@@ -84,7 +84,7 @@
     </div>
 </template>
 <script>
-import { h, ref, watch, computed, onBeforeUnmount, onMounted } from 'vue';
+import { h, ref, watch, computed, onBeforeUnmount, onMounted, onBeforeMount } from 'vue';
 
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
@@ -421,7 +421,6 @@ export default {
         const onSetAmount = async (value) => {
             srcAmount.value = value;
             txError.value = '';
-            errorAddress.value = '';
             dstAmount.value = '';
 
             if (!+value) {
@@ -441,6 +440,8 @@ export default {
             if (!isNotEnoughBalance || isEnoughForFee) {
                 return await makeEstimateBridgeRequest();
             }
+
+            onSetAddress(receiverAddress.value);
 
             return (isBalanceError.value = isNotEnoughBalance || !isEnoughForFee);
         };
@@ -887,9 +888,11 @@ export default {
 
         // =================================================================================================================
 
-        onMounted(async () => {
+        onBeforeMount(() => {
             onlyWithBalance.value = true;
+        });
 
+        onMounted(async () => {
             if (!selectedSrcNetwork.value) {
                 selectedSrcNetwork.value = currentChainInfo.value;
                 selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
@@ -985,8 +988,7 @@ export default {
     }
 
     .select-group {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         justify-content: space-between;
 
         .select {
@@ -1017,8 +1019,7 @@ export default {
     }
 
     .accordion__title {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
 
         font-weight: 400;
         color: var(--zmt-accordion-label-color);

@@ -32,8 +32,6 @@ export default {
 </script>
 <style lang="scss" scoped>
 .dashboard {
-    @include pageStructure;
-
     &__wallet {
         position: relative;
         background-color: var(--#{$prefix}banner-color);
@@ -61,8 +59,7 @@ export default {
     }
 
     &__controls {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         z-index: 1;
     }
 

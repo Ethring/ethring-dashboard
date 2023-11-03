@@ -3,7 +3,7 @@
         <Modal :title="$t('superSwap.selectRoutes')" @close="$emit('close')">
             <div class="routes-modal">
                 <div
-                    v-for="(item, i) in routeInfo.otherRoutes"
+                    v-for="(item, i) in routes"
                     @click="() => setActiveRoute(item)"
                     class="routes-modal__item"
                     :class="selectedRoute === item ? 'routes-modal__active-item' : ''"
@@ -40,7 +40,6 @@
                 </div>
                 <Button
                     :loading="isLoading"
-                    :disabled="!selectedRoute"
                     :title="$t('tokenOperations.confirm')"
                     class="routes-modal__btn"
                     @click="confirm"
@@ -71,15 +70,25 @@ export default {
     emits: ['close'],
     setup() {
         const store = useStore();
-        const selectedRoute = ref(null);
+        const routeInfo = computed(() => store.getters['swap/bestRoute']);
+
+        const selectedRoute = ref(routeInfo.value.bestRoute);
         const isLoading = ref(false);
 
         const { walletAddress } = useAdapter();
 
-        const routeInfo = computed(() => store.getters['swap/bestRoute']);
+        const routes = computed(() => {
+            return [routeInfo.value.bestRoute, ...routeInfo.value.otherRoutes];
+        });
 
         const confirm = async () => {
+            if (selectedRoute.value === routeInfo.value.bestRoute) {
+                store.dispatch('swap/setShowRoutes', false);
+                return;
+            }
+
             isLoading.value = true;
+
             for (let i = 0; i < selectedRoute.value.routes.length; i++) {
                 selectedRoute.value.routes[i].isNeedApprove = await checkAllowance(
                     selectedRoute.value.routes[i].net,
@@ -140,6 +149,7 @@ export default {
         };
 
         return {
+            routes,
             routeInfo,
             selectedRoute,
             isLoading,
@@ -166,16 +176,18 @@ export default {
 
     &__item {
         border-radius: 20px;
-        background-color: var(--#{$prefix}modal-block-bg-color);
         padding: 16px;
         width: 100%;
-        display: flex;
+
+        @include pageFlexRow;
         justify-content: space-between;
-        align-items: center;
+
         margin-bottom: 16px;
+
+        background-color: var(--#{$prefix}modal-block-bg-color);
         border: 1px solid var(--#{$prefix}modal-block-bg-color);
+
         cursor: pointer;
-        transition: 0.5s;
     }
     &__active-item {
         border: 1px solid var(--#{$prefix}banner-logo-color);
@@ -199,27 +211,33 @@ export default {
             font-weight: 600;
             font-size: var(--#{$prefix}default-fs);
             color: var(--#{$prefix}primary-text);
+
             margin: 0;
             margin-top: -6px;
+
             span {
                 color: var(--#{$prefix}mute-text);
                 font-weight: 400;
             }
         }
+
         h4 {
             font-size: var(--#{$prefix}h5-fs);
-            margin: 0 6px;
             color: var(--#{$prefix}sub-text);
+            margin: 0 6px;
         }
+
         .blue-text {
             color: var(--#{$prefix}sub-text) !important;
             font-size: var(--#{$prefix}small-lg-fs);
             margin-top: 4px;
+
             span {
                 color: var(--#{$prefix}sub-text);
             }
         }
     }
+
     &__btn {
         height: 64px;
         width: 100%;
@@ -227,6 +245,7 @@ export default {
 
     .routes-service {
         margin-top: -8px;
+
         &__name {
             font-size: var(--#{$prefix}default-fs);
             margin: 0;
@@ -234,35 +253,42 @@ export default {
             font-weight: 600;
             color: var(--#{$prefix}primary-text);
         }
+
         &__icon {
             border-radius: 50%;
             width: 32px;
             padding: 3px 4px;
             height: 32px;
             border: 2px solid var(--#{$prefix}banner-logo-color);
+
             img {
                 width: 100%;
                 border-radius: 50%;
             }
         }
+
         .routes-time {
             margin-top: 4px;
             font-size: var(--#{$prefix}small-lg-fs);
+
             h4 {
                 color: var(--#{$prefix}secondary-text);
             }
         }
         div {
             color: var(--#{$prefix}base-text);
+
             h4 {
                 margin: 0 2px;
                 font-weight: 600;
             }
         }
+
         h1 {
             font-weight: 600;
             margin: 0px 3px;
         }
+
         &__status {
             border-radius: 20px;
             font-size: var(--#{$prefix}small-sm-fs);
@@ -271,12 +297,15 @@ export default {
             padding: 1px 10px;
             margin: 2px 0 0 6px;
         }
+
         .best-return {
             background-color: var(--#{$prefix}tag-01);
         }
+
         .fastest {
             background-color: var(--#{$prefix}tag-02);
         }
+
         .low-fee {
             background-color: var(--#{$prefix}tag-03);
         }

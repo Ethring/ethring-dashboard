@@ -9,6 +9,7 @@ import BigNumber from 'bignumber.js';
 import IndexedDBService from '@/modules/indexedDb';
 
 import { getTotalFuturesBalance, BALANCES_TYPES } from '@/shared/utils/assets';
+import { sortByKey } from '@/helpers/utils';
 
 // =================================================================================================================
 
@@ -72,12 +73,12 @@ const saveOrGetDataFromCache = async (key, data) => {
 
 // =================================================================================================================
 
-const formatRecords = (records, { chain, chainAddress, logo }) => {
+const formatRecords = (records, { chain, logo }) => {
     for (const record of records) {
         if (!record.address) {
-            record.id = `${chainAddress}:${chain}:asset__native:${record.symbol}`;
+            record.id = `${chain}:asset__native:${record.symbol}`;
         } else {
-            record.id = `${chainAddress}:${chain}:asset__${record.address}:${record.symbol}`;
+            record.id = `${chain}:asset__${record.address}:${record.symbol}`;
         }
 
         record.chainLogo = logo;
@@ -168,7 +169,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
             // =========================================================================================================
 
             if (!requests[chainForRequest]) {
-                requests[chain] = await getBalancesByAddress(chainForRequest, chainAddress);
+                requests[chainForRequest] = await getBalancesByAddress(chainForRequest, chainAddress);
             }
 
             if (!requests[chainForRequest]) {
@@ -212,7 +213,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
 
             store.dispatch('tokens/setGroupTokens', { chain, account, data: { list: tokens } });
 
-            store.dispatch('tokens/setDataFor', { type: 'tokens', account, data: allTokens });
+            store.dispatch('tokens/setDataFor', { type: 'tokens', account, data: sortByKey(allTokens, 'balanceUsd') });
 
             store.dispatch('tokens/setDataFor', { type: 'integrations', account, data: allIntegrations });
 

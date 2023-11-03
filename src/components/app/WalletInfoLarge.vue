@@ -62,9 +62,10 @@ export default {
     &__network {
         width: 78px;
         height: 78px;
-        display: flex;
+
+        @include pageFlexRow;
         justify-content: center;
-        align-items: center;
+
         border-radius: 50%;
         margin-right: 16px;
         background: var(--#{$prefix}banner-logo-color);
@@ -105,11 +106,12 @@ export default {
         }
 
         .balance {
-            display: flex;
-            align-items: center;
+            @include pageFlexRow;
+
             font-weight: 600;
             font-size: var(--#{$prefix}h2-fs);
             color: var(--#{$prefix}primary-text);
+
             margin-top: -3px;
             user-select: none;
 

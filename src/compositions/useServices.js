@@ -290,6 +290,28 @@ export default function useModule({ module, moduleType }) {
         }
     };
 
+    const onSelectSrcNetwork = (network) => {
+        if (selectedSrcNetwork.value?.net === network?.net) {
+            return false;
+        }
+
+        onlyWithBalance.value = true;
+
+        selectedSrcNetwork.value = network;
+
+        selectedSrcToken.value = null;
+        selectedDstToken.value = null;
+
+        srcAmount.value = '';
+        dstAmount.value = '';
+
+        resetTokensForModules();
+
+        return true;
+    };
+
+    // =================================================================================================================
+
     watch(currentChainInfo, () => {
         selectedSrcNetwork.value = currentChainInfo.value;
         resetTokensForModules();
@@ -301,9 +323,18 @@ export default function useModule({ module, moduleType }) {
         resetTokensForModules();
     });
 
-    watch(selectedSrcNetwork, () => {
+    watch(selectedSrcNetwork, (newNet, oldNet) => {
+        if (!oldNet) {
+            resetTokensForModules();
+            return checkSelectedNetwork();
+        }
+
+        if (newNet?.net === oldNet?.net) {
+            return;
+        }
+
         resetTokensForModules();
-        checkSelectedNetwork();
+        return checkSelectedNetwork();
     });
 
     watch(currentChainInfo, () => checkSelectedNetwork());
@@ -323,6 +354,8 @@ export default function useModule({ module, moduleType }) {
 
         closeNotification('prepare-tx');
     });
+
+    // =================================================================================================================
 
     checkSelectedNetwork();
 
@@ -356,6 +389,8 @@ export default function useModule({ module, moduleType }) {
         setTokenOnChangeForNet,
         clearApproveForService,
         checkSelectedNetwork,
+
+        onSelectSrcNetwork,
 
         // Requests to API services
         makeAllowanceRequest,
