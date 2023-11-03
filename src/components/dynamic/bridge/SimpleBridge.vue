@@ -353,7 +353,8 @@ export default {
                 !selectedSrcNetwork.value ||
                 !selectedSrcToken.value ||
                 !selectedDstNetwork.value ||
-                !selectedDstToken.value
+                !selectedDstToken.value ||
+                (isSendToAnotherAddress.value && (errorAddress.value || !receiverAddress.value))
         );
 
         // =================================================================================================================
