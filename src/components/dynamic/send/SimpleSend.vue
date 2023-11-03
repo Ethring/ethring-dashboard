@@ -74,9 +74,16 @@ export default {
             //
             selectedSrcToken,
             selectedSrcNetwork,
+
             receiverAddress,
             srcAmount,
+
             opTitle,
+
+            onlyWithBalance,
+            selectType,
+            targetDirection,
+
             setTokenOnChange,
         } = useServices({
             module,
@@ -256,13 +263,15 @@ export default {
         });
 
         onMounted(() => {
+            selectType.value = TOKEN_SELECT_TYPES.FROM;
+            targetDirection.value = DIRECTIONS.SOURCE;
+
+            onlyWithBalance.value = true;
+
             if (!selectedSrcNetwork.value) {
                 selectedSrcNetwork.value = currentChainInfo.value;
             }
 
-            store.dispatch('tokenOps/setSelectType', TOKEN_SELECT_TYPES.FROM);
-            store.dispatch('tokenOps/setDirection', DIRECTIONS.SOURCE);
-            store.dispatch('tokenOps/setOnlyWithBalance', true);
             store.dispatch('txManager/setCurrentRequestID', null);
 
             setTokenOnChange();

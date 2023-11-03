@@ -3,7 +3,7 @@
         <Modal :title="$t('superSwap.selectRoutes')" @close="$emit('close')">
             <div class="routes-modal">
                 <div
-                    v-for="(item, i) in routeInfo.otherRoutes"
+                    v-for="(item, i) in routes"
                     @click="() => setActiveRoute(item)"
                     class="routes-modal__item"
                     :class="selectedRoute === item ? 'routes-modal__active-item' : ''"
@@ -40,7 +40,6 @@
                 </div>
                 <Button
                     :loading="isLoading"
-                    :disabled="!selectedRoute"
                     :title="$t('tokenOperations.confirm')"
                     class="routes-modal__btn"
                     @click="confirm"
@@ -71,13 +70,23 @@ export default {
     emits: ['close'],
     setup() {
         const store = useStore();
-        const selectedRoute = ref(null);
-        const isLoading = ref(false);
-
         const routeInfo = computed(() => store.getters['swap/bestRoute']);
 
+        const selectedRoute = ref(routeInfo.value.bestRoute);
+        const isLoading = ref(false);
+
+        const routes = computed(() => {
+            return [routeInfo.value.bestRoute, ...routeInfo.value.otherRoutes];
+        });
+
         const confirm = async () => {
+            if (selectedRoute.value === routeInfo.value.bestRoute) {
+                store.dispatch('swap/setShowRoutes', false);
+                return;
+            }
+
             isLoading.value = true;
+
             const data = {
                 bestRoute: selectedRoute.value,
                 otherRoutes: routeInfo.value.otherRoutes.map((elem) => {
@@ -128,6 +137,7 @@ export default {
         };
 
         return {
+            routes,
             routeInfo,
             selectedRoute,
             isLoading,
@@ -166,7 +176,6 @@ export default {
         border: 1px solid var(--#{$prefix}modal-block-bg-color);
 
         cursor: pointer;
-        transition: 0.5s;
     }
     &__active-item {
         border: 1px solid var(--#{$prefix}banner-logo-color);

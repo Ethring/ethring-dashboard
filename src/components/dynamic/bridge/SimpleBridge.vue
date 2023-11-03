@@ -84,7 +84,7 @@
     </div>
 </template>
 <script>
-import { h, ref, watch, computed, onBeforeUnmount, onMounted } from 'vue';
+import { h, ref, watch, computed, onBeforeUnmount, onMounted, onBeforeMount } from 'vue';
 
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
@@ -885,9 +885,11 @@ export default {
 
         // =================================================================================================================
 
-        onMounted(async () => {
+        onBeforeMount(() => {
             onlyWithBalance.value = true;
+        });
 
+        onMounted(async () => {
             if (!selectedSrcNetwork.value) {
                 selectedSrcNetwork.value = currentChainInfo.value;
                 selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
