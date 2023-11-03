@@ -242,7 +242,6 @@ async function findRoute(params) {
             // * Check Fee not enough error
             if (isNotEnoughForPayFee) {
                 error = ERRORS.NOT_ENOUGH_BALANCE;
-                return;
             }
 
             // ==============================================================================

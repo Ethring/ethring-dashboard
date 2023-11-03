@@ -436,11 +436,11 @@ export default {
                 await requestAllowance();
             }
 
-            const isEnoughForFee = BigNumber(selectedSrcToken.value?.balance).gt(feeInfo.value.fromAmount);
+            // const isEnoughForFee = BigNumber(selectedSrcToken.value?.balance).gt(feeInfo.value.fromAmount);
 
             onSetAddress(receiverAddress.value);
 
-            isBalanceError.value = isNotEnoughBalance || !isEnoughForFee;
+            isBalanceError.value = isNotEnoughBalance;
 
             return await makeEstimateBridgeRequest();
         };
