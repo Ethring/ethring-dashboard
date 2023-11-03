@@ -168,7 +168,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
             // =========================================================================================================
 
             if (!requests[chainForRequest]) {
-                requests[chain] = await getBalancesByAddress(chainForRequest, chainAddress);
+                requests[chainForRequest] = await getBalancesByAddress(chainForRequest, chainAddress);
             }
 
             if (!requests[chainForRequest]) {

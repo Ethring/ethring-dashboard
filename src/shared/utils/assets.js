@@ -55,7 +55,7 @@ export const getIntegrationsGroupedByPlatform = (allIntegrations = []) => {
 
         integration.totalBalanceUsd = getTotalBalanceByType(balances, balanceType);
 
-        integration.balances = sortByKey(balances, 'balanceUsd').map((item) => {
+        integration.balances = balances.map((item) => {
             item.apr = apr;
             return item;
         });
