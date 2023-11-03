@@ -99,7 +99,7 @@ import { updateWalletBalances } from '@/shared/utils/balances';
 import { checkErrors } from '@/helpers/checkErrors';
 
 // Constants
-import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { SUPPORTED_CHAINS } from '@/shared/constants/superswap/constants';
 
 export default {
@@ -136,6 +136,7 @@ export default {
         // * Module values
         const {
             selectType,
+            targetDirection,
 
             selectedSrcToken,
             selectedDstToken,
@@ -262,6 +263,8 @@ export default {
 
         const onSetTokenFrom = () => {
             selectType.value = TOKEN_SELECT_TYPES.FROM;
+            targetDirection.value = DIRECTIONS.SOURCE;
+
             onlyWithBalance.value = true;
 
             router.push('/swap/select-token');
@@ -271,6 +274,10 @@ export default {
 
         const onSetTokenTo = async () => {
             selectType.value = TOKEN_SELECT_TYPES.TO;
+
+            // for SWAP targetDirection also SOURCE;
+            targetDirection.value = DIRECTIONS.SOURCE;
+
             onlyWithBalance.value = false;
 
             router.push('/swap/select-token');
@@ -718,6 +725,7 @@ export default {
 
         onBeforeUnmount(() => {
             if (router.options.history.state.current !== '/swap/select-token') {
+                targetDirection.value = DIRECTIONS.SOURCE;
                 selectedSrcToken.value = null;
                 selectedDstToken.value = null;
                 selectedSrcNetwork.value = null;
