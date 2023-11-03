@@ -119,15 +119,15 @@ export default function useTokensList({ network = null, fromToken = null, toToke
                 return {
                     ...tkn,
                     selected: true,
-                }
+                };
             } else if (tkn.id === toToken?.id) {
                 return {
                     ...tkn,
                     selected: true,
-                }
+                };
             }
             return tkn;
-        })
+        });
 
         return _.orderBy(
             allTokens,
