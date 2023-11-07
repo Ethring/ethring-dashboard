@@ -35,7 +35,7 @@
         </div>
 
         <EstimateInfo
-            v-if="dstAmount || estimateErrorTitle"
+            v-if="estimateErrorTitle || srcAmount"
             :loading="isEstimating"
             :service="selectedService"
             :title="$t('tokenOperations.routeInfo')"
@@ -274,6 +274,8 @@ export default {
 
             router.push('/swap/select-token');
 
+            srcAmount.value = 0;
+
             return clearApproveForService();
         };
 
@@ -287,7 +289,7 @@ export default {
 
             router.push('/swap/select-token');
 
-            return await onSetAmount(srcAmount.value);
+            srcAmount.value = 0;
         };
 
         const onSetAmount = async (value) => {
