@@ -97,15 +97,17 @@ Build dev:
   extends: .dockerBuildJob
   environment:
     name: dev
-  only:
-    - dev
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "dev"
 
 Build beta:
   extends: .dockerBuildJob
   environment:
     name: dev
-  only:
-    - beta
+  rules:
+    - if: $CI_COMMIT_BRANCH == "beta"
 
 Build branch:
   extends: .dockerBuildJob
@@ -128,15 +130,17 @@ Build prod:
     NODE_ENV: production
   before_script:
     - export VUE_APP_RELEASE=$(date +'%d.%m.%Y')-$CI_COMMIT_SHORT_SHA
-  only:
-    - master
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
 
 Deploy dev:
   extends: .deployJob
   environment:
     name: dev
-  only:
-    - dev
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "dev"
 
 Deploy beta:
   extends: .deployJob
@@ -145,8 +149,8 @@ Deploy beta:
     TEMPLATE: auth-template.yml
   environment:
     name: dev
-  only:
-    - beta
+  rules:
+    - if: $CI_COMMIT_BRANCH == "beta"
 
 Deploy branch:
   extends: .deployJob
@@ -171,17 +175,17 @@ Deploy prod:
   extends: .deployJob
   environment:
     name: prod
-  only:
-    - master
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
 
 
 # Tests stuff
 Update snapshot:
   stage: test_before_mr
   image: mcr.microsoft.com/playwright:v1.39.0-jammy
-  only:
-    - merge_requests
-  when: manual
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: manual
   parallel:
     matrix:
       - PROJECT: ['chromium']
@@ -202,9 +206,8 @@ Update snapshot:
 Run test before mr:
   stage: test_before_mr
   image: mcr.microsoft.com/playwright:v1.39.0-jammy
-  only:
-    - merge_requests
-    - dev
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   parallel:
     matrix:
       - PROJECT: ['chromium']
@@ -226,8 +229,8 @@ Run test before mr:
 Run tests schedules:
   stage: test_ui
   image: mcr.microsoft.com/playwright:v1.39.0-jammy
-  only:
-    - schedules
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
   allow_failure: true
   parallel:
     matrix:
@@ -247,8 +250,8 @@ Run tests schedules:
 
 Build tests report image:
   stage: test_ui_build
-  only:
-    - schedules
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
@@ -265,8 +268,8 @@ Build tests report image:
 
 Deploy tests report page:
   stage: test_ui_deploy
-  only:
-    - schedules
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
   image: yoep/openshift-client-4:4.6
   variables:
     NAME: "dashboard-test-reports"
