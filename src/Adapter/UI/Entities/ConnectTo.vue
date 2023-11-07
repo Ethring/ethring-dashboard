@@ -55,8 +55,7 @@ export default {
 
 <style lang="scss" scoped>
 .wallets-item {
-    display: flex;
-    align-items: center;
+    @include pageFlexRow;
     justify-content: flex-start;
 
     background-color: var(--#{$prefix}adapter-ecosystem-bg);
@@ -103,15 +102,13 @@ export default {
     }
 
     &__logos {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         justify-content: flex-start;
         width: 100px;
     }
 
     &__logo {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         justify-content: center;
         width: 40px;
         height: 40px;

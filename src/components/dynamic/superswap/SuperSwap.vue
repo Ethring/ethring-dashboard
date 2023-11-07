@@ -270,6 +270,7 @@ export default {
         // =================================================================================================================
 
         const isTokensLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](currentChainInfo.value?.net));
+        const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
 
         const bestRouteInfo = computed(() => store.getters['swap/bestRoute']);
         const isShowRoutesModal = computed(() => store.getters['swap/showRoutes']);
@@ -710,7 +711,7 @@ export default {
                 txError.value = resTx.error;
 
                 txErrorTitle.value = 'Swap Transaction error';
-                
+
                 return;
             }
 
@@ -780,6 +781,10 @@ export default {
             if (!val && selectedSrcNetwork.value) {
                 setTokenOnChange();
             }
+        });
+
+        watch(isAllTokensLoading, () => {
+            setTokenOnChange();
         });
 
         watch(selectedSrcNetwork, () => {
@@ -869,7 +874,11 @@ export default {
         watch(
             () => currentChainInfo.value,
             () => {
-                opTitle.value = getOperationTitle(currentRoute.value.net, currentChainInfo.value.net, approveTx.value);
+                opTitle.value = getOperationTitle(
+                    currentRoute.value.net || selectedSrcNetwork.value.net,
+                    currentChainInfo.value.net,
+                    approveTx.value
+                );
 
                 if ((!currentChainInfo.value.net || !SUPPORTED_CHAINS.includes(currentChainInfo.value?.net)) && !isShowRoutesModal.value) {
                     router.push('/main');

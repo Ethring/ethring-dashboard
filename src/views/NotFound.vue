@@ -18,12 +18,13 @@ export default {
 </script>
 <style lang="scss" scoped>
 .not-found {
-    font-size: 100px;
     width: 100%;
     height: 100vh;
-    display: flex;
+
+    @include pageFlexRow;
     justify-content: center;
-    align-items: center;
+
     font-weight: 700;
+    font-size: 100px;
 }
 </style>

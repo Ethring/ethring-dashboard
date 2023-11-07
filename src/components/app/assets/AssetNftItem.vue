@@ -1,9 +1,26 @@
 <template>
     <div :class="{ active }" class="collection">
         <div class="collection__header" @click="toggleCollapse">
-            <AssetItem :item="formattedItem">
+            <div class="column-1">
+                <div class="logo">
+                    <img
+                        :src="item.avatar"
+                        v-if="!showAvatarPlaceholder"
+                        @error="showAvatarPlaceholder = true"
+                        @load="showAvatarPlaceholder = false"
+                    />
+                    <ImgMaskIcon v-else class="collection-placeholder" />
+                    <div class="chain">
+                        <img :src="item.chainLogo" />
+                    </div>
+                </div>
+                <div class="name">{{ item.name || item.symbol }}</div>
                 <span class="nft-count">({{ item.nfts.length }})</span>
-            </AssetItem>
+            </div>
+
+            <div class="column-2" :title="balance.value"><span>$</span>{{ balance.pretty }}</div>
+            <div class="column-3" :title="balanceUsd.value"><span>$</span>{{ balanceUsd.pretty }}</div>
+
             <ArrowIcon v-if="!hideContent" class="arrow" />
         </div>
 
@@ -14,7 +31,7 @@
                         <Slide v-for="(nft, i) in item.nfts" :key="i">
                             <div class="collection__content-nfts-item" @click="selectedNft = nft">
                                 <img :src="nft.avatar" v-if="nft.avatar" :alt="nft.name" @error="() => (nft.avatar = null)" />
-                                <MaskIcon v-else class="avatar-placeholder"></MaskIcon>
+                                <MaskIcon v-else class="avatar-placeholder" />
                                 <p>{{ nft.name }}</p>
                                 <h5 v-if="nft.price">
                                     {{ formatNumber(nft.price, 2) }} <span> {{ nft.token.symbol }}</span>
@@ -114,7 +131,7 @@
                     <div>
                         <p>{{ $t('dashboard.nft.marketplaces') }}</p>
                         <div class="delimetr"></div>
-                        <h4 class="name">{{ item.marketplaces[0]?.name }}</h4>
+                        <h4 class="marketplace-name">{{ item.marketplaces[0]?.name }}</h4>
                     </div>
                     <div>
                         <p>{{ $t('dashboard.nft.contractAddress') }}</p>
@@ -134,12 +151,13 @@
 </template>
 <script>
 import { ref, computed } from 'vue';
-
+import { useStore } from 'vuex';
 import { useClipboard } from '@vueuse/core';
 
 import { Carousel, Slide } from 'vue3-carousel';
 
-import AssetItem from './AssetItem';
+import BigNumber from 'bignumber.js';
+
 import { CopyOutlined } from '@ant-design/icons-vue';
 
 import { cutAddress } from '@/helpers/utils';
@@ -148,6 +166,7 @@ import { formatNumber } from '@/helpers/prettyNumber';
 import ArrowIcon from '@/assets/icons/dashboard/arrow.svg';
 import LinkIcon from '@/assets/icons/dashboard/link.svg';
 import MaskIcon from '@/assets/icons/dashboard/mask.svg';
+import ImgMaskIcon from '@/assets/icons/dashboard/imgMask.svg';
 
 import 'vue3-carousel/dist/carousel.css';
 
@@ -155,12 +174,12 @@ export default {
     name: 'AssetNftItem',
     components: {
         ArrowIcon,
-        AssetItem,
         Carousel,
         Slide,
         CopyOutlined,
         LinkIcon,
         MaskIcon,
+        ImgMaskIcon,
     },
     props: {
         item: {
@@ -174,6 +193,7 @@ export default {
     },
     setup(props) {
         const { copy } = useClipboard();
+        const store = useStore();
 
         const active = ref(false);
         const activeOption = ref(1);
@@ -181,6 +201,36 @@ export default {
         const selectedNft = ref(null);
         const carousel = ref();
         const currentSlideIndex = ref(0);
+        const showAvatarPlaceholder = ref();
+
+        const showBalance = computed(() => store.getters['app/showBalance']);
+
+        const defaultVal = {
+            pretty: '****',
+            value: '****',
+        };
+
+        const balance = computed(() => {
+            if (!showBalance.value) {
+                return defaultVal;
+            }
+
+            return {
+                pretty: formatNumber(props.item.totalGroupBalance, 6),
+                value: BigNumber(props.item.totalGroupBalance).toString(),
+            };
+        });
+
+        const balanceUsd = computed(() => {
+            if (!showBalance.value) {
+                return defaultVal;
+            }
+
+            return {
+                pretty: formatNumber(props.item.floorPriceUsd, 4),
+                value: BigNumber(props.item.floorPriceUsd).toString(),
+            };
+        });
 
         const settings = ref({
             itemsToShow: 4,
@@ -211,14 +261,6 @@ export default {
             carousel.value.prev();
             currentSlideIndex.value = carousel.value.data.currentSlide.value;
         };
-
-        const formattedItem = computed(() => {
-            return {
-                ...props.item,
-                balance: props.item.totalGroupBalance,
-                balanceUsd: props.item.floorPriceUsd,
-            };
-        });
 
         const showDescription = () => {
             if (!props.item.description) {
@@ -253,12 +295,14 @@ export default {
             selectedNft,
             breakpoints,
             activeNftOption,
+            balance,
+            balanceUsd,
+            showAvatarPlaceholder,
 
             next,
             prev,
             copy,
             cutAddress,
-            formattedItem,
             toggleCollapse,
             showDescription,
             showNftDescription,
@@ -272,8 +316,40 @@ export default {
 .collection {
     &__header {
         @include pageFlexRow;
-        justify-content: space-between;
         cursor: pointer;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+        border-bottom: 1px solid var(--#{$prefix}border-color-op-05);
+    }
+
+    .column-1,
+    .column-2,
+    .column-3 {
+        @include pageFlexRow;
+    }
+    .column-1 {
+        width: 65%;
+    }
+
+    .column-2,
+    .column-3 {
+        font-size: var(--#{$prefix}small-lg-fs);
+        color: var(--#{$prefix}primary-text);
+
+        span {
+            margin-right: 2px;
+            font-weight: 300;
+            font-size: var(--#{$prefix}small-md-fs);
+            color: var(--#{$prefix}secondary-text);
+        }
+    }
+    .column-2 {
+        width: 20%;
+    }
+    .column-3 {
+        width: 12%;
+        justify-content: start;
+        padding-left: 16px;
     }
 
     .mt-10 {
@@ -284,8 +360,49 @@ export default {
         cursor: pointer;
         stroke: var(--#{$prefix}select-icon-color);
         transform: rotate(0);
-        margin-top: -20px;
         @include animateEasy;
+    }
+
+    .logo {
+        margin-right: 10px;
+        position: relative;
+
+        img {
+            width: 32px;
+            height: 32px;
+        }
+    }
+
+    .chain {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+
+        @include pageFlexRow;
+        justify-content: center;
+
+        position: absolute;
+        top: 16px;
+        left: 26px;
+
+        img {
+            border-radius: 50%;
+            object-position: center;
+            object-fit: contain;
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    .name {
+        font-size: var(--#{$prefix}default-fs);
+        color: var(--#{$prefix}primary-text);
+        font-weight: 400;
+        margin-left: 8px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 200px;
     }
 
     &.active {
@@ -376,8 +493,9 @@ export default {
                     margin: 0 2px;
                     border-bottom: 1px dashed var(--#{$prefix}checkbox-text);
                 }
-                .name {
+                .marketplace-name {
                     color: var(--#{$prefix}info);
+                    font-size: var(--#{$prefix}small-lg-fs);
                     font-weight: 400;
                     text-transform: capitalize;
                 }

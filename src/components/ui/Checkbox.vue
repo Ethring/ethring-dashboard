@@ -103,11 +103,12 @@ input[type='checkbox'] {
     cursor: pointer;
 
     &__checkmark {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         justify-content: center;
+
         width: 32px;
         height: 32px;
+
         background: var(--#{$prefix}checkbox-bg-color);
         border-radius: 4px;
         margin-right: 14px;
@@ -116,6 +117,7 @@ input[type='checkbox'] {
 
     &__label {
         display: flex;
+
         font-size: 1rem !important;
         width: fit-content;
         margin-right: 5px;

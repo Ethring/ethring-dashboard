@@ -50,7 +50,6 @@ export default {
 </script>
 <style lang="scss" scoped>
 .notconnect {
-    @include pageStructure;
     width: 100%;
 
     .notconnect-page {
@@ -63,21 +62,23 @@ export default {
             color: var(--#{$prefix}black);
             font-size: var(--#{$prefix}h1-fs);
             font-weight: 600;
+
             margin-bottom: 30px;
         }
 
         &__block {
+            @include pageFlexRow;
+            @include animateEasy;
+
             box-sizing: border-box;
-            padding: 0 12px;
-            display: flex;
-            align-items: center;
+
             width: 240px;
             height: 82px;
+
             border-radius: 8px;
             border: 1px solid var(--#{$prefix}border-color);
             margin-bottom: 12px;
-
-            @include animateEasy;
+            padding: 0 12px;
 
             &:hover {
                 opacity: 0.7;
@@ -97,6 +98,7 @@ export default {
 
                 .wallet {
                     margin-top: -5px;
+
                     font-size: var(--#{$prefix}h6-fs);
                     font-weight: 600;
                     color: var(--#{$prefix}black);

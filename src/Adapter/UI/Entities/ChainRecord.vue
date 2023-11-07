@@ -24,8 +24,8 @@ export default {
 <style lang="scss" scoped>
 .chain {
     &-record {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
+
         cursor: pointer;
         transition: all 0.3s ease-in-out;
 
@@ -42,8 +42,7 @@ export default {
             overflow: hidden;
             margin-right: 10px;
 
-            display: flex;
-            align-items: center;
+            @include pageFlexRow;
             justify-content: center;
 
             img {

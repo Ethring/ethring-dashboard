@@ -13,8 +13,6 @@ export default {
 </script>
 <style lang="scss" scoped>
 .stake {
-    @include pageStructure;
-
     .stake-page {
         @include pageFlexColumn;
         height: calc(100vh - 125px);

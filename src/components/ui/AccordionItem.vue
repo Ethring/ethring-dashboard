@@ -26,8 +26,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .accordion-item {
-    display: flex;
-    align-items: center;
+    @include pageFlexRow;
     margin: 8px 0;
 
     &__label {
@@ -37,11 +36,18 @@ export default {
     }
 
     &__value {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
+
         font-size: var(--#{$prefix}default-fs);
         font-weight: 600;
         color: var(--#{$prefix}primary-text);
+
+        margin-left: 6px;
+    }
+
+    img {
+        width: 16px;
+        height: 16px;
         margin-left: 6px;
     }
 }

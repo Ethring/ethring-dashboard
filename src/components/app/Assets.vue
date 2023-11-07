@@ -1,16 +1,15 @@
 <template>
     <div class="tokens" :class="{ empty: isEmpty }">
-        <template v-if="allTokensSorted.length > 0">
+        <template v-if="allTokens.length > 0">
             <div class="tokens__group">
                 <AssetItemHeader
-                    v-if="allTokensSorted.length"
+                    v-if="allTokens.length"
                     title="Tokens"
                     :value="getAssetsShare(assetsTotalBalances)"
                     :totalBalance="assetsTotalBalances"
                 />
                 <AssetItemSubHeader :type="$t('dashboard.asset')" />
-
-                <AssetItem v-for="(listItem, n) in allTokensSorted" :key="n" :item="listItem" />
+                <AssetsTable :data-source="allTokens" />
             </div>
         </template>
 
@@ -27,17 +26,8 @@
                     :healthRate="item.healthRate"
                 />
                 <div v-for="(groupItem, n) in item.data" :key="n">
-                    <AssetItemSubHeader :type="getFormattedName(groupItem.type)" />
-
-                    <AssetItem v-for="(balanceItem, i) in groupItem.balances" :key="i" :item="balanceItem">
-                        <div class="asset-item__info" v-if="balanceItem.balanceType">
-                            <div class="asset-item__type">{{ getFormattedName(balanceItem.balanceType) }}</div>
-                            <div class="asset-item__unlock" v-if="balanceItem.unlockTimestamp">
-                                Unlock {{ getFormattedDate(balanceItem.unlockTimestamp) }}
-                            </div>
-                            <div class="asset-item__apr" v-if="groupItem.apr"><span>APR </span> {{ prettyNumber(groupItem.apr, 2) }}%</div>
-                        </div>
-                    </AssetItem>
+                    <AssetItemSubHeader :type="getFormattedName(groupItem.type)" :name="groupItem?.validator?.name" />
+                    <AssetsTable :data-source="groupItem.balances" />
                 </div>
             </div>
         </template>
@@ -75,22 +65,19 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import EmptyList from '@/components/ui/EmptyList';
 
-import AssetItem from './AssetItem';
-import AssetItemHeader from './AssetItemHeader';
-import AssetItemSubHeader from './AssetItemSubHeader';
-import AssetNftItem from './AssetNftItem';
+import AssetItemHeader from './assets/AssetItemHeader';
+import AssetItemSubHeader from './assets/AssetItemSubHeader';
+import AssetNftItem from './assets/AssetNftItem';
+import AssetsTable from './assets/AssetsTable';
 
-import { getTokenIcon, sortByKey } from '@/helpers/utils';
-import { prettyNumber } from '@/helpers/prettyNumber';
-
-import { getIntegrationsGroupedByPlatform, getFormattedName, getFormattedDate, getNftsByCollection } from '@/shared/utils/assets';
+import { getIntegrationsGroupedByPlatform, getFormattedName, getNftsByCollection } from '@/shared/utils/assets';
 
 export default {
     name: 'Tokens',
     components: {
         AssetItemSubHeader,
         AssetItemHeader,
-        AssetItem,
+        AssetsTable,
         EmptyList,
         AssetNftItem,
     },
@@ -108,8 +95,6 @@ export default {
 
         const totalBalances = computed(() => store.getters['tokens/totalBalances'][walletAccount.value] || 0);
         const assetsTotalBalances = computed(() => store.getters['tokens/assetsBalances'][walletAccount.value] || 0);
-
-        const allTokensSorted = computed(() => sortByKey(allTokens.value, 'balanceUsd'));
 
         const isEmpty = computed(() => {
             return !allTokens.value?.length && !allIntegrations.value?.length && !isLoadingForChain.value && !isAllTokensLoading.value;
@@ -161,15 +146,12 @@ export default {
         });
 
         return {
-            prettyNumber,
-
             isLoadingForChain,
             isAllTokensLoading,
 
             isEmpty,
-            getTokenIcon,
 
-            allTokensSorted,
+            allTokens,
             allIntegrations,
 
             assetsTotalBalances,
@@ -180,7 +162,6 @@ export default {
             // utils for Assets templates
             getAssetsShare,
             getFormattedName,
-            getFormattedDate,
         };
     },
 };
@@ -211,41 +192,6 @@ export default {
 
     &.empty {
         justify-content: center;
-    }
-}
-
-.asset-item__info {
-    display: flex;
-    color: var(--#{$prefix}small-lg-fs);
-    font-weight: 500;
-    font-size: var(--#{$prefix}small-lg-fs);
-
-    div {
-        &::before {
-            content: '\2022';
-            margin: 0 4px;
-            color: var(--#{$prefix}checkbox-text);
-        }
-    }
-
-    .asset-item__type,
-    .asset-item__apr {
-        color: var(--#{$prefix}sub-text);
-        font-size: var(--#{$prefix}small-lg-fs);
-        font-weight: 300;
-    }
-
-    .asset-item__apr {
-        span {
-            font-weight: 400;
-            color: var(--#{$prefix}mute-apr-text);
-        }
-    }
-
-    .asset-item__unlock {
-        color: var(--#{$prefix}mute-apr-text);
-        font-weight: 400;
-        font-size: var(--#{$prefix}small-lg-fs);
     }
 }
 </style>

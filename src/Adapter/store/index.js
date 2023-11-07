@@ -51,8 +51,8 @@ export default {
     getters: {
         [GETTERS.IS_OPEN]:
             (state) =>
-                (name = MODALS.WALLETS) =>
-                    state.modals[name],
+            (name = MODALS.WALLETS) =>
+                state.modals[name],
 
         [GETTERS.IS_CONNECTING]: (state) => state.isConnecting,
 
@@ -147,12 +147,13 @@ export default {
 
             if (!state.wallets.length) {
                 state.ecosystem = null;
+                lastConnectedWalletStorage.value = {};
             } else {
                 state.ecosystem = state.wallets[0].ecosystem;
+                lastConnectedWalletStorage.value = state.wallets[0];
             }
 
             isConnectedStorage.value = false;
-            lastConnectedWalletStorage.value = {};
 
             return (connectedWalletsStorage.value = state.wallets);
         },

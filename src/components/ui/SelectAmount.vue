@@ -189,9 +189,13 @@ export default {
 
         watch(
             () => props.value,
-            (val) => {
-                if (val) {
-                    setToken(val);
+            (tkn, oldTkn) => {
+                if (tkn?.id === oldTkn?.id || tkn?.address === oldTkn?.address) {
+                    return;
+                }
+
+                if (tkn) {
+                    setToken(tkn);
                     amount.value = '';
                     active.value = false;
                     emit('setAmount', amount.value);
@@ -217,7 +221,31 @@ export default {
                 return (payTokenPrice.value = formatNumber(BigNumber(amount.value * +selectedToken?.value?.price || 0).toFixed()) || 0);
             }
 
-            return (payTokenPrice.value = '0');
+            // val = val.replace(/[^0-9.]+/g, '').replace(/\.{2,}/g, '.');
+
+            if (val === '' || !val?.toString()) {
+                return (payTokenPrice.value = 0);
+            }
+
+            val = val
+                .toString()
+                // remove spaces
+                .replace(/\s+/g, '')
+                .replace(',', '.')
+                // only number
+                .replace(/[^.\d]+/g, '')
+                // remove extra 0 before decimal
+                .replace(/^0+/, '0')
+                // remove extra dots
+                .replace(/^0+(\d+)/, '$1');
+
+            if (val.indexOf('.') !== val.lastIndexOf('.')) {
+                val = val.substr(0, val.lastIndexOf('.'));
+            }
+
+            amount.value = val;
+
+            return (payTokenPrice.value = formatNumber(BigNumber(amount.value).multipliedBy(selectedToken?.value?.price || 0)) || 0);
         });
 
         const clickAway = () => {
@@ -323,8 +351,7 @@ export default {
         cursor: pointer;
 
         .label {
-            display: flex;
-            align-items: center;
+            @include pageFlexRow;
 
             color: var(--#{$prefix}select-label-color);
             font-weight: 600;
@@ -333,9 +360,8 @@ export default {
         }
 
         .balance {
-            display: flex;
+            @include pageFlexRow;
             justify-content: space-between;
-            align-items: center;
 
             height: 32px;
             max-height: 32px;
@@ -375,16 +401,14 @@ export default {
         }
 
         .info-wrap {
-            display: flex;
+            @include pageFlexRow;
             justify-content: space-between;
-            align-items: center;
 
             width: 100%;
         }
 
         .info {
-            display: flex;
-            align-items: center;
+            @include pageFlexRow;
             cursor: pointer;
             width: 100%;
             max-width: 250px;
@@ -509,9 +533,9 @@ export default {
     }
 
     &__items-item {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         justify-content: space-between;
+
         min-height: 50px;
         border-bottom: 1px dashed var(--#{$prefix}select-border-color);
         cursor: pointer;
@@ -531,8 +555,7 @@ export default {
         }
 
         .info {
-            display: flex;
-            align-items: center;
+            @include pageFlexRow;
 
             .name {
                 font-size: var(--#{$prefix}default-fs);

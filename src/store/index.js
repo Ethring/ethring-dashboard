@@ -13,6 +13,9 @@ import swap from './services/swap';
 // Operations
 import operations from './operations';
 
+// Transaction manager
+import txManager from '../Transactions/store';
+
 // Adapters for different networks
 import adapters from '../Adapter/store';
 
@@ -39,6 +42,7 @@ export default createStore({
         bridge,
         swap,
         tokenOps: operations,
+        txManager,
     },
     plugins: [dataState],
 });

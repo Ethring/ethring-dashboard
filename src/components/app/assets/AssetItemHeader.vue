@@ -125,15 +125,14 @@ export default {
 }
 
 .asset__item-header {
-    display: flex;
-    align-items: center;
+    @include pageFlexRow;
+
     justify-content: space-between;
     padding-bottom: 16px;
     border-bottom: 1px dashed var(--#{$prefix}border-secondary-color);
 
     &-info {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         width: 60%;
     }
 
@@ -141,8 +140,7 @@ export default {
         width: 40px;
         height: 40px;
 
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         justify-content: center;
     }
 
@@ -227,8 +225,8 @@ export default {
         border-radius: 24px;
         background-color: var(--#{$prefix}percentage-bar-bg-color);
         position: relative;
-        display: flex;
-        align-items: center;
+
+        @include pageFlexRow;
         justify-content: center;
         overflow: hidden;
 

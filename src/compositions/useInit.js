@@ -14,14 +14,14 @@ import { getTotalFuturesBalance, BALANCES_TYPES } from '@/shared/utils/assets';
 
 // Cancel request
 
-let abortController = new AbortController();
-let { signal } = abortController;
+// let abortController = new AbortController();
+// let { signal } = abortController;
 
-function cancelCurrentOperations() {
-    abortController.abort(); // Отмена всех текущих операций
-    abortController = new AbortController(); // Создание нового AbortController
-    signal = abortController.signal; // Получение нового сигнала
-}
+// function cancelCurrentOperations() {
+//     abortController.abort(); // Отмена всех текущих операций
+//     abortController = new AbortController(); // Создание нового AbortController
+//     signal = abortController.signal; // Получение нового сигнала
+// }
 
 // =================================================================================================================
 
@@ -74,7 +74,12 @@ const saveOrGetDataFromCache = async (key, data) => {
 
 const formatRecords = (records, { chain, chainAddress, logo }) => {
     for (const record of records) {
-        record.id = `${chain}_${chainAddress}_${record.symbol}`;
+        if (!record.address) {
+            record.id = `${chainAddress}:${chain}:asset__native:${record.symbol}`;
+        } else {
+            record.id = `${chainAddress}:${chain}:asset__${record.address}:${record.symbol}`;
+        }
+
         record.chainLogo = logo;
         record.chain = chain;
     }
@@ -112,8 +117,6 @@ const integrationsForSave = (integrations, { chain, logo, chainAddress }) => {
 // =================================================================================================================
 
 export default async function useInit(store, { addressesWithChains = {}, account = null, currentChainInfo } = {}) {
-    cancelCurrentOperations();
-
     store.dispatch('tokens/setLoader', true);
 
     const allTokensForAccount = computed(() => store.getters['tokens/tokens'][account] || []);
@@ -140,16 +143,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
 
     const addresses = arrayFromObject(addressesWithChains);
 
-    const sortedByCurrChain = _.orderBy(
-        addresses,
-        [
-            // Current chain first
-            (item) => (item.chain === currentChain ? 0 : 1),
-            // Then by chain
-            (item) => _.indexOf(Object.keys(COSMOS_CHAIN_ID), item.chain),
-        ],
-        ['asc', 'desc']
-    );
+    const sortedByCurrChain = _.orderBy(addresses, (item) => (item.chain === currentChain ? 0 : 1), ['asc']);
 
     const chunkedAddresses = _.chunk(sortedByCurrChain, CHUNK_SIZE);
 
@@ -158,10 +152,12 @@ export default async function useInit(store, { addressesWithChains = {}, account
     const allNfts = [];
 
     const progressChunk = async (chunk) => {
+        let requests = {};
+
         for (const { chain, info } of chunk) {
             store.dispatch('tokens/setLoadingByChain', { chain, value: true });
 
-            const { logo, address: chainAddress } = info;
+            let { logo, address: chainAddress } = info;
 
             const chainForRequest = COSMOS_CHAIN_ID[chain] || chain;
 
@@ -170,13 +166,27 @@ export default async function useInit(store, { addressesWithChains = {}, account
                 continue;
             }
 
-            const response = (await getBalancesByAddress(chainForRequest, chainAddress, { signal })) || {};
+            // =========================================================================================================
+
+            if (!requests[chainForRequest]) {
+                if (chainForRequest === 'stargaze') {
+                    chainAddress = 'stars13gjvhglmljamj6rvl5s6klt4e4dr0uksj7jdzm';
+                }
+                requests[chainForRequest] = await getBalancesByAddress(chainForRequest, chainAddress);
+            }
+
+            if (!requests[chainForRequest]) {
+                store.dispatch('tokens/setLoadingByChain', { chain, value: false });
+                continue;
+            }
+
+            // =========================================================================================================
 
             const {
                 tokens = [],
                 integrations = [],
                 nfts = [],
-            } = await saveOrGetDataFromCache(`${account}-${chainForRequest}-${chainAddress}`, response);
+            } = await saveOrGetDataFromCache(`${account}-${chainForRequest}-${chainAddress}`, requests[chainForRequest]);
 
             if (!tokens.length && !integrations.length && !nfts.length) {
                 store.dispatch('tokens/setLoadingByChain', { chain, value: false });
@@ -222,6 +232,8 @@ export default async function useInit(store, { addressesWithChains = {}, account
 
             store.dispatch('tokens/setLoadingByChain', { chain, account, value: false });
         }
+
+        requests = {};
     };
 
     // Проходим по chunk и обрабатываем их

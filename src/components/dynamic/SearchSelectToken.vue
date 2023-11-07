@@ -99,18 +99,60 @@ export default {
 
         // =================================================================================================================
 
+        const getPriceByCoingeckoId = async (coingeckoId) => {
+            try {
+                const priceById = await PricesModule.Coingecko.marketCapForNativeCoin(coingeckoId);
+                const { usd = null } = priceById || {};
+
+                if (!usd) {
+                    return 0;
+                }
+
+                const { price = 0 } = usd || {};
+
+                return price;
+            } catch (error) {
+                console.warn('error while requesting price from Coingecko', error);
+                return 0;
+            }
+        };
+
+        const getPriceFromProvider = async (tokenAddress, { coingeckoId = null } = {}) => {
+            const { chain_id, chainId } = selectedNetwork.value || {};
+
+            const requestPriceFor = {
+                chainId: chain_id || chainId,
+                addresses: tokenAddress,
+            };
+
+            if (coingeckoId) {
+                return await getPriceByCoingeckoId(coingeckoId);
+            }
+
+            try {
+                const price = await PricesModule.Coingecko.priceByPlatformContracts(requestPriceFor);
+                const address = tokenAddress?.toLowerCase() || tokenAddress;
+
+                if (!price[address]) {
+                    return 0;
+                }
+
+                const { usd = 0 } = price[address] || {};
+
+                return usd;
+            } catch (error) {
+                console.warn('error while requesting price from Coingecko', error);
+                return 0;
+            }
+        };
+
         const setToken = async (item) => {
             if (!item.price) {
-                const { chain_id, chainId } = selectedNetwork.value || {};
+                item.price = await getPriceFromProvider(item.address, { coingeckoId: item.coingecko_id });
+            }
 
-                const requestPriceFor = {
-                    chainId: chain_id || chainId,
-                    addresses: item.address,
-                };
-
-                const price = await PricesModule.Coingecko.priceByPlatformContracts(requestPriceFor);
-
-                item.price = price[item.address]?.usd;
+            if (!item.address && item.base) {
+                item.address = item.base;
             }
 
             if (selectType.value === TOKEN_SELECT_TYPES.FROM) {
@@ -139,7 +181,6 @@ export default {
 </script>
 <style lang="scss" scoped>
 .select-token {
-    @include pageStructure;
     &__page {
         @include pageFlexColumn;
         height: calc(100vh - 125px);
