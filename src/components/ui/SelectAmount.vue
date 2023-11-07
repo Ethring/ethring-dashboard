@@ -44,13 +44,13 @@
                 </template>
             </div>
 
-            <div class="balance" :class="{ disabled, error }" @click.stop="setMax">
+            <div class="balance" :class="{ disabled, error }">
                 <div class="balance-value">
                     <template v-if="isTokenLoading">
                         <a-skeleton-input active />
                     </template>
                     <template v-else>
-                        <p class="balance-value">
+                        <p @click.stop="setMax">
                             {{ $t('tokenOperations.balance') }}:
                             <span>
                                 {{ setTokenBalance(selectedToken) }}
