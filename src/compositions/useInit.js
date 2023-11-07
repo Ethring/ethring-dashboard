@@ -157,7 +157,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
         for (const { chain, info } of chunk) {
             store.dispatch('tokens/setLoadingByChain', { chain, value: true });
 
-            let { logo, address: chainAddress } = info;
+            const { logo, address: chainAddress } = info;
 
             const chainForRequest = COSMOS_CHAIN_ID[chain] || chain;
 
@@ -169,9 +169,6 @@ export default async function useInit(store, { addressesWithChains = {}, account
             // =========================================================================================================
 
             if (!requests[chainForRequest]) {
-                if (chainForRequest === 'stargaze') {
-                    chainAddress = 'stars13gjvhglmljamj6rvl5s6klt4e4dr0uksj7jdzm';
-                }
                 requests[chainForRequest] = await getBalancesByAddress(chainForRequest, chainAddress);
             }
 
