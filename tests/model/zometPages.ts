@@ -45,22 +45,26 @@ export class DashboardPage {
     }
 
     async waitMainElementVisible() {
-        await this.page.locator('div.dashboard').waitFor({ state: 'visible', timeout: 20000 });
+        await this.page.getByTestId('dashboard').waitFor({ state: 'visible', timeout: 20000 });
     }
 
     async getLinkFromSuccessPanel() {
         return await this.page.locator('//div[@class="success info-panel mt-10"]//a').getAttribute('href');
     }
 
-    async mockResponseByService(url: String, mockData: object) {
-        await this.page.route('**/transfer**', (route) => {
-            route.fulfill({
-                status: 404,
-                contentType: 'text/plain',
-                body: 'Not Found!',
-            });
-        });
+    async mockBalanceRequest(net: string, mockData: object) {
+        await this.page.route(
+            `**/srv-data-provider/api/balances?net=${net}&address=0xd22b3757b5b7010aa1c4293b38e2e0d53fbe5efc**`,
+            (route) => {
+                route.fulfill({
+                    status: 200,
+                    contentType: 'application/json; charset=utf-8',
+                    body: JSON.stringify(mockData),
+                });
+            }
+        );
     }
+
 }
 
 export class SwapPage extends DashboardPage {
@@ -80,7 +84,7 @@ export class SwapPage extends DashboardPage {
         await this.page.getByTestId('select-network').click();
     }
 
-    async selectNetworkBySwap(netName: String) {
+    async selectNetworkBySwap(netName: string) {
         await this.openAccordionWithNetworks();
         await this.page.locator(`//div[@class="select__items"]//div[text()="${netName}"]`).click();
         await sleepFiveSecond();

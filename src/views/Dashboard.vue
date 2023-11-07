@@ -1,5 +1,5 @@
 <template>
-    <div class="dashboard">
+    <div class="dashboard" data-qa="dashboard">
         <template v-if="walletAddress">
             <div class="dashboard__wallet">
                 <WalletInfoLarge />
