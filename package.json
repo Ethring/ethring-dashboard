@@ -94,7 +94,8 @@
     "sass": "^1.62.1",
     "sass-loader": "^10.4.1",
     "vue-svg-loader": "^0.17.0-beta.2",
-    "vue-template-babel-compiler": "^2.0.0"
+    "vue-template-babel-compiler": "^2.0.0",
+    "ws": "^8.14.2"
   },
   "browserslist": [
     "> 1%",
