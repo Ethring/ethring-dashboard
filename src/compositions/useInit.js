@@ -72,12 +72,12 @@ const saveOrGetDataFromCache = async (key, data) => {
 
 // =================================================================================================================
 
-const formatRecords = (records, { chain, chainAddress, logo }) => {
+const formatRecords = (records, { chain, logo }) => {
     for (const record of records) {
         if (!record.address) {
-            record.id = `${chainAddress}:${chain}:asset__native:${record.symbol}`;
+            record.id = `${chain}:asset__native:${record.symbol}`;
         } else {
-            record.id = `${chainAddress}:${chain}:asset__${record.address}:${record.symbol}`;
+            record.id = `${chain}:asset__${record.address}:${record.symbol}`;
         }
 
         record.chainLogo = logo;
