@@ -176,7 +176,7 @@ Deploy prod:
   environment:
     name: prod
   rules:
-    - if: $CI_COMMIT_BRANCH == "dev"
+    - if: $CI_COMMIT_BRANCH == "prod"
 
 
 # Tests stuff
