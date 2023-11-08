@@ -57,6 +57,8 @@ export default {
             const status = await connectTo(ECOSYSTEMS.COSMOS, wallet, selectedChain.value);
 
             status && action('SET_MODAL_STATE', { name: 'wallets', isOpen: false });
+
+            return action('SET_MODAL_STATE', { name: 'wallets', isOpen: false });
         };
 
         return {
