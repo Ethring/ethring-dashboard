@@ -40,11 +40,11 @@
 
         <div class="balance">
             <p class="in-currency" v-if="record?.balance">
-                <span class="amount">{{ prettyNumber(record?.balance) }} </span>&nbsp;<span class="symbol">{{ record?.symbol }}</span>
+                <span class="amount">{{ formatNumber(record?.balance) }} </span>&nbsp;<span class="symbol">{{ record?.symbol }}</span>
             </p>
 
             <p class="in-usd" v-if="record?.balanceUsd">
-                <span class="symbol">$</span>&nbsp;<span class="amount">{{ prettyNumber(record?.balanceUsd) }}</span>
+                <span class="symbol">$</span>&nbsp;<span class="amount">{{ formatNumber(record?.balanceUsd) }}</span>
             </p>
         </div>
     </div>
@@ -56,7 +56,7 @@ import TokenIcon from '@/components/ui/TokenIcon';
 
 import ExternalLinkIcon from '@/assets/icons/app/external-link.svg';
 
-import { prettyNumber } from '@/helpers/prettyNumber';
+import { formatNumber } from '@/helpers/prettyNumber';
 import { computed } from 'vue';
 
 export default {
@@ -95,7 +95,7 @@ export default {
             sendTokenInfo,
 
             // helpers
-            prettyNumber,
+            formatNumber,
             getTokenExplorerLink,
         };
     },

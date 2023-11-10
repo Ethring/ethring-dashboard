@@ -1,5 +1,6 @@
 import { Page } from '@playwright/test';
 import { test, expect } from '../__fixtures__/fixtures';
+import mockData from '../data/mockHelper';
 
 test.describe('Auth page tests', () => {
     test('Case#1: Go to auth page', async ({ browser, context, page: Page, authPageEmptyWallet }) => {
@@ -23,5 +24,23 @@ test.describe('Dashboard page tests', () => {
 
         const superSwapPage = await swapPage.goToSuperSwap();
         await expect(superSwapPage.page).toHaveScreenshot();
+    });
+
+    test('Case#2: Check ETH protocol view', async ({ browser, context, page: Page, dashboardProtocol }) => {
+        await dashboardProtocol.mockBalanceRequest('eth', mockData.eth);
+        await dashboardProtocol.mockBalanceRequest('arbitrum', mockData.arbitrum);
+        await dashboardProtocol.mockBalanceRequest('optimism', mockData.optimism);
+        await dashboardProtocol.mockBalanceRequest('bsc', mockData.bsc);
+        await dashboardProtocol.mockBalanceRequest('polygon', mockData.polygon);
+        await dashboardProtocol.mockBalanceRequest('fantom', mockData.fantom);
+        await dashboardProtocol.mockBalanceRequest('avalanche', mockData.avalanche);
+
+        await dashboardProtocol.page.getByTestId('tokens_group').scrollIntoViewIfNeeded();
+        await expect(dashboardProtocol.page).toHaveScreenshot();
+
+        for (const protocol of await dashboardProtocol.page.getByTestId('protocol_group').all()) {
+            await protocol.scrollIntoViewIfNeeded();
+            await expect(dashboardProtocol.page).toHaveScreenshot();
+        }
     });
 });

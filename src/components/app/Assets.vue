@@ -1,7 +1,7 @@
 <template>
     <div class="tokens" :class="{ empty: isEmpty }">
         <template v-if="allTokens.length > 0">
-            <div class="tokens__group">
+            <div class="tokens__group" data-qa="tokens_group">
                 <AssetItemHeader
                     v-if="allTokens.length"
                     title="Tokens"
@@ -15,7 +15,7 @@
         </template>
 
         <template v-if="allIntegrations.length > 0">
-            <div class="tokens__group" v-for="(item, i) in integrationAssetsByPlatform" :key="i">
+            <div class="tokens__group" data-qa="protocol_group" v-for="(item, i) in integrationAssetsByPlatform" :key="i">
                 <AssetItemHeader
                     v-if="item.data.length"
                     :logoURI="item.logoURI"

@@ -45,7 +45,7 @@ const routes = [
         component: () => import('../views/ConnectWallet.vue'),
     },
     {
-        path: '/superSwap',
+        path: '/super-swap',
         name: 'Super Swap Page',
         meta: {
             isAuth: true,

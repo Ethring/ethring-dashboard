@@ -9,8 +9,8 @@
         <a class="socials__item discord disabled">
             <DiscordIcon />
         </a>
-        <a class="socials__item gitbook disabled">
-            <GitbookIcon />
+        <a class="socials__item git-book disabled">
+            <GitBookIcon />
         </a>
     </div>
 </template>
@@ -18,7 +18,7 @@
 import TelegramIcon from '@/assets/icons/socials/telegram.svg';
 import TwitterIcon from '@/assets/icons/socials/twitter.svg';
 import DiscordIcon from '@/assets/icons/socials/discord.svg';
-import GitbookIcon from '@/assets/icons/socials/gitbook.svg';
+import GitBookIcon from '@/assets/icons/socials/git-book.svg';
 
 export default {
     name: 'Socials',
@@ -26,7 +26,7 @@ export default {
         TelegramIcon,
         TwitterIcon,
         DiscordIcon,
-        GitbookIcon,
+        GitBookIcon,
     },
     props: {
         collapsed: {
