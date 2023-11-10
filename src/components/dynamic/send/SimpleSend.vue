@@ -14,6 +14,7 @@
 
         <SelectAmount
             :value="selectedSrcToken"
+            :selected-network="selectedSrcNetwork"
             :error="!!isBalanceError"
             :label="$t('tokenOperations.asset')"
             :on-reset="clearAddress || resetAmount"
@@ -139,8 +140,10 @@ export default {
         };
 
         const onSelectNetwork = (network) => {
+            if (selectedSrcNetwork.value === network) {
+                return;
+            }
             clearAddress.value = true;
-            selectedSrcToken.value = null;
             selectedSrcToken.value = null;
             selectedSrcNetwork.value = network;
         };
