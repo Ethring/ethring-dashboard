@@ -143,7 +143,7 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 // Composition
 import useTokensList from '@/compositions/useTokensList';
 import useNotification from '@/compositions/useNotification';
-import useServices from '../../../compositions/useServices';
+import useServices from '@/compositions/useServices';
 
 // Transaction Management
 import useTransactions from '../../../Transactions/compositions/useTransactions';
