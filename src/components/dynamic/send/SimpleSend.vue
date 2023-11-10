@@ -15,7 +15,7 @@
         <SelectAmount
             :value="selectedSrcToken"
             :error="!!isBalanceError"
-            :label="$t('tokenOperations.amount')"
+            :label="$t('tokenOperations.asset')"
             :on-reset="clearAddress || resetAmount"
             :is-token-loading="isTokensLoadingForChain"
             class="mt-10"
