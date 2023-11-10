@@ -72,6 +72,14 @@ export default {
         totalBalances: (state) => state.totalBalances,
 
         loadingByChain: (state) => (chain) => state.loadingByChain[chain] || false,
+
+        getTokenBySymbol: (state) => (account, symbol) => {
+            if (!state.tokens[account]) {
+                return null;
+            }
+
+            return state.tokens[account].find((token) => token.symbol === symbol) || null;
+        },
     },
 
     mutations: {

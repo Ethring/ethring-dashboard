@@ -67,12 +67,14 @@ export default {
         },
 
         /* ALLOWANCE */
-        async getAllowance(_, { url = DEFAULT_URL, net, tokenAddress, ownerAddress } = {}) {
+        async getAllowance(_, { url = DEFAULT_URL, net, tokenAddress, ownerAddress, store, service } = {}) {
             return await getAllowance({
                 url,
                 net,
                 tokenAddress,
                 ownerAddress,
+                store,
+                service,
             });
         },
 

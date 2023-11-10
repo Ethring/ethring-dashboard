@@ -38,7 +38,7 @@
             :is-amount-loading="isEstimating"
             :is-token-loading="isTokensLoadingForDst"
             :label="$t('tokenOperations.receive')"
-            :disabled-value="formatNumber(dstAmount)"
+            :disabled-value="dstAmount"
             :on-reset="resetDstAmount"
             class="mt-10"
             @clickToken="onSetDstToken"
@@ -84,7 +84,7 @@
     </div>
 </template>
 <script>
-import { h, ref, watch, computed, onBeforeUnmount, onMounted } from 'vue';
+import { h, ref, watch, computed, onBeforeUnmount, onMounted, onBeforeMount } from 'vue';
 
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
@@ -353,7 +353,8 @@ export default {
                 !selectedSrcNetwork.value ||
                 !selectedSrcToken.value ||
                 !selectedDstNetwork.value ||
-                !selectedDstToken.value
+                !selectedDstToken.value ||
+                (isSendToAnotherAddress.value && (errorAddress.value || !receiverAddress.value))
         );
 
         // =================================================================================================================
@@ -435,15 +436,13 @@ export default {
                 await requestAllowance();
             }
 
-            const isEnoughForFee = BigNumber(selectedSrcToken.value?.balance).gt(feeInfo.value.fromAmount);
-
-            if (!isNotEnoughBalance || isEnoughForFee) {
-                return await makeEstimateBridgeRequest();
-            }
+            // const isEnoughForFee = BigNumber(selectedSrcToken.value?.balance).gt(feeInfo.value.fromAmount);
 
             onSetAddress(receiverAddress.value);
 
-            return (isBalanceError.value = isNotEnoughBalance || !isEnoughForFee);
+            isBalanceError.value = isNotEnoughBalance;
+
+            return await makeEstimateBridgeRequest();
         };
 
         // =================================================================================================================
@@ -546,9 +545,7 @@ export default {
             isEstimating.value = false;
             isLoading.value = false;
 
-            console.log('response', response);
-
-            dstAmount.value = response.toTokenAmount;
+            dstAmount.value = BigNumber(response.toTokenAmount).toFixed(6);
 
             feeInfo.value = {
                 title: 'tokenOperations.serviceFee',
@@ -888,9 +885,11 @@ export default {
 
         // =================================================================================================================
 
-        onMounted(async () => {
+        onBeforeMount(() => {
             onlyWithBalance.value = true;
+        });
 
+        onMounted(async () => {
             if (!selectedSrcNetwork.value) {
                 selectedSrcNetwork.value = currentChainInfo.value;
                 selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);

@@ -99,8 +99,8 @@ import { updateWalletBalances } from '@/shared/utils/balances';
 import { checkErrors } from '@/helpers/checkErrors';
 
 // Constants
-import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
-import { SUPPORTED_CHAINS } from '@/shared/constants/superswap/constants';
+import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+import { SUPPORTED_CHAINS } from '@/shared/constants/super-swap/constants';
 
 export default {
     name: 'SimpleSwap',
@@ -136,6 +136,7 @@ export default {
         // * Module values
         const {
             selectType,
+            targetDirection,
 
             selectedSrcToken,
             selectedDstToken,
@@ -157,6 +158,8 @@ export default {
             makeAllowanceRequest,
             makeApproveRequest,
             checkSelectedNetwork,
+
+            onSelectSrcNetwork,
         } = useServices({
             module,
             moduleType: 'swap',
@@ -253,15 +256,20 @@ export default {
         // =================================================================================================================
 
         const onSelectNetwork = (network) => {
-            selectedSrcNetwork.value = network;
-            selectedSrcToken.value = null;
+            if (!onSelectSrcNetwork(network)) {
+                return;
+            }
+
             isEstimating.value = false;
             estimateErrorTitle.value = '';
-            dstAmount.value = '';
+            resetSrcAmount.value = true;
+            resetDstAmount.value = true;
         };
 
         const onSetTokenFrom = () => {
             selectType.value = TOKEN_SELECT_TYPES.FROM;
+            targetDirection.value = DIRECTIONS.SOURCE;
+
             onlyWithBalance.value = true;
 
             router.push('/swap/select-token');
@@ -271,6 +279,10 @@ export default {
 
         const onSetTokenTo = async () => {
             selectType.value = TOKEN_SELECT_TYPES.TO;
+
+            // for SWAP targetDirection also SOURCE;
+            targetDirection.value = DIRECTIONS.SOURCE;
+
             onlyWithBalance.value = false;
 
             router.push('/swap/select-token');
@@ -709,6 +721,8 @@ export default {
                 selectedSrcNetwork.value = currentChainInfo.value;
             }
 
+            onlyWithBalance.value = true;
+
             setTokenOnChange();
 
             if (selectedSrcToken.value?.address && !allowanceForToken.value) {
@@ -718,6 +732,7 @@ export default {
 
         onBeforeUnmount(() => {
             if (router.options.history.state.current !== '/swap/select-token') {
+                targetDirection.value = DIRECTIONS.SOURCE;
                 selectedSrcToken.value = null;
                 selectedDstToken.value = null;
                 selectedSrcNetwork.value = null;
