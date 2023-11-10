@@ -50,6 +50,7 @@ export async function findBestRoute(amount, walletAddress, fromToken, toToken) {
                 toAmountUsd: result.bestRoute.toTokenAmount * (+result.bestRoute.toToken.price || +result.bestRoute.toToken.price),
                 estimateFeeUsd: result.bestRoute.estimateFeeUsd,
                 estimateTime: result.bestRoute.estimateTime,
+                serviceId: result.bestRoute.service.id,
                 routes: [result.bestRoute],
             };
 
@@ -62,7 +63,7 @@ export async function findBestRoute(amount, walletAddress, fromToken, toToken) {
             bestRoute.toAmountUsd = result.bestRoute.toTokenAmount * (+result.bestRoute.toToken.price || +result.bestRoute.toToken.price);
             bestRoute.estimateTime += result.bestRoute.estimateTime;
             bestRoute.routes.push({ ...result.bestRoute, status: STATUSES.PENDING });
-
+            bestRoute.serviceId += `:${result.bestRoute.service.id}`;
             return bestRoute;
         };
 
@@ -91,6 +92,7 @@ export async function findBestRoute(amount, walletAddress, fromToken, toToken) {
                     fromTokenAmount: bestRoute.fromTokenAmount,
                     toTokenAmount: otherRoutes.toTokenAmount,
                     toAmountUsd: otherRoutes.toTokenAmount * usdPrice,
+                    serviceId: `${bestRoute.service.id}:${currentRouteInfo.service.id}`,
                 };
 
                 otherRoutesList.push(currentBestRoute);
@@ -106,7 +108,7 @@ export async function findBestRoute(amount, walletAddress, fromToken, toToken) {
                         result.bestRoute.toTokenAmount * (+result.bestRoute.toToken.price || +result.bestRoute.toToken.price);
 
                     route.estimateTime += result.bestRoute.estimateTime;
-
+                    route.serviceId += `:${result.bestRoute.service.id}`;
                     route.routes.push({ ...result.bestRoute, status: STATUSES.PENDING });
                     delete route.service;
                     delete route.fee;
@@ -267,6 +269,7 @@ async function findRoute(params) {
             if (BEST_LOW_FEE) {
                 const route = formatRouteInfo(bestRoute, params, bestRoute.service);
                 otherRoutes.push(route);
+
                 bestRoute = estimateResponse;
                 bestRoute.service = service;
             } else if (BEST_LOW_AMOUNT) {

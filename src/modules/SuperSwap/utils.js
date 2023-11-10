@@ -62,6 +62,7 @@ export const getFeeInfo = ({ fee }, { fromNetwork, fromToken }, { protocolFee })
 
 export const formatRouteInfo = (route, params, service) => ({
     ...route,
+    serviceId: service.id,
     routes: [
         {
             ...route,

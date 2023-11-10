@@ -1,7 +1,7 @@
 <template>
     <div class="superswap-panel">
         <RoutesModal v-if="isShowRoutesModal" @close="() => toggleRoutesModal(false)" />
-        <div class="reload-btn" :class="{ 'reload-btn__active': dstAmount && !isLoading }" @click="getEstimateInfo">
+        <div class="reload-btn" :class="{ 'reload-btn__active': dstAmount && !isLoading }" @click="() => getEstimateInfo(true)">
             <ReloadIcon />
         </div>
 
@@ -541,7 +541,7 @@ export default {
 
         // =================================================================================================================
 
-        const getEstimateInfo = async () => {
+        const getEstimateInfo = async (isReload = false) => {
             if (
                 !selectedSrcNetwork.value ||
                 !selectedSrcToken.value ||
@@ -575,6 +575,18 @@ export default {
                 resEstimate.bestRoute?.fromTokenAmount === srcAmount.value;
 
             if (checkRoute) {
+                if (isReload) {
+                    const isSameRoute = bestRoute.value.serviceId === resEstimate.bestRoute.serviceId;
+
+                    if (!isSameRoute && resEstimate.otherRoutes.length) {
+                        resEstimate.otherRoutes = resEstimate.otherRoutes.map((item) => {
+                            if (item.serviceId === bestRoute.value.serviceId) {
+                                [resEstimate.bestRoute, item] = [item, resEstimate.bestRoute];
+                            }
+                            return item;
+                        });
+                    }
+                }
                 store.dispatch('swap/setBestRoute', resEstimate);
                 currentRoute.value = resEstimate.bestRoute.routes.find((elem) => elem.status === STATUSES.SIGNING);
 
