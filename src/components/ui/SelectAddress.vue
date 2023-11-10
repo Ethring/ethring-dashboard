@@ -160,8 +160,6 @@ export default {
         border: 2px solid transparent;
         transition: 0.2s;
 
-        cursor: pointer;
-
         .recipient {
             @include pageFlexRow;
 
@@ -253,90 +251,6 @@ export default {
         .select-address__panel {
             border-color: var(--#{$prefix}danger-color);
             background: var(--#{$prefix}danger-op-01);
-        }
-    }
-
-    &__items {
-        z-index: 10;
-        background: var(--#{$prefix}white);
-        position: absolute;
-        left: 0;
-        top: 160px;
-        width: 100%;
-        min-height: 40px;
-        border-radius: 16px;
-        border: 2px solid var(--#{$prefix}select-active-border-color);
-        padding: 20px 25px;
-        box-sizing: border-box;
-        max-height: 430px;
-        overflow-y: auto;
-
-        &::-webkit-scrollbar {
-            width: 0px;
-            background-color: transparent;
-        }
-    }
-
-    &__items-item {
-        @include pageFlexRow;
-        justify-content: space-between;
-
-        min-height: 50px;
-        border-bottom: 1px dashed var(--#{$prefix}select-border-color);
-        cursor: pointer;
-
-        @include animateEasy;
-
-        &:hover {
-            .remove {
-                opacity: 1;
-            }
-        }
-
-        .remove {
-            opacity: 0.2;
-            fill: red;
-        }
-
-        &.active {
-            .info {
-                .address {
-                    color: var(--#{$prefix}black);
-                    font-weight: 600;
-                }
-            }
-        }
-
-        &:last-child {
-            border-bottom: 1px solid transparent;
-        }
-
-        &:hover {
-            .info {
-                .name {
-                    color: var(--#{$prefix}select-active-border-color);
-                }
-            }
-        }
-
-        .info {
-            @include pageFlexRow;
-
-            .name {
-                font-size: var(--#{$prefix}default-fs);
-                color: var(--#{$prefix}base-text);
-                font-weight: 400;
-            }
-        }
-
-        .info {
-            @include pageFlexRow;
-
-            .address {
-                font-size: var(--#{$prefix}default-fs);
-                color: var(--#{$prefix}black);
-                font-weight: 400;
-            }
         }
     }
 }
