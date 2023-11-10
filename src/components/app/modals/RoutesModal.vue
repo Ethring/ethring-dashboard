@@ -57,9 +57,9 @@ import Modal from '@/components/app/Modal';
 import Button from '@/components/ui/Button';
 
 import { prettyNumberTooltip } from '@/helpers/prettyNumber';
-import { checkAllowance } from '@/modules/SuperSwap/baseScript';
+// import { checkAllowance } from '@/modules/SuperSwap/baseScript';
 
-import useAdapter from '@/Adapter/compositions/useAdapter';
+// import useAdapter from '@/Adapter/compositions/useAdapter';
 
 export default {
     name: 'RoutesModal',
@@ -75,8 +75,6 @@ export default {
         const selectedRoute = ref(routeInfo.value.bestRoute);
         const isLoading = ref(false);
 
-        const { walletAddress } = useAdapter();
-
         const routes = computed(() => {
             return [routeInfo.value.bestRoute, ...routeInfo.value.otherRoutes];
         });
@@ -89,16 +87,6 @@ export default {
 
             isLoading.value = true;
 
-            for (let i = 0; i < selectedRoute.value.routes.length; i++) {
-                selectedRoute.value.routes[i].isNeedApprove = await checkAllowance(
-                    selectedRoute.value.routes[i].net,
-                    selectedRoute.value.routes[i].fromToken?.address,
-                    walletAddress.value,
-                    selectedRoute.value.routes[i].fromTokenAmount,
-                    selectedRoute.value.routes[i].fromToken?.decimals,
-                    selectedRoute.value.routes[i].service
-                );
-            }
             const data = {
                 bestRoute: selectedRoute.value,
                 otherRoutes: routeInfo.value.otherRoutes.map((elem) => {

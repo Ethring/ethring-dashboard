@@ -135,7 +135,7 @@ export default {
                     height: inherit;
                     width: inherit;
                     opacity: 0.1;
-                    background: #1a1d26;
+                    background: var(--#{$prefix}adapter-modal-close-color);
                     transition: 300ms ease-in-out opacity;
 
                     &:hover {
@@ -146,7 +146,7 @@ export default {
                 svg {
                     opacity: 0.6;
                     cursor: pointer;
-                    fill: #1a1d26;
+                    fill: var(--#{$prefix}adapter-modal-close-color);
 
                     &:hover {
                         opacity: 0.8;
