@@ -23,7 +23,7 @@
             :error="!!isBalanceError"
             :on-reset="resetSrcAmount"
             :disabled="!selectedSrcToken"
-            :label="$t('tokenOperations.send')"
+            :label="$t('tokenOperations.transferFrom')"
             :is-token-loading="isTokensLoadingForSrc"
             class="mt-10"
             @setAmount="onSetAmount"
@@ -37,8 +37,8 @@
             :value="selectedDstToken"
             :is-amount-loading="isEstimating"
             :is-token-loading="isTokensLoadingForDst"
-            :label="$t('tokenOperations.receive')"
-            :disabled-value="formatNumber(dstAmount)"
+            :label="$t('tokenOperations.transferTo')"
+            :disabled-value="dstAmount"
             :on-reset="resetDstAmount"
             class="mt-10"
             @clickToken="onSetDstToken"
@@ -298,7 +298,8 @@ export default {
                 !selectedSrcNetwork.value ||
                 !selectedSrcToken.value ||
                 !selectedDstNetwork.value ||
-                !selectedDstToken.value
+                !selectedDstToken.value ||
+                (isSendToAnotherAddress.value && (errorAddress.value || !receiverAddress.value))
         );
 
         // =================================================================================================================
@@ -486,9 +487,7 @@ export default {
             isEstimating.value = false;
             isLoading.value = false;
 
-            console.log('response', response);
-
-            dstAmount.value = response.toTokenAmount;
+            dstAmount.value = BigNumber(response.toTokenAmount).toFixed(6);
 
             estimateErrorTitle.value = '';
 

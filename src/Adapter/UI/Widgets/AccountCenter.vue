@@ -1,6 +1,6 @@
 <template>
-    <div class="wallet-adapter">
-        <div class="wallet-adapter__account" @click.stop="$emit('toggleDropdown')">
+    <div class="wallet-adapter" @click="$emit('toggleDropdown')">
+        <div class="wallet-adapter__account">
             <div class="wallet-adapter__logos">
                 <div class="logo-container main-logo">
                     <ZometLogo />
@@ -33,7 +33,6 @@
     </div>
 </template>
 <script>
-import { watch } from 'vue';
 import { CaretDownOutlined, CopyOutlined } from '@ant-design/icons-vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
@@ -50,12 +49,8 @@ export default {
     name: 'AccountCenter',
     components: { ModuleIcon, ZometLogo, CheckIcon, CaretDownOutlined, CopyOutlined },
     emits: ['toggleDropdown', 'closeDropdown'],
-    setup(_, { emit }) {
+    setup() {
         const { ecosystem, walletAddress, walletAccount, connectedWallet, connectedWallets, isConnecting, action } = useAdapter();
-
-        watch(connectedWallet, () => {
-            emit('closeDropdown');
-        });
 
         const handleOnCopyAddress = () => {
             action('SET_MODAL_ECOSYSTEM', ecosystem.value);

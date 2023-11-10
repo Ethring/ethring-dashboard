@@ -37,7 +37,7 @@ const SUPER_SWAP = {
     component: 'superSwapIcon',
     title: 'SuperSwap',
     key: 'superSwap',
-    to: '/superSwap',
+    to: '/super-swap',
     status: 'BETA',
     disabled: false,
 };

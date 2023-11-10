@@ -1,4 +1,4 @@
-import { ERRORS } from '@/shared/constants/superswap/constants';
+import { ERRORS } from '@/shared/constants/super-swap/constants';
 
 export const checkErrors = (error) => {
     if (error && error?.data && error?.data?.message) {
