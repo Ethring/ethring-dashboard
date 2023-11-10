@@ -1,20 +1,20 @@
 <template>
     <div class="tokens" :class="{ empty: isEmpty }">
-        <template v-if="allTokens.length > 0">
-            <div class="tokens__group">
+        <template v-if="tokensData.length > 0">
+            <div class="tokens__group" data-qa="tokens_group">
                 <AssetItemHeader
-                    v-if="allTokens.length"
+                    v-if="tokensData.length"
                     title="Tokens"
                     :value="getAssetsShare(assetsTotalBalances)"
                     :totalBalance="assetsTotalBalances"
                 />
                 <AssetItemSubHeader type="Asset" />
-                <AssetsTable :data-source="allTokens" />
+                <AssetsTable :data="tokensData" />
             </div>
         </template>
 
         <template v-if="allIntegrations.length > 0">
-            <div class="tokens__group" v-for="(item, i) in integrationAssetsByPlatform" :key="i">
+            <div class="tokens__group" data-qa="protocol_group" v-for="(item, i) in integrationAssetsByPlatform" :key="i">
                 <AssetItemHeader
                     v-if="item.data.length"
                     :logoURI="item.logoURI"
@@ -27,7 +27,7 @@
                 />
                 <div v-for="(groupItem, n) in item.data" :key="n">
                     <AssetItemSubHeader :type="getFormattedName(groupItem.type)" :name="groupItem?.validator?.name" />
-                    <AssetsTable :data-source="groupItem.balances" />
+                    <AssetsTable :data="groupItem.balances" />
                 </div>
             </div>
         </template>
@@ -86,6 +86,7 @@ export default {
         });
 
         const integrationAssetsByPlatform = ref(getIntegrationsGroupedByPlatform(allIntegrations.value));
+        const tokensData = ref([...allTokens.value]);
 
         const getAssetsShare = (balance) => {
             if (!balance || !totalBalances.value) {
@@ -100,20 +101,24 @@ export default {
         watch(isAllTokensLoading, () => {
             if (!isAllTokensLoading.value) {
                 integrationAssetsByPlatform.value = getIntegrationsGroupedByPlatform(allIntegrations.value);
+                tokensData.value = [...allTokens.value];
             }
         });
 
         watch(walletAccount, () => {
             integrationAssetsByPlatform.value = getIntegrationsGroupedByPlatform(allIntegrations.value);
+            tokensData.value = [...allTokens.value];
         });
 
         watch(isLoadingForChain, () => {
             if (!isLoadingForChain.value) {
                 integrationAssetsByPlatform.value = getIntegrationsGroupedByPlatform(allIntegrations.value);
+                tokensData.value = [...allTokens.value];
             }
         });
 
         return {
+            tokensData,
             isLoadingForChain,
             isAllTokensLoading,
 
