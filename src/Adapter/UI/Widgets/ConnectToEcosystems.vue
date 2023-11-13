@@ -19,7 +19,7 @@ export default {
         ConnectTo,
     },
 
-    setup() {
+    setup(_, { emit }) {
         const TO_CONNECT = [
             {
                 name: 'adapter.ethereumWallets',
@@ -36,6 +36,7 @@ export default {
         const { connectTo, action } = useAdapter();
 
         const connect = async (ecosystem = ECOSYSTEMS.EVM) => {
+            emit('closeDropdown');
             if (ecosystem === ECOSYSTEMS.COSMOS) {
                 return action('SET_MODAL_STATE', { name: 'wallets', isOpen: true });
             }

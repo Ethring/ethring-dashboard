@@ -86,6 +86,7 @@ export default {
         });
 
         const integrationAssetsByPlatform = ref(getIntegrationsGroupedByPlatform(allIntegrations.value));
+        // TODO: data should be reactive
         const tokensData = ref([...allTokens.value]);
 
         const getAssetsShare = (balance) => {
