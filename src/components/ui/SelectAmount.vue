@@ -7,7 +7,7 @@
                     <template v-if="isTokenLoading">
                         <a-space>
                             <a-skeleton-avatar active />
-                            <a-skeleton-input active />
+                            <a-skeleton-input active size="small" />
                         </a-space>
                     </template>
                     <template v-else>
@@ -23,7 +23,7 @@
                 </div>
 
                 <template v-if="isAmountLoading">
-                    <a-skeleton-input active class="input-balance" />
+                    <a-skeleton-input active class="input-balance" size="small" />
                 </template>
 
                 <template v-else>
@@ -47,7 +47,7 @@
             <div class="balance" :class="{ disabled, error }" @click.stop="setMax">
                 <div class="balance-value">
                     <template v-if="isTokenLoading">
-                        <a-skeleton-input active />
+                        <a-skeleton-input active size="small" />
                     </template>
                     <template v-else>
                         <p class="balance-value">
@@ -61,7 +61,7 @@
                 </div>
                 <div class="balance-price">
                     <template v-if="isAmountLoading">
-                        <a-skeleton-input active />
+                        <a-skeleton-input active size="small" />
                     </template>
                     <template v-else> <span>$</span>{{ payTokenPrice }} </template>
                 </div>
@@ -190,10 +190,11 @@ export default {
         watch(
             () => props.value,
             (tkn, oldTkn) => {
+                console.log(tkn, oldTkn, '--tkn, oldTkn');
                 if (tkn?.id === oldTkn?.id || tkn?.address === oldTkn?.address) {
                     return;
                 }
-
+                console.log('----1');
                 if (tkn) {
                     setToken(tkn);
                     amount.value = '';

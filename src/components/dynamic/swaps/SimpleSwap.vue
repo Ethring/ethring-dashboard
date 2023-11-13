@@ -164,7 +164,7 @@ export default {
             module,
             moduleType: 'swap',
         });
-
+        console.log(selectedSrcToken, '--selectedSrcToken');
         // =================================================================================================================
 
         const allowanceForToken = computed(() => {

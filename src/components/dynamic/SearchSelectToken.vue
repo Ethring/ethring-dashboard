@@ -162,7 +162,7 @@ export default {
             if (selectType.value === TOKEN_SELECT_TYPES.TO) {
                 selectedTokenTo.value = item;
             }
-
+            console.log(item, selectType.value, '----2');
             return router.push(router.options.history.state.back);
         };
 
