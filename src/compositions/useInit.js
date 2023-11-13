@@ -9,7 +9,6 @@ import BigNumber from 'bignumber.js';
 import IndexedDBService from '@/modules/indexedDb';
 
 import { getTotalFuturesBalance, BALANCES_TYPES } from '@/shared/utils/assets';
-import { sortByKey } from '@/helpers/utils';
 
 // =================================================================================================================
 
@@ -80,7 +79,6 @@ const formatRecords = (records, { chain, logo }) => {
         } else {
             record.id = `${chain}:asset__${record.address}:${record.symbol}`;
         }
-
         record.chainLogo = logo;
         record.chain = chain;
     }
@@ -211,7 +209,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
 
             store.dispatch('tokens/setGroupTokens', { chain, account, data: { list: tokens } });
 
-            store.dispatch('tokens/setDataFor', { type: 'tokens', account, data: sortByKey(allTokens, 'balanceUsd') });
+            store.dispatch('tokens/setDataFor', { type: 'tokens', account, data: allTokens });
 
             store.dispatch('tokens/setDataFor', { type: 'integrations', account, data: allIntegrations });
 
