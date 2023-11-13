@@ -54,7 +54,7 @@ export default {
 .collapse {
     background: var(--#{$prefix}select-bg-color);
     border-radius: 8px;
-    margin: 10px 0 14px;
+    margin: 10px 0 10px;
     position: relative;
 
     &__content {
@@ -64,7 +64,7 @@ export default {
     }
 
     &__header {
-        padding: 16px 24px;
+        padding: 12px 16px;
         @include pageFlexRow;
         justify-content: space-between;
     }

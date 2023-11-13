@@ -154,8 +154,9 @@ export default {
         display: flex;
         flex-direction: column;
         background: var(--#{$prefix}select-bg-color);
-        border-radius: 16px;
-        padding: 16px 24px;
+        border-radius: 8px;
+        padding: 12px 16px;
+        height: 80px;
         box-sizing: border-box;
         border: 2px solid transparent;
         transition: 0.2s;
@@ -164,7 +165,7 @@ export default {
             @include pageFlexRow;
 
             color: var(--#{$prefix}select-label-color);
-            font-weight: 600;
+            font-weight: 500;
             height: 32px;
             max-height: 32px;
         }
@@ -183,7 +184,6 @@ export default {
             @include pageFlexRow;
 
             width: 95%;
-            margin-top: 8px;
         }
 
         .input-address {
@@ -192,7 +192,7 @@ export default {
             outline: none;
             background: transparent;
             font-size: var(--#{$prefix}h6-fs);
-            font-weight: 500;
+            font-weight: 400;
             color: var(--#{$prefix}primary-text);
         }
 
@@ -201,12 +201,12 @@ export default {
             justify-content: center;
             align-items: center;
 
-            width: 40px;
-            min-width: 40px;
-            height: 40px;
+            width: 32px;
+            min-width: 32px;
+            height: 32px;
 
             border-radius: 50%;
-            margin-right: 10px;
+            margin-right: 6px;
 
             &-logo {
                 width: 80%;

@@ -4,8 +4,7 @@
             <SearchIcon />
         </div>
         <div>
-            <span>{{ $t('dashboard.search') }}</span>
-            <input @focus="isActive = 'active'" @blur="isActive = ''" v-model="text" placeholder="Token name" />
+            <input @focus="isActive = 'active'" @blur="isActive = ''" v-model="text" placeholder="Search" />
         </div>
         <div v-if="text.length" class="search-input__clear" @click="clearValue">
             <ClearIcon />
@@ -47,21 +46,17 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$padding-tb: 20px;
-$padding-lr: 32px;
-
 .search-input {
     position: relative;
 
     @include pageFlexRow;
 
-    height: 100%;
-    max-height: 100px;
+    height: 80px;
 
-    padding: $padding-tb $padding-lr;
+    padding: 16px;
 
-    border: 2px solid var(--#{$prefix}white);
-    border-radius: 16px;
+    border: 1px solid var(--#{$prefix}white);
+    border-radius: 8px;
 
     background: var(--#{$prefix}select-bg-color);
 
@@ -95,7 +90,7 @@ $padding-lr: 32px;
 
     &__clear {
         position: absolute;
-        right: $padding-lr;
+        right: 16px;
 
         top: 0;
         bottom: 0;
@@ -118,7 +113,7 @@ $padding-lr: 32px;
     input {
         font-style: normal;
         font-weight: 600;
-        font-size: var(--#{$prefix}h4-fs);
+        font-size: var(--#{$prefix}h5-fs);
 
         color: var(--#{$prefix}primary-text);
 
@@ -129,8 +124,8 @@ $padding-lr: 32px;
 }
 
 .active {
-    background: var(--#{$prefix}select-bg-color);
-    border: 2px solid var(--#{$prefix}sub-text);
+    background: var(--#{$prefix}main-background);
+    border: 1px solid var(--#{$prefix}sub-text);
 
     .search-input__logo {
         background: var(--#{$prefix}btn-bg-color-hover);

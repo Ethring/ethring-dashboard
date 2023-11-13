@@ -103,10 +103,10 @@ export default {
     justify-content: space-between;
 
     border: 1px solid var(--#{$prefix}border-secondary-color);
+    height: 56px;
+    padding: 12px;
 
-    padding: 12px 16px;
-
-    border-radius: 16px;
+    border-radius: 8px;
 
     &:not(:last-child) {
         margin-bottom: 8px;
@@ -124,38 +124,13 @@ export default {
         justify-content: center;
     }
 
-    // h3,
-    // h5 {
-    //     font-style: normal;
-    //     font-weight: 600;
-    //     font-size: var(--#{$prefix}h5-fs);
-    //     text-align: right;
-    //     margin: 0;
-    //     color: var(--#{$prefix}primary-text);
-    // }
-
-    // span {
-    //     font-size: var(--#{$prefix}default-fs);
-    //     font-weight: 400;
-    //     color: var(--#{$prefix}secondary-text);
-    // }
-
-    // h5 {
-    //     font-size: var(--#{$prefix}small-lg-fs);
-    //     color: var(--#{$prefix}primary-text);
-    //     span {
-    //         font-size: var(--#{$prefix}small-sm-fs);
-    //         font-weight: 400;
-    //     }
-    // }
-
     .info {
         display: flex;
         flex-direction: column;
         justify-content: center;
 
         .top {
-            font-weight: 500;
+            font-weight: 600;
             font-size: var(--#{$prefix}h6-fs);
             text-transform: uppercase;
             color: var(--#{$prefix}primary-text);
@@ -175,7 +150,7 @@ export default {
             .name {
                 font-style: normal;
                 font-weight: 400;
-                font-size: var(--#{$prefix}small-lg-fs);
+                font-size: var(--#{$prefix}small-sm-fs);
                 color: var(--#{$prefix}sub-text);
                 margin-right: 8px;
             }
@@ -183,7 +158,7 @@ export default {
             .link {
                 font-style: normal;
                 font-weight: 400;
-                font-size: var(--#{$prefix}small-lg-fs);
+                font-size: var(--#{$prefix}small-sm-fs);
 
                 color: var(--#{$prefix}sub-text);
 
@@ -191,8 +166,8 @@ export default {
                 align-items: center;
 
                 svg {
-                    width: 18px;
-                    height: 18px;
+                    width: 14px;
+                    height: 14px;
                     margin-left: 4px;
                     fill: var(--#{$prefix}sub-text);
 
@@ -224,21 +199,25 @@ export default {
         align-items: flex-end;
 
         .in-currency > span {
-            font-weight: 500;
-            font-size: var(--#{$prefix}default-fs);
+            font-weight: 600;
+            font-size: var(--#{$prefix}h6-fs);
             color: var(--#{$prefix}primary-text);
         }
 
-        .in-usd > span {
-            font-size: var(--#{$prefix}small-lg-fs);
-            font-weight: 400;
+        .in-usd {
+            font-size: var(--#{$prefix}small-md-fs);
+            font-weight: 500;
 
             color: var(--#{$prefix}mute-text);
+            .symbol {
+                font-weight: 300;
+            }
         }
 
         span.symbol {
-            font-size: var(--#{$prefix}small-sm-fs);
+            font-size: var(--#{$prefix}small-lg-fs);
             color: var(--#{$prefix}mute-text);
+            font-weight: 400;
         }
 
         p:not(:last-child) {

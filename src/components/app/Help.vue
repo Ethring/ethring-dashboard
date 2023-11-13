@@ -47,8 +47,8 @@ export default {
     @include pageFlexRow;
 
     &__item {
-        width: 40px;
-        height: 40px;
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
 
         @include pageFlexRow;

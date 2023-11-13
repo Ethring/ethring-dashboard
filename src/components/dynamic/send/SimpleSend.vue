@@ -7,7 +7,7 @@
             :items="[]"
             :value="receiverAddress"
             :error="!!isAddressError"
-            class="mt-10"
+            class="mt-8"
             :on-reset="clearAddress"
             @setAddress="onSetAddress"
         />
@@ -18,7 +18,7 @@
             :label="$t('tokenOperations.asset')"
             :on-reset="clearAddress || resetAmount"
             :is-token-loading="isTokensLoadingForChain"
-            class="mt-10"
+            class="mt-8"
             @setAmount="onSetAmount"
             @clickToken="onSetToken"
         />
@@ -27,7 +27,7 @@
             :title="$t(opTitle)"
             :disabled="!!disabledSend"
             :loading="isWaitingTxStatusForModule || isLoading"
-            class="simple-send__btn mt-10"
+            class="simple-send__btn mt-8"
             data-qa="confirm"
             @click="handleOnSend"
             size="large"
@@ -315,12 +315,11 @@ export default {
 .simple-send {
     width: 660px;
 
-    .mt-10 {
-        margin-top: 10px;
+    .mt-8 {
+        margin-top: 8px;
     }
 
     &__btn {
-        height: 64px;
         width: 100%;
     }
 }

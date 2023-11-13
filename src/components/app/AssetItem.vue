@@ -161,7 +161,7 @@ export default {
         }
 
         .name {
-            font-size: var(--#{$prefix}default-fs);
+            font-size: var(--#{$prefix}h6-fs);
             color: var(--#{$prefix}primary-text);
             font-weight: 400;
             margin-left: 8px;

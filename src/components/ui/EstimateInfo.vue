@@ -111,10 +111,10 @@ export default {
 
 <style lang="scss" scoped>
 .estimate-info {
-    margin-top: 20px;
+    margin-top: 8px;
     background-color: var(--#{$prefix}accordion-bg-color);
     border: 1px solid var(--#{$prefix}accordion-border-color);
-    border-radius: 16px;
+    border-radius: 8px;
 
     .top-block {
         display: flex;
@@ -130,11 +130,6 @@ export default {
         .error {
             font-weight: 600;
             color: var(--#{$prefix}warning);
-        }
-    }
-    .fees {
-        > div:not(:last-child) {
-            margin-bottom: 10px;
         }
     }
 }

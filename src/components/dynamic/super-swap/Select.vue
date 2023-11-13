@@ -274,8 +274,8 @@ export default {
         width: 100%;
         height: 288px;
         background-color: var(--#{$prefix}select-dropdown-bg-color);
-        border-radius: 16px;
-        border: 2px solid var(--#{$prefix}select-active-border-color);
+        border-radius: 8px;
+        border: 1px solid var(--#{$prefix}select-active-border-color);
 
         &-list {
             width: 102%;

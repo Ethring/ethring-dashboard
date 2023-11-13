@@ -194,9 +194,9 @@ export default {
 .swap-field {
     position: relative;
     background: var(--#{$prefix}select-bg-color);
-    border-radius: 16px;
-    height: 160px;
-    padding: 16px 24px;
+    border-radius: 8px;
+    height: 150px;
+    padding: 12px 16px;
     box-sizing: border-box;
     border: 2px solid transparent;
     cursor: pointer;
@@ -212,8 +212,8 @@ export default {
 
     .label {
         color: var(--#{$prefix}select-label-color);
-        font-size: var(--#{$prefix}h5-fs);
-        font-weight: 600;
+        font-size: var(--#{$prefix}h6-fs);
+        font-weight: 500;
         cursor: default;
     }
 
@@ -223,7 +223,7 @@ export default {
         border: none;
         outline: none;
         background-color: transparent;
-        font-size: var(--#{$prefix}h3-fs);
+        font-size: var(--#{$prefix}h4-fs);
         font-weight: 600;
         height: 38px;
         color: var(--#{$prefix}primary-text);

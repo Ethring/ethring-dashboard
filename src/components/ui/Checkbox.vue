@@ -106,8 +106,8 @@ input[type='checkbox'] {
         @include pageFlexRow;
         justify-content: center;
 
-        width: 32px;
-        height: 32px;
+        width: 24px;
+        height: 24px;
 
         background: var(--#{$prefix}checkbox-bg-color);
         border-radius: 4px;

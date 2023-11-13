@@ -62,15 +62,15 @@ export default {
 
 .send-page__title {
     color: var(--#{$prefix}base-text);
-    font-size: var(--#{$prefix}h1-fs);
+    font-size: var(--#{$prefix}h3-fs);
     font-weight: 600;
-    margin-bottom: 30px;
+    margin-bottom: 18px;
     text-decoration: none;
 
     &__active {
-        font-size: var(--#{$prefix}h1-fs);
+        font-size: var(--#{$prefix}h3-fs);
         font-weight: 600;
-        margin-bottom: 30px;
+        margin-bottom: 18px;
         text-decoration: none;
         color: var(--#{$prefix}primary-text);
     }

@@ -87,7 +87,7 @@ export default {
     flex-direction: column;
     box-sizing: border-box;
 
-    font-size: var(--#{$prefix}h3-fs);
+    font-size: var(--#{$prefix}h5-fs);
 
     &__item {
         @include pageFlexRow;
@@ -143,7 +143,7 @@ export default {
         margin-left: 10px;
 
         font-weight: 300;
-        font-size: 20px;
+        font-size: var(--#{$prefix}h5-fs);
 
         display: flex;
         align-items: flex-start;
@@ -151,7 +151,7 @@ export default {
 
     &__item-status {
         color: var(--#{$prefix}sidebar-active-color);
-        font-size: 12px;
+        font-size: var(--#{$prefix}small-sm-fs);
         font-weight: 600;
 
         margin-left: 6px;

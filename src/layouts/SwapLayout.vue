@@ -17,9 +17,9 @@ export default {
 .swap-page {
     &__title {
         color: var(--#{$prefix}primary-text);
-        font-size: var(--#{$prefix}h1-fs);
+        font-size: var(--#{$prefix}h3-fs);
         font-weight: 600;
-        margin-bottom: 30px;
+        margin-bottom: 18px;
     }
 }
 </style>

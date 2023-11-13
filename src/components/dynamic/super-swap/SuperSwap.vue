@@ -1040,7 +1040,7 @@ export default {
         justify-content: center;
         position: absolute;
         left: 120px;
-        top: 138px;
+        top: 126px;
         z-index: 5;
         height: 54px;
         width: 54px;
@@ -1062,7 +1062,7 @@ export default {
         justify-content: center;
         position: absolute;
         cursor: not-allowed;
-        top: -60px;
+        top: -56px;
         right: 0;
         height: 40px;
         width: 40px;
@@ -1129,8 +1129,8 @@ export default {
     .routes {
         @include pageFlexRow;
         padding: 12px 0;
-        width: 94%;
-        margin-left: 24px;
+        width: 96%;
+
         border-top: 2px solid var(--#{$prefix}collapse-border-color);
 
         div {
@@ -1142,7 +1142,6 @@ export default {
             height: 24px;
             margin-right: 8px;
             border-radius: 50%;
-            border: 2px solid var(--#{$prefix}banner-logo-color);
         }
 
         .name {

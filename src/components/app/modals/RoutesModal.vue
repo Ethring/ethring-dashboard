@@ -57,9 +57,6 @@ import Modal from '@/components/app/Modal';
 import Button from '@/components/ui/Button';
 
 import { prettyNumberTooltip } from '@/helpers/prettyNumber';
-// import { checkAllowance } from '@/modules/SuperSwap/baseScript';
-
-// import useAdapter from '@/Adapter/compositions/useAdapter';
 
 export default {
     name: 'RoutesModal',
@@ -156,21 +153,20 @@ export default {
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
-    padding: 8px 0;
 
     .mr-20 {
         margin-right: 20px !important;
     }
 
     &__item {
-        border-radius: 20px;
+        border-radius: 16px;
         padding: 16px;
         width: 100%;
 
         @include pageFlexRow;
         justify-content: space-between;
 
-        margin-bottom: 16px;
+        margin-bottom: 12px;
 
         background-color: var(--#{$prefix}modal-block-bg-color);
         border: 1px solid var(--#{$prefix}modal-block-bg-color);
@@ -227,7 +223,6 @@ export default {
     }
 
     &__btn {
-        height: 64px;
         width: 100%;
     }
 

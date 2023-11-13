@@ -4,7 +4,7 @@
 
         <div class="simple-swap__switch-wrap">
             <SelectAmount
-                class="mt-10"
+                class="mt-8"
                 :value="selectedSrcToken"
                 :error="!!isBalanceError"
                 :on-reset="resetSrcAmount"
@@ -20,7 +20,7 @@
             </div>
 
             <SelectAmount
-                class="mt-10"
+                class="mt-8"
                 disabled
                 hide-max
                 :is-token-loading="isTokensLoadingForChain"
@@ -48,7 +48,7 @@
             :title="$t(opTitle)"
             :disabled="!!disabledSwap"
             :loading="isWaitingTxStatusForModule || isLoading"
-            class="simple-swap__btn mt-10"
+            class="simple-swap__btn mt-8"
             @click="handleOnSwap"
             size="large"
         />
@@ -788,6 +788,10 @@ export default {
 .simple-swap {
     width: 660px;
 
+    .mt-8 {
+        margin-top: 8px;
+    }
+
     &__switch-wrap {
         position: relative;
     }
@@ -807,13 +811,16 @@ export default {
 
         border-radius: 50%;
         left: calc(50% - 24px);
-        bottom: 138px;
+        bottom: 102px;
 
         background: var(--#{$prefix}select-bg-color);
-        border: 4px solid var(--#{$prefix}white);
+        border: 4px solid var(--#{$prefix}main-background);
 
         svg {
             @include animateEasy;
+            path {
+                fill: var(--#{$prefix}eye-logo-hover);
+            }
         }
 
         &:not(.disabled):hover {
@@ -832,10 +839,6 @@ export default {
             pointer-events: none;
             opacity: 0.5;
         }
-    }
-
-    .mt-10 {
-        margin-top: 10px;
     }
 
     &__btn {

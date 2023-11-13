@@ -340,9 +340,9 @@ export default {
         flex-direction: column;
         justify-content: space-between;
         background: var(--#{$prefix}select-bg-color);
-        border-radius: 16px;
-        height: 160px;
-        padding: 16px 24px;
+        border-radius: 8px;
+        height: 120px;
+        padding: 12px 16px;
         box-sizing: border-box;
         border: 2px solid transparent;
 
@@ -354,7 +354,7 @@ export default {
             @include pageFlexRow;
 
             color: var(--#{$prefix}select-label-color);
-            font-weight: 600;
+            font-weight: 500;
             max-height: 32px;
             height: 32px;
         }
@@ -369,7 +369,7 @@ export default {
             &-value,
             &-price {
                 color: var(--#{$prefix}base-text);
-                font-size: var(--#{$prefix}small-lg-fs);
+                font-size: var(--#{$prefix}small-md-fs);
             }
 
             &-value {
@@ -415,7 +415,7 @@ export default {
         }
 
         .token {
-            font-size: var(--#{$prefix}h2-fs);
+            font-size: var(--#{$prefix}h4-fs);
             font-weight: 600;
             color: var(--#{$prefix}select-item-secondary-color);
             margin-right: 10px;
@@ -432,13 +432,13 @@ export default {
         }
 
         .input-balance {
-            width: 75%;
+            width: 80%;
             text-align: right;
             min-width: 100px;
             border: none;
             outline: none;
             background: transparent;
-            font-size: var(--#{$prefix}h2-fs);
+            font-size: var(--#{$prefix}h4-fs);
             font-weight: 600;
             color: var(--#{$prefix}primary-text);
 
@@ -471,7 +471,7 @@ export default {
 
             border-radius: 50%;
 
-            margin-right: 10px;
+            margin-right: 8px;
 
             svg {
                 fill: var(--#{$prefix}black);

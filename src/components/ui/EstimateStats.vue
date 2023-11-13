@@ -59,7 +59,7 @@ export default {
     color: var(--#{$prefix}primary-text);
 
     .title {
-        font-weight: 600;
+        font-weight: 500;
         color: var(--#{$prefix}accordion-label-color);
         margin-right: 10px;
     }

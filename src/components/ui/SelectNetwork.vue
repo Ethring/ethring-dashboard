@@ -109,11 +109,11 @@ export default {
         @include pageFlexRow;
         justify-content: space-between;
         background: var(--#{$prefix}select-bg-color);
-        border-radius: 16px;
+        border-radius: 8px;
         height: 80px;
-        padding: 16px 24px;
+        padding: 12px 16px;
         box-sizing: border-box;
-        border: 2px solid transparent;
+        border: 1px solid transparent;
         cursor: pointer;
 
         transition: 0.2s;
@@ -154,7 +154,7 @@ export default {
         }
 
         .name {
-            font-size: var(--#{$prefix}h2-fs);
+            font-size: var(--#{$prefix}h4-fs);
             font-weight: 600;
             color: var(--#{$prefix}select-item-color);
             line-height: 40px;
@@ -170,6 +170,7 @@ export default {
         .label {
             color: var(--#{$prefix}select-label-color);
             font-size: var(--#{$prefix}small-lg-fs);
+            line-height: 20px;
             font-weight: 500;
             user-select: none;
         }
@@ -214,10 +215,10 @@ export default {
 
         width: 100%;
 
-        min-height: 40px;
+        min-height: 32px;
 
-        border: 2px solid var(--#{$prefix}select-active-border-color);
-        border-radius: 0 0 16px 16px;
+        border: 1px solid var(--#{$prefix}select-active-border-color);
+        border-radius: 0 0 8px 8px;
 
         border-top: none;
 
@@ -225,7 +226,7 @@ export default {
         transform-origin: top;
         transition: transform 0.2s ease;
 
-        padding: 20px 32px;
+        padding: 16px 16px 4px;
         box-sizing: border-box;
 
         max-height: 380px;
@@ -265,7 +266,7 @@ export default {
 
         @include pageFlexRow;
         justify-content: space-between;
-        min-height: 60px;
+        min-height: 56px;
         border-bottom: 1px dashed var(--#{$prefix}border-secondary-color);
         cursor: pointer;
         @include animateEasy;
@@ -280,18 +281,18 @@ export default {
 
                 width: 32px;
                 height: 32px;
-                background-color: var(--#{$prefix}icon-secondary-bg-color);
+
                 border-radius: 50%;
                 @include pageFlexRow;
                 justify-content: center;
 
-                margin-right: 16px;
+                margin-right: 10px;
 
                 img {
                     width: 100%;
                     height: 100%;
-                    max-width: 20px;
-                    max-height: 20px;
+                    max-width: 24px;
+                    max-height: 24px;
                 }
             }
         }
@@ -301,9 +302,6 @@ export default {
                 .name {
                     color: var(--#{$prefix}select-item-active-color);
                     font-weight: 600;
-                }
-                .icon {
-                    background-color: var(--#{$prefix}icon-secondary-bg-hover);
                 }
             }
         }
@@ -317,10 +315,6 @@ export default {
                 .name {
                     color: var(--#{$prefix}sub-text);
                 }
-
-                .icon {
-                    background-color: var(--#{$prefix}icon-secondary-bg-hover);
-                }
             }
             .select__items-item-logo {
                 transition: 0.5s;
@@ -332,7 +326,7 @@ export default {
             @include pageFlexRow;
 
             .name {
-                font-size: var(--#{$prefix}default-fs);
+                font-size: var(--#{$prefix}h6-fs);
                 color: var(--#{$prefix}base-text);
                 font-weight: 400;
             }

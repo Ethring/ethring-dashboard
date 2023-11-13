@@ -25,7 +25,7 @@
             :disabled="!selectedSrcToken"
             :label="$t('tokenOperations.transferFrom')"
             :is-token-loading="isTokensLoadingForSrc"
-            class="mt-10"
+            class="mt-8"
             @setAmount="onSetAmount"
             @clickToken="onSetSrcToken"
         />
@@ -40,7 +40,7 @@
             :label="$t('tokenOperations.transferTo')"
             :disabled-value="dstAmount"
             :on-reset="resetDstAmount"
-            class="mt-10"
+            class="mt-8"
             @clickToken="onSetDstToken"
         />
 
@@ -49,7 +49,7 @@
             id="isSendToAnotherAddress"
             v-model:value="isSendToAnotherAddress"
             :label="`Receive ${selectedDstToken?.symbol} to another wallet`"
-            class="mt-10"
+            class="mt-8"
         />
 
         <SelectAddress
@@ -57,7 +57,7 @@
             :selected-network="selectedDstNetwork"
             :error="!!errorAddress"
             placeholder="0x..."
-            class="mt-10"
+            class="mt-8"
             :value="receiverAddress"
             :on-reset="clearAddress"
             @setAddress="onSetAddress"
@@ -77,7 +77,7 @@
             :title="$t(opTitle)"
             :disabled="!!disabledBtn"
             :loading="isWaitingTxStatusForModule || isLoading"
-            class="simple-bridge__btn mt-10"
+            class="simple-bridge__btn mt-8"
             @click="handleOnConfirm"
             size="large"
         />
@@ -980,8 +980,8 @@ export default {
 .simple-bridge {
     width: 660px;
 
-    .mt-10 {
-        margin-top: 10px;
+    .mt-8 {
+        margin-top: 8px;
     }
 
     .select-group {
