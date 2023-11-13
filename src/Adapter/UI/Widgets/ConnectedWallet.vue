@@ -1,48 +1,39 @@
 <template>
     <div class="connected-wallet" @click="handleOnClickConnectedWallet(wallet)">
         <div class="left-side">
-            <ModuleIcon :ecosystem="wallet.ecosystem" :module="wallet.walletModule" />
+            <div class="change-network-logo">
+                <img :src="chainInfo.logo" alt="current-chain-logo" />
+            </div>
             <div class="account-name">
                 {{ cutAddress(wallet.account, 10, 4) }}
             </div>
         </div>
 
         <div class="right-side">
-            <div class="change-network">
-                <div class="change-network-logo">
-                    <img :src="chainInfo.logo" alt="current-chain-logo" />
-                </div>
-                <select v-model="selectedChain" @change="handleSelectedChainChange">
-                    <option v-for="chain in chainList" :key="chain" :selected="chain.chain_id === wallet.chain" :value="chain.chain_id">
-                        {{ chain.name }}
-                    </option>
-                </select>
-            </div>
-
             <div class="more-options">
                 <a-dropdown>
                     <a class="ant-dropdown-link" @click.prevent>
-                        <MoreOutlined />
+                        <MoreOutlined class="more-options-icon" />
                     </a>
                     <template #overlay>
                         <a-menu class="wallet__options">
-                            <a-menu-item
-                                key="copy-address"
-                                @click="() => handleOnCopyAddress(wallet.ecosystem)"
-                                class="wallet__options-item"
-                            >
-                                <CopyOutlined />
-                                {{ $t('adapter.copyAddress') }}
-                            </a-menu-item>
+                            <div key="copy-address" @click="() => handleOnCopyAddress(wallet.ecosystem)" class="wallet__options-item">
+                                <div class="wallet__options-item-icon copy">
+                                    <CopyIcon />
+                                </div>
+                                <div>{{ $t('adapter.copyAddress') }}</div>
+                            </div>
 
-                            <a-menu-item
+                            <div
                                 key="disconnect-account"
                                 @click="() => handleOnDisconnectAccount(wallet.ecosystem, wallet)"
                                 class="wallet__options-item"
                             >
-                                <DisconnectOutlined />
-                                {{ $t('adapter.disconnectAccount') }}
-                            </a-menu-item>
+                                <div class="wallet__options-item-icon disconnect">
+                                    <DisconnectIcon />
+                                </div>
+                                <div class="wallet__options-item-label disconnect">{{ $t('adapter.disconnectAccount') }}</div>
+                            </div>
                         </a-menu>
                     </template>
                 </a-dropdown>
@@ -53,11 +44,12 @@
 
 <script>
 import { computed, ref, watch } from 'vue';
-import { MoreOutlined, CopyOutlined, DisconnectOutlined } from '@ant-design/icons-vue';
+import { MoreOutlined } from '@ant-design/icons-vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
-import ModuleIcon from '@/Adapter/UI/Entities/ModuleIcon.vue';
+import DisconnectIcon from '@/assets/icons/app/clear.svg';
+import CopyIcon from '@/assets/icons/app/copy.svg';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
@@ -66,10 +58,9 @@ import { cutAddress } from '@/helpers/utils';
 export default {
     name: 'ConnectedWallet',
     components: {
-        ModuleIcon,
+        DisconnectIcon,
+        CopyIcon,
         MoreOutlined,
-        CopyOutlined,
-        DisconnectOutlined,
     },
     props: {
         wallet: {
@@ -171,18 +162,22 @@ export default {
 
 <style lang="scss">
 .connected-wallet {
-    border: 1px solid var(--#{$prefix}adapter-border-color);
-    border-radius: 16px;
-    padding: 8px;
-    cursor: pointer;
-    max-height: 48px;
-
-    font-size: 14px;
-
     @include pageFlexRow;
     justify-content: space-between;
 
+    background: var(--#{$prefix}adapter-logo-main-color);
+    border-radius: 16px;
+    padding: 8px;
+
+    cursor: pointer;
+
+    max-height: 48px;
+
+    font-size: var(--#{$prefix}small-lg-fs);
+
     transition: 0.2s;
+
+    margin-top: 8px;
 
     & > div {
         @include pageFlexRow;
@@ -190,7 +185,7 @@ export default {
 
         .account-name {
             margin-left: 8px;
-            color: var(--#{$prefix}primary-text);
+            color: var(--#{$prefix}adapter-value-text);
         }
 
         .change-network {
@@ -204,38 +199,79 @@ export default {
                 width: 20px;
                 height: 20px;
                 border-radius: 50%;
+
                 img {
                     width: 100%;
                     height: 100%;
                     border-radius: inherit;
                 }
             }
-
-            select {
-                width: 100%;
-                min-width: 80px;
-                max-width: 80px;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                border: none;
-                background-color: transparent;
-                font-size: 12px;
-                font-weight: 500;
-                outline: none;
-                margin-right: 5px;
-                color: var(--#{$prefix}primary-text);
-            }
         }
     }
 }
-.more-options {
-    margin-left: 8px;
+
+.more-options-icon {
+    color: var(--#{$prefix}adapter-more-option);
+    font-size: 26px;
 }
 
 .wallet__options {
+    background: var(--#{$prefix}main-background) !important;
+    padding: 12px 0 !important;
+
+    color: var(--#{$prefix}primary-text);
+    font-size: var(--#{$prefix}small-lg-fs);
+    font-weight: 400;
+
     &-item {
-        .ant-dropdown-menu-title-content {
-            color: var(--#{$prefix}black) !important;
+        @include pageFlexRow;
+
+        cursor: pointer;
+
+        padding: 4px 16px;
+
+        &-icon {
+            @include pageFlexRow;
+            justify-content: center;
+
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+
+            margin-right: 8px;
+
+            &.copy {
+                background: var(--#{$prefix}adapter-not-connected-bg);
+
+                svg {
+                    width: 12px;
+                    height: 12px;
+                }
+            }
+
+            &.disconnect {
+                background: var(--#{$prefix}danger-op-01);
+
+                svg {
+                    width: 16px;
+                    height: 16px;
+                }
+            }
+        }
+
+        &-label {
+            &.disconnect {
+                color: var(--#{$prefix}danger) !important;
+            }
+        }
+
+        &:not(:last-child) {
+            margin-bottom: 8px;
+        }
+
+        &:hover {
+            background: var(--#{$prefix}adapter-logo-main-color);
+            border-radius: 4px;
         }
     }
 }

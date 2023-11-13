@@ -1,8 +1,8 @@
 <template lang="">
-    <a-menu-item-group key="ecosystems" :title="$t('adapter.ecosystemsGroup')">
-        <a-menu-item :key="record.ecosystem" v-for="record in TO_CONNECT">
+    <a-menu-item-group key="ecosystems">
+        <div :key="record.ecosystem" v-for="record in TO_CONNECT">
             <ConnectTo :name="$t(record.name)" :connect="() => connect(record.ecosystem)" :logos="record.logos" />
-        </a-menu-item>
+        </div>
     </a-menu-item-group>
 </template>
 

@@ -33,20 +33,33 @@ export default {
 
         const ecosystem = computed(() => store.getters['adapters/getModalEcosystem']);
 
-        const { getAddressesWithChainsByEcosystem, getChainListByEcosystem } = useAdapter();
+        const { getAddressesWithChainsByEcosystem, getChainListByEcosystem, connectedWallets } = useAdapter();
 
         const chainList = ref([]);
         const addressesWithChains = ref([]);
 
         onUpdated(() => {
             addressesWithChains.value = getAddressesWithChainsByEcosystem(ecosystem.value);
-            chainList.value = getChainListByEcosystem(ecosystem.value);
+
+            if (ecosystem.value === 'EVM') {
+                const connectedEVMWallets = connectedWallets.value.filter((wallet) => wallet.ecosystem === 'EVM');
+                const chainListByEcosystem = getChainListByEcosystem(ecosystem.value);
+
+                const matchingChains = chainListByEcosystem.filter((selectedChain) =>
+                    connectedEVMWallets.some((wallet) => wallet.chain === selectedChain.chain_id)
+                );
+
+                chainList.value = matchingChains;
+            } else {
+                chainList.value = getChainListByEcosystem(ecosystem.value);
+            }
         });
 
         return {
             isOpen,
             addressesWithChains,
             chainList,
+            ecosystem,
         };
     },
 };

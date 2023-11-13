@@ -75,16 +75,23 @@ $symbol-text: $gulfStream;
 $mute-apr-text: $gulfStream;
 
 // Adapter text
-$adapter-text: $gulfStream;
-$adapter-ecosystem-bg: 'transparent';
-$adapter-ecosystem-border-color: $trout;
-$adapter-logo-main-color: $gallery;
-$adapter-logo-base-color: $cyan;
-$adapter-logo-secondary-color: $iceberg;
-$adapter-border-color: $trout;
-$adapter-icon-color: $lightGreen;
+$adapter-label-text: $gulfStream;
+$adapter-value-text: $white;
+$adapter-ecosystem-border-color: $charade;
+$adapter-connected-border-color: $charade;
+$adapter-connected-icon-color: $lightGreen;
 $adapter-secondary-border-color: $pastelPink;
 $adapter-modal-close-color: $blackGray;
+$adapter-more-option: $mineralGreen;
+
+// Adapter ModuleIcons
+$adapter-logo-main-color: $chineseBlack;
+$adapter-logo-base-color: $cyan;
+$adapter-logo-secondary-color: $springGreen;
+
+// Adapter Not Connected
+$adapter-not-connected-bg: $ebonyClay;
+$adapter-not-connected-icon: $geyser;
 
 // Checkbox
 $checkbox-text: $gulfStream;
@@ -228,16 +235,19 @@ $theme-colors-dark: (
     "symbol-text": $symbol-text,
     "mute-apr-text": $mute-apr-text,
 
-    "adapter-text": $adapter-text,
-    "adapter-ecosystem-bg": $adapter-ecosystem-bg,
+    "adapter-label-text": $adapter-label-text,
+    "adapter-value-text": $adapter-value-text,
     "adapter-ecosystem-border-color": $adapter-ecosystem-border-color,
     "adapter-logo-main-color": $adapter-logo-main-color,
     "adapter-logo-base-color": $adapter-logo-base-color,
     "adapter-logo-secondary-color": $adapter-logo-secondary-color,
-    "adapter-border-color": $adapter-border-color,
-    "adapter-icon-color": $adapter-icon-color,
+    "adapter-connected-border-color": $adapter-connected-border-color,
+    "adapter-connected-icon-color": $adapter-connected-icon-color,
     "adapter-secondary-border-color": $adapter-secondary-border-color,
     "adapter-modal-close-color": $adapter-modal-close-color,
+    "adapter-more-option": $adapter-more-option,
+    "adapter-not-connected-bg": $adapter-not-connected-bg,
+    "adapter-not-connected-icon": $adapter-not-connected-icon,
 
     "checkbox-text": $checkbox-text,
     "checkbox-disabled-text": $checkbox-disabled-text,

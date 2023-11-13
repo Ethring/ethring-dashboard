@@ -24,7 +24,6 @@ export default {
 
     padding: 8px 16px;
     border-radius: 16px;
-    background-color: var(--#{$prefix}banner-color);
     border: 1px solid transparent;
 
     cursor: pointer;
@@ -36,24 +35,29 @@ export default {
 
     .icon-container {
         @include pageFlexRow;
+        justify-content: center;
+
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: var(--#{$prefix}border-color);
-        justify-content: center;
+
+        background: var(--#{$prefix}adapter-not-connected-bg);
+
         margin-right: 8px;
+
+        svg {
+            fill: var(--#{$prefix}adapter-not-connected-icon);
+        }
     }
 
     p {
         width: 160px;
+
+        margin: 0;
+
         font-size: var(--#{$prefix}small-lg-fs);
         color: var(--#{$prefix}base-text);
         line-height: 1.5;
-        margin: 0;
-    }
-
-    &:hover {
-        border-color: var(--#{$prefix}btn-bg-color-hover);
     }
 }
 </style>
