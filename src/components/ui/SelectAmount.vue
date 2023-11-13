@@ -190,11 +190,10 @@ export default {
         watch(
             () => props.value,
             (tkn, oldTkn) => {
-                console.log(tkn, oldTkn, '--tkn, oldTkn');
                 if (tkn?.id === oldTkn?.id || tkn?.address === oldTkn?.address) {
                     return;
                 }
-                console.log('----1');
+
                 if (tkn) {
                     setToken(tkn);
                     amount.value = '';
