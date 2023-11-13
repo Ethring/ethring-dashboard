@@ -152,6 +152,10 @@ export default function useModule({ module, moduleType }) {
             selectedSrcToken.value = defaultFromToken;
         }
 
+        if (selectedSrcToken.value !== defaultFromToken && selectedSrcToken.value.balance < defaultFromToken?.balance) {
+            selectedSrcToken.value = defaultFromToken;
+        }
+
         if (selectedSrcToken.value?.address === selectedDstToken.value?.address) {
             selectedDstToken.value = null;
         }
@@ -195,6 +199,7 @@ export default function useModule({ module, moduleType }) {
     const makeAllowanceRequest = async (service) => {
         const currentService = service || selectedService.value;
 
+        console.log('makeAllowanceRequest', currentService);
         if (!selectedSrcToken.value?.address || !currentService?.url) {
             return;
         }
@@ -215,7 +220,6 @@ export default function useModule({ module, moduleType }) {
 
     const makeApproveRequest = async (service) => {
         const currentService = service || selectedService.value;
-        console.log('makeApproveRequest', currentService);
 
         if (!selectedSrcToken.value?.address || !currentService?.url) {
             return;

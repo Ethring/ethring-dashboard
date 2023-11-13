@@ -108,7 +108,7 @@ export default {
                 return false;
             }
 
-            return value?.includes('~') || false;
+            return value.includes('~') || false;
         };
 
         return {

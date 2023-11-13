@@ -1,12 +1,12 @@
 <template>
     <a-dropdown v-model:open="activeDropdown" :arrow="{ pointAtCenter: true }" placement="bottom" class="wallet-adapter-container">
-        <AccountCenter v-if="walletAddress" class="ant-dropdown-link" />
+        <AccountCenter v-if="walletAddress" @toggleDropdown="() => (activeDropdown = !activeDropdown)" class="ant-dropdown-link" />
         <NotConnected v-else class="ant-dropdown-link" />
 
         <template #overlay>
             <a-menu class="adapter__dropdown">
-                <ConnectToEcosystems />
-                <AdapterDropdown v-if="walletAddress" />
+                <ConnectToEcosystems @closeDropdown="() => (activeDropdown = false)" />
+                <AdapterDropdown v-if="walletAddress" @closeDropdown="() => (activeDropdown = false)" />
             </a-menu>
         </template>
     </a-dropdown>
@@ -34,18 +34,12 @@ export default {
     setup() {
         const activeDropdown = ref(false);
 
-        const { walletAddress, disconnectAllWallets, connectedWallets } = useAdapter();
-
-        const disconnectAll = async () => {
-            await disconnectAllWallets();
-        };
+        const { walletAddress, connectedWallets } = useAdapter();
 
         return {
             activeDropdown,
             walletAddress,
             connectedWallets,
-
-            disconnectAll,
         };
     },
 };

@@ -26,6 +26,7 @@ $green: #04b600;
 $cyan: #02e7f6;
 $ficus: #385c39;
 $blueHalk: #e6eeff;
+$blackGray: #1a1d26;
 
 $wildWatermelon: #e4455d;
 $deepCerulean: #00839f;
@@ -45,6 +46,7 @@ $gradient-dark-green: linear-gradient(198.01deg, #00bf57 0.44%, #005f91 108.3%);
 
 $black-op-085: rgba(0, 0, 0, 0.85);
 $black-op-02: rgba(0, 0, 0, 0.2);
+
 
 //  ===========================================================================
 //  COLORS MAP
@@ -82,6 +84,7 @@ $adapter-logo-secondary-color: $iceberg;
 $adapter-border-color: $trout;
 $adapter-icon-color: $lightGreen;
 $adapter-secondary-border-color: $pastelPink;
+$adapter-modal-close-color: $blackGray;
 
 // Checkbox
 $checkbox-text: $gulfStream;
@@ -235,6 +238,7 @@ $theme-colors-dark: (
     "adapter-border-color": $adapter-border-color,
     "adapter-icon-color": $adapter-icon-color,
     "adapter-secondary-border-color": $adapter-secondary-border-color,
+    "adapter-modal-close-color": $adapter-modal-close-color,
 
     "checkbox-text": $checkbox-text,
     "checkbox-disabled-text": $checkbox-disabled-text,

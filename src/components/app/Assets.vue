@@ -1,15 +1,15 @@
 <template>
     <div class="tokens" :class="{ empty: isEmpty }">
-        <template v-if="allTokens.length > 0">
+        <template v-if="tokensData.length > 0">
             <div class="tokens__group" data-qa="tokens_group">
                 <AssetItemHeader
-                    v-if="allTokens.length"
+                    v-if="tokensData.length"
                     title="Tokens"
                     :value="getAssetsShare(assetsTotalBalances)"
                     :totalBalance="assetsTotalBalances"
                 />
-                <AssetItemSubHeader :type="$t('dashboard.asset')" />
-                <AssetsTable :data-source="allTokens" />
+                <AssetItemSubHeader type="Asset" />
+                <AssetsTable :data="tokensData" />
             </div>
         </template>
 
@@ -27,7 +27,7 @@
                 />
                 <div v-for="(groupItem, n) in item.data" :key="n">
                     <AssetItemSubHeader :type="getFormattedName(groupItem.type)" :name="groupItem?.validator?.name" />
-                    <AssetsTable :data-source="groupItem.balances" />
+                    <AssetsTable :data="groupItem.balances" />
                 </div>
             </div>
         </template>
@@ -101,6 +101,8 @@ export default {
         });
 
         const integrationAssetsByPlatform = ref(getIntegrationsGroupedByPlatform(allIntegrations.value));
+        // TODO: data should be reactive
+        const tokensData = ref([...allTokens.value]);
 
         const nftsByCollection = ref(getNftsByCollection(allNfts.value));
 
@@ -130,22 +132,26 @@ export default {
             if (!isAllTokensLoading.value) {
                 integrationAssetsByPlatform.value = getIntegrationsGroupedByPlatform(allIntegrations.value);
                 nftsByCollection.value = getNftsByCollection(allNfts.value);
+                tokensData.value = [...allTokens.value];
             }
         });
 
         watch(walletAccount, () => {
             integrationAssetsByPlatform.value = getIntegrationsGroupedByPlatform(allIntegrations.value);
             nftsByCollection.value = getNftsByCollection(allNfts.value);
+            tokensData.value = [...allTokens.value];
         });
 
         watch(isLoadingForChain, () => {
             if (!isLoadingForChain.value) {
                 integrationAssetsByPlatform.value = getIntegrationsGroupedByPlatform(allIntegrations.value);
                 nftsByCollection.value = getNftsByCollection(allNfts.value);
+                tokensData.value = [...allTokens.value];
             }
         });
 
         return {
+            tokensData,
             isLoadingForChain,
             isAllTokensLoading,
 
