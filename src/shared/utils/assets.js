@@ -49,16 +49,12 @@ export const getIntegrationsGroupedByPlatform = (allIntegrations = []) => {
     const groupByPlatforms = [];
 
     for (const integration of allIntegrations) {
-        const { balances = [], apr = null } = integration || {};
+        const { balances = [] } = integration || {};
 
         const balanceType = integration.type === BALANCES_TYPES.FUTURES ? BALANCES_TYPES.FUTURES : BALANCES_TYPES.ALL;
 
         integration.totalBalanceUsd = getTotalBalanceByType(balances, balanceType);
-
-        integration.balances = balances.map((item) => {
-            item.apr = apr;
-            return item;
-        });
+        integration.balances = sortByKey(balances, 'balanceUsd');
 
         const existingGroup = groupByPlatforms.find(({ platform }) => platform === integration.platform);
 

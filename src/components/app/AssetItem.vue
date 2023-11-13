@@ -1,49 +1,34 @@
 <template>
-    <div class="assets__item">
-        <template v-if="column === 'name'">
-            <div class="network">
-                <div class="logo">
-                    <TokenIcon width="24" height="24" :token="item" />
-                    <div class="chain">
-                        <img :src="item.chainLogo" />
-                    </div>
-                </div>
-                <div class="info">
-                    <div class="name">{{ item.name || item.symbol }}</div>
-                    <div class="type" v-if="item.balanceType">{{ getFormattedName(item.balanceType) }}</div>
-                    <div class="unlock" v-if="item.unlockTimestamp">
-                        Unlock <span> {{ getFormattedDate(item.unlockTimestamp) }} </span>
-                    </div>
-                    <div class="apr" v-if="item.apr">
-                        APR <span> {{ formatNumber(item.apr, 2) }}% </span>
-                    </div>
+    <div class="tokens__item">
+        <div class="network">
+            <div class="logo">
+                <TokenIcon width="24" height="24" :token="item" />
+                <div class="chain">
+                    <img :src="item.chainLogo" />
                 </div>
             </div>
-        </template>
-        <template v-else-if="column === 'balance'">
-            <a-tooltip v-if="isTooltip(balance.pretty)" placement="topRight">
-                <template #title>{{ balance.value }}</template>
-                <div class="amount">
-                    <div class="value">
-                        {{ balance.pretty }}
-                    </div>
-                    <div class="symbol">{{ item?.symbol }}</div>
-                </div>
-            </a-tooltip>
-            <div v-else class="amount">
-                <div class="value" :title="balance.value">
-                    {{ balance.pretty }}
-                </div>
-                <div class="symbol">{{ item?.symbol }}</div>
+            <div class="info">
+                <div class="name">{{ item.name || item.symbol }}</div>
+                <slot></slot>
             </div>
-        </template>
-        <template v-else-if="column === 'balanceUsd'">
-            <a-tooltip v-if="isTooltip(balanceUsd.pretty)" placement="topRight">
-                <template #title>{{ balanceUsd.value }}</template>
-                <div class="value"><span>$</span>{{ balanceUsd.pretty }}</div>
-            </a-tooltip>
-            <div v-else class="value" :title="balanceUsd.value"><span> $ </span>{{ balanceUsd.pretty }}</div>
-        </template>
+        </div>
+        <div class="amount">
+            <div class="value" :title="balance.value">
+                {{ balance.pretty }}
+            </div>
+            <div class="symbol">{{ item?.symbol }}</div>
+        </div>
+        <div class="change">
+            <template v-if="isTooltip">
+                <a-tooltip placement="topRight">
+                    <template #title>{{ balanceUsd.value }}</template>
+                    <div class="value" :title="balanceUsd.value"><span>$</span>{{ balanceUsd.pretty }}</div>
+                </a-tooltip>
+            </template>
+            <template v-else>
+                <div class="value" :title="balanceUsd.value"><span>$</span>{{ balanceUsd.pretty }}</div>
+            </template>
+        </div>
     </div>
 </template>
 <script>
@@ -53,18 +38,12 @@ import { useStore } from 'vuex';
 import TokenIcon from '@/components/ui/TokenIcon';
 
 import { formatNumber } from '@/helpers/prettyNumber';
-
 import BigNumber from 'bignumber.js';
-
-import { getFormattedName, getFormattedDate } from '@/shared/utils/assets';
 
 export default {
     name: 'AssetItem',
     props: {
         item: {
-            required: true,
-        },
-        column: {
             required: true,
         },
     },
@@ -102,33 +81,41 @@ export default {
             };
         });
 
-        const isTooltip = (value) => {
-            if (!value) {
+        const isTooltip = computed(() => {
+            const { pretty = '' } = balanceUsd.value || {};
+
+            if (!pretty) {
                 return false;
             }
 
-            return value?.includes('~') || false;
-        };
+            return pretty?.includes('~') || false;
+        });
 
         return {
             balance,
             balanceUsd,
-
             isTooltip,
-            getFormattedName,
-            getFormattedDate,
-            formatNumber,
         };
     },
 };
 </script>
 <style lang="scss">
-.assets__item {
-    vertical-align: center !important;
+.tokens__item {
+    @include pageFlexRow;
+
     color: var(--#{$prefix}black);
+    padding-right: 10px;
+
+    &:not(:last-child) {
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--#{$prefix}border-color-op-05);
+    }
 
     .network {
-        display: inline-flex;
+        @include pageFlexRow;
+
+        width: 60%;
 
         .logo {
             margin-right: 10px;
@@ -184,38 +171,19 @@ export default {
     .info {
         @include pageFlexRow;
         line-height: 20px;
-        font-weight: 400;
-        font-size: var(--#{$prefix}small-lg-fs);
-
-        div:not(:first-child) {
-            &::before {
-                content: '\2022';
-                margin: 0 4px;
-                color: var(--#{$prefix}checkbox-text);
-            }
-        }
-
-        .type,
-        .apr {
-            color: var(--#{$prefix}sub-text);
-        }
-
-        .apr,
-        .unlock {
-            span {
-                color: var(--#{$prefix}mute-apr-text);
-                font-weight: 400;
-            }
-        }
-
-        .unlock {
-            color: var(--#{$prefix}mute-apr-text);
-            font-weight: 300;
-        }
     }
 
     .amount {
-        display: inline-flex;
+        width: 20%;
+        display: flex;
+        align-items: baseline;
+
+        .value {
+            font-size: var(--#{$prefix}small-lg-fs);
+            font-weight: 400;
+            margin-right: 3px;
+            color: var(--#{$prefix}primary-text);
+        }
 
         .symbol {
             font-size: var(--#{$prefix}small-lg-fs);
@@ -224,11 +192,23 @@ export default {
         }
     }
 
-    .value {
-        font-size: var(--#{$prefix}small-lg-fs);
-        font-weight: 400;
-        margin-right: 3px;
-        color: var(--#{$prefix}primary-text);
+    .change {
+        width: 20%;
+
+        span {
+            font-size: var(--#{$prefix}small-lg-fs);
+            font-weight: 400;
+            text-align: right;
+            margin-right: 3px;
+        }
+
+        .value {
+            font-size: var(--#{$prefix}small-lg-fs);
+            font-weight: 400;
+
+            text-align: right;
+            color: var(--#{$prefix}primary-text);
+        }
     }
 }
 </style>
