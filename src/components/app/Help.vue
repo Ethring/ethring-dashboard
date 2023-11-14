@@ -12,8 +12,7 @@
 
             <a-modal v-model:open="open" title="Update available" centered :footer="null">
                 <p>
-                    A new version of application is available. Click the Update button below to get the new version with the latest features
-                    and improvements.
+                    {{ $t('dashboard.updateAvailable')}}
                 </p>
                 <div class="release-list">
                     <div v-for="item in releaseNotes" :key="item" class="release-item" v-html="item" />
