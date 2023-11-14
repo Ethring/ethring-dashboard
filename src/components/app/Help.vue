@@ -12,7 +12,7 @@
 
             <a-modal v-model:open="open" title="Update available" centered :footer="null">
                 <p>
-                    {{ $t('dashboard.updateAvailable')}}
+                    {{ $t('dashboard.updateAvailable') }}
                 </p>
                 <div class="release-list">
                     <div v-for="item in releaseNotes" :key="item" class="release-item" v-html="item" />
