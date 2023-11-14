@@ -92,17 +92,24 @@ $secondary-text: $trout;
 $symbol-text: $charade;
 $mute-apr-text: $paleSky;
 
-// Adapter text
-$adapter-text: rgba($black, 0.45);
-$adapter-ecosystem-bg: $blueHalk;
+// Adapter
+$adapter-label-text: $trout;
+$adapter-value-text: $mineralGreen;
 $adapter-ecosystem-border-color: $geyser;
+$adapter-connected-border-color: $iceberg;
+$adapter-connected-icon-color: $lightGreen;
+$adapter-secondary-border-color: $pastelPink;
+$adapter-modal-close-color: $blackGray;
+$adapter-more-option: $gulfStream;
+
+// Adapter ModuleIcons
 $adapter-logo-main-color: $gallery;
 $adapter-logo-base-color: $cyan;
 $adapter-logo-secondary-color: $iceberg;
-$adapter-border-color: $iceberg;
-$adapter-icon-color: $lightGreen;
-$adapter-secondary-border-color: $pastelPink;
-$adapter-modal-close-color: $blackGray;
+
+// Adapter Not Connected
+$adapter-not-connected-bg: $iceberg;
+$adapter-not-connected-icon: $mineralGreen;
 
 // Checkbox
 $checkbox-text: $gulfStream;
@@ -246,16 +253,19 @@ $theme-colors: (
     "symbol-text": $symbol-text,
     "mute-apr-text": $mute-apr-text,
 
-    "adapter-text": $adapter-text,
-    "adapter-ecosystem-bg": $adapter-ecosystem-bg,
+    "adapter-label-text": $adapter-label-text,
+    "adapter-value-text": $adapter-value-text,
     "adapter-ecosystem-border-color": $adapter-ecosystem-border-color,
     "adapter-logo-main-color": $adapter-logo-main-color,
     "adapter-logo-base-color": $adapter-logo-base-color,
     "adapter-logo-secondary-color": $adapter-logo-secondary-color,
-    "adapter-border-color": $adapter-border-color,
-    "adapter-icon-color": $adapter-icon-color,
+    "adapter-connected-border-color": $adapter-connected-border-color,
+    "adapter-connected-icon-color": $adapter-connected-icon-color,
     "adapter-secondary-border-color": $adapter-secondary-border-color,
     "adapter-modal-close-color": $adapter-modal-close-color,
+    "adapter-more-option": $adapter-more-option,
+    "adapter-not-connected-bg": $adapter-not-connected-bg,
+    "adapter-not-connected-icon": $adapter-not-connected-icon,
 
     "checkbox-text": $checkbox-text,
     "checkbox-disabled-text": $checkbox-disabled-text,

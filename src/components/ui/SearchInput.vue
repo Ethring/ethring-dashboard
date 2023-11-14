@@ -51,7 +51,7 @@ export default {
 
     @include pageFlexRow;
 
-    height: 80px;
+    height: 72px;
 
     padding: 16px;
 

@@ -48,10 +48,13 @@ export default {
 .wallet-adapter-container {
     position: relative;
 
-    max-width: 400px;
+    max-width: 350px;
     width: 100%;
 }
 .adapter__dropdown {
+    padding: 6px;
+    border-radius: 16px;
+    padding-bottom: 16px;
     background: var(--#{$prefix}secondary-background);
 }
 </style>

@@ -58,7 +58,6 @@ export default {
     @include pageFlexRow;
     justify-content: flex-start;
 
-    background-color: var(--#{$prefix}adapter-ecosystem-bg);
     color: var(--#{$prefix}primary-text);
 
     &.disabled {
@@ -74,6 +73,7 @@ export default {
 
     border-radius: 8px;
     padding: 8px;
+    margin-bottom: 8px;
 
     cursor: pointer;
 
@@ -81,11 +81,7 @@ export default {
 
     &:hover:not(.disabled) {
         background: var(--#{$prefix}btn-disabled-icon);
-        color: var(--#{$prefix}black);
-    }
-
-    &:not(:last-child) {
-        margin-bottom: 12px;
+        color: var(--#{$prefix}primary);
     }
 
     &__info {
@@ -110,10 +106,12 @@ export default {
     &__logo {
         @include pageFlexRow;
         justify-content: center;
+
         width: 40px;
         height: 40px;
         border-radius: 50%;
         background-color: var(--#{$prefix}adapter-logo-main-color);
+
         z-index: 3;
 
         svg {

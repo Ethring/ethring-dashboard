@@ -76,7 +76,7 @@ import BigNumber from 'bignumber.js';
 
 import TokenIcon from '@/components/ui/TokenIcon';
 
-import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
+import ArrowIcon from '@/assets/icons/dashboard/arrow.svg';
 
 import { prettyNumber, formatNumber } from '@/helpers/prettyNumber';
 
@@ -341,10 +341,10 @@ export default {
         justify-content: space-between;
         background: var(--#{$prefix}select-bg-color);
         border-radius: 8px;
-        height: 120px;
+        height: 114px;
         padding: 12px 16px;
         box-sizing: border-box;
-        border: 2px solid transparent;
+        border: 1px solid transparent;
 
         transition: 0.2s;
 
@@ -376,14 +376,14 @@ export default {
                 font-weight: 400;
 
                 span {
-                    font-weight: 600;
+                    font-weight: 500;
                     font-size: var(--#{$prefix}default-fs);
                     color: var(--#{$prefix}sub-text);
                 }
             }
 
             &-price {
-                font-weight: 600;
+                font-weight: 500;
                 color: var(--#{$prefix}sub-text);
 
                 span {
@@ -418,7 +418,7 @@ export default {
             font-size: var(--#{$prefix}h4-fs);
             font-weight: 600;
             color: var(--#{$prefix}select-item-secondary-color);
-            margin-right: 10px;
+            margin-right: 12px;
 
             display: inline-block;
             overflow: hidden;
@@ -466,12 +466,9 @@ export default {
             align-items: center;
 
             width: 40px;
-            min-width: 40px;
             height: 40px;
-
             border-radius: 50%;
-
-            margin-right: 8px;
+            margin-right: 6px;
 
             svg {
                 fill: var(--#{$prefix}black);
@@ -487,98 +484,24 @@ export default {
 
         svg.arrow {
             cursor: pointer;
-            fill: var(--#{$prefix}select-icon-color);
-            transform: rotate(0);
             @include animateEasy;
         }
     }
 
     &.focused {
         .select-amount__panel {
-            border: 2px solid var(--#{$prefix}select-active-border-color);
+            border: 1px solid var(--#{$prefix}select-active-border-color);
             background: var(--#{$prefix}select-bg-color);
         }
     }
 
     &.active {
         .select-amount__panel {
-            border: 2px solid var(--#{$prefix}select-active-border-color);
+            border: 1px solid var(--#{$prefix}select-active-border-color);
             background: var(--#{$prefix}white);
 
             svg.arrow {
                 transform: rotate(180deg);
-            }
-        }
-    }
-
-    &__items {
-        z-index: 100;
-        background: var(--#{$prefix}white);
-        position: absolute;
-        left: 0;
-        top: 160px;
-        width: 100%;
-        min-height: 40px;
-        border-radius: 16px;
-        border: 2px solid var(--#{$prefix}select-active-border-color);
-        padding: 20px 25px;
-        box-sizing: border-box;
-        max-height: 430px;
-        overflow-y: auto;
-
-        &::-webkit-scrollbar {
-            width: 0px;
-            background-color: transparent;
-        }
-    }
-
-    &__items-item {
-        @include pageFlexRow;
-        justify-content: space-between;
-
-        min-height: 50px;
-        border-bottom: 1px dashed var(--#{$prefix}select-border-color);
-        cursor: pointer;
-        @include animateEasy;
-
-        &.active {
-            .info {
-                .name {
-                    color: var(--#{$prefix}black);
-                    font-weight: 600;
-                }
-            }
-        }
-
-        &:last-child {
-            border-bottom: 1px solid transparent;
-        }
-
-        .info {
-            @include pageFlexRow;
-
-            .name {
-                font-size: var(--#{$prefix}default-fs);
-                color: var(--#{$prefix}base-text);
-                font-weight: 400;
-            }
-        }
-
-        &:hover {
-            .info {
-                .name {
-                    color: var(--#{$prefix}sub-text);
-                }
-            }
-        }
-
-        .amount {
-            color: var(--#{$prefix}black);
-            font-weight: 600;
-
-            span {
-                color: var(--#{$prefix}black);
-                font-weight: 400;
             }
         }
     }

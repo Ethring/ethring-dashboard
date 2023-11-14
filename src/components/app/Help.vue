@@ -69,6 +69,10 @@ export default {
             color: var(--#{$prefix}icon-secondary-bg-color);
         }
 
+        span {
+            font-size: var(--#{$prefix}h4-fs);
+        }
+
         svg {
             fill: var(--#{$prefix}icon-active);
         }

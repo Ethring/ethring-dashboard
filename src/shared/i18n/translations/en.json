@@ -28,11 +28,10 @@
     "availableWallets": "Available wallets"
   },
   "adapter": {
-    "accountsGroup": "Connected accounts",
+    "accountsGroup": "Connected",
     "accountModalTitle": "Account addresses",
     "copyAddress": "Copy address",
     "disconnectAccount": "Disconnect",
-    "ecosystemsGroup": "Connect to",
     "disconnectAll": "Disconnect all wallets",
     "cosmosWallets": "Cosmos Ecosystem",
     "ethereumWallets": "EVM Ecosystem",

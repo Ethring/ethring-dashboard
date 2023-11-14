@@ -142,8 +142,6 @@ export default {
         }
 
         .bottom {
-            margin-top: 4px;
-
             display: flex;
             align-items: center;
 
@@ -152,7 +150,7 @@ export default {
                 font-weight: 400;
                 font-size: var(--#{$prefix}small-sm-fs);
                 color: var(--#{$prefix}sub-text);
-                margin-right: 8px;
+                margin-right: 6px;
             }
 
             .link {

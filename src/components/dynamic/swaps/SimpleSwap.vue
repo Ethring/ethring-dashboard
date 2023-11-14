@@ -164,7 +164,7 @@ export default {
             module,
             moduleType: 'swap',
         });
-        console.log(selectedSrcToken, '--selectedSrcToken');
+
         // =================================================================================================================
 
         const allowanceForToken = computed(() => {
@@ -811,7 +811,7 @@ export default {
 
         border-radius: 50%;
         left: calc(50% - 24px);
-        bottom: 102px;
+        bottom: 94px;
 
         background: var(--#{$prefix}select-bg-color);
         border: 4px solid var(--#{$prefix}main-background);
