@@ -44,13 +44,13 @@
                 </template>
             </div>
 
-            <div class="balance" :class="{ disabled, error }" @click.stop="setMax">
+            <div class="balance" :class="{ disabled, error }">
                 <div class="balance-value">
                     <template v-if="isTokenLoading">
                         <a-skeleton-input active size="small" />
                     </template>
                     <template v-else>
-                        <p class="balance-value">
+                        <p @click.stop="setMax">
                             {{ $t('tokenOperations.balance') }}:
                             <span>
                                 {{ setTokenBalance(selectedToken) }}
@@ -348,8 +348,6 @@ export default {
 
         transition: 0.2s;
 
-        cursor: pointer;
-
         .label {
             @include pageFlexRow;
 
@@ -374,6 +372,7 @@ export default {
 
             &-value {
                 font-weight: 400;
+                cursor: pointer;
 
                 span {
                     font-weight: 500;
@@ -385,6 +384,7 @@ export default {
             &-price {
                 font-weight: 500;
                 color: var(--#{$prefix}sub-text);
+                cursor: default;
 
                 span {
                     color: var(--#{$prefix}base-text);
@@ -398,6 +398,10 @@ export default {
                     color: var(--#{$prefix}danger) !important;
                 }
             }
+        }
+
+        .disabled * {
+            cursor: not-allowed;
         }
 
         .info-wrap {

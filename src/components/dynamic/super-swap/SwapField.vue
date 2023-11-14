@@ -18,7 +18,7 @@
         </div>
         <div>
             <template v-if="isAmountLoading">
-                <a-skeleton-input active class="skeleton" />
+                <a-skeleton-input active class="skeleton" size="small" />
             </template>
 
             <template v-else>
@@ -240,7 +240,7 @@ export default {
         justify-content: space-between;
         color: var(--#{$prefix}base-text);
         font-weight: 400;
-        margin-top: 6px;
+        margin-top: 14px;
         font-size: var(--#{$prefix}small-lg-fs);
         cursor: default;
 

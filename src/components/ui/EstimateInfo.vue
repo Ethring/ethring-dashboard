@@ -36,9 +36,10 @@
     </a-collapse>
 </template>
 <script>
+import { computed } from 'vue';
+
 import ServiceIcon from './ServiceIcon.vue';
 import EstimateStats from './EstimateStats.vue';
-import { computed } from 'vue';
 
 export default {
     name: 'EstimateInfo',
@@ -88,9 +89,11 @@ export default {
 
         const isCollapsible = computed(() => {
             const { fees } = props;
+
             if (!fees.length) {
                 return false;
             }
+
             const [fee] = fees;
 
             if (fee.fromAmount == 0) {

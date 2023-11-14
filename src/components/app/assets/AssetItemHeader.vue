@@ -37,8 +37,8 @@
             </div>
             <div class="asset__item-header-reward" v-if="showRewards">
                 <span>{{ $t('tokenOperations.rewards') }}:</span>
-                <span class="asset__item-header-reward-symbol"> $ </span>
                 <p>{{ showBalance ? formatNumber(reward) : '***' }}</p>
+                <span class="asset__item-header-reward-symbol"> $ </span>
             </div>
         </div>
     </div>
@@ -160,14 +160,14 @@ export default {
     }
 
     &-value {
-        font-size: var(--#{$prefix}h6-fs);
+        font-size: var(--#{$prefix}h5-fs);
         color: var(--#{$prefix}eye-logo-hover);
         font-weight: 600;
         margin-left: 8px;
     }
 
     &-symbol {
-        font-size: var(--#{$prefix}h6-fs);
+        font-size: var(--#{$prefix}default-fs);
         line-height: 16px;
         color: var(--#{$prefix}mute-text);
         font-weight: 400;
@@ -184,7 +184,7 @@ export default {
 
         h4 {
             color: var(--#{$prefix}primary-text);
-            font-size: var(--#{$prefix}h6-fs);
+            font-size: var(--#{$prefix}h5-fs);
             line-height: 16px;
             font-weight: 600;
             margin-left: 2px;
@@ -198,16 +198,17 @@ export default {
 
         margin-top: 6px;
 
-        &-symbol {
-            font-size: var(--#{$prefix}small-md-fs);
+        span {
+            font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 400;
             color: var(--#{$prefix}mute-text);
         }
 
         p {
-            color: var(--#{$prefix}mute-text);
-            font-size: var(--#{$prefix}small-md-fs);
-            margin: 0 2px;
+            color: var(--#{$prefix}sub-text);
+            font-size: var(--#{$prefix}small-lg-fs);
+            font-weight: 600;
+            margin: 0 2px 0 6px;
         }
     }
 
