@@ -18,6 +18,8 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import ChainWithAddress from '@/Adapter/UI/Entities/ChainWithAddress';
 
+import { ECOSYSTEMS } from '@/Adapter/config';
+
 export default {
     name: 'AddressModal',
     components: {
@@ -41,8 +43,8 @@ export default {
         onUpdated(() => {
             addressesWithChains.value = getAddressesWithChainsByEcosystem(ecosystem.value);
 
-            if (ecosystem.value === 'EVM') {
-                const connectedEVMWallets = connectedWallets.value.filter((wallet) => wallet.ecosystem === 'EVM');
+            if (ecosystem.value === ECOSYSTEMS.EVM) {
+                const connectedEVMWallets = connectedWallets.value.filter((wallet) => wallet.ecosystem === ECOSYSTEMS.EVM);
                 const chainListByEcosystem = getChainListByEcosystem(ecosystem.value);
 
                 const matchingChains = chainListByEcosystem.filter((selectedChain) =>
