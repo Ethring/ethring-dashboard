@@ -19,6 +19,7 @@
                     </div>
                 </div>
                 <Socials class="sidebar__socials" :collapsed="isCollapsed" />
+                <div class="sidebar__version">{{ LAST_VERSION }}</div>
             </div>
         </div>
     </div>
@@ -33,6 +34,8 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import SettingsIcon from '@/assets/icons/dashboard/settings.svg';
 import LogoIcon from '@/assets/icons/sidebar/logo.svg';
+
+import { LAST_VERSION } from '@/config/releaseNotes';
 
 export default {
     name: 'Sidebar',
@@ -57,6 +60,7 @@ export default {
         return {
             walletAddress,
             isCollapsed,
+            LAST_VERSION,
         };
     },
 };
@@ -98,6 +102,12 @@ export default {
 
     &__socials {
         width: 100%;
+    }
+
+    &__version {
+        color: var(--#{$prefix}sidebar-text);
+        margin-top: 20px;
+        margin-left: auto;
     }
 
     &__settings {
