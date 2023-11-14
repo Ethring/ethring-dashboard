@@ -195,14 +195,14 @@ export default {
     position: relative;
     background: var(--#{$prefix}select-bg-color);
     border-radius: 8px;
-    height: 150px;
+    height: 136px;
     padding: 12px 16px;
     box-sizing: border-box;
-    border: 2px solid transparent;
+    border: 1px solid transparent;
     cursor: pointer;
 
     &.focused {
-        border: 2px solid var(--#{$prefix}select-active-border-color);
+        border: 1px solid var(--#{$prefix}select-active-border-color);
         background: var(--#{$prefix}select-bg-color);
     }
     .row {
@@ -212,7 +212,7 @@ export default {
 
     .label {
         color: var(--#{$prefix}select-label-color);
-        font-size: var(--#{$prefix}h6-fs);
+        font-size: var(--#{$prefix}default-fs);
         font-weight: 500;
         cursor: default;
     }
@@ -225,9 +225,9 @@ export default {
         background-color: transparent;
         font-size: var(--#{$prefix}h4-fs);
         font-weight: 600;
-        height: 38px;
+        height: 32px;
         color: var(--#{$prefix}primary-text);
-        margin-top: 10px;
+        margin-top: 4px;
     }
 
     .disabled {

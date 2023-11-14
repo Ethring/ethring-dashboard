@@ -219,10 +219,10 @@ export default {
     &__block {
         position: relative;
         background-color: var(--#{$prefix}select-secondary-bg-color);
-        width: 200px;
-        height: 48px;
+        width: 180px;
+        height: 40px;
         border-radius: 24px;
-        padding-left: 8px;
+        padding-left: 4px;
         border: 1px solid transparent;
         @include pageFlexRow;
 
@@ -249,15 +249,15 @@ export default {
             white-space: nowrap;
             text-overflow: ellipsis;
             overflow: hidden;
-            width: 110px;
+            width: 100px;
         }
     }
 
     h3 {
-        font-size: var(--#{$prefix}default-fs);
+        font-size: var(--#{$prefix}h6-fs);
         color: var(--#{$prefix}primary-text) !important;
-        line-height: var(--#{$prefix}h5-fs);
-        font-weight: 600;
+        line-height: var(--#{$prefix}h6-fs);
+        font-weight: 500;
         margin: auto 0 auto 6px;
     }
 

@@ -36,9 +36,9 @@
                 <h4>{{ showBalance ? formatNumber(totalBalance, 2) : '***' }}</h4>
             </div>
             <div class="asset__item-header-reward" v-if="showRewards">
+                <span>{{ $t('tokenOperations.rewards') }}:</span>
                 <span class="asset__item-header-reward-symbol"> $ </span>
                 <p>{{ showBalance ? formatNumber(reward) : '***' }}</p>
-                <RewardsIcon class="asset__item-header-reward-icon" />
             </div>
         </div>
     </div>
@@ -48,7 +48,6 @@ import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 
 import TokenLogo from '@/assets/icons/dashboard/tokenLogo.svg';
-import RewardsIcon from '@/assets/icons/dashboard/rewards.svg';
 
 import { formatNumber } from '@/helpers/prettyNumber';
 
@@ -84,7 +83,6 @@ export default {
     },
     components: {
         TokenLogo,
-        RewardsIcon,
     },
     setup() {
         const store = useStore();
@@ -136,6 +134,8 @@ export default {
     &-logo {
         width: 40px;
         height: 40px;
+        border-radius: 50%;
+        border: 1px solid var(--#{$prefix}primary-text);
 
         @include pageFlexRow;
         justify-content: center;
@@ -143,7 +143,7 @@ export default {
 
     &-name {
         color: var(--#{$prefix}primary-text);
-        font-size: var(--#{$prefix}h5-fs);
+        font-size: var(--#{$prefix}h4-fs);
         font-weight: 600;
 
         display: flex;
@@ -209,11 +209,6 @@ export default {
             font-size: var(--#{$prefix}small-md-fs);
             margin: 0 2px;
         }
-
-        &-icon {
-            margin-bottom: 1px;
-            stroke: var(--#{$prefix}mute-text);
-        }
     }
 
     &-health {
@@ -260,12 +255,12 @@ export default {
 }
 
 .token__logo {
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
 
     &-img {
-        width: 32px;
-        height: 32px;
+        width: 24px;
+        height: 24px;
         border-radius: 50%;
     }
 }

@@ -35,7 +35,7 @@
         </div>
 
         <SwapField
-            class="mt-10"
+            class="mt-8"
             :label="$t('tokenOperations.to')"
             :value="dstAmount"
             :token="selectedDstToken"
@@ -68,7 +68,7 @@
             v-if="selectedSrcNetwork?.net !== selectedDstNetwork?.net"
             v-model:value="isReceiveToken"
             :label="$t('tokenOperations.chooseAddress')"
-            class="mt-14"
+            class="mt-16"
         />
 
         <SelectAddress
@@ -76,12 +76,12 @@
             :selected-network="selectedDstNetwork"
             :error="!!errorAddress"
             placeholder="0x..."
-            class="mt-10"
+            class="mt-16"
             :on-reset="successHash"
             @setAddress="onSetAddress"
         />
 
-        <Collapse v-if="+srcAmount > 0" :loading="isLoading" :hideContent="estimateErrorTitle">
+        <Collapse class="mt-16" v-if="+srcAmount > 0" :loading="isLoading" :hideContent="estimateErrorTitle">
             <template #header>
                 <div class="route-info">
                     <p>{{ $t('tokenOperations.routeInfo') }}:</p>
@@ -90,7 +90,10 @@
                         <span class="fee">{{ networkFee }}</span> <span class="symbol"> $</span>
                         <TimeIcon />
                         <span class="fee"> {{ '~ ' + bestRoute?.estimateTime + ' s' }}</span>
-                        <h4>1 {{ selectedSrcToken?.symbol || '' }} = {{ estimateRate }} {{ selectedDstToken?.symbol || '' }}</h4>
+                        <h4>
+                            1 <span>{{ selectedSrcToken?.symbol || '' }}</span> = {{ estimateRate }}
+                            <span>{{ selectedDstToken?.symbol || '' }}</span>
+                        </h4>
                     </div>
 
                     <a-tooltip v-else>
@@ -115,7 +118,7 @@
             :title="$t(opTitle)"
             :disabled="!!disabledBtn"
             :loading="isWaitingTxStatusForModule || isSwapLoading"
-            class="superswap-panel__btn mt-10"
+            class="superswap-panel__btn mt-16"
             @click="swap"
             size="large"
         />
@@ -1023,24 +1026,12 @@ export default {
     width: 660px;
     position: relative;
 
-    .mt-10 {
-        margin-top: 10px;
-    }
-
-    .mt-14 {
-        margin-top: 14px;
-    }
-
-    .ml-8 {
-        margin-left: 8px;
-    }
-
     .swap-btn {
         @include pageFlexRow;
         justify-content: center;
         position: absolute;
         left: 120px;
-        top: 126px;
+        top: 114px;
         z-index: 5;
         height: 54px;
         width: 54px;
@@ -1123,6 +1114,11 @@ export default {
             margin-left: 16px;
             font-weight: 600;
             color: var(--#{$prefix}base-text);
+
+            span {
+                color: var(--#{$prefix}base-text);
+                font-weight: 400;
+            }
         }
     }
 

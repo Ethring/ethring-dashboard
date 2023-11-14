@@ -32,6 +32,19 @@
 
 $colorPl: #73b1b1;
 
+.mt-8 {
+  margin-top: 8px;
+}
+
+.mt-16 {
+  margin-top: 16px;
+}
+
+.ml-8 {
+  margin-left: 8px;
+}
+
+
 ::-webkit-input-placeholder {
   color: $colorPl;
 }

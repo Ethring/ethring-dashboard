@@ -54,7 +54,6 @@ export default {
 .collapse {
     background: var(--#{$prefix}select-bg-color);
     border-radius: 8px;
-    margin: 10px 0 10px;
     position: relative;
 
     &__content {

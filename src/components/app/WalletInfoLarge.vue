@@ -65,8 +65,8 @@ export default {
     align-items: center;
 
     &__network {
-        width: 78px;
-        height: 78px;
+        width: 64px;
+        height: 64px;
 
         @include pageFlexRow;
         justify-content: center;
@@ -74,10 +74,6 @@ export default {
         border-radius: 50%;
         margin-right: 16px;
         background: var(--#{$prefix}banner-logo-color);
-
-        img {
-            width: 60%;
-        }
 
         svg {
             fill: var(--#{$prefix}black);
@@ -95,7 +91,7 @@ export default {
         }
 
         & > div:first-child {
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         .address {
@@ -113,11 +109,10 @@ export default {
         .balance {
             @include pageFlexRow;
 
-            font-weight: 600;
-            font-size: var(--#{$prefix}h2-fs);
+            font-weight: 700;
+            font-size: var(--#{$prefix}h3-fs);
             color: var(--#{$prefix}primary-text);
 
-            margin-top: -3px;
             user-select: none;
 
             .value {

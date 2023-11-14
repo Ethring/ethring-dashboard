@@ -48,7 +48,7 @@
             :title="$t(opTitle)"
             :disabled="!!disabledSwap"
             :loading="isWaitingTxStatusForModule || isLoading"
-            class="simple-swap__btn mt-8"
+            class="simple-swap__btn mt-16"
             @click="handleOnSwap"
             size="large"
         />
@@ -787,10 +787,6 @@ export default {
 <style lang="scss">
 .simple-swap {
     width: 660px;
-
-    .mt-8 {
-        margin-top: 8px;
-    }
 
     &__switch-wrap {
         position: relative;

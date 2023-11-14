@@ -77,7 +77,7 @@
             :title="$t(opTitle)"
             :disabled="!!disabledBtn"
             :loading="isWaitingTxStatusForModule || isLoading"
-            class="simple-bridge__btn mt-8"
+            class="simple-bridge__btn mt-16"
             @click="handleOnConfirm"
             size="large"
         />
@@ -980,16 +980,12 @@ export default {
 .simple-bridge {
     width: 660px;
 
-    .mt-8 {
-        margin-top: 8px;
-    }
-
     .select-group {
         @include pageFlexRow;
         justify-content: space-between;
 
         .select {
-            width: 48%;
+            width: 49%;
 
             .name {
                 font-size: var(--#{$prefix}h6-fs);

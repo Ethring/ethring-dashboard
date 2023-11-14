@@ -163,7 +163,7 @@ export default {
         .name {
             font-size: var(--#{$prefix}h6-fs);
             color: var(--#{$prefix}primary-text);
-            font-weight: 400;
+            font-weight: 500;
             margin-left: 8px;
         }
     }
@@ -179,8 +179,8 @@ export default {
         align-items: baseline;
 
         .value {
-            font-size: var(--#{$prefix}small-lg-fs);
-            font-weight: 400;
+            font-size: var(--#{$prefix}h6-fs);
+            font-weight: 600;
             margin-right: 3px;
             color: var(--#{$prefix}primary-text);
         }
@@ -203,8 +203,8 @@ export default {
         }
 
         .value {
-            font-size: var(--#{$prefix}small-lg-fs);
-            font-weight: 400;
+            font-size: var(--#{$prefix}h6-fs);
+            font-weight: 600;
 
             text-align: right;
             color: var(--#{$prefix}primary-text);

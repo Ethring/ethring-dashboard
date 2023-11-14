@@ -27,7 +27,7 @@
             :title="$t(opTitle)"
             :disabled="!!disabledSend"
             :loading="isWaitingTxStatusForModule || isLoading"
-            class="simple-send__btn mt-8"
+            class="simple-send__btn mt-16"
             data-qa="confirm"
             @click="handleOnSend"
             size="large"
@@ -314,10 +314,6 @@ export default {
 <style lang="scss" scoped>
 .simple-send {
     width: 660px;
-
-    .mt-8 {
-        margin-top: 8px;
-    }
 
     &__btn {
         width: 100%;
