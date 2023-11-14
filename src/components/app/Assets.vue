@@ -1,21 +1,20 @@
 <template>
     <div class="tokens" :class="{ empty: isEmpty }">
-        <template v-if="allTokens.length > 0">
-            <div class="tokens__group">
+        <template v-if="tokensData.length > 0">
+            <div class="tokens__group" data-qa="tokens_group">
                 <AssetItemHeader
-                    v-if="allTokens.length"
+                    v-if="tokensData.length"
                     title="Tokens"
                     :value="getAssetsShare(assetsTotalBalances)"
                     :totalBalance="assetsTotalBalances"
                 />
                 <AssetItemSubHeader type="Asset" />
-
-                <AssetItem v-for="(listItem, n) in allTokens" :key="n" :item="listItem" />
+                <AssetsTable :data="tokensData" />
             </div>
         </template>
 
         <template v-if="allIntegrations.length > 0">
-            <div class="tokens__group" v-for="(item, i) in integrationAssetsByPlatform" :key="i">
+            <div class="tokens__group" data-qa="protocol_group" v-for="(item, i) in integrationAssetsByPlatform" :key="i">
                 <AssetItemHeader
                     v-if="item.data.length"
                     :logoURI="item.logoURI"
@@ -27,17 +26,8 @@
                     :healthRate="item.healthRate"
                 />
                 <div v-for="(groupItem, n) in item.data" :key="n">
-                    <AssetItemSubHeader :type="getFormattedName(groupItem.type)" />
-
-                    <AssetItem v-for="(balanceItem, i) in groupItem.balances" :key="i" :item="balanceItem">
-                        <div class="asset-item__info" v-if="balanceItem.balanceType">
-                            <div class="asset-item__type">{{ getFormattedName(balanceItem.balanceType) }}</div>
-                            <div class="asset-item__unlock" v-if="balanceItem.unlockTimestamp">
-                                Unlock {{ getFormattedDate(balanceItem.unlockTimestamp) }}
-                            </div>
-                            <div class="asset-item__apr" v-if="groupItem.apr"><span>APR </span> {{ prettyNumber(groupItem.apr, 2) }}%</div>
-                        </div>
-                    </AssetItem>
+                    <AssetItemSubHeader :type="getFormattedName(groupItem.type)" :name="groupItem?.validator?.name" />
+                    <AssetsTable :data="groupItem.balances" />
                 </div>
             </div>
         </template>
@@ -63,21 +53,18 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import EmptyList from '@/components/ui/EmptyList';
 
-import AssetItem from './AssetItem';
-import AssetItemHeader from './AssetItemHeader';
-import AssetItemSubHeader from './AssetItemSubHeader';
+import AssetItemHeader from './assets/AssetItemHeader';
+import AssetItemSubHeader from './assets/AssetItemSubHeader';
+import AssetsTable from './assets/AssetsTable';
 
-import { getTokenIcon } from '@/helpers/utils';
-import { prettyNumber } from '@/helpers/prettyNumber';
-
-import { getIntegrationsGroupedByPlatform, getFormattedName, getFormattedDate } from '@/shared/utils/assets';
+import { getIntegrationsGroupedByPlatform, getFormattedName } from '@/shared/utils/assets';
 
 export default {
     name: 'Tokens',
     components: {
         AssetItemSubHeader,
         AssetItemHeader,
-        AssetItem,
+        AssetsTable,
         EmptyList,
     },
     setup() {
@@ -99,6 +86,8 @@ export default {
         });
 
         const integrationAssetsByPlatform = ref(getIntegrationsGroupedByPlatform(allIntegrations.value));
+        // TODO: data should be reactive
+        const tokensData = ref([...allTokens.value]);
 
         const getAssetsShare = (balance) => {
             if (!balance || !totalBalances.value) {
@@ -113,27 +102,28 @@ export default {
         watch(isAllTokensLoading, () => {
             if (!isAllTokensLoading.value) {
                 integrationAssetsByPlatform.value = getIntegrationsGroupedByPlatform(allIntegrations.value);
+                tokensData.value = [...allTokens.value];
             }
         });
 
         watch(walletAccount, () => {
             integrationAssetsByPlatform.value = getIntegrationsGroupedByPlatform(allIntegrations.value);
+            tokensData.value = [...allTokens.value];
         });
 
         watch(isLoadingForChain, () => {
             if (!isLoadingForChain.value) {
                 integrationAssetsByPlatform.value = getIntegrationsGroupedByPlatform(allIntegrations.value);
+                tokensData.value = [...allTokens.value];
             }
         });
 
         return {
-            prettyNumber,
-
+            tokensData,
             isLoadingForChain,
             isAllTokensLoading,
 
             isEmpty,
-            getTokenIcon,
 
             allTokens,
             allIntegrations,
@@ -144,7 +134,6 @@ export default {
             // utils for Assets templates
             getAssetsShare,
             getFormattedName,
-            getFormattedDate,
         };
     },
 };
@@ -175,41 +164,6 @@ export default {
 
     &.empty {
         justify-content: center;
-    }
-}
-
-.asset-item__info {
-    display: flex;
-    color: var(--#{$prefix}small-lg-fs);
-    font-weight: 500;
-    font-size: var(--#{$prefix}small-lg-fs);
-
-    div {
-        &::before {
-            content: '\2022';
-            margin: 0 4px;
-            color: var(--#{$prefix}checkbox-text);
-        }
-    }
-
-    .asset-item__type,
-    .asset-item__apr {
-        color: var(--#{$prefix}sub-text);
-        font-size: var(--#{$prefix}small-lg-fs);
-        font-weight: 300;
-    }
-
-    .asset-item__apr {
-        span {
-            font-weight: 400;
-            color: var(--#{$prefix}mute-apr-text);
-        }
-    }
-
-    .asset-item__unlock {
-        color: var(--#{$prefix}mute-apr-text);
-        font-weight: 400;
-        font-size: var(--#{$prefix}small-lg-fs);
     }
 }
 </style>

@@ -74,6 +74,10 @@ export default {
         const showRoutesModal = computed(() => store.getters['swap/showRoutes']);
 
         const callInit = async () => {
+            if (isInitCall.value[walletAccount.value]) {
+                return;
+            }
+
             const { ecosystem, walletModule } = currentChainInfo.value || {};
 
             if (!walletModule || !ecosystem || !walletAddress.value || showRoutesModal.value) {
@@ -82,16 +86,16 @@ export default {
 
             store.dispatch('tokens/setLoader', true);
 
+            isInitCall.value = {
+                ...isInitCall.value,
+                [walletAccount.value]: true,
+            };
+
             await delay(1000);
 
             const addressesWithChains = getAddressesWithChainsByEcosystem(ecosystem);
 
             await useInit(store, { account: walletAccount.value, addressesWithChains, currentChainInfo: currentChainInfo.value });
-
-            isInitCall.value = {
-                ...isInitCall.value,
-                [walletAddress.value]: true,
-            };
         };
 
         onBeforeMount(async () => await store.dispatch('networks/initZometNets'));
@@ -142,18 +146,12 @@ export default {
 
         watch(walletAccount, async () => {
             console.log('walletAccount', walletAccount.value, isInitCall.value);
-            if (isInitCall.value[walletAddress.value]) {
-                return;
-            }
+            Socket.addressSubscription(walletAddress.value);
 
             await callInit();
         });
 
         onUpdated(async () => {
-            if (isInitCall.value[walletAddress.value]) {
-                return;
-            }
-
             if (currentChainInfo.value) {
                 return await callInit();
             }

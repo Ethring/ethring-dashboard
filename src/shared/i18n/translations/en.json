@@ -73,7 +73,10 @@
     "selectSrcToken": "Please select token source token",
     "rate": "Rate",
     "protocolFee": "Protocol Fee",
-    "serviceFee": "Service Fee"
+    "serviceFee": "Service Fee",
+    "transferFrom": "Transfer from",
+    "transferTo": "Transfer to",
+    "asset": "Asset"
   },
   "simpleSend": {
     "title": "Send"

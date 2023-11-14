@@ -3,7 +3,7 @@
         <Modal :title="$t('superSwap.selectRoutes')" @close="$emit('close')">
             <div class="routes-modal">
                 <div
-                    v-for="(item, i) in routeInfo.otherRoutes"
+                    v-for="(item, i) in routes"
                     @click="() => setActiveRoute(item)"
                     class="routes-modal__item"
                     :class="selectedRoute === item ? 'routes-modal__active-item' : ''"
@@ -40,7 +40,6 @@
                 </div>
                 <Button
                     :loading="isLoading"
-                    :disabled="!selectedRoute"
                     :title="$t('tokenOperations.confirm')"
                     class="routes-modal__btn"
                     @click="confirm"
@@ -58,9 +57,9 @@ import Modal from '@/components/app/Modal';
 import Button from '@/components/ui/Button';
 
 import { prettyNumberTooltip } from '@/helpers/prettyNumber';
-import { checkAllowance } from '@/modules/SuperSwap/baseScript';
+// import { checkAllowance } from '@/modules/SuperSwap/baseScript';
 
-import useAdapter from '@/Adapter/compositions/useAdapter';
+// import useAdapter from '@/Adapter/compositions/useAdapter';
 
 export default {
     name: 'RoutesModal',
@@ -71,25 +70,23 @@ export default {
     emits: ['close'],
     setup() {
         const store = useStore();
-        const selectedRoute = ref(null);
-        const isLoading = ref(false);
-
-        const { walletAddress } = useAdapter();
-
         const routeInfo = computed(() => store.getters['swap/bestRoute']);
 
+        const selectedRoute = ref(routeInfo.value.bestRoute);
+        const isLoading = ref(false);
+
+        const routes = computed(() => {
+            return [routeInfo.value.bestRoute, ...routeInfo.value.otherRoutes];
+        });
+
         const confirm = async () => {
-            isLoading.value = true;
-            for (let i = 0; i < selectedRoute.value.routes.length; i++) {
-                selectedRoute.value.routes[i].isNeedApprove = await checkAllowance(
-                    selectedRoute.value.routes[i].net,
-                    selectedRoute.value.routes[i].fromToken?.address,
-                    walletAddress.value,
-                    selectedRoute.value.routes[i].fromTokenAmount,
-                    selectedRoute.value.routes[i].fromToken?.decimals,
-                    selectedRoute.value.routes[i].service
-                );
+            if (selectedRoute.value === routeInfo.value.bestRoute) {
+                store.dispatch('swap/setShowRoutes', false);
+                return;
             }
+
+            isLoading.value = true;
+
             const data = {
                 bestRoute: selectedRoute.value,
                 otherRoutes: routeInfo.value.otherRoutes.map((elem) => {
@@ -140,6 +137,7 @@ export default {
         };
 
         return {
+            routes,
             routeInfo,
             selectedRoute,
             isLoading,
@@ -178,7 +176,6 @@ export default {
         border: 1px solid var(--#{$prefix}modal-block-bg-color);
 
         cursor: pointer;
-        transition: 0.5s;
     }
     &__active-item {
         border: 1px solid var(--#{$prefix}banner-logo-color);
