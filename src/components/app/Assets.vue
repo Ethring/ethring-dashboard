@@ -151,7 +151,7 @@ export default {
         background-color: var(--#{$prefix}secondary-background);
         border-radius: 16px;
         padding: 16px;
-        margin-bottom: 32px;
+        margin-bottom: 16px;
         box-sizing: border-box;
         @include animateEasy;
 
