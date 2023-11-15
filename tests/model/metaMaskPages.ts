@@ -4,15 +4,28 @@ import { getTestVar, TEST_CONST } from '../envHelper';
 
 const sleep = require('util').promisify(setTimeout);
 
-const testSeedPhrase = getTestVar(TEST_CONST.TEST_SEED);
 const password = getTestVar(TEST_CONST.PASS_BY_MM_WALLET);
 
-export const waitMmNotifyWindow = async () => {
+export const sleepFiveSecond = async () => {
     await sleep(5000);
+};
+
+export const waitMmNotifyPage = async (context: BrowserContext) => {
+    try {
+        await sleepFiveSecond();
+        await context.pages()[2].title();
+    } catch (error) {
+        console.error('First try get mm notify page is failed.', error, ' Second try...');
+        await sleepFiveSecond();
+        await context.pages()[2].title();
+    }
 };
 
 export const getNotifyMmPage = async (context: BrowserContext): Promise<Page> => {
     const expectedMmPageTitle = 'MetaMask Notification';
+
+    await waitMmNotifyPage(context);
+
     const notifyPage = context.pages()[2];
     const titlePage = await notifyPage.title();
 
@@ -24,7 +37,7 @@ export const getNotifyMmPage = async (context: BrowserContext): Promise<Page> =>
 };
 
 export const closeEmptyPages = async (context: BrowserContext) => {
-    await waitMmNotifyWindow();
+    await sleepFiveSecond();
     const allStartPages = context.pages();
 
     for (const page of allStartPages) {
@@ -58,15 +71,16 @@ export class MetaMaskHomePage {
         await this.page.goto(`chrome-extension://${metaMaskId}/notification.html`);
     }
 
-    async importExistWallet() {
-        await waitMmNotifyWindow();
+    async addWallet(seed: String) {
+        await sleepFiveSecond();
         await this.page.reload();
         await this.page.locator('input[data-testid=onboarding-terms-checkbox]').click();
         await this.page.locator('button[data-testid=onboarding-import-wallet]').click();
         await this.page.locator('button[data-testid=metametrics-i-agree]').click();
-        const myArray = testSeedPhrase.split(' ');
-        for (let i = 0; i < myArray.length; i++) {
-            await this.page.locator(`input[data-testid=import-srp__srp-word-${i}]`).fill(myArray[i]);
+
+        const seedArray = seed.split(' ');
+        for (let i = 0; i < seedArray.length; i++) {
+            await this.page.locator(`input[data-testid=import-srp__srp-word-${i}]`).fill(seedArray[i]);
         }
         await this.page.click('[data-testid="import-srp-confirm"]');
         await this.page.fill('input[data-testid=create-password-new]', password);

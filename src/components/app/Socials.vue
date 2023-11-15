@@ -1,5 +1,5 @@
 <template>
-    <div class="socials">
+    <div class="socials" :class="{ collapsed: collapsed }">
         <a class="socials__item telegram disabled">
             <TelegramIcon />
         </a>
@@ -9,8 +9,8 @@
         <a class="socials__item discord disabled">
             <DiscordIcon />
         </a>
-        <a class="socials__item gitbook disabled">
-            <GitbookIcon />
+        <a class="socials__item git-book disabled">
+            <GitBookIcon />
         </a>
     </div>
 </template>
@@ -18,7 +18,7 @@
 import TelegramIcon from '@/assets/icons/socials/telegram.svg';
 import TwitterIcon from '@/assets/icons/socials/twitter.svg';
 import DiscordIcon from '@/assets/icons/socials/discord.svg';
-import GitbookIcon from '@/assets/icons/socials/gitbook.svg';
+import GitBookIcon from '@/assets/icons/socials/git-book.svg';
 
 export default {
     name: 'Socials',
@@ -26,20 +26,24 @@ export default {
         TelegramIcon,
         TwitterIcon,
         DiscordIcon,
-        GitbookIcon,
+        GitBookIcon,
+    },
+    props: {
+        collapsed: {
+            type: Boolean,
+            required: false,
+        },
     },
 };
 </script>
 <style lang="scss" scoped>
 .socials {
-    display: flex;
-    align-items: center;
+    @include pageFlexRow;
     justify-content: space-between;
 
     &__item {
-        display: flex;
+        @include pageFlexRow;
         justify-content: center;
-        align-items: center;
 
         width: 40px;
         height: 40px;
@@ -61,6 +65,14 @@ export default {
     .disabled {
         cursor: not-allowed;
         opacity: 0.5;
+    }
+
+    &.collapsed {
+        .socials__item {
+            &:not(:last-child) {
+                margin-bottom: 10px;
+            }
+        }
     }
 }
 </style>

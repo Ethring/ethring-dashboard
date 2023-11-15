@@ -22,7 +22,7 @@ import Spinner from '@/components/app/Spinner';
 import SimpleBridge from '@/components/dynamic/bridge/SimpleBridge.vue';
 import SimpleSwap from '@/components/dynamic/swaps/SimpleSwap.vue';
 import SimpleSend from '@/components/dynamic/send/SimpleSend.vue';
-import SuperSwap from '@/components/dynamic/superswap/SuperSwap.vue';
+import SuperSwap from '@/components/dynamic/super-swap/SuperSwap.vue';
 
 export default {
     name: 'AppLayout',
@@ -73,8 +73,6 @@ export default {
 </script>
 <style lang="scss" scoped>
 .layout {
-    @include pageStructure;
-
     .layout-page {
         @include pageFlexColumn;
         height: calc(100vh - 125px);

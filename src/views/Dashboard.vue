@@ -1,5 +1,5 @@
 <template>
-    <div class="dashboard">
+    <div class="dashboard" data-qa="dashboard">
         <template v-if="walletAddress">
             <div class="dashboard__wallet">
                 <WalletInfoLarge />
@@ -32,8 +32,6 @@ export default {
 </script>
 <style lang="scss" scoped>
 .dashboard {
-    @include pageStructure;
-
     &__wallet {
         position: relative;
         background-color: var(--#{$prefix}banner-color);
@@ -61,8 +59,7 @@ export default {
     }
 
     &__controls {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         z-index: 1;
     }
 

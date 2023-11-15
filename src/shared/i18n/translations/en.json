@@ -7,7 +7,8 @@
     "send": "SEND",
     "search": "Search",
     "notFound": "Nothing was found for your query",
-    "emptyAssets": "You don't have any assets"
+    "emptyAssets": "You don't have any assets",
+    "updateAvailable": "A new version of application is available. Click the Update button below to get the new version with the latest features and improvements"
   },
   "sidebar": {
     "main": "Overview",
@@ -72,7 +73,10 @@
     "selectSrcToken": "Please select token source token",
     "rate": "Rate",
     "protocolFee": "Protocol Fee",
-    "serviceFee": "Service Fee"
+    "serviceFee": "Service Fee",
+    "transferFrom": "Transfer from",
+    "transferTo": "Transfer to",
+    "asset": "Asset"
   },
   "simpleSend": {
     "title": "Send"

@@ -2,6 +2,7 @@
     <div class="asset__item-sub-header">
         <div class="asset__item-sub-header-title">
             {{ type }}
+            <span v-if="name">{{ name.trim() }}</span>
         </div>
         <div class="asset__item-sub-header-label">
             {{ $t('tokenOperations.balance') }}
@@ -18,6 +19,9 @@ export default {
         type: {
             required: true,
         },
+        name: {
+            default: null,
+        },
     },
     setup() {},
 };
@@ -30,18 +34,23 @@ export default {
 
     color: var(--#{$prefix}base-text);
     font-size: var(--#{$prefix}small-sm-fs);
-    margin: 16px 0;
+    margin: 16px 0 8px;
 
-    display: flex;
-    align-items: center;
+    @include pageFlexRow;
 
     &-title {
         display: flex;
-        width: 60%;
+        width: 58%;
+
+        span::before {
+            content: '\2022';
+            margin: 0 4px;
+            color: var(--#{$prefix}checkbox-text);
+        }
     }
 
     &-label {
-        width: 20%;
+        width: 22%;
 
         &__right {
             width: 20%;

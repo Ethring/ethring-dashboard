@@ -62,7 +62,7 @@ export default {
             }
 
             for (const token in tokens) {
-                // tokens[token].id = `${network}_${token}_${tokens[token].symbol}`;
+                tokens[token].id = `${network}:asset__${tokens[token].address}:${tokens[token].symbol}`;
                 tokens[token].chain = network;
                 tokens[token].balance = 0;
                 tokens[token].balanceUsd = 0;

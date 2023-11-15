@@ -19,8 +19,7 @@ export default {
 
 <style lang="scss" scoped>
 .not-connected {
-    display: flex;
-    align-items: center;
+    @include pageFlexRow;
     justify-content: flex-end;
 
     padding: 8px 16px;
@@ -36,8 +35,7 @@ export default {
     transition: 0.2s;
 
     .icon-container {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         width: 40px;
         height: 40px;
         border-radius: 50%;

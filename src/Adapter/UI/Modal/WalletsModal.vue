@@ -4,7 +4,9 @@
             <div class="wallets-modal__body">
                 <div class="top">
                     <div>{{ $t('connect.availableWallets') }}</div>
-                    <div class="close" @click="(event) => close(event, true)">X</div>
+                    <div class="close" @click="(event) => close(event, true)">
+                        <CloseIcon />
+                    </div>
                 </div>
                 <div class="content" v-if="isOpen">
                     <div class="content-wallets">
@@ -30,10 +32,13 @@ import WalletItem from '@/Adapter/UI/Entities/WalletItem';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
+import CloseIcon from '@/assets/icons/dashboard/close.svg';
+
 export default {
     name: 'WalletsModal',
     components: {
         WalletItem,
+        CloseIcon,
     },
     setup() {
         const store = useStore();
@@ -88,8 +93,7 @@ export default {
     background-color: rgba(0, 0, 0, 0.6);
     color: var(--#{$prefix}primary-text);
 
-    display: flex;
-    align-items: center;
+    @include pageFlexRow;
     justify-content: center;
 
     &.active {
@@ -110,14 +114,44 @@ export default {
         background-color: var(--#{$prefix}secondary-background);
 
         .top {
-            display: flex;
-            align-items: center;
+            @include pageFlexRow;
             justify-content: space-between;
             padding: 16px;
             border-bottom: 1px solid var(--#{$prefix}border-color-op-05);
 
             .close {
+                @include pageFlexRow;
+                justify-content: center;
+                position: relative;
+                overflow: hidden;
+                height: 32px;
+                width: 32px;
+                border-radius: 50%;
                 cursor: pointer;
+
+                &::before {
+                    content: '';
+                    position: absolute;
+                    height: inherit;
+                    width: inherit;
+                    opacity: 0.1;
+                    background: var(--#{$prefix}adapter-modal-close-color);
+                    transition: 300ms ease-in-out opacity;
+
+                    &:hover {
+                        opacity: 0.4;
+                    }
+                }
+
+                svg {
+                    opacity: 0.6;
+                    cursor: pointer;
+                    fill: var(--#{$prefix}adapter-modal-close-color);
+
+                    &:hover {
+                        opacity: 0.8;
+                    }
+                }
             }
         }
 

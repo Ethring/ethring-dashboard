@@ -44,11 +44,11 @@ const getApproveOrAllowance = (state, target, { account = null, chain = null, to
         return null;
     }
 
-    if (!state[target]) {
+    const targetKey = `${account}:${chain}:${service}:${tokenAddress}`;
+
+    if (!state[target][targetKey]) {
         return null;
     }
-
-    const targetKey = `${account}:${chain}:${service}:${tokenAddress}`;
 
     return state[target][targetKey];
 };
@@ -136,6 +136,10 @@ export default {
         },
         // =========== APPROVE & ALLOWANCE ===========
         [TYPES.SET_ALLOWANCE_FOR_ACCOUNT_ADDRESS](state, { account, chain, tokenAddress, allowance, service }) {
+            if (!account || !chain || !tokenAddress || !service) {
+                return;
+            }
+
             const targetKey = `${account}:${chain}:${service}:${tokenAddress}`;
 
             if (!state.allowance[targetKey]) {
@@ -145,6 +149,10 @@ export default {
             state.allowance[targetKey] = allowance;
         },
         [TYPES.SET_APPROVE_FOR_ACCOUNT_ADDRESS](state, { account, chain, tokenAddress, approve, service }) {
+            if (!account || !chain || !tokenAddress || !service) {
+                return;
+            }
+
             const targetKey = `${account}:${chain}:${service}:${tokenAddress}`;
 
             if (!state.allowance[targetKey]) {

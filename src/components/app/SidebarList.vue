@@ -1,5 +1,5 @@
 <template>
-    <div class="sidebar-list">
+    <div class="sidebar-list" :class="{ collapsed }">
         <router-link
             v-for="(item, ndx) in menu"
             :key="ndx"
@@ -8,10 +8,16 @@
             :data-qa="item.key"
             :class="{ disabled: item.disabled }"
         >
-            <div class="sidebar-list__item-icon">
-                <component v-if="item.component" :is="item.component" />
-            </div>
-            <div class="sidebar-list__item-title" :data-qa="`sidebar-item-${item.key}`">
+            <a-tooltip placement="right">
+                <template #title v-if="collapsed">
+                    {{ $t(`sidebar.${item.key}`) }}
+                </template>
+                <div class="sidebar-list__item-icon">
+                    <component v-if="item.component" :is="item.component" />
+                </div>
+            </a-tooltip>
+
+            <div v-if="!collapsed" class="sidebar-list__item-title" :data-qa="`sidebar-item-${item.key}`">
                 {{ $t(`sidebar.${item.key}`) }}
                 <div v-if="item.status" class="sidebar-list__item-status">{{ item.status }}</div>
             </div>
@@ -44,6 +50,12 @@ export default {
         superSwapIcon,
         buyCryptoIcon,
     },
+    props: {
+        collapsed: {
+            type: Boolean,
+            default: false,
+        },
+    },
     setup() {
         const { currentChainInfo } = useAdapter();
 
@@ -74,17 +86,17 @@ export default {
     align-items: flex-start;
     flex-direction: column;
     box-sizing: border-box;
+
     font-size: var(--#{$prefix}h3-fs);
 
     &__item {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
+        @include animateEasy;
+
         margin-bottom: 30px;
         text-decoration: none;
         color: var(--#{$prefix}sidebar-text);
         cursor: pointer;
-
-        @include animateEasy;
 
         &:hover:not(.disabled) {
             color: $colorPl;
@@ -104,7 +116,6 @@ export default {
 
         svg {
             fill: var(--#{$prefix}sidebar-text);
-            transform: scale(0.8);
             @include animateEasy;
         }
 
@@ -130,8 +141,10 @@ export default {
 
     &__item-title {
         margin-left: 10px;
+
         font-weight: 300;
         font-size: 20px;
+
         display: flex;
         align-items: flex-start;
     }
@@ -140,7 +153,16 @@ export default {
         color: var(--#{$prefix}sidebar-active-color);
         font-size: 12px;
         font-weight: 600;
+
         margin-left: 6px;
+    }
+
+    &.collapsed {
+        align-self: center !important;
+
+        .sidebar-list {
+            align-self: center !important;
+        }
     }
 }
 </style>

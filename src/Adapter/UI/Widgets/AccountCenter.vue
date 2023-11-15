@@ -1,6 +1,6 @@
 <template>
-    <div class="wallet-adapter">
-        <div class="wallet-adapter__account" @click.stop="$emit('toggleDropdown')">
+    <div class="wallet-adapter" @click="$emit('toggleDropdown')">
+        <div class="wallet-adapter__account">
             <div class="wallet-adapter__logos">
                 <div class="logo-container main-logo">
                     <ZometLogo />
@@ -33,7 +33,6 @@
     </div>
 </template>
 <script>
-import { watch } from 'vue';
 import { CaretDownOutlined, CopyOutlined } from '@ant-design/icons-vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
@@ -50,12 +49,8 @@ export default {
     name: 'AccountCenter',
     components: { ModuleIcon, ZometLogo, CheckIcon, CaretDownOutlined, CopyOutlined },
     emits: ['toggleDropdown', 'closeDropdown'],
-    setup(_, { emit }) {
+    setup() {
         const { ecosystem, walletAddress, walletAccount, connectedWallet, connectedWallets, isConnecting, action } = useAdapter();
-
-        watch(connectedWallet, () => {
-            emit('closeDropdown');
-        });
 
         const handleOnCopyAddress = () => {
             action('SET_MODAL_ECOSYSTEM', ecosystem.value);
@@ -86,8 +81,8 @@ export default {
 .wallet-adapter {
     cursor: pointer;
 
-    display: flex;
-    align-items: center;
+    @include pageFlexRow;
+
     width: 100%;
     min-width: 300px;
     height: 58px;
@@ -107,23 +102,21 @@ export default {
     }
 
     &__account {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         width: 100%;
         transition: 0.5s;
     }
 
     &__logos {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         margin-right: 8px;
 
         .logo-container {
             position: relative;
 
-            display: flex;
-            align-items: center;
+            @include pageFlexRow;
             justify-content: center;
+
             width: 40px;
             height: 40px;
 
@@ -153,6 +146,7 @@ export default {
         display: flex;
         flex-direction: column;
         width: 100%;
+        line-height: 16px;
 
         .account {
             font-size: var(--#{$prefix}small-lg-fs);
@@ -168,8 +162,7 @@ export default {
     }
 
     &__actions {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
 
         gap: 8px;
 

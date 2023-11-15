@@ -3,7 +3,7 @@ import axios from 'axios';
 import fs from 'fs';
 import AdmZip from 'adm-zip';
 import { test as setup } from '@playwright/test';
-import { getTestVar, TEST_CONST } from '../envHelper';
+import { getTestVar, TEST_CONST } from '../../envHelper';
 
 async function download(url, archivePath) {
     try {
@@ -26,14 +26,14 @@ async function downloadAndUnzipMmEx() {
     const extensionName = `metamask-chrome-${mmVersion}`;
 
     const url = `https://github.com/MetaMask/metamask-extension/releases/download/v${mmVersion}/${extensionName}.zip`;
-    const dataFolderPath = path.resolve(__dirname, '..', 'data', extensionName);
+    const dataFolderPath = path.resolve(__dirname, '..', '..', 'data', extensionName);
     const pathToArchive = path.resolve(dataFolderPath, `${extensionName}.zip`);
 
     fs.mkdir(dataFolderPath, (err) => {
         if (err) {
-            console.error('Error creating folder:', err);
+            console.error('Error creating folder by MM extension:', err);
         } else {
-            console.log('Folder created successfully.');
+            console.log('Folder by MM extension created successfully.');
         }
     });
 

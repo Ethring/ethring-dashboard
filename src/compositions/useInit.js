@@ -72,12 +72,12 @@ const saveOrGetDataFromCache = async (key, data) => {
 
 // =================================================================================================================
 
-const formatRecords = (records, { chain, chainAddress, logo }) => {
+const formatRecords = (records, { chain, logo }) => {
     for (const record of records) {
         if (!record.address) {
-            record.id = `${chainAddress}:${chain}:asset__native:${record.symbol}`;
+            record.id = `${chain}:asset__native:${record.symbol}`;
         } else {
-            record.id = `${chainAddress}:${chain}:asset__${record.address}:${record.symbol}`;
+            record.id = `${chain}:asset__${record.address}:${record.symbol}`;
         }
 
         record.chainLogo = logo;
@@ -117,8 +117,6 @@ const integrationsForSave = (integrations, { chain, logo, chainAddress }) => {
 // =================================================================================================================
 
 export default async function useInit(store, { addressesWithChains = {}, account = null, currentChainInfo } = {}) {
-    store.dispatch('tokens/setLoader', true);
-
     const allTokensForAccount = computed(() => store.getters['tokens/tokens'][account] || []);
     const allTokensBalance = computed(() => store.getters['tokens/totalBalances'][account] || 0);
 
@@ -168,7 +166,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
             // =========================================================================================================
 
             if (!requests[chainForRequest]) {
-                requests[chain] = await getBalancesByAddress(chainForRequest, chainAddress);
+                requests[chainForRequest] = await getBalancesByAddress(chainForRequest, chainAddress);
             }
 
             if (!requests[chainForRequest]) {

@@ -1,10 +1,9 @@
 import { expect, type Locator, type Page } from '@playwright/test';
-import { waitMmNotifyWindow } from './metaMaskPages';
-import { getTestVar, TEST_CONST } from '../envHelper';
+import { sleepFiveSecond } from './metaMaskPages';
 
 const sleep = require('util').promisify(setTimeout);
 
-const url: string = getTestVar(TEST_CONST.DEV_URL);
+const url: string = '/';
 
 export class DashboardPage {
     readonly page: Page;
@@ -17,11 +16,10 @@ export class DashboardPage {
         await this.page.goto(url);
     }
 
-    async loginByMetaMask() {
+    async clickLoginByMetaMask() {
         await this.page.locator('div.wallet-adapter-container').click();
         await this.page.getByTestId('EVM Ecosystem wallet').click();
         await this.page.getByText('MetaMask').click();
-        await waitMmNotifyWindow();
     }
 
     async goToSend() {
@@ -35,24 +33,38 @@ export class DashboardPage {
         return new SwapPage(this.page);
     }
 
+    async goToBridge() {
+        await this.page.getByTestId('sidebar-item-bridge').click();
+        await this.page.waitForLoadState();
+        return new BridgePage(this.page);
+    }
+
     async goToSuperSwap() {
         await this.page.getByTestId('sidebar-item-superSwap').click();
         return new SuperSwapPage(this.page);
+    }
+
+    async waitMainElementVisible() {
+        await this.page.getByTestId('dashboard').waitFor({ state: 'visible', timeout: 20000 });
     }
 
     async getLinkFromSuccessPanel() {
         return await this.page.locator('//div[@class="success info-panel mt-10"]//a').getAttribute('href');
     }
 
-    async mockResponseByService(url: String, mockData: object) {
-        await this.page.route('**/transfer**', (route) => {
-            route.fulfill({
-                status: 404,
-                contentType: 'text/plain',
-                body: 'Not Found!',
-            });
-        });
+    async mockBalanceRequest(net: string, mockData: object) {
+        await this.page.route(
+            `**/srv-data-provider/api/balances?net=${net}&address=0xd22b3757b5b7010aa1c4293b38e2e0d53fbe5efc**`,
+            (route) => {
+                route.fulfill({
+                    status: 200,
+                    contentType: 'application/json; charset=utf-8',
+                    body: JSON.stringify(mockData),
+                });
+            }
+        );
     }
+
 }
 
 export class SwapPage extends DashboardPage {
@@ -65,17 +77,17 @@ export class SwapPage extends DashboardPage {
         await this.page.click('button.simple-swap__btn');
         await this.page.waitForLoadState();
         await this.page.waitForLoadState('domcontentloaded');
-        await waitMmNotifyWindow();
+        await sleepFiveSecond();
     }
 
     async openAccordionWithNetworks() {
         await this.page.getByTestId('select-network').click();
     }
 
-    async selectNetworkBySwap(netName: String) {
+    async selectNetworkBySwap(netName: string) {
         await this.openAccordionWithNetworks();
         await this.page.locator(`//div[@class="select__items"]//div[text()="${netName}"]`).click();
-        await waitMmNotifyWindow();
+        await sleepFiveSecond();
     }
 
     async changeNetworkBySwap(netName: string) {
@@ -88,7 +100,7 @@ export class SwapPage extends DashboardPage {
     }
 
     async getCurrentNetInSwap() {
-        await waitMmNotifyWindow();
+        await sleepFiveSecond();
         await this.page.waitForLoadState();
         return await this.page.locator('//div[@data-qa="select-network"]//div[@class="name"]').textContent();
     }
@@ -171,5 +183,11 @@ export class SendPage extends DashboardPage {
 
     async getTokenTo() {
         return await this.page.locator('(//*[@data-qa="select-token"]/div[@class="token"])[2]').textContent();
+    }
+}
+
+export class BridgePage extends DashboardPage {
+    constructor(page: Page) {
+        super(page);
     }
 }

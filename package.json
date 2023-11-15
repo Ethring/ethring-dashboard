@@ -7,7 +7,11 @@
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit --passWithNoTests",
     "test:mockRpc": "node ./tests/mockServer/mockServer.js",
-    "test:e2e": "npx playwright test --workers 1",
+    "test:e2e:debug": "npx playwright test --workers 1 --debug",
+    "test:e2e:updateSnapshot": "xvfb-run npx playwright test --update-snapshots",
+    "test:e2e:ci:updateSnapshot": "xvfb-run npx playwright test --update-snapshots --workers 1 --project=$PROJECT --shard=$SHARD_INDEX/$SHARD_TOTAL",
+    "test:e2e:ci": "xvfb-run npx playwright test --workers 1 --project=$PROJECT --shard=$SHARD_INDEX/$SHARD_TOTAL",
+    "test:report": "npx playwright show-report",
     "lint": "vue-cli-service lint",
     "lint:code": "vue-cli-service lint",
     "lint:code:fix": "vue-cli-service lint --fix",
@@ -64,7 +68,7 @@
     "@babel/preset-typescript": "^7.22.5",
     "@commitlint/cli": "^17.6.3",
     "@commitlint/config-conventional": "^17.6.3",
-    "@playwright/test": "^1.37.0",
+    "@playwright/test": "^1.39.0",
     "@types/node": "^20.5.0",
     "@vue/cli-plugin-babel": "~4.5.12",
     "@vue/cli-plugin-eslint": "~5.0.0",
@@ -90,7 +94,8 @@
     "sass": "^1.62.1",
     "sass-loader": "^10.4.1",
     "vue-svg-loader": "^0.17.0-beta.2",
-    "vue-template-babel-compiler": "^2.0.0"
+    "vue-template-babel-compiler": "^2.0.0",
+    "ws": "^8.14.2"
   },
   "browserslist": [
     "> 1%",

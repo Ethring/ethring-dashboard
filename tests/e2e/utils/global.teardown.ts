@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { getTestVar, TEST_CONST } from '../envHelper';
+import { getTestVar, TEST_CONST } from '../../envHelper';
 import { test as teardown, expect } from '@playwright/test';
 
 const clearDirectory = (dirPath) => {
@@ -25,7 +25,7 @@ const clearDirectory = (dirPath) => {
 };
 
 teardown(`Delete extension's files`, () => {
-    const directoryPath = path.resolve(__dirname, '..', 'data', `metamask-chrome-${getTestVar(TEST_CONST.MM_VERSION)}`);
+    const directoryPath = path.resolve(__dirname, '..', '..', 'data', `metamask-chrome-${getTestVar(TEST_CONST.MM_VERSION)}`);
 
     if (!process.env.CI) {
         clearDirectory(directoryPath);

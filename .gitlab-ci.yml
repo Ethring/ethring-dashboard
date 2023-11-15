@@ -1,4 +1,5 @@
 stages:
+  - test_before_mr
   - build_docker
   - deploy
   - sentry
@@ -97,15 +98,17 @@ Build dev:
   extends: .dockerBuildJob
   environment:
     name: dev
-  only:
-    - dev
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "dev"
 
 Build beta:
   extends: .dockerBuildJob
   environment:
     name: dev
-  only:
-    - beta
+  rules:
+    - if: $CI_COMMIT_BRANCH == "beta"
 
 Build branch:
   extends: .dockerBuildJob
@@ -128,15 +131,17 @@ Build prod:
     NODE_ENV: production
   before_script:
     - export VUE_APP_RELEASE=$(date +'%d.%m.%Y')-$CI_COMMIT_SHORT_SHA
-  only:
-    - master
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
 
 Deploy dev:
   extends: .deployJob
   environment:
     name: dev
-  only:
-    - dev
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - if: $CI_COMMIT_BRANCH == "dev"
 
 Deploy beta:
   extends: .deployJob
@@ -145,8 +150,8 @@ Deploy beta:
     TEMPLATE: auth-template.yml
   environment:
     name: dev
-  only:
-    - beta
+  rules:
+    - if: $CI_COMMIT_BRANCH == "beta"
 
 Deploy branch:
   extends: .deployJob
@@ -171,17 +176,63 @@ Deploy prod:
   extends: .deployJob
   environment:
     name: prod
-  only:
-    - master
+  rules:
+    - if: $CI_COMMIT_BRANCH == "prod"
 
 
 # Tests stuff
+Update snapshot:
+  stage: test_before_mr
+  image: mcr.microsoft.com/playwright:v1.39.0-jammy
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: manual
+  parallel:
+    matrix:
+      - PROJECT: ['chromium']
+        SHARD_INDEX: [1]
+        SHARD_TOTAL: 1
+  script:
+    - npm i
+    - npm run test:e2e:ci:updateSnapshot
+  timeout: 20 minutes
+  artifacts:
+    paths:
+      - ./playwright-report/
+      - ./Screenshot/
+      - ./tests/e2e/*.spec.ts-snapshots/
+    when: always
+    expire_in: 1 days
+
+Run tests:
+  stage: test_before_mr
+  image: mcr.microsoft.com/playwright:v1.39.0-jammy
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "dev"
+  parallel:
+    matrix:
+      - PROJECT: ['chromium']
+        SHARD_INDEX: [1]
+        SHARD_TOTAL: 1
+  script:
+    - npm i
+    - npm run test:e2e:ci
+  timeout: 20 minutes
+  artifacts:
+    paths:
+      - ./playwright-report/
+      - ./Screenshot/
+      - ./tests/e2e/*.spec.ts-snapshots/
+    when: always
+    expire_in: 1 days
+
 
 Run tests schedules:
   stage: test_ui
-  image: mcr.microsoft.com/playwright:v1.37.0-jammy
-  only:
-    - schedules
+  image: mcr.microsoft.com/playwright:v1.39.0-jammy
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
   allow_failure: true
   parallel:
     matrix:
@@ -189,9 +240,8 @@ Run tests schedules:
         SHARD_INDEX: [1]
         SHARD_TOTAL: 1
   script:
-    - apt update && apt install -y default-jre
     - npm i
-    - xvfb-run npx playwright test --workers 1 --project=$PROJECT --shard=$SHARD_INDEX/$SHARD_TOTAL
+    - npm run test:e2e:ci
   timeout: 20 hours 30 minutes
   artifacts:
     paths:
@@ -202,8 +252,8 @@ Run tests schedules:
 
 Build tests report image:
   stage: test_ui_build
-  only:
-    - schedules
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
@@ -220,8 +270,8 @@ Build tests report image:
 
 Deploy tests report page:
   stage: test_ui_deploy
-  only:
-    - schedules
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
   image: yoep/openshift-client-4:4.6
   variables:
     NAME: "dashboard-test-reports"
