@@ -420,13 +420,60 @@ class CosmosAdapter extends AdapterBase {
                 gas: '200000', // TODO: get from chain
             };
 
-            console.log('-msg', msg);
             return {
                 msg,
                 fee,
             };
         } catch (error) {
             console.error('error while prepare', error);
+            return checkErrors(error);
+        }
+    }
+
+    async formatTransactionForSign(transaction) {
+        const chainWallet = this._getCurrentWallet();
+        // console.log(' chainWallet.value.chainRecord.chain', chainWallet.value.chainRecord.chain);
+        const [feeInfo = {}] = chainWallet.value.chainRecord.chain.fees.fee_tokens || [];
+
+        const response = {};
+
+        try {
+            const fee = {
+                amount: [
+                    {
+                        denom: feeInfo.denom,
+                        amount: feeInfo.average_gas_price.toString(),
+                    },
+                ],
+                gas: '200000', // TODO: get from chain
+            };
+
+            response.fee = fee;
+
+            if (transaction.value?.timeout_height) {
+                // transaction.value.timeoutHeight = transaction.value.timeout_height;
+                delete transaction.value.timeout_height;
+            }
+
+            if (transaction.value?.timeout_timestamp) {
+                transaction.value.timeoutTimestamp = transaction.value.timeout_timestamp;
+                delete transaction.value.timeout_timestamp;
+            }
+
+            if (transaction.value?.source_port) {
+                transaction.value.sourcePort = transaction.value.source_port;
+                delete transaction.value.source_port;
+            }
+
+            if (transaction.value?.source_channel) {
+                transaction.value.sourceChannel = transaction.value.source_channel;
+                delete transaction.value.source_channel;
+            }
+
+            response.msg = transaction;
+
+            return response;
+        } catch (error) {
             return checkErrors(error);
         }
     }
@@ -439,7 +486,7 @@ class CosmosAdapter extends AdapterBase {
         try {
             // chainWallet.value.rpcEndpoints = [`${DEFAULT_RPC}/${chainWallet.value.chainName}`];
 
-            const response = await chainWallet.value.signAndBroadcast([msg], fee);
+            const response = await chainWallet.value.signAndBroadcast([msg], fee, transaction.value?.memo, 'stargate');
 
             return response;
         } catch (error) {
@@ -456,6 +503,19 @@ class CosmosAdapter extends AdapterBase {
         const { tx_page } = explorer || {};
 
         return tx_page.replace('${txHash}', txHash);
+    }
+
+    getTokenExplorerLink(tokenAddress, chainInfo) {
+        console.log('chainInfo', chainInfo, tokenAddress);
+        // const MAIN_EXPLORER = 'mintscan';
+
+        // const explorer = chainInfo.explorers.find(({ kind }) => kind === MAIN_EXPLORER);
+
+        // console.log('explorer', explorer);
+        // const { tx_page } = explorer || {};
+
+        // return tx_page.replace('${txHash}', txHash);
+        return null;
     }
 
     getAddressesWithChains() {

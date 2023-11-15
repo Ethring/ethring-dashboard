@@ -177,6 +177,7 @@ export const getBridgeTx = async ({
     ownerAddress,
     recipientAddress,
     fallbackAddress,
+    ...rest
 }) => {
     try {
         const response = await fetchData({
@@ -191,6 +192,7 @@ export const getBridgeTx = async ({
                 ownerAddress,
                 recipientAddress,
                 fallbackAddress,
+                ...rest,
             },
         });
 

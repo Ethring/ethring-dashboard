@@ -148,10 +148,13 @@ export default {
 
         const { name: module } = router.currentRoute.value;
 
+        const addressesByChains = ref({});
+
         // * Notification
         const { showNotification, closeNotification } = useNotification();
 
-        const { walletAccount, walletAddress, currentChainInfo, chainList, validateAddress, setChain } = useAdapter();
+        const { walletAccount, walletAddress, currentChainInfo, chainList, validateAddress, setChain, getAddressesWithChainsByEcosystem } =
+            useAdapter();
 
         // * Transaction Manager
         const { currentRequestID, transactionForSign, createTransactions, signAndSend, addTransactionToRequestID } = useTransactions();
@@ -166,6 +169,10 @@ export default {
             get: () => store.getters['bridge/service'],
             set: (value) => store.dispatch('bridge/setService', value),
         });
+
+        if (currentChainInfo.value.ecosystem === ECOSYSTEMS.COSMOS) {
+            selectedService.value = services.find((service) => service.id === 'bridge-skip');
+        }
 
         // =================================================================================================================
         // * Module values
@@ -381,7 +388,7 @@ export default {
 
             isBalanceError.value = isNotEnoughBalance;
 
-            if (!allowanceForToken.value) {
+            if (!allowanceForToken.value && ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem) {
                 await requestAllowance();
             }
 
@@ -394,6 +401,10 @@ export default {
 
         const isNeedApprove = computed(() => {
             if (!srcAmount.value) {
+                return false;
+            }
+
+            if (selectedSrcNetwork.value?.ecosystem === ECOSYSTEMS.COSMOS) {
                 return false;
             }
 
@@ -491,14 +502,16 @@ export default {
 
             estimateErrorTitle.value = '';
 
-            feeInfo.value = {
-                title: 'tokenOperations.serviceFee',
-                symbolBetween: '~',
-                fromAmount: formatNumber(response.fee.amount),
-                fromSymbol: response.fee.currency,
-                toAmount: formatNumber(BigNumber(response.fee.amount).multipliedBy(selectedSrcToken.value?.price).toString()),
-                toSymbol: '$',
-            };
+            if (response.fee) {
+                feeInfo.value = {
+                    title: 'tokenOperations.serviceFee',
+                    symbolBetween: '~',
+                    fromAmount: formatNumber(response.fee.amount),
+                    fromSymbol: response.fee.currency,
+                    toAmount: formatNumber(BigNumber(response.fee.amount).multipliedBy(selectedSrcToken.value?.price).toString()),
+                    toSymbol: '$',
+                };
+            }
 
             rateInfo.value = {
                 title: 'tokenOperations.rate',
@@ -528,7 +541,15 @@ export default {
                 };
             }
 
+            if (!protocolFee) {
+                return;
+            }
+
             const fee = protocolFee[chain_id] || 0;
+
+            if (!fee) {
+                return;
+            }
 
             const { symbol = null, price = 0 } = native_token || 0;
 
@@ -558,17 +579,24 @@ export default {
             });
 
             try {
-                const response = await getBridgeTx({
+                const params = {
                     url: selectedService.value.url,
                     fromNet: selectedSrcNetwork.value.net,
                     fromTokenAddress: selectedSrcToken.value.address,
                     amount: srcAmount.value,
                     toNet: selectedDstNetwork.value.net,
                     toTokenAddress: selectedDstToken.value.address,
-                    recipientAddress: receiverAddress.value || walletAddress.value,
-                    fallbackAddress: walletAddress.value,
-                    ownerAddress: walletAddress.value,
-                });
+                };
+
+                if (selectedService.value.id === 'bridge-skip') {
+                    params.ownerAddresses = JSON.stringify(addressesByChains.value);
+                } else {
+                    params.ownerAddress = walletAddress.value;
+                    params.recipientAddress = receiverAddress.value || walletAddress.value;
+                    params.fallbackAddress = walletAddress.value;
+                }
+
+                const response = await getBridgeTx(params);
 
                 if (response.error) {
                     txError.value = response?.error || response;
@@ -800,7 +828,7 @@ export default {
                 return;
             }
 
-            if (!allowanceForToken.value) {
+            if (!allowanceForToken.value && ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem) {
                 await requestAllowance();
             }
         });
@@ -863,8 +891,21 @@ export default {
                 selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
             }
 
-            if (!allowanceForToken.value) {
+            if (!allowanceForToken.value && ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem) {
                 await makeAllowanceRequest();
+            }
+
+            if (selectedService.value.id === 'bridge-skip') {
+                const addressesWithChains = getAddressesWithChainsByEcosystem(selectedSrcNetwork.value?.ecosystem);
+
+                for (const chain in addressesWithChains) {
+                    const { address } = addressesWithChains[chain];
+
+                    addressesByChains.value = {
+                        ...addressesByChains.value,
+                        [chain]: address,
+                    };
+                }
             }
 
             isAllowForRequest();

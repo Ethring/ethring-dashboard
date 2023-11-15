@@ -100,6 +100,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             const tokenInfo = {
                 ...asset,
                 ...baseToken,
+                address: asset.base,
                 balance: baseToken?.balance || 0,
                 balanceUsd: baseToken?.balanceUsd || 0,
             };

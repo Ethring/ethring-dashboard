@@ -1,7 +1,7 @@
 import UIConfig from '@/config/ui';
 import { ECOSYSTEMS } from '@/Adapter/config';
 
-const NOT_SUPPORT_COSMOS = ['/bridge', '/super-swap', '/swap'];
+const NOT_SUPPORT_COSMOS = ['/super-swap', '/swap'];
 
 export default (path, currentChainInfo) => {
     const { net = null, ecosystem = null } = currentChainInfo || {};
