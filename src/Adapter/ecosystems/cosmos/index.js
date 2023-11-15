@@ -2,10 +2,23 @@ import { ref } from 'vue';
 
 import { fromEvent } from 'rxjs';
 
-import { cosmos } from 'juno-network';
+import {
+    cosmos,
+    cosmosAminoConverters,
+    cosmosProtoRegistry,
+    cosmwasmAminoConverters,
+    cosmwasmProtoRegistry,
+    ibcProtoRegistry,
+    ibcAminoConverters,
+} from 'osmojs';
+
+import { toUtf8 } from '@cosmjs/encoding';
 
 import { Logger, WalletManager } from '@cosmos-kit/core';
 import { wallets as KeplrWallets } from '@cosmos-kit/keplr';
+import { AminoTypes } from '@cosmjs/stargate';
+import { Registry } from '@cosmjs/proto-signing';
+
 // import { wallets as LeapWallets } from '@cosmos-kit/leap';
 import { utils } from 'ethers';
 
@@ -45,6 +58,25 @@ class CosmosAdapter extends AdapterBase {
         const [KEPLR_EXT] = KeplrWallets;
 
         const logger = new Logger('INFO');
+
+        // Custom Registry for stargate
+
+        const aminoConverters = {
+            ...cosmosAminoConverters,
+            ...cosmwasmAminoConverters,
+            ...ibcAminoConverters,
+        };
+
+        const protoRegistry = [...cosmosProtoRegistry, ...cosmwasmProtoRegistry, ...ibcProtoRegistry];
+
+        const aminoTypes = new AminoTypes(aminoConverters);
+        const registry = new Registry(protoRegistry);
+
+        this.customAminoType = aminoTypes;
+        this.customRegistry = registry;
+
+        // customRegistry.register('/cosmwasm.wasm.v1.MsgExecuteContract', cosmwasm.wasm.v1.MsgExecuteContract);
+        // this.customRegistry = customRegistry;
 
         this.walletManager = new WalletManager(chains, assets, [KEPLR_EXT], logger);
         this.walletManager.onMounted();
@@ -395,6 +427,9 @@ class CosmosAdapter extends AdapterBase {
 
         const [feeInfo = {}] = chainWallet.value.chainRecord.chain.fees.fee_tokens || [];
 
+        // const { denom } = feeInfo;
+        // const feeUnit = `${feeInfo.average_gas_price || feeInfo.low_gas_price || feeInfo.fixed_min_gas_price || 0}${denom}`;
+
         try {
             const { send } = cosmos.bank.v1beta1.MessageComposer.withTypeUrl;
             const amountFormatted = utils.parseUnits(amount, token.decimals).toString();
@@ -417,7 +452,7 @@ class CosmosAdapter extends AdapterBase {
                         amount: feeInfo.average_gas_price.toString(),
                     },
                 ],
-                gas: '200000', // TODO: get from chain
+                gas: '150000', // TODO: get this from chain
             };
 
             return {
@@ -437,6 +472,9 @@ class CosmosAdapter extends AdapterBase {
 
         const response = {};
 
+        // const { denom } = feeInfo;
+        // const feeUnit = `${feeInfo.average_gas_price || feeInfo.low_gas_price || feeInfo.fixed_min_gas_price || 0}${denom}`;
+
         try {
             const fee = {
                 amount: [
@@ -445,7 +483,7 @@ class CosmosAdapter extends AdapterBase {
                         amount: feeInfo.average_gas_price.toString(),
                     },
                 ],
-                gas: '200000', // TODO: get from chain
+                gas: '350000', // TODO: fix this
             };
 
             response.fee = fee;
@@ -470,6 +508,10 @@ class CosmosAdapter extends AdapterBase {
                 delete transaction.value.source_channel;
             }
 
+            if (transaction.typeUrl === '/cosmwasm.wasm.v1.MsgExecuteContract') {
+                transaction.value.msg = toUtf8(JSON.stringify(transaction.value.msg));
+            }
+
             response.msg = transaction;
 
             return response;
@@ -486,7 +528,12 @@ class CosmosAdapter extends AdapterBase {
         try {
             // chainWallet.value.rpcEndpoints = [`${DEFAULT_RPC}/${chainWallet.value.chainName}`];
 
-            const response = await chainWallet.value.signAndBroadcast([msg], fee, transaction.value?.memo, 'stargate');
+            const client = await chainWallet.value.getSigningStargateClient();
+
+            client.aminoTypes = this.customAminoType;
+            client.registry = this.customRegistry;
+
+            const response = await client.signAndBroadcast(this.getAccountAddress(), [msg], fee, transaction.value?.memo);
 
             return response;
         } catch (error) {
