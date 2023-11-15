@@ -40,7 +40,7 @@
                 </div>
 
                 <a-modal v-model:open="open" centered :footer="null" class="modal" title="Kado">
-                    <iframe width="100%" height="686" frameBorder="{0}" :src="IFRAME_URL" class="buy-crypto-iframe" />
+                    <iframe width="100%" height="520" frameBorder="{0}" :src="IFRAME_URL" class="buy-crypto-iframe" />
                 </a-modal>
             </div>
         </template>
@@ -86,8 +86,10 @@ export default {
         const showModal = () => {
             open.value = true;
         };
-        
+
         const KADO_URL = process.env.VUE_APP_KADO_API_KEY;
+
+        console.log(KADO_URL, '-KADO_URL');
 
         const IFRAME_URL = `https://app.kado.money?apiKey=${KADO_URL}&product=BUY&onPayCurrency=USD&onRevCurrency=USDC&offPayCurrency=USDC&offRevCurrency=USD`;
 
