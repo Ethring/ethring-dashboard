@@ -452,7 +452,7 @@ class CosmosAdapter extends AdapterBase {
                         amount: feeInfo.average_gas_price.toString(),
                     },
                 ],
-                gas: '150000', // TODO: get this from chain
+                gas: '250000', // TODO: get this from chain
             };
 
             return {
@@ -483,7 +483,7 @@ class CosmosAdapter extends AdapterBase {
                         amount: feeInfo.average_gas_price.toString(),
                     },
                 ],
-                gas: '350000', // TODO: fix this
+                gas: '500000', // TODO: fix this
             };
 
             response.fee = fee;
