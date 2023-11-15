@@ -7,6 +7,7 @@ const MAIN_DASHBOARD = {
     key: 'main',
     to: '/main',
     disabled: false,
+    type: 'layout',
 };
 
 const SEND = {
@@ -15,6 +16,7 @@ const SEND = {
     key: 'send',
     to: '/send',
     disabled: false,
+    type: 'layout',
 };
 
 const BRIDGE = {
@@ -23,6 +25,7 @@ const BRIDGE = {
     key: 'bridge',
     to: '/bridge',
     disabled: false,
+    type: 'layout',
 };
 
 const SWAP = {
@@ -31,6 +34,7 @@ const SWAP = {
     key: 'swap',
     to: '/swap',
     disabled: false,
+    type: 'layout',
 };
 
 const SUPER_SWAP = {
@@ -40,15 +44,17 @@ const SUPER_SWAP = {
     to: '/super-swap',
     status: 'BETA',
     disabled: false,
+    type: 'layout',
 };
 
 const BUY_CRYPTO = {
     component: 'buyCryptoIcon',
     title: 'Buy Crypto',
     key: 'buyCrypto',
-    to: '/buy',
-    status: 'SOON',
-    disabled: true,
+    to: '/buy-crypto',
+    status: 'BETA',
+    disabled: false,
+    type: 'modal',
 };
 
 const SIDEBAR_MODULES = [MAIN_DASHBOARD, SEND, SWAP, BRIDGE, SUPER_SWAP, BUY_CRYPTO];
@@ -68,6 +74,9 @@ const defaultConfig = {
         superSwap: {
             component: 'SuperSwap',
         },
+        buyCrypto: {
+            component: 'BuyCrypto',
+        },
     },
     [ECOSYSTEMS.COSMOS]: {
         sidebar: [MAIN_DASHBOARD, SEND],
@@ -82,6 +91,9 @@ const defaultConfig = {
         },
         superSwap: {
             component: 'SuperSwap',
+        },
+        buyCrypto: {
+            component: 'BuyCrypto',
         },
     },
 };
@@ -101,6 +113,9 @@ const CUSTOM_UI_BY_CHAIN = {
         superSwap: {
             component: 'SuperSwap',
         },
+        buyCrypto: {
+            component: 'BuyCrypto',
+        },
     },
     fantom: {
         sidebar: [MAIN_DASHBOARD, SEND],
@@ -115,6 +130,9 @@ const CUSTOM_UI_BY_CHAIN = {
         },
         superSwap: {
             component: 'SuperSwap',
+        },
+        buyCrypto: {
+            component: 'BuyCrypto',
         },
     },
 };
