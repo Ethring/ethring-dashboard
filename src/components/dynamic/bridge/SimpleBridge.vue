@@ -588,6 +588,11 @@ export default {
                     toTokenAddress: selectedDstToken.value.address,
                 };
 
+                if (receiverAddress.value && receiverAddress.value !== '' && isSendToAnotherAddress.value) {
+                    params.recipientAddress = receiverAddress.value;
+                    addressesByChains.value[selectedDstNetwork.value?.net] = receiverAddress.value;
+                }
+
                 if (selectedService.value.id === 'bridge-skip') {
                     params.ownerAddresses = JSON.stringify(addressesByChains.value);
                 } else {
