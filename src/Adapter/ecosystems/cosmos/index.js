@@ -510,6 +510,7 @@ class CosmosAdapter extends AdapterBase {
 
             if (transaction.typeUrl === '/cosmwasm.wasm.v1.MsgExecuteContract') {
                 transaction.value.msg = toUtf8(JSON.stringify(transaction.value.msg));
+                fee.gas = '900000';
             }
 
             response.msg = transaction;

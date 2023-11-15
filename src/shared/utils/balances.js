@@ -19,7 +19,7 @@ export async function updateWalletBalances(account, address, network, balanceUpd
     }
 
     for (let item of result.tokens) {
-        const index = tokensByAccount[address].findIndex(
+        const index = tokensByAccount[account].findIndex(
             (elem) => (elem.symbol === item.symbol && elem.address === item.address) || (!item.address && elem.symbol === item.symbol)
         );
         item = formatRecord(item, { net, address, logo });
