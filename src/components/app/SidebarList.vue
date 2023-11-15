@@ -39,8 +39,8 @@
                     <div v-if="item.status" class="sidebar-list__item-status">{{ item.status }}</div>
                 </div>
 
-                <a-modal v-model:open="open" centered :footer="null" class="modal">
-                    <iframe width="100%" height="686" frameBorder="{0}" :src="IFRAME_URL" />
+                <a-modal v-model:open="open" centered :footer="null" class="modal" title="Kado">
+                    <iframe width="100%" height="686" frameBorder="{0}" :src="IFRAME_URL" class="buy-crypto-iframe" />
                 </a-modal>
             </div>
         </template>
@@ -86,10 +86,10 @@ export default {
         const showModal = () => {
             open.value = true;
         };
+        
+        const KADO_URL = process.env.VUE_APP_KADO_API_KEY;
 
-        console.log(process.env.KADO_API_KEY, '---KADO API KEY');
-
-        const IFRAME_URL = `https://app.kado.money?apiKey=${process.env.VUE_KADO_API_KEY}&product=BUY&onPayCurrency=USD&onRevCurrency=USDC&offPayCurrency=USDC&offRevCurrency=USD`;
+        const IFRAME_URL = `https://app.kado.money?apiKey=${KADO_URL}&product=BUY&onPayCurrency=USD&onRevCurrency=USDC&offPayCurrency=USDC&offRevCurrency=USD`;
 
         console.log(IFRAME_URL, '-IFRAME_URL');
 
@@ -205,5 +205,8 @@ export default {
             align-self: center !important;
         }
     }
+}
+.buy-crypto-iframe {
+    border-radius: 16px;
 }
 </style>

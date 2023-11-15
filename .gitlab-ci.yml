@@ -42,7 +42,7 @@ stages:
       --build-arg VUE_APP_PROXY_API
       --build-arg VUE_APP_DATA_PROVIDER_URL
       --build-arg VUE_APP_WC_PROJECT_ID
-      --build-arg KADO_API_KEY
+      --build-arg VUE_APP_KADO_API_KEY
       --build-arg VUE_APP_TX_MANAGER
       --build-arg NODE_ENV
 
