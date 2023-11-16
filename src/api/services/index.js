@@ -9,7 +9,7 @@ const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 const DEBRIDGE_TRADE_ORDERS = 'https://api.dln.trade/v1.0/dln/tx';
 const DEBRIDGE_TX_ORDERS = 'https://dln-api.debridge.finance/api/Orders';
 
-export const estimateSwap = async ({ url, net, fromTokenAddress, toTokenAddress, amount, ownerAddress }) => {
+export const estimateSwap = async ({ url, net, fromTokenAddress, toTokenAddress, amount, ownerAddress, ...rest }) => {
     if (!url) {
         throw new Error('url is required');
     }
@@ -24,6 +24,7 @@ export const estimateSwap = async ({ url, net, fromTokenAddress, toTokenAddress,
                 toTokenAddress: toTokenAddress || NATIVE_CONTRACT,
                 amount,
                 ownerAddress,
+                ...rest,
             },
         });
 
@@ -37,7 +38,7 @@ export const estimateSwap = async ({ url, net, fromTokenAddress, toTokenAddress,
     }
 };
 
-export const estimateBridge = async ({ url, fromNet, toNet, fromTokenAddress, toTokenAddress, amount, ownerAddress }) => {
+export const estimateBridge = async ({ url, fromNet, toNet, fromTokenAddress, toTokenAddress, amount, ownerAddress, ...rest }) => {
     if (!url) {
         throw new Error('url is required');
     }
@@ -53,6 +54,7 @@ export const estimateBridge = async ({ url, fromNet, toNet, fromTokenAddress, to
                 toTokenAddress: toTokenAddress || NATIVE_CONTRACT,
                 amount,
                 ownerAddress,
+                ...rest,
             },
         });
 

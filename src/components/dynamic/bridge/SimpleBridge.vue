@@ -479,15 +479,22 @@ export default {
 
             isEstimating.value = true;
 
-            const response = await estimateBridge({
+            const params = {
                 url: selectedService.value.url,
                 fromNet: selectedSrcNetwork.value.net,
                 toNet: selectedDstNetwork.value.net,
                 fromTokenAddress: selectedSrcToken.value.address,
                 toTokenAddress: selectedDstToken.value.address,
                 amount: srcAmount.value,
-                ownerAddress: walletAddress.value,
-            });
+            };
+
+            if (selectedService.value.id === 'bridge-skip') {
+                params.ownerAddresses = JSON.stringify(addressesByChains.value);
+            } else {
+                params.ownerAddress = walletAddress.value;
+            }
+
+            const response = await estimateBridge(params);
 
             if (response.error) {
                 isEstimating.value = false;
