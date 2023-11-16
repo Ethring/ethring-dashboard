@@ -34,7 +34,7 @@ import { checkErrors } from '@/helpers/checkErrors';
 const DEFAULT_CHAIN = 'cosmoshub';
 const { chains, assets, differentSlip44 } = cosmologyConfig;
 
-// const DEFAULT_RPC = 'https://rpc.cosmos.directory';
+const DEFAULT_RPC = 'https://rpc.cosmos.directory';
 // const DEFAULT_REST = 'https://rest.cosmos.directory';
 
 // * Constants for localStorage
@@ -527,7 +527,7 @@ class CosmosAdapter extends AdapterBase {
         const chainWallet = this._getCurrentWallet();
 
         try {
-            // chainWallet.value.rpcEndpoints = [`${DEFAULT_RPC}/${chainWallet.value.chainName}`];
+            chainWallet.value.rpcEndpoints = [`${DEFAULT_RPC}/${chainWallet.value.chainName}`];
 
             const client = await chainWallet.value.getSigningStargateClient();
 
