@@ -705,7 +705,9 @@ export default {
 
             const selectedToken = isSrc ? selectedSrcToken.value : selectedDstToken.value;
 
-            updateWalletBalances(walletAccount.value, walletAddress.value, network, (list) => {
+            const targetAddress = addressesByChains.value[network.net] || walletAddress.value;
+
+            updateWalletBalances(walletAccount.value, targetAddress, network, (list) => {
                 const token = list.find((elem) => elem.symbol === selectedToken.symbol);
                 if (!token) {
                     return;
