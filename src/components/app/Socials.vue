@@ -71,7 +71,7 @@ export default {
         .socials__item {
             width: 32px;
             height: 32px;
-            
+
             &:not(:last-child) {
                 margin-bottom: 10px;
             }

@@ -166,7 +166,6 @@ export default {
 
         .sidebar__socials {
             flex-direction: column;
-            align-items: flex-start;
         }
 
         .logo {
