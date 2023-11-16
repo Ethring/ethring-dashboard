@@ -48,7 +48,7 @@
 </template>
 
 <script>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 import UIConfig from '@/config/ui';
@@ -79,7 +79,13 @@ export default {
         },
     },
     setup() {
-        const { currentChainInfo } = useAdapter();
+        const KADO_URL = process.env.VUE_APP_KADO_API_KEY;
+
+        const { currentChainInfo, walletAccount } = useAdapter();
+
+        const IFRAME_URL = ref(
+            `https://app.kado.money?apiKey=${KADO_URL}&product=BUY&onPayCurrency=USD&onRevCurrency=USDC&onToAddress=${walletAccount.value}`
+        );
 
         const open = ref(false);
 
@@ -87,11 +93,9 @@ export default {
             open.value = true;
         };
 
-        const KADO_URL = process.env.VUE_APP_KADO_API_KEY;
-
-        console.log(KADO_URL, '-KADO_URL');
-
-        const IFRAME_URL = `https://app.kado.money?apiKey=${KADO_URL}&product=BUY&onPayCurrency=USD&onRevCurrency=USDC&offPayCurrency=USDC&offRevCurrency=USD`;
+        watch(walletAccount, () => {
+            IFRAME_URL.value = `https://app.kado.money?apiKey=${KADO_URL}&product=BUY&onPayCurrency=USD&onRevCurrency=USDC&onToAddress=${walletAccount.value}`;
+        });
 
         console.log(IFRAME_URL, '-IFRAME_URL');
 
