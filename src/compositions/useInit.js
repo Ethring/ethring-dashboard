@@ -196,7 +196,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
             }
 
             if (tokens.length) {
-                const tokensForSave = formatRecords(tokens, { chain, chainAddress, logo });
+                const tokensForSave = formatRecords(tokens, { chain: chainForRequest, chainAddress, logo });
 
                 const balance = getTotalBalance(tokensForSave);
 
