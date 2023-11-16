@@ -83,7 +83,7 @@ const formatRecords = (records, { chain, logo }) => {
 
             const [nativeToken] = assets || [];
 
-            record.address = nativeToken?.base;
+            record.address = nativeToken?.base || null;
         } else {
             record.id = `${chain}:asset__${record.address}:${record.symbol}`;
         }
