@@ -542,10 +542,16 @@ class CosmosAdapter extends AdapterBase {
 
         // * Simulate transaction
         try {
-            const feeInfo = await client.simulate(this.getAccountAddress(), [msg]);
+            const simulatedGas = await client.simulate(this.getAccountAddress(), [msg]);
 
-            if (feeInfo) {
-                fee.gas = BigNumber(feeInfo).multipliedBy(1.2).toString();
+            if (simulatedGas) {
+                console.log(
+                    'Simulated gas',
+                    simulatedGas.toString(),
+                    'multiplied to 1.25',
+                    BigNumber(simulatedGas).multipliedBy(1.25).toString()
+                );
+                fee.gas = BigNumber(simulatedGas).multipliedBy(1.25).toString();
             }
         } catch (error) {
             console.error('error while simulate', error);
@@ -560,7 +566,6 @@ class CosmosAdapter extends AdapterBase {
         // * Sign and send transaction
         try {
             // chainWallet.value.rpcEndpoints = [`${DEFAULT_RPC}/${chainWallet.value.chainName}`];
-
             const response = await client.signAndBroadcast(this.getAccountAddress(), [msg], fee, transaction.value?.memo);
 
             return response;
