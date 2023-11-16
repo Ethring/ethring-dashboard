@@ -534,6 +534,13 @@ class CosmosAdapter extends AdapterBase {
             client.aminoTypes = this.customAminoType;
             client.registry = this.customRegistry;
 
+            const feeInfo = await client.simulate(this.getAccountAddress(), [msg]);
+
+            if (feeInfo) {
+                console.log('feeInfo', feeInfo + 100000);
+                fee.gas = `${feeInfo + 100000}`;
+            }
+
             const response = await client.signAndBroadcast(this.getAccountAddress(), [msg], fee, transaction.value?.memo);
 
             return response;
