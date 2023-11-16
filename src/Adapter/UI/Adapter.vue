@@ -53,6 +53,7 @@ export default {
 }
 .adapter__dropdown {
     padding: 16px;
+    border-radius: 16px;
     background: var(--#{$prefix}secondary-background);
 }
 </style>

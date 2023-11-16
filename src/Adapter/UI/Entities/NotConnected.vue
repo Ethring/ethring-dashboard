@@ -23,7 +23,8 @@ export default {
     justify-content: flex-end;
 
     padding: 8px 16px;
-    border-radius: 16px;
+    border-radius: 50px;
+    background-color: var(--#{$prefix}banner-color);
     border: 1px solid transparent;
 
     cursor: pointer;
@@ -58,6 +59,10 @@ export default {
         font-size: var(--#{$prefix}small-lg-fs);
         color: var(--#{$prefix}base-text);
         line-height: 1.5;
+    }
+
+    &:hover {
+        border-color: var(--#{$prefix}btn-bg-color-hover);
     }
 }
 </style>

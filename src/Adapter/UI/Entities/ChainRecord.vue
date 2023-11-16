@@ -1,23 +1,65 @@
 <template>
     <div class="chain-record">
-        <div class="chain-record__logo-container">
-            <a-image :preview="false" :alt="chain.name || 'chain-logo'" :src="chain.logo" />
-        </div>
-        <div class="chain-info">
-            <div class="chain-record__name">
-                {{ chain.name }}
+        <div class="chain-record-item">
+            <div class="chain-record__logo-container">
+                <a-image :preview="false" :alt="chain.name || 'chain-logo'" :src="chain.logo" />
             </div>
+            <div class="chain-info">
+                <div class="chain-record__name">
+                    {{ chain.name }}
+                </div>
+                <a-tooltip placement="right" :title="copied ? $t('adapter.copiedAddressTooltip') : $t('adapter.copyAddressTooltip')">
+                    <span class="chain-record__address" @click="copy(address)">
+                        {{ cutAddress(address) }}
+                    </span>
+                </a-tooltip>
+            </div>
+        </div>
+
+        <div class="chain-record__actions">
+            <a-typography-paragraph :copyable="{ text: address, tooltip: false }" class="copy" />
+            <div class="chain-record__divider">|</div>
+            <a-popover :overlay-inner-style="{ padding: 0 }">
+                <template #content>
+                    <a-qrcode error-level="H" :value="address" :bordered="false" icon="/zomet-logo.svg" />
+                </template>
+                <QrcodeOutlined />
+            </a-popover>
         </div>
     </div>
 </template>
 <script>
+import { useClipboard } from '@vueuse/core';
+
+import { cutAddress } from '@/helpers/utils';
+
+import { QrcodeOutlined } from '@ant-design/icons-vue';
+
 export default {
     name: 'ChainRecord',
+    components: {
+        QrcodeOutlined,
+    },
     props: {
         chain: {
             type: Object,
             required: true,
         },
+        address: {
+            type: String,
+            required: true,
+        },
+    },
+    setup() {
+        const { copy, copied } = useClipboard();
+
+        return {
+            copy,
+            copied,
+        };
+    },
+    methods: {
+        cutAddress,
     },
 };
 </script>
@@ -25,31 +67,57 @@ export default {
 .chain {
     &-record {
         @include pageFlexRow;
+        justify-content: space-between;
 
-        cursor: pointer;
-        transition: all 0.3s ease-in-out;
+        width: 100%;
+        border: 1px solid var(--#{$prefix}adapter-ecosystem-border-color);
+        border-radius: 8px;
 
-        &__name {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--#{$prefix}primary-text);
+        padding: 8px 16px;
+        margin-bottom: 8px;
+
+        &-item {
+            @include pageFlexRow;
         }
 
         &__logo-container {
-            width: 20px;
-            height: 20px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
             overflow: hidden;
             margin-right: 10px;
 
             @include pageFlexRow;
             justify-content: center;
+        }
 
-            img {
-                width: 100%;
-                height: 100%;
-                object-fit: contain;
+        &__name {
+            font-size: var(--#{$prefix}default-fs);
+            font-weight: 600;
+            line-height: 20px;
+            color: var(--#{$prefix}primary-text);
+        }
+
+        &__address {
+            color: #0d7e71;
+            font-size: var(--#{$prefix}small-sm-fs);
+            font-weight: 400;
+
+            cursor: pointer;
+        }
+
+        &__actions {
+            @include pageFlexRow;
+
+            gap: 16px;
+
+            & > div {
+                margin: 0 !important;
             }
+        }
+
+        &__divider {
+            color: var(--#{$prefix}adapter-more-option);
         }
     }
 }
