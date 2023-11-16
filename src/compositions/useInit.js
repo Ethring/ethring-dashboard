@@ -1,7 +1,7 @@
 import { computed } from 'vue';
 import _ from 'lodash';
 
-import { ECOSYSTEMS } from '@/Adapter/config';
+import { ECOSYSTEMS, cosmologyConfig } from '@/Adapter/config';
 import { getBalancesByAddress } from '@/api/data-provider';
 
 import BigNumber from 'bignumber.js';
@@ -76,6 +76,14 @@ const formatRecords = (records, { chain, logo }) => {
     for (const record of records) {
         if (!record.address) {
             record.id = `${chain}:asset__native:${record.symbol}`;
+
+            const [cosmosChain] = cosmologyConfig.assets.filter(({ chain_name }) => chain_name === chain) || [];
+
+            const { assets } = cosmosChain || {};
+
+            const [nativeToken] = assets || [];
+
+            record.address = nativeToken?.base;
         } else {
             record.id = `${chain}:asset__${record.address}:${record.symbol}`;
         }
