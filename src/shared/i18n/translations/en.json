@@ -25,6 +25,7 @@
       "ownerAddress": "Owner address"
     }
   },
+  "updateAvailable": "A new version of application is available. Click the Update button below to get the new version with the latest features and improvements",
   "sidebar": {
     "main": "Overview",
     "swap": "Swap",
