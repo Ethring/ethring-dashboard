@@ -576,9 +576,9 @@ class CosmosAdapter extends AdapterBase {
     }
 
     getTxExplorerLink(txHash, chainInfo) {
-        const MAIN_EXPLORER = 'mintscan';
+        const MAIN_EXPLORER = ['mintscan', 'MintScan'];
 
-        const explorer = chainInfo.explorers.find(({ kind }) => kind === MAIN_EXPLORER);
+        const explorer = chainInfo.explorers.find(({ kind }) => MAIN_EXPLORER.includes(kind));
 
         const { tx_page } = explorer || {};
 
