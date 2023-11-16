@@ -13,6 +13,7 @@ import {
 } from 'osmojs';
 
 import { toUtf8 } from '@cosmjs/encoding';
+import BigNumber from 'bignumber.js';
 
 import { Logger, WalletManager } from '@cosmos-kit/core';
 import { wallets as KeplrWallets } from '@cosmos-kit/keplr';
@@ -526,20 +527,39 @@ class CosmosAdapter extends AdapterBase {
 
         const chainWallet = this._getCurrentWallet();
 
-        try {
-            // chainWallet.value.rpcEndpoints = [`${DEFAULT_RPC}/${chainWallet.value.chainName}`];
+        let client = null;
 
-            const client = await chainWallet.value.getSigningStargateClient();
+        // * Getting signing client
+        try {
+            client = await chainWallet.value.getSigningStargateClient();
 
             client.aminoTypes = this.customAminoType;
             client.registry = this.customRegistry;
+        } catch (error) {
+            console.error('error while getting client', error);
+            return checkErrors(error);
+        }
 
+        // * Simulate transaction
+        try {
             const feeInfo = await client.simulate(this.getAccountAddress(), [msg]);
 
             if (feeInfo) {
-                console.log('feeInfo', feeInfo + 100000);
-                fee.gas = `${feeInfo + 100000}`;
+                fee.gas = BigNumber(feeInfo).multipliedBy(1.2).toString();
             }
+        } catch (error) {
+            console.error('error while simulate', error);
+        }
+
+        if (!client) {
+            return {
+                error: 'Signing Stargate client not found',
+            };
+        }
+
+        // * Sign and send transaction
+        try {
+            // chainWallet.value.rpcEndpoints = [`${DEFAULT_RPC}/${chainWallet.value.chainName}`];
 
             const response = await client.signAndBroadcast(this.getAccountAddress(), [msg], fee, transaction.value?.memo);
 
