@@ -9,14 +9,22 @@ axiosInstance.interceptors.response.use(
     (response) => {
         return response;
     },
-    (error) => {
+    async (error) => {
         const originalRequest = error.config;
 
-        console.log('error', error, error.message === 'timeout of 5000ms exceeded');
+        console.log('error', error, error.message === 'timeout of 5000ms exceeded', originalRequest);
         // Check Timeout Error 504
-        if (error.response.status === 504 || (error.message === 'timeout of 5000ms exceeded' && !originalRequest._retry)) {
+        if (error.response.status === 504 || error.message === 'timeout of 5000ms exceeded') {
             originalRequest._retry = true;
-            return axiosInstance(originalRequest);
+
+            try {
+                // Resend request
+                const response = await axios(originalRequest);
+                return response;
+            } catch (retryError) {
+                // Return error
+                return Promise.reject(retryError);
+            }
         }
 
         return Promise.reject(error);

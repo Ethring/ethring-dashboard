@@ -47,6 +47,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
                 if (result) {
                     token.address = result.base;
                     token.coingecko_id = result.coingecko_id;
+                    token.base = result.base;
                 }
             }
         }

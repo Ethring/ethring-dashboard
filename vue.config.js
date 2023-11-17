@@ -54,6 +54,8 @@ const chainWebpack = (config) => {
         { name: '@cosmjs[\\\\/]', exclude: '@cosmjs[\\\\/].*\\.json$' },
     ];
 
+    config.resolve.alias.set('@cosmology/helpers', '@osmonauts/helpers');
+
     // Применяем общие правила для каждого указанного модуля
     for (const moduleConfig of modulesToInclude) {
         configureGeneralRule(config, moduleConfig);

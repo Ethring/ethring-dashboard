@@ -12,6 +12,8 @@ import {
     ibcAminoConverters,
 } from 'osmojs';
 
+import { injectiveAminoConverters, injectiveProtoRegistry } from 'injectivejs';
+
 import { getIbcAssets } from '@chain-registry/utils';
 
 import { toUtf8 } from '@cosmjs/encoding';
@@ -68,9 +70,10 @@ class CosmosAdapter extends AdapterBase {
             ...cosmosAminoConverters,
             ...cosmwasmAminoConverters,
             ...ibcAminoConverters,
+            ...injectiveAminoConverters,
         };
 
-        const protoRegistry = [...cosmosProtoRegistry, ...cosmwasmProtoRegistry, ...ibcProtoRegistry];
+        const protoRegistry = [...cosmosProtoRegistry, ...cosmwasmProtoRegistry, ...ibcProtoRegistry, ...injectiveProtoRegistry];
 
         const aminoTypes = new AminoTypes(aminoConverters);
         const registry = new Registry(protoRegistry);
@@ -465,7 +468,7 @@ class CosmosAdapter extends AdapterBase {
                         amount: feeInfo.average_gas_price.toString(),
                     },
                 ],
-                gas: '250000', // TODO: get this from chain
+                gas: '500000', // TODO: get this from chain
             };
 
             return {
@@ -560,10 +563,10 @@ class CosmosAdapter extends AdapterBase {
                 console.log(
                     'Simulated gas',
                     simulatedGas.toString(),
-                    'multiplied to 1.25',
-                    BigNumber(simulatedGas).multipliedBy(1.25).toString()
+                    'multiplied to 1.4',
+                    BigNumber(simulatedGas).multipliedBy(1.4).toString()
                 );
-                fee.gas = BigNumber(simulatedGas).multipliedBy(1.25).toString();
+                fee.gas = BigNumber(simulatedGas).multipliedBy(1.4).toString();
             }
         } catch (error) {
             console.error('error while simulate', error);
