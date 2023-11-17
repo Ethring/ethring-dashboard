@@ -6,6 +6,7 @@
             <SelectAmount
                 class="mt-10"
                 :value="selectedSrcToken"
+                :selected-network="selectedSrcNetwork"
                 :error="!!isBalanceError"
                 :on-reset="resetSrcAmount"
                 :is-token-loading="isTokensLoadingForChain"

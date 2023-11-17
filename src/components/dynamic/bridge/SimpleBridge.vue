@@ -20,6 +20,7 @@
         <SelectAmount
             v-if="selectedSrcNetwork"
             :value="selectedSrcToken"
+            :selected-network="selectedSrcNetwork"
             :error="!!isBalanceError"
             :on-reset="resetSrcAmount"
             :disabled="!selectedSrcToken"

@@ -128,6 +128,9 @@ export default {
             type: [String, Number],
             default: '',
         },
+        selectedNetwork: {
+            default: {},
+        },
     },
     components: {
         ArrowIcon,
@@ -188,17 +191,15 @@ export default {
         );
 
         watch(
-            () => props.value,
-            (tkn, oldTkn) => {
-                if (tkn?.id === oldTkn?.id || tkn?.address === oldTkn?.address) {
+            () => props.selectedNetwork,
+            (net, oldNet) => {
+                if (net === oldNet) {
                     return;
                 }
 
-                if (tkn) {
-                    setToken(tkn);
+                if (net) {
                     amount.value = '';
                     active.value = false;
-                    emit('setAmount', amount.value);
                 }
             }
         );
