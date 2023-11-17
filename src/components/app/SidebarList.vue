@@ -48,7 +48,7 @@
 </template>
 
 <script>
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 import UIConfig from '@/config/ui';
@@ -89,11 +89,17 @@ export default {
 
         const currentChain = ref(currentChainInfo.value?.ecosystem || ECOSYSTEMS.EVM);
 
-        const availableNets = currentChain.value === ECOSYSTEMS.EVM ? KADO_EVM_NETWORKS : KADO_COSMOS_NETWORKS;
+        const IFRAME_URL = ref('');
 
-        const IFRAME_URL = ref(
-            `https://app.kado.money?apiKey=${KADO_URL}&product=BUY&onPayCurrency=USD&onRevCurrency=USDC&onToAddress=${walletAccount.value}&networkList=${availableNets}`
-        );
+        onMounted(() => {
+            if (walletAccount) {
+                if (currentChain.value === ECOSYSTEMS.EVM) {
+                    IFRAME_URL.value = `https://app.kado.money?apiKey=${KADO_URL}&product=BUY&onPayCurrency=USD&onRevCurrency=USDC&onToAddress=${walletAccount.value}&networkList=${KADO_EVM_NETWORKS}`;
+                } else {
+                    IFRAME_URL.value = `https://app.kado.money?apiKey=${KADO_URL}&product=BUY&onPayCurrency=USD&onRevCurrency=ATOM&network=COSMOS HUB&onToAddress=${walletAccount.value}&networkList=${KADO_COSMOS_NETWORKS}`;
+                }
+            }
+        });
 
         watch(walletAccount, () => {
             currentChain.value = currentChainInfo.value.ecosystem;
@@ -101,9 +107,11 @@ export default {
             if (currentChain.value === ECOSYSTEMS.EVM) {
                 IFRAME_URL.value = `https://app.kado.money?apiKey=${KADO_URL}&product=BUY&onPayCurrency=USD&onRevCurrency=USDC&onToAddress=${walletAccount.value}&networkList=${KADO_EVM_NETWORKS}`;
             } else {
-                IFRAME_URL.value = `https://app.kado.money?apiKey=${KADO_URL}&product=BUY&onPayCurrency=USD&onRevCurrency=ATOM&onToAddress=${walletAccount.value}&networkList=${KADO_COSMOS_NETWORKS}`;
+                IFRAME_URL.value = `https://app.kado.money?apiKey=${KADO_URL}&product=BUY&onPayCurrency=USD&onRevCurrency=ATOM&network=COSMOS HUB&onToAddress=${walletAccount.value}&networkList=${KADO_COSMOS_NETWORKS}`;
             }
         });
+
+        console.log(IFRAME_URL);
 
         const open = ref(false);
 
