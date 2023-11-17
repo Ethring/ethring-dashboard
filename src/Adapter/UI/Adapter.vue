@@ -52,6 +52,9 @@ export default {
     height: 48px;
 }
 .adapter__dropdown {
+    position: absolute;
+    right: 0;
+
     width: 356px;
     padding: 6px;
     border-radius: 16px;
