@@ -167,11 +167,11 @@ export default {
 
     background: var(--#{$prefix}adapter-logo-main-color);
     border-radius: 50px;
-    padding: 8px;
+    padding: 4px;
 
     cursor: pointer;
 
-    max-height: 48px;
+    height: 40px;
 
     font-size: var(--#{$prefix}small-lg-fs);
 
@@ -196,8 +196,8 @@ export default {
             border-radius: 16px;
 
             &-logo {
-                width: 20px;
-                height: 20px;
+                width: 32px;
+                height: 32px;
                 border-radius: 50%;
 
                 img {

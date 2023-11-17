@@ -80,8 +80,6 @@ export default {
     @include pageFlexRow;
 
     width: 100%;
-    min-width: 300px;
-    height: 58px;
     position: relative;
 
     background-color: var(--#{$prefix}banner-color);
@@ -91,7 +89,7 @@ export default {
     transition: 0.3s;
 
     border-radius: 50px;
-    padding: 8px 16px;
+    padding: 4px 16px 4px 4px;
 
     &:hover {
         border-color: var(--#{$prefix}btn-bg-color-hover);
@@ -146,7 +144,7 @@ export default {
 
         .account {
             font-size: var(--#{$prefix}small-lg-fs);
-            font-weight: 600;
+            font-weight: 700;
             color: var(--#{$prefix}primary-text);
         }
 

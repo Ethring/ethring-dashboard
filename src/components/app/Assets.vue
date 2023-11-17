@@ -60,7 +60,7 @@ import AssetsTable from './assets/AssetsTable';
 import { getIntegrationsGroupedByPlatform, getFormattedName } from '@/shared/utils/assets';
 
 export default {
-    name: 'Tokens',
+    name: 'Assets',
     components: {
         AssetItemSubHeader,
         AssetItemHeader,

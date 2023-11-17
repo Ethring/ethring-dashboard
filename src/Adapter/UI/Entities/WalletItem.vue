@@ -43,7 +43,7 @@ export default {
 
         const connectedWallets = computed(() => store.getters['adapters/getConnectedWallets']);
 
-        if (connectedWallets) {
+        if (connectedWallets.value) {
             isCosmosConnected.value = connectedWallets.value.find((wallet) => wallet.walletName === 'Keplr');
         }
 

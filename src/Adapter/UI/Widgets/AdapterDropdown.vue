@@ -1,7 +1,9 @@
 <template>
     <a-menu-item-group key="accounts" class="connected-wallets-container">
         <div class="connected-wallets-label">
-            <div>{{ $t('adapter.accountsGroup') }}</div>
+            <div>
+                {{ $t('adapter.accountsGroup') }} <span>({{ connectedWallets.length }})</span>
+            </div>
             <DisconnectAll :disconnect-all="disconnectAll" />
         </div>
         <div v-for="account in connectedWallets" :key="account">
@@ -55,12 +57,15 @@ export default {
     @include pageFlexRow;
     justify-content: space-between;
 
-    margin-bottom: 10px;
-
     & > div {
         color: var(--#{$prefix}adapter-label-text);
         font-size: var(--#{$prefix}small-lg-fs);
         font-weight: 400;
+
+        span {
+            color: var(--#{$prefix}sub-text);
+            font-weight: 500;
+        }
     }
 }
 

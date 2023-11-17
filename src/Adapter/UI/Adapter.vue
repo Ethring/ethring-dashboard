@@ -48,10 +48,11 @@ export default {
 .wallet-adapter-container {
     position: relative;
 
-    max-width: 350px;
-    width: 100%;
+    width: 300px;
+    height: 48px;
 }
 .adapter__dropdown {
+    width: 356px;
     padding: 6px;
     border-radius: 16px;
     padding-bottom: 16px;

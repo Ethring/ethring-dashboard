@@ -40,14 +40,12 @@ export default {
         box-sizing: border-box;
 
         border-radius: 16px;
-
         height: 100px;
 
         display: flex;
         justify-content: space-between;
         align-items: center;
 
-        padding-bottom: 20px;
         overflow: hidden;
 
         background-image: url('~@/assets/images/wallet-info/background.png');

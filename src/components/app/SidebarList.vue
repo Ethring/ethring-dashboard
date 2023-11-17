@@ -162,6 +162,12 @@ export default {
 
         .sidebar-list {
             align-self: center !important;
+
+            &__item-icon {
+                svg {
+                    transform: scale(1.1);
+                }
+            }
         }
     }
 }
