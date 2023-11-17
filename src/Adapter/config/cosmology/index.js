@@ -1,4 +1,5 @@
-import { chains, assets } from 'chain-registry';
+import { chains, assets, ibc } from 'chain-registry';
+
 import { DATA_PROVIDER_COSMOS_CHAINS } from '../../../api/data-provider/chains';
 
 // * Constants
@@ -25,4 +26,5 @@ export default {
     chains: activeChains,
     differentSlip44,
     assets,
+    ibcAssets: ibc,
 };

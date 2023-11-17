@@ -349,14 +349,16 @@ export default {
             return clearApproveForService();
         };
 
-        const onSetDstToken = () => {
+        const onSetDstToken = async () => {
             targetDirection.value = DIRECTIONS.DESTINATION;
             selectType.value = TOKEN_SELECT_TYPES.TO;
             onlyWithBalance.value = false;
 
             router.push('/bridge/select-token');
 
-            srcAmount.value = 0;
+            dstAmount.value = 0;
+
+            await onSetAmount(srcAmount.value);
 
             return (balanceUpdated.value = false);
         };
@@ -720,9 +722,11 @@ export default {
                     return;
                 }
 
-                if (isSrc) {
+                if (isSrc && selectedSrcToken.value?.id === token.id) {
                     selectedSrcToken.value = token;
-                } else {
+                }
+
+                if (!isSrc && selectedDstToken.value?.id === token.id) {
                     selectedDstToken.value = token;
                 }
             });
@@ -899,6 +903,23 @@ export default {
             onlyWithBalance.value = true;
         });
 
+        const setOwnerAddresses = () => {
+            if (selectedService.value?.id !== 'bridge-skip') {
+                return;
+            }
+
+            const addressesWithChains = getAddressesWithChainsByEcosystem(selectedSrcNetwork.value?.ecosystem);
+
+            for (const chain in addressesWithChains) {
+                const { address } = addressesWithChains[chain];
+
+                addressesByChains.value = {
+                    ...addressesByChains.value,
+                    [chain]: address,
+                };
+            }
+        };
+
         onMounted(async () => {
             if (!selectedSrcNetwork.value) {
                 selectedSrcNetwork.value = currentChainInfo.value;
@@ -909,21 +930,12 @@ export default {
                 await makeAllowanceRequest();
             }
 
-            if (selectedService.value.id === 'bridge-skip') {
-                const addressesWithChains = getAddressesWithChainsByEcosystem(selectedSrcNetwork.value?.ecosystem);
-
-                for (const chain in addressesWithChains) {
-                    const { address } = addressesWithChains[chain];
-
-                    addressesByChains.value = {
-                        ...addressesByChains.value,
-                        [chain]: address,
-                    };
-                }
-            }
-
             isAllowForRequest();
+
+            setOwnerAddresses();
         });
+
+        watch(selectedService, () => setOwnerAddresses());
 
         onBeforeUnmount(() => {
             if (router.options.history.state.current !== '/bridge/select-token') {

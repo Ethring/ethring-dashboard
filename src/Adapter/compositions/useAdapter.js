@@ -304,6 +304,16 @@ function useAdapter() {
         return adapter.getAddressesWithChains();
     };
 
+    // * Get Ibc assets for COSMOS ecosystem
+    const getIBCAssets = (ecosystem, chain) => {
+        if (ecosystem !== ECOSYSTEMS.COSMOS) {
+            return [];
+        }
+
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+        return adapter.getIBCAssets(chain);
+    };
+
     return {
         isConnecting,
 
@@ -331,6 +341,7 @@ function useAdapter() {
 
         getTxExplorerLink,
         getTokenExplorerLink,
+        getIBCAssets,
 
         formatTransactionForSign,
 

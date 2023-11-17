@@ -8,6 +8,8 @@ const TYPES = {
 
     SET_ZOMET_TOKENS_BY_NET: 'SET_ZOMET_TOKENS_BY_NET',
 
+    SET_ZOMET_TOKENS_BY_COSMOS: 'SET_ZOMET_TOKENS_BY_COSMOS',
+
     SET_ZOMET_NETWORKS_LIST: 'SET_ZOMET_NETWORKS_LIST',
 };
 
@@ -75,6 +77,33 @@ export default {
                 ...tokens,
             };
         },
+
+        [TYPES.SET_ZOMET_TOKENS_BY_COSMOS](state, { tokens, network } = {}) {
+            if (!state.tokensByNetwork[network]) {
+                state.tokensByNetwork[network] = {};
+            }
+
+            const cosmosTokens = {};
+
+            for (const token of tokens) {
+                if (!token.address && token.base) {
+                    token.address = token.base;
+                }
+
+                if (token.logo_URIs) {
+                    token.logo = token.logo_URIs?.svg || token.logo_URIs?.png || null;
+                }
+
+                token.id = `${network}:asset__${token.address}:${token.symbol}`;
+                token.chain = network;
+                token.balance = 0;
+                token.balanceUsd = 0;
+
+                cosmosTokens[token.address] = token;
+            }
+
+            state.tokensByNetwork[network] = cosmosTokens;
+        },
     },
 
     actions: {
@@ -106,6 +135,14 @@ export default {
 
                 commit(TYPES.SET_ZOMET_NETWORKS_LIST, Object.values(state.zometNetworks));
             }
+        },
+
+        setTokensByCosmosNet({ commit }, { network, tokens }) {
+            if (!network) {
+                commit(TYPES.SET_ZOMET_TOKENS_BY_COSMOS, {});
+            }
+
+            commit(TYPES.SET_ZOMET_TOKENS_BY_COSMOS, { tokens, network });
         },
 
         async initZometTokens({ commit }, network) {

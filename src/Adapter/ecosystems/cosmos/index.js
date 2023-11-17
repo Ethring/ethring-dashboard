@@ -12,6 +12,8 @@ import {
     ibcAminoConverters,
 } from 'osmojs';
 
+import { getIbcAssets } from '@chain-registry/utils';
+
 import { toUtf8 } from '@cosmjs/encoding';
 import BigNumber from 'bignumber.js';
 
@@ -267,6 +269,10 @@ class CosmosAdapter extends AdapterBase {
     async setAddressForChains(walletName) {
         if (!this.addressByNetwork) {
             this.addressByNetwork = {};
+        }
+
+        if (!walletName) {
+            walletName = this.walletName;
         }
 
         const mainAccount = this.getAccount();
@@ -591,8 +597,7 @@ class CosmosAdapter extends AdapterBase {
         return tx_page.replace('${txHash}', txHash);
     }
 
-    getTokenExplorerLink(tokenAddress, chainInfo) {
-        console.log('chainInfo', chainInfo, tokenAddress);
+    getTokenExplorerLink() {
         // const MAIN_EXPLORER = 'mintscan';
 
         // const explorer = chainInfo.explorers.find(({ kind }) => kind === MAIN_EXPLORER);
@@ -607,6 +612,22 @@ class CosmosAdapter extends AdapterBase {
     getAddressesWithChains() {
         const mainAccount = this.getAccount();
         return this.addressByNetwork[mainAccount] || {};
+    }
+
+    getIBCAssets(chain) {
+        const [ibcAssets] = getIbcAssets(chain, cosmologyConfig.ibcAssets, cosmologyConfig.assets) || [];
+
+        if (!ibcAssets) {
+            return [];
+        }
+
+        const { assets = [] } = ibcAssets || {};
+
+        if (!assets.length) {
+            return [];
+        }
+
+        return assets;
     }
 }
 

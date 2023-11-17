@@ -66,7 +66,9 @@ import { utils } from 'ethers';
 
 import { SettingOutlined } from '@ant-design/icons-vue';
 
-import { estimateSwap, getSwapTx } from '@/api/services';
+import { estimateSwap, estimateBridge, getBridgeTx, getSwapTx } from '@/api/services';
+
+import { getServices, SERVICE_TYPE } from '@/config/services';
 
 // Adapter
 import { ECOSYSTEMS } from '@/Adapter/config';
@@ -124,7 +126,7 @@ export default {
         // * Notification
         const { showNotification, closeNotification } = useNotification();
 
-        const { walletAddress, currentChainInfo, chainList, walletAccount, setChain } = useAdapter();
+        const { walletAddress, currentChainInfo, chainList, walletAccount, setChain, getAddressesWithChainsByEcosystem } = useAdapter();
 
         const chains = computed(() => chainList.value?.filter((chain) => SUPPORTED_CHAINS.includes(chain.net)));
 
@@ -132,6 +134,14 @@ export default {
             get: () => store.getters[`swap/service`],
             set: (value) => store.dispatch(`swap/setService`, value),
         });
+
+        const services = getServices(SERVICE_TYPE.SWAP);
+
+        if (currentChainInfo.value.ecosystem === ECOSYSTEMS.COSMOS) {
+            selectedService.value = services.find((service) => service.id === 'swap-skip');
+        }
+
+        const addressesByChains = ref({});
 
         // * Module values
         const {
@@ -267,10 +277,9 @@ export default {
         };
 
         const onSetTokenFrom = () => {
+            onlyWithBalance.value = true;
             selectType.value = TOKEN_SELECT_TYPES.FROM;
             targetDirection.value = DIRECTIONS.SOURCE;
-
-            onlyWithBalance.value = true;
 
             router.push('/swap/select-token');
 
@@ -280,16 +289,14 @@ export default {
         };
 
         const onSetTokenTo = async () => {
+            onlyWithBalance.value = false;
             selectType.value = TOKEN_SELECT_TYPES.TO;
-
             // for SWAP targetDirection also SOURCE;
             targetDirection.value = DIRECTIONS.SOURCE;
 
-            onlyWithBalance.value = false;
-
             router.push('/swap/select-token');
 
-            srcAmount.value = 0;
+            await onSetAmount(srcAmount.value);
         };
 
         const onSetAmount = async (value) => {
@@ -305,7 +312,7 @@ export default {
 
             isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance);
 
-            if (!allowanceForToken.value) {
+            if (!allowanceForToken.value && ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem) {
                 await requestAllowance();
             }
 
@@ -320,6 +327,10 @@ export default {
             }
 
             if (!selectedSrcToken.value?.address && !allowanceForToken.value) {
+                return false;
+            }
+
+            if (selectedSrcNetwork.value?.ecosystem === ECOSYSTEMS.COSMOS) {
                 return false;
             }
 
@@ -416,14 +427,25 @@ export default {
 
             isEstimating.value = true;
 
-            const response = await estimateSwap({
+            const params = {
                 url: selectedService.value.url,
                 net: selectedSrcNetwork.value.net,
                 fromTokenAddress: selectedSrcToken.value?.address,
                 toTokenAddress: selectedDstToken.value?.address,
                 amount: srcAmount.value,
                 ownerAddress: walletAddress.value,
-            });
+            };
+
+            let response = null;
+
+            if (selectedService.value.id === 'swap-skip') {
+                params.fromNet = selectedSrcNetwork.value.net;
+                params.toNet = selectedSrcNetwork.value.net;
+
+                response = await estimateBridge(params);
+            } else {
+                response = await estimateSwap(params);
+            }
 
             if (response.error) {
                 isEstimating.value = false;
@@ -444,14 +466,16 @@ export default {
 
             const { price = 0 } = native_token || {};
 
-            feeInfo.value = {
-                title: 'tokenOperations.networkFee',
-                symbolBetween: '~',
-                fromAmount: prettyNumberTooltip(response.fee.amount),
-                fromSymbol: response.fee.currency,
-                toAmount: prettyNumberTooltip(+response.fee.amount * price, 4),
-                toSymbol: '$',
-            };
+            if (response.fee) {
+                feeInfo.value = {
+                    title: 'tokenOperations.networkFee',
+                    symbolBetween: '~',
+                    fromAmount: prettyNumberTooltip(response.fee.amount),
+                    fromSymbol: response.fee.currency,
+                    toAmount: prettyNumberTooltip(+response.fee.amount * price, 4),
+                    toSymbol: '$',
+                };
+            }
 
             rateInfo.value = {
                 title: 'tokenOperations.rate',
@@ -478,14 +502,28 @@ export default {
             });
 
             try {
-                const response = await getSwapTx({
+                const params = {
                     url: selectedService.value.url,
                     net: selectedSrcNetwork.value.net,
                     fromTokenAddress: selectedSrcToken.value.address,
                     toTokenAddress: selectedDstToken.value.address,
                     amount: srcAmount.value,
                     ownerAddress: walletAddress.value,
-                });
+                };
+
+                let response = null;
+
+                if (selectedService.value.id === 'swap-skip') {
+                    params.ownerAddresses = JSON.stringify(addressesByChains.value);
+
+                    params.fromNet = selectedSrcNetwork.value.net;
+                    params.toNet = selectedSrcNetwork.value.net;
+
+                    response = await getBridgeTx(params);
+                } else {
+                    response = await getSwapTx(params);
+                }
+
                 console.log('response', response);
 
                 if (response.error) {
@@ -692,7 +730,11 @@ export default {
         });
 
         watch(selectedSrcToken, () => {
-            if (!allowanceForToken.value && selectedSrcToken.value?.address) {
+            if (!selectedSrcToken.value) {
+                return;
+            }
+
+            if (!allowanceForToken.value && ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem) {
                 requestAllowance();
             }
         });
@@ -715,22 +757,44 @@ export default {
 
         // =================================================================================================================
 
+        const setOwnerAddresses = () => {
+            if (selectedService.value?.id !== 'swap-skip') {
+                return;
+            }
+
+            const addressesWithChains = getAddressesWithChainsByEcosystem(selectedSrcNetwork.value?.ecosystem);
+
+            for (const chain in addressesWithChains) {
+                const { address } = addressesWithChains[chain];
+
+                addressesByChains.value = {
+                    ...addressesByChains.value,
+                    [chain]: address,
+                };
+            }
+        };
+
         onMounted(async () => {
             selectType.value = TOKEN_SELECT_TYPES.FROM;
             store.dispatch('txManager/setCurrentRequestID', null);
 
             if (!selectedSrcNetwork.value) {
                 selectedSrcNetwork.value = currentChainInfo.value;
+                setTokenOnChange();
             }
 
             onlyWithBalance.value = true;
 
-            setTokenOnChange();
-
-            if (selectedSrcToken.value?.address && !allowanceForToken.value) {
+            if (selectedSrcToken.value?.address && !allowanceForToken.value && ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem) {
                 await requestAllowance();
             }
+
+            isAllowForRequest();
+
+            setOwnerAddresses();
         });
+
+        watch(selectedService, () => setOwnerAddresses());
 
         onBeforeUnmount(() => {
             if (router.options.history.state.current !== '/swap/select-token') {

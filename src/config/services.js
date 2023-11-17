@@ -59,6 +59,15 @@ const ALL_SERVICES = [
         namespace: ECOSYSTEMS.COSMOS,
     },
     {
+        id: 'swap-skip',
+        name: 'Skip service',
+        type: SERVICE_TYPE.SWAP,
+        icon: 'https://skip.money/_next/static/media/skip-logo.1bdb8b7b.svg',
+        url: process.env.VUE_APP_SKIP_API,
+        tokensByChain: true,
+        namespace: ECOSYSTEMS.COSMOS,
+    },
+    {
         id: 'swap-1inch',
         name: '1inchSwap',
         type: SERVICE_TYPE.SWAP,

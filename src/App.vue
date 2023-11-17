@@ -28,6 +28,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 import useInit from '@/compositions/useInit';
 import useAdapter from '@/Adapter/compositions/useAdapter';
+import { ECOSYSTEMS } from '@/Adapter/config';
 
 import Socket from '@/modules/Socket';
 
@@ -67,11 +68,45 @@ export default {
             currentChainInfo,
             connectLastConnectedWallet,
             getAddressesWithChainsByEcosystem,
+            getChainListByEcosystem,
+            getIBCAssets,
         } = useAdapter();
 
         const isOpen = computed(() => store.getters['adapters/isOpen']('wallets'));
 
         const showRoutesModal = computed(() => store.getters['swap/showRoutes']);
+
+        const callSubscription = async () => {
+            const { ecosystem } = currentChainInfo.value || {};
+
+            if (!ecosystem) {
+                return;
+            }
+
+            await delay(1000);
+
+            const addressesWithChains = getAddressesWithChainsByEcosystem(ecosystem);
+
+            socketSubscriptions(addressesWithChains);
+        };
+
+        const socketSubscriptions = (addresses) => {
+            for (const chain in addresses) {
+                const { address } = addresses[chain] || {};
+
+                if (!address) {
+                    continue;
+                }
+
+                if (address === walletAddress.value) {
+                    continue;
+                }
+
+                Socket.addressSubscription(address);
+            }
+
+            Socket.addressSubscription(walletAddress.value);
+        };
 
         const callInit = async () => {
             if (isInitCall.value[walletAccount.value]) {
@@ -101,6 +136,15 @@ export default {
         onBeforeMount(async () => await store.dispatch('networks/initZometNets'));
 
         onMounted(async () => {
+            const chains = getChainListByEcosystem(ECOSYSTEMS.COSMOS);
+
+            for (const { chain_name } of chains) {
+                store.dispatch('networks/setTokensByCosmosNet', {
+                    network: chain_name,
+                    tokens: getIBCAssets(ECOSYSTEMS.COSMOS, chain_name),
+                });
+            }
+
             if (!lastConnectedCall.value) {
                 await connectLastConnectedWallet();
                 lastConnectedCall.value = true;
@@ -140,14 +184,11 @@ export default {
             }
         });
 
-        watch(currentChainInfo, () => {
-            Socket.addressSubscription(walletAddress.value);
-        });
+        watch(currentChainInfo, async () => await callSubscription());
 
         watch(walletAccount, async () => {
-            Socket.addressSubscription(walletAddress.value);
-
             await callInit();
+            await callSubscription();
         });
 
         onUpdated(async () => {

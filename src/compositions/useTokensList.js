@@ -5,6 +5,7 @@ import { computed } from 'vue';
 import { useStore } from 'vuex';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
+
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
 export default function useTokensList({ network = null, fromToken = null, toToken = null } = {}) {
@@ -32,6 +33,23 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         }
 
         const tokensWithBalance = getTokensWithAndWithoutBalance('tokens', network);
+        const tokensListFromNet = getTokensWithAndWithoutBalance('networks', network);
+
+        if (ECOSYSTEMS.COSMOS === network?.ecosystem) {
+            for (const token of tokensWithBalance) {
+                if (!token.symbol.includes('IBC.')) {
+                    continue;
+                }
+
+                const searchSymbol = token.symbol.replace('IBC.', '');
+                const result = tokensListFromNet.find((searchToken) => searchToken.symbol === searchSymbol);
+
+                if (result) {
+                    token.address = result.base;
+                    token.coingecko_id = result.coingecko_id;
+                }
+            }
+        }
 
         let allTokens = [];
 
@@ -57,7 +75,6 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         if (onlyWithBalance.value) {
             allTokens = tokensWithBalance;
         } else {
-            const tokensListFromNet = getTokensWithAndWithoutBalance('networks', network);
             allTokens = _.unionBy(tokensWithBalance, tokensListFromNet, (tkn) => tkn.address?.toLowerCase());
         }
 
@@ -100,12 +117,13 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             const tokenInfo = {
                 ...asset,
                 ...baseToken,
+                id: `${network.net}:asset__native:${asset.symbol}`,
                 address: asset.base,
                 balance: baseToken?.balance || 0,
                 balanceUsd: baseToken?.balanceUsd || 0,
             };
 
-            allTokens = [tokenInfo];
+            allTokens = [...allTokens.filter(({ symbol }) => symbol !== asset.symbol), tokenInfo];
         }
 
         allTokens = _.filter(allTokens, isNotEqualToSelected);
