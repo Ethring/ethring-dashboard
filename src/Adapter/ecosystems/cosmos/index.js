@@ -269,8 +269,14 @@ class CosmosAdapter extends AdapterBase {
             this.addressByNetwork = {};
         }
 
-        const mainAddress = this.getAccountAddress();
         const mainAccount = this.getAccount();
+
+        const cosmosWallet = this.walletManager.getChainWallet(DEFAULT_CHAIN, walletName);
+
+        cosmosWallet.activate();
+        await cosmosWallet.connect(false);
+
+        const mainAddress = cosmosWallet.address;
 
         if (!mainAddress) {
             return null;
@@ -280,6 +286,7 @@ class CosmosAdapter extends AdapterBase {
             this.addressByNetwork[mainAccount] = {};
         }
 
+        console.log('this.walletManager.chainRecords', mainAccount, mainAddress);
         const promises = this.walletManager.chainRecords.map(async ({ chain }) => {
             const { bech32_prefix, chain_name } = chain;
 

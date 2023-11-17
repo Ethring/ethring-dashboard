@@ -153,6 +153,11 @@ export default async function useInit(store, { addressesWithChains = {}, account
 
     const chunkedAddresses = _.chunk(sortedByCurrChain, CHUNK_SIZE);
 
+    for (const { chain } of sortedByCurrChain) {
+        const chainForRequest = COSMOS_CHAIN_ID[chain] || chain;
+        store.dispatch('tokens/setLoadingByChain', { chain: chainForRequest, value: true });
+    }
+
     const allTokens = [];
     const allIntegrations = [];
 
