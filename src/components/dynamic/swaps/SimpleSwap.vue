@@ -128,7 +128,13 @@ export default {
 
         const { walletAddress, currentChainInfo, chainList, walletAccount, setChain, getAddressesWithChainsByEcosystem } = useAdapter();
 
-        const chains = computed(() => chainList.value?.filter((chain) => SUPPORTED_CHAINS.includes(chain.net)));
+        const chains = computed(() => {
+            if (currentChainInfo.value.ecosystem === ECOSYSTEMS.COSMOS) {
+                return chainList.value;
+            }
+
+            return chainList.value?.filter((chain) => SUPPORTED_CHAINS.includes(chain.net));
+        });
 
         const selectedService = computed({
             get: () => store.getters[`swap/service`],
