@@ -286,7 +286,6 @@ class CosmosAdapter extends AdapterBase {
             this.addressByNetwork[mainAccount] = {};
         }
 
-        console.log('this.walletManager.chainRecords', mainAccount, mainAddress);
         const promises = this.walletManager.chainRecords.map(async ({ chain }) => {
             const { bech32_prefix, chain_name } = chain;
 

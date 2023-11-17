@@ -145,7 +145,6 @@ export default {
         });
 
         watch(walletAccount, async () => {
-            console.log('walletAccount', walletAccount.value, isInitCall.value);
             Socket.addressSubscription(walletAddress.value);
 
             await callInit();
