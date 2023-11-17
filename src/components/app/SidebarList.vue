@@ -61,6 +61,12 @@ import bridgeIcon from '@/assets/icons/sidebar/bridge.svg';
 import superSwapIcon from '@/assets/icons/sidebar/superSwap.svg';
 import buyCryptoIcon from '@/assets/icons/sidebar/buy.svg';
 
+import { KADO_EVM_NETWORKS, KADO_COSMOS_NETWORKS } from '@/config/availableNets';
+
+import { ECOSYSTEMS } from '@/Adapter/config';
+
+const KADO_URL = process.env.VUE_APP_KADO_API_KEY;
+
 export default {
     name: 'SidebarList',
     components: {
@@ -79,25 +85,31 @@ export default {
         },
     },
     setup() {
-        const KADO_URL = process.env.VUE_APP_KADO_API_KEY;
-
         const { currentChainInfo, walletAccount } = useAdapter();
 
+        const currentChain = ref(currentChainInfo.value?.ecosystem || ECOSYSTEMS.EVM);
+
+        const availableNets = currentChain.value === ECOSYSTEMS.EVM ? KADO_EVM_NETWORKS : KADO_COSMOS_NETWORKS;
+
         const IFRAME_URL = ref(
-            `https://app.kado.money?apiKey=${KADO_URL}&product=BUY&onPayCurrency=USD&onRevCurrency=USDC&onToAddress=${walletAccount.value}`
+            `https://app.kado.money?apiKey=${KADO_URL}&product=BUY&onPayCurrency=USD&onRevCurrency=USDC&onToAddress=${walletAccount.value}&networkList=${availableNets}`
         );
+
+        watch(walletAccount, () => {
+            currentChain.value = currentChainInfo.value.ecosystem;
+
+            if (currentChain.value === ECOSYSTEMS.EVM) {
+                IFRAME_URL.value = `https://app.kado.money?apiKey=${KADO_URL}&product=BUY&onPayCurrency=USD&onRevCurrency=USDC&onToAddress=${walletAccount.value}&networkList=${KADO_EVM_NETWORKS}`;
+            } else {
+                IFRAME_URL.value = `https://app.kado.money?apiKey=${KADO_URL}&product=BUY&onPayCurrency=USD&onRevCurrency=ATOM&onToAddress=${walletAccount.value}&networkList=${KADO_COSMOS_NETWORKS}`;
+            }
+        });
 
         const open = ref(false);
 
         const showModal = () => {
             open.value = true;
         };
-
-        watch(walletAccount, () => {
-            IFRAME_URL.value = `https://app.kado.money?apiKey=${KADO_URL}&product=BUY&onPayCurrency=USD&onRevCurrency=USDC&onToAddress=${walletAccount.value}`;
-        });
-
-        console.log(IFRAME_URL, '-IFRAME_URL');
 
         const menu = computed(() => {
             if (!currentChainInfo.value?.ecosystem || !currentChainInfo.value?.net) {

@@ -10,3 +10,6 @@ export const chainIds = {
     avalanche: 43114,
     fantom: 250,
 };
+
+export const KADO_EVM_NETWORKS = ['Polygon,Optimism,Ethereum,Avalanche,Arbitrum'];
+export const KADO_COSMOS_NETWORKS=['Terra,Secret,Osmosis,Kujira,Juno,Injective,Cosmos Hub'];
