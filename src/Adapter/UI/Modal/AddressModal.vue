@@ -4,7 +4,6 @@
         :title="$t('adapter.accountModalTitle')"
         centered
         :footer="null"
-        width="720px"
         :bodyStyle="{ height: '500px', overflowY: 'overlay' }"
     >
         <ChainWithAddress v-if="addressesWithChains" :chainWithAddress="addressesWithChains" :chainList="chainList" />
@@ -72,6 +71,12 @@ export default {
     .ant-modal-header {
         color: var(--#{$prefix}primary-text);
         background-color: var(--#{$prefix}secondary-background);
+    }
+
+    .ant-modal-title {
+        border-bottom: 1px dashed var(--#{$prefix}adapter-ecosystem-border-color);
+        padding-bottom: 10px;
+        margin-bottom: 20px;
     }
 
     .ant-modal-title,

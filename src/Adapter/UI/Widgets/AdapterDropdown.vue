@@ -2,7 +2,7 @@
     <a-menu-item-group key="accounts" class="connected-wallets-container">
         <div class="connected-wallets-label">
             <div>
-                {{ $t('adapter.accountsGroup') }} <span>({{ connectedWallets.length }})</span>
+                {{ $t('adapter.accountsGroup') }}
             </div>
             <DisconnectAll :disconnect-all="disconnectAll" />
         </div>
@@ -61,11 +61,6 @@ export default {
         color: var(--#{$prefix}adapter-label-text);
         font-size: var(--#{$prefix}small-lg-fs);
         font-weight: 400;
-
-        span {
-            color: var(--#{$prefix}sub-text);
-            font-weight: 500;
-        }
     }
 }
 
