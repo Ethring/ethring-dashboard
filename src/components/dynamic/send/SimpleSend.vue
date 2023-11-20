@@ -18,6 +18,7 @@
             :label="$t('tokenOperations.asset')"
             :on-reset="clearAddress || resetAmount"
             :is-token-loading="isTokensLoadingForChain"
+            :amount-value="srcAmount"
             class="mt-10"
             @setAmount="onSetAmount"
             @clickToken="onSetToken"
@@ -123,6 +124,9 @@ export default {
         );
 
         const onSetToken = () => {
+            targetDirection.value = DIRECTIONS.SOURCE;
+            selectType.value = TOKEN_SELECT_TYPES.FROM;
+
             router.push('/send/select-token');
         };
 
@@ -263,18 +267,17 @@ export default {
         });
 
         onMounted(() => {
-            selectType.value = TOKEN_SELECT_TYPES.FROM;
-            targetDirection.value = DIRECTIONS.SOURCE;
-
             onlyWithBalance.value = true;
 
             if (!selectedSrcNetwork.value) {
                 selectedSrcNetwork.value = currentChainInfo.value;
             }
 
-            store.dispatch('txManager/setCurrentRequestID', null);
+            if (!selectedSrcToken.value) {
+                setTokenOnChange();
+            }
 
-            setTokenOnChange();
+            store.dispatch('txManager/setCurrentRequestID', null);
         });
 
         return {
@@ -291,6 +294,7 @@ export default {
             isBalanceError,
 
             selectedSrcToken,
+            srcAmount,
             receiverAddress,
 
             onSelectNetwork,

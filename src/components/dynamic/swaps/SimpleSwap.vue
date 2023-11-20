@@ -11,6 +11,7 @@
                 :is-token-loading="isTokensLoadingForChain"
                 :is-update="isUpdateSwapDirectionValue"
                 :label="$t('tokenOperations.pay')"
+                :amount-value="srcAmount"
                 @clickToken="onSetTokenFrom"
                 @setAmount="onSetAmount"
             />
@@ -30,6 +31,7 @@
                 :is-update="isUpdateSwapDirectionValue"
                 :label="$t('tokenOperations.receive')"
                 :disabled-value="dstAmount"
+                :amount-value="dstAmount"
                 @clickToken="onSetTokenTo"
             />
         </div>
@@ -145,6 +147,8 @@ export default {
 
         if (currentChainInfo.value.ecosystem === ECOSYSTEMS.COSMOS) {
             selectedService.value = services.find((service) => service.id === 'swap-skip');
+        } else {
+            selectedService.value = services.find((service) => service.id === 'swap-1inch');
         }
 
         const addressesByChains = ref({});
@@ -280,6 +284,11 @@ export default {
             estimateErrorTitle.value = '';
             resetSrcAmount.value = true;
             resetDstAmount.value = true;
+
+            setTimeout(() => {
+                resetSrcAmount.value = false;
+                resetDstAmount.value = false;
+            });
         };
 
         const onSetTokenFrom = () => {
@@ -288,8 +297,6 @@ export default {
             targetDirection.value = DIRECTIONS.SOURCE;
 
             router.push('/swap/select-token');
-
-            srcAmount.value = 0;
 
             return clearApproveForService();
         };
@@ -303,6 +310,27 @@ export default {
             router.push('/swap/select-token');
 
             await onSetAmount(srcAmount.value);
+        };
+
+        const resetAmounts = async (type = DIRECTIONS.SOURCE, amount) => {
+            const allowDataTypes = ['string', 'number'];
+
+            if (allowDataTypes.includes(typeof amount)) {
+                return;
+            }
+
+            const direction = {
+                [DIRECTIONS.SOURCE]: resetSrcAmount,
+                [DIRECTIONS.DESTINATION]: resetDstAmount,
+            };
+
+            const isEmpty = amount === null;
+
+            if (direction[type] && isEmpty) {
+                direction[type].value = false;
+                direction[type].value = isEmpty;
+                setTimeout(() => (direction[type].value = false));
+            }
         };
 
         const onSetAmount = async (value) => {
@@ -358,8 +386,6 @@ export default {
                 return;
             }
 
-            srcAmount.value = '';
-
             clearApproveForService();
 
             const from = { ...selectedSrcToken.value };
@@ -369,6 +395,8 @@ export default {
 
             selectedSrcToken.value = to;
             selectedDstToken.value = from;
+
+            onSetAmount(srcAmount.value);
 
             if (selectedSrcToken.value?.address && !allowanceForToken.value) {
                 await requestAllowance();
@@ -727,13 +755,9 @@ export default {
             }
         });
 
-        watch(srcAmount, () => {
-            resetSrcAmount.value = srcAmount.value === null;
-        });
+        watch(srcAmount, () => resetAmounts(DIRECTIONS.SOURCE, srcAmount.value));
 
-        watch(dstAmount, () => {
-            resetDstAmount.value = dstAmount.value === null;
-        });
+        watch(dstAmount, () => resetAmounts(DIRECTIONS.DESTINATION, dstAmount.value));
 
         watch(selectedSrcToken, () => {
             if (!selectedSrcToken.value) {
@@ -781,15 +805,17 @@ export default {
         };
 
         onMounted(async () => {
-            selectType.value = TOKEN_SELECT_TYPES.FROM;
             store.dispatch('txManager/setCurrentRequestID', null);
+
+            if (srcAmount.value) {
+                dstAmount.value = null;
+                await onSetAmount(srcAmount.value);
+            }
 
             if (!selectedSrcNetwork.value) {
                 selectedSrcNetwork.value = currentChainInfo.value;
                 setTokenOnChange();
             }
-
-            onlyWithBalance.value = true;
 
             if (selectedSrcToken.value?.address && !allowanceForToken.value && ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem) {
                 await requestAllowance();

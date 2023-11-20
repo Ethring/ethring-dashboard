@@ -25,6 +25,7 @@
             :disabled="!selectedSrcToken"
             :label="$t('tokenOperations.transferFrom')"
             :is-token-loading="isTokensLoadingForSrc"
+            :amount-value="srcAmount"
             class="mt-10"
             @setAmount="onSetAmount"
             @clickToken="onSetSrcToken"
@@ -40,6 +41,7 @@
             :label="$t('tokenOperations.transferTo')"
             :disabled-value="dstAmount"
             :on-reset="resetDstAmount"
+            :amount-value="dstAmount"
             class="mt-10"
             @clickToken="onSetDstToken"
         />
@@ -110,6 +112,7 @@ import { STATUSES } from '../../../Transactions/shared/constants';
 import {
     estimateBridge,
     getBridgeTx,
+    cancelRequestByMethod,
     // getDebridgeTxHashForOrder
 } from '@/api/services';
 
@@ -172,6 +175,8 @@ export default {
 
         if (currentChainInfo.value.ecosystem === ECOSYSTEMS.COSMOS) {
             selectedService.value = services.find((service) => service.id === 'bridge-skip');
+        } else {
+            selectedService.value = services.find((service) => service.id === 'bridge-debridge');
         }
 
         // =================================================================================================================
@@ -311,10 +316,13 @@ export default {
 
         // =================================================================================================================
 
-        const handleOnSelectNetwork = (network, direction) => {
+        const handleOnSelectNetwork = async (network, direction) => {
             if (direction === DIRECTIONS.SOURCE) {
                 selectedSrcNetwork.value = network;
                 selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
+
+                srcAmount.value && (await onSetAmount(srcAmount.value));
+                receiverAddress.value && onSetAddress(receiverAddress.value);
 
                 return clearApproveForService();
             }
@@ -327,15 +335,15 @@ export default {
 
             isEstimating.value = false;
 
-            resetSrcAmount.value = true;
-            resetDstAmount.value = true;
-
             estimateErrorTitle.value = '';
+
+            srcAmount.value && (await onSetAmount(srcAmount.value));
+            receiverAddress.value && onSetAddress(receiverAddress.value);
         };
 
         // =================================================================================================================
 
-        const onSetSrcToken = () => {
+        const onSetSrcToken = async () => {
             onlyWithBalance.value = true;
             targetDirection.value = DIRECTIONS.SOURCE;
             selectType.value = TOKEN_SELECT_TYPES.FROM;
@@ -343,8 +351,6 @@ export default {
             router.push('/bridge/select-token');
 
             balanceUpdated.value = false;
-
-            srcAmount.value = 0;
 
             return clearApproveForService();
         };
@@ -356,10 +362,6 @@ export default {
 
             router.push('/bridge/select-token');
 
-            dstAmount.value = 0;
-
-            await onSetAmount(srcAmount.value);
-
             return (balanceUpdated.value = false);
         };
 
@@ -367,7 +369,9 @@ export default {
             receiverAddress.value = addr;
 
             if (!addr) {
-                return (errorAddress.value = '');
+                clearAddress.value = true;
+                errorAddress.value = '';
+                return setTimeout(() => (clearAddress.value = false), 1000);
             }
 
             if (!validateAddress(addr, { chainId: selectedDstNetwork?.value?.net })) {
@@ -375,6 +379,34 @@ export default {
             }
 
             return (errorAddress.value = '');
+        };
+
+        const resetAmounts = async (type = DIRECTIONS.SOURCE, amount) => {
+            const allowDataTypes = ['string', 'number'];
+
+            if (allowDataTypes.includes(typeof amount)) {
+                return;
+            }
+
+            const direction = {
+                [DIRECTIONS.SOURCE]: resetSrcAmount,
+                [DIRECTIONS.DESTINATION]: resetDstAmount,
+            };
+
+            const isEmpty = amount === null;
+
+            if (direction[type] && isEmpty) {
+                direction[type].value = false;
+                direction[type].value = isEmpty;
+                setTimeout(() => (direction[type].value = false));
+            }
+
+            clearAddress.value = receiverAddress.value === null;
+
+            if (clearAddress.value) {
+                onSetAddress(null);
+                setTimeout(() => (clearAddress.value = false));
+            }
         };
 
         const onSetAmount = async (value) => {
@@ -394,7 +426,7 @@ export default {
                 await requestAllowance();
             }
 
-            onSetAddress(receiverAddress.value);
+            receiverAddress.value && onSetAddress(receiverAddress.value);
 
             return await makeEstimateBridgeRequest();
         };
@@ -424,6 +456,7 @@ export default {
 
             return !isEnough;
         });
+
         // =================================================================================================================
 
         const isAllowForRequest = () => {
@@ -480,6 +513,10 @@ export default {
             }
 
             isEstimating.value = true;
+
+            if (cancelRequestByMethod) {
+                await cancelRequestByMethod('estimateBridge');
+            }
 
             const params = {
                 url: selectedService.value.url,
@@ -576,6 +613,10 @@ export default {
 
         // =================================================================================================================
         const makeBridgeTx = async () => {
+            if (cancelRequestByMethod) {
+                cancelRequestByMethod('getBridgeTx');
+            }
+
             showNotification({
                 key: 'prepare-tx',
                 type: 'info',
@@ -871,7 +912,8 @@ export default {
 
         watch(isSendToAnotherAddress, () => {
             clearAddress.value = true;
-            return onSetAddress('');
+            onSetAddress('');
+            clearAddress.value = false;
         });
 
         watch(isNeedApprove, () => {
@@ -882,13 +924,9 @@ export default {
             checkSelectedNetwork();
         });
 
-        watch(srcAmount, () => {
-            resetSrcAmount.value = srcAmount.value === null;
-        });
+        watch(srcAmount, () => resetAmounts(DIRECTIONS.SOURCE, srcAmount.value));
 
-        watch(dstAmount, () => {
-            resetDstAmount.value = dstAmount.value === null;
-        });
+        watch(dstAmount, () => resetAmounts(DIRECTIONS.DESTINATION, dstAmount.value));
 
         watch(isWaitingTxStatusForModule, () => {
             if (!isWaitingTxStatusForModule.value) {
@@ -924,6 +962,11 @@ export default {
             if (!selectedSrcNetwork.value) {
                 selectedSrcNetwork.value = currentChainInfo.value;
                 selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
+            }
+
+            if (srcAmount.value) {
+                dstAmount.value = null;
+                await onSetAmount(srcAmount.value);
             }
 
             if (!allowanceForToken.value && ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem) {

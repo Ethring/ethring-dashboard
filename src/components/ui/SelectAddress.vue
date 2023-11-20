@@ -27,7 +27,7 @@
 <script>
 import ClearIcon from '@/assets/icons/app/xmark.svg';
 
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, onUpdated } from 'vue';
 
 export default {
     name: 'SelectAddress',
@@ -64,15 +64,17 @@ export default {
 
         const placeholder = ref('Address');
 
+        const resetAddress = () => {
+            if (props.onReset) {
+                address.value = '';
+                active.value = false;
+                emit('setAddress', '');
+            }
+        };
+
         watch(
             () => props.onReset,
-            () => {
-                if (props.onReset) {
-                    address.value = '';
-                    active.value = false;
-                    emit('setAddress', address.value);
-                }
-            }
+            () => resetAddress()
         );
 
         watch(
@@ -91,6 +93,14 @@ export default {
             if (props.value) {
                 address.value = props.value;
             }
+        });
+
+        onUpdated(() => {
+            if (props.value) {
+                address.value = props.value;
+            }
+
+            resetAddress();
         });
 
         const onInput = () => {
