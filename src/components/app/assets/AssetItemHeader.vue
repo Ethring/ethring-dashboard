@@ -21,7 +21,7 @@
             </div>
         </div>
 
-        <div class="column">
+        <!-- <div class="column">
             <div class="asset__item-header-health" v-if="healthRate">
                 <h5>{{ formatNumber(healthRate, 2) }} <span>%</span></h5>
                 <div
@@ -30,7 +30,7 @@
                     :style="{ width: `${healthRate > 0 ? healthRate : 1}%` }"
                 ></div>
             </div>
-        </div>
+        </div> -->
         <div class="column">
             <div class="asset__item-header-balance">
                 <span class="asset__item-header-symbol">$</span>
