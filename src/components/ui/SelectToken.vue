@@ -76,7 +76,9 @@ export default {
 
         const allTokens = computed(() => props.tokens || []);
 
-        const setToken = (item) => emit('setToken', item);
+        const setToken = (item) => {
+            emit('setToken', item);
+        };
 
         const handleOnFilterTokens = (val) => {
             searchValue.value = val;

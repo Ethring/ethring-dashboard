@@ -122,7 +122,7 @@ export default {
         margin-bottom: 8px;
     }
 
-    &:hover {
+    &:hover:not(.selected) {
         border-color: var(--#{$prefix}sub-text);
         background-color: var(--#{$prefix}select-bg-color);
     }

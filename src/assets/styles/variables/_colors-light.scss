@@ -29,7 +29,7 @@ $deepCerulean: #00839f;
 $japaneseLaurel: #038d00;
 $blazeOrange: #ff6b00;
 $paleSky: #6D747A;
-
+$blackGray: #1a1d26;
 
 $watermelon: #fa3c58;
 $pizazz: #f69502;
@@ -102,6 +102,7 @@ $adapter-logo-secondary-color: $iceberg;
 $adapter-border-color: $iceberg;
 $adapter-icon-color: $lightGreen;
 $adapter-secondary-border-color: $pastelPink;
+$adapter-modal-close-color: $blackGray;
 
 // Checkbox
 $checkbox-text: $gulfStream;
@@ -115,6 +116,7 @@ $border-color: $geyser;
 $border-secondary-color: $gulfStream;
 $border-color-op-05: rgba($border-color, 0.5);
 $social-border-color: $trout;
+$info-border-color: $gallery;
 
 // Button
 $btn-text-color: $white;
@@ -254,6 +256,7 @@ $theme-colors: (
     "adapter-border-color": $adapter-border-color,
     "adapter-icon-color": $adapter-icon-color,
     "adapter-secondary-border-color": $adapter-secondary-border-color,
+    "adapter-modal-close-color": $adapter-modal-close-color,
 
     "checkbox-text": $checkbox-text,
     "checkbox-disabled-text": $checkbox-disabled-text,
@@ -265,6 +268,7 @@ $theme-colors: (
     "border-secondary-color": $border-secondary-color,
     "border-color-op-05": $border-color-op-05,
     "social-border-color": $social-border-color,
+    "info-border-color": $info-border-color,
 
 
     "btn-text-hover": $btn-text-hover,

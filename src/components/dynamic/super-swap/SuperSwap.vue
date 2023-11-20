@@ -143,7 +143,7 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 // Composition
 import useTokensList from '@/compositions/useTokensList';
 import useNotification from '@/compositions/useNotification';
-import useServices from '../../../compositions/useServices';
+import useServices from '@/compositions/useServices';
 
 // Transaction Management
 import useTransactions from '../../../Transactions/compositions/useTransactions';
@@ -777,6 +777,7 @@ export default {
 
             if (!isChanged) {
                 isLoading.value = false;
+                return;
             }
 
             opTitle.value = 'tokenOperations.confirm';
@@ -873,6 +874,14 @@ export default {
         });
 
         watch(selectedDstNetwork, () => {
+            getEstimateInfo();
+        });
+
+        watch(selectedSrcToken, () => {
+            if (!srcAmount.value) {
+                return;
+            }
+            isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance);
             getEstimateInfo();
         });
 

@@ -108,26 +108,17 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             allTokens = [tokenInfo];
         }
 
+        // Added selected param if token is selected
         const isFromSelected = selectType.value === TOKEN_SELECT_TYPES.FROM;
 
         const selectedToken = isFromSelected ? toToken : fromToken;
 
         allTokens = allTokens.filter((tkn) => isNotEqualToSelected(tkn, selectedToken));
 
-        allTokens = allTokens.map((tkn) => {
-            if (isFromSelected && tkn.id === fromToken?.id) {
-                return {
-                    ...tkn,
-                    selected: true,
-                };
-            } else if (tkn.id === toToken?.id) {
-                return {
-                    ...tkn,
-                    selected: true,
-                };
-            }
-            return tkn;
-        });
+        for (const tkn of allTokens) {
+            const isSelected = (isFromSelected && tkn.id === fromToken?.id) || (tkn.id === toToken?.id);
+            tkn.selected = isSelected;
+        }
 
         return _.orderBy(
             allTokens,

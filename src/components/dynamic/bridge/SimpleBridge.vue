@@ -20,6 +20,7 @@
         <SelectAmount
             v-if="selectedSrcNetwork"
             :value="selectedSrcToken"
+            :selected-network="selectedSrcNetwork"
             :error="!!isBalanceError"
             :on-reset="resetSrcAmount"
             :disabled="!selectedSrcToken"
@@ -64,12 +65,12 @@
         />
 
         <EstimateInfo
-            v-if="dstAmount || estimateErrorTitle"
+            v-if="estimateErrorTitle || srcAmount"
             :loading="isEstimating"
             :service="selectedService"
             :title="$t('tokenOperations.routeInfo')"
-            :main-fee="protocolFeeMain"
-            :fees="[feeInfo, estimateTimeInfo]"
+            :main-fee="rateInfo"
+            :fees="[protocolFeeMain, feeInfo, estimateTimeInfo]"
             :error="estimateErrorTitle"
         />
 
@@ -121,7 +122,7 @@ import Checkbox from '@/components/ui/Checkbox';
 import Button from '@/components/ui/Button';
 import EstimateInfo from '@/components/ui/EstimateInfo.vue';
 
-import { formatNumber, prettyNumber } from '@/helpers/prettyNumber';
+import { formatNumber, prettyNumber, prettyNumberTooltip } from '@/helpers/prettyNumber';
 
 import { getServices, SERVICE_TYPE } from '@/config/services';
 
@@ -245,23 +246,21 @@ export default {
         const resetSrcAmount = ref(false);
         const resetDstAmount = ref(false);
 
-        const feeInfo = ref({
-            title: '',
-            symbolBetween: '',
-            fromAmount: '',
-            fromSymbol: '',
-            toAmount: '',
-            toSymbol: '',
-        });
+        const baseFeeInfo = (title, symbolBetween, fromAmount, fromSymbol, toAmount, toSymbol) => {
+            return {
+                title,
+                symbolBetween,
+                fromAmount,
+                fromSymbol,
+                toAmount,
+                toSymbol,
+            };
+        };
 
-        const estimateTimeInfo = ref({
-            title: '',
-            symbolBetween: '',
-            fromAmount: '',
-            fromSymbol: '',
-            toAmount: '',
-            toSymbol: '',
-        });
+        const rateInfo = ref(baseFeeInfo('', '', '', '', '', ''));
+        const feeInfo = ref(baseFeeInfo('', '', '', '', '', ''));
+        const estimateTimeInfo = ref(baseFeeInfo('', '', '', '', '', ''));
+        const protocolFeeMain = ref(baseFeeInfo('', '', '', '', '', ''));
 
         const estimateTime = ref('');
 
@@ -270,59 +269,6 @@ export default {
         const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
         const isTokensLoadingForSrc = computed(() => store.getters['tokens/loadingByChain'](selectedSrcNetwork.value?.net));
         const isTokensLoadingForDst = computed(() => store.getters['tokens/loadingByChain'](selectedDstNetwork.value?.net));
-
-        // =================================================================================================================
-
-        const serviceFee = computed(() => {
-            const { protocolFee = null } = selectedService.value || {};
-
-            if (!protocolFee) {
-                return;
-            }
-
-            const { chain_id } = selectedSrcNetwork.value || {};
-
-            const fee = protocolFee[chain_id];
-
-            if (!chain_id || !fee) {
-                return;
-            }
-
-            return fee;
-        });
-
-        const protocolFeeMain = computed(() => {
-            const { protocolFee = null } = selectedService.value || {};
-
-            if (!protocolFee) {
-                return;
-            }
-
-            const { chain_id, native_token = null } = selectedSrcNetwork.value || {};
-
-            const fee = protocolFee[chain_id] || 0;
-
-            if (!chain_id || !fee) {
-                return;
-            }
-
-            if (!native_token) {
-                return;
-            }
-
-            const { symbol = null, price = 0 } = native_token || 0;
-
-            const feeInUSD = prettyNumber(BigNumber(fee).multipliedBy(price).toString());
-
-            return {
-                title: 'tokenOperations.protocolFee',
-                symbolBetween: '~',
-                fromAmount: fee,
-                fromSymbol: symbol,
-                toAmount: feeInUSD,
-                toSymbol: '$',
-            };
-        });
 
         // =================================================================================================================
 
@@ -392,6 +338,8 @@ export default {
 
             balanceUpdated.value = false;
 
+            srcAmount.value = 0;
+
             return clearApproveForService();
         };
 
@@ -402,13 +350,15 @@ export default {
 
             router.push('/bridge/select-token');
 
+            srcAmount.value = 0;
+
             return (balanceUpdated.value = false);
         };
 
         const onSetAddress = (addr) => {
             receiverAddress.value = addr;
 
-            if (!addr.length) {
+            if (!addr) {
                 return (errorAddress.value = '');
             }
 
@@ -436,11 +386,7 @@ export default {
                 await requestAllowance();
             }
 
-            // const isEnoughForFee = BigNumber(selectedSrcToken.value?.balance).gt(feeInfo.value.fromAmount);
-
             onSetAddress(receiverAddress.value);
-
-            isBalanceError.value = isNotEnoughBalance;
 
             return await makeEstimateBridgeRequest();
         };
@@ -535,17 +481,16 @@ export default {
 
             if (response.error) {
                 isEstimating.value = false;
-                estimateErrorTitle.value = response.error;
 
-                return (isEstimating.value = false);
+                return (estimateErrorTitle.value = response.error);
             }
-
-            estimateErrorTitle.value = '';
 
             isEstimating.value = false;
             isLoading.value = false;
 
             dstAmount.value = BigNumber(response.toTokenAmount).toFixed(6);
+
+            estimateErrorTitle.value = '';
 
             feeInfo.value = {
                 title: 'tokenOperations.serviceFee',
@@ -556,9 +501,18 @@ export default {
                 toSymbol: '$',
             };
 
-            const { estimatedTime = {} } = selectedService.value || {};
+            rateInfo.value = {
+                title: 'tokenOperations.rate',
+                symbolBetween: '=',
+                fromAmount: '1',
+                fromSymbol: selectedSrcToken.value.symbol,
+                toAmount: prettyNumberTooltip(response.toTokenAmount / response.fromTokenAmount, 6),
+                toSymbol: selectedDstToken.value.symbol,
+            };
 
-            const { chainId, chain_id } = selectedSrcNetwork.value || {};
+            const { estimatedTime = {}, protocolFee = null } = selectedService.value || {};
+
+            const { chainId, chain_id, native_token = null } = selectedSrcNetwork.value || {};
 
             const chain = chainId || chain_id;
 
@@ -574,6 +528,21 @@ export default {
                     toSymbol: 'min',
                 };
             }
+
+            const fee = protocolFee[chain_id] || 0;
+
+            const { symbol = null, price = 0 } = native_token || 0;
+
+            const feeInUSD = prettyNumber(BigNumber(fee).multipliedBy(price).toString());
+
+            protocolFeeMain.value = {
+                title: 'tokenOperations.protocolFee',
+                symbolBetween: '~',
+                fromAmount: fee,
+                fromSymbol: symbol,
+                toAmount: feeInUSD,
+                toSymbol: '$',
+            };
         };
 
         // =================================================================================================================
@@ -898,6 +867,8 @@ export default {
             if (!allowanceForToken.value) {
                 await makeAllowanceRequest();
             }
+
+            isAllowForRequest();
         });
 
         onBeforeUnmount(() => {
@@ -953,9 +924,9 @@ export default {
             // Information for accordion
             protocolFeeMain,
             feeInfo,
+            rateInfo,
             estimateTimeInfo,
             estimateTime,
-            serviceFee,
             txError,
             estimateErrorTitle,
             clearAddress,
