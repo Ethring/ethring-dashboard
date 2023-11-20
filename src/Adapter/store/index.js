@@ -104,6 +104,7 @@ export default {
     mutations: {
         [TYPES.SET_WALLET](state, { ecosystem, wallet }) {
             lastConnectedWalletStorage.value = wallet;
+            state.lastConnectedWallet = wallet;
 
             const found = state.wallets.filter((w) => w.id === wallet.id || w.ecosystem === ecosystem);
             const [exist] = found;

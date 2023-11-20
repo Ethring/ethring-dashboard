@@ -8,8 +8,10 @@
             <div class="address">
                 {{ cutAddress(walletAccount) }}
             </div>
-
-            <div class="balance">
+            <template v-if="isAllTokensLoading && !totalBalance">
+                <a-skeleton-input active />
+            </template>
+            <div v-else class="balance">
                 <div class="value">
                     <span>$</span>
                     {{ showBalance ? formatNumber(totalBalance, 2) : '****' }}
@@ -39,11 +41,14 @@ export default {
 
         const { walletAccount, currentChainInfo } = useAdapter();
 
+        const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
+
         const showBalance = computed(() => store.getters['app/showBalance']);
 
         const totalBalance = computed(() => store.getters['tokens/totalBalances'][walletAccount.value]);
 
         return {
+            isAllTokensLoading,
             totalBalance,
             currentChainInfo,
             walletAccount,

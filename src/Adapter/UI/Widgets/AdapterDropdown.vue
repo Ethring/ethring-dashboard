@@ -29,7 +29,7 @@ export default {
         DisconnectAll,
         ConnectedWallet,
     },
-    setup() {
+    setup(_, { emit }) {
         const accountsModal = ref(false);
 
         const addressesWithChains = ref([]);
@@ -37,7 +37,10 @@ export default {
 
         const { disconnectAllWallets, connectedWallets = [] } = useAdapter();
 
-        const disconnectAll = async () => await disconnectAllWallets();
+        const disconnectAll = async () => {
+            emit('closeDropdown');
+            await disconnectAllWallets();
+        };
 
         return {
             accountsModal,

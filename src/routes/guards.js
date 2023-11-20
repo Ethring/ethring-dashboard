@@ -10,14 +10,18 @@ export default async (to, from, next) => {
     const isAuthRequired = to.meta.isAuth;
 
     if (!adapterIsConnected && to.name !== 'Connect wallet' && isAuthRequired) {
-        return next('/connect-wallet');
+        return next('/');
     }
 
     if (to.name === 'Connect wallet' && adapterIsConnected) {
         return next('/');
     }
 
-    const { currentChainInfo } = useAdapter();
+    const { currentChainInfo, connectLastConnectedWallet } = useAdapter();
+
+    if (!currentChainInfo.value) {
+        await connectLastConnectedWallet();
+    }
 
     if (!redirectOrStay(to.path, currentChainInfo.value)) {
         return next('/');

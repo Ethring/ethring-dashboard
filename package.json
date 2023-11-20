@@ -54,6 +54,7 @@
     "vue-i18n": "9.2.2",
     "vue-mixpanel": "^2.0.0",
     "vue-router": "^4.0.0-0",
+    "vue3-carousel": "^0.3.1",
     "vue3-click-away": "^1.2.4",
     "vuex": "^4.0.0-0",
     "vuex-persistedstate": "^4.0.0-beta.3",

@@ -143,7 +143,7 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 // Composition
 import useTokensList from '@/compositions/useTokensList';
 import useNotification from '@/compositions/useNotification';
-import useServices from '../../../compositions/useServices';
+import useServices from '@/compositions/useServices';
 
 // Transaction Management
 import useTransactions from '../../../Transactions/compositions/useTransactions';
@@ -542,14 +542,14 @@ export default {
         // =================================================================================================================
 
         const getEstimateInfo = async (isReload = false) => {
-            if (
-                !selectedSrcNetwork.value ||
-                !selectedSrcToken.value ||
-                !selectedDstNetwork.value ||
-                !selectedDstToken.value ||
-                !+srcAmount.value
-            ) {
+            if (!selectedSrcNetwork.value || !selectedSrcToken.value || !selectedDstNetwork.value || !selectedDstToken.value) {
                 return (estimateErrorTitle.value = 'Select all fields');
+            }
+
+            if (!+srcAmount.value) {
+                dstAmount.value = 0;
+
+                return (isLoading.value = false);
             }
 
             isLoading.value = true;
@@ -563,46 +563,42 @@ export default {
                 return (isLoading.value = false);
             }
 
-            if (!+srcAmount.value) {
-                dstAmount.value = 0;
-
-                return (isLoading.value = false);
-            }
-
             const checkRoute =
                 resEstimate.toToken === selectedDstToken.value &&
                 resEstimate.fromToken === selectedSrcToken.value &&
                 resEstimate.bestRoute?.fromTokenAmount === srcAmount.value;
 
-            if (checkRoute) {
-                if (isReload) {
-                    const isSameRoute = bestRoute.value.serviceId === resEstimate.bestRoute.serviceId;
-
-                    if (!isSameRoute && resEstimate.otherRoutes.length) {
-                        resEstimate.otherRoutes = resEstimate.otherRoutes.map((item) => {
-                            if (item.serviceId === bestRoute.value.serviceId) {
-                                [resEstimate.bestRoute, item] = [item, resEstimate.bestRoute];
-                            }
-                            return item;
-                        });
-                    }
-                }
-                store.dispatch('swap/setBestRoute', resEstimate);
-                currentRoute.value = resEstimate.bestRoute.routes.find((elem) => elem.status === STATUSES.SIGNING);
-
-                bestRoute.value = resEstimate.bestRoute;
-                otherRoutes.value = resEstimate.otherRoutes || [];
-                estimateErrorTitle.value = '';
-
-                dstAmount.value = resEstimate.bestRoute?.toTokenAmount;
-
-                networkFee.value = prettyNumberTooltip(resEstimate.bestRoute?.estimateFeeUsd, 6);
-                estimateRate.value = prettyNumberTooltip(resEstimate.bestRoute.toTokenAmount / resEstimate.bestRoute.fromTokenAmount, 6);
-
-                differPercentage.value = getDifferPercentage();
-
-                isLoading.value = false;
+            if (!checkRoute) {
+                return;
             }
+
+            const checkBestService =
+                isReload && bestRoute.value.serviceId !== resEstimate.bestRoute.serviceId && resEstimate.otherRoutes.length;
+
+            if (checkBestService) {
+                resEstimate.otherRoutes = resEstimate.otherRoutes.map((item) => {
+                    if (item.serviceId === bestRoute.value.serviceId) {
+                        [resEstimate.bestRoute, item] = [item, resEstimate.bestRoute];
+                    }
+                    return item;
+                });
+            }
+
+            store.dispatch('swap/setBestRoute', resEstimate);
+            currentRoute.value = resEstimate.bestRoute.routes.find((elem) => elem.status === STATUSES.SIGNING);
+
+            bestRoute.value = resEstimate.bestRoute;
+            otherRoutes.value = resEstimate.otherRoutes || [];
+            estimateErrorTitle.value = '';
+
+            dstAmount.value = resEstimate.bestRoute?.toTokenAmount;
+
+            networkFee.value = prettyNumberTooltip(resEstimate.bestRoute?.estimateFeeUsd, 6);
+            estimateRate.value = prettyNumberTooltip(resEstimate.bestRoute.toTokenAmount / resEstimate.bestRoute.fromTokenAmount, 6);
+
+            differPercentage.value = getDifferPercentage();
+
+            isLoading.value = false;
 
             if (selectedSrcNetwork.value.net !== currentChainInfo.value.net) {
                 networkName.value = selectedSrcNetwork.value.name;
@@ -789,6 +785,7 @@ export default {
 
             if (!isChanged) {
                 isLoading.value = false;
+                return;
             }
 
             opTitle.value = 'tokenOperations.confirm';
@@ -885,6 +882,14 @@ export default {
         });
 
         watch(selectedDstNetwork, () => {
+            getEstimateInfo();
+        });
+
+        watch(selectedSrcToken, () => {
+            if (!srcAmount.value) {
+                return;
+            }
+            isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance);
             getEstimateInfo();
         });
 
