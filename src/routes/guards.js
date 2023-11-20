@@ -17,7 +17,11 @@ export default async (to, from, next) => {
         return next('/');
     }
 
-    const { currentChainInfo } = useAdapter();
+    const { currentChainInfo, connectLastConnectedWallet } = useAdapter();
+
+    if (!currentChainInfo.value) {
+        await connectLastConnectedWallet();
+    }
 
     if (!redirectOrStay(to.path, currentChainInfo.value)) {
         return next('/');
