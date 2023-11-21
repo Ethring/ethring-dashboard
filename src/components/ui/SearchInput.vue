@@ -3,7 +3,7 @@
         <div class="search-input__logo">
             <SearchIcon />
         </div>
-        <div>
+        <div class="search-input__container">
             <span>{{ $t('dashboard.search') }}</span>
             <input @focus="isActive = 'active'" @blur="isActive = ''" v-model="text" :placeholder="$t('tokenOperations.searchToken')" />
         </div>
@@ -65,6 +65,10 @@ $padding-lr: 32px;
 
     background: var(--#{$prefix}select-bg-color);
 
+    &__container {
+        width: 100%;
+    }
+
     span {
         display: block;
 
@@ -115,6 +119,8 @@ $padding-lr: 32px;
     }
 
     input {
+        width: 100%;
+        
         font-style: normal;
         font-weight: 600;
         font-size: var(--#{$prefix}h5-fs);
