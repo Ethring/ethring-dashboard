@@ -1162,8 +1162,9 @@ export default {
         }
 
         svg.expand {
+            cursor: pointer;
             fill: var(--#{$prefix}base-text);
-            margin-left: 12px;
+            margin-left: 4px;
             @include animateEasy;
         }
     }
