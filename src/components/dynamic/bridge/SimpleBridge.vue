@@ -614,7 +614,7 @@ export default {
         // =================================================================================================================
         const makeBridgeTx = async () => {
             if (cancelRequestByMethod) {
-                cancelRequestByMethod('getBridgeTx');
+                await cancelRequestByMethod('getBridgeTx');
             }
 
             showNotification({
