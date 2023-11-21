@@ -5,7 +5,7 @@
         </div>
         <div>
             <span>{{ $t('dashboard.search') }}</span>
-            <input @focus="isActive = 'active'" @blur="isActive = ''" v-model="text" placeholder="Token name" />
+            <input @focus="isActive = 'active'" @blur="isActive = ''" v-model="text" :placeholder="$t('tokenOperations.searchToken')" />
         </div>
         <div v-if="text.length" class="search-input__clear" @click="clearValue">
             <ClearIcon />
@@ -72,7 +72,6 @@ $padding-lr: 32px;
         font-weight: 500;
         font-size: var(--#{$prefix}small-lg-fs);
         color: var(--#{$prefix}base-text);
-        line-height: 21px;
     }
 
     &__logo {
@@ -118,7 +117,7 @@ $padding-lr: 32px;
     input {
         font-style: normal;
         font-weight: 600;
-        font-size: var(--#{$prefix}h4-fs);
+        font-size: var(--#{$prefix}h5-fs);
 
         color: var(--#{$prefix}primary-text);
 
