@@ -1,9 +1,7 @@
 <template>
     <div class="connected-wallet" @click="handleOnClickConnectedWallet(wallet)">
         <div class="left-side">
-            <div class="change-network-logo">
-                <img :src="chainInfo.logo" alt="current-chain-logo" />
-            </div>
+            <ModuleIcon :ecosystem="wallet.ecosystem" :module="wallet.walletModule" background="#1C1F2C" />
             <div class="account-name">
                 {{ cutAddress(wallet.account, 10, 4) }}
             </div>
@@ -48,6 +46,8 @@ import { MoreOutlined } from '@ant-design/icons-vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
+import ModuleIcon from '@/Adapter/UI/Entities/ModuleIcon.vue';
+
 import DisconnectIcon from '@/assets/icons/app/clear.svg';
 import CopyIcon from '@/assets/icons/app/copy.svg';
 
@@ -61,6 +61,7 @@ export default {
         DisconnectIcon,
         CopyIcon,
         MoreOutlined,
+        ModuleIcon,
     },
     props: {
         wallet: {
@@ -186,26 +187,6 @@ export default {
         .account-name {
             margin-left: 8px;
             color: var(--#{$prefix}adapter-value-text);
-        }
-
-        .change-network {
-            @include pageFlexRow;
-            justify-content: flex-end;
-
-            border: 1px solid var(--#{$prefix}adapter-border-color);
-            border-radius: 16px;
-
-            &-logo {
-                width: 20px;
-                height: 20px;
-                border-radius: 50%;
-
-                img {
-                    width: 100%;
-                    height: 100%;
-                    border-radius: inherit;
-                }
-            }
         }
     }
 }
