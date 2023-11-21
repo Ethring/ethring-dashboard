@@ -350,6 +350,24 @@ export default {
                 await requestAllowance();
             }
 
+            feeInfo.value = {
+                title: '',
+                symbolBetween: '',
+                fromAmount: '',
+                fromSymbol: '',
+                toAmount: '',
+                toSymbol: '',
+            };
+
+            rateInfo.value = {
+                title: '',
+                symbolBetween: '',
+                fromAmount: '',
+                fromSymbol: '',
+                toAmount: '',
+                toSymbol: '',
+            };
+
             return await makeEstimateSwapRequest();
         };
 
