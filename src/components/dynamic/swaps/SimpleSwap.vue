@@ -435,7 +435,6 @@ export default {
             isLoading.value = false;
 
             dstAmount.value = response.toTokenAmount;
-            dstAmount.value = response.toTokenAmount;
 
             estimateErrorTitle.value = '';
 

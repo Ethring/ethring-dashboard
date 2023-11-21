@@ -17,7 +17,7 @@
                 <div
                     v-for="(item, i) in optionsList"
                     :key="i"
-                    :class="{ active: item.net === selectedItem?.net, isToken }"
+                    :class="{ active: item.net === selectedItem?.net, isToken, selected: item.selected }"
                     class="select__items-item"
                     @click="onSelect(item)"
                 >
@@ -337,8 +337,14 @@ export default {
         &-item {
             @include pageFlexRow;
             justify-content: space-between;
-            padding: 16px 0;
+            padding: 16px;
             border-bottom: 1px dashed var(--#{$prefix}border-secondary-color);
+
+            &.selected {
+                border: 1px solid var(--zmt-banner-logo-color);
+                background-color: var(--zmt-icon-secondary-bg-color);
+                border-radius: 16px;
+            }
 
             &:last-child {
                 border-bottom: none !important;
@@ -394,7 +400,8 @@ export default {
         }
 
         .isToken {
-            padding: 12.7px 0;
+            padding: 10px 8px;
+            margin: 6px 0;
         }
     }
 
