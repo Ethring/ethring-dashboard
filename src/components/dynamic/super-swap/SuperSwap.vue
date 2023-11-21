@@ -780,6 +780,7 @@ export default {
 
             if (!isChanged) {
                 isLoading.value = false;
+                return;
             }
 
             opTitle.value = 'tokenOperations.confirm';
@@ -876,6 +877,14 @@ export default {
         });
 
         watch(selectedDstNetwork, () => {
+            getEstimateInfo();
+        });
+
+        watch(selectedSrcToken, () => {
+            if (!srcAmount.value) {
+                return;
+            }
+            isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance);
             getEstimateInfo();
         });
 

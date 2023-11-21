@@ -20,6 +20,7 @@
         <SelectAmount
             v-if="selectedSrcNetwork"
             :value="selectedSrcToken"
+            :selected-network="selectedSrcNetwork"
             :error="!!isBalanceError"
             :on-reset="resetSrcAmount"
             :disabled="!selectedSrcToken"
@@ -49,7 +50,7 @@
             id="isSendToAnotherAddress"
             v-model:value="isSendToAnotherAddress"
             :label="`Receive ${selectedDstToken?.symbol} to another wallet`"
-            class="mt-8"
+            class="mt-16"
         />
 
         <SelectAddress
@@ -57,7 +58,7 @@
             :selected-network="selectedDstNetwork"
             :error="!!errorAddress"
             placeholder="0x..."
-            class="mt-8"
+            class="mt-16"
             :value="receiverAddress"
             :on-reset="clearAddress"
             @setAddress="onSetAddress"

@@ -3,7 +3,8 @@
         <template v-if="column === 'name'">
             <div class="network">
                 <div class="logo">
-                    <TokenIcon width="24" height="24" :token="item" />
+                    <img v-if="item.avatar" :src="item.avatar" />
+                    <TokenIcon v-else width="24" height="24" :token="item" />
                     <div class="chain">
                         <img :src="item.chainLogo" />
                     </div>
@@ -18,7 +19,7 @@
                 </div>
             </div>
         </template>
-        <template v-else-if="column === 'balance'">
+        <template v-if="column === 'balance'">
             <a-tooltip v-if="isTooltip(balance.pretty)" placement="topRight">
                 <template #title>{{ balance.value }}</template>
                 <div class="amount">
@@ -35,7 +36,7 @@
                 <div class="symbol">{{ item?.symbol }}</div>
             </div>
         </template>
-        <template v-else-if="column === 'balanceUsd'">
+        <template v-if="column === 'balanceUsd'">
             <a-tooltip v-if="isTooltip(balanceUsd.pretty)" placement="topRight">
                 <template #title>{{ balanceUsd.value }}</template>
                 <div class="value"><span>$</span>{{ balanceUsd.pretty }}</div>
@@ -63,7 +64,7 @@ export default {
             required: true,
         },
         column: {
-            required: true,
+            default: null,
         },
     },
     components: {
@@ -132,15 +133,9 @@ export default {
             margin-right: 10px;
             position: relative;
 
-            .token-icon {
+            img {
                 width: 32px;
                 height: 32px;
-
-                img {
-                    filter: none;
-                    width: 100%;
-                    height: 100%;
-                }
             }
         }
 
@@ -176,6 +171,10 @@ export default {
             color: var(--#{$prefix}primary-text);
             font-weight: 500;
             margin-left: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
         }
     }
 

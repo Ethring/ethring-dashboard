@@ -19,7 +19,6 @@
                     </div>
                 </div>
                 <Socials class="sidebar__socials" :collapsed="isCollapsed" />
-                <div class="sidebar__version">{{ LAST_VERSION }}</div>
             </div>
         </div>
     </div>

@@ -114,7 +114,7 @@ export default {
 
 <style lang="scss" scoped>
 .estimate-info {
-    margin-top: 8px;
+    margin-top: 16px;
     background-color: var(--#{$prefix}accordion-bg-color);
     border: 1px solid var(--#{$prefix}accordion-border-color);
     border-radius: 8px;

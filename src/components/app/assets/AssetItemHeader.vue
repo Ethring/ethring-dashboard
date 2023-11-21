@@ -2,8 +2,9 @@
     <div class="asset__item-header">
         <div class="asset__item-header-info">
             <div class="asset__item-header-logo">
+                <NftsLogo v-if="title === 'NFT'" />
                 <img
-                    v-if="logoURI && !showImagePlaceholder"
+                    v-else-if="logoURI && !showImagePlaceholder"
                     :src="logoURI"
                     class="token__logo-img"
                     @error="showImagePlaceholder = true"
@@ -20,7 +21,7 @@
             </div>
         </div>
 
-        <div class="column">
+        <!-- <div class="column">
             <div class="asset__item-header-health" v-if="healthRate">
                 <h5>{{ formatNumber(healthRate, 2) }} <span>%</span></h5>
                 <div
@@ -29,7 +30,7 @@
                     :style="{ width: `${healthRate > 0 ? healthRate : 1}%` }"
                 ></div>
             </div>
-        </div>
+        </div> -->
         <div class="column">
             <div class="asset__item-header-balance">
                 <span class="asset__item-header-symbol">$</span>
@@ -48,6 +49,7 @@ import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 
 import TokenLogo from '@/assets/icons/dashboard/tokenLogo.svg';
+import NftsLogo from '@/assets/icons/dashboard/nfts.svg';
 
 import { formatNumber } from '@/helpers/prettyNumber';
 
@@ -58,7 +60,7 @@ export default {
             required: true,
         },
         value: {
-            required: true,
+            required: false,
         },
         reward: {
             type: Number,
@@ -83,6 +85,7 @@ export default {
     },
     components: {
         TokenLogo,
+        NftsLogo,
     },
     setup() {
         const store = useStore();
