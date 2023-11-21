@@ -428,6 +428,11 @@ export default {
 
             receiverAddress.value && onSetAddress(receiverAddress.value);
 
+            feeInfo.value = baseFeeInfo('', '', '', '', '', '');
+            rateInfo.value = baseFeeInfo('', '', '', '', '', '');
+            estimateTimeInfo.value = baseFeeInfo('', '', '', '', '', '');
+            protocolFeeMain.value = baseFeeInfo('', '', '', '', '', '');
+
             return await makeEstimateBridgeRequest();
         };
 
@@ -842,10 +847,13 @@ export default {
         watch(walletAccount, () => {
             selectedSrcNetwork.value = currentChainInfo.value;
 
+            selectedDstNetwork.value = null;
+
             selectedSrcToken.value = null;
             selectedDstToken.value = null;
 
             selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
+
             selectedDstToken.value = setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
         });
 

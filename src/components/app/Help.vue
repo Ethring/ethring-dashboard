@@ -2,7 +2,7 @@
     <div class="help">
         <ThemeSwitcher class="head__switcher" />
 
-        <div v-if="isDashboard" class="help__item" @click="toggleViewBalance">
+        <div v-if="currentChainInfo && isDashboard" class="help__item" @click="toggleViewBalance">
             <EyeOutlined v-if="showBalance" />
             <EyeInvisibleOutlined v-else />
         </div>
@@ -16,6 +16,7 @@ import { useRouter } from 'vue-router';
 import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons-vue';
 
 import ThemeSwitcher from '@/components/app/ThemeSwitcher';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 
 export default {
     name: 'Help',
@@ -27,6 +28,7 @@ export default {
     setup() {
         const store = useStore();
         const router = useRouter();
+        const { currentChainInfo } = useAdapter();
 
         const isDashboard = computed(() => router.currentRoute.value.path === '/main' || router.currentRoute.value.path === '/');
 
@@ -38,6 +40,7 @@ export default {
             showBalance,
             toggleViewBalance,
             isDashboard,
+            currentChainInfo,
         };
     },
 };

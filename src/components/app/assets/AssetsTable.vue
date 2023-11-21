@@ -60,6 +60,10 @@ export default {
 .assets-table {
     * {
         transition: background-color 0.24s ease-in-out !important;
+    }
+
+    tr,
+    td {
         background-color: var(--#{$prefix}secondary-background) !important;
     }
 
