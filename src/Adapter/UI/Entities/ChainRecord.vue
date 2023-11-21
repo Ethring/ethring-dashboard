@@ -2,7 +2,7 @@
     <div class="chain-record">
         <div class="chain-record-item">
             <div class="chain-record__logo-container">
-                <a-image :preview="false" :alt="chain.name || 'chain-logo'" :src="chain.logo" />
+                <img :alt="chain.name || 'chain-logo'" :src="chain.logo" />
             </div>
             <div class="chain-info">
                 <div class="chain-record__name">
@@ -89,6 +89,11 @@ export default {
 
             @include pageFlexRow;
             justify-content: center;
+
+            img {
+                width: 100%;
+                height: 100%;
+            }
         }
 
         &__name {
