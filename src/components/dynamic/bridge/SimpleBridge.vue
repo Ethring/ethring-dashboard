@@ -173,11 +173,23 @@ export default {
             set: (value) => store.dispatch('bridge/setService', value),
         });
 
-        if (currentChainInfo.value.ecosystem === ECOSYSTEMS.COSMOS) {
-            selectedService.value = services.find((service) => service.id === 'bridge-skip');
-        } else {
-            selectedService.value = services.find((service) => service.id === 'bridge-debridge');
-        }
+        const setEcosystemService = () => {
+            if (!currentChainInfo.value?.ecosystem) {
+                return;
+            }
+
+            const DEFAULT_FOR_ECOSYSTEM = {
+                [ECOSYSTEMS.EVM]: 'bridge-debridge',
+                [ECOSYSTEMS.COSMOS]: 'bridge-skip',
+            };
+
+            switch (currentChainInfo.value?.ecosystem) {
+                case ECOSYSTEMS.COSMOS:
+                    return (selectedService.value = services.find((service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.COSMOS]));
+                case ECOSYSTEMS.EVM:
+                    return (selectedService.value = services.find((service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.EVM]));
+            }
+        };
 
         // =================================================================================================================
         // * Module values
@@ -855,6 +867,8 @@ export default {
             selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
 
             selectedDstToken.value = setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
+
+            setEcosystemService();
         });
 
         watch(isAllTokensLoading, () => {
@@ -967,6 +981,8 @@ export default {
         };
 
         onMounted(async () => {
+            setEcosystemService();
+
             if (!selectedSrcNetwork.value) {
                 selectedSrcNetwork.value = currentChainInfo.value;
                 selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);

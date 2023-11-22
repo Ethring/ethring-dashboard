@@ -145,11 +145,23 @@ export default {
 
         const services = getServices(SERVICE_TYPE.SWAP);
 
-        if (currentChainInfo.value.ecosystem === ECOSYSTEMS.COSMOS) {
-            selectedService.value = services.find((service) => service.id === 'swap-skip');
-        } else {
-            selectedService.value = services.find((service) => service.id === 'swap-1inch');
-        }
+        const setEcosystemService = () => {
+            if (!currentChainInfo.value?.ecosystem) {
+                return;
+            }
+
+            const DEFAULT_FOR_ECOSYSTEM = {
+                [ECOSYSTEMS.EVM]: 'swap-1inch',
+                [ECOSYSTEMS.COSMOS]: 'swap-skip',
+            };
+
+            switch (currentChainInfo.value?.ecosystem) {
+                case ECOSYSTEMS.COSMOS:
+                    return (selectedService.value = services.find((service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.COSMOS]));
+                case ECOSYSTEMS.EVM:
+                    return (selectedService.value = services.find((service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.EVM]));
+            }
+        };
 
         const addressesByChains = ref({});
 
@@ -576,8 +588,6 @@ export default {
                     response = await getSwapTx(params);
                 }
 
-                console.log('response', response);
-
                 if (response.error) {
                     txError.value = response?.error || response;
                     txErrorTitle.value = 'Swap error';
@@ -789,10 +799,13 @@ export default {
 
         watch(walletAccount, () => {
             selectedSrcNetwork.value = currentChainInfo.value;
+
             selectedSrcToken.value = null;
             selectedDstToken.value = null;
 
             setTokenOnChange();
+
+            setEcosystemService();
         });
 
         watch(isNeedApprove, () => {
@@ -824,6 +837,8 @@ export default {
 
         onMounted(async () => {
             store.dispatch('txManager/setCurrentRequestID', null);
+
+            setEcosystemService();
 
             if (srcAmount.value) {
                 dstAmount.value = null;
