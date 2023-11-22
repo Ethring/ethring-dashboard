@@ -44,13 +44,13 @@
                 </template>
             </div>
 
-            <div class="balance" :class="{ disabled, error }" @click.stop="setMax">
+            <div class="balance" :class="{ disabled, error }">
                 <div class="balance-value">
                     <template v-if="isTokenLoading">
                         <a-skeleton-input active />
                     </template>
                     <template v-else>
-                        <p class="balance-value">
+                        <p @click.stop="setMax">
                             {{ $t('tokenOperations.balance') }}:
                             <span>
                                 {{ setTokenBalance(selectedToken) }}
@@ -128,6 +128,9 @@ export default {
             type: [String, Number],
             default: '',
         },
+        selectedNetwork: {
+            default: {},
+        },
     },
     components: {
         ArrowIcon,
@@ -188,17 +191,15 @@ export default {
         );
 
         watch(
-            () => props.value,
-            (tkn, oldTkn) => {
-                if (tkn?.id === oldTkn?.id || tkn?.address === oldTkn?.address) {
+            () => props.selectedNetwork,
+            (net, oldNet) => {
+                if (net === oldNet) {
                     return;
                 }
 
-                if (tkn) {
-                    setToken(tkn);
+                if (net) {
                     amount.value = '';
                     active.value = false;
-                    emit('setAmount', amount.value);
                 }
             }
         );
@@ -348,8 +349,6 @@ export default {
 
         transition: 0.2s;
 
-        cursor: pointer;
-
         .label {
             @include pageFlexRow;
 
@@ -374,6 +373,7 @@ export default {
 
             &-value {
                 font-weight: 400;
+                cursor: pointer;
 
                 span {
                     font-weight: 600;
@@ -385,6 +385,7 @@ export default {
             &-price {
                 font-weight: 600;
                 color: var(--#{$prefix}sub-text);
+                cursor: default;
 
                 span {
                     color: var(--#{$prefix}base-text);
@@ -398,6 +399,10 @@ export default {
                     color: var(--#{$prefix}danger) !important;
                 }
             }
+        }
+
+        .disabled * {
+            cursor: not-allowed;
         }
 
         .info-wrap {
@@ -507,78 +512,6 @@ export default {
 
             svg.arrow {
                 transform: rotate(180deg);
-            }
-        }
-    }
-
-    &__items {
-        z-index: 100;
-        background: var(--#{$prefix}white);
-        position: absolute;
-        left: 0;
-        top: 160px;
-        width: 100%;
-        min-height: 40px;
-        border-radius: 16px;
-        border: 2px solid var(--#{$prefix}select-active-border-color);
-        padding: 20px 25px;
-        box-sizing: border-box;
-        max-height: 430px;
-        overflow-y: auto;
-
-        &::-webkit-scrollbar {
-            width: 0px;
-            background-color: transparent;
-        }
-    }
-
-    &__items-item {
-        @include pageFlexRow;
-        justify-content: space-between;
-
-        min-height: 50px;
-        border-bottom: 1px dashed var(--#{$prefix}select-border-color);
-        cursor: pointer;
-        @include animateEasy;
-
-        &.active {
-            .info {
-                .name {
-                    color: var(--#{$prefix}black);
-                    font-weight: 600;
-                }
-            }
-        }
-
-        &:last-child {
-            border-bottom: 1px solid transparent;
-        }
-
-        .info {
-            @include pageFlexRow;
-
-            .name {
-                font-size: var(--#{$prefix}default-fs);
-                color: var(--#{$prefix}base-text);
-                font-weight: 400;
-            }
-        }
-
-        &:hover {
-            .info {
-                .name {
-                    color: var(--#{$prefix}sub-text);
-                }
-            }
-        }
-
-        .amount {
-            color: var(--#{$prefix}black);
-            font-weight: 600;
-
-            span {
-                color: var(--#{$prefix}black);
-                font-weight: 400;
             }
         }
     }

@@ -1,7 +1,7 @@
 <template>
     <div
         class="wallet-item"
-        :class="{ connected: wallet.isDone, connecting: wallet.isWalletConnecting, 'not-found': !wallet.client }"
+        :class="{ connected: isCosmosConnected, connecting: wallet.isWalletConnecting, 'not-found': !wallet.client }"
         @click="connectOrDownload"
     >
         <div class="icon">
@@ -11,12 +11,15 @@
         <div class="name">
             <div>{{ wallet.walletPrettyName }}</div>
         </div>
-        <div class="check-icon" v-if="wallet.isDone">
+        <div class="check-icon" v-if="isCosmosConnected">
             <CheckIcon />
         </div>
     </div>
 </template>
 <script>
+import { computed, ref } from 'vue';
+import { useStore } from 'vuex';
+
 import CheckIcon from '@/assets/icons/wallets/check.svg';
 
 export default {
@@ -34,7 +37,20 @@ export default {
             required: true,
         },
     },
+    setup() {
+        const store = useStore();
+        const isCosmosConnected = ref(false);
 
+        const connectedWallets = computed(() => store.getters['adapters/getConnectedWallets']);
+
+        if (connectedWallets.value) {
+            isCosmosConnected.value = connectedWallets.value.find((wallet) => wallet.walletName === 'Keplr');
+        }
+
+        return {
+            isCosmosConnected,
+        };
+    },
     methods: {
         connectOrDownload() {
             !this.wallet.client && window.open(this.wallet.downloadInfo.link, '_blank');

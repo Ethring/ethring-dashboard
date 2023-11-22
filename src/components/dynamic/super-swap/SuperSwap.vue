@@ -83,7 +83,7 @@
 
         <Collapse v-if="+srcAmount > 0" :loading="isLoading" :hideContent="estimateErrorTitle">
             <template #header>
-                <div class="route-info">
+                <div class="route-info" data-qa="route-info">
                     <p>{{ $t('tokenOperations.routeInfo') }}:</p>
                     <div v-if="!estimateErrorTitle" class="row">
                         <FeeIcon />
@@ -116,6 +116,7 @@
             :disabled="!!disabledBtn"
             :loading="isWaitingTxStatusForModule || isSwapLoading"
             class="superswap-panel__btn mt-10"
+            data-qa="confirm"
             @click="swap"
             size="large"
         />
@@ -143,7 +144,7 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 // Composition
 import useTokensList from '@/compositions/useTokensList';
 import useNotification from '@/compositions/useNotification';
-import useServices from '../../../compositions/useServices';
+import useServices from '@/compositions/useServices';
 
 // Transaction Management
 import useTransactions from '../../../Transactions/compositions/useTransactions';
@@ -777,6 +778,7 @@ export default {
 
             if (!isChanged) {
                 isLoading.value = false;
+                return;
             }
 
             opTitle.value = 'tokenOperations.confirm';
@@ -873,6 +875,14 @@ export default {
         });
 
         watch(selectedDstNetwork, () => {
+            getEstimateInfo();
+        });
+
+        watch(selectedSrcToken, () => {
+            if (!srcAmount.value) {
+                return;
+            }
+            isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance);
             getEstimateInfo();
         });
 

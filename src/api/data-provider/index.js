@@ -5,7 +5,7 @@ const PROVIDER_URL = process.env.VUE_APP_DATA_PROVIDER_URL || null;
 export const getBalancesByAddress = async (
     net,
     address = null,
-    { fetchTokens = true, fetchIntegrations = true, fetchNfts = false, signal } = {}
+    { fetchTokens = true, fetchIntegrations = true, fetchNfts = true, signal } = {}
 ) => {
     if (!PROVIDER_URL || !net || !address) {
         return null;

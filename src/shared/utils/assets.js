@@ -49,12 +49,16 @@ export const getIntegrationsGroupedByPlatform = (allIntegrations = []) => {
     const groupByPlatforms = [];
 
     for (const integration of allIntegrations) {
-        const { balances = [] } = integration || {};
+        const { balances = [], apr = null } = integration || {};
 
         const balanceType = integration.type === BALANCES_TYPES.FUTURES ? BALANCES_TYPES.FUTURES : BALANCES_TYPES.ALL;
 
         integration.totalBalanceUsd = getTotalBalanceByType(balances, balanceType);
-        integration.balances = sortByKey(balances, 'balanceUsd');
+
+        integration.balances = balances.map((item) => {
+            item.apr = apr;
+            return item;
+        });
 
         const existingGroup = groupByPlatforms.find(({ platform }) => platform === integration.platform);
 
@@ -113,4 +117,51 @@ export const getTotalFuturesBalance = (records, totalBalance) => {
     totalBalance = totalBalance.plus(leverageTotalUsd.minus(borrowTotalUsd));
 
     return totalBalance;
+};
+
+const getDataForCollection = (nft) => {
+    const { collection = {}, token = {} } = nft;
+
+    return {
+        ...collection,
+        chainLogo: nft.chainLogo,
+        totalGroupBalance: BigNumber(+nft.price || 0)
+            .multipliedBy(+token.price || 0)
+            .toNumber(),
+        floorPriceUsd: BigNumber(+collection.floorPrice || 0)
+            .multipliedBy(+token.price || 0)
+            .toNumber(),
+        nfts: [nft],
+        token: nft.token,
+    };
+};
+
+export const getNftsByCollection = (allNfts = []) => {
+    const groupByCollection = [];
+
+    if (!allNfts.length) {
+        return groupByCollection;
+    }
+
+    for (const nft of allNfts) {
+        const { collection = {}, token = {} } = nft || {};
+
+        const existingCollection = groupByCollection.find((item) => item.address === collection.address);
+
+        if (existingCollection) {
+            existingCollection.totalGroupBalance += BigNumber(+nft.price || 0)
+                .multipliedBy(+token.price || 0)
+                .toNumber();
+            existingCollection.floorPriceUsd += BigNumber(+collection.floorPrice || 0)
+                .multipliedBy(+token.price || 0)
+                .toNumber();
+            existingCollection.nfts.push(nft);
+
+            continue;
+        }
+
+        groupByCollection.push(getDataForCollection(nft));
+    }
+
+    return sortByKey(groupByCollection, 'totalGroupBalance');
 };
