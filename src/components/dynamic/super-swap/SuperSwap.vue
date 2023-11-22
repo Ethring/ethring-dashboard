@@ -83,7 +83,7 @@
 
         <Collapse v-if="+srcAmount > 0" :loading="isLoading" :hideContent="estimateErrorTitle">
             <template #header>
-                <div class="route-info">
+                <div class="route-info" data-qa="route-info">
                     <p>{{ $t('tokenOperations.routeInfo') }}:</p>
                     <div v-if="!estimateErrorTitle" class="row">
                         <FeeIcon />
@@ -116,6 +116,7 @@
             :disabled="!!disabledBtn"
             :loading="isWaitingTxStatusForModule || isSwapLoading"
             class="superswap-panel__btn mt-10"
+            data-qa="confirm"
             @click="swap"
             size="large"
         />
