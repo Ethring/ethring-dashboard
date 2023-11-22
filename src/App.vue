@@ -9,7 +9,7 @@
                 <a-layout-header class="header">
                     <NavBar />
                 </a-layout-header>
-                <a-layout-content class="content">
+                <a-layout-content class="content" data-qa="content">
                     <div>
                         <router-view />
                     </div>
