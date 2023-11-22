@@ -55,16 +55,17 @@ export const captureTransactionException = ({ error, ...args }) => {
         txString = tx;
     }
 
-    return Sentry.captureException(error, (scope) => {
-        scope.setTransactionName(`Sign and send transaction error | ${module} | TX-ID: ${id}`);
+    const errorInstance = new Error(error);
 
-        scope.setTag('module', module);
+    errorInstance.name = `Sign and send transaction error | ${module} | TX-ID: ${id}`;
 
-        scope.setExtras({
+    return Sentry.captureException(errorInstance, {
+        tags: {
+            module,
+        },
+        extra: {
             ...args,
             tx: txString,
-        });
-
-        return scope;
+        },
     });
 };
