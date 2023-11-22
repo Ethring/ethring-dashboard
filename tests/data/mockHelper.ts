@@ -1,4 +1,4 @@
-export default {
+const mockBalanceData = {
     eth: { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' },
     optimism: { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' },
     arbitrum: {
@@ -467,3 +467,86 @@ export default {
     },
     avalanche: { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' },
 };
+
+const mockBalanceDataByTx = {
+    avalanche: {
+        ok: true,
+        data: {
+            tokens: [
+                {
+                    name: 'Avalanche',
+                    symbol: 'AVAX',
+                    address: null,
+                    decimals: 18,
+                    logo: 'https://assets.coingecko.com/coins/images/12559/large/Avalanche_Circle_RedWhite_Trans.png?1696512369',
+                    price: '21.473881918021284',
+                    priceChange: '-0.31563323718329883',
+                    balanceUsd: '2.1473881918021287',
+                    balance: '0.1',
+                },
+                {
+                    name: 'USDC',
+                    symbol: 'USDC',
+                    address: '0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e',
+                    decimals: 6,
+                    logo: 'https://assets.coingecko.com/coins/images/6319/large/usdc.png?1696506694',
+                    price: '0.9992418554279857',
+                    priceChange: '-0.0006581513448562504',
+                    balanceUsd: '0.09992418554279858',
+                    balance: '0.1',
+                },
+                {
+                    name: 'Storm',
+                    symbol: 'STORM',
+                    address: '0x6afd5a1ea4b793cc1526d6dc7e99a608b356ef7b',
+                    decimals: 18,
+                    logo: 'https://assets.coingecko.com/coins/images/18170/large/nFiYZ2xO_400x400.png?1696517670',
+                    price: '0.0014557002331391314',
+                    priceChange: '-6.0332342080064976e-05',
+                    balanceUsd: '0.014557002331391313',
+                    balance: '10.0',
+                },
+            ],
+            nfts: [],
+            integrations: [],
+        },
+        error: '',
+    },
+};
+
+const marketCapMockData = {
+    polygon_matic: {
+        ok: true,
+        data: {
+            'matic-network': {
+                marketCap: 8417707680,
+                circulatingSupply: 9260335235.536646,
+                usd: {
+                    price: 0.909096,
+                    priceChange24h: -0.03318739088515421,
+                    priceChange24hPct: -3.52202,
+                    volumeChange24h: 1133505125,
+                },
+                btc: {
+                    price: 0.00002442,
+                    priceChange24h: -0.000001560120823913,
+                    priceChange24hPct: -6.00419,
+                    volumeChange24h: 30453,
+                },
+            },
+        },
+        error: '',
+    },
+    polygon_1inch: {
+        ok: true,
+        data: {
+            '0x9c2c5fd7b07e95ee044ddeba0e97a665f142394f': {
+                usd: 0.371191,
+                btc: 0.0000099,
+            },
+        },
+        error: [],
+    },
+};
+
+export { mockBalanceData, marketCapMockData, mockBalanceDataByTx };
