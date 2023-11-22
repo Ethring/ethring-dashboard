@@ -97,7 +97,11 @@ export default function useTransactions() {
      * @returns {object}
      */
     const handleTransactionErrorResponse = async (id, response, error, { module, tx = {} }) => {
-        captureTransactionException({ error, module, id, tx, wallet: connectedWallet.value });
+        try {
+            captureTransactionException({ error, module, id, tx, wallet: connectedWallet.value });
+        } catch (e) {
+            console.error('Sentry -> captureTransactionException -> Unable to capture exception:', e);
+        }
 
         showNotification({
             key: 'error-tx',
