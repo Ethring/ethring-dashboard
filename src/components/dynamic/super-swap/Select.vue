@@ -32,9 +32,13 @@
                     </div>
                     <div class="balance" v-if="balance">
                         <h4>
-                            {{ formatNumber(item.balance) }} <span>{{ item.symbol }}</span>
+                            <NumberTooltip :value="item.balance" decimals="3" />
+                            <span>{{ item.symbol }}</span>
                         </h4>
-                        <h6><span>$</span>{{ formatNumber(item.balanceUsd, 2) }}</h6>
+                        <h6>
+                            <span>$</span>
+                            <NumberTooltip :value="item.balanceUsd" decimals="2" />
+                        </h6>
                     </div>
                 </div>
 
@@ -63,6 +67,7 @@ import { ref, watch } from 'vue';
 import { onClickOutside } from '@vueuse/core';
 
 import TokenIcon from '@/components/ui/TokenIcon';
+import NumberTooltip from '@/components/ui/NumberTooltip';
 
 import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 import SearchIcon from '@/assets/icons/app/search.svg';
@@ -75,7 +80,7 @@ import { searchByKey } from '@/helpers/utils';
 export default {
     name: 'Select',
 
-    components: { TokenIcon, ArrowIcon, SearchIcon },
+    components: { TokenIcon, ArrowIcon, SearchIcon, NumberTooltip },
 
     props: {
         value: {
@@ -372,6 +377,10 @@ export default {
                     font-size: var(--#{$prefix}default-fs);
                     margin: 0;
                     line-height: var(--#{$prefix}h5-fs);
+
+                    span {
+                        margin-left: 2px;
+                    }
                 }
 
                 h6 {
@@ -382,7 +391,6 @@ export default {
 
                     span {
                         font-size: var(--#{$prefix}small-sm-fs);
-                        margin-right: 2px;
                     }
                 }
             }

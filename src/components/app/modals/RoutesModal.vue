@@ -26,16 +26,18 @@
                             {{ $t('superSwap.time') }}: ~
                             <h4 class="mr-20">{{ item.estimateTime }}s</h4>
                             {{ $t('superSwap.fee') }}:
-                            <h4>{{ prettyNumberTooltip(item.estimateFeeUsd, 6) }}</h4>
+                            <h4>
+                                <NumberTooltip :value="item.estimateFeeUsd" decimals="3" />
+                            </h4>
                             $
                         </div>
                     </div>
                     <div class="routes-modal__output">
                         <h3>
-                            {{ prettyNumberTooltip(item.toTokenAmount, 4) }}
+                            <NumberTooltip :value="item.toTokenAmount" decimals="3" />
                             <span>{{ item.routes[item.routes.length - 1]?.toToken?.symbol }}</span>
                         </h3>
-                        <h3 class="blue-text">{{ prettyNumberTooltip(item.toAmountUsd, 2) }} <span>$</span></h3>
+                        <h3 class="blue-text"><NumberTooltip :value="item.toAmountUsd" /><span>$</span></h3>
                     </div>
                 </div>
                 <Button
@@ -55,9 +57,7 @@ import { useStore } from 'vuex';
 
 import Modal from '@/components/app/Modal';
 import Button from '@/components/ui/Button';
-
-import { prettyNumberTooltip } from '@/helpers/prettyNumber';
-// import { checkAllowance } from '@/modules/SuperSwap/baseScript';
+import NumberTooltip from '@/components/ui/NumberTooltip';
 
 // import useAdapter from '@/Adapter/compositions/useAdapter';
 
@@ -66,6 +66,7 @@ export default {
     components: {
         Modal,
         Button,
+        NumberTooltip,
     },
     emits: ['close'],
     setup() {
@@ -141,7 +142,7 @@ export default {
             routeInfo,
             selectedRoute,
             isLoading,
-            prettyNumberTooltip,
+
             confirm,
             setActiveRoute,
             getStatus,
@@ -206,6 +207,7 @@ export default {
             span {
                 color: var(--#{$prefix}mute-text);
                 font-weight: 400;
+                margin-left: 2px;
             }
         }
 
@@ -222,6 +224,7 @@ export default {
 
             span {
                 color: var(--#{$prefix}sub-text);
+                margin-left: 2px;
             }
         }
     }
