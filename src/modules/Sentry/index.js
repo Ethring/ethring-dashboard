@@ -44,9 +44,27 @@ export const captureTransactionException = ({ error, ...args }) => {
         return;
     }
 
-    return Sentry.captureException(error, {
-        extra: {
+    const { id = null, module = null, tx = {} } = args || {};
+
+    let txString = '';
+
+    try {
+        txString = JSON.stringify(tx);
+    } catch (e) {
+        console.error('Sentry -> captureTransactionException -> Unable to stringify tx:', e, tx);
+        txString = tx;
+    }
+
+    return Sentry.captureException(error, (scope) => {
+        scope.setTransactionName(`Sign and send transaction error | ${module} | TX-ID: ${id}`);
+
+        scope.setTag('module', module);
+
+        scope.setExtras({
             ...args,
-        },
+            tx: txString,
+        });
+
+        return scope;
     });
 };

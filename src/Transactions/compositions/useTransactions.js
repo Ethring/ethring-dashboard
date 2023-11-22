@@ -96,7 +96,7 @@ export default function useTransactions() {
      *
      * @returns {object}
      */
-    const handleTransactionErrorResponse = async (id, response, error, { module, tx }) => {
+    const handleTransactionErrorResponse = async (id, response, error, { module, tx = {} }) => {
         captureTransactionException({ error, module, id, tx, wallet: connectedWallet.value });
 
         showNotification({
