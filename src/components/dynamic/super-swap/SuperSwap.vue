@@ -15,7 +15,7 @@
             <Select
                 :value="selectedSrcNetwork"
                 :options="supportedNetworks"
-                placeholder="Network name"
+                :placeholder="$t('tokenOperations.searchNetwork')"
                 @onChange="(network) => handleOnSelectNetwork(network, DIRECTIONS.SOURCE)"
             />
             <Select
@@ -23,7 +23,7 @@
                 :value="selectedSrcToken"
                 class="ml-8"
                 :options="tokensList || []"
-                placeholder="Token name"
+                :placeholder="$t('tokenOperations.searchToken')"
                 @onChange="(token) => handleOnSelectToken(token, TOKEN_SELECT_TYPES.FROM)"
                 isToken
                 balance
@@ -48,7 +48,7 @@
             <Select
                 :value="selectedDstNetwork"
                 :options="supportedNetworks"
-                placeholder="Network name"
+                :placeholder="$t('tokenOperations.searchNetwork')"
                 @onChange="(network) => handleOnSelectNetwork(network, DIRECTIONS.DESTINATION)"
             />
 
@@ -57,7 +57,7 @@
                 :value="selectedDstToken"
                 class="ml-8"
                 :options="tokensList || []"
-                placeholder="Token name"
+                :placeholder="$t('tokenOperations.searchToken')"
                 @onChange="(token) => handleOnSelectToken(token, TOKEN_SELECT_TYPES.TO)"
                 isToken
                 balance
