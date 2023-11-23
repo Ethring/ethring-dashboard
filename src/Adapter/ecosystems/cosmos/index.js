@@ -481,52 +481,96 @@ class CosmosAdapter extends AdapterBase {
         }
     }
 
-    async formatTransactionForSign(transaction) {
-        const chainWallet = this._getCurrentWallet();
-        // console.log(' chainWallet.value.chainRecord.chain', chainWallet.value.chainRecord.chain);
-        const [feeInfo = {}] = chainWallet.value.chainRecord.chain.fees.fee_tokens || [];
+    async formatTransactionForSign(transaction = {}) {
+        if (!transaction || JSON.stringify(transaction) === '{}') {
+            return {
+                error: 'Transaction not found for sign',
+            };
+        }
 
-        const response = {};
+        const response = {
+            msg: null,
+            fee: {
+                amount: [],
+                gas: '',
+            },
+        };
 
-        // const { denom } = feeInfo;
-        // const feeUnit = `${feeInfo.average_gas_price || feeInfo.low_gas_price || feeInfo.fixed_min_gas_price || 0}${denom}`;
-
+        // * Getting fee
         try {
-            const fee = {
-                amount: [
-                    {
-                        denom: feeInfo.denom,
-                        amount: feeInfo.average_gas_price.toString(),
-                    },
-                ],
-                gas: '500000', // TODO: fix this
+            const chainWallet = this._getCurrentWallet();
+
+            // Check if chainWallet exist
+            if (!chainWallet.value) {
+                return {
+                    error: 'Chain wallet not found',
+                };
+            }
+
+            const [feeInfo = {}] = chainWallet.value.chainRecord.chain.fees.fee_tokens || [];
+
+            // Check if feeInfo exist
+            if (!feeInfo || JSON.stringify(feeInfo) === '{}') {
+                return {
+                    error: 'Fee info not found',
+                };
+            }
+
+            const { denom = null, average_gas_price: amount = 0 } = feeInfo;
+
+            // Check if denom and amount exist
+            if (!denom || !amount) {
+                return {
+                    error: 'Fee info not found',
+                };
+            }
+
+            // Fee for transaction
+            response.fee.amount = [
+                {
+                    denom,
+                    amount: amount.toString(),
+                },
+            ];
+
+            response.fee.gas = '500000'; // TODO: Temp solution, FIX: [Get from chain | calculate | get from response]
+        } catch (error) {
+            console.error('error while getting fee', error);
+            return checkErrors(error);
+        }
+
+        // * Format transaction keys to camelCase
+        try {
+            const { value = {}, typeUrl = '' } = transaction || {};
+
+            const CONVERT_TO_CAMEL = {
+                timeout_height: 'timeoutHeight',
+                timeout_timestamp: 'timeoutTimestamp',
+                source_port: 'sourcePort',
+                source_channel: 'sourceChannel',
             };
 
-            response.fee = fee;
+            for (const key in value) {
+                const newKey = CONVERT_TO_CAMEL[key];
 
-            if (transaction.value?.timeout_height) {
-                // transaction.value.timeoutHeight = transaction.value.timeout_height;
-                delete transaction.value.timeout_height;
+                if (!newKey) {
+                    continue;
+                }
+
+                value[newKey] = value[key];
+
+                delete value[key];
             }
 
-            if (transaction.value?.timeout_timestamp) {
-                transaction.value.timeoutTimestamp = transaction.value.timeout_timestamp;
-                delete transaction.value.timeout_timestamp;
+            // remove timeoutHeight from Msg
+            if (value?.timeoutHeight) {
+                delete value.timeoutHeight;
             }
 
-            if (transaction.value?.source_port) {
-                transaction.value.sourcePort = transaction.value.source_port;
-                delete transaction.value.source_port;
-            }
-
-            if (transaction.value?.source_channel) {
-                transaction.value.sourceChannel = transaction.value.source_channel;
-                delete transaction.value.source_channel;
-            }
-
-            if (transaction.typeUrl === '/cosmwasm.wasm.v1.MsgExecuteContract') {
-                transaction.value.msg = toUtf8(JSON.stringify(transaction.value.msg));
-                fee.gas = '900000';
+            // Custom fee for ExecuteContract
+            if (typeUrl === '/cosmwasm.wasm.v1.MsgExecuteContract') {
+                value.msg = toUtf8(JSON.stringify(value.msg)); // Convert msg to string and then to utf8 for sign
+                response.fee.gas = '900000'; // Temporary gas by default for contract execution
             }
 
             response.msg = transaction;
@@ -555,27 +599,28 @@ class CosmosAdapter extends AdapterBase {
             return checkErrors(error);
         }
 
+        // * Check if client exist
+        if (!client) {
+            return {
+                error: 'Signing Stargate client not found',
+            };
+        }
+
         // * Simulate transaction
         try {
             const simulatedGas = await client.simulate(this.getAccountAddress(), [msg]);
 
             if (simulatedGas) {
                 console.log(
-                    'Simulated gas',
+                    'Simulated gas |',
                     simulatedGas.toString(),
-                    'multiplied to 1.4',
+                    '| multiplied to 1.4 |',
                     BigNumber(simulatedGas).multipliedBy(1.4).toString()
                 );
                 fee.gas = BigNumber(simulatedGas).multipliedBy(1.4).toString();
             }
         } catch (error) {
             console.error('error while simulate', error);
-        }
-
-        if (!client) {
-            return {
-                error: 'Signing Stargate client not found',
-            };
         }
 
         // * Sign and send transaction

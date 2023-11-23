@@ -157,7 +157,7 @@ export const getApproveTx = async ({ url, net, tokenAddress, ownerAddress, store
     try {
         const fetchParams = {
             url,
-            route: 'getApproveTx',
+            route,
             params: {
                 net,
                 tokenAddress,
@@ -201,7 +201,7 @@ export const getSwapTx = async ({ url, net, fromTokenAddress, toTokenAddress, am
     try {
         const fetchParams = {
             url,
-            route: 'getSwapTx',
+            route,
             params: {
                 net,
                 fromTokenAddress: fromTokenAddress || NATIVE_CONTRACT,
@@ -249,7 +249,7 @@ export const getBridgeTx = async ({
     try {
         const fetchParams = {
             url,
-            route: 'getBridgeTx',
+            route,
             params: {
                 fromNet,
                 toNet,
