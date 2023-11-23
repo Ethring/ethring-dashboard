@@ -73,17 +73,31 @@ const statusNotification = (status, { store, type = 'Transfer', displayHash, exp
 
 export const handleTransactionStatus = (transaction, store) => {
     store.dispatch('txManager/setTransactionForSign', null);
+
     const { closeNotification } = useNotification();
 
     const { metaData, module, status, txHash = '' } = transaction;
 
+    switch (status) {
+        case STATUSES.IN_PROGRESS:
+        case STATUSES.PENDING:
+            store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: true });
+            break;
+        case STATUSES.SUCCESS:
+        case STATUSES.FAILED:
+        case STATUSES.REJECTED:
+            store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
+            closeNotification('prepare-tx');
+            break;
+    }
+
+    if (txHash) {
+        closeNotification(`waiting-${txHash}-tx`);
+    }
+
     const { explorerLink, type, successCallback = null, failCallback = null } = metaData || {};
 
     const displayHash = txHash.slice(0, 8) + '...' + txHash.slice(-8);
-
-    closeNotification(`waiting-${txHash}-tx`);
-
-    store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
 
     return statusNotification(status, { store, type, displayHash, explorerLink, successCallback, failCallback });
 };

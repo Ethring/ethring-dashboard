@@ -8,10 +8,7 @@ import { addTransactionToExistingQueue, createTransactionsQueue, getTransactions
 import useAdapter from '@/Adapter/compositions/useAdapter';
 import useNotification from '@/compositions/useNotification';
 
-import Socket from '@/modules/Socket';
-
 import { STATUSES } from '../shared/constants';
-import { handleTransactionStatus } from '../shared/utils/tx-statuses';
 
 import { captureTransactionException } from '../../modules/Sentry';
 
@@ -226,12 +223,6 @@ export default function useTransactions() {
             console.error('signSend error', error);
         }
     };
-
-    // * Subscribe to socket events for transaction statuses updates
-    if (Socket.getSocket()) {
-        const socket = Socket.getSocket();
-        socket.on('update_transaction_status', (data) => handleTransactionStatus(data, store));
-    }
 
     return {
         currentRequestID,
