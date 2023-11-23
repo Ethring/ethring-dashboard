@@ -143,10 +143,11 @@ export default {
         };
 
         const onSelectNetwork = (network) => {
-            clearAddress.value = true;
-            selectedSrcToken.value = null;
             selectedSrcToken.value = null;
             selectedSrcNetwork.value = network;
+
+            onSetAmount(null);
+            onSetAddress(receiverAddress.value);
         };
 
         const onSetAmount = (value) => {
@@ -155,6 +156,31 @@ export default {
             const isBalanceAllowed = +value > +selectedSrcToken.value?.balance;
 
             isBalanceError.value = isBalanceAllowed;
+        };
+
+        const resetAddress = () => {
+            clearAddress.value = receiverAddress.value === null;
+
+            if (clearAddress.value) {
+                onSetAddress(null);
+                setTimeout(() => (clearAddress.value = false));
+            }
+        };
+
+        const resetAmounts = async (amount) => {
+            const allowDataTypes = ['string', 'number'];
+
+            if (allowDataTypes.includes(typeof amount)) {
+                return;
+            }
+
+            resetAmount.value = amount === null;
+
+            if (resetAmount.value) {
+                setTimeout(() => (resetAmount.value = false));
+            }
+
+            resetAddress();
         };
 
         // =================================================================================================================
@@ -241,15 +267,9 @@ export default {
 
         // =================================================================================================================
 
-        watch(srcAmount, () => {
-            resetAmount.value = srcAmount.value === null;
-        });
+        watch(srcAmount, () => resetAmounts(srcAmount.value));
 
-        watch(receiverAddress, () => {
-            if (receiverAddress.value === null) {
-                clearAddress.value = true;
-            }
-        });
+        watch(receiverAddress, () => resetAddress());
 
         watch(isTokensLoadingForChain, () => setTokenOnChange());
 

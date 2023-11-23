@@ -85,7 +85,7 @@ export default {
     },
     components: { ServiceIcon, EstimateStats },
     setup(props) {
-        const MAX_LENGTH = 60;
+        const MAX_LENGTH = 55;
 
         const isCollapsible = computed(() => {
             const { fees } = props;
