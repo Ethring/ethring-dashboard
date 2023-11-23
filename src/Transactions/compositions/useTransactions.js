@@ -13,6 +13,8 @@ import Socket from '@/modules/Socket';
 import { STATUSES } from '../shared/constants';
 import { handleTransactionStatus } from '../shared/utils/tx-statuses';
 
+import { captureTransactionException } from '../../modules/Sentry';
+
 export default function useTransactions() {
     const store = useStore();
     const { showNotification } = useNotification();
@@ -20,7 +22,7 @@ export default function useTransactions() {
     const transactionForSign = computed(() => store.getters['txManager/transactionForSign']);
     const currentRequestID = computed(() => store.getters['txManager/currentRequestID']);
 
-    const { signSend, currentChainInfo, getTxExplorerLink, prepareTransaction, formatTransactionForSign } = useAdapter();
+    const { signSend, currentChainInfo, connectedWallet, getTxExplorerLink, prepareTransaction, formatTransactionForSign } = useAdapter();
 
     // * Create transactions queue
     const createTransactions = async (transactions) => {
@@ -83,40 +85,58 @@ export default function useTransactions() {
         store.dispatch('txManager/setTransactionsForRequestID', { requestID: reqID, transactions: txs });
     };
 
-    // * Handle signed tx response
-    const handleSignedTxResponse = async (id, signedTx, { metaData, module }) => {
-        if (signedTx.error && id) {
-            showNotification({
-                key: 'error-tx',
-                type: 'error',
-                title: 'Transaction error',
-                description: JSON.stringify(signedTx.error || 'Unknown error'),
-                duration: 5,
-            });
-
-            store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
-
-            await updateTransactionById(id, { status: STATUSES.REJECTED });
-
-            return signedTx;
+    /**
+     * Handle transaction error response
+     *
+     * @param {string} id
+     * @param {object} response
+     * @param {string} error
+     * @param {string} module
+     * @param {object} tx
+     *
+     * @returns {object}
+     */
+    const handleTransactionErrorResponse = async (id, response, error, { module, tx = {} }) => {
+        try {
+            captureTransactionException({ error, module, id, tx, wallet: connectedWallet.value });
+        } catch (e) {
+            console.error('Sentry -> captureTransactionException -> Unable to capture exception:', e);
         }
 
-        store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: true });
+        showNotification({
+            key: 'error-tx',
+            type: 'error',
+            title: 'Transaction error',
+            description: JSON.stringify(error || 'Unknown error'),
+            duration: 5,
+        });
 
-        return handleSuccessfulSign(id, signedTx, { metaData });
+        store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
+
+        await updateTransactionById(id, { status: STATUSES.REJECTED });
+
+        return response;
     };
 
-    // * Handle successful sign
-    const handleSuccessfulSign = async (id, signedTx, { metaData = {} } = {}) => {
-        const { transactionHash } = signedTx;
+    /**
+     * Handle successful transaction response
+     *
+     * @param {string} id
+     * @param {object} response
+     * @param {object} metaData
+     *
+     * @returns {object}
+     */
+    const handleSuccessfulSign = async (id, response, { metaData = {} } = {}) => {
+        const { transactionHash } = response;
 
         if (transactionHash && !id) {
-            return signedTx;
+            return response;
         }
 
         if (!transactionHash && id) {
             await updateTransactionById(id, { status: STATUSES.FAILED });
-            return signedTx;
+            return response;
         }
 
         const explorerLink = getTxExplorerLink(transactionHash, currentChainInfo.value);
@@ -143,10 +163,40 @@ export default function useTransactions() {
             duration: 0,
         });
 
-        return signedTx;
+        return response;
     };
 
-    // * Sign and send transaction
+    /**
+     * Handle signed transaction response
+     *
+     * @param {string} id
+     * @param {object} response
+     * @param {object} metaData
+     * @param {string} module
+     * @param {object} tx
+     *
+     * @returns {object}
+     */
+    const handleSignedTxResponse = async (id, response, { metaData, module, tx }) => {
+        // Handle error response
+        if (response.error && id) {
+            return await handleTransactionErrorResponse(id, response, response.error, { module, tx });
+        }
+
+        // Update transaction waiting status for module
+        store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: true });
+
+        // Handle success response
+        return await handleSuccessfulSign(id, response, { metaData });
+    };
+
+    /**
+     * Sign and send transaction
+     *
+     * @param {object} transaction
+     *
+     * @returns {object}
+     */
     const signAndSend = async (transaction) => {
         const ACTIONS_FOR_TX = {
             prepareTransaction: async (parameters) => await prepareTransaction(parameters),
@@ -170,8 +220,8 @@ export default function useTransactions() {
         }
 
         try {
-            const signedTx = await signSend(txFoSign);
-            return await handleSignedTxResponse(id, signedTx, { metaData, module });
+            const response = await signSend(txFoSign);
+            return await handleSignedTxResponse(id, response, { metaData, module, tx: txFoSign });
         } catch (error) {
             console.error('signSend error', error);
         }
