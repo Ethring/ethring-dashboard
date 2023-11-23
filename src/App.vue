@@ -101,6 +101,8 @@ export default {
         onBeforeMount(async () => await store.dispatch('networks/initZometNets'));
 
         onMounted(async () => {
+            store.dispatch('tokens/setLoader', true);
+
             if (!lastConnectedCall.value) {
                 await connectLastConnectedWallet();
                 lastConnectedCall.value = true;
