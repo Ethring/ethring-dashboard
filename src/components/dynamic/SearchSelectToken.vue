@@ -57,18 +57,6 @@ export default {
 
         // =================================================================================================================
 
-        const fromToken = computed(() => {
-            const isSrc = direction.value === DIRECTIONS.SOURCE;
-
-            return isSrc ? selectedTokenFrom.value : selectedTokenTo.value;
-        });
-
-        const toToken = computed(() => {
-            const isSrc = direction.value === DIRECTIONS.SOURCE;
-
-            return isSrc ? selectedTokenTo.value : selectedTokenFrom.value;
-        });
-
         const selectedNetwork = computed(() => {
             const isSrc = direction.value === DIRECTIONS.SOURCE;
 
@@ -83,8 +71,8 @@ export default {
 
         const { allTokensList } = useTokensList({
             network: selectedNetwork.value,
-            fromToken: fromToken.value,
-            toToken: toToken.value,
+            fromToken: selectedTokenFrom.value,
+            toToken: selectedTokenTo.value,
         });
 
         // =================================================================================================================

@@ -15,7 +15,7 @@
             <Select
                 :value="selectedSrcNetwork"
                 :options="supportedNetworks"
-                placeholder="Network name"
+                :placeholder="$t('tokenOperations.searchNetwork')"
                 @onChange="(network) => handleOnSelectNetwork(network, DIRECTIONS.SOURCE)"
             />
             <Select
@@ -23,7 +23,7 @@
                 :value="selectedSrcToken"
                 class="ml-8"
                 :options="tokensList || []"
-                placeholder="Token name"
+                :placeholder="$t('tokenOperations.searchToken')"
                 @onChange="(token) => handleOnSelectToken(token, TOKEN_SELECT_TYPES.FROM)"
                 isToken
                 balance
@@ -48,7 +48,7 @@
             <Select
                 :value="selectedDstNetwork"
                 :options="supportedNetworks"
-                placeholder="Network name"
+                :placeholder="$t('tokenOperations.searchNetwork')"
                 @onChange="(network) => handleOnSelectNetwork(network, DIRECTIONS.DESTINATION)"
             />
 
@@ -57,7 +57,7 @@
                 :value="selectedDstToken"
                 class="ml-8"
                 :options="tokensList || []"
-                placeholder="Token name"
+                :placeholder="$t('tokenOperations.searchToken')"
                 @onChange="(token) => handleOnSelectToken(token, TOKEN_SELECT_TYPES.TO)"
                 isToken
                 balance
@@ -83,13 +83,13 @@
 
         <Collapse v-if="+srcAmount > 0" :loading="isLoading" :hideContent="estimateErrorTitle">
             <template #header>
-                <div class="route-info">
+                <div class="route-info" data-qa="route-info">
                     <p>{{ $t('tokenOperations.routeInfo') }}:</p>
                     <div v-if="!estimateErrorTitle" class="row">
                         <FeeIcon />
                         <span class="fee">{{ networkFee }}</span> <span class="symbol"> $</span>
                         <TimeIcon />
-                        <span class="fee"> {{ '~ ' + bestRoute?.estimateTime + ' s' }}</span>
+                        <span class="fee"> {{ '~ ' + estimateTime + ' s' }}</span>
                         <h4>1 {{ selectedSrcToken?.symbol || '' }} = {{ estimateRate }} {{ selectedDstToken?.symbol || '' }}</h4>
                     </div>
 
@@ -116,6 +116,7 @@
             :disabled="!!disabledBtn"
             :loading="isWaitingTxStatusForModule || isSwapLoading"
             class="superswap-panel__btn mt-10"
+            data-qa="confirm"
             @click="swap"
             size="large"
         />
@@ -268,6 +269,7 @@ export default {
 
         const networkFee = ref(0);
         const estimateRate = ref(0);
+        const estimateTime = ref(0);
         const isCallEstimate = ref(false);
 
         const differPercentage = ref(0);
@@ -370,6 +372,7 @@ export default {
             dstAmount.value = '';
             isLoading.value = false;
             estimateRate.value = 0;
+            estimateTime.value = 0;
             networkFee.value = 0;
             differPercentage.value = null;
             bestRoute.value = null;
@@ -539,6 +542,35 @@ export default {
             return receiverAddress.value || walletAddress.value;
         };
 
+        const swapRoutes = (resEstimate) => {
+            const getRoutesId = (routes = []) => {
+                if (!routes.length) {
+                    return '';
+                }
+
+                return routes.map(({ service }) => service.id).join(':');
+            };
+
+            const bestRouteServiceId = getRoutesId(bestRoute.value?.routes);
+            const otherBestRouteId = getRoutesId(resEstimate.bestRoute?.routes);
+
+            const isDiffRoute = bestRouteServiceId !== otherBestRouteId;
+
+            if (!isDiffRoute && !resEstimate.otherRoutes.length) {
+                return resEstimate;
+            }
+
+            resEstimate.otherRoutes = resEstimate.otherRoutes.map((item) => {
+                if (getRoutesId(item.routes) === bestRouteServiceId) {
+                    [resEstimate.bestRoute, item] = [item, resEstimate.bestRoute];
+                }
+
+                return item;
+            });
+
+            return resEstimate;
+        };
+
         // =================================================================================================================
 
         const getEstimateInfo = async (isReload = false) => {
@@ -554,7 +586,7 @@ export default {
 
             isLoading.value = true;
 
-            const resEstimate = await findBestRoute(srcAmount.value, walletAddress.value, selectedSrcToken.value, selectedDstToken.value);
+            let resEstimate = await findBestRoute(srcAmount.value, walletAddress.value, selectedSrcToken.value, selectedDstToken.value);
 
             if (resEstimate?.error) {
                 estimateErrorTitle.value = resEstimate.error;
@@ -572,30 +604,24 @@ export default {
                 return;
             }
 
-            const checkBestService =
-                isReload && bestRoute.value.serviceId !== resEstimate.bestRoute.serviceId && resEstimate.otherRoutes.length;
-
-            if (checkBestService) {
-                resEstimate.otherRoutes = resEstimate.otherRoutes.map((item) => {
-                    if (item.serviceId === bestRoute.value.serviceId) {
-                        [resEstimate.bestRoute, item] = [item, resEstimate.bestRoute];
-                    }
-                    return item;
-                });
+            if (isReload) {
+                resEstimate = swapRoutes(resEstimate);
             }
 
             store.dispatch('swap/setBestRoute', resEstimate);
+
             currentRoute.value = resEstimate.bestRoute.routes.find((elem) => elem.status === STATUSES.SIGNING);
 
             bestRoute.value = resEstimate.bestRoute;
             otherRoutes.value = resEstimate.otherRoutes || [];
+
             estimateErrorTitle.value = '';
 
             dstAmount.value = resEstimate.bestRoute?.toTokenAmount;
 
             networkFee.value = prettyNumberTooltip(resEstimate.bestRoute?.estimateFeeUsd, 6);
             estimateRate.value = prettyNumberTooltip(resEstimate.bestRoute.toTokenAmount / resEstimate.bestRoute.fromTokenAmount, 6);
-
+            estimateTime.value = resEstimate.bestRoute.estimateTime;
             differPercentage.value = getDifferPercentage();
 
             isLoading.value = false;
@@ -994,6 +1020,7 @@ export default {
             disabledBtn,
             isReceiveToken,
             estimateRate,
+            estimateTime,
             supportedNetworks,
 
             dstAmount,

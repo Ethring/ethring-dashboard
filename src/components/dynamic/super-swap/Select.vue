@@ -1,6 +1,6 @@
 <template>
     <div class="select" ref="selectBlock">
-        <div class="select__block" :class="{ 'select__block-active': showOptions }" @click="() => toggleOptions()">
+        <div class="select__block" data-qa="select__block" :class="{ 'select__block-active': showOptions }" @click="() => toggleOptions()">
             <div class="logo">
                 <TokenIcon width="24px" height="24px" :token="selectedItem" />
             </div>
@@ -8,7 +8,7 @@
             <h3 v-else>Select</h3>
             <ArrowIcon class="arrow" />
         </div>
-        <div class="select__items" v-if="showOptions">
+        <div class="select__items" data-qa="select__items" v-if="showOptions">
             <div class="select__items-search">
                 <input v-model="searchValue" :placeholder="placeholder" />
                 <SearchIcon />
@@ -17,8 +17,9 @@
                 <div
                     v-for="(item, i) in optionsList"
                     :key="i"
-                    :class="{ active: item.net === selectedItem?.net, isToken }"
+                    :class="{ active: item.net === selectedItem?.net, isToken, selected: item.selected }"
                     class="select__items-item"
+                    data-qa="item"
                     @click="onSelect(item)"
                 >
                     <div class="row">
@@ -26,7 +27,7 @@
                             <TokenIcon width="24px" height="24px" :token="item" />
                         </div>
                         <div class="column">
-                            <h3>{{ !isToken ? item?.name : item?.symbol }}</h3>
+                            <h3 data-qa="item__name">{{ !isToken ? item?.name : item?.symbol }}</h3>
                             <h5 v-if="isToken">{{ item?.name }}</h5>
                         </div>
                     </div>
@@ -337,8 +338,14 @@ export default {
         &-item {
             @include pageFlexRow;
             justify-content: space-between;
-            padding: 16px 0;
+            padding: 16px;
             border-bottom: 1px dashed var(--#{$prefix}border-secondary-color);
+
+            &.selected {
+                border: 1px solid var(--zmt-banner-logo-color);
+                background-color: var(--zmt-icon-secondary-bg-color);
+                border-radius: 16px;
+            }
 
             &:last-child {
                 border-bottom: none !important;
@@ -394,7 +401,8 @@ export default {
         }
 
         .isToken {
-            padding: 12.7px 0;
+            padding: 10px 8px;
+            margin: 6px 0;
         }
     }
 
