@@ -1,26 +1,36 @@
 import { createApp } from 'vue';
-import VueClickAway from 'vue3-click-away';
-import { vue3Debounce } from 'vue-debounce';
 
+// Directives
+import { vue3Debounce } from 'vue-debounce';
+import VueClickAway from 'vue3-click-away';
+
+// Antd styles
 import Antd from 'ant-design-vue';
 import 'ant-design-vue/dist/reset.css';
 
-import * as Sentry from '@sentry/vue';
-import { BrowserTracing } from '@sentry/browser';
-
-import VueMixpanel from 'vue-mixpanel';
-
+// Main app
 import App from './App.vue';
 
+// Router
 import Router from './routes';
 
+// Store
 import store from './store';
 
+// Styles
 import '@/assets/styles/index.scss';
 
+// i18n
 import { i18n } from '@/shared/i18n';
+
+// Modules for Sentry and Mixpanel
+import useSentry from './modules/Sentry';
+import useMixpanel from './modules/Mixpanel';
+
+// Service worker
 import './registerServiceWorker';
 
+// * Init app
 const app = createApp(App)
     .use(Antd)
     .directive(
@@ -36,41 +46,8 @@ const app = createApp(App)
     .use(Router)
     .use(i18n);
 
-if (process.env.VUE_APP_SENTRY_DSN) {
-    Sentry.init({
-        app,
-        dsn: process.env.VUE_APP_SENTRY_DSN,
-        tunnel: new URL(process.env.VUE_APP_SENTRY_DSN).origin + '/tunnel',
-        release: process.env.VUE_APP_RELEASE,
-        environment: process.env.NODE_ENV,
-
-        // This sets the sample rate to be 10%. You may want this to be 100% while
-        // in development and sample at a lower rate in production
-        replaysSessionSampleRate: 0.1,
-
-        // If the entire session is not sampled, use the below sample rate to sample
-        // sessions when an error occurs.
-        replaysOnErrorSampleRate: 1.0,
-
-        integrations: [
-            new BrowserTracing({
-                routingInstrumentation: Sentry.vueRouterInstrumentation(Router),
-            }),
-            new Sentry.Replay(),
-        ],
-        tracesSampleRate: 0.5,
-    });
-}
-
-if (process.env.VUE_APP_MIXPANEL_TOKEN) {
-    app.use(VueMixpanel, {
-        token: process.env.VUE_APP_MIXPANEL_TOKEN,
-        config: {
-            debug: true,
-            track_pageview: true,
-            persistence: 'localStorage',
-        },
-    });
-}
+// * Init modules
+useSentry(app, Router);
+useMixpanel(app);
 
 app.mount('#app');

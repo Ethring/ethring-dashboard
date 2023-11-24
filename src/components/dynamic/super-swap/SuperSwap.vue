@@ -15,7 +15,7 @@
             <Select
                 :value="selectedSrcNetwork"
                 :options="supportedNetworks"
-                placeholder="Network name"
+                :placeholder="$t('tokenOperations.searchNetwork')"
                 @onChange="(network) => handleOnSelectNetwork(network, DIRECTIONS.SOURCE)"
             />
             <Select
@@ -23,7 +23,7 @@
                 :value="selectedSrcToken"
                 class="ml-8"
                 :options="tokensList || []"
-                placeholder="Token name"
+                :placeholder="$t('tokenOperations.searchToken')"
                 @onChange="(token) => handleOnSelectToken(token, TOKEN_SELECT_TYPES.FROM)"
                 isToken
                 balance
@@ -48,7 +48,7 @@
             <Select
                 :value="selectedDstNetwork"
                 :options="supportedNetworks"
-                placeholder="Network name"
+                :placeholder="$t('tokenOperations.searchNetwork')"
                 @onChange="(network) => handleOnSelectNetwork(network, DIRECTIONS.DESTINATION)"
             />
 
@@ -57,7 +57,7 @@
                 :value="selectedDstToken"
                 class="ml-8"
                 :options="tokensList || []"
-                placeholder="Token name"
+                :placeholder="$t('tokenOperations.searchToken')"
                 @onChange="(token) => handleOnSelectToken(token, TOKEN_SELECT_TYPES.TO)"
                 isToken
                 balance
@@ -83,7 +83,7 @@
 
         <Collapse v-if="+srcAmount > 0" :loading="isLoading" :hideContent="estimateErrorTitle">
             <template #header>
-                <div class="route-info">
+                <div class="route-info" data-qa="route-info">
                     <p>{{ $t('tokenOperations.routeInfo') }}:</p>
                     <div v-if="!estimateErrorTitle" class="row">
                         <FeeIcon />
@@ -120,6 +120,7 @@
             :disabled="!!disabledBtn"
             :loading="isWaitingTxStatusForModule || isSwapLoading"
             class="superswap-panel__btn mt-10"
+            data-qa="confirm"
             @click="swap"
             size="large"
         />

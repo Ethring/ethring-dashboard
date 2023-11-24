@@ -794,6 +794,11 @@ export default {
                 selectedSrcToken.value = null;
                 selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
             }
+
+            if (selectedDstNetwork.value && newValue?.net === selectedDstNetwork.value.net) {
+                selectedDstNetwork.value = null;
+                selectedDstToken.value = null;
+            }
         });
 
         watch(selectedSrcToken, async () => {

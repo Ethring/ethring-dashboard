@@ -9,7 +9,7 @@
                 <a-layout-header class="header">
                     <NavBar />
                 </a-layout-header>
-                <a-layout-content class="content">
+                <a-layout-content class="content" data-qa="content">
                     <div>
                         <router-view />
                     </div>
@@ -29,7 +29,7 @@ import { useRoute, useRouter } from 'vue-router';
 import useInit from '@/compositions/useInit';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
-import Socket from '@/modules/Socket';
+import Socket from './modules/Socket';
 
 import WalletsModal from '@/Adapter/UI/Modal/WalletsModal';
 import AddressModal from '@/Adapter/UI/Modal/AddressModal';
@@ -98,9 +98,29 @@ export default {
             await useInit(store, { account: walletAccount.value, addressesWithChains, currentChainInfo: currentChainInfo.value });
         };
 
-        onBeforeMount(async () => await store.dispatch('networks/initZometNets'));
+        const callSubscription = async () => {
+            const { ecosystem } = currentChainInfo.value || {};
+
+            if (!ecosystem) {
+                return;
+            }
+
+            await delay(1000);
+
+            const addressesWithChains = getAddressesWithChainsByEcosystem(ecosystem);
+
+            Socket.addressesSubscription(addressesWithChains, walletAddress.value);
+        };
+
+        onBeforeMount(async () => {
+            await store.dispatch('networks/initZometNets');
+        });
 
         onMounted(async () => {
+            Socket.init(store);
+
+            store.dispatch('tokens/setLoader', true);
+
             if (!lastConnectedCall.value) {
                 await connectLastConnectedWallet();
                 lastConnectedCall.value = true;
@@ -140,15 +160,11 @@ export default {
             }
         });
 
-        watch(currentChainInfo, () => {
-            Socket.addressSubscription(walletAddress.value);
-        });
+        watch(currentChainInfo, async () => await callSubscription());
 
         watch(walletAccount, async () => {
-            console.log('walletAccount', walletAccount.value, isInitCall.value);
-            Socket.addressSubscription(walletAddress.value);
-
             await callInit();
+            await callSubscription();
         });
 
         onUpdated(async () => {

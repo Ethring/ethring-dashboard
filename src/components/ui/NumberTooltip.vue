@@ -18,7 +18,6 @@ export default {
             default: null,
         },
         decimals: {
-            type: Number,
             default: 2,
         },
     },
