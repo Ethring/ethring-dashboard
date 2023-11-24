@@ -120,7 +120,7 @@ $padding-lr: 32px;
 
     input {
         width: 100%;
-        
+
         font-style: normal;
         font-weight: 600;
         font-size: var(--#{$prefix}h5-fs);

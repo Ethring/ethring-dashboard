@@ -87,10 +87,14 @@
                     <p>{{ $t('tokenOperations.routeInfo') }}:</p>
                     <div v-if="!estimateErrorTitle" class="row">
                         <FeeIcon />
-                        <span class="fee">{{ networkFee }}</span> <span class="symbol"> $</span>
+                        <span class="fee">{{ formatNumber(networkFee, 2) }}</span> <span class="symbol"> $</span>
                         <TimeIcon />
                         <span class="fee"> {{ '~ ' + bestRoute?.estimateTime + ' s' }}</span>
-                        <h4>1 {{ selectedSrcToken?.symbol || '' }} = {{ estimateRate }} {{ selectedDstToken?.symbol || '' }}</h4>
+                        <h4>
+                            1 {{ selectedSrcToken?.symbol || '' }} =
+                            <NumberTooltip :value="estimateRate" decimals="3" />
+                            {{ selectedDstToken?.symbol || '' }}
+                        </h4>
                     </div>
 
                     <a-tooltip v-else>
@@ -157,6 +161,7 @@ import Button from '@/components/ui/Button';
 import Select from './Select.vue';
 import SwapField from './SwapField';
 import RoutesModal from '@/components/app/modals/RoutesModal';
+import NumberTooltip from '@/components/ui/NumberTooltip';
 
 import SwapIcon from '@/assets/icons/app/swap.svg';
 import ReloadIcon from '@/assets/icons/app/reload.svg';
@@ -165,7 +170,7 @@ import TimeIcon from '@/assets/icons/app/time.svg';
 import ExpandIcon from '@/assets/icons/app/expand.svg';
 import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
-import { prettyNumberTooltip } from '@/helpers/prettyNumber';
+import { prettyNumberTooltip, formatNumber } from '@/helpers/prettyNumber';
 
 import { findBestRoute } from '@/modules/SuperSwap/baseScript';
 
@@ -193,6 +198,7 @@ export default {
         TimeIcon,
         ArrowIcon,
         ExpandIcon,
+        NumberTooltip,
     },
     setup() {
         const store = useStore();
@@ -1024,6 +1030,7 @@ export default {
 
             getEstimateInfo,
             toggleRoutesModal,
+            formatNumber,
         };
     },
 };
@@ -1115,10 +1122,15 @@ export default {
             width: 520px;
         }
 
-        span {
+        .fee,
+        .symbol {
             color: var(--#{$prefix}warning);
             font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 600;
+        }
+
+        .symbol {
+            margin-left: 2px;
         }
 
         svg {
@@ -1148,11 +1160,10 @@ export default {
         }
 
         img {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             margin-right: 8px;
             border-radius: 50%;
-            border: 2px solid var(--#{$prefix}banner-logo-color);
         }
 
         .name {
@@ -1178,15 +1189,6 @@ export default {
         img {
             width: 16px;
             height: 16px;
-        }
-        .symbol {
-            margin-left: 5px;
-        }
-    }
-
-    .accordion__title {
-        .symbol {
-            font-weight: 600;
         }
     }
 
