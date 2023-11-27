@@ -14,9 +14,9 @@ import { checkErrors } from '@/helpers/checkErrors';
 
 let web3Onboard = null;
 
-// const STORAGE = {
-//     WALLET: 'onboard.js:last_connected_wallet',
-// };
+const STORAGE = {
+    WALLET: 'onboard.js:last_connected_wallet',
+};
 
 const [DEFAULT_CHAIN] = chainConfig;
 
@@ -108,13 +108,30 @@ class EthereumAdapter extends AdapterBase {
     }
 
     async disconnectAllWallets() {
-        const { disconnectConnectedWallet } = useOnboard();
+        const { disconnectConnectedWallet, disconnectWallet } = useOnboard();
 
         try {
             await disconnectConnectedWallet();
             this.addressByNetwork = {};
         } catch (error) {
             console.error('Error while disconnect all wallets', error);
+        }
+
+        // Disconnect wallets from store
+
+        const walletsFromStore = window.localStorage.getItem(STORAGE.WALLET) || null;
+        const wallets = walletsFromStore ? JSON.parse(walletsFromStore) : [];
+
+        if (!wallets.length) {
+            return;
+        }
+
+        try {
+            for (const wallet of wallets) {
+                await disconnectWallet({ label: wallet });
+            }
+        } catch (error) {
+            console.error('Error while disconnect wallets from store', error);
         }
     }
 

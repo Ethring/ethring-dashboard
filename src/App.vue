@@ -9,7 +9,7 @@
                 <a-layout-header class="header">
                     <NavBar />
                 </a-layout-header>
-                <a-layout-content class="content">
+                <a-layout-content class="content" data-qa="content">
                     <div>
                         <router-view />
                     </div>
@@ -30,7 +30,7 @@ import useInit from '@/compositions/useInit/';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 import { ECOSYSTEMS } from '@/Adapter/config';
 
-import Socket from '@/modules/Socket';
+import Socket from './modules/Socket';
 
 import WalletsModal from '@/Adapter/UI/Modal/WalletsModal';
 import AddressModal from '@/Adapter/UI/Modal/AddressModal';
@@ -170,7 +170,11 @@ export default {
 
                 // console.log('getNativeTokenByChain', chain_name, getNativeTokenByChain(ECOSYSTEMS.COSMOS, chain_name));
             }
+
             // console.log('getNativeTokenByChain(ECOSYSTEMS.EVM)', getNativeTokenByChain(ECOSYSTEMS.EVM, 'eth', store));
+            Socket.init(store);
+
+            store.dispatch('tokens/setLoader', true);
 
             if (!lastConnectedCall.value) {
                 await connectLastConnectedWallet();

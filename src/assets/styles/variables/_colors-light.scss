@@ -116,6 +116,7 @@ $border-color: $geyser;
 $border-secondary-color: $gulfStream;
 $border-color-op-05: rgba($border-color, 0.5);
 $social-border-color: $trout;
+$info-border-color: $gallery;
 
 // Button
 $btn-text-color: $white;
@@ -267,6 +268,7 @@ $theme-colors: (
     "border-secondary-color": $border-secondary-color,
     "border-color-op-05": $border-color-op-05,
     "social-border-color": $social-border-color,
+    "info-border-color": $info-border-color,
 
 
     "btn-text-hover": $btn-text-hover,

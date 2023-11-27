@@ -98,6 +98,7 @@ $border-color: $charade;
 $border-secondary-color: $trout;
 $border-color-op-05: rgba($border-secondary-color, 0.5);
 $social-border-color: $trout;
+$info-border-color: $border-color-op-05;
 
 // Button
 $btn-text-color: $ebonyClay;
@@ -249,6 +250,7 @@ $theme-colors-dark: (
     "border-secondary-color": $border-secondary-color,
     "border-color-op-05": $border-color-op-05,
     "social-border-color": $social-border-color,
+    "info-border-color": $info-border-color,
 
     "btn-text-color": $btn-text-color,
     "btn-text-hover": $btn-text-hover,

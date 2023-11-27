@@ -5,10 +5,10 @@
             <span v-if="name">{{ name.trim() }}</span>
         </div>
         <div class="asset__item-sub-header-label">
-            {{ $t('tokenOperations.balance') }}
+            {{ secondColumnType || $t('tokenOperations.balance') }}
         </div>
         <div class="asset__item-sub-header-label__right">
-            {{ $t('tokenOperations.value') }}
+            {{ thirdColumnType || $t('tokenOperations.value') }}
         </div>
     </div>
 </template>
@@ -18,6 +18,13 @@ export default {
     props: {
         type: {
             required: true,
+        },
+        secondColumnType: {
+            required: false,
+            default: null,
+        },
+        thirdColumnType: {
+            required: false,
         },
         name: {
             default: null,
@@ -40,7 +47,7 @@ export default {
 
     &-title {
         display: flex;
-        width: 58%;
+        width: 66%;
 
         span::before {
             content: '\2022';
@@ -50,10 +57,10 @@ export default {
     }
 
     &-label {
-        width: 22%;
+        width: 18%;
 
         &__right {
-            width: 20%;
+            width: 15%;
             text-align: right;
         }
     }

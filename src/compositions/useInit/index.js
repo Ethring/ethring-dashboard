@@ -109,6 +109,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
 
     const allTokens = [];
     const allIntegrations = [];
+    const allNfts = [];
 
     const progressChunk = async (chunk) => {
         let requests = {};
@@ -168,13 +169,19 @@ export default async function useInit(store, { addressesWithChains = {}, account
                 allIntegrations.push(...list);
             }
 
-            // =========================================================================================================
+            if (nfts.length) {
+                const list = formatRecords(nfts, { chain, logo, chainAddress });
+
+                allNfts.push(...list);
+            }
 
             store.dispatch('tokens/setGroupTokens', { chain, account, data: { list: tokens } });
 
             store.dispatch('tokens/setDataFor', { type: 'tokens', account, data: allTokens });
 
             store.dispatch('tokens/setDataFor', { type: 'integrations', account, data: allIntegrations });
+
+            store.dispatch('tokens/setDataFor', { type: 'nfts', account, data: allNfts });
 
             store.dispatch('tokens/setAssetsBalances', { account, data: assetsBalance.toNumber() });
 

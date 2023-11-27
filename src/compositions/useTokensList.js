@@ -6,6 +6,8 @@ import { useStore } from 'vuex';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
+import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
 export default function useTokensList({ network = null, fromToken = null, toToken = null } = {}) {
@@ -14,6 +16,8 @@ export default function useTokensList({ network = null, fromToken = null, toToke
     const { walletAccount } = useAdapter();
 
     const onlyWithBalance = computed(() => store.getters['tokenOps/onlyWithBalance']);
+
+    const selectType = computed(() => store.getters['tokenOps/selectType']);
 
     const getTokensWithAndWithoutBalance = (storeModule = 'tokens', network) => {
         const { net } = network || {};
@@ -27,7 +31,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         return _.orderBy(list, (tkn) => Number(tkn.balanceUsd), ['desc']);
     };
 
-    const getAllTokensList = (network) => {
+    const getAllTokensList = (network, fromToken, toToken) => {
         if (!network) {
             return [];
         }
@@ -57,15 +61,11 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
         let allTokens = [];
 
-        const isNotEqualToSelected = (tkn) => {
+        const isNotEqualToSelected = (tkn, selectedToken) => {
             const ids = [];
 
-            if (fromToken && fromToken.id) {
-                ids.push(fromToken.id);
-            }
-
-            if (toToken && toToken.id) {
-                ids.push(toToken.id);
+            if (selectedToken && selectedToken.id && selectedToken.chain === network.net) {
+                ids.push(selectedToken.id);
             }
 
             if (tkn.id) {
@@ -130,7 +130,17 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             allTokens = [...allTokens.filter(({ symbol }) => symbol !== asset.symbol), tokenInfo];
         }
 
-        allTokens = _.filter(allTokens, isNotEqualToSelected);
+        // Added selected param if token is selected
+        const isFromSelected = selectType.value === TOKEN_SELECT_TYPES.FROM;
+
+        const selectedToken = isFromSelected ? toToken : fromToken;
+
+        allTokens = allTokens.filter((tkn) => isNotEqualToSelected(tkn, selectedToken));
+
+        for (const tkn of allTokens) {
+            const isSelected = (isFromSelected && tkn.id === fromToken?.id) || tkn.id === toToken?.id;
+            tkn.selected = isSelected;
+        }
 
         return _.orderBy(
             allTokens,
@@ -144,14 +154,14 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         );
     };
 
-    const allTokensList = computed(() => getAllTokensList(network));
+    const allTokensList = computed(() => getAllTokensList(network, fromToken, toToken));
 
     const getTokensList = ({ srcNet = null, srcToken = null, dstToken = null } = {}) => {
         network = srcNet;
         fromToken = srcToken;
         toToken = dstToken;
 
-        return getAllTokensList(network);
+        return getAllTokensList(network, fromToken, toToken);
     };
 
     return {

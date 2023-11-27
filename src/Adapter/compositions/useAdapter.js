@@ -93,11 +93,10 @@ function useAdapter() {
         try {
             const { isConnected, walletName } = await adapter.connectWallet(...args);
 
-            adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
-
-            if (walletName) {
+            if (walletName || isConnected) {
                 adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
                 adaptersDispatch(TYPES.SET_IS_CONNECTED, true);
+                adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
             }
 
             isConnected && storeWalletInfo();

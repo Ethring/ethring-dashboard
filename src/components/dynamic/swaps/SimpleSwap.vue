@@ -6,6 +6,7 @@
             <SelectAmount
                 class="mt-10"
                 :value="selectedSrcToken"
+                :selected-network="selectedSrcNetwork"
                 :error="!!isBalanceError"
                 :on-reset="resetSrcAmount"
                 :is-token-loading="isTokensLoadingForChain"
@@ -95,7 +96,7 @@ import EstimateInfo from '@/components/ui/EstimateInfo.vue';
 import SwapIcon from '@/assets/icons/dashboard/swap.svg';
 
 // Helpers
-import { prettyNumberTooltip } from '@/helpers/prettyNumber';
+import { formatNumber } from '@/helpers/prettyNumber';
 
 import { isCorrectChain } from '@/shared/utils/operations';
 
@@ -520,7 +521,6 @@ export default {
             isLoading.value = false;
 
             dstAmount.value = response.toTokenAmount;
-            dstAmount.value = response.toTokenAmount;
 
             estimateErrorTitle.value = '';
 
@@ -534,9 +534,9 @@ export default {
                 feeInfo.value = {
                     title: 'tokenOperations.networkFee',
                     symbolBetween: '~',
-                    fromAmount: prettyNumberTooltip(response.fee.amount),
+                    fromAmount: response.fee.amount,
                     fromSymbol: response.fee.currency,
-                    toAmount: prettyNumberTooltip(+response.fee.amount * price, 4),
+                    toAmount: formatNumber(+response.fee.amount * price, 4),
                     toSymbol: '$',
                 };
             }
@@ -546,7 +546,7 @@ export default {
                 symbolBetween: '=',
                 fromAmount: '1',
                 fromSymbol: selectedSrcToken.value.symbol,
-                toAmount: prettyNumberTooltip(response.toTokenAmount / response.fromTokenAmount, 6),
+                toAmount: formatNumber(response.toTokenAmount / response.fromTokenAmount, 6),
                 toSymbol: selectedDstToken.value.symbol,
             };
         };

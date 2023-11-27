@@ -52,15 +52,17 @@ const cosmosChainTokens = (record, { chain, net }) => {
     return record;
 };
 
-const formatRecord = (record, { net, chain, logo }) => {
+export const formatRecord = (record, { net, chain, logo }) => {
     record.chainLogo = logo;
     record.chain = net;
 
     if (!record.balanceType && record.address) {
         record.id = `${net}:asset__${record.address}:${record.symbol}`;
+    } else if (!record.balanceType && !record.address) {
+        record.id = `${net}:asset__native:${record.symbol}`;
     }
 
-    if (DP_COSMOS[chain] && !record.balanceType) {
+    if ((DP_COSMOS[chain] || DP_COSMOS[net]) && !record.balanceType) {
         record = cosmosChainTokens(record, { chain, net });
     }
 
@@ -71,8 +73,6 @@ export const formatRecords = (records, { net, chain, logo }) => {
     for (const record of records) {
         formatRecord(record, { net, chain, logo });
     }
-
-    console.log('records', records);
 
     return records;
 };

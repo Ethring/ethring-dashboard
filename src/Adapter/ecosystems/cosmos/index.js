@@ -527,17 +527,6 @@ class CosmosAdapter extends AdapterBase {
     }
 
     async getTransactionFee(client, msg) {
-        // EstimateFee to get gas for transaction
-        try {
-            const estimatedFee = await this.estimateFeeTx(msg);
-
-            if (estimatedFee) {
-                return estimatedFee;
-            }
-        } catch (error) {
-            console.warn('[COSMOS -> getTransactionFee -> estimateFee]', error);
-        }
-
         // SimulateTx to get gas for transaction
         try {
             const simulatedGas = await this.simulateTxGas(client, msg);
@@ -549,6 +538,17 @@ class CosmosAdapter extends AdapterBase {
             }
         } catch (error) {
             console.warn('[COSMOS -> getTransactionFee -> simulateTxFee]', error);
+        }
+
+        // EstimateFee to get gas for transaction
+        try {
+            const estimatedFee = await this.estimateFeeTx(msg);
+
+            if (estimatedFee) {
+                return estimatedFee;
+            }
+        } catch (error) {
+            console.warn('[COSMOS -> getTransactionFee -> estimateFee]', error);
         }
 
         console.warn('[COSMOS -> getTransactionFee] Fee not found, Use default fee');

@@ -1,6 +1,5 @@
 import { getBalancesByAddress } from '@/api/data-provider';
-import { cosmologyConfig } from '@/Adapter/config';
-
+import { formatRecord } from '../../compositions/useInit/utils';
 import IndexedDBService from '@/modules/indexedDb';
 
 import store from '@/store/';
@@ -37,7 +36,9 @@ export async function updateWalletBalances(account, address, network, balanceUpd
         const index = tokensByAccount[account].findIndex(
             (elem) => (elem.symbol === item.symbol && elem.address === item.address) || (!item.address && elem.symbol === item.symbol)
         );
+
         item = formatRecord(item, { net: chainId, chain: net, address, logo });
+
         if (index !== -1) {
             tokensByAccount[account][index] = item;
         } else {
@@ -66,24 +67,3 @@ export async function updateWalletBalances(account, address, network, balanceUpd
 
     await IndexedDBService.saveData(key, cachedData);
 }
-
-const formatRecord = (record, { net, chain, logo }) => {
-    if (!record.address) {
-        record.id = `${net}:asset__native:${record.symbol}`;
-
-        const [cosmosChain] = cosmologyConfig.assets.filter(({ chain_name }) => chain_name === chain) || [];
-
-        const { assets } = cosmosChain || {};
-
-        const [nativeToken] = assets || [];
-
-        record.address = nativeToken?.base || null;
-    } else {
-        record.id = `${net}:asset__${record.address}:${record.symbol}`;
-    }
-
-    record.chainLogo = logo;
-    record.chain = net;
-
-    return record;
-};

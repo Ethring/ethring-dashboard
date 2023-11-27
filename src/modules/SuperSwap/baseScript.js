@@ -62,7 +62,6 @@ export async function findBestRoute(amount, walletAddress, fromToken, toToken) {
             bestRoute.toAmountUsd = result.bestRoute.toTokenAmount * (+result.bestRoute.toToken.price || +result.bestRoute.toToken.price);
             bestRoute.estimateTime += result.bestRoute.estimateTime;
             bestRoute.routes.push({ ...result.bestRoute, status: STATUSES.PENDING });
-
             return bestRoute;
         };
 
@@ -106,7 +105,6 @@ export async function findBestRoute(amount, walletAddress, fromToken, toToken) {
                         result.bestRoute.toTokenAmount * (+result.bestRoute.toToken.price || +result.bestRoute.toToken.price);
 
                     route.estimateTime += result.bestRoute.estimateTime;
-
                     route.routes.push({ ...result.bestRoute, status: STATUSES.PENDING });
                     delete route.service;
                     delete route.fee;
@@ -267,6 +265,7 @@ async function findRoute(params) {
             if (BEST_LOW_FEE) {
                 const route = formatRouteInfo(bestRoute, params, bestRoute.service);
                 otherRoutes.push(route);
+
                 bestRoute = estimateResponse;
                 bestRoute.service = service;
             } else if (BEST_LOW_AMOUNT) {

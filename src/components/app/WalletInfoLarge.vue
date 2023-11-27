@@ -14,7 +14,8 @@
             <div v-else class="balance">
                 <div class="value">
                     <span>$</span>
-                    {{ showBalance ? formatNumber(totalBalance, 2) : '****' }}
+                    <NumberTooltip v-if="showBalance" :value="totalBalance" />
+                    <span v-else>****</span>
                 </div>
             </div>
         </div>
@@ -27,7 +28,8 @@ import { useStore } from 'vuex';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import { cutAddress } from '@/helpers/utils';
-import { formatNumber } from '@/helpers/prettyNumber';
+
+import NumberTooltip from '@/components/ui/NumberTooltip';
 
 import WalletIcon from '@/assets/icons/dashboard/wallet.svg';
 
@@ -35,6 +37,7 @@ export default {
     name: 'WalletInfo',
     components: {
         WalletIcon,
+        NumberTooltip,
     },
     setup() {
         const store = useStore();
@@ -52,7 +55,6 @@ export default {
             totalBalance,
             currentChainInfo,
             walletAccount,
-            formatNumber,
             cutAddress,
             showBalance,
         };

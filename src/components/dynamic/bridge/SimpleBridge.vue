@@ -20,6 +20,7 @@
         <SelectAmount
             v-if="selectedSrcNetwork"
             :value="selectedSrcToken"
+            :selected-network="selectedSrcNetwork"
             :error="!!isBalanceError"
             :on-reset="resetSrcAmount"
             :disabled="!selectedSrcToken"
@@ -124,7 +125,7 @@ import Checkbox from '@/components/ui/Checkbox';
 import Button from '@/components/ui/Button';
 import EstimateInfo from '@/components/ui/EstimateInfo.vue';
 
-import { formatNumber, prettyNumber, prettyNumberTooltip } from '@/helpers/prettyNumber';
+import { formatNumber } from '@/helpers/prettyNumber';
 
 import { getServices, SERVICE_TYPE } from '@/config/services';
 
@@ -581,7 +582,7 @@ export default {
                 symbolBetween: '=',
                 fromAmount: '1',
                 fromSymbol: selectedSrcToken.value.symbol,
-                toAmount: prettyNumberTooltip(response.toTokenAmount / response.fromTokenAmount, 6),
+                toAmount: formatNumber(response.toTokenAmount / response.fromTokenAmount, 6),
                 toSymbol: selectedDstToken.value.symbol,
             };
 
@@ -616,7 +617,7 @@ export default {
 
             const { symbol = null, price = 0 } = native_token || 0;
 
-            const feeInUSD = prettyNumber(BigNumber(fee).multipliedBy(price).toString());
+            const feeInUSD = BigNumber(fee).multipliedBy(price).toString();
 
             protocolFeeMain.value = {
                 title: 'tokenOperations.protocolFee',
@@ -901,6 +902,11 @@ export default {
             if (newValue?.net !== oldValue?.net) {
                 selectedSrcToken.value = null;
                 selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
+            }
+
+            if (selectedDstNetwork.value && newValue?.net === selectedDstNetwork.value.net) {
+                selectedDstNetwork.value = null;
+                selectedDstToken.value = null;
             }
         });
 
