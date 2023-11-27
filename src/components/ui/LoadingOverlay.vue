@@ -1,11 +1,21 @@
 <template>
     <div class="loading-overlay">
-        <a-spin tip="Connecting to wallet" />
+        <a-spin :tip="$t(tip)" size="large" :spinning="spinning" />
     </div>
 </template>
 <script>
 export default {
     name: 'LoadingOverlay',
+    props: {
+        spinning: {
+            type: Boolean,
+            default: false,
+        },
+        tip: {
+            type: String,
+            default: 'dashboard.connecting',
+        },
+    },
 };
 </script>
 <style lang="scss">
@@ -20,11 +30,14 @@ export default {
 
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, 0.7);
+
+    background: var(--#{$prefix}main-background);
 
     span,
     div {
-        color: var(--#{$prefix}black);
+        font-weight: 400;
+        font-size: var(--#{$prefix}default-fs);
+        color: var(--#{$prefix}primary-text);
     }
 
     i {

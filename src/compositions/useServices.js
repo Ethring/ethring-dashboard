@@ -200,7 +200,6 @@ export default function useModule({ module, moduleType }) {
     const makeAllowanceRequest = async (service) => {
         const currentService = service || selectedService.value;
 
-        console.log('makeAllowanceRequest', currentService);
         if (!selectedSrcToken.value?.address || !currentService?.url) {
             return;
         }

@@ -37,18 +37,21 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
         if (ECOSYSTEMS.COSMOS === network?.ecosystem) {
             for (const token of tokensWithBalance) {
-                if (!token.symbol.includes('IBC.')) {
-                    continue;
+                if (!token.address?.includes('IBC/') && !token.address?.includes('ibc/')) {
+                    token.address = _.lowerCase(token.address);
                 }
 
-                const searchSymbol = token.symbol.replace('IBC.', '');
-                const result = tokensListFromNet.find((searchToken) => searchToken.symbol === searchSymbol);
-
-                if (result) {
-                    token.address = result.base;
-                    token.coingecko_id = result.coingecko_id;
-                    token.base = result.base;
+                if (!token.base && token.address) {
+                    token.base = token.address;
                 }
+
+                // const searchSymbol = token.symbol.replace('IBC.', '');
+
+                // if (result) {
+                //     token.address = result.base;
+                //     token.coingecko_id = result.coingecko_id;
+                //     token.base = result.base;
+                // }
             }
         }
 

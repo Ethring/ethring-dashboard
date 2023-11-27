@@ -16,7 +16,7 @@
             :value="selectedSrcToken"
             :error="!!isBalanceError"
             :label="$t('tokenOperations.asset')"
-            :on-reset="clearAddress || resetAmount"
+            :on-reset="resetAmount"
             :is-token-loading="isTokensLoadingForChain"
             :amount-value="srcAmount"
             class="mt-10"
@@ -147,6 +147,7 @@ export default {
             selectedSrcNetwork.value = network;
 
             onSetAmount(null);
+
             onSetAddress(receiverAddress.value);
         };
 
@@ -158,15 +159,6 @@ export default {
             isBalanceError.value = isBalanceAllowed;
         };
 
-        const resetAddress = () => {
-            clearAddress.value = receiverAddress.value === null;
-
-            if (clearAddress.value) {
-                onSetAddress(null);
-                setTimeout(() => (clearAddress.value = false));
-            }
-        };
-
         const resetAmounts = async (amount) => {
             const allowDataTypes = ['string', 'number'];
 
@@ -176,11 +168,7 @@ export default {
 
             resetAmount.value = amount === null;
 
-            if (resetAmount.value) {
-                setTimeout(() => (resetAmount.value = false));
-            }
-
-            resetAddress();
+            clearAddress.value = receiverAddress.value === null;
         };
 
         // =================================================================================================================
@@ -269,7 +257,20 @@ export default {
 
         watch(srcAmount, () => resetAmounts(srcAmount.value));
 
-        watch(receiverAddress, () => resetAddress());
+        watch(clearAddress, () => {
+            if (clearAddress.value) {
+                setTimeout(() => (clearAddress.value = false));
+            }
+        });
+
+        watch(resetAmount, () => {
+            if (resetAmount.value) {
+                onSetAmount(null);
+                setTimeout(() => (resetAmount.value = false));
+            }
+        });
+
+        watch(receiverAddress, () => (clearAddress.value = receiverAddress.value === null));
 
         watch(isTokensLoadingForChain, () => setTokenOnChange());
 

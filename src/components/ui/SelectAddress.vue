@@ -115,13 +115,7 @@ export default {
             }
         });
 
-        onUpdated(() => {
-            if (props.value) {
-                address.value = props.value;
-            }
-
-            resetAddress();
-        });
+        onUpdated(() => resetAddress());
 
         const onInput = () => {
             emit('setAddress', address.value);

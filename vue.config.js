@@ -47,6 +47,7 @@ const chainWebpack = (config) => {
         { name: '@cosmos-kit' },
         { name: 'cosmjs-types' },
         { name: '@walletconnect' },
+        { name: 'unstorage' },
         { name: '@web3-onboard' },
         { name: '@vueuse/core' },
         { name: 'osmojs' },

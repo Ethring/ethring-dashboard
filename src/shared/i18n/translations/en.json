@@ -7,7 +7,9 @@
     "send": "SEND",
     "search": "Search",
     "notFound": "Nothing was found for your query",
-    "emptyAssets": "You don't have any assets"
+    "emptyAssets": "You don't have any assets",
+    "connecting": "Connecting wallet ...",
+    "loadingConfig": "Loading config ..."
   },
   "sidebar": {
     "main": "Overview",

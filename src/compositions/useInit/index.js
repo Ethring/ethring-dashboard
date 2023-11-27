@@ -1,8 +1,8 @@
 import { computed } from 'vue';
 import _ from 'lodash';
 
-import { ECOSYSTEMS, cosmologyConfig } from '@/Adapter/config';
-import { getBalancesByAddress } from '@/api/data-provider';
+import { ECOSYSTEMS } from '@/Adapter/config';
+import { getBalancesByAddress, DP_COSMOS } from '@/api/data-provider';
 
 import BigNumber from 'bignumber.js';
 
@@ -10,34 +10,12 @@ import IndexedDBService from '@/modules/indexedDb';
 
 import { getTotalFuturesBalance, BALANCES_TYPES } from '@/shared/utils/assets';
 
-// =================================================================================================================
-
-// Cancel request
-
-// let abortController = new AbortController();
-// let { signal } = abortController;
-
-// function cancelCurrentOperations() {
-//     abortController.abort(); // Отмена всех текущих операций
-//     abortController = new AbortController(); // Создание нового AbortController
-//     signal = abortController.signal; // Получение нового сигнала
-// }
+import { formatRecords, getTotalBalance } from './utils';
 
 // =================================================================================================================
 
 const CHUNK_SIZE = 5;
 
-const COSMOS_CHAIN_ID = {
-    cosmoshub: 'cosmos',
-    osmosis: 'osmosis',
-    juno: 'juno',
-    injective: 'injective',
-    kujira: 'kujira',
-    crescent: 'crescent',
-    mars: 'mars',
-    stargaze: 'stargaze',
-    terra2: 'terra2',
-};
 // =================================================================================================================
 
 const RESET_ACTIONS = [
@@ -47,6 +25,8 @@ const RESET_ACTIONS = [
     ['bridge/setSelectedSrcNetwork', null],
     ['bridge/setSelectedDstNetwork', null],
 ];
+
+// =================================================================================================================
 
 async function performActions(actions, store) {
     await Promise.all(actions.map(([action, payload]) => store.dispatch(action, payload)));
@@ -72,42 +52,11 @@ const saveOrGetDataFromCache = async (key, data) => {
 
 // =================================================================================================================
 
-const formatRecords = (records, { chain, logo }) => {
-    for (const record of records) {
-        if (!record.address) {
-            const [cosmosChain] = cosmologyConfig.assets.filter(({ chain_name }) => chain_name === chain) || [];
-
-            const { assets } = cosmosChain || {};
-
-            const [nativeToken] = assets || [];
-
-            const key = nativeToken?.symbol === record.symbol ? 'asset__native' : 'asset';
-
-            record.id = `${chain}:${key}:${record.symbol}`;
-        } else {
-            record.id = `${chain}:asset__${record.address}:${record.symbol}`;
-        }
-
-        record.chainLogo = logo;
-        record.chain = chain;
-    }
-
-    return records;
-};
-
-const getTotalBalance = (records, totalBalance = BigNumber(0)) => {
-    const totalSum = records.reduce((acc, token) => {
-        return acc.plus(+token.balanceUsd || 0);
-    }, BigNumber(0));
-
-    return totalBalance.plus(totalSum);
-};
-
-const integrationsForSave = (integrations, { chain, logo, chainAddress }) => {
+const integrationsForSave = (integrations, { net, chain, logo, chainAddress }) => {
     let balance = BigNumber(0);
 
     for (const integration of integrations) {
-        integration.balances = formatRecords(integration.balances, { chain, chainAddress, logo });
+        integration.balances = formatRecords(integration.balances, { net, chain, chainAddress, logo });
 
         if (integration.type === BALANCES_TYPES.FUTURES) {
             balance = getTotalFuturesBalance(integration.balances, balance);
@@ -154,7 +103,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
     const chunkedAddresses = _.chunk(sortedByCurrChain, CHUNK_SIZE);
 
     for (const { chain } of sortedByCurrChain) {
-        const chainForRequest = COSMOS_CHAIN_ID[chain] || chain;
+        const chainForRequest = DP_COSMOS[chain] || chain;
         store.dispatch('tokens/setLoadingByChain', { chain: chainForRequest, value: true });
     }
 
@@ -169,9 +118,9 @@ export default async function useInit(store, { addressesWithChains = {}, account
 
             const { logo, address: chainAddress } = info;
 
-            const chainForRequest = COSMOS_CHAIN_ID[chain] || chain;
+            const chainForRequest = DP_COSMOS[chain] || chain;
 
-            if (ecosystem === ECOSYSTEMS.COSMOS && !COSMOS_CHAIN_ID[chain]) {
+            if (ecosystem === ECOSYSTEMS.COSMOS && !DP_COSMOS[chain]) {
                 store.dispatch('tokens/setLoadingByChain', { chain, value: false });
                 continue;
             }
@@ -201,7 +150,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
             }
 
             if (tokens.length) {
-                const tokensForSave = formatRecords(tokens, { chain: chainForRequest, chainAddress, logo });
+                const tokensForSave = formatRecords(tokens, { net: chainForRequest, chain, chainAddress, logo });
 
                 const balance = getTotalBalance(tokensForSave);
 
@@ -212,7 +161,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
             }
 
             if (integrations.length) {
-                const { list, balance } = integrationsForSave(integrations, { chain, logo, chainAddress });
+                const { list, balance } = integrationsForSave(integrations, { net: chainForRequest, chain, logo, chainAddress });
 
                 totalBalance = totalBalance.plus(balance);
 

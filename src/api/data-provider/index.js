@@ -1,8 +1,20 @@
+// Export configs from data-provider
+export * from './chains';
+
+// Module Imports
 import axios from 'axios';
 
 const PROVIDER_URL = process.env.VUE_APP_DATA_PROVIDER_URL || null;
 
-const axiosInstance = axios.create();
+const axiosInstance = axios.create({
+    headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+    },
+    timeout: 10000,
+    responseType: 'json',
+    withCredentials: false,
+});
 
 // Interceptor для ответов
 axiosInstance.interceptors.response.use(
@@ -12,10 +24,8 @@ axiosInstance.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
-        console.log('error', error, error.message === 'timeout of 5000ms exceeded', originalRequest);
-        // Check Timeout Error 504
-        if (error.response.status === 504 || error.message === 'timeout of 5000ms exceeded') {
-            originalRequest._retry = true;
+        if (error.code === 'ECONNABORTED' && !originalRequest.retry) {
+            originalRequest.retry = true;
 
             try {
                 // Resend request
@@ -23,6 +33,7 @@ axiosInstance.interceptors.response.use(
                 return response;
             } catch (retryError) {
                 // Return error
+                console.error('Error during request:', error);
                 return Promise.reject(retryError);
             }
         }
@@ -40,30 +51,23 @@ export const getBalancesByAddress = async (
         return null;
     }
 
+    const params = {
+        url: `${PROVIDER_URL}/balances?net=${net}&address=${address}&tokens=${fetchTokens}&integrations=${fetchIntegrations}&nfts=${fetchNfts}`,
+    };
+
     try {
-        const URL = `${PROVIDER_URL}/balances?net=${net}&address=${address}&tokens=${fetchTokens}&integrations=${fetchIntegrations}&nfts=${fetchNfts}`;
-
-        const params = {
-            url: URL,
-            timeout: 5000,
-            responseType: 'json',
-            withCredentials: false,
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-            },
-        };
-
         signal && (params.cancelToken = signal);
 
         const response = await axiosInstance.get(params.url, params);
 
-        if (response.status === 200) {
+        if (response && response.status === 200) {
             return response.data.data;
         }
 
         return null;
-    } catch {
+    } catch (e) {
+        console.error('Error while fetching balances from provider:', e);
+
         return null;
     }
 };

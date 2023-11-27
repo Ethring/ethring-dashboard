@@ -1,6 +1,6 @@
 <template>
     <a-config-provider>
-        <LoadingOverlay v-if="isConnecting" />
+        <LoadingOverlay v-if="isSpinning" :spinning="isSpinning" :tip="loadingTitle" />
         <a-layout>
             <a-layout-sider class="sidebar" v-model:collapsed="collapsed" collapsible>
                 <Sidebar :collapsed="collapsed" />
@@ -26,7 +26,7 @@ import { onMounted, onUpdated, onBeforeMount, watchEffect, watch, ref, computed 
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 
-import useInit from '@/compositions/useInit';
+import useInit from '@/compositions/useInit/';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 import { ECOSYSTEMS } from '@/Adapter/config';
 
@@ -58,8 +58,14 @@ export default {
         const router = useRouter();
 
         const lastConnectedCall = ref(false);
+
         const isInitCall = ref({});
         const collapsed = ref(false);
+
+        const isConfigLoading = computed({
+            get: () => store.getters['networks/isConfigLoading'],
+            set: (value) => store.dispatch('networks/setConfigLoading', value),
+        });
 
         const {
             isConnecting,
@@ -70,11 +76,26 @@ export default {
             getAddressesWithChainsByEcosystem,
             getChainListByEcosystem,
             getIBCAssets,
+            // getNativeTokenByChain,
         } = useAdapter();
+
+        const isSpinning = computed(() => isConfigLoading.value || isConnecting.value);
 
         const isOpen = computed(() => store.getters['adapters/isOpen']('wallets'));
 
         const showRoutesModal = computed(() => store.getters['swap/showRoutes']);
+
+        const loadingTitle = computed(() => {
+            if (isConfigLoading.value) {
+                return 'dashboard.loadingConfig';
+            }
+
+            if (isConnecting.value) {
+                return 'dashboard.connecting';
+            }
+
+            return '';
+        });
 
         const callSubscription = async () => {
             const { ecosystem } = currentChainInfo.value || {};
@@ -133,7 +154,10 @@ export default {
             await useInit(store, { account: walletAccount.value, addressesWithChains, currentChainInfo: currentChainInfo.value });
         };
 
-        onBeforeMount(async () => await store.dispatch('networks/initZometNets'));
+        onBeforeMount(async () => {
+            isConfigLoading.value = true;
+            await store.dispatch('networks/initZometNets');
+        });
 
         onMounted(async () => {
             const chains = getChainListByEcosystem(ECOSYSTEMS.COSMOS);
@@ -143,7 +167,10 @@ export default {
                     network: chain_name,
                     tokens: getIBCAssets(ECOSYSTEMS.COSMOS, chain_name),
                 });
+
+                // console.log('getNativeTokenByChain', chain_name, getNativeTokenByChain(ECOSYSTEMS.COSMOS, chain_name));
             }
+            // console.log('getNativeTokenByChain(ECOSYSTEMS.EVM)', getNativeTokenByChain(ECOSYSTEMS.EVM, 'eth', store));
 
             if (!lastConnectedCall.value) {
                 await connectLastConnectedWallet();
@@ -199,8 +226,10 @@ export default {
 
         return {
             isOpen,
-            isConnecting,
+            isSpinning,
+
             collapsed,
+            loadingTitle,
         };
     },
 };

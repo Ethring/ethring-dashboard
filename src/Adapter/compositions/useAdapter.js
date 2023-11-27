@@ -299,7 +299,11 @@ function useAdapter() {
     };
 
     // * Get addressesWithChains by Ecosystem
-    const getAddressesWithChainsByEcosystem = (ecosystem) => {
+    const getAddressesWithChainsByEcosystem = (ecosystem = null) => {
+        if (!ecosystem) {
+            return {};
+        }
+
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
         return adapter.getAddressesWithChains();
     };
@@ -312,6 +316,12 @@ function useAdapter() {
 
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
         return adapter.getIBCAssets(chain);
+    };
+
+    // * Get Native asset for by Ecosystem and Chain
+    const getNativeTokenByChain = (ecosystem, chain, store) => {
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+        return adapter.getNativeTokenByChain(chain, store);
     };
 
     return {
@@ -342,6 +352,7 @@ function useAdapter() {
         getTxExplorerLink,
         getTokenExplorerLink,
         getIBCAssets,
+        getNativeTokenByChain,
 
         formatTransactionForSign,
 
