@@ -52,7 +52,7 @@
 
                     <div v-else @click.stop="setMax">
                         {{ $t('tokenOperations.balance') }}:
-                        <p><NumberTooltip :value="selectedToken?.balance || 0" decimals="3" class="amount" /></p>
+                        <p><NumberTooltip :value="selectedToken?.balance || 0" decimals="3" /></p>
                         {{ selectedToken?.symbol }}
                     </div>
                 </div>

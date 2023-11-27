@@ -174,10 +174,10 @@ import { prettyNumberTooltip, formatNumber } from '@/helpers/prettyNumber';
 
 import { findBestRoute } from '@/modules/SuperSwap/baseScript';
 
-import PricesModule from '@/modules/prices/';
+import { getPriceFromProvider } from '@/shared/utils/prices';
 
 import { STATUSES, NATIVE_CONTRACT, SUPPORTED_CHAINS } from '@/shared/constants/super-swap/constants';
-import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+import { DIRECTIONS, TOKEN_SELECT_TYPES, PRICE_UPDATE_TIME } from '@/shared/constants/operations';
 import { isCorrectChain } from '@/shared/utils/operations';
 
 // import { updateWalletBalances } from '@/shared/utils/balances';
@@ -412,17 +412,13 @@ export default {
         // =================================================================================================================
 
         const handleOnSelectToken = async (token, direction) => {
-            if (token && token.address && !token?.price) {
-                const chainId =
-                    direction === TOKEN_SELECT_TYPES.FROM ? selectedSrcNetwork.value?.chain_id : selectedDstNetwork.value?.chain_id;
+            const isPriceUpdate = new Date().getTime() - token?.priceUpdatedAt > PRICE_UPDATE_TIME;
 
-                const price = await PricesModule.Coingecko.priceByPlatformContracts({
-                    chainId: chainId,
-                    addresses: token.address,
-                });
+            if (!token?.price || isPriceUpdate) {
+                const selectedNetwork = direction === TOKEN_SELECT_TYPES.FROM ? selectedSrcNetwork : selectedDstNetwork;
 
-                const { usd = 0 } = price[token.address.toLowerCase()];
-                token.price = usd;
+                token.price = await getPriceFromProvider(token.address, selectedNetwork.value, { coingeckoId: token.coingecko_id });
+                token.priceUpdatedAt = new Date().getTime();
             }
 
             if (direction === TOKEN_SELECT_TYPES.FROM) {
