@@ -52,7 +52,7 @@ export default {
     width: 100%;
 }
 .adapter__dropdown {
-    padding: 16px;
+    padding-bottom: 16px;
     border-radius: 16px;
     background: var(--#{$prefix}secondary-background);
 }

@@ -73,7 +73,6 @@ export default {
 
     border-radius: 8px;
     padding: 8px;
-    margin-bottom: 8px;
 
     cursor: pointer;
 

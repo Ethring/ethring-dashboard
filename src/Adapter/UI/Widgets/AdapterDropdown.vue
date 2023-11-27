@@ -4,7 +4,7 @@
             <div>{{ $t('adapter.accountsGroup') }}</div>
             <DisconnectAll :disconnect-all="disconnectAll" />
         </div>
-        <div v-for="account in connectedWallets" :key="account">
+        <div v-for="account in connectedWallets" :key="account" class="connected-wallets-item">
             <ConnectedWallet :wallet="account" />
         </div>
     </a-menu-item-group>
@@ -51,16 +51,23 @@ export default {
 };
 </script>
 <style lang="scss">
-.connected-wallets-label {
-    @include pageFlexRow;
-    justify-content: space-between;
+.connected-wallets {
+    &-label {
+        @include pageFlexRow;
+        justify-content: space-between;
 
-    margin-bottom: 10px;
+        margin-bottom: 10px;
+        padding: 0 16px;
 
-    & > div {
-        color: var(--#{$prefix}adapter-label-text);
-        font-size: var(--#{$prefix}small-lg-fs);
-        font-weight: 400;
+        & > div {
+            color: var(--#{$prefix}adapter-label-text);
+            font-size: var(--#{$prefix}small-lg-fs);
+            font-weight: 400;
+        }
+    }
+
+    &-item {
+        padding: 0 16px;
     }
 }
 
