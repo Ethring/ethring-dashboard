@@ -121,4 +121,4 @@ Deploy tests report page:
       -p ROUTE_PATH="/$NAME" | oc apply -f -
     - oc secrets link default auth-docker --for=pull
   after_script:
-    - echo "Report deployed here - https://zomet-test-reports.$OPENSHIFT_ROUTE/report-$CI_COMMIT_SHORT_SHA"
+    - echo "Report deployed here - https://zomet-test-reports.$OPENSHIFT_ROUTE/report-$CI_COMMIT_SHORT_SHA/"
