@@ -1,4 +1,4 @@
-export const DATA_PROVIDER_CHAINS = {
+export const DP_CHAINS = {
     // EVM Ecosystem
     ARBITRUM: 'arbitrum',
     AVALANCHE: 'avalanche',
@@ -11,6 +11,7 @@ export const DATA_PROVIDER_CHAINS = {
 
     // Cosmos Ecosystem
     COSMOS: 'cosmoshub',
+    COSMOSHUB: 'cosmos',
     CRESCENT: 'crescent',
     JUNO: 'juno',
     INJECTIVE: 'injective',
@@ -26,14 +27,28 @@ export const DATA_PROVIDER_CHAINS = {
     THORCHAIN: 'thorchain',
 };
 
+export const DP_COSMOS = {
+    [DP_CHAINS.COSMOS]: 'cosmos',
+    [DP_CHAINS.COSMOSHUB]: 'cosmoshub',
+
+    [DP_CHAINS.CRESCENT]: 'crescent',
+    [DP_CHAINS.JUNO]: 'juno',
+    [DP_CHAINS.INJECTIVE]: 'injective',
+    [DP_CHAINS.KUJIRA]: 'kujira',
+    [DP_CHAINS.MARS]: 'mars',
+    [DP_CHAINS.OSMOSIS]: 'osmosis',
+    [DP_CHAINS.STARGAZE]: 'stargaze',
+    [DP_CHAINS.TERRA2]: 'terra2',
+};
+
 export const DATA_PROVIDER_COSMOS_CHAINS = [
-    DATA_PROVIDER_CHAINS.COSMOS,
-    DATA_PROVIDER_CHAINS.CRESCENT,
-    DATA_PROVIDER_CHAINS.JUNO,
-    DATA_PROVIDER_CHAINS.INJECTIVE,
-    DATA_PROVIDER_CHAINS.KUJIRA,
-    DATA_PROVIDER_CHAINS.MARS,
-    DATA_PROVIDER_CHAINS.OSMOSIS,
-    DATA_PROVIDER_CHAINS.STARGAZE,
-    DATA_PROVIDER_CHAINS.TERRA2,
+    DP_CHAINS.COSMOS,
+    DP_CHAINS.CRESCENT,
+    DP_CHAINS.JUNO,
+    DP_CHAINS.INJECTIVE,
+    DP_CHAINS.KUJIRA,
+    DP_CHAINS.MARS,
+    DP_CHAINS.OSMOSIS,
+    DP_CHAINS.STARGAZE,
+    DP_CHAINS.TERRA2,
 ];
