@@ -1,0 +1,120 @@
+Update snapshot:
+  stage: test_ui
+  needs: []
+  image: mcr.microsoft.com/playwright:v1.39.0-jammy
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: manual
+  parallel:
+    matrix:
+      - PROJECT: ['chromium']
+        SHARD_INDEX: [1]
+        SHARD_TOTAL: 1
+  script:
+    - npm i
+    - npm run test:e2e:ci:updateSnapshot
+  timeout: 20 minutes
+  artifacts:
+    paths:
+      - ./playwright-report/
+      - ./Screenshot/
+      - ./tests/e2e/*.spec.ts-snapshots/
+    when: always
+    expire_in: 1 days
+
+Run tests:
+  stage: test_ui
+  image: mcr.microsoft.com/playwright:v1.39.0-jammy
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "dev"
+  parallel:
+    matrix:
+      - PROJECT: ['chromium']
+        SHARD_INDEX: [1]
+        SHARD_TOTAL: 1
+  script:
+    - npm i
+    - npm run test:e2e:ci
+  timeout: 20 minutes
+  artifacts:
+    paths:
+      - ./playwright-report/
+      - ./Screenshot/
+      - ./tests/e2e/*.spec.ts-snapshots/
+    when: always
+    expire_in: 1 days
+
+
+# Run tests schedules:
+#   stage: test_ui
+#   image: mcr.microsoft.com/playwright:v1.39.0-jammy
+#   rules:
+#     - if: $CI_PIPELINE_SOURCE == "schedule"
+#   allow_failure: true
+#   parallel:
+#     matrix:
+#       - PROJECT: ['chromium']
+#         SHARD_INDEX: [1]
+#         SHARD_TOTAL: 1
+#   script:
+#     - npm i
+#     - npm run test:e2e:ci
+#   timeout: 20 hours 30 minutes
+#   artifacts:
+#     paths:
+#       - ./playwright-report/
+#       - ./Screenshot/
+#     when: always
+#     expire_in: 4 days
+
+Build tests report image:
+  stage: deploy_reports
+  needs:
+    - "Run tests"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: always
+    - if: $CI_COMMIT_BRANCH == "dev"
+      when: always
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  before_script:
+    - export IMAGE_TAG=$REGISTRY_URL/$CI_PROJECT_NAME/report:$(date +'%d.%m.%Y')-$CI_COMMIT_SHORT_SHA
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"$REGISTRY_URL\":{\"username\":\"$REGISTRY_USER\",\"password\":\"$REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - time /kaniko/executor
+        --context $CI_PROJECT_DIR
+        --dockerfile $CI_PROJECT_DIR/tests/build/Dockerfile
+        --destination $IMAGE_TAG
+        --cache=false
+
+Deploy tests report page:
+  stage: deploy_reports
+  needs:
+    - "Build tests report image"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "dev"
+  image: yoep/openshift-client-4:4.6
+  before_script:
+    - export NAME=report-$CI_COMMIT_SHORT_SHA
+    - export IMAGE_TAG=$REGISTRY_URL/$CI_PROJECT_NAME/report:$(date +'%d.%m.%Y')-$CI_COMMIT_SHORT_SHA
+    - DOCKERCONFIGJSON=$(echo -n "{\"auths\":{\"$DOCKER_REPO\":{\"username\":\"$DOCKER_USER_RO\",\"password\":\"$DOCKER_PASS_RO\"},\"$REGISTRY_URL\":{\"username\":\"$REGISTRY_USER\",\"password\":\"$REGISTRY_PASSWORD\"}}}" | base64 -w 0)
+    - apk add --update coreutils
+    - oc login --token $OPENSHIFT_TOKEN_REPORTS $OPENSHIFT_URL --insecure-skip-tls-verify
+    - oc project $OPENSHIFT_PROJECT_REPORTS
+  script:
+    - oc process -f tests/build/template.yml
+      --ignore-unknown-parameters=true
+      -p DC_NAME=$NAME
+      -p APP_NAME=$(echo $CI_PROJECT_NAMESPACE | sed -e 's/\//-/g')
+      -p IMAGE_NAME=$IMAGE_TAG
+      -p NAMESPACE=$OPENSHIFT_PROJECT
+      -p PORT=8080
+      -p DOCKERCONFIGJSON=$DOCKERCONFIGJSON
+      -p ROUTE_DOMAIN=zomet-test-reports.$OPENSHIFT_ROUTE
+      -p ROUTE_PATH="/$NAME" | oc apply -f -
+      - oc secrets link default auth-docker --for=pull
