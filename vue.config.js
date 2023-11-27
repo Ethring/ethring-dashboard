@@ -75,7 +75,7 @@ module.exports = {
     devServer: {
         historyApiFallback: true,
         https: IS_PROD,
-	progress: false
+        progress: false,
     },
     productionSourceMap: IS_PROD,
     css: {
