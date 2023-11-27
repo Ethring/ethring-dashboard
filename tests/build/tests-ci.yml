@@ -114,7 +114,7 @@ Deploy tests report page:
       -p DC_NAME=$NAME
       -p APP_NAME=$(echo $CI_PROJECT_NAMESPACE | sed -e 's/\//-/g')
       -p IMAGE_NAME=$IMAGE_TAG
-      -p NAMESPACE=$OPENSHIFT_PROJECT
+      -p NAMESPACE=$OPENSHIFT_PROJECT_REPORTS
       -p PORT=8080
       -p DOCKERCONFIGJSON=$DOCKERCONFIGJSON
       -p ROUTE_DOMAIN=zomet-test-reports.$OPENSHIFT_ROUTE
