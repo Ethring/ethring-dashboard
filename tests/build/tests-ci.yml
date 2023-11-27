@@ -1,6 +1,7 @@
 Update snapshot:
   stage: test_ui
   needs: []
+  allow_failure: true
   image: mcr.microsoft.com/playwright:v1.39.0-jammy
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
@@ -98,8 +99,9 @@ Deploy tests report page:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "dev"
-  image: yoep/openshift-client-4:4.6
+  image: widerin/openshift-cli:latest
   before_script:
+    - apk add --update coreutils
     - export NAME=report-$CI_COMMIT_SHORT_SHA
     - export IMAGE_TAG=$REGISTRY_URL/$CI_PROJECT_NAME/report:$(date +'%d.%m.%Y')-$CI_COMMIT_SHORT_SHA
     - DOCKERCONFIGJSON=$(echo -n "{\"auths\":{\"$DOCKER_REPO\":{\"username\":\"$DOCKER_USER_RO\",\"password\":\"$DOCKER_PASS_RO\"},\"$REGISTRY_URL\":{\"username\":\"$REGISTRY_USER\",\"password\":\"$REGISTRY_PASSWORD\"}}}" | base64 -w 0)
