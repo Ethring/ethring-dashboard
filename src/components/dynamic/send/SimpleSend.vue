@@ -275,6 +275,28 @@ export default {
             }
         });
 
+        watch(currentChainInfo, () => {
+            if (!currentChainInfo.value) {
+                return;
+            }
+
+            if (currentChainInfo.value?.net === selectedSrcNetwork.value?.net) {
+                return;
+            }
+
+            selectedSrcToken.value = null;
+
+            selectedSrcNetwork.value = currentChainInfo.value;
+
+            setTokenOnChange();
+        });
+
+        watch(selectedSrcNetwork, () => {
+            if (!selectedSrcNetwork.value) {
+                return;
+            }
+        });
+
         watch(receiverAddress, () => (clearAddress.value = receiverAddress.value === null));
 
         watch(isTokensLoadingForChain, () => setTokenOnChange());
