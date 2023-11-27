@@ -144,7 +144,7 @@ export default {
         };
 
         const onSelectNetwork = (network) => {
-            if (selectedSrcNetwork.value === network) {
+            if (selectedSrcNetwork.value?.net === network?.net) {
                 return;
             }
 
@@ -284,16 +284,11 @@ export default {
                 return;
             }
 
-            selectedSrcToken.value = null;
-
             selectedSrcNetwork.value = currentChainInfo.value;
 
-            setTokenOnChange();
-        });
-
-        watch(selectedSrcNetwork, () => {
-            if (!selectedSrcNetwork.value) {
-                return;
+            if (selectedSrcNetwork.value?.net !== currentChainInfo.value?.net) {
+                selectedSrcToken.value = null;
+                setTokenOnChange();
             }
         });
 
