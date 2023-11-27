@@ -119,4 +119,6 @@ Deploy tests report page:
       -p DOCKERCONFIGJSON=$DOCKERCONFIGJSON
       -p ROUTE_DOMAIN=zomet-test-reports.$OPENSHIFT_ROUTE
       -p ROUTE_PATH="/$NAME" | oc apply -f -
-      - oc secrets link default auth-docker --for=pull
+    - oc secrets link default auth-docker --for=pull
+  after_script:
+    - echo "Report deployed here - https://zomet-test-reports.$OPENSHIFT_ROUTE/$NAME"
