@@ -91,7 +91,9 @@
     "serviceFee": "Service Fee",
     "transferFrom": "Transfer from",
     "transferTo": "Transfer to",
-    "asset": "Asset"
+    "asset": "Asset",
+    "searchToken": "Search by token name or ticker",
+    "searchNetwork": "Search by network name"
   },
   "simpleSend": {
     "title": "Send"

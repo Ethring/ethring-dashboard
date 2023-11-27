@@ -1,7 +1,7 @@
 <template>
     <div class="superswap-panel">
         <RoutesModal v-if="isShowRoutesModal" @close="() => toggleRoutesModal(false)" />
-        <div class="reload-btn" :class="{ 'reload-btn__active': dstAmount && !isLoading }" @click="getEstimateInfo">
+        <div class="reload-btn" :class="{ 'reload-btn__active': dstAmount && !isLoading }" @click="() => getEstimateInfo(true)">
             <ReloadIcon />
         </div>
 
@@ -15,7 +15,7 @@
             <Select
                 :value="selectedSrcNetwork"
                 :options="supportedNetworks"
-                placeholder="Network name"
+                :placeholder="$t('tokenOperations.searchNetwork')"
                 @onChange="(network) => handleOnSelectNetwork(network, DIRECTIONS.SOURCE)"
             />
             <Select
@@ -23,7 +23,7 @@
                 :value="selectedSrcToken"
                 class="ml-8"
                 :options="tokensList || []"
-                placeholder="Token name"
+                :placeholder="$t('tokenOperations.searchToken')"
                 @onChange="(token) => handleOnSelectToken(token, TOKEN_SELECT_TYPES.FROM)"
                 isToken
                 balance
@@ -48,7 +48,7 @@
             <Select
                 :value="selectedDstNetwork"
                 :options="supportedNetworks"
-                placeholder="Network name"
+                :placeholder="$t('tokenOperations.searchNetwork')"
                 @onChange="(network) => handleOnSelectNetwork(network, DIRECTIONS.DESTINATION)"
             />
 
@@ -57,7 +57,7 @@
                 :value="selectedDstToken"
                 class="ml-8"
                 :options="tokensList || []"
-                placeholder="Token name"
+                :placeholder="$t('tokenOperations.searchToken')"
                 @onChange="(token) => handleOnSelectToken(token, TOKEN_SELECT_TYPES.TO)"
                 isToken
                 balance
@@ -87,10 +87,14 @@
                     <p>{{ $t('tokenOperations.routeInfo') }}:</p>
                     <div v-if="!estimateErrorTitle" class="row">
                         <FeeIcon />
-                        <span class="fee">{{ networkFee }}</span> <span class="symbol"> $</span>
+                        <span class="fee">{{ formatNumber(networkFee, 2) }}</span> <span class="symbol"> $</span>
                         <TimeIcon />
-                        <span class="fee"> {{ '~ ' + bestRoute?.estimateTime + ' s' }}</span>
-                        <h4>1 {{ selectedSrcToken?.symbol || '' }} = {{ estimateRate }} {{ selectedDstToken?.symbol || '' }}</h4>
+                        <span class="fee"> {{ '~ ' + estimateTime + ' s' }}</span>
+                        <h4>
+                            1 {{ selectedSrcToken?.symbol || '' }} =
+                            <NumberTooltip :value="estimateRate" decimals="3" />
+                            {{ selectedDstToken?.symbol || '' }}
+                        </h4>
                     </div>
 
                     <a-tooltip v-else>
@@ -157,6 +161,7 @@ import Button from '@/components/ui/Button';
 import Select from './Select.vue';
 import SwapField from './SwapField';
 import RoutesModal from '@/components/app/modals/RoutesModal';
+import NumberTooltip from '@/components/ui/NumberTooltip';
 
 import SwapIcon from '@/assets/icons/app/swap.svg';
 import ReloadIcon from '@/assets/icons/app/reload.svg';
@@ -165,7 +170,7 @@ import TimeIcon from '@/assets/icons/app/time.svg';
 import ExpandIcon from '@/assets/icons/app/expand.svg';
 import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
-import { prettyNumberTooltip } from '@/helpers/prettyNumber';
+import { prettyNumberTooltip, formatNumber } from '@/helpers/prettyNumber';
 
 import { findBestRoute } from '@/modules/SuperSwap/baseScript';
 
@@ -193,6 +198,7 @@ export default {
         TimeIcon,
         ArrowIcon,
         ExpandIcon,
+        NumberTooltip,
     },
     setup() {
         const store = useStore();
@@ -269,6 +275,7 @@ export default {
 
         const networkFee = ref(0);
         const estimateRate = ref(0);
+        const estimateTime = ref(0);
         const isCallEstimate = ref(false);
 
         const differPercentage = ref(0);
@@ -371,6 +378,7 @@ export default {
             dstAmount.value = '';
             isLoading.value = false;
             estimateRate.value = 0;
+            estimateTime.value = 0;
             networkFee.value = 0;
             differPercentage.value = null;
             bestRoute.value = null;
@@ -540,31 +548,54 @@ export default {
             return receiverAddress.value || walletAddress.value;
         };
 
+        const swapRoutes = (resEstimate) => {
+            const getRoutesId = (routes = []) => {
+                if (!routes.length) {
+                    return '';
+                }
+
+                return routes.map(({ service }) => service.id).join(':');
+            };
+
+            const bestRouteServiceId = getRoutesId(bestRoute.value?.routes);
+            const otherBestRouteId = getRoutesId(resEstimate.bestRoute?.routes);
+
+            const isDiffRoute = bestRouteServiceId !== otherBestRouteId;
+
+            if (!isDiffRoute && !resEstimate.otherRoutes.length) {
+                return resEstimate;
+            }
+
+            resEstimate.otherRoutes = resEstimate.otherRoutes.map((item) => {
+                if (getRoutesId(item.routes) === bestRouteServiceId) {
+                    [resEstimate.bestRoute, item] = [item, resEstimate.bestRoute];
+                }
+
+                return item;
+            });
+
+            return resEstimate;
+        };
+
         // =================================================================================================================
 
-        const getEstimateInfo = async () => {
-            if (
-                !selectedSrcNetwork.value ||
-                !selectedSrcToken.value ||
-                !selectedDstNetwork.value ||
-                !selectedDstToken.value ||
-                !+srcAmount.value
-            ) {
+        const getEstimateInfo = async (isReload = false) => {
+            if (!selectedSrcNetwork.value || !selectedSrcToken.value || !selectedDstNetwork.value || !selectedDstToken.value) {
                 return (estimateErrorTitle.value = 'Select all fields');
             }
 
-            isLoading.value = true;
-
-            const resEstimate = await findBestRoute(srcAmount.value, walletAddress.value, selectedSrcToken.value, selectedDstToken.value);
-
-            if (resEstimate?.error) {
-                estimateErrorTitle.value = resEstimate.error;
+            if (!+srcAmount.value) {
                 dstAmount.value = 0;
 
                 return (isLoading.value = false);
             }
 
-            if (!+srcAmount.value) {
+            isLoading.value = true;
+
+            let resEstimate = await findBestRoute(srcAmount.value, walletAddress.value, selectedSrcToken.value, selectedDstToken.value);
+
+            if (resEstimate?.error) {
+                estimateErrorTitle.value = resEstimate.error;
                 dstAmount.value = 0;
 
                 return (isLoading.value = false);
@@ -575,23 +606,31 @@ export default {
                 resEstimate.fromToken === selectedSrcToken.value &&
                 resEstimate.bestRoute?.fromTokenAmount === srcAmount.value;
 
-            if (checkRoute) {
-                store.dispatch('swap/setBestRoute', resEstimate);
-                currentRoute.value = resEstimate.bestRoute.routes.find((elem) => elem.status === STATUSES.SIGNING);
-
-                bestRoute.value = resEstimate.bestRoute;
-                otherRoutes.value = resEstimate.otherRoutes || [];
-                estimateErrorTitle.value = '';
-
-                dstAmount.value = resEstimate.bestRoute?.toTokenAmount;
-
-                networkFee.value = prettyNumberTooltip(resEstimate.bestRoute?.estimateFeeUsd, 6);
-                estimateRate.value = prettyNumberTooltip(resEstimate.bestRoute.toTokenAmount / resEstimate.bestRoute.fromTokenAmount, 6);
-
-                differPercentage.value = getDifferPercentage();
-
-                isLoading.value = false;
+            if (!checkRoute) {
+                return;
             }
+
+            if (isReload) {
+                resEstimate = swapRoutes(resEstimate);
+            }
+
+            store.dispatch('swap/setBestRoute', resEstimate);
+
+            currentRoute.value = resEstimate.bestRoute.routes.find((elem) => elem.status === STATUSES.SIGNING);
+
+            bestRoute.value = resEstimate.bestRoute;
+            otherRoutes.value = resEstimate.otherRoutes || [];
+
+            estimateErrorTitle.value = '';
+
+            dstAmount.value = resEstimate.bestRoute?.toTokenAmount;
+
+            networkFee.value = prettyNumberTooltip(resEstimate.bestRoute?.estimateFeeUsd, 6);
+            estimateRate.value = prettyNumberTooltip(resEstimate.bestRoute.toTokenAmount / resEstimate.bestRoute.fromTokenAmount, 6);
+            estimateTime.value = resEstimate.bestRoute.estimateTime;
+            differPercentage.value = getDifferPercentage();
+
+            isLoading.value = false;
 
             if (selectedSrcNetwork.value.net !== currentChainInfo.value.net) {
                 networkName.value = selectedSrcNetwork.value.name;
@@ -987,6 +1026,7 @@ export default {
             disabledBtn,
             isReceiveToken,
             estimateRate,
+            estimateTime,
             supportedNetworks,
 
             dstAmount,
@@ -1024,6 +1064,7 @@ export default {
 
             getEstimateInfo,
             toggleRoutesModal,
+            formatNumber,
         };
     },
 };
@@ -1115,10 +1156,15 @@ export default {
             width: 520px;
         }
 
-        span {
+        .fee,
+        .symbol {
             color: var(--#{$prefix}warning);
             font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 600;
+        }
+
+        .symbol {
+            margin-left: 2px;
         }
 
         svg {
@@ -1148,11 +1194,10 @@ export default {
         }
 
         img {
-            width: 24px;
-            height: 24px;
+            width: 22px;
+            height: 22px;
             margin-right: 8px;
             border-radius: 50%;
-            border: 2px solid var(--#{$prefix}banner-logo-color);
         }
 
         .name {
@@ -1178,15 +1223,6 @@ export default {
         img {
             width: 16px;
             height: 16px;
-        }
-        .symbol {
-            margin-left: 5px;
-        }
-    }
-
-    .accordion__title {
-        .symbol {
-            font-weight: 600;
         }
     }
 
