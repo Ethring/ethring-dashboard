@@ -47,6 +47,9 @@ const cosmosChainTokens = (record, { chain, net }) => {
         record.address = nativeToken?.base;
         record.base = nativeToken?.base;
         record.id = `${net}:asset__native:${record.symbol}`;
+
+        // if name doesn't contain 'Native Token' - add it
+        !record?.name?.includes('Native Token') && (record.name += ' Native Token');
     }
 
     return record;
@@ -56,14 +59,14 @@ export const formatRecord = (record, { net, chain, logo }) => {
     record.chainLogo = logo;
     record.chain = net;
 
-    if (!record.balanceType && record.address) {
-        record.id = `${net}:asset__${record.address}:${record.symbol}`;
-    } else if (!record.balanceType && !record.address) {
-        record.id = `${net}:asset__native:${record.symbol}`;
-    }
-
     if ((DP_COSMOS[chain] || DP_COSMOS[net]) && !record.balanceType) {
         record = cosmosChainTokens(record, { chain, net });
+    }
+
+    if (!record.balanceType && record.address && !record.id) {
+        record.id = `${net}:asset__${record.address}:${record.symbol}`;
+    } else if (!record.balanceType && !record.address && !record.id) {
+        record.id = `${net}:asset__native:${record.symbol}`;
     }
 
     return record;

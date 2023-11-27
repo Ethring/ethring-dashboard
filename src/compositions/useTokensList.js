@@ -48,14 +48,6 @@ export default function useTokensList({ network = null, fromToken = null, toToke
                 if (!token.base && token.address) {
                     token.base = token.address;
                 }
-
-                // const searchSymbol = token.symbol.replace('IBC.', '');
-
-                // if (result) {
-                //     token.address = result.base;
-                //     token.coingecko_id = result.coingecko_id;
-                //     token.base = result.base;
-                // }
             }
         }
 
@@ -110,24 +102,6 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             }
 
             allTokens.push(tokenInfo);
-        }
-
-        // Native token only for COSMOS
-        if (ECOSYSTEMS.COSMOS === network?.ecosystem) {
-            const { asset } = network || {};
-
-            const baseToken = allTokens.find(({ symbol }) => symbol === asset.symbol);
-
-            const tokenInfo = {
-                ...asset,
-                ...baseToken,
-                id: `${network.net}:asset__native:${asset.symbol}`,
-                address: asset.base,
-                balance: baseToken?.balance || 0,
-                balanceUsd: baseToken?.balanceUsd || 0,
-            };
-
-            allTokens = [...allTokens.filter(({ symbol }) => symbol !== asset.symbol), tokenInfo];
         }
 
         // Added selected param if token is selected
