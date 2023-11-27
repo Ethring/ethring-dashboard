@@ -47,9 +47,6 @@ const cosmosChainTokens = (record, { chain, net }) => {
         record.address = nativeToken?.base;
         record.base = nativeToken?.base;
         record.id = `${net}:asset__native:${record.symbol}`;
-
-        // if name doesn't contain 'Native Token' - add it
-        !record?.name?.includes('Native Token') && (record.name += ' Native Token');
     }
 
     return record;
