@@ -92,7 +92,7 @@ import EstimateInfo from '@/components/ui/EstimateInfo.vue';
 import SwapIcon from '@/assets/icons/dashboard/swap.svg';
 
 // Helpers
-import { prettyNumberTooltip } from '@/helpers/prettyNumber';
+import { formatNumber } from '@/helpers/prettyNumber';
 
 import { isCorrectChain } from '@/shared/utils/operations';
 
@@ -447,9 +447,9 @@ export default {
             feeInfo.value = {
                 title: 'tokenOperations.networkFee',
                 symbolBetween: '~',
-                fromAmount: prettyNumberTooltip(response.fee.amount),
+                fromAmount: response.fee.amount,
                 fromSymbol: response.fee.currency,
-                toAmount: prettyNumberTooltip(+response.fee.amount * price, 4),
+                toAmount: formatNumber(+response.fee.amount * price, 6),
                 toSymbol: '$',
             };
 
@@ -458,7 +458,7 @@ export default {
                 symbolBetween: '=',
                 fromAmount: '1',
                 fromSymbol: selectedSrcToken.value.symbol,
-                toAmount: prettyNumberTooltip(response.toTokenAmount / response.fromTokenAmount, 6),
+                toAmount: formatNumber(response.toTokenAmount / response.fromTokenAmount, 6),
                 toSymbol: selectedDstToken.value.symbol,
             };
         };

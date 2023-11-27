@@ -22,28 +22,19 @@
             </div>
         </template>
         <template v-if="column === 'balance'">
-            <a-tooltip v-if="isTooltip(balance.pretty)" placement="topRight">
-                <template #title>{{ balance.value }}</template>
-                <div class="amount">
-                    <div class="value">
-                        {{ balance.pretty }}
-                    </div>
-                    <div class="symbol">{{ item?.symbol }}</div>
+            <div class="amount">
+                <div class="value">
+                    <NumberTooltip :value="balance" decimals="3" />
                 </div>
-            </a-tooltip>
-            <div v-else class="amount">
-                <div class="value" :title="balance.value">
-                    {{ balance.pretty }}
-                </div>
+
                 <div class="symbol">{{ item?.symbol }}</div>
             </div>
         </template>
         <template v-if="column === 'balanceUsd'">
-            <a-tooltip v-if="isTooltip(balanceUsd.pretty)" placement="topRight">
-                <template #title>{{ balanceUsd.value }}</template>
-                <div class="value"><span>$</span>{{ balanceUsd.pretty }}</div>
-            </a-tooltip>
-            <div v-else class="value" :title="balanceUsd.value"><span> $ </span>{{ balanceUsd.pretty }}</div>
+            <div class="amount">
+                <span>$</span>
+                <div class="value"><NumberTooltip :value="balanceUsd" /></div>
+            </div>
         </template>
     </div>
 </template>
@@ -52,6 +43,7 @@ import { computed } from 'vue';
 import { useStore } from 'vuex';
 
 import TokenIcon from '@/components/ui/TokenIcon';
+import NumberTooltip from '@/components/ui/NumberTooltip';
 
 import { formatNumber } from '@/helpers/prettyNumber';
 
@@ -71,51 +63,32 @@ export default {
     },
     components: {
         TokenIcon,
+        NumberTooltip,
     },
     setup(props) {
         const store = useStore();
         const showBalance = computed(() => store.getters['app/showBalance']);
 
-        const defaultVal = {
-            pretty: '****',
-            value: '****',
-        };
-
         const balance = computed(() => {
             if (!showBalance.value) {
-                return defaultVal;
+                return '****';
             }
 
-            return {
-                pretty: formatNumber(props.item?.balance, 6),
-                value: BigNumber(props.item?.balance).toString(),
-            };
+            return BigNumber(props.item?.balance).toString();
         });
 
         const balanceUsd = computed(() => {
             if (!showBalance.value) {
-                return defaultVal;
+                return '****';
             }
 
-            return {
-                pretty: formatNumber(props.item?.balanceUsd, 4),
-                value: BigNumber(props.item?.balanceUsd).toString(),
-            };
+            return BigNumber(props.item?.balanceUsd).toString();
         });
-
-        const isTooltip = (value) => {
-            if (!value) {
-                return false;
-            }
-
-            return value.includes('~') || false;
-        };
 
         return {
             balance,
             balanceUsd,
 
-            isTooltip,
             getFormattedName,
             getFormattedDate,
             formatNumber,
