@@ -144,7 +144,8 @@ export default {
             set: (value) => store.dispatch(`swap/setService`, value),
         });
 
-        const services = getServices(SERVICE_TYPE.SWAP);
+        const servicesEVM = getServices(SERVICE_TYPE.SWAP, ECOSYSTEMS.EVM);
+        const servicesCosmos = getServices(SERVICE_TYPE.SWAP, ECOSYSTEMS.COSMOS);
 
         const setEcosystemService = () => {
             if (!currentChainInfo.value?.ecosystem) {
@@ -158,9 +159,11 @@ export default {
 
             switch (currentChainInfo.value?.ecosystem) {
                 case ECOSYSTEMS.COSMOS:
-                    return (selectedService.value = services.find((service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.COSMOS]));
+                    return (selectedService.value = servicesCosmos.find(
+                        (service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.COSMOS]
+                    ));
                 case ECOSYSTEMS.EVM:
-                    return (selectedService.value = services.find((service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.EVM]));
+                    return (selectedService.value = servicesEVM.find((service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.EVM]));
             }
         };
 
