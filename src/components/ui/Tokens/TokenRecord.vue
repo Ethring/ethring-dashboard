@@ -26,7 +26,7 @@
                         </template>
                     </p>
                     <a-typography-link v-if="record.address && tokenExplorerLink" :href="tokenExplorerLink" target="_blank" class="link">
-                        ({{ record?.address?.slice(0, 6) + '...' + record?.address?.slice(-4) }})
+                        ({{ displayAddress }})
                         <ExternalLinkIcon />
                     </a-typography-link>
                 </div>
@@ -88,9 +88,17 @@ export default {
         };
 
         const tokenExplorerLink = computed(() => getTokenExplorerLink(props.record?.address, props.record.chain));
+        const displayAddress = computed(() => {
+            if (props.record?.address?.length < 10) {
+                return props.record?.address;
+            }
+
+            return props.record?.address?.slice(0, 8) + '...' + props.record?.address?.slice(-4);
+        });
 
         return {
             displayName,
+            displayAddress,
             sendTokenInfo,
 
             // helpers

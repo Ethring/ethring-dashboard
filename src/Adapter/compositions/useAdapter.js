@@ -2,6 +2,8 @@ import { computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
+import { DP_COSMOS } from '@/api/data-provider';
+
 import { ECOSYSTEMS } from '@/Adapter/config';
 
 import * as GETTERS from '../store/getters';
@@ -242,7 +244,9 @@ function useAdapter() {
             return null;
         }
 
-        const chainInfo = chains.find(({ net }) => net === chain);
+        const targetChain = DP_COSMOS[chain] || chain;
+
+        const chainInfo = chains.find(({ net }) => net === targetChain);
 
         return mainAdapter.value.getTokenExplorerLink(tokenAddress, chainInfo) || null;
     };
