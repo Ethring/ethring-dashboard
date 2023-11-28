@@ -117,6 +117,10 @@ export default {
                 return await getPriceByCoingeckoId(coingeckoId);
             }
 
+            if (tokenAddress.startsWith('ibc/')) {
+                return 0;
+            }
+
             try {
                 const price = await PricesModule.Coingecko.priceByPlatformContracts(requestPriceFor);
                 const address = tokenAddress?.toLowerCase() || tokenAddress;

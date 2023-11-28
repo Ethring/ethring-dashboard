@@ -53,6 +53,8 @@ const BUY_CRYPTO = {
 
 const SIDEBAR_MODULES = [MAIN_DASHBOARD, SEND, SWAP, BRIDGE, SUPER_SWAP, BUY_CRYPTO];
 
+const CUSTOM_CONFIG = [MAIN_DASHBOARD];
+
 const defaultConfig = {
     [ECOSYSTEMS.EVM]: {
         sidebar: SIDEBAR_MODULES,
@@ -70,7 +72,7 @@ const defaultConfig = {
         },
     },
     [ECOSYSTEMS.COSMOS]: {
-        sidebar: [MAIN_DASHBOARD, SEND],
+        sidebar: [MAIN_DASHBOARD, SEND, SWAP, BRIDGE],
         send: {
             component: 'SimpleSend',
         },
@@ -85,41 +87,6 @@ const defaultConfig = {
         },
     },
 };
-
-const CUSTOM_CONFIG = [MAIN_DASHBOARD];
-
-// const CUSTOM_UI_BY_CHAIN = {
-//     optimism: {
-//         sidebar: [MAIN_DASHBOARD, SEND, SWAP],
-//         send: {
-//             component: 'SimpleSend',
-//         },
-//         swap: {
-//             component: 'SimpleSwap',
-//         },
-//         bridge: {
-//             component: 'SimpleBridge',
-//         },
-//         superSwap: {
-//             component: 'SuperSwap',
-//         },
-//     },
-//     fantom: {
-//         sidebar: [MAIN_DASHBOARD, SEND],
-//         send: {
-//             component: 'SimpleSend',
-//         },
-//         swap: {
-//             component: 'SimpleSwap',
-//         },
-//         bridge: {
-//             component: 'SimpleBridge',
-//         },
-//         superSwap: {
-//             component: 'SuperSwap',
-//         },
-//     },
-// };
 
 const checkIsDisabled = (config, sidebar) => {
     for (const module of config) {

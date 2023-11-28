@@ -4,6 +4,7 @@ import { useStore } from 'vuex';
 import {
     getAllowance,
     getApproveTx,
+    cancelRequestByMethod,
     // estimateSwap,
     // estimateBridge,
     // getSwapTx,
@@ -195,7 +196,6 @@ export default function useModule({ module, moduleType }) {
     const makeAllowanceRequest = async (service) => {
         const currentService = service || selectedService.value;
 
-        console.log('makeAllowanceRequest', currentService);
         if (!selectedSrcToken.value?.address || !currentService?.url) {
             return;
         }
@@ -219,6 +219,10 @@ export default function useModule({ module, moduleType }) {
 
         if (!selectedSrcToken.value?.address || !currentService?.url) {
             return;
+        }
+
+        if (cancelRequestByMethod) {
+            await cancelRequestByMethod('getApproveTx');
         }
 
         const response = await getApproveTx({

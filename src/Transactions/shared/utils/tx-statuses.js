@@ -91,13 +91,14 @@ export const handleTransactionStatus = (transaction, store) => {
             break;
     }
 
+    let displayHash = txHash;
+
     if (txHash) {
         closeNotification(`waiting-${txHash}-tx`);
+        displayHash = txHash.slice(0, 8) + '...' + txHash.slice(-8);
     }
 
     const { explorerLink, type, successCallback = null, failCallback = null } = metaData || {};
-
-    const displayHash = txHash.slice(0, 8) + '...' + txHash.slice(-8);
 
     return statusNotification(status, { store, type, displayHash, explorerLink, successCallback, failCallback });
 };

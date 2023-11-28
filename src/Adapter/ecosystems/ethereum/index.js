@@ -174,9 +174,9 @@ class EthereumAdapter extends AdapterBase {
 
         const chainInfo = chainFromStore(+id);
 
-        // if (JSON.stringify(chainInfo) === '{}') {
-        //     return chainInfo;
-        // }
+        if (JSON.stringify(chainInfo) === '{}') {
+            chainInfo.chain_id = id;
+        }
 
         chainInfo.walletName = chainInfo.walletModule = label;
         chainInfo.ecosystem = ECOSYSTEMS.EVM;
@@ -197,6 +197,7 @@ class EthereumAdapter extends AdapterBase {
 
     getChainList(store) {
         const chains = store.getters['networks/zometNetworksList'];
+
         for (const chain of chains) {
             chain.walletName = this.getWalletModule();
             chain.ecosystem = ECOSYSTEMS.EVM;
@@ -346,6 +347,22 @@ class EthereumAdapter extends AdapterBase {
 
     getAddressesWithChains() {
         return this.addressByNetwork || {};
+    }
+
+    getNativeTokenByChain(chain, store) {
+        const isLoadingConfig = store.getters['networks/isConfigLoading'];
+
+        if (isLoadingConfig) {
+            return setTimeout(() => {
+                return this.getNativeTokenByChain(chain, store);
+            }, 1000);
+        }
+
+        const chainsInfo = store.getters['networks/zometNetworks'];
+
+        console.log(chain, chainsInfo[chain]);
+
+        return chainsInfo[chain] || null;
     }
 }
 
