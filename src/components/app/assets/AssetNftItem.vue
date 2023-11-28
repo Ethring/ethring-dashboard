@@ -309,7 +309,6 @@ export default {
         cursor: pointer;
         padding-bottom: 10px;
         margin-bottom: 10px;
-        border-bottom: 1px solid var(--#{$prefix}border-color-op-05);
     }
 
     .column-1,

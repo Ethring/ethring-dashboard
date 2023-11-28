@@ -78,7 +78,7 @@ export default {
     }
 
     .ant-table-tbody tr td {
-        border-top-color: var(--#{$prefix}border-color-op-05) !important;
+        border: none !important;
     }
 }
 </style>
