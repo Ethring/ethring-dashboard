@@ -1,11 +1,12 @@
 stages:
-  - test_before_mr
+  - test_ui
+  - deploy_reports
   - build_docker
   - deploy
   - sentry
-  - test_ui
-  - test_ui_build
-  - test_ui_deploy
+
+include:
+  - local: '/tests/build/tests-ci.yml'
 
 .dockerBuildJob:
   cache: {}
@@ -35,6 +36,7 @@ stages:
       --build-arg VUE_APP_PARASWAP_API
       --build-arg VUE_APP_SQUID_ROUTER_API
       --build-arg VUE_APP_SYNAPSE_SWAP_API
+      --build-arg VUE_APP_SKIP_API
       --build-arg VUE_APP_RELEASE
       --build-arg VUE_APP_SENTRY_DSN
       --build-arg VUE_APP_MIXPANEL_TOKEN
@@ -96,6 +98,8 @@ Sentry release:
 
 Build dev:
   extends: .dockerBuildJob
+  needs:
+    - "Run tests"
   environment:
     name: dev
   rules:
@@ -136,6 +140,8 @@ Build prod:
 
 Deploy dev:
   extends: .deployJob
+  needs:
+    - "Build dev"
   environment:
     name: dev
   rules:
@@ -178,115 +184,3 @@ Deploy prod:
     name: prod
   rules:
     - if: $CI_COMMIT_BRANCH == "prod"
-
-
-# Tests stuff
-Update snapshot:
-  stage: test_before_mr
-  image: mcr.microsoft.com/playwright:v1.39.0-jammy
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      when: manual
-  parallel:
-    matrix:
-      - PROJECT: ['chromium']
-        SHARD_INDEX: [1]
-        SHARD_TOTAL: 1
-  script:
-    - npm i
-    - npm run test:e2e:ci:updateSnapshot
-  timeout: 20 minutes
-  artifacts:
-    paths:
-      - ./playwright-report/
-      - ./Screenshot/
-      - ./tests/e2e/*.spec.ts-snapshots/
-    when: always
-    expire_in: 1 days
-
-Run tests:
-  stage: test_before_mr
-  image: mcr.microsoft.com/playwright:v1.39.0-jammy
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH == "dev"
-  parallel:
-    matrix:
-      - PROJECT: ['chromium']
-        SHARD_INDEX: [1]
-        SHARD_TOTAL: 1
-  script:
-    - npm i
-    - npm run test:e2e:ci
-  timeout: 20 minutes
-  artifacts:
-    paths:
-      - ./playwright-report/
-      - ./Screenshot/
-      - ./tests/e2e/*.spec.ts-snapshots/
-    when: always
-    expire_in: 1 days
-
-
-Run tests schedules:
-  stage: test_ui
-  image: mcr.microsoft.com/playwright:v1.39.0-jammy
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-  allow_failure: true
-  parallel:
-    matrix:
-      - PROJECT: ['chromium']
-        SHARD_INDEX: [1]
-        SHARD_TOTAL: 1
-  script:
-    - npm i
-    - npm run test:e2e:ci
-  timeout: 20 hours 30 minutes
-  artifacts:
-    paths:
-      - ./playwright-report/
-      - ./Screenshot/
-    when: always
-    expire_in: 4 days
-
-Build tests report image:
-  stage: test_ui_build
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-  image:
-    name: gcr.io/kaniko-project/executor:debug
-    entrypoint: [""]
-  before_script:
-    - export IMAGE_TAG=$REGISTRY_URL/$CI_PROJECT_NAME/report:$(date +'%d.%m.%Y')-$CI_COMMIT_SHORT_SHA
-  script:
-    - mkdir -p /kaniko/.docker
-    - echo "{\"auths\":{\"$REGISTRY_URL\":{\"username\":\"$REGISTRY_USER\",\"password\":\"$REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - time /kaniko/executor
-        --context $CI_PROJECT_DIR
-        --dockerfile $CI_PROJECT_DIR/tests/build/Dockerfile
-        --destination $IMAGE_TAG
-        --cache=false
-
-Deploy tests report page:
-  stage: test_ui_deploy
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-  image: yoep/openshift-client-4:4.6
-  variables:
-    NAME: "dashboard-test-reports"
-  before_script:
-    - export IMAGE_TAG=$REGISTRY_URL/$CI_PROJECT_NAME/report:$(date +'%d.%m.%Y')-$CI_COMMIT_SHORT_SHA
-    - apk add --update coreutils
-    - oc login --token $OPENSHIFT_TOKEN $OPENSHIFT_URL --insecure-skip-tls-verify
-    - oc project $OPENSHIFT_PROJECT
-  script:
-    - oc process -f tests/build/template.yml
-      --ignore-unknown-parameters=true
-      -p DC_NAME=$NAME
-      -p APP_NAME=$(echo $CI_PROJECT_NAMESPACE | sed -e 's/\//-/g')
-      -p IMAGE_NAME=$IMAGE_TAG
-      -p NAMESPACE=$OPENSHIFT_PROJECT
-      -p PORT=8080
-      -p AUTH_USERNAME=$REPORTS_AUTH_USERNAME
-      -p AUTH_PASSWORD=$REPORTS_AUTH_PASSWORD | oc apply -f -

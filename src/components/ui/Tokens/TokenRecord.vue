@@ -1,5 +1,10 @@
 <template>
-    <div class="token-record" :data-key="record?.id || record?.address" @click="(event) => sendTokenInfo(event, record)">
+    <div
+        class="token-record"
+        :data-key="record?.id || record?.address"
+        @click="(event) => sendTokenInfo(event, record)"
+        :class="{ selected: record.selected }"
+    >
         <div class="network">
             <TokenIcon width="24" height="24" :token="record" class="logo" />
 
@@ -20,13 +25,8 @@
                             {{ displayName }}
                         </template>
                     </p>
-                    <a-typography-link
-                        v-if="record.address"
-                        :href="getTokenExplorerLink(record?.address, record.chain)"
-                        target="_blank"
-                        class="link"
-                    >
-                        ({{ record?.address?.slice(0, 6) + '...' + record?.address?.slice(-4) }})
+                    <a-typography-link v-if="record.address && tokenExplorerLink" :href="tokenExplorerLink" target="_blank" class="link">
+                        ({{ displayAddress }})
                         <ExternalLinkIcon />
                     </a-typography-link>
                 </div>
@@ -35,30 +35,33 @@
 
         <div class="balance">
             <p class="in-currency" v-if="record?.balance">
-                <span class="amount">{{ formatNumber(record?.balance) }} </span>&nbsp;<span class="symbol">{{ record?.symbol }}</span>
+                <NumberTooltip :value="record?.balance" decimals="3" />
+                <span class="symbol"> {{ record?.symbol }}</span>
             </p>
 
             <p class="in-usd" v-if="record?.balanceUsd">
-                <span class="symbol">$</span>&nbsp;<span class="amount">{{ formatNumber(record?.balanceUsd) }}</span>
+                <span class="symbol">$</span>
+                <NumberTooltip :value="record?.balanceUsd" />
             </p>
         </div>
     </div>
 </template>
 <script>
+import { computed } from 'vue';
+
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import TokenIcon from '@/components/ui/TokenIcon';
+import NumberTooltip from '@/components/ui/NumberTooltip';
 
 import ExternalLinkIcon from '@/assets/icons/app/external-link.svg';
-
-import { formatNumber } from '@/helpers/prettyNumber';
-import { computed } from 'vue';
 
 export default {
     name: 'TokenRecord',
     components: {
         TokenIcon,
         ExternalLinkIcon,
+        NumberTooltip,
     },
     props: {
         record: {
@@ -84,13 +87,22 @@ export default {
             }
         };
 
+        const tokenExplorerLink = computed(() => getTokenExplorerLink(props.record?.address, props.record.chain));
+        const displayAddress = computed(() => {
+            if (props.record?.address?.length < 10) {
+                return props.record?.address;
+            }
+
+            return props.record?.address?.slice(0, 8) + '...' + props.record?.address?.slice(-4);
+        });
+
         return {
             displayName,
-
+            displayAddress,
             sendTokenInfo,
 
             // helpers
-            formatNumber,
+            tokenExplorerLink,
             getTokenExplorerLink,
         };
     },
@@ -108,11 +120,16 @@ export default {
 
     border-radius: 16px;
 
+    &.selected {
+        border: 1px solid var(--zmt-banner-logo-color);
+        background-color: var(--zmt-icon-secondary-bg-color);
+    }
+
     &:not(:last-child) {
         margin-bottom: 8px;
     }
 
-    &:hover {
+    &:not(.selected):hover {
         border-color: var(--#{$prefix}sub-text);
         background-color: var(--#{$prefix}select-bg-color);
     }
@@ -123,31 +140,6 @@ export default {
         align-items: center;
         justify-content: center;
     }
-
-    // h3,
-    // h5 {
-    //     font-style: normal;
-    //     font-weight: 600;
-    //     font-size: var(--#{$prefix}h5-fs);
-    //     text-align: right;
-    //     margin: 0;
-    //     color: var(--#{$prefix}primary-text);
-    // }
-
-    // span {
-    //     font-size: var(--#{$prefix}default-fs);
-    //     font-weight: 400;
-    //     color: var(--#{$prefix}secondary-text);
-    // }
-
-    // h5 {
-    //     font-size: var(--#{$prefix}small-lg-fs);
-    //     color: var(--#{$prefix}primary-text);
-    //     span {
-    //         font-size: var(--#{$prefix}small-sm-fs);
-    //         font-weight: 400;
-    //     }
-    // }
 
     .info {
         display: flex;
@@ -223,22 +215,24 @@ export default {
         justify-content: center;
         align-items: flex-end;
 
-        .in-currency > span {
+        .in-currency {
             font-weight: 500;
             font-size: var(--#{$prefix}default-fs);
             color: var(--#{$prefix}primary-text);
+            margin-right: 2px;
         }
 
-        .in-usd > span {
+        .in-usd {
             font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 400;
-
+            margin-left: 2px;
             color: var(--#{$prefix}mute-text);
         }
 
         span.symbol {
             font-size: var(--#{$prefix}small-sm-fs);
             color: var(--#{$prefix}mute-text);
+            margin-left: 2px;
         }
 
         p:not(:last-child) {

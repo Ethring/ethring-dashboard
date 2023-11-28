@@ -14,10 +14,12 @@
 
         <SelectAmount
             :value="selectedSrcToken"
+            :selected-network="selectedSrcNetwork"
             :error="!!isBalanceError"
             :label="$t('tokenOperations.asset')"
-            :on-reset="clearAddress || resetAmount"
+            :on-reset="resetAmount"
             :is-token-loading="isTokensLoadingForChain"
+            :amount-value="srcAmount"
             class="mt-10"
             @setAmount="onSetAmount"
             @clickToken="onSetToken"
@@ -123,6 +125,9 @@ export default {
         );
 
         const onSetToken = () => {
+            targetDirection.value = DIRECTIONS.SOURCE;
+            selectType.value = TOKEN_SELECT_TYPES.FROM;
+
             router.push('/send/select-token');
         };
 
@@ -139,10 +144,16 @@ export default {
         };
 
         const onSelectNetwork = (network) => {
-            clearAddress.value = true;
-            selectedSrcToken.value = null;
+            if (selectedSrcNetwork.value?.net === network?.net) {
+                return;
+            }
+
             selectedSrcToken.value = null;
             selectedSrcNetwork.value = network;
+
+            onSetAmount(null);
+
+            onSetAddress(receiverAddress.value);
         };
 
         const onSetAmount = (value) => {
@@ -151,6 +162,18 @@ export default {
             const isBalanceAllowed = +value > +selectedSrcToken.value?.balance;
 
             isBalanceError.value = isBalanceAllowed;
+        };
+
+        const resetAmounts = async (amount) => {
+            const allowDataTypes = ['string', 'number'];
+
+            if (allowDataTypes.includes(typeof amount)) {
+                return;
+            }
+
+            resetAmount.value = amount === null;
+
+            clearAddress.value = receiverAddress.value === null;
         };
 
         // =================================================================================================================
@@ -237,15 +260,39 @@ export default {
 
         // =================================================================================================================
 
-        watch(srcAmount, () => {
-            resetAmount.value = srcAmount.value === null;
-        });
+        watch(srcAmount, () => resetAmounts(srcAmount.value));
 
-        watch(receiverAddress, () => {
-            if (receiverAddress.value === null) {
-                clearAddress.value = true;
+        watch(clearAddress, () => {
+            if (clearAddress.value) {
+                setTimeout(() => (clearAddress.value = false));
             }
         });
+
+        watch(resetAmount, () => {
+            if (resetAmount.value) {
+                onSetAmount(null);
+                setTimeout(() => (resetAmount.value = false));
+            }
+        });
+
+        watch(currentChainInfo, () => {
+            if (!currentChainInfo.value) {
+                return;
+            }
+
+            if (currentChainInfo.value?.net === selectedSrcNetwork.value?.net) {
+                return;
+            }
+
+            selectedSrcNetwork.value = currentChainInfo.value;
+
+            if (selectedSrcNetwork.value?.net !== currentChainInfo.value?.net) {
+                selectedSrcToken.value = null;
+                setTokenOnChange();
+            }
+        });
+
+        watch(receiverAddress, () => (clearAddress.value = receiverAddress.value === null));
 
         watch(isTokensLoadingForChain, () => setTokenOnChange());
 
@@ -263,18 +310,17 @@ export default {
         });
 
         onMounted(() => {
-            selectType.value = TOKEN_SELECT_TYPES.FROM;
-            targetDirection.value = DIRECTIONS.SOURCE;
-
             onlyWithBalance.value = true;
 
             if (!selectedSrcNetwork.value) {
                 selectedSrcNetwork.value = currentChainInfo.value;
             }
 
-            store.dispatch('txManager/setCurrentRequestID', null);
+            if (!selectedSrcToken.value) {
+                setTokenOnChange();
+            }
 
-            setTokenOnChange();
+            store.dispatch('txManager/setCurrentRequestID', null);
         });
 
         return {
@@ -291,6 +337,7 @@ export default {
             isBalanceError,
 
             selectedSrcToken,
+            srcAmount,
             receiverAddress,
 
             onSelectNetwork,

@@ -49,36 +49,35 @@
                     <template v-if="isTokenLoading">
                         <a-skeleton-input active />
                     </template>
-                    <template v-else>
-                        <p @click.stop="setMax">
-                            {{ $t('tokenOperations.balance') }}:
-                            <span>
-                                {{ setTokenBalance(selectedToken) }}
-                            </span>
-                            {{ selectedToken?.symbol }}
-                        </p>
-                    </template>
+
+                    <div v-else @click.stop="setMax">
+                        {{ $t('tokenOperations.balance') }}:
+                        <p><NumberTooltip :value="selectedToken?.balance || 0" decimals="3" /></p>
+                        {{ selectedToken?.symbol }}
+                    </div>
                 </div>
                 <div class="balance-price">
                     <template v-if="isAmountLoading">
                         <a-skeleton-input active />
                     </template>
-                    <template v-else> <span>$</span>{{ payTokenPrice }} </template>
+                    <template v-else>
+                        <span>$</span>
+                        <NumberTooltip :value="payTokenPrice" />
+                    </template>
                 </div>
             </div>
         </div>
     </div>
 </template>
 <script>
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onUpdated } from 'vue';
 
 import BigNumber from 'bignumber.js';
 
 import TokenIcon from '@/components/ui/TokenIcon';
+import NumberTooltip from '@/components/ui/NumberTooltip';
 
 import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
-
-import { prettyNumber, formatNumber } from '@/helpers/prettyNumber';
 
 import { formatInputNumber } from '@/helpers/numbers';
 
@@ -116,6 +115,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        amountValue: {
+            type: [String, Number],
+            default: '',
+        },
         isUpdate: {
             type: Boolean,
             default: false,
@@ -128,17 +131,21 @@ export default {
             type: [String, Number],
             default: '',
         },
+        selectedNetwork: {
+            default: {},
+        },
     },
     components: {
         ArrowIcon,
         TokenIcon,
+        NumberTooltip,
     },
     setup(props, { emit }) {
         const active = ref(false);
         const focused = ref(false);
         const symbolForReplace = ref(null);
 
-        const amount = ref('');
+        const amount = ref(props.amountValue || '');
 
         const payTokenPrice = ref(0);
 
@@ -158,15 +165,26 @@ export default {
         const placeholder = ref('0');
         const coingeckoPrice = ref(0);
 
+        const resetAmount = () => {
+            if (props.onReset) {
+                amount.value = null;
+                active.value = false;
+                return emit('setAmount', null);
+            }
+        };
+
+        watch(
+            () => props.amountValue,
+            () => {
+                amount.value = props.amountValue;
+                active.value = false;
+                emit('setAmount', amount.value);
+            }
+        );
+
         watch(
             () => props.onReset,
-            () => {
-                if (props.onReset) {
-                    amount.value = '';
-                    active.value = false;
-                    emit('setAmount', amount.value);
-                }
-            }
+            () => resetAmount()
         );
 
         watch(
@@ -188,6 +206,19 @@ export default {
         );
 
         watch(
+            () => props.selectedNetwork,
+            (net, oldNet) => {
+                if (net === oldNet) {
+                    return;
+                }
+
+                if (net) {
+                    active.value = false;
+                }
+            }
+        );
+
+        watch(
             () => props.value,
             (tkn, oldTkn) => {
                 if (tkn?.id === oldTkn?.id || tkn?.address === oldTkn?.address) {
@@ -196,7 +227,7 @@ export default {
 
                 if (tkn) {
                     setToken(tkn);
-                    amount.value = '';
+                    amount.value = props.amountValue;
                     active.value = false;
                     emit('setAmount', amount.value);
                 }
@@ -218,7 +249,7 @@ export default {
                 }
                 amount.value = formatInputNumber(val);
 
-                return (payTokenPrice.value = formatNumber(BigNumber(amount.value * +selectedToken?.value?.price || 0).toFixed()) || 0);
+                return (payTokenPrice.value = BigNumber(amount.value * +selectedToken?.value?.price || 0).toFixed() || 0);
             }
 
             // val = val.replace(/[^0-9.]+/g, '').replace(/\.{2,}/g, '.');
@@ -245,7 +276,7 @@ export default {
 
             amount.value = val;
 
-            return (payTokenPrice.value = formatNumber(BigNumber(amount.value).multipliedBy(selectedToken?.value?.price || 0)) || 0);
+            return (payTokenPrice.value = BigNumber(amount.value).multipliedBy(selectedToken?.value?.price || 0) || 0);
         });
 
         const clickAway = () => {
@@ -295,9 +326,9 @@ export default {
             emit('clickToken');
         };
 
-        const setTokenBalance = (token) => {
-            return BigNumber(token?.balance || 0).toFixed();
-        };
+        onUpdated(() => {
+            resetAmount();
+        });
 
         return {
             active,
@@ -305,7 +336,6 @@ export default {
             amount,
             placeholder,
             selectedToken,
-            prettyNumber,
             selectPlaceholder,
 
             onKeyPressHandler,
@@ -319,7 +349,6 @@ export default {
             emit,
             clickToken,
             coingeckoPrice,
-            setTokenBalance,
             payTokenPrice,
         };
     },
@@ -371,13 +400,17 @@ export default {
             }
 
             &-value {
-                font-weight: 400;
                 cursor: pointer;
+                div {
+                    @include pageFlexRow;
+                    align-items: flex-end;
+                }
 
-                span {
+                p {
                     font-weight: 600;
                     font-size: var(--#{$prefix}default-fs);
                     color: var(--#{$prefix}sub-text);
+                    margin: 0 3px 0 6px;
                 }
             }
 

@@ -28,21 +28,21 @@ export default {
                 title: 'Asset',
                 dataIndex: 'name',
                 key: 'name',
-                width: '55%',
+                width: '60%',
                 align: 'left',
             },
             {
                 title: 'Balance',
                 dataIndex: 'balance',
                 key: 'balance',
-                width: '20%',
+                width: '16%',
                 align: 'left',
             },
             {
                 title: 'Value',
                 dataIndex: 'balanceUsd',
                 key: 'balanceUsd',
-                width: '20%',
+                width: '16%',
                 align: 'right',
                 defaultSortOrder: 'descend',
                 sorter: (a, b) => a.balanceUsd - b.balanceUsd,
@@ -60,6 +60,10 @@ export default {
 .assets-table {
     * {
         transition: background-color 0.24s ease-in-out !important;
+    }
+
+    tr,
+    td {
         background-color: var(--#{$prefix}secondary-background) !important;
     }
 

@@ -61,7 +61,7 @@ import bridgeIcon from '@/assets/icons/sidebar/bridge.svg';
 import superSwapIcon from '@/assets/icons/sidebar/superSwap.svg';
 import buyCryptoIcon from '@/assets/icons/sidebar/buy.svg';
 
-import { KADO_EVM_NETWORKS, KADO_COSMOS_NETWORKS } from '@/config/availableNets';
+import { KADO_EVM_NETWORKS, KADO_COSMOS_NETWORKS } from '@/shared/constants/chains/kadoChains';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 

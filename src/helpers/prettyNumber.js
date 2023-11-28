@@ -70,17 +70,22 @@ export const prettyNumberTooltip = (value, maxDecimals = 8) => {
     });
 };
 
-export const formatNumber = (number, maximumFractionDigits = 6) => {
-    if (+number === 0 || isNaN(number)) {
-        return 0;
+export const formatNumber = (value, maximumFractionDigits = 6) => {
+    if (!value) {
+        return '0';
     }
+
+    if (Number.isNaN(+value)) {
+        return value;
+    }
+
     const formatter = new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 0,
         maximumFractionDigits,
         useGrouping: true,
     });
 
-    const formattedNumber = formatter.format(number);
+    const formattedNumber = formatter.format(value);
 
     if (+formattedNumber === 0) {
         return '~0';

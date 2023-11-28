@@ -1,6 +1,7 @@
 import { Page } from '@playwright/test';
 import { test, expect } from '../__fixtures__/fixtures';
-import mockData from '../data/mockHelper';
+import { mockBalanceData } from '../data/mockHelper';
+import { TEST_CONST, getTestVar } from '../envHelper';
 
 test.describe('Auth page tests', () => {
     test('Case#1: Go to auth page', async ({ browser, context, page: Page, authPageEmptyWallet }) => {
@@ -27,20 +28,18 @@ test.describe('Dashboard page tests', () => {
     });
 
     test('Case#2: Check ETH protocol view', async ({ browser, context, page: Page, dashboardProtocol }) => {
-        await dashboardProtocol.mockBalanceRequest('eth', mockData.eth);
-        await dashboardProtocol.mockBalanceRequest('arbitrum', mockData.arbitrum);
-        await dashboardProtocol.mockBalanceRequest('optimism', mockData.optimism);
-        await dashboardProtocol.mockBalanceRequest('bsc', mockData.bsc);
-        await dashboardProtocol.mockBalanceRequest('polygon', mockData.polygon);
-        await dashboardProtocol.mockBalanceRequest('fantom', mockData.fantom);
-        await dashboardProtocol.mockBalanceRequest('avalanche', mockData.avalanche);
+        const address = getTestVar(TEST_CONST.ETH_ADDRESS_BY_PROTOCOL_TEST);
 
-        await dashboardProtocol.page.getByTestId('tokens_group').scrollIntoViewIfNeeded();
-        await expect(dashboardProtocol.page).toHaveScreenshot();
+        await dashboardProtocol.mockBalanceRequest('eth', mockBalanceData.eth, address);
+        await dashboardProtocol.mockBalanceRequest('arbitrum', mockBalanceData.arbitrum, address);
+        await dashboardProtocol.mockBalanceRequest('optimism', mockBalanceData.optimism, address);
+        await dashboardProtocol.mockBalanceRequest('bsc', mockBalanceData.bsc, address);
+        await dashboardProtocol.mockBalanceRequest('polygon', mockBalanceData.polygon, address);
+        await dashboardProtocol.mockBalanceRequest('fantom', mockBalanceData.fantom, address);
+        await dashboardProtocol.mockBalanceRequest('avalanche', mockBalanceData.avalanche, address);
 
-        for (const protocol of await dashboardProtocol.page.getByTestId('protocol_group').all()) {
-            await protocol.scrollIntoViewIfNeeded();
-            await expect(dashboardProtocol.page).toHaveScreenshot();
-        }
+        await dashboardProtocol.page.waitForSelector('div.ant-skeleton-active', { state: 'detached', timeout: 60000 });
+
+        await expect(dashboardProtocol.page).toHaveScreenshot({ fullPage: true });
     });
 });

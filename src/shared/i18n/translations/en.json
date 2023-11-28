@@ -8,7 +8,25 @@
     "search": "Search",
     "notFound": "Nothing was found for your query",
     "emptyAssets": "You don't have any assets",
-    "updateAvailable": "A new version of application is available. Click the Update button below to get the new version with the latest features and improvements"
+    "connecting": "Connecting wallet ...",
+    "loadingConfig": "Loading config ...",
+    "asset": "Asset",
+    "updateAvailable": "A new version of application is available. Click the Update button below to get the new version with the latest features and improvements",
+    "nft": {
+      "description": "Description",
+      "collectionName": "Collection name",
+      "collectionInformation": "Collection information",
+      "holdings": "Holdings",
+      "floorPrice": "Floor price (24h)",
+      "tokens": "Tokens",
+      "volume": "Volume",
+      "marketCap": "Market cap",
+      "contractAddress": "Contract address",
+      "numberOfItems": "Number of items",
+      "marketplaces": "Marketplaces",
+      "details": "Details",
+      "ownerAddress": "Owner address"
+    }
   },
   "sidebar": {
     "main": "Overview",
@@ -76,7 +94,9 @@
     "serviceFee": "Service Fee",
     "transferFrom": "Transfer from",
     "transferTo": "Transfer to",
-    "asset": "Asset"
+    "asset": "Asset",
+    "searchToken": "Search by token name or ticker",
+    "searchNetwork": "Search by network name"
   },
   "simpleSend": {
     "title": "Send"

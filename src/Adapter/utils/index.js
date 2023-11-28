@@ -15,6 +15,6 @@ export function reEncodeWithNewPrefix(prefix, originalAddress) {
 
 export const isDifferentSlip44 = (chainName, differentSlip44) => differentSlip44.some((diffChain) => diffChain.chain_name === chainName);
 
-export function isSVG(str) {
-    return str.includes('<svg');
+export function isSVG(str = '') {
+    return str?.includes('<svg') || false;
 }

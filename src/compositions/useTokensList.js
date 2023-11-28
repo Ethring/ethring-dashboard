@@ -5,6 +5,9 @@ import { computed } from 'vue';
 import { useStore } from 'vuex';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
+
+import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
 export default function useTokensList({ network = null, fromToken = null, toToken = null } = {}) {
@@ -13,6 +16,8 @@ export default function useTokensList({ network = null, fromToken = null, toToke
     const { walletAccount } = useAdapter();
 
     const onlyWithBalance = computed(() => store.getters['tokenOps/onlyWithBalance']);
+
+    const selectType = computed(() => store.getters['tokenOps/selectType']);
 
     const getTokensWithAndWithoutBalance = (storeModule = 'tokens', network) => {
         const { net } = network || {};
@@ -26,24 +31,33 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         return _.orderBy(list, (tkn) => Number(tkn.balanceUsd), ['desc']);
     };
 
-    const getAllTokensList = (network) => {
+    const getAllTokensList = (network, fromToken, toToken) => {
         if (!network) {
             return [];
         }
 
         const tokensWithBalance = getTokensWithAndWithoutBalance('tokens', network);
+        const tokensListFromNet = getTokensWithAndWithoutBalance('networks', network);
+
+        if (ECOSYSTEMS.COSMOS === network?.ecosystem) {
+            for (const token of tokensWithBalance) {
+                if (token.address && token.address.startsWith('IBC')) {
+                    token.address = token.address.replace('IBC', 'ibc');
+                }
+
+                if (!token.base && token.address) {
+                    token.base = token.address;
+                }
+            }
+        }
 
         let allTokens = [];
 
-        const isNotEqualToSelected = (tkn) => {
+        const isNotEqualToSelected = (tkn, selectedToken) => {
             const ids = [];
 
-            if (fromToken && fromToken.id) {
-                ids.push(fromToken.id);
-            }
-
-            if (toToken && toToken.id) {
-                ids.push(toToken.id);
+            if (selectedToken && selectedToken.id && selectedToken.chain === network.net) {
+                ids.push(selectedToken.id);
             }
 
             if (tkn.id) {
@@ -57,7 +71,6 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         if (onlyWithBalance.value) {
             allTokens = tokensWithBalance;
         } else {
-            const tokensListFromNet = getTokensWithAndWithoutBalance('networks', network);
             allTokens = _.unionBy(tokensWithBalance, tokensListFromNet, (tkn) => tkn.address?.toLowerCase());
         }
 
@@ -91,23 +104,17 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             allTokens.push(tokenInfo);
         }
 
-        // Native token only for COSMOS
-        if (ECOSYSTEMS.COSMOS === network?.ecosystem) {
-            const { asset } = network || {};
+        // Added selected param if token is selected
+        const isFromSelected = selectType.value === TOKEN_SELECT_TYPES.FROM;
 
-            const baseToken = allTokens.find(({ symbol }) => symbol === asset.symbol);
+        const selectedToken = isFromSelected ? toToken : fromToken;
 
-            const tokenInfo = {
-                ...asset,
-                ...baseToken,
-                balance: baseToken?.balance || 0,
-                balanceUsd: baseToken?.balanceUsd || 0,
-            };
+        allTokens = allTokens.filter((tkn) => isNotEqualToSelected(tkn, selectedToken));
 
-            allTokens = [tokenInfo];
+        for (const tkn of allTokens) {
+            const isSelected = (isFromSelected && tkn.id === fromToken?.id) || tkn.id === toToken?.id;
+            tkn.selected = isSelected;
         }
-
-        allTokens = _.filter(allTokens, isNotEqualToSelected);
 
         return _.orderBy(
             allTokens,
@@ -121,14 +128,14 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         );
     };
 
-    const allTokensList = computed(() => getAllTokensList(network));
+    const allTokensList = computed(() => getAllTokensList(network, fromToken, toToken));
 
     const getTokensList = ({ srcNet = null, srcToken = null, dstToken = null } = {}) => {
         network = srcNet;
         fromToken = srcToken;
         toToken = dstToken;
 
-        return getAllTokensList(network);
+        return getAllTokensList(network, fromToken, toToken);
     };
 
     return {
