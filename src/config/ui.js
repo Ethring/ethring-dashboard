@@ -90,7 +90,6 @@ const defaultConfig = {
 
 const checkIsDisabled = (config, sidebar) => {
     for (const module of config) {
-
         if (module.disabled) {
             continue;
         }
@@ -116,12 +115,17 @@ const getUIConfig = (network, ecosystem) => {
     // Copy without reference, to avoid changing the default config
 
     const config = JSON.parse(JSON.stringify(defaultConfig[ecosystem]));
+    const defaultSidebar = JSON.parse(JSON.stringify(SIDEBAR_MODULES));
 
     let { sidebar = [] } = config || {};
-
+    
     if (!network) {
         sidebar = checkIsDisabled(sidebar, CUSTOM_CONFIG);
+
+        return { ...config, sidebar };
     }
+
+    sidebar = checkIsDisabled(defaultSidebar, sidebar);
 
     return { ...config, sidebar };
 };
