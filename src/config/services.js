@@ -1,3 +1,5 @@
+import { ECOSYSTEMS } from '@/Adapter/config';
+
 export const SERVICE_TYPE = {
     BRIDGE: 'bridge',
     SWAP: 'swap',
@@ -12,6 +14,7 @@ const ALL_SERVICES = [
         url: process.env.VUE_APP_DEBRIDGE_API,
         recipientAddress: true,
         tokensByChain: true,
+        namespace: ECOSYSTEMS.EVM,
         estimatedTime: {
             1: 150,
             56: 60,
@@ -36,6 +39,7 @@ const ALL_SERVICES = [
         icon: 'https://app.squidrouter.com/images/icons/squid_logo.svg',
         url: process.env.VUE_APP_SQUID_ROUTER_API,
         tokensByChain: true,
+        namespace: ECOSYSTEMS.EVM,
         estimatedTime: {
             1: 60,
             56: 60,
@@ -46,12 +50,31 @@ const ALL_SERVICES = [
         },
     },
     {
+        id: 'bridge-skip',
+        name: 'Skip service',
+        type: SERVICE_TYPE.BRIDGE,
+        icon: 'https://skip.money/_next/static/media/skip-logo.1bdb8b7b.svg',
+        url: process.env.VUE_APP_SKIP_API,
+        tokensByChain: true,
+        namespace: ECOSYSTEMS.COSMOS,
+    },
+    {
+        id: 'swap-skip',
+        name: 'Skip service',
+        type: SERVICE_TYPE.SWAP,
+        icon: 'https://skip.money/_next/static/media/skip-logo.1bdb8b7b.svg',
+        url: process.env.VUE_APP_SKIP_API,
+        tokensByChain: true,
+        namespace: ECOSYSTEMS.COSMOS,
+    },
+    {
         id: 'swap-1inch',
         name: '1inchSwap',
         type: SERVICE_TYPE.SWAP,
         icon: 'https://cryptologos.cc/logos/1inch-1inch-logo.svg?v=025',
         url: process.env.VUE_APP_1INCH_SWAP_API,
         tokensByChain: false,
+        namespace: ECOSYSTEMS.EVM,
         estimatedTime: {
             1: 50,
             56: 30,
@@ -68,6 +91,7 @@ const ALL_SERVICES = [
         icon: 'https://stakingcrypto.info/static/assets/coins/paraswap-logo.png',
         url: process.env.VUE_APP_PARASWAP_API,
         tokensByChain: false,
+        namespace: ECOSYSTEMS.EVM,
         estimatedTime: {
             1: 60,
             56: 30,
@@ -85,6 +109,7 @@ const ALL_SERVICES = [
         url: process.env.VUE_APP_SYNAPSE_SWAP_API,
         tokensByChain: true,
         isStableSwap: true,
+        namespace: ECOSYSTEMS.EVM,
         estimatedTime: {
             1: 60,
             56: 30,

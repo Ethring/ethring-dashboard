@@ -70,7 +70,7 @@ const defaultConfig = {
         },
     },
     [ECOSYSTEMS.COSMOS]: {
-        sidebar: [MAIN_DASHBOARD, SEND],
+        sidebar: [MAIN_DASHBOARD, SEND, SWAP, BRIDGE],
         send: {
             component: 'SimpleSend',
         },

@@ -47,11 +47,15 @@ const chainWebpack = (config) => {
         { name: '@cosmos-kit' },
         { name: 'cosmjs-types' },
         { name: '@walletconnect' },
+        { name: 'unstorage' },
         { name: '@web3-onboard' },
         { name: '@vueuse/core' },
+        { name: 'osmojs' },
         { name: '@metamask/utils' },
         { name: '@cosmjs[\\\\/]', exclude: '@cosmjs[\\\\/].*\\.json$' },
     ];
+
+    config.resolve.alias.set('@cosmology/helpers', '@osmonauts/helpers');
 
     // Применяем общие правила для каждого указанного модуля
     for (const moduleConfig of modulesToInclude) {
@@ -71,6 +75,7 @@ module.exports = {
     devServer: {
         historyApiFallback: true,
         https: IS_PROD,
+        progress: false,
     },
     productionSourceMap: IS_PROD,
     css: {

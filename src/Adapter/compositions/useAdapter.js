@@ -2,6 +2,8 @@ import { computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
+import { DP_COSMOS } from '@/api/data-provider';
+
 import { ECOSYSTEMS } from '@/Adapter/config';
 
 import * as GETTERS from '../store/getters';
@@ -242,7 +244,9 @@ function useAdapter() {
             return null;
         }
 
-        const chainInfo = chains.find(({ net }) => net === chain);
+        const targetChain = DP_COSMOS[chain] || chain;
+
+        const chainInfo = chains.find(({ net }) => net === targetChain);
 
         return mainAdapter.value.getTokenExplorerLink(tokenAddress, chainInfo) || null;
     };
@@ -298,9 +302,29 @@ function useAdapter() {
     };
 
     // * Get addressesWithChains by Ecosystem
-    const getAddressesWithChainsByEcosystem = (ecosystem) => {
+    const getAddressesWithChainsByEcosystem = (ecosystem = null) => {
+        if (!ecosystem) {
+            return {};
+        }
+
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
         return adapter.getAddressesWithChains();
+    };
+
+    // * Get Ibc assets for COSMOS ecosystem
+    const getIBCAssets = (ecosystem, chain) => {
+        if (ecosystem !== ECOSYSTEMS.COSMOS) {
+            return [];
+        }
+
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+        return adapter.getIBCAssets(chain);
+    };
+
+    // * Get Native asset for by Ecosystem and Chain
+    const getNativeTokenByChain = (ecosystem, chain, store) => {
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+        return adapter.getNativeTokenByChain(chain, store);
     };
 
     return {
@@ -330,6 +354,8 @@ function useAdapter() {
 
         getTxExplorerLink,
         getTokenExplorerLink,
+        getIBCAssets,
+        getNativeTokenByChain,
 
         formatTransactionForSign,
 

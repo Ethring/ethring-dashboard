@@ -18,6 +18,7 @@ const TYPES = {
     SET_DISABLE_LOADER: 'SET_DISABLE_LOADER',
 
     SET_ASSETS_BALANCE: 'SET_ASSETS_BALANCE',
+    SET_NATIVE_ASSET: 'SET_NATIVE_ASSET',
 
     SET_LOADING_BY_CHAIN: 'SET_LOADING_BY_CHAIN',
 
@@ -32,6 +33,7 @@ export default {
         fetchingBalances: false,
         loader: false,
         tokens: {},
+        nativeTokens: {},
         groupTokens: {},
         marketCap: {},
         selectType: 'from',
@@ -48,6 +50,8 @@ export default {
     getters: {
         loader: (state) => state.loader,
 
+        loadingForChains: (state) => state.loadingByChain,
+
         tokens: (state) => state.tokens,
         integrations: (state) => state.integrations,
         nfts: (state) => state.nfts,
@@ -63,6 +67,14 @@ export default {
 
                 return state.groupTokens[account][chain]?.list || [];
             },
+
+        getNativeTokenForChain: (state) => (account, chain) => {
+            if (!state.nativeTokens[account] || !state.nativeTokens[account][chain]) {
+                return null;
+            }
+
+            return state.nativeTokens[account][chain] || null;
+        },
 
         marketCap: (state) => state.marketCap,
         selectType: (state) => state.selectType,
@@ -126,7 +138,24 @@ export default {
                 state.groupTokens[account][chain] = {};
             }
 
+            // const { list = [] } = data;
+
+            // const nativeToken = list.find(
+            //     (token) => (token.id === `${chain}:asset__native:${token.symbol}` || !token.address) && !token.symbol.startsWith('IBC.')
+            // );
+
+            // if (nativeToken) {
+            //     !state.nativeTokens[account] && (state.nativeTokens[account] = {});
+            //     !state.nativeTokens[account][chain] && (state.nativeTokens[account][chain] = {});
+
+            //     nativeToken.id = `${chain}:asset__native:${nativeToken.symbol}`;
+
+            //     state.nativeTokens[account][chain] = nativeToken;
+            // }
+
             state.groupTokens[account][chain] = data;
+
+            // console.log('state.groupTokens[account][chain]', state.nativeTokens);
         },
 
         [TYPES.SET_MARKETCAP](state, value) {
@@ -193,6 +222,9 @@ export default {
         },
         setLoadingByChain({ commit }, value) {
             commit(TYPES.SET_LOADING_BY_CHAIN, value);
+        },
+        setNativeTokenByChain({ commit }, value) {
+            commit(TYPES.SET_NATIVE_ASSET, value);
         },
     },
 };

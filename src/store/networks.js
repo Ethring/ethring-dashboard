@@ -8,13 +8,18 @@ const TYPES = {
 
     SET_ZOMET_TOKENS_BY_NET: 'SET_ZOMET_TOKENS_BY_NET',
 
+    SET_ZOMET_TOKENS_BY_COSMOS: 'SET_ZOMET_TOKENS_BY_COSMOS',
+
     SET_ZOMET_NETWORKS_LIST: 'SET_ZOMET_NETWORKS_LIST',
+
+    SET_CONFIG_LOADING: 'SET_CONFIG_LOADING',
 };
 
 export default {
     namespaced: true,
 
     state: () => ({
+        isConfigLoading: false,
         selectedNetwork: null,
         zometNetworksList: [],
         zometNetworks: {},
@@ -24,6 +29,8 @@ export default {
     }),
 
     getters: {
+        isConfigLoading: (state) => state.isConfigLoading,
+
         zometNetworksList: (state) => state.zometNetworksList,
         zometNetworks: (state) => state.zometNetworks,
         zometTokens: (state) => state.zometTokens || {},
@@ -75,6 +82,39 @@ export default {
                 ...tokens,
             };
         },
+
+        [TYPES.SET_ZOMET_TOKENS_BY_COSMOS](state, { tokens, network } = {}) {
+            if (!state.tokensByNetwork[network]) {
+                state.tokensByNetwork[network] = {};
+            }
+
+            const cosmosTokens = {};
+
+            for (const token of tokens) {
+                if (!token.address && token.base) {
+                    token.address = token.base;
+                }
+
+                if (token.logo_URIs) {
+                    token.logo = token.logo_URIs?.svg || token.logo_URIs?.png || null;
+                }
+
+                token.id = `${network}:asset__${token.address}:${token.symbol}`;
+
+                token.chain = network;
+
+                token.balance = 0;
+                token.balanceUsd = 0;
+
+                cosmosTokens[token.address] = token;
+            }
+
+            state.tokensByNetwork[network] = cosmosTokens;
+        },
+
+        [TYPES.SET_CONFIG_LOADING](state, value) {
+            state.isConfigLoading = value || false;
+        },
     },
 
     actions: {
@@ -105,7 +145,17 @@ export default {
                 }
 
                 commit(TYPES.SET_ZOMET_NETWORKS_LIST, Object.values(state.zometNetworks));
+
+                dispatch('setConfigLoading', false);
             }
+        },
+
+        setTokensByCosmosNet({ commit }, { network, tokens }) {
+            if (!network) {
+                commit(TYPES.SET_ZOMET_TOKENS_BY_COSMOS, {});
+            }
+
+            commit(TYPES.SET_ZOMET_TOKENS_BY_COSMOS, { tokens, network });
         },
 
         async initZometTokens({ commit }, network) {
@@ -118,6 +168,10 @@ export default {
             if (response.status === 200) {
                 commit(TYPES.SET_ZOMET_TOKENS_BY_NET, { tokens: response.data, network });
             }
+        },
+
+        setConfigLoading({ commit }, value) {
+            commit(TYPES.SET_CONFIG_LOADING, value);
         },
     },
 };

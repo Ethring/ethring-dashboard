@@ -54,6 +54,8 @@ export default {
     align-items: baseline;
     width: calc(100% - 260px);
 
+    max-width: 685px;
+
     &__active {
         @include pageFlexColumn;
         color: var(--#{$prefix}black);
