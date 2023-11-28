@@ -86,41 +86,44 @@ const defaultConfig = {
     },
 };
 
-const CUSTOM_UI_BY_CHAIN = {
-    optimism: {
-        sidebar: [MAIN_DASHBOARD, SEND, SWAP],
-        send: {
-            component: 'SimpleSend',
-        },
-        swap: {
-            component: 'SimpleSwap',
-        },
-        bridge: {
-            component: 'SimpleBridge',
-        },
-        superSwap: {
-            component: 'SuperSwap',
-        },
-    },
-    fantom: {
-        sidebar: [MAIN_DASHBOARD, SEND],
-        send: {
-            component: 'SimpleSend',
-        },
-        swap: {
-            component: 'SimpleSwap',
-        },
-        bridge: {
-            component: 'SimpleBridge',
-        },
-        superSwap: {
-            component: 'SuperSwap',
-        },
-    },
-};
+const CUSTOM_CONFIG = [MAIN_DASHBOARD];
+
+// const CUSTOM_UI_BY_CHAIN = {
+//     optimism: {
+//         sidebar: [MAIN_DASHBOARD, SEND, SWAP],
+//         send: {
+//             component: 'SimpleSend',
+//         },
+//         swap: {
+//             component: 'SimpleSwap',
+//         },
+//         bridge: {
+//             component: 'SimpleBridge',
+//         },
+//         superSwap: {
+//             component: 'SuperSwap',
+//         },
+//     },
+//     fantom: {
+//         sidebar: [MAIN_DASHBOARD, SEND],
+//         send: {
+//             component: 'SimpleSend',
+//         },
+//         swap: {
+//             component: 'SimpleSwap',
+//         },
+//         bridge: {
+//             component: 'SimpleBridge',
+//         },
+//         superSwap: {
+//             component: 'SuperSwap',
+//         },
+//     },
+// };
 
 const checkIsDisabled = (config, sidebar) => {
     for (const module of config) {
+
         if (module.disabled) {
             continue;
         }
@@ -137,7 +140,7 @@ const checkIsDisabled = (config, sidebar) => {
 };
 
 const getUIConfig = (network, ecosystem) => {
-    if (!network || !ecosystem) {
+    if (!ecosystem) {
         return {
             sidebar: [],
         };
@@ -145,25 +148,13 @@ const getUIConfig = (network, ecosystem) => {
 
     // Copy without reference, to avoid changing the default config
 
-    if (!network || !ecosystem) {
-        return {
-            sidebar: [],
-        };
-    }
-
     const config = JSON.parse(JSON.stringify(defaultConfig[ecosystem]));
-    const defaultSidebar = JSON.parse(JSON.stringify(SIDEBAR_MODULES));
 
     let { sidebar = [] } = config || {};
 
-    if (CUSTOM_UI_BY_CHAIN[network] && CUSTOM_UI_BY_CHAIN[network].sidebar) {
-        const networkConfig = CUSTOM_UI_BY_CHAIN[network].sidebar;
-        sidebar = checkIsDisabled(sidebar, networkConfig);
-
-        return { ...config, sidebar };
+    if (!network) {
+        sidebar = checkIsDisabled(sidebar, CUSTOM_CONFIG);
     }
-
-    sidebar = checkIsDisabled(defaultSidebar, sidebar);
 
     return { ...config, sidebar };
 };
