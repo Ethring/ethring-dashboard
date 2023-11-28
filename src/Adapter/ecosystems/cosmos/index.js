@@ -805,7 +805,7 @@ class CosmosAdapter extends AdapterBase {
         const hashTable = {};
 
         for (const asset of assets) {
-            hashTable[asset.base] = asset;
+            hashTable[asset.address] = asset;
         }
 
         return hashTable;

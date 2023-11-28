@@ -88,6 +88,7 @@ export default {
         };
 
         const tokenExplorerLink = computed(() => getTokenExplorerLink(props.record?.address, props.record.chain));
+
         const displayAddress = computed(() => {
             if (props.record?.address?.length < 10) {
                 return props.record?.address;
