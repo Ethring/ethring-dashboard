@@ -3,8 +3,6 @@ import { ref } from 'vue';
 import { cosmos } from 'osmojs';
 import { SigningStargateClient, GasPrice } from '@cosmjs/stargate';
 
-import { getIbcAssets } from '@chain-registry/utils';
-
 import { Logger, WalletManager } from '@cosmos-kit/core';
 import { wallets as KeplrWallets } from '@cosmos-kit/keplr';
 // import { wallets as LeapWallets } from '@cosmos-kit/leap';
@@ -26,7 +24,17 @@ import { reEncodeWithNewPrefix, isDifferentSlip44 } from '@/Adapter/utils';
 import { checkErrors } from '@/helpers/checkErrors';
 
 // * Config for cosmos
-const { chains, assets, differentSlip44, aminoTypes, registry } = cosmologyConfig;
+const {
+    // Chains
+    chains,
+    differentSlip44,
+    // Assets
+    assets,
+    ibcAssetsByChain,
+    // Custom Registry for stargate
+    aminoTypes,
+    registry,
+} = cosmologyConfig;
 
 // const DEFAULT_RPC = 'https://rpc.cosmos.directory';
 // const DEFAULT_REST = 'https://rest.cosmos.directory';
@@ -704,26 +712,70 @@ class CosmosAdapter extends AdapterBase {
         }
     }
 
-    getTxExplorerLink(txHash, chainInfo) {
+    getExplorer(chainInfo) {
         const MAIN_EXPLORER = ['mintscan', 'MintScan'];
 
-        const explorer = chainInfo.explorers.find(({ kind }) => MAIN_EXPLORER.includes(kind));
+        if (!chainInfo) {
+            return null;
+        }
 
-        const { tx_page } = explorer || {};
+        const { explorers = [] } = chainInfo || {};
+
+        const explorer = explorers.find(({ kind }) => MAIN_EXPLORER.includes(kind));
+
+        return explorer || null;
+    }
+
+    getTxExplorerLink(txHash, chainInfo) {
+        const explorer = this.getExplorer(chainInfo) || {};
+
+        const { tx_page = null } = explorer || {};
+
+        if (!tx_page) {
+            return null;
+        }
 
         return tx_page.replace('${txHash}', txHash);
     }
 
-    getTokenExplorerLink() {
-        // const MAIN_EXPLORER = 'mintscan';
+    getTokenExplorerLink(token, chainInfo) {
+        const ibcRegex = new RegExp('IBC|ibc', 'g');
 
-        // const explorer = chainInfo.explorers.find(({ kind }) => kind === MAIN_EXPLORER);
+        const explorer = this.getExplorer(chainInfo) || {};
 
-        // console.log('explorer', explorer);
-        // const { tx_page } = explorer || {};
+        const { url } = explorer || {};
 
-        // return tx_page.replace('${txHash}', txHash);
-        return null;
+        if (!url) {
+            return null;
+        }
+
+        // * Check if token is not IBC and length < 10, then return url to base token
+        if (!ibcRegex.test(token) && token.length < 10) {
+            return url;
+        }
+
+        const ibcHashTable = this.getIBCAssetsHashTable(chainInfo?.chain_name);
+
+        // * Check if token is IBC and exist in hashTable, then return url to wasm contract
+        if (!ibcHashTable[token]) {
+            return `${url}/wasm/contract/${token}`;
+        }
+
+        const { traces = [] } = ibcHashTable[token] || {};
+
+        const [trace] = traces;
+
+        const { chain = {}, counterparty = {} } = trace || {};
+
+        const { channel_id: srcChannel } = chain || {};
+        const { channel_id: dstChannel, chain_name: dstChain } = counterparty || {};
+
+        if (!srcChannel || !dstChannel || !dstChain) {
+            return null;
+        }
+
+        // * Return url to relayer
+        return `${url}/relayers/${srcChannel}/${dstChain}/${dstChannel}`;
     }
 
     getAddressesWithChains() {
@@ -744,19 +796,19 @@ class CosmosAdapter extends AdapterBase {
     }
 
     getIBCAssets(chain) {
-        const [ibcAssets] = getIbcAssets(chain, cosmologyConfig.ibcAssets, cosmologyConfig.assets) || [];
+        return ibcAssetsByChain[chain] || [];
+    }
 
-        if (!ibcAssets) {
-            return [];
+    getIBCAssetsHashTable(chain) {
+        const assets = this.getIBCAssets(chain);
+
+        const hashTable = {};
+
+        for (const asset of assets) {
+            hashTable[asset.base] = asset;
         }
 
-        const { assets = [] } = ibcAssets || {};
-
-        if (!assets.length) {
-            return [];
-        }
-
-        return assets;
+        return hashTable;
     }
 }
 
