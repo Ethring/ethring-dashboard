@@ -1,10 +1,10 @@
 <template>
     <a-tooltip placement="topRight" v-if="!Number.isInteger(+value)">
         <template #title>{{ value }}</template>
-        {{ formatNumber(value, decimals) }}
+        {{ formatNumber(+value, decimals) }}
     </a-tooltip>
     <template v-else>
-        {{ formatNumber(value, decimals) }}
+        {{ formatNumber(+value, decimals) }}
     </template>
 </template>
 
