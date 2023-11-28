@@ -118,7 +118,7 @@ const getUIConfig = (network, ecosystem) => {
     const defaultSidebar = JSON.parse(JSON.stringify(SIDEBAR_MODULES));
 
     let { sidebar = [] } = config || {};
-    
+
     if (!network) {
         sidebar = checkIsDisabled(sidebar, CUSTOM_CONFIG);
 
