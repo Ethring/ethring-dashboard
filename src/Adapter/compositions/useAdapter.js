@@ -246,7 +246,7 @@ function useAdapter() {
 
         const targetChain = DP_COSMOS[chain] || chain;
 
-        const chainInfo = chains.find(({ net }) => net === targetChain);
+        const chainInfo = chains.find(({ net, bech32_prefix }) => net === targetChain || bech32_prefix === targetChain);
 
         return mainAdapter.value.getTokenExplorerLink(tokenAddress, chainInfo) || null;
     };
