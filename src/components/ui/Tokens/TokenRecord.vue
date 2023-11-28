@@ -1,5 +1,10 @@
 <template>
-    <div class="token-record" :data-key="record?.id || record?.address" @click="(event) => sendTokenInfo(event, record)">
+    <div
+        class="token-record"
+        :data-key="record?.id || record?.address"
+        @click="(event) => sendTokenInfo(event, record)"
+        :class="{ selected: record.selected }"
+    >
         <div class="network">
             <TokenIcon width="24" height="24" :token="record" class="logo" />
 
@@ -20,12 +25,7 @@
                             {{ displayName }}
                         </template>
                     </p>
-                    <a-typography-link
-                        v-if="record.address"
-                        :href="getTokenExplorerLink(record?.address, record.chain)"
-                        target="_blank"
-                        class="link"
-                    >
+                    <a-typography-link v-if="record.address && tokenExplorerLink" :href="tokenExplorerLink" target="_blank" class="link">
                         ({{ record?.address?.slice(0, 6) + '...' + record?.address?.slice(-4) }})
                         <ExternalLinkIcon />
                     </a-typography-link>
@@ -35,30 +35,33 @@
 
         <div class="balance">
             <p class="in-currency" v-if="record?.balance">
-                <span class="amount">{{ formatNumber(record?.balance) }} </span>&nbsp;<span class="symbol">{{ record?.symbol }}</span>
+                <NumberTooltip :value="record?.balance" decimals="3" />
+                <span class="symbol"> {{ record?.symbol }}</span>
             </p>
 
             <p class="in-usd" v-if="record?.balanceUsd">
-                <span class="symbol">$</span>&nbsp;<span class="amount">{{ formatNumber(record?.balanceUsd) }}</span>
+                <span class="symbol">$</span>
+                <NumberTooltip :value="record?.balanceUsd" />
             </p>
         </div>
     </div>
 </template>
 <script>
+import { computed } from 'vue';
+
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import TokenIcon from '@/components/ui/TokenIcon';
+import NumberTooltip from '@/components/ui/NumberTooltip';
 
 import ExternalLinkIcon from '@/assets/icons/app/external-link.svg';
-
-import { formatNumber } from '@/helpers/prettyNumber';
-import { computed } from 'vue';
 
 export default {
     name: 'TokenRecord',
     components: {
         TokenIcon,
         ExternalLinkIcon,
+        NumberTooltip,
     },
     props: {
         record: {
@@ -84,13 +87,14 @@ export default {
             }
         };
 
+        const tokenExplorerLink = computed(() => getTokenExplorerLink(props.record?.address, props.record.chain));
+
         return {
             displayName,
-
             sendTokenInfo,
 
             // helpers
-            formatNumber,
+            tokenExplorerLink,
             getTokenExplorerLink,
         };
     },
@@ -108,11 +112,16 @@ export default {
 
     border-radius: 8px;
 
+    &.selected {
+        border: 1px solid var(--zmt-banner-logo-color);
+        background-color: var(--zmt-icon-secondary-bg-color);
+    }
+
     &:not(:last-child) {
         margin-bottom: 8px;
     }
 
-    &:hover {
+    &:not(.selected):hover {
         border-color: var(--#{$prefix}sub-text);
         background-color: var(--#{$prefix}select-bg-color);
     }
@@ -130,7 +139,7 @@ export default {
         justify-content: center;
 
         .top {
-            font-weight: 600;
+            font-weight: 500;
             font-size: var(--#{$prefix}h6-fs);
             text-transform: uppercase;
             color: var(--#{$prefix}primary-text);
@@ -196,26 +205,29 @@ export default {
         justify-content: center;
         align-items: flex-end;
 
-        .in-currency > span {
-            font-weight: 600;
-            font-size: var(--#{$prefix}h6-fs);
-            color: var(--#{$prefix}primary-text);
-        }
-
-        .in-usd {
-            font-size: var(--#{$prefix}small-md-fs);
+        .in-currency {
             font-weight: 500;
+            font-size: var(--#{$prefix}h6-fs);
+            color: var(--#{$prefix}symbol-text);
 
-            color: var(--#{$prefix}mute-text);
             .symbol {
-                font-weight: 300;
+                font-size: var(--#{$prefix}small-lg-fs);
+                font-weight: 400;
+                color: var(--#{$prefix}symbol-text);
+                margin-left: 3px;
             }
         }
 
-        span.symbol {
+        .in-usd {
             font-size: var(--#{$prefix}small-lg-fs);
-            color: var(--#{$prefix}mute-text);
-            font-weight: 400;
+            font-weight: 500;
+
+            color: var(--#{$prefix}checkbox-disabled);
+            .symbol {
+                font-size: var(--#{$prefix}small-lg-fs);
+                font-weight: 400;
+                color: var(--#{$prefix}checkbox-disabled);
+            }
         }
 
         p:not(:last-child) {

@@ -3,8 +3,7 @@
         <template v-if="column === 'name'">
             <div class="network">
                 <div class="logo">
-                    <img v-if="item.avatar" :src="item.avatar" />
-                    <TokenIcon v-else width="24" height="24" :token="item" />
+                    <TokenIcon width="24" height="24" :token="item" />
                     <div class="chain">
                         <img :src="item.chainLogo" />
                     </div>
@@ -20,28 +19,19 @@
             </div>
         </template>
         <template v-if="column === 'balance'">
-            <a-tooltip v-if="isTooltip(balance.pretty)" placement="topRight">
-                <template #title>{{ balance.value }}</template>
-                <div class="amount">
-                    <div class="value">
-                        {{ balance.pretty }}
-                    </div>
-                    <div class="symbol">{{ item?.symbol }}</div>
+            <div class="amount">
+                <div class="value">
+                    <NumberTooltip :value="balance" decimals="3" />
                 </div>
-            </a-tooltip>
-            <div v-else class="amount">
-                <div class="value" :title="balance.value">
-                    {{ balance.pretty }}
-                </div>
-                <div class="symbol">{{ item?.symbol }}</div>
+
+                <span class="symbol">{{ item?.symbol }}</span>
             </div>
         </template>
         <template v-if="column === 'balanceUsd'">
-            <a-tooltip v-if="isTooltip(balanceUsd.pretty)" placement="topRight">
-                <template #title>{{ balanceUsd.value }}</template>
-                <div class="value"><span>$</span>{{ balanceUsd.pretty }}</div>
-            </a-tooltip>
-            <div v-else class="value" :title="balanceUsd.value"><span> $ </span>{{ balanceUsd.pretty }}</div>
+            <div class="amount">
+                <span class="symbol">$</span>
+                <div class="value"><NumberTooltip :value="balanceUsd" /></div>
+            </div>
         </template>
     </div>
 </template>
@@ -50,6 +40,7 @@ import { computed } from 'vue';
 import { useStore } from 'vuex';
 
 import TokenIcon from '@/components/ui/TokenIcon';
+import NumberTooltip from '@/components/ui/NumberTooltip';
 
 import { formatNumber } from '@/helpers/prettyNumber';
 
@@ -69,51 +60,32 @@ export default {
     },
     components: {
         TokenIcon,
+        NumberTooltip,
     },
     setup(props) {
         const store = useStore();
         const showBalance = computed(() => store.getters['app/showBalance']);
 
-        const defaultVal = {
-            pretty: '****',
-            value: '****',
-        };
-
         const balance = computed(() => {
             if (!showBalance.value) {
-                return defaultVal;
+                return '****';
             }
 
-            return {
-                pretty: formatNumber(props.item?.balance, 6),
-                value: BigNumber(props.item?.balance).toString(),
-            };
+            return BigNumber(props.item?.balance).toString();
         });
 
         const balanceUsd = computed(() => {
             if (!showBalance.value) {
-                return defaultVal;
+                return '****';
             }
 
-            return {
-                pretty: formatNumber(props.item?.balanceUsd, 4),
-                value: BigNumber(props.item?.balanceUsd).toString(),
-            };
+            return BigNumber(props.item?.balanceUsd).toString();
         });
-
-        const isTooltip = (value) => {
-            if (!value) {
-                return false;
-            }
-
-            return value.includes('~') || false;
-        };
 
         return {
             balance,
             balanceUsd,
 
-            isTooltip,
             getFormattedName,
             getFormattedDate,
             formatNumber,
@@ -130,7 +102,7 @@ export default {
         display: inline-flex;
 
         .logo {
-            margin-right: 10px;
+            margin-right: 8px;
             position: relative;
 
             img {
@@ -169,7 +141,7 @@ export default {
         .name {
             font-size: var(--#{$prefix}h6-fs);
             color: var(--#{$prefix}primary-text);
-            font-weight: 500;
+            font-weight: 400;
             margin-left: 8px;
             white-space: nowrap;
             overflow: hidden;
@@ -192,10 +164,14 @@ export default {
             }
         }
 
-        .type,
+        .type {
+            color: var(--#{$prefix}sub-text);
+            font-weight: 400;
+        }
+
         .apr {
             color: var(--#{$prefix}sub-text);
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .apr,
@@ -221,20 +197,15 @@ export default {
             font-weight: 400;
             color: var(--#{$prefix}secondary-text);
             line-height: var(--#{$prefix}h6-fs);
+            margin-right: 3px;
         }
-    }
 
-    .value {
-        font-size: var(--#{$prefix}h6-fs);
-        line-height: var(--#{$prefix}h6-fs);
-        font-weight: 600;
-        margin-right: 3px;
-        color: var(--#{$prefix}primary-text);
-
-        span {
+        .value {
+            line-height: var(--#{$prefix}h5-fs);
+            font-size: var(--#{$prefix}h6-fs);
             font-weight: 400;
-            color: var(--#{$prefix}mute-text);
-            font-size: var(--#{$prefix}small-lg-fs);
+            margin-right: 3px;
+            color: var(--#{$prefix}primary-text);
         }
     }
 }

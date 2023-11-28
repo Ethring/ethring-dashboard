@@ -1,7 +1,8 @@
 <template>
     <div class="asset__item-header">
         <div class="asset__item-header-info">
-            <div class="asset__item-header-logo">
+            <TokenLogo v-if="title === 'Tokens'" />
+            <div v-else class="asset__item-header-logo">
                 <NftsLogo v-if="title === 'NFT'" />
                 <img
                     v-else-if="logoURI && !showImagePlaceholder"
@@ -10,8 +11,9 @@
                     @error="showImagePlaceholder = true"
                     @load="showImagePlaceholder = false"
                 />
-                <TokenLogo v-else class="token__logo" />
+                <PlaceHolderLogo v-else class="token__logo" />
             </div>
+
             <div class="asset__item-header-name">
                 {{ title }}
                 <div class="asset__item-header-value" v-if="value > 0">
@@ -34,11 +36,14 @@
         <div class="column">
             <div class="asset__item-header-balance">
                 <span class="asset__item-header-symbol">$</span>
-                <h4>{{ showBalance ? formatNumber(totalBalance, 2) : '***' }}</h4>
+                <NumberTooltip v-if="showBalance" :value="totalBalance" />
+                <h4 v-else>****</h4>
             </div>
+
             <div class="asset__item-header-reward" v-if="showRewards">
-                <span>{{ $t('tokenOperations.rewards') }}:</span>
-                <p>{{ showBalance ? formatNumber(reward) : '***' }}</p>
+                <span class="asset__item-header-reward-title">{{ $t('tokenOperations.rewards') }}:</span>
+                <NumberTooltip v-if="showBalance" :value="reward" />
+                <p v-else>****</p>
                 <span class="asset__item-header-reward-symbol"> $ </span>
             </div>
         </div>
@@ -48,8 +53,10 @@
 import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 
-import TokenLogo from '@/assets/icons/dashboard/tokenLogo.svg';
+import TokenLogo from '@/assets/icons/dashboard/wallet.svg';
 import NftsLogo from '@/assets/icons/dashboard/nfts.svg';
+import NumberTooltip from '@/components/ui/NumberTooltip';
+import PlaceHolderLogo from '@/assets/icons/dashboard/tokenLogo.svg';
 
 import { formatNumber } from '@/helpers/prettyNumber';
 
@@ -86,6 +93,8 @@ export default {
     components: {
         TokenLogo,
         NftsLogo,
+        NumberTooltip,
+        PlaceHolderLogo,
     },
     setup() {
         const store = useStore();
@@ -126,8 +135,6 @@ export default {
     @include pageFlexRow;
 
     justify-content: space-between;
-    padding-bottom: 16px;
-    border-bottom: 1px dashed var(--#{$prefix}border-secondary-color);
 
     &-info {
         @include pageFlexRow;
@@ -147,7 +154,7 @@ export default {
     &-name {
         color: var(--#{$prefix}primary-text);
         font-size: var(--#{$prefix}h4-fs);
-        font-weight: 600;
+        font-weight: 500;
 
         display: flex;
         align-items: baseline;
@@ -165,7 +172,7 @@ export default {
     &-value {
         font-size: var(--#{$prefix}h5-fs);
         color: var(--#{$prefix}eye-logo-hover);
-        font-weight: 600;
+        font-weight: 500;
         margin-left: 8px;
     }
 
@@ -174,6 +181,7 @@ export default {
         line-height: 16px;
         color: var(--#{$prefix}mute-text);
         font-weight: 400;
+        margin-right: 3px;
 
         &__left {
             margin-left: 5px;
@@ -182,23 +190,19 @@ export default {
 
     &-balance {
         display: flex;
-        align-items: baseline;
         align-self: flex-end;
 
-        h4 {
-            color: var(--#{$prefix}primary-text);
-            font-size: var(--#{$prefix}h5-fs);
-            line-height: 16px;
-            font-weight: 600;
-            margin-left: 2px;
-        }
+        color: var(--#{$prefix}primary-text);
+        font-size: var(--#{$prefix}h5-fs);
+        line-height: 14px;
+        font-weight: 500;
     }
 
     &-reward {
         display: flex;
-        align-items: flex-end;
         align-self: flex-end;
-
+        color: var(--#{$prefix}eye-logo-hover);
+        font-weight: 500;
         margin-top: 6px;
 
         span {
@@ -207,11 +211,19 @@ export default {
             color: var(--#{$prefix}mute-text);
         }
 
+        &-title {
+            margin-right: 6px;
+        }
+
         p {
             color: var(--#{$prefix}sub-text);
             font-size: var(--#{$prefix}small-lg-fs);
-            font-weight: 600;
+            font-weight: 500;
             margin: 0 2px 0 6px;
+        }
+
+        &-symbol {
+            margin-left: 2px;
         }
     }
 

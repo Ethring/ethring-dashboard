@@ -98,7 +98,6 @@ export default {
     &__account {
         @include pageFlexRow;
         width: 100%;
-        transition: 0.5s;
     }
 
     &__logos {
@@ -144,7 +143,7 @@ export default {
 
         .account {
             font-size: var(--#{$prefix}small-lg-fs);
-            font-weight: 700;
+            font-weight: 500;
             color: var(--#{$prefix}primary-text);
         }
 

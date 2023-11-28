@@ -42,7 +42,7 @@ export default {
     font-weight: 500;
     color: var(--#{$prefix}base-text);
     font-size: var(--#{$prefix}small-sm-fs);
-    margin: 16px 0 8px;
+    margin: 8px 0 0;
     height: 32px;
     @include pageFlexRow;
 

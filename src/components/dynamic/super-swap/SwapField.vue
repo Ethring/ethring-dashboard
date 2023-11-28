@@ -41,24 +41,25 @@
             <template v-if="isAmountLoading">
                 <a-skeleton-input active size="small" />
             </template>
-            <p v-else>
-                $
-                <span>{{ formatNumber(+token?.price * +amount, 4) }}</span>
+            <p v-else class="balance__value">
+                <span>$</span>
+                <NumberTooltip :value="payTokenPrice" />
                 <span class="percentage" v-if="percentage && !isNaN(percentage)">({{ percentage }} %)</span>
             </p>
             <p @click.stop="setMax" v-if="!hideMax && !isTokenLoading && token" class="balance__value" :class="{ error }">
-                {{ $t('tokenOperations.balance') }}:
-                <span>
-                    {{ formatNumber(token?.balance) }}
-                </span>
-                {{ token?.symbol }}
+                <span>{{ $t('tokenOperations.balance') }}:</span>
+
+                <NumberTooltip :value="token?.balance" decimals="3" />
+                <span>{{ token?.symbol }}</span>
             </p>
             <a-skeleton-input v-if="!hideMax && isTokenLoading" active />
         </div>
     </div>
 </template>
 <script>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
+
+import NumberTooltip from '@/components/ui/NumberTooltip';
 
 import BigNumber from 'bignumber.js';
 
@@ -67,7 +68,7 @@ import { formatInputNumber } from '@/helpers/numbers';
 
 export default {
     name: 'SwapField',
-    components: {},
+    components: { NumberTooltip },
     props: {
         label: {
             required: true,
@@ -143,6 +144,10 @@ export default {
             }
         };
 
+        const payTokenPrice = computed(() => {
+            return +props.token?.price * +amount.value || 0;
+        });
+
         watch(amount, (val) => {
             if (val) {
                 if (symbolForReplace.value) {
@@ -176,7 +181,7 @@ export default {
         return {
             amount,
             placeholder,
-
+            payTokenPrice,
             focused,
             error,
 
@@ -213,7 +218,7 @@ export default {
     .label {
         color: var(--#{$prefix}select-label-color);
         font-size: var(--#{$prefix}default-fs);
-        font-weight: 500;
+        font-weight: 400;
         cursor: default;
     }
 
@@ -224,7 +229,7 @@ export default {
         outline: none;
         background-color: transparent;
         font-size: var(--#{$prefix}h4-fs);
-        font-weight: 600;
+        font-weight: 700;
         height: 32px;
         color: var(--#{$prefix}primary-text);
         margin-top: 4px;
@@ -244,28 +249,18 @@ export default {
         font-size: var(--#{$prefix}small-lg-fs);
         cursor: default;
 
-        span {
-            font-weight: 600;
+        &__value {
+            cursor: pointer;
+            font-weight: 500;
             font-size: var(--#{$prefix}small-lg-fs);
             color: var(--#{$prefix}sub-text);
-        }
-
-        h4 {
-            font-weight: 600;
-            color: var(--#{$prefix}base-text);
-            font-size: var(--#{$prefix}small-lg-fs);
-            line-height: 21px;
-            cursor: default;
 
             span {
                 font-size: var(--#{$prefix}small-lg-fs);
                 color: var(--#{$prefix}base-text);
                 font-weight: 400;
+                margin-left: 2px;
             }
-        }
-
-        &__value {
-            cursor: pointer;
         }
 
         .percentage {

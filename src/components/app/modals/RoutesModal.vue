@@ -26,16 +26,18 @@
                             {{ $t('superSwap.time') }}: ~
                             <h4 class="mr-20">{{ item.estimateTime }}s</h4>
                             {{ $t('superSwap.fee') }}:
-                            <h4>{{ prettyNumberTooltip(item.estimateFeeUsd, 6) }}</h4>
+                            <h4>
+                                <NumberTooltip :value="item.estimateFeeUsd" decimals="3" />
+                            </h4>
                             $
                         </div>
                     </div>
                     <div class="routes-modal__output">
                         <h3>
-                            {{ prettyNumberTooltip(item.toTokenAmount, 4) }}
+                            <NumberTooltip :value="item.toTokenAmount" decimals="3" />
                             <span>{{ item.routes[item.routes.length - 1]?.toToken?.symbol }}</span>
                         </h3>
-                        <h3 class="blue-text">{{ prettyNumberTooltip(item.toAmountUsd, 2) }} <span>$</span></h3>
+                        <h3 class="blue-text"><NumberTooltip :value="item.toAmountUsd" /><span>$</span></h3>
                     </div>
                 </div>
                 <Button
@@ -55,14 +57,16 @@ import { useStore } from 'vuex';
 
 import Modal from '@/components/app/Modal';
 import Button from '@/components/ui/Button';
+import NumberTooltip from '@/components/ui/NumberTooltip';
 
-import { prettyNumberTooltip } from '@/helpers/prettyNumber';
+// import useAdapter from '@/Adapter/compositions/useAdapter';
 
 export default {
     name: 'RoutesModal',
     components: {
         Modal,
         Button,
+        NumberTooltip,
     },
     emits: ['close'],
     setup() {
@@ -138,7 +142,7 @@ export default {
             routeInfo,
             selectedRoute,
             isLoading,
-            prettyNumberTooltip,
+
             confirm,
             setActiveRoute,
             getStatus,
@@ -160,16 +164,16 @@ export default {
 
     &__item {
         border-radius: 16px;
-        padding: 16px;
+        padding: 12px;
         width: 100%;
 
         @include pageFlexRow;
         justify-content: space-between;
 
-        margin-bottom: 12px;
+        margin-bottom: 16px;
 
-        background-color: var(--#{$prefix}modal-block-bg-color);
-        border: 1px solid var(--#{$prefix}modal-block-bg-color);
+        background-color: var(--#{$prefix}select-bg-color);
+        border: 1px solid var(--#{$prefix}select-bg-color);
 
         cursor: pointer;
     }
@@ -193,15 +197,15 @@ export default {
         }
         h3 {
             font-weight: 600;
-            font-size: var(--#{$prefix}default-fs);
+            font-size: var(--#{$prefix}h6-fs);
             color: var(--#{$prefix}primary-text);
 
             margin: 0;
-            margin-top: -6px;
 
             span {
                 color: var(--#{$prefix}mute-text);
                 font-weight: 400;
+                margin-left: 3px;
             }
         }
 
@@ -214,10 +218,11 @@ export default {
         .blue-text {
             color: var(--#{$prefix}sub-text) !important;
             font-size: var(--#{$prefix}small-lg-fs);
-            margin-top: 4px;
+            margin-top: 6px;
 
             span {
                 color: var(--#{$prefix}sub-text);
+                margin-left: 2px;
             }
         }
     }
@@ -227,8 +232,6 @@ export default {
     }
 
     .routes-service {
-        margin-top: -8px;
-
         &__name {
             font-size: var(--#{$prefix}default-fs);
             margin: 0;
@@ -238,14 +241,15 @@ export default {
         }
 
         &__icon {
+            @include pageFlexRow;
+            justify-content: center;
             border-radius: 50%;
             width: 32px;
-            padding: 3px 4px;
             height: 32px;
-            border: 2px solid var(--#{$prefix}banner-logo-color);
+            border: 1px solid var(--#{$prefix}banner-logo-color);
 
             img {
-                width: 100%;
+                width: 90%;
                 border-radius: 50%;
             }
         }
@@ -273,11 +277,11 @@ export default {
         }
 
         &__status {
-            border-radius: 20px;
+            border-radius: 24px;
             font-size: var(--#{$prefix}small-sm-fs);
             font-weight: 400;
-            color: var(--#{$prefix}black);
-            padding: 1px 10px;
+            color: var(--#{$prefix}white);
+            padding: 4px 10px;
             margin: 2px 0 0 6px;
         }
 

@@ -262,14 +262,14 @@ export default {
     }
 
     &__items-item {
-        opacity: 0;
-
         @include pageFlexRow;
+        @include animateEasy;
+
+        opacity: 0;
         justify-content: space-between;
-        min-height: 56px;
+        height: 56px;
         border-bottom: 1px dashed var(--#{$prefix}border-secondary-color);
         cursor: pointer;
-        @include animateEasy;
 
         .info {
             .name {
@@ -286,7 +286,7 @@ export default {
                 @include pageFlexRow;
                 justify-content: center;
 
-                margin-right: 10px;
+                margin-right: 8px;
 
                 img {
                     width: 100%;
@@ -301,7 +301,7 @@ export default {
             .info {
                 .name {
                     color: var(--#{$prefix}select-item-active-color);
-                    font-weight: 600;
+                    font-weight: 500;
                 }
             }
         }
@@ -313,7 +313,7 @@ export default {
         &:hover {
             .info {
                 .name {
-                    color: var(--#{$prefix}sub-text);
+                    color: var(--#{$prefix}primary-text);
                 }
             }
             .select__items-item-logo {

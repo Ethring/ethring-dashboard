@@ -3,8 +3,9 @@
         <div class="search-input__logo">
             <SearchIcon />
         </div>
-        <div>
-            <input @focus="isActive = 'active'" @blur="isActive = ''" v-model="text" placeholder="Search" />
+        <div class="search-input__container">
+            <span>{{ $t('dashboard.search') }}</span>
+            <input @focus="isActive = 'active'" @blur="isActive = ''" v-model="text" :placeholder="$t('tokenOperations.searchToken')" />
         </div>
         <div v-if="text.length" class="search-input__clear" @click="clearValue">
             <ClearIcon />
@@ -60,6 +61,10 @@ export default {
 
     background: var(--#{$prefix}select-bg-color);
 
+    &__container {
+        width: 100%;
+    }
+
     span {
         display: block;
 
@@ -67,7 +72,6 @@ export default {
         font-weight: 500;
         font-size: var(--#{$prefix}small-lg-fs);
         color: var(--#{$prefix}base-text);
-        line-height: 21px;
     }
 
     &__logo {
@@ -111,6 +115,8 @@ export default {
     }
 
     input {
+        width: 100%;
+
         font-style: normal;
         font-weight: 600;
         font-size: var(--#{$prefix}h5-fs);

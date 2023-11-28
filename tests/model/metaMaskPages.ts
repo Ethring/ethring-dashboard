@@ -90,8 +90,6 @@ export class MetaMaskHomePage {
         await this.page.click('[data-testid="onboarding-complete-done"]');
         await this.page.click('[data-testid="pin-extension-next"]');
         await this.page.click('[data-testid="pin-extension-done"]');
-        await this.page.getByText('Try it out').click();
-        await this.page.getByText('Enable smart swaps').click();
     }
 
     async unlockWallet() {
@@ -130,6 +128,10 @@ export class MetaMaskNotifyPage {
         await this.page.click('[data-testid="page-container-footer-next"]');
     }
 
+    async rejectTx() {
+        await this.page.click('[data-testid="page-container-footer-cancel"]');
+    }
+
     async getReceiverAddress() {
         await this.page.click('[data-testid="sender-to-recipient__name"]');
         const result = await this.page.innerText('div.nickname-popover__public-address__constant');
@@ -145,5 +147,10 @@ export class MetaMaskNotifyPage {
     async addAndAcceptChangeNetwork() {
         await this.page.locator('//button[@class="button btn--rounded btn-primary"]').click();
         await this.page.locator('//button[@class="button btn--rounded btn-primary"]').click();
+    }
+
+    async changeNetwork() {
+        await this.page.click('[data-testid="confirmation-submit-button"]');
+        await this.page.click('[data-testid="confirmation-submit-button"]');
     }
 }

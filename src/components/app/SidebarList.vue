@@ -120,8 +120,8 @@ export default {
         }
 
         &.disabled {
-            opacity: 0.5;
             cursor: not-allowed;
+            color: var(--#{$prefix}checkbox-disabled-text);
 
             .sidebar-list__item-status {
                 color: var(--#{$prefix}checkbox-text);
@@ -142,7 +142,7 @@ export default {
     &__item-title {
         margin-left: 10px;
 
-        font-weight: 300;
+        font-weight: 400;
         font-size: var(--#{$prefix}h5-fs);
 
         display: flex;
@@ -152,9 +152,8 @@ export default {
     &__item-status {
         color: var(--#{$prefix}sidebar-active-color);
         font-size: var(--#{$prefix}small-sm-fs);
-        font-weight: 600;
-
-        margin-left: 6px;
+        font-weight: 700;
+        margin-top: -6px;
     }
 
     &.collapsed {

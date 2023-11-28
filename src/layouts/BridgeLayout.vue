@@ -29,6 +29,8 @@ export default {
 
     width: calc(100% - 260px);
 
+    max-width: 685px;
+
     &__active {
         @include pageFlexColumn;
         color: var(--#{$prefix}black);
@@ -38,16 +40,16 @@ export default {
 .bridge-page__title {
     color: var(--#{$prefix}base-text);
     font-size: var(--#{$prefix}h3-fs);
-    font-weight: 600;
+    font-weight: 400;
 
-    margin-bottom: 18px;
+    margin-bottom: 16px;
     text-decoration: none;
 
     &__active {
         color: var(--#{$prefix}primary-text);
         font-size: var(--#{$prefix}h3-fs);
-        font-weight: 600;
-        margin-bottom: 18px;
+        font-weight: 700;
+        margin-bottom: 16px;
         text-decoration: none;
     }
 }

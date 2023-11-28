@@ -9,15 +9,40 @@ const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 const DEBRIDGE_TRADE_ORDERS = 'https://api.dln.trade/v1.0/dln/tx';
 const DEBRIDGE_TX_ORDERS = 'https://dln-api.debridge.finance/api/Orders';
 
+const createCancelToken = () => axios.CancelToken.source();
+
+const SOURCES = {
+    estimateBridge: createCancelToken(),
+    estimateSwap: createCancelToken(),
+    getBridgeTx: createCancelToken(),
+    getSwapTx: createCancelToken(),
+    getApproveTx: createCancelToken(),
+};
+
+const cancelRequest = async (source) => {
+    if (source) {
+        await source.cancel();
+    }
+};
+
+export const cancelRequestByMethod = async (method) => {
+    if (SOURCES[method]) {
+        await cancelRequest(SOURCES[method]);
+        SOURCES[method] = createCancelToken();
+    }
+};
+
 export const estimateSwap = async ({ url, net, fromTokenAddress, toTokenAddress, amount, ownerAddress }) => {
+    const route = 'estimateSwap';
+
     if (!url) {
         throw new Error('url is required');
     }
 
     try {
-        const response = await fetchData({
+        const fetchParams = {
             url,
-            route: 'estimateSwap',
+            route,
             params: {
                 net,
                 fromTokenAddress: fromTokenAddress || NATIVE_CONTRACT,
@@ -25,7 +50,13 @@ export const estimateSwap = async ({ url, net, fromTokenAddress, toTokenAddress,
                 amount,
                 ownerAddress,
             },
-        });
+        };
+
+        if (SOURCES[route]) {
+            fetchParams.cancelToken = SOURCES[route].token;
+        }
+
+        const response = await fetchData(fetchParams);
 
         if (response.error) {
             return checkErrors(response.error);
@@ -38,14 +69,16 @@ export const estimateSwap = async ({ url, net, fromTokenAddress, toTokenAddress,
 };
 
 export const estimateBridge = async ({ url, fromNet, toNet, fromTokenAddress, toTokenAddress, amount, ownerAddress }) => {
+    const route = 'estimateBridge';
+
     if (!url) {
         throw new Error('url is required');
     }
 
     try {
-        const response = await fetchData({
+        const fetchParams = {
             url,
-            route: 'estimateBridge',
+            route,
             params: {
                 fromNet,
                 toNet,
@@ -54,7 +87,13 @@ export const estimateBridge = async ({ url, fromNet, toNet, fromTokenAddress, to
                 amount,
                 ownerAddress,
             },
-        });
+        };
+
+        if (SOURCES[route]) {
+            fetchParams.cancelToken = SOURCES[route].token;
+        }
+
+        const response = await fetchData(fetchParams);
 
         if (response.error) {
             return checkErrors(response.error);
@@ -107,20 +146,28 @@ export const getAllowance = async ({ url, net, tokenAddress, ownerAddress, store
 };
 
 export const getApproveTx = async ({ url, net, tokenAddress, ownerAddress, store, service }) => {
+    const route = 'getApproveTx';
+
     if (!url) {
         throw new Error('url is required');
     }
 
     try {
-        const response = await fetchData({
+        const fetchParams = {
             url,
-            route: 'getApproveTx',
+            route,
             params: {
                 net,
                 tokenAddress,
                 ownerAddress,
             },
-        });
+        };
+
+        if (SOURCES[route]) {
+            fetchParams.cancelToken = SOURCES[route].token;
+        }
+
+        const response = await fetchData(fetchParams);
 
         if (response.error) {
             return checkErrors(response.error);
@@ -143,10 +190,16 @@ export const getApproveTx = async ({ url, net, tokenAddress, ownerAddress, store
 };
 
 export const getSwapTx = async ({ url, net, fromTokenAddress, toTokenAddress, amount, ownerAddress, slippage = 0.5 }) => {
+    const route = 'getSwapTx';
+
+    if (!url) {
+        throw new Error('url is required');
+    }
+
     try {
-        const response = await fetchData({
+        const fetchParams = {
             url,
-            route: 'getSwapTx',
+            route,
             params: {
                 net,
                 fromTokenAddress: fromTokenAddress || NATIVE_CONTRACT,
@@ -155,7 +208,13 @@ export const getSwapTx = async ({ url, net, fromTokenAddress, toTokenAddress, am
                 ownerAddress,
                 slippage,
             },
-        });
+        };
+
+        if (SOURCES[route]) {
+            fetchParams.cancelToken = SOURCES[route].token;
+        }
+
+        const response = await fetchData(fetchParams);
 
         if (response.error) {
             return checkErrors(response.error);
@@ -177,11 +236,18 @@ export const getBridgeTx = async ({
     ownerAddress,
     recipientAddress,
     fallbackAddress,
+    ...rest
 }) => {
+    const route = 'getBridgeTx';
+
+    if (!url) {
+        throw new Error('url is required');
+    }
+
     try {
-        const response = await fetchData({
+        const fetchParams = {
             url,
-            route: 'getBridgeTx',
+            route,
             params: {
                 fromNet,
                 toNet,
@@ -191,8 +257,15 @@ export const getBridgeTx = async ({
                 ownerAddress,
                 recipientAddress,
                 fallbackAddress,
+                ...rest,
             },
-        });
+        };
+
+        if (SOURCES[route]) {
+            fetchParams.cancelToken = SOURCES[route].token;
+        }
+
+        const response = await fetchData(fetchParams);
 
         if (response.error) {
             return checkErrors(response.error);

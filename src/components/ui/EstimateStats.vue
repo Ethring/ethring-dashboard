@@ -1,23 +1,26 @@
 <template>
     <div class="estimate-stats">
         <p class="title" v-if="title">{{ $t(title) }}:</p>
-        <p>
-            <span class="amount">{{ fromAmount }} </span>
+
+        <p v-if="fromAmount" class="amount">
+            <NumberTooltip :value="fromAmount" :decimals="fromSymbol === '$' ? 2 : 3" />
             <span class="symbol">{{ fromSymbol }} </span>
         </p>
 
         <span class="symbol-between">{{ symbolBetween }}</span>
 
-        <p>
-            <span class="amount">{{ toAmount }} </span>
+        <p class="amount">
+            <NumberTooltip :value="toAmount" :decimals="toSymbol === '$' ? 2 : 3" />
             <span class="symbol">{{ toSymbol }} </span>
         </p>
     </div>
 </template>
 <script>
+import NumberTooltip from '@/components/ui/NumberTooltip';
+
 export default {
     name: 'EstimateStats',
-
+    components: { NumberTooltip },
     props: {
         title: {
             type: String,
@@ -57,20 +60,22 @@ export default {
     flex-wrap: wrap;
     font-size: var(--#{$prefix}default-fs);
     color: var(--#{$prefix}primary-text);
+    margin: 2px 0 0;
 
     .title {
-        font-weight: 500;
+        font-weight: 400;
         color: var(--#{$prefix}accordion-label-color);
         margin-right: 10px;
     }
 
     .amount {
-        font-weight: 600;
-        color: var(--#{$prefix}sub-text);
+        font-weight: 700;
+        color: var(--#{$prefix}primary-text);
     }
 
     .symbol {
         font-weight: 300;
+        color: var(--#{$prefix}primary-text);
     }
 
     .symbol-between {

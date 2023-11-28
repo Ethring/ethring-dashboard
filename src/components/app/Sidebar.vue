@@ -114,7 +114,7 @@ export default {
         align-self: flex-start;
 
         color: var(--#{$prefix}sidebar-text);
-        margin-bottom: 50px;
+        margin-bottom: 26px;
 
         cursor: not-allowed;
         opacity: 0.5;
@@ -142,7 +142,7 @@ export default {
     }
 
     &__logo {
-        margin-bottom: 70px;
+        margin-bottom: 56px;
 
         &-item {
             display: flex;
@@ -153,6 +153,8 @@ export default {
             color: var(--#{$prefix}sidebar-active-color);
             font-size: 12px;
             font-weight: 700;
+            margin-left: -12px;
+            margin-top: -4px;
         }
     }
 

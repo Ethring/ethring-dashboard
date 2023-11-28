@@ -266,7 +266,7 @@ export default {
         }
 
         &:not(:last-child) {
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
 
         &:hover {

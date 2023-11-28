@@ -1,9 +1,5 @@
 <template>
     <div class="wallet-info">
-        <div class="wallet-info__network">
-            <WalletIcon />
-        </div>
-
         <div class="wallet-info__wallet">
             <div class="address">
                 {{ cutAddress(walletAccount) }}
@@ -14,7 +10,8 @@
             <div v-else class="balance">
                 <div class="value">
                     <span>$</span>
-                    {{ showBalance ? formatNumber(totalBalance, 2) : '****' }}
+                    <NumberTooltip v-if="showBalance" :value="totalBalance" />
+                    <span v-else>****</span>
                 </div>
             </div>
         </div>
@@ -27,14 +24,13 @@ import { useStore } from 'vuex';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import { cutAddress } from '@/helpers/utils';
-import { formatNumber } from '@/helpers/prettyNumber';
 
-import WalletIcon from '@/assets/icons/dashboard/wallet.svg';
+import NumberTooltip from '@/components/ui/NumberTooltip';
 
 export default {
     name: 'WalletInfo',
     components: {
-        WalletIcon,
+        NumberTooltip,
     },
     setup() {
         const store = useStore();
@@ -52,7 +48,6 @@ export default {
             totalBalance,
             currentChainInfo,
             walletAccount,
-            formatNumber,
             cutAddress,
             showBalance,
         };
@@ -64,23 +59,6 @@ export default {
     display: flex;
     align-items: center;
 
-    &__network {
-        width: 64px;
-        height: 64px;
-
-        @include pageFlexRow;
-        justify-content: center;
-
-        border-radius: 50%;
-        margin-right: 16px;
-        background: var(--#{$prefix}banner-logo-color);
-
-        svg {
-            fill: var(--#{$prefix}black);
-            opacity: 1;
-        }
-    }
-
     &__wallet {
         display: flex;
         flex-direction: column;
@@ -91,7 +69,7 @@ export default {
         }
 
         & > div:first-child {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .address {

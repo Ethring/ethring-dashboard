@@ -1,6 +1,6 @@
 <template>
     <div class="select" ref="selectBlock">
-        <div class="select__block" :class="{ 'select__block-active': showOptions }" @click="() => toggleOptions()">
+        <div class="select__block" data-qa="select__block" :class="{ 'select__block-active': showOptions }" @click="() => toggleOptions()">
             <div class="logo">
                 <TokenIcon width="24px" height="24px" :token="selectedItem" />
             </div>
@@ -8,17 +8,18 @@
             <h3 v-else>Select</h3>
             <ArrowIcon class="arrow" />
         </div>
-        <div class="select__items" v-if="showOptions">
+        <div class="select__items" data-qa="select__items" v-if="showOptions">
             <div class="select__items-search">
-                <input v-model="searchValue" :placeholder="placeholder" />
                 <SearchIcon />
+                <input v-model="searchValue" :placeholder="placeholder" />
             </div>
             <div class="select__items-list" v-if="optionsList.length" @scroll="loadMore">
                 <div
                     v-for="(item, i) in optionsList"
                     :key="i"
-                    :class="{ active: item.net === selectedItem?.net, isToken }"
+                    :class="{ active: item.net === selectedItem?.net, isToken, selected: item.selected }"
                     class="select__items-item"
+                    data-qa="item"
                     @click="onSelect(item)"
                 >
                     <div class="row">
@@ -26,15 +27,19 @@
                             <TokenIcon width="24px" height="24px" :token="item" />
                         </div>
                         <div class="column">
-                            <h3>{{ !isToken ? item?.name : item?.symbol }}</h3>
+                            <h3 data-qa="item__name">{{ !isToken ? item?.name : item?.symbol }}</h3>
                             <h5 v-if="isToken">{{ item?.name }}</h5>
                         </div>
                     </div>
                     <div class="balance" v-if="balance">
                         <h4>
-                            {{ formatNumber(item.balance) }} <span>{{ item.symbol }}</span>
+                            <NumberTooltip :value="item.balance" decimals="3" />
+                            <span>{{ item.symbol }}</span>
                         </h4>
-                        <h6><span>$</span>{{ formatNumber(item.balanceUsd, 2) }}</h6>
+                        <h6>
+                            <span>$</span>
+                            <NumberTooltip :value="item.balanceUsd" decimals="2" />
+                        </h6>
                     </div>
                 </div>
 
@@ -63,6 +68,7 @@ import { ref, watch } from 'vue';
 import { onClickOutside } from '@vueuse/core';
 
 import TokenIcon from '@/components/ui/TokenIcon';
+import NumberTooltip from '@/components/ui/NumberTooltip';
 
 import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 import SearchIcon from '@/assets/icons/app/search.svg';
@@ -75,7 +81,7 @@ import { searchByKey } from '@/helpers/utils';
 export default {
     name: 'Select',
 
-    components: { TokenIcon, ArrowIcon, SearchIcon },
+    components: { TokenIcon, ArrowIcon, SearchIcon, NumberTooltip },
 
     props: {
         value: {
@@ -232,7 +238,6 @@ export default {
             right: 16px;
             cursor: pointer;
             fill: var(--#{$prefix}select-icon-color);
-            transform: scale(0.8);
             @include animateEasy;
         }
 
@@ -251,11 +256,16 @@ export default {
             overflow: hidden;
             width: 100px;
         }
+
+        &:hover {
+            border: 1px solid var(--#{$prefix}select-active-border-color);
+            background: var(--#{$prefix}select-active-bg-color);
+        }
     }
 
     h3 {
         font-size: var(--#{$prefix}h6-fs);
-        color: var(--#{$prefix}primary-text) !important;
+        color: var(--#{$prefix}primary-text);
         line-height: var(--#{$prefix}h6-fs);
         font-weight: 500;
         margin: auto 0 auto 6px;
@@ -266,7 +276,7 @@ export default {
         height: 32px;
     }
     &__items {
-        padding: 20px 26px 6px;
+        padding: 16px 16px 2px;
         position: absolute;
         z-index: 10;
         left: 0;
@@ -282,6 +292,12 @@ export default {
             height: 200px;
             overflow-y: auto;
             padding-right: 12px;
+
+            .active {
+                h3 {
+                    color: var(--#{$prefix}primary-text);
+                }
+            }
         }
 
         &-not-found {
@@ -298,8 +314,10 @@ export default {
         }
 
         h3 {
-            font-weight: 600;
+            color: var(--#{$prefix}base-text);
+            font-weight: 500;
             margin: 0;
+            line-height: 18px;
         }
 
         h5 {
@@ -307,7 +325,7 @@ export default {
             color: var(--#{$prefix}sub-text);
             font-size: var(--#{$prefix}small-sm-fs);
             margin: 0;
-            line-height: var(--#{$prefix}default-fs);
+            line-height: 16px;
         }
 
         &-search {
@@ -318,7 +336,6 @@ export default {
             @include pageFlexRow;
             justify-content: space-between;
             padding: 0 16px;
-            margin-bottom: 4px;
 
             svg {
                 fill: var(--#{$prefix}sub-text);
@@ -336,12 +353,20 @@ export default {
 
         &-item {
             @include pageFlexRow;
+            height: 56px;
             justify-content: space-between;
-            padding: 16px 0;
+            padding: 16px;
+            padding-left: 0;
             border-bottom: 1px dashed var(--#{$prefix}border-secondary-color);
 
+            &.selected {
+                border: 1px solid var(--zmt-banner-logo-color) !important;
+                background-color: var(--zmt-icon-secondary-bg-color);
+                border-radius: 8px;
+            }
+
             &:last-child {
-                border-bottom: none !important;
+                border-bottom: none;
             }
 
             &:hover {
@@ -361,11 +386,15 @@ export default {
                 }
 
                 h4 {
-                    font-weight: 600;
+                    font-weight: 500;
                     color: var(--#{$prefix}primary-text);
-                    font-size: var(--#{$prefix}default-fs);
+                    font-size: var(--#{$prefix}h6-fs);
                     margin: 0;
                     line-height: var(--#{$prefix}h5-fs);
+
+                    span {
+                        margin-left: 2px;
+                    }
                 }
 
                 h6 {
@@ -376,7 +405,6 @@ export default {
 
                     span {
                         font-size: var(--#{$prefix}small-sm-fs);
-                        margin-right: 2px;
                     }
                 }
             }
@@ -390,11 +418,12 @@ export default {
             @include pageFlexColumn;
             justify-content: center;
             align-items: flex-start;
-            margin-left: 12px;
+            margin-left: 10px;
         }
 
         .isToken {
-            padding: 12.7px 0;
+            padding: 10px 8px;
+            margin: 6px 0;
         }
     }
 

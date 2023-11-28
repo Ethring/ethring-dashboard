@@ -161,6 +161,7 @@ export default {
         [TYPES.DISCONNECT_ALL_WALLETS](state) {
             state.wallets = [];
             state.ecosystem = null;
+            state.lastConnectedWallet = {};
 
             connectedWalletsStorage.value = [];
             lastConnectedWalletStorage.value = {};

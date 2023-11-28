@@ -40,7 +40,7 @@ export default {
         box-sizing: border-box;
 
         border-radius: 16px;
-        height: 100px;
+        height: 80px;
 
         display: flex;
         justify-content: space-between;

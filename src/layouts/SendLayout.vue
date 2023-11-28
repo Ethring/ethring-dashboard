@@ -54,6 +54,8 @@ export default {
     align-items: baseline;
     width: calc(100% - 260px);
 
+    max-width: 685px;
+
     &__active {
         @include pageFlexColumn;
         color: var(--#{$prefix}black);
@@ -63,14 +65,14 @@ export default {
 .send-page__title {
     color: var(--#{$prefix}base-text);
     font-size: var(--#{$prefix}h3-fs);
-    font-weight: 600;
-    margin-bottom: 18px;
+    font-weight: 400;
+    margin-bottom: 16px;
     text-decoration: none;
 
     &__active {
         font-size: var(--#{$prefix}h3-fs);
-        font-weight: 600;
-        margin-bottom: 18px;
+        font-weight: 700;
+        margin-bottom: 16px;
         text-decoration: none;
         color: var(--#{$prefix}primary-text);
     }

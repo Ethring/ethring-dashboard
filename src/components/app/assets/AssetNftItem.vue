@@ -18,8 +18,8 @@
                 <span class="nft-count">({{ item.nfts.length }})</span>
             </div>
 
-            <div class="column-2" :title="balance.value"><span>$</span>{{ balance.pretty }}</div>
-            <div class="column-3" :title="balanceUsd.value"><span>$</span>{{ balanceUsd.pretty }}</div>
+            <div class="column-2"><span>$</span><NumberTooltip :value="balance" /></div>
+            <div class="column-3"><span>$</span><NumberTooltip :value="balanceUsd" /></div>
 
             <ArrowIcon v-if="!hideContent" class="arrow" />
         </div>
@@ -34,7 +34,7 @@
                                 <MaskIcon v-else class="avatar-placeholder" />
                                 <p>{{ nft.name }}</p>
                                 <h5 v-if="nft.price">
-                                    {{ formatNumber(nft.price, 2) }} <span> {{ nft.token.symbol }}</span>
+                                    <NumberTooltip :value="nft.price" /> <span> {{ nft.token.symbol }}</span>
                                 </h5>
                             </div>
                         </Slide>
@@ -106,27 +106,27 @@
                         <p>{{ $t('dashboard.nft.floorPrice') }}</p>
                         <div class="delimetr"></div>
                         <h4>
-                            {{ item.floorPrice || 0 }} <span>{{ item.token.symbol }}</span>
+                            <NumberTooltip :value="item.floorPrice || 0" /><span>{{ item.token.symbol }}</span>
                         </h4>
                     </div>
                     <div>
                         <p>{{ $t('dashboard.nft.volume') }}</p>
                         <div class="delimetr"></div>
                         <h4>
-                            {{ item.volume || 0 }} <span>{{ item.token.symbol }}</span>
+                            <NumberTooltip :value="item.volume || 0" /><span>{{ item.token.symbol }}</span>
                         </h4>
                     </div>
                     <div>
                         <p>{{ $t('dashboard.nft.marketCap') }}</p>
                         <div class="delimetr"></div>
                         <h4>
-                            {{ item.marketCap || 0 }} <span>{{ item.token.symbol }}</span>
+                            <NumberTooltip :value="item.marketCap || 0" /><span>{{ item.token.symbol }}</span>
                         </h4>
                     </div>
                     <div>
                         <p>{{ $t('dashboard.nft.numberOfItems') }}</p>
                         <div class="delimetr"></div>
-                        <span>{{ item.numberOfAssets || '-' }}</span>
+                        <span><NumberTooltip :value="item.numberOfAssets || 0" /></span>
                     </div>
                     <div>
                         <p>{{ $t('dashboard.nft.marketplaces') }}</p>
@@ -161,12 +161,13 @@ import BigNumber from 'bignumber.js';
 import { CopyOutlined } from '@ant-design/icons-vue';
 
 import { cutAddress } from '@/helpers/utils';
-import { formatNumber } from '@/helpers/prettyNumber';
 
 import ArrowIcon from '@/assets/icons/dashboard/arrow.svg';
 import LinkIcon from '@/assets/icons/dashboard/link.svg';
 import MaskIcon from '@/assets/icons/dashboard/mask.svg';
 import ImgMaskIcon from '@/assets/icons/dashboard/imgMask.svg';
+
+import NumberTooltip from '@/components/ui/NumberTooltip';
 
 import 'vue3-carousel/dist/carousel.css';
 
@@ -180,6 +181,7 @@ export default {
         LinkIcon,
         MaskIcon,
         ImgMaskIcon,
+        NumberTooltip,
     },
     props: {
         item: {
@@ -205,31 +207,20 @@ export default {
 
         const showBalance = computed(() => store.getters['app/showBalance']);
 
-        const defaultVal = {
-            pretty: '****',
-            value: '****',
-        };
-
         const balance = computed(() => {
             if (!showBalance.value) {
-                return defaultVal;
+                return '****';
             }
 
-            return {
-                pretty: formatNumber(props.item.totalGroupBalance, 6),
-                value: BigNumber(props.item.totalGroupBalance).toString(),
-            };
+            return BigNumber(props.item.totalGroupBalance).toString();
         });
 
         const balanceUsd = computed(() => {
             if (!showBalance.value) {
-                return defaultVal;
+                return '****';
             }
 
-            return {
-                pretty: formatNumber(props.item.floorPriceUsd, 4),
-                value: BigNumber(props.item.floorPriceUsd).toString(),
-            };
+            return BigNumber(props.item.floorPriceUsd).toString();
         });
 
         const settings = ref({
@@ -307,7 +298,6 @@ export default {
             showDescription,
             showNftDescription,
             hideNftInformation,
-            formatNumber,
         };
     },
 };
@@ -486,6 +476,7 @@ export default {
                     font-weight: 400;
                     color: var(--#{$prefix}secondary-text);
                     margin-right: 3px;
+                    margin-left: 2px;
                 }
 
                 .delimetr {

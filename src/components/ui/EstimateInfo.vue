@@ -3,8 +3,6 @@
         <a-collapse-panel key="estimate-info" :collapsible="isCollapsible ? '' : 'disabled'">
             <template #header>
                 <div class="top-block">
-                    <ServiceIcon v-if="service" :icon="service.icon" :name="service.name" />
-
                     <template v-if="loading">
                         <a-skeleton-input active size="small" />
                     </template>
@@ -38,7 +36,6 @@
 <script>
 import { computed } from 'vue';
 
-import ServiceIcon from './ServiceIcon.vue';
 import EstimateStats from './EstimateStats.vue';
 
 export default {
@@ -83,9 +80,9 @@ export default {
             default: '',
         },
     },
-    components: { ServiceIcon, EstimateStats },
+    components: { EstimateStats },
     setup(props) {
-        const MAX_LENGTH = 60;
+        const MAX_LENGTH = 55;
 
         const isCollapsible = computed(() => {
             const { fees } = props;
@@ -114,7 +111,7 @@ export default {
 
 <style lang="scss" scoped>
 .estimate-info {
-    margin-top: 16px;
+    margin-top: 8px;
     background-color: var(--#{$prefix}accordion-bg-color);
     border: 1px solid var(--#{$prefix}accordion-border-color);
     border-radius: 8px;
@@ -125,7 +122,7 @@ export default {
         justify-content: flex-start;
 
         .title {
-            font-weight: 600;
+            font-weight: 400;
             color: var(--#{$prefix}accordion-label-color);
             margin-right: 10px;
         }
@@ -134,6 +131,10 @@ export default {
             font-weight: 600;
             color: var(--#{$prefix}warning);
         }
+    }
+
+    .fees {
+        margin-top: -16px;
     }
 }
 </style>

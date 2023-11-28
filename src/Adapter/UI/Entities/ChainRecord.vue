@@ -114,7 +114,7 @@ export default {
         &__actions {
             @include pageFlexRow;
 
-            gap: 16px;
+            gap: 8px;
 
             & > div {
                 margin: 0 !important;

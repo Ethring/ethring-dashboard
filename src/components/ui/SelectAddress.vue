@@ -27,7 +27,8 @@
 <script>
 import ClearIcon from '@/assets/icons/app/xmark.svg';
 
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, onUpdated, computed } from 'vue';
+import { useStore } from 'vuex';
 
 export default {
     name: 'SelectAddress',
@@ -57,22 +58,43 @@ export default {
         ClearIcon,
     },
     setup(props, { emit }) {
+        const store = useStore();
+
         const active = ref(false);
         const focused = ref(false);
         const address = ref(props.value);
         const isError = ref(props.error);
 
-        const placeholder = ref('Address');
+        const selectedSrcNetwork = computed(() => store.getters['tokenOps/srcNetwork']);
+        const selectedDstNetwork = computed(() => store.getters['tokenOps/dstNetwork']);
+
+        const addressPlaceholder = computed(() => {
+            const target = selectedDstNetwork.value || selectedSrcNetwork.value;
+
+            const { bech32_prefix = null, address_validating = null } = target || {};
+
+            if (bech32_prefix) {
+                return `${bech32_prefix}1abc...`;
+            }
+
+            if (address_validating) {
+                return '0x1234abcd...';
+            }
+
+            return 'Address';
+        });
+
+        const resetAddress = () => {
+            if (props.onReset) {
+                address.value = '';
+                active.value = false;
+                emit('setAddress', '');
+            }
+        };
 
         watch(
             () => props.onReset,
-            () => {
-                if (props.onReset) {
-                    address.value = '';
-                    active.value = false;
-                    emit('setAddress', address.value);
-                }
-            }
+            () => resetAddress()
         );
 
         watch(
@@ -83,7 +105,7 @@ export default {
         );
 
         const onFocus = () => {
-            placeholder.value = '';
+            // placeholder.value = '';
             focused.value = true;
         };
 
@@ -93,6 +115,8 @@ export default {
             }
         });
 
+        onUpdated(() => resetAddress());
+
         const onInput = () => {
             emit('setAddress', address.value);
             active.value = false;
@@ -100,7 +124,7 @@ export default {
 
         const onBlur = () => {
             emit('setAddress', address.value);
-            placeholder.value = 'Address';
+            // placeholder.value = 'Address';
             focused.value = false;
         };
 
@@ -127,7 +151,7 @@ export default {
             isError,
 
             address,
-            placeholder,
+            placeholder: addressPlaceholder,
 
             clickAway,
             selectAddress,

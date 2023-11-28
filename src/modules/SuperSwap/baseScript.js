@@ -62,7 +62,6 @@ export async function findBestRoute(amount, walletAddress, fromToken, toToken) {
             bestRoute.toAmountUsd = result.bestRoute.toTokenAmount * (+result.bestRoute.toToken.price || +result.bestRoute.toToken.price);
             bestRoute.estimateTime += result.bestRoute.estimateTime;
             bestRoute.routes.push({ ...result.bestRoute, status: STATUSES.PENDING });
-
             return bestRoute;
         };
 
@@ -106,7 +105,6 @@ export async function findBestRoute(amount, walletAddress, fromToken, toToken) {
                         result.bestRoute.toTokenAmount * (+result.bestRoute.toToken.price || +result.bestRoute.toToken.price);
 
                     route.estimateTime += result.bestRoute.estimateTime;
-
                     route.routes.push({ ...result.bestRoute, status: STATUSES.PENDING });
                     delete route.service;
                     delete route.fee;
@@ -212,6 +210,7 @@ async function findRoute(params) {
     const isSameNet = fromNet === toNet;
 
     const services = isSameNet ? getServices(SERVICE_TYPE.SWAP) : getServices(SERVICE_TYPE.BRIDGE);
+    const servicesByEcosystem = services.filter((item) => item.namespace === fromNetwork.ecosystem);
 
     let otherRoutes = [];
     let bestRoute = {};
@@ -219,7 +218,7 @@ async function findRoute(params) {
     let bestRouteExist = false;
 
     try {
-        const promises = services.map(async (service) => {
+        const promises = servicesByEcosystem.map(async (service) => {
             error = null;
 
             const estimateResponse = await ESTIMATE[service.type]({ ...params, url: service.url, service, store });
@@ -246,7 +245,7 @@ async function findRoute(params) {
 
             // ==============================================================================
 
-            estimateResponse.estimateTime = service.estimatedTime[fromNetwork?.chain_id] || 30;
+            estimateResponse.estimateTime = service.estimatedTime ? service.estimatedTime[fromNetwork?.chain_id] || 30 : 30;
 
             estimateResponse.estimateFeeUsd = getFeeInfo(estimateResponse, params, service);
             estimateResponse.toAmountUsd = BigNumber(estimateResponse.toTokenAmount).times(toToken.price).toNumber();
@@ -267,6 +266,7 @@ async function findRoute(params) {
             if (BEST_LOW_FEE) {
                 const route = formatRouteInfo(bestRoute, params, bestRoute.service);
                 otherRoutes.push(route);
+
                 bestRoute = estimateResponse;
                 bestRoute.service = service;
             } else if (BEST_LOW_AMOUNT) {
@@ -291,7 +291,7 @@ async function findRoute(params) {
         bestRoute.toNet = params.toNet;
 
         return { bestRoute, otherRoutes, error };
-    } catch (error) {
-        return checkErrors(error);
+    } catch (e) {
+        return checkErrors(e);
     }
 }

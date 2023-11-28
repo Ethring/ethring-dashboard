@@ -20,9 +20,8 @@ export default {
 .superswap-page__title {
     color: var(--#{$prefix}primary-text);
     font-size: var(--#{$prefix}h3-fs);
-    font-weight: 600;
-    margin-bottom: 18px;
-    margin-left: -515px;
+    font-weight: 700;
+    margin-bottom: 24px;
     text-decoration: none;
 }
 </style>

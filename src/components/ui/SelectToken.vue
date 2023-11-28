@@ -33,13 +33,13 @@ import { useRouter } from 'vue-router';
 import _ from 'lodash';
 
 import SearchInput from '@/components/ui/SearchInput';
-
 import TokenRecord from '@/components/ui/Tokens/TokenRecord';
 
 import Button from '@/components/ui/Button';
 
 import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 import NotFoundIcon from '@/assets/icons/app/notFound.svg';
+
 import { prettyNumber } from '@/helpers/prettyNumber';
 import { searchByKey } from '@/helpers/utils';
 
@@ -76,7 +76,9 @@ export default {
 
         const allTokens = computed(() => props.tokens || []);
 
-        const setToken = (item) => emit('setToken', item);
+        const setToken = (item) => {
+            emit('setToken', item);
+        };
 
         const handleOnFilterTokens = (val) => {
             searchValue.value = val;
@@ -145,14 +147,14 @@ export default {
     &__title {
         color: var(--#{$prefix}primary-text);
         font-size: var(--#{$prefix}h3-fs);
-        font-weight: 600;
-        margin-bottom: 30px;
+        font-weight: 700;
+        margin-bottom: 24px;
     }
 
     &__items {
         height: calc(80vh - 150px);
         overflow-y: auto;
-        margin: 20px 0 0;
+        margin-top: 16px;
     }
 
     svg.arrow {
@@ -160,7 +162,7 @@ export default {
         fill: var(--#{$prefix}icon-active);
         position: absolute;
         transform: rotate(90deg);
-        top: 20px;
+        top: 10px;
     }
 
     &__not-found {
