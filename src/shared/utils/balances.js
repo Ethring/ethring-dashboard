@@ -30,6 +30,9 @@ export async function updateWalletBalances(account, address, network, cb = () =>
     // CHAIN_ID for API
     const chainId = DP_COSMOS[net] || net;
 
+    store.dispatch('tokens/setLoader', true);
+    store.dispatch('tokens/setLoadingByChain', { chain: chainId, value: true });
+
     // Getting tokens from API by address
     const response = await getBalancesByAddress(chainId, address, {
         fetchTokens: true,
@@ -69,6 +72,9 @@ export async function updateWalletBalances(account, address, network, cb = () =>
         // updating flag
         isUpdated = true;
     }
+
+    store.dispatch('tokens/setLoader', false);
+    store.dispatch('tokens/setLoadingByChain', { chain: chainId, value: false });
 
     // if no updates - skip
     if (!isUpdated) {

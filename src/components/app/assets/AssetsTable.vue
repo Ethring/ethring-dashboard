@@ -80,5 +80,18 @@ export default {
     .ant-table-tbody tr td {
         border-top-color: var(--#{$prefix}border-color-op-05) !important;
     }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .ant-table-row {
+        animation: fadeIn 1s ease-in-out;
+    }
 }
 </style>
