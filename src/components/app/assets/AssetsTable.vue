@@ -60,6 +60,10 @@ export default {
 .assets-table {
     * {
         transition: background-color 0.24s ease-in-out !important;
+    }
+
+    tr,
+    td {
         background-color: var(--#{$prefix}secondary-background) !important;
     }
 
@@ -75,6 +79,19 @@ export default {
 
     .ant-table-tbody tr td {
         border-top-color: var(--#{$prefix}border-color-op-05) !important;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .ant-table-row {
+        animation: fadeIn 1s ease-in-out;
     }
 }
 </style>

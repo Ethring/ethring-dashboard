@@ -37,6 +37,19 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         }
 
         const tokensWithBalance = getTokensWithAndWithoutBalance('tokens', network);
+        const tokensListFromNet = getTokensWithAndWithoutBalance('networks', network);
+
+        if (ECOSYSTEMS.COSMOS === network?.ecosystem) {
+            for (const token of tokensWithBalance) {
+                if (token.address && token.address.startsWith('IBC')) {
+                    token.address = token.address.replace('IBC', 'ibc');
+                }
+
+                if (!token.base && token.address) {
+                    token.base = token.address;
+                }
+            }
+        }
 
         let allTokens = [];
 
@@ -58,7 +71,6 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         if (onlyWithBalance.value) {
             allTokens = tokensWithBalance;
         } else {
-            const tokensListFromNet = getTokensWithAndWithoutBalance('networks', network);
             allTokens = _.unionBy(tokensWithBalance, tokensListFromNet, (tkn) => tkn.address?.toLowerCase());
         }
 
@@ -90,22 +102,6 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             }
 
             allTokens.push(tokenInfo);
-        }
-
-        // Native token only for COSMOS
-        if (ECOSYSTEMS.COSMOS === network?.ecosystem) {
-            const { asset } = network || {};
-
-            const baseToken = allTokens.find(({ symbol }) => symbol === asset.symbol);
-
-            const tokenInfo = {
-                ...asset,
-                ...baseToken,
-                balance: baseToken?.balance || 0,
-                balanceUsd: baseToken?.balanceUsd || 0,
-            };
-
-            allTokens = [tokenInfo];
         }
 
         // Added selected param if token is selected

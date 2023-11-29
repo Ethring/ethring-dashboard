@@ -56,7 +56,7 @@
     </div>
 </template>
 <script>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, watchEffect } from 'vue';
 import { useStore } from 'vuex';
 
 import BigNumber from 'bignumber.js';
@@ -87,6 +87,7 @@ export default {
         const { walletAccount, currentChainInfo } = useAdapter();
 
         const isLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](currentChainInfo.value?.net));
+        const loadingForChains = computed(() => store.getters['tokens/loadingForChains']);
         const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
 
         const allTokens = computed(() => store.getters['tokens/tokens'][walletAccount.value] || []);
@@ -101,6 +102,7 @@ export default {
         });
 
         const integrationAssetsByPlatform = ref(getIntegrationsGroupedByPlatform(allIntegrations.value));
+
         // TODO: data should be reactive
         const tokensData = ref([...allTokens.value]);
 
@@ -128,25 +130,31 @@ export default {
             return share.toNumber();
         };
 
-        watch(isAllTokensLoading, () => {
-            if (!isAllTokensLoading.value) {
-                integrationAssetsByPlatform.value = getIntegrationsGroupedByPlatform(allIntegrations.value);
-                nftsByCollection.value = getNftsByCollection(allNfts.value);
-                tokensData.value = [...allTokens.value];
-            }
-        });
-
-        watch(walletAccount, () => {
+        const updateAssets = () => {
             integrationAssetsByPlatform.value = getIntegrationsGroupedByPlatform(allIntegrations.value);
             nftsByCollection.value = getNftsByCollection(allNfts.value);
             tokensData.value = [...allTokens.value];
+        };
+
+        watch(isAllTokensLoading, () => {
+            if (!isAllTokensLoading.value) {
+                updateAssets();
+            }
         });
+
+        watch(walletAccount, () => updateAssets());
 
         watch(isLoadingForChain, () => {
             if (!isLoadingForChain.value) {
-                integrationAssetsByPlatform.value = getIntegrationsGroupedByPlatform(allIntegrations.value);
-                nftsByCollection.value = getNftsByCollection(allNfts.value);
-                tokensData.value = [...allTokens.value];
+                updateAssets();
+            }
+        });
+
+        watchEffect(() => {
+            for (const chain in loadingForChains.value) {
+                if (!loadingForChains.value[chain]) {
+                    updateAssets();
+                }
             }
         });
 

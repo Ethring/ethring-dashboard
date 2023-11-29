@@ -62,7 +62,6 @@ export async function findBestRoute(amount, walletAddress, fromToken, toToken) {
             bestRoute.toAmountUsd = result.bestRoute.toTokenAmount * (+result.bestRoute.toToken.price || +result.bestRoute.toToken.price);
             bestRoute.estimateTime += result.bestRoute.estimateTime;
             bestRoute.routes.push({ ...result.bestRoute, status: STATUSES.PENDING });
-
             return bestRoute;
         };
 
@@ -106,7 +105,6 @@ export async function findBestRoute(amount, walletAddress, fromToken, toToken) {
                         result.bestRoute.toTokenAmount * (+result.bestRoute.toToken.price || +result.bestRoute.toToken.price);
 
                     route.estimateTime += result.bestRoute.estimateTime;
-
                     route.routes.push({ ...result.bestRoute, status: STATUSES.PENDING });
                     delete route.service;
                     delete route.fee;
@@ -211,7 +209,7 @@ async function findRoute(params) {
     const { fromNet, toNet, amount, fromNetwork, fromToken, toToken } = params;
     const isSameNet = fromNet === toNet;
 
-    const services = isSameNet ? getServices(SERVICE_TYPE.SWAP) : getServices(SERVICE_TYPE.BRIDGE);
+    const services = isSameNet ? getServices(SERVICE_TYPE.SWAP, 'EVM') : getServices(SERVICE_TYPE.BRIDGE, 'EVM');
 
     let otherRoutes = [];
     let bestRoute = {};
@@ -222,7 +220,12 @@ async function findRoute(params) {
         const promises = services.map(async (service) => {
             error = null;
 
-            const estimateResponse = await ESTIMATE[service.type]({ ...params, url: service.url, service, store });
+            const estimateResponse = await ESTIMATE[service.type]({
+                ...params,
+                url: service.url,
+                service,
+                store,
+            });
 
             // * Check error
             if (estimateResponse.error) {
@@ -267,6 +270,7 @@ async function findRoute(params) {
             if (BEST_LOW_FEE) {
                 const route = formatRouteInfo(bestRoute, params, bestRoute.service);
                 otherRoutes.push(route);
+
                 bestRoute = estimateResponse;
                 bestRoute.service = service;
             } else if (BEST_LOW_AMOUNT) {

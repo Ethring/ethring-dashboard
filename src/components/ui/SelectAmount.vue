@@ -70,7 +70,7 @@
     </div>
 </template>
 <script>
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onUpdated } from 'vue';
 
 import BigNumber from 'bignumber.js';
 
@@ -115,6 +115,10 @@ export default {
             type: Boolean,
             default: false,
         },
+        amountValue: {
+            type: [String, Number],
+            default: '',
+        },
         isUpdate: {
             type: Boolean,
             default: false,
@@ -141,7 +145,7 @@ export default {
         const focused = ref(false);
         const symbolForReplace = ref(null);
 
-        const amount = ref('');
+        const amount = ref(props.amountValue || '');
 
         const payTokenPrice = ref(0);
 
@@ -161,15 +165,26 @@ export default {
         const placeholder = ref('0');
         const coingeckoPrice = ref(0);
 
+        const resetAmount = () => {
+            if (props.onReset) {
+                amount.value = null;
+                active.value = false;
+                return emit('setAmount', null);
+            }
+        };
+
+        watch(
+            () => props.amountValue,
+            () => {
+                amount.value = props.amountValue;
+                active.value = false;
+                emit('setAmount', amount.value);
+            }
+        );
+
         watch(
             () => props.onReset,
-            () => {
-                if (props.onReset) {
-                    amount.value = '';
-                    active.value = false;
-                    emit('setAmount', amount.value);
-                }
-            }
+            () => resetAmount()
         );
 
         watch(
@@ -198,8 +213,23 @@ export default {
                 }
 
                 if (net) {
-                    amount.value = '';
                     active.value = false;
+                }
+            }
+        );
+
+        watch(
+            () => props.value,
+            (tkn, oldTkn) => {
+                if (tkn?.id === oldTkn?.id || tkn?.address === oldTkn?.address) {
+                    return;
+                }
+
+                if (tkn) {
+                    setToken(tkn);
+                    amount.value = props.amountValue;
+                    active.value = false;
+                    emit('setAmount', amount.value);
                 }
             }
         );
@@ -295,6 +325,10 @@ export default {
         const clickToken = () => {
             emit('clickToken');
         };
+
+        onUpdated(() => {
+            resetAmount();
+        });
 
         return {
             active,
