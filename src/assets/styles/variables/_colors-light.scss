@@ -101,6 +101,7 @@ $adapter-connected-icon-color: $lightGreen;
 $adapter-secondary-border-color: $pastelPink;
 $adapter-modal-close-color: $blackGray;
 $adapter-more-option: $gulfStream;
+$adapter-hover-color: $iceberg;
 
 // Adapter ModuleIcons
 $adapter-logo-main-color: $gallery;
@@ -267,6 +268,7 @@ $theme-colors: (
     "adapter-more-option": $adapter-more-option,
     "adapter-not-connected-bg": $adapter-not-connected-bg,
     "adapter-not-connected-icon": $adapter-not-connected-icon,
+    "adapter-hover-color": $adapter-hover-color,
 
     "checkbox-text": $checkbox-text,
     "checkbox-disabled-text": $checkbox-disabled-text,

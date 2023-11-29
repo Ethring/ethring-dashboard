@@ -1,7 +1,10 @@
 <template>
     <div class="connected-wallet" @click="handleOnClickConnectedWallet(wallet)">
         <div class="left-side">
-            <ModuleIcon :ecosystem="wallet.ecosystem" :module="wallet.walletModule" background="#1C1F2C" />
+            <div class="module-logo-container">
+                <ModuleIcon :ecosystem="wallet.ecosystem" :module="wallet.walletModule" background="#1C1F2C" />
+                <CheckIcon v-if="wallet.ecosystem === currentChainInfo.ecosystem" class="check-icon" />
+            </div>
             <div class="account-name">
                 {{ cutAddress(wallet.account, 10, 4) }}
             </div>
@@ -50,6 +53,7 @@ import ModuleIcon from '@/Adapter/UI/Entities/ModuleIcon.vue';
 
 import DisconnectIcon from '@/assets/icons/app/clear.svg';
 import CopyIcon from '@/assets/icons/app/copy.svg';
+import CheckIcon from '@/assets/icons/app/checkIcon.svg';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
@@ -62,6 +66,7 @@ export default {
         CopyIcon,
         MoreOutlined,
         ModuleIcon,
+        CheckIcon,
     },
     props: {
         wallet: {
@@ -149,6 +154,7 @@ export default {
             chainInfo,
             chainList,
             selectedChain,
+            currentChainInfo,
 
             cutAddress,
 
@@ -254,6 +260,17 @@ export default {
             background: var(--#{$prefix}adapter-logo-main-color);
             border-radius: 4px;
         }
+    }
+}
+
+.module-logo-container {
+    position: relative;
+
+    .check-icon {
+        transform: scale(1.1);
+        position: absolute;
+        right: -2px;
+        bottom: -2px;
     }
 }
 </style>

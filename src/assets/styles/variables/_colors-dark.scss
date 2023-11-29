@@ -83,6 +83,7 @@ $adapter-connected-icon-color: $lightGreen;
 $adapter-secondary-border-color: $pastelPink;
 $adapter-modal-close-color: $blackGray;
 $adapter-more-option: $mineralGreen;
+$adapter-hover-color: $chineseBlack;
 
 // Adapter ModuleIcons
 $adapter-logo-main-color: $chineseBlack;
@@ -249,6 +250,7 @@ $theme-colors-dark: (
     "adapter-more-option": $adapter-more-option,
     "adapter-not-connected-bg": $adapter-not-connected-bg,
     "adapter-not-connected-icon": $adapter-not-connected-icon,
+    "adapter-hover-color": $adapter-hover-color,
 
     "checkbox-text": $checkbox-text,
     "checkbox-disabled-text": $checkbox-disabled-text,

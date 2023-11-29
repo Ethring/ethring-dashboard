@@ -6,7 +6,12 @@
         :footer="null"
         :bodyStyle="{ height: '500px', overflowY: 'overlay' }"
     >
-        <ChainWithAddress v-if="addressesWithChains" :chainWithAddress="addressesWithChains" :chainList="chainList" />
+        <ChainWithAddress
+            v-if="addressesWithChains"
+            :chainWithAddress="addressesWithChains"
+            :chainList="chainList"
+            :chainRecords="chainRecords"
+        />
     </a-modal>
 </template>
 <script>
@@ -16,6 +21,8 @@ import { useStore } from 'vuex';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import ChainWithAddress from '@/Adapter/UI/Entities/ChainWithAddress';
+
+import { ECOSYSTEMS } from '@/Adapter/config';
 
 export default {
     name: 'AddressModal',
@@ -36,21 +43,22 @@ export default {
 
         const chainList = ref([]);
         const addressesWithChains = ref([]);
+        const chainRecords = ref([]);
 
         onUpdated(() => {
             addressesWithChains.value = getAddressesWithChainsByEcosystem(ecosystem.value);
 
-            if (ecosystem.value === 'EVM') {
-                const connectedEVMWallets = connectedWallets.value.filter((wallet) => wallet.ecosystem === 'EVM');
+            if (ecosystem.value === ECOSYSTEMS.EVM) {
+                const connectedEVMWallets = connectedWallets.value.filter((wallet) => wallet.ecosystem === ecosystem.value);
                 const chainListByEcosystem = getChainListByEcosystem(ecosystem.value);
 
-                const matchingChains = chainListByEcosystem.filter((selectedChain) =>
-                    connectedEVMWallets.some((wallet) => wallet.chain === selectedChain.chain_id)
-                );
+                const matchingChains = connectedEVMWallets.map(({ chain }) => chain);
 
-                chainList.value = matchingChains;
+                chainRecords.value = chainListByEcosystem.filter(({ chain_id }) => matchingChains.includes(chain_id));
+                chainList.value = chainListByEcosystem.filter(({ chain_id }) => !matchingChains.includes(chain_id));
             } else {
-                chainList.value = getChainListByEcosystem(ecosystem.value);
+                chainList.value = [];
+                chainRecords.value = getChainListByEcosystem(ecosystem.value);
             }
         });
 
@@ -58,6 +66,7 @@ export default {
             isOpen,
             addressesWithChains,
             chainList,
+            chainRecords,
             ecosystem,
         };
     },

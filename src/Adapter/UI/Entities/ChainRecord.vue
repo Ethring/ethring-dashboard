@@ -13,6 +13,11 @@
                         {{ cutAddress(address) }}
                     </span>
                 </a-tooltip>
+                <div v-if="chains.length" class="chains-list">
+                    <div v-for="chain in chains" :key="chain" class="chain-record__logo-container">
+                        <img :src="chain.logo" alt="chain-logo" />
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -47,6 +52,10 @@ export default {
         },
         address: {
             type: String,
+            required: true,
+        },
+        chains: {
+            type: Array,
             required: true,
         },
     },
@@ -124,6 +133,16 @@ export default {
         &__divider {
             color: var(--#{$prefix}adapter-more-option);
         }
+    }
+}
+
+.chains-list {
+    @include pageFlexRow;
+    margin-top: 10px;
+
+    .chain-record__logo-container {
+        width: 16px;
+        height: 16px;
     }
 }
 </style>
