@@ -113,7 +113,7 @@ export default {
         }
 
         &__address {
-            color: #0d7e71;
+            color: var(--#{$prefix}sub-text);
             font-size: var(--#{$prefix}small-sm-fs);
             font-weight: 400;
 
@@ -138,7 +138,7 @@ export default {
 
 .chains-list {
     @include pageFlexRow;
-    margin-top: 10px;
+    margin-top: 4px;
 
     .chain-record__logo-container {
         width: 16px;
