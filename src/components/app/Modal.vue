@@ -86,12 +86,12 @@ export default {
     &__content-title {
         color: var(--#{$prefix}primary-text);
         font-size: var(--#{$prefix}h3-fs);
-        font-weight: 600;
+        font-weight: 500;
     }
 
     &__content-line {
-        margin: 10px 0;
-        border: 1px dashed var(--#{$prefix}border-color);
+        margin: 16px 0;
+        border-top: 1px dashed var(--#{$prefix}border-color);
     }
 
     &__content-inner {

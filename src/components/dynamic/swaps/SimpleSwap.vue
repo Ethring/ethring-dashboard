@@ -1,6 +1,12 @@
 <template>
     <div class="simple-swap">
-        <SelectNetwork :items="chains" :current="selectedSrcNetwork" @select="onSelectNetwork" />
+        <SelectNetwork
+            :items="chains"
+            :label="$t('tokenOperations.selectNetwork')"
+            :current="selectedSrcNetwork"
+            @select="onSelectNetwork"
+            showSearch
+        />
 
         <div class="simple-swap__switch-wrap">
             <SelectAmount
@@ -144,7 +150,8 @@ export default {
             set: (value) => store.dispatch(`swap/setService`, value),
         });
 
-        const services = getServices(SERVICE_TYPE.SWAP);
+        const servicesEVM = getServices(SERVICE_TYPE.SWAP, ECOSYSTEMS.EVM);
+        const servicesCosmos = getServices(SERVICE_TYPE.SWAP, ECOSYSTEMS.COSMOS);
 
         const setEcosystemService = () => {
             if (!currentChainInfo.value?.ecosystem) {
@@ -158,9 +165,11 @@ export default {
 
             switch (currentChainInfo.value?.ecosystem) {
                 case ECOSYSTEMS.COSMOS:
-                    return (selectedService.value = services.find((service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.COSMOS]));
+                    return (selectedService.value = servicesCosmos.find(
+                        (service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.COSMOS]
+                    ));
                 case ECOSYSTEMS.EVM:
-                    return (selectedService.value = services.find((service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.EVM]));
+                    return (selectedService.value = servicesEVM.find((service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.EVM]));
             }
         };
 
@@ -867,6 +876,7 @@ export default {
                 selectedSrcToken.value = null;
                 selectedDstToken.value = null;
                 selectedSrcNetwork.value = null;
+                srcAmount.value = null;
             }
         });
 
@@ -940,31 +950,33 @@ export default {
         left: calc(50% - 24px);
         bottom: 84px;
 
-        background: var(--#{$prefix}select-bg-color);
+        background: var(--#{$prefix}swap-btn-bg-color);
         border: 4px solid var(--#{$prefix}main-background);
 
         svg {
             @include animateEasy;
             path {
-                fill: var(--#{$prefix}eye-logo-hover);
+                fill: var(--#{$prefix}btn-bg-color);
             }
         }
 
         &:not(.disabled):hover {
-            background: var(--#{$prefix}icon-logo-bg-hover);
+            background: var(--#{$prefix}primary);
+            border: 4px solid var(--#{$prefix}banner-logo-color);
 
-            svg {
-                fill: var(--#{$prefix}primary);
+            path {
+                fill: var(--#{$prefix}arrow-color);
             }
-        }
-
-        svg {
-            fill: $colorPl;
         }
 
         &.disabled {
             pointer-events: none;
-            opacity: 0.5;
+            background: var(--#{$prefix}adapter-not-connected-bg);
+            svg {
+                path {
+                    fill: var(--#{$prefix}border-secondary-color);
+                }
+            }
         }
     }
 

@@ -4,7 +4,7 @@
             <h2 class="label">{{ label }}</h2>
             <div class="row">
                 <template v-if="isTokenLoading">
-                    <a-space>
+                    <a-space class="token-skeleton">
                         <a-skeleton-avatar active />
                         <a-skeleton-input active />
                     </a-space>
@@ -52,7 +52,7 @@
                 <NumberTooltip :value="token?.balance" decimals="3" />
                 <span>{{ token?.symbol }}</span>
             </p>
-            <a-skeleton-input v-if="!hideMax && isTokenLoading" active />
+            <a-skeleton-input v-if="!hideMax && isTokenLoading" active class="balance-skeleton" />
         </div>
     </div>
 </template>
@@ -201,7 +201,7 @@ export default {
     background: var(--#{$prefix}select-bg-color);
     border-radius: 8px;
     height: 136px;
-    padding: 12px 16px;
+    padding: 8px 8px 8px 16px;
     box-sizing: border-box;
     border: 1px solid transparent;
     cursor: pointer;
@@ -213,6 +213,14 @@ export default {
     .row {
         @include pageFlexRow;
         justify-content: space-between;
+    }
+
+    .token-skeleton {
+        height: 40px;
+    }
+
+    .balance-skeleton {
+        margin-top: -16px;
     }
 
     .label {
@@ -245,7 +253,8 @@ export default {
         justify-content: space-between;
         color: var(--#{$prefix}base-text);
         font-weight: 400;
-        margin-top: 6px;
+        margin-top: 12px;
+        padding-right: 8px;
         font-size: var(--#{$prefix}small-lg-fs);
         cursor: default;
 

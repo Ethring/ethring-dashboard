@@ -165,7 +165,8 @@ export default {
 
         // Bridge Data
 
-        const services = getServices(SERVICE_TYPE.BRIDGE);
+        const servicesEVM = getServices(SERVICE_TYPE.BRIDGE);
+        const servicesCosmos = getServices(SERVICE_TYPE.BRIDGE, ECOSYSTEMS.COSMOS);
 
         // =================================================================================================================
 
@@ -186,9 +187,11 @@ export default {
 
             switch (currentChainInfo.value?.ecosystem) {
                 case ECOSYSTEMS.COSMOS:
-                    return (selectedService.value = services.find((service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.COSMOS]));
+                    return (selectedService.value = servicesCosmos.find(
+                        (service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.COSMOS]
+                    ));
                 case ECOSYSTEMS.EVM:
-                    return (selectedService.value = services.find((service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.EVM]));
+                    return (selectedService.value = servicesEVM.find((service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.EVM]));
             }
         };
 
@@ -1018,6 +1021,7 @@ export default {
                 selectedDstNetwork.value = null;
                 selectedDstToken.value = null;
                 receiverAddress.value = '';
+                srcAmount.value = null;
             }
         });
 
@@ -1048,8 +1052,6 @@ export default {
 
             srcAmount,
             dstAmount,
-
-            services,
 
             errorAddress,
             isBalanceError,

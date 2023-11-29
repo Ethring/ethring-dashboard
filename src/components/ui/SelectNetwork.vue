@@ -1,21 +1,28 @@
 <template>
     <div :class="{ active }" class="select" v-click-away="() => togglePanel(true)">
         <div class="select__panel" @click="() => togglePanel(false)" data-qa="select-network">
+            <span class="select__label">{{ label }}</span>
             <div class="info">
                 <div class="network" :class="{ 'default-network-logo': !name }">
                     <img v-if="current?.logo" :src="current?.logo" alt="network-logo" class="network-logo" />
                 </div>
                 <div v-if="name" class="name">{{ name }}</div>
                 <div v-else>
-                    <div class="label">{{ label }}</div>
                     <div class="placeholder">{{ placeholder }}</div>
                 </div>
             </div>
             <ArrowDownIcon class="arrow" />
         </div>
         <div class="select__items">
+            <SearchInput
+                v-if="showSearch"
+                :value="searchValue"
+                @onChange="handleOnFilterNetworks"
+                class="search"
+                :placeholder="$t('tokenOperations.searchNetwork')"
+            />
             <div
-                v-for="(item, idx) in items"
+                v-for="(item, idx) in options"
                 :key="idx"
                 :class="{ active: item.net === current?.net }"
                 class="select__items-item"
@@ -28,6 +35,9 @@
                     <div class="name">{{ item.label || item.name }}</div>
                 </div>
             </div>
+            <div v-if="!options.length" class="select__items-not-found">
+                <p>{{ $t('dashboard.notFound') }}</p>
+            </div>
         </div>
     </div>
 </template>
@@ -35,7 +45,13 @@
 <script>
 import { ref, computed } from 'vue';
 
+import _ from 'lodash';
+
+import SearchInput from '@/components/ui/SearchInput';
+
 import ArrowDownIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
+
+import { searchByKey } from '@/helpers/utils';
 
 export default {
     name: 'SelectNetwork',
@@ -58,12 +74,18 @@ export default {
         placeholder: {
             type: String,
         },
+        showSearch: {
+            type: Boolean,
+        },
     },
     components: {
         ArrowDownIcon,
+        SearchInput,
     },
     setup(props, { emit }) {
         const active = ref(false);
+        const searchValue = ref('');
+        const options = ref(props.items);
 
         const name = computed(() => {
             const name = props.current?.name;
@@ -71,6 +93,9 @@ export default {
         });
 
         const togglePanel = (away = false) => {
+            options.value = props.items;
+            searchValue.value = '';
+
             if (away) {
                 return (active.value = false);
             }
@@ -87,12 +112,26 @@ export default {
             active.value = false;
         };
 
+        const searchInNetworks = (networks, value) => {
+            return _.filter(networks, (elem) => {
+                return searchByKey(elem, value, 'name') || searchByKey(elem, value, 'symbol');
+            });
+        };
+
+        const handleOnFilterNetworks = (val) => {
+            searchValue.value = val;
+            options.value = searchInNetworks(props.items, val);
+        };
+
         return {
             active,
             name,
+            options,
+            searchValue,
             clickAway,
             togglePanel,
             onSelectNetwork,
+            handleOnFilterNetworks,
         };
     },
 };
@@ -102,12 +141,19 @@ export default {
 .select {
     position: relative;
     z-index: 11;
+
+    &__label {
+        color: var(--#{$prefix}base-text);
+        font-weight: 500;
+        margin-bottom: 4px;
+    }
+
     &__panel {
         position: relative;
         z-index: 2;
 
-        @include pageFlexRow;
-        justify-content: space-between;
+        @include pageFlexColumn;
+        align-items: flex-start;
         background: var(--#{$prefix}select-bg-color);
         border-radius: 8px;
         height: 80px;
@@ -127,12 +173,11 @@ export default {
             @include pageFlexRow;
             justify-content: center;
 
-            width: 40px;
-            height: 40px;
-            min-width: 40px;
+            width: 32px;
+            height: 32px;
 
             border-radius: 50%;
-            margin-right: 10px;
+            margin-right: 4px;
 
             svg {
                 fill: var(--#{$prefix}black);
@@ -154,7 +199,7 @@ export default {
         }
 
         .name {
-            font-size: var(--#{$prefix}h4-fs);
+            font-size: var(--#{$prefix}h5-fs);
             font-weight: 600;
             color: var(--#{$prefix}select-item-color);
             line-height: 40px;
@@ -171,14 +216,14 @@ export default {
             color: var(--#{$prefix}select-label-color);
             font-size: var(--#{$prefix}small-lg-fs);
             line-height: 20px;
-            font-weight: 500;
+            font-weight: 400;
             user-select: none;
         }
 
         .placeholder {
             color: var(--#{$prefix}select-placeholder-text);
             font-size: var(--#{$prefix}default-fs);
-            font-weight: 600;
+            font-weight: 500;
             user-select: none;
             line-height: 18px;
         }
@@ -189,14 +234,16 @@ export default {
             transform: rotate(0);
             @include animateEasy;
             display: inline;
-            margin-left: 10px;
+            position: absolute;
+            right: 12px;
+            top: 40%;
         }
     }
 
     &.active {
         .select__panel {
             border-color: var(--#{$prefix}select-active-border-color);
-            background: var(--#{$prefix}select-bg-color);
+            background: var(--#{$prefix}select-dropdown-bg-color);
 
             svg.arrow {
                 transform: rotate(180deg);
@@ -229,12 +276,28 @@ export default {
         padding: 16px 16px 4px;
         box-sizing: border-box;
 
-        max-height: 380px;
+        height: 244px;
         overflow-y: auto;
 
+        .search {
+            margin-top: 16px;
+        }
         &::-webkit-scrollbar {
             width: 0px;
             background-color: transparent;
+        }
+
+        &-not-found {
+            @include pageFlexRow;
+            justify-content: center;
+            margin: auto;
+
+            p {
+                font-weight: 400;
+                margin-top: 15%;
+                font-size: var(--#{$prefix}small-lg-fs);
+                color: var(--#{$prefix}mute-text);
+            }
         }
 
         &-item-logo {
@@ -244,7 +307,6 @@ export default {
             justify-content: center;
             background: var(--#{$prefix}icon-secondary-bg-color);
             border-radius: 50%;
-            margin-right: 12px;
 
             svg {
                 fill: var(--#{$prefix}black);

@@ -209,8 +209,7 @@ async function findRoute(params) {
     const { fromNet, toNet, amount, fromNetwork, fromToken, toToken } = params;
     const isSameNet = fromNet === toNet;
 
-    const services = isSameNet ? getServices(SERVICE_TYPE.SWAP) : getServices(SERVICE_TYPE.BRIDGE);
-    const servicesByEcosystem = services.filter((item) => item.namespace === fromNetwork.ecosystem);
+    const services = isSameNet ? getServices(SERVICE_TYPE.SWAP, 'EVM') : getServices(SERVICE_TYPE.BRIDGE, 'EVM');
 
     let otherRoutes = [];
     let bestRoute = {};
@@ -218,10 +217,15 @@ async function findRoute(params) {
     let bestRouteExist = false;
 
     try {
-        const promises = servicesByEcosystem.map(async (service) => {
+        const promises = services.map(async (service) => {
             error = null;
 
-            const estimateResponse = await ESTIMATE[service.type]({ ...params, url: service.url, service, store });
+            const estimateResponse = await ESTIMATE[service.type]({
+                ...params,
+                url: service.url,
+                service,
+                store,
+            });
 
             // * Check error
             if (estimateResponse.error) {

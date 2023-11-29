@@ -50,6 +50,8 @@ export default {
     getters: {
         loader: (state) => state.loader,
 
+        loadingForChains: (state) => state.loadingByChain,
+
         tokens: (state) => state.tokens,
         integrations: (state) => state.integrations,
         nfts: (state) => state.nfts,

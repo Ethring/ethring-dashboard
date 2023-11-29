@@ -1014,6 +1014,7 @@ export default {
             selectedDstNetwork.value = null;
             selectedDstToken.value = null;
             receiverAddress.value = '';
+            srcAmount.value = null;
         });
 
         return {
@@ -1141,7 +1142,7 @@ export default {
             white-space: nowrap;
             text-overflow: ellipsis;
             overflow: hidden;
-            width: 520px;
+            max-width: 400px;
         }
 
         .fee,

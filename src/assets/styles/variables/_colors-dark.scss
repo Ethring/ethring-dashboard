@@ -96,9 +96,11 @@ $adapter-not-connected-icon: $geyser;
 // Checkbox
 $checkbox-text: $gulfStream;
 $checkbox-disabled-text: $mineralGreen;
-$checkbox-checked: $aquamarine;
+$checkbox-checked: $springGreen;
 $checkbox-bg-color: $ebonyClay;
 $checkbox-disabled: $mineralGreen;
+$checkbox-border: $aquamarine;
+$checkbox-border-checked: $aquamarine;
 
 // Border
 $border-color: $charade;
@@ -255,6 +257,8 @@ $theme-colors-dark: (
     "checkbox-checked": $checkbox-checked,
     "checkbox-bg-color": $checkbox-bg-color,
     "checkbox-disabled": $checkbox-disabled,
+    "checkbox-border": $checkbox-border,
+    "checkbox-border-checked": $checkbox-border-checked,
 
     "border-color": $border-color,
     "border-secondary-color": $border-secondary-color,

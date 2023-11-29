@@ -4,7 +4,12 @@
             <SearchIcon />
         </div>
         <div class="search-input__container">
-            <input @focus="isActive = 'active'" @blur="isActive = ''" v-model="text" :placeholder="$t('tokenOperations.searchToken')" />
+            <input
+                @focus="isActive = 'active'"
+                @blur="isActive = ''"
+                v-model="text"
+                :placeholder="placeholder || $t('tokenOperations.searchToken')"
+            />
         </div>
         <div v-if="text.length" class="search-input__clear" @click="clearValue">
             <ClearIcon />
@@ -24,6 +29,14 @@ export default {
         SearchIcon,
         ClearIcon,
     },
+    props: {
+        value: {
+            default: '',
+        },
+        placeholder: {
+            default: '',
+        },
+    },
     setup(props, { emit }) {
         const text = ref(props.value || '');
         const isActive = ref('');
@@ -35,6 +48,13 @@ export default {
         watch(text, (val) => {
             emit('onChange', val);
         });
+
+        watch(
+            () => props.value,
+            () => {
+                text.value = props.value;
+            }
+        );
 
         return {
             text,

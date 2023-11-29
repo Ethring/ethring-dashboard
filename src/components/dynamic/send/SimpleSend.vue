@@ -1,6 +1,12 @@
 <template>
     <div class="simple-send">
-        <SelectNetwork :items="chainList" :current="selectedSrcNetwork" @select="onSelectNetwork" />
+        <SelectNetwork
+            :items="chainList"
+            :label="$t('tokenOperations.selectNetwork')"
+            :current="selectedSrcNetwork"
+            @select="onSelectNetwork"
+            showSearch
+        />
 
         <SelectAddress
             :selected-network="selectedSrcNetwork"
@@ -57,6 +63,7 @@ import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { STATUSES } from '../../../Transactions/shared/constants';
 
 import { isCorrectChain } from '@/shared/utils/operations';
+import { updateWalletBalances } from '@/shared/utils/balances';
 
 export default {
     name: 'SimpleSend',
@@ -96,7 +103,7 @@ export default {
         const { showNotification, closeNotification } = useNotification();
 
         // * Adapter for wallet
-        const { walletAddress, connectedWallet, currentChainInfo, validateAddress, chainList, setChain } = useAdapter();
+        const { walletAccount, walletAddress, connectedWallet, currentChainInfo, validateAddress, chainList, setChain } = useAdapter();
 
         const { createTransactions, signAndSend, transactionForSign } = useTransactions();
 
@@ -178,6 +185,26 @@ export default {
 
         // =================================================================================================================
 
+        const updateTokens = (list) => {
+            if (!selectedSrcToken.value) {
+                return;
+            }
+
+            const fromToken = list.find((elem) => elem.symbol === selectedSrcToken.value.symbol);
+
+            if (fromToken) {
+                selectedSrcToken.value = fromToken;
+            }
+        };
+
+        const handleUpdateBalance = async () => {
+            await updateWalletBalances(walletAccount.value, walletAddress.value, selectedSrcNetwork.value, (list) => {
+                updateTokens(list);
+            });
+        };
+
+        // =================================================================================================================
+
         const handleOnSend = async () => {
             if (disabledSend.value) {
                 return;
@@ -249,6 +276,8 @@ export default {
                     clearAddress.value = false;
                     return (isLoading.value = false);
                 }
+
+                handleUpdateBalance();
 
                 return (isLoading.value = false);
             } catch (error) {

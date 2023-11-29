@@ -157,19 +157,20 @@ export default {
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
+    margin-top: 6px;
 
     .mr-20 {
         margin-right: 20px !important;
     }
 
     &__item {
-        border-radius: 16px;
-        padding: 12px;
-        width: 100%;
-
         @include pageFlexRow;
         justify-content: space-between;
 
+        border-radius: 16px;
+        padding: 12px 16px;
+        width: 100%;
+        height: 90px;
         margin-bottom: 16px;
 
         background-color: var(--#{$prefix}select-bg-color);
@@ -216,12 +217,13 @@ export default {
         }
 
         .blue-text {
-            color: var(--#{$prefix}sub-text) !important;
+            color: var(--#{$prefix}theme-switcher-color);
             font-size: var(--#{$prefix}small-lg-fs);
             margin-top: 6px;
+            font-weight: 700;
 
             span {
-                color: var(--#{$prefix}sub-text);
+                color: var(--#{$prefix}theme-switcher-color);
                 margin-left: 2px;
             }
         }
@@ -233,7 +235,7 @@ export default {
 
     .routes-service {
         &__name {
-            font-size: var(--#{$prefix}default-fs);
+            font-size: var(--#{$prefix}h6-fs);
             margin: 0;
             margin-left: 8px;
             font-weight: 600;
@@ -246,7 +248,6 @@ export default {
             border-radius: 50%;
             width: 32px;
             height: 32px;
-            border: 1px solid var(--#{$prefix}banner-logo-color);
 
             img {
                 width: 90%;
@@ -267,7 +268,7 @@ export default {
 
             h4 {
                 margin: 0 2px;
-                font-weight: 600;
+                font-weight: 700;
             }
         }
 
@@ -280,7 +281,7 @@ export default {
             border-radius: 24px;
             font-size: var(--#{$prefix}small-sm-fs);
             font-weight: 400;
-            color: var(--#{$prefix}white);
+            color: var(--#{$prefix}btn-text-color);
             padding: 4px 10px;
             margin: 2px 0 0 6px;
         }

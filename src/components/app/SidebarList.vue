@@ -93,7 +93,7 @@ export default {
         @include pageFlexRow;
         @include animateEasy;
 
-        margin-bottom: 30px;
+        height: 48px;
         text-decoration: none;
         color: var(--#{$prefix}sidebar-text);
         cursor: pointer;
@@ -142,7 +142,7 @@ export default {
     &__item-title {
         margin-left: 10px;
 
-        font-weight: 400;
+        font-weight: 300;
         font-size: var(--#{$prefix}h5-fs);
 
         display: flex;

@@ -167,11 +167,8 @@ export default {
                     network: chain_name,
                     tokens: getIBCAssets(ECOSYSTEMS.COSMOS, chain_name),
                 });
-
-                // console.log('getNativeTokenByChain', chain_name, getNativeTokenByChain(ECOSYSTEMS.COSMOS, chain_name));
             }
 
-            // console.log('getNativeTokenByChain(ECOSYSTEMS.EVM)', getNativeTokenByChain(ECOSYSTEMS.EVM, 'eth', store));
             Socket.init(store);
 
             store.dispatch('tokens/setLoader', true);

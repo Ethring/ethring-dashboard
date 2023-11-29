@@ -359,6 +359,7 @@ export default {
         img {
             width: 32px;
             height: 32px;
+            object-fit: contain;
         }
     }
 
@@ -542,6 +543,7 @@ export default {
                     width: 116px;
                     height: 116px;
                     border-radius: 8px;
+                    object-fit: contain;
                 }
 
                 .avatar-placeholder {

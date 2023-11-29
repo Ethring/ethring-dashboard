@@ -70,7 +70,7 @@ input[type='checkbox'] {
             &__checkmark {
                 transition: all 0.3s ease-in-out;
                 background: var(--#{$prefix}checkbox-checked);
-                border: 1px solid var(--#{$prefix}checkbox-checked);
+                border: 1px solid var(--#{$prefix}checkbox-border-checked);
             }
 
             &__label {
@@ -110,8 +110,9 @@ input[type='checkbox'] {
         height: 24px;
 
         background: var(--#{$prefix}checkbox-bg-color);
+        border: 1px solid var(--#{$prefix}checkbox-border);
         border-radius: 4px;
-        margin-right: 14px;
+        margin-right: 8px;
         transition: all 0.2s;
     }
 

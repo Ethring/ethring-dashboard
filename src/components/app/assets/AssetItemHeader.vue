@@ -144,8 +144,6 @@ export default {
     &-logo {
         width: 40px;
         height: 40px;
-        border-radius: 50%;
-        border: 1px solid var(--#{$prefix}primary-text);
 
         @include pageFlexRow;
         justify-content: center;
@@ -271,13 +269,12 @@ export default {
 }
 
 .token__logo {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
 
     &-img {
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
+        width: 32px;
+        height: 32px;
     }
 }
 </style>

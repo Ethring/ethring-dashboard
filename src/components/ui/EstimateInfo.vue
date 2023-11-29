@@ -4,7 +4,7 @@
             <template #header>
                 <div class="top-block">
                     <template v-if="loading">
-                        <a-skeleton-input active size="small" />
+                        <a-skeleton-input active size="small" class="skeleton" />
                     </template>
 
                     <template v-else>
@@ -115,7 +115,9 @@ export default {
     background-color: var(--#{$prefix}accordion-bg-color);
     border: 1px solid var(--#{$prefix}accordion-border-color);
     border-radius: 8px;
-
+    .skeleton {
+        height: 16px;
+    }
     .top-block {
         display: flex;
         align-items: center;

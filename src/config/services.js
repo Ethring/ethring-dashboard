@@ -121,9 +121,9 @@ const ALL_SERVICES = [
     },
 ];
 
-export const getServices = (type) => {
+export const getServices = (type, namespace = ECOSYSTEMS.EVM) => {
     if (type) {
-        return ALL_SERVICES.filter((service) => service.type === type);
+        return ALL_SERVICES.filter((service) => service.type === type && service.namespace === namespace);
     }
 
     return ALL_SERVICES;

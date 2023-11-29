@@ -47,7 +47,7 @@
             <div class="balance" :class="{ disabled, error }">
                 <div class="balance-value">
                     <template v-if="isTokenLoading">
-                        <a-skeleton-input active size="small" />
+                        <a-skeleton-input active size="small" class="balance-skeleton" />
                     </template>
 
                     <div v-else @click.stop="setMax">
@@ -58,7 +58,7 @@
                 </div>
                 <div class="balance-price">
                     <template v-if="isAmountLoading">
-                        <a-skeleton-input active size="small" />
+                        <a-skeleton-input active size="small" class="balance-price-skeleton" />
                     </template>
                     <template v-else>
                         <span>$</span>
@@ -375,8 +375,6 @@ export default {
         box-sizing: border-box;
         border: 1px solid transparent;
 
-        transition: 0.2s;
-
         .label {
             @include pageFlexRow;
 
@@ -389,14 +387,25 @@ export default {
         .balance {
             @include pageFlexRow;
             justify-content: space-between;
-
+            position: relative;
             height: 32px;
             max-height: 32px;
 
             &-value,
             &-price {
+                position: relative;
                 color: var(--#{$prefix}base-text);
                 font-size: var(--#{$prefix}small-lg-fs);
+
+                &-skeleton {
+                    position: absolute;
+                    right: 0px;
+                    top: -12px;
+                }
+            }
+
+            &-skeleton {
+                margin-top: 0px;
             }
 
             &-value {

@@ -15,12 +15,20 @@
                 <Button title="Update" class="update-modal" @click="handleReload" />
             </a-modal>
         </div>
+
+        <div class="help__item" :class="{ disabled: true }" v-if="currentChainInfo">
+            <a-tooltip>
+                <template #title> {{ $t(tooltipText) }} </template>
+                <SyncOutlined :spin="isLoading" />
+            </a-tooltip>
+        </div>
     </div>
 </template>
 <script>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { useStore } from 'vuex';
 
-import { FileDoneOutlined } from '@ant-design/icons-vue';
+import { FileDoneOutlined, SyncOutlined } from '@ant-design/icons-vue';
 
 import ThemeSwitcher from '@/components/app/ThemeSwitcher';
 import Button from '@/components/ui/Button';
@@ -33,13 +41,20 @@ export default {
         ThemeSwitcher,
         Button,
         FileDoneOutlined,
+        SyncOutlined,
     },
     setup() {
+        const store = useStore();
+
         const open = ref(false);
 
         const showModal = () => {
             open.value = true;
         };
+
+        const isLoading = computed(() => store.getters['tokens/loader'] || false);
+
+        const tooltipText = computed(() => (isLoading.value ? 'dashboard.updatingBalances' : 'dashboard.updateBalances'));
 
         const handleReload = () => {
             window.location.reload(true);
@@ -48,6 +63,8 @@ export default {
         return {
             open,
             releaseNotes: RELEASE_NOTES,
+            isLoading,
+            tooltipText,
 
             handleReload,
             showModal,
@@ -77,7 +94,7 @@ export default {
 
         cursor: pointer;
 
-        &:hover {
+        &:hover:not(.disabled) {
             background: var(--#{$prefix}icon-active);
             color: var(--#{$prefix}icon-secondary-bg-color);
         }
@@ -88,6 +105,15 @@ export default {
 
         svg {
             fill: var(--#{$prefix}icon-active);
+        }
+
+        &.disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+
+            svg {
+                fill: var(--#{$prefix}icon-secondary-bg-color);
+            }
         }
     }
 }
