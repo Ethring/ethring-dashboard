@@ -57,14 +57,18 @@ body {
 
 @keyframes arrowMovement {
   0% {
-    transform: translateX(0); /* Начальное положение */
+    transform: translateX(0);
+    /* Начальное положение */
     opacity: 1;
   }
+
   50% {
     opacity: 0;
   }
+
   100% {
-    transform: translateX(80%); /* Сдвиг на 50% ширины элемента */
+    transform: translateX(80%);
+    /* Сдвиг на 50% ширины элемента */
     opacity: 0;
   }
 }
