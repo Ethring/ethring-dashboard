@@ -141,13 +141,13 @@ export default {
 .select-token {
     &__wrap {
         width: 70%;
-        max-width: 660px;
+        max-width: 524px;
     }
 
     &__title {
         color: var(--#{$prefix}primary-text);
-        font-size: var(--#{$prefix}h3-fs);
-        font-weight: 700;
+        font-size: var(--#{$prefix}h4-fs);
+        font-weight: 500;
         margin-bottom: 24px;
     }
 
@@ -162,7 +162,7 @@ export default {
         fill: var(--#{$prefix}icon-active);
         position: absolute;
         transform: rotate(90deg);
-        top: 10px;
+        top: 6px;
     }
 
     &__not-found {

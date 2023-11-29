@@ -13,6 +13,10 @@
                     <NumberTooltip v-if="showBalance" :value="totalBalance" />
                     <span v-else>****</span>
                 </div>
+                <div v-if="currentChainInfo && isDashboard" class="balance__hide" @click="toggleViewBalance">
+                    <EyeOpenIcon v-if="showBalance" />
+                    <EyeCloseIcon v-else />
+                </div>
             </div>
         </div>
     </div>
@@ -20,6 +24,7 @@
 <script>
 import { computed } from 'vue';
 import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
@@ -27,13 +32,19 @@ import { cutAddress } from '@/helpers/utils';
 
 import NumberTooltip from '@/components/ui/NumberTooltip';
 
+import EyeOpenIcon from '@/assets/icons/dashboard/eyeOpen.svg';
+import EyeCloseIcon from '@/assets/icons/dashboard/eye.svg';
+
 export default {
     name: 'WalletInfo',
     components: {
         NumberTooltip,
+        EyeOpenIcon,
+        EyeCloseIcon,
     },
     setup() {
         const store = useStore();
+        const router = useRouter();
 
         const { walletAccount, currentChainInfo } = useAdapter();
 
@@ -43,6 +54,10 @@ export default {
 
         const totalBalance = computed(() => store.getters['tokens/totalBalances'][walletAccount.value]);
 
+        const isDashboard = computed(() => router.currentRoute.value.path === '/main' || router.currentRoute.value.path === '/');
+
+        const toggleViewBalance = () => store.dispatch('app/toggleViewBalance');
+
         return {
             isAllTokensLoading,
             totalBalance,
@@ -50,6 +65,9 @@ export default {
             walletAccount,
             cutAddress,
             showBalance,
+            isDashboard,
+
+            toggleViewBalance,
         };
     },
 };
@@ -94,8 +112,8 @@ export default {
             user-select: none;
 
             .value {
-                min-width: 165px;
                 font-weight: 600;
+                margin-right: 16px;
             }
 
             span {

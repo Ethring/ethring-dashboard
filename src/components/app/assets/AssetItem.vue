@@ -97,6 +97,7 @@ export default {
 .assets__item {
     vertical-align: center !important;
     color: var(--#{$prefix}black);
+    padding-right: 16px;
 
     .network {
         display: inline-flex;
@@ -120,8 +121,8 @@ export default {
             justify-content: center;
 
             position: absolute;
-            top: 16px;
-            left: 26px;
+            top: 15px;
+            left: 24px;
 
             img {
                 border-radius: 50%;

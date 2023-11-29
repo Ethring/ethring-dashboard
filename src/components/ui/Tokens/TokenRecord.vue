@@ -102,19 +102,19 @@ export default {
 </script>
 <style lang="scss" scoped>
 .token-record {
-    display: flex;
-    align-items: center;
+    @include pageFlexRow;
     justify-content: space-between;
 
-    border: 1px solid var(--#{$prefix}border-secondary-color);
+    overflow: visible;
+    border: 1px solid var(--#{$prefix}border-color);
     height: 56px;
-    padding: 12px;
+    padding: 8px;
 
     border-radius: 8px;
 
     &.selected {
         border: 1px solid var(--zmt-banner-logo-color);
-        background-color: var(--zmt-icon-secondary-bg-color);
+        background-color: rgba(63, 223, 174, 0.1);
     }
 
     &:not(:last-child) {
@@ -122,14 +122,13 @@ export default {
     }
 
     &:not(.selected):hover {
-        border-color: var(--#{$prefix}sub-text);
-        background-color: var(--#{$prefix}select-bg-color);
+        border-color: transparent;
+        box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.2);
     }
 
     cursor: pointer;
     .network {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         justify-content: center;
     }
 
@@ -151,8 +150,7 @@ export default {
         }
 
         .bottom {
-            display: flex;
-            align-items: center;
+            @include pageFlexRow;
 
             .name {
                 font-style: normal;
@@ -211,7 +209,7 @@ export default {
             color: var(--#{$prefix}symbol-text);
 
             .symbol {
-                font-size: var(--#{$prefix}small-lg-fs);
+                font-size: var(--#{$prefix}h6-fs);
                 font-weight: 400;
                 color: var(--#{$prefix}symbol-text);
                 margin-left: 3px;
@@ -220,7 +218,7 @@ export default {
 
         .in-usd {
             font-size: var(--#{$prefix}small-lg-fs);
-            font-weight: 500;
+            font-weight: 600;
 
             color: var(--#{$prefix}checkbox-disabled);
             .symbol {
@@ -236,15 +234,14 @@ export default {
     }
 
     .logo {
-        width: 32px;
-        height: 32px;
+        width: 40px;
+        height: 40px;
 
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         justify-content: center;
 
         border-radius: 50%;
-        margin-right: 12px;
+        margin-right: 8px;
     }
 }
 </style>

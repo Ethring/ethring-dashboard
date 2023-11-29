@@ -2,11 +2,6 @@
     <div class="help">
         <ThemeSwitcher class="head__switcher" />
 
-        <div v-if="currentChainInfo && isDashboard" class="help__item" @click="toggleViewBalance">
-            <EyeOutlined v-if="showBalance" />
-            <EyeInvisibleOutlined v-else />
-        </div>
-
         <div class="help__item">
             <FileDoneOutlined @click="showModal" />
 
@@ -23,14 +18,11 @@
     </div>
 </template>
 <script>
-import { computed, ref } from 'vue';
-import { useStore } from 'vuex';
-import { useRouter } from 'vue-router';
+import { ref } from 'vue';
 
-import { EyeOutlined, EyeInvisibleOutlined, FileDoneOutlined } from '@ant-design/icons-vue';
+import { FileDoneOutlined } from '@ant-design/icons-vue';
 
 import ThemeSwitcher from '@/components/app/ThemeSwitcher';
-import useAdapter from '@/Adapter/compositions/useAdapter';
 import Button from '@/components/ui/Button';
 
 import { RELEASE_NOTES } from '@/config/releaseNotes';
@@ -40,41 +32,24 @@ export default {
     components: {
         ThemeSwitcher,
         Button,
-
-        EyeOutlined,
-        EyeInvisibleOutlined,
         FileDoneOutlined,
     },
     setup() {
-        const store = useStore();
-        const router = useRouter();
-        const { currentChainInfo } = useAdapter();
-
         const open = ref(false);
 
         const showModal = () => {
             open.value = true;
         };
 
-        const isDashboard = computed(() => router.currentRoute.value.path === '/main' || router.currentRoute.value.path === '/');
-
-        const showBalance = computed(() => store.getters['app/showBalance']);
-
-        const toggleViewBalance = () => store.dispatch('app/toggleViewBalance');
-
         const handleReload = () => {
             window.location.reload(true);
         };
 
         return {
-            showBalance,
-            isDashboard,
-            currentChainInfo,
             open,
             releaseNotes: RELEASE_NOTES,
 
             handleReload,
-            toggleViewBalance,
             showModal,
         };
     },

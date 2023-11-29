@@ -1088,7 +1088,7 @@ export default {
 </script>
 <style lang="scss">
 .simple-bridge {
-    width: 660px;
+    width: 524px;
 
     .select-group {
         @include pageFlexRow;

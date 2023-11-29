@@ -1071,18 +1071,18 @@ export default {
 </script>
 <style lang="scss">
 .superswap-panel {
-    width: 660px;
+    width: 524px;
     position: relative;
 
     .swap-btn {
         @include pageFlexRow;
         justify-content: center;
         position: absolute;
-        left: 120px;
-        top: 114px;
+        left: 54px;
+        top: 112px;
         z-index: 5;
-        height: 54px;
-        width: 54px;
+        height: 56px;
+        width: 56px;
         border-radius: 50%;
         background-color: var(--#{$prefix}swap-btn-bg-color);
         border: 5px solid var(--#{$prefix}main-background);

@@ -917,7 +917,7 @@ export default {
 </script>
 <style lang="scss">
 .simple-swap {
-    width: 660px;
+    width: 524px;
 
     &__switch-wrap {
         position: relative;

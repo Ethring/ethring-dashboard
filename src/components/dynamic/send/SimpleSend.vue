@@ -360,7 +360,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .simple-send {
-    width: 660px;
+    width: 524px;
 
     &__btn {
         width: 100%;

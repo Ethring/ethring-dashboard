@@ -232,7 +232,7 @@ export default {
         font-weight: 700;
         height: 32px;
         color: var(--#{$prefix}primary-text);
-        margin-top: 4px;
+        margin-top: 8px;
     }
 
     .disabled {
@@ -245,7 +245,7 @@ export default {
         justify-content: space-between;
         color: var(--#{$prefix}base-text);
         font-weight: 400;
-        margin-top: 14px;
+        margin-top: 6px;
         font-size: var(--#{$prefix}small-lg-fs);
         cursor: default;
 

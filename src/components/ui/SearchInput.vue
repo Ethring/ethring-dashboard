@@ -4,7 +4,6 @@
             <SearchIcon />
         </div>
         <div class="search-input__container">
-            <span>{{ $t('dashboard.search') }}</span>
             <input @focus="isActive = 'active'" @blur="isActive = ''" v-model="text" :placeholder="$t('tokenOperations.searchToken')" />
         </div>
         <div v-if="text.length" class="search-input__clear" @click="clearValue">
@@ -52,9 +51,9 @@ export default {
 
     @include pageFlexRow;
 
-    height: 72px;
+    height: 48px;
 
-    padding: 16px;
+    padding: 12px;
 
     border: 1px solid var(--#{$prefix}white);
     border-radius: 8px;
@@ -69,7 +68,7 @@ export default {
         display: block;
 
         font-style: normal;
-        font-weight: 500;
+        font-weight: 400;
         font-size: var(--#{$prefix}small-lg-fs);
         color: var(--#{$prefix}base-text);
     }
@@ -77,18 +76,10 @@ export default {
     &__logo {
         @include pageFlexRow;
         justify-content: center;
-
-        width: 40px;
-        min-width: 40px;
-        height: 40px;
-        max-height: 40px;
-
-        border-radius: 50%;
-        background: var(--#{$prefix}icon-secondary-bg-hover);
-        margin-right: 10px;
+        margin-right: 6px;
 
         svg {
-            fill: var(--#{$prefix}sub-text);
+            fill: var(--#{$prefix}select-icon-color);
         }
     }
 
@@ -118,8 +109,8 @@ export default {
         width: 100%;
 
         font-style: normal;
-        font-weight: 600;
-        font-size: var(--#{$prefix}h5-fs);
+        font-weight: 400;
+        font-size: var(--#{$prefix}h6-fs);
 
         color: var(--#{$prefix}primary-text);
 
@@ -132,10 +123,6 @@ export default {
 .active {
     background: var(--#{$prefix}main-background);
     border: 1px solid var(--#{$prefix}sub-text);
-
-    .search-input__logo {
-        background: var(--#{$prefix}btn-bg-color-hover);
-    }
 
     input {
         color: var(--#{$prefix}primary-text);
