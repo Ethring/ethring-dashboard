@@ -1,6 +1,6 @@
 <template>
     <a-modal :open="open" centered :footer="null" class="modal" title="Kado" @cancel="closeModal">
-        <iframe width="100%" height="520" frameBorder="{0}" :src="IFRAME_URL" class="buy-crypto-iframe" />
+        <iframe width="100%" height="520" frameBorder="0" :src="IFRAME_URL" class="buy-crypto-iframe" />
     </a-modal>
 </template>
 <script>
@@ -24,17 +24,18 @@ export default {
     setup(props, { emit }) {
         const { currentChainInfo, walletAddress } = useAdapter();
 
-        const currentChain = ref(currentChainInfo.value?.ecosystem || ECOSYSTEMS.EVM);
-
         const IFRAME_URL = ref('');
+
+        const getIframeUrl = (currentChain) => {
+            if (currentChain === ECOSYSTEMS.EVM) {
+                return `${KADO_URL}?apiKey=${process.env.VUE_APP_KADO_API_KEY}&product=BUY&onPayCurrency=USD&onRevCurrency=USDC&onToAddress=${walletAddress.value}&networkList=${KADO_EVM_NETWORKS}&productList=${KADO_ACTIONS}`;
+            }
+            return `${KADO_URL}?apiKey=${process.env.VUE_APP_KADO_API_KEY}&product=BUY&onPayCurrency=USD&onRevCurrency=ATOM&network=${KADO_DEFAULT_COSMOS}&onToAddress=${walletAddress.value}&networkList=${KADO_COSMOS_NETWORKS}&productList=${KADO_ACTIONS}`;
+        };
 
         onMounted(() => {
             if (walletAddress) {
-                if (currentChain.value === ECOSYSTEMS.EVM) {
-                    IFRAME_URL.value = `${KADO_URL}?apiKey=${process.env.VUE_APP_KADO_API_KEY}product=BUY&onPayCurrency=USD&onRevCurrency=USDC&onToAddress=${walletAddress.value}&networkList=${KADO_EVM_NETWORKS}&productList=${KADO_ACTIONS}`;
-                } else {
-                    IFRAME_URL.value = `${KADO_URL}?apiKey=${process.env.VUE_APP_KADO_API_KEY}&product=BUY&onPayCurrency=USD&onRevCurrency=ATOM&network=COSMOS HUB&onToAddress=${walletAddress.value}&networkList=${KADO_COSMOS_NETWORKS}&productList=${KADO_ACTIONS}`;
-                }
+                IFRAME_URL.value = getIframeUrl(currentChainInfo?.value?.ecosystem);
             }
         });
 
@@ -45,14 +46,9 @@ export default {
         };
 
         watch(walletAddress, () => {
-            currentChain.value = currentChainInfo.value.ecosystem;
-
-            if (currentChain.value === ECOSYSTEMS.EVM) {
-                IFRAME_URL.value = `${KADO_URL}?apiKey=${KADO_URL}&product=BUY&onPayCurrency=USD&onRevCurrency=USDC&onToAddress=${walletAddress.value}&networkList=${KADO_EVM_NETWORKS}&productList=${KADO_ACTIONS}`;
-            } else {
-                IFRAME_URL.value = `${KADO_URL}?apiKey=${KADO_URL}&product=BUY&onPayCurrency=USD&onRevCurrency=ATOM&network=${KADO_DEFAULT_COSMOS}&onToAddress=${walletAddress.value}&networkList=${KADO_COSMOS_NETWORKS}&productList=${KADO_ACTIONS}`;
-            }
+            IFRAME_URL.value = getIframeUrl(currentChainInfo?.value?.ecosystem);
         });
+
         return {
             closeModal,
             IFRAME_URL,
@@ -61,4 +57,13 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.buy-crypto-iframe {
+    border-radius: 16px;
+}
+
+.loader-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 </style>

@@ -206,7 +206,4 @@ export default {
         }
     }
 }
-.buy-crypto-iframe {
-    border-radius: 16px;
-}
 </style>
