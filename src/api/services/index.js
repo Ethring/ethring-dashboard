@@ -19,6 +19,8 @@ const SOURCES = {
     getApproveTx: createCancelToken(),
 };
 
+const REMOVE_KEYS = ['fromNetwork', 'toNetwork', 'fromToken', 'toToken', 'service', 'store'];
+
 const cancelRequest = async (source) => {
     if (source) {
         await source.cancel();
@@ -37,6 +39,12 @@ export const estimateSwap = async ({ url, net, fromTokenAddress, toTokenAddress,
 
     if (!url) {
         throw new Error('url is required');
+    }
+
+    const SWAP_REMOVE_KEYS = [...REMOVE_KEYS, 'fromNet', 'toNet', 'walletAddress'];
+
+    for (const key of SWAP_REMOVE_KEYS) {
+        delete rest[key];
     }
 
     try {
@@ -74,6 +82,10 @@ export const estimateBridge = async ({ url, fromNet, toNet, fromTokenAddress, to
 
     if (!url) {
         throw new Error('url is required');
+    }
+
+    for (const key of REMOVE_KEYS) {
+        delete rest[key];
     }
 
     try {

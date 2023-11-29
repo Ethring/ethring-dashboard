@@ -756,8 +756,12 @@ class CosmosAdapter extends AdapterBase {
 
         const ibcHashTable = this.getIBCAssetsHashTable(chainInfo?.chain_name);
 
+        if (!ibcHashTable[token] && ibcRegex.test(token)) {
+            return null;
+        }
+
         // * Check if token is IBC and exist in hashTable, then return url to wasm contract
-        if (!ibcHashTable[token]) {
+        if (!ibcHashTable[token] && !ibcRegex.test(token)) {
             return `${url}/wasm/contract/${token}`;
         }
 
@@ -805,7 +809,7 @@ class CosmosAdapter extends AdapterBase {
         const hashTable = {};
 
         for (const asset of assets) {
-            hashTable[asset.base] = asset;
+            hashTable[asset.address] = asset;
         }
 
         return hashTable;
