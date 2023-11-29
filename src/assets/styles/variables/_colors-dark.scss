@@ -64,6 +64,8 @@ $banner-secondary-color: $charade;
 $eye-logo: $geyser;
 $eye-logo-hover: $springGreen;
 
+$assets-border-color: $ebonyClay;
+
 // Text
 $sub-text: $springGreen;
 $mute-text: $geyser;
@@ -237,6 +239,8 @@ $theme-colors-dark: (
     "secondary-text": $secondary-text,
     "symbol-text": $symbol-text,
     "mute-apr-text": $mute-apr-text,
+
+    "assets-border-color": $assets-border-color,
 
     "adapter-label-text": $adapter-label-text,
     "adapter-value-text": $adapter-value-text,

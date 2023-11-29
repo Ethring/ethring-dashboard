@@ -144,6 +144,7 @@ export default {
     &-logo {
         width: 40px;
         height: 40px;
+        border-radius: 50%;
 
         @include pageFlexRow;
         justify-content: center;
@@ -275,6 +276,7 @@ export default {
     &-img {
         width: 32px;
         height: 32px;
+        border-radius: 50%;
     }
 }
 </style>

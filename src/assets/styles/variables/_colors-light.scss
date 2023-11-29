@@ -82,6 +82,8 @@ $banner-secondary-color: $iceberg;
 $eye-logo: $trout;
 $eye-logo-hover: $surfieGreen;
 
+$assets-border-color: $geyser;
+
 // Text
 $sub-text: $surfieGreen;
 $mute-text: $trout;
@@ -254,6 +256,8 @@ $theme-colors: (
     "secondary-text": $secondary-text,
     "symbol-text": $symbol-text,
     "mute-apr-text": $mute-apr-text,
+
+    "assets-border-color": $assets-border-color,
 
     "adapter-label-text": $adapter-label-text,
     "adapter-value-text": $adapter-value-text,
