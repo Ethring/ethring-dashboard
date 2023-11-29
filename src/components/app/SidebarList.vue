@@ -24,7 +24,7 @@
                 </div>
             </router-link>
 
-            <div v-else-if="item.type === 'modal'" @click="showModal" class="sidebar-list__item">
+            <div v-else-if="item.type === 'modal'" @click="showModal()" class="sidebar-list__item">
                 <a-tooltip placement="right">
                     <template #title v-if="collapsed">
                         {{ $t(`sidebar.${item.key}`) }}
@@ -39,16 +39,14 @@
                     <div v-if="item.status" class="sidebar-list__item-status">{{ item.status }}</div>
                 </div>
 
-                <a-modal v-model:open="open" centered :footer="null" class="modal" title="Kado">
-                    <iframe width="100%" height="520" frameBorder="{0}" :src="IFRAME_URL" class="buy-crypto-iframe" />
-                </a-modal>
+                <KadoModal :open="open" @close:modal="closeModal" />
             </div>
         </template>
     </div>
 </template>
 
 <script>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 import UIConfig from '@/config/ui';
@@ -61,13 +59,7 @@ import bridgeIcon from '@/assets/icons/sidebar/bridge.svg';
 import superSwapIcon from '@/assets/icons/sidebar/superSwap.svg';
 import buyCryptoIcon from '@/assets/icons/sidebar/buy.svg';
 
-import { KADO_EVM_NETWORKS, KADO_COSMOS_NETWORKS } from '@/shared/constants/chains/kadoChains';
-
-import { ECOSYSTEMS } from '@/Adapter/config';
-
-// CONSTANTS
-const KADO_URL = process.env.VUE_APP_KADO_API_KEY;
-const KADO_ACTIONS = ['BUY,SELL'];
+import KadoModal from '@/components/app/modals/KadoModal';
 
 export default {
     name: 'SidebarList',
@@ -79,6 +71,8 @@ export default {
         bridgeIcon,
         superSwapIcon,
         buyCryptoIcon,
+
+        KadoModal,
     },
     props: {
         collapsed: {
@@ -87,38 +81,16 @@ export default {
         },
     },
     setup() {
-        const { currentChainInfo, walletAccount } = useAdapter();
-
-        const currentChain = ref(currentChainInfo.value?.ecosystem || ECOSYSTEMS.EVM);
-
-        const IFRAME_URL = ref('');
-
-        onMounted(() => {
-            if (walletAccount) {
-                if (currentChain.value === ECOSYSTEMS.EVM) {
-                    IFRAME_URL.value = `https://app.kado.money?apiKey=${KADO_URL}&product=BUY&onPayCurrency=USD&onRevCurrency=USDC&onToAddress=${walletAccount.value}&networkList=${KADO_EVM_NETWORKS}&productList=${KADO_ACTIONS}`;
-                } else {
-                    IFRAME_URL.value = `https://app.kado.money?apiKey=${KADO_URL}&product=BUY&onPayCurrency=USD&onRevCurrency=ATOM&network=COSMOS HUB&onToAddress=${walletAccount.value}&networkList=${KADO_COSMOS_NETWORKS}&productList=${KADO_ACTIONS}`;
-                }
-            }
-        });
-
-        watch(walletAccount, () => {
-            currentChain.value = currentChainInfo.value.ecosystem;
-
-            if (currentChain.value === ECOSYSTEMS.EVM) {
-                IFRAME_URL.value = `https://app.kado.money?apiKey=${KADO_URL}&product=BUY&onPayCurrency=USD&onRevCurrency=USDC&onToAddress=${walletAccount.value}&networkList=${KADO_EVM_NETWORKS}&productList=${KADO_ACTIONS}`;
-            } else {
-                IFRAME_URL.value = `https://app.kado.money?apiKey=${KADO_URL}&product=BUY&onPayCurrency=USD&onRevCurrency=ATOM&network=COSMOS HUB&onToAddress=${walletAccount.value}&networkList=${KADO_COSMOS_NETWORKS}&productList=${KADO_ACTIONS}`;
-            }
-        });
-
-        console.log(IFRAME_URL);
+        const { currentChainInfo } = useAdapter();
 
         const open = ref(false);
 
         const showModal = () => {
             open.value = true;
+        };
+
+        const closeModal = (newValue) => {
+            open.value = newValue;
         };
 
         const menu = computed(() => {
@@ -139,7 +111,7 @@ export default {
             menu,
             open,
             showModal,
-            IFRAME_URL,
+            closeModal,
         };
     },
 };
