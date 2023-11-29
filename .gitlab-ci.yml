@@ -6,7 +6,7 @@ stages:
   - sentry
 
 include:
-  - local: '/tests/build/tests-ci.yml'
+  - local: "/tests/build/tests-ci.yml"
 
 .dockerBuildJob:
   cache: {}
@@ -32,7 +32,6 @@ include:
       --cache=true
       --cache-ttl=168h
       --build-arg VUE_APP_HOST
-      --build-arg VUE_APP_1INCH_SWAP_API
       --build-arg VUE_APP_PARASWAP_API
       --build-arg VUE_APP_SQUID_ROUTER_API
       --build-arg VUE_APP_SYNAPSE_SWAP_API
