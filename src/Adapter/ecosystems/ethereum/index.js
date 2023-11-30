@@ -175,7 +175,7 @@ class EthereumAdapter extends AdapterBase {
         const chainInfo = chainFromStore(+id);
 
         if (JSON.stringify(chainInfo) === '{}') {
-            return null;
+            chainInfo.chain_id = id;
         }
 
         chainInfo.walletName = chainInfo.walletModule = label;
