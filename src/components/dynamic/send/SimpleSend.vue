@@ -5,7 +5,6 @@
             :label="$t('tokenOperations.selectNetwork')"
             :current="selectedSrcNetwork"
             @select="onSelectNetwork"
-            showSearch
         />
 
         <SelectAddress

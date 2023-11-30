@@ -18,7 +18,7 @@ export default {
     &__title {
         color: var(--#{$prefix}primary-text);
         font-size: var(--#{$prefix}h3-fs);
-        font-weight: 700;
+        font-weight: 500;
         margin-bottom: 24px;
     }
 }

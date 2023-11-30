@@ -1,8 +1,9 @@
 <template>
     <div class="connected-wallet" @click="handleOnClickConnectedWallet(wallet)">
         <div class="left-side">
-            <div class="change-network-logo">
-                <img :src="chainInfo.logo" alt="current-chain-logo" />
+            <div class="module-logo-container">
+                <ModuleIcon :ecosystem="wallet.ecosystem" :module="wallet.walletModule" background="#1C1F2C" />
+                <CheckIcon v-if="wallet.ecosystem === currentChainInfo.ecosystem" class="check-icon" />
             </div>
             <div class="account-name">
                 {{ cutAddress(wallet.account, 10, 4) }}
@@ -44,12 +45,18 @@
 
 <script>
 import { computed, ref, watch } from 'vue';
-import { MoreOutlined } from '@ant-design/icons-vue';
+
+import { useClipboard } from '@vueuse/core';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
+import ModuleIcon from '@/Adapter/UI/Entities/ModuleIcon.vue';
+
 import DisconnectIcon from '@/assets/icons/app/clear.svg';
 import CopyIcon from '@/assets/icons/app/copy.svg';
+import CheckIcon from '@/assets/icons/app/checkIcon.svg';
+
+import { MoreOutlined } from '@ant-design/icons-vue';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
@@ -61,6 +68,8 @@ export default {
         DisconnectIcon,
         CopyIcon,
         MoreOutlined,
+        ModuleIcon,
+        CheckIcon,
     },
     props: {
         wallet: {
@@ -70,7 +79,7 @@ export default {
     },
     setup(props) {
         const selectedChain = ref(props.wallet.chain);
-
+        const { copy } = useClipboard();
         const {
             getChainListByEcosystem,
             getChainByChainId,
@@ -138,6 +147,9 @@ export default {
         };
 
         const handleOnCopyAddress = (ecosystem) => {
+            if (ecosystem === ECOSYSTEMS.EVM) {
+                return copy(props.wallet.address);
+            }
             action('SET_MODAL_ECOSYSTEM', ecosystem);
             return action('SET_MODAL_STATE', { name: 'addresses', isOpen: true });
         };
@@ -148,6 +160,7 @@ export default {
             chainInfo,
             chainList,
             selectedChain,
+            currentChainInfo,
 
             cutAddress,
 
@@ -273,6 +286,17 @@ export default {
             background: var(--#{$prefix}adapter-logo-main-color);
             border-radius: 4px;
         }
+    }
+}
+
+.module-logo-container {
+    position: relative;
+
+    .check-icon {
+        transform: scale(1.1);
+        position: absolute;
+        right: -2px;
+        bottom: -2px;
     }
 }
 </style>

@@ -1095,6 +1095,7 @@ export default {
     .select-group {
         @include pageFlexRow;
         justify-content: space-between;
+        position: relative;
 
         .select {
             width: 49%;
@@ -1102,6 +1103,10 @@ export default {
             .name {
                 font-size: var(--#{$prefix}h6-fs);
                 line-height: 26px;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                width: 160px;
             }
         }
     }

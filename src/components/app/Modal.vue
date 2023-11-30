@@ -46,7 +46,7 @@ export default {
         },
         width: {
             type: String,
-            default: '',
+            default: '588px',
         },
         height: {
             type: String,
@@ -81,6 +81,7 @@ export default {
         border-radius: 16px;
         padding: 24px 32px;
         box-sizing: border-box;
+        max-width: 588px;
     }
 
     &__content-title {

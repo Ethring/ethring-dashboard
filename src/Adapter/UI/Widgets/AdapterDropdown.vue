@@ -1,12 +1,12 @@
 <template>
     <a-menu-item-group key="accounts" class="connected-wallets-container">
         <div class="connected-wallets-label">
-            <div>
+            <p>
                 {{ $t('adapter.accountsGroup') }}
-            </div>
+            </p>
             <DisconnectAll :disconnect-all="disconnectAll" />
         </div>
-        <div v-for="account in connectedWallets" :key="account">
+        <div v-for="account in connectedWallets" :key="account" class="connected-wallets-item">
             <ConnectedWallet :wallet="account" />
         </div>
     </a-menu-item-group>
@@ -53,14 +53,15 @@ export default {
 };
 </script>
 <style lang="scss">
-.connected-wallets-label {
-    @include pageFlexRow;
-    justify-content: space-between;
-
-    & > div {
-        color: var(--#{$prefix}adapter-label-text);
-        font-size: var(--#{$prefix}small-lg-fs);
-        font-weight: 400;
+.connected-wallets {
+    &-label {
+        @include pageFlexRow;
+        justify-content: space-between;
+        p {
+            color: var(--#{$prefix}adapter-label-text);
+            font-size: var(--#{$prefix}small-lg-fs);
+            font-weight: 400;
+        }
     }
 }
 

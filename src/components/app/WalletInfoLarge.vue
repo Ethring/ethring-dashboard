@@ -119,6 +119,7 @@ export default {
             span {
                 font-weight: 400;
                 color: var(--#{$prefix}symbol-text);
+                margin-right: -6px;
             }
 
             svg {

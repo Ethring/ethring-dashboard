@@ -115,9 +115,9 @@ export default {
     justify-content: space-between;
 
     overflow: visible;
-    border: 1px solid var(--#{$prefix}border-color);
+    border: 1px solid var(--#{$prefix}border-secondary-color);
     height: 56px;
-    padding: 8px;
+    padding: 8px 16px 8px 8px;
 
     border-radius: 8px;
 
@@ -151,11 +151,8 @@ export default {
             font-size: var(--#{$prefix}h6-fs);
             text-transform: uppercase;
             color: var(--#{$prefix}primary-text);
-        }
-
-        .top,
-        .bottom {
-            height: 18px;
+            margin-top: 4px;
+            line-height: 18px;
         }
 
         .bottom {
@@ -215,12 +212,12 @@ export default {
         .in-currency {
             font-weight: 500;
             font-size: var(--#{$prefix}h6-fs);
-            color: var(--#{$prefix}symbol-text);
+            color: var(--#{$prefix}amount-text);
 
             .symbol {
                 font-size: var(--#{$prefix}h6-fs);
                 font-weight: 400;
-                color: var(--#{$prefix}symbol-text);
+                color: var(--#{$prefix}select-symbol-text);
                 margin-left: 3px;
             }
         }
@@ -234,6 +231,7 @@ export default {
                 font-size: var(--#{$prefix}small-lg-fs);
                 font-weight: 400;
                 color: var(--#{$prefix}secondary-text);
+                margin-right: -3px;
             }
         }
 

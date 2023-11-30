@@ -26,9 +26,7 @@
             </div>
         </div>
 
-        <div class="wallet-adapter__actions">
-            <ArrowUpIcon />
-        </div>
+        <div class="wallet-adapter__actions"><ArrowIcon class="arrow" /></div>
     </div>
 </template>
 <script>
@@ -38,7 +36,7 @@ import ModuleIcon from '@/Adapter/UI/Entities/ModuleIcon.vue';
 
 import ZometLogo from '@/assets/icons/app/zometLogo.svg';
 import CheckIcon from '@/assets/icons/app/checkIcon.svg';
-import ArrowUpIcon from '@/assets/icons/dashboard/arrowtopdown.svg';
+import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
 import { cutAddress } from '@/helpers/utils';
 import { prettyNumberTooltip } from '@/helpers/prettyNumber';
@@ -49,7 +47,7 @@ export default {
         ModuleIcon,
         ZometLogo,
         CheckIcon,
-        ArrowUpIcon,
+        ArrowIcon,
     },
     emits: ['toggleDropdown', 'closeDropdown'],
     setup() {
@@ -98,6 +96,12 @@ export default {
     &__account {
         @include pageFlexRow;
         width: 100%;
+    }
+
+    .arrow {
+        cursor: pointer;
+        fill: var(--#{$prefix}select-icon-color);
+        @include animateEasy;
     }
 
     &__logos {
@@ -158,16 +162,11 @@ export default {
         @include pageFlexRow;
 
         gap: 8px;
-
-        color: var(--#{$prefix}icon-active);
-
-        span {
-            cursor: pointer;
-        }
-
-        span:hover {
-            color: var(--#{$prefix}icon-hover);
-        }
+    }
+}
+.ant-dropdown-open {
+    .arrow {
+        transform: rotate(180deg) !important;
     }
 }
 </style>

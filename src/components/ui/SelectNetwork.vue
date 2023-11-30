@@ -15,7 +15,6 @@
         </div>
         <div class="select__items">
             <SearchInput
-                v-if="showSearch"
                 :value="searchValue"
                 @onChange="handleOnFilterNetworks"
                 class="search"
@@ -73,9 +72,6 @@ export default {
         },
         placeholder: {
             type: String,
-        },
-        showSearch: {
-            type: Boolean,
         },
     },
     components: {
@@ -177,20 +173,18 @@ export default {
             height: 32px;
 
             border-radius: 50%;
-            margin-right: 4px;
+            margin-right: 8px;
 
             svg {
                 fill: var(--#{$prefix}black);
             }
 
             &-logo {
-                width: 100%;
-                height: 100%;
                 object-fit: contain;
                 object-position: center;
                 border-radius: 50%;
-                max-width: 32px;
-                max-height: 32px;
+                width: 32px;
+                height: 32px;
             }
         }
 
@@ -222,7 +216,7 @@ export default {
 
         .placeholder {
             color: var(--#{$prefix}select-placeholder-text);
-            font-size: var(--#{$prefix}default-fs);
+            font-size: var(--#{$prefix}h6-fs);
             font-weight: 500;
             user-select: none;
             line-height: 18px;
@@ -235,7 +229,7 @@ export default {
             @include animateEasy;
             display: inline;
             position: absolute;
-            right: 12px;
+            right: 16px;
             top: 40%;
         }
     }
@@ -255,19 +249,14 @@ export default {
         z-index: 1;
         background: var(--#{$prefix}select-dropdown-bg-color);
         position: absolute;
-        top: 65px;
 
         left: 0;
         right: 0;
 
         width: 100%;
 
-        min-height: 32px;
-
         border: 1px solid var(--#{$prefix}select-active-border-color);
-        border-radius: 0 0 8px 8px;
-
-        border-top: none;
+        border-radius: 8px;
 
         transform: scaleY(0);
         transform-origin: top;
@@ -279,9 +268,6 @@ export default {
         height: 244px;
         overflow-y: auto;
 
-        .search {
-            margin-top: 16px;
-        }
         &::-webkit-scrollbar {
             width: 0px;
             background-color: transparent;
@@ -301,8 +287,8 @@ export default {
         }
 
         &-item-logo {
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             @include pageFlexRow;
             justify-content: center;
             background: var(--#{$prefix}icon-secondary-bg-color);
@@ -330,12 +316,16 @@ export default {
         opacity: 0;
         justify-content: space-between;
         height: 56px;
-        border-bottom: 1px dashed var(--#{$prefix}border-secondary-color);
+        padding: 16px 0 10px;
+        border-bottom: 1px dashed var(--#{$prefix}border-color);
         cursor: pointer;
 
         .info {
+            @include pageFlexRow;
             .name {
                 color: var(--#{$prefix}base-text);
+                font-weight: 500;
+                font-size: var(--#{$prefix}h6-fs);
             }
 
             .icon {
@@ -353,8 +343,6 @@ export default {
                 img {
                     width: 100%;
                     height: 100%;
-                    max-width: 24px;
-                    max-height: 24px;
                 }
             }
         }
@@ -381,16 +369,6 @@ export default {
             .select__items-item-logo {
                 transition: 0.5s;
                 background: var(--#{$prefix}icon-logo-bg-hover);
-            }
-        }
-
-        .info {
-            @include pageFlexRow;
-
-            .name {
-                font-size: var(--#{$prefix}h6-fs);
-                color: var(--#{$prefix}base-text);
-                font-weight: 400;
             }
         }
 

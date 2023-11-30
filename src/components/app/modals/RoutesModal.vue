@@ -224,7 +224,6 @@ export default {
 
             span {
                 color: var(--#{$prefix}theme-switcher-color);
-                margin-left: 2px;
             }
         }
     }

@@ -44,7 +44,7 @@
                 <span class="asset__item-header-reward-title">{{ $t('tokenOperations.rewards') }}:</span>
                 <NumberTooltip v-if="showBalance" :value="reward" />
                 <p v-else>****</p>
-                <span class="asset__item-header-reward-symbol"> $ </span>
+                <span class="asset__item-header-reward-symbol">$</span>
             </div>
         </div>
     </div>
@@ -180,7 +180,6 @@ export default {
         line-height: 16px;
         color: var(--#{$prefix}mute-text);
         font-weight: 400;
-        margin-right: 3px;
 
         &__left {
             margin-left: 5px;
@@ -219,10 +218,6 @@ export default {
             font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 500;
             margin: 0 2px 0 6px;
-        }
-
-        &-symbol {
-            margin-left: 2px;
         }
     }
 

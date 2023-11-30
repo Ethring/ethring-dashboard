@@ -1,6 +1,6 @@
 <template>
-    <div class="select" ref="selectBlock">
-        <div class="select__block" data-qa="select__block" :class="{ 'select__block-active': showOptions }" @click="() => toggleOptions()">
+    <div class="select" :class="{ active }" ref="selectBlock">
+        <div class="select__block" data-qa="select__block" :class="{ 'select__block-active': active }" @click="() => toggleOptions()">
             <div class="logo">
                 <TokenIcon width="24px" height="24px" :token="selectedItem" />
             </div>
@@ -8,10 +8,9 @@
             <h3 v-else>Select</h3>
             <ArrowIcon class="arrow" />
         </div>
-        <div class="select__items" data-qa="select__items" v-if="showOptions">
+        <div class="select__items" data-qa="select__items">
             <div class="select__items-search">
-                <SearchIcon />
-                <input v-model="searchValue" :placeholder="placeholder" />
+                <SearchInput :value="searchValue" @onChange="handleOnFilterOptions" :placeholder="placeholder" />
             </div>
             <div class="select__items-list" v-if="optionsList.length" @scroll="loadMore">
                 <div
@@ -37,7 +36,7 @@
                             <span>{{ item.symbol }}</span>
                         </h4>
                         <h6>
-                            <span>$</span>
+                            <span class="usd-symbol">$</span>
                             <NumberTooltip :value="item.balanceUsd" decimals="2" />
                         </h6>
                     </div>
@@ -53,7 +52,7 @@
                     </div>
                 </template>
             </div>
-            <div v-else-if="searchValue.length" class="select__items-not-found">
+            <div v-else-if="searchValue?.length" class="select__items-not-found">
                 <p>{{ $t('dashboard.notFound') }}</p>
             </div>
             <div v-if="!options.length" class="select__items-not-found">
@@ -69,9 +68,9 @@ import { onClickOutside } from '@vueuse/core';
 
 import TokenIcon from '@/components/ui/TokenIcon';
 import NumberTooltip from '@/components/ui/NumberTooltip';
+import SearchInput from '@/components/ui/SearchInput';
 
 import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
-import SearchIcon from '@/assets/icons/app/search.svg';
 
 import _ from 'lodash';
 
@@ -81,7 +80,7 @@ import { searchByKey } from '@/helpers/utils';
 export default {
     name: 'Select',
 
-    components: { TokenIcon, ArrowIcon, SearchIcon, NumberTooltip },
+    components: { TokenIcon, ArrowIcon, SearchInput, NumberTooltip },
 
     props: {
         value: {
@@ -114,11 +113,11 @@ export default {
         const isListLoading = ref(false);
         const selectBlock = ref(null);
 
-        onClickOutside(selectBlock, () => (showOptions.value = false));
+        onClickOutside(selectBlock, () => (active.value = false));
 
         const selectedItem = ref(props.value);
         const searchValue = ref();
-        const showOptions = ref(false);
+        const active = ref(false);
         const optionsList = ref(props.options.slice(0, currentIndex.value));
 
         const timer = ref(null);
@@ -133,7 +132,7 @@ export default {
             currentIndex.value = MAX_TOKENS_PER_PAGE;
             optionsList.value = props.options.slice(0, currentIndex.value);
             searchValue.value = '';
-            showOptions.value = !showOptions.value;
+            active.value = !active.value;
         };
 
         const searchInTokens = (tokens, value) => {
@@ -182,14 +181,14 @@ export default {
             }, 500));
         };
 
-        watch(searchValue, (val) => {
+        const handleOnFilterOptions = (val) => {
             if (val.length) {
                 clearTimeout(timer.value);
-                optionsList.value = searchInTokens(props.options, searchValue.value)?.slice(0, currentIndex.value);
+                optionsList.value = searchInTokens(props.options, val)?.slice(0, currentIndex.value);
                 return;
             }
             optionsList.value = props.options.slice(0, currentIndex.value);
-        });
+        };
 
         watch(
             () => props.options,
@@ -211,11 +210,12 @@ export default {
             isListLoading,
             searchValue,
             optionsList,
-            showOptions,
+            active,
             loadMore,
             onSelect,
             toggleOptions,
             formatNumber,
+            handleOnFilterOptions,
         };
     },
 };
@@ -246,7 +246,7 @@ export default {
             border: 1px solid var(--#{$prefix}select-active-border-color);
 
             .arrow {
-                transform: scale(0.8) rotate(180deg) !important;
+                transform: rotate(180deg) !important;
             }
         }
 
@@ -275,6 +275,16 @@ export default {
         width: 32px;
         height: 32px;
     }
+
+    &.active &__items {
+        transform: scaleY(1);
+        opacity: 1;
+    }
+
+    &.active &__items-item {
+        opacity: 1;
+    }
+
     &__items {
         padding: 16px 16px 2px;
         position: absolute;
@@ -287,11 +297,15 @@ export default {
         border-radius: 8px;
         border: 1px solid var(--#{$prefix}select-active-border-color);
 
+        transform: scaleY(0);
+        transform-origin: top;
+        transition: transform 0.2s ease;
+
         &-list {
             width: 102%;
             height: 200px;
             overflow-y: auto;
-            padding-right: 12px;
+            padding-right: 8px;
 
             .active {
                 h3 {
@@ -328,39 +342,16 @@ export default {
             line-height: 16px;
         }
 
-        &-search {
-            height: 48px;
-            width: 100%;
-            border-radius: 8px;
-            background-color: var(--#{$prefix}search-bg-color);
-            @include pageFlexRow;
-            justify-content: space-between;
-            padding: 0 16px;
-
-            svg {
-                fill: var(--#{$prefix}sub-text);
-            }
-
-            input {
-                width: 95%;
-                background-color: transparent;
-                border: none;
-                outline: none;
-                font-size: var(--#{$prefix}default-fs);
-                color: var(--#{$prefix}primary-text);
-            }
-        }
-
         &-item {
             @include pageFlexRow;
             height: 56px;
             justify-content: space-between;
             padding: 16px;
             padding-left: 0;
-            border-bottom: 1px dashed var(--#{$prefix}border-secondary-color);
+            border-bottom: 1px dashed var(--#{$prefix}border-color);
 
             &.selected {
-                border: 1px solid var(--zmt-banner-logo-color) !important;
+                border: 1px solid transparent;
                 background-color: var(--zmt-icon-secondary-bg-color);
                 border-radius: 8px;
             }
@@ -383,6 +374,10 @@ export default {
                     font-weight: 400;
                     color: var(--#{$prefix}mute-text);
                     font-size: var(--#{$prefix}small-lg-fs);
+                }
+
+                .usd-symbol {
+                    margin-right: -3px;
                 }
 
                 h4 {

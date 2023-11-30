@@ -4,9 +4,7 @@
             <div class="recipient">{{ $t('tokenOperations.recipient') }}</div>
             <div class="info-wrap">
                 <div class="info">
-                    <div class="network">
-                        <img class="network-logo" alt="network-logo" :src="selectedNetwork?.logo" />
-                    </div>
+                    <img class="network" alt="network-logo" :src="selectedNetwork?.logo" />
                     <input
                         v-model="address"
                         :placeholder="placeholder"
@@ -15,6 +13,7 @@
                         v-debounce:1s="onInput"
                         data-qa="input-address"
                         class="input-address"
+                        :class="inputClass"
                     />
                     <div v-if="address?.length" class="select-address__clear" @click="clearValue">
                         <ClearIcon />
@@ -62,6 +61,7 @@ export default {
 
         const active = ref(false);
         const focused = ref(false);
+        const inputClass = ref('');
         const address = ref(props.value);
         const isError = ref(props.error);
 
@@ -92,30 +92,21 @@ export default {
             }
         };
 
-        watch(
-            () => props.onReset,
-            () => resetAddress()
-        );
-
-        watch(
-            () => props.error,
-            () => {
-                isError.value = props.error;
+        const getClassName = () => {
+            if (address.value.length > 50) {
+                return 'small-size';
             }
-        );
 
-        const onFocus = () => {
-            // placeholder.value = '';
-            focused.value = true;
+            if (address.value.length > 46) {
+                return 'medium-size';
+            }
+
+            return '';
         };
 
-        onMounted(() => {
-            if (props.value) {
-                address.value = props.value;
-            }
-        });
-
-        onUpdated(() => resetAddress());
+        const onFocus = () => {
+            focused.value = true;
+        };
 
         const onInput = () => {
             emit('setAddress', address.value);
@@ -124,7 +115,6 @@ export default {
 
         const onBlur = () => {
             emit('setAddress', address.value);
-            // placeholder.value = 'Address';
             focused.value = false;
         };
 
@@ -145,6 +135,30 @@ export default {
             emit('setAddress', address.value);
         };
 
+        watch(
+            () => props.onReset,
+            () => resetAddress()
+        );
+
+        watch(address, () => {
+            inputClass.value = getClassName();
+        });
+
+        watch(
+            () => props.error,
+            () => {
+                isError.value = props.error;
+            }
+        );
+
+        onMounted(() => {
+            if (props.value) {
+                address.value = props.value;
+            }
+        });
+
+        onUpdated(() => resetAddress());
+
         return {
             active,
             focused,
@@ -153,6 +167,7 @@ export default {
             address,
             placeholder: addressPlaceholder,
 
+            inputClass,
             clickAway,
             selectAddress,
             onInput,
@@ -179,10 +194,10 @@ export default {
         flex-direction: column;
         background: var(--#{$prefix}select-bg-color);
         border-radius: 8px;
-        padding: 12px 16px;
+        padding: 10px 16px;
         height: 80px;
         box-sizing: border-box;
-        border: 2px solid transparent;
+        border: 1px solid transparent;
         transition: 0.2s;
 
         .recipient {
@@ -190,8 +205,7 @@ export default {
 
             color: var(--#{$prefix}select-label-color);
             font-weight: 500;
-            height: 32px;
-            max-height: 32px;
+            line-height: 20px;
         }
 
         .address {
@@ -202,6 +216,7 @@ export default {
         .info-wrap {
             @include pageFlexRow;
             justify-content: space-between;
+            margin-top: 2px;
         }
 
         .info {
@@ -220,23 +235,20 @@ export default {
             color: var(--#{$prefix}primary-text);
         }
 
+        .medium-size {
+            font-size: var(--#{$prefix}medium-fs) !important;
+        }
+
+        .small-size {
+            font-size: var(--#{$prefix}--#{$prefix}default-fs) !important;
+        }
+
         .network {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
             width: 32px;
-            min-width: 32px;
             height: 32px;
-
-            border-radius: 50%;
             margin-right: 6px;
 
-            &-logo {
-                width: 80%;
-                height: 80%;
-                border-radius: 50%;
-            }
+            border-radius: 50%;
         }
 
         .name {
@@ -249,20 +261,20 @@ export default {
 
     &__clear {
         position: absolute;
-        right: 32px;
+        right: 16px;
         cursor: pointer;
     }
 
     &.focused {
         .select-address__panel {
-            border: 2px solid var(--#{$prefix}select-active-border-color);
+            border: 1px solid var(--#{$prefix}select-active-border-color);
             background: var(--#{$prefix}select-bg-color);
         }
     }
 
     &.active {
         .select-address__panel {
-            border: 2px solid var(--#{$prefix}select-active-border-color);
+            border: 1px solid var(--#{$prefix}select-active-border-color);
             background: var(--#{$prefix}select-bg-color);
 
             svg.arrow {
@@ -272,9 +284,8 @@ export default {
     }
 
     &.error {
-        .select-address__panel {
-            border-color: var(--#{$prefix}danger-color);
-            background: var(--#{$prefix}danger-op-01);
+        input {
+            color: var(--#{$prefix}danger-color) !important;
         }
     }
 }

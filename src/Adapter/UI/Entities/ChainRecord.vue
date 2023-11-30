@@ -10,20 +10,20 @@
                 </div>
                 <a-tooltip placement="right" :title="copied ? $t('adapter.copiedAddressTooltip') : $t('adapter.copyAddressTooltip')">
                     <span class="chain-record__address" @click="copy(address)">
-                        {{ cutAddress(address) }}
+                        {{ address }}
                     </span>
                 </a-tooltip>
             </div>
         </div>
 
         <div class="chain-record__actions">
-            <a-typography-paragraph :copyable="{ text: address, tooltip: false }" class="copy" />
-            <div class="chain-record__divider">|</div>
+            <CopyIcon class="copy" @click="copy(address)" />
+            <div class="chain-record__divider"></div>
             <a-popover :overlay-inner-style="{ padding: 0 }">
                 <template #content>
                     <a-qrcode error-level="H" :value="address" :bordered="false" icon="/zomet-logo.svg" />
                 </template>
-                <QrcodeOutlined />
+                <QrcodeIcon />
             </a-popover>
         </div>
     </div>
@@ -31,14 +31,14 @@
 <script>
 import { useClipboard } from '@vueuse/core';
 
-import { cutAddress } from '@/helpers/utils';
-
-import { QrcodeOutlined } from '@ant-design/icons-vue';
+import QrcodeIcon from '@/assets/icons/dashboard/qr.svg';
+import CopyIcon from '@/assets/icons/dashboard/copy.svg';
 
 export default {
     name: 'ChainRecord',
     components: {
-        QrcodeOutlined,
+        QrcodeIcon,
+        CopyIcon,
     },
     props: {
         chain: {
@@ -49,6 +49,10 @@ export default {
             type: String,
             required: true,
         },
+        chains: {
+            type: Array,
+            required: true,
+        },
     },
     setup() {
         const { copy, copied } = useClipboard();
@@ -57,9 +61,6 @@ export default {
             copy,
             copied,
         };
-    },
-    methods: {
-        cutAddress,
     },
 };
 </script>
@@ -73,19 +74,20 @@ export default {
         border: 1px solid var(--#{$prefix}adapter-ecosystem-border-color);
         border-radius: 8px;
 
-        padding: 8px 16px;
-        margin-bottom: 8px;
+        padding: 8px 16px 8px 8px;
+        margin-bottom: 16px;
+        height: 56px;
 
         &-item {
             @include pageFlexRow;
         }
 
         &__logo-container {
-            width: 26px;
-            height: 26px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             overflow: hidden;
-            margin-right: 10px;
+            margin-right: 8px;
 
             @include pageFlexRow;
             justify-content: center;
@@ -97,14 +99,14 @@ export default {
         }
 
         &__name {
-            font-size: var(--#{$prefix}default-fs);
+            font-size: var(--#{$prefix}h6-fs);
             font-weight: 600;
-            line-height: 20px;
+            line-height: 18px;
             color: var(--#{$prefix}primary-text);
         }
 
         &__address {
-            color: #0d7e71;
+            color: var(--#{$prefix}sub-text);
             font-size: var(--#{$prefix}small-sm-fs);
             font-weight: 400;
 
@@ -122,8 +124,24 @@ export default {
         }
 
         &__divider {
-            color: var(--#{$prefix}adapter-more-option);
+            background-color: var(--#{$prefix}adapter-more-option);
+            width: 1px;
+            height: 30px;
         }
+
+        .copy {
+            cursor: pointer;
+        }
+    }
+}
+
+.chains-list {
+    @include pageFlexRow;
+    margin-top: 4px;
+
+    .chain-record__logo-container {
+        width: 16px;
+        height: 16px;
     }
 }
 </style>

@@ -93,6 +93,9 @@ $primary-text: $ebonyClay;
 $secondary-text: $trout;
 $symbol-text: $charade;
 $mute-apr-text: $paleSky;
+$amount-text: $charade;
+$input-disabled-text: $mineralGreen;
+$balance-text: $surfieGreen;
 
 // Adapter
 $adapter-label-text: $trout;
@@ -103,6 +106,7 @@ $adapter-connected-icon-color: $lightGreen;
 $adapter-secondary-border-color: $pastelPink;
 $adapter-modal-close-color: $blackGray;
 $adapter-more-option: $gulfStream;
+$adapter-hover-color: $iceberg;
 
 // Adapter ModuleIcons
 $adapter-logo-main-color: $gallery;
@@ -123,7 +127,7 @@ $checkbox-border: $geyser;
 $checkbox-border-checked: $aquamarine;
 // Border
 $border-color: $gulfStream;
-$border-secondary-color: $gulfStream;
+$border-secondary-color: $geyser;
 $border-color-op-05: rgba($border-color, 0.5);
 $social-border-color: $trout;
 $info-border-color: $gallery;
@@ -158,6 +162,8 @@ $select-active-border-color: $surfieGreen;
 $select-active-bg-color: $iceberg;
 $select-icon-color: $gulfStream;
 $select-icon-bg-color: $ebonyClay;
+$select-symbol-text: $charade;
+
 
 
 // Accordion
@@ -256,6 +262,9 @@ $theme-colors: (
     "secondary-text": $secondary-text,
     "symbol-text": $symbol-text,
     "mute-apr-text": $mute-apr-text,
+    "amount-text": $amount-text,
+    "input-disabled-text": $input-disabled-text,
+    "balance-text": $balance-text,
 
     "assets-border-color": $assets-border-color,
 
@@ -272,6 +281,7 @@ $theme-colors: (
     "adapter-more-option": $adapter-more-option,
     "adapter-not-connected-bg": $adapter-not-connected-bg,
     "adapter-not-connected-icon": $adapter-not-connected-icon,
+    "adapter-hover-color": $adapter-hover-color,
 
     "checkbox-text": $checkbox-text,
     "checkbox-disabled-text": $checkbox-disabled-text,
@@ -313,6 +323,7 @@ $theme-colors: (
     "select-icon-color": $select-icon-color,
     "select-icon-bg-color": $select-icon-bg-color,
     "select-placeholder-text": $select-placeholder-text,
+    "select-symbol-text": $select-symbol-text,
 
     "accordion-bg-color": $accordion-bg-color,
     "accordion-label-color": $accordion-label-color,

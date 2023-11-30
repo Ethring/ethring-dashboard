@@ -42,7 +42,7 @@
                 <a-skeleton-input active size="small" />
             </template>
             <p v-else class="balance__value">
-                <span>$</span>
+                <span class="usd-symbol">$</span>
                 <NumberTooltip :value="payTokenPrice" />
                 <span class="percentage" v-if="percentage && !isNaN(percentage)">({{ percentage }} %)</span>
             </p>
@@ -50,7 +50,7 @@
                 <span>{{ $t('tokenOperations.balance') }}:</span>
 
                 <NumberTooltip :value="token?.balance" decimals="3" />
-                <span>{{ token?.symbol }}</span>
+                <span class="symbol">{{ token?.symbol }}</span>
             </p>
             <a-skeleton-input v-if="!hideMax && isTokenLoading" active class="balance-skeleton" />
         </div>
@@ -268,7 +268,14 @@ export default {
                 font-size: var(--#{$prefix}small-lg-fs);
                 color: var(--#{$prefix}base-text);
                 font-weight: 400;
+            }
+
+            .symbol {
                 margin-left: 2px;
+            }
+
+            .usd-symbol {
+                margin-right: -3px;
             }
         }
 

@@ -118,6 +118,7 @@ input[type='checkbox'] {
 
     &__label {
         display: flex;
+        color: var(--#{$prefix}checkbox-disabled-text);
 
         font-size: 1rem !important;
         width: fit-content;

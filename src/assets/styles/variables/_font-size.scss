@@ -8,6 +8,7 @@ $h3-fs: 24px !default;
 $h4-fs: 20px !default;
 $h5-fs: 18px !default;
 $h6-fs: 16px !default;
+$medium-fs: 15px !default;
 
 $default-fs: 14px !default;
 
@@ -27,6 +28,7 @@ $font-sizes: (
     "h5-fs": $h5-fs,
     "h6-fs": $h6-fs,
 
+    "medium-fs": $medium-fs,
     "default-fs": $default-fs,
 
     "small-lg-fs": $small-lg-fs,

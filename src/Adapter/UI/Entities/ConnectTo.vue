@@ -75,8 +75,7 @@ export default {
     transition: 0.2s;
 
     &:hover:not(.disabled) {
-        background: var(--#{$prefix}btn-disabled-icon);
-        color: var(--#{$prefix}primary);
+        background: var(--#{$prefix}adapter-hover-color);
     }
 
     &__info {
@@ -95,6 +94,7 @@ export default {
     &__logos {
         @include pageFlexRow;
         justify-content: flex-start;
+
         width: 100px;
     }
 

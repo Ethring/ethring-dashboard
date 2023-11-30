@@ -410,6 +410,7 @@ export default {
 
             &-value {
                 cursor: pointer;
+                margin-top: 3px;
                 div {
                     @include pageFlexRow;
                     align-items: flex-end;
@@ -418,19 +419,20 @@ export default {
                 p {
                     font-weight: 500;
                     font-size: var(--#{$prefix}default-fs);
-                    color: var(--#{$prefix}sub-text);
+                    color: var(--#{$prefix}balance-text);
                     margin: 0 3px 0 6px;
                 }
             }
 
             &-price {
                 font-weight: 500;
-                color: var(--#{$prefix}sub-text);
+                color: var(--#{$prefix}balance-text);
                 cursor: default;
 
                 span {
                     color: var(--#{$prefix}base-text);
                     font-weight: 400;
+                    margin-right: -3px;
                 }
             }
 
@@ -492,7 +494,7 @@ export default {
             }
 
             &:disabled {
-                color: var(--#{$prefix}select-placeholder-text);
+                color: var(--#{$prefix}input-disabled-text);
                 cursor: not-allowed;
                 user-select: none;
             }
@@ -510,8 +512,8 @@ export default {
             justify-content: center;
             align-items: center;
 
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             margin-right: 6px;
 

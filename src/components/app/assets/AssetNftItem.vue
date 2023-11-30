@@ -326,7 +326,6 @@ export default {
         color: var(--#{$prefix}primary-text);
 
         span {
-            margin-right: 2px;
             font-weight: 300;
             font-size: var(--#{$prefix}small-md-fs);
             color: var(--#{$prefix}secondary-text);

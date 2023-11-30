@@ -5,7 +5,6 @@
             :label="$t('tokenOperations.selectNetwork')"
             :current="selectedSrcNetwork"
             @select="onSelectNetwork"
-            showSearch
         />
 
         <div class="simple-swap__switch-wrap">
@@ -974,7 +973,7 @@ export default {
             background: var(--#{$prefix}adapter-not-connected-bg);
             svg {
                 path {
-                    fill: var(--#{$prefix}border-secondary-color);
+                    fill: var(--#{$prefix}border-color);
                 }
             }
         }

@@ -142,7 +142,7 @@ export default {
     }
 
     &__logo {
-        margin-bottom: 56px;
+        margin-bottom: 40px;
 
         &-item {
             display: flex;

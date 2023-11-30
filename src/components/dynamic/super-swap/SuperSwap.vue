@@ -87,11 +87,11 @@
                     <p>{{ $t('tokenOperations.routeInfo') }}:</p>
                     <div v-if="!estimateErrorTitle" class="row">
                         <FeeIcon />
-                        <span class="fee">{{ formatNumber(networkFee, 2) }}</span> <span class="symbol"> $</span>
+                        <span class="fee">{{ formatNumber(networkFee, 2) }}</span> <span class="symbol">$</span>
                         <TimeIcon />
-                        <span class="fee"> {{ '~ ' + estimateTime + ' s' }}</span>
+                        <span class="fee"> {{ '~' + estimateTime + 's' }}</span>
                         <h4>
-                            1 {{ selectedSrcToken?.symbol || '' }} =
+                            <span>1</span> {{ selectedSrcToken?.symbol || '' }} =
                             <NumberTooltip :value="estimateRate" decimals="3" />
                             {{ selectedDstToken?.symbol || '' }}
                         </h4>
@@ -1102,7 +1102,7 @@ export default {
         justify-content: center;
         position: absolute;
         cursor: not-allowed;
-        top: -40px;
+        top: -50px;
         right: 0;
         height: 32px;
         width: 32px;
@@ -1145,19 +1145,19 @@ export default {
             max-width: 400px;
         }
 
-        .fee,
-        .symbol {
+        .fee {
             color: var(--#{$prefix}warning);
             font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 600;
         }
 
         .symbol {
-            margin-left: 2px;
+            font-weight: 300;
+            color: var(--#{$prefix}base-text);
         }
 
         svg {
-            margin: 0 6px 0 16px;
+            margin: 0 4px 0 12px;
         }
 
         svg path {
@@ -1166,12 +1166,12 @@ export default {
 
         h4 {
             margin-left: 16px;
-            font-weight: 600;
+            font-weight: 400;
             color: var(--#{$prefix}base-text);
 
             span {
                 color: var(--#{$prefix}base-text);
-                font-weight: 400;
+                font-weight: 600;
             }
         }
     }

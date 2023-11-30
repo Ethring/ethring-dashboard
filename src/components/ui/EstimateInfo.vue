@@ -1,5 +1,14 @@
 <template>
-    <a-collapse expand-icon-position="end" :bordered="false" class="estimate-info">
+    <a-collapse
+        expand-icon-position="end"
+        :class="{ isActive }"
+        :bordered="false"
+        class="estimate-info"
+        @change="() => (isActive = !isActive)"
+    >
+        <template #expandIcon>
+            <ArrowIcon class="arrow" />
+        </template>
         <a-collapse-panel key="estimate-info" :collapsible="isCollapsible ? '' : 'disabled'">
             <template #header>
                 <div class="top-block">
@@ -27,16 +36,22 @@
                     </div>
                 </div>
             </template>
-            <div v-if="fees.length" class="fees">
+
+            <template v-if="loading">
+                <a-skeleton-input active size="small" class="skeleton" />
+            </template>
+            <div v-else-if="fees.length" class="fees">
                 <EstimateStats v-for="fee in fees" :key="fee" v-bind="fee" />
             </div>
         </a-collapse-panel>
     </a-collapse>
 </template>
 <script>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 import EstimateStats from './EstimateStats.vue';
+
+import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
 export default {
     name: 'EstimateInfo',
@@ -80,9 +95,10 @@ export default {
             default: '',
         },
     },
-    components: { EstimateStats },
+    components: { EstimateStats, ArrowIcon },
     setup(props) {
         const MAX_LENGTH = 55;
+        const isActive = ref(false);
 
         const isCollapsible = computed(() => {
             const { fees } = props;
@@ -101,6 +117,7 @@ export default {
         });
 
         return {
+            isActive,
             isCollapsible,
 
             MAX_LENGTH,
@@ -135,8 +152,19 @@ export default {
         }
     }
 
+    svg.arrow {
+        cursor: pointer;
+        fill: var(--#{$prefix}select-icon-color);
+        @include animateEasy;
+    }
+
     .fees {
         margin-top: -16px;
+    }
+}
+.isActive {
+    .arrow {
+        transform: rotate(180deg) !important;
     }
 }
 </style>

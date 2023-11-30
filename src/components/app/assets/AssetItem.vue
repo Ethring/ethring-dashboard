@@ -198,14 +198,13 @@ export default {
             font-weight: 400;
             color: var(--#{$prefix}secondary-text);
             line-height: var(--#{$prefix}h6-fs);
-            margin-right: 3px;
+            margin-left: 3px;
         }
 
         .value {
             line-height: var(--#{$prefix}h5-fs);
             font-size: var(--#{$prefix}h6-fs);
             font-weight: 400;
-            margin-right: 3px;
             color: var(--#{$prefix}primary-text);
         }
     }

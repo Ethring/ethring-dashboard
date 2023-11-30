@@ -71,11 +71,11 @@ export default {
 
     @include pageFlexRow;
 
-    height: 48px;
+    height: 40px;
 
-    padding: 12px;
+    padding: 12px 8px;
 
-    border: 1px solid var(--#{$prefix}white);
+    border: 1px solid var(--#{$prefix}select-bg-color);
     border-radius: 8px;
 
     background: var(--#{$prefix}select-bg-color);
@@ -96,33 +96,24 @@ export default {
     &__logo {
         @include pageFlexRow;
         justify-content: center;
-        margin-right: 6px;
+        margin-right: 4px;
 
         svg {
-            fill: var(--#{$prefix}select-icon-color);
+            fill: var(--#{$prefix}select-placeholder-text);
         }
     }
 
     &__clear {
         position: absolute;
-        right: 16px;
+        right: 8px;
 
         top: 0;
         bottom: 0;
         margin: auto 0;
 
         cursor: pointer;
-
-        max-width: 20px;
-        max-height: 20px;
-
         @include pageFlexRow;
         justify-content: center;
-
-        svg {
-            width: 20px;
-            height: 20px;
-        }
     }
 
     input {
@@ -130,9 +121,9 @@ export default {
 
         font-style: normal;
         font-weight: 400;
-        font-size: var(--#{$prefix}h6-fs);
+        font-size: var(--#{$prefix}default-fs);
 
-        color: var(--#{$prefix}primary-text);
+        color: var(--#{$prefix}select-placeholder-text);
 
         background-color: transparent;
         outline: none;

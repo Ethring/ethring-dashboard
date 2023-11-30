@@ -52,9 +52,7 @@ export default {
     display: flex;
     justify-content: space-around;
     align-items: baseline;
-    width: calc(100% - 260px);
-
-    max-width: 685px;
+    width: 524px;
 
     &__active {
         @include pageFlexColumn;
@@ -80,6 +78,6 @@ export default {
 
 .arrow {
     fill: var(--#{$prefix}arrow-color);
-    margin-top: 10px;
+    margin-top: 8px;
 }
 </style>

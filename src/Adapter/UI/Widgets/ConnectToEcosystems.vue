@@ -1,8 +1,8 @@
 <template lang="">
     <a-menu-item-group key="ecosystems">
-        <div :key="record.ecosystem" v-for="record in TO_CONNECT" class="ecosystem-items">
+        <a-menu-item :key="record.ecosystem" v-for="record in TO_CONNECT" class="ecosystem-item">
             <ConnectTo :name="$t(record.name)" :connect="() => connect(record.ecosystem)" :logos="record.logos" />
-        </div>
+        </a-menu-item>
     </a-menu-item-group>
 </template>
 
@@ -57,11 +57,9 @@ export default {
     },
 };
 </script>
-
-<style lang="scss">
-.ecosystem-items {
-    &:not(:last-child) {
-        margin-bottom: 8px;
-    }
+<style scoped>
+.ecosystem-item {
+    margin: 0 !important;
+    padding: 0 !important;
 }
 </style>
