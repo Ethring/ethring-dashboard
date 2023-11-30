@@ -158,7 +158,7 @@ export default {
             }
 
             const DEFAULT_FOR_ECOSYSTEM = {
-                [ECOSYSTEMS.EVM]: 'swap-1inch',
+                [ECOSYSTEMS.EVM]: 'swap-paraswap',
                 [ECOSYSTEMS.COSMOS]: 'swap-skip',
             };
 

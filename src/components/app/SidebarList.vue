@@ -60,7 +60,7 @@ export default {
         const { currentChainInfo } = useAdapter();
 
         const menu = computed(() => {
-            if (!currentChainInfo.value?.ecosystem || !currentChainInfo.value?.net) {
+            if (!currentChainInfo.value?.ecosystem) {
                 return [];
             }
 

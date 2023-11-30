@@ -72,7 +72,7 @@ class DashboardPage {
     }
 
     async mockEstimateSwapRequest(
-        service: 'srv-paraswap' | 'srv-1inch-swap' | 'srv-synapse-swap',
+        service: 'srv-paraswap' | 'srv-synapse-swap',
         mockData: object,
         addressFrom: string,
         statusCode = 200

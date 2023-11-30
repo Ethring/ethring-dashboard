@@ -12,6 +12,7 @@
                 label="To"
                 placeholder="Select network"
                 :items="dstNets"
+                class="select-group-to"
                 :current="selectedDstNetwork"
                 @select="(network) => handleOnSelectNetwork(network, DIRECTIONS.DESTINATION)"
             />
@@ -1091,6 +1092,7 @@ export default {
 <style lang="scss">
 .simple-bridge {
     width: 524px;
+    position: relative;
 
     .select-group {
         @include pageFlexRow;
@@ -1100,13 +1102,18 @@ export default {
         .select {
             width: 49%;
 
-            .name {
+            .select__panel .name {
                 font-size: var(--#{$prefix}h6-fs);
                 line-height: 26px;
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 overflow: hidden;
                 width: 160px;
+            }
+        }
+        &-to {
+            .select__items {
+                left: -266px;
             }
         }
     }

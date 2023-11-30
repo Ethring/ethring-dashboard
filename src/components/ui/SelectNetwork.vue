@@ -145,7 +145,6 @@ export default {
     }
 
     &__panel {
-        position: relative;
         z-index: 2;
 
         @include pageFlexColumn;
@@ -248,12 +247,12 @@ export default {
     &__items {
         z-index: 1;
         background: var(--#{$prefix}select-dropdown-bg-color);
-        position: absolute;
+        position: absolute !important;
 
         left: 0;
         right: 0;
 
-        width: 100%;
+        width: 524px;
 
         border: 1px solid var(--#{$prefix}select-active-border-color);
         border-radius: 8px;

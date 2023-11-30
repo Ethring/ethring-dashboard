@@ -68,23 +68,6 @@ const ALL_SERVICES = [
         namespace: ECOSYSTEMS.COSMOS,
     },
     {
-        id: 'swap-1inch',
-        name: '1inchSwap',
-        type: SERVICE_TYPE.SWAP,
-        icon: 'https://seeklogo.com/images/1/1inch-logo-E0AB5FF350-seeklogo.com.png',
-        url: process.env.VUE_APP_1INCH_SWAP_API,
-        tokensByChain: false,
-        namespace: ECOSYSTEMS.EVM,
-        estimatedTime: {
-            1: 50,
-            56: 30,
-            137: 30,
-            42161: 30,
-            43114: 30,
-            10: 30,
-        },
-    },
-    {
         id: 'swap-paraswap',
         name: 'ParaSwap',
         type: SERVICE_TYPE.SWAP,

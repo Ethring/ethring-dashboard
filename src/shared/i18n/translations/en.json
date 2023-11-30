@@ -98,7 +98,8 @@
     "transferTo": "Transfer to",
     "asset": "Asset",
     "searchToken": "Search by token name or ticker",
-    "searchNetwork": "Search by network name"
+    "searchNetwork": "Search by network name",
+    "supportedNetwork": "Please choose one of the following supported networks: Ethereum, Binance Smart Chain, Avalanche, Polygon, Optimism, Arbitrum"
   },
   "simpleSend": {
     "title": "Send"
