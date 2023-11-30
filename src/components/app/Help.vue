@@ -21,7 +21,7 @@
             </a-modal>
         </div>
 
-        <div class="help__item" :class="{ disabled: true }" v-if="currentChainInfo">
+        <div class="help__item" :class="{ disabled: true }" v-if="currentChainInfo && isLoading">
             <a-tooltip>
                 <template #title> {{ $t(tooltipText) }} </template>
                 <SyncOutlined :spin="isLoading" />

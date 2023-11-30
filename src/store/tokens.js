@@ -1,3 +1,10 @@
+import _ from 'lodash/array';
+import BigNumber from 'bignumber.js';
+
+import { getTotalBalance, getIntegrationsBalance } from '@/modules/Balances/utils';
+
+const BALANCE_ALLOW_TYPES = ['tokens', 'integrations'];
+
 const TYPES = {
     SET_DATA_FOR: 'SET_DATA_FOR',
 
@@ -23,6 +30,8 @@ const TYPES = {
     SET_LOADING_BY_CHAIN: 'SET_LOADING_BY_CHAIN',
 
     SET_TOTAL_BALANCE: 'SET_TOTAL_BALANCE',
+
+    CALCULATE_BALANCE_BY_TYPE: 'CALCULATE_BALANCE_BY_TYPE',
 };
 
 export default {
@@ -102,7 +111,13 @@ export default {
                 state[type][account] = {};
             }
 
-            state[type][account] = data;
+            const [record] = data || [];
+
+            if (record?.id) {
+                return (state[type][account] = _.unionBy(state[type][account], data, 'id'));
+            }
+
+            return (state[type][account] = data);
         },
 
         [TYPES.SET_ASSETS_BALANCE](state, { account, data }) {
@@ -181,11 +196,44 @@ export default {
         [TYPES.SET_LOADING_BY_CHAIN](state, { chain, value }) {
             state.loadingByChain[chain] = value || false;
         },
+
+        [TYPES.CALCULATE_BALANCE_BY_TYPE](state, { type, account }) {
+            // calculating balances
+            if (!state.assetsBalances[account]) {
+                state.assetsBalances[account] = {};
+            }
+            if (!state.totalBalances[account]) {
+                state.totalBalances[account] = {};
+            }
+
+            const allTokens = state.tokens[account] || [];
+            const allIntegrations = state.integrations[account] || [];
+
+            if (BALANCE_ALLOW_TYPES.includes(type)) {
+                const assetsBalance = getTotalBalance(allTokens).toNumber();
+
+                const integrationsBalance = getIntegrationsBalance(allIntegrations).toNumber();
+
+                const totalBalance = BigNumber(assetsBalance).plus(integrationsBalance).toNumber();
+
+                state.totalBalances[account] = totalBalance;
+
+                type === 'tokens' && (state.assetsBalances[account] = assetsBalance);
+            }
+        },
     },
 
     actions: {
         setDataFor({ commit }, value) {
             commit(TYPES.SET_DATA_FOR, value);
+
+            if (value.type === 'tokens') {
+                commit(TYPES.SET_ASSETS_BALANCE, value);
+            }
+
+            if (BALANCE_ALLOW_TYPES.includes(value.type)) {
+                commit(TYPES.CALCULATE_BALANCE_BY_TYPE, value);
+            }
         },
         setTokens({ commit }, value) {
             commit(TYPES.SET_TOKENS, value);
