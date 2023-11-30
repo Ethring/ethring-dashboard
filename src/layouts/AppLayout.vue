@@ -6,6 +6,7 @@
                 <slot />
                 <div class="layout-page__content">
                     <component v-if="layoutComponent" :is="layoutComponent" />
+                    <UnsupportedResult v-else />
                 </div>
             </template>
         </div>
@@ -23,6 +24,7 @@ import SimpleBridge from '@/components/dynamic/bridge/SimpleBridge.vue';
 import SimpleSwap from '@/components/dynamic/swaps/SimpleSwap.vue';
 import SimpleSend from '@/components/dynamic/send/SimpleSend.vue';
 import SuperSwap from '@/components/dynamic/super-swap/SuperSwap.vue';
+import UnsupportedResult from '@/components/ui/UnsupportedResult';
 
 export default {
     name: 'AppLayout',
@@ -32,6 +34,7 @@ export default {
         SimpleSend,
         SimpleSwap,
         SuperSwap,
+        UnsupportedResult,
     },
     props: {
         component: {

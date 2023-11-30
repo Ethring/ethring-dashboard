@@ -375,8 +375,6 @@ export default {
         box-sizing: border-box;
         border: 2px solid transparent;
 
-        transition: 0.2s;
-
         .label {
             @include pageFlexRow;
 

@@ -77,7 +77,7 @@ function useAdapter() {
             walletModule: connectedWalletModule.value,
         };
 
-        if (!walletInfo.address || !walletInfo.walletName || !walletInfo.chain) {
+        if (!walletInfo.address || !walletInfo.walletName) {
             return;
         }
 
