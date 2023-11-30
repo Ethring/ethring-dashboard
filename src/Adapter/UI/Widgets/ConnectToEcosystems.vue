@@ -1,6 +1,6 @@
 <template lang="">
-    <a-menu-item-group key="ecosystems" :title="$t('adapter.ecosystemsGroup')">
-        <a-menu-item :key="record.ecosystem" v-for="record in TO_CONNECT">
+    <a-menu-item-group key="ecosystems">
+        <a-menu-item :key="record.ecosystem" v-for="record in TO_CONNECT" class="ecosystem-item">
             <ConnectTo :name="$t(record.name)" :connect="() => connect(record.ecosystem)" :logos="record.logos" />
         </a-menu-item>
     </a-menu-item-group>
@@ -57,3 +57,9 @@ export default {
     },
 };
 </script>
+<style scoped>
+.ecosystem-item {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+</style>
