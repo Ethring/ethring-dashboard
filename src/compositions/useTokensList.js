@@ -78,6 +78,10 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         if (ECOSYSTEMS.EVM === network?.ecosystem) {
             const { native_token: nativeToken } = network || {};
 
+            if (!nativeToken) {
+                return [];
+            }
+
             const searchId = `${network.net}:asset__native:${nativeToken.symbol}`;
 
             const baseToken = allTokens.find(({ id }) => id === searchId);
