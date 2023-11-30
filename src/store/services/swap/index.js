@@ -2,8 +2,8 @@ import { getServices, SERVICE_TYPE } from '@/config/services';
 
 import { getAllowance, getApproveTx, getSwapTx, estimateSwap } from '../../../api/services';
 
-const DEFAULT_URL = process.env.VUE_APP_1INCH_SWAP_API;
-const DEFAULT_SERVICE_ID = 'swap-1inch';
+const DEFAULT_URL = process.env.VUE_APP_PARASWAP_API;
+const DEFAULT_SERVICE_ID = 'swap-paraswap';
 
 const TYPES = {
     SET_SERVICE: 'SET_SERVICE',
