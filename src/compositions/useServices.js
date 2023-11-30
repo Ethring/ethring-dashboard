@@ -153,6 +153,10 @@ export default function useModule({ module, moduleType }) {
             selectedSrcToken.value = defaultFromToken;
         }
 
+        if (selectedSrcToken.value !== defaultFromToken) {
+            selectedSrcToken.value = defaultFromToken;
+        }
+
         if (selectedSrcToken.value?.address === selectedDstToken.value?.address) {
             selectedDstToken.value = null;
         }
