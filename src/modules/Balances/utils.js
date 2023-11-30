@@ -167,7 +167,7 @@ export const getTotalBalance = (records, balance = BigNumber(0)) => {
 // =================================================================================================================
 
 export const prepareChainWithAddress = (addressesObj, currentChainInfo) => {
-    const CHUNK_SIZE = 3;
+    const CHUNK_SIZE = 2;
 
     const { net: currentChain, ecosystem } = currentChainInfo;
 
