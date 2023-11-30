@@ -4,10 +4,14 @@
         :title="$t('adapter.accountModalTitle')"
         centered
         :footer="null"
-        width="720px"
         :bodyStyle="{ height: '500px', overflowY: 'overlay' }"
     >
-        <ChainWithAddress v-if="addressesWithChains" :chainWithAddress="addressesWithChains" :chainList="chainList" />
+        <ChainWithAddress
+            v-if="addressesWithChains"
+            :chainWithAddress="addressesWithChains"
+            :chainList="chainList"
+            :chainRecords="chainRecords"
+        />
     </a-modal>
 </template>
 <script>
@@ -17,6 +21,8 @@ import { useStore } from 'vuex';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import ChainWithAddress from '@/Adapter/UI/Entities/ChainWithAddress';
+
+import { ECOSYSTEMS } from '@/Adapter/config';
 
 export default {
     name: 'AddressModal',
@@ -33,20 +39,35 @@ export default {
 
         const ecosystem = computed(() => store.getters['adapters/getModalEcosystem']);
 
-        const { getAddressesWithChainsByEcosystem, getChainListByEcosystem } = useAdapter();
+        const { getAddressesWithChainsByEcosystem, getChainListByEcosystem, connectedWallets } = useAdapter();
 
         const chainList = ref([]);
         const addressesWithChains = ref([]);
+        const chainRecords = ref([]);
 
         onUpdated(() => {
             addressesWithChains.value = getAddressesWithChainsByEcosystem(ecosystem.value);
-            chainList.value = getChainListByEcosystem(ecosystem.value);
+
+            if (ecosystem.value === ECOSYSTEMS.EVM) {
+                const connectedEVMWallets = connectedWallets.value.filter((wallet) => wallet.ecosystem === ecosystem.value);
+                const chainListByEcosystem = getChainListByEcosystem(ecosystem.value);
+
+                const matchingChains = connectedEVMWallets.map(({ chain }) => chain);
+
+                chainRecords.value = chainListByEcosystem.filter(({ chain_id }) => matchingChains.includes(chain_id));
+                chainList.value = chainListByEcosystem.filter(({ chain_id }) => !matchingChains.includes(chain_id));
+            } else {
+                chainList.value = [];
+                chainRecords.value = getChainListByEcosystem(ecosystem.value);
+            }
         });
 
         return {
             isOpen,
             addressesWithChains,
             chainList,
+            chainRecords,
+            ecosystem,
         };
     },
 };
@@ -57,6 +78,12 @@ export default {
     .ant-modal-header {
         color: var(--#{$prefix}primary-text);
         background-color: var(--#{$prefix}secondary-background);
+    }
+
+    .ant-modal-title {
+        border-bottom: 1px dashed var(--#{$prefix}adapter-ecosystem-border-color);
+        padding-bottom: 10px;
+        margin-bottom: 20px;
     }
 
     .ant-modal-title,

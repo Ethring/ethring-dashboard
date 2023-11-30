@@ -20,6 +20,13 @@
                 <Button title="Update" class="update-modal" @click="handleReload" />
             </a-modal>
         </div>
+
+        <div class="help__item" :class="{ disabled: true }" v-if="currentChainInfo">
+            <a-tooltip>
+                <template #title> {{ $t(tooltipText) }} </template>
+                <SyncOutlined :spin="isLoading" />
+            </a-tooltip>
+        </div>
     </div>
 </template>
 <script>
@@ -27,7 +34,7 @@ import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
-import { EyeOutlined, EyeInvisibleOutlined, FileDoneOutlined } from '@ant-design/icons-vue';
+import { EyeOutlined, EyeInvisibleOutlined, FileDoneOutlined, SyncOutlined } from '@ant-design/icons-vue';
 
 import ThemeSwitcher from '@/components/app/ThemeSwitcher';
 import useAdapter from '@/Adapter/compositions/useAdapter';
@@ -44,6 +51,7 @@ export default {
         EyeOutlined,
         EyeInvisibleOutlined,
         FileDoneOutlined,
+        SyncOutlined,
     },
     setup() {
         const store = useStore();
@@ -62,6 +70,10 @@ export default {
 
         const toggleViewBalance = () => store.dispatch('app/toggleViewBalance');
 
+        const isLoading = computed(() => store.getters['tokens/loader'] || false);
+
+        const tooltipText = computed(() => (isLoading.value ? 'dashboard.updatingBalances' : 'dashboard.updateBalances'));
+
         const handleReload = () => {
             window.location.reload(true);
         };
@@ -72,6 +84,8 @@ export default {
             currentChainInfo,
             open,
             releaseNotes: RELEASE_NOTES,
+            isLoading,
+            tooltipText,
 
             handleReload,
             toggleViewBalance,
@@ -102,13 +116,22 @@ export default {
 
         cursor: pointer;
 
-        &:hover {
+        &:hover:not(.disabled) {
             background: var(--#{$prefix}icon-active);
             color: var(--#{$prefix}icon-secondary-bg-color);
         }
 
         svg {
             fill: var(--#{$prefix}icon-active);
+        }
+
+        &.disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+
+            svg {
+                fill: var(--#{$prefix}icon-secondary-bg-color);
+            }
         }
     }
 }

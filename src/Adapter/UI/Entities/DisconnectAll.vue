@@ -1,24 +1,14 @@
 <template>
     <div class="disconnect-all">
-        <div class="item" @click="disconnectAll">
-            <div class="icon-container">
-                <DisconnectIcon />
-            </div>
-            <span class="text">
-                {{ $t('adapter.disconnectAll') }}
-            </span>
+        <div class="text" @click="disconnectAll">
+            {{ $t('adapter.disconnectAll') }}
         </div>
     </div>
 </template>
 
 <script>
-import DisconnectIcon from '@/assets/icons/dashboard/disconnect.svg';
-
 export default {
     name: 'DisconnectAll',
-    components: {
-        DisconnectIcon,
-    },
     props: {
         disconnectAll: {
             type: Function,
@@ -31,26 +21,13 @@ export default {
 .disconnect-all {
     cursor: pointer;
     transition: 0.2s;
-    padding: 0 8px;
-
-    .item {
-        @include pageFlexRow;
-    }
-
-    .icon-container {
-        @include pageFlexRow;
-        justify-content: center;
-        background-color: var(--#{$prefix}banner-secondary-color);
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        margin-right: 10px;
-    }
 
     .text {
-        color: var(--#{$prefix}sub-text);
-        font-size: 14px;
-        font-weight: 500;
+        color: var(--#{$prefix}danger);
+        font-size: var(--#{$prefix}small-lg-fs);
+        font-weight: 400;
+
+        border-bottom: 1px dashed var(--#{$prefix}danger);
     }
 
     &:hover {

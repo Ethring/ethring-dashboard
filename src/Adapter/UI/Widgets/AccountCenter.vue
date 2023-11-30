@@ -27,35 +27,33 @@
         </div>
 
         <div class="wallet-adapter__actions">
-            <CopyOutlined @click="handleOnCopyAddress" />
-            <CaretDownOutlined />
+            <ArrowUpIcon />
         </div>
     </div>
 </template>
 <script>
-import { CaretDownOutlined, CopyOutlined } from '@ant-design/icons-vue';
-
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import ModuleIcon from '@/Adapter/UI/Entities/ModuleIcon.vue';
 
 import ZometLogo from '@/assets/icons/app/zometLogo.svg';
 import CheckIcon from '@/assets/icons/app/checkIcon.svg';
+import ArrowUpIcon from '@/assets/icons/dashboard/arrowtopdown.svg';
 
 import { cutAddress } from '@/helpers/utils';
 import { prettyNumberTooltip } from '@/helpers/prettyNumber';
 
 export default {
     name: 'AccountCenter',
-    components: { ModuleIcon, ZometLogo, CheckIcon, CaretDownOutlined, CopyOutlined },
+    components: {
+        ModuleIcon,
+        ZometLogo,
+        CheckIcon,
+        ArrowUpIcon,
+    },
     emits: ['toggleDropdown', 'closeDropdown'],
     setup() {
-        const { ecosystem, walletAddress, walletAccount, connectedWallet, connectedWallets, isConnecting, action } = useAdapter();
-
-        const handleOnCopyAddress = () => {
-            action('SET_MODAL_ECOSYSTEM', ecosystem.value);
-            return action('SET_MODAL_STATE', { name: 'addresses', isOpen: true });
-        };
+        const { ecosystem, walletAddress, walletAccount, connectedWallet, connectedWallets, isConnecting } = useAdapter();
 
         return {
             isConnecting,
@@ -68,8 +66,6 @@ export default {
 
             cutAddress,
             prettyNumberTooltip,
-
-            handleOnCopyAddress,
         };
     },
 };
@@ -94,7 +90,7 @@ export default {
 
     transition: 0.3s;
 
-    border-radius: 16px;
+    border-radius: 50px;
     padding: 8px 16px;
 
     &:hover {
@@ -150,12 +146,12 @@ export default {
 
         .account {
             font-size: var(--#{$prefix}small-lg-fs);
-            font-weight: 500;
-            color: var(--#{$prefix}mute-text);
+            font-weight: 600;
+            color: var(--#{$prefix}primary-text);
         }
 
         .ecosystem {
-            font-size: 10px;
+            font-size: var(--#{$prefix}small-sm-fs);
             font-weight: 400;
             color: var(--#{$prefix}base-text);
         }

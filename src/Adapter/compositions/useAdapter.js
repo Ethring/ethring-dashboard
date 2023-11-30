@@ -2,6 +2,8 @@ import { computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
+import { DP_COSMOS } from '@/api/data-provider';
+
 import { ECOSYSTEMS } from '@/Adapter/config';
 
 import * as GETTERS from '../store/getters';
@@ -75,7 +77,7 @@ function useAdapter() {
             walletModule: connectedWalletModule.value,
         };
 
-        if (!walletInfo.address || !walletInfo.walletName || !walletInfo.chain) {
+        if (!walletInfo.address || !walletInfo.walletName) {
             return;
         }
 
@@ -242,7 +244,9 @@ function useAdapter() {
             return null;
         }
 
-        const chainInfo = chains.find(({ net }) => net === chain);
+        const targetChain = DP_COSMOS[chain] || chain;
+
+        const chainInfo = chains.find(({ net, bech32_prefix }) => net === targetChain || bech32_prefix === targetChain);
 
         return mainAdapter.value.getTokenExplorerLink(tokenAddress, chainInfo) || null;
     };

@@ -41,8 +41,8 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
         if (ECOSYSTEMS.COSMOS === network?.ecosystem) {
             for (const token of tokensWithBalance) {
-                if (!token.address?.includes('IBC/') && !token.address?.includes('ibc/')) {
-                    token.address = _.lowerCase(token.address);
+                if (token.address && token.address.startsWith('IBC')) {
+                    token.address = token.address.replace('IBC', 'ibc');
                 }
 
                 if (!token.base && token.address) {
@@ -76,7 +76,12 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
         // Native token
         if (ECOSYSTEMS.EVM === network?.ecosystem) {
+
             const { native_token: nativeToken } = network || {};
+
+            if (!nativeToken) {
+                return [];
+            }
 
             const searchId = `${network.net}:asset__native:${nativeToken.symbol}`;
 
