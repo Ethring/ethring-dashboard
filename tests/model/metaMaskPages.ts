@@ -6,11 +6,11 @@ const sleep = require('util').promisify(setTimeout);
 
 const password = getTestVar(TEST_CONST.PASS_BY_MM_WALLET);
 
-export const sleepFiveSecond = async () => {
+const sleepFiveSecond = async () => {
     await sleep(5000);
 };
 
-export const waitMmNotifyPage = async (context: BrowserContext) => {
+const waitMmNotifyPage = async (context: BrowserContext) => {
     try {
         await sleepFiveSecond();
         await context.pages()[2].title();
@@ -21,7 +21,7 @@ export const waitMmNotifyPage = async (context: BrowserContext) => {
     }
 };
 
-export const getNotifyMmPage = async (context: BrowserContext): Promise<Page> => {
+const getNotifyMmPage = async (context: BrowserContext): Promise<Page> => {
     const expectedMmPageTitle = 'MetaMask Notification';
 
     await waitMmNotifyPage(context);
@@ -30,13 +30,27 @@ export const getNotifyMmPage = async (context: BrowserContext): Promise<Page> =>
     const titlePage = await notifyPage.title();
 
     if (titlePage !== expectedMmPageTitle) {
-        throw new Error(`Oops, this is did not notify MM page. Current title ${titlePage}`);
+        throw new Error(`Oops, this is not the notify MM page. Current title ${titlePage}`);
     }
 
     return notifyPage;
 };
 
-export const closeEmptyPages = async (context: BrowserContext) => {
+const getHomeMmPage = async (context: BrowserContext): Promise<MetaMaskHomePage> => {
+    const expectedMmPageTitle = 'MetaMask';
+
+    const mainPage = context.pages()[0];
+    const titlePage = await mainPage.title();
+
+    if (titlePage !== expectedMmPageTitle) {
+        throw new Error(`Oops, this is not the MM page. Current title ${titlePage}`);
+    }
+    const page = new MetaMaskHomePage(mainPage);
+    await page.closeWhatsNewNotify();
+    return page;
+};
+
+const closeEmptyPages = async (context: BrowserContext) => {
     await sleepFiveSecond();
     const allStartPages = context.pages();
 
@@ -48,7 +62,7 @@ export const closeEmptyPages = async (context: BrowserContext) => {
     }
 };
 
-export class MetaMaskHomePage {
+class MetaMaskHomePage {
     readonly page: Page;
 
     constructor(page: Page) {
@@ -69,6 +83,10 @@ export class MetaMaskHomePage {
 
     async gotoNotificationPage() {
         await this.page.goto(`chrome-extension://${metaMaskId}/notification.html`);
+    }
+
+    async closeWhatsNewNotify() {
+        await this.page.locator("//button[@data-testid='popover-close']").click();
     }
 
     async addWallet(seed: String) {
@@ -108,11 +126,14 @@ export class MetaMaskHomePage {
 
     async addNetwork(network: String) {
         await this.page.locator('[data-testid="network-display"]').click();
-        await this.page.getByText('Добавить сеть').click();
+        await this.page.getByText('Add network').click();
+        await this.page.locator(`//h6[text()='${network}']/../../..//button`).click();
+        await this.page.locator('[data-testid="confirmation-submit-button"]').click();
+        await this.page.locator('button.home__new-network-added__switch-to-button').click();
     }
 }
 
-export class MetaMaskNotifyPage {
+class MetaMaskNotifyPage {
     readonly page: Page;
 
     constructor(page: Page) {
@@ -154,3 +175,5 @@ export class MetaMaskNotifyPage {
         await this.page.click('[data-testid="confirmation-submit-button"]');
     }
 }
+
+export { sleepFiveSecond, waitMmNotifyPage, getNotifyMmPage, getHomeMmPage, closeEmptyPages, MetaMaskHomePage, MetaMaskNotifyPage };
