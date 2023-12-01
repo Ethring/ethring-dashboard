@@ -22,6 +22,7 @@ test.describe('Send e2e tests', () => {
         await sendPage.changeNetwork(network);
         await sendPage.setAddressTo(addressTo);
         await sendPage.setAmount(amount);
+        await sleepFiveSecond(); // wait load image
         await expect(sendPage.getBaseContentElement()).toHaveScreenshot();
 
         await sendPage.clickConfirm();
