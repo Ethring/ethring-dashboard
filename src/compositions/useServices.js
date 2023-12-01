@@ -153,7 +153,7 @@ export default function useModule({ module, moduleType }) {
             selectedSrcToken.value = defaultFromToken;
         }
 
-        if (selectedSrcToken.value !== defaultFromToken) {
+        if (selectedSrcToken.value?.id !== defaultFromToken?.id) {
             selectedSrcToken.value = defaultFromToken;
         }
 
@@ -165,7 +165,7 @@ export default function useModule({ module, moduleType }) {
             selectedDstToken.value = defaultToToken;
         }
 
-        if (selectedDstToken.value !== defaultToToken) {
+        if (selectedDstToken.value?.balance === 0 && defaultToToken) {
             selectedDstToken.value = defaultToToken;
         }
 
@@ -174,7 +174,7 @@ export default function useModule({ module, moduleType }) {
         }
 
         const { symbol: fromSymbol } = selectedSrcToken.value || {};
-        const { symbol: toSymbol } = selectedDstToken.value || {};
+        const { symbol: toSymbol } = selectedSrcToken.value || {};
 
         const searchTokens = [fromSymbol, toSymbol];
 
@@ -289,10 +289,14 @@ export default function useModule({ module, moduleType }) {
         const MODULES = ['swap', 'send'];
 
         if (moduleType === 'swap' && isReset && opTitle.value !== DEFAULT_TITLE) {
-            selectedSrcToken.value = null;
-            selectedDstToken.value = null;
+            selectedSrcToken.value?.chain !== selectedSrcNetwork.value?.net && (selectedSrcToken.value = null);
+            selectedDstToken.value?.chain !== selectedSrcNetwork.value?.net && (selectedDstToken.value = null);
+
+            if (selectedSrcToken.value?.id === selectedDstToken.value?.id) {
+                selectedDstToken.value = null;
+            }
         } else if (moduleType === 'send' && isReset && opTitle.value !== DEFAULT_TITLE) {
-            selectedSrcToken.value = null;
+            selectedSrcToken.value?.chain !== selectedSrcNetwork.value?.net && (selectedSrcToken.value = null);
         }
 
         if (MODULES.includes(moduleType)) {
@@ -311,11 +315,12 @@ export default function useModule({ module, moduleType }) {
 
         selectedSrcNetwork.value = network;
 
-        selectedSrcToken.value = null;
-        selectedDstToken.value = null;
-
-        srcAmount.value = '';
-        dstAmount.value = '';
+        if (currentChainInfo.value?.net !== selectedSrcNetwork.value?.net) {
+            selectedSrcToken.value = null;
+            selectedDstToken.value = null;
+            srcAmount.value = '';
+            dstAmount.value = '';
+        }
 
         resetTokensForModules();
 
@@ -345,7 +350,15 @@ export default function useModule({ module, moduleType }) {
             return;
         }
 
+        if (currentChainInfo.value?.net !== selectedSrcNetwork.value?.net) {
+            selectedSrcToken.value = null;
+            selectedDstToken.value = null;
+            srcAmount.value = '';
+            dstAmount.value = '';
+        }
+
         resetTokensForModules();
+
         return checkSelectedNetwork();
     });
 
@@ -398,6 +411,7 @@ export default function useModule({ module, moduleType }) {
 
         // Functions
         setTokenOnChange,
+        resetTokensForModules,
         setTokenOnChangeForNet,
         clearApproveForService,
         checkSelectedNetwork,
