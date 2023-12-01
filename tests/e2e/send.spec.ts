@@ -19,10 +19,12 @@ test.describe('Send e2e tests', () => {
 
         await sendPage.mockBalanceRequest(network.toLowerCase(), mockBalanceDataBySendTest.avalanche, addressFrom);
 
+        await sleepFiveSecond(); // wait load image
+
         await sendPage.changeNetwork(network);
         await sendPage.setAddressTo(addressTo);
         await sendPage.setAmount(amount);
-        await sleepFiveSecond(); // wait load image
+
         await expect(sendPage.getBaseContentElement()).toHaveScreenshot();
 
         await sendPage.clickConfirm();
