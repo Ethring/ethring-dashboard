@@ -2,25 +2,29 @@
     <div class="asset__item-header">
         <div class="asset__item-header-info">
             <div class="asset__item-header-logo">
+                <NftsLogo v-if="title === 'NFT'" />
+                <TokenLogo v-else-if="title === 'Tokens'" class="token__logo" />
+
                 <img
-                    v-if="logoURI && !showImagePlaceholder"
+                    v-else-if="logoURI && !showImagePlaceholder"
                     :src="logoURI"
                     class="token__logo-img"
                     @error="showImagePlaceholder = true"
                     @load="showImagePlaceholder = false"
                 />
-                <TokenLogo v-else class="token__logo" />
+
+                <QuestionCircleOutlined v-else class="fallback__logo" />
             </div>
             <div class="asset__item-header-name">
                 {{ title }}
                 <div class="asset__item-header-value" v-if="value > 0">
-                    {{ formatNumber(value, 2) }}
+                    <NumberTooltip :value="value" decimals="2" />
                     <span class="asset__item-header-symbol"> % </span>
                 </div>
             </div>
         </div>
 
-        <div class="column">
+        <!-- <div class="column">
             <div class="asset__item-header-health" v-if="healthRate">
                 <h5>{{ formatNumber(healthRate, 2) }} <span>%</span></h5>
                 <div
@@ -29,15 +33,20 @@
                     :style="{ width: `${healthRate > 0 ? healthRate : 1}%` }"
                 ></div>
             </div>
-        </div>
+        </div> -->
         <div class="column">
             <div class="asset__item-header-balance">
                 <span class="asset__item-header-symbol">$</span>
-                <h4>{{ showBalance ? formatNumber(totalBalance, 2) : '***' }}</h4>
+                <NumberTooltip v-if="showBalance" :value="totalBalance" />
+                <h4 v-else>****</h4>
             </div>
+
             <div class="asset__item-header-reward" v-if="showRewards">
                 <span class="asset__item-header-reward-symbol"> $ </span>
-                <p>{{ showBalance ? formatNumber(reward) : '***' }}</p>
+                <span class="asset__item-header-reward-value" v-if="showBalance">
+                    <NumberTooltip :value="reward" />
+                </span>
+                <p v-else>****</p>
                 <RewardsIcon class="asset__item-header-reward-icon" />
             </div>
         </div>
@@ -48,7 +57,10 @@ import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 
 import TokenLogo from '@/assets/icons/dashboard/tokenLogo.svg';
+import { QuestionCircleOutlined } from '@ant-design/icons-vue';
 import RewardsIcon from '@/assets/icons/dashboard/rewards.svg';
+import NftsLogo from '@/assets/icons/dashboard/nfts.svg';
+import NumberTooltip from '@/components/ui/NumberTooltip';
 
 import { formatNumber } from '@/helpers/prettyNumber';
 
@@ -59,7 +71,7 @@ export default {
             required: true,
         },
         value: {
-            required: true,
+            required: false,
         },
         reward: {
             type: Number,
@@ -85,6 +97,9 @@ export default {
     components: {
         TokenLogo,
         RewardsIcon,
+        NftsLogo,
+        NumberTooltip,
+        QuestionCircleOutlined,
     },
     setup() {
         const store = useStore();
@@ -167,10 +182,11 @@ export default {
     }
 
     &-symbol {
-        font-size: var(--#{$prefix}h6-fs);
+        font-size: var(--#{$prefix}default-fs);
         line-height: 16px;
         color: var(--#{$prefix}mute-text);
         font-weight: 400;
+        margin-right: 2px;
 
         &__left {
             margin-left: 5px;
@@ -179,21 +195,16 @@ export default {
 
     &-balance {
         display: flex;
-        align-items: baseline;
         align-self: flex-end;
 
-        h4 {
-            color: var(--#{$prefix}primary-text);
-            font-size: var(--#{$prefix}h6-fs);
-            line-height: 16px;
-            font-weight: 600;
-            margin-left: 2px;
-        }
+        color: var(--#{$prefix}primary-text);
+        font-size: var(--#{$prefix}h6-fs);
+        line-height: 16px;
+        font-weight: 600;
     }
 
     &-reward {
         display: flex;
-        align-items: flex-end;
         align-self: flex-end;
 
         margin-top: 6px;
@@ -201,7 +212,13 @@ export default {
         &-symbol {
             font-size: var(--#{$prefix}small-md-fs);
             font-weight: 400;
-            color: var(--#{$prefix}mute-text);
+            color: var(--#{$prefix}secondary-text);
+        }
+
+        &-value {
+            font-size: var(--#{$prefix}small-lg-fs);
+            font-weight: 400;
+            color: var(--#{$prefix}primary-text);
         }
 
         p {
@@ -212,6 +229,7 @@ export default {
 
         &-icon {
             margin-bottom: 1px;
+            margin-left: 2px;
             stroke: var(--#{$prefix}mute-text);
         }
     }
@@ -268,5 +286,17 @@ export default {
         height: 32px;
         border-radius: 50%;
     }
+}
+
+.fallback__logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    @include pageFlexRow;
+    justify-content: center;
+    align-items: center;
+    color: var(--#{$prefix}asset-header-icon-color);
+    font-size: var(--#{$prefix}h2-fs);
+    font-weight: 600;
 }
 </style>

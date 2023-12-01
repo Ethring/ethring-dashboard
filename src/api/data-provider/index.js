@@ -1,32 +1,37 @@
-import axios from 'axios';
+// Export configs from data-provider
+export * from './chains';
+
+// Axios instance
+import axiosInstance from '../axios';
 
 const PROVIDER_URL = process.env.VUE_APP_DATA_PROVIDER_URL || null;
 
 export const getBalancesByAddress = async (
     net,
     address = null,
-    { fetchTokens = true, fetchIntegrations = true, fetchNfts = false, signal } = {}
+    { fetchTokens = true, fetchIntegrations = true, fetchNfts = true, signal } = {}
 ) => {
     if (!PROVIDER_URL || !net || !address) {
         return null;
     }
 
+    const params = {
+        url: `${PROVIDER_URL}/balances?net=${net}&address=${address}&tokens=${fetchTokens}&integrations=${fetchIntegrations}&nfts=${fetchNfts}`,
+    };
+
     try {
-        const URL = `${PROVIDER_URL}/balances?net=${net}&address=${address}&tokens=${fetchTokens}&integrations=${fetchIntegrations}&nfts=${fetchNfts}`;
+        signal && (params.cancelToken = signal);
 
-        const response = await axios.get(
-            URL,
-            signal && {
-                signal,
-            }
-        );
+        const response = await axiosInstance.get(params.url, params);
 
-        if (response.status === 200) {
+        if (response && response.status === 200) {
             return response.data.data;
         }
 
         return null;
-    } catch {
+    } catch (e) {
+        console.error('Error while fetching balances from provider:', e);
+
         return null;
     }
 };

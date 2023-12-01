@@ -12,12 +12,12 @@ export default defineConfig({
     testDir: './tests/e2e',
     fullyParallel: false,
     forbidOnly: !!process.env.CI,
-    retries: process.env.CI ? 1 : 0,
+    retries: process.env.CI ? 2 : 0,
     workers: process.env.CI ? 1 : undefined,
     reporter: 'html',
     use: {
         baseURL: localFrontUrl,
-        trace: 'on-first-retry',
+        trace: process.env.CI ? 'on-first-retry' : 'on',
         testIdAttribute: 'data-qa',
         screenshot: 'only-on-failure',
     },
@@ -38,7 +38,7 @@ export default defineConfig({
             name: 'chromium',
             use: { ...devices['Desktop Chrome'] },
             dependencies: ['setup'],
-            testMatch: '**/tests/e2e/dashboard.spec.ts',
+            testMatch: '**/tests/e2e/@(dashboard|send).spec.ts',
             teardown: 'delete mm',
         },
         {

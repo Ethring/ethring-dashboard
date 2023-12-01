@@ -1,40 +1,17 @@
 <template lang="">
-    <div v-if="JSON.stringify(chainWithAddress) !== '{}'">
-        <div v-for="record in chainList" :key="record" class="chain-item">
-            <div class="chain-info">
-                <ChainRecord :chain="record" />
-                <a-tooltip placement="right" :title="copied ? $t('adapter.copiedAddressTooltip') : $t('adapter.copyAddressTooltip')">
-                    <span class="chain-address" @click="copy(chainWithAddress[record.net]?.address)">
-                        {{ cutAddress(chainWithAddress[record.net]?.address) }}
-                    </span>
-                </a-tooltip>
-            </div>
-            <div class="chain-actions">
-                <a-typography-paragraph :copyable="{ text: chainWithAddress[record.net]?.address, tooltip: false }" />
-                <a-popover :overlay-inner-style="{ padding: 0 }">
-                    <template #content>
-                        <a-qrcode error-level="H" :value="chainWithAddress[record.net]?.address" :bordered="false" icon="/zomet-logo.svg" />
-                    </template>
-                    <QrcodeOutlined />
-                </a-popover>
-            </div>
+    <div v-if="JSON.stringify(chainWithAddress) !== '{}'" class="chain-items">
+        <div v-for="record in chainRecords" :key="record" class="chain-item">
+            <ChainRecord :chain="record" :address="chainWithAddress[record.net]?.address" :chains="chainList" />
         </div>
     </div>
 </template>
 <script>
-import { useClipboard } from '@vueuse/core';
-
-import { QrcodeOutlined } from '@ant-design/icons-vue';
-
 import ChainRecord from '@/Adapter/UI/Entities/ChainRecord';
-
-import { cutAddress } from '@/helpers/utils';
 
 export default {
     name: 'ChainWithAddress',
     components: {
         ChainRecord,
-        QrcodeOutlined,
     },
     props: {
         chainWithAddress: {
@@ -45,44 +22,11 @@ export default {
             type: Array,
             required: true,
         },
-    },
-    setup() {
-        const { copy, copied } = useClipboard();
-
-        return {
-            copy,
-            copied,
-        };
-    },
-    methods: {
-        cutAddress,
+        chainRecords: {
+            type: Array,
+            required: true,
+        },
     },
 };
 </script>
-<style lang="scss" scoped>
-.chain {
-    &-item {
-        @include pageFlexRow;
-        justify-content: space-between;
-
-        padding: 16px;
-        &:not(:last-child) {
-            border-bottom: 1px solid var(--#{$prefix}border-color-op-05);
-        }
-    }
-
-    &-actions {
-        @include pageFlexRow;
-
-        gap: 16px;
-        & > div {
-            margin: 0 !important;
-        }
-    }
-
-    &-address {
-        cursor: pointer;
-        user-select: none;
-    }
-}
-</style>
+<style lang="scss" scoped></style>

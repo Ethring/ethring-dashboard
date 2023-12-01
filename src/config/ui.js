@@ -53,6 +53,8 @@ const BUY_CRYPTO = {
 
 const SIDEBAR_MODULES = [MAIN_DASHBOARD, SEND, SWAP, BRIDGE, SUPER_SWAP, BUY_CRYPTO];
 
+const CUSTOM_CONFIG = [MAIN_DASHBOARD];
+
 const defaultConfig = {
     [ECOSYSTEMS.EVM]: {
         sidebar: SIDEBAR_MODULES,
@@ -70,40 +72,7 @@ const defaultConfig = {
         },
     },
     [ECOSYSTEMS.COSMOS]: {
-        sidebar: [MAIN_DASHBOARD, SEND],
-        send: {
-            component: 'SimpleSend',
-        },
-        swap: {
-            component: 'SimpleSwap',
-        },
-        bridge: {
-            component: 'SimpleBridge',
-        },
-        superSwap: {
-            component: 'SuperSwap',
-        },
-    },
-};
-
-const CUSTOM_UI_BY_CHAIN = {
-    optimism: {
-        sidebar: [MAIN_DASHBOARD, SEND, SWAP],
-        send: {
-            component: 'SimpleSend',
-        },
-        swap: {
-            component: 'SimpleSwap',
-        },
-        bridge: {
-            component: 'SimpleBridge',
-        },
-        superSwap: {
-            component: 'SuperSwap',
-        },
-    },
-    fantom: {
-        sidebar: [MAIN_DASHBOARD, SEND],
+        sidebar: [MAIN_DASHBOARD, SEND, SWAP, BRIDGE],
         send: {
             component: 'SimpleSend',
         },
@@ -137,7 +106,7 @@ const checkIsDisabled = (config, sidebar) => {
 };
 
 const getUIConfig = (network, ecosystem) => {
-    if (!network || !ecosystem) {
+    if (!ecosystem) {
         return {
             sidebar: [],
         };
@@ -145,20 +114,13 @@ const getUIConfig = (network, ecosystem) => {
 
     // Copy without reference, to avoid changing the default config
 
-    if (!network || !ecosystem) {
-        return {
-            sidebar: [],
-        };
-    }
-
     const config = JSON.parse(JSON.stringify(defaultConfig[ecosystem]));
     const defaultSidebar = JSON.parse(JSON.stringify(SIDEBAR_MODULES));
 
     let { sidebar = [] } = config || {};
 
-    if (CUSTOM_UI_BY_CHAIN[network] && CUSTOM_UI_BY_CHAIN[network].sidebar) {
-        const networkConfig = CUSTOM_UI_BY_CHAIN[network].sidebar;
-        sidebar = checkIsDisabled(sidebar, networkConfig);
+    if (!network) {
+        sidebar = checkIsDisabled(sidebar, CUSTOM_CONFIG);
 
         return { ...config, sidebar };
     }

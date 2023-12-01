@@ -1,4 +1,4 @@
-export default {
+const mockBalanceData = {
     eth: { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' },
     optimism: { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' },
     arbitrum: {
@@ -53,6 +53,7 @@ export default {
             nfts: [],
             integrations: [
                 {
+                    integrationId: 'ARBITRUM_CURVE_LPOOL__0x7f90122bf0700f9e7e1f688fe926940e8839f353',
                     chain: 'ARBITRUM',
                     name: 'Arbitrum Curve Pools',
                     platform: 'CURVE',
@@ -90,6 +91,7 @@ export default {
                     address: '0x7f90122bf0700f9e7e1f688fe926940e8839f353',
                 },
                 {
+                    integrationId: 'ARB_RADIANT_V2_BORROW__0xF4B1486DD74D07706052A33d31d7c0AAFD0659E1',
                     chain: 'ARBITRUM',
                     name: 'Borrow and Lending v2',
                     platform: 'RADIANT',
@@ -130,6 +132,7 @@ export default {
                     healthRate: 69.73688477874622,
                 },
                 {
+                    integrationId: 'GMX_STAKE_ARBITRUM__0xa906f338cb21815cbc4bc87ace9e68c87ef8d8f1',
                     chain: 'ARBITRUM',
                     name: 'GMX Earn',
                     platform: 'GMX',
@@ -173,6 +176,7 @@ export default {
                     },
                 },
                 {
+                    integrationId: 'ARBITRUM_PERPETUALS_GMX__0x70d95587d40a2caf56bd97485ab3eec10bee6336',
                     chain: 'ARBITRUM',
                     name: 'Futures Market V2',
                     platform: 'GMX',
@@ -246,6 +250,7 @@ export default {
             nfts: [],
             integrations: [
                 {
+                    integrationId: 'ANKR_ABNBC_STAKE__0x52f24a5e03aee338da5fd9df68d2b6fae1178827',
                     chain: 'BSC',
                     name: 'Ankr aBNBc Stake',
                     platform: 'ANKR',
@@ -331,6 +336,7 @@ export default {
             nfts: [],
             integrations: [
                 {
+                    integrationId: 'POLYGON_LIQUID_STAKING__0xfa68FB4628DFF1028CFEc22b4162FCcd0d45efb6',
                     chain: 'POLYGON',
                     name: 'Stader Liquid Staking Polygon',
                     platform: 'STADER',
@@ -361,6 +367,7 @@ export default {
                     },
                 },
                 {
+                    integrationId: 'POL_AAVE_BORROW_V3__0x794a61358D6845594F94dc1DB02A252b5b4814aD',
                     chain: 'POLYGON',
                     name: 'Polygon Aave Borrow and Lending V3',
                     platform: 'AAVE',
@@ -401,6 +408,7 @@ export default {
                     healthRate: 67.27314497770057,
                 },
                 {
+                    integrationId: 'POL_AAVE_BORROW_V2__0x8dFf5E27EA6b7AC08EbFdf9eB090F32ee9a30fcf',
                     chain: 'POLYGON',
                     name: 'Polygon Aave Borrow and Lending V2',
                     platform: 'AAVE',
@@ -467,3 +475,108 @@ export default {
     },
     avalanche: { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' },
 };
+
+const mockBalanceDataBySendTest = {
+    avalanche: {
+        ok: true,
+        data: {
+            tokens: [
+                {
+                    name: 'Avalanche',
+                    symbol: 'AVAX',
+                    address: null,
+                    decimals: 18,
+                    logo: 'https://assets.coingecko.com/coins/images/12559/large/Avalanche_Circle_RedWhite_Trans.png?1696512369',
+                    price: '21.473881918021284',
+                    priceChange: '-0.31563323718329883',
+                    balanceUsd: '2.1473881918021287',
+                    balance: '0.1',
+                },
+                {
+                    name: 'USDC',
+                    symbol: 'USDC',
+                    address: '0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e',
+                    decimals: 6,
+                    logo: 'https://assets.coingecko.com/coins/images/6319/large/usdc.png?1696506694',
+                    price: '0.9992418554279857',
+                    priceChange: '-0.0006581513448562504',
+                    balanceUsd: '0.09992418554279858',
+                    balance: '0.1',
+                },
+                {
+                    name: 'Storm',
+                    symbol: 'STORM',
+                    address: '0x6afd5a1ea4b793cc1526d6dc7e99a608b356ef7b',
+                    decimals: 18,
+                    logo: 'https://assets.coingecko.com/coins/images/18170/large/nFiYZ2xO_400x400.png?1696517670',
+                    price: '0.0014557002331391314',
+                    priceChange: '-6.0332342080064976e-05',
+                    balanceUsd: '0.014557002331391313',
+                    balance: '10.0',
+                },
+            ],
+            nfts: [],
+            integrations: [],
+        },
+        error: '',
+    },
+    eth: { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' },
+    polygon: {
+        ok: true,
+        data: {
+            tokens: [
+                {
+                    name: 'Polygon',
+                    symbol: 'MATIC',
+                    address: null,
+                    decimals: 18,
+                    logo: 'https://assets.coingecko.com/coins/images/4713/large/polygon.png?1698233745',
+                    price: '0.7828426484426216',
+                    priceChange: '0.01826974158287986',
+                    balanceUsd: '0.7828426484426216',
+                    balance: '1.0',
+                },
+            ],
+            nfts: [],
+            integrations: [],
+        },
+        error: '',
+    },
+};
+
+const marketCapMockData = {
+    polygon_matic: {
+        ok: true,
+        data: {
+            'matic-network': {
+                marketCap: 8417707680,
+                circulatingSupply: 9260335235.536646,
+                usd: {
+                    price: 0.909096,
+                    priceChange24h: -0.03318739088515421,
+                    priceChange24hPct: -3.52202,
+                    volumeChange24h: 1133505125,
+                },
+                btc: {
+                    price: 0.00002442,
+                    priceChange24h: -0.000001560120823913,
+                    priceChange24hPct: -6.00419,
+                    volumeChange24h: 30453,
+                },
+            },
+        },
+        error: '',
+    },
+    polygon_1inch: {
+        ok: true,
+        data: {
+            '0x9c2c5fd7b07e95ee044ddeba0e97a665f142394f': {
+                usd: 0.371191,
+                btc: 0.0000099,
+            },
+        },
+        error: [],
+    },
+};
+
+export { mockBalanceData, marketCapMockData, mockBalanceDataBySendTest };

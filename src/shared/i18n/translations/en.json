@@ -8,7 +8,27 @@
     "search": "Search",
     "notFound": "Nothing was found for your query",
     "emptyAssets": "You don't have any assets",
-    "updateAvailable": "A new version of application is available. Click the Update button below to get the new version with the latest features and improvements"
+    "connecting": "Connecting wallet ...",
+    "loadingConfig": "Loading config ...",
+    "asset": "Asset",
+    "updateAvailable": "A new version of application is available. Click the Update button below to get the new version with the latest features and improvements",
+    "updatingBalances": "Fetching balances ...",
+    "updateBalances": "Fetch balances (Coming soon)",
+    "nft": {
+      "description": "Description",
+      "collectionName": "Collection name",
+      "collectionInformation": "Collection information",
+      "holdings": "Holdings",
+      "floorPrice": "Floor price (24h)",
+      "tokens": "Tokens",
+      "volume": "Volume",
+      "marketCap": "Market cap",
+      "contractAddress": "Contract address",
+      "numberOfItems": "Number of items",
+      "marketplaces": "Marketplaces",
+      "details": "Details",
+      "ownerAddress": "Owner address"
+    }
   },
   "sidebar": {
     "main": "Overview",
@@ -29,11 +49,10 @@
     "availableWallets": "Available wallets"
   },
   "adapter": {
-    "accountsGroup": "Connected accounts",
+    "accountsGroup": "Connected",
     "accountModalTitle": "Account addresses",
     "copyAddress": "Copy address",
     "disconnectAccount": "Disconnect",
-    "ecosystemsGroup": "Connect to",
     "disconnectAll": "Disconnect all wallets",
     "cosmosWallets": "Cosmos Ecosystem",
     "ethereumWallets": "EVM Ecosystem",
@@ -76,7 +95,10 @@
     "serviceFee": "Service Fee",
     "transferFrom": "Transfer from",
     "transferTo": "Transfer to",
-    "asset": "Asset"
+    "asset": "Asset",
+    "searchToken": "Search by token name or ticker",
+    "searchNetwork": "Search by network name",
+    "supportedNetwork": "Please choose one of the following supported networks: Ethereum, Binance Smart Chain, Avalanche, Polygon, Optimism, Arbitrum"
   },
   "simpleSend": {
     "title": "Send"

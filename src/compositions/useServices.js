@@ -4,6 +4,7 @@ import { useStore } from 'vuex';
 import {
     getAllowance,
     getApproveTx,
+    cancelRequestByMethod,
     // estimateSwap,
     // estimateBridge,
     // getSwapTx,
@@ -152,7 +153,7 @@ export default function useModule({ module, moduleType }) {
             selectedSrcToken.value = defaultFromToken;
         }
 
-        if (selectedSrcToken.value !== defaultFromToken && selectedSrcToken.value.balance < defaultFromToken?.balance) {
+        if (selectedSrcToken.value?.id !== defaultFromToken?.id) {
             selectedSrcToken.value = defaultFromToken;
         }
 
@@ -161,6 +162,10 @@ export default function useModule({ module, moduleType }) {
         }
 
         if (!selectedDstToken.value && defaultToToken) {
+            selectedDstToken.value = defaultToToken;
+        }
+
+        if (selectedDstToken.value?.balance === 0 && defaultToToken) {
             selectedDstToken.value = defaultToToken;
         }
 
@@ -199,7 +204,6 @@ export default function useModule({ module, moduleType }) {
     const makeAllowanceRequest = async (service) => {
         const currentService = service || selectedService.value;
 
-        console.log('makeAllowanceRequest', currentService);
         if (!selectedSrcToken.value?.address || !currentService?.url) {
             return;
         }
@@ -223,6 +227,10 @@ export default function useModule({ module, moduleType }) {
 
         if (!selectedSrcToken.value?.address || !currentService?.url) {
             return;
+        }
+
+        if (cancelRequestByMethod) {
+            await cancelRequestByMethod('getApproveTx');
         }
 
         const response = await getApproveTx({
@@ -281,10 +289,14 @@ export default function useModule({ module, moduleType }) {
         const MODULES = ['swap', 'send'];
 
         if (moduleType === 'swap' && isReset && opTitle.value !== DEFAULT_TITLE) {
-            selectedSrcToken.value = null;
-            selectedDstToken.value = null;
+            selectedSrcToken.value?.chain !== selectedSrcNetwork.value?.net && (selectedSrcToken.value = null);
+            selectedDstToken.value?.chain !== selectedSrcNetwork.value?.net && (selectedDstToken.value = null);
+
+            if (selectedSrcToken.value?.id === selectedDstToken.value?.id) {
+                selectedDstToken.value = null;
+            }
         } else if (moduleType === 'send' && isReset && opTitle.value !== DEFAULT_TITLE) {
-            selectedSrcToken.value = null;
+            selectedSrcToken.value?.chain !== selectedSrcNetwork.value?.net && (selectedSrcToken.value = null);
         }
 
         if (MODULES.includes(moduleType)) {
@@ -303,11 +315,12 @@ export default function useModule({ module, moduleType }) {
 
         selectedSrcNetwork.value = network;
 
-        selectedSrcToken.value = null;
-        selectedDstToken.value = null;
-
-        srcAmount.value = '';
-        dstAmount.value = '';
+        if (currentChainInfo.value?.net !== selectedSrcNetwork.value?.net) {
+            selectedSrcToken.value = null;
+            selectedDstToken.value = null;
+            srcAmount.value = '';
+            dstAmount.value = '';
+        }
 
         resetTokensForModules();
 
@@ -337,7 +350,15 @@ export default function useModule({ module, moduleType }) {
             return;
         }
 
+        if (currentChainInfo.value?.net !== selectedSrcNetwork.value?.net) {
+            selectedSrcToken.value = null;
+            selectedDstToken.value = null;
+            srcAmount.value = '';
+            dstAmount.value = '';
+        }
+
         resetTokensForModules();
+
         return checkSelectedNetwork();
     });
 
@@ -390,6 +411,7 @@ export default function useModule({ module, moduleType }) {
 
         // Functions
         setTokenOnChange,
+        resetTokensForModules,
         setTokenOnChangeForNet,
         clearApproveForService,
         checkSelectedNetwork,

@@ -6,11 +6,13 @@
             <SelectAmount
                 class="mt-10"
                 :value="selectedSrcToken"
+                :selected-network="selectedSrcNetwork"
                 :error="!!isBalanceError"
                 :on-reset="resetSrcAmount"
                 :is-token-loading="isTokensLoadingForChain"
                 :is-update="isUpdateSwapDirectionValue"
                 :label="$t('tokenOperations.pay')"
+                :amount-value="srcAmount"
                 @clickToken="onSetTokenFrom"
                 @setAmount="onSetAmount"
             />
@@ -30,6 +32,7 @@
                 :is-update="isUpdateSwapDirectionValue"
                 :label="$t('tokenOperations.receive')"
                 :disabled-value="dstAmount"
+                :amount-value="dstAmount"
                 @clickToken="onSetTokenTo"
             />
         </div>
@@ -66,7 +69,9 @@ import { utils } from 'ethers';
 
 import { SettingOutlined } from '@ant-design/icons-vue';
 
-import { estimateSwap, getSwapTx } from '@/api/services';
+import { estimateSwap, estimateBridge, getBridgeTx, getSwapTx } from '@/api/services';
+
+import { getServices, SERVICE_TYPE } from '@/config/services';
 
 // Adapter
 import { ECOSYSTEMS } from '@/Adapter/config';
@@ -91,7 +96,7 @@ import EstimateInfo from '@/components/ui/EstimateInfo.vue';
 import SwapIcon from '@/assets/icons/dashboard/swap.svg';
 
 // Helpers
-import { prettyNumberTooltip } from '@/helpers/prettyNumber';
+import { formatNumber } from '@/helpers/prettyNumber';
 
 import { isCorrectChain } from '@/shared/utils/operations';
 
@@ -124,14 +129,45 @@ export default {
         // * Notification
         const { showNotification, closeNotification } = useNotification();
 
-        const { walletAddress, currentChainInfo, chainList, walletAccount, setChain } = useAdapter();
+        const { walletAddress, currentChainInfo, chainList, walletAccount, setChain, getAddressesWithChainsByEcosystem } = useAdapter();
 
-        const chains = computed(() => chainList.value?.filter((chain) => SUPPORTED_CHAINS.includes(chain.net)));
+        const chains = computed(() => {
+            if (currentChainInfo.value.ecosystem === ECOSYSTEMS.COSMOS) {
+                return chainList.value;
+            }
+
+            return chainList.value?.filter((chain) => SUPPORTED_CHAINS.includes(chain.net));
+        });
 
         const selectedService = computed({
             get: () => store.getters[`swap/service`],
             set: (value) => store.dispatch(`swap/setService`, value),
         });
+
+        const servicesEVM = getServices(SERVICE_TYPE.SWAP, ECOSYSTEMS.EVM);
+        const servicesCosmos = getServices(SERVICE_TYPE.SWAP, ECOSYSTEMS.COSMOS);
+
+        const setEcosystemService = () => {
+            if (!currentChainInfo.value?.ecosystem) {
+                return;
+            }
+
+            const DEFAULT_FOR_ECOSYSTEM = {
+                [ECOSYSTEMS.EVM]: 'swap-paraswap',
+                [ECOSYSTEMS.COSMOS]: 'swap-skip',
+            };
+
+            switch (currentChainInfo.value?.ecosystem) {
+                case ECOSYSTEMS.COSMOS:
+                    return (selectedService.value = servicesCosmos.find(
+                        (service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.COSMOS]
+                    ));
+                case ECOSYSTEMS.EVM:
+                    return (selectedService.value = servicesEVM.find((service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.EVM]));
+            }
+        };
+
+        const addressesByChains = ref({});
 
         // * Module values
         const {
@@ -154,7 +190,7 @@ export default {
 
             clearApproveForService,
 
-            setTokenOnChange,
+            resetTokensForModules,
             makeAllowanceRequest,
             makeApproveRequest,
             checkSelectedNetwork,
@@ -264,32 +300,53 @@ export default {
             estimateErrorTitle.value = '';
             resetSrcAmount.value = true;
             resetDstAmount.value = true;
+
+            setTimeout(() => {
+                resetSrcAmount.value = false;
+                resetDstAmount.value = false;
+            });
         };
 
         const onSetTokenFrom = () => {
+            onlyWithBalance.value = true;
             selectType.value = TOKEN_SELECT_TYPES.FROM;
             targetDirection.value = DIRECTIONS.SOURCE;
 
-            onlyWithBalance.value = true;
-
             router.push('/swap/select-token');
-
-            srcAmount.value = 0;
 
             return clearApproveForService();
         };
 
         const onSetTokenTo = async () => {
+            onlyWithBalance.value = false;
             selectType.value = TOKEN_SELECT_TYPES.TO;
-
             // for SWAP targetDirection also SOURCE;
             targetDirection.value = DIRECTIONS.SOURCE;
 
-            onlyWithBalance.value = false;
-
             router.push('/swap/select-token');
 
-            srcAmount.value = 0;
+            await onSetAmount(srcAmount.value);
+        };
+
+        const resetAmounts = async (type = DIRECTIONS.SOURCE, amount) => {
+            const allowDataTypes = ['string', 'number'];
+
+            if (allowDataTypes.includes(typeof amount)) {
+                return;
+            }
+
+            const direction = {
+                [DIRECTIONS.SOURCE]: resetSrcAmount,
+                [DIRECTIONS.DESTINATION]: resetDstAmount,
+            };
+
+            const isEmpty = amount === null;
+
+            if (direction[type] && isEmpty) {
+                direction[type].value = false;
+                direction[type].value = isEmpty;
+                setTimeout(() => (direction[type].value = false));
+            }
         };
 
         const onSetAmount = async (value) => {
@@ -305,9 +362,27 @@ export default {
 
             isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance);
 
-            if (!allowanceForToken.value) {
+            if (!allowanceForToken.value && ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem) {
                 await requestAllowance();
             }
+
+            feeInfo.value = {
+                title: '',
+                symbolBetween: '',
+                fromAmount: '',
+                fromSymbol: '',
+                toAmount: '',
+                toSymbol: '',
+            };
+
+            rateInfo.value = {
+                title: '',
+                symbolBetween: '',
+                fromAmount: '',
+                fromSymbol: '',
+                toAmount: '',
+                toSymbol: '',
+            };
 
             return await makeEstimateSwapRequest();
         };
@@ -320,6 +395,10 @@ export default {
             }
 
             if (!selectedSrcToken.value?.address && !allowanceForToken.value) {
+                return false;
+            }
+
+            if (selectedSrcNetwork.value?.ecosystem === ECOSYSTEMS.COSMOS) {
                 return false;
             }
 
@@ -341,8 +420,6 @@ export default {
                 return;
             }
 
-            srcAmount.value = '';
-
             clearApproveForService();
 
             const from = { ...selectedSrcToken.value };
@@ -352,6 +429,8 @@ export default {
 
             selectedSrcToken.value = to;
             selectedDstToken.value = from;
+
+            onSetAmount(srcAmount.value);
 
             if (selectedSrcToken.value?.address && !allowanceForToken.value) {
                 await requestAllowance();
@@ -416,14 +495,25 @@ export default {
 
             isEstimating.value = true;
 
-            const response = await estimateSwap({
+            const params = {
                 url: selectedService.value.url,
                 net: selectedSrcNetwork.value.net,
                 fromTokenAddress: selectedSrcToken.value?.address,
                 toTokenAddress: selectedDstToken.value?.address,
                 amount: srcAmount.value,
                 ownerAddress: walletAddress.value,
-            });
+            };
+
+            let response = null;
+
+            if (selectedService.value.id === 'swap-skip') {
+                params.fromNet = selectedSrcNetwork.value.net;
+                params.toNet = selectedSrcNetwork.value.net;
+
+                response = await estimateBridge(params);
+            } else {
+                response = await estimateSwap(params);
+            }
 
             if (response.error) {
                 isEstimating.value = false;
@@ -434,7 +524,6 @@ export default {
             isLoading.value = false;
 
             dstAmount.value = response.toTokenAmount;
-            dstAmount.value = response.toTokenAmount;
 
             estimateErrorTitle.value = '';
 
@@ -444,21 +533,23 @@ export default {
 
             const { price = 0 } = native_token || {};
 
-            feeInfo.value = {
-                title: 'tokenOperations.networkFee',
-                symbolBetween: '~',
-                fromAmount: prettyNumberTooltip(response.fee.amount),
-                fromSymbol: response.fee.currency,
-                toAmount: prettyNumberTooltip(+response.fee.amount * price, 4),
-                toSymbol: '$',
-            };
+            if (response.fee) {
+                feeInfo.value = {
+                    title: 'tokenOperations.networkFee',
+                    symbolBetween: '~',
+                    fromAmount: response.fee.amount,
+                    fromSymbol: response.fee.currency,
+                    toAmount: formatNumber(+response.fee.amount * price, 4),
+                    toSymbol: '$',
+                };
+            }
 
             rateInfo.value = {
                 title: 'tokenOperations.rate',
                 symbolBetween: '=',
                 fromAmount: '1',
                 fromSymbol: selectedSrcToken.value.symbol,
-                toAmount: prettyNumberTooltip(response.toTokenAmount / response.fromTokenAmount, 6),
+                toAmount: formatNumber(response.toTokenAmount / response.fromTokenAmount, 6),
                 toSymbol: selectedDstToken.value.symbol,
             };
         };
@@ -478,15 +569,27 @@ export default {
             });
 
             try {
-                const response = await getSwapTx({
+                const params = {
                     url: selectedService.value.url,
                     net: selectedSrcNetwork.value.net,
                     fromTokenAddress: selectedSrcToken.value.address,
                     toTokenAddress: selectedDstToken.value.address,
                     amount: srcAmount.value,
                     ownerAddress: walletAddress.value,
-                });
-                console.log('response', response);
+                };
+
+                let response = null;
+
+                if (selectedService.value.id === 'swap-skip') {
+                    params.ownerAddresses = JSON.stringify(addressesByChains.value);
+
+                    params.fromNet = selectedSrcNetwork.value.net;
+                    params.toNet = selectedSrcNetwork.value.net;
+
+                    response = await getBridgeTx(params);
+                } else {
+                    response = await getSwapTx(params);
+                }
 
                 if (response.error) {
                     txError.value = response?.error || response;
@@ -672,9 +775,7 @@ export default {
         });
 
         watch(isTokensLoadingForChain, () => {
-            selectedSrcToken.value = null;
-            selectedDstToken.value = null;
-            setTokenOnChange();
+            resetTokensForModules();
         });
 
         watch(isWaitingTxStatusForModule, async () => {
@@ -683,26 +784,26 @@ export default {
             }
         });
 
-        watch(srcAmount, () => {
-            resetSrcAmount.value = srcAmount.value === null;
-        });
+        watch(srcAmount, () => resetAmounts(DIRECTIONS.SOURCE, srcAmount.value));
 
-        watch(dstAmount, () => {
-            resetDstAmount.value = dstAmount.value === null;
-        });
+        watch(dstAmount, () => resetAmounts(DIRECTIONS.DESTINATION, dstAmount.value));
 
         watch(selectedSrcToken, () => {
-            if (!allowanceForToken.value && selectedSrcToken.value?.address) {
+            if (!selectedSrcToken.value) {
+                return;
+            }
+
+            if (!allowanceForToken.value && ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem) {
                 requestAllowance();
             }
         });
 
         watch(walletAccount, () => {
             selectedSrcNetwork.value = currentChainInfo.value;
-            selectedSrcToken.value = null;
-            selectedDstToken.value = null;
 
-            setTokenOnChange();
+            resetTokensForModules();
+
+            setEcosystemService();
         });
 
         watch(isNeedApprove, () => {
@@ -715,22 +816,48 @@ export default {
 
         // =================================================================================================================
 
+        const setOwnerAddresses = () => {
+            if (selectedService.value?.id !== 'swap-skip') {
+                return;
+            }
+
+            const addressesWithChains = getAddressesWithChainsByEcosystem(selectedSrcNetwork.value?.ecosystem);
+
+            for (const chain in addressesWithChains) {
+                const { address } = addressesWithChains[chain];
+
+                addressesByChains.value = {
+                    ...addressesByChains.value,
+                    [chain]: address,
+                };
+            }
+        };
+
         onMounted(async () => {
-            selectType.value = TOKEN_SELECT_TYPES.FROM;
             store.dispatch('txManager/setCurrentRequestID', null);
+
+            setEcosystemService();
+
+            if (srcAmount.value) {
+                dstAmount.value = null;
+                await onSetAmount(srcAmount.value);
+            }
 
             if (!selectedSrcNetwork.value) {
                 selectedSrcNetwork.value = currentChainInfo.value;
+                resetTokensForModules();
             }
 
-            onlyWithBalance.value = true;
-
-            setTokenOnChange();
-
-            if (selectedSrcToken.value?.address && !allowanceForToken.value) {
+            if (selectedSrcToken.value?.address && !allowanceForToken.value && ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem) {
                 await requestAllowance();
             }
+
+            isAllowForRequest();
+
+            setOwnerAddresses();
         });
+
+        watch(selectedService, () => setOwnerAddresses());
 
         onBeforeUnmount(() => {
             if (router.options.history.state.current !== '/swap/select-token') {

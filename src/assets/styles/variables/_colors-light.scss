@@ -28,14 +28,14 @@ $wildWatermelon: #e4455d;
 $deepCerulean: #00839f;
 $japaneseLaurel: #038d00;
 $blazeOrange: #ff6b00;
-$paleSky: #6D747A;
+$paleSky: #6d747a;
 $blackGray: #1a1d26;
 
 $watermelon: #fa3c58;
 $pizazz: #f69502;
 $greenHills: #027a00;
 $harborBlue: #586897;
-$blue: #CCD5F0;
+$blue: #ccd5f0;
 $aquamarine: #97ffd0;
 $gallery: #f0f0f0;
 $chineseBlack: #0c0d18;
@@ -82,6 +82,10 @@ $banner-secondary-color: $iceberg;
 $eye-logo: $trout;
 $eye-logo-hover: $surfieGreen;
 
+// Assets header icon color
+
+$asset-header-icon-color: $surfieGreen;
+
 // Text
 $sub-text: $surfieGreen;
 $mute-text: $trout;
@@ -92,17 +96,25 @@ $secondary-text: $trout;
 $symbol-text: $charade;
 $mute-apr-text: $paleSky;
 
-// Adapter text
-$adapter-text: rgba($black, 0.45);
-$adapter-ecosystem-bg: $blueHalk;
+// Adapter
+$adapter-label-text: $trout;
+$adapter-value-text: $mineralGreen;
 $adapter-ecosystem-border-color: $geyser;
+$adapter-connected-border-color: $iceberg;
+$adapter-connected-icon-color: $lightGreen;
+$adapter-secondary-border-color: $pastelPink;
+$adapter-modal-close-color: $blackGray;
+$adapter-more-option: $gulfStream;
+$adapter-hover-color: $iceberg;
+
+// Adapter ModuleIcons
 $adapter-logo-main-color: $gallery;
 $adapter-logo-base-color: $cyan;
 $adapter-logo-secondary-color: $iceberg;
-$adapter-border-color: $iceberg;
-$adapter-icon-color: $lightGreen;
-$adapter-secondary-border-color: $pastelPink;
-$adapter-modal-close-color: $blackGray;
+
+// Adapter Not Connected
+$adapter-not-connected-bg: $geyser;
+$adapter-not-connected-icon: $mineralGreen;
 
 // Checkbox
 $checkbox-text: $gulfStream;
@@ -116,6 +128,7 @@ $border-color: $geyser;
 $border-secondary-color: $gulfStream;
 $border-color-op-05: rgba($border-color, 0.5);
 $social-border-color: $trout;
+$info-border-color: $gallery;
 
 // Button
 $btn-text-color: $white;
@@ -147,7 +160,6 @@ $select-active-border-color: $surfieGreen;
 $select-active-bg-color: $iceberg;
 $select-icon-color: $gulfStream;
 $select-icon-bg-color: $ebonyClay;
-
 
 // Accordion
 $accordion-bg-color: $white;
@@ -237,6 +249,8 @@ $theme-colors: (
     "eye-logo": $eye-logo,
     "eye-logo-hover": $eye-logo-hover,
 
+    "asset-header-icon-color": $asset-header-icon-color,
+
     "sub-text": $sub-text,
     "mute-text": $mute-text,
     "base-text": $base-text,
@@ -246,16 +260,20 @@ $theme-colors: (
     "symbol-text": $symbol-text,
     "mute-apr-text": $mute-apr-text,
 
-    "adapter-text": $adapter-text,
-    "adapter-ecosystem-bg": $adapter-ecosystem-bg,
+    "adapter-label-text": $adapter-label-text,
+    "adapter-value-text": $adapter-value-text,
     "adapter-ecosystem-border-color": $adapter-ecosystem-border-color,
     "adapter-logo-main-color": $adapter-logo-main-color,
     "adapter-logo-base-color": $adapter-logo-base-color,
     "adapter-logo-secondary-color": $adapter-logo-secondary-color,
-    "adapter-border-color": $adapter-border-color,
-    "adapter-icon-color": $adapter-icon-color,
+    "adapter-connected-border-color": $adapter-connected-border-color,
+    "adapter-connected-icon-color": $adapter-connected-icon-color,
     "adapter-secondary-border-color": $adapter-secondary-border-color,
     "adapter-modal-close-color": $adapter-modal-close-color,
+    "adapter-more-option": $adapter-more-option,
+    "adapter-not-connected-bg": $adapter-not-connected-bg,
+    "adapter-not-connected-icon": $adapter-not-connected-icon,
+    "adapter-hover-color": $adapter-hover-color,
 
     "checkbox-text": $checkbox-text,
     "checkbox-disabled-text": $checkbox-disabled-text,
@@ -267,7 +285,7 @@ $theme-colors: (
     "border-secondary-color": $border-secondary-color,
     "border-color-op-05": $border-color-op-05,
     "social-border-color": $social-border-color,
-
+    "info-border-color": $info-border-color,
 
     "btn-text-hover": $btn-text-hover,
     "btn-bg-color-hover": $btn-bg-color-hover,
@@ -353,5 +371,5 @@ $theme-colors: (
 
     "tag-01": $tag-01,
     "tag-02": $tag-02,
-    "tag-03": $tag-03,
+    "tag-03": $tag-03
 );

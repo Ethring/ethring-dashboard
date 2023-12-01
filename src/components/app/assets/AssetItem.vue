@@ -3,7 +3,8 @@
         <template v-if="column === 'name'">
             <div class="network">
                 <div class="logo">
-                    <TokenIcon width="24" height="24" :token="item" />
+                    <img v-if="item.avatar" :src="item.avatar" />
+                    <TokenIcon v-else width="24" height="24" :token="item" />
                     <div class="chain">
                         <img :src="item.chainLogo" />
                     </div>
@@ -20,29 +21,20 @@
                 </div>
             </div>
         </template>
-        <template v-else-if="column === 'balance'">
-            <a-tooltip v-if="isTooltip(balance.pretty)" placement="topRight">
-                <template #title>{{ balance.value }}</template>
-                <div class="amount">
-                    <div class="value">
-                        {{ balance.pretty }}
-                    </div>
-                    <div class="symbol">{{ item?.symbol }}</div>
+        <template v-if="column === 'balance'">
+            <div class="amount">
+                <div class="value">
+                    <NumberTooltip :value="balance" decimals="3" />
                 </div>
-            </a-tooltip>
-            <div v-else class="amount">
-                <div class="value" :title="balance.value">
-                    {{ balance.pretty }}
-                </div>
+                &nbsp;
                 <div class="symbol">{{ item?.symbol }}</div>
             </div>
         </template>
-        <template v-else-if="column === 'balanceUsd'">
-            <a-tooltip v-if="isTooltip(balanceUsd.pretty)" placement="topRight">
-                <template #title>{{ balanceUsd.value }}</template>
-                <div class="value"><span>$</span>{{ balanceUsd.pretty }}</div>
-            </a-tooltip>
-            <div v-else class="value" :title="balanceUsd.value"><span> $ </span>{{ balanceUsd.pretty }}</div>
+        <template v-if="column === 'balanceUsd'">
+            <div class="amount">
+                <span class="symbol">$</span>
+                <div class="value"><NumberTooltip :value="balanceUsd" /></div>
+            </div>
         </template>
     </div>
 </template>
@@ -51,6 +43,7 @@ import { computed } from 'vue';
 import { useStore } from 'vuex';
 
 import TokenIcon from '@/components/ui/TokenIcon';
+import NumberTooltip from '@/components/ui/NumberTooltip';
 
 import { formatNumber } from '@/helpers/prettyNumber';
 
@@ -65,56 +58,37 @@ export default {
             required: true,
         },
         column: {
-            required: true,
+            default: null,
         },
     },
     components: {
         TokenIcon,
+        NumberTooltip,
     },
     setup(props) {
         const store = useStore();
         const showBalance = computed(() => store.getters['app/showBalance']);
 
-        const defaultVal = {
-            pretty: '****',
-            value: '****',
-        };
-
         const balance = computed(() => {
             if (!showBalance.value) {
-                return defaultVal;
+                return '****';
             }
 
-            return {
-                pretty: formatNumber(props.item?.balance, 6),
-                value: BigNumber(props.item?.balance).toString(),
-            };
+            return BigNumber(props.item?.balance).toString();
         });
 
         const balanceUsd = computed(() => {
             if (!showBalance.value) {
-                return defaultVal;
+                return '****';
             }
 
-            return {
-                pretty: formatNumber(props.item?.balanceUsd, 4),
-                value: BigNumber(props.item?.balanceUsd).toString(),
-            };
+            return BigNumber(props.item?.balanceUsd).toString();
         });
-
-        const isTooltip = (value) => {
-            if (!value) {
-                return false;
-            }
-
-            return value.includes('~') || false;
-        };
 
         return {
             balance,
             balanceUsd,
 
-            isTooltip,
             getFormattedName,
             getFormattedDate,
             formatNumber,
@@ -134,15 +108,9 @@ export default {
             margin-right: 10px;
             position: relative;
 
-            .token-icon {
+            img {
                 width: 32px;
                 height: 32px;
-
-                img {
-                    filter: none;
-                    width: 100%;
-                    height: 100%;
-                }
             }
         }
 
@@ -178,6 +146,10 @@ export default {
             color: var(--#{$prefix}primary-text);
             font-weight: 400;
             margin-left: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
         }
     }
 
@@ -227,7 +199,6 @@ export default {
     .value {
         font-size: var(--#{$prefix}small-lg-fs);
         font-weight: 400;
-        margin-right: 3px;
         color: var(--#{$prefix}primary-text);
     }
 }

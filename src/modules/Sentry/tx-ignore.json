@@ -1,0 +1,10 @@
+{
+    "ignorePatterns": [
+        "User denied transaction signature.",
+        "User denied message signature.",
+        "Failed to fetch",
+        "Bad status on response: 429",
+        "Request rejected",
+        "insufficient funds"
+    ]
+}

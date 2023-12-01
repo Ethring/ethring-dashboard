@@ -31,6 +31,19 @@ body {
   }
 }
 
+::-webkit-scrollbar-thumb {
+  background: $gulfStream;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: $trout;
+}
+
 .ant-layout-sider-collapsed .ant-layout-sider-trigger {
   width: 80px !important;
   z-index: 1000 !important;
@@ -42,16 +55,30 @@ body {
   background-color: var(--#{$prefix}primary) !important;
 }
 
+.ant-dropdown-arrow {
+  &::before {
+    background: var(--#{$prefix}secondary-background) !important;
+  }
+}
+
+.anticon-copy svg {
+  fill: var(--#{$prefix}primary-text) !important;
+}
+
 @keyframes arrowMovement {
   0% {
-    transform: translateX(0); /* Начальное положение */
+    transform: translateX(0);
+    /* Начальное положение */
     opacity: 1;
   }
+
   50% {
     opacity: 0;
   }
+
   100% {
-    transform: translateX(80%); /* Сдвиг на 50% ширины элемента */
+    transform: translateX(80%);
+    /* Сдвиг на 50% ширины элемента */
     opacity: 0;
   }
 }
