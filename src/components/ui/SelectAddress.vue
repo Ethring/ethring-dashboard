@@ -182,12 +182,6 @@ export default {
 .select-address {
     position: relative;
 
-    .name {
-        font-size: var(--#{$prefix}default-fs);
-        color: var(--#{$prefix}black);
-        font-weight: 400;
-    }
-
     &__panel {
         position: relative;
         display: flex;
@@ -206,11 +200,6 @@ export default {
             color: var(--#{$prefix}select-label-color);
             font-weight: 500;
             line-height: 20px;
-        }
-
-        .address {
-            color: var(--#{$prefix}select-label-color);
-            font-weight: 400;
         }
 
         .info-wrap {
@@ -249,13 +238,6 @@ export default {
             margin-right: 6px;
 
             border-radius: 50%;
-        }
-
-        .name {
-            font-size: var(--#{$prefix}h2-fs);
-            font-weight: 600;
-            color: var(--#{$prefix}select-placeholder-text);
-            user-select: none;
         }
     }
 

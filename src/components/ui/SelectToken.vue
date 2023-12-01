@@ -159,7 +159,7 @@ export default {
 
     svg.arrow {
         cursor: pointer;
-        fill: var(--#{$prefix}icon-active);
+        fill: var(--#{$prefix}select-icon-color);
         position: absolute;
         transform: rotate(90deg);
         top: 6px;

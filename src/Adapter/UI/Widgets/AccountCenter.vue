@@ -154,7 +154,7 @@ export default {
         .ecosystem {
             font-size: var(--#{$prefix}small-sm-fs);
             font-weight: 400;
-            color: var(--#{$prefix}base-text);
+            color: var(--#{$prefix}adapter-ecosystem-color);
         }
     }
 

@@ -394,7 +394,7 @@ export default {
             &-value,
             &-price {
                 position: relative;
-                color: var(--#{$prefix}base-text);
+                color: var(--#{$prefix}select-label-color);
                 font-size: var(--#{$prefix}small-lg-fs);
 
                 &-skeleton {
@@ -532,6 +532,8 @@ export default {
         svg.arrow {
             cursor: pointer;
             @include animateEasy;
+            stroke-width: 2px;
+            stroke: var(--#{$prefix}select-icon-color);
         }
     }
 

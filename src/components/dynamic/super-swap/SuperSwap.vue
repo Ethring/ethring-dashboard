@@ -1015,6 +1015,7 @@ export default {
             selectedDstToken.value = null;
             receiverAddress.value = '';
             srcAmount.value = null;
+            dstAmount.value = null;
         });
 
         return {
@@ -1080,7 +1081,7 @@ export default {
         justify-content: center;
         position: absolute;
         left: 54px;
-        top: 112px;
+        top: 113px;
         z-index: 5;
         height: 56px;
         width: 56px;
@@ -1128,7 +1129,7 @@ export default {
         }
 
         p {
-            color: var(--#{$prefix}mute-text);
+            color: var(--#{$prefix}accordion-title);
             font-size: var(--#{$prefix}small-lg-fs);
             line-height: var(--#{$prefix}default-fs);
             font-weight: 600;

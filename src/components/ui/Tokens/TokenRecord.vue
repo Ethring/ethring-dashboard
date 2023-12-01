@@ -115,24 +115,19 @@ export default {
     justify-content: space-between;
 
     overflow: visible;
-    border: 1px solid var(--#{$prefix}border-secondary-color);
+    border: 1px solid var(--#{$prefix}assets-border-color);
     height: 56px;
     padding: 8px 16px 8px 8px;
-
+    background-color: var(--#{$prefix}secondary-background);
     border-radius: 8px;
 
     &.selected {
-        border: 1px solid var(--zmt-banner-logo-color);
-        background-color: rgba(63, 223, 174, 0.1);
+        border: 1px solid var(--#{$prefix}banner-logo-color);
+        background-color: var(--#{$prefix}selected-bg-color);
     }
 
     &:not(:last-child) {
         margin-bottom: 8px;
-    }
-
-    &:not(.selected):hover {
-        border-color: transparent;
-        box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.2);
     }
 
     cursor: pointer;

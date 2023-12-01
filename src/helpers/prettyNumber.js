@@ -71,12 +71,8 @@ export const prettyNumberTooltip = (value, maxDecimals = 8) => {
 };
 
 export const formatNumber = (value, maximumFractionDigits = 6) => {
-    if (!value) {
+    if (!value || Number.isNaN(+value)) {
         return '0';
-    }
-
-    if (Number.isNaN(+value)) {
-        return value;
     }
 
     const formatter = new Intl.NumberFormat('en-US', {

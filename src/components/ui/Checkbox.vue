@@ -118,9 +118,9 @@ input[type='checkbox'] {
 
     &__label {
         display: flex;
-        color: var(--#{$prefix}checkbox-disabled-text);
+        color: var(--#{$prefix}checkbox-text);
 
-        font-size: 1rem !important;
+        font-size: var(--#{$prefix}h6-fs);
         width: fit-content;
         margin-right: 5px;
     }

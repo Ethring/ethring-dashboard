@@ -876,6 +876,7 @@ export default {
                 selectedDstToken.value = null;
                 selectedSrcNetwork.value = null;
                 srcAmount.value = null;
+                dstAmount.value = null;
             }
         });
 
@@ -1015,7 +1016,7 @@ export default {
         }
 
         .fee-symbol {
-            color: $colorPl;
+            color: $gulfStream;
             font-weight: 400;
         }
     }

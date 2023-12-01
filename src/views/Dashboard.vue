@@ -49,9 +49,9 @@ export default {
         overflow: hidden;
 
         background-image: url('~@/assets/images/wallet-info/background.png');
-        background-size: contain;
+        background-size: 60%;
         background-repeat: no-repeat;
-        background-position: right;
+        background-position: top right;
 
         margin-bottom: 24px;
     }

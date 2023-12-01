@@ -1023,6 +1023,7 @@ export default {
                 selectedDstToken.value = null;
                 receiverAddress.value = '';
                 srcAmount.value = null;
+                dstAmount.value = null;
             }
         });
 

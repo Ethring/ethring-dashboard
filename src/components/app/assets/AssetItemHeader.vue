@@ -1,17 +1,17 @@
 <template>
     <div class="asset__item-header">
         <div class="asset__item-header-info">
-            <TokenLogo v-if="title === 'Tokens'" />
+            <TokenLogo v-if="title === 'Tokens'" class="token__logo" />
             <div v-else class="asset__item-header-logo">
                 <NftsLogo v-if="title === 'NFT'" />
                 <img
                     v-else-if="logoURI && !showImagePlaceholder"
                     :src="logoURI"
-                    class="token__logo-img"
+                    class="asset__logo"
                     @error="showImagePlaceholder = true"
                     @load="showImagePlaceholder = false"
                 />
-                <PlaceHolderLogo v-else class="token__logo" />
+                <PlaceHolderLogo v-else class="asset__logo" />
             </div>
 
             <div class="asset__item-header-name">
@@ -42,9 +42,9 @@
 
             <div class="asset__item-header-reward" v-if="showRewards">
                 <span class="asset__item-header-reward-title">{{ $t('tokenOperations.rewards') }}:</span>
+                <span class="asset__item-header-reward-symbol">$</span>
                 <NumberTooltip v-if="showBalance" :value="reward" />
                 <p v-else>****</p>
-                <span class="asset__item-header-reward-symbol">$</span>
             </div>
         </div>
     </div>
@@ -141,6 +141,16 @@ export default {
         width: 60%;
     }
 
+    .asset__logo,
+    .token__logo {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+    }
+
+    .token__logo {
+        background-color: var(--#{$prefix}banner-logo-color);
+    }
     &-logo {
         width: 40px;
         height: 40px;
@@ -163,7 +173,7 @@ export default {
             &::before {
                 content: '\2022';
                 margin-right: 8px;
-                color: var(--#{$prefix}checkbox-text);
+                color: var(--#{$prefix}select-placeholder-text);
             }
         }
     }
@@ -178,7 +188,7 @@ export default {
     &-symbol {
         font-size: var(--#{$prefix}default-fs);
         line-height: 16px;
-        color: var(--#{$prefix}mute-text);
+        color: var(--#{$prefix}secondary-text);
         font-weight: 400;
 
         &__left {
@@ -200,13 +210,13 @@ export default {
         display: flex;
         align-self: flex-end;
         color: var(--#{$prefix}eye-logo-hover);
-        font-weight: 500;
+        font-weight: 400;
         margin-top: 6px;
 
         span {
             font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 400;
-            color: var(--#{$prefix}mute-text);
+            color: var(--#{$prefix}adapter-label-text);
         }
 
         &-title {
@@ -239,7 +249,7 @@ export default {
 
             span {
                 font-weight: 400;
-                margin-left: -2px;
+                margin-left: -1px;
             }
         }
 
@@ -261,17 +271,6 @@ export default {
                 background-color: var(--#{$prefix}percentage-bar-25);
             }
         }
-    }
-}
-
-.token__logo {
-    width: 32px;
-    height: 32px;
-
-    &-img {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
     }
 }
 </style>

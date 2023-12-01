@@ -67,6 +67,22 @@ body {
   fill: var(--#{$prefix}primary-text) !important;
 }
 
+
+::-webkit-input-placeholder {
+  color:var(--#{$prefix}select-placeholder-text);
+}
+::-moz-placeholder {
+  color:var(--#{$prefix}select-placeholder-text);
+  opacity: 1;
+}
+:-ms-input-placeholder {
+  color:var(--#{$prefix}select-placeholder-text);
+}
+::placeholder {
+  color: var(--#{$prefix}select-placeholder-text);
+}
+
+
 @keyframes arrowMovement {
   0% {
     transform: translateX(0);

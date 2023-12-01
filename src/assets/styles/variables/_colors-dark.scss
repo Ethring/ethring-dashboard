@@ -75,15 +75,17 @@ $sidebar-text: $geyser;
 $primary-text: $white;
 $secondary-text: $aquamarine;
 $symbol-text: $gulfStream;
-$mute-apr-text: $gulfStream;
+$mute-apr-text: $white;
 $amount-text: $white;
 $input-disabled-text: $paleSky;
 $balance-text: $aquamarine;
+$unlock-text: $aquamarine;
 
 // Adapter text
 $adapter-label-text: $gulfStream;
 $adapter-value-text: $white;
 $adapter-ecosystem-border-color: $charade;
+$adapter-ecosystem-color: $springGreen;
 $adapter-connected-border-color: $charade;
 $adapter-connected-icon-color: $lightGreen;
 $adapter-secondary-border-color: $pastelPink;
@@ -146,11 +148,14 @@ $select-icon-bg-color: $charade;
 $select-placeholder-text: $trout;
 $select-active-bg-color: $chineseBlack;
 $select-symbol-text: $aquamarine;
+$selected-bg-color: rgba(20, 236, 138, 0.10);
+
 
 // Accordion
 $accordion-bg-color: $charade;
 $accordion-label-color: $geyser;
 $accordion-border-color: 'transparent';
+$accordion-title: $white;
 
 // Collapse
 $collapse-border-color: $charade;
@@ -248,12 +253,14 @@ $theme-colors-dark: (
     "amount-text": $amount-text,
     "input-disabled-text": $input-disabled-text,
     "balance-text": $balance-text,
+    "unlock-text": $unlock-text,
 
     "assets-border-color": $assets-border-color,
 
     "adapter-label-text": $adapter-label-text,
     "adapter-value-text": $adapter-value-text,
     "adapter-ecosystem-border-color": $adapter-ecosystem-border-color,
+    "adapter-ecosystem-color": $adapter-ecosystem-color,
     "adapter-logo-main-color": $adapter-logo-main-color,
     "adapter-logo-base-color": $adapter-logo-base-color,
     "adapter-logo-secondary-color": $adapter-logo-secondary-color,
@@ -304,10 +311,12 @@ $theme-colors-dark: (
     "select-icon-bg-color": $select-icon-bg-color,
     "select-placeholder-text": $select-placeholder-text,
     "select-symbol-text": $select-symbol-text,
+    "selected-bg-color": $selected-bg-color,
 
     "accordion-bg-color": $accordion-bg-color,
     "accordion-label-color": $accordion-label-color,
     "accordion-border-color": $accordion-border-color,
+    "accordion-title": $accordion-title,
 
     "collapse-border-color": $collapse-border-color,
 

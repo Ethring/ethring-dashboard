@@ -206,7 +206,6 @@ export default {
             span {
                 color: var(--#{$prefix}mute-text);
                 font-weight: 400;
-                margin-left: 3px;
             }
         }
 

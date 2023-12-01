@@ -44,7 +44,9 @@
             <p v-else class="balance__value">
                 <span class="usd-symbol">$</span>
                 <NumberTooltip :value="payTokenPrice" />
-                <span class="percentage" v-if="percentage && !isNaN(percentage)">({{ percentage }} %)</span>
+                <span class="percentage" v-if="percentage && !isNaN(percentage)"
+                    >(<span>{{ percentage }}%</span>)</span
+                >
             </p>
             <p @click.stop="setMax" v-if="!hideMax && !isTokenLoading && token" class="balance__value" :class="{ error }">
                 <span>{{ $t('tokenOperations.balance') }}:</span>
@@ -244,14 +246,16 @@ export default {
     }
 
     .disabled {
-        color: var(--#{$prefix}base-text);
+        color: var(--#{$prefix}input-disabled-text);
+        cursor: not-allowed;
+        user-select: none;
     }
 
     .balance {
         width: 100%;
         @include pageFlexRow;
         justify-content: space-between;
-        color: var(--#{$prefix}base-text);
+        color: var(--#{$prefix}balance-text);
         font-weight: 400;
         margin-top: 12px;
         padding-right: 8px;
@@ -262,11 +266,11 @@ export default {
             cursor: pointer;
             font-weight: 500;
             font-size: var(--#{$prefix}small-lg-fs);
-            color: var(--#{$prefix}sub-text);
+            color: var(--#{$prefix}balance-text);
 
             span {
                 font-size: var(--#{$prefix}small-lg-fs);
-                color: var(--#{$prefix}base-text);
+                color: var(--#{$prefix}select-label-color);
                 font-weight: 400;
             }
 
@@ -281,8 +285,12 @@ export default {
 
         .percentage {
             font-weight: 400;
-            margin-left: 2px;
+            margin-left: 4px;
             color: var(--#{$prefix}base-text);
+
+            span {
+                color: var(--#{$prefix}sub-text);
+            }
         }
         .error,
         .error * {

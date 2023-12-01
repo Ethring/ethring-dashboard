@@ -139,7 +139,7 @@ export default {
     z-index: 11;
 
     &__label {
-        color: var(--#{$prefix}base-text);
+        color: var(--#{$prefix}select-label-color);
         font-weight: 500;
         margin-bottom: 4px;
     }

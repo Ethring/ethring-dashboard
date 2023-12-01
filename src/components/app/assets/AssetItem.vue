@@ -14,7 +14,7 @@
                     <div class="unlock" v-if="item.unlockTimestamp">
                         Unlock <span> {{ getFormattedDate(item.unlockTimestamp) }} </span>
                     </div>
-                    <div class="apr" v-if="item.apr"><span>APR </span> {{ formatNumber(item.apr, 2) }} <span>%</span></div>
+                    <div class="apr" v-if="item.apr"><span>APR </span> {{ formatNumber(item.apr, 2) }}%</div>
                 </div>
             </div>
         </template>
@@ -161,7 +161,7 @@ export default {
             &::before {
                 content: '\2022';
                 margin: 0 4px;
-                color: var(--#{$prefix}checkbox-text);
+                color: var(--#{$prefix}select-placeholder-text);
             }
         }
 
@@ -185,7 +185,11 @@ export default {
 
         .unlock {
             color: var(--#{$prefix}mute-apr-text);
-            font-weight: 300;
+
+            span {
+                color: var(--#{$prefix}unlock-text);
+                font-weight: 500;
+            }
         }
     }
 
