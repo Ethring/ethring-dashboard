@@ -105,7 +105,7 @@ const cosmosChainTokens = (record, { chain, net }) => {
 
 const processIntegration = (integration, { net, chain, logo, chainAddress }) => {
     if (integration.platform) {
-        integration.id = `${net}:integration__${integration.platform}:${integration.type}`;
+        integration.id = `${net}:integration__${integration.platform}:${integration.type}:${integration.stakingType}`;
     }
 
     const { balances = [] } = integration;
