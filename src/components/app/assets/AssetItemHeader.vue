@@ -3,6 +3,8 @@
         <div class="asset__item-header-info">
             <div class="asset__item-header-logo">
                 <NftsLogo v-if="title === 'NFT'" />
+                <TokenLogo v-else-if="title === 'Tokens'" class="token__logo" />
+
                 <img
                     v-else-if="logoURI && !showImagePlaceholder"
                     :src="logoURI"
@@ -10,12 +12,13 @@
                     @error="showImagePlaceholder = true"
                     @load="showImagePlaceholder = false"
                 />
-                <TokenLogo v-else class="token__logo" />
+
+                <QuestionCircleOutlined v-else class="fallback__logo" />
             </div>
             <div class="asset__item-header-name">
                 {{ title }}
                 <div class="asset__item-header-value" v-if="value > 0">
-                    {{ formatNumber(value, 2) }}
+                    <NumberTooltip :value="value" decimals="2" />
                     <span class="asset__item-header-symbol"> % </span>
                 </div>
             </div>
@@ -40,7 +43,9 @@
 
             <div class="asset__item-header-reward" v-if="showRewards">
                 <span class="asset__item-header-reward-symbol"> $ </span>
-                <NumberTooltip v-if="showBalance" :value="reward" />
+                <span class="asset__item-header-reward-value" v-if="showBalance">
+                    <NumberTooltip :value="reward" />
+                </span>
                 <p v-else>****</p>
                 <RewardsIcon class="asset__item-header-reward-icon" />
             </div>
@@ -52,6 +57,7 @@ import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 
 import TokenLogo from '@/assets/icons/dashboard/tokenLogo.svg';
+import { QuestionCircleOutlined } from '@ant-design/icons-vue';
 import RewardsIcon from '@/assets/icons/dashboard/rewards.svg';
 import NftsLogo from '@/assets/icons/dashboard/nfts.svg';
 import NumberTooltip from '@/components/ui/NumberTooltip';
@@ -93,6 +99,7 @@ export default {
         RewardsIcon,
         NftsLogo,
         NumberTooltip,
+        QuestionCircleOutlined,
     },
     setup() {
         const store = useStore();
@@ -205,7 +212,13 @@ export default {
         &-symbol {
             font-size: var(--#{$prefix}small-md-fs);
             font-weight: 400;
-            color: var(--#{$prefix}mute-text);
+            color: var(--#{$prefix}secondary-text);
+        }
+
+        &-value {
+            font-size: var(--#{$prefix}small-lg-fs);
+            font-weight: 400;
+            color: var(--#{$prefix}primary-text);
         }
 
         p {
@@ -273,5 +286,17 @@ export default {
         height: 32px;
         border-radius: 50%;
     }
+}
+
+.fallback__logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    @include pageFlexRow;
+    justify-content: center;
+    align-items: center;
+    color: var(--#{$prefix}asset-header-icon-color);
+    font-size: var(--#{$prefix}h2-fs);
+    font-weight: 600;
 }
 </style>

@@ -91,7 +91,7 @@ export default {
     }
 
     .ant-table-row {
-        animation: fadeIn 1s ease-in-out;
+        animation: fadeIn 0.5s ease-in-out;
     }
 }
 </style>

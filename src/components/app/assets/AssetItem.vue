@@ -26,13 +26,13 @@
                 <div class="value">
                     <NumberTooltip :value="balance" decimals="3" />
                 </div>
-
+                &nbsp;
                 <div class="symbol">{{ item?.symbol }}</div>
             </div>
         </template>
         <template v-if="column === 'balanceUsd'">
             <div class="amount">
-                <span>$</span>
+                <span class="symbol">$</span>
                 <div class="value"><NumberTooltip :value="balanceUsd" /></div>
             </div>
         </template>
@@ -199,7 +199,6 @@ export default {
     .value {
         font-size: var(--#{$prefix}small-lg-fs);
         font-weight: 400;
-        margin-right: 3px;
         color: var(--#{$prefix}primary-text);
     }
 }
