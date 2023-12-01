@@ -18,7 +18,7 @@
             <div class="asset__item-header-name">
                 {{ title }}
                 <div class="asset__item-header-value" v-if="value > 0">
-                    <NumberTooltip :value="value" decimals="3" />
+                    <NumberTooltip :value="value" decimals="2" />
                     <span class="asset__item-header-symbol"> % </span>
                 </div>
             </div>
