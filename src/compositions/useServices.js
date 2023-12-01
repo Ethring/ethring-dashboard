@@ -153,6 +153,10 @@ export default function useModule({ module, moduleType }) {
             selectedSrcToken.value = defaultFromToken;
         }
 
+        if (selectedSrcToken.value !== defaultFromToken) {
+            selectedSrcToken.value = defaultFromToken;
+        }
+
         if (selectedSrcToken.value?.address === selectedDstToken.value?.address) {
             selectedDstToken.value = null;
         }
@@ -161,12 +165,16 @@ export default function useModule({ module, moduleType }) {
             selectedDstToken.value = defaultToToken;
         }
 
+        if (selectedDstToken.value !== defaultToToken) {
+            selectedDstToken.value = defaultToToken;
+        }
+
         if (!selectedSrcToken.value && !selectedDstToken.value) {
             return;
         }
 
         const { symbol: fromSymbol } = selectedSrcToken.value || {};
-        const { symbol: toSymbol } = selectedSrcToken.value || {};
+        const { symbol: toSymbol } = selectedDstToken.value || {};
 
         const searchTokens = [fromSymbol, toSymbol];
 
