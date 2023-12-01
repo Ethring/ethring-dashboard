@@ -113,11 +113,11 @@ export default {
 
             const [record] = data || [];
 
-            if (record?.id) {
-                return (state[type][account] = _.unionBy(state[type][account], data, 'id'));
+            if (!record?.id) {
+                return (state[type][account] = data);
             }
 
-            return (state[type][account] = data);
+            return (state[type][account] = _.unionBy(state[type][account], data, 'id'));
         },
 
         [TYPES.SET_ASSETS_BALANCE](state, { account, data }) {
@@ -226,10 +226,6 @@ export default {
     actions: {
         setDataFor({ commit }, value) {
             commit(TYPES.SET_DATA_FOR, value);
-
-            if (value.type === 'tokens') {
-                commit(TYPES.SET_ASSETS_BALANCE, value);
-            }
 
             if (BALANCE_ALLOW_TYPES.includes(value.type)) {
                 commit(TYPES.CALCULATE_BALANCE_BY_TYPE, value);

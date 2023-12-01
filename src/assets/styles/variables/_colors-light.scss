@@ -28,14 +28,14 @@ $wildWatermelon: #e4455d;
 $deepCerulean: #00839f;
 $japaneseLaurel: #038d00;
 $blazeOrange: #ff6b00;
-$paleSky: #6D747A;
+$paleSky: #6d747a;
 $blackGray: #1a1d26;
 
 $watermelon: #fa3c58;
 $pizazz: #f69502;
 $greenHills: #027a00;
 $harborBlue: #586897;
-$blue: #CCD5F0;
+$blue: #ccd5f0;
 $aquamarine: #97ffd0;
 $gallery: #f0f0f0;
 $chineseBlack: #0c0d18;
@@ -81,6 +81,10 @@ $banner-secondary-color: $iceberg;
 
 $eye-logo: $trout;
 $eye-logo-hover: $surfieGreen;
+
+// Assets header icon color
+
+$asset-header-icon-color: $surfieGreen;
 
 // Text
 $sub-text: $surfieGreen;
@@ -156,7 +160,6 @@ $select-active-border-color: $surfieGreen;
 $select-active-bg-color: $iceberg;
 $select-icon-color: $gulfStream;
 $select-icon-bg-color: $ebonyClay;
-
 
 // Accordion
 $accordion-bg-color: $white;
@@ -246,6 +249,8 @@ $theme-colors: (
     "eye-logo": $eye-logo,
     "eye-logo-hover": $eye-logo-hover,
 
+    "asset-header-icon-color": $asset-header-icon-color,
+
     "sub-text": $sub-text,
     "mute-text": $mute-text,
     "base-text": $base-text,
@@ -281,7 +286,6 @@ $theme-colors: (
     "border-color-op-05": $border-color-op-05,
     "social-border-color": $social-border-color,
     "info-border-color": $info-border-color,
-
 
     "btn-text-hover": $btn-text-hover,
     "btn-bg-color-hover": $btn-bg-color-hover,
@@ -367,5 +371,5 @@ $theme-colors: (
 
     "tag-01": $tag-01,
     "tag-02": $tag-02,
-    "tag-03": $tag-03,
+    "tag-03": $tag-03
 );
