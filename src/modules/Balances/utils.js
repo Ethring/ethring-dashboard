@@ -108,6 +108,14 @@ const processIntegration = (integration, { net, chain, logo, chainAddress }) => 
         integration.id = `${net}:integration__${integration.platform}:${integration.type}:${integration.stakingType}`;
     }
 
+    if (integration.validator && integration.validator?.address) {
+        integration.id = `${integration.id}:${integration.validator.address}`;
+    }
+
+    if (integration.address) {
+        integration.id = `${integration.id}:${integration.address}`;
+    }
+
     const { balances = [] } = integration;
 
     integration.balances = balances?.map((intToken) => formatRecord(intToken, { net, chain, chainAddress, logo, type: 'integration' }));
