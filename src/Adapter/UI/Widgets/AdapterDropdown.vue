@@ -1,5 +1,5 @@
 <template>
-    <a-menu-item-group key="accounts" class="connected-wallets-container">
+    <div key="accounts" class="connected-wallets">
         <div class="connected-wallets-label">
             <p>
                 {{ $t('adapter.accountsGroup') }}
@@ -9,7 +9,7 @@
         <div v-for="account in connectedWallets" :key="account" class="connected-wallets-item">
             <ConnectedWallet :wallet="account" />
         </div>
-    </a-menu-item-group>
+    </div>
 </template>
 
 <script>
@@ -54,6 +54,8 @@ export default {
 </script>
 <style lang="scss">
 .connected-wallets {
+    margin-top: 12px;
+
     &-label {
         @include pageFlexRow;
         justify-content: space-between;
@@ -63,9 +65,5 @@ export default {
             font-weight: 400;
         }
     }
-}
-
-.ant-dropdown-menu-item-group-title {
-    color: var(--#{$prefix}adapter-label-text) !important;
 }
 </style>

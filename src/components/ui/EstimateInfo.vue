@@ -12,6 +12,8 @@
         <a-collapse-panel key="estimate-info" :collapsible="isCollapsible ? '' : 'disabled'">
             <template #header>
                 <div class="top-block">
+                    <ServiceIcon v-if="service" :icon="service.icon" :name="service.name" />
+
                     <template v-if="loading">
                         <a-skeleton-input active size="small" class="skeleton" />
                     </template>
@@ -50,6 +52,7 @@
 import { computed, ref } from 'vue';
 
 import EstimateStats from './EstimateStats.vue';
+import ServiceIcon from './ServiceIcon.vue';
 
 import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
@@ -95,7 +98,7 @@ export default {
             default: '',
         },
     },
-    components: { EstimateStats, ArrowIcon },
+    components: { EstimateStats, ServiceIcon, ArrowIcon },
     setup(props) {
         const MAX_LENGTH = 55;
         const isActive = ref(false);

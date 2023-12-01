@@ -40,12 +40,13 @@ export default {
 
     border: 1px solid rgba(0, 0, 0, 0.1);
 
-    margin-right: 10px;
+    margin-right: 8px;
 
     img {
         width: 20px;
         height: 20px;
         object-fit: contain;
+        border-radius: 50%;
     }
 }
 </style>

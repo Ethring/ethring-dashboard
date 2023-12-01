@@ -1,8 +1,7 @@
 <template>
     <div class="asset__item-header">
         <div class="asset__item-header-info">
-            <TokenLogo v-if="title === 'Tokens'" class="token__logo" />
-            <div v-else class="asset__item-header-logo">
+            <div class="asset__item-header-logo">
                 <NftsLogo v-if="title === 'NFT'" />
                 <img
                     v-else-if="logoURI && !showImagePlaceholder"
@@ -11,7 +10,7 @@
                     @error="showImagePlaceholder = true"
                     @load="showImagePlaceholder = false"
                 />
-                <PlaceHolderLogo v-else class="asset__logo" />
+                <TokenLogo v-else class="asset__logo" />
             </div>
 
             <div class="asset__item-header-name">
@@ -56,7 +55,6 @@ import { useStore } from 'vuex';
 import TokenLogo from '@/assets/icons/dashboard/wallet.svg';
 import NftsLogo from '@/assets/icons/dashboard/nfts.svg';
 import NumberTooltip from '@/components/ui/NumberTooltip';
-import PlaceHolderLogo from '@/assets/icons/dashboard/tokenLogo.svg';
 
 import { formatNumber } from '@/helpers/prettyNumber';
 
@@ -94,7 +92,6 @@ export default {
         TokenLogo,
         NftsLogo,
         NumberTooltip,
-        PlaceHolderLogo,
     },
     setup() {
         const store = useStore();
@@ -143,8 +140,8 @@ export default {
 
     .asset__logo,
     .token__logo {
-        width: 40px;
-        height: 40px;
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
     }
 
@@ -152,8 +149,8 @@ export default {
         background-color: var(--#{$prefix}banner-logo-color);
     }
     &-logo {
-        width: 40px;
-        height: 40px;
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
 
         @include pageFlexRow;

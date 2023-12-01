@@ -56,10 +56,9 @@ export default {
     position: absolute;
     right: 0;
     width: 356px;
-    padding: 8px;
+    padding: 16px;
     border-radius: 16px;
     top: 5px;
-    padding-bottom: 16px;
     z-index: 2;
     background: var(--#{$prefix}secondary-background);
 

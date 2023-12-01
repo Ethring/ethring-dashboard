@@ -59,20 +59,16 @@ export default {
     justify-content: flex-start;
 
     color: var(--#{$prefix}primary-text);
+    border: 1px solid var(--#{$prefix}adapter-ecosystem-border-color);
+    border-radius: 8px;
+    padding: 8px;
+    cursor: pointer;
+    transition: 0.2s;
 
     &.disabled {
         opacity: 0.5;
         cursor: not-allowed;
     }
-
-    border: 1px solid var(--#{$prefix}adapter-ecosystem-border-color);
-
-    border-radius: 8px;
-    padding: 8px;
-
-    cursor: pointer;
-
-    transition: 0.2s;
 
     &:hover:not(.disabled) {
         background: var(--#{$prefix}adapter-hover-color);
