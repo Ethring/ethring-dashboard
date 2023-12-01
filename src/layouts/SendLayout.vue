@@ -69,7 +69,7 @@ export default {
 
     &__active {
         font-size: var(--#{$prefix}h3-fs);
-        font-weight: 700;
+        font-weight: 500;
         margin-bottom: 16px;
         text-decoration: none;
         color: var(--#{$prefix}primary-text);
