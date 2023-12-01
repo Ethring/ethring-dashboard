@@ -2,8 +2,8 @@ import { Page } from '@playwright/test';
 import { test, expect } from '../__fixtures__/fixtures';
 import { MetaMaskNotifyPage } from '../model/metaMaskPages';
 import { getTestVar, TEST_CONST } from '../envHelper';
-import { getNotifyMmPage } from '../model/metaMaskPages';
-import { mockBalanceDataByTx } from '../data/mockHelper';
+import { getNotifyMmPage, getHomeMmPage, sleepFiveSecond } from '../model/metaMaskPages';
+import {  mockBalanceDataBySendTest } from '../data/mockHelper';
 
 test.describe('Send e2e tests', () => {
     test('Case#1: Reject send native token to another address in Avalanche with change MM network', async ({
@@ -16,9 +16,8 @@ test.describe('Send e2e tests', () => {
         const addressFrom = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
         const addressTo = getTestVar(TEST_CONST.RECIPIENT_ADDRESS);
         const amount = '0.001';
-        const txHash = getTestVar(TEST_CONST.SUCCESS_TX_HASH_BY_MOCK);
 
-        await sendPage.mockBalanceRequest(network.toLowerCase(), mockBalanceDataByTx.avalanche, addressFrom);
+        await sendPage.mockBalanceRequest(network.toLowerCase(), mockBalanceDataBySendTest.avalanche, addressFrom);
 
         await sendPage.changeNetwork(network);
         await sendPage.setAddressTo(addressTo);
@@ -46,5 +45,19 @@ test.describe('Send e2e tests', () => {
         // expect(await sendPage.getLinkFromSuccessPanel()).toContain(txHash);
         // TODO нужен тест на отправку НЕ нативного токена (например USDC)
         // TODO нужен тест когда отменяем переключение сети ММ (скрином проверять текст ошибки)
+    });
+
+    test('Case#2: Checking the token change when changing the network via MM', async ({ browser, context, page: Page, sendPage }) => {
+        const network = 'Polygon';
+        const networkNameInMm = 'Polygon Mainnet';
+        const addressFrom = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
+
+        await sendPage.mockBalanceRequest(network.toLowerCase(), mockBalanceDataBySendTest.polygon, addressFrom);
+
+        const homeMmPage = await getHomeMmPage(context);
+        await homeMmPage.addNetwork(networkNameInMm);
+        await sleepFiveSecond(); // wait load image
+
+        await expect(sendPage.getBaseContentElement()).toHaveScreenshot();
     });
 });

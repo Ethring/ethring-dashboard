@@ -468,7 +468,7 @@ const mockBalanceData = {
     avalanche: { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' },
 };
 
-const mockBalanceDataByTx = {
+const mockBalanceDataBySendTest = {
     avalanche: {
         ok: true,
         data: {
@@ -505,6 +505,28 @@ const mockBalanceDataByTx = {
                     priceChange: '-6.0332342080064976e-05',
                     balanceUsd: '0.014557002331391313',
                     balance: '10.0',
+                },
+            ],
+            nfts: [],
+            integrations: [],
+        },
+        error: '',
+    },
+    eth: { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' },
+    polygon: {
+        ok: true,
+        data: {
+            tokens: [
+                {
+                    name: 'Polygon',
+                    symbol: 'MATIC',
+                    address: null,
+                    decimals: 18,
+                    logo: 'https://assets.coingecko.com/coins/images/4713/large/polygon.png?1698233745',
+                    price: '0.7828426484426216',
+                    priceChange: '0.01826974158287986',
+                    balanceUsd: '0.7828426484426216',
+                    balance: '1.0',
                 },
             ],
             nfts: [],
@@ -549,4 +571,4 @@ const marketCapMockData = {
     },
 };
 
-export { mockBalanceData, marketCapMockData, mockBalanceDataByTx };
+export { mockBalanceData, marketCapMockData, mockBalanceDataBySendTest };
