@@ -87,7 +87,7 @@ export default {
             selectType,
             targetDirection,
 
-            setTokenOnChange,
+            resetTokensForModules,
         } = useServices({
             module,
             moduleType: 'send',
@@ -310,14 +310,13 @@ export default {
             selectedSrcNetwork.value = currentChainInfo.value;
 
             if (selectedSrcNetwork.value?.net !== currentChainInfo.value?.net) {
-                selectedSrcToken.value = null;
-                setTokenOnChange();
+                resetTokensForModules();
             }
         });
 
         watch(receiverAddress, () => (clearAddress.value = receiverAddress.value === null));
 
-        watch(isTokensLoadingForChain, () => setTokenOnChange());
+        watch(isTokensLoadingForChain, () => resetTokensForModules());
 
         // =================================================================================================================
 
@@ -340,7 +339,7 @@ export default {
             }
 
             if (!selectedSrcToken.value) {
-                setTokenOnChange();
+                resetTokensForModules();
             }
 
             store.dispatch('txManager/setCurrentRequestID', null);
