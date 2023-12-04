@@ -224,6 +224,7 @@ export default {
 
         onUpdated(async () => {
             if (currentChainInfo.value) {
+                await callSubscription();
                 return await callInit();
             }
         });

@@ -3,6 +3,8 @@
         <div class="asset__item-header-info">
             <div class="asset__item-header-logo">
                 <NftsLogo v-if="title === 'NFT'" />
+                <TokenLogo v-else-if="title === 'Tokens'" class="token__logo" />
+
                 <img
                     v-else-if="logoURI && !showImagePlaceholder"
                     :src="logoURI"
@@ -10,13 +12,15 @@
                     @error="showImagePlaceholder = true"
                     @load="showImagePlaceholder = false"
                 />
-                <TokenLogo v-else class="asset__logo" />
+                <QuestionCircleOutlined v-else class="fallback__logo" />
             </div>
 
             <div class="asset__item-header-name">
                 {{ title }}
                 <!-- <div class="asset__item-header-value" v-if="value > 0">
                     {{ formatNumber(value, 2) }}
+                <div class="asset__item-header-value" v-if="value > 0">
+                    <NumberTooltip :value="value" decimals="2" />
                     <span class="asset__item-header-symbol"> % </span>
                 </div> -->
             </div>
@@ -53,6 +57,7 @@ import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 
 import TokenLogo from '@/assets/icons/dashboard/wallet.svg';
+import { QuestionCircleOutlined } from '@ant-design/icons-vue';
 import NftsLogo from '@/assets/icons/dashboard/nfts.svg';
 import NumberTooltip from '@/components/ui/NumberTooltip';
 
@@ -92,6 +97,7 @@ export default {
         TokenLogo,
         NftsLogo,
         NumberTooltip,
+        QuestionCircleOutlined,
     },
     setup() {
         const store = useStore();
@@ -269,5 +275,28 @@ export default {
             }
         }
     }
+}
+
+.token__logo {
+    width: 28px;
+    height: 28px;
+
+    &-img {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+    }
+}
+
+.fallback__logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    @include pageFlexRow;
+    justify-content: center;
+    align-items: center;
+    color: var(--#{$prefix}asset-header-icon-color);
+    font-size: var(--#{$prefix}h2-fs);
+    font-weight: 600;
 }
 </style>

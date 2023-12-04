@@ -182,6 +182,7 @@ export default {
         };
 
         const handleOnFilterOptions = (val) => {
+            searchValue.value = val;
             if (val.length) {
                 clearTimeout(timer.value);
                 optionsList.value = searchInTokens(props.options, val)?.slice(0, currentIndex.value);

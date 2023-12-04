@@ -195,7 +195,7 @@ export default {
 
             clearApproveForService,
 
-            setTokenOnChange,
+            resetTokensForModules,
             makeAllowanceRequest,
             makeApproveRequest,
             checkSelectedNetwork,
@@ -297,6 +297,9 @@ export default {
         // =================================================================================================================
 
         const onSelectNetwork = (network) => {
+            if (!network.net) {
+                return;
+            }
             if (!onSelectSrcNetwork(network)) {
                 return;
             }
@@ -780,9 +783,7 @@ export default {
         });
 
         watch(isTokensLoadingForChain, () => {
-            selectedSrcToken.value = null;
-            selectedDstToken.value = null;
-            setTokenOnChange();
+            resetTokensForModules();
         });
 
         watch(isWaitingTxStatusForModule, async () => {
@@ -808,10 +809,7 @@ export default {
         watch(walletAccount, () => {
             selectedSrcNetwork.value = currentChainInfo.value;
 
-            selectedSrcToken.value = null;
-            selectedDstToken.value = null;
-
-            setTokenOnChange();
+            resetTokensForModules();
 
             setEcosystemService();
         });
@@ -855,7 +853,7 @@ export default {
 
             if (!selectedSrcNetwork.value) {
                 selectedSrcNetwork.value = currentChainInfo.value;
-                setTokenOnChange();
+                resetTokensForModules();
             }
 
             if (selectedSrcToken.value?.address && !allowanceForToken.value && ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem) {

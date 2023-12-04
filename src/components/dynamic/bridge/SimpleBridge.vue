@@ -334,6 +334,9 @@ export default {
         // =================================================================================================================
 
         const handleOnSelectNetwork = async (network, direction) => {
+            if (!network.net) {
+                return;
+            }
             if (direction === DIRECTIONS.SOURCE) {
                 selectedSrcNetwork.value = network;
                 selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
