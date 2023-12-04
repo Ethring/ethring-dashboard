@@ -84,7 +84,9 @@ export const estimateBridge = async ({ url, fromNet, toNet, fromTokenAddress, to
         throw new Error('url is required');
     }
 
-    for (const key of REMOVE_KEYS) {
+    const BRIDGE_REMOVE_KEYS = [...REMOVE_KEYS, 'net', 'walletAddress'];
+
+    for (const key of BRIDGE_REMOVE_KEYS) {
         delete rest[key];
     }
 

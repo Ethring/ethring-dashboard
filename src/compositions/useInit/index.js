@@ -37,6 +37,24 @@ export default async function useInit(store, { addressesWithChains = {}, account
         }
 
         store.dispatch('tokens/setLoader', false);
+
+        const chainList = computed(() => store.getters['networks/zometNetworksList']);
+        const nativeTokens = computed(() => store.getters['tokens/nativeTokens']);
+
+        if (!nativeTokens.value || !nativeTokens.value[account]) {
+            return;
+        }
+
+        for (const network of chainList.value) {
+            if (network.native_token.price) {
+                continue;
+            }
+            const nativeToken = computed(() => store.getters['tokens/getNativeTokenForChain'](account, network.net));
+
+            if (nativeToken.value) {
+                network.native_token.price = nativeToken.value.price;
+            }
+        }
     };
 
     if (!store.getters['networks/isConfigLoading']) {
