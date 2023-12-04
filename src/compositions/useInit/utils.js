@@ -66,10 +66,6 @@ export const formatRecord = (record, { net, chain, logo }) => {
         record.id = `${net}:asset__native:${record.symbol}`;
     }
 
-    if (record.symbol === 'OSMO') {
-        record.logo = 'https://raw.githubusercontent.com/cosmos/chain-registry/master/osmosis/images/osmo.png';
-    }
-
     return record;
 };
 
