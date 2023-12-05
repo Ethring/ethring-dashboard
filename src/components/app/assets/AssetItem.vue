@@ -79,7 +79,7 @@ export default {
                 return '****';
             }
 
-            return BigNumber(props.item?.balanceUsd).toString();
+            return BigNumber(props.item?.balanceUsd || 0).toString();
         });
 
         return {
