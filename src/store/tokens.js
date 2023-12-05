@@ -170,8 +170,6 @@ export default {
             }
 
             state.groupTokens[account][chain] = data;
-
-            console.log('nativeTokens--', state.nativeTokens);
         },
 
         [TYPES.SET_MARKETCAP](state, value) {
