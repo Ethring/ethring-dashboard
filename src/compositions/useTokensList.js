@@ -121,11 +121,13 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
         const selectedToken = isFromSelected ? toToken : fromToken;
 
-        allTokens = allTokens.filter((tkn) => isNotEqualToSelected(tkn, selectedToken));
+        if (selectedToken) {
+            allTokens = allTokens.filter((tkn) => isNotEqualToSelected(tkn, selectedToken));
 
-        for (const tkn of allTokens) {
-            const isSelected = tkn.id === fromToken?.id || tkn.id === toToken?.id;
-            tkn.selected = isSelected;
+            for (const tkn of allTokens) {
+                const isSelected = (isFromSelected && tkn.id === fromToken?.id) || tkn.id === toToken?.id;
+                tkn.selected = isSelected;
+            }
         }
 
         return _.orderBy(

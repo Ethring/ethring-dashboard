@@ -149,7 +149,7 @@ export default function useModule({ module, moduleType }) {
             }
         }
         return null;
-    }
+    };
 
     const setTokenOnChange = () => {
         tokensList.value = getTokensList({
