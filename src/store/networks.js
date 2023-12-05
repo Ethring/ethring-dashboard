@@ -1,8 +1,6 @@
 import { getNetworksConfig, getTokensListByNetwork } from '@/api/networks';
 import _ from 'lodash';
 
-import prices from '@/modules/prices/';
-
 const TYPES = {
     SET_ZOMET_NETWORKS: 'SET_ZOMET_NETWORKS',
 
@@ -119,35 +117,31 @@ export default {
 
     actions: {
         async initZometNets({ commit, dispatch, state }) {
-            const response = await getNetworksConfig();
+            const networks = localStorage.getItem('networks');
+            let networksList = networks ? JSON.parse(networks) : null;
 
-            if (response.status === 200) {
-                const nets = [];
+            if (!networksList) {
+                const response = await getNetworksConfig();
 
-                for (const network in response.data) {
-                    if (!state.zometNetworks[network]) {
-                        const networkData = { network, config: response.data[network] };
+                if (response.status === 200) {
+                    networksList = response.data;
+                    localStorage.setItem('networks', JSON.stringify(networksList));
+                }
+            }
 
-                        if (networkData.config.native_token && !networkData.config.native_token?.price) {
-                            const info = await prices.Coingecko.marketCapForNativeCoin(networkData.config.native_token.coingecko_id);
-                            const { usd = {} } = info;
-                            networkData.config.native_token.price = usd.price || 0;
-                        }
-
-                        commit(TYPES.SET_ZOMET_NETWORKS, networkData);
-                    }
-
-                    if (!state.tokensByNetwork[network]) {
-                        dispatch('initZometTokens', network);
-                    }
-
-                    nets.push(response.data[network]);
+            for (const network in networksList) {
+                if (!state.zometNetworks[network]) {
+                    commit(TYPES.SET_ZOMET_NETWORKS, { network, config: networksList[network] });
                 }
 
-                commit(TYPES.SET_ZOMET_NETWORKS_LIST, Object.values(state.zometNetworks));
-
-                dispatch('setConfigLoading', false);
+                if (!state.tokensByNetwork[network]) {
+                    dispatch('initZometTokens', network);
+                }
             }
+
+            commit(TYPES.SET_ZOMET_NETWORKS_LIST, Object.values(state.zometNetworks));
+
+            dispatch('setConfigLoading', false);
         },
 
         setTokensByCosmosNet({ commit }, { network, tokens }) {
