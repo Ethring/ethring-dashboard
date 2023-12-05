@@ -801,6 +801,8 @@ export default {
         watch(walletAccount, () => {
             selectedSrcNetwork.value = currentChainInfo.value;
 
+            estimateErrorTitle.value = '';
+
             resetTokensForModules();
 
             setEcosystemService();
