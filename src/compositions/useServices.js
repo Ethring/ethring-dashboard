@@ -147,6 +147,8 @@ export default function useModule({ module, moduleType }) {
             srcNet: selectedSrcNetwork.value,
         });
 
+        console.log(tokensList, '--tokensList');
+
         const [defaultFromToken = null, defaultToToken = null] = tokensList.value || [];
 
         if (!selectedSrcToken.value && defaultFromToken) {

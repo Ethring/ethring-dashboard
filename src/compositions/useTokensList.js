@@ -60,6 +60,14 @@ export default function useTokensList({ network = null, fromToken = null, toToke
                 ids.push(selectedToken.id);
             }
 
+            if (tkn.coingecko_id && tkn.coingecko_id === selectedToken?.coingecko_id) {
+                ids.push(tkn.coingecko_id);
+            }
+
+            if (!tkn.address && tkn?.coingecko_id === selectedToken?.coingecko_id) {
+                return !ids.includes(tkn.coingecko_id);
+            }
+
             if (tkn.id) {
                 return !ids.includes(tkn.id);
             }
@@ -116,7 +124,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         allTokens = allTokens.filter((tkn) => isNotEqualToSelected(tkn, selectedToken));
 
         for (const tkn of allTokens) {
-            const isSelected = (isFromSelected && tkn.id === fromToken?.id) || tkn.id === toToken?.id;
+            const isSelected = (tkn.id === fromToken?.id) || tkn.id === toToken?.id;
             tkn.selected = isSelected;
         }
 
