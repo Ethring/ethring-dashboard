@@ -159,12 +159,8 @@ export default function useModule({ module, moduleType }) {
         });
 
         const nativeToken = getNativeToken(tokensList.value);
-        console.log(nativeToken, '---native')
 
         const [defaultFromToken = null, defaultToToken = null] = tokensList.value || [];
-
-        console.log(defaultFromToken, '----from default');
-        console.log(tokensList, '--tokens list');
 
         if (!selectedSrcToken.value && defaultFromToken) {
             selectedSrcToken.value = defaultFromToken;
