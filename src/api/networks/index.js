@@ -1,8 +1,8 @@
 import HttpRequest from '@/shared/utils/request';
 
-export const getNetworksConfig = async () => {
+export const getNetworksConfig = async (ecosystem) => {
     try {
-        return await HttpRequest.get(`${process.env.VUE_APP_ZOMET_CORE_API_URL}/networks`);
+        return await HttpRequest.get(`${process.env.VUE_APP_ZOMET_CORE_API_URL}/networks/${ecosystem}`);
     } catch (err) {
         return { error: err.message };
     }

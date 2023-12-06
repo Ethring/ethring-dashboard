@@ -143,7 +143,7 @@ export default {
             isConfigLoading.value = true;
             store.dispatch('tokens/setLoader', true);
 
-            await store.dispatch('networks/initZometNets');
+            await store.dispatch('networks/initZometNets', ecosystem.toLowerCase());
 
             isInitCall.value = {
                 ...isInitCall.value,
