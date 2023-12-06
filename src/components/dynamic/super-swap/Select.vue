@@ -16,7 +16,7 @@
                 <div
                     v-for="(item, i) in optionsList"
                     :key="i"
-                    :class="{ active: item.net === selectedItem?.net, isToken, selected: item.selected }"
+                    :class="{ isToken, selected: item.selected, active: item.name === selectedItem?.name }"
                     class="select__items-item"
                     data-qa="item"
                     @click="onSelect(item)"
@@ -355,6 +355,7 @@ export default {
                 border: 1px solid transparent;
                 background-color: var(--zmt-icon-secondary-bg-color);
                 border-radius: 8px;
+                color: var(--#{$prefix}btn-text-hover);
             }
 
             &:last-child {
