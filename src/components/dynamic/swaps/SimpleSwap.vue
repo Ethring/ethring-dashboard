@@ -792,10 +792,6 @@ export default {
             if (!selectedSrcToken.value) {
                 return;
             }
-
-            if (!allowanceForToken.value && ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem) {
-                requestAllowance();
-            }
         });
 
         watch(walletAccount, () => {

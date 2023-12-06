@@ -959,8 +959,6 @@ export default {
         //
         watch(currentRoute, async () => {
             console.log('-'.repeat(20));
-            console.log('-'.repeat(20));
-
             if (!allowanceForToken.value) {
                 await requestAllowance(currentRoute.value?.service);
             }
