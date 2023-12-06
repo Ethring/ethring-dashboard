@@ -125,7 +125,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
         const selectedToken = isFromSelected ? toToken : fromToken;
 
-        if (selectedToken) {
+        if (fromToken || toToken) {
             allTokens = allTokens.filter((tkn) => isNotEqualToSelected(tkn, selectedToken));
 
             for (const tkn of allTokens) {
