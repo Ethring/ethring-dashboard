@@ -8,4 +8,4 @@ export const TOKEN_SELECT_TYPES = {
     TO: 'TO',
 };
 
-export const PRICE_UPDATE_TIME = 60 * 1000;
+export const PRICE_UPDATE_TIME = 5 * 60 * 1000;
