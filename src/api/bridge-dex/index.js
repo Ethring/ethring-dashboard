@@ -19,7 +19,7 @@ export const getServices = async () => {
             return response.data;
         }
 
-        return null;
+        return [];
     } catch (e) {
         console.error('Error while fetching list of services:', e);
 
