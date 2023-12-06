@@ -142,7 +142,7 @@ export default function useModule({ module, moduleType }) {
         return token;
     };
 
-    const isNativeToken = (tokensList) => {
+    const getNativeToken = (tokensList) => {
         for (let token of tokensList) {
             if (token.name && token.name.includes('Native Token')) {
                 return token;
@@ -156,7 +156,7 @@ export default function useModule({ module, moduleType }) {
             srcNet: selectedSrcNetwork.value,
         });
 
-        const nativeToken = isNativeToken(tokensList.value);
+        const nativeToken = getNativeToken(tokensList.value);
 
         const [defaultFromToken = null, defaultToToken = null] = tokensList.value || [];
 
