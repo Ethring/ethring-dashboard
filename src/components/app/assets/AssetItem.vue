@@ -97,7 +97,6 @@ export default {
 .assets__item {
     vertical-align: center !important;
     color: var(--#{$prefix}black);
-    padding-right: 16px;
 
     .network {
         display: inline-flex;

@@ -69,7 +69,7 @@ export default {
 
     .ant-table-cell {
         vertical-align: middle !important;
-        padding: 12px 0 6px !important;
+        padding: 5px 0 !important;
     }
 
     .ant-table-tbody > tr:last-child > td {
