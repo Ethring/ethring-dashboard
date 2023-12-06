@@ -144,7 +144,7 @@ export default function useModule({ module, moduleType }) {
 
     const getNativeToken = (tokensList) => {
         for (let token of tokensList) {
-            if (token.name && token.name.includes('Native Token')) {
+            if (token.id && token.id.includes('asset__native')) {
                 return token;
             }
         }

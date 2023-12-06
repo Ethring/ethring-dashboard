@@ -101,6 +101,10 @@ export default function useTokensList({ network = null, fromToken = null, toToke
                 ...nativeToken,
             };
 
+            if (!tokenInfo.id) {
+                tokenInfo.id = searchId;
+            }
+
             if (!tokenInfo.name) {
                 tokenInfo.name = nativeToken.symbol;
             }
