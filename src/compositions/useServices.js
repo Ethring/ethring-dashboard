@@ -114,11 +114,11 @@ export default function useModule({ module, moduleType }) {
         const [defaultToken = null] = tokensList.value;
 
         if (onlyWithBalance.value && defaultToken?.balance === 0) {
-            return null;
+            return nativeToken;
         }
 
-        if (!token && defaultToken) {
-            return nativeToken;
+        else if (!token && defaultToken) {
+            return defaultToken;
         }
 
         const { symbol: targetSymbol } = token || {};
