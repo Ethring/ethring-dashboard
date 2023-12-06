@@ -60,6 +60,14 @@ export default function useTokensList({ network = null, fromToken = null, toToke
                 ids.push(selectedToken.id);
             }
 
+            if (tkn.coingecko_id && tkn.coingecko_id === selectedToken?.coingecko_id) {
+                ids.push(tkn.coingecko_id);
+            }
+
+            if (!tkn.address && tkn?.coingecko_id === selectedToken?.coingecko_id) {
+                return !ids.includes(tkn.coingecko_id);
+            }
+
             if (tkn.id) {
                 return !ids.includes(tkn.id);
             }
@@ -93,6 +101,10 @@ export default function useTokensList({ network = null, fromToken = null, toToke
                 ...nativeToken,
             };
 
+            if (!tokenInfo.id) {
+                tokenInfo.id = searchId;
+            }
+
             if (!tokenInfo.name) {
                 tokenInfo.name = nativeToken.symbol;
             }
@@ -113,11 +125,13 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
         const selectedToken = isFromSelected ? toToken : fromToken;
 
-        allTokens = allTokens.filter((tkn) => isNotEqualToSelected(tkn, selectedToken));
+        if (fromToken || toToken) {
+            allTokens = allTokens.filter((tkn) => isNotEqualToSelected(tkn, selectedToken));
 
-        for (const tkn of allTokens) {
-            const isSelected = (isFromSelected && tkn.id === fromToken?.id) || tkn.id === toToken?.id;
-            tkn.selected = isSelected;
+            for (const tkn of allTokens) {
+                const isSelected = (isFromSelected && tkn.id === fromToken?.id) || tkn.id === toToken?.id;
+                tkn.selected = isSelected;
+            }
         }
 
         return _.orderBy(
