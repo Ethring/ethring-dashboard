@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { onMounted, onUpdated, onBeforeMount, watchEffect, watch, ref, computed } from 'vue';
+import { onMounted, onUpdated, watchEffect, watch, ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -141,6 +141,9 @@ export default {
             }
 
             store.dispatch('tokens/setLoader', true);
+            isConfigLoading.value = true;
+
+            await store.dispatch('networks/initZometNets');
 
             isInitCall.value = {
                 ...isInitCall.value,
@@ -153,11 +156,6 @@ export default {
 
             await useInit(store, { account: walletAccount.value, addressesWithChains, currentChainInfo: currentChainInfo.value });
         };
-
-        onBeforeMount(async () => {
-            isConfigLoading.value = true;
-            await store.dispatch('networks/initZometNets');
-        });
 
         onMounted(async () => {
             const chains = getChainListByEcosystem(ECOSYSTEMS.COSMOS);

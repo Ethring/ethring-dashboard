@@ -6,6 +6,8 @@ import { getBalancesByAddress } from '../../api/data-provider';
 import { getDataFromIndexedCache, prepareChainWithAddress, setNativeTokensPrices } from '../../modules/Balances/utils';
 import { checkActions } from '../../modules/Balances/helpers';
 
+import { ECOSYSTEMS } from '@/Adapter/config';
+
 // =================================================================================================================
 
 export default async function useInit(store, { addressesWithChains = {}, account = null, currentChainInfo } = {}) {
@@ -37,7 +39,10 @@ export default async function useInit(store, { addressesWithChains = {}, account
         }
 
         store.dispatch('tokens/setLoader', false);
-        await setNativeTokensPrices(store, account);
+
+        if (ecosystem === ECOSYSTEMS.EVM) {
+            await setNativeTokensPrices(store, account);
+        }
     };
 
     if (!store.getters['networks/isConfigLoading']) {
