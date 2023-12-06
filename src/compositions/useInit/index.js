@@ -3,8 +3,10 @@ import { computed, watch } from 'vue';
 import { callFetchBalances } from '../../modules/Balances/fetchData';
 import { getBalancesByAddress } from '../../api/data-provider';
 
-import { getDataFromIndexedCache, prepareChainWithAddress } from '../../modules/Balances/utils';
+import { getDataFromIndexedCache, prepareChainWithAddress, setNativeTokensPrices } from '../../modules/Balances/utils';
 import { checkActions } from '../../modules/Balances/helpers';
+
+import { ECOSYSTEMS } from '@/Adapter/config';
 
 // =================================================================================================================
 
@@ -37,6 +39,9 @@ export default async function useInit(store, { addressesWithChains = {}, account
         }
 
         store.dispatch('tokens/setLoader', false);
+        if (ecosystem === ECOSYSTEMS.EVM) {
+            await setNativeTokensPrices(store, account);
+        }
     };
 
     if (!store.getters['networks/isConfigLoading']) {

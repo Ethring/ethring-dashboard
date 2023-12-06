@@ -51,12 +51,16 @@ export default {
             state.zometNetworksList = value;
         },
 
-        [TYPES.SET_ZOMET_NETWORKS](state, { network, config }) {
-            if (!state.zometNetworks[network]) {
-                state.zometNetworks[network] = {};
+        [TYPES.SET_ZOMET_NETWORKS](state, { network, ecosystem, config }) {
+            if (!state.zometNetworks[ecosystem]) {
+                state.zometNetworks[ecosystem] = {};
             }
 
-            state.zometNetworks[network] = config;
+            if (!state.zometNetworks[ecosystem][network]) {
+                state.zometNetworks[ecosystem][network] = {};
+            }
+
+            state.zometNetworks[ecosystem][network] = config;
         },
 
         [TYPES.SET_ZOMET_TOKENS_BY_NET](state, { tokens, network } = {}) {
@@ -128,10 +132,13 @@ export default {
                     localStorage.setItem(`networks/${ecosystem}`, JSON.stringify(networksList));
                 }
             }
+            if (!state.zometNetworks[ecosystem]) {
+                state.zometNetworks[ecosystem] = {};
+            }
 
             for (const network in networksList) {
-                if (!state.zometNetworks[network]) {
-                    commit(TYPES.SET_ZOMET_NETWORKS, { network, config: networksList[network] });
+                if (!state.zometNetworks[ecosystem][network]) {
+                    commit(TYPES.SET_ZOMET_NETWORKS, { network, ecosystem, config: networksList[network] });
                 }
 
                 if (!state.tokensByNetwork[network]) {
@@ -139,7 +146,7 @@ export default {
                 }
             }
 
-            commit(TYPES.SET_ZOMET_NETWORKS_LIST, Object.values(state.zometNetworks));
+            commit(TYPES.SET_ZOMET_NETWORKS_LIST, Object.values(state.zometNetworks[ecosystem]));
 
             dispatch('setConfigLoading', false);
         },
