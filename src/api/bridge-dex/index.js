@@ -32,7 +32,7 @@ export const getBestRoute = async (amount, walletAddress, fromToken, toToken, sr
         return null;
     }
 
-    const params = {
+    const requestParams = {
         url: `${BRIDGE_DEX_URL}/routing/best`,
         params: {
             amount,
@@ -46,7 +46,7 @@ export const getBestRoute = async (amount, walletAddress, fromToken, toToken, sr
     };
 
     try {
-        const response = await axiosInstance.post(params.url, params.params);
+        const response = await axiosInstance.post(requestParams.url, requestParams.params);
 
         if (response && response.status === 200) {
             return response.data;

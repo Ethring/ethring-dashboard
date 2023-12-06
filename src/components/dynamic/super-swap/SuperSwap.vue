@@ -754,7 +754,7 @@ export default {
 
         const handleOperationByType = async () => {
             const OPERATIONS = {
-                swap: makeSwapRequest,
+                dex: makeSwapRequest,
                 bridge: makeBridgeTx,
             };
 
