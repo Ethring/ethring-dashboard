@@ -109,6 +109,8 @@ export default function useModule({ module, moduleType }) {
             srcNet,
         });
 
+        const nativeToken = getNativeToken(tokensList.value);
+
         const [defaultToken = null] = tokensList.value;
 
         if (onlyWithBalance.value && defaultToken?.balance === 0) {
@@ -116,7 +118,7 @@ export default function useModule({ module, moduleType }) {
         }
 
         if (!token && defaultToken) {
-            return defaultToken;
+            return nativeToken;
         }
 
         const { symbol: targetSymbol } = token || {};
@@ -157,8 +159,12 @@ export default function useModule({ module, moduleType }) {
         });
 
         const nativeToken = getNativeToken(tokensList.value);
+        console.log(nativeToken, '---native')
 
         const [defaultFromToken = null, defaultToToken = null] = tokensList.value || [];
+
+        console.log(defaultFromToken, '----from default');
+        console.log(tokensList, '--tokens list');
 
         if (!selectedSrcToken.value && defaultFromToken) {
             selectedSrcToken.value = defaultFromToken;
