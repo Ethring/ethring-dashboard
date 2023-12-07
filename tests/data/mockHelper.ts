@@ -1,6 +1,14 @@
+const emptyBalanceMockData = { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' };
+
+const errorGetBalanceMockData = {
+    ok: false,
+    data: null,
+    error: 'Data updates with a delay.',
+};
+
 const mockBalanceData = {
-    eth: { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' },
-    optimism: { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' },
+    eth: emptyBalanceMockData,
+    optimism: emptyBalanceMockData,
     arbitrum: {
         ok: true,
         data: {
@@ -473,7 +481,7 @@ const mockBalanceData = {
         },
         error: '',
     },
-    avalanche: { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' },
+    avalanche: emptyBalanceMockData,
 };
 
 const mockBalanceDataBySendTest = {
@@ -520,7 +528,7 @@ const mockBalanceDataBySendTest = {
         },
         error: '',
     },
-    eth: { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' },
+    eth: emptyBalanceMockData,
     polygon: {
         ok: true,
         data: {
@@ -579,4 +587,4 @@ const marketCapMockData = {
     },
 };
 
-export { mockBalanceData, marketCapMockData, mockBalanceDataBySendTest };
+export { mockBalanceData, marketCapMockData, mockBalanceDataBySendTest, emptyBalanceMockData, errorGetBalanceMockData };

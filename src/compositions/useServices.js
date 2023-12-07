@@ -109,13 +109,13 @@ export default function useModule({ module, moduleType }) {
             srcNet,
         });
 
+        const nativeToken = getNativeToken(tokensList.value);
+
         const [defaultToken = null] = tokensList.value;
 
         if (onlyWithBalance.value && defaultToken?.balance === 0) {
-            return null;
-        }
-
-        if (!token && defaultToken) {
+            return nativeToken;
+        } else if (!token && defaultToken) {
             return defaultToken;
         }
 
