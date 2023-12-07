@@ -12,9 +12,10 @@
         <a-collapse-panel key="estimate-info" :collapsible="isCollapsible ? '' : 'disabled'">
             <template #header>
                 <div class="top-block">
-                    <ServiceIcon v-if="service" :icon="service.icon" :name="service.name" />
+                    <ServiceIcon v-if="service && !loading" :icon="service.icon" :name="service.name" />
 
                     <template v-if="loading">
+                        <a-skeleton-avatar active size="small" class="icon-skeleton" />
                         <a-skeleton-input active size="small" class="skeleton" />
                     </template>
 
@@ -136,7 +137,11 @@ export default {
     border: 1px solid var(--#{$prefix}accordion-border-color);
     border-radius: 8px;
     .skeleton {
-        height: 16px;
+        height: 24px;
+    }
+
+    .icon-skeleton {
+        margin-right: 8px;
     }
     .top-block {
         display: flex;

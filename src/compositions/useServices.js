@@ -142,15 +142,32 @@ export default function useModule({ module, moduleType }) {
         return token;
     };
 
+    const getNativeToken = (tokensList) => {
+        for (let token of tokensList) {
+            if (token.id && token.id.includes('asset__native')) {
+                return token;
+            }
+        }
+        return null;
+    };
+
     const setTokenOnChange = () => {
         tokensList.value = getTokensList({
             srcNet: selectedSrcNetwork.value,
         });
 
+        const nativeToken = getNativeToken(tokensList.value);
+
         const [defaultFromToken = null, defaultToToken = null] = tokensList.value || [];
 
         if (!selectedSrcToken.value && defaultFromToken) {
             selectedSrcToken.value = defaultFromToken;
+        }
+
+        if (defaultFromToken && defaultFromToken.balance === 0) {
+            selectedSrcToken.value = nativeToken;
+            selectedDstToken.value = null;
+            return;
         }
 
         if (selectedSrcToken.value?.id !== defaultFromToken?.id) {

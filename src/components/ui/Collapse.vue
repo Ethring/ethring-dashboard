@@ -4,7 +4,13 @@
             <slot name="header"></slot>
             <ArrowSvg v-if="!hideContent" class="arrow" />
         </div>
-        <BarsSvg class="loader" v-else />
+        <template v-else>
+            <a-space class="loader">
+                <a-skeleton-avatar active size="small" />
+                <a-skeleton-input active size="small" />
+                <a-skeleton-input active size="small" />
+            </a-space>
+        </template>
         <div v-if="!hideContent && !loading" class="collapse__content" :style="{ height: active ? 'auto' : '0' }">
             <slot name="content"></slot>
         </div>
@@ -12,7 +18,6 @@
 </template>
 <script>
 import ArrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
-import BarsSvg from '@/assets/icons/app/bars.svg';
 
 import { ref } from 'vue';
 
@@ -20,7 +25,6 @@ export default {
     name: 'Collapse',
     components: {
         ArrowSvg,
-        BarsSvg,
     },
     props: {
         loading: {
@@ -46,10 +50,9 @@ export default {
 <style lang="scss" scoped>
 .loader {
     @include pageFlexRow;
-    justify-content: center;
     margin: auto;
+    padding-left: 16px;
     height: 48px;
-    padding: 2px;
 }
 .collapse {
     background: var(--#{$prefix}select-bg-color);
