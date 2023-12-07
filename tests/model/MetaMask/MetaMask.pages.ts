@@ -1,22 +1,19 @@
 import { BrowserContext, expect, type Locator, type Page } from '@playwright/test';
-import { metaMaskId } from '../__fixtures__/fixtures';
-import { getTestVar, TEST_CONST } from '../envHelper';
+import { metaMaskId } from '../../__fixtures__/fixtures';
+import { getTestVar, TEST_CONST } from '../../envHelper';
+import { FIVE_SECONDS } from '../utils';
 
 const sleep = require('util').promisify(setTimeout);
 
 const password = getTestVar(TEST_CONST.PASS_BY_MM_WALLET);
 
-const sleepFiveSecond = async () => {
-    await sleep(5000);
-};
-
 const waitMmNotifyPage = async (context: BrowserContext) => {
     try {
-        await sleepFiveSecond();
+        await sleep(FIVE_SECONDS); // wait for page load
         await context.pages()[2].title();
     } catch (error) {
         console.error('First try get mm notify page is failed.', error, ' Second try...');
-        await sleepFiveSecond();
+        await sleep(FIVE_SECONDS); // wait for page load
         await context.pages()[2].title();
     }
 };
@@ -51,7 +48,7 @@ const getHomeMmPage = async (context: BrowserContext): Promise<MetaMaskHomePage>
 };
 
 const closeEmptyPages = async (context: BrowserContext) => {
-    await sleepFiveSecond();
+    await sleep(FIVE_SECONDS); // wait for page load
     const allStartPages = context.pages();
 
     for (const page of allStartPages) {
@@ -90,16 +87,23 @@ class MetaMaskHomePage {
     }
 
     async addWallet(seed: String) {
-        await sleepFiveSecond();
+        await sleep(FIVE_SECONDS); // wait for page load
         await this.page.reload();
+
+        // Navigation to import wallet page
         await this.page.locator('input[data-testid=onboarding-terms-checkbox]').click();
         await this.page.locator('button[data-testid=onboarding-import-wallet]').click();
         await this.page.locator('button[data-testid=metametrics-i-agree]').click();
 
+        // Splitting seed phrase and filling it
         const seedArray = seed.split(' ');
-        for (let i = 0; i < seedArray.length; i++) {
-            await this.page.locator(`input[data-testid=import-srp__srp-word-${i}]`).fill(seedArray[i]);
+
+        // Filling seed phrase
+        for (const word of seedArray) {
+            await this.page.locator(`input[data-testid=import-srp__srp-word-${seedArray.indexOf(word)}]`).fill(word);
         }
+
+        // Confirming seed phrase
         await this.page.click('[data-testid="import-srp-confirm"]');
         await this.page.fill('input[data-testid=create-password-new]', password);
         await this.page.fill('input[data-testid=create-password-confirm]', password);
@@ -176,4 +180,4 @@ class MetaMaskNotifyPage {
     }
 }
 
-export { sleepFiveSecond, waitMmNotifyPage, getNotifyMmPage, getHomeMmPage, closeEmptyPages, MetaMaskHomePage, MetaMaskNotifyPage };
+export { waitMmNotifyPage, getNotifyMmPage, getHomeMmPage, closeEmptyPages, MetaMaskHomePage, MetaMaskNotifyPage };

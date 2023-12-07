@@ -1,16 +1,14 @@
 import { Page } from '@playwright/test';
 import { test, expect } from '../__fixtures__/fixtures';
-import { MetaMaskNotifyPage } from '../model/metaMaskPages';
-import { DashboardPage } from '../model/zometPages';
 import { getServices, SERVICE_TYPE } from '../../src/config/services';
-import { getNotifyMmPage } from '../model/metaMaskPages';
 import { TEST_CONST, getTestVar } from '../envHelper';
+import { MetaMaskNotifyPage, getNotifyMmPage } from '../model/MetaMask/MetaMask.pages';
 
 const supportedServiceByBridge = getServices(SERVICE_TYPE.BRIDGE);
 const supportedServiceBySwap = getServices(SERVICE_TYPE.SWAP);
 
 test.describe('SuperSwap e2e tests', () => {
-    test('Case#1: Super Swap tx:swap net:Polygon from:Matic to:1inch', async ({ browser, context, page: Page, superSwapPage }) => {
+    test('Case#1: Super Swap tx:swap net:Polygon from:Matic to:1inch', async ({ browser, context, page, superSwapPage }) => {
         const addressFrom = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
         const netTo = 'Polygon';
         const amount = '0.01';
@@ -74,7 +72,6 @@ test.describe('SuperSwap e2e tests', () => {
         await superSwapPage.mockRoute(balancePolygonRoute, mockPolygonBalanceData);
 
         await superSwapPage.mockEstimateSwapRequest('srv-paraswap', mockDataEstimateParaswap, addressFrom);
-        await superSwapPage.mockEstimateSwapRequest('srv-1inch-swap', mockDataEstimate1inch, addressFrom);
         await superSwapPage.mockEstimateSwapRequest('srv-synapse-swap', mockDataEstimateSynapse, addressFrom);
 
         await superSwapPage.page.waitForResponse(balancePolygonRoute); // TODO сейчас есть баг https://paradigmcitadel.atlassian.net/browse/ZMT-866 после фикса удалить эту ожидалку
@@ -100,7 +97,7 @@ test.describe('SuperSwap e2e tests', () => {
         // zometPage.mockRoute(marketCap1inchRoute, marketCapMockData.polygon_1inch);
     });
 
-    test('Case#1: Super Swap tx from ETH to BSC wEth to USDC', async ({ browser, context, page: Page, superSwapPage: superSwapPage }) => {
+    test('Case#1: Super Swap tx from ETH to BSC wEth to USDC', async ({ browser, context, page, superSwapPage: superSwapPage }) => {
         const netTo = 'Binance Smart Chain';
         const amount = '0.01';
         const txHash = getTestVar(TEST_CONST.SUCCESS_TX_HASH_BY_MOCK);
@@ -115,13 +112,14 @@ test.describe('SuperSwap e2e tests', () => {
         // expect(await superSwapPage.getLinkFromSuccessPanel()).toContain(txHash);
     });
 
-    test('Case#2: Verifying data reset when navigating to swap page', async ({ page: Page, superSwapPage: superSwapPage }) => {
+    test('Case#2: Verifying data reset when navigating to swap page', async ({ page, superSwapPage }) => {
         const netTo = 'Arbitrum One';
 
         await superSwapPage.setNetworkTo(netTo);
         const tokenInSuperSwap = superSwapPage.getTokenTo();
 
-        const swapPage = await superSwapPage.goToSwap();
+        const swapPage = await superSwapPage.goToModule('swap');
+
         const currentTokenTo = await swapPage.getTokenTo();
 
         expect(tokenInSuperSwap).not.toBe(currentTokenTo);
@@ -130,8 +128,8 @@ test.describe('SuperSwap e2e tests', () => {
     test('Case#5: Super Swap tx:swap net:Polygon from:Matic to:1inch Отменить смену кошелька', async ({
         browser,
         context,
-        page: Page,
-        superSwapPage: superSwapPage,
+        page,
+        superSwapPage,
     }) => {
         const netTo = 'Polygon';
         const amount = '0.01';
