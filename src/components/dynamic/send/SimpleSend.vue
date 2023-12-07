@@ -298,6 +298,10 @@ export default {
             }
         });
 
+        watch(selectedSrcToken, () => {
+            isBalanceError.value = +srcAmount.value > +selectedSrcToken.value?.balance;
+        });
+
         watch(currentChainInfo, () => {
             if (!currentChainInfo.value) {
                 return;

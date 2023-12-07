@@ -115,9 +115,7 @@ export default function useModule({ module, moduleType }) {
 
         if (onlyWithBalance.value && defaultToken?.balance === 0) {
             return nativeToken;
-        }
-
-        else if (!token && defaultToken) {
+        } else if (!token && defaultToken) {
             return defaultToken;
         }
 
