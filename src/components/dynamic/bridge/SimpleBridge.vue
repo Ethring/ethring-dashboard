@@ -957,6 +957,8 @@ export default {
                 return;
             }
 
+            isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance);
+
             if (!allowanceForToken.value && ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem) {
                 await requestAllowance();
             }

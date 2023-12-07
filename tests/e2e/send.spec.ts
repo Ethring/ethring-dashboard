@@ -1,29 +1,31 @@
-import { Page } from '@playwright/test';
 import { test, expect } from '../__fixtures__/fixtures';
-import { MetaMaskNotifyPage } from '../model/metaMaskPages';
 import { getTestVar, TEST_CONST } from '../envHelper';
-import { getNotifyMmPage, getHomeMmPage, sleepFiveSecond } from '../model/metaMaskPages';
-import {  mockBalanceDataBySendTest } from '../data/mockHelper';
+import { emptyBalanceMockData, mockBalanceDataBySendTest } from '../data/mockHelper';
+import { MetaMaskNotifyPage, getNotifyMmPage, getHomeMmPage } from '../model/MetaMask/MetaMask.pages';
 
 test.describe('Send e2e tests', () => {
     test('Case#1: Reject send native token to another address in Avalanche with change MM network', async ({
         browser,
         context,
-        page: Page,
+        page,
         sendPage,
     }) => {
         const network = 'Avalanche';
+        const EMPTY_BALANCE_MOCK_NETS = ['eth', 'arbitrum', 'optimism', 'bsc', 'polygon', 'fantom'];
+
         const addressFrom = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
         const addressTo = getTestVar(TEST_CONST.RECIPIENT_ADDRESS);
         const amount = '0.001';
+        const WAITED_URL = `**/srv-data-provider/api/balances?net=${network.toLowerCase()}**`;
 
-        await sendPage.mockBalanceRequest(network.toLowerCase(), mockBalanceDataBySendTest.avalanche, addressFrom);
-
-        await sleepFiveSecond(); // wait load image
+        await sendPage.mockBalanceRequest(network.toLowerCase(), mockBalanceDataBySendTest[network.toLowerCase()], addressFrom);
+        await Promise.all(EMPTY_BALANCE_MOCK_NETS.map((network) => sendPage.mockBalanceRequest(network, emptyBalanceMockData, addressFrom)));
+        const balancePromise = sendPage.page.waitForResponse(WAITED_URL);
 
         await sendPage.changeNetwork(network);
         await sendPage.setAddressTo(addressTo);
         await sendPage.setAmount(amount);
+        await balancePromise;
 
         await expect(sendPage.getBaseContentElement()).toHaveScreenshot();
 
@@ -42,6 +44,7 @@ test.describe('Send e2e tests', () => {
         expect(amountFromMM).toBe(amount);
 
         await notifyMMtx.rejectTx();
+        await sendPage.getBaseContentElement().hover();
         await expect(sendPage.getBaseContentElement()).toHaveScreenshot();
 
         // await notifyMM.signTx();
@@ -50,16 +53,18 @@ test.describe('Send e2e tests', () => {
         // TODO нужен тест когда отменяем переключение сети ММ (скрином проверять текст ошибки)
     });
 
-    test('Case#2: Checking the token change when changing the network via MM', async ({ browser, context, page: Page, sendPage }) => {
+    test('Case#2: Checking the token change when changing the network via MM', async ({ browser, context, page, sendPage }) => {
         const network = 'Polygon';
         const networkNameInMm = 'Polygon Mainnet';
         const addressFrom = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
+        const WAITED_URL = `**/srv-data-provider/api/balances?net=${network.toLowerCase()}**`;
 
-        await sendPage.mockBalanceRequest(network.toLowerCase(), mockBalanceDataBySendTest.polygon, addressFrom);
+        await sendPage.mockBalanceRequest(network.toLowerCase(), mockBalanceDataBySendTest[network.toLowerCase()], addressFrom);
+        const balancePromise = sendPage.page.waitForResponse(WAITED_URL);
 
         const homeMmPage = await getHomeMmPage(context);
         await homeMmPage.addNetwork(networkNameInMm);
-        await sleepFiveSecond(); // wait load image
+        await balancePromise;
 
         await expect(sendPage.getBaseContentElement()).toHaveScreenshot();
     });
