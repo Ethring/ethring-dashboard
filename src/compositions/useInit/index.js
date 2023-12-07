@@ -39,6 +39,7 @@ export default async function useInit(store, { addressesWithChains = {}, account
         }
 
         store.dispatch('tokens/setLoader', false);
+
         if (ecosystem === ECOSYSTEMS.EVM) {
             await setNativeTokensPrices(store, account);
         }

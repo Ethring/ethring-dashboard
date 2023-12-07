@@ -204,8 +204,7 @@ export const setNativeTokensPrices = async (store, account) => {
     const chainList = computed(() => store.getters['networks/zometNetworksList']);
     const nativeTokens = computed(() => store.getters['tokens/nativeTokens']);
     const nets = new Set();
-    console.log(chainList, '--chainList');
-    console.log(nativeTokens, '--nativeTokens');
+
     if (!nativeTokens.value || !nativeTokens.value[account]) {
         return;
     }
@@ -224,7 +223,7 @@ export const setNativeTokensPrices = async (store, account) => {
 
         nets.add(network.native_token.coingecko_id);
     }
-    console.log(nets, 'nets');
+
     if (!nets.size) {
         return;
     }
