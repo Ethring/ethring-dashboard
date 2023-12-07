@@ -120,6 +120,7 @@ class BasePage {
 
     async waitDetachedLoader() {
         this.page.waitForSelector('div.loading-overlay', { state: 'detached', timeout: 60000 });
+        await sleep(1000);
     }
 
     async waitDetachedSkeleton() {

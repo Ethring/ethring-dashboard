@@ -57,6 +57,17 @@ const mockBalanceData = {
                     balanceUsd: '47.9149436132852',
                     balance: '0.023522083441546292',
                 },
+                {
+                    name: 'IBC - stCMDX',
+                    symbol: 'IBC.STCMDX',
+                    address: '0xaf88d065e77c8cc2239327c5edb3a432268e5832',
+                    decimals: 6,
+                    logo: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/stride/images/stcmdx.png',
+                    price: null,
+                    priceChange: null,
+                    balanceUsd: null,
+                    balance: '20.0',
+                },
             ],
             nfts: [],
             integrations: [
