@@ -122,9 +122,9 @@ export default {
     actions: {
         async initZometNets({ commit, dispatch, state }, ecosystem) {
             const networks = localStorage.getItem(`networks/${ecosystem}`);
-            let networksList = networks ? JSON.parse(networks) : null;
+            let networksList = networks ? JSON.parse(networks) : [];
 
-            if (!networksList) {
+            if (!networksList.length) {
                 const response = await getNetworksConfig(ecosystem);
 
                 if (response.status === 200) {
