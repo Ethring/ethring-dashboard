@@ -1,8 +1,9 @@
 import { test as base, chromium, type BrowserContext, Browser } from '@playwright/test';
 import path from 'path';
-import { MetaMaskHomePage, MetaMaskNotifyPage, getNotifyMmPage, closeEmptyPages } from '../model/metaMaskPages';
-import { DashboardPage, SwapPage, SuperSwapPage, SendPage } from '../model/zometPages';
 import { getTestVar, TEST_CONST } from '../envHelper';
+import { closeEmptyPages, MetaMaskHomePage, MetaMaskNotifyPage, getNotifyMmPage } from '../model/MetaMask/MetaMask.pages';
+import { BasePage, SendPage, SwapPage, SuperSwapPage, DashboardPage } from '../model/VueApp/base.pages';
+
 
 export const metaMaskId = getTestVar(TEST_CONST.MM_ID);
 const metamaskVersion = getTestVar(TEST_CONST.MM_VERSION);
@@ -38,8 +39,8 @@ const authInDashboardByMm = async (context: BrowserContext, seed: String): Promi
 
 export const test = base.extend<{
     context: BrowserContext;
-    authPage: DashboardPage;
-    authPageEmptyWallet: DashboardPage;
+    authPage: BasePage;
+    authPageEmptyWallet: BasePage;
 
     dashboard: DashboardPage;
     dashboardProtocol: DashboardPage;
@@ -71,13 +72,13 @@ export const test = base.extend<{
     },
     authPage: async ({ context }, use) => {
         await addWalletToMm(context, seedPhraseByTx);
-        const zometPage = new DashboardPage(await context.newPage());
+        const zometPage = new BasePage(await context.newPage());
         await zometPage.goToPage();
         await use(zometPage);
     },
     authPageEmptyWallet: async ({ context }, use) => {
         await addWalletToMm(context, seedPhraseEmptyWallet);
-        const zometPage = new DashboardPage(await context.newPage());
+        const zometPage = new BasePage(await context.newPage());
         await zometPage.goToPage();
         await use(zometPage);
     },
@@ -95,17 +96,17 @@ export const test = base.extend<{
     },
     swapPage: async ({ context }, use) => {
         const zometPage = await authInDashboardByMm(context, seedPhraseByTx);
-        const swapPage = await zometPage.goToSwap();
+        const swapPage = await zometPage.goToModule('swap');
         await use(swapPage);
     },
     superSwapPage: async ({ context }, use) => {
         const zometPage = await authInDashboardByMm(context, seedPhraseByTx);
-        const superSwapPage = await zometPage.goToSuperSwap();
+        const superSwapPage = await zometPage.goToModule('superSwap');;
         await use(superSwapPage);
     },
     sendPage: async ({ context }, use) => {
         const zometPage = await authInDashboardByMm(context, seedPhraseByTx);
-        const sendPage = await zometPage.goToSend();
+        const sendPage = await zometPage.goToModule('send');
         await use(sendPage);
     },
 });

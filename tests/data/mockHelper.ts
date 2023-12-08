@@ -1,6 +1,14 @@
+const emptyBalanceMockData = { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' };
+
+const errorGetBalanceMockData = {
+    ok: false,
+    data: null,
+    error: 'Data updates with a delay.',
+};
+
 const mockBalanceData = {
-    eth: { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' },
-    optimism: { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' },
+    eth: emptyBalanceMockData,
+    optimism: emptyBalanceMockData,
     arbitrum: {
         ok: true,
         data: {
@@ -48,6 +56,17 @@ const mockBalanceData = {
                     priceChange: '151.1016153396531',
                     balanceUsd: '47.9149436132852',
                     balance: '0.023522083441546292',
+                },
+                {
+                    name: 'IBC - stCMDX',
+                    symbol: 'IBC.STCMDX',
+                    address: '0xaf88d065e77c8cc2239327c5edb3a432268e5832',
+                    decimals: 6,
+                    logo: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/stride/images/stcmdx.png',
+                    price: null,
+                    priceChange: null,
+                    balanceUsd: null,
+                    balance: '20.0',
                 },
             ],
             nfts: [],
@@ -473,7 +492,7 @@ const mockBalanceData = {
         },
         error: '',
     },
-    avalanche: { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' },
+    avalanche: emptyBalanceMockData,
 };
 
 const mockBalanceDataBySendTest = {
@@ -520,7 +539,7 @@ const mockBalanceDataBySendTest = {
         },
         error: '',
     },
-    eth: { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' },
+    eth: emptyBalanceMockData,
     polygon: {
         ok: true,
         data: {
@@ -579,4 +598,4 @@ const marketCapMockData = {
     },
 };
 
-export { mockBalanceData, marketCapMockData, mockBalanceDataBySendTest };
+export { mockBalanceData, marketCapMockData, mockBalanceDataBySendTest, emptyBalanceMockData, errorGetBalanceMockData };

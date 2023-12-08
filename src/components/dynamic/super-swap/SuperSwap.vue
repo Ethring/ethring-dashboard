@@ -917,7 +917,9 @@ export default {
             if (!srcAmount.value) {
                 return;
             }
+
             isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance);
+
             getEstimateInfo();
         });
 
