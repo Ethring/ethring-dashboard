@@ -39,6 +39,8 @@
 <script>
 import { h, ref, computed, onBeforeUnmount, onMounted, watch } from 'vue';
 
+import BigNumber from 'bignumber.js';
+
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { SettingOutlined } from '@ant-design/icons-vue';
@@ -160,7 +162,7 @@ export default {
         const onSetAmount = (value) => {
             srcAmount.value = value;
 
-            const isBalanceAllowed = +value > +selectedSrcToken.value?.balance;
+            const isBalanceAllowed = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance);
 
             isBalanceError.value = isBalanceAllowed;
         };
@@ -296,6 +298,10 @@ export default {
                 onSetAmount(null);
                 setTimeout(() => (resetAmount.value = false));
             }
+        });
+
+        watch(selectedSrcToken, () => {
+            isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance);
         });
 
         watch(currentChainInfo, () => {
