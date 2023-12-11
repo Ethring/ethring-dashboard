@@ -4,10 +4,10 @@
         <NotConnected v-else class="ant-dropdown-link" />
 
         <template #overlay>
-            <a-menu class="adapter__dropdown">
+            <div class="adapter__dropdown">
                 <ConnectToEcosystems @closeDropdown="() => (activeDropdown = false)" />
                 <AdapterDropdown v-if="walletAddress" @closeDropdown="() => (activeDropdown = false)" />
-            </a-menu>
+            </div>
         </template>
     </a-dropdown>
 </template>
@@ -61,6 +61,7 @@ export default {
     top: 5px;
     z-index: 2;
     background: var(--#{$prefix}secondary-background);
+    box-shadow: 0px 4px 40px 0px $black-op-02;
 
     &::before {
         content: '';
