@@ -12,7 +12,7 @@
         <a-collapse-panel key="estimate-info" :collapsible="isCollapsible ? '' : 'disabled'">
             <template #header>
                 <div class="top-block">
-                    <ServiceIcon v-if="service && !loading" :icon="service.icon" :name="service.name" />
+                    <ServiceIcon v-if="service && !loading && mainFee.fromAmount" :icon="service.icon" :name="service.name" />
 
                     <template v-if="loading">
                         <a-skeleton-avatar active size="small" class="icon-skeleton" />

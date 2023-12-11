@@ -267,8 +267,8 @@ export default {
     h3 {
         font-size: var(--#{$prefix}h6-fs);
         color: var(--#{$prefix}primary-text);
-        line-height: var(--#{$prefix}h6-fs);
         font-weight: 500;
+        line-height: 24px;
         margin: auto 0 auto 6px;
     }
 
