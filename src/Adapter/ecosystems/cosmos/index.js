@@ -193,7 +193,7 @@ class CosmosAdapter extends AdapterBase {
 
             try {
                 const chainIds = this.walletManager.chainRecords
-                    .filter((chain) => chain.chain.website !== undefined)
+                    .filter((chain) => chain.chain.website)
                     .map((chain) => chain.chain.chain_id);
 
                 await chainWallet.client.client.enable(chainIds);
