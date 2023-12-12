@@ -27,6 +27,7 @@ export default {
         DisconnectAll,
         ConnectedWallet,
     },
+    emits: ['closeDropdown'],
     setup(_, { emit }) {
         const accountsModal = ref(false);
 

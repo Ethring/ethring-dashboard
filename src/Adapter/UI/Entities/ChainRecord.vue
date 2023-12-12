@@ -17,7 +17,9 @@
         </div>
 
         <div class="chain-record__actions">
-            <CopyIcon class="copy" @click="copy(address)" />
+            <a-tooltip placement="top" class="copy" :open="isTooltipOpen" trigger="click" :title="$t('adapter.copiedAddressTooltip')">
+                <CopyIcon @click="copyAddress(address)" @mouseleave="() => (isTooltipOpen = false)" />
+            </a-tooltip>
             <div class="chain-record__divider"></div>
             <a-popover :overlay-inner-style="{ padding: 0 }">
                 <template #content>
@@ -29,6 +31,7 @@
     </div>
 </template>
 <script>
+import { ref } from 'vue';
 import { useClipboard } from '@vueuse/core';
 
 import QrcodeIcon from '@/assets/icons/dashboard/qr.svg';
@@ -56,10 +59,17 @@ export default {
     },
     setup() {
         const { copy, copied } = useClipboard();
+        const isTooltipOpen = ref(false);
 
+        const copyAddress = (address) => {
+            copy(address);
+            isTooltipOpen.value = true;
+        };
         return {
             copy,
             copied,
+            copyAddress,
+            isTooltipOpen,
         };
     },
 };
@@ -131,6 +141,7 @@ export default {
 
         .copy {
             cursor: pointer;
+            outline: none !important;
         }
     }
 }

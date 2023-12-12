@@ -16,7 +16,7 @@ export default {
     components: {
         ConnectTo,
     },
-
+    emits: ['closeDropdown'],
     setup(_, { emit }) {
         const TO_CONNECT = [
             {

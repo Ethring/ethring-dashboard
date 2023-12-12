@@ -28,6 +28,8 @@
 import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
 
+import useAdapter from '@/Adapter/compositions/useAdapter';
+
 import { FileDoneOutlined, SyncOutlined } from '@ant-design/icons-vue';
 
 import ThemeSwitcher from '@/components/app/ThemeSwitcher';
@@ -45,6 +47,7 @@ export default {
     },
     setup() {
         const store = useStore();
+        const { currentChainInfo } = useAdapter();
 
         const open = ref(false);
 
@@ -65,6 +68,7 @@ export default {
             releaseNotes: RELEASE_NOTES,
             isLoading,
             tooltipText,
+            currentChainInfo,
 
             handleReload,
             showModal,
