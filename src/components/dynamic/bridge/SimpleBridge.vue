@@ -29,7 +29,6 @@
             :label="$t('tokenOperations.transferFrom')"
             :is-token-loading="isTokensLoadingForSrc"
             :is-update="isUpdateSwapDirection"
-            :amount-value="srcAmount"
             class="mt-10"
             @setAmount="onSetAmount"
             @clickToken="onSetSrcToken"
