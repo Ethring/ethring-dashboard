@@ -71,7 +71,7 @@ export default {
     emits: ['close'],
     setup() {
         const store = useStore();
-        const routeInfo = computed(() => store.getters['swap/bestRoute']);
+        const routeInfo = computed(() => store.getters['bridgeDex/selectedRoute']);
 
         const selectedRoute = ref(routeInfo.value.bestRoute);
         const isLoading = ref(false);
@@ -82,7 +82,7 @@ export default {
 
         const confirm = async () => {
             if (selectedRoute.value === routeInfo.value.bestRoute) {
-                store.dispatch('swap/setShowRoutes', false);
+                store.dispatch('bridgeDex/setShowRoutes', false);
                 return;
             }
 
@@ -98,9 +98,10 @@ export default {
                 }),
             };
 
-            store.dispatch('swap/setBestRoute', data);
+            store.dispatch('bridgeDex/setSelectedRoute', data);
+
             isLoading.value = false;
-            store.dispatch('swap/setShowRoutes', false);
+            store.dispatch('bridgeDex/setShowRoutes', false);
         };
 
         const setActiveRoute = (item) => {
@@ -152,11 +153,11 @@ export default {
 </script>
 <style lang="scss" scoped>
 .routes-modal {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
+    @include pageFlexColumn;
     align-items: flex-start;
+    justify-content: flex-start;
+
+    width: 100%;
     padding: 8px 0;
 
     .mr-20 {
@@ -164,13 +165,13 @@ export default {
     }
 
     &__item {
-        border-radius: 20px;
-        padding: 16px;
-        width: 100%;
-
         @include pageFlexRow;
         justify-content: space-between;
 
+        width: 100%;
+
+        border-radius: 20px;
+        padding: 16px;
         margin-bottom: 16px;
 
         background-color: var(--#{$prefix}modal-block-bg-color);
@@ -178,24 +179,29 @@ export default {
 
         cursor: pointer;
     }
+
     &__active-item {
         border: 1px solid var(--#{$prefix}banner-logo-color);
         background-color: var(--#{$prefix}icon-secondary-bg-color);
     }
+
     &__row {
-        display: flex;
+        @include pageFlexRow;
         margin: 0;
-        align-items: center;
     }
+
     &__output {
         text-align: right;
         margin-top: 2px;
+
         p {
             color: var(--#{$prefix}base-text);
             font-size: var(--#{$prefix}small-lg-fs);
             line-height: var(--#{$prefix}default-fs);
+
             margin: 0;
         }
+
         h3 {
             font-weight: 600;
             font-size: var(--#{$prefix}default-fs);
@@ -207,6 +213,7 @@ export default {
             span {
                 color: var(--#{$prefix}mute-text);
                 font-weight: 400;
+
                 margin-left: 2px;
             }
         }
@@ -214,12 +221,14 @@ export default {
         h4 {
             font-size: var(--#{$prefix}h5-fs);
             color: var(--#{$prefix}sub-text);
+
             margin: 0 6px;
         }
 
         .blue-text {
             color: var(--#{$prefix}sub-text) !important;
             font-size: var(--#{$prefix}small-lg-fs);
+
             margin-top: 4px;
 
             span {
@@ -239,17 +248,19 @@ export default {
 
         &__name {
             font-size: var(--#{$prefix}default-fs);
-            margin: 0;
-            margin-left: 8px;
             font-weight: 600;
             color: var(--#{$prefix}primary-text);
+
+            margin: 0;
+            margin-left: 8px;
         }
 
         &__icon {
-            border-radius: 50%;
             width: 32px;
-            padding: 3px 4px;
             height: 32px;
+            border-radius: 50%;
+
+            padding: 3px 4px;
             border: 2px solid var(--#{$prefix}banner-logo-color);
 
             img {
@@ -260,6 +271,7 @@ export default {
 
         .routes-time {
             margin-top: 4px;
+
             font-size: var(--#{$prefix}small-lg-fs);
 
             h4 {
@@ -282,9 +294,11 @@ export default {
 
         &__status {
             border-radius: 20px;
+
             font-size: var(--#{$prefix}small-sm-fs);
             font-weight: 400;
             color: var(--#{$prefix}black);
+
             padding: 1px 10px;
             margin: 2px 0 0 6px;
         }
