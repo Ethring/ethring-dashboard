@@ -16,6 +16,8 @@ ARG VUE_APP_SKIP_API=https://apps.3ahtim54r.ru/srv-skip/api/
 
 ARG VUE_APP_DATA_PROVIDER_URL=https://apps.3ahtim54r.ru/srv-data-provider/api
 
+ARG VUE_APP_BRIDGE_DEX_API=https://bridge-dex.3ahtim54r.ru
+
 ARG VUE_APP_PROXY_API=https://proxy-api.apps.citadel.okd.3ahtim54r.ru
 
 ARG VUE_APP_ZOMET_CORE_API_URL=https://zomet-core.3ahtim54r.ru

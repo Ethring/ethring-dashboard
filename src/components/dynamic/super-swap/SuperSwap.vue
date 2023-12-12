@@ -134,7 +134,6 @@ import { useI18n } from 'vue-i18n';
 
 import { SettingOutlined } from '@ant-design/icons-vue';
 
-//
 import BigNumber from 'bignumber.js';
 import { utils } from 'ethers';
 
@@ -152,7 +151,6 @@ import useServices from '@/compositions/useServices';
 
 // Transaction Management
 import useTransactions from '../../../Transactions/compositions/useTransactions';
-// import { STATUSES } from '../../../Transactions/shared/constants';
 
 import SelectAddress from '@/components/ui/SelectAddress';
 import Collapse from '@/components/ui/Collapse';
@@ -172,7 +170,7 @@ import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
 import { prettyNumberTooltip, formatNumber } from '@/helpers/prettyNumber';
 
-import { findBestRoute } from '@/modules/SuperSwap/baseScript';
+import { getBestRoute } from '@/api/bridge-dex';
 
 import { getPriceFromProvider } from '@/shared/utils/prices';
 
@@ -349,8 +347,8 @@ export default {
         const isTokensLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](currentChainInfo.value?.net));
         const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
 
-        const bestRouteInfo = computed(() => store.getters['swap/bestRoute']);
-        const isShowRoutesModal = computed(() => store.getters['swap/showRoutes']);
+        const selectedRouteInfo = computed(() => store.getters['bridgeDex/selectedRoute']);
+        const isShowRoutesModal = computed(() => store.getters['bridgeDex/showRoutes']);
 
         const disabledBtn = computed(
             () =>
@@ -440,7 +438,7 @@ export default {
         // =================================================================================================================
 
         const toggleRoutesModal = (action = false) => {
-            store.dispatch('swap/setShowRoutes', action);
+            store.dispatch('bridgeDex/setShowRoutes', action);
         };
 
         // =================================================================================================================
@@ -588,8 +586,16 @@ export default {
 
             isLoading.value = true;
 
-            let resEstimate = await findBestRoute(srcAmount.value, walletAddress.value, selectedSrcToken.value, selectedDstToken.value);
-            console.log(resEstimate, '--resEstimate');
+            let resEstimate = await getBestRoute(
+                srcAmount.value,
+                walletAddress.value,
+                selectedSrcToken.value,
+                selectedDstToken.value,
+                selectedSrcNetwork.value,
+                selectedDstNetwork.value,
+                currentChainInfo.value.native_token
+            );
+
             if (resEstimate?.error) {
                 estimateErrorTitle.value = resEstimate.error;
                 dstAmount.value = 0;
@@ -597,10 +603,7 @@ export default {
                 return (isLoading.value = false);
             }
 
-            const checkRoute =
-                resEstimate.toToken === selectedDstToken.value &&
-                resEstimate.fromToken === selectedSrcToken.value &&
-                resEstimate.bestRoute?.fromTokenAmount === srcAmount.value;
+            const checkRoute = resEstimate.bestRoute?.fromTokenAmount === srcAmount.value;
 
             if (!checkRoute) {
                 return;
@@ -610,12 +613,12 @@ export default {
                 resEstimate = swapRoutes(resEstimate);
             }
 
-            store.dispatch('swap/setBestRoute', resEstimate);
+            store.dispatch('bridgeDex/setSelectedRoute', resEstimate);
 
-            currentRoute.value = resEstimate.bestRoute.routes.find((elem) => elem.status === STATUSES.SIGNING);
-
-            bestRoute.value = resEstimate.bestRoute;
+            bestRoute.value = resEstimate.bestRoute || {};
             otherRoutes.value = resEstimate.otherRoutes || [];
+
+            currentRoute.value = bestRoute.value.routes.find((elem) => elem.status === STATUSES.SIGNING);
 
             estimateErrorTitle.value = '';
 
@@ -747,7 +750,7 @@ export default {
 
         const handleOperationByType = async () => {
             const OPERATIONS = {
-                swap: makeSwapRequest,
+                dex: makeSwapRequest,
                 bridge: makeBridgeTx,
             };
 
@@ -862,7 +865,7 @@ export default {
 
                 if (!currentRoute.value) {
                     isBalanceError.value = '';
-                    return store.dispatch('swap/setBestRoute', null);
+                    return store.dispatch('bridgeDex/setSelectedRoute', null);
                 }
 
                 if (currentRoute.value.net !== selectedSrcNetwork.value.net) {
@@ -937,18 +940,16 @@ export default {
                 return;
             }
 
-            console.log('bestRouteInfo', bestRouteInfo.value);
-
-            bestRoute.value = bestRouteInfo.value.bestRoute;
-            otherRoutes.value = bestRouteInfo.value.otherRoutes;
+            bestRoute.value = selectedRouteInfo.value.bestRoute;
+            otherRoutes.value = selectedRouteInfo.value.otherRoutes;
             currentRoute.value = bestRoute.value.routes.find((elem) => elem.status === STATUSES.SIGNING);
-            srcAmount.value = bestRouteInfo.value.bestRoute?.fromTokenAmount;
-            dstAmount.value = bestRouteInfo.value.bestRoute?.toTokenAmount;
+            srcAmount.value = selectedRouteInfo.value.bestRoute?.fromTokenAmount;
+            dstAmount.value = selectedRouteInfo.value.bestRoute?.toTokenAmount;
 
-            networkFee.value = prettyNumberTooltip(bestRouteInfo.value.bestRoute?.estimateFeeUsd, 6);
+            networkFee.value = prettyNumberTooltip(selectedRouteInfo.value.bestRoute?.estimateFeeUsd, 6);
 
             estimateRate.value = prettyNumberTooltip(
-                bestRouteInfo.value.bestRoute.toTokenAmount / bestRouteInfo.value.bestRoute.fromTokenAmount,
+                selectedRouteInfo.value.bestRoute.toTokenAmount / selectedRouteInfo.value.bestRoute.fromTokenAmount,
                 6
             );
         });
@@ -956,9 +957,6 @@ export default {
         //
         watch(currentRoute, async () => {
             console.log('-'.repeat(20));
-            console.log('currentRoute', currentRoute.value);
-            console.log('-'.repeat(20));
-
             if (!allowanceForToken.value) {
                 await requestAllowance(currentRoute.value?.service);
             }
@@ -980,12 +978,6 @@ export default {
                 return;
             }
         });
-
-        //         if ((!currentChainInfo.value.net || !SUPPORTED_CHAINS.includes(currentChainInfo.value?.net)) && !isShowRoutesModal.value) {
-        //             router.push('/main');
-        //         }
-        //     }
-        // );
 
         watch(isNeedApprove, () => {
             if (isNeedApprove.value && opTitle.value !== 'tokenOperations.switchNetwork') {
@@ -1197,6 +1189,7 @@ export default {
             font-size: var(--#{$prefix}small-lg-fs);
             color: var(--#{$prefix}base-text);
             font-weight: 600;
+            margin: 0 10px 0 2px;
         }
 
         svg.arrow {

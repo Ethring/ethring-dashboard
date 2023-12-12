@@ -71,7 +71,7 @@ export default {
     emits: ['close'],
     setup() {
         const store = useStore();
-        const routeInfo = computed(() => store.getters['swap/bestRoute']);
+        const routeInfo = computed(() => store.getters['bridgeDex/selectedRoute']);
 
         const selectedRoute = ref(routeInfo.value.bestRoute);
         const isLoading = ref(false);
@@ -82,7 +82,7 @@ export default {
 
         const confirm = async () => {
             if (selectedRoute.value === routeInfo.value.bestRoute) {
-                store.dispatch('swap/setShowRoutes', false);
+                store.dispatch('bridgeDex/setShowRoutes', false);
                 return;
             }
 
@@ -98,9 +98,10 @@ export default {
                 }),
             };
 
-            store.dispatch('swap/setBestRoute', data);
+            store.dispatch('bridgeDex/setSelectedRoute', data);
+
             isLoading.value = false;
-            store.dispatch('swap/setShowRoutes', false);
+            store.dispatch('bridgeDex/setShowRoutes', false);
         };
 
         const setActiveRoute = (item) => {
@@ -152,10 +153,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .routes-modal {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
+    @include pageFlexColumn;
     align-items: flex-start;
     margin-top: 6px;
 
@@ -178,24 +176,29 @@ export default {
 
         cursor: pointer;
     }
+
     &__active-item {
         border: 1px solid var(--#{$prefix}banner-logo-color);
         background-color: var(--#{$prefix}icon-secondary-bg-color);
     }
+
     &__row {
-        display: flex;
+        @include pageFlexRow;
         margin: 0;
-        align-items: center;
     }
+
     &__output {
         text-align: right;
         margin-top: 2px;
+
         p {
             color: var(--#{$prefix}base-text);
             font-size: var(--#{$prefix}small-lg-fs);
             line-height: var(--#{$prefix}default-fs);
+
             margin: 0;
         }
+
         h3 {
             font-weight: 600;
             font-size: var(--#{$prefix}h6-fs);
@@ -212,6 +215,7 @@ export default {
         h4 {
             font-size: var(--#{$prefix}h5-fs);
             color: var(--#{$prefix}sub-text);
+
             margin: 0 6px;
         }
 
@@ -255,6 +259,7 @@ export default {
 
         .routes-time {
             margin-top: 4px;
+
             font-size: var(--#{$prefix}small-lg-fs);
 
             h4 {

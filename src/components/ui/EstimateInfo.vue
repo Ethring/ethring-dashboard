@@ -155,7 +155,7 @@ export default {
         }
 
         .error {
-            font-weight: 600;
+            font-weight: 500;
             color: var(--#{$prefix}warning);
         }
     }

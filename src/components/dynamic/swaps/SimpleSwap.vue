@@ -440,15 +440,9 @@ export default {
 
             onSetAmount(srcAmount.value);
 
-            if (selectedSrcToken.value?.address && !allowanceForToken.value) {
-                await requestAllowance();
-            }
-
-            await makeEstimateSwapRequest();
-
             setTimeout(() => {
                 isUpdateSwapDirectionValue.value = false;
-            }, 500);
+            }, 800);
         };
 
         // =================================================================================================================

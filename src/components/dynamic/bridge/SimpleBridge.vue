@@ -8,6 +8,9 @@
                 :current="selectedSrcNetwork"
                 @select="(network) => handleOnSelectNetwork(network, DIRECTIONS.SOURCE)"
             />
+            <div class="simple-bridge__switch" :class="{ disabled: !selectedDstNetwork }" @click="swapTokensDirection">
+                <SwapIcon />
+            </div>
             <SelectNetwork
                 label="To"
                 placeholder="Select network"
@@ -21,13 +24,12 @@
         <SelectAmount
             v-if="selectedSrcNetwork"
             :value="selectedSrcToken"
-            :selected-network="selectedSrcNetwork"
             :error="!!isBalanceError"
             :on-reset="resetSrcAmount"
             :disabled="!selectedSrcToken"
             :label="$t('tokenOperations.transferFrom')"
             :is-token-loading="isTokensLoadingForSrc"
-            :amount-value="srcAmount"
+            :is-update="isUpdateSwapDirection"
             class="mt-8"
             @setAmount="onSetAmount"
             @clickToken="onSetSrcToken"
@@ -40,6 +42,7 @@
             :value="selectedDstToken"
             :is-amount-loading="isEstimating"
             :is-token-loading="isTokensLoadingForDst"
+            :is-update="isUpdateSwapDirection"
             :label="$t('tokenOperations.transferTo')"
             :disabled-value="dstAmount"
             :on-reset="resetDstAmount"
@@ -126,6 +129,8 @@ import Checkbox from '@/components/ui/Checkbox';
 import Button from '@/components/ui/Button';
 import EstimateInfo from '@/components/ui/EstimateInfo.vue';
 
+import SwapIcon from '@/assets/icons/dashboard/swap.svg';
+
 import { formatNumber } from '@/helpers/prettyNumber';
 
 import { getServices, SERVICE_TYPE } from '@/config/services';
@@ -144,6 +149,7 @@ export default {
         Button,
         Checkbox,
         EstimateInfo,
+        SwapIcon,
     },
     setup() {
         const store = useStore();
@@ -208,6 +214,7 @@ export default {
             selectedDstNetwork,
 
             onlyWithBalance,
+            isUpdateSwapDirection,
 
             srcAmount,
             dstAmount,
@@ -268,7 +275,6 @@ export default {
         const clearAddress = ref(false);
         const balanceUpdated = ref(false);
         const isSendToAnotherAddress = ref(false);
-
         const estimateErrorTitle = ref('');
 
         const resetSrcAmount = ref(false);
@@ -454,6 +460,35 @@ export default {
             protocolFeeMain.value = baseFeeInfo('', '', '', '', '', '');
 
             return await makeEstimateBridgeRequest();
+        };
+
+        // =================================================================================================================
+
+        const swapTokensDirection = async () => {
+            if (!selectedDstNetwork.value) {
+                return;
+            }
+            isUpdateSwapDirection.value = true;
+
+            clearApproveForService();
+
+            const fromNetwork = { ...selectedSrcNetwork.value };
+            const toNetwork = { ...selectedDstNetwork.value };
+
+            const fromToken = { ...selectedSrcToken.value };
+            const toToken = { ...selectedDstToken.value };
+
+            selectedSrcNetwork.value = toNetwork;
+            selectedDstNetwork.value = fromNetwork;
+
+            selectedSrcToken.value = toToken;
+            selectedDstToken.value = fromToken;
+
+            srcAmount.value && (await onSetAmount(srcAmount.value));
+
+            setTimeout(() => {
+                isUpdateSwapDirection.value = false;
+            }, 800);
         };
 
         // =================================================================================================================
@@ -906,6 +941,9 @@ export default {
         });
 
         watch(selectedSrcNetwork, (newValue, oldValue) => {
+            if (isUpdateSwapDirection.value) {
+                return;
+            }
             if (newValue?.net !== oldValue?.net) {
                 selectedSrcToken.value = null;
                 selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
@@ -1048,6 +1086,7 @@ export default {
             resetDstAmount,
 
             isSendToAnotherAddress,
+            isUpdateSwapDirection,
 
             chainList,
 
@@ -1091,6 +1130,7 @@ export default {
             onSetDstToken,
             onSetAmount,
             handleOnConfirm,
+            swapTokensDirection,
         };
     },
 };
@@ -1106,7 +1146,7 @@ export default {
         position: relative;
 
         .select {
-            width: 49%;
+            width: 48%;
 
             .select__panel .name {
                 font-size: var(--#{$prefix}h6-fs);
@@ -1120,6 +1160,53 @@ export default {
         &-to {
             .select__items {
                 left: -266px;
+            }
+        }
+    }
+    &__switch {
+        @include pageFlexRow;
+        justify-content: center;
+
+        @include animateEasy;
+
+        cursor: pointer;
+        position: absolute;
+        z-index: 100;
+
+        width: 48px;
+        height: 48px;
+
+        border-radius: 50%;
+        left: calc(50% - 24px);
+        top: 16px;
+        transform: rotate(90deg);
+
+        background: var(--#{$prefix}swap-btn-bg-color);
+        border: 4px solid var(--#{$prefix}main-background);
+
+        svg {
+            @include animateEasy;
+            path {
+                fill: var(--#{$prefix}btn-bg-color);
+            }
+        }
+
+        &:not(.disabled):hover {
+            background: var(--#{$prefix}primary);
+            border: 4px solid var(--#{$prefix}banner-logo-color);
+
+            path {
+                fill: var(--#{$prefix}arrow-color);
+            }
+        }
+
+        &.disabled {
+            pointer-events: none;
+            background: var(--#{$prefix}btn-disabled);
+            svg {
+                path {
+                    fill: var(--#{$prefix}border-color);
+                }
             }
         }
     }

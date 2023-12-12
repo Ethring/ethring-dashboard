@@ -200,6 +200,7 @@ export default {
 <style lang="scss" scoped>
 .swap-field {
     position: relative;
+
     background: var(--#{$prefix}select-bg-color);
     border-radius: 8px;
     height: 136px;
@@ -212,6 +213,7 @@ export default {
         border: 1px solid var(--#{$prefix}select-active-border-color);
         background: var(--#{$prefix}select-bg-color);
     }
+
     .row {
         @include pageFlexRow;
         justify-content: space-between;
@@ -234,13 +236,13 @@ export default {
 
     .input-balance {
         width: 100%;
+        height: 32px;
         text-align: left;
         border: none;
         outline: none;
         background-color: transparent;
         font-size: var(--#{$prefix}h4-fs);
         font-weight: 700;
-        height: 32px;
         color: var(--#{$prefix}primary-text);
         margin-top: 8px;
     }
@@ -260,6 +262,7 @@ export default {
         margin-top: 12px;
         padding-right: 8px;
         font-size: var(--#{$prefix}small-lg-fs);
+
         cursor: default;
 
         &__value {
@@ -292,6 +295,7 @@ export default {
                 color: var(--#{$prefix}sub-text);
             }
         }
+
         .error,
         .error * {
             color: var(--#{$prefix}danger) !important;
