@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { onMounted, onUpdated, watchEffect, watch, ref, computed } from 'vue';
+import { onMounted, onUpdated, watchEffect, watch, ref, computed, onBeforeMount } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -83,7 +83,7 @@ export default {
 
         const isOpen = computed(() => store.getters['adapters/isOpen']('wallets'));
 
-        const showRoutesModal = computed(() => store.getters['swap/showRoutes']);
+        const showRoutesModal = computed(() => store.getters['bridgeDex/showRoutes']);
 
         const loadingTitle = computed(() => {
             if (isConfigLoading.value) {
@@ -156,6 +156,10 @@ export default {
 
             await useInit(store, { account: walletAccount.value, addressesWithChains, currentChainInfo: currentChainInfo.value });
         };
+
+        onBeforeMount(async () => {
+            await store.dispatch('bridgeDex/getServices');
+        });
 
         onMounted(async () => {
             const chains = getChainListByEcosystem(ECOSYSTEMS.COSMOS);

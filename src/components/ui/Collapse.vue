@@ -51,6 +51,7 @@ export default {
     height: 48px;
     padding: 2px;
 }
+
 .collapse {
     background: var(--#{$prefix}select-bg-color);
     border-radius: 8px;
@@ -61,6 +62,7 @@ export default {
         @include pageFlexColumn;
         transition: all 1s;
         overflow: hidden;
+        padding: 0 24px;
     }
 
     &__header {

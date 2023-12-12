@@ -198,18 +198,23 @@ export default {
 <style lang="scss" scoped>
 .swap-field {
     position: relative;
+    height: 160px;
+
     background: var(--#{$prefix}select-bg-color);
     border-radius: 16px;
-    height: 160px;
+
     padding: 16px 24px;
+
     box-sizing: border-box;
     border: 2px solid transparent;
+
     cursor: pointer;
 
     &.focused {
         border: 2px solid var(--#{$prefix}select-active-border-color);
         background: var(--#{$prefix}select-bg-color);
     }
+
     .row {
         @include pageFlexRow;
         justify-content: space-between;
@@ -219,19 +224,23 @@ export default {
         color: var(--#{$prefix}select-label-color);
         font-size: var(--#{$prefix}h5-fs);
         font-weight: 600;
+
         cursor: default;
     }
 
     .input-balance {
         width: 100%;
+        height: 38px;
+
         text-align: left;
         border: none;
         outline: none;
+
         background-color: transparent;
         font-size: var(--#{$prefix}h3-fs);
         font-weight: 600;
-        height: 38px;
         color: var(--#{$prefix}primary-text);
+
         margin-top: 10px;
     }
 
@@ -243,14 +252,18 @@ export default {
         width: 100%;
         @include pageFlexRow;
         justify-content: space-between;
+
         color: var(--#{$prefix}base-text);
         font-weight: 400;
-        margin-top: 6px;
         font-size: var(--#{$prefix}small-lg-fs);
+
+        margin-top: 6px;
+
         cursor: default;
 
         &__value {
             cursor: pointer;
+
             font-weight: 600;
             font-size: var(--#{$prefix}small-lg-fs);
             color: var(--#{$prefix}sub-text);
@@ -259,15 +272,18 @@ export default {
                 font-size: var(--#{$prefix}small-lg-fs);
                 color: var(--#{$prefix}base-text);
                 font-weight: 400;
-                margin-left: 2px;
+
+                margin: 0 2px;
             }
         }
 
         .percentage {
-            font-weight: 400;
             margin-left: 2px;
+
+            font-weight: 400;
             color: var(--#{$prefix}base-text);
         }
+
         .error,
         .error * {
             color: var(--#{$prefix}danger) !important;
