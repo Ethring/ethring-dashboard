@@ -42,7 +42,7 @@ export default function useModule({ module, moduleType }) {
 
     const { getTokensList } = useTokensList();
     const tokensList = ref([]);
-
+    const isUpdateSwapDirection = ref(false);
     // =================================================================================================================
 
     const selectType = computed({
@@ -109,13 +109,13 @@ export default function useModule({ module, moduleType }) {
             srcNet,
         });
 
+        const nativeToken = getNativeToken(tokensList.value);
+
         const [defaultToken = null] = tokensList.value;
 
         if (onlyWithBalance.value && defaultToken?.balance === 0) {
-            return null;
-        }
-
-        if (!token && defaultToken) {
+            return nativeToken;
+        } else if (!token && defaultToken) {
             return defaultToken;
         }
 
@@ -358,6 +358,9 @@ export default function useModule({ module, moduleType }) {
     });
 
     watch(selectedSrcNetwork, (newNet, oldNet) => {
+        if (isUpdateSwapDirection.value) {
+            return;
+        }
         if (!oldNet) {
             resetTokensForModules();
             return checkSelectedNetwork();
@@ -369,7 +372,6 @@ export default function useModule({ module, moduleType }) {
 
         if (currentChainInfo.value?.net !== selectedSrcNetwork.value?.net) {
             selectedSrcToken.value = null;
-            selectedDstToken.value = null;
             srcAmount.value = '';
             dstAmount.value = '';
         }
@@ -411,6 +413,7 @@ export default function useModule({ module, moduleType }) {
         selectType,
         targetDirection,
         onlyWithBalance,
+        isUpdateSwapDirection,
 
         // Receiver
         receiverAddress,
