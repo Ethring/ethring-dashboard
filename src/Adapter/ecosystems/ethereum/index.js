@@ -360,9 +360,9 @@ class EthereumAdapter extends AdapterBase {
 
         const chainsInfo = store.getters['networks/zometNetworks'];
 
-        console.log(chain, chainsInfo[chain]);
+        console.log(chain, chainsInfo.evm[chain]);
 
-        return chainsInfo[chain] || null;
+        return chainsInfo.evm[chain] || null;
     }
 }
 

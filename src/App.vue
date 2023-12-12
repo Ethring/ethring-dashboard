@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { onMounted, onUpdated, onBeforeMount, watchEffect, watch, ref, computed } from 'vue';
+import { onMounted, onUpdated, watchEffect, watch, ref, computed, onBeforeMount } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -140,7 +140,10 @@ export default {
                 return setTimeout(callInit, 1000);
             }
 
+            isConfigLoading.value = true;
             store.dispatch('tokens/setLoader', true);
+
+            await store.dispatch('networks/initZometNets', ecosystem.toLowerCase());
 
             isInitCall.value = {
                 ...isInitCall.value,
@@ -155,8 +158,6 @@ export default {
         };
 
         onBeforeMount(async () => {
-            isConfigLoading.value = true;
-            await store.dispatch('networks/initZometNets');
             await store.dispatch('bridgeDex/getServices');
         });
 

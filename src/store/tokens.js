@@ -66,6 +66,7 @@ export default {
         nfts: (state) => state.nfts,
 
         groupTokens: (state) => state.groupTokens,
+        nativeTokens: (state) => state.nativeTokens,
 
         getTokensListForChain:
             (state) =>
@@ -153,24 +154,22 @@ export default {
                 state.groupTokens[account][chain] = {};
             }
 
-            // const { list = [] } = data;
+            const { list = [] } = data;
 
-            // const nativeToken = list.find(
-            //     (token) => (token.id === `${chain}:asset__native:${token.symbol}` || !token.address) && !token.symbol.startsWith('IBC.')
-            // );
+            const nativeToken = list.find(
+                (token) => (token.id === `${chain}:asset__native:${token.symbol}` || !token.address) && !token.symbol.startsWith('IBC.')
+            );
 
-            // if (nativeToken) {
-            //     !state.nativeTokens[account] && (state.nativeTokens[account] = {});
-            //     !state.nativeTokens[account][chain] && (state.nativeTokens[account][chain] = {});
+            if (nativeToken) {
+                !state.nativeTokens[account] && (state.nativeTokens[account] = {});
+                !state.nativeTokens[account][chain] && (state.nativeTokens[account][chain] = {});
 
-            //     nativeToken.id = `${chain}:asset__native:${nativeToken.symbol}`;
+                nativeToken.id = `${chain}:asset__native:${nativeToken.symbol}`;
 
-            //     state.nativeTokens[account][chain] = nativeToken;
-            // }
+                state.nativeTokens[account][chain] = nativeToken;
+            }
 
             state.groupTokens[account][chain] = data;
-
-            // console.log('state.groupTokens[account][chain]', state.nativeTokens);
         },
 
         [TYPES.SET_MARKETCAP](state, value) {

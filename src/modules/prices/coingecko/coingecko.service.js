@@ -45,7 +45,7 @@ const marketCapForNativeCoin = async (tickers = 'binancecoin') => {
 
         const { data } = response.data;
 
-        return data[tickers];
+        return data;
     } catch (error) {
         console.error({ error: error.message });
         return {};
