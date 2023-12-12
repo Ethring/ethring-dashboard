@@ -2,7 +2,13 @@ import HttpRequest from '@/shared/utils/request';
 
 export const getNetworksConfig = async (ecosystem) => {
     try {
-        return await HttpRequest.get(`${process.env.VUE_APP_ZOMET_CORE_API_URL}/networks/${ecosystem}`);
+        const response = await HttpRequest.get(`${process.env.VUE_APP_ZOMET_CORE_API_URL}/networks/${ecosystem}`);
+
+        if (response.status === 200) {
+            localStorage.setItem(`networks/${ecosystem}`, JSON.stringify(response.data));
+            return response.data;
+        }
+        return {};
     } catch (err) {
         return { error: err.message };
     }

@@ -122,24 +122,10 @@ export default {
     actions: {
         async initZometNets({ commit, dispatch, state }, ecosystem) {
             const networks = localStorage.getItem(`networks/${ecosystem}`);
-            let networksList = networks ? JSON.parse(networks) : [];
-
-            if (!networksList.length) {
-                const response = await getNetworksConfig(ecosystem);
-
-                if (response.status === 200) {
-                    networksList = response.data;
-                    localStorage.setItem(`networks/${ecosystem}`, JSON.stringify(networksList));
-                }
-            }
-            if (!state.zometNetworks[ecosystem]) {
-                state.zometNetworks[ecosystem] = {};
-            }
+            const networksList = networks ? JSON.parse(networks) : await getNetworksConfig(ecosystem);
 
             for (const network in networksList) {
-                if (!state.zometNetworks[ecosystem][network]) {
-                    commit(TYPES.SET_ZOMET_NETWORKS, { network, ecosystem, config: networksList[network] });
-                }
+                commit(TYPES.SET_ZOMET_NETWORKS, { network, ecosystem, config: networksList[network] });
 
                 if (!state.tokensByNetwork[network]) {
                     dispatch('initZometTokens', network);

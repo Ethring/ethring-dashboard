@@ -793,6 +793,8 @@ export default {
                 return;
             }
 
+            isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance);
+
             if (!allowanceForToken.value && ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem) {
                 requestAllowance();
             }
@@ -800,6 +802,8 @@ export default {
 
         watch(walletAccount, () => {
             selectedSrcNetwork.value = currentChainInfo.value;
+
+            estimateErrorTitle.value = '';
 
             resetTokensForModules();
 

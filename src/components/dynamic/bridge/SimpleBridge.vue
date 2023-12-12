@@ -26,7 +26,6 @@
             :disabled="!selectedSrcToken"
             :label="$t('tokenOperations.transferFrom')"
             :is-token-loading="isTokensLoadingForSrc"
-            :amount-value="srcAmount"
             class="mt-10"
             @setAmount="onSetAmount"
             @clickToken="onSetSrcToken"
@@ -917,6 +916,8 @@ export default {
             if (!selectedSrcToken.value) {
                 return;
             }
+
+            isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance);
 
             if (!allowanceForToken.value && ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem) {
                 await requestAllowance();
