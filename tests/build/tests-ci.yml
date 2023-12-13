@@ -2,7 +2,7 @@ Update snapshot:
   stage: test_ui
   needs: []
   allow_failure: true
-  image: mcr.microsoft.com/playwright:v1.39.0-jammy
+  image: mcr.microsoft.com/playwright:v1.40.0-jammy
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: manual
