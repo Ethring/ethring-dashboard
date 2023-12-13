@@ -500,7 +500,7 @@ class CosmosAdapter extends AdapterBase {
             fee.amount = [
                 {
                     denom,
-                    amount: amount?.toString(),
+                    amount: amount.toString(),
                 },
             ];
 
