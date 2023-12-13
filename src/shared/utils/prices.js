@@ -3,7 +3,8 @@ import PricesModule from '@/modules/prices/';
 const getPriceByCoingeckoId = async (coingeckoId) => {
     try {
         const priceById = await PricesModule.Coingecko.marketCapForNativeCoin(coingeckoId);
-        const { usd = null } = priceById || {};
+
+        const { usd = null } = priceById[coingeckoId] || {};
 
         if (!usd) {
             return 0;

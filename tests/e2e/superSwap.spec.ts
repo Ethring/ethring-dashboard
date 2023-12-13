@@ -1,11 +1,7 @@
-import { Page } from '@playwright/test';
 import { test, expect } from '../__fixtures__/fixtures';
 import { getServices, SERVICE_TYPE } from '../../src/config/services';
 import { TEST_CONST, getTestVar } from '../envHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage } from '../model/MetaMask/MetaMask.pages';
-
-const supportedServiceByBridge = getServices(SERVICE_TYPE.BRIDGE);
-const supportedServiceBySwap = getServices(SERVICE_TYPE.SWAP);
 
 test.describe('SuperSwap e2e tests', () => {
     test('Case#1: Super Swap tx:swap net:Polygon from:Matic to:1inch', async ({ browser, context, page, superSwapPage }) => {

@@ -194,7 +194,6 @@ class CosmosAdapter extends AdapterBase {
             });
 
             await Promise.all(enablePromises);
-
         } catch (error) {
             console.log('Error while approving chains', error);
         }
