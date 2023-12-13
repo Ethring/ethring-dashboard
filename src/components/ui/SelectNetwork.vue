@@ -242,6 +242,10 @@ export default {
                 transform: rotate(180deg);
             }
         }
+
+        .default-network-logo {
+            background: var(--#{$prefix}select-bg-color);
+        }
     }
 
     &__items {

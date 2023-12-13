@@ -59,10 +59,13 @@ export default {
 <style lang="scss">
 .assets-table {
     * {
-        transition: background-color 0.24s ease-in-out !important;
+        transition: background-color 0.2s ease-in-out !important;
+        background-color: var(--#{$prefix}secondary-background) !important;
     }
 
     tr,
+    tbody,
+    table,
     td {
         background-color: var(--#{$prefix}secondary-background) !important;
     }
@@ -70,6 +73,7 @@ export default {
     .ant-table-cell {
         vertical-align: middle !important;
         padding: 5px 0 !important;
+        background-color: var(--#{$prefix}secondary-background) !important;
     }
 
     .ant-table-tbody > tr:last-child > td {
@@ -77,7 +81,8 @@ export default {
         padding-bottom: 0 !important;
     }
 
-    .ant-table-tbody tr td {
+    .ant-table-tbody tr td,
+    .ant-table-tbody tr {
         border: none !important;
     }
 

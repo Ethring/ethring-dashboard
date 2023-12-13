@@ -7,12 +7,7 @@
         :bodyStyle="{ height: '374px', overflowY: 'overlay' }"
     >
         <template #closeIcon> <CloseIcon /> </template>
-        <ChainWithAddress
-            v-if="addressesWithChains"
-            :chainWithAddress="addressesWithChains"
-            :chainList="chainList"
-            :chainRecords="chainRecords"
-        />
+        <ChainWithAddress v-if="addressesWithChains" :chainWithAddress="addressesWithChains" :chainRecords="chainRecords" />
     </a-modal>
 </template>
 <script>
@@ -24,8 +19,6 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 import ChainWithAddress from '@/Adapter/UI/Entities/ChainWithAddress';
 
 import CloseIcon from '@/assets/icons/app/close.svg';
-
-import { ECOSYSTEMS } from '@/Adapter/config';
 
 export default {
     name: 'AddressModal',
@@ -43,33 +36,20 @@ export default {
 
         const ecosystem = computed(() => store.getters['adapters/getModalEcosystem']);
 
-        const { getAddressesWithChainsByEcosystem, getChainListByEcosystem, connectedWallets } = useAdapter();
+        const { getAddressesWithChainsByEcosystem, getChainListByEcosystem } = useAdapter();
 
-        const chainList = ref([]);
         const addressesWithChains = ref([]);
         const chainRecords = ref([]);
 
         onUpdated(() => {
             addressesWithChains.value = getAddressesWithChainsByEcosystem(ecosystem.value);
-
-            if (ecosystem.value === ECOSYSTEMS.EVM) {
-                const connectedEVMWallets = connectedWallets.value.filter((wallet) => wallet.ecosystem === ECOSYSTEMS.EVM);
-                const chainListByEcosystem = getChainListByEcosystem(ecosystem.value);
-
-                const matchingChains = connectedEVMWallets.map(({ chain }) => chain);
-
-                chainRecords.value = chainListByEcosystem.filter(({ chain_id }) => matchingChains.includes(chain_id));
-                chainList.value = chainListByEcosystem.filter(({ chain_id }) => !matchingChains.includes(chain_id));
-            } else {
-                chainList.value = [];
-                chainRecords.value = getChainListByEcosystem(ecosystem.value);
-            }
+            chainRecords.value = getChainListByEcosystem(ecosystem.value);
         });
 
         return {
             isOpen,
             addressesWithChains,
-            chainList,
+
             chainRecords,
             ecosystem,
         };

@@ -13,7 +13,7 @@
                     <NumberTooltip v-if="showBalance" :value="totalBalance" />
                     <span v-else>****</span>
                 </div>
-                <div v-if="currentChainInfo && isDashboard" class="balance__hide" @click="toggleViewBalance">
+                <div v-if="currentChainInfo" class="balance__hide" @click="toggleViewBalance">
                     <EyeOpenIcon v-if="showBalance" />
                     <EyeCloseIcon v-else />
                 </div>
@@ -24,7 +24,6 @@
 <script>
 import { computed } from 'vue';
 import { useStore } from 'vuex';
-import { useRouter } from 'vue-router';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
@@ -44,7 +43,6 @@ export default {
     },
     setup() {
         const store = useStore();
-        const router = useRouter();
 
         const { walletAccount, currentChainInfo } = useAdapter();
 
@@ -53,8 +51,6 @@ export default {
         const showBalance = computed(() => store.getters['app/showBalance']);
 
         const totalBalance = computed(() => store.getters['tokens/totalBalances'][walletAccount.value]);
-
-        const isDashboard = computed(() => router.currentRoute.value.path === '/main' || router.currentRoute.value.path === '/');
 
         const toggleViewBalance = () => store.dispatch('app/toggleViewBalance');
 
@@ -65,7 +61,6 @@ export default {
             walletAccount,
             cutAddress,
             showBalance,
-            isDashboard,
 
             toggleViewBalance,
         };

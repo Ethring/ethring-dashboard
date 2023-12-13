@@ -52,10 +52,6 @@ export default {
             type: String,
             required: true,
         },
-        chains: {
-            type: Array,
-            required: true,
-        },
     },
     setup() {
         const { copy, copied } = useClipboard();

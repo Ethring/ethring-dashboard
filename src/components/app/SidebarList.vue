@@ -99,10 +99,10 @@ export default {
         cursor: pointer;
 
         &:hover:not(.disabled) {
-            color: $gulfStream;
+            color: var(--#{$prefix}icon-color);
 
             svg {
-                fill: $gulfStream;
+                fill: var(--#{$prefix}icon-color);
             }
         }
 
