@@ -187,21 +187,24 @@ class CosmosAdapter extends AdapterBase {
         return true;
     }
 
+    async getSupportedEcosystemChains(chainRecords, chainWallet) {
+        try {
+            const enablePromises = chainRecords.map(async (chainRecord) => {
+                await chainWallet?.client.enable(chainRecord.chain.chain_id);
+            });
+
+            await Promise.all(enablePromises);
+
+        } catch (error) {
+            console.log('Error while approving chains', error);
+        }
+    }
+
     async connectWallet(walletName, chain = this.DEFAULT_CHAIN) {
         try {
             const chainWallet = this.walletManager.getChainWallet(chain, walletName);
 
-            try {
-                const chainIds = this.walletManager.chainRecords
-                    .filter((chain) => chain.chain.website)
-                    .map((chain) => chain.chain.chain_id);
-
-                await chainWallet.client.client.enable(chainIds);
-            } catch (e) {
-                console.error('Error while approving chains:', e);
-            }
-
-            chainWallet.activate();
+            await this.getSupportedEcosystemChains(this.walletManager.chainRecords, chainWallet.client);
 
             // chainWallet.restEndpoints = [`${DEFAULT_REST}/${chain}`];
             // chainWallet.rpcEndpoints = [`${DEFAULT_RPC}/${chain}`];
@@ -497,7 +500,7 @@ class CosmosAdapter extends AdapterBase {
             fee.amount = [
                 {
                     denom,
-                    amount: amount.toString(),
+                    amount: amount?.toString(),
                 },
             ];
 

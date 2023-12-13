@@ -19,6 +19,9 @@ import txManager from '../Transactions/store';
 // Adapters for different networks
 import adapters from '../Adapter/store';
 
+// Bridge-dex
+import bridgeDex from './bridge-dex';
+
 const dataState = createPersistedState({
     key: 'zomet-app',
     storage: {
@@ -43,6 +46,7 @@ export default createStore({
         swap,
         tokenOps: operations,
         txManager,
+        bridgeDex,
     },
     plugins: [dataState],
 });

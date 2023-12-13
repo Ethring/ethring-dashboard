@@ -432,15 +432,9 @@ export default {
 
             onSetAmount(srcAmount.value);
 
-            if (selectedSrcToken.value?.address && !allowanceForToken.value) {
-                await requestAllowance();
-            }
-
-            await makeEstimateSwapRequest();
-
             setTimeout(() => {
                 isUpdateSwapDirectionValue.value = false;
-            }, 500);
+            }, 800);
         };
 
         // =================================================================================================================
@@ -942,8 +936,8 @@ export default {
         left: calc(50% - 24px);
         bottom: 138px;
 
-        background: var(--#{$prefix}select-bg-color);
-        border: 4px solid var(--#{$prefix}white);
+        background: var(--#{$prefix}swap-btn-bg-color);
+        border: 4px solid var(--#{$prefix}main-background);
 
         svg {
             @include animateEasy;
@@ -963,7 +957,9 @@ export default {
 
         &.disabled {
             pointer-events: none;
-            opacity: 0.5;
+            svg {
+                opacity: 0.5;
+            }
         }
     }
 

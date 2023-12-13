@@ -83,7 +83,7 @@ export default {
 
         const isOpen = computed(() => store.getters['adapters/isOpen']('wallets'));
 
-        const showRoutesModal = computed(() => store.getters['swap/showRoutes']);
+        const showRoutesModal = computed(() => store.getters['bridgeDex/showRoutes']);
 
         const loadingTitle = computed(() => {
             if (isConfigLoading.value) {
@@ -157,6 +157,7 @@ export default {
         onBeforeMount(async () => {
             isConfigLoading.value = true;
             await store.dispatch('networks/initZometNets');
+            await store.dispatch('bridgeDex/getServices');
         });
 
         onMounted(async () => {
