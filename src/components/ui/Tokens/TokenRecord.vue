@@ -6,7 +6,7 @@
         :class="{ selected: record.selected }"
     >
         <div class="network">
-            <TokenIcon width="24" height="24" :token="record" class="logo" />
+            <TokenIcon width="32" height="32" :token="record" class="logo" />
 
             <div class="info">
                 <div class="top">
@@ -237,8 +237,8 @@ export default {
     }
 
     .logo {
-        width: 40px;
-        height: 40px;
+        width: 32px;
+        height: 32px;
 
         @include pageFlexRow;
         justify-content: center;

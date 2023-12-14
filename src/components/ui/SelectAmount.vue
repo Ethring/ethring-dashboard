@@ -12,7 +12,7 @@
                     </template>
                     <template v-else>
                         <div class="network">
-                            <TokenIcon width="24" height="24" :token="selectedToken" />
+                            <TokenIcon width="28" height="28" :token="selectedToken" />
                         </div>
 
                         <div class="token" v-if="selectedToken">{{ selectedToken?.symbol }}</div>
@@ -511,15 +511,10 @@ export default {
             display: flex;
             justify-content: center;
             align-items: center;
-
             width: 32px;
             height: 32px;
             border-radius: 50%;
             margin-right: 6px;
-
-            svg {
-                fill: var(--#{$prefix}black);
-            }
         }
 
         .name {

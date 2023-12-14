@@ -1,7 +1,10 @@
 <template>
-    <div class="select-token__title">{{ $t('tokenOperations.selectToken') }}</div>
+    <div class="select-token__top">
+        <ArrowIcon class="select-token__back" @click="router.push(router.options.history.state.back)" />
+        <div class="select-token__title">{{ $t('tokenOperations.selectToken') }}</div>
+    </div>
+
     <div class="select-token__wrap">
-        <ArrowIcon class="arrow" @click="router.push(router.options.history.state.back)" />
         <SearchInput @onChange="handleOnFilterTokens" />
 
         <template v-if="tokensLoading || tokensList.length">
@@ -139,30 +142,40 @@ export default {
 </script>
 <style lang="scss" scoped>
 .select-token {
+    &__top,
     &__wrap {
         width: 70%;
         max-width: 524px;
+    }
+
+    &__top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 30px;
+    }
+
+    &__back {
+        cursor: pointer;
+        fill: var(--#{$prefix}select-icon-color);
+        transform: rotate(90deg);
+
+        &:hover {
+            fill: var(--#{$prefix}icon-active);
+        }
     }
 
     &__title {
         color: var(--#{$prefix}primary-text);
         font-size: var(--#{$prefix}h4-fs);
         font-weight: 500;
-        margin-bottom: 24px;
+        margin: 0 auto;
     }
 
     &__items {
         height: calc(80vh - 150px);
         overflow-y: auto;
-        margin-top: 16px;
-    }
-
-    svg.arrow {
-        cursor: pointer;
-        fill: var(--#{$prefix}select-icon-color);
-        position: absolute;
-        transform: rotate(90deg);
-        top: 6px;
+        margin: 16px 0 0;
     }
 
     &__not-found {

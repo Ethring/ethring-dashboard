@@ -13,7 +13,7 @@
                     <NumberTooltip v-if="showBalance" :value="totalBalance" />
                     <span v-else>****</span>
                 </div>
-                <div v-if="currentChainInfo" class="balance__hide" @click="toggleViewBalance">
+                <div v-if="currentChainInfo" @click="toggleViewBalance">
                     <EyeOpenIcon v-if="showBalance" />
                     <EyeCloseIcon v-else />
                 </div>
@@ -103,21 +103,20 @@ export default {
             font-weight: 700;
             font-size: var(--#{$prefix}h3-fs);
             color: var(--#{$prefix}primary-text);
-
             user-select: none;
 
             .value {
-                font-weight: 600;
-                margin-right: 16px;
+                @include pageFlexRow;
+                margin-right: 14px;
             }
 
             span {
                 font-weight: 400;
                 color: var(--#{$prefix}symbol-text);
-                margin-right: -6px;
             }
 
             svg {
+                margin: auto;
                 cursor: pointer;
                 fill: var(--#{$prefix}eye-logo);
 

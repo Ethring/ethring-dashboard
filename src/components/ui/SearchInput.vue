@@ -68,10 +68,10 @@ export default {
 <style lang="scss" scoped>
 .search-input {
     position: relative;
-
+    transition: all 0.2s;
     @include pageFlexRow;
 
-    height: 40px;
+    height: 48px;
 
     padding: 12px 8px;
 

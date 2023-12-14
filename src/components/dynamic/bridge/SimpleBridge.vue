@@ -1167,7 +1167,7 @@ export default {
         }
         &-to {
             .select__items {
-                left: -266px;
+                left: -272px;
             }
         }
     }
