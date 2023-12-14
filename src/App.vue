@@ -213,7 +213,6 @@ export default {
         watch(currentChainInfo, async () => await callSubscription());
 
         watch(walletAccount, async () => {
-            console.log(walletAccount, '--wallet account');
             store.dispatch('tokenOps/setSrcToken', null);
             store.dispatch('tokenOps/setDstToken', null);
 
