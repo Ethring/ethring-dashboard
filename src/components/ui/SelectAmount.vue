@@ -178,7 +178,7 @@ export default {
             () => {
                 amount.value = props.amountValue;
                 active.value = false;
-                emit('setAmount', amount.value);
+                // emit('setAmount', amount.value);
             }
         );
 
@@ -479,7 +479,7 @@ export default {
         }
 
         .input-balance {
-            width: 80%;
+            width: 100%;
             text-align: right;
             min-width: 100px;
             border: none;

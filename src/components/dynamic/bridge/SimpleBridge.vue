@@ -8,7 +8,11 @@
                 :current="selectedSrcNetwork"
                 @select="(network) => handleOnSelectNetwork(network, DIRECTIONS.SOURCE)"
             />
-            <div class="simple-bridge__switch" :class="{ disabled: !selectedDstNetwork }" @click="swapTokensDirection">
+            <div
+                class="simple-bridge__switch"
+                :class="{ disabled: isUpdateSwapDirection || !selectedDstNetwork }"
+                @click="swapTokensDirection"
+            >
                 <SwapIcon />
             </div>
             <SelectNetwork
@@ -30,6 +34,7 @@
             :label="$t('tokenOperations.transferFrom')"
             :is-token-loading="isTokensLoadingForSrc"
             :is-update="isUpdateSwapDirection"
+            :amount-value="srcAmount"
             class="mt-8"
             @setAmount="onSetAmount"
             @clickToken="onSetSrcToken"
@@ -484,11 +489,14 @@ export default {
             selectedSrcToken.value = toToken;
             selectedDstToken.value = fromToken;
 
-            srcAmount.value && (await onSetAmount(srcAmount.value));
+            dstAmount.value && (await onSetAmount(dstAmount.value));
 
-            setTimeout(() => {
-                isUpdateSwapDirection.value = false;
-            }, 800);
+            setTimeout(
+                () => {
+                    isUpdateSwapDirection.value = false;
+                },
+                srcAmount.value ? 800 : 0
+            );
         };
 
         // =================================================================================================================

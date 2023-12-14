@@ -17,12 +17,12 @@
                         <MoreOutlined class="more-options-icon" />
                     </a>
                     <template #overlay>
-                        <a-menu class="wallet__options">
-                            <div key="copy-address" @click="() => handleOnCopyAddress(wallet.ecosystem)" class="wallet__options-item">
+                        <div class="wallet__options">
+                            <div key="copy-address" @click.stop="() => handleOnCopyAddress(wallet.ecosystem)" class="wallet__options-item">
                                 <div class="wallet__options-item-icon copy">
                                     <CopyIcon />
                                 </div>
-                                <div>{{ $t('adapter.copyAddress') }}</div>
+                                <div>{{ copied ? $t('adapter.copied') : $t('adapter.copyAddress') }}</div>
                             </div>
 
                             <div
@@ -35,7 +35,7 @@
                                 </div>
                                 <div class="wallet__options-item-label disconnect">{{ $t('adapter.disconnectAccount') }}</div>
                             </div>
-                        </a-menu>
+                        </div>
                     </template>
                 </a-dropdown>
             </div>
@@ -79,7 +79,7 @@ export default {
     },
     setup(props) {
         const selectedChain = ref(props.wallet.chain);
-        const { copy } = useClipboard();
+        const { copy, copied } = useClipboard();
         const {
             getChainListByEcosystem,
             getChainByChainId,
@@ -161,7 +161,7 @@ export default {
             chainList,
             selectedChain,
             currentChainInfo,
-
+            copied,
             cutAddress,
 
             handleOnClickConnectedWallet,
@@ -231,6 +231,7 @@ export default {
 .wallet__options {
     background: var(--#{$prefix}main-background) !important;
     padding: 12px 0 !important;
+    width: 180px;
 
     color: var(--#{$prefix}primary-text);
     font-size: var(--#{$prefix}small-lg-fs);

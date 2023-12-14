@@ -22,7 +22,11 @@
                 @setAmount="onSetAmount"
             />
 
-            <div class="simple-swap__switch" :class="{ disabled: isUpdateSwapDirectionValue }" @click="swapTokensDirection">
+            <div
+                class="simple-swap__switch"
+                :class="{ disabled: isUpdateSwapDirectionValue || !selectedDstToken }"
+                @click="swapTokensDirection"
+            >
                 <SwapIcon />
             </div>
 
@@ -424,7 +428,7 @@ export default {
         // =================================================================================================================
 
         const swapTokensDirection = async () => {
-            if (isUpdateSwapDirectionValue.value) {
+            if (isUpdateSwapDirectionValue.value || !selectedDstToken.value) {
                 return;
             }
 
@@ -438,11 +442,14 @@ export default {
             selectedSrcToken.value = to;
             selectedDstToken.value = from;
 
-            onSetAmount(srcAmount.value);
+            onSetAmount(dstAmount.value);
 
-            setTimeout(() => {
-                isUpdateSwapDirectionValue.value = false;
-            }, 800);
+            setTimeout(
+                () => {
+                    isUpdateSwapDirectionValue.value = false;
+                },
+                srcAmount.value ? 800 : 0
+            );
         };
 
         // =================================================================================================================

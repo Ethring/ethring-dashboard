@@ -158,6 +158,7 @@ export default {
                 font-weight: 400;
                 font-size: var(--#{$prefix}small-sm-fs);
                 color: var(--#{$prefix}sub-text);
+                line-height: 18px;
                 margin-right: 6px;
             }
 
@@ -165,7 +166,7 @@ export default {
                 font-style: normal;
                 font-weight: 400;
                 font-size: var(--#{$prefix}small-sm-fs);
-
+                line-height: 18px;
                 color: var(--#{$prefix}sub-text);
 
                 display: flex;
