@@ -132,14 +132,19 @@ export default {
         const callInit = async () => {
             const { ecosystem, walletModule } = currentChainInfo.value || {};
 
+            isConfigLoading.value = true;
+
+            await store.dispatch('networks/initZometNets', ecosystem.toLowerCase());
+
+            if (isInitCall.value[walletAccount.value]) {
+                return;
+            }
+
             if (!walletModule || !ecosystem || !walletAddress.value || showRoutesModal.value) {
                 return setTimeout(callInit, 1000);
             }
 
-            isConfigLoading.value = true;
             store.dispatch('tokens/setLoader', true);
-
-            await store.dispatch('networks/initZometNets', ecosystem.toLowerCase());
 
             isInitCall.value = {
                 ...isInitCall.value,
@@ -213,6 +218,7 @@ export default {
         watch(currentChainInfo, async () => await callSubscription());
 
         watch(walletAccount, async () => {
+            console.log(walletAccount, '--wallet account');
             store.dispatch('tokenOps/setSrcToken', null);
             store.dispatch('tokenOps/setDstToken', null);
 
