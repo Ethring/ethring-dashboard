@@ -130,15 +130,15 @@ export default {
         };
 
         const callInit = async () => {
+            if (isInitCall.value[walletAccount.value]) {
+                return;
+            }
+
             const { ecosystem, walletModule } = currentChainInfo.value || {};
 
             isConfigLoading.value = true;
 
             await store.dispatch('networks/initZometNets', ecosystem.toLowerCase());
-
-            if (isInitCall.value[walletAccount.value]) {
-                return;
-            }
 
             if (!walletModule || !ecosystem || !walletAddress.value || showRoutesModal.value) {
                 return setTimeout(callInit, 1000);
