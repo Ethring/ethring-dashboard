@@ -260,6 +260,12 @@ export const getBridgeTx = async ({
         throw new Error('url is required');
     }
 
+    const BRIDGE_REMOVE_KEYS = [...REMOVE_KEYS, 'net'];
+
+    for (const key of BRIDGE_REMOVE_KEYS) {
+        delete rest[key];
+    }
+
     try {
         const fetchParams = {
             url,
