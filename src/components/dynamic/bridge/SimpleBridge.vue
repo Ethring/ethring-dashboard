@@ -489,13 +489,13 @@ export default {
             selectedSrcToken.value = toToken;
             selectedDstToken.value = fromToken;
 
-            dstAmount.value && (await onSetAmount(dstAmount.value));
+            srcAmount.value && (await onSetAmount(srcAmount.value));
 
             setTimeout(
                 () => {
                     isUpdateSwapDirection.value = false;
                 },
-                srcAmount.value ? 800 : 0
+                srcAmount.value ? 1000 : 0
             );
         };
 
@@ -1156,13 +1156,19 @@ export default {
         .select {
             width: 48%;
 
-            .select__panel .name {
+            &__panel .name {
                 font-size: var(--#{$prefix}h6-fs);
                 line-height: 26px;
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 overflow: hidden;
                 width: 160px;
+            }
+
+            &__items {
+                top: 80px;
+                border-radius: 8px;
+                border-top: 1px solid var(--#{$prefix}select-active-border-color);
             }
         }
         &-to {

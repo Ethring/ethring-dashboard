@@ -442,13 +442,13 @@ export default {
             selectedSrcToken.value = to;
             selectedDstToken.value = from;
 
-            onSetAmount(dstAmount.value);
+            dstAmount.value && (await onSetAmount(dstAmount.value));
 
             setTimeout(
                 () => {
                     isUpdateSwapDirectionValue.value = false;
                 },
-                srcAmount.value ? 800 : 0
+                srcAmount.value ? 1000 : 0
             );
         };
 

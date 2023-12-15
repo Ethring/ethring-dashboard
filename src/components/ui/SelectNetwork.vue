@@ -20,22 +20,24 @@
                 class="search"
                 :placeholder="$t('tokenOperations.searchNetwork')"
             />
-            <div
-                v-for="(item, idx) in options"
-                :key="idx"
-                :class="{ active: item.net === current?.net }"
-                class="select__items-item"
-                @click="() => onSelectNetwork(item)"
-            >
-                <div class="info">
-                    <div class="icon">
-                        <img :src="item.logo" alt="network-logo" class="network-logo" />
+            <div class="select__items-container">
+                <div
+                    v-for="(item, idx) in options"
+                    :key="idx"
+                    :class="{ active: item.net === current?.net }"
+                    class="select__items-item"
+                    @click="() => onSelectNetwork(item)"
+                >
+                    <div class="info">
+                        <div class="icon">
+                            <img :src="item.logo" alt="network-logo" class="network-logo" />
+                        </div>
+                        <div class="name">{{ item.label || item.name }}</div>
                     </div>
-                    <div class="name">{{ item.label || item.name }}</div>
                 </div>
-            </div>
-            <div v-if="!options.length" class="select__items-not-found">
-                <p>{{ $t('dashboard.notFound') }}</p>
+                <div v-if="!options.length" class="select__items-not-found">
+                    <p>{{ $t('dashboard.notFound') }}</p>
+                </div>
             </div>
         </div>
     </div>
@@ -145,8 +147,6 @@ export default {
     }
 
     &__panel {
-        z-index: 2;
-
         @include pageFlexColumn;
         align-items: flex-start;
         background: var(--#{$prefix}select-bg-color);
@@ -157,7 +157,7 @@ export default {
         border: 1px solid transparent;
         cursor: pointer;
 
-        transition: 0.2s;
+        transition: all 0.2s;
 
         .info {
             @include pageFlexRow;
@@ -173,10 +173,6 @@ export default {
 
             border-radius: 50%;
             margin-right: 8px;
-
-            svg {
-                fill: var(--#{$prefix}black);
-            }
 
             &-logo {
                 object-fit: contain;
@@ -249,31 +245,37 @@ export default {
     }
 
     &__items {
-        z-index: 1;
         background: var(--#{$prefix}select-dropdown-bg-color);
-        position: absolute !important;
-
+        position: absolute;
+        top: 74px;
         left: 0;
         right: 0;
-
+        height: 250px;
         width: 524px;
+        z-index: -1;
+        padding: 22px 16px 4px;
 
         border: 1px solid var(--#{$prefix}select-active-border-color);
-        border-radius: 8px;
-
+        border-radius: 0 0 8px 8px;
+        border-top: none;
         transform: scaleY(0);
         transform-origin: top;
-        transition: transform 0.2s ease;
-
-        padding: 16px 16px 4px;
-        box-sizing: border-box;
-
-        height: 244px;
-        overflow-y: auto;
+        transition: transform 0.2s;
 
         &::-webkit-scrollbar {
             width: 0px;
             background-color: transparent;
+        }
+
+        &-container {
+            overflow-y: auto;
+            height: 170px;
+        }
+        .search {
+            position: sticky;
+            top: 0;
+            left: 16px;
+            right: 16px;
         }
 
         &-not-found {
