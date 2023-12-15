@@ -2,7 +2,7 @@
     <div class="select" :class="{ active }" ref="selectBlock">
         <div class="select__block" data-qa="select__block" :class="{ 'select__block-active': active }" @click="() => toggleOptions()">
             <div class="logo">
-                <TokenIcon width="24px" height="24px" :token="selectedItem" />
+                <TokenIcon width="32" height="32" :token="selectedItem" />
             </div>
             <h3 v-if="selectedItem">{{ !isToken ? selectedItem?.name : selectedItem?.symbol }}</h3>
             <h3 v-else>Select</h3>
@@ -23,7 +23,7 @@
                 >
                     <div class="row">
                         <div class="logo">
-                            <TokenIcon width="24px" height="24px" :token="item" />
+                            <TokenIcon width="32" height="32" :token="item" />
                         </div>
                         <div class="column">
                             <h3 data-qa="item__name">{{ !isToken ? item?.name : item?.symbol }}</h3>
@@ -232,6 +232,7 @@ export default {
         padding-left: 4px;
         border: 1px solid transparent;
         @include pageFlexRow;
+        transition: all 0.2s;
 
         svg.arrow {
             margin: auto;

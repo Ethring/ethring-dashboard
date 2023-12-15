@@ -86,7 +86,7 @@ export default {
 
     &__content-title {
         color: var(--#{$prefix}primary-text);
-        font-size: var(--#{$prefix}h3-fs);
+        font-size: var(--#{$prefix}h5-fs);
         font-weight: 500;
     }
 

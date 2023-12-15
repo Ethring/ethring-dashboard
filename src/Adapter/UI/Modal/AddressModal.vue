@@ -74,7 +74,7 @@ export default {
         border-bottom: 1px dashed var(--#{$prefix}border-color);
         padding-bottom: 10px;
         margin-bottom: 24px;
-        font-size: var(--#{$prefix}h3-fs);
+        font-size: var(--#{$prefix}h5-fs);
         font-weight: 500;
     }
 

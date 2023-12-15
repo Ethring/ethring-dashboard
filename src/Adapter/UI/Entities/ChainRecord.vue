@@ -72,6 +72,11 @@ export default {
 </script>
 <style lang="scss" scoped>
 .chain {
+    &-info {
+        @include pageFlexColumn;
+        align-items: flex-start;
+    }
+
     &-record {
         @include pageFlexRow;
         justify-content: space-between;
@@ -89,8 +94,8 @@ export default {
         }
 
         &__logo-container {
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             overflow: hidden;
             margin-right: 8px;
@@ -105,7 +110,7 @@ export default {
         }
 
         &__name {
-            font-size: var(--#{$prefix}h6-fs);
+            font-size: var(--#{$prefix}default-fs);
             font-weight: 600;
             line-height: 18px;
             color: var(--#{$prefix}primary-text);
@@ -115,7 +120,7 @@ export default {
             color: var(--#{$prefix}sub-text);
             font-size: var(--#{$prefix}small-sm-fs);
             font-weight: 400;
-
+            line-height: 14px;
             cursor: pointer;
         }
 
@@ -139,16 +144,6 @@ export default {
             cursor: pointer;
             outline: none !important;
         }
-    }
-}
-
-.chains-list {
-    @include pageFlexRow;
-    margin-top: 4px;
-
-    .chain-record__logo-container {
-        width: 16px;
-        height: 16px;
     }
 }
 </style>

@@ -160,7 +160,7 @@ export default function useModule({ module, moduleType }) {
 
         const [defaultFromToken = null, defaultToToken = null] = tokensList.value || [];
 
-        if (!selectedSrcToken.value && defaultFromToken) {
+        if ((!selectedSrcToken.value && defaultFromToken) || selectedSrcToken.value?.balance === 0) {
             selectedSrcToken.value = defaultFromToken;
         }
 
@@ -170,8 +170,9 @@ export default function useModule({ module, moduleType }) {
             return;
         }
 
-        if (selectedSrcToken.value?.id !== defaultFromToken?.id) {
-            selectedSrcToken.value = defaultFromToken;
+        if (moduleType === 'send') {
+            selectedDstToken.value = null;
+            return;
         }
 
         if (selectedSrcToken.value?.address === selectedDstToken.value?.address) {
@@ -180,39 +181,6 @@ export default function useModule({ module, moduleType }) {
 
         if (!selectedDstToken.value && defaultToToken) {
             selectedDstToken.value = defaultToToken;
-        }
-
-        if (selectedDstToken.value?.balance === 0 && defaultToToken) {
-            selectedDstToken.value = defaultToToken;
-        }
-
-        if (!selectedSrcToken.value && !selectedDstToken.value) {
-            return;
-        }
-
-        const { symbol: fromSymbol } = selectedSrcToken.value || {};
-        const { symbol: toSymbol } = selectedSrcToken.value || {};
-
-        const searchTokens = [fromSymbol, toSymbol];
-
-        const updatedList = tokensList.value.filter((tkn) => searchTokens.includes(tkn.symbol)) || [];
-
-        if (!updatedList.length) {
-            return;
-        }
-
-        const [fromToken = null, toToken = null] = updatedList;
-
-        if (fromToken) {
-            selectedSrcToken.value = fromToken;
-        }
-
-        if (toToken && !selectedDstToken.value) {
-            selectedDstToken.value = toToken;
-        }
-
-        if (moduleType === 'send') {
-            selectedDstToken.value = null;
         }
     };
 

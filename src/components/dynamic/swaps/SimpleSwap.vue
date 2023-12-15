@@ -15,18 +15,14 @@
                 :error="!!isBalanceError"
                 :on-reset="resetSrcAmount"
                 :is-token-loading="isTokensLoadingForChain"
-                :is-update="isUpdateSwapDirectionValue"
+                :is-update="isUpdateSwapDirection"
                 :label="$t('tokenOperations.pay')"
                 :amount-value="srcAmount"
                 @clickToken="onSetTokenFrom"
                 @setAmount="onSetAmount"
             />
 
-            <div
-                class="simple-swap__switch"
-                :class="{ disabled: isUpdateSwapDirectionValue || !selectedDstToken }"
-                @click="swapTokensDirection"
-            >
+            <div class="simple-swap__switch" :class="{ disabled: isUpdateSwapDirection || !selectedDstToken }" @click="swapTokensDirection">
                 <SwapIcon />
             </div>
 
@@ -38,7 +34,7 @@
                 :is-amount-loading="isEstimating"
                 :value="selectedDstToken"
                 :on-reset="resetDstAmount"
-                :is-update="isUpdateSwapDirectionValue"
+                :is-update="isUpdateSwapDirection"
                 :label="$t('tokenOperations.receive')"
                 :disabled-value="dstAmount"
                 :amount-value="dstAmount"
@@ -248,7 +244,7 @@ export default {
         // * Loaders
         const isLoading = ref(false);
         const isEstimating = ref(false);
-        const isUpdateSwapDirectionValue = ref(false);
+        const isUpdateSwapDirection = ref(false);
 
         const balanceUpdated = ref(false);
 
@@ -367,8 +363,10 @@ export default {
             txError.value = '';
             dstAmount.value = '';
             isBalanceError.value = false;
+            isUpdateSwapDirection.value = true;
 
             if (!+value) {
+                isUpdateSwapDirection.value = false;
                 return (isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance));
             }
 
@@ -428,7 +426,7 @@ export default {
         // =================================================================================================================
 
         const swapTokensDirection = async () => {
-            if (isUpdateSwapDirectionValue.value || !selectedDstToken.value) {
+            if (isUpdateSwapDirection.value || !selectedDstToken.value) {
                 return;
             }
 
@@ -437,19 +435,10 @@ export default {
             const from = { ...selectedSrcToken.value };
             const to = { ...selectedDstToken.value };
 
-            isUpdateSwapDirectionValue.value = true;
-
             selectedSrcToken.value = to;
             selectedDstToken.value = from;
 
-            dstAmount.value && (await onSetAmount(dstAmount.value));
-
-            setTimeout(
-                () => {
-                    isUpdateSwapDirectionValue.value = false;
-                },
-                srcAmount.value ? 1000 : 0
-            );
+            await onSetAmount(dstAmount.value);
         };
 
         // =================================================================================================================
@@ -470,6 +459,8 @@ export default {
                 estimateErrorTitle.value = t('tokenOperations.selectDstToken');
                 return false;
             }
+
+            estimateErrorTitle.value = '';
 
             const isNotEVM = selectedSrcNetwork.value?.ecosystem !== ECOSYSTEMS.EVM;
 
@@ -499,6 +490,7 @@ export default {
         const makeEstimateSwapRequest = async () => {
             if (!isAllowForRequest() || !selectedDstToken.value || +srcAmount.value === 0) {
                 isEstimating.value = false;
+                isUpdateSwapDirection.value = false;
                 return (isLoading.value = false);
             }
 
@@ -523,6 +515,8 @@ export default {
             } else {
                 response = await estimateSwap(params);
             }
+
+            isUpdateSwapDirection.value = false;
 
             if (response.error) {
                 isEstimating.value = false;
@@ -904,7 +898,7 @@ export default {
             resetSrcAmount,
             resetDstAmount,
 
-            isUpdateSwapDirectionValue,
+            isUpdateSwapDirection,
             currentChainInfo,
 
             selectedSrcToken,

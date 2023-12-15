@@ -444,8 +444,10 @@ export default {
             srcAmount.value = value;
             txError.value = '';
             dstAmount.value = '';
+            isUpdateSwapDirection.value = true;
 
             if (!+value) {
+                isUpdateSwapDirection.value = false;
                 return (isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance));
             }
 
@@ -470,10 +472,9 @@ export default {
         // =================================================================================================================
 
         const swapTokensDirection = async () => {
-            if (!selectedDstNetwork.value) {
+            if (isUpdateSwapDirection.value || !selectedDstNetwork.value) {
                 return;
             }
-            isUpdateSwapDirection.value = true;
 
             clearApproveForService();
 
@@ -489,14 +490,7 @@ export default {
             selectedSrcToken.value = toToken;
             selectedDstToken.value = fromToken;
 
-            srcAmount.value && (await onSetAmount(srcAmount.value));
-
-            setTimeout(
-                () => {
-                    isUpdateSwapDirection.value = false;
-                },
-                srcAmount.value ? 1000 : 0
-            );
+            await onSetAmount(srcAmount.value);
         };
 
         // =================================================================================================================
@@ -577,6 +571,7 @@ export default {
         const makeEstimateBridgeRequest = async () => {
             if (!isAllowForRequest() || !selectedDstNetwork.value || !+srcAmount.value === 0) {
                 isEstimating.value = false;
+                isUpdateSwapDirection.value = false;
                 return (isLoading.value = false);
             }
 
@@ -602,6 +597,8 @@ export default {
             }
 
             const response = await estimateBridge(params);
+
+            isUpdateSwapDirection.value = false;
 
             if (response.error) {
                 isEstimating.value = false;

@@ -64,7 +64,7 @@ export default {
         @include pageFlexColumn;
         transition: all 1s;
         overflow: hidden;
-        padding: 0 24px;
+        padding: 0 4px;
     }
 
     &__header {
