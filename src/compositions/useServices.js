@@ -336,12 +336,13 @@ export default function useModule({ module, moduleType }) {
 
         if (newNet?.net === oldNet?.net) {
             return;
+        } else {
+            srcAmount.value = '';
+            dstAmount.value = '';
         }
 
         if (currentChainInfo.value?.net !== selectedSrcNetwork.value?.net) {
             selectedSrcToken.value = null;
-            srcAmount.value = '';
-            dstAmount.value = '';
         }
 
         resetTokensForModules();
