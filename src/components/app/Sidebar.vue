@@ -95,7 +95,7 @@ export default {
         }
 
         &__list:last-child {
-            margin-bottom: 40px;
+            margin-bottom: 20px;
         }
     }
 

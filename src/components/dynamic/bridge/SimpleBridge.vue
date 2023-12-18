@@ -932,7 +932,6 @@ export default {
         });
 
         watch(isTokensLoadingForDst, () => {
-            selectedDstToken.value = null;
             onlyWithBalance.value = false;
             selectedDstToken.value = setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
         });
