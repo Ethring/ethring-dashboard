@@ -321,7 +321,6 @@ export default {
         opacity: 0;
         justify-content: space-between;
         height: 56px;
-        padding: 16px 0 10px;
         border-bottom: 1px dashed var(--#{$prefix}border-color);
         cursor: pointer;
 
