@@ -1,6 +1,6 @@
 <template>
     <div class="socials" :class="{ collapsed: collapsed }">
-        <a class="socials__item telegram disabled">
+        <a class="socials__item telegram" target="_blank" href="https://t.me/zometapp">
             <TelegramIcon />
         </a>
         <a class="socials__item twitter" target="_blank" href="https://twitter.com/zometapp">
