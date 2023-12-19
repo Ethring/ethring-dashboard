@@ -516,6 +516,12 @@ export default {
                 response = await estimateSwap(params);
             }
 
+            const checkRoute = response?.fromTokenAmount === srcAmount.value;
+
+            if (!checkRoute) {
+                return;
+            }
+
             isUpdateSwapDirection.value = false;
 
             if (response.error) {
