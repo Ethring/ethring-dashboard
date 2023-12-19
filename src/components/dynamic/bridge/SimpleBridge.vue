@@ -598,6 +598,12 @@ export default {
 
             const response = await estimateBridge(params);
 
+            const checkRoute = response?.fromTokenAmount === srcAmount.value;
+
+            if (!checkRoute) {
+                return;
+            }
+
             isUpdateSwapDirection.value = false;
 
             if (response.error) {

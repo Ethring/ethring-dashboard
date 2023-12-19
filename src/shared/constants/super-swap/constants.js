@@ -5,9 +5,8 @@ export const STATUSES = {
 };
 
 export const ERRORS = {
-    ROUTE_NOT_FOUND: 'Insufficient liquidity',
-    NOT_ENOUGH_BALANCE: 'Insufficient balance for network fees',
     INSUFFICIENT_FUNDS: 'Insufficient funds for transfer',
+    UNPREDICTABLE_GAS_LIMIT: 'Insufficient balance for network fees',
 };
 
 export const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';

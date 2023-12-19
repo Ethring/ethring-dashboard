@@ -34,7 +34,7 @@
                                 {{ error }}
                             </template>
 
-                            {{ error.slice(0, MAX_LENGTH) + '...' }}
+                            {{ error }}
                         </a-tooltip>
                     </div>
                 </div>
@@ -144,8 +144,7 @@ export default {
         margin-right: 8px;
     }
     .top-block {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         justify-content: flex-start;
 
         .title {
@@ -157,6 +156,10 @@ export default {
         .error {
             font-weight: 500;
             color: var(--#{$prefix}warning);
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            max-width: 360px;
         }
     }
 

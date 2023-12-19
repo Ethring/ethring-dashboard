@@ -12,7 +12,9 @@
                     @error="showImagePlaceholder = true"
                     @load="showImagePlaceholder = false"
                 />
-                <QuestionCircleOutlined v-else class="fallback__logo" />
+                <div v-else class="asset__placeholder">
+                    <a-avatar :size="32">{{ title.slice(0, 3) }}</a-avatar>
+                </div>
             </div>
 
             <div class="asset__item-header-name">
@@ -57,7 +59,6 @@ import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 
 import TokenLogo from '@/assets/icons/dashboard/wallet.svg';
-import { QuestionCircleOutlined } from '@ant-design/icons-vue';
 import NftsLogo from '@/assets/icons/dashboard/nfts.svg';
 import NumberTooltip from '@/components/ui/NumberTooltip';
 
@@ -97,7 +98,6 @@ export default {
         TokenLogo,
         NftsLogo,
         NumberTooltip,
-        QuestionCircleOutlined,
     },
     setup() {
         const store = useStore();
@@ -286,17 +286,5 @@ export default {
         height: 32px;
         border-radius: 50%;
     }
-}
-
-.fallback__logo {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    @include pageFlexRow;
-    justify-content: center;
-    align-items: center;
-    color: var(--#{$prefix}asset-header-icon-color);
-    font-size: var(--#{$prefix}h2-fs);
-    font-weight: 600;
 }
 </style>

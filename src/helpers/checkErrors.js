@@ -1,17 +1,15 @@
 import { ERRORS } from '@/shared/constants/super-swap/constants';
 
-export const checkErrors = (error) => {
-    if (error && error?.data && error?.data?.message) {
-        return { error: error?.data?.message };
-    } else if (typeof error === 'string') {
-        const errorCodes = error.match(/INSUFFICIENT_FUNDS/);
+const ERRORS_REGEX = new RegExp(Object.keys(ERRORS).join('|'), 'i');
 
-        if (errorCodes) {
-            error = ERRORS[errorCodes];
-        }
+export function checkErrors(error) {
+    error = error?.data?.message || error?.message || JSON.stringify(error);
 
-        return error;
+    const errorCodes = error.match(ERRORS_REGEX);
+
+    if (errorCodes) {
+        error = ERRORS[errorCodes[0]];
     }
 
-    return { error: error.message || JSON.stringify(error) };
-};
+    return { error };
+}
