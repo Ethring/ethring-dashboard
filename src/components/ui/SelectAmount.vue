@@ -474,6 +474,7 @@ export default {
             white-space: nowrap;
 
             &.placeholder {
+                font-weight: 500;
                 color: var(--#{$prefix}select-placeholder-text);
             }
         }
@@ -514,7 +515,7 @@ export default {
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            margin-right: 6px;
+            margin-right: 4px;
         }
 
         .name {

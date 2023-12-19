@@ -11,7 +11,7 @@
             @load="showIconPlaceholder = false"
         />
         <div v-else class="token-icon__placeholder">
-            <a-avatar>{{ iconPlaceholder }}</a-avatar>
+            <a-avatar :size="+width">{{ iconPlaceholder }}</a-avatar>
         </div>
     </div>
 </template>
@@ -26,9 +26,11 @@ export default {
     props: {
         width: {
             required: true,
+            default: 32,
         },
         height: {
             required: true,
+            default: 32,
         },
         token: {
             required: true,
