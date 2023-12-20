@@ -169,8 +169,7 @@ export default {
             font-weight: 600;
         }
 
-        .apr,
-        .unlock {
+        .apr {
             span {
                 color: var(--#{$prefix}mute-apr-text);
                 font-weight: 400;
@@ -178,10 +177,10 @@ export default {
         }
 
         .unlock {
-            color: var(--#{$prefix}mute-apr-text);
-
+            color: var(--#{$prefix}unlock-text);
+            font-weight: 400;
             span {
-                color: var(--#{$prefix}unlock-text);
+                color: var(--#{$prefix}mute-apr-text);
                 font-weight: 500;
             }
         }

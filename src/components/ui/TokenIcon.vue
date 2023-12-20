@@ -92,9 +92,6 @@ export default {
 </script>
 <style lang="scss" scoped>
 .token-icon {
-    width: 32px;
-    height: 32px;
-
     @include pageFlexRow;
     justify-content: center;
 
