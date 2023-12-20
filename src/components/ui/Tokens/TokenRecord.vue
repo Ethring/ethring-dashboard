@@ -1,6 +1,7 @@
 <template>
     <div
         class="token-record"
+        :data-qa="`token-record`"
         :data-key="record?.id || record?.address"
         @click="(event) => sendTokenInfo(event, record)"
         :class="{ selected: record.selected }"
