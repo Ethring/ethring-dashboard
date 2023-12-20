@@ -256,7 +256,11 @@ export default {
 }
 
 .header {
-    height: 80px;
+    width: 75%;
+    margin: 0 auto;
+
+    height: 48px;
+    padding: 0;
 
     position: sticky;
     top: 0;
@@ -267,6 +271,6 @@ export default {
 
 .content {
     width: 75%;
-    margin: 20px auto;
+    margin: 44px auto 0;
 }
 </style>

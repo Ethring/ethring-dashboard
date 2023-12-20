@@ -8,13 +8,18 @@
                 :current="selectedSrcNetwork"
                 @select="(network) => handleOnSelectNetwork(network, DIRECTIONS.SOURCE)"
             />
-            <div class="simple-bridge__switch" :class="{ disabled: !selectedDstNetwork }" @click="swapTokensDirection">
+            <div
+                class="simple-bridge__switch"
+                :class="{ disabled: isUpdateSwapDirection || !selectedDstNetwork }"
+                @click="swapTokensDirection"
+            >
                 <SwapIcon />
             </div>
             <SelectNetwork
                 label="To"
                 placeholder="Select network"
                 :items="dstNets"
+                class="select-group-to"
                 :current="selectedDstNetwork"
                 @select="(network) => handleOnSelectNetwork(network, DIRECTIONS.DESTINATION)"
             />
@@ -29,7 +34,8 @@
             :label="$t('tokenOperations.transferFrom')"
             :is-token-loading="isTokensLoadingForSrc"
             :is-update="isUpdateSwapDirection"
-            class="mt-10"
+            :amount-value="srcAmount"
+            class="mt-8"
             @setAmount="onSetAmount"
             @clickToken="onSetSrcToken"
         />
@@ -46,7 +52,7 @@
             :disabled-value="dstAmount"
             :on-reset="resetDstAmount"
             :amount-value="dstAmount"
-            class="mt-10"
+            class="mt-8"
             @clickToken="onSetDstToken"
         />
 
@@ -55,7 +61,7 @@
             id="isSendToAnotherAddress"
             v-model:value="isSendToAnotherAddress"
             :label="`Receive ${selectedDstToken?.symbol} to another wallet`"
-            class="mt-10"
+            class="mt-8"
         />
 
         <SelectAddress
@@ -63,7 +69,7 @@
             :selected-network="selectedDstNetwork"
             :error="!!errorAddress"
             placeholder="0x..."
-            class="mt-10"
+            class="mt-8"
             :value="receiverAddress"
             :on-reset="clearAddress"
             @setAddress="onSetAddress"
@@ -83,7 +89,7 @@
             :title="$t(opTitle)"
             :disabled="!!disabledBtn"
             :loading="isWaitingTxStatusForModule || isLoading"
-            class="simple-bridge__btn mt-10"
+            class="simple-bridge__btn mt-16"
             @click="handleOnConfirm"
             size="large"
         />
@@ -339,6 +345,9 @@ export default {
         // =================================================================================================================
 
         const handleOnSelectNetwork = async (network, direction) => {
+            if (!network.net) {
+                return;
+            }
             if (direction === DIRECTIONS.SOURCE) {
                 selectedSrcNetwork.value = network;
                 selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
@@ -435,8 +444,10 @@ export default {
             srcAmount.value = value;
             txError.value = '';
             dstAmount.value = '';
+            isUpdateSwapDirection.value = true;
 
             if (!+value) {
+                isUpdateSwapDirection.value = false;
                 return (isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance));
             }
 
@@ -461,10 +472,9 @@ export default {
         // =================================================================================================================
 
         const swapTokensDirection = async () => {
-            if (!selectedDstNetwork.value) {
+            if (isUpdateSwapDirection.value || !selectedDstNetwork.value) {
                 return;
             }
-            isUpdateSwapDirection.value = true;
 
             clearApproveForService();
 
@@ -480,11 +490,7 @@ export default {
             selectedSrcToken.value = toToken;
             selectedDstToken.value = fromToken;
 
-            srcAmount.value && (await onSetAmount(srcAmount.value));
-
-            setTimeout(() => {
-                isUpdateSwapDirection.value = false;
-            }, 800);
+            await onSetAmount(srcAmount.value);
         };
 
         // =================================================================================================================
@@ -565,6 +571,7 @@ export default {
         const makeEstimateBridgeRequest = async () => {
             if (!isAllowForRequest() || !selectedDstNetwork.value || !+srcAmount.value === 0) {
                 isEstimating.value = false;
+                isUpdateSwapDirection.value = false;
                 return (isLoading.value = false);
             }
 
@@ -590,6 +597,14 @@ export default {
             }
 
             const response = await estimateBridge(params);
+
+            const checkRoute = response?.fromTokenAmount === srcAmount.value;
+
+            if (!checkRoute) {
+                return;
+            }
+
+            isUpdateSwapDirection.value = false;
 
             if (response.error) {
                 isEstimating.value = false;
@@ -617,7 +632,7 @@ export default {
 
             rateInfo.value = {
                 title: 'tokenOperations.rate',
-                symbolBetween: '=',
+                symbolBetween: '~',
                 fromAmount: '1',
                 fromSymbol: selectedSrcToken.value.symbol,
                 toAmount: formatNumber(response.toTokenAmount / response.fromTokenAmount, 6),
@@ -923,7 +938,6 @@ export default {
         });
 
         watch(isTokensLoadingForDst, () => {
-            selectedDstToken.value = null;
             onlyWithBalance.value = false;
             selectedDstToken.value = setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
         });
@@ -1061,6 +1075,8 @@ export default {
                 selectedDstNetwork.value = null;
                 selectedDstToken.value = null;
                 receiverAddress.value = '';
+                srcAmount.value = null;
+                dstAmount.value = null;
             }
         });
 
@@ -1131,11 +1147,8 @@ export default {
 </script>
 <style lang="scss">
 .simple-bridge {
-    width: 660px;
-
-    .mt-10 {
-        margin-top: 10px;
-    }
+    width: 524px;
+    position: relative;
 
     .select-group {
         @include pageFlexRow;
@@ -1143,11 +1156,26 @@ export default {
         position: relative;
 
         .select {
-            width: 48.5%;
+            width: 48%;
 
-            .name {
+            &__panel .name {
                 font-size: var(--#{$prefix}h6-fs);
                 line-height: 26px;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                width: 160px;
+            }
+
+            &__items {
+                top: 80px;
+                border-radius: 8px;
+                border-top: 1px solid var(--#{$prefix}select-active-border-color);
+            }
+        }
+        &-to {
+            .select__items {
+                left: -272px;
             }
         }
     }
@@ -1193,7 +1221,7 @@ export default {
             background: var(--#{$prefix}btn-disabled);
             svg {
                 path {
-                    fill: var(--#{$prefix}border-secondary-color);
+                    fill: var(--#{$prefix}border-color);
                 }
             }
         }

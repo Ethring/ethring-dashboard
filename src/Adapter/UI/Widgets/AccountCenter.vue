@@ -26,9 +26,7 @@
             </div>
         </div>
 
-        <div class="wallet-adapter__actions">
-            <ArrowUpIcon />
-        </div>
+        <div class="wallet-adapter__actions"><ArrowIcon class="arrow" /></div>
     </div>
 </template>
 <script>
@@ -38,7 +36,7 @@ import ModuleIcon from '@/Adapter/UI/Entities/ModuleIcon.vue';
 
 import ZometLogo from '@/assets/icons/app/zometLogo.svg';
 import CheckIcon from '@/assets/icons/app/checkIcon.svg';
-import ArrowUpIcon from '@/assets/icons/dashboard/arrowtopdown.svg';
+import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
 import { cutAddress } from '@/helpers/utils';
 import { prettyNumberTooltip } from '@/helpers/prettyNumber';
@@ -49,7 +47,7 @@ export default {
         ModuleIcon,
         ZometLogo,
         CheckIcon,
-        ArrowUpIcon,
+        ArrowIcon,
     },
     emits: ['toggleDropdown', 'closeDropdown'],
     setup() {
@@ -80,8 +78,6 @@ export default {
     @include pageFlexRow;
 
     width: 100%;
-    min-width: 300px;
-    height: 58px;
     position: relative;
 
     background-color: var(--#{$prefix}banner-color);
@@ -91,7 +87,7 @@ export default {
     transition: 0.3s;
 
     border-radius: 50px;
-    padding: 8px 16px;
+    padding: 4px 16px 4px 4px;
 
     &:hover {
         border-color: var(--#{$prefix}btn-bg-color-hover);
@@ -100,7 +96,12 @@ export default {
     &__account {
         @include pageFlexRow;
         width: 100%;
-        transition: 0.5s;
+    }
+
+    .arrow {
+        cursor: pointer;
+        fill: var(--#{$prefix}select-icon-color);
+        @include animateEasy;
     }
 
     &__logos {
@@ -146,14 +147,14 @@ export default {
 
         .account {
             font-size: var(--#{$prefix}small-lg-fs);
-            font-weight: 600;
+            font-weight: 500;
             color: var(--#{$prefix}primary-text);
         }
 
         .ecosystem {
             font-size: var(--#{$prefix}small-sm-fs);
             font-weight: 400;
-            color: var(--#{$prefix}base-text);
+            color: var(--#{$prefix}adapter-ecosystem-color);
         }
     }
 
@@ -161,16 +162,11 @@ export default {
         @include pageFlexRow;
 
         gap: 8px;
-
-        color: var(--#{$prefix}icon-active);
-
-        span {
-            cursor: pointer;
-        }
-
-        span:hover {
-            color: var(--#{$prefix}icon-hover);
-        }
+    }
+}
+.ant-dropdown-open {
+    .arrow {
+        transform: rotate(180deg) !important;
     }
 }
 </style>

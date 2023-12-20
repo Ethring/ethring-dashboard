@@ -1,9 +1,7 @@
 <template lang="">
-    <a-menu-item-group key="ecosystems">
-        <a-menu-item :key="record.ecosystem" v-for="record in TO_CONNECT" class="ecosystem-item">
-            <ConnectTo :name="$t(record.name)" :connect="() => connect(record.ecosystem)" :logos="record.logos" />
-        </a-menu-item>
-    </a-menu-item-group>
+    <div :key="record.ecosystem" v-for="record in TO_CONNECT" class="ecosystem-item">
+        <ConnectTo :name="$t(record.name)" :connect="() => connect(record.ecosystem)" :logos="record.logos" />
+    </div>
 </template>
 
 <script>
@@ -18,7 +16,7 @@ export default {
     components: {
         ConnectTo,
     },
-
+    emits: ['closeDropdown'],
     setup(_, { emit }) {
         const TO_CONNECT = [
             {
@@ -59,7 +57,6 @@ export default {
 </script>
 <style scoped>
 .ecosystem-item {
-    margin: 0 !important;
-    padding: 0 !important;
+    margin-bottom: 8px;
 }
 </style>

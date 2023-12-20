@@ -21,16 +21,13 @@ export default {
 <style lang="scss" scoped>
 .nav-bar {
     &-container {
-        padding: 20px 0 20px;
+        padding: 20px 0;
         background-color: var(--#{$prefix}nav-bar-bg-color);
     }
 
     &-row {
         @include pageFlexRow;
         justify-content: space-between;
-
-        width: 80%;
-        margin: 0 auto;
     }
 }
 </style>

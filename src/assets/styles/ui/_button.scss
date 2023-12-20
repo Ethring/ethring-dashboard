@@ -9,7 +9,7 @@
     min-height: 40px;
     height: 40px;
 
-    border-radius: 16px;
+    border-radius: 8px;
 
     padding: 0 10px;
 
@@ -37,10 +37,9 @@
     }
 
     &.large {
-        font-size: var(--#{$prefix}h5-fs);
+        font-size: var(--#{$prefix}h4-fs);
 
-        height: 64px;
-        max-height: 64px;
+        height: 56px;
     }
 
     &.square {

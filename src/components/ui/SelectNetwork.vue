@@ -1,31 +1,42 @@
 <template>
     <div :class="{ active }" class="select" v-click-away="() => togglePanel(true)">
         <div class="select__panel" @click="() => togglePanel(false)" data-qa="select-network">
+            <span class="select__label">{{ label }}</span>
             <div class="info">
                 <div class="network" :class="{ 'default-network-logo': !name }">
                     <img v-if="current?.logo" :src="current?.logo" alt="network-logo" class="network-logo" />
                 </div>
                 <div v-if="name" class="name">{{ name }}</div>
                 <div v-else>
-                    <div class="label">{{ label }}</div>
                     <div class="placeholder">{{ placeholder }}</div>
                 </div>
             </div>
             <ArrowDownIcon class="arrow" />
         </div>
         <div class="select__items">
-            <div
-                v-for="(item, idx) in items"
-                :key="idx"
-                :class="{ active: item.net === current?.net }"
-                class="select__items-item"
-                @click="() => onSelectNetwork(item)"
-            >
-                <div class="info">
-                    <div class="icon">
-                        <img :src="item.logo" alt="network-logo" class="network-logo" />
+            <SearchInput
+                :value="searchValue"
+                @onChange="handleOnFilterNetworks"
+                class="search"
+                :placeholder="$t('tokenOperations.searchNetwork')"
+            />
+            <div class="select__items-container">
+                <div
+                    v-for="(item, idx) in options"
+                    :key="idx"
+                    :class="{ active: item.net === current?.net }"
+                    class="select__items-item"
+                    @click="() => onSelectNetwork(item)"
+                >
+                    <div class="info">
+                        <div class="icon">
+                            <img :src="item.logo" alt="network-logo" class="network-logo" />
+                        </div>
+                        <div class="name">{{ item.label || item.name }}</div>
                     </div>
-                    <div class="name">{{ item.label || item.name }}</div>
+                </div>
+                <div v-if="!options.length" class="select__items-not-found">
+                    <p>{{ $t('dashboard.notFound') }}</p>
                 </div>
             </div>
         </div>
@@ -35,7 +46,13 @@
 <script>
 import { ref, computed } from 'vue';
 
+import _ from 'lodash';
+
+import SearchInput from '@/components/ui/SearchInput';
+
 import ArrowDownIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
+
+import { searchByKey } from '@/helpers/utils';
 
 export default {
     name: 'SelectNetwork',
@@ -61,9 +78,12 @@ export default {
     },
     components: {
         ArrowDownIcon,
+        SearchInput,
     },
     setup(props, { emit }) {
         const active = ref(false);
+        const searchValue = ref('');
+        const options = ref(props.items);
 
         const name = computed(() => {
             const name = props.current?.name;
@@ -71,6 +91,9 @@ export default {
         });
 
         const togglePanel = (away = false) => {
+            options.value = props.items;
+            searchValue.value = '';
+
             if (away) {
                 return (active.value = false);
             }
@@ -87,12 +110,26 @@ export default {
             active.value = false;
         };
 
+        const searchInNetworks = (networks, value) => {
+            return _.filter(networks, (elem) => {
+                return searchByKey(elem, value, 'name') || searchByKey(elem, value, 'symbol');
+            });
+        };
+
+        const handleOnFilterNetworks = (val) => {
+            searchValue.value = val;
+            options.value = searchInNetworks(props.items, val);
+        };
+
         return {
             active,
             name,
+            options,
+            searchValue,
             clickAway,
             togglePanel,
             onSelectNetwork,
+            handleOnFilterNetworks,
         };
     },
 };
@@ -102,21 +139,25 @@ export default {
 .select {
     position: relative;
     z-index: 11;
-    &__panel {
-        position: relative;
-        z-index: 2;
 
-        @include pageFlexRow;
-        justify-content: space-between;
+    &__label {
+        color: var(--#{$prefix}select-label-color);
+        font-weight: 500;
+        margin-bottom: 4px;
+    }
+
+    &__panel {
+        @include pageFlexColumn;
+        align-items: flex-start;
         background: var(--#{$prefix}select-bg-color);
-        border-radius: 16px;
+        border-radius: 8px;
         height: 80px;
-        padding: 16px 24px;
+        padding: 12px 16px;
         box-sizing: border-box;
-        border: 2px solid transparent;
+        border: 1px solid transparent;
         cursor: pointer;
 
-        transition: 0.2s;
+        transition: all 0.2s;
 
         .info {
             @include pageFlexRow;
@@ -127,25 +168,18 @@ export default {
             @include pageFlexRow;
             justify-content: center;
 
-            width: 40px;
-            height: 40px;
-            min-width: 40px;
+            width: 32px;
+            height: 32px;
 
             border-radius: 50%;
-            margin-right: 10px;
-
-            svg {
-                fill: var(--#{$prefix}black);
-            }
+            margin-right: 8px;
 
             &-logo {
-                width: 100%;
-                height: 100%;
                 object-fit: contain;
                 object-position: center;
                 border-radius: 50%;
-                max-width: 32px;
-                max-height: 32px;
+                width: 32px;
+                height: 32px;
             }
         }
 
@@ -154,7 +188,7 @@ export default {
         }
 
         .name {
-            font-size: var(--#{$prefix}h2-fs);
+            font-size: var(--#{$prefix}h5-fs);
             font-weight: 600;
             color: var(--#{$prefix}select-item-color);
             line-height: 40px;
@@ -170,14 +204,15 @@ export default {
         .label {
             color: var(--#{$prefix}select-label-color);
             font-size: var(--#{$prefix}small-lg-fs);
-            font-weight: 500;
+            line-height: 20px;
+            font-weight: 400;
             user-select: none;
         }
 
         .placeholder {
             color: var(--#{$prefix}select-placeholder-text);
-            font-size: var(--#{$prefix}default-fs);
-            font-weight: 600;
+            font-size: var(--#{$prefix}h6-fs);
+            font-weight: 500;
             user-select: none;
             line-height: 18px;
         }
@@ -188,62 +223,81 @@ export default {
             transform: rotate(0);
             @include animateEasy;
             display: inline;
-            margin-left: 10px;
+            position: absolute;
+            right: 16px;
+            top: 40%;
         }
     }
 
     &.active {
         .select__panel {
             border-color: var(--#{$prefix}select-active-border-color);
-            background: var(--#{$prefix}select-bg-color);
+            background: var(--#{$prefix}select-dropdown-bg-color);
 
             svg.arrow {
                 transform: rotate(180deg);
             }
         }
+
+        .default-network-logo {
+            background: var(--#{$prefix}select-bg-color);
+        }
     }
 
     &__items {
-        z-index: 1;
         background: var(--#{$prefix}select-dropdown-bg-color);
         position: absolute;
-        top: 65px;
-
+        top: 74px;
         left: 0;
         right: 0;
+        height: 250px;
+        width: 524px;
+        z-index: -1;
+        padding: 22px 16px 4px;
 
-        width: 100%;
-
-        min-height: 40px;
-
-        border: 2px solid var(--#{$prefix}select-active-border-color);
-        border-radius: 0 0 16px 16px;
-
+        border: 1px solid var(--#{$prefix}select-active-border-color);
+        border-radius: 0 0 8px 8px;
         border-top: none;
-
         transform: scaleY(0);
         transform-origin: top;
-        transition: transform 0.2s ease;
-
-        padding: 20px 32px;
-        box-sizing: border-box;
-
-        max-height: 380px;
-        overflow-y: auto;
+        transition: transform 0.2s;
 
         &::-webkit-scrollbar {
             width: 0px;
             background-color: transparent;
         }
 
+        &-container {
+            overflow-y: auto;
+            height: 170px;
+        }
+        .search {
+            position: sticky;
+            top: 0;
+            left: 16px;
+            right: 16px;
+        }
+
+        &-not-found {
+            @include pageFlexRow;
+            justify-content: center;
+            margin: auto;
+
+            p {
+                font-weight: 400;
+                margin-top: 15%;
+                font-size: var(--#{$prefix}small-lg-fs);
+                color: var(--#{$prefix}mute-text);
+            }
+        }
+
         &-item-logo {
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             @include pageFlexRow;
             justify-content: center;
             background: var(--#{$prefix}icon-secondary-bg-color);
             border-radius: 50%;
-            margin-right: 12px;
 
             svg {
                 fill: var(--#{$prefix}black);
@@ -261,18 +315,21 @@ export default {
     }
 
     &__items-item {
-        opacity: 0;
-
         @include pageFlexRow;
-        justify-content: space-between;
-        min-height: 60px;
-        border-bottom: 1px dashed var(--#{$prefix}border-secondary-color);
-        cursor: pointer;
         @include animateEasy;
 
+        opacity: 0;
+        justify-content: space-between;
+        height: 56px;
+        border-bottom: 1px dashed var(--#{$prefix}border-color);
+        cursor: pointer;
+
         .info {
+            @include pageFlexRow;
             .name {
                 color: var(--#{$prefix}base-text);
+                font-weight: 500;
+                font-size: var(--#{$prefix}h6-fs);
             }
 
             .icon {
@@ -280,18 +337,16 @@ export default {
 
                 width: 32px;
                 height: 32px;
-                background-color: var(--#{$prefix}icon-secondary-bg-color);
+
                 border-radius: 50%;
                 @include pageFlexRow;
                 justify-content: center;
 
-                margin-right: 16px;
+                margin-right: 8px;
 
                 img {
                     width: 100%;
                     height: 100%;
-                    max-width: 20px;
-                    max-height: 20px;
                 }
             }
         }
@@ -300,10 +355,7 @@ export default {
             .info {
                 .name {
                     color: var(--#{$prefix}select-item-active-color);
-                    font-weight: 600;
-                }
-                .icon {
-                    background-color: var(--#{$prefix}icon-secondary-bg-hover);
+                    font-weight: 500;
                 }
             }
         }
@@ -315,26 +367,12 @@ export default {
         &:hover {
             .info {
                 .name {
-                    color: var(--#{$prefix}sub-text);
-                }
-
-                .icon {
-                    background-color: var(--#{$prefix}icon-secondary-bg-hover);
+                    color: var(--#{$prefix}primary-text);
                 }
             }
             .select__items-item-logo {
                 transition: 0.5s;
                 background: var(--#{$prefix}icon-logo-bg-hover);
-            }
-        }
-
-        .info {
-            @include pageFlexRow;
-
-            .name {
-                font-size: var(--#{$prefix}default-fs);
-                color: var(--#{$prefix}base-text);
-                font-weight: 400;
             }
         }
 

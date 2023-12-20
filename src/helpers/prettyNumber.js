@@ -71,7 +71,7 @@ export const prettyNumberTooltip = (value, maxDecimals = 8) => {
 };
 
 export const formatNumber = (value, maximumFractionDigits = 6) => {
-    if (!value) {
+    if (!value || +value === 0) {
         return '0';
     }
 

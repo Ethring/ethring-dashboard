@@ -57,7 +57,6 @@ export const estimateSwap = async ({ url, net, fromTokenAddress, toTokenAddress,
                 toTokenAddress: toTokenAddress || NATIVE_CONTRACT,
                 amount,
                 ownerAddress,
-                ...rest,
             },
         };
 
@@ -101,7 +100,6 @@ export const estimateBridge = async ({ url, fromNet, toNet, fromTokenAddress, to
                 toTokenAddress: toTokenAddress || NATIVE_CONTRACT,
                 amount,
                 ownerAddress,
-                ...rest,
             },
         };
 

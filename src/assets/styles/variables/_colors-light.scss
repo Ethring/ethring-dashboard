@@ -49,6 +49,7 @@ $perfectLanding: #a0b3c3;
 $caneelBay: #00839f;
 $blueHalk: #e6eeff;
 $pastelPink: #f7d0d0;
+$gainsboro: #e1e4e9;
 
 //  ===========================================================================
 //  GRADIENTS
@@ -82,9 +83,11 @@ $banner-secondary-color: $iceberg;
 $eye-logo: $trout;
 $eye-logo-hover: $surfieGreen;
 
-// Assets header icon color
 
+// Assets header icon color
 $asset-header-icon-color: $surfieGreen;
+$assets-border-color: $geyser;
+$assets-header-border-color: $gainsboro;
 
 // Text
 $sub-text: $surfieGreen;
@@ -94,12 +97,17 @@ $sidebar-text: $geyser;
 $primary-text: $ebonyClay;
 $secondary-text: $trout;
 $symbol-text: $charade;
-$mute-apr-text: $paleSky;
+$mute-apr-text: $mineralGreen;
+$amount-text: $charade;
+$input-disabled-text: $mineralGreen;
+$balance-text: $surfieGreen;
+$unlock-text: $paleSky;
 
 // Adapter
 $adapter-label-text: $trout;
 $adapter-value-text: $mineralGreen;
 $adapter-ecosystem-border-color: $geyser;
+$adapter-ecosystem-color: $mineralGreen;
 $adapter-connected-border-color: $iceberg;
 $adapter-connected-icon-color: $lightGreen;
 $adapter-secondary-border-color: $pastelPink;
@@ -119,13 +127,14 @@ $adapter-not-connected-icon: $mineralGreen;
 // Checkbox
 $checkbox-text: $gulfStream;
 $checkbox-disabled-text: $mineralGreen;
-$checkbox-checked: $aquamarine;
-$checkbox-bg-color: $geyser;
-$checkbox-disabled: $mineralGreen;
-
+$checkbox-checked: $turquoise;
+$checkbox-bg-color: $iceberg;
+$checkbox-disabled: $geyser;
+$checkbox-border: $geyser;
+$checkbox-border-checked: $aquamarine;
 // Border
-$border-color: $geyser;
-$border-secondary-color: $gulfStream;
+$border-color: $gulfStream;
+$border-secondary-color: $geyser;
 $border-color-op-05: rgba($border-color, 0.5);
 $social-border-color: $trout;
 $info-border-color: $gallery;
@@ -159,12 +168,15 @@ $select-border-color: $gulfStream;
 $select-active-border-color: $surfieGreen;
 $select-active-bg-color: $iceberg;
 $select-icon-color: $gulfStream;
-$select-icon-bg-color: $ebonyClay;
+$select-icon-bg-color: $geyser;
+$select-symbol-text: $charade;
+$selected-bg-color: rgba(63, 223, 174, 0.10);
 
 // Accordion
 $accordion-bg-color: $white;
 $accordion-label-color: $mineralGreen;
 $accordion-border-color: $geyser;
+$accordion-title: $trout;
 
 // Collapse
 $collapse-border-color: $geyser;
@@ -192,7 +204,7 @@ $icon-border: $dinastyDragon;
 
 $icon-bg-color: $iceberg;
 
-$icon-logo-bg-color: $turquoise;
+$icon-logo-bg-color: $ebonyClay;
 $icon-logo-bg-hover: $aquamarine;
 $icon-secondary-bg-color: $iceberg;
 $icon-secondary-bg-hover: $geyser;
@@ -223,7 +235,7 @@ $positive-percentage: $surfieGreen;
 $block-box-shadow: $black-op-02;
 $loader-border-color: $ficus;
 
-$tag-01: $aquamarine;
+$tag-01: $deepCerulean;
 $tag-02: $cyan;
 $tag-03: $lightGreen;
 
@@ -250,6 +262,7 @@ $theme-colors: (
     "eye-logo-hover": $eye-logo-hover,
 
     "asset-header-icon-color": $asset-header-icon-color,
+    "assets-header-border-color": $assets-header-border-color,
 
     "sub-text": $sub-text,
     "mute-text": $mute-text,
@@ -259,10 +272,17 @@ $theme-colors: (
     "secondary-text": $secondary-text,
     "symbol-text": $symbol-text,
     "mute-apr-text": $mute-apr-text,
+    "amount-text": $amount-text,
+    "input-disabled-text": $input-disabled-text,
+    "balance-text": $balance-text,
+    "unlock-text": $unlock-text,
+
+    "assets-border-color": $assets-border-color,
 
     "adapter-label-text": $adapter-label-text,
     "adapter-value-text": $adapter-value-text,
     "adapter-ecosystem-border-color": $adapter-ecosystem-border-color,
+    "adapter-ecosystem-color": $adapter-ecosystem-color,
     "adapter-logo-main-color": $adapter-logo-main-color,
     "adapter-logo-base-color": $adapter-logo-base-color,
     "adapter-logo-secondary-color": $adapter-logo-secondary-color,
@@ -280,6 +300,8 @@ $theme-colors: (
     "checkbox-checked": $checkbox-checked,
     "checkbox-bg-color": $checkbox-bg-color,
     "checkbox-disabled": $checkbox-disabled,
+    "checkbox-border": $checkbox-border,
+    "checkbox-border-checked": $checkbox-border-checked,
 
     "border-color": $border-color,
     "border-secondary-color": $border-secondary-color,
@@ -312,10 +334,13 @@ $theme-colors: (
     "select-icon-color": $select-icon-color,
     "select-icon-bg-color": $select-icon-bg-color,
     "select-placeholder-text": $select-placeholder-text,
+    "select-symbol-text": $select-symbol-text,
+    "selected-bg-color": $selected-bg-color,
 
     "accordion-bg-color": $accordion-bg-color,
     "accordion-label-color": $accordion-label-color,
     "accordion-border-color": $accordion-border-color,
+    "accordion-title": $accordion-title,
 
     "collapse-border-color": $collapse-border-color,
 

@@ -1,35 +1,40 @@
 <template>
     <div class="simple-swap">
-        <SelectNetwork :items="chains" :current="selectedSrcNetwork" @select="onSelectNetwork" />
+        <SelectNetwork
+            :items="chains"
+            :label="$t('tokenOperations.selectNetwork')"
+            :current="selectedSrcNetwork"
+            @select="onSelectNetwork"
+        />
 
         <div class="simple-swap__switch-wrap">
             <SelectAmount
-                class="mt-10"
+                class="mt-8"
                 :value="selectedSrcToken"
                 :selected-network="selectedSrcNetwork"
                 :error="!!isBalanceError"
                 :on-reset="resetSrcAmount"
                 :is-token-loading="isTokensLoadingForChain"
-                :is-update="isUpdateSwapDirectionValue"
+                :is-update="isUpdateSwapDirection"
                 :label="$t('tokenOperations.pay')"
                 :amount-value="srcAmount"
                 @clickToken="onSetTokenFrom"
                 @setAmount="onSetAmount"
             />
 
-            <div class="simple-swap__switch" :class="{ disabled: isUpdateSwapDirectionValue }" @click="swapTokensDirection">
+            <div class="simple-swap__switch" :class="{ disabled: isUpdateSwapDirection || !selectedDstToken }" @click="swapTokensDirection">
                 <SwapIcon />
             </div>
 
             <SelectAmount
-                class="mt-10"
+                class="mt-8"
                 disabled
                 hide-max
                 :is-token-loading="isTokensLoadingForChain"
                 :is-amount-loading="isEstimating"
                 :value="selectedDstToken"
                 :on-reset="resetDstAmount"
-                :is-update="isUpdateSwapDirectionValue"
+                :is-update="isUpdateSwapDirection"
                 :label="$t('tokenOperations.receive')"
                 :disabled-value="dstAmount"
                 :amount-value="dstAmount"
@@ -51,7 +56,7 @@
             :title="$t(opTitle)"
             :disabled="!!disabledSwap"
             :loading="isWaitingTxStatusForModule || isLoading"
-            class="simple-swap__btn mt-10"
+            class="simple-swap__btn mt-16"
             @click="handleOnSwap"
             size="large"
         />
@@ -239,7 +244,7 @@ export default {
         // * Loaders
         const isLoading = ref(false);
         const isEstimating = ref(false);
-        const isUpdateSwapDirectionValue = ref(false);
+        const isUpdateSwapDirection = ref(false);
 
         const balanceUpdated = ref(false);
 
@@ -292,6 +297,9 @@ export default {
         // =================================================================================================================
 
         const onSelectNetwork = (network) => {
+            if (!network.net) {
+                return;
+            }
             if (!onSelectSrcNetwork(network)) {
                 return;
             }
@@ -355,8 +363,10 @@ export default {
             txError.value = '';
             dstAmount.value = '';
             isBalanceError.value = false;
+            isUpdateSwapDirection.value = true;
 
             if (!+value) {
+                isUpdateSwapDirection.value = false;
                 return (isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance));
             }
 
@@ -416,7 +426,7 @@ export default {
         // =================================================================================================================
 
         const swapTokensDirection = async () => {
-            if (isUpdateSwapDirectionValue.value) {
+            if (isUpdateSwapDirection.value || !selectedDstToken.value) {
                 return;
             }
 
@@ -425,16 +435,10 @@ export default {
             const from = { ...selectedSrcToken.value };
             const to = { ...selectedDstToken.value };
 
-            isUpdateSwapDirectionValue.value = true;
-
             selectedSrcToken.value = to;
             selectedDstToken.value = from;
 
-            onSetAmount(srcAmount.value);
-
-            setTimeout(() => {
-                isUpdateSwapDirectionValue.value = false;
-            }, 800);
+            await onSetAmount(dstAmount.value);
         };
 
         // =================================================================================================================
@@ -455,6 +459,8 @@ export default {
                 estimateErrorTitle.value = t('tokenOperations.selectDstToken');
                 return false;
             }
+
+            estimateErrorTitle.value = '';
 
             const isNotEVM = selectedSrcNetwork.value?.ecosystem !== ECOSYSTEMS.EVM;
 
@@ -484,6 +490,7 @@ export default {
         const makeEstimateSwapRequest = async () => {
             if (!isAllowForRequest() || !selectedDstToken.value || +srcAmount.value === 0) {
                 isEstimating.value = false;
+                isUpdateSwapDirection.value = false;
                 return (isLoading.value = false);
             }
 
@@ -508,6 +515,14 @@ export default {
             } else {
                 response = await estimateSwap(params);
             }
+
+            const checkRoute = response?.fromTokenAmount === srcAmount.value;
+
+            if (!checkRoute) {
+                return;
+            }
+
+            isUpdateSwapDirection.value = false;
 
             if (response.error) {
                 isEstimating.value = false;
@@ -540,7 +555,7 @@ export default {
 
             rateInfo.value = {
                 title: 'tokenOperations.rate',
-                symbolBetween: '=',
+                symbolBetween: '~',
                 fromAmount: '1',
                 fromSymbol: selectedSrcToken.value.symbol,
                 toAmount: formatNumber(response.toTokenAmount / response.fromTokenAmount, 6),
@@ -744,7 +759,7 @@ export default {
                     txError.value = responseSendTx.error;
                     txErrorTitle.value = 'Sign transaction error';
 
-                    txError.value = checkErrors(responseSendTx.error);
+                    txError.value = checkErrors(responseSendTx.error).error;
 
                     return (isLoading.value = false);
                 }
@@ -863,6 +878,8 @@ export default {
                 selectedSrcToken.value = null;
                 selectedDstToken.value = null;
                 selectedSrcNetwork.value = null;
+                srcAmount.value = null;
+                dstAmount.value = null;
             }
         });
 
@@ -887,7 +904,7 @@ export default {
             resetSrcAmount,
             resetDstAmount,
 
-            isUpdateSwapDirectionValue,
+            isUpdateSwapDirection,
             currentChainInfo,
 
             selectedSrcToken,
@@ -913,7 +930,7 @@ export default {
 </script>
 <style lang="scss">
 .simple-swap {
-    width: 660px;
+    width: 524px;
 
     &__switch-wrap {
         position: relative;
@@ -934,37 +951,36 @@ export default {
 
         border-radius: 50%;
         left: calc(50% - 24px);
-        bottom: 138px;
+        bottom: 84px;
 
         background: var(--#{$prefix}swap-btn-bg-color);
         border: 4px solid var(--#{$prefix}main-background);
 
         svg {
             @include animateEasy;
-        }
-
-        &:not(.disabled):hover {
-            background: var(--#{$prefix}icon-logo-bg-hover);
-
-            svg {
-                fill: var(--#{$prefix}primary);
+            path {
+                fill: var(--#{$prefix}btn-bg-color);
             }
         }
 
-        svg {
-            fill: $colorPl;
+        &:not(.disabled):hover {
+            background: var(--#{$prefix}primary);
+            border: 4px solid var(--#{$prefix}banner-logo-color);
+
+            path {
+                fill: var(--#{$prefix}arrow-color);
+            }
         }
 
         &.disabled {
             pointer-events: none;
+            background: var(--#{$prefix}adapter-not-connected-bg);
             svg {
-                opacity: 0.5;
+                path {
+                    fill: var(--#{$prefix}border-color);
+                }
             }
         }
-    }
-
-    .mt-10 {
-        margin-top: 10px;
     }
 
     &__btn {
@@ -1003,7 +1019,7 @@ export default {
         }
 
         .fee-symbol {
-            color: $colorPl;
+            color: $gulfStream;
             font-weight: 400;
         }
     }

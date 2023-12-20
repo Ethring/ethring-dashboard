@@ -4,7 +4,7 @@
             <h2 class="label">{{ label }}</h2>
             <div class="row">
                 <template v-if="isTokenLoading">
-                    <a-space>
+                    <a-space class="token-skeleton">
                         <a-skeleton-avatar active />
                         <a-skeleton-input active />
                     </a-space>
@@ -18,7 +18,7 @@
         </div>
         <div>
             <template v-if="isAmountLoading">
-                <a-skeleton-input active class="skeleton" />
+                <a-skeleton-input active class="skeleton" size="small" />
             </template>
 
             <template v-else>
@@ -42,17 +42,19 @@
                 <a-skeleton-input active size="small" />
             </template>
             <p v-else class="balance__value">
-                <span>$</span>
+                <span class="usd-symbol">$</span>
                 <NumberTooltip :value="payTokenPrice" />
-                <span class="percentage" v-if="percentage && !isNaN(percentage)">({{ percentage }} %)</span>
+                <span class="percentage" v-if="percentage && !isNaN(percentage)"
+                    >(<span>{{ percentage }}%</span>)</span
+                >
             </p>
             <p @click.stop="setMax" v-if="!hideMax && !isTokenLoading && token" class="balance__value" :class="{ error }">
                 <span>{{ $t('tokenOperations.balance') }}:</span>
 
                 <NumberTooltip :value="token?.balance" decimals="3" />
-                <span>{{ token?.symbol }}</span>
+                <span class="symbol">{{ token?.symbol }}</span>
             </p>
-            <a-skeleton-input v-if="!hideMax && isTokenLoading" active />
+            <a-skeleton-input v-if="!hideMax && isTokenLoading" active class="balance-skeleton" />
         </div>
     </div>
 </template>
@@ -198,20 +200,17 @@ export default {
 <style lang="scss" scoped>
 .swap-field {
     position: relative;
-    height: 160px;
 
     background: var(--#{$prefix}select-bg-color);
-    border-radius: 16px;
-
-    padding: 16px 24px;
-
+    border-radius: 8px;
+    height: 136px;
+    padding: 8px 8px 8px 16px;
     box-sizing: border-box;
-    border: 2px solid transparent;
-
+    border: 1px solid transparent;
     cursor: pointer;
 
     &.focused {
-        border: 2px solid var(--#{$prefix}select-active-border-color);
+        border: 1px solid var(--#{$prefix}select-active-border-color);
         background: var(--#{$prefix}select-bg-color);
     }
 
@@ -220,68 +219,81 @@ export default {
         justify-content: space-between;
     }
 
+    .token-skeleton {
+        height: 40px;
+    }
+
+    .balance-skeleton {
+        margin-top: -16px;
+    }
+
     .label {
         color: var(--#{$prefix}select-label-color);
-        font-size: var(--#{$prefix}h5-fs);
-        font-weight: 600;
-
+        font-size: var(--#{$prefix}default-fs);
+        font-weight: 400;
         cursor: default;
     }
 
     .input-balance {
         width: 100%;
-        height: 38px;
-
+        height: 32px;
         text-align: left;
         border: none;
         outline: none;
-
         background-color: transparent;
-        font-size: var(--#{$prefix}h3-fs);
-        font-weight: 600;
+        font-size: var(--#{$prefix}h4-fs);
+        font-weight: 700;
         color: var(--#{$prefix}primary-text);
-
-        margin-top: 10px;
+        margin-top: 8px;
     }
 
     .disabled {
-        color: var(--#{$prefix}base-text);
+        color: var(--#{$prefix}input-disabled-text);
+        cursor: not-allowed;
+        user-select: none;
     }
 
     .balance {
         width: 100%;
         @include pageFlexRow;
         justify-content: space-between;
-
-        color: var(--#{$prefix}base-text);
+        color: var(--#{$prefix}balance-text);
         font-weight: 400;
+        margin-top: 12px;
+        padding-right: 8px;
         font-size: var(--#{$prefix}small-lg-fs);
-
-        margin-top: 6px;
 
         cursor: default;
 
         &__value {
             cursor: pointer;
-
-            font-weight: 600;
+            font-weight: 500;
             font-size: var(--#{$prefix}small-lg-fs);
-            color: var(--#{$prefix}sub-text);
+            color: var(--#{$prefix}balance-text);
 
             span {
                 font-size: var(--#{$prefix}small-lg-fs);
-                color: var(--#{$prefix}base-text);
+                color: var(--#{$prefix}select-label-color);
                 font-weight: 400;
+            }
 
-                margin: 0 2px;
+            .symbol {
+                margin-left: 2px;
+            }
+
+            .usd-symbol {
+                margin-right: -3px;
             }
         }
 
         .percentage {
-            margin-left: 2px;
-
             font-weight: 400;
+            margin-left: 4px;
             color: var(--#{$prefix}base-text);
+
+            span {
+                color: var(--#{$prefix}sub-text);
+            }
         }
 
         .error,

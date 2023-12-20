@@ -19,7 +19,6 @@
                     </div>
                 </div>
                 <Socials class="sidebar__socials" :collapsed="isCollapsed" />
-                <div class="sidebar__version">{{ LAST_VERSION }}</div>
             </div>
         </div>
     </div>
@@ -96,7 +95,7 @@ export default {
         }
 
         &__list:last-child {
-            margin-bottom: 40px;
+            margin-bottom: 20px;
         }
     }
 
@@ -115,7 +114,7 @@ export default {
         align-self: flex-start;
 
         color: var(--#{$prefix}sidebar-text);
-        margin-bottom: 50px;
+        margin-bottom: 26px;
 
         cursor: not-allowed;
         opacity: 0.5;
@@ -143,7 +142,7 @@ export default {
     }
 
     &__logo {
-        margin-bottom: 70px;
+        margin-bottom: 40px;
 
         &-item {
             display: flex;
@@ -154,6 +153,8 @@ export default {
             color: var(--#{$prefix}sidebar-active-color);
             font-size: 12px;
             font-weight: 700;
+            margin-left: -12px;
+            margin-top: -4px;
         }
     }
 
@@ -166,7 +167,6 @@ export default {
 
         .sidebar__socials {
             flex-direction: column;
-            align-items: flex-start;
         }
 
         .logo {

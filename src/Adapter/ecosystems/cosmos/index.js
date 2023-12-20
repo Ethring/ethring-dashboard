@@ -796,6 +796,9 @@ class CosmosAdapter extends AdapterBase {
 
     getAddressesWithChains() {
         const mainAccount = this.getAccount();
+        if (!this.addressByNetwork) {
+            return {};
+        }
         return this.addressByNetwork[mainAccount] || {};
     }
 

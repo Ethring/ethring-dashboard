@@ -58,6 +58,7 @@
     "ethereumWallets": "EVM Ecosystem",
     "copyAddressTooltip": "Copy address to clipboard",
     "copiedAddressTooltip": "Address copied",
+    "copied": "Copied",
     "unsupportedNetwork": "Unsupported network"
   },
   "actionTokens": "Tokens",
@@ -77,6 +78,7 @@
     "to": "To",
     "select": "Select",
     "selectToken": "Select token",
+    "selectNetwork": "Select network",
     "networkFee": "Network fee",
     "time": "Estimate time",
     "changeNetwork": "Please change network",

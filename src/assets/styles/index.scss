@@ -1,3 +1,5 @@
+@import "./font";
+
 @import "./web3-onboard/custom-style.scss";
 
 @import "./reset";
@@ -34,11 +36,14 @@ body {
 ::-webkit-scrollbar-thumb {
   background: $gulfStream;
   border-radius: 4px;
+
 }
 
 ::-webkit-scrollbar {
   width: 4px;
+  height: 4px;
 }
+
 
 ::-webkit-scrollbar-thumb:hover {
   background: $trout;
@@ -64,6 +69,22 @@ body {
 .anticon-copy svg {
   fill: var(--#{$prefix}primary-text) !important;
 }
+
+
+::-webkit-input-placeholder {
+  color:var(--#{$prefix}select-placeholder-text);
+}
+::-moz-placeholder {
+  color:var(--#{$prefix}select-placeholder-text);
+  opacity: 1;
+}
+:-ms-input-placeholder {
+  color:var(--#{$prefix}select-placeholder-text);
+}
+::placeholder {
+  color: var(--#{$prefix}select-placeholder-text);
+}
+
 
 @keyframes arrowMovement {
   0% {

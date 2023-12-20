@@ -155,10 +155,7 @@ export default {
 .routes-modal {
     @include pageFlexColumn;
     align-items: flex-start;
-    justify-content: flex-start;
-
-    width: 100%;
-    padding: 8px 0;
+    margin-top: 6px;
 
     .mr-20 {
         margin-right: 20px !important;
@@ -168,14 +165,14 @@ export default {
         @include pageFlexRow;
         justify-content: space-between;
 
+        border-radius: 16px;
+        padding: 12px 16px;
         width: 100%;
-
-        border-radius: 20px;
-        padding: 16px;
+        height: 90px;
         margin-bottom: 16px;
 
-        background-color: var(--#{$prefix}modal-block-bg-color);
-        border: 1px solid var(--#{$prefix}modal-block-bg-color);
+        background-color: var(--#{$prefix}select-bg-color);
+        border: 1px solid var(--#{$prefix}select-bg-color);
 
         cursor: pointer;
     }
@@ -204,17 +201,14 @@ export default {
 
         h3 {
             font-weight: 600;
-            font-size: var(--#{$prefix}default-fs);
+            font-size: var(--#{$prefix}h6-fs);
             color: var(--#{$prefix}primary-text);
 
             margin: 0;
-            margin-top: -6px;
 
             span {
                 color: var(--#{$prefix}mute-text);
                 font-weight: 400;
-
-                margin-left: 2px;
             }
         }
 
@@ -226,45 +220,39 @@ export default {
         }
 
         .blue-text {
-            color: var(--#{$prefix}sub-text) !important;
+            color: var(--#{$prefix}theme-switcher-color);
             font-size: var(--#{$prefix}small-lg-fs);
-
-            margin-top: 4px;
+            margin-top: 6px;
+            font-weight: 700;
 
             span {
-                color: var(--#{$prefix}sub-text);
-                margin-left: 2px;
+                color: var(--#{$prefix}theme-switcher-color);
             }
         }
     }
 
     &__btn {
-        height: 64px;
         width: 100%;
     }
 
     .routes-service {
-        margin-top: -8px;
-
         &__name {
-            font-size: var(--#{$prefix}default-fs);
-            font-weight: 600;
-            color: var(--#{$prefix}primary-text);
-
+            font-size: var(--#{$prefix}h6-fs);
             margin: 0;
             margin-left: 8px;
+            font-weight: 600;
+            color: var(--#{$prefix}primary-text);
         }
 
         &__icon {
+            @include pageFlexRow;
+            justify-content: center;
+            border-radius: 50%;
             width: 32px;
             height: 32px;
-            border-radius: 50%;
-
-            padding: 3px 4px;
-            border: 2px solid var(--#{$prefix}banner-logo-color);
 
             img {
-                width: 100%;
+                width: 90%;
                 border-radius: 50%;
             }
         }
@@ -283,7 +271,7 @@ export default {
 
             h4 {
                 margin: 0 2px;
-                font-weight: 600;
+                font-weight: 700;
             }
         }
 
@@ -293,13 +281,11 @@ export default {
         }
 
         &__status {
-            border-radius: 20px;
-
+            border-radius: 24px;
             font-size: var(--#{$prefix}small-sm-fs);
             font-weight: 400;
-            color: var(--#{$prefix}black);
-
-            padding: 1px 10px;
+            color: var(--#{$prefix}btn-text-color);
+            padding: 4px 10px;
             margin: 2px 0 0 6px;
         }
 

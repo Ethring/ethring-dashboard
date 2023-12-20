@@ -1,7 +1,7 @@
 <template lang="">
     <div v-if="JSON.stringify(chainWithAddress) !== '{}'" class="chain-items">
         <div v-for="record in chainRecords" :key="record" class="chain-item">
-            <ChainRecord :chain="record" :address="chainWithAddress[record.net]?.address" :chains="chainList" />
+            <ChainRecord :chain="record" :address="chainWithAddress[record.net]?.address" />
         </div>
     </div>
 </template>
@@ -16,10 +16,6 @@ export default {
     props: {
         chainWithAddress: {
             type: Object,
-            required: true,
-        },
-        chainList: {
-            type: Array,
             required: true,
         },
         chainRecords: {

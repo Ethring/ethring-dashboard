@@ -35,7 +35,7 @@
         </div>
 
         <SwapField
-            class="mt-10"
+            class="mt-8"
             :label="$t('tokenOperations.to')"
             :value="dstAmount"
             :token="selectedDstToken"
@@ -68,7 +68,7 @@
             v-if="selectedSrcNetwork?.net !== selectedDstNetwork?.net"
             v-model:value="isReceiveToken"
             :label="$t('tokenOperations.chooseAddress')"
-            class="mt-14"
+            class="mt-8"
         />
 
         <SelectAddress
@@ -76,22 +76,22 @@
             :selected-network="selectedDstNetwork"
             :error="!!errorAddress"
             placeholder="0x..."
-            class="mt-10"
+            class="mt-8"
             :on-reset="successHash"
             @setAddress="onSetAddress"
         />
 
-        <Collapse v-if="+srcAmount > 0" :loading="isLoading" :hideContent="estimateErrorTitle">
+        <Collapse class="mt-8" v-if="+srcAmount > 0" :loading="isLoading" :hideContent="estimateErrorTitle">
             <template #header>
                 <div class="route-info" data-qa="route-info">
                     <p>{{ $t('tokenOperations.routeInfo') }}:</p>
                     <div v-if="!estimateErrorTitle" class="row">
                         <FeeIcon />
-                        <span class="fee">{{ formatNumber(networkFee, 2) }}</span> <span class="symbol"> $</span>
+                        <span class="fee">{{ formatNumber(networkFee, 2) }}</span> <span class="symbol">$</span>
                         <TimeIcon />
-                        <span class="fee"> {{ '~ ' + estimateTime + ' s' }}</span>
+                        <span class="fee"> {{ '~' + estimateTime + 's' }}</span>
                         <h4>
-                            1 {{ selectedSrcToken?.symbol || '' }} =
+                            <span>1</span> {{ selectedSrcToken?.symbol || '' }} =
                             <NumberTooltip :value="estimateRate" decimals="3" />
                             {{ selectedDstToken?.symbol || '' }}
                         </h4>
@@ -119,7 +119,7 @@
             :title="$t(opTitle)"
             :disabled="!!disabledBtn"
             :loading="isWaitingTxStatusForModule || isSwapLoading"
-            class="superswap-panel__btn mt-10"
+            class="superswap-panel__btn mt-16"
             data-qa="confirm"
             @click="swap"
             size="large"
@@ -1004,6 +1004,8 @@ export default {
             selectedDstNetwork.value = null;
             selectedDstToken.value = null;
             receiverAddress.value = '';
+            srcAmount.value = null;
+            dstAmount.value = null;
         });
 
         return {
@@ -1061,30 +1063,18 @@ export default {
 </script>
 <style lang="scss">
 .superswap-panel {
-    width: 660px;
+    width: 524px;
     position: relative;
-
-    .mt-10 {
-        margin-top: 10px;
-    }
-
-    .mt-14 {
-        margin-top: 14px;
-    }
-
-    .ml-8 {
-        margin-left: 8px;
-    }
 
     .swap-btn {
         @include pageFlexRow;
         justify-content: center;
         position: absolute;
-        left: 120px;
-        top: 138px;
+        left: 54px;
+        top: 113px;
         z-index: 5;
-        height: 54px;
-        width: 54px;
+        height: 56px;
+        width: 56px;
         border-radius: 50%;
         background-color: var(--#{$prefix}swap-btn-bg-color);
         border: 5px solid var(--#{$prefix}main-background);
@@ -1103,10 +1093,10 @@ export default {
         justify-content: center;
         position: absolute;
         cursor: not-allowed;
-        top: -60px;
+        top: -50px;
         right: 0;
-        height: 40px;
-        width: 40px;
+        height: 32px;
+        width: 32px;
         border-radius: 50%;
         z-index: 15;
         background-color: var(--#{$prefix}icon-secondary-bg-color);
@@ -1129,7 +1119,7 @@ export default {
         }
 
         p {
-            color: var(--#{$prefix}mute-text);
+            color: var(--#{$prefix}accordion-title);
             font-size: var(--#{$prefix}small-lg-fs);
             line-height: var(--#{$prefix}default-fs);
             font-weight: 600;
@@ -1143,22 +1133,22 @@ export default {
             white-space: nowrap;
             text-overflow: ellipsis;
             overflow: hidden;
-            width: 520px;
+            max-width: 400px;
         }
 
-        .fee,
-        .symbol {
+        .fee {
             color: var(--#{$prefix}warning);
             font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 600;
         }
 
         .symbol {
-            margin-left: 2px;
+            font-weight: 300;
+            color: var(--#{$prefix}base-text);
         }
 
         svg {
-            margin: 0 6px 0 16px;
+            margin: 0 4px 0 12px;
         }
 
         svg path {
@@ -1167,15 +1157,21 @@ export default {
 
         h4 {
             margin-left: 16px;
-            font-weight: 600;
+            font-weight: 400;
             color: var(--#{$prefix}base-text);
+
+            span {
+                color: var(--#{$prefix}base-text);
+                font-weight: 600;
+            }
         }
     }
 
     .routes {
         @include pageFlexRow;
         padding: 12px 0;
-        width: 100%;
+        width: 96%;
+
         border-top: 2px solid var(--#{$prefix}collapse-border-color);
 
         div {
@@ -1203,8 +1199,9 @@ export default {
         }
 
         svg.expand {
+            cursor: pointer;
             fill: var(--#{$prefix}base-text);
-            margin-left: 12px;
+            margin-left: 4px;
             @include animateEasy;
         }
     }
@@ -1231,17 +1228,6 @@ export default {
         &__row {
             display: flex;
         }
-    }
-    .other-routes {
-        background-color: var(--#{$prefix}tag-01);
-        border-radius: 15px;
-        padding: 4px 10px;
-        color: var(--#{$prefix}info);
-        font-weight: 600;
-        position: absolute;
-        right: 0;
-        bottom: 8px;
-        cursor: pointer;
     }
 
     &__btn {
