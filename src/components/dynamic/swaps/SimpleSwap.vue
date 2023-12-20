@@ -759,7 +759,7 @@ export default {
                     txError.value = responseSendTx.error;
                     txErrorTitle.value = 'Sign transaction error';
 
-                    txError.value = checkErrors(responseSendTx.error);
+                    txError.value = checkErrors(responseSendTx.error).error;
 
                     return (isLoading.value = false);
                 }
