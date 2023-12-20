@@ -21,7 +21,7 @@ Update snapshot:
 
 Run tests:
   stage: test_ui
-  image: mcr.microsoft.com/playwright:v1.39.0-jammy
+  image: mcr.microsoft.com/playwright:v1.40.0-jammy
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "dev"
