@@ -2,7 +2,8 @@
     <div class="select" :class="{ active }" ref="selectBlock">
         <div class="select__block" data-qa="select__block" :class="{ 'select__block-active': active }" @click="() => toggleOptions()">
             <div class="logo">
-                <TokenIcon width="32" height="32" :token="selectedItem" />
+                <TokenIcon v-if="selectedItem" width="32" height="32" :token="selectedItem" />
+                <a-avatar v-else :size="32"></a-avatar>
             </div>
             <h3 v-if="selectedItem">{{ !isToken ? selectedItem?.name : selectedItem?.symbol }}</h3>
             <h3 v-else>Select</h3>
@@ -276,6 +277,10 @@ export default {
     .logo {
         width: 32px;
         height: 32px;
+
+        span {
+            background-color: var(--#{$prefix}border-color);
+        }
     }
 
     &.active &__items {

@@ -6,13 +6,14 @@
                 <div class="info" @click="clickToken" data-qa="select-token">
                     <template v-if="isTokenLoading">
                         <a-space>
-                            <a-skeleton-avatar active />
+                            <a-skeleton-avatar active size="small" />
                             <a-skeleton-input active size="small" />
                         </a-space>
                     </template>
                     <template v-else>
                         <div class="network">
-                            <TokenIcon width="24" height="24" :token="selectedToken" />
+                            <TokenIcon v-if="selectedToken" width="24" height="24" :token="selectedToken" />
+                            <a-avatar v-else :size="24"></a-avatar>
                         </div>
 
                         <div class="token" v-if="selectedToken">{{ selectedToken?.symbol }}</div>
@@ -512,10 +513,12 @@ export default {
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 32px;
-            height: 32px;
             border-radius: 50%;
-            margin-right: 4px;
+            margin-right: 8px;
+
+            span {
+                background: var(--#{$prefix}select-icon-bg-color);
+            }
         }
 
         .name {

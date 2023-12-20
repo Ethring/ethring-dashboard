@@ -145,15 +145,17 @@ export default {
     }
 
     .asset__logo,
-    .token__logo {
+    .token__logo,
+    .asset__placeholder {
         width: 32px;
         height: 32px;
         border-radius: 50%;
     }
 
-    .token__logo {
-        background-color: var(--#{$prefix}banner-logo-color);
+    .asset__placeholder {
+        background-color: var(--#{$prefix}icon-logo-bg-color);
     }
+
     &-logo {
         width: 32px;
         height: 32px;

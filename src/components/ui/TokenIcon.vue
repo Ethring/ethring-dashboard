@@ -100,7 +100,7 @@ export default {
 
     img {
         border-radius: 50%;
-
+        margin: auto;
         object-position: center;
         object-fit: contain;
     }
@@ -109,7 +109,7 @@ export default {
         font-size: var(--#{$prefix}small-sm-fs);
 
         span {
-            background: var(--#{$prefix}select-icon-bg-color);
+            background: var(--#{$prefix}icon-logo-bg-color);
         }
     }
 }

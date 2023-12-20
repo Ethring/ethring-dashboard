@@ -70,8 +70,9 @@ export default {
     }
 
     .ant-table-cell {
+        height: 48px;
         vertical-align: middle !important;
-        padding: 5px 0 !important;
+        padding: 0 !important;
         background-color: var(--#{$prefix}secondary-background) !important;
     }
 

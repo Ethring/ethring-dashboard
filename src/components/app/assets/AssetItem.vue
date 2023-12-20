@@ -3,7 +3,7 @@
         <template v-if="column === 'name'">
             <div class="network">
                 <div class="logo">
-                    <TokenIcon width="24" height="24" :token="item" />
+                    <TokenIcon width="32" height="32" :token="item" />
                     <div class="chain">
                         <img :src="item.chainLogo" />
                     </div>
@@ -95,8 +95,8 @@ export default {
 </script>
 <style lang="scss">
 .assets__item {
-    vertical-align: center !important;
     color: var(--#{$prefix}black);
+    height: 38px;
 
     .network {
         display: inline-flex;
@@ -104,11 +104,6 @@ export default {
         .logo {
             margin-right: 8px;
             position: relative;
-
-            img {
-                width: 32px;
-                height: 32px;
-            }
         }
 
         .chain {
