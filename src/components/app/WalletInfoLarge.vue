@@ -1,8 +1,15 @@
 <template>
     <div class="wallet-info">
         <div class="wallet-info__wallet">
-            <div class="address">
-                {{ cutAddress(walletAccount) }}
+            <div class="wallet-info__address">
+                <div class="address">
+                    {{ cutAddress(walletAccount) }}
+                </div>
+                <a-tooltip placement="right" :title="copied ? $t('adapter.copiedAddressTooltip') : $t('adapter.copyAddressTooltip')">
+                    <span @click="handleOnCopyAddress">
+                        <CopyIcon />
+                    </span>
+                </a-tooltip>
             </div>
             <template v-if="isAllTokensLoading && !totalBalance">
                 <a-skeleton-input active />
@@ -24,8 +31,10 @@
 <script>
 import { computed } from 'vue';
 import { useStore } from 'vuex';
+import { useClipboard } from '@vueuse/core';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
+import { ECOSYSTEMS } from '@/Adapter/config';
 
 import { cutAddress } from '@/helpers/utils';
 
@@ -33,6 +42,7 @@ import NumberTooltip from '@/components/ui/NumberTooltip';
 
 import EyeOpenIcon from '@/assets/icons/dashboard/eyeOpen.svg';
 import EyeCloseIcon from '@/assets/icons/dashboard/eye.svg';
+import CopyIcon from '@/assets/icons/app/copy.svg';
 
 export default {
     name: 'WalletInfo',
@@ -40,11 +50,14 @@ export default {
         NumberTooltip,
         EyeOpenIcon,
         EyeCloseIcon,
+        CopyIcon,
     },
     setup() {
         const store = useStore();
 
-        const { walletAccount, currentChainInfo } = useAdapter();
+        const { copy, copied } = useClipboard();
+
+        const { walletAccount, currentChainInfo, action } = useAdapter();
 
         const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
 
@@ -54,6 +67,15 @@ export default {
 
         const toggleViewBalance = () => store.dispatch('app/toggleViewBalance');
 
+        const handleOnCopyAddress = () => {
+            if (currentChainInfo.value.ecosystem === ECOSYSTEMS.EVM) {
+                return copy(walletAccount.value);
+            }
+
+            action('SET_MODAL_ECOSYSTEM', currentChainInfo.value.ecosystem);
+            return action('SET_MODAL_STATE', { name: 'addresses', isOpen: true });
+        };
+
         return {
             isAllTokensLoading,
             totalBalance,
@@ -61,16 +83,18 @@ export default {
             walletAccount,
             cutAddress,
             showBalance,
+            copied,
 
             toggleViewBalance,
+            handleOnCopyAddress,
         };
     },
 };
 </script>
 <style lang="scss" scoped>
 .wallet-info {
-    display: flex;
-    align-items: center;
+    @include pageFlexColumn;
+    align-items: baseline;
 
     &__wallet {
         display: flex;
@@ -90,11 +114,6 @@ export default {
 
             font-weight: 400;
             font-size: var(--#{$prefix}default-fs);
-
-            svg {
-                margin-left: 4px;
-                stroke: var(--#{$prefix}black);
-            }
         }
 
         .balance {
@@ -127,6 +146,17 @@ export default {
                     fill: var(--#{$prefix}eye-logo-hover);
                 }
             }
+        }
+    }
+    &__address {
+        @include pageFlexRow;
+
+        svg {
+            cursor: pointer;
+
+            width: 16px;
+            height: 16px;
+            margin-left: 8px;
         }
     }
 }
