@@ -401,12 +401,12 @@ export default {
                 &-skeleton {
                     position: absolute;
                     right: 0px;
-                    top: -12px;
+                    top: -10px;
                 }
             }
 
             &-skeleton {
-                margin-top: 0px;
+                margin-top: 2px;
             }
 
             &-value {
