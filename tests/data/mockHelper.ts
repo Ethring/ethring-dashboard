@@ -1,9 +1,20 @@
+const EVM_NETWORKS = ['eth', 'arbitrum', 'optimism', 'bsc', 'polygon', 'fantom', 'avalanche'];
+
 const emptyBalanceMockData = { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' };
 
 const errorGetBalanceMockData = {
     ok: false,
     data: null,
     error: 'Data updates with a delay.',
+};
+
+const errorEstimateSwap = {
+    ok: false,
+    data: null,
+    error: {
+        code: 'ROUTE_NOT_FOUND',
+        message: 'Estimate route is not found for chosen pair',
+    },
 };
 
 const mockBalanceData = {
@@ -563,6 +574,117 @@ const mockBalanceDataBySendTest = {
     },
 };
 
+const mockBalanceDataBySwapTest = {
+    avalanche: {
+        ok: true,
+        data: {
+            tokens: [
+                {
+                    name: 'Avalanche',
+                    symbol: 'AVAX',
+                    address: null,
+                    decimals: 18,
+                    logo: 'https://assets.coingecko.com/coins/images/12559/large/Avalanche_Circle_RedWhite_Trans.png?1696512369',
+                    price: '21.473881918021284',
+                    priceChange: '-0.31563323718329883',
+                    balanceUsd: '2.1473881918021287',
+                    balance: '15.1',
+                },
+                {
+                    name: 'USDC',
+                    symbol: 'USDC',
+                    address: '0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e',
+                    decimals: 6,
+                    logo: 'https://assets.coingecko.com/coins/images/6319/large/usdc.png?1696506694',
+                    price: '0.9992418554279857',
+                    priceChange: '-0.0006581513448562504',
+                    balanceUsd: '0.09992418554279858',
+                    balance: '20.1',
+                },
+                {
+                    name: 'Storm',
+                    symbol: 'STORM',
+                    address: '0x6afd5a1ea4b793cc1526d6dc7e99a608b356ef7b',
+                    decimals: 18,
+                    logo: 'https://assets.coingecko.com/coins/images/18170/large/nFiYZ2xO_400x400.png?1696517670',
+                    price: '0.0014557002331391314',
+                    priceChange: '-6.0332342080064976e-05',
+                    balanceUsd: '0.014557002331391313',
+                    balance: '35.0',
+                },
+                {
+                    name: 'Frax',
+                    symbol: 'FRAX',
+                    address: '0xD24C2Ad096400B6FBcd2ad8B24E7acBc21A1da64',
+                    decimals: 18,
+                    logo: 'https://assets.coingecko.com/coins/images/13422/large/ethCanonicalFRAX.png?1669277108',
+                    price: '10',
+                    priceChange: '0',
+                    balanceUsd: '100',
+                    balance: '10.0',
+                },
+            ],
+            nfts: [],
+            integrations: [],
+        },
+        error: '',
+    },
+    arbitrum: {
+        ok: true,
+        data: {
+            tokens: [
+                {
+                    name: 'GMX',
+                    symbol: 'GMX',
+                    address: '0xfc5a1a6eb076a2c7ad06ed22c90d7e710e35ad0a',
+                    decimals: 18,
+                    logo: 'https://assets.coingecko.com/coins/images/18323/large/arbit.png?1696517814',
+                    price: '44.50635394453711',
+                    priceChange: '1.371117500289337',
+                    balanceUsd: '242.86402245118953',
+                    balance: '5.436244379764906',
+                },
+                {
+                    name: '',
+                    symbol: 'ARB',
+                    address: '0x912ce59144191c1204e64559fe8253a0e49e6548',
+                    decimals: 18,
+                    logo: '',
+                    price: '1.1190745597229164',
+                    priceChange: '0.02859101948364806',
+                    balanceUsd: '23.480300410319767',
+                    balance: '20.948392275648835',
+                },
+                {
+                    name: 'Wrapped Bitcoin',
+                    symbol: 'WBTC',
+                    address: '0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f',
+                    decimals: 8,
+                    logo: 'https://assets.coingecko.com/coins/images/7598/large/wrapped_bitcoin_wbtc.png?1696507857',
+                    price: '43882.42848262222',
+                    priceChange: '1719.287857467396',
+                    balanceUsd: '11.468672683933317',
+                    balance: '0.00026135',
+                },
+                {
+                    name: 'Ethereum',
+                    symbol: 'ETH',
+                    address: null,
+                    decimals: 18,
+                    logo: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png?1696501628',
+                    price: '2243.1116620151697',
+                    priceChange: '53.50405242635725',
+                    balanceUsd: '33.03240884364879',
+                    balance: '0.014666513409906596',
+                },
+            ],
+            nfts: [],
+            integrations: [],
+        },
+        error: '',
+    },
+};
+
 const marketCapMockData = {
     polygon_matic: {
         ok: true,
@@ -598,4 +720,13 @@ const marketCapMockData = {
     },
 };
 
-export { mockBalanceData, marketCapMockData, mockBalanceDataBySendTest, emptyBalanceMockData, errorGetBalanceMockData };
+export {
+    mockBalanceData,
+    marketCapMockData,
+    mockBalanceDataBySendTest,
+    mockBalanceDataBySwapTest,
+    emptyBalanceMockData,
+    errorGetBalanceMockData,
+    EVM_NETWORKS,
+    errorEstimateSwap,
+};
