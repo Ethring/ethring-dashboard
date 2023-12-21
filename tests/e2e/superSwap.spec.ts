@@ -67,8 +67,8 @@ test.describe('SuperSwap e2e tests', () => {
 
         await superSwapPage.mockRoute(balancePolygonRoute, mockPolygonBalanceData);
 
-        await superSwapPage.mockEstimateSwapRequest('srv-paraswap', mockDataEstimateParaswap, addressFrom);
-        await superSwapPage.mockEstimateSwapRequest('srv-synapse-swap', mockDataEstimateSynapse, addressFrom);
+        await superSwapPage.mockEstimateSwapRequest('srv-paraswap', mockDataEstimateParaswap);
+        await superSwapPage.mockEstimateSwapRequest('srv-synapse-swap', mockDataEstimateSynapse);
 
         await superSwapPage.page.waitForResponse(balancePolygonRoute); // TODO сейчас есть баг https://paradigmcitadel.atlassian.net/browse/ZMT-866 после фикса удалить эту ожидалку
 

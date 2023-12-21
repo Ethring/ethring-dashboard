@@ -1,6 +1,6 @@
 import { test, expect } from '../__fixtures__/fixtures';
 import { getTestVar, TEST_CONST } from '../envHelper';
-import { emptyBalanceMockData, mockBalanceDataBySendTest } from '../data/mockHelper';
+import { EVM_NETWORKS, emptyBalanceMockData, mockBalanceDataBySendTest } from '../data/mockHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage, getHomeMmPage } from '../model/MetaMask/MetaMask.pages';
 
 test.describe('Send e2e tests', () => {
@@ -11,15 +11,19 @@ test.describe('Send e2e tests', () => {
         sendPage,
     }) => {
         const network = 'Avalanche';
-        const EMPTY_BALANCE_MOCK_NETS = ['eth', 'arbitrum', 'optimism', 'bsc', 'polygon', 'fantom'];
-
         const addressFrom = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
         const addressTo = getTestVar(TEST_CONST.RECIPIENT_ADDRESS);
         const amount = '0.001';
+
+        const INDEX_AVALANCHE = EVM_NETWORKS.indexOf(network.toLowerCase());
+        let EMPTY_BALANCE_NETS_MOCK = [...EVM_NETWORKS];
+        EMPTY_BALANCE_NETS_MOCK.splice(INDEX_AVALANCHE, 1);
         const WAITED_URL = `**/srv-data-provider/api/balances?net=${network.toLowerCase()}**`;
 
         await sendPage.mockBalanceRequest(network.toLowerCase(), mockBalanceDataBySendTest[network.toLowerCase()], addressFrom);
-        await Promise.all(EMPTY_BALANCE_MOCK_NETS.map((network) => sendPage.mockBalanceRequest(network, emptyBalanceMockData, addressFrom)));
+        await Promise.all(
+            EMPTY_BALANCE_NETS_MOCK.map((network) => sendPage.mockBalanceRequest(network, emptyBalanceMockData, addressFrom))
+        );
         const balancePromise = sendPage.page.waitForResponse(WAITED_URL);
 
         await sendPage.changeNetwork(network);
@@ -65,6 +69,7 @@ test.describe('Send e2e tests', () => {
         const homeMmPage = await getHomeMmPage(context);
         await homeMmPage.addNetwork(networkNameInMm);
         await balancePromise;
+        await sendPage.waitLoadImg();
 
         await expect(sendPage.getBaseContentElement()).toHaveScreenshot();
     });
