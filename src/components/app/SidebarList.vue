@@ -1,32 +1,52 @@
 <template>
     <div class="sidebar-list" :class="{ collapsed }">
-        <router-link
-            v-for="(item, ndx) in menu"
-            :key="ndx"
-            :to="item.disabled ? '' : item.to"
-            class="sidebar-list__item"
-            :data-qa="item.key"
-            :class="{ disabled: item.disabled }"
-        >
-            <a-tooltip placement="right">
-                <template #title v-if="collapsed">
-                    {{ $t(`sidebar.${item.key}`) }}
-                </template>
-                <div class="sidebar-list__item-icon">
-                    <component v-if="item.component" :is="item.component" />
-                </div>
-            </a-tooltip>
+        <template v-for="(item, ndx) in menu" :key="ndx">
+            <router-link
+                v-if="item.type === 'layout'"
+                :key="ndx"
+                :to="item.disabled ? '' : item.to"
+                class="sidebar-list__item"
+                :data-qa="item.key"
+                :class="{ disabled: item.disabled }"
+            >
+                <a-tooltip placement="right">
+                    <template #title v-if="collapsed">
+                        {{ $t(`sidebar.${item.key}`) }}
+                    </template>
+                    <div class="sidebar-list__item-icon">
+                        <component v-if="item.component" :is="item.component" />
+                    </div>
+                </a-tooltip>
 
-            <div v-if="!collapsed" class="sidebar-list__item-title" :data-qa="`sidebar-item-${item.key}`">
-                {{ $t(`sidebar.${item.key}`) }}
-                <div v-if="item.status" class="sidebar-list__item-status">{{ item.status }}</div>
+                <div v-if="!collapsed" class="sidebar-list__item-title" :data-qa="`sidebar-item-${item.key}`">
+                    {{ $t(`sidebar.${item.key}`) }}
+                    <div v-if="item.status" class="sidebar-list__item-status">{{ item.status }}</div>
+                </div>
+            </router-link>
+
+            <div v-else-if="item.type === 'modal'" @click="showModal()" class="sidebar-list__item">
+                <a-tooltip placement="right">
+                    <template #title v-if="collapsed">
+                        {{ $t(`sidebar.${item.key}`) }}
+                    </template>
+                    <div class="sidebar-list__item-icon">
+                        <component v-if="item.component" :is="item.component" />
+                    </div>
+                </a-tooltip>
+
+                <div v-if="!collapsed" class="sidebar-list__item-title" :data-qa="`sidebar-item-${item.key}`">
+                    {{ $t(`sidebar.${item.key}`) }}
+                    <div v-if="item.status" class="sidebar-list__item-status">{{ item.status }}</div>
+                </div>
+
+                <KadoModal :open="open" @close:modal="closeModal" />
             </div>
-        </router-link>
+        </template>
     </div>
 </template>
 
 <script>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 import UIConfig from '@/config/ui';
@@ -39,6 +59,8 @@ import bridgeIcon from '@/assets/icons/sidebar/bridge.svg';
 import superSwapIcon from '@/assets/icons/sidebar/superSwap.svg';
 import buyCryptoIcon from '@/assets/icons/sidebar/buy.svg';
 
+import KadoModal from '@/components/app/modals/KadoModal';
+
 export default {
     name: 'SidebarList',
     components: {
@@ -49,6 +71,8 @@ export default {
         bridgeIcon,
         superSwapIcon,
         buyCryptoIcon,
+
+        KadoModal,
     },
     props: {
         collapsed: {
@@ -58,6 +82,16 @@ export default {
     },
     setup() {
         const { currentChainInfo } = useAdapter();
+
+        const open = ref(false);
+
+        const showModal = () => {
+            open.value = true;
+        };
+
+        const closeModal = (newValue) => {
+            open.value = newValue;
+        };
 
         const menu = computed(() => {
             if (!currentChainInfo.value?.ecosystem) {
@@ -75,6 +109,9 @@ export default {
 
         return {
             menu,
+            open,
+            showModal,
+            closeModal,
         };
     },
 };
@@ -102,7 +139,9 @@ export default {
             color: var(--#{$prefix}icon-color);
 
             svg {
-                fill: var(--#{$prefix}icon-color);
+                &[fill='none'] {
+                    fill: var(--#{$prefix}icon-color);
+                }
             }
         }
 
@@ -115,7 +154,9 @@ export default {
         }
 
         svg {
-            fill: var(--#{$prefix}sidebar-text);
+            &[fill='none'] {
+                fill: var(--#{$prefix}sidebar-text);
+            }
             @include animateEasy;
         }
 

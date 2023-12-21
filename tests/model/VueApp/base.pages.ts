@@ -30,12 +30,20 @@ class BasePage {
     }
 
     async clickLoginByMetaMask() {
-        await this.page.locator('div.wallet-adapter-container').click();
-        await this.page.getByTestId('EVM Ecosystem wallet').click();
+        try {
+            await this.page.locator('div.wallet-adapter-container').click();
+            await this.page.getByTestId('EVM Ecosystem wallet').click();
+        } catch (e) {
+            console.log('\nFirst login by metamask fail:\n', `\t${e}`);
+            await this.page.reload();
+            await this.page.locator('div.wallet-adapter-container').click();
+            await this.page.getByTestId('EVM Ecosystem wallet').click();
+        }
+
         await this.page.getByText('MetaMask').click();
     }
 
-    async goToModule(module: string = 'send|swap|bridge|superSwap') {
+    async goToModule(module: string = 'send|swap|bridge|superSwap'): Promise<SendPage | SwapPage | BridgePage | SuperSwapPage> {
         const moduleName = this.sideBarLinks[module];
         await this.page.getByTestId(moduleName).click();
         return this.modules[module](this.page);
@@ -60,31 +68,27 @@ class BasePage {
 
     async mockBalanceRequest(net: string, mockData: object, address: string, statusCode: number = 200) {
         const URL = `**/srv-data-provider/api/balances?net=${net}&address=${address}**`;
-        await this.page.route(URL, (route) => {
-            route.fulfill({
-                status: statusCode,
-                contentType: 'application/json; charset=utf-8',
-                body: JSON.stringify(mockData),
-            });
-        });
+        await this.mockRoute(URL, mockData, statusCode);
     }
 
-    async mockEstimateSwapRequest(service: 'srv-paraswap' | 'srv-synapse-swap', mockData: object, addressFrom: string, statusCode = 200) {
-        const URL = `**/${service}/api/estimateSwap?net=polygon&fromTokenAddress=0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee&toTokenAddress=0x9c2C5fd7b07E95EE044DDeba0E97a665F142394f&amount=0.01&ownerAddress=${addressFrom}`;
-
-        await this.page.route(URL, (route) => {
-            route.fulfill({
-                status: statusCode,
-                contentType: 'application/json; charset=utf-8',
-                body: JSON.stringify(mockData),
-            });
-        });
+    async mockAnyNetworkBalanceRequest(networks: string[], mockData: object, address: string) {
+        await Promise.all(networks.map((network) => this.mockBalanceRequest(network, mockData, address)));
     }
 
-    async mockRoute(url: string, mockData: object) {
-        await this.page.route(url, (route) => {
+    async mockEstimateSwapRequest(service: 'srv-paraswap' | 'srv-synapse-swap', mockData: object, statusCode = 200) {
+        const URL = `**/${service}/api/estimateSwap**`;
+        await this.mockRoute(URL, mockData, statusCode);
+    }
+
+    async mockTokensList(net: string, tokensList: object) {
+        const URL = `**/networks/${net}/tokens`;
+        this.mockRoute(URL, tokensList, 200);
+    }
+
+    async mockRoute(url: string, mockData: object, statusCode: number = 200): Promise<any> {
+        return this.page.route(url, (route) => {
             route.fulfill({
-                status: 200,
+                status: statusCode,
                 contentType: 'application/json; charset=utf-8',
                 body: JSON.stringify(mockData),
             });
@@ -125,6 +129,27 @@ class BasePage {
 
     async waitDetachedSkeleton() {
         this.page.waitForSelector('div.ant-skeleton-active', { state: 'detached', timeout: 60000 });
+    }
+
+    async waitLoadImg() {
+        let images = await this.page.locator('//img').all();
+        for (const img of images) await img.scrollIntoViewIfNeeded();
+
+        // const promises = images.map((locator) =>
+        //     locator.evaluate((image) => {
+        //         console.log('\n2>>>>', image, '\n');
+        //         return image.complete || new Promise((f) => (image.onload = f));
+        //     })
+        // );
+        // console.log('>>>4', promises);
+        // await Promise.race(promises)
+        //     .then((res) => {
+        //         console.log('>>>5', res);
+        //     })
+        //     .catch((e) => {
+        //         console.log(e);
+        //     });
+        // console.log('>>> FINISH');
     }
 }
 
@@ -214,17 +239,30 @@ class SuperSwapPage extends BasePage {
 }
 
 class SwapPage extends BasePage {
-    async swapTokens(amount: string) {
+    TOKEN_ITEM_XPATH = '(//*[@data-qa="select-token"])';
+
+    async setAmount(amount: string) {
         await this.page.locator("//div[text() = 'Pay']/following-sibling::div//input").fill(amount);
+    }
+
+    async swapTokens(amount: string) {
+        await this.setAmount(amount);
         await this.page.click('button.simple-swap__btn');
         await this.page.waitForLoadState();
         await this.page.waitForLoadState('domcontentloaded');
         await sleep(FIVE_SECONDS);
     }
 
-    async setTokenFromInSwap(token: String) {
-        await this.page.locator('(//*[@data-qa="select-token"])[1]').click();
-        await this.page.locator(`//div[@class="select-token__item"]//div[text()="${token}"]`).click();
+    async openTokenPageFrom() {
+        await this.page.locator(`${this.TOKEN_ITEM_XPATH}[1]`).click();
+    }
+
+    async openTokenPageTo() {
+        await this.page.locator(`${this.TOKEN_ITEM_XPATH}[2]`).click();
+    }
+
+    async setTokenInTokensList(token: String) {
+        await this.page.locator(`//div[@data-qa="token-record"]//div[text()="${token}"]`).click();
     }
 
     async getTokenFrom() {
@@ -233,11 +271,6 @@ class SwapPage extends BasePage {
 
     async getTokenTo() {
         return await this.page.locator('(//*[@data-qa="select-token"]/div[@class="token"])[2]').textContent();
-    }
-
-    async setTokenToInSwap(token: String) {
-        this.page.locator('(//*[@data-qa="select-token"])[2]');
-        await this.page.locator(`//div[@class="select-token__item"]//div[text()="${token}"]`).click();
     }
 }
 
