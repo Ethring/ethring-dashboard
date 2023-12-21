@@ -4,8 +4,12 @@
             <SearchIcon />
         </div>
         <div class="search-input__container">
-            <span>{{ $t('dashboard.search') }}</span>
-            <input @focus="isActive = 'active'" @blur="isActive = ''" v-model="text" :placeholder="$t('tokenOperations.searchToken')" />
+            <input
+                @focus="isActive = 'active'"
+                @blur="isActive = ''"
+                v-model="text"
+                :placeholder="placeholder || $t('tokenOperations.searchToken')"
+            />
         </div>
         <div v-if="text.length" class="search-input__clear" @click="clearValue">
             <ClearIcon />
@@ -25,6 +29,14 @@ export default {
         SearchIcon,
         ClearIcon,
     },
+    props: {
+        value: {
+            default: '',
+        },
+        placeholder: {
+            default: '',
+        },
+    },
     setup(props, { emit }) {
         const text = ref(props.value || '');
         const isActive = ref('');
@@ -37,6 +49,13 @@ export default {
             emit('onChange', val);
         });
 
+        watch(
+            () => props.value,
+            () => {
+                text.value = props.value;
+            }
+        );
+
         return {
             text,
             isActive,
@@ -47,21 +66,17 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$padding-tb: 20px;
-$padding-lr: 32px;
-
 .search-input {
     position: relative;
-
+    transition: all 0.2s;
     @include pageFlexRow;
 
-    height: 100%;
-    max-height: 100px;
+    height: 48px;
 
-    padding: $padding-tb $padding-lr;
+    padding: 12px 8px;
 
-    border: 2px solid var(--#{$prefix}white);
-    border-radius: 16px;
+    border: 1px solid var(--#{$prefix}select-bg-color);
+    border-radius: 8px;
 
     background: var(--#{$prefix}select-bg-color);
 
@@ -73,7 +88,7 @@ $padding-lr: 32px;
         display: block;
 
         font-style: normal;
-        font-weight: 500;
+        font-weight: 400;
         font-size: var(--#{$prefix}small-lg-fs);
         color: var(--#{$prefix}base-text);
     }
@@ -81,51 +96,34 @@ $padding-lr: 32px;
     &__logo {
         @include pageFlexRow;
         justify-content: center;
-
-        width: 40px;
-        min-width: 40px;
-        height: 40px;
-        max-height: 40px;
-
-        border-radius: 50%;
-        background: var(--#{$prefix}icon-secondary-bg-hover);
-        margin-right: 10px;
+        margin-right: 4px;
 
         svg {
-            fill: var(--#{$prefix}sub-text);
+            fill: var(--#{$prefix}select-placeholder-text);
         }
     }
 
     &__clear {
         position: absolute;
-        right: $padding-lr;
+        right: 8px;
 
         top: 0;
         bottom: 0;
         margin: auto 0;
 
         cursor: pointer;
-
-        max-width: 20px;
-        max-height: 20px;
-
         @include pageFlexRow;
         justify-content: center;
-
-        svg {
-            width: 20px;
-            height: 20px;
-        }
     }
 
     input {
         width: 100%;
 
         font-style: normal;
-        font-weight: 600;
-        font-size: var(--#{$prefix}h5-fs);
+        font-weight: 400;
+        font-size: var(--#{$prefix}default-fs);
 
-        color: var(--#{$prefix}primary-text);
+        color: var(--#{$prefix}select-placeholder-text);
 
         background-color: transparent;
         outline: none;
@@ -134,12 +132,8 @@ $padding-lr: 32px;
 }
 
 .active {
-    background: var(--#{$prefix}select-bg-color);
-    border: 2px solid var(--#{$prefix}sub-text);
-
-    .search-input__logo {
-        background: var(--#{$prefix}btn-bg-color-hover);
-    }
+    background: var(--#{$prefix}main-background);
+    border: 1px solid var(--#{$prefix}sub-text);
 
     input {
         color: var(--#{$prefix}primary-text);

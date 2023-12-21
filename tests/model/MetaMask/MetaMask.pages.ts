@@ -1,27 +1,24 @@
 import { BrowserContext, expect, type Locator, type Page } from '@playwright/test';
-import { metaMaskId } from '../__fixtures__/fixtures';
-import { getTestVar, TEST_CONST } from '../envHelper';
+import { metaMaskId } from '../../__fixtures__/fixtures';
+import { getTestVar, TEST_CONST } from '../../envHelper';
+import { FIVE_SECONDS } from '../utils';
 
 const sleep = require('util').promisify(setTimeout);
 
 const password = getTestVar(TEST_CONST.PASS_BY_MM_WALLET);
 
-export const sleepFiveSecond = async () => {
-    await sleep(5000);
-};
-
-export const waitMmNotifyPage = async (context: BrowserContext) => {
+const waitMmNotifyPage = async (context: BrowserContext) => {
     try {
-        await sleepFiveSecond();
+        await sleep(FIVE_SECONDS); // wait for page load
         await context.pages()[2].title();
     } catch (error) {
         console.error('First try get mm notify page is failed.', error, ' Second try...');
-        await sleepFiveSecond();
+        await sleep(FIVE_SECONDS); // wait for page load
         await context.pages()[2].title();
     }
 };
 
-export const getNotifyMmPage = async (context: BrowserContext): Promise<Page> => {
+const getNotifyMmPage = async (context: BrowserContext): Promise<Page> => {
     const expectedMmPageTitle = 'MetaMask Notification';
 
     await waitMmNotifyPage(context);
@@ -30,14 +27,28 @@ export const getNotifyMmPage = async (context: BrowserContext): Promise<Page> =>
     const titlePage = await notifyPage.title();
 
     if (titlePage !== expectedMmPageTitle) {
-        throw new Error(`Oops, this is did not notify MM page. Current title ${titlePage}`);
+        throw new Error(`Oops, this is not the notify MM page. Current title ${titlePage}`);
     }
 
     return notifyPage;
 };
 
-export const closeEmptyPages = async (context: BrowserContext) => {
-    await sleepFiveSecond();
+const getHomeMmPage = async (context: BrowserContext): Promise<MetaMaskHomePage> => {
+    const expectedMmPageTitle = 'MetaMask';
+
+    const mainPage = context.pages()[0];
+    const titlePage = await mainPage.title();
+
+    if (titlePage !== expectedMmPageTitle) {
+        throw new Error(`Oops, this is not the MM page. Current title ${titlePage}`);
+    }
+    const page = new MetaMaskHomePage(mainPage);
+    await page.closeWhatsNewNotify();
+    return page;
+};
+
+const closeEmptyPages = async (context: BrowserContext) => {
+    await sleep(FIVE_SECONDS); // wait for page load
     const allStartPages = context.pages();
 
     for (const page of allStartPages) {
@@ -48,7 +59,7 @@ export const closeEmptyPages = async (context: BrowserContext) => {
     }
 };
 
-export class MetaMaskHomePage {
+class MetaMaskHomePage {
     readonly page: Page;
 
     constructor(page: Page) {
@@ -71,17 +82,28 @@ export class MetaMaskHomePage {
         await this.page.goto(`chrome-extension://${metaMaskId}/notification.html`);
     }
 
+    async closeWhatsNewNotify() {
+        await this.page.locator("//button[@data-testid='popover-close']").click();
+    }
+
     async addWallet(seed: String) {
-        await sleepFiveSecond();
+        await sleep(FIVE_SECONDS); // wait for page load
         await this.page.reload();
+
+        // Navigation to import wallet page
         await this.page.locator('input[data-testid=onboarding-terms-checkbox]').click();
         await this.page.locator('button[data-testid=onboarding-import-wallet]').click();
         await this.page.locator('button[data-testid=metametrics-i-agree]').click();
 
+        // Splitting seed phrase and filling it
         const seedArray = seed.split(' ');
-        for (let i = 0; i < seedArray.length; i++) {
-            await this.page.locator(`input[data-testid=import-srp__srp-word-${i}]`).fill(seedArray[i]);
+
+        // Filling seed phrase
+        for (const word of seedArray) {
+            await this.page.locator(`input[data-testid=import-srp__srp-word-${seedArray.indexOf(word)}]`).fill(word);
         }
+
+        // Confirming seed phrase
         await this.page.click('[data-testid="import-srp-confirm"]');
         await this.page.fill('input[data-testid=create-password-new]', password);
         await this.page.fill('input[data-testid=create-password-confirm]', password);
@@ -108,11 +130,14 @@ export class MetaMaskHomePage {
 
     async addNetwork(network: String) {
         await this.page.locator('[data-testid="network-display"]').click();
-        await this.page.getByText('Добавить сеть').click();
+        await this.page.getByText('Add network').click();
+        await this.page.locator(`//h6[text()='${network}']/../../..//button`).click();
+        await this.page.locator('[data-testid="confirmation-submit-button"]').click();
+        await this.page.locator('button.home__new-network-added__switch-to-button').click();
     }
 }
 
-export class MetaMaskNotifyPage {
+class MetaMaskNotifyPage {
     readonly page: Page;
 
     constructor(page: Page) {
@@ -154,3 +179,5 @@ export class MetaMaskNotifyPage {
         await this.page.click('[data-testid="confirmation-submit-button"]');
     }
 }
+
+export { waitMmNotifyPage, getNotifyMmPage, getHomeMmPage, closeEmptyPages, MetaMaskHomePage, MetaMaskNotifyPage };

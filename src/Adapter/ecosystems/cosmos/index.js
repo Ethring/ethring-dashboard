@@ -187,11 +187,23 @@ class CosmosAdapter extends AdapterBase {
         return true;
     }
 
+    async getSupportedEcosystemChains(chainRecords, chainWallet) {
+        try {
+            const enablePromises = chainRecords.map(async (chainRecord) => {
+                await chainWallet?.client.enable(chainRecord.chain.chain_id);
+            });
+
+            await Promise.all(enablePromises);
+        } catch (error) {
+            console.log('Error while approving chains', error);
+        }
+    }
+
     async connectWallet(walletName, chain = this.DEFAULT_CHAIN) {
         try {
             const chainWallet = this.walletManager.getChainWallet(chain, walletName);
 
-            chainWallet.activate();
+            await this.getSupportedEcosystemChains(this.walletManager.chainRecords, chainWallet.client);
 
             // chainWallet.restEndpoints = [`${DEFAULT_REST}/${chain}`];
             // chainWallet.rpcEndpoints = [`${DEFAULT_RPC}/${chain}`];
@@ -784,6 +796,9 @@ class CosmosAdapter extends AdapterBase {
 
     getAddressesWithChains() {
         const mainAccount = this.getAccount();
+        if (!this.addressByNetwork) {
+            return {};
+        }
         return this.addressByNetwork[mainAccount] || {};
     }
 

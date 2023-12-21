@@ -27,6 +27,7 @@ $cyan: #02e7f6;
 $ficus: #385c39;
 $blueHalk: #e6eeff;
 $blackGray: #1a1d26;
+$paleSky: #6D747A;
 
 $wildWatermelon: #e4455d;
 $deepCerulean: #00839f;
@@ -64,6 +65,9 @@ $banner-secondary-color: $charade;
 $eye-logo: $geyser;
 $eye-logo-hover: $springGreen;
 
+$assets-border-color: $ebonyClay;
+$assets-header-border-color: $charade;
+
 // Text
 $sub-text: $springGreen;
 $mute-text: $geyser;
@@ -72,12 +76,17 @@ $sidebar-text: $geyser;
 $primary-text: $white;
 $secondary-text: $aquamarine;
 $symbol-text: $gulfStream;
-$mute-apr-text: $gulfStream;
+$mute-apr-text: $white;
+$amount-text: $white;
+$input-disabled-text: $paleSky;
+$balance-text: $aquamarine;
+$unlock-text: $aquamarine;
 
 // Adapter text
 $adapter-label-text: $gulfStream;
 $adapter-value-text: $white;
 $adapter-ecosystem-border-color: $charade;
+$adapter-ecosystem-color: $springGreen;
 $adapter-connected-border-color: $charade;
 $adapter-connected-icon-color: $lightGreen;
 $adapter-secondary-border-color: $pastelPink;
@@ -97,9 +106,11 @@ $adapter-not-connected-icon: $geyser;
 // Checkbox
 $checkbox-text: $gulfStream;
 $checkbox-disabled-text: $mineralGreen;
-$checkbox-checked: $aquamarine;
+$checkbox-checked: $springGreen;
 $checkbox-bg-color: $ebonyClay;
 $checkbox-disabled: $mineralGreen;
+$checkbox-border: $aquamarine;
+$checkbox-border-checked: $aquamarine;
 
 // Border
 $border-color: $charade;
@@ -137,11 +148,15 @@ $select-icon-color: $mineralGreen;
 $select-icon-bg-color: $charade;
 $select-placeholder-text: $trout;
 $select-active-bg-color: $chineseBlack;
+$select-symbol-text: $aquamarine;
+$selected-bg-color: rgba(20, 236, 138, 0.10);
+
 
 // Accordion
 $accordion-bg-color: $charade;
 $accordion-label-color: $geyser;
 $accordion-border-color: 'transparent';
+$accordion-title: $white;
 
 // Collapse
 $collapse-border-color: $charade;
@@ -169,7 +184,7 @@ $icon-hover: $black;
 $icon-disabled: $gulfStream;
 $icon-border: $gulfStream;
 
-$icon-logo-bg-color: $chineseBlack;
+$icon-logo-bg-color: $charade;
 $icon-logo-bg-hover: $aquamarine;
 $icon-secondary-bg-color: $ebonyClay;
 $icon-secondary-bg-hover: $mineralGreen;
@@ -236,10 +251,18 @@ $theme-colors-dark: (
     "secondary-text": $secondary-text,
     "symbol-text": $symbol-text,
     "mute-apr-text": $mute-apr-text,
+    "amount-text": $amount-text,
+    "input-disabled-text": $input-disabled-text,
+    "balance-text": $balance-text,
+    "unlock-text": $unlock-text,
+
+    "assets-border-color": $assets-border-color,
+    "assets-header-border-color": $assets-header-border-color,
 
     "adapter-label-text": $adapter-label-text,
     "adapter-value-text": $adapter-value-text,
     "adapter-ecosystem-border-color": $adapter-ecosystem-border-color,
+    "adapter-ecosystem-color": $adapter-ecosystem-color,
     "adapter-logo-main-color": $adapter-logo-main-color,
     "adapter-logo-base-color": $adapter-logo-base-color,
     "adapter-logo-secondary-color": $adapter-logo-secondary-color,
@@ -257,6 +280,8 @@ $theme-colors-dark: (
     "checkbox-checked": $checkbox-checked,
     "checkbox-bg-color": $checkbox-bg-color,
     "checkbox-disabled": $checkbox-disabled,
+    "checkbox-border": $checkbox-border,
+    "checkbox-border-checked": $checkbox-border-checked,
 
     "border-color": $border-color,
     "border-secondary-color": $border-secondary-color,
@@ -287,10 +312,13 @@ $theme-colors-dark: (
     "select-icon-color": $select-icon-color,
     "select-icon-bg-color": $select-icon-bg-color,
     "select-placeholder-text": $select-placeholder-text,
+    "select-symbol-text": $select-symbol-text,
+    "selected-bg-color": $selected-bg-color,
 
     "accordion-bg-color": $accordion-bg-color,
     "accordion-label-color": $accordion-label-color,
     "accordion-border-color": $accordion-border-color,
+    "accordion-title": $accordion-title,
 
     "collapse-border-color": $collapse-border-color,
 

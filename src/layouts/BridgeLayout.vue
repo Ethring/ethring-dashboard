@@ -27,9 +27,7 @@ export default {
     justify-content: space-around;
     align-items: baseline;
 
-    width: calc(100% - 260px);
-
-    max-width: 685px;
+    width: 524px;
 
     &__active {
         @include pageFlexColumn;
@@ -39,23 +37,22 @@ export default {
 
 .bridge-page__title {
     color: var(--#{$prefix}base-text);
-    font-size: var(--#{$prefix}h1-fs);
-    font-weight: 600;
+    font-size: var(--#{$prefix}h3-fs);
+    font-weight: 400;
 
-    margin-bottom: 30px;
+    margin-bottom: 16px;
     text-decoration: none;
 
     &__active {
         color: var(--#{$prefix}primary-text);
-        font-size: var(--#{$prefix}h1-fs);
-        font-weight: 600;
-        margin-bottom: 30px;
+        font-size: var(--#{$prefix}h3-fs);
+        font-weight: 500;
+        margin-bottom: 16px;
         text-decoration: none;
     }
 }
 
 .arrow {
-    fill: var(--#{$prefix}arrow-color);
-    margin-top: 10px;
+    margin-top: 8px;
 }
 </style>

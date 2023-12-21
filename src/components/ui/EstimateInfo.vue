@@ -1,12 +1,22 @@
 <template>
-    <a-collapse expand-icon-position="end" :bordered="false" class="estimate-info">
+    <a-collapse
+        expand-icon-position="end"
+        :class="{ isActive }"
+        :bordered="false"
+        class="estimate-info"
+        @change="() => (isActive = !isActive)"
+    >
+        <template #expandIcon>
+            <ArrowIcon class="arrow" />
+        </template>
         <a-collapse-panel key="estimate-info" :collapsible="isCollapsible ? '' : 'disabled'">
             <template #header>
                 <div class="top-block">
-                    <ServiceIcon v-if="service" :icon="service.icon" :name="service.name" />
+                    <ServiceIcon v-if="service && !loading && mainFee.fromAmount" :icon="service.icon" :name="service.name" />
 
                     <template v-if="loading">
-                        <a-skeleton-input active size="small" />
+                        <a-skeleton-avatar active size="small" class="icon-skeleton" />
+                        <a-skeleton-input active size="small" class="skeleton" />
                     </template>
 
                     <template v-else>
@@ -24,22 +34,28 @@
                                 {{ error }}
                             </template>
 
-                            {{ error.slice(0, MAX_LENGTH) + '...' }}
+                            {{ error }}
                         </a-tooltip>
                     </div>
                 </div>
             </template>
-            <div v-if="fees.length" class="fees">
+
+            <template v-if="loading">
+                <a-skeleton-input active size="small" class="skeleton" />
+            </template>
+            <div v-else-if="fees.length" class="fees">
                 <EstimateStats v-for="fee in fees" :key="fee" v-bind="fee" />
             </div>
         </a-collapse-panel>
     </a-collapse>
 </template>
 <script>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
-import ServiceIcon from './ServiceIcon.vue';
 import EstimateStats from './EstimateStats.vue';
+import ServiceIcon from './ServiceIcon.vue';
+
+import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
 export default {
     name: 'EstimateInfo',
@@ -83,9 +99,10 @@ export default {
             default: '',
         },
     },
-    components: { ServiceIcon, EstimateStats },
+    components: { EstimateStats, ServiceIcon, ArrowIcon },
     setup(props) {
         const MAX_LENGTH = 55;
+        const isActive = ref(false);
 
         const isCollapsible = computed(() => {
             const { fees } = props;
@@ -104,6 +121,7 @@ export default {
         });
 
         return {
+            isActive,
             isCollapsible,
 
             MAX_LENGTH,
@@ -114,31 +132,50 @@ export default {
 
 <style lang="scss" scoped>
 .estimate-info {
-    margin-top: 20px;
+    margin-top: 8px;
     background-color: var(--#{$prefix}accordion-bg-color);
     border: 1px solid var(--#{$prefix}accordion-border-color);
-    border-radius: 16px;
+    border-radius: 8px;
+    .skeleton {
+        height: 24px;
+    }
 
+    .icon-skeleton {
+        margin-right: 8px;
+    }
     .top-block {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         justify-content: flex-start;
 
         .title {
-            font-weight: 600;
+            font-weight: 400;
             color: var(--#{$prefix}accordion-label-color);
             margin-right: 10px;
         }
 
         .error {
-            font-weight: 600;
+            font-weight: 500;
             color: var(--#{$prefix}warning);
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            max-width: 360px;
         }
     }
+
+    svg.arrow {
+        cursor: pointer;
+        fill: var(--#{$prefix}select-icon-color);
+        @include animateEasy;
+    }
+
     .fees {
-        > div:not(:last-child) {
-            margin-bottom: 10px;
-        }
+        margin-top: -10px;
+    }
+}
+.isActive {
+    .arrow {
+        transform: rotate(180deg) !important;
     }
 }
 </style>

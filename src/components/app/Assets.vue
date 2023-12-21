@@ -73,7 +73,7 @@ import AssetsTable from './assets/AssetsTable';
 import { getIntegrationsGroupedByPlatform, getFormattedName, getNftsByCollection } from '@/shared/utils/assets';
 
 export default {
-    name: 'Tokens',
+    name: 'Assets',
     components: {
         AssetItemSubHeader,
         AssetItemHeader,
@@ -189,11 +189,11 @@ export default {
     border-radius: 16px;
 
     &__group {
-        border: 1px solid var(--#{$prefix}border-color);
+        border: 1px solid var(--#{$prefix}assets-border-color);
         background-color: var(--#{$prefix}secondary-background);
         border-radius: 16px;
         padding: 16px;
-        margin-bottom: 32px;
+        margin-bottom: 16px;
         box-sizing: border-box;
         @include animateEasy;
 

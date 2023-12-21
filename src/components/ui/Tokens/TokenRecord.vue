@@ -1,12 +1,13 @@
 <template>
     <div
         class="token-record"
+        :data-qa="`token-record`"
         :data-key="record?.id || record?.address"
         @click="(event) => sendTokenInfo(event, record)"
         :class="{ selected: record.selected }"
     >
         <div class="network">
-            <TokenIcon width="24" height="24" :token="record" class="logo" />
+            <TokenIcon width="32" height="32" :token="record" class="logo" />
 
             <div class="info">
                 <div class="top">
@@ -111,34 +112,28 @@ export default {
 </script>
 <style lang="scss" scoped>
 .token-record {
-    display: flex;
-    align-items: center;
+    @include pageFlexRow;
     justify-content: space-between;
 
-    border: 1px solid var(--#{$prefix}border-secondary-color);
-
-    padding: 12px 16px;
-
-    border-radius: 16px;
+    overflow: visible;
+    border: 1px solid var(--#{$prefix}assets-border-color);
+    height: 56px;
+    padding: 8px 16px 8px 8px;
+    background-color: var(--#{$prefix}secondary-background);
+    border-radius: 8px;
 
     &.selected {
-        border: 1px solid var(--zmt-banner-logo-color);
-        background-color: var(--zmt-icon-secondary-bg-color);
+        border: 1px solid var(--#{$prefix}banner-logo-color);
+        background-color: var(--#{$prefix}selected-bg-color);
     }
 
     &:not(:last-child) {
         margin-bottom: 8px;
     }
 
-    &:not(.selected):hover {
-        border-color: var(--#{$prefix}sub-text);
-        background-color: var(--#{$prefix}select-bg-color);
-    }
-
     cursor: pointer;
     .network {
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         justify-content: center;
     }
 
@@ -152,40 +147,35 @@ export default {
             font-size: var(--#{$prefix}h6-fs);
             text-transform: uppercase;
             color: var(--#{$prefix}primary-text);
-        }
-
-        .top,
-        .bottom {
-            height: 18px;
-        }
-
-        .bottom {
             margin-top: 4px;
+            line-height: 18px;
+        }
 
-            display: flex;
-            align-items: center;
+        .bottom {
+            @include pageFlexRow;
 
             .name {
                 font-style: normal;
                 font-weight: 400;
-                font-size: var(--#{$prefix}small-lg-fs);
+                font-size: var(--#{$prefix}small-sm-fs);
                 color: var(--#{$prefix}sub-text);
-                margin-right: 8px;
+                line-height: 18px;
+                margin-right: 6px;
             }
 
             .link {
                 font-style: normal;
                 font-weight: 400;
-                font-size: var(--#{$prefix}small-lg-fs);
-
+                font-size: var(--#{$prefix}small-sm-fs);
+                line-height: 18px;
                 color: var(--#{$prefix}sub-text);
 
                 display: flex;
                 align-items: center;
 
                 svg {
-                    width: 18px;
-                    height: 18px;
+                    width: 14px;
+                    height: 14px;
                     margin-left: 4px;
                     fill: var(--#{$prefix}sub-text);
 
@@ -218,22 +208,28 @@ export default {
 
         .in-currency {
             font-weight: 500;
-            font-size: var(--#{$prefix}default-fs);
-            color: var(--#{$prefix}primary-text);
-            margin-right: 2px;
+            font-size: var(--#{$prefix}h6-fs);
+            color: var(--#{$prefix}amount-text);
+
+            .symbol {
+                font-size: var(--#{$prefix}h6-fs);
+                font-weight: 400;
+                color: var(--#{$prefix}select-symbol-text);
+                margin-left: 3px;
+            }
         }
 
         .in-usd {
             font-size: var(--#{$prefix}small-lg-fs);
-            font-weight: 400;
-            margin-left: 2px;
-            color: var(--#{$prefix}mute-text);
-        }
+            font-weight: 600;
 
-        span.symbol {
-            font-size: var(--#{$prefix}small-sm-fs);
-            color: var(--#{$prefix}mute-text);
-            margin-left: 2px;
+            color: var(--#{$prefix}secondary-text);
+            .symbol {
+                font-size: var(--#{$prefix}small-lg-fs);
+                font-weight: 400;
+                color: var(--#{$prefix}secondary-text);
+                margin-right: -3px;
+            }
         }
 
         p:not(:last-child) {
@@ -245,12 +241,11 @@ export default {
         width: 32px;
         height: 32px;
 
-        display: flex;
-        align-items: center;
+        @include pageFlexRow;
         justify-content: center;
 
         border-radius: 50%;
-        margin-right: 12px;
+        margin-right: 8px;
     }
 }
 </style>

@@ -124,23 +124,23 @@ export default {
     flex-direction: column;
     box-sizing: border-box;
 
-    font-size: var(--#{$prefix}h3-fs);
+    font-size: var(--#{$prefix}h5-fs);
 
     &__item {
         @include pageFlexRow;
         @include animateEasy;
 
-        margin-bottom: 30px;
+        height: 48px;
         text-decoration: none;
         color: var(--#{$prefix}sidebar-text);
         cursor: pointer;
 
         &:hover:not(.disabled) {
-            color: $colorPl;
+            color: var(--#{$prefix}icon-color);
 
             svg {
                 &[fill='none'] {
-                    fill: $colorPl;
+                    fill: var(--#{$prefix}icon-color);
                 }
             }
         }
@@ -161,8 +161,8 @@ export default {
         }
 
         &.disabled {
-            opacity: 0.5;
             cursor: not-allowed;
+            color: var(--#{$prefix}checkbox-disabled-text);
 
             .sidebar-list__item-status {
                 color: var(--#{$prefix}checkbox-text);
@@ -184,7 +184,7 @@ export default {
         margin-left: 10px;
 
         font-weight: 300;
-        font-size: 20px;
+        font-size: var(--#{$prefix}h5-fs);
 
         display: flex;
         align-items: flex-start;
@@ -192,10 +192,9 @@ export default {
 
     &__item-status {
         color: var(--#{$prefix}sidebar-active-color);
-        font-size: 12px;
-        font-weight: 600;
-
-        margin-left: 6px;
+        font-size: var(--#{$prefix}small-sm-fs);
+        font-weight: 700;
+        margin-top: -6px;
     }
 
     &.collapsed {
@@ -203,6 +202,12 @@ export default {
 
         .sidebar-list {
             align-self: center !important;
+
+            &__item-icon {
+                svg {
+                    transform: scale(1.1);
+                }
+            }
         }
     }
 }

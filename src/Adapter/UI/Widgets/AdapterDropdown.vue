@@ -1,13 +1,15 @@
 <template>
-    <a-menu-item-group key="accounts" class="connected-wallets-container">
+    <div key="accounts" class="connected-wallets">
         <div class="connected-wallets-label">
-            <div>{{ $t('adapter.accountsGroup') }}</div>
+            <p>
+                {{ $t('adapter.accountsGroup') }}
+            </p>
             <DisconnectAll :disconnect-all="disconnectAll" />
         </div>
         <div v-for="account in connectedWallets" :key="account" class="connected-wallets-item">
             <ConnectedWallet :wallet="account" />
         </div>
-    </a-menu-item-group>
+    </div>
 </template>
 
 <script>
@@ -25,6 +27,7 @@ export default {
         DisconnectAll,
         ConnectedWallet,
     },
+    emits: ['closeDropdown'],
     setup(_, { emit }) {
         const accountsModal = ref(false);
 
@@ -52,26 +55,16 @@ export default {
 </script>
 <style lang="scss">
 .connected-wallets {
+    margin-top: 12px;
+
     &-label {
         @include pageFlexRow;
         justify-content: space-between;
-
-        margin-bottom: 10px;
-        padding: 0 16px;
-
-        & > div {
+        p {
             color: var(--#{$prefix}adapter-label-text);
             font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 400;
         }
     }
-
-    &-item {
-        padding: 0 16px;
-    }
-}
-
-.ant-dropdown-menu-item-group-title {
-    color: var(--#{$prefix}adapter-label-text) !important;
 }
 </style>

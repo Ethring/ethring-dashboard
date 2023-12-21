@@ -29,26 +29,27 @@ export default {
     @include pageFlexRow;
     justify-content: center;
 
+    cursor: default;
+
     width: 24px;
     height: 24px;
-
-    cursor: default;
+    border-radius: 50%;
 
     font-weight: 600;
     font-size: var(--#{$prefix}default-fs);
     color: var(--#{$prefix}primary-text);
 
-    border-radius: 50%;
     background-color: var(--#{$prefix}primary-text);
     border: 1px solid rgba(0, 0, 0, 0.1);
 
-    margin-right: 10px;
+    margin-right: 8px;
 
     img {
         width: 20px;
         height: 20px;
         border-radius: 50%;
         object-fit: contain;
+        border-radius: 50%;
     }
 }
 </style>

@@ -51,8 +51,8 @@ export default {
 </script>
 <style lang="scss" scoped>
 .theme-switcher {
-    width: 80px;
-    height: 40px;
+    width: 68px;
+    height: 32px;
     position: relative;
     border: 1px solid var(--#{$prefix}border-color);
     background: var(--#{$prefix}icon-secondary-bg-color);
@@ -68,14 +68,14 @@ export default {
     &__check {
         border-right: 50%;
         position: absolute;
-        width: 32px;
-        height: 32px;
+        width: 26px;
+        height: 26px;
         display: flex;
         justify-content: center;
         align-items: center;
         border-radius: 50%;
-        top: 4px;
-        left: 3px;
+        top: 2px;
+        left: 2px;
         background: var(--#{$prefix}theme-switcher-color);
     }
 }
@@ -87,7 +87,7 @@ export default {
     .theme-switcher__check {
         background: var(--#{$prefix}secondary-background-color);
         left: initial;
-        right: 3px;
+        right: 2px;
     }
 }
 </style>

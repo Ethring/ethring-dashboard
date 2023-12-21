@@ -17,12 +17,12 @@
                         <MoreOutlined class="more-options-icon" />
                     </a>
                     <template #overlay>
-                        <a-menu class="wallet__options">
-                            <div key="copy-address" @click="() => handleOnCopyAddress(wallet.ecosystem)" class="wallet__options-item">
+                        <div class="wallet__options">
+                            <div key="copy-address" @click.stop="() => handleOnCopyAddress(wallet.ecosystem)" class="wallet__options-item">
                                 <div class="wallet__options-item-icon copy">
                                     <CopyIcon />
                                 </div>
-                                <div>{{ $t('adapter.copyAddress') }}</div>
+                                <div>{{ copied ? $t('adapter.copied') : $t('adapter.copyAddress') }}</div>
                             </div>
 
                             <div
@@ -35,7 +35,7 @@
                                 </div>
                                 <div class="wallet__options-item-label disconnect">{{ $t('adapter.disconnectAccount') }}</div>
                             </div>
-                        </a-menu>
+                        </div>
                     </template>
                 </a-dropdown>
             </div>
@@ -45,7 +45,8 @@
 
 <script>
 import { computed, ref, watch } from 'vue';
-import { MoreOutlined } from '@ant-design/icons-vue';
+
+import { useClipboard } from '@vueuse/core';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
@@ -54,6 +55,8 @@ import ModuleIcon from '@/Adapter/UI/Entities/ModuleIcon.vue';
 import DisconnectIcon from '@/assets/icons/app/clear.svg';
 import CopyIcon from '@/assets/icons/app/copy.svg';
 import CheckIcon from '@/assets/icons/app/checkIcon.svg';
+
+import { MoreOutlined } from '@ant-design/icons-vue';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
@@ -76,7 +79,7 @@ export default {
     },
     setup(props) {
         const selectedChain = ref(props.wallet.chain);
-
+        const { copy, copied } = useClipboard();
         const {
             getChainListByEcosystem,
             getChainByChainId,
@@ -144,6 +147,9 @@ export default {
         };
 
         const handleOnCopyAddress = (ecosystem) => {
+            if (ecosystem === ECOSYSTEMS.EVM) {
+                return copy(props.wallet.address);
+            }
             action('SET_MODAL_ECOSYSTEM', ecosystem);
             return action('SET_MODAL_STATE', { name: 'addresses', isOpen: true });
         };
@@ -155,7 +161,7 @@ export default {
             chainList,
             selectedChain,
             currentChainInfo,
-
+            copied,
             cutAddress,
 
             handleOnClickConnectedWallet,
@@ -173,12 +179,12 @@ export default {
     justify-content: space-between;
 
     background: var(--#{$prefix}adapter-logo-main-color);
-    border-radius: 16px;
-    padding: 8px;
+    border-radius: 50px;
+    padding: 4px;
 
     cursor: pointer;
 
-    max-height: 48px;
+    height: 40px;
 
     font-size: var(--#{$prefix}small-lg-fs);
 
@@ -194,6 +200,26 @@ export default {
             margin-left: 8px;
             color: var(--#{$prefix}adapter-value-text);
         }
+
+        .change-network {
+            @include pageFlexRow;
+            justify-content: flex-end;
+
+            border: 1px solid var(--#{$prefix}adapter-border-color);
+            border-radius: 16px;
+
+            &-logo {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                    border-radius: inherit;
+                }
+            }
+        }
     }
 }
 
@@ -205,6 +231,7 @@ export default {
 .wallet__options {
     background: var(--#{$prefix}main-background) !important;
     padding: 12px 0 !important;
+    width: 180px;
 
     color: var(--#{$prefix}primary-text);
     font-size: var(--#{$prefix}small-lg-fs);
@@ -253,7 +280,7 @@ export default {
         }
 
         &:not(:last-child) {
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
 
         &:hover {

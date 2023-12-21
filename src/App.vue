@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { onMounted, onUpdated, onBeforeMount, watchEffect, watch, ref, computed } from 'vue';
+import { onMounted, onUpdated, watchEffect, watch, ref, computed, onBeforeMount } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -83,7 +83,7 @@ export default {
 
         const isOpen = computed(() => store.getters['adapters/isOpen']('wallets'));
 
-        const showRoutesModal = computed(() => store.getters['swap/showRoutes']);
+        const showRoutesModal = computed(() => store.getters['bridgeDex/showRoutes']);
 
         const loadingTitle = computed(() => {
             if (isConfigLoading.value) {
@@ -140,7 +140,10 @@ export default {
                 return setTimeout(callInit, 1000);
             }
 
+            isConfigLoading.value = true;
             store.dispatch('tokens/setLoader', true);
+
+            await store.dispatch('networks/initZometNets', ecosystem.toLowerCase());
 
             isInitCall.value = {
                 ...isInitCall.value,
@@ -155,8 +158,7 @@ export default {
         };
 
         onBeforeMount(async () => {
-            isConfigLoading.value = true;
-            await store.dispatch('networks/initZometNets');
+            await store.dispatch('bridgeDex/getServices');
         });
 
         onMounted(async () => {
@@ -224,6 +226,7 @@ export default {
 
         onUpdated(async () => {
             if (currentChainInfo.value) {
+                await callSubscription();
                 return await callInit();
             }
         });
@@ -253,7 +256,11 @@ export default {
 }
 
 .header {
-    height: 80px;
+    width: 75%;
+    margin: 0 auto;
+
+    height: 48px;
+    padding: 0;
 
     position: sticky;
     top: 0;
@@ -264,6 +271,6 @@ export default {
 
 .content {
     width: 75%;
-    margin: 20px auto;
+    margin: 44px auto 0;
 }
 </style>

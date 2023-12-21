@@ -1,6 +1,14 @@
+const emptyBalanceMockData = { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' };
+
+const errorGetBalanceMockData = {
+    ok: false,
+    data: null,
+    error: 'Data updates with a delay.',
+};
+
 const mockBalanceData = {
-    eth: { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' },
-    optimism: { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' },
+    eth: emptyBalanceMockData,
+    optimism: emptyBalanceMockData,
     arbitrum: {
         ok: true,
         data: {
@@ -49,10 +57,22 @@ const mockBalanceData = {
                     balanceUsd: '47.9149436132852',
                     balance: '0.023522083441546292',
                 },
+                {
+                    name: 'IBC - stCMDX',
+                    symbol: 'IBC.STCMDX',
+                    address: '0xaf88d065e77c8cc2239327c5edb3a432268e5832',
+                    decimals: 6,
+                    logo: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/stride/images/stcmdx.png',
+                    price: null,
+                    priceChange: null,
+                    balanceUsd: null,
+                    balance: '20.0',
+                },
             ],
             nfts: [],
             integrations: [
                 {
+                    integrationId: 'ARBITRUM_CURVE_LPOOL__0x7f90122bf0700f9e7e1f688fe926940e8839f353',
                     chain: 'ARBITRUM',
                     name: 'Arbitrum Curve Pools',
                     platform: 'CURVE',
@@ -90,6 +110,7 @@ const mockBalanceData = {
                     address: '0x7f90122bf0700f9e7e1f688fe926940e8839f353',
                 },
                 {
+                    integrationId: 'ARB_RADIANT_V2_BORROW__0xF4B1486DD74D07706052A33d31d7c0AAFD0659E1',
                     chain: 'ARBITRUM',
                     name: 'Borrow and Lending v2',
                     platform: 'RADIANT',
@@ -130,6 +151,7 @@ const mockBalanceData = {
                     healthRate: 69.73688477874622,
                 },
                 {
+                    integrationId: 'GMX_STAKE_ARBITRUM__0xa906f338cb21815cbc4bc87ace9e68c87ef8d8f1',
                     chain: 'ARBITRUM',
                     name: 'GMX Earn',
                     platform: 'GMX',
@@ -173,6 +195,7 @@ const mockBalanceData = {
                     },
                 },
                 {
+                    integrationId: 'ARBITRUM_PERPETUALS_GMX__0x70d95587d40a2caf56bd97485ab3eec10bee6336',
                     chain: 'ARBITRUM',
                     name: 'Futures Market V2',
                     platform: 'GMX',
@@ -246,6 +269,7 @@ const mockBalanceData = {
             nfts: [],
             integrations: [
                 {
+                    integrationId: 'ANKR_ABNBC_STAKE__0x52f24a5e03aee338da5fd9df68d2b6fae1178827',
                     chain: 'BSC',
                     name: 'Ankr aBNBc Stake',
                     platform: 'ANKR',
@@ -331,6 +355,7 @@ const mockBalanceData = {
             nfts: [],
             integrations: [
                 {
+                    integrationId: 'POLYGON_LIQUID_STAKING__0xfa68FB4628DFF1028CFEc22b4162FCcd0d45efb6',
                     chain: 'POLYGON',
                     name: 'Stader Liquid Staking Polygon',
                     platform: 'STADER',
@@ -361,6 +386,7 @@ const mockBalanceData = {
                     },
                 },
                 {
+                    integrationId: 'POL_AAVE_BORROW_V3__0x794a61358D6845594F94dc1DB02A252b5b4814aD',
                     chain: 'POLYGON',
                     name: 'Polygon Aave Borrow and Lending V3',
                     platform: 'AAVE',
@@ -401,6 +427,7 @@ const mockBalanceData = {
                     healthRate: 67.27314497770057,
                 },
                 {
+                    integrationId: 'POL_AAVE_BORROW_V2__0x8dFf5E27EA6b7AC08EbFdf9eB090F32ee9a30fcf',
                     chain: 'POLYGON',
                     name: 'Polygon Aave Borrow and Lending V2',
                     platform: 'AAVE',
@@ -465,10 +492,10 @@ const mockBalanceData = {
         },
         error: '',
     },
-    avalanche: { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' },
+    avalanche: emptyBalanceMockData,
 };
 
-const mockBalanceDataByTx = {
+const mockBalanceDataBySendTest = {
     avalanche: {
         ok: true,
         data: {
@@ -505,6 +532,28 @@ const mockBalanceDataByTx = {
                     priceChange: '-6.0332342080064976e-05',
                     balanceUsd: '0.014557002331391313',
                     balance: '10.0',
+                },
+            ],
+            nfts: [],
+            integrations: [],
+        },
+        error: '',
+    },
+    eth: emptyBalanceMockData,
+    polygon: {
+        ok: true,
+        data: {
+            tokens: [
+                {
+                    name: 'Polygon',
+                    symbol: 'MATIC',
+                    address: null,
+                    decimals: 18,
+                    logo: 'https://assets.coingecko.com/coins/images/4713/large/polygon.png?1698233745',
+                    price: '0.7828426484426216',
+                    priceChange: '0.01826974158287986',
+                    balanceUsd: '0.7828426484426216',
+                    balance: '1.0',
                 },
             ],
             nfts: [],
@@ -549,4 +598,4 @@ const marketCapMockData = {
     },
 };
 
-export { mockBalanceData, marketCapMockData, mockBalanceDataByTx };
+export { mockBalanceData, marketCapMockData, mockBalanceDataBySendTest, emptyBalanceMockData, errorGetBalanceMockData };

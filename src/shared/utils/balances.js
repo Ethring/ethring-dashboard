@@ -1,5 +1,5 @@
 import { getBalancesByAddress, DP_COSMOS } from '@/api/data-provider';
-import { formatRecord } from '../../compositions/useInit/utils';
+import { formatRecord } from '../../modules/Balances/utils';
 import IndexedDBService from '@/modules/indexedDb';
 
 import store from '@/store/';
@@ -58,7 +58,7 @@ export async function updateWalletBalances(account, address, network, cb = () =>
 
     // updating tokens from API with tokens from store
     for (const token of tokenBalances) {
-        formatRecord(token, { net: chainId, chain: net, address, logo });
+        formatRecord(token, { net: chainId, chain: net, address, logo, type: 'asset' });
 
         // if token exists in store and balance is the same - skip
         if (accTokensHash[token.id] && accTokensHash[token.id].balance === token.balance) {

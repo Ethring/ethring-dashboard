@@ -19,10 +19,9 @@ export default {
 <style lang="scss" scoped>
 .superswap-page__title {
     color: var(--#{$prefix}primary-text);
-    font-size: var(--#{$prefix}h1-fs);
-    font-weight: 600;
-    margin-bottom: 30px;
-    margin-left: -475px;
+    font-size: var(--#{$prefix}h3-fs);
+    font-weight: 500;
+    margin-bottom: 24px;
     text-decoration: none;
 }
 </style>

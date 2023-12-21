@@ -2,17 +2,19 @@
     <div class="estimate-stats">
         <p class="title" v-if="title">{{ $t(title) }}:</p>
 
-        <p v-if="fromAmount" class="amount">
-            <NumberTooltip :value="fromAmount" :decimals="fromSymbol === '$' ? 2 : 3" />
-            <span class="symbol">{{ fromSymbol }} </span>
-        </p>
+        <div class="row">
+            <p v-if="fromAmount" class="amount">
+                <NumberTooltip :value="fromAmount" :decimals="fromSymbol === '$' ? 2 : 3" />
+                <span class="symbol">{{ fromSymbol }} </span>
+            </p>
 
-        <span class="symbol-between">{{ symbolBetween }}</span>
+            <span class="symbol-between">{{ symbolBetween }}</span>
 
-        <p class="amount">
-            <NumberTooltip :value="toAmount" :decimals="toSymbol === '$' ? 2 : 3" />
-            <span class="symbol">{{ toSymbol }} </span>
-        </p>
+            <p class="amount">
+                <NumberTooltip :value="toAmount" :decimals="toSymbol === '$' ? 2 : 3" />
+                <span class="symbol" :class="toSymbol === '$' && 'usd-symbol'">{{ toSymbol }} </span>
+            </p>
+        </div>
     </div>
 </template>
 <script>
@@ -58,27 +60,38 @@ export default {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
+    justify-content: space-between;
     font-size: var(--#{$prefix}default-fs);
     color: var(--#{$prefix}primary-text);
+    margin: 2px 0 0;
 
     .title {
-        font-weight: 600;
+        font-weight: 400;
         color: var(--#{$prefix}accordion-label-color);
         margin-right: 10px;
     }
 
     .amount {
-        font-weight: 600;
-        color: var(--#{$prefix}sub-text);
-    }
-
-    .symbol {
-        font-weight: 300;
+        font-weight: 700;
         color: var(--#{$prefix}primary-text);
     }
 
+    .usd-symbol,
+    .symbol {
+        font-weight: 300;
+        color: var(--#{$prefix}primary-text);
+        margin-left: 3px;
+    }
+
+    .usd-symbol {
+        margin-left: 0px;
+    }
     .symbol-between {
-        margin: 0 10px;
+        margin: 0 4px;
+    }
+
+    .row {
+        @include pageFlexRow;
     }
 }
 </style>
