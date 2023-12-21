@@ -664,6 +664,8 @@ export default {
                     return (isLoading.value = false);
                 }
 
+                clearApproveForService(currentRoute.value.service);
+
                 return response;
             } catch (error) {
                 txError.value = error?.message || error?.error || error;
@@ -697,6 +699,8 @@ export default {
 
                     return (isLoading.value = false);
                 }
+
+                clearApproveForService(currentRoute.value.service);
 
                 return response;
             } catch (error) {
