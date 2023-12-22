@@ -25,5 +25,8 @@ export const formatInputNumber = (val) => {
         // eslint-disable-next-line no-useless-escape
         .replace(/^([^\.]*\.)|\./g, '$1');
 
+    if (val.indexOf('.') !== val.lastIndexOf('.')) {
+        val = val.substr(0, val.lastIndexOf('.'));
+    }
     return val;
 };

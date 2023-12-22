@@ -603,7 +603,7 @@ export default {
                 return (isLoading.value = false);
             }
 
-            const checkRoute = resEstimate.bestRoute?.fromTokenAmount === srcAmount.value;
+            const checkRoute = +resEstimate.bestRoute?.fromTokenAmount === +srcAmount.value;
 
             if (!checkRoute) {
                 return;
