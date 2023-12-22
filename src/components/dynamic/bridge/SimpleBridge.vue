@@ -598,18 +598,18 @@ export default {
 
             const response = await estimateBridge(params);
 
-            const checkRoute = response?.fromTokenAmount === srcAmount.value;
-
-            if (!checkRoute) {
-                return;
-            }
-
             isUpdateSwapDirection.value = false;
 
             if (response.error) {
                 isEstimating.value = false;
-
+                isLoading.value = false;
                 return (estimateErrorTitle.value = response.error);
+            }
+
+            const checkRoute = +response?.fromTokenAmount === +srcAmount.value;
+
+            if (!checkRoute) {
+                return;
             }
 
             isEstimating.value = false;

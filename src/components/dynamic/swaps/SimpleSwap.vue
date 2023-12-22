@@ -460,8 +460,6 @@ export default {
                 return false;
             }
 
-            estimateErrorTitle.value = '';
-
             const isNotEVM = selectedSrcNetwork.value?.ecosystem !== ECOSYSTEMS.EVM;
 
             return isNotEVM || true;
@@ -516,17 +514,18 @@ export default {
                 response = await estimateSwap(params);
             }
 
-            const checkRoute = response?.fromTokenAmount === srcAmount.value;
-
-            if (!checkRoute) {
-                return;
-            }
-
             isUpdateSwapDirection.value = false;
 
             if (response.error) {
                 isEstimating.value = false;
+                isLoading.value = false;
                 return (estimateErrorTitle.value = response.error);
+            }
+
+            const checkRoute = +response?.fromTokenAmount === +srcAmount.value;
+
+            if (!checkRoute) {
+                return;
             }
 
             isEstimating.value = false;
