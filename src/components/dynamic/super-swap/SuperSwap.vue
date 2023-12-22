@@ -406,6 +406,7 @@ export default {
                 srcNet: getSelectedNetwork(),
                 srcToken: selectedSrcToken.value,
                 dstToken: selectedDstToken.value,
+                isSameNet: selectedDstNetwork.value === selectedSrcNetwork.value,
             });
         };
 
