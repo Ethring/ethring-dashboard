@@ -55,7 +55,7 @@ test.describe('Swap e2e tests', () => {
         await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
     });
 
-    test.skip('Case#: Swap by not found pair', async ({ browser, context, page, swapPageMockTokensList: swapPage }) => {
+    test('Case#: Swap by not found pair', async ({ browser, context, page, swapPageMockTokensList: swapPage }) => {
         const NET = 'Arbitrum';
         const TOKEN_FROM = 'ARB';
         const TOKEN_TO = '1INCH';
@@ -87,7 +87,7 @@ test.describe('Swap e2e tests', () => {
         await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
     });
 
-    test.skip('Case#: Swap if amount too big', async ({ browser, context, page, swapPageMockTokensList: swapPage }) => {
+    test('Case#: Swap if amount too big', async ({ browser, context, page, swapPageMockTokensList: swapPage }) => {
         const NET = 'Arbitrum';
         const TOKEN_FROM = 'ARB';
         const TOKEN_TO = '1INCH';
