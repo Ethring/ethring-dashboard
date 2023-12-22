@@ -709,13 +709,15 @@ export default {
                     toTokenAddress: selectedDstToken.value.address,
                 };
 
+                const addresses = JSON.parse(JSON.stringify(addressesByChains.value || {}));
+
                 if (receiverAddress.value && receiverAddress.value !== '' && isSendToAnotherAddress.value) {
                     params.recipientAddress = receiverAddress.value;
-                    addressesByChains.value[selectedDstNetwork.value?.net] = receiverAddress.value;
+                    addresses[selectedDstNetwork.value?.net] = receiverAddress.value;
                 }
 
                 if (selectedService.value.id === 'bridge-skip') {
-                    params.ownerAddresses = JSON.stringify(addressesByChains.value);
+                    params.ownerAddresses = JSON.stringify(addresses);
                 } else {
                     params.ownerAddress = walletAddress.value;
                     params.recipientAddress = receiverAddress.value || walletAddress.value;
