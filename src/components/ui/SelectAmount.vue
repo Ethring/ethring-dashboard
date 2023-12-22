@@ -232,6 +232,9 @@ export default {
                     active.value = false;
                     payTokenPrice.value = BigNumber(amount.value * +tkn?.price || 0).toFixed() || 0;
                     emit('setAmount', amount.value);
+                } else {
+                    amount.value = 0;
+                    payTokenPrice.value = 0;
                 }
             }
         );

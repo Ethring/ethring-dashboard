@@ -463,7 +463,10 @@ export default {
                 estimateErrorTitle.value = t('tokenOperations.selectDstToken');
                 return false;
             }
-            estimateErrorTitle.value = '';
+
+            if (estimateErrorTitle.value === t('tokenOperations.selectDstToken')) {
+                estimateErrorTitle.value = '';
+            }
             const isNotEVM = selectedSrcNetwork.value?.ecosystem !== ECOSYSTEMS.EVM;
 
             return isNotEVM || true;
@@ -817,6 +820,7 @@ export default {
             estimateErrorTitle.value = '';
             isEstimating.value = false;
             isLoading.value = false;
+            resetTokensForModules();
             setEcosystemService();
         });
 
