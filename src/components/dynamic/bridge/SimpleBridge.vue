@@ -606,7 +606,7 @@ export default {
                 return (estimateErrorTitle.value = response.error);
             }
 
-            const checkRoute = response?.fromTokenAmount === srcAmount.value;
+            const checkRoute = +response?.fromTokenAmount === +srcAmount.value;
 
             if (!checkRoute) {
                 return;
