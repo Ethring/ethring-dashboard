@@ -175,16 +175,16 @@ export default function useModule({ module, moduleType }) {
             return;
         }
 
-        if (moduleType === 'send') {
-            selectedDstToken.value = null;
-            return;
-        }
-
         if (selectedSrcToken.value?.address === selectedDstToken.value?.address) {
             selectedDstToken.value = null;
         }
 
         if (selectedDstNetwork.value && defaultToToken?.chain !== selectedDstNetwork.value?.net) {
+            return;
+        }
+
+        if (moduleType === 'send') {
+            selectedDstToken.value = null;
             return;
         }
 
@@ -282,14 +282,14 @@ export default function useModule({ module, moduleType }) {
     const resetTokensForModules = (isReset = true) => {
         const MODULES = ['swap', 'send'];
 
-        if (moduleType === 'swap' && isReset && opTitle.value !== DEFAULT_TITLE) {
+        if (moduleType === 'swap' && isReset) {
             selectedSrcToken.value?.chain !== selectedSrcNetwork.value?.net && (selectedSrcToken.value = null);
             selectedDstToken.value?.chain !== selectedSrcNetwork.value?.net && (selectedDstToken.value = null);
 
             if (selectedSrcToken.value?.id === selectedDstToken.value?.id) {
                 selectedDstToken.value = null;
             }
-        } else if (moduleType === 'send' && isReset && opTitle.value !== DEFAULT_TITLE) {
+        } else if (moduleType === 'send' && isReset) {
             selectedSrcToken.value?.chain !== selectedSrcNetwork.value?.net && (selectedSrcToken.value = null);
         }
 
