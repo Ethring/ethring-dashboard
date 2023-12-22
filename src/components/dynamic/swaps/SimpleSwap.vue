@@ -416,11 +416,15 @@ export default {
                 return false;
             }
 
-            const currentAmount = utils.parseUnits(srcAmount.value, selectedSrcToken.value?.decimals).toString();
+            try {
+                const currentAmount = utils.parseUnits(srcAmount.value, selectedSrcToken.value?.decimals).toString();
 
-            const isEnough = BigNumber(currentAmount).lte(allowanceForToken.value);
+                const isEnough = BigNumber(currentAmount).lte(allowanceForToken.value);
 
-            return !isEnough;
+                return !isEnough;
+            } catch {
+                return false;
+            }
         });
 
         // =================================================================================================================
@@ -459,7 +463,7 @@ export default {
                 estimateErrorTitle.value = t('tokenOperations.selectDstToken');
                 return false;
             }
-
+            estimateErrorTitle.value = '';
             const isNotEVM = selectedSrcNetwork.value?.ecosystem !== ECOSYSTEMS.EVM;
 
             return isNotEVM || true;
@@ -811,7 +815,8 @@ export default {
         watch(walletAccount, () => {
             selectedSrcNetwork.value = currentChainInfo.value;
             estimateErrorTitle.value = '';
-
+            isEstimating.value = false;
+            isLoading.value = false;
             setEcosystemService();
         });
 
