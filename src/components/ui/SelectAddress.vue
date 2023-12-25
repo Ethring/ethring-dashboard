@@ -93,11 +93,19 @@ export default {
         };
 
         const getClassName = () => {
-            if (address.value.length > 50) {
+            if (address.value.length > 60) {
+                return 'small-sm-size';
+            }
+
+            if (address.value.length > 55) {
                 return 'small-size';
             }
 
-            if (address.value.length > 46) {
+            if (address.value.length > 50) {
+                return 'medium-md-size';
+            }
+
+            if (address.value.length > 45) {
                 return 'medium-size';
             }
 
@@ -227,9 +235,16 @@ export default {
         .medium-size {
             font-size: var(--#{$prefix}medium-fs) !important;
         }
+        .medium-md-size {
+            font-size: var(--#{$prefix}default-fs) !important;
+        }
 
         .small-size {
-            font-size: var(--#{$prefix}--#{$prefix}default-fs) !important;
+            font-size: var(--#{$prefix}small-md-fs) !important;
+        }
+
+        .small-sm-size {
+            font-size: var(--#{$prefix}small-sm-fs) !important;
         }
 
         .network {
