@@ -43,11 +43,13 @@ const {
 const STORAGE = {
     WALLET: 'cosmos-kit@2:core//current-wallet',
     ACCOUNTS: 'cosmos-kit@2:core//accounts',
+    ADDRESS_BY_NETWORK: 'adapter:addressByNetwork',
 };
 
 // * Helpers for localStorage
 const connectedAccounts = () => JSON.parse(window?.localStorage?.getItem(STORAGE.ACCOUNTS)) || [];
 const connectedWalletModule = () => window?.localStorage.getItem(STORAGE.WALLET) || null;
+const addressByNetwork = () => JSON.parse(window?.localStorage.getItem(STORAGE.ADDRESS_BY_NETWORK)) || {};
 
 class CosmosAdapter extends AdapterBase {
     REFRESH_EVENT = 'refresh_connection';
@@ -282,6 +284,8 @@ class CosmosAdapter extends AdapterBase {
                         logo: diffChain.chain.logo_URIs?.svg || diffChain.chain.logo_URIs?.png || null,
                     };
                 }
+
+                localStorage.setItem(STORAGE.ADDRESS_BY_NETWORK, JSON.stringify(this.addressByNetwork[mainAccount]));
             });
 
             await Promise.all(promises);
@@ -347,6 +351,7 @@ class CosmosAdapter extends AdapterBase {
 
         window.localStorage.removeItem(STORAGE.WALLET);
         window.localStorage.removeItem(STORAGE.ACCOUNTS);
+        window.localStorage.removeItem(STORAGE.ADDRESS_BY_NETWORK);
 
         this.addressByNetwork = {};
     }
@@ -358,6 +363,7 @@ class CosmosAdapter extends AdapterBase {
 
         window.localStorage.removeItem(STORAGE.WALLET);
         window.localStorage.removeItem(STORAGE.ACCOUNTS);
+        window.localStorage.removeItem(STORAGE.ADDRESS_BY_NETWORK);
         this.addressByNetwork = {};
     }
 
@@ -796,8 +802,9 @@ class CosmosAdapter extends AdapterBase {
 
     getAddressesWithChains() {
         const mainAccount = this.getAccount();
+
         if (!this.addressByNetwork) {
-            return {};
+            return addressByNetwork();
         }
         return this.addressByNetwork[mainAccount] || {};
     }
