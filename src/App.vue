@@ -249,7 +249,6 @@ export default {
 
 .sidebar {
     background: var(--zmt-primary);
-    transition: all 0.2s;
 }
 
 .layout {
