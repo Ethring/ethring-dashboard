@@ -57,6 +57,7 @@ export const getIntegrationsGroupedByPlatform = (allIntegrations = []) => {
 
         integration.balances = balances.map((item) => {
             item.apr = apr;
+            item.leverageRate = integration.leverageRate;
             return item;
         });
 
