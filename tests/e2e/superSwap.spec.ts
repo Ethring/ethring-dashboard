@@ -1,5 +1,4 @@
 import { test, expect } from '../__fixtures__/fixtures';
-import { getServices, SERVICE_TYPE } from '../../src/config/services';
 import { TEST_CONST, getTestVar } from '../envHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage } from '../model/MetaMask/MetaMask.pages';
 
@@ -66,9 +65,6 @@ test.describe('SuperSwap e2e tests', () => {
         };
 
         await superSwapPage.mockRoute(balancePolygonRoute, mockPolygonBalanceData);
-
-        await superSwapPage.mockEstimateSwapRequest('srv-paraswap', mockDataEstimateParaswap);
-        await superSwapPage.mockEstimateSwapRequest('srv-synapse-swap', mockDataEstimateSynapse);
 
         await superSwapPage.page.waitForResponse(balancePolygonRoute); // TODO сейчас есть баг https://paradigmcitadel.atlassian.net/browse/ZMT-866 после фикса удалить эту ожидалку
 
