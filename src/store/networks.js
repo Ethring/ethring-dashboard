@@ -1,4 +1,5 @@
 import { getNetworksConfig, getTokensListByNetwork } from '@/api/networks';
+import { CONFIG_UPDATE_TIME } from '../shared/constants/operations/';
 import _ from 'lodash';
 
 const TYPES = {
@@ -122,7 +123,14 @@ export default {
     actions: {
         async initZometNets({ commit, dispatch, state }, ecosystem) {
             const networks = localStorage.getItem(`networks/${ecosystem}`);
-            const networksList = networks ? JSON.parse(networks) : await getNetworksConfig(ecosystem);
+            const configUpdatedAt = localStorage.getItem('configUpdatedAt');
+            let isUpdateConfig = false;
+
+            if (configUpdatedAt) {
+                isUpdateConfig = new Date().getTime() - new Date(configUpdatedAt).getTime() > CONFIG_UPDATE_TIME;
+            }
+
+            const networksList = networks && !isUpdateConfig ? JSON.parse(networks) : await getNetworksConfig(ecosystem);
 
             for (const network in networksList) {
                 commit(TYPES.SET_ZOMET_NETWORKS, { network, ecosystem, config: networksList[network] });
