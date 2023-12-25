@@ -15,6 +15,7 @@
                         Unlock <span> {{ getFormattedDate(item.unlockTimestamp) }} </span>
                     </div>
                     <div class="apr" v-if="item.apr"><span>APR </span> {{ formatNumber(item.apr, 2) }}%</div>
+                    <div class="apr" v-if="item.leverageRate"><span>Leverage </span> {{ item.leverageRate }}</div>
                 </div>
             </div>
         </template>
