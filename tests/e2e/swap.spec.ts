@@ -1,7 +1,8 @@
 import { test, expect } from '../__fixtures__/fixtures';
-import { errorEstimateSwap, mockBalanceDataBySwapTest } from '../data/mockHelper';
+import { EVM_NETWORKS, emptyBalanceMockData, errorEstimateSwap, mockBalanceDataBySwapTest } from '../data/mockHelper';
 import { INCORRECT_IMAGE_URL } from '../data/mockTokensList';
 import { TEST_CONST, getTestVar } from '../envHelper';
+import { getHomeMmPage } from '../model/MetaMask/MetaMask.pages';
 
 const sleep = require('util').promisify(setTimeout);
 
@@ -114,6 +115,41 @@ test.describe('Swap e2e tests', () => {
 
         await Promise.all([balancePromise, estimatePromise]);
         await swapPage.waitDetachedSkeleton();
+        await swapPage.waitLoadImg();
+
+        await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
+    });
+
+    test('Case#: Check tokens and net in network change in MM', async ({ browser, context, page, swapPageMockTokensList: swapPage }) => {
+        const NET = 'Arbitrum';
+        const NET_ETH = 'eth';
+        const NET_BY_MM = 'Arbitrum One';
+        const ADDRESS = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
+        const WAITED_BALANCE_URL = `**/srv-data-provider/api/balances?net=${NET.toLowerCase()}**`;
+
+        const INDEX_ARBITRUM = EVM_NETWORKS.indexOf(NET.toLowerCase());
+        const INDEX_ETH = EVM_NETWORKS.indexOf(NET_ETH.toLowerCase());
+
+        let EMPTY_BALANCE_NETS_MOCK = [...EVM_NETWORKS];
+        EMPTY_BALANCE_NETS_MOCK.splice(INDEX_ARBITRUM, 1);
+        EMPTY_BALANCE_NETS_MOCK.splice(INDEX_ETH, 1);
+
+        await swapPage.page.route('**/*', (route) => {
+            return route.request().resourceType() === 'image' ? route.abort() : route.continue();
+        });
+
+        await Promise.all(EMPTY_BALANCE_NETS_MOCK.map((network) => swapPage.mockBalanceRequest(network, emptyBalanceMockData, ADDRESS)));
+
+        await swapPage.mockBalanceRequest(NET.toLowerCase(), mockBalanceDataBySwapTest[NET.toLowerCase()], ADDRESS);
+        await swapPage.mockBalanceRequest(NET_ETH.toLowerCase(), mockBalanceDataBySwapTest[NET_ETH.toLowerCase()], ADDRESS);
+
+        const balancePromise = swapPage.page.waitForResponse(WAITED_BALANCE_URL);
+
+        const mmHomePage = await getHomeMmPage(context);
+        await mmHomePage.addNetwork(NET_BY_MM);
+
+        await balancePromise;
+        await swapPage.waitHiddenSkeleton();
         await swapPage.waitLoadImg();
 
         await expect(swapPage.getBaseContentElement()).toHaveScreenshot();

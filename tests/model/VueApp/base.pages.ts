@@ -123,12 +123,19 @@ class BasePage {
     }
 
     async waitDetachedLoader() {
-        this.page.waitForSelector('div.loading-overlay', { state: 'detached', timeout: 60000 });
-        await sleep(1000);
+        await this.page.waitForSelector('div.loading-overlay', { state: 'detached', timeout: 60000 });
     }
 
     async waitDetachedSkeleton() {
-        this.page.waitForSelector('div.ant-skeleton-active', { state: 'detached', timeout: 60000 });
+        await this.page.waitForSelector('div.ant-skeleton-active', { state: 'detached', timeout: 60000 });
+    }
+
+    async waitHiddenLoader() {
+        await this.page.waitForSelector('div.loading-overlay', { state: 'hidden', timeout: 60000 });
+    }
+
+    async waitHiddenSkeleton() {
+        await this.page.waitForSelector('div.ant-skeleton-active', { state: 'hidden', timeout: 60000 });
     }
 
     async waitLoadImg() {
