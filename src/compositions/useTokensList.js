@@ -10,7 +10,7 @@ import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
-export default function useTokensList({ network = null, fromToken = null, toToken = null } = {}) {
+export default function useTokensList({ network = null, fromToken = null, toToken = null, isSameNet = true } = {}) {
     const store = useStore();
 
     const { walletAccount } = useAdapter();
@@ -31,7 +31,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         return _.orderBy(list, (tkn) => Number(tkn.balanceUsd), ['desc']);
     };
 
-    const getAllTokensList = (network, fromToken, toToken) => {
+    const getAllTokensList = (network, fromToken, toToken, isSameNet = true) => {
         if (!network) {
             return [];
         }
@@ -126,7 +126,9 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         const selectedToken = isFromSelected ? toToken : fromToken;
 
         if (fromToken || toToken) {
-            allTokens = allTokens.filter((tkn) => isNotEqualToSelected(tkn, selectedToken));
+            if (isSameNet) {
+                allTokens = allTokens.filter((tkn) => isNotEqualToSelected(tkn, selectedToken));
+            }
 
             for (const tkn of allTokens) {
                 const isSelected = (isFromSelected && tkn.id === fromToken?.id) || tkn.id === toToken?.id;
@@ -146,14 +148,14 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         );
     };
 
-    const allTokensList = computed(() => getAllTokensList(network, fromToken, toToken));
+    const allTokensList = computed(() => getAllTokensList(network, fromToken, toToken, isSameNet));
 
-    const getTokensList = ({ srcNet = null, srcToken = null, dstToken = null } = {}) => {
+    const getTokensList = ({ srcNet = null, srcToken = null, dstToken = null, isSameNet = true } = {}) => {
         network = srcNet;
         fromToken = srcToken;
         toToken = dstToken;
 
-        return getAllTokensList(network, fromToken, toToken);
+        return getAllTokensList(network, fromToken, toToken, isSameNet);
     };
 
     return {

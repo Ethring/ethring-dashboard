@@ -192,7 +192,7 @@ export default {
         border: 1px solid var(--#{$prefix}assets-border-color);
         background-color: var(--#{$prefix}secondary-background);
         border-radius: 16px;
-        padding: 16px;
+        padding: 16px 16px 8px;
         margin-bottom: 16px;
         box-sizing: border-box;
         @include animateEasy;
