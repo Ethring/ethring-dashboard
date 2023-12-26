@@ -2,8 +2,8 @@
     <a-config-provider>
         <LoadingOverlay v-if="isSpinning" :spinning="isSpinning" :tip="loadingTitle" />
         <a-layout>
-            <a-layout-sider class="sidebar" v-model:collapsed="collapsed" collapsible>
-                <Sidebar :collapsed="collapsed" />
+            <a-layout-sider class="sidebar" v-model:collapsed="collapsed" collapsible :trigger="null">
+                <Sidebar :collapsed="collapsed" @change-collapse="(val) => (collapsed = val)" />
             </a-layout-sider>
             <a-layout class="layout">
                 <a-layout-header class="header">
@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { onMounted, onUpdated, watchEffect, watch, ref, computed, onBeforeMount } from 'vue';
+import { onMounted, onUpdated, watchEffect, watch, ref, computed, onBeforeMount, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -230,6 +230,10 @@ export default {
                 await callSubscription();
                 return await callInit();
             }
+        });
+
+        onBeforeUnmount(() => {
+            window.removeEventListener('resize', updateCollapsedState);
         });
 
         return {
