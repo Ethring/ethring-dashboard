@@ -1,0 +1,16 @@
+{
+    "name": "Zomet Crypto Asset Management Platform",
+    "short_name": "Zomet",
+    "theme_color": "#4DBA87",
+    "icons": [
+        {
+            "src": "zomet-logo.svg",
+            "sizes": "512x512",
+            "type": "image/svg+xml"
+        }
+    ],
+    "display": "standalone",
+    "background_color": "#000000",
+    "description": "Zomet is a cutting-edge platform that offers a modular UX infrastructure for seamless management of your crypto assets. Whether you’re a seasoned crypto investor or just starting out, Zomet provides you with the tools and features you need to stay in control of your digital wealth. With its user-friendly interface and customizable modules, Zomet simplifies the complexities of cryptocurrency management, allowing you to monitor, trade, and optimize your crypto portfolio with ease. Take advantage of our secure and intuitive platform to navigate the ever-evolving crypto landscape and make informed investment decisions. Trust Zomet to be your ultimate companion in the world of crypto asset management.",
+    "iconPath": "zomet-logo.svg"
+}

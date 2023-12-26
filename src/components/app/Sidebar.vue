@@ -10,7 +10,7 @@
                 <SidebarList :collapsed="isCollapsed" />
             </div>
             <div class="sidebar-items__list">
-                <div class="sidebar__settings">
+                <div class="sidebar__settings" v-if="walletAddress">
                     <div class="sidebar__settings-icon">
                         <SettingsIcon />
                     </div>

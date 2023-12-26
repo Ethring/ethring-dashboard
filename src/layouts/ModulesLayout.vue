@@ -169,7 +169,7 @@ export default {
         justify-content: space-around;
         align-items: center;
         max-width: 685px;
-        margin-bottom: 30px;
+        margin-bottom: 24px;
 
         &__title {
             position: relative;
