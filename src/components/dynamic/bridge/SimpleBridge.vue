@@ -65,7 +65,7 @@
         />
 
         <SelectAddress
-            v-if="isSendToAnotherAddress"
+            v-if="isSendToAnotherAddress && selectedDstNetwork"
             :selected-network="selectedDstNetwork"
             :error="!!errorAddress"
             placeholder="0x..."
@@ -350,6 +350,7 @@ export default {
             }
             if (direction === DIRECTIONS.SOURCE) {
                 selectedSrcNetwork.value = network;
+                selectedSrcToken.value = null;
                 selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
 
                 srcAmount.value && (await onSetAmount(srcAmount.value));
@@ -447,7 +448,9 @@ export default {
             isUpdateSwapDirection.value = true;
 
             if (!+value) {
-                isUpdateSwapDirection.value = false;
+                setTimeout(() => {
+                    isUpdateSwapDirection.value = false;
+                }, 500);
                 return (isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance));
             }
 
@@ -483,6 +486,8 @@ export default {
 
             const fromToken = { ...selectedSrcToken.value };
             const toToken = { ...selectedDstToken.value };
+
+            isUpdateSwapDirection.value = true;
 
             selectedSrcNetwork.value = toNetwork;
             selectedDstNetwork.value = fromNetwork;

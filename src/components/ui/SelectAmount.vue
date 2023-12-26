@@ -71,7 +71,7 @@
     </div>
 </template>
 <script>
-import { ref, watch, computed, onUpdated } from 'vue';
+import { ref, watch, computed, onUpdated, onMounted } from 'vue';
 
 import BigNumber from 'bignumber.js';
 
@@ -306,6 +306,12 @@ export default {
         const clickToken = () => {
             emit('clickToken');
         };
+
+        onMounted(() => {
+            if (amount.value && selectedToken?.value) {
+                payTokenPrice.value = BigNumber(amount.value * +selectedToken?.value?.price || 0).toFixed() || 0;
+            }
+        });
 
         onUpdated(() => {
             resetAmount();

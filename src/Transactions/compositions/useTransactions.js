@@ -16,7 +16,7 @@ export default function useTransactions() {
 
     const useAdapter = inject('useAdapter');
 
-    const { showNotification } = useNotification();
+    const { showNotification, closeNotification } = useNotification();
 
     const transactionForSign = computed(() => store.getters['txManager/transactionForSign']);
     const currentRequestID = computed(() => store.getters['txManager/currentRequestID']);
@@ -161,6 +161,11 @@ export default function useTransactions() {
             }),
             duration: 0,
         });
+
+        // TODO: fix after demo
+        if (response.code === 0) {
+            closeNotification(`waiting-${transactionHash}-tx`);
+        }
 
         return response;
     };

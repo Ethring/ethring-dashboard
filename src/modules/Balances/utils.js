@@ -149,7 +149,7 @@ export const getIntegrationsBalance = (integrations) => {
 
 export const formatRecord = (record, { net, chain, logo, type }) => {
     record.chainLogo = logo;
-    record.chain = net || chain;
+    record.chain = chain;
 
     if ((DP_COSMOS[chain] || DP_COSMOS[net]) && !record.balanceType) {
         record = cosmosChainTokens(record, { chain, net });

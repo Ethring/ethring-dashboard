@@ -323,9 +323,9 @@ export default function useModule({ moduleType }) {
     // =================================================================================================================
 
     const unWatchChainInfo = watch(currentChainInfo, () => {
+        checkSelectedNetwork();
         selectedSrcNetwork.value = currentChainInfo.value;
         resetTokensForModules();
-        checkSelectedNetwork();
     });
 
     const unWatchAcc = watch(walletAccount, () => {
