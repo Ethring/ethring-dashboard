@@ -63,7 +63,7 @@
     </div>
 </template>
 <script>
-import { h, ref, watch, computed, onBeforeUnmount, onMounted } from 'vue';
+import { h, ref, watch, inject, computed, onBeforeUnmount, onMounted } from 'vue';
 
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
@@ -80,7 +80,6 @@ import { getServices, SERVICE_TYPE } from '@/config/services';
 
 // Adapter
 import { ECOSYSTEMS } from '@/Adapter/config';
-import useAdapter from '@/Adapter/compositions/useAdapter';
 
 // Notification
 import useNotification from '@/compositions/useNotification';
@@ -128,6 +127,8 @@ export default {
         const router = useRouter();
 
         const { t } = useI18n();
+
+        const useAdapter = inject('useAdapter');
 
         const { name: module } = router.currentRoute.value;
 

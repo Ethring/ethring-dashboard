@@ -11,7 +11,7 @@ import { wallets as KeplrWallets } from '@cosmos-kit/keplr';
 import BigNumber from 'bignumber.js';
 import { utils } from 'ethers';
 import { toUtf8 } from '@cosmjs/encoding';
-import { fromEvent } from 'rxjs';
+import { fromEvent, takeUntil, Subject } from 'rxjs';
 
 // * Configs
 import { ECOSYSTEMS, cosmologyConfig } from '../../config';
@@ -56,6 +56,8 @@ class CosmosAdapter extends AdapterBase {
 
     constructor() {
         super();
+        this.unsubscribe = new Subject();
+
         // * Init WalletManager
         const [KEPLR_EXT] = KeplrWallets;
 
@@ -146,7 +148,12 @@ class CosmosAdapter extends AdapterBase {
             await chainWallet?.value?.update({ connect: false });
 
             await this.setAddressForChains(chainWallet?.value?.walletName);
-        });
+        }).pipe(takeUntil(this.unsubscribe));
+    }
+
+    unsubscribeFromWalletsChange() {
+        this.unsubscribe.next();
+        this.unsubscribe.complete();
     }
 
     async updateStates() {

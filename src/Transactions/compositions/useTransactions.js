@@ -1,11 +1,10 @@
-import { computed, h } from 'vue';
+import { computed, h, inject } from 'vue';
 import { useStore } from 'vuex';
 
 import { LoadingOutlined } from '@ant-design/icons-vue';
 
 import { addTransactionToExistingQueue, createTransactionsQueue, getTransactionsByRequestID, updateTransaction } from '../api';
 
-import useAdapter from '@/Adapter/compositions/useAdapter';
 import useNotification from '@/compositions/useNotification';
 
 import { STATUSES } from '../shared/constants';
@@ -14,6 +13,9 @@ import { captureTransactionException } from '../../modules/Sentry';
 
 export default function useTransactions() {
     const store = useStore();
+
+    const useAdapter = inject('useAdapter');
+
     const { showNotification, closeNotification } = useNotification();
 
     const transactionForSign = computed(() => store.getters['txManager/transactionForSign']);

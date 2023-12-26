@@ -7,7 +7,7 @@
                     <div class="sidebar__logo-type">{{ $t('sidebar.type') }}</div>
                 </div>
                 <LogoIcon v-else class="logo" />
-                <SidebarList v-if="walletAddress" :collapsed="isCollapsed" />
+                <SidebarList :collapsed="isCollapsed" />
             </div>
             <div class="sidebar-items__list">
                 <div class="sidebar__settings" v-if="walletAddress">
@@ -29,12 +29,10 @@
     </div>
 </template>
 <script>
-import { computed } from 'vue';
+import { computed, inject } from 'vue';
 import Logo from './Logo';
 import Socials from './Socials';
 import SidebarList from './SidebarList';
-
-import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import SettingsIcon from '@/assets/icons/dashboard/settings.svg';
 import LogoIcon from '@/assets/icons/sidebar/logo.svg';
@@ -63,6 +61,8 @@ export default {
     },
     emits: ['change-collapse'],
     setup(props) {
+        const useAdapter = inject('useAdapter');
+
         const { walletAddress } = useAdapter();
 
         const isCollapsed = computed(() => props.collapsed || false);

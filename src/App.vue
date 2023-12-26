@@ -22,12 +22,10 @@
 </template>
 
 <script>
-import { onMounted, onUpdated, watchEffect, watch, ref, computed, onBeforeMount, onBeforeUnmount } from 'vue';
+import { onMounted, onUpdated, watch, ref, computed, inject, onBeforeMount, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
-import { useRoute, useRouter } from 'vue-router';
 
 import useInit from '@/compositions/useInit/';
-import useAdapter from '@/Adapter/compositions/useAdapter';
 import { ECOSYSTEMS } from '@/Adapter/config';
 
 import Socket from './modules/Socket';
@@ -39,7 +37,6 @@ import NavBar from '@/components/app/NavBar';
 import Sidebar from '@/components/app/Sidebar';
 import LoadingOverlay from '@/components/ui/LoadingOverlay';
 
-import redirectOrStay from '@/shared/utils/routes';
 import { delay } from '@/helpers/utils';
 
 export default {
@@ -53,9 +50,8 @@ export default {
     },
 
     setup() {
+        const useAdapter = inject('useAdapter');
         const store = useStore();
-        const route = useRoute();
-        const router = useRouter();
 
         const lastConnectedCall = ref(false);
 
@@ -158,6 +154,23 @@ export default {
             await useInit(store, { account: walletAccount.value, addressesWithChains, currentChainInfo: currentChainInfo.value });
         };
 
+        // ==========================================================================================
+
+        const unWatchChainInfo = watch(currentChainInfo, async () => await callSubscription());
+
+        const unWatchAcc = watch(walletAccount, async () => {
+            store.dispatch('tokenOps/setSrcToken', null);
+            store.dispatch('tokenOps/setDstToken', null);
+
+            await callInit();
+            await callSubscription();
+        });
+
+        const updateCollapsedStateOnResize = () => (collapsed.value = window.innerWidth <= 1024);
+        window.addEventListener('resize', updateCollapsedStateOnResize);
+
+        // ==========================================================================================
+
         onBeforeMount(async () => {
             await store.dispatch('bridgeDex/getServices');
         });
@@ -188,43 +201,6 @@ export default {
             }
         });
 
-        const updateCollapsedState = () => {
-            collapsed.value = window.innerWidth <= 1024;
-        };
-
-        window.addEventListener('resize', updateCollapsedState);
-
-        watchEffect(async () => {
-            if (isConnecting) {
-                return;
-            }
-
-            const isStay = await redirectOrStay(route.path, currentChainInfo.value);
-
-            if (!currentChainInfo.value) {
-                return router.push('/main');
-            }
-            if (!isStay) {
-                return router.push('/main');
-            }
-
-            const { net = null } = currentChainInfo.value || {};
-
-            if (!net) {
-                return router.push('/main');
-            }
-        });
-
-        watch(currentChainInfo, async () => await callSubscription());
-
-        watch(walletAccount, async () => {
-            store.dispatch('tokenOps/setSrcToken', null);
-            store.dispatch('tokenOps/setDstToken', null);
-
-            await callInit();
-            await callSubscription();
-        });
-
         onUpdated(async () => {
             if (currentChainInfo.value) {
                 await callSubscription();
@@ -233,7 +209,11 @@ export default {
         });
 
         onBeforeUnmount(() => {
-            window.removeEventListener('resize', updateCollapsedState);
+            window.removeEventListener('resize', updateCollapsedStateOnResize);
+
+            // Stop watching
+            unWatchChainInfo();
+            unWatchAcc();
         });
 
         return {

@@ -48,9 +48,7 @@
     </div>
 </template>
 <script>
-import { computed } from 'vue';
-
-import useAdapter from '@/Adapter/compositions/useAdapter';
+import { computed, inject } from 'vue';
 
 import TokenIcon from '@/components/ui/TokenIcon';
 import NumberTooltip from '@/components/ui/NumberTooltip';
@@ -72,6 +70,8 @@ export default {
     },
     emits: ['select-token'],
     setup(props, { emit }) {
+        const useAdapter = inject('useAdapter');
+
         const { getTokenExplorerLink } = useAdapter();
 
         const displayName = computed(() => {

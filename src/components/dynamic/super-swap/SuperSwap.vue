@@ -127,7 +127,7 @@
     </div>
 </template>
 <script>
-import { computed, ref, watch, onMounted, h, onBeforeUnmount } from 'vue';
+import { computed, ref, inject, watch, onMounted, h, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
@@ -142,7 +142,6 @@ import { getSwapTx, getBridgeTx } from '@/api/services';
 
 // Adapter
 import { ECOSYSTEMS } from '@/Adapter/config';
-import useAdapter from '@/Adapter/compositions/useAdapter';
 
 // Composition
 import useTokensList from '@/compositions/useTokensList';
@@ -178,8 +177,6 @@ import { STATUSES, NATIVE_CONTRACT, SUPPORTED_CHAINS } from '@/shared/constants/
 import { DIRECTIONS, TOKEN_SELECT_TYPES, PRICE_UPDATE_TIME } from '@/shared/constants/operations';
 import { isCorrectChain } from '@/shared/utils/operations';
 
-// import { updateWalletBalances } from '@/shared/utils/balances';
-
 export default {
     name: 'SuperSwap',
     components: {
@@ -202,9 +199,12 @@ export default {
         const store = useStore();
         const router = useRouter();
         const { t } = useI18n();
+
+        const useAdapter = inject('useAdapter');
+
         const { name: module } = router.currentRoute.value;
 
-        const { walletAccount, walletAddress, chainList, currentChainInfo, setChain, validateAddress } = useAdapter();
+        const { walletAccount, walletAddress, chainList, currentChainInfo, setChain, validateAddress } = useAdapter('super-swap');
 
         const { showNotification, closeNotification } = useNotification();
 

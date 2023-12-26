@@ -1,4 +1,4 @@
-import { ref, computed, watch } from 'vue';
+import { ref, computed, inject, watch, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 
 import {
@@ -11,15 +11,14 @@ import {
     // getBridgeTx,
 } from '@/api/services';
 
-import useAdapter from '@/Adapter/compositions/useAdapter';
 import useTokensList from '@/compositions/useTokensList';
 import useNotification from '@/compositions/useNotification';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
-export default function useModule({ module, moduleType }) {
-    console.log('useModule', module);
+export default function useModule({ moduleType }) {
     const store = useStore();
+    const useAdapter = inject('useAdapter');
 
     const selectedService = computed(() => store.getters[`${moduleType}/selectedService`]);
 
@@ -323,19 +322,19 @@ export default function useModule({ module, moduleType }) {
 
     // =================================================================================================================
 
-    watch(currentChainInfo, () => {
+    const unWatchChainInfo = watch(currentChainInfo, () => {
         checkSelectedNetwork();
         selectedSrcNetwork.value = currentChainInfo.value;
         resetTokensForModules();
     });
 
-    watch(walletAccount, () => {
+    const unWatchAcc = watch(walletAccount, () => {
         selectedSrcNetwork.value = currentChainInfo.value;
         selectedSrcToken.value = null;
         resetTokensForModules();
     });
 
-    watch(selectedSrcNetwork, (newNet, oldNet) => {
+    const unWatchSrc = watch(selectedSrcNetwork, (newNet, oldNet) => {
         if (isUpdateSwapDirection.value) {
             return;
         }
@@ -360,7 +359,7 @@ export default function useModule({ module, moduleType }) {
         return checkSelectedNetwork();
     });
 
-    watch(txError, () => {
+    const unWatchTxErr = watch(txError, () => {
         if (!txError.value) {
             return;
         }
@@ -379,6 +378,14 @@ export default function useModule({ module, moduleType }) {
     // =================================================================================================================
 
     checkSelectedNetwork();
+
+    onBeforeUnmount(() => {
+        // Clear all data
+        unWatchChainInfo();
+        unWatchAcc();
+        unWatchSrc();
+        unWatchTxErr();
+    });
 
     return {
         // Main information for operation

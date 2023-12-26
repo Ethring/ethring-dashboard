@@ -96,7 +96,7 @@
     </div>
 </template>
 <script>
-import { h, ref, watch, computed, onBeforeUnmount, onMounted, onBeforeMount } from 'vue';
+import { h, ref, inject, watch, computed, onBeforeUnmount, onMounted, onBeforeMount } from 'vue';
 
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
@@ -109,7 +109,6 @@ import { SettingOutlined } from '@ant-design/icons-vue';
 
 // Adapter
 import { ECOSYSTEMS } from '@/Adapter/config';
-import useAdapter from '@/Adapter/compositions/useAdapter';
 
 // Notification
 import useNotification from '@/compositions/useNotification';
@@ -159,6 +158,7 @@ export default {
     setup() {
         const store = useStore();
         const router = useRouter();
+        const useAdapter = inject('useAdapter');
 
         const { t } = useI18n();
 

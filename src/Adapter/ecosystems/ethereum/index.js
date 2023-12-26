@@ -32,6 +32,11 @@ class EthereumAdapter extends AdapterBase {
         return web3Onboard.state.select('wallets');
     }
 
+    unsubscribeToWalletsChange() {
+        console.log('Unsubscribe to wallets change', 'ethereum');
+        return web3Onboard.state.select('wallets').unsubscribe();
+    }
+
     async connectWallet(walletName) {
         const { connectWallet, connectingWallet, connectedWallet } = useOnboard();
 

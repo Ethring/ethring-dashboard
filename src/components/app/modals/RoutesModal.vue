@@ -59,8 +59,6 @@ import Modal from '@/components/app/Modal';
 import Button from '@/components/ui/Button';
 import NumberTooltip from '@/components/ui/NumberTooltip';
 
-// import useAdapter from '@/Adapter/compositions/useAdapter';
-
 export default {
     name: 'RoutesModal',
     components: {

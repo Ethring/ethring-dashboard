@@ -29,6 +29,7 @@ import useMixpanel from './modules/Mixpanel';
 
 // Service worker
 import './registerServiceWorker';
+import useAdapter from './Adapter/compositions/useAdapter';
 
 // * Init app
 const app = createApp(App)
@@ -41,6 +42,7 @@ const app = createApp(App)
             defaultTime: '1s',
         })
     )
+    .provide('useAdapter', useAdapter)
     .use(store)
     .use(VueClickAway)
     .use(Router)

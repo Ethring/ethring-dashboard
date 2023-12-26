@@ -89,7 +89,7 @@ export default {
             action,
             connectedWallet,
             currentChainInfo,
-        } = useAdapter();
+        } = useAdapter(this);
 
         const chainList = computed(() => getChainListByEcosystem(props.wallet.ecosystem));
         const chainInfo = computed(() => getChainByChainId(props.wallet.ecosystem, selectedChain.value));

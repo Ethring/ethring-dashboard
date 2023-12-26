@@ -4,9 +4,7 @@
     </a-modal>
 </template>
 <script>
-import { ref, onMounted, watch } from 'vue';
-
-import useAdapter from '@/Adapter/compositions/useAdapter';
+import { computed, inject } from 'vue';
 
 import { KADO_EVM_NETWORKS, KADO_COSMOS_NETWORKS, KADO_DEFAULT_COSMOS, KADO_ACTIONS, KADO_URL } from '@/config/kadoConstants';
 
@@ -22,20 +20,19 @@ export default {
         },
     },
     setup(props, { emit }) {
+        const useAdapter = inject('useAdapter');
+
         const { currentChainInfo, walletAddress } = useAdapter();
+        const BASE_URL = `${KADO_URL}?apiKey=${process.env.VUE_APP_KADO_API_KEY}&product=BUY&onPayCurrency=USD`;
 
-        const IFRAME_URL = ref('');
-
-        const getIframeUrl = (currentChain) => {
-            if (currentChain === ECOSYSTEMS.EVM) {
-                return `${KADO_URL}?apiKey=${process.env.VUE_APP_KADO_API_KEY}&product=BUY&onPayCurrency=USD&onRevCurrency=USDC&onToAddress=${walletAddress.value}&networkList=${KADO_EVM_NETWORKS}&productList=${KADO_ACTIONS}`;
-            }
-            return `${KADO_URL}?apiKey=${process.env.VUE_APP_KADO_API_KEY}&product=BUY&onPayCurrency=USD&onRevCurrency=ATOM&network=${KADO_DEFAULT_COSMOS}&onToAddress=${walletAddress.value}&networkList=${KADO_COSMOS_NETWORKS}&productList=${KADO_ACTIONS}`;
-        };
-
-        onMounted(() => {
-            if (walletAddress) {
-                IFRAME_URL.value = getIframeUrl(currentChainInfo?.value?.ecosystem);
+        const IFRAME_URL = computed(() => {
+            switch (currentChainInfo.value?.ecosystem) {
+                case ECOSYSTEMS.EVM:
+                    return `${BASE_URL}&onRevCurrency=USDC&onToAddress=${walletAddress.value}&networkList=${KADO_EVM_NETWORKS}&productList=${KADO_ACTIONS}`;
+                case ECOSYSTEMS.COSMOS:
+                    return `${BASE_URL}&onRevCurrency=ATOM&network=${KADO_DEFAULT_COSMOS}&onToAddress=${walletAddress.value}&networkList=${KADO_COSMOS_NETWORKS}&productList=${KADO_ACTIONS}`;
+                default:
+                    return `${BASE_URL}&onRevCurrency=USDC`;
             }
         });
 
@@ -44,10 +41,6 @@ export default {
                 emit('close:modal', false);
             }
         };
-
-        watch(walletAddress, () => {
-            IFRAME_URL.value = getIframeUrl(currentChainInfo?.value?.ecosystem);
-        });
 
         return {
             closeModal,
