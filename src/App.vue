@@ -130,10 +130,6 @@ export default {
         };
 
         const callInit = async () => {
-            if (isInitCall.value[walletAccount.value]) {
-                return;
-            }
-
             const { ecosystem, walletModule } = currentChainInfo.value || {};
 
             if (!walletModule || !ecosystem || !walletAddress.value || showRoutesModal.value) {
@@ -141,9 +137,14 @@ export default {
             }
 
             isConfigLoading.value = true;
-            store.dispatch('tokens/setLoader', true);
 
             await store.dispatch('networks/initZometNets', ecosystem.toLowerCase());
+
+            if (isInitCall.value[walletAccount.value]) {
+                return;
+            }
+
+            store.dispatch('tokens/setLoader', true);
 
             isInitCall.value = {
                 ...isInitCall.value,

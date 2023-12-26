@@ -156,6 +156,7 @@ export default {
     @include pageFlexColumn;
     align-items: flex-start;
     margin-top: 6px;
+    width: 100%;
 
     .mr-20 {
         margin-right: 20px !important;

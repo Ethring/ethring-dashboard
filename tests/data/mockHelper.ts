@@ -575,6 +575,60 @@ const mockBalanceDataBySendTest = {
 };
 
 const mockBalanceDataBySwapTest = {
+    eth: {
+        ok: true,
+        data: {
+            tokens: [
+                {
+                    name: 'Oraichain',
+                    symbol: 'ORAI',
+                    address: '0x4c11249814f11b9346808179cf06e71ac328c1b5',
+                    decimals: 18,
+                    logo: 'https://assets.coingecko.com/coins/images/12931/large/orai.png?1696512718',
+                    price: '7.344306642945768',
+                    priceChange: '0.11643066334202157',
+                    balanceUsd: '21.029913946122438',
+                    balance: '2.863430813625101',
+                },
+                {
+                    name: 'dYdX',
+                    symbol: 'ETHDYDX',
+                    address: '0x92d6c1e31e14520e676a687f0a93788b716beff5',
+                    decimals: 18,
+                    logo: 'https://assets.coingecko.com/coins/images/17500/large/hjnIm9bV.jpg?1696517040',
+                    price: '3.1046807336583626',
+                    priceChange: '0.1531920274073988',
+                    balanceUsd: '122.25925593967644',
+                    balance: '39.37901073506316',
+                },
+                {
+                    name: 'Tether',
+                    symbol: 'USDT',
+                    address: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+                    decimals: 6,
+                    logo: 'https://assets.coingecko.com/coins/images/325/large/Tether.png?1696501661',
+                    price: '0.9982622405505932',
+                    priceChange: '-0.0020187709409722476',
+                    balanceUsd: '23.220747682028243',
+                    balance: '23.26117',
+                },
+                {
+                    name: 'Ethereum',
+                    symbol: 'ETH',
+                    address: null,
+                    decimals: 18,
+                    logo: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png?1696501628',
+                    price: '2305.5055751401324',
+                    priceChange: '63.4243025752603',
+                    balanceUsd: '22.64692851431036',
+                    balance: '0.00982297711985964',
+                },
+            ],
+            nfts: [],
+            integrations: [],
+        },
+        error: '',
+    },
     avalanche: {
         ok: true,
         data: {

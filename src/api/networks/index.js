@@ -6,6 +6,7 @@ export const getNetworksConfig = async (ecosystem) => {
 
         if (response.status === 200) {
             localStorage.setItem(`networks/${ecosystem}`, JSON.stringify(response.data));
+            localStorage.setItem('configUpdatedAt', new Date());
             return response.data;
         }
         return {};

@@ -254,6 +254,7 @@ export default {
             makeAllowanceRequest,
             makeApproveRequest,
             checkSelectedNetwork,
+            setTokenOnChangeForNet,
         } = useServices({
             module,
             moduleType: 'super-swap',
@@ -389,7 +390,6 @@ export default {
             }
 
             selectedDstNetwork.value = network;
-
             selectedDstToken.value = null;
 
             resetValues();
@@ -406,6 +406,7 @@ export default {
                 srcNet: getSelectedNetwork(),
                 srcToken: selectedSrcToken.value,
                 dstToken: selectedDstToken.value,
+                isSameNet: selectedDstNetwork.value === selectedSrcNetwork.value,
             });
         };
 
@@ -904,11 +905,13 @@ export default {
             setTokenOnChange();
         });
 
-        watch(selectedSrcNetwork, () => {
+        watch(selectedSrcNetwork, (newValue, oldValue) => {
             resetValues();
             onSetAmount(null);
-            selectedSrcToken.value = null;
-            setTokenOnChange();
+            if (newValue?.net !== oldValue?.net) {
+                selectedSrcToken.value = null;
+                selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
+            }
             getEstimateInfo();
         });
 

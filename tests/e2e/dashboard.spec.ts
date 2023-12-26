@@ -84,7 +84,7 @@ test.describe('Dashboard page tests', () => {
         const address = getTestVar(TEST_CONST.ETH_ADDRESS_BY_PROTOCOL_TEST);
 
         await Promise.all(EVM_NETWORKS.map((network) => dashboardProtocol.mockBalanceRequest(network, mockBalanceData[network], address)));
-        await dashboardProtocol.waitDetachedSkeleton();
+        await dashboardProtocol.waitHiddenSkeleton();
 
         await expect(dashboardProtocol.page).toHaveScreenshot({ fullPage: true, maxDiffPixelRatio: 0.07 });
     });
