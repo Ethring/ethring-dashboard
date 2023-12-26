@@ -350,6 +350,7 @@ export default {
             }
             if (direction === DIRECTIONS.SOURCE) {
                 selectedSrcNetwork.value = network;
+                selectedSrcToken.value = null;
                 selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
 
                 srcAmount.value && (await onSetAmount(srcAmount.value));

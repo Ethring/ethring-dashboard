@@ -324,6 +324,7 @@ export default function useModule({ module, moduleType }) {
     // =================================================================================================================
 
     watch(currentChainInfo, () => {
+        checkSelectedNetwork();
         selectedSrcNetwork.value = currentChainInfo.value;
         resetTokensForModules();
     });
@@ -358,8 +359,6 @@ export default function useModule({ module, moduleType }) {
 
         return checkSelectedNetwork();
     });
-
-    watch(currentChainInfo, () => checkSelectedNetwork());
 
     watch(txError, () => {
         if (!txError.value) {
