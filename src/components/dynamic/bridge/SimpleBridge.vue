@@ -555,6 +555,10 @@ export default {
                 return;
             }
 
+            if (srcAmount.value) {
+                isEstimating.value = true;
+            }
+
             return await makeAllowanceRequest(selectedService.value);
         };
 

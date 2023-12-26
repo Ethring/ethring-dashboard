@@ -479,6 +479,10 @@ export default {
                 return;
             }
 
+            if (srcAmount.value) {
+                isEstimating.value = true;
+            }
+
             return await makeAllowanceRequest(selectedService.value);
         };
 
@@ -493,7 +497,7 @@ export default {
         // =================================================================================================================
 
         const makeEstimateSwapRequest = async () => {
-            if (!isAllowForRequest() || !selectedDstToken.value || +srcAmount.value === 0) {
+            if (!selectedDstToken.value || +srcAmount.value === 0) {
                 isEstimating.value = false;
                 isUpdateSwapDirection.value = false;
                 return (isLoading.value = false);
