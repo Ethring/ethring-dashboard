@@ -12,7 +12,10 @@
                     <div class="name">{{ item.name || item.symbol }}</div>
                     <div class="type" v-if="item.balanceType">{{ getFormattedName(item.balanceType) }}</div>
                     <div class="unlock" v-if="item.unlockTimestamp">
-                        Unlock <span> {{ getFormattedDate(item.unlockTimestamp) }} </span>
+                        <a-tooltip>
+                            <template #title>{{ getFormattedDate(item.unlockTimestamp) }}</template>
+                            Unlock: <span class="unlock__value"> {{ getTimeCountdown(item.unlockTimestamp) }} </span>
+                        </a-tooltip>
                     </div>
                     <div class="apr" v-if="item.apr"><span>APR </span> {{ formatNumber(item.apr, 2) }}%</div>
                     <div class="apr" v-if="item.leverageRate"><span>Leverage </span> {{ formatNumber(item.leverageRate, 2) }}x</div>
@@ -47,7 +50,7 @@ import { formatNumber } from '@/helpers/prettyNumber';
 
 import BigNumber from 'bignumber.js';
 
-import { getFormattedName, getFormattedDate } from '@/shared/utils/assets';
+import { getFormattedName, getFormattedDate, getTimeCountdown } from '@/shared/utils/assets';
 
 export default {
     name: 'AssetItem',
@@ -89,6 +92,7 @@ export default {
 
             getFormattedName,
             getFormattedDate,
+            getTimeCountdown,
             formatNumber,
         };
     },
@@ -168,9 +172,7 @@ export default {
         .apr {
             color: var(--#{$prefix}sub-text);
             font-weight: 600;
-        }
 
-        .apr {
             span {
                 color: var(--#{$prefix}mute-apr-text);
                 font-weight: 400;
@@ -180,7 +182,8 @@ export default {
         .unlock {
             color: var(--#{$prefix}unlock-text);
             font-weight: 400;
-            span {
+
+            &__value {
                 color: var(--#{$prefix}mute-apr-text);
                 font-weight: 500;
             }

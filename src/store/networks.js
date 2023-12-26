@@ -1,5 +1,5 @@
 import { getNetworksConfig, getTokensListByNetwork } from '@/api/networks';
-import { CONFIG_UPDATE_TIME } from '../shared/constants/operations/';
+import { ONE_DAY } from '../shared/constants/operations/';
 import _ from 'lodash';
 
 const TYPES = {
@@ -127,7 +127,7 @@ export default {
             let isUpdateConfig = false;
 
             if (configUpdatedAt) {
-                isUpdateConfig = new Date().getTime() - new Date(configUpdatedAt).getTime() > CONFIG_UPDATE_TIME;
+                isUpdateConfig = new Date().getTime() - new Date(configUpdatedAt).getTime() > ONE_DAY;
             }
 
             const networksList = networks && !isUpdateConfig ? JSON.parse(networks) : await getNetworksConfig(ecosystem);
