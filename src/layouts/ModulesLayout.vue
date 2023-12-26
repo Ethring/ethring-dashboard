@@ -189,7 +189,7 @@ export default {
     .arrow {
         fill: var(--#{$prefix}arrow-color);
         position: absolute;
-        bottom: -15px;
+        bottom: -14px;
         right: 0;
         left: 0;
         margin: 0 auto;
