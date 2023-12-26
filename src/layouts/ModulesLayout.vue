@@ -162,7 +162,6 @@ export default {
 <style lang="scss" scoped>
 .layout-page {
     @include pageFlexColumn;
-    margin-top: 20px;
     position: relative;
 
     &-tab {
@@ -177,13 +176,13 @@ export default {
 
             color: var(--#{$prefix}base-text);
 
-            font-size: var(--#{$prefix}h1-fs);
+            font-size: var(--#{$prefix}h3-fs);
             font-weight: 400;
         }
 
         &__active {
             color: var(--#{$prefix}primary-text);
-            font-weight: 700;
+            font-weight: 500;
         }
     }
 

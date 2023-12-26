@@ -13,7 +13,7 @@
             </div>
         </template>
 
-        <template v-if="allIntegrations.length > 0">
+        <template v-if="allIntegrations.length">
             <div class="tokens__group" data-qa="protocol_group" v-for="(item, i) in integrationAssetsByPlatform" :key="i">
                 <AssetItemHeader
                     v-if="item.data.length"
@@ -32,7 +32,7 @@
             </div>
         </template>
 
-        <template v-if="nftsByCollection.length > 0">
+        <template v-if="nftsByCollection.length">
             <div class="tokens__group">
                 <AssetItemHeader title="NFT" :totalBalance="totalNftBalances" />
                 <AssetItemSubHeader

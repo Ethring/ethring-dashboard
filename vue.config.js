@@ -77,6 +77,7 @@ module.exports = {
         https: IS_PROD,
         progress: false,
     },
+    transpileDependencies: [],
     productionSourceMap: IS_PROD,
     css: {
         loaderOptions: {

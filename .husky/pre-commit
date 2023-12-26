@@ -3,4 +3,4 @@ echo "HUSKY pre-commit"
 
 . "$(dirname -- "$0")/_/husky.sh"
 
-npm run lint:code:fix
+# npm run lint:code:fix

@@ -150,7 +150,7 @@ export default function useModule({ moduleType }) {
         }
 
         if (network && network.ecosystem === ECOSYSTEMS.COSMOS) {
-            return { ...network.asset, address: network.asset.base };
+            return { ...network.asset, address: network.asset.base, logo: network.logo };
         }
 
         return network?.native_token;
