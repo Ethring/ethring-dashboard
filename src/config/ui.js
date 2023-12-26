@@ -132,8 +132,6 @@ const getUIConfig = (network, ecosystem) => {
     let { sidebar = [] } = config || {};
 
     if (!network) {
-        sidebar = checkIsDisabled(sidebar, CUSTOM_CONFIG);
-
         return { ...config, sidebar };
     }
 

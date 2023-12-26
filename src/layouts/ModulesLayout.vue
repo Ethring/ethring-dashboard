@@ -1,7 +1,7 @@
 <template>
     <div class="layout-page">
         <div class="layout-page__content">
-            <UnsupportedResult v-if="!component" />
+            <UnsupportedResult v-if="currentChainInfo && !currentChainInfo.net" />
             <template v-else>
                 <div class="layout-page-tab">
                     <router-link
@@ -118,16 +118,7 @@ export default {
 
             const isStay = await redirectOrStay(route.path, currentChainInfo.value);
 
-            if (!currentChainInfo.value) {
-                return router.push('/main');
-            }
             if (!isStay) {
-                return router.push('/main');
-            }
-
-            const { net = null } = currentChainInfo.value || {};
-
-            if (!net) {
                 return router.push('/main');
             }
         };
@@ -156,6 +147,11 @@ export default {
             unWatchIsConnecting();
             callResetToDefaultValues();
         });
+
+        return {
+            // isOpenSearchSelect,
+            currentChainInfo,
+        };
     },
 };
 </script>

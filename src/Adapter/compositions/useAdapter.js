@@ -62,7 +62,6 @@ function useAdapter() {
         }
 
         walletsSubscription.value = wallets.subscribe(async () => {
-            console.log('subscribeToWalletsChange', 'updateStates', mainAdapter.value?.updateStates);
             await new Promise((resolve) => setTimeout(resolve, 500));
 
             if (mainAdapter.value?.updateStates) {
