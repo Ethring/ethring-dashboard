@@ -160,6 +160,7 @@ export default function useTransactions() {
             duration: 0,
         });
 
+        // TODO: fix after demo
         if (response.code === 0) {
             closeNotification(`waiting-${transactionHash}-tx`);
         }
