@@ -56,12 +56,10 @@
     </div>
 </template>
 <script>
-import { ref, computed, watch, watchEffect } from 'vue';
+import { ref, computed, watch, watchEffect, inject } from 'vue';
 import { useStore } from 'vuex';
 
 import BigNumber from 'bignumber.js';
-
-import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import EmptyList from '@/components/ui/EmptyList';
 
@@ -83,6 +81,8 @@ export default {
     },
     setup() {
         const store = useStore();
+
+        const useAdapter = inject('useAdapter');
 
         const { walletAccount, currentChainInfo } = useAdapter();
 

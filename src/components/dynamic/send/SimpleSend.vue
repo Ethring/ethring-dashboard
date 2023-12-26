@@ -42,7 +42,7 @@
     </div>
 </template>
 <script>
-import { h, ref, computed, onBeforeUnmount, onMounted, watch } from 'vue';
+import { h, ref, inject, computed, onBeforeUnmount, onMounted, watch } from 'vue';
 
 import BigNumber from 'bignumber.js';
 
@@ -50,7 +50,6 @@ import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { SettingOutlined } from '@ant-design/icons-vue';
 
-import useAdapter from '@/Adapter/compositions/useAdapter';
 import useNotification from '@/compositions/useNotification';
 import useTransactions from '../../../Transactions/compositions/useTransactions';
 import useServices from '../../../compositions/useServices';
@@ -77,6 +76,7 @@ export default {
     setup() {
         const store = useStore();
         const router = useRouter();
+        const useAdapter = inject('useAdapter');
 
         const { name: module } = router.currentRoute.value;
 
@@ -104,7 +104,8 @@ export default {
         const { showNotification, closeNotification } = useNotification();
 
         // * Adapter for wallet
-        const { walletAccount, walletAddress, connectedWallet, currentChainInfo, validateAddress, chainList, setChain } = useAdapter();
+        const { walletAccount, walletAddress, connectedWallet, currentChainInfo, validateAddress, chainList, setChain } =
+            useAdapter();
 
         const { createTransactions, signAndSend, transactionForSign } = useTransactions();
 

@@ -46,9 +46,8 @@
 </template>
 
 <script>
-import { computed, ref } from 'vue';
+import { computed, ref, inject } from 'vue';
 
-import useAdapter from '@/Adapter/compositions/useAdapter';
 import UIConfig from '@/config/ui';
 
 import overviewIcon from '@/assets/icons/sidebar/main.svg';
@@ -81,6 +80,8 @@ export default {
         },
     },
     setup() {
+        const useAdapter = inject('useAdapter');
+
         const { currentChainInfo } = useAdapter();
 
         const open = ref(false);

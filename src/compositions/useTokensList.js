@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import { computed } from 'vue';
+import { computed, inject } from 'vue';
 
 import { useStore } from 'vuex';
 
@@ -8,10 +8,9 @@ import { ECOSYSTEMS } from '@/Adapter/config';
 
 import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 
-import useAdapter from '@/Adapter/compositions/useAdapter';
-
 export default function useTokensList({ network = null, fromToken = null, toToken = null, isSameNet = true } = {}) {
     const store = useStore();
+    const useAdapter = inject('useAdapter');
 
     const { walletAccount } = useAdapter();
 

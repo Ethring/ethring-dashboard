@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import useAdapter from '@/Adapter/compositions/useAdapter';
+import { inject } from 'vue';
 
 import Assets from '@/components/app/Assets';
 import WalletInfoLarge from '@/components/app/WalletInfoLarge';
@@ -22,6 +22,7 @@ export default {
         Assets,
     },
     setup() {
+        const useAdapter = inject('useAdapter');
         const { walletAddress } = useAdapter();
 
         return {
