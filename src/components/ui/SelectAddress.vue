@@ -93,19 +93,19 @@ export default {
         };
 
         const getClassName = () => {
-            if (address.value.length > 60) {
+            if (address.value.length > 55) {
                 return 'small-sm-size';
             }
 
-            if (address.value.length > 55) {
+            if (address.value.length > 50) {
                 return 'small-size';
             }
 
-            if (address.value.length > 50) {
+            if (address.value.length > 45) {
                 return 'medium-md-size';
             }
 
-            if (address.value.length > 45) {
+            if (address.value.length > 40) {
                 return 'medium-size';
             }
 
