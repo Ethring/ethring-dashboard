@@ -65,7 +65,7 @@
         />
 
         <SelectAddress
-            v-if="isSendToAnotherAddress"
+            v-if="isSendToAnotherAddress && selectedDstNetwork"
             :selected-network="selectedDstNetwork"
             :error="!!errorAddress"
             placeholder="0x..."
