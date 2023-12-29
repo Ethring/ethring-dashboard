@@ -11,7 +11,7 @@
             @load="showIconPlaceholder = false"
         />
         <div v-else class="token-icon__placeholder">
-            <a-avatar>{{ iconPlaceholder }}</a-avatar>
+            <a-avatar :size="+width">{{ iconPlaceholder }}</a-avatar>
         </div>
     </div>
 </template>
@@ -26,9 +26,11 @@ export default {
     props: {
         width: {
             required: true,
+            default: 32,
         },
         height: {
             required: true,
+            default: 32,
         },
         token: {
             required: true,
@@ -90,17 +92,12 @@ export default {
 </script>
 <style lang="scss" scoped>
 .token-icon {
-    width: 32px;
-    height: 32px;
-
     @include pageFlexRow;
     justify-content: center;
 
     img {
-        width: 100%;
-        height: 100%;
         border-radius: 50%;
-
+        margin: auto;
         object-position: center;
         object-fit: contain;
     }
@@ -109,7 +106,7 @@ export default {
         font-size: var(--#{$prefix}small-sm-fs);
 
         span {
-            background: var(--#{$prefix}select-icon-bg-color);
+            background: var(--#{$prefix}icon-logo-bg-color);
         }
     }
 }

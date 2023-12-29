@@ -6,13 +6,14 @@
                 <div class="info" @click="clickToken" data-qa="select-token">
                     <template v-if="isTokenLoading">
                         <a-space>
-                            <a-skeleton-avatar active />
-                            <a-skeleton-input active />
+                            <a-skeleton-avatar active size="small" />
+                            <a-skeleton-input active size="small" />
                         </a-space>
                     </template>
                     <template v-else>
                         <div class="network">
-                            <TokenIcon width="24" height="24" :token="selectedToken" />
+                            <TokenIcon v-if="selectedToken" width="24" height="24" :token="selectedToken" />
+                            <a-avatar v-else :size="24"></a-avatar>
                         </div>
 
                         <div class="token" v-if="selectedToken">{{ selectedToken?.symbol }}</div>
@@ -23,7 +24,7 @@
                 </div>
 
                 <template v-if="isAmountLoading">
-                    <a-skeleton-input active class="input-balance" />
+                    <a-skeleton-input active class="input-balance" size="small" />
                 </template>
 
                 <template v-else>
@@ -47,7 +48,7 @@
             <div class="balance" :class="{ disabled, error }">
                 <div class="balance-value">
                     <template v-if="isTokenLoading">
-                        <a-skeleton-input active />
+                        <a-skeleton-input active size="small" class="balance-skeleton" />
                     </template>
 
                     <div v-else @click.stop="setMax">
@@ -58,7 +59,7 @@
                 </div>
                 <div class="balance-price">
                     <template v-if="isAmountLoading">
-                        <a-skeleton-input active />
+                        <a-skeleton-input active size="small" class="balance-price-skeleton" />
                     </template>
                     <template v-else>
                         <span>$</span>
@@ -70,14 +71,14 @@
     </div>
 </template>
 <script>
-import { ref, watch, computed, onUpdated } from 'vue';
+import { ref, watch, computed, onUpdated, onMounted } from 'vue';
 
 import BigNumber from 'bignumber.js';
 
 import TokenIcon from '@/components/ui/TokenIcon';
 import NumberTooltip from '@/components/ui/NumberTooltip';
 
-import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
+import ArrowIcon from '@/assets/icons/dashboard/arrow.svg';
 
 import { formatInputNumber } from '@/helpers/numbers';
 
@@ -178,7 +179,7 @@ export default {
             () => {
                 amount.value = props.amountValue;
                 active.value = false;
-                emit('setAmount', amount.value);
+                // emit('setAmount', amount.value);
             }
         );
 
@@ -229,7 +230,11 @@ export default {
                     setToken(tkn);
                     amount.value = props.amountValue;
                     active.value = false;
+                    payTokenPrice.value = BigNumber(amount.value * +tkn?.price || 0).toFixed() || 0;
                     emit('setAmount', amount.value);
+                } else {
+                    amount.value = 0;
+                    payTokenPrice.value = 0;
                 }
             }
         );
@@ -243,40 +248,16 @@ export default {
         watch(amount, (val) => {
             amount.value = val;
 
-            if (val) {
-                if (symbolForReplace.value) {
-                    val = val.replace(symbolForReplace.value, '.');
-                }
-                amount.value = formatInputNumber(val);
-
-                return (payTokenPrice.value = BigNumber(amount.value * +selectedToken?.value?.price || 0).toFixed() || 0);
-            }
-
-            // val = val.replace(/[^0-9.]+/g, '').replace(/\.{2,}/g, '.');
-
             if (val === '' || !val?.toString()) {
                 return (payTokenPrice.value = 0);
             }
 
-            val = val
-                .toString()
-                // remove spaces
-                .replace(/\s+/g, '')
-                .replace(',', '.')
-                // only number
-                .replace(/[^.\d]+/g, '')
-                // remove extra 0 before decimal
-                .replace(/^0+/, '0')
-                // remove extra dots
-                .replace(/^0+(\d+)/, '$1');
-
-            if (val.indexOf('.') !== val.lastIndexOf('.')) {
-                val = val.substr(0, val.lastIndexOf('.'));
+            if (symbolForReplace.value) {
+                val = val.replace(symbolForReplace.value, '.');
             }
+            amount.value = formatInputNumber(val);
 
-            amount.value = val;
-
-            return (payTokenPrice.value = BigNumber(amount.value).multipliedBy(selectedToken?.value?.price || 0) || 0);
+            return (payTokenPrice.value = BigNumber(amount.value * +selectedToken?.value?.price || 0).toFixed() || 0);
         });
 
         const clickAway = () => {
@@ -326,6 +307,12 @@ export default {
             emit('clickToken');
         };
 
+        onMounted(() => {
+            if (amount.value && selectedToken?.value) {
+                payTokenPrice.value = BigNumber(amount.value * +selectedToken?.value?.price || 0).toFixed() || 0;
+            }
+        });
+
         onUpdated(() => {
             resetAmount();
         });
@@ -369,17 +356,17 @@ export default {
         flex-direction: column;
         justify-content: space-between;
         background: var(--#{$prefix}select-bg-color);
-        border-radius: 16px;
-        height: 160px;
-        padding: 16px 24px;
+        border-radius: 8px;
+        height: 104px;
+        padding: 12px 16px;
         box-sizing: border-box;
-        border: 2px solid transparent;
+        border: 1px solid transparent;
 
         .label {
             @include pageFlexRow;
 
             color: var(--#{$prefix}select-label-color);
-            font-weight: 600;
+            font-weight: 500;
             max-height: 32px;
             height: 32px;
         }
@@ -387,40 +374,52 @@ export default {
         .balance {
             @include pageFlexRow;
             justify-content: space-between;
-
+            position: relative;
             height: 32px;
             max-height: 32px;
 
             &-value,
             &-price {
-                color: var(--#{$prefix}base-text);
+                position: relative;
+                color: var(--#{$prefix}select-label-color);
                 font-size: var(--#{$prefix}small-lg-fs);
+
+                &-skeleton {
+                    position: absolute;
+                    right: 0px;
+                    top: -10px;
+                }
+            }
+
+            &-skeleton {
+                margin-top: 2px;
             }
 
             &-value {
                 cursor: pointer;
+                margin-top: 3px;
                 div {
                     @include pageFlexRow;
                     align-items: flex-end;
                 }
 
                 p {
-                    font-weight: 600;
+                    font-weight: 500;
                     font-size: var(--#{$prefix}default-fs);
-                    color: var(--#{$prefix}sub-text);
+                    color: var(--#{$prefix}balance-text);
                     margin: 0 3px 0 6px;
                 }
             }
 
             &-price {
-                font-weight: 600;
-                color: var(--#{$prefix}sub-text);
+                font-weight: 500;
+                color: var(--#{$prefix}balance-text);
                 cursor: default;
 
                 span {
                     color: var(--#{$prefix}base-text);
                     font-weight: 400;
-                    margin-right: 2px;
+                    margin-right: -3px;
                 }
             }
 
@@ -450,10 +449,10 @@ export default {
         }
 
         .token {
-            font-size: var(--#{$prefix}h2-fs);
-            font-weight: 600;
+            font-size: var(--#{$prefix}h4-fs);
+            font-weight: 700;
             color: var(--#{$prefix}select-item-secondary-color);
-            margin-right: 10px;
+            margin-right: 12px;
 
             display: inline-block;
             overflow: hidden;
@@ -462,19 +461,20 @@ export default {
             white-space: nowrap;
 
             &.placeholder {
+                font-weight: 500;
                 color: var(--#{$prefix}select-placeholder-text);
             }
         }
 
         .input-balance {
-            width: 75%;
+            width: 100%;
             text-align: right;
             min-width: 100px;
             border: none;
             outline: none;
             background: transparent;
-            font-size: var(--#{$prefix}h2-fs);
-            font-weight: 600;
+            font-size: var(--#{$prefix}h4-fs);
+            font-weight: 700;
             color: var(--#{$prefix}primary-text);
 
             &::placeholder {
@@ -482,7 +482,7 @@ export default {
             }
 
             &:disabled {
-                color: var(--#{$prefix}select-placeholder-text);
+                color: var(--#{$prefix}input-disabled-text);
                 cursor: not-allowed;
                 user-select: none;
             }
@@ -499,17 +499,11 @@ export default {
             display: flex;
             justify-content: center;
             align-items: center;
-
-            width: 40px;
-            min-width: 40px;
-            height: 40px;
-
             border-radius: 50%;
+            margin-right: 8px;
 
-            margin-right: 10px;
-
-            svg {
-                fill: var(--#{$prefix}black);
+            span {
+                background: var(--#{$prefix}select-icon-bg-color);
             }
         }
 
@@ -522,22 +516,22 @@ export default {
 
         svg.arrow {
             cursor: pointer;
-            fill: var(--#{$prefix}select-icon-color);
-            transform: rotate(0);
             @include animateEasy;
+            stroke-width: 2px;
+            stroke: var(--#{$prefix}select-icon-color);
         }
     }
 
     &.focused {
         .select-amount__panel {
-            border: 2px solid var(--#{$prefix}select-active-border-color);
+            border: 1px solid var(--#{$prefix}select-active-border-color);
             background: var(--#{$prefix}select-bg-color);
         }
     }
 
     &.active {
         .select-amount__panel {
-            border: 2px solid var(--#{$prefix}select-active-border-color);
+            border: 1px solid var(--#{$prefix}select-active-border-color);
             background: var(--#{$prefix}white);
 
             svg.arrow {

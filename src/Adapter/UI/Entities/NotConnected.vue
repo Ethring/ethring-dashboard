@@ -22,11 +22,6 @@ export default {
     @include pageFlexRow;
     justify-content: flex-end;
 
-    padding: 8px 16px;
-    border-radius: 50px;
-    background-color: var(--#{$prefix}banner-color);
-    border: 1px solid transparent;
-
     cursor: pointer;
 
     width: fit-content !important;

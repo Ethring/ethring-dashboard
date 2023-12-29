@@ -1,30 +1,30 @@
 <template>
-    <div class="select" ref="selectBlock">
-        <div class="select__block" data-qa="select__block" :class="{ 'select__block-active': showOptions }" @click="() => toggleOptions()">
+    <div class="select" :class="{ active }" ref="selectBlock">
+        <div class="select__block" data-qa="select__block" :class="{ 'select__block-active': active }" @click="() => toggleOptions()">
             <div class="logo">
-                <TokenIcon width="24px" height="24px" :token="selectedItem" />
+                <TokenIcon v-if="selectedItem" width="32" height="32" :token="selectedItem" />
+                <a-avatar v-else :size="32"></a-avatar>
             </div>
             <h3 v-if="selectedItem">{{ !isToken ? selectedItem?.name : selectedItem?.symbol }}</h3>
             <h3 v-else>Select</h3>
             <ArrowIcon class="arrow" />
         </div>
-        <div class="select__items" data-qa="select__items" v-if="showOptions">
+        <div class="select__items" data-qa="select__items">
             <div class="select__items-search">
-                <input v-model="searchValue" :placeholder="placeholder" />
-                <SearchIcon />
+                <SearchInput :value="searchValue" @onChange="handleOnFilterOptions" :placeholder="placeholder" />
             </div>
             <div class="select__items-list" v-if="optionsList.length" @scroll="loadMore">
                 <div
                     v-for="(item, i) in optionsList"
                     :key="i"
-                    :class="{ active: item.net === selectedItem?.net, isToken, selected: item.selected }"
+                    :class="{ isToken, selected: item.selected, active: item.name === selectedItem?.name }"
                     class="select__items-item"
                     data-qa="item"
                     @click="onSelect(item)"
                 >
                     <div class="row">
                         <div class="logo">
-                            <TokenIcon width="24px" height="24px" :token="item" />
+                            <TokenIcon width="32" height="32" :token="item" />
                         </div>
                         <div class="column">
                             <h3 data-qa="item__name">{{ !isToken ? item?.name : item?.symbol }}</h3>
@@ -37,7 +37,7 @@
                             <span>{{ item.symbol }}</span>
                         </h4>
                         <h6>
-                            <span>$</span>
+                            <span class="usd-symbol">$</span>
                             <NumberTooltip :value="item.balanceUsd" decimals="2" />
                         </h6>
                     </div>
@@ -53,7 +53,7 @@
                     </div>
                 </template>
             </div>
-            <div v-else-if="searchValue.length" class="select__items-not-found">
+            <div v-else-if="searchValue?.length" class="select__items-not-found">
                 <p>{{ $t('dashboard.notFound') }}</p>
             </div>
             <div v-if="!options.length" class="select__items-not-found">
@@ -69,9 +69,9 @@ import { onClickOutside } from '@vueuse/core';
 
 import TokenIcon from '@/components/ui/TokenIcon';
 import NumberTooltip from '@/components/ui/NumberTooltip';
+import SearchInput from '@/components/ui/SearchInput';
 
 import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
-import SearchIcon from '@/assets/icons/app/search.svg';
 
 import _ from 'lodash';
 
@@ -81,7 +81,7 @@ import { searchByKey } from '@/helpers/utils';
 export default {
     name: 'Select',
 
-    components: { TokenIcon, ArrowIcon, SearchIcon, NumberTooltip },
+    components: { TokenIcon, ArrowIcon, SearchInput, NumberTooltip },
 
     props: {
         value: {
@@ -114,11 +114,11 @@ export default {
         const isListLoading = ref(false);
         const selectBlock = ref(null);
 
-        onClickOutside(selectBlock, () => (showOptions.value = false));
+        onClickOutside(selectBlock, () => (active.value = false));
 
         const selectedItem = ref(props.value);
         const searchValue = ref();
-        const showOptions = ref(false);
+        const active = ref(false);
         const optionsList = ref(props.options.slice(0, currentIndex.value));
 
         const timer = ref(null);
@@ -133,7 +133,7 @@ export default {
             currentIndex.value = MAX_TOKENS_PER_PAGE;
             optionsList.value = props.options.slice(0, currentIndex.value);
             searchValue.value = '';
-            showOptions.value = !showOptions.value;
+            active.value = !active.value;
         };
 
         const searchInTokens = (tokens, value) => {
@@ -182,14 +182,15 @@ export default {
             }, 500));
         };
 
-        watch(searchValue, (val) => {
+        const handleOnFilterOptions = (val) => {
+            searchValue.value = val;
             if (val.length) {
                 clearTimeout(timer.value);
-                optionsList.value = searchInTokens(props.options, searchValue.value)?.slice(0, currentIndex.value);
+                optionsList.value = searchInTokens(props.options, val)?.slice(0, currentIndex.value);
                 return;
             }
             optionsList.value = props.options.slice(0, currentIndex.value);
-        });
+        };
 
         watch(
             () => props.options,
@@ -211,11 +212,12 @@ export default {
             isListLoading,
             searchValue,
             optionsList,
-            showOptions,
+            active,
             loadMore,
             onSelect,
             toggleOptions,
             formatNumber,
+            handleOnFilterOptions,
         };
     },
 };
@@ -225,12 +227,13 @@ export default {
     &__block {
         position: relative;
         background-color: var(--#{$prefix}select-secondary-bg-color);
-        width: 200px;
-        height: 48px;
+        width: 180px;
+        height: 40px;
         border-radius: 24px;
-        padding-left: 8px;
+        padding-left: 4px;
         border: 1px solid transparent;
         @include pageFlexRow;
+        transition: all 0.2s;
 
         svg.arrow {
             margin: auto;
@@ -238,7 +241,6 @@ export default {
             right: 16px;
             cursor: pointer;
             fill: var(--#{$prefix}select-icon-color);
-            transform: scale(0.8);
             @include animateEasy;
         }
 
@@ -247,7 +249,7 @@ export default {
             border: 1px solid var(--#{$prefix}select-active-border-color);
 
             .arrow {
-                transform: scale(0.8) rotate(180deg) !important;
+                transform: rotate(180deg) !important;
             }
         }
 
@@ -255,24 +257,43 @@ export default {
             white-space: nowrap;
             text-overflow: ellipsis;
             overflow: hidden;
-            width: 110px;
+            width: 100px;
+        }
+
+        &:hover {
+            border: 1px solid var(--#{$prefix}select-active-border-color);
+            background: var(--#{$prefix}select-active-bg-color);
         }
     }
 
     h3 {
-        font-size: var(--#{$prefix}default-fs);
-        color: var(--#{$prefix}primary-text) !important;
-        line-height: var(--#{$prefix}h5-fs);
-        font-weight: 600;
+        font-size: var(--#{$prefix}h6-fs);
+        color: var(--#{$prefix}primary-text);
+        font-weight: 500;
+        line-height: 24px;
         margin: auto 0 auto 6px;
     }
 
     .logo {
         width: 32px;
         height: 32px;
+
+        span {
+            background-color: var(--#{$prefix}border-color);
+        }
     }
+
+    &.active &__items {
+        transform: scaleY(1);
+        opacity: 1;
+    }
+
+    &.active &__items-item {
+        opacity: 1;
+    }
+
     &__items {
-        padding: 20px 26px 6px;
+        padding: 16px 16px 2px;
         position: absolute;
         z-index: 10;
         left: 0;
@@ -280,14 +301,24 @@ export default {
         width: 100%;
         height: 288px;
         background-color: var(--#{$prefix}select-dropdown-bg-color);
-        border-radius: 16px;
-        border: 2px solid var(--#{$prefix}select-active-border-color);
+        border-radius: 8px;
+        border: 1px solid var(--#{$prefix}select-active-border-color);
+
+        transform: scaleY(0);
+        transform-origin: top;
+        transition: transform 0.2s ease;
 
         &-list {
             width: 102%;
             height: 200px;
             overflow-y: auto;
-            padding-right: 12px;
+            padding-right: 8px;
+
+            .active {
+                h3 {
+                    color: var(--#{$prefix}primary-text);
+                }
+            }
         }
 
         &-not-found {
@@ -304,8 +335,10 @@ export default {
         }
 
         h3 {
-            font-weight: 600;
+            color: var(--#{$prefix}base-text);
+            font-weight: 500;
             margin: 0;
+            line-height: 18px;
         }
 
         h5 {
@@ -313,47 +346,26 @@ export default {
             color: var(--#{$prefix}sub-text);
             font-size: var(--#{$prefix}small-sm-fs);
             margin: 0;
-            line-height: var(--#{$prefix}default-fs);
-        }
-
-        &-search {
-            height: 48px;
-            width: 100%;
-            border-radius: 8px;
-            background-color: var(--#{$prefix}search-bg-color);
-            @include pageFlexRow;
-            justify-content: space-between;
-            padding: 0 16px;
-            margin-bottom: 4px;
-
-            svg {
-                fill: var(--#{$prefix}sub-text);
-            }
-
-            input {
-                width: 95%;
-                background-color: transparent;
-                border: none;
-                outline: none;
-                font-size: var(--#{$prefix}default-fs);
-                color: var(--#{$prefix}primary-text);
-            }
+            line-height: 16px;
         }
 
         &-item {
             @include pageFlexRow;
+            height: 56px;
             justify-content: space-between;
             padding: 16px;
-            border-bottom: 1px dashed var(--#{$prefix}border-secondary-color);
+            padding-left: 0;
+            border-bottom: 1px dashed var(--#{$prefix}border-color);
 
             &.selected {
-                border: 1px solid var(--zmt-banner-logo-color);
+                border: 1px solid transparent;
                 background-color: var(--zmt-icon-secondary-bg-color);
-                border-radius: 16px;
+                border-radius: 8px;
+                color: var(--#{$prefix}btn-text-hover);
             }
 
             &:last-child {
-                border-bottom: none !important;
+                border-bottom: none;
             }
 
             &:hover {
@@ -372,10 +384,14 @@ export default {
                     font-size: var(--#{$prefix}small-lg-fs);
                 }
 
+                .usd-symbol {
+                    margin-right: -3px;
+                }
+
                 h4 {
-                    font-weight: 600;
+                    font-weight: 500;
                     color: var(--#{$prefix}primary-text);
-                    font-size: var(--#{$prefix}default-fs);
+                    font-size: var(--#{$prefix}h6-fs);
                     margin: 0;
                     line-height: var(--#{$prefix}h5-fs);
 
@@ -405,7 +421,7 @@ export default {
             @include pageFlexColumn;
             justify-content: center;
             align-items: flex-start;
-            margin-left: 12px;
+            margin-left: 10px;
         }
 
         .isToken {

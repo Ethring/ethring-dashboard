@@ -1,3 +1,4 @@
+import { computed } from 'vue';
 import _ from 'lodash';
 import BigNumber from 'bignumber.js';
 
@@ -7,6 +8,9 @@ import { DP_COSMOS } from '@/api/data-provider';
 import { getTotalFuturesBalance, BALANCES_TYPES } from '@/shared/utils/assets';
 import IndexedDBService from '@/modules/indexedDb';
 
+import PricesModule from '@/modules/prices/';
+
+import { ECOSYSTEMS } from '@/Adapter/config';
 // =================================================================================================================
 
 export const storeOperations = async (
@@ -145,7 +149,7 @@ export const getIntegrationsBalance = (integrations) => {
 
 export const formatRecord = (record, { net, chain, logo, type }) => {
     record.chainLogo = logo;
-    record.chain = net || chain;
+    record.chain = chain;
 
     if ((DP_COSMOS[chain] || DP_COSMOS[net]) && !record.balanceType) {
         record = cosmosChainTokens(record, { chain, net });
@@ -182,8 +186,12 @@ export const prepareChainWithAddress = (addressesObj, currentChainInfo) => {
     const CHUNK_SIZE = 2;
 
     const { net: currentChain, ecosystem } = currentChainInfo;
+    const cosmosChains = JSON.parse(localStorage.getItem('networks/cosmos')) || {};
 
-    const addrList = Object.entries(addressesObj).map(([key, value]) => ({ chain: key, info: value }));
+    const addrList = Object.entries(addressesObj).map(([key, value]) => ({
+        chain: key,
+        info: ecosystem === ECOSYSTEMS.COSMOS ? { ...value, logo: cosmosChains[key]?.logo || value.logo } : value,
+    }));
 
     // Prioritize current chain
     const sortedByCurrChain = _.orderBy(addrList, (item) => (item.chain === currentChain ? 0 : 1), ['asc']);
@@ -196,4 +204,47 @@ export const prepareChainWithAddress = (addressesObj, currentChainInfo) => {
         addresses: sortedByCurrChain,
         ecosystem,
     };
+};
+
+export const setNativeTokensPrices = async (store, account) => {
+    const chainList = computed(() => store.getters['networks/zometNetworksList']);
+    const nativeTokens = computed(() => store.getters['tokens/nativeTokens']);
+    const nets = new Set();
+
+    if (!nativeTokens.value || !nativeTokens.value[account]) {
+        return;
+    }
+
+    for (const network of chainList.value) {
+        if (network.native_token.price) {
+            continue;
+        }
+
+        const nativeToken = computed(() => store.getters['tokens/getNativeTokenForChain'](account, network.net));
+
+        if (nativeToken.value) {
+            network.native_token.price = nativeToken.value.price;
+            continue;
+        }
+
+        nets.add(network.native_token.coingecko_id);
+    }
+
+    if (!nets.size) {
+        return;
+    }
+
+    const prices = await PricesModule.Coingecko.marketCapForNativeCoin([...nets].join(','));
+
+    for (const network of chainList.value) {
+        if (network.native_token.price) {
+            continue;
+        }
+
+        const price = prices[network.native_token.coingecko_id];
+
+        if (price) {
+            network.native_token.price = price.usd.price;
+        }
+    }
 };

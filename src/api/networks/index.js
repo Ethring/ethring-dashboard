@@ -1,8 +1,15 @@
 import HttpRequest from '@/shared/utils/request';
 
-export const getNetworksConfig = async () => {
+export const getNetworksConfig = async (ecosystem) => {
     try {
-        return await HttpRequest.get(`${process.env.VUE_APP_ZOMET_CORE_API_URL}/networks`);
+        const response = await HttpRequest.get(`${process.env.VUE_APP_ZOMET_CORE_API_URL}/networks/${ecosystem}`);
+
+        if (response.status === 200) {
+            localStorage.setItem(`networks/${ecosystem}`, JSON.stringify(response.data));
+            localStorage.setItem('configUpdatedAt', new Date());
+            return response.data;
+        }
+        return {};
     } catch (err) {
         return { error: err.message };
     }

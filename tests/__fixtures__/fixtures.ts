@@ -1,8 +1,10 @@
 import { test as base, chromium, type BrowserContext, Browser } from '@playwright/test';
 import path from 'path';
-import { MetaMaskHomePage, MetaMaskNotifyPage, getNotifyMmPage, closeEmptyPages } from '../model/metaMaskPages';
-import { DashboardPage, SwapPage, SuperSwapPage, SendPage } from '../model/zometPages';
 import { getTestVar, TEST_CONST } from '../envHelper';
+import { closeEmptyPages, MetaMaskHomePage, MetaMaskNotifyPage, getNotifyMmPage } from '../model/MetaMask/MetaMask.pages';
+import { BasePage, SendPage, SwapPage, SuperSwapPage, DashboardPage } from '../model/VueApp/base.pages';
+import { EVM_NETWORKS } from '../data/mockHelper';
+import mockTokensList from '../data/mockTokensList';
 
 export const metaMaskId = getTestVar(TEST_CONST.MM_ID);
 const metamaskVersion = getTestVar(TEST_CONST.MM_VERSION);
@@ -36,10 +38,28 @@ const authInDashboardByMm = async (context: BrowserContext, seed: String): Promi
     return zometPage;
 };
 
+const authInDashboardByMmTokensListMock = async (context: BrowserContext, seed: String): Promise<DashboardPage> => {
+    await addWalletToMm(context, seed);
+
+    const zometPage = new DashboardPage(await context.newPage());
+    await Promise.all(EVM_NETWORKS.map((network) => zometPage.mockTokensList(network, mockTokensList[network])));
+    await zometPage.goToPage();
+
+    await zometPage.clickLoginByMetaMask();
+    const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
+    await notifyMM.assignPage();
+
+    const providerModal = zometPage.page.getByText('Connection Successful');
+    await providerModal.waitFor({ state: 'detached', timeout: 20000 });
+
+    await zometPage.waitMainElementVisible();
+    return zometPage;
+};
+
 export const test = base.extend<{
     context: BrowserContext;
-    authPage: DashboardPage;
-    authPageEmptyWallet: DashboardPage;
+    authPage: BasePage;
+    authPageEmptyWallet: BasePage;
 
     dashboard: DashboardPage;
     dashboardProtocol: DashboardPage;
@@ -47,6 +67,7 @@ export const test = base.extend<{
 
     sendPage: SendPage;
     swapPage: SwapPage;
+    swapPageMockTokensList: SwapPage;
     superSwapPage: SuperSwapPage;
 }>({
     context: async ({}, use) => {
@@ -71,13 +92,13 @@ export const test = base.extend<{
     },
     authPage: async ({ context }, use) => {
         await addWalletToMm(context, seedPhraseByTx);
-        const zometPage = new DashboardPage(await context.newPage());
+        const zometPage = new BasePage(await context.newPage());
         await zometPage.goToPage();
         await use(zometPage);
     },
     authPageEmptyWallet: async ({ context }, use) => {
         await addWalletToMm(context, seedPhraseEmptyWallet);
-        const zometPage = new DashboardPage(await context.newPage());
+        const zometPage = new BasePage(await context.newPage());
         await zometPage.goToPage();
         await use(zometPage);
     },
@@ -95,17 +116,22 @@ export const test = base.extend<{
     },
     swapPage: async ({ context }, use) => {
         const zometPage = await authInDashboardByMm(context, seedPhraseByTx);
-        const swapPage = await zometPage.goToSwap();
+        const swapPage = await zometPage.goToModule('swap');
+        await use(swapPage);
+    },
+    swapPageMockTokensList: async ({ context }, use) => {
+        const zometPage = await authInDashboardByMmTokensListMock(context, seedPhraseByTx);
+        const swapPage = await zometPage.goToModule('swap');
         await use(swapPage);
     },
     superSwapPage: async ({ context }, use) => {
         const zometPage = await authInDashboardByMm(context, seedPhraseByTx);
-        const superSwapPage = await zometPage.goToSuperSwap();
+        const superSwapPage = await zometPage.goToModule('superSwap');
         await use(superSwapPage);
     },
     sendPage: async ({ context }, use) => {
         const zometPage = await authInDashboardByMm(context, seedPhraseByTx);
-        const sendPage = await zometPage.goToSend();
+        const sendPage = await zometPage.goToModule('send');
         await use(sendPage);
     },
 });

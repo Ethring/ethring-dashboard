@@ -35,7 +35,7 @@
         </div>
 
         <SwapField
-            class="mt-10"
+            class="mt-8"
             :label="$t('tokenOperations.to')"
             :value="dstAmount"
             :token="selectedDstToken"
@@ -68,7 +68,7 @@
             v-if="selectedSrcNetwork?.net !== selectedDstNetwork?.net"
             v-model:value="isReceiveToken"
             :label="$t('tokenOperations.chooseAddress')"
-            class="mt-14"
+            class="mt-8"
         />
 
         <SelectAddress
@@ -76,22 +76,22 @@
             :selected-network="selectedDstNetwork"
             :error="!!errorAddress"
             placeholder="0x..."
-            class="mt-10"
+            class="mt-8"
             :on-reset="successHash"
             @setAddress="onSetAddress"
         />
 
-        <Collapse v-if="+srcAmount > 0" :loading="isLoading" :hideContent="estimateErrorTitle">
+        <Collapse class="mt-8" v-if="+srcAmount > 0" :loading="isLoading" :hideContent="estimateErrorTitle">
             <template #header>
                 <div class="route-info" data-qa="route-info">
                     <p>{{ $t('tokenOperations.routeInfo') }}:</p>
                     <div v-if="!estimateErrorTitle" class="row">
                         <FeeIcon />
-                        <span class="fee">{{ formatNumber(networkFee, 2) }}</span> <span class="symbol"> $</span>
+                        <span class="fee">{{ formatNumber(networkFee, 2) }}</span> <span class="symbol">$</span>
                         <TimeIcon />
-                        <span class="fee"> {{ '~ ' + estimateTime + ' s' }}</span>
+                        <span class="fee"> {{ '~' + estimateTime + 's' }}</span>
                         <h4>
-                            1 {{ selectedSrcToken?.symbol || '' }} =
+                            <span>1</span> {{ selectedSrcToken?.symbol || '' }} =
                             <NumberTooltip :value="estimateRate" decimals="3" />
                             {{ selectedDstToken?.symbol || '' }}
                         </h4>
@@ -119,7 +119,7 @@
             :title="$t(opTitle)"
             :disabled="!!disabledBtn"
             :loading="isWaitingTxStatusForModule || isSwapLoading"
-            class="superswap-panel__btn mt-10"
+            class="superswap-panel__btn mt-16"
             data-qa="confirm"
             @click="swap"
             size="large"
@@ -127,14 +127,13 @@
     </div>
 </template>
 <script>
-import { computed, ref, watch, onMounted, h, onBeforeUnmount } from 'vue';
+import { computed, ref, inject, watch, onMounted, h, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 
 import { SettingOutlined } from '@ant-design/icons-vue';
 
-//
 import BigNumber from 'bignumber.js';
 import { utils } from 'ethers';
 
@@ -143,7 +142,6 @@ import { getSwapTx, getBridgeTx } from '@/api/services';
 
 // Adapter
 import { ECOSYSTEMS } from '@/Adapter/config';
-import useAdapter from '@/Adapter/compositions/useAdapter';
 
 // Composition
 import useTokensList from '@/compositions/useTokensList';
@@ -152,7 +150,6 @@ import useServices from '@/compositions/useServices';
 
 // Transaction Management
 import useTransactions from '../../../Transactions/compositions/useTransactions';
-// import { STATUSES } from '../../../Transactions/shared/constants';
 
 import SelectAddress from '@/components/ui/SelectAddress';
 import Collapse from '@/components/ui/Collapse';
@@ -172,15 +169,13 @@ import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
 import { prettyNumberTooltip, formatNumber } from '@/helpers/prettyNumber';
 
-import { findBestRoute } from '@/modules/SuperSwap/baseScript';
+import { getBestRoute } from '@/api/bridge-dex';
 
-import PricesModule from '@/modules/prices/';
+import { getPriceFromProvider } from '@/shared/utils/prices';
 
 import { STATUSES, NATIVE_CONTRACT, SUPPORTED_CHAINS } from '@/shared/constants/super-swap/constants';
-import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+import { DIRECTIONS, TOKEN_SELECT_TYPES, PRICE_UPDATE_TIME } from '@/shared/constants/operations';
 import { isCorrectChain } from '@/shared/utils/operations';
-
-// import { updateWalletBalances } from '@/shared/utils/balances';
 
 export default {
     name: 'SuperSwap',
@@ -204,9 +199,12 @@ export default {
         const store = useStore();
         const router = useRouter();
         const { t } = useI18n();
+
+        const useAdapter = inject('useAdapter');
+
         const { name: module } = router.currentRoute.value;
 
-        const { walletAccount, walletAddress, chainList, currentChainInfo, setChain, validateAddress } = useAdapter();
+        const { walletAccount, walletAddress, chainList, currentChainInfo, setChain, validateAddress } = useAdapter('super-swap');
 
         const { showNotification, closeNotification } = useNotification();
 
@@ -256,6 +254,7 @@ export default {
             makeAllowanceRequest,
             makeApproveRequest,
             checkSelectedNetwork,
+            setTokenOnChangeForNet,
         } = useServices({
             module,
             moduleType: 'super-swap',
@@ -349,8 +348,8 @@ export default {
         const isTokensLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](currentChainInfo.value?.net));
         const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
 
-        const bestRouteInfo = computed(() => store.getters['swap/bestRoute']);
-        const isShowRoutesModal = computed(() => store.getters['swap/showRoutes']);
+        const selectedRouteInfo = computed(() => store.getters['bridgeDex/selectedRoute']);
+        const isShowRoutesModal = computed(() => store.getters['bridgeDex/showRoutes']);
 
         const disabledBtn = computed(
             () =>
@@ -391,7 +390,6 @@ export default {
             }
 
             selectedDstNetwork.value = network;
-
             selectedDstToken.value = null;
 
             resetValues();
@@ -408,23 +406,20 @@ export default {
                 srcNet: getSelectedNetwork(),
                 srcToken: selectedSrcToken.value,
                 dstToken: selectedDstToken.value,
+                isSameNet: selectedDstNetwork.value === selectedSrcNetwork.value,
             });
         };
 
         // =================================================================================================================
 
         const handleOnSelectToken = async (token, direction) => {
-            if (token && token.address && !token?.price) {
-                const chainId =
-                    direction === TOKEN_SELECT_TYPES.FROM ? selectedSrcNetwork.value?.chain_id : selectedDstNetwork.value?.chain_id;
+            const isPriceUpdate = new Date().getTime() - token?.priceUpdatedAt > PRICE_UPDATE_TIME;
 
-                const price = await PricesModule.Coingecko.priceByPlatformContracts({
-                    chainId: chainId,
-                    addresses: token.address,
-                });
+            if (!token?.price || isPriceUpdate) {
+                const selectedNetwork = direction === TOKEN_SELECT_TYPES.FROM ? selectedSrcNetwork : selectedDstNetwork;
 
-                const { usd = 0 } = price[token.address.toLowerCase()];
-                token.price = usd;
+                token.price = await getPriceFromProvider(token.address, selectedNetwork.value, { coingeckoId: token.coingecko_id });
+                token.priceUpdatedAt = new Date().getTime();
             }
 
             if (direction === TOKEN_SELECT_TYPES.FROM) {
@@ -444,7 +439,7 @@ export default {
         // =================================================================================================================
 
         const toggleRoutesModal = (action = false) => {
-            store.dispatch('swap/setShowRoutes', action);
+            store.dispatch('bridgeDex/setShowRoutes', action);
         };
 
         // =================================================================================================================
@@ -592,7 +587,15 @@ export default {
 
             isLoading.value = true;
 
-            let resEstimate = await findBestRoute(srcAmount.value, walletAddress.value, selectedSrcToken.value, selectedDstToken.value);
+            let resEstimate = await getBestRoute(
+                srcAmount.value,
+                walletAddress.value,
+                selectedSrcToken.value,
+                selectedDstToken.value,
+                selectedSrcNetwork.value,
+                selectedDstNetwork.value,
+                currentChainInfo.value.native_token
+            );
 
             if (resEstimate?.error) {
                 estimateErrorTitle.value = resEstimate.error;
@@ -601,10 +604,7 @@ export default {
                 return (isLoading.value = false);
             }
 
-            const checkRoute =
-                resEstimate.toToken === selectedDstToken.value &&
-                resEstimate.fromToken === selectedSrcToken.value &&
-                resEstimate.bestRoute?.fromTokenAmount === srcAmount.value;
+            const checkRoute = +resEstimate.bestRoute?.fromTokenAmount === +srcAmount.value;
 
             if (!checkRoute) {
                 return;
@@ -614,12 +614,12 @@ export default {
                 resEstimate = swapRoutes(resEstimate);
             }
 
-            store.dispatch('swap/setBestRoute', resEstimate);
+            store.dispatch('bridgeDex/setSelectedRoute', resEstimate);
 
-            currentRoute.value = resEstimate.bestRoute.routes.find((elem) => elem.status === STATUSES.SIGNING);
-
-            bestRoute.value = resEstimate.bestRoute;
+            bestRoute.value = resEstimate.bestRoute || {};
             otherRoutes.value = resEstimate.otherRoutes || [];
+
+            currentRoute.value = bestRoute.value.routes.find((elem) => elem.status === STATUSES.SIGNING);
 
             estimateErrorTitle.value = '';
 
@@ -751,7 +751,7 @@ export default {
 
         const handleOperationByType = async () => {
             const OPERATIONS = {
-                swap: makeSwapRequest,
+                dex: makeSwapRequest,
                 bridge: makeBridgeTx,
             };
 
@@ -866,7 +866,7 @@ export default {
 
                 if (!currentRoute.value) {
                     isBalanceError.value = '';
-                    return store.dispatch('swap/setBestRoute', null);
+                    return store.dispatch('bridgeDex/setSelectedRoute', null);
                 }
 
                 if (currentRoute.value.net !== selectedSrcNetwork.value.net) {
@@ -905,11 +905,13 @@ export default {
             setTokenOnChange();
         });
 
-        watch(selectedSrcNetwork, () => {
+        watch(selectedSrcNetwork, (newValue, oldValue) => {
             resetValues();
             onSetAmount(null);
-            selectedSrcToken.value = null;
-            setTokenOnChange();
+            if (newValue?.net !== oldValue?.net) {
+                selectedSrcToken.value = null;
+                selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
+            }
             getEstimateInfo();
         });
 
@@ -921,7 +923,9 @@ export default {
             if (!srcAmount.value) {
                 return;
             }
+
             isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance);
+
             getEstimateInfo();
         });
 
@@ -939,18 +943,16 @@ export default {
                 return;
             }
 
-            console.log('bestRouteInfo', bestRouteInfo.value);
-
-            bestRoute.value = bestRouteInfo.value.bestRoute;
-            otherRoutes.value = bestRouteInfo.value.otherRoutes;
+            bestRoute.value = selectedRouteInfo.value.bestRoute;
+            otherRoutes.value = selectedRouteInfo.value.otherRoutes;
             currentRoute.value = bestRoute.value.routes.find((elem) => elem.status === STATUSES.SIGNING);
-            srcAmount.value = bestRouteInfo.value.bestRoute?.fromTokenAmount;
-            dstAmount.value = bestRouteInfo.value.bestRoute?.toTokenAmount;
+            srcAmount.value = selectedRouteInfo.value.bestRoute?.fromTokenAmount;
+            dstAmount.value = selectedRouteInfo.value.bestRoute?.toTokenAmount;
 
-            networkFee.value = prettyNumberTooltip(bestRouteInfo.value.bestRoute?.estimateFeeUsd, 6);
+            networkFee.value = prettyNumberTooltip(selectedRouteInfo.value.bestRoute?.estimateFeeUsd, 6);
 
             estimateRate.value = prettyNumberTooltip(
-                bestRouteInfo.value.bestRoute.toTokenAmount / bestRouteInfo.value.bestRoute.fromTokenAmount,
+                selectedRouteInfo.value.bestRoute.toTokenAmount / selectedRouteInfo.value.bestRoute.fromTokenAmount,
                 6
             );
         });
@@ -958,9 +960,6 @@ export default {
         //
         watch(currentRoute, async () => {
             console.log('-'.repeat(20));
-            console.log('currentRoute', currentRoute.value);
-            console.log('-'.repeat(20));
-
             if (!allowanceForToken.value) {
                 await requestAllowance(currentRoute.value?.service);
             }
@@ -982,12 +981,6 @@ export default {
                 return;
             }
         });
-
-        //         if ((!currentChainInfo.value.net || !SUPPORTED_CHAINS.includes(currentChainInfo.value?.net)) && !isShowRoutesModal.value) {
-        //             router.push('/main');
-        //         }
-        //     }
-        // );
 
         watch(isNeedApprove, () => {
             if (isNeedApprove.value && opTitle.value !== 'tokenOperations.switchNetwork') {
@@ -1014,6 +1007,8 @@ export default {
             selectedDstNetwork.value = null;
             selectedDstToken.value = null;
             receiverAddress.value = '';
+            srcAmount.value = null;
+            dstAmount.value = null;
         });
 
         return {
@@ -1071,30 +1066,18 @@ export default {
 </script>
 <style lang="scss">
 .superswap-panel {
-    width: 660px;
+    width: 524px;
     position: relative;
-
-    .mt-10 {
-        margin-top: 10px;
-    }
-
-    .mt-14 {
-        margin-top: 14px;
-    }
-
-    .ml-8 {
-        margin-left: 8px;
-    }
 
     .swap-btn {
         @include pageFlexRow;
         justify-content: center;
         position: absolute;
-        left: 120px;
-        top: 138px;
+        left: 54px;
+        top: 113px;
         z-index: 5;
-        height: 54px;
-        width: 54px;
+        height: 56px;
+        width: 56px;
         border-radius: 50%;
         background-color: var(--#{$prefix}swap-btn-bg-color);
         border: 5px solid var(--#{$prefix}main-background);
@@ -1113,10 +1096,10 @@ export default {
         justify-content: center;
         position: absolute;
         cursor: not-allowed;
-        top: -60px;
+        top: -50px;
         right: 0;
-        height: 40px;
-        width: 40px;
+        height: 32px;
+        width: 32px;
         border-radius: 50%;
         z-index: 15;
         background-color: var(--#{$prefix}icon-secondary-bg-color);
@@ -1139,7 +1122,7 @@ export default {
         }
 
         p {
-            color: var(--#{$prefix}mute-text);
+            color: var(--#{$prefix}accordion-title);
             font-size: var(--#{$prefix}small-lg-fs);
             line-height: var(--#{$prefix}default-fs);
             font-weight: 600;
@@ -1153,22 +1136,22 @@ export default {
             white-space: nowrap;
             text-overflow: ellipsis;
             overflow: hidden;
-            width: 520px;
+            max-width: 400px;
         }
 
-        .fee,
-        .symbol {
+        .fee {
             color: var(--#{$prefix}warning);
             font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 600;
         }
 
         .symbol {
-            margin-left: 2px;
+            font-weight: 300;
+            color: var(--#{$prefix}base-text);
         }
 
         svg {
-            margin: 0 6px 0 16px;
+            margin: 0 4px 0 12px;
         }
 
         svg path {
@@ -1177,16 +1160,21 @@ export default {
 
         h4 {
             margin-left: 16px;
-            font-weight: 600;
+            font-weight: 400;
             color: var(--#{$prefix}base-text);
+
+            span {
+                color: var(--#{$prefix}base-text);
+                font-weight: 600;
+            }
         }
     }
 
     .routes {
         @include pageFlexRow;
         padding: 12px 0;
-        width: 94%;
-        margin-left: 24px;
+        width: 96%;
+
         border-top: 2px solid var(--#{$prefix}collapse-border-color);
 
         div {
@@ -1204,6 +1192,7 @@ export default {
             font-size: var(--#{$prefix}small-lg-fs);
             color: var(--#{$prefix}base-text);
             font-weight: 600;
+            margin: 0 10px 0 2px;
         }
 
         svg.arrow {
@@ -1213,8 +1202,9 @@ export default {
         }
 
         svg.expand {
+            cursor: pointer;
             fill: var(--#{$prefix}base-text);
-            margin-left: 12px;
+            margin-left: 4px;
             @include animateEasy;
         }
     }
@@ -1241,17 +1231,6 @@ export default {
         &__row {
             display: flex;
         }
-    }
-    .other-routes {
-        background-color: var(--#{$prefix}tag-01);
-        border-radius: 15px;
-        padding: 4px 10px;
-        color: var(--#{$prefix}info);
-        font-weight: 600;
-        position: absolute;
-        right: 0;
-        bottom: 8px;
-        cursor: pointer;
     }
 
     &__btn {

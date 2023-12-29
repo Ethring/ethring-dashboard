@@ -4,9 +4,7 @@
             <div class="recipient">{{ $t('tokenOperations.recipient') }}</div>
             <div class="info-wrap">
                 <div class="info">
-                    <div class="network">
-                        <img class="network-logo" alt="network-logo" :src="selectedNetwork?.logo" />
-                    </div>
+                    <img class="network" alt="network-logo" :src="selectedNetwork?.logo" />
                     <input
                         v-model="address"
                         :placeholder="placeholder"
@@ -15,6 +13,7 @@
                         v-debounce:1s="onInput"
                         data-qa="input-address"
                         class="input-address"
+                        :class="inputClass"
                     />
                     <div v-if="address?.length" class="select-address__clear" @click="clearValue">
                         <ClearIcon />
@@ -29,6 +28,8 @@ import ClearIcon from '@/assets/icons/app/xmark.svg';
 
 import { ref, watch, onMounted, onUpdated, computed } from 'vue';
 import { useStore } from 'vuex';
+
+import { SIZES_CLASSNAMES, MAX_SIZE } from '@/shared/constants/operations';
 
 export default {
     name: 'SelectAddress',
@@ -65,6 +66,7 @@ export default {
         const address = ref(props.value);
         const isError = ref(props.error);
 
+        const inputClass = computed(() => getClassName());
         const selectedSrcNetwork = computed(() => store.getters['tokenOps/srcNetwork']);
         const selectedDstNetwork = computed(() => store.getters['tokenOps/dstNetwork']);
 
@@ -92,30 +94,19 @@ export default {
             }
         };
 
-        watch(
-            () => props.onReset,
-            () => resetAddress()
-        );
-
-        watch(
-            () => props.error,
-            () => {
-                isError.value = props.error;
+        const getClassName = () => {
+            if (!address.value) {
+                return '';
             }
-        );
 
-        const onFocus = () => {
-            // placeholder.value = '';
-            focused.value = true;
+            const size = Math.round(address.value.length / 5) * 5;
+
+            return SIZES_CLASSNAMES[size > MAX_SIZE ? MAX_SIZE : size] || '';
         };
 
-        onMounted(() => {
-            if (props.value) {
-                address.value = props.value;
-            }
-        });
-
-        onUpdated(() => resetAddress());
+        const onFocus = () => {
+            focused.value = true;
+        };
 
         const onInput = () => {
             emit('setAddress', address.value);
@@ -124,7 +115,6 @@ export default {
 
         const onBlur = () => {
             emit('setAddress', address.value);
-            // placeholder.value = 'Address';
             focused.value = false;
         };
 
@@ -145,6 +135,26 @@ export default {
             emit('setAddress', address.value);
         };
 
+        watch(
+            () => props.onReset,
+            () => resetAddress()
+        );
+
+        watch(
+            () => props.error,
+            () => {
+                isError.value = props.error;
+            }
+        );
+
+        onMounted(() => {
+            if (props.value) {
+                address.value = props.value;
+            }
+        });
+
+        onUpdated(() => resetAddress());
+
         return {
             active,
             focused,
@@ -153,6 +163,7 @@ export default {
             address,
             placeholder: addressPlaceholder,
 
+            inputClass,
             clickAway,
             selectAddress,
             onInput,
@@ -167,47 +178,36 @@ export default {
 .select-address {
     position: relative;
 
-    .name {
-        font-size: var(--#{$prefix}default-fs);
-        color: var(--#{$prefix}black);
-        font-weight: 400;
-    }
-
     &__panel {
         position: relative;
         display: flex;
         flex-direction: column;
         background: var(--#{$prefix}select-bg-color);
-        border-radius: 16px;
-        padding: 16px 24px;
+        border-radius: 8px;
+        padding: 10px 16px;
+        height: 80px;
         box-sizing: border-box;
-        border: 2px solid transparent;
+        border: 1px solid transparent;
         transition: 0.2s;
 
         .recipient {
             @include pageFlexRow;
 
             color: var(--#{$prefix}select-label-color);
-            font-weight: 600;
-            height: 32px;
-            max-height: 32px;
-        }
-
-        .address {
-            color: var(--#{$prefix}select-label-color);
-            font-weight: 400;
+            font-weight: 500;
+            line-height: 20px;
         }
 
         .info-wrap {
             @include pageFlexRow;
             justify-content: space-between;
+            margin-top: 2px;
         }
 
         .info {
             @include pageFlexRow;
 
             width: 95%;
-            margin-top: 8px;
         }
 
         .input-address {
@@ -216,53 +216,50 @@ export default {
             outline: none;
             background: transparent;
             font-size: var(--#{$prefix}h6-fs);
-            font-weight: 500;
+            font-weight: 400;
             color: var(--#{$prefix}primary-text);
         }
 
-        .network {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            width: 40px;
-            min-width: 40px;
-            height: 40px;
-
-            border-radius: 50%;
-            margin-right: 10px;
-
-            &-logo {
-                width: 80%;
-                height: 80%;
-                border-radius: 50%;
-            }
+        .medium-size {
+            font-size: var(--#{$prefix}medium-fs) !important;
+        }
+        .medium-md-size {
+            font-size: var(--#{$prefix}default-fs) !important;
         }
 
-        .name {
-            font-size: var(--#{$prefix}h2-fs);
-            font-weight: 600;
-            color: var(--#{$prefix}select-placeholder-text);
-            user-select: none;
+        .small-size {
+            font-size: var(--#{$prefix}small-md-fs) !important;
+        }
+
+        .small-sm-size {
+            font-size: var(--#{$prefix}small-sm-fs) !important;
+        }
+
+        .network {
+            width: 32px;
+            height: 32px;
+            margin-right: 6px;
+
+            border-radius: 50%;
         }
     }
 
     &__clear {
         position: absolute;
-        right: 32px;
+        right: 16px;
         cursor: pointer;
     }
 
     &.focused {
         .select-address__panel {
-            border: 2px solid var(--#{$prefix}select-active-border-color);
+            border: 1px solid var(--#{$prefix}select-active-border-color);
             background: var(--#{$prefix}select-bg-color);
         }
     }
 
     &.active {
         .select-address__panel {
-            border: 2px solid var(--#{$prefix}select-active-border-color);
+            border: 1px solid var(--#{$prefix}select-active-border-color);
             background: var(--#{$prefix}select-bg-color);
 
             svg.arrow {
@@ -272,9 +269,8 @@ export default {
     }
 
     &.error {
-        .select-address__panel {
-            border-color: var(--#{$prefix}danger-color);
-            background: var(--#{$prefix}danger-op-01);
+        input {
+            color: var(--#{$prefix}danger-color) !important;
         }
     }
 }

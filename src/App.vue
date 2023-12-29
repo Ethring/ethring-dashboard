@@ -2,8 +2,8 @@
     <a-config-provider>
         <LoadingOverlay v-if="isSpinning" :spinning="isSpinning" :tip="loadingTitle" />
         <a-layout>
-            <a-layout-sider class="sidebar" v-model:collapsed="collapsed" collapsible>
-                <Sidebar :collapsed="collapsed" />
+            <a-layout-sider class="sidebar" v-model:collapsed="collapsed" collapsible :trigger="null">
+                <Sidebar :collapsed="collapsed" @change-collapse="(val) => (collapsed = val)" />
             </a-layout-sider>
             <a-layout class="layout">
                 <a-layout-header class="header">
@@ -22,12 +22,10 @@
 </template>
 
 <script>
-import { onMounted, onUpdated, onBeforeMount, watchEffect, watch, ref, computed } from 'vue';
+import { onMounted, onUpdated, watch, ref, computed, inject, onBeforeMount, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
-import { useRoute, useRouter } from 'vue-router';
 
 import useInit from '@/compositions/useInit/';
-import useAdapter from '@/Adapter/compositions/useAdapter';
 import { ECOSYSTEMS } from '@/Adapter/config';
 
 import Socket from './modules/Socket';
@@ -39,7 +37,6 @@ import NavBar from '@/components/app/NavBar';
 import Sidebar from '@/components/app/Sidebar';
 import LoadingOverlay from '@/components/ui/LoadingOverlay';
 
-import redirectOrStay from '@/shared/utils/routes';
 import { delay } from '@/helpers/utils';
 
 export default {
@@ -53,9 +50,8 @@ export default {
     },
 
     setup() {
+        const useAdapter = inject('useAdapter');
         const store = useStore();
-        const route = useRoute();
-        const router = useRouter();
 
         const lastConnectedCall = ref(false);
 
@@ -83,7 +79,7 @@ export default {
 
         const isOpen = computed(() => store.getters['adapters/isOpen']('wallets'));
 
-        const showRoutesModal = computed(() => store.getters['swap/showRoutes']);
+        const showRoutesModal = computed(() => store.getters['bridgeDex/showRoutes']);
 
         const loadingTitle = computed(() => {
             if (isConfigLoading.value) {
@@ -130,14 +126,18 @@ export default {
         };
 
         const callInit = async () => {
-            if (isInitCall.value[walletAccount.value]) {
-                return;
-            }
-
             const { ecosystem, walletModule } = currentChainInfo.value || {};
 
             if (!walletModule || !ecosystem || !walletAddress.value || showRoutesModal.value) {
                 return setTimeout(callInit, 1000);
+            }
+
+            isConfigLoading.value = true;
+
+            await store.dispatch('networks/initZometNets', ecosystem.toLowerCase());
+
+            if (isInitCall.value[walletAccount.value]) {
+                return;
             }
 
             store.dispatch('tokens/setLoader', true);
@@ -154,9 +154,25 @@ export default {
             await useInit(store, { account: walletAccount.value, addressesWithChains, currentChainInfo: currentChainInfo.value });
         };
 
+        // ==========================================================================================
+
+        const unWatchChainInfo = watch(currentChainInfo, async () => await callSubscription());
+
+        const unWatchAcc = watch(walletAccount, async () => {
+            store.dispatch('tokenOps/setSrcToken', null);
+            store.dispatch('tokenOps/setDstToken', null);
+
+            await callInit();
+            await callSubscription();
+        });
+
+        const updateCollapsedStateOnResize = () => (collapsed.value = window.innerWidth <= 1024);
+        window.addEventListener('resize', updateCollapsedStateOnResize);
+
+        // ==========================================================================================
+
         onBeforeMount(async () => {
-            isConfigLoading.value = true;
-            await store.dispatch('networks/initZometNets');
+            await store.dispatch('bridgeDex/getServices');
         });
 
         onMounted(async () => {
@@ -185,48 +201,19 @@ export default {
             }
         });
 
-        const updateCollapsedState = () => {
-            collapsed.value = window.innerWidth <= 1024;
-        };
-
-        window.addEventListener('resize', updateCollapsedState);
-
-        watchEffect(async () => {
-            if (isConnecting) {
-                return;
-            }
-
-            const isStay = await redirectOrStay(route.path, currentChainInfo.value);
-
-            if (!currentChainInfo.value) {
-                return router.push('/main');
-            }
-            if (!isStay) {
-                return router.push('/main');
-            }
-
-            const { net = null } = currentChainInfo.value || {};
-
-            if (!net) {
-                return router.push('/main');
-            }
-        });
-
-        watch(currentChainInfo, async () => await callSubscription());
-
-        watch(walletAccount, async () => {
-            store.dispatch('tokenOps/setSrcToken', null);
-            store.dispatch('tokenOps/setDstToken', null);
-
-            await callInit();
-            await callSubscription();
-        });
-
         onUpdated(async () => {
             if (currentChainInfo.value) {
                 await callSubscription();
                 return await callInit();
             }
+        });
+
+        onBeforeUnmount(() => {
+            window.removeEventListener('resize', updateCollapsedStateOnResize);
+
+            // Stop watching
+            unWatchChainInfo();
+            unWatchAcc();
         });
 
         return {
@@ -254,7 +241,11 @@ export default {
 }
 
 .header {
-    height: 80px;
+    width: 75%;
+    margin: 0 auto;
+
+    height: 48px;
+    padding: 0;
 
     position: sticky;
     top: 0;
@@ -265,6 +256,6 @@ export default {
 
 .content {
     width: 75%;
-    margin: 20px auto;
+    margin: 44px auto 0;
 }
 </style>

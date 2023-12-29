@@ -8,10 +8,18 @@
                 :current="selectedSrcNetwork"
                 @select="(network) => handleOnSelectNetwork(network, DIRECTIONS.SOURCE)"
             />
+            <div
+                class="simple-bridge__switch"
+                :class="{ disabled: isUpdateSwapDirection || !selectedDstNetwork }"
+                @click="swapTokensDirection"
+            >
+                <SwapIcon />
+            </div>
             <SelectNetwork
                 label="To"
                 placeholder="Select network"
                 :items="dstNets"
+                class="select-group-to"
                 :current="selectedDstNetwork"
                 @select="(network) => handleOnSelectNetwork(network, DIRECTIONS.DESTINATION)"
             />
@@ -20,14 +28,14 @@
         <SelectAmount
             v-if="selectedSrcNetwork"
             :value="selectedSrcToken"
-            :selected-network="selectedSrcNetwork"
             :error="!!isBalanceError"
             :on-reset="resetSrcAmount"
             :disabled="!selectedSrcToken"
             :label="$t('tokenOperations.transferFrom')"
             :is-token-loading="isTokensLoadingForSrc"
+            :is-update="isUpdateSwapDirection"
             :amount-value="srcAmount"
-            class="mt-10"
+            class="mt-8"
             @setAmount="onSetAmount"
             @clickToken="onSetSrcToken"
         />
@@ -39,11 +47,12 @@
             :value="selectedDstToken"
             :is-amount-loading="isEstimating"
             :is-token-loading="isTokensLoadingForDst"
+            :is-update="isUpdateSwapDirection"
             :label="$t('tokenOperations.transferTo')"
             :disabled-value="dstAmount"
             :on-reset="resetDstAmount"
             :amount-value="dstAmount"
-            class="mt-10"
+            class="mt-8"
             @clickToken="onSetDstToken"
         />
 
@@ -52,15 +61,15 @@
             id="isSendToAnotherAddress"
             v-model:value="isSendToAnotherAddress"
             :label="`Receive ${selectedDstToken?.symbol} to another wallet`"
-            class="mt-10"
+            class="mt-8"
         />
 
         <SelectAddress
-            v-if="isSendToAnotherAddress"
+            v-if="isSendToAnotherAddress && selectedDstNetwork"
             :selected-network="selectedDstNetwork"
             :error="!!errorAddress"
             placeholder="0x..."
-            class="mt-10"
+            class="mt-8"
             :value="receiverAddress"
             :on-reset="clearAddress"
             @setAddress="onSetAddress"
@@ -80,14 +89,14 @@
             :title="$t(opTitle)"
             :disabled="!!disabledBtn"
             :loading="isWaitingTxStatusForModule || isLoading"
-            class="simple-bridge__btn mt-10"
+            class="simple-bridge__btn mt-16"
             @click="handleOnConfirm"
             size="large"
         />
     </div>
 </template>
 <script>
-import { h, ref, watch, computed, onBeforeUnmount, onMounted, onBeforeMount } from 'vue';
+import { h, ref, inject, watch, computed, onBeforeUnmount, onMounted, onBeforeMount } from 'vue';
 
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
@@ -100,7 +109,6 @@ import { SettingOutlined } from '@ant-design/icons-vue';
 
 // Adapter
 import { ECOSYSTEMS } from '@/Adapter/config';
-import useAdapter from '@/Adapter/compositions/useAdapter';
 
 // Notification
 import useNotification from '@/compositions/useNotification';
@@ -125,6 +133,8 @@ import Checkbox from '@/components/ui/Checkbox';
 import Button from '@/components/ui/Button';
 import EstimateInfo from '@/components/ui/EstimateInfo.vue';
 
+import SwapIcon from '@/assets/icons/dashboard/swap.svg';
+
 import { formatNumber } from '@/helpers/prettyNumber';
 
 import { getServices, SERVICE_TYPE } from '@/config/services';
@@ -143,10 +153,12 @@ export default {
         Button,
         Checkbox,
         EstimateInfo,
+        SwapIcon,
     },
     setup() {
         const store = useStore();
         const router = useRouter();
+        const useAdapter = inject('useAdapter');
 
         const { t } = useI18n();
 
@@ -207,6 +219,7 @@ export default {
             selectedDstNetwork,
 
             onlyWithBalance,
+            isUpdateSwapDirection,
 
             srcAmount,
             dstAmount,
@@ -267,7 +280,6 @@ export default {
         const clearAddress = ref(false);
         const balanceUpdated = ref(false);
         const isSendToAnotherAddress = ref(false);
-
         const estimateErrorTitle = ref('');
 
         const resetSrcAmount = ref(false);
@@ -333,8 +345,12 @@ export default {
         // =================================================================================================================
 
         const handleOnSelectNetwork = async (network, direction) => {
+            if (!network.net) {
+                return;
+            }
             if (direction === DIRECTIONS.SOURCE) {
                 selectedSrcNetwork.value = network;
+                selectedSrcToken.value = null;
                 selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
 
                 srcAmount.value && (await onSetAmount(srcAmount.value));
@@ -429,8 +445,12 @@ export default {
             srcAmount.value = value;
             txError.value = '';
             dstAmount.value = '';
+            isUpdateSwapDirection.value = true;
 
             if (!+value) {
+                setTimeout(() => {
+                    isUpdateSwapDirection.value = false;
+                }, 500);
                 return (isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance));
             }
 
@@ -450,6 +470,32 @@ export default {
             protocolFeeMain.value = baseFeeInfo('', '', '', '', '', '');
 
             return await makeEstimateBridgeRequest();
+        };
+
+        // =================================================================================================================
+
+        const swapTokensDirection = async () => {
+            if (isUpdateSwapDirection.value || !selectedDstNetwork.value) {
+                return;
+            }
+
+            clearApproveForService();
+
+            const fromNetwork = { ...selectedSrcNetwork.value };
+            const toNetwork = { ...selectedDstNetwork.value };
+
+            const fromToken = { ...selectedSrcToken.value };
+            const toToken = { ...selectedDstToken.value };
+
+            isUpdateSwapDirection.value = true;
+
+            selectedSrcNetwork.value = toNetwork;
+            selectedDstNetwork.value = fromNetwork;
+
+            selectedSrcToken.value = toToken;
+            selectedDstToken.value = fromToken;
+
+            await onSetAmount(srcAmount.value);
         };
 
         // =================================================================================================================
@@ -530,6 +576,7 @@ export default {
         const makeEstimateBridgeRequest = async () => {
             if (!isAllowForRequest() || !selectedDstNetwork.value || !+srcAmount.value === 0) {
                 isEstimating.value = false;
+                isUpdateSwapDirection.value = false;
                 return (isLoading.value = false);
             }
 
@@ -556,10 +603,18 @@ export default {
 
             const response = await estimateBridge(params);
 
+            isUpdateSwapDirection.value = false;
+
             if (response.error) {
                 isEstimating.value = false;
-
+                isLoading.value = false;
                 return (estimateErrorTitle.value = response.error);
+            }
+
+            const checkRoute = +response?.fromTokenAmount === +srcAmount.value;
+
+            if (!checkRoute) {
+                return;
             }
 
             isEstimating.value = false;
@@ -582,7 +637,7 @@ export default {
 
             rateInfo.value = {
                 title: 'tokenOperations.rate',
-                symbolBetween: '=',
+                symbolBetween: '~',
                 fromAmount: '1',
                 fromSymbol: selectedSrcToken.value.symbol,
                 toAmount: formatNumber(response.toTokenAmount / response.fromTokenAmount, 6),
@@ -659,13 +714,15 @@ export default {
                     toTokenAddress: selectedDstToken.value.address,
                 };
 
+                const addresses = JSON.parse(JSON.stringify(addressesByChains.value || {}));
+
                 if (receiverAddress.value && receiverAddress.value !== '' && isSendToAnotherAddress.value) {
                     params.recipientAddress = receiverAddress.value;
-                    addressesByChains.value[selectedDstNetwork.value?.net] = receiverAddress.value;
+                    addresses[selectedDstNetwork.value?.net] = receiverAddress.value;
                 }
 
                 if (selectedService.value.id === 'bridge-skip') {
-                    params.ownerAddresses = JSON.stringify(addressesByChains.value);
+                    params.ownerAddresses = JSON.stringify(addresses);
                 } else {
                     params.ownerAddress = walletAddress.value;
                     params.recipientAddress = receiverAddress.value || walletAddress.value;
@@ -888,7 +945,6 @@ export default {
         });
 
         watch(isTokensLoadingForDst, () => {
-            selectedDstToken.value = null;
             onlyWithBalance.value = false;
             selectedDstToken.value = setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
         });
@@ -902,6 +958,9 @@ export default {
         });
 
         watch(selectedSrcNetwork, (newValue, oldValue) => {
+            if (isUpdateSwapDirection.value) {
+                return;
+            }
             if (newValue?.net !== oldValue?.net) {
                 selectedSrcToken.value = null;
                 selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
@@ -917,6 +976,8 @@ export default {
             if (!selectedSrcToken.value) {
                 return;
             }
+
+            isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance);
 
             if (!allowanceForToken.value && ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem) {
                 await requestAllowance();
@@ -1021,6 +1082,8 @@ export default {
                 selectedDstNetwork.value = null;
                 selectedDstToken.value = null;
                 receiverAddress.value = '';
+                srcAmount.value = null;
+                dstAmount.value = null;
             }
         });
 
@@ -1040,6 +1103,7 @@ export default {
             resetDstAmount,
 
             isSendToAnotherAddress,
+            isUpdateSwapDirection,
 
             chainList,
 
@@ -1083,28 +1147,89 @@ export default {
             onSetDstToken,
             onSetAmount,
             handleOnConfirm,
+            swapTokensDirection,
         };
     },
 };
 </script>
 <style lang="scss">
 .simple-bridge {
-    width: 660px;
-
-    .mt-10 {
-        margin-top: 10px;
-    }
+    width: 524px;
+    position: relative;
 
     .select-group {
         @include pageFlexRow;
         justify-content: space-between;
+        position: relative;
 
         .select {
             width: 48%;
 
-            .name {
+            &__panel .name {
                 font-size: var(--#{$prefix}h6-fs);
                 line-height: 26px;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                width: 160px;
+            }
+
+            &__items {
+                top: 80px;
+                border-radius: 8px;
+                border-top: 1px solid var(--#{$prefix}select-active-border-color);
+            }
+        }
+        &-to {
+            .select__items {
+                left: -272px;
+            }
+        }
+    }
+    &__switch {
+        @include pageFlexRow;
+        justify-content: center;
+
+        @include animateEasy;
+
+        cursor: pointer;
+        position: absolute;
+        z-index: 100;
+
+        width: 48px;
+        height: 48px;
+
+        border-radius: 50%;
+        left: calc(50% - 24px);
+        top: 16px;
+        transform: rotate(90deg);
+
+        background: var(--#{$prefix}swap-btn-bg-color);
+        border: 4px solid var(--#{$prefix}main-background);
+
+        svg {
+            @include animateEasy;
+            path {
+                fill: var(--#{$prefix}btn-bg-color);
+            }
+        }
+
+        &:not(.disabled):hover {
+            background: var(--#{$prefix}primary);
+            border: 4px solid var(--#{$prefix}banner-logo-color);
+
+            path {
+                fill: var(--#{$prefix}arrow-color);
+            }
+        }
+
+        &.disabled {
+            pointer-events: none;
+            background: var(--#{$prefix}btn-disabled);
+            svg {
+                path {
+                    fill: var(--#{$prefix}border-color);
+                }
             }
         }
     }

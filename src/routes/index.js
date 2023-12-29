@@ -1,56 +1,107 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
-import guards from './guards';
-
-import Dashboard from '@/views/Dashboard.vue';
-
 const routes = [
     {
+        path: '',
+        redirect: '/main',
+    },
+    {
         path: '/',
-        name: 'Overview',
-        component: Dashboard,
+        redirect: '/main',
     },
     {
         path: '/main',
         name: 'Overview',
-        component: Dashboard,
-    },
-    {
-        path: '/swap',
-        name: 'Swap Page',
         meta: {
-            isAuth: true,
+            key: 'main',
         },
-        component: () => import('../layouts/SwapLayout.vue'),
+        component: () => import('../views/Dashboard.vue'),
     },
     {
         path: '/send',
         name: 'Zomet - Send',
         meta: {
+            key: 'send',
             isAuth: true,
         },
-        component: () => import('../layouts/SendLayout.vue'),
+        component: () => import('../layouts/ModulesLayout.vue'),
+        props: {
+            component: 'SimpleSend',
+            tabs: [
+                {
+                    title: 'simpleSend.title',
+                    active: true,
+                    to: '/send',
+                },
+                {
+                    title: 'simpleBridge.title',
+                    active: false,
+                    to: '/bridge',
+                },
+            ],
+        },
     },
     {
         path: '/bridge',
         name: 'Zomet - Bridge',
         meta: {
             isAuth: true,
+            key: 'bridge',
         },
-        component: () => import('../layouts/BridgeLayout.vue'),
+        component: () => import('../layouts/ModulesLayout.vue'),
+        props: {
+            component: 'SimpleBridge',
+            tabs: [
+                {
+                    title: 'simpleSend.title',
+                    active: false,
+                    to: '/send',
+                },
+                {
+                    title: 'simpleBridge.title',
+                    active: true,
+                    to: '/bridge',
+                },
+            ],
+        },
     },
     {
-        path: '/connect-wallet',
-        name: 'Connect wallet',
-        component: () => import('../views/ConnectWallet.vue'),
+        path: '/swap',
+        name: 'Zomet - Swap',
+        meta: {
+            isAuth: true,
+            key: 'swap',
+        },
+        component: () => import('../layouts/ModulesLayout.vue'),
+        props: {
+            component: 'SimpleSwap',
+            tabs: [
+                {
+                    title: 'simpleSwap.title',
+                    active: true,
+                    to: '/swap',
+                },
+            ],
+        },
     },
     {
         path: '/super-swap',
-        name: 'Super Swap Page',
+        name: 'Zomet - Super Swap',
         meta: {
             isAuth: true,
+            key: 'superSwap',
         },
-        component: () => import('../layouts/SuperSwapLayout.vue'),
+        component: () => import('../layouts/ModulesLayout.vue'),
+        props: {
+            component: 'SuperSwap',
+            tabs: [
+                {
+                    title: 'superSwap.title',
+                    active: true,
+                    to: '/super-swap',
+                },
+            ],
+        },
     },
     {
         path: '/:module/select-token',
@@ -68,8 +119,6 @@ const router = createRouter({
     history: createWebHistory(),
     routes,
 });
-
-router.beforeEach(guards);
 
 router.beforeResolve((to, from, next) => {
     if (to.name) {

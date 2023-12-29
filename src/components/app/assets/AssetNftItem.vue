@@ -309,7 +309,6 @@ export default {
         cursor: pointer;
         padding-bottom: 10px;
         margin-bottom: 10px;
-        border-bottom: 1px solid var(--#{$prefix}border-color-op-05);
     }
 
     .column-1,
@@ -327,7 +326,6 @@ export default {
         color: var(--#{$prefix}primary-text);
 
         span {
-            margin-right: 2px;
             font-weight: 300;
             font-size: var(--#{$prefix}small-md-fs);
             color: var(--#{$prefix}secondary-text);
@@ -338,7 +336,7 @@ export default {
     }
     .column-3 {
         width: 12%;
-        justify-content: start;
+        justify-content: end;
         padding-left: 16px;
     }
 
@@ -350,6 +348,7 @@ export default {
         cursor: pointer;
         stroke: var(--#{$prefix}select-icon-color);
         transform: rotate(0);
+        margin-left: 8px;
         @include animateEasy;
     }
 

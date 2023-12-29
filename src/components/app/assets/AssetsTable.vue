@@ -59,17 +59,21 @@ export default {
 <style lang="scss">
 .assets-table {
     * {
-        transition: background-color 0.24s ease-in-out !important;
+        transition: background-color 0.2s ease-in-out !important;
     }
 
     tr,
+    tbody,
+    table,
     td {
         background-color: var(--#{$prefix}secondary-background) !important;
     }
 
     .ant-table-cell {
+        height: 48px;
         vertical-align: middle !important;
-        padding: 10px 0 6px !important;
+        padding: 0 !important;
+        background-color: var(--#{$prefix}secondary-background) !important;
     }
 
     .ant-table-tbody > tr:last-child > td {
@@ -77,8 +81,9 @@ export default {
         padding-bottom: 0 !important;
     }
 
-    .ant-table-tbody tr td {
-        border-top-color: var(--#{$prefix}border-color-op-05) !important;
+    .ant-table-tbody tr td,
+    .ant-table-tbody tr {
+        border: none !important;
     }
 
     @keyframes fadeIn {
@@ -88,10 +93,6 @@ export default {
         to {
             opacity: 1;
         }
-    }
-
-    .ant-table-row {
-        animation: fadeIn 0.5s ease-in-out;
     }
 }
 </style>

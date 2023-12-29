@@ -9,8 +9,7 @@
     </a-result>
 </template>
 <script>
-import useAdapter from '@/Adapter/compositions/useAdapter';
-
+import { inject } from 'vue';
 import Button from '@/components/ui/Button';
 
 export default {
@@ -19,6 +18,8 @@ export default {
         Button,
     },
     setup() {
+        const useAdapter = inject('useAdapter');
+
         const { setChain, connectedWallet } = useAdapter();
 
         const switchNetwork = async () => {

@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import useAdapter from '@/Adapter/compositions/useAdapter';
+import { inject } from 'vue';
 
 import Assets from '@/components/app/Assets';
 import WalletInfoLarge from '@/components/app/WalletInfoLarge';
@@ -22,6 +22,7 @@ export default {
         Assets,
     },
     setup() {
+        const useAdapter = inject('useAdapter');
         const { walletAddress } = useAdapter();
 
         return {
@@ -36,26 +37,24 @@ export default {
         position: relative;
         background-color: var(--#{$prefix}banner-color);
 
-        padding: 24px;
+        padding: 18px 24px;
         box-sizing: border-box;
 
         border-radius: 16px;
-
-        min-height: 128px;
+        height: 80px;
 
         display: flex;
         justify-content: space-between;
         align-items: center;
 
-        padding-bottom: 20px;
         overflow: hidden;
 
         background-image: url('~@/assets/images/wallet-info/background.png');
-        background-size: contain;
+        background-size: 60%;
         background-repeat: no-repeat;
-        background-position: right;
+        background-position: top right;
 
-        margin-bottom: 30px;
+        margin-bottom: 24px;
     }
 
     &__controls {

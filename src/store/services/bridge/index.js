@@ -1,9 +1,9 @@
-import { fetchData } from '@/api/fetchData';
 import axios from 'axios';
+
+import { fetchData } from '@/api/fetchData';
 import { getServices, SERVICE_TYPE } from '@/config/services';
 
 const DEFAULT_URL = process.env.VUE_APP_DEBRIDGE_API;
-
 const DEFAULT_SERVICE_ID = 'bridge-debridge';
 
 const TYPES = {

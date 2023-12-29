@@ -19,7 +19,7 @@ export default {
 
         &__title {
             color: var(--#{$prefix}black);
-            font-size: var(--#{$prefix}h1-fs);
+            font-size: var(--#{$prefix}h3-fs);
             font-weight: 600;
         }
     }

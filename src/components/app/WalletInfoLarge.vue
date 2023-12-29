@@ -1,9 +1,5 @@
 <template>
     <div class="wallet-info">
-        <div class="wallet-info__network">
-            <WalletIcon />
-        </div>
-
         <div class="wallet-info__wallet">
             <div class="address">
                 {{ cutAddress(walletAccount) }}
@@ -17,30 +13,35 @@
                     <NumberTooltip v-if="showBalance" :value="totalBalance" />
                     <span v-else>****</span>
                 </div>
+                <div class="balance__hide" v-if="currentChainInfo" @click="toggleViewBalance">
+                    <EyeOpenIcon v-if="showBalance" />
+                    <EyeCloseIcon v-else />
+                </div>
             </div>
         </div>
     </div>
 </template>
 <script>
-import { computed } from 'vue';
+import { computed, inject } from 'vue';
 import { useStore } from 'vuex';
-
-import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import { cutAddress } from '@/helpers/utils';
 
 import NumberTooltip from '@/components/ui/NumberTooltip';
 
-import WalletIcon from '@/assets/icons/dashboard/wallet.svg';
+import EyeOpenIcon from '@/assets/icons/dashboard/eyeOpen.svg';
+import EyeCloseIcon from '@/assets/icons/dashboard/eye.svg';
 
 export default {
     name: 'WalletInfo',
     components: {
-        WalletIcon,
         NumberTooltip,
+        EyeOpenIcon,
+        EyeCloseIcon,
     },
     setup() {
         const store = useStore();
+        const useAdapter = inject('useAdapter');
 
         const { walletAccount, currentChainInfo } = useAdapter();
 
@@ -50,6 +51,8 @@ export default {
 
         const totalBalance = computed(() => store.getters['tokens/totalBalances'][walletAccount.value]);
 
+        const toggleViewBalance = () => store.dispatch('app/toggleViewBalance');
+
         return {
             isAllTokensLoading,
             totalBalance,
@@ -57,6 +60,8 @@ export default {
             walletAccount,
             cutAddress,
             showBalance,
+
+            toggleViewBalance,
         };
     },
 };
@@ -65,27 +70,6 @@ export default {
 .wallet-info {
     display: flex;
     align-items: center;
-
-    &__network {
-        width: 78px;
-        height: 78px;
-
-        @include pageFlexRow;
-        justify-content: center;
-
-        border-radius: 50%;
-        margin-right: 16px;
-        background: var(--#{$prefix}banner-logo-color);
-
-        img {
-            width: 60%;
-        }
-
-        svg {
-            fill: var(--#{$prefix}black);
-            opacity: 1;
-        }
-    }
 
     &__wallet {
         display: flex;
@@ -97,7 +81,7 @@ export default {
         }
 
         & > div:first-child {
-            margin-bottom: 15px;
+            margin-bottom: 8px;
         }
 
         .address {
@@ -114,17 +98,18 @@ export default {
 
         .balance {
             @include pageFlexRow;
-
-            font-weight: 600;
-            font-size: var(--#{$prefix}h2-fs);
+            margin: auto 0;
+            font-weight: 700;
+            font-size: var(--#{$prefix}h3-fs);
             color: var(--#{$prefix}primary-text);
-
-            margin-top: -3px;
             user-select: none;
 
             .value {
-                min-width: 165px;
-                font-weight: 600;
+                @include pageFlexRow;
+            }
+
+            &__hide {
+                margin: 1px 0 0 14px;
             }
 
             span {
@@ -133,6 +118,7 @@ export default {
             }
 
             svg {
+                margin: auto;
                 cursor: pointer;
                 fill: var(--#{$prefix}eye-logo);
 

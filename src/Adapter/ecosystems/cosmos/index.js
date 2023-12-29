@@ -11,7 +11,7 @@ import { wallets as KeplrWallets } from '@cosmos-kit/keplr';
 import BigNumber from 'bignumber.js';
 import { utils } from 'ethers';
 import { toUtf8 } from '@cosmjs/encoding';
-import { fromEvent } from 'rxjs';
+import { fromEvent, takeUntil, Subject } from 'rxjs';
 
 // * Configs
 import { ECOSYSTEMS, cosmologyConfig } from '../../config';
@@ -52,9 +52,11 @@ const connectedWalletModule = () => window?.localStorage.getItem(STORAGE.WALLET)
 class CosmosAdapter extends AdapterBase {
     REFRESH_EVENT = 'refresh_connection';
     DEFAULT_CHAIN = 'cosmoshub';
+    isLogosUpdated = false;
 
     constructor() {
         super();
+        this.unsubscribe = new Subject();
 
         // * Init WalletManager
         const [KEPLR_EXT] = KeplrWallets;
@@ -62,6 +64,8 @@ class CosmosAdapter extends AdapterBase {
         const logger = new Logger('INFO');
 
         this.walletManager = new WalletManager(chains, assets, [KEPLR_EXT], logger);
+
+        this.updateChainLogos();
 
         const stargateClientOptions = {
             aminoTypes,
@@ -77,6 +81,22 @@ class CosmosAdapter extends AdapterBase {
         }
 
         this.walletManager.onMounted();
+    }
+
+    updateChainLogos() {
+        if (this.isLogosUpdated) {
+            return;
+        }
+        const cosmosChains = JSON.parse(localStorage.getItem('networks/cosmos')) || {};
+
+        for (const chainRecord of this.walletManager.chainRecords) {
+            chainRecord.chain.logo =
+                cosmosChains[chainRecord.chain.chain_name]?.logo || chainRecord.chain.logo_URIs?.svg || chainRecord.chain.logo_URIs?.png;
+        }
+
+        if (Object.keys(cosmosChains).length) {
+            this.isLogosUpdated = true;
+        }
     }
 
     getGasPriceFromChain(feeTokens = []) {
@@ -128,7 +148,12 @@ class CosmosAdapter extends AdapterBase {
             await chainWallet?.value?.update({ connect: false });
 
             await this.setAddressForChains(chainWallet?.value?.walletName);
-        });
+        }).pipe(takeUntil(this.unsubscribe));
+    }
+
+    unsubscribeFromWalletsChange() {
+        this.unsubscribe.next();
+        this.unsubscribe.complete();
     }
 
     async updateStates() {
@@ -187,11 +212,23 @@ class CosmosAdapter extends AdapterBase {
         return true;
     }
 
+    async getSupportedEcosystemChains(chainRecords, chainWallet) {
+        try {
+            const enablePromises = chainRecords.map(async (chainRecord) => {
+                await chainWallet?.client.enable(chainRecord.chain.chain_id);
+            });
+
+            await Promise.all(enablePromises);
+        } catch (error) {
+            console.log('Error while approving chains', error);
+        }
+    }
+
     async connectWallet(walletName, chain = this.DEFAULT_CHAIN) {
         try {
             const chainWallet = this.walletManager.getChainWallet(chain, walletName);
 
-            chainWallet.activate();
+            await this.getSupportedEcosystemChains(this.walletManager.chainRecords, chainWallet.client);
 
             // chainWallet.restEndpoints = [`${DEFAULT_REST}/${chain}`];
             // chainWallet.rpcEndpoints = [`${DEFAULT_RPC}/${chain}`];
@@ -267,7 +304,7 @@ class CosmosAdapter extends AdapterBase {
                 if (isConnected) {
                     this.addressByNetwork[mainAccount][chainName] = {
                         address: diffChain.address,
-                        logo: diffChain.chain.logo_URIs?.svg || diffChain.chain.logo_URIs?.png || null,
+                        logo: diffChain.chain.logo,
                     };
                 }
             });
@@ -315,7 +352,7 @@ class CosmosAdapter extends AdapterBase {
 
             this.addressByNetwork[mainAccount][chain_name] = {
                 address: chainAddress,
-                logo: chain.logo_URIs?.svg || chain.logo_URIs?.png || null,
+                logo: chain.logo,
             };
         });
 
@@ -385,7 +422,6 @@ class CosmosAdapter extends AdapterBase {
 
         const [asset] = assets;
 
-        asset.logo = asset.logo_URIs?.svg || asset.logo_URIs?.png || null;
         asset.decimals = asset.denom_units[1].exponent;
 
         const currentChain = {
@@ -398,7 +434,6 @@ class CosmosAdapter extends AdapterBase {
             walletName: walletInfo.prettyName,
             ecosystem: ECOSYSTEMS.COSMOS,
             bech32_prefix: chain.bech32_prefix,
-            logo: chain.logo_URIs?.svg || chain.logo_URIs?.png || null,
             asset,
         };
 
@@ -406,6 +441,7 @@ class CosmosAdapter extends AdapterBase {
     }
 
     getChainList() {
+        this.updateChainLogos();
         const chainList = this.walletManager.chainRecords.map((record) => {
             const { chain, assetList = {} } = record || {};
 
@@ -413,7 +449,6 @@ class CosmosAdapter extends AdapterBase {
 
             const [asset = {}] = assets || [];
 
-            asset.logo = asset.logo_URIs?.svg || asset.logo_URIs?.png || null;
             asset.decimals = asset.denom_units[1].exponent;
 
             const chainRecord = {
@@ -425,12 +460,10 @@ class CosmosAdapter extends AdapterBase {
                 chain_id: chain.chain_name,
                 name: chain.pretty_name,
                 walletName: this.walletName,
-                logo: chain.logo_URIs?.svg || chain.logo_URIs?.png || null,
             };
 
             return chainRecord;
         });
-
         return chainList;
     }
 
@@ -784,6 +817,9 @@ class CosmosAdapter extends AdapterBase {
 
     getAddressesWithChains() {
         const mainAccount = this.getAccount();
+        if (!this.addressByNetwork) {
+            return {};
+        }
         return this.addressByNetwork[mainAccount] || {};
     }
 

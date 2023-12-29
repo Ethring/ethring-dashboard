@@ -32,6 +32,11 @@ class EthereumAdapter extends AdapterBase {
         return web3Onboard.state.select('wallets');
     }
 
+    unsubscribeToWalletsChange() {
+        console.log('Unsubscribe to wallets change', 'ethereum');
+        return web3Onboard.state.select('wallets').unsubscribe();
+    }
+
     async connectWallet(walletName) {
         const { connectWallet, connectingWallet, connectedWallet } = useOnboard();
 
@@ -360,9 +365,9 @@ class EthereumAdapter extends AdapterBase {
 
         const chainsInfo = store.getters['networks/zometNetworks'];
 
-        console.log(chain, chainsInfo[chain]);
+        console.log(chain, chainsInfo.evm[chain]);
 
-        return chainsInfo[chain] || null;
+        return chainsInfo.evm[chain] || null;
     }
 }
 

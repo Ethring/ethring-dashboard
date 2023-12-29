@@ -1,13 +1,18 @@
 <template>
     <div class="simple-send">
-        <SelectNetwork :items="chainList" :current="selectedSrcNetwork" @select="onSelectNetwork" />
+        <SelectNetwork
+            :items="chainList"
+            :label="$t('tokenOperations.selectNetwork')"
+            :current="selectedSrcNetwork"
+            @select="onSelectNetwork"
+        />
 
         <SelectAddress
             :selected-network="selectedSrcNetwork"
             :items="[]"
             :value="receiverAddress"
             :error="!!isAddressError"
-            class="mt-10"
+            class="mt-8"
             :on-reset="clearAddress"
             @setAddress="onSetAddress"
         />
@@ -20,7 +25,7 @@
             :on-reset="resetAmount"
             :is-token-loading="isTokensLoadingForChain"
             :amount-value="srcAmount"
-            class="mt-10"
+            class="mt-8"
             @setAmount="onSetAmount"
             @clickToken="onSetToken"
         />
@@ -29,7 +34,7 @@
             :title="$t(opTitle)"
             :disabled="!!disabledSend"
             :loading="isWaitingTxStatusForModule || isLoading"
-            class="simple-send__btn mt-10"
+            class="simple-send__btn mt-16"
             data-qa="confirm"
             @click="handleOnSend"
             size="large"
@@ -37,13 +42,14 @@
     </div>
 </template>
 <script>
-import { h, ref, computed, onBeforeUnmount, onMounted, watch } from 'vue';
+import { h, ref, inject, computed, onBeforeUnmount, onMounted, watch } from 'vue';
+
+import BigNumber from 'bignumber.js';
 
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { SettingOutlined } from '@ant-design/icons-vue';
 
-import useAdapter from '@/Adapter/compositions/useAdapter';
 import useNotification from '@/compositions/useNotification';
 import useTransactions from '../../../Transactions/compositions/useTransactions';
 import useServices from '../../../compositions/useServices';
@@ -70,6 +76,7 @@ export default {
     setup() {
         const store = useStore();
         const router = useRouter();
+        const useAdapter = inject('useAdapter');
 
         const { name: module } = router.currentRoute.value;
 
@@ -97,7 +104,8 @@ export default {
         const { showNotification, closeNotification } = useNotification();
 
         // * Adapter for wallet
-        const { walletAccount, walletAddress, connectedWallet, currentChainInfo, validateAddress, chainList, setChain } = useAdapter();
+        const { walletAccount, walletAddress, connectedWallet, currentChainInfo, validateAddress, chainList, setChain } =
+            useAdapter();
 
         const { createTransactions, signAndSend, transactionForSign } = useTransactions();
 
@@ -145,6 +153,9 @@ export default {
         };
 
         const onSelectNetwork = (network) => {
+            if (!network.net) {
+                return;
+            }
             if (selectedSrcNetwork.value?.net === network?.net) {
                 return;
             }
@@ -160,7 +171,7 @@ export default {
         const onSetAmount = (value) => {
             srcAmount.value = value;
 
-            const isBalanceAllowed = +value > +selectedSrcToken.value?.balance;
+            const isBalanceAllowed = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance);
 
             isBalanceError.value = isBalanceAllowed;
         };
@@ -298,6 +309,10 @@ export default {
             }
         });
 
+        watch(selectedSrcToken, () => {
+            isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance);
+        });
+
         watch(currentChainInfo, () => {
             if (!currentChainInfo.value) {
                 return;
@@ -382,14 +397,9 @@ export default {
 </script>
 <style lang="scss" scoped>
 .simple-send {
-    width: 660px;
-
-    .mt-10 {
-        margin-top: 10px;
-    }
+    width: 524px;
 
     &__btn {
-        height: 64px;
         width: 100%;
     }
 }

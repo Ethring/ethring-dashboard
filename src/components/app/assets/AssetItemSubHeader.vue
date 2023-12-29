@@ -35,19 +35,19 @@ export default {
 </script>
 <style lang="scss" scoped>
 .asset__item-sub-header {
-    background: var(--#{$prefix}banner-secondary-color);
-    border-radius: 4px;
-    padding: 7px 16px;
+    height: 36px;
 
+    font-weight: 500;
     color: var(--#{$prefix}base-text);
     font-size: var(--#{$prefix}small-sm-fs);
-    margin: 16px 0 8px;
+    border-bottom: 1px solid var(--#{$prefix}assets-header-border-color);
+    margin: 8px 0 4px;
 
     @include pageFlexRow;
 
     &-title {
         display: flex;
-        width: 66%;
+        width: 65%;
 
         span::before {
             content: '\2022';
@@ -60,7 +60,7 @@ export default {
         width: 18%;
 
         &__right {
-            width: 15%;
+            width: 17%;
             text-align: right;
         }
     }

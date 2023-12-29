@@ -1,7 +1,10 @@
 <template>
-    <div class="select-token__title">{{ $t('tokenOperations.selectToken') }}</div>
+    <div class="select-token__top">
+        <ArrowIcon class="select-token__back" @click="router.push(router.options.history.state.back)" />
+        <div class="select-token__title">{{ $t('tokenOperations.selectToken') }}</div>
+    </div>
+
     <div class="select-token__wrap">
-        <ArrowIcon class="arrow" @click="router.push(router.options.history.state.back)" />
         <SearchInput @onChange="handleOnFilterTokens" />
 
         <template v-if="tokensLoading || tokensList.length">
@@ -139,30 +142,40 @@ export default {
 </script>
 <style lang="scss" scoped>
 .select-token {
+    &__top,
     &__wrap {
         width: 70%;
-        max-width: 660px;
+        max-width: 524px;
+    }
+
+    &__top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 30px;
+    }
+
+    &__back {
+        cursor: pointer;
+        fill: var(--#{$prefix}select-icon-color);
+        transform: rotate(90deg);
+
+        &:hover {
+            fill: var(--#{$prefix}icon-active);
+        }
     }
 
     &__title {
         color: var(--#{$prefix}primary-text);
-        font-size: var(--#{$prefix}h1-fs);
-        font-weight: 600;
-        margin-bottom: 30px;
+        font-size: var(--#{$prefix}h4-fs);
+        font-weight: 500;
+        margin: 0 auto;
     }
 
     &__items {
         height: calc(80vh - 150px);
         overflow-y: auto;
-        margin: 20px 0 0;
-    }
-
-    svg.arrow {
-        cursor: pointer;
-        fill: var(--#{$prefix}icon-active);
-        position: absolute;
-        transform: rotate(90deg);
-        top: 20px;
+        margin: 16px 0 0;
     }
 
     &__not-found {
@@ -177,87 +190,6 @@ export default {
             color: var(--#{$prefix}mute-text);
         }
     }
-
-    // &__item {
-    //     display: flex;
-    //     align-items: center;
-    //     justify-content: space-between;
-
-    //     border: 1px solid var(--#{$prefix}border-secondary-color);
-
-    //     padding: 16px;
-
-    //     border-radius: 16px;
-
-    //     &:not(:last-child) {
-    //         margin-bottom: 8px;
-    //     }
-
-    //     &:hover {
-    //         box-shadow: 0px 4px 30px rgba(0, 0, 0, 0.15);
-    //     }
-
-    //     cursor: pointer;
-    //     .network {
-    //         display: flex;
-    //         align-items: center;
-    //     }
-    //     h3,
-    //     h5 {
-    //         font-style: normal;
-    //         font-weight: 600;
-    //         font-size: var(--#{$prefix}h5-fs);
-    //         text-align: right;
-    //         margin: 0;
-    //         color: var(--#{$prefix}primary-text);
-    //     }
-    //     span {
-    //         font-size: var(--#{$prefix}default-fs);
-    //         font-weight: 400;
-    //         color: var(--#{$prefix}secondary-text);
-    //     }
-    //     h5 {
-    //         font-size: var(--#{$prefix}small-lg-fs);
-    //         line-height: 21px;
-    //         color: var(--#{$prefix}primary-text);
-    //         span {
-    //             font-size: var(--#{$prefix}small-sm-fs);
-    //             font-weight: 400;
-    //         }
-    //     }
-    //     .amount {
-    //         text-align: right;
-    //     }
-    //     .info {
-    //         .symbol {
-    //             font-style: normal;
-    //             font-weight: 600;
-    //             font-size: var(--#{$prefix}h6-fs);
-    //             line-height: 27px;
-    //             text-transform: uppercase;
-    //             color: var(--#{$prefix}primary-text);
-    //         }
-
-    //         .name {
-    //             font-style: normal;
-    //             font-weight: 400;
-    //             font-size: var(--#{$prefix}small-lg-fs);
-    //             line-height: 21px;
-    //             color: var(--#{$prefix}sub-text);
-    //         }
-    //     }
-    //     .logo {
-    //         width: 40px;
-    //         height: 40px;
-
-    //         display: flex;
-    //         align-items: center;
-    //         justify-content: center;
-
-    //         border-radius: 50%;
-    //         margin-right: 12px;
-    //     }
-    // }
 
     &__load-more {
         display: flex;

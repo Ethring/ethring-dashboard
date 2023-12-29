@@ -31,3 +31,4 @@ pnpm-debug.log*
 /playwright/.cache/
 .history
 .env.test
+playwright.config.local.ts

@@ -51,8 +51,8 @@ export default {
 .accordion {
     background: var(--#{$prefix}accordion-bg-color);
     border: 1px solid var(--#{$prefix}accordion-border-color);
-    border-radius: 16px;
-    padding: 27px 32px;
+    border-radius: 8px;
+    padding: 12px 16px;
 
     .header {
         img {

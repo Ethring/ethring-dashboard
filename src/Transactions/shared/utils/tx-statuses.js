@@ -72,7 +72,7 @@ const statusNotification = (status, { store, type = 'Transfer', displayHash, exp
 };
 
 export const handleTransactionStatus = (transaction, store) => {
-    store.dispatch('txManager/setTransactionForSign', null);
+    // store.dispatch('txManager/setTransactionForSign', null);
 
     const { closeNotification } = useNotification();
 

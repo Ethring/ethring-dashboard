@@ -1,13 +1,13 @@
 <template>
-    <a-dropdown v-model:open="activeDropdown" :arrow="{ pointAtCenter: true }" placement="bottom" class="wallet-adapter-container">
+    <a-dropdown v-model:open="activeDropdown" placement="bottom" class="wallet-adapter-container">
         <AccountCenter v-if="walletAddress" @toggleDropdown="() => (activeDropdown = !activeDropdown)" class="ant-dropdown-link" />
         <NotConnected v-else class="ant-dropdown-link" />
 
         <template #overlay>
-            <a-menu class="adapter__dropdown">
+            <div class="adapter__dropdown">
                 <ConnectToEcosystems @closeDropdown="() => (activeDropdown = false)" />
                 <AdapterDropdown v-if="walletAddress" @closeDropdown="() => (activeDropdown = false)" />
-            </a-menu>
+            </div>
         </template>
     </a-dropdown>
 </template>
@@ -48,12 +48,31 @@ export default {
 .wallet-adapter-container {
     position: relative;
 
-    max-width: 350px;
-    width: 100%;
+    width: 300px;
+    height: 48px;
 }
+
 .adapter__dropdown {
-    padding-bottom: 16px;
+    position: absolute;
+    right: 0;
+    width: 356px;
+    padding: 16px;
     border-radius: 16px;
+    top: 5px;
+    z-index: 2;
     background: var(--#{$prefix}secondary-background);
+    box-shadow: 0px 4px 40px 0px $black-op-02;
+
+    &::before {
+        content: '';
+        position: absolute;
+        background-color: var(--#{$prefix}secondary-background);
+        width: 16px;
+        z-index: 1;
+        height: 16px;
+        left: 50%;
+        top: -5px;
+        transform: rotate(45deg);
+    }
 }
 </style>

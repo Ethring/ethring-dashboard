@@ -1,4 +1,4 @@
-import { ref, computed, watch } from 'vue';
+import { ref, computed, inject, watch, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 
 import {
@@ -11,13 +11,14 @@ import {
     // getBridgeTx,
 } from '@/api/services';
 
-import useAdapter from '@/Adapter/compositions/useAdapter';
 import useTokensList from '@/compositions/useTokensList';
 import useNotification from '@/compositions/useNotification';
 
-export default function useModule({ module, moduleType }) {
-    console.log('useModule', module);
+import { ECOSYSTEMS } from '@/Adapter/config';
+
+export default function useModule({ moduleType }) {
     const store = useStore();
+    const useAdapter = inject('useAdapter');
 
     const selectedService = computed(() => store.getters[`${moduleType}/selectedService`]);
 
@@ -42,7 +43,7 @@ export default function useModule({ module, moduleType }) {
 
     const { getTokensList } = useTokensList();
     const tokensList = ref([]);
-
+    const isUpdateSwapDirection = ref(false);
     // =================================================================================================================
 
     const selectType = computed({
@@ -109,13 +110,13 @@ export default function useModule({ module, moduleType }) {
             srcNet,
         });
 
+        const nativeToken = getNativeToken(srcNet, tokensList.value);
+
         const [defaultToken = null] = tokensList.value;
 
-        if (onlyWithBalance.value && defaultToken?.balance === 0) {
-            return null;
-        }
-
-        if (!token && defaultToken) {
+        if (!token && !defaultToken?.balance) {
+            return nativeToken;
+        } else if (!token && defaultToken) {
             return defaultToken;
         }
 
@@ -124,9 +125,8 @@ export default function useModule({ module, moduleType }) {
         const searchTokens = [targetSymbol];
 
         const updatedList = tokensList.value?.filter((tkn) => searchTokens.includes(tkn.symbol)) || [];
-
         if (!updatedList.length) {
-            return;
+            return token;
         }
 
         const [tkn = null] = updatedList;
@@ -142,60 +142,53 @@ export default function useModule({ module, moduleType }) {
         return token;
     };
 
+    const getNativeToken = (network, tokensList) => {
+        for (let token of tokensList) {
+            if (token.id && token.id.includes('asset__native')) {
+                return token;
+            }
+        }
+
+        if (network && network.ecosystem === ECOSYSTEMS.COSMOS) {
+            return { ...network.asset, address: network.asset.base, logo: network.logo };
+        }
+
+        return network?.native_token;
+    };
+
     const setTokenOnChange = () => {
         tokensList.value = getTokensList({
             srcNet: selectedSrcNetwork.value,
         });
 
+        const nativeToken = getNativeToken(selectedSrcNetwork.value, tokensList.value);
+
         const [defaultFromToken = null, defaultToToken = null] = tokensList.value || [];
 
-        if (!selectedSrcToken.value && defaultFromToken) {
+        if ((!selectedSrcToken.value && defaultFromToken) || selectedSrcToken.value?.balance === 0) {
             selectedSrcToken.value = defaultFromToken;
         }
 
-        if (selectedSrcToken.value?.id !== defaultFromToken?.id) {
-            selectedSrcToken.value = defaultFromToken;
+        if (defaultFromToken && defaultFromToken.balance === 0) {
+            selectedSrcToken.value = nativeToken;
+            return;
         }
 
         if (selectedSrcToken.value?.address === selectedDstToken.value?.address) {
             selectedDstToken.value = null;
         }
 
-        if (!selectedDstToken.value && defaultToToken) {
-            selectedDstToken.value = defaultToToken;
-        }
-
-        if (selectedDstToken.value?.balance === 0 && defaultToToken) {
-            selectedDstToken.value = defaultToToken;
-        }
-
-        if (!selectedSrcToken.value && !selectedDstToken.value) {
+        if (selectedDstNetwork.value && defaultToToken?.chain !== selectedDstNetwork.value?.net) {
             return;
-        }
-
-        const { symbol: fromSymbol } = selectedSrcToken.value || {};
-        const { symbol: toSymbol } = selectedSrcToken.value || {};
-
-        const searchTokens = [fromSymbol, toSymbol];
-
-        const updatedList = tokensList.value.filter((tkn) => searchTokens.includes(tkn.symbol)) || [];
-
-        if (!updatedList.length) {
-            return;
-        }
-
-        const [fromToken = null, toToken = null] = updatedList;
-
-        if (fromToken) {
-            selectedSrcToken.value = fromToken;
-        }
-
-        if (toToken && !selectedDstToken.value) {
-            selectedDstToken.value = toToken;
         }
 
         if (moduleType === 'send') {
             selectedDstToken.value = null;
+            return;
+        }
+
+        if (!selectedDstToken.value && defaultToToken) {
+            selectedDstToken.value = defaultToToken;
         }
     };
 
@@ -288,14 +281,14 @@ export default function useModule({ module, moduleType }) {
     const resetTokensForModules = (isReset = true) => {
         const MODULES = ['swap', 'send'];
 
-        if (moduleType === 'swap' && isReset && opTitle.value !== DEFAULT_TITLE) {
+        if (moduleType === 'swap' && isReset) {
             selectedSrcToken.value?.chain !== selectedSrcNetwork.value?.net && (selectedSrcToken.value = null);
             selectedDstToken.value?.chain !== selectedSrcNetwork.value?.net && (selectedDstToken.value = null);
 
             if (selectedSrcToken.value?.id === selectedDstToken.value?.id) {
                 selectedDstToken.value = null;
             }
-        } else if (moduleType === 'send' && isReset && opTitle.value !== DEFAULT_TITLE) {
+        } else if (moduleType === 'send' && isReset) {
             selectedSrcToken.value?.chain !== selectedSrcNetwork.value?.net && (selectedSrcToken.value = null);
         }
 
@@ -329,18 +322,22 @@ export default function useModule({ module, moduleType }) {
 
     // =================================================================================================================
 
-    watch(currentChainInfo, () => {
+    const unWatchChainInfo = watch(currentChainInfo, () => {
+        checkSelectedNetwork();
         selectedSrcNetwork.value = currentChainInfo.value;
         resetTokensForModules();
     });
 
-    watch(walletAccount, () => {
+    const unWatchAcc = watch(walletAccount, () => {
         selectedSrcNetwork.value = currentChainInfo.value;
         selectedSrcToken.value = null;
         resetTokensForModules();
     });
 
-    watch(selectedSrcNetwork, (newNet, oldNet) => {
+    const unWatchSrc = watch(selectedSrcNetwork, (newNet, oldNet) => {
+        if (isUpdateSwapDirection.value) {
+            return;
+        }
         if (!oldNet) {
             resetTokensForModules();
             return checkSelectedNetwork();
@@ -348,13 +345,13 @@ export default function useModule({ module, moduleType }) {
 
         if (newNet?.net === oldNet?.net) {
             return;
+        } else {
+            srcAmount.value = '';
+            dstAmount.value = '';
         }
 
         if (currentChainInfo.value?.net !== selectedSrcNetwork.value?.net) {
             selectedSrcToken.value = null;
-            selectedDstToken.value = null;
-            srcAmount.value = '';
-            dstAmount.value = '';
         }
 
         resetTokensForModules();
@@ -362,9 +359,7 @@ export default function useModule({ module, moduleType }) {
         return checkSelectedNetwork();
     });
 
-    watch(currentChainInfo, () => checkSelectedNetwork());
-
-    watch(txError, () => {
+    const unWatchTxErr = watch(txError, () => {
         if (!txError.value) {
             return;
         }
@@ -384,6 +379,14 @@ export default function useModule({ module, moduleType }) {
 
     checkSelectedNetwork();
 
+    onBeforeUnmount(() => {
+        // Clear all data
+        unWatchChainInfo();
+        unWatchAcc();
+        unWatchSrc();
+        unWatchTxErr();
+    });
+
     return {
         // Main information for operation
         selectedSrcToken,
@@ -394,6 +397,7 @@ export default function useModule({ module, moduleType }) {
         selectType,
         targetDirection,
         onlyWithBalance,
+        isUpdateSwapDirection,
 
         // Receiver
         receiverAddress,

@@ -46,7 +46,7 @@ export default {
         },
         width: {
             type: String,
-            default: '',
+            default: '588px',
         },
         height: {
             type: String,
@@ -81,17 +81,18 @@ export default {
         border-radius: 16px;
         padding: 24px 32px;
         box-sizing: border-box;
+        max-width: 588px;
     }
 
     &__content-title {
         color: var(--#{$prefix}primary-text);
-        font-size: var(--#{$prefix}h3-fs);
-        font-weight: 600;
+        font-size: var(--#{$prefix}h5-fs);
+        font-weight: 500;
     }
 
     &__content-line {
-        margin: 10px 0;
-        border: 1px dashed var(--#{$prefix}border-color);
+        margin: 16px 0;
+        border-top: 1px dashed var(--#{$prefix}border-color);
     }
 
     &__content-inner {

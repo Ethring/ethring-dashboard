@@ -3,8 +3,7 @@
         <template v-if="column === 'name'">
             <div class="network">
                 <div class="logo">
-                    <img v-if="item.avatar" :src="item.avatar" />
-                    <TokenIcon v-else width="24" height="24" :token="item" />
+                    <TokenIcon width="32" height="32" :token="item" />
                     <div class="chain">
                         <img :src="item.chainLogo" />
                     </div>
@@ -15,9 +14,8 @@
                     <div class="unlock" v-if="item.unlockTimestamp">
                         Unlock <span> {{ getFormattedDate(item.unlockTimestamp) }} </span>
                     </div>
-                    <div class="apr" v-if="item.apr">
-                        APR <span> {{ formatNumber(item.apr, 2) }}% </span>
-                    </div>
+                    <div class="apr" v-if="item.apr"><span>APR </span> {{ formatNumber(item.apr, 2) }}%</div>
+                    <div class="apr" v-if="item.leverageRate"><span>Leverage </span> {{ formatNumber(item.leverageRate, 2) }}x</div>
                 </div>
             </div>
         </template>
@@ -26,8 +24,8 @@
                 <div class="value">
                     <NumberTooltip :value="balance" decimals="3" />
                 </div>
-                &nbsp;
-                <div class="symbol">{{ item?.symbol }}</div>
+
+                <span class="symbol">{{ item?.symbol }}</span>
             </div>
         </template>
         <template v-if="column === 'balanceUsd'">
@@ -82,7 +80,7 @@ export default {
                 return '****';
             }
 
-            return BigNumber(props.item?.balanceUsd).toString();
+            return BigNumber(props.item?.balanceUsd || 0).toString();
         });
 
         return {
@@ -98,20 +96,15 @@ export default {
 </script>
 <style lang="scss">
 .assets__item {
-    vertical-align: center !important;
     color: var(--#{$prefix}black);
+    height: 38px;
 
     .network {
         display: inline-flex;
 
         .logo {
-            margin-right: 10px;
+            margin-right: 8px;
             position: relative;
-
-            img {
-                width: 32px;
-                height: 32px;
-            }
         }
 
         .chain {
@@ -123,8 +116,8 @@ export default {
             justify-content: center;
 
             position: absolute;
-            top: 16px;
-            left: 26px;
+            top: 15px;
+            left: 24px;
 
             img {
                 border-radius: 50%;
@@ -142,14 +135,14 @@ export default {
         }
 
         .name {
-            font-size: var(--#{$prefix}default-fs);
+            font-size: var(--#{$prefix}h6-fs);
             color: var(--#{$prefix}primary-text);
             font-weight: 400;
             margin-left: 8px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 200px;
+            max-width: 280px;
         }
     }
 
@@ -163,17 +156,21 @@ export default {
             &::before {
                 content: '\2022';
                 margin: 0 4px;
-                color: var(--#{$prefix}checkbox-text);
+                color: var(--#{$prefix}select-placeholder-text);
             }
         }
 
-        .type,
-        .apr {
+        .type {
             color: var(--#{$prefix}sub-text);
+            font-weight: 400;
         }
 
-        .apr,
-        .unlock {
+        .apr {
+            color: var(--#{$prefix}sub-text);
+            font-weight: 600;
+        }
+
+        .apr {
             span {
                 color: var(--#{$prefix}mute-apr-text);
                 font-weight: 400;
@@ -181,25 +178,33 @@ export default {
         }
 
         .unlock {
-            color: var(--#{$prefix}mute-apr-text);
-            font-weight: 300;
+            color: var(--#{$prefix}unlock-text);
+            font-weight: 400;
+            span {
+                color: var(--#{$prefix}mute-apr-text);
+                font-weight: 500;
+            }
         }
     }
 
     .amount {
         display: inline-flex;
+        align-items: flex-end;
 
         .symbol {
             font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 400;
             color: var(--#{$prefix}secondary-text);
+            line-height: var(--#{$prefix}h6-fs);
+            margin-left: 3px;
         }
-    }
 
-    .value {
-        font-size: var(--#{$prefix}small-lg-fs);
-        font-weight: 400;
-        color: var(--#{$prefix}primary-text);
+        .value {
+            line-height: var(--#{$prefix}h5-fs);
+            font-size: var(--#{$prefix}h6-fs);
+            font-weight: 400;
+            color: var(--#{$prefix}primary-text);
+        }
     }
 }
 </style>

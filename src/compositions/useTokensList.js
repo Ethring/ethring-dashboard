@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import { computed } from 'vue';
+import { computed, inject } from 'vue';
 
 import { useStore } from 'vuex';
 
@@ -8,10 +8,9 @@ import { ECOSYSTEMS } from '@/Adapter/config';
 
 import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 
-import useAdapter from '@/Adapter/compositions/useAdapter';
-
-export default function useTokensList({ network = null, fromToken = null, toToken = null } = {}) {
+export default function useTokensList({ network = null, fromToken = null, toToken = null, isSameNet = true } = {}) {
     const store = useStore();
+    const useAdapter = inject('useAdapter');
 
     const { walletAccount } = useAdapter();
 
@@ -31,7 +30,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         return _.orderBy(list, (tkn) => Number(tkn.balanceUsd), ['desc']);
     };
 
-    const getAllTokensList = (network, fromToken, toToken) => {
+    const getAllTokensList = (network, fromToken, toToken, isSameNet = true) => {
         if (!network) {
             return [];
         }
@@ -58,6 +57,14 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
             if (selectedToken && selectedToken.id && selectedToken.chain === network.net) {
                 ids.push(selectedToken.id);
+            }
+
+            if (tkn.coingecko_id && tkn.coingecko_id === selectedToken?.coingecko_id) {
+                ids.push(tkn.coingecko_id);
+            }
+
+            if (!tkn.address && tkn?.coingecko_id === selectedToken?.coingecko_id) {
+                return !ids.includes(tkn.coingecko_id);
             }
 
             if (tkn.id) {
@@ -93,6 +100,10 @@ export default function useTokensList({ network = null, fromToken = null, toToke
                 ...nativeToken,
             };
 
+            if (!tokenInfo.id) {
+                tokenInfo.id = searchId;
+            }
+
             if (!tokenInfo.name) {
                 tokenInfo.name = nativeToken.symbol;
             }
@@ -113,11 +124,15 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
         const selectedToken = isFromSelected ? toToken : fromToken;
 
-        allTokens = allTokens.filter((tkn) => isNotEqualToSelected(tkn, selectedToken));
+        if (fromToken || toToken) {
+            if (isSameNet) {
+                allTokens = allTokens.filter((tkn) => isNotEqualToSelected(tkn, selectedToken));
+            }
 
-        for (const tkn of allTokens) {
-            const isSelected = (isFromSelected && tkn.id === fromToken?.id) || tkn.id === toToken?.id;
-            tkn.selected = isSelected;
+            for (const tkn of allTokens) {
+                const isSelected = (isFromSelected && tkn.id === fromToken?.id) || tkn.id === toToken?.id;
+                tkn.selected = isSelected;
+            }
         }
 
         return _.orderBy(
@@ -132,14 +147,14 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         );
     };
 
-    const allTokensList = computed(() => getAllTokensList(network, fromToken, toToken));
+    const allTokensList = computed(() => getAllTokensList(network, fromToken, toToken, isSameNet));
 
-    const getTokensList = ({ srcNet = null, srcToken = null, dstToken = null } = {}) => {
+    const getTokensList = ({ srcNet = null, srcToken = null, dstToken = null, isSameNet = true } = {}) => {
         network = srcNet;
         fromToken = srcToken;
         toToken = dstToken;
 
-        return getAllTokensList(network, fromToken, toToken);
+        return getAllTokensList(network, fromToken, toToken, isSameNet);
     };
 
     return {

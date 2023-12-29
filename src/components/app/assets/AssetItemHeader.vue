@@ -8,19 +8,23 @@
                 <img
                     v-else-if="logoURI && !showImagePlaceholder"
                     :src="logoURI"
-                    class="token__logo-img"
+                    class="asset__logo"
                     @error="showImagePlaceholder = true"
                     @load="showImagePlaceholder = false"
                 />
-
-                <QuestionCircleOutlined v-else class="fallback__logo" />
+                <div v-else class="asset__placeholder">
+                    <a-avatar :size="32">{{ title.slice(0, 3) }}</a-avatar>
+                </div>
             </div>
+
             <div class="asset__item-header-name">
                 {{ title }}
+                <!-- <div class="asset__item-header-value" v-if="value > 0">
+                    {{ formatNumber(value, 2) }}
                 <div class="asset__item-header-value" v-if="value > 0">
                     <NumberTooltip :value="value" decimals="2" />
                     <span class="asset__item-header-symbol"> % </span>
-                </div>
+                </div> -->
             </div>
         </div>
 
@@ -42,12 +46,10 @@
             </div>
 
             <div class="asset__item-header-reward" v-if="showRewards">
-                <span class="asset__item-header-reward-symbol"> $ </span>
-                <span class="asset__item-header-reward-value" v-if="showBalance">
-                    <NumberTooltip :value="reward" />
-                </span>
+                <span class="asset__item-header-reward-title">{{ $t('tokenOperations.rewards') }}:</span>
+                <span class="asset__item-header-reward-symbol">$</span>
+                <NumberTooltip v-if="showBalance" :value="reward" />
                 <p v-else>****</p>
-                <RewardsIcon class="asset__item-header-reward-icon" />
             </div>
         </div>
     </div>
@@ -56,9 +58,7 @@
 import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 
-import TokenLogo from '@/assets/icons/dashboard/tokenLogo.svg';
-import { QuestionCircleOutlined } from '@ant-design/icons-vue';
-import RewardsIcon from '@/assets/icons/dashboard/rewards.svg';
+import TokenLogo from '@/assets/icons/dashboard/wallet.svg';
 import NftsLogo from '@/assets/icons/dashboard/nfts.svg';
 import NumberTooltip from '@/components/ui/NumberTooltip';
 
@@ -96,10 +96,8 @@ export default {
     },
     components: {
         TokenLogo,
-        RewardsIcon,
         NftsLogo,
         NumberTooltip,
-        QuestionCircleOutlined,
     },
     setup() {
         const store = useStore();
@@ -140,17 +138,28 @@ export default {
     @include pageFlexRow;
 
     justify-content: space-between;
-    padding-bottom: 16px;
-    border-bottom: 1px dashed var(--#{$prefix}border-secondary-color);
 
     &-info {
         @include pageFlexRow;
         width: 60%;
     }
 
+    .asset__logo,
+    .token__logo,
+    .asset__placeholder {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+    }
+
+    .asset__placeholder {
+        background-color: var(--#{$prefix}icon-logo-bg-color);
+    }
+
     &-logo {
-        width: 40px;
-        height: 40px;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
 
         @include pageFlexRow;
         justify-content: center;
@@ -158,8 +167,8 @@ export default {
 
     &-name {
         color: var(--#{$prefix}primary-text);
-        font-size: var(--#{$prefix}h5-fs);
-        font-weight: 600;
+        font-size: var(--#{$prefix}h4-fs);
+        font-weight: 500;
 
         display: flex;
         align-items: baseline;
@@ -169,24 +178,23 @@ export default {
             &::before {
                 content: '\2022';
                 margin-right: 8px;
-                color: var(--#{$prefix}checkbox-text);
+                color: var(--#{$prefix}select-placeholder-text);
             }
         }
     }
 
     &-value {
-        font-size: var(--#{$prefix}h6-fs);
+        font-size: var(--#{$prefix}h5-fs);
         color: var(--#{$prefix}eye-logo-hover);
-        font-weight: 600;
+        font-weight: 500;
         margin-left: 8px;
     }
 
     &-symbol {
         font-size: var(--#{$prefix}default-fs);
         line-height: 16px;
-        color: var(--#{$prefix}mute-text);
+        color: var(--#{$prefix}secondary-text);
         font-weight: 400;
-        margin-right: 2px;
 
         &__left {
             margin-left: 5px;
@@ -198,39 +206,33 @@ export default {
         align-self: flex-end;
 
         color: var(--#{$prefix}primary-text);
-        font-size: var(--#{$prefix}h6-fs);
-        line-height: 16px;
-        font-weight: 600;
+        font-size: var(--#{$prefix}h5-fs);
+        line-height: 14px;
+        font-weight: 500;
     }
 
     &-reward {
         display: flex;
         align-self: flex-end;
-
+        color: var(--#{$prefix}eye-logo-hover);
+        font-weight: 400;
         margin-top: 6px;
 
-        &-symbol {
-            font-size: var(--#{$prefix}small-md-fs);
-            font-weight: 400;
-            color: var(--#{$prefix}secondary-text);
-        }
-
-        &-value {
+        span {
             font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 400;
-            color: var(--#{$prefix}primary-text);
+            color: var(--#{$prefix}adapter-label-text);
+        }
+
+        &-title {
+            margin-right: 6px;
         }
 
         p {
-            color: var(--#{$prefix}mute-text);
-            font-size: var(--#{$prefix}small-md-fs);
-            margin: 0 2px;
-        }
-
-        &-icon {
-            margin-bottom: 1px;
-            margin-left: 2px;
-            stroke: var(--#{$prefix}mute-text);
+            color: var(--#{$prefix}sub-text);
+            font-size: var(--#{$prefix}small-lg-fs);
+            font-weight: 500;
+            margin: 0 2px 0 6px;
         }
     }
 
@@ -252,7 +254,7 @@ export default {
 
             span {
                 font-weight: 400;
-                margin-left: -2px;
+                margin-left: -1px;
             }
         }
 
@@ -286,17 +288,5 @@ export default {
         height: 32px;
         border-radius: 50%;
     }
-}
-
-.fallback__logo {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    @include pageFlexRow;
-    justify-content: center;
-    align-items: center;
-    color: var(--#{$prefix}asset-header-icon-color);
-    font-size: var(--#{$prefix}h2-fs);
-    font-weight: 600;
 }
 </style>

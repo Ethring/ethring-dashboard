@@ -14,8 +14,8 @@ import useTokensList from '@/compositions/useTokensList';
 
 import SelectToken from '@/components/ui/SelectToken.vue';
 
-import PricesModule from '@/modules/prices/';
-import { TOKEN_SELECT_TYPES, DIRECTIONS } from '@/shared/constants/operations';
+import { getPriceFromProvider } from '@/shared/utils/prices';
+import { TOKEN_SELECT_TYPES, DIRECTIONS, PRICE_UPDATE_TIME } from '@/shared/constants/operations';
 
 export default {
     name: 'SearchSelectToken',
@@ -73,6 +73,7 @@ export default {
             network: selectedNetwork.value,
             fromToken: selectedTokenFrom.value,
             toToken: selectedTokenTo.value,
+            isSameNet: selectedDstNetwork.value === selectedSrcNetwork.value || !selectedDstNetwork.value,
         });
 
         // =================================================================================================================
@@ -87,60 +88,12 @@ export default {
 
         // =================================================================================================================
 
-        const getPriceByCoingeckoId = async (coingeckoId) => {
-            try {
-                const priceById = await PricesModule.Coingecko.marketCapForNativeCoin(coingeckoId);
-                const { usd = null } = priceById || {};
-
-                if (!usd) {
-                    return 0;
-                }
-
-                const { price = 0 } = usd || {};
-
-                return price;
-            } catch (error) {
-                console.warn('error while requesting price from Coingecko', error);
-                return 0;
-            }
-        };
-
-        const getPriceFromProvider = async (tokenAddress, { coingeckoId = null } = {}) => {
-            const { chain_id, chainId } = selectedNetwork.value || {};
-
-            const requestPriceFor = {
-                chainId: chain_id || chainId,
-                addresses: tokenAddress,
-            };
-
-            if (coingeckoId) {
-                return await getPriceByCoingeckoId(coingeckoId);
-            }
-
-            if (tokenAddress.startsWith('ibc/')) {
-                return 0;
-            }
-
-            try {
-                const price = await PricesModule.Coingecko.priceByPlatformContracts(requestPriceFor);
-                const address = tokenAddress?.toLowerCase() || tokenAddress;
-
-                if (!price[address]) {
-                    return 0;
-                }
-
-                const { usd = 0 } = price[address] || {};
-
-                return usd;
-            } catch (error) {
-                console.warn('error while requesting price from Coingecko', error);
-                return 0;
-            }
-        };
-
         const setToken = async (item) => {
-            if (!item.price) {
-                item.price = await getPriceFromProvider(item.address, { coingeckoId: item.coingecko_id });
+            const isPriceUpdate = new Date().getTime() - item?.priceUpdatedAt > PRICE_UPDATE_TIME;
+
+            if (!item.price || isPriceUpdate) {
+                item.price = await getPriceFromProvider(item.address, selectedNetwork.value, { coingeckoId: item.coingecko_id });
+                item.priceUpdatedAt = new Date().getTime();
             }
 
             if (!item.address && item.base) {
