@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { onMounted, onUpdated, watch, ref, computed, inject, onBeforeMount, onBeforeUnmount } from 'vue';
+import { onMounted, watch, ref, computed, inject, onBeforeMount, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 
 import useInit from '@/compositions/useInit/';
@@ -104,25 +104,9 @@ export default {
 
             const addressesWithChains = getAddressesWithChainsByEcosystem(ecosystem);
 
-            socketSubscriptions(addressesWithChains);
-        };
-
-        const socketSubscriptions = (addresses) => {
-            for (const chain in addresses) {
-                const { address } = addresses[chain] || {};
-
-                if (!address) {
-                    continue;
-                }
-
-                if (address === walletAddress.value) {
-                    continue;
-                }
-
-                Socket.addressSubscription(address);
+            if (JSON.stringify(addressesWithChains) !== '{}') {
+                Socket.setAddresses(addressesWithChains, walletAddress.value, ecosystem);
             }
-
-            Socket.addressSubscription(walletAddress.value);
         };
 
         const callInit = async () => {
@@ -156,8 +140,6 @@ export default {
 
         // ==========================================================================================
 
-        const unWatchChainInfo = watch(currentChainInfo, async () => await callSubscription());
-
         const unWatchAcc = watch(walletAccount, async () => {
             store.dispatch('tokenOps/setSrcToken', null);
             store.dispatch('tokenOps/setDstToken', null);
@@ -167,7 +149,6 @@ export default {
         });
 
         const updateCollapsedStateOnResize = () => (collapsed.value = window.innerWidth <= 1024);
-        window.addEventListener('resize', updateCollapsedStateOnResize);
 
         // ==========================================================================================
 
@@ -176,6 +157,8 @@ export default {
         });
 
         onMounted(async () => {
+            window.addEventListener('resize', updateCollapsedStateOnResize);
+
             const chains = getChainListByEcosystem(ECOSYSTEMS.COSMOS);
 
             for (const { chain_name } of chains) {
@@ -185,7 +168,7 @@ export default {
                 });
             }
 
-            Socket.init(store);
+            Socket.init();
 
             store.dispatch('tokens/setLoader', true);
 
@@ -194,25 +177,16 @@ export default {
                 lastConnectedCall.value = true;
             }
 
-            await delay(100);
+            await delay(300);
 
             if (currentChainInfo.value) {
                 await callInit();
             }
         });
 
-        onUpdated(async () => {
-            if (currentChainInfo.value) {
-                await callSubscription();
-                return await callInit();
-            }
-        });
-
         onBeforeUnmount(() => {
             window.removeEventListener('resize', updateCollapsedStateOnResize);
-
             // Stop watching
-            unWatchChainInfo();
             unWatchAcc();
         });
 
