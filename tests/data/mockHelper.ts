@@ -1,5 +1,3 @@
-const EVM_NETWORKS = ['eth', 'arbitrum', 'optimism', 'bsc', 'polygon', 'fantom', 'avalanche'];
-
 const emptyBalanceMockData = { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' };
 
 const errorGetBalanceMockData = {
@@ -781,6 +779,5 @@ export {
     mockBalanceDataBySwapTest,
     emptyBalanceMockData,
     errorGetBalanceMockData,
-    EVM_NETWORKS,
     errorEstimateSwap,
 };

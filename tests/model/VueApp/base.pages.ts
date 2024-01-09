@@ -1,5 +1,5 @@
 import { Page } from '@playwright/test';
-import { FIVE_SECONDS } from '../utils';
+import { FIVE_SECONDS } from '../../__fixtures__/fixtureHelper';
 
 const url: string = '/';
 const sleep = require('util').promisify(setTimeout);
@@ -29,18 +29,25 @@ class BasePage {
         await this.page.goto(url);
     }
 
-    async clickLoginByMetaMask() {
+    async clickLoginByMetaMask(context?: any) {
         try {
             await this.page.locator('div.wallet-adapter-container').click();
             await this.page.getByTestId('EVM Ecosystem wallet').click();
         } catch (e) {
             console.log('\nFirst login by metamask fail:\n', `\t${e}`);
+            console.log(context);
             await this.page.reload();
             await this.page.locator('div.wallet-adapter-container').click();
             await this.page.getByTestId('EVM Ecosystem wallet').click();
         }
 
         await this.page.getByText('MetaMask').click();
+    }
+
+    async clickLoginByKeplr() {
+        await this.page.locator('div.wallet-adapter-container').click();
+        await this.page.getByTestId('Cosmos Ecosystem wallet').click();
+        await this.page.getByText('Keplr').click();
     }
 
     async goToModule(module: string = 'send|swap|bridge|superSwap'): Promise<SendPage | SwapPage | BridgePage | SuperSwapPage> {
