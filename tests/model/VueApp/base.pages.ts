@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import { BrowserContext, Page } from '@playwright/test';
 import { FIVE_SECONDS } from '../../__fixtures__/fixtureHelper';
 
 const url: string = '/';
@@ -29,16 +29,18 @@ class BasePage {
         await this.page.goto(url);
     }
 
-    async clickLoginByMetaMask(context?: any) {
+    async clickLoginByMetaMask(context?: BrowserContext) {
         try {
             await this.page.locator('div.wallet-adapter-container').click();
             await this.page.getByTestId('EVM Ecosystem wallet').click();
         } catch (e) {
             console.log('\nFirst login by metamask fail:\n', `\t${e}`);
-            console.log(context);
-            await this.page.reload();
-            await this.page.locator('div.wallet-adapter-container').click();
-            await this.page.getByTestId('EVM Ecosystem wallet').click();
+            console.log(context.pages().length);
+            console.log(context.pages());
+            await context.pages()[1].reload();
+            // await this.page.reload();
+            // await this.page.locator('div.wallet-adapter-container').click();
+            // await this.page.getByTestId('EVM Ecosystem wallet').click();
         }
 
         await this.page.getByText('MetaMask').click();
@@ -145,9 +147,16 @@ class BasePage {
         await this.page.waitForSelector('div.ant-skeleton-active', { state: 'hidden', timeout: 60000 });
     }
 
-    async waitLoadImg() {
+    async waitLoadImg(browser?, context?, page?) {
         let images = await this.page.locator('//img').all();
-        for (const img of images) await img.scrollIntoViewIfNeeded();
+        try {
+            for (const img of images) await img.scrollIntoViewIfNeeded();
+        } catch (e) {
+            console.log('>>>Start error log\n');
+            console.log(e);
+            console.log('>>>Start browser log\n');
+            console.log(browser, '>>>Finish browser\n', context, '>>>Finish context\n', page, '>>>Finish page\n');
+        }
 
         // const promises = images.map((locator) =>
         //     locator.evaluate((image) => {

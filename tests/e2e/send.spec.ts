@@ -1,7 +1,7 @@
 import { testKeplr, testMetaMask } from '../__fixtures__/fixtures';
 import { expect } from '@playwright/test';
 import { getTestVar, TEST_CONST } from '../envHelper';
-import { emptyBalanceMockData, mockBalanceDataBySendTest } from '../data/mockHelper';
+import { emptyBalanceMockData, mockBalanceCosmosWallet, mockBalanceDataBySendTest } from '../data/mockHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage, getHomeMmPage } from '../model/MetaMask/MetaMask.pages';
 import { EVM_NETWORKS } from '../data/constants';
 
@@ -79,15 +79,14 @@ testMetaMask.describe('MetaMask Send e2e tests', () => {
 
 testKeplr.describe('Keplr Send e2e tests', () => {
     testKeplr('Case#: Reject send native token in Cosmos', async ({ browser, context, page, sendPage }) => {
-        // const network = 'Polygon';
-        // const addressFrom = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
-        // const WAITED_URL = `**/srv-data-provider/api/balances?net=${network.toLowerCase()}**`;
+        const network = 'cosmos';
+        const addressFrom = 'cosmos1aascfnuh7dpup8cmyph2l0wgee9d2lchdlx00r';
+        const WAITED_URL = `**/srv-data-provider/api/balances?net=${network}**`;
 
-        // await sendPage.mockBalanceRequest(network.toLowerCase(), mockBalanceDataBySendTest[network.toLowerCase()], addressFrom);
-        // const balancePromise = sendPage.page.waitForResponse(WAITED_URL);
+        await sendPage.mockBalanceRequest(network.toLowerCase(), mockBalanceCosmosWallet, addressFrom);
+        const balancePromise = sendPage.page.waitForResponse(WAITED_URL);
 
-        // await balancePromise;
-        await sendPage.waitLoadImg();
+        await balancePromise;
 
         await expect(sendPage.getBaseContentElement()).toHaveScreenshot();
     });
