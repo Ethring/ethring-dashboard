@@ -34,7 +34,8 @@ export default defineConfig({
     projects: [
         {
             name: 'setup',
-            testMatch: '**/e2e/utils/global.setup.ts',
+            testDir: './tests/__fixtures__/global',
+            testMatch: 'global.setup.ts',
         },
         {
             name: 'chromium',
@@ -45,7 +46,8 @@ export default defineConfig({
         },
         {
             name: 'delete mm',
-            testMatch: '**/e2e/utils/global.teardown.ts',
+            testDir: './tests/__fixtures__/global',
+            testMatch: 'global.teardown.ts',
         },
     ],
 });

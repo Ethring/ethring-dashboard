@@ -1,10 +1,11 @@
-import { BrowserContext, expect, type Locator, type Page } from '@playwright/test';
-import { metaMaskId } from '../../__fixtures__/fixtures';
+import { BrowserContext, type Page } from '@playwright/test';
 import { getTestVar, TEST_CONST } from '../../envHelper';
-import { FIVE_SECONDS } from '../utils';
+import { FIVE_SECONDS } from '../../__fixtures__/fixtureHelper';
 
 const sleep = require('util').promisify(setTimeout);
 
+const metaMaskId = getTestVar(TEST_CONST.MM_ID);
+const metamaskVersion = getTestVar(TEST_CONST.MM_VERSION);
 const password = getTestVar(TEST_CONST.PASS_BY_MM_WALLET);
 
 const waitMmNotifyPage = async (context: BrowserContext) => {
@@ -45,18 +46,6 @@ const getHomeMmPage = async (context: BrowserContext): Promise<MetaMaskHomePage>
     const page = new MetaMaskHomePage(mainPage);
     await page.closeWhatsNewNotify();
     return page;
-};
-
-const closeEmptyPages = async (context: BrowserContext) => {
-    await sleep(FIVE_SECONDS); // wait for page load
-    const allStartPages = context.pages();
-
-    for (const page of allStartPages) {
-        const pageTitle = await page.title();
-        if (pageTitle === '') {
-            await page.close();
-        }
-    }
 };
 
 class MetaMaskHomePage {
@@ -180,4 +169,4 @@ class MetaMaskNotifyPage {
     }
 }
 
-export { waitMmNotifyPage, getNotifyMmPage, getHomeMmPage, closeEmptyPages, MetaMaskHomePage, MetaMaskNotifyPage };
+export { metamaskVersion, waitMmNotifyPage, getNotifyMmPage, getHomeMmPage, MetaMaskHomePage, MetaMaskNotifyPage };
