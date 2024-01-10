@@ -86,7 +86,7 @@ const mockBalanceData = {
                     name: 'Arbitrum Curve Pools',
                     platform: 'CURVE',
                     type: 'LIQUIDITY_POOL',
-                    logo: 'https://dao.curve.fi/logo.png',
+                    logo: null, // test view null logo
                     url: 'https://curve.fi/',
                     balances: [
                         {
@@ -250,7 +250,7 @@ const mockBalanceData = {
                     platform: 'COMPOUND',
                     name: 'Compound Borrow V2',
                     type: 'BORROW_AND_LENDING',
-                    logo: 'https://pulsar-images.s3.eu-west-1.amazonaws.com/protocols/compound.svg',
+                    logo: 'https://pulsar-images.s3.eu-west-1.amazonaws.com/protocols/compound.svg', // This picture is not saved correctly on the server. can't display correctly
                     url: 'https://app.compound.finance/',
                     balances: [
                         {
@@ -334,7 +334,7 @@ const mockBalanceData = {
                     name: 'Ankr aBNBc Stake',
                     platform: 'ANKR',
                     type: 'LIQUID_STAKING',
-                    logo: 'https://www.ankr.com/docs/favicon/favicon.ico',
+                    // no logo
                     url: 'https://www.ankr.com/',
                     balances: [
                         {
