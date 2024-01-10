@@ -1,17 +1,44 @@
 <template>
     <div class="simple-send">
-        <SelectNetwork :items="chainList" :label="$t('tokenOperations.selectNetwork')" :current="selectedSrcNetwork"
-            @select="onSelectNetwork" />
+        <SelectNetwork
+            :items="chainList"
+            :label="$t('tokenOperations.selectNetwork')"
+            :current="selectedSrcNetwork"
+            @select="onSelectNetwork"
+        />
 
-        <SelectAddress :selected-network="selectedSrcNetwork" :items="[]" :value="receiverAddress" :error="!!isAddressError"
-            class="mt-8" :on-reset="clearAddress" @setAddress="onSetAddress" />
+        <SelectAddress
+            :selected-network="selectedSrcNetwork"
+            :items="[]"
+            :value="receiverAddress"
+            :error="!!isAddressError"
+            class="mt-8"
+            :on-reset="clearAddress"
+            @setAddress="onSetAddress"
+        />
 
-        <SelectAmount :value="selectedSrcToken" :selected-network="selectedSrcNetwork" :error="!!isBalanceError"
-            :label="$t('tokenOperations.asset')" :on-reset="resetAmount" :is-token-loading="isTokensLoadingForChain"
-            :amount-value="srcAmount" class="mt-8" @setAmount="onSetAmount" @clickToken="onSetToken" />
+        <SelectAmount
+            :value="selectedSrcToken"
+            :selected-network="selectedSrcNetwork"
+            :error="!!isBalanceError"
+            :label="$t('tokenOperations.asset')"
+            :on-reset="resetAmount"
+            :is-token-loading="isTokensLoadingForChain"
+            :amount-value="srcAmount"
+            class="mt-8"
+            @setAmount="onSetAmount"
+            @clickToken="onSetToken"
+        />
 
-        <Button :title="$t(opTitle)" :disabled="!!disabledSend" :loading="isWaitingTxStatusForModule || isLoading"
-            class="simple-send__btn mt-16" data-qa="confirm" @click="handleOnSend" size="large" />
+        <Button
+            :title="$t(opTitle)"
+            :disabled="!!disabledSend"
+            :loading="isWaitingTxStatusForModule || isLoading"
+            class="simple-send__btn mt-16"
+            data-qa="confirm"
+            @click="handleOnSend"
+            size="large"
+        />
     </div>
 </template>
 <script>
