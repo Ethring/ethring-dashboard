@@ -7,6 +7,7 @@ import { test as setup } from '@playwright/test';
 
 // Helpers
 import { getTestVar, TEST_CONST } from '../../envHelper';
+import { deleteAllExtensionsIfTestLocalRun } from '../fixtureHelper';
 
 async function download(url: string, archivePath: string): Promise<void> {
     try {
@@ -53,6 +54,26 @@ function getMetaMaskVersion(): { url: string; name: string } {
     };
 }
 
+function getKeplrVersion(): { url: string; name: string } {
+    // Link to the Keplr extension
+    const GITHUB_KEPLR_LINK = 'https://github.com/chainapsis/keplr-wallet/releases/download';
+
+    // Current version of the Keplr extension
+    const VERSION = getTestVar(TEST_CONST.KEPLR_VERSION);
+
+    // Extension name to download
+    const EXT_NAME = `keplr-extension-manifest-v2-v${VERSION}`;
+
+    const url = `${GITHUB_KEPLR_LINK}/v${VERSION}/${EXT_NAME}.zip`;
+
+    console.info('[E2E-TEST] Keplr Download URL: ', url);
+
+    return {
+        url,
+        name: EXT_NAME,
+    };
+}
+
 async function unzipArchive(archivePath: string, dataFolderPath: string): Promise<void> {
     try {
         console.time('unzip');
@@ -64,8 +85,18 @@ async function unzipArchive(archivePath: string, dataFolderPath: string): Promis
     }
 }
 
-async function downloadAndUnzipMmEx() {
-    const { url, name } = getMetaMaskVersion();
+function getExtensionInfo(exName: string): { url: string; name: string } {
+    if (exName === 'mm') {
+        return getMetaMaskVersion();
+    } else if (exName === 'keplr') {
+        return getKeplrVersion();
+    } else {
+        throw new Error('Incorrect extension name');
+    }
+}
+
+async function downloadAndUnzipEx(exName: 'mm' | 'keplr') {
+    const { name, url } = getExtensionInfo(exName);
 
     // Path to the folder with the MetaMask extension
     const dataFolderPath = path.resolve(__dirname, '..', '..', 'data', name);
@@ -92,8 +123,14 @@ async function downloadAndUnzipMmEx() {
     console.timeEnd('unlinkSync');
 }
 
-setup('Set env and download metamask extension', async () => {
+setup('Set env and download browser wallet extensions', async () => {
+    deleteAllExtensionsIfTestLocalRun();
+
     console.time('Download-mm');
-    await downloadAndUnzipMmEx();
+    await downloadAndUnzipEx('mm');
     console.timeEnd('Download-mm');
+
+    console.time('Download-keplr');
+    await downloadAndUnzipEx('keplr');
+    console.timeEnd('Download-keplr');
 });
