@@ -686,12 +686,21 @@ class CosmosAdapter extends AdapterBase {
             return null;
         }
 
-        for (const rpc of RPCs) {
+        const connectPromises = RPCs.map(async (rpc) => {
             try {
                 return await SigningStargateClient.connectWithSigner(rpc, offlineSigner, signingStargate);
             } catch (error) {
                 console.warn(`[COSMOS -> getSignClient] Error connecting to RPC: ${rpc}`, error.message);
+                return null;
             }
+        });
+
+        const connectedClients = await Promise.all(connectPromises);
+
+        const client = connectedClients.find((client) => client !== null);
+
+        if (client) {
+            return client;
         }
 
         console.warn('[COSMOS -> getSignClient] Client not found');
