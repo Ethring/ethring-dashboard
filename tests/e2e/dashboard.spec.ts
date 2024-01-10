@@ -93,7 +93,7 @@ testMetaMask.describe('MetaMask dashboard', () => {
         });
         await dashboardProtocol.page.waitForFunction(() => window.scrollY === 0);
 
-        await expect(dashboardProtocol.page).toHaveScreenshot({ fullPage: true, maxDiffPixelRatio: 0.07 });
+        await expect(dashboardProtocol.page).toHaveScreenshot({ fullPage: true, maxDiffPixelRatio: 0.01 });
     });
 });
 
