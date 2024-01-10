@@ -93,7 +93,7 @@ testMetaMask.describe('MetaMask dashboard', () => {
         });
         await dashboardProtocol.page.waitForFunction(() => window.scrollY === 0);
 
-        await expect(dashboardProtocol.page).toHaveScreenshot({ fullPage: true, maxDiffPixelRatio: 0.01 });
+        await expect(dashboardProtocol.page).toHaveScreenshot({ fullPage: true });
     });
 });
 
@@ -101,6 +101,6 @@ testKeplr.describe('Keplr dashboard', () => {
     testKeplr('Case#: Dashboard page', async ({ browser, context, page, dashboard }) => {
         await dashboard.waitHiddenSkeleton();
 
-        await expect(dashboard.page).toHaveScreenshot();
+        await expect(dashboard.page).toHaveScreenshot({ maxDiffPixelRatio: 0.01 });
     });
 });
