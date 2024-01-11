@@ -17,6 +17,8 @@ import SelectToken from '@/components/ui/SelectToken.vue';
 import { getPriceFromProvider } from '@/shared/utils/prices';
 import { TOKEN_SELECT_TYPES, DIRECTIONS, PRICE_UPDATE_TIME } from '@/shared/constants/operations';
 
+import Moment from 'moment';
+
 export default {
     name: 'SearchSelectToken',
     components: {
@@ -89,7 +91,7 @@ export default {
         // =================================================================================================================
 
         const setToken = async (item) => {
-            const isPriceUpdate = new Date().getTime() - item?.priceUpdatedAt > PRICE_UPDATE_TIME;
+            const isPriceUpdate = Moment().diff(Moment(item?.priceUpdatedAt), 'milliseconds') > PRICE_UPDATE_TIME;
 
             if (!item.price || isPriceUpdate) {
                 item.price = await getPriceFromProvider(item.address, selectedNetwork.value, { coingeckoId: item.coingecko_id });

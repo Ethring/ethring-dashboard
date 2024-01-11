@@ -98,15 +98,11 @@ export const getFormattedName = (str) => {
 };
 
 export const getFormattedDate = (timestamp) => {
-    const date = new Date(+timestamp * 1000);
-
-    return Moment(date).format('DD.MM.YYYY  h:mm');
+    return Moment(+timestamp * 1000).format('DD.MM.YYYY  h:mm');
 };
 
 export function getTimeCountdown(timestamp) {
-    const currentDate = new Date();
-    const unlockDate = new Date(+timestamp * 1000);
-    const timeDifference = unlockDate - currentDate;
+    const timeDifference = Moment(+timestamp * 1000).diff(Moment(), 'milliseconds');
 
     const days = Math.floor(timeDifference / ONE_DAY);
 
