@@ -1,29 +1,41 @@
-import { test as base, chromium, type BrowserContext, Browser } from '@playwright/test';
-import path from 'path';
+import { test as base, chromium, type BrowserContext } from '@playwright/test';
+
 import { getTestVar, TEST_CONST } from '../envHelper';
-import { closeEmptyPages, MetaMaskHomePage, MetaMaskNotifyPage, getNotifyMmPage } from '../model/MetaMask/MetaMask.pages';
+import { EVM_NETWORKS } from '../data/constants';
+
+import { MetaMaskNotifyPage, getNotifyMmPage } from '../model/MetaMask/MetaMask.pages';
+import { getNotifyKeplrPage, KeplrNotifyPage } from '../model/Keplr/Keplr.pages';
+
 import { BasePage, SendPage, SwapPage, SuperSwapPage, DashboardPage } from '../model/VueApp/base.pages';
+import mockTokensListData from '../data/mockTokensListData';
+import { addWalletToKeplr, addWalletToMm, getPathToKeplrExtension, getPathToMmExtension } from './fixtureHelper';
 
-
-export const metaMaskId = getTestVar(TEST_CONST.MM_ID);
-const metamaskVersion = getTestVar(TEST_CONST.MM_VERSION);
 const seedPhraseByTx = getTestVar(TEST_CONST.SEED_BY_MOCK_TX);
 const seedPhraseByProtocol = getTestVar(TEST_CONST.SEED_BY_PROTOCOL_TEST);
 const seedPhraseEmptyWallet = getTestVar(TEST_CONST.EMPTY_SEED);
-
-const getPathToEx = () => path.join(__dirname, '..', `/data/metamask-chrome-${metamaskVersion}`);
-
-const addWalletToMm = async (context: BrowserContext, seed: String) => {
-    await closeEmptyPages(context);
-
-    const metaMaskPage = new MetaMaskHomePage(context.pages()[0]);
-    await metaMaskPage.addWallet(seed);
-};
 
 const authInDashboardByMm = async (context: BrowserContext, seed: String): Promise<DashboardPage> => {
     await addWalletToMm(context, seed);
 
     const zometPage = new DashboardPage(await context.newPage());
+    await zometPage.goToPage();
+
+    await zometPage.clickLoginByMetaMask(context);
+    const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
+    await notifyMM.assignPage();
+
+    const providerModal = zometPage.page.getByText('Connection Successful');
+    await providerModal.waitFor({ state: 'detached', timeout: 20000 });
+
+    await zometPage.waitMainElementVisible();
+    return zometPage;
+};
+
+const authInDashboardByMmTokensListMock = async (context: BrowserContext, seed: String): Promise<DashboardPage> => {
+    await addWalletToMm(context, seed);
+
+    const zometPage = new DashboardPage(await context.newPage());
+    await Promise.all(EVM_NETWORKS.map((network) => zometPage.mockTokensList(network, mockTokensListData[network])));
     await zometPage.goToPage();
 
     await zometPage.clickLoginByMetaMask();
@@ -37,8 +49,23 @@ const authInDashboardByMm = async (context: BrowserContext, seed: String): Promi
     return zometPage;
 };
 
-export const test = base.extend<{
+const authInDashboardByKeplr = async (context: BrowserContext, seed: String) => {
+    await addWalletToKeplr(context, seed);
+
+    const zometPage = new DashboardPage(await context.newPage());
+    await zometPage.goToPage();
+
+    await zometPage.clickLoginByKeplr();
+    const notifyKeplr = new KeplrNotifyPage(await getNotifyKeplrPage(context));
+    await notifyKeplr.assignPage();
+
+    await zometPage.waitMainElementVisible();
+    return zometPage;
+};
+
+export const testMetaMask = base.extend<{
     context: BrowserContext;
+
     authPage: BasePage;
     authPageEmptyWallet: BasePage;
 
@@ -48,6 +75,7 @@ export const test = base.extend<{
 
     sendPage: SendPage;
     swapPage: SwapPage;
+    swapPageMockTokensList: SwapPage;
     superSwapPage: SuperSwapPage;
 }>({
     context: async ({}, use) => {
@@ -55,8 +83,8 @@ export const test = base.extend<{
             headless: false,
             ignoreHTTPSErrors: true,
             args: [
-                `--disable-extensions-except=${getPathToEx()}`,
-                `--load-extension=${getPathToEx()}`,
+                `--disable-extensions-except=${getPathToMmExtension()}`,
+                `--load-extension=${getPathToMmExtension()}`,
                 '--force-fieldtrials',
 
                 '--ignore-certificate-errors',
@@ -70,6 +98,7 @@ export const test = base.extend<{
         await use(context);
         await context.close();
     },
+
     authPage: async ({ context }, use) => {
         await addWalletToMm(context, seedPhraseByTx);
         const zometPage = new BasePage(await context.newPage());
@@ -99,9 +128,14 @@ export const test = base.extend<{
         const swapPage = await zometPage.goToModule('swap');
         await use(swapPage);
     },
+    swapPageMockTokensList: async ({ context }, use) => {
+        const zometPage = await authInDashboardByMmTokensListMock(context, seedPhraseByTx);
+        const swapPage = await zometPage.goToModule('swap');
+        await use(swapPage);
+    },
     superSwapPage: async ({ context }, use) => {
         const zometPage = await authInDashboardByMm(context, seedPhraseByTx);
-        const superSwapPage = await zometPage.goToModule('superSwap');;
+        const superSwapPage = await zometPage.goToModule('superSwap');
         await use(superSwapPage);
     },
     sendPage: async ({ context }, use) => {
@@ -110,4 +144,48 @@ export const test = base.extend<{
         await use(sendPage);
     },
 });
-export const expect = test.expect;
+
+export const testKeplr = base.extend<{
+    context: BrowserContext;
+
+    authPage: BasePage;
+
+    dashboard: DashboardPage;
+    sendPage: SendPage;
+}>({
+    context: async ({}, use) => {
+        const context = await chromium.launchPersistentContext('', {
+            headless: false,
+            ignoreHTTPSErrors: true,
+            args: [
+                `--disable-extensions-except=${getPathToKeplrExtension()}`,
+                `--load-extension=${getPathToKeplrExtension()}`,
+                '--force-fieldtrials',
+
+                '--ignore-certificate-errors',
+
+                '--disable-background-timer-throttling',
+                '--disable-backgrounding-occluded-windows',
+                '--disable-renderer-backgrounding',
+            ],
+        });
+
+        await use(context);
+        await context.close();
+    },
+    authPage: async ({ context }, use) => {
+        await addWalletToKeplr(context, seedPhraseByTx);
+        const zometPage = new BasePage(await context.newPage());
+        await zometPage.goToPage();
+        await use(zometPage);
+    },
+    dashboard: async ({ context }, use) => {
+        const zometPage = await authInDashboardByKeplr(context, seedPhraseByTx);
+        await use(zometPage);
+    },
+    sendPage: async ({ context }, use) => {
+        const zometPage = await authInDashboardByKeplr(context, seedPhraseByTx);
+        const sendPage = await zometPage.goToModule('send');
+        await use(sendPage);
+    },
+});

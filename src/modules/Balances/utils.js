@@ -9,6 +9,8 @@ import { getTotalFuturesBalance, BALANCES_TYPES } from '@/shared/utils/assets';
 import IndexedDBService from '@/modules/indexedDb';
 
 import PricesModule from '@/modules/prices/';
+
+import { ECOSYSTEMS } from '@/Adapter/config';
 // =================================================================================================================
 
 export const storeOperations = async (
@@ -147,7 +149,7 @@ export const getIntegrationsBalance = (integrations) => {
 
 export const formatRecord = (record, { net, chain, logo, type }) => {
     record.chainLogo = logo;
-    record.chain = net || chain;
+    record.chain = chain;
 
     if ((DP_COSMOS[chain] || DP_COSMOS[net]) && !record.balanceType) {
         record = cosmosChainTokens(record, { chain, net });
@@ -184,8 +186,12 @@ export const prepareChainWithAddress = (addressesObj, currentChainInfo) => {
     const CHUNK_SIZE = 2;
 
     const { net: currentChain, ecosystem } = currentChainInfo;
+    const cosmosChains = JSON.parse(localStorage.getItem('networks/cosmos')) || {};
 
-    const addrList = Object.entries(addressesObj).map(([key, value]) => ({ chain: key, info: value }));
+    const addrList = Object.entries(addressesObj).map(([key, value]) => ({
+        chain: key,
+        info: ecosystem === ECOSYSTEMS.COSMOS ? { ...value, logo: cosmosChains[key]?.logo || value.logo } : value,
+    }));
 
     // Prioritize current chain
     const sortedByCurrChain = _.orderBy(addrList, (item) => (item.chain === currentChain ? 0 : 1), ['asc']);

@@ -2,6 +2,7 @@
 node_modules
 /dist
 /tests/data/metamask-*
+/tests/data/keplr-*
 
 
 # local env files
@@ -31,3 +32,4 @@ pnpm-debug.log*
 /playwright/.cache/
 .history
 .env.test
+playwright.config.local.ts

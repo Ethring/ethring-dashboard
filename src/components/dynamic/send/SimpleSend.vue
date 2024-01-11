@@ -1,48 +1,21 @@
 <template>
     <div class="simple-send">
-        <SelectNetwork
-            :items="chainList"
-            :label="$t('tokenOperations.selectNetwork')"
-            :current="selectedSrcNetwork"
-            @select="onSelectNetwork"
-        />
+        <SelectNetwork :items="chainList" :label="$t('tokenOperations.selectNetwork')" :current="selectedSrcNetwork"
+            @select="onSelectNetwork" />
 
-        <SelectAddress
-            :selected-network="selectedSrcNetwork"
-            :items="[]"
-            :value="receiverAddress"
-            :error="!!isAddressError"
-            class="mt-8"
-            :on-reset="clearAddress"
-            @setAddress="onSetAddress"
-        />
+        <SelectAddress :selected-network="selectedSrcNetwork" :items="[]" :value="receiverAddress" :error="!!isAddressError"
+            class="mt-8" :on-reset="clearAddress" @setAddress="onSetAddress" />
 
-        <SelectAmount
-            :value="selectedSrcToken"
-            :selected-network="selectedSrcNetwork"
-            :error="!!isBalanceError"
-            :label="$t('tokenOperations.asset')"
-            :on-reset="resetAmount"
-            :is-token-loading="isTokensLoadingForChain"
-            :amount-value="srcAmount"
-            class="mt-8"
-            @setAmount="onSetAmount"
-            @clickToken="onSetToken"
-        />
+        <SelectAmount :value="selectedSrcToken" :selected-network="selectedSrcNetwork" :error="!!isBalanceError"
+            :label="$t('tokenOperations.asset')" :on-reset="resetAmount" :is-token-loading="isTokensLoadingForChain"
+            :amount-value="srcAmount" class="mt-8" @setAmount="onSetAmount" @clickToken="onSetToken" />
 
-        <Button
-            :title="$t(opTitle)"
-            :disabled="!!disabledSend"
-            :loading="isWaitingTxStatusForModule || isLoading"
-            class="simple-send__btn mt-16"
-            data-qa="confirm"
-            @click="handleOnSend"
-            size="large"
-        />
+        <Button :title="$t(opTitle)" :disabled="!!disabledSend" :loading="isWaitingTxStatusForModule || isLoading"
+            class="simple-send__btn mt-16" data-qa="confirm" @click="handleOnSend" size="large" />
     </div>
 </template>
 <script>
-import { h, ref, computed, onBeforeUnmount, onMounted, watch } from 'vue';
+import { h, ref, inject, computed, onBeforeUnmount, onMounted, watch } from 'vue';
 
 import BigNumber from 'bignumber.js';
 
@@ -50,7 +23,6 @@ import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { SettingOutlined } from '@ant-design/icons-vue';
 
-import useAdapter from '@/Adapter/compositions/useAdapter';
 import useNotification from '@/compositions/useNotification';
 import useTransactions from '../../../Transactions/compositions/useTransactions';
 import useServices from '../../../compositions/useServices';
@@ -77,6 +49,7 @@ export default {
     setup() {
         const store = useStore();
         const router = useRouter();
+        const useAdapter = inject('useAdapter');
 
         const { name: module } = router.currentRoute.value;
 

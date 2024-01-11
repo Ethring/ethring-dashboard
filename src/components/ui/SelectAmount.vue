@@ -71,7 +71,7 @@
     </div>
 </template>
 <script>
-import { ref, watch, computed, onUpdated } from 'vue';
+import { ref, watch, computed, onUpdated, onMounted } from 'vue';
 
 import BigNumber from 'bignumber.js';
 
@@ -230,7 +230,11 @@ export default {
                     setToken(tkn);
                     amount.value = props.amountValue;
                     active.value = false;
+                    payTokenPrice.value = BigNumber(amount.value * +tkn?.price || 0).toFixed() || 0;
                     emit('setAmount', amount.value);
+                } else {
+                    amount.value = 0;
+                    payTokenPrice.value = 0;
                 }
             }
         );
@@ -244,40 +248,16 @@ export default {
         watch(amount, (val) => {
             amount.value = val;
 
-            if (val) {
-                if (symbolForReplace.value) {
-                    val = val.replace(symbolForReplace.value, '.');
-                }
-                amount.value = formatInputNumber(val);
-
-                return (payTokenPrice.value = BigNumber(amount.value * +selectedToken?.value?.price || 0).toFixed() || 0);
-            }
-
-            // val = val.replace(/[^0-9.]+/g, '').replace(/\.{2,}/g, '.');
-
             if (val === '' || !val?.toString()) {
                 return (payTokenPrice.value = 0);
             }
 
-            val = val
-                .toString()
-                // remove spaces
-                .replace(/\s+/g, '')
-                .replace(',', '.')
-                // only number
-                .replace(/[^.\d]+/g, '')
-                // remove extra 0 before decimal
-                .replace(/^0+/, '0')
-                // remove extra dots
-                .replace(/^0+(\d+)/, '$1');
-
-            if (val.indexOf('.') !== val.lastIndexOf('.')) {
-                val = val.substr(0, val.lastIndexOf('.'));
+            if (symbolForReplace.value) {
+                val = val.replace(symbolForReplace.value, '.');
             }
+            amount.value = formatInputNumber(val);
 
-            amount.value = val;
-
-            return (payTokenPrice.value = BigNumber(amount.value).multipliedBy(selectedToken?.value?.price || 0) || 0);
+            return (payTokenPrice.value = BigNumber(amount.value * +selectedToken?.value?.price || 0).toFixed() || 0);
         });
 
         const clickAway = () => {
@@ -326,6 +306,12 @@ export default {
         const clickToken = () => {
             emit('clickToken');
         };
+
+        onMounted(() => {
+            if (amount.value && selectedToken?.value) {
+                payTokenPrice.value = BigNumber(amount.value * +selectedToken?.value?.price || 0).toFixed() || 0;
+            }
+        });
 
         onUpdated(() => {
             resetAmount();
@@ -401,12 +387,12 @@ export default {
                 &-skeleton {
                     position: absolute;
                     right: 0px;
-                    top: -12px;
+                    top: -10px;
                 }
             }
 
             &-skeleton {
-                margin-top: 0px;
+                margin-top: 2px;
             }
 
             &-value {

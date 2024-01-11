@@ -29,6 +29,8 @@ import ClearIcon from '@/assets/icons/app/xmark.svg';
 import { ref, watch, onMounted, onUpdated, computed } from 'vue';
 import { useStore } from 'vuex';
 
+import { SIZES_CLASSNAMES, MAX_SIZE } from '@/shared/constants/operations';
+
 export default {
     name: 'SelectAddress',
     props: {
@@ -61,10 +63,10 @@ export default {
 
         const active = ref(false);
         const focused = ref(false);
-        const inputClass = ref('');
         const address = ref(props.value);
         const isError = ref(props.error);
 
+        const inputClass = computed(() => getClassName());
         const selectedSrcNetwork = computed(() => store.getters['tokenOps/srcNetwork']);
         const selectedDstNetwork = computed(() => store.getters['tokenOps/dstNetwork']);
 
@@ -93,15 +95,13 @@ export default {
         };
 
         const getClassName = () => {
-            if (address.value.length > 50) {
-                return 'small-size';
+            if (!address.value) {
+                return '';
             }
 
-            if (address.value.length > 46) {
-                return 'medium-size';
-            }
+            const size = Math.round(address.value.length / 5) * 5;
 
-            return '';
+            return SIZES_CLASSNAMES[size > MAX_SIZE ? MAX_SIZE : size] || '';
         };
 
         const onFocus = () => {
@@ -139,10 +139,6 @@ export default {
             () => props.onReset,
             () => resetAddress()
         );
-
-        watch(address, () => {
-            inputClass.value = getClassName();
-        });
 
         watch(
             () => props.error,
@@ -227,9 +223,16 @@ export default {
         .medium-size {
             font-size: var(--#{$prefix}medium-fs) !important;
         }
+        .medium-md-size {
+            font-size: var(--#{$prefix}default-fs) !important;
+        }
 
         .small-size {
-            font-size: var(--#{$prefix}--#{$prefix}default-fs) !important;
+            font-size: var(--#{$prefix}small-md-fs) !important;
+        }
+
+        .small-sm-size {
+            font-size: var(--#{$prefix}small-sm-fs) !important;
         }
 
         .network {

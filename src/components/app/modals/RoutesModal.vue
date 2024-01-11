@@ -59,8 +59,6 @@ import Modal from '@/components/app/Modal';
 import Button from '@/components/ui/Button';
 import NumberTooltip from '@/components/ui/NumberTooltip';
 
-// import useAdapter from '@/Adapter/compositions/useAdapter';
-
 export default {
     name: 'RoutesModal',
     components: {
@@ -156,6 +154,7 @@ export default {
     @include pageFlexColumn;
     align-items: flex-start;
     margin-top: 6px;
+    width: 100%;
 
     .mr-20 {
         margin-right: 20px !important;

@@ -7,7 +7,7 @@
                     <div class="sidebar__logo-type">{{ $t('sidebar.type') }}</div>
                 </div>
                 <LogoIcon v-else class="logo" />
-                <SidebarList v-if="walletAddress" :collapsed="isCollapsed" />
+                <SidebarList :collapsed="isCollapsed" />
             </div>
             <div class="sidebar-items__list">
                 <div class="sidebar__settings" v-if="walletAddress">
@@ -21,20 +21,25 @@
                 <Socials class="sidebar__socials" :collapsed="isCollapsed" />
             </div>
         </div>
+
+        <div class="trigger">
+            <MenuUnfoldOutlined v-if="collapsed" @click="() => $emit('change-collapse', false)" />
+            <MenuFoldOutlined v-else @click="() => $emit('change-collapse', true)" />
+        </div>
     </div>
 </template>
 <script>
-import { computed } from 'vue';
+import { computed, inject } from 'vue';
 import Logo from './Logo';
 import Socials from './Socials';
 import SidebarList from './SidebarList';
-
-import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import SettingsIcon from '@/assets/icons/dashboard/settings.svg';
 import LogoIcon from '@/assets/icons/sidebar/logo.svg';
 
 import { LAST_VERSION } from '@/config/releaseNotes';
+
+import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons-vue';
 
 export default {
     name: 'Sidebar',
@@ -44,6 +49,9 @@ export default {
         Socials,
         SettingsIcon,
         LogoIcon,
+
+        MenuFoldOutlined,
+        MenuUnfoldOutlined,
     },
     props: {
         collapsed: {
@@ -51,7 +59,10 @@ export default {
             required: false,
         },
     },
+    emits: ['change-collapse'],
     setup(props) {
+        const useAdapter = inject('useAdapter');
+
         const { walletAddress } = useAdapter();
 
         const isCollapsed = computed(() => props.collapsed || false);
@@ -77,8 +88,9 @@ export default {
 
     padding: 30px 25px;
 
-    display: inline-block;
-    min-width: 239px;
+    min-width: 80px;
+    max-width: 239px;
+
     box-sizing: border-box;
 
     &-items {
@@ -92,10 +104,6 @@ export default {
 
         &__list {
             @include pageFlexColumn;
-        }
-
-        &__list:last-child {
-            margin-bottom: 20px;
         }
     }
 
@@ -151,7 +159,7 @@ export default {
 
         &-type {
             color: var(--#{$prefix}sidebar-active-color);
-            font-size: 12px;
+            font-size: var(--#{$prefix}small-sm-fs);
             font-weight: 700;
             margin-left: -12px;
             margin-top: -4px;
@@ -159,8 +167,6 @@ export default {
     }
 
     &.collapsed {
-        min-width: 80px;
-
         .sidebar-items__list {
             align-items: center;
         }
@@ -183,6 +189,17 @@ export default {
     }
 
     .menu {
+        color: var(--#{$prefix}white);
+    }
+
+    .trigger {
+        position: absolute;
+        top: 30px;
+        right: -25px;
+
+        background-color: var(--#{$prefix}primary);
+        border-radius: 0 8px 8px 0;
+        padding: 8px;
         color: var(--#{$prefix}white);
     }
 }

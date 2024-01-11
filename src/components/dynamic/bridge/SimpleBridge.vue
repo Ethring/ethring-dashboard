@@ -65,7 +65,7 @@
         />
 
         <SelectAddress
-            v-if="isSendToAnotherAddress"
+            v-if="isSendToAnotherAddress && selectedDstNetwork"
             :selected-network="selectedDstNetwork"
             :error="!!errorAddress"
             placeholder="0x..."
@@ -96,7 +96,7 @@
     </div>
 </template>
 <script>
-import { h, ref, watch, computed, onBeforeUnmount, onMounted, onBeforeMount } from 'vue';
+import { h, ref, inject, watch, computed, onBeforeUnmount, onMounted, onBeforeMount } from 'vue';
 
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
@@ -109,7 +109,6 @@ import { SettingOutlined } from '@ant-design/icons-vue';
 
 // Adapter
 import { ECOSYSTEMS } from '@/Adapter/config';
-import useAdapter from '@/Adapter/compositions/useAdapter';
 
 // Notification
 import useNotification from '@/compositions/useNotification';
@@ -159,6 +158,7 @@ export default {
     setup() {
         const store = useStore();
         const router = useRouter();
+        const useAdapter = inject('useAdapter');
 
         const { t } = useI18n();
 
@@ -350,6 +350,7 @@ export default {
             }
             if (direction === DIRECTIONS.SOURCE) {
                 selectedSrcNetwork.value = network;
+                selectedSrcToken.value = null;
                 selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
 
                 srcAmount.value && (await onSetAmount(srcAmount.value));
@@ -447,7 +448,9 @@ export default {
             isUpdateSwapDirection.value = true;
 
             if (!+value) {
-                isUpdateSwapDirection.value = false;
+                setTimeout(() => {
+                    isUpdateSwapDirection.value = false;
+                }, 500);
                 return (isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance));
             }
 
@@ -483,6 +486,8 @@ export default {
 
             const fromToken = { ...selectedSrcToken.value };
             const toToken = { ...selectedDstToken.value };
+
+            isUpdateSwapDirection.value = true;
 
             selectedSrcNetwork.value = toNetwork;
             selectedDstNetwork.value = fromNetwork;
@@ -598,18 +603,18 @@ export default {
 
             const response = await estimateBridge(params);
 
-            const checkRoute = response?.fromTokenAmount === srcAmount.value;
-
-            if (!checkRoute) {
-                return;
-            }
-
             isUpdateSwapDirection.value = false;
 
             if (response.error) {
                 isEstimating.value = false;
-
+                isLoading.value = false;
                 return (estimateErrorTitle.value = response.error);
+            }
+
+            const checkRoute = +response?.fromTokenAmount === +srcAmount.value;
+
+            if (!checkRoute) {
+                return;
             }
 
             isEstimating.value = false;
@@ -709,13 +714,15 @@ export default {
                     toTokenAddress: selectedDstToken.value.address,
                 };
 
+                const addresses = JSON.parse(JSON.stringify(addressesByChains.value || {}));
+
                 if (receiverAddress.value && receiverAddress.value !== '' && isSendToAnotherAddress.value) {
                     params.recipientAddress = receiverAddress.value;
-                    addressesByChains.value[selectedDstNetwork.value?.net] = receiverAddress.value;
+                    addresses[selectedDstNetwork.value?.net] = receiverAddress.value;
                 }
 
                 if (selectedService.value.id === 'bridge-skip') {
-                    params.ownerAddresses = JSON.stringify(addressesByChains.value);
+                    params.ownerAddresses = JSON.stringify(addresses);
                 } else {
                     params.ownerAddress = walletAddress.value;
                     params.recipientAddress = receiverAddress.value || walletAddress.value;

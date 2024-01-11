@@ -336,7 +336,7 @@ export default {
     }
     .column-3 {
         width: 12%;
-        justify-content: start;
+        justify-content: end;
         padding-left: 16px;
     }
 
@@ -348,6 +348,7 @@ export default {
         cursor: pointer;
         stroke: var(--#{$prefix}select-icon-color);
         transform: rotate(0);
+        margin-left: 8px;
         @include animateEasy;
     }
 

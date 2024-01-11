@@ -63,7 +63,7 @@
     </div>
 </template>
 <script>
-import { h, ref, watch, computed, onBeforeUnmount, onMounted } from 'vue';
+import { h, ref, watch, inject, computed, onBeforeUnmount, onMounted } from 'vue';
 
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
@@ -80,7 +80,6 @@ import { getServices, SERVICE_TYPE } from '@/config/services';
 
 // Adapter
 import { ECOSYSTEMS } from '@/Adapter/config';
-import useAdapter from '@/Adapter/compositions/useAdapter';
 
 // Notification
 import useNotification from '@/compositions/useNotification';
@@ -128,6 +127,8 @@ export default {
         const router = useRouter();
 
         const { t } = useI18n();
+
+        const useAdapter = inject('useAdapter');
 
         const { name: module } = router.currentRoute.value;
 
@@ -416,11 +417,15 @@ export default {
                 return false;
             }
 
-            const currentAmount = utils.parseUnits(srcAmount.value, selectedSrcToken.value?.decimals).toString();
+            try {
+                const currentAmount = utils.parseUnits(srcAmount.value, selectedSrcToken.value?.decimals).toString();
 
-            const isEnough = BigNumber(currentAmount).lte(allowanceForToken.value);
+                const isEnough = BigNumber(currentAmount).lte(allowanceForToken.value);
 
-            return !isEnough;
+                return !isEnough;
+            } catch {
+                return false;
+            }
         });
 
         // =================================================================================================================
@@ -460,8 +465,9 @@ export default {
                 return false;
             }
 
-            estimateErrorTitle.value = '';
-
+            if (estimateErrorTitle.value === t('tokenOperations.selectDstToken')) {
+                estimateErrorTitle.value = '';
+            }
             const isNotEVM = selectedSrcNetwork.value?.ecosystem !== ECOSYSTEMS.EVM;
 
             return isNotEVM || true;
@@ -516,17 +522,18 @@ export default {
                 response = await estimateSwap(params);
             }
 
-            const checkRoute = response?.fromTokenAmount === srcAmount.value;
-
-            if (!checkRoute) {
-                return;
-            }
-
             isUpdateSwapDirection.value = false;
 
             if (response.error) {
                 isEstimating.value = false;
+                isLoading.value = false;
                 return (estimateErrorTitle.value = response.error);
+            }
+
+            const checkRoute = +response?.fromTokenAmount === +srcAmount.value;
+
+            if (!checkRoute) {
+                return;
             }
 
             isEstimating.value = false;
@@ -811,11 +818,10 @@ export default {
 
         watch(walletAccount, () => {
             selectedSrcNetwork.value = currentChainInfo.value;
-
             estimateErrorTitle.value = '';
-
+            isEstimating.value = false;
+            isLoading.value = false;
             resetTokensForModules();
-
             setEcosystemService();
         });
 

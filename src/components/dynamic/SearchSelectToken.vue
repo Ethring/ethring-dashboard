@@ -73,6 +73,7 @@ export default {
             network: selectedNetwork.value,
             fromToken: selectedTokenFrom.value,
             toToken: selectedTokenTo.value,
+            isSameNet: selectedDstNetwork.value === selectedSrcNetwork.value || !selectedDstNetwork.value,
         });
 
         // =================================================================================================================

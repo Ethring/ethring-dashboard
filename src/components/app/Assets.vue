@@ -13,7 +13,7 @@
             </div>
         </template>
 
-        <template v-if="allIntegrations.length > 0">
+        <template v-if="allIntegrations.length">
             <div class="tokens__group" data-qa="protocol_group" v-for="(item, i) in integrationAssetsByPlatform" :key="i">
                 <AssetItemHeader
                     v-if="item.data.length"
@@ -32,7 +32,7 @@
             </div>
         </template>
 
-        <template v-if="nftsByCollection.length > 0">
+        <template v-if="nftsByCollection.length">
             <div class="tokens__group">
                 <AssetItemHeader title="NFT" :totalBalance="totalNftBalances" />
                 <AssetItemSubHeader
@@ -56,12 +56,10 @@
     </div>
 </template>
 <script>
-import { ref, computed, watch, watchEffect } from 'vue';
+import { ref, computed, watch, watchEffect, inject } from 'vue';
 import { useStore } from 'vuex';
 
 import BigNumber from 'bignumber.js';
-
-import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import EmptyList from '@/components/ui/EmptyList';
 
@@ -83,6 +81,8 @@ export default {
     },
     setup() {
         const store = useStore();
+
+        const useAdapter = inject('useAdapter');
 
         const { walletAccount, currentChainInfo } = useAdapter();
 
@@ -192,7 +192,7 @@ export default {
         border: 1px solid var(--#{$prefix}assets-border-color);
         background-color: var(--#{$prefix}secondary-background);
         border-radius: 16px;
-        padding: 16px;
+        padding: 16px 16px 8px;
         margin-bottom: 16px;
         box-sizing: border-box;
         @include animateEasy;

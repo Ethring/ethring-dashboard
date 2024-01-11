@@ -29,11 +29,10 @@
     </div>
 </template>
 <script>
-import { computed } from 'vue';
+import { computed, inject } from 'vue';
 import { useStore } from 'vuex';
 import { useClipboard } from '@vueuse/core';
 
-import useAdapter from '@/Adapter/compositions/useAdapter';
 import { ECOSYSTEMS } from '@/Adapter/config';
 
 import { cutAddress } from '@/helpers/utils';
@@ -54,6 +53,7 @@ export default {
     },
     setup() {
         const store = useStore();
+        const useAdapter = inject('useAdapter');
 
         const { copy, copied } = useClipboard();
 

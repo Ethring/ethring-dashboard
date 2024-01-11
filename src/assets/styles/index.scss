@@ -36,7 +36,6 @@ body {
 ::-webkit-scrollbar-thumb {
   background: $gulfStream;
   border-radius: 4px;
-
 }
 
 ::-webkit-scrollbar {
@@ -44,20 +43,8 @@ body {
   height: 4px;
 }
 
-
 ::-webkit-scrollbar-thumb:hover {
   background: $trout;
-}
-
-.ant-layout-sider-collapsed .ant-layout-sider-trigger {
-  width: 80px !important;
-  z-index: 1000 !important;
-}
-
-.ant-layout-sider-trigger {
-  width: 239px !important;
-  z-index: 999 !important;
-  background-color: var(--#{$prefix}primary) !important;
 }
 
 .ant-dropdown-arrow {
@@ -70,21 +57,19 @@ body {
   fill: var(--#{$prefix}primary-text) !important;
 }
 
-
 ::-webkit-input-placeholder {
-  color:var(--#{$prefix}select-placeholder-text);
+  color: var(--#{$prefix}select-placeholder-text);
 }
 ::-moz-placeholder {
-  color:var(--#{$prefix}select-placeholder-text);
+  color: var(--#{$prefix}select-placeholder-text);
   opacity: 1;
 }
 :-ms-input-placeholder {
-  color:var(--#{$prefix}select-placeholder-text);
+  color: var(--#{$prefix}select-placeholder-text);
 }
 ::placeholder {
   color: var(--#{$prefix}select-placeholder-text);
 }
-
 
 @keyframes arrowMovement {
   0% {

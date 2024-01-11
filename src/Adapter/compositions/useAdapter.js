@@ -1,4 +1,5 @@
-import { computed } from 'vue';
+import { ref, computed, onBeforeUnmount, onMounted } from 'vue';
+
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
@@ -15,6 +16,8 @@ function useAdapter() {
     const router = useRouter();
 
     const storeModule = 'adapters';
+
+    const walletsSubscription = ref(null);
 
     // * Store Getters & Dispatch
     const adaptersGetter = (getter) => store.getters[`${storeModule}/${getter}`];
@@ -54,7 +57,11 @@ function useAdapter() {
             return;
         }
 
-        return wallets.subscribe(async () => {
+        if (walletsSubscription.value) {
+            unsubscribeFromWalletsChange();
+        }
+
+        walletsSubscription.value = wallets.subscribe(async () => {
             await new Promise((resolve) => setTimeout(resolve, 500));
 
             if (mainAdapter.value?.updateStates) {
@@ -63,6 +70,18 @@ function useAdapter() {
 
             storeWalletInfo();
         });
+    }
+
+    function unsubscribeFromWalletsChange() {
+        if (!mainAdapter.value?.unsubscribeFromWalletsChange) {
+            return;
+        }
+
+        mainAdapter.value?.unsubscribeFromWalletsChange();
+
+        if (walletsSubscription.value) {
+            walletsSubscription.value = null; // Reset subscription
+        }
     }
 
     // * Store Wallet Info
@@ -85,7 +104,7 @@ function useAdapter() {
         adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
         adaptersDispatch(TYPES.SET_IS_CONNECTED, true);
 
-        return subscribeToWalletsChange();
+        // return subscribeToWalletsChange();
     }
 
     // * Connect to Wallet by Ecosystem
@@ -326,6 +345,17 @@ function useAdapter() {
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
         return adapter.getNativeTokenByChain(chain, store);
     };
+
+    // ==================== HOOKS ====================
+    // * Subscribe to Wallets Change
+    onMounted(() => {
+        subscribeToWalletsChange();
+    });
+
+    // * Unsubscribe from Wallets Change
+    onBeforeUnmount(() => {
+        unsubscribeFromWalletsChange();
+    });
 
     return {
         isConnecting,

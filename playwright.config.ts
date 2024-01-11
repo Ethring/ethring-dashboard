@@ -34,18 +34,20 @@ export default defineConfig({
     projects: [
         {
             name: 'setup',
-            testMatch: '**/e2e/utils/global.setup.ts',
+            testDir: './tests/__fixtures__/global',
+            testMatch: 'global.setup.ts',
         },
         {
             name: 'chromium',
             use: { ...devices['Desktop Chrome'] },
             dependencies: ['setup'],
-            testMatch: '**/tests/e2e/@(dashboard|send).spec.ts',
+            testMatch: '**/tests/e2e/@(dashboard|send|swap).spec.ts',
             teardown: 'delete mm',
         },
         {
             name: 'delete mm',
-            testMatch: '**/e2e/utils/global.teardown.ts',
+            testDir: './tests/__fixtures__/global',
+            testMatch: 'global.teardown.ts',
         },
     ],
 });

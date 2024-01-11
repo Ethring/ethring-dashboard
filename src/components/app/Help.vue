@@ -25,10 +25,8 @@
     </div>
 </template>
 <script>
-import { ref, computed } from 'vue';
+import { ref, computed, inject } from 'vue';
 import { useStore } from 'vuex';
-
-import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import { FileDoneOutlined, SyncOutlined } from '@ant-design/icons-vue';
 
@@ -47,6 +45,8 @@ export default {
     },
     setup() {
         const store = useStore();
+        const useAdapter = inject('useAdapter');
+
         const { currentChainInfo } = useAdapter();
 
         const open = ref(false);
