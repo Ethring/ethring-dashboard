@@ -177,6 +177,8 @@ import { STATUSES, NATIVE_CONTRACT, SUPPORTED_CHAINS } from '@/shared/constants/
 import { DIRECTIONS, TOKEN_SELECT_TYPES, PRICE_UPDATE_TIME } from '@/shared/constants/operations';
 import { isCorrectChain } from '@/shared/utils/operations';
 
+import Moment from 'moment';
+
 export default {
     name: 'SuperSwap',
     components: {
@@ -413,7 +415,7 @@ export default {
         // =================================================================================================================
 
         const handleOnSelectToken = async (token, direction) => {
-            const isPriceUpdate = new Date().getTime() - token?.priceUpdatedAt > PRICE_UPDATE_TIME;
+            const isPriceUpdate = Moment().diff(Moment(token?.priceUpdatedAt), 'milliseconds') > PRICE_UPDATE_TIME;
 
             if (!token?.price || isPriceUpdate) {
                 const selectedNetwork = direction === TOKEN_SELECT_TYPES.FROM ? selectedSrcNetwork : selectedDstNetwork;
