@@ -138,12 +138,14 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         return _.orderBy(
             allTokens,
             [
+                // Sorting by selected
+                (tkn) => tkn.selected,
                 // Sorting by balance
                 (tkn) => Number(tkn.balanceUsd),
                 // Sorting by Native Token
                 (tkn) => tkn?.name?.includes('Native Token'),
             ],
-            ['desc', 'desc']
+            ['desc', 'desc', 'desc']
         );
     };
 
