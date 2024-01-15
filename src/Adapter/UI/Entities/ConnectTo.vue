@@ -64,6 +64,7 @@ export default {
     padding: 8px;
     cursor: pointer;
     transition: 0.2s;
+    min-width: 300px;
 
     &.disabled {
         opacity: 0.5;

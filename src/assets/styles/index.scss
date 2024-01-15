@@ -88,3 +88,122 @@ body {
     opacity: 0;
   }
 }
+
+.adapter__dropdown .ant-menu-item-group-title {
+  display: none !important;
+}
+
+.connect-wallet__ecosystems {
+  background-color: transparent !important;
+}
+
+li.ecosystem-item {
+  min-height: 58px;
+  max-height: 80px;
+
+  &:hover {
+    background: transparent !important;
+    .wallets-item {
+      background: var(--#{$prefix}adapter-hover-color) !important;
+    }
+  }
+}
+.connect-wallet__ecosystems {
+  .wallets-item,
+  li.ecosystem-item {
+    width: 500px !important;
+    height: 120px !important;
+
+    max-height: 120px;
+    min-height: auto;
+
+    min-width: auto;
+    max-width: 500px;
+
+    &:hover {
+      .wallets-item {
+        background: var(--#{$prefix}adapter-connect-hover-color) !important;
+      }
+    }
+  }
+
+  li.ecosystem-item {
+    padding: 0 !important;
+  }
+
+  li.ecosystem-item:not(:last-child) {
+    margin-bottom: 16px;
+  }
+
+  .wallets-item {
+    padding: 0 25px;
+    border-radius: 16px;
+  }
+}
+
+.connect-wallet__ecosystems .wallets-item {
+  &__logos {
+    width: 100%;
+    max-width: 220px;
+  }
+
+  &__logo {
+    width: 80px;
+    height: 80px;
+    svg {
+      transform: scale(2);
+    }
+  }
+
+  .name {
+    font-size: var(--#{$prefix}h4-fs);
+  }
+}
+
+// .search-select-token {
+//   position: absolute;
+//   // z-index: -200;
+
+//   top: 0;
+//   left: 0;
+//   right: 0;
+//   bottom: 0;
+
+//   // transform: translateX(-150%);
+
+//   background-color: var(--#{$prefix}main-background);
+
+//   &.open {
+//     animation: openSearch 0.8s ease-in-out;
+//     animation-fill-mode: forwards;
+//     opacity: 1;
+//   }
+
+//   &.close {
+//     opacity: 1;
+//     animation: closeSearch 0.6s ease-in-out;
+//     animation-fill-mode: forwards;
+//   }
+// }
+
+// @keyframes openSearch {
+//   0% {
+//     z-index: -200;
+//     transform: translateX(-150%);
+//   }
+//   100% {
+//     z-index: 998;
+//     transform: translateX(0);
+//   }
+// }
+
+// @keyframes closeSearch {
+//   0% {
+//     z-index: 998;
+//     transform: translateX(0);
+//   }
+//   100% {
+//     z-index: -200;
+//     transform: translateX(-150%);
+//   }
+// }

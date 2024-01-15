@@ -1,20 +1,18 @@
 <template>
-    <a-dropdown v-model:open="activeDropdown" placement="bottom" class="wallet-adapter-container">
-        <AccountCenter v-if="walletAddress" @toggleDropdown="() => (activeDropdown = !activeDropdown)" class="ant-dropdown-link" />
+    <a-dropdown :arrow="{ pointAtCenter: true }" placement="bottom" class="wallet-adapter-container">
+        <AccountCenter v-if="walletAddress" class="ant-dropdown-link" />
         <NotConnected v-else class="ant-dropdown-link" />
 
         <template #overlay>
-            <div class="adapter__dropdown">
-                <ConnectToEcosystems @closeDropdown="() => (activeDropdown = false)" />
-                <AdapterDropdown v-if="walletAddress" @closeDropdown="() => (activeDropdown = false)" />
-            </div>
+            <a-menu class="adapter__dropdown">
+                <ConnectToEcosystems />
+                <AdapterDropdown v-if="walletAddress" />
+            </a-menu>
         </template>
     </a-dropdown>
 </template>
 
 <script>
-import { ref } from 'vue';
-
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import AccountCenter from '@/Adapter/UI/Widgets/AccountCenter';
@@ -32,12 +30,9 @@ export default {
         NotConnected,
     },
     setup() {
-        const activeDropdown = ref(false);
-
         const { walletAddress, connectedWallets } = useAdapter();
 
         return {
-            activeDropdown,
             walletAddress,
             connectedWallets,
         };
@@ -47,32 +42,17 @@ export default {
 <style lang="scss" scoped>
 .wallet-adapter-container {
     position: relative;
+    max-width: 350px;
 
-    width: 300px;
-    height: 48px;
+    width: 100%;
 }
 
 .adapter__dropdown {
-    position: absolute;
-    right: 0;
-    width: 356px;
-    padding: 16px;
-    border-radius: 16px;
-    top: 5px;
-    z-index: 2;
-    background: var(--#{$prefix}secondary-background);
-    box-shadow: 0px 4px 40px 0px $black-op-02;
+    padding-top: 16px;
+    padding-bottom: 16px;
 
-    &::before {
-        content: '';
-        position: absolute;
-        background-color: var(--#{$prefix}secondary-background);
-        width: 16px;
-        z-index: 1;
-        height: 16px;
-        left: 50%;
-        top: -5px;
-        transform: rotate(45deg);
-    }
+    background: var(--#{$prefix}secondary-background);
+
+    border-radius: 16px;
 }
 </style>

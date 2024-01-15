@@ -38,7 +38,7 @@ class EthereumAdapter extends AdapterBase {
     }
 
     async connectWallet(walletName) {
-        const { connectWallet, connectingWallet, connectedWallet } = useOnboard();
+        const { connectWallet, connectedWallet } = useOnboard();
 
         const connectionOption = {
             autoSelect: {
@@ -49,13 +49,14 @@ class EthereumAdapter extends AdapterBase {
 
         try {
             await connectWallet(walletName ? connectionOption : null);
+            const { wallets = [] } = web3Onboard.state.get() || {};
 
-            if (!connectingWallet.value) {
+            if (wallets.length) {
                 this.setAddressForChains();
             }
 
             return {
-                isConnected: !connectingWallet.value,
+                isConnected: !!wallets.length,
                 walletName: connectedWallet.value?.label || null,
             };
         } catch (error) {

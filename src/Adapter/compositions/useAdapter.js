@@ -114,13 +114,12 @@ function useAdapter() {
         try {
             const { isConnected, walletName } = await adapter.connectWallet(...args);
 
-            if (walletName || isConnected) {
+            if (walletName && isConnected) {
                 adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
                 adaptersDispatch(TYPES.SET_IS_CONNECTED, true);
                 adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
+                storeWalletInfo();
             }
-
-            isConnected && storeWalletInfo();
 
             return isConnected;
         } catch (error) {
@@ -128,6 +127,25 @@ function useAdapter() {
             adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
             adaptersDispatch(TYPES.SET_IS_CONNECTED, false);
             return false;
+        }
+    };
+
+    // * Connect to Wallet by Ecosystems
+    const connectByEcosystems = async (ecosystem) => {
+        if (!ecosystem) {
+            return;
+        }
+
+        if (ecosystem === ECOSYSTEMS.COSMOS) {
+            return adaptersDispatch(TYPES.SET_MODAL_STATE, { name: 'wallets', isOpen: true });
+        }
+
+        try {
+            const status = await connectTo(ecosystem);
+            status && adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
+        } catch (error) {
+            adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
+            console.log(error);
         }
     };
 
@@ -374,6 +392,7 @@ function useAdapter() {
         action: (action, ...args) => adaptersDispatch(TYPES[action], ...args),
 
         connectTo,
+        connectByEcosystems,
         connectLastConnectedWallet,
 
         getWalletLogo,
