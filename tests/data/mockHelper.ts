@@ -380,7 +380,7 @@ const mockBalanceData = {
                             balanceUsd: '0.05815918103940518',
                             balance: '0.11',
                             balanceType: 'LOCKED',
-                            unlockTimestamp: 1795046400,
+                            unlockTimestamp: new Date().getTime() + 89650670966,
                         },
                     ],
                 },
