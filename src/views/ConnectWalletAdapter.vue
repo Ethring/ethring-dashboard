@@ -62,7 +62,7 @@ export default {
         flex-direction: column;
 
         .title {
-            font-size: var(--#{$prefix}h1-fs);
+            font-size: var(--#{$prefix}h3-fs);
             font-weight: 500;
             margin-bottom: 1rem;
             color: var(--#{$prefix}mute-text);
