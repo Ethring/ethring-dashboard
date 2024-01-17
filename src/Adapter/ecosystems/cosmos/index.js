@@ -1,4 +1,5 @@
 import { ref } from 'vue';
+import _ from 'lodash';
 
 import { cosmos } from 'osmojs';
 import { SigningStargateClient, GasPrice } from '@cosmjs/stargate';
@@ -680,27 +681,33 @@ class CosmosAdapter extends AdapterBase {
     }
 
     async getSignClient(RPCs, { signingStargate = {}, offlineSigner = {} }) {
+        const CHUNK_SIZE = 5;
+
         // Check if RPCs exist
         if (!RPCs.length) {
             console.warn('[COSMOS -> getSignClient] RPCs not found to get client');
             return null;
         }
 
-        const connectPromises = RPCs.map(async (rpc) => {
-            try {
-                return await SigningStargateClient.connectWithSigner(rpc, offlineSigner, signingStargate);
-            } catch (error) {
-                console.warn(`[COSMOS -> getSignClient] Error connecting to RPC: ${rpc}`, error.message);
-                return null;
+        const chunkedRPCs = _.chunk(RPCs, CHUNK_SIZE);
+
+        for (const chunkRPCs of chunkedRPCs) {
+            const connectPromises = chunkRPCs.map(async (rpc) => {
+                try {
+                    return await SigningStargateClient.connectWithSigner(rpc, offlineSigner, signingStargate);
+                } catch (error) {
+                    console.warn(`[COSMOS -> getSignClient] Error connecting to RPC: ${rpc}`, error.message);
+                    return null;
+                }
+            });
+
+            const connectedClients = await Promise.all(connectPromises);
+
+            const client = connectedClients.find((client) => client !== null);
+
+            if (client) {
+                return client;
             }
-        });
-
-        const connectedClients = await Promise.all(connectPromises);
-
-        const client = connectedClients.find((client) => client !== null);
-
-        if (client) {
-            return client;
         }
 
         console.warn('[COSMOS -> getSignClient] Client not found');
