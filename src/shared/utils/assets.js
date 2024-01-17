@@ -1,6 +1,9 @@
 import BigNumber from 'bignumber.js';
+import Moment from 'moment';
 
 import { sortByKey } from '@/helpers/utils';
+
+import { ONE_DAY, ONE_HOUR } from '@/shared/constants/operations';
 
 export const BALANCES_TYPES = {
     ALL: 'ALL',
@@ -95,13 +98,32 @@ export const getFormattedName = (str) => {
 };
 
 export const getFormattedDate = (timestamp) => {
-    const date = new Date(+timestamp * 1000);
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-
-    return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
+    return Moment(+timestamp * 1000).format('DD.MM.YYYY  h:mm');
 };
+
+export function getTimeCountdown(timestamp) {
+    const timeDifference = Moment(+timestamp * 1000).diff(Moment(), 'milliseconds');
+
+    const days = Math.floor(timeDifference / ONE_DAY);
+
+    if (days > 0) {
+        return `${days} days`;
+    }
+
+    const hours = Math.floor((timeDifference % ONE_DAY) / ONE_HOUR);
+
+    if (hours > 0) {
+        return `${hours} hours`;
+    }
+
+    const minutes = Math.floor((timeDifference % ONE_HOUR) / (1000 * 60));
+
+    if (minutes > 0) {
+        return `${minutes} minutes`;
+    }
+
+    return 'is available';
+}
 
 export const getTotalFuturesBalance = (records, totalBalance) => {
     let leverageTotalUsd = BigNumber(0);

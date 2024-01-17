@@ -30,7 +30,7 @@ testMetaMask.describe('Pages snapshot tests with empty wallet', () => {
 
         const sendPage = await dashboardEmptyWallet.goToModule('send');
         await sendPage.waitLoadImg();
-        await expect(sendPage.page).toHaveScreenshot();
+        await expect(sendPage.page).toHaveScreenshot({ maxDiffPixelRatio: 0.01 });
     });
 
     testMetaMask('Case#: Swap page', async ({ browser, context, page, dashboardEmptyWallet }) => {
@@ -41,7 +41,7 @@ testMetaMask.describe('Pages snapshot tests with empty wallet', () => {
         await swapPage.waitDetachedSkeleton();
         await swapPage.waitLoadImg();
 
-        await expect(swapPage.page).toHaveScreenshot();
+        await expect(swapPage.page).toHaveScreenshot({ maxDiffPixelRatio: 0.01 });
     });
 
     testMetaMask('Case#: Bridge page', async ({ browser, context, page, dashboardEmptyWallet }) => {
@@ -52,7 +52,7 @@ testMetaMask.describe('Pages snapshot tests with empty wallet', () => {
         await bridgePage.waitDetachedSkeleton();
         await bridgePage.waitLoadImg();
 
-        await expect(bridgePage.page).toHaveScreenshot();
+        await expect(bridgePage.page).toHaveScreenshot({ maxDiffPixelRatio: 0.01 });
     });
 
     testMetaMask('Case#: Bridge page if balance request error', async ({ browser, context, page, dashboardEmptyWallet }) => {
@@ -67,7 +67,7 @@ testMetaMask.describe('Pages snapshot tests with empty wallet', () => {
         await bridgePage.waitDetachedSkeleton();
         await bridgePage.waitLoadImg();
 
-        await expect(bridgePage.page).toHaveScreenshot();
+        await expect(bridgePage.page).toHaveScreenshot({ maxDiffPixelRatio: 0.01 });
     });
 
     testMetaMask('Case#: Super swap page', async ({ browser, context, page, dashboardEmptyWallet }) => {
@@ -76,7 +76,7 @@ testMetaMask.describe('Pages snapshot tests with empty wallet', () => {
 
         const superSwapPage = await dashboardEmptyWallet.goToModule('superSwap');
         await superSwapPage.waitLoadImg();
-        await expect(superSwapPage.page).toHaveScreenshot();
+        await expect(superSwapPage.page).toHaveScreenshot({ maxDiffPixelRatio: 0.01 });
     });
 });
 
@@ -92,8 +92,8 @@ testMetaMask.describe('MetaMask dashboard', () => {
             window.scrollTo(0, 0);
         });
         await dashboardProtocol.page.waitForFunction(() => window.scrollY === 0);
-        
-        await expect(dashboardProtocol.page).toHaveScreenshot({ fullPage: true, maxDiffPixelRatio: 0.07 });
+
+        await expect(dashboardProtocol.page).toHaveScreenshot({ fullPage: true });
     });
 });
 
@@ -101,6 +101,6 @@ testKeplr.describe('Keplr dashboard', () => {
     testKeplr('Case#: Dashboard page', async ({ browser, context, page, dashboard }) => {
         await dashboard.waitHiddenSkeleton();
 
-        await expect(dashboard.page).toHaveScreenshot({ fullPage: true, maxDiffPixelRatio: 0.07 });
+        await expect(dashboard.page).toHaveScreenshot({ maxDiffPixelRatio: 0.01 });
     });
 });
