@@ -82,7 +82,7 @@ export default {
 
     background-color: var(--#{$prefix}banner-color);
 
-    border: 1px solid transparent;
+    border: 1px solid var(--#{$prefix}border-color);
 
     transition: 0.3s;
 

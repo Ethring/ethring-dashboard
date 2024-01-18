@@ -14,6 +14,8 @@
     "updateAvailable": "A new version of application is available. Click the Update button below to get the new version with the latest features and improvements",
     "updatingBalances": "Fetching balances ...",
     "updateBalances": "Fetch balances (Coming soon)",
+    "releaseNotes": "Read release notes",
+    "switchTheme": "Switch theme",
     "nft": {
       "description": "Description",
       "collectionName": "Collection name",

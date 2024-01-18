@@ -1,31 +1,34 @@
 <template>
-    <div class="wallet-info">
-        <div class="wallet-info__wallet">
-            <div class="wallet-info__address">
-                <div class="address">
-                    {{ cutAddress(walletAccount) }}
+    <div class="wallet-info-container">
+        <div class="wallet-info">
+            <div class="wallet-info__wallet">
+                <div class="wallet-info__address">
+                    <div class="address">
+                        {{ cutAddress(walletAccount) }}
+                    </div>
+                    <a-tooltip placement="right" :title="copied ? $t('adapter.copiedAddressTooltip') : $t('adapter.copyAddressTooltip')">
+                        <span @click="handleOnCopyAddress">
+                            <CopyIcon />
+                        </span>
+                    </a-tooltip>
                 </div>
-                <a-tooltip placement="right" :title="copied ? $t('adapter.copiedAddressTooltip') : $t('adapter.copyAddressTooltip')">
-                    <span @click="handleOnCopyAddress">
-                        <CopyIcon />
-                    </span>
-                </a-tooltip>
-            </div>
-            <template v-if="isAllTokensLoading && !totalBalance">
-                <a-skeleton-input active />
-            </template>
-            <div v-else class="balance">
-                <div class="value">
-                    <span>$</span>
-                    <NumberTooltip v-if="showBalance" :value="totalBalance" />
-                    <span v-else>****</span>
-                </div>
-                <div class="balance__hide" v-if="currentChainInfo" @click="toggleViewBalance">
-                    <EyeOpenIcon v-if="showBalance" />
-                    <EyeCloseIcon v-else />
+                <template v-if="isAllTokensLoading && !totalBalance">
+                    <a-skeleton-input active />
+                </template>
+                <div v-else class="balance">
+                    <div class="value">
+                        <span>$</span>
+                        <NumberTooltip v-if="showBalance" :value="totalBalance" />
+                        <span v-else>****</span>
+                    </div>
+                    <div class="balance__hide" v-if="currentChainInfo" @click="toggleViewBalance">
+                        <EyeOpenIcon v-if="showBalance" />
+                        <EyeCloseIcon v-else />
+                    </div>
                 </div>
             </div>
         </div>
+        <LinesBack class="wallet-info-lines" />
     </div>
 </template>
 <script>
@@ -39,6 +42,8 @@ import { cutAddress } from '@/helpers/utils';
 
 import NumberTooltip from '@/components/ui/NumberTooltip';
 
+import LinesBack from '@/assets/images/wallet-info/lines.svg';
+
 import EyeOpenIcon from '@/assets/icons/dashboard/eyeOpen.svg';
 import EyeCloseIcon from '@/assets/icons/dashboard/eye.svg';
 import CopyIcon from '@/assets/icons/app/copy.svg';
@@ -50,6 +55,7 @@ export default {
         EyeOpenIcon,
         EyeCloseIcon,
         CopyIcon,
+        LinesBack,
     },
     setup() {
         const store = useStore();
@@ -92,10 +98,39 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.wallet-info-container {
+    position: relative;
+    z-index: 3;
+    background-color: var(--#{$prefix}banner-color);
+
+    padding: 18px 24px;
+    box-sizing: border-box;
+
+    border-radius: 16px;
+    height: 80px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    overflow: hidden;
+}
+
+.wallet-info-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    transform: translate(30%, -35%);
+}
+
 .wallet-info {
     @include pageFlexColumn;
     align-items: baseline;
 
+    z-index: 2;
     &__wallet {
         display: flex;
         flex-direction: column;

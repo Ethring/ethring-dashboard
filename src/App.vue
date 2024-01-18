@@ -1,26 +1,12 @@
 <template>
     <a-config-provider>
-        <LoadingOverlay v-if="isSpinning" :spinning="isSpinning" :tip="loadingTitle" />
-        <a-layout>
-            <a-layout-sider class="sidebar" v-model:collapsed="collapsed" collapsible :trigger="null">
-                <Sidebar :collapsed="collapsed" @change-collapse="(val) => (collapsed = val)" />
-            </a-layout-sider>
-            <a-layout class="layout">
-                <a-layout-header class="header">
-                    <NavBar />
-                </a-layout-header>
-                <a-layout-content class="content" data-qa="content">
-                    <div>
-                        <router-view />
-                    </div>
-                </a-layout-content>
-            </a-layout>
-        </a-layout>
+        <AppLayout />
         <WalletsModal />
         <AddressModal />
+        <KadoModal />
+        <ReleaseNotes />
     </a-config-provider>
 </template>
-
 <script>
 import { onMounted, watch, ref, computed, inject, onBeforeMount, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
@@ -30,23 +16,24 @@ import { ECOSYSTEMS } from '@/Adapter/config';
 
 import Socket from './modules/Socket';
 
+import AppLayout from './layouts/DefaultLayout/AppLayout.vue';
+
 import WalletsModal from '@/Adapter/UI/Modal/WalletsModal';
 import AddressModal from '@/Adapter/UI/Modal/AddressModal';
+import KadoModal from './components/app/modals/KadoModal.vue';
 
-import NavBar from '@/components/app/NavBar';
-import Sidebar from '@/components/app/Sidebar';
-import LoadingOverlay from '@/components/ui/LoadingOverlay';
+import ReleaseNotes from './layouts/DefaultLayout/header/ReleaseNotes.vue';
 
 import { delay } from '@/helpers/utils';
 
 export default {
     name: 'App',
     components: {
-        Sidebar,
-        NavBar,
+        AppLayout,
+        KadoModal,
+        ReleaseNotes,
         WalletsModal,
         AddressModal,
-        LoadingOverlay,
     },
 
     setup() {
@@ -56,7 +43,6 @@ export default {
         const lastConnectedCall = ref(false);
 
         const isInitCall = ref({});
-        const collapsed = ref(false);
 
         const isConfigLoading = computed({
             get: () => store.getters['networks/isConfigLoading'],
@@ -64,7 +50,6 @@ export default {
         });
 
         const {
-            isConnecting,
             walletAddress,
             walletAccount,
             currentChainInfo,
@@ -75,23 +60,9 @@ export default {
             // getNativeTokenByChain,
         } = useAdapter();
 
-        const isSpinning = computed(() => isConfigLoading.value || isConnecting.value);
-
         const isOpen = computed(() => store.getters['adapters/isOpen']('wallets'));
 
         const showRoutesModal = computed(() => store.getters['bridgeDex/showRoutes']);
-
-        const loadingTitle = computed(() => {
-            if (isConfigLoading.value) {
-                return 'dashboard.loadingConfig';
-            }
-
-            if (isConnecting.value) {
-                return 'dashboard.connecting';
-            }
-
-            return '';
-        });
 
         const callSubscription = async () => {
             const { ecosystem } = currentChainInfo.value || {};
@@ -148,8 +119,6 @@ export default {
             await callSubscription();
         });
 
-        const updateCollapsedStateOnResize = () => (collapsed.value = window.innerWidth <= 1024);
-
         // ==========================================================================================
 
         onBeforeMount(async () => {
@@ -157,8 +126,6 @@ export default {
         });
 
         onMounted(async () => {
-            window.addEventListener('resize', updateCollapsedStateOnResize);
-
             const chains = getChainListByEcosystem(ECOSYSTEMS.COSMOS);
 
             for (const { chain_name } of chains) {
@@ -185,17 +152,12 @@ export default {
         });
 
         onBeforeUnmount(() => {
-            window.removeEventListener('resize', updateCollapsedStateOnResize);
             // Stop watching
             unWatchAcc();
         });
 
         return {
             isOpen,
-            isSpinning,
-
-            collapsed,
-            loadingTitle,
         };
     },
 };
@@ -210,10 +172,6 @@ export default {
     background: var(--zmt-primary);
 }
 
-.layout {
-    background: var(--#{$prefix}main-background);
-}
-
 .header {
     width: 75%;
     margin: 0 auto;
@@ -226,10 +184,5 @@ export default {
     z-index: 100;
 
     background-color: var(--#{$prefix}nav-bar-bg-color);
-}
-
-.content {
-    width: 75%;
-    margin: 44px auto 0;
 }
 </style>
