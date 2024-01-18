@@ -156,6 +156,12 @@ export default {
             font-weight: 400;
             color: var(--#{$prefix}adapter-ecosystem-color);
         }
+
+        @media (max-width: 1024px) {
+            & {
+                display: none;
+            }
+        }
     }
 
     &__actions {
