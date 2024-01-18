@@ -2,7 +2,7 @@
     <g clip-path="url(#clip0_14_310)">
         <path fill-rule="evenodd" clip-rule="evenodd"
             d="M29.1867 2.6826H2.6826V29.1867H29.1867V2.6826ZM0 0V31.8693H31.8693V0H0Z" fill="white" />
-        <path
+        <path class="fill-current"
             d="M7.83347 8.36966V10.7303H21.9976V13.0911H7.83347V15.4518H24.3583V8.36966H7.83347ZM7.83347 17.8124V24.8945H24.3583V22.5338H10.1941V20.1731H24.3583V17.8124H7.83347Z"
             fill="white" />
     </g>

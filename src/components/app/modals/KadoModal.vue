@@ -1,6 +1,9 @@
 <template>
     <a-modal :open="buyCryptoModal" centered :footer="null" class="modal" title="Kado" @cancel="closeModal">
         <a-spin :spinning="!isKadoLoaded" style="border-radius: 16px">
+            <template #indicator>
+                <LogoLoading />
+            </template>
             <div class="buy-crypto-iframe">
                 <iframe
                     v-if="IFRAME_URL"
@@ -23,8 +26,13 @@ import { ECOSYSTEMS } from '@/Adapter/config';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
+import LogoLoading from '@/components/ui/LogoLoading.vue';
+
 export default {
     name: 'KadoModal',
+    components: {
+        LogoLoading,
+    },
     setup() {
         const BASE_URL = `${KADO_URL}?apiKey=${process.env.VUE_APP_KADO_API_KEY}&product=BUY&onPayCurrency=USD`;
         const router = useRouter();

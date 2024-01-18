@@ -1,21 +1,25 @@
 <template>
     <button :class="{ [type]: type, disabled, [shape]: shape, [size]: size }" class="button" :disabled="disabled || loading">
-        <LoadingIcon v-if="loading" class="rotating" />
+        <DefaultLoading v-if="loading" :tip="tip" />
         <div v-else>{{ title }}</div>
     </button>
 </template>
 <script>
-import LoadingIcon from '@/assets/icons/dashboard/load-btn.svg';
+import DefaultLoading from './DefaultLoading.vue';
 
 export default {
     name: 'Button',
     components: {
-        LoadingIcon,
+        DefaultLoading,
     },
     props: {
         title: {
             type: String,
             default: 'Button',
+        },
+        tip: {
+            type: String,
+            default: '',
         },
         disabled: {
             type: Boolean,
@@ -40,28 +44,3 @@ export default {
     },
 };
 </script>
-<style lang="scss" scoped>
-@keyframes rotating {
-    from {
-        -ms-transform: rotate(0deg);
-        -moz-transform: rotate(0deg);
-        -webkit-transform: rotate(0deg);
-        -o-transform: rotate(0deg);
-        transform: rotate(0deg);
-    }
-    to {
-        -ms-transform: rotate(360deg);
-        -moz-transform: rotate(360deg);
-        -webkit-transform: rotate(360deg);
-        -o-transform: rotate(360deg);
-        transform: rotate(360deg);
-    }
-}
-.rotating {
-    -webkit-animation: rotating 2s linear infinite;
-    -moz-animation: rotating 2s linear infinite;
-    -ms-animation: rotating 2s linear infinite;
-    -o-animation: rotating 2s linear infinite;
-    animation: rotating 2s linear infinite;
-}
-</style>
