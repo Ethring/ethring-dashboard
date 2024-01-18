@@ -34,26 +34,6 @@ export default {
 <style lang="scss" scoped>
 .dashboard {
     &__wallet {
-        position: relative;
-        background-color: var(--#{$prefix}banner-color);
-
-        padding: 18px 24px;
-        box-sizing: border-box;
-
-        border-radius: 16px;
-        height: 80px;
-
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-
-        overflow: hidden;
-
-        background-image: url('~@/assets/images/wallet-info/background.png');
-        background-size: 60%;
-        background-repeat: no-repeat;
-        background-position: top right;
-
         margin-bottom: 24px;
     }
 

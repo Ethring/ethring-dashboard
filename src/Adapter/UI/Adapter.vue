@@ -1,5 +1,5 @@
 <template>
-    <a-dropdown v-model:open="activeDropdown" placement="bottom" class="wallet-adapter-container">
+    <a-dropdown v-model:open="activeDropdown" placement="bottom" class="wallet-adapter-container" :arrow="{ pointAtCenter: true }">
         <AccountCenter v-if="walletAddress" @toggleDropdown="() => (activeDropdown = !activeDropdown)" class="ant-dropdown-link" />
         <NotConnected v-else class="ant-dropdown-link" />
 
@@ -48,31 +48,21 @@ export default {
 .wallet-adapter-container {
     position: relative;
 
-    width: 300px;
+    max-width: 300px;
+    width: 100%;
     height: 48px;
+
+    @media (max-width: 1024px) {
+        width: fit-content;
+    }
 }
 
 .adapter__dropdown {
-    position: absolute;
-    right: 0;
     width: 356px;
     padding: 16px;
     border-radius: 16px;
-    top: 5px;
     z-index: 2;
     background: var(--#{$prefix}secondary-background);
     box-shadow: 0px 4px 40px 0px $black-op-02;
-
-    &::before {
-        content: '';
-        position: absolute;
-        background-color: var(--#{$prefix}secondary-background);
-        width: 16px;
-        z-index: 1;
-        height: 16px;
-        left: 50%;
-        top: -5px;
-        transform: rotate(45deg);
-    }
 }
 </style>

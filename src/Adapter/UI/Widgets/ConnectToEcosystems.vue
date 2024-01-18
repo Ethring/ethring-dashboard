@@ -1,4 +1,4 @@
-<template lang="">
+<template>
     <div :key="record.ecosystem" v-for="record in TO_CONNECT" class="ecosystem-item">
         <ConnectTo :name="$t(record.name)" :connect="() => connect(record.ecosystem)" :logos="record.logos" />
     </div>
@@ -55,8 +55,3 @@ export default {
     },
 };
 </script>
-<style scoped>
-.ecosystem-item {
-    margin-bottom: 8px;
-}
-</style>

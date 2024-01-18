@@ -1,48 +1,69 @@
 <template>
-    <a-modal :open="open" centered :footer="null" class="modal" title="Kado" @cancel="closeModal">
-        <iframe width="100%" height="520" frameBorder="0" :src="IFRAME_URL" class="buy-crypto-iframe" />
+    <a-modal :open="buyCryptoModal" centered :footer="null" class="modal" title="Kado" @cancel="closeModal">
+        <a-spin :spinning="!isKadoLoaded" style="border-radius: 16px">
+            <div class="buy-crypto-iframe">
+                <iframe
+                    v-if="IFRAME_URL"
+                    @load="() => (isKadoLoaded = true)"
+                    :src="IFRAME_URL"
+                    width="100%"
+                    height="100%"
+                    frameBorder="0"
+                />
+            </div>
+        </a-spin>
     </a-modal>
 </template>
 <script>
-import { computed, inject } from 'vue';
+import { computed, inject, ref } from 'vue';
 
 import { KADO_EVM_NETWORKS, KADO_COSMOS_NETWORKS, KADO_DEFAULT_COSMOS, KADO_ACTIONS, KADO_URL } from '@/config/kadoConstants';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 
 export default {
     name: 'KadoModal',
-    components: {},
-    props: {
-        open: {
-            type: Boolean,
-            default: false,
-        },
-    },
-    setup(props, { emit }) {
-        const useAdapter = inject('useAdapter');
-
-        const { currentChainInfo, walletAddress } = useAdapter();
+    setup() {
         const BASE_URL = `${KADO_URL}?apiKey=${process.env.VUE_APP_KADO_API_KEY}&product=BUY&onPayCurrency=USD`;
+        const router = useRouter();
+
+        const store = useStore();
+        const isKadoLoaded = ref(false);
+
+        const useAdapter = inject('useAdapter');
+        const { currentChainInfo, walletAddress } = useAdapter();
+
+        const buyCryptoModal = computed({
+            get: () => store.getters['app/modal']('buyCrypto'),
+            set: () => store.dispatch('app/toggleModal', 'buyCrypto'),
+        });
+
+        const URLS = {
+            [ECOSYSTEMS.EVM]: `${BASE_URL}&onRevCurrency=USDC&onToAddress=${walletAddress.value}&networkList=${KADO_EVM_NETWORKS}&productList=${KADO_ACTIONS}`,
+            [ECOSYSTEMS.COSMOS]: `${BASE_URL}&onRevCurrency=ATOM&network=${KADO_DEFAULT_COSMOS}&onToAddress=${walletAddress.value}&networkList=${KADO_COSMOS_NETWORKS}&productList=${KADO_ACTIONS}`,
+        };
 
         const IFRAME_URL = computed(() => {
-            switch (currentChainInfo.value?.ecosystem) {
-                case ECOSYSTEMS.EVM:
-                    return `${BASE_URL}&onRevCurrency=USDC&onToAddress=${walletAddress.value}&networkList=${KADO_EVM_NETWORKS}&productList=${KADO_ACTIONS}`;
-                case ECOSYSTEMS.COSMOS:
-                    return `${BASE_URL}&onRevCurrency=ATOM&network=${KADO_DEFAULT_COSMOS}&onToAddress=${walletAddress.value}&networkList=${KADO_COSMOS_NETWORKS}&productList=${KADO_ACTIONS}`;
-                default:
-                    return `${BASE_URL}&onRevCurrency=USDC`;
+            if (!buyCryptoModal.value) {
+                return null;
             }
+
+            return URLS[currentChainInfo.value?.ecosystem] || null;
         });
 
         const closeModal = () => {
-            if (props.open) {
-                emit('close:modal', false);
-            }
+            store.dispatch('app/toggleModal', 'buyCrypto');
+            store.dispatch('app/setSelectedKey', [router.currentRoute.value?.meta?.key || 'main']);
+
+            isKadoLoaded.value = false;
         };
 
         return {
+            isKadoLoaded,
+
+            buyCryptoModal,
             closeModal,
             IFRAME_URL,
         };
@@ -51,12 +72,17 @@ export default {
 </script>
 <style lang="scss" scoped>
 .buy-crypto-iframe {
-    border-radius: 16px;
-}
-
-.loader-container {
+    border: 1px solid var(--#{$prefix}border-color);
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
+
+    &,
+    iframe {
+        min-height: 300px;
+        max-height: 520px;
+        height: 520px;
+        border-radius: 16px;
+    }
 }
 </style>

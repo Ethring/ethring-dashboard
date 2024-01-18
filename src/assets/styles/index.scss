@@ -11,6 +11,10 @@
 @import "./root.scss";
 
 @import "./ui/button";
+@import "./ui/sidebar";
+
+@import "./ui/layout";
+@import "./ui/nav-bar";
 
 html,
 body {
@@ -87,4 +91,8 @@ body {
     /* Сдвиг на 50% ширины элемента */
     opacity: 0;
   }
+}
+
+.adapter__dropdown .ecosystem-item:not(:last-child) {
+  margin-bottom: 8px;
 }

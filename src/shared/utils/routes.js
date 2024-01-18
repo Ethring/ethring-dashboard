@@ -6,7 +6,7 @@ export default (path, currentChainInfo) => {
     const { ecosystem = null } = currentChainInfo || {};
 
     if (!ecosystem) {
-        return true;
+        return false;
     }
 
     if (ecosystem === ECOSYSTEMS.COSMOS && NOT_SUPPORT_COSMOS.includes(path)) {
