@@ -8,6 +8,7 @@ stages:
 include:
   - local: "/tests/build/tests-ci.yml"
 
+
 .dockerBuildJob:
   cache: {}
   image:

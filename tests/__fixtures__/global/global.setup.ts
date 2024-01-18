@@ -7,7 +7,7 @@ import { test as setup } from '@playwright/test';
 
 // Helpers
 import { getTestVar, TEST_CONST } from '../../envHelper';
-import { deleteAllExtensionsIfTestLocalRun } from '../fixtureHelper';
+import { deleteAllExtensionsIfTestLocalRun } from '../deleteExtensionUtils';
 
 async function download(url: string, archivePath: string): Promise<void> {
     try {
