@@ -1,0 +1,42 @@
+{
+    "request": {
+        "~": [
+            {
+                "method": "POST",
+                "request": {
+                    "method": "eth_sendRawTransaction"
+                },
+                "respond": {
+                    "content": "./sendtxresult.json",
+                    "headers": {
+                        "Access-Control-Allow-Headers": "x-requested-with, authorization, content-type",
+                        "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS, DELETE",
+                        "Access-Control-Allow-Origin": "*",
+                        "Access-Control-Allow-Credentials": "true",
+                        "X-Backend-Chain": "polygon",
+                        "X-W3p-Backup-Rpc": "true",
+                        "X-Backend-Tag": "production"
+                    }
+                }
+            },
+            {
+                "method": "POST",
+                "request": {
+                    "method": "eth_getTransactionReceipt"
+                },
+                "respond": {
+                    "content": "./txreceipt.json",
+                    "headers": {
+                        "Access-Control-Allow-Headers": "x-requested-with, authorization, content-type",
+                        "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS, DELETE",
+                        "Access-Control-Allow-Origin": "*",
+                        "Access-Control-Allow-Credentials": "true",
+                        "X-Backend-Chain": "polygon",
+                        "X-W3p-Backup-Rpc": "true",
+                        "X-Backend-Tag": "production"
+                    }
+                }
+            }
+        ]
+    }
+}

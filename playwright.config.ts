@@ -7,6 +7,8 @@ dotenv.config({
 });
 
 const localFrontUrl = 'http://localhost:8080/';
+const testFilesNameNoTx = 'dashboard|send|swap';
+export const proxyUrl = process.env.CI ? 'http://mitmproxy:8080' : 'http://localhost:8082';
 
 export default defineConfig({
     testDir: './tests/e2e',
@@ -24,12 +26,14 @@ export default defineConfig({
         screenshot: 'only-on-failure',
     },
 
-    webServer: {
-        command: 'npm run serve',
-        url: localFrontUrl,
-        reuseExistingServer: !process.env.CI,
-        timeout: 180 * 1000,
-    },
+    webServer: [
+        {
+            command: 'npm run serve',
+            url: localFrontUrl,
+            reuseExistingServer: !process.env.CI,
+            timeout: 180 * 1000,
+        },
+    ],
 
     projects: [
         {
@@ -41,7 +45,9 @@ export default defineConfig({
             name: 'chromium',
             use: { ...devices['Desktop Chrome'] },
             dependencies: ['setup'],
-            testMatch: '**/tests/e2e/@(dashboard|send|swap).spec.ts',
+            testMatch: process.env.CI
+                ? `**/tests/e2e/@(${testFilesNameNoTx}|mockTxSend).spec.ts`
+                : `**/tests/e2e/@(${testFilesNameNoTx}).spec.ts`, //mocked tx test run only CI because proxy correct work only linux os
             teardown: 'delete mm',
         },
         {

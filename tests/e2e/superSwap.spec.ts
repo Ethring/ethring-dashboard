@@ -126,8 +126,6 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
             const tokenTo = '1INCH';
             const txHash = getTestVar(TEST_CONST.SUCCESS_TX_HASH_BY_MOCK);
 
-            await superSwapPage.page.pause();
-
             await superSwapPage.setFromNetAmount(netTo, amount);
             await superSwapPage.setToNetToken(netTo, tokenTo);
             await superSwapPage.openRouteInfo();

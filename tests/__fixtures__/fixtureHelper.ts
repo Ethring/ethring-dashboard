@@ -1,9 +1,10 @@
 import { BrowserContext } from '@playwright/test';
 import path from 'path';
-import fs from 'fs';
-import { MetaMaskHomePage, metamaskVersion } from '../model/MetaMask/MetaMask.pages';
-import { KeplrHomePage, keplrVersion } from '../model/Keplr/Keplr.pages';
-import { MetaMaskDirPath, KeplrDirPath } from '../data/constants';
+import { MetaMaskHomePage, MetaMaskNotifyPage, getNotifyMmPage, metamaskVersion } from '../model/MetaMask/MetaMask.pages';
+import { KeplrHomePage, KeplrNotifyPage, getNotifyKeplrPage, keplrVersion } from '../model/Keplr/Keplr.pages';
+import { EVM_NETWORKS } from '../data/constants';
+import mockTokensListData from '../data/mockTokensListData';
+import { DashboardPage } from '../model/VueApp/base.pages';
 
 export const FIVE_SECONDS = 5000;
 const sleep = require('util').promisify(setTimeout);
@@ -41,30 +42,51 @@ export const addWalletToKeplr = async (context: BrowserContext, seed: String) =>
     await keplrPage.addWallet(seed);
 };
 
-const clearDirectory = (dirPath) => {
-    if (fs.existsSync(dirPath)) {
-        const files = fs.readdirSync(dirPath);
+export const authInDashboardByMm = async (context: BrowserContext, seed: String): Promise<DashboardPage> => {
+    await addWalletToMm(context, seed);
 
-        files.forEach((file) => {
-            const filePath = path.join(dirPath, file);
+    const zometPage = new DashboardPage(await context.newPage());
+    await zometPage.goToPage();
 
-            if (fs.statSync(filePath).isDirectory()) {
-                clearDirectory(filePath);
-                fs.rmdirSync(filePath);
-            } else {
-                fs.unlinkSync(filePath);
-            }
-        });
+    await zometPage.clickLoginByMetaMask(context);
+    const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
+    await notifyMM.assignPage();
 
-        console.log(`Содержимое директории ${dirPath} успешно удалено.`);
-    } else {
-        console.log(`Директория ${dirPath} не существует.`);
-    }
+    const providerModal = zometPage.page.getByText('Connection Successful');
+    await providerModal.waitFor({ state: 'detached', timeout: 20000 });
+
+    await zometPage.waitMainElementVisible();
+    return zometPage;
 };
 
-export const deleteAllExtensionsIfTestLocalRun = () => {
-    if (!process.env.CI) {
-        clearDirectory(MetaMaskDirPath);
-        clearDirectory(KeplrDirPath);
-    }
+export const authInDashboardByMmTokensListMock = async (context: BrowserContext, seed: String): Promise<DashboardPage> => {
+    await addWalletToMm(context, seed);
+
+    const zometPage = new DashboardPage(await context.newPage());
+    await Promise.all(EVM_NETWORKS.map((network) => zometPage.mockTokensList(network, mockTokensListData[network])));
+    await zometPage.goToPage();
+
+    await zometPage.clickLoginByMetaMask();
+    const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
+    await notifyMM.assignPage();
+
+    const providerModal = zometPage.page.getByText('Connection Successful');
+    await providerModal.waitFor({ state: 'detached', timeout: 20000 });
+
+    await zometPage.waitMainElementVisible();
+    return zometPage;
+};
+
+export const authInDashboardByKeplr = async (context: BrowserContext, seed: String) => {
+    await addWalletToKeplr(context, seed);
+
+    const zometPage = new DashboardPage(await context.newPage());
+    await zometPage.goToPage();
+
+    await zometPage.clickLoginByKeplr();
+    const notifyKeplr = new KeplrNotifyPage(await getNotifyKeplrPage(context));
+    await notifyKeplr.assignPage();
+
+    await zometPage.waitMainElementVisible();
+    return zometPage;
 };
