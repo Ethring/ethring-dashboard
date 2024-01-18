@@ -42,7 +42,7 @@ export default {
 <style lang="scss" scoped>
 .wallet-adapter-container {
     position: relative;
-    max-width: 350px;
+    max-width: 360px;
 
     width: 100%;
 }
@@ -54,5 +54,14 @@ export default {
     background: var(--#{$prefix}secondary-background);
 
     border-radius: 16px;
+    max-width: 360px;
+    min-width: 360px;
+    width: 100%;
+
+    box-shadow: 0px 4px 40px 0px $black-op-02;
+
+    @media (max-width: 1024px) {
+        width: fit-content;
+    }
 }
 </style>

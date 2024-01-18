@@ -118,6 +118,7 @@
         <Button
             :title="$t(opTitle)"
             :disabled="!!disabledBtn"
+            :tip="$t(opTitle)"
             :loading="isWaitingTxStatusForModule || isSwapLoading"
             class="superswap-panel__btn mt-16"
             data-qa="confirm"
@@ -667,6 +668,8 @@ export default {
                     return (isLoading.value = false);
                 }
 
+                clearApproveForService(currentRoute.value.service);
+
                 return response;
             } catch (error) {
                 txError.value = error?.message || error?.error || error;
@@ -700,6 +703,8 @@ export default {
 
                     return (isLoading.value = false);
                 }
+
+                clearApproveForService(currentRoute.value.service);
 
                 return response;
             } catch (error) {

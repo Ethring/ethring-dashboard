@@ -96,7 +96,7 @@ function useAdapter() {
             walletModule: connectedWalletModule.value,
         };
 
-        if (!walletInfo.address || !walletInfo.walletName) {
+        if (!walletInfo.address || !walletInfo.walletName || !walletInfo.ecosystem) {
             return;
         }
 

@@ -11,6 +11,10 @@
 @import "./root.scss";
 
 @import "./ui/button";
+@import "./ui/sidebar";
+
+@import "./ui/layout";
+@import "./ui/nav-bar";
 
 html,
 body {
@@ -163,6 +167,40 @@ li.ecosystem-item {
   .name {
     font-size: var(--#{$prefix}h5-fs);
     font-weight: 500;
+  }
+}
+
+.adapter__dropdown .ecosystem-item:not(:last-child) {
+  margin-bottom: 8px;
+}
+
+.logo-indicator,
+.logo-indicator path {
+  fill: var(--#{$prefix}sidebar-active-color) !important;
+}
+
+.logo-indicator {
+  animation: bounce 1.1s infinite ease-in-out;
+}
+
+.logo-loading {
+  span,
+  div {
+    font-weight: 400;
+    font-size: var(--#{$prefix}default-fs);
+    color: var(--#{$prefix}primary-text);
+  }
+}
+
+@keyframes bounce {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-35%);
+  }
+  100% {
+    transform: translateY(0);
   }
 }
 

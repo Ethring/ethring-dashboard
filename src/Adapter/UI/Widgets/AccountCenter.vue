@@ -82,7 +82,7 @@ export default {
 
     background-color: var(--#{$prefix}banner-color);
 
-    border: 1px solid transparent;
+    border: 1px solid var(--#{$prefix}border-color);
 
     transition: 0.3s;
 
@@ -155,6 +155,12 @@ export default {
             font-size: var(--#{$prefix}small-sm-fs);
             font-weight: 400;
             color: var(--#{$prefix}adapter-ecosystem-color);
+        }
+
+        @media (max-width: 1024px) {
+            & {
+                display: none;
+            }
         }
     }
 

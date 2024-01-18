@@ -83,7 +83,6 @@ $banner-secondary-color: $iceberg;
 $eye-logo: $trout;
 $eye-logo-hover: $surfieGreen;
 
-
 // Assets header icon color
 $asset-header-icon-color: $surfieGreen;
 $assets-border-color: $geyser;
@@ -121,7 +120,7 @@ $adapter-logo-base-color: $cyan;
 $adapter-logo-secondary-color: $iceberg;
 
 // Adapter Not Connected
-$adapter-not-connected-bg: $geyser;
+$adapter-not-connected-bg: $iceberg;
 $adapter-not-connected-icon: $mineralGreen;
 
 // Checkbox
@@ -132,6 +131,7 @@ $checkbox-bg-color: $iceberg;
 $checkbox-disabled: $geyser;
 $checkbox-border: $geyser;
 $checkbox-border-checked: $aquamarine;
+
 // Border
 $border-color: $gulfStream;
 $border-secondary-color: $geyser;
@@ -170,7 +170,7 @@ $select-active-bg-color: $iceberg;
 $select-icon-color: $gulfStream;
 $select-icon-bg-color: $geyser;
 $select-symbol-text: $charade;
-$selected-bg-color: rgba(63, 223, 174, 0.10);
+$selected-bg-color: rgba(63, 223, 174, 0.1);
 
 // Accordion
 $accordion-bg-color: $white;
@@ -199,7 +199,7 @@ $info-op-01: rgba($info, 0.1);
 $icon-color: $gulfStream;
 $icon-active: $mineralGreen;
 $icon-hover: $springGreen;
-$icon-disabled: $gulfStream;
+$icon-disabled: $trout;
 $icon-border: $dinastyDragon;
 
 $icon-bg-color: $iceberg;
@@ -211,6 +211,7 @@ $icon-secondary-bg-hover: $geyser;
 
 // Sidebar
 $sidebar-active-color: $springGreen;
+$sidebar-active-bg-color: $mineralGreen;
 
 $arrow-color: $turquoise;
 
@@ -373,6 +374,7 @@ $theme-colors: (
     "info-op-01": $info-op-01,
 
     "sidebar-active-color": $sidebar-active-color,
+    "sidebar-active-bg-color": $sidebar-active-bg-color,
 
     "white": $white,
     "black": $black,
