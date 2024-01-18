@@ -34,6 +34,7 @@
             :title="$t(opTitle)"
             :disabled="!!disabledSend"
             :loading="isWaitingTxStatusForModule || isLoading"
+            :tip="$t(opTitle)"
             class="simple-send__btn mt-16"
             data-qa="confirm"
             @click="handleOnSend"
