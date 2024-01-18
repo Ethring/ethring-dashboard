@@ -67,7 +67,7 @@ export default {
         margin: 0 auto;
 
         .version {
-            margin-top: 10px;
+            margin-top: 20px;
             margin-right: auto;
         }
     }

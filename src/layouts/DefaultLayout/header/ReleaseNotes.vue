@@ -6,8 +6,8 @@
         :title="`Release Notes ${version}`"
         placement="right"
     >
-        <template #extra>
-            <Button title="update" @click="handleReload" />
+        <template #footer>
+            <Button title="update" @click="handleReload" class="update-btn" />
         </template>
 
         <a-space direction="vertical">
@@ -117,4 +117,8 @@ export default {
     },
 };
 </script>
-<style lang=""></style>
+<style lang="scss" scoped>
+.update-btn {
+    width: 100%;
+}
+</style>

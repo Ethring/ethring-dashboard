@@ -17,6 +17,7 @@
                     :key="item.key"
                     v-bind="item"
                     :menu-key="item.key"
+                    :data-qa="`sidebar-item-${item.key}`"
                     @click="() => onClickSidebarItem(item)"
                 />
             </a-menu>
@@ -103,13 +104,7 @@ export default {
         watch(
             () => router.currentRoute.value.path,
             () => {
-                const path = router.currentRoute.value.path;
-
-                const item = menu.value.find((item) => item.to === path);
-
-                if (item) {
-                    selectedKeys.value = [item.key];
-                }
+                selectedKeys.value = [router.currentRoute.value.meta?.key];
             }
         );
 
