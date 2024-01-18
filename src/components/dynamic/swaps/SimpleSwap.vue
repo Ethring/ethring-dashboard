@@ -56,6 +56,7 @@
             :title="$t(opTitle)"
             :disabled="!!disabledSwap"
             :loading="isWaitingTxStatusForModule || isLoading"
+            :tip="$t(opTitle)"
             class="simple-swap__btn mt-16"
             @click="handleOnSwap"
             size="large"

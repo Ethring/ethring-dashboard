@@ -118,6 +118,7 @@
         <Button
             :title="$t(opTitle)"
             :disabled="!!disabledBtn"
+            :tip="$t(opTitle)"
             :loading="isWaitingTxStatusForModule || isSwapLoading"
             class="superswap-panel__btn mt-16"
             data-qa="confirm"

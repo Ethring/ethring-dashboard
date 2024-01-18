@@ -89,6 +89,7 @@
             :title="$t(opTitle)"
             :disabled="!!disabledBtn"
             :loading="isWaitingTxStatusForModule || isLoading"
+            :tip="$t(opTitle)"
             class="simple-bridge__btn mt-16"
             @click="handleOnConfirm"
             size="large"
