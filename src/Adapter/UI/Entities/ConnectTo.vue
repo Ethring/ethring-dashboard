@@ -103,6 +103,8 @@ export default {
         border-radius: 50%;
         background-color: var(--#{$prefix}adapter-logo-main-color);
 
+        border: 1px solid var(--#{$prefix}border-color);
+
         z-index: 3;
 
         svg {

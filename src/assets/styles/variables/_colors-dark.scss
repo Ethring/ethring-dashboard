@@ -87,6 +87,7 @@ $adapter-label-text: $gulfStream;
 $adapter-value-text: $white;
 $adapter-ecosystem-border-color: $charade;
 $adapter-ecosystem-color: $springGreen;
+$adapter-ecosystem-connect-hover: $ebonyClay;
 $adapter-connected-border-color: $charade;
 $adapter-connected-icon-color: $lightGreen;
 $adapter-secondary-border-color: $pastelPink;
@@ -262,6 +263,7 @@ $theme-colors-dark: (
     "adapter-value-text": $adapter-value-text,
     "adapter-ecosystem-border-color": $adapter-ecosystem-border-color,
     "adapter-ecosystem-color": $adapter-ecosystem-color,
+    "adapter-ecosystem-connect-hover": $adapter-ecosystem-connect-hover,
     "adapter-logo-main-color": $adapter-logo-main-color,
     "adapter-logo-base-color": $adapter-logo-base-color,
     "adapter-logo-secondary-color": $adapter-logo-secondary-color,

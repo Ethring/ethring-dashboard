@@ -104,14 +104,9 @@ body {
 li.ecosystem-item {
   min-height: 58px;
   max-height: 80px;
-
-  &:hover {
-    background: transparent !important;
-    .wallets-item {
-      background: var(--#{$prefix}adapter-hover-color) !important;
-    }
-  }
+  padding: 0 12px !important;
 }
+
 .connect-wallet__ecosystems {
   .wallets-item,
   li.ecosystem-item {
@@ -123,11 +118,10 @@ li.ecosystem-item {
 
     min-width: auto;
     max-width: 400px;
+    border-radius: 16px;
 
     &:hover {
-      .wallets-item {
-        background: var(--#{$prefix}adapter-connect-hover-color) !important;
-      }
+      background-color: var(--#{$prefix}adapter-ecosystem-connect-hover) !important;
     }
   }
 
@@ -147,7 +141,7 @@ li.ecosystem-item {
 
 .connect-wallet__ecosystems .wallets-item {
   & > div {
-    width: 50%;
+    width: 45%;
   }
 
   &__logos {
