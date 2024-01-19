@@ -1,10 +1,10 @@
 <template>
-    <a-table :columns="columns" :data-source="data" :pagination="false" :showSorterTooltip="false" class="assets-table">
+    <a-table :columns="columns" :data-source="data" :pagination="false" class="assets-table">
         <template #headerCell="{ title, column }">
             <p v-if="column.name">
                 {{ title }} <span class="name">{{ name }}</span>
             </p>
-            <p v-else>{{ title }}</p>
+            <span v-else>{{ title }}</span>
         </template>
         <template #bodyCell="{ column, record }">
             <AssetItem :item="record" :column="column.dataIndex" />
@@ -109,8 +109,7 @@ export default {
             padding-top: 8px;
         }
         &::before,
-        &::after,
-        .ant-table-column-sorter-inner {
+        &::after {
             display: none !important;
         }
 
