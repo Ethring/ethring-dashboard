@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 
-export const cutNumber = (number, digits = 0) =>
+const cutNumber = (number, digits = 0) =>
     Math.floor(
         BigNumber(number)
             .multipliedBy(10 ** digits)
