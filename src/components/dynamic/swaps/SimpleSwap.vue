@@ -497,7 +497,7 @@ export default {
         // =================================================================================================================
 
         const makeEstimateSwapRequest = async () => {
-            if (!selectedDstToken.value || +srcAmount.value === 0) {
+            if (!isAllowForRequest() || !selectedDstToken.value || +srcAmount.value === 0) {
                 isEstimating.value = false;
                 isUpdateSwapDirection.value = false;
                 return (isLoading.value = false);
