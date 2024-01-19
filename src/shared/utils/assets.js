@@ -4,33 +4,26 @@ import Moment from 'moment';
 import { sortByKey } from '@/helpers/utils';
 
 import { ONE_DAY, ONE_HOUR } from '@/shared/constants/operations';
-
-export const BALANCES_TYPES = {
-    ALL: 'ALL',
-    PENDING: 'PENDING_REWARD',
-    FUTURES: 'FUTURES',
-    LEVERAGE_POSITION: 'LEVERAGE_POSITION',
-    BORROW: 'BORROW',
-};
+import { BALANCES_TYPES } from '@/modules/Balances/constants';
 
 export const getTotalBalanceByType = (balances, type = BALANCES_TYPES.ALL) => {
     if (!balances.length) {
         return 0;
     }
 
-    if (type === BALANCES_TYPES.FUTURES) {
-        const totalBalance = getTotalFuturesBalance(balances, BigNumber(0));
+    if (type === BALANCES_TYPES.FUTURES || type === BALANCES_TYPES.BORROW_AND_LENDING) {
+        const totalBalance = getTotalBalanceByDiff(balances, BigNumber(0));
         return totalBalance.toNumber();
     }
 
-    if (type === BALANCES_TYPES.ALL) {
-        return balances.reduce((sum, token) => sum.plus(+token.balanceUsd), BigNumber(0)).toNumber();
+    if (type === BALANCES_TYPES.PENDING) {
+        return balances
+            .filter(({ balanceType }) => balanceType === type)
+            .reduce((sum, token) => sum.plus(+token.balanceUsd), BigNumber(0))
+            .toNumber();
     }
 
-    return balances
-        .filter(({ balanceType }) => balanceType === type)
-        .reduce((sum, token) => sum.plus(+token.balanceUsd), BigNumber(0))
-        .toNumber();
+    return balances.reduce((sum, token) => sum.plus(+token.balanceUsd), BigNumber(0)).toNumber();
 };
 
 export const getDataForIntegrations = (integration, balances) => {
@@ -52,14 +45,11 @@ export const getIntegrationsGroupedByPlatform = (allIntegrations = []) => {
     const groupByPlatforms = [];
 
     for (const integration of allIntegrations) {
-        const { balances = [], apr = null } = integration || {};
+        const { balances = [] } = integration || {};
 
-        const balanceType = integration.type === BALANCES_TYPES.FUTURES ? BALANCES_TYPES.FUTURES : BALANCES_TYPES.ALL;
-
-        integration.totalBalanceUsd = getTotalBalanceByType(balances, balanceType);
+        integration.totalBalanceUsd = getTotalBalanceByType(balances, integration.type);
 
         integration.balances = balances.map((item) => {
-            item.apr = apr;
             item.leverageRate = integration.leverageRate;
             return item;
         });
@@ -125,19 +115,19 @@ export function getTimeCountdown(timestamp) {
     return 'is available';
 }
 
-export const getTotalFuturesBalance = (records, totalBalance) => {
-    let leverageTotalUsd = BigNumber(0);
+export const getTotalBalanceByDiff = (records, totalBalance) => {
+    let depositTotalUsd = BigNumber(0);
     let borrowTotalUsd = BigNumber(0);
 
     for (let token of records) {
-        if (token.balanceType === BALANCES_TYPES.LEVERAGE_POSITION) {
-            leverageTotalUsd = leverageTotalUsd.plus(+token.balanceUsd);
-        } else if (token.balanceType === BALANCES_TYPES.BORROW) {
+        if (token.balanceType === BALANCES_TYPES.BORROW) {
             borrowTotalUsd = borrowTotalUsd.plus(+token.balanceUsd);
+        } else {
+            depositTotalUsd = depositTotalUsd.plus(+token.balanceUsd);
         }
     }
 
-    totalBalance = totalBalance.plus(leverageTotalUsd.minus(borrowTotalUsd));
+    totalBalance = totalBalance.plus(depositTotalUsd.minus(borrowTotalUsd));
 
     return totalBalance;
 };
