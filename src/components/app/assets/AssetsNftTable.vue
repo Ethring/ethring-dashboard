@@ -22,7 +22,7 @@ export default {
     components: { AssetNftItem },
     props: {
         data: {
-            require: true,
+            required: true,
             default: [],
         },
     },
