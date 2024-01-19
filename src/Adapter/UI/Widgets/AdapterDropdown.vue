@@ -27,19 +27,13 @@ export default {
         DisconnectAll,
         ConnectedWallet,
     },
-    emits: ['closeDropdown'],
-    setup(_, { emit }) {
+    setup() {
         const accountsModal = ref(false);
 
         const addressesWithChains = ref([]);
         const chainList = ref([]);
 
         const { disconnectAllWallets, connectedWallets = [] } = useAdapter();
-
-        const disconnectAll = async () => {
-            emit('closeDropdown');
-            await disconnectAllWallets();
-        };
 
         return {
             accountsModal,
@@ -48,7 +42,7 @@ export default {
             addressesWithChains,
             chainList,
 
-            disconnectAll,
+            disconnectAll: disconnectAllWallets,
         };
     },
 };
@@ -56,6 +50,7 @@ export default {
 <style lang="scss">
 .connected-wallets {
     margin-top: 12px;
+    margin: 12px 16px 0;
 
     &-label {
         @include pageFlexRow;

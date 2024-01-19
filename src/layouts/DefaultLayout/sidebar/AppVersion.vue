@@ -20,5 +20,6 @@ export default {
 .app-version {
     color: var(--#{$prefix}sidebar-text);
     background-color: transparent;
+    font-family: Poppins, sans-serif !important;
 }
 </style>

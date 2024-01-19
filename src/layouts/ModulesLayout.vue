@@ -69,7 +69,7 @@ export default {
 
     setup() {
         const useAdapter = inject('useAdapter');
-        const { currentChainInfo, isConnecting } = useAdapter();
+        const { currentChainInfo, isConnecting, walletAccount } = useAdapter();
         // const store = useStore();
         const router = useRouter();
         const route = useRoute();
@@ -118,9 +118,11 @@ export default {
 
             const isStay = await redirectOrStay(route.path, currentChainInfo.value);
 
-            if (!isStay) {
+            if (!isStay || !walletAccount.value) {
                 return router.push('/main');
             }
+
+            return;
         };
 
         const unWatchRedirect = watchEffect(async () => await callRedirectOrStay());

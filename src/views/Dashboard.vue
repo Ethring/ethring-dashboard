@@ -1,6 +1,9 @@
 <template>
     <div class="dashboard" data-qa="dashboard">
-        <template v-if="walletAddress">
+        <template v-if="!walletAccount">
+            <ConnectWalletAdapter />
+        </template>
+        <template v-else>
             <div class="dashboard__wallet">
                 <WalletInfoLarge />
             </div>
@@ -12,21 +15,25 @@
 <script>
 import { inject } from 'vue';
 
-import Assets from '@/components/app/Assets';
-import WalletInfoLarge from '@/components/app/WalletInfoLarge';
+import Assets from '../components/app/Assets';
+
+import ConnectWalletAdapter from './ConnectWalletAdapter.vue';
+import WalletInfoLarge from '../components/app/WalletInfoLarge';
 
 export default {
     name: 'Dashboard',
     components: {
         WalletInfoLarge,
+        ConnectWalletAdapter,
         Assets,
     },
     setup() {
         const useAdapter = inject('useAdapter');
-        const { walletAddress } = useAdapter();
+
+        const { walletAccount } = useAdapter();
 
         return {
-            walletAddress,
+            walletAccount,
         };
     },
 };

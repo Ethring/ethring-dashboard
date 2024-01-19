@@ -107,6 +107,7 @@ $adapter-label-text: $trout;
 $adapter-value-text: $mineralGreen;
 $adapter-ecosystem-border-color: $geyser;
 $adapter-ecosystem-color: $mineralGreen;
+$adapter-ecosystem-connect-hover: $iceberg;
 $adapter-connected-border-color: $iceberg;
 $adapter-connected-icon-color: $lightGreen;
 $adapter-secondary-border-color: $pastelPink;
@@ -284,6 +285,7 @@ $theme-colors: (
     "adapter-value-text": $adapter-value-text,
     "adapter-ecosystem-border-color": $adapter-ecosystem-border-color,
     "adapter-ecosystem-color": $adapter-ecosystem-color,
+    "adapter-ecosystem-connect-hover": $adapter-ecosystem-connect-hover,
     "adapter-logo-main-color": $adapter-logo-main-color,
     "adapter-logo-base-color": $adapter-logo-base-color,
     "adapter-logo-secondary-color": $adapter-logo-secondary-color,
