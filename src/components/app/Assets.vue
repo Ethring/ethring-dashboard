@@ -2,14 +2,8 @@
     <div class="tokens" :class="{ empty: isEmpty }">
         <template v-if="tokensData.length > 0">
             <div class="tokens__group" data-qa="tokens_group">
-                <AssetItemHeader
-                    v-if="tokensData.length"
-                    title="Tokens"
-                    :value="getAssetsShare(assetsTotalBalances)"
-                    :totalBalance="assetsTotalBalances"
-                />
-                <AssetItemSubHeader type="Asset" />
-                <AssetsTable :data="tokensData" />
+                <AssetItemHeader title="Tokens" :value="getAssetsShare(assetsTotalBalances)" :totalBalance="assetsTotalBalances" />
+                <AssetsTable :data="tokensData" type="Asset" />
             </div>
         </template>
 
@@ -26,8 +20,7 @@
                     :healthRate="item.healthRate"
                 />
                 <div v-for="(groupItem, n) in item.data" :key="n">
-                    <AssetItemSubHeader :type="getFormattedName(groupItem.type)" :name="groupItem?.validator?.name" />
-                    <AssetsTable :data="groupItem.balances" />
+                    <AssetsTable :data="groupItem.balances" :type="getFormattedName(groupItem.type)" :name="groupItem?.validator?.name" />
                 </div>
             </div>
         </template>
@@ -35,12 +28,7 @@
         <template v-if="nftsByCollection.length">
             <div class="tokens__group">
                 <AssetItemHeader title="NFT" :totalBalance="totalNftBalances" />
-                <AssetItemSubHeader
-                    :type="$t('dashboard.nft.collectionName')"
-                    :secondColumnType="$t('dashboard.nft.holdings')"
-                    :thirdColumnType="$t('dashboard.nft.floorPrice')"
-                />
-                <AssetNftItem v-for="(collection, i) in nftsByCollection" :item="collection" :key="i" />
+                <AssetsNftTable :data="nftsByCollection" />
             </div>
         </template>
 
@@ -64,20 +52,18 @@ import BigNumber from 'bignumber.js';
 import EmptyList from '@/components/ui/EmptyList';
 
 import AssetItemHeader from './assets/AssetItemHeader';
-import AssetItemSubHeader from './assets/AssetItemSubHeader';
-import AssetNftItem from './assets/AssetNftItem';
 import AssetsTable from './assets/AssetsTable';
+import AssetsNftTable from './assets/AssetsNftTable';
 
 import { getIntegrationsGroupedByPlatform, getFormattedName, getNftsByCollection } from '@/shared/utils/assets';
 
 export default {
     name: 'Assets',
     components: {
-        AssetItemSubHeader,
         AssetItemHeader,
         AssetsTable,
         EmptyList,
-        AssetNftItem,
+        AssetsNftTable,
     },
     setup() {
         const store = useStore();

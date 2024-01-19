@@ -1,5 +1,11 @@
 <template>
-    <a-table :columns="columns" :data-source="data" :pagination="false" :showHeader="false" class="assets-table">
+    <a-table :columns="columns" :data-source="data" :pagination="false" :showSorterTooltip="false" class="assets-table">
+        <template #headerCell="{ title, column }">
+            <p v-if="column.name">
+                {{ title }} <span class="name">{{ name }}</span>
+            </p>
+            <p v-else>{{ title }}</p>
+        </template>
         <template #bodyCell="{ column, record }">
             <AssetItem :item="record" :column="column.dataIndex" />
         </template>
@@ -18,18 +24,26 @@ export default {
             require: true,
             default: [],
         },
+        type: {
+            require: true,
+            default: '',
+        },
+        name: {
+            require: false,
+        },
     },
     components: {
         AssetItem,
     },
-    setup() {
+    setup(props) {
         const columns = ref([
             {
-                title: 'Asset',
+                title: props.type,
                 dataIndex: 'name',
                 key: 'name',
                 width: '60%',
                 align: 'left',
+                name: props.name,
             },
             {
                 title: 'Balance',
@@ -84,6 +98,31 @@ export default {
     .ant-table-tbody tr td,
     .ant-table-tbody tr {
         border: none !important;
+    }
+
+    .ant-table-thead .ant-table-cell {
+        height: 42px;
+        font-weight: 500;
+        color: var(--#{$prefix}base-text);
+        font-size: var(--#{$prefix}small-sm-fs);
+        p {
+            padding-top: 8px;
+        }
+        &::before,
+        &::after,
+        .ant-table-column-sorter-inner {
+            display: none !important;
+        }
+
+        .name::before {
+            content: '\2022';
+            margin: 0 4px;
+            color: var(--#{$prefix}checkbox-text);
+        }
+    }
+
+    .ant-table-thead tr th {
+        border-bottom: 1px solid var(--#{$prefix}assets-header-border-color) !important;
     }
 
     @keyframes fadeIn {
