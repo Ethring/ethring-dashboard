@@ -308,7 +308,7 @@ export default {
         @include pageFlexRow;
         cursor: pointer;
         padding-bottom: 10px;
-        margin-bottom: 10px;
+        margin-bottom: 6px;
     }
 
     .column-1,
@@ -317,7 +317,7 @@ export default {
         @include pageFlexRow;
     }
     .column-1 {
-        width: 65%;
+        width: 66%;
     }
 
     .column-2,
