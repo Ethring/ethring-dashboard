@@ -45,6 +45,10 @@ export default {
     max-width: 360px;
 
     width: 100%;
+
+    @media (max-width: 1024px) {
+        width: fit-content;
+    }
 }
 
 .adapter__dropdown {
