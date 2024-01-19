@@ -21,15 +21,15 @@ export default {
     name: 'AssetsTable',
     props: {
         data: {
-            require: true,
+            required: true,
             default: [],
         },
         type: {
-            require: true,
+            required: true,
             default: '',
         },
         name: {
-            require: false,
+            required: false,
         },
     },
     components: {
