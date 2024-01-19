@@ -168,7 +168,7 @@ import TimeIcon from '@/assets/icons/app/time.svg';
 import ExpandIcon from '@/assets/icons/app/expand.svg';
 import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
-import { prettyNumberTooltip, formatNumber } from '@/helpers/prettyNumber';
+import { prettyNumberTooltip, formatNumber, cutNumber } from '@/helpers/prettyNumber';
 
 import { getBestRoute } from '@/api/bridge-dex';
 
@@ -626,7 +626,7 @@ export default {
 
             estimateErrorTitle.value = '';
 
-            dstAmount.value = formatNumber(BigNumber(resEstimate.bestRoute?.toTokenAmount).toString());
+            dstAmount.value = cutNumber(BigNumber(resEstimate.bestRoute?.toTokenAmount).toString(), 6);
 
             networkFee.value = prettyNumberTooltip(resEstimate.bestRoute?.estimateFeeUsd, 6);
             estimateRate.value = prettyNumberTooltip(resEstimate.bestRoute.toTokenAmount / resEstimate.bestRoute.fromTokenAmount, 6);

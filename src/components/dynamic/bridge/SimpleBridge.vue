@@ -136,7 +136,7 @@ import EstimateInfo from '@/components/ui/EstimateInfo.vue';
 
 import SwapIcon from '@/assets/icons/dashboard/swap.svg';
 
-import { formatNumber } from '@/helpers/prettyNumber';
+import { formatNumber, cutNumber } from '@/helpers/prettyNumber';
 
 import { getServices, SERVICE_TYPE } from '@/config/services';
 
@@ -621,7 +621,7 @@ export default {
             isEstimating.value = false;
             isLoading.value = false;
 
-            dstAmount.value = formatNumber(BigNumber(response.toTokenAmount).toString());
+            dstAmount.value = cutNumber(BigNumber(response.toTokenAmount).toString(), 6);
 
             estimateErrorTitle.value = '';
 
