@@ -208,26 +208,25 @@ export const prepareChainWithAddress = (addressesObj, currentChainInfo) => {
 
 export const setNativeTokensPrices = async (store, account) => {
     const chainList = computed(() => store.getters['networks/zometNetworksList']);
-    const nativeTokens = computed(() => store.getters['tokens/nativeTokens']);
     const nets = new Set();
 
-    if (!nativeTokens.value || !nativeTokens.value[account]) {
-        return;
-    }
-
     for (const network of chainList.value) {
-        if (network.native_token.price) {
+        const { native_token } = network || {};
+        if (native_token.price) {
             continue;
         }
 
         const nativeToken = computed(() => store.getters['tokens/getNativeTokenForChain'](account, network.net));
 
         if (nativeToken.value) {
-            network.native_token.price = nativeToken.value.price;
+            native_token.price = nativeToken.value.price;
             continue;
         }
 
-        nets.add(network.native_token.coingecko_id);
+        const id = native_token.coingecko_id || network.coingecko_id;
+        if (id) {
+            nets.add(id);
+        }
     }
 
     if (!nets.size) {
@@ -237,14 +236,22 @@ export const setNativeTokensPrices = async (store, account) => {
     const prices = await PricesModule.Coingecko.marketCapForNativeCoin([...nets].join(','));
 
     for (const network of chainList.value) {
-        if (network.native_token.price) {
+        const { native_token } = network || {};
+        if (native_token.price) {
             continue;
         }
 
-        const price = prices[network.native_token.coingecko_id];
-
-        if (price) {
-            network.native_token.price = price.usd.price;
+        const id = native_token.coingecko_id || network.coingecko_id;
+        if (!id) {
+            return;
         }
+
+        const price = prices[id];
+        if (!price) {
+            return;
+        }
+
+        const { usd = {} } = price;
+        native_token.price = usd?.price;
     }
 };

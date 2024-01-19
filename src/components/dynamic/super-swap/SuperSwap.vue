@@ -626,7 +626,7 @@ export default {
 
             estimateErrorTitle.value = '';
 
-            dstAmount.value = resEstimate.bestRoute?.toTokenAmount;
+            dstAmount.value = formatNumber(BigNumber(resEstimate.bestRoute?.toTokenAmount).toString());
 
             networkFee.value = prettyNumberTooltip(resEstimate.bestRoute?.estimateFeeUsd, 6);
             estimateRate.value = prettyNumberTooltip(resEstimate.bestRoute.toTokenAmount / resEstimate.bestRoute.fromTokenAmount, 6);
