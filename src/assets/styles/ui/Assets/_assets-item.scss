@@ -45,7 +45,7 @@
         }
 
         .apr {
-            color: var(--#{$prefix}sub-text);
+            color: var(--#{$prefix}neutral-text);
             font-weight: 300;
 
             span {
@@ -54,7 +54,8 @@
         }
 
         .unlock {
-            color: var(--#{$prefix}unlock-text);
+            color: var(--#{$prefix}neutral-text);
+            font-weight: 300;
 
             &__value {
                 color: var(--#{$prefix}mute-apr-text);
