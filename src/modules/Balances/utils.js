@@ -5,12 +5,14 @@ import BigNumber from 'bignumber.js';
 import { cosmologyConfig } from '@/Adapter/config';
 import { DP_COSMOS } from '@/api/data-provider';
 
-import { getTotalFuturesBalance, BALANCES_TYPES } from '@/shared/utils/assets';
+import { getTotalBalanceByDiff } from '@/shared/utils/assets';
 import IndexedDBService from '@/modules/indexedDb';
 
 import PricesModule from '@/modules/prices/';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
+
+import { BALANCES_TYPES } from '@/modules/Balances/constants';
 // =================================================================================================================
 
 export const storeOperations = async (
@@ -137,8 +139,8 @@ export const getIntegrationsBalance = (integrations) => {
     for (const integration of integrations) {
         const { balances = [] } = integration;
 
-        if (integration.type === BALANCES_TYPES.FUTURES) {
-            balance = getTotalFuturesBalance(balances, balance);
+        if (integration.type === BALANCES_TYPES.FUTURES || integration.type === BALANCES_TYPES.BORROW_AND_LENDING) {
+            balance = getTotalBalanceByDiff(balances, balance);
         } else {
             balance = getTotalBalance(balances, balance);
         }
