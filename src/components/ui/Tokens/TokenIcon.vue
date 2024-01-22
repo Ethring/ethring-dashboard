@@ -1,9 +1,13 @@
 <template>
-    <div class="token-icon">
+    <div
+        class="token-icon"
+        :style="{
+            width: `${width}px`,
+            height: `${height}px`,
+        }"
+    >
         <img
             v-if="!showIconPlaceholder && token"
-            :width="width"
-            :height="height"
             :key="token?.symbol"
             :src="token?.logo || tokenIconFromZomet || getTokenIcon(token?.symbol?.toLowerCase())"
             :alt="token?.name"
@@ -34,6 +38,11 @@ export default {
         },
         token: {
             required: true,
+            type: Object,
+            default: () => ({
+                symbol: null,
+                logo: null,
+            }),
         },
     },
     setup(props) {
@@ -92,12 +101,24 @@ export default {
 </script>
 <style lang="scss" scoped>
 .token-icon {
-    @include pageFlexRow;
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
     justify-content: center;
 
+    border: 0.2px solid var(--#{$prefix}icon-placeholder-border);
+    border-radius: 50%;
+    padding: 1px;
+
+    background-color: var(--#{$prefix}icon-placeholder);
+
+    max-width: 64px;
+    max-height: 64px;
+
     img {
-        border-radius: 50%;
-        margin: auto;
+        width: 100%;
+        height: 100%;
         object-position: center;
         object-fit: contain;
     }

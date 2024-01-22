@@ -15,6 +15,9 @@ $springGreen: #14ec8a;
 //  SECONDARY COLORS
 //  ===========================================================================
 
+$ghostWhite: #5A6281;
+$medievalBlue: #2b3450;
+
 $charade: #2e323e;
 $trout: #494c56;
 $mineralGreen: #486060;
@@ -27,7 +30,7 @@ $cyan: #02e7f6;
 $ficus: #385c39;
 $blueHalk: #e6eeff;
 $blackGray: #1a1d26;
-$paleSky: #6D747A;
+$paleSky: #6d747a;
 
 $wildWatermelon: #e4455d;
 $deepCerulean: #00839f;
@@ -47,7 +50,6 @@ $gradient-dark-green: linear-gradient(198.01deg, #00bf57 0.44%, #005f91 108.3%);
 
 $black-op-085: rgba(0, 0, 0, 0.85);
 $black-op-02: rgba(0, 0, 0, 0.2);
-
 
 //  ===========================================================================
 //  COLORS MAP
@@ -150,13 +152,12 @@ $select-icon-bg-color: $charade;
 $select-placeholder-text: $trout;
 $select-active-bg-color: $chineseBlack;
 $select-symbol-text: $aquamarine;
-$selected-bg-color: rgba(20, 236, 138, 0.10);
-
+$selected-bg-color: rgba(20, 236, 138, 0.1);
 
 // Accordion
 $accordion-bg-color: $charade;
 $accordion-label-color: $geyser;
-$accordion-border-color: 'transparent';
+$accordion-border-color: "transparent";
 $accordion-title: $white;
 
 // Collapse
@@ -191,6 +192,9 @@ $icon-secondary-bg-color: $ebonyClay;
 $icon-secondary-bg-hover: $mineralGreen;
 $icon-bg-color: $white;
 
+$icon-placeholder: $medievalBlue;
+$icon-placeholder-border: $ghostWhite;
+
 $arrow-color: $white;
 
 $negative-percentage: $wildWatermelon;
@@ -214,7 +218,7 @@ $modal-item-text: $ebonyClay;
 // Search
 $search-bg-color: $ebonyClay;
 
-$block-box-shadow: 'transparent';
+$block-box-shadow: "transparent";
 $loader-border-color: $ficus;
 
 $theme-switcher-color: $gulfStream;
@@ -224,7 +228,6 @@ $nav-bar-bg-color: $chineseBlack;
 $tag-01: $aquamarine;
 $tag-02: $cyan;
 $tag-03: $springGreen;
-
 
 //  ===========================================================================
 //  THEME MAP
@@ -336,6 +339,9 @@ $theme-colors-dark: (
     "icon-secondary-bg-hover": $icon-secondary-bg-hover,
     "arrow-color": $arrow-color,
 
+    "icon-placeholder": $icon-placeholder,
+    "icon-placeholder-border": $icon-placeholder-border,
+
     "search-bg-color": $search-bg-color,
 
     "success": $success,
@@ -375,5 +381,5 @@ $theme-colors-dark: (
 
     "tag-01": $tag-01,
     "tag-02": $tag-02,
-    "tag-03": $tag-03,
+    "tag-03": $tag-03
 );

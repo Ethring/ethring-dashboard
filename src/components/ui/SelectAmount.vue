@@ -12,7 +12,7 @@
                     </template>
                     <template v-else>
                         <div class="network">
-                            <TokenIcon v-if="selectedToken" width="24" height="24" :token="selectedToken" />
+                            <TokenIcon v-if="selectedToken" width="32" height="32" :token="selectedToken" />
                             <a-avatar v-else :size="24"></a-avatar>
                         </div>
 
@@ -75,7 +75,7 @@ import { ref, watch, computed, onUpdated, onMounted } from 'vue';
 
 import BigNumber from 'bignumber.js';
 
-import TokenIcon from '@/components/ui/TokenIcon';
+import TokenIcon from '@/components/ui/Tokens/TokenIcon';
 import NumberTooltip from '@/components/ui/NumberTooltip';
 
 import ArrowIcon from '@/assets/icons/dashboard/arrow.svg';

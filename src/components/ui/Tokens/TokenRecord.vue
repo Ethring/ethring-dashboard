@@ -50,7 +50,7 @@
 <script>
 import { computed, inject } from 'vue';
 
-import TokenIcon from '@/components/ui/TokenIcon';
+import TokenIcon from '@/components/ui/Tokens/TokenIcon';
 import NumberTooltip from '@/components/ui/NumberTooltip';
 
 import ExternalLinkIcon from '@/assets/icons/app/external-link.svg';
