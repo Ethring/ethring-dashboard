@@ -19,7 +19,7 @@
         </template>
 
         <template #bodyCell="{ column, record }">
-            <AssetItem :item="record" :column="column.dataIndex" :type="record.nfts ? 'nft' : 'asset'" />
+            <AssetItem :item="record" :column="column.dataIndex" :type="type" />
         </template>
 
         <template #expandedRowRender="{ record }">

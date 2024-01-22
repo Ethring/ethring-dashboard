@@ -6,13 +6,13 @@
         display: inline-flex;
 
         .symbol {
-            font-size: var(--#{$prefix}h6-fs);
+            font-size: var(--#{$prefix}default-fs);
             font-weight: 400;
             color: var(--#{$prefix}secondary-text);
         }
 
         .name {
-            font-size: var(--#{$prefix}h6-fs);
+            font-size: var(--#{$prefix}default-fs);
             color: var(--#{$prefix}primary-text);
             font-weight: 400;
             margin-left: 8px;
@@ -93,4 +93,10 @@
     & p {
         color: var(--#{$prefix}assets-arrow-color) !important;
     }
+}
+
+.ibc-tag {
+    color: var(--#{$prefix}neutral-text);
+    border: 1px solid var(--#{$prefix}border-color);
+    background-color: var(--#{$prefix}secondary-background);
 }

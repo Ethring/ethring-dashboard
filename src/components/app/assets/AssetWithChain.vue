@@ -1,8 +1,7 @@
 <template>
     <div class="asset-with-chain">
-        <TokenIcon v-if="type === 'asset'" :width="width" :height="height" :token="asset" />
         <a-image
-            v-else
+            v-if="type === 'NFTS'"
             :preview="false"
             class="asset-with-chain__nft-img"
             :width="width"
@@ -10,6 +9,9 @@
             :src="asset.avatar"
             :fallback="nftPlaceholder"
         />
+
+        <TokenIcon v-else :width="width" :height="height" :token="asset" />
+
         <div class="chain">
             <TokenIcon width="16" :height="16" :token="chain" />
         </div>

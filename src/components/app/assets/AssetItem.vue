@@ -5,7 +5,15 @@
                 <AssetWithChain :asset="item" :chain="tokenChainIcon" :type="type" />
 
                 <div class="info">
-                    <div class="name">{{ item.name || item.symbol }}</div>
+                    <div class="name">
+                        <template v-if="ibcTag">
+                            {{ ibcTag }}
+                            <a-tag v-if="type === 'Asset'" class="ibc-tag" :bordered="false"> IBC </a-tag>
+                        </template>
+                        <template v-else>
+                            {{ item.name || item.symbol }}
+                        </template>
+                    </div>
                     <div class="type" v-if="item.balanceType">{{ getFormattedName(item.balanceType) }}</div>
                     <div class="unlock" v-if="item.unlockTimestamp">
                         <a-tooltip>
@@ -23,25 +31,11 @@
         </template>
 
         <template v-if="balanceKeys.includes(column)">
-            <!-- <div class="amount">
-                <div class="value">
-                    <NumberTooltip :value="balance" decimals="3" />
-                </div>
-                &nbsp;
-                <span v-if="item.symbol" class="symbol">{{ item?.symbol }}</span>
-            </div> -->
-
             <Amount :type="item?.symbol ? 'currency' : 'usd'" :value="balance" :symbol="item.symbol" :decimals="3" />
         </template>
 
         <template v-if="valueKeys.includes(column)">
             <Amount type="usd" :value="balanceUsd" symbol="$" />
-            <!-- <div class="amount">
-                <span class="symbol">$</span>
-                <div class="value">
-                    <NumberTooltip :value="balanceUsd" />
-                </div>
-            </div> -->
         </template>
     </div>
 </template>
@@ -114,10 +108,19 @@ export default {
             };
         });
 
+        const ibcTag = computed(() => {
+            if (props.item?.name.includes('IBC -')) {
+                return props.item.name.split('IBC -')[1];
+            }
+
+            return null;
+        });
+
         return {
             balance,
             balanceUsd,
 
+            ibcTag,
             tokenChainIcon,
 
             getFormattedName,
