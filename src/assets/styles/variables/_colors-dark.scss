@@ -15,8 +15,9 @@ $springGreen: #14ec8a;
 //  SECONDARY COLORS
 //  ===========================================================================
 
-$ghostWhite: #5A6281;
+$ghostWhite: #5a6281;
 $medievalBlue: #2b3450;
+$medWhite: #e8efff;
 
 $charade: #2e323e;
 $trout: #494c56;
@@ -36,6 +37,7 @@ $wildWatermelon: #e4455d;
 $deepCerulean: #00839f;
 $japaneseLaurel: #038d00;
 $blazeOrange: #ff6b00;
+$neutral-text: $medWhite;
 
 //  ===========================================================================
 //  GRADIENTS
@@ -258,6 +260,7 @@ $theme-colors-dark: (
     "input-disabled-text": $input-disabled-text,
     "balance-text": $balance-text,
     "unlock-text": $unlock-text,
+    "neutral-text": $neutral-text,
 
     "assets-border-color": $assets-border-color,
     "assets-header-border-color": $assets-header-border-color,

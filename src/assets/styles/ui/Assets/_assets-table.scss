@@ -138,11 +138,15 @@
 .ant-table-row-expand-icon:active,
 .ant-table-row-expand-icon:focus,
 .ant-table-row-expand-icon:hover {
-    color: var(--#{$prefix}banner-logo-color) !important;
+    background-color: var(--#{$prefix}assets-arrow-hover-color) !important;
+    border-color: var(--#{$prefix}white) !important;
+    color: var(--#{$prefix}white) !important;
 }
 
 .ant-table-row-expand-icon {
-    background: var(--#{$prefix}assets-arrow-border-color) !important;
+    background: transparent !important;
+    color: var(--#{$prefix}assets-arrow-color) !important;
+    border-color: var(--#{$prefix}assets-arrow-border-color) !important;
 }
 
 .ant-spin-container {

@@ -39,27 +39,25 @@
         }
 
         .type {
-            color: var(--#{$prefix}sub-text);
-            font-weight: 400;
+            color: var(--#{$prefix}neutral-text);
+            font-weight: 300;
+            font-size: var(--#{$prefix}small-sm-fs);
         }
 
         .apr {
             color: var(--#{$prefix}sub-text);
-            font-weight: 600;
+            font-weight: 300;
 
             span {
                 color: var(--#{$prefix}mute-apr-text);
-                font-weight: 400;
             }
         }
 
         .unlock {
             color: var(--#{$prefix}unlock-text);
-            font-weight: 400;
 
             &__value {
                 color: var(--#{$prefix}mute-apr-text);
-                font-weight: 500;
             }
         }
     }

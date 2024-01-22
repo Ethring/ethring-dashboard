@@ -2,13 +2,13 @@
     <a-card :tab-list="tabs" size="small" :active-tab-key="activeTabKey" @tabChange="(key) => onTabChange(key)" class="nft-item-info">
         <a-descriptions bordered size="small" :column="1" v-if="activeTabKey === 'collection-info'">
             <a-descriptions-item :label="$t('dashboard.nft.floorPrice')">
-                {{ record.floorPrice }}&nbsp; {{ record.token?.symbol }}
+                <Amount type="currency" :value="record.floorPrice" :symbol="record.token?.symbol || ''" :decimals="3" />
             </a-descriptions-item>
             <a-descriptions-item :label="$t('dashboard.nft.volume')">
-                {{ record.volume || 0 }}&nbsp;{{ record.token?.symbol }}
+                <Amount type="currency" :value="record.volume || 0" :symbol="record.token?.symbol || ''" :decimals="3" />
             </a-descriptions-item>
             <a-descriptions-item :label="$t('dashboard.nft.marketCap')">
-                {{ record.marketCap }}&nbsp;{{ record.token?.symbol }}
+                <Amount type="currency" :value="record.marketCap" :symbol="record.token?.symbol || ''" :decimals="3" />
             </a-descriptions-item>
             <a-descriptions-item :label="$t('dashboard.nft.numberOfItems')">{{ record.numberOfAssets }}</a-descriptions-item>
             <a-descriptions-item :label="$t('dashboard.nft.contractAddress')">{{ record.address }}</a-descriptions-item>
@@ -35,6 +35,8 @@
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import Amount from '../../Amount.vue';
+
 import { LinkOutlined } from '@ant-design/icons-vue';
 
 export default {
@@ -48,6 +50,7 @@ export default {
     },
     components: {
         LinkOutlined,
+        Amount,
     },
     setup() {
         const { t } = useI18n();

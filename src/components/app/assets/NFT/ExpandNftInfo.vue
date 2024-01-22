@@ -1,5 +1,5 @@
 <template>
-    <a-row class="nft-info-container" gutter="12">
+    <a-row class="nft-info-container" :gutter="12">
         <a-col :span="10">
             <a-row wrap class="nft-list" :gutter="[12, 12]">
                 <a-col :span="8" v-for="(nft, i) in record.nfts" :key="i">

@@ -61,7 +61,7 @@
                     />
                 </template>
 
-                <AssetsTable :data="nftsByCollection" type="NFTS" :columns="NFT_COLUMNS" :loading="isAllTokensLoading" />
+                <AssetsTable :data="nftsByCollection" type="NFTS" :columns="NFT_COLUMNS" :loading="nftsByCollection.length <= 0" />
             </a-collapse-panel>
         </a-collapse>
     </div>
@@ -110,8 +110,7 @@ export default {
 
         const integrationAssetsByPlatform = ref(getIntegrationsGroupedByPlatform(allIntegrations.value));
 
-        // TODO: data should be reactive
-        const tokensData = ref([...allTokens.value]);
+        const tokensData = computed(() => [...allTokens.value]);
 
         const nftsByCollection = ref(getNftsByCollection(allNfts.value));
 
@@ -140,7 +139,6 @@ export default {
         const updateAssets = () => {
             integrationAssetsByPlatform.value = getIntegrationsGroupedByPlatform(allIntegrations.value);
             nftsByCollection.value = getNftsByCollection(allNfts.value);
-            tokensData.value = [...allTokens.value];
         };
 
         const updateActiveKeys = () => {

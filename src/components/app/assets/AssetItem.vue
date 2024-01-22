@@ -23,22 +23,25 @@
         </template>
 
         <template v-if="balanceKeys.includes(column)">
-            <div class="amount">
+            <!-- <div class="amount">
                 <div class="value">
                     <NumberTooltip :value="balance" decimals="3" />
                 </div>
                 &nbsp;
                 <span v-if="item.symbol" class="symbol">{{ item?.symbol }}</span>
-            </div>
+            </div> -->
+
+            <Amount :type="item?.symbol ? 'currency' : 'usd'" :value="balance" :symbol="item.symbol" :decimals="3" />
         </template>
 
         <template v-if="valueKeys.includes(column)">
-            <div class="amount">
+            <Amount type="usd" :value="balanceUsd" symbol="$" />
+            <!-- <div class="amount">
                 <span class="symbol">$</span>
                 <div class="value">
                     <NumberTooltip :value="balanceUsd" />
                 </div>
-            </div>
+            </div> -->
         </template>
     </div>
 </template>
@@ -47,8 +50,7 @@ import { computed } from 'vue';
 import { useStore } from 'vuex';
 
 import AssetWithChain from '@/components/app/assets/AssetWithChain';
-
-import NumberTooltip from '@/components/ui/NumberTooltip';
+import Amount from '../Amount.vue';
 
 import { formatNumber } from '@/helpers/prettyNumber';
 
@@ -71,7 +73,7 @@ export default {
         },
     },
     components: {
-        NumberTooltip,
+        Amount,
         AssetWithChain,
     },
     setup(props) {

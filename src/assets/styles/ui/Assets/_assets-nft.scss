@@ -8,16 +8,16 @@
         color: var(--#{$prefix}primary-text);
 
         .ant-tabs-tab-btn:hover {
-            color: var(--#{$prefix}banner-logo-color);
+            color: var(--#{$prefix}assets-arrow-color) !important;
         }
     }
     .ant-tabs-tab.ant-tabs-tab-active {
         .ant-tabs-tab-btn {
-            color: var(--#{$prefix}banner-logo-color);
+            color: var(--#{$prefix}assets-arrow-color);
         }
     }
     .ant-tabs-ink-bar {
-        background-color: var(--#{$prefix}banner-logo-color);
+        background-color: var(--#{$prefix}assets-arrow-color);
     }
 }
 
