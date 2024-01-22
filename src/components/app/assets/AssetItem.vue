@@ -21,7 +21,6 @@
                             Unlock: <span class="unlock__value"> {{ getTimeCountdown(item.unlockTimestamp) }} </span>
                         </a-tooltip>
                     </div>
-                    <div class="apr" v-if="item.apr"><span>APR </span> {{ formatNumber(item.apr, 2) }}%</div>
                     <div class="apr" v-if="item.leverageRate"><span>Leverage </span> {{ formatNumber(item.leverageRate, 2) }}x</div>
                     <div class="count" v-if="item.nfts">
                         <a-badge :count="item.nfts.length" class="asset-nfts-count" />
