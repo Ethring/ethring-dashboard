@@ -621,7 +621,7 @@ export default {
             isEstimating.value = false;
             isLoading.value = false;
 
-            dstAmount.value = BigNumber(response.toTokenAmount).toFixed(6);
+            dstAmount.value = BigNumber(response.toTokenAmount).decimalPlaces(6).toString();
 
             estimateErrorTitle.value = '';
 

@@ -10,6 +10,10 @@ const priceByPlatformContracts = async ({ chainId = 56, addresses, currencies = 
 
     const platform = PLATFORMS[chainId];
 
+    if (!platform) {
+        return {};
+    }
+
     const url = `${PROXY_API}/token-price/coingecko/${platform}?addresses=${addresses}&currencies=${currencies}`;
 
     const config = {

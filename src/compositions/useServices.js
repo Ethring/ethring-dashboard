@@ -14,8 +14,6 @@ import {
 import useTokensList from '@/compositions/useTokensList';
 import useNotification from '@/compositions/useNotification';
 
-import { ECOSYSTEMS } from '@/Adapter/config';
-
 export default function useModule({ moduleType }) {
     const store = useStore();
     const useAdapter = inject('useAdapter');
@@ -110,13 +108,9 @@ export default function useModule({ moduleType }) {
             srcNet,
         });
 
-        const nativeToken = getNativeToken(srcNet, tokensList.value);
-
         const [defaultToken = null] = tokensList.value;
 
-        if (!token && !defaultToken?.balance) {
-            return nativeToken;
-        } else if (!token && defaultToken) {
+        if (!token && defaultToken) {
             return defaultToken;
         }
 
@@ -142,36 +136,15 @@ export default function useModule({ moduleType }) {
         return token;
     };
 
-    const getNativeToken = (network, tokensList) => {
-        for (let token of tokensList) {
-            if (token.id && token.id.includes('asset__native')) {
-                return token;
-            }
-        }
-
-        if (network && network.ecosystem === ECOSYSTEMS.COSMOS) {
-            return { ...network.asset, address: network.asset.base, logo: network.logo };
-        }
-
-        return network?.native_token;
-    };
-
     const setTokenOnChange = () => {
         tokensList.value = getTokensList({
             srcNet: selectedSrcNetwork.value,
         });
 
-        const nativeToken = getNativeToken(selectedSrcNetwork.value, tokensList.value);
-
         const [defaultFromToken = null, defaultToToken = null] = tokensList.value || [];
 
         if ((!selectedSrcToken.value && defaultFromToken) || selectedSrcToken.value?.balance === 0) {
             selectedSrcToken.value = defaultFromToken;
-        }
-
-        if (defaultFromToken && defaultFromToken.balance === 0) {
-            selectedSrcToken.value = nativeToken;
-            return;
         }
 
         if (selectedSrcToken.value?.address === selectedDstToken.value?.address) {
