@@ -2,14 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router';
 
 const routes = [
     {
-        path: '',
-        redirect: '/main',
-    },
-    {
-        path: '/',
-        redirect: '/main',
-    },
-    {
         path: '/main',
         name: 'Overview',
         meta: {
