@@ -142,13 +142,14 @@ export default {
         };
 
         const updateActiveKeys = () => {
-            // const protocols = [...new Set(integrationAssetsByPlatform.value.map((_, index) => `protocol-${index}`))];
-            // collapseActiveKey.value = [...new Set([...collapseActiveKey.value, ...protocols])];
+            const protocols = [...new Set(integrationAssetsByPlatform.value.map((_, index) => `protocol-${index}`))];
+            collapseActiveKey.value = [...new Set([...collapseActiveKey.value, ...protocols])];
         };
 
         watch(isAllTokensLoading, () => {
             if (!isAllTokensLoading.value) {
                 updateAssets();
+                updateActiveKeys();
             }
         });
 
