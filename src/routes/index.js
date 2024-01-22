@@ -3,29 +3,11 @@ import { createRouter, createWebHistory } from 'vue-router';
 const routes = [
     {
         path: '',
-        beforeEnter: (to, from, next) => {
-            // Check if the path has a hash and it includes '/main'
-            if (to.hash && to.hash.includes('/main')) {
-                const pathWithoutHash = to.path.replace(to.hash, '');
-                next(`/main${pathWithoutHash}`);
-            } else {
-                // Redirect to the main route
-                next('/main');
-            }
-        },
+        redirect: '/main',
     },
     {
         path: '/',
-        beforeEnter: (to, from, next) => {
-            // Check if the path has a hash and it includes '/main'
-            if (to.hash && to.hash.includes('/main')) {
-                const pathWithoutHash = to.path.replace(to.hash, '');
-                next(`/main${pathWithoutHash}`);
-            } else {
-                // Redirect to the main route
-                next('/main');
-            }
-        },
+        redirect: '/main',
     },
     {
         path: '/main',
@@ -143,7 +125,12 @@ router.beforeResolve((to, from, next) => {
         document.title = to.name;
     }
 
-    next();
+    if (to.hash && to.hash.includes('/main')) {
+        const pathWithoutHash = to.path.replace(to.hash, '');
+        next(`/main${pathWithoutHash}`);
+    } else {
+        next();
+    }
 });
 
 export default router;
