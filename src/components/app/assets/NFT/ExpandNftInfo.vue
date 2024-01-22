@@ -2,7 +2,7 @@
     <a-row class="nft-info-container" :gutter="12">
         <a-col :span="10">
             <a-row wrap class="nft-list" :gutter="[12, 12]">
-                <a-col :span="8" v-for="(nft, i) in record.nfts" :key="i">
+                <a-col :span="12" v-for="(nft, i) in record.nfts" :key="i">
                     <NFTItem :nft="nft" />
                 </a-col>
             </a-row>
