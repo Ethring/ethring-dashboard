@@ -2,7 +2,12 @@
     max-height: 420px;
     min-height: 400px;
 
-    max-width: 865px;
+    max-width: 990px;
+
+    @media (max-width: 1600px) {
+        max-width: 860px;
+    }
+
     margin: 0 auto;
 
     padding: 24px 0;
