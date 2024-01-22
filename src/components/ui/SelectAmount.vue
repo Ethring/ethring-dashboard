@@ -222,7 +222,7 @@ export default {
         watch(
             () => props.value,
             (tkn, oldTkn) => {
-                if (tkn?.id === oldTkn?.id || tkn?.address === oldTkn?.address) {
+                if (tkn?.id === oldTkn?.id) {
                     return;
                 }
 

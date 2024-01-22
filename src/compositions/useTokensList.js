@@ -82,40 +82,54 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         }
 
         // Native token
-        if (ECOSYSTEMS.EVM === network?.ecosystem) {
-            const { native_token: nativeToken } = network || {};
+        const nativeToken = network.native_token || network.asset;
+        if (!nativeToken) {
+            return [];
+        }
 
-            if (!nativeToken) {
-                return [];
+        const searchId = `${network.net}:asset__native:${nativeToken.symbol}`;
+
+        const baseToken = allTokens.find(({ id }) => id === searchId);
+
+        const tokenInfo = {
+            balance: 0,
+            balanceUsd: 0,
+            net: network.net,
+            ...baseToken,
+            ...nativeToken,
+        };
+
+        if (!tokenInfo.id) {
+            tokenInfo.id = searchId;
+        }
+
+        if (!tokenInfo.name) {
+            tokenInfo.name = nativeToken.symbol;
+        }
+
+        if (network.ecosystem === ECOSYSTEMS.COSMOS) {
+            tokenInfo.logo = network.logo;
+            tokenInfo.address = nativeToken.base;
+        }
+
+        if (!tokenInfo.name.includes('Native Token') && network.ecosystem === ECOSYSTEMS.EVM) {
+            tokenInfo.name += ' Native Token';
+        }
+
+        if (!tokenInfo.price) {
+            const chainList = computed(() => store.getters['networks/zometNetworksList']);
+            const token = chainList.value.find(({ net }) => net === tokenInfo.net);
+
+            if (token) {
+                tokenInfo.price = token.native_token?.price;
             }
+        }
 
-            const searchId = `${network.net}:asset__native:${nativeToken.symbol}`;
+        if (baseToken) {
+            allTokens = allTokens.filter(({ id }) => id !== searchId);
+        }
 
-            const baseToken = allTokens.find(({ id }) => id === searchId);
-
-            const tokenInfo = {
-                balance: 0,
-                balanceUsd: 0,
-                ...baseToken,
-                ...nativeToken,
-            };
-
-            if (!tokenInfo.id) {
-                tokenInfo.id = searchId;
-            }
-
-            if (!tokenInfo.name) {
-                tokenInfo.name = nativeToken.symbol;
-            }
-
-            if (!tokenInfo.name.includes('Native Token')) {
-                tokenInfo.name += ' Native Token';
-            }
-
-            if (baseToken) {
-                allTokens = allTokens.filter(({ id }) => id !== searchId);
-            }
-
+        if (!onlyWithBalance.value || tokenInfo.balance > 0 || !allTokens.length) {
             allTokens.push(tokenInfo);
         }
 
