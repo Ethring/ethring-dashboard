@@ -40,25 +40,28 @@
 
         .type {
             color: var(--#{$prefix}neutral-text);
+        }
+
+        .type,
+        .apr,
+        .unlock {
             font-weight: 300;
             font-size: var(--#{$prefix}small-sm-fs);
         }
 
         .apr {
-            color: var(--#{$prefix}neutral-text);
-            font-weight: 300;
+            color: var(--#{$prefix}sub-text);
 
             span {
-                color: var(--#{$prefix}mute-apr-text);
+                color: var(--#{$prefix}neutral-text);
             }
         }
 
         .unlock {
             color: var(--#{$prefix}neutral-text);
-            font-weight: 300;
 
             &__value {
-                color: var(--#{$prefix}mute-apr-text);
+                color: var(--#{$prefix}sub-text);
             }
         }
     }
