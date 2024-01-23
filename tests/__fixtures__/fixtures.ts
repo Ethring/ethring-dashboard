@@ -31,7 +31,7 @@ export const testMetaMask = base.extend<{
     swapPageMockTokensList: SwapPage;
     superSwapPage: SuperSwapPage;
 }>({
-    context: async ({}, use) => {
+    context: async ({ }, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -102,7 +102,7 @@ export const testMetaMaskMockTx = base.extend<{
     context: BrowserContext;
     sendPage: SendPage;
 }>({
-    context: async ({}, use) => {
+    context: async ({ }, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -135,9 +135,10 @@ export const testKeplr = base.extend<{
     authPage: BasePage;
 
     dashboard: DashboardPage;
+    dashboardProtocol: DashboardPage;
     sendPage: SendPage;
 }>({
-    context: async ({}, use) => {
+    context: async ({ }, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -171,5 +172,9 @@ export const testKeplr = base.extend<{
         const zometPage = await authInDashboardByKeplr(context, seedPhraseByTx);
         const sendPage = await zometPage.goToModule('send');
         await use(sendPage);
+    },
+    dashboardProtocol: async ({ context }, use) => {
+        const zometPage = await authInDashboardByKeplr(context, seedPhraseByProtocol);
+        await use(zometPage);
     },
 });

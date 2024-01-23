@@ -1,7 +1,7 @@
 <template>
     <a-card size="small" class="nft-item">
         <template #cover>
-            <a-image :preview="true" :src="nft.avatar" class="nft-item-avatar" />
+            <a-image :preview="true" :src="nft.avatar" class="nft-item-avatar" :fallback="nftPlaceholder" />
         </template>
         <a-card-meta>
             <template #title>{{ nft.name }}</template>
@@ -13,6 +13,7 @@
     </a-card>
 </template>
 <script>
+import NftPlaceholder from '@/assets/images/placeholder/mask.png';
 export default {
     name: 'NFTItem',
     props: {
@@ -21,6 +22,11 @@ export default {
             type: Object,
             default: () => ({}),
         },
+    },
+    data() {
+        return {
+            nftPlaceholder: NftPlaceholder,
+        };
     },
 };
 </script>

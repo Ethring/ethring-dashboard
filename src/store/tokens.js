@@ -112,13 +112,7 @@ export default {
                 state[type][account] = {};
             }
 
-            const [record] = data || [];
-
-            if (!record?.id) {
-                return (state[type][account] = data);
-            }
-
-            return (state[type][account] = _.unionBy(state[type][account], data, 'id'));
+            return (state[type][account] = _.unionBy(data, state[type][account], 'id'));
         },
 
         [TYPES.SET_ASSETS_BALANCE](state, { account, data }) {

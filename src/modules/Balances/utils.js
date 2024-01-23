@@ -166,7 +166,7 @@ export const formatRecord = (record, { net, chain, logo, type }) => {
     }
 
     if (type === 'nft' && record.collection) {
-        record.id = `${record.chain}:${type}__collection__${record.collection?.address}:${record?.token?.symbol}`;
+        record.id = `${record.chain}:${type}__collection__${record.collection?.address}:${record?.tokenId}`;
     }
 
     return record;

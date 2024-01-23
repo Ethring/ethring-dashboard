@@ -1,10 +1,10 @@
 import { testKeplr, testMetaMask } from '../__fixtures__/fixtures';
 import { expect } from '@playwright/test';
-import { emptyBalanceMockData, errorGetBalanceMockData, mockBalanceData } from '../data/mockHelper';
+import { emptyBalanceMockData, errorGetBalanceMockData, mockBalanceData, mockBalanceCosmosWallet } from '../data/mockHelper';
 import { TEST_CONST, getTestVar } from '../envHelper';
 import { BridgePage, SendPage, SuperSwapPage, SwapPage } from '../model/VueApp/base.pages';
 import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
-import { EVM_NETWORKS } from '../data/constants';
+import { EVM_NETWORKS, COSMOS_NETWORKS, COSMOS_ADDRESSES } from '../data/constants';
 
 const sleep = require('util').promisify(setTimeout);
 
@@ -102,5 +102,21 @@ testKeplr.describe('Keplr dashboard', () => {
         await dashboard.waitHiddenSkeleton();
 
         await expect(dashboard.page).toHaveScreenshot({ maxDiffPixelRatio: 0.01 });
+    });
+});
+
+testKeplr.describe('Keplr dashboard', () => {
+    testKeplr('Case#: check protocols & nfts view', async ({ browser, context, page, dashboardProtocol }) => {
+
+        await Promise.all(COSMOS_NETWORKS.map((network) => dashboardProtocol.mockBalanceRequest(network, mockBalanceCosmosWallet[network], COSMOS_ADDRESSES[network])));
+        await dashboardProtocol.waitHiddenSkeleton();
+
+        // Fix https://github.com/microsoft/playwright/issues/18827#issuecomment-1878770736
+        await dashboardProtocol.page.evaluate(() => {
+            window.scrollTo(0, 0);
+        });
+        await dashboardProtocol.page.waitForFunction(() => window.scrollY === 0);
+
+        await expect(dashboardProtocol.page).toHaveScreenshot({ fullPage: true });
     });
 });
