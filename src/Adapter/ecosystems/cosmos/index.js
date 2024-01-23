@@ -687,7 +687,8 @@ class CosmosAdapter extends AdapterBase {
     }
 
     async getSignClient(RPCs, { signingStargate = {}, offlineSigner = {} }) {
-        const CHUNK_SIZE = 5;
+        const CHUNK_SIZE = 10;
+        const TIMEOUT = 2000; // 2 seconds
 
         // Check if RPCs exist
         if (!RPCs.length) {
@@ -700,7 +701,14 @@ class CosmosAdapter extends AdapterBase {
         for (const chunkRPCs of chunkedRPCs) {
             const connectPromises = chunkRPCs.map(async (rpc) => {
                 try {
-                    return await SigningStargateClient.connectWithSigner(rpc, offlineSigner, signingStargate);
+                    const connectPromise = SigningStargateClient.connectWithSigner(rpc, offlineSigner, signingStargate);
+
+                    // Add a timeout promise
+                    const timeoutPromise = new Promise((_, reject) => {
+                        setTimeout(() => reject(new Error(`[COSMOS -> getSignClient] Connection to RPC ${rpc} timed out`)), TIMEOUT);
+                    });
+
+                    return await Promise.race([connectPromise, timeoutPromise]);
                 } catch (error) {
                     console.warn(`[COSMOS -> getSignClient] Error connecting to RPC: ${rpc}`, error.message);
                     return null;
