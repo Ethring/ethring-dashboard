@@ -16,12 +16,13 @@
     "updateBalances": "Fetch balances (Coming soon)",
     "releaseNotes": "Read release notes",
     "switchTheme": "Switch theme",
+    "buyCrypto": "Buy crypto",
     "nft": {
       "description": "Description",
       "collectionName": "Collection name",
       "collectionInformation": "Collection information",
       "holdings": "Holdings",
-      "floorPrice": "Floor price (24h)",
+      "floorPrice": "Floor price(24h)",
       "tokens": "Tokens",
       "volume": "Volume",
       "marketCap": "Market cap",
@@ -40,8 +41,7 @@
     "bridge": "Bridge",
     "superSwap": "SuperSwap",
     "settings": "Settings",
-    "type": "BETA",
-    "buyCrypto": "Buy crypto"
+    "type": "BETA"
   },
   "connect": {
     "emptyTitle": "Connect a wallet to manage your portfolio",

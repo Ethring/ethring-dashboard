@@ -1,20 +1,19 @@
 <template>
     <a-modal :open="buyCryptoModal" centered :footer="null" class="modal" title="Kado" @cancel="closeModal">
-        <a-spin :spinning="!isKadoLoaded" style="border-radius: 16px">
-            <template #indicator>
-                <LogoLoading />
+        <LogoLoading :spinning="!isKadoLoaded">
+            <template #content>
+                <div class="buy-crypto-iframe">
+                    <iframe
+                        v-if="IFRAME_URL"
+                        @load="() => (isKadoLoaded = true)"
+                        :src="IFRAME_URL"
+                        width="100%"
+                        height="100%"
+                        frameBorder="0"
+                    />
+                </div>
             </template>
-            <div class="buy-crypto-iframe">
-                <iframe
-                    v-if="IFRAME_URL"
-                    @load="() => (isKadoLoaded = true)"
-                    :src="IFRAME_URL"
-                    width="100%"
-                    height="100%"
-                    frameBorder="0"
-                />
-            </div>
-        </a-spin>
+        </LogoLoading>
     </a-modal>
 </template>
 <script>
@@ -58,7 +57,7 @@ export default {
                 return null;
             }
 
-            return URLS[currentChainInfo.value?.ecosystem] || null;
+            return URLS[currentChainInfo.value?.ecosystem] || BASE_URL;
         });
 
         const closeModal = () => {

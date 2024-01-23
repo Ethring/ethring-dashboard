@@ -155,7 +155,7 @@ export default {
             @include pageFlexRow;
             margin: auto 0;
             font-weight: 700;
-            font-size: var(--#{$prefix}h3-fs);
+            font-size: var(--#{$prefix}h1-fs);
             color: var(--#{$prefix}primary-text);
             user-select: none;
 

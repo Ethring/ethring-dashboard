@@ -2,14 +2,18 @@
     <div class="assets__item">
         <template v-if="column === 'name'">
             <div class="network">
-                <div class="logo">
-                    <TokenIcon width="32" height="32" :token="item" />
-                    <div class="chain">
-                        <img :src="item.chainLogo" />
-                    </div>
-                </div>
+                <AssetWithChain :asset="item" :chain="tokenChainIcon" :type="type" />
+
                 <div class="info">
-                    <div class="name">{{ item.name || item.symbol }}</div>
+                    <div class="name">
+                        <template v-if="ibcTag">
+                            {{ ibcTag }}
+                            <a-tag v-if="type === 'Asset'" class="ibc-tag" :bordered="false"> IBC </a-tag>
+                        </template>
+                        <template v-else>
+                            {{ item.name || item.symbol }}
+                        </template>
+                    </div>
                     <div class="type" v-if="item.balanceType">{{ getFormattedName(item.balanceType) }}</div>
                     <div class="unlock" v-if="item.unlockTimestamp">
                         <a-tooltip>
@@ -18,23 +22,19 @@
                         </a-tooltip>
                     </div>
                     <div class="apr" v-if="item.leverageRate"><span>Leverage </span> {{ formatNumber(item.leverageRate, 2) }}x</div>
+                    <div class="count" v-if="item.nfts">
+                        <a-badge :count="item.nfts.length" class="asset-nfts-count" />
+                    </div>
                 </div>
             </div>
         </template>
-        <template v-if="column === 'balance'">
-            <div class="amount">
-                <div class="value">
-                    <NumberTooltip :value="balance" decimals="3" />
-                </div>
 
-                <span class="symbol">{{ item?.symbol }}</span>
-            </div>
+        <template v-if="balanceKeys.includes(column)">
+            <Amount :type="item?.symbol ? 'currency' : 'usd'" :value="balance" :symbol="item.symbol" :decimals="3" />
         </template>
-        <template v-if="column === 'balanceUsd'">
-            <div class="amount">
-                <span class="symbol">$</span>
-                <div class="value"><NumberTooltip :value="balanceUsd" /></div>
-            </div>
+
+        <template v-if="valueKeys.includes(column)">
+            <Amount type="usd" :value="balanceUsd" symbol="$" />
         </template>
     </div>
 </template>
@@ -42,8 +42,8 @@
 import { computed } from 'vue';
 import { useStore } from 'vuex';
 
-import TokenIcon from '@/components/ui/TokenIcon';
-import NumberTooltip from '@/components/ui/NumberTooltip';
+import AssetWithChain from '@/components/app/assets/AssetWithChain';
+import Amount from '../Amount.vue';
 
 import { formatNumber } from '@/helpers/prettyNumber';
 
@@ -54,6 +54,10 @@ import { getFormattedName, getFormattedDate, getTimeCountdown } from '@/shared/u
 export default {
     name: 'AssetItem',
     props: {
+        type: {
+            type: String,
+            default: 'asset',
+        },
         item: {
             required: true,
         },
@@ -62,10 +66,13 @@ export default {
         },
     },
     components: {
-        TokenIcon,
-        NumberTooltip,
+        Amount,
+        AssetWithChain,
     },
     setup(props) {
+        const BALANCE_KEYS = ['balance', 'totalGroupBalance'];
+        const VALUE_KEYS = ['balanceUsd', 'floorPriceUsd'];
+
         const store = useStore();
         const showBalance = computed(() => store.getters['app/showBalance']);
 
@@ -74,7 +81,9 @@ export default {
                 return '****';
             }
 
-            return BigNumber(props.item?.balance).toString();
+            const balanceKey = BALANCE_KEYS.find((key) => props.column === key);
+
+            return BigNumber(props.item[balanceKey] || 0).toString();
         });
 
         const balanceUsd = computed(() => {
@@ -82,131 +91,45 @@ export default {
                 return '****';
             }
 
-            return BigNumber(props.item?.balanceUsd || 0).toString();
+            const usdKey = VALUE_KEYS.find((key) => props.column === key);
+
+            return BigNumber(props.item[usdKey] || 0).toString();
+        });
+
+        const tokenChainIcon = computed(() => {
+            if (!props.item?.chainLogo) {
+                return null;
+            }
+
+            return {
+                symbol: props.item.chain,
+                logo: props.item.chainLogo,
+            };
+        });
+
+        const ibcTag = computed(() => {
+            if (props.item?.name?.includes('IBC -')) {
+                return props.item.name.split('IBC -')[1];
+            }
+
+            return null;
         });
 
         return {
             balance,
             balanceUsd,
 
+            ibcTag,
+            tokenChainIcon,
+
             getFormattedName,
             getFormattedDate,
             getTimeCountdown,
             formatNumber,
+
+            balanceKeys: BALANCE_KEYS,
+            valueKeys: VALUE_KEYS,
         };
     },
 };
 </script>
-<style lang="scss">
-.assets__item {
-    color: var(--#{$prefix}black);
-    height: 38px;
-
-    .network {
-        display: inline-flex;
-
-        .logo {
-            margin-right: 8px;
-            position: relative;
-        }
-
-        .chain {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-
-            @include pageFlexRow;
-            justify-content: center;
-
-            position: absolute;
-            top: 15px;
-            left: 24px;
-
-            img {
-                border-radius: 50%;
-                object-position: center;
-                object-fit: contain;
-                width: 100%;
-                height: 100%;
-            }
-        }
-
-        .symbol {
-            font-size: var(--#{$prefix}h6-fs);
-            font-weight: 400;
-            color: var(--#{$prefix}secondary-text);
-        }
-
-        .name {
-            font-size: var(--#{$prefix}h6-fs);
-            color: var(--#{$prefix}primary-text);
-            font-weight: 400;
-            margin-left: 8px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 280px;
-        }
-    }
-
-    .info {
-        @include pageFlexRow;
-        line-height: 20px;
-        font-weight: 400;
-        font-size: var(--#{$prefix}small-lg-fs);
-
-        div:not(:first-child) {
-            &::before {
-                content: '\2022';
-                margin: 0 4px;
-                color: var(--#{$prefix}select-placeholder-text);
-            }
-        }
-
-        .type {
-            color: var(--#{$prefix}sub-text);
-            font-weight: 400;
-        }
-
-        .apr {
-            color: var(--#{$prefix}sub-text);
-            font-weight: 600;
-
-            span {
-                color: var(--#{$prefix}mute-apr-text);
-                font-weight: 400;
-            }
-        }
-
-        .unlock {
-            color: var(--#{$prefix}unlock-text);
-            font-weight: 400;
-
-            &__value {
-                color: var(--#{$prefix}mute-apr-text);
-                font-weight: 500;
-            }
-        }
-    }
-
-    .amount {
-        display: inline-flex;
-        align-items: flex-end;
-
-        .symbol {
-            font-size: var(--#{$prefix}small-lg-fs);
-            font-weight: 400;
-            color: var(--#{$prefix}secondary-text);
-            line-height: var(--#{$prefix}h6-fs);
-            margin-left: 3px;
-        }
-
-        .value {
-            line-height: var(--#{$prefix}h5-fs);
-            font-size: var(--#{$prefix}h6-fs);
-            font-weight: 400;
-            color: var(--#{$prefix}primary-text);
-        }
-    }
-}
-</style>

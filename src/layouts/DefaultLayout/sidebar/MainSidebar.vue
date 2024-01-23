@@ -94,10 +94,6 @@ export default {
                 return;
             }
 
-            if (item.type === 'modal') {
-                return store.dispatch('app/toggleModal', item.key);
-            }
-
             return router.push(item.to);
         };
 

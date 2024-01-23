@@ -9,9 +9,15 @@
             <FileDoneOutlined />
         </HelpItem>
 
-        <HelpItem :tooltipText="tooltipText" :disabled="true" v-if="currentChainInfo">
-            <SyncOutlined />
-        </HelpItem>
+        <template v-if="currentChainInfo">
+            <HelpItem tooltipText="dashboard.buyCrypto" @click="toggleBuyCryptoModal">
+                <BuyCryptoIcon />
+            </HelpItem>
+
+            <HelpItem :tooltipText="tooltipText" :disabled="true">
+                <SyncOutlined />
+            </HelpItem>
+        </template>
     </div>
 </template>
 <script>
@@ -19,6 +25,7 @@ import { computed, inject } from 'vue';
 import { useStore } from 'vuex';
 
 import { FileDoneOutlined, SyncOutlined } from '@ant-design/icons-vue';
+import BuyCryptoIcon from '@/assets/icons/sidebar/buy-crypto.svg';
 import ThemeSwitcher from '../ThemeSwitcher.vue';
 
 import HelpItem from './HelpItem.vue';
@@ -28,6 +35,7 @@ export default {
     components: {
         HelpItem,
         ThemeSwitcher,
+        BuyCryptoIcon,
         FileDoneOutlined,
         SyncOutlined,
     },
@@ -57,6 +65,8 @@ export default {
             return 0;
         });
 
+        const toggleBuyCryptoModal = () => store.dispatch('app/toggleModal', 'buyCrypto');
+
         return {
             isLoading,
             tooltipText,
@@ -64,6 +74,7 @@ export default {
             showBadge,
 
             handleReload,
+            toggleBuyCryptoModal,
             showReleaseNotes,
         };
     },
@@ -90,10 +101,5 @@ export default {
             border-bottom: 1px solid var(--zmt-border-color-op-05);
         }
     }
-}
-
-.update-modal {
-    margin: 10px auto;
-    width: 100%;
 }
 </style>

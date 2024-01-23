@@ -67,7 +67,7 @@ import { ref, watch } from 'vue';
 
 import { onClickOutside } from '@vueuse/core';
 
-import TokenIcon from '@/components/ui/TokenIcon';
+import TokenIcon from '@/components/ui/Tokens/TokenIcon';
 import NumberTooltip from '@/components/ui/NumberTooltip';
 import SearchInput from '@/components/ui/SearchInput';
 

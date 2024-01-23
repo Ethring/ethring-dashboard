@@ -9,6 +9,7 @@
 $ebonyClay: #1c1f2c;
 $white: #ffffff;
 $black: #000000;
+$stormGrey: #737687;
 
 $springGreen: #14ec8a;
 $turquoise: #3fdfae;
@@ -17,6 +18,9 @@ $surfieGreen: #0d7e71;
 //  ===========================================================================
 //  SECONDARY COLORS
 //  ===========================================================================
+
+$aliceBlue: #f5f7f8;
+$grayX50: #bdbfc0;
 
 $charade: #2e323e;
 $trout: #494c56;
@@ -88,6 +92,11 @@ $asset-header-icon-color: $surfieGreen;
 $assets-border-color: $geyser;
 $assets-header-border-color: $gainsboro;
 
+$assets-arrow-color: $gulfStream;
+$assets-arrow-border-color: $gulfStream;
+$assets-arrow-hover-color: $surfieGreen;
+$assets-arrow-bg-color: $iceberg;
+
 // Text
 $sub-text: $surfieGreen;
 $mute-text: $trout;
@@ -101,6 +110,7 @@ $amount-text: $charade;
 $input-disabled-text: $mineralGreen;
 $balance-text: $surfieGreen;
 $unlock-text: $paleSky;
+$neutral-text: $stormGrey;
 
 // Adapter
 $adapter-label-text: $trout;
@@ -203,6 +213,9 @@ $icon-hover: $springGreen;
 $icon-disabled: $trout;
 $icon-border: $dinastyDragon;
 
+$icon-placeholder: $aliceBlue;
+$icon-placeholder-border: $grayX50;
+
 $icon-bg-color: $iceberg;
 
 $icon-logo-bg-color: $ebonyClay;
@@ -266,6 +279,11 @@ $theme-colors: (
     "asset-header-icon-color": $asset-header-icon-color,
     "assets-header-border-color": $assets-header-border-color,
 
+    "assets-arrow-color": $assets-arrow-color,
+    "assets-arrow-border-color": $assets-arrow-border-color,
+    "assets-arrow-hover-color": $assets-arrow-hover-color,
+    "assets-arrow-bg-color": $assets-arrow-bg-color,
+
     "sub-text": $sub-text,
     "mute-text": $mute-text,
     "base-text": $base-text,
@@ -278,6 +296,7 @@ $theme-colors: (
     "input-disabled-text": $input-disabled-text,
     "balance-text": $balance-text,
     "unlock-text": $unlock-text,
+    "neutral-text": $neutral-text,
 
     "assets-border-color": $assets-border-color,
 
@@ -358,6 +377,9 @@ $theme-colors: (
     "icon-logo-bg-hover": $icon-logo-bg-hover,
     "icon-secondary-bg-color": $icon-secondary-bg-color,
     "icon-secondary-bg-hover": $icon-secondary-bg-hover,
+    "icon-placeholder": $icon-placeholder,
+    "icon-placeholder-border": $icon-placeholder-border,
+
     "arrow-color": $arrow-color,
 
     "search-bg-color": $search-bg-color,

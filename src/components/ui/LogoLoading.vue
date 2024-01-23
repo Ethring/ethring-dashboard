@@ -1,8 +1,10 @@
 <template>
-    <a-spin :tip="$t(tip)" size="large" class="logo-loading">
+    <a-spin :tip="$t(tip)" size="large" class="logo-loading" :spinning="spinning">
         <template #indicator>
             <Logo class="logo-indicator" />
         </template>
+
+        <slot name="content" />
     </a-spin>
 </template>
 <script>
@@ -16,10 +18,19 @@ export default {
     },
 
     props: {
+        spinning: {
+            type: Boolean,
+            default: false,
+        },
         tip: {
             type: String,
-            default: '',
+            default: 'dashboard.loadingConfig',
         },
     },
 };
 </script>
+<style lang="scss">
+.logo-loading {
+    border-radius: 16px;
+}
+</style>

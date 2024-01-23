@@ -1,0 +1,102 @@
+.assets__item {
+    display: inline-flex;
+    color: var(--#{$prefix}black);
+
+    .network {
+        display: inline-flex;
+
+        .symbol {
+            font-size: var(--#{$prefix}default-fs);
+            font-weight: 400;
+            color: var(--#{$prefix}secondary-text);
+        }
+
+        .name {
+            font-size: var(--#{$prefix}default-fs);
+            color: var(--#{$prefix}primary-text);
+            font-weight: 400;
+            margin-left: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 280px;
+        }
+    }
+
+    .info {
+        @include pageFlexRow;
+        margin-left: 10px;
+        line-height: 20px;
+        font-weight: 400;
+        font-size: var(--#{$prefix}small-lg-fs);
+
+        div:not(:first-child) {
+            &::before {
+                content: "\2022";
+                margin: 0 4px;
+                color: var(--#{$prefix}neutral-text);
+            }
+        }
+
+        .type {
+            color: var(--#{$prefix}neutral-text);
+        }
+
+        .type,
+        .apr,
+        .unlock {
+            font-weight: 300;
+            font-size: var(--#{$prefix}small-sm-fs);
+        }
+
+        .apr {
+            color: var(--#{$prefix}sub-text);
+
+            span {
+                color: var(--#{$prefix}neutral-text);
+            }
+        }
+
+        .unlock {
+            color: var(--#{$prefix}neutral-text);
+
+            &__value {
+                color: var(--#{$prefix}sub-text);
+            }
+        }
+    }
+
+    .amount {
+        display: inline-flex;
+        align-items: flex-end;
+
+        .symbol {
+            font-weight: 300;
+            color: var(--#{$prefix}secondary-text);
+        }
+
+        .value {
+            font-weight: 400;
+            color: var(--#{$prefix}primary-text);
+        }
+    }
+}
+
+.asset-nfts-count {
+    font-size: var(--#{$prefix}small-lg-fs);
+    font-weight: 400;
+    & > .ant-badge-count {
+        background-color: var(--#{$prefix}secondary-background);
+        box-shadow: 0 0 0 1px var(--#{$prefix}border-secondary-color);
+    }
+
+    & p {
+        color: var(--#{$prefix}assets-arrow-color) !important;
+    }
+}
+
+.ibc-tag {
+    color: var(--#{$prefix}neutral-text);
+    border: 1px solid var(--#{$prefix}border-color);
+    background-color: var(--#{$prefix}secondary-background);
+}

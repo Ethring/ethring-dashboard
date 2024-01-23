@@ -1,27 +1,46 @@
 <template>
-    <a-table :columns="columns" :data-source="data" :pagination="false" class="assets-table">
+    <a-table
+        class="assets-table"
+        expandRowByClick
+        :columns="columns"
+        :data-source="data"
+        :pagination="false"
+        :bordered="false"
+        :loading="loading"
+        :scroll="{ x: 700 }"
+        :rowKey="(record) => record?.id || `${type}-${record?.balanceType}-${record?.name}-${record?.address}-${record?.symbol}`"
+        :rowExpandable="(record) => record.nfts && record.nfts.length > 0"
+        :showExpandColumn="data[0]?.nfts && data[0]?.nfts.length > 0 ? true : false"
+    >
         <template #headerCell="{ title, column }">
-            <p v-if="column.name">
-                {{ title }} <span class="name">{{ name }}</span>
+            <p v-if="column && column.name">
+                {{ title }} <span class="name" v-if="name">{{ name }}</span>
             </p>
-            <span v-else>{{ title }}</span>
         </template>
+
         <template #bodyCell="{ column, record }">
-            <AssetItem :item="record" :column="column.dataIndex" />
+            <AssetItem :item="record" :column="column.dataIndex" :type="type" />
+        </template>
+
+        <template #expandedRowRender="{ record }">
+            <ExpandNftInfo :record="record" />
         </template>
     </a-table>
 </template>
 
 <script>
-import { ref } from 'vue';
-
 import AssetItem from './AssetItem';
+import ExpandNftInfo from './NFT/ExpandNftInfo.vue';
 
 export default {
     name: 'AssetsTable',
     props: {
         data: {
             required: true,
+            default: [],
+        },
+        columns: {
+            required: false,
             default: [],
         },
         type: {
@@ -31,106 +50,14 @@ export default {
         name: {
             required: false,
         },
+        loading: {
+            required: false,
+            default: false,
+        },
     },
     components: {
         AssetItem,
-    },
-    setup(props) {
-        const columns = ref([
-            {
-                title: props.type,
-                dataIndex: 'name',
-                key: 'name',
-                width: '60%',
-                align: 'left',
-                name: props.name,
-            },
-            {
-                title: 'Balance',
-                dataIndex: 'balance',
-                key: 'balance',
-                width: '16%',
-                align: 'left',
-            },
-            {
-                title: 'Value',
-                dataIndex: 'balanceUsd',
-                key: 'balanceUsd',
-                width: '16%',
-                align: 'right',
-                defaultSortOrder: 'descend',
-                sorter: (a, b) => a.balanceUsd - b.balanceUsd,
-            },
-        ]);
-
-        return {
-            columns,
-        };
+        ExpandNftInfo,
     },
 };
 </script>
-
-<style lang="scss">
-.assets-table {
-    * {
-        transition: background-color 0.2s ease-in-out !important;
-    }
-
-    tr,
-    tbody,
-    table,
-    td {
-        background-color: var(--#{$prefix}secondary-background) !important;
-    }
-
-    .ant-table-cell {
-        height: 48px;
-        vertical-align: middle !important;
-        padding: 0 !important;
-        background-color: var(--#{$prefix}secondary-background) !important;
-    }
-
-    .ant-table-tbody > tr:last-child > td {
-        border-bottom: none !important;
-        padding-bottom: 0 !important;
-    }
-
-    .ant-table-tbody tr td,
-    .ant-table-tbody tr {
-        border: none !important;
-    }
-
-    .ant-table-thead .ant-table-cell {
-        height: 42px;
-        font-weight: 500;
-        color: var(--#{$prefix}base-text);
-        font-size: var(--#{$prefix}small-sm-fs);
-        p {
-            padding-top: 8px;
-        }
-        &::before,
-        &::after {
-            display: none !important;
-        }
-
-        .name::before {
-            content: '\2022';
-            margin: 0 4px;
-            color: var(--#{$prefix}checkbox-text);
-        }
-    }
-
-    .ant-table-thead tr th {
-        border-bottom: 1px solid var(--#{$prefix}assets-header-border-color) !important;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
-        to {
-            opacity: 1;
-        }
-    }
-}
-</style>
