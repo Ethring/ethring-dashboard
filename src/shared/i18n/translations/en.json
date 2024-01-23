@@ -16,6 +16,7 @@
     "updateBalances": "Fetch balances (Coming soon)",
     "releaseNotes": "Read release notes",
     "switchTheme": "Switch theme",
+    "buyCrypto": "Buy crypto",
     "nft": {
       "description": "Description",
       "collectionName": "Collection name",
@@ -40,8 +41,7 @@
     "bridge": "Bridge",
     "superSwap": "SuperSwap",
     "settings": "Settings",
-    "type": "BETA",
-    "buyCrypto": "Buy crypto"
+    "type": "BETA"
   },
   "connect": {
     "emptyTitle": "Connect a wallet to manage your portfolio",

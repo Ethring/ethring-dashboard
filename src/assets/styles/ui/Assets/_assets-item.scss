@@ -34,7 +34,7 @@
             &::before {
                 content: "\2022";
                 margin: 0 4px;
-                color: var(--#{$prefix}select-placeholder-text);
+                color: var(--#{$prefix}neutral-text);
             }
         }
 

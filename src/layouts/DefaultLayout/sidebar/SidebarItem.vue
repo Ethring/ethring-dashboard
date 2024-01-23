@@ -77,123 +77,29 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.sidebar-item {
-    // width: 200px;
-    &__title {
-        color: var(--#{$prefix}sidebar-text);
-
-        font-weight: 300;
-        font-size: var(--#{$prefix}h5-fs);
-    }
-
-    &__icon {
-        width: 20px;
-        height: 20px;
-
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        svg {
-            // width: 100%;
-            // height: 100%;
-
-            &[fill='none'] {
-                fill: var(--#{$prefix}sidebar-text);
-            }
-        }
-    }
-}
-// .sidebar-list {
-//     display: flex;
-//     align-self: flex-start;
-//     align-items: flex-start;
-//     flex-direction: column;
-//     box-sizing: border-box;
-
-//     font-size: var(--#{$prefix}h5-fs);
-
-//     &__item {
-//         @include pageFlexRow;
-//         @include animateEasy;
-
-//         height: 48px;
-//         text-decoration: none;
+// .sidebar-item {
+//     // width: 200px;
+//     &__title {
 //         color: var(--#{$prefix}sidebar-text);
-//         cursor: pointer;
-
-//         &:hover:not(.disabled) {
-//             color: var(--#{$prefix}icon-color);
-
-//             svg {
-//                 &[fill='none'] {
-//                     fill: var(--#{$prefix}icon-color);
-//                 }
-//             }
-//         }
-
-//         &.router-link-exact-active:not(.disabled) {
-//             color: var(--#{$prefix}white);
-
-//             svg {
-//                 fill: var(--#{$prefix}sidebar-active-color);
-//             }
-//         }
-
-//         svg {
-//             &[fill='none'] {
-//                 fill: var(--#{$prefix}sidebar-text);
-//             }
-//             @include animateEasy;
-//         }
-
-//         &.disabled {
-//             cursor: not-allowed;
-//             color: var(--#{$prefix}checkbox-disabled-text);
-
-//             .sidebar-list__item-status {
-//                 color: var(--#{$prefix}checkbox-text);
-//             }
-
-//             .sidebar-list__item-icon svg {
-//                 opacity: 0.5;
-//             }
-//         }
-//     }
-
-//     &__item-icon {
-//         display: flex;
-//         justify-content: center;
-//         width: 32px;
-//     }
-
-//     &__item-title {
-//         margin-left: 10px;
 
 //         font-weight: 300;
 //         font-size: var(--#{$prefix}h5-fs);
+//     }
+
+//     &__icon {
+//         width: 20px;
+//         height: 20px;
 
 //         display: flex;
-//         align-items: flex-start;
-//     }
+//         justify-content: center;
+//         align-items: center;
 
-//     &__item-status {
-//         color: var(--#{$prefix}sidebar-active-color);
-//         font-size: var(--#{$prefix}small-sm-fs);
-//         font-weight: 700;
-//         margin-top: -6px;
-//     }
+//         svg {
+//             // width: 100%;
+//             // height: 100%;
 
-//     &.collapsed {
-//         align-self: center !important;
-
-//         .sidebar-list {
-//             align-self: center !important;
-
-//             &__item-icon {
-//                 svg {
-//                     transform: scale(1.1);
-//                 }
+//             &[fill='none'] {
+//                 fill: var(--#{$prefix}sidebar-text);
 //             }
 //         }
 //     }

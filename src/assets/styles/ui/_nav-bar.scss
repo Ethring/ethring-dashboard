@@ -49,9 +49,9 @@
             font-size: var(--#{$prefix}h4-fs);
         }
 
-        svg {
+        svg,
+        path {
             fill: var(--#{$prefix}icon-active);
-
             transition: all 0.2s ease-in-out;
         }
     }

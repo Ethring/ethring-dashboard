@@ -14,8 +14,8 @@
     </a-row>
 </template>
 <script>
-import NFTItem from './NFTItem.vue';
-import NFTInfo from './NFTInfo.vue';
+import NFTItem from './NFT-Item.vue';
+import NFTInfo from './NFT-Info.vue';
 
 export default {
     name: 'ExpandNftInfo',

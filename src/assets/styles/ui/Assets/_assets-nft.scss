@@ -39,6 +39,7 @@
 
 .nft-item {
     padding: 8px;
+    border-color: var(--#{$prefix}border-secondary-color);
 
     .ant-card-cover {
         & > div > img,
@@ -78,5 +79,59 @@
 
     .ant-btn-link:hover {
         color: var(--#{$prefix}banner-logo-color);
+    }
+}
+
+.ant-table-expanded-row {
+    animation: fadeIn 0.3s ease-in-out forwards;
+
+    & .nft-info-container {
+        animation: nftExpand 0.3s ease-in-out forwards;
+    }
+}
+
+.ant-table-expanded-row[style="display: none;"] {
+    display: table-row !important;
+    & .nft-info-container {
+        animation: nftCollapse 0.3s ease-in-out forwards;
+    }
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes nftExpand {
+    0% {
+        min-height: 0;
+        max-height: 0;
+        height: 0;
+        padding: 0;
+    }
+    100% {
+        min-height: 420px;
+        max-height: 420px;
+        height: 420px;
+        padding: 24px 0;
+    }
+}
+
+@keyframes nftCollapse {
+    0% {
+        min-height: 420px;
+        max-height: 420px;
+        height: 420px;
+        padding: 24px 0;
+    }
+    100% {
+        min-height: 0;
+        max-height: 0;
+        height: 0;
+        padding: 0;
     }
 }

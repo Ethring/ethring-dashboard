@@ -108,7 +108,7 @@ export default {
         });
 
         const ibcTag = computed(() => {
-            if (props.item?.name.includes('IBC -')) {
+            if (props.item?.name?.includes('IBC -')) {
                 return props.item.name.split('IBC -')[1];
             }
 

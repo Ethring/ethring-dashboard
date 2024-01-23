@@ -8,7 +8,7 @@
         :bordered="false"
         :loading="loading"
         :scroll="{ x: 700 }"
-        :rowKey="(record) => record?.id || `${record?.balanceType}-${record?.name}-${record?.address}`"
+        :rowKey="(record) => record?.id || `${type}-${record?.balanceType}-${record?.name}-${record?.address}-${record?.symbol}`"
         :rowExpandable="(record) => record.nfts && record.nfts.length > 0"
         :showExpandColumn="data[0]?.nfts && data[0]?.nfts.length > 0 ? true : false"
     >

@@ -47,17 +47,7 @@ const SUPER_SWAP = {
     type: 'layout',
 };
 
-const BUY_CRYPTO = {
-    icon: 'buyCryptoIcon',
-    title: 'Buy Crypto',
-    key: 'buyCrypto',
-    to: '/buy-crypto',
-    status: 'BETA',
-    disabled: false,
-    type: 'modal',
-};
-
-const SIDEBAR_MODULES = [MAIN_DASHBOARD, SEND, SWAP, BRIDGE, SUPER_SWAP, BUY_CRYPTO];
+const SIDEBAR_MODULES = [MAIN_DASHBOARD, SEND, SWAP, BRIDGE, SUPER_SWAP];
 
 const CUSTOM_CONFIG = [MAIN_DASHBOARD];
 
@@ -81,7 +71,7 @@ const defaultConfig = {
         },
     },
     [ECOSYSTEMS.COSMOS]: {
-        sidebar: [MAIN_DASHBOARD, SEND, SWAP, BRIDGE, BUY_CRYPTO],
+        sidebar: [MAIN_DASHBOARD, SEND, SWAP, BRIDGE],
         send: {
             component: 'SimpleSend',
         },

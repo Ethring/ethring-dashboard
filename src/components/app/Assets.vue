@@ -14,7 +14,7 @@
 
                 <AssetsTable
                     type="Asset"
-                    :data="tokensData"
+                    :data="allTokensInAccount"
                     :columns="[DEFAULT_NAME_COLUMN, ...DEFAULT_COLUMNS]"
                     :loading="isLoadingForChain"
                 />
@@ -87,7 +87,21 @@ export default {
     },
     setup() {
         const store = useStore();
-        const collapseActiveKey = ref(['assets', 'nfts']);
+        const collapseActiveKey = ref([
+            'assets',
+            'nfts',
+            'protocol-0',
+            'protocol-1',
+            'protocol-2',
+            'protocol-3',
+            'protocol-4',
+            'protocol-5',
+            'protocol-6',
+            'protocol-7',
+            'protocol-8',
+            'protocol-9',
+            'protocol-10',
+        ]);
 
         const useAdapter = inject('useAdapter');
 
@@ -97,7 +111,7 @@ export default {
         const loadingForChains = computed(() => store.getters['tokens/loadingForChains']);
         const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
 
-        const allTokens = computed(() => store.getters['tokens/tokens'][walletAccount.value] || []);
+        const allTokensInAccount = computed(() => store.getters['tokens/tokens'][walletAccount.value] || []);
         const allIntegrations = computed(() => store.getters['tokens/integrations'][walletAccount.value] || []);
         const allNfts = computed(() => store.getters['tokens/nfts'][walletAccount.value] || []);
 
@@ -105,12 +119,12 @@ export default {
         const assetsTotalBalances = computed(() => store.getters['tokens/assetsBalances'][walletAccount.value] || 0);
 
         const isEmpty = computed(() => {
-            return !allTokens.value?.length && !allIntegrations.value?.length && !isLoadingForChain.value && !isAllTokensLoading.value;
+            return (
+                !allTokensInAccount.value?.length && !allIntegrations.value?.length && !isLoadingForChain.value && !isAllTokensLoading.value
+            );
         });
 
         const integrationAssetsByPlatform = ref(getIntegrationsGroupedByPlatform(allIntegrations.value));
-
-        const tokensData = computed(() => [...allTokens.value]);
 
         const nftsByCollection = ref(getNftsByCollection(allNfts.value));
 
@@ -141,27 +155,19 @@ export default {
             nftsByCollection.value = getNftsByCollection(allNfts.value);
         };
 
-        const updateActiveKeys = () => {
-            const protocols = [...new Set(integrationAssetsByPlatform.value.map((_, index) => `protocol-${index}`))];
-            collapseActiveKey.value = [...new Set([...collapseActiveKey.value, ...protocols])];
-        };
-
         watch(isAllTokensLoading, () => {
             if (!isAllTokensLoading.value) {
                 updateAssets();
-                updateActiveKeys();
             }
         });
 
         watch(walletAccount, () => {
             updateAssets();
-            updateActiveKeys();
         });
 
         watch(isLoadingForChain, () => {
             if (!isLoadingForChain.value) {
                 updateAssets();
-                updateActiveKeys();
             }
         });
 
@@ -174,14 +180,13 @@ export default {
         });
 
         return {
-            tokensData,
             isLoadingForChain,
             isLoadingForChains: loadingForChains,
             isAllTokensLoading,
 
             isEmpty,
 
-            allTokens,
+            allTokensInAccount,
             allIntegrations,
 
             assetsTotalBalances,
