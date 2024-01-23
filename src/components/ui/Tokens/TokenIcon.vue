@@ -29,12 +29,10 @@ export default {
     name: 'TokenIcon',
     props: {
         width: {
-            required: true,
-            default: 32,
+            default: '32',
         },
         height: {
-            required: true,
-            default: 32,
+            default: '32',
         },
         token: {
             required: true,

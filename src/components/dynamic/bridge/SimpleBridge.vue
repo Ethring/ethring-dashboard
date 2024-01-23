@@ -128,7 +128,7 @@ import {
 
 import SelectAmount from '@/components/ui/SelectAmount';
 import SelectAddress from '@/components/ui/SelectAddress';
-import SelectNetwork from '@/components/ui/SelectNetwork';
+import SelectNetwork from '@/components/ui/Select/SelectNetwork';
 
 import Checkbox from '@/components/ui/Checkbox';
 import Button from '@/components/ui/Button';
@@ -381,7 +381,7 @@ export default {
             targetDirection.value = DIRECTIONS.SOURCE;
             selectType.value = TOKEN_SELECT_TYPES.FROM;
 
-            router.push('/bridge/select-token');
+            store.dispatch('app/toggleSelectModal', 'token');
 
             balanceUpdated.value = false;
 

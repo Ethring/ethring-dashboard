@@ -11,6 +11,7 @@ const types = {
     SET_IS_SIDEBAR_COLLAPSED: 'SET_IS_SIDEBAR_COLLAPSED',
     TOGGLE_THEME: 'TOGGLE_THEME',
     TOGGLE_MODAL: 'TOGGLE_MODAL',
+    TOGGLE_SELECT_MODAL: 'TOGGLE_SELECT_MODAL',
     SET_SELECTED_KEYS: 'SET_SELECTED_KEYS',
     SET_LAST_VERSION: 'SET_LAST_VERSION',
 };
@@ -26,6 +27,11 @@ export default {
         modals: {
             buyCrypto: false,
             releaseNotes: false,
+            selectModal: false,
+        },
+        selectModal: {
+            type: 'network',
+            isOpen: false,
         },
         lastVersion: VERSION_LOCAL ? VERSION_LOCAL : '0.1.0',
     }),
@@ -36,6 +42,7 @@ export default {
         theme: (state) => state.theme,
         selectedKeys: (state) => state.selectedKeys,
         modal: (state) => (modalName) => state.modals[modalName] || false,
+        selectModal: (state) => state.selectModal,
         lastVersion: (state) => state.lastVersion || '0.1.0',
     },
 
@@ -63,6 +70,10 @@ export default {
 
             state.modals[modalName] = !state.modals[modalName];
         },
+        [types.TOGGLE_SELECT_MODAL](state, type) {
+            state.selectModal.type = type;
+            state.selectModal.isOpen = !state.selectModal.isOpen;
+        },
         [types.SET_LAST_VERSION](state, version) {
             state.lastVersion = version;
             window.localStorage.setItem('lastVersion', version);
@@ -87,6 +98,9 @@ export default {
         },
         toggleModal({ commit }, modalName) {
             commit(types.TOGGLE_MODAL, modalName);
+        },
+        toggleSelectModal({ commit }, type) {
+            commit(types.TOGGLE_SELECT_MODAL, type);
         },
         toggleReleaseNotes({ commit }) {
             commit(types.TOGGLE_MODAL, 'releaseNotes');

@@ -156,6 +156,8 @@ $btn-bg-color: $ebonyClay;
 
 $btn-text-hover: $ebonyClay;
 $btn-bg-color-hover: $turquoise;
+$btn-bg-color-hover-op-01: rgba($btn-bg-color-hover, 0.1);
+
 $btn-secondary-hover: $surfieGreen;
 
 $btn-disabled: $geyser;
@@ -333,6 +335,8 @@ $theme-colors: (
 
     "btn-text-hover": $btn-text-hover,
     "btn-bg-color-hover": $btn-bg-color-hover,
+    "btn-bg-color-hover-op-01": $btn-bg-color-hover-op-01,
+
     "btn-secondary-hover": $btn-secondary-hover,
 
     "btn-disabled": $btn-disabled,

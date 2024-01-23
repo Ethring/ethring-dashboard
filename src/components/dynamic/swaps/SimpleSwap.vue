@@ -92,7 +92,7 @@ import { STATUSES } from '../../../Transactions/shared/constants';
 
 // Components
 import Button from '@/components/ui/Button';
-import SelectNetwork from '@/components/ui/SelectNetwork';
+import SelectNetwork from '@/components/ui/Select/SelectNetwork';
 
 import SelectAmount from '@/components/ui/SelectAmount';
 
@@ -322,7 +322,7 @@ export default {
             selectType.value = TOKEN_SELECT_TYPES.FROM;
             targetDirection.value = DIRECTIONS.SOURCE;
 
-            router.push('/swap/select-token');
+            store.dispatch('app/toggleSelectModal', 'token');
 
             return clearApproveForService();
         };
@@ -333,7 +333,7 @@ export default {
             // for SWAP targetDirection also SOURCE;
             targetDirection.value = DIRECTIONS.SOURCE;
 
-            router.push('/swap/select-token');
+            store.dispatch('app/toggleSelectModal', 'token');
 
             await onSetAmount(srcAmount.value);
         };

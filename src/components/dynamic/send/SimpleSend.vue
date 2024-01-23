@@ -5,6 +5,7 @@
             :label="$t('tokenOperations.selectNetwork')"
             :current="selectedSrcNetwork"
             @select="onSelectNetwork"
+            @click="onSelectNetwork"
         />
 
         <SelectAddress
@@ -56,7 +57,7 @@ import useTransactions from '../../../Transactions/compositions/useTransactions'
 import useServices from '../../../compositions/useServices';
 
 import Button from '@/components/ui/Button';
-import SelectNetwork from '@/components/ui/SelectNetwork';
+import SelectNetwork from '@/components/ui/Select/SelectNetwork';
 import SelectAddress from '@/components/ui/SelectAddress';
 import SelectAmount from '@/components/ui/SelectAmount';
 
@@ -136,8 +137,7 @@ export default {
         const onSetToken = () => {
             targetDirection.value = DIRECTIONS.SOURCE;
             selectType.value = TOKEN_SELECT_TYPES.FROM;
-
-            router.push('/send/select-token');
+            store.dispatch('app/toggleSelectModal', 'token');
         };
 
         const onSetAddress = (addr = '') => {
@@ -152,20 +152,21 @@ export default {
             return (isAddressError.value = isAddressAllowed);
         };
 
-        const onSelectNetwork = (network) => {
-            if (!network.net) {
-                return;
-            }
-            if (selectedSrcNetwork.value?.net === network?.net) {
-                return;
-            }
+        const onSelectNetwork = () => {
+            return store.dispatch('app/toggleSelectModal', 'network');
+            // if (!network.net) {
+            //     return;
+            // }
+            // if (selectedSrcNetwork.value?.net === network?.net) {
+            //     return;
+            // }
 
-            selectedSrcToken.value = null;
-            selectedSrcNetwork.value = network;
+            // selectedSrcToken.value = null;
+            // selectedSrcNetwork.value = network;
 
-            onSetAmount(null);
+            // onSetAmount(null);
 
-            onSetAddress(receiverAddress.value);
+            // onSetAddress(receiverAddress.value);
         };
 
         const onSetAmount = (value) => {

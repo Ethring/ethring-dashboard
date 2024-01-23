@@ -1,0 +1,61 @@
+.select-network {
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+
+    height: 40px;
+
+    max-height: 40px;
+    min-height: 40px;
+
+    width: 100%;
+    min-width: 150px;
+    max-width: 240px;
+
+    border-radius: 24px;
+
+    border: 1px solid var(--#{$prefix}border-secondary-color);
+    background-color: var(--#{$prefix}border-secondary-color);
+
+    padding: 4px 12px 4px 4px;
+
+    display: flex;
+    align-items: center;
+
+    .network {
+        margin-right: 8px;
+    }
+
+    .arrow {
+        cursor: pointer;
+        fill: var(--#{$prefix}select-icon-color);
+        transform: rotate(0);
+        @include animateEasy;
+        margin-left: auto;
+    }
+
+    .label {
+        font-size: var(--#{$prefix}default-fs);
+        font-weight: 500;
+        margin-right: 8px;
+    }
+
+    .name {
+        color: var(--#{$prefix}select-item-color);
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        max-width: 100%;
+        font-size: var(--#{$prefix}h6-fs);
+    }
+
+    .placeholder {
+        color: var(--#{$prefix}select-placeholder-text);
+        user-select: none;
+        line-height: 18px;
+    }
+
+    &:hover {
+        border-color: var(--#{$prefix}btn-bg-color-hover);
+        background-color: var(--#{$prefix}btn-bg-color-hover-op-01);
+    }
+}

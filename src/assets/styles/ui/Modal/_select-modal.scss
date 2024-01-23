@@ -1,0 +1,20 @@
+.select-modal {
+    .ant-modal-content {
+        min-width: 600px;
+        // min-height: 90vh;
+        max-height: 950px;
+    }
+
+    &-list {
+        margin-top: 8px;
+        min-height: 680px;
+        max-height: 680px;
+        overflow-y: overlay;
+    }
+
+    &-load-more {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+}

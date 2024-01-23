@@ -4,7 +4,7 @@
             <div class="recipient">{{ $t('tokenOperations.recipient') }}</div>
             <div class="info-wrap">
                 <div class="info">
-                    <img class="network" alt="network-logo" :src="selectedNetwork?.logo" />
+                    <TokenIcon :token="selectedNetwork" class="network" width="32" height="32" />
                     <input
                         v-model="address"
                         :placeholder="placeholder"
@@ -25,6 +25,7 @@
 </template>
 <script>
 import ClearIcon from '@/assets/icons/app/xmark.svg';
+import TokenIcon from '@/components/ui/Tokens/TokenIcon.vue';
 
 import { ref, watch, onMounted, onUpdated, computed } from 'vue';
 import { useStore } from 'vuex';
@@ -57,6 +58,7 @@ export default {
     },
     components: {
         ClearIcon,
+        TokenIcon,
     },
     setup(props, { emit }) {
         const store = useStore();
@@ -211,7 +213,7 @@ export default {
         }
 
         .input-address {
-            width: 100%;
+            width: 90%;
             border: none;
             outline: none;
             background: transparent;
@@ -236,8 +238,8 @@ export default {
         }
 
         .network {
-            width: 32px;
-            height: 32px;
+            // width: 32px;
+            // height: 32px;
             margin-right: 6px;
 
             border-radius: 50%;

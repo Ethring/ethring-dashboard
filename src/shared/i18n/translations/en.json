@@ -102,6 +102,7 @@
     "transferFrom": "Transfer from",
     "transferTo": "Transfer to",
     "asset": "Asset",
+    "loadMore": "Load more",
     "searchToken": "Search by token name or ticker",
     "searchNetwork": "Search by network name",
     "supportedNetwork": "Please choose one of the following supported networks: Ethereum, Binance Smart Chain, Avalanche, Polygon, Optimism, Arbitrum"

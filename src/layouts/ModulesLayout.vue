@@ -16,13 +16,7 @@
                     </router-link>
                 </div>
                 <component :is="component" />
-                <!-- <Transition>
-                    <SearchSelectToken
-                        v-show="isOpenSearchSelect"
-                        class="search-select-token"
-                        :class="{ open: isOpenSearchSelect, close: !isOpenSearchSelect }"
-                    />
-                </Transition> -->
+                <SelectModal />
             </template>
         </div>
     </div>
@@ -32,18 +26,17 @@ import { onBeforeUnmount, onMounted, watch, ref, inject, watchEffect } from 'vue
 import { useRouter, useRoute } from 'vue-router';
 import redirectOrStay from '@/shared/utils/routes';
 
-// import { useStore } from 'vuex';
-
 // import useServices from '@/compositions/useServices';
 
 import SimpleBridge from '@/components/dynamic/bridge/SimpleBridge.vue';
 import SimpleSwap from '@/components/dynamic/swaps/SimpleSwap.vue';
 import SimpleSend from '@/components/dynamic/send/SimpleSend.vue';
 import SuperSwap from '@/components/dynamic/super-swap/SuperSwap.vue';
+
+import SelectModal from '@/components/app/modals/SelectModal.vue';
+
 import UnsupportedResult from '@/components/ui/UnsupportedResult';
 import ArrowUpIcon from '@/assets/icons/dashboard/arrowup.svg';
-
-import SearchSelectToken from '../components/dynamic/SearchSelectToken.vue';
 
 export default {
     name: 'ModulesLayout',
@@ -54,7 +47,7 @@ export default {
         SuperSwap,
         UnsupportedResult,
         ArrowUpIcon,
-        SearchSelectToken,
+        SelectModal,
     },
     props: {
         component: {
