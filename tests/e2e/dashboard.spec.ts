@@ -91,7 +91,10 @@ testMetaMask.describe('MetaMask dashboard', () => {
         await dashboardProtocol.page.evaluate(() => {
             window.scrollTo(0, 0);
         });
+
         await dashboardProtocol.page.waitForFunction(() => window.scrollY === 0);
+
+        await dashboardProtocol.page.getByTestId('assets-panel').hover();
 
         await expect(dashboardProtocol.page).toHaveScreenshot({ fullPage: true });
     });
