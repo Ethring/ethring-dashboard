@@ -163,7 +163,7 @@ export default function useTransactions() {
         });
 
         // TODO: fix after demo
-        if (response.code === 0) {
+        if (response.code) {
             closeNotification(`waiting-${transactionHash}-tx`);
         }
 
