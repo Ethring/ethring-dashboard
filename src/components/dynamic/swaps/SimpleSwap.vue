@@ -139,7 +139,7 @@ export default {
         const { walletAddress, currentChainInfo, chainList, walletAccount, setChain, getAddressesWithChainsByEcosystem } = useAdapter();
 
         const chains = computed(() => {
-            if (currentChainInfo.value.ecosystem === ECOSYSTEMS.COSMOS) {
+            if (currentChainInfo.value?.ecosystem === ECOSYSTEMS.COSMOS) {
                 return chainList.value;
             }
 
