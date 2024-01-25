@@ -38,7 +38,8 @@
         margin-bottom: 16px;
     }
 
-    .ant-collapse-item:hover {
+    .ant-collapse-item:hover,
+    .ant-collapse-item.active-panel {
         border-color: var(--#{$prefix}assets-arrow-hover-color) !important;
         .ant-collapse-arrow {
             background-color: var(--#{$prefix}assets-arrow-hover-color) !important;

@@ -92,9 +92,12 @@ testMetaMask.describe('MetaMask dashboard', () => {
             window.scrollTo(0, 0);
         });
 
-        await dashboardProtocol.page.waitForFunction(() => window.scrollY === 0);
+        const assetPanel = dashboardProtocol.page.getByTestId('assets-panel');
 
-        await dashboardProtocol.page.getByTestId('assets-panel').hover();
+        //  add new class to element
+        await assetPanel.evaluate((el) => el.classList.add('test'));
+
+        await dashboardProtocol.page.waitForFunction(() => window.scrollY === 0);
 
         await expect(dashboardProtocol.page).toHaveScreenshot({ fullPage: true });
     });
