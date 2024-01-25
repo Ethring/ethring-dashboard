@@ -1,5 +1,5 @@
 <template>
-    <a-modal v-model:open="isModalOpen" centered :footer="null" :title="$t(modalTitle)" :afterClose="handleAfterClose">
+    <a-modal v-model:open="isModalOpen" centered :footer="null" :title="$t(modalTitle)" :afterClose="handleAfterClose" class="select-modal">
         <SearchInput class="search" @onChange="handleOnFilterNetworks" :placeholder="$t(inputPlaceholder)" :value="searchValue" />
 
         <div class="select-modal-list-container">
