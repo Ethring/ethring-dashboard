@@ -1,15 +1,10 @@
 <template>
-    <div class="simple-swap">
-        <SelectNetwork
-            :items="chains"
-            :label="$t('tokenOperations.selectNetwork')"
-            :current="selectedSrcNetwork"
-            @select="onSelectNetwork"
-        />
-
-        <div class="simple-swap__switch-wrap">
-            <SelectAmount
-                class="mt-8"
+    <a-form>
+        <a-form-item>
+            <SelectNetwork :current="selectedSrcNetwork" :placeholder="$t('tokenOperations.selectNetwork')" @click="onSelectNetwork" />
+        </a-form-item>
+        <div class="switch-direction-wrap">
+            <SelectAmountInput
                 :value="selectedSrcToken"
                 :selected-network="selectedSrcNetwork"
                 :error="!!isBalanceError"
@@ -18,16 +13,17 @@
                 :is-update="isUpdateSwapDirection"
                 :label="$t('tokenOperations.pay')"
                 :amount-value="srcAmount"
-                @clickToken="onSetTokenFrom"
+                @clickToken="onSelectToken(true)"
                 @setAmount="onSetAmount"
             />
 
-            <div class="simple-swap__switch" :class="{ disabled: isUpdateSwapDirection || !selectedDstToken }" @click="swapTokensDirection">
-                <SwapIcon />
-            </div>
+            <SwitchDirection
+                class="swap-module"
+                :disabled="!selectedDstToken || isUpdateSwapDirection"
+                :on-click-switch="swapTokensDirection"
+            />
 
-            <SelectAmount
-                class="mt-8"
+            <SelectAmountInput
                 disabled
                 hide-max
                 :is-token-loading="isTokensLoadingForChain"
@@ -38,7 +34,7 @@
                 :label="$t('tokenOperations.receive')"
                 :disabled-value="dstAmount"
                 :amount-value="dstAmount"
-                @clickToken="onSetTokenTo"
+                @clickToken="onSelectToken(false)"
             />
         </div>
 
@@ -57,18 +53,17 @@
             :disabled="!!disabledSwap"
             :loading="isWaitingTxStatusForModule || isLoading"
             :tip="$t(opTitle)"
-            class="simple-swap__btn mt-16"
+            class="module-layout-view-btn"
             @click="handleOnSwap"
             size="large"
         />
-    </div>
+    </a-form>
 </template>
 <script>
-import { h, ref, watch, inject, computed, onBeforeUnmount, onMounted } from 'vue';
+import { h, ref, watch, inject, computed, onMounted } from 'vue';
 
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
 
 import BigNumber from 'bignumber.js';
 import { utils } from 'ethers';
@@ -92,13 +87,13 @@ import { STATUSES } from '../../../Transactions/shared/constants';
 
 // Components
 import Button from '@/components/ui/Button';
-import SelectNetwork from '@/components/ui/Select/SelectNetwork';
 
-import SelectAmount from '@/components/ui/SelectAmount';
+import SelectNetwork from '@/components/ui/Select/SelectNetwork';
+import SelectAmountInput from '@/components/ui/Select/SelectAmountInput';
 
 import EstimateInfo from '@/components/ui/EstimateInfo.vue';
 
-import SwapIcon from '@/assets/icons/dashboard/swap.svg';
+import SwitchDirection from '@/components/ui/SwitchDirection.vue';
 
 // Helpers
 import { formatNumber } from '@/helpers/prettyNumber';
@@ -117,17 +112,15 @@ export default {
 
     components: {
         SelectNetwork,
-        SelectAmount,
+        SelectAmountInput,
         Button,
-        SwapIcon,
         EstimateInfo,
+        SwitchDirection,
     },
 
     setup() {
         const store = useStore();
         const router = useRouter();
-
-        const { t } = useI18n();
 
         const useAdapter = inject('useAdapter');
 
@@ -178,9 +171,6 @@ export default {
 
         // * Module values
         const {
-            selectType,
-            targetDirection,
-
             selectedSrcToken,
             selectedDstToken,
             selectedSrcNetwork,
@@ -192,6 +182,7 @@ export default {
 
             txError,
             txErrorTitle,
+            estimateErrorTitle,
 
             opTitle,
 
@@ -202,7 +193,10 @@ export default {
             makeApproveRequest,
             checkSelectedNetwork,
 
-            onSelectSrcNetwork,
+            // onSelectSrcNetwork,
+
+            handleOnSelectToken,
+            handleOnSelectNetwork,
         } = useServices({
             module,
             moduleType: 'swap',
@@ -251,7 +245,6 @@ export default {
         const balanceUpdated = ref(false);
 
         // * Errors
-        const estimateErrorTitle = ref('');
         const isBalanceError = ref(false);
 
         // * Estimate data
@@ -298,44 +291,31 @@ export default {
 
         // =================================================================================================================
 
-        const onSelectNetwork = (network) => {
-            if (!network.net) {
-                return;
-            }
-            if (!onSelectSrcNetwork(network)) {
-                return;
-            }
-
-            isEstimating.value = false;
-            estimateErrorTitle.value = '';
-            resetSrcAmount.value = true;
-            resetDstAmount.value = true;
-
-            setTimeout(() => {
-                resetSrcAmount.value = false;
-                resetDstAmount.value = false;
+        const onSelectNetwork = () => {
+            handleOnSelectNetwork({
+                direction: DIRECTIONS.SOURCE,
             });
         };
 
-        const onSetTokenFrom = () => {
-            onlyWithBalance.value = true;
-            selectType.value = TOKEN_SELECT_TYPES.FROM;
-            targetDirection.value = DIRECTIONS.SOURCE;
+        // isEstimating.value = false;
+        // estimateErrorTitle.value = '';
+        // resetSrcAmount.value = true;
+        // resetDstAmount.value = true;
 
-            store.dispatch('app/toggleSelectModal', 'token');
+        // setTimeout(() => {
+        //     resetSrcAmount.value = false;
+        //     resetDstAmount.value = false;
+        // });
 
-            return clearApproveForService();
-        };
+        const onSelectToken = (withBalance = true) => {
+            onlyWithBalance.value = withBalance;
 
-        const onSetTokenTo = async () => {
-            onlyWithBalance.value = false;
-            selectType.value = TOKEN_SELECT_TYPES.TO;
-            // for SWAP targetDirection also SOURCE;
-            targetDirection.value = DIRECTIONS.SOURCE;
+            handleOnSelectToken({
+                direction: DIRECTIONS.SOURCE,
+                type: withBalance ? TOKEN_SELECT_TYPES.FROM : TOKEN_SELECT_TYPES.TO,
+            });
 
-            store.dispatch('app/toggleSelectModal', 'token');
-
-            await onSetAmount(srcAmount.value);
+            withBalance && clearApproveForService();
         };
 
         const resetAmounts = async (type = DIRECTIONS.SOURCE, amount) => {
@@ -456,19 +436,10 @@ export default {
                 return false;
             }
 
-            if (!selectedSrcToken.value) {
-                estimateErrorTitle.value = t('tokenOperations.selectSrcToken');
+            if (estimateErrorTitle.value) {
                 return false;
             }
 
-            if (!selectedDstToken.value) {
-                estimateErrorTitle.value = t('tokenOperations.selectDstToken');
-                return false;
-            }
-
-            if (estimateErrorTitle.value === t('tokenOperations.selectDstToken')) {
-                estimateErrorTitle.value = '';
-            }
             const isNotEVM = selectedSrcNetwork.value?.ecosystem !== ECOSYSTEMS.EVM;
 
             return isNotEVM || true;
@@ -834,6 +805,8 @@ export default {
             checkSelectedNetwork();
         });
 
+        watch(selectedService, () => setOwnerAddresses());
+
         // =================================================================================================================
 
         const setOwnerAddresses = () => {
@@ -877,19 +850,6 @@ export default {
             setOwnerAddresses();
         });
 
-        watch(selectedService, () => setOwnerAddresses());
-
-        onBeforeUnmount(() => {
-            if (router.options.history.state.current !== '/swap/select-token') {
-                targetDirection.value = DIRECTIONS.SOURCE;
-                selectedSrcToken.value = null;
-                selectedDstToken.value = null;
-                selectedSrcNetwork.value = null;
-                srcAmount.value = null;
-                dstAmount.value = null;
-            }
-        });
-
         return {
             isLoading,
             isEstimating,
@@ -925,110 +885,14 @@ export default {
 
             selectedService,
 
+            onSelectToken,
             onSelectNetwork,
-            onSetTokenFrom,
-            onSetTokenTo,
+
             onSetAmount,
-            swapTokensDirection,
+
             handleOnSwap,
+            swapTokensDirection,
         };
     },
 };
 </script>
-<style lang="scss">
-.simple-swap {
-    width: 524px;
-
-    &__switch-wrap {
-        position: relative;
-    }
-
-    &__switch {
-        @include pageFlexRow;
-        justify-content: center;
-
-        @include animateEasy;
-
-        cursor: pointer;
-        position: absolute;
-        z-index: 10;
-
-        width: 48px;
-        height: 48px;
-
-        border-radius: 50%;
-        left: calc(50% - 24px);
-        bottom: 84px;
-
-        background: var(--#{$prefix}swap-btn-bg-color);
-        border: 4px solid var(--#{$prefix}main-background);
-
-        svg {
-            @include animateEasy;
-            path {
-                fill: var(--#{$prefix}btn-bg-color);
-            }
-        }
-
-        &:not(.disabled):hover {
-            background: var(--#{$prefix}primary);
-            border: 4px solid var(--#{$prefix}banner-logo-color);
-
-            path {
-                fill: var(--#{$prefix}arrow-color);
-            }
-        }
-
-        &.disabled {
-            pointer-events: none;
-            background: var(--#{$prefix}adapter-not-connected-bg);
-            svg {
-                path {
-                    fill: var(--#{$prefix}border-color);
-                }
-            }
-        }
-    }
-
-    &__btn {
-        height: 64px;
-        width: 100%;
-    }
-
-    .service-fee {
-        font-weight: 600;
-        color: var(--#{$prefix}sub-text);
-    }
-
-    .symbol {
-        margin-left: 5px;
-        font-weight: 600;
-    }
-
-    .accordion__title {
-        img {
-            width: 16px;
-            height: 16px;
-        }
-    }
-
-    .accordion__content {
-        img {
-            width: 16px;
-            height: 16px;
-        }
-        .symbol {
-            margin-left: 5px;
-        }
-        .fee {
-            color: var(--#{$prefix}sub-text);
-            margin-right: 4px;
-        }
-
-        .fee-symbol {
-            color: $gulfStream;
-            font-weight: 400;
-        }
-    }
-}
-</style>

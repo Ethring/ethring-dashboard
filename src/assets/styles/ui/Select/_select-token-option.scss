@@ -1,5 +1,8 @@
 .select-token-option {
     cursor: pointer !important;
+    align-self: flex-start;
+
+    width: 100%;
 
     &,
     .info-container {
@@ -9,9 +12,9 @@
 
     transition: 0.2s ease-in-out;
 
-    &:hover {
+    &:hover:not(.selected) {
         border-color: var(--#{$prefix}btn-bg-color-hover);
-        background-color: var(--#{$prefix}btn-bg-color-hover-op-01);
+        background-color: var(--#{$prefix}btn-secondary-hover-op-01);
 
         .bottom .sub-text-container .sub-text.showHover {
             transform: translateY(-100%);
@@ -203,4 +206,14 @@
         border-radius: 50%;
         margin-right: 8px;
     }
+}
+
+.options-enter-active,
+.options-leave-active {
+    transition: all 0.3s ease;
+}
+.options-enter-from,
+.options-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
 }

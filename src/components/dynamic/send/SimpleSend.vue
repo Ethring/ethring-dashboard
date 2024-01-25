@@ -1,24 +1,19 @@
 <template>
-    <div class="simple-send">
-        <SelectNetwork
-            :items="chainList"
-            :label="$t('tokenOperations.selectNetwork')"
-            :current="selectedSrcNetwork"
-            @select="onSelectNetwork"
-            @click="onSelectNetwork"
-        />
+    <a-form>
+        <a-form-item>
+            <SelectNetwork :placeholder="$t('tokenOperations.selectNetwork')" :current="selectedSrcNetwork" @click="onSelectNetwork" />
+        </a-form-item>
 
-        <SelectAddress
+        <SelectAddressInput
             :selected-network="selectedSrcNetwork"
             :items="[]"
             :value="receiverAddress"
             :error="!!isAddressError"
-            class="mt-8"
             :on-reset="clearAddress"
             @setAddress="onSetAddress"
         />
 
-        <SelectAmount
+        <SelectAmountInput
             :value="selectedSrcToken"
             :selected-network="selectedSrcNetwork"
             :error="!!isBalanceError"
@@ -26,7 +21,7 @@
             :on-reset="resetAmount"
             :is-token-loading="isTokensLoadingForChain"
             :amount-value="srcAmount"
-            class="mt-8"
+            class="select-amount"
             @setAmount="onSetAmount"
             @clickToken="onSetToken"
         />
@@ -36,12 +31,12 @@
             :disabled="!!disabledSend"
             :loading="isWaitingTxStatusForModule || isLoading"
             :tip="$t(opTitle)"
-            class="simple-send__btn mt-16"
+            class="module-layout-view-btn"
             data-qa="confirm"
             @click="handleOnSend"
             size="large"
         />
-    </div>
+    </a-form>
 </template>
 <script>
 import { h, ref, inject, computed, onBeforeUnmount, onMounted, watch } from 'vue';
@@ -58,8 +53,11 @@ import useServices from '../../../compositions/useServices';
 
 import Button from '@/components/ui/Button';
 import SelectNetwork from '@/components/ui/Select/SelectNetwork';
-import SelectAddress from '@/components/ui/SelectAddress';
-import SelectAmount from '@/components/ui/SelectAmount';
+// import SelectAddress from '@/components/ui/SelectAddress';
+// import SelectAmount from '@/components/ui/SelectAmount';
+
+import SelectAddressInput from '@/components/ui/Select/SelectAddressInput';
+import SelectAmountInput from '@/components/ui/Select/SelectAmountInput';
 
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { STATUSES } from '../../../Transactions/shared/constants';
@@ -71,8 +69,8 @@ export default {
     name: 'SimpleSend',
     components: {
         SelectNetwork,
-        SelectAddress,
-        SelectAmount,
+        SelectAddressInput,
+        SelectAmountInput,
         Button,
     },
     setup() {
@@ -93,8 +91,9 @@ export default {
             opTitle,
 
             onlyWithBalance,
-            selectType,
-            targetDirection,
+
+            handleOnSelectToken,
+            handleOnSelectNetwork,
 
             resetTokensForModules,
         } = useServices({
@@ -134,11 +133,8 @@ export default {
                 !currentChainInfo.value
         );
 
-        const onSetToken = () => {
-            targetDirection.value = DIRECTIONS.SOURCE;
-            selectType.value = TOKEN_SELECT_TYPES.FROM;
-            store.dispatch('app/toggleSelectModal', 'token');
-        };
+        const onSetToken = () => handleOnSelectToken({ direction: DIRECTIONS.SOURCE, type: TOKEN_SELECT_TYPES.FROM });
+        const onSelectNetwork = () => handleOnSelectNetwork({ direction: DIRECTIONS.SOURCE, type: TOKEN_SELECT_TYPES.FROM });
 
         const onSetAddress = (addr = '') => {
             receiverAddress.value = addr;
@@ -152,22 +148,23 @@ export default {
             return (isAddressError.value = isAddressAllowed);
         };
 
-        const onSelectNetwork = () => {
-            return store.dispatch('app/toggleSelectModal', 'network');
-            // if (!network.net) {
-            //     return;
-            // }
-            // if (selectedSrcNetwork.value?.net === network?.net) {
-            //     return;
-            // }
+        // const onSelectNetwork = () => {
+        //     return openSelectToken(DIRECTIONS.SOURCE);
 
-            // selectedSrcToken.value = null;
-            // selectedSrcNetwork.value = network;
+        //     // if (!network.net) {
+        //     //     return;
+        //     // }
+        //     // if (selectedSrcNetwork.value?.net === network?.net) {
+        //     //     return;
+        //     // }
 
-            // onSetAmount(null);
+        //     // selectedSrcToken.value = null;
+        //     // selectedSrcNetwork.value = network;
 
-            // onSetAddress(receiverAddress.value);
-        };
+        //     // onSetAmount(null);
+
+        //     // onSetAddress(receiverAddress.value);
+        // };
 
         const onSetAmount = (value) => {
             srcAmount.value = value;
@@ -396,12 +393,3 @@ export default {
     },
 };
 </script>
-<style lang="scss" scoped>
-.simple-send {
-    width: 524px;
-
-    &__btn {
-        width: 100%;
-    }
-}
-</style>

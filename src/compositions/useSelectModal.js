@@ -1,12 +1,15 @@
 import _ from 'lodash';
+import moment from 'moment';
+
 import { ref, computed, inject } from 'vue';
 import { useStore } from 'vuex';
 
 import useTokenList from '@/compositions/useTokensList';
 
 import { searchByKey } from '@/helpers/utils';
+import { getPriceFromProvider } from '@/shared/utils/prices';
 
-import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+import { DIRECTIONS, TOKEN_SELECT_TYPES, PRICE_UPDATE_TIME } from '@/shared/constants/operations';
 
 export default function useSelectModal(type) {
     const TYPES = {
@@ -61,32 +64,34 @@ export default function useSelectModal(type) {
 
     // =================================================================================================================
 
-    const selectedNetwork = computed(() => {
-        const isSrc = direction.value === DIRECTIONS.SOURCE;
-
-        return isSrc ? selectedSrcNetwork.value : selectedDstNetwork.value;
-    });
+    const isSrcDirection = computed(() => direction.value === DIRECTIONS.SOURCE);
+    const isFromSelect = computed(() => selectType.value === TOKEN_SELECT_TYPES.FROM);
 
     // =================================================================================================================
 
-    const handleOnSelectNetwork = (item) => {
-        const isSrc = direction.value === DIRECTIONS.SOURCE;
+    const selectedNetwork = computed(() => (isSrcDirection.value ? selectedSrcNetwork.value : selectedDstNetwork.value));
 
-        if (isSrc) {
-            return (selectedSrcNetwork.value = item);
+    // =================================================================================================================
+
+    const assignPriceInfo = async (item) => {
+        const isPriceUpdate = moment().diff(moment(item?.priceUpdatedAt), 'milliseconds') > PRICE_UPDATE_TIME;
+
+        if (!item.price || isPriceUpdate) {
+            item.price = await getPriceFromProvider(item.address, selectedNetwork.value, { coingeckoId: item.coingecko_id });
+            item.priceUpdatedAt = new Date().getTime();
         }
 
-        selectedDstNetwork.value = item;
+        return item;
     };
 
+    // =================================================================================================================
+
+    const handleOnSelectNetwork = (item) => (isSrcDirection.value ? (selectedSrcNetwork.value = item) : (selectedDstNetwork.value = item));
+
     const handleOnSelectToken = (item) => {
-        const isSrc = selectType.value === TOKEN_SELECT_TYPES.FROM;
+        assignPriceInfo(item);
 
-        if (isSrc) {
-            return (selectedTokenFrom.value = item);
-        }
-
-        return (selectedTokenTo.value = item);
+        return isFromSelect.value ? (selectedTokenFrom.value = item) : (selectedTokenTo.value = item);
     };
 
     const HANDLE_ON_SELECT = {
@@ -94,7 +99,13 @@ export default function useSelectModal(type) {
         [TYPES.TOKEN]: handleOnSelectToken,
     };
 
-    const handleOnSelect = (item) => {
+    const handleOnSelect = (e, item) => {
+        const { classList = [] } = e.target || {};
+
+        if (classList?.contains('link') || classList?.contains('link-icon')) {
+            return;
+        }
+
         HANDLE_ON_SELECT[type.value](item);
         return store.dispatch('app/toggleSelectModal');
     };
@@ -117,6 +128,8 @@ export default function useSelectModal(type) {
         }
     };
 
+    // =================================================================================================================
+
     const searchInTokens = (list = [], value) => {
         return _.filter(
             list,
@@ -124,21 +137,39 @@ export default function useSelectModal(type) {
         );
     };
 
-    // =================================================================================================================
+    const chains = computed(() => {
+        if (type.value === TYPES.TOKEN) {
+            return [];
+        }
+
+        for (const chain of chainList.value) {
+            chain.selected = chain.net === selectedSrcNetwork.value?.net || chain.net === selectedDstNetwork.value?.net;
+        }
+
+        return chainList.value.filter((chain) => !chain.selected);
+    });
+
+    const tokens = computed(() => {
+        if (type.value === TYPES.NETWORK) {
+            return [];
+        }
+
+        const tokens = getTokensList({
+            srcNet: selectedNetwork.value,
+            srcToken: selectedTokenFrom.value,
+            dstToken: selectedTokenTo.value,
+            isSameNet: selectedDstNetwork.value === selectedSrcNetwork.value || !selectedDstNetwork.value,
+        });
+
+        return tokens || [];
+    });
 
     const list = computed(() => {
         if (type.value === TYPES.NETWORK) {
-            return chainList.value || [];
+            return chains.value;
         }
 
-        return (
-            getTokensList({
-                srcNet: selectedNetwork.value,
-                srcToken: selectedTokenFrom.value,
-                dstToken: selectedTokenTo.value,
-                isSameNet: selectedDstNetwork.value === selectedSrcNetwork.value || !selectedDstNetwork.value,
-            }) || []
-        );
+        return tokens.value;
     });
 
     const options = computed(() => {

@@ -6,17 +6,24 @@
             height: `${height}px`,
         }"
     >
-        <img
-            v-if="!showIconPlaceholder && token"
-            :key="token?.symbol"
-            :src="token?.logo || tokenIconFromZomet || getTokenIcon(token?.symbol?.toLowerCase())"
-            :alt="token?.name"
-            @error="showIconPlaceholder = true"
-            @load="showIconPlaceholder = false"
-        />
-        <div v-else class="token-icon__placeholder">
-            <a-avatar :size="+width">{{ iconPlaceholder }}</a-avatar>
-        </div>
+        <template v-if="token">
+            <img
+                v-if="!showIconPlaceholder && token"
+                :key="token?.symbol"
+                :src="token?.logo || tokenIconFromZomet || getTokenIcon(token?.symbol?.toLowerCase())"
+                :alt="token?.name"
+                @error="showIconPlaceholder = true"
+                @load="showIconPlaceholder = false"
+            />
+            <div v-else class="token-icon__placeholder">
+                <a-avatar :size="+width">{{ iconPlaceholder }}</a-avatar>
+            </div>
+        </template>
+        <template v-else>
+            <div class="token-icon__placeholder">
+                <a-avatar :size="+width">{{ iconPlaceholder }}</a-avatar>
+            </div>
+        </template>
     </div>
 </template>
 <script>
@@ -35,7 +42,6 @@ export default {
             default: '32',
         },
         token: {
-            required: true,
             type: Object,
             default: () => ({
                 symbol: null,
@@ -123,7 +129,6 @@ export default {
 
     &__placeholder {
         font-size: var(--#{$prefix}small-sm-fs);
-
         span {
             background: var(--#{$prefix}icon-logo-bg-color);
         }

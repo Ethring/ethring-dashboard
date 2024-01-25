@@ -56,3 +56,13 @@ $top-bar-spacing: 20px;
 
     color: var(--#{$prefix}white);
 }
+
+.module-layout-view {
+    max-width: 524px;
+    min-width: 524px;
+
+    &-btn {
+        width: 100%;
+        margin-top: 16px;
+    }
+}

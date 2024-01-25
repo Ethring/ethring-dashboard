@@ -29,7 +29,7 @@ export default {
         symbol: {
             required: true,
             type: String,
-            default: '$',
+            default: '',
         },
         decimals: {
             required: false,

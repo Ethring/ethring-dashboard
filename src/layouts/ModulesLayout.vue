@@ -15,7 +15,7 @@
                         <ArrowUpIcon v-if="tab.active && tabs.length > 1" class="arrow" />
                     </router-link>
                 </div>
-                <component :is="component" />
+                <component :is="component" class="module-layout-view" />
                 <SelectModal />
             </template>
         </div>
@@ -184,6 +184,15 @@ export default {
         right: 0;
         left: 0;
         margin: 0 auto;
+    }
+}
+.module-layout-view {
+    max-width: 524px;
+    min-width: 524px;
+
+    &-btn {
+        width: 100%;
+        margin-top: 16px;
     }
 }
 </style>

@@ -1,69 +1,89 @@
 <template>
     <a-modal v-model:open="isModalOpen" centered :footer="null" :title="$t(modalTitle)" :afterClose="handleAfterClose">
-        <SearchInput
-            class="search"
-            @onChange="handleOnFilterNetworks"
-            :placeholder="$t('tokenOperations.searchNetwork')"
-            :value="searchValue"
-        />
+        <SearchInput class="search" @onChange="handleOnFilterNetworks" :placeholder="$t(inputPlaceholder)" :value="searchValue" />
 
-        <div class="select-modal-list">
-            <SelectOption
-                v-for="option in optionList"
-                :key="option"
-                :record="option"
-                :type="type"
-                :label="type === 'network' ? option?.name : option?.symbol"
-                @click="handleOnSelect(option)"
-            />
+        <div class="select-modal-list-container">
+            <TransitionGroup tag="div" name="options" class="select-modal-list">
+                <SelectOption
+                    v-for="option in optionList"
+                    :key="option"
+                    :record="option"
+                    :type="type"
+                    :label="type === 'network' ? option?.name : option?.symbol"
+                    @click="(event) => handleOnSelect(event, option)"
+                />
+            </TransitionGroup>
 
             <div v-if="isLoadMore" class="select-modal-load-more">
                 <Button :title="$t('tokenOperations.loadMore')" @click="handleLoadMore" />
             </div>
 
-            <a-empty v-if="isModalOpen && !optionList.length" />
+            <a-empty v-if="isModalOpen && !optionList.length" class="select-modal-empty" :description="$t('dashboard.notFound')">
+                <template #image>
+                    <NotFoundIcon />
+                </template>
+            </a-empty>
         </div>
     </a-modal>
 </template>
 <script>
-import { computed } from 'vue';
+import { computed, inject } from 'vue';
 import { useStore } from 'vuex';
 
 import Button from '../../ui/Button.vue';
 import SearchInput from '../../ui/SearchInput.vue';
 import SelectOption from '../../ui/Select/SelectOption.vue';
 
-import useSelectModal from '../../../compositions/useSelectModal';
+import NotFoundIcon from '@/assets/icons/app/notFound.svg';
 
 export default {
-    name: 'SearchSelectToken',
+    name: 'SelectModal',
     components: {
         Button,
         SearchInput,
         SelectOption,
+
+        NotFoundIcon,
     },
     setup() {
+        const MODAL_TITLES = {
+            network: 'tokenOperations.selectNetwork',
+            token: 'tokenOperations.selectToken',
+        };
+
+        const PLACEHOLDERS = {
+            network: 'tokenOperations.searchNetwork',
+            token: 'tokenOperations.searchToken',
+        };
+
         const store = useStore();
+        const useSelectModal = inject('useSelectModal');
 
         const selectModal = computed(() => store.getters['app/selectModal']);
+        const type = computed(() => selectModal.value.type);
 
         const isModalOpen = computed({
             get: () => selectModal.value.isOpen,
-            set: () => store.dispatch('app/toggleSelectModal'),
+            set: () => store.dispatch('app/toggleSelectModal', type.value),
         });
 
-        const type = computed(() => selectModal.value.type);
+        const {
+            // Loading
+            isLoadMore,
 
-        const { searchValue, options, isLoadMore, handleOnSelect, handleLoadMore, handleOnFilterNetworks, handleAfterClose } =
-            useSelectModal(type);
+            // Variables
+            searchValue,
+            options,
 
-        const modalTitle = computed(() => {
-            if (type.value === 'network') {
-                return 'tokenOperations.selectNetwork';
-            }
+            // Methods
+            handleOnSelect,
+            handleLoadMore,
+            handleOnFilterNetworks,
+            handleAfterClose,
+        } = useSelectModal(type);
 
-            return 'tokenOperations.selectToken';
-        });
+        const modalTitle = computed(() => MODAL_TITLES[type.value] || 'tokenOperations.select');
+        const inputPlaceholder = computed(() => PLACEHOLDERS[type.value] || 'dashboard.search');
 
         const optionList = computed(() => (isModalOpen.value ? options.value : []));
 
@@ -74,6 +94,8 @@ export default {
             isLoadMore,
 
             modalTitle,
+            inputPlaceholder,
+
             searchValue,
             optionList,
 

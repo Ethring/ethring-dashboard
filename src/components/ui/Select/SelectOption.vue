@@ -32,7 +32,7 @@
                             class="link"
                         >
                             ({{ displayAddress }})
-                            <ExternalLinkIcon />
+                            <ExternalLinkIcon class="link-icon" />
                         </a-typography-link>
                     </div>
                 </div>
@@ -83,11 +83,11 @@ export default {
             }),
         },
     },
-    emits: ['select-token'],
-    setup(props, { emit }) {
+    setup(props) {
         const useAdapter = inject('useAdapter');
-
         const { getTokenExplorerLink } = useAdapter();
+
+        const tokenExplorerLink = computed(() => getTokenExplorerLink(props.record?.address, props.record.chain));
 
         const displayName = computed(() => {
             const { name = '', symbol = '', ecosystem = '' } = props.record || {};
@@ -98,16 +98,6 @@ export default {
 
             return name || symbol || '';
         });
-
-        const sendTokenInfo = (e, token) => {
-            const { target = null } = e || {};
-
-            if (!target.href) {
-                return emit('select-token', token);
-            }
-        };
-
-        const tokenExplorerLink = computed(() => getTokenExplorerLink(props.record?.address, props.record.chain));
 
         const displayAddress = computed(() => {
             if (props.record?.address?.length < 10) {
@@ -120,8 +110,6 @@ export default {
         return {
             displayName,
             displayAddress,
-
-            sendTokenInfo,
 
             // helpers
             tokenExplorerLink,

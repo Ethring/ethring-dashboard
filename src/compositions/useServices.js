@@ -1,5 +1,6 @@
-import { ref, computed, inject, watch, onBeforeUnmount } from 'vue';
+import { ref, computed, inject, watch, onBeforeUnmount, onMounted } from 'vue';
 import { useStore } from 'vuex';
+import { useI18n } from 'vue-i18n';
 
 import {
     getAllowance,
@@ -14,7 +15,11 @@ import {
 import useTokensList from '@/compositions/useTokensList';
 import useNotification from '@/compositions/useNotification';
 
+// import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+
 export default function useModule({ moduleType }) {
+    const { t } = useI18n();
+
     const store = useStore();
     const useAdapter = inject('useAdapter');
 
@@ -35,13 +40,15 @@ export default function useModule({ moduleType }) {
 
     // =================================================================================================================
 
-    const { walletAccount, walletAddress, currentChainInfo } = useAdapter();
+    const { walletAccount, walletAddress, currentChainInfo, chainList } = useAdapter();
 
     // =================================================================================================================
 
     const { getTokensList } = useTokensList();
+
     const tokensList = ref([]);
     const isUpdateSwapDirection = ref(false);
+
     // =================================================================================================================
 
     const selectType = computed({
@@ -103,6 +110,10 @@ export default function useModule({ moduleType }) {
     });
 
     // =================================================================================================================
+
+    const estimateErrorTitle = ref('');
+
+    // =================================================================================================================
     const setTokenOnChangeForNet = (srcNet, token) => {
         tokensList.value = getTokensList({
             srcNet,
@@ -160,8 +171,15 @@ export default function useModule({ moduleType }) {
             return;
         }
 
-        if (!selectedDstToken.value && defaultToToken) {
-            selectedDstToken.value = defaultToToken;
+        const isSrcTokenExistInList = tokensList.value?.find((tkn) => tkn.id === selectedSrcToken.value?.id) || null;
+        const isDstTokenExistInList = tokensList.value?.find((tkn) => tkn.id === selectedDstToken.value?.id) || null;
+
+        if (isSrcTokenExistInList) {
+            selectedSrcToken.value = isSrcTokenExistInList;
+        }
+
+        if (isDstTokenExistInList) {
+            selectedDstToken.value = isDstTokenExistInList;
         }
     };
 
@@ -244,31 +262,63 @@ export default function useModule({ moduleType }) {
     // =================================================================================================================
 
     const checkSelectedNetwork = () => {
-        if (currentChainInfo.value?.net === selectedSrcNetwork.value?.net) {
+        // if (!walletAccount.value && !currentChainInfo.value) {
+        //     return (opTitle.value = 'tokenOperations.connectWallet');
+        // }
+
+        const isSameWithCurrent = currentChainInfo.value && currentChainInfo.value.net === selectedSrcNetwork.value?.net;
+
+        if (isSameWithCurrent) {
             return (opTitle.value = DEFAULT_TITLE);
         }
 
         return (opTitle.value = 'tokenOperations.switchNetwork');
     };
 
-    const resetTokensForModules = (isReset = true) => {
-        const MODULES = ['swap', 'send'];
+    const resetTokensForModules = () => {
+        const isSrcTokenChanged = selectedSrcToken.value && selectedSrcToken.value.chain !== selectedSrcNetwork.value?.net;
+        const isDstTokenChanged = selectedDstToken.value && selectedDstToken.value.chain !== selectedDstNetwork.value?.net;
 
-        if (moduleType === 'swap' && isReset) {
-            selectedSrcToken.value?.chain !== selectedSrcNetwork.value?.net && (selectedSrcToken.value = null);
-            selectedDstToken.value?.chain !== selectedSrcNetwork.value?.net && (selectedDstToken.value = null);
+        const isDstTokenChangedForSwap = selectedDstToken.value?.chain !== selectedSrcNetwork.value?.net;
 
-            if (selectedSrcToken.value?.id === selectedDstToken.value?.id) {
+        switch (moduleType) {
+            case 'swap':
+                if (isSrcTokenChanged) {
+                    selectedSrcToken.value = null;
+                }
+
+                if (isDstTokenChangedForSwap) {
+                    selectedDstToken.value = null;
+                }
+
+                setTokenOnChange();
+
+                break;
+
+            case 'send':
                 selectedDstToken.value = null;
-            }
-        } else if (moduleType === 'send' && isReset) {
-            selectedSrcToken.value?.chain !== selectedSrcNetwork.value?.net && (selectedSrcToken.value = null);
-        }
 
-        if (MODULES.includes(moduleType)) {
-            setTokenOnChange();
-        } else {
-            setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
+                if (isSrcTokenChanged) {
+                    selectedSrcToken.value = null;
+                }
+
+                setTokenOnChange();
+
+                break;
+
+            case 'bridge':
+            case 'superSwap':
+                if (isSrcTokenChanged) {
+                    selectedSrcToken.value = null;
+                    setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
+                }
+
+                if (isDstTokenChanged) {
+                    selectedDstToken.value = null;
+                    setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
+                }
+
+                break;
         }
     };
 
@@ -291,6 +341,23 @@ export default function useModule({ moduleType }) {
         resetTokensForModules();
 
         return true;
+    };
+
+    // =================================================================================================================
+
+    const openSelectModal = (selectFor, { direction, type }) => {
+        direction && (targetDirection.value = direction);
+        type && (selectType.value = type);
+
+        store.dispatch('app/toggleSelectModal', selectFor);
+    };
+
+    const handleOnSelectNetwork = ({ direction, type }) => {
+        return openSelectModal('network', { direction, type });
+    };
+
+    const handleOnSelectToken = ({ direction, type }) => {
+        return openSelectModal('token', { direction, type });
     };
 
     // =================================================================================================================
@@ -348,9 +415,63 @@ export default function useModule({ moduleType }) {
         closeNotification('prepare-tx');
     });
 
+    // Watch change and show error if tokens or network empty
+    const unWatchEstimateError = watch([selectedDstNetwork, selectedSrcToken, selectedDstToken], () => {
+        if (!selectedDstNetwork.value && !['swap', 'send'].includes(moduleType)) {
+            return (estimateErrorTitle.value = t('tokenOperations.selectDstNetwork'));
+        }
+
+        if (!selectedSrcToken.value) {
+            return (estimateErrorTitle.value = t('tokenOperations.selectSrcToken'));
+        }
+
+        if (!selectedDstToken.value) {
+            return (estimateErrorTitle.value = t('tokenOperations.selectDstToken'));
+        }
+
+        // if (['swap', 'send'].includes(moduleType) && estimateErrorTitle.value === t('tokenOperations.selectDstToken')) {
+        //     estimateErrorTitle.value = '';
+        // }
+
+        return (estimateErrorTitle.value = '');
+    });
+
     // =================================================================================================================
 
-    checkSelectedNetwork();
+    const callOnMounted = () => {
+        // const isAccountAuth = walletAccount.value && currentChainInfo.value;
+
+        if (
+            // isAccountAuth &&
+            !selectedSrcNetwork.value?.net &&
+            currentChainInfo.value?.supported
+        ) {
+            selectedSrcNetwork.value = currentChainInfo.value;
+        } else if (!selectedSrcNetwork.value?.net && chainList.value?.length) {
+            selectedSrcNetwork.value = chainList.value[0];
+        }
+
+        const isNetworkChanged =
+            selectedSrcNetwork.value?.ecosystem !== currentChainInfo.value?.ecosystem &&
+            selectedSrcNetwork.value?.net !== currentChainInfo.value?.net;
+
+        if (
+            // isAccountAuth &&
+            isNetworkChanged
+        ) {
+            selectedSrcNetwork.value = currentChainInfo.value;
+            srcAmount.value = '';
+            dstAmount.value = '';
+            selectedSrcToken.value = null;
+            selectedDstToken.value = null;
+        }
+    };
+
+    onMounted(() => {
+        callOnMounted();
+        checkSelectedNetwork();
+        resetTokensForModules();
+    });
 
     onBeforeUnmount(() => {
         // Clear all data
@@ -358,6 +479,7 @@ export default function useModule({ moduleType }) {
         unWatchAcc();
         unWatchSrc();
         unWatchTxErr();
+        unWatchEstimateError();
     });
 
     return {
@@ -385,8 +507,14 @@ export default function useModule({ moduleType }) {
         // Errors
         txError,
         txErrorTitle,
+        estimateErrorTitle,
 
         // Functions
+        openSelectModal,
+
+        handleOnSelectToken,
+        handleOnSelectNetwork,
+
         setTokenOnChange,
         resetTokensForModules,
         setTokenOnChangeForNet,
