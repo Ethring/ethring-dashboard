@@ -14,7 +14,7 @@
     "test:report": "npx playwright show-report",
     "lint": "vue-cli-service lint",
     "lint:code": "vue-cli-service lint",
-    "lint:code:fix": "vue-cli-service lint --fix --ignore-pattern \"/tests/data\"",
+    "lint:code:fix": "vue-cli-service lint --fix --ignore-pattern \"/tests/\"",
     "prepare": "husky install"
   },
   "dependencies": {
