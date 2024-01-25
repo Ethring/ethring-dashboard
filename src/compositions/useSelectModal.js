@@ -100,9 +100,13 @@ export default function useSelectModal(type) {
     };
 
     const handleOnSelect = (e, item) => {
-        const { classList = [] } = e.target || {};
+        const { classList = [] } = e?.target || {};
 
         if (classList?.contains('link') || classList?.contains('link-icon')) {
+            return;
+        }
+
+        if (!type.value) {
             return;
         }
 

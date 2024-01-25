@@ -1,21 +1,22 @@
 <template>
-    <div class="simple-bridge">
-        <div class="select-network-group">
-            <SelectNetwork
-                :current="selectedSrcNetwork"
-                :placeholder="$t('tokenOperations.selectNetwork')"
-                @click="() => onSelectNetwork(DIRECTIONS.SOURCE)"
-            />
+    <a-form class="simple-bridge">
+        <a-form-item>
+            <div class="select-network-group">
+                <SelectNetwork
+                    :current="selectedSrcNetwork"
+                    :placeholder="$t('tokenOperations.selectNetwork')"
+                    @click="() => onSelectNetwork(DIRECTIONS.SOURCE)"
+                />
 
-            <SwitchDirection :disabled="isUpdateSwapDirection || !selectedDstNetwork" @click="swapTokensDirection" />
-
-            <SelectNetwork
-                :current="selectedDstNetwork"
-                :placeholder="$t('tokenOperations.selectNetwork')"
-                class="select-group-to"
-                @click="() => onSelectNetwork(DIRECTIONS.DESTINATION)"
-            />
-        </div>
+                <SwitchDirection :disabled="isUpdateSwapDirection || !selectedDstNetwork" @click="swapTokensDirection" />
+                <SelectNetwork
+                    :current="selectedDstNetwork"
+                    :placeholder="$t('tokenOperations.selectNetwork')"
+                    class="select-group-to"
+                    @click="() => onSelectNetwork(DIRECTIONS.DESTINATION)"
+                />
+            </div>
+        </a-form-item>
 
         <SelectAmountInput
             :value="selectedSrcToken"
@@ -32,6 +33,7 @@
         />
 
         <SelectAmountInput
+            v-if="selectedDstNetwork"
             hide-max
             disabled
             :value="selectedDstToken"
@@ -56,17 +58,14 @@
 
         <SelectAddressInput
             v-if="isSendToAnotherAddress && selectedDstNetwork"
-            :selected-network="selectedDstNetwork"
-            :error="!!errorAddress"
-            placeholder="0x..."
             class="mt-8"
-            :value="receiverAddress"
-            :on-reset="clearAddress"
-            @setAddress="onSetAddress"
+            :selected-network="selectedDstNetwork"
+            :on-reset="isSendToAnotherAddress"
+            @error-status="(status) => (isAddressError = status)"
         />
 
         <EstimateInfo
-            v-if="estimateErrorTitle || srcAmount"
+            v-if="estimateErrorTitle"
             :loading="isEstimating"
             :service="selectedService"
             :title="$t('tokenOperations.routeInfo')"
@@ -84,10 +83,10 @@
             @click="handleOnConfirm"
             size="large"
         />
-    </div>
+    </a-form>
 </template>
 <script>
-import { h, ref, inject, watch, computed, onBeforeUnmount, onMounted, onBeforeMount } from 'vue';
+import { h, ref, inject, watch, computed, onMounted, onBeforeMount } from 'vue';
 
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
@@ -129,8 +128,6 @@ import SwitchDirection from '@/components/ui/SwitchDirection.vue';
 
 import { formatNumber } from '@/helpers/prettyNumber';
 
-import { getServices, SERVICE_TYPE } from '@/config/services';
-
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { isCorrectChain } from '@/shared/utils/operations';
 
@@ -159,16 +156,10 @@ export default {
         // * Notification
         const { showNotification, closeNotification } = useNotification();
 
-        const { walletAccount, walletAddress, currentChainInfo, chainList, validateAddress, setChain, getAddressesWithChainsByEcosystem } =
-            useAdapter();
+        const { walletAccount, walletAddress, currentChainInfo, chainList, setChain, getAddressesWithChainsByEcosystem } = useAdapter();
 
         // * Transaction Manager
         const { currentRequestID, transactionForSign, createTransactions, signAndSend, addTransactionToRequestID } = useTransactions();
-
-        // Bridge Data
-
-        const servicesEVM = getServices(SERVICE_TYPE.BRIDGE);
-        const servicesCosmos = getServices(SERVICE_TYPE.BRIDGE, ECOSYSTEMS.COSMOS);
 
         // =================================================================================================================
 
@@ -177,31 +168,9 @@ export default {
             set: (value) => store.dispatch('bridge/setService', value),
         });
 
-        const setEcosystemService = () => {
-            if (!currentChainInfo.value?.ecosystem) {
-                return;
-            }
-
-            const DEFAULT_FOR_ECOSYSTEM = {
-                [ECOSYSTEMS.EVM]: 'bridge-debridge',
-                [ECOSYSTEMS.COSMOS]: 'bridge-skip',
-            };
-
-            switch (currentChainInfo.value?.ecosystem) {
-                case ECOSYSTEMS.COSMOS:
-                    return (selectedService.value = servicesCosmos.find(
-                        (service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.COSMOS]
-                    ));
-                case ECOSYSTEMS.EVM:
-                    return (selectedService.value = servicesEVM.find((service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.EVM]));
-            }
-        };
-
         // =================================================================================================================
         // * Module values
         const {
-            targetDirection,
-
             selectedSrcToken,
             selectedDstToken,
             selectedSrcNetwork,
@@ -381,22 +350,6 @@ export default {
             withBalance && clearApproveForService();
         };
 
-        const onSetAddress = (addr) => {
-            receiverAddress.value = addr;
-
-            if (!addr) {
-                clearAddress.value = true;
-                errorAddress.value = '';
-                return setTimeout(() => (clearAddress.value = false), 1000);
-            }
-
-            if (!validateAddress(addr, { chainId: selectedDstNetwork?.value?.net })) {
-                return (errorAddress.value = 'Invalid address');
-            }
-
-            return (errorAddress.value = '');
-        };
-
         const resetAmounts = async (type = DIRECTIONS.SOURCE, amount) => {
             const allowDataTypes = ['string', 'number'];
 
@@ -420,7 +373,6 @@ export default {
             clearAddress.value = receiverAddress.value === null;
 
             if (clearAddress.value) {
-                onSetAddress(null);
                 setTimeout(() => (clearAddress.value = false));
             }
         };
@@ -445,8 +397,6 @@ export default {
             if (!allowanceForToken.value && ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem) {
                 await requestAllowance();
             }
-
-            receiverAddress.value && onSetAddress(receiverAddress.value);
 
             feeInfo.value = baseFeeInfo('', '', '', '', '', '');
             rateInfo.value = baseFeeInfo('', '', '', '', '', '');
@@ -901,8 +851,6 @@ export default {
             selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
 
             selectedDstToken.value = setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
-
-            setEcosystemService();
         });
 
         watch(isAllTokensLoading, () => {
@@ -975,12 +923,6 @@ export default {
             closeNotification('prepare-tx');
         });
 
-        watch(isSendToAnotherAddress, () => {
-            clearAddress.value = true;
-            onSetAddress('');
-            clearAddress.value = false;
-        });
-
         watch(isNeedApprove, () => {
             if (isNeedApprove.value && opTitle.value !== 'tokenOperations.switchNetwork') {
                 return (opTitle.value = 'tokenOperations.approve');
@@ -1024,8 +966,6 @@ export default {
         };
 
         onMounted(async () => {
-            setEcosystemService();
-
             if (!selectedSrcNetwork.value) {
                 selectedSrcNetwork.value = currentChainInfo.value;
                 selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
@@ -1046,19 +986,6 @@ export default {
         });
 
         watch(selectedService, () => setOwnerAddresses());
-
-        onBeforeUnmount(() => {
-            if (router.options.history.state.current !== '/bridge/select-token') {
-                targetDirection.value = DIRECTIONS.SOURCE;
-                selectedSrcNetwork.value = null;
-                selectedSrcToken.value = null;
-                selectedDstNetwork.value = null;
-                selectedDstToken.value = null;
-                receiverAddress.value = '';
-                srcAmount.value = null;
-                dstAmount.value = null;
-            }
-        });
 
         return {
             // Loading
@@ -1116,8 +1043,6 @@ export default {
             // Handlers
             onSelectToken,
             onSelectNetwork,
-
-            onSetAddress,
 
             onSetAmount,
             handleOnConfirm,

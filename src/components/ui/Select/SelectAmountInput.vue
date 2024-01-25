@@ -49,7 +49,7 @@
         <div class="balance-info" :class="{ disabled, error }">
             <div class="balance-value">
                 <a-skeleton-input v-if="isTokenLoading" active size="small" class="balance-skeleton" />
-                <div v-else @click.stop="setMax">
+                <div v-else @click.stop="setMax" class="balance-value-row">
                     <span class="balance-label"> {{ $t('tokenOperations.balance') }}: </span>
                     <Amount :value="selectedToken?.balance || 0" :decimals="3" type="currency" :symbol="selectedToken?.symbol" />
                 </div>

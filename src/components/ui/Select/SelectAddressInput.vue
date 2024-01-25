@@ -43,7 +43,7 @@
 import ClearIcon from '@/assets/icons/app/xmark.svg';
 import TokenIcon from '@/components/ui/Tokens/TokenIcon.vue';
 
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, inject } from 'vue';
 import { useStore } from 'vuex';
 
 export default {
@@ -61,10 +61,6 @@ export default {
             type: [Boolean, String],
             default: false,
         },
-        error: {
-            type: Boolean,
-            default: false,
-        },
     },
     components: {
         ClearIcon,
@@ -72,14 +68,37 @@ export default {
     },
     setup(props, { emit }) {
         const store = useStore();
+        const useAdapter = inject('useAdapter');
 
         const active = ref(false);
         const focused = ref(false);
-        const address = ref(props.value);
-        const isError = ref(props.error);
+
+        const resetFields = computed(() => props.onReset);
+
+        const { validateAddress } = useAdapter();
+
+        const selectedNet = computed(() => props.selectedNetwork);
+
+        const address = computed({
+            get: () => store.getters['tokenOps/receiverAddress'],
+            set: (value) => store.dispatch('tokenOps/setReceiverAddress', value),
+        });
 
         const selectedSrcNetwork = computed(() => store.getters['tokenOps/srcNetwork']);
         const selectedDstNetwork = computed(() => store.getters['tokenOps/dstNetwork']);
+
+        const isError = computed(() => {
+            if (!address.value || !selectedNet.value || address.value?.length <= 0) {
+                emit('error-status', false);
+                return false;
+            }
+
+            const isAllow = address.value?.length > 0 && validateAddress(address.value, { chainId: selectedNet?.value?.net });
+
+            emit('error-status', !isAllow);
+
+            return !isAllow;
+        });
 
         const addressPlaceholder = computed(() => {
             const target = selectedDstNetwork.value || selectedSrcNetwork.value;
@@ -98,17 +117,15 @@ export default {
         });
 
         const resetAddress = () => {
-            if (props.onReset) {
-                address.value = '';
-                active.value = false;
-                emit('setAddress', '');
+            if (!resetFields.value) {
+                return;
             }
-        };
 
-        const onInput = () => {
-            emit('setAddress', address.value);
+            address.value = '';
             active.value = false;
         };
+
+        const onInput = () => (active.value = false);
 
         const onBlur = () => {
             emit('setAddress', address.value);
@@ -117,15 +134,6 @@ export default {
 
         const selectAddress = (addr) => {
             address.value = addr;
-
-            emit('setAddress', address.value);
-        };
-
-        const clearValue = () => {
-            address.value = '';
-            isError.value = false;
-
-            emit('setAddress', address.value);
         };
 
         const displayAddress = computed(() => {
@@ -142,16 +150,13 @@ export default {
 
         // =================================================================================================================
 
+        if (props.onReset) {
+            resetAddress();
+        }
+
         watch(
             () => props.onReset,
             () => resetAddress()
-        );
-
-        watch(
-            () => props.error,
-            () => {
-                isError.value = props.error;
-            }
         );
 
         return {
@@ -168,8 +173,6 @@ export default {
 
             onInput,
             onBlur,
-
-            clearValue,
         };
     },
 };

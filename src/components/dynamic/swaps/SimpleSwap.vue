@@ -39,7 +39,7 @@
         </div>
 
         <EstimateInfo
-            v-if="estimateErrorTitle || srcAmount"
+            v-if="(selectedDstToken && srcAmount) || estimateErrorTitle"
             :loading="isEstimating"
             :service="selectedService"
             :title="$t('tokenOperations.routeInfo')"
@@ -71,8 +71,6 @@ import { utils } from 'ethers';
 import { SettingOutlined } from '@ant-design/icons-vue';
 
 import { estimateSwap, estimateBridge, getBridgeTx, getSwapTx } from '@/api/services';
-
-import { getServices, SERVICE_TYPE } from '@/config/services';
 
 // Adapter
 import { ECOSYSTEMS } from '@/Adapter/config';
@@ -143,29 +141,6 @@ export default {
             get: () => store.getters[`swap/service`],
             set: (value) => store.dispatch(`swap/setService`, value),
         });
-
-        const servicesEVM = getServices(SERVICE_TYPE.SWAP, ECOSYSTEMS.EVM);
-        const servicesCosmos = getServices(SERVICE_TYPE.SWAP, ECOSYSTEMS.COSMOS);
-
-        const setEcosystemService = () => {
-            if (!currentChainInfo.value?.ecosystem) {
-                return;
-            }
-
-            const DEFAULT_FOR_ECOSYSTEM = {
-                [ECOSYSTEMS.EVM]: 'swap-paraswap',
-                [ECOSYSTEMS.COSMOS]: 'swap-skip',
-            };
-
-            switch (currentChainInfo.value?.ecosystem) {
-                case ECOSYSTEMS.COSMOS:
-                    return (selectedService.value = servicesCosmos.find(
-                        (service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.COSMOS]
-                    ));
-                case ECOSYSTEMS.EVM:
-                    return (selectedService.value = servicesEVM.find((service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.EVM]));
-            }
-        };
 
         const addressesByChains = ref({});
 
@@ -794,7 +769,6 @@ export default {
             isEstimating.value = false;
             isLoading.value = false;
             resetTokensForModules();
-            setEcosystemService();
         });
 
         watch(isNeedApprove, () => {
@@ -828,8 +802,6 @@ export default {
 
         onMounted(async () => {
             store.dispatch('txManager/setCurrentRequestID', null);
-
-            setEcosystemService();
 
             if (srcAmount.value) {
                 dstAmount.value = null;

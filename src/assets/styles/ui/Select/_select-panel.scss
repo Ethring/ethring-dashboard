@@ -60,13 +60,18 @@
     .balance-label {
         color: var(--#{$prefix}select-label-color);
         font-size: var(--#{$prefix}small-lg-fs);
-        margin-right: 6px;
+        margin-right: 3px;
     }
 
     .balance-value,
     .balance-value > * .balance-price,
     .balance-price > * {
         display: flex;
+    }
+
+    .balance-value-row {
+        display: flex;
+        align-items: center;
     }
 
     .value span {
@@ -82,7 +87,6 @@
     }
 
     &.disabled {
-        cursor: not-allowed;
         user-select: none;
     }
 

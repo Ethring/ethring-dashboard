@@ -1,6 +1,13 @@
 <template>
     <a-modal v-model:open="isModalOpen" centered :footer="null" :title="$t(modalTitle)" :afterClose="handleAfterClose" class="select-modal">
-        <SearchInput class="search" @onChange="handleOnFilterNetworks" :placeholder="$t(inputPlaceholder)" :value="searchValue" />
+        <a-form>
+            <SearchInput
+                @onChange="handleOnFilterNetworks"
+                :placeholder="$t(inputPlaceholder)"
+                :value="searchValue"
+                class="select-modal-search"
+            />
+        </a-form>
 
         <div class="select-modal-list-container">
             <TransitionGroup tag="div" name="options" class="select-modal-list">
@@ -27,7 +34,7 @@
     </a-modal>
 </template>
 <script>
-import { computed, inject } from 'vue';
+import { computed, inject, ref, onUpdated } from 'vue';
 import { useStore } from 'vuex';
 
 import Button from '../../ui/Button.vue';
@@ -35,6 +42,7 @@ import SearchInput from '../../ui/SearchInput.vue';
 import SelectOption from '../../ui/Select/SelectOption.vue';
 
 import NotFoundIcon from '@/assets/icons/app/notFound.svg';
+import { nextTick } from 'process';
 
 export default {
     name: 'SelectModal',
@@ -84,8 +92,16 @@ export default {
 
         const modalTitle = computed(() => MODAL_TITLES[type.value] || 'tokenOperations.select');
         const inputPlaceholder = computed(() => PLACEHOLDERS[type.value] || 'dashboard.search');
-
         const optionList = computed(() => (isModalOpen.value ? options.value : []));
+
+        const searchInput = ref(null);
+
+        onUpdated(() => {
+            nextTick(() => {
+                searchInput.value = document.querySelector('.select-modal-search input');
+                isModalOpen.value && searchInput.value?.focus();
+            });
+        });
 
         return {
             type,

@@ -1,6 +1,12 @@
+import BigNumber from 'bignumber.js';
+
 import { ref, computed, inject, watch, onBeforeUnmount, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
+
+import { ECOSYSTEMS } from '@/Adapter/config';
+
+import { getServices } from '@/config/services';
 
 import {
     getAllowance,
@@ -15,7 +21,7 @@ import {
 import useTokensList from '@/compositions/useTokensList';
 import useNotification from '@/compositions/useNotification';
 
-// import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+import { DIRECTIONS } from '@/shared/constants/operations';
 
 export default function useModule({ moduleType }) {
     const { t } = useI18n();
@@ -23,7 +29,13 @@ export default function useModule({ moduleType }) {
     const store = useStore();
     const useAdapter = inject('useAdapter');
 
-    const selectedService = computed(() => store.getters[`${moduleType}/selectedService`]);
+    const servicesEVM = getServices(null, ECOSYSTEMS.EVM);
+    const servicesCosmos = getServices(null, ECOSYSTEMS.COSMOS);
+
+    const selectedService = computed({
+        get: () => store.getters[`${moduleType}/service`],
+        set: (value) => store.dispatch(`${moduleType}/setService`, value),
+    });
 
     // * Notification
     const { showNotification, closeNotification } = useNotification();
@@ -113,6 +125,8 @@ export default function useModule({ moduleType }) {
 
     const estimateErrorTitle = ref('');
 
+    const isBalanceError = computed(() => BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance) || false);
+
     // =================================================================================================================
     const setTokenOnChangeForNet = (srcNet, token) => {
         tokensList.value = getTokensList({
@@ -167,8 +181,7 @@ export default function useModule({ moduleType }) {
         }
 
         if (moduleType === 'send') {
-            selectedDstToken.value = null;
-            return;
+            return (selectedDstToken.value = null);
         }
 
         const isSrcTokenExistInList = tokensList.value?.find((tkn) => tkn.id === selectedSrcToken.value?.id) || null;
@@ -180,6 +193,34 @@ export default function useModule({ moduleType }) {
 
         if (isDstTokenExistInList) {
             selectedDstToken.value = isDstTokenExistInList;
+        }
+    };
+
+    const setEcosystemService = () => {
+        if (!currentChainInfo.value?.ecosystem || !['swap', 'bridge'].includes(moduleType)) {
+            return;
+        }
+
+        const DEFAULT_FOR_ECOSYSTEM = {
+            [ECOSYSTEMS.EVM]: {
+                swap: 'swap-paraswap',
+                bridge: 'bridge-debridge',
+            },
+            [ECOSYSTEMS.COSMOS]: {
+                swap: 'swap-skip',
+                bridge: 'bridge-skip',
+            },
+        };
+
+        switch (currentChainInfo.value?.ecosystem) {
+            case ECOSYSTEMS.COSMOS:
+                return (selectedService.value = servicesCosmos.find(
+                    (service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.COSMOS][moduleType]
+                ));
+            case ECOSYSTEMS.EVM:
+                return (selectedService.value = servicesEVM.find(
+                    (service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.EVM][moduleType]
+                ));
         }
     };
 
@@ -371,6 +412,7 @@ export default function useModule({ moduleType }) {
     const unWatchAcc = watch(walletAccount, () => {
         selectedSrcNetwork.value = currentChainInfo.value;
         selectedSrcToken.value = null;
+        setEcosystemService();
         resetTokensForModules();
     });
 
@@ -443,11 +485,13 @@ export default function useModule({ moduleType }) {
 
         if (
             // isAccountAuth &&
-            !selectedSrcNetwork.value?.net &&
-            currentChainInfo.value?.supported
+            !selectedSrcNetwork.value?.net
+            // && currentChainInfo.value?.supported
         ) {
             selectedSrcNetwork.value = currentChainInfo.value;
-        } else if (!selectedSrcNetwork.value?.net && chainList.value?.length) {
+        }
+
+        if (!selectedSrcNetwork.value?.net && chainList.value?.length) {
             selectedSrcNetwork.value = chainList.value[0];
         }
 
@@ -471,6 +515,7 @@ export default function useModule({ moduleType }) {
         callOnMounted();
         checkSelectedNetwork();
         resetTokensForModules();
+        setEcosystemService();
     });
 
     onBeforeUnmount(() => {
@@ -480,6 +525,17 @@ export default function useModule({ moduleType }) {
         unWatchSrc();
         unWatchTxErr();
         unWatchEstimateError();
+
+        // Reset all data
+        targetDirection.value = DIRECTIONS.SOURCE;
+        selectedSrcNetwork.value = null;
+        selectedSrcToken.value = null;
+        selectedDstNetwork.value = null;
+        selectedDstToken.value = null;
+        receiverAddress.value = '';
+
+        srcAmount.value = null;
+        dstAmount.value = null;
     });
 
     return {
@@ -507,6 +563,7 @@ export default function useModule({ moduleType }) {
         // Errors
         txError,
         txErrorTitle,
+        isBalanceError,
         estimateErrorTitle,
 
         // Functions
