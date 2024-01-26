@@ -8,7 +8,8 @@
                     @click="() => onSelectNetwork(DIRECTIONS.SOURCE)"
                 />
 
-                <SwitchDirection :disabled="isUpdateSwapDirection || !selectedDstNetwork" @click="() => swapDirections(true)" />
+                <SwitchDirection :disabled="!isUpdateSwapDirection || !selectedDstNetwork" @click="() => swapDirections(true)" />
+
                 <SelectNetwork
                     :current="selectedDstNetwork"
                     :placeholder="$t('tokenOperations.selectNetwork')"
@@ -57,7 +58,7 @@
         />
 
         <SelectAddressInput
-            v-if="isSendToAnotherAddress && selectedDstNetwork"
+            v-if="isSendToAnotherAddress && selectedDstNetwork && selectedDstToken"
             class="mt-8"
             :selected-network="selectedDstNetwork"
             :on-reset="isSendToAnotherAddress"
@@ -65,12 +66,12 @@
         />
 
         <EstimateInfo
-            v-if="estimateErrorTitle"
+            v-if="isShowEstimateInfo"
             :loading="isEstimating"
             :service="selectedService"
             :title="$t('tokenOperations.routeInfo')"
-            :main-fee="rateInfo"
-            :fees="[protocolFeeMain, feeInfo, estimateTimeInfo]"
+            :main-fee="rateFeeInfo"
+            :fees="[protocolFeeInfo, baseFeeInfo, estimateTimeInfo]"
             :error="estimateErrorTitle"
         />
 
@@ -86,17 +87,12 @@
     </a-form>
 </template>
 <script>
-import { h, ref, inject, watch, computed, onMounted, onBeforeMount } from 'vue';
+import { h, ref, inject, watch, computed } from 'vue';
 
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
-import BigNumber from 'bignumber.js';
-
 import { SettingOutlined } from '@ant-design/icons-vue';
-
-// Adapter
-import { ECOSYSTEMS } from '@/Adapter/config';
 
 // Notification
 import useNotification from '@/compositions/useNotification';
@@ -107,7 +103,6 @@ import useTransactions from '../../../Transactions/compositions/useTransactions'
 import { STATUSES } from '../../../Transactions/shared/constants';
 
 import {
-    estimateBridge,
     getBridgeTx,
     cancelRequestByMethod,
     // getDebridgeTxHashForOrder
@@ -193,7 +188,16 @@ export default {
 
             opTitle,
 
+            baseFeeInfo,
+            rateFeeInfo,
+            estimateTimeInfo,
+            protocolFeeInfo,
+
             isNeedApprove,
+            isEstimating,
+            isLoading,
+            isShowEstimateInfo,
+
             swapDirections,
 
             clearApproveForService,
@@ -201,8 +205,8 @@ export default {
             handleOnSelectToken,
             handleOnSelectNetwork,
 
-            setTokenOnChangeForNet,
             makeApproveRequest,
+            makeEstimateRequest,
         } = useServices({
             selectedService: selectedService.value,
             module,
@@ -211,8 +215,7 @@ export default {
 
         // =================================================================================================================
         // Loaders
-        const isEstimating = ref(false);
-        const isLoading = ref(false);
+
         const isWaitingTxStatusForModule = computed(() => store.getters['txManager/isWaitingTxStatusForModule'](module));
 
         const clearAddress = ref(false);
@@ -221,24 +224,6 @@ export default {
 
         const resetSrcAmount = ref(false);
         const resetDstAmount = ref(false);
-
-        const baseFeeInfo = (title, symbolBetween, fromAmount, fromSymbol, toAmount, toSymbol) => {
-            return {
-                title,
-                symbolBetween,
-                fromAmount,
-                fromSymbol,
-                toAmount,
-                toSymbol,
-            };
-        };
-
-        const rateInfo = ref(baseFeeInfo('', '', '', '', '', ''));
-        const feeInfo = ref(baseFeeInfo('', '', '', '', '', ''));
-        const estimateTimeInfo = ref(baseFeeInfo('', '', '', '', '', ''));
-        const protocolFeeMain = ref(baseFeeInfo('', '', '', '', '', ''));
-
-        const estimateTime = ref('');
 
         // =================================================================================================================
 
@@ -268,36 +253,10 @@ export default {
             return handleOnSelectNetwork({
                 direction: DIRECTIONS[direction],
             });
-            // if (!network.net) {
-            //     return;
-            // }
-
-            // if (direction === DIRECTIONS.SOURCE) {
-            //     selectedSrcNetwork.value = network;
-            //     selectedSrcToken.value = null;
-            //     selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
-
-            //     srcAmount.value && (await onSetAmount(srcAmount.value));
-            //     receiverAddress.value && onSetAddress(receiverAddress.value);
-
-            //     return clearApproveForService();
-            // }
-
-            // selectedDstNetwork.value = network;
-
-            // selectedDstToken.value = null;
-
-            // selectedDstToken.value = setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
-
-            // isEstimating.value = false;
-
-            // estimateErrorTitle.value = '';
-
-            // srcAmount.value && (await onSetAmount(srcAmount.value));
-            // receiverAddress.value && onSetAddress(receiverAddress.value);
         };
 
         // =================================================================================================================
+
         const onSelectToken = (withBalance = false, direction = DIRECTIONS.SOURCE) => {
             onlyWithBalance.value = withBalance;
 
@@ -340,154 +299,8 @@ export default {
             srcAmount.value = value;
             txError.value = '';
             dstAmount.value = '';
-            isUpdateSwapDirection.value = true;
 
-            if (!+value) {
-                return setTimeout(() => {
-                    isUpdateSwapDirection.value = false;
-                }, 500);
-            }
-
-            feeInfo.value = baseFeeInfo('', '', '', '', '', '');
-            rateInfo.value = baseFeeInfo('', '', '', '', '', '');
-            estimateTimeInfo.value = baseFeeInfo('', '', '', '', '', '');
-            protocolFeeMain.value = baseFeeInfo('', '', '', '', '', '');
-
-            return await makeEstimateBridgeRequest();
-        };
-
-        // =================================================================================================================
-
-        const isAllowForRequest = () => {
-            const notAllData = !walletAddress.value || !selectedSrcNetwork.value || !selectedService.value;
-
-            if (notAllData) {
-                return false;
-            }
-
-            if (estimateErrorTitle.value) {
-                return false;
-            }
-
-            const isNotEVM = selectedSrcNetwork.value?.ecosystem !== ECOSYSTEMS.EVM;
-
-            return isNotEVM || true;
-        };
-
-        // =================================================================================================================
-
-        const makeEstimateBridgeRequest = async () => {
-            if (!isAllowForRequest() || !selectedDstNetwork.value || !+srcAmount.value === 0) {
-                isEstimating.value = false;
-                isUpdateSwapDirection.value = false;
-                return (isLoading.value = false);
-            }
-
-            isEstimating.value = true;
-
-            if (cancelRequestByMethod) {
-                await cancelRequestByMethod('estimateBridge');
-            }
-
-            const params = {
-                url: selectedService.value.url,
-                fromNet: selectedSrcNetwork.value.net,
-                toNet: selectedDstNetwork.value.net,
-                fromTokenAddress: selectedSrcToken.value.address,
-                toTokenAddress: selectedDstToken.value.address,
-                amount: srcAmount.value,
-            };
-
-            if (selectedService.value.id === 'bridge-skip') {
-                params.ownerAddresses = JSON.stringify(addressesByChains.value);
-            } else {
-                params.ownerAddress = walletAddress.value;
-            }
-
-            const response = await estimateBridge(params);
-
-            isUpdateSwapDirection.value = false;
-
-            if (response.error) {
-                isEstimating.value = false;
-                isLoading.value = false;
-                return (estimateErrorTitle.value = response.error);
-            }
-
-            const checkRoute = +response?.fromTokenAmount === +srcAmount.value;
-
-            if (!checkRoute) {
-                return;
-            }
-
-            isEstimating.value = false;
-            isLoading.value = false;
-
-            dstAmount.value = BigNumber(response.toTokenAmount).decimalPlaces(6).toString();
-
-            estimateErrorTitle.value = '';
-
-            if (response.fee) {
-                feeInfo.value = {
-                    title: 'tokenOperations.serviceFee',
-                    symbolBetween: '~',
-                    fromAmount: formatNumber(response.fee.amount),
-                    fromSymbol: response.fee.currency,
-                    toAmount: formatNumber(BigNumber(response.fee.amount).multipliedBy(selectedSrcToken.value?.price).toString()),
-                    toSymbol: '$',
-                };
-            }
-
-            rateInfo.value = {
-                title: 'tokenOperations.rate',
-                symbolBetween: '~',
-                fromAmount: '1',
-                fromSymbol: selectedSrcToken.value.symbol,
-                toAmount: formatNumber(response.toTokenAmount / response.fromTokenAmount, 6),
-                toSymbol: selectedDstToken.value.symbol,
-            };
-
-            const { estimatedTime = {}, protocolFee = null } = selectedService.value || {};
-
-            const { chainId, chain_id, native_token = null } = selectedSrcNetwork.value || {};
-
-            const chain = chainId || chain_id;
-
-            if (estimatedTime[chain]) {
-                const time = Math.round(estimatedTime[chain] / 60);
-
-                estimateTimeInfo.value = {
-                    title: 'tokenOperations.time',
-                    symbolBetween: '<',
-                    fromAmount: '',
-                    fromSymbol: '',
-                    toAmount: time,
-                    toSymbol: 'min',
-                };
-            }
-
-            if (!protocolFee) {
-                return;
-            }
-
-            const fee = protocolFee[chain_id] || 0;
-
-            if (!fee) {
-                return;
-            }
-
-            const { symbol = null, price = 0 } = native_token || 0;
-
-            const feeInUSD = BigNumber(fee).multipliedBy(price).toString();
-
-            protocolFeeMain.value = {
-                title: 'tokenOperations.protocolFee',
-                symbolBetween: '~',
-                fromAmount: fee,
-                fromSymbol: symbol,
-                toAmount: feeInUSD,
-                toSymbol: '$',
-            };
+            return await makeEstimateRequest();
         };
 
         // =================================================================================================================
@@ -720,51 +533,6 @@ export default {
 
         // =================================================================================================================
 
-        watch(walletAccount, () => {
-            selectedSrcNetwork.value = currentChainInfo.value;
-
-            selectedDstNetwork.value = null;
-
-            selectedSrcToken.value = null;
-            selectedDstToken.value = null;
-
-            selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
-
-            selectedDstToken.value = setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
-        });
-
-        watch(isAllTokensLoading, () => {
-            onlyWithBalance.value = false;
-            selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
-            selectedDstToken.value = setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
-        });
-
-        watch(isTokensLoadingForSrc, () => {
-            selectedSrcToken.value = null;
-            onlyWithBalance.value = true;
-            selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
-        });
-
-        watch(isTokensLoadingForDst, () => {
-            onlyWithBalance.value = false;
-            selectedDstToken.value = setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
-        });
-
-        watch(selectedSrcNetwork, (newValue, oldValue) => {
-            if (isUpdateSwapDirection.value) {
-                return;
-            }
-            if (newValue?.net !== oldValue?.net) {
-                selectedSrcToken.value = null;
-                selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
-            }
-
-            if (selectedDstNetwork.value && newValue?.net === selectedDstNetwork.value.net) {
-                selectedDstNetwork.value = null;
-                selectedDstToken.value = null;
-            }
-        });
-
         watch(txError, (err) => {
             if (!err) {
                 return;
@@ -791,24 +559,6 @@ export default {
             if (!isWaitingTxStatusForModule.value) {
                 selectedSrcNetwork.value && handleUpdateBalance(selectedSrcNetwork.value, 'SrcNetwork');
                 selectedDstNetwork.value && handleUpdateBalance(selectedDstNetwork.value, 'DstNetwork');
-            }
-        });
-
-        // =================================================================================================================
-
-        onBeforeMount(() => {
-            onlyWithBalance.value = true;
-        });
-
-        onMounted(async () => {
-            if (!selectedSrcNetwork.value) {
-                selectedSrcNetwork.value = currentChainInfo.value;
-                selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
-            }
-
-            if (srcAmount.value) {
-                dstAmount.value = null;
-                await onSetAmount(srcAmount.value);
             }
         });
 
@@ -846,12 +596,14 @@ export default {
             selectedSrcToken,
             selectedDstToken,
 
+            isShowEstimateInfo,
+
             // Information for accordion
-            protocolFeeMain,
-            feeInfo,
-            rateInfo,
+            protocolFeeInfo,
+            baseFeeInfo,
+            rateFeeInfo,
             estimateTimeInfo,
-            estimateTime,
+
             txError,
             estimateErrorTitle,
             clearAddress,

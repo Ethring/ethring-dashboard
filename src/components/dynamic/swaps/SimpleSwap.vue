@@ -3,6 +3,7 @@
         <a-form-item>
             <SelectNetwork :current="selectedSrcNetwork" :placeholder="$t('tokenOperations.selectNetwork')" @click="onSelectNetwork" />
         </a-form-item>
+
         <div class="switch-direction-wrap">
             <SelectAmountInput
                 :value="selectedSrcToken"
@@ -19,7 +20,7 @@
 
             <SwitchDirection
                 class="swap-module"
-                :disabled="!selectedDstToken || isUpdateSwapDirection"
+                :disabled="!selectedDstToken || !isUpdateSwapDirection"
                 :on-click-switch="() => swapDirections(false)"
             />
 
@@ -39,12 +40,12 @@
         </div>
 
         <EstimateInfo
-            v-if="(selectedDstToken && srcAmount) || estimateErrorTitle"
+            v-if="(selectedDstToken && srcAmount) || isShowEstimateInfo"
             :loading="isEstimating"
             :service="selectedService"
             :title="$t('tokenOperations.routeInfo')"
-            :main-fee="rateInfo"
-            :fees="[feeInfo]"
+            :main-fee="rateFeeInfo"
+            :fees="[baseFeeInfo]"
             :error="estimateErrorTitle"
         />
 
@@ -65,14 +66,9 @@ import { h, ref, watch, inject, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
-import BigNumber from 'bignumber.js';
-
 import { SettingOutlined } from '@ant-design/icons-vue';
 
-import { estimateSwap, estimateBridge, getBridgeTx, getSwapTx } from '@/api/services';
-
-// Adapter
-import { ECOSYSTEMS } from '@/Adapter/config';
+import { getBridgeTx, getSwapTx } from '@/api/services';
 
 // Notification
 import useNotification from '@/compositions/useNotification';
@@ -91,9 +87,6 @@ import SelectAmountInput from '@/components/ui/Select/SelectAmountInput';
 import EstimateInfo from '@/components/ui/EstimateInfo.vue';
 
 import SwitchDirection from '@/components/ui/SwitchDirection.vue';
-
-// Helpers
-import { formatNumber } from '@/helpers/prettyNumber';
 
 import { isCorrectChain } from '@/shared/utils/operations';
 
@@ -150,8 +143,16 @@ export default {
             txErrorTitle,
             estimateErrorTitle,
 
+            isEstimating,
+            isLoading,
+
             opTitle,
+
+            baseFeeInfo,
+            rateFeeInfo,
+
             isBalanceError,
+            isShowEstimateInfo,
 
             addressesByChains,
 
@@ -164,6 +165,7 @@ export default {
 
             handleOnSelectToken,
             handleOnSelectNetwork,
+            makeEstimateRequest,
         } = useServices({
             module,
             moduleType: 'swap',
@@ -176,30 +178,7 @@ export default {
 
         const isWaitingTxStatusForModule = computed(() => store.getters['txManager/isWaitingTxStatusForModule'](module));
 
-        // * Loaders
-        const isLoading = ref(false);
-        const isEstimating = ref(false);
-
         const balanceUpdated = ref(false);
-
-        // * Estimate data
-        const rateInfo = ref({
-            title: '',
-            symbolBetween: '',
-            fromAmount: '',
-            fromSymbol: '',
-            toAmount: '',
-            toSymbol: '',
-        });
-
-        const feeInfo = ref({
-            title: '',
-            symbolBetween: '',
-            fromAmount: '',
-            fromSymbol: '',
-            toAmount: '',
-            toSymbol: '',
-        });
 
         // =================================================================================================================
 
@@ -269,128 +248,8 @@ export default {
 
             txError.value = '';
             dstAmount.value = '';
-            isUpdateSwapDirection.value = true;
 
-            if (!+value) {
-                return (isUpdateSwapDirection.value = false);
-            }
-
-            feeInfo.value = {
-                title: '',
-                symbolBetween: '',
-                fromAmount: '',
-                fromSymbol: '',
-                toAmount: '',
-                toSymbol: '',
-            };
-
-            rateInfo.value = {
-                title: '',
-                symbolBetween: '',
-                fromAmount: '',
-                fromSymbol: '',
-                toAmount: '',
-                toSymbol: '',
-            };
-
-            return await makeEstimateSwapRequest();
-        };
-
-        // =================================================================================================================
-
-        const isAllowForRequest = () => {
-            const notAllData = !walletAddress.value || !selectedSrcNetwork.value || !selectedService.value;
-
-            if (notAllData) {
-                return false;
-            }
-
-            if (estimateErrorTitle.value) {
-                return false;
-            }
-
-            const isNotEVM = selectedSrcNetwork.value?.ecosystem !== ECOSYSTEMS.EVM;
-
-            return isNotEVM || true;
-        };
-
-        // =================================================================================================================
-
-        const makeEstimateSwapRequest = async () => {
-            if (!isAllowForRequest() || !selectedDstToken.value || +srcAmount.value === 0) {
-                isEstimating.value = false;
-                isUpdateSwapDirection.value = false;
-                return (isLoading.value = false);
-            }
-
-            isEstimating.value = true;
-
-            const params = {
-                url: selectedService.value.url,
-                net: selectedSrcNetwork.value.net,
-                fromTokenAddress: selectedSrcToken.value?.address,
-                toTokenAddress: selectedDstToken.value?.address,
-                amount: srcAmount.value,
-                ownerAddress: walletAddress.value,
-            };
-
-            let response = null;
-
-            if (selectedService.value.id === 'swap-skip') {
-                params.fromNet = selectedSrcNetwork.value.net;
-                params.toNet = selectedSrcNetwork.value.net;
-
-                response = await estimateBridge(params);
-            } else {
-                response = await estimateSwap(params);
-            }
-
-            isUpdateSwapDirection.value = false;
-
-            if (response.error) {
-                isEstimating.value = false;
-                isLoading.value = false;
-                return (estimateErrorTitle.value = response.error);
-            }
-
-            const checkRoute = +response?.fromTokenAmount === +srcAmount.value;
-
-            if (!checkRoute) {
-                return;
-            }
-
-            isEstimating.value = false;
-            isLoading.value = false;
-
-            dstAmount.value = BigNumber(response.toTokenAmount).decimalPlaces(6).toString();
-
-            estimateErrorTitle.value = '';
-
-            // TODO: add fee
-
-            const { native_token } = selectedSrcNetwork.value || {};
-
-            const { price = 0 } = native_token || {};
-
-            if (response.fee) {
-                feeInfo.value = {
-                    title: 'tokenOperations.networkFee',
-                    symbolBetween: '~',
-                    fromAmount: response.fee.amount,
-                    fromSymbol: response.fee.currency,
-                    toAmount: formatNumber(+response.fee.amount * price, 4),
-                    toSymbol: '$',
-                };
-            }
-
-            rateInfo.value = {
-                title: 'tokenOperations.rate',
-                symbolBetween: '~',
-                fromAmount: '1',
-                fromSymbol: selectedSrcToken.value.symbol,
-                toAmount: formatNumber(response.toTokenAmount / response.fromTokenAmount, 6),
-                toSymbol: selectedDstToken.value.symbol,
-            };
+            return await makeEstimateRequest();
         };
 
         // =================================================================================================================
@@ -522,7 +381,6 @@ export default {
         };
 
         // =================================================================================================================
-
         const updateTokens = (list) => {
             if (!selectedSrcToken.value && !selectedDstToken.value) {
                 return;
@@ -659,8 +517,9 @@ export default {
             srcAmount,
             dstAmount,
 
-            feeInfo,
-            rateInfo,
+            baseFeeInfo,
+            rateFeeInfo,
+            isShowEstimateInfo,
 
             selectedService,
 

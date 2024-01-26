@@ -1,6 +1,7 @@
 <template>
     <a-collapse
         expand-icon-position="end"
+        v-model:activeKey="activeKey"
         :class="{ isActive }"
         :bordered="false"
         class="estimate-info"
@@ -9,7 +10,7 @@
         <template #expandIcon>
             <ArrowIcon class="arrow" />
         </template>
-        <a-collapse-panel key="estimate-info" :collapsible="isCollapsible ? '' : 'disabled'">
+        <a-collapse-panel key="estimate-info" :collapsible="isCollapsible ? '' : 'disabled'" :showArrow="isCollapsible">
             <template #header>
                 <div class="top-block">
                     <ServiceIcon v-if="service && !loading && mainFee.fromAmount" :icon="service.icon" :name="service.name" />
@@ -50,7 +51,7 @@
     </a-collapse>
 </template>
 <script>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import EstimateStats from './EstimateStats.vue';
 import ServiceIcon from './ServiceIcon.vue';
@@ -120,8 +121,18 @@ export default {
             return true;
         });
 
+        const activeKey = ref(isCollapsible.value ? ['estimate-info'] : []);
+
+        watch(isCollapsible, () => {
+            if (!isCollapsible.value) {
+                activeKey.value = [];
+            }
+        });
+
         return {
             isActive,
+            activeKey,
+
             isCollapsible,
 
             MAX_LENGTH,

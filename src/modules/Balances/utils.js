@@ -103,15 +103,17 @@ const cosmosChainTokens = (record, { chain, net }) => {
     if (isNativeByBase || isNativeBySymbol) {
         record.address = nativeToken?.base;
         record.base = nativeToken?.base;
-        record.id = `${net}:asset__native:${record.symbol}`;
+        record.id = `${chainName}:asset__native:${record.symbol}`;
     }
 
     return record;
 };
 
 const processIntegration = (integration, { net, chain, logo, chainAddress }) => {
+    const chainName = DP_COSMOS[net] || net || chain;
+
     if (integration.platform) {
-        integration.id = `${net}:integration__${integration.platform}:${integration.type}:${integration.stakingType}`;
+        integration.id = `${chainName}:integration__${integration.platform}:${integration.type}:${integration.stakingType}`;
     }
 
     if (integration.validator && integration.validator?.address) {
@@ -123,7 +125,7 @@ const processIntegration = (integration, { net, chain, logo, chainAddress }) => 
     }
 
     if (integration.integrationId) {
-        integration.id = `${net}:integration__${integration.integrationId}`;
+        integration.id = `${chainName}:integration__${integration.integrationId}`;
     }
 
     const { balances = [] } = integration;

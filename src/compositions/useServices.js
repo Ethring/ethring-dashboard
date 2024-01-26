@@ -6,6 +6,7 @@ import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
+import useEstimate from './useEstimate';
 
 import { getServices } from '@/config/services';
 
@@ -13,8 +14,6 @@ import {
     getAllowance,
     getApproveTx,
     cancelRequestByMethod,
-    // estimateSwap,
-    // estimateBridge,
     // getSwapTx,
     // getBridgeTx,
 } from '@/api/services';
@@ -22,7 +21,9 @@ import {
 import useTokensList from '@/compositions/useTokensList';
 import useNotification from '@/compositions/useNotification';
 
-import { DIRECTIONS } from '@/shared/constants/operations';
+import { DIRECTIONS, FEE_TYPES } from '@/shared/constants/operations';
+
+import { formatNumber } from '@/helpers/prettyNumber';
 
 export default function useModule({ moduleType }) {
     const { t } = useI18n();
@@ -62,7 +63,6 @@ export default function useModule({ moduleType }) {
     const { getTokensList } = useTokensList();
 
     const tokensList = ref([]);
-    const isUpdateSwapDirection = ref(false);
 
     // =================================================================================================================
 
@@ -127,12 +127,94 @@ export default function useModule({ moduleType }) {
     // =================================================================================================================
 
     const estimateErrorTitle = ref('');
-
     const isBalanceError = computed(() => BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance) || false);
+
+    const isLoading = ref(false);
+    const isEstimating = ref(false);
+
+    const isUpdateSwapDirection = computed(() => {
+        if (!selectedSrcToken.value || !selectedDstToken.value) {
+            return false;
+        }
+
+        return true;
+    });
 
     // =================================================================================================================
 
-    const isTokensLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](selectedSrcNetwork.value?.net));
+    const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
+    const isTokensLoadingForSrc = computed(() => store.getters['tokens/loadingByChain'](selectedSrcNetwork.value?.net));
+    const isTokensLoadingForDst = computed(() => store.getters['tokens/loadingByChain'](selectedDstNetwork.value?.net));
+
+    // =================================== FEE INFO ===================================
+
+    const baseFeeInfo = ref({
+        title: '',
+        symbolBetween: '',
+        fromAmount: '',
+        fromSymbol: '',
+        toAmount: '',
+        toSymbol: '',
+    });
+
+    const rateFeeInfo = ref({
+        title: '',
+        symbolBetween: '',
+        fromAmount: '',
+        fromSymbol: '',
+        toAmount: '',
+        toSymbol: '',
+    });
+
+    const protocolFeeInfo = ref({
+        title: '',
+        symbolBetween: '',
+        fromAmount: '',
+        fromSymbol: '',
+        toAmount: '',
+        toSymbol: '',
+    });
+
+    const estimateTimeInfo = ref({
+        title: '',
+        symbolBetween: '',
+        fromAmount: '',
+        fromSymbol: '',
+        toAmount: '',
+        toSymbol: '',
+    });
+
+    const allFees = computed(() => ({
+        [FEE_TYPES.BASE]: baseFeeInfo.value,
+        [FEE_TYPES.RATE]: rateFeeInfo.value,
+        [FEE_TYPES.PROTOCOL]: protocolFeeInfo.value,
+        [FEE_TYPES.TIME]: estimateTimeInfo.value,
+    }));
+
+    const resetFees = () => {
+        const setEmpty = () => ({
+            title: '',
+            symbolBetween: '',
+            fromAmount: '',
+            fromSymbol: '',
+            toAmount: '',
+            toSymbol: '',
+        });
+
+        return (baseFeeInfo.value = rateFeeInfo.value = protocolFeeInfo.value = estimateTimeInfo.value = setEmpty());
+    };
+
+    const isShowEstimateInfo = computed(() => {
+        if (estimateErrorTitle.value) {
+            return true;
+        }
+
+        if (!srcAmount.value || !protocolFeeInfo.value || !baseFeeInfo.value || !rateFeeInfo.value || !estimateTimeInfo.value) {
+            return false;
+        }
+
+        return true;
+    });
 
     // =================================================================================================================
 
@@ -203,20 +285,17 @@ export default function useModule({ moduleType }) {
             return defaultToken;
         }
 
-        const { symbol: targetSymbol } = token || {};
+        const { id: targetId } = token || {};
 
-        const searchTokens = [targetSymbol];
+        const searchTokens = [targetId];
 
-        const updatedList = tokensList.value?.filter((tkn) => searchTokens.includes(tkn.symbol)) || [];
+        const updatedList = tokensList.value?.filter((tkn) => searchTokens.includes(tkn?.id)) || [];
+
         if (!updatedList.length) {
-            return token;
+            return null;
         }
 
         const [tkn = null] = updatedList;
-
-        if (onlyWithBalance.value && tkn?.balance === 0) {
-            return null;
-        }
 
         if (tkn) {
             return tkn;
@@ -296,6 +375,99 @@ export default function useModule({ moduleType }) {
 
     // =================================================================================================================
 
+    const isAllowForRequest = () => {
+        const notAllData = !walletAddress.value || !selectedSrcNetwork.value || !selectedService.value;
+
+        if (notAllData) {
+            return false;
+        }
+
+        if (estimateErrorTitle.value) {
+            return false;
+        }
+
+        const isNotEVM = selectedSrcNetwork.value?.ecosystem !== ECOSYSTEMS.EVM;
+
+        return isNotEVM || true;
+    };
+
+    const prepareFeeInfo = (response) => {
+        estimateErrorTitle.value = '';
+        dstAmount.value = BigNumber(response.toTokenAmount).decimalPlaces(6).toString();
+
+        const { estimatedTime = {}, protocolFee = null } = selectedService.value || {};
+        const { chainId, chain_id, native_token = {} } = selectedSrcNetwork.value || {};
+        const { symbol = null, price = 0 } = native_token || 0;
+
+        // * Rate fee
+        rateFeeInfo.value = {
+            title: 'tokenOperations.rate',
+            symbolBetween: '~',
+            fromAmount: '1',
+            fromSymbol: selectedSrcToken.value.symbol,
+            toAmount: formatNumber(response.toTokenAmount / response.fromTokenAmount, 6),
+            toSymbol: selectedDstToken.value.symbol,
+        };
+
+        // * Base fee
+        if (response.fee) {
+            baseFeeInfo.value = {
+                title: 'tokenOperations.networkFee',
+                symbolBetween: '~',
+                fromAmount: formatNumber(response.fee.amount),
+                fromSymbol: response.fee.currency,
+                toAmount: formatNumber(BigNumber(response.fee.amount).multipliedBy(price).toString()),
+                toSymbol: '$',
+            };
+        }
+
+        if (moduleType === 'bridge') {
+            baseFeeInfo.value.title = 'tokenOperations.serviceFee';
+
+            baseFeeInfo.value.toAmount = formatNumber(
+                BigNumber(response.fee.amount).multipliedBy(selectedSrcToken.value?.price).toString()
+            );
+        }
+
+        // * Time
+        const chain = chainId || chain_id;
+
+        if (estimatedTime[chain]) {
+            const time = Math.round(estimatedTime[chain] / 60);
+
+            estimateTimeInfo.value = {
+                title: 'tokenOperations.time',
+                symbolBetween: '<',
+                fromAmount: '',
+                fromSymbol: '',
+                toAmount: time,
+                toSymbol: 'min',
+            };
+        }
+
+        // * Protocol fee
+        if (!protocolFee) {
+            return;
+        }
+
+        const pFee = protocolFee[chain] || 0;
+
+        if (!pFee) {
+            return;
+        }
+
+        protocolFeeInfo.value = {
+            title: 'tokenOperations.protocolFee',
+            symbolBetween: '~',
+            fromAmount: pFee,
+            fromSymbol: symbol,
+            toAmount: BigNumber(pFee).multipliedBy(price).toString(),
+            toSymbol: '$',
+        };
+    };
+
+    // =================================================================================================================
+
     const makeAllowanceRequest = async (service) => {
         const currentService = service || selectedService.value;
 
@@ -351,8 +523,62 @@ export default function useModule({ moduleType }) {
         }
     };
 
-    // =================================================================================================================
+    const makeEstimateRequest = async () => {
+        isEstimating.value = true;
 
+        if (!isAllowForRequest()) {
+            isLoading.value = false;
+            isEstimating.value = false;
+            return;
+        }
+
+        resetFees();
+
+        const { getParams, makeRequest } = useEstimate({
+            moduleType,
+            selectedService,
+            selectedSrcToken,
+            selectedDstToken,
+            selectedSrcNetwork,
+            selectedDstNetwork,
+            walletAddress,
+            srcAmount,
+            addressesByChains,
+        });
+
+        const params = getParams();
+        const response = await makeRequest(params);
+
+        if (response.error) {
+            estimateErrorTitle.value = response.error;
+            dstAmount.value = '';
+            isEstimating.value = false;
+
+            return (isLoading.value = false);
+        }
+
+        // const checkRoute = () => {
+        //     const isAmountSame = +response?.fromTokenAmount === +srcAmount.value;
+        //     const isSrcTokenSame = params?.fromTokenAddress === selectedSrcToken.value?.address;
+        //     const isDstTokenSame = params?.toTokenAddress === selectedDstToken.value?.address;
+
+        //     return isAmountSame && isSrcTokenSame && isDstTokenSame;
+        // };
+
+        // if (!checkRoute()) {
+        //     isEstimating.value = false;
+        //     dstAmount.value = '';
+
+        //     return (isLoading.value = false);
+        // }
+
+        isEstimating.value = false;
+        isLoading.value = false;
+
+        return prepareFeeInfo(response);
+    };
+
+    // =================================================================================================================
     const clearApproveForService = (service) => {
         const currentService = service || selectedService.value;
         const requiredFields =
@@ -415,7 +641,9 @@ export default function useModule({ moduleType }) {
                     selectedDstToken.value = null;
                 }
 
-                setTokenOnChange();
+                onlyWithBalance.value = true;
+
+                selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
 
                 break;
 
@@ -426,7 +654,9 @@ export default function useModule({ moduleType }) {
                     selectedSrcToken.value = null;
                 }
 
-                setTokenOnChange();
+                onlyWithBalance.value = true;
+
+                selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
 
                 break;
 
@@ -434,37 +664,18 @@ export default function useModule({ moduleType }) {
             case 'superSwap':
                 if (isSrcTokenChanged) {
                     selectedSrcToken.value = null;
+                    onlyWithBalance.value = true;
                     setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
                 }
 
                 if (isDstTokenChanged) {
                     selectedDstToken.value = null;
+                    onlyWithBalance.value = false;
                     setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
                 }
 
                 break;
         }
-    };
-
-    const onSelectSrcNetwork = (network) => {
-        if (selectedSrcNetwork.value?.net === network?.net) {
-            return false;
-        }
-
-        onlyWithBalance.value = true;
-
-        selectedSrcNetwork.value = network;
-
-        if (currentChainInfo.value?.net !== selectedSrcNetwork.value?.net) {
-            selectedSrcToken.value = null;
-            selectedDstToken.value = null;
-            srcAmount.value = '';
-            dstAmount.value = '';
-        }
-
-        resetTokensForModules();
-
-        return true;
     };
 
     const swapDirections = async (withChains = false) => {
@@ -479,6 +690,8 @@ export default function useModule({ moduleType }) {
         const to = JSON.parse(JSON.stringify(selectedDstToken.value));
 
         [selectedSrcToken.value, selectedDstToken.value] = [to, from];
+
+        await makeEstimateRequest();
     };
 
     const setOwnerAddresses = () => {
@@ -496,11 +709,13 @@ export default function useModule({ moduleType }) {
 
     // =================================================================================================================
 
+    // * Select Network and Token Modals
+
     const openSelectModal = (selectFor, { direction, type }) => {
         direction && (targetDirection.value = direction);
         type && (selectType.value = type);
 
-        store.dispatch('app/toggleSelectModal', selectFor);
+        return store.dispatch('app/toggleSelectModal', selectFor);
     };
 
     const handleOnSelectNetwork = ({ direction, type }) => {
@@ -513,13 +728,16 @@ export default function useModule({ moduleType }) {
 
     // =================================================================================================================
 
+    // * Watchers
+
+    // ========================= Watch Chain Info =========================
     const unWatchChainInfo = watch(currentChainInfo, () => {
         checkSelectedNetwork();
         selectedSrcNetwork.value = currentChainInfo.value;
         resetTokensForModules();
     });
 
-    const unWatchTokensLoading = watch(isTokensLoadingForChain, () => resetTokensForModules());
+    // ========================= Watch Wallet Account =========================
 
     const unWatchAcc = watch(walletAccount, () => {
         selectedSrcNetwork.value = currentChainInfo.value;
@@ -530,32 +748,81 @@ export default function useModule({ moduleType }) {
         resetTokensForModules();
     });
 
-    const unWatchSrc = watch(selectedSrcNetwork, (newNet, oldNet) => {
+    // ========================= Watch Selected SRC Network =========================
+
+    const unWatchSrc = watch(selectedSrcNetwork, () => {
         if (isUpdateSwapDirection.value) {
             return;
         }
 
-        if (!oldNet) {
-            resetTokensForModules();
-            return checkSelectedNetwork();
-        }
-
-        if (newNet?.net === oldNet?.net) {
-            return;
-        } else {
-            srcAmount.value = '';
-            dstAmount.value = '';
-        }
-
-        if (currentChainInfo.value?.net !== selectedSrcNetwork.value?.net) {
-            selectedSrcToken.value = null;
-        }
-
         resetTokensForModules();
 
-        return checkSelectedNetwork();
+        checkSelectedNetwork();
+
+        return (selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value));
     });
 
+    // ========================= Watch Selected DST Network =========================
+
+    const unWatchDst = watch(
+        selectedDstNetwork,
+        () => (selectedDstToken.value = setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value))
+    );
+
+    // ========================= Watch Selected SRC Token =========================
+
+    const unWatchSrcToken = watch(selectedSrcToken, async () => {
+        const isEVM = ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem;
+
+        if (!isEVM || !selectedSrcToken.value?.address || !selectedService.value?.id) {
+            return;
+        }
+
+        if (selectedSrcToken.value?.address && !srcTokenAllowance.value) {
+            await makeAllowanceRequest(selectedService.value);
+        }
+    });
+
+    const unWatchSrcDstToken = watch([srcAmount, selectedSrcToken, selectedDstToken], async () => {
+        if (!srcAmount.value || !selectedSrcToken.value || !selectedDstToken.value) {
+            return;
+        }
+
+        if (srcAmount.value && selectedSrcToken.value && selectedDstToken.value) {
+            return await makeEstimateRequest();
+        }
+    });
+
+    // ========================= Watch Is Need Approve for SRC token =========================
+
+    const unWatchIsNeedApprove = watch(isNeedApprove, () => {
+        checkSelectedNetwork();
+        if (isNeedApprove.value && opTitle.value !== 'tokenOperations.switchNetwork') {
+            return (opTitle.value = 'tokenOperations.approve');
+        }
+    });
+
+    // ========================= Watch Tokens Loadings for SRC and DST networks =========================
+
+    const unWatchLoadingSrc = watch(isTokensLoadingForSrc, () => {
+        onlyWithBalance.value = true;
+        selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
+    });
+
+    const unWatchLoadingDst = watch(isTokensLoadingForDst, () => {
+        onlyWithBalance.value = false;
+        selectedDstToken.value = setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
+    });
+
+    const unWatchLoadingSrcDst = watch(isAllTokensLoading, () => {
+        onlyWithBalance.value = true;
+        selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
+
+        onlyWithBalance.value = false;
+        selectedDstToken.value = setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
+    });
+
+    // ========================= Watch Tx Error =========================
     const unWatchTxErr = watch(txError, () => {
         if (!txError.value) {
             return;
@@ -572,7 +839,7 @@ export default function useModule({ moduleType }) {
         closeNotification('prepare-tx');
     });
 
-    // Watch change and show error if tokens or network empty
+    // ========================= Watch Estimate Error =========================
     const unWatchEstimateError = watch([selectedDstNetwork, selectedSrcToken, selectedDstToken], () => {
         if (!selectedDstNetwork.value && !['swap', 'send'].includes(moduleType)) {
             return (estimateErrorTitle.value = t('tokenOperations.selectDstNetwork'));
@@ -586,30 +853,7 @@ export default function useModule({ moduleType }) {
             return (estimateErrorTitle.value = t('tokenOperations.selectDstToken'));
         }
 
-        // if (['swap', 'send'].includes(moduleType) && estimateErrorTitle.value === t('tokenOperations.selectDstToken')) {
-        //     estimateErrorTitle.value = '';
-        // }
-
         return (estimateErrorTitle.value = '');
-    });
-
-    const unWatchSrcToken = watch(selectedSrcToken, async () => {
-        const isEVM = ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem;
-
-        if (!isEVM || !selectedSrcToken.value?.address || !selectedService.value?.id) {
-            return;
-        }
-
-        if (selectedSrcToken.value?.address && !srcTokenAllowance.value) {
-            return await makeAllowanceRequest(selectedService.value);
-        }
-    });
-
-    const unWatchIsNeedApprove = watch(isNeedApprove, () => {
-        checkSelectedNetwork();
-        if (isNeedApprove.value && opTitle.value !== 'tokenOperations.switchNetwork') {
-            return (opTitle.value = 'tokenOperations.approve');
-        }
     });
 
     // =================================================================================================================
@@ -656,12 +900,22 @@ export default function useModule({ moduleType }) {
         // Clear all data
         unWatchChainInfo();
         unWatchAcc();
+
         unWatchSrc();
+        unWatchDst();
+
+        unWatchSrcToken();
+        unWatchSrcDstToken();
+
         unWatchTxErr();
         unWatchEstimateError();
-        unWatchSrcToken();
-        unWatchTokensLoading();
+
         unWatchIsNeedApprove();
+
+        unWatchLoadingSrc();
+        unWatchLoadingDst();
+
+        unWatchLoadingSrcDst();
 
         // Reset all data
         targetDirection.value = DIRECTIONS.SOURCE;
@@ -703,11 +957,25 @@ export default function useModule({ moduleType }) {
         // Operation title
         opTitle,
 
+        // Operation Fees
+        allFees,
+
+        baseFeeInfo,
+        rateFeeInfo,
+        protocolFeeInfo,
+        estimateTimeInfo,
+
+        isShowEstimateInfo,
+
         // Errors
         txError,
         txErrorTitle,
         isBalanceError,
         estimateErrorTitle,
+
+        // Loaders
+        isEstimating,
+        isLoading,
 
         // Functions
         openSelectModal,
@@ -721,12 +989,11 @@ export default function useModule({ moduleType }) {
         clearApproveForService,
         checkSelectedNetwork,
 
-        onSelectSrcNetwork,
-
         swapDirections,
 
         // Requests to API services
         makeAllowanceRequest,
         makeApproveRequest,
+        makeEstimateRequest,
     };
 }
