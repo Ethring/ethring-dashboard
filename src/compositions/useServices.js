@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js';
+import { utils } from 'ethers';
 
 import { ref, computed, inject, watch, onBeforeUnmount, onMounted } from 'vue';
 import { useStore } from 'vuex';
@@ -32,6 +33,8 @@ export default function useModule({ moduleType }) {
     const servicesEVM = getServices(null, ECOSYSTEMS.EVM);
     const servicesCosmos = getServices(null, ECOSYSTEMS.COSMOS);
 
+    const addressesByChains = ref({});
+
     const selectedService = computed({
         get: () => store.getters[`${moduleType}/service`],
         set: (value) => store.dispatch(`${moduleType}/setService`, value),
@@ -52,7 +55,7 @@ export default function useModule({ moduleType }) {
 
     // =================================================================================================================
 
-    const { walletAccount, walletAddress, currentChainInfo, chainList } = useAdapter();
+    const { walletAccount, walletAddress, currentChainInfo, chainList, getAddressesWithChainsByEcosystem } = useAdapter();
 
     // =================================================================================================================
 
@@ -126,6 +129,67 @@ export default function useModule({ moduleType }) {
     const estimateErrorTitle = ref('');
 
     const isBalanceError = computed(() => BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance) || false);
+
+    // =================================================================================================================
+
+    const isTokensLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](selectedSrcNetwork.value?.net));
+
+    // =================================================================================================================
+
+    const srcTokenAllowance = computed(() => {
+        const isEVM = ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem;
+        const requiredFields = selectedSrcToken.value?.address && selectedService.value?.id && walletAccount.value;
+
+        if (!isEVM || !requiredFields) {
+            return null;
+        }
+
+        return store.getters['tokenOps/allowanceForToken'](
+            walletAccount.value,
+            selectedSrcNetwork.value.net,
+            selectedSrcToken.value.address,
+            selectedService.value.id
+        );
+    });
+
+    const srcTokenApprove = computed(() => {
+        const isEVM = ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem;
+        const requiredFields = selectedSrcToken.value?.address && selectedService.value?.id && walletAccount.value;
+
+        if (!isEVM || !requiredFields) {
+            return null;
+        }
+
+        return store.getters['tokenOps/approveForToken'](
+            walletAccount.value,
+            selectedSrcNetwork.value.net,
+            selectedSrcToken.value.address,
+            selectedService.value.id
+        );
+    });
+
+    const isNeedApprove = computed(() => {
+        if (['send'].includes(moduleType)) {
+            return false;
+        }
+
+        try {
+            if (
+                !srcAmount.value ||
+                selectedSrcNetwork.value?.ecosystem === ECOSYSTEMS.COSMOS ||
+                !selectedSrcToken.value?.address ||
+                !selectedSrcToken.value?.decimals
+            ) {
+                return false;
+            }
+
+            const currentAmount = utils.parseUnits(srcAmount.value, selectedSrcToken.value?.decimals).toString();
+
+            return !BigNumber(currentAmount).lte(srcTokenAllowance.value);
+        } catch {
+            return false;
+        }
+    });
 
     // =================================================================================================================
     const setTokenOnChangeForNet = (srcNet, token) => {
@@ -214,13 +278,19 @@ export default function useModule({ moduleType }) {
 
         switch (currentChainInfo.value?.ecosystem) {
             case ECOSYSTEMS.COSMOS:
-                return (selectedService.value = servicesCosmos.find(
+                selectedService.value = servicesCosmos.find(
                     (service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.COSMOS][moduleType]
-                ));
+                );
+
+                setOwnerAddresses();
+
+                break;
             case ECOSYSTEMS.EVM:
-                return (selectedService.value = servicesEVM.find(
-                    (service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.EVM][moduleType]
-                ));
+                selectedService.value = servicesEVM.find((service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.EVM][moduleType]);
+
+                setOwnerAddresses();
+
+                break;
         }
     };
 
@@ -250,7 +320,10 @@ export default function useModule({ moduleType }) {
     const makeApproveRequest = async (service) => {
         const currentService = service || selectedService.value;
 
-        if (!selectedSrcToken.value?.address || !currentService?.url) {
+        const isEVM = ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem;
+        const requiredFields = selectedSrcToken.value?.address && selectedService.value?.id && walletAccount.value;
+
+        if (!requiredFields || !isEVM) {
             return;
         }
 
@@ -282,14 +355,20 @@ export default function useModule({ moduleType }) {
 
     const clearApproveForService = (service) => {
         const currentService = service || selectedService.value;
+        const requiredFields =
+            selectedSrcToken.value?.address && selectedSrcNetwork.value?.net && currentService?.id && walletAddress.value;
 
-        store.dispatch('tokenOps/setAllowance', {
-            chain: selectedSrcNetwork.value.net,
-            account: walletAddress.value,
-            tokenAddress: selectedSrcToken.value?.address,
-            allowance: null,
-            service: currentService?.id,
-        });
+        // store.dispatch('tokenOps/setAllowance', {
+        //     chain: selectedSrcNetwork.value.net,
+        //     account: walletAddress.value,
+        //     tokenAddress: selectedSrcToken.value?.address,
+        //     allowance: null,
+        //     service: currentService?.id,
+        // });
+
+        if (!requiredFields) {
+            return;
+        }
 
         store.dispatch('tokenOps/setApprove', {
             chain: selectedSrcNetwork.value.net,
@@ -308,6 +387,10 @@ export default function useModule({ moduleType }) {
         // }
 
         const isSameWithCurrent = currentChainInfo.value && currentChainInfo.value.net === selectedSrcNetwork.value?.net;
+
+        if (isNeedApprove.value && opTitle.value !== 'tokenOperations.switchNetwork') {
+            return (opTitle.value = 'tokenOperations.approve');
+        }
 
         if (isSameWithCurrent) {
             return (opTitle.value = DEFAULT_TITLE);
@@ -384,6 +467,33 @@ export default function useModule({ moduleType }) {
         return true;
     };
 
+    const swapDirections = async (withChains = false) => {
+        if (withChains) {
+            const from = JSON.parse(JSON.stringify(selectedSrcNetwork.value));
+            const to = JSON.parse(JSON.stringify(selectedDstNetwork.value));
+
+            [selectedSrcNetwork.value, selectedDstNetwork.value] = [to, from];
+        }
+
+        const from = JSON.parse(JSON.stringify(selectedSrcToken.value));
+        const to = JSON.parse(JSON.stringify(selectedDstToken.value));
+
+        [selectedSrcToken.value, selectedDstToken.value] = [to, from];
+    };
+
+    const setOwnerAddresses = () => {
+        const addressesWithChains = getAddressesWithChainsByEcosystem(selectedSrcNetwork.value?.ecosystem);
+
+        for (const chain in addressesWithChains) {
+            const { address } = addressesWithChains[chain];
+
+            addressesByChains.value = {
+                ...addressesByChains.value,
+                [chain]: address,
+            };
+        }
+    };
+
     // =================================================================================================================
 
     const openSelectModal = (selectFor, { direction, type }) => {
@@ -409,9 +519,13 @@ export default function useModule({ moduleType }) {
         resetTokensForModules();
     });
 
+    const unWatchTokensLoading = watch(isTokensLoadingForChain, () => resetTokensForModules());
+
     const unWatchAcc = watch(walletAccount, () => {
         selectedSrcNetwork.value = currentChainInfo.value;
         selectedSrcToken.value = null;
+        estimateErrorTitle.value = '';
+
         setEcosystemService();
         resetTokensForModules();
     });
@@ -420,6 +534,7 @@ export default function useModule({ moduleType }) {
         if (isUpdateSwapDirection.value) {
             return;
         }
+
         if (!oldNet) {
             resetTokensForModules();
             return checkSelectedNetwork();
@@ -478,6 +593,25 @@ export default function useModule({ moduleType }) {
         return (estimateErrorTitle.value = '');
     });
 
+    const unWatchSrcToken = watch(selectedSrcToken, async () => {
+        const isEVM = ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem;
+
+        if (!isEVM || !selectedSrcToken.value?.address || !selectedService.value?.id) {
+            return;
+        }
+
+        if (selectedSrcToken.value?.address && !srcTokenAllowance.value) {
+            return await makeAllowanceRequest(selectedService.value);
+        }
+    });
+
+    const unWatchIsNeedApprove = watch(isNeedApprove, () => {
+        checkSelectedNetwork();
+        if (isNeedApprove.value && opTitle.value !== 'tokenOperations.switchNetwork') {
+            return (opTitle.value = 'tokenOperations.approve');
+        }
+    });
+
     // =================================================================================================================
 
     const callOnMounted = () => {
@@ -525,6 +659,9 @@ export default function useModule({ moduleType }) {
         unWatchSrc();
         unWatchTxErr();
         unWatchEstimateError();
+        unWatchSrcToken();
+        unWatchTokensLoading();
+        unWatchIsNeedApprove();
 
         // Reset all data
         targetDirection.value = DIRECTIONS.SOURCE;
@@ -550,8 +687,14 @@ export default function useModule({ moduleType }) {
         onlyWithBalance,
         isUpdateSwapDirection,
 
+        // Src token allowance and approve for service
+        srcTokenAllowance,
+        srcTokenApprove,
+        isNeedApprove,
+
         // Receiver
         receiverAddress,
+        addressesByChains,
 
         // Amounts
         srcAmount,
@@ -579,6 +722,8 @@ export default function useModule({ moduleType }) {
         checkSelectedNetwork,
 
         onSelectSrcNetwork,
+
+        swapDirections,
 
         // Requests to API services
         makeAllowanceRequest,

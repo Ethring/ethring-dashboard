@@ -89,8 +89,6 @@ export default {
 
             handleOnSelectToken,
             handleOnSelectNetwork,
-
-            resetTokensForModules,
         } = useServices({
             moduleType: 'send',
         });
@@ -258,13 +256,9 @@ export default {
             }
         });
 
-        watch(isTokensLoadingForChain, () => resetTokensForModules());
-
         // =================================================================================================================
 
-        onMounted(() => {
-            store.dispatch('txManager/setCurrentRequestID', null);
-        });
+        onMounted(() => store.dispatch('txManager/setCurrentRequestID', null));
 
         return {
             isLoading,

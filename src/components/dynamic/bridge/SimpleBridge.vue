@@ -8,7 +8,7 @@
                     @click="() => onSelectNetwork(DIRECTIONS.SOURCE)"
                 />
 
-                <SwitchDirection :disabled="isUpdateSwapDirection || !selectedDstNetwork" @click="swapTokensDirection" />
+                <SwitchDirection :disabled="isUpdateSwapDirection || !selectedDstNetwork" @click="() => swapDirections(true)" />
                 <SelectNetwork
                     :current="selectedDstNetwork"
                     :placeholder="$t('tokenOperations.selectNetwork')"
@@ -92,7 +92,6 @@ import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
 import BigNumber from 'bignumber.js';
-import { utils } from 'ethers';
 
 import { SettingOutlined } from '@ant-design/icons-vue';
 
@@ -151,12 +150,12 @@ export default {
 
         const { name: module } = router.currentRoute.value;
 
-        const addressesByChains = ref({});
+        const isAddressError = ref(false);
 
         // * Notification
         const { showNotification, closeNotification } = useNotification();
 
-        const { walletAccount, walletAddress, currentChainInfo, chainList, setChain, getAddressesWithChainsByEcosystem } = useAdapter();
+        const { walletAccount, walletAddress, currentChainInfo, chainList, setChain } = useAdapter();
 
         // * Transaction Manager
         const { currentRequestID, transactionForSign, createTransactions, signAndSend, addTransactionToRequestID } = useTransactions();
@@ -182,13 +181,20 @@ export default {
             srcAmount,
             dstAmount,
 
+            srcTokenApprove,
+
             receiverAddress,
+            addressesByChains,
 
             txError,
             txErrorTitle,
             estimateErrorTitle,
+            isBalanceError,
 
             opTitle,
+
+            isNeedApprove,
+            swapDirections,
 
             clearApproveForService,
 
@@ -196,41 +202,11 @@ export default {
             handleOnSelectNetwork,
 
             setTokenOnChangeForNet,
-            makeAllowanceRequest,
             makeApproveRequest,
-            checkSelectedNetwork,
         } = useServices({
             selectedService: selectedService.value,
             module,
             moduleType: 'bridge',
-        });
-
-        // =================================================================================================================
-
-        const allowanceForToken = computed(() => {
-            if (!selectedSrcToken.value?.address || !selectedService.value?.id || !walletAccount.value) {
-                return null;
-            }
-
-            return store.getters['tokenOps/allowanceForToken'](
-                walletAccount.value,
-                selectedSrcNetwork.value.net,
-                selectedSrcToken.value.address,
-                selectedService.value.id
-            );
-        });
-
-        const approveForToken = computed(() => {
-            if (!selectedSrcToken.value?.address || !selectedService.value?.id || !walletAccount.value) {
-                return null;
-            }
-
-            return store.getters['tokenOps/approveForToken'](
-                walletAccount.value,
-                selectedSrcNetwork.value.net,
-                selectedSrcToken.value.address,
-                selectedService.value.id
-            );
         });
 
         // =================================================================================================================
@@ -272,23 +248,6 @@ export default {
 
         // =================================================================================================================
 
-        const errorAddress = ref('');
-        const isBalanceError = ref(false);
-
-        // =================================================================================================================
-
-        const NOT_SUPPORT = ['fantom', 'optimism'];
-
-        const srcNets = computed(() =>
-            chainList.value.filter((network) => network.net !== selectedDstNetwork?.value?.net && !NOT_SUPPORT.includes(network.net))
-        );
-
-        const dstNets = computed(() =>
-            chainList.value.filter((network) => network.net !== selectedSrcNetwork?.value?.net && !NOT_SUPPORT.includes(network.net))
-        );
-
-        // =================================================================================================================
-
         const disabledBtn = computed(
             () =>
                 isLoading.value ||
@@ -300,7 +259,7 @@ export default {
                 !selectedSrcToken.value ||
                 !selectedDstNetwork.value ||
                 !selectedDstToken.value ||
-                (isSendToAnotherAddress.value && (errorAddress.value || !receiverAddress.value))
+                (isSendToAnotherAddress.value && (isAddressError.value || !receiverAddress.value))
         );
 
         // =================================================================================================================
@@ -384,18 +343,9 @@ export default {
             isUpdateSwapDirection.value = true;
 
             if (!+value) {
-                setTimeout(() => {
+                return setTimeout(() => {
                     isUpdateSwapDirection.value = false;
                 }, 500);
-                return (isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance));
-            }
-
-            const isNotEnoughBalance = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance);
-
-            isBalanceError.value = isNotEnoughBalance;
-
-            if (!allowanceForToken.value && ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem) {
-                await requestAllowance();
             }
 
             feeInfo.value = baseFeeInfo('', '', '', '', '', '');
@@ -405,58 +355,6 @@ export default {
 
             return await makeEstimateBridgeRequest();
         };
-
-        // =================================================================================================================
-
-        const swapTokensDirection = async () => {
-            if (isUpdateSwapDirection.value || !selectedDstNetwork.value) {
-                return;
-            }
-
-            clearApproveForService();
-
-            const fromNetwork = { ...selectedSrcNetwork.value };
-            const toNetwork = { ...selectedDstNetwork.value };
-
-            const fromToken = { ...selectedSrcToken.value };
-            const toToken = { ...selectedDstToken.value };
-
-            isUpdateSwapDirection.value = true;
-
-            selectedSrcNetwork.value = toNetwork;
-            selectedDstNetwork.value = fromNetwork;
-
-            selectedSrcToken.value = toToken;
-            selectedDstToken.value = fromToken;
-
-            await onSetAmount(srcAmount.value);
-        };
-
-        // =================================================================================================================
-
-        const isNeedApprove = computed(() => {
-            if (!srcAmount.value) {
-                return false;
-            }
-
-            if (selectedSrcNetwork.value?.ecosystem === ECOSYSTEMS.COSMOS) {
-                return false;
-            }
-
-            if (!selectedSrcToken.value?.address && !allowanceForToken.value) {
-                return false;
-            }
-
-            if (!selectedSrcToken.value?.decimals) {
-                return false;
-            }
-
-            const currentAmount = utils.parseUnits(srcAmount.value, selectedSrcToken.value?.decimals).toString();
-
-            const isEnough = BigNumber(currentAmount).lte(allowanceForToken.value);
-
-            return !isEnough;
-        });
 
         // =================================================================================================================
 
@@ -474,24 +372,6 @@ export default {
             const isNotEVM = selectedSrcNetwork.value?.ecosystem !== ECOSYSTEMS.EVM;
 
             return isNotEVM || true;
-        };
-
-        // =================================================================================================================
-
-        const requestAllowance = async () => {
-            if (!isAllowForRequest() || !selectedSrcToken.value?.address) {
-                return;
-            }
-
-            return await makeAllowanceRequest(selectedService.value);
-        };
-
-        const requestApprove = async () => {
-            if (!isAllowForRequest() || !selectedSrcToken.value?.address) {
-                return;
-            }
-
-            return await makeApproveRequest(selectedService.value);
         };
 
         // =================================================================================================================
@@ -674,9 +554,9 @@ export default {
         const handleApprove = async () => {
             opTitle.value = 'tokenOperations.approve';
 
-            await requestApprove();
+            await makeApproveRequest(selectedService.value);
 
-            if (!approveForToken.value) {
+            if (!srcTokenApprove.value) {
                 return (isLoading.value = false);
             }
 
@@ -689,7 +569,7 @@ export default {
                 module,
                 status: STATUSES.IN_PROGRESS,
                 parameters: {
-                    ...approveForToken.value,
+                    ...srcTokenApprove.value,
                     from: walletAddress.value,
                 },
                 account: walletAddress.value,
@@ -870,14 +750,6 @@ export default {
             selectedDstToken.value = setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
         });
 
-        watch(isNeedApprove, () => {
-            if (isNeedApprove.value) {
-                return (opTitle.value = 'tokenOperations.approve');
-            }
-
-            return (opTitle.value = 'tokenOperations.confirm');
-        });
-
         watch(selectedSrcNetwork, (newValue, oldValue) => {
             if (isUpdateSwapDirection.value) {
                 return;
@@ -890,18 +762,6 @@ export default {
             if (selectedDstNetwork.value && newValue?.net === selectedDstNetwork.value.net) {
                 selectedDstNetwork.value = null;
                 selectedDstToken.value = null;
-            }
-        });
-
-        watch(selectedSrcToken, async () => {
-            if (!selectedSrcToken.value) {
-                return;
-            }
-
-            isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance);
-
-            if (!allowanceForToken.value && ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem) {
-                await requestAllowance();
             }
         });
 
@@ -923,14 +783,6 @@ export default {
             closeNotification('prepare-tx');
         });
 
-        watch(isNeedApprove, () => {
-            if (isNeedApprove.value && opTitle.value !== 'tokenOperations.switchNetwork') {
-                return (opTitle.value = 'tokenOperations.approve');
-            }
-
-            checkSelectedNetwork();
-        });
-
         watch(srcAmount, () => resetAmounts(DIRECTIONS.SOURCE, srcAmount.value));
 
         watch(dstAmount, () => resetAmounts(DIRECTIONS.DESTINATION, dstAmount.value));
@@ -948,23 +800,6 @@ export default {
             onlyWithBalance.value = true;
         });
 
-        const setOwnerAddresses = () => {
-            if (selectedService.value?.id !== 'bridge-skip') {
-                return;
-            }
-
-            const addressesWithChains = getAddressesWithChainsByEcosystem(selectedSrcNetwork.value?.ecosystem);
-
-            for (const chain in addressesWithChains) {
-                const { address } = addressesWithChains[chain];
-
-                addressesByChains.value = {
-                    ...addressesByChains.value,
-                    [chain]: address,
-                };
-            }
-        };
-
         onMounted(async () => {
             if (!selectedSrcNetwork.value) {
                 selectedSrcNetwork.value = currentChainInfo.value;
@@ -975,17 +810,7 @@ export default {
                 dstAmount.value = null;
                 await onSetAmount(srcAmount.value);
             }
-
-            if (!allowanceForToken.value && ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem) {
-                await makeAllowanceRequest();
-            }
-
-            isAllowForRequest();
-
-            setOwnerAddresses();
         });
-
-        watch(selectedService, () => setOwnerAddresses());
 
         return {
             // Loading
@@ -997,7 +822,6 @@ export default {
             isWaitingTxStatusForModule,
 
             disabledBtn,
-            isNeedApprove,
 
             resetSrcAmount,
             resetDstAmount,
@@ -1010,13 +834,10 @@ export default {
             DIRECTIONS,
             opTitle,
 
-            srcNets,
-            dstNets,
-
             srcAmount,
             dstAmount,
 
-            errorAddress,
+            isAddressError,
             isBalanceError,
 
             receiverAddress,
@@ -1046,7 +867,7 @@ export default {
 
             onSetAmount,
             handleOnConfirm,
-            swapTokensDirection,
+            swapDirections,
         };
     },
 };
