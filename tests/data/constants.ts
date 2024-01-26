@@ -3,14 +3,14 @@ import { getTestVar, TEST_CONST } from '../envHelper';
 
 export const EVM_NETWORKS = ['eth', 'arbitrum', 'optimism', 'bsc', 'polygon', 'fantom', 'avalanche'];
 export const COSMOS_NETWORKS = {
-    cosmos: 'cosmos1manq9qh4dj76ukdkekqu73p9779qftpqg750qz',
-    crescent: 'cre1manq9qh4dj76ukdkekqu73p9779qftpqvk8240',
-    juno: 'juno1manq9qh4dj76ukdkekqu73p9779qftpq7vh587',
-    mars: 'mars1manq9qh4dj76ukdkekqu73p9779qftpq4rdk4e',
-    osmosis: 'osmo1manq9qh4dj76ukdkekqu73p9779qftpqq98lks',
-    stargaze: 'stars1manq9qh4dj76ukdkekqu73p9779qftpquzrjtn',
-    injective: 'inj16hkjdkf39x5t2xk9fdqywue87eg3sf9k4gdfen',
-    terra2: 'terra1v3gz0s7c26c9frqeuylml0tr3a3zunfwt7fws4',
+    cosmos: 'cosmos1e9dvrk7n69hsupdnf6q5d0h6k6e33lnjq6vrmz',
+    crescent: 'cre1e9dvrk7n69hsupdnf6q5d0h6k6e33lnjyjlxw0',
+    juno: 'juno1e9dvrk7n69hsupdnf6q5d0h6k6e33lnjkg0cu7',
+    mars: 'mars1e9dvrk7n69hsupdnf6q5d0h6k6e33lnja846we',
+    osmosis: 'osmo1e9dvrk7n69hsupdnf6q5d0h6k6e33lnjgplnds',
+    stargaze: 'stars1e9dvrk7n69hsupdnf6q5d0h6k6e33lnj5xm7sn',
+    injective: 'inj16g4nw4a4kuqs4gwy9yan3chq65lmuhhuyajph3',
+    terra2: 'terra1sjl4q093a0s6mq2082sgty3asmdjqd3ahj85yg',
 };
 export const MetaMaskDirPath = path.resolve(__dirname, '..', '..', 'data', `metamask-chrome-${getTestVar(TEST_CONST.MM_VERSION)}`);
 export const KeplrDirPath = path.resolve(
