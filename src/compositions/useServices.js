@@ -209,11 +209,16 @@ export default function useModule({ moduleType }) {
             return true;
         }
 
-        if (!srcAmount.value || !protocolFeeInfo.value || !baseFeeInfo.value || !rateFeeInfo.value || !estimateTimeInfo.value) {
+        if (!srcAmount.value && estimateErrorTitle.value) {
+            estimateErrorTitle.value = '';
             return false;
         }
 
-        return true;
+        if (!protocolFeeInfo.value || !baseFeeInfo.value || !rateFeeInfo.value || !estimateTimeInfo.value) {
+            return false;
+        }
+
+        return false;
     });
 
     // =================================================================================================================
@@ -924,6 +929,14 @@ export default function useModule({ moduleType }) {
         selectedDstNetwork.value = null;
         selectedDstToken.value = null;
         receiverAddress.value = '';
+
+        isEstimating.value = false;
+        txError.value = '';
+        isLoading.value = false;
+        estimateErrorTitle.value = '';
+        isShowEstimateInfo.value = false;
+
+        resetFees();
 
         srcAmount.value = null;
         dstAmount.value = null;
