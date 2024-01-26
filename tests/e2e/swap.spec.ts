@@ -10,6 +10,7 @@ const sleep = require('util').promisify(setTimeout);
 
 const supportedNetsBySwap = ['Ethereum', 'Binance Smart Chain', 'Arbitrum', 'Polygon', 'Avalanche', 'Optimism', 'Fantom']; // TODO до сих пор не работает. Нет фантома
 const txHash = getTestVar(TEST_CONST.SUCCESS_TX_HASH_BY_MOCK);
+const SWAP_SERVICE = 'srv-paraswap';
 
 testMetaMask.describe('Swap e2e tests', () => {
     // it('Case#: Swap tx', async ({ browser, context, page: Page, swapPage }) => {
@@ -67,7 +68,6 @@ testMetaMask.describe('Swap e2e tests', () => {
         const TOKEN_TO = '1INCH';
         const ADDRESS = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
         const WAITED_BALANCE_URL = `**/srv-data-provider/api/balances?net=${NET.toLowerCase()}**`;
-        const SWAP_SERVICE = 'srv-paraswap';
         const AMOUNT = '2';
 
         await swapPage.mockBalanceRequest(NET.toLowerCase(), mockBalanceDataBySwapTest[NET.toLowerCase()], ADDRESS);
@@ -99,7 +99,6 @@ testMetaMask.describe('Swap e2e tests', () => {
         const TOKEN_TO = '1INCH';
         const ADDRESS = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
         const WAITED_BALANCE_URL = `**/srv-data-provider/api/balances?net=${NET.toLowerCase()}**`;
-        const SWAP_SERVICE = 'srv-paraswap';
         const AMOUNT = '55';
 
         await swapPage.mockBalanceRequest(NET.toLowerCase(), mockBalanceDataBySwapTest[NET.toLowerCase()], ADDRESS);
@@ -161,6 +160,69 @@ testMetaMask.describe('Swap e2e tests', () => {
             await swapPage.waitHiddenSkeleton();
             await swapPage.waitLoadImg();
 
+            await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
+        }
+    );
+
+    testMetaMask(
+        'Case#: Checking dollar equivalent and hover by select tokens',
+        async ({ browser, context, page, swapPageMockTokensList: swapPage }) => {
+            // description:
+            // checking the display of values and dollar equivalents for the swap
+            // check the selection of the selected token in the list of tokens
+
+            const NET = 'eth';
+            const TOKEN_FROM = 'ORAI';
+            const TOKEN_TO = 'LON';
+            const ADDRESS = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
+            const WAITED_BALANCE_URL = `**/srv-data-provider/api/balances?net=${NET}**`;
+            const AMOUNT = '1';
+            const coingeckoUrl = '**/token-price/coingecko/ethereum**';
+
+            const estimateMockData = {
+                ok: true,
+                data: {
+                    fromTokenAmount: '1.0',
+                    toTokenAmount: '9.302190440797261907',
+                    fee: {
+                        amount: '0.00375186407532274',
+                        currency: 'ETH',
+                    },
+                },
+                error: '',
+            };
+            const coingeckoPriceLonData = {
+                ok: true,
+                data: {
+                    '0x0000000000095413afc295d19edeb1ad7b71c952': {
+                        usd: 0.643215,
+                        btc: 0.00001605,
+                    },
+                },
+                error: [],
+            };
+
+            await swapPage.mockBalanceRequest(NET, mockBalanceDataBySwapTest[NET], ADDRESS);
+            await swapPage.mockRoute(coingeckoUrl, coingeckoPriceLonData);
+
+            await swapPage.page.waitForResponse(WAITED_BALANCE_URL); // wait response wallet balance
+
+            await swapPage.setAmount(AMOUNT);
+            await sleep(1000);
+
+            await swapPage.openTokenPageFrom();
+            await swapPage.setTokenInTokensList(TOKEN_FROM);
+            await swapPage.openTokenPageTo();
+
+            const estimatePromise = swapPage.page.waitForResponse(`**/estimateSwap**`);
+            await swapPage.mockEstimateSwapRequest(SWAP_SERVICE, estimateMockData, 200);
+            await swapPage.setTokenInTokensList(TOKEN_TO);
+            await estimatePromise;
+
+            await swapPage.waitLoadImg();
+            await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
+
+            await swapPage.openTokenPageTo();
             await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
         }
     );

@@ -139,7 +139,7 @@ export default {
         const { walletAddress, currentChainInfo, chainList, walletAccount, setChain, getAddressesWithChainsByEcosystem } = useAdapter();
 
         const chains = computed(() => {
-            if (currentChainInfo.value.ecosystem === ECOSYSTEMS.COSMOS) {
+            if (currentChainInfo.value?.ecosystem === ECOSYSTEMS.COSMOS) {
                 return chainList.value;
             }
 
@@ -479,6 +479,10 @@ export default {
         const requestAllowance = async () => {
             if (!isAllowForRequest() || !selectedSrcToken.value?.address) {
                 return;
+            }
+
+            if (srcAmount.value) {
+                isEstimating.value = true;
             }
 
             return await makeAllowanceRequest(selectedService.value);

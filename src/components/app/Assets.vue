@@ -1,7 +1,7 @@
 <template>
     <div class="assets-section">
         <a-collapse v-model:activeKey="collapseActiveKey" expand-icon-position="end" class="assets-block" ghost :bordered="false">
-            <a-collapse-panel key="assets" class="assets-block-panel">
+            <a-collapse-panel key="assets" class="assets-block-panel" data-qa="assets-panel">
                 <template #header>
                     <AssetGroupHeader
                         class="assets-section__group-header"

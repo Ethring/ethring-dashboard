@@ -4,7 +4,7 @@ import { emptyBalanceMockData, errorGetBalanceMockData, mockBalanceData, mockBal
 import { TEST_CONST, getTestVar } from '../envHelper';
 import { BridgePage, SendPage, SuperSwapPage, SwapPage } from '../model/VueApp/base.pages';
 import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
-import { EVM_NETWORKS, COSMOS_NETWORKS, COSMOS_ADDRESSES } from '../data/constants';
+import { EVM_NETWORKS, COSMOS_NETWORKS } from '../data/constants';
 
 const sleep = require('util').promisify(setTimeout);
 
@@ -91,6 +91,12 @@ testMetaMask.describe('MetaMask dashboard', () => {
         await dashboardProtocol.page.evaluate(() => {
             window.scrollTo(0, 0);
         });
+
+        const assetPanel = dashboardProtocol.page.getByTestId('assets-panel');
+
+        //  add new class to element
+        await assetPanel.evaluate((el) => el.classList.add('test'));
+
         await dashboardProtocol.page.waitForFunction(() => window.scrollY === 0);
 
         await expect(dashboardProtocol.page).toHaveScreenshot({ fullPage: true });
@@ -108,7 +114,7 @@ testKeplr.describe('Keplr dashboard', () => {
 testKeplr.describe('Keplr dashboard', () => {
     testKeplr('Case#: check protocols & nfts view', async ({ browser, context, page, dashboardProtocol }) => {
 
-        await Promise.all(COSMOS_NETWORKS.map((network) => dashboardProtocol.mockBalanceRequest(network, mockBalanceCosmosWallet[network], COSMOS_ADDRESSES[network])));
+        await Promise.all(Object.keys(COSMOS_NETWORKS).map((network) => dashboardProtocol.mockBalanceRequest(network, mockBalanceCosmosWallet[network], COSMOS_NETWORKS[network])));
         await dashboardProtocol.waitHiddenSkeleton();
 
         // Fix https://github.com/microsoft/playwright/issues/18827#issuecomment-1878770736
