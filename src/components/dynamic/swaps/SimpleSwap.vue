@@ -90,7 +90,6 @@ import SwitchDirection from '@/components/ui/SwitchDirection.vue';
 
 import { isCorrectChain } from '@/shared/utils/operations';
 
-import { updateWalletBalances } from '@/shared/utils/balances';
 import { checkErrors } from '@/helpers/checkErrors';
 
 // Constants
@@ -381,31 +380,6 @@ export default {
         };
 
         // =================================================================================================================
-        const updateTokens = (list) => {
-            if (!selectedSrcToken.value && !selectedDstToken.value) {
-                return;
-            }
-
-            const fromToken = list.find((elem) => elem.symbol === selectedSrcToken.value.symbol);
-
-            if (fromToken) {
-                selectedSrcToken.value = fromToken;
-            }
-
-            const toToken = list.find((elem) => elem.symbol === selectedDstToken.value.symbol);
-
-            if (toToken) {
-                selectedDstToken.value = toToken;
-            }
-        };
-
-        const handleUpdateBalance = async () => {
-            await updateWalletBalances(walletAccount.value, walletAddress.value, selectedSrcNetwork.value, (list) => {
-                updateTokens(list);
-            });
-        };
-
-        // =================================================================================================================
 
         const handleOnSwap = async () => {
             isLoading.value = true;
@@ -454,8 +428,6 @@ export default {
 
                 isLoading.value = false;
                 balanceUpdated.value = true;
-
-                handleUpdateBalance();
             } catch (error) {
                 txError.value = error?.message || error?.error || error;
             }
@@ -469,12 +441,6 @@ export default {
             }
 
             isLoading.value = false;
-        });
-
-        watch(isWaitingTxStatusForModule, async () => {
-            if (!isWaitingTxStatusForModule.value) {
-                await handleUpdateBalance();
-            }
         });
 
         watch(srcAmount, () => resetAmounts(DIRECTIONS.SOURCE, srcAmount.value));

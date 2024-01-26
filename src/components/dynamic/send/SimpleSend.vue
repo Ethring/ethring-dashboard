@@ -58,7 +58,7 @@ import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { STATUSES } from '../../../Transactions/shared/constants';
 
 import { isCorrectChain } from '@/shared/utils/operations';
-import { updateWalletBalances } from '@/shared/utils/balances';
+import {} from '@/shared/utils/balances';
 
 export default {
     name: 'SimpleSend',
@@ -97,7 +97,7 @@ export default {
         const { showNotification, closeNotification } = useNotification();
 
         // * Adapter for wallet
-        const { walletAccount, walletAddress, connectedWallet, currentChainInfo, chainList, setChain } = useAdapter();
+        const { walletAddress, connectedWallet, currentChainInfo, chainList, setChain } = useAdapter();
 
         const { createTransactions, signAndSend, transactionForSign } = useTransactions();
 
@@ -139,26 +139,6 @@ export default {
             resetAmount.value = amount === null;
 
             clearAddress.value = receiverAddress.value === null;
-        };
-
-        // =================================================================================================================
-
-        const updateTokens = (list) => {
-            if (!selectedSrcToken.value) {
-                return;
-            }
-
-            const fromToken = list.find((elem) => elem.symbol === selectedSrcToken.value.symbol);
-
-            if (fromToken) {
-                selectedSrcToken.value = fromToken;
-            }
-        };
-
-        const handleUpdateBalance = async () => {
-            await updateWalletBalances(walletAccount.value, walletAddress.value, selectedSrcNetwork.value, (list) => {
-                updateTokens(list);
-            });
         };
 
         // =================================================================================================================
@@ -234,8 +214,6 @@ export default {
                     clearAddress.value = false;
                     return (isLoading.value = false);
                 }
-
-                handleUpdateBalance();
 
                 return (isLoading.value = false);
             } catch (error) {

@@ -13,8 +13,8 @@ import PricesModule from '@/modules/prices/';
 import { ECOSYSTEMS } from '@/Adapter/config';
 
 import { BALANCES_TYPES } from '@/modules/Balances/constants';
-// =================================================================================================================
 
+// =================================================================================================================
 export const storeOperations = async (
     chain,
     account,

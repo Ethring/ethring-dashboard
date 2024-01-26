@@ -24,12 +24,19 @@ import useNotification from '@/compositions/useNotification';
 import { DIRECTIONS, FEE_TYPES } from '@/shared/constants/operations';
 
 import { formatNumber } from '@/helpers/prettyNumber';
+import { updateWalletBalances } from '@/shared/utils/balances';
+import { useRouter } from 'vue-router';
 
 export default function useModule({ moduleType }) {
     const { t } = useI18n();
 
+    const router = useRouter();
+
+    const { name: module } = router.currentRoute.value;
+
     const store = useStore();
     const useAdapter = inject('useAdapter');
+    const isWaitingTxStatusForModule = computed(() => store.getters['txManager/isWaitingTxStatusForModule'](module));
 
     const servicesEVM = getServices(null, ECOSYSTEMS.EVM);
     const servicesCosmos = getServices(null, ECOSYSTEMS.COSMOS);
@@ -529,6 +536,10 @@ export default function useModule({ moduleType }) {
     };
 
     const makeEstimateRequest = async () => {
+        if (!srcAmount.value) {
+            return;
+        }
+
         isEstimating.value = true;
 
         if (!isAllowForRequest()) {
@@ -788,11 +799,13 @@ export default function useModule({ moduleType }) {
         }
     });
 
-    const unWatchSrcDstToken = watch([srcAmount, selectedSrcToken, selectedDstToken], async () => {
-        if (!srcAmount.value || !selectedSrcToken.value || !selectedDstToken.value) {
-            return;
+    const unWatchDstToken = watch(selectedDstToken, async () => {
+        if (srcAmount.value && selectedSrcToken.value && selectedDstToken.value) {
+            return await makeEstimateRequest();
         }
+    });
 
+    const unWatchSrcDstToken = watch([srcAmount, selectedSrcToken, selectedDstToken], async () => {
         if (srcAmount.value && selectedSrcToken.value && selectedDstToken.value) {
             return await makeEstimateRequest();
         }
@@ -845,6 +858,7 @@ export default function useModule({ moduleType }) {
     });
 
     // ========================= Watch Estimate Error =========================
+
     const unWatchEstimateError = watch([selectedDstNetwork, selectedSrcToken, selectedDstToken], () => {
         if (!selectedDstNetwork.value && !['swap', 'send'].includes(moduleType)) {
             return (estimateErrorTitle.value = t('tokenOperations.selectDstNetwork'));
@@ -859,6 +873,38 @@ export default function useModule({ moduleType }) {
         }
 
         return (estimateErrorTitle.value = '');
+    });
+
+    // =================================================================================================================
+
+    const unWatchTxStatusModule = watch(isWaitingTxStatusForModule, async () => {
+        if (isWaitingTxStatusForModule.value) {
+            return;
+        }
+
+        const handleUpdateBalance = async (network) => {
+            const targetAddress = addressesByChains.value[network.net] || walletAddress.value;
+
+            await updateWalletBalances(walletAccount.value, targetAddress, network, (list) => {
+                if (!selectedSrcToken.value && !selectedDstToken.value) {
+                    return;
+                }
+
+                const srcTkn = list.find((srcTkn) => srcTkn?.id === selectedSrcToken.value?.id);
+                const dstTkn = list.find((dstTkn) => dstTkn?.id === selectedDstToken.value?.id);
+
+                if (srcTkn) {
+                    selectedSrcToken.value = srcTkn;
+                }
+
+                if (dstTkn) {
+                    selectedDstToken.value = dstTkn;
+                }
+            });
+        };
+
+        selectedSrcNetwork.value && (await handleUpdateBalance(selectedSrcNetwork.value));
+        selectedDstNetwork.value && (await handleUpdateBalance(selectedDstNetwork.value));
     });
 
     // =================================================================================================================
@@ -910,6 +956,7 @@ export default function useModule({ moduleType }) {
         unWatchDst();
 
         unWatchSrcToken();
+        unWatchDstToken();
         unWatchSrcDstToken();
 
         unWatchTxErr();
@@ -921,6 +968,7 @@ export default function useModule({ moduleType }) {
         unWatchLoadingDst();
 
         unWatchLoadingSrcDst();
+        unWatchTxStatusModule();
 
         // Reset all data
         targetDirection.value = DIRECTIONS.SOURCE;

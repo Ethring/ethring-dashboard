@@ -19,8 +19,6 @@ const saveToCache = async (account, chainId, address, tokenBalances) => {
 };
 
 export async function updateWalletBalances(account, address, network, cb = () => {}) {
-    let isUpdated = false;
-
     const { net, logo } = network || {};
 
     if (!net) {
@@ -67,19 +65,21 @@ export async function updateWalletBalances(account, address, network, cb = () =>
         accTokensHash[token.id] = token;
 
         // updating flag
-        isUpdated = true;
+        // isUpdated = true;
     }
 
-    // if no updates - skip
-    if (!isUpdated) {
-        // removing from memory if no updates
-        accTokensHash = null;
+    // console.log('[updateWalletBalances] isUpdated', isUpdated, accTokensHash);
 
-        return;
-    }
+    // // if no updates - skip
+    // if (!isUpdated) {
+    //     // removing from memory if no updates
+    //     accTokensHash = null;
+
+    //     return;
+    // }
 
     // updating store
-    store.dispatch('tokens/setDataFor', {
+    await store.dispatch('tokens/setDataFor', {
         type: 'tokens',
         account,
         data: _.values(accTokensHash),
@@ -88,10 +88,10 @@ export async function updateWalletBalances(account, address, network, cb = () =>
     // updating store
     store.dispatch('tokens/setGroupTokens', { chain: chainId, account, data: { list: tokenBalances } });
 
+    cb(tokenBalances);
+
     // removing from memory after updating store
     accTokensHash = null;
-
-    cb(tokenBalances);
 
     await saveToCache(account, chainId, address, tokenBalances);
 }

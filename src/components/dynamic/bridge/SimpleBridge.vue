@@ -125,8 +125,6 @@ import { formatNumber } from '@/helpers/prettyNumber';
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { isCorrectChain } from '@/shared/utils/operations';
 
-import { updateWalletBalances } from '@/shared/utils/balances';
-
 export default {
     name: 'SimpleBridge',
     components: {
@@ -150,7 +148,7 @@ export default {
         // * Notification
         const { showNotification, closeNotification } = useNotification();
 
-        const { walletAccount, walletAddress, currentChainInfo, chainList, setChain } = useAdapter();
+        const { walletAddress, currentChainInfo, chainList, setChain } = useAdapter();
 
         // * Transaction Manager
         const { currentRequestID, transactionForSign, createTransactions, signAndSend, addTransactionToRequestID } = useTransactions();
@@ -444,31 +442,6 @@ export default {
 
         // =================================================================================================================
 
-        const handleUpdateBalance = (network, targetDirection = 'SrcNetwork') => {
-            const isSrc = targetDirection === 'SrcNetwork';
-
-            const selectedToken = isSrc ? selectedSrcToken.value : selectedDstToken.value;
-
-            const targetAddress = addressesByChains.value[network.net] || walletAddress.value;
-
-            updateWalletBalances(walletAccount.value, targetAddress, network, (list) => {
-                const token = list.find((elem) => elem.symbol === selectedToken.symbol);
-                if (!token) {
-                    return;
-                }
-
-                if (isSrc && selectedSrcToken.value?.id === token.id) {
-                    selectedSrcToken.value = token;
-                }
-
-                if (!isSrc && selectedDstToken.value?.id === token.id) {
-                    selectedDstToken.value = token;
-                }
-            });
-        };
-
-        // =================================================================================================================
-
         const handleOnConfirm = async () => {
             isLoading.value = true;
             txError.value = '';
@@ -522,9 +495,6 @@ export default {
                 isLoading.value = false;
                 balanceUpdated.value = true;
 
-                handleUpdateBalance(selectedSrcNetwork.value, 'SrcNetwork');
-                handleUpdateBalance(selectedDstNetwork.value, 'DstNetwork');
-
                 balanceUpdated.value = true;
             } catch (error) {
                 txError.value = error?.message || error?.error || error;
@@ -554,13 +524,6 @@ export default {
         watch(srcAmount, () => resetAmounts(DIRECTIONS.SOURCE, srcAmount.value));
 
         watch(dstAmount, () => resetAmounts(DIRECTIONS.DESTINATION, dstAmount.value));
-
-        watch(isWaitingTxStatusForModule, () => {
-            if (!isWaitingTxStatusForModule.value) {
-                selectedSrcNetwork.value && handleUpdateBalance(selectedSrcNetwork.value, 'SrcNetwork');
-                selectedDstNetwork.value && handleUpdateBalance(selectedDstNetwork.value, 'DstNetwork');
-            }
-        });
 
         return {
             // Loading
