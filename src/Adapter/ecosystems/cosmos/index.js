@@ -1,4 +1,5 @@
 import { ref } from 'vue';
+import _ from 'lodash';
 
 import { cosmos } from 'osmojs';
 import { SigningStargateClient, GasPrice } from '@cosmjs/stargate';
@@ -686,17 +687,40 @@ class CosmosAdapter extends AdapterBase {
     }
 
     async getSignClient(RPCs, { signingStargate = {}, offlineSigner = {} }) {
+        const CHUNK_SIZE = 10;
+        const TIMEOUT = 2000; // 2 seconds
+
         // Check if RPCs exist
         if (!RPCs.length) {
             console.warn('[COSMOS -> getSignClient] RPCs not found to get client');
             return null;
         }
 
-        for (const rpc of RPCs) {
-            try {
-                return await SigningStargateClient.connectWithSigner(rpc, offlineSigner, signingStargate);
-            } catch (error) {
-                console.warn(`[COSMOS -> getSignClient] Error connecting to RPC: ${rpc}`, error.message);
+        const chunkedRPCs = _.chunk(RPCs, CHUNK_SIZE);
+
+        for (const chunkRPCs of chunkedRPCs) {
+            const connectPromises = chunkRPCs.map(async (rpc) => {
+                try {
+                    const connectPromise = SigningStargateClient.connectWithSigner(rpc, offlineSigner, signingStargate);
+
+                    // Add a timeout promise
+                    const timeoutPromise = new Promise((_, reject) => {
+                        setTimeout(() => reject(new Error(`[COSMOS -> getSignClient] Connection to RPC ${rpc} timed out`)), TIMEOUT);
+                    });
+
+                    return await Promise.race([connectPromise, timeoutPromise]);
+                } catch (error) {
+                    console.warn(`[COSMOS -> getSignClient] Error connecting to RPC: ${rpc}`, error.message);
+                    return null;
+                }
+            });
+
+            const connectedClients = await Promise.all(connectPromises);
+
+            const client = connectedClients.find((client) => client !== null);
+
+            if (client) {
+                return client;
             }
         }
 

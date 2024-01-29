@@ -5,11 +5,12 @@ import { KeplrHomePage, KeplrNotifyPage, getNotifyKeplrPage, keplrVersion } from
 import { EVM_NETWORKS } from '../data/constants';
 import mockTokensListData from '../data/mockTokensListData';
 import { DashboardPage } from '../model/VueApp/base.pages';
+import { marketCapNativeEvmTokens } from '../data/mockHelper';
 
 export const FIVE_SECONDS = 5000;
 const sleep = require('util').promisify(setTimeout);
 
-export const closeEmptyPages = async (context: BrowserContext) => {
+const closeEmptyPages = async (context: BrowserContext) => {
     await sleep(FIVE_SECONDS);
     const allStartPages = context.pages();
 
@@ -42,39 +43,44 @@ export const addWalletToKeplr = async (context: BrowserContext, seed: String) =>
     await keplrPage.addWallet(seed);
 };
 
-export const authInDashboardByMm = async (context: BrowserContext, seed: String): Promise<DashboardPage> => {
-    await addWalletToMm(context, seed);
+const __loginByMmAndWaitElement__ = async (context: BrowserContext, page: DashboardPage): Promise<DashboardPage> => {
+    await page.goToPage();
 
-    const zometPage = new DashboardPage(await context.newPage());
-    await zometPage.goToPage();
-
-    await zometPage.clickLoginByMetaMask(context);
+    await page.clickLoginByMetaMask(context);
     const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
     await notifyMM.assignPage();
 
-    const providerModal = zometPage.page.getByText('Connection Successful');
+    const providerModal = page.page.getByText('Connection Successful');
     await providerModal.waitFor({ state: 'detached', timeout: 20000 });
 
-    await zometPage.waitMainElementVisible();
-    return zometPage;
+    await page.waitMainElementVisible();
+    return page;
+};
+
+export const authInDashboardByMm = async (context: BrowserContext, seed: String): Promise<DashboardPage> => {
+    await addWalletToMm(context, seed);
+    const zometPage = new DashboardPage(await context.newPage());
+
+    return __loginByMmAndWaitElement__(context, zometPage);
+};
+
+export const authInDashboardByMmCoingeckoMock = async (context: BrowserContext, seed: String): Promise<DashboardPage> => {
+    await addWalletToMm(context, seed);
+    const zometPage = new DashboardPage(await context.newPage());
+
+    const COINGECKO_ROUTE = '**/marketcaps/coingecko';
+    await zometPage.mockRoute(COINGECKO_ROUTE, marketCapNativeEvmTokens);
+
+    return __loginByMmAndWaitElement__(context, zometPage);
 };
 
 export const authInDashboardByMmTokensListMock = async (context: BrowserContext, seed: String): Promise<DashboardPage> => {
     await addWalletToMm(context, seed);
-
     const zometPage = new DashboardPage(await context.newPage());
+
     await Promise.all(EVM_NETWORKS.map((network) => zometPage.mockTokensList(network, mockTokensListData[network])));
-    await zometPage.goToPage();
 
-    await zometPage.clickLoginByMetaMask();
-    const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
-    await notifyMM.assignPage();
-
-    const providerModal = zometPage.page.getByText('Connection Successful');
-    await providerModal.waitFor({ state: 'detached', timeout: 20000 });
-
-    await zometPage.waitMainElementVisible();
-    return zometPage;
+    return __loginByMmAndWaitElement__(context, zometPage);
 };
 
 export const authInDashboardByKeplr = async (context: BrowserContext, seed: String) => {
