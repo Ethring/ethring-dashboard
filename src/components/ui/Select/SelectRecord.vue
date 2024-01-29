@@ -1,5 +1,5 @@
 <template>
-    <div class="select-network" data-qa="select-network">
+    <div class="select-network" data-qa="select-network" :class="{ disabled }">
         <div class="network" :class="{ 'default-network-logo': !name }">
             <TokenIcon :token="current" class="network-logo" />
         </div>
@@ -25,7 +25,7 @@ import TokenIcon from '@/components/ui/Tokens/TokenIcon.vue';
 import ArrowDownIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
 export default {
-    name: 'SelectNetwork',
+    name: 'SelectRecord',
     props: {
         current: {
             type: Object,
@@ -36,6 +36,10 @@ export default {
         placeholder: {
             type: String,
         },
+        disabled: {
+            type: Boolean,
+            default: false,
+        },
     },
     components: {
         TokenIcon,
@@ -43,8 +47,8 @@ export default {
     },
     setup(props) {
         const name = computed(() => {
-            const name = props.current?.name || props.current?.symbol;
-            return name;
+            const { name = null, symbol = null } = props.current || {};
+            return symbol || name;
         });
 
         return {

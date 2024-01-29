@@ -1,10 +1,11 @@
 <template>
-    <div class="switch-direction" :class="{ disabled }" @click="onClickSwitch">
-        <SwitchIcon />
+    <div class="switch-direction" :class="{ disabled, [icon]: icon }" @click="onClickSwitch">
+        <component :is="icon" />
     </div>
 </template>
 <script>
 import SwitchIcon from '@/assets/icons/dashboard/swap.svg';
+import SwapIcon from '@/assets/icons/app/swap.svg';
 
 export default {
     name: 'SwitchDirection',
@@ -18,9 +19,15 @@ export default {
             type: Function,
             default: () => {},
         },
+        icon: {
+            type: String,
+            required: false,
+            default: 'SwitchIcon',
+        },
     },
     components: {
         SwitchIcon,
+        SwapIcon,
     },
 };
 </script>

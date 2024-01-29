@@ -2,7 +2,7 @@
     <a-form class="simple-bridge">
         <a-form-item>
             <div class="select-network-group">
-                <SelectNetwork
+                <SelectRecord
                     :current="selectedSrcNetwork"
                     :placeholder="$t('tokenOperations.selectNetwork')"
                     @click="() => onSelectNetwork(DIRECTIONS.SOURCE)"
@@ -10,7 +10,7 @@
 
                 <SwitchDirection :disabled="!isUpdateSwapDirection || !selectedDstNetwork" @click="() => swapDirections(true)" />
 
-                <SelectNetwork
+                <SelectRecord
                     :current="selectedDstNetwork"
                     :placeholder="$t('tokenOperations.selectNetwork')"
                     class="select-group-to"
@@ -109,7 +109,7 @@ import {
 } from '@/api/services';
 
 // import SelectAmount from '@/components/ui/SelectAmount';
-import SelectNetwork from '@/components/ui/Select/SelectNetwork';
+import SelectRecord from '@/components/ui/Select/SelectRecord';
 
 import SelectAddressInput from '@/components/ui/Select/SelectAddressInput';
 import SelectAmountInput from '@/components/ui/Select/SelectAmountInput';
@@ -128,7 +128,7 @@ import { isCorrectChain } from '@/shared/utils/operations';
 export default {
     name: 'SimpleBridge',
     components: {
-        SelectNetwork,
+        SelectRecord,
         SelectAmountInput,
         SelectAddressInput,
         Button,

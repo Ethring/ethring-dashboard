@@ -44,9 +44,7 @@
         white-space: nowrap;
         padding: 2px 0;
 
-        margin-right: 16px;
-
-        max-width: 100%;
+        max-width: 100px;
     }
 
     .placeholder {
@@ -57,6 +55,22 @@
         border-color: var(--#{$prefix}btn-bg-color-hover);
         background-color: var(--#{$prefix}btn-bg-color-hover-op-01);
     }
+
+    &.disabled {
+        pointer-events: none;
+        cursor: not-allowed;
+        background: var(--#{$prefix}select-disabled-bg-color);
+        border-color: var(--#{$prefix}select-disabled-border-color);
+        .label {
+            color: var(--#{$prefix}neutral-text);
+        }
+        .arrow {
+            fill: var(--#{$prefix}neutral-text);
+        }
+        .network {
+            filter: opacity(0.5);
+        }
+    }
 }
 
 .select-network-group {
@@ -64,20 +78,6 @@
     align-items: center;
     justify-content: space-between;
     position: relative;
-}
-
-.switch-direction-wrap {
-    position: relative;
-
-    .switch-direction {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        margin: auto;
-        z-index: 10;
-    }
 }
 
 .switch-direction {
@@ -144,5 +144,52 @@
 
     &.swap-module:not(.disabled):hover svg {
         transform: rotate(0deg) rotateX(360deg);
+    }
+}
+
+.super-swap .select-network {
+    min-width: 160px;
+}
+
+.switch-direction-wrap {
+    position: relative;
+
+    .switch-direction {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        z-index: 10;
+    }
+
+    .SwapIcon {
+        right: initial;
+        left: 10%;
+
+        min-width: 48px;
+        max-width: 48px;
+
+        min-height: 48px;
+        max-height: 48px;
+
+        svg {
+            transform: rotate(0);
+        }
+
+        svg .path-2 {
+            fill: var(--#{$prefix}primary-text);
+        }
+
+        svg .path-1 {
+            fill: var(--#{$prefix}eye-logo-hover);
+        }
+
+        &:hover {
+            svg .path-2 {
+                fill: var(--#{$prefix}white);
+            }
+        }
     }
 }

@@ -3,6 +3,7 @@
         <AppLayout />
         <WalletsModal />
         <AddressModal />
+        <RoutesModal />
         <KadoModal />
         <ReleaseNotes />
     </a-config-provider>
@@ -21,6 +22,7 @@ import AppLayout from './layouts/DefaultLayout/AppLayout.vue';
 import WalletsModal from '@/Adapter/UI/Modal/WalletsModal';
 import AddressModal from '@/Adapter/UI/Modal/AddressModal';
 import KadoModal from './components/app/modals/KadoModal.vue';
+import RoutesModal from './components/app/modals/RoutesModal.vue';
 
 import ReleaseNotes from './layouts/DefaultLayout/header/ReleaseNotes.vue';
 
@@ -31,6 +33,7 @@ export default {
     components: {
         AppLayout,
         KadoModal,
+        RoutesModal,
         ReleaseNotes,
         WalletsModal,
         AddressModal,
@@ -62,7 +65,7 @@ export default {
 
         const isOpen = computed(() => store.getters['adapters/isOpen']('wallets'));
 
-        const showRoutesModal = computed(() => store.getters['bridgeDex/showRoutes']);
+        const isShowRoutesModal = computed(() => store.getters['app/modal']('routesModal'));
 
         const callSubscription = async () => {
             const { ecosystem } = currentChainInfo.value || {};
@@ -83,7 +86,7 @@ export default {
         const callInit = async () => {
             const { ecosystem, walletModule } = currentChainInfo.value || {};
 
-            if (!walletModule || !ecosystem || !walletAddress.value || showRoutesModal.value) {
+            if (!walletModule || !ecosystem || !walletAddress.value || isShowRoutesModal.value) {
                 return setTimeout(callInit, 1000);
             }
 

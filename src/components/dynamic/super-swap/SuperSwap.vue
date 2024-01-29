@@ -1,84 +1,69 @@
 <template>
-    <div class="superswap-panel">
-        <RoutesModal v-if="isShowRoutesModal" @close="() => toggleRoutesModal(false)" />
+    <a-form class="super-swap superswap-panel">
         <div class="reload-btn" :class="{ 'reload-btn__active': dstAmount && !isLoading }" @click="() => getEstimateInfo(true)">
-            <ReloadIcon />
+            <SyncOutlined />
         </div>
 
-        <SwapField
-            :is-token-loading="isTokensLoadingForChain"
-            :value="srcAmount"
-            :label="$t('tokenOperations.from')"
-            :token="selectedSrcToken"
-            @setAmount="onSetAmount"
-        >
-            <Select
-                :value="selectedSrcNetwork"
-                :options="supportedNetworks"
-                :placeholder="$t('tokenOperations.searchNetwork')"
-                @onChange="(network) => handleOnSelectNetwork(network, DIRECTIONS.SOURCE)"
-            />
-            <Select
-                @click="() => handleOnClickSelectToken(TOKEN_SELECT_TYPES.FROM, DIRECTIONS.SOURCE)"
-                :value="selectedSrcToken"
-                class="ml-8"
-                :options="tokensList || []"
-                :placeholder="$t('tokenOperations.searchToken')"
-                @onChange="(token) => handleOnSelectToken(token, TOKEN_SELECT_TYPES.FROM)"
-                isToken
-                balance
-            />
-        </SwapField>
+        <a-form-item class="switch-direction-wrap">
+            <SwapField
+                :value="srcAmount"
+                :label="$t('tokenOperations.from')"
+                :token="selectedSrcToken"
+                :is-token-loading="isTokensLoadingForSrc"
+                @setAmount="onSetAmount"
+            >
+                <SelectRecord
+                    :placeholder="$t('tokenOperations.selectNetwork')"
+                    :current="selectedSrcNetwork"
+                    @click="() => onSelectNetwork(DIRECTIONS.SOURCE)"
+                />
+                <SelectRecord
+                    :placeholder="$t('tokenOperations.selectToken')"
+                    :current="selectedSrcToken"
+                    @click="() => onSelectToken(true, DIRECTIONS.SOURCE)"
+                />
+            </SwapField>
 
-        <div class="swap-btn">
-            <SwapIcon />
-        </div>
+            <SwitchDirection icon="SwapIcon" :disabled="false" class="switch-direction" />
 
-        <SwapField
-            class="mt-8"
-            :label="$t('tokenOperations.to')"
-            :value="dstAmount"
-            :token="selectedDstToken"
-            :isAmountLoading="isLoading"
-            :is-token-loading="isTokensLoadingForChain"
-            :percentage="differPercentage"
-            disabled
-            hide-max
-        >
-            <Select
-                :value="selectedDstNetwork"
-                :options="supportedNetworks"
-                :placeholder="$t('tokenOperations.searchNetwork')"
-                @onChange="(network) => handleOnSelectNetwork(network, DIRECTIONS.DESTINATION)"
-            />
-
-            <Select
-                @click="() => handleOnClickSelectToken(TOKEN_SELECT_TYPES.TO, DIRECTIONS.DESTINATION)"
-                :value="selectedDstToken"
-                class="ml-8"
-                :options="tokensList || []"
-                :placeholder="$t('tokenOperations.searchToken')"
-                @onChange="(token) => handleOnSelectToken(token, TOKEN_SELECT_TYPES.TO)"
-                isToken
-                balance
-            />
-        </SwapField>
+            <SwapField
+                class="mt-8"
+                :label="$t('tokenOperations.to')"
+                :value="dstAmount"
+                :token="selectedDstToken"
+                :isAmountLoading="isLoading"
+                :is-token-loading="isTokensLoadingForDst"
+                :percentage="differPercentage"
+                disabled
+                hide-max
+            >
+                <SelectRecord
+                    :placeholder="$t('tokenOperations.selectNetwork')"
+                    :current="selectedDstNetwork"
+                    @click="() => onSelectNetwork(DIRECTIONS.DESTINATION)"
+                />
+                <SelectRecord
+                    :placeholder="$t('tokenOperations.selectToken')"
+                    :current="selectedDstToken"
+                    :disabled="!selectedDstNetwork"
+                    @click="() => onSelectToken(false, DIRECTIONS.DESTINATION)"
+                />
+            </SwapField>
+        </a-form-item>
 
         <Checkbox
-            v-if="selectedSrcNetwork?.net !== selectedDstNetwork?.net"
-            v-model:value="isReceiveToken"
+            v-if="selectedDstToken && selectedDstNetwork"
+            v-model:value="isSendToAnotherAddress"
             :label="$t('tokenOperations.chooseAddress')"
             class="mt-8"
         />
 
-        <SelectAddress
-            v-if="isReceiveToken && selectedSrcNetwork?.net !== selectedDstNetwork?.net"
-            :selected-network="selectedDstNetwork"
-            :error="!!errorAddress"
-            placeholder="0x..."
+        <SelectAddressInput
+            v-if="isSendToAnotherAddress && selectedDstNetwork && selectedDstToken"
             class="mt-8"
-            :on-reset="successHash"
-            @setAddress="onSetAddress"
+            :selected-network="selectedDstNetwork"
+            :on-reset="isSendToAnotherAddress"
+            @error-status="(status) => (isAddressError = status)"
         />
 
         <Collapse class="mt-8" v-if="+srcAmount > 0" :loading="isLoading" :hideContent="estimateErrorTitle">
@@ -105,12 +90,12 @@
             </template>
             <template #content>
                 <div class="routes">
-                    <div class="route" v-for="(item, i) in bestRoute?.routes" :key="i">
+                    <div class="route" v-for="(item, i) in bestRouteInfo?.routes" :key="i">
                         <img :src="item.service.icon" />
                         <div class="name">{{ item.service.name }}</div>
-                        <ArrowIcon class="arrow" v-if="i != bestRoute?.routes?.length - 1" />
+                        <ArrowIcon class="arrow" v-if="i != bestRouteInfo?.routes?.length - 1" />
                     </div>
-                    <ExpandIcon v-if="otherRoutes.length" class="expand" @click="() => toggleRoutesModal(true)" />
+                    <ExpandIcon v-if="otherRoutesInfo.length" class="expand" @click="toggleRoutesModal" />
                 </div>
             </template>
         </Collapse>
@@ -120,15 +105,15 @@
             :disabled="!!disabledBtn"
             :tip="$t(opTitle)"
             :loading="isWaitingTxStatusForModule || isSwapLoading"
-            class="superswap-panel__btn mt-16"
+            class="module-layout-view-btn"
             data-qa="confirm"
             @click="swap"
             size="large"
         />
-    </div>
+    </a-form>
 </template>
 <script>
-import { computed, ref, inject, watch, onMounted, h, onBeforeUnmount } from 'vue';
+import { computed, ref, inject, watch, h } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
@@ -136,7 +121,6 @@ import { useI18n } from 'vue-i18n';
 import { SettingOutlined } from '@ant-design/icons-vue';
 
 import BigNumber from 'bignumber.js';
-import { utils } from 'ethers';
 
 // Services
 import { getSwapTx, getBridgeTx } from '@/api/services';
@@ -145,24 +129,24 @@ import { getSwapTx, getBridgeTx } from '@/api/services';
 import { ECOSYSTEMS } from '@/Adapter/config';
 
 // Composition
-import useTokensList from '@/compositions/useTokensList';
 import useNotification from '@/compositions/useNotification';
 import useServices from '@/compositions/useServices';
 
 // Transaction Management
 import useTransactions from '../../../Transactions/compositions/useTransactions';
 
-import SelectAddress from '@/components/ui/SelectAddress';
+import SelectRecord from '@/components/ui/Select/SelectRecord';
+import SelectAddressInput from '@/components/ui/Select/SelectAddressInput';
+
 import Collapse from '@/components/ui/Collapse';
 import Checkbox from '@/components/ui/Checkbox';
-import Button from '@/components/ui/Button';
-import Select from './Select.vue';
-import SwapField from './SwapField';
-import RoutesModal from '@/components/app/modals/RoutesModal';
-import NumberTooltip from '@/components/ui/NumberTooltip';
 
-import SwapIcon from '@/assets/icons/app/swap.svg';
-import ReloadIcon from '@/assets/icons/app/reload.svg';
+import Button from '@/components/ui/Button';
+import NumberTooltip from '@/components/ui/NumberTooltip';
+import SwitchDirection from '@/components/ui/SwitchDirection.vue';
+
+import SwapField from './SwapField';
+
 import FeeIcon from '@/assets/icons/app/fee.svg';
 import TimeIcon from '@/assets/icons/app/time.svg';
 import ExpandIcon from '@/assets/icons/app/expand.svg';
@@ -172,31 +156,29 @@ import { prettyNumberTooltip, formatNumber } from '@/helpers/prettyNumber';
 
 import { getBestRoute } from '@/api/bridge-dex';
 
-import { getPriceFromProvider } from '@/shared/utils/prices';
-
-import { STATUSES, NATIVE_CONTRACT, SUPPORTED_CHAINS } from '@/shared/constants/super-swap/constants';
-import { DIRECTIONS, TOKEN_SELECT_TYPES, PRICE_UPDATE_TIME } from '@/shared/constants/operations';
+import { STATUSES, NATIVE_CONTRACT } from '@/shared/constants/super-swap/constants';
+import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { isCorrectChain } from '@/shared/utils/operations';
 
-import Moment from 'moment';
+import { SyncOutlined } from '@ant-design/icons-vue';
 
 export default {
     name: 'SuperSwap',
     components: {
-        SelectAddress,
         Button,
         Collapse,
         Checkbox,
-        Select,
         SwapField,
-        RoutesModal,
-        SwapIcon,
-        ReloadIcon,
+        SyncOutlined,
         FeeIcon,
         TimeIcon,
         ArrowIcon,
         ExpandIcon,
         NumberTooltip,
+
+        SelectRecord,
+        SelectAddressInput,
+        SwitchDirection,
     },
     setup() {
         const store = useStore();
@@ -207,7 +189,7 @@ export default {
 
         const { name: module } = router.currentRoute.value;
 
-        const { walletAccount, walletAddress, chainList, currentChainInfo, setChain, validateAddress } = useAdapter('super-swap');
+        const { walletAccount, walletAddress, currentChainInfo, setChain } = useAdapter('super-swap');
 
         const { showNotification, closeNotification } = useNotification();
 
@@ -215,16 +197,18 @@ export default {
 
         // =================================================================================================================
 
-        const supportedNetworks = computed(() => chainList.value?.filter((elem) => SUPPORTED_CHAINS.includes(elem.net)));
-
-        const isLoading = ref(false);
         const isSwapLoading = ref(false);
+        const isAddressError = ref(false);
 
-        const currentRoute = ref({});
+        const routeInfo = computed(() => store.getters['bridgeDex/selectedRoute']);
+        const bestRouteInfo = computed(() => routeInfo.value?.bestRoute);
+        const otherRoutesInfo = computed(() => routeInfo.value?.otherRoutes);
+
+        const currentRouteInfo = computed(() => bestRouteInfo.value?.routes.find((elem) => elem.status === STATUSES.SIGNING));
 
         const selectedService = computed(() => {
-            if (currentRoute.value?.service) {
-                return currentRoute.value?.service;
+            if (currentRouteInfo.value?.service) {
+                return currentRouteInfo.value?.service;
             }
 
             return null;
@@ -232,13 +216,12 @@ export default {
 
         // * Module values
         const {
-            selectType,
-            targetDirection,
-
             selectedSrcToken,
             selectedDstToken,
             selectedSrcNetwork,
             selectedDstNetwork,
+
+            srcTokenApprove,
 
             onlyWithBalance,
 
@@ -248,16 +231,25 @@ export default {
 
             txError,
             txErrorTitle,
+            estimateErrorTitle,
+            isBalanceError,
 
             opTitle,
 
+            isNeedApprove,
+            // isEstimating,
+            isLoading,
+            isTokensLoadingForSrc,
+            isTokensLoadingForDst,
+            // isShowEstimateInfo,
+
             clearApproveForService,
 
-            setTokenOnChange,
             makeAllowanceRequest,
             makeApproveRequest,
-            checkSelectedNetwork,
-            setTokenOnChangeForNet,
+
+            handleOnSelectToken,
+            handleOnSelectNetwork,
         } = useServices({
             module,
             moduleType: 'super-swap',
@@ -266,93 +258,63 @@ export default {
         // * Transaction Manager
         const { currentRequestID, transactionForSign, createTransactions, signAndSend, addTransactionToRequestID } = useTransactions();
 
-        const isReceiveToken = ref(false);
+        const isSendToAnotherAddress = ref(false);
 
         //  =================================================================================================================
-        const bestRoute = ref({});
-        const otherRoutes = ref([]);
-
         const successHash = ref('');
         const networkName = ref('');
 
-        const networkFee = ref(0);
-        const estimateRate = ref(0);
-        const estimateTime = ref(0);
         const isCallEstimate = ref(false);
 
-        const differPercentage = ref(0);
-
-        const errorAddress = ref('');
-
-        const isBalanceError = ref(false);
-
-        const estimateErrorTitle = ref('');
-
-        // =================================================================================================================
-
-        const { getTokensList } = useTokensList();
-
-        const tokensList = ref([]);
-
-        // =================================================================================================================
-
-        const allowanceForToken = computed(() => {
-            if (!selectedSrcToken.value?.address || !currentRoute.value?.service?.id || !walletAccount.value) {
-                return null;
+        const networkFee = computed(() => {
+            if (bestRouteInfo.value?.estimateFeeUsd) {
+                return prettyNumberTooltip(bestRouteInfo.value?.estimateFeeUsd, 6);
             }
 
-            return store.getters['tokenOps/allowanceForToken'](
-                walletAccount.value,
-                selectedSrcNetwork.value.net,
-                selectedSrcToken.value.address,
-                currentRoute.value?.service?.id
-            );
+            return 0;
+        });
+        const estimateRate = computed(() => {
+            if (bestRouteInfo.value?.toTokenAmount && bestRouteInfo.value?.fromTokenAmount) {
+                return prettyNumberTooltip(bestRouteInfo.value.toTokenAmount / bestRouteInfo.value.fromTokenAmount, 6);
+            }
+
+            return 0;
         });
 
-        const approveForToken = computed(() => {
-            if (!selectedSrcToken.value?.address || !currentRoute.value?.service?.id || !walletAccount.value) {
-                return null;
+        const estimateTime = computed(() => {
+            if (bestRouteInfo.value?.estimateTime) {
+                return bestRouteInfo.value.estimateTime;
             }
 
-            return store.getters['tokenOps/approveForToken'](
-                walletAccount.value,
-                selectedSrcNetwork.value.net,
-                selectedSrcToken.value.address,
-                currentRoute.value?.service?.id
-            );
+            return 0;
+        });
+
+        const differPercentage = computed(() => {
+            const { price: srcPrice = 0 } = selectedSrcToken.value || {};
+            const { price: dstPrice = 0 } = selectedDstToken.value || {};
+
+            const fromUsdValue = BigNumber(srcPrice).multipliedBy(srcAmount.value);
+            const toUsdValue = BigNumber(dstPrice).multipliedBy(dstAmount.value);
+
+            return toUsdValue.minus(fromUsdValue).dividedBy(toUsdValue).multipliedBy(100).toFixed(2) || 0;
         });
 
         // =================================================================================================================
 
-        const isNeedApprove = computed(() => {
-            if (!srcAmount.value) {
-                return false;
-            }
+        const onSelectNetwork = (direction) => handleOnSelectNetwork({ direction: DIRECTIONS[direction] });
 
-            if (!selectedSrcToken.value?.address && !allowanceForToken.value) {
-                return false;
-            }
+        const onSelectToken = (withBalance = false, direction = DIRECTIONS.SOURCE) => {
+            onlyWithBalance.value = withBalance;
 
-            if (!selectedSrcToken.value?.decimals) {
-                return false;
-            }
+            handleOnSelectToken({
+                direction: DIRECTIONS[direction],
+                type: withBalance ? TOKEN_SELECT_TYPES.FROM : TOKEN_SELECT_TYPES.TO,
+            });
 
-            const currentAmount = utils.parseUnits(srcAmount.value, selectedSrcToken.value?.decimals).toString();
-
-            const isEnough = BigNumber(currentAmount).lte(allowanceForToken.value);
-
-            console.log('isEnough', isEnough);
-
-            return !isEnough;
-        });
+            withBalance && clearApproveForService();
+        };
 
         // =================================================================================================================
-
-        const isTokensLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](currentChainInfo.value?.net));
-        const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
-
-        const selectedRouteInfo = computed(() => store.getters['bridgeDex/selectedRoute']);
-        const isShowRoutesModal = computed(() => store.getters['bridgeDex/showRoutes']);
 
         const disabledBtn = computed(
             () =>
@@ -366,117 +328,20 @@ export default {
                 !selectedDstNetwork.value ||
                 !selectedSrcToken.value ||
                 !selectedDstToken.value ||
-                (isReceiveToken.value && (errorAddress.value || !receiverAddress.value))
+                (isSendToAnotherAddress.value && (isAddressError.value || !receiverAddress.value))
         );
 
-        const getSelectedNetwork = () => {
-            if (targetDirection.value === DIRECTIONS.SOURCE) {
-                return selectedSrcNetwork.value;
-            }
-            return selectedDstNetwork.value;
-        };
-
-        const resetValues = () => {
-            dstAmount.value = '';
-            isLoading.value = false;
-            estimateRate.value = 0;
-            estimateTime.value = 0;
-            networkFee.value = 0;
-            differPercentage.value = null;
-            bestRoute.value = null;
-        };
-
-        const handleOnSelectNetwork = (network, direction) => {
-            if (direction === DIRECTIONS.SOURCE) {
-                selectedSrcNetwork.value = network;
-                return clearApproveForService();
-            }
-
-            selectedDstNetwork.value = network;
-            selectedDstToken.value = null;
-
-            resetValues();
-        };
-
         // =================================================================================================================
 
-        const handleOnClickSelectToken = (type, direction) => {
-            selectType.value = type;
-            targetDirection.value = direction;
-            onlyWithBalance.value = type === TOKEN_SELECT_TYPES.FROM;
-
-            tokensList.value = getTokensList({
-                srcNet: getSelectedNetwork(),
-                srcToken: selectedSrcToken.value,
-                dstToken: selectedDstToken.value,
-                isSameNet: selectedDstNetwork.value === selectedSrcNetwork.value,
-            });
-        };
+        const toggleRoutesModal = () => store.dispatch('app/toggleModal', 'routesModal');
 
         // =================================================================================================================
-
-        const handleOnSelectToken = async (token, direction) => {
-            const isPriceUpdate = Moment().diff(Moment(token?.priceUpdatedAt), 'milliseconds') > PRICE_UPDATE_TIME;
-
-            if (!token?.price || isPriceUpdate) {
-                const selectedNetwork = direction === TOKEN_SELECT_TYPES.FROM ? selectedSrcNetwork : selectedDstNetwork;
-
-                token.price = await getPriceFromProvider(token.address, selectedNetwork.value, { coingeckoId: token.coingecko_id });
-                token.priceUpdatedAt = new Date().getTime();
-            }
-
-            if (direction === TOKEN_SELECT_TYPES.FROM) {
-                selectedSrcToken.value = token;
-                clearApproveForService();
-                currentRoute.value = null;
-                bestRoute.value = null;
-            } else {
-                selectedDstToken.value = token;
-            }
-
-            await onSetAmount(srcAmount.value);
-
-            isLoading.value = false;
-        };
-
-        // =================================================================================================================
-
-        const toggleRoutesModal = (action = false) => {
-            store.dispatch('bridgeDex/setShowRoutes', action);
-        };
-
-        // =================================================================================================================
-
-        const onSetAddress = (addr) => {
-            receiverAddress.value = addr;
-
-            if (!addr.length) {
-                return (errorAddress.value = '');
-            }
-
-            if (!validateAddress(addr, { chainId: selectedDstNetwork?.value?.net })) {
-                return (errorAddress.value = 'Invalid address');
-            }
-
-            return (errorAddress.value = '');
-        };
 
         const onSetAmount = async (value) => {
             srcAmount.value = value;
             differPercentage.value = null;
             txError.value = '';
             dstAmount.value = '';
-            isBalanceError.value = false;
-
-            if (!+value) {
-                return (isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance));
-            }
-
-            isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance);
-
-            if (!allowanceForToken.value) {
-                await requestAllowance(currentRoute.value?.service);
-            }
 
             if (srcAmount.value || isCallEstimate.value) {
                 await getEstimateInfo();
@@ -528,18 +393,8 @@ export default {
 
         // =================================================================================================================
 
-        const getDifferPercentage = () => {
-            const { price: srcPrice = 0 } = selectedSrcToken.value || {};
-            const { price: dstPrice = 0 } = selectedDstToken.value || {};
-
-            const fromUsdValue = BigNumber(srcPrice).multipliedBy(srcAmount.value);
-            const toUsdValue = BigNumber(dstPrice).multipliedBy(dstAmount.value);
-
-            return toUsdValue.minus(fromUsdValue).dividedBy(toUsdValue).multipliedBy(100).toFixed(2);
-        };
-
         const getRecipientAddress = () => {
-            if (currentRoute.value.service.type === 'swap') {
+            if (currentRouteInfo.value.service.type === 'swap') {
                 return walletAddress.value;
             }
 
@@ -555,7 +410,7 @@ export default {
                 return routes.map(({ service }) => service.id).join(':');
             };
 
-            const bestRouteServiceId = getRoutesId(bestRoute.value?.routes);
+            const bestRouteServiceId = getRoutesId(bestRouteInfo.value?.routes);
             const otherBestRouteId = getRoutesId(resEstimate.bestRoute?.routes);
 
             const isDiffRoute = bestRouteServiceId !== otherBestRouteId;
@@ -619,19 +474,9 @@ export default {
 
             store.dispatch('bridgeDex/setSelectedRoute', resEstimate);
 
-            bestRoute.value = resEstimate.bestRoute || {};
-            otherRoutes.value = resEstimate.otherRoutes || [];
-
-            currentRoute.value = bestRoute.value.routes.find((elem) => elem.status === STATUSES.SIGNING);
-
             estimateErrorTitle.value = '';
 
             dstAmount.value = BigNumber(resEstimate.bestRoute?.toTokenAmount).decimalPlaces(6).toString();
-
-            networkFee.value = prettyNumberTooltip(resEstimate.bestRoute?.estimateFeeUsd, 6);
-            estimateRate.value = prettyNumberTooltip(resEstimate.bestRoute.toTokenAmount / resEstimate.bestRoute.fromTokenAmount, 6);
-            estimateTime.value = resEstimate.bestRoute.estimateTime;
-            differPercentage.value = getDifferPercentage();
 
             isLoading.value = false;
 
@@ -668,7 +513,7 @@ export default {
                     return (isLoading.value = false);
                 }
 
-                clearApproveForService(currentRoute.value.service);
+                clearApproveForService(currentRouteInfo.value.service);
 
                 return response;
             } catch (error) {
@@ -704,7 +549,7 @@ export default {
                     return (isLoading.value = false);
                 }
 
-                clearApproveForService(currentRoute.value.service);
+                clearApproveForService(currentRouteInfo.value.service);
 
                 return response;
             } catch (error) {
@@ -716,10 +561,10 @@ export default {
         // =================================================================================================================
 
         const handleApprove = async () => {
-            console.log('handleApprove', currentRoute.value?.service);
-            await requestApprove(currentRoute.value?.service);
+            console.log('handleApprove', currentRouteInfo.value?.service);
+            await requestApprove(currentRouteInfo.value?.service);
 
-            if (!approveForToken.value) {
+            if (!srcTokenApprove.value) {
                 return (isLoading.value = false);
             }
 
@@ -732,7 +577,7 @@ export default {
                 module,
                 status: STATUSES.IN_PROGRESS,
                 parameters: {
-                    ...approveForToken.value,
+                    ...srcTokenApprove.value,
                     from: walletAddress.value,
                 },
                 account: walletAccount.value,
@@ -764,7 +609,7 @@ export default {
 
             opTitle.value = 'tokenOperations.confirm';
 
-            const { type } = currentRoute.value?.service || {};
+            const { type } = currentRouteInfo.value?.service || {};
 
             if (!type) {
                 return (isLoading.value = false);
@@ -775,18 +620,18 @@ export default {
             }
 
             const params = {
-                url: currentRoute.value.service.url,
-                net: currentRoute.value.net,
-                fromTokenAddress: currentRoute.value.fromToken?.address || NATIVE_CONTRACT,
-                fromNet: currentRoute.value.net,
-                amount: currentRoute.value.amount,
-                toNet: currentRoute.value.toNet,
-                toTokenAddress: currentRoute.value.toToken?.address || NATIVE_CONTRACT,
+                url: currentRouteInfo.value.service.url,
+                net: currentRouteInfo.value.net,
+                fromTokenAddress: currentRouteInfo.value.fromToken?.address || NATIVE_CONTRACT,
+                fromNet: currentRouteInfo.value.net,
+                amount: currentRouteInfo.value.amount,
+                toNet: currentRouteInfo.value.toNet,
+                toTokenAddress: currentRouteInfo.value.toToken?.address || NATIVE_CONTRACT,
                 ownerAddress: walletAddress.value,
                 slippage: 1,
             };
 
-            if (currentRoute.value.service?.recipientAddress) {
+            if (currentRouteInfo.value.service?.recipientAddress) {
                 params.recipientAddress = getRecipientAddress();
                 params.fallbackAddress = walletAddress.value;
             }
@@ -859,24 +704,36 @@ export default {
                 isSwapLoading.value = false;
 
                 if (!isNeedApprove.value) {
-                    bestRoute.value.routes = bestRoute.value.routes.map((elem, i) => {
-                        if (elem.status === STATUSES.SIGNING) {
-                            elem.status = STATUSES.COMPLETED;
-                        } else if (elem.status === STATUSES.PENDING && bestRoute.value.routes[i - 1]?.status == STATUSES.COMPLETED) {
-                            elem.status = STATUSES.SIGNING;
-                        }
-                        return elem;
-                    });
+                    const data = {
+                        bestRoute: bestRouteInfo.value.routes?.map((elem, i) => {
+                            if (elem.status === STATUSES.SIGNING) {
+                                elem.status = STATUSES.COMPLETED;
+                            } else if (
+                                elem.status === STATUSES.PENDING &&
+                                bestRouteInfo.value.routes[i - 1]?.status == STATUSES.COMPLETED
+                            ) {
+                                elem.status = STATUSES.SIGNING;
+                            }
+                            return elem;
+                        }),
+                        otherRoutes: otherRoutesInfo.value,
+                    };
+
+                    store.dispatch('bridgeDex/setSelectedRoute', data);
                 }
 
-                currentRoute.value = bestRoute.value.routes.find((elem) => elem.status === STATUSES.SIGNING);
+                const data = {
+                    bestRoute: bestRouteInfo.value.routes?.find((elem) => elem.status === STATUSES.SIGNING),
+                    otherRoutes: otherRoutesInfo.value,
+                };
 
-                if (!currentRoute.value) {
-                    isBalanceError.value = '';
+                store.dispatch('bridgeDex/setSelectedRoute', data);
+
+                if (!currentRouteInfo.value) {
                     return store.dispatch('bridgeDex/setSelectedRoute', null);
                 }
 
-                if (currentRoute.value.net !== selectedSrcNetwork.value.net) {
+                if (currentRouteInfo.value.net !== selectedSrcNetwork.value.net) {
                     store.dispatch('tokens/setDisableLoader', true);
                     return (networkName.value = selectedDstNetwork.value.name);
                 }
@@ -890,50 +747,11 @@ export default {
 
         // =================================================================================================================
 
-        onMounted(() => {
-            onlyWithBalance.value = true;
-            if (!selectedSrcNetwork.value) {
-                selectedSrcNetwork.value = currentChainInfo.value;
-                selectedDstNetwork.value = currentChainInfo.value;
-            }
-
-            setTokenOnChange();
-        });
-
-        // =================================================================================================================
-
-        watch(isTokensLoadingForChain, (val) => {
-            if (!val && selectedSrcNetwork.value) {
-                setTokenOnChange();
-            }
-        });
-
-        watch(isAllTokensLoading, () => {
-            setTokenOnChange();
-        });
-
-        watch(selectedSrcNetwork, (newValue, oldValue) => {
-            resetValues();
-            onSetAmount(null);
-            if (newValue?.net !== oldValue?.net) {
-                selectedSrcToken.value = null;
-                selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
-            }
-            getEstimateInfo();
-        });
-
-        watch(selectedDstNetwork, () => {
-            getEstimateInfo();
-        });
-
-        watch(selectedSrcToken, () => {
+        watch([srcAmount, selectedSrcNetwork, selectedSrcToken, selectedDstNetwork], async () => {
             if (!srcAmount.value) {
                 return;
             }
-
-            isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance);
-
-            getEstimateInfo();
+            await getEstimateInfo();
         });
 
         watch(txError, () => {
@@ -944,44 +762,23 @@ export default {
             isSwapLoading.value = false;
         });
 
-        // route is changed
-        watch(isShowRoutesModal, () => {
-            if (isShowRoutesModal.value) {
-                return;
-            }
-
-            bestRoute.value = selectedRouteInfo.value.bestRoute;
-            otherRoutes.value = selectedRouteInfo.value.otherRoutes;
-            currentRoute.value = bestRoute.value.routes.find((elem) => elem.status === STATUSES.SIGNING);
-            srcAmount.value = selectedRouteInfo.value.bestRoute?.fromTokenAmount;
-            dstAmount.value = selectedRouteInfo.value.bestRoute?.toTokenAmount;
-
-            networkFee.value = prettyNumberTooltip(selectedRouteInfo.value.bestRoute?.estimateFeeUsd, 6);
-
-            estimateRate.value = prettyNumberTooltip(
-                selectedRouteInfo.value.bestRoute.toTokenAmount / selectedRouteInfo.value.bestRoute.fromTokenAmount,
-                6
-            );
-        });
-
-        //
-        watch(currentRoute, async () => {
-            console.log('-'.repeat(20));
-            if (!allowanceForToken.value) {
-                await requestAllowance(currentRoute.value?.service);
+        watch(currentRouteInfo, async () => {
+            console.log('currentRouteInfo');
+            console.log('-'.repeat(20), currentRouteInfo.value);
+            dstAmount.value = BigNumber(bestRouteInfo.value?.toTokenAmount).decimalPlaces(6).toString();
+            if (!srcTokenApprove.value) {
+                await requestAllowance(routeInfo.value?.bestRoute?.service);
             }
         });
 
         watch(isWaitingTxStatusForModule, () => {
-            if (!currentRoute.value && !isWaitingTxStatusForModule.value) {
+            if (!currentRouteInfo.value && !isWaitingTxStatusForModule.value) {
                 // reset values
 
                 onSetAmount(null);
                 estimateRate.value = 0;
                 networkFee.value = 0;
                 differPercentage.value = null;
-                bestRoute.value = null;
-                otherRoutes.value = [];
                 estimateErrorTitle.value = '';
                 isSwapLoading.value = false;
                 isLoading.value = false;
@@ -989,55 +786,28 @@ export default {
             }
         });
 
-        watch(isNeedApprove, () => {
-            if (isNeedApprove.value && opTitle.value !== 'tokenOperations.switchNetwork') {
-                return (opTitle.value = 'tokenOperations.approve');
-            }
-
-            checkSelectedNetwork();
-        });
-
-        watch(walletAccount, () => {
-            selectedSrcNetwork.value = currentChainInfo.value;
-            selectedSrcToken.value = null;
-            selectedDstNetwork.value = currentChainInfo.value;
-            selectedDstToken.value = null;
-            onSetAmount(null);
-            setTokenOnChange();
-        });
-
-        // =================================================================================================================
-
-        onBeforeUnmount(() => {
-            selectedSrcNetwork.value = null;
-            selectedSrcToken.value = null;
-            selectedDstNetwork.value = null;
-            selectedDstToken.value = null;
-            receiverAddress.value = '';
-            srcAmount.value = null;
-            dstAmount.value = null;
-        });
-
         return {
             isLoading,
             isSwapLoading,
-            isShowRoutesModal,
-            isTokensLoadingForChain,
+
+            isTokensLoadingForSrc,
+            isTokensLoadingForDst,
+
             isWaitingTxStatusForModule,
 
             disabledBtn,
-            isReceiveToken,
+            isSendToAnotherAddress,
             estimateRate,
             estimateTime,
-            supportedNetworks,
 
             dstAmount,
             srcAmount,
 
             opTitle,
-            bestRoute,
-            otherRoutes,
-            errorAddress,
+
+            bestRouteInfo,
+            otherRoutesInfo,
+
             selectedSrcNetwork,
             selectedDstNetwork,
             selectedSrcToken,
@@ -1051,15 +821,8 @@ export default {
             currentChainInfo,
             networkFee,
 
-            tokensList,
-
             differPercentage,
 
-            handleOnSelectNetwork,
-            handleOnClickSelectToken,
-            handleOnSelectToken,
-
-            onSetAddress,
             onSetAmount,
 
             swap,
@@ -1067,37 +830,15 @@ export default {
             getEstimateInfo,
             toggleRoutesModal,
             formatNumber,
+
+            onSelectNetwork,
+            onSelectToken,
         };
     },
 };
 </script>
 <style lang="scss">
 .superswap-panel {
-    width: 524px;
-    position: relative;
-
-    .swap-btn {
-        @include pageFlexRow;
-        justify-content: center;
-        position: absolute;
-        left: 54px;
-        top: 113px;
-        z-index: 5;
-        height: 56px;
-        width: 56px;
-        border-radius: 50%;
-        background-color: var(--#{$prefix}swap-btn-bg-color);
-        border: 5px solid var(--#{$prefix}main-background);
-
-        svg .path-2 {
-            fill: var(--#{$prefix}primary-text);
-        }
-
-        svg .path-1 {
-            fill: var(--#{$prefix}eye-logo-hover);
-        }
-    }
-
     .reload-btn {
         @include pageFlexRow;
         justify-content: center;

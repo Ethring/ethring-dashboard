@@ -67,11 +67,6 @@ export default {
         const router = useRouter();
         const route = useRoute();
 
-        // const isOpenSearchSelect = computed({
-        //     get: () => store.getters['tokenOps/isOpenSelectSearch'],
-        //     set: (value) => store.dispatch('tokenOps/setOpenSelectSearch', value),
-        // });
-
         // * Module type
         const moduleType = ref('');
 
@@ -101,7 +96,6 @@ export default {
             }
 
             // resetToDefaultValues();
-            // isOpenSearchSelect.value = false;
         };
 
         const callRedirectOrStay = async () => {
@@ -121,7 +115,6 @@ export default {
         const unWatchRedirect = watchEffect(async () => await callRedirectOrStay());
 
         onMounted(async () => {
-            // isOpenSearchSelect.value = false;
             callResetToDefaultValues();
             await callRedirectOrStay();
         });
@@ -144,7 +137,6 @@ export default {
         });
 
         return {
-            // isOpenSearchSelect,
             currentChainInfo,
         };
     },
@@ -190,6 +182,7 @@ export default {
     max-width: 524px;
     min-width: 524px;
 
+    position: relative;
     &-btn {
         width: 100%;
         margin-top: 16px;

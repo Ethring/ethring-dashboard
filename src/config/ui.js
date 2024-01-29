@@ -43,7 +43,7 @@ const SUPER_SWAP = {
     key: 'superSwap',
     to: '/super-swap',
     status: 'BETA',
-    disabled: true,
+    disabled: false,
     type: 'layout',
 };
 

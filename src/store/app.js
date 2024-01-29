@@ -28,6 +28,7 @@ export default {
             buyCrypto: false,
             releaseNotes: false,
             selectModal: false,
+            routesModal: false,
         },
         selectModal: {
             type: 'network',

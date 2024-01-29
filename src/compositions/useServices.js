@@ -1037,6 +1037,9 @@ export default function useModule({ moduleType }) {
         // Loaders
         isEstimating,
         isLoading,
+        isTokensLoadingForSrc,
+        isTokensLoadingForDst,
+        isWaitingTxStatusForModule,
 
         // Functions
         openSelectModal,

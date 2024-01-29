@@ -3,26 +3,30 @@
         <p class="title" v-if="title">{{ $t(title) }}:</p>
 
         <div class="row">
-            <p v-if="fromAmount" class="amount">
-                <NumberTooltip :value="fromAmount" :decimals="fromSymbol === '$' ? 2 : 3" />
-                <span class="symbol">{{ fromSymbol }} </span>
-            </p>
+            <Amount
+                :value="fromAmount || 0"
+                :decimals="fromSymbol === '$' ? 2 : 3"
+                :type="fromSymbol === '$' ? 'usd' : 'currency'"
+                :symbol="fromSymbol"
+            />
 
             <span class="symbol-between">{{ symbolBetween }}</span>
 
-            <p class="amount">
-                <NumberTooltip :value="toAmount" :decimals="toSymbol === '$' ? 2 : 3" />
-                <span class="symbol" :class="toSymbol === '$' && 'usd-symbol'">{{ toSymbol }} </span>
-            </p>
+            <Amount
+                :value="toAmount || 0"
+                :decimals="toSymbol === '$' ? 2 : 3"
+                :type="toSymbol === '$' ? 'usd' : 'currency'"
+                :symbol="toSymbol"
+            />
         </div>
     </div>
 </template>
 <script>
-import NumberTooltip from '@/components/ui/NumberTooltip';
+import Amount from '@/components/app/Amount';
 
 export default {
     name: 'EstimateStats',
-    components: { NumberTooltip },
+    components: { Amount },
     props: {
         title: {
             type: String,

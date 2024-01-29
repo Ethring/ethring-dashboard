@@ -1,7 +1,7 @@
 <template>
     <a-form>
         <a-form-item>
-            <SelectNetwork :current="selectedSrcNetwork" :placeholder="$t('tokenOperations.selectNetwork')" @click="onSelectNetwork" />
+            <SelectRecord :current="selectedSrcNetwork" :placeholder="$t('tokenOperations.selectNetwork')" @click="onSelectNetwork" />
         </a-form-item>
 
         <div class="switch-direction-wrap">
@@ -81,7 +81,7 @@ import { STATUSES } from '../../../Transactions/shared/constants';
 // Components
 import Button from '@/components/ui/Button';
 
-import SelectNetwork from '@/components/ui/Select/SelectNetwork';
+import SelectRecord from '@/components/ui/Select/SelectRecord';
 import SelectAmountInput from '@/components/ui/Select/SelectAmountInput';
 
 import EstimateInfo from '@/components/ui/EstimateInfo.vue';
@@ -99,7 +99,7 @@ export default {
     name: 'SimpleSwap',
 
     components: {
-        SelectNetwork,
+        SelectRecord,
         SelectAmountInput,
         Button,
         EstimateInfo,

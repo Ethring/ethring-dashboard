@@ -2,24 +2,27 @@
     margin-bottom: 8px;
 }
 
-.select-panel {
+@mixin select-panel-pattern {
     position: relative;
+
+    min-height: 104px;
+
     padding: 10px 15px;
 
     background: var(--#{$prefix}select-bg-color);
 
+    border: 1px solid transparent;
+    border-radius: 8px;
+
+    transition: 0.2s ease-in-out;
+}
+
+.select-panel {
+    @include select-panel-pattern;
+
     display: flex;
     flex-direction: column;
-
-    transition: 0.2s;
-    min-height: 104px;
     justify-content: center;
-
-    border-radius: 8px;
-    border: 1px solid transparent;
-
-    // min-height: 104px;
-    // max-height: 104px;
 
     &.error {
         .base-input input {
@@ -41,6 +44,11 @@
             border-color: var(--#{$prefix}select-active-border-color);
             background: var(--#{$prefix}select-dropdown-bg-color);
         }
+    }
+
+    &.disabled {
+        background: var(--#{$prefix}select-disabled-bg-color);
+        border-color: var(--#{$prefix}select-disabled-border-color);
     }
 
     .preview-address {
@@ -66,6 +74,10 @@
     .balance-value,
     .balance-value > * .balance-price,
     .balance-price > * {
+        display: flex;
+    }
+
+    .balance-price {
         display: flex;
     }
 
@@ -98,6 +110,16 @@
 
     .balance-skeleton span {
         height: 14px !important;
+    }
+
+    .percentage {
+        font-weight: 400;
+        margin-left: 4px;
+        color: var(--#{$prefix}base-text);
+
+        span {
+            color: var(--#{$prefix}sub-text);
+        }
     }
 }
 

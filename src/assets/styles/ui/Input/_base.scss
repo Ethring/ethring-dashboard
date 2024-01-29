@@ -46,6 +46,11 @@
     }
 }
 
+.swap-field .balance-skeleton span {
+    height: inherit !important;
+    min-height: 14px;
+}
+
 //         .input-address {
 //             width: 90%;
 //             border: none;

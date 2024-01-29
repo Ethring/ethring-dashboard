@@ -1,7 +1,7 @@
 <template>
     <a-form>
         <a-form-item>
-            <SelectNetwork :placeholder="$t('tokenOperations.selectNetwork')" :current="selectedSrcNetwork" @click="onSelectNetwork" />
+            <SelectRecord :placeholder="$t('tokenOperations.selectNetwork')" :current="selectedSrcNetwork" @click="onSelectNetwork" />
         </a-form-item>
 
         <SelectAddressInput
@@ -16,11 +16,11 @@
             :error="!!isBalanceError"
             :label="$t('tokenOperations.asset')"
             :on-reset="resetAmount"
-            :is-token-loading="isTokensLoadingForChain"
+            :is-token-loading="isTokensLoadingForSrc"
             :amount-value="srcAmount"
             class="select-amount"
             @setAmount="onSetAmount"
-            @clickToken="onSetToken"
+            @clickToken="onSelectToken"
         />
 
         <Button
@@ -47,7 +47,7 @@ import useTransactions from '../../../Transactions/compositions/useTransactions'
 import useServices from '../../../compositions/useServices';
 
 import Button from '@/components/ui/Button';
-import SelectNetwork from '@/components/ui/Select/SelectNetwork';
+import SelectRecord from '@/components/ui/Select/SelectRecord';
 // import SelectAddress from '@/components/ui/SelectAddress';
 // import SelectAmount from '@/components/ui/SelectAmount';
 
@@ -63,7 +63,7 @@ import {} from '@/shared/utils/balances';
 export default {
     name: 'SimpleSend',
     components: {
-        SelectNetwork,
+        SelectRecord,
         SelectAddressInput,
         SelectAmountInput,
         Button,
@@ -86,6 +86,8 @@ export default {
             opTitle,
 
             isBalanceError,
+            isTokensLoadingForSrc,
+            isWaitingTxStatusForModule,
 
             handleOnSelectToken,
             handleOnSelectNetwork,
@@ -102,14 +104,11 @@ export default {
         const { createTransactions, signAndSend, transactionForSign } = useTransactions();
 
         const isLoading = ref(false);
-        const isWaitingTxStatusForModule = computed(() => store.getters['txManager/isWaitingTxStatusForModule'](module));
 
         const clearAddress = ref(false);
         const resetAmount = ref(false);
 
         const isAddressError = ref(false);
-
-        const isTokensLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](selectedSrcNetwork.value?.net));
 
         // =================================================================================================================
 
@@ -125,7 +124,7 @@ export default {
                 !currentChainInfo.value
         );
 
-        const onSetToken = () => handleOnSelectToken({ direction: DIRECTIONS.SOURCE, type: TOKEN_SELECT_TYPES.FROM });
+        const onSelectToken = () => handleOnSelectToken({ direction: DIRECTIONS.SOURCE, type: TOKEN_SELECT_TYPES.FROM });
         const onSelectNetwork = () => handleOnSelectNetwork({ direction: DIRECTIONS.SOURCE, type: TOKEN_SELECT_TYPES.FROM });
         const onSetAmount = (value) => (srcAmount.value = value);
 
@@ -240,7 +239,7 @@ export default {
 
         return {
             isLoading,
-            isTokensLoadingForChain,
+            isTokensLoadingForSrc,
             isWaitingTxStatusForModule,
 
             disabledSend,
@@ -256,7 +255,7 @@ export default {
             receiverAddress,
 
             onSelectNetwork,
-            onSetToken,
+            onSelectToken,
             onSetAmount,
 
             handleOnSend,

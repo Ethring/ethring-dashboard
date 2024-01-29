@@ -12,15 +12,13 @@
                         </span>
                     </a-tooltip>
                 </div>
+
                 <template v-if="isAllTokensLoading && !totalBalance">
                     <a-skeleton-input active />
                 </template>
+
                 <div v-else class="balance">
-                    <div class="value">
-                        <span>$</span>
-                        <NumberTooltip v-if="showBalance" :value="totalBalance" />
-                        <span v-else>****</span>
-                    </div>
+                    <Amount :value="totalBalance" :decimals="3" type="usd" symbol="$" />
                     <div class="balance__hide" v-if="currentChainInfo" @click="toggleViewBalance">
                         <EyeOpenIcon v-if="showBalance" />
                         <EyeCloseIcon v-else />
@@ -40,7 +38,7 @@ import { ECOSYSTEMS } from '@/Adapter/config';
 
 import { cutAddress } from '@/helpers/utils';
 
-import NumberTooltip from '@/components/ui/NumberTooltip';
+import Amount from '@/components/app/Amount';
 
 import LinesBack from '@/assets/images/wallet-info/lines.svg';
 
@@ -51,11 +49,11 @@ import CopyIcon from '@/assets/icons/app/copy.svg';
 export default {
     name: 'WalletInfo',
     components: {
-        NumberTooltip,
         EyeOpenIcon,
         EyeCloseIcon,
         CopyIcon,
         LinesBack,
+        Amount,
     },
     setup() {
         const store = useStore();

@@ -14,10 +14,6 @@
         &:not(:last-child) {
             margin-bottom: 16px;
         }
-
-        &-header {
-            // margin-bottom: 18px;
-        }
     }
 
     .protocols-table {
@@ -81,7 +77,7 @@
         margin-left: 10px;
     }
 
-    &-symbol {
+    .symbol {
         font-size: var(--#{$prefix}default-fs);
         color: var(--#{$prefix}secondary-text);
         font-weight: 400;
@@ -97,19 +93,20 @@
 
     &-balance,
     &-rewards {
-        &-amount,
-        &-currency {
+        .symbol,
+        .value {
             font-size: var(--#{$prefix}h5-fs);
         }
 
-        &-amount {
-            color: var(--#{$prefix}primary-text);
-            font-weight: 500;
-        }
-
-        &-currency {
+        .symbol {
             color: var(--#{$prefix}secondary-text);
             font-weight: 400;
+        }
+
+        .value,
+        .value span {
+            color: var(--#{$prefix}primary-text);
+            font-weight: 500;
         }
 
         &-title {
@@ -121,13 +118,14 @@
     }
 
     &-rewards {
-        &-amount {
-            color: var(--#{$prefix}eye-logo-hover);
+        .value,
+        .symbol {
+            font-size: var(--#{$prefix}small-sm-fs);
         }
 
-        &-amount,
-        &-currency {
-            font-size: var(--#{$prefix}small-sm-fs);
+        .value,
+        .value span {
+            color: var(--#{$prefix}eye-logo-hover);
         }
     }
 
