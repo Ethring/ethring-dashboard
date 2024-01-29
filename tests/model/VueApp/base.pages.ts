@@ -29,6 +29,7 @@ class BasePage {
         await this.page.goto(url);
     }
 
+    // arg context add by debug playwright error
     async clickLoginByMetaMask(context?: BrowserContext) {
         try {
             await this.page.locator('div.wallet-adapter-container').click();
@@ -176,7 +177,22 @@ class BasePage {
     }
 }
 
-class DashboardPage extends BasePage {}
+class DashboardPage extends BasePage {
+    async setFocusToFirstSpan() {
+        const assetPanel = this.page.getByTestId('assets-panel');
+        return await assetPanel.evaluate((el) => el.classList.add('active-panel')); //  add new class to element
+    }
+
+    async prepareFoScreenShoot() {
+        await this.waitHiddenSkeleton();
+
+        // Fix https://github.com/microsoft/playwright/issues/18827#issuecomment-1878770736
+        await this.page.evaluate(() => {
+            window.scrollTo(0, 0);
+        });
+        return await this.page.waitForFunction(() => window.scrollY === 0);
+    }
+}
 
 class BridgePage extends BasePage {}
 

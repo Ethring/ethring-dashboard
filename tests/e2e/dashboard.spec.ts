@@ -21,6 +21,7 @@ testMetaMask.describe('Pages snapshot tests with empty wallet', () => {
         await Promise.all(EVM_NETWORKS.map((network) => dashboardEmptyWallet.mockBalanceRequest(network, emptyBalanceMockData, address)));
         await dashboardEmptyWallet.waitDetachedSkeleton();
         await sleep(FIVE_SECONDS);
+        await dashboardEmptyWallet.setFocusToFirstSpan();
         await expect(dashboardEmptyWallet.page).toHaveScreenshot();
     });
 
@@ -85,19 +86,9 @@ testMetaMask.describe('MetaMask dashboard', () => {
         const address = getTestVar(TEST_CONST.ETH_ADDRESS_BY_PROTOCOL_TEST);
 
         await Promise.all(EVM_NETWORKS.map((network) => dashboardProtocol.mockBalanceRequest(network, mockBalanceData[network], address)));
-        await dashboardProtocol.waitHiddenSkeleton();
 
-        // Fix https://github.com/microsoft/playwright/issues/18827#issuecomment-1878770736
-        await dashboardProtocol.page.evaluate(() => {
-            window.scrollTo(0, 0);
-        });
-
-        const assetPanel = dashboardProtocol.page.getByTestId('assets-panel');
-
-        //  add new class to element
-        await assetPanel.evaluate((el) => el.classList.add('test'));
-
-        await dashboardProtocol.page.waitForFunction(() => window.scrollY === 0);
+        await dashboardProtocol.prepareFoScreenShoot();
+        await dashboardProtocol.setFocusToFirstSpan();
 
         await expect(dashboardProtocol.page).toHaveScreenshot({ fullPage: true });
     });
@@ -105,7 +96,8 @@ testMetaMask.describe('MetaMask dashboard', () => {
 
 testKeplr.describe('Keplr dashboard', () => {
     testKeplr('Case#: Dashboard page', async ({ browser, context, page, dashboard }) => {
-        await dashboard.waitHiddenSkeleton();
+        await dashboard.prepareFoScreenShoot();
+        await dashboard.setFocusToFirstSpan();
 
         await expect(dashboard.page).toHaveScreenshot({ maxDiffPixelRatio: 0.01 });
     });
@@ -113,15 +105,25 @@ testKeplr.describe('Keplr dashboard', () => {
 
 testKeplr.describe('Keplr dashboard', () => {
     testKeplr('Case#: check protocols & nfts view', async ({ browser, context, page, dashboardProtocol }) => {
+        const NETWORK_NAME_BALANCE_ERROR = 'juno';
+        const CORRECT_BALANCE_NETWORKS = { ...COSMOS_NETWORKS } as Partial<typeof COSMOS_NETWORKS>;
+        delete CORRECT_BALANCE_NETWORKS.juno;
 
-        await Promise.all(Object.keys(COSMOS_NETWORKS).map((network) => dashboardProtocol.mockBalanceRequest(network, mockBalanceCosmosWallet[network], COSMOS_NETWORKS[network])));
-        await dashboardProtocol.waitHiddenSkeleton();
+        dashboardProtocol.mockBalanceRequest(
+            NETWORK_NAME_BALANCE_ERROR,
+            errorGetBalanceMockData,
+            COSMOS_NETWORKS[NETWORK_NAME_BALANCE_ERROR],
+            500
+        );
 
-        // Fix https://github.com/microsoft/playwright/issues/18827#issuecomment-1878770736
-        await dashboardProtocol.page.evaluate(() => {
-            window.scrollTo(0, 0);
-        });
-        await dashboardProtocol.page.waitForFunction(() => window.scrollY === 0);
+        await Promise.all(
+            Object.keys(CORRECT_BALANCE_NETWORKS).map((network) =>
+                dashboardProtocol.mockBalanceRequest(network, mockBalanceCosmosWallet[network], COSMOS_NETWORKS[network])
+            )
+        );
+        await dashboardProtocol.prepareFoScreenShoot();
+
+        await dashboardProtocol.setFocusToFirstSpan();
 
         await expect(dashboardProtocol.page).toHaveScreenshot({ fullPage: true });
     });

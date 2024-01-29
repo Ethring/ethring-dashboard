@@ -1,7 +1,7 @@
 import { testKeplr, testMetaMask } from '../__fixtures__/fixtures';
 import { expect } from '@playwright/test';
 import { getTestVar, TEST_CONST } from '../envHelper';
-import { emptyBalanceMockData, mockBalanceCosmosWallet, mockBalanceDataBySendTest } from '../data/mockHelper';
+import { emptyBalanceMockData, marketCapNativeEvmTokens, mockBalanceCosmosWallet, mockBalanceDataBySendTest } from '../data/mockHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage, getHomeMmPage } from '../model/MetaMask/MetaMask.pages';
 import { EVM_NETWORKS } from '../data/constants';
 
