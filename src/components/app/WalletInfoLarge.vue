@@ -156,6 +156,7 @@ export default {
             font-size: var(--#{$prefix}h1-fs);
             color: var(--#{$prefix}primary-text);
             user-select: none;
+            height: 32px;
 
             .value {
                 @include pageFlexRow;
