@@ -103,4 +103,8 @@ export default {
         color: var(--#{$prefix}primary-text);
     }
 }
+
+.wallet-info .amount-block .value {
+    font-weight: 700;
+}
 </style>
