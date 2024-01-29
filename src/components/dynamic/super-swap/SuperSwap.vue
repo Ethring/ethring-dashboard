@@ -24,7 +24,7 @@
                 />
             </SwapField>
 
-            <SwitchDirection icon="SwapIcon" :disabled="false" class="switch-direction" />
+            <SwitchDirection icon="SwapIcon" :disabled="true" class="switch-direction" />
 
             <SwapField
                 class="mt-8"
