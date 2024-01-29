@@ -253,3 +253,7 @@ li.ecosystem-item {
 .ml-8 {
   margin-left: 8px;
 }
+
+.preview-custom-fee svg path {
+  fill: var(--#{$prefix}base-text);
+}

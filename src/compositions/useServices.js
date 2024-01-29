@@ -217,12 +217,11 @@ export default function useModule({ moduleType }) {
         }
 
         if (!srcAmount.value && estimateErrorTitle.value) {
-            estimateErrorTitle.value = '';
-            return false;
+            return true;
         }
 
-        if (!protocolFeeInfo.value || !baseFeeInfo.value || !rateFeeInfo.value || !estimateTimeInfo.value) {
-            return false;
+        if (baseFeeInfo.value?.title || rateFeeInfo.value?.title || protocolFeeInfo.value?.title || estimateTimeInfo.value?.title) {
+            return true;
         }
 
         return false;

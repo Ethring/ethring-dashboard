@@ -43,6 +43,7 @@ const app = createApp(App)
             lock: true,
             listenTo: ['input', 'keyup'],
             defaultTime: '1s',
+            fireOnEmpty: true,
         })
     )
     .provide('useAdapter', useAdapter)

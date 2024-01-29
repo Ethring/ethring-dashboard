@@ -162,10 +162,9 @@ export default {
 
         watch(
             () => props.value,
-            (val) => {
-                if (!isNaN(val)) {
-                    amount.value = val;
-                }
+            () => {
+                amount.value = props.value;
+                emit('setAmount', amount.value);
             }
         );
 

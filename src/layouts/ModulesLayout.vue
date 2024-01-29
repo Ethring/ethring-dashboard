@@ -178,14 +178,4 @@ export default {
         margin: 0 auto;
     }
 }
-.module-layout-view {
-    max-width: 524px;
-    min-width: 524px;
-
-    position: relative;
-    &-btn {
-        width: 100%;
-        margin-top: 16px;
-    }
-}
 </style>

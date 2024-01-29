@@ -1,37 +1,37 @@
 <template>
     <a-form class="super-swap superswap-panel">
-        <div class="reload-btn" :class="{ 'reload-btn__active': dstAmount && !isLoading }" @click="() => getEstimateInfo(true)">
+        <div class="reload-btn" :class="{ active: dstAmount && !isLoading }" @click="() => getEstimateInfo(true)">
             <SyncOutlined />
         </div>
 
         <a-form-item class="switch-direction-wrap">
-            <SwapField
-                :value="srcAmount"
-                :label="$t('tokenOperations.from')"
-                :token="selectedSrcToken"
-                :is-token-loading="isTokensLoadingForSrc"
-                @setAmount="onSetAmount"
-            >
-                <SelectRecord
-                    :placeholder="$t('tokenOperations.selectNetwork')"
-                    :current="selectedSrcNetwork"
-                    @click="() => onSelectNetwork(DIRECTIONS.SOURCE)"
-                />
-                <SelectRecord
-                    :placeholder="$t('tokenOperations.selectToken')"
-                    :current="selectedSrcToken"
-                    @click="() => onSelectToken(true, DIRECTIONS.SOURCE)"
-                />
-            </SwapField>
-
+            <a-form-item>
+                <SwapField
+                    :value="srcAmount"
+                    :label="$t('tokenOperations.from')"
+                    :token="selectedSrcToken"
+                    :is-token-loading="isTokensLoadingForSrc"
+                    @setAmount="onSetAmount"
+                >
+                    <SelectRecord
+                        :placeholder="$t('tokenOperations.selectNetwork')"
+                        :current="selectedSrcNetwork"
+                        @click="() => onSelectNetwork(DIRECTIONS.SOURCE)"
+                    />
+                    <SelectRecord
+                        :placeholder="$t('tokenOperations.selectToken')"
+                        :current="selectedSrcToken"
+                        @click="() => onSelectToken(true, DIRECTIONS.SOURCE)"
+                    />
+                </SwapField>
+            </a-form-item>
             <SwitchDirection icon="SwapIcon" :disabled="true" class="switch-direction" />
 
             <SwapField
-                class="mt-8"
                 :label="$t('tokenOperations.to')"
                 :value="dstAmount"
                 :token="selectedDstToken"
-                :isAmountLoading="isLoading"
+                :isAmountLoading="isEstimating"
                 :is-token-loading="isTokensLoadingForDst"
                 :percentage="differPercentage"
                 disabled
@@ -55,7 +55,6 @@
             v-if="selectedDstToken && selectedDstNetwork"
             v-model:value="isSendToAnotherAddress"
             :label="$t('tokenOperations.chooseAddress')"
-            class="mt-8"
         />
 
         <SelectAddressInput
@@ -66,39 +65,24 @@
             @error-status="(status) => (isAddressError = status)"
         />
 
-        <Collapse class="mt-8" v-if="+srcAmount > 0" :loading="isLoading" :hideContent="estimateErrorTitle">
-            <template #header>
-                <div class="route-info" data-qa="route-info">
-                    <p>{{ $t('tokenOperations.routeInfo') }}:</p>
-                    <div v-if="!estimateErrorTitle" class="row">
-                        <FeeIcon />
-                        <span class="fee">{{ formatNumber(networkFee, 2) }}</span> <span class="symbol">$</span>
-                        <TimeIcon />
-                        <span class="fee"> {{ '~' + estimateTime + 's' }}</span>
-                        <h4>
-                            <span>1</span> {{ selectedSrcToken?.symbol || '' }} =
-                            <NumberTooltip :value="estimateRate" decimals="3" />
-                            {{ selectedDstToken?.symbol || '' }}
-                        </h4>
-                    </div>
-
-                    <a-tooltip v-else>
-                        <template #title> {{ estimateErrorTitle?.message || estimateErrorTitle }} </template>
-                        <p class="error-text">{{ estimateErrorTitle?.message || estimateErrorTitle }}</p>
-                    </a-tooltip>
-                </div>
-            </template>
-            <template #content>
-                <div class="routes">
-                    <div class="route" v-for="(item, i) in bestRouteInfo?.routes" :key="i">
-                        <img :src="item.service.icon" />
-                        <div class="name">{{ item.service.name }}</div>
-                        <ArrowIcon class="arrow" v-if="i != bestRouteInfo?.routes?.length - 1" />
-                    </div>
-                    <ExpandIcon v-if="otherRoutesInfo.length" class="expand" @click="toggleRoutesModal" />
-                </div>
-            </template>
-        </Collapse>
+        <EstimatePreviewInfo
+            v-if="isShowEstimateInfo || srcAmount || dstAmount"
+            :title="$t('tokenOperations.routeInfo')"
+            :is-loading="isEstimating"
+            :fee-in-usd="networkFee"
+            :estimate-time="estimateTime"
+            :main-rate="{
+                fromAmount: 1,
+                toAmount: estimateRate,
+                symbolBetween: '=',
+                fromSymbol: selectedSrcToken?.symbol,
+                toSymbol: selectedDstToken?.symbol,
+            }"
+            :services="bestRouteInfo?.routes"
+            :is-show-expand="otherRoutesInfo?.length"
+            :error="estimateErrorTitle"
+            :on-click-expand="toggleRoutesModal"
+        />
 
         <Button
             :title="$t(opTitle)"
@@ -137,20 +121,14 @@ import useTransactions from '../../../Transactions/compositions/useTransactions'
 
 import SelectRecord from '@/components/ui/Select/SelectRecord';
 import SelectAddressInput from '@/components/ui/Select/SelectAddressInput';
+import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewInfo.vue';
 
-import Collapse from '@/components/ui/Collapse';
 import Checkbox from '@/components/ui/Checkbox';
 
 import Button from '@/components/ui/Button';
-import NumberTooltip from '@/components/ui/NumberTooltip';
 import SwitchDirection from '@/components/ui/SwitchDirection.vue';
 
 import SwapField from './SwapField';
-
-import FeeIcon from '@/assets/icons/app/fee.svg';
-import TimeIcon from '@/assets/icons/app/time.svg';
-import ExpandIcon from '@/assets/icons/app/expand.svg';
-import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
 
 import { prettyNumberTooltip, formatNumber } from '@/helpers/prettyNumber';
 
@@ -166,19 +144,14 @@ export default {
     name: 'SuperSwap',
     components: {
         Button,
-        Collapse,
         Checkbox,
         SwapField,
         SyncOutlined,
-        FeeIcon,
-        TimeIcon,
-        ArrowIcon,
-        ExpandIcon,
-        NumberTooltip,
 
         SelectRecord,
         SelectAddressInput,
         SwitchDirection,
+        EstimatePreviewInfo,
     },
     setup() {
         const store = useStore();
@@ -237,11 +210,13 @@ export default {
             opTitle,
 
             isNeedApprove,
-            // isEstimating,
+            rateFeeInfo,
+
             isLoading,
+
             isTokensLoadingForSrc,
             isTokensLoadingForDst,
-            // isShowEstimateInfo,
+            isShowEstimateInfo,
 
             clearApproveForService,
 
@@ -255,6 +230,8 @@ export default {
             moduleType: 'super-swap',
         });
 
+        const isEstimating = ref(false);
+
         // * Transaction Manager
         const { currentRequestID, transactionForSign, createTransactions, signAndSend, addTransactionToRequestID } = useTransactions();
 
@@ -264,8 +241,6 @@ export default {
         const successHash = ref('');
         const networkName = ref('');
 
-        const isCallEstimate = ref(false);
-
         const networkFee = computed(() => {
             if (bestRouteInfo.value?.estimateFeeUsd) {
                 return prettyNumberTooltip(bestRouteInfo.value?.estimateFeeUsd, 6);
@@ -273,7 +248,12 @@ export default {
 
             return 0;
         });
+
         const estimateRate = computed(() => {
+            if (!srcAmount.value || !dstAmount.value) {
+                return 0;
+            }
+
             if (bestRouteInfo.value?.toTokenAmount && bestRouteInfo.value?.fromTokenAmount) {
                 return prettyNumberTooltip(bestRouteInfo.value.toTokenAmount / bestRouteInfo.value.fromTokenAmount, 6);
             }
@@ -293,8 +273,16 @@ export default {
             const { price: srcPrice = 0 } = selectedSrcToken.value || {};
             const { price: dstPrice = 0 } = selectedDstToken.value || {};
 
+            if (!srcPrice || !dstPrice || !srcAmount.value || !dstAmount.value) {
+                return 0;
+            }
+
             const fromUsdValue = BigNumber(srcPrice).multipliedBy(srcAmount.value);
             const toUsdValue = BigNumber(dstPrice).multipliedBy(dstAmount.value);
+
+            if (!fromUsdValue || !toUsdValue) {
+                return 0;
+            }
 
             return toUsdValue.minus(fromUsdValue).dividedBy(toUsdValue).multipliedBy(100).toFixed(2) || 0;
         });
@@ -337,15 +325,13 @@ export default {
 
         // =================================================================================================================
 
-        const onSetAmount = async (value) => {
+        const onSetAmount = (value) => {
             srcAmount.value = value;
-            differPercentage.value = null;
             txError.value = '';
-            dstAmount.value = '';
 
-            if (srcAmount.value || isCallEstimate.value) {
-                await getEstimateInfo();
-                isCallEstimate.value = false;
+            if (!value) {
+                dstAmount.value = 0;
+                return (isEstimating.value = false);
             }
         };
 
@@ -433,17 +419,13 @@ export default {
         // =================================================================================================================
 
         const getEstimateInfo = async (isReload = false) => {
+            isEstimating.value = true;
+            dstAmount.value = 0;
+
             if (!selectedSrcNetwork.value || !selectedSrcToken.value || !selectedDstNetwork.value || !selectedDstToken.value) {
+                isEstimating.value = false;
                 return (estimateErrorTitle.value = 'Select all fields');
             }
-
-            if (!+srcAmount.value) {
-                dstAmount.value = 0;
-
-                return (isLoading.value = false);
-            }
-
-            isLoading.value = true;
 
             let resEstimate = await getBestRoute(
                 srcAmount.value,
@@ -455,18 +437,18 @@ export default {
                 currentChainInfo.value.native_token
             );
 
-            if (resEstimate?.error) {
+            if (resEstimate && resEstimate.error) {
                 estimateErrorTitle.value = resEstimate.error;
                 dstAmount.value = 0;
 
-                return (isLoading.value = false);
+                return (isEstimating.value = false);
             }
 
-            const checkRoute = +resEstimate.bestRoute?.fromTokenAmount === +srcAmount.value;
+            // const checkRoute = +resEstimate?.bestRoute?.fromTokenAmount === +srcAmount.value;
 
-            if (!checkRoute) {
-                return;
-            }
+            // if (!checkRoute) {
+            //     return (isEstimating.value = false);
+            // }
 
             if (isReload) {
                 resEstimate = swapRoutes(resEstimate);
@@ -478,12 +460,12 @@ export default {
 
             dstAmount.value = BigNumber(resEstimate.bestRoute?.toTokenAmount).decimalPlaces(6).toString();
 
-            isLoading.value = false;
-
             if (selectedSrcNetwork.value.net !== currentChainInfo.value.net) {
                 networkName.value = selectedSrcNetwork.value.name;
                 opTitle.value = 'tokenOperations.switchNetwork';
             }
+
+            return (isEstimating.value = false);
         };
 
         // =================================================================================================================
@@ -747,11 +729,15 @@ export default {
 
         // =================================================================================================================
 
-        watch([srcAmount, selectedSrcNetwork, selectedSrcToken, selectedDstNetwork], async () => {
-            if (!srcAmount.value) {
-                return;
+        watch([selectedSrcNetwork, selectedSrcToken, selectedDstNetwork, selectedDstToken], async () => await getEstimateInfo());
+
+        watch(srcAmount, async () => {
+            if (!selectedDstToken.value || !srcAmount.value) {
+                dstAmount.value = 0;
+                return (isEstimating.value = false);
             }
-            await getEstimateInfo();
+
+            return await getEstimateInfo();
         });
 
         watch(txError, () => {
@@ -776,9 +762,7 @@ export default {
                 // reset values
 
                 onSetAmount(null);
-                estimateRate.value = 0;
                 networkFee.value = 0;
-                differPercentage.value = null;
                 estimateErrorTitle.value = '';
                 isSwapLoading.value = false;
                 isLoading.value = false;
@@ -799,6 +783,10 @@ export default {
             isSendToAnotherAddress,
             estimateRate,
             estimateTime,
+            rateFeeInfo,
+
+            isEstimating,
+            isShowEstimateInfo,
 
             dstAmount,
             srcAmount,
@@ -839,29 +827,6 @@ export default {
 </script>
 <style lang="scss">
 .superswap-panel {
-    .reload-btn {
-        @include pageFlexRow;
-        justify-content: center;
-        position: absolute;
-        cursor: not-allowed;
-        top: -50px;
-        right: 0;
-        height: 32px;
-        width: 32px;
-        border-radius: 50%;
-        z-index: 15;
-        background-color: var(--#{$prefix}icon-secondary-bg-color);
-        opacity: 0.5;
-        svg path {
-            fill: var(--#{$prefix}base-text);
-        }
-
-        &__active {
-            cursor: pointer;
-            opacity: 1;
-        }
-    }
-
     .route-info {
         @include pageFlexRow;
 

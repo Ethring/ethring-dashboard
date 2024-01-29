@@ -15,6 +15,10 @@
             <template v-if="type === 'currency'">
                 &nbsp;<span class="symbol">{{ symbol }}</span>
             </template>
+
+            <template v-if="!['currency', 'usd'].includes(type)">
+                <span class="symbol">{{ symbol }}</span>
+            </template>
         </template>
         <template v-else>
             <Censorship :distance="`${displayValue}${symbol}`?.length" />
@@ -106,5 +110,11 @@ export default {
 
 .wallet-info .amount-block .value {
     font-weight: 700;
+}
+
+.preview-custom-fee .amount-block .value {
+    color: var(--#{$prefix}warning);
+    font-size: var(--#{$prefix}small-lg-fs);
+    font-weight: 600;
 }
 </style>

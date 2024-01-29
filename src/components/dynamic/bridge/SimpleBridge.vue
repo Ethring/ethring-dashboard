@@ -65,12 +65,12 @@
             @error-status="(status) => (isAddressError = status)"
         />
 
-        <EstimateInfo
-            v-if="isShowEstimateInfo"
-            :loading="isEstimating"
+        <EstimatePreviewInfo
+            v-if="estimateErrorTitle || srcAmount || dstAmount"
+            :is-loading="isEstimating"
             :service="selectedService"
             :title="$t('tokenOperations.routeInfo')"
-            :main-fee="rateFeeInfo"
+            :main-rate="rateFeeInfo"
             :fees="[protocolFeeInfo, baseFeeInfo, estimateTimeInfo]"
             :error="estimateErrorTitle"
         />
@@ -116,8 +116,7 @@ import SelectAmountInput from '@/components/ui/Select/SelectAmountInput';
 
 import Checkbox from '@/components/ui/Checkbox';
 import Button from '@/components/ui/Button';
-import EstimateInfo from '@/components/ui/EstimateInfo.vue';
-
+import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewInfo.vue';
 import SwitchDirection from '@/components/ui/SwitchDirection.vue';
 
 import { formatNumber } from '@/helpers/prettyNumber';
@@ -133,7 +132,7 @@ export default {
         SelectAddressInput,
         Button,
         Checkbox,
-        EstimateInfo,
+        EstimatePreviewInfo,
         SwitchDirection,
     },
     setup() {

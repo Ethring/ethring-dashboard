@@ -39,12 +39,12 @@
             />
         </div>
 
-        <EstimateInfo
+        <EstimatePreviewInfo
             v-if="(selectedDstToken && srcAmount) || isShowEstimateInfo"
-            :loading="isEstimating"
+            :is-loading="isEstimating"
             :service="selectedService"
             :title="$t('tokenOperations.routeInfo')"
-            :main-fee="rateFeeInfo"
+            :main-rate="rateFeeInfo"
             :fees="[baseFeeInfo]"
             :error="estimateErrorTitle"
         />
@@ -84,7 +84,7 @@ import Button from '@/components/ui/Button';
 import SelectRecord from '@/components/ui/Select/SelectRecord';
 import SelectAmountInput from '@/components/ui/Select/SelectAmountInput';
 
-import EstimateInfo from '@/components/ui/EstimateInfo.vue';
+import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewInfo.vue';
 
 import SwitchDirection from '@/components/ui/SwitchDirection.vue';
 
@@ -102,7 +102,7 @@ export default {
         SelectRecord,
         SelectAmountInput,
         Button,
-        EstimateInfo,
+        EstimatePreviewInfo,
         SwitchDirection,
     },
 

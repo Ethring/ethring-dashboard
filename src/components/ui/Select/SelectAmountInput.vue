@@ -29,7 +29,7 @@
                 </template>
             </div>
 
-            <a-skeleton-input v-if="isAmountLoading" active class="input-balance input-balance-skeleton" size="" />
+            <a-skeleton-input v-if="isAmountLoading" active class="input-balance input-balance-skeleton" />
             <a-input
                 v-else
                 v-model:value="amount"
@@ -74,7 +74,7 @@ import Amount from '@/components/app/Amount.vue';
 import { formatInputNumber } from '@/helpers/numbers';
 
 export default {
-    name: 'SelectAmount',
+    name: 'SelectAmountInput',
     props: {
         value: {
             required: true,
@@ -172,6 +172,7 @@ export default {
         };
 
         const onInput = () => {
+            console.log('onInput', amount.value);
             active.value = false;
             return emit('setAmount', amount.value);
         };
@@ -267,12 +268,12 @@ export default {
 
                 if (tkn) {
                     setToken(tkn);
-                    // amount.value = props.amountValue;
                     active.value = false;
-                    emit('setAmount', amount.value);
-                } else {
-                    amount.value = 0;
+                    return emit('setAmount', amount.value);
                 }
+
+                amount.value = 0;
+                return emit('setAmount', null);
             }
         );
 

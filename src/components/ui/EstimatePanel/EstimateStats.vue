@@ -67,7 +67,6 @@ export default {
     justify-content: space-between;
     font-size: var(--#{$prefix}default-fs);
     color: var(--#{$prefix}primary-text);
-    margin: 2px 0 0;
 
     .title {
         font-weight: 400;
