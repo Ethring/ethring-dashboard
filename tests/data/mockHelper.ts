@@ -1160,9 +1160,97 @@ const mockBalanceCosmosWallet = {
     },
 };
 
+const marketCapNativeEvmTokens = {
+    ok: true,
+    data: {
+        ethereum: {
+            marketCap: 272012450437,
+            circulatingSupply: 120182319.059409,
+            usd: {
+                price: 2262.1,
+                priceChange24h: -24.926145555297808,
+                priceChange24hPct: -1.08989,
+                volumeChange24h: 6747369502,
+            },
+            btc: {
+                price: 0.05371722,
+                priceChange24h: -0.000096097183548804,
+                priceChange24hPct: -0.17858,
+                volumeChange24h: 160227,
+            },
+        },
+        binancecoin: {
+            marketCap: 47267704911,
+            circulatingSupply: 153856150,
+            usd: {
+                price: 307.19,
+                priceChange24h: 0.527329,
+                priceChange24hPct: 0.17196,
+                volumeChange24h: 523877783,
+            },
+            btc: {
+                price: 0.00729473,
+                priceChange24h: 0.00007549,
+                priceChange24hPct: 1.04566,
+                volumeChange24h: 12440,
+            },
+        },
+        'matic-network': {
+            marketCap: 7313765844,
+            circulatingSupply: 9282943566.203985,
+            usd: {
+                price: 0.787388,
+                priceChange24h: -0.017401441191994715,
+                priceChange24hPct: -2.16223,
+                volumeChange24h: 296899151,
+            },
+            btc: {
+                price: 0.0000187,
+                priceChange24h: -2.48281400791e-7,
+                priceChange24hPct: -1.31046,
+                volumeChange24h: 7050,
+            },
+        },
+        'avalanche-2': {
+            marketCap: 12877465070,
+            circulatingSupply: 367045824.372127,
+            usd: {
+                price: 35.03,
+                priceChange24h: -1.4105531054680327,
+                priceChange24hPct: -3.87054,
+                volumeChange24h: 755155346,
+            },
+            btc: {
+                price: 0.00083191,
+                priceChange24h: -0.00002559517157321,
+                priceChange24hPct: -2.98484,
+                volumeChange24h: 17932,
+            },
+        },
+        fantom: {
+            marketCap: 1077009833,
+            circulatingSupply: 2803634835.52659,
+            usd: {
+                price: 0.383372,
+                priceChange24h: -0.004513135054443229,
+                priceChange24hPct: -1.16352,
+                volumeChange24h: 73259434,
+            },
+            btc: {
+                price: 0.00000911,
+                priceChange24h: -1.6855104028e-8,
+                priceChange24hPct: -0.18458,
+                volumeChange24h: 1742,
+            },
+        },
+    },
+    error: '',
+};
+
 export {
     mockBalanceData,
     marketCapMockData,
+    marketCapNativeEvmTokens,
     mockBalanceDataBySendTest,
     mockBalanceDataBySwapTest,
     emptyBalanceMockData,
