@@ -398,6 +398,10 @@ export default function useModule({ moduleType }) {
             return false;
         }
 
+        if (!srcAmount.value || !selectedSrcToken.value || !selectedDstToken.value) {
+            return false;
+        }
+
         const isNotEVM = selectedSrcNetwork.value?.ecosystem !== ECOSYSTEMS.EVM;
 
         return isNotEVM || true;
@@ -542,12 +546,6 @@ export default function useModule({ moduleType }) {
             isLoading.value = false;
             isEstimating.value = false;
             return;
-        }
-
-        if (!srcAmount.value) {
-            dstAmount.value = null;
-            isEstimating.value = false;
-            return (estimateErrorTitle.value = t('tokenOperations.enterAmount'));
         }
 
         resetFees();
