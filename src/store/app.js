@@ -33,6 +33,7 @@ export default {
         selectModal: {
             type: 'network',
             isOpen: false,
+            module: null,
         },
         lastVersion: VERSION_LOCAL ? VERSION_LOCAL : '0.1.0',
     }),
@@ -71,8 +72,9 @@ export default {
 
             state.modals[modalName] = !state.modals[modalName];
         },
-        [types.TOGGLE_SELECT_MODAL](state, type) {
+        [types.TOGGLE_SELECT_MODAL](state, { type, module }) {
             state.selectModal.type = type;
+            state.selectModal.module = module;
             state.selectModal.isOpen = !state.selectModal.isOpen;
         },
         [types.SET_LAST_VERSION](state, version) {
@@ -100,8 +102,8 @@ export default {
         toggleModal({ commit }, modalName) {
             commit(types.TOGGLE_MODAL, modalName);
         },
-        toggleSelectModal({ commit }, type) {
-            commit(types.TOGGLE_SELECT_MODAL, type);
+        toggleSelectModal({ commit }, value) {
+            commit(types.TOGGLE_SELECT_MODAL, value);
         },
         toggleReleaseNotes({ commit }) {
             commit(types.TOGGLE_MODAL, 'releaseNotes');

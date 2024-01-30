@@ -420,16 +420,16 @@ export default {
 
         const getEstimateInfo = async (isReload = false) => {
             isEstimating.value = true;
+            dstAmount.value = null;
 
             if (
-                !selectedSrcNetwork.value ||
+                !srcAmount.value ||
                 !selectedSrcToken.value ||
-                !selectedDstNetwork.value ||
                 !selectedDstToken.value ||
-                !srcAmount.value
+                !selectedSrcNetwork.value ||
+                !selectedDstNetwork.value
             ) {
-                isEstimating.value = false;
-                return (estimateErrorTitle.value = 'Select all fields');
+                return (isEstimating.value = false);
             }
 
             let resEstimate = await getBestRoute(
@@ -444,8 +444,6 @@ export default {
 
             if (resEstimate && resEstimate.error) {
                 estimateErrorTitle.value = resEstimate.error;
-                dstAmount.value = 0;
-
                 return (isEstimating.value = false);
             }
 

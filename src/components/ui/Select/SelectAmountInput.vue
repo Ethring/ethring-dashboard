@@ -172,7 +172,6 @@ export default {
         };
 
         const onInput = () => {
-            console.log('onInput', amount.value);
             active.value = false;
             return emit('setAmount', amount.value);
         };

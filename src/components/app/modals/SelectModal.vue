@@ -69,10 +69,11 @@ export default {
 
         const selectModal = computed(() => store.getters['app/selectModal']);
         const type = computed(() => selectModal.value.type);
+        const module = computed(() => selectModal.value.module);
 
         const isModalOpen = computed({
             get: () => selectModal.value.isOpen,
-            set: () => store.dispatch('app/toggleSelectModal', type.value),
+            set: () => store.dispatch('app/toggleSelectModal', { type: type.value, module: module.value }),
         });
 
         const {

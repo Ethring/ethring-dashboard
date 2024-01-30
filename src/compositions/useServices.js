@@ -217,6 +217,7 @@ export default function useModule({ moduleType }) {
         }
 
         if (!srcAmount.value && estimateErrorTitle.value) {
+            estimateErrorTitle.value = t('tokenOperations.enterAmount');
             return true;
         }
 
@@ -292,7 +293,7 @@ export default function useModule({ moduleType }) {
 
         const [defaultToken = null] = tokensList.value;
 
-        if (!token && defaultToken) {
+        if (!token?.id && defaultToken) {
             return defaultToken;
         }
 
@@ -303,16 +304,16 @@ export default function useModule({ moduleType }) {
         const updatedList = tokensList.value?.filter((tkn) => searchTokens.includes(tkn?.id)) || [];
 
         if (!updatedList.length) {
-            return null;
+            return defaultToken;
         }
 
         const [tkn = null] = updatedList;
 
-        if (tkn) {
-            return tkn;
+        if (!tkn) {
+            return defaultToken;
         }
 
-        return token;
+        return tkn;
     };
 
     const setTokenOnChange = () => {
@@ -536,10 +537,11 @@ export default function useModule({ moduleType }) {
 
     const makeEstimateRequest = async () => {
         if (!srcAmount.value) {
-            return;
+            return (estimateErrorTitle.value = t('tokenOperations.enterAmount'));
         }
 
         isEstimating.value = true;
+        dstAmount.value = null;
 
         if (!isAllowForRequest()) {
             isLoading.value = false;
@@ -678,15 +680,13 @@ export default function useModule({ moduleType }) {
             case 'bridge':
             case 'superSwap':
                 if (isSrcTokenChanged) {
-                    selectedSrcToken.value = null;
                     onlyWithBalance.value = true;
-                    setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
+                    selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
                 }
 
                 if (isDstTokenChanged) {
-                    selectedDstToken.value = null;
                     onlyWithBalance.value = false;
-                    setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
+                    selectedDstToken.value = setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
                 }
 
                 break;
@@ -730,7 +730,7 @@ export default function useModule({ moduleType }) {
         direction && (targetDirection.value = direction);
         type && (selectType.value = type);
 
-        return store.dispatch('app/toggleSelectModal', selectFor);
+        return store.dispatch('app/toggleSelectModal', { type: selectFor, module: moduleType });
     };
 
     const handleOnSelectNetwork = ({ direction, type }) => {
@@ -777,12 +777,21 @@ export default function useModule({ moduleType }) {
         return (selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value));
     });
 
-    // ========================= Watch Selected DST Network =========================
+    // ========================= Watch Selected SRC DST Networks =========================
 
-    const unWatchDst = watch(
-        selectedDstNetwork,
-        () => (selectedDstToken.value = setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value))
-    );
+    const unWatchSrcDstNetwork = watch([selectedSrcNetwork, selectedDstNetwork], ([newSrc, newDst], [oldSrc, oldDst]) => {
+        // Switch tokens and networks, if they are in the same network
+        const isOldNotEmpty = oldSrc && oldDst && oldSrc?.net && oldDst?.net;
+        const isNewNotEmpty = newSrc && newDst && newSrc?.net && newDst?.net;
+
+        if (isNewNotEmpty && isOldNotEmpty && newSrc.net === newDst.net && ['swap', 'bridge'].includes(moduleType)) {
+            [selectedSrcNetwork.value, selectedDstNetwork.value] = [oldDst, oldSrc];
+            [selectedSrcToken.value, selectedDstToken.value] = [selectedDstToken.value, selectedSrcToken.value];
+        }
+
+        selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
+        selectedDstToken.value = setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
+    });
 
     // ========================= Watch Selected SRC Token =========================
 
@@ -805,6 +814,12 @@ export default function useModule({ moduleType }) {
     });
 
     const unWatchSrcDstToken = watch([srcAmount, selectedSrcToken, selectedDstToken], async () => {
+        if (selectedSrcToken.value?.id === selectedDstToken.value?.id) {
+            selectedDstToken.value = null;
+            dstAmount.value = null;
+            return (estimateErrorTitle.value = t('tokenOperations.selectDifferentToken'));
+        }
+
         if (srcAmount.value && selectedSrcToken.value && selectedDstToken.value) {
             return await makeEstimateRequest();
         }
@@ -859,6 +874,10 @@ export default function useModule({ moduleType }) {
     // ========================= Watch Estimate Error =========================
 
     const unWatchEstimateError = watch([selectedDstNetwork, selectedSrcToken, selectedDstToken], () => {
+        if (!selectedSrcNetwork.value || !selectedSrcToken.value || !selectedDstNetwork.value || !selectedDstToken.value) {
+            return (estimateErrorTitle.value = t('tokenOperations.selectAllFields'));
+        }
+
         if (!selectedDstNetwork.value && !['swap', 'send'].includes(moduleType)) {
             return (estimateErrorTitle.value = t('tokenOperations.selectDstNetwork'));
         }
@@ -952,7 +971,8 @@ export default function useModule({ moduleType }) {
         unWatchAcc();
 
         unWatchSrc();
-        unWatchDst();
+
+        unWatchSrcDstNetwork();
 
         unWatchSrcToken();
         unWatchDstToken();

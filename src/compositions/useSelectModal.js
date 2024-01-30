@@ -38,6 +38,9 @@ export default function useSelectModal(type) {
     const selectType = computed(() => store.getters['tokenOps/selectType']);
     const direction = computed(() => store.getters['tokenOps/direction']);
 
+    const selectModal = computed(() => store.getters['app/selectModal']);
+    const module = computed(() => selectModal.value.module);
+
     // =================================================================================================================
 
     const selectedSrcNetwork = computed({
@@ -111,7 +114,7 @@ export default function useSelectModal(type) {
         }
 
         HANDLE_ON_SELECT[type.value](item);
-        return store.dispatch('app/toggleSelectModal');
+        return store.dispatch('app/toggleSelectModal', { type: type.value });
     };
 
     // =================================================================================================================
@@ -150,7 +153,13 @@ export default function useSelectModal(type) {
             chain.selected = chain.net === selectedSrcNetwork.value?.net || chain.net === selectedDstNetwork.value?.net;
         }
 
-        return chainList.value.filter((chain) => !chain.selected);
+        return chainList.value.filter((chain) => {
+            if (module.value === 'bridge') {
+                return !chain.selected || chain?.net !== selectedNetwork.value?.net;
+            }
+
+            return chain;
+        });
     });
 
     const tokens = computed(() => {
