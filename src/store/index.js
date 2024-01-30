@@ -1,4 +1,3 @@
-// import createPersistedState from 'vuex-persistedstate';
 import { createStore } from 'vuex';
 
 // Main Modules
