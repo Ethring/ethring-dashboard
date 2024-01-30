@@ -216,6 +216,11 @@ export default function useModule({ moduleType }) {
             return true;
         }
 
+        if (srcAmount.value && estimateErrorTitle.value) {
+            estimateErrorTitle.value = '';
+            return true;
+        }
+
         if (baseFeeInfo.value?.title || rateFeeInfo.value?.title || protocolFeeInfo.value?.title || estimateTimeInfo.value?.title) {
             return true;
         }
@@ -322,7 +327,7 @@ export default function useModule({ moduleType }) {
             selectedSrcToken.value = defaultFromToken;
         }
 
-        if (selectedSrcToken.value?.address === selectedDstToken.value?.address) {
+        if (selectedSrcToken.value?.id === selectedDstToken.value?.id) {
             selectedDstToken.value = null;
         }
 
@@ -842,11 +847,15 @@ export default function useModule({ moduleType }) {
     });
 
     const unWatchLoadingSrcDst = watch(isAllTokensLoading, () => {
-        onlyWithBalance.value = true;
-        selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
+        if (selectedSrcNetwork.value) {
+            onlyWithBalance.value = true;
+            selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
+        }
 
-        onlyWithBalance.value = false;
-        selectedDstToken.value = setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
+        if (selectedDstNetwork.value && selectedDstToken.value) {
+            onlyWithBalance.value = false;
+            selectedDstToken.value = setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
+        }
     });
 
     // ========================= Watch Tx Error =========================
