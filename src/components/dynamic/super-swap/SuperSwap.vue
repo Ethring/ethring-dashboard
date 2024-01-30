@@ -443,6 +443,7 @@ export default {
             );
 
             if (resEstimate && resEstimate.error) {
+                console.log('resEstimate.error', resEstimate.error);
                 estimateErrorTitle.value = resEstimate.error;
                 return (isEstimating.value = false);
             }
@@ -459,14 +460,14 @@ export default {
 
             store.dispatch('bridgeDex/setSelectedRoute', resEstimate);
 
-            estimateErrorTitle.value = '';
-
-            dstAmount.value = BigNumber(resEstimate.bestRoute?.toTokenAmount).decimalPlaces(6).toString();
+            dstAmount.value = BigNumber(resEstimate?.bestRoute?.toTokenAmount).decimalPlaces(6).toString() || null;
 
             if (selectedSrcNetwork.value.net !== currentChainInfo.value.net) {
                 networkName.value = selectedSrcNetwork.value.name;
                 opTitle.value = 'tokenOperations.switchNetwork';
             }
+
+            estimateErrorTitle.value = '';
 
             return (isEstimating.value = false);
         };

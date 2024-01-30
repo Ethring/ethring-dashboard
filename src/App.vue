@@ -147,6 +147,10 @@ export default {
                 lastConnectedCall.value = true;
             }
 
+            if (!lastConnectedCall.value) {
+                store.dispatch('tokens/setLoader', false);
+            }
+
             await delay(300);
 
             if (currentChainInfo.value) {

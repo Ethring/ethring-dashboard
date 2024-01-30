@@ -172,17 +172,19 @@ export default function useSelectModal(type) {
             srcToken: selectedTokenFrom.value,
             dstToken: selectedTokenTo.value,
             isSameNet: selectedDstNetwork.value === selectedSrcNetwork.value || !selectedDstNetwork.value,
+            onlyWithBalance: isFromSelect.value,
         });
 
         return tokens || [];
     });
 
     const list = computed(() => {
-        if (type.value === TYPES.NETWORK) {
-            return chains.value;
-        }
+        const values = {
+            [TYPES.NETWORK]: chains.value,
+            [TYPES.TOKEN]: tokens.value,
+        };
 
-        return tokens.value;
+        return values[type.value];
     });
 
     const options = computed(() => {

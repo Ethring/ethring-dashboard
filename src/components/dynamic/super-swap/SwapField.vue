@@ -51,7 +51,6 @@
                     <span class="balance-label"> {{ $t('tokenOperations.balance') }}: </span>
                     <Amount :value="token?.balance || 0" :decimals="3" type="currency" :symbol="token?.symbol" />
                 </div>
-                <a-skeleton-input v-if="!hideMax && isTokenLoading" active class="balance-skeleton" />
             </div>
         </div>
     </div>
