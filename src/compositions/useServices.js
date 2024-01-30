@@ -536,12 +536,13 @@ export default function useModule({ moduleType }) {
     };
 
     const makeEstimateRequest = async () => {
+        isEstimating.value = true;
+
         if (!srcAmount.value) {
+            dstAmount.value = null;
+            isEstimating.value = false;
             return (estimateErrorTitle.value = t('tokenOperations.enterAmount'));
         }
-
-        isEstimating.value = true;
-        dstAmount.value = null;
 
         if (!isAllowForRequest()) {
             isLoading.value = false;
