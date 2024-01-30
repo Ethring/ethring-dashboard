@@ -6,6 +6,12 @@ import { sortByKey } from '@/helpers/utils';
 import { ONE_DAY, ONE_HOUR } from '@/shared/constants/operations';
 import { BALANCES_TYPES } from '@/modules/Balances/constants';
 
+const ASSET_TYPES = {
+    DEPOSIT: 'DEPOSITED',
+    PENDING_REWARD: 'REWARD',
+    DEPOSIT_COLLATERAL: 'DEPOSITED_COLLATERAL',
+};
+
 export const getTotalBalanceByType = (balances, type = BALANCES_TYPES.ALL) => {
     if (!balances.length) {
         return 0;
@@ -84,7 +90,9 @@ export const getFormattedName = (str) => {
         return str;
     }
 
-    return str.charAt(0).toUpperCase() + str.replaceAll('_', ' ').toLowerCase().slice(1);
+    const formattedStr = ASSET_TYPES[str] || str;
+
+    return formattedStr.charAt(0).toUpperCase() + formattedStr.replaceAll('_', ' ').toLowerCase().slice(1);
 };
 
 export const getFormattedDate = (timestamp) => {
