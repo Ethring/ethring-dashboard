@@ -89,7 +89,7 @@ $top-bar-spacing: 20px;
 
         border: 1px solid var(--#{$prefix}border-secondary-color);
 
-        background-color: var(--#{$prefix}icon-secondary-bg-color);
+        background-color: var(--#{$prefix}icon-placeholder);
 
         opacity: 0.5;
 
@@ -101,7 +101,7 @@ $top-bar-spacing: 20px;
             opacity: 0.5;
         }
 
-        &:hover {
+        &.active:hover {
             background-color: var(--#{$prefix}icon-logo-bg-hover);
             opacity: 1;
 
@@ -113,6 +113,7 @@ $top-bar-spacing: 20px;
 
         &.active {
             cursor: pointer;
+            background-color: var(--#{$prefix}icon-secondary-bg-color);
             opacity: 1;
         }
     }
