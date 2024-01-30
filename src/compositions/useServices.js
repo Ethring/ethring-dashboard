@@ -789,8 +789,13 @@ export default function useModule({ moduleType }) {
             [selectedSrcToken.value, selectedDstToken.value] = [selectedDstToken.value, selectedSrcToken.value];
         }
 
-        selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
-        selectedDstToken.value = setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
+        if (selectedSrcNetwork.value) {
+            selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
+        }
+
+        if (selectedDstNetwork.value) {
+            selectedDstToken.value = setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
+        }
     });
 
     // ========================= Watch Selected SRC Token =========================
@@ -837,13 +842,17 @@ export default function useModule({ moduleType }) {
     // ========================= Watch Tokens Loadings for SRC and DST networks =========================
 
     const unWatchLoadingSrc = watch(isTokensLoadingForSrc, () => {
-        onlyWithBalance.value = true;
-        selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
+        if (selectedSrcNetwork.value) {
+            onlyWithBalance.value = true;
+            selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
+        }
     });
 
     const unWatchLoadingDst = watch(isTokensLoadingForDst, () => {
-        onlyWithBalance.value = false;
-        selectedDstToken.value = setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
+        if (selectedDstNetwork.value && selectedDstToken.value) {
+            onlyWithBalance.value = false;
+            selectedDstToken.value = setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
+        }
     });
 
     const unWatchLoadingSrcDst = watch(isAllTokensLoading, () => {
