@@ -1,7 +1,7 @@
 // Axios instance
 import axiosInstance from '../axios';
 
-const BRIDGE_DEX_URL = process.env.VUE_APP_BRIDGE_DEX_API || null;
+const BRIDGE_DEX_URL = import.meta.env.VITE_APP_BRIDGE_DEX_API || null;
 
 export const getServices = async () => {
     if (!BRIDGE_DEX_URL) {

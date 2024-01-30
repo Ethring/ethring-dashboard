@@ -2,7 +2,7 @@ import { getServices, SERVICE_TYPE } from '@/config/services';
 
 import { getAllowance, getApproveTx, getSwapTx, estimateSwap } from '@/api/services';
 
-const DEFAULT_URL = process.env.VUE_APP_PARASWAP_API;
+const DEFAULT_URL = import.meta.env.VITE_APP_PARASWAP_API;
 const DEFAULT_SERVICE_ID = 'swap-paraswap';
 
 const TYPES = {

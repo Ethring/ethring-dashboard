@@ -1,3 +1,7 @@
+import { precacheAndRoute } from 'workbox-precaching';
+
+precacheAndRoute(self.__WB_MANIFEST);
+
 const DOMAIN_LIST = ['https://assets.coingecko.com', 'https://cryptologos.cc/logos'];
 
 const putInCache = async (request, response) => {

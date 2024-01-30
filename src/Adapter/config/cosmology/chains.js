@@ -13,7 +13,7 @@ const STANDARD_SLIP_44 = '118';
 const isActiveChain = ({ network_type, status, explorers, staking, chain_id, chain_name }) =>
     network_type === NET_TYPE &&
     status === NET_STATUS &&
-    explorers.some(({ url }) => url.startsWith(MINT_SCAN_EXPLORER)) &&
+    explorers?.some(({ url }) => url.startsWith(MINT_SCAN_EXPLORER)) &&
     staking &&
     chain_id &&
     DATA_PROVIDER_COSMOS_CHAINS.includes(chain_name);

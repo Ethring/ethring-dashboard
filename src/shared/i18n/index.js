@@ -1,4 +1,5 @@
-import { createI18n } from 'vue-i18n/index';
+import { createI18n } from 'vue-i18n';
+import en from './translations/en.json';
 
 const getProp = (object, path) => {
     if (path.length === 1) {
@@ -31,6 +32,6 @@ export const i18n = createI18n({
     fallbackLocale: ['en'],
     messageResolver,
     messages: {
-        en: require('./translations/en.json'),
+        en,
     },
 });

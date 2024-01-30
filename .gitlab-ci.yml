@@ -8,7 +8,6 @@ stages:
 include:
   - local: "/tests/build/tests-ci.yml"
 
-
 .dockerBuildJob:
   cache: {}
   image:
@@ -18,11 +17,11 @@ include:
   allow_failure: false
   variables:
     IMAGE_TAG: $REGISTRY_URL/$CI_PROJECT_NAME/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHORT_SHA
-    VUE_APP_HOST: work.3ahtim54r.ru
-    VUE_APP_PROXY_API: https://proxy-api.apps.citadel.okd.3ahtim54r.ru
-    VUE_APP_ZOMET_CORE_API_URL: https://zomet-core.3ahtim54r.ru
-    VUE_APP_DATA_PROVIDER_URL: https://apps.3ahtim54r.ru/srv-data-provider/api
-    VUE_APP_BRIDGE_DEX_API: https://bridge-dex.3ahtim54r.ru
+    VITE_APP_HOST: work.3ahtim54r.ru
+    VITE_APP_PROXY_API: https://proxy-api.apps.citadel.okd.3ahtim54r.ru
+    VITE_APP_ZOMET_CORE_API_URL: https://zomet-core.3ahtim54r.ru
+    VITE_APP_DATA_PROVIDER_URL: https://apps.3ahtim54r.ru/srv-data-provider/api
+    VITE_APP_BRIDGE_DEX_API: https://bridge-dex.3ahtim54r.ru
     NODE_ENV: development
   script:
     - mkdir -p /kaniko/.docker
@@ -33,21 +32,21 @@ include:
       --destination $IMAGE_TAG
       --cache=true
       --cache-ttl=168h
-      --build-arg VUE_APP_HOST
-      --build-arg VUE_APP_PARASWAP_API
-      --build-arg VUE_APP_SQUID_ROUTER_API
-      --build-arg VUE_APP_SYNAPSE_SWAP_API
-      --build-arg VUE_APP_SKIP_API
-      --build-arg VUE_APP_RELEASE
-      --build-arg VUE_APP_SENTRY_DSN
-      --build-arg VUE_APP_MIXPANEL_TOKEN
-      --build-arg VUE_APP_ZOMET_CORE_API_URL
-      --build-arg VUE_APP_PROXY_API
-      --build-arg VUE_APP_DATA_PROVIDER_URL
-      --build-arg VUE_APP_BRIDGE_DEX_API
-      --build-arg VUE_APP_WC_PROJECT_ID
-      --build-arg VUE_APP_KADO_API_KEY
-      --build-arg VUE_APP_TX_MANAGER
+      --build-arg VITE_APP_HOST
+      --build-arg VITE_APP_PARASWAP_API
+      --build-arg VITE_APP_SQUID_ROUTER_API
+      --build-arg VITE_APP_SYNAPSE_SWAP_API
+      --build-arg VITE_APP_SKIP_API
+      --build-arg VITE_APP_RELEASE
+      --build-arg VITE_APP_SENTRY_DSN
+      --build-arg VITE_APP_MIXPANEL_TOKEN
+      --build-arg VITE_APP_ZOMET_CORE_API_URL
+      --build-arg VITE_APP_PROXY_API
+      --build-arg VITE_APP_DATA_PROVIDER_URL
+      --build-arg VITE_APP_BRIDGE_DEX_API
+      --build-arg VITE_APP_WC_PROJECT_ID
+      --build-arg VITE_APP_KADO_API_KEY
+      --build-arg VITE_APP_TX_MANAGER
       --build-arg NODE_ENV
 
 .deployJob:
@@ -136,7 +135,7 @@ Build prod:
   variables:
     NODE_ENV: production
   before_script:
-    - export VUE_APP_RELEASE=$(date +'%d.%m.%Y')-$CI_COMMIT_SHORT_SHA
+    - export VITE_APP_RELEASE=$(date +'%d.%m.%Y')-$CI_COMMIT_SHORT_SHA
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
 

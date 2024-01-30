@@ -10,7 +10,7 @@ export const cutAddress = (address, start = 10, end = 6) => {
 };
 
 export const getTokenIcon = (code) => {
-    return `//${process.env.VUE_APP_HOST}/cryptofont/SVG/${code}.svg`;
+    return `//${import.meta.env.VITE_APP_HOST}/cryptofont/SVG/${code}.svg`;
 };
 
 export const getTxUrl = (net, hash) => {

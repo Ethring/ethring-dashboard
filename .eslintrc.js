@@ -13,8 +13,8 @@ module.exports = {
     },
 
     rules: {
-        'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
-        'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+        'no-console': import.meta.env.NODE_ENV === 'production' ? 'warn' : 'off',
+        'no-debugger': import.meta.env.NODE_ENV === 'production' ? 'warn' : 'off',
         'vue/require-default-prop': 'off',
         'vue/multi-word-component-names': 'off',
         'vue/max-attributes-per-line': 'off',

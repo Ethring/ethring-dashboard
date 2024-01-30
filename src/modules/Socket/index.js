@@ -3,7 +3,7 @@ import { handleTransactionStatus } from '../../Transactions/shared/utils/tx-stat
 import { ECOSYSTEMS } from '../../Adapter/config';
 import { useStore } from 'vuex';
 
-const TX_MANAGER_URL = process.env.VUE_APP_TX_MANAGER || undefined;
+const TX_MANAGER_URL = import.meta.env.VITE_APP_TX_MANAGER || undefined;
 
 class SocketInstance {
     store = null;
