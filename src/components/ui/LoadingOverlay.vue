@@ -1,6 +1,6 @@
 <template>
     <div class="loading-overlay">
-        <LogoLoading :tip="tip" />
+        <LogoLoading :tip="tip" :spinning="spinning"/>
     </div>
 </template>
 <script>
@@ -24,6 +24,8 @@ export default {
 };
 </script>
 <style lang="scss">
+@import '../../assets/styles/index.scss';
+
 .loading-overlay {
     @include pageFlexRow;
     justify-content: center;

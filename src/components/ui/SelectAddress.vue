@@ -67,8 +67,8 @@ export default {
         const isError = ref(props.error);
 
         const inputClass = computed(() => getClassName());
-        const selectedSrcNetwork = computed(() => store.getters['tokenOps/srcNetwork']);
-        const selectedDstNetwork = computed(() => store.getters['tokenOps/dstNetwork']);
+        const selectedSrcNetwork = computed(() => store?.getters['tokenOps/srcNetwork']);
+        const selectedDstNetwork = computed(() => store?.getters['tokenOps/dstNetwork']);
 
         const addressPlaceholder = computed(() => {
             const target = selectedDstNetwork.value || selectedSrcNetwork.value;
