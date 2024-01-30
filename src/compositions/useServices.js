@@ -428,11 +428,11 @@ export default function useModule({ moduleType }) {
             };
         }
 
-        if (moduleType === 'bridge') {
+        if (moduleType === 'bridge' && selectedSrcNetwork.value?.ecosystem === ECOSYSTEMS.EVM) {
             baseFeeInfo.value.title = 'tokenOperations.serviceFee';
 
             baseFeeInfo.value.toAmount = formatNumber(
-                BigNumber(response.fee.amount).multipliedBy(selectedSrcToken.value?.price).toString()
+                BigNumber(response.fee?.amount).multipliedBy(selectedSrcToken.value?.price).toString()
             );
         }
 
