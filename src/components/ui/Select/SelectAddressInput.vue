@@ -67,6 +67,8 @@ export default {
         TokenIcon,
     },
     setup(props, { emit }) {
+        const MAX_LENGTH = 40;
+
         const store = useStore();
         const useAdapter = inject('useAdapter');
 
@@ -141,7 +143,7 @@ export default {
                 return addressPlaceholder.value;
             }
 
-            if (address.value?.length < 55) {
+            if (address.value?.length < MAX_LENGTH) {
                 return address.value;
             }
 

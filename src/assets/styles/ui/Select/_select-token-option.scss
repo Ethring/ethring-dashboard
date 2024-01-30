@@ -12,7 +12,7 @@
 
     transition: 0.2s ease-in-out;
 
-    &:hover:not(.selected) {
+    &:hover {
         border-color: var(--#{$prefix}btn-bg-color-hover);
         background-color: var(--#{$prefix}btn-secondary-hover-op-01);
 

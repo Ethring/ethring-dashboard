@@ -1,5 +1,5 @@
 <template>
-    <div class="amount-block">
+    <div class="amount-block" :class="{ [type]: type }">
         <template v-if="showBalance">
             <template v-if="type === 'usd'">
                 <span class="symbol">{{ symbol }}</span>
@@ -116,5 +116,14 @@ export default {
     color: var(--#{$prefix}warning);
     font-size: var(--#{$prefix}small-lg-fs);
     font-weight: 600;
+}
+
+.stat-container .amount-block.usd {
+    font-size: var(--#{$prefix}small-sm-fs);
+
+    .symbol,
+    .value {
+        color: var(--#{$prefix}mute-text);
+    }
 }
 </style>

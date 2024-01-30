@@ -420,9 +420,14 @@ export default {
 
         const getEstimateInfo = async (isReload = false) => {
             isEstimating.value = true;
-            dstAmount.value = 0;
 
-            if (!selectedSrcNetwork.value || !selectedSrcToken.value || !selectedDstNetwork.value || !selectedDstToken.value) {
+            if (
+                !selectedSrcNetwork.value ||
+                !selectedSrcToken.value ||
+                !selectedDstNetwork.value ||
+                !selectedDstToken.value ||
+                !srcAmount.value
+            ) {
                 isEstimating.value = false;
                 return (estimateErrorTitle.value = 'Select all fields');
             }

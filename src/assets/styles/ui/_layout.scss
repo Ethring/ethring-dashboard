@@ -91,14 +91,13 @@ $top-bar-spacing: 20px;
 
         background-color: var(--#{$prefix}icon-placeholder);
 
-        opacity: 0.5;
+        opacity: 0.8;
 
         transition: 0.2s ease-in-out;
 
         svg {
             fill: var(--#{$prefix}base-text);
             transition: 0.2s ease-in-out;
-            opacity: 0.5;
         }
 
         &.active:hover {
