@@ -216,11 +216,6 @@ export default function useModule({ moduleType }) {
             return true;
         }
 
-        if (!srcAmount.value && estimateErrorTitle.value) {
-            estimateErrorTitle.value = t('tokenOperations.enterAmount');
-            return true;
-        }
-
         if (baseFeeInfo.value?.title || rateFeeInfo.value?.title || protocolFeeInfo.value?.title || estimateTimeInfo.value?.title) {
             return true;
         }
@@ -874,12 +869,15 @@ export default function useModule({ moduleType }) {
     // ========================= Watch Estimate Error =========================
 
     const unWatchEstimateError = watch([selectedDstNetwork, selectedSrcToken, selectedDstToken], () => {
-        if (!selectedSrcNetwork.value || !selectedSrcToken.value || !selectedDstNetwork.value || !selectedDstToken.value) {
-            return (estimateErrorTitle.value = t('tokenOperations.selectAllFields'));
-        }
-
         if (!selectedDstNetwork.value && !['swap', 'send'].includes(moduleType)) {
             return (estimateErrorTitle.value = t('tokenOperations.selectDstNetwork'));
+        }
+
+        if (
+            ['bridge', 'superSwap'].includes(moduleType) &&
+            (!selectedSrcNetwork.value || !selectedSrcToken.value || !selectedDstNetwork.value || !selectedDstToken.value)
+        ) {
+            return (estimateErrorTitle.value = t('tokenOperations.selectAllFields'));
         }
 
         if (!selectedSrcToken.value) {

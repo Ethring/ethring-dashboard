@@ -29,10 +29,7 @@ export async function updateWalletBalances(account, address, network, cb = () =>
     const chainId = DP_COSMOS[net] || net;
 
     // Getting tokens from API by address
-    const response = await getBalancesByAddress(chainId, address, {
-        fetchTokens: true,
-        fetchIntegrations: false,
-    });
+    const response = await getBalancesByAddress(chainId, address);
 
     const { tokens: tokenBalances = [] } = response || {};
 
