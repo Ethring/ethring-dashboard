@@ -1001,7 +1001,6 @@ export default function useModule({ moduleType }) {
         txError.value = '';
         isLoading.value = false;
         estimateErrorTitle.value = '';
-        isShowEstimateInfo.value = false;
 
         resetFees();
 
