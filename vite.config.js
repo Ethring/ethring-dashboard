@@ -29,15 +29,6 @@ export default defineConfig({
     },
     build: {
         chunkSizeWarningLimit: 20000000,
-        rollupOptions: {
-            output: {
-                manualChunks(id) {
-                    if (id.includes('node_modules')) {
-                        return id.toString().split('node_modules/')[1].split('/')[0].toString();
-                    }
-                },
-            },
-        },
     },
     define: {
         'process.env.VITE_APP_VERSION': JSON.stringify(packageJson.version) || '0.0.0',

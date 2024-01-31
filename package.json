@@ -2,7 +2,6 @@
   "name": "zomet-dashboard",
   "version": "1.0.0",
   "private": true,
-  "type": "commonjs",
   "scripts": {
     "dev": "vite --open",
     "build": "vite build",
