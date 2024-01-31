@@ -216,7 +216,7 @@ export default function useSelectModal(type) {
             return records;
         }
 
-        isLoadMore.value = list.value.length > MAX_OPTIONS_PER_PAGE && currentIndex.value <= records.length;
+        isLoadMore.value = records.length > MAX_OPTIONS_PER_PAGE && currentIndex.value <= records.length;
 
         return _.slice(records, 0, currentIndex.value);
     });
