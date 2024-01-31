@@ -21,11 +21,12 @@ export default defineConfig({
             injectManifest: { maximumFileSizeToCacheInBytes: 20000000 },
         }),
     ],
-    base: './',
+    base: '/',
     server: {
         host: '0.0.0.0',
         historyApiFallback: true,
         https: IS_PROD,
+        compress: true,
     },
     build: {
         chunkSizeWarningLimit: 20000000,
