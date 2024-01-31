@@ -17,7 +17,7 @@
     </div>
 </template>
 <script>
-import ArrowSvg from '@/assets/icons/dashboard/arrowdowndropdown.svg';
+import ArrowSvg from '@/assets/icons/form-icons/drop-down.svg';
 
 import { ref } from 'vue';
 

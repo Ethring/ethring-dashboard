@@ -16,8 +16,8 @@
 import { onMounted, computed } from 'vue';
 import { useStore } from 'vuex';
 
-import SunIcon from '@/assets/icons/dashboard/sun.svg';
-import MoonIcon from '@/assets/icons/dashboard/moon.svg';
+import SunIcon from '@/assets/icons/platform-icons/sun.svg';
+import MoonIcon from '@/assets/icons/platform-icons/moon.svg';
 
 export default {
     name: 'ThemeSwitcher',

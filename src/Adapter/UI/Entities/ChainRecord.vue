@@ -35,7 +35,7 @@ import { ref } from 'vue';
 import { useClipboard } from '@vueuse/core';
 
 import QrcodeIcon from '@/assets/icons/dashboard/qr.svg';
-import CopyIcon from '@/assets/icons/dashboard/copy.svg';
+import CopyIcon from '@/assets/icons/platform-icons/copy.svg';
 
 export default {
     name: 'ChainRecord',

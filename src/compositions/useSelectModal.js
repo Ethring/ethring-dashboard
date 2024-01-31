@@ -6,7 +6,7 @@ import { useStore } from 'vuex';
 
 import useTokenList from '@/compositions/useTokensList';
 
-import { searchByKey } from '@/helpers/utils';
+import { searchByKey } from '@/shared/utils/helpers';
 import { getPriceFromProvider } from '@/shared/utils/prices';
 
 import { DIRECTIONS, TOKEN_SELECT_TYPES, PRICE_UPDATE_TIME } from '@/shared/constants/operations';

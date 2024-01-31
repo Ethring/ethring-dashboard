@@ -18,7 +18,7 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import ChainWithAddress from '@/Adapter/UI/Entities/ChainWithAddress';
 
-import CloseIcon from '@/assets/icons/app/close.svg';
+import CloseIcon from '@/assets/icons/form-icons/close.svg';
 
 export default {
     name: 'AddressModal',

@@ -31,7 +31,7 @@ import { computed } from 'vue';
 
 import Censorship from './Censorship.vue';
 
-import { formatNumber } from '@/helpers/prettyNumber';
+import { formatNumber } from '@/shared/utils/numbers';
 
 export default {
     name: 'Amount',

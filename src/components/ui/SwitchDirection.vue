@@ -4,8 +4,8 @@
     </div>
 </template>
 <script>
-import SwitchIcon from '@/assets/icons/dashboard/swap.svg';
-import SwapIcon from '@/assets/icons/app/swap.svg';
+import SwitchIcon from '@/assets/icons/module-icons/switch-direction.svg';
+import SwapIcon from '@/assets/icons/module-icons/super-swap.svg';
 
 export default {
     name: 'SwitchDirection',

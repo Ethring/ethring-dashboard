@@ -62,8 +62,8 @@ import Amount from '@/components/app/Amount';
 
 import BigNumber from 'bignumber.js';
 
-import { formatNumber } from '@/helpers/prettyNumber';
-import { formatInputNumber } from '@/helpers/numbers';
+import { formatNumber } from '@/shared/utils/numbers';
+import { formatInputNumber } from '@/shared/utils/input';
 
 export default {
     name: 'SwapField',

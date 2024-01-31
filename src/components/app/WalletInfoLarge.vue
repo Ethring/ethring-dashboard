@@ -36,7 +36,7 @@ import { useClipboard } from '@vueuse/core';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
-import { cutAddress } from '@/helpers/utils';
+import { cutAddress } from '@/shared/utils/address';
 
 import Amount from '@/components/app/Amount';
 
@@ -44,7 +44,7 @@ import LinesBack from '@/assets/images/wallet-info/lines.svg';
 
 import EyeOpenIcon from '@/assets/icons/dashboard/eyeOpen.svg';
 import EyeCloseIcon from '@/assets/icons/dashboard/eye.svg';
-import CopyIcon from '@/assets/icons/app/copy.svg';
+import CopyIcon from '@/assets/icons/platform-icons/copy.svg';
 
 export default {
     name: 'WalletInfo',

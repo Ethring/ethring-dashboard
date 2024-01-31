@@ -26,7 +26,7 @@ import RoutesModal from './components/app/modals/RoutesModal.vue';
 
 import ReleaseNotes from './layouts/DefaultLayout/header/ReleaseNotes.vue';
 
-import { delay } from '@/helpers/utils';
+import { delay } from '@/shared/utils/helpers';
 
 export default {
     name: 'App',

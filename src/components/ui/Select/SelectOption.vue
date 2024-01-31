@@ -50,7 +50,7 @@ import { computed, inject } from 'vue';
 
 import Amount from '../../app/Amount.vue';
 import TokenIcon from '@/components/ui/Tokens/TokenIcon';
-import ExternalLinkIcon from '@/assets/icons/app/external-link.svg';
+import ExternalLinkIcon from '@/assets/icons/module-icons/external-link.svg';
 
 export default {
     name: 'SelectOption',

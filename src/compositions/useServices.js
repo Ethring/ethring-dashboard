@@ -23,7 +23,7 @@ import useNotification from '@/compositions/useNotification';
 
 import { DIRECTIONS, FEE_TYPES, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 
-import { formatNumber } from '@/helpers/prettyNumber';
+import { formatNumber } from '@/shared/utils/numbers';
 import { updateWalletBalances } from '@/shared/utils/balances';
 import { useRouter } from 'vue-router';
 

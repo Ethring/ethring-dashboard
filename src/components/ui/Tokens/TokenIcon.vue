@@ -10,7 +10,7 @@
             <img
                 v-if="!showIconPlaceholder && token"
                 :key="token?.symbol"
-                :src="token?.logo || tokenIconFromZomet || getTokenIcon(token?.symbol?.toLowerCase())"
+                :src="token?.logo || tokenIconFromZomet"
                 :alt="token?.name"
                 @error="showIconPlaceholder = true"
                 @load="showIconPlaceholder = false"
@@ -29,8 +29,6 @@
 <script>
 import { ref, computed, watch, onMounted } from 'vue';
 import { useStore } from 'vuex';
-
-import { getTokenIcon, tokenIconPlaceholder } from '@/helpers/utils';
 
 export default {
     name: 'TokenIcon',
@@ -95,9 +93,7 @@ export default {
 
         return {
             showIconPlaceholder,
-            getTokenIcon,
             iconPlaceholder,
-            tokenIconPlaceholder,
             tokenIconFromZomet,
         };
     },

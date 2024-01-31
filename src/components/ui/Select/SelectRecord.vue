@@ -22,7 +22,7 @@ import { computed } from 'vue';
 
 import TokenIcon from '@/components/ui/Tokens/TokenIcon.vue';
 
-import ArrowDownIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
+import ArrowDownIcon from '@/assets/icons/form-icons/drop-down.svg';
 
 export default {
     name: 'SelectRecord',

@@ -119,7 +119,7 @@ import Button from '@/components/ui/Button';
 import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewInfo.vue';
 import SwitchDirection from '@/components/ui/SwitchDirection.vue';
 
-import { formatNumber } from '@/helpers/prettyNumber';
+import { formatNumber } from '@/shared/utils/numbers';
 
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { isCorrectChain } from '@/shared/utils/operations';

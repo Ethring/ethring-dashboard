@@ -35,7 +35,7 @@
 <script>
 import Amount from '@/components/app/Amount';
 
-import TokensIcon from '@/assets/icons/dashboard/wallet.svg';
+import TokensIcon from '@/assets/icons/dashboard/token-group.svg';
 import NftsIcon from '@/assets/icons/dashboard/nfts.svg';
 
 export default {

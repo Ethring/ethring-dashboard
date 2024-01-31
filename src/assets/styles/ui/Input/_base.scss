@@ -51,6 +51,10 @@
     min-height: 14px;
 }
 
+.input-clear-icon {
+    width: var(--#{$prefix}h5-fs);
+}
+
 //         .input-address {
 //             width: 90%;
 //             border: none;

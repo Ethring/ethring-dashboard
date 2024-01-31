@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import CloseIcon from '@/assets/icons/app/close.svg';
+import CloseIcon from '@/assets/icons/form-icons/close.svg';
 
 export default {
     name: 'Modal',

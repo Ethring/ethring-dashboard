@@ -84,15 +84,15 @@
 <script>
 import { ref, computed, watch } from 'vue';
 
-import ArrowDownIcon from '@/assets/icons/arrows/arrow-down.svg';
-import FeeIcon from '@/assets/icons/app/fee.svg';
-import TimeIcon from '@/assets/icons/app/time.svg';
+import ArrowDownIcon from '@/assets/icons/form-icons/arrow-down.svg';
+import FeeIcon from '@/assets/icons/module-icons/fee.svg';
+import TimeIcon from '@/assets/icons/module-icons/time.svg';
 import Amount from '@/components/app/Amount.vue';
 
 import EstimateStats from './EstimateStats.vue';
 import ServiceIcon from './ServiceIcon.vue';
 
-import ExpandIcon from '@/assets/icons/app/expand.svg';
+import ExpandIcon from '@/assets/icons/module-icons/expand.svg';
 
 export default {
     name: 'EstimatePreviewInfo',

@@ -36,7 +36,7 @@ import SuperSwap from '@/components/dynamic/super-swap/SuperSwap.vue';
 import SelectModal from '@/components/app/modals/SelectModal.vue';
 
 import UnsupportedResult from '@/components/ui/UnsupportedResult';
-import ArrowUpIcon from '@/assets/icons/dashboard/arrowup.svg';
+import ArrowUpIcon from '@/assets/icons/module-icons/pointer-up.svg';
 
 export default {
     name: 'ModulesLayout',

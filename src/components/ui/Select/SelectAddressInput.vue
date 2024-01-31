@@ -23,7 +23,7 @@
                 @blur="onBlur"
             >
                 <template #clearIcon>
-                    <ClearIcon />
+                    <ClearIcon class="input-clear-icon" />
                 </template>
             </a-input>
         </a-input-group>
@@ -40,7 +40,7 @@
     </a-form-item>
 </template>
 <script>
-import ClearIcon from '@/assets/icons/app/xmark.svg';
+import ClearIcon from '@/assets/icons/form-icons/clear.svg';
 import TokenIcon from '@/components/ui/Tokens/TokenIcon.vue';
 
 import { ref, watch, computed, inject } from 'vue';

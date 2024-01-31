@@ -130,7 +130,7 @@ import SwitchDirection from '@/components/ui/SwitchDirection.vue';
 
 import SwapField from './SwapField';
 
-import { prettyNumberTooltip, formatNumber } from '@/helpers/prettyNumber';
+import { formatNumber } from '@/shared/utils/numbers';
 
 import { getBestRoute } from '@/api/bridge-dex';
 
@@ -243,7 +243,7 @@ export default {
 
         const networkFee = computed(() => {
             if (bestRouteInfo.value?.estimateFeeUsd) {
-                return prettyNumberTooltip(bestRouteInfo.value?.estimateFeeUsd, 6);
+                return bestRouteInfo.value?.estimateFeeUsd;
             }
 
             return 0;
@@ -255,7 +255,7 @@ export default {
             }
 
             if (bestRouteInfo.value?.toTokenAmount && bestRouteInfo.value?.fromTokenAmount) {
-                return prettyNumberTooltip(bestRouteInfo.value.toTokenAmount / bestRouteInfo.value.fromTokenAmount, 6);
+                return bestRouteInfo.value.toTokenAmount / bestRouteInfo.value.fromTokenAmount;
             }
 
             return 0;

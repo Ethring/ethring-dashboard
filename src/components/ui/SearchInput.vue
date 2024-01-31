@@ -12,7 +12,7 @@
             />
         </div>
         <div v-if="text.length" class="search-input__clear" @click="clearValue">
-            <ClearIcon />
+            <ClearIcon class="input-clear-icon" />
         </div>
     </div>
 </template>
@@ -20,8 +20,8 @@
 <script>
 import { ref, watch } from 'vue';
 
-import SearchIcon from '@/assets/icons/app/search.svg';
-import ClearIcon from '@/assets/icons/app/xmark.svg';
+import SearchIcon from '@/assets/icons/form-icons/search.svg';
+import ClearIcon from '@/assets/icons/form-icons/clear.svg';
 
 export default {
     name: 'SearchInput',

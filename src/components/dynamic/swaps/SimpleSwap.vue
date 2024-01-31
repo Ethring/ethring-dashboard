@@ -90,7 +90,7 @@ import SwitchDirection from '@/components/ui/SwitchDirection.vue';
 
 import { isCorrectChain } from '@/shared/utils/operations';
 
-import { checkErrors } from '@/helpers/checkErrors';
+import { errorRegister } from '@/shared/utils/errors';
 
 // Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
@@ -421,7 +421,7 @@ export default {
                     txError.value = responseSendTx.error;
                     txErrorTitle.value = 'Sign transaction error';
 
-                    txError.value = checkErrors(responseSendTx.error).error;
+                    txError.value = errorRegister(responseSendTx.error).error;
 
                     return (isLoading.value = false);
                 }

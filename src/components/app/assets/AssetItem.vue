@@ -45,7 +45,7 @@ import { useStore } from 'vuex';
 import AssetWithChain from '@/components/app/assets/AssetWithChain';
 import Amount from '../Amount.vue';
 
-import { formatNumber } from '@/helpers/prettyNumber';
+import { formatNumber } from '@/shared/utils/numbers';
 
 import BigNumber from 'bignumber.js';
 

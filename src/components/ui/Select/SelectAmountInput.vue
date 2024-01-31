@@ -68,10 +68,10 @@ import BigNumber from 'bignumber.js';
 
 import TokenIcon from '@/components/ui/Tokens/TokenIcon';
 
-import ArrowIcon from '@/assets/icons/dashboard/arrow.svg';
+import ArrowIcon from '@/assets/icons/form-icons/arrow-down-thin.svg';
 import Amount from '@/components/app/Amount.vue';
 
-import { formatInputNumber } from '@/helpers/numbers';
+import { formatInputNumber } from '@/shared/utils/input';
 
 export default {
     name: 'SelectAmountInput',
