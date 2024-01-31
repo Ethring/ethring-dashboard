@@ -44,7 +44,9 @@ testMetaMask.describe('Swap e2e tests', () => {
             const imagePromiseTokenFrom = swapPage.page.waitForResponse('https://assets.coingecko.com/coins/images/6319/large/usdc.png**');
             await swapPage.openTokenPageFrom();
             await imagePromiseTokenFrom; // wait load last token image
-            await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
+
+            // open select modal
+            await expect(swapPage.getSelectModalContent()).toHaveScreenshot();
 
             await swapPage.setTokenInTokensList(TOKEN_FROM);
             await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
@@ -52,7 +54,8 @@ testMetaMask.describe('Swap e2e tests', () => {
             const imagePromiseTokenTo = swapPage.page.waitForResponse(INCORRECT_IMAGE_URL);
             await swapPage.openTokenPageTo();
             await imagePromiseTokenTo; // wait load last token image
-            await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
+            // open select modal
+            await expect(swapPage.getSelectModalContent()).toHaveScreenshot();
 
             await swapPage.setTokenInTokensList(TOKEN_TO);
             await sleep(1000); // TODO need wait close tokens page
@@ -223,7 +226,7 @@ testMetaMask.describe('Swap e2e tests', () => {
             await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
 
             await swapPage.openTokenPageTo();
-            await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
+            await expect(swapPage.getSelectModalContent()).toHaveScreenshot();
         }
     );
 

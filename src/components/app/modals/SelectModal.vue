@@ -1,35 +1,37 @@
 <template>
     <a-modal v-model:open="isModalOpen" centered :footer="null" :title="$t(modalTitle)" :afterClose="handleAfterClose" class="select-modal">
-        <a-form>
-            <SearchInput
-                @onChange="handleOnFilterNetworks"
-                :placeholder="$t(inputPlaceholder)"
-                :value="searchValue"
-                class="select-modal-search"
-            />
-        </a-form>
-
-        <div class="select-modal-list-container">
-            <TransitionGroup tag="div" name="options" class="select-modal-list">
-                <SelectOption
-                    v-for="option in optionList"
-                    :key="option"
-                    :record="option"
-                    :type="type"
-                    :label="type === 'network' ? option?.name : option?.symbol"
-                    @click="(event) => handleOnSelect(event, option)"
+        <div data-qa="select-record-modal">
+            <a-form>
+                <SearchInput
+                    @onChange="handleOnFilterNetworks"
+                    :placeholder="$t(inputPlaceholder)"
+                    :value="searchValue"
+                    class="select-modal-search"
                 />
-            </TransitionGroup>
+            </a-form>
 
-            <div v-if="isLoadMore" class="select-modal-load-more">
-                <Button :title="$t('tokenOperations.loadMore')" @click="handleLoadMore" />
+            <div class="select-modal-list-container">
+                <TransitionGroup tag="div" name="options" class="select-modal-list">
+                    <SelectOption
+                        v-for="option in optionList"
+                        :key="option"
+                        :record="option"
+                        :type="type"
+                        :label="type === 'network' ? option?.name : option?.symbol"
+                        @click="(event) => handleOnSelect(event, option)"
+                    />
+                </TransitionGroup>
+
+                <div v-if="isLoadMore" class="select-modal-load-more">
+                    <Button :title="$t('tokenOperations.loadMore')" @click="handleLoadMore" />
+                </div>
+
+                <a-empty v-if="isModalOpen && !optionList.length" class="select-modal-empty" :description="$t('dashboard.notFound')">
+                    <template #image>
+                        <NotFoundIcon />
+                    </template>
+                </a-empty>
             </div>
-
-            <a-empty v-if="isModalOpen && !optionList.length" class="select-modal-empty" :description="$t('dashboard.notFound')">
-                <template #image>
-                    <NotFoundIcon />
-                </template>
-            </a-empty>
         </div>
     </a-modal>
 </template>

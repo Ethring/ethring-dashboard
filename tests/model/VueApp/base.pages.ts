@@ -71,6 +71,10 @@ class BasePage {
         return this.page.getByTestId('content');
     }
 
+    getSelectModalContent() {
+        return this.page.getByTestId('select-record-modal');
+    }
+
     async clickConfirm() {
         await this.page.getByTestId('confirm').click();
         await sleep(10000);
