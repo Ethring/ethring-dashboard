@@ -100,6 +100,7 @@ export default {
         onUpdated(() => {
             nextTick(() => {
                 searchInput.value = document.querySelector('.select-modal-search input');
+                document.querySelector('.select-modal-list-container').scrollTop = '0';
                 isModalOpen.value && searchInput.value?.focus();
             });
         });

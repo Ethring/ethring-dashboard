@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import moment from 'moment';
 
-import { ref, computed, inject } from 'vue';
+import { ref, computed, inject, nextTick } from 'vue';
 import { useStore } from 'vuex';
 
 import useTokenList from '@/compositions/useTokensList';
@@ -16,6 +16,8 @@ export default function useSelectModal(type) {
         NETWORK: 'network',
         TOKEN: 'token',
     };
+
+    const LIST_CONTAINER = '.select-modal-list-container';
 
     const MAX_OPTIONS_PER_PAGE = 12;
 
@@ -121,7 +123,18 @@ export default function useSelectModal(type) {
 
     const handleOnFilterNetworks = (val) => (searchValue.value = val);
 
+    const changeScroll = () => {
+        nextTick(() => {
+            const listContainer = document.querySelector(LIST_CONTAINER);
+            listContainer.scrollTo({
+                top: listContainer.scrollTop + 450,
+                behavior: 'smooth',
+            });
+        });
+    };
+
     const handleAfterClose = () => {
+        changeScroll(true);
         isLoadMore.value = false;
         currentIndex.value = MAX_OPTIONS_PER_PAGE;
         handleOnFilterNetworks('');
@@ -133,6 +146,8 @@ export default function useSelectModal(type) {
         if (currentIndex.value >= list.value.length) {
             isLoadMore.value = false;
         }
+
+        changeScroll();
     };
 
     // =================================================================================================================
