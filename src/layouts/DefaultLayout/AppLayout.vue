@@ -54,7 +54,7 @@ export default {
 
         onMounted(() => {
             if (!window.localStorage?.getItem('lastVersion')) {
-                store.dispatch('app/setLastVersion', import.meta.env.VITE_APP_VERSION);
+                store.dispatch('app/setLastVersion', process.env.VITE_APP_VERSION);
             }
         });
 

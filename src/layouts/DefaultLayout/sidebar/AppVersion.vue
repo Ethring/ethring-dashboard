@@ -1,5 +1,5 @@
 <template>
-    <a-tag class="app-version" :bordered="false"> v{{ lastVersion }} </a-tag>
+    <a-tag class="app-version" :bordered="false"> v{{ lastVersion.replaceAll('"', '') }} </a-tag>
 </template>
 <script>
 import { computed } from 'vue';

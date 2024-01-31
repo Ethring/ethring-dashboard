@@ -10,12 +10,25 @@ import packageJson from './package.json';
 const IS_PROD = process.env.NODE_ENV === 'production';
 
 export default defineConfig({
-    plugins: [vue(), svgLoader(), nodePolyfills(), VitePWA({ strategies: 'injectManifest', srcDir: 'src', filename: 'service-worker.js' })],
+    plugins: [
+        vue(),
+        svgLoader(),
+        nodePolyfills(),
+        VitePWA({
+            strategies: 'injectManifest',
+            srcDir: 'src',
+            filename: 'service-worker.js',
+            injectManifest: { maximumFileSizeToCacheInBytes: 20000000 },
+        }),
+    ],
     base: './',
     server: {
         host: '0.0.0.0',
         historyApiFallback: true,
         https: IS_PROD,
+    },
+    build: {
+        chunkSizeWarningLimit: 20000000,
     },
     define: {
         'process.env.VITE_APP_VERSION': JSON.stringify(packageJson.version) || '0.0.0',
