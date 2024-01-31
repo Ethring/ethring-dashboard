@@ -117,7 +117,7 @@ class BasePage {
 
     async selectNetwork(netName: string) {
         await this.openAccordionWithNetworks();
-        await this.page.locator(`//div[@class="select__items"]//div[text()="${netName}"]`).click();
+        await this.page.locator(`//div[@data-qa="token-record"]//div[text()="${netName}"]`).click();
         await sleep(FIVE_SECONDS);
     }
 
