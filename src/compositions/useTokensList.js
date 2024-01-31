@@ -77,7 +77,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         if (onlyWithBalance) {
             allTokens = tokensWithBalance;
         } else {
-            allTokens = _.unionBy(tokensWithBalance, tokensListFromNet, (tkn) => tkn?.id);
+            allTokens = _.unionBy(tokensWithBalance, tokensListFromNet, (tkn) => tkn.address?.toLowerCase());
         }
 
         // Native token

@@ -199,7 +199,7 @@ class BridgePage extends BasePage { }
 class SendPage extends BasePage {
     async setNetworkTo(netName: string) {
         await this.page.getByTestId('select-network').click();
-        await this.page.locator(`//div[@class="select__items"]//div[text()="${netName}"]`).click();
+        await this.page.locator(`//div[@data-qa="token-record"]//div[text()="${netName}"]`).click();
     }
 
     async setAddressTo(address: string) {
