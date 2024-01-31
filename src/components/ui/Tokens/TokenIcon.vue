@@ -7,17 +7,21 @@
         }"
     >
         <template v-if="token">
-            <img
-                v-if="!showIconPlaceholder && token"
-                :key="token?.symbol"
-                :src="token?.logo || tokenIconFromZomet"
-                :alt="token?.name"
-                @error="showIconPlaceholder = true"
-                @load="showIconPlaceholder = false"
-            />
-            <div v-else class="token-icon__placeholder">
-                <a-avatar :size="+width">{{ iconPlaceholder }}</a-avatar>
-            </div>
+            <template v-if="!showIconPlaceholder && (tokenIconFromZomet || token?.logo)">
+                <img
+                    :key="token?.symbol"
+                    :src="token?.logo || tokenIconFromZomet"
+                    :alt="token?.name"
+                    :sss="token?.logo || tokenIconFromZomet"
+                    @error="showIconPlaceholder = true"
+                    @load="showIconPlaceholder = false"
+                />
+            </template>
+            <template v-else>
+                <div class="token-icon__placeholder">
+                    <a-avatar :size="+width">{{ iconPlaceholder }}</a-avatar>
+                </div>
+            </template>
         </template>
         <template v-else>
             <div class="token-icon__placeholder">
