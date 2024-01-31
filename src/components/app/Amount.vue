@@ -65,7 +65,11 @@ export default {
         const isInteger = computed(() => !Number.isInteger(+props.value));
 
         const displayValue = computed(() => {
-            if (Number.isNaN(+props.value)) {
+            if (props.value == '0') {
+                return '0';
+            }
+
+            if (Number.isNaN(+props.value) && props.value !== '0') {
                 return '~0';
             }
 
