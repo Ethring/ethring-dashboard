@@ -65,11 +65,11 @@ export default {
         const isInteger = computed(() => !Number.isInteger(+props.value));
 
         const displayValue = computed(() => {
-            if (props.value == '0') {
+            if (!props.value) {
                 return '0';
             }
 
-            if (Number.isNaN(+props.value) && props.value !== '0') {
+            if (Number.isNaN(+props.value)) {
                 return '~0';
             }
 
@@ -78,10 +78,10 @@ export default {
 
         const tooltipValue = computed(() => {
             if (props.type === 'usd') {
-                return `${props.symbol} ${props.value}`;
+                return `${props.symbol} ${props.value || 0}`;
             }
 
-            return `${props.value} ${props.symbol}`;
+            return `${props.value || 0} ${props.symbol}`;
         });
 
         return {
