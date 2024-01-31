@@ -149,6 +149,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
         const sortedList = _.orderBy(
             allTokens,
+
             [
                 // Sorting by selected
                 (tkn) => tkn.selected,
@@ -159,7 +160,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
                 // Sorting by balance
                 (tkn) => Number(tkn.balanceUsd),
             ],
-            ['desc', 'desc', 'asc']
+            ['desc', 'desc', 'desc']
         );
 
         return sortedList;
