@@ -82,7 +82,7 @@ testMetaMask.describe('Pages snapshot tests with empty wallet', () => {
 });
 
 testMetaMask.describe('MetaMask dashboard', () => {
-    testMetaMask.skip('Case#: Check ETH protocol view', async ({ browser, context, page, dashboardProtocol }) => {
+    testMetaMask('Case#: Check ETH protocol view', async ({ browser, context, page, dashboardProtocol }) => {
         const address = getTestVar(TEST_CONST.ETH_ADDRESS_BY_PROTOCOL_TEST);
 
         await Promise.all(EVM_NETWORKS.map((network) => dashboardProtocol.mockBalanceRequest(network, mockBalanceData[network], address)));
