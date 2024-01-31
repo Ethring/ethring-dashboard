@@ -33,7 +33,7 @@ export default function useSelectModal(type) {
 
     const currentIndex = ref(MAX_OPTIONS_PER_PAGE);
     const searchValue = ref('');
-    const isLoadMore = ref(false);
+    // const isLoadMore = ref(false);
 
     // =================================================================================================================
 
@@ -135,17 +135,12 @@ export default function useSelectModal(type) {
 
     const handleAfterClose = () => {
         changeScroll(true);
-        isLoadMore.value = false;
         currentIndex.value = MAX_OPTIONS_PER_PAGE;
         handleOnFilterNetworks('');
     };
 
     const handleLoadMore = () => {
         currentIndex.value += MAX_OPTIONS_PER_PAGE;
-
-        if (currentIndex.value >= list.value.length) {
-            isLoadMore.value = false;
-        }
 
         changeScroll();
     };
@@ -203,22 +198,26 @@ export default function useSelectModal(type) {
     });
 
     const options = computed(() => {
-        isLoadMore.value = false;
-
         let records = list.value || [];
 
         if (searchValue.value) {
+            currentIndex.value = MAX_OPTIONS_PER_PAGE;
             records = searchInTokens(list.value, searchValue.value);
         }
 
         if (records.length <= MAX_OPTIONS_PER_PAGE) {
-            isLoadMore.value = false;
             return records;
         }
 
-        isLoadMore.value = records.length > MAX_OPTIONS_PER_PAGE && currentIndex.value <= records.length;
-
         return _.slice(records, 0, currentIndex.value);
+    });
+
+    const isLoadMore = computed(() => {
+        if (currentIndex.value >= list.value.length) {
+            return false;
+        }
+
+        return list.value.length > MAX_OPTIONS_PER_PAGE && currentIndex.value <= options.value.length;
     });
 
     return {
