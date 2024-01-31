@@ -757,7 +757,9 @@ export default function useModule({ moduleType }) {
             selectedDstNetwork.value = null;
         }
 
-        selectedSrcNetwork.value = currentChainInfo.value;
+        if (selectedSrcNetwork.value?.net !== currentChainInfo?.value?.net) {
+            selectedSrcNetwork.value = currentChainInfo.value;
+        }
 
         if (
             ['super-swap', 'bridge'].includes(moduleType) &&
@@ -808,12 +810,6 @@ export default function useModule({ moduleType }) {
     const unWatchSrcDstNetwork = watch([selectedSrcNetwork, selectedDstNetwork], ([newSrc, newDst], [oldSrc, oldDst]) => {
         console.group('watch-src-dst-network');
 
-        cancelRequestByMethod('estimateSwap');
-        cancelRequestByMethod('estimateBridge');
-        resetFees();
-
-        setTimeout(() => (estimateErrorTitle.value = ''));
-
         // Switch tokens and networks, if they are in the same network
         const isOldNotEmpty = oldSrc && oldDst && oldSrc?.net && oldDst?.net;
         const isNewNotEmpty = newSrc && newDst && newSrc?.net && newDst?.net;
@@ -834,6 +830,12 @@ export default function useModule({ moduleType }) {
         if (newSrc && !isSameNetwork) {
             checkSelectedNetwork();
 
+            cancelRequestByMethod('estimateSwap');
+            cancelRequestByMethod('estimateBridge');
+            resetFees();
+
+            setTimeout(() => (estimateErrorTitle.value = ''));
+
             selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value, {
                 from: 'watch-src-dst-network, if src',
             });
@@ -849,6 +851,12 @@ export default function useModule({ moduleType }) {
         }
 
         if (newDst && !isSameNetwork) {
+            cancelRequestByMethod('estimateSwap');
+            cancelRequestByMethod('estimateBridge');
+            resetFees();
+
+            setTimeout(() => (estimateErrorTitle.value = ''));
+
             selectedDstToken.value = setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value, {
                 from: 'watch-src-dst-network, if dst',
             });
