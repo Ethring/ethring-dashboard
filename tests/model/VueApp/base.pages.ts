@@ -305,7 +305,7 @@ class SwapPage extends BasePage {
     }
 
     async setTokenInTokensList(token: String) {
-        await this.page.locator(`//div[@data-qa="token-record"]//div[text()="${token}"]`).click();
+        await this.page.locator(`//div[@data-qa="token-record"]//div[@class="top"][text()="${token}"]`).click();
     }
 
     async getTokenFrom() {
