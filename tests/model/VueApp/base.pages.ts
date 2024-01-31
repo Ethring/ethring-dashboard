@@ -112,7 +112,7 @@ class BasePage {
     async getCurrentNet() {
         await sleep(FIVE_SECONDS);
         await this.page.waitForLoadState();
-        return await this.page.locator('//div[@data-qa="select-network"]//div[@class="name"]').textContent();
+        return await this.page.locator('//div[@data-qa="select-network"]/div[contains(@class, "name")]').textContent();
     }
 
     async selectNetwork(netName: string) {
@@ -194,7 +194,7 @@ class DashboardPage extends BasePage {
     }
 }
 
-class BridgePage extends BasePage {}
+class BridgePage extends BasePage { }
 
 class SendPage extends BasePage {
     async setNetworkTo(netName: string) {
