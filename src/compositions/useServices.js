@@ -286,7 +286,7 @@ export default function useModule({ moduleType }) {
 
     // =================================================================================================================
     const setTokenOnChangeForNet = (srcNet, srcToken, { from = 'default', isSameNet = false, isExclude = false, token = null } = {}) => {
-        console.log('\n\n', '-'.repeat(5), from, '-'.repeat(5));
+        console.group(`setTokenOnChangeForNet from: ${from}`);
 
         const getTokensParams = {
             srcNet,
@@ -306,6 +306,7 @@ export default function useModule({ moduleType }) {
 
         if (!srcToken?.id && defaultSrcToken) {
             console.log('setTokenOnChangeForNet default !token?.id && defaultToken', srcNet?.net, defaultSrcToken?.id);
+            console.groupEnd();
             return defaultSrcToken;
         }
 
@@ -317,6 +318,7 @@ export default function useModule({ moduleType }) {
 
         if (!updatedList.length) {
             console.log('setTokenOnChangeForNet !updatedList.length', srcNet?.net, defaultSrcToken?.id);
+            console.groupEnd();
             return defaultSrcToken;
         }
 
@@ -324,12 +326,13 @@ export default function useModule({ moduleType }) {
 
         if (!tkn) {
             console.log('setTokenOnChangeForNet !tkn', srcNet?.net, defaultSrcToken?.id);
+            console.groupEnd();
+
             return defaultSrcToken;
         }
 
         console.log('setTokenOnChangeForNet tkn', srcNet?.net, tkn?.id);
-
-        console.log('-'.repeat(50), '\n\n\n');
+        console.groupEnd();
         return tkn;
     };
 
@@ -625,23 +628,33 @@ export default function useModule({ moduleType }) {
         return (opTitle.value = 'tokenOperations.switchNetwork');
     };
 
-    const resetTokensForModules = (from = 'default') => {
-        console.log('\n\n', '-'.repeat(5), 'resetTokensForModules', from, '-'.repeat(5));
+    const resetTokensForModules = (from = 'default', { isAccountChanged = false } = {}) => {
+        console.group(`resetTokensForModules from: ${from}, accountChanged: ${isAccountChanged}`);
 
         const isSrcTokenChanged = selectedSrcToken.value && selectedSrcToken.value.chain !== selectedSrcNetwork.value?.net;
         const isDstTokenChanged = selectedDstToken.value && selectedDstToken.value.chain !== selectedDstNetwork.value?.net;
 
         const isDstTokenChangedForSwap = selectedDstToken.value?.chain !== selectedSrcNetwork.value?.net;
 
+        console.log('resetTokensForModules isSrcTokenChanged', isSrcTokenChanged);
+        console.log('resetTokensForModules isDstTokenChanged', isDstTokenChanged);
+        console.log('resetTokensForModules isDstTokenChangedForSwap', isDstTokenChangedForSwap);
+        console.log('resetTokensForModules moduleType', moduleType);
+        console.log('resetTokensForModules isAccountChanged', isAccountChanged);
+
+        console.groupEnd();
+
         switch (moduleType) {
             case 'swap':
-                if (isSrcTokenChanged || !selectedSrcToken.value) {
+                if (isSrcTokenChanged || !selectedSrcToken.value || isAccountChanged) {
                     selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value, {
                         from: 'switch-swap, from',
                     });
                 }
 
-                if (isDstTokenChangedForSwap || !selectedDstToken.value) {
+                console.log('resetTokensForModules selectedDstToken.value', selectedDstToken.value);
+
+                if (isDstTokenChangedForSwap || !selectedDstToken.value || isAccountChanged) {
                     selectedDstToken.value = null;
                     // setTokenOnChangeForNet(selectedSrcNetwork.value, selectedDstToken.value, {
                     //     from: 'switch-swap, to',
@@ -656,7 +669,7 @@ export default function useModule({ moduleType }) {
             case 'send':
                 selectedDstToken.value = null;
 
-                if (isSrcTokenChanged) {
+                if (isSrcTokenChanged || isAccountChanged) {
                     selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value, {
                         from: 'switch-send, from',
                     });
@@ -666,13 +679,13 @@ export default function useModule({ moduleType }) {
 
             case 'bridge':
             case 'super-swap':
-                if (isSrcTokenChanged) {
+                if (isSrcTokenChanged || isAccountChanged) {
                     selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value, {
                         from: 'switch-bridge, from',
                     });
                 }
 
-                if (isDstTokenChanged) {
+                if (isDstTokenChanged || isAccountChanged) {
                     selectedDstToken.value = setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value, {
                         from: 'switch-bridge, to',
                     });
@@ -736,6 +749,14 @@ export default function useModule({ moduleType }) {
 
     // ========================= Watch Chain Info =========================
     const unWatchChainInfo = watch(currentChainInfo, () => {
+        console.log('watch-currentChainInfo', selectedSrcNetwork.value?.ecosystem, currentChainInfo.value?.ecosystem);
+
+        if (selectedSrcNetwork.value?.ecosystem !== currentChainInfo?.value?.ecosystem) {
+            console.log('watch-currentChainInfo selectedSrcNetwork.value?.ecosystem !== currentChainInfo?.value?.ecosystem');
+            selectedSrcNetwork.value = null;
+            selectedDstNetwork.value = null;
+        }
+
         selectedSrcNetwork.value = currentChainInfo.value;
 
         if (
@@ -751,17 +772,23 @@ export default function useModule({ moduleType }) {
     // ========================= Watch Wallet Account =========================
 
     const unWatchAcc = watch(walletAccount, (newAccount, oldAccount) => {
+        console.log('walletAccount', newAccount, oldAccount);
+        console.group('watch-wallet-account');
+
         const isAccountChanged = newAccount !== oldAccount;
         const isAccountExist = !!newAccount;
         const isOldNotEmpty = oldAccount && oldAccount !== null;
 
+        console.log('watch-wallet-account', isAccountChanged, isAccountExist, isOldNotEmpty);
+
         if (!isAccountChanged || !isAccountExist || !isOldNotEmpty) {
+            console.groupEnd();
             return;
         }
 
         estimateErrorTitle.value = '';
 
-        selectedSrcNetwork.value = currentChainInfo.value;
+        console.groupEnd();
 
         if (
             ['super-swap', 'bridge'].includes(moduleType) &&
@@ -772,13 +799,21 @@ export default function useModule({ moduleType }) {
             selectedDstNetwork.value = chainList.value?.filter(({ net }) => net !== selectedSrcNetwork.value?.net)[0];
         }
 
-        resetTokensForModules('watch-wallet-account');
         setEcosystemService();
+        resetTokensForModules('watch-wallet-account', { isAccountChanged });
     });
 
     // ========================= Watch Selected SRC DST Networks =========================
 
     const unWatchSrcDstNetwork = watch([selectedSrcNetwork, selectedDstNetwork], ([newSrc, newDst], [oldSrc, oldDst]) => {
+        console.group('watch-src-dst-network');
+
+        cancelRequestByMethod('estimateSwap');
+        cancelRequestByMethod('estimateBridge');
+        resetFees();
+
+        setTimeout(() => (estimateErrorTitle.value = ''));
+
         // Switch tokens and networks, if they are in the same network
         const isOldNotEmpty = oldSrc && oldDst && oldSrc?.net && oldDst?.net;
         const isNewNotEmpty = newSrc && newDst && newSrc?.net && newDst?.net;
@@ -786,6 +821,8 @@ export default function useModule({ moduleType }) {
         const isNewSrcNewDstSame = isNewNotEmpty && isOldNotEmpty && newSrc.net === newDst.net;
 
         const isSameNetwork = ['swap', 'bridge'].includes(moduleType) && isNewSrcNewDstSame;
+
+        console.groupEnd();
 
         if (isSameNetwork) {
             [selectedSrcNetwork.value, selectedDstNetwork.value] = [oldDst, oldSrc];
@@ -800,6 +837,15 @@ export default function useModule({ moduleType }) {
             selectedSrcToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value, {
                 from: 'watch-src-dst-network, if src',
             });
+
+            if (['swap'].includes(moduleType)) {
+                selectedDstToken.value = setTokenOnChangeForNet(selectedSrcNetwork.value, selectedDstToken.value, {
+                    from: 'watch-src-dst-network, if src swap dst',
+                    isSameNet: true,
+                    isExclude: true,
+                    token: selectedSrcToken.value,
+                });
+            }
         }
 
         if (newDst && !isSameNetwork) {
@@ -851,18 +897,25 @@ export default function useModule({ moduleType }) {
     // ========================= Watch Tokens Loadings for SRC and DST networks =========================
 
     const unWatchLoadingSrc = watch(isTokensLoadingForSrc, (loadingState, oldLoading) => {
-        console.log('\n\n', '-'.repeat(5), 'watch-loading-src', '-'.repeat(5));
+        console.group('watch-loading-src');
+
         console.log('watch-loading-src', loadingState, selectedSrcNetwork.value?.net);
 
         if (loadingState && !oldLoading) {
+            console.log('-'.repeat(5), 'watch-loading-src END if #1', '-'.repeat(5));
+            console.groupEnd();
             return;
         }
 
         if (!loadingState && !selectedSrcNetwork.value) {
+            console.log('-'.repeat(5), 'watch-loading-src END if #2', '-'.repeat(5));
+            console.groupEnd();
             return;
         }
 
         if (!selectedSrcNetwork.value) {
+            console.log('-'.repeat(5), 'watch-loading-src END if #3', '-'.repeat(5));
+            console.groupEnd();
             return;
         }
 
@@ -871,6 +924,9 @@ export default function useModule({ moduleType }) {
         });
 
         if (!['swap'].includes(moduleType)) {
+            console.log('-'.repeat(5), 'watch-loading-src END if #4', '-'.repeat(5));
+            console.groupEnd();
+
             return;
         }
 
@@ -880,6 +936,8 @@ export default function useModule({ moduleType }) {
             isExclude: true,
             token: selectedSrcToken.value,
         });
+
+        console.groupEnd();
     });
 
     const unWatchLoadingDst = watch(isTokensLoadingForDst, (loadingState) => {
@@ -992,8 +1050,6 @@ export default function useModule({ moduleType }) {
     };
 
     onMounted(() => {
-        console.log('\n\n', '+'.repeat(10), 'onMounted useServices', '+'.repeat(10), '\n\n');
-
         callOnMounted();
         checkSelectedNetwork();
         resetTokensForModules('onMounted');

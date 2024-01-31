@@ -129,7 +129,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             allTokens = allTokens.filter(({ id }) => id !== searchId);
         }
 
-        if (!onlyWithBalance || tokenInfo.balance > 0 || !allTokens.length) {
+        if (tokenInfo.balance > 0 || !allTokens.length) {
             allTokens.push(tokenInfo);
         }
 
@@ -147,18 +147,22 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             }
         }
 
-        return _.orderBy(
+        const sortedList = _.orderBy(
             allTokens,
             [
                 // Sorting by selected
                 (tkn) => tkn.selected,
+
+                // Sorting by Native Token
+                (tkn) => tkn?.id?.includes('asset__native'),
+
                 // Sorting by balance
                 (tkn) => Number(tkn.balanceUsd),
-                // Sorting by Native Token
-                (tkn) => tkn?.name?.includes('Native Token'),
             ],
-            ['desc', 'desc', 'desc']
+            ['desc', 'desc', 'asc']
         );
+
+        return sortedList;
     };
 
     const allTokensList = computed(() => getAllTokensList(network, fromToken, toToken, isSameNet));

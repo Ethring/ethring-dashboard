@@ -115,9 +115,6 @@ export default {
         // ==========================================================================================
 
         const unWatchAcc = watch(walletAccount, async () => {
-            store.dispatch('tokenOps/setSrcToken', null);
-            store.dispatch('tokenOps/setDstToken', null);
-
             await callInit();
             await callSubscription();
         });
