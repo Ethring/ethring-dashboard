@@ -285,7 +285,7 @@ class SwapPage extends BasePage {
     TOKEN_ITEM_XPATH = '(//*[@data-qa="select-token"])';
 
     async setAmount(amount: string) {
-        await this.page.locator("//div[text() = 'Pay']/following-sibling::div//input").fill(amount);
+        await this.page.getByTestId('input-amount').nth(0).fill(amount);
     }
 
     async swapTokens(amount: string) {
