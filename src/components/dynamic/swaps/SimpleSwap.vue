@@ -743,11 +743,11 @@ export default {
                 return (isLoading.value = false);
             }
 
-            opTitle.value = 'tokenOperations.swap';
-
             if (isNeedApprove.value) {
+                opTitle.value = 'tokenOperations.approve';
                 await handleApprove();
             } else {
+                opTitle.value = 'tokenOperations.swap';
                 await handleSwap();
             }
 
@@ -831,6 +831,7 @@ export default {
         });
 
         watch(isNeedApprove, () => {
+            console.log(isNeedApprove.value, '---isNeedApprove');
             if (isNeedApprove.value && opTitle.value !== 'tokenOperations.switchNetwork') {
                 return (opTitle.value = 'tokenOperations.approve');
             }
