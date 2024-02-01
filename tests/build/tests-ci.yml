@@ -32,10 +32,6 @@ Update snapshot:
 Run tests:
   stage: test_ui
   image: mcr.microsoft.com/playwright:v1.41.1-jammy
-  cache:
-    key: "${CI_COMMIT_REF_SLUG}"
-    paths:
-      - node_modules
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "dev"
