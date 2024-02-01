@@ -54,7 +54,7 @@ ARG VITE_APP_KADO_API_KEY
 
 ARG NODE_ENV
 
-Build
+# Build
 RUN npm run build
 
 # Nginx
