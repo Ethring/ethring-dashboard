@@ -6,6 +6,7 @@ import {
     addWalletToMm,
     authInDashboardByKeplr,
     authInDashboardByMm,
+    authInDashboardByMmCoingeckoMock,
     authInDashboardByMmTokensListMock,
     getPathToKeplrExtension,
     getPathToMmExtension,
@@ -27,6 +28,7 @@ export const testMetaMask = base.extend<{
     dashboardEmptyWallet: DashboardPage;
 
     sendPage: SendPage;
+    sendPageCoingeckoMock: SendPage;
     swapPage: SwapPage;
     swapPageMockTokensList: SwapPage;
     superSwapPage: SuperSwapPage;
@@ -93,6 +95,11 @@ export const testMetaMask = base.extend<{
     },
     sendPage: async ({ context }, use) => {
         const zometPage = await authInDashboardByMm(context, seedPhraseByTx);
+        const sendPage = await zometPage.goToModule('send');
+        await use(sendPage);
+    },
+    sendPageCoingeckoMock: async ({ context }, use) => {
+        const zometPage = await authInDashboardByMmCoingeckoMock(context, seedPhraseByTx);
         const sendPage = await zometPage.goToModule('send');
         await use(sendPage);
     },

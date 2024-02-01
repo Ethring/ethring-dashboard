@@ -5,6 +5,7 @@ import { INCORRECT_IMAGE_URL } from '../data/mockTokensListData';
 import { TEST_CONST, getTestVar } from '../envHelper';
 import { getHomeMmPage } from '../model/MetaMask/MetaMask.pages';
 import { EVM_NETWORKS } from '../data/constants';
+import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
 
 const sleep = require('util').promisify(setTimeout);
 
@@ -210,10 +211,12 @@ testMetaMask.describe('Swap e2e tests', () => {
 
             await swapPage.page.waitForResponse(WAITED_BALANCE_URL); // wait response wallet balance
 
+            await swapPage.mockEstimateSwapRequest(SWAP_SERVICE, errorEstimateSwap, 500);
             await swapPage.setAmount(AMOUNT);
             await sleep(1000);
 
             await swapPage.openTokenPageFrom();
+            await swapPage.mockEstimateSwapRequest(SWAP_SERVICE, errorEstimateSwap, 500);
             await swapPage.setTokenInTokensList(TOKEN_FROM);
             await swapPage.openTokenPageTo();
 
@@ -222,7 +225,7 @@ testMetaMask.describe('Swap e2e tests', () => {
             await swapPage.setTokenInTokensList(TOKEN_TO);
             await estimatePromise;
 
-            await swapPage.waitLoadImg();
+            await sleep(FIVE_SECONDS);
             await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
 
             await swapPage.openTokenPageTo();
