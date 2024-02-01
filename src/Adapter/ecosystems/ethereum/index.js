@@ -10,7 +10,7 @@ import { web3OnBoardConfig, ECOSYSTEMS, chainConfig, NATIVE_CONTRACT, TRANSFER_A
 
 import { validateEthAddress } from '@/Adapter/utils/validations';
 
-import { checkErrors } from '@/helpers/checkErrors';
+import { errorRegister } from '@/shared/utils/errors';
 
 let web3Onboard = null;
 
@@ -312,7 +312,7 @@ class EthereumAdapter extends AdapterBase {
                 };
             }
         } catch (e) {
-            return checkErrors(e);
+            return errorRegister(e);
         }
     }
 
@@ -333,7 +333,7 @@ class EthereumAdapter extends AdapterBase {
                 };
             }
         } catch (e) {
-            return checkErrors(e);
+            return errorRegister(e);
         }
     }
 

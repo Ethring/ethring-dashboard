@@ -1,33 +1,26 @@
 <template>
-    <div class="simple-send">
-        <SelectNetwork
-            :items="chainList"
-            :label="$t('tokenOperations.selectNetwork')"
-            :current="selectedSrcNetwork"
-            @select="onSelectNetwork"
-        />
+    <a-form>
+        <a-form-item>
+            <SelectRecord :placeholder="$t('tokenOperations.selectNetwork')" :current="selectedSrcNetwork" @click="onSelectNetwork" />
+        </a-form-item>
 
-        <SelectAddress
-            :selected-network="selectedSrcNetwork"
-            :items="[]"
-            :value="receiverAddress"
-            :error="!!isAddressError"
-            class="mt-8"
+        <SelectAddressInput
             :on-reset="clearAddress"
-            @setAddress="onSetAddress"
+            :selected-network="selectedSrcNetwork"
+            @error-status="(status) => (isAddressError = status)"
         />
 
-        <SelectAmount
+        <SelectAmountInput
             :value="selectedSrcToken"
             :selected-network="selectedSrcNetwork"
             :error="!!isBalanceError"
             :label="$t('tokenOperations.asset')"
             :on-reset="resetAmount"
-            :is-token-loading="isTokensLoadingForChain"
+            :is-token-loading="isTokensLoadingForSrc"
             :amount-value="srcAmount"
-            class="mt-8"
+            class="select-amount"
             @setAmount="onSetAmount"
-            @clickToken="onSetToken"
+            @clickToken="onSelectToken"
         />
 
         <Button
@@ -35,17 +28,15 @@
             :disabled="!!disabledSend"
             :loading="isWaitingTxStatusForModule || isLoading"
             :tip="$t(opTitle)"
-            class="simple-send__btn mt-16"
+            class="module-layout-view-btn"
             data-qa="confirm"
             @click="handleOnSend"
             size="large"
         />
-    </div>
+    </a-form>
 </template>
 <script>
-import { h, ref, inject, computed, onBeforeUnmount, onMounted, watch } from 'vue';
-
-import BigNumber from 'bignumber.js';
+import { h, ref, inject, computed, onMounted, watch } from 'vue';
 
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
@@ -56,33 +47,36 @@ import useTransactions from '../../../Transactions/compositions/useTransactions'
 import useServices from '../../../compositions/useServices';
 
 import Button from '@/components/ui/Button';
-import SelectNetwork from '@/components/ui/SelectNetwork';
-import SelectAddress from '@/components/ui/SelectAddress';
-import SelectAmount from '@/components/ui/SelectAmount';
+import SelectRecord from '@/components/ui/Select/SelectRecord';
+// import SelectAddress from '@/components/ui/SelectAddress';
+// import SelectAmount from '@/components/ui/SelectAmount';
+
+import SelectAddressInput from '@/components/ui/Select/SelectAddressInput';
+import SelectAmountInput from '@/components/ui/Select/SelectAmountInput';
 
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { STATUSES } from '../../../Transactions/shared/constants';
 
 import { isCorrectChain } from '@/shared/utils/operations';
-import { updateWalletBalances } from '@/shared/utils/balances';
+import {} from '@/shared/utils/balances';
 
 export default {
     name: 'SimpleSend',
     components: {
-        SelectNetwork,
-        SelectAddress,
-        SelectAmount,
+        SelectRecord,
+        SelectAddressInput,
+        SelectAmountInput,
         Button,
     },
     setup() {
         const store = useStore();
         const router = useRouter();
+
         const useAdapter = inject('useAdapter');
 
         const { name: module } = router.currentRoute.value;
 
         const {
-            //
             selectedSrcToken,
             selectedSrcNetwork,
 
@@ -91,13 +85,13 @@ export default {
 
             opTitle,
 
-            onlyWithBalance,
-            selectType,
-            targetDirection,
+            isBalanceError,
+            isTokensLoadingForSrc,
+            isWaitingTxStatusForModule,
 
-            resetTokensForModules,
+            handleOnSelectToken,
+            handleOnSelectNetwork,
         } = useServices({
-            module,
             moduleType: 'send',
         });
 
@@ -105,19 +99,16 @@ export default {
         const { showNotification, closeNotification } = useNotification();
 
         // * Adapter for wallet
-        const { walletAccount, walletAddress, connectedWallet, currentChainInfo, validateAddress, chainList, setChain } = useAdapter();
+        const { walletAddress, connectedWallet, currentChainInfo, chainList, setChain } = useAdapter();
 
         const { createTransactions, signAndSend, transactionForSign } = useTransactions();
 
         const isLoading = ref(false);
-        const isWaitingTxStatusForModule = computed(() => store.getters['txManager/isWaitingTxStatusForModule'](module));
 
         const clearAddress = ref(false);
         const resetAmount = ref(false);
-        const isAddressError = ref(false);
-        const isBalanceError = ref(false);
 
-        const isTokensLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](selectedSrcNetwork.value?.net));
+        const isAddressError = ref(false);
 
         // =================================================================================================================
 
@@ -133,48 +124,9 @@ export default {
                 !currentChainInfo.value
         );
 
-        const onSetToken = () => {
-            targetDirection.value = DIRECTIONS.SOURCE;
-            selectType.value = TOKEN_SELECT_TYPES.FROM;
-
-            router.push('/send/select-token');
-        };
-
-        const onSetAddress = (addr = '') => {
-            receiverAddress.value = addr;
-
-            if (!addr) {
-                return (isAddressError.value = false);
-            }
-
-            const isAddressAllowed = !validateAddress(addr, { chainId: selectedSrcNetwork?.value?.net }) && addr?.length > 0;
-
-            return (isAddressError.value = isAddressAllowed);
-        };
-
-        const onSelectNetwork = (network) => {
-            if (!network.net) {
-                return;
-            }
-            if (selectedSrcNetwork.value?.net === network?.net) {
-                return;
-            }
-
-            selectedSrcToken.value = null;
-            selectedSrcNetwork.value = network;
-
-            onSetAmount(null);
-
-            onSetAddress(receiverAddress.value);
-        };
-
-        const onSetAmount = (value) => {
-            srcAmount.value = value;
-
-            const isBalanceAllowed = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance);
-
-            isBalanceError.value = isBalanceAllowed;
-        };
+        const onSelectToken = () => handleOnSelectToken({ direction: DIRECTIONS.SOURCE, type: TOKEN_SELECT_TYPES.FROM });
+        const onSelectNetwork = () => handleOnSelectNetwork({ direction: DIRECTIONS.SOURCE, type: TOKEN_SELECT_TYPES.FROM });
+        const onSetAmount = (value) => (srcAmount.value = value);
 
         const resetAmounts = async (amount) => {
             const allowDataTypes = ['string', 'number'];
@@ -186,26 +138,6 @@ export default {
             resetAmount.value = amount === null;
 
             clearAddress.value = receiverAddress.value === null;
-        };
-
-        // =================================================================================================================
-
-        const updateTokens = (list) => {
-            if (!selectedSrcToken.value) {
-                return;
-            }
-
-            const fromToken = list.find((elem) => elem.symbol === selectedSrcToken.value.symbol);
-
-            if (fromToken) {
-                selectedSrcToken.value = fromToken;
-            }
-        };
-
-        const handleUpdateBalance = async () => {
-            await updateWalletBalances(walletAccount.value, walletAddress.value, selectedSrcNetwork.value, (list) => {
-                updateTokens(list);
-            });
         };
 
         // =================================================================================================================
@@ -282,8 +214,6 @@ export default {
                     return (isLoading.value = false);
                 }
 
-                handleUpdateBalance();
-
                 return (isLoading.value = false);
             } catch (error) {
                 closeNotification('prepare-tx');
@@ -296,12 +226,6 @@ export default {
 
         watch(srcAmount, () => resetAmounts(srcAmount.value));
 
-        watch(clearAddress, () => {
-            if (clearAddress.value) {
-                setTimeout(() => (clearAddress.value = false));
-            }
-        });
-
         watch(resetAmount, () => {
             if (resetAmount.value) {
                 onSetAmount(null);
@@ -309,60 +233,13 @@ export default {
             }
         });
 
-        watch(selectedSrcToken, () => {
-            isBalanceError.value = BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance);
-        });
-
-        watch(currentChainInfo, () => {
-            if (!currentChainInfo.value) {
-                return;
-            }
-
-            if (currentChainInfo.value?.net === selectedSrcNetwork.value?.net) {
-                return;
-            }
-
-            selectedSrcNetwork.value = currentChainInfo.value;
-
-            if (selectedSrcNetwork.value?.net !== currentChainInfo.value?.net) {
-                resetTokensForModules();
-            }
-        });
-
-        watch(receiverAddress, () => (clearAddress.value = receiverAddress.value === null));
-
-        watch(isTokensLoadingForChain, () => resetTokensForModules());
-
         // =================================================================================================================
 
-        // * Reset Values before leave page
-        onBeforeUnmount(() => {
-            if (router.options.history.state.current !== '/send/select-token') {
-                selectedSrcToken.value = null;
-                selectedSrcNetwork.value = null;
-                receiverAddress.value = '';
-            }
-
-            srcAmount.value = null;
-        });
-
-        onMounted(() => {
-            onlyWithBalance.value = true;
-
-            if (!selectedSrcNetwork.value) {
-                selectedSrcNetwork.value = currentChainInfo.value;
-            }
-
-            if (!selectedSrcToken.value) {
-                resetTokensForModules();
-            }
-
-            store.dispatch('txManager/setCurrentRequestID', null);
-        });
+        onMounted(() => store.dispatch('txManager/setCurrentRequestID', null));
 
         return {
             isLoading,
-            isTokensLoadingForChain,
+            isTokensLoadingForSrc,
             isWaitingTxStatusForModule,
 
             disabledSend,
@@ -378,8 +255,7 @@ export default {
             receiverAddress,
 
             onSelectNetwork,
-            onSetAddress,
-            onSetToken,
+            onSelectToken,
             onSetAmount,
 
             handleOnSend,
@@ -395,12 +271,3 @@ export default {
     },
 };
 </script>
-<style lang="scss" scoped>
-.simple-send {
-    width: 524px;
-
-    &__btn {
-        width: 100%;
-    }
-}
-</style>

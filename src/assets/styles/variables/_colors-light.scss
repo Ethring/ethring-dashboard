@@ -112,6 +112,12 @@ $balance-text: $surfieGreen;
 $unlock-text: $paleSky;
 $neutral-text: $stormGrey;
 
+$neutral-gray: $stormGrey;
+$neutral-gray-100: rgba($neutral-gray, 0.3);
+$neutral-gray-200: rgba($neutral-gray, 0.5);
+$neutral-gray-300: rgba($neutral-gray, 0.7);
+$neutral-gray-400: rgba($neutral-gray, 0.9);
+
 // Adapter
 $adapter-label-text: $trout;
 $adapter-value-text: $mineralGreen;
@@ -156,7 +162,10 @@ $btn-bg-color: $ebonyClay;
 
 $btn-text-hover: $ebonyClay;
 $btn-bg-color-hover: $turquoise;
+$btn-bg-color-hover-op-01: rgba($btn-bg-color-hover, 0.1);
+
 $btn-secondary-hover: $surfieGreen;
+$btn-secondary-hover-op-01: rgba($btn-secondary-hover, 0.1);
 
 $btn-disabled: $geyser;
 $btn-disabled-text: $gulfStream;
@@ -182,6 +191,9 @@ $select-icon-color: $gulfStream;
 $select-icon-bg-color: $geyser;
 $select-symbol-text: $charade;
 $selected-bg-color: rgba(63, 223, 174, 0.1);
+
+$select-disabled-bg-color: $geyser;
+$select-disabled-border-color: $geyser;
 
 // Accordion
 $accordion-bg-color: $white;
@@ -298,6 +310,12 @@ $theme-colors: (
     "unlock-text": $unlock-text,
     "neutral-text": $neutral-text,
 
+    "neutral-gray": $neutral-gray,
+    "neutral-gray-100": $neutral-gray-100,
+    "neutral-gray-200": $neutral-gray-200,
+    "neutral-gray-300": $neutral-gray-300,
+    "neutral-gray-400": $neutral-gray-400,
+
     "assets-border-color": $assets-border-color,
 
     "adapter-label-text": $adapter-label-text,
@@ -333,7 +351,10 @@ $theme-colors: (
 
     "btn-text-hover": $btn-text-hover,
     "btn-bg-color-hover": $btn-bg-color-hover,
+    "btn-bg-color-hover-op-01": $btn-bg-color-hover-op-01,
+
     "btn-secondary-hover": $btn-secondary-hover,
+    "btn-secondary-hover-op-01": $btn-secondary-hover-op-01,
 
     "btn-disabled": $btn-disabled,
     "btn-disabled-text": $btn-disabled-text,
@@ -358,6 +379,8 @@ $theme-colors: (
     "select-placeholder-text": $select-placeholder-text,
     "select-symbol-text": $select-symbol-text,
     "selected-bg-color": $selected-bg-color,
+    "select-disabled-bg-color": $select-disabled-bg-color,
+    "select-disabled-border-color": $select-disabled-border-color,
 
     "accordion-bg-color": $accordion-bg-color,
     "accordion-label-color": $accordion-label-color,

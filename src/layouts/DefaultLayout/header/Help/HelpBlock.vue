@@ -15,7 +15,7 @@
             </HelpItem>
 
             <HelpItem :tooltipText="tooltipText" :disabled="true">
-                <SyncOutlined />
+                <SyncOutlined :spin="isLoading" />
             </HelpItem>
         </template>
     </div>
