@@ -12,7 +12,16 @@ const IS_PROD = process.env.NODE_ENV === 'production';
 export default defineConfig({
     plugins: [
         vue(),
-        svgLoader(),
+        svgLoader({
+            svgoConfig: {
+                plugins: [
+                    {
+                        name: 'reusePaths',
+                        active: true,
+                    },
+                ],
+            },
+        }),
         nodePolyfills(),
         VitePWA({
             strategies: 'injectManifest',
@@ -43,7 +52,7 @@ export default defineConfig({
             util: 'util/',
             stream: 'stream-browserify/',
         },
-        extensions: ['.js', '.jsx', '.ts', '.tsx', '.json', '.vue'],
+        extensions: ['.js', '.json', '.vue'],
     },
     css: {
         preprocessorOptions: {
