@@ -9,6 +9,8 @@ import { test as setup } from '@playwright/test';
 import { getTestVar, TEST_CONST } from '../../envHelper';
 import { deleteAllExtensionsIfTestLocalRun } from '../deleteExtensionUtils';
 
+const __dirname = path.resolve();
+
 async function download(url: string, archivePath: string): Promise<void> {
     try {
         if (fs.existsSync(archivePath)) {

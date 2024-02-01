@@ -1,6 +1,8 @@
 import path from 'path';
 import { getTestVar, TEST_CONST } from '../envHelper';
 
+const __dirname = path.resolve();
+
 export const EVM_NETWORKS = ['eth', 'arbitrum', 'optimism', 'bsc', 'polygon', 'fantom', 'avalanche'];
 export const COSMOS_NETWORKS = {
     cosmos: 'cosmos1e9dvrk7n69hsupdnf6q5d0h6k6e33lnjq6vrmz',

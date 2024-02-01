@@ -1,5 +1,6 @@
-import { BrowserContext } from '@playwright/test';
 import path from 'path';
+
+import { BrowserContext } from '@playwright/test';
 import { MetaMaskHomePage, MetaMaskNotifyPage, getNotifyMmPage, metamaskVersion } from '../model/MetaMask/MetaMask.pages';
 import { KeplrHomePage, KeplrNotifyPage, getNotifyKeplrPage, keplrVersion } from '../model/Keplr/Keplr.pages';
 import { EVM_NETWORKS } from '../data/constants';
@@ -7,6 +8,8 @@ import mockTokensListData from '../data/mockTokensListData';
 import { DashboardPage } from '../model/VueApp/base.pages';
 import { marketCapNativeEvmTokens } from '../data/mockHelper';
 import util from 'util';
+
+const __dirname = path.resolve();
 
 export const FIVE_SECONDS = 5000;
 const sleep = util.promisify(setTimeout);
