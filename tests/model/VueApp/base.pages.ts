@@ -5,21 +5,30 @@ import util from 'util';
 const url: string = '/';
 const sleep = util.promisify(setTimeout);
 
+enum Modules {
+    send = 'send',
+    swap = 'swap',
+    bridge = 'bridge',
+    superSwap = 'superSwap',
+}
+
+type ModuleNames = keyof typeof Modules;
+
 class BasePage {
     readonly page: Page;
 
     readonly sideBarLinks = {
-        send: 'sidebar-item-send',
-        swap: 'sidebar-item-swap',
-        bridge: 'sidebar-item-bridge',
-        superSwap: 'sidebar-item-superSwap',
+        [Modules.send]: 'sidebar-item-send',
+        [Modules.swap]: 'sidebar-item-swap',
+        [Modules.bridge]: 'sidebar-item-bridge',
+        [Modules.superSwap]: 'sidebar-item-superSwap',
     };
 
     readonly modules = {
-        send: (page: Page) => new SendPage(page),
-        swap: (page: Page) => new SwapPage(page),
-        bridge: (page: Page) => new BridgePage(page),
-        superSwap: (page: Page) => new SuperSwapPage(page),
+        [Modules.send]: (page: Page) => new SendPage(page),
+        [Modules.swap]: (page: Page) => new SwapPage(page),
+        [Modules.bridge]: (page: Page) => new BridgePage(page),
+        [Modules.superSwap]: (page: Page) => new SuperSwapPage(page),
     };
 
     constructor(page: Page) {
@@ -54,7 +63,7 @@ class BasePage {
         await this.page.getByText('Keplr').click();
     }
 
-    async goToModule(module: string = 'send|swap|bridge|superSwap'): Promise<SendPage | SwapPage | BridgePage | SuperSwapPage> {
+    async goToModule(module: ModuleNames): Promise<SwapPage | SendPage | BridgePage | SuperSwapPage> {
         const moduleName = this.sideBarLinks[module];
         await this.page.getByTestId(moduleName).click();
         return this.modules[module](this.page);

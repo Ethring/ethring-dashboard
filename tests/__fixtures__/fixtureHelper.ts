@@ -14,6 +14,8 @@ export const FIVE_SECONDS = 5000;
 const sleep = util.promisify(setTimeout);
 
 const closeEmptyPages = async (context: BrowserContext) => {
+    sleep(FIVE_SECONDS); // wait for page load
+
     const allStartPages = context.pages();
 
     for (const page of allStartPages) {
