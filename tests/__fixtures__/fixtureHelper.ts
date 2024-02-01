@@ -14,8 +14,6 @@ export const FIVE_SECONDS = 5000;
 const sleep = util.promisify(setTimeout);
 
 const closeEmptyPages = async (context: BrowserContext) => {
-    sleep(FIVE_SECONDS); // wait for page load
-
     const allStartPages = context.pages();
 
     for (const page of allStartPages) {
@@ -47,7 +45,6 @@ export const addWalletToMm = async (context: BrowserContext, seed: String) => {
 
 export const addWalletToKeplr = async (context: BrowserContext, seed: String) => {
     await sleep(FIVE_SECONDS); // wait for page load
-
     await closeEmptyPages(context);
     const keplrPage = new KeplrHomePage(context.pages()[0]);
     await keplrPage.addWallet(seed);
