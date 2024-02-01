@@ -1,6 +1,6 @@
 <template>
     <div class="loading-overlay">
-        <LogoLoading :tip="tip" />
+        <LogoLoading :tip="tip" :spinning="spinning" />
     </div>
 </template>
 <script>

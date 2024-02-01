@@ -1,4 +1,4 @@
-import _ from 'lodash/array';
+import _ from 'lodash';
 import BigNumber from 'bignumber.js';
 
 import { getTotalBalance, getIntegrationsBalance } from '@/modules/Balances/utils';
@@ -112,7 +112,33 @@ export default {
                 state[type][account] = {};
             }
 
-            return (state[type][account] = _.unionBy(data, state[type][account], 'id'));
+            const [record] = data || [];
+
+            if (!record?.id) {
+                return (state[type][account] = data);
+            }
+
+            const mergedArray = _.unionBy(state[type][account], data, 'id');
+
+            const updatedArray = mergedArray.map((item) => {
+                if (!Array.isArray(state[type][account])) {
+                    return item;
+                }
+
+                const matchInStore = state[type][account]?.find((i) => i.id === item.id);
+                const matchInData = data?.find((i) => i.id === item.id);
+
+                if (matchInStore && matchInData && matchInStore?.balance !== matchInData?.balance) {
+                    item = {
+                        ...item,
+                        ...matchInData,
+                    };
+                }
+
+                return item;
+            });
+
+            return (state[type][account] = updatedArray);
         },
 
         [TYPES.SET_ASSETS_BALANCE](state, { account, data }) {

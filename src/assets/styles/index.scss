@@ -58,17 +58,17 @@ body {
 }
 
 ::-webkit-input-placeholder {
-  color: var(--#{$prefix}select-placeholder-text);
+  color: var(--#{$prefix}select-placeholder-text) !important;
 }
 ::-moz-placeholder {
-  color: var(--#{$prefix}select-placeholder-text);
+  color: var(--#{$prefix}select-placeholder-text) !important;
   opacity: 1;
 }
 :-ms-input-placeholder {
-  color: var(--#{$prefix}select-placeholder-text);
+  color: var(--#{$prefix}select-placeholder-text) !important;
 }
 ::placeholder {
-  color: var(--#{$prefix}select-placeholder-text);
+  color: var(--#{$prefix}select-placeholder-text) !important;
 }
 
 @keyframes arrowMovement {
@@ -241,3 +241,19 @@ li.ecosystem-item {
 //     transform: translateX(-150%);
 //   }
 // }
+
+.mt-8 {
+  margin-top: 8px;
+}
+
+.mt-16 {
+  margin-top: 16px;
+}
+
+.ml-8 {
+  margin-left: 8px;
+}
+
+.preview-custom-fee svg path {
+  fill: var(--#{$prefix}base-text);
+}

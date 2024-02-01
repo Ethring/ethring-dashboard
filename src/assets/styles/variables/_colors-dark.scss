@@ -156,6 +156,9 @@ $select-active-bg-color: $chineseBlack;
 $select-symbol-text: $aquamarine;
 $selected-bg-color: rgba(20, 236, 138, 0.1);
 
+$select-disabled-bg-color: $blackGray;
+$select-disabled-border-color: $blackGray;
+
 // Accordion
 $accordion-bg-color: $charade;
 $accordion-label-color: $geyser;
@@ -321,6 +324,9 @@ $theme-colors-dark: (
     "select-placeholder-text": $select-placeholder-text,
     "select-symbol-text": $select-symbol-text,
     "selected-bg-color": $selected-bg-color,
+
+    "select-disabled-bg-color": $select-disabled-bg-color,
+    "select-disabled-border-color": $select-disabled-border-color,
 
     "accordion-bg-color": $accordion-bg-color,
     "accordion-label-color": $accordion-label-color,

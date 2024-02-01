@@ -3,6 +3,7 @@
         <AppLayout />
         <WalletsModal />
         <AddressModal />
+        <RoutesModal />
         <KadoModal />
         <ReleaseNotes />
     </a-config-provider>
@@ -21,16 +22,18 @@ import AppLayout from './layouts/DefaultLayout/AppLayout.vue';
 import WalletsModal from '@/Adapter/UI/Modal/WalletsModal';
 import AddressModal from '@/Adapter/UI/Modal/AddressModal';
 import KadoModal from './components/app/modals/KadoModal.vue';
+import RoutesModal from './components/app/modals/RoutesModal.vue';
 
 import ReleaseNotes from './layouts/DefaultLayout/header/ReleaseNotes.vue';
 
-import { delay } from '@/helpers/utils';
+import { delay } from '@/shared/utils/helpers';
 
 export default {
     name: 'App',
     components: {
         AppLayout,
         KadoModal,
+        RoutesModal,
         ReleaseNotes,
         WalletsModal,
         AddressModal,
@@ -60,11 +63,10 @@ export default {
             // getNativeTokenByChain,
         } = useAdapter();
 
-        const isOpen = computed(() => store.getters['adapters/isOpen']('wallets'));
-
-        const showRoutesModal = computed(() => store.getters['bridgeDex/showRoutes']);
+        const isShowRoutesModal = computed(() => store.getters['app/modal']('routesModal'));
 
         const callSubscription = async () => {
+            console.log('callSubscription');
             const { ecosystem } = currentChainInfo.value || {};
 
             if (!ecosystem) {
@@ -83,7 +85,7 @@ export default {
         const callInit = async () => {
             const { ecosystem, walletModule } = currentChainInfo.value || {};
 
-            if (!walletModule || !ecosystem || !walletAddress.value || showRoutesModal.value) {
+            if (!walletModule || !ecosystem || !walletAddress.value || isShowRoutesModal.value) {
                 return setTimeout(callInit, 1000);
             }
 
@@ -112,9 +114,6 @@ export default {
         // ==========================================================================================
 
         const unWatchAcc = watch(walletAccount, async () => {
-            store.dispatch('tokenOps/setSrcToken', null);
-            store.dispatch('tokenOps/setDstToken', null);
-
             await callInit();
             await callSubscription();
         });
@@ -122,6 +121,8 @@ export default {
         // ==========================================================================================
 
         onBeforeMount(async () => {
+            console.log('onBeforeMount');
+            Socket.init();
             await store.dispatch('bridgeDex/getServices');
         });
 
@@ -135,13 +136,15 @@ export default {
                 });
             }
 
-            Socket.init();
-
             store.dispatch('tokens/setLoader', true);
 
             if (!lastConnectedCall.value) {
                 await connectLastConnectedWallet();
                 lastConnectedCall.value = true;
+            }
+
+            if (!lastConnectedCall.value) {
+                store.dispatch('tokens/setLoader', false);
             }
 
             await delay(300);
@@ -155,34 +158,6 @@ export default {
             // Stop watching
             unWatchAcc();
         });
-
-        return {
-            isOpen,
-        };
     },
 };
 </script>
-
-<style lang="scss" scoped>
-.app-wrap.lock-scroll {
-    overflow: hidden;
-}
-
-.sidebar {
-    background: var(--zmt-primary);
-}
-
-.header {
-    width: 75%;
-    margin: 0 auto;
-
-    height: 48px;
-    padding: 0;
-
-    position: sticky;
-    top: 0;
-    z-index: 100;
-
-    background-color: var(--#{$prefix}nav-bar-bg-color);
-}
-</style>

@@ -104,11 +104,6 @@ const routes = [
         },
     },
     {
-        path: '/:module/select-token',
-        name: 'Select Token',
-        component: () => import('../components/dynamic/SearchSelectToken.vue'),
-    },
-    {
         path: '/:pathMatch(.*)*',
         name: 'Not Found',
         component: () => import('../views/NotFound.vue'),

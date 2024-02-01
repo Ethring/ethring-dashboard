@@ -1,7 +1,6 @@
-import BigNumber from 'bignumber.js';
+import _ from 'lodash';
 import Moment from 'moment';
-
-import { sortByKey } from '@/helpers/utils';
+import BigNumber from 'bignumber.js';
 
 import { ONE_DAY, ONE_HOUR } from '@/shared/constants/operations';
 import { BALANCES_TYPES } from '@/modules/Balances/constants';
@@ -73,10 +72,10 @@ export const getIntegrationsGroupedByPlatform = (allIntegrations = []) => {
     }
 
     groupByPlatforms.forEach((groupItem, i) => {
-        groupByPlatforms[i].data = sortByKey(groupItem.data, 'totalBalanceUsd');
+        groupByPlatforms[i].data = _.orderBy(groupItem.data, ['totalBalanceUsd'], ['desc']);
     });
 
-    return sortByKey(groupByPlatforms, 'totalGroupBalance');
+    return _.orderBy(groupByPlatforms, ['totalGroupBalance'], ['desc']);
 };
 
 export const getFormattedName = (str) => {
@@ -176,5 +175,5 @@ export const getNftsByCollection = (allNfts = []) => {
         groupByCollection.push(getDataForCollection(nft));
     }
 
-    return sortByKey(groupByCollection, 'totalGroupBalance');
+    return _.orderBy(groupByCollection, ['totalGroupBalance'], ['desc']);
 };

@@ -34,12 +34,11 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import ModuleIcon from '@/Adapter/UI/Entities/ModuleIcon.vue';
 
-import ZometLogo from '@/assets/icons/app/zometLogo.svg';
-import CheckIcon from '@/assets/icons/app/checkIcon.svg';
-import ArrowIcon from '@/assets/icons/dashboard/arrowdowndropdown.svg';
+import ZometLogo from '@/assets/icons/platform-icons/only-logo-black.svg';
+import CheckIcon from '@/assets/icons/form-icons/check-circle.svg';
+import ArrowIcon from '@/assets/icons/form-icons/drop-down.svg';
 
-import { cutAddress } from '@/helpers/utils';
-import { prettyNumberTooltip } from '@/helpers/prettyNumber';
+import { cutAddress } from '@/shared/utils/address';
 
 export default {
     name: 'AccountCenter',
@@ -63,7 +62,6 @@ export default {
             walletAccount,
 
             cutAddress,
-            prettyNumberTooltip,
         };
     },
 };

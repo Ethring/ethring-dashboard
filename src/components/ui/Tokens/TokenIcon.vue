@@ -6,38 +6,43 @@
             height: `${height}px`,
         }"
     >
-        <img
-            v-if="!showIconPlaceholder && token"
-            :key="token?.symbol"
-            :src="token?.logo || tokenIconFromZomet || getTokenIcon(token?.symbol?.toLowerCase())"
-            :alt="token?.name"
-            @error="showIconPlaceholder = true"
-            @load="showIconPlaceholder = false"
-        />
-        <div v-else class="token-icon__placeholder">
-            <a-avatar :size="+width">{{ iconPlaceholder }}</a-avatar>
-        </div>
+        <template v-if="token">
+            <template v-if="!showIconPlaceholder && (tokenIconFromZomet || token?.logo)">
+                <img
+                    :key="token?.symbol"
+                    :src="token?.logo || tokenIconFromZomet"
+                    :alt="token?.name"
+                    @error="showIconPlaceholder = true"
+                    @load="showIconPlaceholder = false"
+                />
+            </template>
+            <template v-else>
+                <div class="token-icon__placeholder">
+                    <a-avatar :size="+width">{{ iconPlaceholder }}</a-avatar>
+                </div>
+            </template>
+        </template>
+        <template v-else>
+            <div class="token-icon__placeholder">
+                <a-avatar :size="+width">{{ iconPlaceholder }}</a-avatar>
+            </div>
+        </template>
     </div>
 </template>
 <script>
 import { ref, computed, watch, onMounted } from 'vue';
 import { useStore } from 'vuex';
 
-import { getTokenIcon, tokenIconPlaceholder } from '@/helpers/utils';
-
 export default {
     name: 'TokenIcon',
     props: {
         width: {
-            required: true,
-            default: 32,
+            default: '32',
         },
         height: {
-            required: true,
-            default: 32,
+            default: '32',
         },
         token: {
-            required: true,
             type: Object,
             default: () => ({
                 symbol: null,
@@ -91,9 +96,7 @@ export default {
 
         return {
             showIconPlaceholder,
-            getTokenIcon,
             iconPlaceholder,
-            tokenIconPlaceholder,
             tokenIconFromZomet,
         };
     },
@@ -125,7 +128,6 @@ export default {
 
     &__placeholder {
         font-size: var(--#{$prefix}small-sm-fs);
-
         span {
             background: var(--#{$prefix}icon-logo-bg-color);
         }

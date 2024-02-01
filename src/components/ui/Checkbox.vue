@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import CheckmarkIcon from '@/assets/icons/app/checkmark.svg';
+import CheckmarkIcon from '@/assets/icons/form-icons/check-mark.svg';
 
 export default {
     name: 'Checkbox',

@@ -8,7 +8,8 @@ export const formatAndStoreData = async (
     store,
     { chain, account, chainForRequest, chainAddress, logo },
     { mainAllTokens, mainAllIntegrations, mainAllNfts },
-    { tokens = [], integrations = [], nfts = [] }
+    { tokens = [], integrations = [], nfts = [] },
+    type = 'cache'
 ) => {
     const { allTokens, allIntegrations, allNfts } = formatResponse(
         chain,
@@ -19,10 +20,6 @@ export const formatAndStoreData = async (
     mainAllTokens.push(...allTokens);
     mainAllIntegrations.push(...allIntegrations);
     mainAllNfts.push(...allNfts);
-
-    if (!tokens.length && !integrations.length && !nfts.length) {
-        return store.dispatch('tokens/setLoadingByChain', { chain, value: false });
-    }
 
     await storeOperations(
         chain,
@@ -40,6 +37,8 @@ export const formatAndStoreData = async (
             allNfts: mainAllNfts,
         }
     );
+
+    return store.dispatch('tokens/setLoadingByChain', { chain, value: type === 'cache' });
 };
 
 // =================================================================================================================
@@ -55,10 +54,6 @@ export const callFetchBalances = async (
     const ALL_TOKENS = allTokens || [];
     const ALL_INTEGRATIONS = allIntegrations || [];
     const ALL_NFTS = allNfts || [];
-
-    for (const chainInfo of chainsWithAddresses) {
-        store.dispatch('tokens/setLoadingByChain', { chain: chainInfo.chain, value: true });
-    }
 
     const requestByType = async (type, params) => {
         if (type === 'cache') {
@@ -122,7 +117,8 @@ export const fetchBalanceForChain = async (
             mainAllIntegrations: allIntegrations,
             mainAllNfts: allNfts,
         },
-        response
+        response,
+        type
     );
 
     // =========================================================================================================

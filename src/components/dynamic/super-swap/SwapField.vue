@@ -1,8 +1,8 @@
 <template>
     <div class="swap-field" :class="{ focused }">
         <div class="row">
-            <h2 class="label">{{ label }}</h2>
-            <div class="row">
+            <h3 class="label">{{ label }}</h3>
+            <div class="row select-row">
                 <template v-if="isTokenLoading">
                     <a-space class="token-skeleton">
                         <a-skeleton-avatar active />
@@ -16,61 +16,58 @@
                 <slot v-else />
             </div>
         </div>
-        <div>
-            <template v-if="isAmountLoading">
-                <a-skeleton-input active class="skeleton" size="small" />
-            </template>
 
-            <template v-else>
-                <input
-                    v-model="amount"
-                    :placeholder="placeholder"
-                    :disabled="disabled"
-                    @focus="onFocus"
-                    v-debounce:1s="onInput"
-                    @keypress="onKeyPressHandler"
-                    @blur="onBlur"
-                    @click.stop="() => {}"
-                    data-qa="input-amount"
-                    class="input-balance"
-                    :class="{ disabled }"
-                />
-            </template>
+        <div class="swap-field-input-container">
+            <a-skeleton-input v-if="isAmountLoading" active class="input-balance input-balance-skeleton" size="" />
+            <a-input
+                v-else
+                v-model:value="amount"
+                type="text"
+                data-qa="input-amount"
+                class="base-input input-balance"
+                :class="{ disabled }"
+                :bordered="false"
+                :placeholder="placeholder"
+                :disabled="disabled"
+                v-debounce:1s="onInput"
+                @focus="focused = true"
+                @blur="onBlur"
+            />
         </div>
-        <div class="balance">
-            <template v-if="isAmountLoading">
-                <a-skeleton-input active size="small" />
-            </template>
-            <p v-else class="balance__value">
-                <span class="usd-symbol">$</span>
-                <NumberTooltip :value="payTokenPrice" />
-                <span class="percentage" v-if="percentage && !isNaN(percentage)"
-                    >(<span>{{ percentage }}%</span>)</span
-                >
-            </p>
-            <p @click.stop="setMax" v-if="!hideMax && !isTokenLoading && token" class="balance__value" :class="{ error }">
-                <span>{{ $t('tokenOperations.balance') }}:</span>
 
-                <NumberTooltip :value="token?.balance" decimals="3" />
-                <span class="symbol">{{ token?.symbol }}</span>
-            </p>
-            <a-skeleton-input v-if="!hideMax && isTokenLoading" active class="balance-skeleton" />
+        <div class="balance-info" :class="{ disabled, error }">
+            <div class="balance-price">
+                <a-skeleton-input v-if="isAmountLoading" active size="small" class="balance-skeleton" />
+                <Amount v-else :value="payTokenPrice || 0" :decimals="3" type="usd" symbol="$" />
+
+                <span class="percentage" v-if="!isAmountLoading && percentage && !isNaN(percentage)">
+                    (<span>{{ percentage }}%</span>)
+                </span>
+            </div>
+
+            <div class="balance-value">
+                <a-skeleton-input v-if="isTokenLoading" active size="small" class="balance-skeleton" />
+                <div v-else-if="!hideMax && !isTokenLoading && token" @click.stop="setMax" class="balance-value-row">
+                    <span class="balance-label"> {{ $t('tokenOperations.balance') }}: </span>
+                    <Amount :value="token?.balance || 0" :decimals="3" type="currency" :symbol="token?.symbol" />
+                </div>
+            </div>
         </div>
     </div>
 </template>
 <script>
 import { ref, watch, computed } from 'vue';
 
-import NumberTooltip from '@/components/ui/NumberTooltip';
+import Amount from '@/components/app/Amount';
 
 import BigNumber from 'bignumber.js';
 
-import { formatNumber } from '@/helpers/prettyNumber';
-import { formatInputNumber } from '@/helpers/numbers';
+import { formatNumber } from '@/shared/utils/numbers';
+import { formatInputNumber } from '@/shared/utils/input';
 
 export default {
     name: 'SwapField',
-    components: { NumberTooltip },
+    components: { Amount },
     props: {
         label: {
             required: true,
@@ -121,9 +118,7 @@ export default {
             emit('setAmount', BigNumber(props.token?.balance).toFixed());
         };
 
-        const onInput = () => {
-            return emit('setAmount', amount.value);
-        };
+        const onInput = () => emit('setAmount', amount.value);
 
         const checkBalanceAllowed = () => {
             const isBalanceAllowed = +amount.value > +props.token?.balance;
@@ -146,9 +141,9 @@ export default {
             }
         };
 
-        const payTokenPrice = computed(() => {
-            return +props.token?.price * +amount.value || 0;
-        });
+        const selectedToken = computed(() => props.token);
+
+        const payTokenPrice = computed(() => BigNumber(amount.value * +selectedToken.value?.price || 0).toFixed() || 0);
 
         watch(amount, (val) => {
             if (val) {
@@ -166,10 +161,9 @@ export default {
 
         watch(
             () => props.value,
-            (val) => {
-                if (!isNaN(val)) {
-                    amount.value = val;
-                }
+            () => {
+                amount.value = props.value;
+                emit('setAmount', amount.value);
             }
         );
 
@@ -201,12 +195,21 @@ export default {
 .swap-field {
     position: relative;
 
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
     background: var(--#{$prefix}select-bg-color);
     border-radius: 8px;
     height: 136px;
-    padding: 8px 8px 8px 16px;
+
+    padding: 8px 8px 16px 16px;
+
     box-sizing: border-box;
     border: 1px solid transparent;
+
+    transition: all 0.2s ease-in-out;
+
     cursor: pointer;
 
     &.focused {
@@ -214,17 +217,24 @@ export default {
         background: var(--#{$prefix}select-bg-color);
     }
 
-    .row {
+    .row,
+    .select-row {
         @include pageFlexRow;
         justify-content: space-between;
+        width: 100%;
+
+        & > h3 {
+            width: 30%;
+        }
+    }
+
+    .row.select-row {
+        width: 100%;
+        gap: 10px;
     }
 
     .token-skeleton {
         height: 40px;
-    }
-
-    .balance-skeleton {
-        margin-top: -16px;
     }
 
     .label {
@@ -234,76 +244,24 @@ export default {
         cursor: default;
     }
 
-    .input-balance {
+    .swap-field-input-container {
         width: 100%;
-        height: 32px;
-        text-align: left;
-        border: none;
-        outline: none;
-        background-color: transparent;
-        font-size: var(--#{$prefix}h4-fs);
-        font-weight: 700;
-        color: var(--#{$prefix}primary-text);
-        margin-top: 8px;
+        margin: 4px 0;
+    }
+
+    .input-balance {
+        min-height: 32px;
+        max-height: 32px;
+
+        text-align: left !important;
+
+        padding-left: 0;
     }
 
     .disabled {
         color: var(--#{$prefix}input-disabled-text);
         cursor: not-allowed;
         user-select: none;
-    }
-
-    .balance {
-        width: 100%;
-        @include pageFlexRow;
-        justify-content: space-between;
-        color: var(--#{$prefix}balance-text);
-        font-weight: 400;
-        margin-top: 12px;
-        padding-right: 8px;
-        font-size: var(--#{$prefix}small-lg-fs);
-
-        cursor: default;
-
-        &__value {
-            cursor: pointer;
-            font-weight: 500;
-            font-size: var(--#{$prefix}small-lg-fs);
-            color: var(--#{$prefix}balance-text);
-
-            span {
-                font-size: var(--#{$prefix}small-lg-fs);
-                color: var(--#{$prefix}select-label-color);
-                font-weight: 400;
-            }
-
-            .symbol {
-                margin-left: 2px;
-            }
-
-            .usd-symbol {
-                margin-right: -3px;
-            }
-        }
-
-        .percentage {
-            font-weight: 400;
-            margin-left: 4px;
-            color: var(--#{$prefix}base-text);
-
-            span {
-                color: var(--#{$prefix}sub-text);
-            }
-        }
-
-        .error,
-        .error * {
-            color: var(--#{$prefix}danger) !important;
-        }
-    }
-
-    .skeleton {
-        margin: 10px 0 0;
     }
 }
 </style>

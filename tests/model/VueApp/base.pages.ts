@@ -71,6 +71,10 @@ class BasePage {
         return this.page.getByTestId('content');
     }
 
+    getSelectModalContent() {
+        return this.page.getByTestId('select-record-modal');
+    }
+
     async clickConfirm() {
         await this.page.getByTestId('confirm').click();
         await sleep(10000);
@@ -112,12 +116,12 @@ class BasePage {
     async getCurrentNet() {
         await sleep(FIVE_SECONDS);
         await this.page.waitForLoadState();
-        return await this.page.locator('//div[@data-qa="select-network"]//div[@class="name"]').textContent();
+        return await this.page.locator('//div[@data-qa="select-network"]/div[contains(@class, "name")]').textContent();
     }
 
     async selectNetwork(netName: string) {
         await this.openAccordionWithNetworks();
-        await this.page.locator(`//div[@class="select__items"]//div[text()="${netName}"]`).click();
+        await this.page.locator(`//div[@data-qa="token-record"]//div[text()="${netName}"]`).click();
         await sleep(FIVE_SECONDS);
     }
 
@@ -194,12 +198,12 @@ class DashboardPage extends BasePage {
     }
 }
 
-class BridgePage extends BasePage {}
+class BridgePage extends BasePage { }
 
 class SendPage extends BasePage {
     async setNetworkTo(netName: string) {
         await this.page.getByTestId('select-network').click();
-        await this.page.locator(`//div[@class="select__items"]//div[text()="${netName}"]`).click();
+        await this.page.locator(`//div[@data-qa="token-record"]//div[text()="${netName}"]`).click();
     }
 
     async setAddressTo(address: string) {
@@ -281,7 +285,7 @@ class SwapPage extends BasePage {
     TOKEN_ITEM_XPATH = '(//*[@data-qa="select-token"])';
 
     async setAmount(amount: string) {
-        await this.page.locator("//div[text() = 'Pay']/following-sibling::div//input").fill(amount);
+        await this.page.getByTestId('input-amount').nth(0).fill(amount);
     }
 
     async swapTokens(amount: string) {
@@ -301,7 +305,7 @@ class SwapPage extends BasePage {
     }
 
     async setTokenInTokensList(token: String) {
-        await this.page.locator(`//div[@data-qa="token-record"]//div[text()="${token}"]`).click();
+        await this.page.locator(`//div[@data-qa="token-record"]//div[@class="top"][text()="${token}"]`).click();
     }
 
     async getTokenFrom() {
