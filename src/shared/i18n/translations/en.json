@@ -2,14 +2,16 @@
   "tx": {
     "txHash": "Transaction hash"
   },
+  "loadings": {
+    "walletConnecting": "Connecting wallet ...",
+    "configLoading": "Loading config ..."
+  },
   "dashboard": {
     "receive": "RECEIVE",
     "send": "SEND",
     "search": "Search",
     "notFound": "Nothing was found for your query",
     "emptyAssets": "You don't have any assets",
-    "connecting": "Connecting wallet ...",
-    "loadingConfig": "Loading config ...",
     "asset": "Asset",
     "updateAvailable": "A new version of application is available. Click the Update button below to get the new version with the latest features and improvements",
     "updatingBalances": "Fetching balances ...",

@@ -63,11 +63,10 @@ export default {
             // getNativeTokenByChain,
         } = useAdapter();
 
-        const isOpen = computed(() => store.getters['adapters/isOpen']('wallets'));
-
         const isShowRoutesModal = computed(() => store.getters['app/modal']('routesModal'));
 
         const callSubscription = async () => {
+            console.log('callSubscription');
             const { ecosystem } = currentChainInfo.value || {};
 
             if (!ecosystem) {
@@ -122,6 +121,8 @@ export default {
         // ==========================================================================================
 
         onBeforeMount(async () => {
+            console.log('onBeforeMount');
+            Socket.init();
             await store.dispatch('bridgeDex/getServices');
         });
 
@@ -134,8 +135,6 @@ export default {
                     tokens: getIBCAssets(ECOSYSTEMS.COSMOS, chain_name),
                 });
             }
-
-            Socket.init();
 
             store.dispatch('tokens/setLoader', true);
 
@@ -159,34 +158,6 @@ export default {
             // Stop watching
             unWatchAcc();
         });
-
-        return {
-            isOpen,
-        };
     },
 };
 </script>
-
-<style lang="scss" scoped>
-.app-wrap.lock-scroll {
-    overflow: hidden;
-}
-
-.sidebar {
-    background: var(--zmt-primary);
-}
-
-.header {
-    width: 75%;
-    margin: 0 auto;
-
-    height: 48px;
-    padding: 0;
-
-    position: sticky;
-    top: 0;
-    z-index: 100;
-
-    background-color: var(--#{$prefix}nav-bar-bg-color);
-}
-</style>

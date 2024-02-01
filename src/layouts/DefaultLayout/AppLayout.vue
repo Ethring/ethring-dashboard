@@ -43,11 +43,11 @@ export default {
 
         const loadingTitle = computed(() => {
             if (isConfigLoading.value) {
-                return 'dashboard.loadingConfig';
+                return 'loadings.configLoading';
             }
 
             if (isConnecting.value) {
-                return 'dashboard.connecting';
+                return 'loadings.walletConnecting';
             }
 
             return '';
