@@ -32,7 +32,7 @@ import WalletItem from '@/Adapter/UI/Entities/WalletItem';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
-import CloseIcon from '@/assets/icons/dashboard/close.svg';
+import CloseIcon from '@/assets/icons/module-icons/wallet-modal-close.svg';
 
 export default {
     name: 'WalletsModal',
