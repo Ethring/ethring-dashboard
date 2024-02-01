@@ -70,7 +70,6 @@ class KeplrHomePage {
 
     async addWallet(seed: String) {
         await sleep(FIVE_SECONDS); // wait for page load
-        await this.page.reload();
 
         // Navigation to import wallet page
         await this.page.getByText('Create a new wallet').click();

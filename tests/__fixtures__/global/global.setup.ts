@@ -9,8 +9,6 @@ import { test as setup } from '@playwright/test';
 import { getTestVar, TEST_CONST } from '../../envHelper';
 import { deleteAllExtensionsIfTestLocalRun } from '../deleteExtensionUtils';
 
-const __dirname = path.resolve();
-
 async function download(url: string, archivePath: string): Promise<void> {
     try {
         if (fs.existsSync(archivePath)) {
@@ -101,7 +99,8 @@ async function downloadAndUnzipEx(exName: 'mm' | 'keplr') {
     const { name, url } = getExtensionInfo(exName);
 
     // Path to the folder with the MetaMask extension
-    const dataFolderPath = path.resolve(__dirname, '..', '..', 'data', name);
+    const dataFolderPath = path.resolve(process.cwd(), 'data', name);
+    console.log('dataFolderPath', dataFolderPath, '|', process.cwd())
 
     // Path to the archive with the MetaMask extension
     const pathToArchive = path.resolve(dataFolderPath, `${name}.zip`);
