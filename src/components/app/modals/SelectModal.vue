@@ -36,7 +36,7 @@
     </a-modal>
 </template>
 <script>
-import { computed, inject, ref, onUpdated } from 'vue';
+import { computed, inject, ref, onUpdated, nextTick } from 'vue';
 import { useStore } from 'vuex';
 
 import Button from '../../ui/Button.vue';
@@ -44,7 +44,6 @@ import SearchInput from '../../ui/SearchInput.vue';
 import SelectOption from '../../ui/Select/SelectOption.vue';
 
 import NotFoundIcon from '@/assets/icons/form-icons/not-found.svg';
-import { nextTick } from 'process';
 
 export default {
     name: 'SelectModal',
