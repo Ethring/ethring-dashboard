@@ -65,13 +65,9 @@ export const isCorrectChain = async (selectedNetwork, currentChainInfo, setChain
 export const getOperationTitle = (selectedNet, currentNet, isApprove = false, isSwap = true) => {
     if (selectedNet !== currentNet) {
         return 'tokenOperations.switchNetwork';
-    }
-
-    if (isApprove) {
+    } else if (isApprove) {
         return 'tokenOperations.approve';
-    }
-
-    if (!isSwap) {
+    } else if (!isSwap) {
         return 'tokenOperations.confirm';
     }
 
