@@ -1,87 +1,83 @@
 <template>
-    <teleport to="body">
-        <Modal :title="$t('superSwap.selectRoutes')" @close="$emit('close')">
-            <div class="routes-modal">
-                <div
-                    v-for="(item, i) in routes"
-                    @click="() => setActiveRoute(item)"
-                    class="routes-modal__item"
-                    :class="selectedRoute === item ? 'routes-modal__active-item' : ''"
-                    :key="i"
-                >
-                    <div class="routes-service">
-                        <div class="routes-modal__row">
-                            <div class="routes-modal__row" v-for="(elem, j) in item.routes" :key="j">
-                                <div class="routes-service__icon">
-                                    <img :src="elem.service?.icon" alt="service-logo" />
-                                </div>
-                                <h3 class="routes-service__name">{{ elem.service?.name }}</h3>
-                                <h1 v-if="j != item.routes.length - 1">-</h1>
+    <a-modal :open="routesModal" centered :footer="null" class="modal" :title="$t('superSwap.selectRoutes')" @cancel="closeModal">
+        <div class="routes-modal">
+            <div
+                v-for="(item, i) in routes"
+                @click="() => setActiveRoute(item)"
+                class="routes-modal__item"
+                :class="selectedRoute === item ? 'routes-modal__active-item' : ''"
+                :key="i"
+            >
+                <div class="routes-service">
+                    <div class="routes-modal__row">
+                        <div class="routes-modal__row" v-for="(elem, j) in item.routes" :key="j">
+                            <div class="routes-service__icon">
+                                <img :src="elem.service?.icon" alt="service-logo" />
                             </div>
-                            <p class="routes-service__status" v-for="(status, k) in getStatus(item)" :class="status.class" :key="k">
-                                {{ status.value }}
-                            </p>
+                            <h3 class="routes-service__name">{{ elem.service?.name }}</h3>
+                            <h1 v-if="j != item.routes.length - 1">-</h1>
                         </div>
-                        <div class="routes-modal__row routes-time">
-                            {{ $t('superSwap.time') }}: ~
-                            <h4 class="mr-20">{{ item.estimateTime }}s</h4>
-                            {{ $t('superSwap.fee') }}:
-                            <h4>
-                                <NumberTooltip :value="item.estimateFeeUsd" decimals="3" />
-                            </h4>
-                            $
-                        </div>
+                        <p class="routes-service__status" v-for="(status, k) in getStatus(item)" :class="status.class" :key="k">
+                            {{ status.value }}
+                        </p>
                     </div>
-                    <div class="routes-modal__output">
-                        <h3>
-                            <NumberTooltip :value="item.toTokenAmount" decimals="3" />
-                            <span>{{ item.routes[item.routes.length - 1]?.toToken?.symbol }}</span>
-                        </h3>
-                        <h3 class="blue-text"><NumberTooltip :value="item.toAmountUsd" /><span>$</span></h3>
+                    <div class="routes-modal__row routes-time">
+                        {{ $t('superSwap.time') }}: ~
+                        <h4 class="mr-20">{{ item.estimateTime }}s</h4>
+                        {{ $t('superSwap.fee') }}:
+                        <h4>
+                            <Amount type="usd" decimals="3" :value="item.estimateFeeUsd" symbol="$" />
+                        </h4>
+                        $
                     </div>
                 </div>
-                <Button
-                    :loading="isLoading"
-                    :title="$t('tokenOperations.confirm')"
-                    class="routes-modal__btn"
-                    @click="confirm"
-                    size="large"
-                />
+                <div class="routes-modal__output">
+                    <h3>
+                        <Amount
+                            type="currency"
+                            decimals="3"
+                            :value="item.toTokenAmount"
+                            :symbol="item.routes[item.routes.length - 1]?.toToken?.symbol"
+                        />
+                    </h3>
+                    <h3 class="blue-text">
+                        <Amount type="usd" decimals="3" :value="item.toAmountUsd" symbol="$" />
+                    </h3>
+                </div>
             </div>
-        </Modal>
-    </teleport>
+            <Button :loading="isLoading" :title="$t('tokenOperations.confirm')" class="routes-modal__btn" @click="confirm" size="large" />
+        </div>
+    </a-modal>
 </template>
 <script>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 
-import Modal from '@/components/app/Modal';
 import Button from '@/components/ui/Button';
-import NumberTooltip from '@/components/ui/NumberTooltip';
+import Amount from '@/components/app/Amount';
 
 export default {
     name: 'RoutesModal',
     components: {
-        Modal,
         Button,
-        NumberTooltip,
+        Amount,
     },
     emits: ['close'],
     setup() {
         const store = useStore();
-        const routeInfo = computed(() => store.getters['bridgeDex/selectedRoute']);
-
-        const selectedRoute = ref(routeInfo.value.bestRoute);
         const isLoading = ref(false);
 
-        const routes = computed(() => {
-            return [routeInfo.value.bestRoute, ...routeInfo.value.otherRoutes];
-        });
+        const routesModal = computed(() => store.getters['app/modal']('routesModal'));
+
+        const routeInfo = computed(() => store.getters['bridgeDex/selectedRoute']);
+
+        const selectedRoute = ref(routeInfo.value?.bestRoute);
+
+        const routes = computed(() => [routeInfo.value.bestRoute, ...routeInfo.value.otherRoutes]);
 
         const confirm = async () => {
             if (selectedRoute.value === routeInfo.value.bestRoute) {
-                store.dispatch('bridgeDex/setShowRoutes', false);
-                return;
+                return closeModal();
             }
 
             isLoading.value = true;
@@ -99,7 +95,8 @@ export default {
             store.dispatch('bridgeDex/setSelectedRoute', data);
 
             isLoading.value = false;
-            store.dispatch('bridgeDex/setShowRoutes', false);
+
+            closeModal();
         };
 
         const setActiveRoute = (item) => {
@@ -107,6 +104,7 @@ export default {
                 selectedRoute.value = null;
                 return;
             }
+
             selectedRoute.value = item;
         };
 
@@ -115,6 +113,7 @@ export default {
             let isBestReturn = true;
             let isFastest = true;
             let routes = routeInfo.value.otherRoutes.concat(routeInfo.value.bestRoute);
+
             routes
                 .filter((el) => el !== item)
                 ?.forEach((elem) => {
@@ -128,19 +127,39 @@ export default {
                         isBestReturn = false;
                     }
                 });
+
             let statusList = [
                 { status: isLowFee, value: 'Low fee', class: 'low-fee' },
                 { status: isBestReturn, value: 'Best return', class: 'best-return' },
                 { status: isFastest, value: 'Fastest', class: 'fastest' },
             ];
+
             return statusList.filter((elem) => elem.status);
         };
+
+        const closeModal = () => {
+            if (!routesModal.value) {
+                selectedRoute.value = null;
+            }
+
+            return store.dispatch('app/toggleModal', 'routesModal');
+        };
+
+        watch(routesModal, () => {
+            if (!routesModal.value) {
+                return (selectedRoute.value = null);
+            }
+            return (selectedRoute.value = routeInfo.value?.bestRoute);
+        });
 
         return {
             routes,
             routeInfo,
             selectedRoute,
             isLoading,
+            routesModal,
+
+            closeModal,
 
             confirm,
             setActiveRoute,

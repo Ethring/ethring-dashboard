@@ -104,7 +104,7 @@ const ALL_SERVICES = [
     },
 ];
 
-export const getServices = (type, namespace = ECOSYSTEMS.EVM) => {
+export const getServices = (type = null, namespace = ECOSYSTEMS.EVM) => {
     if (type) {
         return ALL_SERVICES.filter((service) => service.type === type && service.namespace === namespace);
     }

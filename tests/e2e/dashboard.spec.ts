@@ -90,6 +90,7 @@ testMetaMask.describe('MetaMask dashboard', () => {
 
         await dashboardProtocol.prepareFoScreenShoot();
         await dashboardProtocol.setFocusToFirstSpan();
+        await sleep(FIVE_SECONDS);
 
         await expect(dashboardProtocol.page).toHaveScreenshot({ fullPage: true });
     });

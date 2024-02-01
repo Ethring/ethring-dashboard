@@ -29,7 +29,10 @@ import useMixpanel from './modules/Mixpanel';
 
 // Service worker
 import './registerServiceWorker';
+
+// Compositions
 import useAdapter from './Adapter/compositions/useAdapter';
+import useSelectModal from './compositions/useSelectModal';
 
 // * Init app
 const app = createApp(App)
@@ -40,9 +43,11 @@ const app = createApp(App)
             lock: true,
             listenTo: ['input', 'keyup'],
             defaultTime: '1s',
+            fireOnEmpty: true,
         })
     )
     .provide('useAdapter', useAdapter)
+    .provide('useSelectModal', useSelectModal)
     .use(store)
     .use(VueClickAway)
     .use(Router)

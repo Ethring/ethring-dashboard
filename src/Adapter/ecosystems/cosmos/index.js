@@ -22,7 +22,7 @@ import AdapterBase from '@/Adapter/utils/AdapterBase';
 // * Helpers
 import { validateCosmosAddress } from '@/Adapter/utils/validations';
 import { reEncodeWithNewPrefix, isDifferentSlip44 } from '@/Adapter/utils';
-import { checkErrors } from '@/helpers/checkErrors';
+import { errorRegister } from '@/shared/utils/errors';
 
 // * Config for cosmos
 const {
@@ -534,7 +534,7 @@ class CosmosAdapter extends AdapterBase {
             return fee;
         } catch (error) {
             console.error('error while getting fee', error);
-            return checkErrors(error);
+            return errorRegister(error);
         }
     }
 
@@ -628,7 +628,7 @@ class CosmosAdapter extends AdapterBase {
             };
         } catch (error) {
             console.error('error while prepare', error);
-            return checkErrors(error);
+            return errorRegister(error);
         }
     }
 
@@ -682,7 +682,7 @@ class CosmosAdapter extends AdapterBase {
 
             return response;
         } catch (error) {
-            return checkErrors(error);
+            return errorRegister(error);
         }
     }
 
@@ -771,7 +771,7 @@ class CosmosAdapter extends AdapterBase {
             return await client.signAndBroadcast(this.getAccountAddress(), [msg], fee, transaction.value?.memo);
         } catch (error) {
             console.error('[COSMOS -> signSend] Error while broadcasting transaction', error);
-            return checkErrors(error);
+            return errorRegister(error);
         }
     }
 

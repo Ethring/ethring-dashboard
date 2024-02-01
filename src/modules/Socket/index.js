@@ -71,8 +71,8 @@ class SocketInstance {
         this.addresses[ecosystem] = addresses;
         this.walletAddress = walletAddress;
 
-        this.addressSubscription(walletAddress);
-        this.addressesSubscription(addresses, walletAddress);
+        this.addressSubscription(this.walletAddress);
+        this.addressesSubscription(this.addresses[ecosystem], this.walletAddress);
     };
 
     addressesSubscription(addresses, walletAddress = null) {

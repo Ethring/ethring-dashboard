@@ -52,15 +52,15 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import ModuleIcon from '@/Adapter/UI/Entities/ModuleIcon.vue';
 
-import DisconnectIcon from '@/assets/icons/app/clear.svg';
-import CopyIcon from '@/assets/icons/app/copy.svg';
-import CheckIcon from '@/assets/icons/app/checkIcon.svg';
+import DisconnectIcon from '@/assets/icons/form-icons/clear.svg';
+import CopyIcon from '@/assets/icons/platform-icons/copy.svg';
+import CheckIcon from '@/assets/icons/form-icons/check-circle.svg';
 
 import { MoreOutlined } from '@ant-design/icons-vue';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
-import { cutAddress } from '@/helpers/utils';
+import { cutAddress } from '@/shared/utils/address';
 
 export default {
     name: 'ConnectedWallet',

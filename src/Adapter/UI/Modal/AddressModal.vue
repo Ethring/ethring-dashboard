@@ -18,7 +18,7 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import ChainWithAddress from '@/Adapter/UI/Entities/ChainWithAddress';
 
-import CloseIcon from '@/assets/icons/app/close.svg';
+import CloseIcon from '@/assets/icons/form-icons/close.svg';
 
 export default {
     name: 'AddressModal',
@@ -56,38 +56,3 @@ export default {
     },
 };
 </script>
-<style lang="scss">
-.ant-modal {
-    width: 588px !important;
-
-    .ant-modal-content,
-    .ant-modal-header {
-        color: var(--#{$prefix}primary-text);
-        background-color: var(--#{$prefix}secondary-background);
-    }
-
-    .ant-modal-content {
-        border-radius: 16px;
-    }
-
-    .ant-modal-title {
-        border-bottom: 1px dashed var(--#{$prefix}border-color);
-        padding-bottom: 10px;
-        margin-bottom: 24px;
-        font-size: var(--#{$prefix}h5-fs);
-        font-weight: 500;
-    }
-
-    .ant-modal-title,
-    .ant-modal-close-x {
-        color: var(--#{$prefix}primary-text);
-    }
-
-    .ant-modal-close {
-        margin-top: 10px;
-        &:hover {
-            background: none !important;
-        }
-    }
-}
-</style>
