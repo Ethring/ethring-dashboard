@@ -14,7 +14,9 @@ const IS_PROD = process.env.NODE_ENV === 'production';
 
 export default defineConfig({
     plugins: [
-        vue(),
+        vue({
+            isProduction: IS_PROD,
+        }),
         svgLoader({
             svgoConfig: {
                 plugins: [
@@ -27,10 +29,13 @@ export default defineConfig({
         }),
         nodePolyfills(),
         VitePWA({
+            mode: IS_PROD ? 'production' : 'development',
             strategies: 'injectManifest',
             srcDir: 'src',
             filename: 'service-worker.js',
-            injectManifest: { maximumFileSizeToCacheInBytes: 20000000 },
+            injectManifest: {
+                maximumFileSizeToCacheInBytes: 20000000,
+            }
         }),
     ],
     base: '/',
@@ -42,6 +47,7 @@ export default defineConfig({
     },
     build: {
         chunkSizeWarningLimit: 20000000,
+        minify: IS_PROD,
     },
     define: {
         'process.env.VITE_VERSION': JSON.stringify(packageJson.version) || '0.0.0',
@@ -67,4 +73,9 @@ export default defineConfig({
             },
         },
     },
+    optimizeDeps: {
+        include: [
+            'src/*'
+        ],
+    }
 });

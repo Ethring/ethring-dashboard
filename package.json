@@ -17,7 +17,7 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
     "lint:code": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
     "lint:code:fix": "eslint --fix --ignore-pattern \"/tests/\"",
-    "prepare": "husky install"
+    "prepare": "node .husky/install.mjs"
   },
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",

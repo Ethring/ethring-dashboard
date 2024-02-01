@@ -6,12 +6,14 @@ WORKDIR /app
 # Copy package.json and package-lock.json before other files
 COPY package*.json ./
 
+# Turn off husky for docker builds
+COPY .husky/ ./.husky
+
 # Install dependencies with npm ci
 RUN npm ci --production
 
 # Copy all files
 COPY . ./
-
 
 # Environment variables
 
@@ -53,6 +55,9 @@ ARG VITE_WC_PROJECT_ID
 ARG VITE_KADO_API_KEY
 
 ARG NODE_ENV
+
+# Install vite for building
+RUN npm i vite -D
 
 # Build
 RUN npm run build
