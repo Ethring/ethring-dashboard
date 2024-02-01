@@ -12,7 +12,6 @@
                     :key="token?.symbol"
                     :src="token?.logo || tokenIconFromZomet"
                     :alt="token?.name"
-                    :sss="token?.logo || tokenIconFromZomet"
                     @error="showIconPlaceholder = true"
                     @load="showIconPlaceholder = false"
                 />
