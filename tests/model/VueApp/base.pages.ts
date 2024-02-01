@@ -1,8 +1,9 @@
 import { BrowserContext, Page } from '@playwright/test';
 import { FIVE_SECONDS } from '../../__fixtures__/fixtureHelper';
+import util from 'util';
 
 const url: string = '/';
-const sleep = require('util').promisify(setTimeout);
+const sleep = util.promisify(setTimeout);
 
 class BasePage {
     readonly page: Page;

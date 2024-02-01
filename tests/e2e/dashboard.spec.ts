@@ -5,8 +5,9 @@ import { TEST_CONST, getTestVar } from '../envHelper';
 import { BridgePage, SendPage, SuperSwapPage, SwapPage } from '../model/VueApp/base.pages';
 import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
 import { EVM_NETWORKS, COSMOS_NETWORKS } from '../data/constants';
+import util from 'util';
 
-const sleep = require('util').promisify(setTimeout);
+const sleep = util.promisify(setTimeout);
 
 testMetaMask.describe('Auth page tests', () => {
     testMetaMask('Case#: Go to auth page', async ({ browser, context, page, authPageEmptyWallet }) => {

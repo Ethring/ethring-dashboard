@@ -6,9 +6,10 @@ import { EVM_NETWORKS } from '../data/constants';
 import mockTokensListData from '../data/mockTokensListData';
 import { DashboardPage } from '../model/VueApp/base.pages';
 import { marketCapNativeEvmTokens } from '../data/mockHelper';
+import util from 'util';
 
 export const FIVE_SECONDS = 5000;
-const sleep = require('util').promisify(setTimeout);
+const sleep = util.promisify(setTimeout);
 
 const closeEmptyPages = async (context: BrowserContext) => {
     await sleep(FIVE_SECONDS);

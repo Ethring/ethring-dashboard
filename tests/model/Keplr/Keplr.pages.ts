@@ -1,8 +1,9 @@
 import { BrowserContext, type Page } from '@playwright/test';
 import { getTestVar, TEST_CONST } from '../../envHelper';
 import { FIVE_SECONDS } from '../../__fixtures__/fixtureHelper';
+import util from 'util';
 
-const sleep = require('util').promisify(setTimeout);
+const sleep = util.promisify(setTimeout);
 
 const keprlId = getTestVar(TEST_CONST.PASS_BY_KEPLR_WALLET);
 const keplrVersion = getTestVar(TEST_CONST.KEPLR_VERSION);

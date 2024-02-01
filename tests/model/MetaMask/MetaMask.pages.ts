@@ -1,8 +1,9 @@
 import { BrowserContext, type Page } from '@playwright/test';
 import { getTestVar, TEST_CONST } from '../../envHelper';
 import { FIVE_SECONDS } from '../../__fixtures__/fixtureHelper';
+import util from 'util';
 
-const sleep = require('util').promisify(setTimeout);
+const sleep = util.promisify(setTimeout);
 
 const metaMaskId = getTestVar(TEST_CONST.MM_ID);
 const metamaskVersion = getTestVar(TEST_CONST.MM_VERSION);

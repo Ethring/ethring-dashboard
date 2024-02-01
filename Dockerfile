@@ -3,9 +3,6 @@ FROM node:18.19.0 as builder
 # Create app directory
 WORKDIR /app
 
-RUN npm install -g npm@latest
-RUN npm install -g vite
-
 # Copy package.json and package-lock.json before other files
 COPY package*.json ./
 
@@ -57,11 +54,13 @@ ARG VITE_APP_KADO_API_KEY
 
 ARG NODE_ENV
 
+RUN npm run dev
+
 # Build
-RUN npm run build
+# RUN npm run build
 
-# Nginx
-FROM nginxinc/nginx-unprivileged:1.18.0-alpine
+# # Nginx
+# FROM nginxinc/nginx-unprivileged:1.18.0-alpine
 
-COPY ./deploy/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=builder /app/dist /var/www
+# COPY ./deploy/nginx.conf /etc/nginx/conf.d/default.conf
+# COPY --from=builder /app/dist /var/www
