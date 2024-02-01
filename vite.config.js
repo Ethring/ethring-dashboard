@@ -1,8 +1,11 @@
-import { defineConfig } from 'vite';
-import vue from '@vitejs/plugin-vue';
 import { resolve } from 'path';
-import { nodePolyfills } from 'vite-plugin-node-polyfills';
+
+import { defineConfig } from 'vite';
+
+import vue from '@vitejs/plugin-vue';
 import { VitePWA } from 'vite-plugin-pwa';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
+
 import svgLoader from 'vite-svg-loader';
 
 import packageJson from './package.json';
