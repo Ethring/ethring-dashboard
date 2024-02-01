@@ -34,6 +34,10 @@ Update snapshot:
 Run tests:
   stage: test_ui
   image: mcr.microsoft.com/playwright:v1.41.1-jammy
+  cache:
+    key: "${CI_COMMIT_REF_SLUG}"
+    paths:
+      - node_modules
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "dev"
@@ -49,8 +53,6 @@ Run tests:
           while [ "$(cat $CI_PROJECT_DIR/.git/HEAD)" != "$CI_COMMIT_SHA" ]; do true; done;
           cd $CI_PROJECT_DIR/tests/mockserver2
           mitmdump -s ./moxy.py --set mock=./config.json --set flow_detail=0
-  variables:
-    CI: "true"
   script:
     - npm i
     - npm run test:e2e:ci
