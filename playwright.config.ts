@@ -1,6 +1,14 @@
 import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
 
+declare global {
+    interface ImportMeta {
+        env: {
+            CI: string | undefined;
+        };
+    }
+}
+
 dotenv.config({
     path: '.env.test',
     override: true,
