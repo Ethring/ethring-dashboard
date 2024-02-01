@@ -58,7 +58,7 @@ export default {
         };
 
         const showBadge = computed(() => {
-            if (process.env.VITE_APP_VERSION !== lastVersion.value) {
+            if (process.env.VITE_VERSION !== lastVersion.value) {
                 return 1;
             }
 

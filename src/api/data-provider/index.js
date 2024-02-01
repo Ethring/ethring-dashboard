@@ -4,7 +4,7 @@ export * from './chains';
 // Axios instance
 import axiosInstance from '../axios';
 
-const PROVIDER_URL = import.meta.env.VITE_APP_DATA_PROVIDER_URL || null;
+const PROVIDER_URL = import.meta.env.VITE_DATA_PROVIDER_URL || null;
 
 export const getBalancesByAddress = async (
     net,

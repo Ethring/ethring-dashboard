@@ -44,7 +44,7 @@ export default defineConfig({
         chunkSizeWarningLimit: 20000000,
     },
     define: {
-        'process.env.VITE_APP_VERSION': JSON.stringify(packageJson.version) || '0.0.0',
+        'process.env.VITE_VERSION': JSON.stringify(packageJson.version) || '0.0.0',
     },
     resolve: {
         alias: {

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const TX_MANAGER_URL = import.meta.env.VITE_APP_TX_MANAGER || null;
+const TX_MANAGER_URL = import.meta.env.VITE_TX_MANAGER || null;
 
 const txMangerIns = axios.create({
     baseURL: TX_MANAGER_URL,

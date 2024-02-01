@@ -14,9 +14,9 @@ const wallets = [
     // coinbaseWalletSdk
 ];
 
-// if (import.meta.env.VITE_APP_WC_PROJECT_ID && import.meta.env.VITE_APP_WC_PROJECT_ID !== 'null') {
+// if (import.meta.env.VITE_WC_PROJECT_ID && import.meta.env.VITE_WC_PROJECT_ID !== 'null') {
 //     const ledger = ledgerModule({
-//         projectId: import.meta.env.VITE_APP_WC_PROJECT_ID,
+//         projectId: import.meta.env.VITE_WC_PROJECT_ID,
 //     });
 
 //     wallets.push(ledger);
