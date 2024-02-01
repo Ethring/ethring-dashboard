@@ -66,7 +66,7 @@ class CosmosAdapter extends AdapterBase {
 
         const logger = new Logger('INFO');
 
-        this.walletManager = new WalletManager(chains, assets, [KEPLR_EXT], logger);
+        this.walletManager = new WalletManager(chains, [KEPLR_EXT], logger, 'connect_only', true, false, assets);
 
         this.updateChainLogos();
 

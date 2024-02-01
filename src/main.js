@@ -1,7 +1,7 @@
 import { createApp } from 'vue';
 
 // Directives
-import { vue3Debounce } from 'vue-debounce';
+import vueDebounce from 'vue-debounce';
 import VueClickAway from 'vue3-click-away';
 
 // Antd styles
@@ -36,7 +36,7 @@ const app = createApp(App)
     .use(Antd)
     .directive(
         'debounce',
-        vue3Debounce({
+        vueDebounce({
             lock: true,
             listenTo: ['input', 'keyup'],
             defaultTime: '1s',
