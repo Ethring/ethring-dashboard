@@ -60,7 +60,7 @@ ARG NODE_ENV
 RUN npm i vite -D
 
 # Build
-RUN npm run prebuild:optimize && npm run build
+RUN npm run build
 
 # ------------ NGINX ------------
 
