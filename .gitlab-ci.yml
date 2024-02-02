@@ -22,7 +22,7 @@ include:
     VITE_ZOMET_CORE_API_URL: https://zomet-core.3ahtim54r.ru
     VITE_DATA_PROVIDER_URL: https://apps.3ahtim54r.ru/srv-data-provider/api
     VITE_BRIDGE_DEX_API: https://bridge-dex.3ahtim54r.ru
-    NODE_ENV: production
+    NODE_ENV: development
   script:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$REGISTRY_URL\":{\"username\":\"$REGISTRY_USER\",\"password\":\"$REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
