@@ -18,8 +18,8 @@ Update snapshot:
           cd $CI_PROJECT_DIR/tests/mockserver2
           mitmdump -s ./moxy.py --set mock=./config.json --set flow_detail=0
   script:
-    - npm i
-    - npm run test:e2e:ci:updateSnapshot
+    - npm ci
+    - npx npm run test:e2e:updateSnapshot
   timeout: 20 minutes
   artifacts:
     paths:
@@ -48,8 +48,8 @@ Run tests:
           cd $CI_PROJECT_DIR/tests/mockserver2
           mitmdump -s ./moxy.py --set mock=./config.json --set flow_detail=0
   script:
-    - npm i
-    - npm run test:e2e:ci
+    - npm ci
+    - npx npm run test:e2e:ci
   timeout: 20 minutes
   artifacts:
     paths:
