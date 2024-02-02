@@ -108,7 +108,9 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         }
 
         if (network.ecosystem === ECOSYSTEMS.COSMOS) {
-            tokenInfo.logo = network.logo;
+            if (!baseToken) {
+                tokenInfo.logo = network.logo;
+            }
             tokenInfo.address = nativeToken.base;
         }
 
