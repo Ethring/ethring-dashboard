@@ -1,8 +1,11 @@
 <template>
     <div class="wallet-module--icon-container" :style="iconContainerStyle">
         <span v-if="isSVG(logo)" v-html="logo" />
-        <span v-else>
+        <span v-else-if="logo">
             <img :src="logo" alt="logo" />
+        </span>
+        <span v-else>
+            {{ module }}
         </span>
     </div>
 </template>
@@ -80,6 +83,8 @@ export default {
             justify-content: center;
             width: 80%;
             height: 80%;
+            color: $white;
+            text-align: center;
 
             svg {
                 width: 100%;
