@@ -48,7 +48,7 @@ ARG VITE_SENTRY_DSN
 # Analytics
 ARG VITE_MIXPANEL_TOKEN
 
-# WalletConnect
+# WalletConnect project ID for Ledger
 ARG VITE_WC_PROJECT_ID
 
 # Kado
@@ -62,7 +62,8 @@ RUN npm i vite -D
 # Build
 RUN npm run prebuild:optimize && npm run build
 
-# Nginx
+# ------------ NGINX ------------
+
 FROM nginxinc/nginx-unprivileged:1.18.0-alpine
 
 COPY ./deploy/nginx.conf /etc/nginx/conf.d/default.conf
