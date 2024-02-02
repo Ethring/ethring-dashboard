@@ -6,6 +6,7 @@ import { defineConfig } from 'vite';
 // * Plugins
 import vue from '@vitejs/plugin-vue';
 import svgLoader from 'vite-svg-loader';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 import { VitePWA } from 'vite-plugin-pwa';
 
@@ -16,6 +17,7 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import packageJson from './package.json';
 
 const isProduction = process.env.NODE_ENV === 'production';
+const isAnalyzeBundle = process.env.IS_ANALYZE === 'true';
 
 export default defineConfig({
     base: '/',
@@ -30,13 +32,13 @@ export default defineConfig({
         manifest: true,
         minify: isProduction,
         sourcemap: !isProduction,
-        chunkSizeWarningLimit: 2000,
+        chunkSizeWarningLimit: 2048,
         rollupOptions: {
             output: {
                 // * Splitting the chunks for better performance and caching
                 manualChunks: {
                     // Vue
-                    vue: ['vue', 'vue-router', 'vuex'],
+                    vue: ['vue', 'vue-router', 'vuex', 'vue3-click-away', 'vue-debounce', '@vueuse/rxjs', '@vueuse/core'],
 
                     // Sentry
                     sentry: ['@sentry/vue', '@sentry/tracing'],
@@ -48,16 +50,7 @@ export default defineConfig({
                     axios: ['axios', 'axios-extensions'],
 
                     // Utilities
-                    utils: [
-                        'bignumber.js',
-                        'lodash',
-                        'moment',
-                        'socket.io-client',
-                        'vue3-click-away',
-                        'vue-debounce',
-                        '@vueuse/rxjs',
-                        '@vueuse/core',
-                    ],
+                    utils: ['bignumber.js', 'lodash', 'moment', 'socket.io-client'],
 
                     // Ant Design
                     'ant-design': ['ant-design-vue'],
@@ -104,6 +97,8 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': resolve(__dirname, 'src'),
+            'axios/lib': resolve(__dirname, './node_modules/axios/lib'),
+
             // TODO: Remove this after moving to the API chain registry
             'chain-registry-chains': 'chain-registry/main/mainnet/chains',
             'chain-registry-assets': 'chain-registry/main/mainnet/assets',
@@ -149,5 +144,6 @@ export default defineConfig({
                 maximumFileSizeToCacheInBytes: 20000000,
             },
         }),
+        isAnalyzeBundle && visualizer({ open: true, gzipSize: true, brotliSize: true, template: 'sunburst', filename: 'stats.html', sourcemap: true, bundle: true }),
     ],
 });

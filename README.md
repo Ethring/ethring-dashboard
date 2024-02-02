@@ -3,27 +3,37 @@
 ## Setup
 
 ```bash
-# install dependencies
+# Install all dependencies
 npm i
 ```
 
 ```bash
-# serve with hot reload at http://localhost:8080
-npm run serve
+# Local page with hot reload at http://localhost:5173
+npm run dev
 ```
 
 ```bash
-# build for production with minification
+# Build for production with minification
 npm run build
 ```
 
 ```bash
-# build for production and view the bundle analyzer report
+# Debug build production, use this command to analyze bundle
+npm run build:debug
+```
+
+```bash
+# If you want to use the video command, add IS_ANALYZE=true
+IS_ANALYZE=true vite build
+```
+
+```bash
+# Build for production and view the bundle analyzer report
 npm run build --report
 ```
 
 ```bash
-# playwright e2e test report
+# Playwright e2e test report
 npm run test:report
 ```
 
