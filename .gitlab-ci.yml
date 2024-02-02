@@ -8,12 +8,27 @@ stages:
 include:
   - local: "/tests/build/tests-ci.yml"
 
+.node-cache:
+  key: "$CI_COMMIT_REF_SLUG"
+  paths:
+    - node_modules/
+  policy: pull-push
+  untracked: true
+  expires: 7 days
+
+.docker-cache:
+  key: "$CI_COMMIT_REF_SLUG"
+  paths:
+    - /kaniko/.cache
+  policy: pull-push
+  untracked: true
+  expires: 7 days
+
 .dockerBuildJob:
-  cache: {}
+  stage: build_docker
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
-  stage: build_docker
   allow_failure: false
   variables:
     IMAGE_TAG: $REGISTRY_URL/$CI_PROJECT_NAME/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHORT_SHA
@@ -48,6 +63,14 @@ include:
       --build-arg VITE_KADO_API_KEY
       --build-arg VITE_TX_MANAGER
       --build-arg NODE_ENV
+  cache:
+    key: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - node_modules/
+      - /kaniko/.cache
+  artifacts:
+    paths:
+      - /kaniko/.docker/config.json
 
 .deployJob:
   stage: deploy

@@ -1,3 +1,6 @@
+# ------------ NodeJS ------------
+
+# Stage #1 - Building the app
 FROM node:18.19.0 as builder
 
 # Create app directory
@@ -64,6 +67,7 @@ RUN npm run build
 
 # ------------ NGINX ------------
 
+# Stage #2 - Serving the app
 FROM nginxinc/nginx-unprivileged:1.18.0-alpine
 
 COPY ./deploy/nginx.conf /etc/nginx/conf.d/default.conf
