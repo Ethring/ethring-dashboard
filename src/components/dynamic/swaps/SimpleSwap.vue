@@ -393,11 +393,11 @@ export default {
                 return (isLoading.value = false);
             }
 
-            opTitle.value = 'tokenOperations.swap';
-
             if (isNeedApprove.value) {
+                opTitle.value = 'tokenOperations.approve';
                 await handleApprove();
             } else {
+                opTitle.value = 'tokenOperations.swap';
                 await handleSwap();
             }
 
