@@ -126,7 +126,7 @@ export default {
         async initZometNets({ commit, dispatch, state }, ecosystem) {
             const networks = localStorage.getItem(`networks/${ecosystem}`);
             const configUpdatedAt = localStorage.getItem('configUpdatedAt');
-            let isUpdateConfig = false;
+            let isUpdateConfig = !configUpdatedAt;
 
             if (configUpdatedAt) {
                 isUpdateConfig = Moment().diff(Moment(configUpdatedAt), 'milliseconds') > ONE_DAY;
