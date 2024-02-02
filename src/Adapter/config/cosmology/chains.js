@@ -1,4 +1,10 @@
-import { chains, assets, ibc } from 'chain-registry';
+// import { chains, assets, ibc } from 'chain-registry';
+
+// TODO: Remove this after moving to the API chain registry
+import chains from 'chain-registry-chains';
+import assets from 'chain-registry-assets';
+import ibc from 'chain-registry-ibc';
+
 import { getIbcAssets } from '@chain-registry/utils';
 
 import { DATA_PROVIDER_COSMOS_CHAINS } from '../../../api/data-provider/chains';

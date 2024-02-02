@@ -44,7 +44,7 @@ const app = createApp(App)
             listenTo: ['input', 'keyup'],
             defaultTime: '1s',
             fireOnEmpty: true,
-        })
+        }),
     )
     .provide('useAdapter', useAdapter)
     .provide('useSelectModal', useSelectModal)
