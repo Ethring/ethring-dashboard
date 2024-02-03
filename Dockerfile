@@ -13,7 +13,7 @@ COPY package*.json ./
 COPY .husky/ ./.husky
 
 # Install dependencies with npm ci
-RUN npm ci --production
+RUN npm ci --production && npm i vite -D
 
 # Copy all files
 COPY . ./
@@ -58,9 +58,6 @@ ARG VITE_WC_PROJECT_ID
 ARG VITE_KADO_API_KEY
 
 ARG NODE_ENV
-
-# Install vite for building
-RUN npm i vite -D
 
 # Build
 RUN npm run build
