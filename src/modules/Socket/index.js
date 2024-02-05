@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
 import { handleTransactionStatus } from '../../Transactions/shared/utils/tx-statuses';
 import { ECOSYSTEMS } from '../../Adapter/config';
-import { useStore } from 'vuex';
+import logger from '../../logger';
 
 const TX_MANAGER_URL = import.meta.env.VITE_TX_MANAGER || undefined;
 
@@ -26,16 +26,16 @@ class SocketInstance {
         });
 
         this.socket.on('connect', () => {
-            console.info(`[Socket] Connected: ${new Date().toLocaleTimeString()}`);
+            logger.info(`[Socket] Connected: ${new Date().toLocaleTimeString()}`);
             this.onReconnect();
         });
 
         this.socket.on('disconnect', () => {
-            console.warn(`[Socket] Disconnected, ${new Date().toLocaleTimeString()}}`);
+            logger.warn(`[Socket] Disconnected, ${new Date().toLocaleTimeString()}}`);
         });
 
         this.socket.on('reconnect', () => {
-            console.warn('[Socket] Reconnected');
+            logger.warn('[Socket] Reconnected');
             this.onReconnect();
         });
     }
@@ -47,14 +47,16 @@ class SocketInstance {
         this.socket.on('update_transaction', (data) => handleTransactionStatus(data, this.store));
         this.socket.on('update_transaction_status', (data) => handleTransactionStatus(data, this.store));
 
-        console.info('[Socket] Subscribed to transaction updates');
+        logger.info('[Socket] Subscribed to transaction updates');
     }
 
-    init() {
-        this.store = useStore();
+    init(store) {
+        if (!this.store) {
+            this.store = store;
+        }
 
         if (!this.socket) {
-            return console.warn('[Socket] Socket is not initialized');
+            return logger.warn('[Socket] Socket is not initialized');
         }
     }
 
@@ -64,7 +66,7 @@ class SocketInstance {
 
     addressSubscription(account) {
         this.socket.emit('address-subscribe', account);
-        console.log(`[Socket] Subscribed to address updates: ${account}`);
+        logger.log(`[Socket] Subscribed to address updates: ${account}`);
     }
 
     setAddresses = (addresses, walletAddress, ecosystem) => {
@@ -77,11 +79,11 @@ class SocketInstance {
 
     addressesSubscription(addresses, walletAddress = null) {
         if (!this.socket) {
-            return console.warn('[Socket] Socket is not initialized');
+            return logger.warn('[Socket] Socket is not initialized');
         }
 
         if (!walletAddress) {
-            return console.warn('[Socket] Wallet address is empty');
+            return;
         }
 
         if (walletAddress && walletAddress !== this.walletAddress) {

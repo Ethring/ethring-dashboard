@@ -37,7 +37,7 @@ export default {
         const { isConnecting } = useAdapter();
 
         const isCollapsed = computed(() => store.getters['app/isCollapsed']);
-        const isConfigLoading = computed(() => store.getters['networks/isConfigLoading']);
+        const isConfigLoading = computed(() => store.getters['configs/isConfigLoading']);
 
         const isSpinning = computed(() => isConfigLoading.value || isConnecting.value);
 

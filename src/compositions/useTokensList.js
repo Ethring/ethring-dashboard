@@ -35,7 +35,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         }
 
         const tokensWithBalance = getTokensWithAndWithoutBalance('tokens', network);
-        const tokensListFromNet = getTokensWithAndWithoutBalance('networks', network);
+        const tokensListFromNet = getTokensWithAndWithoutBalance('configs', network);
 
         if (ECOSYSTEMS.COSMOS === network?.ecosystem) {
             for (const token of tokensWithBalance) {
@@ -119,7 +119,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         }
 
         if (!tokenInfo.price) {
-            const chainList = computed(() => store.getters['networks/zometNetworksList']);
+            const chainList = computed(() => store.getters['configs/getConfigsListByEcosystem'](network.ecosystem));
             const token = chainList.value.find(({ net }) => net === tokenInfo.net);
 
             if (token) {
@@ -162,7 +162,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
                 // Sorting by balance
                 (tkn) => Number(tkn.balanceUsd),
             ],
-            ['desc', 'desc', 'desc']
+            ['desc', 'desc', 'desc'],
         );
 
         return sortedList;

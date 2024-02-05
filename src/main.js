@@ -26,6 +26,7 @@ import { i18n } from '@/shared/i18n';
 // Modules for Sentry and Mixpanel
 import useSentry from './modules/Sentry';
 import useMixpanel from './modules/Mixpanel';
+import SocketInstance from './modules/Socket';
 
 // Service worker
 import './registerServiceWorker';
@@ -34,9 +35,18 @@ import './registerServiceWorker';
 import useAdapter from './Adapter/compositions/useAdapter';
 import useSelectModal from './compositions/useSelectModal';
 
+import logger from './logger';
+
+SocketInstance.init(store);
+
 // * Init app
 const app = createApp(App)
     .use(Antd)
+    .use(logger)
+    .use(store)
+    .use(VueClickAway)
+    .use(Router)
+    .use(i18n)
     .directive(
         'debounce',
         vueDebounce({
@@ -47,11 +57,7 @@ const app = createApp(App)
         }),
     )
     .provide('useAdapter', useAdapter)
-    .provide('useSelectModal', useSelectModal)
-    .use(store)
-    .use(VueClickAway)
-    .use(Router)
-    .use(i18n);
+    .provide('useSelectModal', useSelectModal);
 
 // * Init modules
 useSentry(app, Router);

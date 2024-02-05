@@ -2,8 +2,9 @@ import { createStore } from 'vuex';
 
 // Main Modules
 import app from './app';
-import networks from './networks';
 import tokens from './tokens';
+
+import configs from './configs';
 
 // Services
 import bridge from './services/bridge';
@@ -37,9 +38,8 @@ export default createStore({
     actions: {},
     modules: {
         app,
-        // adapter,
+        configs,
         adapters,
-        networks,
         tokens,
         bridge,
         swap,

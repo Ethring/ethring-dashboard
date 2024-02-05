@@ -13,7 +13,6 @@ import { onMounted, watch, ref, computed, inject, onBeforeMount, onBeforeUnmount
 import { useStore } from 'vuex';
 
 import useInit from '@/compositions/useInit/';
-import { ECOSYSTEMS } from '@/Adapter/config';
 
 import Socket from './modules/Socket';
 
@@ -48,19 +47,17 @@ export default {
         const isInitCall = ref({});
 
         const isConfigLoading = computed({
-            get: () => store.getters['networks/isConfigLoading'],
-            set: (value) => store.dispatch('networks/setConfigLoading', value),
+            get: () => store.getters['configs/isConfigLoading'],
+            set: (value) => store.dispatch('configs/setConfigLoading', value),
         });
 
         const {
+            initAdapter,
             walletAddress,
             walletAccount,
             currentChainInfo,
             connectLastConnectedWallet,
             getAddressesWithChainsByEcosystem,
-            getChainListByEcosystem,
-            getIBCAssets,
-            // getNativeTokenByChain,
         } = useAdapter();
 
         const isShowRoutesModal = computed(() => store.getters['app/modal']('routesModal'));
@@ -89,10 +86,6 @@ export default {
                 return setTimeout(callInit, 1000);
             }
 
-            isConfigLoading.value = true;
-
-            await store.dispatch('networks/initZometNets', ecosystem.toLowerCase());
-
             if (isInitCall.value[walletAccount.value]) {
                 return;
             }
@@ -118,30 +111,27 @@ export default {
             await callSubscription();
         });
 
+        const unWatchLoading = watch(isConfigLoading, async () => {
+            if (!isConfigLoading.value && !lastConnectedCall.value) {
+                await connectLastConnectedWallet();
+                lastConnectedCall.value = true;
+            }
+        });
+
         // ==========================================================================================
 
         onBeforeMount(async () => {
-            console.log('onBeforeMount');
-            Socket.init();
+            isConfigLoading.value = true;
+
+            await store.dispatch('configs/initConfigs');
+
+            await initAdapter();
+
             await store.dispatch('bridgeDex/getServices');
         });
 
         onMounted(async () => {
-            const chains = getChainListByEcosystem(ECOSYSTEMS.COSMOS);
-
-            for (const { chain_name } of chains) {
-                store.dispatch('networks/setTokensByCosmosNet', {
-                    network: chain_name,
-                    tokens: getIBCAssets(ECOSYSTEMS.COSMOS, chain_name),
-                });
-            }
-
             store.dispatch('tokens/setLoader', true);
-
-            if (!lastConnectedCall.value) {
-                await connectLastConnectedWallet();
-                lastConnectedCall.value = true;
-            }
 
             if (!lastConnectedCall.value) {
                 store.dispatch('tokens/setLoader', false);
@@ -157,6 +147,7 @@ export default {
         onBeforeUnmount(() => {
             // Stop watching
             unWatchAcc();
+            unWatchLoading();
         });
     },
 };

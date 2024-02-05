@@ -7,6 +7,7 @@ import { DP_COSMOS } from '@/api/data-provider';
 
 import { getTotalBalanceByDiff } from '@/shared/utils/assets';
 import IndexedDBService from '@/modules/indexedDb';
+import IndexedDBServiceV2 from '@/modules/IndexedDb-v2';
 
 import PricesModule from '@/modules/prices/';
 
@@ -14,13 +15,15 @@ import { ECOSYSTEMS } from '@/Adapter/config';
 
 import { BALANCES_TYPES } from '@/modules/Balances/constants';
 
+const configsDb = new IndexedDBServiceV2('configs');
+
 // =================================================================================================================
 export const storeOperations = async (
     chain,
     account,
     store,
     { tokens = [], integrations = [], nfts = [] },
-    { allTokens, allIntegrations, allNfts }
+    { allTokens, allIntegrations, allNfts },
 ) => {
     if (!tokens.length && !integrations.length && !nfts.length) {
         return store.dispatch('tokens/setLoadingByChain', { chain, value: false });
@@ -64,7 +67,7 @@ export const formatResponse = (chain, { chainForRequest, chainAddress, logo }, {
 
     if (integrations && integrations.length) {
         const list = integrations.map((integration) =>
-            processIntegration(integration, { net: chainForRequest, chain, logo, chainAddress })
+            processIntegration(integration, { net: chainForRequest, chain, logo, chainAddress }),
         );
 
         allIntegrations.push(...list);
@@ -186,11 +189,15 @@ export const getTotalBalance = (records, balance = BigNumber(0)) => {
 
 // =================================================================================================================
 
-export const prepareChainWithAddress = (addressesObj, currentChainInfo) => {
+export const prepareChainWithAddress = async (addressesObj, currentChainInfo) => {
     const CHUNK_SIZE = 2;
 
     const { net: currentChain, ecosystem } = currentChainInfo;
-    const cosmosChains = JSON.parse(localStorage.getItem('networks/cosmos')) || {};
+    let cosmosChains = {};
+
+    if (ecosystem === ECOSYSTEMS.COSMOS) {
+        cosmosChains = (await configsDb.getAllObjectFrom('networks', 'ecosystem', ECOSYSTEMS.COSMOS)) || {};
+    }
 
     const addrList = Object.entries(addressesObj).map(([key, value]) => ({
         chain: key,
@@ -210,8 +217,8 @@ export const prepareChainWithAddress = (addressesObj, currentChainInfo) => {
     };
 };
 
-export const setNativeTokensPrices = async (store, account) => {
-    const chainList = computed(() => store.getters['networks/zometNetworksList']);
+export const setNativeTokensPrices = async (store, account, ecosystem) => {
+    const chainList = computed(() => store.getters['configs/getConfigsListByEcosystem'](ecosystem));
     const nets = new Set();
 
     for (const network of chainList.value) {

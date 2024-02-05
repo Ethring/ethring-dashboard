@@ -76,12 +76,8 @@ export default defineConfig({
                     '@web3-onboard-cores': ['@web3-onboard/core', '@web3-onboard/vue', '@web3-onboard/common'],
                     '@web3-onboard-wallets': ['@web3-onboard/injected-wallets', '@web3-onboard/coinbase', '@web3-onboard/ledger'],
 
-                    // TODO: Remove this after moving to the API chain registry
                     // Chain Registry
-                    'chain-registry-mainnet': ['chain-registry/main/mainnet'],
-                    'chain-registry-devnet': ['chain-registry/main/devnet'],
-                    'chain-registry-testnet': ['chain-registry/main/testnet'],
-                    '@chain-registry-helpers': ['@chain-registry/assets', '@chain-registry/utils'],
+                    '@chain-registry-assets': ['@chain-registry/assets/main'],
                 },
             },
         },
@@ -98,11 +94,6 @@ export default defineConfig({
         alias: {
             '@': resolve(__dirname, 'src'),
             'axios/lib': resolve(__dirname, './node_modules/axios/lib'),
-
-            // TODO: Remove this after moving to the API chain registry
-            'chain-registry-chains': 'chain-registry/main/mainnet/chains',
-            'chain-registry-assets': 'chain-registry/main/mainnet/assets',
-            'chain-registry-ibc': 'chain-registry/main/mainnet/ibc',
         },
         extensions: ['.js', '.vue'],
     },
@@ -144,6 +135,14 @@ export default defineConfig({
                 maximumFileSizeToCacheInBytes: 20000000,
             },
         }),
-        isAnalyzeBundle && visualizer({ open: true, gzipSize: true, brotliSize: true, template: 'sunburst', filename: 'stats.html', sourcemap: true, bundle: true }),
+        isAnalyzeBundle &&
+            visualizer({
+                open: true,
+                gzipSize: true,
+                brotliSize: true,
+                filename: 'stats.html',
+                sourcemap: true,
+                bundle: true,
+            }),
     ],
 });

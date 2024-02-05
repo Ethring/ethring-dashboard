@@ -57,7 +57,7 @@ export default {
 
         const store = useStore();
 
-        const tokens = computed(() => store.getters['networks/zometTokens']);
+        const tokenFromConfig = computed(() => store.getters['configs/getTokenLogoByAddress'](props.token?.address, props.token?.chain));
 
         const setTokenIcon = () => {
             const { address = null, extensions = {} } = props.token;
@@ -71,8 +71,8 @@ export default {
                 }
             }
 
-            if (searchAddress && tokens.value[searchAddress]) {
-                return (tokenIconFromZomet.value = tokens.value[searchAddress].logo);
+            if (tokenFromConfig.value) {
+                return (tokenIconFromZomet.value = tokenFromConfig.value);
             }
 
             return (tokenIconFromZomet.value = null);
@@ -91,7 +91,7 @@ export default {
                     showIconPlaceholder.value = false;
                     setTokenIcon();
                 }
-            }
+            },
         );
 
         return {
