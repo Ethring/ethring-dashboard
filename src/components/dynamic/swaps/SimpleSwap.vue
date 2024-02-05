@@ -309,6 +309,7 @@ export default {
             await makeApproveRequest(selectedService.value);
 
             if (!srcTokenApprove.value) {
+                store.dispatch('txManager/setTransactionForSign', null);
                 return (isLoading.value = false);
             }
 
@@ -351,6 +352,7 @@ export default {
             const responseSwap = await makeSwapRequest();
 
             if (!responseSwap) {
+                store.dispatch('txManager/setTransactionForSign', null);
                 return (isLoading.value = false);
             }
 

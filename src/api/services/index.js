@@ -212,8 +212,6 @@ export const getSwapTx = async ({ url, net, fromTokenAddress, toTokenAddress, am
 
     try {
         const fetchParams = {
-            url,
-            route,
             params: {
                 net,
                 fromTokenAddress: fromTokenAddress || NATIVE_CONTRACT,
@@ -227,14 +225,15 @@ export const getSwapTx = async ({ url, net, fromTokenAddress, toTokenAddress, am
         if (SOURCES[route]) {
             fetchParams.cancelToken = SOURCES[route].token;
         }
+        const REQUEST_URL = `${url}getSwapTx`;
 
-        const response = await fetchData(fetchParams);
+        const { data, error } = (await axios.get(REQUEST_URL, fetchParams)).data;
 
-        if (response.error) {
-            return errorRegister(response.error);
+        if (error) {
+            return errorRegister(error);
         }
 
-        return response;
+        return data;
     } catch (error) {
         return errorRegister(error);
     }
@@ -266,8 +265,6 @@ export const getBridgeTx = async ({
 
     try {
         const fetchParams = {
-            url,
-            route,
             params: {
                 fromNet,
                 toNet,
@@ -285,13 +282,15 @@ export const getBridgeTx = async ({
             fetchParams.cancelToken = SOURCES[route].token;
         }
 
-        const response = await fetchData(fetchParams);
+        const REQUEST_URL = `${url}getBridgeTx`;
 
-        if (response.error) {
-            return errorRegister(response.error);
+        const { data, error } = (await axios.get(REQUEST_URL, fetchParams)).data;
+
+        if (error) {
+            return errorRegister(error);
         }
 
-        return response;
+        return data;
     } catch (error) {
         return errorRegister(error);
     }
