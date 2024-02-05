@@ -15,6 +15,10 @@ $springGreen: #14ec8a;
 //  SECONDARY COLORS
 //  ===========================================================================
 
+$ghostWhite: #5a6281;
+$medievalBlue: #2b3450;
+$medWhite: #e8efff;
+
 $charade: #2e323e;
 $trout: #494c56;
 $mineralGreen: #486060;
@@ -27,12 +31,13 @@ $cyan: #02e7f6;
 $ficus: #385c39;
 $blueHalk: #e6eeff;
 $blackGray: #1a1d26;
-$paleSky: #6D747A;
+$paleSky: #6d747a;
 
 $wildWatermelon: #e4455d;
 $deepCerulean: #00839f;
 $japaneseLaurel: #038d00;
 $blazeOrange: #ff6b00;
+$neutral-text: $medWhite;
 
 //  ===========================================================================
 //  GRADIENTS
@@ -47,7 +52,6 @@ $gradient-dark-green: linear-gradient(198.01deg, #00bf57 0.44%, #005f91 108.3%);
 
 $black-op-085: rgba(0, 0, 0, 0.85);
 $black-op-02: rgba(0, 0, 0, 0.2);
-
 
 //  ===========================================================================
 //  COLORS MAP
@@ -87,6 +91,7 @@ $adapter-label-text: $gulfStream;
 $adapter-value-text: $white;
 $adapter-ecosystem-border-color: $charade;
 $adapter-ecosystem-color: $springGreen;
+$adapter-ecosystem-connect-hover: $ebonyClay;
 $adapter-connected-border-color: $charade;
 $adapter-connected-icon-color: $lightGreen;
 $adapter-secondary-border-color: $pastelPink;
@@ -149,13 +154,15 @@ $select-icon-bg-color: $charade;
 $select-placeholder-text: $trout;
 $select-active-bg-color: $chineseBlack;
 $select-symbol-text: $aquamarine;
-$selected-bg-color: rgba(20, 236, 138, 0.10);
+$selected-bg-color: rgba(20, 236, 138, 0.1);
 
+$select-disabled-bg-color: $blackGray;
+$select-disabled-border-color: $blackGray;
 
 // Accordion
 $accordion-bg-color: $charade;
 $accordion-label-color: $geyser;
-$accordion-border-color: 'transparent';
+$accordion-border-color: "transparent";
 $accordion-title: $white;
 
 // Collapse
@@ -181,7 +188,7 @@ $white: $white;
 $icon-color: $gulfStream;
 $icon-active: $geyser;
 $icon-hover: $black;
-$icon-disabled: $gulfStream;
+$icon-disabled: $paleSky;
 $icon-border: $gulfStream;
 
 $icon-logo-bg-color: $charade;
@@ -190,7 +197,9 @@ $icon-secondary-bg-color: $ebonyClay;
 $icon-secondary-bg-hover: $mineralGreen;
 $icon-bg-color: $white;
 
-$sidebar-active-color: $springGreen;
+$icon-placeholder: $medievalBlue;
+$icon-placeholder-border: $ghostWhite;
+
 $arrow-color: $white;
 
 $negative-percentage: $wildWatermelon;
@@ -214,7 +223,7 @@ $modal-item-text: $ebonyClay;
 // Search
 $search-bg-color: $ebonyClay;
 
-$block-box-shadow: 'transparent';
+$block-box-shadow: "transparent";
 $loader-border-color: $ficus;
 
 $theme-switcher-color: $gulfStream;
@@ -224,7 +233,6 @@ $nav-bar-bg-color: $chineseBlack;
 $tag-01: $aquamarine;
 $tag-02: $cyan;
 $tag-03: $springGreen;
-
 
 //  ===========================================================================
 //  THEME MAP
@@ -255,6 +263,7 @@ $theme-colors-dark: (
     "input-disabled-text": $input-disabled-text,
     "balance-text": $balance-text,
     "unlock-text": $unlock-text,
+    "neutral-text": $neutral-text,
 
     "assets-border-color": $assets-border-color,
     "assets-header-border-color": $assets-header-border-color,
@@ -263,6 +272,7 @@ $theme-colors-dark: (
     "adapter-value-text": $adapter-value-text,
     "adapter-ecosystem-border-color": $adapter-ecosystem-border-color,
     "adapter-ecosystem-color": $adapter-ecosystem-color,
+    "adapter-ecosystem-connect-hover": $adapter-ecosystem-connect-hover,
     "adapter-logo-main-color": $adapter-logo-main-color,
     "adapter-logo-base-color": $adapter-logo-base-color,
     "adapter-logo-secondary-color": $adapter-logo-secondary-color,
@@ -315,6 +325,9 @@ $theme-colors-dark: (
     "select-symbol-text": $select-symbol-text,
     "selected-bg-color": $selected-bg-color,
 
+    "select-disabled-bg-color": $select-disabled-bg-color,
+    "select-disabled-border-color": $select-disabled-border-color,
+
     "accordion-bg-color": $accordion-bg-color,
     "accordion-label-color": $accordion-label-color,
     "accordion-border-color": $accordion-border-color,
@@ -334,6 +347,9 @@ $theme-colors-dark: (
     "icon-secondary-bg-color": $icon-secondary-bg-color,
     "icon-secondary-bg-hover": $icon-secondary-bg-hover,
     "arrow-color": $arrow-color,
+
+    "icon-placeholder": $icon-placeholder,
+    "icon-placeholder-border": $icon-placeholder-border,
 
     "search-bg-color": $search-bg-color,
 
@@ -374,5 +390,5 @@ $theme-colors-dark: (
 
     "tag-01": $tag-01,
     "tag-02": $tag-02,
-    "tag-03": $tag-03,
+    "tag-03": $tag-03
 );

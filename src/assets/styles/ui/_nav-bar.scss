@@ -1,0 +1,64 @@
+.nav-bar {
+    &-row {
+        @include pageFlexRow;
+        justify-content: space-between;
+    }
+
+    &__help-item {
+        cursor: pointer;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        min-width: 32px;
+        min-height: 32px;
+        border-radius: 50px;
+
+        border: 1px solid var(--#{$prefix}border-color);
+        background: var(--#{$prefix}icon-secondary-bg-color);
+
+        font-weight: 400;
+        font-size: var(--#{$prefix}h3-fs);
+        color: var(--#{$prefix}icon-active);
+
+        transition: 0.2s ease-in-out;
+
+        &.disabled {
+            opacity: 0.5;
+
+            color: var(--#{$prefix}icon-disabled);
+
+            svg {
+                fill: var(--#{$prefix}icon-disabled);
+            }
+
+            &,
+            * {
+                cursor: not-allowed;
+            }
+        }
+
+        &:hover:not(.disabled) {
+            border-color: var(--#{$prefix}icon-hover);
+            background-color: var(--#{$prefix}adapter-hover-color);
+            opacity: 0.8;
+        }
+
+        span {
+            font-size: var(--#{$prefix}h4-fs);
+        }
+
+        svg,
+        path {
+            fill: var(--#{$prefix}icon-active);
+            transition: all 0.2s ease-in-out;
+        }
+    }
+}
+
+.nav-bar__help-item-space {
+    .ant-space-item {
+        max-height: 55px !important;
+    }
+}

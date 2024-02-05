@@ -1,5 +1,6 @@
-import { Page } from '@playwright/test';
-import { FIVE_SECONDS } from '../utils';
+import { BrowserContext, Page } from '@playwright/test';
+import { FIVE_SECONDS, ONE_SECOND } from '../../__fixtures__/fixtureHelper';
+import { DATA_QA_LOCATORS } from '../../data/constants';
 
 const url: string = '/';
 const sleep = require('util').promisify(setTimeout);
@@ -8,10 +9,10 @@ class BasePage {
     readonly page: Page;
 
     readonly sideBarLinks = {
-        send: 'sidebar-item-send',
-        swap: 'sidebar-item-swap',
-        bridge: 'sidebar-item-bridge',
-        superSwap: 'sidebar-item-superSwap',
+        send: DATA_QA_LOCATORS.SIDEBAR_SEND,
+        swap: DATA_QA_LOCATORS.SIDEBAR_SWAP,
+        bridge: DATA_QA_LOCATORS.SIDEBAR_BRIDGE,
+        superSwap: DATA_QA_LOCATORS.SIDEBAR_SUPER_SWAP,
     };
 
     readonly modules = {
@@ -29,18 +30,28 @@ class BasePage {
         await this.page.goto(url);
     }
 
-    async clickLoginByMetaMask() {
+    // arg context add by debug playwright error
+    async clickLoginByMetaMask(context?: BrowserContext) {
         try {
             await this.page.locator('div.wallet-adapter-container').click();
-            await this.page.getByTestId('EVM Ecosystem wallet').click();
+            await this.page.getByTestId(DATA_QA_LOCATORS.EVM_ECOSYSTEM_WALLET).click();
         } catch (e) {
             console.log('\nFirst login by metamask fail:\n', `\t${e}`);
-            await this.page.reload();
-            await this.page.locator('div.wallet-adapter-container').click();
-            await this.page.getByTestId('EVM Ecosystem wallet').click();
+            console.log(context.pages().length);
+            console.log(context.pages());
+            await context.pages()[1].reload();
+            // await this.page.reload();
+            // await this.page.locator('div.wallet-adapter-container').click();
+            // await this.page.getByTestId('EVM Ecosystem wallet').click();
         }
 
         await this.page.getByText('MetaMask').click();
+    }
+
+    async clickLoginByKeplr() {
+        await this.page.locator('div.wallet-adapter-container').click();
+        await this.page.getByTestId(DATA_QA_LOCATORS.COSMOS_ECOSYSTEM_WALLET).click();
+        await this.page.getByText('Keplr').click();
     }
 
     async goToModule(module: string = 'send|swap|bridge|superSwap'): Promise<SendPage | SwapPage | BridgePage | SuperSwapPage> {
@@ -50,7 +61,7 @@ class BasePage {
     }
 
     async waitMainElementVisible() {
-        await this.page.getByTestId('dashboard').waitFor({ state: 'visible', timeout: 20000 });
+        await this.page.getByTestId(DATA_QA_LOCATORS.DASHBOARD).waitFor({ state: 'visible', timeout: 20000 });
     }
 
     async getLinkFromSuccessPanel() {
@@ -58,11 +69,15 @@ class BasePage {
     }
 
     getBaseContentElement() {
-        return this.page.getByTestId('content');
+        return this.page.getByTestId(DATA_QA_LOCATORS.CONTENT);
+    }
+
+    getSelectModalContent() {
+        return this.page.getByTestId(DATA_QA_LOCATORS.RECORD_MODAL);
     }
 
     async clickConfirm() {
-        await this.page.getByTestId('confirm').click();
+        await this.page.getByTestId(DATA_QA_LOCATORS.CONFIRM).click();
         await sleep(10000);
     }
 
@@ -96,19 +111,19 @@ class BasePage {
     }
 
     async openAccordionWithNetworks() {
-        await this.page.getByTestId('select-network').click();
+        await this.page.getByTestId(DATA_QA_LOCATORS.SELECT_NETWORK).click();
     }
 
     async getCurrentNet() {
         await sleep(FIVE_SECONDS);
         await this.page.waitForLoadState();
-        return await this.page.locator('//div[@data-qa="select-network"]//div[@class="name"]').textContent();
+        return await this.page.locator(`//div[@data-qa="${DATA_QA_LOCATORS.SELECT_NETWORK}"]/div[contains(@class, "name")]`).textContent();
     }
 
     async selectNetwork(netName: string) {
         await this.openAccordionWithNetworks();
-        await this.page.locator(`//div[@class="select__items"]//div[text()="${netName}"]`).click();
-        await sleep(FIVE_SECONDS);
+        await this.page.locator(`//div[@data-qa="${DATA_QA_LOCATORS.TOKEN_RECORD}"]//div[text()="${netName}"]`).click();
+        await sleep(ONE_SECOND);
     }
 
     async changeNetwork(netName: string) {
@@ -138,9 +153,16 @@ class BasePage {
         await this.page.waitForSelector('div.ant-skeleton-active', { state: 'hidden', timeout: 60000 });
     }
 
-    async waitLoadImg() {
+    async waitLoadImg(browser?, context?, page?) {
         let images = await this.page.locator('//img').all();
-        for (const img of images) await img.scrollIntoViewIfNeeded();
+        try {
+            for (const img of images) await img.scrollIntoViewIfNeeded();
+        } catch (e) {
+            console.log('>>>Start error log\n');
+            console.log(e);
+            console.log('>>>Start browser log\n');
+            console.log(browser, '>>>Finish browser\n', context, '>>>Finish context\n', page, '>>>Finish page\n');
+        }
 
         // const promises = images.map((locator) =>
         //     locator.evaluate((image) => {
@@ -160,23 +182,38 @@ class BasePage {
     }
 }
 
-class DashboardPage extends BasePage {}
+class DashboardPage extends BasePage {
+    async setFocusToFirstSpan() {
+        const assetPanel = this.page.getByTestId(DATA_QA_LOCATORS.ASSETS_PANEL);
+        return await assetPanel.evaluate((el) => el.classList.add('active-panel')); //  add new class to element
+    }
+
+    async prepareFoScreenShoot() {
+        await this.waitHiddenSkeleton();
+
+        // Fix https://github.com/microsoft/playwright/issues/18827#issuecomment-1878770736
+        await this.page.evaluate(() => {
+            window.scrollTo(0, 0);
+        });
+        return await this.page.waitForFunction(() => window.scrollY === 0);
+    }
+}
 
 class BridgePage extends BasePage {}
 
 class SendPage extends BasePage {
     async setNetworkTo(netName: string) {
-        await this.page.getByTestId('select-network').click();
-        await this.page.locator(`//div[@class="select__items"]//div[text()="${netName}"]`).click();
+        await this.page.getByTestId(DATA_QA_LOCATORS.SELECT_NETWORK).click();
+        await this.page.locator(`//div[@data-qa="${DATA_QA_LOCATORS.TOKEN_RECORD}"]//div[text()="${netName}"]`).click();
     }
 
     async setAddressTo(address: string) {
-        await this.page.getByTestId('input-address').fill(address);
+        await this.page.getByTestId(DATA_QA_LOCATORS.INPUT_ADDRESS).fill(address);
     }
 
     async setAmount(amount: string) {
         await this.page.waitForSelector('span.ant-skeleton-input', { state: 'hidden', timeout: 10000 });
-        await this.page.getByTestId('input-amount').fill(amount);
+        await this.page.getByTestId(DATA_QA_LOCATORS.INPUT_AMOUNT).fill(amount);
     }
 
     async setDataAndClickConfirm(net: string, address: string, amount: string) {
@@ -187,7 +224,7 @@ class SendPage extends BasePage {
     }
 
     async getTokenTo() {
-        return await this.page.locator('(//*[@data-qa="select-token"]/div[@class="token"])[2]').textContent();
+        return await this.page.locator(`(//*[@data-qa="${DATA_QA_LOCATORS.SELECT_TOKEN}"]/div[@class="token"])[2]`).textContent();
     }
 }
 
@@ -197,27 +234,27 @@ class SuperSwapPage extends BasePage {
     }
 
     async setNetworkFrom(netName: string) {
-        await this.page.getByTestId('select__block').nth(0).click();
-        await this.page.getByTestId('item').filter({ hasText: netName }).click();
+        await this.page.getByTestId(DATA_QA_LOCATORS.SELECT_BLOCK).nth(0).click();
+        await this.page.getByTestId(DATA_QA_LOCATORS.ITEM).filter({ hasText: netName }).click();
     }
 
     async setTokenFrom(tokenName: string) {
-        await this.page.getByTestId('select__block').nth(1).click();
-        await this.page.getByTestId('item').filter({ hasText: tokenName }).click();
+        await this.page.getByTestId(DATA_QA_LOCATORS.SELECT_BLOCK).nth(1).click();
+        await this.page.getByTestId(DATA_QA_LOCATORS.ITEM).filter({ hasText: tokenName }).click();
     }
 
     async setNetworkTo(netName: string) {
-        await this.page.getByTestId('select__block').nth(2).click();
-        await this.page.getByTestId('item').filter({ hasText: netName }).click();
+        await this.page.getByTestId(DATA_QA_LOCATORS.SELECT_BLOCK).nth(2).click();
+        await this.page.getByTestId(DATA_QA_LOCATORS.ITEM).filter({ hasText: netName }).click();
     }
 
     async setTokenTo(tokenName: string) {
-        await this.page.getByTestId('select__block').nth(3).click();
-        await this.page.getByTestId('item').filter({ hasText: tokenName }).click();
+        await this.page.getByTestId(DATA_QA_LOCATORS.SELECT_BLOCK).nth(3).click();
+        await this.page.getByTestId(DATA_QA_LOCATORS.ITEM).filter({ hasText: tokenName }).click();
     }
 
     async setAmount(amount: string) {
-        await this.page.getByTestId('input-amount').nth(0).fill(amount);
+        await this.page.getByTestId(DATA_QA_LOCATORS.INPUT_AMOUNT).nth(0).fill(amount);
     }
 
     async setFromNetAmount(net: string, amount: string) {
@@ -237,19 +274,19 @@ class SuperSwapPage extends BasePage {
     }
 
     async openRouteInfo() {
-        await this.page.getByTestId('route-info').click();
+        await this.page.getByTestId(DATA_QA_LOCATORS.ROUTE_INFO).click();
     }
 
     async getTokenTo() {
-        return await this.page.locator('(//*[@data-qa="select-token"]/div[@class="token"])[2]').textContent();
+        return await this.page.locator(`(//*[@data-qa="${DATA_QA_LOCATORS.SELECT_TOKEN}"]/div[@class="token"])[2]`).textContent();
     }
 }
 
 class SwapPage extends BasePage {
-    TOKEN_ITEM_XPATH = '(//*[@data-qa="select-token"])';
+    TOKEN_ITEM_XPATH = `(//*[@data-qa="${DATA_QA_LOCATORS.SELECT_TOKEN}"])`;
 
     async setAmount(amount: string) {
-        await this.page.locator("//div[text() = 'Pay']/following-sibling::div//input").fill(amount);
+        await this.page.getByTestId(DATA_QA_LOCATORS.INPUT_AMOUNT).nth(0).fill(amount);
     }
 
     async swapTokens(amount: string) {
@@ -269,15 +306,15 @@ class SwapPage extends BasePage {
     }
 
     async setTokenInTokensList(token: String) {
-        await this.page.locator(`//div[@data-qa="token-record"]//div[text()="${token}"]`).click();
+        await this.page.locator(`//div[@data-qa="${DATA_QA_LOCATORS.TOKEN_RECORD}"]//div[@class="top"][text()="${token}"]`).click();
     }
 
     async getTokenFrom() {
-        return await this.page.locator('(//*[@data-qa="select-token"]/div[@class="token"])[1]').textContent();
+        return await this.page.locator(`(//*[@data-qa="${DATA_QA_LOCATORS.SELECT_TOKEN}"]/div[@class="token"])[1]`).textContent();
     }
 
     async getTokenTo() {
-        return await this.page.locator('(//*[@data-qa="select-token"]/div[@class="token"])[2]').textContent();
+        return await this.page.locator(`(//*[@data-qa="${DATA_QA_LOCATORS.SELECT_TOKEN}"]/div[@class="token"])[2]`).textContent();
     }
 }
 

@@ -2,24 +2,29 @@
   "tx": {
     "txHash": "Transaction hash"
   },
+  "loadings": {
+    "walletConnecting": "Connecting wallet ...",
+    "configLoading": "Loading config ..."
+  },
   "dashboard": {
     "receive": "RECEIVE",
     "send": "SEND",
     "search": "Search",
     "notFound": "Nothing was found for your query",
     "emptyAssets": "You don't have any assets",
-    "connecting": "Connecting wallet ...",
-    "loadingConfig": "Loading config ...",
     "asset": "Asset",
     "updateAvailable": "A new version of application is available. Click the Update button below to get the new version with the latest features and improvements",
     "updatingBalances": "Fetching balances ...",
     "updateBalances": "Fetch balances (Coming soon)",
+    "releaseNotes": "Read release notes",
+    "switchTheme": "Switch theme",
+    "buyCrypto": "Buy crypto",
     "nft": {
       "description": "Description",
       "collectionName": "Collection name",
       "collectionInformation": "Collection information",
       "holdings": "Holdings",
-      "floorPrice": "Floor price (24h)",
+      "floorPrice": "Floor price(24h)",
       "tokens": "Tokens",
       "volume": "Volume",
       "marketCap": "Market cap",
@@ -38,15 +43,16 @@
     "bridge": "Bridge",
     "superSwap": "SuperSwap",
     "settings": "Settings",
-    "type": "BETA",
-    "buyCrypto": "Buy crypto"
+    "type": "BETA"
   },
   "connect": {
     "emptyTitle": "Connect a wallet to manage your portfolio",
     "pageTitle": "Connecting wallet",
     "blockTitle": "Connect with",
     "anotherWallet": "Connect Another Wallet",
-    "availableWallets": "Available wallets"
+    "availableWallets": "Available wallets",
+    "connectTo": "Connect your wallet to",
+    "connectToStart": "start"
   },
   "adapter": {
     "accountsGroup": "Connected",
@@ -92,12 +98,16 @@
     "selectDstNetwork": "Please select destination network",
     "selectDstToken": "Please select token destination token",
     "selectSrcToken": "Please select token source token",
+    "selectDifferentToken": "Please select different token",
+    "selectAllFields": "Please select all fields",
+    "enterAmount": "Please enter amount",
     "rate": "Rate",
     "protocolFee": "Protocol Fee",
     "serviceFee": "Service Fee",
     "transferFrom": "Transfer from",
     "transferTo": "Transfer to",
     "asset": "Asset",
+    "loadMore": "Load more",
     "searchToken": "Search by token name or ticker",
     "searchNetwork": "Search by network name",
     "supportedNetwork": "Please choose one of the following supported networks: Ethereum, Binance Smart Chain, Avalanche, Polygon, Optimism, Arbitrum"

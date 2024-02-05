@@ -1,9 +1,11 @@
 <template>
     <div class="loading-overlay">
-        <a-spin :tip="$t(tip)" size="large" :spinning="spinning" />
+        <LogoLoading :tip="tip" :spinning="spinning" />
     </div>
 </template>
 <script>
+import LogoLoading from './LogoLoading.vue';
+
 export default {
     name: 'LoadingOverlay',
     props: {
@@ -15,6 +17,9 @@ export default {
             type: String,
             default: 'dashboard.connecting',
         },
+    },
+    components: {
+        LogoLoading,
     },
 };
 </script>
@@ -32,16 +37,5 @@ export default {
     height: 100%;
 
     background: var(--#{$prefix}main-background);
-
-    span,
-    div {
-        font-weight: 400;
-        font-size: var(--#{$prefix}default-fs);
-        color: var(--#{$prefix}primary-text);
-    }
-
-    i {
-        background-color: #3fdfae !important;
-    }
 }
 </style>

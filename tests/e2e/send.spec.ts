@@ -1,63 +1,76 @@
-import { test, expect } from '../__fixtures__/fixtures';
+import { testKeplr, testMetaMask } from '../__fixtures__/fixtures';
+import { test, expect } from '@playwright/test';
 import { getTestVar, TEST_CONST } from '../envHelper';
-import { EVM_NETWORKS, emptyBalanceMockData, mockBalanceDataBySendTest } from '../data/mockHelper';
+import { emptyBalanceMockData, marketCapNativeEvmTokens, mockBalanceCosmosWallet, mockBalanceDataBySendTest } from '../data/mockHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage, getHomeMmPage } from '../model/MetaMask/MetaMask.pages';
+import { EVM_NETWORKS } from '../data/constants';
+import util from 'util';
+import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
 
-test.describe('Send e2e tests', () => {
-    test('Case#1: Reject send native token to another address in Avalanche with change MM network', async ({
-        browser,
-        context,
-        page,
-        sendPage,
-    }) => {
-        const network = 'Avalanche';
-        const addressFrom = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
-        const addressTo = getTestVar(TEST_CONST.RECIPIENT_ADDRESS);
-        const amount = '0.001';
+const sleep = util.promisify(setTimeout);
 
-        const INDEX_AVALANCHE = EVM_NETWORKS.indexOf(network.toLowerCase());
-        let EMPTY_BALANCE_NETS_MOCK = [...EVM_NETWORKS];
-        EMPTY_BALANCE_NETS_MOCK.splice(INDEX_AVALANCHE, 1);
-        const WAITED_URL = `**/srv-data-provider/api/balances?net=${network.toLowerCase()}**`;
+test.describe('MetaMask Send e2e tests', () => {
+    testMetaMask(
+        'Case#: Reject send native token to another address in Avalanche with change MM network',
+        async ({ browser, context, page, sendPageCoingeckoMock }) => {
+            const network = 'Avalanche';
+            const addressFrom = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
+            const addressTo = getTestVar(TEST_CONST.RECIPIENT_ADDRESS);
+            const amount = '0.001';
 
-        await sendPage.mockBalanceRequest(network.toLowerCase(), mockBalanceDataBySendTest[network.toLowerCase()], addressFrom);
-        await Promise.all(
-            EMPTY_BALANCE_NETS_MOCK.map((network) => sendPage.mockBalanceRequest(network, emptyBalanceMockData, addressFrom))
-        );
-        const balancePromise = sendPage.page.waitForResponse(WAITED_URL);
+            const INDEX_AVALANCHE = EVM_NETWORKS.indexOf(network.toLowerCase());
+            let EMPTY_BALANCE_NETS_MOCK = [...EVM_NETWORKS];
+            EMPTY_BALANCE_NETS_MOCK.splice(INDEX_AVALANCHE, 1);
+            const WAITED_URL = `**/srv-data-provider/api/balances?net=${network.toLowerCase()}**`;
 
-        await sendPage.changeNetwork(network);
-        await sendPage.setAddressTo(addressTo);
-        await sendPage.setAmount(amount);
-        await balancePromise;
+            await sendPageCoingeckoMock.mockBalanceRequest(
+                network.toLowerCase(),
+                mockBalanceDataBySendTest[network.toLowerCase()],
+                addressFrom
+            );
+            await Promise.all(
+                EMPTY_BALANCE_NETS_MOCK.map((network) =>
+                    sendPageCoingeckoMock.mockBalanceRequest(network, emptyBalanceMockData, addressFrom)
+                )
+            );
+            const balancePromise = sendPageCoingeckoMock.page.waitForResponse(WAITED_URL);
 
-        await expect(sendPage.getBaseContentElement()).toHaveScreenshot();
+            await sendPageCoingeckoMock.changeNetwork(network);
+            await sendPageCoingeckoMock.setAddressTo(addressTo);
+            await sendPageCoingeckoMock.setAmount(amount);
+            await balancePromise;
+            await sleep(FIVE_SECONDS); // wait able button "change network"
 
-        await sendPage.clickConfirm();
+            await expect(sendPageCoingeckoMock.page).toHaveScreenshot();
 
-        const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
-        await expect(sendPage.getBaseContentElement()).toHaveScreenshot();
-        await notifyMM.changeNetwork();
+            await sendPageCoingeckoMock.clickConfirm();
 
-        const notifyMMtx = new MetaMaskNotifyPage(await getNotifyMmPage(context));
-        const recipientAddress = await notifyMMtx.getReceiverAddress();
-        const amountFromMM = await notifyMMtx.getAmount();
+            const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
+            await expect(sendPageCoingeckoMock.page).toHaveScreenshot();
+            await notifyMM.changeNetwork();
 
-        await expect(sendPage.getBaseContentElement()).toHaveScreenshot();
-        expect(recipientAddress).toBe(addressTo);
-        expect(amountFromMM).toBe(amount);
+            const notifyMMtx = new MetaMaskNotifyPage(await getNotifyMmPage(context));
 
-        await notifyMMtx.rejectTx();
-        await sendPage.getBaseContentElement().hover();
-        await expect(sendPage.getBaseContentElement()).toHaveScreenshot();
+            const recipientAddress = await notifyMMtx.getReceiverAddress();
+            expect(recipientAddress).toBe(addressTo);
 
-        // await notifyMM.signTx();
-        // expect(await sendPage.getLinkFromSuccessPanel()).toContain(txHash);
-        // TODO нужен тест на отправку НЕ нативного токена (например USDC)
-        // TODO нужен тест когда отменяем переключение сети ММ (скрином проверять текст ошибки)
-    });
+            const amountFromMM = await notifyMMtx.getAmount();
+            expect(amountFromMM).toBe(amount);
 
-    test('Case#2: Checking the token change when changing the network via MM', async ({ browser, context, page, sendPage }) => {
+            await expect(sendPageCoingeckoMock.page).toHaveScreenshot();
+
+            await notifyMMtx.rejectTx();
+            await sendPageCoingeckoMock.getBaseContentElement().hover();
+            await expect(sendPageCoingeckoMock.page).toHaveScreenshot();
+
+            // await notifyMM.signTx();
+            // expect(await sendPage.getLinkFromSuccessPanel()).toContain(txHash);
+            // TODO нужен тест на отправку НЕ нативного токена (например USDC)
+            // TODO нужен тест когда отменяем переключение сети ММ (скрином проверять текст ошибки)
+        }
+    );
+
+    testMetaMask('Case#: Checking the token change when changing the network via MM', async ({ browser, context, page, sendPage }) => {
         const network = 'Polygon';
         const networkNameInMm = 'Polygon Mainnet';
         const addressFrom = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
@@ -70,6 +83,21 @@ test.describe('Send e2e tests', () => {
         await homeMmPage.addNetwork(networkNameInMm);
         await balancePromise;
         await sendPage.waitLoadImg();
+
+        await expect(sendPage.getBaseContentElement()).toHaveScreenshot();
+    });
+});
+
+testKeplr.describe('Keplr Send e2e tests', () => {
+    testKeplr('Case#: Reject send native token in Cosmos', async ({ browser, context, page, sendPage }) => {
+        const network = 'cosmos';
+        const addressFrom = 'cosmos1aascfnuh7dpup8cmyph2l0wgee9d2lchdlx00r';
+        const WAITED_URL = `**/srv-data-provider/api/balances?net=${network}**`;
+
+        await sendPage.mockBalanceRequest(network.toLowerCase(), mockBalanceCosmosWallet, addressFrom);
+        const balancePromise = sendPage.page.waitForResponse(WAITED_URL);
+
+        await balancePromise;
 
         await expect(sendPage.getBaseContentElement()).toHaveScreenshot();
     });

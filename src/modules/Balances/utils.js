@@ -5,14 +5,16 @@ import BigNumber from 'bignumber.js';
 import { cosmologyConfig } from '@/Adapter/config';
 import { DP_COSMOS } from '@/api/data-provider';
 
-import { getTotalFuturesBalance, BALANCES_TYPES } from '@/shared/utils/assets';
+import { getTotalBalanceByDiff } from '@/shared/utils/assets';
 import IndexedDBService from '@/modules/indexedDb';
 
 import PricesModule from '@/modules/prices/';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
-// =================================================================================================================
 
+import { BALANCES_TYPES } from '@/modules/Balances/constants';
+
+// =================================================================================================================
 export const storeOperations = async (
     chain,
     account,
@@ -101,15 +103,17 @@ const cosmosChainTokens = (record, { chain, net }) => {
     if (isNativeByBase || isNativeBySymbol) {
         record.address = nativeToken?.base;
         record.base = nativeToken?.base;
-        record.id = `${net}:asset__native:${record.symbol}`;
+        record.id = `${chainName}:asset__native:${record.symbol}`;
     }
 
     return record;
 };
 
 const processIntegration = (integration, { net, chain, logo, chainAddress }) => {
+    const chainName = DP_COSMOS[net] || net || chain;
+
     if (integration.platform) {
-        integration.id = `${net}:integration__${integration.platform}:${integration.type}:${integration.stakingType}`;
+        integration.id = `${chainName}:integration__${integration.platform}:${integration.type}:${integration.stakingType}`;
     }
 
     if (integration.validator && integration.validator?.address) {
@@ -121,7 +125,7 @@ const processIntegration = (integration, { net, chain, logo, chainAddress }) => 
     }
 
     if (integration.integrationId) {
-        integration.id = `${net}:integration__${integration.integrationId}`;
+        integration.id = `${chainName}:integration__${integration.integrationId}`;
     }
 
     const { balances = [] } = integration;
@@ -137,8 +141,8 @@ export const getIntegrationsBalance = (integrations) => {
     for (const integration of integrations) {
         const { balances = [] } = integration;
 
-        if (integration.type === BALANCES_TYPES.FUTURES) {
-            balance = getTotalFuturesBalance(balances, balance);
+        if (integration.type === BALANCES_TYPES.FUTURES || integration.type === BALANCES_TYPES.BORROW_AND_LENDING) {
+            balance = getTotalBalanceByDiff(balances, balance);
         } else {
             balance = getTotalBalance(balances, balance);
         }
@@ -164,7 +168,7 @@ export const formatRecord = (record, { net, chain, logo, type }) => {
     }
 
     if (type === 'nft' && record.collection) {
-        record.id = `${record.chain}:${type}__collection__${record.collection?.address}:${record?.token?.symbol}`;
+        record.id = `${record.chain}:${type}__collection__${record.collection?.address}:${record?.tokenId}`;
     }
 
     return record;
@@ -208,26 +212,25 @@ export const prepareChainWithAddress = (addressesObj, currentChainInfo) => {
 
 export const setNativeTokensPrices = async (store, account) => {
     const chainList = computed(() => store.getters['networks/zometNetworksList']);
-    const nativeTokens = computed(() => store.getters['tokens/nativeTokens']);
     const nets = new Set();
 
-    if (!nativeTokens.value || !nativeTokens.value[account]) {
-        return;
-    }
-
     for (const network of chainList.value) {
-        if (network.native_token.price) {
+        const { native_token } = network || {};
+        if (native_token.price) {
             continue;
         }
 
         const nativeToken = computed(() => store.getters['tokens/getNativeTokenForChain'](account, network.net));
 
         if (nativeToken.value) {
-            network.native_token.price = nativeToken.value.price;
+            native_token.price = nativeToken.value.price;
             continue;
         }
 
-        nets.add(network.native_token.coingecko_id);
+        const id = native_token.coingecko_id || network.coingecko_id;
+        if (id) {
+            nets.add(id);
+        }
     }
 
     if (!nets.size) {
@@ -237,14 +240,22 @@ export const setNativeTokensPrices = async (store, account) => {
     const prices = await PricesModule.Coingecko.marketCapForNativeCoin([...nets].join(','));
 
     for (const network of chainList.value) {
-        if (network.native_token.price) {
+        const { native_token } = network || {};
+        if (native_token.price) {
             continue;
         }
 
-        const price = prices[network.native_token.coingecko_id];
-
-        if (price) {
-            network.native_token.price = price.usd.price;
+        const id = native_token.coingecko_id || network.coingecko_id;
+        if (!id) {
+            return;
         }
+
+        const price = prices[id];
+        if (!price) {
+            return;
+        }
+
+        const { usd = {} } = price;
+        native_token.price = usd?.price;
     }
 };

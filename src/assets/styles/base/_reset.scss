@@ -15,7 +15,7 @@ time, mark, audio, video, input {
 	padding: 0;
 	border: 0;
 	font-size: 100%;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Poppins', sans-serif !important;
 	vertical-align: baseline;
 	line-height: 1.5;
 	font-style: normal;
@@ -42,4 +42,8 @@ q:before, q:after {
 table {
 	border-collapse: collapse;
 	border-spacing: 0;
+}
+
+html {
+	scroll-behavior: smooth;
 }

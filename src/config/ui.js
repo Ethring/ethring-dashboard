@@ -2,8 +2,8 @@
 import { ECOSYSTEMS } from '@/Adapter/config';
 
 const MAIN_DASHBOARD = {
-    component: 'overviewIcon',
-    title: 'Main',
+    icon: 'overviewIcon',
+    title: 'Overview',
     key: 'main',
     to: '/main',
     disabled: false,
@@ -11,7 +11,7 @@ const MAIN_DASHBOARD = {
 };
 
 const SEND = {
-    component: 'sendIcon',
+    icon: 'sendIcon',
     title: 'Send',
     key: 'send',
     to: '/send',
@@ -20,7 +20,7 @@ const SEND = {
 };
 
 const BRIDGE = {
-    component: 'bridgeIcon',
+    icon: 'bridgeIcon',
     title: 'Bridge',
     key: 'bridge',
     to: '/bridge',
@@ -29,7 +29,7 @@ const BRIDGE = {
 };
 
 const SWAP = {
-    component: 'swapIcon',
+    icon: 'swapIcon',
     title: 'Swap',
     key: 'swap',
     to: '/swap',
@@ -38,8 +38,8 @@ const SWAP = {
 };
 
 const SUPER_SWAP = {
-    component: 'superSwapIcon',
-    title: 'SuperSwap',
+    icon: 'superSwapIcon',
+    title: 'Super Swap',
     key: 'superSwap',
     to: '/super-swap',
     status: 'BETA',
@@ -47,17 +47,7 @@ const SUPER_SWAP = {
     type: 'layout',
 };
 
-const BUY_CRYPTO = {
-    component: 'buyCryptoIcon',
-    title: 'Buy Crypto',
-    key: 'buyCrypto',
-    to: '/buy-crypto',
-    status: 'BETA',
-    disabled: false,
-    type: 'modal',
-};
-
-const SIDEBAR_MODULES = [MAIN_DASHBOARD, SEND, SWAP, BRIDGE, SUPER_SWAP, BUY_CRYPTO];
+const SIDEBAR_MODULES = [MAIN_DASHBOARD, SEND, SWAP, BRIDGE, SUPER_SWAP];
 
 const CUSTOM_CONFIG = [MAIN_DASHBOARD];
 

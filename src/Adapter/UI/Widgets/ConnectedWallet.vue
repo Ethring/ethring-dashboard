@@ -52,15 +52,15 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import ModuleIcon from '@/Adapter/UI/Entities/ModuleIcon.vue';
 
-import DisconnectIcon from '@/assets/icons/app/clear.svg';
-import CopyIcon from '@/assets/icons/app/copy.svg';
-import CheckIcon from '@/assets/icons/app/checkIcon.svg';
+import DisconnectIcon from '@/assets/icons/form-icons/clear.svg';
+import CopyIcon from '@/assets/icons/platform-icons/copy.svg';
+import CheckIcon from '@/assets/icons/form-icons/check-circle.svg';
 
 import { MoreOutlined } from '@ant-design/icons-vue';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
-import { cutAddress } from '@/helpers/utils';
+import { cutAddress } from '@/shared/utils/address';
 
 export default {
     name: 'ConnectedWallet',
@@ -192,6 +192,12 @@ export default {
 
     margin-top: 8px;
 
+    border: 1px solid var(--#{$prefix}border-color-op-05);
+
+    &:hover {
+        border-color: var(--#{$prefix}border-color);
+    }
+
     & > div {
         @include pageFlexRow;
         justify-content: center;
@@ -223,15 +229,24 @@ export default {
     }
 }
 
-.more-options-icon {
-    color: var(--#{$prefix}adapter-more-option);
-    font-size: 26px;
+.more-options {
+    & > a {
+        height: min-content;
+        display: flex;
+        align-items: center;
+    }
+    &-icon {
+        color: var(--#{$prefix}adapter-more-option);
+        font-size: 20px;
+    }
 }
 
 .wallet__options {
     background: var(--#{$prefix}main-background) !important;
-    padding: 12px 0 !important;
     width: 180px;
+
+    border: 1px solid var(--#{$prefix}border-color);
+    border-radius: 4px;
 
     color: var(--#{$prefix}primary-text);
     font-size: var(--#{$prefix}small-lg-fs);
@@ -242,7 +257,8 @@ export default {
 
         cursor: pointer;
 
-        padding: 4px 16px;
+        padding: 12px 16px;
+        transition: 0.2s;
 
         &-icon {
             @include pageFlexRow;

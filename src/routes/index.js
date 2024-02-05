@@ -104,11 +104,6 @@ const routes = [
         },
     },
     {
-        path: '/:module/select-token',
-        name: 'Select Token',
-        component: () => import('../components/dynamic/SearchSelectToken.vue'),
-    },
-    {
         path: '/:pathMatch(.*)*',
         name: 'Not Found',
         component: () => import('../views/NotFound.vue'),
@@ -125,7 +120,12 @@ router.beforeResolve((to, from, next) => {
         document.title = to.name;
     }
 
-    next();
+    if (to.hash && to.hash.includes('/main')) {
+        const pathWithoutHash = to.path.replace(to.hash, '');
+        next(`/main${pathWithoutHash}`);
+    } else {
+        next();
+    }
 });
 
 export default router;

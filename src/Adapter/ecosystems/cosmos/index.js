@@ -1,4 +1,5 @@
 import { ref } from 'vue';
+import _ from 'lodash';
 
 import { cosmos } from 'osmojs';
 import { SigningStargateClient, GasPrice } from '@cosmjs/stargate';
@@ -21,7 +22,7 @@ import AdapterBase from '@/Adapter/utils/AdapterBase';
 // * Helpers
 import { validateCosmosAddress } from '@/Adapter/utils/validations';
 import { reEncodeWithNewPrefix, isDifferentSlip44 } from '@/Adapter/utils';
-import { checkErrors } from '@/helpers/checkErrors';
+import { errorRegister } from '@/shared/utils/errors';
 
 // * Config for cosmos
 const {
@@ -43,11 +44,13 @@ const {
 const STORAGE = {
     WALLET: 'cosmos-kit@2:core//current-wallet',
     ACCOUNTS: 'cosmos-kit@2:core//accounts',
+    ADDRESS_BY_NETWORK: 'adapter:addressByNetwork',
 };
 
 // * Helpers for localStorage
 const connectedAccounts = () => JSON.parse(window?.localStorage?.getItem(STORAGE.ACCOUNTS)) || [];
 const connectedWalletModule = () => window?.localStorage.getItem(STORAGE.WALLET) || null;
+const addressByNetwork = () => JSON.parse(window?.localStorage.getItem(STORAGE.ADDRESS_BY_NETWORK)) || {};
 
 class CosmosAdapter extends AdapterBase {
     REFRESH_EVENT = 'refresh_connection';
@@ -307,6 +310,8 @@ class CosmosAdapter extends AdapterBase {
                         logo: diffChain.chain.logo,
                     };
                 }
+
+                localStorage.setItem(STORAGE.ADDRESS_BY_NETWORK, JSON.stringify(this.addressByNetwork[mainAccount]));
             });
 
             await Promise.all(promises);
@@ -372,6 +377,7 @@ class CosmosAdapter extends AdapterBase {
 
         window.localStorage.removeItem(STORAGE.WALLET);
         window.localStorage.removeItem(STORAGE.ACCOUNTS);
+        window.localStorage.removeItem(STORAGE.ADDRESS_BY_NETWORK);
 
         this.addressByNetwork = {};
     }
@@ -383,6 +389,7 @@ class CosmosAdapter extends AdapterBase {
 
         window.localStorage.removeItem(STORAGE.WALLET);
         window.localStorage.removeItem(STORAGE.ACCOUNTS);
+        window.localStorage.removeItem(STORAGE.ADDRESS_BY_NETWORK);
         this.addressByNetwork = {};
     }
 
@@ -527,7 +534,7 @@ class CosmosAdapter extends AdapterBase {
             return fee;
         } catch (error) {
             console.error('error while getting fee', error);
-            return checkErrors(error);
+            return errorRegister(error);
         }
     }
 
@@ -621,7 +628,7 @@ class CosmosAdapter extends AdapterBase {
             };
         } catch (error) {
             console.error('error while prepare', error);
-            return checkErrors(error);
+            return errorRegister(error);
         }
     }
 
@@ -675,22 +682,45 @@ class CosmosAdapter extends AdapterBase {
 
             return response;
         } catch (error) {
-            return checkErrors(error);
+            return errorRegister(error);
         }
     }
 
     async getSignClient(RPCs, { signingStargate = {}, offlineSigner = {} }) {
+        const CHUNK_SIZE = 10;
+        const TIMEOUT = 2000; // 2 seconds
+
         // Check if RPCs exist
         if (!RPCs.length) {
             console.warn('[COSMOS -> getSignClient] RPCs not found to get client');
             return null;
         }
 
-        for (const rpc of RPCs) {
-            try {
-                return await SigningStargateClient.connectWithSigner(rpc, offlineSigner, signingStargate);
-            } catch (error) {
-                console.warn(`[COSMOS -> getSignClient] Error connecting to RPC: ${rpc}`, error.message);
+        const chunkedRPCs = _.chunk(RPCs, CHUNK_SIZE);
+
+        for (const chunkRPCs of chunkedRPCs) {
+            const connectPromises = chunkRPCs.map(async (rpc) => {
+                try {
+                    const connectPromise = SigningStargateClient.connectWithSigner(rpc, offlineSigner, signingStargate);
+
+                    // Add a timeout promise
+                    const timeoutPromise = new Promise((_, reject) => {
+                        setTimeout(() => reject(new Error(`[COSMOS -> getSignClient] Connection to RPC ${rpc} timed out`)), TIMEOUT);
+                    });
+
+                    return await Promise.race([connectPromise, timeoutPromise]);
+                } catch (error) {
+                    console.warn(`[COSMOS -> getSignClient] Error connecting to RPC: ${rpc}`, error.message);
+                    return null;
+                }
+            });
+
+            const connectedClients = await Promise.all(connectPromises);
+
+            const client = connectedClients.find((client) => client !== null);
+
+            if (client) {
+                return client;
             }
         }
 
@@ -741,7 +771,7 @@ class CosmosAdapter extends AdapterBase {
             return await client.signAndBroadcast(this.getAccountAddress(), [msg], fee, transaction.value?.memo);
         } catch (error) {
             console.error('[COSMOS -> signSend] Error while broadcasting transaction', error);
-            return checkErrors(error);
+            return errorRegister(error);
         }
     }
 
@@ -817,8 +847,9 @@ class CosmosAdapter extends AdapterBase {
 
     getAddressesWithChains() {
         const mainAccount = this.getAccount();
+
         if (!this.addressByNetwork) {
-            return {};
+            return addressByNetwork();
         }
         return this.addressByNetwork[mainAccount] || {};
     }

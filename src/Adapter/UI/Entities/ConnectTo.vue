@@ -64,6 +64,7 @@ export default {
     padding: 8px;
     cursor: pointer;
     transition: 0.2s;
+    min-width: 300px;
 
     &.disabled {
         opacity: 0.5;
@@ -81,9 +82,8 @@ export default {
 
         .name {
             width: max-content;
-            font-weight: 600;
-            font-size: 14px;
-            margin: 0;
+            font-weight: 500;
+            font-size: var(--#{$prefix}default-fs);
         }
     }
 
@@ -102,6 +102,8 @@ export default {
         height: 40px;
         border-radius: 50%;
         background-color: var(--#{$prefix}adapter-logo-main-color);
+
+        border: 1px solid var(--#{$prefix}border-color);
 
         z-index: 3;
 

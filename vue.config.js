@@ -1,3 +1,5 @@
+const packageJson = require('./package.json');
+
 const IS_PROD = process.env.NODE_ENV === 'production';
 
 //  ===========================================================================
@@ -61,6 +63,12 @@ const chainWebpack = (config) => {
     for (const moduleConfig of modulesToInclude) {
         configureGeneralRule(config, moduleConfig);
     }
+
+    // VERSION
+    config.plugin('define').tap((args) => {
+        args[0]['process.env']['VUE_APP_VERSION'] = JSON.stringify(packageJson.version) || '0.0.0';
+        return args;
+    });
 };
 
 module.exports = {

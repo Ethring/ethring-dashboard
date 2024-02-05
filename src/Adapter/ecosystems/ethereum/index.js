@@ -10,7 +10,7 @@ import { web3OnBoardConfig, ECOSYSTEMS, chainConfig, NATIVE_CONTRACT, TRANSFER_A
 
 import { validateEthAddress } from '@/Adapter/utils/validations';
 
-import { checkErrors } from '@/helpers/checkErrors';
+import { errorRegister } from '@/shared/utils/errors';
 
 let web3Onboard = null;
 
@@ -38,7 +38,7 @@ class EthereumAdapter extends AdapterBase {
     }
 
     async connectWallet(walletName) {
-        const { connectWallet, connectingWallet, connectedWallet } = useOnboard();
+        const { connectWallet, connectedWallet } = useOnboard();
 
         const connectionOption = {
             autoSelect: {
@@ -49,13 +49,14 @@ class EthereumAdapter extends AdapterBase {
 
         try {
             await connectWallet(walletName ? connectionOption : null);
+            const { wallets = [] } = web3Onboard.state.get() || {};
 
-            if (!connectingWallet.value) {
+            if (wallets.length) {
                 this.setAddressForChains();
             }
 
             return {
-                isConnected: !connectingWallet.value,
+                isConnected: !!wallets.length,
                 walletName: connectedWallet.value?.label || null,
             };
         } catch (error) {
@@ -311,7 +312,7 @@ class EthereumAdapter extends AdapterBase {
                 };
             }
         } catch (e) {
-            return checkErrors(e);
+            return errorRegister(e);
         }
     }
 
@@ -332,7 +333,7 @@ class EthereumAdapter extends AdapterBase {
                 };
             }
         } catch (e) {
-            return checkErrors(e);
+            return errorRegister(e);
         }
     }
 

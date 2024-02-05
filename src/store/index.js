@@ -1,4 +1,4 @@
-import createPersistedState from 'vuex-persistedstate';
+// import createPersistedState from 'vuex-persistedstate';
 import { createStore } from 'vuex';
 
 // Main Modules
@@ -22,15 +22,15 @@ import adapters from '../Adapter/store';
 // Bridge-dex
 import bridgeDex from './bridge-dex';
 
-const dataState = createPersistedState({
-    key: 'zomet-app',
-    storage: {
-        getItem: (key) => localStorage.getItem(key),
-        setItem: (key, value) => localStorage.setItem(key, value),
-        removeItem: (key) => localStorage.removeItem(key),
-    },
-    paths: ['app.showBalance', 'tokens.favorites'],
-});
+// const dataState = createPersistedState({
+//     key: 'zomet-app',
+//     storage: {
+//         getItem: (key) => localStorage.getItem(key),
+//         setItem: (key, value) => localStorage.setItem(key, value),
+//         removeItem: (key) => localStorage.removeItem(key),
+//     },
+//     paths: ['app.showBalance', 'tokens.favorites'],
+// });
 
 export default createStore({
     state: {},
@@ -48,5 +48,5 @@ export default createStore({
         txManager,
         bridgeDex,
     },
-    plugins: [dataState],
+    // plugins: [dataState],
 });

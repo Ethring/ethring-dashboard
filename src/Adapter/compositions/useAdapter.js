@@ -96,7 +96,7 @@ function useAdapter() {
             walletModule: connectedWalletModule.value,
         };
 
-        if (!walletInfo.address || !walletInfo.walletName) {
+        if (!walletInfo.address || !walletInfo.walletName || !walletInfo.ecosystem) {
             return;
         }
 
@@ -114,13 +114,12 @@ function useAdapter() {
         try {
             const { isConnected, walletName } = await adapter.connectWallet(...args);
 
-            if (walletName || isConnected) {
+            if (walletName && isConnected) {
                 adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
                 adaptersDispatch(TYPES.SET_IS_CONNECTED, true);
                 adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
+                storeWalletInfo();
             }
-
-            isConnected && storeWalletInfo();
 
             return isConnected;
         } catch (error) {
@@ -129,6 +128,37 @@ function useAdapter() {
             adaptersDispatch(TYPES.SET_IS_CONNECTED, false);
             return false;
         }
+    };
+
+    // * Connect to Wallet by Ecosystems
+    const connectByEcosystems = async (ecosystem) => {
+        if (!ecosystem) {
+            return;
+        }
+
+        if (ecosystem === ECOSYSTEMS.COSMOS) {
+            return adaptersDispatch(TYPES.SET_MODAL_STATE, { name: 'wallets', isOpen: true });
+        }
+
+        try {
+            const status = await connectTo(ecosystem);
+            status && adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
+        } catch (error) {
+            adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
+            console.log(error);
+        }
+    };
+
+    // * Connect to another connected wallet, if last connected not available
+    const connectAnotherConnectedWallet = async (lastModule) => {
+        const connectedWallet = connectedWallets.value.find((wallet) => wallet.walletModule !== lastModule);
+
+        if (!connectedWallet) {
+            return false;
+        }
+
+        const { ecosystem, chain, walletModule } = connectedWallet;
+        return await connectTo(ecosystem, walletModule, chain);
     };
 
     // * Connect to Last Connected Wallet
@@ -150,9 +180,14 @@ function useAdapter() {
 
             if (!isConnect) {
                 console.warn('Failed to connect to last connected wallet', ecosystem, chain, walletModule);
-                adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
-                adaptersDispatch(TYPES.SET_IS_CONNECTED, false);
-                return router.push('/connect-wallet');
+
+                const isConnected = connectAnotherConnectedWallet(walletModule);
+
+                if (!isConnected) {
+                    adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
+                    adaptersDispatch(TYPES.SET_IS_CONNECTED, false);
+                    return router.push('/connect-wallet');
+                }
             }
 
             if (currentChainInfo.value === 404) {
@@ -374,6 +409,7 @@ function useAdapter() {
         action: (action, ...args) => adaptersDispatch(TYPES[action], ...args),
 
         connectTo,
+        connectByEcosystems,
         connectLastConnectedWallet,
 
         getWalletLogo,

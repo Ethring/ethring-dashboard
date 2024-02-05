@@ -1,28 +1,15 @@
 <template>
     <a-config-provider>
-        <LoadingOverlay v-if="isSpinning" :spinning="isSpinning" :tip="loadingTitle" />
-        <a-layout>
-            <a-layout-sider class="sidebar" v-model:collapsed="collapsed" collapsible :trigger="null">
-                <Sidebar :collapsed="collapsed" @change-collapse="(val) => (collapsed = val)" />
-            </a-layout-sider>
-            <a-layout class="layout">
-                <a-layout-header class="header">
-                    <NavBar />
-                </a-layout-header>
-                <a-layout-content class="content" data-qa="content">
-                    <div>
-                        <router-view />
-                    </div>
-                </a-layout-content>
-            </a-layout>
-        </a-layout>
+        <AppLayout />
         <WalletsModal />
         <AddressModal />
+        <RoutesModal />
+        <KadoModal />
+        <ReleaseNotes />
     </a-config-provider>
 </template>
-
 <script>
-import { onMounted, onUpdated, watch, ref, computed, inject, onBeforeMount, onBeforeUnmount } from 'vue';
+import { onMounted, watch, ref, computed, inject, onBeforeMount, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 
 import useInit from '@/compositions/useInit/';
@@ -30,23 +17,26 @@ import { ECOSYSTEMS } from '@/Adapter/config';
 
 import Socket from './modules/Socket';
 
+import AppLayout from './layouts/DefaultLayout/AppLayout.vue';
+
 import WalletsModal from '@/Adapter/UI/Modal/WalletsModal';
 import AddressModal from '@/Adapter/UI/Modal/AddressModal';
+import KadoModal from './components/app/modals/KadoModal.vue';
+import RoutesModal from './components/app/modals/RoutesModal.vue';
 
-import NavBar from '@/components/app/NavBar';
-import Sidebar from '@/components/app/Sidebar';
-import LoadingOverlay from '@/components/ui/LoadingOverlay';
+import ReleaseNotes from './layouts/DefaultLayout/header/ReleaseNotes.vue';
 
-import { delay } from '@/helpers/utils';
+import { delay } from '@/shared/utils/helpers';
 
 export default {
     name: 'App',
     components: {
-        Sidebar,
-        NavBar,
+        AppLayout,
+        KadoModal,
+        RoutesModal,
+        ReleaseNotes,
         WalletsModal,
         AddressModal,
-        LoadingOverlay,
     },
 
     setup() {
@@ -56,7 +46,6 @@ export default {
         const lastConnectedCall = ref(false);
 
         const isInitCall = ref({});
-        const collapsed = ref(false);
 
         const isConfigLoading = computed({
             get: () => store.getters['networks/isConfigLoading'],
@@ -64,7 +53,6 @@ export default {
         });
 
         const {
-            isConnecting,
             walletAddress,
             walletAccount,
             currentChainInfo,
@@ -75,25 +63,10 @@ export default {
             // getNativeTokenByChain,
         } = useAdapter();
 
-        const isSpinning = computed(() => isConfigLoading.value || isConnecting.value);
-
-        const isOpen = computed(() => store.getters['adapters/isOpen']('wallets'));
-
-        const showRoutesModal = computed(() => store.getters['bridgeDex/showRoutes']);
-
-        const loadingTitle = computed(() => {
-            if (isConfigLoading.value) {
-                return 'dashboard.loadingConfig';
-            }
-
-            if (isConnecting.value) {
-                return 'dashboard.connecting';
-            }
-
-            return '';
-        });
+        const isShowRoutesModal = computed(() => store.getters['app/modal']('routesModal'));
 
         const callSubscription = async () => {
+            console.log('callSubscription');
             const { ecosystem } = currentChainInfo.value || {};
 
             if (!ecosystem) {
@@ -104,31 +77,15 @@ export default {
 
             const addressesWithChains = getAddressesWithChainsByEcosystem(ecosystem);
 
-            socketSubscriptions(addressesWithChains);
-        };
-
-        const socketSubscriptions = (addresses) => {
-            for (const chain in addresses) {
-                const { address } = addresses[chain] || {};
-
-                if (!address) {
-                    continue;
-                }
-
-                if (address === walletAddress.value) {
-                    continue;
-                }
-
-                Socket.addressSubscription(address);
+            if (JSON.stringify(addressesWithChains) !== '{}') {
+                Socket.setAddresses(addressesWithChains, walletAddress.value, ecosystem);
             }
-
-            Socket.addressSubscription(walletAddress.value);
         };
 
         const callInit = async () => {
             const { ecosystem, walletModule } = currentChainInfo.value || {};
 
-            if (!walletModule || !ecosystem || !walletAddress.value || showRoutesModal.value) {
+            if (!walletModule || !ecosystem || !walletAddress.value || isShowRoutesModal.value) {
                 return setTimeout(callInit, 1000);
             }
 
@@ -156,22 +113,16 @@ export default {
 
         // ==========================================================================================
 
-        const unWatchChainInfo = watch(currentChainInfo, async () => await callSubscription());
-
         const unWatchAcc = watch(walletAccount, async () => {
-            store.dispatch('tokenOps/setSrcToken', null);
-            store.dispatch('tokenOps/setDstToken', null);
-
             await callInit();
             await callSubscription();
         });
 
-        const updateCollapsedStateOnResize = () => (collapsed.value = window.innerWidth <= 1024);
-        window.addEventListener('resize', updateCollapsedStateOnResize);
-
         // ==========================================================================================
 
         onBeforeMount(async () => {
+            console.log('onBeforeMount');
+            Socket.init();
             await store.dispatch('bridgeDex/getServices');
         });
 
@@ -185,8 +136,6 @@ export default {
                 });
             }
 
-            Socket.init(store);
-
             store.dispatch('tokens/setLoader', true);
 
             if (!lastConnectedCall.value) {
@@ -194,68 +143,21 @@ export default {
                 lastConnectedCall.value = true;
             }
 
-            await delay(100);
+            if (!lastConnectedCall.value) {
+                store.dispatch('tokens/setLoader', false);
+            }
+
+            await delay(300);
 
             if (currentChainInfo.value) {
                 await callInit();
             }
         });
 
-        onUpdated(async () => {
-            if (currentChainInfo.value) {
-                await callSubscription();
-                return await callInit();
-            }
-        });
-
         onBeforeUnmount(() => {
-            window.removeEventListener('resize', updateCollapsedStateOnResize);
-
             // Stop watching
-            unWatchChainInfo();
             unWatchAcc();
         });
-
-        return {
-            isOpen,
-            isSpinning,
-
-            collapsed,
-            loadingTitle,
-        };
     },
 };
 </script>
-
-<style lang="scss" scoped>
-.app-wrap.lock-scroll {
-    overflow: hidden;
-}
-
-.sidebar {
-    background: var(--zmt-primary);
-}
-
-.layout {
-    background: var(--#{$prefix}main-background);
-}
-
-.header {
-    width: 75%;
-    margin: 0 auto;
-
-    height: 48px;
-    padding: 0;
-
-    position: sticky;
-    top: 0;
-    z-index: 100;
-
-    background-color: var(--#{$prefix}nav-bar-bg-color);
-}
-
-.content {
-    width: 75%;
-    margin: 44px auto 0;
-}
-</style>
