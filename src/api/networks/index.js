@@ -28,7 +28,6 @@ export const getConfigsByEcosystems = async (ecosystem = ECOSYSTEMS.EVM, { isCos
     }
 
     if (Object.keys(list).length) {
-        logger.debug('Networks list from indexedDB', Object.keys(list).length);
         return list;
     }
 
@@ -55,11 +54,31 @@ export const getConfigsByEcosystems = async (ecosystem = ECOSYSTEMS.EVM, { isCos
     }
 };
 
+export const getCosmologyTokensConfig = async (ecosystem = ECOSYSTEMS.COSMOS) => {
+    const list = await indexedDB.getAllListFrom('cosmologyTokens');
+
+    if (Object.keys(list).length) {
+        return list;
+    }
+
+    try {
+        const URL = `${import.meta.env.VITE_ZOMET_CORE_API_URL}/networks/cosmos/all/tokens`;
+
+        const { data } = await HttpRequest.get(URL);
+
+        await indexedDB.saveCosmologyAssets('cosmologyTokens', data);
+
+        return data;
+    } catch (err) {
+        logger.error('Error while getting cosmology tokens from API', err);
+        return {};
+    }
+};
+
 export const getTokensConfigByChain = async (chain, ecosystem) => {
     const list = await indexedDB.getAllObjectFrom('tokens', 'chain', chain);
 
     if (Object.keys(list).length) {
-        logger.debug('Tokens list from indexedDB', Object.keys(list).length);
         return list;
     }
 

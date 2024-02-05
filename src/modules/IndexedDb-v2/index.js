@@ -12,6 +12,7 @@ class IndexedDBService {
         tokens: 'id, ecosystem, chain',
         networks: 'id, ecosystem, chain',
         cosmology: 'id, ecosystem, chain',
+        cosmologyTokens: 'chain_name',
     };
 
     constructor(dbName = 'balances', version = 1) {
@@ -90,19 +91,56 @@ class IndexedDBService {
         });
     }
 
-    async saveTokensObj(store, tokens, { network, ecosystem } = {}) {
-        for (const tokenContract in tokens) {
-            tokens[tokenContract].id = `${network}:asset__${tokenContract}:${tokens[tokenContract].symbol}`;
-            tokens[tokenContract].chain = network;
-            tokens[tokenContract].ecosystem = ecosystem?.toUpperCase() || '';
-            tokens[tokenContract].balance = 0;
-            tokens[tokenContract].balanceUsd = 0;
-        }
+    async saveCosmologyAssets(store, configs) {
+        await this.db.transaction('rw', this.db[store], async () => {
+            await this.db[store].bulkPut(configs);
+            logger.debug(`All cosmology tokens saved`);
+        });
+    }
 
-        const tokensList = _.values(tokens).map((token) => ({ ...token, value: JSON.stringify(token) }));
+    async saveTokensObj(store, tokens, { network, ecosystem, scheme } = {}) {
+        const formatTokensObj = (tokens) => {
+            for (const tokenContract in tokens) {
+                tokens[tokenContract].id = `${network}:asset__${tokenContract}:${tokens[tokenContract].symbol}`;
+                tokens[tokenContract].chain = network;
+                tokens[tokenContract].ecosystem = ecosystem?.toUpperCase() || '';
+                tokens[tokenContract].balance = 0;
+                tokens[tokenContract].balanceUsd = 0;
+
+                tokens[tokenContract].value = JSON.stringify(tokens[tokenContract]);
+            }
+            return tokens;
+        };
+
+        const formatTokensArr = (tokens) => {
+            for (const token of tokens) {
+                const contract = token?.address || token?.base;
+                token.id = `${network}:asset__${contract}:${token.symbol}`;
+                token.chain = network;
+                token.ecosystem = ecosystem?.toUpperCase() || '';
+                token.balance = 0;
+                token.balanceUsd = 0;
+
+                token.value = JSON.stringify(token);
+            }
+
+            return tokens;
+        };
+
+        const getFormattedTokens = (tokens) => {
+            if (Array.isArray(tokens)) {
+                return formatTokensArr(tokens);
+            }
+
+            const formatted = formatTokensObj(tokens);
+
+            return _.values(formatted).map((token) => ({ ...token, value: JSON.stringify(token) }));
+        };
+
+        const formattedTokens = getFormattedTokens(tokens);
 
         await this.db.transaction('rw', this.db[store], async () => {
-            await this.db[store].bulkPut(tokensList);
+            await this.db[store].bulkPut(formattedTokens);
             logger.debug(`[tokens] All tokens for network: ${ecosystem} - ${network} saved`);
         });
     }
@@ -114,7 +152,7 @@ class IndexedDBService {
     async getAllListFrom(store) {
         try {
             const response = await this.db[store].toArray();
-            return response.map((item) => JSON.parse(item.value));
+            return response.map((item) => (item?.value ? JSON.parse(item.value) : item));
         } catch (error) {
             logger.warn(`[IndexedDB](getAllListFrom): ${store}`, error);
             return [];

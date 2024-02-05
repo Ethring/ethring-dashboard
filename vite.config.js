@@ -75,9 +75,6 @@ export default defineConfig({
                     // Blocknative web3 onboard
                     '@web3-onboard-cores': ['@web3-onboard/core', '@web3-onboard/vue', '@web3-onboard/common'],
                     '@web3-onboard-wallets': ['@web3-onboard/injected-wallets', '@web3-onboard/coinbase', '@web3-onboard/ledger'],
-
-                    // Chain Registry
-                    '@chain-registry-assets': ['@chain-registry/assets/main'],
                 },
             },
         },

@@ -2,7 +2,7 @@ import { computed } from 'vue';
 import _ from 'lodash';
 import BigNumber from 'bignumber.js';
 
-import { cosmologyConfig } from '@/Adapter/config';
+import { getConfigsByEcosystems } from '@/api/networks';
 import { DP_COSMOS } from '@/api/data-provider';
 
 import { getTotalBalanceByDiff } from '@/shared/utils/assets';
@@ -55,26 +55,26 @@ export const saveToCache = async (key, data = { tokens: [], nfts: [], integratio
 
 // =================================================================================================================
 
-export const formatResponse = (chain, { chainForRequest, chainAddress, logo }, { tokens = [], integrations = [], nfts = [] }) => {
+export const formatResponse = (store, chain, { chainForRequest, chainAddress, logo }, { tokens = [], integrations = [], nfts = [] }) => {
     const allTokens = [];
     const allIntegrations = [];
     const allNfts = [];
 
     if (tokens && tokens.length) {
-        const list = tokens.map((token) => formatRecord(token, { net: chainForRequest, chain, logo, chainAddress, type: 'asset' }));
+        const list = tokens.map((token) => formatRecord(token, { store, net: chainForRequest, chain, logo, chainAddress, type: 'asset' }));
         allTokens.push(...list);
     }
 
     if (integrations && integrations.length) {
         const list = integrations.map((integration) =>
-            processIntegration(integration, { net: chainForRequest, chain, logo, chainAddress }),
+            processIntegration(integration, { store, net: chainForRequest, chain, logo, chainAddress }),
         );
 
         allIntegrations.push(...list);
     }
 
     if (nfts && nfts.length) {
-        const list = nfts.map((nft) => formatRecord(nft, { net: chainForRequest, chain, logo, chainAddress, type: 'nft' }));
+        const list = nfts.map((nft) => formatRecord(nft, { store, net: chainForRequest, chain, logo, chainAddress, type: 'nft' }));
         allNfts.push(...list);
     }
 
@@ -85,14 +85,11 @@ export const formatResponse = (chain, { chainForRequest, chainAddress, logo }, {
     };
 };
 
-const cosmosChainTokens = (record, { chain, net }) => {
+const cosmosChainTokens = (store, record, { chain, net }) => {
     const chainName = DP_COSMOS[net] || chain;
 
-    const [cosmosChain] = cosmologyConfig.assets.filter(({ chain_name }) => chain_name === chainName) || [];
-
-    const { assets } = cosmosChain || {};
-
-    const [nativeToken] = assets || [];
+    const cosmosConfigs = store.state?.configs?.chains[ECOSYSTEMS.COSMOS] || {};
+    const { native_token: nativeToken } = cosmosConfigs[chainName] || {};
 
     if (record.address && record.address.startsWith('IBC')) {
         record.address = record.address.replace('IBC', 'ibc');
@@ -112,7 +109,7 @@ const cosmosChainTokens = (record, { chain, net }) => {
     return record;
 };
 
-const processIntegration = (integration, { net, chain, logo, chainAddress }) => {
+const processIntegration = (integration, { store, net, chain, logo, chainAddress }) => {
     const chainName = DP_COSMOS[net] || net || chain;
 
     if (integration.platform) {
@@ -133,7 +130,9 @@ const processIntegration = (integration, { net, chain, logo, chainAddress }) => 
 
     const { balances = [] } = integration;
 
-    integration.balances = balances?.map((intToken) => formatRecord(intToken, { net, chain, chainAddress, logo, type: 'integration' }));
+    integration.balances = balances?.map((intToken) =>
+        formatRecord(intToken, { store, net, chain, chainAddress, logo, type: 'integration' }),
+    );
 
     return integration;
 };
@@ -154,12 +153,12 @@ export const getIntegrationsBalance = (integrations) => {
     return balance;
 };
 
-export const formatRecord = (record, { net, chain, logo, type }) => {
+export const formatRecord = (record, { store, net, chain, logo, type }) => {
     record.chainLogo = logo;
     record.chain = chain;
 
     if ((DP_COSMOS[chain] || DP_COSMOS[net]) && !record.balanceType) {
-        record = cosmosChainTokens(record, { chain, net });
+        record = cosmosChainTokens(store, record, { chain, net });
     }
 
     if (type === 'asset' && !record.balanceType && !record.id && record.address) {

@@ -18,11 +18,11 @@ import { fromEvent, takeUntil, Subject } from 'rxjs';
 import { ECOSYSTEMS, cosmologyConfig } from '../../config';
 
 import AdapterBase from '@/Adapter/utils/AdapterBase';
-import { getConfigsByEcosystems, getTokensConfigByChain } from '@/api/networks';
+import { getConfigsByEcosystems, getTokensConfigByChain, getCosmologyTokensConfig } from '@/api/networks';
 
 // * Helpers
 import { validateCosmosAddress } from '@/Adapter/utils/validations';
-import { reEncodeWithNewPrefix, isDifferentSlip44 } from '@/Adapter/utils';
+import { reEncodeWithNewPrefix, isDifferentSlip44, isActiveChain } from '@/Adapter/utils';
 import { errorRegister } from '@/shared/utils/errors';
 
 import logger from '@/logger';
@@ -33,10 +33,6 @@ const configsDB = new IndexedDBService('configs');
 
 // * Config for cosmos
 const {
-    // Assets
-    assets,
-    isActiveChain,
-    STANDARD_SLIP_44,
     // Custom Registry for stargate
     aminoTypes,
     registry,
@@ -59,8 +55,12 @@ const addressByNetwork = () => JSON.parse(window?.localStorage.getItem(STORAGE.A
 
 class CosmosAdapter extends AdapterBase {
     walletManager = null;
+
+    STANDARD_SLIP_44 = 118;
+
     REFRESH_EVENT = 'refresh_connection';
     DEFAULT_CHAIN = 'cosmoshub';
+
     isLogosUpdated = false;
     differentSlip44 = [];
     ibcAssetsByChain = {};
@@ -72,6 +72,7 @@ class CosmosAdapter extends AdapterBase {
     async init() {
         // * Get chains
         const chains = await getConfigsByEcosystems(ECOSYSTEMS.COSMOS, { isCosmology: true });
+        const assets = await getCosmologyTokensConfig(ECOSYSTEMS.COSMOS);
 
         const activeChains = _.values(chains).filter(isActiveChain);
 
@@ -81,7 +82,7 @@ class CosmosAdapter extends AdapterBase {
             ),
         );
 
-        this.differentSlip44 = activeChains.filter(({ slip44 }) => slip44 != STANDARD_SLIP_44);
+        this.differentSlip44 = activeChains.filter(({ slip44 }) => slip44 != this.STANDARD_SLIP_44);
 
         /// ... more code ...
         this.unsubscribe = new Subject();
