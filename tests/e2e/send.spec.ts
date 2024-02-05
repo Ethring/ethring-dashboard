@@ -1,11 +1,15 @@
 import { testKeplr, testMetaMask } from '../__fixtures__/fixtures';
-import { expect } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { getTestVar, TEST_CONST } from '../envHelper';
 import { emptyBalanceMockData, marketCapNativeEvmTokens, mockBalanceCosmosWallet, mockBalanceDataBySendTest } from '../data/mockHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage, getHomeMmPage } from '../model/MetaMask/MetaMask.pages';
 import { EVM_NETWORKS } from '../data/constants';
+import util from 'util';
+import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
 
-testMetaMask.describe('MetaMask Send e2e tests', () => {
+const sleep = util.promisify(setTimeout);
+
+test.describe('MetaMask Send e2e tests', () => {
     testMetaMask(
         'Case#: Reject send native token to another address in Avalanche with change MM network',
         async ({ browser, context, page, sendPageCoingeckoMock }) => {
@@ -19,9 +23,15 @@ testMetaMask.describe('MetaMask Send e2e tests', () => {
             EMPTY_BALANCE_NETS_MOCK.splice(INDEX_AVALANCHE, 1);
             const WAITED_URL = `**/srv-data-provider/api/balances?net=${network.toLowerCase()}**`;
 
-            await sendPageCoingeckoMock.mockBalanceRequest(network.toLowerCase(), mockBalanceDataBySendTest[network.toLowerCase()], addressFrom);
+            await sendPageCoingeckoMock.mockBalanceRequest(
+                network.toLowerCase(),
+                mockBalanceDataBySendTest[network.toLowerCase()],
+                addressFrom
+            );
             await Promise.all(
-                EMPTY_BALANCE_NETS_MOCK.map((network) => sendPageCoingeckoMock.mockBalanceRequest(network, emptyBalanceMockData, addressFrom))
+                EMPTY_BALANCE_NETS_MOCK.map((network) =>
+                    sendPageCoingeckoMock.mockBalanceRequest(network, emptyBalanceMockData, addressFrom)
+                )
             );
             const balancePromise = sendPageCoingeckoMock.page.waitForResponse(WAITED_URL);
 
@@ -29,13 +39,14 @@ testMetaMask.describe('MetaMask Send e2e tests', () => {
             await sendPageCoingeckoMock.setAddressTo(addressTo);
             await sendPageCoingeckoMock.setAmount(amount);
             await balancePromise;
+            await sleep(FIVE_SECONDS); // wait able button "change network"
 
-            await expect(sendPageCoingeckoMock.getBaseContentElement()).toHaveScreenshot();
+            await expect(sendPageCoingeckoMock.page).toHaveScreenshot();
 
             await sendPageCoingeckoMock.clickConfirm();
 
             const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
-            await expect(sendPageCoingeckoMock.getBaseContentElement()).toHaveScreenshot();
+            await expect(sendPageCoingeckoMock.page).toHaveScreenshot();
             await notifyMM.changeNetwork();
 
             const notifyMMtx = new MetaMaskNotifyPage(await getNotifyMmPage(context));
@@ -46,11 +57,11 @@ testMetaMask.describe('MetaMask Send e2e tests', () => {
             const amountFromMM = await notifyMMtx.getAmount();
             expect(amountFromMM).toBe(amount);
 
-            await expect(sendPageCoingeckoMock.getBaseContentElement()).toHaveScreenshot();
+            await expect(sendPageCoingeckoMock.page).toHaveScreenshot();
 
             await notifyMMtx.rejectTx();
             await sendPageCoingeckoMock.getBaseContentElement().hover();
-            await expect(sendPageCoingeckoMock.getBaseContentElement()).toHaveScreenshot();
+            await expect(sendPageCoingeckoMock.page).toHaveScreenshot();
 
             // await notifyMM.signTx();
             // expect(await sendPage.getLinkFromSuccessPanel()).toContain(txHash);
