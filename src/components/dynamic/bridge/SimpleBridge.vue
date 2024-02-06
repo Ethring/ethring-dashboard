@@ -328,7 +328,7 @@ export default {
                     addresses[selectedDstNetwork.value?.net] = receiverAddress.value;
                 }
 
-                if (selectedService.value.id === 'bridge-skip') {
+                if (selectedService.value?.id === 'bridge-skip') {
                     params.ownerAddresses = JSON.stringify(addresses);
                 } else {
                     params.ownerAddress = walletAddress.value;
@@ -478,7 +478,7 @@ export default {
                     return (isLoading.value = false);
                 }
 
-                // if (selectedService.value.id === 'bridge-debridge') {
+                // if (selectedService.value?.id === 'bridge-debridge') {
                 //     await delay(1000);
                 //     const hash = await getDebridgeTxHashForOrder(responseSendTx.transactionHash);
 

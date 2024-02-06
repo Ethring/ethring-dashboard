@@ -263,7 +263,7 @@ export default {
 
             try {
                 const params = {
-                    url: selectedService.value.url,
+                    url: selectedService.value?.url,
                     net: selectedSrcNetwork.value.net,
                     fromTokenAddress: selectedSrcToken.value.address,
                     toTokenAddress: selectedDstToken.value.address,
@@ -273,7 +273,7 @@ export default {
 
                 let response = null;
 
-                if (selectedService.value.id === 'swap-skip') {
+                if (selectedService.value?.id === 'swap-skip') {
                     params.ownerAddresses = JSON.stringify(addressesByChains.value);
 
                     params.fromNet = selectedSrcNetwork.value.net;
@@ -329,7 +329,7 @@ export default {
                     successCallback: {
                         action: 'GET_ALLOWANCE',
                         requestParams: {
-                            url: selectedService.value.url,
+                            url: selectedService.value?.url,
                             net: selectedSrcNetwork.value.net,
                             tokenAddress: selectedSrcToken.value.address,
                             ownerAddress: walletAddress.value,
