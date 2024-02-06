@@ -166,8 +166,6 @@ export default {
     setup(props) {
         const isActive = ref(false);
 
-        console.log('props', props);
-
         const isCollapsible = computed(() => {
             const { fees = [], services = [], error = null, isLoading } = props || {};
 
