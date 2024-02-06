@@ -1,5 +1,5 @@
 import { getBalancesByAddress, DP_COSMOS } from '@/api/data-provider';
-import { formatRecord } from '../../modules/Balances/utils';
+import { formatRecord } from '@/modules/Balances/utils';
 import IndexedDBService from '@/modules/indexedDb';
 
 import store from '@/store/';

@@ -25,7 +25,7 @@ import { validateCosmosAddress } from '@/Adapter/utils/validations';
 import { reEncodeWithNewPrefix, isDifferentSlip44, isActiveChain } from '@/Adapter/utils';
 import { errorRegister } from '@/shared/utils/errors';
 
-import logger from '@/logger';
+import logger from '@/shared/logger';
 
 import IndexedDBService from '@/modules/IndexedDb-v2';
 
@@ -54,6 +54,7 @@ const connectedWalletModule = () => window?.localStorage.getItem(STORAGE.WALLET)
 const addressByNetwork = () => JSON.parse(window?.localStorage.getItem(STORAGE.ADDRESS_BY_NETWORK)) || {};
 
 class CosmosAdapter extends AdapterBase {
+    chainsFromStore = {};
     walletManager = null;
 
     STANDARD_SLIP_44 = 118;
@@ -61,7 +62,6 @@ class CosmosAdapter extends AdapterBase {
     REFRESH_EVENT = 'refresh_connection';
     DEFAULT_CHAIN = 'cosmoshub';
 
-    isLogosUpdated = false;
     differentSlip44 = [];
     ibcAssetsByChain = {};
 
@@ -69,12 +69,15 @@ class CosmosAdapter extends AdapterBase {
         super();
     }
 
-    async init() {
+    async init(store) {
         // * Get chains
+        // ========= Init Cosmos Chains =========
         const chains = await getConfigsByEcosystems(ECOSYSTEMS.COSMOS, { isCosmology: true });
-        const assets = await getCosmologyTokensConfig(ECOSYSTEMS.COSMOS);
-
         const activeChains = _.values(chains).filter(isActiveChain);
+
+        this.chainsFromStore = store?.state?.configs?.chains[ECOSYSTEMS.COSMOS] || {};
+
+        const assets = await getCosmologyTokensConfig();
 
         await Promise.all(
             activeChains.map(
@@ -84,7 +87,8 @@ class CosmosAdapter extends AdapterBase {
 
         this.differentSlip44 = activeChains.filter(({ slip44 }) => slip44 != this.STANDARD_SLIP_44);
 
-        /// ... more code ...
+        // ========= Init WalletManager =========
+
         this.unsubscribe = new Subject();
 
         // * Init WalletManager
@@ -94,8 +98,6 @@ class CosmosAdapter extends AdapterBase {
 
         this.walletManager = new WalletManager(activeChains, [KEPLR_EXT], logger, 'connect_only', true, false, assets);
 
-        this.updateChainLogos();
-
         const stargateClientOptions = {
             aminoTypes,
             registry,
@@ -104,29 +106,18 @@ class CosmosAdapter extends AdapterBase {
         for (const chainRecord of this.walletManager.chainRecords) {
             const gasPrice = this.getGasPriceFromChain(chainRecord.chain.fees?.fee_tokens);
 
+            this.chainsFromStore[chainRecord.chain.chain_name] &&
+                (chainRecord.chain.logo =
+                    this.chainsFromStore[chainRecord.chain.chain_name]?.logo ||
+                    chainRecord.chain.logo_URIs?.svg ||
+                    chainRecord.chain.logo_URIs?.png);
+
             gasPrice && (stargateClientOptions.gasPrice = gasPrice);
 
             chainRecord.clientOptions.signingStargate = stargateClientOptions;
         }
 
         this.walletManager.onMounted();
-    }
-
-    async updateChainLogos() {
-        if (this.isLogosUpdated) {
-            return;
-        }
-
-        const cosmosChains = (await configsDB.getAllObjectFrom('networks', 'ecosystem', ECOSYSTEMS.COSMOS)) || {};
-
-        for (const chainRecord of this.walletManager.chainRecords) {
-            chainRecord.chain.logo =
-                cosmosChains[chainRecord.chain.chain_name]?.logo || chainRecord.chain.logo_URIs?.svg || chainRecord.chain.logo_URIs?.png;
-        }
-
-        if (Object.keys(cosmosChains).length) {
-            this.isLogosUpdated = true;
-        }
     }
 
     getGasPriceFromChain(feeTokens = []) {
@@ -483,7 +474,6 @@ class CosmosAdapter extends AdapterBase {
     }
 
     getChainList() {
-        this.updateChainLogos();
         const chainList = this.walletManager.chainRecords.map((record) => {
             const { chain, assetList = {} } = record || {};
 

@@ -1,10 +1,10 @@
 import { computed, watch } from 'vue';
 
-import { callFetchBalances } from '../../modules/Balances/fetchData';
+import { callFetchBalances } from '@/modules/Balances/fetchData';
 import { getBalancesByAddress } from '../../api/data-provider';
 
-import { getDataFromIndexedCache, prepareChainWithAddress, setNativeTokensPrices } from '../../modules/Balances/utils';
-import { checkActions } from '../../modules/Balances/helpers';
+import { getDataFromIndexedCache, prepareChainWithAddress, setNativeTokensPrices } from '@/modules/Balances/utils';
+import { checkActions } from '@/modules/Balances/helpers';
 
 // =================================================================================================================
 

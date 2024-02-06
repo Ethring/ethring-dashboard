@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
 import { handleTransactionStatus } from '../../Transactions/shared/utils/tx-statuses';
 import { ECOSYSTEMS } from '../../Adapter/config';
-import logger from '../../logger';
+import logger from '../../shared/logger';
 
 const TX_MANAGER_URL = import.meta.env.VITE_TX_MANAGER || undefined;
 

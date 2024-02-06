@@ -41,14 +41,12 @@
 <script>
 import { computed } from 'vue';
 import { useStore } from 'vuex';
-
-import AssetWithChain from '@/components/app/assets/AssetWithChain';
-import Amount from '../Amount.vue';
-
-import { formatNumber } from '@/shared/utils/numbers';
-
 import BigNumber from 'bignumber.js';
 
+import Amount from '@/components/app/Amount.vue';
+import AssetWithChain from '@/components/app/assets/AssetWithChain';
+
+import { formatNumber } from '@/shared/utils/numbers';
 import { getFormattedName, getFormattedDate, getTimeCountdown } from '@/shared/utils/assets';
 
 export default {
@@ -97,13 +95,9 @@ export default {
         });
 
         const tokenChainIcon = computed(() => {
-            if (!props.item?.chainLogo) {
-                return null;
-            }
-
             return {
-                symbol: props.item.chain,
-                logo: props.item.chainLogo,
+                symbol: props.item?.chain,
+                logo: props.item?.chainLogo || null,
             };
         });
 

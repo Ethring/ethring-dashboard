@@ -1,23 +1,24 @@
 import _ from 'lodash';
 
-import HttpRequest from '../../shared/utils/request';
+import { ECOSYSTEMS } from '@/Adapter/config';
 
-import { ECOSYSTEMS } from '../../Adapter/config';
+import { DP_CHAINS } from '@/api/data-provider/chains';
 
-import IndexedDBService from '../../modules/IndexedDb-v2';
+import IndexedDBService from '@/modules/IndexedDb-v2';
 
-import { DP_CHAINS } from '../data-provider/chains';
+import logger from '@/shared/logger';
+import HttpRequest from '@/shared/utils/request';
 
-import logger from '../../logger';
+import { DB_TABLES } from '@/shared/constants/indexedDb';
 
 const indexedDB = new IndexedDBService('configs');
 
 export const getConfigsByEcosystems = async (ecosystem = ECOSYSTEMS.EVM, { isCosmology = false } = {}) => {
     let query = '';
 
-    const store = isCosmology ? 'cosmology' : 'networks';
+    const store = isCosmology ? DB_TABLES.COSMOLOGY_NETWORKS : DB_TABLES.NETWORKS;
 
-    const list = await indexedDB.getAllObjectFrom(store, 'ecosystem', ecosystem);
+    const list = await indexedDB.getAllObjectFrom(store, 'ecosystem', ecosystem, { index: 'chain' });
 
     if (ecosystem === ECOSYSTEMS.COSMOS) {
         query = '/all';
@@ -54,8 +55,10 @@ export const getConfigsByEcosystems = async (ecosystem = ECOSYSTEMS.EVM, { isCos
     }
 };
 
-export const getCosmologyTokensConfig = async (ecosystem = ECOSYSTEMS.COSMOS) => {
-    const list = await indexedDB.getAllListFrom('cosmologyTokens');
+export const getCosmologyTokensConfig = async () => {
+    const store = DB_TABLES.COSMOLOGY_TOKENS;
+
+    const list = await indexedDB.getAllListFrom(store);
 
     if (Object.keys(list).length) {
         return list;
@@ -66,7 +69,7 @@ export const getCosmologyTokensConfig = async (ecosystem = ECOSYSTEMS.COSMOS) =>
 
         const { data } = await HttpRequest.get(URL);
 
-        await indexedDB.saveCosmologyAssets('cosmologyTokens', data);
+        await indexedDB.saveCosmologyAssets(store, data);
 
         return data;
     } catch (err) {
@@ -76,7 +79,9 @@ export const getCosmologyTokensConfig = async (ecosystem = ECOSYSTEMS.COSMOS) =>
 };
 
 export const getTokensConfigByChain = async (chain, ecosystem) => {
-    const list = await indexedDB.getAllObjectFrom('tokens', 'chain', chain);
+    const store = DB_TABLES.TOKENS;
+
+    const list = await indexedDB.getAllObjectFrom(store, 'chain', chain);
 
     if (Object.keys(list).length) {
         return list;
@@ -88,7 +93,7 @@ export const getTokensConfigByChain = async (chain, ecosystem) => {
         const { data } = await HttpRequest.get(URL);
 
         if (!_.isEqual(list, data)) {
-            await indexedDB.saveTokensObj('tokens', data, { network: chain, ecosystem });
+            await indexedDB.saveTokensObj(store, data, { network: chain, ecosystem });
         }
 
         return data;

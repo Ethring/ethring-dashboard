@@ -89,7 +89,8 @@ const cosmosChainTokens = (store, record, { chain, net }) => {
     const chainName = DP_COSMOS[net] || chain;
 
     const cosmosConfigs = store.state?.configs?.chains[ECOSYSTEMS.COSMOS] || {};
-    const { native_token: nativeToken } = cosmosConfigs[chainName] || {};
+    const { native_token: nativeToken, logo } = cosmosConfigs[chainName] || {};
+    record.chainLogo = logo;
 
     if (record.address && record.address.startsWith('IBC')) {
         record.address = record.address.replace('IBC', 'ibc');

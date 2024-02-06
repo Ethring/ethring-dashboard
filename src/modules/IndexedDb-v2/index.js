@@ -1,7 +1,10 @@
-import Dexie from 'dexie';
-import logger from '../../logger';
-import { ECOSYSTEMS } from '../../Adapter/config';
 import _ from 'lodash';
+
+import Dexie from 'dexie';
+
+import logger from '@/shared/logger';
+
+import { DB_TABLES } from '@/shared/constants/indexedDb';
 
 class IndexedDBService {
     defaultStores = {
@@ -9,10 +12,11 @@ class IndexedDBService {
     };
 
     configStores = {
-        tokens: 'id, ecosystem, chain',
-        networks: 'id, ecosystem, chain',
-        cosmology: 'id, ecosystem, chain',
-        cosmologyTokens: 'chain_name',
+        [DB_TABLES.NETWORKS]: 'id, ecosystem, chain',
+        [DB_TABLES.COSMOLOGY_NETWORKS]: 'id, ecosystem, chain',
+
+        [DB_TABLES.TOKENS]: 'id, ecosystem, chain',
+        [DB_TABLES.COSMOLOGY_TOKENS]: 'chain_name',
     };
 
     constructor(dbName = 'balances', version = 1) {
@@ -74,28 +78,36 @@ class IndexedDBService {
     // ======================= SETTERS FOR CONFIGS ==============================
     // ==========================================================================
 
-    async saveNetworksObj(store, networks, { ecosystem, cosmology = false } = {}) {
-        await this.db.transaction('rw', this.db[store], async () => {
-            for (const chain in networks) {
-                networks[chain].ecosystem = ecosystem?.toUpperCase() || '';
+    async saveNetworksObj(store, networks, { ecosystem } = {}) {
+        for (const chain in networks) {
+            networks[chain].id = `${ecosystem}:${chain}`;
+            networks[chain].ecosystem = ecosystem?.toUpperCase() || '';
+            networks[chain].chain = chain;
 
-                await this.db[store].put({
-                    id: chain,
-                    ecosystem: networks[chain].ecosystem,
-                    chain,
-                    value: JSON.stringify(networks[chain]),
-                });
-            }
+            networks[chain].value = JSON.stringify(networks[chain]);
+        }
 
-            logger.debug(`All ${ecosystem} networks saved`);
-        });
+        const networksList = _.values(networks);
+
+        try {
+            await this.db.transaction('rw', this.db[store], async () => {
+                await this.db[store].bulkPut(networksList);
+                logger.debug(`All ${ecosystem} networks saved`);
+            });
+        } catch (error) {
+            logger.error(`[IndexedDB](saveNetworksObj): ${store}`, error);
+        }
     }
 
     async saveCosmologyAssets(store, configs) {
-        await this.db.transaction('rw', this.db[store], async () => {
-            await this.db[store].bulkPut(configs);
-            logger.debug(`All cosmology tokens saved`);
-        });
+        try {
+            await this.db.transaction('rw', this.db[store], async () => {
+                await this.db[store].bulkPut(configs);
+                logger.debug(`All cosmology tokens saved`);
+            });
+        } catch (error) {
+            logger.error(`[IndexedDB](saveCosmologyAssets): ${store}`, error);
+        }
     }
 
     async saveTokensObj(store, tokens, { network, ecosystem, scheme } = {}) {
@@ -134,7 +146,7 @@ class IndexedDBService {
 
             const formatted = formatTokensObj(tokens);
 
-            return _.values(formatted).map((token) => ({ ...token, value: JSON.stringify(token) }));
+            return _.values(formatted);
         };
 
         const formattedTokens = getFormattedTokens(tokens);
@@ -171,7 +183,7 @@ class IndexedDBService {
             const responseObj = {};
 
             for (const item of response) {
-                responseObj[item[index]] = JSON.parse(item.value);
+                responseObj[item[index]] = item?.value ? JSON.parse(item.value) : item;
             }
 
             return responseObj;

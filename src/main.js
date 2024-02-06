@@ -12,10 +12,10 @@ import 'ant-design-vue/dist/reset.css';
 import App from './App.vue';
 
 // Router
-import Router from './routes';
+import Router from '@/routes';
 
 // Store
-import store from './store';
+import store from '@/store';
 
 // Styles
 import '@/assets/styles/index.scss';
@@ -24,18 +24,19 @@ import '@/assets/styles/index.scss';
 import { i18n } from '@/shared/i18n';
 
 // Modules for Sentry and Mixpanel
-import useSentry from './modules/Sentry';
-import useMixpanel from './modules/Mixpanel';
-import SocketInstance from './modules/Socket';
+import useSentry from '@/modules/Sentry';
+import useMixpanel from '@/modules/Mixpanel';
+import SocketInstance from '@/modules/Socket';
 
 // Service worker
 import './registerServiceWorker';
 
 // Compositions
-import useAdapter from './Adapter/compositions/useAdapter';
-import useSelectModal from './compositions/useSelectModal';
+import useAdapter from '@/Adapter/compositions/useAdapter';
+import useSelectModal from '@/compositions/useSelectModal';
 
-import logger from './logger';
+// Logger
+import logger from '@/shared/logger';
 
 SocketInstance.init(store);
 

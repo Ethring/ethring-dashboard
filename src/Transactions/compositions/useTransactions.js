@@ -9,7 +9,7 @@ import useNotification from '@/compositions/useNotification';
 
 import { STATUSES } from '../shared/constants';
 
-import { captureTransactionException } from '../../modules/Sentry';
+import { captureTransactionException } from '@/modules/Sentry';
 
 export default function useTransactions() {
     const store = useStore();
