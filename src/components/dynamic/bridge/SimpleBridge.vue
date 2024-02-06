@@ -367,6 +367,7 @@ export default {
             await makeApproveRequest(selectedService.value);
 
             if (!srcTokenApprove.value) {
+                store.dispatch('txManager/setTransactionForSign', null);
                 return (isLoading.value = false);
             }
 
@@ -411,6 +412,7 @@ export default {
             const responseBridge = await makeBridgeTx();
 
             if (!responseBridge) {
+                store.dispatch('txManager/setTransactionForSign', null);
                 return (isLoading.value = false);
             }
 

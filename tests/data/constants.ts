@@ -21,3 +21,27 @@ export const KeplrDirPath = path.resolve(
     'data',
     `keplr-extension-manifest-v2-v${getTestVar(TEST_CONST.KEPLR_VERSION)}`
 );
+
+export enum DATA_QA_LOCATORS {
+    SELECT_NETWORK = 'select-network',
+    TOKEN_RECORD = 'token-record',
+    SELECT_TOKEN = 'select-token',
+    EVM_ECOSYSTEM_WALLET = 'EVM Ecosystem wallet',
+    COSMOS_ECOSYSTEM_WALLET = 'Cosmos Ecosystem wallet',
+    SIDEBAR_SEND = 'sidebar-item-send',
+    SIDEBAR_SWAP = 'sidebar-item-swap',
+    SIDEBAR_BRIDGE = 'sidebar-item-bridge',
+    SIDEBAR_SUPER_SWAP = 'sidebar-item-superSwap',
+    DASHBOARD = 'dashboard',
+    CONTENT = 'content',
+    RECORD_MODAL = 'select-record-modal',
+    CONFIRM = 'confirm',
+    ASSETS_PANEL = 'assets-panel',
+
+    INPUT_ADDRESS = 'input-address',
+    INPUT_AMOUNT = 'input-amount',
+
+    SELECT_BLOCK = 'select__block',
+    ITEM = 'item',
+    ROUTE_INFO = 'route-info',
+}

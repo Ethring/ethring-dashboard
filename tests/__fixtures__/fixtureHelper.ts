@@ -10,6 +10,7 @@ import { marketCapNativeEvmTokens } from '../data/mockHelper';
 import util from 'util';
 
 export const FIVE_SECONDS = 5000;
+export const ONE_SECOND = 1000;
 
 const sleep = util.promisify(setTimeout);
 
@@ -73,10 +74,17 @@ export const authInDashboardByMm = async (context: BrowserContext, seed: String)
 
 export const authInDashboardByMmCoingeckoMock = async (context: BrowserContext, seed: String): Promise<DashboardPage> => {
     await addWalletToMm(context, seed);
-    const zometPage = new DashboardPage(await context.newPage());
 
-    const COINGECKO_ROUTE = '**/marketcaps/coingecko';
-    await zometPage.mockRoute(COINGECKO_ROUTE, marketCapNativeEvmTokens);
+    const COINGECKO_ROUTE = '**/marketcaps/coingecko?**';
+    context.route(COINGECKO_ROUTE, (route) => {
+        route.fulfill({
+            status: 200,
+            contentType: 'application/json; charset=utf-8',
+            body: JSON.stringify(marketCapNativeEvmTokens),
+        });
+    });
+
+    const zometPage = new DashboardPage(await context.newPage());
 
     return __loginByMmAndWaitElement__(context, zometPage);
 };

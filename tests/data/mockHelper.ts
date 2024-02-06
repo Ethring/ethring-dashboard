@@ -1215,7 +1215,7 @@ const marketCapNativeEvmTokens = {
             marketCap: 12877465070,
             circulatingSupply: 367045824.372127,
             usd: {
-                price: 35.03,
+                price: 32.90, // This value is needed to check the rounding of numbers
                 priceChange24h: -1.4105531054680327,
                 priceChange24hPct: -3.87054,
                 volumeChange24h: 755155346,
