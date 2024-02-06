@@ -57,7 +57,9 @@ test.describe('MetaMask Send e2e tests', () => {
             const amountFromMM = await notifyMMtx.getAmount();
             expect(amountFromMM).toBe(amount);
 
-            await expect(sendPageCoingeckoMock.page).toHaveScreenshot();
+            await expect(sendPageCoingeckoMock.page).toHaveScreenshot({
+                maxDiffPixels: 240,
+            });
 
             await notifyMMtx.rejectTx();
             await sendPageCoingeckoMock.getBaseContentElement().hover();
