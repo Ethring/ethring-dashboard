@@ -538,12 +538,17 @@ export default function useModule({ moduleType }) {
 
     const makeEstimateRequest = async () => {
         estimateErrorTitle.value = '';
-
         isEstimating.value = true;
+
+        if (cancelRequestByMethod) {
+            await cancelRequestByMethod('estimateSwap');
+            await cancelRequestByMethod('estimateBridge');
+        }
 
         if (!isAllowForRequest()) {
             isLoading.value = false;
             isEstimating.value = false;
+            resetFees();
             return;
         }
 
@@ -565,6 +570,8 @@ export default function useModule({ moduleType }) {
         const response = await makeRequest(params);
 
         if (response.error) {
+            resetFees();
+
             estimateErrorTitle.value = response.error;
             dstAmount.value = '';
             isEstimating.value = false;
@@ -814,6 +821,7 @@ export default function useModule({ moduleType }) {
         }
 
         resetTokensForModules('watch-wallet-account', { isAccountChanged });
+        setEcosystemService();
     });
 
     // ========================= Watch Selected SRC DST Networks =========================
@@ -831,8 +839,6 @@ export default function useModule({ moduleType }) {
 
         console.groupEnd();
 
-        setEcosystemService();
-
         if (isSameNetwork) {
             [selectedSrcNetwork.value, selectedDstNetwork.value] = [oldDst, oldSrc];
             [selectedSrcToken.value, selectedDstToken.value] = [selectedDstToken.value, selectedSrcToken.value];
@@ -843,8 +849,6 @@ export default function useModule({ moduleType }) {
         if (newSrc && !isSameNetwork) {
             checkSelectedNetwork();
 
-            cancelRequestByMethod('estimateSwap');
-            cancelRequestByMethod('estimateBridge');
             resetFees();
 
             setTimeout(() => (estimateErrorTitle.value = ''));
@@ -864,8 +868,6 @@ export default function useModule({ moduleType }) {
         }
 
         if (newDst && !isSameNetwork) {
-            cancelRequestByMethod('estimateSwap');
-            cancelRequestByMethod('estimateBridge');
             resetFees();
 
             setTimeout(() => (estimateErrorTitle.value = ''));

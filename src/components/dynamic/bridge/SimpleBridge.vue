@@ -313,7 +313,7 @@ export default {
 
             try {
                 const params = {
-                    url: selectedService.value.url,
+                    url: selectedService.value?.url,
                     fromNet: selectedSrcNetwork.value.net,
                     fromTokenAddress: selectedSrcToken.value.address,
                     amount: srcAmount.value,
@@ -385,7 +385,7 @@ export default {
                     successCallback: {
                         action: 'GET_ALLOWANCE',
                         requestParams: {
-                            url: selectedService.value.url,
+                            url: selectedService.value?.url,
                             net: selectedSrcNetwork.value.net,
                             tokenAddress: selectedSrcToken.value.address,
                             ownerAddress: walletAddress.value,
