@@ -18,10 +18,8 @@ export default {
         services: (state) => state.services,
         getServicesByType: (state) => (type) => state.services.filter((service) => service.type === type) || [],
 
-        getServicesByEcosystem: (state) => (namespace) => {
-            console.log('namespace', namespace, state.services);
-            return state.services.filter((service) => service.namespace?.toLowerCase() === namespace?.toLowerCase()) || [];
-        },
+        getServicesByEcosystem: (state) => (namespace) =>
+            state.services.filter((service) => service.namespace?.toLowerCase() === namespace?.toLowerCase()) || [],
         showRoutes: (state) => state.showRoutes,
         selectedRoute: (state) => state.selectedRoute,
     },

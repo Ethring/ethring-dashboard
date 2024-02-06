@@ -1131,6 +1131,8 @@ export default function useModule({ moduleType }) {
 
     return {
         // Main information for operation
+        selectedService,
+
         selectedSrcToken,
         selectedDstToken,
         selectedSrcNetwork,

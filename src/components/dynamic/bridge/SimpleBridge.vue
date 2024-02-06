@@ -153,15 +153,10 @@ export default {
         const { currentRequestID, transactionForSign, createTransactions, signAndSend, addTransactionToRequestID } = useTransactions();
 
         // =================================================================================================================
-
-        const selectedService = computed({
-            get: () => store.getters['bridge/service'],
-            set: (value) => store.dispatch('bridge/setService', value),
-        });
-
-        // =================================================================================================================
         // * Module values
         const {
+            selectedService,
+
             selectedSrcToken,
             selectedDstToken,
             selectedSrcNetwork,
@@ -205,7 +200,6 @@ export default {
             makeApproveRequest,
             makeEstimateRequest,
         } = useServices({
-            selectedService: selectedService.value,
             module,
             moduleType: 'bridge',
         });
@@ -241,7 +235,7 @@ export default {
                 !selectedSrcToken.value ||
                 !selectedDstNetwork.value ||
                 !selectedDstToken.value ||
-                (isSendToAnotherAddress.value && (isAddressError.value || !receiverAddress.value))
+                (isSendToAnotherAddress.value && (isAddressError.value || !receiverAddress.value)),
         );
 
         // =================================================================================================================

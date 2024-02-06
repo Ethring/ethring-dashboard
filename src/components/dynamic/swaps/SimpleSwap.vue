@@ -119,13 +119,9 @@ export default {
 
         const { walletAddress, currentChainInfo, walletAccount, setChain } = useAdapter();
 
-        const selectedService = computed({
-            get: () => store.getters[`swap/service`],
-            set: (value) => store.dispatch(`swap/setService`, value),
-        });
-
         // * Module values
         const {
+            selectedService,
             selectedSrcToken,
             selectedDstToken,
             selectedSrcNetwork,
@@ -199,7 +195,7 @@ export default {
                 !dstAmount.value ||
                 !selectedSrcNetwork.value ||
                 !selectedSrcToken.value ||
-                !selectedDstToken.value
+                !selectedDstToken.value,
         );
 
         // =================================================================================================================
