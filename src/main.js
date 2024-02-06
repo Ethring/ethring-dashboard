@@ -1,7 +1,5 @@
 import { createApp } from 'vue';
 
-console.log(process.env);
-
 // Directives
 import vueDebounce from 'vue-debounce';
 import VueClickAway from 'vue3-click-away';
