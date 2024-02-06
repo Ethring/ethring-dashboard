@@ -7,6 +7,7 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import svgLoader from 'vite-svg-loader';
 import { visualizer } from 'rollup-plugin-visualizer';
+import EnvironmentPlugin from 'vite-plugin-environment';
 
 import { VitePWA } from 'vite-plugin-pwa';
 
@@ -25,7 +26,7 @@ export default defineConfig({
     mode: process.env.NODE_ENV,
 
     define: {
-        'process.env.VITE_VERSION': JSON.stringify(packageJson.version) || '0.0.0',
+        'process.env.APP_VERSION': JSON.stringify(packageJson.version) || '0.0.0',
     },
 
     build: {
@@ -110,6 +111,7 @@ export default defineConfig({
         vue({
             isProduction: isProduction,
         }),
+        EnvironmentPlugin('all'),
         svgLoader({
             svgoConfig: {
                 plugins: [

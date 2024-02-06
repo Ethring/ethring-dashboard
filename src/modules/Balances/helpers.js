@@ -1,12 +1,6 @@
 import { computed } from 'vue';
 
-const RESET_ACTIONS = [
-    ['tokens/setLoader', true],
-    ['tokens/setFromToken', null],
-    ['tokens/setToToken', null],
-    ['bridge/setSelectedSrcNetwork', null],
-    ['bridge/setSelectedDstNetwork', null],
-];
+const RESET_ACTIONS = [['tokens/setLoader', true]];
 
 // =================================================================================================================
 

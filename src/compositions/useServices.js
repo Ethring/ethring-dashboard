@@ -8,8 +8,6 @@ import { useI18n } from 'vue-i18n';
 import { ECOSYSTEMS } from '@/Adapter/config';
 import useEstimate from './useEstimate';
 
-import { getServices } from '@/config/services';
-
 import {
     getAllowance,
     getApproveTx,
@@ -22,6 +20,7 @@ import useTokensList from '@/compositions/useTokensList';
 import useNotification from '@/compositions/useNotification';
 
 import { DIRECTIONS, FEE_TYPES, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+import { STATUSES } from '@/shared/constants/super-swap/constants';
 
 import { formatNumber } from '@/shared/utils/numbers';
 import { updateWalletBalances } from '@/shared/utils/balances';
@@ -38,15 +37,20 @@ export default function useModule({ moduleType }) {
     const useAdapter = inject('useAdapter');
     const isWaitingTxStatusForModule = computed(() => store.getters['txManager/isWaitingTxStatusForModule'](module));
 
-    const servicesEVM = getServices(null, ECOSYSTEMS.EVM);
-    const servicesCosmos = getServices(null, ECOSYSTEMS.COSMOS);
+    const servicesEVM = computed(() => store.getters['bridgeDex/getServicesByEcosystem'](ECOSYSTEMS.EVM) || []);
+    const servicesCosmos = computed(() => store.getters['bridgeDex/getServicesByEcosystem'](ECOSYSTEMS.COSMOS) || []);
 
     const addressesByChains = ref({});
 
     const selectedService = computed({
-        get: () => store.getters[`${moduleType}/service`],
-        set: (value) => store.dispatch(`${moduleType}/setService`, value),
+        get: () => store.getters[`tokenOps/selectedService`],
+        set: (value) => store.dispatch(`tokenOps/setSelectedService`, value),
     });
+
+    // * Bridge Dex
+    const bridgeDexRoutes = computed(() => store.getters['bridgeDex/selectedRoute']);
+    const bestRouteInfo = computed(() => bridgeDexRoutes.value?.bestRoute);
+    const currentRouteInfo = computed(() => bestRouteInfo.value?.routes.find((elem) => elem.status === STATUSES.SIGNING));
 
     // * Notification
     const { showNotification, closeNotification } = useNotification();
@@ -241,7 +245,7 @@ export default function useModule({ moduleType }) {
             walletAccount.value,
             selectedSrcNetwork.value.net,
             selectedSrcToken.value.address,
-            selectedService.value.id
+            selectedService.value.id,
         );
     });
 
@@ -257,7 +261,7 @@ export default function useModule({ moduleType }) {
             walletAccount.value,
             selectedSrcNetwork.value.net,
             selectedSrcToken.value.address,
-            selectedService.value.id
+            selectedService.value.id,
         );
     });
 
@@ -337,6 +341,10 @@ export default function useModule({ moduleType }) {
     };
 
     const setEcosystemService = () => {
+        if (['send'].includes(moduleType)) {
+            return (selectedService.value = null);
+        }
+
         if (!currentChainInfo.value?.ecosystem || !['swap', 'bridge'].includes(moduleType)) {
             return;
         }
@@ -354,15 +362,17 @@ export default function useModule({ moduleType }) {
 
         switch (currentChainInfo.value?.ecosystem) {
             case ECOSYSTEMS.COSMOS:
-                selectedService.value = servicesCosmos.find(
-                    (service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.COSMOS][moduleType]
+                selectedService.value = servicesCosmos.value.find(
+                    (service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.COSMOS][moduleType],
                 );
 
                 setOwnerAddresses();
 
                 break;
             case ECOSYSTEMS.EVM:
-                selectedService.value = servicesEVM.find((service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.EVM][moduleType]);
+                selectedService.value = servicesEVM.value.find(
+                    (service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.EVM][moduleType],
+                );
 
                 setOwnerAddresses();
 
@@ -426,7 +436,7 @@ export default function useModule({ moduleType }) {
             baseFeeInfo.value.title = 'tokenOperations.serviceFee';
 
             baseFeeInfo.value.toAmount = formatNumber(
-                BigNumber(response.fee?.amount).multipliedBy(selectedSrcToken.value?.price).toString()
+                BigNumber(response.fee?.amount).multipliedBy(selectedSrcToken.value?.price).toString(),
             );
         }
 
@@ -492,6 +502,8 @@ export default function useModule({ moduleType }) {
 
     const makeApproveRequest = async (service) => {
         const currentService = service || selectedService.value;
+
+        console.log('makeApproveRequest', currentService);
 
         const isEVM = ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem;
         const requiredFields = selectedSrcToken.value?.address && selectedService.value?.id && walletAccount.value;
@@ -801,7 +813,6 @@ export default function useModule({ moduleType }) {
             selectedDstNetwork.value = chainList.value?.filter(({ net }) => net !== selectedSrcNetwork.value?.net)[0];
         }
 
-        setEcosystemService();
         resetTokensForModules('watch-wallet-account', { isAccountChanged });
     });
 
@@ -819,6 +830,8 @@ export default function useModule({ moduleType }) {
         const isSameNetwork = ['swap', 'bridge'].includes(moduleType) && isNewSrcNewDstSame;
 
         console.groupEnd();
+
+        setEcosystemService();
 
         if (isSameNetwork) {
             [selectedSrcNetwork.value, selectedDstNetwork.value] = [oldDst, oldSrc];
@@ -1015,6 +1028,16 @@ export default function useModule({ moduleType }) {
         selectedDstNetwork.value && (await handleUpdateBalance(selectedDstNetwork.value));
     });
 
+    const unWatchBridgeDexRoutes = watch(bridgeDexRoutes, () => {
+        console.log('watch-bridgeDexRoutes', bridgeDexRoutes.value, currentRouteInfo);
+
+        selectedService.value = currentRouteInfo.value?.service;
+
+        dstAmount.value = BigNumber(bestRouteInfo.value?.toTokenAmount).decimalPlaces(6).toString();
+
+        console.log('watch-bridgeDexRoutes selectedService', selectedService.value);
+    });
+
     // =================================================================================================================
 
     const callOnMounted = () => {
@@ -1055,13 +1078,14 @@ export default function useModule({ moduleType }) {
         ) {
             selectedDstNetwork.value = chainList.value?.filter(({ net }) => net !== selectedSrcNetwork.value?.net)[0];
         }
+
+        setEcosystemService();
     };
 
     onMounted(() => {
         callOnMounted();
         checkSelectedNetwork();
         resetTokensForModules('onMounted');
-        setEcosystemService();
     });
 
     onBeforeUnmount(() => {
@@ -1083,6 +1107,8 @@ export default function useModule({ moduleType }) {
         unWatchLoadingDst();
 
         unWatchTxStatusModule();
+
+        unWatchBridgeDexRoutes();
 
         // Reset all data
         targetDirection.value = DIRECTIONS.SOURCE;

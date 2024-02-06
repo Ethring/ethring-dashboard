@@ -1,12 +1,12 @@
 import VueMixpanel from 'vue-mixpanel';
 
 export default function useMixpanel(app) {
-    if (!import.meta.env.VITE_MIXPANEL_TOKEN) {
+    if (!process.env.MIXPANEL_TOKEN) {
         return;
     }
 
     return app.use(VueMixpanel, {
-        token: import.meta.env.VITE_MIXPANEL_TOKEN,
+        token: process.env.MIXPANEL_TOKEN,
         config: {
             debug: true,
             track_pageview: true,

@@ -25,6 +25,8 @@ const TYPES = {
     SET_APPROVE_FOR_ACCOUNT_ADDRESS: 'SET_APPROVE_FOR_ACCOUNT_ADDRESS',
 
     SET_CLEAR_APPROVE_FOR_TOKEN: 'SET_CLEAR_APPROVE_FOR_TOKEN',
+
+    SET_SELECTED_SERVICE: 'SET_SELECTED_SERVICE',
 };
 
 const getApproveOrAllowance = (state, target, { account = null, chain = null, tokenAddress = null, service = null }) => {
@@ -56,6 +58,8 @@ const getApproveOrAllowance = (state, target, { account = null, chain = null, to
 export default {
     namespaced: true,
     state: () => ({
+        selectedService: null,
+
         direction: DIRECTIONS.SOURCE,
         selectType: TOKEN_SELECT_TYPES.FROM,
         onlyWithBalance: false,
@@ -76,6 +80,8 @@ export default {
     }),
 
     getters: {
+        selectedService: (state) => state.selectedService,
+
         srcAmount: (state) => state.srcAmount,
         dstAmount: (state) => state.dstAmount,
 
@@ -166,6 +172,10 @@ export default {
                 state.approve[targetKey] = null;
             }
         },
+
+        [TYPES.SET_SELECTED_SERVICE](state, service) {
+            state.selectedService = service;
+        },
     },
 
     actions: {
@@ -207,6 +217,9 @@ export default {
         },
         clearApproveForToken({ commit }, value) {
             commit(TYPES.SET_APPROVE_FOR_ACCOUNT_ADDRESS, value);
+        },
+        setSelectedService({ commit }, value) {
+            commit(TYPES.SET_SELECTED_SERVICE, value);
         },
     },
 };

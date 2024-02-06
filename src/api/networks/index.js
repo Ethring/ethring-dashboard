@@ -33,7 +33,7 @@ export const getConfigsByEcosystems = async (ecosystem = ECOSYSTEMS.EVM, { isCos
     }
 
     try {
-        const URL = `${import.meta.env.VITE_ZOMET_CORE_API_URL}/networks/${ecosystem.toLowerCase()}${query}`;
+        const URL = `${process.env.CORE_API}/networks/${ecosystem.toLowerCase()}${query}`;
 
         const { data } = await HttpRequest.get(URL);
 
@@ -65,7 +65,7 @@ export const getCosmologyTokensConfig = async () => {
     }
 
     try {
-        const URL = `${import.meta.env.VITE_ZOMET_CORE_API_URL}/networks/cosmos/all/tokens`;
+        const URL = `${process.env.CORE_API}/networks/cosmos/all/tokens`;
 
         const { data } = await HttpRequest.get(URL);
 
@@ -88,7 +88,7 @@ export const getTokensConfigByChain = async (chain, ecosystem) => {
     }
 
     try {
-        const URL = `${import.meta.env.VITE_ZOMET_CORE_API_URL}/networks/${chain}/tokens`;
+        const URL = `${process.env.CORE_API}/networks/${chain}/tokens`;
 
         const { data } = await HttpRequest.get(URL);
 

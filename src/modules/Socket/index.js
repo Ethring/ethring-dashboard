@@ -3,7 +3,7 @@ import { handleTransactionStatus } from '../../Transactions/shared/utils/tx-stat
 import { ECOSYSTEMS } from '../../Adapter/config';
 import logger from '../../shared/logger';
 
-const TX_MANAGER_URL = import.meta.env.VITE_TX_MANAGER || undefined;
+const TX_MANAGER_URL = process.env.TX_MANAGER_API || undefined;
 
 class SocketInstance {
     store = null;

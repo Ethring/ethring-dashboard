@@ -2,13 +2,12 @@ import { createStore } from 'vuex';
 
 // Main Modules
 import app from './app';
+
+// Balances
 import tokens from './tokens';
 
+// Chain-registry and tokens
 import configs from './configs';
-
-// Services
-import bridge from './services/bridge';
-import swap from './services/swap';
 
 // Operations
 import operations from './operations';
@@ -41,8 +40,6 @@ export default createStore({
         configs,
         adapters,
         tokens,
-        bridge,
-        swap,
         tokenOps: operations,
         txManager,
         bridgeDex,

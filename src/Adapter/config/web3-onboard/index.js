@@ -11,9 +11,9 @@ const coinbaseWalletSdk = coinbaseWalletModule();
 
 const wallets = [injected, coinbaseWalletSdk];
 
-// if (import.meta.env.VITE_WC_PROJECT_ID && import.meta.env.VITE_WC_PROJECT_ID !== 'null') {
+// if (process.env.WC_PROJECT_ID && process.env.WC_PROJECT_ID !== 'null') {
 //     const ledger = ledgerModule({
-//         projectId: import.meta.env.VITE_WC_PROJECT_ID,
+//         projectId: process.env.WC_PROJECT_ID,
 //     });
 
 //     wallets.push(ledger);

@@ -4,16 +4,16 @@ import { BrowserTracing } from '@sentry/browser';
 import { ignorePatterns } from './tx-ignore.json';
 
 export default function useSentry(app, Router) {
-    if (!import.meta.env.VITE_SENTRY_DSN) {
+    if (!process.env.SENTRY_DSN) {
         return;
     }
 
     return Sentry.init({
         app,
-        dsn: import.meta.env.VITE_SENTRY_DSN,
-        tunnel: new URL(import.meta.env.VITE_SENTRY_DSN).origin + '/tunnel',
-        release: import.meta.env.VITE_RELEASE,
-        environment: import.meta.env.NODE_ENV,
+        dsn: process.env.SENTRY_DSN,
+        tunnel: new URL(process.env.SENTRY_DSN).origin + '/tunnel',
+        release: process.env.RELEASE,
+        environment: process.env.NODE_ENV,
 
         // This sets the sample rate to be 10%. You may want this to be 100% while
         // in development and sample at a lower rate in production
@@ -34,7 +34,7 @@ export default function useSentry(app, Router) {
 }
 
 export const captureTransactionException = ({ error, ...args }) => {
-    if (!import.meta.env.VITE_SENTRY_DSN) {
+    if (!process.env.SENTRY_DSN) {
         return;
     }
 

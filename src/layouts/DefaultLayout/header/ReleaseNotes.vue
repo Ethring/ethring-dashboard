@@ -99,13 +99,13 @@ export default {
         const AVAILABLE_MODULES = ['Send', 'Swap', 'Bridge', 'SuperSwap'];
 
         const handleReload = () => {
-            store.dispatch('app/setLastVersion', process.env.VITE_VERSION);
+            store.dispatch('app/setLastVersion', process.env.APP_VERSION);
             window.location.reload(true);
         };
 
         return {
             releaseNotes,
-            version: process.env.VITE_VERSION,
+            version: process.env.APP_VERSION,
 
             EVM,
             COSMOS,
