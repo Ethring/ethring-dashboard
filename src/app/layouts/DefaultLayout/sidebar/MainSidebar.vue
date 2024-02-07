@@ -39,7 +39,7 @@ import { computed, inject, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
-import UIConfig from '../../../config/ui';
+import UIConfig from '@/config/ui';
 
 import SidebarItem from './SidebarItem.vue';
 import SidebarLogo from './SidebarLogo.vue';
@@ -101,7 +101,7 @@ export default {
             () => router.currentRoute.value.path,
             () => {
                 selectedKeys.value = [router.currentRoute.value.meta?.key];
-            }
+            },
         );
 
         return {

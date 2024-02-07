@@ -3,13 +3,13 @@ import { useStore } from 'vuex';
 
 import { LoadingOutlined } from '@ant-design/icons-vue';
 
-import { addTransactionToExistingQueue, createTransactionsQueue, getTransactionsByRequestID, updateTransaction } from '../api';
+import { addTransactionToExistingQueue, createTransactionsQueue, getTransactionsByRequestID, updateTransaction } from '@/Transactions/api';
 
 import useNotification from '@/compositions/useNotification';
 
-import { STATUSES } from '../shared/constants';
+import { STATUSES } from '@/Transactions/shared/constants';
 
-import { captureTransactionException } from '@/modules/Sentry';
+import { captureTransactionException } from '@/app/modules/sentry';
 
 export default function useTransactions() {
     const store = useStore();

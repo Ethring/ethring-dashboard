@@ -16,14 +16,13 @@ import useInit from '@/compositions/useInit/';
 
 import Socket from './modules/Socket';
 
-import AppLayout from './layouts/DefaultLayout/AppLayout.vue';
+import AppLayout from '@/app/layouts/DefaultLayout';
+import ReleaseNotes from '@/app/layouts/DefaultLayout/header/ReleaseNotes.vue';
 
 import WalletsModal from '@/Adapter/UI/Modal/WalletsModal';
 import AddressModal from '@/Adapter/UI/Modal/AddressModal';
-import KadoModal from './components/app/modals/KadoModal.vue';
-import RoutesModal from './components/app/modals/RoutesModal.vue';
-
-import ReleaseNotes from './layouts/DefaultLayout/header/ReleaseNotes.vue';
+import KadoModal from '@/components/app/modals/KadoModal.vue';
+import RoutesModal from '@/components/app/modals/RoutesModal.vue';
 
 import { delay } from '@/shared/utils/helpers';
 

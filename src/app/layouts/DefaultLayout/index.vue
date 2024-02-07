@@ -18,11 +18,11 @@ import { useStore } from 'vuex';
 
 import LoadingOverlay from '@/components/ui/LoadingOverlay';
 
-import Sidebar from './sidebar/MainSidebar.vue';
+import Sidebar from '@/app/layouts/DefaultLayout/sidebar/MainSidebar.vue';
 import NavBar from './header/NavBar.vue';
 
 export default {
-    name: 'AppLayout',
+    name: 'DefaultLayout',
     components: {
         Sidebar,
         NavBar,

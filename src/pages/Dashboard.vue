@@ -15,10 +15,10 @@
 <script>
 import { inject } from 'vue';
 
-import Assets from '../components/app/Assets';
+import Assets from '@/components/app/Assets';
 
-import ConnectWalletAdapter from './ConnectWalletAdapter.vue';
-import WalletInfoLarge from '../components/app/WalletInfoLarge';
+import ConnectWalletAdapter from '@/components/app/ConnectWalletAdapter.vue';
+import WalletInfoLarge from '@/components/app/WalletInfoLarge';
 
 export default {
     name: 'Dashboard',

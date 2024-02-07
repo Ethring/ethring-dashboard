@@ -1,9 +1,10 @@
+import _ from 'lodash';
+
 import { getBalancesByAddress, DP_COSMOS } from '@/api/data-provider';
 import { formatRecord } from '@/modules/Balances/utils';
 import IndexedDBService from '@/modules/indexedDb';
 
-import store from '@/store/';
-import _ from 'lodash';
+import store from '@/app/providers/store.provider.js';
 
 const saveToCache = async (account, chainId, address, tokenBalances) => {
     try {

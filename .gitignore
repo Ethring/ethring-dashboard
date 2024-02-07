@@ -5,6 +5,7 @@ node_modules
 /tests/data/keplr-*
 
 # local env files
+.env
 .env.local
 .env.*.local
 

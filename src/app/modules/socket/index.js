@@ -1,7 +1,10 @@
 import { io } from 'socket.io-client';
-import { handleTransactionStatus } from '../../Transactions/shared/utils/tx-statuses';
-import { ECOSYSTEMS } from '../../Adapter/config';
-import logger from '../../shared/logger';
+
+import { ECOSYSTEMS } from '@/Adapter/config';
+
+import { handleTransactionStatus } from '@/Transactions/shared/utils/tx-statuses';
+
+import logger from '@/shared/logger';
 
 const TX_MANAGER_URL = process.env.TX_MANAGER_API || undefined;
 

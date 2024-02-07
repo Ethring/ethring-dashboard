@@ -13,9 +13,9 @@
 import { onMounted, onUpdated, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
-import useAdapter from '../Adapter/compositions/useAdapter';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 
-import ConnectToEcosystems from '../Adapter/UI/Widgets/ConnectToEcosystems';
+import ConnectToEcosystems from '@/Adapter/UI/Widgets/ConnectToEcosystems';
 
 export default {
     name: 'ConnectWalletAdapter',
