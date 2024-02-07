@@ -153,15 +153,10 @@ export default {
         const { currentRequestID, transactionForSign, createTransactions, signAndSend, addTransactionToRequestID } = useTransactions();
 
         // =================================================================================================================
-
-        const selectedService = computed({
-            get: () => store.getters['bridge/service'],
-            set: (value) => store.dispatch('bridge/setService', value),
-        });
-
-        // =================================================================================================================
         // * Module values
         const {
+            selectedService,
+
             selectedSrcToken,
             selectedDstToken,
             selectedSrcNetwork,
@@ -205,7 +200,6 @@ export default {
             makeApproveRequest,
             makeEstimateRequest,
         } = useServices({
-            selectedService: selectedService.value,
             module,
             moduleType: 'bridge',
         });
@@ -241,7 +235,7 @@ export default {
                 !selectedSrcToken.value ||
                 !selectedDstNetwork.value ||
                 !selectedDstToken.value ||
-                (isSendToAnotherAddress.value && (isAddressError.value || !receiverAddress.value))
+                (isSendToAnotherAddress.value && (isAddressError.value || !receiverAddress.value)),
         );
 
         // =================================================================================================================
@@ -319,7 +313,7 @@ export default {
 
             try {
                 const params = {
-                    url: selectedService.value.url,
+                    url: selectedService.value?.url,
                     fromNet: selectedSrcNetwork.value.net,
                     fromTokenAddress: selectedSrcToken.value.address,
                     amount: srcAmount.value,
@@ -334,7 +328,7 @@ export default {
                     addresses[selectedDstNetwork.value?.net] = receiverAddress.value;
                 }
 
-                if (selectedService.value.id === 'bridge-skip') {
+                if (selectedService.value?.id === 'bridge-skip') {
                     params.ownerAddresses = JSON.stringify(addresses);
                 } else {
                     params.ownerAddress = walletAddress.value;
@@ -391,7 +385,7 @@ export default {
                     successCallback: {
                         action: 'GET_ALLOWANCE',
                         requestParams: {
-                            url: selectedService.value.url,
+                            url: selectedService.value?.url,
                             net: selectedSrcNetwork.value.net,
                             tokenAddress: selectedSrcToken.value.address,
                             ownerAddress: walletAddress.value,
@@ -484,7 +478,7 @@ export default {
                     return (isLoading.value = false);
                 }
 
-                // if (selectedService.value.id === 'bridge-debridge') {
+                // if (selectedService.value?.id === 'bridge-debridge') {
                 //     await delay(1000);
                 //     const hash = await getDebridgeTxHashForOrder(responseSendTx.transactionHash);
 

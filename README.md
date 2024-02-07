@@ -3,29 +3,51 @@
 ## Setup
 
 ```bash
-# install dependencies
+# Install all dependencies
 npm i
 ```
 
 ```bash
-# serve with hot reload at http://localhost:8080
-npm run serve
+# Local page with hot reload at http://localhost:5173
+npm run dev
 ```
 
 ```bash
-# build for production with minification
+# Build for production with minification
 npm run build
 ```
 
 ```bash
-# build for production and view the bundle analyzer report
+# Debug build production, use this command to analyze bundle
+npm run build:debug
+```
+
+```bash
+# Build for production and view the bundle analyzer report
 npm run build --report
 ```
 
 ```bash
-# playwright e2e test report
+# Playwright e2e test report
 npm run test:report
 ```
+
+## Environments
+
+| Environment Variable | Description                                                                                          |
+| -------------------- | ---------------------------------------------------------------------------------------------------- |
+| `NODE_ENV`           | Environment mode, can be one of the following values: `development`, `production`, `test`;           |
+| `LOG_LEVEL`          | The level of logging, can be one of the following values: `error`, `warn`, `info`, `debug`, `trace`  |
+| `CORE_API`           | The main API for obtaining configurations for chains and tokens                                      |
+| `TX_MANAGER_API`     | The main API for obtaining transactions for the account, and also for getting the transaction status |
+| `DATA_PROVIDER_API`  | The main API for obtaining balance for the account                                                   |
+| `BRIDGE_DEX_API`     | The main API for obtaining super-swap transactions                                                   |
+| `PROXY_API`          | The main API for obtaining the prices of tokens via the proxy                                        |
+| `IS_ANALYZE`         | The main flag for analyzing the bundle for production build                                          |
+
+### Important `DATA_PROVIDER_API`
+
+To get the balance for the account, please specify `DATA_PROVIDER_API` in your `.env` file;
 
 ## Tests
 

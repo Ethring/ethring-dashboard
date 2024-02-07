@@ -23,6 +23,15 @@ function useAdapter() {
     const adaptersGetter = (getter) => store.getters[`${storeModule}/${getter}`];
     const adaptersDispatch = (dispatch, ...args) => store.dispatch(`${storeModule}/${dispatch}`, ...args);
 
+    const initAdapter = async () => {
+        for (const ecosystem in ECOSYSTEMS) {
+            const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+            if (adapter?.init) {
+                await adapter.init(store);
+            }
+        }
+    };
+
     // * Last Connected Wallet
     const lastConnectedWallet = computed(() => adaptersGetter(GETTERS.LAST_CONNECTED_WALLET));
 
@@ -405,6 +414,8 @@ function useAdapter() {
         connectedWallets,
 
         chainList,
+
+        initAdapter,
 
         action: (action, ...args) => adaptersDispatch(TYPES[action], ...args),
 

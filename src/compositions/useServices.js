@@ -8,8 +8,6 @@ import { useI18n } from 'vue-i18n';
 import { ECOSYSTEMS } from '@/Adapter/config';
 import useEstimate from './useEstimate';
 
-import { getServices } from '@/config/services';
-
 import {
     getAllowance,
     getApproveTx,
@@ -22,6 +20,7 @@ import useTokensList from '@/compositions/useTokensList';
 import useNotification from '@/compositions/useNotification';
 
 import { DIRECTIONS, FEE_TYPES, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+import { STATUSES } from '@/shared/constants/super-swap/constants';
 
 import { formatNumber } from '@/shared/utils/numbers';
 import { updateWalletBalances } from '@/shared/utils/balances';
@@ -38,15 +37,20 @@ export default function useModule({ moduleType }) {
     const useAdapter = inject('useAdapter');
     const isWaitingTxStatusForModule = computed(() => store.getters['txManager/isWaitingTxStatusForModule'](module));
 
-    const servicesEVM = getServices(null, ECOSYSTEMS.EVM);
-    const servicesCosmos = getServices(null, ECOSYSTEMS.COSMOS);
+    const servicesEVM = computed(() => store.getters['bridgeDex/getServicesByEcosystem'](ECOSYSTEMS.EVM) || []);
+    const servicesCosmos = computed(() => store.getters['bridgeDex/getServicesByEcosystem'](ECOSYSTEMS.COSMOS) || []);
 
     const addressesByChains = ref({});
 
     const selectedService = computed({
-        get: () => store.getters[`${moduleType}/service`],
-        set: (value) => store.dispatch(`${moduleType}/setService`, value),
+        get: () => store.getters[`tokenOps/selectedService`],
+        set: (value) => store.dispatch(`tokenOps/setSelectedService`, value),
     });
+
+    // * Bridge Dex
+    const bridgeDexRoutes = computed(() => store.getters['bridgeDex/selectedRoute']);
+    const bestRouteInfo = computed(() => bridgeDexRoutes.value?.bestRoute);
+    const currentRouteInfo = computed(() => bestRouteInfo.value?.routes.find((elem) => elem.status === STATUSES.SIGNING));
 
     // * Notification
     const { showNotification, closeNotification } = useNotification();
@@ -241,7 +245,7 @@ export default function useModule({ moduleType }) {
             walletAccount.value,
             selectedSrcNetwork.value.net,
             selectedSrcToken.value.address,
-            selectedService.value.id
+            selectedService.value.id,
         );
     });
 
@@ -257,7 +261,7 @@ export default function useModule({ moduleType }) {
             walletAccount.value,
             selectedSrcNetwork.value.net,
             selectedSrcToken.value.address,
-            selectedService.value.id
+            selectedService.value.id,
         );
     });
 
@@ -286,8 +290,6 @@ export default function useModule({ moduleType }) {
 
     // =================================================================================================================
     const setTokenOnChangeForNet = (srcNet, srcToken, { from = 'default', isSameNet = false, isExclude = false, token = null } = {}) => {
-        console.group(`setTokenOnChangeForNet from: ${from}`);
-
         const getTokensParams = {
             srcNet,
             isSameNet,
@@ -298,15 +300,26 @@ export default function useModule({ moduleType }) {
 
         tokensList.value = getTokensList(getTokensParams);
 
-        console.log('setTokenOnChangeForNet', srcNet?.net, 'isExclude', isExclude, 'isSame', isSameNet, srcToken?.id);
-
         const [defaultSrcToken = null] = tokensList.value;
 
-        console.log('setTokenOnChangeForNet default', srcNet?.net, defaultSrcToken?.id);
+        console.log(
+            'setTokenOnChangeForNet START: ',
+            '\nsrcNet?.net:',
+            srcNet?.net,
+            '\nisExclude:',
+            isExclude,
+            '\nisSame:',
+            isSameNet,
+            '\nsrcToken:',
+            srcToken?.id,
+            '\ndefaultSrcToken:',
+            defaultSrcToken?.id,
+        );
 
         if (!srcToken?.id && defaultSrcToken) {
-            console.log('setTokenOnChangeForNet default !token?.id && defaultToken', srcNet?.net, defaultSrcToken?.id);
-            console.groupEnd();
+            console.log('setTokenOnChangeForNet if #1 !srcToken?.id && defaultSrcToken');
+            console.log('setTokenOnChangeForNet tkn END');
+            console.log('-'.repeat(20), '\n');
             return defaultSrcToken;
         }
 
@@ -317,26 +330,33 @@ export default function useModule({ moduleType }) {
         const updatedList = tokensList.value?.filter((tkn) => searchTokens.includes(tkn?.id)) || [];
 
         if (!updatedList.length) {
-            console.log('setTokenOnChangeForNet !updatedList.length', srcNet?.net, defaultSrcToken?.id);
-            console.groupEnd();
+            console.log('setTokenOnChangeForNet if #2 !updatedList');
+            console.log('setTokenOnChangeForNet tkn END');
+            console.log('-'.repeat(20), '\n');
+
             return defaultSrcToken;
         }
 
         const [tkn = null] = updatedList;
 
         if (!tkn) {
-            console.log('setTokenOnChangeForNet !tkn', srcNet?.net, defaultSrcToken?.id);
-            console.groupEnd();
+            console.log('setTokenOnChangeForNet if #3 !tkn');
+            console.log('setTokenOnChangeForNet tkn END');
+            console.log('-'.repeat(20), '\n');
 
             return defaultSrcToken;
         }
 
-        console.log('setTokenOnChangeForNet tkn', srcNet?.net, tkn?.id);
-        console.groupEnd();
+        console.log('setTokenOnChangeForNet tkn END: ', srcNet?.net, tkn?.id);
+        console.log('-'.repeat(20), '\n');
         return tkn;
     };
 
     const setEcosystemService = () => {
+        if (['send'].includes(moduleType)) {
+            return (selectedService.value = null);
+        }
+
         if (!currentChainInfo.value?.ecosystem || !['swap', 'bridge'].includes(moduleType)) {
             return;
         }
@@ -354,15 +374,17 @@ export default function useModule({ moduleType }) {
 
         switch (currentChainInfo.value?.ecosystem) {
             case ECOSYSTEMS.COSMOS:
-                selectedService.value = servicesCosmos.find(
-                    (service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.COSMOS][moduleType]
+                selectedService.value = servicesCosmos.value.find(
+                    (service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.COSMOS][moduleType],
                 );
 
                 setOwnerAddresses();
 
                 break;
             case ECOSYSTEMS.EVM:
-                selectedService.value = servicesEVM.find((service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.EVM][moduleType]);
+                selectedService.value = servicesEVM.value.find(
+                    (service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.EVM][moduleType],
+                );
 
                 setOwnerAddresses();
 
@@ -426,7 +448,7 @@ export default function useModule({ moduleType }) {
             baseFeeInfo.value.title = 'tokenOperations.serviceFee';
 
             baseFeeInfo.value.toAmount = formatNumber(
-                BigNumber(response.fee?.amount).multipliedBy(selectedSrcToken.value?.price).toString()
+                BigNumber(response.fee?.amount).multipliedBy(selectedSrcToken.value?.price).toString(),
             );
         }
 
@@ -493,6 +515,8 @@ export default function useModule({ moduleType }) {
     const makeApproveRequest = async (service) => {
         const currentService = service || selectedService.value;
 
+        console.log('makeApproveRequest', currentService);
+
         const isEVM = ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem;
         const requiredFields = selectedSrcToken.value?.address && selectedService.value?.id && walletAccount.value;
 
@@ -526,12 +550,17 @@ export default function useModule({ moduleType }) {
 
     const makeEstimateRequest = async () => {
         estimateErrorTitle.value = '';
-
         isEstimating.value = true;
+
+        if (cancelRequestByMethod) {
+            await cancelRequestByMethod('estimateSwap');
+            await cancelRequestByMethod('estimateBridge');
+        }
 
         if (!isAllowForRequest()) {
             isLoading.value = false;
             isEstimating.value = false;
+            resetFees();
             return;
         }
 
@@ -553,6 +582,8 @@ export default function useModule({ moduleType }) {
         const response = await makeRequest(params);
 
         if (response.error) {
+            resetFees();
+
             estimateErrorTitle.value = response.error;
             dstAmount.value = '';
             isEstimating.value = false;
@@ -629,20 +660,10 @@ export default function useModule({ moduleType }) {
     };
 
     const resetTokensForModules = (from = 'default', { isAccountChanged = false } = {}) => {
-        console.group(`resetTokensForModules from: ${from}, accountChanged: ${isAccountChanged}`);
-
         const isSrcTokenChanged = selectedSrcToken.value && selectedSrcToken.value.chain !== selectedSrcNetwork.value?.net;
         const isDstTokenChanged = selectedDstToken.value && selectedDstToken.value.chain !== selectedDstNetwork.value?.net;
 
         const isDstTokenChangedForSwap = selectedDstToken.value?.chain !== selectedSrcNetwork.value?.net;
-
-        console.log('resetTokensForModules isSrcTokenChanged', isSrcTokenChanged);
-        console.log('resetTokensForModules isDstTokenChanged', isDstTokenChanged);
-        console.log('resetTokensForModules isDstTokenChangedForSwap', isDstTokenChangedForSwap);
-        console.log('resetTokensForModules moduleType', moduleType);
-        console.log('resetTokensForModules isAccountChanged', isAccountChanged);
-
-        console.groupEnd();
 
         switch (moduleType) {
             case 'swap':
@@ -775,22 +796,16 @@ export default function useModule({ moduleType }) {
 
     const unWatchAcc = watch(walletAccount, (newAccount, oldAccount) => {
         console.log('walletAccount', newAccount, oldAccount);
-        console.group('watch-wallet-account');
 
         const isAccountChanged = newAccount !== oldAccount;
         const isAccountExist = !!newAccount;
         const isOldNotEmpty = oldAccount && oldAccount !== null;
 
-        console.log('watch-wallet-account', isAccountChanged, isAccountExist, isOldNotEmpty);
-
         if (!isAccountChanged || !isAccountExist || !isOldNotEmpty) {
-            console.groupEnd();
             return;
         }
 
         estimateErrorTitle.value = '';
-
-        console.groupEnd();
 
         if (
             ['super-swap', 'bridge'].includes(moduleType) &&
@@ -801,15 +816,13 @@ export default function useModule({ moduleType }) {
             selectedDstNetwork.value = chainList.value?.filter(({ net }) => net !== selectedSrcNetwork.value?.net)[0];
         }
 
-        setEcosystemService();
         resetTokensForModules('watch-wallet-account', { isAccountChanged });
+        setEcosystemService();
     });
 
     // ========================= Watch Selected SRC DST Networks =========================
 
     const unWatchSrcDstNetwork = watch([selectedSrcNetwork, selectedDstNetwork], ([newSrc, newDst], [oldSrc, oldDst]) => {
-        console.group('watch-src-dst-network');
-
         // Switch tokens and networks, if they are in the same network
         const isOldNotEmpty = oldSrc && oldDst && oldSrc?.net && oldDst?.net;
         const isNewNotEmpty = newSrc && newDst && newSrc?.net && newDst?.net;
@@ -817,8 +830,6 @@ export default function useModule({ moduleType }) {
         const isNewSrcNewDstSame = isNewNotEmpty && isOldNotEmpty && newSrc.net === newDst.net;
 
         const isSameNetwork = ['swap', 'bridge'].includes(moduleType) && isNewSrcNewDstSame;
-
-        console.groupEnd();
 
         if (isSameNetwork) {
             [selectedSrcNetwork.value, selectedDstNetwork.value] = [oldDst, oldSrc];
@@ -830,8 +841,6 @@ export default function useModule({ moduleType }) {
         if (newSrc && !isSameNetwork) {
             checkSelectedNetwork();
 
-            cancelRequestByMethod('estimateSwap');
-            cancelRequestByMethod('estimateBridge');
             resetFees();
 
             setTimeout(() => (estimateErrorTitle.value = ''));
@@ -851,8 +860,6 @@ export default function useModule({ moduleType }) {
         }
 
         if (newDst && !isSameNetwork) {
-            cancelRequestByMethod('estimateSwap');
-            cancelRequestByMethod('estimateBridge');
             resetFees();
 
             setTimeout(() => (estimateErrorTitle.value = ''));
@@ -905,25 +912,23 @@ export default function useModule({ moduleType }) {
     // ========================= Watch Tokens Loadings for SRC and DST networks =========================
 
     const unWatchLoadingSrc = watch(isTokensLoadingForSrc, (loadingState, oldLoading) => {
-        console.group('watch-loading-src');
-
         console.log('watch-loading-src', loadingState, selectedSrcNetwork.value?.net);
 
         if (loadingState && !oldLoading) {
             console.log('-'.repeat(5), 'watch-loading-src END if #1', '-'.repeat(5));
-            console.groupEnd();
+
             return;
         }
 
         if (!loadingState && !selectedSrcNetwork.value) {
             console.log('-'.repeat(5), 'watch-loading-src END if #2', '-'.repeat(5));
-            console.groupEnd();
+
             return;
         }
 
         if (!selectedSrcNetwork.value) {
             console.log('-'.repeat(5), 'watch-loading-src END if #3', '-'.repeat(5));
-            console.groupEnd();
+
             return;
         }
 
@@ -933,7 +938,6 @@ export default function useModule({ moduleType }) {
 
         if (!['swap'].includes(moduleType)) {
             console.log('-'.repeat(5), 'watch-loading-src END if #4', '-'.repeat(5));
-            console.groupEnd();
 
             return;
         }
@@ -944,8 +948,6 @@ export default function useModule({ moduleType }) {
             isExclude: true,
             token: selectedSrcToken.value,
         });
-
-        console.groupEnd();
     });
 
     const unWatchLoadingDst = watch(isTokensLoadingForDst, (loadingState) => {
@@ -1015,6 +1017,16 @@ export default function useModule({ moduleType }) {
         selectedDstNetwork.value && (await handleUpdateBalance(selectedDstNetwork.value));
     });
 
+    const unWatchBridgeDexRoutes = watch(bridgeDexRoutes, () => {
+        console.log('watch-bridgeDexRoutes', bridgeDexRoutes.value, currentRouteInfo);
+
+        selectedService.value = currentRouteInfo.value?.service;
+
+        dstAmount.value = BigNumber(bestRouteInfo.value?.toTokenAmount).decimalPlaces(6).toString();
+
+        console.log('watch-bridgeDexRoutes selectedService', selectedService.value);
+    });
+
     // =================================================================================================================
 
     const callOnMounted = () => {
@@ -1055,13 +1067,14 @@ export default function useModule({ moduleType }) {
         ) {
             selectedDstNetwork.value = chainList.value?.filter(({ net }) => net !== selectedSrcNetwork.value?.net)[0];
         }
+
+        setEcosystemService();
     };
 
     onMounted(() => {
         callOnMounted();
         checkSelectedNetwork();
         resetTokensForModules('onMounted');
-        setEcosystemService();
     });
 
     onBeforeUnmount(() => {
@@ -1084,6 +1097,8 @@ export default function useModule({ moduleType }) {
 
         unWatchTxStatusModule();
 
+        unWatchBridgeDexRoutes();
+
         // Reset all data
         targetDirection.value = DIRECTIONS.SOURCE;
         selectedSrcNetwork.value = null;
@@ -1105,6 +1120,8 @@ export default function useModule({ moduleType }) {
 
     return {
         // Main information for operation
+        selectedService,
+
         selectedSrcToken,
         selectedDstToken,
         selectedSrcNetwork,

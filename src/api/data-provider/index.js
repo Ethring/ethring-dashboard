@@ -4,7 +4,7 @@ export * from './chains';
 // Axios instance
 import axiosInstance from '../axios';
 
-const PROVIDER_URL = process.env.VUE_APP_DATA_PROVIDER_URL || null;
+const PROVIDER_URL = process.env.DATA_PROVIDER_API || null;
 
 export const getBalancesByAddress = async (
     net,

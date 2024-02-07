@@ -316,7 +316,7 @@ export default {
                 !selectedDstNetwork.value ||
                 !selectedSrcToken.value ||
                 !selectedDstToken.value ||
-                (isSendToAnotherAddress.value && (isAddressError.value || !receiverAddress.value))
+                (isSendToAnotherAddress.value && (isAddressError.value || !receiverAddress.value)),
         );
 
         // =================================================================================================================
@@ -360,14 +360,6 @@ export default {
         };
 
         // =================================================================================================================
-
-        const requestAllowance = async (service) => {
-            if (!isAllowForRequest() || !selectedSrcToken.value?.address) {
-                return;
-            }
-
-            return await makeAllowanceRequest(service);
-        };
 
         const requestApprove = async (service) => {
             if (!isAllowForRequest() || !selectedSrcToken.value?.address) {
@@ -439,7 +431,7 @@ export default {
                 selectedDstToken.value,
                 selectedSrcNetwork.value,
                 selectedDstNetwork.value,
-                currentChainInfo.value.native_token
+                currentChainInfo.value.native_token,
             );
 
             if (resEstimate && resEstimate.error) {
@@ -547,7 +539,8 @@ export default {
         // =================================================================================================================
 
         const handleApprove = async () => {
-            console.log('handleApprove', currentRouteInfo.value?.service);
+            isLoading.value = true;
+
             await requestApprove(currentRouteInfo.value?.service);
 
             if (!srcTokenApprove.value) {
@@ -750,15 +743,6 @@ export default {
             }
 
             isSwapLoading.value = false;
-        });
-
-        watch(currentRouteInfo, async () => {
-            console.log('currentRouteInfo');
-            console.log('-'.repeat(20), currentRouteInfo.value);
-            dstAmount.value = BigNumber(bestRouteInfo.value?.toTokenAmount).decimalPlaces(6).toString();
-            if (!srcTokenApprove.value) {
-                await requestAllowance(routeInfo.value?.bestRoute?.service);
-            }
         });
 
         watch(isWaitingTxStatusForModule, () => {

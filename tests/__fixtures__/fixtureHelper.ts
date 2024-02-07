@@ -1,37 +1,43 @@
-import { BrowserContext } from '@playwright/test';
 import path from 'path';
+
+import { BrowserContext } from '@playwright/test';
 import { MetaMaskHomePage, MetaMaskNotifyPage, getNotifyMmPage, metamaskVersion } from '../model/MetaMask/MetaMask.pages';
 import { KeplrHomePage, KeplrNotifyPage, getNotifyKeplrPage, keplrVersion } from '../model/Keplr/Keplr.pages';
 import { EVM_NETWORKS } from '../data/constants';
 import mockTokensListData from '../data/mockTokensListData';
 import { DashboardPage } from '../model/VueApp/base.pages';
 import { marketCapNativeEvmTokens } from '../data/mockHelper';
+import util from 'util';
 
 export const FIVE_SECONDS = 5000;
 export const ONE_SECOND = 1000;
-const sleep = require('util').promisify(setTimeout);
+
+const sleep = util.promisify(setTimeout);
 
 const closeEmptyPages = async (context: BrowserContext) => {
-    await sleep(FIVE_SECONDS);
     const allStartPages = context.pages();
 
     for (const page of allStartPages) {
         const pageTitle = await page.title();
-        if (pageTitle === '') {
-            await page.close();
+        if (!pageTitle) {
+            await page.close({
+                reason: 'empty',
+                runBeforeUnload: true,
+            });
         }
     }
 };
 
 export const getPathToMmExtension = () => {
-    return path.join(__dirname, '..', `/data/metamask-chrome-${metamaskVersion}`);
+    return path.join(process.cwd(), `/data/metamask-chrome-${metamaskVersion}`);
 };
 
 export const getPathToKeplrExtension = () => {
-    return path.join(__dirname, '..', `/data/keplr-extension-manifest-v2-v${keplrVersion}`);
+    return path.join(process.cwd(), `/data/keplr-extension-manifest-v2-v${keplrVersion}`);
 };
 
 export const addWalletToMm = async (context: BrowserContext, seed: String) => {
+    await sleep(FIVE_SECONDS); // wait for page load
     await closeEmptyPages(context);
     const metaMaskPage = new MetaMaskHomePage(context.pages()[0]);
     await metaMaskPage.addWallet(seed);
@@ -39,6 +45,7 @@ export const addWalletToMm = async (context: BrowserContext, seed: String) => {
 };
 
 export const addWalletToKeplr = async (context: BrowserContext, seed: String) => {
+    await sleep(FIVE_SECONDS); // wait for page load
     await closeEmptyPages(context);
     const keplrPage = new KeplrHomePage(context.pages()[0]);
     await keplrPage.addWallet(seed);

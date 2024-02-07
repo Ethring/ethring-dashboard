@@ -2,19 +2,15 @@
 import axiosInstance from '../axios';
 import { errorRegister } from '@/shared/utils/errors';
 
-const BRIDGE_DEX_URL = process.env.VUE_APP_BRIDGE_DEX_API || null;
+const BRIDGE_DEX_URL = process.env.BRIDGE_DEX_API || null;
 
 export const getServices = async () => {
     if (!BRIDGE_DEX_URL) {
         return null;
     }
 
-    const params = {
-        url: `${BRIDGE_DEX_URL}/services`,
-    };
-
     try {
-        const response = await axiosInstance.get(params.url);
+        const response = await axiosInstance.get(`${BRIDGE_DEX_URL}/services`);
 
         if (response?.error) {
             return errorRegister(response?.error);

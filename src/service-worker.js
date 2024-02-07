@@ -1,3 +1,10 @@
+// Disable logging in production
+self.__WB_DISABLE_DEV_LOGS = process.env.NODE_ENV === 'production';
+
+import { precacheAndRoute } from 'workbox-precaching';
+
+precacheAndRoute(self.__WB_MANIFEST);
+
 const DOMAIN_LIST = ['https://assets.coingecko.com', 'https://cryptologos.cc/logos'];
 
 const putInCache = async (request, response) => {

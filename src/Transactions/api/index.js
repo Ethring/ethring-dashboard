@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const TX_MANAGER_URL = process.env.VUE_APP_TX_MANAGER || null;
+const TX_MANAGER_URL = process.env.TX_MANAGER_API || null;
 
 const txMangerIns = axios.create({
     baseURL: TX_MANAGER_URL,

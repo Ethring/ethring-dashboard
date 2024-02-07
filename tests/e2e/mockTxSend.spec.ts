@@ -2,8 +2,9 @@ import { testMetaMaskMockTx } from '../__fixtures__/fixtures';
 import { mockBalanceDataBySendTest } from '../data/mockHelper';
 import { getTestVar, TEST_CONST } from '../envHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage } from '../model/MetaMask/MetaMask.pages';
+import util from 'util';
 
-const sleep = require('util').promisify(setTimeout);
+const sleep = util.promisify(setTimeout);
 
 testMetaMaskMockTx.describe('Mocked send tx Metamask', () => {
     testMetaMaskMockTx('Case#: Send tx in Polygon', async ({ browser, context, page, sendPage }) => {

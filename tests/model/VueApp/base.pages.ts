@@ -1,25 +1,35 @@
 import { BrowserContext, Page } from '@playwright/test';
 import { FIVE_SECONDS, ONE_SECOND } from '../../__fixtures__/fixtureHelper';
 import { DATA_QA_LOCATORS } from '../../data/constants';
+import util from 'util';
 
 const url: string = '/';
-const sleep = require('util').promisify(setTimeout);
+const sleep = util.promisify(setTimeout);
+
+enum Modules {
+    send = 'send',
+    swap = 'swap',
+    bridge = 'bridge',
+    superSwap = 'superSwap',
+}
+
+type ModuleNames = keyof typeof Modules;
 
 class BasePage {
     readonly page: Page;
 
     readonly sideBarLinks = {
-        send: DATA_QA_LOCATORS.SIDEBAR_SEND,
-        swap: DATA_QA_LOCATORS.SIDEBAR_SWAP,
-        bridge: DATA_QA_LOCATORS.SIDEBAR_BRIDGE,
-        superSwap: DATA_QA_LOCATORS.SIDEBAR_SUPER_SWAP,
+        [Modules.send]: DATA_QA_LOCATORS.SIDEBAR_SEND,
+        [Modules.swap]: DATA_QA_LOCATORS.SIDEBAR_SWAP,
+        [Modules.bridge]: DATA_QA_LOCATORS.SIDEBAR_BRIDGE,
+        [Modules.superSwap]: DATA_QA_LOCATORS.SIDEBAR_SUPER_SWAP,
     };
 
     readonly modules = {
-        send: (page: Page) => new SendPage(page),
-        swap: (page: Page) => new SwapPage(page),
-        bridge: (page: Page) => new BridgePage(page),
-        superSwap: (page: Page) => new SuperSwapPage(page),
+        [Modules.send]: (page: Page) => new SendPage(page),
+        [Modules.swap]: (page: Page) => new SwapPage(page),
+        [Modules.bridge]: (page: Page) => new BridgePage(page),
+        [Modules.superSwap]: (page: Page) => new SuperSwapPage(page),
     };
 
     constructor(page: Page) {
@@ -54,7 +64,7 @@ class BasePage {
         await this.page.getByText('Keplr').click();
     }
 
-    async goToModule(module: string = 'send|swap|bridge|superSwap'): Promise<SendPage | SwapPage | BridgePage | SuperSwapPage> {
+    async goToModule(module: ModuleNames): Promise<SwapPage | SendPage | BridgePage | SuperSwapPage> {
         const moduleName = this.sideBarLinks[module];
         await this.page.getByTestId(moduleName).click();
         return this.modules[module](this.page);
@@ -199,7 +209,7 @@ class DashboardPage extends BasePage {
     }
 }
 
-class BridgePage extends BasePage {}
+class BridgePage extends BasePage { }
 
 class SendPage extends BasePage {
     async setNetworkTo(netName: string) {

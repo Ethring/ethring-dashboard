@@ -11,6 +11,7 @@ import { web3OnBoardConfig, ECOSYSTEMS, chainConfig, NATIVE_CONTRACT, TRANSFER_A
 import { validateEthAddress } from '@/Adapter/utils/validations';
 
 import { errorRegister } from '@/shared/utils/errors';
+import _ from 'lodash';
 
 let web3Onboard = null;
 
@@ -169,7 +170,7 @@ class EthereumAdapter extends AdapterBase {
             if (!store?.getters) {
                 return {};
             }
-            return store.getters['networks/networkByChainId'](chainId);
+            return store.getters['configs/getChainConfigByChainId'](chainId, ECOSYSTEMS.EVM);
         };
 
         const { id = null } = connectedChain.value || {};
@@ -202,7 +203,7 @@ class EthereumAdapter extends AdapterBase {
     }
 
     getChainList(store) {
-        const chains = store.getters['networks/zometNetworksList'];
+        const chains = store.getters['configs/getConfigsListByEcosystem'](ECOSYSTEMS.EVM) || [];
 
         for (const chain of chains) {
             chain.walletName = this.getWalletModule();
@@ -356,7 +357,7 @@ class EthereumAdapter extends AdapterBase {
     }
 
     getNativeTokenByChain(chain, store) {
-        const isLoadingConfig = store.getters['networks/isConfigLoading'];
+        const isLoadingConfig = store.getters['configs/isConfigLoading'];
 
         if (isLoadingConfig) {
             return setTimeout(() => {
@@ -364,9 +365,9 @@ class EthereumAdapter extends AdapterBase {
             }, 1000);
         }
 
-        const chainsInfo = store.getters['networks/zometNetworks'];
+        const chainsInfo = store.getters['configs/getConfigsByEcosystems'](ECOSYSTEMS.EVM);
 
-        console.log(chain, chainsInfo.evm[chain]);
+        console.log('chainsInfo', chain, chainsInfo, chainsInfo.evm[chain]);
 
         return chainsInfo.evm[chain] || null;
     }

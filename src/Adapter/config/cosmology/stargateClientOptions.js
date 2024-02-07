@@ -7,7 +7,7 @@ import {
     ibcAminoConverters,
 } from 'osmojs';
 
-import { injectiveAminoConverters, injectiveProtoRegistry } from 'injectivejs';
+// import { injectiveAminoConverters, injectiveProtoRegistry } from 'injectivejs';
 
 import { AminoTypes } from '@cosmjs/stargate';
 import { Registry } from '@cosmjs/proto-signing';
@@ -19,7 +19,6 @@ const AMINO_CONVERTERS = {
     ...cosmosAminoConverters,
     ...cosmwasmAminoConverters,
     ...ibcAminoConverters,
-    ...injectiveAminoConverters,
 };
 
 const PROTO_REGISTRY = [
@@ -27,7 +26,6 @@ const PROTO_REGISTRY = [
     ...cosmosProtoRegistry,
     ...cosmwasmProtoRegistry,
     ...ibcProtoRegistry,
-    ...injectiveProtoRegistry,
 ];
 
 const aminoTypes = new AminoTypes(AMINO_CONVERTERS);

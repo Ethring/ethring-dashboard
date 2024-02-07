@@ -1,10 +1,10 @@
 import { computed, watch } from 'vue';
 
-import { callFetchBalances } from '../../modules/Balances/fetchData';
+import { callFetchBalances } from '@/modules/Balances/fetchData';
 import { getBalancesByAddress } from '../../api/data-provider';
 
-import { getDataFromIndexedCache, prepareChainWithAddress, setNativeTokensPrices } from '../../modules/Balances/utils';
-import { checkActions } from '../../modules/Balances/helpers';
+import { getDataFromIndexedCache, prepareChainWithAddress, setNativeTokensPrices } from '@/modules/Balances/utils';
+import { checkActions } from '@/modules/Balances/helpers';
 
 // =================================================================================================================
 
@@ -18,12 +18,12 @@ export default async function useInit(store, { addressesWithChains = {}, account
         return store.dispatch('tokens/setLoader', false);
     }
 
-    const { addresses, chunkedAddresses, ecosystem } = prepareChainWithAddress(addressesWithChains, currentChainInfo);
+    const { addresses, chunkedAddresses, ecosystem } = await prepareChainWithAddress(addressesWithChains, currentChainInfo);
 
     // Fetch balances for all chains in parallel
     await callFetchBalances('cache', store, addresses, { ecosystem, account }, getDataFromIndexedCache);
 
-    await setNativeTokensPrices(store, account);
+    await setNativeTokensPrices(store, account, ecosystem);
 
     const getFromAPI = async () => {
         const ALL_TOKENS = [];
@@ -41,18 +41,18 @@ export default async function useInit(store, { addressesWithChains = {}, account
         store.dispatch('tokens/setLoader', false);
     };
 
-    if (!store.getters['networks/isConfigLoading']) {
+    if (!store.getters['configs/isConfigLoading']) {
         await getFromAPI();
     }
 
     watch(
-        () => store.getters['networks/isConfigLoading'],
+        () => store.getters['configs/isConfigLoading'],
         async (value) => {
             if (value) {
                 return;
             }
 
             await getFromAPI();
-        }
+        },
     );
 }

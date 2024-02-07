@@ -99,7 +99,8 @@ async function downloadAndUnzipEx(exName: 'mm' | 'keplr') {
     const { name, url } = getExtensionInfo(exName);
 
     // Path to the folder with the MetaMask extension
-    const dataFolderPath = path.resolve(__dirname, '..', '..', 'data', name);
+    const dataFolderPath = path.resolve(process.cwd(), 'data', name);
+    console.log('dataFolderPath', dataFolderPath, '|', process.cwd())
 
     // Path to the archive with the MetaMask extension
     const pathToArchive = path.resolve(dataFolderPath, `${name}.zip`);

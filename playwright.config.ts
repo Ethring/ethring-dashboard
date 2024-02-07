@@ -6,8 +6,9 @@ dotenv.config({
     override: true,
 });
 
-const localFrontUrl = 'http://localhost:8080/';
+const localFrontUrl = 'http://localhost:5173';
 const testFilesNameNoTx = 'dashboard|send|swap';
+
 export const proxyUrl = process.env.CI ? 'http://mitmproxy:8080' : 'http://localhost:8082';
 
 export default defineConfig({
@@ -28,7 +29,7 @@ export default defineConfig({
 
     webServer: [
         {
-            command: 'npm run serve',
+            command: 'npm run dev',
             url: localFrontUrl,
             reuseExistingServer: !process.env.CI,
             timeout: 180 * 1000,

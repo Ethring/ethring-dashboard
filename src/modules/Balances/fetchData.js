@@ -12,6 +12,7 @@ export const formatAndStoreData = async (
     type = 'cache'
 ) => {
     const { allTokens, allIntegrations, allNfts } = formatResponse(
+        store,
         chain,
         { chainForRequest, chainAddress, logo },
         { tokens, integrations, nfts }

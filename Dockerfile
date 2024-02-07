@@ -1,38 +1,63 @@
-FROM node:16.14 as builder
+# ------------ NodeJS ------------
+
+# Stage #1 - Building the app
+FROM node:18.19.0 as builder
+
+# Create app directory
 WORKDIR /app
 
+# Copy package.json and package-lock.json before other files
 COPY package*.json ./
-RUN npm ci
 
+# Turn off husky for docker builds
+COPY .husky/ ./.husky
+
+# Install dependencies with npm ci
+RUN npm ci --production && npm i vite -D
+
+# Copy all files
 COPY . ./
 
-ARG VUE_APP_HOST=work.3ahtim54r.ru
+# Environment variables
 
-ARG VUE_APP_PARASWAP_API=https://apps.3ahtim54r.ru/srv-paraswap/api/
-ARG VUE_APP_DEBRIDGE_API=https://apps.3ahtim54r.ru/srv-debridge/api/
-ARG VUE_APP_SQUID_ROUTER_API=https://apps.3ahtim54r.ru/srv-squidrouter/api/
-ARG VUE_APP_SYNAPSE_SWAP_API=https://apps.3ahtim54r.ru/srv-synapse-swap/api/
-ARG VUE_APP_SKIP_API=https://apps.3ahtim54r.ru/srv-skip/api/
+ARG HOST=work.3ahtim54r.ru
 
-ARG VUE_APP_DATA_PROVIDER_URL=https://apps.3ahtim54r.ru/srv-data-provider/api
+# Balances data provider API
+ARG DATA_PROVIDER_API
 
-ARG VUE_APP_BRIDGE_DEX_API=https://bridge-dex.3ahtim54r.ru
+# Bridge-dex API
+ARG BRIDGE_DEX_API
 
-ARG VUE_APP_PROXY_API=https://proxy-api.apps.citadel.okd.3ahtim54r.ru
+# Proxy API
+ARG PROXY_API
 
-ARG VUE_APP_ZOMET_CORE_API_URL=https://zomet-core.3ahtim54r.ru
-ARG VUE_APP_TX_MANAGER=https://zomet-tx-manager.3ahtim54r.ru
+# Backend API
+ARG CORE_API
+ARG TX_MANAGER_API
 
-ARG VUE_APP_RELEASE
-ARG VUE_APP_SENTRY_DSN
-ARG VUE_APP_MIXPANEL_TOKEN
-ARG VUE_APP_WC_PROJECT_ID
-ARG VUE_APP_KADO_API_KEY
+# Others
+ARG RELEASE
+
+# Error tracking
+ARG SENTRY_DSN
+
+# Analytics
+ARG MIXPANEL_TOKEN
+
+# WalletConnect project ID for Ledger
+ARG WC_PROJECT_ID
+
+# Kado
+ARG KADO_API_KEY
 
 ARG NODE_ENV
 
+# Build
 RUN npm run build
 
+# ------------ NGINX ------------
+
+# Stage #2 - Serving the app
 FROM nginxinc/nginx-unprivileged:1.18.0-alpine
 
 COPY ./deploy/nginx.conf /etc/nginx/conf.d/default.conf

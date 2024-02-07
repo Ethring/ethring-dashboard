@@ -2,7 +2,7 @@ Update snapshot:
   stage: test_ui
   needs: []
   allow_failure: true
-  image: mcr.microsoft.com/playwright:v1.40.0-jammy
+  image: mcr.microsoft.com/playwright:v1.41.1-jammy
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: manual
@@ -10,16 +10,16 @@ Update snapshot:
     - name: mitmproxy/mitmproxy:10.2.1
       alias: mitmproxy
       entrypoint:
-      - '/bin/bash'
-      - '-c'
-      - |
-        until [ -f "$CI_PROJECT_DIR/.git/index" ]; do true; done;
-        while [ -f "$CI_PROJECT_DIR/.git/index.lock" ]; do true; done;
-        cd $CI_PROJECT_DIR/tests/mockserver2
-        mitmdump -s ./moxy.py --set mock=./config.json --set flow_detail=0
+        - "/bin/bash"
+        - "-c"
+        - |
+          until [ -f "$CI_PROJECT_DIR/.git/index" ]; do true; done;
+          while [ -f "$CI_PROJECT_DIR/.git/index.lock" ]; do true; done;
+          cd $CI_PROJECT_DIR/tests/mockserver2
+          mitmdump -s ./moxy.py --set mock=./config.json --set flow_detail=0
   script:
-    - npm i
-    - npm run test:e2e:ci:updateSnapshot
+    - npm ci
+    - npx npm run test:e2e:updateSnapshot
   timeout: 20 minutes
   artifacts:
     paths:
@@ -31,7 +31,7 @@ Update snapshot:
 
 Run tests:
   stage: test_ui
-  image: mcr.microsoft.com/playwright:v1.40.0-jammy
+  image: mcr.microsoft.com/playwright:v1.41.1-jammy
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "dev"
@@ -39,17 +39,17 @@ Run tests:
     - name: mitmproxy/mitmproxy:10.2.1
       alias: mitmproxy
       entrypoint:
-      - '/bin/bash'
-      - '-c'
-      - |
-        until [ -f "$CI_PROJECT_DIR/.git/index" ]; do true; done;
-        while [ -f "$CI_PROJECT_DIR/.git/index.lock" ]; do true; done;
-        while [ "$(cat $CI_PROJECT_DIR/.git/HEAD)" != "$CI_COMMIT_SHA" ]; do true; done;
-        cd $CI_PROJECT_DIR/tests/mockserver2
-        mitmdump -s ./moxy.py --set mock=./config.json --set flow_detail=0
+        - "/bin/bash"
+        - "-c"
+        - |
+          until [ -f "$CI_PROJECT_DIR/.git/index" ]; do true; done;
+          while [ -f "$CI_PROJECT_DIR/.git/index.lock" ]; do true; done;
+          while [ "$(cat $CI_PROJECT_DIR/.git/HEAD)" != "$CI_COMMIT_SHA" ]; do true; done;
+          cd $CI_PROJECT_DIR/tests/mockserver2
+          mitmdump -s ./moxy.py --set mock=./config.json --set flow_detail=0
   script:
-    - npm i
-    - npm run test:e2e:ci
+    - npm ci
+    - npx npm run test:e2e:ci
   timeout: 20 minutes
   artifacts:
     paths:
@@ -58,7 +58,6 @@ Run tests:
       - ./tests/e2e/*.spec.ts-snapshots/
     when: always
     expire_in: 1 days
-
 
 # Run tests schedules:
 #   stage: test_ui
@@ -96,10 +95,10 @@ Build tests report image:
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$REGISTRY_URL\":{\"username\":\"$REGISTRY_USER\",\"password\":\"$REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
     - time /kaniko/executor
-        --context $CI_PROJECT_DIR
-        --dockerfile $CI_PROJECT_DIR/tests/build/Dockerfile
-        --destination $IMAGE_TAG
-        --cache=false
+      --context $CI_PROJECT_DIR
+      --dockerfile $CI_PROJECT_DIR/tests/build/Dockerfile
+      --destination $IMAGE_TAG
+      --cache=false
 
 Deploy tests report page:
   stage: deploy_reports
