@@ -33,7 +33,7 @@ export default {
         LogoLoading,
     },
     setup() {
-        const BASE_URL = `${KADO_URL}?apiKey=${import.meta.env.VITE_APP_KADO_API_KEY}&product=BUY&onPayCurrency=USD`;
+        const BASE_URL = `${KADO_URL}?apiKey=${process.env.KADO_API_KEY}&product=BUY&onPayCurrency=USD`;
         const router = useRouter();
 
         const store = useStore();

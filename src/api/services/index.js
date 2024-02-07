@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 import { fetchData } from '../fetchData';
-import { checkErrors } from '@/helpers/checkErrors';
+import { errorRegister } from '@/shared/utils/errors';
 // import HttpRequest from '@/shared/utils/request';
-import { delay } from '@/helpers/utils';
+import { delay } from '@/shared/utils/helpers';
 
 const NATIVE_CONTRACT = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 const DEBRIDGE_TRADE_ORDERS = 'https://api.dln.trade/v1.0/dln/tx';
@@ -67,12 +67,12 @@ export const estimateSwap = async ({ url, net, fromTokenAddress, toTokenAddress,
         const response = await fetchData(fetchParams);
 
         if (response.error) {
-            return checkErrors(response.error);
+            return errorRegister(response.error);
         }
 
         return response;
     } catch (error) {
-        return checkErrors(error);
+        return errorRegister(error);
     }
 };
 
@@ -110,12 +110,12 @@ export const estimateBridge = async ({ url, fromNet, toNet, fromTokenAddress, to
         const response = await fetchData(fetchParams);
 
         if (response.error) {
-            return checkErrors(response.error);
+            return errorRegister(response.error);
         }
 
         return response;
     } catch (error) {
-        return checkErrors(error);
+        return errorRegister(error);
     }
 };
 
@@ -138,7 +138,7 @@ export const getAllowance = async ({ url, net, tokenAddress, ownerAddress, store
         ).data;
 
         if (!ok) {
-            return checkErrors(error);
+            return errorRegister(error);
         }
 
         if (store) {
@@ -155,7 +155,7 @@ export const getAllowance = async ({ url, net, tokenAddress, ownerAddress, store
 
         return data;
     } catch (error) {
-        return checkErrors(error);
+        return errorRegister(error);
     }
 };
 
@@ -184,7 +184,7 @@ export const getApproveTx = async ({ url, net, tokenAddress, ownerAddress, store
         const response = await fetchData(fetchParams);
 
         if (response.error) {
-            return checkErrors(response.error);
+            return errorRegister(response.error);
         }
 
         if (store && service) {
@@ -199,7 +199,7 @@ export const getApproveTx = async ({ url, net, tokenAddress, ownerAddress, store
 
         return response;
     } catch (error) {
-        return checkErrors(error);
+        return errorRegister(error);
     }
 };
 
@@ -212,8 +212,6 @@ export const getSwapTx = async ({ url, net, fromTokenAddress, toTokenAddress, am
 
     try {
         const fetchParams = {
-            url,
-            route,
             params: {
                 net,
                 fromTokenAddress: fromTokenAddress || NATIVE_CONTRACT,
@@ -227,16 +225,17 @@ export const getSwapTx = async ({ url, net, fromTokenAddress, toTokenAddress, am
         if (SOURCES[route]) {
             fetchParams.cancelToken = SOURCES[route].token;
         }
+        const REQUEST_URL = `${url}getSwapTx`;
 
-        const response = await fetchData(fetchParams);
+        const { data, error } = (await axios.get(REQUEST_URL, fetchParams)).data;
 
-        if (response.error) {
-            return checkErrors(response.error);
+        if (error) {
+            return errorRegister(error);
         }
 
-        return response;
+        return data;
     } catch (error) {
-        return checkErrors(error);
+        return errorRegister(error);
     }
 };
 
@@ -266,8 +265,6 @@ export const getBridgeTx = async ({
 
     try {
         const fetchParams = {
-            url,
-            route,
             params: {
                 fromNet,
                 toNet,
@@ -285,15 +282,17 @@ export const getBridgeTx = async ({
             fetchParams.cancelToken = SOURCES[route].token;
         }
 
-        const response = await fetchData(fetchParams);
+        const REQUEST_URL = `${url}getBridgeTx`;
 
-        if (response.error) {
-            return checkErrors(response.error);
+        const { data, error } = (await axios.get(REQUEST_URL, fetchParams)).data;
+
+        if (error) {
+            return errorRegister(error);
         }
 
-        return response;
+        return data;
     } catch (error) {
-        return checkErrors(error);
+        return errorRegister(error);
     }
 };
 

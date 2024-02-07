@@ -16,13 +16,17 @@ export default {
 
     getters: {
         services: (state) => state.services,
+        getServicesByType: (state) => (type) => state.services.filter((service) => service.type === type) || [],
+
+        getServicesByEcosystem: (state) => (namespace) =>
+            state.services.filter((service) => service.namespace?.toLowerCase() === namespace?.toLowerCase()) || [],
         showRoutes: (state) => state.showRoutes,
         selectedRoute: (state) => state.selectedRoute,
     },
 
     mutations: {
         [TYPES.SET_SERVICES](state, value) {
-            state.service = value;
+            state.services = value;
         },
         [TYPES.SET_SHOW_ROUTES](state, value) {
             state.showRoutes = value;
@@ -41,8 +45,8 @@ export default {
         async getServices({ commit }) {
             const response = await getServices();
 
-            if (response.status === 200) {
-                commit(TYPES.SET_SERVICES);
+            if (response && Array.isArray(response) && response?.length) {
+                commit(TYPES.SET_SERVICES, response);
             }
         },
     },

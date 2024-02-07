@@ -1,10 +1,15 @@
-import BigNumber from 'bignumber.js';
+import _ from 'lodash';
 import Moment from 'moment';
-
-import { sortByKey } from '@/helpers/utils';
+import BigNumber from 'bignumber.js';
 
 import { ONE_DAY, ONE_HOUR } from '@/shared/constants/operations';
 import { BALANCES_TYPES } from '@/modules/Balances/constants';
+
+const ASSET_TYPES = {
+    DEPOSIT: 'DEPOSITED',
+    PENDING_REWARD: 'REWARD',
+    DEPOSIT_COLLATERAL: 'DEPOSITED_COLLATERAL',
+};
 
 export const getTotalBalanceByType = (balances, type = BALANCES_TYPES.ALL) => {
     if (!balances.length) {
@@ -73,10 +78,10 @@ export const getIntegrationsGroupedByPlatform = (allIntegrations = []) => {
     }
 
     groupByPlatforms.forEach((groupItem, i) => {
-        groupByPlatforms[i].data = sortByKey(groupItem.data, 'totalBalanceUsd');
+        groupByPlatforms[i].data = _.orderBy(groupItem.data, ['totalBalanceUsd'], ['desc']);
     });
 
-    return sortByKey(groupByPlatforms, 'totalGroupBalance');
+    return _.orderBy(groupByPlatforms, ['totalGroupBalance'], ['desc']);
 };
 
 export const getFormattedName = (str) => {
@@ -84,7 +89,9 @@ export const getFormattedName = (str) => {
         return str;
     }
 
-    return str.charAt(0).toUpperCase() + str.replaceAll('_', ' ').toLowerCase().slice(1);
+    const formattedStr = ASSET_TYPES[str] || str;
+
+    return formattedStr.charAt(0).toUpperCase() + formattedStr.replaceAll('_', ' ').toLowerCase().slice(1);
 };
 
 export const getFormattedDate = (timestamp) => {
@@ -176,5 +183,5 @@ export const getNftsByCollection = (allNfts = []) => {
         groupByCollection.push(getDataForCollection(nft));
     }
 
-    return sortByKey(groupByCollection, 'totalGroupBalance');
+    return _.orderBy(groupByCollection, ['totalGroupBalance'], ['desc']);
 };

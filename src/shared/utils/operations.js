@@ -3,7 +3,7 @@ import { DoubleRightOutlined } from '@ant-design/icons-vue';
 
 import useNotification from '@/compositions/useNotification';
 
-import { delay } from '@/helpers/utils';
+import { delay } from '@/shared/utils/helpers';
 
 export const isCorrectChain = async (selectedNetwork, currentChainInfo, setChain) => {
     let btnTitle = 'tokenOperations.confirm';

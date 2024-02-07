@@ -23,6 +23,15 @@ function useAdapter() {
     const adaptersGetter = (getter) => store.getters[`${storeModule}/${getter}`];
     const adaptersDispatch = (dispatch, ...args) => store.dispatch(`${storeModule}/${dispatch}`, ...args);
 
+    const initAdapter = async () => {
+        for (const ecosystem in ECOSYSTEMS) {
+            const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+            if (adapter?.init) {
+                await adapter.init(store);
+            }
+        }
+    };
+
     // * Last Connected Wallet
     const lastConnectedWallet = computed(() => adaptersGetter(GETTERS.LAST_CONNECTED_WALLET));
 
@@ -149,6 +158,18 @@ function useAdapter() {
         }
     };
 
+    // * Connect to another connected wallet, if last connected not available
+    const connectAnotherConnectedWallet = async (lastModule) => {
+        const connectedWallet = connectedWallets.value.find((wallet) => wallet.walletModule !== lastModule);
+
+        if (!connectedWallet) {
+            return false;
+        }
+
+        const { ecosystem, chain, walletModule } = connectedWallet;
+        return await connectTo(ecosystem, walletModule, chain);
+    };
+
     // * Connect to Last Connected Wallet
     const connectLastConnectedWallet = async () => {
         if (!lastConnectedWallet.value || walletAddress.value) {
@@ -168,9 +189,14 @@ function useAdapter() {
 
             if (!isConnect) {
                 console.warn('Failed to connect to last connected wallet', ecosystem, chain, walletModule);
-                adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
-                adaptersDispatch(TYPES.SET_IS_CONNECTED, false);
-                return router.push('/connect-wallet');
+
+                const isConnected = connectAnotherConnectedWallet(walletModule);
+
+                if (!isConnected) {
+                    adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
+                    adaptersDispatch(TYPES.SET_IS_CONNECTED, false);
+                    return router.push('/connect-wallet');
+                }
             }
 
             if (currentChainInfo.value === 404) {
@@ -388,6 +414,8 @@ function useAdapter() {
         connectedWallets,
 
         chainList,
+
+        initAdapter,
 
         action: (action, ...args) => adaptersDispatch(TYPES[action], ...args),
 

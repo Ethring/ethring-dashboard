@@ -18,20 +18,21 @@ import { fromEvent, takeUntil, Subject } from 'rxjs';
 import { ECOSYSTEMS, cosmologyConfig } from '../../config';
 
 import AdapterBase from '@/Adapter/utils/AdapterBase';
+import { getConfigsByEcosystems, getTokensConfigByChain, getCosmologyTokensConfig } from '@/api/networks';
 
 // * Helpers
 import { validateCosmosAddress } from '@/Adapter/utils/validations';
-import { reEncodeWithNewPrefix, isDifferentSlip44 } from '@/Adapter/utils';
-import { checkErrors } from '@/helpers/checkErrors';
+import { reEncodeWithNewPrefix, isDifferentSlip44, isActiveChain } from '@/Adapter/utils';
+import { errorRegister } from '@/shared/utils/errors';
+
+import logger from '@/shared/logger';
+
+import IndexedDBService from '@/modules/IndexedDb-v2';
+
+const configsDB = new IndexedDBService('configs');
 
 // * Config for cosmos
 const {
-    // Chains
-    chains,
-    differentSlip44,
-    // Assets
-    assets,
-    ibcAssetsByChain,
     // Custom Registry for stargate
     aminoTypes,
     registry,
@@ -53,12 +54,41 @@ const connectedWalletModule = () => window?.localStorage.getItem(STORAGE.WALLET)
 const addressByNetwork = () => JSON.parse(window?.localStorage.getItem(STORAGE.ADDRESS_BY_NETWORK)) || {};
 
 class CosmosAdapter extends AdapterBase {
+    chainsFromStore = {};
+    walletManager = null;
+
+    STANDARD_SLIP_44 = 118;
+
     REFRESH_EVENT = 'refresh_connection';
     DEFAULT_CHAIN = 'cosmoshub';
-    isLogosUpdated = false;
+
+    differentSlip44 = [];
+    ibcAssetsByChain = {};
 
     constructor() {
         super();
+    }
+
+    async init(store) {
+        // * Get chains
+        // ========= Init Cosmos Chains =========
+        const chains = await getConfigsByEcosystems(ECOSYSTEMS.COSMOS, { isCosmology: true });
+        const activeChains = _.values(chains).filter(isActiveChain);
+
+        this.chainsFromStore = store?.state?.configs?.chains[ECOSYSTEMS.COSMOS] || {};
+
+        const assets = await getCosmologyTokensConfig();
+
+        await Promise.all(
+            activeChains.map(
+                async ({ chain_name }) => (this.ibcAssetsByChain[chain_name] = await getTokensConfigByChain(chain_name, ECOSYSTEMS.COSMOS)),
+            ),
+        );
+
+        this.differentSlip44 = activeChains.filter(({ slip44 }) => slip44 != this.STANDARD_SLIP_44);
+
+        // ========= Init WalletManager =========
+
         this.unsubscribe = new Subject();
 
         // * Init WalletManager
@@ -66,9 +96,7 @@ class CosmosAdapter extends AdapterBase {
 
         const logger = new Logger('INFO');
 
-        this.walletManager = new WalletManager(chains, assets, [KEPLR_EXT], logger);
-
-        this.updateChainLogos();
+        this.walletManager = new WalletManager(activeChains, [KEPLR_EXT], logger, 'connect_only', true, false, assets);
 
         const stargateClientOptions = {
             aminoTypes,
@@ -78,28 +106,18 @@ class CosmosAdapter extends AdapterBase {
         for (const chainRecord of this.walletManager.chainRecords) {
             const gasPrice = this.getGasPriceFromChain(chainRecord.chain.fees?.fee_tokens);
 
+            this.chainsFromStore[chainRecord.chain.chain_name] &&
+                (chainRecord.chain.logo =
+                    this.chainsFromStore[chainRecord.chain.chain_name]?.logo ||
+                    chainRecord.chain.logo_URIs?.svg ||
+                    chainRecord.chain.logo_URIs?.png);
+
             gasPrice && (stargateClientOptions.gasPrice = gasPrice);
 
             chainRecord.clientOptions.signingStargate = stargateClientOptions;
         }
 
         this.walletManager.onMounted();
-    }
-
-    updateChainLogos() {
-        if (this.isLogosUpdated) {
-            return;
-        }
-        const cosmosChains = JSON.parse(localStorage.getItem('networks/cosmos')) || {};
-
-        for (const chainRecord of this.walletManager.chainRecords) {
-            chainRecord.chain.logo =
-                cosmosChains[chainRecord.chain.chain_name]?.logo || chainRecord.chain.logo_URIs?.svg || chainRecord.chain.logo_URIs?.png;
-        }
-
-        if (Object.keys(cosmosChains).length) {
-            this.isLogosUpdated = true;
-        }
     }
 
     getGasPriceFromChain(feeTokens = []) {
@@ -134,6 +152,10 @@ class CosmosAdapter extends AdapterBase {
 
         if (!walletModule?.value) {
             return;
+        }
+
+        if (!this.walletManager) {
+            this.init();
         }
 
         const listeners = this.walletManager.coreEmitter.listeners(this.REFRESH_EVENT);
@@ -223,12 +245,16 @@ class CosmosAdapter extends AdapterBase {
 
             await Promise.all(enablePromises);
         } catch (error) {
-            console.log('Error while approving chains', error);
+            logger.log('Error while approving chains', error);
         }
     }
 
     async connectWallet(walletName, chain = this.DEFAULT_CHAIN) {
         try {
+            if (!this.walletManager) {
+                await this.init();
+            }
+
             const chainWallet = this.walletManager.getChainWallet(chain, walletName);
 
             await this.getSupportedEcosystemChains(this.walletManager.chainRecords, chainWallet.client);
@@ -256,7 +282,7 @@ class CosmosAdapter extends AdapterBase {
                 walletName: walletName,
             };
         } catch (error) {
-            console.error(error, this.walletManager.isError);
+            logger.error(error, this.walletManager?.isError);
             return false;
         }
     }
@@ -270,7 +296,7 @@ class CosmosAdapter extends AdapterBase {
             const connected = await this.connectWallet(walletName, chainForConnect);
             return connected;
         } catch (error) {
-            console.error('Error in setChain', error);
+            logger.error('Error in setChain', error);
             return false;
         }
     }
@@ -291,7 +317,7 @@ class CosmosAdapter extends AdapterBase {
 
                 const { chainName } = wallet;
 
-                if (!isDifferentSlip44(chainName, differentSlip44)) {
+                if (!isDifferentSlip44(chainName, this.differentSlip44)) {
                     return;
                 }
 
@@ -316,7 +342,7 @@ class CosmosAdapter extends AdapterBase {
 
             await Promise.all(promises);
         } catch (error) {
-            console.error('Error in chainsWithDifferentSlip44', error);
+            logger.error('Error in chainsWithDifferentSlip44', error);
         }
     }
 
@@ -349,7 +375,7 @@ class CosmosAdapter extends AdapterBase {
         const promises = this.walletManager.chainRecords.map(async ({ chain }) => {
             const { bech32_prefix, chain_name } = chain;
 
-            if (isDifferentSlip44(chain_name, differentSlip44)) {
+            if (isDifferentSlip44(chain_name, this.differentSlip44)) {
                 return undefined;
             }
 
@@ -448,7 +474,6 @@ class CosmosAdapter extends AdapterBase {
     }
 
     getChainList() {
-        this.updateChainLogos();
         const chainList = this.walletManager.chainRecords.map((record) => {
             const { chain, assetList = {} } = record || {};
 
@@ -533,8 +558,8 @@ class CosmosAdapter extends AdapterBase {
 
             return fee;
         } catch (error) {
-            console.error('error while getting fee', error);
-            return checkErrors(error);
+            logger.error('error while getting fee', error);
+            return errorRegister(error);
         }
     }
 
@@ -551,11 +576,11 @@ class CosmosAdapter extends AdapterBase {
 
             const adjustedGas = BigNumber(simGas).multipliedBy(GAS_ADJUSTMENT).toString();
 
-            console.log('Simulated gas |', simGas.toString(), `| multiplied to ${GAS_ADJUSTMENT} |`, adjustedGas);
+            logger.log('Simulated gas |', simGas.toString(), `| multiplied to ${GAS_ADJUSTMENT} |`, adjustedGas);
 
             return adjustedGas;
         } catch (error) {
-            console.error('error while simulate', error);
+            logger.error('error while simulate', error);
             return null;
         }
     }
@@ -570,7 +595,7 @@ class CosmosAdapter extends AdapterBase {
                 return estimatedFee;
             }
         } catch (error) {
-            console.error('[COSMOS -> getTransactionFee -> estimateFee]', error);
+            logger.error('[COSMOS -> getTransactionFee -> estimateFee]', error);
         }
     }
 
@@ -585,7 +610,7 @@ class CosmosAdapter extends AdapterBase {
                 };
             }
         } catch (error) {
-            console.warn('[COSMOS -> getTransactionFee -> simulateTxFee]', error);
+            logger.warn('[COSMOS -> getTransactionFee -> simulateTxFee]', error);
         }
 
         // EstimateFee to get gas for transaction
@@ -596,10 +621,10 @@ class CosmosAdapter extends AdapterBase {
                 return estimatedFee;
             }
         } catch (error) {
-            console.warn('[COSMOS -> getTransactionFee -> estimateFee]', error);
+            logger.warn('[COSMOS -> getTransactionFee -> estimateFee]', error);
         }
 
-        console.warn('[COSMOS -> getTransactionFee] Fee not found, Use default fee');
+        logger.warn('[COSMOS -> getTransactionFee] Fee not found, Use default fee');
 
         return null;
     }
@@ -627,8 +652,8 @@ class CosmosAdapter extends AdapterBase {
                 fee,
             };
         } catch (error) {
-            console.error('error while prepare', error);
-            return checkErrors(error);
+            logger.error('error while prepare', error);
+            return errorRegister(error);
         }
     }
 
@@ -682,7 +707,7 @@ class CosmosAdapter extends AdapterBase {
 
             return response;
         } catch (error) {
-            return checkErrors(error);
+            return errorRegister(error);
         }
     }
 
@@ -692,7 +717,7 @@ class CosmosAdapter extends AdapterBase {
 
         // Check if RPCs exist
         if (!RPCs.length) {
-            console.warn('[COSMOS -> getSignClient] RPCs not found to get client');
+            logger.warn('[COSMOS -> getSignClient] RPCs not found to get client');
             return null;
         }
 
@@ -710,7 +735,7 @@ class CosmosAdapter extends AdapterBase {
 
                     return await Promise.race([connectPromise, timeoutPromise]);
                 } catch (error) {
-                    console.warn(`[COSMOS -> getSignClient] Error connecting to RPC: ${rpc}`, error.message);
+                    logger.warn(`[COSMOS -> getSignClient] Error connecting to RPC: ${rpc}`, error.message);
                     return null;
                 }
             });
@@ -724,7 +749,7 @@ class CosmosAdapter extends AdapterBase {
             }
         }
 
-        console.warn('[COSMOS -> getSignClient] Client not found');
+        logger.warn('[COSMOS -> getSignClient] Client not found');
 
         return null;
     }
@@ -763,15 +788,15 @@ class CosmosAdapter extends AdapterBase {
                 fee.amount = estimatedFee.amount;
             }
         } catch (error) {
-            console.error('[COSMOS -> signSend -> estimate]', error);
+            logger.error('[COSMOS -> signSend -> estimate]', error);
         }
 
         // Sign and send transaction
         try {
             return await client.signAndBroadcast(this.getAccountAddress(), [msg], fee, transaction.value?.memo);
         } catch (error) {
-            console.error('[COSMOS -> signSend] Error while broadcasting transaction', error);
-            return checkErrors(error);
+            logger.error('[COSMOS -> signSend] Error while broadcasting transaction', error);
+            return errorRegister(error);
         }
     }
 
@@ -817,7 +842,7 @@ class CosmosAdapter extends AdapterBase {
             return url;
         }
 
-        const ibcHashTable = this.getIBCAssetsHashTable(chainInfo?.chain_name);
+        const ibcHashTable = this.ibcAssetsByChain[chainInfo?.chain_name] || {};
 
         if (!ibcHashTable[token] && ibcRegex.test(token)) {
             return null;
@@ -864,22 +889,6 @@ class CosmosAdapter extends AdapterBase {
         const [asset] = assets;
 
         return asset;
-    }
-
-    getIBCAssets(chain) {
-        return ibcAssetsByChain[chain] || [];
-    }
-
-    getIBCAssetsHashTable(chain) {
-        const assets = this.getIBCAssets(chain);
-
-        const hashTable = {};
-
-        for (const asset of assets) {
-            hashTable[asset.address] = asset;
-        }
-
-        return hashTable;
     }
 }
 

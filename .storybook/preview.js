@@ -1,7 +1,7 @@
 /** @type { import('@storybook/vue3').Preview } */
 
 import { setup } from "@storybook/vue3";
-import { i18n } from '@/shared/i18n/';
+import i18n from '@/app/providers/i18n';
 import Antd from 'ant-design-vue';
 
 import './storybook.css';

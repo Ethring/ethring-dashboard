@@ -1,4 +1,4 @@
-import ServiceIcon from '@/components/ui/ServiceIcon';
+import ServiceIcon from '@/components/ui/EstimatePanel/ServiceIcon';
 
 export default {
     title: 'Components/UI/ServiceIcon',
@@ -13,9 +13,23 @@ export default {
     },
 };
 
-export const Default = {
-    args: {
-        name: 'Debridge',
-        icon: 'https://app.debridge.finance/assets/images/bridge.svg',
+const Template = (args) => ({
+    components: { ServiceIcon },
+    setup() {
+        return { args };
     },
+    template: `<ServiceIcon v-bind="args" />`,
+});
+
+export const Default = Template.bind({});
+Default.args = {
+    name: 'Debridge',
+    icon: 'https://app.debridge.finance/assets/images/bridge.svg',
+};
+
+export const WithLabel = Template.bind({});
+WithLabel.args = {
+    name: 'Debridge',
+    icon: 'https://app.debridge.finance/assets/images/bridge.svg',
+    showTitle: true,
 };

@@ -2,25 +2,28 @@ import { computed } from 'vue';
 import _ from 'lodash';
 import BigNumber from 'bignumber.js';
 
-import { cosmologyConfig } from '@/Adapter/config';
+import { getConfigsByEcosystems } from '@/api/networks';
 import { DP_COSMOS } from '@/api/data-provider';
 
 import { getTotalBalanceByDiff } from '@/shared/utils/assets';
 import IndexedDBService from '@/modules/indexedDb';
+import IndexedDBServiceV2 from '@/modules/IndexedDb-v2';
 
 import PricesModule from '@/modules/prices/';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
 import { BALANCES_TYPES } from '@/modules/Balances/constants';
-// =================================================================================================================
 
+const configsDb = new IndexedDBServiceV2('configs');
+
+// =================================================================================================================
 export const storeOperations = async (
     chain,
     account,
     store,
     { tokens = [], integrations = [], nfts = [] },
-    { allTokens, allIntegrations, allNfts }
+    { allTokens, allIntegrations, allNfts },
 ) => {
     if (!tokens.length && !integrations.length && !nfts.length) {
         return store.dispatch('tokens/setLoadingByChain', { chain, value: false });
@@ -52,26 +55,26 @@ export const saveToCache = async (key, data = { tokens: [], nfts: [], integratio
 
 // =================================================================================================================
 
-export const formatResponse = (chain, { chainForRequest, chainAddress, logo }, { tokens = [], integrations = [], nfts = [] }) => {
+export const formatResponse = (store, chain, { chainForRequest, chainAddress, logo }, { tokens = [], integrations = [], nfts = [] }) => {
     const allTokens = [];
     const allIntegrations = [];
     const allNfts = [];
 
     if (tokens && tokens.length) {
-        const list = tokens.map((token) => formatRecord(token, { net: chainForRequest, chain, logo, chainAddress, type: 'asset' }));
+        const list = tokens.map((token) => formatRecord(token, { store, net: chainForRequest, chain, logo, chainAddress, type: 'asset' }));
         allTokens.push(...list);
     }
 
     if (integrations && integrations.length) {
         const list = integrations.map((integration) =>
-            processIntegration(integration, { net: chainForRequest, chain, logo, chainAddress })
+            processIntegration(integration, { store, net: chainForRequest, chain, logo, chainAddress }),
         );
 
         allIntegrations.push(...list);
     }
 
     if (nfts && nfts.length) {
-        const list = nfts.map((nft) => formatRecord(nft, { net: chainForRequest, chain, logo, chainAddress, type: 'nft' }));
+        const list = nfts.map((nft) => formatRecord(nft, { store, net: chainForRequest, chain, logo, chainAddress, type: 'nft' }));
         allNfts.push(...list);
     }
 
@@ -82,14 +85,12 @@ export const formatResponse = (chain, { chainForRequest, chainAddress, logo }, {
     };
 };
 
-const cosmosChainTokens = (record, { chain, net }) => {
+const cosmosChainTokens = (store, record, { chain, net }) => {
     const chainName = DP_COSMOS[net] || chain;
 
-    const [cosmosChain] = cosmologyConfig.assets.filter(({ chain_name }) => chain_name === chainName) || [];
-
-    const { assets } = cosmosChain || {};
-
-    const [nativeToken] = assets || [];
+    const cosmosConfigs = store.state?.configs?.chains[ECOSYSTEMS.COSMOS] || {};
+    const { native_token: nativeToken, logo } = cosmosConfigs[chainName] || {};
+    record.chainLogo = logo;
 
     if (record.address && record.address.startsWith('IBC')) {
         record.address = record.address.replace('IBC', 'ibc');
@@ -103,15 +104,17 @@ const cosmosChainTokens = (record, { chain, net }) => {
     if (isNativeByBase || isNativeBySymbol) {
         record.address = nativeToken?.base;
         record.base = nativeToken?.base;
-        record.id = `${net}:asset__native:${record.symbol}`;
+        record.id = `${chainName}:asset__native:${record.symbol}`;
     }
 
     return record;
 };
 
-const processIntegration = (integration, { net, chain, logo, chainAddress }) => {
+const processIntegration = (integration, { store, net, chain, logo, chainAddress }) => {
+    const chainName = DP_COSMOS[net] || net || chain;
+
     if (integration.platform) {
-        integration.id = `${net}:integration__${integration.platform}:${integration.type}:${integration.stakingType}`;
+        integration.id = `${chainName}:integration__${integration.platform}:${integration.type}:${integration.stakingType}`;
     }
 
     if (integration.validator && integration.validator?.address) {
@@ -123,12 +126,14 @@ const processIntegration = (integration, { net, chain, logo, chainAddress }) => 
     }
 
     if (integration.integrationId) {
-        integration.id = `${net}:integration__${integration.integrationId}`;
+        integration.id = `${chainName}:integration__${integration.integrationId}`;
     }
 
     const { balances = [] } = integration;
 
-    integration.balances = balances?.map((intToken) => formatRecord(intToken, { net, chain, chainAddress, logo, type: 'integration' }));
+    integration.balances = balances?.map((intToken) =>
+        formatRecord(intToken, { store, net, chain, chainAddress, logo, type: 'integration' }),
+    );
 
     return integration;
 };
@@ -149,12 +154,12 @@ export const getIntegrationsBalance = (integrations) => {
     return balance;
 };
 
-export const formatRecord = (record, { net, chain, logo, type }) => {
+export const formatRecord = (record, { store, net, chain, logo, type }) => {
     record.chainLogo = logo;
     record.chain = chain;
 
     if ((DP_COSMOS[chain] || DP_COSMOS[net]) && !record.balanceType) {
-        record = cosmosChainTokens(record, { chain, net });
+        record = cosmosChainTokens(store, record, { chain, net });
     }
 
     if (type === 'asset' && !record.balanceType && !record.id && record.address) {
@@ -184,11 +189,15 @@ export const getTotalBalance = (records, balance = BigNumber(0)) => {
 
 // =================================================================================================================
 
-export const prepareChainWithAddress = (addressesObj, currentChainInfo) => {
+export const prepareChainWithAddress = async (addressesObj, currentChainInfo) => {
     const CHUNK_SIZE = 2;
 
     const { net: currentChain, ecosystem } = currentChainInfo;
-    const cosmosChains = JSON.parse(localStorage.getItem('networks/cosmos')) || {};
+    let cosmosChains = {};
+
+    if (ecosystem === ECOSYSTEMS.COSMOS) {
+        cosmosChains = (await configsDb.getAllObjectFrom('networks', 'ecosystem', ECOSYSTEMS.COSMOS)) || {};
+    }
 
     const addrList = Object.entries(addressesObj).map(([key, value]) => ({
         chain: key,
@@ -208,8 +217,8 @@ export const prepareChainWithAddress = (addressesObj, currentChainInfo) => {
     };
 };
 
-export const setNativeTokensPrices = async (store, account) => {
-    const chainList = computed(() => store.getters['networks/zometNetworksList']);
+export const setNativeTokensPrices = async (store, account, ecosystem) => {
+    const chainList = computed(() => store.getters['configs/getConfigsListByEcosystem'](ecosystem));
     const nets = new Set();
 
     for (const network of chainList.value) {

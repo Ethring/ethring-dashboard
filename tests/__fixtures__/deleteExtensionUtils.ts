@@ -24,7 +24,7 @@ const clearDirectory = (dirPath) => {
 };
 
 export const deleteAllExtensionsIfTestLocalRun = () => {
-    if (!import.meta.env.CI) {
+    if (!process.env.CI) {
         clearDirectory(MetaMaskDirPath);
         clearDirectory(KeplrDirPath);
     }

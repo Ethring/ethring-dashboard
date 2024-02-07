@@ -20,32 +20,23 @@
 
         <div class="assets-group-extra">
             <div class="assets-group-balance">
-                <span class="assets-group-balance-currency">$</span>
-                <NumberTooltip v-if="showBalance" :value="totalBalance" class="assets-group-balance-amount" />
-                <span v-else class="assets-group-balance-amount">****</span>
+                <Amount :value="totalBalance || 0" :decimals="3" type="usd" symbol="$" class="assets-group-balance-amount" />
             </div>
 
             <div class="assets-group-rewards" v-if="showRewards">
                 <span class="assets-group-rewards-title">{{ $t('tokenOperations.rewards') }}:</span>
                 <div class="assets-group-rewards-block">
-                    <span class="assets-group-rewards-currency">$</span>
-                    <NumberTooltip v-if="showBalance" :value="reward" class="assets-group-rewards-amount" />
-                    <span v-else class="assets-group-rewards-amount">****</span>
+                    <Amount :value="reward || 0" :decimals="3" type="usd" symbol="$" class="assets-group-rewards-amount" />
                 </div>
             </div>
         </div>
     </div>
 </template>
 <script>
-import { computed, ref } from 'vue';
-import { useStore } from 'vuex';
+import Amount from '@/components/app/Amount';
 
-import NumberTooltip from '@/components/ui/NumberTooltip';
-
-import TokensIcon from '@/assets/icons/dashboard/wallet.svg';
+import TokensIcon from '@/assets/icons/dashboard/token-group.svg';
 import NftsIcon from '@/assets/icons/dashboard/nfts.svg';
-
-import { formatNumber } from '@/helpers/prettyNumber';
 
 export default {
     name: 'AssetGroupHeader',
@@ -84,29 +75,12 @@ export default {
     components: {
         TokensIcon,
         NftsIcon,
-        NumberTooltip,
+        Amount,
     },
-    setup() {
-        const store = useStore();
-        const showBalance = computed(() => store.getters['app/showBalance']);
 
-        // const getPercentageQuarter = (val) => {
-        //     if (val > 75) {
-        //         return 100;
-        //     } else if (val > 50) {
-        //         return 75;
-        //     } else if (val > 25) {
-        //         return 50;
-        //     }
-        //     return 25;
-        // };
-
+    data() {
         return {
-            showBalance,
-            formatNumber,
-            showImagePlaceholder: ref(false),
-
-            // getPercentageQuarter,
+            showImagePlaceholder: false,
         };
     },
 };

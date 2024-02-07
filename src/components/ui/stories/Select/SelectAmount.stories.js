@@ -1,4 +1,4 @@
-import SelectAmount from '@/components/ui/SelectAmount';
+import SelectAmount from '@/components/ui/Select/SelectAmountInput';
 
 export default {
     title: 'Components/UI/SelectAmount',

@@ -1,6 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router';
-
-const routes = [
+export const routes = [
     {
         path: '',
         redirect: '/main',
@@ -15,7 +13,7 @@ const routes = [
         meta: {
             key: 'main',
         },
-        component: () => import('../views/Dashboard.vue'),
+        component: () => import('@/pages/Dashboard.vue'),
     },
     {
         path: '/send',
@@ -24,7 +22,7 @@ const routes = [
             key: 'send',
             isAuth: true,
         },
-        component: () => import('../layouts/ModulesLayout.vue'),
+        component: () => import('@/layouts/ModulesLayout.vue'),
         props: {
             component: 'SimpleSend',
             tabs: [
@@ -48,7 +46,7 @@ const routes = [
             isAuth: true,
             key: 'bridge',
         },
-        component: () => import('../layouts/ModulesLayout.vue'),
+        component: () => import('@/layouts/ModulesLayout.vue'),
         props: {
             component: 'SimpleBridge',
             tabs: [
@@ -72,7 +70,7 @@ const routes = [
             isAuth: true,
             key: 'swap',
         },
-        component: () => import('../layouts/ModulesLayout.vue'),
+        component: () => import('@/layouts/ModulesLayout.vue'),
         props: {
             component: 'SimpleSwap',
             tabs: [
@@ -91,7 +89,7 @@ const routes = [
             isAuth: true,
             key: 'superSwap',
         },
-        component: () => import('../layouts/ModulesLayout.vue'),
+        component: () => import('@/layouts/ModulesLayout.vue'),
         props: {
             component: 'SuperSwap',
             tabs: [
@@ -104,33 +102,8 @@ const routes = [
         },
     },
     {
-        path: '/:module/select-token',
-        name: 'Select Token',
-        component: () => import('../components/dynamic/SearchSelectToken.vue'),
-    },
-    {
         path: '/:pathMatch(.*)*',
         name: 'Not Found',
-        component: () => import('../views/NotFound.vue'),
+        component: () => import('@/pages/NotFound.vue'),
     },
 ];
-
-const router = createRouter({
-    history: createWebHistory(),
-    routes,
-});
-
-router.beforeResolve((to, from, next) => {
-    if (to.name) {
-        document.title = to.name;
-    }
-
-    if (to.hash && to.hash.includes('/main')) {
-        const pathWithoutHash = to.path.replace(to.hash, '');
-        next(`/main${pathWithoutHash}`);
-    } else {
-        next();
-    }
-});
-
-export default router;

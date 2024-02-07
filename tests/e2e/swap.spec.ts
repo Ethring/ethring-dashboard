@@ -5,11 +5,14 @@ import { INCORRECT_IMAGE_URL } from '../data/mockTokensListData';
 import { TEST_CONST, getTestVar } from '../envHelper';
 import { getHomeMmPage } from '../model/MetaMask/MetaMask.pages';
 import { EVM_NETWORKS } from '../data/constants';
+import util from 'util';
+import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
 
-const sleep = require('util').promisify(setTimeout);
+const sleep = util.promisify(setTimeout);
 
 const supportedNetsBySwap = ['Ethereum', 'Binance Smart Chain', 'Arbitrum', 'Polygon', 'Avalanche', 'Optimism', 'Fantom']; // TODO до сих пор не работает. Нет фантома
 const txHash = getTestVar(TEST_CONST.SUCCESS_TX_HASH_BY_MOCK);
+
 const SWAP_SERVICE = 'srv-paraswap';
 
 testMetaMask.describe('Swap e2e tests', () => {
@@ -44,7 +47,9 @@ testMetaMask.describe('Swap e2e tests', () => {
             const imagePromiseTokenFrom = swapPage.page.waitForResponse('https://assets.coingecko.com/coins/images/6319/large/usdc.png**');
             await swapPage.openTokenPageFrom();
             await imagePromiseTokenFrom; // wait load last token image
-            await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
+
+            // open select modal
+            await expect(swapPage.getSelectModalContent()).toHaveScreenshot();
 
             await swapPage.setTokenInTokensList(TOKEN_FROM);
             await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
@@ -52,7 +57,8 @@ testMetaMask.describe('Swap e2e tests', () => {
             const imagePromiseTokenTo = swapPage.page.waitForResponse(INCORRECT_IMAGE_URL);
             await swapPage.openTokenPageTo();
             await imagePromiseTokenTo; // wait load last token image
-            await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
+            // open select modal
+            await expect(swapPage.getSelectModalContent()).toHaveScreenshot();
 
             await swapPage.setTokenInTokensList(TOKEN_TO);
             await sleep(1000); // TODO need wait close tokens page
@@ -207,10 +213,12 @@ testMetaMask.describe('Swap e2e tests', () => {
 
             await swapPage.page.waitForResponse(WAITED_BALANCE_URL); // wait response wallet balance
 
+            await swapPage.mockEstimateSwapRequest(SWAP_SERVICE, errorEstimateSwap, 500);
             await swapPage.setAmount(AMOUNT);
             await sleep(1000);
 
             await swapPage.openTokenPageFrom();
+            await swapPage.mockEstimateSwapRequest(SWAP_SERVICE, errorEstimateSwap, 500);
             await swapPage.setTokenInTokensList(TOKEN_FROM);
             await swapPage.openTokenPageTo();
 
@@ -219,11 +227,11 @@ testMetaMask.describe('Swap e2e tests', () => {
             await swapPage.setTokenInTokensList(TOKEN_TO);
             await estimatePromise;
 
-            await swapPage.waitLoadImg();
+            await sleep(FIVE_SECONDS);
             await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
 
             await swapPage.openTokenPageTo();
-            await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
+            await expect(swapPage.getSelectModalContent()).toHaveScreenshot();
         }
     );
 

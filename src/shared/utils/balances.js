@@ -1,9 +1,10 @@
+import _ from 'lodash';
+
 import { getBalancesByAddress, DP_COSMOS } from '@/api/data-provider';
-import { formatRecord } from '../../modules/Balances/utils';
+import { formatRecord } from '@/modules/Balances/utils';
 import IndexedDBService from '@/modules/indexedDb';
 
-import store from '@/store/';
-import _ from 'lodash';
+import store from '@/app/providers/store.provider.js';
 
 const saveToCache = async (account, chainId, address, tokenBalances) => {
     try {
@@ -19,8 +20,6 @@ const saveToCache = async (account, chainId, address, tokenBalances) => {
 };
 
 export async function updateWalletBalances(account, address, network, cb = () => {}) {
-    let isUpdated = false;
-
     const { net, logo } = network || {};
 
     if (!net) {
@@ -31,10 +30,7 @@ export async function updateWalletBalances(account, address, network, cb = () =>
     const chainId = DP_COSMOS[net] || net;
 
     // Getting tokens from API by address
-    const response = await getBalancesByAddress(chainId, address, {
-        fetchTokens: true,
-        fetchIntegrations: false,
-    });
+    const response = await getBalancesByAddress(chainId, address, { fetchIntegrations: false, fetchNfts: false });
 
     const { tokens: tokenBalances = [] } = response || {};
 
@@ -55,7 +51,7 @@ export async function updateWalletBalances(account, address, network, cb = () =>
 
     // updating tokens from API with tokens from store
     for (const token of tokenBalances) {
-        formatRecord(token, { net: chainId, chain: net, address, logo, type: 'asset' });
+        formatRecord(token, { store, net: chainId, chain: net, address, logo, type: 'asset' });
 
         // if token exists in store and balance is the same - skip
         if (accTokensHash[token.id] && accTokensHash[token.id].balance === token.balance) {
@@ -67,19 +63,21 @@ export async function updateWalletBalances(account, address, network, cb = () =>
         accTokensHash[token.id] = token;
 
         // updating flag
-        isUpdated = true;
+        // isUpdated = true;
     }
 
-    // if no updates - skip
-    if (!isUpdated) {
-        // removing from memory if no updates
-        accTokensHash = null;
+    // console.log('[updateWalletBalances] isUpdated', isUpdated, accTokensHash);
 
-        return;
-    }
+    // // if no updates - skip
+    // if (!isUpdated) {
+    //     // removing from memory if no updates
+    //     accTokensHash = null;
+
+    //     return;
+    // }
 
     // updating store
-    store.dispatch('tokens/setDataFor', {
+    await store.dispatch('tokens/setDataFor', {
         type: 'tokens',
         account,
         data: _.values(accTokensHash),
@@ -88,10 +86,10 @@ export async function updateWalletBalances(account, address, network, cb = () =>
     // updating store
     store.dispatch('tokens/setGroupTokens', { chain: chainId, account, data: { list: tokenBalances } });
 
+    cb(tokenBalances);
+
     // removing from memory after updating store
     accTokensHash = null;
-
-    cb(tokenBalances);
 
     await saveToCache(account, chainId, address, tokenBalances);
 }

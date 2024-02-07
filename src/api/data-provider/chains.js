@@ -22,9 +22,9 @@ export const DP_CHAINS = {
     TERRA2: 'terra2',
 
     // Other Blockchains
-    BTC: 'btc',
-    LTC: 'ltc',
-    THORCHAIN: 'thorchain',
+    // BTC: 'btc',
+    // LTC: 'ltc',
+    // THORCHAIN: 'thorchain',
 };
 
 export const DP_COSMOS = {

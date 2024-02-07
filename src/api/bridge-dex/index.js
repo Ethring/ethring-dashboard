@@ -1,19 +1,20 @@
 // Axios instance
 import axiosInstance from '../axios';
+import { errorRegister } from '@/shared/utils/errors';
 
-const BRIDGE_DEX_URL = import.meta.env.VITE_APP_BRIDGE_DEX_API || null;
+const BRIDGE_DEX_URL = process.env.BRIDGE_DEX_API || null;
 
 export const getServices = async () => {
     if (!BRIDGE_DEX_URL) {
         return null;
     }
 
-    const params = {
-        url: `${BRIDGE_DEX_URL}/services`,
-    };
-
     try {
-        const response = await axiosInstance.get(params.url);
+        const response = await axiosInstance.get(`${BRIDGE_DEX_URL}/services`);
+
+        if (response?.error) {
+            return errorRegister(response?.error);
+        }
 
         if (response && response.status === 200) {
             return response.data;
@@ -23,7 +24,7 @@ export const getServices = async () => {
     } catch (e) {
         console.error('Error while fetching list of services:', e);
 
-        return null;
+        return errorRegister(e);
     }
 };
 
@@ -48,6 +49,10 @@ export const getBestRoute = async (amount, walletAddress, fromToken, toToken, sr
     try {
         const response = await axiosInstance.post(requestParams.url, requestParams.params);
 
+        if (response?.error) {
+            return errorRegister(response?.error);
+        }
+
         if (response && response.status === 200) {
             return response.data;
         }
@@ -56,6 +61,6 @@ export const getBestRoute = async (amount, walletAddress, fromToken, toToken, sr
     } catch (e) {
         console.error('Error while fetching best route:', e);
 
-        return null;
+        return errorRegister(e);
     }
 };
