@@ -20,7 +20,7 @@ function useAdapter() {
     const walletsSubscription = ref(null);
 
     // * Store Getters & Dispatch
-    const adaptersGetter = (getter) => store.getters[`${storeModule}/${getter}`];
+    const adaptersGetter = (getter) => store?.getters[`${storeModule}/${getter}`];
     const adaptersDispatch = (dispatch, ...args) => store.dispatch(`${storeModule}/${dispatch}`, ...args);
 
     const initAdapter = async () => {

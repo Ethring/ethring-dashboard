@@ -77,12 +77,12 @@ export default {
         const selectedNet = computed(() => props.selectedNetwork);
 
         const address = computed({
-            get: () => store.getters['tokenOps/receiverAddress'],
-            set: (value) => store.dispatch('tokenOps/setReceiverAddress', value),
+            get: () => store?.getters['tokenOps/receiverAddress'],
+            set: (value) => store?.dispatch('tokenOps/setReceiverAddress', value),
         });
 
-        const selectedSrcNetwork = computed(() => store.getters['tokenOps/srcNetwork']);
-        const selectedDstNetwork = computed(() => store.getters['tokenOps/dstNetwork']);
+        const selectedSrcNetwork = computed(() => store?.getters['tokenOps/srcNetwork']);
+        const selectedDstNetwork = computed(() => store?.getters['tokenOps/dstNetwork']);
 
         const isError = computed(() => {
             if (!address.value || !selectedNet.value || address.value?.length <= 0) {
