@@ -45,7 +45,7 @@ export default {
         async getServices({ commit }) {
             const response = await getServices();
 
-            if (response.length) {
+            if (response && Array.isArray(response) && response?.length) {
                 commit(TYPES.SET_SERVICES, response);
             }
         },
