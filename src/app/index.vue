@@ -14,7 +14,7 @@ import { useStore } from 'vuex';
 
 import useInit from '@/compositions/useInit/';
 
-import Socket from './modules/Socket';
+import Socket from '@/app/modules/socket';
 
 import AppLayout from '@/app/layouts/DefaultLayout';
 import ReleaseNotes from '@/app/layouts/DefaultLayout/header/ReleaseNotes.vue';
