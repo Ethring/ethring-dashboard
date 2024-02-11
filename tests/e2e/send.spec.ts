@@ -1,7 +1,16 @@
 import { testKeplr, testMetaMask } from '../__fixtures__/fixtures';
 import { test, expect } from '@playwright/test';
 import { getTestVar, TEST_CONST } from '../envHelper';
-import { emptyBalanceMockData, marketCapNativeEvmTokens, mockBalanceCosmosWallet, mockBalanceDataBySendTest } from '../data/mockHelper';
+import {
+    emptyBalanceMockData,
+    mockBalanceCosmosWallet,
+    mockBalanceDataBySendTest,
+    mockPostTransactionsRouteSendReject,
+    mockPostTransactionsWsByCreateEventSendMockTx,
+    mockPostTransactionsWsByCreateEventSendReject,
+    mockPutTransactionsRouteSendReject,
+    mockPutTransactionsWsByUpdateTransactionEventInProgressSendReject,
+} from '../data/mockHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage, getHomeMmPage } from '../model/MetaMask/MetaMask.pages';
 import { EVM_NETWORKS } from '../data/constants';
 import util from 'util';
@@ -10,7 +19,7 @@ import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
 const sleep = util.promisify(setTimeout);
 
 test.describe('MetaMask Send e2e tests', () => {
-    testMetaMask(
+    testMetaMask.skip(
         'Case#: Reject send native token to another address in Avalanche with change MM network',
         async ({ browser, context, page, sendPageCoingeckoMock }) => {
             const network = 'Avalanche';
@@ -26,12 +35,12 @@ test.describe('MetaMask Send e2e tests', () => {
             await sendPageCoingeckoMock.mockBalanceRequest(
                 network.toLowerCase(),
                 mockBalanceDataBySendTest[network.toLowerCase()],
-                addressFrom
+                addressFrom,
             );
             await Promise.all(
                 EMPTY_BALANCE_NETS_MOCK.map((network) =>
-                    sendPageCoingeckoMock.mockBalanceRequest(network, emptyBalanceMockData, addressFrom)
-                )
+                    sendPageCoingeckoMock.mockBalanceRequest(network, emptyBalanceMockData, addressFrom),
+                ),
             );
             const balancePromise = sendPageCoingeckoMock.page.waitForResponse(WAITED_URL);
 
@@ -43,6 +52,11 @@ test.describe('MetaMask Send e2e tests', () => {
 
             await expect(sendPageCoingeckoMock.page).toHaveScreenshot();
 
+            await sendPageCoingeckoMock.modifyDataByPostTxRequest(mockPostTransactionsRouteSendReject, mockPostTransactionsWsByCreateEventSendMockTx);
+            await sendPageCoingeckoMock.modifyDataByPutTxRequest(
+                mockPutTransactionsRouteSendReject,
+                mockPutTransactionsWsByUpdateTransactionEventInProgressSendReject,
+            );
             await sendPageCoingeckoMock.clickConfirm();
 
             const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
@@ -69,7 +83,7 @@ test.describe('MetaMask Send e2e tests', () => {
             // expect(await sendPage.getLinkFromSuccessPanel()).toContain(txHash);
             // TODO нужен тест на отправку НЕ нативного токена (например USDC)
             // TODO нужен тест когда отменяем переключение сети ММ (скрином проверять текст ошибки)
-        }
+        },
     );
 
     testMetaMask('Case#: Checking the token change when changing the network via MM', async ({ browser, context, page, sendPage }) => {

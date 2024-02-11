@@ -7,6 +7,7 @@ dotenv.config({
 });
 
 const localFrontUrl = 'http://localhost:5173';
+
 const testFilesNameNoTx = 'dashboard|send|swap';
 
 export const proxyUrl = process.env.CI ? 'http://mitmproxy:8080' : 'http://localhost:8082';
