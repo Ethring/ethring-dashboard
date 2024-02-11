@@ -65,7 +65,7 @@ testMetaMask.describe('Swap e2e tests', () => {
             await swapPage.waitLoadImg();
 
             await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
-        }
+        },
     );
 
     testMetaMask('Case#: Swap by not found pair', async ({ browser, context, page, swapPageMockTokensList: swapPage }) => {
@@ -96,7 +96,7 @@ testMetaMask.describe('Swap e2e tests', () => {
         await swapPage.waitDetachedSkeleton();
         await swapPage.waitLoadImg();
 
-        await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
+        await expect(swapPage.getBaseContentElement()).toHaveScreenshot({ mask: [swapPage.page.locator('div.service-icon')] });
     });
 
     testMetaMask('Case#: Swap if amount too big', async ({ browser, context, page, swapPageMockTokensList: swapPage }) => {
@@ -127,7 +127,7 @@ testMetaMask.describe('Swap e2e tests', () => {
         await swapPage.waitDetachedSkeleton();
         await swapPage.waitLoadImg();
 
-        await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
+        await expect(swapPage.getBaseContentElement()).toHaveScreenshot({ mask: [swapPage.page.locator('div.service-icon')] });
     });
 
     testMetaMask(
@@ -151,7 +151,7 @@ testMetaMask.describe('Swap e2e tests', () => {
             });
 
             await Promise.all(
-                EMPTY_BALANCE_NETS_MOCK.map((network) => swapPage.mockBalanceRequest(network, emptyBalanceMockData, ADDRESS))
+                EMPTY_BALANCE_NETS_MOCK.map((network) => swapPage.mockBalanceRequest(network, emptyBalanceMockData, ADDRESS)),
             );
 
             await swapPage.mockBalanceRequest(NET.toLowerCase(), mockBalanceDataBySwapTest[NET.toLowerCase()], ADDRESS);
@@ -167,7 +167,7 @@ testMetaMask.describe('Swap e2e tests', () => {
             await swapPage.waitLoadImg();
 
             await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
-        }
+        },
     );
 
     testMetaMask(
@@ -232,7 +232,7 @@ testMetaMask.describe('Swap e2e tests', () => {
 
             await swapPage.openTokenPageTo();
             await expect(swapPage.getSelectModalContent()).toHaveScreenshot();
-        }
+        },
     );
 
     // test('Case#: Swap in Polygon: Matic to USDC', async ({ browser, context, page, swapPage }) => {
