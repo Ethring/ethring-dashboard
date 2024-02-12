@@ -113,7 +113,8 @@
     "supportedNetwork": "Please choose one of the following supported networks: Ethereum, Binance Smart Chain, Avalanche, Polygon, Optimism, Arbitrum"
   },
   "simpleSend": {
-    "title": "Send"
+    "title": "Send",
+    "memoDescription": "Required for sending to centralized exchanges."
   },
   "simpleSwap": {
     "title": "Swap",

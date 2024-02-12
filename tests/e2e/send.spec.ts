@@ -1,5 +1,6 @@
 import { testKeplr, testMetaMask } from '../__fixtures__/fixtures';
 import { test, expect } from '@playwright/test';
+import util from 'util';
 import { getTestVar, TEST_CONST } from '../envHelper';
 import {
     emptyBalanceMockData,
@@ -12,8 +13,9 @@ import {
     mockPutTransactionsWsByUpdateTransactionEventInProgressSendReject,
 } from '../data/mockHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage, getHomeMmPage } from '../model/MetaMask/MetaMask.pages';
-import { EVM_NETWORKS } from '../data/constants';
-import util from 'util';
+import { KeplrNotifyPage, getNotifyKeplrPage } from '../model/Keplr/Keplr.pages';
+
+import { EVM_NETWORKS, COSMOS_NETWORKS } from '../data/constants';
 import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
 
 const sleep = util.promisify(setTimeout);
@@ -116,5 +118,31 @@ testKeplr.describe('Keplr Send e2e tests', () => {
         await balancePromise;
 
         await expect(sendPage.getBaseContentElement()).toHaveScreenshot();
+    });
+
+    testKeplr('Case#: Send with memo and check memo in keplr', async ({ browser, context, page, sendPage }) => {
+        const network = 'cosmos';
+        const addressFrom = 'cosmos1aascfnuh7dpup8cmyph2l0wgee9d2lchdlx00r';
+        const addressTo = COSMOS_NETWORKS[network];
+        const WAITED_URL = `**/srv-data-provider/api/balances?net=${network}**`;
+        const amount = '0.001';
+        const memo = '105371789';
+
+        await sendPage.mockBalanceRequest(network.toLowerCase(), mockBalanceCosmosWallet[network], addressFrom);
+        const balancePromise = sendPage.page.waitForResponse(WAITED_URL);
+
+        await balancePromise;
+
+        await sendPage.setAddressTo(addressTo);
+        await sendPage.setAmount(amount);
+        await sendPage.setMemoCheckbox();
+        await sendPage.setMemo(memo);
+
+        await sendPage.clickConfirm();
+
+        const notifyMM = new KeplrNotifyPage(await getNotifyKeplrPage(context));
+        const result = await notifyMM.page.innerText('div.djtFnd');
+
+        expect(result).toBe(memo);
     });
 });

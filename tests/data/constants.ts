@@ -37,6 +37,8 @@ export enum DATA_QA_LOCATORS {
     RECORD_MODAL = 'select-record-modal',
     CONFIRM = 'confirm',
     ASSETS_PANEL = 'assets-panel',
+    CUSTOM_INPUT = 'custom-input',
+    CHECKBOX = 'checkbox',
 
     INPUT_ADDRESS = 'input-address',
     INPUT_AMOUNT = 'input-amount',
