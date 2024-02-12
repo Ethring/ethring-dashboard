@@ -32,7 +32,10 @@ test.describe('Mocked send tx Metamask', () => {
         await sleep(2000);
 
         await sendPage.modifyDataByPostTxRequest(mockPostTransactionsRouteSendMockTx, mockPostTransactionsWsByCreateEventSendMockTx);
-        await sendPage.modifyDataByPutTxRequest(mockPutTransactionsRouteSendMockTx, mockPutTransactionsWsByUpdateTransactionEventInProgressSendMockTx);
+        await sendPage.modifyDataByPutTxRequest(
+            mockPutTransactionsRouteSendMockTx,
+            mockPutTransactionsWsByUpdateTransactionEventInProgressSendMockTx,
+        );
         await sendPage.clickConfirm();
 
         const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
@@ -42,5 +45,10 @@ test.describe('Mocked send tx Metamask', () => {
         await notifyMMtx.signTx();
 
         await sleep(2000);
+
+        expect(sendPage.page).toHaveScreenshot({
+            maxDiffPixels: 180, // This diff is text on notification modal
+            mask: [sendPage.page.locator('//header'), sendPage.page.locator('//aside')],
+        });
     });
 });
