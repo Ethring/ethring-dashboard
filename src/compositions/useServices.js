@@ -648,6 +648,8 @@ export default function useModule({ moduleType }) {
 
         const isSameWithCurrent = currentChainInfo.value && currentChainInfo.value.net === selectedSrcNetwork.value?.net;
 
+        setEcosystemService();
+
         if (isNeedApprove.value && opTitle.value !== 'tokenOperations.switchNetwork') {
             return (opTitle.value = 'tokenOperations.approve');
         }
@@ -1071,8 +1073,6 @@ export default function useModule({ moduleType }) {
         ) {
             selectedDstNetwork.value = chainList.value?.filter(({ net }) => net !== selectedSrcNetwork.value?.net)[0];
         }
-
-        setEcosystemService();
     };
 
     onMounted(() => {
