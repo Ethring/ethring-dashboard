@@ -100,11 +100,6 @@ export default {
         };
 
         const setActiveRoute = (item) => {
-            if (selectedRoute.value == item) {
-                selectedRoute.value = null;
-                return;
-            }
-
             selectedRoute.value = item;
         };
 

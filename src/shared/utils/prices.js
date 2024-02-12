@@ -1,4 +1,4 @@
-import PricesModule from '@/modules/prices/';
+import PricesModule from '@/modules/prices';
 
 const getPriceByCoingeckoId = async (coingeckoId) => {
     try {

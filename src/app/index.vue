@@ -12,7 +12,7 @@
 import { onMounted, watch, ref, computed, inject, onBeforeMount, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 
-import useInit from '@/compositions/useInit/';
+import useInit from '@/compositions/useInit';
 
 import Socket from '@/app/modules/socket';
 

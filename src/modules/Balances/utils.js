@@ -9,7 +9,7 @@ import { getTotalBalanceByDiff } from '@/shared/utils/assets';
 import IndexedDBService from '@/modules/indexedDb';
 import IndexedDBServiceV2 from '@/modules/IndexedDb-v2';
 
-import PricesModule from '@/modules/prices/';
+import PricesModule from '@/modules/prices';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
