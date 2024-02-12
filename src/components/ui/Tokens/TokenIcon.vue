@@ -6,32 +6,27 @@
             height: `${height}px`,
         }"
     >
-        <template v-if="token">
-            <template v-if="!showIconPlaceholder && (tokenIconFromZomet || token?.logo)">
-                <img
-                    :key="token?.symbol"
-                    :src="token?.logo || tokenIconFromZomet"
-                    :alt="token?.name"
-                    @error="showIconPlaceholder = true"
-                    @load="showIconPlaceholder = false"
-                />
-            </template>
-            <template v-else>
+        <a-skeleton-avatar v-if="isImageLoading" active />
+
+        <template v-else>
+            <img
+                :key="token?.symbol"
+                :src="token?.logo"
+                :alt="token?.name || token?.symbol"
+                @error="() => handleOnErrorImg()"
+                @load="() => handleOnLoadImg()"
+            />
+
+            <template v-if="isShowPlaceholder">
                 <div class="token-icon__placeholder">
-                    <a-avatar :size="+width">{{ iconPlaceholder }}</a-avatar>
+                    <a-avatar :size="+width">{{ token?.symbol || '' }}</a-avatar>
                 </div>
             </template>
-        </template>
-        <template v-else>
-            <div class="token-icon__placeholder">
-                <a-avatar :size="+width">{{ iconPlaceholder }}</a-avatar>
-            </div>
         </template>
     </div>
 </template>
 <script>
-import { ref, computed, watch, onMounted } from 'vue';
-import { useStore } from 'vuex';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 
 export default {
     name: 'TokenIcon',
@@ -51,53 +46,50 @@ export default {
         },
     },
     setup(props) {
-        const showIconPlaceholder = ref(false);
-        const tokenIconFromZomet = ref(null);
-        const iconPlaceholder = computed(() => props.token?.symbol);
+        const isImageLoading = ref(false);
+        const isShowPlaceholder = ref(!props.token?.logo || false);
 
-        const store = useStore();
+        const handleOnErrorImg = () => {
+            isImageLoading.value = false;
+            isShowPlaceholder.value = true;
+        };
 
-        const tokenFromConfig = computed(() => store.getters['configs/getTokenLogoByAddress'](props.token?.address, props.token?.chain));
-
-        const setTokenIcon = () => {
-            const { address = null, extensions = {} } = props.token;
-
-            let searchAddress = address?.toLowerCase();
-
-            if (extensions && extensions?.bridgeInfo) {
-                for (const key in extensions.bridgeInfo) {
-                    searchAddress = extensions.bridgeInfo[key].tokenAddress.toLowerCase();
-                    break;
-                }
-            }
-
-            if (tokenFromConfig.value) {
-                return (tokenIconFromZomet.value = tokenFromConfig.value);
-            }
-
-            return (tokenIconFromZomet.value = null);
+        const handleOnLoadImg = () => {
+            isShowPlaceholder.value = false;
+            isImageLoading.value = false;
         };
 
         onMounted(() => {
-            if (props.token) {
-                setTokenIcon();
+            isImageLoading.value = true;
+            isShowPlaceholder.value = true;
+
+            if (!props.token?.logo) {
+                isImageLoading.value = false;
+                isShowPlaceholder.value = true;
             }
         });
 
         watch(
             () => props.token,
             () => {
-                if (props.token) {
-                    showIconPlaceholder.value = false;
-                    setTokenIcon();
+                if (!props.token?.logo) {
+                    isImageLoading.value = false;
+                    isShowPlaceholder.value = true;
                 }
             },
         );
 
+        onUnmounted(() => {
+            isImageLoading.value = false;
+            isShowPlaceholder.value = false;
+        });
+
         return {
-            showIconPlaceholder,
-            iconPlaceholder,
-            tokenIconFromZomet,
+            isImageLoading,
+            isShowPlaceholder,
+
+            handleOnLoadImg,
+            handleOnErrorImg,
         };
     },
 };

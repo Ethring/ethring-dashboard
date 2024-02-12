@@ -8,7 +8,7 @@
                         title="Tokens"
                         icon="TokensIcon"
                         :value="getAssetsShare(assetsTotalBalances)"
-                        :totalBalance="assetsTotalBalances"
+                        :totalBalance="assetsTotalBalances || 0"
                     />
                 </template>
 
@@ -16,7 +16,7 @@
                     type="Asset"
                     :data="allTokensInAccount"
                     :columns="[DEFAULT_NAME_COLUMN, ...DEFAULT_COLUMNS]"
-                    :loading="isLoadingForChain"
+                    :loading="isLoadingByAccount || isLoadingForChain"
                 />
             </a-collapse-panel>
 
@@ -67,15 +67,15 @@
     </div>
 </template>
 <script>
-import { ref, computed, watch, watchEffect, inject } from 'vue';
+import { ref, computed, watch, inject } from 'vue';
 import { useStore } from 'vuex';
 
 import BigNumber from 'bignumber.js';
 
-import AssetGroupHeader from './assets/AssetGroupHeader';
 import AssetsTable from './assets/AssetsTable';
-// import AssetsNftTable from './assets/AssetsNftTable';
+import AssetGroupHeader from './assets/AssetGroupHeader';
 
+// TODO: remove crutch
 import { getIntegrationsGroupedByPlatform, getFormattedName, getNftsByCollection } from '@/shared/utils/assets';
 
 export default {
@@ -83,10 +83,11 @@ export default {
     components: {
         AssetGroupHeader,
         AssetsTable,
-        // AssetsNftTable,
     },
     setup() {
         const store = useStore();
+
+        // TODO: collapse active key by step
         const collapseActiveKey = ref([
             'assets',
             'nfts',
@@ -107,13 +108,15 @@ export default {
 
         const { walletAccount, currentChainInfo } = useAdapter();
 
-        const isLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](currentChainInfo.value?.net));
-        const loadingForChains = computed(() => store.getters['tokens/loadingForChains']);
+        const isLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](walletAccount.value, currentChainInfo.value?.net));
+        const isLoadingByAccount = computed(() => store.getters['tokens/loadingByAccount'](walletAccount.value));
+
         const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
 
-        const allTokensInAccount = computed(() => store.getters['tokens/tokens'][walletAccount.value] || []);
-        const allIntegrations = computed(() => store.getters['tokens/integrations'][walletAccount.value] || []);
-        const allNfts = computed(() => store.getters['tokens/nfts'][walletAccount.value] || []);
+        // TODO: add bundling
+        const allTokensInAccount = computed(() => store.getters['tokens/getAccountBalanceByType'](walletAccount.value, 'tokens') || []);
+        const allIntegrations = computed(() => store.getters['tokens/getAccountBalanceByType'](walletAccount.value, 'integrations') || []);
+        const allNfts = computed(() => store.getters['tokens/getAccountBalanceByType'](walletAccount.value, 'nfts') || []);
 
         const totalBalances = computed(() => store.getters['tokens/totalBalances'][walletAccount.value] || 0);
         const assetsTotalBalances = computed(() => store.getters['tokens/assetsBalances'][walletAccount.value] || 0);
@@ -155,6 +158,7 @@ export default {
             nftsByCollection.value = getNftsByCollection(allNfts.value);
         };
 
+        // TODO: Remove crutch
         watch(isAllTokensLoading, () => {
             if (!isAllTokensLoading.value) {
                 updateAssets();
@@ -171,17 +175,9 @@ export default {
             }
         });
 
-        watchEffect(() => {
-            for (const chain in loadingForChains.value) {
-                if (!loadingForChains.value[chain]) {
-                    updateAssets();
-                }
-            }
-        });
-
         return {
             isLoadingForChain,
-            isLoadingForChains: loadingForChains,
+            isLoadingByAccount,
             isAllTokensLoading,
 
             isEmpty,

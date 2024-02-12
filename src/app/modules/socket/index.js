@@ -34,7 +34,7 @@ class SocketInstance {
         });
 
         this.socket.on('disconnect', () => {
-            logger.warn(`[Socket] Disconnected, ${new Date().toLocaleTimeString()}}`);
+            logger.warn(`[Socket] Disconnected, ${new Date().toLocaleTimeString()}`);
         });
 
         this.socket.on('reconnect', () => {

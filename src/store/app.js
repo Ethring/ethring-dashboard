@@ -5,7 +5,7 @@ const THEMES = {
     DARK: 'dark',
 };
 
-const types = {
+const TYPES = {
     TOGGLE_VIEW_BALANCE: 'TOGGLE_VIEW_BALANCE',
     TOGGLE_SIDEBAR: 'TOGGLE_SIDEBAR',
     SET_IS_SIDEBAR_COLLAPSED: 'SET_IS_SIDEBAR_COLLAPSED',
@@ -14,6 +14,7 @@ const types = {
     TOGGLE_SELECT_MODAL: 'TOGGLE_SELECT_MODAL',
     SET_SELECTED_KEYS: 'SET_SELECTED_KEYS',
     SET_LAST_VERSION: 'SET_LAST_VERSION',
+    SET_LOADING_TOKEN_LIST: 'SET_LOADING_TOKEN_LIST',
 };
 
 export default {
@@ -24,6 +25,7 @@ export default {
         collapse: false,
         theme: 'light',
         selectedKeys: ['main'],
+        loadingTokenList: false,
         modals: {
             buyCrypto: false,
             releaseNotes: false,
@@ -46,70 +48,77 @@ export default {
         modal: (state) => (modalName) => state.modals[modalName] || false,
         selectModal: (state) => state.selectModal,
         lastVersion: (state) => state.lastVersion || '0.1.0',
+        isLoadingTokenList: (state) => state.loadingTokenList || false,
     },
 
     mutations: {
-        [types.TOGGLE_VIEW_BALANCE](state) {
+        [TYPES.TOGGLE_VIEW_BALANCE](state) {
             state.showBalance = !state.showBalance;
         },
-        [types.TOGGLE_SIDEBAR](state) {
+        [TYPES.TOGGLE_SIDEBAR](state) {
             state.collapse = !state.collapse;
         },
-        [types.SET_IS_SIDEBAR_COLLAPSED](state, value) {
+        [TYPES.SET_IS_SIDEBAR_COLLAPSED](state, value) {
             state.collapse = value;
         },
-        [types.TOGGLE_THEME](state) {
+        [TYPES.TOGGLE_THEME](state) {
             state.theme = state.theme === THEMES.LIGHT ? THEMES.DARK : THEMES.LIGHT;
             document.documentElement.setAttribute('data-theme', state.theme);
         },
-        [types.SET_SELECTED_KEYS](state, selectedKeys) {
+        [TYPES.SET_SELECTED_KEYS](state, selectedKeys) {
             state.selectedKeys = selectedKeys;
         },
-        [types.TOGGLE_MODAL](state, modalName) {
+        [TYPES.TOGGLE_MODAL](state, modalName) {
             if (!state.modals[modalName]) {
                 state.modals[modalName] = false;
             }
 
             state.modals[modalName] = !state.modals[modalName];
         },
-        [types.TOGGLE_SELECT_MODAL](state, { type, module }) {
+        [TYPES.TOGGLE_SELECT_MODAL](state, { type, module }) {
             state.selectModal.type = type;
             state.selectModal.module = module;
             state.selectModal.isOpen = !state.selectModal.isOpen;
         },
-        [types.SET_LAST_VERSION](state, version) {
+        [TYPES.SET_LAST_VERSION](state, version) {
             state.lastVersion = version;
             window.localStorage.setItem('lastVersion', version);
+        },
+        [TYPES.SET_LOADING_TOKEN_LIST](state, value) {
+            state.loadingTokenList = value || false;
         },
     },
 
     actions: {
         toggleViewBalance({ commit }) {
-            commit(types.TOGGLE_VIEW_BALANCE);
+            commit(TYPES.TOGGLE_VIEW_BALANCE);
         },
         toggleSidebar({ commit }) {
-            commit(types.TOGGLE_SIDEBAR);
+            commit(TYPES.TOGGLE_SIDEBAR);
         },
         setIsCollapsed({ commit }, value) {
-            commit(types.SET_IS_SIDEBAR_COLLAPSED, value);
+            commit(TYPES.SET_IS_SIDEBAR_COLLAPSED, value);
         },
         toggleTheme({ commit }) {
-            commit(types.TOGGLE_THEME);
+            commit(TYPES.TOGGLE_THEME);
         },
         setSelectedKey({ commit }, selectedKeys) {
-            commit(types.SET_SELECTED_KEYS, selectedKeys);
+            commit(TYPES.SET_SELECTED_KEYS, selectedKeys);
         },
         toggleModal({ commit }, modalName) {
-            commit(types.TOGGLE_MODAL, modalName);
+            commit(TYPES.TOGGLE_MODAL, modalName);
         },
         toggleSelectModal({ commit }, value) {
-            commit(types.TOGGLE_SELECT_MODAL, value);
+            commit(TYPES.TOGGLE_SELECT_MODAL, value);
         },
         toggleReleaseNotes({ commit }) {
-            commit(types.TOGGLE_MODAL, 'releaseNotes');
+            commit(TYPES.TOGGLE_MODAL, 'releaseNotes');
         },
         setLastVersion({ commit }, version) {
-            commit(types.SET_LAST_VERSION, version);
+            commit(TYPES.SET_LAST_VERSION, version);
+        },
+        setLoadingTokenList({ commit }, value) {
+            commit(TYPES.SET_LOADING_TOKEN_LIST, value);
         },
     },
 };

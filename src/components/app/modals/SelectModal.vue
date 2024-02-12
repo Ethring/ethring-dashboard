@@ -26,7 +26,11 @@
                     <Button :title="$t('tokenOperations.loadMore')" @click="handleLoadMore" />
                 </div>
 
-                <a-empty v-if="isModalOpen && !optionList.length" class="select-modal-empty" :description="$t('dashboard.notFound')">
+                <a-empty
+                    v-if="isModalOpen && !isLoadingTokenList && !optionList.length"
+                    class="select-modal-empty"
+                    :description="$t('dashboard.notFound')"
+                >
                     <template #image>
                         <NotFoundIcon />
                     </template>
@@ -77,6 +81,8 @@ export default {
             set: () => store.dispatch('app/toggleSelectModal', { type: type.value, module: module.value }),
         });
 
+        const isLoadingTokenList = computed(() => store.getters['app/isLoadingTokenList']);
+
         const {
             // Loading
             isLoadMore,
@@ -111,6 +117,7 @@ export default {
 
             isModalOpen,
             isLoadMore,
+            isLoadingTokenList,
 
             modalTitle,
             inputPlaceholder,

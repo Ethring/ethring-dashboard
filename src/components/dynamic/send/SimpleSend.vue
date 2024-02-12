@@ -58,7 +58,6 @@ import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { STATUSES } from '../../../Transactions/shared/constants';
 
 import { isCorrectChain } from '@/shared/utils/operations';
-import {} from '@/shared/utils/balances';
 
 export default {
     name: 'SimpleSend',

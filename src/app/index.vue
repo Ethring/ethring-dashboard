@@ -1,18 +1,20 @@
 <template>
-    <a-config-provider>
-        <AppLayout />
-        <WalletsModal />
-        <AddressModal />
-        <RoutesModal />
-        <KadoModal />
-        <ReleaseNotes />
-    </a-config-provider>
+    <KeepAlive>
+        <a-config-provider>
+            <AppLayout />
+            <WalletsModal />
+            <AddressModal />
+            <RoutesModal />
+            <KadoModal />
+            <ReleaseNotes />
+        </a-config-provider>
+    </KeepAlive>
 </template>
 <script>
 import { onMounted, watch, ref, computed, inject, onBeforeMount, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 
-import useInit from '@/compositions/useInit/';
+// import useInit from '@/compositions/useInit/';
 
 import Socket from '@/app/modules/socket';
 
@@ -24,7 +26,8 @@ import AddressModal from '@/Adapter/UI/Modal/AddressModal';
 import KadoModal from '@/components/app/modals/KadoModal.vue';
 import RoutesModal from '@/components/app/modals/RoutesModal.vue';
 
-import { delay } from '@/shared/utils/helpers';
+// import { delay } from '@/shared/utils/helpers';
+import { updateBalanceForAccount } from '@/modules/balance-provider';
 
 export default {
     name: 'App',
@@ -41,14 +44,7 @@ export default {
         const useAdapter = inject('useAdapter');
         const store = useStore();
 
-        const lastConnectedCall = ref(false);
-
-        const isInitCall = ref({});
-
-        const isConfigLoading = computed({
-            get: () => store.getters['configs/isConfigLoading'],
-            set: (value) => store.dispatch('configs/setConfigLoading', value),
-        });
+        const isConfigLoading = computed(() => store.getters['configs/isConfigLoading']);
 
         const {
             initAdapter,
@@ -61,20 +57,17 @@ export default {
 
         const isShowRoutesModal = computed(() => store.getters['app/modal']('routesModal'));
 
-        const callSubscription = async () => {
-            console.log('callSubscription');
+        const addressesWithChains = computed(() => {
+            const { ecosystem } = currentChainInfo.value || {};
+            return getAddressesWithChainsByEcosystem(ecosystem) || {};
+        });
+
+        const callSubscription = () => {
+            console.log('callSubscription', walletAddress.value);
             const { ecosystem } = currentChainInfo.value || {};
 
-            if (!ecosystem) {
-                return;
-            }
-
-            await delay(1000);
-
-            const addressesWithChains = getAddressesWithChainsByEcosystem(ecosystem);
-
-            if (JSON.stringify(addressesWithChains) !== '{}') {
-                Socket.setAddresses(addressesWithChains, walletAddress.value, ecosystem);
+            if (JSON.stringify(addressesWithChains.value) !== '{}' && walletAddress.value) {
+                Socket.setAddresses(addressesWithChains.value, walletAddress.value, ecosystem);
             }
         };
 
@@ -82,65 +75,36 @@ export default {
             const { ecosystem, walletModule } = currentChainInfo.value || {};
 
             if (!walletModule || !ecosystem || !walletAddress.value || isShowRoutesModal.value) {
+                store.dispatch('tokens/setLoader', false);
                 return setTimeout(callInit, 1000);
             }
 
-            if (isInitCall.value[walletAccount.value]) {
-                return;
-            }
-
-            store.dispatch('tokens/setLoader', true);
-
-            isInitCall.value = {
-                ...isInitCall.value,
-                [walletAccount.value]: true,
-            };
-
-            await delay(1000);
-
-            const addressesWithChains = getAddressesWithChainsByEcosystem(ecosystem);
-
-            await useInit(store, { account: walletAccount.value, addressesWithChains, currentChainInfo: currentChainInfo.value });
+            await updateBalanceForAccount(walletAccount.value, addressesWithChains.value);
         };
 
         // ==========================================================================================
 
         const unWatchAcc = watch(walletAccount, async () => {
+            store.dispatch('tokens/setLoader', true);
+            callSubscription();
             await callInit();
-            await callSubscription();
         });
 
         const unWatchLoading = watch(isConfigLoading, async () => {
-            if (!isConfigLoading.value && !lastConnectedCall.value) {
+            if (!isConfigLoading.value) {
                 await connectLastConnectedWallet();
-                lastConnectedCall.value = true;
             }
         });
 
         // ==========================================================================================
 
         onBeforeMount(async () => {
-            isConfigLoading.value = true;
+            await store.dispatch('configs/setConfigLoading', true);
 
             await store.dispatch('configs/initConfigs');
+            await store.dispatch('bridgeDex/getServices');
 
             await initAdapter();
-
-            await store.dispatch('bridgeDex/getServices');
-        });
-
-        onMounted(async () => {
-            store.dispatch('tokens/setLoader', true);
-
-            if (!lastConnectedCall.value) {
-                store.dispatch('tokens/setLoader', false);
-            }
-
-            await delay(300);
-
-            if (currentChainInfo.value) {
-                await callInit();
-            }
         });
 
         onBeforeUnmount(() => {

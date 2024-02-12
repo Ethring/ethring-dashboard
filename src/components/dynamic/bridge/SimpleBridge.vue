@@ -147,7 +147,7 @@ export default {
         // * Notification
         const { showNotification, closeNotification } = useNotification();
 
-        const { walletAddress, currentChainInfo, chainList, setChain } = useAdapter();
+        const { walletAccount, walletAddress, currentChainInfo, chainList, setChain } = useAdapter();
 
         // * Transaction Manager
         const { currentRequestID, transactionForSign, createTransactions, signAndSend, addTransactionToRequestID } = useTransactions();
@@ -219,8 +219,8 @@ export default {
         // =================================================================================================================
 
         const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
-        const isTokensLoadingForSrc = computed(() => store.getters['tokens/loadingByChain'](selectedSrcNetwork.value?.net));
-        const isTokensLoadingForDst = computed(() => store.getters['tokens/loadingByChain'](selectedDstNetwork.value?.net));
+        const isTokensLoadingForSrc = computed(() => store.getters['tokens/loadingByChain'](walletAccount.value, selectedSrcNetwork.value?.net));
+        const isTokensLoadingForDst = computed(() => store.getters['tokens/loadingByChain'](walletAccount.value, selectedDstNetwork.value?.net));
 
         // =================================================================================================================
 

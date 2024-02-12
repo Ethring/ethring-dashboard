@@ -182,7 +182,9 @@ export default {
 
         // =================================================================================================================
 
-        const isTokensLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](selectedSrcNetwork.value?.net));
+        const isTokensLoadingForChain = computed(() =>
+            store.getters['tokens/loadingByChain'](walletAccount.value, selectedSrcNetwork.value?.net),
+        );
 
         // =================================================================================================================
 

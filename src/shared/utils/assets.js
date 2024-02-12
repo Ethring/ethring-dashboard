@@ -3,7 +3,7 @@ import Moment from 'moment';
 import BigNumber from 'bignumber.js';
 
 import { ONE_DAY, ONE_HOUR } from '@/shared/constants/operations';
-import { BALANCES_TYPES } from '@/modules/Balances/constants';
+import { IntegrationBalanceType } from '@/modules/balance-provider/models/enums'
 
 const ASSET_TYPES = {
     DEPOSIT: 'DEPOSITED',
@@ -11,17 +11,17 @@ const ASSET_TYPES = {
     DEPOSIT_COLLATERAL: 'DEPOSITED_COLLATERAL',
 };
 
-export const getTotalBalanceByType = (balances, type = BALANCES_TYPES.ALL) => {
+export const getTotalBalanceByType = (balances, type = IntegrationBalanceType.ALL) => {
     if (!balances.length) {
         return 0;
     }
 
-    if (type === BALANCES_TYPES.FUTURES || type === BALANCES_TYPES.BORROW_AND_LENDING) {
+    if (type === IntegrationBalanceType.FUTURES || type === IntegrationBalanceType.BORROW_AND_LENDING) {
         const totalBalance = getTotalBalanceByDiff(balances, BigNumber(0));
         return totalBalance.toNumber();
     }
 
-    if (type === BALANCES_TYPES.PENDING) {
+    if (type === IntegrationBalanceType.PENDING) {
         return balances
             .filter(({ balanceType }) => balanceType === type)
             .reduce((sum, token) => sum.plus(+token.balanceUsd), BigNumber(0))
@@ -38,7 +38,7 @@ export const getDataForIntegrations = (integration, balances) => {
         logoURI: integration.logo,
         healthRate: integration?.healthRate,
         totalGroupBalance: integration.totalBalanceUsd,
-        totalRewardsBalance: getTotalBalanceByType(balances, BALANCES_TYPES.PENDING),
+        totalRewardsBalance: getTotalBalanceByType(balances, IntegrationBalanceType.PENDING),
     };
 };
 
@@ -63,7 +63,7 @@ export const getIntegrationsGroupedByPlatform = (allIntegrations = []) => {
 
         if (existingGroup) {
             existingGroup.totalGroupBalance += integration.totalBalanceUsd;
-            existingGroup.totalRewardsBalance += getTotalBalanceByType(balances, BALANCES_TYPES.PENDING);
+            existingGroup.totalRewardsBalance += getTotalBalanceByType(balances, IntegrationBalanceType.PENDING);
 
             existingGroup.data.push(integration);
 
@@ -127,7 +127,7 @@ export const getTotalBalanceByDiff = (records, totalBalance) => {
     let borrowTotalUsd = BigNumber(0);
 
     for (let token of records) {
-        if (token.balanceType === BALANCES_TYPES.BORROW) {
+        if (token.balanceType === IntegrationBalanceType.BORROW) {
             borrowTotalUsd = borrowTotalUsd.plus(+token.balanceUsd);
         } else {
             depositTotalUsd = depositTotalUsd.plus(+token.balanceUsd);

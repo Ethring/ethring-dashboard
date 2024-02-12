@@ -30,7 +30,7 @@
         </template>
 
         <template v-if="balanceKeys.includes(column)">
-            <Amount :type="item?.symbol ? 'currency' : 'usd'" :value="balance" :symbol="item.symbol" :decimals="3" />
+            <Amount :type="item?.symbol ? 'currency' : 'usd'" :value="balance" :symbol="item.symbol || '$'" :decimals="3" />
         </template>
 
         <template v-if="valueKeys.includes(column)">

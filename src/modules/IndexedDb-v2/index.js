@@ -6,9 +6,11 @@ import logger from '@/shared/logger';
 
 import { DB_TABLES } from '@/shared/constants/indexedDb';
 
+import { formatRecord } from '@/shared/tokens-format/base-format';
+
 class IndexedDBService {
     defaultStores = {
-        data: '++id, key',
+        [DB_TABLES.BALANCES]: 'id, [account+chain+address+type]',
     };
 
     configStores = {
@@ -20,8 +22,6 @@ class IndexedDBService {
     };
 
     constructor(dbName = 'balances', version = 1) {
-        logger.info('IndexedDBService', dbName);
-
         this.db = new Dexie(dbName);
 
         const stores = dbName === 'configs' ? this.configStores : this.defaultStores;
@@ -33,7 +33,7 @@ class IndexedDBService {
         }
 
         if (process.env.NODE_ENV === 'development') {
-            window.db = {};
+            !window.db && (window.db = {});
             window.db[dbName] = this.db;
         }
 
@@ -75,6 +75,31 @@ class IndexedDBService {
     }
 
     // ==========================================================================
+    // ======================= SETTERS FOR BALANCES ==============================
+    // ==========================================================================
+
+    async saveBalancesByTypes(store, balances, { chain, type, account, address } = {}) {
+        try {
+            const balancesList = [
+                {
+                    id: `${account}:${chain}:${address}:${type}`,
+                    account,
+                    chain,
+                    address,
+                    type,
+                    value: JSON.stringify(balances),
+                },
+            ];
+
+            await this.db.transaction('rw', this.db[store], async () => {
+                await this.db[store].bulkPut(balancesList);
+            });
+        } catch (error) {
+            logger.error(`[IndexedDB](saveBalancesByTypes): ${store}`, error);
+        }
+    }
+
+    // ==========================================================================
     // ======================= SETTERS FOR CONFIGS ==============================
     // ==========================================================================
 
@@ -87,11 +112,9 @@ class IndexedDBService {
             networks[chain].value = JSON.stringify(networks[chain]);
         }
 
-        const networksList = _.values(networks);
-
         try {
             await this.db.transaction('rw', this.db[store], async () => {
-                await this.db[store].bulkPut(networksList);
+                await this.db[store].bulkPut(_.values(networks));
                 logger.debug(`All ${ecosystem} networks saved`);
             });
         } catch (error) {
@@ -110,51 +133,23 @@ class IndexedDBService {
         }
     }
 
-    async saveTokensObj(store, tokens, { network, ecosystem, scheme } = {}) {
+    async saveTokensObj(store, tokens, { network, ecosystem } = {}) {
         const formatTokensObj = (tokens) => {
             for (const tokenContract in tokens) {
-                tokens[tokenContract].id = `${network}:asset__${tokenContract}:${tokens[tokenContract].symbol}`;
-                tokens[tokenContract].chain = network;
-                tokens[tokenContract].ecosystem = ecosystem?.toUpperCase() || '';
-                tokens[tokenContract].balance = 0;
-                tokens[tokenContract].balanceUsd = 0;
-
+                formatRecord(ecosystem, network, tokens[tokenContract]);
                 tokens[tokenContract].value = JSON.stringify(tokens[tokenContract]);
             }
             return tokens;
         };
 
-        const formatTokensArr = (tokens) => {
-            for (const token of tokens) {
-                const contract = token?.address || token?.base;
-                token.id = `${network}:asset__${contract}:${token.symbol}`;
-                token.chain = network;
-                token.ecosystem = ecosystem?.toUpperCase() || '';
-                token.balance = 0;
-                token.balanceUsd = 0;
-
-                token.value = JSON.stringify(token);
-            }
-
-            return tokens;
-        };
-
-        const getFormattedTokens = (tokens) => {
-            if (Array.isArray(tokens)) {
-                return formatTokensArr(tokens);
-            }
-
-            const formatted = formatTokensObj(tokens);
-
-            return _.values(formatted);
-        };
-
-        const formattedTokens = getFormattedTokens(tokens);
+        const formattedTokensObject = formatTokensObj(tokens);
 
         await this.db.transaction('rw', this.db[store], async () => {
-            await this.db[store].bulkPut(formattedTokens);
+            await this.db[store].bulkPut(_.values(formattedTokensObject));
             logger.debug(`[tokens] All tokens for network: ${ecosystem} - ${network} saved`);
         });
+
+        return formattedTokensObject;
     }
 
     // ==============================================================
@@ -171,15 +166,20 @@ class IndexedDBService {
         }
     }
 
-    async getAllObjectFrom(store, key = 'id', value = null, { index = 'id' } = {}) {
+    async getAllObjectFrom(store, key = 'id', value = null, { index = 'id', isArray = false } = {}) {
         if (!this.db[store]) {
             return null;
         }
 
-        const request = value ? this.db[store].where(key).equals(value).toArray() : this.db[store].toArray();
-
         try {
+            const request = value ? this.db[store].where(key).equals(value).toArray() : this.db[store].toArray();
+
             const response = await request;
+
+            if (isArray) {
+                return response.map((record) => (record?.value ? JSON.parse(record.value) : record));
+            }
+
             const responseObj = {};
 
             for (const item of response) {
@@ -229,6 +229,39 @@ class IndexedDBService {
             return null;
         }
     }
+
+    // ==========================================================================
+    // ======================= GETTER FOR BALANCES ==============================
+    // ==========================================================================
+    async getBalancesByType(store, { account, chain, address, type } = {}) {
+        if (!this.db[store]) {
+            return null;
+        }
+
+        try {
+            const response = await this.db[store]
+                .where({
+                    account,
+                    chain,
+                    address,
+                    type,
+                })
+                .toArray();
+
+            const [result] = response || [];
+
+            if (!result) {
+                return null;
+            }
+
+            return JSON.parse(result.value);
+        } catch (error) {
+            logger.warn(`[IndexedDB](getBalancesByType): ${store}`, error);
+            return [];
+        }
+    }
+
+    // ==============================================================
 }
 
 export default IndexedDBService;

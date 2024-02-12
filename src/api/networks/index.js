@@ -1,8 +1,9 @@
+// TODO: move to the isolated module and use TS
 import _ from 'lodash';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
-import { DP_CHAINS } from '@/api/data-provider/chains';
+import { DP_CHAINS } from '@/modules/balance-provider/models/enums';
 
 import IndexedDBService from '@/modules/IndexedDb-v2';
 
@@ -92,11 +93,9 @@ export const getTokensConfigByChain = async (chain, ecosystem) => {
 
         const { data } = await HttpRequest.get(URL);
 
-        if (!_.isEqual(list, data)) {
-            await indexedDB.saveTokensObj(store, data, { network: chain, ecosystem });
-        }
+        const formatted = await indexedDB.saveTokensObj(store, data, { network: chain, ecosystem });
 
-        return data;
+        return formatted;
     } catch (err) {
         logger.error('Error while getting tokens from API', err);
         return {};
