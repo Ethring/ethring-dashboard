@@ -1,10 +1,10 @@
 import { testKeplr, testMetaMask } from '../__fixtures__/fixtures';
-import { expect } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { emptyBalanceMockData, errorGetBalanceMockData, mockBalanceData, mockBalanceCosmosWallet } from '../data/mockHelper';
 import { TEST_CONST, getTestVar } from '../envHelper';
 import { BridgePage, SendPage, SuperSwapPage, SwapPage } from '../model/VueApp/base.pages';
 import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
-import { EVM_NETWORKS, COSMOS_NETWORKS } from '../data/constants';
+import { EVM_NETWORKS, COSMOS_NETWORKS, IGNORED_LOCATORS } from '../data/constants';
 import util from 'util';
 
 const sleep = util.promisify(setTimeout);
@@ -63,7 +63,7 @@ testMetaMask.describe('Pages snapshot tests with empty wallet', () => {
 
         await Promise.all(EVM_NETWORKS.map((network) => bridgePage.mockBalanceRequest(network, errorGetBalanceMockData, address, 400)));
         await Promise.all(
-            EVM_NETWORKS.map((network) => bridgePage.page.waitForResponse(`**/srv-data-provider/api/balances?net=${network}**`))
+            EVM_NETWORKS.map((network) => bridgePage.page.waitForResponse(`**/srv-data-provider/api/balances?net=${network}**`)),
         );
 
         await bridgePage.waitDetachedSkeleton();
@@ -92,20 +92,21 @@ testMetaMask.describe('MetaMask dashboard', () => {
         await dashboardProtocol.setFocusToFirstSpan();
         await sleep(FIVE_SECONDS);
 
-        await expect(dashboardProtocol.page).toHaveScreenshot({ fullPage: true });
+        await expect(dashboardProtocol.page).toHaveScreenshot({
+            fullPage: true,
+            mask: [dashboardProtocol.page.locator(IGNORED_LOCATORS.HEADER), dashboardProtocol.page.locator(IGNORED_LOCATORS.ASIDE)],
+        });
     });
 });
 
-testKeplr.describe('Keplr dashboard', () => {
+test.describe('Keplr dashboard', () => {
     testKeplr('Case#: Dashboard page', async ({ browser, context, page, dashboard }) => {
         await dashboard.prepareFoScreenShoot();
         await dashboard.setFocusToFirstSpan();
 
         await expect(dashboard.page).toHaveScreenshot({ maxDiffPixelRatio: 0.01 });
     });
-});
 
-testKeplr.describe('Keplr dashboard', () => {
     testKeplr('Case#: check protocols & nfts view', async ({ browser, context, page, dashboardProtocol }) => {
         const NETWORK_NAME_BALANCE_ERROR = 'juno';
         const CORRECT_BALANCE_NETWORKS = { ...COSMOS_NETWORKS } as Partial<typeof COSMOS_NETWORKS>;
@@ -115,18 +116,21 @@ testKeplr.describe('Keplr dashboard', () => {
             NETWORK_NAME_BALANCE_ERROR,
             errorGetBalanceMockData,
             COSMOS_NETWORKS[NETWORK_NAME_BALANCE_ERROR],
-            500
+            500,
         );
 
         await Promise.all(
             Object.keys(CORRECT_BALANCE_NETWORKS).map((network) =>
-                dashboardProtocol.mockBalanceRequest(network, mockBalanceCosmosWallet[network], COSMOS_NETWORKS[network])
-            )
+                dashboardProtocol.mockBalanceRequest(network, mockBalanceCosmosWallet[network], COSMOS_NETWORKS[network]),
+            ),
         );
         await dashboardProtocol.prepareFoScreenShoot();
 
         await dashboardProtocol.setFocusToFirstSpan();
 
-        await expect(dashboardProtocol.page).toHaveScreenshot({ fullPage: true });
+        await expect(dashboardProtocol.page).toHaveScreenshot({
+            fullPage: true,
+            mask: [dashboardProtocol.page.locator(IGNORED_LOCATORS.HEADER), dashboardProtocol.page.locator(IGNORED_LOCATORS.ASIDE)],
+        });
     });
 });

@@ -48,11 +48,11 @@ class SocketInstance {
         this.addressesSubscription(this.addresses[ECOSYSTEMS.COSMOS], this.walletAddress);
 
         this.socket.on('update_transaction', (data) => {
-            logger.info(`[Socket] >>> update_transaction event: ${JSON.stringify(data)}`);
+            logger.debug(`[Socket] >>> update_transaction event: ${JSON.stringify(data)}`);
             handleTransactionStatus(data, this.store);
         });
         this.socket.on('update_transaction_status', (data) => {
-            logger.info(`[Socket] >>> update_transaction_status event: ${JSON.stringify(data)}`);
+            logger.debug(`[Socket] >>> update_transaction_status event: ${JSON.stringify(data)}`);
             handleTransactionStatus(data, this.store);
         });
 

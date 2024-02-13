@@ -1249,11 +1249,12 @@ const marketCapNativeEvmTokens = {
     error: '',
 };
 
-const mockAddressFrom = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
+const mockAddressTo = getTestVar(TEST_CONST.RECIPIENT_ADDRESS);
 const txHashFromProxyMock = '0xd9193bc27c644e2c0db7353daabe4b268b7ba10c707f80de166d55852884a368';
 
 //====================================== Send mock tx test data ======================================
 
+const mockAddressFrom = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
 const mockTxId = '4765';
 const mockRequestId = 'f6f79e56-2e04-41b1-a69d-4aaa9606d56a';
 
@@ -1286,7 +1287,7 @@ const mockPostTransactionsRouteSendMockTx = {
                     coingecko_id: 'matic-network',
                 },
                 amount: '0.001',
-                toAddress: '0x12f80578f9B6393419d6e97B6C1f2d82442F563c',
+                toAddress: mockAddressTo,
                 fromAddress: mockAddressFrom,
             },
             account: mockAddressFrom,
@@ -1331,7 +1332,7 @@ const mockPostTransactionsWsByCreateEventSendMockTx = {
             coingecko_id: 'matic-network',
         },
         amount: '0.001',
-        toAddress: '0x12f80578f9B6393419d6e97B6C1f2d82442F563c',
+        toAddress: mockAddressTo,
         fromAddress: mockAddressFrom,
     },
     account: mockAddressFrom,
@@ -1373,7 +1374,7 @@ const mockPutTransactionsRouteSendMockTx = {
                 priceChange: '7.18186037000271',
             },
             amount: '0.001',
-            toAddress: '0x12f80578f9B6393419d6e97B6C1f2d82442F563c',
+            toAddress: mockAddressTo,
             fromAddress: mockAddressFrom,
         },
         account: mockAddressFrom,
@@ -1418,7 +1419,7 @@ const mockPutTransactionsWsByUpdateTransactionEventInProgressSendMockTx = {
             coingecko_id: 'matic-network',
         },
         amount: '0.001',
-        toAddress: '0x12f80578f9B6393419d6e97B6C1f2d82442F563c',
+        toAddress: mockAddressTo,
         fromAddress: mockAddressFrom,
     },
     account: mockAddressFrom,
@@ -1437,8 +1438,9 @@ const mockPutTransactionsWsByUpdateTransactionEventInProgressSendMockTx = {
 
 //====================================== Send reject tx test data ======================================
 
-const mockTxIdSendReject = '4765';
-const mockRequestIdSendReject = 'f6f79e56-2e04-41b1-a69d-4aaa9606d56a';
+const mockAddressFrom2 = getTestVar(TEST_CONST.ETH_ADDRESS_TX_2);
+const mockTxIdSendReject = '4766';
+const mockRequestIdSendReject = 'f6f79e56-2e04-41b1-a69d-4aaa9606d56b';
 
 const mockPostTransactionsRouteSendReject = {
     ok: true,
@@ -1453,27 +1455,27 @@ const mockPostTransactionsRouteSendReject = {
             status: 'IN PROGRESS',
             parameters: {
                 token: {
-                    id: 'polygon:asset__native:MATIC',
-                    net: 'polygon',
-                    logo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
-                    name: 'MATIC Native Token',
-                    chain: 'polygon',
-                    price: '0.8531747555103706',
-                    symbol: 'MATIC',
+                    id: 'avalanche:asset__native:AVAX',
+                    net: 'avalanche',
+                    logo: 'https://cryptologos.cc/logos/avalanche-avax-logo.png?v=025',
+                    name: 'Avalanche Native Token',
+                    chain: 'avalanche',
+                    price: '38.74444165272416',
+                    symbol: 'AVAX',
                     address: null,
-                    balance: '6.410624815464208',
+                    balance: '0.8544960208245843',
                     decimals: 18,
-                    chainLogo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
-                    balanceUsd: '5.410930625',
-                    priceChange: '-0.000342946031245849',
-                    coingecko_id: 'matic-network',
+                    chainLogo: 'https://cryptologos.cc/logos/avalanche-avax-logo.png?v=025',
+                    balanceUsd: '33.07174196',
+                    priceChange: '-1.6871162478902946',
+                    coingecko_id: 'avalanche-2',
                 },
                 amount: '0.001',
-                toAddress: '0x12f80578f9B6393419d6e97B6C1f2d82442F563c',
-                fromAddress: mockAddressFrom,
+                toAddress: mockAddressTo,
+                fromAddress: mockAddressFrom2,
             },
-            account: mockAddressFrom,
-            chainId: '137',
+            account: mockAddressFrom2,
+            chainId: '43114',
             metaData: {
                 type: 'Transfer',
                 action: 'prepareTransaction',
@@ -1498,27 +1500,27 @@ const mockPostTransactionsWsByCreateEventSendReject = {
     status: 'IN PROGRESS',
     parameters: {
         token: {
-            id: 'polygon:asset__native:MATIC',
-            net: 'polygon',
-            logo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
-            name: 'MATIC Native Token',
-            chain: 'polygon',
-            price: '0.8531747555103706',
-            symbol: 'MATIC',
+            id: 'avalanche:asset__native:AVAX',
+            net: 'avalanche',
+            logo: 'https://cryptologos.cc/logos/avalanche-avax-logo.png?v=025',
+            name: 'Avalanche Native Token',
+            chain: 'avalanche',
+            price: '38.74444165272416',
+            symbol: 'AVAX',
             address: null,
-            balance: '6.410624815464208',
+            balance: '0.8544960208245843',
             decimals: 18,
-            chainLogo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
-            balanceUsd: '5.410930625',
-            priceChange: '-0.000342946031245849',
-            coingecko_id: 'matic-network',
+            chainLogo: 'https://cryptologos.cc/logos/avalanche-avax-logo.png?v=025',
+            balanceUsd: '33.07174196',
+            priceChange: '-1.6871162478902946',
+            coingecko_id: 'avalanche-2',
         },
         amount: '0.001',
-        toAddress: '0x12f80578f9B6393419d6e97B6C1f2d82442F563c',
-        fromAddress: mockAddressFrom,
+        toAddress: mockAddressTo,
+        fromAddress: mockAddressFrom2,
     },
-    account: mockAddressFrom,
-    chainId: '137',
+    account: mockAddressFrom2,
+    chainId: '43114',
     metaData: {
         type: 'Transfer',
         action: 'prepareTransaction',
@@ -1536,35 +1538,36 @@ const mockPutTransactionsRouteSendReject = {
         id: mockTxIdSendReject,
         requestID: mockRequestIdSendReject,
         index: '0',
-        txHash: txHashFromProxyMock,
+        txHash: null,
         ecosystem: 'EVM',
         module: 'Zomet - Send',
-        status: 'IN PROGRESS',
+        status: 'REJECTED',
         parameters: {
             token: {
-                id: 'polygon:asset__native:MATIC',
-                logo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
-                name: 'MATIC Native Token',
-                chain: 'polygon',
-                price: '0.8531747555103706',
-                symbol: 'MATIC',
+                id: 'avalanche:asset__native:AVAX',
+                net: 'avalanche',
+                logo: 'https://cryptologos.cc/logos/avalanche-avax-logo.png?v=025',
+                name: 'Avalanche Native Token',
+                chain: 'avalanche',
+                price: '38.735379930425296',
+                symbol: 'AVAX',
                 address: null,
-                balance: '6.410624815464208',
+                balance: '0.1',
                 decimals: 18,
-                chainLogo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
-                balanceUsd: '72.93879395',
-                priceChange: '7.18186037000271',
+                chainLogo: 'https://cryptologos.cc/logos/avalanche-avax-logo.png?v=025',
+                balanceUsd: '3.875895739',
+                priceChange: '-1.1678499147095422',
+                coingecko_id: 'avalanche-2',
             },
             amount: '0.001',
-            toAddress: '0x12f80578f9B6393419d6e97B6C1f2d82442F563c',
-            fromAddress: mockAddressFrom,
+            toAddress: mockAddressTo,
+            fromAddress: mockAddressFrom2,
         },
-        account: mockAddressFrom,
-        chainId: '137',
+        account: mockAddressFrom2,
+        chainId: '43114',
         metaData: {
             type: 'Transfer',
             action: 'prepareTransaction',
-            explorerLink: `https://polygonscan.com/tx/${txHashFromProxyMock}`,
             successCallback: {
                 action: 'CLEAR_AMOUNTS',
             },
@@ -1576,45 +1579,44 @@ const mockPutTransactionsRouteSendReject = {
 };
 
 const mockPutTransactionsWsByUpdateTransactionEventInProgressSendReject = {
-    id: mockTxIdSendReject,
-    requestID: mockRequestIdSendReject,
-    index: '0',
-    txHash: txHashFromProxyMock,
-    ecosystem: 'EVM',
-    module: 'Zomet - Send',
-    status: 'IN PROGRESS',
-    parameters: {
-        token: {
-            id: 'polygon:asset__native:MATIC',
-            net: 'polygon', // TODO this param is only in WS response, but didn`t in http. Need analyze
-            logo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
-            name: 'MATIC Native Token',
-            chain: 'polygon',
-            price: '0.8531747555103706',
-            symbol: 'MATIC',
-            address: null,
-            balance: '6.410624815464208',
-            decimals: 18,
-            chainLogo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
-            balanceUsd: '5.410930625',
-            priceChange: '-0.000342946031245849',
-            coingecko_id: 'matic-network',
-        },
-        amount: '0.001',
-        toAddress: '0x12f80578f9B6393419d6e97B6C1f2d82442F563c',
-        fromAddress: mockAddressFrom,
-    },
-    account: mockAddressFrom,
+    account: mockAddressFrom2,
     chainId: '137',
+    createdAt: '2024-02-09T14:10:59.566Z',
+    ecosystem: 'EVM',
+    id: mockTxIdSendReject,
+    index: '0',
     metaData: {
-        type: 'Transfer',
         action: 'prepareTransaction',
-        explorerLink: `https://polygonscan.com/tx/${txHashFromProxyMock}`,
         successCallback: {
             action: 'CLEAR_AMOUNTS',
         },
+        type: 'Transfer',
     },
-    createdAt: '2024-02-09T14:10:59.566Z',
+    module: 'Zomet - Send',
+    parameters: {
+        amount: '0.001',
+        fromAddress: mockAddressFrom2,
+        toAddress: mockAddressTo,
+        token: {
+            address: null,
+            balance: '0.1',
+            balanceUsd: '5.410930625',
+            chain: 'avalanche',
+            chainLogo: 'https://cryptologos.cc/logos/avalanche-avax-logo.png?v=025',
+            coingecko_id: 'avalanche-2',
+            decimals: 18,
+            id: 'avalanche:asset__native:AVAX',
+            logo: 'https://cryptologos.cc/logos/avalanche-avax-logo.png?v=025',
+            name: 'Avalanche Native Token',
+            net: 'avalanche', // TODO this param is only in WS response, but didn`t in http. Need analyze
+            price: '38.735379930425296',
+            priceChange: '-0.000342946031245849',
+            symbol: 'AVAX',
+        },
+    },
+    requestID: mockRequestIdSendReject,
+    status: 'REJECTED',
+    txHash: null,
     updatedAt: '2024-02-09T14:11:28.364Z',
 };
 
@@ -1628,12 +1630,10 @@ export {
     errorGetBalanceMockData,
     errorEstimateSwap,
     mockBalanceCosmosWallet,
-    
     mockPostTransactionsRouteSendMockTx,
     mockPostTransactionsWsByCreateEventSendMockTx,
     mockPutTransactionsRouteSendMockTx,
     mockPutTransactionsWsByUpdateTransactionEventInProgressSendMockTx,
-
     mockPostTransactionsRouteSendReject,
     mockPostTransactionsWsByCreateEventSendReject,
     mockPutTransactionsRouteSendReject,
