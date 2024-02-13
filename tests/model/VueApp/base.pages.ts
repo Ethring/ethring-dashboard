@@ -1,4 +1,4 @@
-import { BrowserContext, Page } from '@playwright/test';
+import { BrowserContext, Page, Route } from '@playwright/test';
 import { FIVE_SECONDS, ONE_SECOND } from '../../__fixtures__/fixtureHelper';
 import { DATA_QA_LOCATORS } from '../../data/constants';
 import util from 'util';
@@ -190,6 +190,43 @@ class BasePage {
         //     });
         // console.log('>>> FINISH');
     }
+
+    async handleRequestWithModification(route: Route, method: String, httpData: Object, wsData: Object) {
+        if (route.request().method() === method) {
+            const body = JSON.parse(route.request().postData());
+            body.expectedDataHttp = httpData;
+            body.expectedDataWs = wsData;
+
+            const override = { postData: JSON.stringify(body) };
+            route.continue(override);
+        } else {
+            route.continue();
+        }
+    }
+
+    /**
+     * This method is designed to modify the data in a POST request for /transaction/.
+     *
+     * @param {Object} dataToReturnInHttpResponse - This object was returned from stub-tx-manager as HTTP response.
+     * @param {Object} dataToReturnInWsResponse - This object was returned from stub-tx-manager as WS event.
+     */
+    async modifyDataByPostTxRequest(dataToReturnInHttpResponse: Object, dataToReturnInWsResponse: Object) {
+        return await this.page.route(/\/transactions$/, (route) =>
+            this.handleRequestWithModification(route, 'POST', dataToReturnInHttpResponse, dataToReturnInWsResponse),
+        );
+    }
+
+    /**
+     * This method is designed to modify the data in a PUT request for /transaction/{:id} path.
+     *
+     * @param {Object} dataToReturnInHttpResponse - This object was returned from stub-tx-manager as HTTP response.
+     * @param {Object} dataToReturnInWsResponse - This object was returned from stub-tx-manager as WS event.
+     */
+    async modifyDataByPutTxRequest(dataToReturnInHttpResponse: Object, dataToReturnInWsResponse: Object) {
+        return await this.page.route(/\/transactions\/\d{4}$/, (route) =>
+            this.handleRequestWithModification(route, 'PUT', dataToReturnInHttpResponse, dataToReturnInWsResponse),
+        );
+    }
 }
 
 class DashboardPage extends BasePage {
@@ -209,7 +246,7 @@ class DashboardPage extends BasePage {
     }
 }
 
-class BridgePage extends BasePage { }
+class BridgePage extends BasePage {}
 
 class SendPage extends BasePage {
     async setNetworkTo(netName: string) {

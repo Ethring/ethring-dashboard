@@ -14,6 +14,7 @@ import {
 import { proxyUrl } from '../../playwright.config';
 
 const seedPhraseByTx = getTestVar(TEST_CONST.SEED_BY_MOCK_TX);
+const seedPhraseByTx2 = getTestVar(TEST_CONST.SEED_BY_MOCK_TX_2);
 const seedPhraseByProtocol = getTestVar(TEST_CONST.SEED_BY_PROTOCOL_TEST);
 const seedPhraseEmptyWallet = getTestVar(TEST_CONST.EMPTY_SEED);
 
@@ -29,11 +30,13 @@ export const testMetaMask = base.extend<{
 
     sendPage: SendPage;
     sendPageCoingeckoMock: SendPage;
+    sendPageCoingeckoMockRejectTest: SendPage;
+
     swapPage: SwapPage;
     swapPageMockTokensList: SwapPage;
     superSwapPage: SuperSwapPage;
 }>({
-    context: async ({ }, use) => {
+    context: async ({}, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -103,13 +106,18 @@ export const testMetaMask = base.extend<{
         const sendPage = await zometPage.goToModule('send');
         await use(sendPage);
     },
+    sendPageCoingeckoMockRejectTest: async ({ context }, use) => {
+        const zometPage = await authInDashboardByMmCoingeckoMock(context, seedPhraseByTx2);
+        const sendPage = await zometPage.goToModule('send');
+        await use(sendPage);
+    },
 });
 
 export const testMetaMaskMockTx = base.extend<{
     context: BrowserContext;
     sendPage: SendPage;
 }>({
-    context: async ({ }, use) => {
+    context: async ({}, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -145,7 +153,7 @@ export const testKeplr = base.extend<{
     dashboardProtocol: DashboardPage;
     sendPage: SendPage;
 }>({
-    context: async ({ }, use) => {
+    context: async ({}, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,

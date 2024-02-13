@@ -1,81 +1,61 @@
+variables:
+  IMAGE_PLAYWRIGHT: mcr.microsoft.com/playwright:v1.41.1-jammy
+  IMAGE_MITMPROXY: mitmproxy/mitmproxy:10.2.1
+  IMAGE_TXMANAGER_MOCK: registry.citadel.one/public/stubtxmanager/master:latest
+  TX_MANAGER_API: http://txmanager:3000
+  FF_NETWORK_PER_BUILD: "true"
+  CI_DEBUG_SERVICES: "false"
+
+.default_artifacts: &default_artifacts
+  paths:
+    - ./playwright-report/
+    - ./Screenshot/
+    - ./tests/e2e/*.spec.ts-snapshots/
+  when: always
+  expire_in: 1 days
+
+.default_services: &default_services
+  - name: $IMAGE_MITMPROXY
+    alias: mitmproxy
+    entrypoint:
+      - "/bin/bash"
+      - "-c"
+      - |
+        until [ -f "$CI_PROJECT_DIR/.git/index" ]; do true; done;
+        while [ -f "$CI_PROJECT_DIR/.git/index.lock" ]; do true; done;
+        while [ "$(cat $CI_PROJECT_DIR/.git/HEAD)" != "$CI_COMMIT_SHA" ]; do true; done;
+        cd $CI_PROJECT_DIR/tests/mockserver2
+        mitmdump -q -s ./moxy.py --set mock=./config.json --set flow_detail=0
+  - name: $IMAGE_TXMANAGER_MOCK
+    alias: txmanager
+
 Update snapshot:
   stage: test_ui
   needs: []
   allow_failure: true
-  image: mcr.microsoft.com/playwright:v1.41.1-jammy
+  image: $IMAGE_PLAYWRIGHT
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: manual
-  services:
-    - name: mitmproxy/mitmproxy:10.2.1
-      alias: mitmproxy
-      entrypoint:
-        - "/bin/bash"
-        - "-c"
-        - |
-          until [ -f "$CI_PROJECT_DIR/.git/index" ]; do true; done;
-          while [ -f "$CI_PROJECT_DIR/.git/index.lock" ]; do true; done;
-          cd $CI_PROJECT_DIR/tests/mockserver2
-          mitmdump -s ./moxy.py --set mock=./config.json --set flow_detail=0
+  services: *default_services
   script:
     - npm ci
     - npx npm run test:e2e:updateSnapshot
   timeout: 20 minutes
-  artifacts:
-    paths:
-      - ./playwright-report/
-      - ./Screenshot/
-      - ./tests/e2e/*.spec.ts-snapshots/
-    when: always
-    expire_in: 1 days
+  artifacts: *default_artifacts
 
 Run tests:
   stage: test_ui
-  image: mcr.microsoft.com/playwright:v1.41.1-jammy
+  image: $IMAGE_PLAYWRIGHT
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == "dev"
-  services:
-    - name: mitmproxy/mitmproxy:10.2.1
-      alias: mitmproxy
-      entrypoint:
-        - "/bin/bash"
-        - "-c"
-        - |
-          until [ -f "$CI_PROJECT_DIR/.git/index" ]; do true; done;
-          while [ -f "$CI_PROJECT_DIR/.git/index.lock" ]; do true; done;
-          while [ "$(cat $CI_PROJECT_DIR/.git/HEAD)" != "$CI_COMMIT_SHA" ]; do true; done;
-          cd $CI_PROJECT_DIR/tests/mockserver2
-          mitmdump -s ./moxy.py --set mock=./config.json --set flow_detail=0
+  services: *default_services
   script:
     - npm ci
     - npx npm run test:e2e:ci
   timeout: 20 minutes
-  artifacts:
-    paths:
-      - ./playwright-report/
-      - ./Screenshot/
-      - ./tests/e2e/*.spec.ts-snapshots/
-    when: always
-    expire_in: 1 days
-
-# Run tests schedules:
-#   stage: test_ui
-#   image: mcr.microsoft.com/playwright:v1.39.0-jammy
-#   rules:
-#     - if: $CI_PIPELINE_SOURCE == "schedule"
-#   allow_failure: true
-#   parallel: 3
-#   script:
-#     - npm i
-#     - npm run test:e2e:ci
-#   timeout: 20 hours 30 minutes
-#   artifacts:
-#     paths:
-#       - ./playwright-report/
-#       - ./Screenshot/
-#     when: always
-#     expire_in: 4 days
+  artifacts: *default_artifacts
 
 Build tests report image:
   stage: deploy_reports

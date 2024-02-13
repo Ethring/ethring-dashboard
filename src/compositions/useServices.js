@@ -661,9 +661,9 @@ export default function useModule({ moduleType }) {
         //     return (opTitle.value = 'tokenOperations.connectWallet');
         // }
 
-        setEcosystemService();
-
         const isSameWithCurrent = currentChainInfo.value && currentChainInfo.value.net === selectedSrcNetwork.value?.net;
+
+        setEcosystemService();
 
         if (isNeedApprove.value && opTitle.value !== 'tokenOperations.switchNetwork') {
             return (opTitle.value = 'tokenOperations.approve');
