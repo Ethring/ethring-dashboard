@@ -13,9 +13,7 @@ import {
 } from '../data/mockHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage, getHomeMmPage } from '../model/MetaMask/MetaMask.pages';
 import { KeplrNotifyPage, getNotifyKeplrPage } from '../model/Keplr/Keplr.pages';
-
 import { EVM_NETWORKS, COSMOS_NETWORKS, IGNORED_LOCATORS } from '../data/constants';
-
 import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
 
 const sleep = util.promisify(setTimeout);
@@ -149,8 +147,8 @@ testKeplr.describe('Keplr Send e2e tests', () => {
         await sendPage.clickConfirm();
 
         const notifyKeplr = new KeplrNotifyPage(await getNotifyKeplrPage(context));
-        const result = await notifyKeplr.page.innerText('div.djtFnd');
+        const memoInKeplrNotify = await notifyKeplr.page.innerText('div.djtFnd');
 
-        expect(result).toBe(memo);
+        expect(memoInKeplrNotify).toBe(memo);
     });
 });
