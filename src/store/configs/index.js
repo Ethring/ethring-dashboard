@@ -2,9 +2,9 @@ import _ from 'lodash';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
-import { getConfigsByEcosystems, getTokensConfigByChain } from '@/api/networks';
+import { getConfigsByEcosystems, getTokensConfigByChain } from '@/modules/chain-configs/api';
 
-import IndexedDBService from '@/modules/IndexedDb-v2';
+import IndexedDBService from '@/services/indexed-db';
 
 import { DB_TABLES } from '@/shared/constants/indexedDb';
 

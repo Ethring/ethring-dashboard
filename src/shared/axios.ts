@@ -1,36 +1,58 @@
-import axios from 'axios';
+// TODO: Add error handling and tracking to Sentry
 
-const axiosInstance = axios.create({
-    headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-    },
-    timeout: 10000,
-    responseType: 'json',
-});
+import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
-// Interceptor для ответов
-axiosInstance.interceptors.response.use(
-    (response) => {
+interface ApiConfig {
+    baseURL: string;
+    headers?: Record<string, string>;
+}
+
+class ApiClient {
+    private instance: AxiosInstance;
+
+    constructor(config: ApiConfig) {
+        const {
+            baseURL,
+            headers = {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
+        } = config;
+
+        this.instance = axios.create({
+            baseURL,
+            headers,
+        });
+
+        // Interceptor for response
+        this.instance.interceptors.response.use(this.handleSuccessResponse, this.handleErrorResponse);
+    }
+
+    private handleSuccessResponse(response: AxiosResponse) {
         return response;
-    },
-    async (error) => {
+    }
+
+    private async handleErrorResponse(error: any) {
         const originalRequest = error.config;
 
         if (error.code === 'ECONNABORTED' && !originalRequest.retry) {
             originalRequest.retry = true;
 
             try {
-                // Resend request
+                // Retry request
                 return await axios(originalRequest);
             } catch (retryError) {
-                // Return error
+                // Retry failed
                 return Promise.reject(retryError);
             }
         }
 
         return Promise.reject(error);
-    },
-);
+    }
 
-export default axiosInstance;
+    public getInstance(): AxiosInstance {
+        return this.instance;
+    }
+}
+
+export default ApiClient;

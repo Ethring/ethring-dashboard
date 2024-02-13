@@ -3,12 +3,16 @@
 
 import { AxiosResponse, HttpStatusCode } from 'axios';
 
-import axiosInstance from '@/shared/axios';
+import ApiClient from '@/shared/axios';
 
 import { ProviderRequestOptions } from '@/modules/balance-provider/models/types';
 import { BalanceResponse, DataProviderResponse } from './models/types';
 
-axiosInstance.defaults.baseURL = process.env.DATA_PROVIDER_API || null;
+const apiClient = new ApiClient({
+    baseURL: process.env.DATA_PROVIDER_API || '',
+});
+
+const axiosInstance = apiClient.getInstance();
 
 export const getBalancesByAddress = async (
     chain: string,

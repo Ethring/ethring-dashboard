@@ -1,10 +1,10 @@
-import _, { List } from 'lodash';
+import _ from 'lodash';
 
 import { BalanceType, RecordList, RecordOptions, AssetBalance, IntegrationBalance, NftBalance } from './models/types';
 
 import { formatResponse } from './format';
 
-import IndexedDBService from '../IndexedDb-v2';
+import IndexedDBService from '@/services/indexed-db';
 
 const balancesDB = new IndexedDBService('balances', 1);
 

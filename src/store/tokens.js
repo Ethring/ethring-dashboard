@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 
 import { getTotalBalance, getIntegrationsBalance } from '@/modules/balance-provider/calculation';
 
-import IndexedDBService from '@/modules/IndexedDb-v2';
+import IndexedDBService from '@/services/indexed-db';
 
 const balancesDB = new IndexedDBService('balances', 1);
 
@@ -94,7 +94,7 @@ export default {
 
         loadingByChain: (state) => (account, chain) => state.loadingByChain[account]?.[chain] || false,
 
-        loadingForChains: (state) => state.loadingByChain,
+        loadingForChains: (state) => (account) => state.loadingByChain[account] || {},
 
         getAccountBalanceByType: (state) => (account, type) => {
             if (!state[type]) {

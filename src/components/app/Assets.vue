@@ -25,6 +25,7 @@
                 v-for="(item, i) in integrationAssetsByPlatform"
                 :key="`protocol-${i}`"
                 class="assets-block-panel"
+                @vue:mounted="collapseActiveKey.push(`protocol-${i}`)"
             >
                 <template #header>
                     <AssetGroupHeader
@@ -88,21 +89,7 @@ export default {
         const store = useStore();
 
         // TODO: collapse active key by step
-        const collapseActiveKey = ref([
-            'assets',
-            'nfts',
-            'protocol-0',
-            'protocol-1',
-            'protocol-2',
-            'protocol-3',
-            'protocol-4',
-            'protocol-5',
-            'protocol-6',
-            'protocol-7',
-            'protocol-8',
-            'protocol-9',
-            'protocol-10',
-        ]);
+        const collapseActiveKey = ref(['assets', 'nfts']);
 
         const useAdapter = inject('useAdapter');
 
@@ -110,6 +97,7 @@ export default {
 
         const isLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](walletAccount.value, currentChainInfo.value?.net));
         const isLoadingByAccount = computed(() => store.getters['tokens/loadingByAccount'](walletAccount.value));
+        const loadingsByChains = computed(() => store.getters['tokens/loadingForChains'](walletAccount.value));
 
         const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
 
@@ -160,10 +148,16 @@ export default {
 
         // TODO: Remove crutch
         watch(isAllTokensLoading, () => {
+            // console.log('watch isAllTokensLoading', isAllTokensLoading.value);
             if (!isAllTokensLoading.value) {
                 updateAssets();
             }
         });
+
+        // // TODO: Remove crutch
+        // watch(loadingsByChains, () => {
+        //     console.log('watch loadingsByChains', loadingsByChains.value);
+        // });
 
         watch(walletAccount, () => {
             updateAssets();

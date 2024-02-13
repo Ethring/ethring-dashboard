@@ -15,10 +15,10 @@ import { toUtf8 } from '@cosmjs/encoding';
 import { fromEvent, takeUntil, Subject } from 'rxjs';
 
 // * Configs
-import { ECOSYSTEMS, cosmologyConfig } from '../../config';
+import { ECOSYSTEMS, cosmologyConfig } from '@/Adapter/config';
 
 import AdapterBase from '@/Adapter/utils/AdapterBase';
-import { getConfigsByEcosystems, getTokensConfigByChain, getCosmologyTokensConfig } from '@/api/networks';
+import { getConfigsByEcosystems, getTokensConfigByChain, getCosmologyTokensConfig } from '@/modules/chain-configs/api';
 
 // * Helpers
 import { validateCosmosAddress } from '@/Adapter/utils/validations';
@@ -27,7 +27,7 @@ import { errorRegister } from '@/shared/utils/errors';
 
 import logger from '@/shared/logger';
 
-import IndexedDBService from '@/modules/IndexedDb-v2';
+import IndexedDBService from '@/services/indexed-db';
 
 const configsDB = new IndexedDBService('configs');
 
