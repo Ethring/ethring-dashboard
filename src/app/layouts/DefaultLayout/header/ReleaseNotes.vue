@@ -113,8 +113,24 @@ export default {
     },
 };
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
 .update-btn {
     width: 100%;
+}
+
+.ant-drawer .ant-drawer-content {
+    background: var(--#{$prefix}secondary-background);
+}
+
+.ant-typography,
+.ant-list-item,
+.ant-list-header,
+.ant-drawer-title,
+.ant-drawer .ant-drawer-close {
+    color: var(--#{$prefix}primary-text) !important;
+}
+
+.ant-list-split .ant-list-item {
+    border-block-end: 1px solid var(--#{$prefix}info-border-color);
 }
 </style>
