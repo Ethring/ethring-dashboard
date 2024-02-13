@@ -288,12 +288,12 @@ class CosmosAdapter extends AdapterBase {
     }
 
     async setChain(chainInfo) {
-        const { walletName, chain, chain_id } = chainInfo;
+        const { walletModule, chain, chain_id } = chainInfo;
 
         const chainForConnect = chain || chain_id || this.DEFAULT_CHAIN;
 
         try {
-            const connected = await this.connectWallet(walletName, chainForConnect);
+            const connected = await this.connectWallet(walletModule, chainForConnect);
             return connected;
         } catch (error) {
             logger.error('Error in setChain', error);
@@ -492,10 +492,12 @@ class CosmosAdapter extends AdapterBase {
                 chain_id: chain.chain_name,
                 name: chain.pretty_name,
                 walletName: this.walletName,
+                walletModule: this.walletName,
             };
 
             return chainRecord;
         });
+
         return chainList;
     }
 

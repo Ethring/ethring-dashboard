@@ -1,12 +1,19 @@
 import { testMetaMaskMockTx } from '../__fixtures__/fixtures';
-import { mockBalanceDataBySendTest } from '../data/mockHelper';
+import { expect, test } from '@playwright/test';
+import {
+    mockBalanceDataBySendTest,
+    mockPostTransactionsRouteSendMockTx,
+    mockPostTransactionsWsByCreateEventSendMockTx,
+    mockPutTransactionsRouteSendMockTx,
+    mockPutTransactionsWsByUpdateTransactionEventInProgressSendMockTx,
+} from '../data/mockHelper';
 import { getTestVar, TEST_CONST } from '../envHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage } from '../model/MetaMask/MetaMask.pages';
 import util from 'util';
 
 const sleep = util.promisify(setTimeout);
 
-testMetaMaskMockTx.describe('Mocked send tx Metamask', () => {
+test.describe('Mocked send tx Metamask', () => {
     testMetaMaskMockTx('Case#: Send tx in Polygon', async ({ browser, context, page, sendPage }) => {
         const network = 'Polygon';
         const addressFrom = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
@@ -21,6 +28,14 @@ testMetaMaskMockTx.describe('Mocked send tx Metamask', () => {
         await sendPage.changeNetwork(network);
         await sendPage.setAddressTo(addressTo);
         await sendPage.setAmount(amount);
+
+        await sleep(2000);
+
+        await sendPage.modifyDataByPostTxRequest(mockPostTransactionsRouteSendMockTx, mockPostTransactionsWsByCreateEventSendMockTx);
+        await sendPage.modifyDataByPutTxRequest(
+            mockPutTransactionsRouteSendMockTx,
+            mockPutTransactionsWsByUpdateTransactionEventInProgressSendMockTx,
+        );
         await sendPage.clickConfirm();
 
         const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
@@ -29,6 +44,11 @@ testMetaMaskMockTx.describe('Mocked send tx Metamask', () => {
         const notifyMMtx = new MetaMaskNotifyPage(await getNotifyMmPage(context));
         await notifyMMtx.signTx();
 
-        await sleep(15000);
+        await sleep(2000);
+
+        expect(sendPage.page).toHaveScreenshot({
+            maxDiffPixels: 180, // This diff is text on notification modal
+            mask: [sendPage.page.locator('//header'), sendPage.page.locator('//aside')],
+        });
     });
 });

@@ -1,5 +1,3 @@
-// import { createTransactions, getTransactionsByRequestID, updateTransaction } from '../../api/tx-manager';
-
 const TYPES = {
     SET_TRANSACTIONS_BY_MODULE: 'SET_TRANSACTIONS_BY_MODULE',
     SET_TRANSACTIONS_BY_REQUEST_ID: 'SET_TRANSACTIONS_BY_REQUEST_ID',
