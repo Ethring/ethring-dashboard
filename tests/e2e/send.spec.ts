@@ -129,7 +129,10 @@ testKeplr.describe('Keplr Send e2e tests', () => {
     testKeplr('Case#: Reject send native token in Cosmos', async ({ browser, context, page, sendPage }) => {
         const network = 'cosmos';
         const addressFrom = 'cosmos1aascfnuh7dpup8cmyph2l0wgee9d2lchdlx00r';
+        const addressTo = COSMOS_NETWORKS[network];
         const WAITED_URL = `**/srv-data-provider/api/balances?net=${network}**`;
+        const amount = '0.001';
+        const memo = '105371789';
 
         await sendPage.mockBalanceRequest(network.toLowerCase(), mockBalanceCosmosWallet, addressFrom);
         const balancePromise = sendPage.page.waitForResponse(WAITED_URL);
@@ -137,20 +140,6 @@ testKeplr.describe('Keplr Send e2e tests', () => {
         await balancePromise;
 
         await expect(sendPage.getBaseContentElement()).toHaveScreenshot();
-    });
-
-    testKeplr('Case#: Send with memo and check memo in keplr', async ({ browser, context, page, sendPage }) => {
-        const network = 'cosmos';
-        const addressFrom = 'cosmos1aascfnuh7dpup8cmyph2l0wgee9d2lchdlx00r';
-        const addressTo = COSMOS_NETWORKS[network];
-        const WAITED_URL = `**/srv-data-provider/api/balances?net=${network}**`;
-        const amount = '0.001';
-        const memo = '105371789';
-
-        await sendPage.mockBalanceRequest(network.toLowerCase(), mockBalanceCosmosWallet[network], addressFrom);
-        const balancePromise = sendPage.page.waitForResponse(WAITED_URL);
-
-        await balancePromise;
 
         await sendPage.setAddressTo(addressTo);
         await sendPage.setAmount(amount);
@@ -159,8 +148,8 @@ testKeplr.describe('Keplr Send e2e tests', () => {
 
         await sendPage.clickConfirm();
 
-        const notifyMM = new KeplrNotifyPage(await getNotifyKeplrPage(context));
-        const result = await notifyMM.page.innerText('div.djtFnd');
+        const notifyKeplr = new KeplrNotifyPage(await getNotifyKeplrPage(context));
+        const result = await notifyKeplr.page.innerText('div.djtFnd');
 
         expect(result).toBe(memo);
     });
