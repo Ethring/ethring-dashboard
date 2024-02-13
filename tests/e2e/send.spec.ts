@@ -10,6 +10,10 @@ import {
     mockPostTransactionsWsByCreateEventSendReject,
     mockPutTransactionsRouteSendReject,
     mockPutTransactionsWsByUpdateTransactionEventInProgressSendReject,
+    mockPostTransactionsRouteSendRejectKeplr,
+    mockPostTransactionsWsByCreateEventSendRejectKeplr,
+    mockPutTransactionsRouteSendRejectKeplr,
+    mockPutTransactionsWsByUpdateTransactionEventInProgressSendRejectKeplr,
 } from '../data/mockHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage, getHomeMmPage } from '../model/MetaMask/MetaMask.pages';
 import { KeplrNotifyPage, getNotifyKeplrPage } from '../model/Keplr/Keplr.pages';
@@ -126,13 +130,13 @@ test.describe('MetaMask Send e2e tests', () => {
 testKeplr.describe('Keplr Send e2e tests', () => {
     testKeplr('Case#: Reject send native token in Cosmos', async ({ browser, context, page, sendPage }) => {
         const network = 'cosmos';
-        const addressFrom = 'cosmos1aascfnuh7dpup8cmyph2l0wgee9d2lchdlx00r';
+        const addressFrom = getTestVar(TEST_CONST.COSMOS_ADDRESS_TX);
         const addressTo = COSMOS_NETWORKS[network];
         const WAITED_URL = `**/srv-data-provider/api/balances?net=${network}**`;
         const amount = '0.001';
         const memo = '105371789';
 
-        await sendPage.mockBalanceRequest(network.toLowerCase(), mockBalanceCosmosWallet, addressFrom);
+        await sendPage.mockBalanceRequest(network.toLowerCase(), mockBalanceCosmosWallet[network], addressFrom);
         const balancePromise = sendPage.page.waitForResponse(WAITED_URL);
 
         await balancePromise;
@@ -143,6 +147,15 @@ testKeplr.describe('Keplr Send e2e tests', () => {
         await sendPage.setAmount(amount);
         await sendPage.setMemoCheckbox();
         await sendPage.setMemo(memo);
+
+        await sendPage.modifyDataByPostTxRequest(
+            mockPostTransactionsRouteSendRejectKeplr,
+            mockPostTransactionsWsByCreateEventSendRejectKeplr,
+        );
+        await sendPage.modifyDataByPutTxRequest(
+            mockPutTransactionsRouteSendRejectKeplr,
+            mockPutTransactionsWsByUpdateTransactionEventInProgressSendRejectKeplr,
+        );
 
         await sendPage.clickConfirm();
 
