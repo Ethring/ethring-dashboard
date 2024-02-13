@@ -57,7 +57,7 @@ export default {
 
         const store = useStore();
 
-        const tokenFromConfig = computed(() => store?.getters['configs/getTokenLogoByAddress'](props.token?.address, props.token?.chain));
+        const tokenFromConfig = computed(() => store.getters['configs/getTokenLogoByAddress'](props.token?.address, props.token?.chain));
 
         const setTokenIcon = () => {
             const { address = null, extensions = {} } = props.token;

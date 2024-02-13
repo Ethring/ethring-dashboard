@@ -60,7 +60,7 @@ export default {
     setup(props) {
         const store = useStore();
 
-        const showBalance = computed(() => store?.getters['app/showBalance']);
+        const showBalance = computed(() => store.getters['app/showBalance']);
 
         const isInteger = computed(() => !Number.isInteger(+props.value));
 
