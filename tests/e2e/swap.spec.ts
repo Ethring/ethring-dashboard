@@ -4,14 +4,13 @@ import { emptyBalanceMockData, errorEstimateSwap, mockBalanceDataBySwapTest } fr
 import { INCORRECT_IMAGE_URL } from '../data/mockTokensListData';
 import { TEST_CONST, getTestVar } from '../envHelper';
 import { getHomeMmPage } from '../model/MetaMask/MetaMask.pages';
-import { EVM_NETWORKS } from '../data/constants';
+import { EVM_NETWORKS, IGNORED_LOCATORS } from '../data/constants';
 import util from 'util';
 import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
 
 const sleep = util.promisify(setTimeout);
 
 const supportedNetsBySwap = ['Ethereum', 'Binance Smart Chain', 'Arbitrum', 'Polygon', 'Avalanche', 'Optimism', 'Fantom']; // TODO до сих пор не работает. Нет фантома
-const txHash = getTestVar(TEST_CONST.SUCCESS_TX_HASH_BY_MOCK);
 
 const SWAP_SERVICE = 'srv-paraswap';
 
@@ -96,7 +95,9 @@ testMetaMask.describe('Swap e2e tests', () => {
         await swapPage.waitDetachedSkeleton();
         await swapPage.waitLoadImg();
 
-        await expect(swapPage.getBaseContentElement()).toHaveScreenshot({ mask: [swapPage.page.locator('div.service-icon')] });
+        await expect(swapPage.getBaseContentElement()).toHaveScreenshot({
+            mask: [swapPage.page.locator(IGNORED_LOCATORS.SERVICE_ICON)],
+        });
     });
 
     testMetaMask('Case#: Swap if amount too big', async ({ browser, context, page, swapPageMockTokensList: swapPage }) => {

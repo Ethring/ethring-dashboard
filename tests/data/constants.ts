@@ -41,3 +41,9 @@ export enum DATA_QA_LOCATORS {
     ITEM = 'item',
     ROUTE_INFO = 'route-info',
 }
+
+export enum IGNORED_LOCATORS {
+    HEADER = '//header',
+    ASIDE = '//aside',
+    SERVICE_ICON = 'div.service-icon',
+}

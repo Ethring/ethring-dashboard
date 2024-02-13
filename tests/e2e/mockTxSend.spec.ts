@@ -10,6 +10,7 @@ import {
 import { getTestVar, TEST_CONST } from '../envHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage } from '../model/MetaMask/MetaMask.pages';
 import util from 'util';
+import { IGNORED_LOCATORS } from 'tests/data/constants';
 
 const sleep = util.promisify(setTimeout);
 
@@ -48,7 +49,7 @@ test.describe('Mocked send tx Metamask', () => {
 
         expect(sendPage.page).toHaveScreenshot({
             maxDiffPixels: 180, // This diff is text on notification modal
-            mask: [sendPage.page.locator('//header'), sendPage.page.locator('//aside')],
+            mask: [sendPage.page.locator(IGNORED_LOCATORS.HEADER), sendPage.page.locator(IGNORED_LOCATORS.ASIDE)],
         });
     });
 });
