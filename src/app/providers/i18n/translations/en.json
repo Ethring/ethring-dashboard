@@ -131,5 +131,11 @@
     "time": "Time",
     "fee": "Fee",
     "output": "Output"
+  },
+  "releaseNote": {
+    "supportedEcosystem": "New Ecosystem Support",
+    "supportedWallets": "User-Friendly Access",
+    "dashboardProtocols": "Dashboard Insights",
+    "keyModules": "Key Modules"
   }
 }

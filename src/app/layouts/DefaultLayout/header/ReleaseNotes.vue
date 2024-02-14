@@ -11,7 +11,7 @@
         </template>
 
         <a-space direction="vertical">
-            <a-typography-title :level="5">New Ecosystem Support:</a-typography-title>
+            <a-typography-title :level="5">{{ $t('releaseNote.supportedEcosystem') }}:</a-typography-title>
 
             <a-list size="small" item-layout="vertical" :data-source="EVM">
                 <template #header>
@@ -31,7 +31,7 @@
                 </template>
             </a-list>
 
-            <a-typography-title :level="5">User-Friendly Access:</a-typography-title>
+            <a-typography-title :level="5">{{ $t('releaseNote.supportedWallets') }}:</a-typography-title>
 
             <a-list size="small" item-layout="vertical" :data-source="AVAILABLE_WALLETS">
                 <template #renderItem="{ item }">
@@ -39,7 +39,7 @@
                 </template>
             </a-list>
 
-            <a-typography-title :level="5">Dashboard Insights:</a-typography-title>
+            <a-typography-title :level="5">{{ $t('releaseNote.dashboardProtocols') }}:</a-typography-title>
 
             <a-list size="small" item-layout="vertical" :data-source="AVAILABLE_PROTOCOLS">
                 <template #renderItem="{ item }">
@@ -49,7 +49,7 @@
 
             <a-list size="small" item-layout="vertical" :data-source="AVAILABLE_MODULES">
                 <template #header>
-                    <a-typography-title :level="5">Key Modules:</a-typography-title>
+                    <a-typography-title :level="5">{{ $t('releaseNote.keyModules') }}:</a-typography-title>
                 </template>
                 <template #renderItem="{ item }">
                     <a-list-item> {{ item }} </a-list-item>
