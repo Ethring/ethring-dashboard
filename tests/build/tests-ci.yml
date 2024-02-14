@@ -4,7 +4,7 @@ variables:
   IMAGE_TXMANAGER_MOCK: registry.citadel.one/public/stubtxmanager/master:latest
   TX_MANAGER_API: http://txmanager:3000
   FF_NETWORK_PER_BUILD: "true"
-  CI_DEBUG_SERVICES: "true"
+  CI_DEBUG_SERVICES: "false"
 
 .default_artifacts: &default_artifacts
   paths:
