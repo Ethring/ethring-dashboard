@@ -16,11 +16,7 @@ export const COSMOS_NETWORKS = {
 
 export const MetaMaskDirPath = path.resolve(process.cwd(), 'data', `metamask-chrome-${getTestVar(TEST_CONST.MM_VERSION)}`);
 
-export const KeplrDirPath = path.resolve(
-    process.cwd(),
-    'data',
-    `keplr-extension-manifest-v2-v${getTestVar(TEST_CONST.KEPLR_VERSION)}`
-);
+export const KeplrDirPath = path.resolve(process.cwd(), 'data', `keplr-extension-manifest-v2-v${getTestVar(TEST_CONST.KEPLR_VERSION)}`);
 
 export enum DATA_QA_LOCATORS {
     SELECT_NETWORK = 'select-network',
@@ -44,4 +40,10 @@ export enum DATA_QA_LOCATORS {
     SELECT_BLOCK = 'select__block',
     ITEM = 'item',
     ROUTE_INFO = 'route-info',
+}
+
+export enum IGNORED_LOCATORS {
+    HEADER = '//header',
+    ASIDE = '//aside',
+    SERVICE_ICON = 'div.service-icon',
 }

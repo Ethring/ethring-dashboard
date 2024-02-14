@@ -42,16 +42,16 @@ export default function useTransactions() {
 
     // * Update transaction by id
     const updateTransactionById = async (id, transaction) => {
-        const updatedTransaction = await updateTransaction(id, transaction);
+        await updateTransaction(id, transaction);
 
-        if (updatedTransaction) {
-            const { requestID } = updatedTransaction;
+        // if (updatedTransaction) {
+        //     const { requestID } = updatedTransaction;
 
-            const txs = await getTransactionsByRequestID(requestID);
+        //     const txs = await getTransactionsByRequestID(requestID);
 
-            store.dispatch('txManager/setCurrentRequestID', requestID);
-            store.dispatch('txManager/setTransactionsForRequestID', { requestID, transactions: txs });
-        }
+        //     store.dispatch('txManager/setCurrentRequestID', requestID);
+        //     store.dispatch('txManager/setTransactionsForRequestID', { requestID, transactions: txs });
+        // }
     };
 
     // * Add transaction to existing queue

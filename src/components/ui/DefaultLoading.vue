@@ -1,7 +1,7 @@
 <template>
     <a-space direction="horizontal" align="baseline">
         <a-spin size="small" class="spin-loading" />
-        <span v-if="tip" class="spin-loading-tip">{{ $t(tip) }}</span>
+        <span v-if="tip" class="spin-loading-tip">{{ tip }}</span>
     </a-space>
 </template>
 <script>
