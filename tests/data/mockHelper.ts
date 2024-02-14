@@ -1,5 +1,5 @@
 import { TEST_CONST, getTestVar } from 'tests/envHelper';
-import { COSMOS_NETWORKS } from './constants';
+import { COSMOS_NETWORKS, MEMO_BY_KEPLR_TEST } from './constants';
 
 const emptyBalanceMockData = { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' };
 
@@ -1678,6 +1678,7 @@ const mockPostTransactionsRouteSendRejectKeplr = {
                     priceChange: '0.398611',
                     coingecko_id: 'cosmos',
                 },
+                memo: MEMO_BY_KEPLR_TEST,
                 amount: '0.001',
                 toAddress: COSMOS_NETWORKS.cosmos,
                 fromAddress: mockAddressFrom3,
@@ -1715,6 +1716,7 @@ const mockPostTransactionsWsByCreateEventSendRejectKeplr = {
     module: 'Zomet - Send',
     parameters: {
         amount: '0.001',
+        memo: MEMO_BY_KEPLR_TEST,
         fromAddress: mockAddressFrom3,
         toAddress: COSMOS_NETWORKS.cosmos,
         token: {
@@ -1813,6 +1815,7 @@ const mockPutTransactionsRouteSendRejectKeplr = {
                 priceChange: '0.398611',
                 coingecko_id: 'cosmos',
             },
+            memo: MEMO_BY_KEPLR_TEST,
             amount: '0.001',
             toAddress: COSMOS_NETWORKS.cosmos,
             fromAddress: mockAddressFrom3,
@@ -1848,6 +1851,7 @@ const mockPutTransactionsWsByUpdateTransactionEventInProgressSendRejectKeplr = {
     },
     module: 'Zomet - Send',
     parameters: {
+        memo: MEMO_BY_KEPLR_TEST,
         amount: '0.001',
         fromAddress: mockAddressFrom3,
         toAddress: COSMOS_NETWORKS.cosmos,

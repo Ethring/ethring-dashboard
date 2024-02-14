@@ -17,7 +17,7 @@ import {
 } from '../data/mockHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage, getHomeMmPage } from '../model/MetaMask/MetaMask.pages';
 import { KeplrNotifyPage, getNotifyKeplrPage } from '../model/Keplr/Keplr.pages';
-import { EVM_NETWORKS, COSMOS_NETWORKS, IGNORED_LOCATORS } from '../data/constants';
+import { EVM_NETWORKS, COSMOS_NETWORKS, IGNORED_LOCATORS, MEMO_BY_KEPLR_TEST } from '../data/constants';
 import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
 
 const sleep = util.promisify(setTimeout);
@@ -134,7 +134,7 @@ testKeplr.describe('Keplr Send e2e tests', () => {
         const addressTo = COSMOS_NETWORKS[network];
         const WAITED_URL = `**/srv-data-provider/api/balances?net=${network}**`;
         const amount = '0.001';
-        const memo = '105371789';
+        const memo = MEMO_BY_KEPLR_TEST;
 
         await sendPage.mockBalanceRequest(network.toLowerCase(), mockBalanceCosmosWallet[network], addressFrom);
         const balancePromise = sendPage.page.waitForResponse(WAITED_URL);

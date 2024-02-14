@@ -49,3 +49,5 @@ export enum IGNORED_LOCATORS {
     ASIDE = '//aside',
     SERVICE_ICON = 'div.service-icon',
 }
+
+export const MEMO_BY_KEPLR_TEST = '105371789'
