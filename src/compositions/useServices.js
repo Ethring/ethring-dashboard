@@ -899,6 +899,10 @@ export default function useModule({ moduleType }) {
             return (estimateErrorTitle.value = t('tokenOperations.selectDifferentToken'));
         }
 
+        if (['super-swap', 'send'].includes(moduleType)) {
+            return;
+        }
+
         return await makeEstimateRequest();
     });
 
