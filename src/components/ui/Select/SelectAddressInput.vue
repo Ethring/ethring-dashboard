@@ -1,10 +1,5 @@
 <template>
-    <a-form-item
-        class="select-panel"
-        :class="{ active: active, focused, error: isError }"
-        @click="active = true"
-        v-click-away="(active = false)"
-    >
+    <a-form-item class="select-panel" :class="{ active, focused, error: isError }">
         <div class="input-label">{{ $t('tokenOperations.recipient') }}</div>
 
         <a-input-group compact class="input-group">
