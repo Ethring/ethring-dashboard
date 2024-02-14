@@ -10,7 +10,6 @@
                     :value="srcAmount"
                     :label="$t('tokenOperations.from')"
                     :token="selectedSrcToken"
-                    :is-token-loading="isTokensLoadingForSrc"
                     @setAmount="onSetAmount"
                 >
                     <SelectRecord
@@ -32,7 +31,6 @@
                 :value="dstAmount"
                 :token="selectedDstToken"
                 :isAmountLoading="isEstimating"
-                :is-token-loading="isTokensLoadingForDst"
                 :percentage="differPercentage"
                 disabled
                 hide-max

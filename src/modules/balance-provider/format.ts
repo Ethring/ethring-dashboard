@@ -85,6 +85,7 @@ const cosmosChainTokens = (record: AssetBalance, opt: RecordOptions = {}) => {
 
     if (record.address && record.address.startsWith('IBC')) {
         record.address = record.address.replace('IBC', 'ibc');
+        record.base = record.address;
     }
 
     if (!record.base && record.address && record.address.length <= 5) {

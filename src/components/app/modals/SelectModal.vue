@@ -11,16 +11,14 @@
             </a-form>
 
             <div class="select-modal-list-container">
-                <TransitionGroup tag="div" name="options" class="select-modal-list">
-                    <SelectOption
-                        v-for="option in optionList"
-                        :key="option"
-                        :record="option"
-                        :type="type"
-                        :label="type === 'network' ? option?.name : option?.symbol"
-                        @click="(event) => handleOnSelect(event, option)"
-                    />
-                </TransitionGroup>
+                <SelectOption
+                    v-for="option in optionList"
+                    :key="option"
+                    :record="option"
+                    :type="type"
+                    :label="type === 'network' ? option?.name : option?.symbol"
+                    @click="(event) => handleOnSelect(event, option)"
+                />
 
                 <div v-if="isLoadMore" class="select-modal-load-more">
                     <Button :title="$t('tokenOperations.loadMore')" @click="handleLoadMore" />

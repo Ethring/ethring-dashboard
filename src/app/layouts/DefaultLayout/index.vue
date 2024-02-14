@@ -43,7 +43,7 @@ export default {
 
         const loadingTitle = computed(() => {
             if (isConfigLoading.value) {
-                return 'loadings.configLoading';
+                return 'loadings.initLoading';
             }
 
             if (isConnecting.value) {

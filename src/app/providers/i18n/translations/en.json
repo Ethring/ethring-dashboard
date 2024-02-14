@@ -4,7 +4,7 @@
   },
   "loadings": {
     "walletConnecting": "Connecting wallet ...",
-    "configLoading": "Loading config ..."
+    "initLoading": "Please wait we are preparing our application for you"
   },
   "dashboard": {
     "receive": "RECEIVE",

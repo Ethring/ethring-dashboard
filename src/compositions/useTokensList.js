@@ -140,6 +140,10 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             }
 
             for (const tkn of allTokens) {
+                if (network.ecosystem === ECOSYSTEMS.COSMOS && tkn.address && !tkn.base) {
+                    tkn.base = tkn.address;
+                }
+
                 const isSelected = (isFromSelected.value && tkn.id === fromToken?.id) || tkn.id === toToken?.id;
                 tkn.selected = isSelected;
             }

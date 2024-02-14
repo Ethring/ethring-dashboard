@@ -6,27 +6,25 @@
             height: `${height}px`,
         }"
     >
-        <a-skeleton-avatar v-if="isImageLoading" active />
-
-        <template v-else>
+        <template v-if="token && !isShowPlaceholder">
             <img
                 :key="token?.symbol"
                 :src="token?.logo"
                 :alt="token?.name || token?.symbol"
+                loading="lazy"
                 @error="() => handleOnErrorImg()"
                 @load="() => handleOnLoadImg()"
             />
-
-            <template v-if="isShowPlaceholder">
-                <div class="token-icon__placeholder">
-                    <a-avatar :size="+width">{{ token?.symbol || '' }}</a-avatar>
-                </div>
-            </template>
+        </template>
+        <template v-else>
+            <div class="token-icon__placeholder">
+                <a-avatar :size="+width">{{ token?.symbol || '' }}</a-avatar>
+            </div>
         </template>
     </div>
 </template>
 <script>
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 
 export default {
     name: 'TokenIcon',
@@ -46,25 +44,18 @@ export default {
         },
     },
     setup(props) {
-        const isImageLoading = ref(false);
         const isShowPlaceholder = ref(!props.token?.logo || false);
 
         const handleOnErrorImg = () => {
-            isImageLoading.value = false;
             isShowPlaceholder.value = true;
         };
 
         const handleOnLoadImg = () => {
             isShowPlaceholder.value = false;
-            isImageLoading.value = false;
         };
 
         onMounted(() => {
-            isImageLoading.value = true;
-            isShowPlaceholder.value = true;
-
             if (!props.token?.logo) {
-                isImageLoading.value = false;
                 isShowPlaceholder.value = true;
             }
         });
@@ -72,20 +63,17 @@ export default {
         watch(
             () => props.token,
             () => {
+                if (props.token) {
+                    isShowPlaceholder.value = false;
+                }
+
                 if (!props.token?.logo) {
-                    isImageLoading.value = false;
                     isShowPlaceholder.value = true;
                 }
             },
         );
 
-        onUnmounted(() => {
-            isImageLoading.value = false;
-            isShowPlaceholder.value = false;
-        });
-
         return {
-            isImageLoading,
             isShowPlaceholder,
 
             handleOnLoadImg,

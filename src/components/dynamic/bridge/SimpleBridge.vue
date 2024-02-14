@@ -25,7 +25,6 @@
             :on-reset="resetSrcAmount"
             :disabled="!selectedSrcToken"
             :label="$t('tokenOperations.transferFrom')"
-            :is-token-loading="isTokensLoadingForSrc"
             :is-update="isUpdateSwapDirection"
             :amount-value="srcAmount"
             class="mt-8"
@@ -39,7 +38,6 @@
             disabled
             :value="selectedDstToken"
             :is-amount-loading="isEstimating"
-            :is-token-loading="isTokensLoadingForDst"
             :is-update="isUpdateSwapDirection"
             :label="$t('tokenOperations.transferTo')"
             :disabled-value="dstAmount"

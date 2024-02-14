@@ -47,7 +47,7 @@ export default {
             required: false,
         },
         reward: {
-            type: Number,
+            type: [String, Number],
             default: 0,
         },
         showRewards: {
@@ -55,11 +55,11 @@ export default {
             default: false,
         },
         totalBalance: {
-            type: Number,
+            type: [String, Number],
             default: 0,
         },
         healthRate: {
-            type: Number,
+            type: [String, Number],
             default: 0,
         },
         icon: {

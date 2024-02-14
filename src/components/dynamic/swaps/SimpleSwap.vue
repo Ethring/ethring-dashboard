@@ -10,7 +10,6 @@
                 :selected-network="selectedSrcNetwork"
                 :error="!!isBalanceError"
                 :on-reset="resetSrcAmount"
-                :is-token-loading="isTokensLoadingForChain"
                 :is-update="isUpdateSwapDirection"
                 :label="$t('tokenOperations.pay')"
                 :amount-value="srcAmount"
@@ -27,7 +26,6 @@
             <SelectAmountInput
                 disabled
                 hide-max
-                :is-token-loading="isTokensLoadingForChain"
                 :is-amount-loading="isEstimating"
                 :value="selectedDstToken"
                 :on-reset="resetDstAmount"
@@ -172,8 +170,6 @@ export default {
         const { currentRequestID, transactionForSign, createTransactions, signAndSend, addTransactionToRequestID } = useTransactions();
 
         const isWaitingTxStatusForModule = computed(() => store.getters['txManager/isWaitingTxStatusForModule'](module));
-
-        const balanceUpdated = ref(false);
 
         // =================================================================================================================
 
@@ -427,7 +423,6 @@ export default {
                 }
 
                 isLoading.value = false;
-                balanceUpdated.value = true;
             } catch (error) {
                 txError.value = error?.message || error?.error || error;
             }

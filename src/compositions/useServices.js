@@ -4,6 +4,7 @@ import { utils } from 'ethers';
 import { ref, computed, inject, watch, onBeforeUnmount, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
+import { message } from 'ant-design-vue';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 import useEstimate from './useEstimate';
@@ -27,6 +28,7 @@ import { formatNumber } from '@/shared/utils/numbers';
 import { useRouter } from 'vue-router';
 // import { callMethodByService } from '@/api/bridge-dex';
 import { updateBalanceByChain } from '@/modules/balance-provider';
+import { delay } from '@/shared/utils/helpers';
 
 export default function useModule({ moduleType }) {
     const { t } = useI18n();
@@ -1004,36 +1006,50 @@ export default function useModule({ moduleType }) {
 
     // =================================================================================================================
 
+    const timeout = ref(0);
+
     const unWatchTxStatusModule = watch(isWaitingTxStatusForModule, async () => {
         if (isWaitingTxStatusForModule.value) {
             return;
         }
 
+        // TODO: Update balance for src and dst networks
         const handleUpdateBalance = async (network) => {
-            const targetAddress = addressesByChains.value[network.net] || walletAddress.value;
+            const targetAccount = JSON.parse(JSON.stringify(walletAccount.value)) || '';
+            const address = JSON.parse(JSON.stringify(walletAddress.value)) || '';
+            const addressByChain = JSON.parse(JSON.stringify(addressesByChains.value[network.net])) || '';
 
-            await updateBalanceByChain(walletAccount.value, targetAddress, network.net, {
+            const targetAddress = addressByChain || address;
+
+            const waitTime = 3;
+            timeout.value = waitTime;
+
+            if (!targetAddress || !targetAccount) {
+                return;
+            }
+
+            const time = setInterval(() => {
+                if (timeout.value > 0) {
+                    timeout.value -= 1;
+                }
+            }, 1000);
+
+            message.loading({
+                content: () => `Updating balance for ${network.net} after ${timeout.value} sec`,
+            });
+
+            if (timeout.value === 0) {
+                clearInterval(time);
+                message.destroy();
+            }
+
+            await delay(waitTime * 1000); // 3 sec
+
+            return await updateBalanceByChain(targetAccount, targetAddress, network.net, {
                 isUpdate: true,
                 chain: network.net,
                 logo: network.logo,
             });
-
-            // await updateWalletBalances(walletAccount.value, targetAddress, network, (list) => {
-            //     if (!selectedSrcToken.value && !selectedDstToken.value) {
-            //         return;
-            //     }
-
-            //     const srcTkn = list.find((srcTkn) => srcTkn?.id === selectedSrcToken.value?.id);
-            //     const dstTkn = list.find((dstTkn) => dstTkn?.id === selectedDstToken.value?.id);
-
-            //     if (srcTkn) {
-            //         selectedSrcToken.value = srcTkn;
-            //     }
-
-            //     if (dstTkn) {
-            //         selectedDstToken.value = dstTkn;
-            //     }
-            // });
         };
 
         selectedSrcNetwork.value && (await handleUpdateBalance(selectedSrcNetwork.value));

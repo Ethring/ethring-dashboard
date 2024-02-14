@@ -150,21 +150,23 @@ export default function useTransactions() {
 
         const displayHash = transactionHash.slice(0, 8) + '...' + transactionHash.slice(-8);
 
-        showNotification({
-            key: `waiting-${transactionHash}-tx`,
-            type: 'info',
-            title: `Waiting for transaction ${displayHash} confirmation`,
-            description: 'Please wait for transaction confirmation',
-            icon: h(LoadingOutlined, {
-                spin: true,
-                'data-qa': `waiting-${transactionHash}-tx`,
-            }),
-            duration: 0,
-        });
+        if (transactionHash) {
+            showNotification({
+                key: `waiting-${transactionHash}-tx`,
+                type: 'info',
+                title: `Waiting for transaction ${displayHash} confirmation`,
+                description: 'Please wait for transaction confirmation',
+                icon: h(LoadingOutlined, {
+                    spin: true,
+                    'data-qa': `waiting-${transactionHash}-tx`,
+                }),
+                duration: 0,
+            });
 
-        // TODO: fix after demo
-        if (response.code) {
-            closeNotification(`waiting-${transactionHash}-tx`);
+            // TODO: fix after demo
+            if (response.code) {
+                closeNotification(`waiting-${transactionHash}-tx`);
+            }
         }
 
         return response;

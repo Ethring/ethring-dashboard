@@ -16,7 +16,6 @@
             :error="!!isBalanceError"
             :label="$t('tokenOperations.asset')"
             :on-reset="resetAmount"
-            :is-token-loading="isTokensLoadingForSrc"
             :amount-value="srcAmount"
             class="select-amount"
             @setAmount="onSetAmount"

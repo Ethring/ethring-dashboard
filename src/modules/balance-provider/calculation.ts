@@ -5,10 +5,30 @@ import { Type, IntegrationBalanceType } from './models/enums';
 
 export const getTotalBalance = (records: AssetBalance[], balance = BigNumber(0)) => {
     const totalSum = records.reduce((acc, token) => {
-        return acc.plus(+token.balanceUsd || 0);
+        return acc.plus(token.balanceUsd || 0);
     }, BigNumber(0));
 
     return balance.plus(totalSum);
+};
+
+export const getTotalBalanceByType = (balances: AssetBalance[], type = IntegrationBalanceType.ALL) => {
+    if (!balances.length) {
+        return '0';
+    }
+
+    if ([IntegrationBalanceType.FUTURES, IntegrationBalanceType.BORROW_AND_LENDING].includes(type)) {
+        const totalBalance = getTotalBalanceByDiff(balances, BigNumber(0));
+        return totalBalance.toString();
+    }
+
+    if (type === IntegrationBalanceType.PENDING) {
+        return balances
+            .filter(({ balanceType }) => balanceType === type)
+            .reduce((sum, token) => sum.plus(token.balanceUsd || 0), BigNumber(0))
+            .toString();
+    }
+
+    return balances.reduce((sum, token) => sum.plus(token.balanceUsd || 0), BigNumber(0)).toString();
 };
 
 export const getIntegrationsBalance = (integrations: IntegrationBalance[]) => {
@@ -27,7 +47,7 @@ export const getIntegrationsBalance = (integrations: IntegrationBalance[]) => {
         }
     }
 
-    return balance;
+    return balance.toString();
 };
 
 export const getTotalBalanceByDiff = (records: AssetBalance[], totalBalance = BigNumber(0)) => {
@@ -36,9 +56,9 @@ export const getTotalBalanceByDiff = (records: AssetBalance[], totalBalance = Bi
 
     for (let token of records) {
         if (token.balanceType === IntegrationBalanceType.BORROW) {
-            borrowTotalUsd = borrowTotalUsd.plus(+token.balanceUsd);
+            borrowTotalUsd = borrowTotalUsd.plus(token.balanceUsd);
         } else {
-            depositTotalUsd = depositTotalUsd.plus(+token.balanceUsd);
+            depositTotalUsd = depositTotalUsd.plus(token.balanceUsd);
         }
     }
 
