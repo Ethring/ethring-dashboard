@@ -70,6 +70,7 @@ declare module 'vue' {
     KadoModal: typeof import('./src/components/app/modals/KadoModal.vue')['default']
     LoadingOverlay: typeof import('./src/components/ui/LoadingOverlay.vue')['default']
     LogoLoading: typeof import('./src/components/ui/LogoLoading.vue')['default']
+    MemoInput: typeof import('./src/components/ui/MemoInput.vue')['default']
     Modal: typeof import('./src/components/app/Modal.vue')['default']
     NFTInfo: typeof import('./src/components/app/assets/NFT/NFT-Info.vue')['default']
     NFTItem: typeof import('./src/components/app/assets/NFT/NFT-Item.vue')['default']

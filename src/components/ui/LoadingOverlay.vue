@@ -24,6 +24,8 @@ export default {
 };
 </script>
 <style lang="scss">
+@import '../../assets/styles/index.scss';
+
 .loading-overlay {
     @include pageFlexRow;
     justify-content: center;

@@ -24,13 +24,15 @@
         />
 
         <a-form-item v-if="selectedSrcNetwork?.ecosystem === ECOSYSTEMS.COSMOS">
-            <Checkbox v-model:value="isMemoAllowed" :label="`Memo`" class="mt-8" />
+            <div class="row mt-8">
+                <Checkbox v-model:value="isMemoAllowed" :label="`Memo`" />
 
-            <a-tooltip placement="right" :title="$t('simpleSend.memoDescription')">
-                <InfoIcon class="info-icon"/>
-            </a-tooltip>
+                <a-tooltip placement="right" :title="$t('tokenOperations.memoDescription')">
+                    <InfoIcon/>
+                </a-tooltip>
+            </div>
 
-            <Input v-if="isMemoAllowed" :value="memo" @setValue="(val) => (memo = val)" class="mt-8" label="Input memo"/>
+            <MemoInput v-if="isMemoAllowed" class="mt-8"/>
         </a-form-item>
 
         <Button
@@ -56,7 +58,7 @@ import useNotification from '@/compositions/useNotification';
 import useTransactions from '../../../Transactions/compositions/useTransactions';
 import useServices from '../../../compositions/useServices';
 
-import Input from '@/components/ui/Input.vue';
+import MemoInput from '@/components/ui/MemoInput.vue';
 import Button from '@/components/ui/Button';
 import Checkbox from '@/components/ui/Checkbox';
 
@@ -81,7 +83,7 @@ export default {
         SelectAddressInput,
         SelectAmountInput,
         Button,
-        Input,
+        MemoInput,
         Checkbox,
         InfoIcon,
     },
@@ -128,7 +130,11 @@ export default {
         const isAddressError = ref(false);
 
         const isMemoAllowed = ref(false);
-        const memo = ref('');
+
+        const memo = computed({
+            get: () => store.getters['tokenOps/memo'],
+            set: (value) => store.dispatch('tokenOps/setMemo', value),
+        });
 
         // =================================================================================================================
 
@@ -295,17 +301,9 @@ export default {
             currentChainInfo,
 
             isMemoAllowed,
-            memo,
 
             ECOSYSTEMS
         };
     },
 };
 </script>
-
-<style lang="scss" scoped>
-.info-icon{
-    position: absolute;
-    top: 10px;
-}
-</style>
