@@ -195,7 +195,7 @@ export default {
                 !dstAmount.value ||
                 !selectedSrcNetwork.value ||
                 !selectedSrcToken.value ||
-                !selectedDstToken.value,
+                !selectedDstToken.value
         );
 
         // =================================================================================================================
@@ -432,14 +432,6 @@ export default {
         };
 
         // =================================================================================================================
-
-        watch(txError, () => {
-            if (!txError.value) {
-                return;
-            }
-
-            isLoading.value = false;
-        });
 
         watch(srcAmount, () => resetAmounts(DIRECTIONS.SOURCE, srcAmount.value));
 

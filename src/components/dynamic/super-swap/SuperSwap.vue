@@ -316,7 +316,7 @@ export default {
                 !selectedDstNetwork.value ||
                 !selectedSrcToken.value ||
                 !selectedDstToken.value ||
-                (isSendToAnotherAddress.value && (isAddressError.value || !receiverAddress.value)),
+                (isSendToAnotherAddress.value && (isAddressError.value || !receiverAddress.value))
         );
 
         // =================================================================================================================
@@ -431,7 +431,7 @@ export default {
                 selectedDstToken.value,
                 selectedSrcNetwork.value,
                 selectedDstNetwork.value,
-                currentChainInfo.value.native_token,
+                currentChainInfo.value.native_token
             );
 
             if (resEstimate && resEstimate.error) {
@@ -735,14 +735,6 @@ export default {
             }
 
             return await getEstimateInfo();
-        });
-
-        watch(txError, () => {
-            if (!txError.value) {
-                return;
-            }
-
-            isSwapLoading.value = false;
         });
 
         watch(isWaitingTxStatusForModule, () => {
