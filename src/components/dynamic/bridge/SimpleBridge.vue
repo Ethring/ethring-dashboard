@@ -6,11 +6,16 @@
                     :current="selectedSrcNetwork"
                     :placeholder="$t('tokenOperations.selectNetwork')"
                     @click="() => onSelectNetwork(DIRECTIONS.SOURCE)"
+                    :disabled="isWaitingTxStatusForModule"
                 />
 
-                <SwitchDirection :disabled="!isUpdateSwapDirection || !selectedDstNetwork" @click="() => swapDirections(true)" />
+                <SwitchDirection
+                    :disabled="isWaitingTxStatusForModule || !isUpdateSwapDirection || !selectedDstNetwork"
+                    @click="() => swapDirections(true)"
+                />
 
                 <SelectRecord
+                    :disabled="isWaitingTxStatusForModule"
                     :current="selectedDstNetwork"
                     :placeholder="$t('tokenOperations.selectNetwork')"
                     class="select-group-to"
@@ -23,7 +28,8 @@
             :value="selectedSrcToken"
             :error="!!isBalanceError"
             :on-reset="resetSrcAmount"
-            :disabled="!selectedSrcToken"
+            :disabled-select="isWaitingTxStatusForModule"
+            :disabled="isWaitingTxStatusForModule || !selectedSrcToken"
             :label="$t('tokenOperations.transferFrom')"
             :is-update="isUpdateSwapDirection"
             :amount-value="srcAmount"
@@ -36,6 +42,7 @@
             v-if="selectedDstNetwork"
             hide-max
             disabled
+            :disabled-select="isWaitingTxStatusForModule"
             :value="selectedDstToken"
             :is-amount-loading="isEstimating"
             :is-update="isUpdateSwapDirection"
@@ -94,11 +101,11 @@ import { SettingOutlined } from '@ant-design/icons-vue';
 
 // Notification
 import useNotification from '@/compositions/useNotification';
-import useServices from '../../../compositions/useServices';
+import useServices from '@/compositions/useServices';
 
 // Transaction Management
-import useTransactions from '../../../Transactions/compositions/useTransactions';
-import { STATUSES } from '../../../Transactions/shared/constants';
+import useTransactions from '@/Transactions/compositions/useTransactions';
+import { STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
 
 import {
     getBridgeTx,
@@ -188,6 +195,8 @@ export default {
             isLoading,
             isShowEstimateInfo,
 
+            isWaitingTxStatusForModule,
+
             swapDirections,
 
             clearApproveForService,
@@ -205,8 +214,6 @@ export default {
         // =================================================================================================================
         // Loaders
 
-        const isWaitingTxStatusForModule = computed(() => store.getters['txManager/isWaitingTxStatusForModule'](module));
-
         const clearAddress = ref(false);
         const balanceUpdated = ref(false);
         const isSendToAnotherAddress = ref(false);
@@ -217,8 +224,13 @@ export default {
         // =================================================================================================================
 
         const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
-        const isTokensLoadingForSrc = computed(() => store.getters['tokens/loadingByChain'](walletAccount.value, selectedSrcNetwork.value?.net));
-        const isTokensLoadingForDst = computed(() => store.getters['tokens/loadingByChain'](walletAccount.value, selectedDstNetwork.value?.net));
+        const isTokensLoadingForSrc = computed(() =>
+            store.getters['tokens/loadingByChain'](walletAccount.value, selectedSrcNetwork.value?.net),
+        );
+
+        const isTokensLoadingForDst = computed(() =>
+            store.getters['tokens/loadingByChain'](walletAccount.value, selectedDstNetwork.value?.net),
+        );
 
         // =================================================================================================================
 
@@ -379,7 +391,7 @@ export default {
                 chainId: `${selectedSrcNetwork.value?.chain_id}`,
                 metaData: {
                     action: 'formatTransactionForSign',
-                    type: 'Approve',
+                    type: TRANSACTION_TYPES.APPROVE,
                     successCallback: {
                         action: 'GET_ALLOWANCE',
                         requestParams: {
@@ -417,7 +429,10 @@ export default {
                 chainId: `${selectedSrcNetwork.value?.chain_id}`,
                 metaData: {
                     action: 'formatTransactionForSign',
-                    type: 'BRIDGE',
+                    type: TRANSACTION_TYPES.BRIDGE,
+                    from: `${selectedSrcNetwork.value?.chain_id}`,
+                    to: `${selectedDstNetwork.value?.chain_id}`,
+                    receiverAddress: receiverAddress.value,
                     successCallback: {
                         action: 'CLEAR_AMOUNTS',
                     },

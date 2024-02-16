@@ -4,7 +4,6 @@ import RequestQueue from '@/modules/balance-provider/queue';
 
 import store from '@/app/providers/store.provider';
 
-import { DP_COSMOS } from '@/modules/balance-provider/chains';
 import { Type } from '@/modules/balance-provider/models/enums';
 import {
     ChainAddresses,
@@ -71,9 +70,7 @@ export const updateBalanceByChain = async (account: string, address: string, cha
     try {
         store.dispatch('tokens/setLoadingByChain', { chain, account, value: true });
 
-        const requestChain = DP_COSMOS[chain] || chain;
-
-        const balanceForChain: BalanceResponse | null = await getBalancesByAddress(requestChain, address, providerOptions);
+        const balanceForChain: BalanceResponse | null = await getBalancesByAddress(chain, address, providerOptions);
 
         if (!balanceForChain) {
             return store.dispatch('tokens/setLoadingByChain', { chain, account, value: false });

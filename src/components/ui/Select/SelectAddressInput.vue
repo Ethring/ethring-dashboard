@@ -1,7 +1,7 @@
 <template>
     <a-form-item
         class="select-panel"
-        :class="{ active: active, focused, error: isError }"
+        :class="{ active: active, focused, error: isError, disabled }"
         @click="active = true"
         v-click-away="(active = false)"
     >
@@ -16,6 +16,7 @@
                 v-model:value="address"
                 class="base-input"
                 data-qa="input-address"
+                :disabled="disabled"
                 :bordered="false"
                 :placeholder="placeholder"
                 v-debounce:1s="onInput"
@@ -59,6 +60,10 @@ export default {
         },
         onReset: {
             type: [Boolean, String],
+            default: false,
+        },
+        disabled: {
+            type: Boolean,
             default: false,
         },
     },
@@ -158,7 +163,7 @@ export default {
 
         watch(
             () => props.onReset,
-            () => resetAddress()
+            () => resetAddress(),
         );
 
         return {

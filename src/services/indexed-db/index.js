@@ -42,11 +42,11 @@ class IndexedDBService {
         });
 
         this.db.on('populate', () => {
-            logger.info('Database is populated');
+            logger.debug('Database is populated');
         });
 
         this.db.on('ready', () => {
-            logger.info('Database is ready');
+            logger.debug('Database is ready');
         });
     }
 

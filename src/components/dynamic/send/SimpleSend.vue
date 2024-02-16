@@ -1,12 +1,18 @@
 <template>
     <a-form>
         <a-form-item>
-            <SelectRecord :placeholder="$t('tokenOperations.selectNetwork')" :current="selectedSrcNetwork" @click="onSelectNetwork" />
+            <SelectRecord
+                :disabled="isWaitingTxStatusForModule"
+                :placeholder="$t('tokenOperations.selectNetwork')"
+                :current="selectedSrcNetwork"
+                @click="onSelectNetwork"
+            />
         </a-form-item>
 
         <SelectAddressInput
             :on-reset="clearAddress"
             :selected-network="selectedSrcNetwork"
+            :disabled="isWaitingTxStatusForModule"
             @error-status="(status) => (isAddressError = status)"
         />
 
@@ -17,6 +23,8 @@
             :label="$t('tokenOperations.asset')"
             :on-reset="resetAmount"
             :amount-value="srcAmount"
+            :disabled-select="isWaitingTxStatusForModule"
+            :disabled="isWaitingTxStatusForModule || isTokensLoadingForSrc"
             class="select-amount"
             @setAmount="onSetAmount"
             @clickToken="onSelectToken"
@@ -47,14 +55,12 @@ import useServices from '../../../compositions/useServices';
 
 import Button from '@/components/ui/Button';
 import SelectRecord from '@/components/ui/Select/SelectRecord';
-// import SelectAddress from '@/components/ui/SelectAddress';
-// import SelectAmount from '@/components/ui/SelectAmount';
 
 import SelectAddressInput from '@/components/ui/Select/SelectAddressInput';
 import SelectAmountInput from '@/components/ui/Select/SelectAmountInput';
 
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
-import { STATUSES } from '../../../Transactions/shared/constants';
+import { STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
 
 import { isCorrectChain } from '@/shared/utils/operations';
 
@@ -119,7 +125,7 @@ export default {
                 !+srcAmount.value ||
                 !receiverAddress.value?.length ||
                 !selectedSrcToken.value ||
-                !currentChainInfo.value
+                !currentChainInfo.value,
         );
 
         const onSelectToken = () => handleOnSelectToken({ direction: DIRECTIONS.SOURCE, type: TOKEN_SELECT_TYPES.FROM });
@@ -193,7 +199,7 @@ export default {
                         chainId: `${selectedSrcNetwork.value?.chain_id}`,
                         metaData: {
                             action: 'prepareTransaction',
-                            type: 'Transfer',
+                            type: TRANSACTION_TYPES.TRANSFER,
                             successCallback: {
                                 action: 'CLEAR_AMOUNTS',
                             },

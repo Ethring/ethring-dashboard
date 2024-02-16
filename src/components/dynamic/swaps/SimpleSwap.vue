@@ -1,12 +1,19 @@
 <template>
     <a-form>
         <a-form-item>
-            <SelectRecord :current="selectedSrcNetwork" :placeholder="$t('tokenOperations.selectNetwork')" @click="onSelectNetwork" />
+            <SelectRecord
+                :disabled="isWaitingTxStatusForModule"
+                :current="selectedSrcNetwork"
+                :placeholder="$t('tokenOperations.selectNetwork')"
+                @click="onSelectNetwork"
+            />
         </a-form-item>
 
         <div class="switch-direction-wrap">
             <SelectAmountInput
                 :value="selectedSrcToken"
+                :disabled="isWaitingTxStatusForModule"
+                :disabled-select="isWaitingTxStatusForModule"
                 :selected-network="selectedSrcNetwork"
                 :error="!!isBalanceError"
                 :on-reset="resetSrcAmount"
@@ -19,13 +26,14 @@
 
             <SwitchDirection
                 class="swap-module"
-                :disabled="!selectedDstToken || !isUpdateSwapDirection"
+                :disabled="isWaitingTxStatusForModule || !selectedDstToken || !isUpdateSwapDirection"
                 :on-click-switch="() => swapDirections(false)"
             />
 
             <SelectAmountInput
                 disabled
                 hide-max
+                :disabled-select="isWaitingTxStatusForModule"
                 :is-amount-loading="isEstimating"
                 :value="selectedDstToken"
                 :on-reset="resetDstAmount"
@@ -74,7 +82,7 @@ import useServices from '../../../compositions/useServices';
 
 // Transaction Management
 import useTransactions from '../../../Transactions/compositions/useTransactions';
-import { STATUSES } from '../../../Transactions/shared/constants';
+import { STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
 
 // Components
 import Button from '@/components/ui/Button';
@@ -148,12 +156,13 @@ export default {
             isShowEstimateInfo,
 
             addressesByChains,
+            isUpdateSwapDirection,
+            isWaitingTxStatusForModule,
 
             clearApproveForService,
 
             makeApproveRequest,
 
-            isUpdateSwapDirection,
             swapDirections,
 
             handleOnSelectToken,
@@ -168,8 +177,6 @@ export default {
 
         // * Transaction Manager
         const { currentRequestID, transactionForSign, createTransactions, signAndSend, addTransactionToRequestID } = useTransactions();
-
-        const isWaitingTxStatusForModule = computed(() => store.getters['txManager/isWaitingTxStatusForModule'](module));
 
         // =================================================================================================================
 
@@ -323,7 +330,7 @@ export default {
                 chainId: `${selectedSrcNetwork.value?.chain_id}`,
                 metaData: {
                     action: 'formatTransactionForSign',
-                    type: 'Approve',
+                    type: TRANSACTION_TYPES.APPROVE,
                     successCallback: {
                         action: 'GET_ALLOWANCE',
                         requestParams: {
@@ -359,7 +366,7 @@ export default {
                 chainId: `${selectedSrcNetwork.value?.chain_id}`,
                 metaData: {
                     action: 'formatTransactionForSign',
-                    type: 'SWAP',
+                    type: TRANSACTION_TYPES.DEX,
                     successCallback: {
                         action: 'CLEAR_AMOUNTS',
                     },

@@ -2,7 +2,9 @@ import useNotification from '@/compositions/useNotification';
 
 import { getAllowance, getApproveTx, getSwapTx, getBridgeTx } from '../../../api/services';
 
-import { STATUSES } from '../constants';
+import { STATUSES, FINISHED_STATUSES } from '@/shared/models/enums/statuses.enum';
+
+import { detectUpdateForAccount } from '@/services/track-update-balance/utils';
 
 const SUCCESS_CALLBACKS = {
     GET_SWAP_TX: getSwapTx,
@@ -58,7 +60,6 @@ const statusNotification = (status, { store, type = 'Transfer', displayHash, exp
                 }
 
                 if (SUCCESS_CALLBACKS[action]) {
-                    console.log('SUCCESS_CALLBACKS[action]', SUCCESS_CALLBACKS[action]);
                     SUCCESS_CALLBACKS[action]({ ...requestParams, store });
                 }
             }
@@ -66,37 +67,39 @@ const statusNotification = (status, { store, type = 'Transfer', displayHash, exp
             return showNotification(notificationBody);
 
         case STATUSES.FAILED:
-            console.log('failCallback', failCallback);
+            // console.log('failCallback', failCallback);
             return showNotification(notificationBody);
     }
 };
 
-export const handleTransactionStatus = (transaction, store) => {
-    const { closeNotification } = useNotification();
+export const handleTransactionStatus = async (transaction, store, event) => {
+    try {
+        await detectUpdateForAccount(event, store, transaction);
+    } catch (error) {
+        console.error('Error on detectUpdateForAccount', error);
+    }
+
+    const { closeNotification, destroyAllNotifications } = useNotification();
 
     const { metaData, module, status, txHash = '' } = transaction;
+    const { explorerLink, type, successCallback = null, failCallback = null } = metaData || {};
 
-    switch (status) {
-        case STATUSES.IN_PROGRESS:
-        case STATUSES.PENDING:
-            store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: true });
-            break;
-        case STATUSES.SUCCESS:
-        case STATUSES.FAILED:
-        case STATUSES.REJECTED:
-            store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
-            closeNotification('prepare-tx');
-            break;
+    if (FINISHED_STATUSES.includes(status)) {
+        await store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, type, hash: txHash, status, isWaiting: false });
+        closeNotification('prepare-tx');
+    } else {
+        await store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, type, hash: txHash, status, isWaiting: true });
+        await store.dispatch('txManager/setCurrentRequestID', null);
     }
 
     let displayHash = txHash;
 
     if (txHash) {
+        closeNotification('prepare-tx');
         closeNotification(`waiting-${txHash}-tx`);
+        destroyAllNotifications();
         displayHash = txHash.slice(0, 8) + '...' + txHash.slice(-8);
     }
-
-    const { explorerLink, type, successCallback = null, failCallback = null } = metaData || {};
 
     return statusNotification(status, { store, type, displayHash, explorerLink, successCallback, failCallback });
 };

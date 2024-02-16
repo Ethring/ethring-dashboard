@@ -11,10 +11,8 @@
     </KeepAlive>
 </template>
 <script>
-import { onMounted, watch, ref, computed, inject, onBeforeMount, onBeforeUnmount } from 'vue';
+import { onMounted, watch, computed, inject, onBeforeMount, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
-
-// import useInit from '@/compositions/useInit/';
 
 import Socket from '@/app/modules/socket';
 
@@ -26,8 +24,9 @@ import AddressModal from '@/Adapter/UI/Modal/AddressModal';
 import KadoModal from '@/components/app/modals/KadoModal.vue';
 import RoutesModal from '@/components/app/modals/RoutesModal.vue';
 
-// import { delay } from '@/shared/utils/helpers';
 import { updateBalanceForAccount } from '@/modules/balance-provider';
+
+import { trackingBalanceUpdate } from '@/services/track-update-balance';
 
 export default {
     name: 'App',
@@ -63,7 +62,6 @@ export default {
         });
 
         const callSubscription = () => {
-            console.log('callSubscription', walletAddress.value);
             const { ecosystem } = currentChainInfo.value || {};
 
             if (JSON.stringify(addressesWithChains.value) !== '{}' && walletAddress.value) {
@@ -112,6 +110,13 @@ export default {
             // Stop watching
             unWatchAcc();
             unWatchLoading();
+        });
+
+        // ==========================================================================================
+        // * Tracking balance update for all accounts
+        onMounted(() => {
+            // * Tracking balance update for all accounts
+            trackingBalanceUpdate(store);
         });
     },
 };

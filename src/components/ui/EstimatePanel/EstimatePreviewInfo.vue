@@ -178,7 +178,6 @@ export default {
             }
 
             if (!services.length && !fees.length) {
-                console.log('!services.length || !fees.length');
                 return false;
             }
 

@@ -7,7 +7,7 @@ import { getTotalBalance, getIntegrationsBalance, getTotalBalanceByType } from '
 
 import IndexedDBService from '@/services/indexed-db';
 
-const balancesDB = new IndexedDBService('balances', 1);
+const balancesDB = new IndexedDBService('balances', 2);
 
 const BALANCE_ALLOW_TYPES = ['tokens', 'integrations'];
 

@@ -2,6 +2,8 @@ import { io } from 'socket.io-client';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
+import { SocketEvents } from '@/shared/models/enums/socket-events.enum';
+
 import { handleTransactionStatus } from '@/Transactions/shared/utils/tx-statuses';
 
 import logger from '@/shared/logger';
@@ -47,13 +49,12 @@ class SocketInstance {
         this.addressesSubscription(this.addresses[ECOSYSTEMS.EVM], this.walletAddress);
         this.addressesSubscription(this.addresses[ECOSYSTEMS.COSMOS], this.walletAddress);
 
-        this.socket.on('update_transaction', (data) => {
-            logger.info(`[Socket] >>> update_transaction event: ${JSON.stringify(data)}`);
-            handleTransactionStatus(data, this.store);
+        this.socket.on(SocketEvents.update_transaction, async (data) => {
+            await handleTransactionStatus(data, this.store, SocketEvents.update_transaction);
         });
-        this.socket.on('update_transaction_status', (data) => {
-            logger.info(`[Socket] >>> update_transaction_status event: ${JSON.stringify(data)}`);
-            handleTransactionStatus(data, this.store);
+
+        this.socket.on(SocketEvents.update_transaction_status, async (data) => {
+            await handleTransactionStatus(data, this.store, SocketEvents.update_transaction_status);
         });
 
         logger.info('[Socket] Subscribed to transaction updates');
@@ -74,7 +75,7 @@ class SocketInstance {
     }
 
     addressSubscription(account) {
-        this.socket.emit('address-subscribe', account);
+        this.socket.emit(SocketEvents['address-subscribe'], account);
         logger.log(`[Socket] Subscribed to address updates: ${account}`);
     }
 

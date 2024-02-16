@@ -15,8 +15,13 @@ export default function useNotification() {
         notification.close(key);
     };
 
+    const destroyAllNotifications = () => {
+        notification.destroy();
+    };
+
     return {
         showNotification,
         closeNotification,
+        destroyAllNotifications,
     };
 }

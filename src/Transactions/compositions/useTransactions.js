@@ -1,4 +1,4 @@
-import { computed, h, inject } from 'vue';
+import { computed, h, inject, onMounted } from 'vue';
 import { useStore } from 'vuex';
 
 import { LoadingOutlined } from '@ant-design/icons-vue';
@@ -7,7 +7,7 @@ import { addTransactionToExistingQueue, createTransactionsQueue, getTransactions
 
 import useNotification from '@/compositions/useNotification';
 
-import { STATUSES } from '@/Transactions/shared/constants';
+import { STATUSES } from '@/shared/models/enums/statuses.enum';
 
 import { captureTransactionException } from '@/app/modules/sentry';
 
@@ -110,8 +110,6 @@ export default function useTransactions() {
             duration: 5,
         });
 
-        store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
-
         await updateTransactionById(id, { status: STATUSES.REJECTED });
 
         return response;
@@ -150,7 +148,12 @@ export default function useTransactions() {
 
         const displayHash = transactionHash.slice(0, 8) + '...' + transactionHash.slice(-8);
 
+        const { module } = metaData;
+
         if (transactionHash) {
+            // Update transaction waiting status for module
+            store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
+
             showNotification({
                 key: `waiting-${transactionHash}-tx`,
                 type: 'info',
@@ -189,9 +192,6 @@ export default function useTransactions() {
             return await handleTransactionErrorResponse(id, response, response.error, { module, tx });
         }
 
-        // Update transaction waiting status for module
-        store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: true });
-
         // Handle success response
         return await handleSuccessfulSign(id, response, { metaData });
     };
@@ -221,6 +221,8 @@ export default function useTransactions() {
 
         let txFoSign = parameters;
 
+        await store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: true });
+
         if (action && ACTIONS_FOR_TX[action]) {
             txFoSign = await ACTIONS_FOR_TX[action](parameters);
         }
@@ -230,8 +232,16 @@ export default function useTransactions() {
             return await handleSignedTxResponse(id, response, { metaData, module, tx: txFoSign });
         } catch (error) {
             console.error('signSend error', error);
+            store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
+            return {
+                error,
+            };
         }
     };
+
+    onMounted(() => {
+        store.dispatch('txManager/setIsWaitingTxStatusForModule', { module: 'all', isWaiting: false });
+    });
 
     return {
         currentRequestID,

@@ -4,6 +4,12 @@
 
 ### Added ✅
 
+-   `services/track-update-balance` for updating balance after transaction;
+
+-   `store/update-balance` to store queue for updating balance;
+
+-   Disable states for select, button, and input while transaction is preparing;
+
 -   Get data from the IndexedDB and display it in the UI after get data from the API;
 
 -   The basis for working with multiple wallets `store/tokens`;
@@ -18,8 +24,6 @@
 
 -   `modules/chain-configs` for getting chain configs;
 
--   Skeleton for `TokenIcon` component;
-
 -   Axios Instance for API requests;
 
 -   Formatters for balances records;
@@ -33,6 +37,8 @@
 -   Getting tokens list from sync to async;
 
 -   Loaders for getting data from the API by account and chain;
+
+-   Indexed DB version for 'balances' store has been changed to 2;
 
 ### Fixed 🛠️
 
@@ -49,6 +55,8 @@
 -   `Axios` Instance for API requests;
 
 -   Id for record in `IndexedDB`;
+
+-   Waiting status for transaction preparation;
 
 ### Removed ❌
 

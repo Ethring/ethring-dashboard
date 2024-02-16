@@ -367,8 +367,6 @@ class EthereumAdapter extends AdapterBase {
 
         const chainsInfo = store.getters['configs/getConfigsByEcosystems'](ECOSYSTEMS.EVM);
 
-        console.log('chainsInfo', chain, chainsInfo, chainsInfo.evm[chain]);
-
         return chainsInfo.evm[chain] || null;
     }
 }
