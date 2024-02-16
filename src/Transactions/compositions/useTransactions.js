@@ -124,8 +124,10 @@ export default function useTransactions() {
      *
      * @returns {object}
      */
-    const handleSuccessfulSign = async (id, response, { metaData = {} } = {}) => {
+    const handleSuccessfulSign = async (id, response, { metaData = {}, module = null } = {}) => {
         const { transactionHash } = response;
+
+        store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
 
         if (transactionHash && !id) {
             return response;
@@ -148,11 +150,8 @@ export default function useTransactions() {
 
         const displayHash = transactionHash.slice(0, 8) + '...' + transactionHash.slice(-8);
 
-        const { module } = metaData;
-
         if (transactionHash) {
             // Update transaction waiting status for module
-            store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
 
             showNotification({
                 key: `waiting-${transactionHash}-tx`,
@@ -193,7 +192,7 @@ export default function useTransactions() {
         }
 
         // Handle success response
-        return await handleSuccessfulSign(id, response, { metaData });
+        return await handleSuccessfulSign(id, response, { metaData, module });
     };
 
     /**

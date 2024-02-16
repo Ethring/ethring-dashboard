@@ -88,7 +88,6 @@ export const handleTransactionStatus = async (transaction, store, event) => {
         await store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, type, hash: txHash, status, isWaiting: false });
         closeNotification('prepare-tx');
     } else {
-        await store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, type, hash: txHash, status, isWaiting: true });
         await store.dispatch('txManager/setCurrentRequestID', null);
     }
 

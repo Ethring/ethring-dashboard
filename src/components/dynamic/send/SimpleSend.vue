@@ -50,8 +50,8 @@ import { useRouter } from 'vue-router';
 import { SettingOutlined } from '@ant-design/icons-vue';
 
 import useNotification from '@/compositions/useNotification';
-import useTransactions from '../../../Transactions/compositions/useTransactions';
-import useServices from '../../../compositions/useServices';
+import useTransactions from '@/Transactions/compositions/useTransactions';
+import useServices from '@/compositions/useServices';
 
 import Button from '@/components/ui/Button';
 import SelectRecord from '@/components/ui/Select/SelectRecord';

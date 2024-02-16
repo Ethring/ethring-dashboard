@@ -7,7 +7,7 @@ import { updateBalanceByChain } from '@/modules/balance-provider';
 import { delay } from '@/shared/utils/helpers';
 
 export const trackingBalanceUpdate = (store) => {
-    const timeout = ref(0);
+    const timeout = ref({});
     const waitTime = ref(3);
 
     const { walletAccount, chainList, getAddressesWithChainsByEcosystem } = useAdapter();
@@ -63,26 +63,15 @@ export const trackingBalanceUpdate = (store) => {
     const handleUpdateBalance = async (network, address: string) => {
         const targetAccount = JSON.parse(JSON.stringify(walletAccount.value)) || '';
 
-        timeout.value = waitTime.value;
+        timeout.value[network.net] = waitTime.value;
 
         if (!network || !address || !targetAccount) {
             return;
         }
 
-        const time = setInterval(() => {
-            if (timeout.value > 0) {
-                timeout.value -= 1;
-            }
-        }, 1000);
-
         message.loading({
-            content: () => `Updating balance for ${network.net} after ${timeout.value} sec`,
+            content: () => `Updating balance for ${network.net} after ${timeout.value[network.net]} sec`,
         });
-
-        if (timeout.value === 0) {
-            clearInterval(time);
-            message.destroy();
-        }
 
         // Wait for 3 sec before updating balance
         await delay(waitTime.value * 1000); // 3 sec
@@ -108,6 +97,18 @@ export const trackingBalanceUpdate = (store) => {
                 }
 
                 await handleUpdateBalance(config, address);
+
+                setInterval(() => {
+                    if (timeout.value[config.net] > 0) {
+                        timeout.value[config.net] -= 1;
+                    }
+                }, 1000);
+
+                if (timeout.value[config.net] === 0) {
+                    clearInterval(timeout.value[config.net]);
+                    message.destroy();
+                }
+
                 await removeUpdateBalanceQueues(mainAddress, chain);
             }),
         );
