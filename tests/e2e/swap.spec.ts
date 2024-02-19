@@ -181,10 +181,8 @@ testMetaMask.describe('Swap e2e tests', () => {
             const NET = 'eth';
             const TOKEN_FROM = 'ORAI';
             const TOKEN_TO = 'LON';
-            const ADDRESS = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
-            const WAITED_BALANCE_URL = `**/srv-data-provider/api/balances?net=${NET}**`;
+            // const WAITED_BALANCE_URL = `**/srv-data-provider/api/balances?net=${NET}**`;
             const AMOUNT = '1';
-            const coingeckoUrl = '**/token-price/coingecko/ethereum**';
 
             const estimateMockData = {
                 ok: true,
@@ -198,21 +196,7 @@ testMetaMask.describe('Swap e2e tests', () => {
                 },
                 error: '',
             };
-            const coingeckoPriceLonData = {
-                ok: true,
-                data: {
-                    '0x0000000000095413afc295d19edeb1ad7b71c952': {
-                        usd: 0.643215,
-                        btc: 0.00001605,
-                    },
-                },
-                error: [],
-            };
-
-            await swapPage.mockBalanceRequest(NET, mockBalanceDataBySwapTest[NET], ADDRESS);
-            await swapPage.mockRoute(coingeckoUrl, coingeckoPriceLonData);
-
-            await swapPage.page.waitForResponse(WAITED_BALANCE_URL); // wait response wallet balance
+            // await swapPage.page.waitForResponse(WAITED_BALANCE_URL); // wait response wallet balance
 
             await swapPage.mockEstimateSwapRequest(SWAP_SERVICE, errorEstimateSwap, 500);
             await swapPage.setAmount(AMOUNT);

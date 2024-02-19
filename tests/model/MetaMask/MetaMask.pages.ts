@@ -76,7 +76,7 @@ class MetaMaskHomePage {
         await this.page.locator("//button[@data-testid='popover-close']").click();
     }
 
-    async addWallet(seed: String) {
+    async addWallet(seed: string) {
         await sleep(FIVE_SECONDS); // wait for page load
         await this.page.reload();
 
@@ -118,7 +118,7 @@ class MetaMaskHomePage {
         return this.page;
     }
 
-    async addNetwork(network: String) {
+    async addNetwork(network: string) {
         await this.page.locator('[data-testid="network-display"]').click();
         await this.page.getByText('Add network').click();
         await this.page.locator(`//h6[text()='${network}']/../../..//button`).click();

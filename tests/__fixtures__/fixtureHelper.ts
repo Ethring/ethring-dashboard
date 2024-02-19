@@ -6,7 +6,7 @@ import { KeplrHomePage, KeplrNotifyPage, getNotifyKeplrPage, keplrVersion } from
 import { EVM_NETWORKS } from '../data/constants';
 import mockTokensListData from '../data/mockTokensListData';
 import { DashboardPage } from '../model/VueApp/base.pages';
-import { marketCapNativeEvmTokens } from '../data/mockHelper';
+import { marketCapNativeEvmTokens, mockBalanceDataBySwapTest } from '../data/mockHelper';
 import util from 'util';
 
 export const FIVE_SECONDS = 5000;
@@ -36,7 +36,7 @@ export const getPathToKeplrExtension = () => {
     return path.join(process.cwd(), `/data/keplr-extension-manifest-v2-v${keplrVersion}`);
 };
 
-export const addWalletToMm = async (context: BrowserContext, seed: String) => {
+export const addWalletToMm = async (context: BrowserContext, seed: string) => {
     await sleep(FIVE_SECONDS); // wait for page load
     await closeEmptyPages(context);
     const metaMaskPage = new MetaMaskHomePage(context.pages()[0]);
@@ -44,7 +44,7 @@ export const addWalletToMm = async (context: BrowserContext, seed: String) => {
     return;
 };
 
-export const addWalletToKeplr = async (context: BrowserContext, seed: String) => {
+export const addWalletToKeplr = async (context: BrowserContext, seed: string) => {
     await sleep(FIVE_SECONDS); // wait for page load
     await closeEmptyPages(context);
     const keplrPage = new KeplrHomePage(context.pages()[0]);
@@ -65,14 +65,14 @@ const __loginByMmAndWaitElement__ = async (context: BrowserContext, page: Dashbo
     return page;
 };
 
-export const authInDashboardByMm = async (context: BrowserContext, seed: String): Promise<DashboardPage> => {
+export const authInDashboardByMm = async (context: BrowserContext, seed: string): Promise<DashboardPage> => {
     await addWalletToMm(context, seed);
     const zometPage = new DashboardPage(await context.newPage());
 
     return __loginByMmAndWaitElement__(context, zometPage);
 };
 
-export const authInDashboardByMmCoingeckoMock = async (context: BrowserContext, seed: String): Promise<DashboardPage> => {
+export const authInDashboardByMmCoingeckoMock = async (context: BrowserContext, seed: string): Promise<DashboardPage> => {
     await addWalletToMm(context, seed);
 
     const COINGECKO_ROUTE = '**/marketcaps/coingecko?**';
@@ -89,7 +89,7 @@ export const authInDashboardByMmCoingeckoMock = async (context: BrowserContext, 
     return __loginByMmAndWaitElement__(context, zometPage);
 };
 
-export const authInDashboardByMmTokensListMock = async (context: BrowserContext, seed: String): Promise<DashboardPage> => {
+export const authInDashboardByMmTokensListMock = async (context: BrowserContext, seed: string): Promise<DashboardPage> => {
     await addWalletToMm(context, seed);
     const zometPage = new DashboardPage(await context.newPage());
 
@@ -98,7 +98,34 @@ export const authInDashboardByMmTokensListMock = async (context: BrowserContext,
     return __loginByMmAndWaitElement__(context, zometPage);
 };
 
-export const authInDashboardByKeplr = async (context: BrowserContext, seed: String) => {
+export const authMm_BalanceSwapAndTokensListMock = async (
+    context: BrowserContext,
+    seed: string,
+    address: string,
+): Promise<DashboardPage> => {
+    const coingeckoUrl = '**/token-price/coingecko/ethereum**';
+    const coingeckoPriceLonData = {
+        ok: true,
+        data: {
+            '0x0000000000095413afc295d19edeb1ad7b71c952': {
+                usd: 0.643215,
+                btc: 0.00001605,
+            },
+        },
+        error: [],
+    };
+
+    await addWalletToMm(context, seed);
+    const zometPage = new DashboardPage(await context.newPage());
+
+    await zometPage.mockRoute(coingeckoUrl, coingeckoPriceLonData);
+    await Promise.all(EVM_NETWORKS.map((network) => zometPage.mockTokensList(network, mockTokensListData[network])));
+    await Promise.all(EVM_NETWORKS.map((network) => zometPage.mockBalanceRequest(network, mockBalanceDataBySwapTest[network], address)));
+
+    return __loginByMmAndWaitElement__(context, zometPage);
+};
+
+export const authInDashboardByKeplr = async (context: BrowserContext, seed: string) => {
     await addWalletToKeplr(context, seed);
 
     const zometPage = new DashboardPage(await context.newPage());
