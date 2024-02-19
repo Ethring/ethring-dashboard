@@ -1,4 +1,4 @@
-import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations/index';
 
 const TYPES = {
     SET_SRC_NETWORK: 'SET_FROM_NETWORK',
@@ -185,15 +185,12 @@ export default {
         [TYPES.SET_SELECTED_SERVICE](state, service) {
             state.selectedService = service;
         },
-<<<<<<< src/store/operations/index.js
-
         [TYPES.SET_OPERATION_RESULT](state, { module, result }) {
             !state.operationResult && (state.operationResult = {});
             state.operationResult[module] = result;
-=======
+        },
         [TYPES.SET_MEMO](state, memo) {
             state.memo = memo;
->>>>>>> src/store/operations/index.js
         },
     },
 
