@@ -7,6 +7,7 @@
         color: var(--#{$prefix}white);
         font-size: var(--#{$prefix}h6-fs) !important;
     }
+
     .ant-notification-notice-description {
         color: var(--#{$prefix}notification-text);
         font-size: var(--#{$prefix}small-lg-fs) !important;
@@ -43,6 +44,12 @@
     &:has(.ant-notification-notice-btn):has(.notification-explorer) {
         .ant-notification-notice-message {
             padding-inline-end: 48px;
+            margin-bottom: 0;
+        }
+    }
+
+    &.switch-network {
+        .ant-notification-notice-message {
             margin-bottom: 0;
         }
     }

@@ -15,7 +15,7 @@ export default function useNotification() {
         const { explorerLink, txHash, wait } = args;
 
         const notificationParams = {
-            class: `custom-notification ${type}`,
+            class: `custom-notification ${type} ${key}`,
             key,
             type,
             message: title,
