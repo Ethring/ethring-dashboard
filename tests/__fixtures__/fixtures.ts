@@ -6,7 +6,7 @@ import {
     addWalletToMm,
     authInDashboardByKeplr,
     authInDashboardByMm,
-    authInDashboardByMmCoingeckoMock,
+    authMmCoingeckoAndBalanceMockBySendTest,
     authInDashboardByMmTokensListMock,
     authMm_BalanceSwapAndTokensListMock,
     getPathToKeplrExtension,
@@ -17,6 +17,7 @@ import { proxyUrl } from '../../playwright.config';
 const ADDRESS_BY_TX = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
 const SEED_PHRASE_BY_TX = getTestVar(TEST_CONST.SEED_BY_MOCK_TX);
 
+const ADDRESS_BY_TX_2 = getTestVar(TEST_CONST.ETH_ADDRESS_TX_2);
 const SEED_PHRASE_BY_TX_2 = getTestVar(TEST_CONST.SEED_BY_MOCK_TX_2);
 
 const SEED_PHRASE_BY_PROTOCOL = getTestVar(TEST_CONST.SEED_BY_PROTOCOL_TEST);
@@ -113,12 +114,12 @@ export const testMetaMask = base.extend<{
         await use(sendPage);
     },
     sendPageCoingeckoMock: async ({ context }, use) => {
-        const zometPage = await authInDashboardByMmCoingeckoMock(context, SEED_PHRASE_BY_TX);
+        const zometPage = await authMmCoingeckoAndBalanceMockBySendTest(context, SEED_PHRASE_BY_TX, ADDRESS_BY_TX);
         const sendPage = await zometPage.goToModule('send');
         await use(sendPage);
     },
     sendPageCoingeckoMockRejectTest: async ({ context }, use) => {
-        const zometPage = await authInDashboardByMmCoingeckoMock(context, SEED_PHRASE_BY_TX_2);
+        const zometPage = await authMmCoingeckoAndBalanceMockBySendTest(context, SEED_PHRASE_BY_TX_2, ADDRESS_BY_TX_2);
         const sendPage = await zometPage.goToModule('send');
         await use(sendPage);
     },

@@ -38,31 +38,12 @@ test.describe('MetaMask Send e2e tests', () => {
         'Case#: Reject send native token to another address in Avalanche with change MM network',
         async ({ browser, context, page, sendPageCoingeckoMockRejectTest }) => {
             const network = 'Avalanche';
-            const addressFrom = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
             const addressTo = getTestVar(TEST_CONST.RECIPIENT_ADDRESS);
             const amount = '0.001';
-
-            const INDEX_AVALANCHE = EVM_NETWORKS.indexOf(network.toLowerCase());
-            let EMPTY_BALANCE_NETS_MOCK = [...EVM_NETWORKS];
-            EMPTY_BALANCE_NETS_MOCK.splice(INDEX_AVALANCHE, 1);
-            const WAITED_URL = `**/srv-data-provider/api/balances?net=${network.toLowerCase()}**`;
-
-            await sendPageCoingeckoMockRejectTest.mockBalanceRequest(
-                network.toLowerCase(),
-                mockBalanceDataBySendTest[network.toLowerCase()],
-                addressFrom,
-            );
-            await Promise.all(
-                EMPTY_BALANCE_NETS_MOCK.map((network) =>
-                    sendPageCoingeckoMockRejectTest.mockBalanceRequest(network, emptyBalanceMockData, addressFrom),
-                ),
-            );
-            const balancePromise = sendPageCoingeckoMockRejectTest.page.waitForResponse(WAITED_URL);
 
             await sendPageCoingeckoMockRejectTest.changeNetwork(network);
             await sendPageCoingeckoMockRejectTest.setAddressTo(addressTo);
             await sendPageCoingeckoMockRejectTest.setAmount(amount);
-            await balancePromise;
             await sleep(FIVE_SECONDS); // wait able button "change network"
 
             await expect(sendPageCoingeckoMockRejectTest.page).toHaveScreenshot({

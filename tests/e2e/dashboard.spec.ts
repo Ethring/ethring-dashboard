@@ -65,22 +65,6 @@ test.describe('Keplr dashboard', () => {
     });
 
     testKeplr('Case#: check protocols & nfts view', async ({ browser, context, page, dashboardProtocol }) => {
-        const NETWORK_NAME_BALANCE_ERROR = 'juno';
-        const CORRECT_BALANCE_NETWORKS = { ...COSMOS_NETWORKS } as Partial<typeof COSMOS_NETWORKS>;
-        delete CORRECT_BALANCE_NETWORKS.juno;
-
-        dashboardProtocol.mockBalanceRequest(
-            NETWORK_NAME_BALANCE_ERROR,
-            errorGetBalanceMockData,
-            COSMOS_NETWORKS[NETWORK_NAME_BALANCE_ERROR],
-            500,
-        );
-
-        await Promise.all(
-            Object.keys(CORRECT_BALANCE_NETWORKS).map((network) =>
-                dashboardProtocol.mockBalanceRequest(network, mockBalanceCosmosWallet[network], COSMOS_NETWORKS[network]),
-            ),
-        );
         await dashboardProtocol.prepareFoScreenShoot();
 
         await dashboardProtocol.setFocusToFirstSpan();
