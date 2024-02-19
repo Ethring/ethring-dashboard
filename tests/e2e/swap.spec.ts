@@ -10,21 +10,21 @@ import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
 
 const sleep = util.promisify(setTimeout);
 
-const supportedNetsBySwap = ['Ethereum', 'Binance Smart Chain', 'Arbitrum', 'Polygon', 'Avalanche', 'Optimism', 'Fantom']; // TODO до сих пор не работает. Нет фантома
-
 const SWAP_SERVICE = 'srv-paraswap';
 
 testMetaMask.describe('Swap e2e tests', () => {
-    // it('Case#: Swap tx', async ({ browser, context, page: Page, swapPage }) => {
-    //     const amount = '0.0001';
+    testMetaMask('Case#: Swap page', async ({ browser, context, page, dashboardEmptyWallet }) => {
+        const address = getTestVar(TEST_CONST.EMPTY_ETH_ADDRESS);
 
-    //     await swapPage.swapTokens(amount);
+        const swapPage = await dashboardEmptyWallet.goToModule('swap');
+        await Promise.all(EVM_NETWORKS.map((network) => swapPage.mockBalanceRequest(network, emptyBalanceMockData, address)));
+        await swapPage.waitDetachedSkeleton();
+        await swapPage.waitLoadImg();
 
-    //     const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
-    //     await notifyMM.signTx();
-
-    //     expect(await swapPage.getLinkFromSuccessPanel()).toContain(txHash);
-    // });
+        await expect(swapPage.page).toHaveScreenshot({
+            mask: [swapPage.page.locator(IGNORED_LOCATORS.HEADER), swapPage.page.locator(IGNORED_LOCATORS.ASIDE)],
+        });
+    });
 
     testMetaMask(
         'Case#: Checking token list change after network change',

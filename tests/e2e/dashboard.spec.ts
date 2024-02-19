@@ -26,32 +26,6 @@ testMetaMask.describe('Pages snapshot tests with empty wallet', () => {
         await expect(dashboardEmptyWallet.page).toHaveScreenshot();
     });
 
-    testMetaMask('Case#: Send page', async ({ browser, context, page, dashboardEmptyWallet }) => {
-        const address = getTestVar(TEST_CONST.EMPTY_ETH_ADDRESS);
-        await dashboardEmptyWallet.mockBalanceRequest('eth', emptyBalanceMockData, address);
-
-        const sendPage = await dashboardEmptyWallet.goToModule('send');
-        await sendPage.waitLoadImg();
-        await expect(sendPage.page).toHaveScreenshot({
-            maxDiffPixelRatio: 0.01,
-            mask: [sendPage.page.locator(IGNORED_LOCATORS.HEADER), sendPage.page.locator(IGNORED_LOCATORS.ASIDE)],
-        });
-    });
-
-    testMetaMask('Case#: Swap page', async ({ browser, context, page, dashboardEmptyWallet }) => {
-        const address = getTestVar(TEST_CONST.EMPTY_ETH_ADDRESS);
-
-        const swapPage = await dashboardEmptyWallet.goToModule('swap');
-        await Promise.all(EVM_NETWORKS.map((network) => swapPage.mockBalanceRequest(network, emptyBalanceMockData, address)));
-        await swapPage.waitDetachedSkeleton();
-        await swapPage.waitLoadImg();
-
-        await expect(swapPage.page).toHaveScreenshot({
-            maxDiffPixelRatio: 0.01,
-            mask: [swapPage.page.locator(IGNORED_LOCATORS.HEADER), swapPage.page.locator(IGNORED_LOCATORS.ASIDE)],
-        });
-    });
-
     testMetaMask('Case#: Bridge page', async ({ browser, context, page, dashboardEmptyWallet }) => {
         const address = getTestVar(TEST_CONST.EMPTY_ETH_ADDRESS);
         await Promise.all(EVM_NETWORKS.map((network) => dashboardEmptyWallet.mockBalanceRequest(network, emptyBalanceMockData, address)));
@@ -61,7 +35,6 @@ testMetaMask.describe('Pages snapshot tests with empty wallet', () => {
         await bridgePage.waitLoadImg();
 
         await expect(bridgePage.page).toHaveScreenshot({
-            maxDiffPixelRatio: 0.01,
             mask: [bridgePage.page.locator(IGNORED_LOCATORS.HEADER), bridgePage.page.locator(IGNORED_LOCATORS.ASIDE)],
         });
     });

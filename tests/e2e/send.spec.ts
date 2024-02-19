@@ -23,6 +23,17 @@ import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
 const sleep = util.promisify(setTimeout);
 
 test.describe('MetaMask Send e2e tests', () => {
+    testMetaMask('Case#: Send page', async ({ browser, context, page, dashboardEmptyWallet }) => {
+        const address = getTestVar(TEST_CONST.EMPTY_ETH_ADDRESS);
+        await dashboardEmptyWallet.mockBalanceRequest('eth', emptyBalanceMockData, address);
+
+        const sendPage = await dashboardEmptyWallet.goToModule('send');
+        await sendPage.waitLoadImg();
+        await expect(sendPage.page).toHaveScreenshot({
+            mask: [sendPage.page.locator(IGNORED_LOCATORS.HEADER), sendPage.page.locator(IGNORED_LOCATORS.ASIDE)],
+        });
+    });
+
     testMetaMask(
         'Case#: Reject send native token to another address in Avalanche with change MM network',
         async ({ browser, context, page, sendPageCoingeckoMockRejectTest }) => {
