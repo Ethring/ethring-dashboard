@@ -24,7 +24,7 @@
             :on-reset="resetAmount"
             :amount-value="srcAmount"
             :disabled-select="isWaitingTxStatusForModule"
-            :disabled="isWaitingTxStatusForModule || isTokensLoadingForSrc"
+            :disabled="isWaitingTxStatusForModule"
             class="select-amount"
             @setAmount="onSetAmount"
             @clickToken="onSelectToken"
@@ -153,7 +153,7 @@ export default {
                 !receiverAddress.value?.length ||
                 !selectedSrcToken.value ||
                 !currentChainInfo.value ||
-                (isMemoAllowed && isSendWithMemo.value && !memo?.value.length),
+                (isMemoAllowed && isSendWithMemo.value && !memo.value?.length),
         );
 
         const onSelectToken = () => handleOnSelectToken({ direction: DIRECTIONS.SOURCE, type: TOKEN_SELECT_TYPES.FROM });
@@ -216,10 +216,11 @@ export default {
                 duration: 0,
             });
 
+            if (isMemoAllowed && memo.value?.length) {
+                dataForPrepare.memo = memo.value;
+            }
+
             try {
-                if (selectedSrcNetwork.value.ecosystem === ECOSYSTEMS.COSMOS && memo.value.length) {
-                    dataForPrepare.memo = memo.value;
-                }
                 // TODO: multiple transactions for send module
                 const txs = [
                     {
