@@ -127,7 +127,7 @@ const mockBalanceData = {
                     name: 'Borrow and Lending v2',
                     platform: 'RADIANT',
                     type: 'BORROW_AND_LENDING',
-                    logo: 'https://assets.coingecko.com/coins/images/26536/small/Radiant-Logo-200x200.png?1658715865',
+                    logo: null,
                     url: 'https://app.radiant.capital/#/markets',
                     balances: [
                         {

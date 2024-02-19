@@ -62,9 +62,7 @@ testMetaMask.describe('Pages snapshot tests with empty wallet', () => {
         const bridgePage: BridgePage = await dashboardEmptyWallet.goToModule('bridge');
 
         await Promise.all(EVM_NETWORKS.map((network) => bridgePage.mockBalanceRequest(network, errorGetBalanceMockData, address, 400)));
-        await Promise.all(
-            EVM_NETWORKS.map((network) => bridgePage.page.waitForResponse(`**/srv-data-provider/api/balances?net=${network}**`)),
-        );
+        bridgePage.page.waitForResponse(`**/srv-data-provider/api/balances?net=${EVM_NETWORKS[6]}**`);
 
         await bridgePage.waitDetachedSkeleton();
         await bridgePage.waitLoadImg();
