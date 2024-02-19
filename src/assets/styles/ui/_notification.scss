@@ -1,6 +1,7 @@
 .custom-notification {
     background-color: var(--#{$prefix}primary);
     border: 1px solid transparent;
+    border-radius: 16px;
 
     .ant-notification-notice-message {
         color: var(--#{$prefix}white);
