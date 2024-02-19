@@ -30,16 +30,16 @@
             @clickToken="onSelectToken"
         />
 
-        <a-form-item v-if="selectedSrcNetwork?.ecosystem === ECOSYSTEMS.COSMOS">
+        <a-form-item v-if="isMemoAllowed">
             <div class="row mt-8">
-                <Checkbox v-model:value="isMemoAllowed" :label="`Memo`" />
+                <Checkbox v-model:value="isSendWithMemo" :label="`Memo`" @change="handleMemoChange" />
 
                 <a-tooltip placement="right" :title="$t('tokenOperations.memoDescription')">
-                    <InfoIcon/>
+                    <InfoIcon />
                 </a-tooltip>
             </div>
 
-            <MemoInput v-if="isMemoAllowed" class="mt-8"/>
+            <MemoInput v-if="isSendWithMemo" class="mt-8" />
         </a-form-item>
 
         <Button
@@ -78,7 +78,6 @@ import { STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum
 import { ECOSYSTEMS } from '@/Adapter/config';
 
 import { isCorrectChain } from '@/shared/utils/operations';
-
 
 export default {
     name: 'SimpleSend',
@@ -133,7 +132,9 @@ export default {
 
         const isAddressError = ref(false);
 
-        const isMemoAllowed = ref(false);
+        const isSendWithMemo = ref(false);
+
+        const isMemoAllowed = computed(() => selectedSrcNetwork.value?.ecosystem === ECOSYSTEMS.COSMOS);
 
         const memo = computed({
             get: () => store.getters['tokenOps/memo'],
@@ -151,7 +152,8 @@ export default {
                 !+srcAmount.value ||
                 !receiverAddress.value?.length ||
                 !selectedSrcToken.value ||
-                !currentChainInfo.value,
+                !currentChainInfo.value ||
+                (isMemoAllowed && isSendWithMemo.value && !memo?.value.length),
         );
 
         const onSelectToken = () => handleOnSelectToken({ direction: DIRECTIONS.SOURCE, type: TOKEN_SELECT_TYPES.FROM });
@@ -170,10 +172,15 @@ export default {
             clearAddress.value = receiverAddress.value === null;
 
             memo.value = '';
-            isMemoAllowed.value = false;
+            isSendWithMemo.value = false;
         };
 
         // =================================================================================================================
+
+        const handleMemoChange = (value) => {
+            isSendWithMemo.value = value;
+            memo.value = '';
+        };
 
         const handleOnSend = async () => {
             if (disabledSend.value) {
@@ -284,6 +291,7 @@ export default {
             srcAmount,
             receiverAddress,
 
+            handleMemoChange,
             onSelectNetwork,
             onSelectToken,
             onSetAmount,
@@ -299,8 +307,9 @@ export default {
             currentChainInfo,
 
             isMemoAllowed,
+            isSendWithMemo,
 
-            ECOSYSTEMS
+            ECOSYSTEMS,
         };
     },
 };

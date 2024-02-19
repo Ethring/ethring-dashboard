@@ -70,7 +70,6 @@ export default {
 <style lang="scss" scoped>
 .select-input {
     min-height: 80px;
-    height: 80px;
 
     .base-input {
         padding: 0;

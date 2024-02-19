@@ -82,6 +82,7 @@ export default {
 
         receiverAddress: null,
         operationResult: {},
+
         memo: null,
     }),
 
