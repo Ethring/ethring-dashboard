@@ -56,13 +56,11 @@
         />
 
         <Button
-            :title="$t(opTitle)"
-            :disabled="!!disabledSwap"
-            :loading="isWaitingTxStatusForModule || isLoading"
-            :tip="$t(opTitle)"
             class="module-layout-view-btn"
+            v-bind="btnState"
+            :title="$t(btnState.title)"
+            :tip="$t(btnState.tip)"
             @click="handleOnSwap"
-            size="large"
         />
     </a-form>
 </template>
@@ -71,8 +69,6 @@ import { h, ref, watch, inject, computed, onMounted } from 'vue';
 
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-
-import { SettingOutlined } from '@ant-design/icons-vue';
 
 import { getBridgeTx, getSwapTx } from '@/api/services';
 
@@ -260,9 +256,6 @@ export default {
                 type: 'info',
                 title: `Swap ${srcAmount.value} ${selectedSrcToken.value.symbol} to ~${dstAmount.value} ${selectedDstToken.value.symbol}`,
                 description: 'Please wait, transaction is preparing',
-                icon: h(SettingOutlined, {
-                    spin: true,
-                }),
                 duration: 0,
             });
 
@@ -367,9 +360,6 @@ export default {
                 metaData: {
                     action: 'formatTransactionForSign',
                     type: TRANSACTION_TYPES.DEX,
-                    successCallback: {
-                        action: 'CLEAR_AMOUNTS',
-                    },
                 },
             };
 
@@ -458,6 +448,17 @@ export default {
 
         onMounted(() => store.dispatch('txManager/setCurrentRequestID', null));
 
+        const btnState = computed(() => {
+            return {
+                type: isWaitingTxStatusForModule.value || isLoading.value ? 'primary' : 'success',
+                title: opTitle.value,
+                tip: opTitle.value,
+                loading: isWaitingTxStatusForModule.value || isLoading.value,
+                disabled: !!disabledSwap.value,
+                size: 'large',
+            };
+        });
+
         return {
             isLoading,
             isEstimating,
@@ -465,6 +466,7 @@ export default {
             isWaitingTxStatusForModule,
 
             opTitle,
+            btnState,
 
             disabledSwap,
             walletAddress,

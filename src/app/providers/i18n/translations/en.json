@@ -110,7 +110,9 @@
     "loadMore": "Load more",
     "searchToken": "Search by token name or ticker",
     "searchNetwork": "Search by network name",
-    "supportedNetwork": "Please choose one of the following supported networks: Ethereum, Binance Smart Chain, Avalanche, Polygon, Optimism, Arbitrum"
+    "supportedNetwork": "Please choose one of the following supported networks: Ethereum, Binance Smart Chain, Avalanche, Polygon, Optimism, Arbitrum",
+    "viewDetails": "View transaction details",
+    "youHaveFollowingErrors": "The transaction have the following errors"
   },
   "simpleSend": {
     "title": "Send"

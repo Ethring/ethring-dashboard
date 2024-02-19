@@ -100,8 +100,6 @@ import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 
-import { SettingOutlined } from '@ant-design/icons-vue';
-
 import BigNumber from 'bignumber.js';
 
 // Services
@@ -471,9 +469,6 @@ export default {
                 type: 'info',
                 title: `Swap ${srcAmount.value} ${selectedSrcToken.value.symbol} to ~${dstAmount.value} ${selectedDstToken.value.symbol}`,
                 description: 'Please wait, transaction is preparing',
-                icon: h(SettingOutlined, {
-                    spin: true,
-                }),
                 duration: 0,
             });
 
@@ -506,9 +501,6 @@ export default {
                 type: 'info',
                 title: `Bridge ${srcAmount.value} ${selectedSrcToken.value.symbol} to ~${dstAmount.value} ${selectedDstToken.value.symbol}`,
                 description: 'Please wait, transaction is preparing',
-                icon: h(SettingOutlined, {
-                    spin: true,
-                }),
                 duration: 0,
             });
 

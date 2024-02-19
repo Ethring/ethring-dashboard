@@ -16,6 +16,7 @@
                     </router-link>
                 </div>
                 <component :is="component" class="module-layout-view" />
+                <OperationResult v-if="operationResult?.title" v-bind="operationResult" :module="currentModule" />
                 <SelectModal />
             </template>
         </div>
@@ -34,6 +35,7 @@ import SuperSwap from '@/components/dynamic/super-swap/SuperSwap.vue';
 import SelectModal from '@/components/app/modals/SelectModal.vue';
 
 import UnsupportedResult from '@/components/ui/UnsupportedResult';
+import OperationResult from '@/components/ui/Result';
 import ArrowUpIcon from '@/assets/icons/module-icons/pointer-up.svg';
 
 import redirectOrStay from '@/shared/utils/routes';
@@ -45,6 +47,7 @@ export default {
         SimpleSend,
         SimpleSwap,
         SuperSwap,
+        OperationResult,
         UnsupportedResult,
         ArrowUpIcon,
         SelectModal,
@@ -69,6 +72,14 @@ export default {
         const { currentChainInfo, isConnecting, walletAccount } = useAdapter();
         const router = useRouter();
         const route = useRoute();
+
+        const currentModule = computed(() => {
+            const { name } = router.currentRoute.value;
+
+            return name;
+        });
+
+        const operationResult = computed(() => store.getters['tokenOps/getOperationResultByModule'](currentModule.value));
 
         // * Module type
         const moduleType = ref('');
@@ -124,6 +135,8 @@ export default {
         onMounted(async () => {
             callResetToDefaultValues();
             await callRedirectOrStay();
+
+            store.dispatch('tokenOps/resetOperationResult', currentModule.value);
         });
 
         const unWatchCurrRoute = watch(
@@ -145,6 +158,8 @@ export default {
 
         return {
             currentChainInfo,
+            operationResult,
+            currentModule,
         };
     },
 };

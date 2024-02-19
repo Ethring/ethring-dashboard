@@ -46,6 +46,7 @@ class SocketInstance {
     }
 
     onReconnect() {
+        console.log('onReconnect', this.addresses, this.walletAddress);
         this.addressesSubscription(this.addresses[ECOSYSTEMS.EVM], this.walletAddress);
         this.addressesSubscription(this.addresses[ECOSYSTEMS.COSMOS], this.walletAddress);
 
@@ -90,10 +91,6 @@ class SocketInstance {
     addressesSubscription(addresses, walletAddress = null) {
         if (!this.socket) {
             return logger.warn('[Socket] Socket is not initialized');
-        }
-
-        if (!walletAddress) {
-            return;
         }
 
         if (walletAddress && walletAddress !== this.walletAddress) {

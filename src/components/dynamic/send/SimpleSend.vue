@@ -43,11 +43,10 @@
     </a-form>
 </template>
 <script>
-import { h, ref, inject, computed, onMounted, watch } from 'vue';
+import { ref, inject, computed, onMounted, watch } from 'vue';
 
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { SettingOutlined } from '@ant-design/icons-vue';
 
 import useNotification from '@/compositions/useNotification';
 import useTransactions from '@/Transactions/compositions/useTransactions';
@@ -177,9 +176,6 @@ export default {
                 type: 'info',
                 title: `Sending ${dataForPrepare.amount} ${dataForPrepare.token.symbol} ...`,
                 description: 'Please wait, transaction is preparing',
-                icon: h(SettingOutlined, {
-                    spin: true,
-                }),
                 duration: 0,
             });
 
@@ -200,9 +196,6 @@ export default {
                         metaData: {
                             action: 'prepareTransaction',
                             type: TRANSACTION_TYPES.TRANSFER,
-                            successCallback: {
-                                action: 'CLEAR_AMOUNTS',
-                            },
                         },
                     },
                 ];

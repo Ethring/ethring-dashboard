@@ -92,12 +92,10 @@
     </a-form>
 </template>
 <script>
-import { h, ref, inject, watch, computed } from 'vue';
+import { ref, inject, watch, computed } from 'vue';
 
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-
-import { SettingOutlined } from '@ant-design/icons-vue';
 
 // Notification
 import useNotification from '@/compositions/useNotification';
@@ -315,9 +313,6 @@ export default {
                 type: 'info',
                 title: `Bridge ${srcAmount.value} ${selectedSrcToken.value.symbol} to ~${dstAmount.value} ${selectedDstToken.value.symbol}`,
                 description: 'Please wait, transaction is preparing',
-                icon: h(SettingOutlined, {
-                    spin: true,
-                }),
                 duration: 0,
             });
 
@@ -433,9 +428,6 @@ export default {
                     from: `${selectedSrcNetwork.value?.chain_id}`,
                     to: `${selectedDstNetwork.value?.chain_id}`,
                     receiverAddress: receiverAddress.value,
-                    successCallback: {
-                        action: 'CLEAR_AMOUNTS',
-                    },
                 },
             };
 

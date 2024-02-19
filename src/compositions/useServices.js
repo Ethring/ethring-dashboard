@@ -4,7 +4,6 @@ import { utils } from 'ethers';
 import { ref, computed, inject, watch, onBeforeUnmount, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
-import { message } from 'ant-design-vue';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 import useEstimate from './useEstimate';
@@ -24,7 +23,6 @@ import { DIRECTIONS, FEE_TYPES, TOKEN_SELECT_TYPES } from '@/shared/constants/op
 import { STATUSES } from '@/shared/constants/super-swap/constants';
 
 import { formatNumber } from '@/shared/utils/numbers';
-// import { updateWalletBalances } from '@/shared/utils/balances';
 import { useRouter } from 'vue-router';
 // import { callMethodByService } from '@/api/bridge-dex';
 

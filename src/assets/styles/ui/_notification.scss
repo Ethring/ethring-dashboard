@@ -1,0 +1,82 @@
+.custom-notification {
+    background-color: var(--#{$prefix}primary);
+    border: 1px solid transparent;
+
+    .ant-notification-notice-message {
+        color: var(--#{$prefix}white);
+        font-size: var(--#{$prefix}h6-fs) !important;
+    }
+    .ant-notification-notice-description {
+        color: var(--#{$prefix}notification-text);
+        font-size: var(--#{$prefix}small-lg-fs) !important;
+    }
+
+    [class^="anticon"]:not(.anticon-check-circle):not(.anticon-close-circle) {
+        color: var(--#{$prefix}white);
+    }
+
+    .anticon-check-circle {
+        color: var(--#{$prefix}success) !important;
+    }
+
+    .anticon-close-circle {
+        color: var(--#{$prefix}danger) !important;
+    }
+
+    &.success {
+        border-color: var(--#{$prefix}success);
+    }
+
+    &.error {
+        border-color: var(--#{$prefix}danger);
+    }
+
+    .anticon {
+        transition: color 0.2s ease-in-out;
+
+        &:hover {
+            opacity: 0.8;
+        }
+    }
+
+    &:has(.ant-notification-notice-btn):has(.notification-explorer) {
+        .ant-notification-notice-message {
+            padding-inline-end: 48px;
+            margin-bottom: 0;
+        }
+    }
+
+    .ant-notification-notice-btn {
+        margin: 0;
+    }
+
+    .notification-explorer {
+        cursor: pointer;
+        position: absolute;
+        top: 20px;
+        inset-inline-end: 48px;
+
+        fill: var(--#{$prefix}white);
+
+        outline: none;
+
+        padding: 0 3px;
+
+        width: 21px;
+
+        height: 21px;
+
+        border-radius: 4px;
+        transition: 0.2s ease-in-out;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid transparent;
+
+        &:hover {
+            fill: var(--#{$prefix}success);
+            border-color: var(--#{$prefix}white);
+        }
+    }
+}

@@ -11,11 +11,11 @@ const SUCCESS_CALLBACKS = {
     GET_BRIDGE_TX: getBridgeTx,
     GET_ALLOWANCE: getAllowance,
     GET_APPROVE_TX: getApproveTx,
-    CLEAR_AMOUNTS: ({ store }) => {
-        store.dispatch('tokenOps/setReceiverAddress', null);
-        store.dispatch('tokenOps/setSrcAmount', null);
-        store.dispatch('tokenOps/setDstAmount', null);
-    },
+    // CLEAR_AMOUNTS: ({ store }) => {
+    //     store.dispatch('tokenOps/setReceiverAddress', null);
+    //     store.dispatch('tokenOps/setSrcAmount', null);
+    //     store.dispatch('tokenOps/setDstAmount', null);
+    // },
 };
 
 const NOTIFICATION_TYPE_BY_STATUS = {
@@ -23,28 +23,19 @@ const NOTIFICATION_TYPE_BY_STATUS = {
     [STATUSES.FAILED]: 'error',
 };
 
-const statusNotification = (status, { store, type = 'Transfer', displayHash, explorerLink, successCallback, failCallback }) => {
+const statusNotification = (status, { store, type = 'Transfer', txHash, displayHash, explorerLink, successCallback, failCallback }) => {
     const { showNotification, closeNotification } = useNotification();
 
+    const notificationKey = txHash ? `waiting-${txHash}-tx` : `${status}-tx`;
+
     const notificationBody = {
-        key: `${status}-tx`,
+        key: notificationKey,
         type: NOTIFICATION_TYPE_BY_STATUS[status],
-        title: `${type} ${status}`,
-        description: `"${displayHash}" ${status}`,
+        title: `${type} "${displayHash}" ${status}`,
+        duration: 4,
     };
 
-    if (explorerLink) {
-        notificationBody.description = `Click to view ${type} "${displayHash}" on explorer`;
-
-        notificationBody.onClick = () => {
-            window.open(explorerLink, '_blank');
-            closeNotification(`${status}-tx`);
-        };
-
-        notificationBody.style = {
-            cursor: 'pointer',
-        };
-    }
+    explorerLink && (notificationBody.explorerLink = explorerLink);
 
     switch (status) {
         case STATUSES.SUCCESS:
@@ -79,26 +70,16 @@ export const handleTransactionStatus = async (transaction, store, event) => {
         console.error('Error on detectUpdateForAccount', error);
     }
 
-    const { closeNotification, destroyAllNotifications } = useNotification();
-
     const { metaData, module, status, txHash = '' } = transaction;
     const { explorerLink, type, successCallback = null, failCallback = null } = metaData || {};
 
     if (FINISHED_STATUSES.includes(status)) {
-        await store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, type, hash: txHash, status, isWaiting: false });
-        closeNotification('prepare-tx');
+        await store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
     } else {
         await store.dispatch('txManager/setCurrentRequestID', null);
     }
 
-    let displayHash = txHash;
+    const displayHash = (txHash && txHash.slice(0, 8) + '...' + txHash.slice(-8)) || txHash;
 
-    if (txHash) {
-        closeNotification('prepare-tx');
-        closeNotification(`waiting-${txHash}-tx`);
-        destroyAllNotifications();
-        displayHash = txHash.slice(0, 8) + '...' + txHash.slice(-8);
-    }
-
-    return statusNotification(status, { store, type, displayHash, explorerLink, successCallback, failCallback });
+    return statusNotification(status, { store, type, txHash, displayHash, explorerLink, successCallback, failCallback });
 };
