@@ -5,7 +5,7 @@ import { addTransactionToExistingQueue, createTransactionsQueue, getTransactions
 
 import useNotification from '@/compositions/useNotification';
 
-import { STATUSES } from '@/shared/models/enums/statuses.enum';
+import { STATUSES, DISALLOW_UPDATE_TYPES } from '@/shared/models/enums/statuses.enum';
 
 import { captureTransactionException } from '@/app/modules/sentry';
 
@@ -148,8 +148,6 @@ export default function useTransactions() {
 
         const { transactionHash } = response;
 
-        await store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
-
         if (!transactionHash && id) {
             logger.warn('Transaction hash is not provided, setting transaction status to failed.');
             await updateTransactionById(id, { status: STATUSES.FAILED });
@@ -160,16 +158,22 @@ export default function useTransactions() {
 
         const displayHash = transactionHash.slice(0, 8) + '...' + transactionHash.slice(-8);
 
-        await store.dispatch('tokenOps/setOperationResult', {
-            module,
-            result: {
-                status: 'success',
-                title: 'Transaction sent to blockchain',
-                description:
-                    'Transaction successfully sent to blockchain, but the transaction still pending. Please wait for confirmation.',
-                link: explorerLink,
-            },
-        });
+        const { type } = metaData || {};
+
+        if (!DISALLOW_UPDATE_TYPES.includes(type)) {
+            await store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
+
+            await store.dispatch('tokenOps/setOperationResult', {
+                module,
+                result: {
+                    status: 'success',
+                    title: 'Transaction sent to blockchain',
+                    description:
+                        'Transaction successfully sent to blockchain, but the transaction still pending. Please wait for confirmation.',
+                    link: explorerLink,
+                },
+            });
+        }
 
         showNotification({
             explorerLink,
