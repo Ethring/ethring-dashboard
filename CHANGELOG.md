@@ -30,6 +30,10 @@
 
 -   Types, interfaces, and enums for the `modules/balance-provider`;
 
+-   Operation result for Send, Swap, Bridge and SuperSwap;
+
+-   `components/ui/result` for displaying operation result;
+
 ### Changed 📝
 
 -   Balances provider from JS to TS;
@@ -39,6 +43,8 @@
 -   Loaders for getting data from the API by account and chain;
 
 -   Indexed DB version for 'balances' store has been changed to 2;
+
+-   Notifications styles;
 
 ### Fixed 🛠️
 
@@ -57,6 +63,8 @@
 -   Id for record in `IndexedDB`;
 
 -   Waiting status for transaction preparation;
+
+-   Clearing values after transaction;
 
 ### Removed ❌
 

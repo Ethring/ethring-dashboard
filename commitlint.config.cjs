@@ -22,6 +22,7 @@ module.exports = {
                 'mod',
                 'types',
                 'release',
+                'add'
             ],
         ],
         'subject-full-stop': [0, 'never'],
