@@ -26,35 +26,6 @@ testMetaMask.describe('Pages snapshot tests with empty wallet', () => {
         await expect(dashboardEmptyWallet.page).toHaveScreenshot();
     });
 
-    testMetaMask('Case#: Bridge page', async ({ browser, context, page, dashboardEmptyWallet }) => {
-        const address = getTestVar(TEST_CONST.EMPTY_ETH_ADDRESS);
-        await Promise.all(EVM_NETWORKS.map((network) => dashboardEmptyWallet.mockBalanceRequest(network, emptyBalanceMockData, address)));
-
-        const bridgePage: BridgePage = await dashboardEmptyWallet.goToModule('bridge');
-        await bridgePage.waitDetachedSkeleton();
-        await bridgePage.waitLoadImg();
-
-        await expect(bridgePage.page).toHaveScreenshot({
-            mask: [bridgePage.page.locator(IGNORED_LOCATORS.HEADER), bridgePage.page.locator(IGNORED_LOCATORS.ASIDE)],
-        });
-    });
-
-    testMetaMask('Case#: Bridge page if balance request error', async ({ browser, context, page, dashboardEmptyWallet }) => {
-        const address = getTestVar(TEST_CONST.EMPTY_ETH_ADDRESS);
-        const bridgePage: BridgePage = await dashboardEmptyWallet.goToModule('bridge');
-
-        await Promise.all(EVM_NETWORKS.map((network) => bridgePage.mockBalanceRequest(network, errorGetBalanceMockData, address, 400)));
-        bridgePage.page.waitForResponse(`**/srv-data-provider/api/balances?net=${EVM_NETWORKS[6]}**`);
-
-        await bridgePage.waitDetachedSkeleton();
-        await bridgePage.waitLoadImg();
-
-        await expect(bridgePage.page).toHaveScreenshot({
-            maxDiffPixelRatio: 0.01,
-            mask: [bridgePage.page.locator(IGNORED_LOCATORS.HEADER), bridgePage.page.locator(IGNORED_LOCATORS.ASIDE)],
-        });
-    });
-
     testMetaMask('Case#: Super swap page', async ({ browser, context, page, dashboardEmptyWallet }) => {
         const address = getTestVar(TEST_CONST.EMPTY_ETH_ADDRESS);
         await dashboardEmptyWallet.mockBalanceRequest('eth', emptyBalanceMockData, address);

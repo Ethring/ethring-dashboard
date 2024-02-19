@@ -246,7 +246,12 @@ class DashboardPage extends BasePage {
     }
 }
 
-class BridgePage extends BasePage {}
+class BridgePage extends BasePage {
+    async setAmount(amount: string) {
+        await this.page.waitForSelector('span.ant-skeleton-input', { state: 'hidden', timeout: 10000 });
+        await this.page.getByTestId(DATA_QA_LOCATORS.INPUT_AMOUNT).fill(amount);
+    }
+}
 
 class SendPage extends BasePage {
     async setNetworkTo(netName: string) {
