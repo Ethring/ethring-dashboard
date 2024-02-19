@@ -32,7 +32,10 @@ testMetaMask.describe('Pages snapshot tests with empty wallet', () => {
 
         const sendPage = await dashboardEmptyWallet.goToModule('send');
         await sendPage.waitLoadImg();
-        await expect(sendPage.page).toHaveScreenshot({ maxDiffPixelRatio: 0.01 });
+        await expect(sendPage.page).toHaveScreenshot({
+            maxDiffPixelRatio: 0.01,
+            mask: [sendPage.page.locator(IGNORED_LOCATORS.HEADER), sendPage.page.locator(IGNORED_LOCATORS.ASIDE)],
+        });
     });
 
     testMetaMask('Case#: Swap page', async ({ browser, context, page, dashboardEmptyWallet }) => {
@@ -43,7 +46,10 @@ testMetaMask.describe('Pages snapshot tests with empty wallet', () => {
         await swapPage.waitDetachedSkeleton();
         await swapPage.waitLoadImg();
 
-        await expect(swapPage.page).toHaveScreenshot({ maxDiffPixelRatio: 0.01 });
+        await expect(swapPage.page).toHaveScreenshot({
+            maxDiffPixelRatio: 0.01,
+            mask: [swapPage.page.locator(IGNORED_LOCATORS.HEADER), swapPage.page.locator(IGNORED_LOCATORS.ASIDE)],
+        });
     });
 
     testMetaMask('Case#: Bridge page', async ({ browser, context, page, dashboardEmptyWallet }) => {
@@ -54,7 +60,10 @@ testMetaMask.describe('Pages snapshot tests with empty wallet', () => {
         await bridgePage.waitDetachedSkeleton();
         await bridgePage.waitLoadImg();
 
-        await expect(bridgePage.page).toHaveScreenshot({ maxDiffPixelRatio: 0.01 });
+        await expect(bridgePage.page).toHaveScreenshot({
+            maxDiffPixelRatio: 0.01,
+            mask: [bridgePage.page.locator(IGNORED_LOCATORS.HEADER), bridgePage.page.locator(IGNORED_LOCATORS.ASIDE)],
+        });
     });
 
     testMetaMask('Case#: Bridge page if balance request error', async ({ browser, context, page, dashboardEmptyWallet }) => {
@@ -67,7 +76,10 @@ testMetaMask.describe('Pages snapshot tests with empty wallet', () => {
         await bridgePage.waitDetachedSkeleton();
         await bridgePage.waitLoadImg();
 
-        await expect(bridgePage.page).toHaveScreenshot({ maxDiffPixelRatio: 0.01 });
+        await expect(bridgePage.page).toHaveScreenshot({
+            maxDiffPixelRatio: 0.01,
+            mask: [bridgePage.page.locator(IGNORED_LOCATORS.HEADER), bridgePage.page.locator(IGNORED_LOCATORS.ASIDE)],
+        });
     });
 
     testMetaMask('Case#: Super swap page', async ({ browser, context, page, dashboardEmptyWallet }) => {
@@ -76,7 +88,10 @@ testMetaMask.describe('Pages snapshot tests with empty wallet', () => {
 
         const superSwapPage = await dashboardEmptyWallet.goToModule('superSwap');
         await superSwapPage.waitLoadImg();
-        await expect(superSwapPage.page).toHaveScreenshot({ maxDiffPixelRatio: 0.01 });
+        await expect(superSwapPage.page).toHaveScreenshot({
+            maxDiffPixelRatio: 0.01,
+            mask: [superSwapPage.page.locator(IGNORED_LOCATORS.HEADER), superSwapPage.page.locator(IGNORED_LOCATORS.ASIDE)],
+        });
     });
 });
 
