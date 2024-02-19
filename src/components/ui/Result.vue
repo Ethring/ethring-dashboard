@@ -25,7 +25,7 @@
         </template>
 
         <template #extra>
-            <Button key="console" title="Done" type="primary" @click="() => handleOnDone(module)" />
+            <Button key="console" title="Done" type="primary" @click="() => handleOnDone(module)" data-qa="operation-done" />
         </template>
     </a-result>
 </template>

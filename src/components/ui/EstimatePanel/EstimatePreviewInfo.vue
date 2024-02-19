@@ -11,7 +11,7 @@
             <ArrowDownIcon class="arrow" />
         </template>
 
-        <a-collapse-panel key="estimate-info" :collapsible="isCollapsible ? '' : 'disabled'" :showArrow="isCollapsible">
+        <a-collapse-panel key="estimate-info" :collapsible="isCollapsible ? '' : 'disabled'" :showArrow="isCollapsible" data-qa="estimate-info">
             <template #header>
                 <div class="top-block">
                     <template v-if="isLoading">
