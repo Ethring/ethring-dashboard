@@ -66,7 +66,7 @@
         />
 
         <EstimatePreviewInfo
-            v-if="estimateErrorTitle || srcAmount || dstAmount"
+            v-if="estimateErrorTitle || +srcAmount || dstAmount"
             :is-loading="isEstimating"
             :service="selectedService"
             :title="$t('tokenOperations.routeInfo')"

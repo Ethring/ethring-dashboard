@@ -66,7 +66,7 @@
         />
 
         <EstimatePreviewInfo
-            v-if="isShowEstimateInfo || srcAmount || dstAmount"
+            v-if="isShowEstimateInfo || +srcAmount || dstAmount"
             :title="$t('tokenOperations.routeInfo')"
             :is-loading="isEstimating"
             :fee-in-usd="networkFee"
@@ -195,6 +195,7 @@ export default {
             selectedDstNetwork,
 
             srcTokenApprove,
+            srcTokenAllowance,
 
             onlyWithBalance,
 
@@ -316,7 +317,7 @@ export default {
                 !selectedDstNetwork.value ||
                 !selectedSrcToken.value ||
                 !selectedDstToken.value ||
-                (isSendToAnotherAddress.value && (isAddressError.value || !receiverAddress.value)),
+                (isSendToAnotherAddress.value && (isAddressError.value || !receiverAddress.value))
         );
 
         // =================================================================================================================
@@ -360,6 +361,14 @@ export default {
         };
 
         // =================================================================================================================
+
+        const requestAllowance = async (service) => {
+            if (!isAllowForRequest() || !selectedSrcToken.value?.address) {
+                return;
+            }
+
+            return await makeAllowanceRequest(service || currentRouteInfo?.value?.service);
+        };
 
         const requestApprove = async (service) => {
             if (!isAllowForRequest() || !selectedSrcToken.value?.address) {
@@ -411,6 +420,14 @@ export default {
         // =================================================================================================================
 
         const getEstimateInfo = async (isReload = false) => {
+            if (BigNumber(srcAmount.value).isEqualTo(0)) {
+                isEstimating.value = false;
+                isShowEstimateInfo.value = false;
+                dstAmount.value = null;
+
+                return;
+            }
+
             isEstimating.value = true;
             dstAmount.value = null;
 
@@ -431,7 +448,7 @@ export default {
                 selectedDstToken.value,
                 selectedSrcNetwork.value,
                 selectedDstNetwork.value,
-                currentChainInfo.value.native_token,
+                currentChainInfo.value.native_token
             );
 
             if (resEstimate && resEstimate.error) {
@@ -735,6 +752,12 @@ export default {
             }
 
             return await getEstimateInfo();
+        });
+
+        watch(currentRouteInfo, async () => {
+            if (!srcTokenAllowance.value) {
+                await requestAllowance(selectedService.value);
+            }
         });
 
         watch(txError, () => {
