@@ -11,7 +11,7 @@
         </template>
 
         <a-space direction="vertical">
-            <a-typography-title :level="4">Supported ecosystems include</a-typography-title>
+            <a-typography-title :level="5">{{ $t('releaseNote.supportedEcosystem') }}:</a-typography-title>
 
             <a-list size="small" item-layout="vertical" :data-source="EVM">
                 <template #header>
@@ -31,24 +31,17 @@
                 </template>
             </a-list>
 
-            <a-typography-paragraph content="providing users with a flexible choice to interact with diverse blockchain platforms." />
+            <a-typography-title :level="5">{{ $t('releaseNote.supportedWallets') }}:</a-typography-title>
 
-            <a-typography-paragraph content="Platform access is facilitated through" />
+            <a-list size="small" item-layout="vertical" :data-source="AVAILABLE_WALLETS">
+                <template #renderItem="{ item }">
+                    <a-list-item> {{ item }} </a-list-item>
+                </template>
+            </a-list>
 
-            <a-typography-title :level="5"> Cosmology using Keplr </a-typography-title>
-
-            <a-typography-title :level="5"> Blocknative with support for Metamask, Coinbase, and Ledger </a-typography-title>
-
-            <a-typography-paragraph content="providing users with flexible and secure authorization options" />
-
-            <a-typography-title :level="5"> Dashboard </a-typography-title>
+            <a-typography-title :level="5">{{ $t('releaseNote.dashboardProtocols') }}:</a-typography-title>
 
             <a-list size="small" item-layout="vertical" :data-source="AVAILABLE_PROTOCOLS">
-                <template #header>
-                    <a-typography-title :level="5"
-                        >Data is sourced from the Pulsar service , supporting tokens and protocols, including</a-typography-title
-                    >
-                </template>
                 <template #renderItem="{ item }">
                     <a-list-item> {{ item }} </a-list-item>
                 </template>
@@ -56,7 +49,7 @@
 
             <a-list size="small" item-layout="vertical" :data-source="AVAILABLE_MODULES">
                 <template #header>
-                    <a-typography-title :level="5">The available modules include</a-typography-title>
+                    <a-typography-title :level="5">{{ $t('releaseNote.keyModules') }}:</a-typography-title>
                 </template>
                 <template #renderItem="{ item }">
                     <a-list-item> {{ item }} </a-list-item>
@@ -87,16 +80,18 @@ export default {
 
         const COSMOS = ['Cosmos-hub', 'Osmosis', 'Injective', 'Terra2', 'Stargaze', 'Juno', 'Kujira', 'Mars'];
 
+        const AVAILABLE_WALLETS = ['Metamask', 'Coinbase', 'Ledger Live', 'Keplr'];
+
         const AVAILABLE_PROTOCOLS = [
             'Lending Protocols',
-            'Pools',
+            'Liquidity Pools',
             'Yield Farming',
             'Futures',
             'Staking',
             'Liquidity Staking (NFTs exclusively for Stargaze in the Cosmos)',
         ];
 
-        const AVAILABLE_MODULES = ['Send', 'Swap', 'Bridge', 'SuperSwap'];
+        const AVAILABLE_MODULES = ['Send', 'Swap', 'Bridge', 'SuperSwap and IBC for Cosmos'];
 
         const handleReload = () => {
             store.dispatch('app/setLastVersion', process.env.APP_VERSION);
@@ -111,14 +106,31 @@ export default {
             COSMOS,
             AVAILABLE_PROTOCOLS,
             AVAILABLE_MODULES,
+            AVAILABLE_WALLETS,
 
             handleReload,
         };
     },
 };
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
 .update-btn {
     width: 100%;
+}
+
+.ant-drawer .ant-drawer-content {
+    background: var(--#{$prefix}secondary-background);
+}
+
+.ant-typography,
+.ant-list-item,
+.ant-list-header,
+.ant-drawer-title,
+.ant-drawer .ant-drawer-close {
+    color: var(--#{$prefix}primary-text) !important;
+}
+
+.ant-list-split .ant-list-item {
+    border-block-end: 1px solid var(--#{$prefix}info-border-color);
 }
 </style>

@@ -33,6 +33,8 @@ export enum DATA_QA_LOCATORS {
     RECORD_MODAL = 'select-record-modal',
     CONFIRM = 'confirm',
     ASSETS_PANEL = 'assets-panel',
+    CUSTOM_INPUT = 'custom-input',
+    CHECKBOX = 'checkbox',
 
     INPUT_ADDRESS = 'input-address',
     INPUT_AMOUNT = 'input-amount',
@@ -41,3 +43,11 @@ export enum DATA_QA_LOCATORS {
     ITEM = 'item',
     ROUTE_INFO = 'route-info',
 }
+
+export enum IGNORED_LOCATORS {
+    HEADER = '//header',
+    ASIDE = '//aside',
+    SERVICE_ICON = 'div.service-icon',
+}
+
+export const MEMO_BY_KEPLR_TEST = '105371789'

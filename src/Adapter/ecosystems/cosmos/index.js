@@ -631,7 +631,7 @@ class CosmosAdapter extends AdapterBase {
         return null;
     }
 
-    async prepareTransaction({ fromAddress, toAddress, amount, token }) {
+    async prepareTransaction({ fromAddress, toAddress, amount, token, memo }) {
         const fee = this.setDefaultFeeForTx();
 
         try {
@@ -652,6 +652,7 @@ class CosmosAdapter extends AdapterBase {
             return {
                 msg,
                 fee,
+                memo,
             };
         } catch (error) {
             logger.error('error while prepare', error);
@@ -757,7 +758,7 @@ class CosmosAdapter extends AdapterBase {
     }
 
     async signSend(transaction) {
-        const { msg, fee } = transaction;
+        const { msg, fee, memo } = transaction;
 
         const chainWallet = this._getCurrentWallet();
         await chainWallet.value.initOfflineSigner('amino');
@@ -795,7 +796,7 @@ class CosmosAdapter extends AdapterBase {
 
         // Sign and send transaction
         try {
-            return await client.signAndBroadcast(this.getAccountAddress(), [msg], fee, transaction.value?.memo);
+            return await client.signAndBroadcast(this.getAccountAddress(), [msg], fee, memo);
         } catch (error) {
             logger.error('[COSMOS -> signSend] Error while broadcasting transaction', error);
             return errorRegister(error);

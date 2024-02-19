@@ -30,6 +30,18 @@
             @clickToken="onSelectToken"
         />
 
+        <a-form-item v-if="selectedSrcNetwork?.ecosystem === ECOSYSTEMS.COSMOS">
+            <div class="row mt-8">
+                <Checkbox v-model:value="isMemoAllowed" :label="`Memo`" />
+
+                <a-tooltip placement="right" :title="$t('tokenOperations.memoDescription')">
+                    <InfoIcon/>
+                </a-tooltip>
+            </div>
+
+            <MemoInput v-if="isMemoAllowed" class="mt-8"/>
+        </a-form-item>
+
         <Button
             :title="$t(opTitle)"
             :disabled="!!disabledSend"
@@ -52,16 +64,21 @@ import useNotification from '@/compositions/useNotification';
 import useTransactions from '@/Transactions/compositions/useTransactions';
 import useServices from '@/compositions/useServices';
 
+import MemoInput from '@/components/ui/MemoInput.vue';
 import Button from '@/components/ui/Button';
+import Checkbox from '@/components/ui/Checkbox';
 import SelectRecord from '@/components/ui/Select/SelectRecord';
-
 import SelectAddressInput from '@/components/ui/Select/SelectAddressInput';
 import SelectAmountInput from '@/components/ui/Select/SelectAmountInput';
 
+import InfoIcon from '@/assets/icons/platform-icons/info.svg';
+
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
+import { ECOSYSTEMS } from '@/Adapter/config';
 
 import { isCorrectChain } from '@/shared/utils/operations';
+
 
 export default {
     name: 'SimpleSend',
@@ -70,6 +87,9 @@ export default {
         SelectAddressInput,
         SelectAmountInput,
         Button,
+        MemoInput,
+        Checkbox,
+        InfoIcon,
     },
     setup() {
         const store = useStore();
@@ -113,6 +133,13 @@ export default {
 
         const isAddressError = ref(false);
 
+        const isMemoAllowed = ref(false);
+
+        const memo = computed({
+            get: () => store.getters['tokenOps/memo'],
+            set: (value) => store.dispatch('tokenOps/setMemo', value),
+        });
+
         // =================================================================================================================
 
         const disabledSend = computed(
@@ -141,6 +168,9 @@ export default {
             resetAmount.value = amount === null;
 
             clearAddress.value = receiverAddress.value === null;
+
+            memo.value = '';
+            isMemoAllowed.value = false;
         };
 
         // =================================================================================================================
@@ -180,6 +210,9 @@ export default {
             });
 
             try {
+                if (selectedSrcNetwork.value.ecosystem === ECOSYSTEMS.COSMOS && memo.value.length) {
+                    dataForPrepare.memo = memo.value;
+                }
                 // TODO: multiple transactions for send module
                 const txs = [
                     {
@@ -264,6 +297,10 @@ export default {
             selectedSrcNetwork,
             connectedWallet,
             currentChainInfo,
+
+            isMemoAllowed,
+
+            ECOSYSTEMS
         };
     },
 };

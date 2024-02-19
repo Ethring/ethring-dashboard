@@ -29,6 +29,8 @@ const TYPES = {
     SET_SELECTED_SERVICE: 'SET_SELECTED_SERVICE',
 
     SET_OPERATION_RESULT: 'SET_OPERATION_RESULT',
+
+    SET_MEMO: 'SET_MEMO',
 };
 
 const getApproveOrAllowance = (state, target, { account = null, chain = null, tokenAddress = null, service = null }) => {
@@ -79,8 +81,8 @@ export default {
         approve: {},
 
         receiverAddress: null,
-
         operationResult: {},
+        memo: null,
     }),
 
     getters: {
@@ -100,6 +102,7 @@ export default {
         dstToken: (state) => state.dstToken,
 
         receiverAddress: (state) => state.receiverAddress,
+        memo: (state) => state.memo,
 
         getOperationResultByModule: (state) => (module) => state.operationResult[module] || null,
 
@@ -182,10 +185,15 @@ export default {
         [TYPES.SET_SELECTED_SERVICE](state, service) {
             state.selectedService = service;
         },
+<<<<<<< src/store/operations/index.js
 
         [TYPES.SET_OPERATION_RESULT](state, { module, result }) {
             !state.operationResult && (state.operationResult = {});
             state.operationResult[module] = result;
+=======
+        [TYPES.SET_MEMO](state, memo) {
+            state.memo = memo;
+>>>>>>> src/store/operations/index.js
         },
     },
 
@@ -237,6 +245,9 @@ export default {
         },
         resetOperationResult({ commit }, value) {
             commit(TYPES.SET_OPERATION_RESULT, { module: value, result: null });
+        },
+        setMemo({ commit }, value) {
+            commit(TYPES.SET_MEMO, value);
         },
     },
 };

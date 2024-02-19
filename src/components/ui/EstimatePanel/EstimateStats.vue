@@ -92,9 +92,5 @@ export default {
     .symbol-between {
         margin: 0 4px;
     }
-
-    .row {
-        @include pageFlexRow;
-    }
 }
 </style>

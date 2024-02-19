@@ -112,7 +112,9 @@
     "searchNetwork": "Search by network name",
     "supportedNetwork": "Please choose one of the following supported networks: Ethereum, Binance Smart Chain, Avalanche, Polygon, Optimism, Arbitrum",
     "viewDetails": "View transaction details",
-    "youHaveFollowingErrors": "The transaction have the following errors"
+    "youHaveFollowingErrors": "The transaction have the following errors",
+    "memoLabel": "Input memo",
+    "memoDescription": "Required for sending to centralized exchanges."
   },
   "simpleSend": {
     "title": "Send"
@@ -133,5 +135,11 @@
     "time": "Time",
     "fee": "Fee",
     "output": "Output"
+  },
+  "releaseNote": {
+    "supportedEcosystem": "New Ecosystem Support",
+    "supportedWallets": "User-Friendly Access",
+    "dashboardProtocols": "Dashboard Insights",
+    "keyModules": "Key Modules"
   }
 }
