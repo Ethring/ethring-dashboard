@@ -246,7 +246,7 @@ class DashboardPage extends BasePage {
     }
 }
 
-class BridgePage extends BasePage {}
+class BridgePage extends BasePage { }
 
 class SendPage extends BasePage {
     async setNetworkTo(netName: string) {
@@ -261,6 +261,14 @@ class SendPage extends BasePage {
     async setAmount(amount: string) {
         await this.page.waitForSelector('span.ant-skeleton-input', { state: 'hidden', timeout: 10000 });
         await this.page.getByTestId(DATA_QA_LOCATORS.INPUT_AMOUNT).fill(amount);
+    }
+
+    async setMemoCheckbox() {
+        await this.page.getByTestId(DATA_QA_LOCATORS.CHECKBOX).click();
+    }
+
+    async setMemo(memo: string) {
+        await this.page.getByTestId(DATA_QA_LOCATORS.CUSTOM_INPUT).fill(memo);
     }
 
     async setDataAndClickConfirm(net: string, address: string, amount: string) {

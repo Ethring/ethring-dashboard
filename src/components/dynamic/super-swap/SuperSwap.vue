@@ -938,9 +938,5 @@ export default {
         height: 64px;
         width: 100%;
     }
-
-    .row {
-        @include pageFlexRow;
-    }
 }
 </style>

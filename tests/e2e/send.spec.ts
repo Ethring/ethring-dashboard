@@ -1,5 +1,6 @@
 import { testKeplr, testMetaMask } from '../__fixtures__/fixtures';
 import { test, expect } from '@playwright/test';
+import util from 'util';
 import { getTestVar, TEST_CONST } from '../envHelper';
 import {
     emptyBalanceMockData,
@@ -9,10 +10,14 @@ import {
     mockPostTransactionsWsByCreateEventSendReject,
     mockPutTransactionsRouteSendReject,
     mockPutTransactionsWsByUpdateTransactionEventInProgressSendReject,
+    mockPostTransactionsRouteSendRejectKeplr,
+    mockPostTransactionsWsByCreateEventSendRejectKeplr,
+    mockPutTransactionsRouteSendRejectKeplr,
+    mockPutTransactionsWsByUpdateTransactionEventInProgressSendRejectKeplr,
 } from '../data/mockHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage, getHomeMmPage } from '../model/MetaMask/MetaMask.pages';
-import { EVM_NETWORKS, IGNORED_LOCATORS } from '../data/constants';
-import util from 'util';
+import { KeplrNotifyPage, getNotifyKeplrPage } from '../model/Keplr/Keplr.pages';
+import { EVM_NETWORKS, COSMOS_NETWORKS, IGNORED_LOCATORS, MEMO_BY_KEPLR_TEST } from '../data/constants';
 import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
 
 const sleep = util.promisify(setTimeout);
@@ -125,14 +130,38 @@ test.describe('MetaMask Send e2e tests', () => {
 testKeplr.describe('Keplr Send e2e tests', () => {
     testKeplr('Case#: Reject send native token in Cosmos', async ({ browser, context, page, sendPage }) => {
         const network = 'cosmos';
-        const addressFrom = 'cosmos1aascfnuh7dpup8cmyph2l0wgee9d2lchdlx00r';
+        const addressFrom = getTestVar(TEST_CONST.COSMOS_ADDRESS_TX);
+        const addressTo = COSMOS_NETWORKS[network];
         const WAITED_URL = `**/srv-data-provider/api/balances?net=${network}**`;
+        const amount = '0.001';
+        const memo = MEMO_BY_KEPLR_TEST;
 
-        await sendPage.mockBalanceRequest(network.toLowerCase(), mockBalanceCosmosWallet, addressFrom);
+        await sendPage.mockBalanceRequest(network.toLowerCase(), mockBalanceCosmosWallet[network], addressFrom);
         const balancePromise = sendPage.page.waitForResponse(WAITED_URL);
 
         await balancePromise;
 
         await expect(sendPage.getBaseContentElement()).toHaveScreenshot();
+
+        await sendPage.setAddressTo(addressTo);
+        await sendPage.setAmount(amount);
+        await sendPage.setMemoCheckbox();
+        await sendPage.setMemo(memo);
+
+        await sendPage.modifyDataByPostTxRequest(
+            mockPostTransactionsRouteSendRejectKeplr,
+            mockPostTransactionsWsByCreateEventSendRejectKeplr,
+        );
+        await sendPage.modifyDataByPutTxRequest(
+            mockPutTransactionsRouteSendRejectKeplr,
+            mockPutTransactionsWsByUpdateTransactionEventInProgressSendRejectKeplr,
+        );
+
+        await sendPage.clickConfirm();
+
+        const notifyKeplr = new KeplrNotifyPage(await getNotifyKeplrPage(context));
+        const memoInKeplrNotify = await notifyKeplr.page.innerText('div.djtFnd');
+
+        expect(memoInKeplrNotify).toBe(memo);
     });
 });

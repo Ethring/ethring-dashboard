@@ -27,6 +27,8 @@ const TYPES = {
     SET_CLEAR_APPROVE_FOR_TOKEN: 'SET_CLEAR_APPROVE_FOR_TOKEN',
 
     SET_SELECTED_SERVICE: 'SET_SELECTED_SERVICE',
+
+    SET_MEMO: 'SET_MEMO',
 };
 
 const getApproveOrAllowance = (state, target, { account = null, chain = null, tokenAddress = null, service = null }) => {
@@ -77,6 +79,7 @@ export default {
         approve: {},
 
         receiverAddress: null,
+        memo: null,
     }),
 
     getters: {
@@ -96,6 +99,7 @@ export default {
         dstToken: (state) => state.dstToken,
 
         receiverAddress: (state) => state.receiverAddress,
+        memo: (state) => state.memo,
 
         allowanceForToken: (state) => (account, chain, tokenAddress, service) =>
             getApproveOrAllowance(state, 'allowance', { account, chain, tokenAddress, service }),
@@ -176,6 +180,9 @@ export default {
         [TYPES.SET_SELECTED_SERVICE](state, service) {
             state.selectedService = service;
         },
+        [TYPES.SET_MEMO](state, memo) {
+            state.memo = memo;
+        },
     },
 
     actions: {
@@ -220,6 +227,9 @@ export default {
         },
         setSelectedService({ commit }, value) {
             commit(TYPES.SET_SELECTED_SERVICE, value);
+        },
+        setMemo({ commit }, value) {
+            commit(TYPES.SET_MEMO, value);
         },
     },
 };
