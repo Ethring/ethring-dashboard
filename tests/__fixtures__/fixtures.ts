@@ -4,7 +4,7 @@ import { BasePage, SendPage, SwapPage, SuperSwapPage, DashboardPage } from '../m
 import {
     addWalletToKeplr,
     addWalletToMm,
-    authInDashboardByKeplr,
+    authInDashboardByKeplrWithErrorJunoBalance,
     authInDashboardByMm,
     authMmCoingeckoAndBalanceMockBySendTest,
     authInDashboardByMmTokensListMock,
@@ -12,9 +12,10 @@ import {
     getPathToKeplrExtension,
     getPathToMmExtension,
     authInDashboardByMmEmptyWallets,
+    authInDashboardByKeplr,
 } from './fixtureHelper';
 import { proxyUrl } from '../../playwright.config';
-import { EVM_NETWORKS } from 'tests/data/constants';
+import { COSMOS_WALLETS_BY_PROTOCOL_SEED, COSMOS_WALLETS_BY_SEED_MOCK_TX } from 'tests/data/constants';
 
 const ADDRESS_BY_TX = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
 const SEED_PHRASE_BY_TX = getTestVar(TEST_CONST.SEED_BY_MOCK_TX);
@@ -195,16 +196,20 @@ export const testKeplr = base.extend<{
         await use(zometPage);
     },
     dashboard: async ({ context }, use) => {
-        const zometPage = await authInDashboardByKeplr(context, SEED_PHRASE_BY_TX);
+        const zometPage = await authInDashboardByKeplr(context, SEED_PHRASE_BY_TX, COSMOS_WALLETS_BY_SEED_MOCK_TX);
         await use(zometPage);
     },
     sendPage: async ({ context }, use) => {
-        const zometPage = await authInDashboardByKeplr(context, SEED_PHRASE_BY_TX);
+        const zometPage = await authInDashboardByKeplr(context, SEED_PHRASE_BY_TX, COSMOS_WALLETS_BY_SEED_MOCK_TX);
         const sendPage = await zometPage.goToModule('send');
         await use(sendPage);
     },
     dashboardProtocol: async ({ context }, use) => {
-        const zometPage = await authInDashboardByKeplr(context, SEED_PHRASE_BY_PROTOCOL);
+        const zometPage = await authInDashboardByKeplrWithErrorJunoBalance(
+            context,
+            SEED_PHRASE_BY_PROTOCOL,
+            COSMOS_WALLETS_BY_PROTOCOL_SEED,
+        );
         await use(zometPage);
     },
 });

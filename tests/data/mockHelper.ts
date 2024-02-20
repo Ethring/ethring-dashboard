@@ -1,5 +1,5 @@
 import { TEST_CONST, getTestVar } from 'tests/envHelper';
-import { COSMOS_NETWORKS, MEMO_BY_KEPLR_TEST } from './constants';
+import { COSMOS_WALLETS_BY_PROTOCOL_SEED, MEMO_BY_KEPLR_TEST } from './constants';
 
 const emptyBalanceMockData = { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' };
 
@@ -1680,7 +1680,7 @@ const mockPostTransactionsRouteSendRejectKeplr = {
                 },
                 memo: MEMO_BY_KEPLR_TEST,
                 amount: '0.001',
-                toAddress: COSMOS_NETWORKS.cosmos,
+                toAddress: COSMOS_WALLETS_BY_PROTOCOL_SEED.cosmos,
                 fromAddress: mockAddressFrom3,
             },
             account: mockAddressFrom3,
@@ -1718,7 +1718,7 @@ const mockPostTransactionsWsByCreateEventSendRejectKeplr = {
         amount: '0.001',
         memo: MEMO_BY_KEPLR_TEST,
         fromAddress: mockAddressFrom3,
-        toAddress: COSMOS_NETWORKS.cosmos,
+        toAddress: COSMOS_WALLETS_BY_PROTOCOL_SEED.cosmos,
         token: {
             address: 'uatom',
             balance: '0.8544960208245843',
@@ -1817,7 +1817,7 @@ const mockPutTransactionsRouteSendRejectKeplr = {
             },
             memo: MEMO_BY_KEPLR_TEST,
             amount: '0.001',
-            toAddress: COSMOS_NETWORKS.cosmos,
+            toAddress: COSMOS_WALLETS_BY_PROTOCOL_SEED.cosmos,
             fromAddress: mockAddressFrom3,
         },
         account: mockAddressFrom3,
@@ -1854,7 +1854,7 @@ const mockPutTransactionsWsByUpdateTransactionEventInProgressSendRejectKeplr = {
         memo: MEMO_BY_KEPLR_TEST,
         amount: '0.001',
         fromAddress: mockAddressFrom3,
-        toAddress: COSMOS_NETWORKS.cosmos,
+        toAddress: COSMOS_WALLETS_BY_PROTOCOL_SEED.cosmos,
         token: {
             address: 'uatom',
             balance: '0.8544960208245843',

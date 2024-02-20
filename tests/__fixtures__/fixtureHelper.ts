@@ -3,7 +3,7 @@ import path from 'path';
 import { BrowserContext } from '@playwright/test';
 import { MetaMaskHomePage, MetaMaskNotifyPage, getNotifyMmPage, metamaskVersion } from '../model/MetaMask/MetaMask.pages';
 import { KeplrHomePage, KeplrNotifyPage, getNotifyKeplrPage, keplrVersion } from '../model/Keplr/Keplr.pages';
-import { COSMOS_NETWORKS, EVM_NETWORKS } from '../data/constants';
+import { EVM_NETWORKS } from '../data/constants';
 import mockTokensListData from '../data/mockTokensListData';
 import { DashboardPage } from '../model/VueApp/base.pages';
 import {
@@ -150,19 +150,45 @@ export const authMm_BalanceSwapAndTokensListMock = async (
     return __loginByMmAndWaitElement__(context, zometPage);
 };
 
-export const authInDashboardByKeplr = async (context: BrowserContext, seed: string) => {
+export const authInDashboardByKeplr = async (context: BrowserContext, seed: string, cosmosWallets: any) => {
+    await addWalletToKeplr(context, seed);
+
+    const zometPage = new DashboardPage(await context.newPage());
+
+    await Promise.all(
+        Object.keys(cosmosWallets).map((network) =>
+            zometPage.mockBalanceRequest(network, mockBalanceCosmosWallet[network], cosmosWallets[network]),
+        ),
+    );
+    await zometPage.goToPage();
+
+    await zometPage.clickLoginByKeplr();
+
+    const balancePromise = Promise.all(
+        Object.keys(cosmosWallets).map((network) => zometPage.page.waitForResponse(`**/srv-data-provider/api/balances?net=${network}**`)),
+    );
+    const notifyKeplr = new KeplrNotifyPage(await getNotifyKeplrPage(context));
+    await notifyKeplr.assignPage();
+
+    await zometPage.waitMainElementVisible();
+    await balancePromise;
+
+    return zometPage;
+};
+
+export const authInDashboardByKeplrWithErrorJunoBalance = async (context: BrowserContext, seed: string, cosmosWallets: any) => {
     await addWalletToKeplr(context, seed);
 
     const zometPage = new DashboardPage(await context.newPage());
 
     const NETWORK_NAME_BALANCE_ERROR = 'juno';
-    const CORRECT_BALANCE_NETWORKS = { ...COSMOS_NETWORKS } as Partial<typeof COSMOS_NETWORKS>;
+    const CORRECT_BALANCE_NETWORKS = { ...cosmosWallets };
     delete CORRECT_BALANCE_NETWORKS.juno;
 
-    zometPage.mockBalanceRequest(NETWORK_NAME_BALANCE_ERROR, errorGetBalanceMockData, COSMOS_NETWORKS[NETWORK_NAME_BALANCE_ERROR], 500);
+    zometPage.mockBalanceRequest(NETWORK_NAME_BALANCE_ERROR, errorGetBalanceMockData, cosmosWallets[NETWORK_NAME_BALANCE_ERROR], 500);
     await Promise.all(
         Object.keys(CORRECT_BALANCE_NETWORKS).map((network) =>
-            zometPage.mockBalanceRequest(network, mockBalanceCosmosWallet[network], COSMOS_NETWORKS[network]),
+            zometPage.mockBalanceRequest(network, mockBalanceCosmosWallet[network], cosmosWallets[network]),
         ),
     );
     await zometPage.goToPage();
@@ -174,7 +200,7 @@ export const authInDashboardByKeplr = async (context: BrowserContext, seed: stri
     await zometPage.waitMainElementVisible();
 
     await Promise.all(
-        Object.keys(COSMOS_NETWORKS).map((network) => zometPage.page.waitForResponse(`**/srv-data-provider/api/balances?net=${network}**`)),
+        Object.keys(cosmosWallets).map((network) => zometPage.page.waitForResponse(`**/srv-data-provider/api/balances?net=${network}**`)),
     );
     return zometPage;
 };

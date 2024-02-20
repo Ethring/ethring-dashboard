@@ -17,7 +17,7 @@ import {
 } from '../data/mockHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage, getHomeMmPage } from '../model/MetaMask/MetaMask.pages';
 import { KeplrNotifyPage, getNotifyKeplrPage } from '../model/Keplr/Keplr.pages';
-import { EVM_NETWORKS, COSMOS_NETWORKS, IGNORED_LOCATORS, MEMO_BY_KEPLR_TEST } from '../data/constants';
+import { COSMOS_WALLETS_BY_PROTOCOL_SEED, IGNORED_LOCATORS, MEMO_BY_KEPLR_TEST } from '../data/constants';
 import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
 
 const sleep = util.promisify(setTimeout);
@@ -122,14 +122,9 @@ test.describe('MetaMask Send e2e tests', () => {
 testKeplr.describe('Keplr Send e2e tests', () => {
     testKeplr('Case#: Reject send native token in Cosmos', async ({ browser, context, page, sendPage }) => {
         const network = 'cosmoshub';
-        const addressFrom = getTestVar(TEST_CONST.COSMOS_ADDRESS_TX);
-        const addressTo = COSMOS_NETWORKS[network];
+        const addressTo = COSMOS_WALLETS_BY_PROTOCOL_SEED[network];
         const amount = '0.001';
         const memo = MEMO_BY_KEPLR_TEST;
-        // const WAITED_URL = `**/srv-data-provider/api/balances?net=${network}**`;
-
-        await sendPage.mockBalanceRequest(network.toLowerCase(), mockBalanceCosmosWallet[network], addressFrom);
-        // await sendPage.page.waitForResponse(WAITED_URL);
 
         await expect(sendPage.getBaseContentElement()).toHaveScreenshot();
 

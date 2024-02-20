@@ -1,10 +1,9 @@
 import { testKeplr, testMetaMask } from '../__fixtures__/fixtures';
 import { test, expect } from '@playwright/test';
-import { emptyBalanceMockData, errorGetBalanceMockData, mockBalanceData, mockBalanceCosmosWallet } from '../data/mockHelper';
+import { emptyBalanceMockData, mockBalanceData } from '../data/mockHelper';
 import { TEST_CONST, getTestVar } from '../envHelper';
-import { BridgePage, SendPage, SuperSwapPage, SwapPage } from '../model/VueApp/base.pages';
 import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
-import { EVM_NETWORKS, COSMOS_NETWORKS, IGNORED_LOCATORS } from '../data/constants';
+import { EVM_NETWORKS, IGNORED_LOCATORS } from '../data/constants';
 import util from 'util';
 
 const sleep = util.promisify(setTimeout);

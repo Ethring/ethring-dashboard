@@ -3,7 +3,7 @@ import { getTestVar, TEST_CONST } from '../envHelper';
 
 export const EVM_NETWORKS = ['eth', 'arbitrum', 'optimism', 'bsc', 'polygon', 'fantom', 'avalanche'];
 
-export const COSMOS_NETWORKS = {
+export const COSMOS_WALLETS_BY_PROTOCOL_SEED = {
     cosmoshub: 'cosmos1e9dvrk7n69hsupdnf6q5d0h6k6e33lnjq6vrmz',
     crescent: 'cre1e9dvrk7n69hsupdnf6q5d0h6k6e33lnjyjlxw0',
     juno: 'juno1e9dvrk7n69hsupdnf6q5d0h6k6e33lnjkg0cu7',
@@ -12,6 +12,17 @@ export const COSMOS_NETWORKS = {
     stargaze: 'stars1e9dvrk7n69hsupdnf6q5d0h6k6e33lnj5xm7sn',
     injective: 'inj16g4nw4a4kuqs4gwy9yan3chq65lmuhhuyajph3',
     terra2: 'terra1sjl4q093a0s6mq2082sgty3asmdjqd3ahj85yg',
+};
+
+export const COSMOS_WALLETS_BY_SEED_MOCK_TX = {
+    cosmoshub: 'cosmos1aascfnuh7dpup8cmyph2l0wgee9d2lchdlx00r',
+    crescent: 'cre1aascfnuh7dpup8cmyph2l0wgee9d2lchfh426w',
+    juno: 'juno1aascfnuh7dpup8cmyph2l0wgee9d2lchmd95gl',
+    mars: 'mars1aascfnuh7dpup8cmyph2l0wgee9d2lchszlk6c',
+    osmosis: 'osmo1aascfnuh7dpup8cmyph2l0wgee9d2lch9y4le3',
+    stargaze: 'stars1aascfnuh7dpup8cmyph2l0wgee9d2lcher3jyj',
+    injective: 'inj1gaw02t47wctyv79kw0kup5l0gd0v7erpecntp3',
+    terra2: 'terra1kl6pdx384mctqz04c866f7yrw3zwtz590343kx',
 };
 
 export const MetaMaskDirPath = path.resolve(process.cwd(), 'data', `metamask-chrome-${getTestVar(TEST_CONST.MM_VERSION)}`);
