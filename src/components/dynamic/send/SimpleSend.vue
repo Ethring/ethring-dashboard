@@ -39,7 +39,7 @@
                 </a-tooltip>
             </div>
 
-            <MemoInput v-if="isSendWithMemo" class="mt-8" />
+            <MemoInput v-if="isSendWithMemo" :disabled="isWaitingTxStatusForModule" class="mt-8" />
         </a-form-item>
 
         <Button

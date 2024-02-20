@@ -1,7 +1,7 @@
 <template>
     <a-form-item
         class="select-panel select-input"
-        :class="{ active: active, focused }"
+        :class="{ active: active, focused, disabled }"
         @click="active = true"
         v-click-away="(active = false)"
     >
@@ -14,6 +14,7 @@
                 class="base-input"
                 data-qa="custom-input"
                 :bordered="false"
+                :disabled="disabled"
                 v-debounce:1s="onInput"
                 @focus="focused = true"
                 @blur="onBlur"
@@ -37,6 +38,12 @@ export default {
     components: {
         ClearIcon,
     },
+    props: {
+        disabled: {
+            type: Boolean,
+            default: false,
+        },
+    },
     setup() {
         const store = useStore();
 
@@ -47,7 +54,6 @@ export default {
 
         const active = ref(false);
         const focused = ref(false);
-
 
         const onInput = () => (active.value = false);
 
