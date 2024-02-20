@@ -564,6 +564,10 @@ export default function useModule({ moduleType }) {
         const params = getParams();
         const response = await makeRequest(params);
 
+        if (response.error === 'canceled') {
+            return;
+        }
+
         if (response.error) {
             resetFees();
 

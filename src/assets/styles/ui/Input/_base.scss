@@ -10,6 +10,12 @@
         transition: 0.2s ease-in-out;
         text-overflow: ellipsis;
     }
+
+    .ant-input[disabled] {
+        user-select: none;
+        cursor: not-allowed;
+        color: var(--#{$prefix}input-disabled-text) !important;
+    }
 }
 
 .input-balance {

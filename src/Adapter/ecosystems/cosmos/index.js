@@ -29,6 +29,8 @@ import logger from '@/shared/logger';
 
 import IndexedDBService from '@/services/indexed-db';
 
+import { ignoreRPC } from '@/Adapter/utils/ignore-rpc';
+
 const configsDB = new IndexedDBService('configs');
 
 // * Config for cosmos
@@ -603,6 +605,7 @@ class CosmosAdapter extends AdapterBase {
 
     async getTransactionFee(client, msg) {
         // SimulateTx to get gas for transaction
+        logger.debug('[COSMOS -> getTransactionFee] SimulateTx to get gas for transaction');
         try {
             const simulatedGas = await this.simulateTxGas(client, msg);
 
@@ -615,6 +618,7 @@ class CosmosAdapter extends AdapterBase {
             logger.warn('[COSMOS -> getTransactionFee -> simulateTxFee]', error);
         }
 
+        logger.debug('[COSMOS -> getTransactionFee] SimulateTx not found, Use EstimateFee');
         // EstimateFee to get gas for transaction
         try {
             const estimatedFee = await this.estimateFeeTx(msg);
@@ -719,12 +723,14 @@ class CosmosAdapter extends AdapterBase {
         const TIMEOUT = 2000; // 2 seconds
 
         // Check if RPCs exist
-        if (!RPCs.length) {
+        if (!RPCs || !RPCs.length) {
             logger.warn('[COSMOS -> getSignClient] RPCs not found to get client');
             return null;
         }
 
-        const chunkedRPCs = _.chunk(RPCs, CHUNK_SIZE);
+        // Filter RPCs by ignoreRPC to avoid unnecessary connections
+        const filteredRPCs = RPCs.filter((rpc) => !ignoreRPC(rpc));
+        const chunkedRPCs = _.chunk(filteredRPCs, CHUNK_SIZE);
 
         for (const chunkRPCs of chunkedRPCs) {
             const connectPromises = chunkRPCs.map(async (rpc) => {
