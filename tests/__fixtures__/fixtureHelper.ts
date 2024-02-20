@@ -7,6 +7,7 @@ import { COSMOS_NETWORKS, EVM_NETWORKS } from '../data/constants';
 import mockTokensListData from '../data/mockTokensListData';
 import { DashboardPage } from '../model/VueApp/base.pages';
 import {
+    emptyBalanceMockData,
     errorGetBalanceMockData,
     marketCapNativeEvmTokens,
     mockBalanceCosmosWallet,
@@ -76,6 +77,19 @@ export const authInDashboardByMm = async (context: BrowserContext, seed: string)
     const zometPage = new DashboardPage(await context.newPage());
 
     return __loginByMmAndWaitElement__(context, zometPage);
+};
+
+export const authInDashboardByMmEmptyWallets = async (context: BrowserContext, seed: string, address: string): Promise<DashboardPage> => {
+    await addWalletToMm(context, seed);
+    const zometPage = new DashboardPage(await context.newPage());
+
+    await Promise.all(EVM_NETWORKS.map((network) => zometPage.mockBalanceRequest(network, emptyBalanceMockData, address)));
+
+    const lastBalancePromise = zometPage.page.waitForResponse(`**/srv-data-provider/api/balances?net=${EVM_NETWORKS[6]}**`);
+
+    const returnedPage = __loginByMmAndWaitElement__(context, zometPage);
+    await lastBalancePromise;
+    return returnedPage;
 };
 
 export const authMmCoingeckoAndBalanceMockBySendTest = async (

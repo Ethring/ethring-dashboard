@@ -14,10 +14,7 @@ const SWAP_SERVICE = 'srv-paraswap';
 
 testMetaMask.describe('Swap e2e tests', () => {
     testMetaMask('Case#: Swap page', async ({ browser, context, page, dashboardEmptyWallet }) => {
-        const address = getTestVar(TEST_CONST.EMPTY_ETH_ADDRESS);
-
         const swapPage = await dashboardEmptyWallet.goToModule('swap');
-        await Promise.all(EVM_NETWORKS.map((network) => swapPage.mockBalanceRequest(network, emptyBalanceMockData, address)));
         await swapPage.waitDetachedSkeleton();
         await swapPage.waitLoadImg();
 

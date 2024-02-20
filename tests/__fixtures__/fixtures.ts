@@ -11,8 +11,10 @@ import {
     authMm_BalanceSwapAndTokensListMock,
     getPathToKeplrExtension,
     getPathToMmExtension,
+    authInDashboardByMmEmptyWallets,
 } from './fixtureHelper';
 import { proxyUrl } from '../../playwright.config';
+import { EVM_NETWORKS } from 'tests/data/constants';
 
 const ADDRESS_BY_TX = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
 const SEED_PHRASE_BY_TX = getTestVar(TEST_CONST.SEED_BY_MOCK_TX);
@@ -23,6 +25,7 @@ const SEED_PHRASE_BY_TX_2 = getTestVar(TEST_CONST.SEED_BY_MOCK_TX_2);
 const SEED_PHRASE_BY_PROTOCOL = getTestVar(TEST_CONST.SEED_BY_PROTOCOL_TEST);
 
 const SEED_EMPTY_WALLET = getTestVar(TEST_CONST.EMPTY_SEED);
+const EMPTY_ADDRESS = getTestVar(TEST_CONST.EMPTY_ETH_ADDRESS);
 
 export const testMetaMask = base.extend<{
     context: BrowserContext;
@@ -81,7 +84,7 @@ export const testMetaMask = base.extend<{
         await use(zometPage);
     },
     dashboardEmptyWallet: async ({ context }, use) => {
-        const zometPage = await authInDashboardByMm(context, SEED_EMPTY_WALLET);
+        const zometPage = await authInDashboardByMmEmptyWallets(context, SEED_EMPTY_WALLET, EMPTY_ADDRESS);
         await use(zometPage);
     },
     dashboardProtocol: async ({ context }, use) => {
