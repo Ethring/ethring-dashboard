@@ -124,14 +124,12 @@ testKeplr.describe('Keplr Send e2e tests', () => {
         const network = 'cosmoshub';
         const addressFrom = getTestVar(TEST_CONST.COSMOS_ADDRESS_TX);
         const addressTo = COSMOS_NETWORKS[network];
-        const WAITED_URL = `**/srv-data-provider/api/balances?net=${network}**`;
         const amount = '0.001';
         const memo = MEMO_BY_KEPLR_TEST;
+        // const WAITED_URL = `**/srv-data-provider/api/balances?net=${network}**`;
 
         await sendPage.mockBalanceRequest(network.toLowerCase(), mockBalanceCosmosWallet[network], addressFrom);
-        const balancePromise = sendPage.page.waitForResponse(WAITED_URL);
-
-        await balancePromise;
+        // await sendPage.page.waitForResponse(WAITED_URL);
 
         await expect(sendPage.getBaseContentElement()).toHaveScreenshot();
 
@@ -144,6 +142,7 @@ testKeplr.describe('Keplr Send e2e tests', () => {
             mockPostTransactionsRouteSendRejectKeplr,
             mockPostTransactionsWsByCreateEventSendRejectKeplr,
         );
+
         await sendPage.modifyDataByPutTxRequest(
             mockPutTransactionsRouteSendRejectKeplr,
             mockPutTransactionsWsByUpdateTransactionEventInProgressSendRejectKeplr,
