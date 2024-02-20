@@ -30,9 +30,11 @@
 
 -   Types, interfaces, and enums for the `modules/balance-provider`;
 
--   Operation result for Send, Swap, Bridge and SuperSwap;
+-   `Operation result` for Send, Swap, Bridge and SuperSwap;
 
 -   `components/ui/result` for displaying operation result;
+
+-   Ignore some RPC domains for COSMOS ecosystem;
 
 ### Changed 📝
 
@@ -46,25 +48,33 @@
 
 -   Notifications styles;
 
+-   Adding custom icons for notifications moved to `compositions/useNotifications`;
+
+-   `CLEAR_AMOUNTS` action for clearing amounts after transaction has been disabled;
+
 ### Fixed 🛠️
 
--   Getting chain configs;
+-   Getting chain configs on the first load;
 
--   Getting tokens list;
+-   Getting tokens list on the first load;
 
 -   Getting tokens list from provider;
 
--   Saving to `IndexedDB`;
+-   Getting tokens list for selected chain;
+
+-   Saving to `IndexedDB` after getting data from the API;
 
 -   Getting from IndexedDB;
 
 -   `Axios` Instance for API requests;
 
--   Id for record in `IndexedDB`;
+-   `ID` for record in `IndexedDB`;
 
 -   Waiting status for transaction preparation;
 
 -   Clearing values after transaction;
+
+-   Getting Sign Client for COSMOS ecosystem;
 
 ### Removed ❌
 
@@ -77,3 +87,7 @@
 -   `shared/utils/balances`
 
 -   `IBC.` from token symbol;
+
+-   Custom Icons for notifications from modules (SWAP, SEND, BRIDGE, SUPER_SWAP);
+
+-   Clearing values after transaction;
