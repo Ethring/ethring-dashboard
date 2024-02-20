@@ -944,7 +944,7 @@ const mockBalanceCosmosWallet = {
         },
         error: '',
     },
-    cosmos: {
+    cosmoshub: {
         ok: true,
         data: {
             tokens: [
