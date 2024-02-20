@@ -31,11 +31,13 @@ const IGNORE_DOMAINS = [
     'chaintools.tech',
     'kleomedes.network',
     'validavia.me',
-    'notional.ventures',
     'stakeandrelax.net',
     'validatrium.club',
     'w3coins.io',
     'bronbro.io',
+    'highstakes.ch',
+    'notional.ventures',
+    'tienthuattoan.ventures',
 ];
 
 const ignoreRegex = new RegExp(IGNORE_DOMAINS.join('|'), 'i');
