@@ -4,7 +4,6 @@ import util from 'util';
 import { getTestVar, TEST_CONST } from '../envHelper';
 import {
     emptyBalanceMockData,
-    mockBalanceCosmosWallet,
     mockBalanceDataBySendTest,
     mockPostTransactionsRouteSendReject,
     mockPostTransactionsWsByCreateEventSendReject,
