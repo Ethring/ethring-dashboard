@@ -6,7 +6,13 @@ import { KeplrHomePage, KeplrNotifyPage, getNotifyKeplrPage, keplrVersion } from
 import { COSMOS_NETWORKS, EVM_NETWORKS } from '../data/constants';
 import mockTokensListData from '../data/mockTokensListData';
 import { DashboardPage } from '../model/VueApp/base.pages';
-import { errorGetBalanceMockData, marketCapNativeEvmTokens, mockBalanceCosmosWallet, mockBalanceDataBySendTest, mockBalanceDataBySwapTest } from '../data/mockHelper';
+import {
+    errorGetBalanceMockData,
+    marketCapNativeEvmTokens,
+    mockBalanceCosmosWallet,
+    mockBalanceDataBySendTest,
+    mockBalanceDataBySwapTest,
+} from '../data/mockHelper';
 import util from 'util';
 
 export const FIVE_SECONDS = 5000;
@@ -72,7 +78,11 @@ export const authInDashboardByMm = async (context: BrowserContext, seed: string)
     return __loginByMmAndWaitElement__(context, zometPage);
 };
 
-export const authMmCoingeckoAndBalanceMockBySendTest = async (context: BrowserContext, seed: string, address: string): Promise<DashboardPage> => {
+export const authMmCoingeckoAndBalanceMockBySendTest = async (
+    context: BrowserContext,
+    seed: string,
+    address: string,
+): Promise<DashboardPage> => {
     await addWalletToMm(context, seed);
 
     const COINGECKO_ROUTE = '**/marketcaps/coingecko?**';
@@ -149,5 +159,9 @@ export const authInDashboardByKeplr = async (context: BrowserContext, seed: stri
     await notifyKeplr.assignPage();
 
     await zometPage.waitMainElementVisible();
+
+    await Promise.all(
+        Object.keys(COSMOS_NETWORKS).map((network) => zometPage.page.waitForResponse(`**/srv-data-provider/api/balances?net=${network}**`)),
+    );
     return zometPage;
 };
