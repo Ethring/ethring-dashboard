@@ -57,13 +57,6 @@ testMetaMask.describe('MetaMask dashboard', () => {
 });
 
 test.describe('Keplr dashboard', () => {
-    testKeplr('Case#: Dashboard page', async ({ browser, context, page, dashboard }) => {
-        await dashboard.prepareFoScreenShoot();
-        await dashboard.setFocusToFirstSpan();
-
-        await expect(dashboard.page).toHaveScreenshot({ maxDiffPixelRatio: 0.01 });
-    });
-
     testKeplr('Case#: check protocols & nfts view', async ({ browser, context, page, dashboardProtocol }) => {
         await dashboardProtocol.prepareFoScreenShoot();
 

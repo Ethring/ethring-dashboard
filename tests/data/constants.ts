@@ -4,7 +4,7 @@ import { getTestVar, TEST_CONST } from '../envHelper';
 export const EVM_NETWORKS = ['eth', 'arbitrum', 'optimism', 'bsc', 'polygon', 'fantom', 'avalanche'];
 
 export const COSMOS_NETWORKS = {
-    cosmos: 'cosmos1e9dvrk7n69hsupdnf6q5d0h6k6e33lnjq6vrmz',
+    cosmoshub: 'cosmos1e9dvrk7n69hsupdnf6q5d0h6k6e33lnjq6vrmz',
     crescent: 'cre1e9dvrk7n69hsupdnf6q5d0h6k6e33lnjyjlxw0',
     juno: 'juno1e9dvrk7n69hsupdnf6q5d0h6k6e33lnjkg0cu7',
     mars: 'mars1e9dvrk7n69hsupdnf6q5d0h6k6e33lnja846we',
@@ -50,4 +50,4 @@ export enum IGNORED_LOCATORS {
     SERVICE_ICON = 'div.service-icon',
 }
 
-export const MEMO_BY_KEPLR_TEST = '105371789'
+export const MEMO_BY_KEPLR_TEST = '105371789';

@@ -140,19 +140,18 @@ export const authInDashboardByKeplr = async (context: BrowserContext, seed: stri
     await addWalletToKeplr(context, seed);
 
     const zometPage = new DashboardPage(await context.newPage());
-    await zometPage.goToPage();
 
     const NETWORK_NAME_BALANCE_ERROR = 'juno';
     const CORRECT_BALANCE_NETWORKS = { ...COSMOS_NETWORKS } as Partial<typeof COSMOS_NETWORKS>;
     delete CORRECT_BALANCE_NETWORKS.juno;
 
     zometPage.mockBalanceRequest(NETWORK_NAME_BALANCE_ERROR, errorGetBalanceMockData, COSMOS_NETWORKS[NETWORK_NAME_BALANCE_ERROR], 500);
-
     await Promise.all(
         Object.keys(CORRECT_BALANCE_NETWORKS).map((network) =>
             zometPage.mockBalanceRequest(network, mockBalanceCosmosWallet[network], COSMOS_NETWORKS[network]),
         ),
     );
+    await zometPage.goToPage();
 
     await zometPage.clickLoginByKeplr();
     const notifyKeplr = new KeplrNotifyPage(await getNotifyKeplrPage(context));
