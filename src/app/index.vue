@@ -27,6 +27,7 @@ import RoutesModal from '@/components/app/modals/RoutesModal.vue';
 import { updateBalanceForAccount } from '@/modules/balance-provider';
 
 import { trackingBalanceUpdate } from '@/services/track-update-balance';
+import { setNativeTokensPrices } from '../modules/balance-provider/native-token';
 
 export default {
     name: 'App',
@@ -77,6 +78,7 @@ export default {
                 return setTimeout(callInit, 1000);
             }
 
+            await setNativeTokensPrices(store, ecosystem);
             await updateBalanceForAccount(walletAccount.value, addressesWithChains.value);
         };
 
