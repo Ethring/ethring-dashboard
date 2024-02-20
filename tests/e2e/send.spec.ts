@@ -121,7 +121,7 @@ test.describe('MetaMask Send e2e tests', () => {
 
 testKeplr.describe('Keplr Send e2e tests', () => {
     testKeplr('Case#: Reject send native token in Cosmos', async ({ browser, context, page, sendPage }) => {
-        const network = 'cosmos';
+        const network = 'cosmoshub';
         const addressFrom = getTestVar(TEST_CONST.COSMOS_ADDRESS_TX);
         const addressTo = COSMOS_NETWORKS[network];
         const WAITED_URL = `**/srv-data-provider/api/balances?net=${network}**`;
