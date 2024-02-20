@@ -53,7 +53,7 @@ testMetaMask.describe('Swap e2e tests', () => {
             const imagePromiseTokenTo = swapPage.page.waitForResponse(INCORRECT_IMAGE_URL);
             await swapPage.openTokenPageTo();
             await imagePromiseTokenTo; // wait load last token image
-            // open select modal
+            await swapPage.page.getByTestId('token-record').nth(0).hover();
             await expect(swapPage.getSelectModalContent()).toHaveScreenshot();
 
             await swapPage.setTokenInTokensList(TOKEN_TO);
