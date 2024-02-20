@@ -69,6 +69,72 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             return true;
         };
 
+        // ======================== Set native token info ========================
+        const setNativeTokenInfo = (allTokens) => {
+            const getPriceFromConfig = (tokenInfo) => {
+                const chainList = computed(() => store.getters['configs/getConfigsListByEcosystem'](network.ecosystem));
+                const chainConfig = chainList.value.find(({ net }) => net === tokenInfo.net);
+                const { native_token = {} } = chainConfig || {};
+
+                if (native_token?.price) {
+                    return (tokenInfo.price = native_token?.price || 0);
+                }
+
+                return;
+            };
+
+            // Native token
+            const nativeToken = network.native_token || network.asset;
+
+            if (!nativeToken) {
+                return [];
+            }
+
+            const searchId = `${network.net}:tokens__native:${nativeToken.symbol}`;
+
+            const baseToken = allTokens.find(({ id }) => id === searchId);
+
+            const tokenInfo = {
+                balance: 0,
+                balanceUsd: 0,
+                net: network.net,
+                ...baseToken,
+                ...nativeToken,
+                price: baseToken?.price || nativeToken?.price || 0,
+            };
+
+            if (!tokenInfo.id) {
+                tokenInfo.id = searchId;
+            }
+
+            if (!tokenInfo.name) {
+                tokenInfo.name = nativeToken.symbol;
+            }
+
+            if (network.ecosystem === ECOSYSTEMS.COSMOS) {
+                if (!baseToken) {
+                    tokenInfo.logo = network.logo;
+                }
+                tokenInfo.address = nativeToken.base;
+            }
+
+            if (!tokenInfo.name.includes('Native Token') && network.ecosystem === ECOSYSTEMS.EVM) {
+                tokenInfo.name += ' Native Token';
+            }
+
+            getPriceFromConfig(tokenInfo);
+
+            if (baseToken) {
+                allTokens = allTokens.filter(({ id }) => id !== searchId);
+            }
+
+            if (tokenInfo.balance > 0 || !allTokens.length) {
+                allTokens.push(tokenInfo);
+            }
+
+            return allTokens;
+        };
+
         // Target tokens list with or without balance
         if (onlyWithBalance) {
             allTokens = tokensWithBalance;
@@ -76,60 +142,8 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             allTokens = _.unionBy(tokensWithBalance, tokensListFromNet, (tkn) => tkn.address?.toLowerCase());
         }
 
-        // Native token
-        const nativeToken = network.native_token || network.asset;
-
-        if (!nativeToken) {
-            return [];
-        }
-
-        const searchId = `${network.net}:tokens__native:${nativeToken.symbol}`;
-
-        const baseToken = allTokens.find(({ id }) => id === searchId);
-
-        const tokenInfo = {
-            balance: 0,
-            balanceUsd: 0,
-            net: network.net,
-            ...baseToken,
-            ...nativeToken,
-        };
-
-        if (!tokenInfo.id) {
-            tokenInfo.id = searchId;
-        }
-
-        if (!tokenInfo.name) {
-            tokenInfo.name = nativeToken.symbol;
-        }
-
-        if (network.ecosystem === ECOSYSTEMS.COSMOS) {
-            if (!baseToken) {
-                tokenInfo.logo = network.logo;
-            }
-            tokenInfo.address = nativeToken.base;
-        }
-
-        if (!tokenInfo.name.includes('Native Token') && network.ecosystem === ECOSYSTEMS.EVM) {
-            tokenInfo.name += ' Native Token';
-        }
-
-        if (!tokenInfo.price) {
-            const chainList = computed(() => store.getters['configs/getConfigsListByEcosystem'](network.ecosystem));
-            const token = chainList.value.find(({ net }) => net === tokenInfo.net);
-
-            if (token) {
-                tokenInfo.price = token.native_token?.price;
-            }
-        }
-
-        if (baseToken) {
-            allTokens = allTokens.filter(({ id }) => id !== searchId);
-        }
-
-        if (tokenInfo.balance > 0 || !allTokens.length) {
-            allTokens.push(tokenInfo);
-        }
+        // Set native token info
+        allTokens = setNativeTokenInfo(allTokens);
 
         // Added selected param if token is selected
         const selectedToken = isFromSelected.value ? toToken : fromToken;
