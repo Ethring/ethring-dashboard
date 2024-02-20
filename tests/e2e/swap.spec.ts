@@ -168,54 +168,55 @@ testMetaMask.describe('Swap e2e tests', () => {
         },
     );
 
-    testMetaMask(
-        'Case#: Checking dollar equivalent and hover by select tokens',
-        async ({ browser, context, page, swapPageMockTokensList: swapPage }) => {
-            // description:
-            // checking the display of values and dollar equivalents for the swap
-            // check the selection of the selected token in the list of tokens
+    // TODO: Need fix test, because it's not stable, need balance mock for tokens, because in FROM token list we have tokens only with balance
+    // testMetaMask(
+    //     'Case#: Checking dollar equivalent and hover by select tokens',
+    //     async ({ browser, context, page, swapPageMockTokensList: swapPage }) => {
+    //         // description:
+    //         // checking the display of values and dollar equivalents for the swap
+    //         // check the selection of the selected token in the list of tokens
 
-            const NET = 'eth';
-            const TOKEN_FROM = 'ORAI';
-            const TOKEN_TO = 'LON';
-            // const WAITED_BALANCE_URL = `**/srv-data-provider/api/balances?net=${NET}**`;
-            const AMOUNT = '1';
+    //         const NET = 'eth';
+    //         const TOKEN_FROM = 'ORAI';
+    //         const TOKEN_TO = 'LON';
+    //         // const WAITED_BALANCE_URL = `**/srv-data-provider/api/balances?net=${NET}**`;
+    //         const AMOUNT = '1';
 
-            const estimateMockData = {
-                ok: true,
-                data: {
-                    fromTokenAmount: '1.0',
-                    toTokenAmount: '9.302190440797261907',
-                    fee: {
-                        amount: '0.00375186407532274',
-                        currency: 'ETH',
-                    },
-                },
-                error: '',
-            };
-            // await swapPage.page.waitForResponse(WAITED_BALANCE_URL); // wait response wallet balance
+    //         const estimateMockData = {
+    //             ok: true,
+    //             data: {
+    //                 fromTokenAmount: '1.0',
+    //                 toTokenAmount: '9.302190440797261907',
+    //                 fee: {
+    //                     amount: '0.00375186407532274',
+    //                     currency: 'ETH',
+    //                 },
+    //             },
+    //             error: '',
+    //         };
+    //         // await swapPage.page.waitForResponse(WAITED_BALANCE_URL); // wait response wallet balance
 
-            await swapPage.mockEstimateSwapRequest(SWAP_SERVICE, errorEstimateSwap, 500);
-            await swapPage.setAmount(AMOUNT);
-            await sleep(1000);
+    //         await swapPage.mockEstimateSwapRequest(SWAP_SERVICE, errorEstimateSwap, 500);
+    //         await swapPage.setAmount(AMOUNT);
+    //         await sleep(1000);
 
-            await swapPage.openTokenPageFrom();
-            await swapPage.mockEstimateSwapRequest(SWAP_SERVICE, errorEstimateSwap, 500);
-            await swapPage.setTokenInTokensList(TOKEN_FROM);
-            await swapPage.openTokenPageTo();
+    //         await swapPage.openTokenPageFrom();
+    //         await swapPage.mockEstimateSwapRequest(SWAP_SERVICE, errorEstimateSwap, 500);
+    //         await swapPage.setTokenInTokensList(TOKEN_FROM);
+    //         await swapPage.openTokenPageTo();
 
-            const estimatePromise = swapPage.page.waitForResponse(`**/estimateSwap**`);
-            await swapPage.mockEstimateSwapRequest(SWAP_SERVICE, estimateMockData, 200);
-            await swapPage.setTokenInTokensList(TOKEN_TO);
-            await estimatePromise;
+    //         const estimatePromise = swapPage.page.waitForResponse(`**/estimateSwap**`);
+    //         await swapPage.mockEstimateSwapRequest(SWAP_SERVICE, estimateMockData, 200);
+    //         await swapPage.setTokenInTokensList(TOKEN_TO);
+    //         await estimatePromise;
 
-            await sleep(FIVE_SECONDS);
-            await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
+    //         await sleep(FIVE_SECONDS);
+    //         await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
 
-            await swapPage.openTokenPageTo();
-            await expect(swapPage.getSelectModalContent()).toHaveScreenshot();
-        },
-    );
+    //         await swapPage.openTokenPageTo();
+    //         await expect(swapPage.getSelectModalContent()).toHaveScreenshot();
+    //     },
+    // );
 
     // test('Case#: Swap in Polygon: Matic to USDC', async ({ browser, context, page, swapPage }) => {
     //     const testedNet = 'Polygon';
