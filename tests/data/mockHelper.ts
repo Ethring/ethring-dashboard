@@ -1272,7 +1272,7 @@ const mockPostTransactionsRouteSendMockTx = {
             status: 'IN PROGRESS',
             parameters: {
                 token: {
-                    id: 'polygon:asset__native:MATIC',
+                    id: 'polygon:tokens__native:MATIC',
                     net: 'polygon',
                     logo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
                     name: 'MATIC Native Token',
@@ -1317,7 +1317,7 @@ const mockPostTransactionsWsByCreateEventSendMockTx = {
     status: 'IN PROGRESS',
     parameters: {
         token: {
-            id: 'polygon:asset__native:MATIC',
+            id: 'polygon:tokens__native:MATIC',
             net: 'polygon',
             logo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
             name: 'MATIC Native Token',
@@ -1361,7 +1361,7 @@ const mockPutTransactionsRouteSendMockTx = {
         status: 'IN PROGRESS',
         parameters: {
             token: {
-                id: 'polygon:asset__native:MATIC',
+                id: 'polygon:tokens__native:MATIC',
                 logo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
                 name: 'MATIC Native Token',
                 chain: 'polygon',
@@ -1404,7 +1404,7 @@ const mockPutTransactionsWsByUpdateTransactionEventInProgressSendMockTx = {
     status: 'IN PROGRESS',
     parameters: {
         token: {
-            id: 'polygon:asset__native:MATIC',
+            id: 'polygon:tokens__native:MATIC',
             net: 'polygon', // TODO this param is only in WS response, but didn`t in http. Need analyze
             logo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
             name: 'MATIC Native Token',
@@ -1456,7 +1456,7 @@ const mockPostTransactionsRouteSendReject = {
             status: 'IN PROGRESS',
             parameters: {
                 token: {
-                    id: 'avalanche:asset__native:AVAX',
+                    id: 'avalanche:tokens__native:AVAX',
                     net: 'avalanche',
                     logo: 'https://cryptologos.cc/logos/avalanche-avax-logo.png?v=025',
                     name: 'Avalanche Native Token',
@@ -1501,7 +1501,7 @@ const mockPostTransactionsWsByCreateEventSendReject = {
     status: 'IN PROGRESS',
     parameters: {
         token: {
-            id: 'avalanche:asset__native:AVAX',
+            id: 'avalanche:tokens__native:AVAX',
             net: 'avalanche',
             logo: 'https://cryptologos.cc/logos/avalanche-avax-logo.png?v=025',
             name: 'Avalanche Native Token',
@@ -1545,7 +1545,7 @@ const mockPutTransactionsRouteSendReject = {
         status: 'REJECTED',
         parameters: {
             token: {
-                id: 'avalanche:asset__native:AVAX',
+                id: 'avalanche:tokens__native:AVAX',
                 net: 'avalanche',
                 logo: 'https://cryptologos.cc/logos/avalanche-avax-logo.png?v=025',
                 name: 'Avalanche Native Token',
@@ -1606,7 +1606,7 @@ const mockPutTransactionsWsByUpdateTransactionEventInProgressSendReject = {
             chainLogo: 'https://cryptologos.cc/logos/avalanche-avax-logo.png?v=025',
             coingecko_id: 'avalanche-2',
             decimals: 18,
-            id: 'avalanche:asset__native:AVAX',
+            id: 'avalanche:tokens__native:AVAX',
             logo: 'https://cryptologos.cc/logos/avalanche-avax-logo.png?v=025',
             name: 'Avalanche Native Token',
             net: 'avalanche', // TODO this param is only in WS response, but didn`t in http. Need analyze
@@ -1640,7 +1640,7 @@ const mockPostTransactionsRouteSendRejectKeplr = {
             status: 'IN PROGRESS',
             parameters: {
                 token: {
-                    id: 'cosmoshub:asset__native:ATOM',
+                    id: 'cosmoshub:tokens__native:ATOM',
                     net: 'cosmoshub',
                     base: 'uatom',
                     logo: 'https://pulsar-images.s3.eu-west-1.amazonaws.com/tokens/Cosmos%20Hub.png',
@@ -1740,7 +1740,7 @@ const mockPostTransactionsWsByCreateEventSendRejectKeplr = {
             ],
             description: 'The native staking and governance token of the Cosmos Hub.',
             display: 'atom',
-            id: 'cosmoshub:asset__native:ATOM',
+            id: 'cosmoshub:tokens__native:ATOM',
             images: [
                 {
                     png: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/cosmoshub/images/atom.png',
@@ -1777,7 +1777,7 @@ const mockPutTransactionsRouteSendRejectKeplr = {
         status: 'REJECTED',
         parameters: {
             token: {
-                id: 'cosmoshub:asset__native:ATOM',
+                id: 'cosmoshub:tokens__native:ATOM',
                 net: 'cosmoshub',
                 base: 'uatom',
                 logo: 'https://pulsar-images.s3.eu-west-1.amazonaws.com/tokens/Cosmos%20Hub.png',
@@ -1876,7 +1876,7 @@ const mockPutTransactionsWsByUpdateTransactionEventInProgressSendRejectKeplr = {
             ],
             description: 'The native staking and governance token of the Cosmos Hub.',
             display: 'atom',
-            id: 'cosmoshub:asset__native:ATOM',
+            id: 'cosmoshub:tokens__native:ATOM',
             images: [
                 {
                     png: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/cosmoshub/images/atom.png',
