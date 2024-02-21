@@ -13,6 +13,7 @@ import {
     getPathToMmExtension,
     authInDashboardByMmEmptyWallets,
     authInDashboardByKeplr,
+    authInDashboardByMmErrorBalance,
 } from './fixtureHelper';
 import { proxyUrl } from '../../playwright.config';
 import { COSMOS_WALLETS_BY_PROTOCOL_SEED, COSMOS_WALLETS_BY_SEED_MOCK_TX } from 'tests/data/constants';
@@ -37,6 +38,7 @@ export const testMetaMask = base.extend<{
     dashboard: DashboardPage;
     dashboardProtocol: DashboardPage;
     dashboardEmptyWallet: DashboardPage;
+    dashboardAllBalanceError: DashboardPage;
 
     sendPage: SendPage;
     sendPageCoingeckoMock: SendPage;
@@ -86,6 +88,10 @@ export const testMetaMask = base.extend<{
     },
     dashboardEmptyWallet: async ({ context }, use) => {
         const zometPage = await authInDashboardByMmEmptyWallets(context, SEED_EMPTY_WALLET, EMPTY_ADDRESS);
+        await use(zometPage);
+    },
+    dashboardAllBalanceError: async ({ context }, use) => {
+        const zometPage = await authInDashboardByMmErrorBalance(context, SEED_EMPTY_WALLET, EMPTY_ADDRESS);
         await use(zometPage);
     },
     dashboardProtocol: async ({ context }, use) => {
