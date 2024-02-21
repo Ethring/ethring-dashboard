@@ -86,12 +86,13 @@ export default {
             }
         },
 
-        async initTokensByChain(_, { chain, ecosystem }) {
+        async initTokensByChain({}, { chain, ecosystem }) {
             await getTokensConfigByChain(chain, ecosystem);
         },
 
-        async getTokensListForChain(_, chain) {
-            return await configsDB.getAllObjectFrom(DB_TABLES.TOKENS, 'chain', chain, { isArray: true });
+        async getTokensListForChain({}, chain) {
+            const list = await configsDB.getAllObjectFrom(DB_TABLES.TOKENS, 'chain', chain, { isArray: true });
+            return _.orderBy(list, ['name'], ['asc']);
         },
 
         setConfigLoading({ commit }, value) {
