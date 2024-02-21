@@ -729,7 +729,10 @@ class CosmosAdapter extends AdapterBase {
         }
 
         // Filter RPCs by ignoreRPC to avoid unnecessary connections
+        logger.debug('>>> ALL RPC LIST:', RPCs);
         const filteredRPCs = RPCs.filter((rpc) => !ignoreRPC(rpc));
+        logger.debug('FILTERED RPC:', filteredRPCs);
+        
         const chunkedRPCs = _.chunk(filteredRPCs, CHUNK_SIZE);
 
         for (const chunkRPCs of chunkedRPCs) {
