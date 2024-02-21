@@ -729,10 +729,10 @@ class CosmosAdapter extends AdapterBase {
         }
 
         // Filter RPCs by ignoreRPC to avoid unnecessary connections
-        logger.debug('>>> ALL RPC LIST:', RPCs);
+        logger.info('>>> ALL RPC LIST:', RPCs);
         const filteredRPCs = RPCs.filter((rpc) => !ignoreRPC(rpc));
-        logger.debug('FILTERED RPC:', filteredRPCs);
-        
+        logger.info('FILTERED RPC:', filteredRPCs);
+
         const chunkedRPCs = _.chunk(filteredRPCs, CHUNK_SIZE);
 
         for (const chunkRPCs of chunkedRPCs) {
@@ -775,6 +775,8 @@ class CosmosAdapter extends AdapterBase {
         const { rpcEndpoints, chainRecord } = chainWallet.value || {};
         const { clientOptions = {} } = chainRecord || {};
         const { signingStargate = {} } = clientOptions;
+
+        logger.info('>>> LOG BEFORE SIGN CLIENT', error);
 
         const client = await this.getSignClient(rpcEndpoints, {
             signingStargate,
