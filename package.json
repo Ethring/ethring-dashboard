@@ -1,7 +1,7 @@
 {
   "name": "zomet-dashboard",
   "description": "Zomet Dashboard is a web application that allows users to interact with multiple blockchains and manage their assets. It is built with Vue.js and Vite.",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
