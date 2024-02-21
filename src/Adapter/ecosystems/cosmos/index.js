@@ -718,11 +718,11 @@ class CosmosAdapter extends AdapterBase {
         }
     }
 
-    async getSignClient(RPCs, { signingStargate = {}, offlineSigner = {} }) {
+    async getSignClient(RPCs = [], { signingStargate = {}, offlineSigner = {} }) {
         const TIMEOUT_PROMISE = 3000; // 3 seconds for timeout
 
         // Check if RPCs exist
-        if (!RPCs || !RPCs.length) {
+        if (!RPCs.length) {
             logger.warn('[COSMOS -> getSignClient] RPCs not found to get client');
             return null;
         }
@@ -730,7 +730,8 @@ class CosmosAdapter extends AdapterBase {
         // Filter RPCs by ignoreRPC to avoid unnecessary connections
         const filteredRPCs = RPCs.filter((rpc) => !ignoreRPC(rpc));
 
-        console.log('RPCs', RPCs, 'filteredRPCs', filteredRPCs);
+        console.log('RPCs', RPCs);
+        console.log('Filtered RPC', filteredRPCs);
 
         // Timeout promise for RPC
         const timeoutFN = (TIMEOUT = TIMEOUT_PROMISE, rpc) =>
@@ -744,6 +745,7 @@ class CosmosAdapter extends AdapterBase {
                 const connectPromise = SigningStargateClient.connectWithSigner(rpc, offlineSigner, signingStargate);
                 await Promise.race([timeoutPromise, connectPromise]);
 
+                console.log('Client connected', rpc);
                 // Success
                 return connectPromise;
             } catch (error) {
@@ -770,7 +772,7 @@ class CosmosAdapter extends AdapterBase {
         const { clientOptions = {} } = chainRecord || {};
         const { signingStargate = {} } = clientOptions;
 
-        logger.info('>>> LOG BEFORE SIGN CLIENT');
+        console.log('>>> LOG BEFORE SIGN CLIENT');
 
         const client = await this.getSignClient(rpcEndpoints, {
             signingStargate,
@@ -784,6 +786,9 @@ class CosmosAdapter extends AdapterBase {
             };
         }
 
+        console.log('>>> LOG AFTER SIGN CLIENT');
+
+        console.log('>>> LOG BEFORE SIMULATE FEE');
         // Try to get estimated fee
         try {
             const estimatedFee = await this.getTransactionFee(client, msg);
@@ -798,6 +803,7 @@ class CosmosAdapter extends AdapterBase {
         } catch (error) {
             logger.error('[COSMOS -> signSend -> estimate]', error);
         }
+        console.log('>>> LOG AFTER SIMULATE FEE');
 
         // Sign and send transaction
         try {
