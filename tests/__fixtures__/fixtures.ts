@@ -185,6 +185,7 @@ export const testKeplr = base.extend<{
                 '--force-fieldtrials',
 
                 '--ignore-certificate-errors',
+                '--disable-web-security',
 
                 '--disable-background-timer-throttling',
                 '--disable-backgrounding-occluded-windows',
