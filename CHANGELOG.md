@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased] [v1.0.1] - 13.02.2024
+## [v1.0.1] - 21.02.2024
 
 ### Added ✅
 
@@ -35,6 +35,8 @@
 -   `components/ui/result` for displaying operation result;
 
 -   Ignore some RPC domains for COSMOS ecosystem;
+
+-   Cheking algorithm for RPC COSMOS;
 
 ### Changed 📝
 
