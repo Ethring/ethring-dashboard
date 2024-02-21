@@ -92,6 +92,19 @@ export const authInDashboardByMmEmptyWallets = async (context: BrowserContext, s
     return returnedPage;
 };
 
+export const authInDashboardByMmErrorBalance = async (context: BrowserContext, seed: string, address: string): Promise<DashboardPage> => {
+    await addWalletToMm(context, seed);
+    const zometPage = new DashboardPage(await context.newPage());
+
+    await Promise.all(EVM_NETWORKS.map((network) => zometPage.mockBalanceRequest(network, errorGetBalanceMockData, address, 400)));
+
+    const lastBalancePromise = zometPage.page.waitForResponse(`**/srv-data-provider/api/balances?net=${EVM_NETWORKS[6]}**`);
+
+    const returnedPage = __loginByMmAndWaitElement__(context, zometPage);
+    await lastBalancePromise;
+    return returnedPage;
+};
+
 export const authMmCoingeckoAndBalanceMockBySendTest = async (
     context: BrowserContext,
     seed: string,

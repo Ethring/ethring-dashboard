@@ -23,12 +23,8 @@ testMetaMask('Case#: Bridge page', async ({ browser, context, page, dashboardEmp
     });
 });
 
-testMetaMask('Case#: Bridge page if balance request error', async ({ browser, context, page, dashboardEmptyWallet }) => {
-    const address = getTestVar(TEST_CONST.EMPTY_ETH_ADDRESS);
-    const bridgePage: BridgePage = await dashboardEmptyWallet.goToModule('bridge');
-
-    await Promise.all(EVM_NETWORKS.map((network) => bridgePage.mockBalanceRequest(network, errorGetBalanceMockData, address, 400)));
-    bridgePage.page.waitForResponse(`**/srv-data-provider/api/balances?net=${EVM_NETWORKS[6]}**`);
+testMetaMask('Case#: Bridge page if balance request error', async ({ browser, context, page, dashboardAllBalanceError }) => {
+    const bridgePage: BridgePage = await dashboardAllBalanceError.goToModule('bridge');
 
     await bridgePage.waitDetachedSkeleton();
     await bridgePage.waitLoadImg();

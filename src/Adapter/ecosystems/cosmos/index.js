@@ -770,6 +770,8 @@ class CosmosAdapter extends AdapterBase {
         const { clientOptions = {} } = chainRecord || {};
         const { signingStargate = {} } = clientOptions;
 
+        logger.info('>>> LOG BEFORE SIGN CLIENT');
+
         const client = await this.getSignClient(rpcEndpoints, {
             signingStargate,
             offlineSigner: chainWallet.value.offlineSigner,
