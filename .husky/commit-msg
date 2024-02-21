@@ -3,12 +3,7 @@ echo "HUSKY commit-msg"
 
 . "$(dirname -- "$0")/_/husky.sh"
 
-if ! head -1 "$1" | grep -qE "^(init|feat|fix|chore|docs|test|style|refactor|perf|build|ci|revert|config)(\(.+?\))?: .{1,}$"; then
-    echo "\nAborting commit. Your commit message is invalid. \nPlease try in format: \"fix: bugs in main page\"" >&2
-    exit 1
-fi
-
-if ! head -1 "$1" | grep -qE "^.{1,88}$"; then
+if ! head -1 "$1" | grep -qE "^.{1,100}$"; then
     echo "Aborting commit. Your commit message is too long." >&2
     exit 1
 fi

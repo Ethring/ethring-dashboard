@@ -3,8 +3,6 @@ import { ref, computed, onBeforeUnmount, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
-import { DP_COSMOS } from '@/api/data-provider';
-
 import { ECOSYSTEMS } from '@/Adapter/config';
 
 import * as GETTERS from '../store/getters';
@@ -23,13 +21,19 @@ function useAdapter() {
     const adaptersGetter = (getter) => store.getters[`${storeModule}/${getter}`];
     const adaptersDispatch = (dispatch, ...args) => store.dispatch(`${storeModule}/${dispatch}`, ...args);
 
+    const isConfigsLoading = computed(() => store.getters['configs/isConfigLoading']);
+
     const initAdapter = async () => {
+        store.dispatch('configs/setConfigLoading', true);
+
         for (const ecosystem in ECOSYSTEMS) {
             const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
             if (adapter?.init) {
                 await adapter.init(store);
             }
         }
+
+        store.dispatch('configs/setConfigLoading', false);
     };
 
     // * Last Connected Wallet
@@ -307,9 +311,7 @@ function useAdapter() {
             return null;
         }
 
-        const targetChain = DP_COSMOS[chain] || chain;
-
-        const chainInfo = chains.find(({ net, bech32_prefix }) => net === targetChain || bech32_prefix === targetChain);
+        const chainInfo = chains.find(({ net, bech32_prefix }) => net === chain || bech32_prefix === chain);
 
         return mainAdapter.value.getTokenExplorerLink(tokenAddress, chainInfo) || null;
     };

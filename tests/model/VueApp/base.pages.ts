@@ -191,7 +191,7 @@ class BasePage {
         // console.log('>>> FINISH');
     }
 
-    async handleRequestWithModification(route: Route, method: String, httpData: Object, wsData: Object) {
+    async handleRequestWithModification(route: Route, method: string, httpData: Object, wsData: Object) {
         if (route.request().method() === method) {
             const body = JSON.parse(route.request().postData());
             body.expectedDataHttp = httpData;
@@ -246,7 +246,12 @@ class DashboardPage extends BasePage {
     }
 }
 
-class BridgePage extends BasePage { }
+class BridgePage extends BasePage {
+    async setAmount(amount: string) {
+        await this.page.waitForSelector('span.ant-skeleton-input', { state: 'hidden', timeout: 10000 });
+        await this.page.getByTestId(DATA_QA_LOCATORS.INPUT_AMOUNT).fill(amount);
+    }
+}
 
 class SendPage extends BasePage {
     async setNetworkTo(netName: string) {
@@ -360,7 +365,7 @@ class SwapPage extends BasePage {
         await this.page.locator(`${this.TOKEN_ITEM_XPATH}[2]`).click();
     }
 
-    async setTokenInTokensList(token: String) {
+    async setTokenInTokensList(token: string) {
         await this.page.locator(`//div[@data-qa="${DATA_QA_LOCATORS.TOKEN_RECORD}"]//div[@class="top"][text()="${token}"]`).click();
     }
 

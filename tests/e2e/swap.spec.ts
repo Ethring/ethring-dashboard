@@ -10,21 +10,18 @@ import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
 
 const sleep = util.promisify(setTimeout);
 
-const supportedNetsBySwap = ['Ethereum', 'Binance Smart Chain', 'Arbitrum', 'Polygon', 'Avalanche', 'Optimism', 'Fantom']; // TODO до сих пор не работает. Нет фантома
-
 const SWAP_SERVICE = 'srv-paraswap';
 
 testMetaMask.describe('Swap e2e tests', () => {
-    // it('Case#: Swap tx', async ({ browser, context, page: Page, swapPage }) => {
-    //     const amount = '0.0001';
+    testMetaMask('Case#: Swap page', async ({ browser, context, page, dashboardEmptyWallet }) => {
+        const swapPage = await dashboardEmptyWallet.goToModule('swap');
+        await swapPage.waitDetachedSkeleton();
+        await swapPage.waitLoadImg();
 
-    //     await swapPage.swapTokens(amount);
-
-    //     const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
-    //     await notifyMM.signTx();
-
-    //     expect(await swapPage.getLinkFromSuccessPanel()).toContain(txHash);
-    // });
+        await expect(swapPage.page).toHaveScreenshot({
+            mask: [swapPage.page.locator(IGNORED_LOCATORS.HEADER), swapPage.page.locator(IGNORED_LOCATORS.ASIDE)],
+        });
+    });
 
     testMetaMask(
         'Case#: Checking token list change after network change',
@@ -56,7 +53,7 @@ testMetaMask.describe('Swap e2e tests', () => {
             const imagePromiseTokenTo = swapPage.page.waitForResponse(INCORRECT_IMAGE_URL);
             await swapPage.openTokenPageTo();
             await imagePromiseTokenTo; // wait load last token image
-            // open select modal
+            await swapPage.page.getByTestId('token-record').nth(0).hover();
             await expect(swapPage.getSelectModalContent()).toHaveScreenshot();
 
             await swapPage.setTokenInTokensList(TOKEN_TO);
@@ -173,7 +170,7 @@ testMetaMask.describe('Swap e2e tests', () => {
 
     testMetaMask(
         'Case#: Checking dollar equivalent and hover by select tokens',
-        async ({ browser, context, page, swapPageMockTokensList: swapPage }) => {
+        async ({ browser, context, page, swapPageMockBalancesAndTokensList: swapPage }) => {
             // description:
             // checking the display of values and dollar equivalents for the swap
             // check the selection of the selected token in the list of tokens
@@ -181,10 +178,7 @@ testMetaMask.describe('Swap e2e tests', () => {
             const NET = 'eth';
             const TOKEN_FROM = 'ORAI';
             const TOKEN_TO = 'LON';
-            const ADDRESS = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
-            const WAITED_BALANCE_URL = `**/srv-data-provider/api/balances?net=${NET}**`;
             const AMOUNT = '1';
-            const coingeckoUrl = '**/token-price/coingecko/ethereum**';
 
             const estimateMockData = {
                 ok: true,
@@ -198,21 +192,6 @@ testMetaMask.describe('Swap e2e tests', () => {
                 },
                 error: '',
             };
-            const coingeckoPriceLonData = {
-                ok: true,
-                data: {
-                    '0x0000000000095413afc295d19edeb1ad7b71c952': {
-                        usd: 0.643215,
-                        btc: 0.00001605,
-                    },
-                },
-                error: [],
-            };
-
-            await swapPage.mockBalanceRequest(NET, mockBalanceDataBySwapTest[NET], ADDRESS);
-            await swapPage.mockRoute(coingeckoUrl, coingeckoPriceLonData);
-
-            await swapPage.page.waitForResponse(WAITED_BALANCE_URL); // wait response wallet balance
 
             await swapPage.mockEstimateSwapRequest(SWAP_SERVICE, errorEstimateSwap, 500);
             await swapPage.setAmount(AMOUNT);

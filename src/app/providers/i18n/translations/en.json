@@ -4,7 +4,7 @@
   },
   "loadings": {
     "walletConnecting": "Connecting wallet ...",
-    "configLoading": "Loading config ..."
+    "initLoading": "Please wait we are preparing our application for you"
   },
   "dashboard": {
     "receive": "RECEIVE",
@@ -111,6 +111,8 @@
     "searchToken": "Search by token name or ticker",
     "searchNetwork": "Search by network name",
     "supportedNetwork": "Please choose one of the following supported networks: Ethereum, Binance Smart Chain, Avalanche, Polygon, Optimism, Arbitrum",
+    "viewDetails": "View transaction details",
+    "youHaveFollowingErrors": "The transaction have the following errors",
     "memoLabel": "Input memo",
     "memoDescription": "Required for sending to centralized exchanges."
   },

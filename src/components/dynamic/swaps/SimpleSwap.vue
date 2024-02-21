@@ -1,16 +1,22 @@
 <template>
     <a-form>
         <a-form-item>
-            <SelectRecord :current="selectedSrcNetwork" :placeholder="$t('tokenOperations.selectNetwork')" @click="onSelectNetwork" />
+            <SelectRecord
+                :disabled="isWaitingTxStatusForModule"
+                :current="selectedSrcNetwork"
+                :placeholder="$t('tokenOperations.selectNetwork')"
+                @click="onSelectNetwork"
+            />
         </a-form-item>
 
         <div class="switch-direction-wrap">
             <SelectAmountInput
                 :value="selectedSrcToken"
+                :disabled="isWaitingTxStatusForModule"
+                :disabled-select="isWaitingTxStatusForModule"
                 :selected-network="selectedSrcNetwork"
                 :error="!!isBalanceError"
                 :on-reset="resetSrcAmount"
-                :is-token-loading="isTokensLoadingForChain"
                 :is-update="isUpdateSwapDirection"
                 :label="$t('tokenOperations.pay')"
                 :amount-value="srcAmount"
@@ -20,14 +26,14 @@
 
             <SwitchDirection
                 class="swap-module"
-                :disabled="!selectedDstToken || !isUpdateSwapDirection"
+                :disabled="isWaitingTxStatusForModule || !selectedDstToken || !isUpdateSwapDirection"
                 :on-click-switch="() => swapDirections(false)"
             />
 
             <SelectAmountInput
                 disabled
                 hide-max
-                :is-token-loading="isTokensLoadingForChain"
+                :disabled-select="isWaitingTxStatusForModule"
                 :is-amount-loading="isEstimating"
                 :value="selectedDstToken"
                 :on-reset="resetDstAmount"
@@ -50,13 +56,11 @@
         />
 
         <Button
-            :title="$t(opTitle)"
-            :disabled="!!disabledSwap"
-            :loading="isWaitingTxStatusForModule || isLoading"
-            :tip="$t(opTitle)"
             class="module-layout-view-btn"
+            v-bind="btnState"
+            :title="$t(btnState.title)"
+            :tip="$t(btnState.tip)"
             @click="handleOnSwap"
-            size="large"
         />
     </a-form>
 </template>
@@ -66,8 +70,6 @@ import { h, ref, watch, inject, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
-import { SettingOutlined } from '@ant-design/icons-vue';
-
 import { getBridgeTx, getSwapTx } from '@/api/services';
 
 // Notification
@@ -76,7 +78,7 @@ import useServices from '../../../compositions/useServices';
 
 // Transaction Management
 import useTransactions from '../../../Transactions/compositions/useTransactions';
-import { STATUSES } from '../../../Transactions/shared/constants';
+import { STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
 
 // Components
 import Button from '@/components/ui/Button';
@@ -150,12 +152,13 @@ export default {
             isShowEstimateInfo,
 
             addressesByChains,
+            isUpdateSwapDirection,
+            isWaitingTxStatusForModule,
 
             clearApproveForService,
 
             makeApproveRequest,
 
-            isUpdateSwapDirection,
             swapDirections,
 
             handleOnSelectToken,
@@ -171,10 +174,6 @@ export default {
         // * Transaction Manager
         const { currentRequestID, transactionForSign, createTransactions, signAndSend, addTransactionToRequestID } = useTransactions();
 
-        const isWaitingTxStatusForModule = computed(() => store.getters['txManager/isWaitingTxStatusForModule'](module));
-
-        const balanceUpdated = ref(false);
-
         // =================================================================================================================
 
         const resetSrcAmount = ref(false);
@@ -182,7 +181,9 @@ export default {
 
         // =================================================================================================================
 
-        const isTokensLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](selectedSrcNetwork.value?.net));
+        const isTokensLoadingForChain = computed(() =>
+            store.getters['tokens/loadingByChain'](walletAccount.value, selectedSrcNetwork.value?.net),
+        );
 
         // =================================================================================================================
 
@@ -255,9 +256,6 @@ export default {
                 type: 'info',
                 title: `Swap ${srcAmount.value} ${selectedSrcToken.value.symbol} to ~${dstAmount.value} ${selectedDstToken.value.symbol}`,
                 description: 'Please wait, transaction is preparing',
-                icon: h(SettingOutlined, {
-                    spin: true,
-                }),
                 duration: 0,
             });
 
@@ -325,7 +323,7 @@ export default {
                 chainId: `${selectedSrcNetwork.value?.chain_id}`,
                 metaData: {
                     action: 'formatTransactionForSign',
-                    type: 'Approve',
+                    type: TRANSACTION_TYPES.APPROVE,
                     successCallback: {
                         action: 'GET_ALLOWANCE',
                         requestParams: {
@@ -361,10 +359,7 @@ export default {
                 chainId: `${selectedSrcNetwork.value?.chain_id}`,
                 metaData: {
                     action: 'formatTransactionForSign',
-                    type: 'SWAP',
-                    successCallback: {
-                        action: 'CLEAR_AMOUNTS',
-                    },
+                    type: TRANSACTION_TYPES.DEX,
                 },
             };
 
@@ -425,7 +420,6 @@ export default {
                 }
 
                 isLoading.value = false;
-                balanceUpdated.value = true;
             } catch (error) {
                 txError.value = error?.message || error?.error || error;
             }
@@ -454,6 +448,17 @@ export default {
 
         onMounted(() => store.dispatch('txManager/setCurrentRequestID', null));
 
+        const btnState = computed(() => {
+            return {
+                type: isWaitingTxStatusForModule.value || isLoading.value ? 'primary' : 'success',
+                title: opTitle.value,
+                tip: opTitle.value,
+                loading: isWaitingTxStatusForModule.value || isLoading.value,
+                disabled: !!disabledSwap.value,
+                size: 'large',
+            };
+        });
+
         return {
             isLoading,
             isEstimating,
@@ -461,6 +466,7 @@ export default {
             isWaitingTxStatusForModule,
 
             opTitle,
+            btnState,
 
             disabledSwap,
             walletAddress,

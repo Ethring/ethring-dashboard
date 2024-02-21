@@ -4,4 +4,10 @@ export const DB_TABLES = {
 
     COSMOLOGY_TOKENS: 'cosmologyTokens',
     COSMOLOGY_NETWORKS: 'cosmologyNetworks',
+
+    INTEGRATIONS: 'integrations',
+    NFTS: 'nfts',
+    TOKENS: 'tokens',
+
+    BALANCES: 'balances',
 };

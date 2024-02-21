@@ -1,4 +1,4 @@
-import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations/index';
 
 const TYPES = {
     SET_SRC_NETWORK: 'SET_FROM_NETWORK',
@@ -27,6 +27,8 @@ const TYPES = {
     SET_CLEAR_APPROVE_FOR_TOKEN: 'SET_CLEAR_APPROVE_FOR_TOKEN',
 
     SET_SELECTED_SERVICE: 'SET_SELECTED_SERVICE',
+
+    SET_OPERATION_RESULT: 'SET_OPERATION_RESULT',
 
     SET_MEMO: 'SET_MEMO',
 };
@@ -79,6 +81,8 @@ export default {
         approve: {},
 
         receiverAddress: null,
+        operationResult: {},
+
         memo: null,
     }),
 
@@ -100,6 +104,8 @@ export default {
 
         receiverAddress: (state) => state.receiverAddress,
         memo: (state) => state.memo,
+
+        getOperationResultByModule: (state) => (module) => state.operationResult[module] || null,
 
         allowanceForToken: (state) => (account, chain, tokenAddress, service) =>
             getApproveOrAllowance(state, 'allowance', { account, chain, tokenAddress, service }),
@@ -180,6 +186,10 @@ export default {
         [TYPES.SET_SELECTED_SERVICE](state, service) {
             state.selectedService = service;
         },
+        [TYPES.SET_OPERATION_RESULT](state, { module, result }) {
+            !state.operationResult && (state.operationResult = {});
+            state.operationResult[module] = result;
+        },
         [TYPES.SET_MEMO](state, memo) {
             state.memo = memo;
         },
@@ -227,6 +237,12 @@ export default {
         },
         setSelectedService({ commit }, value) {
             commit(TYPES.SET_SELECTED_SERVICE, value);
+        },
+        setOperationResult({ commit }, value) {
+            commit(TYPES.SET_OPERATION_RESULT, value);
+        },
+        resetOperationResult({ commit }, value) {
+            commit(TYPES.SET_OPERATION_RESULT, { module: value, result: null });
         },
         setMemo({ commit }, value) {
             commit(TYPES.SET_MEMO, value);

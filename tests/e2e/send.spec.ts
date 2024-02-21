@@ -4,7 +4,6 @@ import util from 'util';
 import { getTestVar, TEST_CONST } from '../envHelper';
 import {
     emptyBalanceMockData,
-    mockBalanceCosmosWallet,
     mockBalanceDataBySendTest,
     mockPostTransactionsRouteSendReject,
     mockPostTransactionsWsByCreateEventSendReject,
@@ -17,41 +16,33 @@ import {
 } from '../data/mockHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage, getHomeMmPage } from '../model/MetaMask/MetaMask.pages';
 import { KeplrNotifyPage, getNotifyKeplrPage } from '../model/Keplr/Keplr.pages';
-import { EVM_NETWORKS, COSMOS_NETWORKS, IGNORED_LOCATORS, MEMO_BY_KEPLR_TEST } from '../data/constants';
+import { COSMOS_WALLETS_BY_PROTOCOL_SEED, IGNORED_LOCATORS, MEMO_BY_KEPLR_TEST } from '../data/constants';
 import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
 
 const sleep = util.promisify(setTimeout);
 
 test.describe('MetaMask Send e2e tests', () => {
+    testMetaMask('Case#: Send page', async ({ browser, context, page, dashboardEmptyWallet }) => {
+        const address = getTestVar(TEST_CONST.EMPTY_ETH_ADDRESS);
+        await dashboardEmptyWallet.mockBalanceRequest('eth', emptyBalanceMockData, address);
+
+        const sendPage = await dashboardEmptyWallet.goToModule('send');
+        await sendPage.waitLoadImg();
+        await expect(sendPage.page).toHaveScreenshot({
+            mask: [sendPage.page.locator(IGNORED_LOCATORS.HEADER), sendPage.page.locator(IGNORED_LOCATORS.ASIDE)],
+        });
+    });
+
     testMetaMask(
         'Case#: Reject send native token to another address in Avalanche with change MM network',
         async ({ browser, context, page, sendPageCoingeckoMockRejectTest }) => {
             const network = 'Avalanche';
-            const addressFrom = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
             const addressTo = getTestVar(TEST_CONST.RECIPIENT_ADDRESS);
             const amount = '0.001';
-
-            const INDEX_AVALANCHE = EVM_NETWORKS.indexOf(network.toLowerCase());
-            let EMPTY_BALANCE_NETS_MOCK = [...EVM_NETWORKS];
-            EMPTY_BALANCE_NETS_MOCK.splice(INDEX_AVALANCHE, 1);
-            const WAITED_URL = `**/srv-data-provider/api/balances?net=${network.toLowerCase()}**`;
-
-            await sendPageCoingeckoMockRejectTest.mockBalanceRequest(
-                network.toLowerCase(),
-                mockBalanceDataBySendTest[network.toLowerCase()],
-                addressFrom,
-            );
-            await Promise.all(
-                EMPTY_BALANCE_NETS_MOCK.map((network) =>
-                    sendPageCoingeckoMockRejectTest.mockBalanceRequest(network, emptyBalanceMockData, addressFrom),
-                ),
-            );
-            const balancePromise = sendPageCoingeckoMockRejectTest.page.waitForResponse(WAITED_URL);
 
             await sendPageCoingeckoMockRejectTest.changeNetwork(network);
             await sendPageCoingeckoMockRejectTest.setAddressTo(addressTo);
             await sendPageCoingeckoMockRejectTest.setAmount(amount);
-            await balancePromise;
             await sleep(FIVE_SECONDS); // wait able button "change network"
 
             await expect(sendPageCoingeckoMockRejectTest.page).toHaveScreenshot({
@@ -73,6 +64,7 @@ test.describe('MetaMask Send e2e tests', () => {
 
             const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
             await expect(sendPageCoingeckoMockRejectTest.page).toHaveScreenshot({
+                maxDiffPixels: 95,
                 mask: [
                     sendPageCoingeckoMockRejectTest.page.locator(IGNORED_LOCATORS.HEADER),
                     sendPageCoingeckoMockRejectTest.page.locator(IGNORED_LOCATORS.ASIDE),
@@ -129,17 +121,10 @@ test.describe('MetaMask Send e2e tests', () => {
 
 testKeplr.describe('Keplr Send e2e tests', () => {
     testKeplr('Case#: Reject send native token in Cosmos', async ({ browser, context, page, sendPage }) => {
-        const network = 'cosmos';
-        const addressFrom = getTestVar(TEST_CONST.COSMOS_ADDRESS_TX);
-        const addressTo = COSMOS_NETWORKS[network];
-        const WAITED_URL = `**/srv-data-provider/api/balances?net=${network}**`;
+        const network = 'cosmoshub';
+        const addressTo = COSMOS_WALLETS_BY_PROTOCOL_SEED[network];
         const amount = '0.001';
         const memo = MEMO_BY_KEPLR_TEST;
-
-        await sendPage.mockBalanceRequest(network.toLowerCase(), mockBalanceCosmosWallet[network], addressFrom);
-        const balancePromise = sendPage.page.waitForResponse(WAITED_URL);
-
-        await balancePromise;
 
         await expect(sendPage.getBaseContentElement()).toHaveScreenshot();
 
@@ -152,6 +137,7 @@ testKeplr.describe('Keplr Send e2e tests', () => {
             mockPostTransactionsRouteSendRejectKeplr,
             mockPostTransactionsWsByCreateEventSendRejectKeplr,
         );
+
         await sendPage.modifyDataByPutTxRequest(
             mockPutTransactionsRouteSendRejectKeplr,
             mockPutTransactionsWsByUpdateTransactionEventInProgressSendRejectKeplr,

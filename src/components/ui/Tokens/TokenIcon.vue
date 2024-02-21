@@ -6,32 +6,25 @@
             height: `${height}px`,
         }"
     >
-        <template v-if="token">
-            <template v-if="!showIconPlaceholder && (tokenIconFromZomet || token?.logo)">
-                <img
-                    :key="token?.symbol"
-                    :src="token?.logo || tokenIconFromZomet"
-                    :alt="token?.name"
-                    @error="showIconPlaceholder = true"
-                    @load="showIconPlaceholder = false"
-                />
-            </template>
-            <template v-else>
-                <div class="token-icon__placeholder">
-                    <a-avatar :size="+width">{{ iconPlaceholder }}</a-avatar>
-                </div>
-            </template>
+        <template v-if="token && !isShowPlaceholder">
+            <img
+                :key="token?.symbol"
+                :src="token?.logo"
+                :alt="token?.name || token?.symbol"
+                loading="lazy"
+                @error="() => handleOnErrorImg()"
+                @load="() => handleOnLoadImg()"
+            />
         </template>
         <template v-else>
             <div class="token-icon__placeholder">
-                <a-avatar :size="+width">{{ iconPlaceholder }}</a-avatar>
+                <a-avatar :size="+width">{{ token?.symbol || '' }}</a-avatar>
             </div>
         </template>
     </div>
 </template>
 <script>
-import { ref, computed, watch, onMounted } from 'vue';
-import { useStore } from 'vuex';
+import { ref, onMounted, watch } from 'vue';
 
 export default {
     name: 'TokenIcon',
@@ -51,36 +44,19 @@ export default {
         },
     },
     setup(props) {
-        const showIconPlaceholder = ref(false);
-        const tokenIconFromZomet = ref(null);
-        const iconPlaceholder = computed(() => props.token?.symbol);
+        const isShowPlaceholder = ref(!props.token?.logo || false);
 
-        const store = useStore();
+        const handleOnErrorImg = () => {
+            isShowPlaceholder.value = true;
+        };
 
-        const tokenFromConfig = computed(() => store.getters['configs/getTokenLogoByAddress'](props.token?.address, props.token?.chain));
-
-        const setTokenIcon = () => {
-            const { address = null, extensions = {} } = props.token;
-
-            let searchAddress = address?.toLowerCase();
-
-            if (extensions && extensions?.bridgeInfo) {
-                for (const key in extensions.bridgeInfo) {
-                    searchAddress = extensions.bridgeInfo[key].tokenAddress.toLowerCase();
-                    break;
-                }
-            }
-
-            if (tokenFromConfig.value) {
-                return (tokenIconFromZomet.value = tokenFromConfig.value);
-            }
-
-            return (tokenIconFromZomet.value = null);
+        const handleOnLoadImg = () => {
+            isShowPlaceholder.value = false;
         };
 
         onMounted(() => {
-            if (props.token) {
-                setTokenIcon();
+            if (!props.token?.logo) {
+                isShowPlaceholder.value = true;
             }
         });
 
@@ -88,16 +64,20 @@ export default {
             () => props.token,
             () => {
                 if (props.token) {
-                    showIconPlaceholder.value = false;
-                    setTokenIcon();
+                    isShowPlaceholder.value = false;
+                }
+
+                if (!props.token?.logo) {
+                    isShowPlaceholder.value = true;
                 }
             },
         );
 
         return {
-            showIconPlaceholder,
-            iconPlaceholder,
-            tokenIconFromZomet,
+            isShowPlaceholder,
+
+            handleOnLoadImg,
+            handleOnErrorImg,
         };
     },
 };
