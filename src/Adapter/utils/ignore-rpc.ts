@@ -38,6 +38,7 @@ const IGNORE_DOMAINS = [
     'highstakes.ch',
     'notional.ventures',
     'tienthuattoan.ventures',
+    'interstellar-lounge.org',
 ];
 
 const ignoreRegex = new RegExp(IGNORE_DOMAINS.join('|'), 'i');

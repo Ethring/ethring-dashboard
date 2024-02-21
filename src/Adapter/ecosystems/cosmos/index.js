@@ -719,8 +719,7 @@ class CosmosAdapter extends AdapterBase {
     }
 
     async getSignClient(RPCs, { signingStargate = {}, offlineSigner = {} }) {
-        const CHUNK_SIZE = 10;
-        const TIMEOUT = 2000; // 2 seconds
+        const TIMEOUT_PROMISE = 3000; // 3 seconds for timeout
 
         // Check if RPCs exist
         if (!RPCs || !RPCs.length) {
@@ -730,35 +729,33 @@ class CosmosAdapter extends AdapterBase {
 
         // Filter RPCs by ignoreRPC to avoid unnecessary connections
         const filteredRPCs = RPCs.filter((rpc) => !ignoreRPC(rpc));
-        const chunkedRPCs = _.chunk(filteredRPCs, CHUNK_SIZE);
 
-        for (const chunkRPCs of chunkedRPCs) {
-            const connectPromises = chunkRPCs.map(async (rpc) => {
-                try {
-                    const connectPromise = SigningStargateClient.connectWithSigner(rpc, offlineSigner, signingStargate);
+        console.log('RPCs', RPCs, 'filteredRPCs', filteredRPCs);
 
-                    // Add a timeout promise
-                    const timeoutPromise = new Promise((_, reject) => {
-                        setTimeout(() => reject(new Error(`[COSMOS -> getSignClient] Connection to RPC ${rpc} timed out`)), TIMEOUT);
-                    });
-
-                    return await Promise.race([connectPromise, timeoutPromise]);
-                } catch (error) {
-                    logger.warn(`[COSMOS -> getSignClient] Error connecting to RPC: ${rpc}`, error.message);
-                    return null;
-                }
+        // Timeout promise for RPC
+        const timeoutFN = (TIMEOUT = TIMEOUT_PROMISE, rpc) =>
+            new Promise((_, reject) => {
+                setTimeout(() => reject(new Error(`TIMEOUT ${rpc}`)), TIMEOUT);
             });
 
-            const connectedClients = await Promise.all(connectPromises);
+        for (const rpc of filteredRPCs) {
+            try {
+                const timeoutPromise = timeoutFN(TIMEOUT_PROMISE, rpc);
+                const connectPromise = SigningStargateClient.connectWithSigner(rpc, offlineSigner, signingStargate);
+                await Promise.race([timeoutPromise, connectPromise]);
 
-            const client = connectedClients.find((client) => client !== null);
+                // Success
+                return connectPromise;
+            } catch (error) {
+                if (error?.message === `TIMEOUT ${rpc}`) {
+                    logger.warn(`[COSMOS -> getSignClient TIMEOUT] Timeout connecting to RPC: ${rpc}`);
+                    continue; // Try next RPC
+                }
 
-            if (client) {
-                return client;
+                logger.warn(`[COSMOS -> getSignClient] Error connecting to RPC: ${rpc}`, error.message);
+                continue; // Try next RPC
             }
         }
-
-        logger.warn('[COSMOS -> getSignClient] Client not found');
 
         return null;
     }
