@@ -21,5 +21,11 @@ export default {
     color: var(--#{$prefix}sidebar-text);
     background-color: transparent;
     font-family: Poppins, sans-serif !important;
+    width: 48px;
+    max-width: 48px;
+    min-width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 </style>
