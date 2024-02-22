@@ -11,7 +11,7 @@ const sleep = util.promisify(setTimeout);
 testMetaMask.describe('Auth page tests', () => {
     testMetaMask('Case#: Go to auth page', async ({ browser, context, page, authPageEmptyWallet }) => {
         await authPageEmptyWallet.waitDetachedLoader();
-        await expect(authPageEmptyWallet.page).toHaveScreenshot();
+        await expect(authPageEmptyWallet.page).toHaveScreenshot({ mask: [authPageEmptyWallet.page.locator('span.version')] });
     });
 });
 
@@ -22,7 +22,7 @@ testMetaMask.describe('Pages snapshot tests with empty wallet', () => {
         await dashboardEmptyWallet.waitDetachedSkeleton();
         await sleep(FIVE_SECONDS);
         await dashboardEmptyWallet.setFocusToFirstSpan();
-        await expect(dashboardEmptyWallet.page).toHaveScreenshot();
+        await expect(dashboardEmptyWallet.page).toHaveScreenshot({ mask: [dashboardEmptyWallet.page.locator('span.version')] });
     });
 
     testMetaMask('Case#: Super swap page', async ({ browser, context, page, dashboardEmptyWallet }) => {
