@@ -6,7 +6,7 @@
 
         <a-form-item class="switch-direction-wrap">
             <a-form-item>
-                <SwapField :value="srcAmount" :label="$t('tokenOperations.from')" :token="selectedSrcToken" @setAmount="onSetAmount">
+                <SwapField :value="srcAmount" :label="$t('tokenOperations.from')" :token="selectedSrcToken" :disabled="isWaitingTxStatusForModule" @setAmount="onSetAmount">
                     <SelectRecord
                         :placeholder="$t('tokenOperations.selectNetwork')"
                         :current="selectedSrcNetwork"
