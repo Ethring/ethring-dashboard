@@ -4,18 +4,30 @@ import { BasePage, SendPage, SwapPage, SuperSwapPage, DashboardPage } from '../m
 import {
     addWalletToKeplr,
     addWalletToMm,
-    authInDashboardByKeplr,
+    authInDashboardByKeplrWithErrorJunoBalance,
     authInDashboardByMm,
-    authInDashboardByMmCoingeckoMock,
+    authMmCoingeckoAndBalanceMockBySendTest,
     authInDashboardByMmTokensListMock,
+    authMm_BalanceSwapAndTokensListMock,
     getPathToKeplrExtension,
     getPathToMmExtension,
+    authInDashboardByMmEmptyWallets,
+    authInDashboardByKeplr,
+    authInDashboardByMmErrorBalance,
 } from './fixtureHelper';
 import { proxyUrl } from '../../playwright.config';
+import { COSMOS_WALLETS_BY_PROTOCOL_SEED, COSMOS_WALLETS_BY_SEED_MOCK_TX } from 'tests/data/constants';
 
-const seedPhraseByTx = getTestVar(TEST_CONST.SEED_BY_MOCK_TX);
-const seedPhraseByProtocol = getTestVar(TEST_CONST.SEED_BY_PROTOCOL_TEST);
-const seedPhraseEmptyWallet = getTestVar(TEST_CONST.EMPTY_SEED);
+const ADDRESS_BY_TX = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
+const SEED_PHRASE_BY_TX = getTestVar(TEST_CONST.SEED_BY_MOCK_TX);
+
+const ADDRESS_BY_TX_2 = getTestVar(TEST_CONST.ETH_ADDRESS_TX_2);
+const SEED_PHRASE_BY_TX_2 = getTestVar(TEST_CONST.SEED_BY_MOCK_TX_2);
+
+const SEED_PHRASE_BY_PROTOCOL = getTestVar(TEST_CONST.SEED_BY_PROTOCOL_TEST);
+
+const SEED_EMPTY_WALLET = getTestVar(TEST_CONST.EMPTY_SEED);
+const EMPTY_ADDRESS = getTestVar(TEST_CONST.EMPTY_ETH_ADDRESS);
 
 export const testMetaMask = base.extend<{
     context: BrowserContext;
@@ -26,14 +38,18 @@ export const testMetaMask = base.extend<{
     dashboard: DashboardPage;
     dashboardProtocol: DashboardPage;
     dashboardEmptyWallet: DashboardPage;
+    dashboardAllBalanceError: DashboardPage;
 
     sendPage: SendPage;
     sendPageCoingeckoMock: SendPage;
+    sendPageCoingeckoMockRejectTest: SendPage;
+
     swapPage: SwapPage;
     swapPageMockTokensList: SwapPage;
+    swapPageMockBalancesAndTokensList: SwapPage;
     superSwapPage: SuperSwapPage;
 }>({
-    context: async ({ }, use) => {
+    context: async ({}, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -55,51 +71,65 @@ export const testMetaMask = base.extend<{
     },
 
     authPage: async ({ context }, use) => {
-        await addWalletToMm(context, seedPhraseByTx);
+        await addWalletToMm(context, SEED_PHRASE_BY_TX);
         const zometPage = new BasePage(await context.newPage());
         await zometPage.goToPage();
         await use(zometPage);
     },
     authPageEmptyWallet: async ({ context }, use) => {
-        await addWalletToMm(context, seedPhraseEmptyWallet);
+        await addWalletToMm(context, SEED_EMPTY_WALLET);
         const zometPage = new BasePage(await context.newPage());
         await zometPage.goToPage();
         await use(zometPage);
     },
     dashboard: async ({ context }, use) => {
-        const zometPage = await authInDashboardByMm(context, seedPhraseByTx);
+        const zometPage = await authInDashboardByMm(context, SEED_PHRASE_BY_TX);
         await use(zometPage);
     },
     dashboardEmptyWallet: async ({ context }, use) => {
-        const zometPage = await authInDashboardByMm(context, seedPhraseEmptyWallet);
+        const zometPage = await authInDashboardByMmEmptyWallets(context, SEED_EMPTY_WALLET, EMPTY_ADDRESS);
+        await use(zometPage);
+    },
+    dashboardAllBalanceError: async ({ context }, use) => {
+        const zometPage = await authInDashboardByMmErrorBalance(context, SEED_EMPTY_WALLET, EMPTY_ADDRESS);
         await use(zometPage);
     },
     dashboardProtocol: async ({ context }, use) => {
-        const zometPage = await authInDashboardByMm(context, seedPhraseByProtocol);
+        const zometPage = await authInDashboardByMm(context, SEED_PHRASE_BY_PROTOCOL);
         await use(zometPage);
     },
     swapPage: async ({ context }, use) => {
-        const zometPage = await authInDashboardByMm(context, seedPhraseByTx);
+        const zometPage = await authInDashboardByMm(context, SEED_PHRASE_BY_TX);
         const swapPage = await zometPage.goToModule('swap');
         await use(swapPage);
     },
     swapPageMockTokensList: async ({ context }, use) => {
-        const zometPage = await authInDashboardByMmTokensListMock(context, seedPhraseByTx);
+        const zometPage = await authInDashboardByMmTokensListMock(context, SEED_PHRASE_BY_TX);
+        const swapPage = await zometPage.goToModule('swap');
+        await use(swapPage);
+    },
+    swapPageMockBalancesAndTokensList: async ({ context }, use) => {
+        const zometPage = await authMm_BalanceSwapAndTokensListMock(context, SEED_PHRASE_BY_TX, ADDRESS_BY_TX);
         const swapPage = await zometPage.goToModule('swap');
         await use(swapPage);
     },
     superSwapPage: async ({ context }, use) => {
-        const zometPage = await authInDashboardByMm(context, seedPhraseByTx);
+        const zometPage = await authInDashboardByMm(context, SEED_PHRASE_BY_TX);
         const superSwapPage = await zometPage.goToModule('superSwap');
         await use(superSwapPage);
     },
     sendPage: async ({ context }, use) => {
-        const zometPage = await authInDashboardByMm(context, seedPhraseByTx);
+        const zometPage = await authInDashboardByMm(context, SEED_PHRASE_BY_TX);
         const sendPage = await zometPage.goToModule('send');
         await use(sendPage);
     },
     sendPageCoingeckoMock: async ({ context }, use) => {
-        const zometPage = await authInDashboardByMmCoingeckoMock(context, seedPhraseByTx);
+        const zometPage = await authMmCoingeckoAndBalanceMockBySendTest(context, SEED_PHRASE_BY_TX, ADDRESS_BY_TX);
+        const sendPage = await zometPage.goToModule('send');
+        await use(sendPage);
+    },
+    sendPageCoingeckoMockRejectTest: async ({ context }, use) => {
+        const zometPage = await authMmCoingeckoAndBalanceMockBySendTest(context, SEED_PHRASE_BY_TX_2, ADDRESS_BY_TX_2);
         const sendPage = await zometPage.goToModule('send');
         await use(sendPage);
     },
@@ -109,7 +139,7 @@ export const testMetaMaskMockTx = base.extend<{
     context: BrowserContext;
     sendPage: SendPage;
 }>({
-    context: async ({ }, use) => {
+    context: async ({}, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -130,7 +160,7 @@ export const testMetaMaskMockTx = base.extend<{
         await context.close();
     },
     sendPage: async ({ context }, use) => {
-        const zometPage = await authInDashboardByMm(context, seedPhraseByTx);
+        const zometPage = await authInDashboardByMm(context, SEED_PHRASE_BY_TX);
         const sendPage = await zometPage.goToModule('send');
         await use(sendPage);
     },
@@ -145,7 +175,7 @@ export const testKeplr = base.extend<{
     dashboardProtocol: DashboardPage;
     sendPage: SendPage;
 }>({
-    context: async ({ }, use) => {
+    context: async ({}, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -155,6 +185,7 @@ export const testKeplr = base.extend<{
                 '--force-fieldtrials',
 
                 '--ignore-certificate-errors',
+                // '--disable-web-security',
 
                 '--disable-background-timer-throttling',
                 '--disable-backgrounding-occluded-windows',
@@ -166,22 +197,26 @@ export const testKeplr = base.extend<{
         await context.close();
     },
     authPage: async ({ context }, use) => {
-        await addWalletToKeplr(context, seedPhraseByTx);
+        await addWalletToKeplr(context, SEED_PHRASE_BY_TX);
         const zometPage = new BasePage(await context.newPage());
         await zometPage.goToPage();
         await use(zometPage);
     },
     dashboard: async ({ context }, use) => {
-        const zometPage = await authInDashboardByKeplr(context, seedPhraseByTx);
+        const zometPage = await authInDashboardByKeplr(context, SEED_PHRASE_BY_TX, COSMOS_WALLETS_BY_SEED_MOCK_TX);
         await use(zometPage);
     },
     sendPage: async ({ context }, use) => {
-        const zometPage = await authInDashboardByKeplr(context, seedPhraseByTx);
+        const zometPage = await authInDashboardByKeplr(context, SEED_PHRASE_BY_TX, COSMOS_WALLETS_BY_SEED_MOCK_TX);
         const sendPage = await zometPage.goToModule('send');
         await use(sendPage);
     },
     dashboardProtocol: async ({ context }, use) => {
-        const zometPage = await authInDashboardByKeplr(context, seedPhraseByProtocol);
+        const zometPage = await authInDashboardByKeplrWithErrorJunoBalance(
+            context,
+            SEED_PHRASE_BY_PROTOCOL,
+            COSMOS_WALLETS_BY_PROTOCOL_SEED,
+        );
         await use(zometPage);
     },
 });

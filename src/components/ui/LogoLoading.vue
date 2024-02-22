@@ -27,7 +27,7 @@ export default {
         },
         tip: {
             type: String,
-            default: 'loadings.configLoading',
+            default: 'loadings.initLoading',
         },
     },
 

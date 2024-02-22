@@ -16,17 +16,16 @@
                     </router-link>
                 </div>
                 <component :is="component" class="module-layout-view" />
+                <OperationResult v-if="operationResult?.title" v-bind="operationResult" :module="currentModule" />
                 <SelectModal />
             </template>
         </div>
     </div>
 </template>
 <script>
-import { onBeforeUnmount, onMounted, watch, ref, inject, watchEffect } from 'vue';
+import { onBeforeUnmount, onMounted, watch, ref, computed, inject, watchEffect } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import redirectOrStay from '@/shared/utils/routes';
-
-// import useServices from '@/compositions/useServices';
+import { useStore } from 'vuex';
 
 import SimpleBridge from '@/components/dynamic/bridge/SimpleBridge.vue';
 import SimpleSwap from '@/components/dynamic/swaps/SimpleSwap.vue';
@@ -36,7 +35,10 @@ import SuperSwap from '@/components/dynamic/super-swap/SuperSwap.vue';
 import SelectModal from '@/components/app/modals/SelectModal.vue';
 
 import UnsupportedResult from '@/components/ui/UnsupportedResult';
+import OperationResult from '@/components/ui/Result';
 import ArrowUpIcon from '@/assets/icons/module-icons/pointer-up.svg';
+
+import redirectOrStay from '@/shared/utils/routes';
 
 export default {
     name: 'ModulesLayout',
@@ -45,6 +47,7 @@ export default {
         SimpleSend,
         SimpleSwap,
         SuperSwap,
+        OperationResult,
         UnsupportedResult,
         ArrowUpIcon,
         SelectModal,
@@ -61,11 +64,22 @@ export default {
     },
 
     setup() {
+        const store = useStore();
         const useAdapter = inject('useAdapter');
+
+        const isConfigLoading = computed(() => store.getters['configs/isConfigLoading']);
+
         const { currentChainInfo, isConnecting, walletAccount } = useAdapter();
-        // const store = useStore();
         const router = useRouter();
         const route = useRoute();
+
+        const currentModule = computed(() => {
+            const { name } = router.currentRoute.value;
+
+            return name;
+        });
+
+        const operationResult = computed(() => store.getters['tokenOps/getOperationResultByModule'](currentModule.value));
 
         // * Module type
         const moduleType = ref('');
@@ -103,6 +117,10 @@ export default {
                 return;
             }
 
+            if (isConfigLoading.value) {
+                return;
+            }
+
             const isStay = await redirectOrStay(route.path, currentChainInfo.value);
 
             if (!isStay || !walletAccount.value) {
@@ -117,16 +135,18 @@ export default {
         onMounted(async () => {
             callResetToDefaultValues();
             await callRedirectOrStay();
+
+            store.dispatch('tokenOps/resetOperationResult', currentModule.value);
         });
 
         const unWatchCurrRoute = watch(
             () => router.currentRoute.value,
-            () => callResetToDefaultValues()
+            () => callResetToDefaultValues(),
         );
 
         const unWatchIsConnecting = watch(
             () => isConnecting,
-            () => callRedirectOrStay()
+            async () => await callRedirectOrStay(),
         );
 
         onBeforeUnmount(() => {
@@ -138,6 +158,8 @@ export default {
 
         return {
             currentChainInfo,
+            operationResult,
+            currentModule,
         };
     },
 };

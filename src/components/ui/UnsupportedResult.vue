@@ -4,7 +4,7 @@
             <div class="supported-layout__description">
                 {{ $t('tokenOperations.supportedNetwork') }}
             </div>
-            <Button title="SWITCH NETWORK" size="large" class="unsupported-layout__btn" @click="switchNetwork" />
+            <Button :title="$t('tokenOperations.switchNetwork')" size="large" class="unsupported-layout__btn" @click="switchNetwork" />
         </template>
     </a-result>
 </template>

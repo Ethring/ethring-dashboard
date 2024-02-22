@@ -36,6 +36,7 @@ pnpm-debug.log*
 playwright.config.local.ts
 tests/mockserver2/env/
 tests/mockserver2/__pycache__
+/data/
 
 # Vite bundle analyzer
 stats.html

@@ -3,7 +3,12 @@
         <div class="input-label">{{ label }}</div>
 
         <a-input-group compact class="input-group">
-            <div data-qa="select-token" @click="() => $emit('clickToken')" class="input-group__select-token">
+            <div
+                data-qa="select-token"
+                @click="() => $emit('clickToken')"
+                class="input-group__select-token"
+                :class="{ disabled: disabledSelect }"
+            >
                 <template v-if="isTokenLoading">
                     <a-space>
                         <a-skeleton-avatar active size="small" />
@@ -46,7 +51,7 @@
             />
         </a-input-group>
 
-        <div class="balance-info" :class="{ disabled, error }">
+        <div class="balance-info" :class="{ disabled, disabled: disabledSelect, error }">
             <div class="balance-value">
                 <a-skeleton-input v-if="isTokenLoading" active size="small" class="balance-skeleton" />
                 <div v-else @click.stop="setMax" class="balance-value-row">
@@ -116,6 +121,10 @@ export default {
             default: false,
         },
         disabled: {
+            type: Boolean,
+            default: false,
+        },
+        disabledSelect: {
             type: Boolean,
             default: false,
         },
@@ -219,12 +228,12 @@ export default {
                 active.value = false;
                 amount.value = props.amountValue;
                 // emit('setAmount', amount.value);
-            }
+            },
         );
 
         watch(
             () => props.onReset,
-            () => onResetAmount()
+            () => onResetAmount(),
         );
 
         watch(
@@ -233,7 +242,7 @@ export default {
                 amount.value = props.disabledValue;
                 active.value = false;
                 emit('setAmount', amount.value);
-            }
+            },
         );
 
         watch(
@@ -242,7 +251,7 @@ export default {
                 if (isUpdate) {
                     setToken(props.value);
                 }
-            }
+            },
         );
 
         watch(
@@ -255,7 +264,7 @@ export default {
                 if (net) {
                     active.value = false;
                 }
-            }
+            },
         );
 
         watch(
@@ -273,7 +282,7 @@ export default {
 
                 amount.value = 0;
                 return emit('setAmount', null);
-            }
+            },
         );
 
         // =================================================================================================================

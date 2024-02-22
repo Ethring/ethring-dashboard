@@ -1,4 +1,5 @@
 import { TEST_CONST, getTestVar } from 'tests/envHelper';
+import { COSMOS_WALLETS_BY_PROTOCOL_SEED, MEMO_BY_KEPLR_TEST } from './constants';
 
 const emptyBalanceMockData = { ok: true, data: { tokens: [], nfts: [], integrations: [] }, error: '' };
 
@@ -126,7 +127,7 @@ const mockBalanceData = {
                     name: 'Borrow and Lending v2',
                     platform: 'RADIANT',
                     type: 'BORROW_AND_LENDING',
-                    logo: 'https://assets.coingecko.com/coins/images/26536/small/Radiant-Logo-200x200.png?1658715865',
+                    logo: null,
                     url: 'https://app.radiant.capital/#/markets',
                     balances: [
                         {
@@ -943,7 +944,7 @@ const mockBalanceCosmosWallet = {
         },
         error: '',
     },
-    cosmos: {
+    cosmoshub: {
         ok: true,
         data: {
             tokens: [
@@ -1249,11 +1250,12 @@ const marketCapNativeEvmTokens = {
     error: '',
 };
 
-const mockAddressFrom = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
+const mockAddressTo = getTestVar(TEST_CONST.RECIPIENT_ADDRESS);
 const txHashFromProxyMock = '0xd9193bc27c644e2c0db7353daabe4b268b7ba10c707f80de166d55852884a368';
 
 //====================================== Send mock tx test data ======================================
 
+const mockAddressFrom = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
 const mockTxId = '4765';
 const mockRequestId = 'f6f79e56-2e04-41b1-a69d-4aaa9606d56a';
 
@@ -1270,7 +1272,7 @@ const mockPostTransactionsRouteSendMockTx = {
             status: 'IN PROGRESS',
             parameters: {
                 token: {
-                    id: 'polygon:asset__native:MATIC',
+                    id: 'polygon:tokens__native:MATIC',
                     net: 'polygon',
                     logo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
                     name: 'MATIC Native Token',
@@ -1286,7 +1288,7 @@ const mockPostTransactionsRouteSendMockTx = {
                     coingecko_id: 'matic-network',
                 },
                 amount: '0.001',
-                toAddress: '0x12f80578f9B6393419d6e97B6C1f2d82442F563c',
+                toAddress: mockAddressTo,
                 fromAddress: mockAddressFrom,
             },
             account: mockAddressFrom,
@@ -1315,7 +1317,7 @@ const mockPostTransactionsWsByCreateEventSendMockTx = {
     status: 'IN PROGRESS',
     parameters: {
         token: {
-            id: 'polygon:asset__native:MATIC',
+            id: 'polygon:tokens__native:MATIC',
             net: 'polygon',
             logo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
             name: 'MATIC Native Token',
@@ -1331,7 +1333,7 @@ const mockPostTransactionsWsByCreateEventSendMockTx = {
             coingecko_id: 'matic-network',
         },
         amount: '0.001',
-        toAddress: '0x12f80578f9B6393419d6e97B6C1f2d82442F563c',
+        toAddress: mockAddressTo,
         fromAddress: mockAddressFrom,
     },
     account: mockAddressFrom,
@@ -1359,7 +1361,7 @@ const mockPutTransactionsRouteSendMockTx = {
         status: 'IN PROGRESS',
         parameters: {
             token: {
-                id: 'polygon:asset__native:MATIC',
+                id: 'polygon:tokens__native:MATIC',
                 logo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
                 name: 'MATIC Native Token',
                 chain: 'polygon',
@@ -1373,7 +1375,7 @@ const mockPutTransactionsRouteSendMockTx = {
                 priceChange: '7.18186037000271',
             },
             amount: '0.001',
-            toAddress: '0x12f80578f9B6393419d6e97B6C1f2d82442F563c',
+            toAddress: mockAddressTo,
             fromAddress: mockAddressFrom,
         },
         account: mockAddressFrom,
@@ -1402,7 +1404,7 @@ const mockPutTransactionsWsByUpdateTransactionEventInProgressSendMockTx = {
     status: 'IN PROGRESS',
     parameters: {
         token: {
-            id: 'polygon:asset__native:MATIC',
+            id: 'polygon:tokens__native:MATIC',
             net: 'polygon', // TODO this param is only in WS response, but didn`t in http. Need analyze
             logo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
             name: 'MATIC Native Token',
@@ -1418,7 +1420,7 @@ const mockPutTransactionsWsByUpdateTransactionEventInProgressSendMockTx = {
             coingecko_id: 'matic-network',
         },
         amount: '0.001',
-        toAddress: '0x12f80578f9B6393419d6e97B6C1f2d82442F563c',
+        toAddress: mockAddressTo,
         fromAddress: mockAddressFrom,
     },
     account: mockAddressFrom,
@@ -1437,8 +1439,9 @@ const mockPutTransactionsWsByUpdateTransactionEventInProgressSendMockTx = {
 
 //====================================== Send reject tx test data ======================================
 
-const mockTxIdSendReject = '4765';
-const mockRequestIdSendReject = 'f6f79e56-2e04-41b1-a69d-4aaa9606d56a';
+const mockAddressFrom2 = getTestVar(TEST_CONST.ETH_ADDRESS_TX_2);
+const mockTxIdSendReject = '4766';
+const mockRequestIdSendReject = 'f6f79e56-2e04-41b1-a69d-4aaa9606d56b';
 
 const mockPostTransactionsRouteSendReject = {
     ok: true,
@@ -1453,27 +1456,27 @@ const mockPostTransactionsRouteSendReject = {
             status: 'IN PROGRESS',
             parameters: {
                 token: {
-                    id: 'polygon:asset__native:MATIC',
-                    net: 'polygon',
-                    logo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
-                    name: 'MATIC Native Token',
-                    chain: 'polygon',
-                    price: '0.8531747555103706',
-                    symbol: 'MATIC',
+                    id: 'avalanche:tokens__native:AVAX',
+                    net: 'avalanche',
+                    logo: 'https://cryptologos.cc/logos/avalanche-avax-logo.png?v=025',
+                    name: 'Avalanche Native Token',
+                    chain: 'avalanche',
+                    price: '38.74444165272416',
+                    symbol: 'AVAX',
                     address: null,
-                    balance: '6.410624815464208',
+                    balance: '0.8544960208245843',
                     decimals: 18,
-                    chainLogo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
-                    balanceUsd: '5.410930625',
-                    priceChange: '-0.000342946031245849',
-                    coingecko_id: 'matic-network',
+                    chainLogo: 'https://cryptologos.cc/logos/avalanche-avax-logo.png?v=025',
+                    balanceUsd: '33.07174196',
+                    priceChange: '-1.6871162478902946',
+                    coingecko_id: 'avalanche-2',
                 },
                 amount: '0.001',
-                toAddress: '0x12f80578f9B6393419d6e97B6C1f2d82442F563c',
-                fromAddress: mockAddressFrom,
+                toAddress: mockAddressTo,
+                fromAddress: mockAddressFrom2,
             },
-            account: mockAddressFrom,
-            chainId: '137',
+            account: mockAddressFrom2,
+            chainId: '43114',
             metaData: {
                 type: 'Transfer',
                 action: 'prepareTransaction',
@@ -1498,27 +1501,27 @@ const mockPostTransactionsWsByCreateEventSendReject = {
     status: 'IN PROGRESS',
     parameters: {
         token: {
-            id: 'polygon:asset__native:MATIC',
-            net: 'polygon',
-            logo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
-            name: 'MATIC Native Token',
-            chain: 'polygon',
-            price: '0.8531747555103706',
-            symbol: 'MATIC',
+            id: 'avalanche:tokens__native:AVAX',
+            net: 'avalanche',
+            logo: 'https://cryptologos.cc/logos/avalanche-avax-logo.png?v=025',
+            name: 'Avalanche Native Token',
+            chain: 'avalanche',
+            price: '38.74444165272416',
+            symbol: 'AVAX',
             address: null,
-            balance: '6.410624815464208',
+            balance: '0.8544960208245843',
             decimals: 18,
-            chainLogo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
-            balanceUsd: '5.410930625',
-            priceChange: '-0.000342946031245849',
-            coingecko_id: 'matic-network',
+            chainLogo: 'https://cryptologos.cc/logos/avalanche-avax-logo.png?v=025',
+            balanceUsd: '33.07174196',
+            priceChange: '-1.6871162478902946',
+            coingecko_id: 'avalanche-2',
         },
         amount: '0.001',
-        toAddress: '0x12f80578f9B6393419d6e97B6C1f2d82442F563c',
-        fromAddress: mockAddressFrom,
+        toAddress: mockAddressTo,
+        fromAddress: mockAddressFrom2,
     },
-    account: mockAddressFrom,
-    chainId: '137',
+    account: mockAddressFrom2,
+    chainId: '43114',
     metaData: {
         type: 'Transfer',
         action: 'prepareTransaction',
@@ -1536,35 +1539,36 @@ const mockPutTransactionsRouteSendReject = {
         id: mockTxIdSendReject,
         requestID: mockRequestIdSendReject,
         index: '0',
-        txHash: txHashFromProxyMock,
+        txHash: null,
         ecosystem: 'EVM',
         module: 'Zomet - Send',
-        status: 'IN PROGRESS',
+        status: 'REJECTED',
         parameters: {
             token: {
-                id: 'polygon:asset__native:MATIC',
-                logo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
-                name: 'MATIC Native Token',
-                chain: 'polygon',
-                price: '0.8531747555103706',
-                symbol: 'MATIC',
+                id: 'avalanche:tokens__native:AVAX',
+                net: 'avalanche',
+                logo: 'https://cryptologos.cc/logos/avalanche-avax-logo.png?v=025',
+                name: 'Avalanche Native Token',
+                chain: 'avalanche',
+                price: '38.735379930425296',
+                symbol: 'AVAX',
                 address: null,
-                balance: '6.410624815464208',
+                balance: '0.1',
                 decimals: 18,
-                chainLogo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
-                balanceUsd: '72.93879395',
-                priceChange: '7.18186037000271',
+                chainLogo: 'https://cryptologos.cc/logos/avalanche-avax-logo.png?v=025',
+                balanceUsd: '3.875895739',
+                priceChange: '-1.1678499147095422',
+                coingecko_id: 'avalanche-2',
             },
             amount: '0.001',
-            toAddress: '0x12f80578f9B6393419d6e97B6C1f2d82442F563c',
-            fromAddress: mockAddressFrom,
+            toAddress: mockAddressTo,
+            fromAddress: mockAddressFrom2,
         },
-        account: mockAddressFrom,
-        chainId: '137',
+        account: mockAddressFrom2,
+        chainId: '43114',
         metaData: {
             type: 'Transfer',
             action: 'prepareTransaction',
-            explorerLink: `https://polygonscan.com/tx/${txHashFromProxyMock}`,
             successCallback: {
                 action: 'CLEAR_AMOUNTS',
             },
@@ -1576,45 +1580,324 @@ const mockPutTransactionsRouteSendReject = {
 };
 
 const mockPutTransactionsWsByUpdateTransactionEventInProgressSendReject = {
-    id: mockTxIdSendReject,
-    requestID: mockRequestIdSendReject,
-    index: '0',
-    txHash: txHashFromProxyMock,
-    ecosystem: 'EVM',
-    module: 'Zomet - Send',
-    status: 'IN PROGRESS',
-    parameters: {
-        token: {
-            id: 'polygon:asset__native:MATIC',
-            net: 'polygon', // TODO this param is only in WS response, but didn`t in http. Need analyze
-            logo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
-            name: 'MATIC Native Token',
-            chain: 'polygon',
-            price: '0.8531747555103706',
-            symbol: 'MATIC',
-            address: null,
-            balance: '6.410624815464208',
-            decimals: 18,
-            chainLogo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
-            balanceUsd: '5.410930625',
-            priceChange: '-0.000342946031245849',
-            coingecko_id: 'matic-network',
-        },
-        amount: '0.001',
-        toAddress: '0x12f80578f9B6393419d6e97B6C1f2d82442F563c',
-        fromAddress: mockAddressFrom,
-    },
-    account: mockAddressFrom,
+    account: mockAddressFrom2,
     chainId: '137',
+    createdAt: '2024-02-09T14:10:59.566Z',
+    ecosystem: 'EVM',
+    id: mockTxIdSendReject,
+    index: '0',
     metaData: {
-        type: 'Transfer',
         action: 'prepareTransaction',
-        explorerLink: `https://polygonscan.com/tx/${txHashFromProxyMock}`,
         successCallback: {
             action: 'CLEAR_AMOUNTS',
         },
+        type: 'Transfer',
     },
+    module: 'Zomet - Send',
+    parameters: {
+        amount: '0.001',
+        fromAddress: mockAddressFrom2,
+        toAddress: mockAddressTo,
+        token: {
+            address: null,
+            balance: '0.1',
+            balanceUsd: '5.410930625',
+            chain: 'avalanche',
+            chainLogo: 'https://cryptologos.cc/logos/avalanche-avax-logo.png?v=025',
+            coingecko_id: 'avalanche-2',
+            decimals: 18,
+            id: 'avalanche:tokens__native:AVAX',
+            logo: 'https://cryptologos.cc/logos/avalanche-avax-logo.png?v=025',
+            name: 'Avalanche Native Token',
+            net: 'avalanche', // TODO this param is only in WS response, but didn`t in http. Need analyze
+            price: '38.735379930425296',
+            priceChange: '-0.000342946031245849',
+            symbol: 'AVAX',
+        },
+    },
+    requestID: mockRequestIdSendReject,
+    status: 'REJECTED',
+    txHash: null,
+    updatedAt: '2024-02-09T14:11:28.364Z',
+};
+
+//====================================== Send reject tx Kepler test data ======================================
+
+const mockAddressFrom3 = getTestVar(TEST_CONST.COSMOS_ADDRESS_TX);
+const mockTxIdSendRejectKeplr = '4767';
+const mockRequestIdSendRejectKeplr = 'aaa79e56-2e04-41b1-a69d-4aaa9606d56b';
+
+const mockPostTransactionsRouteSendRejectKeplr = {
+    ok: true,
+    data: [
+        {
+            id: mockTxIdSendRejectKeplr,
+            requestID: mockRequestIdSendRejectKeplr,
+            index: '0',
+            txHash: null,
+            ecosystem: 'COSMOS',
+            module: 'Zomet - Send',
+            status: 'IN PROGRESS',
+            parameters: {
+                token: {
+                    id: 'cosmoshub:tokens__native:ATOM',
+                    net: 'cosmoshub',
+                    base: 'uatom',
+                    logo: 'https://pulsar-images.s3.eu-west-1.amazonaws.com/tokens/Cosmos%20Hub.png',
+                    name: 'Cosmos Hub Atom',
+                    chain: 'cosmoshub',
+                    price: '10.3451',
+                    images: [
+                        {
+                            png: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/cosmoshub/images/atom.png',
+                            svg: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/cosmoshub/images/atom.svg',
+                        },
+                    ],
+                    symbol: 'ATOM',
+                    address: 'uatom',
+                    balance: '0.061791',
+                    display: 'atom',
+                    decimals: 6,
+                    chainLogo: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/cosmoshub/images/atom.png',
+                    logo_URIs: {
+                        png: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/cosmoshub/images/atom.png',
+                        svg: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/cosmoshub/images/atom.svg',
+                    },
+                    balanceUsd: '0.639234796',
+                    denom_units: [
+                        {
+                            denom: 'uatom',
+                            exponent: 0,
+                        },
+                        {
+                            denom: 'atom',
+                            exponent: 6,
+                        },
+                    ],
+                    description: 'The native staking and governance token of the Cosmos Hub.',
+                    priceChange: '0.398611',
+                    coingecko_id: 'cosmos',
+                },
+                memo: MEMO_BY_KEPLR_TEST,
+                amount: '0.001',
+                toAddress: COSMOS_WALLETS_BY_PROTOCOL_SEED.cosmoshub,
+                fromAddress: mockAddressFrom3,
+            },
+            account: mockAddressFrom3,
+            chainId: 'cosmoshub',
+            metaData: {
+                type: 'Transfer',
+                action: 'prepareTransaction',
+                successCallback: {
+                    action: 'CLEAR_AMOUNTS',
+                },
+            },
+            createdAt: '2024-02-11T16:23:39.568Z',
+            updatedAt: '2024-02-11T16:23:39.568Z',
+        },
+    ],
+    error: '',
+};
+
+const mockPostTransactionsWsByCreateEventSendRejectKeplr = {
+    account: mockAddressFrom3,
+    chainId: 'cosmoshub',
+    createdAt: '2024-02-11T16:23:39.568Z',
+    ecosystem: 'COSMOS',
+    id: mockTxIdSendRejectKeplr,
+    index: '0',
+    metaData: {
+        action: 'prepareTransaction',
+        successCallback: {
+            action: 'CLEAR_AMOUNTS',
+        },
+        type: 'Transfer',
+    },
+    module: 'Zomet - Send',
+    parameters: {
+        amount: '0.001',
+        memo: MEMO_BY_KEPLR_TEST,
+        fromAddress: mockAddressFrom3,
+        toAddress: COSMOS_WALLETS_BY_PROTOCOL_SEED.cosmoshub,
+        token: {
+            address: 'uatom',
+            balance: '0.8544960208245843',
+            balanceUsd: '33.07174196',
+            base: 'uatom', // TODO WTF THIS FLAG???
+            chain: 'cosmoshub',
+            chainLogo: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/cosmoshub/images/atom.png',
+            coingecko_id: 'cosmos',
+            decimals: 6,
+            denom_units: [
+                {
+                    denom: 'uatom',
+                    exponent: 0,
+                },
+                {
+                    denom: 'atom',
+                    exponent: 6,
+                },
+            ],
+            description: 'The native staking and governance token of the Cosmos Hub.',
+            display: 'atom',
+            id: 'cosmoshub:tokens__native:ATOM',
+            images: [
+                {
+                    png: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/cosmoshub/images/atom.png',
+                    svg: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/cosmoshub/images/atom.svg',
+                },
+            ],
+            logo: 'https://pulsar-images.s3.eu-west-1.amazonaws.com/tokens/Cosmos%20Hub.png',
+            logo_URIs: {
+                png: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/cosmoshub/images/atom.png',
+                svg: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/cosmoshub/images/atom.svg',
+            },
+            name: 'Cosmos Hub Atom',
+            net: 'cosmoshub',
+            price: '10.3451',
+            priceChange: '-1.6871162478902946',
+            symbol: 'ATOM',
+        },
+    },
+    requestID: mockRequestIdSendRejectKeplr,
+    status: 'IN PROGRESS',
+    txHash: null,
+    updatedAt: '2024-02-11T16:23:39.568Z',
+};
+
+const mockPutTransactionsRouteSendRejectKeplr = {
+    ok: true,
+    data: {
+        id: mockTxIdSendRejectKeplr,
+        requestID: mockRequestIdSendRejectKeplr,
+        index: '0',
+        txHash: null,
+        ecosystem: 'COSMOS',
+        module: 'Zomet - Send',
+        status: 'REJECTED',
+        parameters: {
+            token: {
+                id: 'cosmoshub:tokens__native:ATOM',
+                net: 'cosmoshub',
+                base: 'uatom',
+                logo: 'https://pulsar-images.s3.eu-west-1.amazonaws.com/tokens/Cosmos%20Hub.png',
+                name: 'Cosmos Hub Atom',
+                chain: 'cosmoshub',
+                price: '10.3451',
+                images: [
+                    {
+                        png: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/cosmoshub/images/atom.png',
+                        svg: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/cosmoshub/images/atom.svg',
+                    },
+                ],
+                symbol: 'ATOM',
+                address: 'uatom',
+                balance: '0.061791',
+                display: 'atom',
+                decimals: 6,
+                chainLogo: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/cosmoshub/images/atom.png',
+                logo_URIs: {
+                    png: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/cosmoshub/images/atom.png',
+                    svg: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/cosmoshub/images/atom.svg',
+                },
+                balanceUsd: '0.639234796',
+                denom_units: [
+                    {
+                        denom: 'uatom',
+                        exponent: 0,
+                    },
+                    {
+                        denom: 'atom',
+                        exponent: 6,
+                    },
+                ],
+                description: 'The native staking and governance token of the Cosmos Hub.',
+                priceChange: '0.398611',
+                coingecko_id: 'cosmos',
+            },
+            memo: MEMO_BY_KEPLR_TEST,
+            amount: '0.001',
+            toAddress: COSMOS_WALLETS_BY_PROTOCOL_SEED.cosmoshub,
+            fromAddress: mockAddressFrom3,
+        },
+        account: mockAddressFrom3,
+        chainId: 'cosmoshub',
+        metaData: {
+            type: 'Transfer',
+            action: 'prepareTransaction',
+            successCallback: {
+                action: 'CLEAR_AMOUNTS',
+            },
+        },
+        createdAt: '2024-02-09T09:29:03.473Z',
+        updatedAt: '2024-02-09T09:29:14.308Z',
+    },
+    error: '',
+};
+
+const mockPutTransactionsWsByUpdateTransactionEventInProgressSendRejectKeplr = {
+    account: mockAddressFrom3,
+    chainId: 'cosmoshub',
     createdAt: '2024-02-09T14:10:59.566Z',
+    ecosystem: 'COSMOS',
+    id: mockTxIdSendRejectKeplr,
+    index: '0',
+    metaData: {
+        action: 'prepareTransaction',
+        successCallback: {
+            action: 'CLEAR_AMOUNTS',
+        },
+        type: 'Transfer',
+    },
+    module: 'Zomet - Send',
+    parameters: {
+        memo: MEMO_BY_KEPLR_TEST,
+        amount: '0.001',
+        fromAddress: mockAddressFrom3,
+        toAddress: COSMOS_WALLETS_BY_PROTOCOL_SEED.cosmoshub,
+        token: {
+            address: 'uatom',
+            balance: '0.8544960208245843',
+            balanceUsd: '33.07174196',
+            base: 'uatom', // TODO WTF THIS FLAG???
+            chain: 'cosmoshub',
+            chainLogo: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/cosmoshub/images/atom.png',
+            coingecko_id: 'cosmos',
+            decimals: 6,
+            denom_units: [
+                {
+                    denom: 'uatom',
+                    exponent: 0,
+                },
+                {
+                    denom: 'atom',
+                    exponent: 6,
+                },
+            ],
+            description: 'The native staking and governance token of the Cosmos Hub.',
+            display: 'atom',
+            id: 'cosmoshub:tokens__native:ATOM',
+            images: [
+                {
+                    png: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/cosmoshub/images/atom.png',
+                    svg: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/cosmoshub/images/atom.svg',
+                },
+            ],
+            logo: 'https://pulsar-images.s3.eu-west-1.amazonaws.com/tokens/Cosmos%20Hub.png',
+            logo_URIs: {
+                png: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/cosmoshub/images/atom.png',
+                svg: 'https://raw.githubusercontent.com/cosmos/chain-registry/master/cosmoshub/images/atom.svg',
+            },
+            name: 'Cosmos Hub Atom',
+            net: 'cosmoshub',
+            price: '10.3451',
+            priceChange: '-1.6871162478902946',
+            symbol: 'ATOM',
+        },
+    },
+    requestID: mockRequestIdSendRejectKeplr,
+    status: 'REJECTED',
+    txHash: null,
     updatedAt: '2024-02-09T14:11:28.364Z',
 };
 
@@ -1628,14 +1911,16 @@ export {
     errorGetBalanceMockData,
     errorEstimateSwap,
     mockBalanceCosmosWallet,
-    
     mockPostTransactionsRouteSendMockTx,
     mockPostTransactionsWsByCreateEventSendMockTx,
     mockPutTransactionsRouteSendMockTx,
     mockPutTransactionsWsByUpdateTransactionEventInProgressSendMockTx,
-
     mockPostTransactionsRouteSendReject,
     mockPostTransactionsWsByCreateEventSendReject,
     mockPutTransactionsRouteSendReject,
     mockPutTransactionsWsByUpdateTransactionEventInProgressSendReject,
+    mockPostTransactionsRouteSendRejectKeplr,
+    mockPostTransactionsWsByCreateEventSendRejectKeplr,
+    mockPutTransactionsRouteSendRejectKeplr,
+    mockPutTransactionsWsByUpdateTransactionEventInProgressSendRejectKeplr,
 };

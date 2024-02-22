@@ -10,6 +10,7 @@ import {
 import { getTestVar, TEST_CONST } from '../envHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage } from '../model/MetaMask/MetaMask.pages';
 import util from 'util';
+import { IGNORED_LOCATORS } from 'tests/data/constants';
 
 const sleep = util.promisify(setTimeout);
 
@@ -32,7 +33,10 @@ test.describe('Mocked send tx Metamask', () => {
         await sleep(2000);
 
         await sendPage.modifyDataByPostTxRequest(mockPostTransactionsRouteSendMockTx, mockPostTransactionsWsByCreateEventSendMockTx);
-        await sendPage.modifyDataByPutTxRequest(mockPutTransactionsRouteSendMockTx, mockPutTransactionsWsByUpdateTransactionEventInProgressSendMockTx);
+        await sendPage.modifyDataByPutTxRequest(
+            mockPutTransactionsRouteSendMockTx,
+            mockPutTransactionsWsByUpdateTransactionEventInProgressSendMockTx,
+        );
         await sendPage.clickConfirm();
 
         const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
@@ -42,5 +46,10 @@ test.describe('Mocked send tx Metamask', () => {
         await notifyMMtx.signTx();
 
         await sleep(2000);
+
+        expect(sendPage.page).toHaveScreenshot({
+            maxDiffPixels: 180, // This diff is text on notification modal
+            mask: [sendPage.page.locator(IGNORED_LOCATORS.HEADER), sendPage.page.locator(IGNORED_LOCATORS.ASIDE)],
+        });
     });
 });

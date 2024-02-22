@@ -1,6 +1,6 @@
 import { bech32 } from 'bech32';
 
-import { DATA_PROVIDER_COSMOS_CHAINS } from '@/api/data-provider/chains';
+import { DATA_PROVIDER_COSMOS_CHAINS } from '@/modules/balance-provider/models/enums';
 
 function decodeBech32(address) {
     const decoded = bech32.decode(address);

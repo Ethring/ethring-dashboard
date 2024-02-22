@@ -1,5 +1,5 @@
 <template>
-    <div class="checkbox" @click.stop="stop">
+    <div class="checkbox" data-qa="checkbox" @click.stop="stop">
         <input :id="id" type="checkbox" :value="value" :checked="value" :disabled="disabled" @change="changeHandler" />
         <label :for="id">
             <span class="checkbox__checkmark">
@@ -125,4 +125,5 @@ input[type='checkbox'] {
         margin-right: 5px;
     }
 }
+
 </style>
