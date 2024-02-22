@@ -39,7 +39,7 @@
             </div>
         </div>
 
-        <div class="stat-container" v-if="record?.balance && record?.balanceUsd">
+        <div class="stat-container" v-if="record?.balance || record?.balanceUsd">
             <Amount type="currency" :value="record?.balance" :symbol="record?.symbol" :decimals="3" />
             <Amount type="usd" :value="record?.balanceUsd" symbol="$" :decimals="3" />
         </div>

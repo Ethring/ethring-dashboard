@@ -68,6 +68,11 @@
         &-placeholder {
             background-color: var(--#{$prefix}icon-logo-bg-color);
         }
+
+        &-img img {
+            width: 120% !important;
+            height: 120% !important;
+        }
     }
 
     &-title {

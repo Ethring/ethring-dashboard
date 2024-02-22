@@ -21,6 +21,9 @@ import adapters from '@/Adapter/store';
 // Bridge-dex
 import bridgeDex from '@/store/bridge-dex';
 
+// Update balance for account
+import updateBalance from '@/store/update-balance';
+
 export default createStore({
     state: {},
     mutations: {},
@@ -33,5 +36,6 @@ export default createStore({
         tokenOps: operations,
         txManager,
         bridgeDex,
+        updateBalance,
     },
 });

@@ -4,7 +4,7 @@
             <div class="wallet-info__wallet">
                 <div class="wallet-info__address">
                     <div class="address">
-                        {{ cutAddress(walletAccount) }}
+                        {{ cutAddress(targetAccount) }}
                     </div>
                     <a-tooltip placement="right" :title="copied ? $t('adapter.copiedAddressTooltip') : $t('adapter.copyAddressTooltip')">
                         <span @click="handleOnCopyAddress">
@@ -67,7 +67,9 @@ export default {
 
         const showBalance = computed(() => store.getters['app/showBalance']);
 
-        const totalBalance = computed(() => store.getters['tokens/totalBalances'][walletAccount.value]);
+        const targetAccount = computed(() => store.getters['tokens/targetAccount'] || walletAccount.value);
+
+        const totalBalance = computed(() => store.getters['tokens/getTotalBalanceByType'](targetAccount.value, 'totalBalances') || 0);
 
         const toggleViewBalance = () => store.dispatch('app/toggleViewBalance');
 
@@ -84,7 +86,7 @@ export default {
             isAllTokensLoading,
             totalBalance,
             currentChainInfo,
-            walletAccount,
+            targetAccount,
             cutAddress,
             showBalance,
             copied,

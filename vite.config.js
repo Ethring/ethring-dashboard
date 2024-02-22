@@ -70,7 +70,7 @@ export default defineConfig({
             '@': resolve(__dirname, 'src'),
             'axios/lib': resolve(__dirname, './node_modules/axios/lib'),
         },
-        extensions: ['.js', '.vue'],
+        extensions: ['.js', '.ts', '.vue'],
     },
 
     // * ========= CSS Settings =========

@@ -1,15 +1,15 @@
-import { computed, h, inject } from 'vue';
+import { computed, h, inject, onMounted } from 'vue';
 import { useStore } from 'vuex';
-
-import { LoadingOutlined } from '@ant-design/icons-vue';
 
 import { addTransactionToExistingQueue, createTransactionsQueue, getTransactionsByRequestID, updateTransaction } from '@/Transactions/api';
 
 import useNotification from '@/compositions/useNotification';
 
-import { STATUSES } from '@/Transactions/shared/constants';
+import { STATUSES, DISALLOW_UPDATE_TYPES } from '@/shared/models/enums/statuses.enum';
 
 import { captureTransactionException } from '@/app/modules/sentry';
+
+import logger from '@/shared/logger';
 
 export default function useTransactions() {
     const store = useStore();
@@ -96,21 +96,38 @@ export default function useTransactions() {
      * @returns {object}
      */
     const handleTransactionErrorResponse = async (id, response, error, { module, tx = {} }) => {
+        closeNotification('prepare-tx');
+
+        const ignoreErrors = ['rejected', 'denied'];
+        const ignoreRegex = new RegExp(ignoreErrors.join('|'), 'i');
+
         try {
             captureTransactionException({ error, module, id, tx, wallet: connectedWallet.value });
         } catch (e) {
             console.error('Sentry -> captureTransactionException -> Unable to capture exception:', e);
         }
 
+        const strError = typeof error === 'string' ? error : JSON.stringify(error);
+
         showNotification({
             key: 'error-tx',
             type: 'error',
             title: 'Transaction error',
-            description: JSON.stringify(error || 'Unknown error'),
-            duration: 5,
+            description: strError,
+            duration: 3,
         });
 
-        store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
+        if (!ignoreRegex.test(strError)) {
+            await store.dispatch('tokenOps/setOperationResult', {
+                module,
+                result: {
+                    status: 'error',
+                    title: 'Transaction error',
+                    description: 'Transaction failed. Please check the error message and try again',
+                    error: strError,
+                },
+            });
+        }
 
         await updateTransactionById(id, { status: STATUSES.REJECTED });
 
@@ -126,19 +143,54 @@ export default function useTransactions() {
      *
      * @returns {object}
      */
-    const handleSuccessfulSign = async (id, response, { metaData = {} } = {}) => {
+    const handleSuccessfulSign = async (id, response, { metaData = {}, module = null } = {}) => {
+        closeNotification('prepare-tx');
+
         const { transactionHash } = response;
 
-        if (transactionHash && !id) {
-            return response;
-        }
-
         if (!transactionHash && id) {
+            logger.warn('Transaction hash is not provided, setting transaction status to failed.');
             await updateTransactionById(id, { status: STATUSES.FAILED });
             return response;
         }
 
         const explorerLink = getTxExplorerLink(transactionHash, currentChainInfo.value);
+
+        const displayHash = transactionHash.slice(0, 8) + '...' + transactionHash.slice(-8);
+
+        const { type } = metaData || {};
+
+        if (!DISALLOW_UPDATE_TYPES.includes(type)) {
+            await store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
+
+            await store.dispatch('tokenOps/setOperationResult', {
+                module,
+                result: {
+                    status: 'success',
+                    title: 'Transaction sent to blockchain',
+                    description:
+                        'Transaction successfully sent to blockchain, but the transaction still pending. Please wait for confirmation.',
+                    link: explorerLink,
+                },
+            });
+        }
+
+        showNotification({
+            explorerLink,
+            key: `waiting-${transactionHash}-tx`,
+            type: 'info',
+            title: `Waiting for confirmation: "${displayHash}"`,
+            txHash: transactionHash,
+            wait: true,
+            duration: 0,
+        });
+
+        if (transactionHash && !id) {
+            logger.warn('Request ID is not provided, skipping transaction update. Transaction hash:', transactionHash);
+            // !Close notification, because we don't have request ID to update transaction status
+            closeNotification(`waiting-${transactionHash}-tx`);
+            return response;
+        }
 
         await updateTransactionById(id, {
             txHash: transactionHash,
@@ -147,25 +199,6 @@ export default function useTransactions() {
                 explorerLink,
             },
         });
-
-        const displayHash = transactionHash.slice(0, 8) + '...' + transactionHash.slice(-8);
-
-        showNotification({
-            key: `waiting-${transactionHash}-tx`,
-            type: 'info',
-            title: `Waiting for transaction ${displayHash} confirmation`,
-            description: 'Please wait for transaction confirmation',
-            icon: h(LoadingOutlined, {
-                spin: true,
-                'data-qa': `waiting-${transactionHash}-tx`,
-            }),
-            duration: 0,
-        });
-
-        // TODO: fix after demo
-        if (response.code) {
-            closeNotification(`waiting-${transactionHash}-tx`);
-        }
 
         return response;
     };
@@ -187,11 +220,8 @@ export default function useTransactions() {
             return await handleTransactionErrorResponse(id, response, response.error, { module, tx });
         }
 
-        // Update transaction waiting status for module
-        store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: true });
-
         // Handle success response
-        return await handleSuccessfulSign(id, response, { metaData });
+        return await handleSuccessfulSign(id, response, { metaData, module });
     };
 
     /**
@@ -219,17 +249,47 @@ export default function useTransactions() {
 
         let txFoSign = parameters;
 
-        if (action && ACTIONS_FOR_TX[action]) {
-            txFoSign = await ACTIONS_FOR_TX[action](parameters);
+        await store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: true });
+
+        try {
+            if (action && ACTIONS_FOR_TX[action]) {
+                txFoSign = await ACTIONS_FOR_TX[action](parameters);
+            }
+        } catch (error) {
+            console.error('prepareTransaction error', error);
+            store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
+
+            await store.dispatch('tokenOps/setOperationResult', {
+                module,
+                result: {
+                    status: 'error',
+                    title: 'Prepare transaction error',
+                    description: 'Error occurred while preparing transaction. Please check the error message and try again',
+                    error: JSON.stringify(error),
+                },
+            });
+
+            return {
+                error,
+            };
         }
 
         try {
             const response = await signSend(txFoSign);
             return await handleSignedTxResponse(id, response, { metaData, module, tx: txFoSign });
         } catch (error) {
+            closeNotification('prepare-tx');
             console.error('signSend error', error);
+            store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
+            return {
+                error,
+            };
         }
     };
+
+    onMounted(() => {
+        store.dispatch('txManager/setIsWaitingTxStatusForModule', { module: 'all', isWaiting: false });
+    });
 
     return {
         currentRequestID,

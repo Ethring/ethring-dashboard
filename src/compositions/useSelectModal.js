@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import moment from 'moment';
 
-import { ref, computed, inject, nextTick } from 'vue';
+import { ref, computed, inject, nextTick, watch, onMounted } from 'vue';
 import { useStore } from 'vuex';
 
 import useTokenList from '@/compositions/useTokensList';
@@ -42,6 +42,7 @@ export default function useSelectModal(type) {
 
     const selectModal = computed(() => store.getters['app/selectModal']);
     const module = computed(() => selectModal.value.module);
+    const isOpen = computed(() => selectModal.value.isOpen);
 
     // =================================================================================================================
 
@@ -161,7 +162,7 @@ export default function useSelectModal(type) {
     const searchInTokens = (list = [], value) => {
         return _.filter(
             list,
-            (elem) => searchByKey(elem, value, 'name') || searchByKey(elem, value, 'symbol') || searchByKey(elem, value, 'address')
+            (elem) => searchByKey(elem, value, 'name') || searchByKey(elem, value, 'symbol') || searchByKey(elem, value, 'address'),
         );
     };
 
@@ -183,21 +184,7 @@ export default function useSelectModal(type) {
         });
     });
 
-    const tokens = computed(() => {
-        if (type.value === TYPES.NETWORK) {
-            return [];
-        }
-
-        const tokens = getTokensList({
-            srcNet: selectedNetwork.value,
-            srcToken: selectedTokenFrom.value,
-            dstToken: selectedTokenTo.value,
-            isSameNet: selectedDstNetwork.value === selectedSrcNetwork.value || !selectedDstNetwork.value,
-            onlyWithBalance: isFromSelect.value,
-        });
-
-        return tokens || [];
-    });
+    const tokens = ref([]);
 
     const list = computed(() => {
         const values = {
@@ -225,6 +212,20 @@ export default function useSelectModal(type) {
         isLoadMore.value = list.value.length > MAX_OPTIONS_PER_PAGE && currentIndex.value <= records.length;
 
         return _.slice(records, 0, currentIndex.value);
+    });
+
+    watch(isOpen, async () => {
+        if (isOpen.value && selectModal.value?.type === TYPES.TOKEN) {
+            store.dispatch('app/setLoadingTokenList', true);
+            tokens.value = await getTokensList({
+                srcNet: selectedNetwork.value,
+                srcToken: selectedTokenFrom.value,
+                dstToken: selectedTokenTo.value,
+                isSameNet: selectedDstNetwork.value === selectedSrcNetwork.value || !selectedDstNetwork.value,
+                onlyWithBalance: isFromSelect.value,
+            });
+            store.dispatch('app/setLoadingTokenList', false);
+        }
     });
 
     return {

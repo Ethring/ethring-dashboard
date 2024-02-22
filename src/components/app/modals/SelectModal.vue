@@ -11,22 +11,24 @@
             </a-form>
 
             <div class="select-modal-list-container">
-                <TransitionGroup tag="div" name="options" class="select-modal-list">
-                    <SelectOption
-                        v-for="option in optionList"
-                        :key="option"
-                        :record="option"
-                        :type="type"
-                        :label="type === 'network' ? option?.name : option?.symbol"
-                        @click="(event) => handleOnSelect(event, option)"
-                    />
-                </TransitionGroup>
+                <SelectOption
+                    v-for="option in optionList"
+                    :key="option"
+                    :record="option"
+                    :type="type"
+                    :label="type === 'network' ? option?.name : option?.symbol"
+                    @click="(event) => handleOnSelect(event, option)"
+                />
 
                 <div v-if="isLoadMore" class="select-modal-load-more">
                     <Button :title="$t('tokenOperations.loadMore')" @click="handleLoadMore" />
                 </div>
 
-                <a-empty v-if="isModalOpen && !optionList.length" class="select-modal-empty" :description="$t('dashboard.notFound')">
+                <a-empty
+                    v-if="isModalOpen && !isLoadingTokenList && !optionList.length"
+                    class="select-modal-empty"
+                    :description="$t('dashboard.notFound')"
+                >
                     <template #image>
                         <NotFoundIcon />
                     </template>
@@ -77,6 +79,8 @@ export default {
             set: () => store.dispatch('app/toggleSelectModal', { type: type.value, module: module.value }),
         });
 
+        const isLoadingTokenList = computed(() => store.getters['app/isLoadingTokenList']);
+
         const {
             // Loading
             isLoadMore,
@@ -111,6 +115,7 @@ export default {
 
             isModalOpen,
             isLoadMore,
+            isLoadingTokenList,
 
             modalTitle,
             inputPlaceholder,

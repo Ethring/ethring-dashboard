@@ -5,3 +5,11 @@ export const STATUSES = {
     PENDING: 'PENDING',
     IN_PROGRESS: 'IN PROGRESS',
 };
+
+export const TRANSACTION_TYPES = {
+    TRANSFER: 'TRANSFER',
+    SIGN: 'SIGN',
+    DEX: 'SWAP',
+    BRIDGE: 'BRIDGE',
+    APPROVE: 'APPROVE',
+};

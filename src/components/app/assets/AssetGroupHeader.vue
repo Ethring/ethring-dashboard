@@ -3,14 +3,13 @@
         <div class="assets-group-info">
             <div class="assets-group-icon-container">
                 <component v-if="icon" :is="icon" class="asset-group-icon-svg" />
-                <a-image
-                    v-else-if="logoURI && !icon && !showImagePlaceholder"
-                    :preview="false"
+                <TokenIcon
+                    v-if="!icon"
+                    :width="32"
+                    :height="32"
+                    :token="{ symbol: title.slice(0, 3), logo: logoURI }"
                     class="assets-group-icon-img"
-                    :src="logoURI"
-                    @error="showImagePlaceholder = true"
                 />
-                <a-avatar v-else class="assets-group-icon-placeholder" :size="32">{{ title.slice(0, 3) }}</a-avatar>
             </div>
 
             <div class="assets-group-title">
@@ -48,7 +47,7 @@ export default {
             required: false,
         },
         reward: {
-            type: Number,
+            type: [String, Number],
             default: 0,
         },
         showRewards: {
@@ -56,11 +55,11 @@ export default {
             default: false,
         },
         totalBalance: {
-            type: Number,
+            type: [String, Number],
             default: 0,
         },
         healthRate: {
-            type: Number,
+            type: [String, Number],
             default: 0,
         },
         icon: {
