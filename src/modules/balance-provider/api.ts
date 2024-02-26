@@ -10,6 +10,7 @@ import { BalanceResponse, DataProviderResponse } from './models/types';
 
 const apiClient = new ApiClient({
     baseURL: process.env.DATA_PROVIDER_API || '',
+    timeout: 10000
 });
 
 const axiosInstance = apiClient.getInstance();
