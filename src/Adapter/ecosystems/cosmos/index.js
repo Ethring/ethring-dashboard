@@ -98,7 +98,11 @@ class CosmosAdapter extends AdapterBase {
 
         const logger = new Logger('INFO');
 
-        this.walletManager = new WalletManager(activeChains, [KEPLR_EXT], logger, 'connect_only', true, false, assets);
+        this.walletManager = new WalletManager(activeChains, [KEPLR_EXT], logger, 'connect_only', true, false, assets, {}, {}, {}, {}, {
+            callback: () => {
+                this.walletManager.onMounted();
+            }
+        });
 
         const stargateClientOptions = {
             aminoTypes,
