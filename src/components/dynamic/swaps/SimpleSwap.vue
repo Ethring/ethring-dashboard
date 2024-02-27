@@ -46,7 +46,7 @@
         </div>
 
         <EstimatePreviewInfo
-            v-if="(selectedDstToken && srcAmount) || isShowEstimateInfo"
+            v-if="(selectedDstToken && +srcAmount) || isShowEstimateInfo"
             :is-loading="isEstimating"
             :service="selectedService"
             :title="$t('tokenOperations.routeInfo')"
@@ -196,7 +196,7 @@ export default {
                 !dstAmount.value ||
                 !selectedSrcNetwork.value ||
                 !selectedSrcToken.value ||
-                !selectedDstToken.value,
+                !selectedDstToken.value
         );
 
         // =================================================================================================================

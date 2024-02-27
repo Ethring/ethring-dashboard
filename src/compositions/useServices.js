@@ -532,6 +532,15 @@ export default function useModule({ moduleType }) {
     };
 
     const makeEstimateRequest = async () => {
+        if (BigNumber(srcAmount.value).isEqualTo(0)) {
+            isEstimating.value = false;
+            isShowEstimateInfo.value = false;
+
+            resetFees();
+
+            return;
+        }
+
         estimateErrorTitle.value = '';
         isEstimating.value = true;
 
