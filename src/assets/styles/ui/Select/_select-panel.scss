@@ -47,8 +47,9 @@
     }
 
     &.disabled {
-        background: var(--#{$prefix}select-disabled-bg-color);
-        border-color: var(--#{$prefix}select-disabled-border-color);
+        opacity: 0.8;
+        cursor: not-allowed;
+        pointer-events: none;
     }
 
     .preview-address {
@@ -100,6 +101,10 @@
 
     &.disabled {
         user-select: none;
+        pointer-events: none;
+        > * {
+            pointer-events: none;
+        }
     }
 
     &.error {
@@ -121,6 +126,11 @@
             color: var(--#{$prefix}sub-text);
         }
     }
+}
+
+.balance-info.disabled .amount-block .value span,
+.balance-info.disabled .amount-block .symbol span {
+    color: var(--#{$prefix}input-disabled-text);
 }
 
 .input-label {
@@ -186,6 +196,21 @@
             }
             svg.arrow {
                 stroke: var(--#{$prefix}secondary-text);
+            }
+        }
+
+        &.disabled {
+            cursor: not-allowed;
+            user-select: none;
+            pointer-events: none;
+
+            opacity: 0.8;
+
+            .token-symbol {
+                color: var(--#{$prefix}mute-text);
+            }
+            svg.arrow {
+                stroke: var(--#{$prefix}mute-text);
             }
         }
     }

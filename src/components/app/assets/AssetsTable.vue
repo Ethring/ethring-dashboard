@@ -25,12 +25,23 @@
         <template #expandedRowRender="{ record }">
             <ExpandNftInfo :record="record" />
         </template>
+        <!--
+        <template #footer v-if="isLoadMore">
+            <div class="assets-table__footer">
+                <Button @click="handleLoadMore" type="text" class="assets-table__footer-btn" title="Show All" />
+            </div>
+        </template>
+        -->
     </a-table>
 </template>
 
 <script>
-import AssetItem from './AssetItem';
-import ExpandNftInfo from './NFT/ExpandNftInfo.vue';
+import { computed, ref, watch } from 'vue';
+import _ from 'lodash';
+
+import AssetItem from '@/components/app/assets/AssetItem.vue';
+import ExpandNftInfo from '@/components/app/assets/NFT/ExpandNftInfo.vue';
+import Button from '@/components/ui/Button.vue';
 
 export default {
     name: 'AssetsTable',

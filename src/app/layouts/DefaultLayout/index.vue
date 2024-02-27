@@ -13,7 +13,7 @@
     </a-layout>
 </template>
 <script>
-import { computed, inject, onMounted } from 'vue';
+import { ref, computed, inject, onMounted } from 'vue';
 import { useStore } from 'vuex';
 
 import LoadingOverlay from '@/components/ui/LoadingOverlay';
@@ -39,17 +39,18 @@ export default {
         const isCollapsed = computed(() => store.getters['app/isCollapsed']);
         const isConfigLoading = computed(() => store.getters['configs/isConfigLoading']);
 
-        const isSpinning = computed(() => isConfigLoading.value || isConnecting.value);
+        const isSpinning = computed(() => isConfigLoading.value || isConnecting.value || false);
 
         const loadingTitle = computed(() => {
             if (isConfigLoading.value) {
-                return 'loadings.configLoading';
+                return 'loadings.initLoading';
             }
 
             if (isConnecting.value) {
                 return 'loadings.walletConnecting';
             }
 
+            isSpinning.value = false;
             return '';
         });
 

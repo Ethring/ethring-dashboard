@@ -6,22 +6,18 @@
 
         <a-form-item class="switch-direction-wrap">
             <a-form-item>
-                <SwapField
-                    :value="srcAmount"
-                    :label="$t('tokenOperations.from')"
-                    :token="selectedSrcToken"
-                    :is-token-loading="isTokensLoadingForSrc"
-                    @setAmount="onSetAmount"
-                >
+                <SwapField :value="srcAmount" :label="$t('tokenOperations.from')" :token="selectedSrcToken" @setAmount="onSetAmount">
                     <SelectRecord
                         :placeholder="$t('tokenOperations.selectNetwork')"
                         :current="selectedSrcNetwork"
                         @click="() => onSelectNetwork(DIRECTIONS.SOURCE)"
+                        :disabled="isWaitingTxStatusForModule"
                     />
                     <SelectRecord
                         :placeholder="$t('tokenOperations.selectToken')"
                         :current="selectedSrcToken"
                         @click="() => onSelectToken(true, DIRECTIONS.SOURCE)"
+                        :disabled="isWaitingTxStatusForModule || !selectedSrcNetwork"
                     />
                 </SwapField>
             </a-form-item>
@@ -32,20 +28,20 @@
                 :value="dstAmount"
                 :token="selectedDstToken"
                 :isAmountLoading="isEstimating"
-                :is-token-loading="isTokensLoadingForDst"
                 :percentage="differPercentage"
                 disabled
                 hide-max
             >
                 <SelectRecord
+                    :disabled="isWaitingTxStatusForModule"
                     :placeholder="$t('tokenOperations.selectNetwork')"
                     :current="selectedDstNetwork"
                     @click="() => onSelectNetwork(DIRECTIONS.DESTINATION)"
                 />
                 <SelectRecord
+                    :disabled="isWaitingTxStatusForModule || !selectedDstNetwork"
                     :placeholder="$t('tokenOperations.selectToken')"
                     :current="selectedDstToken"
-                    :disabled="!selectedDstNetwork"
                     @click="() => onSelectToken(false, DIRECTIONS.DESTINATION)"
                 />
             </SwapField>
@@ -54,6 +50,7 @@
         <Checkbox
             v-if="selectedDstToken && selectedDstNetwork"
             v-model:value="isSendToAnotherAddress"
+            :disabled="isWaitingTxStatusForModule"
             :label="$t('tokenOperations.chooseAddress')"
         />
 
@@ -62,11 +59,12 @@
             class="mt-8"
             :selected-network="selectedDstNetwork"
             :on-reset="isSendToAnotherAddress"
+            :disabled="isWaitingTxStatusForModule"
             @error-status="(status) => (isAddressError = status)"
         />
 
         <EstimatePreviewInfo
-            v-if="isShowEstimateInfo || srcAmount || dstAmount"
+            v-if="isShowEstimateInfo || +srcAmount || dstAmount"
             :title="$t('tokenOperations.routeInfo')"
             :is-loading="isEstimating"
             :fee-in-usd="networkFee"
@@ -101,8 +99,6 @@ import { computed, ref, inject, watch, h } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-
-import { SettingOutlined } from '@ant-design/icons-vue';
 
 import BigNumber from 'bignumber.js';
 
@@ -140,6 +136,8 @@ import { isCorrectChain } from '@/shared/utils/operations';
 
 import { SyncOutlined } from '@ant-design/icons-vue';
 
+import { TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
+
 export default {
     name: 'SuperSwap',
     components: {
@@ -165,8 +163,6 @@ export default {
         const { walletAccount, walletAddress, currentChainInfo, setChain } = useAdapter('super-swap');
 
         const { showNotification, closeNotification } = useNotification();
-
-        const isWaitingTxStatusForModule = computed(() => store.getters['txManager/isWaitingTxStatusForModule'](module));
 
         // =================================================================================================================
 
@@ -195,6 +191,7 @@ export default {
             selectedDstNetwork,
 
             srcTokenApprove,
+            srcTokenAllowance,
 
             onlyWithBalance,
 
@@ -217,6 +214,7 @@ export default {
             isTokensLoadingForSrc,
             isTokensLoadingForDst,
             isShowEstimateInfo,
+            isWaitingTxStatusForModule,
 
             clearApproveForService,
 
@@ -361,6 +359,14 @@ export default {
 
         // =================================================================================================================
 
+        const requestAllowance = async (service) => {
+            if (!isAllowForRequest() || !selectedSrcToken.value?.address) {
+                return;
+            }
+
+            return await makeAllowanceRequest(service || currentRouteInfo?.value?.service);
+        };
+
         const requestApprove = async (service) => {
             if (!isAllowForRequest() || !selectedSrcToken.value?.address) {
                 return;
@@ -411,6 +417,14 @@ export default {
         // =================================================================================================================
 
         const getEstimateInfo = async (isReload = false) => {
+            if (BigNumber(srcAmount.value).isEqualTo(0)) {
+                isEstimating.value = false;
+                isShowEstimateInfo.value = false;
+                dstAmount.value = null;
+
+                return;
+            }
+
             isEstimating.value = true;
             dstAmount.value = null;
 
@@ -472,9 +486,6 @@ export default {
                 type: 'info',
                 title: `Swap ${srcAmount.value} ${selectedSrcToken.value.symbol} to ~${dstAmount.value} ${selectedDstToken.value.symbol}`,
                 description: 'Please wait, transaction is preparing',
-                icon: h(SettingOutlined, {
-                    spin: true,
-                }),
                 duration: 0,
             });
 
@@ -507,9 +518,6 @@ export default {
                 type: 'info',
                 title: `Bridge ${srcAmount.value} ${selectedSrcToken.value.symbol} to ~${dstAmount.value} ${selectedDstToken.value.symbol}`,
                 description: 'Please wait, transaction is preparing',
-                icon: h(SettingOutlined, {
-                    spin: true,
-                }),
                 duration: 0,
             });
 
@@ -563,7 +571,7 @@ export default {
                 chainId: `${selectedSrcNetwork.value?.chain_id}`,
                 metaData: {
                     action: 'formatTransactionForSign',
-                    type: 'Approve',
+                    type: TRANSACTION_TYPES.APPROVE,
                     successCallback: {
                         action: 'GET_ALLOWANCE',
                         requestParams: {
@@ -627,6 +635,9 @@ export default {
                 metaData: {
                     action: 'formatTransactionForSign',
                     type: type.toUpperCase(),
+                    from: `${selectedSrcNetwork.value?.chain_id}`,
+                    to: `${selectedDstNetwork.value?.chain_id}`,
+                    receiverAddress: receiverAddress.value,
                 },
             };
 
@@ -735,6 +746,12 @@ export default {
             }
 
             return await getEstimateInfo();
+        });
+
+        watch(currentRouteInfo, async () => {
+            if (!srcTokenAllowance.value) {
+                await requestAllowance(selectedService.value);
+            }
         });
 
         watch(isWaitingTxStatusForModule, () => {
@@ -929,10 +946,6 @@ export default {
     &__btn {
         height: 64px;
         width: 100%;
-    }
-
-    .row {
-        @include pageFlexRow;
     }
 }
 </style>

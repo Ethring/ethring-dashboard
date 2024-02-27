@@ -1,13 +1,20 @@
 import _ from 'lodash';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
-import { getConfigsByEcosystems, getTokensConfigByChain } from '@/api/networks';
+
+import { getConfigsByEcosystems, getTokensConfigByChain } from '@/modules/chain-configs/api';
+
+import IndexedDBService from '@/services/indexed-db';
+
+import { DB_TABLES } from '@/shared/constants/indexedDb';
 
 const TYPES = {
     SET_CONFIG_LOADING: 'SET_CONFIG_LOADING',
     SET_TOKENS_BY_CHAIN: 'SET_TOKENS_BY_CHAIN',
     SET_CHAIN_CONFIG: 'SET_CHAIN_CONFIG',
 };
+
+const configsDB = new IndexedDBService('configs');
 
 export default {
     namespaced: true,
@@ -19,8 +26,6 @@ export default {
             [ECOSYSTEMS.EVM]: {},
             [ECOSYSTEMS.COSMOS]: {},
         },
-
-        tokensByChain: {},
     }),
 
     getters: {
@@ -38,27 +43,6 @@ export default {
             const chainList = _.values(state.chains[ecosystem]);
 
             return chainList.find((chain) => chain.chain_id === chainId) || {};
-        },
-
-        tokensByNetwork: (state) => (network) => state.tokensByChain[network] || {},
-
-        getTokenLogoByAddress: (state) => (address, network) => {
-            if (!state.tokensByChain[network]) {
-                return '';
-            }
-
-            const token = state.tokensByChain[network][address] || {};
-
-            return token.logo || '';
-        },
-
-        getTokensListForChain: (state) => (network) => {
-            if (!state.tokensByChain[network]) {
-                return [];
-            }
-
-            const tokens = Object.entries(state.tokensByChain[network]).map((tkn) => tkn[1]) || [];
-            return _.orderBy(tokens, ['name'], ['asc']);
         },
     },
 
@@ -88,8 +72,6 @@ export default {
         async initConfigs({ dispatch }) {
             await dispatch('initChainsByEcosystems', ECOSYSTEMS.COSMOS);
             await dispatch('initChainsByEcosystems', ECOSYSTEMS.EVM);
-
-            dispatch('setConfigLoading', false);
         },
 
         async initChainsByEcosystems({ commit, dispatch, state }, ecosystem) {
@@ -100,15 +82,17 @@ export default {
                     commit(TYPES.SET_CHAIN_CONFIG, { chain, ecosystem, config: response[chain] });
                 }
 
-                if (!state.tokensByChain[chain]) {
-                    dispatch('initTokensByChain', { chain, ecosystem });
-                }
+                dispatch('initTokensByChain', { chain, ecosystem });
             }
         },
 
-        async initTokensByChain({ commit }, { chain, ecosystem }) {
-            const response = await getTokensConfigByChain(chain, ecosystem);
-            commit(TYPES.SET_TOKENS_BY_CHAIN, { tokens: response, chain });
+        async initTokensByChain({}, { chain, ecosystem }) {
+            await getTokensConfigByChain(chain, ecosystem);
+        },
+
+        async getTokensListForChain({}, chain) {
+            const list = await configsDB.getAllObjectFrom(DB_TABLES.TOKENS, 'chain', chain, { isArray: true });
+            return _.orderBy(list, ['name'], ['asc']);
         },
 
         setConfigLoading({ commit }, value) {

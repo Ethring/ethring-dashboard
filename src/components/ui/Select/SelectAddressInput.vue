@@ -1,5 +1,10 @@
 <template>
-    <a-form-item class="select-panel" :class="{ active, focused, error: isError }">
+    <a-form-item
+        class="select-panel"
+        :class="{ active: active, focused, error: isError, disabled }"
+        @click="active = true"
+        v-click-away="(active = false)"
+    >
         <div class="input-label">{{ $t('tokenOperations.recipient') }}</div>
 
         <a-input-group compact class="input-group">
@@ -11,6 +16,7 @@
                 v-model:value="address"
                 class="base-input"
                 data-qa="input-address"
+                :disabled="disabled"
                 :bordered="false"
                 :placeholder="placeholder"
                 v-debounce:1s="onInput"
@@ -54,6 +60,10 @@ export default {
         },
         onReset: {
             type: [Boolean, String],
+            default: false,
+        },
+        disabled: {
+            type: Boolean,
             default: false,
         },
     },
@@ -153,7 +163,7 @@ export default {
 
         watch(
             () => props.onReset,
-            () => resetAddress()
+            () => resetAddress(),
         );
 
         return {

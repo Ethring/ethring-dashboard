@@ -1,12 +1,18 @@
 <template>
     <a-form>
         <a-form-item>
-            <SelectRecord :placeholder="$t('tokenOperations.selectNetwork')" :current="selectedSrcNetwork" @click="onSelectNetwork" />
+            <SelectRecord
+                :disabled="isWaitingTxStatusForModule"
+                :placeholder="$t('tokenOperations.selectNetwork')"
+                :current="selectedSrcNetwork"
+                @click="onSelectNetwork"
+            />
         </a-form-item>
 
         <SelectAddressInput
             :on-reset="clearAddress"
             :selected-network="selectedSrcNetwork"
+            :disabled="isWaitingTxStatusForModule"
             @error-status="(status) => (isAddressError = status)"
         />
 
@@ -16,12 +22,25 @@
             :error="!!isBalanceError"
             :label="$t('tokenOperations.asset')"
             :on-reset="resetAmount"
-            :is-token-loading="isTokensLoadingForSrc"
             :amount-value="srcAmount"
+            :disabled-select="isWaitingTxStatusForModule"
+            :disabled="isWaitingTxStatusForModule"
             class="select-amount"
             @setAmount="onSetAmount"
             @clickToken="onSelectToken"
         />
+
+        <a-form-item v-if="isMemoAllowed">
+            <div class="row mt-8">
+                <Checkbox v-model:value="isSendWithMemo" :label="`Memo`" @change="handleMemoChange" />
+
+                <a-tooltip placement="right" :title="$t('tokenOperations.memoDescription')">
+                    <InfoIcon />
+                </a-tooltip>
+            </div>
+
+            <MemoInput v-if="isSendWithMemo" :disabled="isWaitingTxStatusForModule" class="mt-8" />
+        </a-form-item>
 
         <Button
             :title="$t(opTitle)"
@@ -36,29 +55,29 @@
     </a-form>
 </template>
 <script>
-import { h, ref, inject, computed, onMounted, watch } from 'vue';
+import { ref, inject, computed, onMounted, watch } from 'vue';
 
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { SettingOutlined } from '@ant-design/icons-vue';
 
 import useNotification from '@/compositions/useNotification';
-import useTransactions from '../../../Transactions/compositions/useTransactions';
-import useServices from '../../../compositions/useServices';
+import useTransactions from '@/Transactions/compositions/useTransactions';
+import useServices from '@/compositions/useServices';
 
+import MemoInput from '@/components/ui/MemoInput.vue';
 import Button from '@/components/ui/Button';
+import Checkbox from '@/components/ui/Checkbox';
 import SelectRecord from '@/components/ui/Select/SelectRecord';
-// import SelectAddress from '@/components/ui/SelectAddress';
-// import SelectAmount from '@/components/ui/SelectAmount';
-
 import SelectAddressInput from '@/components/ui/Select/SelectAddressInput';
 import SelectAmountInput from '@/components/ui/Select/SelectAmountInput';
 
+import InfoIcon from '@/assets/icons/platform-icons/info.svg';
+
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
-import { STATUSES } from '../../../Transactions/shared/constants';
+import { STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
+import { ECOSYSTEMS } from '@/Adapter/config';
 
 import { isCorrectChain } from '@/shared/utils/operations';
-import {} from '@/shared/utils/balances';
 
 export default {
     name: 'SimpleSend',
@@ -67,6 +86,9 @@ export default {
         SelectAddressInput,
         SelectAmountInput,
         Button,
+        MemoInput,
+        Checkbox,
+        InfoIcon,
     },
     setup() {
         const store = useStore();
@@ -110,6 +132,15 @@ export default {
 
         const isAddressError = ref(false);
 
+        const isSendWithMemo = ref(false);
+
+        const isMemoAllowed = computed(() => selectedSrcNetwork.value?.ecosystem === ECOSYSTEMS.COSMOS);
+
+        const memo = computed({
+            get: () => store.getters['tokenOps/memo'],
+            set: (value) => store.dispatch('tokenOps/setMemo', value),
+        });
+
         // =================================================================================================================
 
         const disabledSend = computed(
@@ -121,7 +152,8 @@ export default {
                 !+srcAmount.value ||
                 !receiverAddress.value?.length ||
                 !selectedSrcToken.value ||
-                !currentChainInfo.value
+                !currentChainInfo.value ||
+                (isMemoAllowed && isSendWithMemo.value && !memo.value?.length),
         );
 
         const onSelectToken = () => handleOnSelectToken({ direction: DIRECTIONS.SOURCE, type: TOKEN_SELECT_TYPES.FROM });
@@ -138,9 +170,17 @@ export default {
             resetAmount.value = amount === null;
 
             clearAddress.value = receiverAddress.value === null;
+
+            memo.value = '';
+            isSendWithMemo.value = false;
         };
 
         // =================================================================================================================
+
+        const handleMemoChange = (value) => {
+            isSendWithMemo.value = value;
+            memo.value = '';
+        };
 
         const handleOnSend = async () => {
             if (disabledSend.value) {
@@ -173,11 +213,12 @@ export default {
                 type: 'info',
                 title: `Sending ${dataForPrepare.amount} ${dataForPrepare.token.symbol} ...`,
                 description: 'Please wait, transaction is preparing',
-                icon: h(SettingOutlined, {
-                    spin: true,
-                }),
                 duration: 0,
             });
+
+            if (isMemoAllowed && memo.value?.length) {
+                dataForPrepare.memo = memo.value;
+            }
 
             try {
                 // TODO: multiple transactions for send module
@@ -195,10 +236,7 @@ export default {
                         chainId: `${selectedSrcNetwork.value?.chain_id}`,
                         metaData: {
                             action: 'prepareTransaction',
-                            type: 'Transfer',
-                            successCallback: {
-                                action: 'CLEAR_AMOUNTS',
-                            },
+                            type: TRANSACTION_TYPES.TRANSFER,
                         },
                     },
                 ];
@@ -254,6 +292,7 @@ export default {
             srcAmount,
             receiverAddress,
 
+            handleMemoChange,
             onSelectNetwork,
             onSelectToken,
             onSetAmount,
@@ -267,6 +306,11 @@ export default {
             selectedSrcNetwork,
             connectedWallet,
             currentChainInfo,
+
+            isMemoAllowed,
+            isSendWithMemo,
+
+            ECOSYSTEMS,
         };
     },
 };

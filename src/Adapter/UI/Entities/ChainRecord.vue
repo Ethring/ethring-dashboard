@@ -129,6 +129,8 @@ export default {
 
             gap: 8px;
 
+            width: 60px;
+
             & > div {
                 margin: 0 !important;
             }

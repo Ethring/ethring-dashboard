@@ -1,26 +1,26 @@
 import _ from 'lodash';
+
 import BigNumber from 'bignumber.js';
 
-import { getTotalBalance, getIntegrationsBalance } from '@/modules/Balances/utils';
+import { IntegrationBalanceType } from '@/modules/balance-provider/models/enums';
+import { getTotalBalance, getIntegrationsBalance, getTotalBalanceByType } from '@/modules/balance-provider/calculation';
+
+import IndexedDBService from '@/services/indexed-db';
+
+const balancesDB = new IndexedDBService('balances', 2);
 
 const BALANCE_ALLOW_TYPES = ['tokens', 'integrations'];
+
+const BUNDLED_ACCOUNT = 'all';
 
 const TYPES = {
     SET_DATA_FOR: 'SET_DATA_FOR',
 
-    SET_TOKENS: 'SET_TOKENS',
-
-    SET_GROUP_TOKENS: 'SET_GROUP_TOKENS',
-
-    SET_MARKETCAP: 'SET_MARKETCAP',
+    SET_IS_INIT_CALLED: 'SET_IS_INIT_CALLED',
 
     SET_LOADER: 'SET_LOADER',
 
     SET_SELECT_TYPE: 'SET_SELECT_TYPE',
-
-    SET_FROM_TOKEN: 'SET_FROM_TOKEN',
-    SET_TO_TOKEN: 'SET_TO_TOKEN',
-    SET_ADDRESS: 'SET_ADDRESS',
 
     SET_DISABLE_LOADER: 'SET_DISABLE_LOADER',
 
@@ -32,50 +32,196 @@ const TYPES = {
     SET_TOTAL_BALANCE: 'SET_TOTAL_BALANCE',
 
     CALCULATE_BALANCE_BY_TYPE: 'CALCULATE_BALANCE_BY_TYPE',
+
+    SET_TARGET_ACCOUNT: 'SET_TARGET_ACCOUNT',
 };
 
 export default {
     namespaced: true,
 
     state: () => ({
+        targetAccount: null,
+
+        isInitCalled: {},
         loadingByChain: {},
-        fetchingBalances: false,
+
         loader: false,
+
         tokens: {},
-        nativeTokens: {},
-        groupTokens: {},
-        marketCap: {},
-        selectType: 'from',
-        fromToken: null,
-        toToken: null,
-        address: '',
-        disableLoader: false,
         integrations: {},
         nfts: {},
+
+        disableLoader: false,
+
         assetsBalances: {},
+
         totalBalances: {},
+
+        nativeTokens: {},
     }),
 
     getters: {
-        loader: (state) => state.loader,
+        isInitCalled: (state) => (account) => state.isInitCalled[account] || null,
+        loader: (state) => {
+            if (JSON.stringify(state.loadingByChain) === '{}') {
+                return false;
+            }
 
-        loadingForChains: (state) => state.loadingByChain,
+            for (const account in state.loadingByChain) {
+                if (!state.loadingByChain[account]) {
+                    return false;
+                }
+                for (const chain in state.loadingByChain[account]) {
+                    if (state.loadingByChain[account][chain]) {
+                        return true;
+                    }
+                }
+            }
 
-        tokens: (state) => state.tokens,
-        integrations: (state) => state.integrations,
-        nfts: (state) => state.nfts,
+            return false;
+        },
 
-        groupTokens: (state) => state.groupTokens,
+        loadingByAccount: (state) => (account) => {
+            if (JSON.stringify(state.loadingByChain) === '{}') {
+                return false;
+            }
+
+            if (!account) {
+                return false;
+            }
+
+            if (!state.loadingByChain[account]) {
+                return false;
+            }
+
+            for (const chain in state.loadingByChain[account]) {
+                if (state.loadingByChain[account][chain]) {
+                    return true;
+                }
+            }
+
+            return false;
+        },
+
+        loadingByChain: (state) => (account, chain) => state.loadingByChain[account]?.[chain] || false,
+
+        loadingForChains: (state) => (account) => state.loadingByChain[account] || {},
+
+        targetAccount: (state) => state.targetAccount,
+
+        getAccountBalanceByType: (state) => (account, type) => {
+            if (!state[type]) {
+                return [];
+            }
+
+            if (!state[type][account] && account !== BUNDLED_ACCOUNT) {
+                return [];
+            }
+
+            if (account === BUNDLED_ACCOUNT) {
+                const allData = [];
+
+                for (const acc in state[type]) {
+                    if (state[type][acc]) {
+                        allData.push(..._.flatMap(state[type][acc]));
+                    }
+                }
+
+                return allData;
+            }
+
+            const allForAccount = _.flatMap(state[type][account]) || [];
+            return allForAccount;
+        },
+
+        getIntegrationsByPlatforms: (state, getters) => (account) => {
+            const allIntegrations = getters.getAccountBalanceByType(account, 'integrations');
+
+            const platforms = allIntegrations.reduce((grouped, integration) => {
+                const { platform, type, balances = [], logo = null, healthRate = null, leverageRate } = integration;
+
+                if (!grouped[platform]) {
+                    grouped[platform] = {
+                        data: [],
+                        platform,
+                        healthRate: healthRate || null,
+                        logoURI: logo || null,
+                        totalGroupBalance: 0,
+                        totalRewardsBalance: 0,
+                    };
+                }
+
+                const platformData = grouped[platform];
+
+                platformData.data.push(integration);
+                platformData.healthRate = healthRate || null;
+                platformData.logoURI = logo || null;
+
+                for (const balance of balances) {
+                    balance.leverageRate = leverageRate || null;
+                }
+
+                platformData.totalGroupBalance = BigNumber(platformData.totalGroupBalance)
+                    .plus(getTotalBalanceByType(balances, type))
+                    .toString();
+
+                platformData.totalRewardsBalance = BigNumber(platformData.totalRewardsBalance)
+                    .plus(getTotalBalanceByType(balances, IntegrationBalanceType.PENDING))
+                    .toString();
+
+                return grouped;
+            }, {});
+
+            return _.orderBy(_.values(platforms), (integration) => +integration?.totalGroupBalance || 0, ['desc']);
+        },
+
+        getNFTsByCollection: (state, getters) => (account) => {
+            const allNFTs = getters.getAccountBalanceByType(account, 'nfts');
+
+            const collections = allNFTs.reduce((grouped, nft) => {
+                const { collection = {}, token = {}, chainLogo } = nft || {};
+
+                const { address } = collection || {};
+
+                if (!grouped[address]) {
+                    grouped[address] = {
+                        ...collection,
+                        chainLogo,
+                        token,
+                        nfts: [],
+                        floorPriceUsd: BigNumber(0),
+                        totalGroupBalance: BigNumber(0),
+                    };
+                }
+
+                const collectionData = grouped[address];
+
+                collectionData.totalGroupBalance = BigNumber(nft.price || 0)
+                    .multipliedBy(token.price || 0)
+                    .toString();
+
+                collectionData.floorPriceUsd = BigNumber(collection.floorPrice || 0)
+                    .multipliedBy(token.price || 0)
+                    .toString();
+
+                collectionData.nfts.push(nft);
+
+                return grouped;
+            }, {});
+
+            return _.orderBy(_.values(collections), (collection) => +collection?.totalGroupBalance || 0, ['desc']);
+        },
+
         nativeTokens: (state) => state.nativeTokens,
 
         getTokensListForChain:
             (state) =>
             (chain, { account = null } = {}) => {
-                if (!state.groupTokens[account] || !state.groupTokens[account][chain]) {
+                if (!state.tokens[account] || !chain) {
                     return [];
                 }
 
-                return state.groupTokens[account][chain]?.list || [];
+                return state.tokens[account][chain] || [];
             },
 
         getNativeTokenForChain: (state) => (account, chain) => {
@@ -86,59 +232,37 @@ export default {
             return state.nativeTokens[account][chain] || null;
         },
 
-        marketCap: (state) => state.marketCap,
-        selectType: (state) => state.selectType,
-        fromToken: (state) => state.fromToken,
-        toToken: (state) => state.toToken,
-        address: (state) => state.address,
         disableLoader: (state) => state.disableLoader,
-        assetsBalances: (state) => state.assetsBalances,
+
         totalBalances: (state) => state.totalBalances,
+        assetsBalances: (state) => state.assetsBalances,
 
-        loadingByChain: (state) => (chain) => state.loadingByChain[chain] || false,
-
-        getTokenBySymbol: (state) => (account, symbol) => {
-            if (!state.tokens[account]) {
-                return null;
+        getTotalBalanceByType: (state) => (account, balanceType) => {
+            if (!state[balanceType]) {
+                return 0;
             }
 
-            return state.tokens[account].find((token) => token.symbol === symbol) || null;
+            if (account === BUNDLED_ACCOUNT) {
+                let total = BigNumber(0);
+
+                for (const acc in state[balanceType]) {
+                    total = total.plus(state[balanceType][acc] || 0);
+                }
+
+                return total.toString() || 0;
+            }
+
+            return state[balanceType][account] || 0;
         },
     },
 
     mutations: {
-        [TYPES.SET_DATA_FOR](state, { type, account, data }) {
-            if (!state[type][account]) {
-                state[type][account] = {};
-            }
+        [TYPES.SET_DATA_FOR](state, { type, account, chain, data }) {
+            !state[type] && (state[type] = {});
+            !state[type][account] && (state[type][account] = {});
+            !state[type][account][chain] && (state[type][account][chain] = {});
 
-            const [record] = data || [];
-
-            if (!record?.id) {
-                return (state[type][account] = data);
-            }
-
-            const mergedArray = _.unionBy(state[type][account], data, 'id');
-
-            const updatedArray = mergedArray.map((item) => {
-                if (!Array.isArray(state[type][account])) {
-                    return item;
-                }
-
-                const matchInStore = state[type][account]?.find((i) => i.id === item.id);
-                const matchInData = data?.find((i) => i.id === item.id);
-
-                if (matchInStore && matchInData && matchInStore?.balance !== matchInData?.balance) {
-                    item = {
-                        ...item,
-                        ...matchInData,
-                    };
-                }
-
-                return item;
-            });
-
-            return (state[type][account] = updatedArray);
+            return (state[type][account][chain] = data);
         },
 
         [TYPES.SET_ASSETS_BALANCE](state, { account, data }) {
@@ -161,106 +285,70 @@ export default {
             state.disableLoader = value;
         },
 
-        [TYPES.SET_ADDRESS](state, value) {
-            state.address = value;
-        },
-
-        [TYPES.SET_GROUP_TOKENS](state, { chain, account, data }) {
-            if (!state.groupTokens[account]) {
-                state.groupTokens[account] = {};
-            }
-
-            if (!state.groupTokens[account][chain]) {
-                state.groupTokens[account][chain] = {};
-            }
-
-            const { list = [] } = data;
-
-            const nativeToken = list.find(
-                (token) => (token.id === `${chain}:asset__native:${token.symbol}` || !token.address) && !token.symbol.startsWith('IBC.')
-            );
-
-            if (nativeToken) {
-                !state.nativeTokens[account] && (state.nativeTokens[account] = {});
-                !state.nativeTokens[account][chain] && (state.nativeTokens[account][chain] = {});
-
-                nativeToken.id = `${chain}:asset__native:${nativeToken.symbol}`;
-
-                state.nativeTokens[account][chain] = nativeToken;
-            }
-
-            state.groupTokens[account][chain] = data;
-        },
-
-        [TYPES.SET_MARKETCAP](state, value) {
-            state.marketCap = value;
-        },
-
         [TYPES.SET_LOADER](state, value) {
             state.loader = value;
         },
 
-        [TYPES.SET_SELECT_TYPE](state, value) {
-            state.selectType = value;
+        [TYPES.SET_LOADING_BY_CHAIN](state, { account, chain, value }) {
+            !state.loadingByChain[account] && (state.loadingByChain[account] = {});
+            !state.loadingByChain[account][chain] && (state.loadingByChain[account][chain] = false);
+            state.loadingByChain[account][chain] = value || false;
         },
 
-        [TYPES.SET_FROM_TOKEN](state, value) {
-            state.fromToken = value;
-        },
+        [TYPES.CALCULATE_BALANCE_BY_TYPE](state, { value, getters }) {
+            const { account, type } = value;
 
-        [TYPES.SET_TO_TOKEN](state, value) {
-            state.toToken = value;
-        },
-
-        [TYPES.SET_LOADING_BY_CHAIN](state, { chain, value }) {
-            state.loadingByChain[chain] = value || false;
-        },
-
-        [TYPES.CALCULATE_BALANCE_BY_TYPE](state, { type, account }) {
             // calculating balances
             if (!state.assetsBalances[account]) {
-                state.assetsBalances[account] = {};
+                state.assetsBalances[account] = 0;
             }
             if (!state.totalBalances[account]) {
-                state.totalBalances[account] = {};
+                state.totalBalances[account] = 0;
             }
 
-            const allTokens = state.tokens[account] || [];
-            const allIntegrations = state.integrations[account] || [];
+            const allTokens = getters.getAccountBalanceByType(account, 'tokens');
+            const allIntegrations = getters.getAccountBalanceByType(account, 'integrations');
 
             if (BALANCE_ALLOW_TYPES.includes(type)) {
-                const assetsBalance = getTotalBalance(allTokens).toNumber();
+                const assetsBalance = getTotalBalance(allTokens);
 
-                const integrationsBalance = getIntegrationsBalance(allIntegrations).toNumber();
+                const integrationsBalance = getIntegrationsBalance(allIntegrations);
 
                 const totalBalance = BigNumber(assetsBalance).plus(integrationsBalance).toNumber();
 
                 state.totalBalances[account] = totalBalance;
 
-                type === 'tokens' && (state.assetsBalances[account] = assetsBalance);
+                type === 'tokens' && (state.assetsBalances[account] = assetsBalance.toNumber() || 0);
             }
+        },
+        [TYPES.SET_IS_INIT_CALLED](state, { account, time }) {
+            if (!state.isInitCalled[account]) {
+                state.isInitCalled[account] = null;
+            }
+
+            state.isInitCalled[account] = time;
+        },
+        [TYPES.SET_TARGET_ACCOUNT](state, value) {
+            state.targetAccount = value;
         },
     },
 
     actions: {
-        setDataFor({ commit }, value) {
+        async loadFromCache({ dispatch }, { account, chain, address, type }) {
+            const balances = await balancesDB.getBalancesByType('balances', { account, chain, address, type });
+
+            if (!balances) {
+                return;
+            }
+
+            dispatch('setDataFor', { type, account, chain, data: balances });
+        },
+        setDataFor({ commit, getters }, value) {
             commit(TYPES.SET_DATA_FOR, value);
 
             if (BALANCE_ALLOW_TYPES.includes(value.type)) {
-                commit(TYPES.CALCULATE_BALANCE_BY_TYPE, value);
+                commit(TYPES.CALCULATE_BALANCE_BY_TYPE, { value, getters });
             }
-        },
-        setTokens({ commit }, value) {
-            commit(TYPES.SET_TOKENS, value);
-        },
-        setAddress({ commit }, value) {
-            commit(TYPES.SET_ADDRESS, value);
-        },
-        setGroupTokens({ commit }, value) {
-            commit(TYPES.SET_GROUP_TOKENS, value);
-        },
-        setMarketCap({ commit }, value) {
-            commit(TYPES.SET_MARKETCAP, value);
         },
         setLoader({ commit }, value) {
             commit(TYPES.SET_LOADER, value);
@@ -268,26 +356,20 @@ export default {
         setDisableLoader({ commit }, value) {
             commit(TYPES.SET_DISABLE_LOADER, value);
         },
-        setSelectType({ commit }, value) {
-            commit(TYPES.SET_SELECT_TYPE, value);
-        },
-        setFromToken({ commit }, value) {
-            commit(TYPES.SET_FROM_TOKEN, value);
-        },
-        setToToken({ commit }, value) {
-            commit(TYPES.SET_TO_TOKEN, value);
-        },
         setAssetsBalances({ commit }, value) {
             commit(TYPES.SET_ASSETS_BALANCE, value);
-        },
-        setTotalBalances({ commit }, value) {
-            commit(TYPES.SET_TOTAL_BALANCE, value);
         },
         setLoadingByChain({ commit }, value) {
             commit(TYPES.SET_LOADING_BY_CHAIN, value);
         },
         setNativeTokenByChain({ commit }, value) {
             commit(TYPES.SET_NATIVE_ASSET, value);
+        },
+        setIsInitCall({ commit }, value) {
+            commit(TYPES.SET_IS_INIT_CALLED, value);
+        },
+        setTargetAccount({ commit }, value) {
+            commit(TYPES.SET_TARGET_ACCOUNT, value);
         },
     },
 };

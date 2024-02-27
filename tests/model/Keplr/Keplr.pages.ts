@@ -105,10 +105,6 @@ class KeplrHomePage {
     async getPage() {
         return this.page;
     }
-
-    async addNetwork(network: String) {
-        // TODO
-    }
 }
 
 class KeplrNotifyPage {

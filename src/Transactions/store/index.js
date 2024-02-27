@@ -54,6 +54,12 @@ export default {
         },
 
         [TYPES.SET_IS_WAITING_TX_STATUS_FOR_MODULE](state, { module, isWaiting }) {
+            if (module === 'all') {
+                for (const key in state.isWaitingTxStatus) {
+                    state.isWaitingTxStatus[key] = isWaiting;
+                }
+            }
+
             state.isWaitingTxStatus[module] = isWaiting;
         },
     },

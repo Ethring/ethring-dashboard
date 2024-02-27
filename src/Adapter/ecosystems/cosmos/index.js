@@ -15,10 +15,10 @@ import { toUtf8 } from '@cosmjs/encoding';
 import { fromEvent, takeUntil, Subject } from 'rxjs';
 
 // * Configs
-import { ECOSYSTEMS, cosmologyConfig } from '../../config';
+import { ECOSYSTEMS, cosmologyConfig } from '@/Adapter/config';
 
 import AdapterBase from '@/Adapter/utils/AdapterBase';
-import { getConfigsByEcosystems, getTokensConfigByChain, getCosmologyTokensConfig } from '@/api/networks';
+import { getConfigsByEcosystems, getTokensConfigByChain, getCosmologyTokensConfig } from '@/modules/chain-configs/api';
 
 // * Helpers
 import { validateCosmosAddress } from '@/Adapter/utils/validations';
@@ -27,7 +27,9 @@ import { errorRegister } from '@/shared/utils/errors';
 
 import logger from '@/shared/logger';
 
-import IndexedDBService from '@/modules/IndexedDb-v2';
+import IndexedDBService from '@/services/indexed-db';
+
+import { ignoreRPC } from '@/Adapter/utils/ignore-rpc';
 
 const configsDB = new IndexedDBService('configs');
 
@@ -603,6 +605,7 @@ class CosmosAdapter extends AdapterBase {
 
     async getTransactionFee(client, msg) {
         // SimulateTx to get gas for transaction
+        logger.debug('[COSMOS -> getTransactionFee] SimulateTx to get gas for transaction');
         try {
             const simulatedGas = await this.simulateTxGas(client, msg);
 
@@ -615,6 +618,7 @@ class CosmosAdapter extends AdapterBase {
             logger.warn('[COSMOS -> getTransactionFee -> simulateTxFee]', error);
         }
 
+        logger.debug('[COSMOS -> getTransactionFee] SimulateTx not found, Use EstimateFee');
         // EstimateFee to get gas for transaction
         try {
             const estimatedFee = await this.estimateFeeTx(msg);
@@ -631,7 +635,7 @@ class CosmosAdapter extends AdapterBase {
         return null;
     }
 
-    async prepareTransaction({ fromAddress, toAddress, amount, token }) {
+    async prepareTransaction({ fromAddress, toAddress, amount, token, memo }) {
         const fee = this.setDefaultFeeForTx();
 
         try {
@@ -652,6 +656,7 @@ class CosmosAdapter extends AdapterBase {
             return {
                 msg,
                 fee,
+                memo,
             };
         } catch (error) {
             logger.error('error while prepare', error);
@@ -713,51 +718,48 @@ class CosmosAdapter extends AdapterBase {
         }
     }
 
-    async getSignClient(RPCs, { signingStargate = {}, offlineSigner = {} }) {
-        const CHUNK_SIZE = 10;
-        const TIMEOUT = 2000; // 2 seconds
+    async getSignClient(RPCs = [], { signingStargate = {}, offlineSigner = {} }) {
+        const TIMEOUT_PROMISE = 3000; // 3 seconds for timeout
 
         // Check if RPCs exist
-        if (!RPCs.length) {
+        if (!RPCs || !RPCs.length) {
             logger.warn('[COSMOS -> getSignClient] RPCs not found to get client');
             return null;
         }
 
-        const chunkedRPCs = _.chunk(RPCs, CHUNK_SIZE);
+        // Filter RPCs by ignoreRPC to avoid unnecessary connections
+        const filteredRPCs = RPCs.filter((rpc) => !ignoreRPC(rpc));
 
-        for (const chunkRPCs of chunkedRPCs) {
-            const connectPromises = chunkRPCs.map(async (rpc) => {
-                try {
-                    const connectPromise = SigningStargateClient.connectWithSigner(rpc, offlineSigner, signingStargate);
-
-                    // Add a timeout promise
-                    const timeoutPromise = new Promise((_, reject) => {
-                        setTimeout(() => reject(new Error(`[COSMOS -> getSignClient] Connection to RPC ${rpc} timed out`)), TIMEOUT);
-                    });
-
-                    return await Promise.race([connectPromise, timeoutPromise]);
-                } catch (error) {
-                    logger.warn(`[COSMOS -> getSignClient] Error connecting to RPC: ${rpc}`, error.message);
-                    return null;
-                }
+        // Timeout promise for RPC
+        const timeoutFN = (TIMEOUT = TIMEOUT_PROMISE, rpc) =>
+            new Promise((_, reject) => {
+                setTimeout(() => reject(new Error(`TIMEOUT ${rpc}`)), TIMEOUT);
             });
 
-            const connectedClients = await Promise.all(connectPromises);
+        for (const rpc of filteredRPCs) {
+            try {
+                const timeoutPromise = timeoutFN(TIMEOUT_PROMISE, rpc);
+                const connectPromise = SigningStargateClient.connectWithSigner(rpc, offlineSigner, signingStargate);
+                await Promise.race([timeoutPromise, connectPromise]);
+                console.log('Client connected', rpc);
+                // Success
+                return connectPromise;
+            } catch (error) {
+                if (error?.message === `TIMEOUT ${rpc}`) {
+                    logger.warn(`[COSMOS -> getSignClient TIMEOUT] Timeout connecting to RPC: ${rpc}`);
+                    continue; // Try next RPC
+                }
 
-            const client = connectedClients.find((client) => client !== null);
-
-            if (client) {
-                return client;
+                logger.warn(`[COSMOS -> getSignClient] Error connecting to RPC: ${rpc}`, error.message);
+                continue; // Try next RPC
             }
         }
-
-        logger.warn('[COSMOS -> getSignClient] Client not found');
 
         return null;
     }
 
     async signSend(transaction) {
-        const { msg, fee } = transaction;
+        const { msg, fee, memo } = transaction;
 
         const chainWallet = this._getCurrentWallet();
         await chainWallet.value.initOfflineSigner('amino');
@@ -795,7 +797,7 @@ class CosmosAdapter extends AdapterBase {
 
         // Sign and send transaction
         try {
-            return await client.signAndBroadcast(this.getAccountAddress(), [msg], fee, transaction.value?.memo);
+            return await client.signAndBroadcast(this.getAccountAddress(), [msg], fee, memo);
         } catch (error) {
             logger.error('[COSMOS -> signSend] Error while broadcasting transaction', error);
             return errorRegister(error);

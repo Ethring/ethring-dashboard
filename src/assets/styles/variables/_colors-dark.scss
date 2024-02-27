@@ -10,6 +10,7 @@ $chineseBlack: #0c0d18;
 $ebonyClay: #1c1f2c;
 $white: #ffffff;
 $springGreen: #14ec8a;
+$kellyGreen: #52c41a;
 
 //  ===========================================================================
 //  SECONDARY COLORS
@@ -75,6 +76,7 @@ $assets-header-border-color: $charade;
 // Text
 $sub-text: $springGreen;
 $mute-text: $geyser;
+$notification-text: $gulfStream;
 $base-text: $gulfStream;
 $sidebar-text: $geyser;
 $primary-text: $white;
@@ -169,7 +171,7 @@ $accordion-title: $white;
 $collapse-border-color: $charade;
 
 // Info
-$success: $japaneseLaurel;
+$success: $kellyGreen;
 $success-op-01: rgba($success, 0.1);
 
 $danger: $wildWatermelon;
@@ -252,6 +254,7 @@ $theme-colors-dark: (
     "eye-logo-hover": $eye-logo-hover,
 
     "sub-text": $sub-text,
+    "notification-text": $notification-text,
     "mute-text": $mute-text,
     "base-text": $base-text,
     "sidebar-text": $sidebar-text,
