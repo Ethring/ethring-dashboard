@@ -77,7 +77,7 @@ const formatNft = (type: BalanceType, record: NftBalance, opt: RecordOptions = {
 
 // * The cosmos chain tokens formatter used to format the response from the data provider, specifically for cosmos chains
 const cosmosChainTokens = (record: AssetBalance, opt: RecordOptions = {}) => {
-    const { chain, store } = opt;
+    const { chain, store, logo } = opt;
 
     const configFromStore = store.state?.configs?.chains[ECOSYSTEMS.COSMOS] || {};
 
@@ -98,6 +98,7 @@ const cosmosChainTokens = (record: AssetBalance, opt: RecordOptions = {}) => {
         record.id = `${chain}:${Type.tokens}__native:${record.symbol}`;
         record.base = _.lowerCase(record.base);
         record.address = _.lowerCase(record.address);
+        record.logo = logo;
     }
 
     return record;
@@ -124,6 +125,7 @@ const formatRecord = (type: BalanceType, record: AssetBalance, opt: RecordOption
 
     if (!record.balanceType && !record.address && !record.id) {
         record.id = `${record.chain}:${type}__native:${record.symbol}`;
+        record.logo = logo;
     }
 
     return record;
