@@ -6,7 +6,7 @@
 
         <a-form-item class="switch-direction-wrap">
             <a-form-item>
-                <SwapField :value="srcAmount" :label="$t('tokenOperations.from')" :token="selectedSrcToken" @setAmount="onSetAmount">
+                <SwapField :value="srcAmount" :label="$t('tokenOperations.from')" :token="selectedSrcToken" :disabled="isWaitingTxStatusForModule" @setAmount="onSetAmount">
                     <SelectRecord
                         :placeholder="$t('tokenOperations.selectNetwork')"
                         :current="selectedSrcNetwork"
@@ -692,10 +692,12 @@ export default {
                 }
 
                 isSwapLoading.value = false;
+                isLoading.value = false;
+
 
                 if (!isNeedApprove.value) {
                     const data = {
-                        bestRoute: bestRouteInfo.value.routes?.map((elem, i) => {
+                        bestRoute: {...bestRouteInfo.value, routes: bestRouteInfo.value.routes?.map((elem, i) => {
                             if (elem.status === STATUSES.SIGNING) {
                                 elem.status = STATUSES.COMPLETED;
                             } else if (
@@ -705,19 +707,12 @@ export default {
                                 elem.status = STATUSES.SIGNING;
                             }
                             return elem;
-                        }),
+                        })},
                         otherRoutes: otherRoutesInfo.value,
                     };
 
                     store.dispatch('bridgeDex/setSelectedRoute', data);
                 }
-
-                const data = {
-                    bestRoute: bestRouteInfo.value.routes?.find((elem) => elem.status === STATUSES.SIGNING),
-                    otherRoutes: otherRoutesInfo.value,
-                };
-
-                store.dispatch('bridgeDex/setSelectedRoute', data);
 
                 if (!currentRouteInfo.value) {
                     return store.dispatch('bridgeDex/setSelectedRoute', null);
