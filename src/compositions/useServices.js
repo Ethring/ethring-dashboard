@@ -956,6 +956,8 @@ export default function useModule({ moduleType }) {
             return;
         }
 
+        isLoading.value = false;
+
         showNotification({
             key: 'error-tx',
             type: 'error',

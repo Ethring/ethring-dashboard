@@ -243,7 +243,7 @@ export default {
                 !selectedSrcToken.value ||
                 !selectedDstNetwork.value ||
                 !selectedDstToken.value ||
-                (isSendToAnotherAddress.value && (isAddressError.value || !receiverAddress.value)),
+                (isSendToAnotherAddress.value && (isAddressError.value || !receiverAddress.value))
         );
 
         // =================================================================================================================
@@ -502,24 +502,6 @@ export default {
         };
 
         // =================================================================================================================
-
-        watch(txError, (err) => {
-            if (!err) {
-                return;
-            }
-
-            isLoading.value = false;
-
-            showNotification({
-                key: 'error-tx',
-                type: 'error',
-                title: txErrorTitle.value,
-                description: JSON.stringify(txError.value || 'Unknown error'),
-                duration: 5,
-            });
-
-            closeNotification('prepare-tx');
-        });
 
         watch(srcAmount, () => resetAmounts(DIRECTIONS.SOURCE, srcAmount.value));
 

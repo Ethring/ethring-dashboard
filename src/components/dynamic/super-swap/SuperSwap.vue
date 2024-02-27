@@ -754,14 +754,6 @@ export default {
             }
         });
 
-        watch(txError, () => {
-            if (!txError.value) {
-                return;
-            }
-
-            isSwapLoading.value = false;
-        });
-
         watch(isWaitingTxStatusForModule, () => {
             if (!currentRouteInfo.value && !isWaitingTxStatusForModule.value) {
                 // reset values

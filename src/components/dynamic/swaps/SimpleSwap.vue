@@ -427,14 +427,6 @@ export default {
 
         // =================================================================================================================
 
-        watch(txError, () => {
-            if (!txError.value) {
-                return;
-            }
-
-            isLoading.value = false;
-        });
-
         watch(srcAmount, () => resetAmounts(DIRECTIONS.SOURCE, srcAmount.value));
 
         watch(dstAmount, () => resetAmounts(DIRECTIONS.DESTINATION, dstAmount.value));
