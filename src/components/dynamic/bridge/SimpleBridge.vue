@@ -6,16 +6,16 @@
                     :current="selectedSrcNetwork"
                     :placeholder="$t('tokenOperations.selectNetwork')"
                     @click="() => onSelectNetwork(DIRECTIONS.SOURCE)"
-                    :disabled="isWaitingTxStatusForModule"
+                    :disabled="isQuoteLoading || isTransactionSigning"
                 />
 
                 <SwitchDirection
-                    :disabled="isWaitingTxStatusForModule || !isUpdateSwapDirection || !selectedDstNetwork"
+                    :disabled="isQuoteLoading || isTransactionSigning || !isUpdateSwapDirection || !selectedDstNetwork"
                     @click="() => swapDirections(true)"
                 />
 
                 <SelectRecord
-                    :disabled="isWaitingTxStatusForModule"
+                    :disabled="isQuoteLoading || isTransactionSigning"
                     :current="selectedDstNetwork"
                     :placeholder="$t('tokenOperations.selectNetwork')"
                     class="select-group-to"
@@ -28,8 +28,8 @@
             :value="selectedSrcToken"
             :error="!!isBalanceError"
             :on-reset="resetSrcAmount"
-            :disabled-select="isWaitingTxStatusForModule"
-            :disabled="isWaitingTxStatusForModule || !selectedSrcToken"
+            :disabled-select="isTransactionSigning"
+            :disabled="isQuoteLoading || isTransactionSigning || !selectedSrcToken"
             :label="$t('tokenOperations.transferFrom')"
             :is-update="isUpdateSwapDirection"
             :amount-value="srcAmount"
@@ -42,9 +42,9 @@
             v-if="selectedDstNetwork"
             hide-max
             disabled
-            :disabled-select="isWaitingTxStatusForModule"
+            :disabled-select="isQuoteLoading || isTransactionSigning"
             :value="selectedDstToken"
-            :is-amount-loading="isEstimating"
+            :is-amount-loading="isQuoteLoading"
             :is-update="isUpdateSwapDirection"
             :label="$t('tokenOperations.transferTo')"
             :disabled-value="dstAmount"
@@ -71,180 +71,138 @@
         />
 
         <EstimatePreviewInfo
-            v-if="estimateErrorTitle || srcAmount || dstAmount"
-            :is-loading="isEstimating"
-            :service="selectedService"
+            v-if="(selectedDstToken && srcAmount) || isShowEstimateInfo"
+            :is-loading="isQuoteLoading"
+            :services="quoteRoutes?.routes"
+            :service="selectedRoute"
+            :fee-in-usd="fees[FEE_TYPE.BASE] || 0"
             :title="$t('tokenOperations.routeInfo')"
-            :main-rate="rateFeeInfo"
-            :fees="[protocolFeeInfo, baseFeeInfo, estimateTimeInfo]"
-            :error="estimateErrorTitle"
+            :main-rate="fees[FEE_TYPE.RATE] || null"
+            :error="estimateErrorTitle || quoteErrorMessage"
+            :is-show-expand="true"
         />
 
-        <Button
-            :title="$t(opTitle)"
-            :disabled="!!disabledBtn"
-            :loading="isWaitingTxStatusForModule || isLoading"
-            :tip="$t(opTitle)"
-            class="module-layout-view-btn"
-            @click="handleOnConfirm"
-            size="large"
-        />
+        <Button v-bind="opBtnState" :title="$t(opTitle)" :tip="$t(opTitle)" @click="handleOnConfirm" />
     </a-form>
 </template>
 <script>
-import { ref, inject, watch, computed } from 'vue';
+import { ref, watch, computed } from 'vue';
 
-import { useStore } from 'vuex';
-import { useRouter } from 'vue-router';
+// Compositions
+import useModuleOperations from '@/compositions/useModuleOperation';
 
-// Notification
-import useNotification from '@/compositions/useNotification';
-import useServices from '@/compositions/useServices';
+// UI components
+import Checkbox from '@/components/ui/Checkbox';
+import Button from '@/components/ui/Button';
+import SwitchDirection from '@/components/ui/SwitchDirection.vue';
 
-// Transaction Management
-import useTransactions from '@/Transactions/compositions/useTransactions';
-import { STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
-
-import {
-    getBridgeTx,
-    cancelRequestByMethod,
-    // getDebridgeTxHashForOrder
-} from '@/api/services';
-
-// import SelectAmount from '@/components/ui/SelectAmount';
+// Select components
 import SelectRecord from '@/components/ui/Select/SelectRecord';
 
+// Input components
 import SelectAddressInput from '@/components/ui/Select/SelectAddressInput';
 import SelectAmountInput from '@/components/ui/Select/SelectAmountInput';
 
-import Checkbox from '@/components/ui/Checkbox';
-import Button from '@/components/ui/Button';
+// Fee Component
 import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewInfo.vue';
-import SwitchDirection from '@/components/ui/SwitchDirection.vue';
 
-import { formatNumber } from '@/shared/utils/numbers';
-
+// Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
-import { isCorrectChain } from '@/shared/utils/operations';
+import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
 
 export default {
     name: 'SimpleBridge',
     components: {
-        SelectRecord,
-        SelectAmountInput,
-        SelectAddressInput,
         Button,
         Checkbox,
-        EstimatePreviewInfo,
         SwitchDirection,
+
+        SelectRecord,
+
+        SelectAmountInput,
+        SelectAddressInput,
+
+        EstimatePreviewInfo,
     },
     setup() {
-        const store = useStore();
-        const router = useRouter();
-        const useAdapter = inject('useAdapter');
+        const { handleOnConfirm, moduleInstance, isTransactionSigning, isDisableConfirmButton } = useModuleOperations('bridge');
 
-        const { name: module } = router.currentRoute.value;
-
-        const isAddressError = ref(false);
-
-        // * Notification
-        const { showNotification, closeNotification } = useNotification();
-
-        const { walletAccount, walletAddress, currentChainInfo, chainList, setChain } = useAdapter();
-
-        // * Transaction Manager
-        const { currentRequestID, transactionForSign, createTransactions, signAndSend, addTransactionToRequestID } = useTransactions();
-
-        // =================================================================================================================
         // * Module values
         const {
-            selectedService,
+            // --------------------------------
 
+            isLoading,
+            isEstimating,
+            isQuoteLoading,
+            isBalanceError,
+            isShowEstimateInfo,
+            isAllowanceLoading,
+            isUpdateSwapDirection,
+            isTokensLoadingForSrc,
+            isTokensLoadingForDst,
+
+            // --------------------------------
+
+            fees,
+            quoteRoutes,
+            selectedRoute,
+            quoteErrorMessage,
+
+            // --------------------------------
+
+            selectedService,
             selectedSrcToken,
             selectedDstToken,
             selectedSrcNetwork,
             selectedDstNetwork,
 
+            // --------------------------------
+
+            isAddressError,
+            isSendToAnotherAddress,
+            receiverAddress,
+
+            // --------------------------------
+
             onlyWithBalance,
-            isUpdateSwapDirection,
+
+            // --------------------------------
 
             srcAmount,
             dstAmount,
 
-            srcTokenApprove,
-
-            receiverAddress,
-            addressesByChains,
-
-            txError,
-            txErrorTitle,
+            // --------------------------------
             estimateErrorTitle,
-            isBalanceError,
+
+            // --------------------------------
 
             opTitle,
 
-            baseFeeInfo,
-            rateFeeInfo,
-            estimateTimeInfo,
-            protocolFeeInfo,
-
-            isNeedApprove,
-            isEstimating,
-            isLoading,
-            isShowEstimateInfo,
-
-            isWaitingTxStatusForModule,
+            // --------------------------------
 
             swapDirections,
-
-            clearApproveForService,
-
             handleOnSelectToken,
             handleOnSelectNetwork,
-
-            makeApproveRequest,
-            makeEstimateRequest,
-        } = useServices({
-            module,
-            moduleType: 'bridge',
-        });
+        } = moduleInstance;
 
         // =================================================================================================================
-        // Loaders
 
         const clearAddress = ref(false);
-        const balanceUpdated = ref(false);
-        const isSendToAnotherAddress = ref(false);
-
         const resetSrcAmount = ref(false);
         const resetDstAmount = ref(false);
 
         // =================================================================================================================
-
-        const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
-        const isTokensLoadingForSrc = computed(() =>
-            store.getters['tokens/loadingByChain'](walletAccount.value, selectedSrcNetwork.value?.net),
-        );
-
-        const isTokensLoadingForDst = computed(() =>
-            store.getters['tokens/loadingByChain'](walletAccount.value, selectedDstNetwork.value?.net),
-        );
-
-        // =================================================================================================================
-
-        const disabledBtn = computed(
-            () =>
-                isLoading.value ||
-                isBalanceError.value ||
-                isWaitingTxStatusForModule.value ||
-                !+srcAmount.value ||
-                !dstAmount.value ||
-                !selectedSrcNetwork.value ||
-                !selectedSrcToken.value ||
-                !selectedDstNetwork.value ||
-                !selectedDstToken.value ||
-                (isSendToAnotherAddress.value && (isAddressError.value || !receiverAddress.value)),
-        );
+        const opBtnState = computed(() => {
+            return {
+                class: 'module-layout-view-btn',
+                type: isTransactionSigning.value || isLoading.value ? 'primary' : 'success',
+                title: opTitle.value,
+                tip: isAllowanceLoading.value ? '' : opTitle.value,
+                loading: isTransactionSigning.value || isAllowanceLoading.value || isLoading.value,
+                disabled: isDisableConfirmButton.value,
+                size: 'large',
+            };
+        });
 
         // =================================================================================================================
 
@@ -263,8 +221,6 @@ export default {
                 direction: DIRECTIONS[direction],
                 type: withBalance ? TOKEN_SELECT_TYPES.FROM : TOKEN_SELECT_TYPES.TO,
             });
-
-            withBalance && clearApproveForService();
         };
 
         const resetAmounts = async (type = DIRECTIONS.SOURCE, amount) => {
@@ -296,230 +252,10 @@ export default {
 
         const onSetAmount = async (value) => {
             srcAmount.value = value;
-            txError.value = '';
             dstAmount.value = '';
-
-            return await makeEstimateRequest();
         };
 
         // =================================================================================================================
-        const makeBridgeTx = async () => {
-            if (cancelRequestByMethod) {
-                await cancelRequestByMethod('getBridgeTx');
-            }
-
-            showNotification({
-                key: 'prepare-tx',
-                type: 'info',
-                title: `Bridge ${srcAmount.value} ${selectedSrcToken.value.symbol} to ~${dstAmount.value} ${selectedDstToken.value.symbol}`,
-                description: 'Please wait, transaction is preparing',
-                duration: 0,
-            });
-
-            try {
-                const params = {
-                    url: selectedService.value?.url,
-                    fromNet: selectedSrcNetwork.value.net,
-                    fromTokenAddress: selectedSrcToken.value.address,
-                    amount: srcAmount.value,
-                    toNet: selectedDstNetwork.value.net,
-                    toTokenAddress: selectedDstToken.value.address,
-                };
-
-                const addresses = JSON.parse(JSON.stringify(addressesByChains.value || {}));
-
-                if (receiverAddress.value && receiverAddress.value !== '' && isSendToAnotherAddress.value) {
-                    params.recipientAddress = receiverAddress.value;
-                    addresses[selectedDstNetwork.value?.net] = receiverAddress.value;
-                }
-
-                if (selectedService.value?.id === 'bridge-skip') {
-                    params.ownerAddresses = JSON.stringify(addresses);
-                } else {
-                    params.ownerAddress = walletAddress.value;
-                    params.recipientAddress = receiverAddress.value || walletAddress.value;
-                    params.fallbackAddress = walletAddress.value;
-                }
-
-                const response = await getBridgeTx(params);
-
-                if (response.error) {
-                    txError.value = response?.error || response;
-                    txErrorTitle.value = 'Bridge transaction error';
-                    closeNotification('prepare-tx');
-
-                    return (isLoading.value = false);
-                }
-
-                return response;
-            } catch (error) {
-                txError.value = error?.message || error?.error || error;
-                closeNotification('prepare-tx');
-            }
-        };
-
-        // =================================================================================================================
-
-        const handleApprove = async () => {
-            opTitle.value = 'tokenOperations.approve';
-
-            await makeApproveRequest(selectedService.value);
-
-            if (!srcTokenApprove.value) {
-                store.dispatch('txManager/setTransactionForSign', null);
-                return (isLoading.value = false);
-            }
-
-            txError.value = '';
-            txErrorTitle.value = '';
-
-            const txToSave = {
-                index: 0,
-                ecosystem: selectedSrcNetwork.value.ecosystem,
-                module,
-                status: STATUSES.IN_PROGRESS,
-                parameters: {
-                    ...srcTokenApprove.value,
-                    from: walletAddress.value,
-                },
-                account: walletAddress.value,
-                chainId: `${selectedSrcNetwork.value?.chain_id}`,
-                metaData: {
-                    action: 'formatTransactionForSign',
-                    type: TRANSACTION_TYPES.APPROVE,
-                    successCallback: {
-                        action: 'GET_ALLOWANCE',
-                        requestParams: {
-                            url: selectedService.value?.url,
-                            net: selectedSrcNetwork.value.net,
-                            tokenAddress: selectedSrcToken.value.address,
-                            ownerAddress: walletAddress.value,
-                            service: selectedService.value,
-                        },
-                    },
-                },
-            };
-
-            await createTransactions([txToSave]);
-        };
-
-        // =================================================================================================================
-
-        const handleBridge = async () => {
-            opTitle.value = 'tokenOperations.confirm';
-
-            const responseBridge = await makeBridgeTx();
-
-            if (!responseBridge) {
-                store.dispatch('txManager/setTransactionForSign', null);
-                return (isLoading.value = false);
-            }
-
-            const txToSave = {
-                ecosystem: selectedSrcNetwork.value.ecosystem,
-                module,
-                status: STATUSES.IN_PROGRESS,
-                parameters: responseBridge,
-                account: walletAddress.value,
-                chainId: `${selectedSrcNetwork.value?.chain_id}`,
-                metaData: {
-                    action: 'formatTransactionForSign',
-                    type: TRANSACTION_TYPES.BRIDGE,
-                    from: `${selectedSrcNetwork.value?.chain_id}`,
-                    to: `${selectedDstNetwork.value?.chain_id}`,
-                    receiverAddress: receiverAddress.value,
-                },
-            };
-
-            if (currentRequestID.value && currentRequestID.value !== '') {
-                return await addTransactionToRequestID(currentRequestID.value, txToSave);
-            }
-
-            txToSave.index = 0;
-
-            return await createTransactions([txToSave]);
-        };
-
-        // =================================================================================================================
-
-        const handleOnConfirm = async () => {
-            isLoading.value = true;
-            txError.value = '';
-
-            const { isChanged, btnTitle } = await isCorrectChain(selectedSrcNetwork, currentChainInfo, setChain);
-
-            opTitle.value = btnTitle;
-
-            if (!isChanged) {
-                return (isLoading.value = false);
-            }
-
-            opTitle.value = 'tokenOperations.confirm';
-
-            if (isNeedApprove.value) {
-                await handleApprove();
-            } else {
-                await handleBridge();
-            }
-
-            if (!transactionForSign.value) {
-                return (isLoading.value = false);
-            }
-
-            try {
-                isLoading.value = true;
-
-                const responseSendTx = await signAndSend(transactionForSign.value);
-
-                closeNotification('prepare-tx');
-
-                clearApproveForService();
-
-                if (responseSendTx.error) {
-                    resetSrcAmount.value = false;
-                    resetDstAmount.value = false;
-                    txError.value = responseSendTx.error;
-                    txErrorTitle.value = 'Sign transaction error';
-                    return (isLoading.value = false);
-                }
-
-                // if (selectedService.value?.id === 'bridge-debridge') {
-                //     await delay(1000);
-                //     const hash = await getDebridgeTxHashForOrder(responseSendTx.transactionHash);
-
-                //     if (hash) {
-                //         // successHash.value = getTxExplorerLink(hash.dstHash, selectedDstNetwork.value);
-                //     }
-                // }
-
-                isLoading.value = false;
-                balanceUpdated.value = true;
-
-                balanceUpdated.value = true;
-            } catch (error) {
-                txError.value = error?.message || error?.error || error;
-            }
-        };
-
-        // =================================================================================================================
-
-        watch(txError, (err) => {
-            if (!err) {
-                return;
-            }
-
-            isLoading.value = false;
-
-            showNotification({
-                key: 'error-tx',
-                type: 'error',
-                title: txErrorTitle.value,
-                description: JSON.stringify(txError.value || 'Unknown error'),
-                duration: 5,
-            });
-
-            closeNotification('prepare-tx');
-        });
 
         watch(srcAmount, () => resetAmounts(DIRECTIONS.SOURCE, srcAmount.value));
 
@@ -529,12 +265,9 @@ export default {
             // Loading
             isLoading,
             isEstimating,
-            isAllTokensLoading,
+
             isTokensLoadingForSrc,
             isTokensLoadingForDst,
-            isWaitingTxStatusForModule,
-
-            disabledBtn,
 
             resetSrcAmount,
             resetDstAmount,
@@ -542,10 +275,9 @@ export default {
             isSendToAnotherAddress,
             isUpdateSwapDirection,
 
-            chainList,
-
             DIRECTIONS,
             opTitle,
+            opBtnState,
 
             srcAmount,
             dstAmount,
@@ -562,18 +294,8 @@ export default {
             isShowEstimateInfo,
 
             // Information for accordion
-            protocolFeeInfo,
-            baseFeeInfo,
-            rateFeeInfo,
-            estimateTimeInfo,
-
-            txError,
             estimateErrorTitle,
             clearAddress,
-
-            formatNumber,
-            walletAddress,
-            currentChainInfo,
             selectedService,
 
             // Handlers
@@ -583,6 +305,15 @@ export default {
             onSetAmount,
             handleOnConfirm,
             swapDirections,
+
+            fees,
+            selectedRoute,
+            quoteRoutes,
+            quoteErrorMessage,
+            FEE_TYPE,
+            isTransactionSigning,
+            isQuoteLoading,
+            isDisableConfirmButton,
         };
     },
 };

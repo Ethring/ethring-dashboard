@@ -11,7 +11,12 @@
             <ArrowDownIcon class="arrow" />
         </template>
 
-        <a-collapse-panel key="estimate-info" :collapsible="isCollapsible ? '' : 'disabled'" :showArrow="isCollapsible" data-qa="estimate-info">
+        <a-collapse-panel
+            key="estimate-info"
+            :collapsible="isCollapsible ? '' : 'disabled'"
+            :showArrow="isCollapsible"
+            data-qa="estimate-info"
+        >
             <template #header>
                 <div class="top-block">
                     <template v-if="isLoading">
@@ -24,7 +29,12 @@
                         <div class="preview-header">
                             <!-- <EstimateStats v-if="mainFee.fromAmount != 0 && !error" v-bind="mainFee" /> -->
 
-                            <ServiceIcon v-if="service && !isLoading" :icon="service.icon" :name="service.name" :show-title="false" />
+                            <ServiceIcon
+                                v-if="service && !isLoading"
+                                :icon="getServiceById(service.serviceId).icon"
+                                :name="getServiceById(service.serviceId).name"
+                                :show-title="false"
+                            />
 
                             <div class="title">{{ title }}:</div>
 
@@ -66,8 +76,12 @@
             <template v-if="isCollapsible && !isLoading">
                 <div class="preview-services-wrap">
                     <div class="preview-services-row">
-                        <template v-for="(record, index) in services" :key="record">
-                            <ServiceIcon :icon="record?.service.icon" :name="record?.service.name" :show-title="true" />
+                        <template v-for="(route, index) in services" :key="route">
+                            <ServiceIcon
+                                :icon="getServiceById(route.serviceId).icon"
+                                :name="getServiceById(route.serviceId).name"
+                                :show-title="true"
+                            />
                             <ArrowDownIcon class="arrow" v-if="index !== services?.length - 1" />
                         </template>
                     </div>
@@ -93,6 +107,7 @@ import EstimateStats from './EstimateStats.vue';
 import ServiceIcon from './ServiceIcon.vue';
 
 import ExpandIcon from '@/assets/icons/module-icons/expand.svg';
+import { useStore } from 'vuex';
 
 export default {
     name: 'EstimatePreviewInfo',
@@ -165,6 +180,7 @@ export default {
     },
     setup(props) {
         const isActive = ref(false);
+        const store = useStore();
 
         const isCollapsible = computed(() => {
             const { fees = [], services = [], error = null, isLoading } = props || {};
@@ -196,6 +212,8 @@ export default {
             return true;
         });
 
+        const getServiceById = (id) => store.getters['bridgeDexAPI/getServiceById'](id);
+
         const activeKey = ref(isCollapsible.value ? ['estimate-info'] : []);
 
         watch(isCollapsible, () => {
@@ -204,11 +222,21 @@ export default {
             }
         });
 
+        watch(
+            () => props.isLoading,
+            () => {
+                if (isCollapsible.value) {
+                    activeKey.value = ['estimate-info'];
+                }
+            },
+        );
+
         return {
             activeKey,
             isActive,
             isCollapsible,
             MAX_LENGTH: 55,
+            getServiceById,
         };
     },
 };

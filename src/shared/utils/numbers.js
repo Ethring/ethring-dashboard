@@ -3,14 +3,15 @@ export const formatNumber = (value, maximumFractionDigits = 6) => {
         return '0';
     }
 
-    if (Number.isNaN(+value)) {
+    if (Number.isNaN(Number(value))) {
         return value;
     }
 
     const formatter = new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 0,
-        maximumFractionDigits,
+        maximumFractionDigits: Number(maximumFractionDigits),
         useGrouping: true,
+        roundingMode: 'trunc',
     });
 
     const formattedNumber = formatter.format(value);

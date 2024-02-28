@@ -11,7 +11,7 @@ export default function useNotification() {
         return closeNotification(key);
     };
 
-    const showNotification = ({ key, type = 'info', title = 'notification', description = null, ...args } = {}) => {
+    const showNotification = ({ key, type = 'info', title = 'notification', description = null, duration = 3, ...args } = {}) => {
         const { explorerLink, txHash, wait } = args;
 
         const notificationParams = {
@@ -21,6 +21,7 @@ export default function useNotification() {
             message: title,
             description,
             placement: 'bottomRight',
+            duration,
             ...args,
         };
 

@@ -81,5 +81,7 @@ export const handleTransactionStatus = async (transaction, store, event) => {
 
     const displayHash = (txHash && txHash.slice(0, 8) + '...' + txHash.slice(-8)) || txHash;
 
-    return statusNotification(status, { store, type, txHash, displayHash, explorerLink, successCallback, failCallback });
+    statusNotification(status, { store, type, txHash, displayHash, explorerLink, successCallback, failCallback });
+
+    return status;
 };

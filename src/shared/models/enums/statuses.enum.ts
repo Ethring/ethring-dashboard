@@ -9,7 +9,8 @@ export enum STATUSES {
 export enum TRANSACTION_TYPES {
     TRANSFER = 'TRANSFER',
     SIGN = 'SIGN',
-    DEX = 'SWAP',
+    DEX = 'DEX',
+    SWAP = 'SWAP',
     BRIDGE = 'BRIDGE',
     APPROVE = 'APPROVE',
 }

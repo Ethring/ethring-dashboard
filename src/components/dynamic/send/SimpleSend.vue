@@ -2,7 +2,7 @@
     <a-form>
         <a-form-item>
             <SelectRecord
-                :disabled="isWaitingTxStatusForModule"
+                :disabled="isTransactionSigning"
                 :placeholder="$t('tokenOperations.selectNetwork')"
                 :current="selectedSrcNetwork"
                 @click="onSelectNetwork"
@@ -12,7 +12,7 @@
         <SelectAddressInput
             :on-reset="clearAddress"
             :selected-network="selectedSrcNetwork"
-            :disabled="isWaitingTxStatusForModule"
+            :disabled="isTransactionSigning"
             @error-status="(status) => (isAddressError = status)"
         />
 
@@ -23,8 +23,8 @@
             :label="$t('tokenOperations.asset')"
             :on-reset="resetAmount"
             :amount-value="srcAmount"
-            :disabled-select="isWaitingTxStatusForModule"
-            :disabled="isWaitingTxStatusForModule"
+            :disabled-select="isTransactionSigning"
+            :disabled="isTransactionSigning"
             class="select-amount"
             @setAmount="onSetAmount"
             @clickToken="onSelectToken"
@@ -32,129 +32,107 @@
 
         <a-form-item v-if="isMemoAllowed">
             <div class="row mt-8">
-                <Checkbox v-model:value="isSendWithMemo" :label="`Memo`" @change="handleMemoChange" />
+                <Checkbox v-model:value="isSendWithMemo" :label="`Memo`" @change="handleMemoChange" :disabled="isTransactionSigning" />
 
                 <a-tooltip placement="right" :title="$t('tokenOperations.memoDescription')">
                     <InfoIcon />
                 </a-tooltip>
             </div>
 
-            <MemoInput v-if="isSendWithMemo" :disabled="isWaitingTxStatusForModule" class="mt-8" />
+            <MemoInput v-if="isSendWithMemo" :disabled="isTransactionSigning" class="mt-8" />
         </a-form-item>
 
-        <Button
-            :title="$t(opTitle)"
-            :disabled="!!disabledSend"
-            :loading="isWaitingTxStatusForModule || isLoading"
-            :tip="$t(opTitle)"
-            class="module-layout-view-btn"
-            data-qa="confirm"
-            @click="handleOnSend"
-            size="large"
-        />
+        <Button data-qa="confirm" v-bind="opBtnState" :title="$t(opBtnState.title)" :tip="$t(opBtnState.tip)" @click="handleOnConfirm" />
     </a-form>
 </template>
 <script>
-import { ref, inject, computed, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 
-import { useStore } from 'vuex';
-import { useRouter } from 'vue-router';
+// Compositions
+import useModuleOperations from '@/compositions/useModuleOperation';
 
-import useNotification from '@/compositions/useNotification';
-import useTransactions from '@/Transactions/compositions/useTransactions';
-import useServices from '@/compositions/useServices';
-
-import MemoInput from '@/components/ui/MemoInput.vue';
+// UI components
 import Button from '@/components/ui/Button';
 import Checkbox from '@/components/ui/Checkbox';
+
+// Select components
 import SelectRecord from '@/components/ui/Select/SelectRecord';
+
+// Input components
+import MemoInput from '@/components/ui/MemoInput.vue';
 import SelectAddressInput from '@/components/ui/Select/SelectAddressInput';
 import SelectAmountInput from '@/components/ui/Select/SelectAmountInput';
 
+// Icons
 import InfoIcon from '@/assets/icons/platform-icons/info.svg';
 
+// Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
-import { STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
-import { ECOSYSTEMS } from '@/Adapter/config';
-
-import { isCorrectChain } from '@/shared/utils/operations';
 
 export default {
     name: 'SimpleSend',
     components: {
+        Button,
+        Checkbox,
         SelectRecord,
+        MemoInput,
         SelectAddressInput,
         SelectAmountInput,
-        Button,
-        MemoInput,
-        Checkbox,
         InfoIcon,
     },
     setup() {
-        const store = useStore();
-        const router = useRouter();
-
-        const useAdapter = inject('useAdapter');
-
-        const { name: module } = router.currentRoute.value;
+        // * Init module operations, and get all necessary data, (methods, states, etc.) for the module
+        // * Also, its necessary to sign the transaction (Transaction manger)
+        const { handleOnConfirm, moduleInstance, isDisableConfirmButton, isTransactionSigning } = useModuleOperations('send');
 
         const {
+            // - Main Data
             selectedSrcToken,
             selectedSrcNetwork,
 
             receiverAddress,
             srcAmount,
+            memo,
+            // - Memo (optional, Available only for COSMOS ecosystem)
+            isMemoAllowed,
+            isSendWithMemo,
 
+            // - Errors
+            isAddressError,
+            isBalanceError,
+
+            // - Loading
+            isLoading,
+            isTokensLoadingForSrc,
+
+            // - Title for operation (Confirm, Approve, etc.)
             opTitle,
 
-            isBalanceError,
-            isTokensLoadingForSrc,
-            isWaitingTxStatusForModule,
-
+            // - Handlers
             handleOnSelectToken,
             handleOnSelectNetwork,
-        } = useServices({
-            moduleType: 'send',
-        });
+        } = moduleInstance;
 
-        // * Notification
-        const { showNotification, closeNotification } = useNotification();
-
-        // * Adapter for wallet
-        const { walletAddress, connectedWallet, currentChainInfo, chainList, setChain } = useAdapter();
-
-        const { createTransactions, signAndSend, transactionForSign } = useTransactions();
-
-        const isLoading = ref(false);
+        // =================================================================================================================
 
         const clearAddress = ref(false);
         const resetAmount = ref(false);
 
-        const isAddressError = ref(false);
+        // =================================================================================================================
 
-        const isSendWithMemo = ref(false);
-
-        const isMemoAllowed = computed(() => selectedSrcNetwork.value?.ecosystem === ECOSYSTEMS.COSMOS);
-
-        const memo = computed({
-            get: () => store.getters['tokenOps/memo'],
-            set: (value) => store.dispatch('tokenOps/setMemo', value),
+        const opBtnState = computed(() => {
+            return {
+                class: 'module-layout-view-btn',
+                type: isTransactionSigning.value || isLoading.value ? 'primary' : 'success',
+                title: opTitle.value,
+                tip: opTitle.value,
+                loading: isTransactionSigning.value || isLoading.value,
+                disabled: isDisableConfirmButton.value,
+                size: 'large',
+            };
         });
 
         // =================================================================================================================
-
-        const disabledSend = computed(
-            () =>
-                isLoading.value ||
-                isAddressError.value ||
-                isBalanceError.value ||
-                isWaitingTxStatusForModule.value ||
-                !+srcAmount.value ||
-                !receiverAddress.value?.length ||
-                !selectedSrcToken.value ||
-                !currentChainInfo.value ||
-                (isMemoAllowed && isSendWithMemo.value && !memo.value?.length),
-        );
 
         const onSelectToken = () => handleOnSelectToken({ direction: DIRECTIONS.SOURCE, type: TOKEN_SELECT_TYPES.FROM });
         const onSelectNetwork = () => handleOnSelectNetwork({ direction: DIRECTIONS.SOURCE, type: TOKEN_SELECT_TYPES.FROM });
@@ -182,84 +160,6 @@ export default {
             memo.value = '';
         };
 
-        const handleOnSend = async () => {
-            if (disabledSend.value) {
-                return;
-            }
-
-            isLoading.value = true;
-
-            const dataForPrepare = {
-                fromAddress: null,
-                toAddress: receiverAddress.value,
-                amount: srcAmount.value,
-                token: selectedSrcToken.value,
-            };
-
-            const { isChanged, btnTitle } = await isCorrectChain(selectedSrcNetwork, currentChainInfo, setChain);
-
-            opTitle.value = btnTitle;
-
-            if (!isChanged) {
-                return (isLoading.value = false);
-            }
-
-            opTitle.value = 'tokenOperations.confirm';
-
-            // Reset values
-
-            showNotification({
-                key: 'prepare-tx',
-                type: 'info',
-                title: `Sending ${dataForPrepare.amount} ${dataForPrepare.token.symbol} ...`,
-                description: 'Please wait, transaction is preparing',
-                duration: 0,
-            });
-
-            if (isMemoAllowed && memo.value?.length) {
-                dataForPrepare.memo = memo.value;
-            }
-
-            try {
-                // TODO: multiple transactions for send module
-                const txs = [
-                    {
-                        index: 0,
-                        ecosystem: selectedSrcNetwork.value.ecosystem,
-                        module,
-                        status: STATUSES.IN_PROGRESS,
-                        parameters: {
-                            ...dataForPrepare,
-                            fromAddress: walletAddress.value,
-                        },
-                        account: walletAddress.value,
-                        chainId: `${selectedSrcNetwork.value?.chain_id}`,
-                        metaData: {
-                            action: 'prepareTransaction',
-                            type: TRANSACTION_TYPES.TRANSFER,
-                        },
-                    },
-                ];
-
-                await createTransactions(txs);
-
-                const resTx = await signAndSend(transactionForSign.value);
-
-                closeNotification('prepare-tx');
-
-                if (resTx.error) {
-                    clearAddress.value = false;
-                    return (isLoading.value = false);
-                }
-
-                return (isLoading.value = false);
-            } catch (error) {
-                closeNotification('prepare-tx');
-                isLoading.value = false;
-                clearAddress.value = false;
-            }
-        };
-
         // =================================================================================================================
 
         watch(srcAmount, () => resetAmounts(srcAmount.value));
@@ -271,46 +171,45 @@ export default {
             }
         });
 
-        // =================================================================================================================
-
-        onMounted(() => store.dispatch('txManager/setCurrentRequestID', null));
-
         return {
+            // Operation title
+            opTitle,
+            opBtnState,
+
+            // Main Data
+            selectedSrcNetwork,
+            selectedSrcToken,
+            receiverAddress,
+            srcAmount,
+
+            // Loadings
+            isMemoAllowed,
+            isSendWithMemo,
+
+            // State for button
+            isDisableConfirmButton,
+
+            // Loading
             isLoading,
+            isTransactionSigning,
             isTokensLoadingForSrc,
-            isWaitingTxStatusForModule,
 
-            disabledSend,
-
-            clearAddress,
-            resetAmount,
-
+            // Errors
             isAddressError,
             isBalanceError,
 
-            selectedSrcToken,
-            srcAmount,
-            receiverAddress,
+            // Reset
+            clearAddress,
+            resetAmount,
 
+            // handlers
             handleMemoChange,
             onSelectNetwork,
             onSelectToken,
             onSetAmount,
 
-            handleOnSend,
-
-            opTitle,
-
-            chainList,
-            walletAddress,
-            selectedSrcNetwork,
-            connectedWallet,
-            currentChainInfo,
-
-            isMemoAllowed,
-            isSendWithMemo,
-
-            ECOSYSTEMS,
+            // Handle Confirm (Transaction signing)
+            handleOnConfirm,
         };
     },
 };

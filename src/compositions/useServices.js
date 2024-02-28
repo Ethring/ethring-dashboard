@@ -1,45 +1,55 @@
 import BigNumber from 'bignumber.js';
 import { utils } from 'ethers';
+import _ from 'lodash';
 
 import { ref, computed, inject, watch, onBeforeUnmount, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
-import useEstimate from './useEstimate';
-
-import {
-    getAllowance,
-    getApproveTx,
-    cancelRequestByMethod,
-    // getSwapTx,
-    // getBridgeTx,
-} from '@/api/services';
 
 import useTokensList from '@/compositions/useTokensList';
 import useNotification from '@/compositions/useNotification';
 
 import { DIRECTIONS, FEE_TYPES, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { STATUSES } from '@/shared/constants/super-swap/constants';
-
-import { formatNumber } from '@/shared/utils/numbers';
 import { useRouter } from 'vue-router';
-// import { callMethodByService } from '@/api/bridge-dex';
+import useBridgeDexService from '@/modules/bridge-dex/compositions';
 
 export default function useModule({ moduleType }) {
     const { t } = useI18n();
+    const store = useStore();
 
     const router = useRouter();
 
     const { name: module } = router.currentRoute.value;
 
-    const store = useStore();
+    const selectedSrcNetwork = computed({
+        get: () => store.getters['tokenOps/srcNetwork'],
+        set: (value) => store.dispatch('tokenOps/setSrcNetwork', value),
+    });
+
     const useAdapter = inject('useAdapter');
 
-    const servicesEVM = computed(() => store.getters['bridgeDex/getServicesByEcosystem'](ECOSYSTEMS.EVM) || []);
-    const servicesCosmos = computed(() => store.getters['bridgeDex/getServicesByEcosystem'](ECOSYSTEMS.COSMOS) || []);
+    // =================================================================================================================
+    // * Bridge Dex Service Composition
+    // =================================================================================================================
+    const {
+        isAllowanceLoading,
+        isNeedApprove,
+        isQuoteLoading,
+        quoteErrorMessage,
+        quoteRoutes,
+        fees,
+        selectedRoute,
 
-    const addressesByChains = ref({});
+        makeApproveRequest,
+        makeSwapRequest,
+        makeAllowanceRequest,
+        clearAllowance,
+    } = useBridgeDexService(moduleType);
+
+    // =================================================================================================================
 
     const selectedService = computed({
         get: () => store.getters[`tokenOps/selectedService`],
@@ -68,7 +78,7 @@ export default function useModule({ moduleType }) {
 
     // =================================================================================================================
 
-    const { walletAccount, walletAddress, currentChainInfo, chainList, getAddressesWithChainsByEcosystem } = useAdapter();
+    const { walletAccount, walletAddress, currentChainInfo, chainList } = useAdapter();
 
     // =================================================================================================================
 
@@ -95,11 +105,6 @@ export default function useModule({ moduleType }) {
         set: (value) => store.dispatch('tokenOps/setDstToken', value),
     });
 
-    const selectedSrcNetwork = computed({
-        get: () => store.getters['tokenOps/srcNetwork'],
-        set: (value) => store.dispatch('tokenOps/setSrcNetwork', value),
-    });
-
     const selectedDstNetwork = computed({
         get: () => store.getters['tokenOps/dstNetwork'],
         set: (value) => store.dispatch('tokenOps/setDstNetwork', value),
@@ -124,6 +129,9 @@ export default function useModule({ moduleType }) {
         set: (value) => store.dispatch('tokenOps/setReceiverAddress', value),
     });
 
+    const isSendToAnotherAddress = ref(false);
+    const isAddressError = ref(false);
+
     // =================================================================================================================
 
     const srcAmount = computed({
@@ -134,6 +142,16 @@ export default function useModule({ moduleType }) {
     const dstAmount = computed({
         get: () => store.getters['tokenOps/dstAmount'],
         set: (value) => store.dispatch('tokenOps/setDstAmount', value),
+    });
+
+    // =================================================================================================================
+
+    const isMemoAllowed = computed(() => selectedSrcNetwork.value?.ecosystem === ECOSYSTEMS.COSMOS);
+    const isSendWithMemo = ref(false);
+
+    const memo = computed({
+        get: () => store.getters['tokenOps/memo'],
+        set: (value) => store.dispatch('tokenOps/setMemo', value),
     });
 
     // =================================================================================================================
@@ -201,13 +219,6 @@ export default function useModule({ moduleType }) {
         toSymbol: '',
     });
 
-    const allFees = computed(() => ({
-        [FEE_TYPES.BASE]: baseFeeInfo.value,
-        [FEE_TYPES.RATE]: rateFeeInfo.value,
-        [FEE_TYPES.PROTOCOL]: protocolFeeInfo.value,
-        [FEE_TYPES.TIME]: estimateTimeInfo.value,
-    }));
-
     const resetFees = () => {
         const setEmpty = () => ({
             title: '',
@@ -235,63 +246,6 @@ export default function useModule({ moduleType }) {
         }
 
         return false;
-    });
-
-    // =================================================================================================================
-
-    const srcTokenAllowance = computed(() => {
-        const isEVM = ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem;
-        const requiredFields = selectedSrcToken.value?.address && selectedService.value?.id && walletAccount.value;
-
-        if (!isEVM || !requiredFields) {
-            return null;
-        }
-
-        return store.getters['tokenOps/allowanceForToken'](
-            walletAccount.value,
-            selectedSrcNetwork.value.net,
-            selectedSrcToken.value.address,
-            selectedService.value.id,
-        );
-    });
-
-    const srcTokenApprove = computed(() => {
-        const isEVM = ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem;
-        const requiredFields = selectedSrcToken.value?.address && selectedService.value?.id && walletAccount.value;
-
-        if (!isEVM || !requiredFields) {
-            return null;
-        }
-
-        return store.getters['tokenOps/approveForToken'](
-            walletAccount.value,
-            selectedSrcNetwork.value.net,
-            selectedSrcToken.value.address,
-            selectedService.value.id,
-        );
-    });
-
-    const isNeedApprove = computed(() => {
-        if (['send'].includes(moduleType)) {
-            return false;
-        }
-
-        try {
-            if (
-                !srcAmount.value ||
-                selectedSrcNetwork.value?.ecosystem === ECOSYSTEMS.COSMOS ||
-                !selectedSrcToken.value?.address ||
-                !selectedSrcToken.value?.decimals
-            ) {
-                return false;
-            }
-
-            const currentAmount = utils.parseUnits(srcAmount.value, selectedSrcToken.value?.decimals).toString();
-
-            return !BigNumber(currentAmount).lte(srcTokenAllowance.value);
-        } catch {
-            return false;
-        }
     });
 
     // =================================================================================================================
@@ -331,301 +285,6 @@ export default function useModule({ moduleType }) {
         return tkn;
     };
 
-    const setEcosystemService = () => {
-        if (['send'].includes(moduleType)) {
-            return (selectedService.value = null);
-        }
-
-        if (!currentChainInfo.value?.ecosystem || !['swap', 'bridge'].includes(moduleType)) {
-            return;
-        }
-
-        const DEFAULT_FOR_ECOSYSTEM = {
-            [ECOSYSTEMS.EVM]: {
-                swap: 'swap-paraswap',
-                bridge: 'bridge-debridge',
-            },
-            [ECOSYSTEMS.COSMOS]: {
-                swap: 'swap-skip',
-                bridge: 'bridge-skip',
-            },
-        };
-
-        switch (currentChainInfo.value?.ecosystem) {
-            case ECOSYSTEMS.COSMOS:
-                selectedService.value = servicesCosmos.value.find(
-                    (service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.COSMOS][moduleType],
-                );
-
-                addressesByChains.value = {};
-
-                setOwnerAddresses();
-
-                break;
-            case ECOSYSTEMS.EVM:
-                selectedService.value = servicesEVM.value.find(
-                    (service) => service.id === DEFAULT_FOR_ECOSYSTEM[ECOSYSTEMS.EVM][moduleType],
-                );
-
-                addressesByChains.value = {};
-
-                setOwnerAddresses();
-
-                break;
-        }
-    };
-
-    // =================================================================================================================
-
-    const isAllowForRequest = () => {
-        const notAllData = !walletAddress.value || !selectedSrcNetwork.value || !selectedService.value;
-
-        if (notAllData) {
-            return false;
-        }
-
-        if (estimateErrorTitle.value) {
-            return false;
-        }
-
-        if (!srcAmount.value || !selectedSrcToken.value || !selectedDstToken.value) {
-            return false;
-        }
-
-        const isNotEVM = selectedSrcNetwork.value?.ecosystem !== ECOSYSTEMS.EVM;
-
-        return isNotEVM || true;
-    };
-
-    const prepareFeeInfo = (response) => {
-        estimateErrorTitle.value = '';
-        dstAmount.value = BigNumber(response.toTokenAmount).decimalPlaces(6).toString();
-
-        const { estimatedTime = {}, protocolFee = null } = selectedService.value || {};
-        const { chainId, chain_id, native_token = {} } = selectedSrcNetwork.value || {};
-        const { symbol = null, price = 0 } = native_token || 0;
-
-        // * Rate fee
-        rateFeeInfo.value = {
-            title: 'tokenOperations.rate',
-            symbolBetween: '~',
-            fromAmount: '1',
-            fromSymbol: selectedSrcToken.value.symbol,
-            toAmount: formatNumber(response.toTokenAmount / response.fromTokenAmount, 6),
-            toSymbol: selectedDstToken.value.symbol,
-        };
-
-        // * Base fee
-        if (response.fee) {
-            baseFeeInfo.value = {
-                title: 'tokenOperations.networkFee',
-                symbolBetween: '~',
-                fromAmount: formatNumber(response.fee.amount),
-                fromSymbol: response.fee.currency,
-                toAmount: formatNumber(BigNumber(response.fee.amount).multipliedBy(price).toString()),
-                toSymbol: '$',
-            };
-        }
-
-        if (moduleType === 'bridge' && selectedSrcNetwork.value?.ecosystem === ECOSYSTEMS.EVM) {
-            baseFeeInfo.value.title = 'tokenOperations.serviceFee';
-
-            baseFeeInfo.value.toAmount = formatNumber(
-                BigNumber(response.fee?.amount).multipliedBy(selectedSrcToken.value?.price).toString(),
-            );
-        }
-
-        // * Time
-        const chain = chainId || chain_id;
-
-        if (estimatedTime[chain]) {
-            const time = Math.round(estimatedTime[chain] / 60);
-
-            estimateTimeInfo.value = {
-                title: 'tokenOperations.time',
-                symbolBetween: '<',
-                fromAmount: '',
-                fromSymbol: '',
-                toAmount: time,
-                toSymbol: 'min',
-            };
-        }
-
-        // * Protocol fee
-        if (!protocolFee) {
-            return;
-        }
-
-        const pFee = protocolFee[chain] || 0;
-
-        if (!pFee) {
-            return;
-        }
-
-        protocolFeeInfo.value = {
-            title: 'tokenOperations.protocolFee',
-            symbolBetween: '~',
-            fromAmount: pFee,
-            fromSymbol: symbol,
-            toAmount: BigNumber(pFee).multipliedBy(price).toString(),
-            toSymbol: '$',
-        };
-    };
-
-    // =================================================================================================================
-
-    const makeAllowanceRequest = async (service) => {
-        const currentService = service || selectedService.value;
-
-        if (!selectedSrcToken.value?.address || !currentService?.url) {
-            return;
-        }
-
-        const response = await getAllowance({
-            url: currentService.url,
-            net: selectedSrcNetwork.value.net,
-            tokenAddress: selectedSrcToken.value.address,
-            ownerAddress: walletAddress.value,
-            store,
-            service: currentService,
-        });
-
-        if (response.error) {
-            return;
-        }
-    };
-
-    const makeApproveRequest = async (service) => {
-        const currentService = service || selectedService.value;
-
-        console.log('makeApproveRequest', currentService);
-
-        const isEVM = ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem;
-        const requiredFields = selectedSrcToken.value?.address && selectedService.value?.id && walletAccount.value;
-
-        if (!requiredFields || !isEVM) {
-            return;
-        }
-
-        if (cancelRequestByMethod) {
-            await cancelRequestByMethod('getApproveTx');
-        }
-
-        const response = await getApproveTx({
-            url: currentService.url,
-            net: selectedSrcNetwork.value.net,
-            tokenAddress: selectedSrcToken.value.address,
-            ownerAddress: walletAddress.value,
-            store,
-            service: currentService,
-        });
-
-        if (response.error) {
-            return (txError.value = response?.error || response);
-        }
-
-        checkSelectedNetwork();
-
-        if (opTitle.value !== 'tokenOperations.switchNetwork') {
-            opTitle.value = 'tokenOperations.approve';
-        }
-    };
-
-    const makeEstimateRequest = async () => {
-        estimateErrorTitle.value = '';
-        isEstimating.value = true;
-
-        if (cancelRequestByMethod) {
-            await cancelRequestByMethod('estimateSwap');
-            await cancelRequestByMethod('estimateBridge');
-        }
-
-        if (!isAllowForRequest()) {
-            isLoading.value = false;
-            isEstimating.value = false;
-            resetFees();
-            return;
-        }
-
-        resetFees();
-
-        const { getParams, makeRequest } = useEstimate({
-            moduleType,
-            selectedService,
-            selectedSrcToken,
-            selectedDstToken,
-            selectedSrcNetwork,
-            selectedDstNetwork,
-            walletAddress,
-            srcAmount,
-            addressesByChains,
-        });
-
-        const params = getParams();
-        const response = await makeRequest(params);
-
-        if (response.error === 'canceled') {
-            return;
-        }
-
-        if (response.error) {
-            resetFees();
-
-            estimateErrorTitle.value = response.error;
-            dstAmount.value = '';
-            isEstimating.value = false;
-
-            return (isLoading.value = false);
-        }
-
-        // const checkRoute = () => {
-        //     const isAmountSame = +response?.fromTokenAmount === +srcAmount.value;
-        //     const isSrcTokenSame = params?.fromTokenAddress === selectedSrcToken.value?.address;
-        //     const isDstTokenSame = params?.toTokenAddress === selectedDstToken.value?.address;
-
-        //     return isAmountSame && isSrcTokenSame && isDstTokenSame;
-        // };
-
-        // if (!checkRoute()) {
-        //     isEstimating.value = false;
-        //     dstAmount.value = '';
-
-        //     return (isLoading.value = false);
-        // }
-
-        isEstimating.value = false;
-        isLoading.value = false;
-
-        return prepareFeeInfo(response);
-    };
-
-    // =================================================================================================================
-    const clearApproveForService = (service) => {
-        const currentService = service || selectedService.value;
-        const requiredFields =
-            selectedSrcToken.value?.address && selectedSrcNetwork.value?.net && currentService?.id && walletAddress.value;
-
-        // store.dispatch('tokenOps/setAllowance', {
-        //     chain: selectedSrcNetwork.value.net,
-        //     account: walletAddress.value,
-        //     tokenAddress: selectedSrcToken.value?.address,
-        //     allowance: null,
-        //     service: currentService?.id,
-        // });
-
-        if (!requiredFields) {
-            return;
-        }
-
-        store.dispatch('tokenOps/setApprove', {
-            chain: selectedSrcNetwork.value.net,
-            account: walletAddress.value,
-            tokenAddress: selectedSrcToken.value?.address,
-            approve: null,
-            service: currentService?.id,
-        });
-    };
-
     // =================================================================================================================
 
     const checkSelectedNetwork = () => {
@@ -635,9 +294,9 @@ export default function useModule({ moduleType }) {
 
         const isSameWithCurrent = currentChainInfo.value && currentChainInfo.value.net === selectedSrcNetwork.value?.net;
 
-        setEcosystemService();
+        // setEcosystemService();
 
-        if (isNeedApprove.value && opTitle.value !== 'tokenOperations.switchNetwork') {
+        if (isNeedApprove.value) {
             return (opTitle.value = 'tokenOperations.approve');
         }
 
@@ -645,7 +304,7 @@ export default function useModule({ moduleType }) {
             return (opTitle.value = DEFAULT_TITLE);
         }
 
-        return (opTitle.value = 'tokenOperations.switchNetwork');
+        return (opTitle.value = DEFAULT_TITLE);
     };
 
     const resetTokensForModules = async (from = 'default', { isAccountChanged = false } = {}) => {
@@ -715,21 +374,6 @@ export default function useModule({ moduleType }) {
         const to = JSON.parse(JSON.stringify(selectedDstToken.value));
 
         [selectedSrcToken.value, selectedDstToken.value] = [to, from];
-
-        await makeEstimateRequest();
-    };
-
-    const setOwnerAddresses = () => {
-        const addressesWithChains = getAddressesWithChainsByEcosystem(selectedSrcNetwork.value?.ecosystem);
-
-        for (const chain in addressesWithChains) {
-            const { address } = addressesWithChains[chain];
-
-            addressesByChains.value = {
-                ...addressesByChains.value,
-                [chain]: address,
-            };
-        }
     };
 
     // =================================================================================================================
@@ -799,7 +443,7 @@ export default function useModule({ moduleType }) {
         }
 
         await resetTokensForModules('watch-wallet-account', { isAccountChanged });
-        setEcosystemService();
+        // setEcosystemService();
     });
 
     // ========================= Watch Selected SRC DST Networks =========================
@@ -852,45 +496,20 @@ export default function useModule({ moduleType }) {
         }
     });
 
-    // ========================= Watch Selected SRC Token =========================
-
-    const unWatchSrcToken = watch(selectedSrcToken, async () => {
-        const isEVM = ECOSYSTEMS.EVM === selectedSrcNetwork.value?.ecosystem;
-
-        if (!isEVM || !selectedSrcToken.value?.address || !selectedService.value?.id) {
-            return;
-        }
-
-        if (selectedSrcToken.value?.address && !srcTokenAllowance.value) {
-            await makeAllowanceRequest(selectedService.value);
-        }
-    });
-
-    const unWatchDstToken = watch(selectedDstToken, async () => {
-        if (!['super-swap', 'send'].includes(moduleType)) {
-            return await makeEstimateRequest();
-        }
-    });
-
     const unWatchSrcDstToken = watch([srcAmount, selectedSrcToken, selectedDstToken], async () => {
         if (selectedSrcToken.value?.id === selectedDstToken.value?.id) {
             selectedDstToken.value = null;
             dstAmount.value = null;
-            return (estimateErrorTitle.value = t('tokenOperations.selectDifferentToken'));
-        }
 
-        if (['super-swap', 'send'].includes(moduleType)) {
             return;
         }
-
-        return await makeEstimateRequest();
     });
 
     // ========================= Watch Is Need Approve for SRC token =========================
 
     const unWatchIsNeedApprove = watch(isNeedApprove, () => {
         checkSelectedNetwork();
-        if (isNeedApprove.value && opTitle.value !== 'tokenOperations.switchNetwork') {
+        if (isNeedApprove.value) {
             return (opTitle.value = 'tokenOperations.approve');
         }
     });
@@ -1025,8 +644,7 @@ export default function useModule({ moduleType }) {
 
         unWatchSrcDstNetwork();
 
-        unWatchSrcToken();
-        unWatchDstToken();
+        // unWatchDstToken();
         unWatchSrcDstToken();
 
         unWatchTxErr();
@@ -1072,23 +690,24 @@ export default function useModule({ moduleType }) {
         isUpdateSwapDirection,
 
         // Src token allowance and approve for service
-        srcTokenAllowance,
-        srcTokenApprove,
         isNeedApprove,
 
         // Receiver
+        isSendToAnotherAddress,
+        isAddressError,
         receiverAddress,
-        addressesByChains,
 
         // Amounts
         srcAmount,
         dstAmount,
 
+        // Memo
+        isMemoAllowed,
+        isSendWithMemo,
+        memo,
+
         // Operation title
         opTitle,
-
-        // Operation Fees
-        allFees,
 
         baseFeeInfo,
         rateFeeInfo,
@@ -1117,14 +736,22 @@ export default function useModule({ moduleType }) {
         handleOnSelectNetwork,
 
         // setTokenOnChange,
-        clearApproveForService,
         checkSelectedNetwork,
-
         swapDirections,
 
-        // Requests to API services
-        makeAllowanceRequest,
+        // Bridge Dex
+        isAllowanceLoading,
+        isNeedApprove,
+        isQuoteLoading,
+        quoteErrorMessage,
+        quoteRoutes,
+        fees,
+        selectedRoute,
+
         makeApproveRequest,
-        makeEstimateRequest,
+        makeSwapRequest,
+        makeAllowanceRequest,
+        clearAllowance,
     };
 }
+1;

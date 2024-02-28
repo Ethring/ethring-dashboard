@@ -42,7 +42,7 @@ export default function useTransactions() {
 
     // * Update transaction by id
     const updateTransactionById = async (id, transaction) => {
-        await updateTransaction(id, transaction);
+        return await updateTransaction(id, transaction);
 
         // if (updatedTransaction) {
         //     const { requestID } = updatedTransaction;
@@ -82,6 +82,8 @@ export default function useTransactions() {
         const txs = await getTransactionsByRequestID(reqID);
 
         store.dispatch('txManager/setTransactionsForRequestID', { requestID: reqID, transactions: txs });
+
+        return tx;
     };
 
     /**
@@ -161,6 +163,8 @@ export default function useTransactions() {
         const { type } = metaData || {};
 
         if (!DISALLOW_UPDATE_TYPES.includes(type)) {
+            console.log('handleSuccessfulSign -> metaData', metaData);
+
             await store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
 
             await store.dispatch('tokenOps/setOperationResult', {
@@ -252,9 +256,11 @@ export default function useTransactions() {
         await store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: true });
 
         try {
-            if (action && ACTIONS_FOR_TX[action]) {
-                txFoSign = await ACTIONS_FOR_TX[action](parameters);
+            if (!action || !ACTIONS_FOR_TX[action]) {
+                console.error('Unknown action', action);
             }
+
+            txFoSign = await ACTIONS_FOR_TX[action](parameters);
         } catch (error) {
             console.error('prepareTransaction error', error);
             store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
@@ -274,17 +280,36 @@ export default function useTransactions() {
             };
         }
 
+        let response = null;
+
+        console.log('UseTransactions -> signAndSend -> txFoSign', txFoSign);
         try {
-            const response = await signSend(txFoSign);
-            return await handleSignedTxResponse(id, response, { metaData, module, tx: txFoSign });
+            response = await signSend(txFoSign);
+            console.log('signSend response', response);
         } catch (error) {
             closeNotification('prepare-tx');
             console.error('signSend error', error);
             store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
-            return {
-                error,
-            };
+            throw error;
         }
+
+        if (response && response.error) {
+            closeNotification('prepare-tx');
+            console.log('signSend error', response.error);
+            store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
+            throw new Error(response.error);
+        }
+
+        try {
+            await handleSignedTxResponse(id, response, { metaData, module, tx: txFoSign });
+        } catch (error) {
+            console.error('handleSignedTxResponse error', error);
+            throw error;
+        }
+
+        const { transactionHash } = response;
+
+        return transactionHash;
     };
 
     onMounted(() => {
