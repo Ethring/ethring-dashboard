@@ -7,7 +7,7 @@ import { BaseResponse, Response } from '@/shared/models/types/BaseResponse';
 // ============== API Client Settings Start ==============
 
 const apiClient = new ApiClient({
-    baseURL: process.env.BRIDGE_DEX_API_DEV || null,
+    baseURL: process.env.BRIDGE_DEX_API || null,
 });
 
 const axiosInstance = apiClient.getInstance();
