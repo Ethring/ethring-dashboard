@@ -728,8 +728,8 @@ export default function useModule({ moduleType }) {
         await makeEstimateRequest();
     };
 
-    const setOwnerAddresses = () => {
-        const addressesWithChains = getAddressesWithChainsByEcosystem(selectedSrcNetwork.value?.ecosystem);
+    const setOwnerAddresses = async () => {
+        const addressesWithChains = await getAddressesWithChainsByEcosystem(selectedSrcNetwork.value?.ecosystem);
 
         for (const chain in addressesWithChains) {
             const { address } = addressesWithChains[chain];

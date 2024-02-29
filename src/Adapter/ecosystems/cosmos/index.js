@@ -874,12 +874,15 @@ class CosmosAdapter extends AdapterBase {
         return `${url}/relayers/${srcChannel}/${dstChain}/${dstChannel}`;
     }
 
-    getAddressesWithChains() {
+    async getAddressesWithChains() {
         const mainAccount = this.getAccount();
 
         if (!this.addressByNetwork) {
             return addressByNetwork();
         }
+
+        await this.chainsWithDifferentSlip44(this.walletName);
+
         return this.addressByNetwork[mainAccount] || {};
     }
 

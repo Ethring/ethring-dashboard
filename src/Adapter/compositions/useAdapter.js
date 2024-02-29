@@ -367,13 +367,13 @@ function useAdapter() {
     };
 
     // * Get addressesWithChains by Ecosystem
-    const getAddressesWithChainsByEcosystem = (ecosystem = null) => {
+    const getAddressesWithChainsByEcosystem = async (ecosystem = null) => {
         if (!ecosystem) {
             return {};
         }
 
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
-        return adapter.getAddressesWithChains();
+        return await adapter.getAddressesWithChains();
     };
 
     // * Get Ibc assets for COSMOS ecosystem
