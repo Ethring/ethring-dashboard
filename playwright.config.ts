@@ -24,7 +24,7 @@ export default defineConfig({
     use: {
         ignoreHTTPSErrors: true,
         bypassCSP: true,
-        
+
         baseURL: localFrontUrl,
         trace: process.env.CI ? 'on-first-retry' : 'on',
         testIdAttribute: 'data-qa',
