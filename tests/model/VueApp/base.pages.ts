@@ -294,30 +294,30 @@ class SuperSwapPage extends BasePage {
     }
 
     async setNetworkFrom(netName: string) {
-        await this.page.getByTestId(DATA_QA_LOCATORS.SELECT_BLOCK).nth(0).click();
-        await this.page.getByTestId(DATA_QA_LOCATORS.ITEM).filter({ hasText: netName }).click();
+        await this.page.getByTestId(DATA_QA_LOCATORS.SELECT_NETWORK).nth(0).click();
+        await this.page.getByTestId(DATA_QA_LOCATORS.TOKEN_RECORD).filter({ hasText: netName }).click();
     }
 
     async setTokenFrom(tokenName: string) {
-        await this.page.getByTestId(DATA_QA_LOCATORS.SELECT_BLOCK).nth(1).click();
-        await this.page.getByTestId(DATA_QA_LOCATORS.ITEM).filter({ hasText: tokenName }).click();
+        await this.page.getByTestId(DATA_QA_LOCATORS.SELECT_NETWORK).nth(1).click();
+        await this.page.getByTestId(DATA_QA_LOCATORS.TOKEN_RECORD).filter({ hasText: tokenName }).click();
     }
 
     async setNetworkTo(netName: string) {
-        await this.page.getByTestId(DATA_QA_LOCATORS.SELECT_BLOCK).nth(2).click();
-        await this.page.getByTestId(DATA_QA_LOCATORS.ITEM).filter({ hasText: netName }).click();
+        await this.page.getByTestId(DATA_QA_LOCATORS.SELECT_NETWORK).nth(2).click();
+        await this.page.getByTestId(DATA_QA_LOCATORS.TOKEN_RECORD).filter({ hasText: netName }).click();
     }
 
     async setTokenTo(tokenName: string) {
-        await this.page.getByTestId(DATA_QA_LOCATORS.SELECT_BLOCK).nth(3).click();
-        await this.page.getByTestId(DATA_QA_LOCATORS.ITEM).filter({ hasText: tokenName }).click();
+        await this.page.getByTestId(DATA_QA_LOCATORS.SELECT_NETWORK).nth(3).click();
+        await this.page.getByTestId(DATA_QA_LOCATORS.TOKEN_RECORD).filter({ hasText: tokenName }).click();
     }
 
     async setAmount(amount: string) {
         await this.page.getByTestId(DATA_QA_LOCATORS.INPUT_AMOUNT).nth(0).fill(amount);
     }
 
-    async setFromNetAmount(net: string, amount: string) {
+    async setFromNetAndAmount(net: string, amount: string) {
         await this.setNetworkFrom(net);
         await this.setAmount(amount);
     }
@@ -328,7 +328,7 @@ class SuperSwapPage extends BasePage {
         await this.setAmount(amount);
     }
 
-    async setToNetToken(net: string, token: string) {
+    async setNetToAndTokenTo(net: string, token: string) {
         await this.setNetworkTo(net);
         await this.setTokenTo(token);
     }

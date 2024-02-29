@@ -72,14 +72,14 @@ const __loginByMmAndWaitElement__ = async (context: BrowserContext, page: Dashbo
     return page;
 };
 
-export const authInDashboardByMm = async (context: BrowserContext, seed: string): Promise<DashboardPage> => {
+export const authByMm = async (context: BrowserContext, seed: string): Promise<DashboardPage> => {
     await addWalletToMm(context, seed);
     const zometPage = new DashboardPage(await context.newPage());
 
     return __loginByMmAndWaitElement__(context, zometPage);
 };
 
-export const authInDashboardByMmEmptyWallets = async (context: BrowserContext, seed: string, address: string): Promise<DashboardPage> => {
+export const authByMmMockEmptyWallets = async (context: BrowserContext, seed: string, address: string): Promise<DashboardPage> => {
     await addWalletToMm(context, seed);
     const zometPage = new DashboardPage(await context.newPage());
 
@@ -92,7 +92,7 @@ export const authInDashboardByMmEmptyWallets = async (context: BrowserContext, s
     return returnedPage;
 };
 
-export const authInDashboardByMmErrorBalance = async (context: BrowserContext, seed: string, address: string): Promise<DashboardPage> => {
+export const authByMmMockErrorBalance = async (context: BrowserContext, seed: string, address: string): Promise<DashboardPage> => {
     await addWalletToMm(context, seed);
     const zometPage = new DashboardPage(await context.newPage());
 
@@ -105,10 +105,11 @@ export const authInDashboardByMmErrorBalance = async (context: BrowserContext, s
     return returnedPage;
 };
 
-export const authMmCoingeckoAndBalanceMockBySendTest = async (
+export const authMmCoingeckoAndBalanceMock = async (
     context: BrowserContext,
     seed: string,
     address: string,
+    balanceMock: Object = mockBalanceDataBySendTest,
 ): Promise<DashboardPage> => {
     await addWalletToMm(context, seed);
 
@@ -122,12 +123,12 @@ export const authMmCoingeckoAndBalanceMockBySendTest = async (
     });
 
     const zometPage = new DashboardPage(await context.newPage());
-    await Promise.all(EVM_NETWORKS.map((network) => zometPage.mockBalanceRequest(network, mockBalanceDataBySendTest[network], address)));
+    await Promise.all(EVM_NETWORKS.map((network) => zometPage.mockBalanceRequest(network, balanceMock[network], address)));
 
     return __loginByMmAndWaitElement__(context, zometPage);
 };
 
-export const authInDashboardByMmTokensListMock = async (context: BrowserContext, seed: string): Promise<DashboardPage> => {
+export const authByMmTokensListMock = async (context: BrowserContext, seed: string): Promise<DashboardPage> => {
     await addWalletToMm(context, seed);
     const zometPage = new DashboardPage(await context.newPage());
 
@@ -136,7 +137,7 @@ export const authInDashboardByMmTokensListMock = async (context: BrowserContext,
     return __loginByMmAndWaitElement__(context, zometPage);
 };
 
-export const authMm_BalanceSwapAndTokensListMock = async (
+export const authMmBalanceBySwapAndTokensListMock = async (
     context: BrowserContext,
     seed: string,
     address: string,
@@ -163,7 +164,7 @@ export const authMm_BalanceSwapAndTokensListMock = async (
     return __loginByMmAndWaitElement__(context, zometPage);
 };
 
-export const authInDashboardByKeplr = async (context: BrowserContext, seed: string, cosmosWallets: any) => {
+export const authByKeplr = async (context: BrowserContext, seed: string, cosmosWallets: any) => {
     await addWalletToKeplr(context, seed);
 
     const zometPage = new DashboardPage(await context.newPage());
@@ -189,7 +190,7 @@ export const authInDashboardByKeplr = async (context: BrowserContext, seed: stri
     return zometPage;
 };
 
-export const authInDashboardByKeplrWithErrorJunoBalance = async (context: BrowserContext, seed: string, cosmosWallets: any) => {
+export const authByKeplrErrorJunoBalanceMock = async (context: BrowserContext, seed: string, cosmosWallets: any) => {
     await addWalletToKeplr(context, seed);
 
     const zometPage = new DashboardPage(await context.newPage());
