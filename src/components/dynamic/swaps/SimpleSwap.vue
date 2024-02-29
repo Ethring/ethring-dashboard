@@ -17,7 +17,7 @@
                 :selected-network="selectedSrcNetwork"
                 :error="!!isBalanceError"
                 :on-reset="resetSrcAmount"
-                :is-update="isUpdateSwapDirection"
+                :is-update="isSwapDirectionAvailable"
                 :label="$t('tokenOperations.pay')"
                 :amount-value="srcAmount"
                 @clickToken="onSelectToken(true)"
@@ -26,8 +26,8 @@
 
             <SwitchDirection
                 class="swap-module"
-                :disabled="isTransactionSigning || !selectedDstToken || !isUpdateSwapDirection"
-                :on-click-switch="() => swapDirections(false)"
+                :disabled="isDirectionSwapped || isTransactionSigning || !selectedDstToken || !isSwapDirectionAvailable"
+                :on-click-switch="() => swapDirections()"
             />
 
             <SelectAmountInput
@@ -37,7 +37,7 @@
                 :is-amount-loading="isQuoteLoading"
                 :value="selectedDstToken"
                 :on-reset="resetDstAmount"
-                :is-update="isUpdateSwapDirection"
+                :is-update="isSwapDirectionAvailable"
                 :label="$t('tokenOperations.receive')"
                 :disabled-value="dstAmount"
                 :amount-value="dstAmount"
@@ -129,7 +129,8 @@ export default {
 
             // - Swap direction
             swapDirections,
-            isUpdateSwapDirection,
+            isSwapDirectionAvailable,
+            isDirectionSwapped,
 
             // - Fee Info
             fees,
@@ -252,7 +253,8 @@ export default {
             // Flags
             isBalanceError,
             isShowEstimateInfo,
-            isUpdateSwapDirection,
+            isSwapDirectionAvailable,
+            isDirectionSwapped,
 
             // Handlers
             swapDirections,

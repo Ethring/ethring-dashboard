@@ -70,13 +70,15 @@ export default {
         const isConfigLoading = computed(() => store.getters['configs/isConfigLoading']);
 
         const { currentChainInfo, isConnecting, walletAccount } = useAdapter();
+
         const router = useRouter();
         const route = useRoute();
 
         const currentModule = computed(() => {
-            const { name } = router.currentRoute.value;
+            const { name, meta } = router.currentRoute.value;
+            const { key } = meta || {};
 
-            return name;
+            return key || name;
         });
 
         const operationResult = computed(() => store.getters['tokenOps/getOperationResultByModule'](currentModule.value));

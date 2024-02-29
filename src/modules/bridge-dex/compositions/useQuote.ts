@@ -17,6 +17,8 @@ import { calculateFeeByCurrency, calculateFeeInNativeToUsd } from '@/shared/calc
 
 import { AddressByChain, AddressByChainHash } from '@/shared/models/types/Address';
 
+import logger from '@/shared/logger';
+
 /**
  *
  * @composition useBridgeDexQuote
@@ -92,16 +94,49 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     });
 
     // ===========================================================================================
-    // * Validation
+    // !Validation
     // ===========================================================================================
 
+    // ?Check if the module is send
+    const isSendModule = computed(() => {
+        if (modules.includes(ModuleType.send) || !selectedDstToken.value?.id || !selectedSrcToken.value?.id) {
+            return true;
+        }
+
+        return false;
+    });
+
+    // ?Check if the selected source token chain is correct
+    const isSrcTokenChainCorrect = computed(() => selectedSrcToken.value?.chain === selectedSrcNetwork.value?.net);
+
+    // ?Check if the selected destination token chain is correct
+    const isDstTokenChainCorrect = computed(() => {
+        // If the module is send, check if the selected destination token chain is correct (Send doesn't need to check the destination network)
+        if (modules.includes(ModuleType.send)) {
+            return true;
+        }
+
+        // If the module is swap, check if the selected destination token chain is correct
+        if (modules.includes(ModuleType.swap)) {
+            return selectedDstToken.value?.chain === selectedSrcNetwork.value?.net;
+        }
+
+        // Otherwise, check if the selected destination token chain is correct
+        return selectedDstToken.value?.chain === selectedDstNetwork.value?.net;
+    });
+
+    // ?Check if the request is allowed
     const isAllowToMakeRequest = computed(() => {
         const isSrcTokenSelected = selectedSrcToken.value && selectedSrcToken.value.id && typeof selectedSrcToken.value.id === 'string';
         const isDstTokenSelected = selectedDstToken.value && selectedDstToken.value.id && typeof selectedDstToken.value.id === 'string';
 
         const isAmountSet = srcAmount.value && srcAmount.value !== '0' && srcAmount.value !== null && srcAmount.value !== undefined;
 
-        return isSrcTokenSelected && isDstTokenSelected && isAmountSet;
+        if (isSrcTokenSelected && isSrcTokenChainCorrect.value && isDstTokenChainCorrect.value && isDstTokenSelected && isAmountSet) {
+            return true;
+        }
+
+        return false;
     });
 
     // ===========================================================================================
@@ -109,6 +144,10 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     // ===========================================================================================
 
     const makeQuoteRoutes = async (requestParams: AllQuoteParams) => {
+        if (isQuoteLoading.value) {
+            return;
+        }
+
         isQuoteLoading.value = true;
         quoteErrorMessage.value = '';
 
@@ -238,29 +277,32 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     // 2. Check if the selectedSrcNetwork, selectedDstNetwork, selectedSrcToken, selectedDstToken, srcAmount are set
     // 3. If they are set, make a quote request
     const unWatchDstToken = watch([srcAmount, selectedSrcNetwork, selectedDstNetwork, selectedSrcToken, selectedDstToken], async () => {
-        if (modules.includes(ModuleType.send) || !selectedDstToken.value?.id || !selectedSrcToken.value?.id) {
+        // Return if the module is send or the selected destination token is not set or the request is not allowed
+        if (isSendModule.value || !isAllowToMakeRequest.value) {
             return;
         }
 
-        if (isAllowToMakeRequest.value) {
-            const params = {
-                // For dex
-                net: selectedSrcNetwork.value.net,
+        const params = {
+            // For dex
+            net: selectedSrcNetwork.value.net,
 
-                // For bridgedex
-                fromNet: selectedSrcNetwork.value.net,
-                toNet: selectedDstNetwork.value?.net,
+            // For bridgedex
+            fromNet: selectedSrcNetwork.value.net,
+            toNet: selectedDstNetwork.value?.net,
 
-                // others
-                fromToken: selectedSrcToken.value.address,
-                toToken: selectedDstToken.value.address,
+            // others
+            fromToken: selectedSrcToken.value.address,
+            toToken: selectedDstToken.value.address,
 
-                ownerAddresses: addressByChain.value,
+            ownerAddresses: addressByChain.value,
 
-                amount: srcAmount.value,
-            } as AllQuoteParams;
+            amount: srcAmount.value,
+        } as AllQuoteParams;
 
+        try {
             await makeQuoteRoutes(params);
+        } catch (error) {
+            logger.error('useBridgeDexQuote -> makeQuoteRoutes', error);
         }
     });
 

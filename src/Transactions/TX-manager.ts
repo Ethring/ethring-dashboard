@@ -45,6 +45,7 @@ export class Transaction {
     execute: () => Promise<string>;
 
     onSuccess?: () => Promise<void>;
+    onSuccessSignTransaction?: () => Promise<void>;
     onError?: (error: any) => Promise<void>;
 }
 
@@ -193,6 +194,11 @@ export class TransactionList {
         while (current) {
             try {
                 const hash = await current.transaction.execute();
+
+                if (current.transaction.onSuccessSignTransaction) {
+                    await current.transaction.onSuccessSignTransaction();
+                }
+
                 await current.transaction.setTransaction({ ...current.transaction.getTransaction(), txHash: hash });
 
                 const waitResponse = await this.waitForTransaction(hash);

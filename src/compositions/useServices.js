@@ -1,5 +1,4 @@
 import BigNumber from 'bignumber.js';
-import { utils } from 'ethers';
 import _ from 'lodash';
 
 import { ref, computed, inject, watch, onBeforeUnmount, onMounted } from 'vue';
@@ -11,7 +10,7 @@ import { ECOSYSTEMS } from '@/Adapter/config';
 import useTokensList from '@/compositions/useTokensList';
 import useNotification from '@/compositions/useNotification';
 
-import { DIRECTIONS, FEE_TYPES, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { STATUSES } from '@/shared/constants/super-swap/constants';
 import { useRouter } from 'vue-router';
 import useBridgeDexService from '@/modules/bridge-dex/compositions';
@@ -162,7 +161,9 @@ export default function useModule({ moduleType }) {
     const isLoading = ref(false);
     const isEstimating = ref(false);
 
-    const isUpdateSwapDirection = computed(() => {
+    const isDirectionSwapped = ref(false);
+
+    const isSwapDirectionAvailable = computed(() => {
         if (!selectedSrcToken.value || !selectedDstToken.value) {
             return false;
         }
@@ -218,19 +219,6 @@ export default function useModule({ moduleType }) {
         toAmount: '',
         toSymbol: '',
     });
-
-    const resetFees = () => {
-        const setEmpty = () => ({
-            title: '',
-            symbolBetween: '',
-            fromAmount: '',
-            fromSymbol: '',
-            toAmount: '',
-            toSymbol: '',
-        });
-
-        return (baseFeeInfo.value = rateFeeInfo.value = protocolFeeInfo.value = estimateTimeInfo.value = setEmpty());
-    };
 
     const isShowEstimateInfo = computed(() => {
         if (estimateErrorTitle.value) {
@@ -363,17 +351,15 @@ export default function useModule({ moduleType }) {
     };
 
     const swapDirections = async (withChains = false) => {
-        if (withChains) {
-            const from = JSON.parse(JSON.stringify(selectedSrcNetwork.value));
-            const to = JSON.parse(JSON.stringify(selectedDstNetwork.value));
+        isDirectionSwapped.value = true;
 
-            [selectedSrcNetwork.value, selectedDstNetwork.value] = [to, from];
+        if (withChains) {
+            [selectedSrcNetwork.value, selectedDstNetwork.value] = [selectedDstNetwork.value, selectedSrcNetwork.value];
         }
 
-        const from = JSON.parse(JSON.stringify(selectedSrcToken.value));
-        const to = JSON.parse(JSON.stringify(selectedDstToken.value));
+        [selectedSrcToken.value, selectedDstToken.value] = [selectedDstToken.value, selectedSrcToken.value];
 
-        [selectedSrcToken.value, selectedDstToken.value] = [to, from];
+        _.debounce(() => (isDirectionSwapped.value = false), 1500)();
     };
 
     // =================================================================================================================
@@ -467,8 +453,6 @@ export default function useModule({ moduleType }) {
         if (newSrc && !isSameNetwork) {
             checkSelectedNetwork();
 
-            resetFees();
-
             setTimeout(() => (estimateErrorTitle.value = ''));
 
             selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value, {
@@ -486,8 +470,6 @@ export default function useModule({ moduleType }) {
         }
 
         if (newDst && !isSameNetwork) {
-            resetFees();
-
             setTimeout(() => (estimateErrorTitle.value = ''));
 
             selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value, {
@@ -669,8 +651,6 @@ export default function useModule({ moduleType }) {
         isLoading.value = false;
         estimateErrorTitle.value = '';
 
-        resetFees();
-
         srcAmount.value = null;
         dstAmount.value = null;
     });
@@ -687,7 +667,9 @@ export default function useModule({ moduleType }) {
         selectType,
         targetDirection,
         onlyWithBalance,
-        isUpdateSwapDirection,
+
+        isSwapDirectionAvailable,
+        isDirectionSwapped,
 
         // Src token allowance and approve for service
         isNeedApprove,

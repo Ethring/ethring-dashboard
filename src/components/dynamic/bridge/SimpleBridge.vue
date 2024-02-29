@@ -10,7 +10,9 @@
                 />
 
                 <SwitchDirection
-                    :disabled="isQuoteLoading || isTransactionSigning || !isUpdateSwapDirection || !selectedDstNetwork"
+                    :disabled="
+                        isDirectionSwapped || isQuoteLoading || isTransactionSigning || !isSwapDirectionAvailable || !selectedDstNetwork
+                    "
                     @click="() => swapDirections(true)"
                 />
 
@@ -28,10 +30,10 @@
             :value="selectedSrcToken"
             :error="!!isBalanceError"
             :on-reset="resetSrcAmount"
-            :disabled-select="isTransactionSigning"
+            :disabled-select="isQuoteLoading || isTransactionSigning"
             :disabled="isQuoteLoading || isTransactionSigning || !selectedSrcToken"
             :label="$t('tokenOperations.transferFrom')"
-            :is-update="isUpdateSwapDirection"
+            :is-update="isSwapDirectionAvailable"
             :amount-value="srcAmount"
             class="mt-8"
             @setAmount="onSetAmount"
@@ -45,7 +47,7 @@
             :disabled-select="isQuoteLoading || isTransactionSigning"
             :value="selectedDstToken"
             :is-amount-loading="isQuoteLoading"
-            :is-update="isUpdateSwapDirection"
+            :is-update="isSwapDirectionAvailable"
             :label="$t('tokenOperations.transferTo')"
             :disabled-value="dstAmount"
             :on-reset="resetDstAmount"
@@ -137,7 +139,8 @@ export default {
             isBalanceError,
             isShowEstimateInfo,
             isAllowanceLoading,
-            isUpdateSwapDirection,
+            isDirectionSwapped,
+            isSwapDirectionAvailable,
             isTokensLoadingForSrc,
             isTokensLoadingForDst,
 
@@ -273,7 +276,8 @@ export default {
             resetDstAmount,
 
             isSendToAnotherAddress,
-            isUpdateSwapDirection,
+            isDirectionSwapped,
+            isSwapDirectionAvailable,
 
             DIRECTIONS,
             opTitle,

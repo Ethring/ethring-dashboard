@@ -59,6 +59,8 @@ const useModuleOperations = (module: ModuleType) => {
         selectedDstToken,
 
         srcAmount,
+        dstAmount,
+
         selectedRoute,
         memo,
         receiverAddress,
@@ -156,7 +158,7 @@ const useModuleOperations = (module: ModuleType) => {
         let notificationTitle = `${type} ${srcAmount.value} ${selectedSrcToken.value?.symbol || ''}`;
 
         if ([TRANSACTION_TYPES.DEX, TRANSACTION_TYPES.SWAP, TRANSACTION_TYPES.BRIDGE].includes(TARGET_TYPE)) {
-            notificationTitle += ` to ~${srcAmount.value} ${selectedDstToken.value?.symbol || ''}`;
+            notificationTitle += ` to ~${dstAmount.value} ${selectedDstToken.value?.symbol || ''}`;
         }
 
         return {
@@ -283,15 +285,20 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
 
     const handleOnConfirm = async () => {
-        try {
-            isTransactionSigning.value = true;
+        isTransactionSigning.value = true;
 
+        try {
             const isChanged = await isCorrectChain(selectedSrcNetwork, currentChainInfo, setChain);
 
             if (typeof isChanged === 'boolean' && isChanged === false) {
                 return await handleOnConfirm();
             }
+        } catch (error) {
+            console.error('Error on chain change:', error);
+            return (isTransactionSigning.value = false);
+        }
 
+        try {
             const group = {
                 index: 0,
                 ecosystem: selectedSrcNetwork.value.ecosystem,
@@ -307,17 +314,20 @@ const useModuleOperations = (module: ModuleType) => {
             for (const { index, type } of operationFlow.value) {
                 const tx = new Transaction(type);
 
+                // * Set request ID
                 tx.setRequestID(txManager.getRequestId());
 
+                // * Prepare transaction
                 tx.prepare = async () => {
                     console.log('Prepare:', index, type, 'Transaction');
                     const prepared = prepare(index, type as TRANSACTION_TYPES);
-                    console.log('Prepared:', prepared);
                     const transaction = await txManager.addTransactionToGroup(index, prepared); // * Add or create transaction
+
                     tx.setId(transaction.id);
                     tx.setTransaction(transaction);
                 };
 
+                // * Set execute parameters
                 tx.setTxExecuteParameters = async () => {
                     console.log('Set execute parameters:', index, type, 'Transaction');
                     const params = await TX_PARAMS_BY_TYPE[type]();
@@ -325,6 +335,7 @@ const useModuleOperations = (module: ModuleType) => {
                     await tx.setTransaction(tx.transaction);
                 };
 
+                // * Execute transaction
                 tx.execute = async () => {
                     try {
                         await tx.prepare();
@@ -332,6 +343,7 @@ const useModuleOperations = (module: ModuleType) => {
                         const notificationTitle =
                             tx.transaction.metaData.notificationTitle || `${tx.type} ${tx.transaction.metaData.params?.amount} ...`;
 
+                        // * Show notification
                         showNotification({
                             key: 'prepare-tx',
                             type: 'info',
@@ -346,26 +358,43 @@ const useModuleOperations = (module: ModuleType) => {
 
                         return await signAndSend(forSign);
                     } catch (error) {
-                        console.error('Error on execute:', error);
+                        console.error('useModuleOperations -> execute -> error', error);
                         throw error;
                     } finally {
+                        // * Close notification after transaction is signed and sent or failed
                         closeNotification('prepare-tx');
                     }
                 };
 
+                // * On success
                 tx.onSuccess = async () => {
                     if (ON_SUCCESS_BY_TYPE[type]) {
                         await ON_SUCCESS_BY_TYPE[type]();
                     }
+
+                    if (index === operationFlow.value.length - 1) {
+                        isTransactionSigning.value = false;
+                    }
                 };
 
+                tx.onSuccessSignTransaction = async () => {
+                    console.log('Success sign and send transaction');
+
+                    if (index === operationFlow.value.length - 1) {
+                        isTransactionSigning.value = false;
+                    }
+                };
+
+                // * On error
                 tx.onError = async (error) => {
-                    console.error('Transaction error:', error);
+                    console.error('Error on transaction:', error);
+                    const errorMessage = error?.message || JSON.stringify(error);
+
                     showNotification({
                         key: 'tx-error',
                         type: 'error',
                         title: 'Transaction error',
-                        description: error || JSON.stringify(error),
+                        description: errorMessage,
                         duration: 6,
                     });
                 };
@@ -375,7 +404,7 @@ const useModuleOperations = (module: ModuleType) => {
 
             await txManager.executeTransactions();
         } catch (error) {
-            console.error('Error on confirm:', error);
+            console.error('useModuleOperations -> handleOnConfirm -> error', error);
         } finally {
             isTransactionSigning.value = false;
         }
