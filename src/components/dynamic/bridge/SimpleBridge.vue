@@ -73,14 +73,14 @@
         />
 
         <EstimatePreviewInfo
-            v-if="(selectedDstToken && srcAmount) || isShowEstimateInfo"
+            v-if="(selectedDstToken?.id && !!srcAmount) || isShowEstimateInfo"
             :is-loading="isQuoteLoading"
             :services="quoteRoutes?.routes"
             :service="selectedRoute"
             :fee-in-usd="fees[FEE_TYPE.BASE] || 0"
             :title="$t('tokenOperations.routeInfo')"
             :main-rate="fees[FEE_TYPE.RATE] || null"
-            :error="estimateErrorTitle || quoteErrorMessage"
+            :error="quoteErrorMessage"
             :is-show-expand="true"
         />
 
@@ -111,6 +111,7 @@ import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewIn
 // Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
+import { ModuleType } from '../../../modules/bridge-dex/enums/ServiceType.enum';
 
 export default {
     name: 'SimpleBridge',
@@ -127,7 +128,7 @@ export default {
         EstimatePreviewInfo,
     },
     setup() {
-        const { handleOnConfirm, moduleInstance, isTransactionSigning, isDisableConfirmButton } = useModuleOperations('bridge');
+        const { handleOnConfirm, moduleInstance, isTransactionSigning, isDisableConfirmButton } = useModuleOperations(ModuleType.bridge);
 
         // * Module values
         const {
@@ -173,9 +174,6 @@ export default {
 
             srcAmount,
             dstAmount,
-
-            // --------------------------------
-            estimateErrorTitle,
 
             // --------------------------------
 
@@ -298,7 +296,6 @@ export default {
             isShowEstimateInfo,
 
             // Information for accordion
-            estimateErrorTitle,
             clearAddress,
             selectedService,
 

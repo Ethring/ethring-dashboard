@@ -67,19 +67,10 @@ const useBridgeDexSwap = (targetType: ServiceTypes, bridgeDexService: BridgeDexS
     // * Address
     // ===========================================================================================
 
-    const addressByChain = computed<AddressByChainHash>(() => {
-        const { ecosystem } = selectedSrcNetwork.value || {};
-
-        const addresses: AddressByChain = getAddressesWithChainsByEcosystem(ecosystem);
-
-        const hash = {} as AddressByChainHash;
-
-        for (const chain in addresses) {
-            hash[chain] = addresses[chain].address;
-        }
-
-        return hash;
-    });
+    // const addressByChain = computed<AddressByChainHash>(() => {
+    //     const { ecosystem } = selectedSrcNetwork.value || {};
+    //     return getAddressesWithChainsByEcosystem(ecosystem, { hash: true }) as AddressByChainHash;
+    // });
 
     // ===========================================================================================
     // * Requests to the Service by ServiceType
@@ -102,7 +93,7 @@ const useBridgeDexSwap = (targetType: ServiceTypes, bridgeDexService: BridgeDexS
 
         try {
             service.setServiceId(serviceId);
-            return await service.getSwapTx(requestParams as GetSwapTxParams<typeof serviceType>);
+            return await service.getSwapTx(requestParams as GetSwapTxParams);
         } catch (error) {
             throw error as ErrorResponse;
         } finally {

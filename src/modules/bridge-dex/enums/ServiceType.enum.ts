@@ -1,5 +1,6 @@
 export enum ServiceType {
     'bridgedex' = 'bridgedex',
+    'superswap' = 'superswap',
     'dex' = 'dex',
 }
 
@@ -17,10 +18,11 @@ export type ModuleTypes = keyof typeof ModuleType;
 export const ServiceByModule = {
     [ModuleType.swap]: ServiceType.dex,
     [ModuleType.bridge]: ServiceType.bridgedex,
-    [ModuleType.superSwap]: ServiceType.bridgedex,
+    [ModuleType.superSwap]: ServiceType.superswap,
 };
 
 export const ModulesByService = {
     [ServiceType.dex]: [ModuleType.swap],
-    [ServiceType.bridgedex]: [ModuleType.bridge, ModuleType.superSwap],
+    [ServiceType.bridgedex]: [ModuleType.bridge],
+    [ServiceType.superswap]: [ModuleType.superSwap],
 };

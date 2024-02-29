@@ -68,6 +68,7 @@ import InfoIcon from '@/assets/icons/platform-icons/info.svg';
 
 // Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+import { ModuleType } from '../../../modules/bridge-dex/enums/ServiceType.enum';
 
 export default {
     name: 'SimpleSend',
@@ -83,7 +84,7 @@ export default {
     setup() {
         // * Init module operations, and get all necessary data, (methods, states, etc.) for the module
         // * Also, its necessary to sign the transaction (Transaction manger)
-        const { handleOnConfirm, moduleInstance, isDisableConfirmButton, isTransactionSigning } = useModuleOperations('send');
+        const { handleOnConfirm, moduleInstance, isDisableConfirmButton, isTransactionSigning } = useModuleOperations(ModuleType.send);
 
         const {
             // - Main Data

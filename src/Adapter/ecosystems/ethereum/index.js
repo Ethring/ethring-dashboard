@@ -278,6 +278,10 @@ class EthereumAdapter extends AdapterBase {
 
         transaction.value = transaction.value ? `0x${parseInt(transaction.value).toString(16)}` : '0x0';
 
+        if (!transaction?.data?.startsWith('0x')) {
+            transaction.data = `0x${transaction.data}`;
+        }
+
         return transaction;
     }
 

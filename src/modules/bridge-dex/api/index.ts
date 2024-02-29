@@ -25,6 +25,11 @@ class BridgeDexApi<T extends ServiceType> {
     async getAllowance(requestParams: GetAllowanceParams): Promise<ResponseBridgeDex> {
         try {
             const { type, ...params } = requestParams;
+
+            if (type === ServiceType.superswap) {
+                return (await ApiClient.post(`/services/${ServiceType.bridgedex}/getAllowance`, params)) as string;
+            }
+
             return (await ApiClient.post(`/services/${type}/getAllowance`, params)) as string;
         } catch (error) {
             logger.error('(API) -> [BRIDGE_DEX_API] Error fetching allowance', error);
@@ -41,6 +46,11 @@ class BridgeDexApi<T extends ServiceType> {
     async getApproveTx(requestParams: GetApproveTxParams): Promise<ResponseBridgeDex> {
         try {
             const { type, ...params } = requestParams;
+
+            if (type === ServiceType.superswap) {
+                return (await ApiClient.post(`/services/${ServiceType.bridgedex}/getAllowance`, params)) as string;
+            }
+
             return (await ApiClient.post(`/services/${type}/getApproveTx`, params)) as IBridgeDexTransaction[];
         } catch (error) {
             logger.error('(API) -> [BRIDGE_DEX_API] Error fetching approve tx', error);
@@ -57,6 +67,11 @@ class BridgeDexApi<T extends ServiceType> {
     async getSwapTx(requestParams: SwapTxParams<T>): Promise<ResponseBridgeDex> {
         try {
             const { type, ...params } = requestParams;
+
+            if (type === ServiceType.superswap) {
+                return (await ApiClient.post(`/services/${ServiceType.bridgedex}/getSwapTx`, params)) as IBridgeDexTransaction[];
+            }
+
             return (await ApiClient.post(`/services/${type}/getSwapTx`, params)) as IBridgeDexTransaction[];
         } catch (error) {
             logger.error('(API) -> [BRIDGE_DEX_API] Error fetching Swap tx', error);
@@ -73,24 +88,14 @@ class BridgeDexApi<T extends ServiceType> {
     async getQuote(requestParams: QuoteParams<T>): Promise<ResponseBridgeDex> {
         try {
             const { type, ...params } = requestParams;
+
+            if (type === ServiceType.superswap) {
+                return (await ApiClient.post(`/services/${ServiceType.bridgedex}/getQuote`, params)) as IQuoteRoutes;
+            }
+
             return (await ApiClient.post(`/services/${type}/getQuote`, params)) as IQuoteRoutes;
         } catch (error) {
             logger.error('(API) -> [BRIDGE_DEX_API] Error fetching quote', error);
-            throw error;
-        }
-    }
-
-    /**
-     * * Get quote for requested token params
-     * @POST /services/{type}/getQuote
-     * @param {GetQuoteParams} requestParams
-     * @returns {Promise<IQuoteRoutes>} Routes with the best quote and all available routes
-     */
-    async getQuoteSuperSwap(requestParams: QuoteParams<T>): Promise<ResponseBridgeDex> {
-        try {
-            return (await ApiClient.post(`/services/superswap/getQuote`, requestParams)) as IQuoteRoutes;
-        } catch (error) {
-            logger.error('(API) -> [BRIDGE_DEX_API] Error fetching quote for SuperSWAP', error);
             throw error;
         }
     }

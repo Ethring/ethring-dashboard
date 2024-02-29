@@ -50,7 +50,7 @@ class BridgeDexService<T extends ServiceType> {
         }
     }
 
-    async getSwapTx(params: GetSwapTxParams<T>) {
+    async getSwapTx(params: GetSwapTxParams) {
         const requestParams = _.pick(params, QuoteParamsKeys[this.type]) as SwapTxParams<T>;
         requestParams.type = this.type;
         this.serviceId && (requestParams.serviceId = this.serviceId);
@@ -78,7 +78,7 @@ class BridgeDexService<T extends ServiceType> {
         }
     }
 
-    async getQuoteSuperSwap(params: GetQuoteParams<T>) {
+    async getQuoteSuperSwap(params: QuoteParams<T>) {
         try {
             return (await this.api.getQuote({ ...params, type: this.type, serviceId: this.serviceId })) as IQuoteRoutes;
         } catch (error) {

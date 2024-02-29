@@ -10,6 +10,8 @@ import { searchByKey } from '@/shared/utils/helpers';
 import { getPriceFromProvider } from '@/shared/utils/prices';
 
 import { DIRECTIONS, TOKEN_SELECT_TYPES, PRICE_UPDATE_TIME } from '@/shared/constants/operations';
+import { ModuleType } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import { ECOSYSTEMS } from '@/Adapter/config';
 
 export default function useSelectModal(type) {
     const TYPES = {
@@ -26,7 +28,7 @@ export default function useSelectModal(type) {
     const store = useStore();
     const useAdapter = inject('useAdapter');
 
-    const { chainList } = useAdapter();
+    const { chainList, getChainListByEcosystem } = useAdapter();
     const { getTokensList } = useTokenList();
 
     // =================================================================================================================
@@ -171,11 +173,17 @@ export default function useSelectModal(type) {
             return [];
         }
 
-        for (const chain of chainList.value) {
+        let list = chainList.value || [];
+
+        if (module.value === ModuleType.superSwap) {
+            list = [...getChainListByEcosystem(ECOSYSTEMS.EVM), ...getChainListByEcosystem(ECOSYSTEMS.COSMOS)];
+        }
+
+        for (const chain of list) {
             chain.selected = chain.net === selectedSrcNetwork.value?.net || chain.net === selectedDstNetwork.value?.net;
         }
 
-        return chainList.value.filter((chain) => {
+        return list.filter((chain) => {
             if (module.value === 'bridge') {
                 return !chain.selected || chain?.net !== selectedNetwork.value?.net;
             }

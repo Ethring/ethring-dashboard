@@ -8,6 +8,16 @@ import { delay } from '@/shared/utils/helpers';
 export const isCorrectChain = async (selectedNetwork, currentChainInfo, setChain) => {
     const { showNotification, closeNotification } = useNotification();
 
+    if (currentChainInfo.value.ecosystem !== selectedNetwork.value.ecosystem) {
+        showNotification({
+            key: 'switch-ecosystem',
+            type: 'error',
+            title: `Different ecosystem`,
+            duration: 3,
+        });
+
+        return false;
+    }
     if (currentChainInfo.value.net === selectedNetwork.value.net) {
         return true;
     }

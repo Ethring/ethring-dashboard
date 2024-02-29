@@ -48,15 +48,7 @@ const useBridgeDexAllowance = (targetType: ServiceTypes, bridgeDexService: Bridg
     // ===========================================================================================
 
     const addressByChain = computed<AddressByChainHash>(() => {
-        const addressByChain: AddressByChain = getAddressesWithChainsByEcosystem(ECOSYSTEMS.EVM);
-
-        const hash = {} as AddressByChainHash;
-
-        for (const chain in addressByChain) {
-            hash[chain] = addressByChain[chain].address;
-        }
-
-        return hash;
+        return getAddressesWithChainsByEcosystem(ECOSYSTEMS.EVM, { hash: true }) as AddressByChainHash;
     });
 
     // ===========================================================================================

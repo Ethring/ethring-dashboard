@@ -98,6 +98,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
                 balance: 0,
                 balanceUsd: 0,
                 net: network.net,
+                chain: network.net,
                 ...baseToken,
                 ...nativeToken,
                 price: baseToken?.price || nativeToken?.price || 0,
@@ -116,9 +117,10 @@ export default function useTokensList({ network = null, fromToken = null, toToke
                     tokenInfo.logo = network.logo;
                 }
                 tokenInfo.address = nativeToken.base;
+                tokenInfo.base = nativeToken.base;
             }
 
-            if (!tokenInfo.name.includes('Native Token') && network.ecosystem === ECOSYSTEMS.EVM) {
+            if (!tokenInfo.name.includes('Native Token')) {
                 tokenInfo.name += ' Native Token';
             }
 
@@ -128,9 +130,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
                 allTokens = allTokens.filter(({ id }) => id !== searchId);
             }
 
-            if (tokenInfo.balance > 0 || !allTokens.length) {
-                allTokens.push(tokenInfo);
-            }
+            allTokens.push(tokenInfo);
 
             return allTokens;
         };
@@ -141,9 +141,6 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         } else {
             allTokens = _.unionBy(tokensWithBalance, tokensListFromNet, (tkn) => tkn.address?.toLowerCase());
         }
-
-        // Set native token info
-        allTokens = setNativeTokenInfo(allTokens);
 
         // Added selected param if token is selected
         const selectedToken = isFromSelected.value ? toToken : fromToken;
@@ -162,6 +159,9 @@ export default function useTokensList({ network = null, fromToken = null, toToke
                 tkn.selected = isSelected;
             }
         }
+
+        // Set native token info
+        allTokens = setNativeTokenInfo(allTokens);
 
         const sortedList = _.orderBy(
             allTokens,

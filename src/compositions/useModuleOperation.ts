@@ -1,27 +1,37 @@
-import { ModuleType, ServiceType } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import _ from 'lodash/object';
+import { useStore } from 'vuex';
+import { computed, ref } from 'vue';
+
+import socket from '@/app/modules/socket';
+
+// Compositions
+import useServices from '@/compositions/useServices';
+import useNotification from './useNotification';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 import useTransactions from '@/Transactions/compositions/useTransactions';
-import { computed, ref } from 'vue';
-import useServices from '@/compositions/useServices';
-import { TRANSACTION_TYPES, STATUSES } from '@/shared/models/enums/statuses.enum';
-import { AllQuoteParams, Approve, OwnerAddresses } from '@/modules/bridge-dex/models/Request.type';
-import _ from 'lodash/object';
 
-import { TxOperationFlow } from '@/shared/models/types/Operations';
-import { BridgeDexTx, IBridgeDexTransaction } from '@/modules/bridge-dex/models/Response.interface';
-import { Transaction, TransactionList } from '@/Transactions/TX-manager';
-import { ITransaction, ITransactionResponse } from '../Transactions/types/Transaction';
-import socket from '@/app/modules/socket';
-import { useStore } from 'vuex';
-
-import { isCorrectChain } from '@/shared/utils/operations';
-import { IBaseTransactionParams } from '@/modules/bridge-dex/models/Transaction/EvmTx.type';
-import useNotification from './useNotification';
+// Config
 import { ECOSYSTEMS } from '@/Adapter/config';
+
+// Transaction manager
+import { Transaction, TransactionList } from '@/Transactions/TX-manager';
+
+// Utils
+import { isCorrectChain } from '@/shared/utils/operations';
+
+// Types
+import { ModuleType, ServiceType } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import { TxOperationFlow } from '@/shared/models/types/Operations';
+import { TRANSACTION_TYPES, STATUSES } from '@/shared/models/enums/statuses.enum';
 import { ServiceByModule } from '../modules/bridge-dex/enums/ServiceType.enum';
+import { IBaseTransactionParams } from '@/modules/bridge-dex/models/Transaction/EvmTx.type';
+import { ITransaction, ITransactionResponse } from '../Transactions/types/Transaction';
+import { BridgeDexTx, IBridgeDexTransaction } from '@/modules/bridge-dex/models/Response.interface';
+import { AllQuoteParams, Approve, OwnerAddresses } from '@/modules/bridge-dex/models/Request.type';
+import { AddressByChainHash } from '../shared/models/types/Address';
 
 const useModuleOperations = (module: ModuleType) => {
-    const { walletAddress, currentChainInfo, setChain, getAddressesWithChainsByEcosystem } = useAdapter();
+    const { walletAddress, currentChainInfo, setChain, connectByEcosystems, getAddressesWithChainsByEcosystem } = useAdapter();
 
     const store = useStore();
 
@@ -52,6 +62,8 @@ const useModuleOperations = (module: ModuleType) => {
         isEstimating,
         isSendToAnotherAddress,
         isAddressError,
+        isRequireConnect,
+        quoteErrorMessage,
 
         selectedSrcNetwork,
         selectedDstNetwork,
@@ -67,12 +79,44 @@ const useModuleOperations = (module: ModuleType) => {
 
         makeApproveRequest,
         makeSwapRequest,
-        makeAllowanceRequest,
         clearAllowance,
     } = moduleInstance;
 
     const { signAndSend } = useTransactions();
 
+    // ===============================================================================================
+    // * Addresses with chains by ecosystem
+    // ===============================================================================================
+
+    const srcAddressByChain = computed<AddressByChainHash>(() => {
+        const { ecosystem: srcEcosystem } = selectedSrcNetwork.value || {};
+        if (!srcEcosystem) return {};
+        return getAddressesWithChainsByEcosystem(selectedSrcNetwork.value.ecosystem, { hash: true }) as AddressByChainHash;
+    });
+
+    const dstAddressByChain = computed<AddressByChainHash>(() => {
+        const { ecosystem: dstEcosystem } = selectedDstNetwork.value || {};
+        if (!dstEcosystem) return {};
+        return getAddressesWithChainsByEcosystem(selectedDstNetwork.value.ecosystem, { hash: true }) as AddressByChainHash;
+    });
+
+    const addressByChain = computed<AddressByChainHash>(() => {
+        const { ecosystem: srcEcosystem } = selectedSrcNetwork.value || {};
+        const { ecosystem: dstEcosystem } = selectedDstNetwork.value || {};
+
+        if (srcEcosystem !== dstEcosystem) {
+            return {
+                ...srcAddressByChain.value,
+                ...dstAddressByChain.value,
+            };
+        }
+
+        return srcAddressByChain.value;
+    });
+
+    // ===============================================================================================
+    // * Operation actions by transaction type
+    // ===============================================================================================
     const OP_ACTIONS = {
         [TRANSACTION_TYPES.APPROVE]: 'formatTransactionForSign',
         [TRANSACTION_TYPES.DEX]: 'formatTransactionForSign',
@@ -95,27 +139,43 @@ const useModuleOperations = (module: ModuleType) => {
             });
         }
 
+        const isSameNetwork = selectedSrcNetwork.value?.net === selectedDstNetwork.value?.net;
+        const isDiffNetwork = selectedSrcNetwork.value?.net !== selectedDstNetwork.value?.net;
+
+        const flowTransfer = {
+            type: TRANSACTION_TYPES.TRANSFER,
+            make: TRANSACTION_TYPES.TRANSFER,
+            index: flow.length,
+        };
+
+        const flowDex = {
+            type: TRANSACTION_TYPES.DEX,
+            make: TRANSACTION_TYPES.DEX,
+            index: flow.length,
+        };
+
+        const flowBridge = {
+            type: TRANSACTION_TYPES.DEX,
+            make: TRANSACTION_TYPES.BRIDGE,
+            index: flow.length,
+        };
+
         switch (module) {
             case ModuleType.send:
-                flow.push({
-                    type: TRANSACTION_TYPES.TRANSFER,
-                    make: TRANSACTION_TYPES.TRANSFER,
-                    index: flow.length,
-                });
+                flow.push(flowTransfer);
                 break;
             case ModuleType.swap:
-                flow.push({
-                    type: TRANSACTION_TYPES.DEX,
-                    make: TRANSACTION_TYPES.DEX,
-                    index: flow.length,
-                });
+                flow.push(flowDex);
                 break;
             case ModuleType.bridge:
-                flow.push({
-                    type: TRANSACTION_TYPES.DEX,
-                    make: TRANSACTION_TYPES.BRIDGE,
-                    index: flow.length,
-                });
+                flow.push(flowBridge);
+                break;
+
+            case ModuleType.superSwap:
+                isSameNetwork && flow.push(flowDex);
+                isDiffNetwork && flow.push(flowBridge);
+                break;
+            default:
                 break;
         }
 
@@ -139,17 +199,13 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
 
     const prepare = (index: number, type: string) => {
-        const ownerAddress = getAddressesWithChainsByEcosystem(selectedSrcNetwork.value.ecosystem, { hash: true })[
-            selectedSrcNetwork.value.net
-        ];
-
         const params = {
             net: selectedSrcNetwork.value.net,
             fromNet: selectedSrcNetwork.value.net,
             toNet: selectedDstNetwork.value?.net,
             fromToken: selectedSrcToken.value?.address,
             toToken: selectedDstToken.value?.address,
-            ownerAddresses: ownerAddress as OwnerAddresses,
+            ownerAddresses: addressByChain.value as OwnerAddresses,
             amount: srcAmount.value,
         } as AllQuoteParams;
 
@@ -209,8 +265,6 @@ const useModuleOperations = (module: ModuleType) => {
             return tx.transaction;
         },
         [TRANSACTION_TYPES.DEX]: async (): Promise<BridgeDexTx> => {
-            const ownerAddresses = getAddressesWithChainsByEcosystem(selectedSrcNetwork.value.ecosystem, { hash: true });
-
             const params = {
                 net: selectedSrcNetwork.value.net,
                 fromNet: selectedSrcNetwork.value.net,
@@ -219,14 +273,15 @@ const useModuleOperations = (module: ModuleType) => {
                 fromToken: selectedSrcToken.value.address,
                 toToken: selectedDstToken.value.address,
 
-                ownerAddresses: ownerAddresses as OwnerAddresses,
+                ownerAddresses: addressByChain.value as OwnerAddresses,
+                receiverAddress: receiverAddress.value,
                 amount: srcAmount.value,
             } as AllQuoteParams;
 
             // * Bridge transaction, add receiver address to ownerAddresses
             if (isSendToAnotherAddress.value && receiverAddress.value) {
                 params.ownerAddresses = {
-                    ...ownerAddresses,
+                    ...addressByChain.value,
                     [selectedDstNetwork.value.net]: receiverAddress.value,
                 };
             }
@@ -259,7 +314,7 @@ const useModuleOperations = (module: ModuleType) => {
     };
 
     // ===============================================================================================
-    // * Operations - On success
+    // * Operations - On success by transaction type
     // ===============================================================================================
 
     const ON_SUCCESS_BY_TYPE = {
@@ -288,10 +343,21 @@ const useModuleOperations = (module: ModuleType) => {
         isTransactionSigning.value = true;
 
         try {
+            if (isRequireConnect.value.isRequire) {
+                await connectByEcosystems(isRequireConnect.value.ecosystem);
+                return (isTransactionSigning.value = false);
+            }
+        } catch (error) {
+            console.error('Error on connect:', error);
+            return (isTransactionSigning.value = false);
+        }
+
+        try {
             const isChanged = await isCorrectChain(selectedSrcNetwork, currentChainInfo, setChain);
 
+            // * If chain is not changed, make one more attempt to confirm
             if (typeof isChanged === 'boolean' && isChanged === false) {
-                return await handleOnConfirm();
+                await handleOnConfirm();
             }
         } catch (error) {
             console.error('Error on chain change:', error);
@@ -446,6 +512,13 @@ const useModuleOperations = (module: ModuleType) => {
                     isWithAddress
                 );
 
+            case ModuleType.superSwap:
+                isRequireConnect.value.isRequire && console.log('isRequireConnect.value', isRequireConnect.value, 'isDisabled', isDisabled);
+
+                return isRequireConnect.value.isRequire
+                    ? !isRequireConnect.value.isRequire
+                    : isDisabled || isSrcEmpty || isRouteEmpty || isWithAddress;
+
             default:
                 return isDisabled;
         }
@@ -455,6 +528,7 @@ const useModuleOperations = (module: ModuleType) => {
         handleOnConfirm,
         moduleInstance,
 
+        isRequireConnect,
         isDisableConfirmButton,
         isTransactionSigning,
     };

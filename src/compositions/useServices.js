@@ -14,6 +14,7 @@ import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { STATUSES } from '@/shared/constants/super-swap/constants';
 import { useRouter } from 'vue-router';
 import useBridgeDexService from '@/modules/bridge-dex/compositions';
+import { ModuleType } from '@/modules/bridge-dex/enums/ServiceType.enum';
 
 export default function useModule({ moduleType }) {
     const { t } = useI18n();
@@ -41,6 +42,8 @@ export default function useModule({ moduleType }) {
         quoteRoutes,
         fees,
         selectedRoute,
+
+        isRequireConnect,
 
         makeApproveRequest,
         makeSwapRequest,
@@ -221,12 +224,18 @@ export default function useModule({ moduleType }) {
     });
 
     const isShowEstimateInfo = computed(() => {
+        const requiredValues = selectedSrcToken.value?.id && srcAmount.value && dstAmount.value;
+
         if (estimateErrorTitle.value) {
             return true;
         }
 
-        if (!srcAmount.value) {
+        if (!srcAmount.value || !dstAmount.value || !selectedSrcToken.value?.id) {
             return false;
+        }
+
+        if (requiredValues && moduleType !== ModuleType.send) {
+            return true;
         }
 
         if (baseFeeInfo.value?.title || rateFeeInfo.value?.title || protocolFeeInfo.value?.title || estimateTimeInfo.value?.title) {
@@ -440,6 +449,13 @@ export default function useModule({ moduleType }) {
         const isNewNotEmpty = newSrc && newDst && newSrc?.net && newDst?.net;
 
         const isNewSrcNewDstSame = isNewNotEmpty && isOldNotEmpty && newSrc.net === newDst.net;
+
+        const isSameToken = selectedSrcToken.value?.id === selectedDstToken.value?.id;
+
+        if (isSameToken) {
+            selectedDstToken.value = null;
+            dstAmount.value = null;
+        }
 
         const isSameNetwork = ['swap', 'bridge'].includes(moduleType) && isNewSrcNewDstSame;
 
@@ -725,6 +741,7 @@ export default function useModule({ moduleType }) {
         isAllowanceLoading,
         isNeedApprove,
         isQuoteLoading,
+        isRequireConnect,
         quoteErrorMessage,
         quoteRoutes,
         fees,

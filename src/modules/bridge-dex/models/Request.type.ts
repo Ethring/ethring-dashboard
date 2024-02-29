@@ -31,9 +31,10 @@ type SwapParams = {
     toToken: string;
 
     amount: string;
-    ownerAddresses: OwnerAddresses;
+    ownerAddresses: OwnerAddresses | string;
 
     gasPrice?: string;
+    receiverAddress?: string;
 };
 
 type FromToNetworks = {
@@ -53,12 +54,11 @@ export type GetAllowanceParams = ServiceTypeParams & ServiceIdParams & Allowance
 export type GetApproveTxParams = ServiceTypeParams & ServiceIdParams & Approve;
 
 // This is a conditional type that will return the correct type based on the service type
-export type Network<T extends ServiceType> = T extends ServiceType.dex ? OnlyFromNetwork : FromToNetworks;
+export type GetSwapTxParams = ServiceTypeParams & ServiceIdParams & Swap & OnlyFromNetwork;
 
-export type GetSwapTxParams<T extends ServiceType> = ServiceTypeParams & ServiceIdParams & Network<T> & SwapParams;
-export type GetQuoteParams<T extends ServiceType> = ServiceTypeParams & ServiceIdOptional & Network<T> & SwapParams;
+export type GetQuoteParams = ServiceTypeParams & ServiceIdOptional & SwapParams & FromToNetworks;
 
-export type AllQuoteParams = GetQuoteParams<ServiceType.dex> & GetQuoteParams<ServiceType.bridgedex>;
+export type AllQuoteParams = ServiceTypeParams & ServiceIdOptional & OnlyFromNetwork & FromToNetworks & SwapParams;
 
 type DexAllowedKeys = keyof ServiceIdOptional | 'type' | keyof SwapParams | keyof OnlyFromNetwork;
 type BridgedexAllowedKeys = keyof ServiceIdOptional | 'type' | keyof SwapParams | keyof FromToNetworks;
@@ -90,4 +90,5 @@ export const AllQuoteParamsKeys = ['type', 'fromToken', 'toToken', 'amount', 'ne
 export const QuoteParamsKeys = {
     [ServiceType.dex]: DexKeys,
     [ServiceType.bridgedex]: BridgedexKeys,
+    [ServiceType.superswap]: BridgedexKeys,
 };
