@@ -127,6 +127,10 @@ function useAdapter() {
         try {
             const { isConnected, walletName } = await adapter.connectWallet(...args);
 
+            if (adapter?.getAccount()) {
+                adaptersDispatch(TYPES.SET_ACCOUNT_BY_ECOSYSTEM, { ecosystem, account: adapter.getAccount() });
+            }
+
             if (walletName && isConnected) {
                 adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
                 adaptersDispatch(TYPES.SET_IS_CONNECTED, true);

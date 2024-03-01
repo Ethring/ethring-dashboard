@@ -57,6 +57,11 @@ export default {
             [ECOSYSTEMS.EVM]: [],
             [ECOSYSTEMS.COSMOS]: [],
         },
+
+        accountByEcosystem: {
+            [ECOSYSTEMS.EVM]: null,
+            [ECOSYSTEMS.COSMOS]: null,
+        },
     },
     getters: {
         [GETTERS.IS_OPEN]:
@@ -81,6 +86,7 @@ export default {
 
         [GETTERS.GET_ADDRESSES_BY_ECOSYSTEM]: (state) => (ecosystem) => state.addressesByEcosystem[ecosystem] || {},
         [GETTERS.GET_ADDRESSES_BY_ECOSYSTEM_LIST]: (state) => (ecosystem) => state.addressesByEcosystemList[ecosystem] || {},
+        [GETTERS.GET_ACCOUNT_BY_ECOSYSTEM]: (state) => (ecosystem) => state.accountByEcosystem[ecosystem] || null,
     },
     actions: {
         // * Actions for Modals
@@ -118,6 +124,9 @@ export default {
         },
         [TYPES.SET_ADDRESSES_BY_ECOSYSTEM_LIST]({ commit }, { ecosystem, addresses }) {
             commit(TYPES.SET_ADDRESSES_BY_ECOSYSTEM_LIST, { ecosystem, addresses });
+        },
+        [TYPES.SET_ACCOUNT_BY_ECOSYSTEM]({ commit }, { ecosystem, account }) {
+            commit(TYPES.SET_ACCOUNT_BY_ECOSYSTEM, { ecosystem, account });
         },
     },
     mutations: {
@@ -198,6 +207,9 @@ export default {
         },
         [TYPES.SET_ADDRESSES_BY_ECOSYSTEM_LIST](state, { ecosystem, addresses }) {
             state.addressesByEcosystemList[ecosystem] = addresses;
+        },
+        [TYPES.SET_ACCOUNT_BY_ECOSYSTEM](state, { ecosystem, account }) {
+            state.accountByEcosystem[ecosystem] = account;
         },
     },
 };

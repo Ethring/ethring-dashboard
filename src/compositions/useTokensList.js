@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import { computed, inject } from 'vue';
+import { computed } from 'vue';
 
 import { useStore } from 'vuex';
 
@@ -10,10 +10,6 @@ import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 
 export default function useTokensList({ network = null, fromToken = null, toToken = null, isSameNet = true } = {}) {
     const store = useStore();
-    const useAdapter = inject('useAdapter');
-
-    const { walletAccount } = useAdapter();
-
     const selectType = computed(() => store.getters['tokenOps/selectType']);
     const isFromSelected = computed(() => selectType.value === TOKEN_SELECT_TYPES.FROM);
 
@@ -28,13 +24,15 @@ export default function useTokensList({ network = null, fromToken = null, toToke
     };
 
     const getTokensWithBalance = (network) => {
-        const { net } = network || {};
+        const { net, ecosystem } = network || {};
 
         if (!net) {
             return [];
         }
 
-        return store.getters['tokens/getTokensListForChain'](net, { account: walletAccount.value });
+        const account = computed(() => store.getters['adapters/getAccountByEcosystem'](ecosystem));
+
+        return store.getters['tokens/getTokensListForChain'](net, { account: account.value });
     };
 
     const getAllTokensList = async (network, fromToken, toToken, isSameNet = true, onlyWithBalance = false) => {
