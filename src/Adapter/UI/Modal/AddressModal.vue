@@ -41,8 +41,8 @@ export default {
         const addressesWithChains = ref([]);
         const chainRecords = ref([]);
 
-        onUpdated(() => {
-            addressesWithChains.value = getAddressesWithChainsByEcosystem(ecosystem.value);
+        onUpdated(async () => {
+            addressesWithChains.value = await getAddressesWithChainsByEcosystem(ecosystem.value);
             chainRecords.value = getChainListByEcosystem(ecosystem.value);
         });
 

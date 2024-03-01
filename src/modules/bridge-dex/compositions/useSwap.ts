@@ -38,8 +38,6 @@ const useBridgeDexSwap = (targetType: ServiceTypes, bridgeDexService: BridgeDexS
 
     const type = ServiceType[targetType];
 
-    const { getAddressesWithChainsByEcosystem } = useAdapter();
-
     // ===========================================================================================
     // * Current Service & Route
     // ===========================================================================================
@@ -62,15 +60,6 @@ const useBridgeDexSwap = (targetType: ServiceTypes, bridgeDexService: BridgeDexS
     const selectedSrcNetwork = computed(() => store.getters['tokenOps/srcNetwork']);
     const selectedSrcToken = computed(() => store.getters['tokenOps/srcToken']);
     const srcAmount = computed(() => store.getters['tokenOps/srcAmount']);
-
-    // ===========================================================================================
-    // * Address
-    // ===========================================================================================
-
-    // const addressByChain = computed<AddressByChainHash>(() => {
-    //     const { ecosystem } = selectedSrcNetwork.value || {};
-    //     return getAddressesWithChainsByEcosystem(ecosystem, { hash: true }) as AddressByChainHash;
-    // });
 
     // ===========================================================================================
     // * Requests to the Service by ServiceType

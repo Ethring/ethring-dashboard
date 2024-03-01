@@ -8,7 +8,6 @@ import { AllQuoteParams, GetQuoteParams } from '@/modules/bridge-dex/models/Requ
 
 import { IQuoteRoute, ErrorResponse } from '@/modules/bridge-dex/models/Response.interface';
 import { NATIVE_CONTRACT } from '@/Adapter/config';
-import useAdapter from '@/Adapter/compositions/useAdapter';
 
 import { FEE_TYPES } from '@/shared/constants/operations';
 
@@ -45,8 +44,6 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     const serviceType = ServiceType[targetType];
 
     const modules: string[] = ModulesByService[targetType] || [];
-
-    const { getAddressesWithChainsByEcosystem } = useAdapter();
 
     const { isSrcAmountSet, isSameToken, isSameNetwork, isSrcTokenChainCorrect, isDstTokenChainCorrect, isDstTokenChainCorrectSwap } =
         useInputValidation();
@@ -92,13 +89,13 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     const srcAddressByChain = computed<AddressByChainHash>(() => {
         const { ecosystem: srcEcosystem } = selectedSrcNetwork.value || {};
         if (!srcEcosystem) return {};
-        return getAddressesWithChainsByEcosystem(srcEcosystem, { hash: true }) as AddressByChainHash;
+        return store.getters['adapters/getAddressesByEcosystem'](srcEcosystem) as AddressByChainHash;
     });
 
     const dstAddressByChain = computed<AddressByChainHash>(() => {
         const { ecosystem: dstEcosystem } = selectedDstNetwork.value || {};
         if (!dstEcosystem) return {};
-        return getAddressesWithChainsByEcosystem(dstEcosystem, { hash: true }) as AddressByChainHash;
+        return store.getters['adapters/getAddressesByEcosystem'](dstEcosystem) as AddressByChainHash;
     });
 
     const addressByChain = computed<AddressByChainHash>(() => {

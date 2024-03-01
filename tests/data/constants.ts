@@ -50,9 +50,8 @@ export enum DATA_QA_LOCATORS {
     INPUT_ADDRESS = 'input-address',
     INPUT_AMOUNT = 'input-amount',
 
-    SELECT_BLOCK = 'select__block',
     ITEM = 'item',
-    ROUTE_INFO = 'route-info',
+    ROUTE_INFO = 'estimate-info',
 }
 
 export enum IGNORED_LOCATORS {

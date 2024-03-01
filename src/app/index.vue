@@ -58,16 +58,21 @@ export default {
 
         const isShowRoutesModal = computed(() => store.getters['app/modal']('routesModal'));
 
-        const addressesWithChains = computed(() => {
+        const addressesWithChains = computed(async () => {
             const { ecosystem } = currentChainInfo.value || {};
-            return getAddressesWithChainsByEcosystem(ecosystem) || {};
+            return (await getAddressesWithChainsByEcosystem(ecosystem)) || {};
         });
 
-        const callSubscription = () => {
+        const addressByChain = computed(async () => {
+            const { ecosystem } = currentChainInfo.value || {};
+            return (await getAddressesWithChainsByEcosystem(ecosystem, { hash: true })) || {};
+        });
+
+        const callSubscription = async () => {
             const { ecosystem } = currentChainInfo.value || {};
 
-            if (JSON.stringify(addressesWithChains.value) !== '{}' && walletAddress.value) {
-                Socket.setAddresses(addressesWithChains.value, walletAddress.value, ecosystem);
+            if (JSON.stringify(await addressesWithChains.value) !== '{}' && walletAddress.value) {
+                Socket.setAddresses(await addressesWithChains.value, walletAddress.value, ecosystem);
             }
         };
 
@@ -79,8 +84,14 @@ export default {
                 return setTimeout(callInit, 1000);
             }
 
+            const addresses = await addressesWithChains.value;
+            const addressHash = await addressByChain.value;
+
             await setNativeTokensPrices(store, ecosystem);
-            await updateBalanceForAccount(walletAccount.value, addressesWithChains.value);
+            await updateBalanceForAccount(walletAccount.value, addresses);
+
+            store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM', { ecosystem, addresses });
+            store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses: addressHash });
         };
 
         // ==========================================================================================

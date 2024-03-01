@@ -18,3 +18,6 @@ export const CONNECTED_WALLET_MODULE = 'getConnectedWalletModule';
 export const CONNECTED_WALLETS = 'getConnectedWallets';
 
 export const LAST_CONNECTED_WALLET = 'getLastConnectedWallet';
+
+export const GET_ADDRESSES_BY_ECOSYSTEM = 'getAddressesByEcosystem';
+export const GET_ADDRESSES_BY_ECOSYSTEM_LIST = 'getAddressesByEcosystemList';

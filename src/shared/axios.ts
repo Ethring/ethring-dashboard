@@ -5,6 +5,7 @@ import axios, { AxiosInstance, AxiosResponse } from 'axios';
 interface ApiConfig {
     baseURL: string;
     headers?: Record<string, string>;
+    timeout?: number
 }
 
 class ApiClient {
@@ -17,11 +18,13 @@ class ApiClient {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*',
             },
+            ...args
         } = config;
 
         this.instance = axios.create({
             baseURL,
             headers,
+            ...args
         });
 
         // Interceptor for response

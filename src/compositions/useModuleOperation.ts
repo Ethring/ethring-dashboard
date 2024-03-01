@@ -32,7 +32,7 @@ import { AddressByChainHash } from '../shared/models/types/Address';
 import useInputValidation from '@/shared/form-validations';
 
 const useModuleOperations = (module: ModuleType) => {
-    const { walletAddress, currentChainInfo, setChain, connectByEcosystems, getAddressesWithChainsByEcosystem } = useAdapter();
+    const { walletAddress, currentChainInfo, setChain, connectByEcosystems } = useAdapter();
 
     const store = useStore();
 
@@ -102,13 +102,13 @@ const useModuleOperations = (module: ModuleType) => {
     const srcAddressByChain = computed<AddressByChainHash>(() => {
         const { ecosystem: srcEcosystem } = selectedSrcNetwork.value || {};
         if (!srcEcosystem) return {};
-        return getAddressesWithChainsByEcosystem(selectedSrcNetwork.value.ecosystem, { hash: true }) as AddressByChainHash;
+        return store.getters['adapters/getAddressesByEcosystem'](srcEcosystem) as AddressByChainHash;
     });
 
     const dstAddressByChain = computed<AddressByChainHash>(() => {
         const { ecosystem: dstEcosystem } = selectedDstNetwork.value || {};
         if (!dstEcosystem) return {};
-        return getAddressesWithChainsByEcosystem(selectedDstNetwork.value.ecosystem, { hash: true }) as AddressByChainHash;
+        return store.getters['adapters/getAddressesByEcosystem'](dstEcosystem) as AddressByChainHash;
     });
 
     const addressByChain = computed<AddressByChainHash>(() => {
@@ -258,9 +258,7 @@ const useModuleOperations = (module: ModuleType) => {
 
     const TX_PARAMS_BY_TYPE = {
         [TRANSACTION_TYPES.APPROVE]: async (): Promise<BridgeDexTx> => {
-            const ownerAddress = getAddressesWithChainsByEcosystem(selectedSrcNetwork.value.ecosystem, { hash: true })[
-                selectedSrcNetwork.value.net
-            ];
+            const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
 
             const params: Approve = {
                 net: selectedSrcNetwork.value.net,
@@ -304,9 +302,7 @@ const useModuleOperations = (module: ModuleType) => {
             return tx.transaction;
         },
         [TRANSACTION_TYPES.TRANSFER]: async (): Promise<IBaseTransactionParams> => {
-            const ownerAddress = getAddressesWithChainsByEcosystem(selectedSrcNetwork.value.ecosystem, { hash: true })[
-                selectedSrcNetwork.value.net
-            ];
+            const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
 
             const params = {
                 toAddress: receiverAddress.value,

@@ -41,14 +41,14 @@ import { AddressByChain, AddressByChainHash } from '@/shared/models/types/Addres
 const useBridgeDexAllowance = (targetType: ServiceTypes, bridgeDexService: BridgeDexService<any>) => {
     const store = useStore();
 
-    const { walletAddress, getAddressesWithChainsByEcosystem } = useAdapter();
+    const { walletAddress } = useAdapter();
 
     // ===========================================================================================
     // * Address
     // ===========================================================================================
 
     const addressByChain = computed<AddressByChainHash>(() => {
-        return getAddressesWithChainsByEcosystem(ECOSYSTEMS.EVM, { hash: true }) as AddressByChainHash;
+        return store.getters['adapters/getAddressesByEcosystem'](ECOSYSTEMS.EVM) as AddressByChainHash;
     });
 
     // ===========================================================================================

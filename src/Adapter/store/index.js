@@ -47,6 +47,16 @@ export default {
         wallets: connectedWalletsStorage.value,
         lastConnectedWallet: lastConnectedWalletStorage.value,
         isConnected: isConnectedStorage.value,
+
+        addressesByEcosystem: {
+            [ECOSYSTEMS.EVM]: {},
+            [ECOSYSTEMS.COSMOS]: {},
+        },
+
+        addressesByEcosystemList: {
+            [ECOSYSTEMS.EVM]: [],
+            [ECOSYSTEMS.COSMOS]: [],
+        },
     },
     getters: {
         [GETTERS.IS_OPEN]:
@@ -68,6 +78,9 @@ export default {
         [GETTERS.LAST_CONNECTED_WALLET]: (state) => state.lastConnectedWallet,
 
         [GETTERS.IS_CONNECTED]: (state) => state.isConnected,
+
+        [GETTERS.GET_ADDRESSES_BY_ECOSYSTEM]: (state) => (ecosystem) => state.addressesByEcosystem[ecosystem] || {},
+        [GETTERS.GET_ADDRESSES_BY_ECOSYSTEM_LIST]: (state) => (ecosystem) => state.addressesByEcosystemList[ecosystem] || {},
     },
     actions: {
         // * Actions for Modals
@@ -99,6 +112,12 @@ export default {
         },
         [TYPES.SET_IS_CONNECTED]({ commit }, isConnected) {
             commit(TYPES.SET_IS_CONNECTED, isConnected);
+        },
+        [TYPES.SET_ADDRESSES_BY_ECOSYSTEM]({ commit }, { ecosystem, addresses }) {
+            commit(TYPES.SET_ADDRESSES_BY_ECOSYSTEM, { ecosystem, addresses });
+        },
+        [TYPES.SET_ADDRESSES_BY_ECOSYSTEM_LIST]({ commit }, { ecosystem, addresses }) {
+            commit(TYPES.SET_ADDRESSES_BY_ECOSYSTEM_LIST, { ecosystem, addresses });
         },
     },
     mutations: {
@@ -169,6 +188,16 @@ export default {
         },
         [TYPES.SET_IS_CONNECTED](state, value) {
             state.isConnected = value;
+        },
+        [TYPES.SET_ADDRESSES_BY_ECOSYSTEM](state, { ecosystem, addresses }) {
+            !state.addressesByEcosystem[ecosystem] && (state.addressesByEcosystem[ecosystem] = {});
+            state.addressesByEcosystem[ecosystem] = {
+                ...state.addressesByEcosystem[ecosystem],
+                ...addresses,
+            };
+        },
+        [TYPES.SET_ADDRESSES_BY_ECOSYSTEM_LIST](state, { ecosystem, addresses }) {
+            state.addressesByEcosystemList[ecosystem] = addresses;
         },
     },
 };

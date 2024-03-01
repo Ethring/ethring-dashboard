@@ -367,14 +367,14 @@ function useAdapter() {
     };
 
     // * Get addressesWithChains by Ecosystem
-    const getAddressesWithChainsByEcosystem = (ecosystem = null, { hash = false } = {}) => {
+    const getAddressesWithChainsByEcosystem = async (ecosystem = null, { hash = false } = {}) => {
         if (!ecosystem) {
             return {};
         }
 
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
-        const addresses = adapter.getAddressesWithChains();
+        const addresses = await adapter.getAddressesWithChains();
 
         // * Return Hash of Addresses
         if (hash) {

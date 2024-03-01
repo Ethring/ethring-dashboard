@@ -1,16 +1,16 @@
 import { testMetaMaskMockTx } from '../__fixtures__/fixtures';
 import { expect, test } from '@playwright/test';
-import {
-    mockBalanceDataBySendTest,
-    mockPostTransactionsRouteSendMockTx,
-    mockPostTransactionsWsByCreateEventSendMockTx,
-    mockPutTransactionsRouteSendMockTx,
-    mockPutTransactionsWsByUpdateTransactionEventInProgressSendMockTx,
-} from '../data/mockHelper';
+import { mockBalanceDataBySendTest } from '../data/mockHelper';
 import { getTestVar, TEST_CONST } from '../envHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage } from '../model/MetaMask/MetaMask.pages';
 import util from 'util';
 import { IGNORED_LOCATORS } from 'tests/data/constants';
+import {
+    mockPostTransactionsRouteSendMockTx,
+    mockPostTransactionsWsByCreateEventSendMockTx,
+    mockPutTransactionsRouteSendMockTx,
+    mockPutTransactionsWsByUpdateTransactionEventInProgressSendMockTx,
+} from 'tests/data/mockDataByTxManager/SendTxPolygonMock';
 
 const sleep = util.promisify(setTimeout);
 
