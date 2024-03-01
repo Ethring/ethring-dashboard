@@ -349,8 +349,13 @@ const useModuleOperations = (module: ModuleType) => {
     const handleOnConfirm = async () => {
         isTransactionSigning.value = true;
 
+        const { ecosystem } = currentChainInfo.value || {};
+        const { ecosystem: srcEcosystem } = selectedSrcNetwork.value || {};
+
+        const isSameEcosystem = ecosystem === srcEcosystem;
+
         try {
-            if (isRequireConnect.value.isRequire) {
+            if (!isSameEcosystem) {
                 await connectByEcosystems(isRequireConnect.value.ecosystem);
                 return (isTransactionSigning.value = false);
             }
