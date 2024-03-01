@@ -27,7 +27,7 @@
             <SwitchDirection
                 class="swap-module"
                 :disabled="isDirectionSwapped || isTransactionSigning || !selectedDstToken || !isSwapDirectionAvailable"
-                :on-click-switch="() => swapDirections()"
+                :on-click-switch="() => handleOnSwapDirections()"
             />
 
             <SelectAmountInput
@@ -48,13 +48,13 @@
         <EstimatePreviewInfo
             v-if="(selectedDstToken && srcAmount) || isShowEstimateInfo"
             :is-loading="isQuoteLoading"
-            :services="quoteRoutes?.routes"
-            :service="selectedRoute"
+            :services="[selectedRoute]"
             :fee-in-usd="fees[FEE_TYPE.BASE] || 0"
             :title="$t('tokenOperations.routeInfo')"
             :main-rate="fees[FEE_TYPE.RATE] || null"
+            :is-show-expand="otherRoutes?.length > 0"
             :error="quoteErrorMessage"
-            :is-show-expand="true"
+            :on-click-expand="toggleRoutesModal"
         />
 
         <Button v-bind="btnState" :title="$t(btnState.title)" :tip="$t(btnState.tip)" @click="handleOnConfirm" />
@@ -128,7 +128,6 @@ export default {
             isAllowanceLoading,
 
             // - Swap direction
-            swapDirections,
             isSwapDirectionAvailable,
             isDirectionSwapped,
 
@@ -143,6 +142,7 @@ export default {
             // - Current Selected service route and other routes
             selectedRoute,
             quoteRoutes,
+            otherRoutes,
 
             // - other flags
             onlyWithBalance,
@@ -151,8 +151,10 @@ export default {
             opTitle,
 
             // - Handlers
+            toggleRoutesModal,
             handleOnSelectToken,
             handleOnSelectNetwork,
+            handleOnSwapDirections,
         } = moduleInstance;
 
         // =================================================================================================================
@@ -257,10 +259,11 @@ export default {
             isDirectionSwapped,
 
             // Handlers
-            swapDirections,
+            handleOnSwapDirections,
             onSelectToken,
             onSelectNetwork,
             onSetAmount,
+            toggleRoutesModal,
 
             // * Transaction Manager
             isDisableConfirmButton,
@@ -275,6 +278,7 @@ export default {
             // - BridgeDex Current Selected service route and other routes
             selectedRoute,
             quoteRoutes,
+            otherRoutes,
 
             // - BridgeDex other flags
             FEE_TYPE,

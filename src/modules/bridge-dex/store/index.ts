@@ -18,6 +18,10 @@ const TYPES = {
 
     SET_SERVICE_ID: 'SET_SERVICE_ID',
 
+    SET_SERVICE_TYPE: 'SET_SERVICE_TYPE',
+
+    SET_RELOAD_ROUTES: 'SET_RELOAD_ROUTES',
+
     SET_ROUTE_FEE: 'SET_ROUTE_FEE',
 
     SET_SERVICE_ALLOWANCE: 'SET_SERVICE_ALLOWANCE',
@@ -31,6 +35,8 @@ interface IState {
     };
 
     services: IService[];
+
+    reloadRoutes: boolean;
 
     quoteRoutes: {
         [ServiceType.dex]: IQuoteRoutes;
@@ -63,6 +69,8 @@ export default {
 
         services: [],
 
+        reloadRoutes: false,
+
         quoteRoutes: {
             [ServiceType.dex]: null,
             [ServiceType.bridgedex]: null,
@@ -82,12 +90,24 @@ export default {
 
     getters: {
         // * Loaders
+        isReloadRoutes: (state: IState) => state.reloadRoutes,
         getLoaderState: (state: IState) => (type: string) => state.loaders[type] || false,
 
         // * Getters for Services
         getAllServiceList: (state: IState) => state.services,
+        getAllServicesHash: (state: IState) => {
+            const services = state.services;
+            const hash: { [key: string]: IService } = {};
+
+            services.forEach((service) => {
+                hash[service.id] = service;
+            });
+
+            return hash || {};
+        },
         getServiceById: (state: IState) => (id: string) => state.services.find((service) => service.id === id) || {},
         getServiceByType: (state: IState) => (type: ServiceTypes) => state.services.find((service) => service.type === type) || {},
+        getServicesByType: (state: IState) => (type: ServiceTypes) => state.services.filter((service) => service.type === type),
         getServiceByEcosystem: (state: IState) => (ecosystem: Ecosystems) =>
             state.services.filter((service: IService) => service.ecosystems.includes(ecosystem)),
 
@@ -109,6 +129,9 @@ export default {
 
             return null;
         },
+
+        // * Getters for Service Type
+        getSelectedServiceType: (state: IState) => state.selectedServiceType,
     },
 
     mutations: {
@@ -136,6 +159,13 @@ export default {
         [TYPES.SET_LOADER_STATE_BY_TYPE](state: IState, { type, value }: { type: string; value: boolean }) {
             state.loaders[type] = value;
         },
+
+        [TYPES.SET_SERVICE_TYPE](state: IState, value: ServiceTypes) {
+            state.selectedServiceType = value;
+        },
+        [TYPES.SET_RELOAD_ROUTES](state: IState, value: boolean) {
+            state.reloadRoutes = value;
+        },
     },
     actions: {
         async getServices({ commit }) {
@@ -152,6 +182,17 @@ export default {
             commit(TYPES.SET_SELECTED_ROUTE, value);
         },
 
+        setTargetServiceType({ commit }, value: ServiceTypes) {
+            commit(TYPES.SET_SERVICE_TYPE, value);
+        },
+
+        resetSelectedRoute({ commit }, value: { serviceType: ServiceTypes }) {
+            commit(TYPES.SET_SELECTED_ROUTE, {
+                serviceType: value.serviceType,
+                value: null,
+            });
+        },
+
         setQuoteRoutes({ commit }, value: { serviceType: ServiceTypes; value: IQuoteRoute }) {
             commit(TYPES.SET_QUOTE_ROUTES, value);
         },
@@ -162,6 +203,10 @@ export default {
 
         setLoaderStateByType({ commit }, value: { type: string; value: boolean }) {
             commit(TYPES.SET_LOADER_STATE_BY_TYPE, value);
+        },
+
+        setReloadRoutes({ commit }, value: boolean) {
+            commit(TYPES.SET_RELOAD_ROUTES, value);
         },
     },
 };

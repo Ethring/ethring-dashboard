@@ -39,9 +39,11 @@ export default function useModule({ moduleType }) {
         isNeedApprove,
         isQuoteLoading,
         quoteErrorMessage,
-        quoteRoutes,
         fees,
+
         selectedRoute,
+        quoteRoutes,
+        otherRoutes,
 
         isRequireConnect,
 
@@ -187,42 +189,6 @@ export default function useModule({ moduleType }) {
 
     // =================================== FEE INFO ===================================
 
-    const baseFeeInfo = ref({
-        title: '',
-        symbolBetween: '',
-        fromAmount: '',
-        fromSymbol: '',
-        toAmount: '',
-        toSymbol: '',
-    });
-
-    const rateFeeInfo = ref({
-        title: '',
-        symbolBetween: '',
-        fromAmount: '',
-        fromSymbol: '',
-        toAmount: '',
-        toSymbol: '',
-    });
-
-    const protocolFeeInfo = ref({
-        title: '',
-        symbolBetween: '',
-        fromAmount: '',
-        fromSymbol: '',
-        toAmount: '',
-        toSymbol: '',
-    });
-
-    const estimateTimeInfo = ref({
-        title: '',
-        symbolBetween: '',
-        fromAmount: '',
-        fromSymbol: '',
-        toAmount: '',
-        toSymbol: '',
-    });
-
     const isShowEstimateInfo = computed(() => {
         const requiredValues = selectedSrcToken.value?.id && srcAmount.value && dstAmount.value;
 
@@ -235,10 +201,6 @@ export default function useModule({ moduleType }) {
         }
 
         if (requiredValues && moduleType !== ModuleType.send) {
-            return true;
-        }
-
-        if (baseFeeInfo.value?.title || rateFeeInfo.value?.title || protocolFeeInfo.value?.title || estimateTimeInfo.value?.title) {
             return true;
         }
 
@@ -359,14 +321,20 @@ export default function useModule({ moduleType }) {
         }
     };
 
-    const swapDirections = async (withChains = false) => {
+    const handleOnSwapDirections = async (withChains = false) => {
         isDirectionSwapped.value = true;
 
         if (withChains) {
-            [selectedSrcNetwork.value, selectedDstNetwork.value] = [selectedDstNetwork.value, selectedSrcNetwork.value];
+            const from = JSON.parse(JSON.stringify(selectedSrcNetwork.value));
+            const to = JSON.parse(JSON.stringify(selectedDstNetwork.value));
+
+            [selectedSrcNetwork.value, selectedDstNetwork.value] = [to, from];
         }
 
-        [selectedSrcToken.value, selectedDstToken.value] = [selectedDstToken.value, selectedSrcToken.value];
+        const fromToken = JSON.parse(JSON.stringify(selectedSrcToken.value));
+        const toToken = JSON.parse(JSON.stringify(selectedDstToken.value));
+
+        [selectedSrcToken.value, selectedDstToken.value] = [toToken, fromToken];
 
         _.debounce(() => (isDirectionSwapped.value = false), 1500)();
     };
@@ -389,6 +357,8 @@ export default function useModule({ moduleType }) {
     const handleOnSelectToken = ({ direction, type }) => {
         return openSelectModal('token', { direction, type });
     };
+
+    const toggleRoutesModal = () => store.dispatch('app/toggleModal', 'routesModal');
 
     // =================================================================================================================
 
@@ -707,11 +677,6 @@ export default function useModule({ moduleType }) {
         // Operation title
         opTitle,
 
-        baseFeeInfo,
-        rateFeeInfo,
-        protocolFeeInfo,
-        estimateTimeInfo,
-
         isShowEstimateInfo,
 
         // Errors
@@ -729,13 +694,14 @@ export default function useModule({ moduleType }) {
 
         // Functions
         openSelectModal,
+        toggleRoutesModal,
 
         handleOnSelectToken,
         handleOnSelectNetwork,
 
         // setTokenOnChange,
         checkSelectedNetwork,
-        swapDirections,
+        handleOnSwapDirections,
 
         // Bridge Dex
         isAllowanceLoading,
@@ -744,6 +710,7 @@ export default function useModule({ moduleType }) {
         isRequireConnect,
         quoteErrorMessage,
         quoteRoutes,
+        otherRoutes,
         fees,
         selectedRoute,
 

@@ -13,8 +13,8 @@
 
         <a-collapse-panel
             key="estimate-info"
-            :collapsible="isCollapsible ? '' : 'disabled'"
-            :showArrow="isCollapsible"
+            :collapsible="isCollapsible || isShowExpand ? '' : 'disabled'"
+            :showArrow="isCollapsible || isShowExpand"
             data-qa="estimate-info"
         >
             <template #header>
@@ -31,8 +31,8 @@
 
                             <ServiceIcon
                                 v-if="service && !isLoading"
-                                :icon="getServiceById(service.serviceId).icon"
-                                :name="getServiceById(service.serviceId).name"
+                                :icon="servicesHash[service.serviceId]?.icon"
+                                :name="servicesHash[service.serviceId]?.name"
                                 :show-title="false"
                             />
 
@@ -73,13 +73,13 @@
                 </div>
             </template>
 
-            <template v-if="isCollapsible && !isLoading">
+            <template v-if="(isCollapsible && !isLoading) || isShowExpand">
                 <div class="preview-services-wrap">
                     <div class="preview-services-row">
                         <template v-for="(route, index) in services" :key="route">
                             <ServiceIcon
-                                :icon="getServiceById(route.serviceId).icon"
-                                :name="getServiceById(route.serviceId).name"
+                                :icon="servicesHash[route.serviceId]?.icon"
+                                :name="servicesHash[route.serviceId]?.name"
                                 :show-title="true"
                             />
                             <ArrowDownIcon class="arrow" v-if="index !== services?.length - 1" />
@@ -212,7 +212,7 @@ export default {
             return true;
         });
 
-        const getServiceById = (id) => store.getters['bridgeDexAPI/getServiceById'](id);
+        const servicesHash = computed(() => store.getters['bridgeDexAPI/getAllServicesHash']);
 
         const activeKey = ref(isCollapsible.value ? ['estimate-info'] : []);
 
@@ -236,7 +236,7 @@ export default {
             isActive,
             isCollapsible,
             MAX_LENGTH: 55,
-            getServiceById,
+            servicesHash,
         };
     },
 };

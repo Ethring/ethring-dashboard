@@ -29,6 +29,7 @@ import { ITransaction, ITransactionResponse } from '../Transactions/types/Transa
 import { BridgeDexTx, IBridgeDexTransaction } from '@/modules/bridge-dex/models/Response.interface';
 import { AllQuoteParams, Approve, OwnerAddresses } from '@/modules/bridge-dex/models/Request.type';
 import { AddressByChainHash } from '../shared/models/types/Address';
+import useInputValidation from '@/shared/form-validations';
 
 const useModuleOperations = (module: ModuleType) => {
     const { walletAddress, currentChainInfo, setChain, connectByEcosystems, getAddressesWithChainsByEcosystem } = useAdapter();
@@ -83,6 +84,16 @@ const useModuleOperations = (module: ModuleType) => {
     } = moduleInstance;
 
     const { signAndSend } = useTransactions();
+
+    const {
+        isSrcTokenChainCorrect,
+        isDstTokenChainCorrect,
+        isDstTokenChainCorrectSwap,
+        isSrcAmountSet,
+        isReceiverAddressSet,
+        isQuoteRouteSelected,
+        isQuoteRouteSet,
+    } = useInputValidation();
 
     // ===============================================================================================
     // * Addresses with chains by ecosystem
@@ -480,44 +491,41 @@ const useModuleOperations = (module: ModuleType) => {
     // * Confirm button state for each module
     // ===============================================================================================
     const isDisableConfirmButton = computed(() => {
-        const isSrcEmpty = !selectedSrcNetwork.value || !selectedSrcToken.value;
-        const isRouteEmpty = !selectedRoute.value || !selectedRoute.value.serviceId;
-
         const isWithMemo = isSendWithMemo.value && isMemoAllowed.value && !memo.value;
+        const isWithAddress = isSendToAnotherAddress.value && (isAddressError.value || !isReceiverAddressSet.value);
 
-        const isWithAddress = isSendToAnotherAddress.value && (isAddressError.value || !receiverAddress.value);
-
+        // * Common
         const isDisabled =
-            isSrcEmpty ||
             isLoading.value ||
             isEstimating.value ||
             isQuoteLoading.value ||
             isBalanceError.value ||
             isAllowanceLoading.value ||
-            isTransactionSigning.value;
+            isTransactionSigning.value ||
+            quoteErrorMessage.value ||
+            !isSrcAmountSet.value ||
+            !isSrcTokenChainCorrect.value;
+
+        // * Send module
+        const isSendConfirmDisabled = isDisabled || !isReceiverAddressSet.value || isWithMemo;
+
+        // * Swap module
+        const isSwapConfirmDisabled =
+            isDisabled || !isDstTokenChainCorrectSwap.value || !isQuoteRouteSelected.value || !isQuoteRouteSet.value;
+
+        // * Bridge module
+        const isBridgeConfirmDisabled =
+            !isQuoteRouteSelected.value || !isQuoteRouteSet.value || isDisabled || !isDstTokenChainCorrect.value || isWithAddress;
 
         switch (module) {
             case ModuleType.send:
-                return !receiverAddress.value || !srcAmount.value || isDisabled || isWithMemo;
+                return isSendConfirmDisabled;
             case ModuleType.swap:
-                return !selectedDstToken.value || !srcAmount.value || isDisabled || isRouteEmpty;
+                return isSwapConfirmDisabled;
             case ModuleType.bridge:
-                return (
-                    !selectedDstNetwork.value ||
-                    !selectedDstToken.value ||
-                    !srcAmount.value ||
-                    !selectedRoute.value ||
-                    isDisabled ||
-                    isRouteEmpty ||
-                    isWithAddress
-                );
-
+                return isBridgeConfirmDisabled;
             case ModuleType.superSwap:
-                isRequireConnect.value.isRequire && console.log('isRequireConnect.value', isRequireConnect.value, 'isDisabled', isDisabled);
-
-                return isRequireConnect.value.isRequire
-                    ? !isRequireConnect.value.isRequire
-                    : isDisabled || isSrcEmpty || isRouteEmpty || isWithAddress;
+                return isDisabled || !isQuoteRouteSelected.value || !isQuoteRouteSet.value || isWithAddress;
 
             default:
                 return isDisabled;

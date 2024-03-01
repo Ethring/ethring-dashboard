@@ -4,7 +4,7 @@
             <AppLayout />
             <WalletsModal />
             <AddressModal />
-            <RoutesModal />
+            <BridgeDexRoutesModal />
             <KadoModal />
             <ReleaseNotes />
         </a-config-provider>
@@ -22,7 +22,8 @@ import ReleaseNotes from '@/app/layouts/DefaultLayout/header/ReleaseNotes.vue';
 import WalletsModal from '@/Adapter/UI/Modal/WalletsModal';
 import AddressModal from '@/Adapter/UI/Modal/AddressModal';
 import KadoModal from '@/components/app/modals/KadoModal.vue';
-import RoutesModal from '@/components/app/modals/RoutesModal.vue';
+// import RoutesModal from '@/components/app/modals/RoutesModal.vue';
+import BridgeDexRoutesModal from '@/components/app/modals/BridgeDexRoutesModal.vue';
 
 import { updateBalanceForAccount } from '@/modules/balance-provider';
 
@@ -34,7 +35,7 @@ export default {
     components: {
         AppLayout,
         KadoModal,
-        RoutesModal,
+        BridgeDexRoutesModal,
         ReleaseNotes,
         WalletsModal,
         AddressModal,

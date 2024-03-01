@@ -13,7 +13,7 @@
                     :disabled="
                         isDirectionSwapped || isQuoteLoading || isTransactionSigning || !isSwapDirectionAvailable || !selectedDstNetwork
                     "
-                    @click="() => swapDirections(true)"
+                    @click="() => handleOnSwapDirections(true)"
                 />
 
                 <SelectRecord
@@ -59,6 +59,7 @@
         <Checkbox
             v-if="selectedDstToken && selectedDstNetwork"
             id="isSendToAnotherAddress"
+            :disabled="isQuoteLoading || isTransactionSigning"
             v-model:value="isSendToAnotherAddress"
             :label="`Receive ${selectedDstToken?.symbol} to another wallet`"
             class="mt-8"
@@ -69,19 +70,20 @@
             class="mt-8"
             :selected-network="selectedDstNetwork"
             :on-reset="isSendToAnotherAddress"
+            :disabled="isQuoteLoading || isTransactionSigning"
             @error-status="(status) => (isAddressError = status)"
         />
 
         <EstimatePreviewInfo
             v-if="(selectedDstToken?.id && !!srcAmount) || isShowEstimateInfo"
             :is-loading="isQuoteLoading"
-            :services="quoteRoutes?.routes"
-            :service="selectedRoute"
+            :services="[selectedRoute]"
             :fee-in-usd="fees[FEE_TYPE.BASE] || 0"
             :title="$t('tokenOperations.routeInfo')"
             :main-rate="fees[FEE_TYPE.RATE] || null"
             :error="quoteErrorMessage"
-            :is-show-expand="true"
+            :is-show-expand="otherRoutes?.length > 0"
+            :on-click-expand="toggleRoutesModal"
         />
 
         <Button v-bind="opBtnState" :title="$t(opTitle)" :tip="$t(opTitle)" @click="handleOnConfirm" />
@@ -149,6 +151,7 @@ export default {
 
             fees,
             quoteRoutes,
+            otherRoutes,
             selectedRoute,
             quoteErrorMessage,
 
@@ -181,9 +184,10 @@ export default {
 
             // --------------------------------
 
-            swapDirections,
+            handleOnSwapDirections,
             handleOnSelectToken,
             handleOnSelectNetwork,
+            toggleRoutesModal,
         } = moduleInstance;
 
         // =================================================================================================================
@@ -305,11 +309,13 @@ export default {
 
             onSetAmount,
             handleOnConfirm,
-            swapDirections,
+            handleOnSwapDirections,
+            toggleRoutesModal,
 
             fees,
             selectedRoute,
             quoteRoutes,
+            otherRoutes,
             quoteErrorMessage,
             FEE_TYPE,
             isTransactionSigning,
