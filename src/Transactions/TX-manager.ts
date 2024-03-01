@@ -10,6 +10,7 @@ export class Transaction {
     id: string | number;
     type: string;
     requestID: string;
+    chainId: string;
 
     transaction: ITransactionResponse;
 
@@ -21,6 +22,10 @@ export class Transaction {
 
     setId(id: string | number) {
         this.id = id;
+    }
+
+    setChainId(chainId: string) {
+        this.chainId = chainId;
     }
 
     setRequestID(requestID: string) {
@@ -42,6 +47,10 @@ export class Transaction {
 
     getEcosystem() {
         return this.ecosystem;
+    }
+
+    getChainId() {
+        return this.chainId;
     }
 
     async updateTransactionById(id: number, transaction: ITransactionResponse): Promise<ITransactionResponse> {

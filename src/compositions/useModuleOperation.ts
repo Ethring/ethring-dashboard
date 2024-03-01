@@ -389,6 +389,7 @@ const useModuleOperations = (module: ModuleType) => {
                     tx.transaction.parameters = transaction;
                     tx.transaction.ecosystem = ecosystem.toUpperCase();
                     tx.setTransactionEcosystem(ecosystem.toUpperCase());
+                    tx.setChainId(selectedSrcNetwork.value?.chain_id);
                     await tx.setTransaction(tx.transaction);
                 };
 
@@ -413,7 +414,7 @@ const useModuleOperations = (module: ModuleType) => {
 
                         const forSign = tx.getTransaction();
 
-                        return await signAndSend(forSign, { ecosystem: tx.getEcosystem() });
+                        return await signAndSend(forSign, { ecosystem: tx.getEcosystem(), chain: tx.getChainId() });
                     } catch (error) {
                         console.error('useModuleOperations -> execute -> error', error);
                         throw error;

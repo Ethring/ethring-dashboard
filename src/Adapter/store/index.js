@@ -9,10 +9,22 @@ import EcosystemAdapter from '@/Adapter/ecosystems';
 const LAST_CONNECTED_WALLET_KEY = 'adapter:lastConnectedWallet';
 const CONNECTED_WALLETS_KEY = 'adapter:connectedWallets';
 const IS_CONNECTED_KEY = 'adapter:isConnected';
+const ADDRESSES_BY_ECOSYSTEM_KEY = 'adapter:addressesByEcosystem';
+const ADDRESSES_BY_ECOSYSTEM_LIST_KEY = 'adapter:addressesByEcosystemList';
 
 const connectedWalletsStorage = useLocalStorage(CONNECTED_WALLETS_KEY, [], { mergeDefaults: true });
+const addressesByEcosystemStorage = useLocalStorage(ADDRESSES_BY_ECOSYSTEM_KEY, {}, { mergeDefaults: true });
+const addressesByEcosystemListStorage = useLocalStorage(ADDRESSES_BY_ECOSYSTEM_LIST_KEY, {}, { mergeDefaults: true });
 const lastConnectedWalletStorage = useLocalStorage(LAST_CONNECTED_WALLET_KEY, {}, { mergeDefaults: true });
 const isConnectedStorage = useLocalStorage(IS_CONNECTED_KEY, false, { mergeDefaults: true });
+
+const getAccountByEcosystem = (ecosystem) => {
+    const result = connectedWalletsStorage.value.find((wallet) => wallet.ecosystem === ecosystem);
+
+    const { account } = result || {};
+
+    return account || null;
+};
 
 function findKeyDifferences(oldRecord, newRecord) {
     return Object.keys(oldRecord)
@@ -49,18 +61,18 @@ export default {
         isConnected: isConnectedStorage.value,
 
         addressesByEcosystem: {
-            [ECOSYSTEMS.EVM]: {},
-            [ECOSYSTEMS.COSMOS]: {},
+            [ECOSYSTEMS.EVM]: addressesByEcosystemStorage.value[ECOSYSTEMS.EVM] || {},
+            [ECOSYSTEMS.COSMOS]: addressesByEcosystemStorage.value[ECOSYSTEMS.COSMOS] || {},
         },
 
         addressesByEcosystemList: {
-            [ECOSYSTEMS.EVM]: [],
-            [ECOSYSTEMS.COSMOS]: [],
+            [ECOSYSTEMS.EVM]: addressesByEcosystemListStorage.value[ECOSYSTEMS.EVM] || {},
+            [ECOSYSTEMS.COSMOS]: addressesByEcosystemListStorage.value[ECOSYSTEMS.COSMOS] || {},
         },
 
         accountByEcosystem: {
-            [ECOSYSTEMS.EVM]: null,
-            [ECOSYSTEMS.COSMOS]: null,
+            [ECOSYSTEMS.EVM]: getAccountByEcosystem(ECOSYSTEMS.EVM),
+            [ECOSYSTEMS.COSMOS]: getAccountByEcosystem(ECOSYSTEMS.COSMOS),
         },
     },
     getters: {
@@ -87,6 +99,17 @@ export default {
         [GETTERS.GET_ADDRESSES_BY_ECOSYSTEM]: (state) => (ecosystem) => state.addressesByEcosystem[ecosystem] || {},
         [GETTERS.GET_ADDRESSES_BY_ECOSYSTEM_LIST]: (state) => (ecosystem) => state.addressesByEcosystemList[ecosystem] || {},
         [GETTERS.GET_ACCOUNT_BY_ECOSYSTEM]: (state) => (ecosystem) => state.accountByEcosystem[ecosystem] || null,
+
+        [GETTERS.GET_ALL_CONNECTED_WALLETS]: (state) => {
+            const wallets = state.wallets.map((wallet) => {
+                return {
+                    ...wallet,
+                    addresses: state.addressesByEcosystem[wallet.ecosystem] || {},
+                };
+            });
+
+            return wallets;
+        },
     },
     actions: {
         // * Actions for Modals
@@ -204,9 +227,12 @@ export default {
                 ...state.addressesByEcosystem[ecosystem],
                 ...addresses,
             };
+
+            addressesByEcosystemStorage.value[ecosystem] = state.addressesByEcosystem[ecosystem];
         },
         [TYPES.SET_ADDRESSES_BY_ECOSYSTEM_LIST](state, { ecosystem, addresses }) {
             state.addressesByEcosystemList[ecosystem] = addresses;
+            addressesByEcosystemListStorage.value[ecosystem] = addresses;
         },
         [TYPES.SET_ACCOUNT_BY_ECOSYSTEM](state, { ecosystem, account }) {
             state.accountByEcosystem[ecosystem] = account;

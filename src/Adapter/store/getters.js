@@ -22,3 +22,5 @@ export const LAST_CONNECTED_WALLET = 'getLastConnectedWallet';
 export const GET_ADDRESSES_BY_ECOSYSTEM = 'getAddressesByEcosystem';
 export const GET_ADDRESSES_BY_ECOSYSTEM_LIST = 'getAddressesByEcosystemList';
 export const GET_ACCOUNT_BY_ECOSYSTEM = 'getAccountByEcosystem';
+
+export const GET_ALL_CONNECTED_WALLETS = 'getAllConnectedWallets';

@@ -52,6 +52,7 @@ export default {
             walletAddress,
             walletAccount,
             currentChainInfo,
+            connectedWallets,
             connectLastConnectedWallet,
             getAddressesWithChainsByEcosystem,
         } = useAdapter();
@@ -132,6 +133,8 @@ export default {
         onMounted(() => {
             // * Tracking balance update for all accounts
             trackingBalanceUpdate(store);
+
+            // console.log('App mounted', store.getters['adapters/getAllConnectedWallets']);
         });
     },
 };

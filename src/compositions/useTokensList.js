@@ -13,6 +13,8 @@ export default function useTokensList({ network = null, fromToken = null, toToke
     const selectType = computed(() => store.getters['tokenOps/selectType']);
     const isFromSelected = computed(() => selectType.value === TOKEN_SELECT_TYPES.FROM);
 
+    const getAccount = (ecosystem) => store.getters['adapters/getAccountByEcosystem'](ecosystem);
+
     const getTokensFromConfig = async (network) => {
         const { net } = network || {};
 
@@ -30,9 +32,8 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             return [];
         }
 
-        const account = computed(() => store.getters['adapters/getAccountByEcosystem'](ecosystem));
-
-        return store.getters['tokens/getTokensListForChain'](net, { account: account.value });
+        const account = getAccount(ecosystem);
+        return store.getters['tokens/getTokensListForChain'](net, { account });
     };
 
     const getAllTokensList = async (network, fromToken, toToken, isSameNet = true, onlyWithBalance = false) => {

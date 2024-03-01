@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import _ from 'lodash';
+import _, { chain } from 'lodash';
 
 import { cosmos } from 'osmojs';
 import { SigningStargateClient, GasPrice } from '@cosmjs/stargate';
@@ -98,11 +98,24 @@ class CosmosAdapter extends AdapterBase {
 
         const logger = new Logger('INFO');
 
-        this.walletManager = new WalletManager(activeChains, [KEPLR_EXT], logger, 'connect_only', true, false, assets, {}, {}, {}, {}, {
-            callback: () => {
-                this.walletManager.onMounted();
-            }
-        });
+        this.walletManager = new WalletManager(
+            activeChains,
+            [KEPLR_EXT],
+            logger,
+            'connect_only',
+            true,
+            false,
+            assets,
+            {},
+            {},
+            {},
+            {},
+            {
+                callback: () => {
+                    this.walletManager.onMounted();
+                },
+            },
+        );
 
         const stargateClientOptions = {
             aminoTypes,
@@ -588,7 +601,7 @@ class CosmosAdapter extends AdapterBase {
 
             return adjustedGas;
         } catch (error) {
-            logger.error('error while simulate', error);
+            logger.error('[COSMOS -> getTransactionFee -> simulateTxGas]', error);
             return null;
         }
     }
@@ -772,10 +785,12 @@ class CosmosAdapter extends AdapterBase {
         const { clientOptions = {} } = chainRecord || {};
         const { signingStargate = {} } = clientOptions;
 
+        console.log('rpc', signingStargate, chainWallet.value.offlineSigner);
         const client = await this.getSignClient(rpcEndpoints, {
             signingStargate,
             offlineSigner: chainWallet.value.offlineSigner,
         });
+        console.log('client', client);
 
         // Check if client exist
         if (!client) {

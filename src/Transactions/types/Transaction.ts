@@ -36,7 +36,7 @@ export interface ITransaction {
 }
 
 export interface ITransactionResponse {
-    id: string | number;
+    id: string | number | null;
     requestID: string;
     index: string | number;
     txHash: string | null;

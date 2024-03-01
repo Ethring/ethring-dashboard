@@ -11,6 +11,7 @@ import { captureTransactionException } from '@/app/modules/sentry';
 
 import logger from '@/shared/logger';
 import useAdapter from '@/Adapter/compositions/useAdapter';
+import { delay } from '@/shared/utils/helpers';
 
 export default function useTransactions() {
     const store = useStore();
@@ -20,7 +21,17 @@ export default function useTransactions() {
     const transactionForSign = computed(() => store.getters['txManager/transactionForSign']);
     const currentRequestID = computed(() => store.getters['txManager/currentRequestID']);
 
-    const { signSend, currentChainInfo, connectedWallet, getTxExplorerLink, prepareTransaction, formatTransactionForSign } = useAdapter();
+    const {
+        signSend,
+        currentChainInfo,
+        connectedWallet,
+        connectByEcosystems,
+        setChain,
+        getChainByChainId,
+        getTxExplorerLink,
+        prepareTransaction,
+        formatTransactionForSign,
+    } = useAdapter();
 
     // * Create transactions queue
     const createTransactions = async (transactions) => {
@@ -234,7 +245,7 @@ export default function useTransactions() {
      *
      * @returns {object}
      */
-    const signAndSend = async (transaction, { ecosystem }) => {
+    const signAndSend = async (transaction, { ecosystem, chain }) => {
         const ACTIONS_FOR_TX = {
             prepareTransaction: async (parameters) => await prepareTransaction(parameters, { ecosystem }),
             formatTransactionForSign: async (parameters) => await formatTransactionForSign(parameters, { ecosystem }),
@@ -253,6 +264,22 @@ export default function useTransactions() {
         let txFoSign = parameters;
 
         await store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: true });
+
+        try {
+            const { ecosystem: currEcosystem, chain_id } = currentChainInfo.value || {};
+
+            if (currEcosystem !== ecosystem) {
+                await connectByEcosystems(ecosystem);
+            }
+
+            if (chain !== chain_id) {
+                const chainInfo = getChainByChainId(ecosystem, chain);
+                await setChain(chainInfo);
+                await delay(1000);
+            }
+        } catch (error) {
+            console.error('[signAndSend] Error occurred while setting ecosystem and chain', error);
+        }
 
         try {
             if (!action || !ACTIONS_FOR_TX[action]) {
@@ -281,9 +308,8 @@ export default function useTransactions() {
 
         let response = null;
 
-        console.log('txFoSign', txFoSign);
         try {
-            response = await signSend(txFoSign, { ecosystem });
+            response = await signSend(txFoSign, { ecosystem, chain });
             console.log('signSend response', response);
         } catch (error) {
             closeNotification('prepare-tx');
