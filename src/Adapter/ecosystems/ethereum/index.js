@@ -352,7 +352,7 @@ class EthereumAdapter extends AdapterBase {
         return `${explorer}/token/${tokenAddress}`;
     }
 
-    getAddressesWithChains() {
+    async getAddressesWithChains() {
         return this.addressByNetwork || {};
     }
 

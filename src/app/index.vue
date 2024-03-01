@@ -57,16 +57,16 @@ export default {
 
         const isShowRoutesModal = computed(() => store.getters['app/modal']('routesModal'));
 
-        const addressesWithChains = computed(() => {
+        const addressesWithChains = computed(async () => {
             const { ecosystem } = currentChainInfo.value || {};
-            return getAddressesWithChainsByEcosystem(ecosystem) || {};
+            return (await getAddressesWithChainsByEcosystem(ecosystem)) || {};
         });
 
-        const callSubscription = () => {
+        const callSubscription = async () => {
             const { ecosystem } = currentChainInfo.value || {};
 
-            if (JSON.stringify(addressesWithChains.value) !== '{}' && walletAddress.value) {
-                Socket.setAddresses(addressesWithChains.value, walletAddress.value, ecosystem);
+            if (JSON.stringify(await addressesWithChains.value) !== '{}' && walletAddress.value) {
+                Socket.setAddresses(await addressesWithChains.value, walletAddress.value, ecosystem);
             }
         };
 
@@ -79,7 +79,7 @@ export default {
             }
 
             await setNativeTokensPrices(store, ecosystem);
-            await updateBalanceForAccount(walletAccount.value, addressesWithChains.value);
+            await updateBalanceForAccount(walletAccount.value, await addressesWithChains.value);
         };
 
         // ==========================================================================================
