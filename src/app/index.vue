@@ -90,8 +90,8 @@ export default {
             await setNativeTokensPrices(store, ecosystem);
             await updateBalanceForAccount(walletAccount.value, addresses);
 
-            store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM', { ecosystem, addresses });
-            store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses: addressHash });
+            store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM', { ecosystem, addresses: addressHash });
+            store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses });
         };
 
         // ==========================================================================================
