@@ -10,11 +10,10 @@ import { STATUSES, DISALLOW_UPDATE_TYPES } from '@/shared/models/enums/statuses.
 import { captureTransactionException } from '@/app/modules/sentry';
 
 import logger from '@/shared/logger';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 
 export default function useTransactions() {
     const store = useStore();
-
-    const useAdapter = inject('useAdapter');
 
     const { showNotification, closeNotification } = useNotification();
 
@@ -235,10 +234,10 @@ export default function useTransactions() {
      *
      * @returns {object}
      */
-    const signAndSend = async (transaction) => {
+    const signAndSend = async (transaction, { ecosystem }) => {
         const ACTIONS_FOR_TX = {
-            prepareTransaction: async (parameters) => await prepareTransaction(parameters),
-            formatTransactionForSign: async (parameters) => await formatTransactionForSign(parameters),
+            prepareTransaction: async (parameters) => await prepareTransaction(parameters, { ecosystem }),
+            formatTransactionForSign: async (parameters) => await formatTransactionForSign(parameters, { ecosystem }),
         };
 
         if (!transaction) {
@@ -282,9 +281,9 @@ export default function useTransactions() {
 
         let response = null;
 
-        console.log('UseTransactions -> signAndSend -> txFoSign', txFoSign);
+        console.log('txFoSign', txFoSign);
         try {
-            response = await signSend(txFoSign);
+            response = await signSend(txFoSign, { ecosystem });
             console.log('signSend response', response);
         } catch (error) {
             closeNotification('prepare-tx');

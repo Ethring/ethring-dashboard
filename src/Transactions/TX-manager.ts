@@ -13,6 +13,8 @@ export class Transaction {
 
     transaction: ITransactionResponse;
 
+    ecosystem: string;
+
     constructor(type: string) {
         this.type = type;
     }
@@ -25,6 +27,10 @@ export class Transaction {
         this.requestID = requestID;
     }
 
+    setTransactionEcosystem(ecosystem: string) {
+        this.ecosystem = ecosystem;
+    }
+
     async setTransaction(transaction: ITransactionResponse) {
         this.transaction = transaction;
         await this.updateTransactionById(Number(this.id), { ...transaction, id: Number(transaction.id), index: Number(transaction.index) });
@@ -32,6 +38,10 @@ export class Transaction {
 
     getTransaction() {
         return this.transaction;
+    }
+
+    getEcosystem() {
+        return this.ecosystem;
     }
 
     async updateTransactionById(id: number, transaction: ITransactionResponse): Promise<ITransactionResponse> {

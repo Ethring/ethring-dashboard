@@ -231,7 +231,7 @@ const useModuleOperations = (module: ModuleType) => {
         return {
             index,
             module,
-            account: walletAddress.value,
+            account: addressByChain.value[selectedSrcNetwork.value.net],
 
             status: index === 0 ? STATUSES.IN_PROGRESS : STATUSES.PENDING,
 
@@ -257,7 +257,7 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
 
     const TX_PARAMS_BY_TYPE = {
-        [TRANSACTION_TYPES.APPROVE]: async (): Promise<BridgeDexTx> => {
+        [TRANSACTION_TYPES.APPROVE]: async (): Promise<IBridgeDexTransaction> => {
             const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
 
             const params: Approve = {
@@ -271,9 +271,9 @@ const useModuleOperations = (module: ModuleType) => {
 
             const [tx] = responseApprove;
 
-            return tx.transaction;
+            return tx;
         },
-        [TRANSACTION_TYPES.DEX]: async (): Promise<BridgeDexTx> => {
+        [TRANSACTION_TYPES.DEX]: async (): Promise<IBridgeDexTransaction> => {
             const params = {
                 net: selectedSrcNetwork.value.net,
                 fromNet: selectedSrcNetwork.value.net,
@@ -299,9 +299,9 @@ const useModuleOperations = (module: ModuleType) => {
 
             const [tx] = responseSwap;
 
-            return tx.transaction;
+            return tx;
         },
-        [TRANSACTION_TYPES.TRANSFER]: async (): Promise<IBaseTransactionParams> => {
+        [TRANSACTION_TYPES.TRANSFER]: async (): Promise<IBridgeDexTransaction> => {
             const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
 
             const params = {
@@ -316,7 +316,10 @@ const useModuleOperations = (module: ModuleType) => {
                 params.memo = memo.value;
             }
 
-            return params;
+            return {
+                ecosystem: selectedSrcNetwork.value.ecosystem,
+                transaction: params,
+            };
         },
     };
 
@@ -348,33 +351,6 @@ const useModuleOperations = (module: ModuleType) => {
 
     const handleOnConfirm = async () => {
         isTransactionSigning.value = true;
-
-        const { ecosystem } = currentChainInfo.value || {};
-        const { ecosystem: srcEcosystem } = selectedSrcNetwork.value || {};
-
-        const isSameEcosystem = ecosystem === srcEcosystem;
-
-        try {
-            if (!isSameEcosystem) {
-                await connectByEcosystems(isRequireConnect.value.ecosystem);
-                return (isTransactionSigning.value = false);
-            }
-        } catch (error) {
-            console.error('Error on connect:', error);
-            return (isTransactionSigning.value = false);
-        }
-
-        try {
-            const isChanged = await isCorrectChain(selectedSrcNetwork, currentChainInfo, setChain);
-
-            // * If chain is not changed, make one more attempt to confirm
-            if (typeof isChanged === 'boolean' && isChanged === false) {
-                await handleOnConfirm();
-            }
-        } catch (error) {
-            console.error('Error on chain change:', error);
-            return (isTransactionSigning.value = false);
-        }
 
         try {
             const group = {
@@ -408,8 +384,11 @@ const useModuleOperations = (module: ModuleType) => {
                 // * Set execute parameters
                 tx.setTxExecuteParameters = async () => {
                     console.log('Set execute parameters:', index, type, 'Transaction');
-                    const params = await TX_PARAMS_BY_TYPE[type]();
-                    tx.transaction.parameters = params;
+                    const { transaction, ecosystem } = await TX_PARAMS_BY_TYPE[type]();
+                    console.log('transaction', transaction, 'ecosystem', ecosystem);
+                    tx.transaction.parameters = transaction;
+                    tx.transaction.ecosystem = ecosystem.toUpperCase();
+                    tx.setTransactionEcosystem(ecosystem.toUpperCase());
                     await tx.setTransaction(tx.transaction);
                 };
 
@@ -434,7 +413,7 @@ const useModuleOperations = (module: ModuleType) => {
 
                         const forSign = tx.getTransaction();
 
-                        return await signAndSend(forSign);
+                        return await signAndSend(forSign, { ecosystem: tx.getEcosystem() });
                     } catch (error) {
                         console.error('useModuleOperations -> execute -> error', error);
                         throw error;

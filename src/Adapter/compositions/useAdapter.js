@@ -289,17 +289,33 @@ function useAdapter() {
     };
 
     // * Format Tx for Ecosystem
-    const formatTransactionForSign = (transaction) => {
+    const formatTransactionForSign = (transaction, { ecosystem }) => {
         if (!mainAdapter.value) {
             return null;
         }
 
-        return mainAdapter.value.formatTransactionForSign(transaction);
+        if (!ecosystem) {
+            return mainAdapter.value.formatTransactionForSign(transaction);
+        }
+
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+
+        return adapter.formatTransactionForSign(transaction);
     };
 
     // * Prepare Transaction
-    const prepareTransaction = async (...args) => {
-        return await mainAdapter.value.prepareTransaction(...args);
+    const prepareTransaction = async (transaction, { ecosystem }) => {
+        if (!mainAdapter.value) {
+            return null;
+        }
+
+        if (!ecosystem) {
+            return await mainAdapter.value.prepareTransaction(...transaction);
+        }
+
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+
+        return await adapter.prepareTransaction(...transaction);
     };
 
     // * Get Explorer Link by Tx Hash
@@ -321,8 +337,18 @@ function useAdapter() {
     };
 
     // * Sign & Send Transaction
-    const signSend = async (transaction) => {
-        return await mainAdapter.value.signSend(transaction);
+    const signSend = async (transaction, { ecosystem = null }) => {
+        if (!ecosystem) {
+            return await mainAdapter.value.signSend(transaction);
+        }
+
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+
+        if (!adapter) {
+            return { error: `Please connect your ${ecosystem} wallet` };
+        }
+
+        return await adapter.signSend(transaction);
     };
 
     // * Get Chain List by Ecosystem
