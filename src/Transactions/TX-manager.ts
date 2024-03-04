@@ -36,9 +36,8 @@ export class Transaction {
         this.ecosystem = ecosystem;
     }
 
-    async setTransaction(transaction: ITransactionResponse) {
+    setTransaction(transaction: ITransactionResponse) {
         this.transaction = transaction;
-        await this.updateTransactionById(Number(this.id), { ...transaction, id: Number(transaction.id), index: Number(transaction.index) });
     }
 
     getTransaction() {
@@ -54,7 +53,8 @@ export class Transaction {
     }
 
     async updateTransactionById(id: number, transaction: ITransactionResponse): Promise<ITransactionResponse> {
-        return await updateTransaction(id, transaction);
+        this.setTransaction(transaction);
+        return await updateTransaction(id, { ...transaction, id: Number(transaction.id), index: Number(transaction.index) });
     }
 
     prepare: () => Promise<void>;
@@ -221,7 +221,11 @@ export class TransactionList {
                 await current.transaction.setTransaction({ ...current.transaction.getTransaction(), txHash: hash });
 
                 const waitResponse = await this.waitForTransaction(hash);
-                await current.transaction.setTransaction({ ...current.transaction.getTransaction(), status: waitResponse.status });
+
+                await current.transaction.updateTransactionById(Number(current.transaction.id), {
+                    ...current.transaction.getTransaction(),
+                    status: waitResponse.status,
+                });
 
                 if (current.transaction.onSuccess) {
                     await current.transaction.onSuccess();

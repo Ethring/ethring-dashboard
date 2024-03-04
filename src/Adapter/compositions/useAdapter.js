@@ -310,12 +310,12 @@ function useAdapter() {
         }
 
         if (!ecosystem) {
-            return await mainAdapter.value.prepareTransaction(...transaction);
+            return await mainAdapter.value.prepareTransaction(transaction);
         }
 
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
-        return await adapter.prepareTransaction(...transaction);
+        return await adapter.prepareTransaction(transaction);
     };
 
     // * Get Explorer Link by Tx Hash

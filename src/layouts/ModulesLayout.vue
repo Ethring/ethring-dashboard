@@ -23,7 +23,7 @@
     </div>
 </template>
 <script>
-import { onBeforeUnmount, onMounted, watch, ref, computed, inject, watchEffect } from 'vue';
+import { onBeforeUnmount, onMounted, watch, ref, computed, watchEffect } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useStore } from 'vuex';
 
@@ -39,6 +39,7 @@ import OperationResult from '@/components/ui/Result';
 import ArrowUpIcon from '@/assets/icons/module-icons/pointer-up.svg';
 
 import redirectOrStay from '@/shared/utils/routes';
+import useAdapter from '@/Adapter/compositions/useAdapter';
 
 export default {
     name: 'ModulesLayout',
@@ -65,7 +66,6 @@ export default {
 
     setup() {
         const store = useStore();
-        const useAdapter = inject('useAdapter');
 
         const isConfigLoading = computed(() => store.getters['configs/isConfigLoading']);
 
@@ -85,11 +85,6 @@ export default {
 
         // * Module type
         const moduleType = ref('');
-
-        // * Module values
-        // const { resetToDefaultValues } = useServices({
-        //     moduleType: moduleType.value,
-        // });
 
         const setModuleType = () => {
             const { meta, params } = router.currentRoute.value || {};

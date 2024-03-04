@@ -84,6 +84,7 @@ import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewIn
 // Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
+import { ModuleType } from '../../../modules/bridge-dex/enums/ServiceType.enum';
 
 export default {
     name: 'SimpleSwap',
@@ -107,7 +108,7 @@ export default {
         // * Module Operations composition
         // =================================================================================================================
 
-        const { handleOnConfirm, moduleInstance, isTransactionSigning, isDisableConfirmButton } = useModuleOperations('swap');
+        const { handleOnConfirm, moduleInstance, isTransactionSigning, isDisableConfirmButton } = useModuleOperations(ModuleType.swap);
 
         // =================================================================================================================
         // * Module values

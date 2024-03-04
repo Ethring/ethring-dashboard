@@ -4,6 +4,7 @@ export enum STATUSES {
     REJECTED = 'REJECTED',
     PENDING = 'PENDING',
     IN_PROGRESS = 'IN PROGRESS',
+    SIGNING = 'SIGNING',
 }
 
 export enum TRANSACTION_TYPES {

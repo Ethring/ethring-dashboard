@@ -112,23 +112,8 @@
 <script>
 import { computed, ref, inject, watch, h } from 'vue';
 import { useStore } from 'vuex';
-import { useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
 
 import BigNumber from 'bignumber.js';
-
-// Services
-import { getSwapTx, getBridgeTx } from '@/api/services';
-
-// Adapter
-import { ECOSYSTEMS } from '@/Adapter/config';
-
-// Composition
-import useNotification from '@/compositions/useNotification';
-import useServices from '@/compositions/useServices';
-
-// Transaction Management
-import useTransactions from '../../../Transactions/compositions/useTransactions';
 
 import SelectRecord from '@/components/ui/Select/SelectRecord';
 import SelectAddressInput from '@/components/ui/Select/SelectAddressInput';
@@ -167,18 +152,10 @@ export default {
     },
     setup() {
         const store = useStore();
-        const router = useRouter();
-        const { t } = useI18n();
 
         const useAdapter = inject('useAdapter');
 
-        const { name: module } = router.currentRoute.value;
-
         const { moduleInstance, isTransactionSigning, isDisableConfirmButton, handleOnConfirm } = useModuleOperations(ModuleType.superSwap);
-
-        const { walletAccount, walletAddress, currentChainInfo, setChain } = useAdapter('super-swap');
-
-        const { showNotification, closeNotification } = useNotification();
 
         // =================================================================================================================
 
@@ -187,16 +164,6 @@ export default {
         const routeInfo = computed(() => store.getters['bridgeDex/selectedRoute']);
         const bestRouteInfo = computed(() => routeInfo.value?.bestRoute);
         const otherRoutesInfo = computed(() => routeInfo.value?.otherRoutes);
-
-        // const currentRouteInfo = computed(() => bestRouteInfo.value?.routes.find((elem) => elem.status === STATUSES.SIGNING));
-
-        // const selectedService = computed(() => {
-        //     if (currentRouteInfo.value?.service) {
-        //         return currentRouteInfo.value?.service;
-        //     }
-
-        //     return null;
-        // });
 
         // * Module values
         const {
@@ -348,15 +315,10 @@ export default {
             TOKEN_SELECT_TYPES,
 
             successHash,
-            currentChainInfo,
 
             differPercentage,
 
             onSetAmount,
-
-            swap: () => {
-                console.log('swap');
-            },
             isDisableConfirmButton,
 
             getEstimateInfo,

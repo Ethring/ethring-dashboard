@@ -49,7 +49,7 @@ const useModuleOperations = (module: ModuleType) => {
     });
 
     // * Module values
-    const moduleInstance = useServices({ moduleType: module });
+    const moduleInstance = useServices(module);
 
     const {
         isNeedApprove,
@@ -390,7 +390,8 @@ const useModuleOperations = (module: ModuleType) => {
                     tx.transaction.ecosystem = ecosystem.toUpperCase();
                     tx.setTransactionEcosystem(ecosystem.toUpperCase());
                     tx.setChainId(selectedSrcNetwork.value?.chain_id);
-                    await tx.setTransaction(tx.transaction);
+
+                    await tx.updateTransactionById(Number(tx.id), tx.transaction);
                 };
 
                 // * Execute transaction

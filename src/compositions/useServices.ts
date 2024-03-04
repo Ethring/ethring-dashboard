@@ -1,35 +1,27 @@
 import BigNumber from 'bignumber.js';
 import _ from 'lodash';
 
-import { ref, computed, inject, watch, onBeforeUnmount, onMounted } from 'vue';
+import { ref, computed, watch, onBeforeUnmount, onMounted } from 'vue';
 import { useStore } from 'vuex';
-import { useI18n } from 'vue-i18n';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
+import useAdapter from '@/Adapter/compositions/useAdapter';
 import useTokensList from '@/compositions/useTokensList';
 import useNotification from '@/compositions/useNotification';
-
-import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
-import { STATUSES } from '@/shared/constants/super-swap/constants';
-import { useRouter } from 'vue-router';
 import useBridgeDexService from '@/modules/bridge-dex/compositions';
+
+import { STATUSES } from '@/shared/models/enums/statuses.enum';
+import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { ModuleType } from '@/modules/bridge-dex/enums/ServiceType.enum';
 
-export default function useModule({ moduleType }) {
-    const { t } = useI18n();
+export default function useModule(moduleType: ModuleType) {
     const store = useStore();
-
-    const router = useRouter();
-
-    const { name: module } = router.currentRoute.value;
 
     const selectedSrcNetwork = computed({
         get: () => store.getters['tokenOps/srcNetwork'],
         set: (value) => store.dispatch('tokenOps/setSrcNetwork', value),
     });
-
-    const useAdapter = inject('useAdapter');
 
     // =================================================================================================================
     // * Bridge Dex Service Composition
@@ -60,7 +52,7 @@ export default function useModule({ moduleType }) {
         set: (value) => store.dispatch(`tokenOps/setSelectedService`, value),
     });
 
-    const isWaitingTxStatusForModule = computed(() => store.getters['txManager/isWaitingTxStatusForModule'](module));
+    const isWaitingTxStatusForModule = computed(() => store.getters['txManager/isWaitingTxStatusForModule'](moduleType));
 
     // * Bridge Dex
     const bridgeDexRoutes = computed(() => store.getters['bridgeDex/selectedRoute']);
@@ -213,6 +205,7 @@ export default function useModule({ moduleType }) {
             srcNet,
             isSameNet,
             onlyWithBalance: selectType.value === TOKEN_SELECT_TYPES.FROM,
+            dstToken: null,
         };
 
         isExclude && (getTokensParams.dstToken = token);
@@ -275,9 +268,7 @@ export default function useModule({ moduleType }) {
         switch (moduleType) {
             case 'swap':
                 if (isSrcTokenChanged || !selectedSrcToken.value || isAccountChanged) {
-                    selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value, {
-                        from: 'switch-swap, from',
-                    });
+                    selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
                 }
 
                 if (isDstTokenChangedForSwap || !selectedDstToken.value || isAccountChanged) {
@@ -296,25 +287,19 @@ export default function useModule({ moduleType }) {
                 selectedDstToken.value = null;
 
                 if (isSrcTokenChanged || isAccountChanged) {
-                    selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value, {
-                        from: 'switch-send, from',
-                    });
+                    selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
                 }
 
                 break;
 
             case 'bridge':
-            case 'super-swap':
+            case 'superSwap':
                 if (isSrcTokenChanged || isAccountChanged) {
-                    selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value, {
-                        from: 'switch-bridge, from',
-                    });
+                    selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
                 }
 
                 if (isDstTokenChanged || isAccountChanged) {
-                    selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value, {
-                        from: 'switch-bridge, to',
-                    });
+                    selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
                 }
 
                 break;
@@ -366,6 +351,17 @@ export default function useModule({ moduleType }) {
 
     // ========================= Watch Chain Info =========================
     const unWatchChainInfo = watch(currentChainInfo, () => {
+        const { ecosystem, net } = currentChainInfo.value || {};
+        const { ecosystem: srcEcosystem, net: srcNet } = selectedSrcNetwork.value || {};
+
+        if (!ecosystem || !net || !srcEcosystem || !srcNet) {
+            return;
+        }
+
+        if (ecosystem !== srcEcosystem || net !== srcNet) {
+            console.log('--Watch Chain Info', 'ecosystem !== srcEcosystem || net !== srcNet', ecosystem, srcEcosystem, net, srcNet);
+        }
+
         if (selectedSrcNetwork.value?.ecosystem !== currentChainInfo?.value?.ecosystem) {
             selectedSrcNetwork.value = null;
             selectedDstNetwork.value = null;
@@ -441,13 +437,10 @@ export default function useModule({ moduleType }) {
 
             setTimeout(() => (estimateErrorTitle.value = ''));
 
-            selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value, {
-                from: 'watch-src-dst-network, if src',
-            });
+            selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
 
             if (['swap'].includes(moduleType)) {
                 selectedDstToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedDstToken.value, {
-                    from: 'watch-src-dst-network, if src swap dst',
                     isSameNet: true,
                     isExclude: true,
                     token: selectedSrcToken.value,
@@ -458,9 +451,7 @@ export default function useModule({ moduleType }) {
         if (newDst && !isSameNetwork) {
             setTimeout(() => (estimateErrorTitle.value = ''));
 
-            selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value, {
-                from: 'watch-src-dst-network, if dst',
-            });
+            selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
         }
     });
 
@@ -523,9 +514,7 @@ export default function useModule({ moduleType }) {
             return;
         }
 
-        selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value, {
-            from: 'watch-loading-dst, if dst',
-        });
+        selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
     });
 
     // ========================= Watch Tx Error =========================
@@ -658,9 +647,6 @@ export default function useModule({ moduleType }) {
 
         isSwapDirectionAvailable,
         isDirectionSwapped,
-
-        // Src token allowance and approve for service
-        isNeedApprove,
 
         // Receiver
         isSendToAnotherAddress,
