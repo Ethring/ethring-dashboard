@@ -16,8 +16,8 @@ import {
     authByMmMockErrorBalance,
 } from './fixtureHelper';
 import { proxyUrl } from '../../playwright.config';
-import { COSMOS_WALLETS_BY_PROTOCOL_SEED, COSMOS_WALLETS_BY_SEED_MOCK_TX } from 'tests/data/constants';
-import { mockBalanceData } from 'tests/data/mockHelper';
+import { COSMOS_WALLETS_BY_PROTOCOL_SEED, COSMOS_WALLETS_BY_SEED_MOCK_TX } from '../data/constants';
+import { mockBalanceData } from '../data/mockHelper';
 
 const ADDRESS_BY_TX = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
 const SEED_PHRASE_BY_TX = getTestVar(TEST_CONST.SEED_BY_MOCK_TX);
