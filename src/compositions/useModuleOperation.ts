@@ -508,11 +508,6 @@ const useModuleOperations = (module: ModuleType) => {
             case ModuleType.bridge:
                 return isBridgeConfirmDisabled;
             case ModuleType.superSwap:
-                console.table({
-                    isSendToAnotherAddress: isSendToAnotherAddress.value,
-                    isAddressError: isAddressError.value,
-                    isReceiverAddressSet: isReceiverAddressSet.value,
-                });
                 return (
                     isDisabled ||
                     !isQuoteRouteSelected.value ||

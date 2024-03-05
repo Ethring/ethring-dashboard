@@ -21,8 +21,16 @@ export default function useChainTokenManger(moduleType: ModuleType) {
     const DEFAULT_TITLE = `tokenOperations.${moduleType === 'swap' ? 'swap' : 'confirm'}`;
     const opTitle = ref(DEFAULT_TITLE);
 
-    const { isSameTokenSameNet, isSameNetwork, isSameToken, isSrcTokenChainCorrect, isDstTokenChainCorrect, isDstTokenChainCorrectSwap } =
-        useInputValidation();
+    const {
+        isSameTokenSameNet,
+        isSameNetwork,
+        isSameToken,
+        isSrcTokenChainCorrect,
+        isDstTokenChainCorrect,
+        isDstTokenChainCorrectSwap,
+        isSrcTokenSet,
+        isDstTokenSet,
+    } = useInputValidation();
 
     // =================================================================================================================
     // * Adapter
@@ -226,14 +234,14 @@ export default function useChainTokenManger(moduleType: ModuleType) {
                     selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value, params);
                 }
 
-                if (isSrcTokenChanged || isAccountChanged) {
-                    selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
-                }
+                // if (isSrcTokenChanged || isAccountChanged) {
+                //     selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
+                // }
 
-                if (isDstTokenChanged || isAccountChanged) {
-                    params.token = selectedSrcToken.value;
-                    selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value, params);
-                }
+                // if (isDstTokenChanged || isAccountChanged) {
+                //     params.token = selectedSrcToken.value;
+                //     selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value, params);
+                // }
 
                 break;
         }
@@ -330,7 +338,13 @@ export default function useChainTokenManger(moduleType: ModuleType) {
     });
 
     const unWatchSrcDstToken = watch([selectedSrcToken, selectedDstToken], async () => {
-        await defaultTokenManagerByModule();
+        if (isSameTokenSameNet.value) {
+            return (selectedDstToken.value = null);
+        }
+
+        if (!isSrcTokenSet.value || !isDstTokenSet.value) {
+            return await defaultTokenManagerByModule();
+        }
     });
 
     // ========================= Watch Tokens Loadings for SRC and DST networks =========================
