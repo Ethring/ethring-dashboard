@@ -13,6 +13,7 @@ const useInputValidation = () => {
     const selectedSrcToken = computed(() => store.getters['tokenOps/srcToken']);
     const selectedDstToken = computed(() => store.getters['tokenOps/dstToken']);
     const srcAmount = computed(() => store.getters['tokenOps/srcAmount']);
+    const dstAmount = computed(() => store.getters['tokenOps/dstAmount']);
     const receiverAddress = computed(() => store.getters['tokenOps/receiverAddress']);
 
     const serviceType = computed(() => store.getters['bridgeDexAPI/getSelectedServiceType']);
@@ -26,6 +27,11 @@ const useInputValidation = () => {
     // ? Check if the source amount is set
     const isSrcAmountSet = computed(() => {
         return srcAmount.value && srcAmount.value > 0 && !_.isNaN(srcAmount.value) && !_.isEmpty(srcAmount.value);
+    });
+
+    // ? Check if the destination amount is set
+    const isDstAmountSet = computed(() => {
+        return dstAmount.value && dstAmount.value > 0 && !_.isNaN(dstAmount.value) && !_.isEmpty(dstAmount.value);
     });
 
     // ? Check if src token is set
@@ -104,6 +110,7 @@ const useInputValidation = () => {
 
     return {
         isSrcAmountSet,
+        isDstAmountSet,
 
         isSrcTokenChainCorrect,
         isDstTokenChainCorrect,

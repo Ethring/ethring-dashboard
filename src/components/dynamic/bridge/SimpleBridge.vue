@@ -75,7 +75,7 @@
         />
 
         <EstimatePreviewInfo
-            v-if="isShowEstimateInfo || (isDstTokenSet && isSrcAmountSet)"
+            v-if="isShowEstimateInfo"
             :is-loading="isQuoteLoading"
             :services="[selectedRoute]"
             :fee-in-usd="fees[FEE_TYPE.BASE] || 0"

@@ -38,7 +38,7 @@ export default function useModule(moduleType: ModuleType) {
         quoteRoutes,
         otherRoutes,
 
-        isRequireConnect,
+        isShowEstimateInfo,
 
         makeApproveRequest,
         makeSwapRequest,
@@ -171,26 +171,6 @@ export default function useModule(moduleType: ModuleType) {
         store.getters['tokens/loadingByChain'](walletAccount.value, selectedDstNetwork.value?.net),
     );
 
-    // =================================== FEE INFO ===================================
-
-    const isShowEstimateInfo = computed(() => {
-        const requiredValues = selectedSrcToken.value?.id && srcAmount.value && dstAmount.value;
-
-        if (estimateErrorTitle.value) {
-            return true;
-        }
-
-        if (!srcAmount.value || !dstAmount.value || !selectedSrcToken.value?.id) {
-            return false;
-        }
-
-        if (requiredValues && moduleType !== ModuleType.send) {
-            return true;
-        }
-
-        return false;
-    });
-
     // =================================================================================================================
 
     const checkSelectedNetwork = () => {
@@ -238,8 +218,6 @@ export default function useModule(moduleType: ModuleType) {
     const openSelectModal = (selectFor, { direction, type }) => {
         direction && (targetDirection.value = direction);
         type && (selectType.value = type);
-
-        console.log('openSelectModal', selectFor, { direction, type });
 
         return store.dispatch('app/toggleSelectModal', { type: selectFor, module: moduleType });
     };
@@ -345,7 +323,6 @@ export default function useModule(moduleType: ModuleType) {
         isAllowanceLoading,
         isNeedApprove,
         isQuoteLoading,
-        isRequireConnect,
         quoteErrorMessage,
         quoteRoutes,
         otherRoutes,

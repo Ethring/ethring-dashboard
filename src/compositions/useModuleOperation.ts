@@ -55,7 +55,6 @@ const useModuleOperations = (module: ModuleType) => {
         isEstimating,
         isSendToAnotherAddress,
         isAddressError,
-        isRequireConnect,
         quoteErrorMessage,
 
         selectedSrcNetwork,
@@ -509,8 +508,19 @@ const useModuleOperations = (module: ModuleType) => {
             case ModuleType.bridge:
                 return isBridgeConfirmDisabled;
             case ModuleType.superSwap:
-                return isDisabled || !isQuoteRouteSelected.value || !isQuoteRouteSet.value || isWithAddress;
-
+                console.table({
+                    isSendToAnotherAddress: isSendToAnotherAddress.value,
+                    isAddressError: isAddressError.value,
+                    isReceiverAddressSet: isReceiverAddressSet.value,
+                });
+                return (
+                    isDisabled ||
+                    !isQuoteRouteSelected.value ||
+                    !isQuoteRouteSet.value ||
+                    (isSameNetwork.value && !isDstTokenChainCorrectSwap.value) ||
+                    (!isSameNetwork.value && !isDstTokenChainCorrect.value) ||
+                    isWithAddress
+                );
             default:
                 return isDisabled ? true : false;
         }
@@ -524,7 +534,6 @@ const useModuleOperations = (module: ModuleType) => {
         handleOnConfirm,
         moduleInstance,
 
-        isRequireConnect,
         isDisableConfirmButton,
         isDisableSelect,
         isTransactionSigning,

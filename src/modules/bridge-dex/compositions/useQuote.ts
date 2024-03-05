@@ -47,12 +47,15 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
 
     const {
         isSrcAmountSet,
+        isDstAmountSet,
         isSameToken,
         isSameNetwork,
         isSameTokenSameNet,
         isSrcTokenChainCorrect,
         isDstTokenChainCorrect,
         isDstTokenChainCorrectSwap,
+        isQuoteRouteSet,
+        isQuoteRouteSelected,
     } = useInputValidation();
 
     // ===========================================================================================
@@ -120,53 +123,25 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     });
 
     // ===========================================================================================
+    // * Utils
+    // ===========================================================================================
+    const resetQuoteRoutes = () => {
+        store.dispatch('bridgeDexAPI/setQuoteRoutes', {
+            serviceType: targetType,
+            value: [],
+        });
+
+        store.dispatch('bridgeDexAPI/setSelectedRoute', {
+            serviceType: targetType,
+            value: null,
+        });
+
+        store.dispatch('tokenOps/setDstAmount', '');
+    };
+
+    // ===========================================================================================
     // !Validation
     // ===========================================================================================
-
-    const isRequireConnect = computed<{ isRequire: boolean; ecosystem: string }>(() => {
-        // const { ecosystem: srcEcosystem = null } = selectedSrcNetwork.value || {};
-        // const { ecosystem: dstEcosystem = null } = selectedDstNetwork.value || {};
-
-        // const isSrcAddressesEmpty = _.isEmpty(srcAddressByChain.value);
-        // const isDstAddressesEmpty = _.isEmpty(dstAddressByChain.value);
-
-        // const isSuperSwap = modules.includes(ModuleType.superSwap);
-
-        // const isNeedConnectEcosystem = isSrcAddressesEmpty ? srcEcosystem : dstEcosystem;
-
-        // console.table({
-        //     srcEcosystem: !!srcEcosystem,
-        //     dstEcosystem: !!dstEcosystem,
-        //     isSrcAddressesEmpty,
-        //     isDstAddressesEmpty,
-        //     isSuperSwap,
-        //     isNeedConnectEcosystem,
-        // });
-
-        // console.table(srcAddressByChain.value);
-        // console.table(dstAddressByChain.value);
-
-        // if (isSuperSwap && !!srcEcosystem && isSrcAddressesEmpty && isNeedConnectEcosystem) {
-        //     quoteErrorMessage.value = `Please connect your ${srcEcosystem} wallet`;
-        //     return {
-        //         isRequire: true,
-        //         ecosystem: isNeedConnectEcosystem,
-        //     };
-        // }
-
-        // if (isSuperSwap && !!dstEcosystem && isDstAddressesEmpty && isNeedConnectEcosystem) {
-        //     quoteErrorMessage.value = `Please connect your ${dstEcosystem} wallet`;
-        //     return {
-        //         isRequire: true,
-        //         ecosystem: isNeedConnectEcosystem,
-        //     };
-        // }
-
-        return {
-            isRequire: false,
-            ecosystem: null,
-        };
-    });
 
     // ?Check if the module is send
     const isSendModule = computed(() => {
@@ -178,7 +153,7 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
         const isSame = isSameNetwork.value && isSrcTokenChainCorrect.value && isDstTokenChainCorrectSwap.value;
         const isDifferent = isSrcTokenChainCorrect.value && isDstTokenChainCorrect.value;
 
-        return modules.includes(ModuleType.superSwap) && !isSameTokenSameNet.value && (isSame || isDifferent);
+        return modules.includes(ModuleType.superSwap) && !isSameToken.value && (isSame || isDifferent) && !isSameTokenSameNet.value;
     });
 
     // ?Check if the request is allowed
@@ -196,14 +171,25 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
         return isSrcTokenChainCorrect.value && isDstTokenChainCorrect.value && isSrcAmountSet.value;
     });
 
+    const isShowEstimateInfo = computed(() => {
+        const mainRequired = isQuoteRouteSet.value && isQuoteRouteSelected.value && isSrcAmountSet.value && isDstAmountSet.value;
+
+        if (isQuoteLoading.value) {
+            return true;
+        }
+
+        if (quoteErrorMessage.value) {
+            return true;
+        }
+
+        return mainRequired;
+    });
+
     // ===========================================================================================
     // * Requests to the Service by ServiceType
     // ===========================================================================================
 
     const makeQuoteRoutes = async (requestParams: AllQuoteParams) => {
-        !requestParams.fromToken && (requestParams.fromToken = NATIVE_CONTRACT);
-        !requestParams.toToken && (requestParams.toToken = NATIVE_CONTRACT);
-
         // !If the quote is loading, return
         if (isQuoteLoading.value) {
             return;
@@ -222,8 +208,12 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
 
         // !If it's a dex and the tokens are the same, return
         if (isDex && isSameToken) {
+            resetQuoteRoutes();
             return (isQuoteLoading.value = false);
         }
+
+        !requestParams.fromToken && (requestParams.fromToken = NATIVE_CONTRACT);
+        !requestParams.toToken && (requestParams.toToken = NATIVE_CONTRACT);
 
         try {
             isQuoteLoading.value = true;
@@ -256,15 +246,7 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
             const { message = '' } = error;
             quoteErrorMessage.value = message;
 
-            store.dispatch('bridgeDexAPI/setQuoteRoutes', {
-                serviceType: targetType,
-                value: [],
-            });
-
-            store.dispatch('bridgeDexAPI/setSelectedRoute', {
-                serviceType: targetType,
-                value: null,
-            });
+            resetQuoteRoutes();
 
             throw error as ErrorResponse;
         } finally {
@@ -359,7 +341,8 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
         [isReloadRoutes, srcAmount, selectedSrcNetwork, selectedDstNetwork, selectedSrcToken, selectedDstToken],
         async () => {
             // Return if the module is send or the selected destination token is not set or the request is not allowed
-            if (isSendModule.value || !isAllowToMakeRequest.value || isRequireConnect.value.isRequire) {
+            if (isSendModule.value || !isAllowToMakeRequest.value) {
+                resetQuoteRoutes();
                 return;
             }
 
@@ -422,14 +405,13 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
         isQuoteLoading,
         isSrcAmountSet,
 
+        isShowEstimateInfo,
+
         // * All Fees
         fees: allFees,
 
         // * Service requests
         makeQuoteRoutes,
-
-        // * Validation
-        isRequireConnect,
 
         // ! Errors
         quoteErrorMessage,

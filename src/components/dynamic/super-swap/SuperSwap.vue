@@ -70,7 +70,7 @@
         </a-form-item>
 
         <Checkbox
-            v-if="selectedDstToken && selectedDstNetwork"
+            v-if="selectedDstToken && selectedDstNetwork && !isSameNetwork"
             v-model:value="isSendToAnotherAddress"
             :disabled="isDisableSelect"
             :label="$t('tokenOperations.chooseAddress')"
@@ -86,7 +86,7 @@
         />
 
         <EstimatePreviewInfo
-            v-if="isShowEstimateInfo || (isDstTokenSet && isSrcAmountSet)"
+            v-if="isShowEstimateInfo"
             :title="$t('tokenOperations.routeInfo')"
             :is-loading="isQuoteLoading"
             :fee-in-usd="fees[FEE_TYPE.BASE] || 0"
@@ -172,7 +172,6 @@ export default {
 
             isLoading,
             isQuoteLoading,
-            isBalanceError,
             isShowEstimateInfo,
             isAllowanceLoading,
             isDirectionSwapped,
@@ -200,7 +199,6 @@ export default {
 
             isAddressError,
             isSendToAnotherAddress,
-            receiverAddress,
 
             // --------------------------------
 
@@ -223,7 +221,7 @@ export default {
             toggleRoutesModal,
         } = moduleInstance;
 
-        const { isSrcAmountSet, isDstTokenSet } = useInputValidation();
+        const { isSrcAmountSet, isDstTokenSet, isSameNetwork } = useInputValidation();
 
         //  =================================================================================================================
 
@@ -288,6 +286,8 @@ export default {
             isLoading,
             isSwapLoading,
 
+            isSameNetwork,
+
             isSwapDirectionAvailable,
             isDirectionSwapped,
             handleOnSwapDirections,
@@ -340,6 +340,7 @@ export default {
             quoteRoutes,
             selectedRoute,
             otherRoutes,
+            isAddressError,
 
             isDisableSelect,
             isQuoteLoading,
