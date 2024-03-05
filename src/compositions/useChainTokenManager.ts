@@ -139,7 +139,7 @@ export default function useChainTokenManger(moduleType: ModuleType) {
             // * If the module is Swap, then the destination network is set to the source network
             case ModuleType.swap:
                 console.log('CASE: ModuleType.swap');
-                selectedDstNetwork.value = selectedSrcNetwork.value;
+                selectedDstNetwork.value = null;
                 break;
 
             // * If the module is Send, then the destination network is reset to null

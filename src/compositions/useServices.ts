@@ -271,21 +271,6 @@ export default function useModule(moduleType: ModuleType) {
     onBeforeUnmount(() => {
         // Clear all data
 
-        // unWatchAcc();
-
-        // unWatchSrcDstNetwork();
-
-        // unWatchSrcDstToken();
-
-        // unWatchTxErr();
-
-        // unWatchIsNeedApprove();
-
-        // unWatchLoadingSrc();
-        // unWatchLoadingDst();
-
-        // unWatchBridgeDexRoutes();
-
         // Reset all data
         targetDirection.value = DIRECTIONS.SOURCE;
         selectedSrcNetwork.value = null;
