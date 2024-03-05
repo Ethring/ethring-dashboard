@@ -491,7 +491,7 @@ const useModuleOperations = (module: ModuleType) => {
             !isSrcTokenChainCorrect.value;
 
         // * Send module
-        const isSendConfirmDisabled = isDisabled || !isReceiverAddressSet.value || isWithMemo;
+        const isSendConfirmDisabled = isDisabled || isAddressError.value || !isReceiverAddressSet.value || isWithMemo;
 
         // * Swap module
         const isSwapConfirmDisabled =
