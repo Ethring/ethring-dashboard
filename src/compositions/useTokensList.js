@@ -144,6 +144,9 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         // Added selected param if token is selected
         const selectedToken = isFromSelected.value ? toToken : fromToken;
 
+        // Set native token info
+        allTokens = setNativeTokenInfo(allTokens);
+
         if (fromToken || toToken) {
             if (isSameNet) {
                 allTokens = allTokens.filter((tkn) => isNotEqualToSelected(tkn, selectedToken));
@@ -158,9 +161,6 @@ export default function useTokensList({ network = null, fromToken = null, toToke
                 tkn.selected = isSelected;
             }
         }
-
-        // Set native token info
-        allTokens = setNativeTokenInfo(allTokens);
 
         const sortedList = _.orderBy(
             allTokens,

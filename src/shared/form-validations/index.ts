@@ -86,6 +86,10 @@ const useInputValidation = () => {
         return isSrcNetworkSet.value && isDstNetworkSet.value && _.isEqual(selectedSrcNetwork.value?.net, selectedDstNetwork.value?.net);
     });
 
+    const isSameTokenSameNet = computed(() => {
+        return isSameNetwork.value && isSameToken.value;
+    });
+
     const isQuoteRouteSet = computed(() => {
         return !_.isEmpty(quoteRoutes.value);
     });
@@ -118,6 +122,7 @@ const useInputValidation = () => {
 
         isSameToken,
         isSameNetwork,
+        isSameTokenSameNet,
 
         isQuoteRouteSet,
         isQuoteRouteSelected,

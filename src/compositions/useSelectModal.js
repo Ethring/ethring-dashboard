@@ -229,7 +229,7 @@ export default function useSelectModal(type) {
                 srcNet: selectedNetwork.value,
                 srcToken: selectedTokenFrom.value,
                 dstToken: selectedTokenTo.value,
-                isSameNet: selectedDstNetwork.value === selectedSrcNetwork.value || !selectedDstNetwork.value,
+                isSameNet: selectedSrcNetwork.value?.net === selectedDstNetwork.value?.net,
                 onlyWithBalance: isFromSelect.value,
             });
             store.dispatch('app/setLoadingTokenList', false);

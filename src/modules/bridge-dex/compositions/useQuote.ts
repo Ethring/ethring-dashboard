@@ -1,4 +1,4 @@
-import { computed, onUnmounted, ref, watch } from 'vue';
+import { computed, nextTick, onUnmounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 import BigNumber from 'bignumber.js';
 
@@ -45,8 +45,15 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
 
     const modules: string[] = ModulesByService[targetType] || [];
 
-    const { isSrcAmountSet, isSameToken, isSameNetwork, isSrcTokenChainCorrect, isDstTokenChainCorrect, isDstTokenChainCorrectSwap } =
-        useInputValidation();
+    const {
+        isSrcAmountSet,
+        isSameToken,
+        isSameNetwork,
+        isSameTokenSameNet,
+        isSrcTokenChainCorrect,
+        isDstTokenChainCorrect,
+        isDstTokenChainCorrectSwap,
+    } = useInputValidation();
 
     // ===========================================================================================
     // * Loading
@@ -171,7 +178,7 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
         const isSame = isSameNetwork.value && isSrcTokenChainCorrect.value && isDstTokenChainCorrectSwap.value;
         const isDifferent = isSrcTokenChainCorrect.value && isDstTokenChainCorrect.value;
 
-        return modules.includes(ModuleType.superSwap) && (isSame || isDifferent);
+        return modules.includes(ModuleType.superSwap) && !isSameTokenSameNet.value && (isSame || isDifferent);
     });
 
     // ?Check if the request is allowed
@@ -383,12 +390,27 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
         },
     );
 
+    const inputFocus = () => {
+        const input = document.querySelector('input.input-balance');
+        if (input && input instanceof HTMLInputElement) {
+            input.focus();
+        }
+    };
+    const unWatchLoading = watch(isQuoteLoading, () => {
+        if (!isQuoteLoading.value) {
+            isReloadRoutes.value && (isReloadRoutes.value = false);
+
+            nextTick(() => inputFocus());
+        }
+    });
+
     // ===========================================================================================
     // * Cleanup
     // ===========================================================================================
     onUnmounted(() => {
         isQuoteLoading.value = false;
         unWatchChanges();
+        unWatchLoading();
     });
 
     // ===========================================================================================

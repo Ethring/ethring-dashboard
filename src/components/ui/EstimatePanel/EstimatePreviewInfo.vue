@@ -13,8 +13,8 @@
 
         <a-collapse-panel
             key="estimate-info"
-            :collapsible="isCollapsible || isShowExpand ? '' : 'disabled'"
-            :showArrow="isCollapsible || isShowExpand"
+            :collapsible="(isCollapsible || isShowExpand) && !isLoading ? '' : 'disabled'"
+            :showArrow="isCollapsible || (isShowExpand && !isLoading)"
             data-qa="estimate-info"
         >
             <template #header>
@@ -73,7 +73,7 @@
                 </div>
             </template>
 
-            <template v-if="(isCollapsible && !isLoading) || isShowExpand">
+            <template v-if="((isCollapsible && !isLoading) || isShowExpand) && services">
                 <div class="preview-services-wrap">
                     <div class="preview-services-row">
                         <template v-for="(route, index) in services" :key="route">

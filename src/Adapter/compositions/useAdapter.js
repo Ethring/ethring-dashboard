@@ -354,6 +354,15 @@ function useAdapter() {
     // * Get Chain List by Ecosystem
     const getChainListByEcosystem = (ecosystem) => {
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+
+        if (!adapter) {
+            return [];
+        }
+
+        if (!adapter.getChainList) {
+            return [];
+        }
+
         return adapter.getChainList(store);
     };
 

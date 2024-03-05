@@ -40,14 +40,6 @@ const useModuleOperations = (module: ModuleType) => {
 
     const { showNotification, closeNotification } = useNotification();
 
-    const currentServiceType = computed(() => {
-        if (selectedSrcNetwork.value?.ecosystem === ECOSYSTEMS.COSMOS) {
-            return ServiceType.bridgedex;
-        }
-
-        return ServiceType[ServiceByModule[module]];
-    });
-
     // * Module values
     const moduleInstance = useServices(module);
 
@@ -86,6 +78,7 @@ const useModuleOperations = (module: ModuleType) => {
     const { signAndSend } = useTransactions();
 
     const {
+        isSameNetwork,
         isSrcTokenChainCorrect,
         isDstTokenChainCorrect,
         isDstTokenChainCorrectSwap,
@@ -94,6 +87,18 @@ const useModuleOperations = (module: ModuleType) => {
         isQuoteRouteSelected,
         isQuoteRouteSet,
     } = useInputValidation();
+
+    const currentServiceType = computed(() => {
+        if (selectedSrcNetwork.value?.ecosystem === ECOSYSTEMS.COSMOS) {
+            return ServiceType.bridgedex;
+        }
+
+        if (isSameNetwork.value) {
+            return ServiceType.dex;
+        }
+
+        return ServiceType[ServiceByModule[module]];
+    });
 
     // ===============================================================================================
     // * Addresses with chains by ecosystem
@@ -150,9 +155,6 @@ const useModuleOperations = (module: ModuleType) => {
             });
         }
 
-        const isSameNetwork = selectedSrcNetwork.value?.net === selectedDstNetwork.value?.net;
-        const isDiffNetwork = selectedSrcNetwork.value?.net !== selectedDstNetwork.value?.net;
-
         const flowTransfer = {
             type: TRANSACTION_TYPES.TRANSFER,
             make: TRANSACTION_TYPES.TRANSFER,
@@ -183,8 +185,8 @@ const useModuleOperations = (module: ModuleType) => {
                 break;
 
             case ModuleType.superSwap:
-                isSameNetwork && flow.push(flowDex);
-                isDiffNetwork && flow.push(flowBridge);
+                isSameNetwork.value && flow.push(flowDex);
+                !isSameNetwork.value && flow.push(flowBridge);
                 break;
             default:
                 break;
@@ -510,7 +512,7 @@ const useModuleOperations = (module: ModuleType) => {
                 return isDisabled || !isQuoteRouteSelected.value || !isQuoteRouteSet.value || isWithAddress;
 
             default:
-                return isDisabled;
+                return isDisabled ? true : false;
         }
     });
 

@@ -91,8 +91,8 @@
             :is-loading="isQuoteLoading"
             :fee-in-usd="fees[FEE_TYPE.BASE] || 0"
             :main-rate="fees[FEE_TYPE.RATE] || null"
-            :services="bestRouteInfo?.routes"
-            :is-show-expand="otherRoutesInfo?.length"
+            :services="[selectedRoute]"
+            :is-show-expand="otherRoutes?.length > 0"
             :error="quoteErrorMessage"
             :on-click-expand="toggleRoutesModal"
         />
@@ -101,7 +101,7 @@
             :title="$t(opTitle)"
             :disabled="isDisableConfirmButton"
             :tip="$t(opTitle)"
-            :loading="isQuoteLoading || isTransactionSigning || isSwapLoading"
+            :loading="isAllowanceLoading || isTransactionSigning || isSwapLoading"
             class="module-layout-view-btn"
             data-qa="confirm"
             @click="handleOnConfirm"
@@ -110,7 +110,7 @@
     </a-form>
 </template>
 <script>
-import { computed, ref, inject, watch, h } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 
 import BigNumber from 'bignumber.js';
@@ -153,8 +153,6 @@ export default {
     setup() {
         const store = useStore();
 
-        const useAdapter = inject('useAdapter');
-
         const { moduleInstance, isTransactionSigning, isDisableConfirmButton, handleOnConfirm } = useModuleOperations(ModuleType.superSwap);
 
         // =================================================================================================================
@@ -184,6 +182,7 @@ export default {
             fees,
             quoteRoutes,
             selectedRoute,
+            otherRoutes,
             quoteErrorMessage,
 
             // --------------------------------
@@ -333,7 +332,12 @@ export default {
             FEE_TYPE,
             fees,
 
+            quoteRoutes,
+            selectedRoute,
+            otherRoutes,
+
             isQuoteLoading,
+            isAllowanceLoading,
             quoteErrorMessage,
         };
     },

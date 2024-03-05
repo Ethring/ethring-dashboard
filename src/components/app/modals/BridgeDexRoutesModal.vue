@@ -19,7 +19,15 @@
                         </div> -->
                         <div class="routes-modal__row" v-if="services[item.serviceId]">
                             <div class="routes-service__icon">
-                                <img v-if="services[item.serviceId].icon" :src="services[item.serviceId].icon" alt="service-logo" />
+                                <ServiceIcon
+                                    v-if="services[item.serviceId].icon"
+                                    :icon="services[item.serviceId].icon"
+                                    alt="service-logo"
+                                    :show-title="false"
+                                    :show-tooltip="false"
+                                    :width="32"
+                                    :height="32"
+                                />
                             </div>
                             <h3 class="routes-service__name">{{ services[item.serviceId].name }}</h3>
                             <!-- <h1 v-if="j != item.routes.length - 1">-</h1> -->
@@ -61,14 +69,16 @@
 import { computed, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 
-import Button from '@/components/ui/Button';
-import Amount from '@/components/app/Amount';
+import Button from '@/components/ui/Button.vue';
+import Amount from '@/components/app/Amount.vue';
+import ServiceIcon from '@/components/ui/EstimatePanel/ServiceIcon.vue';
 
 export default {
     name: 'BridgeDexRoutesModal',
     components: {
         Button,
         Amount,
+        ServiceIcon,
     },
     emits: ['close'],
     setup() {
