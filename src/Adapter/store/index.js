@@ -133,8 +133,22 @@ export default {
         [TYPES.SET_WALLET]({ commit }, { ecosystem, wallet }) {
             commit(TYPES.SET_WALLET, { ecosystem, wallet });
         },
-        [TYPES.DISCONNECT_WALLET]({ commit }, wallet) {
+        [TYPES.DISCONNECT_WALLET]({ commit, rootState, dispatch }, wallet) {
             commit(TYPES.DISCONNECT_WALLET, wallet);
+
+            const { ecosystem, account } = wallet || {};
+
+            // Remove balance for account
+            if (account) {
+                dispatch('tokens/removeBalanceForAccount', account, { root: true });
+            }
+
+            // Reset src balance for token ops if src network is the same
+            if (rootState.tokenOps && rootState.tokenOps.srcNetwork) {
+                const { ecosystem: srcEcosystem } = rootState.tokenOps.srcNetwork || {};
+                const isSameEcosystem = srcEcosystem === ecosystem;
+                isSameEcosystem && dispatch('tokenOps/resetSrcBalanceForAccount', null, { root: true });
+            }
         },
         [TYPES.DISCONNECT_ALL_WALLETS]({ commit }) {
             commit(TYPES.DISCONNECT_ALL_WALLETS);

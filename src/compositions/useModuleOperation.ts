@@ -163,7 +163,7 @@ const useModuleOperations = (module: ModuleType) => {
 
         const flowDex = {
             type: TRANSACTION_TYPES.DEX,
-            make: TRANSACTION_TYPES.DEX,
+            make: TRANSACTION_TYPES.SWAP,
             index: flow.length,
         };
 
@@ -211,7 +211,7 @@ const useModuleOperations = (module: ModuleType) => {
     // * Operations - Prepare transaction
     // ===============================================================================================
 
-    const prepare = (index: number, type: string) => {
+    const prepare = (index: number, type: string, make: string) => {
         const params = {
             net: selectedSrcNetwork.value.net,
             fromNet: selectedSrcNetwork.value.net,
@@ -224,7 +224,7 @@ const useModuleOperations = (module: ModuleType) => {
 
         const TARGET_TYPE = TRANSACTION_TYPES[type];
 
-        let notificationTitle = `${type} ${srcAmount.value} ${selectedSrcToken.value?.symbol || ''}`;
+        let notificationTitle = `${make} ${srcAmount.value} ${selectedSrcToken.value?.symbol || ''}`;
 
         if ([TRANSACTION_TYPES.DEX, TRANSACTION_TYPES.SWAP, TRANSACTION_TYPES.BRIDGE].includes(TARGET_TYPE)) {
             notificationTitle += ` to ~${dstAmount.value} ${selectedDstToken.value?.symbol || ''}`;
@@ -367,7 +367,7 @@ const useModuleOperations = (module: ModuleType) => {
 
             await txManager.createTransactionGroup(group as ITransaction);
 
-            for (const { index, type } of operationFlow.value) {
+            for (const { index, type, make } of operationFlow.value) {
                 const tx = new Transaction(type);
 
                 // * Set request ID
@@ -376,7 +376,7 @@ const useModuleOperations = (module: ModuleType) => {
                 // * Prepare transaction
                 tx.prepare = async () => {
                     console.log('Prepare:', index, type, 'Transaction');
-                    const prepared = prepare(index, type as TRANSACTION_TYPES);
+                    const prepared = prepare(index, type as TRANSACTION_TYPES, make);
                     const transaction = await txManager.addTransactionToGroup(index, prepared); // * Add or create transaction
 
                     tx.setId(transaction.id);
