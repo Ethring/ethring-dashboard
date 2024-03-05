@@ -208,7 +208,7 @@ export class TransactionList {
     // ===========================================================================================
     async executeTransactions() {
         let current = this.head;
-        const WAIT_TIME_BETWEEN_TX = 2500;
+        const WAIT_TIME_BETWEEN_TX = 3500;
 
         console.log('current', current, 'executeTransactions', this.requestID);
 
