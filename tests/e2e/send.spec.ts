@@ -2,16 +2,23 @@ import { testKeplr, testMetaMask } from '../__fixtures__/fixtures';
 import { test, expect } from '@playwright/test';
 import util from 'util';
 import { getTestVar, TEST_CONST } from '../envHelper';
-import {
-    emptyBalanceMockData,
-    mockBalanceDataBySendTest,
-} from '../data/mockHelper';
+import { emptyBalanceMockData, mockBalanceDataBySendTest } from '../data/mockHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage, getHomeMmPage } from '../model/MetaMask/MetaMask.pages';
 import { KeplrNotifyPage, getNotifyKeplrPage } from '../model/Keplr/Keplr.pages';
 import { COSMOS_WALLETS_BY_PROTOCOL_SEED, IGNORED_LOCATORS, MEMO_BY_KEPLR_TEST } from '../data/constants';
 import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
-import { mockPostTransactionsRouteSendReject, mockPostTransactionsWsByCreateEventSendReject, mockPutTransactionsRouteSendReject, mockPutTransactionsWsByUpdateTransactionEventInProgressSendReject } from 'tests/data/mockDataByTxManager/SendRejectTxMock';
-import { mockPostTransactionsRouteSendRejectKeplr, mockPostTransactionsWsByCreateEventSendRejectKeplr, mockPutTransactionsRouteSendRejectKeplr, mockPutTransactionsWsByUpdateTransactionEventInProgressSendRejectKeplr } from 'tests/data/mockDataByTxManager/SendRejectTxKeplrMock';
+import {
+    mockPostTransactionsRouteSendReject,
+    mockPostTransactionsWsByCreateEventSendReject,
+    mockPutTransactionsRouteSendReject,
+    mockPutTransactionsWsByUpdateTransactionEventInProgressSendReject,
+} from '../data/mockDataByTxManager/SendRejectTxMock';
+import {
+    mockPostTransactionsRouteSendRejectKeplr,
+    mockPostTransactionsWsByCreateEventSendRejectKeplr,
+    mockPutTransactionsRouteSendRejectKeplr,
+    mockPutTransactionsWsByUpdateTransactionEventInProgressSendRejectKeplr,
+} from '../data/mockDataByTxManager/SendRejectTxKeplrMock';
 
 const sleep = util.promisify(setTimeout);
 

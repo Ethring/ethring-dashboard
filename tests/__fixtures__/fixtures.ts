@@ -16,7 +16,8 @@ import {
     authByMmMockErrorBalance,
 } from './fixtureHelper';
 import { proxyUrl } from '../../playwright.config';
-import { COSMOS_WALLETS_BY_PROTOCOL_SEED, COSMOS_WALLETS_BY_SEED_MOCK_TX } from 'tests/data/constants';
+import { COSMOS_WALLETS_BY_PROTOCOL_SEED, COSMOS_WALLETS_BY_SEED_MOCK_TX } from '../data/constants';
+import { mockBalanceData } from '../data/mockHelper';
 
 const ADDRESS_BY_TX = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
 const SEED_PHRASE_BY_TX = getTestVar(TEST_CONST.SEED_BY_MOCK_TX);
@@ -27,6 +28,7 @@ const SEED_PHRASE_BY_TX_2 = getTestVar(TEST_CONST.SEED_BY_MOCK_TX_2);
 const ADDRESS_BY_TX_3 = getTestVar(TEST_CONST.ETH_ADDRESS_TX_3);
 const SEED_PHRASE_BY_TX_3 = getTestVar(TEST_CONST.SEED_BY_MOCK_TX_3);
 
+const ADDRESS_BY_PROTOCOL = getTestVar(TEST_CONST.ETH_ADDRESS_BY_PROTOCOL_TEST);
 const SEED_PHRASE_BY_PROTOCOL = getTestVar(TEST_CONST.SEED_BY_PROTOCOL_TEST);
 
 const SEED_EMPTY_WALLET = getTestVar(TEST_CONST.EMPTY_SEED);
@@ -98,7 +100,7 @@ export const testMetaMask = base.extend<{
         await use(zometPage);
     },
     dashboardProtocol: async ({ context }, use) => {
-        const zometPage = await authByMm(context, SEED_PHRASE_BY_PROTOCOL);
+        const zometPage = await authMmCoingeckoAndBalanceMock(context, SEED_PHRASE_BY_PROTOCOL, ADDRESS_BY_PROTOCOL, mockBalanceData);
         await use(zometPage);
     },
     swapPage: async ({ context }, use) => {
