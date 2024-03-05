@@ -77,6 +77,7 @@ export default {
             }
         };
 
+        // TODO: Update balance for all connected wallets (not only for the current one)
         const callInit = async () => {
             const { ecosystem, walletModule } = currentChainInfo.value || {};
 
