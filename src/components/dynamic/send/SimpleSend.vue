@@ -2,7 +2,7 @@
     <a-form>
         <a-form-item>
             <SelectRecord
-                :disabled="isTransactionSigning"
+                :disabled="isDisableSelect"
                 :placeholder="$t('tokenOperations.selectNetwork')"
                 :current="selectedSrcNetwork"
                 @click="onSelectNetwork"
@@ -12,7 +12,7 @@
         <SelectAddressInput
             :on-reset="clearAddress"
             :selected-network="selectedSrcNetwork"
-            :disabled="isTransactionSigning"
+            :disabled="isDisableSelect"
             @error-status="(status) => (isAddressError = status)"
         />
 
@@ -23,8 +23,8 @@
             :label="$t('tokenOperations.asset')"
             :on-reset="resetAmount"
             :amount-value="srcAmount"
-            :disabled-select="isTransactionSigning"
-            :disabled="isTransactionSigning"
+            :disabled-select="isDisableSelect"
+            :disabled="isDisableSelect"
             class="select-amount"
             @setAmount="onSetAmount"
             @clickToken="onSelectToken"
@@ -84,7 +84,9 @@ export default {
     setup() {
         // * Init module operations, and get all necessary data, (methods, states, etc.) for the module
         // * Also, its necessary to sign the transaction (Transaction manger)
-        const { handleOnConfirm, moduleInstance, isDisableConfirmButton, isTransactionSigning } = useModuleOperations(ModuleType.send);
+        const { handleOnConfirm, moduleInstance, isDisableConfirmButton, isDisableSelect, isTransactionSigning } = useModuleOperations(
+            ModuleType.send,
+        );
 
         const {
             // - Main Data
@@ -186,6 +188,8 @@ export default {
             // Loadings
             isMemoAllowed,
             isSendWithMemo,
+
+            isDisableSelect,
 
             // State for button
             isDisableConfirmButton,

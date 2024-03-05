@@ -516,12 +516,17 @@ const useModuleOperations = (module: ModuleType) => {
         }
     });
 
+    const isDisableSelect = computed(() => {
+        return isQuoteLoading.value || isTransactionSigning.value;
+    });
+
     return {
         handleOnConfirm,
         moduleInstance,
 
         isRequireConnect,
         isDisableConfirmButton,
+        isDisableSelect,
         isTransactionSigning,
     };
 };

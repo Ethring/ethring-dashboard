@@ -14,20 +14,20 @@
                     :value="srcAmount"
                     :label="$t('tokenOperations.from')"
                     :token="selectedSrcToken"
-                    :disabled="isQuoteLoading || isTransactionSigning"
+                    :disabled="isDisableSelect"
                     @setAmount="onSetAmount"
                 >
                     <SelectRecord
                         :placeholder="$t('tokenOperations.selectNetwork')"
                         :current="selectedSrcNetwork"
                         @click="() => onSelectNetwork(DIRECTIONS.SOURCE)"
-                        :disabled="isQuoteLoading || isTransactionSigning"
+                        :disabled="isDisableSelect"
                     />
                     <SelectRecord
                         :placeholder="$t('tokenOperations.selectToken')"
                         :current="selectedSrcToken"
                         @click="() => onSelectToken(true, DIRECTIONS.SOURCE)"
-                        :disabled="isQuoteLoading || isTransactionSigning || !selectedSrcNetwork"
+                        :disabled="isDisableSelect || !selectedSrcNetwork"
                     />
                 </SwapField>
             </a-form-item>
@@ -55,13 +55,13 @@
                 hide-max
             >
                 <SelectRecord
-                    :disabled="isQuoteLoading || isTransactionSigning"
+                    :disabled="isDisableSelect"
                     :placeholder="$t('tokenOperations.selectNetwork')"
                     :current="selectedDstNetwork"
                     @click="() => onSelectNetwork(DIRECTIONS.DESTINATION)"
                 />
                 <SelectRecord
-                    :disabled="isQuoteLoading || isTransactionSigning || !selectedDstNetwork"
+                    :disabled="isDisableSelect || !selectedDstNetwork"
                     :placeholder="$t('tokenOperations.selectToken')"
                     :current="selectedDstToken"
                     @click="() => onSelectToken(false, DIRECTIONS.DESTINATION)"
@@ -72,7 +72,7 @@
         <Checkbox
             v-if="selectedDstToken && selectedDstNetwork"
             v-model:value="isSendToAnotherAddress"
-            :disabled="isQuoteLoading || isTransactionSigning"
+            :disabled="isDisableSelect"
             :label="$t('tokenOperations.chooseAddress')"
         />
 
@@ -81,7 +81,7 @@
             class="mt-8"
             :selected-network="selectedDstNetwork"
             :on-reset="isSendToAnotherAddress"
-            :disabled="isQuoteLoading || isTransactionSigning"
+            :disabled="isDisableSelect"
             @error-status="(status) => (isAddressError = status)"
         />
 
@@ -153,7 +153,9 @@ export default {
     setup() {
         const store = useStore();
 
-        const { moduleInstance, isTransactionSigning, isDisableConfirmButton, handleOnConfirm } = useModuleOperations(ModuleType.superSwap);
+        const { moduleInstance, isTransactionSigning, isDisableConfirmButton, isDisableSelect, handleOnConfirm } = useModuleOperations(
+            ModuleType.superSwap,
+        );
 
         // =================================================================================================================
 
@@ -336,6 +338,7 @@ export default {
             selectedRoute,
             otherRoutes,
 
+            isDisableSelect,
             isQuoteLoading,
             isAllowanceLoading,
             quoteErrorMessage,

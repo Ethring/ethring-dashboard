@@ -6,7 +6,7 @@
                     :current="selectedSrcNetwork"
                     :placeholder="$t('tokenOperations.selectNetwork')"
                     @click="() => onSelectNetwork(DIRECTIONS.SOURCE)"
-                    :disabled="isQuoteLoading || isTransactionSigning"
+                    :disabled="isDisableSelect"
                 />
 
                 <SwitchDirection
@@ -17,7 +17,7 @@
                 />
 
                 <SelectRecord
-                    :disabled="isQuoteLoading || isTransactionSigning"
+                    :disabled="isDisableSelect"
                     :current="selectedDstNetwork"
                     :placeholder="$t('tokenOperations.selectNetwork')"
                     class="select-group-to"
@@ -30,8 +30,8 @@
             :value="selectedSrcToken"
             :error="!!isBalanceError"
             :on-reset="resetSrcAmount"
-            :disabled-select="isQuoteLoading || isTransactionSigning"
-            :disabled="isQuoteLoading || isTransactionSigning || !selectedSrcToken"
+            :disabled-select="isDisableSelect"
+            :disabled="isDisableSelect || !selectedSrcToken"
             :label="$t('tokenOperations.transferFrom')"
             :is-update="isSwapDirectionAvailable"
             :amount-value="srcAmount"
@@ -44,7 +44,7 @@
             v-if="selectedDstNetwork"
             hide-max
             disabled
-            :disabled-select="isQuoteLoading || isTransactionSigning"
+            :disabled-select="isDisableSelect"
             :value="selectedDstToken"
             :is-amount-loading="isQuoteLoading"
             :is-update="isSwapDirectionAvailable"
@@ -59,7 +59,7 @@
         <Checkbox
             v-if="selectedDstToken && selectedDstNetwork"
             id="isSendToAnotherAddress"
-            :disabled="isQuoteLoading || isTransactionSigning"
+            :disabled="isDisableSelect"
             v-model:value="isSendToAnotherAddress"
             :label="`Receive ${selectedDstToken?.symbol} to another wallet`"
             class="mt-8"
@@ -70,7 +70,7 @@
             class="mt-8"
             :selected-network="selectedDstNetwork"
             :on-reset="isSendToAnotherAddress"
-            :disabled="isQuoteLoading || isTransactionSigning"
+            :disabled="isDisableSelect"
             @error-status="(status) => (isAddressError = status)"
         />
 
@@ -130,7 +130,9 @@ export default {
         EstimatePreviewInfo,
     },
     setup() {
-        const { handleOnConfirm, moduleInstance, isTransactionSigning, isDisableConfirmButton } = useModuleOperations(ModuleType.bridge);
+        const { handleOnConfirm, moduleInstance, isTransactionSigning, isDisableConfirmButton, isDisableSelect } = useModuleOperations(
+            ModuleType.bridge,
+        );
 
         // * Module values
         const {
@@ -298,6 +300,7 @@ export default {
             selectedDstToken,
 
             isShowEstimateInfo,
+            isDisableSelect,
 
             // Information for accordion
             clearAddress,

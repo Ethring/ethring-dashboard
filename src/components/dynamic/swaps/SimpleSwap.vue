@@ -2,7 +2,7 @@
     <a-form>
         <a-form-item>
             <SelectRecord
-                :disabled="isTransactionSigning"
+                :disabled="isDisableSelect"
                 :current="selectedSrcNetwork"
                 :placeholder="$t('tokenOperations.selectNetwork')"
                 @click="onSelectNetwork"
@@ -12,8 +12,8 @@
         <div class="switch-direction-wrap">
             <SelectAmountInput
                 :value="selectedSrcToken"
-                :disabled="isTransactionSigning"
-                :disabled-select="isTransactionSigning"
+                :disabled="isDisableSelect"
+                :disabled-select="isDisableSelect"
                 :selected-network="selectedSrcNetwork"
                 :error="!!isBalanceError"
                 :on-reset="resetSrcAmount"
@@ -33,7 +33,7 @@
             <SelectAmountInput
                 disabled
                 hide-max
-                :disabled-select="isTransactionSigning"
+                :disabled-select="isDisableSelect"
                 :is-amount-loading="isQuoteLoading"
                 :value="selectedDstToken"
                 :on-reset="resetDstAmount"
@@ -108,7 +108,7 @@ export default {
         // * Module Operations composition
         // =================================================================================================================
 
-        const { handleOnConfirm, moduleInstance, isTransactionSigning, isDisableConfirmButton } = useModuleOperations(ModuleType.swap);
+        const { handleOnConfirm, moduleInstance, isTransactionSigning, isDisableSelect, isDisableConfirmButton } = useModuleOperations(ModuleType.swap);
 
         // =================================================================================================================
         // * Module values
@@ -258,6 +258,7 @@ export default {
             isShowEstimateInfo,
             isSwapDirectionAvailable,
             isDirectionSwapped,
+            isDisableSelect,
 
             // Handlers
             handleOnSwapDirections,
