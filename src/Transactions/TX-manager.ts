@@ -5,6 +5,7 @@ import { Socket } from 'socket.io-client';
 import { SocketEvents } from '@/shared/models/enums/socket-events.enum';
 import { handleTransactionStatus } from './shared/utils/tx-statuses';
 import { STATUSES } from '@/shared/models/enums/statuses.enum';
+import { delay } from '@/shared/utils/helpers';
 
 export class Transaction {
     id: string | number;
@@ -207,6 +208,7 @@ export class TransactionList {
     // ===========================================================================================
     async executeTransactions() {
         let current = this.head;
+        const WAIT_TIME_BETWEEN_TX = 2500;
 
         console.log('current', current, 'executeTransactions', this.requestID);
 
@@ -226,6 +228,9 @@ export class TransactionList {
                     ...current.transaction.getTransaction(),
                     status: waitResponse.status,
                 });
+
+                console.log(`Waiting ${WAIT_TIME_BETWEEN_TX / 1000} seconds before next transaction`);
+                await delay(WAIT_TIME_BETWEEN_TX);
 
                 if (current.transaction.onSuccess) {
                     await current.transaction.onSuccess();
