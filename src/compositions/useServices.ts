@@ -21,9 +21,6 @@ export default function useModule(moduleType: ModuleType) {
 
     useChainTokenManger(moduleType);
 
-    const isSuperSwap = computed(() => _.isEqual(moduleType, ModuleType.superSwap));
-    const isNeedDstNetwork = computed(() => [ModuleType.bridge, ModuleType.superSwap].includes(moduleType));
-
     const selectedSrcNetwork = computed({
         get: () => store.getters['tokenOps/srcNetwork'],
         set: (value) => store.dispatch('tokenOps/setSrcNetwork', value),
@@ -64,9 +61,6 @@ export default function useModule(moduleType: ModuleType) {
     const bridgeDexRoutes = computed(() => store.getters['bridgeDex/selectedRoute']);
     const bestRouteInfo = computed(() => bridgeDexRoutes.value?.bestRoute);
     const currentRouteInfo = computed(() => bestRouteInfo.value?.routes.find((elem) => elem.status === STATUSES.SIGNING));
-
-    // * Notification
-    const { showNotification, closeNotification } = useNotification();
 
     // =================================================================================================================
 
@@ -206,44 +200,6 @@ export default function useModule(moduleType: ModuleType) {
     });
 
     // =================================================================================================================
-    const setTokenOnChangeForNet = async (srcNet, srcToken, { isSameNet = false, isExclude = false, token = null } = {}) => {
-        const getTokensParams = {
-            srcNet,
-            isSameNet,
-            onlyWithBalance: selectType.value === TOKEN_SELECT_TYPES.FROM,
-            dstToken: null,
-        };
-
-        isExclude && (getTokensParams.dstToken = token);
-
-        tokensList.value = await getTokensList(getTokensParams);
-
-        const [defaultSrcToken = null] = tokensList.value;
-
-        if (!srcToken?.id && defaultSrcToken) {
-            return defaultSrcToken;
-        }
-
-        const { id: targetId } = srcToken || {};
-
-        const searchTokens = [targetId];
-
-        const updatedList = tokensList.value?.filter((tkn) => searchTokens.includes(tkn?.id)) || [];
-
-        if (!updatedList.length) {
-            return defaultSrcToken;
-        }
-
-        const [tkn = null] = updatedList;
-
-        if (!tkn) {
-            return defaultSrcToken;
-        }
-
-        return tkn;
-    };
-
-    // =================================================================================================================
 
     const checkSelectedNetwork = () => {
         // if (!walletAccount.value && !currentChainInfo.value) {
@@ -264,53 +220,6 @@ export default function useModule(moduleType: ModuleType) {
 
         return (opTitle.value = DEFAULT_TITLE);
     };
-
-    // const resetTokensForModules = async ({ isAccountChanged = false } = {}) => {
-    //     const isSrcTokenChanged = selectedSrcToken.value && selectedSrcToken.value.chain !== selectedSrcNetwork.value?.net;
-    //     const isDstTokenChanged = selectedDstToken.value && selectedDstToken.value.chain !== selectedDstNetwork.value?.net;
-
-    //     const isDstTokenChangedForSwap = selectedDstToken.value?.chain !== selectedSrcNetwork.value?.net;
-
-    //     switch (moduleType) {
-    //         case ModuleType.swap:
-    //             if (isSrcTokenChanged || !selectedSrcToken.value || isAccountChanged) {
-    //                 selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
-    //             }
-
-    //             if (isDstTokenChangedForSwap || !selectedDstToken.value || isAccountChanged) {
-    //                 selectedDstToken.value = null;
-    //                 // setTokenOnChangeForNet(selectedSrcNetwork.value, selectedDstToken.value, {
-    //                 //     from: 'switch-swap, to',
-    //                 //     isSameNet: true,
-    //                 //     isExclude: true,
-    //                 //     token: selectedSrcToken.value,
-    //                 // });
-    //             }
-
-    //             break;
-
-    //         case ModuleType.swap:
-    //             selectedDstToken.value = null;
-
-    //             if (isSrcTokenChanged || isAccountChanged) {
-    //                 selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
-    //             }
-
-    //             break;
-
-    //         case ModuleType.bridge:
-    //         case ModuleType.superSwap:
-    //             if (isSrcTokenChanged || isAccountChanged) {
-    //                 selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
-    //             }
-
-    //             if (isDstTokenChanged || isAccountChanged) {
-    //                 selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
-    //             }
-
-    //             break;
-    //     }
-    // };
 
     const handleOnSwapDirections = async (withChains = false) => {
         isDirectionSwapped.value = true;
@@ -350,220 +259,6 @@ export default function useModule(moduleType: ModuleType) {
     };
 
     const toggleRoutesModal = () => store.dispatch('app/toggleModal', 'routesModal');
-
-    // // =================================================================================================================
-    // // * Account change watcher and handler
-    // // * Setter for src and dst networks;
-    // // =================================================================================================================
-
-    // const onChangeAccount = async () => {
-    //     const { ecosystem } = currentChainInfo.value || {};
-    //     const { ecosystem: srcEcosystem } = selectedSrcNetwork.value || {};
-
-    //     const isDiffEcosystem = !_.isEqual(ecosystem, srcEcosystem);
-
-    //     // * If the ecosystem is different, and the module is not SuperSwap,
-    //     // * then the selected network is reset to the current network
-    //     if (isDiffEcosystem && !isSuperSwap.value) {
-    //         selectedSrcNetwork.value = currentChainInfo.value;
-    //     }
-
-    //     // * If the ecosystem is different, and the module is Bridge or SuperSwap
-    //     if (!isSuperSwap.value && isDiffEcosystem && isNeedDstNetwork.value && chainList.value?.length && selectedSrcNetwork.value?.net) {
-    //         const [dst] = chainList.value?.filter(({ net }) => net !== selectedSrcNetwork.value?.net) || [];
-    //         dst && (selectedDstNetwork.value = dst);
-    //     }
-
-    //     await resetTokensForModules({ isAccountChanged: isDiffEcosystem });
-    // };
-
-    // // =================================================================================================================
-    // // * Watchers
-    // // =================================================================================================================
-
-    // // ========================= Watch Wallet Account =========================
-
-    // const unWatchAcc = watch(walletAccount, async () => await onChangeAccount());
-
-    // // ========================= Watch Selected SRC DST Networks =========================
-
-    // const unWatchSrcDstNetwork = watch([selectedSrcNetwork, selectedDstNetwork], async ([newSrc, newDst], [oldSrc, oldDst]) => {
-    //     // Switch tokens and networks, if they are in the same network
-    //     const isOldNotEmpty = oldSrc && oldDst && oldSrc?.net && oldDst?.net;
-    //     const isNewNotEmpty = newSrc && newDst && newSrc?.net && newDst?.net;
-
-    //     const isNewSrcNewDstSame = isNewNotEmpty && isOldNotEmpty && newSrc.net === newDst.net;
-
-    //     const isSameToken = selectedSrcToken.value?.id === selectedDstToken.value?.id;
-
-    //     if (isSameToken) {
-    //         selectedDstToken.value = null;
-    //         dstAmount.value = null;
-    //     }
-
-    //     const isSameNetwork = [ModuleType.bridge, ModuleType.superSwap].includes(moduleType) && isNewSrcNewDstSame;
-
-    //     if (isSameNetwork) {
-    //         [selectedSrcNetwork.value, selectedDstNetwork.value] = [oldDst, oldSrc];
-    //         [selectedSrcToken.value, selectedDstToken.value] = [selectedDstToken.value, selectedSrcToken.value];
-
-    //         return;
-    //     }
-
-    //     if (newSrc && !isSameNetwork) {
-    //         checkSelectedNetwork();
-
-    //         setTimeout(() => (estimateErrorTitle.value = ''));
-
-    //         selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
-
-    //         if (['swap'].includes(moduleType)) {
-    //             selectedDstToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedDstToken.value, {
-    //                 isSameNet: true,
-    //                 isExclude: true,
-    //                 token: selectedSrcToken.value,
-    //             });
-    //         }
-    //     }
-
-    //     if (newDst && !isSameNetwork) {
-    //         setTimeout(() => (estimateErrorTitle.value = ''));
-
-    //         selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
-    //     }
-    // });
-
-    // const unWatchSrcDstToken = watch([srcAmount, selectedSrcToken, selectedDstToken], async () => {
-    //     if (selectedSrcToken.value?.id === selectedDstToken.value?.id) {
-    //         selectedDstToken.value = null;
-    //         dstAmount.value = null;
-
-    //         return;
-    //     }
-    // });
-
-    // // ========================= Watch Is Need Approve for SRC token =========================
-
-    // const unWatchIsNeedApprove = watch(isNeedApprove, () => {
-    //     checkSelectedNetwork();
-    //     if (isNeedApprove.value) {
-    //         return (opTitle.value = 'tokenOperations.approve');
-    //     }
-    // });
-
-    // // ========================= Watch Tokens Loadings for SRC and DST networks =========================
-
-    // const unWatchLoadingSrc = watch(isTokensLoadingForSrc, async (loadingState, oldLoading) => {
-    //     if (loadingState && !oldLoading) {
-    //         return;
-    //     }
-
-    //     if (!loadingState && !selectedSrcNetwork.value) {
-    //         return;
-    //     }
-
-    //     if (!selectedSrcNetwork.value) {
-    //         return;
-    //     }
-
-    //     selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
-
-    //     if (!['swap'].includes(moduleType)) {
-    //         return;
-    //     }
-
-    //     selectedDstToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedDstToken.value, {
-    //         isSameNet: true,
-    //         isExclude: true,
-    //         token: selectedSrcToken.value,
-    //     });
-    // });
-
-    // const unWatchLoadingDst = watch(isTokensLoadingForDst, async (loadingState) => {
-    //     if (loadingState) {
-    //         return;
-    //     }
-
-    //     if (!selectedDstNetwork.value) {
-    //         return;
-    //     }
-
-    //     if (['send', 'swap'].includes(moduleType)) {
-    //         return;
-    //     }
-
-    //     selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
-    // });
-
-    // // ========================= Watch Tx Error =========================
-    // const unWatchTxErr = watch(txError, () => {
-    //     if (!txError.value) {
-    //         return;
-    //     }
-
-    //     isLoading.value = false;
-
-    //     showNotification({
-    //         key: 'error-tx',
-    //         type: 'error',
-    //         title: txErrorTitle.value,
-    //         description: JSON.stringify(txError.value || 'Unknown error'),
-    //         duration: 5,
-    //     });
-
-    //     closeNotification('prepare-tx');
-    // });
-
-    // // =================================================================================================================
-
-    // const unWatchBridgeDexRoutes = watch(bridgeDexRoutes, () => {
-    //     console.log('watch-bridgeDexRoutes', bridgeDexRoutes.value, currentRouteInfo);
-
-    //     selectedService.value = currentRouteInfo.value?.service;
-
-    //     dstAmount.value = BigNumber(bestRouteInfo.value?.toTokenAmount).decimalPlaces(6).toString();
-
-    //     console.log('watch-bridgeDexRoutes selectedService', selectedService.value);
-    // });
-
-    // // =================================================================================================================
-
-    // const callOnMounted = () => {
-    //     if (!selectedSrcNetwork.value?.net) {
-    //         selectedSrcNetwork.value = currentChainInfo.value;
-    //     }
-
-    //     if (!selectedSrcNetwork.value?.net && chainList.value?.length) {
-    //         selectedSrcNetwork.value = chainList.value[0];
-    //     }
-
-    //     const isNetworkChanged =
-    //         selectedSrcNetwork.value?.ecosystem !== currentChainInfo.value?.ecosystem &&
-    //         selectedSrcNetwork.value?.net !== currentChainInfo.value?.net;
-
-    //     if (isNetworkChanged) {
-    //         selectedSrcNetwork.value = currentChainInfo.value;
-    //         srcAmount.value = '';
-    //         dstAmount.value = '';
-    //         selectedSrcToken.value = null;
-    //         selectedDstToken.value = null;
-    //     }
-
-    //     if (
-    //         ['super-swap', 'bridge'].includes(moduleType) &&
-    //         chainList.value?.length > 1 &&
-    //         selectedSrcNetwork.value?.net &&
-    //         !selectedDstNetwork.value?.net
-    //     ) {
-    //         selectedDstNetwork.value = chainList.value?.filter(({ net }) => net !== selectedSrcNetwork.value?.net)[0];
-    //     }
-    // };
-
-    // onMounted(async () => {
-    //     callOnMounted();
-    //     checkSelectedNetwork();
-    //     await resetTokensForModules();
-    // });
 
     watch(selectedSrcToken, () => {
         if (isNeedApprove.value) {

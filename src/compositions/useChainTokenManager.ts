@@ -181,19 +181,20 @@ export default function useChainTokenManger(moduleType: ModuleType) {
 
         switch (moduleType) {
             case ModuleType.swap:
-                console.log('resetTokensForModules CASE: ModuleType.swap');
                 if (isSrcTokenChanged || !selectedSrcToken.value || isAccountChanged) {
                     selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
                 }
 
                 if (isDstTokenChangedForSwap || !selectedDstToken.value || isAccountChanged) {
+                    params.token = selectedSrcToken.value;
+                    params.isSameNet = true;
+                    params.isExclude = true;
                     selectedDstToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedDstToken.value, params);
                 }
 
                 break;
 
             case ModuleType.send:
-                console.log('resetTokensForModules CASE: ModuleType.send');
                 selectedDstToken.value = null;
 
                 if (isSrcTokenChanged || isAccountChanged) {
@@ -369,14 +370,6 @@ export default function useChainTokenManger(moduleType: ModuleType) {
     // =================================================================================================================
 
     watch(isConfigLoading, () => {
-        console.log('--- isConfigLoading.value ---');
-        console.table({
-            isConfigLoading: isConfigLoading.value,
-            selectedSrcNetwork: selectedSrcNetwork.value?.net,
-            selectedDstNetwork: selectedDstNetwork.value?.net,
-            selectedSrcToken: selectedSrcToken.value?.id,
-            selectedDstToken: selectedDstToken.value?.id,
-        });
         if (!isConfigLoading.value) {
             chainManagerByModule();
         }
