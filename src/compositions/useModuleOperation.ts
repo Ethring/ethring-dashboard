@@ -31,8 +31,10 @@ import { AllQuoteParams, Approve, OwnerAddresses } from '@/modules/bridge-dex/mo
 import { AddressByChainHash } from '../shared/models/types/Address';
 import useInputValidation from '@/shared/form-validations';
 
+import { delay } from '@/shared/utils/helpers';
+
 const useModuleOperations = (module: ModuleType) => {
-    const { walletAddress, currentChainInfo, setChain, connectByEcosystems } = useAdapter();
+    const { walletAddress, currentChainInfo, setChain, connectByEcosystems, getChainByChainId } = useAdapter();
 
     const store = useStore();
 
@@ -397,6 +399,8 @@ const useModuleOperations = (module: ModuleType) => {
 
                 // * Execute transaction
                 tx.execute = async () => {
+                    isTransactionSigning.value = true;
+
                     try {
                         await tx.prepare();
 
@@ -413,7 +417,29 @@ const useModuleOperations = (module: ModuleType) => {
                         });
 
                         await tx.setTxExecuteParameters();
+                    } catch (error) {
+                        console.error('useModuleOperations -> execute -> error', error);
+                        throw error;
+                    }
 
+                    try {
+                        const { ecosystem: currEcosystem, chain_id } = currentChainInfo.value || {};
+
+                        if (currEcosystem !== tx.getEcosystem()) {
+                            await connectByEcosystems(tx.getEcosystem());
+                        }
+
+                        if (tx.getChainId() !== chain_id) {
+                            await delay(1000);
+                            const chainInfo = getChainByChainId(tx.getEcosystem(), tx.getChainId());
+                            await setChain(chainInfo);
+                        }
+                    } catch (error) {
+                        console.error('[signAndSend] Error occurred while setting ecosystem and chain', error);
+                        throw error;
+                    }
+
+                    try {
                         const forSign = tx.getTransaction();
 
                         return await signAndSend(forSign, { ecosystem: tx.getEcosystem(), chain: tx.getChainId() });

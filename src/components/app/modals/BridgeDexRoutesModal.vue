@@ -50,8 +50,8 @@
                     <h3>
                         <Amount type="currency" decimals="6" :value="item.toAmount" :symbol="selectedDstToken?.symbol" />
                     </h3>
-                    <h3 class="blue-text">
-                        <Amount type="usd" decimals="6" :value="item.toAmountUsd" symbol="$" />
+                    <h3 class="blue-text" v-if="selectedDstToken?.price">
+                        <Amount type="usd" decimals="6" :value="convert(item.toAmount, selectedDstToken?.price)" symbol="$" />
                     </h3>
                 </div>
             </div>
@@ -72,6 +72,9 @@ import { useStore } from 'vuex';
 import Button from '@/components/ui/Button.vue';
 import Amount from '@/components/app/Amount.vue';
 import ServiceIcon from '@/components/ui/EstimatePanel/ServiceIcon.vue';
+
+import { convertFeeToCurrency } from '@/shared/calculations/calculate-fee';
+import BigNumber from 'bignumber.js';
 
 export default {
     name: 'BridgeDexRoutesModal',
@@ -151,6 +154,11 @@ export default {
             return store.dispatch('app/toggleModal', 'routesModal');
         };
 
+        const convert = (amount, price) => {
+            const amountToUsd = convertFeeToCurrency(BigNumber(amount), price);
+            return amountToUsd.toString();
+        };
+
         watch(isRoutesModalOpen, () => {
             if (isRoutesModalOpen.value) {
                 selected.value = selectedRoute.value;
@@ -175,6 +183,7 @@ export default {
 
             handleOnConfirm,
             getRouteStatus,
+            convert,
         };
     },
 };

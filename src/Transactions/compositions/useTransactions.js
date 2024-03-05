@@ -11,7 +11,6 @@ import { captureTransactionException } from '@/app/modules/sentry';
 
 import logger from '@/shared/logger';
 import useAdapter from '@/Adapter/compositions/useAdapter';
-import { delay } from '@/shared/utils/helpers';
 
 export default function useTransactions() {
     const store = useStore();
@@ -25,9 +24,6 @@ export default function useTransactions() {
         signSend,
         currentChainInfo,
         connectedWallet,
-        connectByEcosystems,
-        setChain,
-        getChainByChainId,
         getTxExplorerLink,
         prepareTransaction,
         formatTransactionForSign,
@@ -266,22 +262,6 @@ export default function useTransactions() {
         await store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: true });
 
         try {
-            const { ecosystem: currEcosystem, chain_id } = currentChainInfo.value || {};
-
-            if (currEcosystem !== ecosystem) {
-                await connectByEcosystems(ecosystem);
-            }
-
-            if (chain !== chain_id) {
-                const chainInfo = getChainByChainId(ecosystem, chain);
-                await setChain(chainInfo);
-                await delay(1000);
-            }
-        } catch (error) {
-            console.error('[signAndSend] Error occurred while setting ecosystem and chain', error);
-        }
-
-        try {
             if (!action || !ACTIONS_FOR_TX[action]) {
                 console.error('Unknown action', action);
             }
@@ -301,9 +281,7 @@ export default function useTransactions() {
                 },
             });
 
-            return {
-                error,
-            };
+            throw error;
         }
 
         let response = null;

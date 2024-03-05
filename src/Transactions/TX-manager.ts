@@ -218,7 +218,7 @@ export class TransactionList {
                     await current.transaction.onSuccessSignTransaction();
                 }
 
-                await current.transaction.setTransaction({ ...current.transaction.getTransaction(), txHash: hash });
+                current.transaction.setTransaction({ ...current.transaction.getTransaction(), txHash: hash });
 
                 const waitResponse = await this.waitForTransaction(hash);
 
@@ -231,9 +231,12 @@ export class TransactionList {
                     await current.transaction.onSuccess();
                 }
             } catch (error) {
+                console.log('error', error);
                 if (current.transaction.onError) {
                     current.transaction.onError(error);
                 }
+
+                throw error;
             } finally {
                 current = current.next;
             }
