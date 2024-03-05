@@ -48,7 +48,7 @@ class BridgeDexApi<T extends ServiceType> {
             const { type, ...params } = requestParams;
 
             if (type === ServiceType.superswap) {
-                return (await ApiClient.post(`/services/${ServiceType.bridgedex}/getAllowance`, params)) as string;
+                return (await ApiClient.post(`/services/${ServiceType.bridgedex}/getApproveTx`, params)) as string;
             }
 
             return (await ApiClient.post(`/services/${type}/getApproveTx`, params)) as IBridgeDexTransaction[];

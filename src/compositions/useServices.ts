@@ -232,12 +232,12 @@ export default function useModule(moduleType: ModuleType) {
 
     const toggleRoutesModal = () => store.dispatch('app/toggleModal', 'routesModal');
 
-    watch(selectedSrcToken, () => {
+    watch(isNeedApprove, () => {
+        checkSelectedNetwork();
+
         if (isNeedApprove.value) {
             opTitle.value = 'tokenOperations.approve';
         }
-
-        checkSelectedNetwork();
     });
 
     onBeforeUnmount(() => {
