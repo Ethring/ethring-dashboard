@@ -75,7 +75,7 @@
         />
 
         <EstimatePreviewInfo
-            v-if="(selectedDstToken?.id && !!srcAmount) || isShowEstimateInfo"
+            v-if="isShowEstimateInfo || (isDstTokenSet && isSrcAmountSet)"
             :is-loading="isQuoteLoading"
             :services="[selectedRoute]"
             :fee-in-usd="fees[FEE_TYPE.BASE] || 0"
@@ -114,6 +114,7 @@ import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewIn
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
 import { ModuleType } from '../../../modules/bridge-dex/enums/ServiceType.enum';
+import useInputValidation from '@/shared/form-validations';
 
 export default {
     name: 'SimpleBridge',
@@ -192,6 +193,7 @@ export default {
             toggleRoutesModal,
         } = moduleInstance;
 
+        const { isSrcAmountSet, isDstTokenSet } = useInputValidation();
         // =================================================================================================================
 
         const clearAddress = ref(false);
@@ -324,6 +326,9 @@ export default {
             isTransactionSigning,
             isQuoteLoading,
             isDisableConfirmButton,
+
+            isSrcAmountSet,
+            isDstTokenSet,
         };
     },
 };

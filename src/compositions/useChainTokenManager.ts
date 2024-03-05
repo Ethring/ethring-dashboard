@@ -192,6 +192,10 @@ export default function useChainTokenManger(moduleType: ModuleType) {
                     selectedDstToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedDstToken.value, params);
                 }
 
+                if (isSameToken.value) {
+                    selectedDstToken.value = null;
+                }
+
                 break;
 
             case ModuleType.send:
@@ -218,6 +222,15 @@ export default function useChainTokenManger(moduleType: ModuleType) {
                     selectedDstToken.value = null;
                     selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
 
+                    params.token = selectedSrcToken.value;
+                    selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value, params);
+                }
+
+                if (isSrcTokenChanged || isAccountChanged) {
+                    selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
+                }
+
+                if (isDstTokenChanged || isAccountChanged) {
                     params.token = selectedSrcToken.value;
                     selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value, params);
                 }
@@ -300,10 +313,7 @@ export default function useChainTokenManger(moduleType: ModuleType) {
         }
 
         if (!_.isEmpty(newSrc)) {
-            console.log('if (!_.isEmpty(newSrc))');
-
             selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
-            console.log('selectedSrcToken.value', selectedSrcToken.value?.id);
 
             if ([ModuleType.swap].includes(moduleType)) {
                 selectedDstToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedDstToken.value, {
@@ -376,8 +386,6 @@ export default function useChainTokenManger(moduleType: ModuleType) {
     });
 
     onMounted(async () => {
-        console.log('--- onMounted ---');
-        console.log('isConfigLoading.value', isConfigLoading.value);
         selectType.value = TOKEN_SELECT_TYPES.FROM;
 
         chainManagerByModule();
@@ -392,7 +400,7 @@ export default function useChainTokenManger(moduleType: ModuleType) {
 
         unWatchSrcDstNetwork();
 
-        // unWatchSrcDstToken();
+        unWatchSrcDstToken();
 
         unWatchLoadingSrc();
         unWatchLoadingDst();

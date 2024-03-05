@@ -86,7 +86,7 @@
         />
 
         <EstimatePreviewInfo
-            v-if="isShowEstimateInfo || (selectedDstToken && srcAmount)"
+            v-if="isShowEstimateInfo || (isDstTokenSet && isSrcAmountSet)"
             :title="$t('tokenOperations.routeInfo')"
             :is-loading="isQuoteLoading"
             :fee-in-usd="fees[FEE_TYPE.BASE] || 0"
@@ -136,6 +136,7 @@ import useModuleOperations from '@/compositions/useModuleOperation';
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
 import { ModuleType } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import useInputValidation from '@/shared/form-validations';
 
 export default {
     name: 'SuperSwap',
@@ -221,6 +222,8 @@ export default {
             handleOnSelectNetwork,
             toggleRoutesModal,
         } = moduleInstance;
+
+        const { isSrcAmountSet, isDstTokenSet } = useInputValidation();
 
         //  =================================================================================================================
 
@@ -342,6 +345,9 @@ export default {
             isQuoteLoading,
             isAllowanceLoading,
             quoteErrorMessage,
+
+            isSrcAmountSet,
+            isDstTokenSet,
         };
     },
 };

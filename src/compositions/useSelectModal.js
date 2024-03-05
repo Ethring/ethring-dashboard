@@ -225,13 +225,20 @@ export default function useSelectModal(type) {
     watch(isOpen, async () => {
         if (isOpen.value && selectModal.value?.type === TYPES.TOKEN) {
             store.dispatch('app/setLoadingTokenList', true);
+
+            const isSameNet =
+                selectedSrcNetwork.value && selectedDstNetwork.value && selectedSrcNetwork.value.net === selectedDstNetwork.value.net;
+
+            const isSwap = module.value === ModuleType.swap;
+
             tokens.value = await getTokensList({
                 srcNet: selectedNetwork.value,
                 srcToken: selectedTokenFrom.value,
-                dstToken: selectedTokenTo.value,
-                isSameNet: selectedSrcNetwork.value?.net === selectedDstNetwork.value?.net,
+                dstToken: isSwap ? selectedTokenFrom.value : selectedTokenTo.value,
+                isSameNet,
                 onlyWithBalance: isFromSelect.value,
             });
+
             store.dispatch('app/setLoadingTokenList', false);
         }
     });

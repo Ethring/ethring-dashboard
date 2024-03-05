@@ -26,7 +26,7 @@
 
             <SwitchDirection
                 class="swap-module"
-                :disabled="isDirectionSwapped || isTransactionSigning || !selectedDstToken || !isSwapDirectionAvailable"
+                :disabled="isQuoteLoading || isDirectionSwapped || isTransactionSigning || !selectedDstToken || !isSwapDirectionAvailable"
                 :on-click-switch="() => handleOnSwapDirections()"
             />
 
@@ -46,7 +46,7 @@
         </div>
 
         <EstimatePreviewInfo
-            v-if="(selectedDstToken && srcAmount) || isShowEstimateInfo"
+            v-if="isShowEstimateInfo || (isDstTokenSet && isSrcAmountSet)"
             :is-loading="isQuoteLoading"
             :services="[selectedRoute]"
             :fee-in-usd="fees[FEE_TYPE.BASE] || 0"
@@ -85,6 +85,7 @@ import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewIn
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
 import { ModuleType } from '../../../modules/bridge-dex/enums/ServiceType.enum';
+import useInputValidation from '@/shared/form-validations';
 
 export default {
     name: 'SimpleSwap',
@@ -108,7 +109,9 @@ export default {
         // * Module Operations composition
         // =================================================================================================================
 
-        const { handleOnConfirm, moduleInstance, isTransactionSigning, isDisableSelect, isDisableConfirmButton } = useModuleOperations(ModuleType.swap);
+        const { handleOnConfirm, moduleInstance, isTransactionSigning, isDisableSelect, isDisableConfirmButton } = useModuleOperations(
+            ModuleType.swap,
+        );
 
         // =================================================================================================================
         // * Module values
@@ -157,6 +160,8 @@ export default {
             handleOnSelectNetwork,
             handleOnSwapDirections,
         } = moduleInstance;
+
+        const { isDstTokenSet, isSrcAmountSet } = useInputValidation();
 
         // =================================================================================================================
 
@@ -287,6 +292,9 @@ export default {
 
             // - BridgeDex Errors
             quoteErrorMessage,
+
+            isSrcAmountSet,
+            isDstTokenSet,
         };
     },
 };

@@ -7,8 +7,6 @@ import { useStore } from 'vuex';
 import { ECOSYSTEMS } from '@/Adapter/config';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
-import useTokensList from '@/compositions/useTokensList';
-import useNotification from '@/compositions/useNotification';
 import useBridgeDexService from '@/modules/bridge-dex/compositions';
 
 import { STATUSES } from '@/shared/models/enums/statuses.enum';
@@ -75,12 +73,6 @@ export default function useModule(moduleType: ModuleType) {
     // =================================================================================================================
 
     const { walletAccount, walletAddress, currentChainInfo, chainList } = useAdapter();
-
-    // =================================================================================================================
-
-    const { getTokensList } = useTokensList();
-
-    const tokensList = ref([]);
 
     // =================================================================================================================
 
@@ -246,6 +238,8 @@ export default function useModule(moduleType: ModuleType) {
     const openSelectModal = (selectFor, { direction, type }) => {
         direction && (targetDirection.value = direction);
         type && (selectType.value = type);
+
+        console.log('openSelectModal', selectFor, { direction, type });
 
         return store.dispatch('app/toggleSelectModal', { type: selectFor, module: moduleType });
     };

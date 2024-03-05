@@ -211,6 +211,7 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
 
         // !If the request is not allowed, return
         if (!isAllowToMakeRequest.value) {
+            quoteErrorMessage.value = 'Please select the correct source and destination tokens';
             return (isQuoteLoading.value = false);
         }
 
