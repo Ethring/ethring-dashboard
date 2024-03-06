@@ -230,6 +230,14 @@ export default function useModule(moduleType: ModuleType) {
         return openSelectModal('token', { direction, type });
     };
 
+    const handleOnSetAmount = (amount: string | number) => {
+        if (srcAmount.value === amount) {
+            return;
+        }
+
+        srcAmount.value = amount;
+    };
+
     const toggleRoutesModal = () => store.dispatch('app/toggleModal', 'routesModal');
 
     watch(isNeedApprove, () => {
@@ -314,6 +322,8 @@ export default function useModule(moduleType: ModuleType) {
 
         handleOnSelectToken,
         handleOnSelectNetwork,
+
+        handleOnSetAmount,
 
         // setTokenOnChange,
         checkSelectedNetwork,

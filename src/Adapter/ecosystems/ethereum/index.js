@@ -274,7 +274,10 @@ class EthereumAdapter extends AdapterBase {
             transaction.nonce = await ethersProvider.getTransactionCount(transaction.from);
         }
 
-        delete transaction.gas;
+        if (['number', 'string'].includes(typeof transaction.gas)) {
+            transaction.gasLimit = `0x${parseInt(transaction.gas).toString(16)}`; // TODO: Check if it's necessary
+            delete transaction.gas;
+        }
 
         transaction.value = transaction.value ? `0x${parseInt(transaction.value).toString(16)}` : '0x0';
 

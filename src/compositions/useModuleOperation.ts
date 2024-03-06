@@ -409,16 +409,18 @@ const useModuleOperations = (module: ModuleType) => {
 
                         // * Show notification
                         showNotification({
-                            key: 'prepare-tx',
+                            key: `tx-${tx.getTxId()}`,
                             type: 'info',
                             title: notificationTitle,
                             description: 'Please wait, transaction is preparing',
                             duration: 0,
+                            prepare: true,
                         });
 
                         await tx.setTxExecuteParameters();
                     } catch (error) {
-                        console.error('useModuleOperations -> execute -> error', error);
+                        console.error('useModuleOperations -> execute -> prepare -> error', error);
+                        closeNotification(`tx-${tx.getTxId()}`);
                         throw error;
                     }
 
@@ -435,7 +437,8 @@ const useModuleOperations = (module: ModuleType) => {
                             await setChain(chainInfo);
                         }
                     } catch (error) {
-                        console.error('[signAndSend] Error occurred while setting ecosystem and chain', error);
+                        console.error('useModuleOperations -> execute -> setChain -> error', error);
+                        closeNotification(`tx-${tx.getTxId()}`);
                         throw error;
                     }
 
@@ -448,7 +451,7 @@ const useModuleOperations = (module: ModuleType) => {
                         throw error;
                     } finally {
                         // * Close notification after transaction is signed and sent or failed
-                        closeNotification('prepare-tx');
+                        closeNotification(`tx-${tx.getTxId()}`);
                     }
                 };
 

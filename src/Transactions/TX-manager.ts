@@ -41,6 +41,10 @@ export class Transaction {
         this.transaction = transaction;
     }
 
+    getTxId() {
+        return this.id;
+    }
+
     getTransaction() {
         return this.transaction;
     }
@@ -124,7 +128,6 @@ export class TransactionList {
     async addTransactionToGroup(index: number, data: ICreateTransaction): Promise<ITransactionResponse> {
         const transactions = await getTransactionsByRequestID(this.requestID);
 
-        console.log('transactions', transactions, 'addTransactionToGroup', this.requestID, data, index);
         if (!transactions.length) {
             const response = await this.createTransactionGroup(data);
             return response[0];
@@ -210,8 +213,6 @@ export class TransactionList {
         let current = this.head;
         const WAIT_TIME_BETWEEN_TX = 3500;
 
-        console.log('current', current, 'executeTransactions', this.requestID);
-
         while (current) {
             try {
                 const hash = await current.transaction.execute();
@@ -236,7 +237,6 @@ export class TransactionList {
                     await current.transaction.onSuccess();
                 }
             } catch (error) {
-                console.log('error', error);
                 if (current.transaction.onError) {
                     current.transaction.onError(error);
                 }

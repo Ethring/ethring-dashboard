@@ -36,7 +36,7 @@
             :is-update="isSwapDirectionAvailable"
             :amount-value="srcAmount"
             class="mt-8"
-            @setAmount="onSetAmount"
+            @setAmount="handleOnSetAmount"
             @clickToken="onSelectToken(true, DIRECTIONS.SOURCE)"
         />
 
@@ -190,6 +190,7 @@ export default {
             handleOnSwapDirections,
             handleOnSelectToken,
             handleOnSelectNetwork,
+            handleOnSetAmount,
             toggleRoutesModal,
         } = moduleInstance;
 
@@ -259,11 +260,6 @@ export default {
             }
         };
 
-        const onSetAmount = async (value) => {
-            srcAmount.value = value;
-            dstAmount.value = '';
-        };
-
         // =================================================================================================================
 
         watch(srcAmount, () => resetAmounts(DIRECTIONS.SOURCE, srcAmount.value));
@@ -311,8 +307,8 @@ export default {
             // Handlers
             onSelectToken,
             onSelectNetwork,
+            handleOnSetAmount,
 
-            onSetAmount,
             handleOnConfirm,
             handleOnSwapDirections,
             toggleRoutesModal,
