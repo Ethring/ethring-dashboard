@@ -276,6 +276,12 @@ $percentage-bar-75: $lightGreen;
 $percentage-bar-50: $blazeOrange;
 $percentage-bar-25: $wildWatermelon;
 
+// Card
+$card-bg-color: $gallery;
+$card-btn-bg-color: $aquamarine;
+$card-tag-bg-color: $turquoise;
+$card-btn-secondary-color: $gainsboro;
+
 //  ===========================================================================
 //  THEME MAP
 //  ===========================================================================
@@ -449,5 +455,10 @@ $theme-colors: (
 
     "tag-01": $tag-01,
     "tag-02": $tag-02,
-    "tag-03": $tag-03
+    "tag-03": $tag-03,
+
+    "card-bg-color": $card-bg-color,
+    "card-btn-bg-color": $card-btn-bg-color,
+    "card-tag-bg-color": $card-tag-bg-color,
+    "card-btn-secondary-color": $card-btn-secondary-color
 );

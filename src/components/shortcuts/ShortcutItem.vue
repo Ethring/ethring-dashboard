@@ -1,0 +1,96 @@
+<template>
+  <a-card class="shortcut-item" :bordered="false">
+    <template #title>
+      <a-row justify="space-between" :wrap="false">
+        <a-row align="middle" :wrap="false" class="shortcut-item__block">
+          <ShortcutLogo />
+          <div class="shortcut-item__name">{{ item.name }}</div>
+        </a-row>
+        <a-row align="middle" :wrap="false">
+          <a-col align="right" justify="center">
+            <div class="shortcut-item__title">{{ $t('shortcuts.createdBy') }}</div>
+            <span class="shortcut-item__author">{{ item.author.name }}</span>
+          </a-col>
+          <div class="shortcut-item__avatar">
+            <ZometLogo />
+          </div>
+        </a-row>
+      </a-row>
+    </template>
+
+    <a-row justify="space-between" class="shortcut-item__info">
+      <a-row align="middle">
+        <div><span v-for="(ecosystem, i) in item.ecosystems" :key="i">{{ ecosystem }}<span
+              v-if="i < item.ecosystems.length - 1">,</span></span></div>
+        <a-divider type="vertical" style="height: 10px; background-color: #C9E0E0" />
+        <div>Min amount:
+          <span v-if="item.minAmount">{{ item.minAmount.value }} {{ item.minAmount.currency }}</span>
+          <span v-else>Any</span>
+        </div>
+      </a-row>
+      <a-row>
+        <div class="shortcut-item__tag" v-for="(tag) in item.tags">{{ tag }}</div>
+      </a-row>
+    </a-row>
+
+    <div class="shortcut-item__description">{{ item.description }}</div>
+
+    <a-row justify="space-between">
+      <a-row align="middle" class="shortcut-item__like">
+        <div class="shortcut-item__like-icon" @click="addToWatchList">
+          <LikeIcon :class="{ 'shortcut-item__like-icon--active': watchList.includes(item.id) }" />
+        </div>
+        <div class="shortcut-item__like-count">15</div>
+      </a-row>
+      <Button title="Try" class="shortcut-item__btn" @click="openShortcut" />
+    </a-row>
+  </a-card>
+</template>
+
+<script>
+import { computed } from 'vue'
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
+
+import ShortcutLogo from '@/assets/icons/dashboard/shortcut.svg';
+import ZometLogo from '@/assets/icons/sidebar/logo.svg';
+import LikeIcon from '@/assets/icons/dashboard/heart.svg';
+
+export default {
+  name: 'ShortcutItem',
+  components: {
+    ShortcutLogo,
+    ZometLogo,
+    LikeIcon
+  },
+  props: {
+    item: {
+      required: true,
+      default: {}
+    }
+  },
+  setup(props) {
+    const store = useStore();
+    const router = useRouter();
+
+    const watchList = computed(() => store.getters['shortcuts/watchList']);
+
+
+    const addToWatchList = () => {
+      store.dispatch('shortcuts/setWatchlist', props.item.id)
+    }
+
+    const openShortcut = () => {
+      store.dispatch('shortcuts/setSelectedShortcut', props.item)
+      router.push('/shortcuts/' + props.item.id)
+    }
+
+    return {
+      watchList,
+
+      addToWatchList,
+      openShortcut
+    }
+  },
+};
+</script>

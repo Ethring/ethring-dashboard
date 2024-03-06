@@ -236,6 +236,12 @@ $tag-01: $aquamarine;
 $tag-02: $cyan;
 $tag-03: $springGreen;
 
+// Card
+$card-bg-color: $ebonyClay;
+$card-btn-bg-color: $aquamarine;
+$card-tag-bg-color: $turquoise;
+$card-btn-secondary-color: $gainsboro;
+
 //  ===========================================================================
 //  THEME MAP
 //  ===========================================================================
@@ -393,5 +399,10 @@ $theme-colors-dark: (
 
     "tag-01": $tag-01,
     "tag-02": $tag-02,
-    "tag-03": $tag-03
+    "tag-03": $tag-03,
+
+    "card-bg-color": $card-bg-color,
+    "card-btn-bg-color": $card-btn-bg-color,
+    "card-tag-bg-color": $card-tag-bg-color,
+    "card-btn-secondary-color": $card-btn-secondary-color
 );
