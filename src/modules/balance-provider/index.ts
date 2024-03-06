@@ -62,7 +62,7 @@ export const updateBalanceByChain = async (account: string, address: string, cha
         fetchNfts: true,
     };
 
-    if (isUpdate) {
+    if (!isInitCalled && isUpdate) {
         providerOptions.fetchIntegrations = false;
         providerOptions.fetchNfts = false;
     }
