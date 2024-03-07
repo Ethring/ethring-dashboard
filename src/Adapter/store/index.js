@@ -240,6 +240,12 @@ export default {
             state.ecosystem = null;
             state.lastConnectedWallet = {};
 
+            state.addressesByEcosystem[ECOSYSTEMS.EVM] = {};
+            state.addressesByEcosystemList[ECOSYSTEMS.EVM] = {};
+
+            state.addressesByEcosystem[ECOSYSTEMS.COSMOS] = {};
+            state.addressesByEcosystemList[ECOSYSTEMS.COSMOS] = {};
+
             connectedWalletsStorage.value = [];
             lastConnectedWalletStorage.value = {};
             isConnectedStorage.value = false;
