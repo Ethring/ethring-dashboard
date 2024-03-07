@@ -102,7 +102,8 @@ test.describe('MetaMask Send e2e tests', () => {
         },
     );
 
-    testMetaMask('Case#: Checking the token change when changing the network via MM', async ({ browser, context, page, sendPage }) => {
+    // this test was actual when we use handler by change wallet in MM 
+    testMetaMask.skip('Case#: Checking the token change when changing the network via MM', async ({ browser, context, page, sendPage }) => {
         const network = 'Polygon';
         const networkNameInMm = 'Polygon Mainnet';
         const addressFrom = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
