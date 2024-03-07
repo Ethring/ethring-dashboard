@@ -1,6 +1,6 @@
-import _ from 'lodash/object';
+import _ from 'lodash';
 import { useStore } from 'vuex';
-import { computed, ref } from 'vue';
+import { computed, ref, watch, watchEffect } from 'vue';
 
 import socket from '@/app/modules/socket';
 
@@ -74,6 +74,8 @@ const useModuleOperations = (module: ModuleType) => {
         makeApproveRequest,
         makeSwapRequest,
         clearAllowance,
+
+        opTitle,
     } = moduleInstance;
 
     const { signAndSend } = useTransactions();
@@ -87,6 +89,8 @@ const useModuleOperations = (module: ModuleType) => {
         isReceiverAddressSet,
         isQuoteRouteSelected,
         isQuoteRouteSet,
+        isSrcAddressesEmpty,
+        isDstAddressesEmpty,
     } = useInputValidation();
 
     const currentServiceType = computed(() => {
@@ -543,7 +547,9 @@ const useModuleOperations = (module: ModuleType) => {
                     !isQuoteRouteSet.value ||
                     (isSameNetwork.value && !isDstTokenChainCorrectSwap.value) ||
                     (!isSameNetwork.value && !isDstTokenChainCorrect.value) ||
-                    isWithAddress
+                    isWithAddress ||
+                    isSrcAddressesEmpty.value ||
+                    isDstAddressesEmpty.value
                 );
             default:
                 return isDisabled ? true : false;
@@ -554,13 +560,36 @@ const useModuleOperations = (module: ModuleType) => {
         return isQuoteLoading.value || isTransactionSigning.value;
     });
 
+    // ===============================================================================================
+    // * Watch for operation title changes
+    // ===============================================================================================
+    watchEffect(() => {
+        const isSuperSwap = module === ModuleType.superSwap;
+
+        // ! If not super swap, return
+        if (!isSuperSwap) return;
+
+        const { ecosystem: srcEcosystem } = selectedSrcNetwork.value || {};
+        const { ecosystem: dstEcosystem } = selectedDstNetwork.value || {};
+
+        const isSrcEmpty = isSuperSwap && isSrcAddressesEmpty.value;
+        const isDstEmpty = isSuperSwap && isDstAddressesEmpty.value;
+
+        if (isSrcEmpty || isDstEmpty) {
+            const ecosystem = isSrcEmpty ? srcEcosystem : dstEcosystem;
+            opTitle.value = `tokenOperations.pleaseConnectWallet${ecosystem}`;
+        } else {
+            opTitle.value = 'tokenOperations.confirm';
+        }
+    });
+
     return {
         handleOnConfirm,
         moduleInstance,
 
-        isDisableConfirmButton,
         isDisableSelect,
         isTransactionSigning,
+        isDisableConfirmButton,
     };
 };
 

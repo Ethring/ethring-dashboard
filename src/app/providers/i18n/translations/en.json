@@ -114,7 +114,9 @@
     "viewDetails": "View transaction details",
     "youHaveFollowingErrors": "The transaction have the following errors",
     "memoLabel": "Input memo",
-    "memoDescription": "Required for sending to centralized exchanges."
+    "memoDescription": "Required for sending to centralized exchanges.",
+    "pleaseConnectWalletEVM": "Please connect EVM wallet",
+    "pleaseConnectWalletCOSMOS": "Please connect COSMOS wallet"
   },
   "simpleSend": {
     "title": "Send"

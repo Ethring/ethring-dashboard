@@ -18,9 +18,6 @@ export default function useChainTokenManger(moduleType: ModuleType) {
     const isSameNet = computed(() => [ModuleType.bridge, ModuleType.superSwap].includes(moduleType));
     const isConfigLoading = computed(() => store.getters['configs/isConfigLoading']);
 
-    const DEFAULT_TITLE = `tokenOperations.${moduleType === 'swap' ? 'swap' : 'confirm'}`;
-    const opTitle = ref(DEFAULT_TITLE);
-
     const {
         isSameTokenSameNet,
         isSameNetwork,

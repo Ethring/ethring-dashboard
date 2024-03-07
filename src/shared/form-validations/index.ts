@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { computed } from 'vue';
 import { useStore } from 'vuex';
+import { AddressByChainHash } from '../models/types/Address';
 
 const useInputValidation = () => {
     const store = useStore();
@@ -88,24 +89,49 @@ const useInputValidation = () => {
         return isSrcTokenSet.value && isDstTokenSet.value && _.isEqual(selectedSrcToken.value?.id, selectedDstToken.value?.id);
     });
 
+    // ? Check if the selected source and destination networks are the same
     const isSameNetwork = computed(() => {
         return isSrcNetworkSet.value && isDstNetworkSet.value && _.isEqual(selectedSrcNetwork.value?.net, selectedDstNetwork.value?.net);
     });
 
+    // ? Check if the selected source and destination tokens are the same
     const isSameTokenSameNet = computed(() => {
         return isSameNetwork.value && isSameToken.value;
     });
 
+    // ? Check if the quote route is set
     const isQuoteRouteSet = computed(() => {
         return !_.isEmpty(quoteRoutes.value);
     });
 
+    // ? Check if the quote route is selected
     const isQuoteRouteSelected = computed(() => {
         return !_.isEmpty(selectedRoute.value);
     });
 
+    // ? Check if the quote route is correct
     const isQuoteRouteCorrect = computed(() => {
         return isQuoteRouteSet.value && isQuoteRouteSelected.value;
+    });
+
+    // ? Check if the source addresses are empty
+    const isSrcAddressesEmpty = computed(() => {
+        const { ecosystem: srcEcosystem } = selectedSrcNetwork.value || {};
+        const { ecosystem: dstEcosystem } = selectedDstNetwork.value || {};
+
+        const srcAddressByChain = store.getters['adapters/getAddressesByEcosystem'](srcEcosystem) as AddressByChainHash;
+
+        return !_.isEmpty(srcEcosystem) && !_.isEqual(srcEcosystem, dstEcosystem) && _.isEmpty(srcAddressByChain);
+    });
+
+    // ? Check if the destination addresses are empty
+    const isDstAddressesEmpty = computed(() => {
+        const { ecosystem: srcEcosystem } = selectedSrcNetwork.value || {};
+        const { ecosystem: dstEcosystem } = selectedDstNetwork.value || {};
+
+        const dstAddressByChain = store.getters['adapters/getAddressesByEcosystem'](dstEcosystem) as AddressByChainHash;
+
+        return !_.isEmpty(dstEcosystem) && !_.isEqual(srcEcosystem, dstEcosystem) && _.isEmpty(dstAddressByChain);
     });
 
     return {
@@ -115,6 +141,8 @@ const useInputValidation = () => {
         isSrcTokenChainCorrect,
         isDstTokenChainCorrect,
         isDstTokenChainCorrectSwap,
+        isSrcAddressesEmpty,
+        isDstAddressesEmpty,
 
         isReceiverAddressSet,
 

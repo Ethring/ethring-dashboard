@@ -206,6 +206,8 @@ export default {
         [TYPES.DISCONNECT_WALLET](state, wallet) {
             state.wallets = state.wallets.filter((w) => w.id !== wallet.id);
 
+            const { ecosystem } = wallet || {};
+
             if (state.lastConnectedWallet.id === wallet.id) {
                 state.lastConnectedWallet = {};
                 lastConnectedWalletStorage.value = {};
@@ -217,6 +219,16 @@ export default {
             } else {
                 state.ecosystem = state.wallets[0].ecosystem;
                 lastConnectedWalletStorage.value = state.wallets[0];
+            }
+
+            if (state.addressesByEcosystem[ecosystem]) {
+                delete state.addressesByEcosystem[ecosystem];
+                delete addressesByEcosystemStorage.value[ecosystem];
+            }
+
+            if (state.addressesByEcosystemList[ecosystem]) {
+                delete state.addressesByEcosystemList[ecosystem];
+                delete addressesByEcosystemListStorage.value[ecosystem];
             }
 
             isConnectedStorage.value = false;
@@ -231,6 +243,9 @@ export default {
             connectedWalletsStorage.value = [];
             lastConnectedWalletStorage.value = {};
             isConnectedStorage.value = false;
+
+            addressesByEcosystemListStorage.value = {};
+            addressesByEcosystemStorage.value = {};
         },
         [TYPES.SET_IS_CONNECTED](state, value) {
             state.isConnected = value;
