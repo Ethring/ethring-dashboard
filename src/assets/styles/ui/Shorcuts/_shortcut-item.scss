@@ -1,31 +1,34 @@
-.shortcut-item{
+.shortcut-item {
     padding: 16px;
-    background-color:  var(--#{$prefix}card-bg-color);
+    background-color: var(--#{$prefix}card-bg-color);
 
     &__btn {
         min-width: 80px;
         min-height: 30px;
         height: 30px;
 
-        background:  var(--#{$prefix}card-btn-bg-color);
+        background: var(--#{$prefix}card-btn-bg-color);
         color: var(--#{$prefix}black);
     }
 
     &__tag {
         height: 20px;
+
         padding: 0px 10px;
         margin: 2px 0 0 4px;
+
         border-radius: 24px;
 
         font-size: var(--#{$prefix}small-sm-fs);
         font-weight: 500;
 
         color: var(--#{$prefix}black) !important;
-        background:  var(--#{$prefix}card-tag-bg-color);
+        background: var(--#{$prefix}card-tag-bg-color);
     }
 
     &__name {
         margin-left: 8px;
+
         color: var(--#{$prefix}primary-text);
         font-size: var(--#{$prefix}h6-fs);
         font-weight: 500;
@@ -72,7 +75,8 @@
 
     &__info {
         margin: 8px 0;
-        padding: 10px 0;
+        padding: 8px 0;
+
         border-top: 1px dashed var(--#{$prefix}border-secondary-color);
         border-bottom: 1px dashed var(--#{$prefix}border-secondary-color);
 
@@ -80,10 +84,21 @@
             color: var(--#{$prefix}mute-text);
             font-size: var(--#{$prefix}small-sm-fs);
         }
+
+        .amount {
+            font-weight: 600;
+            color: var(--#{$prefix}primary-text);
+
+            span {
+                font-weight: 400;
+                color: var(--#{$prefix}mute-text);
+            }
+        }
     }
 
     &__description {
         margin: 10px 0;
+
         color: var(--#{$prefix}mute-text);
         font-size: var(--#{$prefix}small-lg-fs);
         font-weight: 400;
@@ -97,7 +112,7 @@
         text-overflow: ellipsis;
     }
 
-    &__like{
+    &__like {
         @include pageFlexRow;
 
         height: 28px;
@@ -110,6 +125,7 @@
 
         &-icon {
             cursor: pointer;
+
             border-radius: 4px 0 0 4px;
             background-color: var(--#{$prefix}card-btn-secondary-color);
 
@@ -125,6 +141,7 @@
         &-count {
             @include pageFlexRow;
             justify-content: center;
+
             padding: 0 8px !important;
 
             border-radius: 0 4px 4px 0;
@@ -135,7 +152,8 @@
         }
     }
 
-    .ant-card-head, .ant-card-body {
+    .ant-card-head,
+    .ant-card-body {
         padding: 0;
         margin: 0;
         min-height: 40px;

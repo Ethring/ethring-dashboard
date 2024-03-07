@@ -1,13 +1,18 @@
 <template>
     <a-row class="shortcut-tabs">
-        <div v-for="tab in tabs" :key="tab.key" class="shortcuts-tab-item"
-            :class="{ 'shortcuts-tab-active': activeTabKey === tab.key }" @click="onTabChange(tab.key)">
+        <div
+            v-for="tab in tabs"
+            :key="tab.key"
+            class="shortcuts-tab-item"
+            :class="{ 'shortcuts-tab-active': activeTabKey === tab.key }"
+            @click="onTabChange(tab.key)"
+        >
             {{ tab.tab }}
             <ArrowUpIcon v-if="activeTabKey === tab.key" />
         </div>
     </a-row>
 
-    <a-row :gutter="[16, 16]" v-if="shortcuts.length">
+    <a-row :gutter="[16, 16]" v-if="shortcuts.length" class="shortcut-list">
         <a-col v-for="(item, i) in shortcuts" :key="`shortcut-${i}`" :md="24" :lg="12">
             <ShortcutItem :item="item" />
         </a-col>
@@ -29,12 +34,13 @@ export default {
     name: 'Shortcuts',
     components: {
         ShortcutItem,
-        ArrowUpIcon
+        ArrowUpIcon,
     },
     setup() {
         const store = useStore();
 
         const activeTabKey = ref('all');
+
         const emptyImage = Empty.PRESENTED_IMAGE_SIMPLE;
 
         const shortcuts = computed(() => store.getters['shortcuts/getShortcutsByType'](activeTabKey.value));
@@ -56,8 +62,8 @@ export default {
             activeTabKey,
             emptyImage,
 
-            onTabChange: (key) => (activeTabKey.value = key)
-        }
+            onTabChange: (key) => (activeTabKey.value = key),
+        };
     },
 };
 </script>
