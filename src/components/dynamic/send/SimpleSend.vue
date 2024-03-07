@@ -169,7 +169,7 @@ export default {
 
         watch(resetAmount, () => {
             if (resetAmount.value) {
-                onSetAmount(null);
+                handleOnSetAmount(null);
                 setTimeout(() => (resetAmount.value = false));
             }
         });

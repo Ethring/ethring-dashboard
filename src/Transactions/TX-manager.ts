@@ -128,6 +128,10 @@ export class TransactionList {
     async addTransactionToGroup(index: number, data: ICreateTransaction): Promise<ITransactionResponse> {
         const transactions = await getTransactionsByRequestID(this.requestID);
 
+        if (index === 0) {
+            return transactions[0];
+        }
+
         if (!transactions.length) {
             const response = await this.createTransactionGroup(data);
             return response[0];
@@ -135,7 +139,7 @@ export class TransactionList {
 
         const txToSave = {
             ...data,
-            index: Number(index) || transactions.length,
+            index,
         };
 
         return await addTransactionToExistingQueue(this.requestID, txToSave);
@@ -214,6 +218,18 @@ export class TransactionList {
         const WAIT_TIME_BETWEEN_TX = 3500;
 
         while (current) {
+            try {
+                // ? Prepare the transaction
+                await current.transaction.prepare();
+                // ? Set the transaction execute parameters
+                await current.transaction.setTxExecuteParameters();
+            } catch (error) {
+                if (current.transaction.onError) {
+                    current.transaction.onError(error);
+                }
+                throw error;
+            }
+
             try {
                 const hash = await current.transaction.execute();
 

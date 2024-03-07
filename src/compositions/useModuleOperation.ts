@@ -375,38 +375,29 @@ const useModuleOperations = (module: ModuleType) => {
             for (const { index, type, make } of operationFlow.value) {
                 const tx = new Transaction(type);
 
+                // * Set first transaction ID
+                if (index === 0) tx.setId(txManager.getFirstTxId());
+
+                console.log('TX', tx.getTransaction());
+
                 // * Set request ID
                 tx.setRequestID(txManager.getRequestId());
 
                 // * Prepare transaction
                 tx.prepare = async () => {
-                    console.log('Prepare:', index, type, 'Transaction');
-                    const prepared = prepare(index, type as TRANSACTION_TYPES, make);
-                    const transaction = await txManager.addTransactionToGroup(index, prepared); // * Add or create transaction
-
-                    tx.setId(transaction.id);
-                    tx.setTransaction(transaction);
-                };
-
-                // * Set execute parameters
-                tx.setTxExecuteParameters = async () => {
-                    console.log('Set execute parameters:', index, type, 'Transaction');
-                    const { transaction, ecosystem } = await TX_PARAMS_BY_TYPE[type]();
-                    console.log('transaction', transaction, 'ecosystem', ecosystem);
-                    tx.transaction.parameters = transaction;
-                    tx.transaction.ecosystem = ecosystem.toUpperCase();
-                    tx.setTransactionEcosystem(ecosystem.toUpperCase());
-                    tx.setChainId(selectedSrcNetwork.value?.chain_id);
-
-                    await tx.updateTransactionById(Number(tx.id), tx.transaction);
-                };
-
-                // * Execute transaction
-                tx.execute = async () => {
-                    isTransactionSigning.value = true;
-
                     try {
-                        await tx.prepare();
+                        console.log('Prepare:', index, type, 'Transaction');
+                        const prepared = prepare(index, type as TRANSACTION_TYPES, make);
+                        const transaction = await txManager.addTransactionToGroup(index, prepared); // * Add or create transaction
+
+                        if (index === 0) {
+                            const toSave = { ...tx.getTransaction(), ...prepared, id: transaction.id };
+                            await tx.updateTransactionById(Number(tx.id), toSave);
+                            tx.setTransaction(toSave);
+                        } else {
+                            tx.setId(transaction.id);
+                            tx.setTransaction(transaction);
+                        }
 
                         const notificationTitle =
                             tx.transaction.metaData.notificationTitle || `${tx.type} ${tx.transaction.metaData.params?.amount} ...`;
@@ -420,22 +411,42 @@ const useModuleOperations = (module: ModuleType) => {
                             duration: 0,
                             prepare: true,
                         });
-
-                        await tx.setTxExecuteParameters();
                     } catch (error) {
-                        console.error('useModuleOperations -> execute -> prepare -> error', error);
-                        closeNotification(`tx-${tx.getTxId()}`);
+                        console.error('useModuleOperations -> prepare -> error', error);
                         throw error;
                     }
+                };
+
+                // * Set execute parameters
+                tx.setTxExecuteParameters = async () => {
+                    try {
+                        const { transaction, ecosystem } = await TX_PARAMS_BY_TYPE[type]();
+
+                        tx.transaction.parameters = transaction;
+                        tx.transaction.ecosystem = ecosystem.toUpperCase();
+
+                        tx.setTransactionEcosystem(ecosystem.toUpperCase());
+                        tx.setChainId(selectedSrcNetwork.value?.chain_id);
+
+                        await tx.updateTransactionById(Number(tx.id), tx.transaction);
+                    } catch (error) {
+                        console.error('useModuleOperations -> setTxExecuteParameters -> error', error);
+                        throw error;
+                    }
+                };
+
+                // * Execute transaction
+                tx.execute = async () => {
+                    isTransactionSigning.value = true;
+
+                    const { ecosystem: currEcosystem } = currentChainInfo.value || {};
 
                     try {
-                        const { ecosystem: currEcosystem, chain_id } = currentChainInfo.value || {};
-
                         if (currEcosystem !== tx.getEcosystem()) {
                             await connectByEcosystems(tx.getEcosystem());
                         }
 
-                        if (tx.getChainId() !== chain_id) {
+                        if (tx.getChainId() !== currentChainInfo.value?.chain_id) {
                             await delay(1000);
                             const chainInfo = getChainByChainId(tx.getEcosystem(), tx.getChainId());
                             await setChain(chainInfo);
@@ -444,6 +455,13 @@ const useModuleOperations = (module: ModuleType) => {
                         console.error('useModuleOperations -> execute -> setChain -> error', error);
                         closeNotification(`tx-${tx.getTxId()}`);
                         throw error;
+                    }
+
+                    await delay(1000);
+
+                    if (tx.getChainId() !== currentChainInfo.value?.chain_id) {
+                        closeNotification(`tx-${tx.getTxId()}`);
+                        throw new Error('Incorrect chain');
                     }
 
                     try {
