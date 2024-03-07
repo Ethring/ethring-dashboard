@@ -21,6 +21,7 @@ import sendIcon from '@/assets/icons/sidebar/send.svg';
 import bridgeIcon from '@/assets/icons/sidebar/bridge.svg';
 import superSwapIcon from '@/assets/icons/sidebar/super-swap.svg';
 import buyCryptoIcon from '@/assets/icons/sidebar/buy-crypto.svg';
+import shortcutIcon from '@/assets/icons/sidebar/shortcut.svg';
 import SettingsIcon from '@/assets/icons/sidebar/settings.svg';
 
 export default {
@@ -70,6 +71,7 @@ export default {
         bridgeIcon,
         superSwapIcon,
         buyCryptoIcon,
+        shortcutIcon,
 
         SettingsIcon,
     },
