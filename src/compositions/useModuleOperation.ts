@@ -149,7 +149,7 @@ const useModuleOperations = (module: ModuleType) => {
     // * Operation flow for the module
     // ===============================================================================================
 
-    const operationFlow = computed<TxOperationFlow[]>(() => {
+    const getOperationFlow = (): TxOperationFlow[] => {
         const flow = [];
 
         if (isNeedApprove.value) {
@@ -210,7 +210,7 @@ const useModuleOperations = (module: ModuleType) => {
 
         // Flow with all available operations, and in the order of execution
         return flow;
-    });
+    };
 
     // ===============================================================================================
     // * Operations - Prepare transaction
@@ -363,6 +363,8 @@ const useModuleOperations = (module: ModuleType) => {
     const handleOnConfirm = async () => {
         isTransactionSigning.value = true;
 
+        const operationFlow = getOperationFlow();
+
         try {
             const group = {
                 index: 0,
@@ -376,7 +378,7 @@ const useModuleOperations = (module: ModuleType) => {
 
             await txManager.createTransactionGroup(group as ITransaction);
 
-            for (const { index, type, make } of operationFlow.value) {
+            for (const { index, type, make } of operationFlow) {
                 const tx = new Transaction(type);
 
                 // * Set first transaction ID
@@ -441,8 +443,6 @@ const useModuleOperations = (module: ModuleType) => {
 
                 // * Execute transaction
                 tx.execute = async () => {
-                    isTransactionSigning.value = true;
-
                     const { ecosystem: currEcosystem } = currentChainInfo.value || {};
 
                     try {
@@ -454,14 +454,13 @@ const useModuleOperations = (module: ModuleType) => {
                             await delay(1000);
                             const chainInfo = getChainByChainId(tx.getEcosystem(), tx.getChainId());
                             await setChain(chainInfo);
+                            await delay(1000);
                         }
                     } catch (error) {
                         console.error('useModuleOperations -> execute -> setChain -> error', error);
                         closeNotification(`tx-${tx.getTxId()}`);
                         throw error;
                     }
-
-                    await delay(1000);
 
                     if (tx.getChainId() !== currentChainInfo.value?.chain_id) {
                         closeNotification(`tx-${tx.getTxId()}`);
@@ -487,17 +486,14 @@ const useModuleOperations = (module: ModuleType) => {
                         await ON_SUCCESS_BY_TYPE[type]();
                     }
 
-                    if (index === operationFlow.value.length - 1) {
+                    if (index === operationFlow.length - 1) {
+                        console.log('Success all transactions');
                         isTransactionSigning.value = false;
                     }
                 };
 
                 tx.onSuccessSignTransaction = async () => {
                     console.log('Success sign and send transaction');
-
-                    if (index === operationFlow.value.length - 1) {
-                        isTransactionSigning.value = false;
-                    }
                 };
 
                 // * On error

@@ -5,7 +5,7 @@
             :class="{ active: dstAmount && (!isQuoteLoading || !isTransactionSigning) }"
             @click="() => getEstimateInfo(true)"
         >
-            <SyncOutlined />
+            <SyncOutlined :spin="isQuoteLoading" />
         </div>
 
         <a-form-item class="switch-direction-wrap">

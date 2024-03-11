@@ -44,6 +44,7 @@ export default function useModule(moduleType: ModuleType) {
         makeSwapRequest,
         makeAllowanceRequest,
         clearAllowance,
+        resetQuoteRoutes,
     } = useBridgeDexService(moduleType);
 
     // =================================================================================================================
@@ -207,6 +208,8 @@ export default function useModule(moduleType: ModuleType) {
         const toToken = JSON.parse(JSON.stringify(selectedDstToken.value));
 
         [selectedSrcToken.value, selectedDstToken.value] = [toToken, fromToken];
+
+        resetQuoteRoutes()
 
         _.debounce(() => (isDirectionSwapped.value = false), 1500)();
     };

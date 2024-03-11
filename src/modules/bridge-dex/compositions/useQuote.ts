@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 
 import BridgeDexService from '@/modules/bridge-dex';
 import { ModuleType, ModulesByService, ServiceType, ServiceTypes } from '@/modules/bridge-dex/enums/ServiceType.enum';
-import { AllQuoteParams, GetQuoteParams } from '@/modules/bridge-dex/models/Request.type';
+import { AllQuoteParams } from '@/modules/bridge-dex/models/Request.type';
 
 import { IQuoteRoute, ErrorResponse } from '@/modules/bridge-dex/models/Response.interface';
 import { NATIVE_CONTRACT } from '@/Adapter/config';
@@ -14,7 +14,7 @@ import { FEE_TYPES } from '@/shared/constants/operations';
 import { FeeInfo } from '@/shared/models/types/Fee';
 import { calculateFeeByCurrency, calculateFeeInNativeToUsd } from '@/shared/calculations/calculate-fee';
 
-import { AddressByChain, AddressByChainHash } from '@/shared/models/types/Address';
+import { AddressByChainHash } from '@/shared/models/types/Address';
 
 import logger from '@/shared/logger';
 import _ from 'lodash';
@@ -386,13 +386,22 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
             } as AllQuoteParams;
 
             // * If the params are not changed, return
-            if (_.isEqual({ ...params, ownerAddresses: {} }, { ...oldParams, ownerAddresses: {} })) {
+            if (
+                _.isEqual(
+                    { ...params, isReloadRoutes: isReloadRoutes.value, ownerAddresses: {} },
+                    { ...oldParams, isReloadRoutes: oldIsReloadRoutes, ownerAddresses: {} },
+                )
+            ) {
                 return;
             }
 
             try {
                 await makeQuoteRoutes(params);
                 isReloadRoutes.value && (isReloadRoutes.value = false);
+
+                // _.debounce(async () => {
+                //     await makeQuoteRoutes(params);
+                // }, 1000)();
             } catch (error) {
                 logger.error('useBridgeDexQuote -> makeQuoteRoutes', error);
             }
@@ -437,6 +446,7 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
 
         // * Service requests
         makeQuoteRoutes,
+        resetQuoteRoutes,
 
         // ! Errors
         quoteErrorMessage,

@@ -247,6 +247,7 @@ export class TransactionList {
                 });
 
                 console.log(`Waiting ${WAIT_TIME_BETWEEN_TX / 1000} seconds before next transaction`);
+
                 await delay(WAIT_TIME_BETWEEN_TX);
 
                 if (current.transaction.onSuccess) {
