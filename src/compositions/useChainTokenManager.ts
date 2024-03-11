@@ -28,6 +28,7 @@ export default function useChainTokenManger(moduleType: ModuleType) {
         isDstTokenChainCorrectSwap,
         isSrcTokenSet,
         isDstTokenSet,
+        isDstNetworkSet,
     } = useInputValidation();
 
     // =================================================================================================================
@@ -168,7 +169,11 @@ export default function useChainTokenManger(moduleType: ModuleType) {
 
                 const [dst] = chainList.value?.filter(({ net }) => net !== selectedSrcNetwork.value?.net) || [];
 
-                selectedDstNetwork.value = dst;
+                if (moduleType === ModuleType.bridge) {
+                    selectedDstNetwork.value = dst;
+                } else {
+                    !isDstNetworkSet.value && (selectedDstNetwork.value = dst);
+                }
 
                 break;
         }
@@ -260,6 +265,8 @@ export default function useChainTokenManger(moduleType: ModuleType) {
 
         console.table({
             isDiffEcosystem,
+            walletAccount: walletAccount.value,
+            isSuperSwap: isSuperSwap.value,
             currentChainInfo: currentChainInfo.value?.net,
             selectedSrcNetwork: selectedSrcNetwork.value?.net,
             selectedDstNetwork: selectedDstNetwork.value?.net,
@@ -283,7 +290,9 @@ export default function useChainTokenManger(moduleType: ModuleType) {
             dst && (selectedDstNetwork.value = dst);
         }
 
-        await defaultTokenManagerByModule({ isAccountChanged: isDiffEcosystem });
+        const isAccountChanged = !isSuperSwap.value ? isDiffEcosystem : false;
+
+        await defaultTokenManagerByModule({ isAccountChanged });
     };
 
     // =================================================================================================================

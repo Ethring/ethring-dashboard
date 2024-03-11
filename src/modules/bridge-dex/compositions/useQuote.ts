@@ -339,7 +339,10 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     // 3. If they are set, make a quote request
     const unWatchChanges = watch(
         [isReloadRoutes, srcAmount, selectedSrcNetwork, selectedDstNetwork, selectedSrcToken, selectedDstToken],
-        async () => {
+        async (
+            [],
+            [oldIsReloadRoutes, oldSrcAmount, oldSelectedSrcNetwork, oldSelectedDstNetwork, oldSelectedSrcToken, oldSelectedDstToken],
+        ) => {
             // Return if the module is send or the selected destination token is not set or the request is not allowed
             if (isSendModule.value || !isAllowToMakeRequest.value) {
                 resetQuoteRoutes();
@@ -364,6 +367,28 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
 
                 amount: srcAmount.value,
             } as AllQuoteParams;
+
+            const oldParams = {
+                // For dex
+                net: oldSelectedSrcNetwork?.net,
+
+                // For bridgedex
+                fromNet: oldSelectedSrcNetwork?.net,
+                toNet: oldSelectedDstNetwork?.net,
+
+                // others
+                fromToken: oldSelectedSrcToken?.address,
+                toToken: oldSelectedDstToken?.address,
+
+                ownerAddresses: addressByChain.value,
+
+                amount: oldSrcAmount,
+            } as AllQuoteParams;
+
+            // * If the params are not changed, return
+            if (_.isEqual({ ...params, ownerAddresses: {} }, { ...oldParams, ownerAddresses: {} })) {
+                return;
+            }
 
             try {
                 await makeQuoteRoutes(params);
