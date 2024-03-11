@@ -737,7 +737,7 @@ class CosmosAdapter extends AdapterBase {
                     response.fee.gas = '1000000'; // Temporary gas by default for contract execution (1,000,000)
 
                     const { wasm, msg } = value || {};
-                    const { contract: wasmContract, msg: wasmMsg } = wasm || {};
+                    const { contract: wasmContract, msg: wasmMsg, funds: wasmFunds } = wasm || {};
 
                     // * Add contract address to value if not exist
                     !value.contract && wasmContract && (value.contract = wasmContract);
@@ -746,15 +746,19 @@ class CosmosAdapter extends AdapterBase {
                     !value.sender && (value.sender = this.getAccountAddress());
 
                     // !IMPORTANT: Add funds to value if not exist
-                    !value.funds &&
-                        (value.funds = [
-                            {
-                                denom: fromBase,
-                                amount: BigNumber(amount)
-                                    .multipliedBy(10 ** fromDecimals)
-                                    .toString(),
-                            },
-                        ]);
+                    if (!value.funds && wasmFunds) {
+                        value.funds = wasmFunds;
+                    } else {
+                        !value.funds &&
+                            (value.funds = [
+                                {
+                                    denom: fromBase,
+                                    amount: BigNumber(amount)
+                                        .multipliedBy(10 ** fromDecimals)
+                                        .toString(),
+                                },
+                            ]);
+                    }
 
                     // !IMPORTANT: Convert msg for sign
                     value.msg = toUtf8(JSON.stringify(msg || wasmMsg));
