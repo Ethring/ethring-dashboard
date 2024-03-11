@@ -722,9 +722,22 @@ class CosmosAdapter extends AdapterBase {
             }
 
             // Custom fee for ExecuteContract
-            if (typeUrl === '/cosmwasm.wasm.v1.MsgExecuteContract') {
-                value.msg = toUtf8(JSON.stringify(value.msg)); // Convert msg to string and then to utf8 for sign
-                response.fee.gas = '1000000'; // Temporary gas by default for contract execution
+            const isContractExecute = typeUrl === '/cosmwasm.wasm.v1.MsgExecuteContract';
+
+            const { wasm, msg } = value || {};
+            const { contract: wasmContract, msg: wasmMsg } = wasm || {};
+
+            if (isContractExecute) {
+                !value.contract && wasmContract && (value.contract = wasmContract); // Add contract address to value if not exist
+                !value.sender && (value.sender = this.getAccountAddress()); // Add sender address to value if not exist
+
+                response.fee.gas = '1000000'; // Temporary gas by default for contract execution (1,000,000)
+            }
+
+            if (isContractExecute && wasmMsg) {
+                value.msg = toUtf8(JSON.stringify(wasmMsg));
+            } else {
+                value.msg = toUtf8(JSON.stringify(msg));
             }
 
             response.msg = transaction;
