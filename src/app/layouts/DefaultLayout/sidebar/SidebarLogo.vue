@@ -6,7 +6,7 @@
             </div>
             <div class="title" v-if="!collapsed">
                 <ZometText />
-                <a-tag color="#14ec8a" :bordered="false"> BETA </a-tag>
+                <a-tag color="#14ec8a" :bordered="false" class="tag"> BETA </a-tag>
             </div>
         </a-space>
     </a-button>

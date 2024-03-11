@@ -8,7 +8,7 @@
         <a-space>
             <span class="sidebar-item__title">
                 {{ title }}
-                <a-tag v-if="status" color="#14ec8a" :bordered="false"> {{ status }}</a-tag>
+                <a-tag v-if="status" color="#14ec8a" :bordered="false" class="sidebar-item__tag"> {{ status }}</a-tag>
             </span>
         </a-space>
     </a-menu-item>
@@ -78,32 +78,3 @@ export default {
     setup() {},
 };
 </script>
-<style lang="scss" scoped>
-// .sidebar-item {
-//     // width: 200px;
-//     &__title {
-//         color: var(--#{$prefix}sidebar-text);
-
-//         font-weight: 300;
-//         font-size: var(--#{$prefix}h5-fs);
-//     }
-
-//     &__icon {
-//         width: 20px;
-//         height: 20px;
-
-//         display: flex;
-//         justify-content: center;
-//         align-items: center;
-
-//         svg {
-//             // width: 100%;
-//             // height: 100%;
-
-//             &[fill='none'] {
-//                 fill: var(--#{$prefix}sidebar-text);
-//             }
-//         }
-//     }
-// }
-</style>

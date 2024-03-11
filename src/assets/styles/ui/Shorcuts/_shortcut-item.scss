@@ -46,7 +46,7 @@
         color: var(--#{$prefix}primary-text);
         font-size: var(--#{$prefix}small-sm-fs);
         font-weight: 600;
-        line-height: 14px;
+        line-height: 18px;
     }
 
     &__title {
@@ -64,6 +64,8 @@
         height: 40px;
         border-radius: 50%;
         margin-left: 8px;
+
+        aspect-ratio: 1 / 1;
 
         background-color: var(--#{$prefix}primary);
 
