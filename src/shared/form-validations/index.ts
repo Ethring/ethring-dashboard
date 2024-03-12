@@ -117,21 +117,19 @@ const useInputValidation = () => {
     // ? Check if the source addresses are empty
     const isSrcAddressesEmpty = computed(() => {
         const { ecosystem: srcEcosystem } = selectedSrcNetwork.value || {};
-        const { ecosystem: dstEcosystem } = selectedDstNetwork.value || {};
 
         const srcAddressByChain = store.getters['adapters/getAddressesByEcosystem'](srcEcosystem) as AddressByChainHash;
 
-        return !_.isEmpty(srcEcosystem) && !_.isEqual(srcEcosystem, dstEcosystem) && _.isEmpty(srcAddressByChain);
+        return !_.isEmpty(srcEcosystem) && _.isEmpty(srcAddressByChain);
     });
 
     // ? Check if the destination addresses are empty
     const isDstAddressesEmpty = computed(() => {
-        const { ecosystem: srcEcosystem } = selectedSrcNetwork.value || {};
         const { ecosystem: dstEcosystem } = selectedDstNetwork.value || {};
 
         const dstAddressByChain = store.getters['adapters/getAddressesByEcosystem'](dstEcosystem) as AddressByChainHash;
 
-        return !_.isEmpty(dstEcosystem) && !_.isEqual(srcEcosystem, dstEcosystem) && _.isEmpty(dstAddressByChain);
+        return !_.isEmpty(dstEcosystem) && _.isEmpty(dstAddressByChain);
     });
 
     return {

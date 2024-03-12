@@ -209,7 +209,7 @@ export default function useModule(moduleType: ModuleType) {
 
         [selectedSrcToken.value, selectedDstToken.value] = [toToken, fromToken];
 
-        resetQuoteRoutes()
+        resetQuoteRoutes();
 
         _.debounce(() => (isDirectionSwapped.value = false), 1500)();
     };
@@ -236,6 +236,10 @@ export default function useModule(moduleType: ModuleType) {
     const handleOnSetAmount = (amount: string | number) => {
         if (srcAmount.value === amount) {
             return;
+        }
+
+        if (amount && _.startsWith(amount.toString(), '.') && amount.toString().length > 1) {
+            return (srcAmount.value = `0${amount}`);
         }
 
         srcAmount.value = amount;

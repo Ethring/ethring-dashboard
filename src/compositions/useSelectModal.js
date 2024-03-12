@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import moment from 'moment';
 
 import { ref, computed, inject, nextTick, watch, onMounted } from 'vue';
 import { useStore } from 'vuex';
@@ -7,7 +6,7 @@ import { useStore } from 'vuex';
 import useTokenList from '@/compositions/useTokensList';
 
 import { searchByKey } from '@/shared/utils/helpers';
-import { getPriceFromProvider } from '@/shared/utils/prices';
+import { assignPriceInfo } from '@/shared/utils/prices';
 
 import { DIRECTIONS, TOKEN_SELECT_TYPES, PRICE_UPDATE_TIME } from '@/shared/constants/operations';
 import { ModuleType } from '@/modules/bridge-dex/enums/ServiceType.enum';
@@ -81,23 +80,10 @@ export default function useSelectModal(type) {
 
     // =================================================================================================================
 
-    const assignPriceInfo = async (item) => {
-        const isPriceUpdate = moment().diff(moment(item?.priceUpdatedAt), 'milliseconds') > PRICE_UPDATE_TIME;
-
-        if (!item.price || isPriceUpdate) {
-            item.price = await getPriceFromProvider(item.address, selectedNetwork.value, { coingeckoId: item.coingecko_id });
-            item.priceUpdatedAt = new Date().getTime();
-        }
-
-        return item;
-    };
-
-    // =================================================================================================================
-
     const handleOnSelectNetwork = (item) => (isSrcDirection.value ? (selectedSrcNetwork.value = item) : (selectedDstNetwork.value = item));
 
     const handleOnSelectToken = (item) => {
-        assignPriceInfo(item);
+        assignPriceInfo(selectedNetwork.value, item);
 
         return isFromSelect.value ? (selectedTokenFrom.value = item) : (selectedTokenTo.value = item);
     };

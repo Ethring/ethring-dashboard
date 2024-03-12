@@ -1,4 +1,7 @@
+import moment from 'moment';
+
 import PricesModule from '@/modules/prices/index';
+import { PRICE_UPDATE_TIME } from '@/shared/constants/operations';
 
 const getPriceByCoingeckoId = async (coingeckoId) => {
     try {
@@ -46,4 +49,18 @@ export const getPriceFromProvider = async (tokenAddress, selectedNetwork, { coin
         console.warn('error while requesting price from Coingecko', error);
         return 0;
     }
+};
+
+export const assignPriceInfo = async (network, token) => {
+    const { coingecko_id: coingeckoId, address, price, priceUpdatedAt } = token || {};
+
+    const isPriceUpdate = moment().diff(moment(priceUpdatedAt), 'milliseconds') > PRICE_UPDATE_TIME;
+
+    if (!price || isPriceUpdate) {
+        const fromProvider = await getPriceFromProvider(address, network, { coingeckoId });
+        fromProvider && (token.price = fromProvider);
+        fromProvider && (token.priceUpdatedAt = new Date().getTime());
+    }
+
+    return token;
 };

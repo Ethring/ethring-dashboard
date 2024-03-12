@@ -113,8 +113,6 @@
 import { computed, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 
-import BigNumber from 'bignumber.js';
-
 import SelectRecord from '@/components/ui/Select/SelectRecord';
 import SelectAddressInput from '@/components/ui/Select/SelectAddressInput';
 import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewInfo.vue';
@@ -137,6 +135,7 @@ import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
 import { ModuleType } from '@/modules/bridge-dex/enums/ServiceType.enum';
 import useInputValidation from '@/shared/form-validations';
+import { differenceInPercentage } from '@/shared/calculations/percentage-diff';
 
 export default {
     name: 'SuperSwap',
@@ -229,21 +228,14 @@ export default {
         const successHash = ref('');
 
         const differPercentage = computed(() => {
-            const { price: srcPrice = 0 } = selectedSrcToken.value || {};
-            const { price: dstPrice = 0 } = selectedDstToken.value || {};
-
-            if (!srcPrice || !dstPrice || !srcAmount.value || !dstAmount.value) {
-                return 0;
-            }
-
-            const fromUsdValue = BigNumber(srcPrice).multipliedBy(srcAmount.value);
-            const toUsdValue = BigNumber(dstPrice).multipliedBy(dstAmount.value);
-
-            if (!fromUsdValue || !toUsdValue) {
-                return 0;
-            }
-
-            return toUsdValue.minus(fromUsdValue).dividedBy(toUsdValue).multipliedBy(100).toFixed(2) || 0;
+            return differenceInPercentage({
+                srcNetwork: selectedSrcNetwork.value,
+                dstNetwork: selectedDstNetwork.value,
+                srcToken: selectedSrcToken.value,
+                dstToken: selectedDstToken.value,
+                srcAmount: srcAmount.value,
+                dstAmount: dstAmount.value,
+            });
         });
 
         // =================================================================================================================
