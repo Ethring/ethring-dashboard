@@ -4,6 +4,7 @@ export const SHORTCUTS = [
         name: 'Namada airdrop',
         description: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
         logo: 'https://',
+        wallpaper: '',
         type: 'staking',
         ecosystems: ['EVM'],
         minAmount: {
@@ -15,12 +16,14 @@ export const SHORTCUTS = [
             name: 'Zomet',
             avatar: 'https://zomet-logo.png',
         },
+        steps: [{}],
     },
     {
         id: 'airdrop-farming-portfolio',
         name: 'Airdrop-farming portfolio Airdrop-farming portfolio',
         description: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
         logo: 'https://',
+        wallpaper: '',
         type: 'staking',
         ecosystems: ['EVM'],
         minAmount: {
@@ -38,6 +41,7 @@ export const SHORTCUTS = [
         name: 'DeFi Strategy - 60% APY',
         description: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
         logo: 'https://',
+        wallpaper: '',
         type: 'airdrop',
         ecosystems: ['Cosmos'],
         minAmount: null,
@@ -52,6 +56,7 @@ export const SHORTCUTS = [
         name: 'Mint Bad Kids',
         description: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
         logo: 'https://',
+        wallpaper: '',
         type: 'airdrop',
         ecosystems: ['EVM', 'Cosmos'],
         minAmount: {

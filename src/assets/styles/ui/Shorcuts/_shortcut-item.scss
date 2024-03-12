@@ -121,37 +121,23 @@
         @include pageFlexRow;
 
         height: 28px;
-        border-radius: 4px;
 
-        div {
-            height: 100%;
-            padding: 2px 4px;
+        svg {
+            cursor: pointer;
         }
 
         &-icon {
-            cursor: pointer;
-
-            border-radius: 4px 0 0 4px;
-            background-color: var(--#{$prefix}card-btn-secondary-color);
-
             &--active {
-                fill: var(--#{$prefix}danger);
+                fill: var(--#{$prefix}btn-bg-color-hover);
 
                 path {
-                    stroke: var(--#{$prefix}danger);
+                    stroke: var(--#{$prefix}btn-bg-color-hover);
                 }
             }
         }
 
         &-count {
-            @include pageFlexRow;
-            justify-content: center;
-
-            padding: 0 8px !important;
-
-            border-radius: 0 4px 4px 0;
-            background-color: var(--#{$prefix}icon-bg-color);
-
+            margin-left: 4px;
             font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 600;
         }

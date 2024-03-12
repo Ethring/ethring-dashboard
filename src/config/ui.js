@@ -49,14 +49,15 @@ const SUPER_SWAP = {
 
 const SHORTCUT = {
     icon: 'shortcutIcon',
-    title: 'Shortcut',
+    title: 'Shortcuts',
     key: 'shortcut',
     to: '/shortcuts',
+    status: 'NEW',
     disabled: false,
     type: 'layout',
 };
 
-const SIDEBAR_MODULES = [MAIN_DASHBOARD, SEND, SWAP, BRIDGE, SUPER_SWAP, SHORTCUT];
+const SIDEBAR_MODULES = [MAIN_DASHBOARD, SHORTCUT, SEND, SWAP, BRIDGE, SUPER_SWAP];
 
 const CUSTOM_CONFIG = [MAIN_DASHBOARD];
 
