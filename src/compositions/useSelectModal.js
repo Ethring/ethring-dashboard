@@ -231,12 +231,19 @@ export default function useSelectModal(type) {
 
             const isSwap = module.value === ModuleType.swap;
 
+            const exclude = [];
+
+            if (isSwap) {
+                selectedTokenTo.value && exclude.push(selectedTokenTo.value?.id);
+            }
+
             tokens.value = await getTokensList({
                 srcNet: selectedNetwork.value,
                 srcToken: selectedTokenFrom.value,
                 dstToken: isSwap ? selectedTokenFrom.value : selectedTokenTo.value,
                 isSameNet,
                 onlyWithBalance: isFromSelect.value,
+                exclude,
             });
 
             store.dispatch('app/setLoadingTokenList', false);

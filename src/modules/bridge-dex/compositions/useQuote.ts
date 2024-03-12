@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 
 import BridgeDexService from '@/modules/bridge-dex';
 import { ModuleType, ModulesByService, ServiceType, ServiceTypes } from '@/modules/bridge-dex/enums/ServiceType.enum';
-import { AllQuoteParams, GetQuoteParams } from '@/modules/bridge-dex/models/Request.type';
+import { AllQuoteParams } from '@/modules/bridge-dex/models/Request.type';
 
 import { IQuoteRoute, ErrorResponse } from '@/modules/bridge-dex/models/Response.interface';
 import { NATIVE_CONTRACT } from '@/Adapter/config';
@@ -14,7 +14,7 @@ import { FEE_TYPES } from '@/shared/constants/operations';
 import { FeeInfo } from '@/shared/models/types/Fee';
 import { calculateFeeByCurrency, calculateFeeInNativeToUsd } from '@/shared/calculations/calculate-fee';
 
-import { AddressByChain, AddressByChainHash } from '@/shared/models/types/Address';
+import { AddressByChainHash } from '@/shared/models/types/Address';
 
 import logger from '@/shared/logger';
 import _ from 'lodash';
@@ -339,7 +339,10 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     // 3. If they are set, make a quote request
     const unWatchChanges = watch(
         [isReloadRoutes, srcAmount, selectedSrcNetwork, selectedDstNetwork, selectedSrcToken, selectedDstToken],
-        async () => {
+        async (
+            [],
+            [oldIsReloadRoutes, oldSrcAmount, oldSelectedSrcNetwork, oldSelectedDstNetwork, oldSelectedSrcToken, oldSelectedDstToken],
+        ) => {
             // Return if the module is send or the selected destination token is not set or the request is not allowed
             if (isSendModule.value || !isAllowToMakeRequest.value) {
                 resetQuoteRoutes();
@@ -365,9 +368,40 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
                 amount: srcAmount.value,
             } as AllQuoteParams;
 
+            const oldParams = {
+                // For dex
+                net: oldSelectedSrcNetwork?.net,
+
+                // For bridgedex
+                fromNet: oldSelectedSrcNetwork?.net,
+                toNet: oldSelectedDstNetwork?.net,
+
+                // others
+                fromToken: oldSelectedSrcToken?.address,
+                toToken: oldSelectedDstToken?.address,
+
+                ownerAddresses: addressByChain.value,
+
+                amount: oldSrcAmount,
+            } as AllQuoteParams;
+
+            // * If the params are not changed, return
+            if (
+                _.isEqual(
+                    { ...params, isReloadRoutes: isReloadRoutes.value, ownerAddresses: {} },
+                    { ...oldParams, isReloadRoutes: oldIsReloadRoutes, ownerAddresses: {} },
+                )
+            ) {
+                return;
+            }
+
             try {
                 await makeQuoteRoutes(params);
                 isReloadRoutes.value && (isReloadRoutes.value = false);
+
+                // _.debounce(async () => {
+                //     await makeQuoteRoutes(params);
+                // }, 1000)();
             } catch (error) {
                 logger.error('useBridgeDexQuote -> makeQuoteRoutes', error);
             }
@@ -412,6 +446,7 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
 
         // * Service requests
         makeQuoteRoutes,
+        resetQuoteRoutes,
 
         // ! Errors
         quoteErrorMessage,

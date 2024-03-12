@@ -26,7 +26,7 @@
             :disabled-select="isDisableSelect"
             :disabled="isDisableSelect"
             class="select-amount"
-            @setAmount="onSetAmount"
+            @setAmount="handleOnSetAmount"
             @clickToken="onSelectToken"
         />
 
@@ -114,6 +114,7 @@ export default {
             // - Handlers
             handleOnSelectToken,
             handleOnSelectNetwork,
+            handleOnSetAmount,
         } = moduleInstance;
 
         // =================================================================================================================
@@ -139,7 +140,6 @@ export default {
 
         const onSelectToken = () => handleOnSelectToken({ direction: DIRECTIONS.SOURCE, type: TOKEN_SELECT_TYPES.FROM });
         const onSelectNetwork = () => handleOnSelectNetwork({ direction: DIRECTIONS.SOURCE, type: TOKEN_SELECT_TYPES.FROM });
-        const onSetAmount = (value) => (srcAmount.value = value);
 
         const resetAmounts = async (amount) => {
             const allowDataTypes = ['string', 'number'];
@@ -169,7 +169,7 @@ export default {
 
         watch(resetAmount, () => {
             if (resetAmount.value) {
-                onSetAmount(null);
+                handleOnSetAmount(null);
                 setTimeout(() => (resetAmount.value = false));
             }
         });
@@ -211,7 +211,8 @@ export default {
             handleMemoChange,
             onSelectNetwork,
             onSelectToken,
-            onSetAmount,
+
+            handleOnSetAmount,
 
             // Handle Confirm (Transaction signing)
             handleOnConfirm,

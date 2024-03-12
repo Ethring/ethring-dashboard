@@ -5,7 +5,7 @@
             :class="{ active: dstAmount && (!isQuoteLoading || !isTransactionSigning) }"
             @click="() => getEstimateInfo(true)"
         >
-            <SyncOutlined />
+            <SyncOutlined :spin="isQuoteLoading" />
         </div>
 
         <a-form-item class="switch-direction-wrap">
@@ -15,7 +15,7 @@
                     :label="$t('tokenOperations.from')"
                     :token="selectedSrcToken"
                     :disabled="isDisableSelect"
-                    @setAmount="onSetAmount"
+                    @setAmount="handleOnSetAmount"
                 >
                     <SelectRecord
                         :placeholder="$t('tokenOperations.selectNetwork')"
@@ -219,6 +219,7 @@ export default {
             handleOnSelectToken,
             handleOnSelectNetwork,
             toggleRoutesModal,
+            handleOnSetAmount,
         } = moduleInstance;
 
         const { isSrcAmountSet, isDstTokenSet, isSameNetwork } = useInputValidation();
@@ -259,15 +260,6 @@ export default {
         };
 
         // =================================================================================================================
-
-        const onSetAmount = (value) => {
-            srcAmount.value = value;
-
-            if (!value) {
-                dstAmount.value = 0;
-                return (isQuoteLoading.value = false);
-            }
-        };
 
         const getEstimateInfo = async (isReload = false) => {
             dstAmount.value = null;
@@ -322,7 +314,6 @@ export default {
 
             differPercentage,
 
-            onSetAmount,
             isDisableConfirmButton,
 
             getEstimateInfo,
@@ -341,6 +332,7 @@ export default {
             selectedRoute,
             otherRoutes,
             isAddressError,
+            handleOnSetAmount,
 
             isDisableSelect,
             isQuoteLoading,

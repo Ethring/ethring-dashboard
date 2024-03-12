@@ -681,7 +681,7 @@ class CosmosAdapter extends AdapterBase {
         }
     }
 
-    async formatTransactionForSign(transaction = {}) {
+    async formatTransactionForSign(transaction = {}, params = {}) {
         if (!transaction || JSON.stringify(transaction) === '{}') {
             return {
                 error: 'Transaction not found for sign',
@@ -692,6 +692,11 @@ class CosmosAdapter extends AdapterBase {
             msg: null,
             fee: this.setDefaultFeeForTx(),
         };
+
+        // Additional params for transaction format
+        const { tokens = {}, amount = 0 } = params || {};
+        const { from = {} } = tokens || {};
+        const { decimals: fromDecimals = 0, base: fromBase } = from || {};
 
         // * Format transaction keys to camelCase
         try {
@@ -716,15 +721,51 @@ class CosmosAdapter extends AdapterBase {
                 delete value[key];
             }
 
+            // add timeoutTimestamp to Msg if its object
+            if (value?.timeoutTimestamp && typeof value.timeoutTimestamp === 'object') {
+                value.timeoutTimestamp = this._getTimeoutTimestamp();
+            }
+
             // remove timeoutHeight from Msg
             if (value?.timeoutHeight) {
                 delete value.timeoutHeight;
             }
 
-            // Custom fee for ExecuteContract
-            if (typeUrl === '/cosmwasm.wasm.v1.MsgExecuteContract') {
-                value.msg = toUtf8(JSON.stringify(value.msg)); // Convert msg to string and then to utf8 for sign
-                response.fee.gas = '1000000'; // Temporary gas by default for contract execution
+            // Custom actions for different types of transactions
+            switch (typeUrl) {
+                case '/cosmwasm.wasm.v1.MsgExecuteContract':
+                    response.fee.gas = '1000000'; // Temporary gas by default for contract execution (1,000,000)
+
+                    const { wasm, msg } = value || {};
+                    const { contract: wasmContract, msg: wasmMsg, funds: wasmFunds } = wasm || {};
+
+                    // * Add contract address to value if not exist
+                    !value.contract && wasmContract && (value.contract = wasmContract);
+
+                    // * Add sender address to value if not exist
+                    !value.sender && (value.sender = this.getAccountAddress());
+
+                    // !IMPORTANT: Add funds to value if not exist
+                    if (!value.funds && wasmFunds) {
+                        value.funds = wasmFunds;
+                    } else {
+                        !value.funds &&
+                            (value.funds = [
+                                {
+                                    denom: fromBase,
+                                    amount: BigNumber(amount)
+                                        .multipliedBy(10 ** fromDecimals)
+                                        .toString(),
+                                },
+                            ]);
+                    }
+
+                    // !IMPORTANT: Convert msg for sign
+                    value.msg = toUtf8(JSON.stringify(msg || wasmMsg));
+
+                    value.wasm && delete value.wasm; // Remove wasm from value
+
+                    break;
             }
 
             response.msg = transaction;
@@ -915,6 +956,14 @@ class CosmosAdapter extends AdapterBase {
         const [asset] = assets;
 
         return asset;
+    }
+
+    _getTimeoutTimestamp() {
+        const PACKET_LIFETIME_NANO = 3600 * 1_000_000_000; // 1 Hour
+
+        const currentTimeNano = Math.floor(Date.now() * 1_000_000);
+
+        return BigNumber(currentTimeNano).plus(PACKET_LIFETIME_NANO).toString();
     }
 }
 

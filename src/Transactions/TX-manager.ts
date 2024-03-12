@@ -41,6 +41,10 @@ export class Transaction {
         this.transaction = transaction;
     }
 
+    getTxId() {
+        return this.id;
+    }
+
     getTransaction() {
         return this.transaction;
     }
@@ -124,7 +128,10 @@ export class TransactionList {
     async addTransactionToGroup(index: number, data: ICreateTransaction): Promise<ITransactionResponse> {
         const transactions = await getTransactionsByRequestID(this.requestID);
 
-        console.log('transactions', transactions, 'addTransactionToGroup', this.requestID, data, index);
+        if (index === 0) {
+            return transactions[0];
+        }
+
         if (!transactions.length) {
             const response = await this.createTransactionGroup(data);
             return response[0];
@@ -132,7 +139,7 @@ export class TransactionList {
 
         const txToSave = {
             ...data,
-            index: Number(index) || transactions.length,
+            index,
         };
 
         return await addTransactionToExistingQueue(this.requestID, txToSave);
@@ -210,9 +217,19 @@ export class TransactionList {
         let current = this.head;
         const WAIT_TIME_BETWEEN_TX = 3500;
 
-        console.log('current', current, 'executeTransactions', this.requestID);
-
         while (current) {
+            try {
+                // ? Prepare the transaction
+                await current.transaction.prepare();
+                // ? Set the transaction execute parameters
+                await current.transaction.setTxExecuteParameters();
+            } catch (error) {
+                if (current.transaction.onError) {
+                    current.transaction.onError(error);
+                }
+                throw error;
+            }
+
             try {
                 const hash = await current.transaction.execute();
 
@@ -230,13 +247,13 @@ export class TransactionList {
                 });
 
                 console.log(`Waiting ${WAIT_TIME_BETWEEN_TX / 1000} seconds before next transaction`);
+
                 await delay(WAIT_TIME_BETWEEN_TX);
 
                 if (current.transaction.onSuccess) {
                     await current.transaction.onSuccess();
                 }
             } catch (error) {
-                console.log('error', error);
                 if (current.transaction.onError) {
                     current.transaction.onError(error);
                 }

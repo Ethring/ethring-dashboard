@@ -44,6 +44,7 @@ export default function useModule(moduleType: ModuleType) {
         makeSwapRequest,
         makeAllowanceRequest,
         clearAllowance,
+        resetQuoteRoutes,
     } = useBridgeDexService(moduleType);
 
     // =================================================================================================================
@@ -208,6 +209,8 @@ export default function useModule(moduleType: ModuleType) {
 
         [selectedSrcToken.value, selectedDstToken.value] = [toToken, fromToken];
 
+        resetQuoteRoutes()
+
         _.debounce(() => (isDirectionSwapped.value = false), 1500)();
     };
 
@@ -228,6 +231,14 @@ export default function useModule(moduleType: ModuleType) {
 
     const handleOnSelectToken = ({ direction, type }) => {
         return openSelectModal('token', { direction, type });
+    };
+
+    const handleOnSetAmount = (amount: string | number) => {
+        if (srcAmount.value === amount) {
+            return;
+        }
+
+        srcAmount.value = amount;
     };
 
     const toggleRoutesModal = () => store.dispatch('app/toggleModal', 'routesModal');
@@ -314,6 +325,8 @@ export default function useModule(moduleType: ModuleType) {
 
         handleOnSelectToken,
         handleOnSelectNetwork,
+
+        handleOnSetAmount,
 
         // setTokenOnChange,
         checkSelectedNetwork,

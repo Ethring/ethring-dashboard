@@ -20,14 +20,7 @@ export default function useTransactions() {
     const transactionForSign = computed(() => store.getters['txManager/transactionForSign']);
     const currentRequestID = computed(() => store.getters['txManager/currentRequestID']);
 
-    const {
-        signSend,
-        currentChainInfo,
-        connectedWallet,
-        getTxExplorerLink,
-        prepareTransaction,
-        formatTransactionForSign,
-    } = useAdapter();
+    const { signSend, currentChainInfo, connectedWallet, getTxExplorerLink, prepareTransaction, formatTransactionForSign } = useAdapter();
 
     // * Create transactions queue
     const createTransactions = async (transactions) => {
@@ -243,8 +236,9 @@ export default function useTransactions() {
      */
     const signAndSend = async (transaction, { ecosystem, chain }) => {
         const ACTIONS_FOR_TX = {
-            prepareTransaction: async (parameters) => await prepareTransaction(parameters, { ecosystem }),
-            formatTransactionForSign: async (parameters) => await formatTransactionForSign(parameters, { ecosystem }),
+            prepareTransaction: async (parameters, txParams = {}) => await prepareTransaction(parameters, { ecosystem, ...txParams }),
+            formatTransactionForSign: async (parameters, txParams = {}) =>
+                await formatTransactionForSign(parameters, { ecosystem, ...txParams }),
         };
 
         if (!transaction) {
@@ -255,7 +249,7 @@ export default function useTransactions() {
 
         const { parameters, metaData } = txBody;
 
-        const { action = null } = metaData || {};
+        const { action = null, params: txParams = {} } = metaData || {};
 
         let txFoSign = parameters;
 
@@ -266,7 +260,7 @@ export default function useTransactions() {
                 console.error('Unknown action', action);
             }
 
-            txFoSign = await ACTIONS_FOR_TX[action](parameters);
+            txFoSign = await ACTIONS_FOR_TX[action](parameters, txParams);
         } catch (error) {
             console.error('prepareTransaction error', error);
             store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });

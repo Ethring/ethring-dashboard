@@ -11,7 +11,6 @@ import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 export default function useTokensList({ network = null, fromToken = null, toToken = null, isSameNet = true } = {}) {
     const store = useStore();
     const selectType = computed(() => store.getters['tokenOps/selectType']);
-    const isFromSelected = computed(() => selectType.value === TOKEN_SELECT_TYPES.FROM);
 
     const getAccount = (ecosystem) => store.getters['adapters/getAccountByEcosystem'](ecosystem);
 
@@ -36,7 +35,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         return store.getters['tokens/getTokensListForChain'](net, { account });
     };
 
-    const getAllTokensList = async (network, fromToken, toToken, isSameNet = true, onlyWithBalance = false) => {
+    const getAllTokensList = async (network, fromToken, toToken, { isSameNet = true, onlyWithBalance = false, exclude = [] }) => {
         if (!network) {
             return [];
         }
@@ -141,24 +140,21 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             allTokens = _.unionBy(tokensWithBalance, tokensListFromNet, (tkn) => tkn.address?.toLowerCase());
         }
 
-        // Added selected param if token is selected
-        const selectedToken = isFromSelected.value ? toToken : fromToken;
-
         // Set native token info
         allTokens = setNativeTokenInfo(allTokens);
 
-        if (fromToken || toToken) {
-            if (isSameNet) {
-                allTokens = allTokens.filter((tkn) => isNotEqualToSelected(tkn, selectedToken));
-            }
 
+        if (exclude.length) {
+            allTokens = allTokens.filter((tkn) => !exclude.includes(tkn.id) && !exclude.includes(tkn.coingecko_id));
+        }
+
+        if (fromToken || toToken) {
             for (const tkn of allTokens) {
                 if (network.ecosystem === ECOSYSTEMS.COSMOS && tkn.address && !tkn.base) {
                     tkn.base = tkn.address;
                 }
 
-                const isSelected = (isFromSelected.value && tkn.id === fromToken?.id) || tkn.id === toToken?.id;
-                tkn.selected = isSelected;
+                tkn.selected = fromToken?.id === tkn.id || toToken?.id === tkn.id;
             }
         }
 
@@ -181,12 +177,19 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         return sortedList;
     };
 
-    const getTokensList = async ({ srcNet = null, srcToken = null, dstToken = null, isSameNet = true, onlyWithBalance = false } = {}) => {
+    const getTokensList = async ({
+        srcNet = null,
+        srcToken = null,
+        dstToken = null,
+        isSameNet = true,
+        onlyWithBalance = false,
+        exclude = [],
+    } = {}) => {
         network = srcNet;
         fromToken = srcToken;
         toToken = dstToken;
 
-        return await getAllTokensList(network, fromToken, toToken, isSameNet, onlyWithBalance);
+        return await getAllTokensList(network, fromToken, toToken, { isSameNet, onlyWithBalance, exclude });
     };
 
     return {

@@ -21,7 +21,7 @@
                 :label="$t('tokenOperations.pay')"
                 :amount-value="srcAmount"
                 @clickToken="onSelectToken(true)"
-                @setAmount="onSetAmount"
+                @setAmount="handleOnSetAmount"
             />
 
             <SwitchDirection
@@ -159,6 +159,7 @@ export default {
             handleOnSelectToken,
             handleOnSelectNetwork,
             handleOnSwapDirections,
+            handleOnSetAmount,
         } = moduleInstance;
 
         const { isDstTokenSet, isSrcAmountSet } = useInputValidation();
@@ -220,11 +221,6 @@ export default {
             }
         };
 
-        const onSetAmount = async (value) => {
-            srcAmount.value = value;
-            dstAmount.value = null;
-        };
-
         watch(srcAmount, () => resetAmounts(DIRECTIONS.SOURCE, srcAmount.value));
 
         watch(dstAmount, () => resetAmounts(DIRECTIONS.DESTINATION, dstAmount.value));
@@ -269,7 +265,7 @@ export default {
             handleOnSwapDirections,
             onSelectToken,
             onSelectNetwork,
-            onSetAmount,
+            handleOnSetAmount,
             toggleRoutesModal,
 
             // * Transaction Manager

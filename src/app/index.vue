@@ -73,7 +73,9 @@ export default {
             const { ecosystem } = currentChainInfo.value || {};
 
             if (JSON.stringify(await addressesWithChains.value) !== '{}' && walletAddress.value) {
-                Socket.setAddresses(await addressesWithChains.value, walletAddress.value, ecosystem);
+                Socket.setAddresses(await addressesWithChains.value, ecosystem, {
+                    walletAccount: walletAccount.value,
+                });
             }
         };
 

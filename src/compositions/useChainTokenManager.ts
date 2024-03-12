@@ -18,18 +18,17 @@ export default function useChainTokenManger(moduleType: ModuleType) {
     const isSameNet = computed(() => [ModuleType.bridge, ModuleType.superSwap].includes(moduleType));
     const isConfigLoading = computed(() => store.getters['configs/isConfigLoading']);
 
-    const DEFAULT_TITLE = `tokenOperations.${moduleType === 'swap' ? 'swap' : 'confirm'}`;
-    const opTitle = ref(DEFAULT_TITLE);
-
     const {
         isSameTokenSameNet,
         isSameNetwork,
         isSameToken,
+        isSrcNetworkSet,
         isSrcTokenChainCorrect,
         isDstTokenChainCorrect,
         isDstTokenChainCorrectSwap,
         isSrcTokenSet,
         isDstTokenSet,
+        isDstNetworkSet,
     } = useInputValidation();
 
     // =================================================================================================================
@@ -97,16 +96,17 @@ export default function useChainTokenManger(moduleType: ModuleType) {
     );
 
     // =================================================================================================================
-    const setTokenOnChangeForNet = async (srcNet, srcToken, { isSameNet = false, isExclude = false, token = null } = {}) => {
+    const setTokenOnChangeForNet = async (srcNet, srcToken, { isSameNet = false, excludeTokens = [] } = {}) => {
         const getTokensParams = {
             srcNet,
             isSameNet,
             onlyWithBalance: selectType.value === TOKEN_SELECT_TYPES.FROM,
             srcToken: srcToken,
             dstToken: null,
+            exclude: [],
         };
 
-        isExclude ? (getTokensParams.dstToken = token) : delete getTokensParams.dstToken;
+        excludeTokens.length ? (getTokensParams.exclude = excludeTokens) : null;
 
         tokensList.value = await getTokensList(getTokensParams);
 
@@ -169,7 +169,11 @@ export default function useChainTokenManger(moduleType: ModuleType) {
 
                 const [dst] = chainList.value?.filter(({ net }) => net !== selectedSrcNetwork.value?.net) || [];
 
-                selectedDstNetwork.value = dst;
+                if (moduleType === ModuleType.bridge) {
+                    selectedDstNetwork.value = dst;
+                } else {
+                    !isDstNetworkSet.value && (selectedDstNetwork.value = dst);
+                }
 
                 break;
         }
@@ -183,8 +187,7 @@ export default function useChainTokenManger(moduleType: ModuleType) {
 
         const params = {
             isSameNet: false,
-            isExclude: true,
-            token: selectedSrcToken.value,
+            excludeTokens: [],
         };
 
         switch (moduleType) {
@@ -194,9 +197,9 @@ export default function useChainTokenManger(moduleType: ModuleType) {
                 }
 
                 if (isDstTokenChangedForSwap || !selectedDstToken.value || isAccountChanged) {
-                    params.token = selectedSrcToken.value;
                     params.isSameNet = true;
-                    params.isExclude = true;
+                    params.excludeTokens = [selectedSrcToken.value?.id];
+
                     selectedDstToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedDstToken.value, params);
                 }
 
@@ -218,7 +221,7 @@ export default function useChainTokenManger(moduleType: ModuleType) {
             case ModuleType.bridge:
                 if (isSameNetwork.value) {
                     selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
-                    params.token = selectedSrcToken.value;
+                    params.excludeTokens = [selectedSrcToken.value?.id];
                     selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value, params);
                 }
 
@@ -226,11 +229,11 @@ export default function useChainTokenManger(moduleType: ModuleType) {
             case ModuleType.superSwap:
                 if (isSameToken.value && isSameNetwork.value) {
                     params.isSameNet = true;
-                    params.token = selectedDstToken.value;
+                    params.excludeTokens = [selectedDstToken.value?.id];
                     selectedDstToken.value = null;
                     selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
 
-                    params.token = selectedSrcToken.value;
+                    params.excludeTokens = [selectedSrcToken.value?.id];
                     selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value, params);
                 }
 
@@ -262,6 +265,8 @@ export default function useChainTokenManger(moduleType: ModuleType) {
 
         console.table({
             isDiffEcosystem,
+            walletAccount: walletAccount.value,
+            isSuperSwap: isSuperSwap.value,
             currentChainInfo: currentChainInfo.value?.net,
             selectedSrcNetwork: selectedSrcNetwork.value?.net,
             selectedDstNetwork: selectedDstNetwork.value?.net,
@@ -285,7 +290,9 @@ export default function useChainTokenManger(moduleType: ModuleType) {
             dst && (selectedDstNetwork.value = dst);
         }
 
-        await defaultTokenManagerByModule({ isAccountChanged: isDiffEcosystem });
+        const isAccountChanged = !isSuperSwap.value ? isDiffEcosystem : false;
+
+        await defaultTokenManagerByModule({ isAccountChanged });
     };
 
     // =================================================================================================================
@@ -326,8 +333,7 @@ export default function useChainTokenManger(moduleType: ModuleType) {
             if ([ModuleType.swap].includes(moduleType)) {
                 selectedDstToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedDstToken.value, {
                     isSameNet: true,
-                    isExclude: true,
-                    token: selectedSrcToken.value,
+                    excludeTokens: [selectedSrcToken.value?.id],
                 });
             }
         }
@@ -338,6 +344,10 @@ export default function useChainTokenManger(moduleType: ModuleType) {
     });
 
     const unWatchSrcDstToken = watch([selectedSrcToken, selectedDstToken], async () => {
+        if (isSameToken.value) {
+            return (selectedDstToken.value = null);
+        }
+
         if (isSameTokenSameNet.value) {
             return (selectedDstToken.value = null);
         }
@@ -354,25 +364,30 @@ export default function useChainTokenManger(moduleType: ModuleType) {
             return;
         }
 
-        if (!loadingState && !selectedSrcNetwork.value) {
+        if (!loadingState && !isSrcNetworkSet.value) {
             return;
         }
 
-        if (!selectedSrcNetwork.value) {
+        if (!isSrcNetworkSet.value) {
             return;
         }
 
         selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
 
-        if (!['swap'].includes(moduleType)) {
-            return;
+        if ([ModuleType.send].includes(moduleType)) {
+            return (selectedDstToken.value = null);
         }
 
-        selectedDstToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedDstToken.value, {
-            isSameNet: true,
-            isExclude: true,
-            token: selectedSrcToken.value,
-        });
+        if ([ModuleType.swap].includes(moduleType)) {
+            selectedDstToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedDstToken.value, {
+                isSameNet: true,
+                excludeTokens: [selectedSrcToken.value?.id],
+            });
+        }
+
+        if (isSameToken.value) {
+            selectedDstToken.value = null;
+        }
     });
 
     const unWatchLoadingDst = watch(isTokensLoadingForDst, async (loadingState) => {

@@ -289,18 +289,20 @@ function useAdapter() {
     };
 
     // * Format Tx for Ecosystem
-    const formatTransactionForSign = (transaction, { ecosystem }) => {
+    const formatTransactionForSign = (transaction, txParams = {}) => {
         if (!mainAdapter.value) {
             return null;
         }
 
+        const { ecosystem, ...params } = txParams || {};
+
         if (!ecosystem) {
-            return mainAdapter.value.formatTransactionForSign(transaction);
+            return mainAdapter.value.formatTransactionForSign(transaction, params);
         }
 
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
-        return adapter.formatTransactionForSign(transaction);
+        return adapter.formatTransactionForSign(transaction, params);
     };
 
     // * Prepare Transaction

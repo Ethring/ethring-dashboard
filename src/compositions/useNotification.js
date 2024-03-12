@@ -11,7 +11,15 @@ export default function useNotification() {
         return closeNotification(key);
     };
 
-    const showNotification = ({ key, type = 'info', title = 'notification', description = null, duration = 3, ...args } = {}) => {
+    const showNotification = ({
+        key,
+        type = 'info',
+        title = 'notification',
+        description = null,
+        duration = 3,
+        prepare = false,
+        ...args
+    } = {}) => {
         const { explorerLink, txHash, wait } = args;
 
         const notificationParams = {
@@ -38,7 +46,7 @@ export default function useNotification() {
                 });
         }
 
-        if (key?.startsWith('prepare')) {
+        if (prepare) {
             notificationParams.icon = () =>
                 h(SettingOutlined, {
                     spin: true,

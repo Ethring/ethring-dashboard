@@ -1,6 +1,6 @@
-import _ from 'lodash/object';
+import _ from 'lodash';
 import { useStore } from 'vuex';
-import { computed, ref } from 'vue';
+import { computed, ref, watch, watchEffect } from 'vue';
 
 import socket from '@/app/modules/socket';
 
@@ -74,6 +74,8 @@ const useModuleOperations = (module: ModuleType) => {
         makeApproveRequest,
         makeSwapRequest,
         clearAllowance,
+
+        opTitle,
     } = moduleInstance;
 
     const { signAndSend } = useTransactions();
@@ -87,6 +89,8 @@ const useModuleOperations = (module: ModuleType) => {
         isReceiverAddressSet,
         isQuoteRouteSelected,
         isQuoteRouteSet,
+        isSrcAddressesEmpty,
+        isDstAddressesEmpty,
     } = useInputValidation();
 
     const currentServiceType = computed(() => {
@@ -145,7 +149,7 @@ const useModuleOperations = (module: ModuleType) => {
     // * Operation flow for the module
     // ===============================================================================================
 
-    const operationFlow = computed<TxOperationFlow[]>(() => {
+    const getOperationFlow = (): TxOperationFlow[] => {
         const flow = [];
 
         if (isNeedApprove.value) {
@@ -206,7 +210,7 @@ const useModuleOperations = (module: ModuleType) => {
 
         // Flow with all available operations, and in the order of execution
         return flow;
-    });
+    };
 
     // ===============================================================================================
     // * Operations - Prepare transaction
@@ -249,6 +253,10 @@ const useModuleOperations = (module: ModuleType) => {
                     ...params,
                     receiverAddress: receiverAddress.value,
                     memo: memo.value,
+                    tokens: {
+                        from: selectedSrcToken.value,
+                        to: selectedDstToken.value,
+                    },
                 },
                 notificationTitle,
             },
@@ -355,6 +363,8 @@ const useModuleOperations = (module: ModuleType) => {
     const handleOnConfirm = async () => {
         isTransactionSigning.value = true;
 
+        const operationFlow = getOperationFlow();
+
         try {
             const group = {
                 index: 0,
@@ -368,75 +378,93 @@ const useModuleOperations = (module: ModuleType) => {
 
             await txManager.createTransactionGroup(group as ITransaction);
 
-            for (const { index, type, make } of operationFlow.value) {
+            for (const { index, type, make } of operationFlow) {
                 const tx = new Transaction(type);
+
+                // * Set first transaction ID
+                if (index === 0) tx.setId(txManager.getFirstTxId());
+
+                console.log('TX', tx.getTransaction());
 
                 // * Set request ID
                 tx.setRequestID(txManager.getRequestId());
 
                 // * Prepare transaction
                 tx.prepare = async () => {
-                    console.log('Prepare:', index, type, 'Transaction');
-                    const prepared = prepare(index, type as TRANSACTION_TYPES, make);
-                    const transaction = await txManager.addTransactionToGroup(index, prepared); // * Add or create transaction
-
-                    tx.setId(transaction.id);
-                    tx.setTransaction(transaction);
-                };
-
-                // * Set execute parameters
-                tx.setTxExecuteParameters = async () => {
-                    console.log('Set execute parameters:', index, type, 'Transaction');
-                    const { transaction, ecosystem } = await TX_PARAMS_BY_TYPE[type]();
-                    console.log('transaction', transaction, 'ecosystem', ecosystem);
-                    tx.transaction.parameters = transaction;
-                    tx.transaction.ecosystem = ecosystem.toUpperCase();
-                    tx.setTransactionEcosystem(ecosystem.toUpperCase());
-                    tx.setChainId(selectedSrcNetwork.value?.chain_id);
-
-                    await tx.updateTransactionById(Number(tx.id), tx.transaction);
-                };
-
-                // * Execute transaction
-                tx.execute = async () => {
-                    isTransactionSigning.value = true;
-
                     try {
-                        await tx.prepare();
+                        console.log('Prepare:', index, type, 'Transaction');
+                        const prepared = prepare(index, type as TRANSACTION_TYPES, make);
+                        const transaction = await txManager.addTransactionToGroup(index, prepared); // * Add or create transaction
+
+                        if (index === 0) {
+                            const toSave = { ...tx.getTransaction(), ...prepared, id: transaction.id };
+                            await tx.updateTransactionById(Number(tx.id), toSave);
+                            tx.setTransaction(toSave);
+                        } else {
+                            tx.setId(transaction.id);
+                            tx.setTransaction(transaction);
+                        }
 
                         const notificationTitle =
                             tx.transaction.metaData.notificationTitle || `${tx.type} ${tx.transaction.metaData.params?.amount} ...`;
 
                         // * Show notification
                         showNotification({
-                            key: 'prepare-tx',
+                            key: `tx-${tx.getTxId()}`,
                             type: 'info',
                             title: notificationTitle,
                             description: 'Please wait, transaction is preparing',
                             duration: 0,
+                            prepare: true,
                         });
-
-                        await tx.setTxExecuteParameters();
                     } catch (error) {
-                        console.error('useModuleOperations -> execute -> error', error);
+                        console.error('useModuleOperations -> prepare -> error', error);
                         throw error;
                     }
+                };
+
+                // * Set execute parameters
+                tx.setTxExecuteParameters = async () => {
+                    try {
+                        const { transaction, ecosystem } = await TX_PARAMS_BY_TYPE[type]();
+
+                        tx.transaction.parameters = transaction;
+                        tx.transaction.ecosystem = ecosystem.toUpperCase();
+
+                        tx.setTransactionEcosystem(ecosystem.toUpperCase());
+                        tx.setChainId(selectedSrcNetwork.value?.chain_id);
+
+                        await tx.updateTransactionById(Number(tx.id), tx.transaction);
+                    } catch (error) {
+                        console.error('useModuleOperations -> setTxExecuteParameters -> error', error);
+                        throw error;
+                    }
+                };
+
+                // * Execute transaction
+                tx.execute = async () => {
+                    const { ecosystem: currEcosystem } = currentChainInfo.value || {};
 
                     try {
-                        const { ecosystem: currEcosystem, chain_id } = currentChainInfo.value || {};
-
                         if (currEcosystem !== tx.getEcosystem()) {
                             await connectByEcosystems(tx.getEcosystem());
                         }
 
-                        if (tx.getChainId() !== chain_id) {
+                        if (tx.getChainId() !== currentChainInfo.value?.chain_id) {
                             await delay(1000);
                             const chainInfo = getChainByChainId(tx.getEcosystem(), tx.getChainId());
                             await setChain(chainInfo);
+                            await delay(1000);
                         }
                     } catch (error) {
-                        console.error('[signAndSend] Error occurred while setting ecosystem and chain', error);
+                        console.error('useModuleOperations -> execute -> setChain -> error', error);
+                        closeNotification(`tx-${tx.getTxId()}`);
                         throw error;
+                    }
+
+                    if (tx.getChainId() !== currentChainInfo.value?.chain_id) {
+                        closeNotification(`tx-${tx.getTxId()}`);
+                        throw new Error('Incorrect chain');
                     }
 
                     try {
@@ -448,7 +476,7 @@ const useModuleOperations = (module: ModuleType) => {
                         throw error;
                     } finally {
                         // * Close notification after transaction is signed and sent or failed
-                        closeNotification('prepare-tx');
+                        closeNotification(`tx-${tx.getTxId()}`);
                     }
                 };
 
@@ -458,17 +486,14 @@ const useModuleOperations = (module: ModuleType) => {
                         await ON_SUCCESS_BY_TYPE[type]();
                     }
 
-                    if (index === operationFlow.value.length - 1) {
+                    if (index === operationFlow.length - 1) {
+                        console.log('Success all transactions');
                         isTransactionSigning.value = false;
                     }
                 };
 
                 tx.onSuccessSignTransaction = async () => {
                     console.log('Success sign and send transaction');
-
-                    if (index === operationFlow.value.length - 1) {
-                        isTransactionSigning.value = false;
-                    }
                 };
 
                 // * On error
@@ -540,7 +565,9 @@ const useModuleOperations = (module: ModuleType) => {
                     !isQuoteRouteSet.value ||
                     (isSameNetwork.value && !isDstTokenChainCorrectSwap.value) ||
                     (!isSameNetwork.value && !isDstTokenChainCorrect.value) ||
-                    isWithAddress
+                    isWithAddress ||
+                    isSrcAddressesEmpty.value ||
+                    isDstAddressesEmpty.value
                 );
             default:
                 return isDisabled ? true : false;
@@ -551,13 +578,36 @@ const useModuleOperations = (module: ModuleType) => {
         return isQuoteLoading.value || isTransactionSigning.value;
     });
 
+    // ===============================================================================================
+    // * Watch for operation title changes
+    // ===============================================================================================
+    watchEffect(() => {
+        const isSuperSwap = module === ModuleType.superSwap;
+
+        // ! If not super swap, return
+        if (!isSuperSwap) return;
+
+        const { ecosystem: srcEcosystem } = selectedSrcNetwork.value || {};
+        const { ecosystem: dstEcosystem } = selectedDstNetwork.value || {};
+
+        const isSrcEmpty = isSuperSwap && isSrcAddressesEmpty.value;
+        const isDstEmpty = isSuperSwap && isDstAddressesEmpty.value;
+
+        if (isSrcEmpty || isDstEmpty) {
+            const ecosystem = isSrcEmpty ? srcEcosystem : dstEcosystem;
+            opTitle.value = `tokenOperations.pleaseConnectWallet${ecosystem}`;
+        } else {
+            opTitle.value = 'tokenOperations.confirm';
+        }
+    });
+
     return {
         handleOnConfirm,
         moduleInstance,
 
-        isDisableConfirmButton,
         isDisableSelect,
         isTransactionSigning,
+        isDisableConfirmButton,
     };
 };
 
