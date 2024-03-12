@@ -27,7 +27,7 @@ export const SHORTCUTS = [
             value: 1,
             currency: 'ETH',
         },
-        tags: ['best', 'airdrop'],
+        tags: ['best', 'staking'],
         author: {
             name: 'Zomet',
             avatar: 'https://zomet-logo.png',
@@ -58,7 +58,7 @@ export const SHORTCUTS = [
             value: 1,
             currency: 'ATOM',
         },
-        tags: ['best', 'airdrop'],
+        tags: ['best', 'pool'],
         author: {
             name: 'Zomet',
             avatar: 'https://zomet-logo.png',

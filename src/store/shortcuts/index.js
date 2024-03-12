@@ -12,6 +12,22 @@ const SHORTCUT_WATCHLIST_KEY = 'shortcuts:watchlist';
 
 const shortcutWatchList = useLocalStorage(SHORTCUT_WATCHLIST_KEY, [], { mergeDefaults: true });
 
+const filterShortcuts = (state, type) => {
+    let list = state.shortcuts;
+
+    if (state.selectedTags.length) {
+        list = state.shortcuts.filter((item) => {
+            return item.tags.some((tag) => state.selectedTags.includes(tag));
+        });
+    }
+
+    if (type === 'all') {
+        return list;
+    }
+
+    return list.filter((item) => state.watchList.includes(item.id));
+};
+
 export default {
     namespaced: true,
     state: () => ({
@@ -26,8 +42,7 @@ export default {
         watchList: (state) => state.watchList,
         selectedShortcut: (state) => state.selectedShortcut,
 
-        getShortcutsByType: (state) => (type) =>
-            type === 'all' ? state.shortcuts : state.shortcuts.filter((item) => state.watchList.includes(item.id)),
+        getShortcutsByType: (state) => (type) => filterShortcuts(state, type),
     },
     mutations: {
         [TYPES.SET_FILTERED_TAGS](state, value) {
@@ -44,9 +59,21 @@ export default {
         setSelectedShortcut({ commit }, value) {
             commit(TYPES.SET_SELECTED_SHORTCUT, value);
         },
-        setFilterTags({ commit }, value) {
-            // TODO
-            commit(TYPES.SET_FILTERED_TAGS, value);
+        setFilterTags({ state, commit }, value) {
+            if (state.selectedTags.length > 5) {
+                return;
+            }
+            const temp = state.selectedTags.filter((item) => item !== value);
+
+            commit(TYPES.SET_FILTERED_TAGS, [value, ...temp]);
+        },
+        removeFilterTag({ state, commit }, value) {
+            const temp = state.selectedTags.filter((item) => item !== value);
+
+            commit(TYPES.SET_FILTERED_TAGS, temp);
+        },
+        clearAllTags({ commit }) {
+            commit(TYPES.SET_FILTERED_TAGS, []);
         },
         setWatchlist({ commit }, value) {
             if (shortcutWatchList.value.includes(value)) {

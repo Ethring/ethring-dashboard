@@ -7,7 +7,7 @@
                     <div class="shortcut-item__name">{{ item.name }}</div>
                 </a-row>
                 <a-row align="middle" :wrap="false">
-                    <a-col align="right" justify="center">
+                    <a-col align="right">
                         <div class="shortcut-item__title">{{ $t('shortcuts.createdBy') }}</div>
                         <span class="shortcut-item__author">{{ item.author.name }}</span>
                     </a-col>
@@ -21,21 +21,22 @@
         <a-row justify="space-between" class="shortcut-item__info">
             <a-row align="middle">
                 <div>
-                    <span v-for="(ecosystem, i) in item.ecosystems" :key="i"
-                        >{{ ecosystem }}<span v-if="i < item.ecosystems.length - 1">,</span></span
-                    >
+                    <span v-for="(ecosystem, i) in item.ecosystems" :key="i">{{ ecosystem }}<span
+                            v-if="i < item.ecosystems.length - 1">,</span></span>
                 </div>
                 <a-divider type="vertical" style="height: 10px; background-color: #c9e0e0" />
                 <div>
                     Min amount:
-                    <span v-if="item.minAmount" class="amount"
-                        >{{ item.minAmount.value }} <span>{{ item.minAmount.currency }}</span></span
-                    >
+                    <span v-if="item.minAmount" class="amount">{{ item.minAmount.value }} <span>{{
+        item.minAmount.currency
+    }}</span></span>
                     <span v-else class="amount">Any</span>
                 </div>
             </a-row>
             <a-row>
-                <div class="shortcut-item__tag" v-for="tag in item.tags" :key="tag">{{ tag }}</div>
+                <div class="shortcut-item__tag" v-for="tag in item.tags" :key="tag" @click="() => selectTag(tag)">{{ tag
+                    }}
+                </div>
             </a-row>
         </a-row>
 
@@ -90,11 +91,16 @@ export default {
             router.push('/shortcuts/' + props.item.id);
         };
 
+        const selectTag = (tag) => {
+            store.dispatch('shortcuts/setFilterTags', tag);
+        }
+
         return {
             watchList,
 
             addToWatchList,
             openShortcut,
+            selectTag
         };
     },
 };

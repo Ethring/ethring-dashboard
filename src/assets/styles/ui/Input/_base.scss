@@ -59,6 +59,10 @@
 
 .input-clear-icon {
     width: var(--#{$prefix}h5-fs);
+
+    path {
+        fill: $wildWatermelon;
+    }
 }
 
 //         .input-address {
