@@ -1,4 +1,14 @@
-const VERSION_LOCAL = window.localStorage.getItem('lastVersion');
+const STORAGE = {
+    SHOW_BALANCE: 'user-settings:show-balances',
+    COLLAPSED_SIDEBAR: 'user-settings:sidebar-collapsed',
+    THEME: 'theme',
+    LAST_VERSION: 'lastVersion',
+};
+
+const VERSION_LOCAL = window.localStorage.getItem(STORAGE.LAST_VERSION);
+const APP_THEME = window.localStorage.getItem(STORAGE.THEME);
+const SHOW_BALANCE = JSON.parse(window.localStorage.getItem(STORAGE.SHOW_BALANCE));
+const COLLAPSED_SIDEBAR = JSON.parse(window.localStorage.getItem(STORAGE.COLLAPSED_SIDEBAR));
 
 const THEMES = {
     LIGHT: 'light',
@@ -21,9 +31,9 @@ export default {
     namespaced: true,
 
     state: () => ({
-        showBalance: true,
-        collapse: false,
-        theme: 'light',
+        showBalance: SHOW_BALANCE ?? true,
+        collapse: COLLAPSED_SIDEBAR ?? false,
+        theme: APP_THEME || 'light',
         selectedKeys: ['main'],
         loadingTokenList: false,
         modals: {
@@ -54,16 +64,20 @@ export default {
     mutations: {
         [TYPES.TOGGLE_VIEW_BALANCE](state) {
             state.showBalance = !state.showBalance;
+            window.localStorage.setItem(STORAGE.SHOW_BALANCE, state.showBalance);
         },
         [TYPES.TOGGLE_SIDEBAR](state) {
             state.collapse = !state.collapse;
+            window.localStorage.setItem(STORAGE.COLLAPSED_SIDEBAR, state.collapse);
         },
         [TYPES.SET_IS_SIDEBAR_COLLAPSED](state, value) {
             state.collapse = value;
+            window.localStorage.setItem(STORAGE.COLLAPSED_SIDEBAR, value);
         },
         [TYPES.TOGGLE_THEME](state) {
             state.theme = state.theme === THEMES.LIGHT ? THEMES.DARK : THEMES.LIGHT;
             document.documentElement.setAttribute('data-theme', state.theme);
+            window.localStorage.setItem(STORAGE.THEME, state.theme);
         },
         [TYPES.SET_SELECTED_KEYS](state, selectedKeys) {
             state.selectedKeys = selectedKeys;
@@ -72,7 +86,6 @@ export default {
             if (!state.modals[modalName]) {
                 state.modals[modalName] = false;
             }
-
             state.modals[modalName] = !state.modals[modalName];
         },
         [TYPES.TOGGLE_SELECT_MODAL](state, { type, module }) {
@@ -82,7 +95,7 @@ export default {
         },
         [TYPES.SET_LAST_VERSION](state, version) {
             state.lastVersion = version;
-            window.localStorage.setItem('lastVersion', version);
+            window.localStorage.setItem(STORAGE.LAST_VERSION, version);
         },
         [TYPES.SET_LOADING_TOKEN_LIST](state, value) {
             state.loadingTokenList = value || false;

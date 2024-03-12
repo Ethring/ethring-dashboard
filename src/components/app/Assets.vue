@@ -22,10 +22,10 @@
 
             <a-collapse-panel
                 v-show="isAllTokensLoading || allIntegrationsByPlatforms.length > 0"
-                v-for="(item, i) in allIntegrationsByPlatforms"
-                :key="`protocol-${i}`"
+                v-for="item in allIntegrationsByPlatforms"
+                :key="`protocol-${item.platform}`"
                 class="assets-block-panel"
-                @vue:mounted="collapseActiveKey.push(`protocol-${i}`)"
+                @vue:mounted="collapseActiveKey.push(`protocol-${item.platform}`)"
             >
                 <template #header>
                     <AssetGroupHeader
@@ -68,7 +68,7 @@
     </div>
 </template>
 <script>
-import { ref, computed, inject, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, inject, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useStore } from 'vuex';
 import { message } from 'ant-design-vue';
 
@@ -117,7 +117,7 @@ export default {
         // ===================== Total Balances =====================
         const totalBalances = computed(() => store.getters['tokens/getTotalBalanceByType'](targetAccount.value, 'totalBalances') || 0);
         const totalAssetsBalances = computed(
-            () => store.getters['tokens/getTotalBalanceByType'](targetAccount.value, 'assetsBalances') || 0,
+            () => store.getters['tokens/getTotalBalanceByType'](targetAccount.value, 'assetsBalances') || 0
         );
 
         const isEmpty = computed(() => {
@@ -188,6 +188,10 @@ export default {
         onBeforeUnmount(() => {
             window.removeEventListener('keydown', handleKeyDown);
             keyPressCombination.value = '';
+        });
+
+        watch(collapseActiveKey, () => {
+            window.localStorage.setItem('user-settings: collapsable-assets', JSON.stringify(collapseActiveKey.value));
         });
 
         return {
