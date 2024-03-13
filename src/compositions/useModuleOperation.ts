@@ -435,7 +435,6 @@ const useModuleOperations = (module: ModuleType) => {
 
                         if (index === 0) {
                             const toSave = { ...tx.getTransaction(), ...prepared, id: transaction.id };
-                            await tx.updateTransactionById(Number(tx.id), toSave);
                             tx.setTransaction(toSave);
                         } else {
                             tx.setId(transaction.id);

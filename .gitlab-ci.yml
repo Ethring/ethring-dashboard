@@ -121,6 +121,7 @@ Build branch:
     - schedules
     - beta
 
+
 Build prod:
   extends: .dockerBuildJob
   #TODO: variables for prod
