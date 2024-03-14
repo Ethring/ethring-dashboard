@@ -7,12 +7,13 @@
         </div>
     </a-row>
 
-    <a-row v-if="selectedTags.length" align="middle" class="shortcut-tags">
-        <div class="shortcut-tags__item" v-for="tag in selectedTags" :key="tag" justify="center">
-            <span>{{ tag }}</span>
+    <a-row align="middle" class="shortcut-tags">
+        <div class="shortcut-tags__item" :class="{ 'shortcut-tags__item--active': selectedTags.includes(tag) }"
+            v-for="tag in TAGS" :key="tag" justify="center">
+            <span @click="() => selectTag(tag)">{{ tag }}</span>
             <ClearIcon @click="() => removeTag(tag)" />
         </div>
-        <div class="shortcut-tags__clear" @click="clearAllTags">
+        <div v-if="selectedTags.length" class="shortcut-tags__clear" @click="clearAllTags">
             <ClearAllIcon />
             <span>{{ $t('shortcuts.clearAll') }}</span>
         </div>
@@ -36,6 +37,8 @@ import ClearIcon from '@/assets/icons/form-icons/clear.svg';
 import ClearAllIcon from '@/assets/icons/form-icons/remove.svg';
 
 import { Empty } from 'ant-design-vue';
+
+import { TAGS } from '@/config/shortcuts';
 
 export default {
     name: 'Shortcuts',
@@ -75,15 +78,21 @@ export default {
             store.dispatch('shortcuts/clearAllTags');
         }
 
+        const selectTag = (tag) => {
+            store.dispatch('shortcuts/setFilterTags', tag);
+        }
+
         return {
             shortcuts,
             selectedTags,
             tabs,
             activeTabKey,
             emptyImage,
+            TAGS,
 
             onTabChange: (key) => (activeTabKey.value = key),
             removeTag,
+            selectTag,
             clearAllTags
         };
     },

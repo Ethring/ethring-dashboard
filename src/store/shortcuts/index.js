@@ -1,6 +1,6 @@
 import { useLocalStorage } from '@vueuse/core';
 
-import { SHORTCUTS } from '@/config/shortcutList';
+import { SHORTCUTS } from '@/config/shortcuts';
 
 const TYPES = {
     SET_FILTERED_TAGS: 'SET_FILTERED_TAGS',

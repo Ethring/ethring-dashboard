@@ -70,3 +70,5 @@ export const SHORTCUTS = [
         },
     },
 ];
+
+export const TAGS = ['best', 'pool', 'airdrop', 'staking'];
