@@ -21,7 +21,7 @@ export function isSVG(str = '') {
     return str?.includes('<svg') || false;
 }
 
-export const isActiveChain = ({ network_type, status, explorers, staking, chain_id, chain_name }) => {
+export const isActiveChain = ({ network_type, status, explorers, staking, chain_id }) => {
     // Constants
     const NET_TYPE = 'mainnet';
     const NET_STATUS = 'live';
@@ -32,7 +32,12 @@ export const isActiveChain = ({ network_type, status, explorers, staking, chain_
         status === NET_STATUS &&
         explorers?.some(({ url }) => url.startsWith(MINT_SCAN_EXPLORER)) &&
         staking &&
-        chain_id &&
-        DATA_PROVIDER_COSMOS_CHAINS.includes(chain_name)
+        chain_id
     );
 };
+
+export const isDefaultChain = ({ chain_name }) => {
+    return (
+        DATA_PROVIDER_COSMOS_CHAINS.includes(chain_name)
+    );
+}

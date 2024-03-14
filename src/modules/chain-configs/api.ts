@@ -4,8 +4,6 @@ import ApiClient from '@/shared/axios';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
-import { DP_CHAINS } from '@/modules/balance-provider/models/enums';
-
 import IndexedDBService from '@/services/indexed-db';
 
 import logger from '@/shared/logger';
@@ -46,18 +44,11 @@ export const getConfigsByEcosystems = async (ecosystem = ECOSYSTEMS.EVM, { isCos
             return {};
         }
 
-        const filteredNets = {};
-
-        for (const dpChain in DP_CHAINS) {
-            const chain = DP_CHAINS[dpChain];
-            data[chain] && (filteredNets[chain] = data[chain]);
+        if (!_.isEqual(list, data)) {
+            await indexedDB.saveNetworksObj(store, data, { ecosystem });
         }
 
-        if (!_.isEqual(list, filteredNets)) {
-            await indexedDB.saveNetworksObj(store, filteredNets, { ecosystem });
-        }
-
-        return filteredNets;
+        return data;
     } catch (err) {
         logger.error('Error while getting networks from API', err);
         return {};

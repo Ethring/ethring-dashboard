@@ -14,6 +14,8 @@
 import { onMounted, watch, computed, inject, onBeforeMount, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 
+import _ from 'lodash';
+
 import Socket from '@/app/modules/socket';
 
 import AppLayout from '@/app/layouts/DefaultLayout';
@@ -29,6 +31,8 @@ import { updateBalanceForAccount } from '@/modules/balance-provider';
 
 import { trackingBalanceUpdate } from '@/services/track-update-balance';
 import { setNativeTokensPrices } from '../modules/balance-provider/native-token';
+
+import { DP_CHAINS } from '@/modules/balance-provider/models/enums';
 
 export default {
     name: 'App',
@@ -61,7 +65,10 @@ export default {
 
         const addressesWithChains = computed(async () => {
             const { ecosystem } = currentChainInfo.value || {};
-            return (await getAddressesWithChainsByEcosystem(ecosystem)) || {};
+
+            const chainAddresses = await getAddressesWithChainsByEcosystem(ecosystem);
+
+            return _.pick(chainAddresses, Object.values(DP_CHAINS)) || {};
         });
 
         const addressByChain = computed(async () => {
