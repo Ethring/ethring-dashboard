@@ -100,8 +100,8 @@ class BasePage {
         await Promise.all(networks.map((network) => this.mockBalanceRequest(network, mockData, address)));
     }
 
-    async mockEstimateSwapRequest(service: 'srv-paraswap' | 'srv-synapse-swap', mockData: object, statusCode = 200) {
-        const URL = `**/${service}/api/estimateSwap**`;
+    async mockEstimateSwapRequest(mockData: object, statusCode = 200) {
+        const URL = `**/services/dex/getQuote**`;
         await this.mockRoute(URL, mockData, statusCode);
     }
 
@@ -204,6 +204,18 @@ class BasePage {
         }
     }
 
+    async handleGetRequest(route: Route, method: string, httpData: Object) {
+        if (route.request().method() === method) {
+            const headers = route.request().headers();
+            headers['Content-Type'] = 'application/json';
+
+            const override = { postData: JSON.stringify(httpData), headers };
+
+            route.continue(override);
+        } else {
+            route.continue();
+        }
+    }
     /**
      * This method is designed to modify the data in a POST request for /transaction/.
      *
@@ -216,6 +228,12 @@ class BasePage {
         );
     }
 
+    async modifyDataByGetTxRequest(dataToReturnInHttpResponse: Object) {
+        return await this.page.route(/\/transactions\/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/, (route) => {
+            this.handleGetRequest(route, 'GET', dataToReturnInHttpResponse)
+        }
+        );
+    }
     /**
      * This method is designed to modify the data in a PUT request for /transaction/{:id} path.
      *

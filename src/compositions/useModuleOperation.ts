@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { useStore } from 'vuex';
-import { computed, ref, watch, watchEffect } from 'vue';
+import { computed, onUnmounted, ref, watch } from 'vue';
 
 import socket from '@/app/modules/socket';
 
@@ -133,6 +133,31 @@ const useModuleOperations = (module: ModuleType) => {
         }
 
         return srcAddressByChain.value;
+    });
+
+    // ===============================================================================================
+    // * Check if need to connect
+    // ===============================================================================================
+
+    const ecosystemToConnect = computed(() => {
+        const isSuperSwap = module === ModuleType.superSwap;
+
+        // ! If not super swap, return
+        if (!isSuperSwap) return;
+
+        const { ecosystem: srcEcosystem } = selectedSrcNetwork.value || {};
+        const { ecosystem: dstEcosystem } = selectedDstNetwork.value || {};
+
+        const isSrcEmpty = isSuperSwap && isSrcAddressesEmpty.value;
+        const isDstEmpty = isSuperSwap && isDstAddressesEmpty.value;
+
+        if (isSrcEmpty || isDstEmpty) {
+            return isSrcEmpty ? srcEcosystem : dstEcosystem;
+        }
+
+        opTitle.value = 'tokenOperations.confirm';
+
+        return null;
     });
 
     // ===============================================================================================
@@ -357,10 +382,22 @@ const useModuleOperations = (module: ModuleType) => {
     };
 
     // ===============================================================================================
+    // * Connect by ecosystem
+    // ===============================================================================================
+
+    const connectWalletByEcosystem = async (ecosystem: string) => {
+        await connectByEcosystems(ecosystem);
+    };
+
+    // ===============================================================================================
     // * Handle on confirm
     // ===============================================================================================
 
     const handleOnConfirm = async () => {
+        if (ecosystemToConnect.value) {
+            return await connectWalletByEcosystem(ecosystemToConnect.value);
+        }
+
         isTransactionSigning.value = true;
 
         const operationFlow = getOperationFlow();
@@ -398,7 +435,6 @@ const useModuleOperations = (module: ModuleType) => {
 
                         if (index === 0) {
                             const toSave = { ...tx.getTransaction(), ...prepared, id: transaction.id };
-                            await tx.updateTransactionById(Number(tx.id), toSave);
                             tx.setTransaction(toSave);
                         } else {
                             tx.setId(transaction.id);
@@ -525,8 +561,14 @@ const useModuleOperations = (module: ModuleType) => {
     // * Confirm button state for each module
     // ===============================================================================================
     const isDisableConfirmButton = computed(() => {
+        if (ecosystemToConnect.value) {
+            return false;
+        }
+
         const isWithMemo = isSendWithMemo.value && isMemoAllowed.value && !memo.value;
         const isWithAddress = isSendToAnotherAddress.value && (isAddressError.value || !isReceiverAddressSet.value);
+
+        const isQuoteErrorExist = _.isEmpty(quoteErrorMessage.value) ? false : true;
 
         // * Common
         const isDisabled =
@@ -536,7 +578,7 @@ const useModuleOperations = (module: ModuleType) => {
             isBalanceError.value ||
             isAllowanceLoading.value ||
             isTransactionSigning.value ||
-            quoteErrorMessage.value ||
+            isQuoteErrorExist ||
             !isSrcAmountSet.value ||
             !isSrcTokenChainCorrect.value;
 
@@ -579,26 +621,21 @@ const useModuleOperations = (module: ModuleType) => {
     });
 
     // ===============================================================================================
-    // * Watch for operation title changes
+    // * Watchers
     // ===============================================================================================
-    watchEffect(() => {
-        const isSuperSwap = module === ModuleType.superSwap;
 
-        // ! If not super swap, return
-        if (!isSuperSwap) return;
+    const unWatchEcosystem = watch(ecosystemToConnect, () => {
+        if (!ecosystemToConnect.value) return;
 
-        const { ecosystem: srcEcosystem } = selectedSrcNetwork.value || {};
-        const { ecosystem: dstEcosystem } = selectedDstNetwork.value || {};
+        opTitle.value = `tokenOperations.pleaseConnectWallet${ecosystemToConnect.value}`;
+    });
 
-        const isSrcEmpty = isSuperSwap && isSrcAddressesEmpty.value;
-        const isDstEmpty = isSuperSwap && isDstAddressesEmpty.value;
+    // ===============================================================================================
+    // * On unmounted
+    // ===============================================================================================
 
-        if (isSrcEmpty || isDstEmpty) {
-            const ecosystem = isSrcEmpty ? srcEcosystem : dstEcosystem;
-            opTitle.value = `tokenOperations.pleaseConnectWallet${ecosystem}`;
-        } else {
-            opTitle.value = 'tokenOperations.confirm';
-        }
+    onUnmounted(() => {
+        unWatchEcosystem();
     });
 
     return {
