@@ -104,6 +104,11 @@ export const routes = [
         },
     },
     {
+        path: '/shortcuts',
+        name: 'Zomet - Shortcuts',
+        component: () => import('@/pages/Shortcuts.vue'),
+    },
+    {
         path: '/:pathMatch(.*)*',
         name: 'Not Found',
         component: () => import('@/pages/NotFound.vue'),

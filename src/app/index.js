@@ -14,6 +14,12 @@ import socket from '@/app/modules/socket';
 import initSentry from '@/app/modules/sentry';
 import initMixpanel from '@/app/modules/mixpanel';
 
+import SimpleBridge from '@/components/dynamic/bridge/SimpleBridge.vue';
+import SimpleSend from '@/components/dynamic/send/SimpleSend.vue';
+import SimpleSwap from '@/components/dynamic/swaps/SimpleSwap.vue';
+import SuperSwap from '@/components/dynamic/super-swap/SuperSwap.vue';
+import StakeLayout from '@/layouts/StakeLayout.vue';
+
 // Service worker
 import '@/registerServiceWorker';
 
@@ -56,5 +62,12 @@ app.provide('useAdapter', useAdapter).provide('useSelectModal', useSelectModal);
 // * Init modules before app mount
 initSentry(app, Router);
 initMixpanel(app);
+
+// * Component registration
+app.component('SimpleSwap', SimpleSwap, { meta: { key: 'swap' } });
+app.component('SimpleBridge', SimpleBridge, { meta: { key: 'bridge' } });
+app.component('SimpleSend', SimpleSend, { meta: { key: 'send' } });
+app.component('SuperSwap', SuperSwap, { meta: { key: 'superSwap' } });
+app.component('StakeLayout', StakeLayout);
 
 export default app;

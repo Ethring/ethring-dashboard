@@ -72,6 +72,7 @@
   "tokenOperations": {
     "confirm": "Confirm",
     "recipient": "Recipient",
+    "validator": "Validator",
     "amount": "Amount",
     "balance": "Balance",
     "max": "Max",

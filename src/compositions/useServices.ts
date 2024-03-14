@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
 import _ from 'lodash';
 
-import { ref, computed, watch, onBeforeUnmount, onMounted } from 'vue';
+import { ref, computed, watch, onBeforeUnmount, onMounted, reactive } from 'vue';
 import { useStore } from 'vuex';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
@@ -350,5 +350,8 @@ export default function useModule(moduleType: ModuleType) {
         makeSwapRequest,
         makeAllowanceRequest,
         clearAllowance,
+
+        // Fields
+        fieldStates: computed(() => store.getters['moduleStates/getFieldsForModule'](moduleType)),
     };
 }

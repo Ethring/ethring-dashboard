@@ -320,6 +320,21 @@ function useAdapter() {
         return await adapter.prepareTransaction(transaction);
     };
 
+    // * Prepare Delegate Transaction
+    const prepareDelegateTransaction = async (transaction, { ecosystem }) => {
+        if (!mainAdapter.value) {
+            return null;
+        }
+
+        if (!ecosystem && mainAdapter.value?.prepareDelegateTransaction) {
+            return await mainAdapter.value?.prepareDelegateTransaction(transaction);
+        }
+
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+
+        return await adapter?.prepareDelegateTransaction(transaction);
+    };
+
     // * Get Explorer Link by Tx Hash
     const getTxExplorerLink = (...args) => {
         return mainAdapter.value.getTxExplorerLink(...args) || null;
@@ -369,19 +384,52 @@ function useAdapter() {
     };
 
     // * Get Chain by Chain ID
-    const getChainByChainId = (ecosystem, chainId) => {
-        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
-        const chainList = adapter.getChainList(store);
+    const getChainByChainId = (ecosystem = null, chainId) => {
+        const getChain = (ecosystem) => {
+            const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
-        const chain = chainList.find((chain) => chain.chain_id === chainId);
+            if (!adapter) {
+                return null;
+            }
 
-        return {
-            ...chain,
-            chain: chain?.chain_id,
-            name: chain?.name,
-            logo: chain?.logo,
-            ecosystem,
+            try {
+                const chainList = adapter.getChainList(store);
+
+                const chain = chainList.find((chain) => chain.chain_id === chainId);
+
+                if (!chain) {
+                    return null;
+                }
+
+                return {
+                    ...chain,
+                    chain: chain?.chain_id,
+                    name: chain?.name,
+                    logo: chain?.logo,
+                    ecosystem,
+                };
+            } catch (error) {
+                return null;
+            }
         };
+
+        // * If Ecosystem not provided, get chain from all ecosystems
+        if (!ecosystem) {
+            for (const ecosystem in ECOSYSTEMS) {
+                const chain = getChain(ecosystem);
+                if (chain) {
+                    return chain;
+                }
+            }
+        }
+
+        const chain = getChain(ecosystem);
+
+        if (!chain) {
+            return null;
+        }
+
+        return chain;
     };
 
     // * Set New Chain by Ecosystem
@@ -500,6 +548,7 @@ function useAdapter() {
         validateAddress,
 
         prepareTransaction,
+        prepareDelegateTransaction,
         signSend,
 
         disconnectWallet,

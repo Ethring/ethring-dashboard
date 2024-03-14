@@ -105,6 +105,15 @@ const useModuleOperations = (module: ModuleType) => {
         return ServiceType[ServiceByModule[module]];
     });
 
+    const currentShortcut = computed<{ id: string; stepId: string }>(() => {
+        const shortcutId = store.getters['shortcuts/getCurrentShortcutId'];
+
+        return {
+            id: shortcutId,
+            stepId: store.getters['shortcuts/getCurrentStepId'],
+        };
+    });
+
     // ===============================================================================================
     // * Addresses with chains by ecosystem
     // ===============================================================================================
@@ -168,6 +177,7 @@ const useModuleOperations = (module: ModuleType) => {
         [TRANSACTION_TYPES.DEX]: 'formatTransactionForSign',
         [TRANSACTION_TYPES.SWAP]: 'formatTransactionForSign',
         [TRANSACTION_TYPES.TRANSFER]: 'prepareTransaction',
+        [TRANSACTION_TYPES.STAKE]: 'prepareDelegateTransaction',
     };
 
     // ===============================================================================================
@@ -203,6 +213,12 @@ const useModuleOperations = (module: ModuleType) => {
             index: flow.length,
         };
 
+        const flowStake = {
+            type: TRANSACTION_TYPES.STAKE,
+            make: TRANSACTION_TYPES.STAKE,
+            index: flow.length,
+        };
+
         switch (module) {
             case ModuleType.send:
                 flow.push(flowTransfer);
@@ -212,6 +228,9 @@ const useModuleOperations = (module: ModuleType) => {
                 break;
             case ModuleType.bridge:
                 flow.push(flowBridge);
+                break;
+            case ModuleType.stake:
+                flow.push(flowStake);
                 break;
 
             case ModuleType.superSwap:
@@ -357,6 +376,26 @@ const useModuleOperations = (module: ModuleType) => {
                 transaction: params,
             };
         },
+        [TRANSACTION_TYPES.STAKE]: async (): Promise<IBridgeDexTransaction> => {
+            const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
+
+            const params = {
+                toAddress: receiverAddress.value,
+                amount: srcAmount.value,
+                token: selectedSrcToken.value,
+                fromAddress: ownerAddress,
+                memo: '',
+            };
+
+            if (isMemoAllowed && memo.value) {
+                params.memo = memo.value;
+            }
+
+            return {
+                ecosystem: selectedSrcNetwork.value.ecosystem,
+                transaction: params,
+            };
+        },
     };
 
     // ===============================================================================================
@@ -378,6 +417,9 @@ const useModuleOperations = (module: ModuleType) => {
         },
         [TRANSACTION_TYPES.TRANSFER]: () => {
             console.log('Transfer success', 'Update balance');
+        },
+        [TRANSACTION_TYPES.STAKE]: () => {
+            console.log('Stake success', 'Update balance');
         },
     };
 
@@ -420,8 +462,6 @@ const useModuleOperations = (module: ModuleType) => {
 
                 // * Set first transaction ID
                 if (index === 0) tx.setId(txManager.getFirstTxId());
-
-                console.log('TX', tx.getTransaction());
 
                 // * Set request ID
                 tx.setRequestID(txManager.getRequestId());
@@ -519,6 +559,20 @@ const useModuleOperations = (module: ModuleType) => {
 
                 // * On success
                 tx.onSuccess = async () => {
+                    if (currentShortcut.value) {
+                        console.log('Set shortcut step status to finish', currentShortcut.value);
+
+                        store.dispatch('shortcuts/setShortcutStepStatus', {
+                            status: 'finish',
+                            stepId: currentShortcut.value.stepId,
+                            shortcutId: currentShortcut.value.id,
+                        });
+
+                        store.dispatch('shortcuts/nextStep', {
+                            shortcutId: currentShortcut.value.id,
+                        });
+                    }
+
                     if (ON_SUCCESS_BY_TYPE[type]) {
                         await ON_SUCCESS_BY_TYPE[type]();
                     }
@@ -545,6 +599,16 @@ const useModuleOperations = (module: ModuleType) => {
                         description: errorMessage,
                         duration: 6,
                     });
+
+                    if (currentShortcut.value) {
+                        console.log('Set shortcut step status to finish', currentShortcut.value);
+
+                        store.dispatch('shortcuts/setShortcutStepStatus', {
+                            status: 'error',
+                            stepId: currentShortcut.value.stepId,
+                            shortcutId: currentShortcut.value.id,
+                        });
+                    }
                 };
 
                 txManager.addTransaction(tx);

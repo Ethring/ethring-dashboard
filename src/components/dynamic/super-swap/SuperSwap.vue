@@ -11,29 +11,31 @@
         <a-form-item class="switch-direction-wrap">
             <a-form-item>
                 <SwapField
+                    name="srcAmount"
                     :value="srcAmount"
                     :label="$t('tokenOperations.from')"
                     :token="selectedSrcToken"
-                    :disabled="isDisableSelect"
+                    :disabled="fieldStates.srcAmount.disabled"
                     @setAmount="handleOnSetAmount"
                 >
                     <SelectRecord
                         :placeholder="$t('tokenOperations.selectNetwork')"
                         :current="selectedSrcNetwork"
                         @click="() => onSelectNetwork(DIRECTIONS.SOURCE)"
-                        :disabled="isDisableSelect"
+                        :disabled="fieldStates.srcNetwork.disabled"
                     />
                     <SelectRecord
                         :placeholder="$t('tokenOperations.selectToken')"
                         :current="selectedSrcToken"
                         @click="() => onSelectToken(true, DIRECTIONS.SOURCE)"
-                        :disabled="isDisableSelect || !selectedSrcNetwork"
+                        :disabled="fieldStates.srcToken.disabled"
                     />
                 </SwapField>
             </a-form-item>
             <SwitchDirection
                 icon="SwapIcon"
                 :disabled="
+                    fieldStates.swapDirection ||
                     isDirectionSwapped ||
                     isQuoteLoading ||
                     isTransactionSigning ||
@@ -46,22 +48,23 @@
             />
 
             <SwapField
+                :name="dstAmount"
                 :label="$t('tokenOperations.to')"
                 :value="dstAmount"
                 :token="selectedDstToken"
                 :isAmountLoading="isQuoteLoading"
                 :percentage="differPercentage"
-                disabled
+                :disabled="fieldStates.dstAmount.disabled"
                 hide-max
             >
                 <SelectRecord
-                    :disabled="isDisableSelect"
+                    :disabled="fieldStates.dstNetwork.disabled"
                     :placeholder="$t('tokenOperations.selectNetwork')"
                     :current="selectedDstNetwork"
                     @click="() => onSelectNetwork(DIRECTIONS.DESTINATION)"
                 />
                 <SelectRecord
-                    :disabled="isDisableSelect || !selectedDstNetwork"
+                    :disabled="fieldStates.dstToken.disabled"
                     :placeholder="$t('tokenOperations.selectToken')"
                     :current="selectedDstToken"
                     @click="() => onSelectToken(false, DIRECTIONS.DESTINATION)"
@@ -110,7 +113,7 @@
     </a-form>
 </template>
 <script>
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, onUpdated, ref, watch, watchEffect } from 'vue';
 import { useStore } from 'vuex';
 
 import SelectRecord from '@/components/ui/Select/SelectRecord';
@@ -219,10 +222,19 @@ export default {
             handleOnSelectNetwork,
             toggleRoutesModal,
             handleOnSetAmount,
+            fieldStates,
         } = moduleInstance;
 
         const { isSrcAmountSet, isDstTokenSet, isSameNetwork } = useInputValidation();
 
+        for (const field of ['srcNetwork', 'dstNetwork', 'srcToken', 'dstToken', 'srcAmount', 'dstAmount']) {
+            store.dispatch('moduleStates/setDisabledField', {
+                module: ModuleType.superSwap,
+                field,
+                props: 'disabled',
+                value: isDisableSelect.value,
+            });
+        }
         //  =================================================================================================================
 
         const successHash = ref('');
@@ -333,6 +345,8 @@ export default {
 
             isSrcAmountSet,
             isDstTokenSet,
+
+            fieldStates,
         };
     },
 };

@@ -21,6 +21,7 @@
             <a-skeleton-input v-if="isAmountLoading" active class="input-balance input-balance-skeleton" size="" />
             <a-input
                 v-else
+                :name="name"
                 v-model:value="amount"
                 type="text"
                 data-qa="input-amount"
@@ -72,6 +73,10 @@ export default {
         label: {
             required: true,
             default: 'From',
+        },
+        name: {
+            required: true,
+            default: 'srcAmount',
         },
         value: {
             required: false,
@@ -164,14 +169,14 @@ export default {
             () => {
                 amount.value = props.value;
                 emit('setAmount', amount.value);
-            }
+            },
         );
 
         watch(
             () => props.token,
             () => {
                 checkBalanceAllowed();
-            }
+            },
         );
 
         return {

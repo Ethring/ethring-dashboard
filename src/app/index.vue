@@ -6,6 +6,7 @@
             <AddressModal />
             <BridgeDexRoutesModal />
             <KadoModal />
+            <SelectModal />
             <ReleaseNotes />
         </a-config-provider>
     </KeepAlive>
@@ -22,6 +23,7 @@ import ReleaseNotes from '@/app/layouts/DefaultLayout/header/ReleaseNotes.vue';
 import WalletsModal from '@/Adapter/UI/Modal/WalletsModal';
 import AddressModal from '@/Adapter/UI/Modal/AddressModal';
 import KadoModal from '@/components/app/modals/KadoModal.vue';
+import SelectModal from '@/components/app/modals/SelectModal.vue';
 // import RoutesModal from '@/components/app/modals/RoutesModal.vue';
 import BridgeDexRoutesModal from '@/components/app/modals/BridgeDexRoutesModal.vue';
 
@@ -35,6 +37,7 @@ export default {
     components: {
         AppLayout,
         KadoModal,
+        SelectModal,
         BridgeDexRoutesModal,
         ReleaseNotes,
         WalletsModal,

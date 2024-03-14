@@ -20,7 +20,7 @@ export default function useTransactions() {
     const transactionForSign = computed(() => store.getters['txManager/transactionForSign']);
     const currentRequestID = computed(() => store.getters['txManager/currentRequestID']);
 
-    const { signSend, currentChainInfo, connectedWallet, getTxExplorerLink, prepareTransaction, formatTransactionForSign } = useAdapter();
+    const { signSend, currentChainInfo, connectedWallet, getTxExplorerLink, prepareTransaction, prepareDelegateTransaction, formatTransactionForSign } = useAdapter();
 
     // * Create transactions queue
     const createTransactions = async (transactions) => {
@@ -239,6 +239,8 @@ export default function useTransactions() {
             prepareTransaction: async (parameters, txParams = {}) => await prepareTransaction(parameters, { ecosystem, ...txParams }),
             formatTransactionForSign: async (parameters, txParams = {}) =>
                 await formatTransactionForSign(parameters, { ecosystem, ...txParams }),
+            prepareDelegateTransaction: async (parameters, txParams = {}) =>
+                await prepareDelegateTransaction(parameters, { ecosystem, ...txParams }),
         };
 
         if (!transaction) {

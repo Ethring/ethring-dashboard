@@ -35,7 +35,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         return store.getters['tokens/getTokensListForChain'](net, { account });
     };
 
-    const getAllTokensList = async (network, fromToken, toToken, { isSameNet = true, onlyWithBalance = false, exclude = [] }) => {
+    const getAllTokensList = async (network, fromToken, toToken, { onlyWithBalance = false, exclude = [] }) => {
         if (!network) {
             return [];
         }
@@ -143,7 +143,6 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         // Set native token info
         allTokens = setNativeTokenInfo(allTokens);
 
-
         if (exclude.length) {
             allTokens = allTokens.filter((tkn) => !exclude.includes(tkn.id) && !exclude.includes(tkn.coingecko_id));
         }
@@ -177,22 +176,28 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         return sortedList;
     };
 
-    const getTokensList = async ({
-        srcNet = null,
-        srcToken = null,
-        dstToken = null,
-        isSameNet = true,
-        onlyWithBalance = false,
-        exclude = [],
-    } = {}) => {
+    const getTokensList = async ({ srcNet = null, srcToken = null, dstToken = null, onlyWithBalance = false, exclude = [] } = {}) => {
         network = srcNet;
         fromToken = srcToken;
         toToken = dstToken;
 
-        return await getAllTokensList(network, fromToken, toToken, { isSameNet, onlyWithBalance, exclude });
+        return await getAllTokensList(network, fromToken, toToken, { onlyWithBalance, exclude });
     };
 
+    const getTokenById = async (network, tokenId) => {
+        try {
+            const tokens = await getTokensList({
+                srcNet: network,
+                onlyWithBalance: false,
+            });
+
+            return _.find(tokens, { id: tokenId });
+        } catch (error) {
+            console.error('getTokenById', error);
+        }
+    };
     return {
         getTokensList,
+        getTokenById,
     };
 }

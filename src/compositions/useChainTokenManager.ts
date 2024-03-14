@@ -9,6 +9,7 @@ import useTokensList from '@/compositions/useTokensList';
 import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { ModuleType } from '@/modules/bridge-dex/enums/ServiceType.enum';
 import useInputValidation from '@/shared/form-validations';
+import logger from '@/shared/logger';
 
 export default function useChainTokenManger(moduleType: ModuleType) {
     const store = useStore();
@@ -146,24 +147,20 @@ export default function useChainTokenManger(moduleType: ModuleType) {
         switch (moduleType) {
             // * If the module is Swap, then the destination network is set to the source network
             case ModuleType.swap:
-                console.log('CASE: ModuleType.swap');
                 selectedDstNetwork.value = null;
                 break;
 
             // * If the module is Send, then the destination network is reset to null
+            case ModuleType.stake:
             case ModuleType.send:
-                console.log('CASE: ModuleType.send');
                 selectedDstNetwork.value = null;
                 break;
 
             // * If the module is Bridge or SuperSwap, then the destination network is set to the network that is different from the source network
             case ModuleType.bridge:
             case ModuleType.superSwap:
-                console.log('CASE: ModuleType.bridge || ModuleType.superSwap');
-
                 // * If the chain list is empty, then the destination network is not set
                 if (!chainList.value?.length) {
-                    console.log('if (!chainList.value?.length)');
                     break;
                 }
 
@@ -209,6 +206,7 @@ export default function useChainTokenManger(moduleType: ModuleType) {
 
                 break;
 
+            case ModuleType.stake:
             case ModuleType.send:
                 selectedDstToken.value = null;
 
@@ -261,18 +259,20 @@ export default function useChainTokenManger(moduleType: ModuleType) {
 
         const isDiffEcosystem = !_.isEqual(ecosystem, srcEcosystem);
 
-        console.log('----------- ON CHANGE ACCOUNT -----------');
+        if (process.env.NODE_ENV === 'debug') {
+            console.debug('----------- ON CHANGE ACCOUNT -----------');
 
-        console.table({
-            isDiffEcosystem,
-            walletAccount: walletAccount.value,
-            isSuperSwap: isSuperSwap.value,
-            currentChainInfo: currentChainInfo.value?.net,
-            selectedSrcNetwork: selectedSrcNetwork.value?.net,
-            selectedDstNetwork: selectedDstNetwork.value?.net,
-            selectedSrcToken: selectedSrcToken.value?.id,
-            selectedDstToken: selectedDstToken.value?.id,
-        });
+            console.table({
+                isDiffEcosystem,
+                walletAccount: walletAccount.value,
+                isSuperSwap: isSuperSwap.value,
+                currentChainInfo: currentChainInfo.value?.net,
+                selectedSrcNetwork: selectedSrcNetwork.value?.net,
+                selectedDstNetwork: selectedDstNetwork.value?.net,
+                selectedSrcToken: selectedSrcToken.value?.id,
+                selectedDstToken: selectedDstToken.value?.id,
+            });
+        }
 
         if (!selectedSrcNetwork.value?.net) {
             selectedSrcNetwork.value = currentChainInfo.value;
@@ -305,20 +305,22 @@ export default function useChainTokenManger(moduleType: ModuleType) {
         const isNewSrcDstSame = !_.isEmpty(newSrc) && !_.isEmpty(newDst) && _.isEqual(newSrc.net, newDst.net);
         const isSameNetwork = [ModuleType.bridge].includes(moduleType) && isNewSrcDstSame;
 
-        console.log('----------- ON CHANGE NETWORK -----------');
+        if (process.env.NODE_ENV === 'debug') {
+            logger.debug('----------- ON CHANGE NETWORK -----------');
 
-        console.table({
-            isSameNetwork,
-            currentChainInfo: currentChainInfo.value?.net,
-            selectedSrcNetwork: selectedSrcNetwork.value?.net,
-            selectedDstNetwork: selectedDstNetwork.value?.net,
-            selectedSrcToken: selectedSrcToken.value?.id,
-            selectedDstToken: selectedDstToken.value?.id,
-            newSrc: newSrc?.net,
-            newDst: newDst?.net,
-            oldSrc: oldSrc?.net,
-            oldDst: oldDst?.net,
-        });
+            console.table({
+                isSameNetwork,
+                currentChainInfo: currentChainInfo.value?.net,
+                selectedSrcNetwork: selectedSrcNetwork.value?.net,
+                selectedDstNetwork: selectedDstNetwork.value?.net,
+                selectedSrcToken: selectedSrcToken.value?.id,
+                selectedDstToken: selectedDstToken.value?.id,
+                newSrc: newSrc?.net,
+                newDst: newDst?.net,
+                oldSrc: oldSrc?.net,
+                oldDst: oldDst?.net,
+            });
+        }
 
         // * If module is Bridge and the source and destination networks are the same,
         // * and swap the source and destination tokens

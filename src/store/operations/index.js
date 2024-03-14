@@ -33,6 +33,10 @@ const TYPES = {
     SET_MEMO: 'SET_MEMO',
 
     RESET_SRC_BALANCE_FOR_ACCOUNT: 'RESET_SRC_BALANCE_FOR_ACCOUNT',
+
+    RESET_ALL_FIELDS: 'RESET_ALL_FIELDS',
+
+    SWAP_DIRECTION: 'SWAP_DIRECTION',
 };
 
 const getApproveOrAllowance = (state, target, { account = null, chain = null, tokenAddress = null, service = null }) => {
@@ -61,6 +65,21 @@ const getApproveOrAllowance = (state, target, { account = null, chain = null, to
     return state[target][targetKey];
 };
 
+const fieldSetter = {
+    srcNetwork: TYPES.SET_SRC_NETWORK,
+    srcToken: TYPES.SET_SRC_TOKEN,
+    dstNetwork: TYPES.SET_DST_NETWORK,
+    dstToken: TYPES.SET_DST_TOKEN,
+    srcAmount: TYPES.SET_SRC_AMOUNT,
+    dstAmount: TYPES.SET_DST_AMOUNT,
+    receiverAddress: TYPES.SET_RECEIVER_ADDRESS,
+    onlyWithBalance: TYPES.SET_ONLY_BALANCE,
+    swapDirection: TYPES.SET_DIRECTION,
+    direction: TYPES.SET_DIRECTION,
+    selectType: TYPES.SET_TOKEN_SELECT_TYPE,
+    memo: TYPES.SET_MEMO,
+};
+
 export default {
     namespaced: true,
     state: () => ({
@@ -69,6 +88,8 @@ export default {
         direction: DIRECTIONS.SOURCE,
         selectType: TOKEN_SELECT_TYPES.FROM,
         onlyWithBalance: false,
+
+        swapDirection: true,
 
         srcNetwork: null,
         srcToken: null,
@@ -105,6 +126,9 @@ export default {
         dstToken: (state) => state.dstToken,
 
         receiverAddress: (state) => state.receiverAddress,
+
+        swapDirection: (state) => state.swapDirection,
+
         memo: (state) => state.memo,
 
         getOperationResultByModule: (state) => (module) => state.operationResult[module] || null,
@@ -114,6 +138,14 @@ export default {
 
         approveForToken: (state) => (account, chain, tokenAddress, service) =>
             getApproveOrAllowance(state, 'approve', { account, chain, tokenAddress, service }),
+
+        getFieldValue: (state) => (field) => {
+            if (!state[field]) {
+                return null;
+            }
+
+            return state[field];
+        },
     },
 
     mutations: {
@@ -198,6 +230,32 @@ export default {
         [TYPES.RESET_SRC_BALANCE_FOR_ACCOUNT](state) {
             state.srcToken = state.srcToken ? { ...state.srcToken, balance: null } : null;
         },
+        [TYPES.RESET_ALL_FIELDS](state) {
+            state.selectedService = null;
+
+            state.direction = DIRECTIONS.SOURCE;
+            state.selectType = TOKEN_SELECT_TYPES.FROM;
+
+            state.swapDirection = false;
+
+            state.onlyWithBalance = false;
+
+            state.srcNetwork = null;
+            state.srcToken = null;
+            state.dstNetwork = null;
+            state.dstToken = null;
+
+            state.srcAmount = null;
+            state.dstAmount = null;
+
+            state.allowance = {};
+            state.approve = {};
+
+            state.receiverAddress = null;
+            state.operationResult = {};
+
+            state.memo = null;
+        },
     },
 
     actions: {
@@ -254,6 +312,17 @@ export default {
         },
         resetSrcBalanceForAccount({ commit }) {
             commit(TYPES.RESET_SRC_BALANCE_FOR_ACCOUNT);
+        },
+        resetFields({ commit }) {
+            commit(TYPES.RESET_ALL_FIELDS);
+        },
+
+        setFieldValue({ commit }, { field, value }) {
+            if (!fieldSetter[field]) {
+                return;
+            }
+
+            commit(fieldSetter[field], value);
         },
     },
 };

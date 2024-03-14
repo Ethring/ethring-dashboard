@@ -24,6 +24,8 @@ import bridgeDexAPI from '@/modules/bridge-dex/store';
 
 // Update balance for account
 import updateBalance from '@/store/update-balance';
+import moduleStates from '@/store/moduleStates';
+import shortcuts from '@/modules/shortcuts/store';
 
 export default createStore({
     state: {},
@@ -39,5 +41,7 @@ export default createStore({
         bridgeDex,
         bridgeDexAPI,
         updateBalance,
+        moduleStates,
+        shortcuts,
     },
 });

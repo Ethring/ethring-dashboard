@@ -47,9 +47,17 @@ const SUPER_SWAP = {
     type: 'layout',
 };
 
-const SIDEBAR_MODULES = [MAIN_DASHBOARD, SEND, SWAP, BRIDGE, SUPER_SWAP];
+const SHORTCUTS = {
+    icon: 'superSwapIcon',
+    title: 'Shortcuts',
+    key: 'shortcuts',
+    to: '/shortcuts',
+    status: '',
+    disabled: false,
+    type: 'layout',
+};
 
-const CUSTOM_CONFIG = [MAIN_DASHBOARD];
+const SIDEBAR_MODULES = [MAIN_DASHBOARD, SEND, SWAP, BRIDGE, SUPER_SWAP, SHORTCUTS];
 
 const defaultConfig = {
     [ECOSYSTEMS.EVM]: {
@@ -71,7 +79,7 @@ const defaultConfig = {
         },
     },
     [ECOSYSTEMS.COSMOS]: {
-        sidebar: [MAIN_DASHBOARD, SEND, SWAP, BRIDGE, SUPER_SWAP],
+        sidebar: SIDEBAR_MODULES,
         send: {
             component: 'SimpleSend',
         },

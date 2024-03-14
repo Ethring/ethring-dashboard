@@ -652,6 +652,30 @@ class CosmosAdapter extends AdapterBase {
         return null;
     }
 
+    async prepareDelegateTransaction({ fromAddress, toAddress, amount, token, memo }) {
+        const fee = this.setDefaultFeeForTx();
+
+        try {
+            const { delegate } = cosmos.staking.v1beta1.MessageComposer.withTypeUrl;
+            const amountFormatted = utils.parseUnits(amount, token.decimals).toString();
+
+            const msg = delegate({
+                amount: {
+                    denom: token.base,
+                    amount: amountFormatted,
+                },
+                delegatorAddress: fromAddress,
+                validatorAddress: toAddress,
+            });
+
+            return {
+                msg,
+                fee,
+                memo,
+            };
+        } catch (error) {}
+    }
+
     async prepareTransaction({ fromAddress, toAddress, amount, token, memo }) {
         const fee = this.setDefaultFeeForTx();
 
