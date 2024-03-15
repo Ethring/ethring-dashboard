@@ -3,6 +3,7 @@ import _ from 'lodash';
 const TYPES = {
     SET_UPDATE_BALANCE_FOR_ADDRESS: 'SET_UPDATE_BALANCE_FOR_ADDRESS',
     REMOVE_UPDATE_BALANCE_FOR_ADDRESS: 'REMOVE_UPDATE_BALANCE_FOR_ADDRESS',
+    SET_IN_PROGRESS: 'SET_IN_PROGRESS',
 };
 
 export default {
@@ -10,10 +11,12 @@ export default {
 
     state: () => ({
         transactionHash: {},
+        inProgress: {},
         updateBalanceForAddress: {},
     }),
 
     getters: {
+        getInProgress: (state) => (key) => state.inProgress[key] || false,
         updateBalanceForAddress: (state) => {
             const response = {};
 
@@ -34,6 +37,8 @@ export default {
             for (const chain of chains) {
                 const uniqueKey = `${chain}_${address}`;
 
+                state.inProgress[uniqueKey] = true;
+
                 if (state.transactionHash[hash] && state.transactionHash[hash][uniqueKey]) {
                     return;
                 }
@@ -51,6 +56,8 @@ export default {
 
             const uniqueKey = `${chain}_${address}`;
 
+            state.inProgress[uniqueKey] = false;
+
             delete state.updateBalanceForAddress[address][chain];
             delete state.updateBalanceForAddress[address];
 
@@ -64,6 +71,9 @@ export default {
                 }
             }
         },
+        [TYPES.SET_IN_PROGRESS](state, { address, status }) {
+            state.inProgress[address] = status;
+        },
     },
 
     actions: {
@@ -72,6 +82,10 @@ export default {
         },
         removeUpdateBalanceForAddress({ commit }, value) {
             commit(TYPES.REMOVE_UPDATE_BALANCE_FOR_ADDRESS, value);
+        },
+
+        setInProgress({ commit }, { address, status }) {
+            commit(TYPES.SET_IN_PROGRESS, { address, status });
         },
     },
 };

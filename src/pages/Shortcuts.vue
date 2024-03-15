@@ -182,7 +182,9 @@ export default {
         });
 
         watch(shortcutIndex, async () => {
-            store.dispatch('shortcuts/setCurrentStepId', {
+            await store.dispatch('tokenOps/resetFields');
+
+            await store.dispatch('shortcuts/setCurrentStepId', {
                 shortcutId: RecipeStake.id,
                 stepId: steps.value[shortcutIndex.value].id,
             });

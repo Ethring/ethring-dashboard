@@ -39,7 +39,10 @@ const useModuleOperations = (module: ModuleType) => {
 
     const store = useStore();
 
-    const isTransactionSigning = ref(false);
+    const isTransactionSigning = computed({
+        get: () => store.getters['txManager/isTransactionSigning'],
+        set: (value) => store.dispatch('txManager/setTransactionSigning', value),
+    });
 
     const { showNotification, closeNotification } = useNotification();
 

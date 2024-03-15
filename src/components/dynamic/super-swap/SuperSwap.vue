@@ -2,7 +2,7 @@
     <a-form class="super-swap superswap-panel">
         <div
             class="reload-btn"
-            :class="{ active: dstAmount && (!isQuoteLoading || !isTransactionSigning) }"
+            :class="{ active: !isTransactionSigning && !isQuoteLoading && dstAmount }"
             @click="() => getEstimateInfo(true)"
         >
             <SyncOutlined :spin="isQuoteLoading" />

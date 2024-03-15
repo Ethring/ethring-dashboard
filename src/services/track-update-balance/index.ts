@@ -23,6 +23,7 @@ export const trackingBalanceUpdate = (store) => {
 
     const updateBalanceQueuesByChain = computed(() => {
         const queues = [];
+
         const target = {
             chains: [],
             address: '',
@@ -57,7 +58,12 @@ export const trackingBalanceUpdate = (store) => {
             }
 
             const { address: targetAddress } = chainWithAddresses.value[config?.net];
-            queues.push({ chain: targetChain, address: targetAddress, mainAddress: target.address, config });
+
+            const uniqueKey = `${targetChain}_${target.address}`;
+
+            if (!store.getters['updateBalance/getInProgress'](uniqueKey)) {
+                queues.push({ chain: targetChain, address: targetAddress, mainAddress: target.address, config });
+            }
         }
 
         return queues;
@@ -110,6 +116,7 @@ export const trackingBalanceUpdate = (store) => {
                 if (timeout.value[config.net] === 0) {
                     clearInterval(timeout.value[config.net]);
                     message.destroy();
+                    await removeUpdateBalanceQueues(mainAddress, chain);
                 }
 
                 await removeUpdateBalanceQueues(mainAddress, chain);

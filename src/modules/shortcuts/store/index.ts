@@ -90,7 +90,7 @@ export default {
             return state.shortcut[shortcut];
         },
 
-        getShortcutSteps: (state: IState) => (shortcut: string) => {
+        getShortcutSteps: (state: IState, g, rs, rootGetters) => (shortcut: string) => {
             let hasError = false;
 
             const { operations = [] } = state.shortcut[shortcut] || {};
@@ -116,7 +116,7 @@ export default {
                     status,
                 };
 
-                if (hasError || DISABLED_STATUS.includes(status)) {
+                if (hasError || DISABLED_STATUS.includes(status) || rootGetters['txManager/isTransactionSigning']) {
                     opData.disabled = true;
                 }
 
@@ -241,14 +241,9 @@ export default {
         },
 
         nextStep(context: any, { shortcutId }: { shortcutId: string }) {
-            console.log('shortcutId', shortcutId, context);
             const { getters, commit } = context;
-            console.log('context', context);
             const steps = getters.getShortcutSteps(shortcutId);
-            console.log('steps', getters.getShortcutSteps(shortcutId), getters);
             const currentIndex = getters.getShortcutIndex;
-            console.log('nextStep', currentIndex, steps.length);
-            console.log('steps', steps);
 
             if (currentIndex < steps.length - 1) {
                 console.log('calling next step', currentIndex + 1);
