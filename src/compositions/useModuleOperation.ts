@@ -565,19 +565,17 @@ const useModuleOperations = (module: ModuleType) => {
 
                         if (tx.getChainId() !== currentChainInfo.value?.chain_id) {
                             const chainInfo = getChainByChainId(tx.getEcosystem(), tx.getChainId());
-                            await setChain(chainInfo);
-                        }
+                            const changed = await setChain(chainInfo);
 
-                        await delay(1000);
+                            if (!changed) {
+                                console.error('useModuleOperations -> execute -> setChain -> error', 'Chain not changed');
+                                throw new Error('Incorrect chain');
+                            }
+                        }
                     } catch (error) {
                         console.error('useModuleOperations -> execute -> setChain -> error', error);
                         closeNotification(`tx-${tx.getTxId()}`);
                         throw error;
-                    }
-
-                    if (tx.getChainId() !== currentChainInfo.value?.chain_id) {
-                        closeNotification(`tx-${tx.getTxId()}`);
-                        throw new Error('Incorrect chain');
                     }
 
                     try {
@@ -595,14 +593,14 @@ const useModuleOperations = (module: ModuleType) => {
 
                 // * On success
                 tx.onSuccess = async () => {
-                    updateShortcutStatus('finish');
                     if (ON_SUCCESS_BY_TYPE[type]) {
                         await ON_SUCCESS_BY_TYPE[type]();
                     }
 
                     if (index === operationFlow.length - 1) {
-                        console.log('Success all transactions');
                         isTransactionSigning.value = false;
+                        console.log('Success all transactions');
+                        updateShortcutStatus('finish');
                     }
                 };
 
