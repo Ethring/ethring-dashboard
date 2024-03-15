@@ -564,10 +564,11 @@ const useModuleOperations = (module: ModuleType) => {
                         await delay(1000);
 
                         if (tx.getChainId() !== currentChainInfo.value?.chain_id) {
-                            await delay(1000);
                             const chainInfo = getChainByChainId(tx.getEcosystem(), tx.getChainId());
                             await setChain(chainInfo);
                         }
+
+                        await delay(1000);
                     } catch (error) {
                         console.error('useModuleOperations -> execute -> setChain -> error', error);
                         closeNotification(`tx-${tx.getTxId()}`);
