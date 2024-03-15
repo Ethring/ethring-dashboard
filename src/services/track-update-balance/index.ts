@@ -61,9 +61,13 @@ export const trackingBalanceUpdate = (store) => {
 
             const uniqueKey = `${targetChain}_${target.address}`;
 
-            if (!store.getters['updateBalance/getInProgress'](uniqueKey)) {
-                queues.push({ chain: targetChain, address: targetAddress, mainAddress: target.address, config });
+            const inProgress = store.getters['updateBalance/getInProgress'](uniqueKey);
+
+            if (inProgress) {
+                continue;
             }
+
+            queues.push({ chain: targetChain, address: targetAddress, mainAddress: target.address, config });
         }
 
         return queues;
