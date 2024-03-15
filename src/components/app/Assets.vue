@@ -191,7 +191,7 @@ export default {
         });
 
         watch(collapseActiveKey, () => {
-            window.localStorage.setItem('user-settings: collapsable-assets', JSON.stringify(collapseActiveKey.value));
+            window.localStorage.setItem('user-settings:collapsable-assets', JSON.stringify(collapseActiveKey.value));
         });
 
         return {
