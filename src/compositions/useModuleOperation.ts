@@ -40,6 +40,8 @@ const useModuleOperations = (module: ModuleType) => {
 
     const isTransactionSigning = ref(false);
 
+    const isTransactionCanceled = ref(false);
+
     const { showNotification, closeNotification } = useNotification();
 
     // * Module values
@@ -452,6 +454,9 @@ const useModuleOperations = (module: ModuleType) => {
                             description: 'Please wait, transaction is preparing',
                             duration: 0,
                             prepare: true,
+                            onCancel: () => {
+                                isTransactionCanceled.value = true;
+                            },
                         });
                     } catch (error) {
                         console.error('useModuleOperations -> prepare -> error', error);
@@ -486,7 +491,7 @@ const useModuleOperations = (module: ModuleType) => {
                             await connectByEcosystems(tx.getEcosystem());
                         }
 
-                        if (tx.getChainId() !== currentChainInfo.value?.chain_id) {
+                        if (tx.getChainId() !== currentChainInfo.value?.chain_id && !isTransactionCanceled.value) {
                             await delay(1000);
                             const chainInfo = getChainByChainId(tx.getEcosystem(), tx.getChainId());
                             await setChain(chainInfo);
@@ -498,7 +503,9 @@ const useModuleOperations = (module: ModuleType) => {
                         throw error;
                     }
 
-                    if (tx.getChainId() !== currentChainInfo.value?.chain_id) {
+                    await delay(1000);
+
+                    if (tx.getChainId() !== currentChainInfo.value?.chain_id && !isTransactionCanceled.value) {
                         closeNotification(`tx-${tx.getTxId()}`);
                         throw new Error('Incorrect chain');
                     }
@@ -506,7 +513,7 @@ const useModuleOperations = (module: ModuleType) => {
                     try {
                         const forSign = tx.getTransaction();
 
-                        return await signAndSend(forSign, { ecosystem: tx.getEcosystem(), chain: tx.getChainId() });
+                        return await signAndSend(forSign, { ecosystem: tx.getEcosystem(), chain: tx.getChainId() }, isTransactionCanceled);
                     } catch (error) {
                         console.error('useModuleOperations -> execute -> error', error);
                         throw error;
@@ -534,6 +541,8 @@ const useModuleOperations = (module: ModuleType) => {
 
                 // * On error
                 tx.onError = async (error) => {
+                    closeNotification(`tx-${tx.getTxId()}`);
+
                     console.error('Error on transaction:', error);
                     const errorMessage = error?.message || JSON.stringify(error);
 
@@ -545,6 +554,29 @@ const useModuleOperations = (module: ModuleType) => {
                         duration: 6,
                     });
                 };
+
+                // * On canceled in prepare
+                tx.onCancel = async () => {
+                    if (isTransactionCanceled.value) {
+                        console.log('Transaction canceled by user');
+
+                        isTransactionCanceled.value = false;
+
+                        isTransactionSigning.value = false;
+
+                        isLoading.value = false;
+
+                        await store.dispatch('tokenOps/setOperationResult', {
+                            module,
+                            result: {
+                                status: 'success',
+                                title: 'Transaction Cancelled',
+                                description:
+                                    'Transaction successfully cancelled',
+                            },
+                        });
+                    }
+                }
 
                 txManager.addTransaction(tx);
             }

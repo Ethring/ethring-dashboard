@@ -71,6 +71,7 @@ export class Transaction {
     onSuccess?: () => Promise<void>;
     onSuccessSignTransaction?: () => Promise<void>;
     onError?: (error: any) => Promise<void>;
+    onCancel?: () => Promise<void>;
 }
 
 class TransactionNode {
@@ -224,6 +225,9 @@ export class TransactionList {
                 // ? Set the transaction execute parameters
                 await current.transaction.setTxExecuteParameters();
             } catch (error) {
+                if (current.transaction.onCancel) {
+                    await current.transaction.onCancel();
+                }
                 if (current.transaction.onError) {
                     current.transaction.onError(error);
                 }
@@ -232,6 +236,10 @@ export class TransactionList {
 
             try {
                 const hash = await current.transaction.execute();
+
+                if (current.transaction.onCancel) {
+                    await current.transaction.onCancel();
+                }
 
                 if (current.transaction.onSuccessSignTransaction) {
                     await current.transaction.onSuccessSignTransaction();
