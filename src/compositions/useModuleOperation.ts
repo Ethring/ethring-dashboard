@@ -34,7 +34,8 @@ import useInputValidation from '@/shared/form-validations';
 import { delay } from '@/shared/utils/helpers';
 
 const useModuleOperations = (module: ModuleType) => {
-    const { walletAddress, currentChainInfo, setChain, connectByEcosystems, getChainByChainId } = useAdapter();
+    const { walletAddress, currentChainInfo, setChain, connectByEcosystems, getChainByChainId, getConnectedStatus, switchEcosystem } =
+        useAdapter();
 
     const store = useStore();
 
@@ -432,6 +433,27 @@ const useModuleOperations = (module: ModuleType) => {
     };
 
     // ===============================================================================================
+    // * Shortcut status
+    // ===============================================================================================
+
+    const updateShortcutStatus = (status = 'finish') => {
+        if (currentShortcut.value) {
+            console.log('Set shortcut step status to finish', currentShortcut.value);
+
+            store.dispatch('shortcuts/setShortcutStepStatus', {
+                status,
+                stepId: currentShortcut.value.stepId,
+                shortcutId: currentShortcut.value.id,
+            });
+
+            status === 'finish' &&
+                store.dispatch('shortcuts/nextStep', {
+                    shortcutId: currentShortcut.value.id,
+                });
+        }
+    };
+
+    // ===============================================================================================
     // * Handle on confirm
     // ===============================================================================================
 
@@ -462,6 +484,12 @@ const useModuleOperations = (module: ModuleType) => {
 
                 // * Set first transaction ID
                 if (index === 0) tx.setId(txManager.getFirstTxId());
+
+                try {
+                    updateShortcutStatus('currentInProgress');
+                } catch (error) {
+                    console.error('useModuleOperations -> execute -> updateShortcutStatus -> error', error);
+                }
 
                 // * Set request ID
                 tx.setRequestID(txManager.getRequestId());
@@ -520,18 +548,22 @@ const useModuleOperations = (module: ModuleType) => {
 
                 // * Execute transaction
                 tx.execute = async () => {
-                    const { ecosystem: currEcosystem } = currentChainInfo.value || {};
-
                     try {
-                        if (currEcosystem !== tx.getEcosystem()) {
+                        if (getConnectedStatus(tx.getEcosystem())) {
+                            await switchEcosystem(tx.getEcosystem());
+                            await delay(1000);
+                        }
+
+                        if (currentChainInfo.value?.ecosystem !== tx.getEcosystem()) {
                             await connectByEcosystems(tx.getEcosystem());
                         }
+
+                        await delay(1000);
 
                         if (tx.getChainId() !== currentChainInfo.value?.chain_id) {
                             await delay(1000);
                             const chainInfo = getChainByChainId(tx.getEcosystem(), tx.getChainId());
                             await setChain(chainInfo);
-                            await delay(1000);
                         }
                     } catch (error) {
                         console.error('useModuleOperations -> execute -> setChain -> error', error);
@@ -559,20 +591,7 @@ const useModuleOperations = (module: ModuleType) => {
 
                 // * On success
                 tx.onSuccess = async () => {
-                    if (currentShortcut.value) {
-                        console.log('Set shortcut step status to finish', currentShortcut.value);
-
-                        store.dispatch('shortcuts/setShortcutStepStatus', {
-                            status: 'finish',
-                            stepId: currentShortcut.value.stepId,
-                            shortcutId: currentShortcut.value.id,
-                        });
-
-                        store.dispatch('shortcuts/nextStep', {
-                            shortcutId: currentShortcut.value.id,
-                        });
-                    }
-
+                    updateShortcutStatus('finish');
                     if (ON_SUCCESS_BY_TYPE[type]) {
                         await ON_SUCCESS_BY_TYPE[type]();
                     }
@@ -600,15 +619,7 @@ const useModuleOperations = (module: ModuleType) => {
                         duration: 6,
                     });
 
-                    if (currentShortcut.value) {
-                        console.log('Set shortcut step status to finish', currentShortcut.value);
-
-                        store.dispatch('shortcuts/setShortcutStepStatus', {
-                            status: 'error',
-                            stepId: currentShortcut.value.stepId,
-                            shortcutId: currentShortcut.value.id,
-                        });
-                    }
+                    updateShortcutStatus('error');
                 };
 
                 txManager.addTransaction(tx);

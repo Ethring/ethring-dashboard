@@ -35,7 +35,7 @@
             <SwitchDirection
                 icon="SwapIcon"
                 :disabled="
-                    fieldStates.swapDirection ||
+                    fieldStates.swapDirection.disabled ||
                     isDirectionSwapped ||
                     isQuoteLoading ||
                     isTransactionSigning ||

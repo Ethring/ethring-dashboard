@@ -1,7 +1,10 @@
-import _, { set } from 'lodash';
+import _, { get, set } from 'lodash';
+
+import { h } from 'vue';
+import { LoadingOutlined } from '@ant-design/icons-vue';
 
 import logger from '@/shared/logger';
-import { IRecipe } from '../core/models/Operation';
+import { IOperation, IRecipe } from '../core/models/Operation';
 import { ShortcutType } from '../core/types/ShortcutType';
 
 const TYPES = {
@@ -17,14 +20,26 @@ enum ShortcutStatus {
     wait = 'wait',
     finish = 'finish',
     process = 'process',
+    currentInProgress = 'currentInProgress',
     error = 'error',
     skipped = 'skipped',
 }
+
+const DISABLED_STATUS = [ShortcutStatus.finish, ShortcutStatus.skipped, ShortcutStatus.error];
 
 type ShortcutStatuses = keyof typeof ShortcutStatus;
 
 interface IShortcutStatus {
     [key: string]: ShortcutStatus;
+}
+
+interface OperationStep {
+    id: string;
+    title: string;
+    content: string;
+    status: ShortcutStatuses;
+    disabled?: boolean;
+    icon?: any;
 }
 
 interface IState {
@@ -76,38 +91,55 @@ export default {
         },
 
         getShortcutSteps: (state: IState) => (shortcut: string) => {
+            let hasError = false;
+
             const { operations = [] } = state.shortcut[shortcut] || {};
 
-            const flatList = _.flatMap(operations, (operation, index) => {
-                const getStatus = (id: string) => {
-                    const status = state.shortcutStepStatus[shortcut][id] ?? ShortcutStatus.wait;
+            const getStatus = (id: string): ShortcutStatuses => {
+                const status: ShortcutStatuses = state.shortcutStepStatus[shortcut][id] ?? ShortcutStatus.wait;
+                return status === ShortcutStatus.skipped ? ShortcutStatus.finish : status;
+            };
 
-                    if (status === ShortcutStatus.skipped) {
-                        return ShortcutStatus.finish;
-                    }
+            const processOperation = (op: IOperation, index: number, { content }: { content?: string } = {}): OperationStep => {
+                state.indexBySteps[op.id] = index;
 
-                    return status;
+                const status = getStatus(op.id) as ShortcutStatus;
+
+                if (status === ShortcutStatus.error) {
+                    hasError = true;
+                }
+
+                const opData: OperationStep = {
+                    id: op.id,
+                    title: op.name,
+                    content: content || op.layoutComponent,
+                    status,
                 };
 
-                if (operation.type === ShortcutType.operation) {
-                    state.indexBySteps[operation.id] = index;
+                if (hasError || DISABLED_STATUS.includes(status)) {
+                    opData.disabled = true;
+                }
 
-                    return {
-                        id: operation.id,
-                        title: operation.name,
-                        content: operation.layoutComponent,
-                        status: getStatus(operation.id),
-                    };
-                } else if (operation.type === ShortcutType.recipe) {
-                    return _.map(operation.operations, (subOperation, subIndex) => {
-                        state.indexBySteps[subOperation.id] = subIndex;
-                        return {
-                            id: subOperation.id,
-                            title: subOperation.name,
-                            status: getStatus(subOperation.id),
-                            content: operation.layoutComponent,
-                        };
+                if (status === ShortcutStatus.currentInProgress) {
+                    opData.icon = h(LoadingOutlined, {
+                        style: {
+                            fontSize: '24px',
+                        },
+                        spin: true,
                     });
+                }
+
+                return opData;
+            };
+
+            const flatList: OperationStep[] = operations.flatMap((operation, index) => {
+                switch (operation.type) {
+                    case ShortcutType.operation:
+                        return processOperation(operation, index);
+                    case ShortcutType.recipe:
+                        return operation.operations.map((subOperation) =>
+                            processOperation(subOperation, index, { content: operation.layoutComponent }),
+                        );
                 }
             });
 

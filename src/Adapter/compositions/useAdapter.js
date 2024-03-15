@@ -115,7 +115,7 @@ function useAdapter() {
 
         adaptersDispatch(TYPES.SET_WALLET, { ecosystem: currEcosystem.value, wallet: walletInfo });
         adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
-        adaptersDispatch(TYPES.SET_IS_CONNECTED, true);
+        adaptersDispatch(TYPES.SET_IS_CONNECTED, { ecosystem: currEcosystem.value, isConnected: true });
 
         // return subscribeToWalletsChange();
     }
@@ -133,7 +133,7 @@ function useAdapter() {
 
             if (walletName && isConnected) {
                 adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
-                adaptersDispatch(TYPES.SET_IS_CONNECTED, true);
+                adaptersDispatch(TYPES.SET_IS_CONNECTED, { ecosystem, isConnected });
                 adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
                 storeWalletInfo();
             }
@@ -142,7 +142,7 @@ function useAdapter() {
         } catch (error) {
             console.error('Failed to connect to:', ecosystem, error);
             adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
-            adaptersDispatch(TYPES.SET_IS_CONNECTED, false);
+            adaptersDispatch(TYPES.SET_IS_CONNECTED, { ecosystem, isConnected: false });
             return false;
         }
     };
@@ -150,19 +150,21 @@ function useAdapter() {
     // * Connect to Wallet by Ecosystems
     const connectByEcosystems = async (ecosystem) => {
         if (!ecosystem) {
-            return;
+            return false;
         }
 
         if (ecosystem === ECOSYSTEMS.COSMOS) {
-            return adaptersDispatch(TYPES.SET_MODAL_STATE, { name: 'wallets', isOpen: true });
+            return await adaptersDispatch(TYPES.SET_MODAL_STATE, { name: 'wallets', isOpen: true });
         }
 
         try {
             const status = await connectTo(ecosystem);
             status && adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
+            return status;
         } catch (error) {
             adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
-            console.log(error);
+            console.warn('Failed to connect to:', ecosystem, error);
+            return false;
         }
     };
 
@@ -202,7 +204,7 @@ function useAdapter() {
 
                 if (!isConnected) {
                     adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
-                    adaptersDispatch(TYPES.SET_IS_CONNECTED, false);
+                    adaptersDispatch(TYPES.SET_IS_CONNECTED, { ecosystem, isConnected: false });
                     return router.push('/connect-wallet');
                 }
             }
@@ -216,7 +218,7 @@ function useAdapter() {
             return subscribeToWalletsChange();
         } catch (error) {
             adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
-            adaptersDispatch(TYPES.SET_IS_CONNECTED, false);
+            adaptersDispatch(TYPES.SET_IS_CONNECTED, { ecosystem, isConnected: false });
         }
     };
 
@@ -496,6 +498,14 @@ function useAdapter() {
         return adapter.getNativeTokenByChain(chain, store);
     };
 
+    const getConnectedStatus = (ecosystem) => {
+        return adaptersGetter(GETTERS.IS_CONNECTED)(ecosystem);
+    };
+
+    const switchEcosystem = async (ecosystem) => {
+        return await adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
+    };
+
     // ==================== HOOKS ====================
     // * Subscribe to Wallets Change
     onMounted(() => {
@@ -553,6 +563,9 @@ function useAdapter() {
 
         disconnectWallet,
         disconnectAllWallets,
+
+        getConnectedStatus,
+        switchEcosystem,
     };
 }
 

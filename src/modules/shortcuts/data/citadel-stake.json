@@ -20,7 +20,7 @@
         "operations": [
             {
                 "id": "bridge-eth-to-osmo",
-                "name": "Bridge from EVM to COSMOS (Osmosis)",
+                "name": "Bridge Tokens to COSMOS (Osmosis)",
                 "type": "operation",
                 "moduleType": "superSwap",
                 "operationType": "bridge",

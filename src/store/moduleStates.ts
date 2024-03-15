@@ -16,6 +16,7 @@ enum Field {
     srcAmount = 'srcAmount',
     dstAmount = 'dstAmount',
     memo = 'memo',
+    swapDirection = 'swapDirection',
 }
 
 enum FieldProps {
@@ -94,6 +95,9 @@ export default {
             [Field.dstAmount]: {
                 [FieldProps.disabled]: false,
             },
+            [Field.swapDirection]: {
+                [FieldProps.disabled]: false,
+            },
         },
         [ModuleType.superSwap]: {
             [Field.srcNetwork]: {
@@ -121,6 +125,9 @@ export default {
                 [FieldProps.disabled]: false,
             },
             [Field.dstAmount]: {
+                [FieldProps.disabled]: false,
+            },
+            [Field.swapDirection]: {
                 [FieldProps.disabled]: false,
             },
         },
