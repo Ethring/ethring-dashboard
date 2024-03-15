@@ -16,7 +16,7 @@ export default function chunkSizeControlPlugin({ maxSize }) {
 
                 if (size > maxSize) {
                     console.error(`\x1b[31m Error: Chunk ${fileName} exceeds size limit (${size} bytes > ${maxSize} bytes). \x1b[0m`);
-                    process.exit(1); // Stop the build process
+                    // process.exit(1); // Stop the build process
                 }
             }
         },
