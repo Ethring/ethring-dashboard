@@ -18,7 +18,7 @@ import chunkSizeControlPlugin from './plugins/chunkSizeControlPlugin';
 
 const isProduction = process.env.NODE_ENV === 'production'; // Production environment
 const isAnalyzeBundle = process.env.IS_ANALYZE === 'true'; // Analyze bundle size
-const maxChunkSize = 2 * 1024 * 1024; // Default size limit: 2MB
+const maxChunkSize = 3 * 1024 * 1024; // Default size limit: 3MB
 
 export default defineConfig({
     base: '/',
