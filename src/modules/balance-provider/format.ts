@@ -106,7 +106,7 @@ const cosmosChainTokens = (record: AssetBalance, opt: RecordOptions = {}) => {
 
 // * The base record formatter used to format the response from the data provider
 const formatRecord = (type: BalanceType, record: AssetBalance, opt: RecordOptions = {}): AssetBalance => {
-    const { chain, logo } = opt;
+    const { chain, logo, nativeTokenLogo } = opt;
 
     record.chain = chain;
     record.chainLogo = logo;
@@ -125,7 +125,7 @@ const formatRecord = (type: BalanceType, record: AssetBalance, opt: RecordOption
 
     if (!record.balanceType && !record.address && !record.id) {
         record.id = `${record.chain}:${type}__native:${record.symbol}`;
-        record.logo = logo;
+        record.logo = nativeTokenLogo;
     }
 
     return record;
