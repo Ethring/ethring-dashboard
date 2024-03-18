@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 import BigNumber from 'bignumber.js';
 
-import { IntegrationBalanceType } from '@/modules/balance-provider/models/enums';
+import { IntegrationBalanceType, Type } from '@/modules/balance-provider/models/enums';
 import { getTotalBalance, getIntegrationsBalance, getTotalBalanceByType } from '@/modules/balance-provider/calculation';
 
 import IndexedDBService from '@/services/indexed-db';
@@ -34,6 +34,8 @@ const TYPES = {
     CALCULATE_BALANCE_BY_TYPE: 'CALCULATE_BALANCE_BY_TYPE',
 
     SET_TARGET_ACCOUNT: 'SET_TARGET_ACCOUNT',
+
+    REMOVE_BALANCE_FOR_ACCOUNT: 'REMOVE_BALANCE_FOR_ACCOUNT',
 };
 
 export default {
@@ -47,9 +49,9 @@ export default {
 
         loader: false,
 
-        tokens: {},
-        integrations: {},
-        nfts: {},
+        [Type.tokens]: {},
+        [Type.integrations]: {},
+        [Type.nfts]: {},
 
         disableLoader: false,
 
@@ -331,6 +333,14 @@ export default {
         [TYPES.SET_TARGET_ACCOUNT](state, value) {
             state.targetAccount = value;
         },
+        [TYPES.REMOVE_BALANCE_FOR_ACCOUNT](state, account) {
+            state.isInitCalled[account] && delete state.isInitCalled[account];
+            state.tokens[account] && delete state.tokens[account];
+            state.integrations[account] && delete state.integrations[account];
+            state.nfts[account] && delete state.nfts[account];
+            state.assetsBalances[account] && delete state.assetsBalances[account];
+            state.totalBalances[account] && delete state.totalBalances[account];
+        },
     },
 
     actions: {
@@ -370,6 +380,9 @@ export default {
         },
         setTargetAccount({ commit }, value) {
             commit(TYPES.SET_TARGET_ACCOUNT, value);
+        },
+        removeBalanceForAccount({ commit }, value) {
+            commit(TYPES.REMOVE_BALANCE_FOR_ACCOUNT, value);
         },
     },
 };

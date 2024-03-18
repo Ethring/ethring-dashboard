@@ -6,18 +6,21 @@ import useNotification from '@/compositions/useNotification';
 import { delay } from '@/shared/utils/helpers';
 
 export const isCorrectChain = async (selectedNetwork, currentChainInfo, setChain) => {
-    let btnTitle = 'tokenOperations.confirm';
-
     const { showNotification, closeNotification } = useNotification();
 
-    if (currentChainInfo.value.net === selectedNetwork.value.net) {
-        return {
-            isChanged: true,
-            btnTitle,
-        };
-    }
+    if (currentChainInfo.value.ecosystem !== selectedNetwork.value.ecosystem) {
+        showNotification({
+            key: 'switch-ecosystem',
+            type: 'error',
+            title: `Different ecosystem`,
+            duration: 3,
+        });
 
-    btnTitle = 'tokenOperations.switchNetwork';
+        return false;
+    }
+    if (currentChainInfo.value.net === selectedNetwork.value.net) {
+        return true;
+    }
 
     showNotification({
         key: 'switch-network',
@@ -43,28 +46,10 @@ export const isCorrectChain = async (selectedNetwork, currentChainInfo, setChain
 
         closeNotification('switch-network');
 
-        return {
-            isChanged,
-            btnTitle,
-        };
+        return Boolean(isChanged);
     } catch (error) {
         closeNotification('switch-network');
 
-        return {
-            isChanged: false,
-            btnTitle,
-        };
+        return false;
     }
-};
-
-export const getOperationTitle = (selectedNet, currentNet, isApprove = false, isSwap = true) => {
-    if (selectedNet !== currentNet) {
-        return 'tokenOperations.switchNetwork';
-    } else if (isApprove) {
-        return 'tokenOperations.approve';
-    } else if (!isSwap) {
-        return 'tokenOperations.confirm';
-    }
-
-    return 'tokenOperations.swap';
 };

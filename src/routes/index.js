@@ -1,3 +1,5 @@
+import { ModuleType } from '@/modules/bridge-dex/enums/ServiceType.enum';
+
 export const routes = [
     {
         path: '',
@@ -19,7 +21,7 @@ export const routes = [
         path: '/send',
         name: 'Zomet - Send',
         meta: {
-            key: 'send',
+            key: ModuleType.send,
             isAuth: true,
         },
         component: () => import('@/layouts/ModulesLayout.vue'),
@@ -44,7 +46,7 @@ export const routes = [
         name: 'Zomet - Bridge',
         meta: {
             isAuth: true,
-            key: 'bridge',
+            key: ModuleType.bridge,
         },
         component: () => import('@/layouts/ModulesLayout.vue'),
         props: {
@@ -68,7 +70,7 @@ export const routes = [
         name: 'Zomet - Swap',
         meta: {
             isAuth: true,
-            key: 'swap',
+            key: ModuleType.swap,
         },
         component: () => import('@/layouts/ModulesLayout.vue'),
         props: {
@@ -87,7 +89,7 @@ export const routes = [
         name: 'Zomet - Super Swap',
         meta: {
             isAuth: true,
-            key: 'superSwap',
+            key: ModuleType.superSwap,
         },
         component: () => import('@/layouts/ModulesLayout.vue'),
         props: {

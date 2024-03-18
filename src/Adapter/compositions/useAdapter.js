@@ -109,15 +109,18 @@ function useAdapter() {
             walletModule: connectedWalletModule.value,
         };
 
-        if (!walletInfo.address || !walletInfo.walletName || !walletInfo.ecosystem) {
+        if (
+            currentChainInfo.value?.ecosystem !== walletInfo.ecosystem ||
+            !walletInfo.address ||
+            !walletInfo.walletName ||
+            !walletInfo.ecosystem
+        ) {
             return;
         }
 
         adaptersDispatch(TYPES.SET_WALLET, { ecosystem: currEcosystem.value, wallet: walletInfo });
         adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
         adaptersDispatch(TYPES.SET_IS_CONNECTED, true);
-
-        // return subscribeToWalletsChange();
     }
 
     // * Connect to Wallet by Ecosystem
@@ -126,6 +129,10 @@ function useAdapter() {
 
         try {
             const { isConnected, walletName } = await adapter.connectWallet(...args);
+
+            if (adapter?.getAccount()) {
+                adaptersDispatch(TYPES.SET_ACCOUNT_BY_ECOSYSTEM, { ecosystem, account: adapter.getAccount() });
+            }
 
             if (walletName && isConnected) {
                 adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
@@ -285,17 +292,35 @@ function useAdapter() {
     };
 
     // * Format Tx for Ecosystem
-    const formatTransactionForSign = (transaction) => {
+    const formatTransactionForSign = (transaction, txParams = {}) => {
         if (!mainAdapter.value) {
             return null;
         }
 
-        return mainAdapter.value.formatTransactionForSign(transaction);
+        const { ecosystem, ...params } = txParams || {};
+
+        if (!ecosystem) {
+            return mainAdapter.value.formatTransactionForSign(transaction, params);
+        }
+
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+
+        return adapter.formatTransactionForSign(transaction, params);
     };
 
     // * Prepare Transaction
-    const prepareTransaction = async (...args) => {
-        return await mainAdapter.value.prepareTransaction(...args);
+    const prepareTransaction = async (transaction, { ecosystem }) => {
+        if (!mainAdapter.value) {
+            return null;
+        }
+
+        if (!ecosystem) {
+            return await mainAdapter.value.prepareTransaction(transaction);
+        }
+
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+
+        return await adapter.prepareTransaction(transaction);
     };
 
     // * Get Explorer Link by Tx Hash
@@ -317,13 +342,32 @@ function useAdapter() {
     };
 
     // * Sign & Send Transaction
-    const signSend = async (transaction) => {
-        return await mainAdapter.value.signSend(transaction);
+    const signSend = async (transaction, { ecosystem = null, chain = null }) => {
+        if (!ecosystem) {
+            return await mainAdapter.value.signSend(transaction);
+        }
+
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+
+        if (!adapter) {
+            return { error: `Please connect your ${ecosystem} wallet` };
+        }
+
+        return await adapter.signSend(transaction);
     };
 
     // * Get Chain List by Ecosystem
     const getChainListByEcosystem = (ecosystem) => {
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+
+        if (!adapter) {
+            return [];
+        }
+
+        if (!adapter.getChainList) {
+            return [];
+        }
+
         return adapter.getChainList(store);
     };
 
@@ -367,13 +411,28 @@ function useAdapter() {
     };
 
     // * Get addressesWithChains by Ecosystem
-    const getAddressesWithChainsByEcosystem = async (ecosystem = null) => {
+    const getAddressesWithChainsByEcosystem = async (ecosystem = null, { hash = false } = {}) => {
         if (!ecosystem) {
             return {};
         }
 
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
-        return await adapter.getAddressesWithChains();
+
+        const addresses = await adapter.getAddressesWithChains();
+
+        // * Return Hash of Addresses
+        if (hash) {
+            const hashAddresses = {};
+
+            for (const chain in addresses) {
+                hashAddresses[chain] = addresses[chain].address;
+            }
+
+            return hashAddresses;
+        }
+
+        // * Return Addresses with Logo and Chain Info
+        return addresses;
     };
 
     // * Get Ibc assets for COSMOS ecosystem

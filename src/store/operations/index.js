@@ -31,6 +31,8 @@ const TYPES = {
     SET_OPERATION_RESULT: 'SET_OPERATION_RESULT',
 
     SET_MEMO: 'SET_MEMO',
+
+    RESET_SRC_BALANCE_FOR_ACCOUNT: 'RESET_SRC_BALANCE_FOR_ACCOUNT',
 };
 
 const getApproveOrAllowance = (state, target, { account = null, chain = null, tokenAddress = null, service = null }) => {
@@ -193,6 +195,9 @@ export default {
         [TYPES.SET_MEMO](state, memo) {
             state.memo = memo;
         },
+        [TYPES.RESET_SRC_BALANCE_FOR_ACCOUNT](state) {
+            state.srcToken = state.srcToken ? { ...state.srcToken, balance: null } : null;
+        },
     },
 
     actions: {
@@ -246,6 +251,9 @@ export default {
         },
         setMemo({ commit }, value) {
             commit(TYPES.SET_MEMO, value);
+        },
+        resetSrcBalanceForAccount({ commit }) {
+            commit(TYPES.RESET_SRC_BALANCE_FOR_ACCOUNT);
         },
     },
 };

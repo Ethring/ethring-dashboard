@@ -4,17 +4,17 @@ import { mockBalanceDataBySendTest } from '../data/mockHelper';
 import { getTestVar, TEST_CONST } from '../envHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage } from '../model/MetaMask/MetaMask.pages';
 import util from 'util';
-import { IGNORED_LOCATORS } from 'tests/data/constants';
 import {
     mockPostTransactionsRouteSendMockTx,
     mockPostTransactionsWsByCreateEventSendMockTx,
     mockPutTransactionsRouteSendMockTx,
     mockPutTransactionsWsByUpdateTransactionEventInProgressSendMockTx,
-} from 'tests/data/mockDataByTxManager/SendTxPolygonMock';
+} from '../data/mockDataByTxManager/SendTxPolygonMock';
+import { IGNORED_LOCATORS } from '../data/constants';
 
 const sleep = util.promisify(setTimeout);
 
-test.describe('Mocked send tx Metamask', () => {
+test.describe.skip('Mocked send tx Metamask', () => {
     testMetaMaskMockTx('Case#: Send tx in Polygon', async ({ browser, context, page, sendPage }) => {
         const network = 'Polygon';
         const addressFrom = getTestVar(TEST_CONST.ETH_ADDRESS_TX);

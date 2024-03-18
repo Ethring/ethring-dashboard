@@ -1,8 +1,8 @@
 import { expect } from '@playwright/test';
 import util from 'util';
 import { testMetaMask } from 'tests/__fixtures__/fixtures';
-import { EVM_NETWORKS, IGNORED_LOCATORS } from 'tests/data/constants';
-import { emptyBalanceMockData, errorGetBalanceMockData } from 'tests/data/mockHelper';
+import { EVM_NETWORKS, IGNORED_LOCATORS } from '../data/constants';
+import { emptyBalanceMockData } from 'tests/data/mockHelper';
 import { getTestVar, TEST_CONST } from 'tests/envHelper';
 import { BridgePage } from 'tests/model/VueApp/base.pages';
 

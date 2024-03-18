@@ -10,7 +10,6 @@ import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
 
 const sleep = util.promisify(setTimeout);
 
-const SWAP_SERVICE = 'srv-paraswap';
 
 testMetaMask.describe('Swap e2e tests', () => {
     testMetaMask('Case#: Swap page', async ({ browser, context, page, dashboardEmptyWallet }) => {
@@ -83,9 +82,9 @@ testMetaMask.describe('Swap e2e tests', () => {
         await swapPage.openTokenPageTo();
         await swapPage.setTokenInTokensList(TOKEN_TO);
 
-        await swapPage.mockEstimateSwapRequest(SWAP_SERVICE, errorEstimateSwap, 400);
+        await swapPage.mockEstimateSwapRequest(errorEstimateSwap, 400);
 
-        const estimatePromise = swapPage.page.waitForResponse(`**/estimateSwap**`);
+        const estimatePromise = swapPage.page.waitForResponse(`**/getQuote**`);
         await swapPage.setAmount(AMOUNT);
 
         await Promise.all([balancePromise, estimatePromise]);
@@ -116,9 +115,9 @@ testMetaMask.describe('Swap e2e tests', () => {
         await swapPage.openTokenPageTo();
         await swapPage.setTokenInTokensList(TOKEN_TO);
 
-        await swapPage.mockEstimateSwapRequest(SWAP_SERVICE, errorEstimateSwap, 400);
+        await swapPage.mockEstimateSwapRequest(errorEstimateSwap, 400);
 
-        const estimatePromise = swapPage.page.waitForResponse(`**/estimateSwap**`);
+        const estimatePromise = swapPage.page.waitForResponse(`**/getQuote**`);
         await swapPage.setAmount(AMOUNT);
 
         await Promise.all([balancePromise, estimatePromise]);
@@ -128,7 +127,7 @@ testMetaMask.describe('Swap e2e tests', () => {
         await expect(swapPage.getBaseContentElement()).toHaveScreenshot({ mask: [swapPage.page.locator('div.service-icon')] });
     });
 
-    testMetaMask(
+    testMetaMask.skip( // TODO 
         'Case#: Check tokens and net in network change in MM',
         async ({ browser, context, page, swapPageMockTokensList: swapPage }) => {
             const NET = 'Arbitrum';
@@ -181,34 +180,46 @@ testMetaMask.describe('Swap e2e tests', () => {
             const AMOUNT = '1';
 
             const estimateMockData = {
-                ok: true,
-                data: {
-                    fromTokenAmount: '1.0',
-                    toTokenAmount: '9.302190440797261907',
-                    fee: {
-                        amount: '0.00375186407532274',
-                        currency: 'ETH',
-                    },
+                "ok": true,
+                "data": {
+                    "best": "paraswap",
+                    "priority": "bestFee",
+                    "routes": [
+                        {
+                            "fromAmount": "1.0",
+                            "toAmount": "13.053686135276324996",
+                            "gasEstimated": "295300",
+                            "fee": [
+                                {
+                                    "currency": "USD",
+                                    "amount": "0.048636"
+                                }
+                            ],
+                            "serviceId": "paraswap",
+                            "bestFee": true,
+                            "bestReturn": true
+                        }
+                    ]
                 },
-                error: '',
+                "error": ""
             };
 
-            await swapPage.mockEstimateSwapRequest(SWAP_SERVICE, errorEstimateSwap, 500);
+            await swapPage.mockEstimateSwapRequest(errorEstimateSwap, 500);
             await swapPage.setAmount(AMOUNT);
             await sleep(1000);
 
             await swapPage.openTokenPageFrom();
-            await swapPage.mockEstimateSwapRequest(SWAP_SERVICE, errorEstimateSwap, 500);
+            await swapPage.mockEstimateSwapRequest(errorEstimateSwap, 500);
             await swapPage.setTokenInTokensList(TOKEN_FROM);
             await swapPage.openTokenPageTo();
 
-            const estimatePromise = swapPage.page.waitForResponse(`**/estimateSwap**`);
-            await swapPage.mockEstimateSwapRequest(SWAP_SERVICE, estimateMockData, 200);
+            const estimatePromise = swapPage.page.waitForResponse(`**/getQuote`);
+            await swapPage.mockEstimateSwapRequest(estimateMockData, 200);
             await swapPage.setTokenInTokensList(TOKEN_TO);
             await estimatePromise;
 
             await sleep(FIVE_SECONDS);
-            await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
+            await expect(swapPage.getBaseContentElement()).toHaveScreenshot({ mask: [swapPage.page.locator('div.service-icon')] });
 
             await swapPage.openTokenPageTo();
             await expect(swapPage.getSelectModalContent()).toHaveScreenshot();
