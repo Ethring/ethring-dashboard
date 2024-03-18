@@ -38,58 +38,67 @@
 }
 
 .shortcut-tags {
-    margin: 24px 0px;
+    margin: 16px 0px;
+    height: 32px;
 
-  &__item {
-    @include pageFlexRow;
-    justify-content: space-between;
-
-    height: 28px;
-    width: fit-content;
-    padding: 0 2px 0 8px;
-    margin-right: 4px;
-
-    border-radius: 24px;
-
-    color: var(--#{$prefix}black);
-    background: var(--#{$prefix}icon-bg-color);
-    cursor: pointer;
-
-    &--active {
-        background: var(--#{$prefix}card-tag-bg-color);
-    }
-
-    span {
-        font-size: var(--#{$prefix}small-lg-fs);
+    &__title {
+        margin-right: 8px;
         font-weight: 500;
-        text-transform: capitalize;
+        color: var(--#{$prefix}primary-text);
     }
 
-    svg {
-        width: 24px;
-        height: 24px;
-        margin-left: 4px;
+    &__item {
+        @include pageFlexRow;
+        justify-content: space-between;
 
-        path {
-            fill: $white;
+        height: 28px;
+        width: fit-content;
+        padding: 0 2px 0 8px;
+        margin-right: 4px;
+        border-radius: 24px;
+
+        color: var(--#{$prefix}black);
+        background: var(--#{$prefix}card-tag-bg-color);
+
+        span {
+            font-size: var(--#{$prefix}small-lg-fs);
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        svg {
+            width: 24px;
+            height: 24px;
+            margin-left: 4px;
+
+            cursor: pointer;
+
+            path {
+                fill: $white;
+            }
         }
     }
-  }
 
-  &__clear {
-    @include pageFlexRow;
-    justify-content: space-between;
+    .type-all {
+        padding: 0px 16px;
 
-    height: 28px;
-    margin-left: 16px;
-
-    font-weight: 500;
-    color: $wildWatermelon;
-
-    cursor: pointer;
-
-    svg {
-        margin-right: 4px;
+        cursor: default;
     }
-  }
+
+    &__clear {
+        @include pageFlexRow;
+        justify-content: space-between;
+
+        height: 28px;
+        margin-left: 16px;
+
+        font-weight: 500;
+        color: $wildWatermelon;
+
+        cursor: pointer;
+
+        svg {
+            margin-right: 4px;
+        }
+    }
 }
