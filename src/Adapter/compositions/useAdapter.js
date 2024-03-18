@@ -109,15 +109,18 @@ function useAdapter() {
             walletModule: connectedWalletModule.value,
         };
 
-        if (!walletInfo.address || !walletInfo.walletName || !walletInfo.ecosystem) {
+        if (
+            currentChainInfo.value?.ecosystem !== walletInfo.ecosystem ||
+            !walletInfo.address ||
+            !walletInfo.walletName ||
+            !walletInfo.ecosystem
+        ) {
             return;
         }
 
         adaptersDispatch(TYPES.SET_WALLET, { ecosystem: currEcosystem.value, wallet: walletInfo });
         adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
         adaptersDispatch(TYPES.SET_IS_CONNECTED, true);
-
-        // return subscribeToWalletsChange();
     }
 
     // * Connect to Wallet by Ecosystem

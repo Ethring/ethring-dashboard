@@ -234,14 +234,14 @@ export default function useTransactions() {
      *
      * @returns {object}
      */
-    const signAndSend = async (transaction, { ecosystem, chain }) => {
+    const signAndSend = async (transaction, { ecosystem, chain }, isCanceled) => {
         const ACTIONS_FOR_TX = {
             prepareTransaction: async (parameters, txParams = {}) => await prepareTransaction(parameters, { ecosystem, ...txParams }),
             formatTransactionForSign: async (parameters, txParams = {}) =>
                 await formatTransactionForSign(parameters, { ecosystem, ...txParams }),
         };
 
-        if (!transaction) {
+        if (!transaction || isCanceled.value) {
             return;
         }
 

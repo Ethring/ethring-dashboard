@@ -2,6 +2,8 @@
 
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
+import { captureException } from '@/app/modules/sentry';
+
 interface ApiConfig {
     baseURL: string;
     headers?: Record<string, string>;
@@ -48,6 +50,10 @@ class ApiClient {
                 // Retry failed
                 return Promise.reject(retryError);
             }
+        }
+
+        if (error.response && error.response.status === 400) {
+            captureException(error);
         }
 
         return Promise.reject(error);
