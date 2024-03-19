@@ -211,12 +211,19 @@ export const authByKeplrErrorJunoBalanceMock = async (context: BrowserContext, s
 
     await zometPage.clickLoginByKeplr();
     const notifyKeplr = new KeplrNotifyPage(await getNotifyKeplrPage(context));
+
     await notifyKeplr.assignPage();
 
+    while (!await notifyKeplr.isClosed()) {
+        await sleep(FIVE_SECONDS);
+
+        await notifyKeplr.assignPage();
+    }
     await zometPage.waitMainElementVisible();
 
     await Promise.all(
         Object.keys(cosmosWallets).map((network) => zometPage.page.waitForResponse(`**/srv-data-provider/api/balances?net=${network}**`)),
     );
+
     return zometPage;
 };
