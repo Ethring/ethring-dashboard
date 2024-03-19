@@ -1,12 +1,12 @@
 <template>
     <div class="shortcut-details">
         <div class="shortcut-details__wallpaper" />
-        <a-row align="center" justify="space-between">
+        <a-row align="center" justify="space-between" :wrap="false">
             <router-link to="/shortcuts" class="shortcut-details__link">
                 <ArrowIcon />
                 <span>{{ $t('shortcuts.backTo') }}</span>
             </router-link>
-            <div class="shortcut-details__title">{{ shortcut.name }}</div>
+            <div class="shortcut-details__title" :title="shortcut.name">{{ shortcut.name }}</div>
             <Button title="Details" class="shortcut-item__btn" />
         </a-row>
         <div class="shortcut-details__description">{{ shortcut.description }}</div>

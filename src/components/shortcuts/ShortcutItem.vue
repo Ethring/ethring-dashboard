@@ -4,7 +4,7 @@
             <a-row justify="space-between" :wrap="false">
                 <a-row align="middle" :wrap="false" class="shortcut-item__block">
                     <ShortcutPlaceHolder />
-                    <div class="shortcut-item__name">{{ item.name }}</div>
+                    <div class="shortcut-item__name" :title="item.name">{{ item.name }}</div>
                 </a-row>
                 <a-row align="middle" :wrap="false">
                     <a-col align="right">
@@ -40,7 +40,7 @@
             </a-row>
         </a-row>
 
-        <div class="shortcut-item__description">{{ item.description }}</div>
+        <div class="shortcut-item__description" :title="item.description">{{ item.description }}</div>
 
         <a-row justify="space-between">
             <a-row align="middle" class="shortcut-item__like">

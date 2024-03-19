@@ -12,6 +12,11 @@
         line-height: 28px;
         font-weight: 600;
         color: var(--#{$prefix}primary-text);
+
+        width: 60%;
+        overflow-x: hidden;
+        text-wrap: nowrap;
+        text-overflow: ellipsis;
     }
 
     &__description {

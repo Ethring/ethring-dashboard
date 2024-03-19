@@ -141,12 +141,13 @@
 
         svg {
             cursor: pointer;
-            transition: all 0.2s;
 
             &:hover {
                 fill: var(--#{$prefix}btn-bg-color-hover);
+                transition: fill 0.1s;
 
                 path {
+                    transition: all 0.1s;
                     stroke: var(--#{$prefix}btn-bg-color-hover);
                 }
             }
