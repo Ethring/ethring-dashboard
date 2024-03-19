@@ -60,12 +60,11 @@ export default {
             commit(TYPES.SET_SELECTED_SHORTCUT, value);
         },
         setFilterTags({ state, commit }, value) {
-            if (state.selectedTags.length > 5) {
+            if (state.selectedTags.length > 5 || state.selectedTags.includes(value)) {
                 return;
             }
-            const temp = state.selectedTags.filter((item) => item !== value);
 
-            commit(TYPES.SET_FILTERED_TAGS, [value, ...temp]);
+            commit(TYPES.SET_FILTERED_TAGS, [...state.selectedTags, value]);
         },
         removeFilterTag({ state, commit }, value) {
             const temp = state.selectedTags.filter((item) => item !== value);

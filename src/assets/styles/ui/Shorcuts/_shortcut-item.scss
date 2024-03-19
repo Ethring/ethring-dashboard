@@ -6,6 +6,8 @@
         min-width: 80px;
         min-height: 30px;
         height: 30px;
+        border-radius: 4px;
+        text-transform: capitalize;
 
         background: var(--#{$prefix}card-btn-bg-color);
         color: var(--#{$prefix}black);
@@ -23,13 +25,15 @@
         font-weight: 500;
 
         color: var(--#{$prefix}black) !important;
-        background: var(--#{$prefix}card-tag-bg-color);
+        background: var(--#{$prefix}card-btn-bg-color);
         text-transform: capitalize;
+
+        transition: all 0.2s;
 
         cursor: pointer;
 
         &:hover {
-            background: $springGreen;
+            background: var(--#{$prefix}card-tag-bg-color);
         }
     }
 
@@ -57,6 +61,12 @@
 
         text-decoration: underline;
         cursor: pointer;
+
+        transition: all 0.2s;
+
+        &:hover {
+            color: var(--#{$prefix}card-tag-bg-color);
+        }
     }
 
     &__title {
@@ -131,8 +141,11 @@
 
         svg {
             cursor: pointer;
+            transition: all 0.2s;
 
             &:hover {
+                fill: var(--#{$prefix}btn-bg-color-hover);
+
                 path {
                     stroke: var(--#{$prefix}btn-bg-color-hover);
                 }
@@ -147,8 +160,6 @@
                     stroke: var(--#{$prefix}btn-bg-color-hover);
                 }
             }
-
-
         }
 
         &-count {
