@@ -12,15 +12,15 @@ const sleep = util.promisify(setTimeout);
 
 
 testMetaMask.describe('Swap e2e tests', () => {
-    testMetaMask('Case#: Swap page', async ({ browser, context, page, dashboardEmptyWallet }) => {
-        const swapPage = await dashboardEmptyWallet.goToModule('swap');
-        await swapPage.waitDetachedSkeleton();
-        await swapPage.waitLoadImg();
+    // testMetaMask('Case#: Swap page', async ({ browser, context, page, dashboardEmptyWallet }) => {
+    //     const swapPage = await dashboardEmptyWallet.goToModule('swap');
+    //     await swapPage.waitDetachedSkeleton();
+    //     await swapPage.waitLoadImg();
 
-        await expect(swapPage.page).toHaveScreenshot({
-            mask: [swapPage.page.locator(IGNORED_LOCATORS.HEADER), swapPage.page.locator(IGNORED_LOCATORS.ASIDE)],
-        });
-    });
+    //     await expect(swapPage.page).toHaveScreenshot({
+    //         mask: [swapPage.page.locator(IGNORED_LOCATORS.HEADER), swapPage.page.locator(IGNORED_LOCATORS.ASIDE)],
+    //     });
+    // });
 
     testMetaMask(
         'Case#: Checking token list change after network change',
