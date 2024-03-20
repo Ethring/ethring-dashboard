@@ -186,6 +186,12 @@ export const authByKeplr = async (context: BrowserContext, seed: string, cosmosW
     const notifyKeplr = new KeplrNotifyPage(await getNotifyKeplrPage(context));
     await notifyKeplr.assignPage();
 
+    while (!await notifyKeplr.isClosed()) {
+        await sleep(ONE_SECOND);
+
+        await notifyKeplr.assignPage();
+    }
+
     await zometPage.waitMainElementVisible();
     await balancePromise;
 
@@ -215,7 +221,7 @@ export const authByKeplrErrorJunoBalanceMock = async (context: BrowserContext, s
     await notifyKeplr.assignPage();
 
     while (!await notifyKeplr.isClosed()) {
-        await sleep(FIVE_SECONDS);
+        await sleep(ONE_SECOND);
 
         await notifyKeplr.assignPage();
     }
