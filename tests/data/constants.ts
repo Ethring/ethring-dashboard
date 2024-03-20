@@ -58,6 +58,12 @@ export enum IGNORED_LOCATORS {
     HEADER = '//header',
     ASIDE = '//aside',
     SERVICE_ICON = 'div.service-icon',
+    PROTOCOL_ICON_1 = 'div.token-icon > img[alt="AAV"]',
+    PROTOCOL_ICON_2 = 'div.token-icon > img[alt="STA"]',
+    TOKEN_ICON_1 = 'div.token-icon > img[alt="Wrapped Matic"]',
+    TOKEN_ICON_2 = 'div.token-icon > img[alt="Wrapped Bitcoin"]',
+    TOKEN_ICON_3 = 'div.token-icon > img[alt="Polygon"]',
+    TOKEN_ICON_4 = 'div.token-icon > img[alt="Stader MaticX"]',
 }
 
 export const MEMO_BY_KEPLR_TEST = '105371789';

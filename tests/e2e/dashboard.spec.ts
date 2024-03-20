@@ -46,11 +46,12 @@ testMetaMask.describe('MetaMask dashboard', () => {
 
         await expect(dashboardProtocol.page).toHaveScreenshot({
             fullPage: true,
-            mask: [dashboardProtocol.page.locator(IGNORED_LOCATORS.HEADER), dashboardProtocol.page.locator(IGNORED_LOCATORS.ASIDE)],
+            mask: [dashboardProtocol.page.locator(IGNORED_LOCATORS.HEADER), dashboardProtocol.page.locator(IGNORED_LOCATORS.ASIDE),
+            dashboardProtocol.page.locator(IGNORED_LOCATORS.PROTOCOL_ICON_1), dashboardProtocol.page.locator(IGNORED_LOCATORS.PROTOCOL_ICON_2),
+            dashboardProtocol.page.locator(IGNORED_LOCATORS.TOKEN_ICON_1), dashboardProtocol.page.locator(IGNORED_LOCATORS.TOKEN_ICON_2), dashboardProtocol.page.locator(IGNORED_LOCATORS.TOKEN_ICON_3), dashboardProtocol.page.locator(IGNORED_LOCATORS.TOKEN_ICON_4),],
         });
     });
 });
-
 test.describe('Keplr dashboard', () => {
     testKeplr('Case#: check protocols & nfts view', async ({ browser, context, page, dashboardProtocol }) => {
         await dashboardProtocol.prepareFoScreenShoot();
