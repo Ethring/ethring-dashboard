@@ -7,15 +7,15 @@
                 </div>
                 <div class="secondary-icon icon"></div>
             </div>
-            <div class="step-item-info">
+            <div class="step-item__info">
                 <div class="label">{{ data.name }}</div>
                 <div class="content">
-                    <div class="info">
+                    <div class="token-info">
                         <div class="icon"></div>
                         <div class="amount">10.00 <span>ETH</span></div>
                     </div>
                     <div class="space-between">to</div>
-                    <div class="info">
+                    <div class="token-info">
                         <div class="icon"></div>
                         <div class="amount">10.00 <span>ETH</span></div>
                     </div>
@@ -34,16 +34,16 @@ export default {
     components: {
         swap,
         bridge,
-        stake
+        stake,
     },
     props: {
         data: {
-            default: {}
-        }
+            default: {},
+        },
     },
 };
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
 .step-item {
     @include pageFlexRow;
 
@@ -80,7 +80,17 @@ export default {
             height: 40px;
 
             border-radius: 50%;
-            background: var(--#{$prefix}white);
+            background: var(--#{$prefix}main-background);
+
+            svg {
+                path:not([stroke]) {
+                    fill: var(--#{$prefix}primary-text);
+                }
+
+                path:not([fill]) {
+                    stroke: var(--#{$prefix}primary-text);
+                }
+            }
         }
 
         .secondary-icon {
@@ -88,11 +98,11 @@ export default {
             right: -6px;
             bottom: 0;
 
-            background: #0c0d18;
+            background: var(--#{$prefix}token-secondary-icon-color);
         }
     }
 
-    &-info {
+    &__info {
         margin-left: 20px;
 
         .label {
@@ -106,7 +116,7 @@ export default {
             @include pageFlexRow;
             height: 24px;
 
-            .info {
+            .token-info {
                 @include pageFlexRow;
 
                 .amount {
@@ -118,19 +128,19 @@ export default {
 
                     span {
                         font-weight: 400;
-                        color: var(--#{$prefix}unlock-text);
+                        color: var(--#{$prefix}currency-text);
                     }
                 }
             }
 
             .icon {
-                background: var(--#{$prefix}select-symbol-text);
+                background: var(--#{$prefix}token-primary-icon-color);
             }
 
             .space-between {
                 font-weight: 400;
                 font-size: var(--#{$prefix}small-lg-fs);
-                color: var(--#{$prefix}unlock-text);
+                color: var(--#{$prefix}currency-text);
 
                 margin: 0 10px;
             }

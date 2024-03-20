@@ -1,20 +1,21 @@
 <template>
     <div class="shortcut-details">
-        <div class="shortcut-details__wallpaper" />
+        <div class="wallpaper" />
+
         <a-row align="center" justify="space-between" :wrap="false">
-            <router-link to="/shortcuts" class="shortcut-details__link">
+            <router-link to="/shortcuts" class="link">
                 <ArrowIcon />
                 <span>{{ $t('shortcuts.backTo') }}</span>
             </router-link>
-            <div class="shortcut-details__title" :title="shortcut.name">{{ shortcut.name }}</div>
-            <Button title="Details" class="shortcut-item__btn" />
+
+            <div class="title" :title="shortcut.name">{{ shortcut.name }}</div>
+
+            <Button title="Details" class="shortcut-details-btn" />
         </a-row>
-        <div class="shortcut-details__description">{{ shortcut.description }}</div>
+        <div class="description">{{ shortcut.description }}</div>
 
         <a-row :gutter="16">
-            <a-col :md="24" :lg="12">
-                Content
-            </a-col>
+            <a-col :md="24" :lg="12"> Content </a-col>
             <a-col :md="24" :lg="12">
                 <a-steps direction="vertical" v-model:current="currentStep" :items="steps"></a-steps>
             </a-col>
@@ -37,7 +38,7 @@ export default {
     name: 'ShortcutDetails',
     components: {
         StepItem,
-        ArrowIcon
+        ArrowIcon,
     },
     setup() {
         const store = useStore();
@@ -47,8 +48,8 @@ export default {
         const currentStep = ref(1);
 
         const getStepIcon = (id) => {
-            return currentStep.value === id ? h(ProcessIcon) : currentStep.value > id ? h(SuccessIcon) : h(WaitingIcon)
-        }
+            return currentStep.value === id ? h(ProcessIcon) : currentStep.value > id ? h(SuccessIcon) : h(WaitingIcon);
+        };
 
         const steps = computed(() =>
             shortcut.value.recipe.operations?.map((item, i) => {
@@ -56,15 +57,15 @@ export default {
                     id: i,
                     title: h(StepItem, { data: item }),
                     icon: getStepIcon(i),
-                }
+                };
             })
-        )
+        );
 
         return {
             shortcut,
             steps,
-            currentStep
-        }
+            currentStep,
+        };
     },
 };
 </script>

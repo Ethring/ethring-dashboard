@@ -9,7 +9,7 @@
         border-radius: 4px;
         text-transform: capitalize;
 
-        background: var(--#{$prefix}card-btn-bg-color);
+        background: var(--#{$prefix}small-btn-bg-color);
         color: var(--#{$prefix}black);
     }
 
@@ -37,7 +37,7 @@
         }
     }
 
-    &__name {
+    .name {
         margin-left: 8px;
 
         color: var(--#{$prefix}primary-text);
@@ -53,7 +53,7 @@
         width: 70%;
     }
 
-    &__author {
+    .author {
         color: var(--#{$prefix}primary-text);
         font-size: var(--#{$prefix}small-sm-fs);
         font-weight: 600;
@@ -69,14 +69,14 @@
         }
     }
 
-    &__title {
-        color: var(--#{$prefix}secondary-text);
+    .title {
+        color: var(--#{$prefix}base-text);
         font-size: var(--#{$prefix}small-sm-fs);
         font-weight: 400;
         line-height: 16px;
     }
 
-    &__avatar {
+    .avatar {
         @include pageFlexRow;
         justify-content: center;
 
@@ -103,7 +103,7 @@
         border-bottom: 1px dashed var(--#{$prefix}border-secondary-color);
 
         div {
-            color: var(--#{$prefix}mute-text);
+            color: var(--#{$prefix}base-text);
             font-size: var(--#{$prefix}small-sm-fs);
         }
 
@@ -113,12 +113,12 @@
 
             span {
                 font-weight: 400;
-                color: var(--#{$prefix}mute-text);
+                color: var(--#{$prefix}base-text);
             }
         }
     }
 
-    &__description {
+    .description {
         margin: 10px 0;
 
         color: var(--#{$prefix}mute-text);
@@ -134,7 +134,7 @@
         text-overflow: ellipsis;
     }
 
-    &__like {
+    .favorites {
         @include pageFlexRow;
 
         height: 28px;
@@ -143,22 +143,22 @@
             cursor: pointer;
 
             &:hover {
-                fill: var(--#{$prefix}btn-bg-color-hover);
+                fill: var(--#{$prefix}banner-logo-color);
                 transition: fill 0.1s;
 
                 path {
                     transition: all 0.1s;
-                    stroke: var(--#{$prefix}btn-bg-color-hover);
+                    stroke: var(--#{$prefix}banner-logo-color);
                 }
             }
         }
 
         &-icon {
             &--active {
-                fill: var(--#{$prefix}btn-bg-color-hover);
+                fill: var(--#{$prefix}banner-logo-color);
 
                 path {
-                    stroke: var(--#{$prefix}btn-bg-color-hover);
+                    stroke: var(--#{$prefix}banner-logo-color);
                 }
             }
         }
@@ -167,6 +167,7 @@
             margin-left: 4px;
             font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 600;
+            color: var(--#{$prefix}base-amount-text);
         }
     }
 

@@ -4,14 +4,15 @@
             <a-row justify="space-between" :wrap="false">
                 <a-row align="middle" :wrap="false" class="shortcut-item__block">
                     <ShortcutPlaceHolder />
-                    <div class="shortcut-item__name" :title="item.name">{{ item.name }}</div>
+                    <div class="name" :title="item.name">{{ item.name }}</div>
                 </a-row>
+
                 <a-row align="middle" :wrap="false">
                     <a-col align="right">
-                        <div class="shortcut-item__title">{{ $t('shortcuts.createdBy') }}</div>
-                        <span class="shortcut-item__author">{{ item.author.name }}</span>
+                        <div class="title">{{ $t('shortcuts.createdBy') }}</div>
+                        <span class="author">{{ item.author.name }}</span>
                     </a-col>
-                    <div class="shortcut-item__avatar">
+                    <div class="avatar">
                         <ZometLogo />
                     </div>
                 </a-row>
@@ -20,34 +21,33 @@
 
         <a-row justify="space-between" class="shortcut-item__info">
             <a-row align="middle">
-                <div>
-                    <span v-for="(ecosystem, i) in item.ecosystems" :key="i">{{ ecosystem }}<span
-                            v-if="i < item.ecosystems.length - 1">,</span></span>
+                <div class="ecosystem">
+                    <span v-for="(ecosystem, i) in item.ecosystems" :key="i">
+                        {{ ecosystem }}
+                        <span v-if="i < item.ecosystems.length - 1">,</span></span
+                    >
                 </div>
                 <a-divider type="vertical" style="height: 10px; background-color: #c9e0e0" />
-                <div>
-                    Min amount:
-                    <span v-if="item.minAmount" class="amount">{{ item.minAmount.value }} <span>{{
-        item.minAmount.currency
-    }}</span></span>
+                <div class="amount">
+                    Min amount
+                    <span v-if="item.minAmount" class="amount"
+                        >{{ item.minAmount.value }} <span>{{ item.minAmount.currency }}</span></span
+                    >
                     <span v-else class="amount">Any</span>
                 </div>
             </a-row>
+
             <a-row>
-                <div class="shortcut-item__tag" v-for="tag in item.tags" :key="tag" @click="() => selectTag(tag)">{{ tag
-                    }}
-                </div>
+                <div class="shortcut-item__tag" v-for="tag in item.tags" :key="tag" @click="() => selectTag(tag)">{{ tag }}</div>
             </a-row>
         </a-row>
 
-        <div class="shortcut-item__description" :title="item.description">{{ item.description }}</div>
+        <div class="description" :title="item.description">{{ item.description }}</div>
 
         <a-row justify="space-between">
-            <a-row align="middle" class="shortcut-item__like">
-                <LikeIcon :class="{ 'shortcut-item__like-icon--active': watchList.includes(item.id) }"
-                    @click="addToWatchList" />
-
-                <div class="shortcut-item__like-count">15</div>
+            <a-row align="middle" class="favorites">
+                <LikeIcon :class="{ 'favorites-icon--active': watchList.includes(item.id) }" @click="addToWatchList" />
+                <div class="favorites-count">15</div>
             </a-row>
             <Button title="Try" class="shortcut-item__btn" @click="openShortcut" />
         </a-row>
@@ -93,14 +93,14 @@ export default {
 
         const selectTag = (tag) => {
             store.dispatch('shortcuts/setFilterTags', tag);
-        }
+        };
 
         return {
             watchList,
 
             addToWatchList,
             openShortcut,
-            selectTag
+            selectTag,
         };
     },
 };

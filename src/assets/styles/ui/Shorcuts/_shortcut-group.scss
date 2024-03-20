@@ -12,7 +12,7 @@
 
         font-size: var(--#{$prefix}h3-fs);
         font-weight: 400;
-        color: var(--#{$prefix}mute-text);
+        color: var(--#{$prefix}base-text);
 
         transition: 0.1s;
 
@@ -58,7 +58,7 @@
         border-radius: 24px;
 
         color: var(--#{$prefix}black);
-        background: var(--#{$prefix}card-tag-bg-color);
+        background: var(--#{$prefix}tag-selected);
 
         span {
             font-size: var(--#{$prefix}small-lg-fs);

@@ -1,5 +1,5 @@
 .shortcut-details {
-    &__wallpaper {
+    .wallpaper {
         width: 100%;
         height: 140px;
         margin-bottom: 16px;
@@ -7,7 +7,7 @@
         background-position: center;
     }
 
-    &__title {
+    .title {
         font-size: var(--#{$prefix}h4-fs);
         line-height: 28px;
         font-weight: 600;
@@ -19,15 +19,15 @@
         text-overflow: ellipsis;
     }
 
-    &__description {
+    .description {
         margin: 16px 0 24px;
         font-size: var(--#{$prefix}small-lg-fs);
         line-height: 20px;
         font-weight: 400;
-        color: var(--#{$prefix}mute-text);
+        color: var(--#{$prefix}description-text);
     }
 
-    &__link {
+    .link {
         @include pageFlexRow;
         color: var(--#{$prefix}base-text);
 
@@ -40,7 +40,24 @@
         }
     }
 
-    .ant-steps-item-icon, .ant-steps-icon {
+    &-btn {
+        min-width: 80px;
+        min-height: 30px;
+        height: 30px;
+        border-radius: 4px;
+        text-transform: capitalize;
+
+        color: var(--#{$prefix}mute-text);
+        background-color: var(--#{$prefix}base-btn-bg-color);
+
+        &:hover {
+            background-color: var(--#{$prefix}small-btn-bg-color) !important;
+            color: var(--#{$prefix}primary) !important;
+        }
+    }
+
+    .ant-steps-item-icon,
+    .ant-steps-icon {
         width: 24px;
         height: 24px;
         margin: 16px 0;

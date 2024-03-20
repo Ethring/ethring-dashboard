@@ -1,8 +1,8 @@
 <template>
     <a-row class="shortcut-info-container">
         <div class="shortcut-info">
-            <div class="shortcut-info__label">{{ $t('shortcuts.label') }}</div>
-            <div class="shortcut-info__desc">{{ $t('shortcuts.description') }}</div>
+            <div class="label">{{ $t('shortcuts.label') }}</div>
+            <div class="description">{{ $t('shortcuts.description') }}</div>
         </div>
         <div class="shortcut-info__btn">
             <Button title="Soon" />
@@ -55,7 +55,7 @@ export default {
 
     z-index: 2;
 
-    &__label {
+    .label {
         font-size: var(--#{$prefix}h5-fs);
         font-weight: 600;
         line-height: 24px;
@@ -63,7 +63,7 @@ export default {
         color: var(--#{$prefix}primary-text);
     }
 
-    &__desc {
+    .description {
         font-size: var(--#{$prefix}small-lg-fs);
         font-weight: 400;
         line-height: 24px;

@@ -1,7 +1,12 @@
 <template>
     <a-row class="shortcut-tabs">
-        <div v-for="tab in tabs" :key="tab.key" class="shortcuts-tab-item"
-            :class="{ 'shortcuts-tab-active': activeTabKey === tab.key }" @click="onTabChange(tab.key)">
+        <div
+            v-for="tab in tabs"
+            :key="tab.key"
+            class="shortcuts-tab-item"
+            :class="{ 'shortcuts-tab-active': activeTabKey === tab.key }"
+            @click="onTabChange(tab.key)"
+        >
             {{ tab.tab }}
             <ArrowUpIcon v-if="activeTabKey === tab.key" />
         </div>
@@ -9,23 +14,28 @@
 
     <a-row align="middle" class="shortcut-tags">
         <div class="shortcut-tags__title">Results for:</div>
+
         <div v-if="!selectedTags.length" class="shortcut-tags__item type-all">
             <span>All</span>
         </div>
+
         <div class="shortcut-tags__item" v-for="tag in selectedTags" :key="tag">
             <span>{{ tag }}</span>
             <ClearIcon @click="() => removeTag(tag)" />
         </div>
+
         <div v-if="selectedTags.length" class="shortcut-tags__clear" @click="clearAllTags">
             <ClearAllIcon />
             <span>{{ $t('shortcuts.clearAll') }}</span>
         </div>
     </a-row>
+
     <a-row :gutter="[16, 16]" v-if="shortcuts.length" class="shortcut-list">
         <a-col v-for="(item, i) in shortcuts" :key="`shortcut-${i}`" :md="24" :lg="12">
             <ShortcutItem :item="item" />
         </a-col>
     </a-row>
+
     <a-empty v-else :image="emptyImage" class="shortcuts-empty" />
 </template>
 
@@ -73,11 +83,11 @@ export default {
 
         const removeTag = (tag) => {
             store.dispatch('shortcuts/removeFilterTag', tag);
-        }
+        };
 
         const clearAllTags = () => {
             store.dispatch('shortcuts/clearAllTags');
-        }
+        };
 
         return {
             shortcuts,
