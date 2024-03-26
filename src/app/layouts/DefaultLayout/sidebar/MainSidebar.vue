@@ -35,7 +35,7 @@
     </a-layout-sider>
 </template>
 <script>
-import { computed, inject, watch } from 'vue';
+import { computed, inject, watch, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
@@ -71,9 +71,9 @@ export default {
 
         const useAdapter = inject('useAdapter');
 
-        const { walletAddress } = useAdapter();
+        const { walletAddress, currentChainInfo } = useAdapter();
 
-        const { currentChainInfo } = useAdapter();
+        const IS_COLLAPSED_KEY = 'user-settings:sidebar-collapsed';
 
         const menu = computed(() => {
             if (!currentChainInfo.value?.ecosystem) {
@@ -101,8 +101,16 @@ export default {
             () => router.currentRoute.value.path,
             () => {
                 selectedKeys.value = [router.currentRoute.value.meta?.key];
-            },
+            }
         );
+
+        onMounted(() => {
+            const isCollapsedStorage = JSON.parse(localStorage.getItem(IS_COLLAPSED_KEY));
+
+            if (isCollapsedStorage) {
+                isCollapsed.value = isCollapsedStorage;
+            }
+        });
 
         return {
             menu,
