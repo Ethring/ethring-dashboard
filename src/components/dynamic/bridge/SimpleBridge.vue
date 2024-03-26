@@ -113,7 +113,7 @@ import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewIn
 // Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
-import { ModuleType } from '@/shared/models/enums/Modules.enum';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
 import useInputValidation from '@/shared/form-validations';
 
 export default {

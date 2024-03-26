@@ -141,7 +141,7 @@ import useModuleOperations from '@/compositions/useModuleOperation';
 // Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
-import { ModuleType } from '@/shared/models/enums/Modules.enum';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
 import useInputValidation from '@/shared/form-validations';
 import { differenceInPercentage } from '@/shared/calculations/percentage-diff';
 
