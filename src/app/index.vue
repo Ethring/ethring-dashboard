@@ -52,7 +52,7 @@ export default {
             walletAddress,
             walletAccount,
             currentChainInfo,
-            connectedWallets,
+            getAllConnectedWallets,
             connectLastConnectedWallet,
             getAddressesWithChainsByEcosystem,
         } = useAdapter();
@@ -79,7 +79,13 @@ export default {
             }
         };
 
-        // TODO: Update balance for all connected wallets (not only for the current one)
+        const updateBalanceForAllAccounts = async () => {
+            const allConnectedWallets = await getAllConnectedWallets.value
+            for (const wallet of allConnectedWallets) {
+                await updateBalanceForAccount(wallet.account, wallet.addresses);
+            }
+        };
+
         const callInit = async () => {
             const { ecosystem, walletModule } = currentChainInfo.value || {};
 
@@ -92,7 +98,7 @@ export default {
             const addressHash = await addressByChain.value;
 
             await setNativeTokensPrices(store, ecosystem);
-            await updateBalanceForAccount(walletAccount.value, addresses);
+            await updateBalanceForAllAccounts();
 
             store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM', { ecosystem, addresses: addressHash });
             store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses });

@@ -35,10 +35,10 @@ const getNotifyMmPage = async (context: BrowserContext): Promise<Page> => {
     return notifyPage;
 };
 
-const getHomeMmPage = async (context: BrowserContext): Promise<MetaMaskHomePage> => {
+const getHomeMmPage = async (context: BrowserContext, indexMmPage = 0): Promise<MetaMaskHomePage> => {
     const expectedMmPageTitle = 'MetaMask';
 
-    const mainPage = context.pages()[0];
+    const mainPage = context.pages()[indexMmPage];
     const titlePage = await mainPage.title();
 
     if (titlePage !== expectedMmPageTitle) {

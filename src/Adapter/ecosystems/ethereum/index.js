@@ -74,10 +74,6 @@ class EthereumAdapter extends AdapterBase {
         const { chains } = web3Onboard.state.get();
         const mainAddress = this.getAccountAddress();
 
-        if (!mainAddress) {
-            return null;
-        }
-
         for (const { id } of chains) {
             if (!id) {
                 continue;
@@ -361,6 +357,7 @@ class EthereumAdapter extends AdapterBase {
     }
 
     async getAddressesWithChains() {
+        this.setAddressForChains()
         return this.addressByNetwork || {};
     }
 

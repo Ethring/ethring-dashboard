@@ -5,7 +5,7 @@ import { MetaMaskHomePage, MetaMaskNotifyPage, getNotifyMmPage, metamaskVersion 
 import { KeplrHomePage, KeplrNotifyPage, getNotifyKeplrPage, keplrVersion } from '../model/Keplr/Keplr.pages';
 import { EVM_NETWORKS } from '../data/constants';
 import mockTokensListData from '../data/mockTokensListData';
-import { DashboardPage } from '../model/VueApp/base.pages';
+import { BasePage, DashboardPage } from '../model/VueApp/base.pages';
 import {
     emptyBalanceMockData,
     errorGetBalanceMockData,
@@ -43,12 +43,11 @@ export const getPathToKeplrExtension = () => {
     return path.join(process.cwd(), `/data/keplr-extension-manifest-v2-v${keplrVersion}`);
 };
 
-export const addWalletToMm = async (context: BrowserContext, seed: string) => {
+export const addWalletToMm = async (context: BrowserContext, seed: string, indexMmHomePage = 0) => {
     await sleep(FIVE_SECONDS); // wait for page load
     await closeEmptyPages(context);
-    const metaMaskPage = new MetaMaskHomePage(context.pages()[0]);
+    const metaMaskPage = new MetaMaskHomePage(context.pages()[indexMmHomePage]);
     await metaMaskPage.addWallet(seed);
-    return;
 };
 
 export const addWalletToKeplr = async (context: BrowserContext, seed: string) => {
@@ -58,17 +57,12 @@ export const addWalletToKeplr = async (context: BrowserContext, seed: string) =>
     await keplrPage.addWallet(seed);
 };
 
+//======================================= METAMASK STUFF =======================================
+
 const __loginByMmAndWaitElement__ = async (context: BrowserContext, page: DashboardPage): Promise<DashboardPage> => {
     await page.goToPage();
-
-    await page.clickLoginByMetaMask(context);
-    const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
-    await notifyMM.assignPage();
-
-    const providerModal = page.page.getByText('Connection Successful');
-    await providerModal.waitFor({ state: 'detached', timeout: 20000 });
-
-    await page.waitMainElementVisible();
+    await page.clickLoginByMetaMask(context); // set "context" param by debug
+    await confirmConnectMmWallet(context, page);
     return page;
 };
 
@@ -164,7 +158,7 @@ export const authMmBalanceBySwapAndTokensListMock = async (
     return __loginByMmAndWaitElement__(context, zometPage);
 };
 
-//======================================= KEPLR MOCK =======================================
+//======================================= KEPLR STUFF =======================================
 
 export const authByKeplr = async (context: BrowserContext, seed: string, cosmosWallets: any) => {
     await addWalletToKeplr(context, seed);
@@ -183,10 +177,7 @@ export const authByKeplr = async (context: BrowserContext, seed: string, cosmosW
     const balancePromise = Promise.all(
         Object.keys(cosmosWallets).map((network) => zometPage.page.waitForResponse(`**/srv-data-provider/api/balances?net=${network}**`)),
     );
-    const notifyKeplr = new KeplrNotifyPage(await getNotifyKeplrPage(context));
-    await notifyKeplr.assignPage();
-
-    await zometPage.waitMainElementVisible();
+    await confirmConnectKeplrWallet(context, zometPage);
     await balancePromise;
 
     return zometPage;
@@ -210,13 +201,27 @@ export const authByKeplrErrorJunoBalanceMock = async (context: BrowserContext, s
     await zometPage.goToPage();
 
     await zometPage.clickLoginByKeplr();
-    const notifyKeplr = new KeplrNotifyPage(await getNotifyKeplrPage(context));
-    await notifyKeplr.assignPage();
-
-    await zometPage.waitMainElementVisible();
+    await confirmConnectKeplrWallet(context, zometPage);
 
     await Promise.all(
         Object.keys(cosmosWallets).map((network) => zometPage.page.waitForResponse(`**/srv-data-provider/api/balances?net=${network}**`)),
     );
     return zometPage;
+};
+
+export const confirmConnectMmWallet = async (context: BrowserContext, page: BasePage) => {
+    const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
+    await notifyMM.assignPage();
+
+    const providerModal = page.page.getByText('Connection Successful');
+    await providerModal.waitFor({ state: 'detached', timeout: 20000 });
+
+    await page.waitMainElementVisible();
+};
+
+export const confirmConnectKeplrWallet = async (context: BrowserContext, page: BasePage) => {
+    const notifyKeplr = new KeplrNotifyPage(await getNotifyKeplrPage(context));
+    await notifyKeplr.assignPage();
+
+    await page.waitMainElementVisible();
 };

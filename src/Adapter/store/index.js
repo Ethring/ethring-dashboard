@@ -104,7 +104,6 @@ export default {
             const wallets = state.wallets.map((wallet) => {
                 return {
                     ...wallet,
-                    addresses: state.addressesByEcosystem[wallet.ecosystem] || {},
                 };
             });
 
