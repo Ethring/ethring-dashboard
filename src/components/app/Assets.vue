@@ -23,9 +23,9 @@
             <a-collapse-panel
                 v-show="isAllTokensLoading || allIntegrationsByPlatforms.length > 0"
                 v-for="item in allIntegrationsByPlatforms"
-                :key="`protocol-${item.platform}`"
+                :key="item.platform"
                 class="assets-block-panel"
-                @vue:mounted="collapseActiveKey.push(`protocol-${item.platform}`)"
+                @vue:mounted="collapseActiveKey.push(item.platform)"
             >
                 <template #header>
                     <AssetGroupHeader
@@ -89,13 +89,15 @@ export default {
         const store = useStore();
 
         // TODO: collapse active key by step
-        const collapseActiveKey = ref(['assets', 'nfts']);
+        const collapseActiveKey = ref([]);
 
         const useAdapter = inject('useAdapter');
 
         const { walletAccount, currentChainInfo } = useAdapter();
 
         const keyPressCombination = ref('');
+
+        const collapsedAssets = computed(() => store.getters['app/collapsedAssets']);
 
         const targetAccount = computed(() => store.getters['tokens/targetAccount'] || walletAccount.value);
 
@@ -183,6 +185,14 @@ export default {
         onMounted(() => {
             window.addEventListener('keydown', handleKeyDown);
             keyPressCombination.value = '';
+
+            const list = allCollapsedActiveKeys.value.filter((key) => !collapsedAssets.value.includes(key));
+
+            if (collapsedAssets.value) {
+                collapseActiveKey.value = list;
+            } else {
+                collapseActiveKey.value = allCollapsedActiveKeys.value;
+            }
         });
 
         onBeforeUnmount(() => {
@@ -190,8 +200,21 @@ export default {
             keyPressCombination.value = '';
         });
 
+        const allCollapsedActiveKeys = computed(() => {
+            const keys = ['assets', 'nfts'];
+            allIntegrationsByPlatforms.value.map((item) => {
+                keys.push(item.platform);
+            });
+            return keys;
+        });
+
         watch(collapseActiveKey, () => {
-            window.localStorage.setItem('user-settings:collapsable-assets', JSON.stringify(collapseActiveKey.value));
+            const hiddenKeys = allCollapsedActiveKeys.value.filter((key) => !collapseActiveKey.value.includes(key));
+            store.dispatch('app/setCollapsedAssets', hiddenKeys);
+        });
+
+        watch(walletAccount, () => {
+            store.dispatch('app/setCollapsedAssets', []);
         });
 
         return {

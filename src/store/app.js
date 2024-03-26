@@ -1,14 +1,18 @@
+import { useLocalStorage } from '@vueuse/core';
+
 const STORAGE = {
     SHOW_BALANCE: 'user-settings:show-balances',
     COLLAPSED_SIDEBAR: 'user-settings:sidebar-collapsed',
     THEME: 'theme',
     LAST_VERSION: 'lastVersion',
+    COLLAPSED_ASSETS: 'user-settings:collapsable-assets'
 };
 
-const VERSION_LOCAL = window.localStorage.getItem(STORAGE.LAST_VERSION);
-const APP_THEME = window.localStorage.getItem(STORAGE.THEME);
-const SHOW_BALANCE = JSON.parse(window.localStorage.getItem(STORAGE.SHOW_BALANCE));
-const COLLAPSED_SIDEBAR = JSON.parse(window.localStorage.getItem(STORAGE.COLLAPSED_SIDEBAR));
+const appThemeStorage = useLocalStorage(STORAGE.THEME, 'light', { mergeDefaults: true });
+const showBalanceStorage = useLocalStorage(STORAGE.SHOW_BALANCE, true, { mergeDefaults: true });
+const appVersionStorage = useLocalStorage(STORAGE.LAST_VERSION, '0.1.0', { mergeDefaults: true });
+const collapsedSidebarStorage = useLocalStorage(STORAGE.COLLAPSED_SIDEBAR, false, { mergeDefaults: true });
+const collapsedAssetsStorage = useLocalStorage(STORAGE.COLLAPSED_ASSETS, [], { mergeDefaults: true });
 
 const THEMES = {
     LIGHT: 'light',
@@ -25,15 +29,16 @@ const TYPES = {
     SET_SELECTED_KEYS: 'SET_SELECTED_KEYS',
     SET_LAST_VERSION: 'SET_LAST_VERSION',
     SET_LOADING_TOKEN_LIST: 'SET_LOADING_TOKEN_LIST',
+    SET_COLLAPSED_ACTIVE_KEY: 'SET_COLLAPSED_ACTIVE_KEY',
 };
 
 export default {
     namespaced: true,
 
     state: () => ({
-        showBalance: SHOW_BALANCE ?? true,
-        collapse: COLLAPSED_SIDEBAR ?? false,
-        theme: APP_THEME || 'light',
+        showBalance: showBalanceStorage.value,
+        collapse: collapsedSidebarStorage.value,
+        theme: appThemeStorage.value,
         selectedKeys: ['main'],
         loadingTokenList: false,
         modals: {
@@ -47,7 +52,8 @@ export default {
             isOpen: false,
             module: null,
         },
-        lastVersion: VERSION_LOCAL ? VERSION_LOCAL : '0.1.0',
+        lastVersion: appVersionStorage.value,
+        collapsedAssets: collapsedAssetsStorage.value,
     }),
 
     getters: {
@@ -59,25 +65,26 @@ export default {
         selectModal: (state) => state.selectModal,
         lastVersion: (state) => state.lastVersion || '0.1.0',
         isLoadingTokenList: (state) => state.loadingTokenList || false,
+        collapsedAssets: (state) => state.collapsedAssets,
     },
 
     mutations: {
         [TYPES.TOGGLE_VIEW_BALANCE](state) {
             state.showBalance = !state.showBalance;
-            window.localStorage.setItem(STORAGE.SHOW_BALANCE, state.showBalance);
+            showBalanceStorage.value = state.showBalance;
         },
         [TYPES.TOGGLE_SIDEBAR](state) {
             state.collapse = !state.collapse;
-            window.localStorage.setItem(STORAGE.COLLAPSED_SIDEBAR, state.collapse);
+            collapsedSidebarStorage.value = state.collapse;
         },
         [TYPES.SET_IS_SIDEBAR_COLLAPSED](state, value) {
             state.collapse = value;
-            window.localStorage.setItem(STORAGE.COLLAPSED_SIDEBAR, value);
+            collapsedSidebarStorage.value = value;
         },
         [TYPES.TOGGLE_THEME](state) {
             state.theme = state.theme === THEMES.LIGHT ? THEMES.DARK : THEMES.LIGHT;
             document.documentElement.setAttribute('data-theme', state.theme);
-            window.localStorage.setItem(STORAGE.THEME, state.theme);
+            appThemeStorage.value = state.theme;
         },
         [TYPES.SET_SELECTED_KEYS](state, selectedKeys) {
             state.selectedKeys = selectedKeys;
@@ -95,11 +102,15 @@ export default {
         },
         [TYPES.SET_LAST_VERSION](state, version) {
             state.lastVersion = version;
-            window.localStorage.setItem(STORAGE.LAST_VERSION, version);
+            appVersionStorage.value = version;
         },
         [TYPES.SET_LOADING_TOKEN_LIST](state, value) {
             state.loadingTokenList = value || false;
         },
+        [TYPES.SET_COLLAPSED_ACTIVE_KEY](state, value) {
+            state.collapsedAssets = value;
+            collapsedAssetsStorage.value = value;
+        }
     },
 
     actions: {
@@ -133,5 +144,8 @@ export default {
         setLoadingTokenList({ commit }, value) {
             commit(TYPES.SET_LOADING_TOKEN_LIST, value);
         },
+        setCollapsedAssets({ commit }, value) {
+            commit(TYPES.SET_COLLAPSED_ACTIVE_KEY, value);
+        }
     },
 };
