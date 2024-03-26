@@ -232,14 +232,6 @@ export default {
 
         const { isSrcAmountSet, isDstTokenSet, isSameNetwork } = useInputValidation();
 
-        for (const field of ['srcNetwork', 'dstNetwork', 'srcToken', 'dstToken', 'srcAmount', 'dstAmount']) {
-            store.dispatch('moduleStates/setDisabledField', {
-                module: ModuleType.superSwap,
-                field,
-                attr: 'disabled',
-                value: isDisableSelect.value,
-            });
-        }
         //  =================================================================================================================
 
         const successHash = ref('');
@@ -281,6 +273,17 @@ export default {
             }
 
             return await getEstimateInfo();
+        });
+
+        watch(isDisableSelect, () => {
+            for (const field of ['srcNetwork', 'dstNetwork', 'srcToken', 'dstToken', 'srcAmount', 'dstAmount']) {
+                store.dispatch('moduleStates/setDisabledField', {
+                    module: ModuleType.superSwap,
+                    field,
+                    attr: 'disabled',
+                    value: isDisableSelect.value,
+                });
+            }
         });
 
         return {
@@ -482,4 +485,5 @@ export default {
         width: 100%;
     }
 }
-</style>@/shared/models/enums/modules.enum
+</style>
+@/shared/models/enums/modules.enum
