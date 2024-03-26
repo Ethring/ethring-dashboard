@@ -221,3 +221,37 @@ export const testKeplr = base.extend<{
         await use(zometPage);
     },
 });
+
+export const testMetaMaskAndKeplr = base.extend<{
+    context: BrowserContext;
+    authPage: BasePage;
+}>({
+    context: async ({}, use) => {
+        const context = await chromium.launchPersistentContext('', {
+            headless: false,
+            ignoreHTTPSErrors: true,
+            args: [
+                `--disable-extensions-except=${getPathToKeplrExtension()},${getPathToMmExtension()}`,
+                `--load-extension=${getPathToKeplrExtension()},${getPathToMmExtension()}`,
+                '--force-fieldtrials',
+
+                '--ignore-certificate-errors',
+
+                '--disable-background-timer-throttling',
+                '--disable-backgrounding-occluded-windows',
+                '--disable-renderer-backgrounding',
+            ],
+        });
+
+        await use(context);
+        await context.close();
+    },
+    authPage: async ({ context }, use) => {
+        await addWalletToKeplr(context, SEED_EMPTY_WALLET);
+        await addWalletToMm(context, SEED_EMPTY_WALLET, 1);
+
+        const zometPage = new BasePage(await context.newPage());
+        await zometPage.goToPage();
+        await use(zometPage);
+    },
+});

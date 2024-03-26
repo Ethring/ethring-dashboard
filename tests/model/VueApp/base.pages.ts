@@ -64,6 +64,12 @@ class BasePage {
         await this.page.getByText('Keplr').click();
     }
 
+    async disconnectFirstWallet() {
+        await this.page.locator('div.wallet-adapter-container').click();
+        await this.page.locator("(//div[@class='connected-wallet']//a/span)[1]").hover();
+        await this.page.locator("(//div[@class='wallet__options-item'])[2]//div[text()='Disconnect']").click();
+    }
+
     async goToModule(module: ModuleNames): Promise<SwapPage | SendPage | BridgePage | SuperSwapPage> {
         const moduleName = this.sideBarLinks[module];
         await this.page.getByTestId(moduleName).click();
@@ -230,9 +236,8 @@ class BasePage {
 
     async modifyDataByGetTxRequest(dataToReturnInHttpResponse: Object) {
         return await this.page.route(/\/transactions\/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/, (route) => {
-            this.handleGetRequest(route, 'GET', dataToReturnInHttpResponse)
-        }
-        );
+            this.handleGetRequest(route, 'GET', dataToReturnInHttpResponse);
+        });
     }
     /**
      * This method is designed to modify the data in a PUT request for /transaction/{:id} path.

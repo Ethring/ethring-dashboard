@@ -48,6 +48,7 @@ function useAdapter() {
     const isConnecting = computed(() => adaptersGetter(GETTERS.IS_CONNECTING));
 
     const connectedWallets = computed(() => adaptersGetter(GETTERS.CONNECTED_WALLETS));
+    const getAllConnectedWallets = computed(() => adaptersGetter(GETTERS.GET_ALL_CONNECTED_WALLETS));
     const currentChainInfo = computed(() => (mainAdapter.value ? mainAdapter.value.getCurrentChain(store) : null));
 
     const chainList = computed(() => (mainAdapter.value ? mainAdapter.value.getChainList(store) : []));
@@ -81,7 +82,7 @@ function useAdapter() {
                 await mainAdapter.value?.updateStates();
             }
 
-            storeWalletInfo();
+            await storeWalletInfo();
         });
     }
 
@@ -98,11 +99,12 @@ function useAdapter() {
     }
 
     // * Store Wallet Info
-    function storeWalletInfo() {
+    async function storeWalletInfo() {
         const walletInfo = {
             id: `${currEcosystem.value}-${currentChainInfo.value?.walletName}`,
             account: mainAdapter.value?.getAccount(),
             address: mainAdapter.value?.getAccountAddress(),
+            addresses: await getAddressesWithChainsByEcosystem(currEcosystem.value),
             chain: currentChainInfo.value?.chainName || currentChainInfo.value?.chain_id,
             ecosystem: currEcosystem.value,
             walletName: currentChainInfo.value?.walletName,
@@ -138,7 +140,7 @@ function useAdapter() {
                 adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
                 adaptersDispatch(TYPES.SET_IS_CONNECTED, true);
                 adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
-                storeWalletInfo();
+                await storeWalletInfo();
             }
 
             return isConnected;
@@ -238,7 +240,7 @@ function useAdapter() {
         try {
             const changed = await mainAdapter.value.setChain(...args);
 
-            storeWalletInfo();
+            await storeWalletInfo();
 
             return changed;
         } catch (error) {
@@ -265,7 +267,7 @@ function useAdapter() {
             router.push('/connect-wallet');
         }
 
-        storeWalletInfo();
+        await storeWalletInfo();
     };
 
     // * Disconnect All Wallets
@@ -399,7 +401,7 @@ function useAdapter() {
             return true;
         }
 
-        storeWalletInfo();
+        await storeWalletInfo();
 
         return false;
     };
@@ -475,6 +477,7 @@ function useAdapter() {
         connectedWallets,
 
         chainList,
+        getAllConnectedWallets,
 
         initAdapter,
 
