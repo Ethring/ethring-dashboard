@@ -556,19 +556,10 @@ const useModuleOperations = (module: ModuleType) => {
                 // * Execute transaction
                 tx.execute = async () => {
                     try {
-                        console.log('Current chain:', currentChainInfo.value?.chain_id, tx.getChainId());
-
                         if (getConnectedStatus(tx.getEcosystem())) {
                             await switchEcosystem(tx.getEcosystem());
                             await delay(1000);
                         }
-
-                        console.log('Current chain: #2', currentChainInfo.value?.chain_id, tx.getChainId());
-                        console.log('Current chain: #3 Is equal', tx.getChainId() == currentChainInfo.value?.chain_id);
-                        console.log(
-                            'Current chain: #4 Is equal Ecosystem',
-                            _.isEqual(tx.getEcosystem(), currentChainInfo.value?.ecosystem),
-                        );
 
                         if (currentChainInfo.value?.ecosystem !== tx.getEcosystem()) {
                             await connectByEcosystems(tx.getEcosystem());

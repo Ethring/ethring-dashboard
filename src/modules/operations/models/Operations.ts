@@ -32,6 +32,7 @@ export type PerformTxParams = {
 };
 
 export interface IBaseOperation {
+    name: string;
     params: BaseOpParams;
     module: ModuleTypes;
     ecosystem: Ecosystems;
@@ -46,6 +47,10 @@ export interface IBaseOperation {
 
     account?: string;
     service?: any;
+
+    // name
+    getName: () => string;
+    setName: (name: string) => void;
 
     // Params
     setParams: (params: any) => void;
@@ -94,6 +99,8 @@ export interface IBaseOperation {
     // Get Flow of operations
     getOperationFlow?: () => Promise<TxOperationFlow[]>;
 
+    getTitle: () => string;
+
     performTx?: (ecosystem: Ecosystems, params: PerformTxParams) => Promise<IBridgeDexTransaction>;
 
     perform?: (index: number, account: string, ecosystem: string, chainId: string, options: PerformOptionalParams) => ICreateTransaction;
@@ -114,6 +121,8 @@ export interface IOperationFactory {
     setParams(module: string, operationIndex: number, params: any): void;
     setParamByField(module: string, operationIndex: number, field: string, value: any): void;
     getParams(module: string, operationIndex: number): any;
+
+    getOperationsIds(): Map<string, string>;
 
     // getOperation(module: string, operationIndex: number): IBaseOperation;
 }

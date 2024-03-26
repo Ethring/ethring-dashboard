@@ -44,6 +44,7 @@ export default class DexOperation extends BaseOperation {
     constructor() {
         super();
         this.service = new BridgeDexService(ServiceType.dex);
+        this.transactionType = TRANSACTION_TYPES.DEX;
     }
 
     async getOperationFlow(): Promise<TxOperationFlow[]> {
@@ -115,6 +116,8 @@ export default class DexOperation extends BaseOperation {
     }
 
     perform(index: number, account: string, ecosystem: string, chainId: string, { make }: PerformOptionalParams): ICreateTransaction {
+        let notificationTitle = `${make} ${this.getTitle()}`;
+
         return {
             index,
             module: this.getModule(),
@@ -129,7 +132,7 @@ export default class DexOperation extends BaseOperation {
             metaData: {
                 action: this.getAction(),
                 type: this.getTxType(),
-                notificationTitle: `${make} ${this.params.amount} ${this.getToken('from')?.symbol || ''}`,
+                notificationTitle,
                 params: {
                     ...this.params,
                     tokens: this.getTokens(),

@@ -1,4 +1,4 @@
-import { ShortcutTypes } from '../types/ShortcutType';
+import { ShortcutStatuses } from '../types/ShortcutType';
 
 export interface IOperationParam {
     name: string;
@@ -13,4 +13,16 @@ export interface IOperationParam {
     address?: string;
     type?: string;
     memo?: string;
+}
+
+export interface OperationStep {
+    id: string;
+    title: string;
+    content: string;
+    status: ShortcutStatuses;
+    description?: string;
+
+    isShowLayout: boolean;
+    disabled?: boolean;
+    icon?: any;
 }

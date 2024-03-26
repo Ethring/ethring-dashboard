@@ -1,4 +1,4 @@
-import { ModuleTypes } from '@/shared/models/enums/modules.enum';
+import { ModuleType, ModuleTypes } from '@/shared/models/enums/modules.enum';
 import { TxOperationFlow } from '../../shared/models/types/Operations';
 import { ICreateTransaction } from '@/Transactions/types/Transaction';
 import { IBridgeDexTransaction } from '../bridge-dex/models/Response.interface';
@@ -9,7 +9,17 @@ import { IBaseOperation, BaseOpParams, PerformOptionalParams, PerformTxParams } 
 import { TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
 import { getActionByTxType } from './shared/utils';
 
+const DEFAULT_TX_TYPE_BY_MODULE = {
+    [ModuleType.stake]: TRANSACTION_TYPES.STAKE,
+    [ModuleType.swap]: TRANSACTION_TYPES.DEX,
+    [ModuleType.send]: TRANSACTION_TYPES.TRANSFER,
+    [ModuleType.bridge]: TRANSACTION_TYPES.BRIDGE,
+    [ModuleType.superSwap]: TRANSACTION_TYPES.BRIDGE,
+};
+
 export class BaseOperation implements IBaseOperation {
+    name: string;
+
     service: any;
 
     ecosystem: Ecosystems;
@@ -31,6 +41,15 @@ export class BaseOperation implements IBaseOperation {
 
     constructor() {
         this.service = null;
+        this.setTxType(DEFAULT_TX_TYPE_BY_MODULE[this.module]);
+    }
+
+    getName(): string {
+        return this.name;
+    }
+
+    setName(name: string): void {
+        this.name = name;
     }
 
     execute?: () => Promise<string>;
@@ -113,6 +132,20 @@ export class BaseOperation implements IBaseOperation {
 
     getAction(): string {
         return getActionByTxType(this.transactionType);
+    }
+
+    getTitle(): string {
+        if (!this.getToken('from') || !this.params.amount) {
+            return this.getName() || `${this.getModule()} - ${this.getTxType()}`;
+        }
+
+        const title = `${this.params.amount} ${this.getToken('from')?.symbol || ''}`;
+
+        if (this.getToken('to') && this.getToken('from') && this.params.outputAmount) {
+            return `${title} to ${this.params.outputAmount} ${this.getToken('to').symbol}`;
+        }
+
+        return title;
     }
 
     static perform: (

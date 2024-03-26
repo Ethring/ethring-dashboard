@@ -1,4 +1,4 @@
-import { computed, onBeforeMount, onMounted, onUnmounted, watch } from 'vue';
+import { computed, onBeforeMount, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 
 import _ from 'lodash';
@@ -17,17 +17,24 @@ import { AddressByChainHash } from '../../../shared/models/types/Address';
 import { ECOSYSTEMS } from '@/Adapter/config';
 import { IShortcutOp } from '../core/ShortcutOp';
 import { IAsset } from '@/shared/models/fields/module-fields';
-import { IOperationParam } from '../core/models/Operation';
+import { IOperationParam, OperationStep } from '../core/models/Operation';
 import { Ecosystems } from '@/modules/bridge-dex/enums/Ecosystem.enum';
 import { IBaseOperation } from '@/modules/operations/models/Operations';
 
 const useShortcuts = (Shortcut: any) => {
+    // Create a new instance of the Shortcut class
     const CurrentShortcut = new ShortcutCl(Shortcut);
-    console.log('--- current shortcut:', CurrentShortcut);
+
+    // Create a new instance of the OperationsFactory class to manage the operations
     const { getChainByChainId } = useAdapter();
     const { getTokenById } = useTokensList();
 
     const store = useStore();
+
+    store.dispatch('shortcuts/setShortcutOpsFactory', {
+        shortcutId: Shortcut.id,
+        operations: new OperationsFactory(),
+    });
 
     const shortcutIndex = computed({
         get: () => store.getters['shortcuts/getShortcutIndex'],
@@ -36,11 +43,11 @@ const useShortcuts = (Shortcut: any) => {
 
     const isConfigLoading = computed(() => store.getters['configs/isConfigLoading']);
 
-    const steps = computed(() => store.getters['shortcuts/getShortcutSteps'](Shortcut?.id));
+    const steps = computed<OperationStep[]>(() => store.getters['shortcuts/getShortcutSteps'](Shortcut.id));
 
     const currentOp = computed<IShortcutOp>(() => store.getters['shortcuts/getCurrentOperation'](Shortcut.id));
 
-    const operationsFactory = new OperationsFactory();
+    const operationsFactory = computed<OperationsFactory>(() => store.getters['shortcuts/getShortcutOpsFactory'](Shortcut.id));
 
     const getAddressesByEcosystem = ({ ecosystem, both = false }: { ecosystem?: string; both?: boolean }): AddressByChainHash => {
         if (both) {
@@ -59,55 +66,62 @@ const useShortcuts = (Shortcut: any) => {
 
     const updateOpFactoryField = (field: string, value: any) => {
         if (!currentOp.value?.id) return;
-        if (!operationsFactory.getOperationById(currentOp.value.id)) return;
+        if (!operationsFactory.value.getOperationById(currentOp.value.id)) return;
 
-        operationsFactory.getOperationById(currentOp.value.id).setParamByField(field, value);
+        operationsFactory.value.getOperationById(currentOp.value.id).setParamByField(field, value);
     };
 
     const updateOpFactoryChainId = (value: string) => {
         if (!currentOp.value?.id) return;
-        if (!operationsFactory.getOperationById(currentOp.value.id)) return;
-        operationsFactory.getOperationById(currentOp.value.id).setChainId(value);
+        if (!operationsFactory.value.getOperationById(currentOp.value.id)) return;
+        operationsFactory.value.getOperationById(currentOp.value.id).setChainId(value);
     };
 
     const updateOpFactoryEcosystem = (value: string) => {
         if (!currentOp.value?.id) return;
-        if (!operationsFactory.getOperationById(currentOp.value.id)) return;
-        operationsFactory.getOperationById(currentOp.value.id).setEcosystem(value as Ecosystems);
+        if (!operationsFactory.value.getOperationById(currentOp.value.id)) return;
+        operationsFactory.value.getOperationById(currentOp.value.id).setEcosystem(value as Ecosystems);
     };
 
     const updateOpFactoryAccount = (value: string) => {
         if (!currentOp.value?.id) return;
-        if (!operationsFactory.getOperationById(currentOp.value.id)) return;
-        operationsFactory.getOperationById(currentOp.value.id).setAccount(value);
+        if (!operationsFactory.value.getOperationById(currentOp.value.id)) return;
+        operationsFactory.value.getOperationById(currentOp.value.id).setAccount(value);
     };
 
     const updateOpFactoryToken = (target: 'from' | 'to', token: IAsset) => {
         if (!currentOp.value?.id) return;
-        if (!operationsFactory.getOperationById(currentOp.value.id)) return;
-        operationsFactory.getOperationById(currentOp.value.id).setToken(target, token);
+        if (!operationsFactory.value.getOperationById(currentOp.value.id)) return;
+        operationsFactory.value.getOperationById(currentOp.value.id).setToken(target, token);
     };
 
-    const processOperation = async (operation: IShortcutOp) => {
-        const { id, moduleType, operationType, operationParams, dependencies, serviceId, params = [] } = operation || {};
+    const processOperation = async (operation: IShortcutOp, { addToFactory = false }: { addToFactory: boolean }) => {
+        const { id, moduleType, name, operationType, operationParams, dependencies, serviceId, params = [] } = operation || {};
+
+        if (!addToFactory) {
+            return await performFields(moduleType, params, {
+                isUpdateInStore: currentOp.value?.id === id,
+                id,
+            });
+        }
 
         let key: string, module: any, index: number;
 
         switch (operationType) {
             case TRANSACTION_TYPES.DEX:
             case TRANSACTION_TYPES.BRIDGE:
-                ({ key, module, index } = operationsFactory.registerOperation(moduleType, DexOperation, { id }));
+                ({ key, module, index } = operationsFactory.value.registerOperation(moduleType, DexOperation, { id, name }));
                 break;
             case TRANSACTION_TYPES.TRANSFER:
             case TRANSACTION_TYPES.STAKE:
-                ({ key, module, index } = operationsFactory.registerOperation(moduleType, TransferOperation, { id }));
+                ({ key, module, index } = operationsFactory.value.registerOperation(moduleType, TransferOperation, { id, name }));
                 break;
             case TRANSACTION_TYPES.APPROVE:
-                ({ key, module, index } = operationsFactory.registerOperation(moduleType, ApproveOperation, { id }));
+                ({ key, module, index } = operationsFactory.value.registerOperation(moduleType, ApproveOperation, { id, name }));
                 break;
         }
 
-        operationsFactory.setParams(module, index, {
+        operationsFactory.value.setParams(module, index, {
             ...operationParams,
             ownerAddresses: addressesByChain.value,
             serviceId,
@@ -115,11 +129,11 @@ const useShortcuts = (Shortcut: any) => {
 
         await performFields(moduleType, params, {
             isUpdateInStore: currentOp.value?.id === id,
-            targetOperation: operationsFactory.getOperationById(id),
+            id,
         });
     };
 
-    const performShortcut = async () => {
+    const performShortcut = async (addToFactory = false) => {
         const { operations = [] } = CurrentShortcut.recipe || {};
 
         for (const step of operations) {
@@ -129,41 +143,22 @@ const useShortcuts = (Shortcut: any) => {
                 for (const op of subOps || []) {
                     const { id: subId, dependencies: subDependency = null } = op || {};
 
-                    await processOperation(op);
+                    await processOperation(op, { addToFactory });
 
-                    operationsFactory.setOperationToGroup(opId, subId);
-                    subDependency && operationsFactory.setDependencies(subId, subDependency);
+                    operationsFactory.value.setOperationToGroup(opId, subId);
+                    subDependency && operationsFactory.value.setDependencies(subId, subDependency);
                 }
             } else if (type === ShortcutType.operation) {
-                await processOperation(step as IShortcutOp);
-                opDeps && operationsFactory.setDependencies(opId, opDeps);
+                await processOperation(step as IShortcutOp, { addToFactory });
+                opDeps && operationsFactory.value.setDependencies(opId, opDeps);
             }
         }
-
-        const flow = await operationsFactory.getFullOperationFlow();
-
-        console.log('----- Operation Factory -----', operationsFactory);
-
-        const ops = flow
-            .map((step, i) => {
-                return `${i === 0 ? '\t' : ''}${step.index}: ${step.type} [${step.moduleIndex}]\n`;
-            })
-            .join(' -> ');
-
-        console.log('----- Operation flow START -----');
-        console.log(ops);
-        console.log('----- Operation flow END -----\n\n');
-
-        store.dispatch('shortcuts/setShortcutOpsFactory', {
-            shortcutId: Shortcut.id,
-            operations: operationsFactory,
-        });
     };
 
     const performFields = async (
         moduleType: string,
         params: IOperationParam[],
-        { isUpdateInStore = false, targetOperation }: { isUpdateInStore: boolean; targetOperation: IBaseOperation },
+        { isUpdateInStore = false, id: targetOpId }: { isUpdateInStore: boolean; id: string },
     ) => {
         for (const paramField of params) {
             const {
@@ -187,18 +182,16 @@ const useShortcuts = (Shortcut: any) => {
 
                     const isSrc = field === 'srcNetwork';
 
-                    if (!targetOperation) return;
-
                     if (!srcDstNet) return;
 
                     isSrc
-                        ? targetOperation.setParamByField('fromNet', srcDstNet?.net)
-                        : targetOperation.setParamByField('toNet', srcDstNet?.net);
+                        ? operationsFactory.value?.getOperationById(targetOpId).setParamByField('fromNet', srcDstNet?.net)
+                        : operationsFactory.value?.getOperationById(targetOpId).setParamByField('toNet', srcDstNet?.net);
 
-                    isSrc ? targetOperation.setChainId(srcDstNet.chain_id || srcDstNet.net) : null;
-                    isSrc ? targetOperation.setEcosystem(srcDstNet.ecosystem) : null;
+                    isSrc ? operationsFactory.value?.getOperationById(targetOpId).setChainId(srcDstNet.chain_id || srcDstNet.net) : null;
+                    isSrc ? operationsFactory.value?.getOperationById(targetOpId).setEcosystem(srcDstNet.ecosystem) : null;
 
-                    isSrc ? targetOperation.setAccount(addressesByChain.value[srcDstNet.net]) : null;
+                    isSrc ? operationsFactory.value?.getOperationById(targetOpId).setAccount(addressesByChain.value[srcDstNet.net]) : null;
 
                     break;
                 case 'srcToken':
@@ -208,16 +201,16 @@ const useShortcuts = (Shortcut: any) => {
                     isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value: token }));
 
                     const target = field === 'srcToken' ? 'from' : 'to';
-                    targetOperation.setToken(target, token);
+                    operationsFactory.value?.getOperationById(targetOpId).setToken(target, token);
 
                     break;
                 case 'receiverAddress':
                     isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value: address }));
-                    targetOperation.setParamByField('receiverAddress', address);
+                    operationsFactory.value?.getOperationById(targetOpId).setParamByField('receiverAddress', address);
                     break;
                 case 'memo':
                     isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value: memo }));
-                    targetOperation.setParamByField('memo', memo);
+                    operationsFactory.value?.getOperationById(targetOpId).setParamByField('memo', memo);
                     break;
             }
 
@@ -250,11 +243,17 @@ const useShortcuts = (Shortcut: any) => {
 
         await performFields(currentOp.value.moduleType, currentOp.value.params, {
             isUpdateInStore: true,
-            targetOperation: operationsFactory.getOperationById(currentOp.value.id),
+            id: currentOp.value.id,
         });
     };
 
     watch([currentOp, isConfigLoading], async () => await callOnWatchOnMounted());
+    watch(isConfigLoading, async () => {
+        if (!isConfigLoading.value) {
+            await performShortcut(false);
+        }
+    });
+    watch(operationsFactory, async () => await callOnWatchOnMounted());
 
     onBeforeMount(async () => {
         await store.dispatch('shortcuts/setShortcut', {
@@ -275,18 +274,10 @@ const useShortcuts = (Shortcut: any) => {
             shortcutId: Shortcut.id,
         });
 
+        await performShortcut(true);
+
         await callOnWatchOnMounted();
-
-        await performShortcut();
-
-        console.log('--- operationsFactory:', operationsFactory);
     });
-
-    const debounceEstimate = _.debounce(async () => {
-        console.log('--- debounceEstimate:', operationsFactory);
-        await operationsFactory.estimateOutput();
-        console.log('--- debounceEstimate after:', operationsFactory);
-    }, 500);
 
     store.watch(
         (state, getters) => [
@@ -321,8 +312,18 @@ const useShortcuts = (Shortcut: any) => {
 
             if (!dstAmount) return;
             updateOpFactoryField('outputAmount', dstAmount);
+        },
+    );
 
-            debounceEstimate();
+    store.watch(
+        (state, getters) => getters['tokenOps/srcAmount'],
+        async (srcAmount) => {
+            if (!srcAmount) return;
+            operationsFactory.value.resetEstimatedOutputs();
+
+            updateOpFactoryField('amount', srcAmount);
+
+            await operationsFactory.value.estimateOutput();
         },
     );
 
@@ -371,7 +372,7 @@ export default useShortcuts;
 //                 shortcutIndex.value = isSkipNet ? shortcutIndex.value + 1 : shortcutIndex.value;
 
 //                 if (isSkipNet) {
-//                     operationsFactory.removeOperationById(current.id);
+//                     operationsFactory.value.removeOperationById(current.id);
 //                 }
 
 //             case 'srcToken':
@@ -387,7 +388,7 @@ export default useShortcuts;
 //                 shortcutIndex.value = isSkipToken ? shortcutIndex.value + 1 : shortcutIndex.value;
 
 //                 if (isSkipToken) {
-//                     operationsFactory.removeOperationById(current.id);
+//                     operationsFactory.value.removeOperationById(current.id);
 //                 }
 //         }
 //     }

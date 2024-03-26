@@ -6,8 +6,9 @@ import { LoadingOutlined } from '@ant-design/icons-vue';
 import { IShortcutOp } from '../core/ShortcutOp';
 import { IShortcutRecipe } from '../core/ShortcutRecipes';
 
-import { ShortcutType } from '../core/types/ShortcutType';
+import { ShortcutStatus, ShortcutType, ShortcutStatuses } from '../core/types/ShortcutType';
 import OperationFactory from '@/modules/operations/OperationsFactory';
+import { OperationStep } from '../core/models/Operation';
 
 const TYPES = {
     SET_SHORTCUT: 'SET_SHORTCUT',
@@ -19,32 +20,7 @@ const TYPES = {
     SET_SHORTCUT_OPS: 'SET_SHORTCUT_OPS',
 };
 
-enum ShortcutStatus {
-    wait = 'wait',
-    finish = 'finish',
-    process = 'process',
-    currentInProgress = 'currentInProgress',
-    error = 'error',
-    skipped = 'skipped',
-}
-
-const DISABLED_STATUS = [ShortcutStatus.finish, ShortcutStatus.skipped, ShortcutStatus.error];
-
-type ShortcutStatuses = keyof typeof ShortcutStatus;
-
-interface IShortcutStatus {
-    [key: string]: ShortcutStatus;
-}
-
-interface OperationStep {
-    id: string;
-    title: string;
-    content: string;
-    status: ShortcutStatuses;
-    isShowLayout: boolean;
-    disabled?: boolean;
-    icon?: any;
-}
+const DISABLED_STATUS = [ShortcutStatus.finish, ShortcutStatus.error];
 
 interface IState {
     currentShortcutId: string;
@@ -68,6 +44,12 @@ interface IState {
     shortcutOps: {
         [key: string]: OperationFactory;
     };
+
+    shortcutOpStatus: {
+        [key: string]: {
+            [key: string]: ShortcutStatuses;
+        };
+    };
 }
 
 export default {
@@ -81,16 +63,12 @@ export default {
         shortcutStepStatus: {},
         indexBySteps: {},
         shortcutOps: {},
+        shortcutOpStatus: {},
     }),
 
     getters: {
-        getCurrentShortcutId: (state: IState) => {
-            return state.currentShortcutId;
-        },
-
-        getShortcutOpsFactory: (state: IState) => (shortcutId: string) => {
-            return state.shortcutOps[shortcutId] || null;
-        },
+        getCurrentShortcutId: (state: IState) => state.currentShortcutId,
+        getShortcutOpsFactory: (state: IState) => (shortcutId: string) => state.shortcutOps[shortcutId] || null,
 
         getCurrentStepId: (state: IState) => state.currentStepId,
 
@@ -108,10 +86,8 @@ export default {
 
             const { operations = [] } = state.shortcut[shortcut] || {};
 
-            const getStatus = (id: string): ShortcutStatuses => {
-                const status: ShortcutStatuses = state.shortcutStepStatus[shortcut][id] ?? ShortcutStatus.wait;
-                return status === ShortcutStatus.skipped ? ShortcutStatus.finish : status;
-            };
+            // get status of the operation
+            const getStatus = (id: string): ShortcutStatuses => state.shortcutStepStatus[shortcut][id] ?? ShortcutStatus.wait;
 
             const processOperation = (
                 op: IShortcutRecipe,
@@ -129,10 +105,21 @@ export default {
                 const opData: OperationStep = {
                     id: op.id,
                     title: op.name,
+                    description: null,
                     content: content || op.layoutComponent,
                     isShowLayout: op.isShowLayout || isShowLayout || false,
                     status,
                 };
+
+                if (state.shortcutOps[shortcut] && state.shortcutOps[shortcut].getOperationById) {
+                    const operation = state.shortcutOps[shortcut].getOperationById(op.id);
+
+                    if (operation?.getTitle) {
+                        opData.description = _.isEqual(operation.getTitle(), opData.title) ? null : operation.getTitle();
+                    } else {
+                        opData.description = null;
+                    }
+                }
 
                 if (hasError || DISABLED_STATUS.includes(status) || rootGetters['txManager/isTransactionSigning']) {
                     opData.disabled = true;
@@ -243,6 +230,15 @@ export default {
 
         [TYPES.SET_SHORTCUT_OPS](state: IState, { shortcutId, operations }: { shortcutId: string; operations: OperationFactory }) {
             state.shortcutOps[shortcutId] = operations;
+
+            const opIds = Array.from(operations.getOperationsIds().keys());
+
+            state.shortcutOpStatus[shortcutId] = {};
+
+            opIds.forEach((id, index) => {
+                state.shortcutOpStatus[shortcutId][id] = ShortcutStatus.wait;
+                index === 0 && (state.shortcutOpStatus[shortcutId][id] = ShortcutStatus.process);
+            });
         },
     },
     actions: {

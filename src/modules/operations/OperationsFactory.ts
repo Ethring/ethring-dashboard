@@ -1,6 +1,6 @@
 import { IBaseOperation, IOperationFactory, IRegisterOperation } from '@/modules/operations/models/Operations';
 import { ModuleType, ModuleTypes } from '@/shared/models/enums/modules.enum';
-import { TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
+import { STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
 import BigNumber from 'bignumber.js';
 import _ from 'lodash';
@@ -37,9 +37,14 @@ export default class OperationFactory implements IOperationFactory {
     private operationsIndex: Map<string, string> = new Map<string, string>();
     private groupOps: Map<string, string[]> = new Map<string, string[]>();
     private operationDependencies: Map<string, IOperationDependencies> = new Map<string, IOperationDependencies>();
+    private operationsStatusById: Map<string, keyof STATUSES> = new Map<string, keyof STATUSES>();
+
+    getOperationsIds(): Map<string, string> {
+        return this.operationsIds;
+    }
 
     registerOperation(module: string, operationClass: new () => IBaseOperation, options?): IRegisterOperation {
-        const { id = null } = options || {};
+        const { id = null, name = null } = options || {};
 
         if (this.operationsIds.get(id)) {
             console.warn(`Operation with id ${id} already exists`);
@@ -52,9 +57,7 @@ export default class OperationFactory implements IOperationFactory {
 
         operation.setModule(module as ModuleTypes);
 
-        if (module === ModuleType.stake) {
-            operation.setTxType(TRANSACTION_TYPES.STAKE);
-        }
+        name && operation.setName(name);
 
         this.operationsMap.set(uniqueKey, operation);
 
@@ -150,7 +153,13 @@ export default class OperationFactory implements IOperationFactory {
         for (const operation of operations) {
             const opFlow = await this.operationsMap.get(operation).getOperationFlow();
 
-            flow.push(...opFlow.map((f, i) => ({ ...f, moduleIndex: operation })));
+            flow.push(
+                ...opFlow.map((f, i) => ({
+                    ...f,
+                    moduleIndex: operation,
+                    title: this.operationsMap.get(operation).getTitle() || null,
+                })),
+            );
         }
 
         return Promise.resolve(flow.map((f, i) => ({ ...f, index: i })).sort((a, b) => a.index - b.index));
@@ -188,7 +197,7 @@ export default class OperationFactory implements IOperationFactory {
                             return;
                         }
 
-                        const value = BigNumber(depValue).multipliedBy(usePercentage).dividedBy(100).toFixed(2);
+                        const value = BigNumber(depValue).multipliedBy(usePercentage).dividedBy(100).toFixed(6);
 
                         console.log(`${dependencyParamKey} from ${operationId}`);
 
@@ -228,5 +237,22 @@ export default class OperationFactory implements IOperationFactory {
         this.operationsMap.delete(key);
         this.operationsIds.delete(id);
         this.operationsIndex.delete(key);
+    }
+
+    resetEstimatedOutputs(): void {
+        const operations = Array.from(this.operationsMap.keys());
+
+        for (const operation of operations) {
+            this.operationsMap.get(operation).setParamByField('amount', null);
+            this.operationsMap.get(operation).setParamByField('outputAmount', null);
+        }
+    }
+
+    getOperationsStatusById(): Map<string, keyof STATUSES> {
+        return this.operationsStatusById;
+    }
+
+    setOperationStatusById(id: string, status: keyof STATUSES): void {
+        this.operationsStatusById.set(id, status);
     }
 }

@@ -4,3 +4,13 @@ export enum ShortcutType {
 }
 
 export type ShortcutTypes = keyof typeof ShortcutType;
+
+export enum ShortcutStatus {
+    wait = 'wait',
+    finish = 'finish',
+    process = 'process',
+    currentInProgress = 'currentInProgress',
+    error = 'error',
+}
+
+export type ShortcutStatuses = keyof typeof ShortcutStatus;

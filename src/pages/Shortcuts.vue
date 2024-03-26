@@ -31,6 +31,7 @@ import Button from '@/components/ui/Button.vue';
 import RecipeStake from '@/modules/shortcuts/data/citadel-stake.json';
 
 import useShortcuts from '../modules/shortcuts/compositions/index';
+import { watch } from 'vue';
 
 export default {
     name: 'Shortcuts',
@@ -42,6 +43,12 @@ export default {
     setup() {
         const { shortcutIndex, steps } = useShortcuts(RecipeStake);
 
+        watch(
+            () => steps,
+            () => {
+                console.log('steps', steps);
+            },
+        );
         return {
             shortcut: RecipeStake,
             shortcutIndex,

@@ -21,12 +21,15 @@ export default class TransferOperation extends BaseOperation {
 
     constructor() {
         super();
+        this.setTxType(TRANSACTION_TYPES.TRANSFER);
     }
 
     perform(index: number, account: string, ecosystem: string, chainId: string, { make }: PerformOptionalParams): ICreateTransaction {
         const isStake = this.getModule() === ModuleType.stake;
 
         isStake ? this.setTxType(TRANSACTION_TYPES.STAKE) : this.setTxType(TRANSACTION_TYPES.TRANSFER);
+
+        const notificationTitle = `${make} ${this.getTitle()}`;
 
         return {
             index,
@@ -42,7 +45,7 @@ export default class TransferOperation extends BaseOperation {
             metaData: {
                 action: this.getAction(),
                 type: this.getTxType(),
-                notificationTitle: `${make} ${this.params.amount} ${this.getToken('from')?.symbol || ''}`,
+                notificationTitle,
                 params: this.params,
                 metaData: {
                     ...this.params,
