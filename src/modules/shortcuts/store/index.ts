@@ -1,11 +1,13 @@
-import _, { get, set } from 'lodash';
+import _ from 'lodash';
 
 import { h } from 'vue';
 import { LoadingOutlined } from '@ant-design/icons-vue';
 
-import logger from '@/shared/logger';
-import { IOperation, IRecipe } from '../core/models/Operation';
+import { IShortcutOp } from '../core/ShortcutOp';
+import { IShortcutRecipe } from '../core/ShortcutRecipes';
+
 import { ShortcutType } from '../core/types/ShortcutType';
+import OperationFactory from '@/modules/operations/OperationsFactory';
 
 const TYPES = {
     SET_SHORTCUT: 'SET_SHORTCUT',
@@ -14,6 +16,7 @@ const TYPES = {
     SET_CURRENT_INDEX: 'SET_CURRENT_INDEX',
     SET_CURRENT_STEP_ID: 'SET_CURRENT_STEP_ID',
     SET_CURRENT_SHORTCUT_ID: 'SET_CURRENT_SHORTCUT_ID',
+    SET_SHORTCUT_OPS: 'SET_SHORTCUT_OPS',
 };
 
 enum ShortcutStatus {
@@ -38,6 +41,7 @@ interface OperationStep {
     title: string;
     content: string;
     status: ShortcutStatuses;
+    isShowLayout: boolean;
     disabled?: boolean;
     icon?: any;
 }
@@ -48,7 +52,7 @@ interface IState {
     currentIndex: number;
 
     shortcut: {
-        [key: string]: IRecipe;
+        [key: string]: IShortcutRecipe;
     };
 
     indexBySteps: {
@@ -59,6 +63,10 @@ interface IState {
         [key: string]: {
             [key: string]: ShortcutStatuses;
         };
+    };
+
+    shortcutOps: {
+        [key: string]: OperationFactory;
     };
 }
 
@@ -72,11 +80,16 @@ export default {
         shortcut: {},
         shortcutStepStatus: {},
         indexBySteps: {},
+        shortcutOps: {},
     }),
 
     getters: {
         getCurrentShortcutId: (state: IState) => {
             return state.currentShortcutId;
+        },
+
+        getShortcutOpsFactory: (state: IState) => (shortcutId: string) => {
+            return state.shortcutOps[shortcutId] || null;
         },
 
         getCurrentStepId: (state: IState) => state.currentStepId,
@@ -100,7 +113,11 @@ export default {
                 return status === ShortcutStatus.skipped ? ShortcutStatus.finish : status;
             };
 
-            const processOperation = (op: IOperation, index: number, { content }: { content?: string } = {}): OperationStep => {
+            const processOperation = (
+                op: IShortcutRecipe,
+                index: number,
+                { content, isShowLayout }: { content?: string; isShowLayout?: boolean } = {},
+            ): OperationStep => {
                 state.indexBySteps[op.id] = index;
 
                 const status = getStatus(op.id) as ShortcutStatus;
@@ -113,12 +130,15 @@ export default {
                     id: op.id,
                     title: op.name,
                     content: content || op.layoutComponent,
+                    isShowLayout: op.isShowLayout || isShowLayout || false,
                     status,
                 };
 
                 if (hasError || DISABLED_STATUS.includes(status) || rootGetters['txManager/isTransactionSigning']) {
                     opData.disabled = true;
                 }
+
+                opData.disabled = state.currentIndex !== index;
 
                 if (status === ShortcutStatus.currentInProgress) {
                     opData.icon = h(LoadingOutlined, {
@@ -138,7 +158,10 @@ export default {
                         return processOperation(operation, index);
                     case ShortcutType.recipe:
                         return operation.operations.map((subOperation) =>
-                            processOperation(subOperation, index, { content: operation.layoutComponent }),
+                            processOperation(subOperation, index, {
+                                content: operation.layoutComponent,
+                                isShowLayout: operation.isShowLayout,
+                            }),
                         );
                 }
             });
@@ -170,7 +193,7 @@ export default {
     },
 
     mutations: {
-        [TYPES.SET_SHORTCUT](state: IState, { shortcut, data }: { shortcut: string; data: IRecipe }) {
+        [TYPES.SET_SHORTCUT](state: IState, { shortcut, data }: { shortcut: string; data: IShortcutRecipe }) {
             state.shortcut[shortcut] = data;
 
             !state.shortcutStepStatus[shortcut] && (state.shortcutStepStatus[shortcut] = {});
@@ -217,6 +240,10 @@ export default {
         [TYPES.SET_CURRENT_SHORTCUT_ID](state: IState, { shortcutId }: { shortcutId: string }) {
             state.currentShortcutId = shortcutId;
         },
+
+        [TYPES.SET_SHORTCUT_OPS](state: IState, { shortcutId, operations }: { shortcutId: string; operations: OperationFactory }) {
+            state.shortcutOps[shortcutId] = operations;
+        },
     },
     actions: {
         setCurrentShortcutId({ commit }: any, { shortcutId }: { shortcutId: string }) {
@@ -250,6 +277,10 @@ export default {
                 commit(TYPES.SET_CURRENT_INDEX, { index: currentIndex + 1 });
                 commit(TYPES.SET_CURRENT_STEP_ID, { stepId: steps[currentIndex + 1].id, shortcutId });
             }
+        },
+
+        setShortcutOpsFactory({ commit }: any, { shortcutId, operations }: { shortcutId: string; operations: OperationFactory }) {
+            commit(TYPES.SET_SHORTCUT_OPS, { shortcutId, operations });
         },
     },
 };

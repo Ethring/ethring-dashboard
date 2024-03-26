@@ -1,30 +1,17 @@
-import { ModuleType } from '@/modules/bridge-dex/enums/ServiceType.enum';
 import _ from 'lodash';
 
+import { Field, FieldAttr } from '@/shared/models/enums/fields.enum';
+import { IFieldState } from '@/shared/models/fields/module-fields';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
+
 const TYPES = {
-    SET_DISABLED_FIELD: 'SET_DISABLED_FIELD',
+    SET_BOOLEAN_FIELD: 'SET_BOOLEAN_FIELD',
+    RESET_FIELDS: 'RESET_FIELDS',
 };
 
-enum Field {
-    srcNetwork = 'srcNetwork',
-    srcToken = 'srcToken',
-    dstNetwork = 'dstNetwork',
-    dstToken = 'dstToken',
-    direction = 'direction',
-    onlyWithBalance = 'onlyWithBalance',
-    receiverAddress = 'receiverAddress',
-    srcAmount = 'srcAmount',
-    dstAmount = 'dstAmount',
-    memo = 'memo',
-    swapDirection = 'swapDirection',
-}
-
-enum FieldProps {
-    disabled = 'disabled',
-}
-
-interface IFieldState {
-    [FieldProps.disabled]: boolean;
+class FieldState implements IFieldState {
+    [FieldAttr.disabled] = false;
+    [FieldAttr.hide] = false;
 }
 
 interface IState {
@@ -50,118 +37,46 @@ export default {
 
     state: () => ({
         [ModuleType.swap]: {
-            [Field.srcNetwork]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.srcToken]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.dstToken]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.srcAmount]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.dstAmount]: {
-                [FieldProps.disabled]: false,
-            },
+            [Field.srcNetwork]: new FieldState(),
+            [Field.srcToken]: new FieldState(),
+            [Field.dstToken]: new FieldState(),
+            [Field.srcAmount]: new FieldState(),
+            [Field.dstAmount]: new FieldState(),
         },
 
         [ModuleType.bridge]: {
-            [Field.srcNetwork]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.srcToken]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.dstNetwork]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.dstToken]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.direction]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.onlyWithBalance]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.receiverAddress]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.srcAmount]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.dstAmount]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.swapDirection]: {
-                [FieldProps.disabled]: false,
-            },
+            [Field.srcNetwork]: new FieldState(),
+            [Field.srcToken]: new FieldState(),
+            [Field.dstNetwork]: new FieldState(),
+            [Field.dstToken]: new FieldState(),
+            [Field.receiverAddress]: new FieldState(),
+            [Field.srcAmount]: new FieldState(),
+            [Field.dstAmount]: new FieldState(),
+            [Field.switchDirection]: new FieldState(),
         },
         [ModuleType.superSwap]: {
-            [Field.srcNetwork]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.srcToken]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.dstNetwork]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.dstToken]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.direction]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.onlyWithBalance]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.receiverAddress]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.srcAmount]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.dstAmount]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.swapDirection]: {
-                [FieldProps.disabled]: false,
-            },
+            [Field.srcNetwork]: new FieldState(),
+            [Field.srcToken]: new FieldState(),
+            [Field.dstNetwork]: new FieldState(),
+            [Field.dstToken]: new FieldState(),
+            [Field.receiverAddress]: new FieldState(),
+            [Field.srcAmount]: new FieldState(),
+            [Field.dstAmount]: new FieldState(),
+            [Field.switchDirection]: new FieldState(),
         },
         [ModuleType.send]: {
-            [Field.srcNetwork]: {
-                [FieldProps.disabled]: false,
-            },
+            [Field.srcNetwork]: new FieldState(),
 
-            [Field.srcToken]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.receiverAddress]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.srcAmount]: {
-                [FieldProps.disabled]: false,
-            },
+            [Field.srcToken]: new FieldState(),
+            [Field.receiverAddress]: new FieldState(),
+            [Field.srcAmount]: new FieldState(),
         },
         [ModuleType.stake]: {
-            [Field.srcNetwork]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.srcToken]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.srcAmount]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.receiverAddress]: {
-                [FieldProps.disabled]: false,
-            },
-            [Field.memo]: {
-                [FieldProps.disabled]: false,
-            },
+            [Field.srcNetwork]: new FieldState(),
+            [Field.srcToken]: new FieldState(),
+            [Field.srcAmount]: new FieldState(),
+            [Field.receiverAddress]: new FieldState(),
+            [Field.memo]: new FieldState(),
         },
     }),
 
@@ -171,7 +86,7 @@ export default {
                 return false;
             }
 
-            return state[module][field][FieldProps.disabled];
+            return state[module][field][FieldAttr.disabled];
         },
 
         getFieldsForModule: (state: IState) => (module: ModuleType) => {
@@ -184,27 +99,49 @@ export default {
     },
 
     mutations: {
-        [TYPES.SET_DISABLED_FIELD](
+        [TYPES.SET_BOOLEAN_FIELD](
             state: IState,
-            { module, field, props, value }: { module: ModuleType; field: Field; props: FieldProps; value: boolean },
+            { module, field, attr, value }: { module: ModuleType; field: Field; attr: FieldAttr; value: any },
         ) {
             !state[module] && (state[module] = {});
             !state[module][field] && (state[module][field] = {});
 
-            if (props === FieldProps.disabled) {
-                state[module][field][props] = state[module][field][props] || value;
+            if (attr in state[module][field] && state[module][field][attr] === value) {
+                return;
             }
 
-            state[module][field][props] = value;
+            state[module][field][attr] = value;
+        },
+        [TYPES.RESET_FIELDS](state: IState, { module }: { module: ModuleType }) {
+            console.log('resetting fields', module, state, state[module]);
+
+            if (!state[module]) {
+                return;
+            }
+
+            for (const key in state[module]) {
+                state[module][key] = new FieldState();
+            }
         },
     },
 
     actions: {
         setDisabledField(
             { commit }: any,
-            { module, field, props, value }: { module: ModuleType; field: Field; props: FieldProps; value: boolean },
+            { module, field, attr, value }: { module: ModuleType; field: Field; attr: FieldAttr; value: boolean },
         ) {
-            commit(TYPES.SET_DISABLED_FIELD, { module, field, props, value });
+            commit(TYPES.SET_BOOLEAN_FIELD, { module, field, attr, value });
+        },
+
+        setHideField(
+            { commit }: any,
+            { module, field, attr, value }: { module: ModuleType; field: Field; attr: FieldAttr; value: boolean },
+        ) {
+            commit(TYPES.SET_BOOLEAN_FIELD, { module, field, attr, value });
+        },
+
+        resetModuleStates({ commit }: any, { module }: { module: ModuleType }) {
+            commit(TYPES.RESET_FIELDS, { module });
         },
     },
 };

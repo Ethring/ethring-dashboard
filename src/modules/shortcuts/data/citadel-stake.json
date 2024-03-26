@@ -8,37 +8,39 @@
         "staking"
     ],
     "tags": [
-        "citadel",
-        "one",
-        "staking"
+        "EVM",
+        "COSMOS",
+        "STAKE"
     ],
     "type": "stake",
     "description": "Stake your COSMOS ecosystem tokens to the Citadel.one validator and earn rewards.",
     "website": "https://citadel.one/",
     "recipe": {
-        "id": "evm-osmosis-citadel-one-stake",
+        "id": "citadel-one-stake",
         "operations": [
             {
                 "id": "bridge-eth-to-osmo",
                 "name": "Bridge Tokens to COSMOS (Osmosis)",
                 "type": "operation",
                 "moduleType": "superSwap",
-                "operationType": "bridge",
-                "paramsInterface": "IBridgeParams",
+                "operationType": "BRIDGE",
+                "serviceId": "squid",
                 "layoutComponent": "SuperSwap",
-                "skipConditions": [
-                    {
-                        "name": "srcNetwork",
-                        "value": "osmosis"
-                    },
-                    {
-                        "name": "srcToken",
-                        "value": "osmosis:tokens__native:OSMO"
-                    }
+                "isShowLayout": true,
+                "ecosystems": [
+                    "EVM",
+                    "COSMOS"
                 ],
+                "operationParams": {
+                    "fromNet": "eth",
+                    "toNet": "osmosis",
+                    "fromToken": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+                    "toToken": "uosmo"
+                },
                 "params": [
                     {
                         "name": "srcNetwork",
+                        "hide": false,
                         "disabled": false,
                         "ecosystem": "EVM",
                         "chainId": 1
@@ -46,24 +48,34 @@
                     {
                         "name": "srcToken",
                         "disabled": false,
+                        "hide": false,
                         "chain": "eth",
+                        "address": null,
                         "id": "eth:tokens__native:ETH"
                     },
                     {
                         "name": "dstNetwork",
                         "disabled": true,
+                        "hide": false,
                         "ecosystem": "COSMOS",
                         "chainId": "osmosis"
                     },
                     {
                         "name": "dstToken",
                         "disabled": true,
+                        "hide": false,
                         "id": "osmosis:tokens__native:OSMO",
-                        "chain": "osmosis"
+                        "chain": "osmosis",
+                        "address": "uosmo"
                     },
                     {
-                        "name": "swapDirection",
-                        "disabled": true
+                        "name": "switchDirection",
+                        "disabled": true,
+                        "hide": true
+                    },
+                    {
+                        "name": "isSendToAnotherAddress",
+                        "hide": true
                     }
                 ]
             },
@@ -71,23 +83,46 @@
                 "id": "swap-osmo-to-tokens",
                 "name": "Swap OSMO, ATOM, STARS",
                 "type": "recipe",
-                "operationType": "swap",
+                "operationType": "BRIDGE",
                 "moduleType": "superSwap",
-                "paramsInterface": "ISwapParams",
                 "layoutComponent": "SuperSwap",
+                "isShowLayout": false,
+                "ecosystems": [
+                    "COSMOS"
+                ],
                 "operations": [
                     {
                         "id": "osmo-to-atom",
                         "name": "OSMO to ATOM",
                         "type": "operation",
-                        "operationType": "swap",
+                        "operationType": "BRIDGE",
                         "moduleType": "superSwap",
-                        "paramsInterface": "ISwapParams",
+                        "serviceId": "skip",
                         "layoutComponent": "SuperSwap",
+                        "ecosystems": [
+                            "COSMOS"
+                        ],
+                        "dependencies": {
+                            "operationId": "bridge-eth-to-osmo",
+                            "operationParams": [
+                                {
+                                    "dependencyParamKey": "outputAmount",
+                                    "paramKey": "amount",
+                                    "usePercentage": 50
+                                }
+                            ]
+                        },
+                        "operationParams": {
+                            "fromToken": "uosmo",
+                            "toToken": "uatom",
+                            "fromNet": "osmosis",
+                            "toNet": "cosmoshub"
+                        },
                         "params": [
                             {
                                 "name": "srcNetwork",
                                 "disabled": true,
+                                "hide": false,
                                 "ecosystem": "COSMOS",
                                 "chainId": "osmosis"
                             },
@@ -96,24 +131,28 @@
                                 "disabled": true,
                                 "id": "osmosis:tokens__native:OSMO",
                                 "chain": "osmosis",
-                                "address": "uosmo"
+                                "address": "uosmo",
+                                "hide": false
                             },
                             {
                                 "name": "dstNetwork",
                                 "disabled": true,
                                 "ecosystem": "COSMOS",
-                                "chainId": "cosmoshub"
+                                "chainId": "cosmoshub",
+                                "hide": false
                             },
                             {
                                 "name": "dstToken",
                                 "disabled": true,
                                 "id": "cosmoshub:tokens__native:ATOM",
                                 "chain": "cosmoshub",
-                                "address": "uatom"
+                                "address": "uatom",
+                                "hide": false
                             },
                             {
-                                "name": "swapDirection",
-                                "disabled": true
+                                "name": "switchDirection",
+                                "disabled": true,
+                                "hide": false
                             }
                         ]
                     },
@@ -121,40 +160,65 @@
                         "id": "osmo-to-stars",
                         "name": "OSMO to STARS",
                         "type": "operation",
-                        "operationType": "swap",
+                        "serviceId": "skip",
+                        "operationType": "BRIDGE",
                         "moduleType": "superSwap",
-                        "paramsInterface": "ISwapParams",
                         "layoutComponent": "SuperSwap",
+                        "ecosystem": "COSMOS",
+                        "operationParams": {
+                            "fromToken": "uosmo",
+                            "toToken": "ustars",
+                            "fromNet": "osmosis",
+                            "toNet": "stargaze"
+                        },
+                        "ecosystems": [
+                            "COSMOS"
+                        ],
+                        "dependencies": {
+                            "operationId": "bridge-eth-to-osmo",
+                            "operationParams": [
+                                {
+                                    "dependencyParamKey": "outputAmount",
+                                    "paramKey": "amount",
+                                    "usePercentage": 20
+                                }
+                            ]
+                        },
                         "params": [
                             {
                                 "name": "srcNetwork",
                                 "disabled": true,
                                 "ecosystem": "COSMOS",
-                                "chainId": "osmosis"
+                                "chainId": "osmosis",
+                                "hide": false
                             },
                             {
                                 "name": "srcToken",
                                 "disabled": true,
                                 "id": "osmosis:tokens__native:OSMO",
                                 "chain": "osmosis",
-                                "address": "uosmo"
+                                "address": "uosmo",
+                                "hide": false
                             },
                             {
                                 "name": "dstNetwork",
                                 "disabled": true,
                                 "ecosystem": "COSMOS",
-                                "chainId": "stargaze"
+                                "chainId": "stargaze",
+                                "hide": false
                             },
                             {
                                 "name": "dstToken",
                                 "disabled": true,
                                 "id": "stargaze:tokens__native:STARS",
                                 "chain": "stargaze",
-                                "address": "ustars"
+                                "address": "ustars",
+                                "hide": false
                             },
                             {
-                                "name": "swapDirection",
-                                "disabled": true
+                                "name": "switchDirection",
+                                "disabled": true,
+                                "hide": false
                             }
                         ]
                     }
@@ -164,43 +228,68 @@
                 "id": "stake-to-citadel-one",
                 "name": "Stake to the Citadel.one",
                 "type": "recipe",
-                "operationType": "stake",
+                "operationType": "STAKE",
                 "moduleType": "stake",
-                "paramsInterface": "IStakeParams",
                 "layoutComponent": "StakeLayout",
+                "isShowLayout": false,
+                "ecosystems": [
+                    "COSMOS"
+                ],
                 "operations": [
                     {
                         "id": "stake-atom",
                         "name": "Stake ATOM",
                         "type": "operation",
-                        "operationType": "stake",
+                        "operationType": "STAKE",
                         "moduleType": "stake",
-                        "paramsInterface": "IStakeParams",
+                        "ecosystems": [
+                            "COSMOS"
+                        ],
+                        "operationParams": {
+                            "net": "cosmoshub",
+                            "fromToken": "uatom",
+                            "receiverAddress": "cosmosvaloper1lzhlnpahvznwfv4jmay2tgaha5kmz5qxerarrl",
+                            "memo": "Stake to the Citadel.one validator | From zomet.app"
+                        },
+                        "dependencies": {
+                            "operationId": "osmo-to-atom",
+                            "operationParams": [
+                                {
+                                    "dependencyParamKey": "outputAmount",
+                                    "paramKey": "amount",
+                                    "usePercentage": 95
+                                }
+                            ]
+                        },
                         "params": [
                             {
                                 "name": "srcNetwork",
                                 "disabled": true,
                                 "ecosystem": "COSMOS",
-                                "chainId": "cosmoshub"
+                                "chainId": "cosmoshub",
+                                "hide": false
                             },
                             {
                                 "name": "srcToken",
                                 "disabled": true,
                                 "id": "cosmoshub:tokens__native:ATOM",
                                 "chain": "cosmoshub",
-                                "address": "uatom"
+                                "address": "uatom",
+                                "hide": false
                             },
                             {
                                 "name": "receiverAddress",
                                 "type": "address",
                                 "disabled": true,
-                                "address": "cosmosvaloper1lzhlnpahvznwfv4jmay2tgaha5kmz5qxerarrl"
+                                "address": "cosmosvaloper1lzhlnpahvznwfv4jmay2tgaha5kmz5qxerarrl",
+                                "hide": false
                             },
                             {
                                 "name": "memo",
                                 "type": "string",
                                 "disabled": true,
-                                "memo": "Stake to the Citadel.one validator | From zomet.app"
+                                "memo": "Stake to the Citadel.one validator | From zomet.app",
+                                "hide": false
                             }
                         ]
                     },
@@ -208,9 +297,27 @@
                         "id": "stake-osmo",
                         "name": "Stake OSMO",
                         "type": "operation",
-                        "operationType": "stake",
+                        "operationType": "STAKE",
                         "moduleType": "stake",
-                        "paramsInterface": "IStakeParams",
+                        "ecosystems": [
+                            "COSMOS"
+                        ],
+                        "operationParams": {
+                            "net": "osmosis",
+                            "fromToken": "uosmo",
+                            "receiverAddress": "osmovaloper1lzhlnpahvznwfv4jmay2tgaha5kmz5qxwmj9we",
+                            "memo": "Stake to the Citadel.one validator | From zomet.app"
+                        },
+                        "dependencies": {
+                            "operationId": "bridge-eth-to-osmo",
+                            "operationParams": [
+                                {
+                                    "dependencyParamKey": "outputAmount",
+                                    "paramKey": "amount",
+                                    "usePercentage": 30
+                                }
+                            ]
+                        },
                         "params": [
                             {
                                 "name": "srcNetwork",
@@ -243,9 +350,27 @@
                         "id": "stake-stars",
                         "name": "Stake STARS",
                         "type": "operation",
-                        "operationType": "stake",
+                        "operationType": "STAKE",
                         "moduleType": "stake",
-                        "paramsInterface": "IStakeParams",
+                        "ecosystems": [
+                            "COSMOS"
+                        ],
+                        "operationParams": {
+                            "net": "stargaze",
+                            "fromToken": "ustars",
+                            "receiverAddress": "starsvaloper1qv2tdjma7dcg6jmgawwd0aajjcx89rqca0cqgr",
+                            "memo": "Stake to the Citadel.one validator | From zomet.app"
+                        },
+                        "dependencies": {
+                            "operationId": "osmo-to-stars",
+                            "operationParams": [
+                                {
+                                    "dependencyParamKey": "outputAmount",
+                                    "paramKey": "amount",
+                                    "usePercentage": 95
+                                }
+                            ]
+                        },
                         "params": [
                             {
                                 "name": "srcNetwork",

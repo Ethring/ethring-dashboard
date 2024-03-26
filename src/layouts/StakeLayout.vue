@@ -52,7 +52,7 @@ import InfoIcon from '@/assets/icons/platform-icons/info.svg';
 
 // Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
-import { ModuleType } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import { ModuleType } from '@/shared/models/enums/Modules.enum';
 
 export default {
     name: 'StakeLayout',
@@ -196,3 +196,4 @@ export default {
     },
 };
 </script>
+@/shared/models/enums/modules.enum

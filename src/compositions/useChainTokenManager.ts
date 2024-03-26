@@ -7,7 +7,7 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 import useTokensList from '@/compositions/useTokensList';
 
 import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
-import { ModuleType } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
 import useInputValidation from '@/shared/form-validations';
 import logger from '@/shared/logger';
 
@@ -73,16 +73,6 @@ export default function useChainTokenManger(moduleType: ModuleType) {
     const selectedDstToken = computed({
         get: () => store.getters['tokenOps/dstToken'],
         set: (value) => store.dispatch('tokenOps/setDstToken', value),
-    });
-
-    const srcAmount = computed({
-        get: () => store.getters['tokenOps/srcAmount'],
-        set: (value) => store.dispatch('tokenOps/setSrcAmount', value),
-    });
-
-    const dstAmount = computed({
-        get: () => store.getters['tokenOps/dstAmount'],
-        set: (value) => store.dispatch('tokenOps/setDstAmount', value),
     });
 
     // =================================================================================================================
@@ -153,7 +143,7 @@ export default function useChainTokenManger(moduleType: ModuleType) {
             // * If the module is Send, then the destination network is reset to null
             case ModuleType.stake:
             case ModuleType.send:
-                selectedDstNetwork.value = null;
+                // selectedDstNetwork.value = null;
                 break;
 
             // * If the module is Bridge or SuperSwap, then the destination network is set to the network that is different from the source network
@@ -208,8 +198,6 @@ export default function useChainTokenManger(moduleType: ModuleType) {
 
             case ModuleType.stake:
             case ModuleType.send:
-                selectedDstToken.value = null;
-
                 if (isSrcTokenChanged || isAccountChanged) {
                     selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
                 }
@@ -376,9 +364,9 @@ export default function useChainTokenManger(moduleType: ModuleType) {
 
         selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
 
-        if ([ModuleType.send].includes(moduleType)) {
-            return (selectedDstToken.value = null);
-        }
+        // if ([ModuleType.send].includes(moduleType)) {
+        //     return (selectedDstToken.value = null);
+        // }
 
         if ([ModuleType.swap].includes(moduleType)) {
             selectedDstToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedDstToken.value, {

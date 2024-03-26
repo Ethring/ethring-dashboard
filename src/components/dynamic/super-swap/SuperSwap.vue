@@ -19,12 +19,14 @@
                     @setAmount="handleOnSetAmount"
                 >
                     <SelectRecord
+                        v-if="!fieldStates.srcNetwork?.hide"
                         :placeholder="$t('tokenOperations.selectNetwork')"
                         :current="selectedSrcNetwork"
                         @click="() => onSelectNetwork(DIRECTIONS.SOURCE)"
                         :disabled="fieldStates.srcNetwork.disabled"
                     />
                     <SelectRecord
+                        v-if="!fieldStates.srcToken?.hide"
                         :placeholder="$t('tokenOperations.selectToken')"
                         :current="selectedSrcToken"
                         @click="() => onSelectToken(true, DIRECTIONS.SOURCE)"
@@ -33,9 +35,10 @@
                 </SwapField>
             </a-form-item>
             <SwitchDirection
+                v-if="!fieldStates.switchDirection?.hide"
                 icon="SwapIcon"
                 :disabled="
-                    fieldStates.swapDirection.disabled ||
+                    fieldStates.switchDirection?.disabled ||
                     isDirectionSwapped ||
                     isQuoteLoading ||
                     isTransactionSigning ||
@@ -58,12 +61,14 @@
                 hide-max
             >
                 <SelectRecord
+                    v-if="!fieldStates.dstNetwork?.hide"
                     :disabled="fieldStates.dstNetwork.disabled"
                     :placeholder="$t('tokenOperations.selectNetwork')"
                     :current="selectedDstNetwork"
                     @click="() => onSelectNetwork(DIRECTIONS.DESTINATION)"
                 />
                 <SelectRecord
+                    v-if="!fieldStates.dstToken?.hide"
                     :disabled="fieldStates.dstToken.disabled"
                     :placeholder="$t('tokenOperations.selectToken')"
                     :current="selectedDstToken"
@@ -73,14 +78,14 @@
         </a-form-item>
 
         <Checkbox
-            v-if="selectedDstToken && selectedDstNetwork && !isSameNetwork"
+            v-if="!fieldStates.isSendToAnotherAddress?.hide && selectedDstToken && selectedDstNetwork && !isSameNetwork"
             v-model:value="isSendToAnotherAddress"
             :disabled="isDisableSelect"
             :label="$t('tokenOperations.chooseAddress')"
         />
 
         <SelectAddressInput
-            v-if="isSendToAnotherAddress && selectedDstNetwork && selectedDstToken"
+            v-if="!fieldStates.receiverAddress?.hide && isSendToAnotherAddress && selectedDstNetwork && selectedDstToken"
             class="mt-8"
             :selected-network="selectedDstNetwork"
             :on-reset="isSendToAnotherAddress"
@@ -136,7 +141,7 @@ import useModuleOperations from '@/compositions/useModuleOperation';
 // Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
-import { ModuleType } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import { ModuleType } from '@/shared/models/enums/Modules.enum';
 import useInputValidation from '@/shared/form-validations';
 import { differenceInPercentage } from '@/shared/calculations/percentage-diff';
 
@@ -164,9 +169,9 @@ export default {
 
         const isSwapLoading = ref(false);
 
-        const routeInfo = computed(() => store.getters['bridgeDex/selectedRoute']);
-        const bestRouteInfo = computed(() => routeInfo.value?.bestRoute);
-        const otherRoutesInfo = computed(() => routeInfo.value?.otherRoutes);
+        // const routeInfo = computed(() => store.getters['bridgeDex/selectedRoute']);
+        // const bestRouteInfo = computed(() => routeInfo.value?.bestRoute);
+        // const otherRoutesInfo = computed(() => routeInfo.value?.otherRoutes);
 
         // * Module values
         const {
@@ -231,7 +236,7 @@ export default {
             store.dispatch('moduleStates/setDisabledField', {
                 module: ModuleType.superSwap,
                 field,
-                props: 'disabled',
+                attr: 'disabled',
                 value: isDisableSelect.value,
             });
         }
@@ -303,8 +308,8 @@ export default {
 
             opTitle,
 
-            bestRouteInfo,
-            otherRoutesInfo,
+            // bestRouteInfo,
+            // otherRoutesInfo,
 
             selectedSrcNetwork,
             selectedDstNetwork,
@@ -477,4 +482,4 @@ export default {
         width: 100%;
     }
 }
-</style>
+</style>@/shared/models/enums/modules.enum

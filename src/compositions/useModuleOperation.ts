@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { useStore } from 'vuex';
-import { computed, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
 import socket from '@/app/modules/socket';
 
@@ -16,11 +16,9 @@ import { ECOSYSTEMS } from '@/Adapter/config';
 // Transaction manager
 import { Transaction, TransactionList } from '@/Transactions/TX-manager';
 
-// Utils
-import { isCorrectChain } from '@/shared/utils/operations';
-
 // Types
-import { ModuleType, ServiceType } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import { ServiceType } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
 import { TRANSACTION_TYPES, STATUSES } from '@/shared/models/enums/statuses.enum';
 import { ServiceByModule } from '../modules/bridge-dex/enums/ServiceType.enum';
@@ -32,6 +30,12 @@ import { AddressByChainHash } from '../shared/models/types/Address';
 import useInputValidation from '@/shared/form-validations';
 
 import { delay } from '@/shared/utils/helpers';
+import OperationsFactory from '@/modules/operations/OperationsFactory';
+import { Ecosystems } from '@/modules/bridge-dex/enums/Ecosystem.enum';
+import TransferOperation from '@/modules/operations/Transfer';
+import { IAsset } from '@/shared/models/fields/module-fields';
+import { ApproveOperation } from '@/modules/operations/Approve';
+import DexOperation from '@/modules/operations/Dex';
 
 const useModuleOperations = (module: ModuleType) => {
     const { walletAddress, currentChainInfo, setChain, connectByEcosystems, getChainByChainId, getConnectedStatus, switchEcosystem } =
@@ -71,8 +75,9 @@ const useModuleOperations = (module: ModuleType) => {
         srcAmount,
         dstAmount,
 
-        selectedRoute,
         memo,
+
+        selectedRoute,
         receiverAddress,
 
         makeApproveRequest,
@@ -118,6 +123,13 @@ const useModuleOperations = (module: ModuleType) => {
         };
     });
 
+    const shortcutOps = computed<OperationsFactory>(() => store.getters['shortcuts/getShortcutOpsFactory'](currentShortcut.value.id));
+
+    watch(shortcutOps, (value) => {
+        if (!value) return;
+
+        console.log('Shortcut ops:', value);
+    });
     // ===============================================================================================
     // * Addresses with chains by ecosystem
     // ===============================================================================================
@@ -174,233 +186,95 @@ const useModuleOperations = (module: ModuleType) => {
     });
 
     // ===============================================================================================
-    // * Operation actions by transaction type
-    // ===============================================================================================
-    const OP_ACTIONS = {
-        [TRANSACTION_TYPES.APPROVE]: 'formatTransactionForSign',
-        [TRANSACTION_TYPES.DEX]: 'formatTransactionForSign',
-        [TRANSACTION_TYPES.SWAP]: 'formatTransactionForSign',
-        [TRANSACTION_TYPES.TRANSFER]: 'prepareTransaction',
-        [TRANSACTION_TYPES.STAKE]: 'prepareDelegateTransaction',
-    };
-
-    // ===============================================================================================
-    // * Operation flow for the module
-    // ===============================================================================================
-
-    const getOperationFlow = (): TxOperationFlow[] => {
-        const flow = [];
-
-        if (isNeedApprove.value) {
-            flow.push({
-                type: TRANSACTION_TYPES.APPROVE,
-                make: TRANSACTION_TYPES.APPROVE,
-                index: flow.length,
-            });
-        }
-
-        const flowTransfer = {
-            type: TRANSACTION_TYPES.TRANSFER,
-            make: TRANSACTION_TYPES.TRANSFER,
-            index: flow.length,
-        };
-
-        const flowDex = {
-            type: TRANSACTION_TYPES.DEX,
-            make: TRANSACTION_TYPES.SWAP,
-            index: flow.length,
-        };
-
-        const flowBridge = {
-            type: TRANSACTION_TYPES.DEX,
-            make: TRANSACTION_TYPES.BRIDGE,
-            index: flow.length,
-        };
-
-        const flowStake = {
-            type: TRANSACTION_TYPES.STAKE,
-            make: TRANSACTION_TYPES.STAKE,
-            index: flow.length,
-        };
-
-        switch (module) {
-            case ModuleType.send:
-                flow.push(flowTransfer);
-                break;
-            case ModuleType.swap:
-                flow.push(flowDex);
-                break;
-            case ModuleType.bridge:
-                flow.push(flowBridge);
-                break;
-            case ModuleType.stake:
-                flow.push(flowStake);
-                break;
-
-            case ModuleType.superSwap:
-                isSameNetwork.value && flow.push(flowDex);
-                !isSameNetwork.value && flow.push(flowBridge);
-                break;
-            default:
-                break;
-        }
-
-        // Flow with all available operations, and in the order of execution
-        const ops = flow
-            .map((step, i) => {
-                return `${step.index}: ${step.type}`;
-            })
-            .join(' -> ');
-
-        console.log('----- Operation flow START -----');
-        console.log(ops);
-        console.log('----- Operation flow END -----\n\n');
-
-        // Flow with all available operations, and in the order of execution
-        return flow;
-    };
-
-    // ===============================================================================================
-    // * Operations - Prepare transaction
-    // ===============================================================================================
-
-    const prepare = (index: number, type: string, make: string) => {
-        const params = {
-            net: selectedSrcNetwork.value.net,
-            fromNet: selectedSrcNetwork.value.net,
-            toNet: selectedDstNetwork.value?.net,
-            fromToken: selectedSrcToken.value?.address,
-            toToken: selectedDstToken.value?.address,
-            ownerAddresses: addressByChain.value as OwnerAddresses,
-            amount: srcAmount.value,
-        } as AllQuoteParams;
-
-        const TARGET_TYPE = TRANSACTION_TYPES[type];
-
-        let notificationTitle = `${make} ${srcAmount.value} ${selectedSrcToken.value?.symbol || ''}`;
-
-        if ([TRANSACTION_TYPES.DEX, TRANSACTION_TYPES.SWAP, TRANSACTION_TYPES.BRIDGE].includes(TARGET_TYPE)) {
-            notificationTitle += ` to ~${dstAmount.value} ${selectedDstToken.value?.symbol || ''}`;
-        }
-
-        return {
-            index,
-            module,
-            account: addressByChain.value[selectedSrcNetwork.value.net],
-
-            status: index === 0 ? STATUSES.IN_PROGRESS : STATUSES.PENDING,
-
-            ecosystem: selectedSrcNetwork.value.ecosystem.toUpperCase(),
-
-            chainId: `${selectedSrcNetwork.value?.chain_id}`,
-
-            metaData: {
-                action: OP_ACTIONS[TARGET_TYPE],
-                type: TARGET_TYPE,
-                params: {
-                    ...params,
-                    receiverAddress: receiverAddress.value,
-                    memo: memo.value,
-                    tokens: {
-                        from: selectedSrcToken.value,
-                        to: selectedDstToken.value,
-                    },
-                },
-                notificationTitle,
-            },
-        };
-    };
-
-    // ===============================================================================================
     // * Operations - Transaction parameters
     // ===============================================================================================
 
-    const TX_PARAMS_BY_TYPE = {
-        [TRANSACTION_TYPES.APPROVE]: async (): Promise<IBridgeDexTransaction> => {
-            const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
+    // const TX_PARAMS_BY_TYPE = {
+    //     [TRANSACTION_TYPES.APPROVE]: async (): Promise<IBridgeDexTransaction> => {
+    //         const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
 
-            const params: Approve = {
-                net: selectedSrcNetwork.value.net,
-                tokenAddress: selectedSrcToken.value.address,
-                ownerAddress,
-                amount: srcAmount.value,
-            };
+    //         const params: Approve = {
+    //             net: selectedSrcNetwork.value.net,
+    //             tokenAddress: selectedSrcToken.value.address,
+    //             ownerAddress,
+    //             amount: srcAmount.value,
+    //         };
 
-            const responseApprove: IBridgeDexTransaction[] = await makeApproveRequest(selectedRoute.value.serviceId, params);
+    //         const responseApprove: IBridgeDexTransaction[] = await makeApproveRequest(selectedRoute.value.serviceId, params);
 
-            const [tx] = responseApprove;
+    //         const [tx] = responseApprove;
 
-            return tx;
-        },
-        [TRANSACTION_TYPES.DEX]: async (): Promise<IBridgeDexTransaction> => {
-            const params = {
-                net: selectedSrcNetwork.value.net,
-                fromNet: selectedSrcNetwork.value.net,
-                toNet: selectedDstNetwork.value?.net || selectedSrcNetwork.value.net,
+    //         return tx;
+    //     },
+    //     [TRANSACTION_TYPES.DEX]: async (): Promise<IBridgeDexTransaction> => {
+    //         const params = {
+    //             net: selectedSrcNetwork.value.net,
+    //             fromNet: selectedSrcNetwork.value.net,
+    //             toNet: selectedDstNetwork.value?.net || selectedSrcNetwork.value.net,
 
-                fromToken: selectedSrcToken.value.address,
-                toToken: selectedDstToken.value.address,
+    //             fromToken: selectedSrcToken.value.address,
+    //             toToken: selectedDstToken.value.address,
 
-                ownerAddresses: addressByChain.value as OwnerAddresses,
-                receiverAddress: receiverAddress.value,
-                amount: srcAmount.value,
-            } as AllQuoteParams;
+    //             ownerAddresses: addressByChain.value as OwnerAddresses,
+    //             receiverAddress: receiverAddress.value,
+    //             amount: srcAmount.value,
+    //         } as AllQuoteParams;
 
-            // * Bridge transaction, add receiver address to ownerAddresses
-            if (isSendToAnotherAddress.value && receiverAddress.value) {
-                params.ownerAddresses = {
-                    ...addressByChain.value,
-                    [selectedDstNetwork.value.net]: receiverAddress.value,
-                };
-            }
+    //         // * Bridge transaction, add receiver address to ownerAddresses
+    //         if (isSendToAnotherAddress.value && receiverAddress.value) {
+    //             params.ownerAddresses = {
+    //                 ...addressByChain.value,
+    //                 [selectedDstNetwork.value.net]: receiverAddress.value,
+    //             };
+    //         }
 
-            const responseSwap = await makeSwapRequest(selectedRoute.value.serviceId, params, { toType: currentServiceType.value });
+    //         const responseSwap = await makeSwapRequest(selectedRoute.value.serviceId, params, { toType: currentServiceType.value });
 
-            const [tx] = responseSwap;
+    //         const [tx] = responseSwap;
 
-            return tx;
-        },
-        [TRANSACTION_TYPES.TRANSFER]: async (): Promise<IBridgeDexTransaction> => {
-            const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
+    //         return tx;
+    //     },
+    //     [TRANSACTION_TYPES.TRANSFER]: async (): Promise<IBridgeDexTransaction> => {
+    //         const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
 
-            const params = {
-                toAddress: receiverAddress.value,
-                amount: srcAmount.value,
-                token: selectedSrcToken.value,
-                fromAddress: ownerAddress,
-                memo: '',
-            };
+    //         const params = {
+    //             toAddress: receiverAddress.value,
+    //             amount: srcAmount.value,
+    //             token: selectedSrcToken.value,
+    //             fromAddress: ownerAddress,
+    //             memo: '',
+    //         };
 
-            if (isMemoAllowed && memo.value) {
-                params.memo = memo.value;
-            }
+    //         if (isMemoAllowed && memo.value) {
+    //             params.memo = memo.value;
+    //         }
 
-            return {
-                ecosystem: selectedSrcNetwork.value.ecosystem,
-                transaction: params,
-            };
-        },
-        [TRANSACTION_TYPES.STAKE]: async (): Promise<IBridgeDexTransaction> => {
-            const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
+    //         return {
+    //             ecosystem: selectedSrcNetwork.value.ecosystem,
+    //             transaction: params,
+    //         };
+    //     },
+    //     [TRANSACTION_TYPES.STAKE]: async (): Promise<IBridgeDexTransaction> => {
+    //         const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
 
-            const params = {
-                toAddress: receiverAddress.value,
-                amount: srcAmount.value,
-                token: selectedSrcToken.value,
-                fromAddress: ownerAddress,
-                memo: '',
-            };
+    //         const params = {
+    //             toAddress: receiverAddress.value,
+    //             amount: srcAmount.value,
+    //             token: selectedSrcToken.value,
+    //             fromAddress: ownerAddress,
+    //             memo: '',
+    //         };
 
-            if (isMemoAllowed && memo.value) {
-                params.memo = memo.value;
-            }
+    //         if (isMemoAllowed && memo.value) {
+    //             params.memo = memo.value;
+    //         }
 
-            return {
-                ecosystem: selectedSrcNetwork.value.ecosystem,
-                transaction: params,
-            };
-        },
-    };
+    //         return {
+    //             ecosystem: selectedSrcNetwork.value.ecosystem,
+    //             transaction: params,
+    //         };
+    //     },
+    // };
 
     // ===============================================================================================
     // * Operations - On success by transaction type
@@ -440,7 +314,7 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
 
     const updateShortcutStatus = (status = 'finish') => {
-        if (currentShortcut.value) {
+        if (currentShortcut.value && currentShortcut.value?.id) {
             console.log('Set shortcut step status to finish', currentShortcut.value);
 
             store.dispatch('shortcuts/setShortcutStepStatus', {
@@ -456,6 +330,92 @@ const useModuleOperations = (module: ModuleType) => {
         }
     };
 
+    const createOpsByModule = () => {
+        const ops = new OperationsFactory();
+
+        if (isNeedApprove.value) {
+            ops.registerOperation(module, ApproveOperation);
+
+            ops.setParams(module, 0, {
+                net: selectedSrcNetwork.value?.net,
+                tokenAddress: selectedSrcToken.value?.address,
+                ownerAddress: srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value,
+                amount: srcAmount.value,
+                serviceId: selectedRoute.value.serviceId,
+            });
+
+            ops.getOperationByKey(`${module}_0`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
+            ops.getOperationByKey(`${module}_0`).setChainId(selectedSrcNetwork.value?.chain_id);
+            ops.getOperationByKey(`${module}_0`).setAccount(srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value);
+        }
+
+        const account = srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value;
+
+        switch (module) {
+            case ModuleType.stake:
+            case ModuleType.send:
+                ops.registerOperation(module, TransferOperation);
+
+                ops.setParams(module, 0, {
+                    net: selectedSrcNetwork.value?.net,
+                    fromNet: selectedSrcNetwork.value?.net,
+                    toNet: selectedDstNetwork.value?.net,
+                    fromToken: selectedSrcToken.value?.address,
+                    toToken: selectedDstToken.value?.address,
+                    ownerAddresses: addressByChain.value as OwnerAddresses,
+                    amount: srcAmount.value,
+                    receiverAddress: receiverAddress.value,
+                    memo: memo.value,
+                    type: null,
+                });
+
+                ops.getOperationByKey(`${module}_0`).setTokens({ from: selectedSrcToken.value, to: selectedDstToken.value });
+                ops.getOperationByKey(`${module}_0`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
+                ops.getOperationByKey(`${module}_0`).setChainId(selectedSrcNetwork.value?.chain_id);
+                ops.getOperationByKey(`${module}_0`).setAccount(account);
+
+                ops.getOperationByKey(`${module}_0`).setTokens({ from: selectedSrcToken.value, to: selectedDstToken.value });
+
+                break;
+
+            case ModuleType.swap:
+            case ModuleType.superSwap:
+            case ModuleType.bridge:
+                const index = isNeedApprove.value ? 1 : 0;
+                const type = isSameNetwork.value ? ServiceType.dex : ServiceType.bridgedex;
+
+                ops.registerOperation(module, DexOperation);
+
+                ops.setParams(module, index, {
+                    net: selectedSrcNetwork.value?.net,
+                    fromNet: selectedSrcNetwork.value?.net,
+                    toNet: ModuleType.swap === module ? selectedSrcNetwork.value?.net : selectedDstNetwork.value?.net,
+                    fromToken: selectedSrcToken.value?.address,
+                    toToken: selectedDstToken.value?.address,
+                    ownerAddresses: addressByChain.value as OwnerAddresses,
+                    amount: srcAmount.value,
+                    receiverAddress: receiverAddress.value,
+                    memo: memo.value,
+                    serviceId: selectedRoute.value.serviceId,
+                    type,
+                });
+
+                ops.getOperationByKey(`${module}_${index}`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
+                ops.getOperationByKey(`${module}_${index}`).setChainId(selectedSrcNetwork.value?.chain_id);
+                ops.getOperationByKey(`${module}_${index}`).setAccount(account);
+                ops.getOperationByKey(`${module}_${index}`).setTokens({ from: selectedSrcToken.value, to: selectedDstToken.value });
+
+                console.log('Operations:', ops);
+
+                break;
+
+            default:
+                break;
+        }
+
+        return ops;
+    };
+
     // ===============================================================================================
     // * Handle on confirm
     // ===============================================================================================
@@ -467,22 +427,44 @@ const useModuleOperations = (module: ModuleType) => {
 
         isTransactionSigning.value = true;
 
-        const operationFlow = getOperationFlow();
+        let operations = shortcutOps.value;
+
+        console.log('Shortcut operations:', operations);
+
+        // * If operations not provided, create by module
+        if (!operations || typeof operations.getFullOperationFlow !== 'function') {
+            operations = createOpsByModule();
+        }
+
+        // * Get first operation
+        const firstInGroup = operations.getFirstOperation();
+
+        // * Create transaction group
+        const group = {
+            index: 0,
+            ecosystem: firstInGroup.getEcosystem(),
+            chainId: firstInGroup.getChainId(),
+            account: firstInGroup.getAccount(),
+            module: firstInGroup.getModule(),
+        };
+
+        const OP_FLOW = await operations.getFullOperationFlow();
+
+        const ops = OP_FLOW.map((step, i) => {
+            return `${i === 0 ? '\t' : ''}${step.index}: ${step.type} [${step.moduleIndex}]\n`;
+        }).join(' -> ');
+
+        console.log('----- Operation flow MODULE OPS START -----');
+        console.log(ops);
+        console.log('----- Operation flow MODULE OPS END -----\n\n');
 
         try {
-            const group = {
-                index: 0,
-                ecosystem: selectedSrcNetwork.value.ecosystem,
-                account: walletAddress.value,
-                chainId: `${selectedSrcNetwork.value?.chain_id}`,
-                module,
-            };
-
             const txManager = new TransactionList(socket.getSocket(), store);
 
+            console.log(`Create transaction group for ${module}`, txManager);
             await txManager.createTransactionGroup(group as ITransaction);
 
-            for (const { index, type, make } of operationFlow) {
+            for (const { index, type, make, moduleIndex } of OP_FLOW) {
                 const tx = new Transaction(type);
 
                 // * Set first transaction ID
@@ -501,7 +483,23 @@ const useModuleOperations = (module: ModuleType) => {
                 tx.prepare = async () => {
                     try {
                         console.log('Prepare:', index, type, 'Transaction');
-                        const prepared = prepare(index, type as TRANSACTION_TYPES, make);
+
+                        // const [module, opIndex] = moduleIndex.split('_');
+
+                        console.log('Prepare:', index, type, 'Transaction', operations.getOperationByKey(moduleIndex).params);
+
+                        const prepared = operations
+                            .getOperationByKey(moduleIndex)
+                            .perform(
+                                index,
+                                operations.getOperationByKey(moduleIndex).getAccount(),
+                                operations.getOperationByKey(moduleIndex).getEcosystem(),
+                                operations.getOperationByKey(moduleIndex).getChainId(),
+                                {
+                                    make,
+                                },
+                            );
+
                         const transaction = await txManager.addTransactionToGroup(index, prepared); // * Add or create transaction
 
                         if (index === 0) {
@@ -534,13 +532,19 @@ const useModuleOperations = (module: ModuleType) => {
                 // * Set execute parameters
                 tx.setTxExecuteParameters = async () => {
                     try {
-                        const { transaction, ecosystem } = await TX_PARAMS_BY_TYPE[type]();
+                        const { transaction, ecosystem } = await operations
+                            .getOperationByKey(moduleIndex)
+                            .performTx(operations.getOperationByKey(moduleIndex).getEcosystem(), {
+                                token: operations.getOperationByKey(moduleIndex).getToken('from'),
+                                memo: operations.getOperationByKey(moduleIndex).getParamByField('memo'),
+                                serviceId: operations.getOperationByKey(moduleIndex).getParamByField('serviceId'),
+                            });
 
                         tx.transaction.parameters = transaction;
                         tx.transaction.ecosystem = ecosystem.toUpperCase();
 
                         tx.setTransactionEcosystem(ecosystem.toUpperCase());
-                        tx.setChainId(selectedSrcNetwork.value?.chain_id);
+                        tx.setChainId(operations.getOperationByKey(moduleIndex).getChainId());
 
                         await tx.updateTransactionById(Number(tx.id), tx.transaction);
                     } catch (error) {
@@ -552,19 +556,32 @@ const useModuleOperations = (module: ModuleType) => {
                 // * Execute transaction
                 tx.execute = async () => {
                     try {
+                        console.log('Current chain:', currentChainInfo.value?.chain_id, tx.getChainId());
+
                         if (getConnectedStatus(tx.getEcosystem())) {
                             await switchEcosystem(tx.getEcosystem());
                             await delay(1000);
                         }
 
+                        console.log('Current chain: #2', currentChainInfo.value?.chain_id, tx.getChainId());
+                        console.log('Current chain: #3 Is equal', tx.getChainId() == currentChainInfo.value?.chain_id);
+                        console.log(
+                            'Current chain: #4 Is equal Ecosystem',
+                            _.isEqual(tx.getEcosystem(), currentChainInfo.value?.ecosystem),
+                        );
+
                         if (currentChainInfo.value?.ecosystem !== tx.getEcosystem()) {
                             await connectByEcosystems(tx.getEcosystem());
+                            await delay(1000);
                         }
 
                         await delay(1000);
 
-                        if (tx.getChainId() !== currentChainInfo.value?.chain_id) {
+                        if (tx.getChainId() != currentChainInfo.value?.chain_id) {
                             const chainInfo = getChainByChainId(tx.getEcosystem(), tx.getChainId());
+
+                            console.log('useModuleOperations -> execute -> setChain -> chainInfo', chainInfo);
+
                             const changed = await setChain(chainInfo);
 
                             if (!changed) {
@@ -597,7 +614,7 @@ const useModuleOperations = (module: ModuleType) => {
                         await ON_SUCCESS_BY_TYPE[type]();
                     }
 
-                    if (index === operationFlow.length - 1) {
+                    if (index === OP_FLOW.length - 1) {
                         isTransactionSigning.value = false;
                         console.log('Success all transactions');
                         updateShortcutStatus('finish');

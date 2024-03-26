@@ -4,19 +4,28 @@ const TYPES = {
     SET_UPDATE_BALANCE_FOR_ADDRESS: 'SET_UPDATE_BALANCE_FOR_ADDRESS',
     REMOVE_UPDATE_BALANCE_FOR_ADDRESS: 'REMOVE_UPDATE_BALANCE_FOR_ADDRESS',
     SET_IN_PROGRESS: 'SET_IN_PROGRESS',
+    SET_QUEUES_TO_UPDATE: 'SET_QUEUES_TO_UPDATE',
 };
 
 export default {
     namespaced: true,
 
     state: () => ({
-        transactionHash: {},
         inProgress: {},
+        transactionHash: {},
         updateBalanceForAddress: {},
+        queueToUpdate: {},
     }),
 
     getters: {
-        getInProgress: (state) => (key) => state.inProgress[key] || false,
+        getInProgress: (state) => (address: string) => {
+            console.log('getInProgress', JSON.parse(JSON.stringify(state.inProgress)));
+            if (_.isEmpty(state.inProgress[address])) {
+                return false;
+            }
+            return state.inProgress[address];
+        },
+        getQueueToUpdate: (state) => _.values(state.queueToUpdate),
         updateBalanceForAddress: (state) => {
             const response = {};
 
@@ -37,8 +46,6 @@ export default {
             for (const chain of chains) {
                 const uniqueKey = `${chain}_${address}`;
 
-                state.inProgress[uniqueKey] = true;
-
                 if (state.transactionHash[hash] && state.transactionHash[hash][uniqueKey]) {
                     return;
                 }
@@ -56,10 +63,10 @@ export default {
 
             const uniqueKey = `${chain}_${address}`;
 
-            state.inProgress[uniqueKey] = false;
-
             delete state.updateBalanceForAddress[address][chain];
             delete state.updateBalanceForAddress[address];
+            delete state.queueToUpdate[uniqueKey];
+            delete state.inProgress[uniqueKey];
 
             for (const key in state.transactionHash) {
                 if (state.transactionHash[key][uniqueKey]) {
@@ -74,6 +81,30 @@ export default {
         [TYPES.SET_IN_PROGRESS](state, { address, status }) {
             state.inProgress[address] = status;
         },
+        [TYPES.SET_QUEUES_TO_UPDATE](
+            state,
+            {
+                chain,
+                address,
+                mainAddress,
+                config,
+            }: {
+                chain: string;
+                address: string;
+                mainAddress: string;
+                config: any;
+            },
+        ) {
+            console.log(`SET_QUEUES_TO_UPDATE`, chain, address, mainAddress, config);
+            const uniqueKey = `${chain}_${mainAddress}`;
+
+            state.queueToUpdate[uniqueKey] = {
+                chain,
+                address,
+                mainAddress,
+                config,
+            };
+        },
     },
 
     actions: {
@@ -83,9 +114,11 @@ export default {
         removeUpdateBalanceForAddress({ commit }, value) {
             commit(TYPES.REMOVE_UPDATE_BALANCE_FOR_ADDRESS, value);
         },
-
         setInProgress({ commit }, { address, status }) {
             commit(TYPES.SET_IN_PROGRESS, { address, status });
+        },
+        setQueuesToUpdate({ commit }, value) {
+            commit(TYPES.SET_QUEUES_TO_UPDATE, value);
         },
     },
 };

@@ -122,7 +122,6 @@ export default {
             await store.dispatch('configs/setConfigLoading', true);
 
             await store.dispatch('configs/initConfigs');
-            // await store.dispatch('bridgeDex/getServices');
             await store.dispatch('bridgeDexAPI/getServices');
 
             await initAdapter();

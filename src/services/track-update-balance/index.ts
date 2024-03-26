@@ -18,10 +18,8 @@ export const trackingBalanceUpdate = (store) => {
 
     const chainWithAddresses = computed(() => {
         const { ecosystem } = selectedSrcNetwork.value || {};
-        return store.getters['adapters/getAddressesByEcosystemList'](ecosystem) || {};
-    });
+        const addresses = store.getters['adapters/getAddressesByEcosystemList'](ecosystem) || {};
 
-    const updateBalanceQueuesByChain = computed(() => {
         const queues = [];
 
         const target = {
@@ -29,8 +27,8 @@ export const trackingBalanceUpdate = (store) => {
             address: '',
         };
 
-        for (const chain in chainWithAddresses.value) {
-            const { address } = chainWithAddresses.value[chain];
+        for (const chain in addresses) {
+            const { address } = addresses[chain];
 
             if (!address || !updateBalanceQueues.value[address]) {
                 continue;
@@ -53,25 +51,22 @@ export const trackingBalanceUpdate = (store) => {
                 continue;
             }
 
-            if (!chainWithAddresses.value[config?.net]) {
+            if (!addresses[config?.net]) {
                 continue;
             }
 
-            const { address: targetAddress } = chainWithAddresses.value[config?.net];
+            const { address: targetAddress } = addresses[config?.net];
 
-            const uniqueKey = `${targetChain}_${target.address}`;
-
-            const inProgress = store.getters['updateBalance/getInProgress'](uniqueKey);
-
-            if (inProgress) {
-                continue;
-            }
-
-            queues.push({ chain: targetChain, address: targetAddress, mainAddress: target.address, config });
+            store.dispatch('updateBalance/setQueuesToUpdate', {
+                chain: targetChain,
+                address: targetAddress,
+                mainAddress: target.address,
+                config,
+            });
         }
-
-        return queues;
     });
+
+    const queues = computed(() => store.getters['updateBalance/getQueueToUpdate'] || []);
 
     const handleUpdateBalance = async (network, address: string) => {
         const targetAccount = JSON.parse(JSON.stringify(walletAccount.value)) || '';
@@ -100,14 +95,31 @@ export const trackingBalanceUpdate = (store) => {
         await store.dispatch('updateBalance/removeUpdateBalanceForAddress', { address, chain });
     };
 
-    watch(updateBalanceQueuesByChain, async () => {
+    watch(chainWithAddresses, async () => {
         await Promise.all(
-            updateBalanceQueuesByChain.value.map(async (queueWallet) => {
+            queues.value.map(async (queueWallet) => {
                 const { address = null, chain = null, mainAddress = null, config = null } = queueWallet || {};
 
                 if (!address || !chain || !mainAddress || !config) {
                     return;
                 }
+
+                const uniqueKey = `${chain}_${mainAddress}`;
+                console.log(`uniqueKey`, uniqueKey);
+
+                if (!uniqueKey) {
+                    return;
+                }
+
+                const inProgress = await store.getters['updateBalance/getInProgress'](uniqueKey);
+                console.log(`Balance update for ${chain}_${mainAddress} is in progress status`, inProgress);
+                if (inProgress) {
+                    console.log(`Balance update for ${chain}_${mainAddress} is in progress`);
+                    return;
+                }
+
+                console.log(`Balance update for ${chain}_${mainAddress} not in progress, starting...`);
+                store.dispatch('updateBalance/setInProgress', { key: `${chain}_${mainAddress}`, status: true });
 
                 await handleUpdateBalance(config, address);
 
@@ -120,10 +132,12 @@ export const trackingBalanceUpdate = (store) => {
                 if (timeout.value[config.net] === 0) {
                     clearInterval(timeout.value[config.net]);
                     message.destroy();
-                    await removeUpdateBalanceQueues(mainAddress, chain);
                 }
 
                 await removeUpdateBalanceQueues(mainAddress, chain);
+                console.log(`Balance update for ${chain}_${mainAddress} is done`);
+
+                store.dispatch('updateBalance/setInProgress', { key: `${chain}_${mainAddress}`, status: false });
             }),
         );
     });

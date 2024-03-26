@@ -9,7 +9,7 @@ import { searchByKey } from '@/shared/utils/helpers';
 import { assignPriceInfo } from '@/shared/utils/prices';
 
 import { DIRECTIONS, TOKEN_SELECT_TYPES, PRICE_UPDATE_TIME } from '@/shared/constants/operations';
-import { ModuleType } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { ECOSYSTEMS } from '@/Adapter/config';
 
 export default function useSelectModal(type) {

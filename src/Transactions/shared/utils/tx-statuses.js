@@ -11,11 +11,6 @@ const SUCCESS_CALLBACKS = {
     GET_BRIDGE_TX: getBridgeTx,
     GET_ALLOWANCE: getAllowance,
     GET_APPROVE_TX: getApproveTx,
-    // CLEAR_AMOUNTS: ({ store }) => {
-    //     store.dispatch('tokenOps/setReceiverAddress', null);
-    //     store.dispatch('tokenOps/setSrcAmount', null);
-    //     store.dispatch('tokenOps/setDstAmount', null);
-    // },
 };
 
 const NOTIFICATION_TYPE_BY_STATUS = {

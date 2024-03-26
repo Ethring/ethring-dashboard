@@ -3,13 +3,14 @@ import { useStore } from 'vuex';
 import BigNumber from 'bignumber.js';
 
 import BridgeDexService from '@/modules/bridge-dex';
-import { ModuleType, ModulesByService, ServiceType, ServiceTypes } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import { ModulesByService, ServiceType, ServiceTypes } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { AllQuoteParams } from '@/modules/bridge-dex/models/Request.type';
 
 import { IQuoteRoute, ErrorResponse } from '@/modules/bridge-dex/models/Response.interface';
 import { NATIVE_CONTRACT } from '@/Adapter/config';
 
-import { FEE_TYPES } from '@/shared/constants/operations';
+import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
 
 import { FeeInfo } from '@/shared/models/types/Fee';
 import { calculateFeeByCurrency, calculateFeeInNativeToUsd } from '@/shared/calculations/calculate-fee';
@@ -324,9 +325,9 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     });
 
     const allFees = computed(() => ({
-        [FEE_TYPES.RATE]: rateFeeInfo.value,
-        [FEE_TYPES.BASE]: feeInCurrency.value,
-        [FEE_TYPES.PROTOCOL]: emptyFee.value,
+        [FEE_TYPE.RATE]: rateFeeInfo.value,
+        [FEE_TYPE.BASE]: feeInCurrency.value,
+        [FEE_TYPE.PROTOCOL]: emptyFee.value,
     }));
 
     // ===========================================================================================
@@ -518,5 +519,3 @@ export default useBridgeDexQuote;
 //     //     toSymbol: '$',
 //     // };
 // };
-
-// const getServiceAllowance = async (requestParams: GetAllowanceParams) => await store.dispatch('bridgeDexAPI/getAllowance', { serviceType, requestParams });

@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
     <a-modal :open="routesModal" centered :footer="null" class="modal" :title="$t('superSwap.selectRoutes')" @cancel="closeModal">
         <div class="routes-modal">
             <div
@@ -315,4 +315,4 @@ export default {
         }
     }
 }
-</style>
+</style> -->

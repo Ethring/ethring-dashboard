@@ -1,4 +1,4 @@
-import { ModuleType } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { ITransactionResponse, ICreateTransaction } from '@/Transactions/types/Transaction';
 import { addTransactionToExistingQueue, createTransactionsQueue, getTransactionsByRequestID, updateTransaction } from '@/Transactions/api';
 import { Socket } from 'socket.io-client';
@@ -54,7 +54,7 @@ export class Transaction {
     }
 
     getChainId() {
-        return this.chainId;
+        return this.chainId?.toString();
     }
 
     async updateTransactionById(id: number, transaction: ITransactionResponse): Promise<ITransactionResponse> {

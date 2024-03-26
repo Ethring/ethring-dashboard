@@ -6,14 +6,14 @@
             height: `${height}px`,
         }"
     >
-        <template v-if="token && !isShowPlaceholder">
+        <template v-if="token && shouldShowImage">
             <img
                 :key="token?.symbol"
                 :src="token?.logo"
                 :alt="token?.name || token?.symbol"
                 loading="lazy"
-                @error="() => handleOnErrorImg()"
-                @load="() => handleOnLoadImg()"
+                @error="handleOnErrorImg"
+                @load="handleOnLoadImg"
             />
         </template>
         <template v-else>
@@ -24,7 +24,7 @@
     </div>
 </template>
 <script>
-import { ref, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 
 export default {
     name: 'TokenIcon',
@@ -78,6 +78,8 @@ export default {
 
             handleOnLoadImg,
             handleOnErrorImg,
+
+            shouldShowImage: computed(() => !isShowPlaceholder.value),
         };
     },
 };

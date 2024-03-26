@@ -1,16 +1,43 @@
+import { ModuleTypes } from '@/shared/models/enums/modules.enum';
+import { TxOperationFlow } from '@/shared/models/types/Operations';
+import { TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
+import { ITransaction, ITransactionResponse } from '../types/Transaction';
+
 const TYPES = {
-    SET_TRANSACTIONS_BY_MODULE: 'SET_TRANSACTIONS_BY_MODULE',
-    SET_TRANSACTIONS_BY_REQUEST_ID: 'SET_TRANSACTIONS_BY_REQUEST_ID',
     SET_TRANSACTION_FOR_SIGN: 'SET_TRANSACTION_FOR_SIGN',
+    SET_TRANSACTIONS_BY_MODULE: 'SET_TRANSACTIONS_BY_MODULE',
+
     SET_CURRENT_REQUEST_ID: 'SET_CURRENT_REQUEST_ID',
-    SET_IS_WAITING_TX_STATUS_FOR_MODULE: 'SET_IS_WAITING_TX_STATUS_FOR_MODULE',
+    SET_TRANSACTIONS_BY_REQUEST_ID: 'SET_TRANSACTIONS_BY_REQUEST_ID',
+
     SET_TRANSACTION_SIGNING_STATUS: 'SET_TRANSACTION_SIGNING_STATUS',
+    SET_IS_WAITING_TX_STATUS_FOR_MODULE: 'SET_IS_WAITING_TX_STATUS_FOR_MODULE',
 };
+
+interface IState {
+    transactionsByModule: {
+        [key: string]: any;
+    };
+
+    transactionsByRequestID: {
+        [key: string]: any[];
+    };
+
+    transactionForSign: any | null;
+
+    isWaitingTxStatus: {
+        [key in ModuleTypes]?: boolean;
+    };
+
+    isTransactionSigning: boolean;
+
+    currentRequestID: string | null;
+}
 
 export default {
     namespaced: true,
 
-    state: () => ({
+    state: (): IState => ({
         transactionsByModule: {},
         transactionsByRequestID: {},
         transactionForSign: null,
@@ -23,15 +50,18 @@ export default {
     }),
 
     getters: {
-        isTransactionSigning: (state) => state.isTransactionSigning || false,
-        transactionForSign: (state) => state.transactionForSign,
-        currentRequestID: (state) => state.currentRequestID,
+        isTransactionSigning: (state: IState) => state.isTransactionSigning || false,
+        transactionForSign: (state: IState) => state.transactionForSign,
+        currentRequestID: (state: IState) => state.currentRequestID,
 
-        isWaitingTxStatusForModule: (state) => (module) => state.isWaitingTxStatus[module] || false,
+        isWaitingTxStatusForModule: (state: IState) => (module: ModuleTypes) => state.isWaitingTxStatus[module] || false,
     },
 
     mutations: {
-        [TYPES.SET_TRANSACTIONS_BY_MODULE](state, { module, account, transactions }) {
+        [TYPES.SET_TRANSACTIONS_BY_MODULE](
+            state: IState,
+            { module, account, transactions }: { module: ModuleTypes; account: string; transactions: ITransactionResponse[] },
+        ) {
             if (!state.transactionsByModule[module]) {
                 state.transactionsByModule[module] = {};
             }
@@ -42,22 +72,28 @@ export default {
 
             state.transactionsByModule[module][account] = transactions;
         },
-        [TYPES.SET_TRANSACTIONS_BY_REQUEST_ID](state, { requestID, transactions }) {
+        [TYPES.SET_TRANSACTIONS_BY_REQUEST_ID](
+            state: IState,
+            { requestID, transactions }: { requestID: string; transactions: ITransactionResponse[] },
+        ) {
             if (!state.transactionsByRequestID[requestID]) {
                 state.transactionsByRequestID[requestID] = [];
             }
 
             state.transactionsByRequestID[requestID] = transactions;
         },
-        [TYPES.SET_TRANSACTION_FOR_SIGN](state, transaction) {
+        [TYPES.SET_TRANSACTION_FOR_SIGN](state: IState, transaction: ITransactionResponse) {
             state.transactionForSign = transaction;
         },
 
-        [TYPES.SET_CURRENT_REQUEST_ID](state, requestID) {
+        [TYPES.SET_CURRENT_REQUEST_ID](state: IState, requestID: string) {
             state.currentRequestID = requestID;
         },
 
-        [TYPES.SET_IS_WAITING_TX_STATUS_FOR_MODULE](state, { module, isWaiting }) {
+        [TYPES.SET_IS_WAITING_TX_STATUS_FOR_MODULE](
+            state: IState,
+            { module, isWaiting }: { module: ModuleTypes | 'all'; isWaiting: boolean },
+        ) {
             if (module === 'all') {
                 for (const key in state.isWaitingTxStatus) {
                     state.isWaitingTxStatus[key] = isWaiting;
@@ -66,7 +102,7 @@ export default {
 
             state.isWaitingTxStatus[module] = isWaiting;
         },
-        [TYPES.SET_TRANSACTION_SIGNING_STATUS](state, value) {
+        [TYPES.SET_TRANSACTION_SIGNING_STATUS](state: IState, value: boolean) {
             state.isTransactionSigning = value;
         },
     },
@@ -81,10 +117,10 @@ export default {
         setTransactionForSign({ commit }, transaction) {
             commit(TYPES.SET_TRANSACTION_FOR_SIGN, transaction);
         },
-        setCurrentRequestID({ commit }, requestID) {
+        setCurrentRequestID({ commit }, requestID: string) {
             commit(TYPES.SET_CURRENT_REQUEST_ID, requestID);
         },
-        setIsWaitingTxStatusForModule({ commit }, value) {
+        setIsWaitingTxStatusForModule({ commit }, value: { module: ModuleTypes; isWaiting: boolean }) {
             commit(TYPES.SET_IS_WAITING_TX_STATUS_FOR_MODULE, value);
         },
         setTransactionSigning({ commit }, value) {

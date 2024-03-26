@@ -11,7 +11,7 @@ import useBridgeDexService from '@/modules/bridge-dex/compositions';
 
 import { STATUSES } from '@/shared/models/enums/statuses.enum';
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
-import { ModuleType } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
 import useChainTokenManger from './useChainTokenManager';
 
 export default function useModule(moduleType: ModuleType) {
@@ -57,9 +57,9 @@ export default function useModule(moduleType: ModuleType) {
     const isWaitingTxStatusForModule = computed(() => store.getters['txManager/isWaitingTxStatusForModule'](moduleType));
 
     // * Bridge Dex
-    const bridgeDexRoutes = computed(() => store.getters['bridgeDex/selectedRoute']);
-    const bestRouteInfo = computed(() => bridgeDexRoutes.value?.bestRoute);
-    const currentRouteInfo = computed(() => bestRouteInfo.value?.routes.find((elem) => elem.status === STATUSES.SIGNING));
+    // const bridgeDexRoutes = computed(() => store.getters['bridgeDex/selectedRoute']);
+    // const bestRouteInfo = computed(() => bridgeDexRoutes.value?.bestRoute);
+    // const currentRouteInfo = computed(() => bestRouteInfo.value?.routes.find((elem) => elem.status === STATUSES.SIGNING));
 
     // =================================================================================================================
 
@@ -257,22 +257,7 @@ export default function useModule(moduleType: ModuleType) {
 
     onBeforeUnmount(() => {
         // Clear all data
-
-        // Reset all data
-        targetDirection.value = DIRECTIONS.SOURCE;
-        selectedSrcNetwork.value = null;
-        selectedSrcToken.value = null;
-        selectedDstNetwork.value = null;
-        selectedDstToken.value = null;
-        receiverAddress.value = '';
-
-        isEstimating.value = false;
-        txError.value = '';
-        isLoading.value = false;
-        estimateErrorTitle.value = '';
-
-        srcAmount.value = null;
-        dstAmount.value = null;
+        store.dispatch('tokenOps/resetFields');
     });
 
     return {

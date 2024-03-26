@@ -1,31 +1,16 @@
-import { ShortcutType, ShortcutTypes } from '../types/ShortcutType';
+import { ShortcutTypes } from '../types/ShortcutType';
 
 export interface IOperationParam {
     name: string;
     disabled: boolean;
+    hide: boolean;
+
+    // Optional fields
+    id?: string;
     ecosystem?: string;
     chainId?: string | number;
     chain?: string;
-    id?: string;
     address?: string;
-    type?: string; // Optional if you want to include a type field
-    memo?: string; // Optional if you want to include a memo field
-}
-
-export interface IOperation {
-    id: string;
-    name: string;
-    type: ShortcutTypes;
-    operationType: string;
-    moduleType: string;
-    paramsInterface: string;
-    layoutComponent: string;
-    layoutComponentProps?: any;
-    params: IOperationParam[];
-    operations?: IOperation[];
-}
-
-export interface IRecipe {
-    id: string;
-    operations: IOperation[];
+    type?: string;
+    memo?: string;
 }

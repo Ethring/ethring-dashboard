@@ -15,7 +15,7 @@ const SEND = {
     title: 'Send',
     key: 'send',
     to: '/send',
-    disabled: false,
+    disabled: true,
     type: 'layout',
 };
 
@@ -24,7 +24,7 @@ const BRIDGE = {
     title: 'Bridge',
     key: 'bridge',
     to: '/bridge',
-    disabled: false,
+    disabled: true,
     type: 'layout',
 };
 
@@ -33,7 +33,7 @@ const SWAP = {
     title: 'Swap',
     key: 'swap',
     to: '/swap',
-    disabled: false,
+    disabled: true,
     type: 'layout',
 };
 
@@ -43,7 +43,7 @@ const SUPER_SWAP = {
     key: 'superSwap',
     to: '/super-swap',
     status: 'BETA',
-    disabled: false,
+    disabled: true,
     type: 'layout',
 };
 
