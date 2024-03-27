@@ -12,6 +12,8 @@
         </div>
     </a-row>
 
+    <SearchInput placeholder="Search shortcut" class="mt-16" :value="searchInput" @onChange="handleSearchChange" />
+
     <a-row align="middle" class="shortcut-tags">
         <div class="shortcut-tags__title">Results for:</div>
 
@@ -30,8 +32,8 @@
         </div>
     </a-row>
 
-    <a-row :gutter="[16, 16]" v-if="shortcuts.length" class="shortcut-list">
-        <a-col v-for="(item, i) in shortcuts" :key="`shortcut-${i}`" :md="24" :lg="12">
+    <a-row :gutter="[16, 16]" v-if="shortcutList.length" class="shortcut-list">
+        <a-col v-for="(item, i) in shortcutList" :key="`shortcut-${i}`" :md="24" :lg="12">
             <ShortcutItem :item="item" />
         </a-col>
     </a-row>
@@ -40,10 +42,11 @@
 </template>
 
 <script>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 
 import ShortcutItem from '@/components/shortcuts/ShortcutItem';
+import SearchInput from '@/components/ui/SearchInput.vue';
 
 import ArrowUpIcon from '@/assets/icons/module-icons/pointer-up.svg';
 import ClearIcon from '@/assets/icons/form-icons/clear.svg';
@@ -51,10 +54,16 @@ import ClearAllIcon from '@/assets/icons/form-icons/remove.svg';
 
 import { Empty } from 'ant-design-vue';
 
+import { searchByKey } from '@/shared/utils/helpers';
+
+import _ from 'lodash';
+
 export default {
     name: 'Shortcuts',
     components: {
         ShortcutItem,
+        SearchInput,
+
         ArrowUpIcon,
         ClearIcon,
         ClearAllIcon,
@@ -64,11 +73,15 @@ export default {
 
         const activeTabKey = ref('all');
 
+        const searchInput = ref('');
+
         const emptyImage = Empty.PRESENTED_IMAGE_SIMPLE;
 
         const shortcuts = computed(() => store.getters['shortcuts/getShortcutsByType'](activeTabKey.value));
 
         const selectedTags = computed(() => store.getters['shortcuts/selectedTags']);
+
+        const shortcutList = ref(shortcuts.value);
 
         const tabs = ref([
             {
@@ -89,13 +102,30 @@ export default {
             store.dispatch('shortcuts/clearAllTags');
         };
 
+        const handleSearchChange = (value) => {
+            searchInput.value = value;
+
+            shortcutList.value = searchShortcut(shortcuts.value, value);
+        };
+
+        const searchShortcut = (list = [], value) => {
+            return _.filter(list, (elem) => searchByKey(elem, value, 'name'));
+        };
+
+        watch(shortcuts, (newShortcuts) => {
+            shortcutList.value = searchShortcut(newShortcuts, searchInput.value);
+        });
+
         return {
             shortcuts,
             selectedTags,
             tabs,
             activeTabKey,
             emptyImage,
+            searchInput,
+            shortcutList,
 
+            handleSearchChange,
             onTabChange: (key) => (activeTabKey.value = key),
             removeTag,
             clearAllTags,
