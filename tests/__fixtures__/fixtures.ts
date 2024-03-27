@@ -54,7 +54,7 @@ export const testMetaMask = base.extend<{
     swapPageMockBalancesAndTokensList: SwapPage;
     superSwapPageBalanceMock: SuperSwapPage;
 }>({
-    context: async ({}, use) => {
+    context: async ({ }, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -144,7 +144,7 @@ export const testMetaMaskMockTx = base.extend<{
     context: BrowserContext;
     sendPage: SendPage;
 }>({
-    context: async ({}, use) => {
+    context: async ({ }, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -179,8 +179,9 @@ export const testKeplr = base.extend<{
     dashboard: DashboardPage;
     dashboardProtocol: DashboardPage;
     sendPage: SendPage;
+    swapPage: SwapPage;
 }>({
-    context: async ({}, use) => {
+    context: async ({ }, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -218,6 +219,45 @@ export const testKeplr = base.extend<{
     },
     dashboardProtocol: async ({ context }, use) => {
         const zometPage = await authByKeplrErrorJunoBalanceMock(context, SEED_PHRASE_BY_PROTOCOL, COSMOS_WALLETS_BY_PROTOCOL_SEED);
+        await use(zometPage);
+    },
+    swapPage: async ({ context }, use) => {
+        const zometPage = await authByKeplr(context, SEED_PHRASE_BY_TX, COSMOS_WALLETS_BY_SEED_MOCK_TX);
+        const swapPage = await zometPage.goToModule('swap');
+        await use(swapPage);
+    },
+});
+
+export const testMetaMaskAndKeplr = base.extend<{
+    context: BrowserContext;
+    authPage: BasePage;
+}>({
+    context: async ({}, use) => {
+        const context = await chromium.launchPersistentContext('', {
+            headless: false,
+            ignoreHTTPSErrors: true,
+            args: [
+                `--disable-extensions-except=${getPathToKeplrExtension()},${getPathToMmExtension()}`,
+                `--load-extension=${getPathToKeplrExtension()},${getPathToMmExtension()}`,
+                '--force-fieldtrials',
+
+                '--ignore-certificate-errors',
+
+                '--disable-background-timer-throttling',
+                '--disable-backgrounding-occluded-windows',
+                '--disable-renderer-backgrounding',
+            ],
+        });
+
+        await use(context);
+        await context.close();
+    },
+    authPage: async ({ context }, use) => {
+        await addWalletToKeplr(context, SEED_EMPTY_WALLET);
+        await addWalletToMm(context, SEED_EMPTY_WALLET, 1);
+
+        const zometPage = new BasePage(await context.newPage());
+        await zometPage.goToPage();
         await use(zometPage);
     },
 });

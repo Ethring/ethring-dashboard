@@ -68,6 +68,12 @@ $top-bar-spacing: 20px;
         margin-top: 16px;
     }
 
+    .panel-control {
+        position: absolute;
+        top: -50px;
+        right: 0;
+    }
+
     .reload-btn {
         display: flex;
         align-items: center;
@@ -75,15 +81,13 @@ $top-bar-spacing: 20px;
 
         cursor: not-allowed;
 
-        position: absolute;
-        top: -50px;
-        right: 0;
         z-index: 10;
 
         border-radius: 50%;
 
         height: 32px;
         width: 32px;
+        margin-right: 8px;
 
         font-size: 18px;
 

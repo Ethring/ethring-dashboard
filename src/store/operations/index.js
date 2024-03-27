@@ -1,4 +1,10 @@
+import { useLocalStorage } from '@vueuse/core';
+
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations/index';
+
+const CUSTOM_SLIPPAGE_KEY = 'slippage';
+
+const slippageFromStore = useLocalStorage(CUSTOM_SLIPPAGE_KEY, 1, { mergeDefaults: true });
 
 const TYPES = {
     SET_SRC_NETWORK: 'SET_FROM_NETWORK',
@@ -86,6 +92,7 @@ export default {
         operationResult: {},
 
         memo: null,
+        slippage: slippageFromStore.value,
     }),
 
     getters: {
@@ -106,6 +113,7 @@ export default {
 
         receiverAddress: (state) => state.receiverAddress,
         memo: (state) => state.memo,
+        slippage: (state) => state.slippage,
 
         getOperationResultByModule: (state) => (module) => state.operationResult[module] || null,
 
@@ -198,6 +206,9 @@ export default {
         [TYPES.RESET_SRC_BALANCE_FOR_ACCOUNT](state) {
             state.srcToken = state.srcToken ? { ...state.srcToken, balance: null } : null;
         },
+        [TYPES.SET_SLIPPAGE](state, slippage) {
+            state.slippage = slippage;
+        },
     },
 
     actions: {
@@ -251,6 +262,10 @@ export default {
         },
         setMemo({ commit }, value) {
             commit(TYPES.SET_MEMO, value);
+        },
+        setSlippage({ commit }, value) {
+            slippageFromStore.value = value;
+            commit(TYPES.SET_SLIPPAGE, value);
         },
         resetSrcBalanceForAccount({ commit }) {
             commit(TYPES.RESET_SRC_BALANCE_FOR_ACCOUNT);
