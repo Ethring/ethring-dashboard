@@ -234,11 +234,17 @@ class BasePage {
         );
     }
 
+    /**
+    * This method is designed to modify the data in a GET request for /transaction/{:id} path.
+    *
+    * @param {Object} dataToReturnInHttpResponse - This object was returned from stub-tx-manager as HTTP response.
+    */
     async modifyDataByGetTxRequest(dataToReturnInHttpResponse: Object) {
         return await this.page.route(/\/transactions\/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/, (route) => {
             this.handleGetRequest(route, 'GET', dataToReturnInHttpResponse);
         });
     }
+
     /**
      * This method is designed to modify the data in a PUT request for /transaction/{:id} path.
      *
@@ -248,6 +254,17 @@ class BasePage {
     async modifyDataByPutTxRequest(dataToReturnInHttpResponse: Object, dataToReturnInWsResponse: Object) {
         return await this.page.route(/\/transactions\/\d{4}$/, (route) =>
             this.handleRequestWithModification(route, 'PUT', dataToReturnInHttpResponse, dataToReturnInWsResponse),
+        );
+    }
+
+    /**
+    * This method is designed to get payload values from POST getSwapTx request /getSwapTx path.
+    */
+    async getPayloadOfPostSwapTxRequest() {
+        return await this.page.route(/\/getSwapTx$/, (route) => {
+            console.log(route.request().postData(), '---route.request().postData();');
+            return route.request().postData();
+        }
         );
     }
 }
@@ -384,6 +401,10 @@ class SwapPage extends BasePage {
         await this.page.locator(`${this.TOKEN_ITEM_XPATH}[1]`).click();
     }
 
+    async clickSwap() {
+        await this.page.getByTestId(DATA_QA_LOCATORS.CONFIRM).click();
+    }
+
     async openTokenPageTo() {
         await this.page.locator(`${this.TOKEN_ITEM_XPATH}[2]`).click();
     }
@@ -398,6 +419,15 @@ class SwapPage extends BasePage {
 
     async getTokenTo() {
         return await this.page.locator(`(//*[@data-qa="${DATA_QA_LOCATORS.SELECT_TOKEN}"]/div[@class="token"])[2]`).textContent();
+    }
+
+    async openSlippageDropdown() {
+        await this.page.getByTestId(DATA_QA_LOCATORS.SLIPPAGE_ICON).click();
+    }
+
+    async setCustomSlippage(slippage: string) {
+        await this.page.getByTestId(DATA_QA_LOCATORS.SLIPPAGE_CUSTOM).nth(0).click();
+        await this.page.locator(`(//div[@data-qa="${DATA_QA_LOCATORS.SLIPPAGE_CUSTOM_INPUT}"]//input)[1]`).fill(slippage);
     }
 }
 

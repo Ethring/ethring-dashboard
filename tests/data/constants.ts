@@ -63,6 +63,9 @@ export enum DATA_QA_LOCATORS {
 
     ITEM = 'item',
     ROUTE_INFO = 'estimate-info',
+    SLIPPAGE_ICON = 'slippage-icon',
+    SLIPPAGE_CUSTOM = "slippage-custom",
+    SLIPPAGE_CUSTOM_INPUT = "slippage-custom-input"
 }
 
 export enum IGNORED_LOCATORS {

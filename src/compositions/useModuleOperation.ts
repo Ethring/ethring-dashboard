@@ -72,6 +72,7 @@ const useModuleOperations = (module: ModuleType) => {
         selectedRoute,
         memo,
         receiverAddress,
+        slippage,
 
         makeApproveRequest,
         makeSwapRequest,
@@ -252,6 +253,7 @@ const useModuleOperations = (module: ModuleType) => {
             toToken: selectedDstToken.value?.address,
             ownerAddresses: addressByChain.value as OwnerAddresses,
             amount: srcAmount.value,
+            slippageTolerance: slippage.value
         } as AllQuoteParams;
 
         const TARGET_TYPE = TRANSACTION_TYPES[type];
@@ -323,6 +325,7 @@ const useModuleOperations = (module: ModuleType) => {
                 ownerAddresses: addressByChain.value as OwnerAddresses,
                 receiverAddress: receiverAddress.value,
                 amount: srcAmount.value,
+                slippageTolerance: slippage.value
             } as AllQuoteParams;
 
             // * Bridge transaction, add receiver address to ownerAddresses

@@ -118,6 +118,13 @@ export default function useModule(moduleType: ModuleType) {
         set: (value) => store.dispatch('tokenOps/setReceiverAddress', value),
     });
 
+    const slippage = computed({
+        get: () => store.getters['tokenOps/slippage'],
+        set: (value) => store.dispatch('tokenOps/setSlippage', value),
+    });
+
+    // =================================================================================================================
+
     const isSendToAnotherAddress = ref(false);
     const isAddressError = ref(false);
 
@@ -304,6 +311,9 @@ export default function useModule(moduleType: ModuleType) {
         isMemoAllowed,
         isSendWithMemo,
         memo,
+
+        // Slippage tolerance
+        slippage,
 
         // Operation title
         opTitle,
