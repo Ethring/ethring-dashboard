@@ -1,0 +1,152 @@
+<template>
+    <div
+        class="overlay-container"
+        :class="{
+            active: [STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(status) && status !== STATUSES.PENDING,
+        }"
+    >
+        <div class="overlay-content">
+            <OverlayIcon
+                class="overlay-icon"
+                :class="{
+                    error: status === STATUSES.FAILED,
+                    success: status === STATUSES.SUCCESS,
+                }"
+            />
+
+            <div class="wallet-icon-container">Wallet</div>
+        </div>
+
+        <div class="overlay-bottom">
+            <Button
+                v-if="[STATUSES.FAILED, STATUSES.SUCCESS].includes(status)"
+                @click="status = STATUSES.PENDING"
+                :loading="status === STATUSES.IN_PROGRESS"
+                title="Try Again"
+            />
+        </div>
+    </div>
+</template>
+<script>
+import OverlayIcon from '@/assets/icons/platform-icons/overlay-loading.svg';
+import { STATUSES } from '../../../shared/models/enums/statuses.enum';
+
+import Button from '@/components/ui/Button.vue';
+
+export default {
+    name: 'ShortcutLoading',
+    components: {
+        OverlayIcon,
+        Button,
+    },
+    props: {
+        status: {
+            type: [String, null],
+            required: true,
+            default: STATUSES.PENDING,
+        },
+    },
+    data() {
+        return {
+            STATUSES,
+        };
+    },
+};
+</script>
+<style lang="scss">
+.overlay-container {
+    width: 100%;
+    height: 100%;
+
+    max-width: 520px;
+
+    background: var(--#{$prefix}secondary-background);
+
+    display: flex;
+    flex-direction: column;
+
+    position: absolute;
+
+    top: 0;
+
+    z-index: -1;
+
+    &.active {
+        display: flex;
+
+        z-index: 1;
+    }
+
+    .overlay-bottom {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px 0;
+    }
+
+    .overlay-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        height: 100%;
+        width: 100%;
+    }
+
+    .overlay-icon {
+        width: 100%;
+        height: 100%;
+        animation: spin 10s linear infinite;
+
+        &.error {
+            animation: none;
+
+            g {
+                stroke: var(--#{$prefix}danger);
+            }
+        }
+
+        &.success {
+            animation: none;
+
+            g {
+                stroke: var(--#{$prefix}success);
+            }
+        }
+    }
+
+    .wallet-icon-container {
+        width: 180px;
+        height: 180px;
+
+        background: var(--#{$prefix}secondary-background);
+
+        border-radius: 50%;
+
+        position: absolute;
+
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+
+        margin: auto;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+}
+</style>

@@ -13,9 +13,11 @@
         <div class="layout-page__content">
             <a-row :gutter="16">
                 <a-col :span="12">
-                    <div class="steps-content" v-if="steps[shortcutIndex].status !== 'finish' || steps[shortcutIndex].isShowLayout">
-                        <component :is="steps[shortcutIndex]?.content" />
+                    <div class="steps-content">
+                        <component :is="shortcutLayout" />
                     </div>
+
+                    <ShortcutLoading :status="shortcutStatus" />
                 </a-col>
                 <a-col :span="12">
                     <a-card>
@@ -28,20 +30,25 @@
 </template>
 <script>
 import Button from '@/components/ui/Button.vue';
+import ShortcutLoading from '@/components/ui/Loadings/ShortcutLoading.vue';
+
 import RecipeStake from '@/modules/shortcuts/data/citadel-stake.json';
 
 import useShortcuts from '../modules/shortcuts/compositions/index';
+
 import { watch } from 'vue';
+import { SHORTCUT_STATUSES } from '../shared/models/enums/statuses.enum';
 
 export default {
     name: 'Shortcuts',
 
     components: {
         Button,
+        ShortcutLoading,
     },
 
     setup() {
-        const { shortcutIndex, steps } = useShortcuts(RecipeStake);
+        const { shortcutIndex, steps, shortcutLayout, shortcutStatus } = useShortcuts(RecipeStake);
 
         watch(
             () => steps,
@@ -50,9 +57,12 @@ export default {
             },
         );
         return {
+            shortcutStatus,
             shortcut: RecipeStake,
             shortcutIndex,
             steps,
+            shortcutLayout,
+            SHORTCUT_STATUSES,
         };
     },
 };

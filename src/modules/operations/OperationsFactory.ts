@@ -37,7 +37,7 @@ export default class OperationFactory implements IOperationFactory {
     private operationsIndex: Map<string, string> = new Map<string, string>();
     private groupOps: Map<string, string[]> = new Map<string, string[]>();
     private operationDependencies: Map<string, IOperationDependencies> = new Map<string, IOperationDependencies>();
-    private operationsStatusById: Map<string, keyof STATUSES> = new Map<string, keyof STATUSES>();
+    private operationsStatusByKey: Map<string, STATUSES> = new Map<string, STATUSES>();
 
     getOperationsIds(): Map<string, string> {
         return this.operationsIds;
@@ -60,6 +60,8 @@ export default class OperationFactory implements IOperationFactory {
         name && operation.setName(name);
 
         this.operationsMap.set(uniqueKey, operation);
+
+        this.setOperationStatusByKey(uniqueKey, STATUSES.PENDING);
 
         if (id) {
             this.operationsIds.set(id, uniqueKey);
@@ -147,22 +149,24 @@ export default class OperationFactory implements IOperationFactory {
         }
     }
 
-    async getFullOperationFlow(): Promise<TxOperationFlow[]> {
+    getFullOperationFlow(): TxOperationFlow[] {
         const flow: TxOperationFlow[] = [];
         const operations = Array.from(this.operationsMap.keys());
+
         for (const operation of operations) {
-            const opFlow = await this.operationsMap.get(operation).getOperationFlow();
+            const opFlow = this.operationsMap.get(operation).getOperationFlow();
 
             flow.push(
                 ...opFlow.map((f, i) => ({
                     ...f,
+                    operationId: this.operationsIndex.get(operation),
                     moduleIndex: operation,
-                    title: this.operationsMap.get(operation).getTitle() || null,
+                    title: this.operationsMap.get(operation).getName() || null,
                 })),
             );
         }
 
-        return Promise.resolve(flow.map((f, i) => ({ ...f, index: i })).sort((a, b) => a.index - b.index));
+        return flow.map((f, i) => ({ ...f, index: i })).sort((a, b) => a.index - b.index);
     }
 
     async estimateOutput(): Promise<void> {
@@ -248,11 +252,23 @@ export default class OperationFactory implements IOperationFactory {
         }
     }
 
-    getOperationsStatusById(): Map<string, keyof STATUSES> {
-        return this.operationsStatusById;
+    getOperationIdByKey(key: string): string {
+        return this.operationsIndex.get(key);
     }
 
-    setOperationStatusById(id: string, status: keyof STATUSES): void {
-        this.operationsStatusById.set(id, status);
+    getOperationsStatusById(id: string): STATUSES {
+        return this.operationsStatusByKey.get(this.operationsIndex.get(id));
+    }
+
+    setOperationStatusById(id: string, status: STATUSES): void {
+        this.operationsStatusByKey.set(this.operationsIndex.get(id), status);
+    }
+
+    setOperationStatusByKey(key: string, status: STATUSES): void {
+        this.operationsStatusByKey.set(key, status);
+    }
+
+    getOperationsStatusByKey(key: string): STATUSES {
+        return this.operationsStatusByKey.get(key);
     }
 }

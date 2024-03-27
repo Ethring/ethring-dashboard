@@ -214,9 +214,13 @@ class EthereumAdapter extends AdapterBase {
     }
 
     async setChain(chainInfo) {
-        const { chain_id, chain } = chainInfo;
+        const { chain_id, chain } = chainInfo || {};
 
         const id = chain_id || chain;
+
+        if (!id) {
+            return false;
+        }
 
         try {
             return await web3Onboard.setChain({

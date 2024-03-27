@@ -164,7 +164,7 @@ export class BaseOperation implements IBaseOperation {
         // if (Object.keys(this.params).length === 0) return Promise.reject('Params are empty');
     }
 
-    static async performTx(ecosystem: Ecosystems, { token, memo, serviceId }: PerformTxParams): Promise<IBridgeDexTransaction> {
+    static async performTx(ecosystem: Ecosystems, { serviceId }: PerformTxParams): Promise<IBridgeDexTransaction> {
         return Promise.resolve(null);
     }
 }

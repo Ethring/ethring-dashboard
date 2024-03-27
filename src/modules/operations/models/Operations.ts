@@ -9,9 +9,6 @@ import { TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
 
 export type PerformOptionalParams = {
     make: string;
-    dstSymbol?: string;
-    dstAmount?: string;
-
     tokens?: {
         from: IAsset;
         to: IAsset;
@@ -26,8 +23,6 @@ export type BaseOpParams = AllQuoteParams & {
 };
 
 export type PerformTxParams = {
-    token?: IAsset;
-    memo?: string;
     serviceId?: string;
 };
 
@@ -97,7 +92,7 @@ export interface IBaseOperation {
     estimateOutput?: () => Promise<void>;
 
     // Get Flow of operations
-    getOperationFlow?: () => Promise<TxOperationFlow[]>;
+    getOperationFlow?: () => TxOperationFlow[];
 
     getTitle: () => string;
 

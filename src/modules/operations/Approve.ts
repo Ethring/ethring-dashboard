@@ -66,11 +66,12 @@ export class ApproveOperation extends DexOperation {
         }
     }
 
-    async getOperationFlow(): Promise<TxOperationFlow[]> {
+    getOperationFlow(): TxOperationFlow[] {
         this.flow = [
             {
                 type: TRANSACTION_TYPES.APPROVE,
                 make: TRANSACTION_TYPES.APPROVE,
+                moduleIndex: this.getModule(),
             },
         ];
 

@@ -55,12 +55,12 @@ export default class TransferOperation extends BaseOperation {
         } as ICreateTransaction;
     }
 
-    async performTx(ecosystem: Ecosystems, { token }): Promise<IBridgeDexTransaction> {
+    async performTx(ecosystem: Ecosystems): Promise<IBridgeDexTransaction> {
         const params = {
             fromAddress: this.params.ownerAddresses[this.params.net],
             toAddress: this.params.receiverAddress,
             amount: this.params.amount,
-            token,
+            token: this.getToken('from'),
             memo: this.params.memo,
         };
 
@@ -70,7 +70,7 @@ export default class TransferOperation extends BaseOperation {
         };
     }
 
-    async getOperationFlow(): Promise<TxOperationFlow[]> {
+    getOperationFlow(): TxOperationFlow[] {
         const isStake = this.getModule() === ModuleType.stake;
 
         isStake ? this.setTxType(TRANSACTION_TYPES.STAKE) : this.setTxType(TRANSACTION_TYPES.TRANSFER);
@@ -79,6 +79,7 @@ export default class TransferOperation extends BaseOperation {
             {
                 type: this.getTxType(),
                 make: this.getTxType(),
+                moduleIndex: this.getModule(),
             },
         ];
 

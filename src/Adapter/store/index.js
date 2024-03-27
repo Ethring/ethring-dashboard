@@ -268,6 +268,7 @@ export default {
         },
         [TYPES.SET_IS_CONNECTED](state, { ecosystem, isConnected }) {
             !state.isConnected[ecosystem] && (state.isConnected[ecosystem] = isConnected);
+            !isConnectedStorage.value && (isConnectedStorage.value = {});
             isConnectedStorage.value[ecosystem] = isConnected;
         },
         [TYPES.SET_ADDRESSES_BY_ECOSYSTEM](state, { ecosystem, addresses }) {

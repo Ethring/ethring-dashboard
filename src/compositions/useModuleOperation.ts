@@ -38,8 +38,16 @@ import { ApproveOperation } from '@/modules/operations/Approve';
 import DexOperation from '@/modules/operations/Dex';
 
 const useModuleOperations = (module: ModuleType) => {
-    const { walletAddress, currentChainInfo, setChain, connectByEcosystems, getChainByChainId, getConnectedStatus, switchEcosystem } =
-        useAdapter();
+    const {
+        walletAddress,
+        currentChainInfo,
+        setNewChain,
+        setChain,
+        connectByEcosystems,
+        getChainByChainId,
+        getConnectedStatus,
+        switchEcosystem,
+    } = useAdapter();
 
     const store = useStore();
 
@@ -436,6 +444,13 @@ const useModuleOperations = (module: ModuleType) => {
             operations = createOpsByModule();
         }
 
+        if (typeof shortcutOps.value?.getFullOperationFlow === 'function') {
+            store.dispatch('shortcuts/setShortcutStatus', {
+                status: STATUSES.IN_PROGRESS,
+                shortcutId: currentShortcut.value.id,
+            });
+        }
+
         // * Get first operation
         const firstInGroup = operations.getFirstOperation();
 
@@ -448,7 +463,7 @@ const useModuleOperations = (module: ModuleType) => {
             module: firstInGroup.getModule(),
         };
 
-        const OP_FLOW = await operations.getFullOperationFlow();
+        const OP_FLOW = operations.getFullOperationFlow();
 
         const ops = OP_FLOW.map((step, i) => {
             return `${i === 0 ? '\t' : ''}${step.index}: ${step.type} [${step.moduleIndex}]\n`;
@@ -470,22 +485,18 @@ const useModuleOperations = (module: ModuleType) => {
                 // * Set first transaction ID
                 if (index === 0) tx.setId(txManager.getFirstTxId());
 
-                try {
-                    updateShortcutStatus('currentInProgress');
-                } catch (error) {
-                    console.error('useModuleOperations -> execute -> updateShortcutStatus -> error', error);
-                }
-
                 // * Set request ID
                 tx.setRequestID(txManager.getRequestId());
 
                 // * Prepare transaction
                 tx.prepare = async () => {
                     try {
-                        console.log('Prepare:', index, type, 'Transaction');
+                        shortcutOps.value.setOperationStatusByKey(moduleIndex, STATUSES.IN_PROGRESS);
+                    } catch (error) {
+                        console.log(`Error on set operation status by key ${moduleIndex}`);
+                    }
 
-                        // const [module, opIndex] = moduleIndex.split('_');
-
+                    try {
                         console.log('Prepare:', index, type, 'Transaction', operations.getOperationByKey(moduleIndex).params);
 
                         const prepared = operations
@@ -535,8 +546,6 @@ const useModuleOperations = (module: ModuleType) => {
                         const { transaction, ecosystem } = await operations
                             .getOperationByKey(moduleIndex)
                             .performTx(operations.getOperationByKey(moduleIndex).getEcosystem(), {
-                                token: operations.getOperationByKey(moduleIndex).getToken('from'),
-                                memo: operations.getOperationByKey(moduleIndex).getParamByField('memo'),
                                 serviceId: operations.getOperationByKey(moduleIndex).getParamByField('serviceId'),
                             });
 
@@ -555,28 +564,29 @@ const useModuleOperations = (module: ModuleType) => {
 
                 // * Execute transaction
                 tx.execute = async () => {
+                    console.debug('-'.repeat(10), 'TX ECOSYSTEM CHECK', '-'.repeat(10), '\n');
                     try {
                         if (getConnectedStatus(tx.getEcosystem())) {
+                            console.debug('Already connected to ecosystem try to switch to ecosystem', tx.getEcosystem());
                             await switchEcosystem(tx.getEcosystem());
                             await delay(1000);
                         }
 
                         if (currentChainInfo.value?.ecosystem !== tx.getEcosystem()) {
+                            console.debug('Ecosystem is not connected, try to connect to ecosystem', tx.getEcosystem());
                             await connectByEcosystems(tx.getEcosystem());
                             await delay(1000);
                         }
 
-                        await delay(1000);
-
-                        if (tx.getChainId() != currentChainInfo.value?.chain_id) {
+                        if (currentChainInfo.value?.ecosystem === tx.getEcosystem()) {
+                            console.debug('Ecosystem is connected, try to switch to chain', tx.getChainId());
                             const chainInfo = getChainByChainId(tx.getEcosystem(), tx.getChainId());
-
-                            console.log('useModuleOperations -> execute -> setChain -> chainInfo', chainInfo);
 
                             const changed = await setChain(chainInfo);
 
+                            await delay(1000);
+
                             if (!changed) {
-                                console.error('useModuleOperations -> execute -> setChain -> error', 'Chain not changed');
                                 throw new Error('Incorrect chain');
                             }
                         }
@@ -585,6 +595,8 @@ const useModuleOperations = (module: ModuleType) => {
                         closeNotification(`tx-${tx.getTxId()}`);
                         throw error;
                     }
+
+                    console.debug('-'.repeat(10), 'TX ECOSYSTEM CHECK --- DONE', '-'.repeat(10), '\n\n');
 
                     try {
                         const forSign = tx.getTransaction();
@@ -607,13 +619,30 @@ const useModuleOperations = (module: ModuleType) => {
 
                     if (index === OP_FLOW.length - 1) {
                         isTransactionSigning.value = false;
-                        console.log('Success all transactions');
-                        updateShortcutStatus('finish');
+
+                        if (typeof shortcutOps.value?.getFullOperationFlow === 'function') {
+                            store.dispatch('shortcuts/setShortcutStatus', {
+                                status: STATUSES.SUCCESS,
+                                shortcutId: currentShortcut.value.id,
+                            });
+                        }
+                    }
+
+                    if (shortcutOps.value?.getOperationByKey(moduleIndex)) {
+                        shortcutOps.value.getOperationByKey(moduleIndex).setParamByField('txHash', tx.getTransaction().txHash);
+                        shortcutOps.value.setOperationStatusByKey(moduleIndex, STATUSES.SUCCESS);
                     }
                 };
 
                 tx.onSuccessSignTransaction = async () => {
                     console.log('Success sign and send transaction');
+
+                    if (shortcutOps.value?.getOperationByKey(moduleIndex)) {
+                        shortcutOps.value.getOperationByKey(moduleIndex).setParamByField('txHash', tx.getTransaction().txHash);
+                        shortcutOps.value.setOperationStatusByKey(moduleIndex, STATUSES.SUCCESS);
+                    }
+
+                    console.log('-'.repeat(30), '\n');
                 };
 
                 // * On error
@@ -629,7 +658,16 @@ const useModuleOperations = (module: ModuleType) => {
                         duration: 6,
                     });
 
-                    updateShortcutStatus('error');
+                    if (shortcutOps.value?.getOperationByKey(moduleIndex)) {
+                        shortcutOps.value.setOperationStatusByKey(moduleIndex, STATUSES.FAILED);
+                    }
+
+                    if (typeof shortcutOps.value?.getFullOperationFlow === 'function') {
+                        store.dispatch('shortcuts/setShortcutStatus', {
+                            status: STATUSES.FAILED,
+                            shortcutId: currentShortcut.value.id,
+                        });
+                    }
                 };
 
                 txManager.addTransaction(tx);

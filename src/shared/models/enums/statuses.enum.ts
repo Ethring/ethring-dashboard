@@ -7,6 +7,14 @@ export enum STATUSES {
     SIGNING = 'SIGNING',
 }
 
+export enum SHORTCUT_STATUSES {
+    SUCCESS = 'SUCCESS',
+    FAILED = 'FAILED',
+    REJECTED = 'REJECTED',
+    PENDING = 'PENDING',
+    IN_PROGRESS = 'IN PROGRESS',
+}
+
 export enum TRANSACTION_TYPES {
     TRANSFER = 'TRANSFER',
     SIGN = 'SIGN',

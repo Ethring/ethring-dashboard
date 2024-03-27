@@ -47,12 +47,13 @@ export default class DexOperation extends BaseOperation {
         this.transactionType = TRANSACTION_TYPES.DEX;
     }
 
-    async getOperationFlow(): Promise<TxOperationFlow[]> {
+    getOperationFlow(): TxOperationFlow[] {
         if (this.getModule() === ModuleType.swap) {
             this.flow = [
                 {
                     make: TRANSACTION_TYPES.SWAP,
                     type: TRANSACTION_TYPES.DEX,
+                    moduleIndex: this.getModule(),
                 },
             ];
 
@@ -65,6 +66,7 @@ export default class DexOperation extends BaseOperation {
             {
                 make: isSameNetwork ? TRANSACTION_TYPES.SWAP : TRANSACTION_TYPES.BRIDGE,
                 type: isSameNetwork ? TRANSACTION_TYPES.DEX : TRANSACTION_TYPES.BRIDGE,
+                moduleIndex: this.getModule(),
             },
         ];
 
@@ -97,7 +99,7 @@ export default class DexOperation extends BaseOperation {
         this.setParamByField('outputAmount', bestRoute?.toAmount || null);
     }
 
-    async performTx(ecosystem: string, { token, memo, serviceId }: PerformTxParams): Promise<IBridgeDexTransaction> {
+    async performTx(ecosystem: string, { serviceId }: PerformTxParams): Promise<IBridgeDexTransaction> {
         if (this.getParamByField('fromNet') === this.getParamByField('toNet') && ecosystem !== ECOSYSTEMS.COSMOS) {
             this.service = new BridgeDexService(ServiceType.dex);
         } else {

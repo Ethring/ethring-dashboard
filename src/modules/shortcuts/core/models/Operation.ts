@@ -17,10 +17,15 @@ export interface IOperationParam {
 
 export interface OperationStep {
     id: string;
+    index: number;
     title: string;
-    content: string;
     status: ShortcutStatuses;
     description?: string;
+
+    make: string;
+    type: string;
+    moduleIndex: string;
+    operationId: string;
 
     isShowLayout: boolean;
     disabled?: boolean;

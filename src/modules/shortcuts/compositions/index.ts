@@ -1,4 +1,4 @@
-import { computed, onBeforeMount, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onBeforeMount, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue';
 import { useStore } from 'vuex';
 
 import _ from 'lodash';
@@ -11,7 +11,7 @@ import ShortcutCl from '../core/Shortcut';
 import DexOperation from '@/modules/operations/Dex';
 import TransferOperation from '@/modules/operations/Transfer';
 import { ApproveOperation } from '@/modules/operations/Approve';
-import { TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
+import { SHORTCUT_STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
 import { ShortcutType } from '../core/types/ShortcutType';
 import { AddressByChainHash } from '../../../shared/models/types/Address';
 import { ECOSYSTEMS } from '@/Adapter/config';
@@ -43,26 +43,27 @@ const useShortcuts = (Shortcut: any) => {
 
     const isConfigLoading = computed(() => store.getters['configs/isConfigLoading']);
 
-    const steps = computed<OperationStep[]>(() => store.getters['shortcuts/getShortcutSteps'](Shortcut.id));
-
+    // Get the current operation from the store
     const currentOp = computed<IShortcutOp>(() => store.getters['shortcuts/getCurrentOperation'](Shortcut.id));
 
+    // Get the steps from the store
+    const steps = computed<OperationStep[]>(() => store.getters['shortcuts/getShortcutSteps'](Shortcut.id) || []);
+
+    const shortcutLayout = computed(() => store.getters['shortcuts/getCurrentLayout']);
+
+    const shortcutStatus = computed(() => store.getters['shortcuts/getShortcutStatus'](Shortcut.id));
     const operationsFactory = computed<OperationsFactory>(() => store.getters['shortcuts/getShortcutOpsFactory'](Shortcut.id));
 
-    const getAddressesByEcosystem = ({ ecosystem, both = false }: { ecosystem?: string; both?: boolean }): AddressByChainHash => {
-        if (both) {
-            const src = store.getters['adapters/getAddressesByEcosystem'](ECOSYSTEMS.EVM) as AddressByChainHash;
-            const dst = store.getters['adapters/getAddressesByEcosystem'](ECOSYSTEMS.COSMOS) as AddressByChainHash;
+    // Operations Ids from the factory
+    const opIds = computed(() => Array.from(operationsFactory.value.getOperationsIds().keys()));
 
-            return { ...src, ...dst };
-        }
+    // Get the addresses by chain from the store
+    const addressesByChain = computed(() => {
+        const src = store.getters['adapters/getAddressesByEcosystem'](ECOSYSTEMS.EVM) as AddressByChainHash;
+        const dst = store.getters['adapters/getAddressesByEcosystem'](ECOSYSTEMS.COSMOS) as AddressByChainHash;
 
-        if (!ecosystem) return {};
-
-        return store.getters['adapters/getAddressesByEcosystem'](ecosystem) as AddressByChainHash;
-    };
-
-    const addressesByChain = computed(() => getAddressesByEcosystem({ both: true }));
+        return { ...src, ...dst };
+    });
 
     const updateOpFactoryField = (field: string, value: any) => {
         if (!currentOp.value?.id) return;
@@ -105,19 +106,19 @@ const useShortcuts = (Shortcut: any) => {
             });
         }
 
-        let key: string, module: any, index: number;
+        let module: any, index: number;
 
         switch (operationType) {
             case TRANSACTION_TYPES.DEX:
             case TRANSACTION_TYPES.BRIDGE:
-                ({ key, module, index } = operationsFactory.value.registerOperation(moduleType, DexOperation, { id, name }));
+                ({ module, index } = operationsFactory.value.registerOperation(moduleType, DexOperation, { id, name }));
                 break;
             case TRANSACTION_TYPES.TRANSFER:
             case TRANSACTION_TYPES.STAKE:
-                ({ key, module, index } = operationsFactory.value.registerOperation(moduleType, TransferOperation, { id, name }));
+                ({ module, index } = operationsFactory.value.registerOperation(moduleType, TransferOperation, { id, name }));
                 break;
             case TRANSACTION_TYPES.APPROVE:
-                ({ key, module, index } = operationsFactory.value.registerOperation(moduleType, ApproveOperation, { id, name }));
+                ({ module, index } = operationsFactory.value.registerOperation(moduleType, ApproveOperation, { id, name }));
                 break;
         }
 
@@ -184,14 +185,16 @@ const useShortcuts = (Shortcut: any) => {
 
                     if (!srcDstNet) return;
 
+                    if (!targetOpId) return;
+
                     isSrc
-                        ? operationsFactory.value?.getOperationById(targetOpId).setParamByField('fromNet', srcDstNet?.net)
-                        : operationsFactory.value?.getOperationById(targetOpId).setParamByField('toNet', srcDstNet?.net);
+                        ? operationsFactory.value?.getOperationById(targetOpId)?.setParamByField('fromNet', srcDstNet?.net)
+                        : operationsFactory.value?.getOperationById(targetOpId)?.setParamByField('toNet', srcDstNet?.net);
 
-                    isSrc ? operationsFactory.value?.getOperationById(targetOpId).setChainId(srcDstNet.chain_id || srcDstNet.net) : null;
-                    isSrc ? operationsFactory.value?.getOperationById(targetOpId).setEcosystem(srcDstNet.ecosystem) : null;
+                    isSrc ? operationsFactory.value?.getOperationById(targetOpId)?.setChainId(srcDstNet.chain_id || srcDstNet.net) : null;
+                    isSrc ? operationsFactory.value?.getOperationById(targetOpId)?.setEcosystem(srcDstNet.ecosystem) : null;
 
-                    isSrc ? operationsFactory.value?.getOperationById(targetOpId).setAccount(addressesByChain.value[srcDstNet.net]) : null;
+                    isSrc ? operationsFactory.value?.getOperationById(targetOpId)?.setAccount(addressesByChain.value[srcDstNet.net]) : null;
 
                     break;
                 case 'srcToken':
@@ -201,16 +204,16 @@ const useShortcuts = (Shortcut: any) => {
                     isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value: token }));
 
                     const target = field === 'srcToken' ? 'from' : 'to';
-                    operationsFactory.value?.getOperationById(targetOpId).setToken(target, token);
+                    operationsFactory.value?.getOperationById(targetOpId)?.setToken(target, token);
 
                     break;
                 case 'receiverAddress':
                     isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value: address }));
-                    operationsFactory.value?.getOperationById(targetOpId).setParamByField('receiverAddress', address);
+                    operationsFactory.value?.getOperationById(targetOpId)?.setParamByField('receiverAddress', address);
                     break;
                 case 'memo':
                     isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value: memo }));
-                    operationsFactory.value?.getOperationById(targetOpId).setParamByField('memo', memo);
+                    operationsFactory.value?.getOperationById(targetOpId)?.setParamByField('memo', memo);
                     break;
             }
 
@@ -235,25 +238,13 @@ const useShortcuts = (Shortcut: any) => {
     const callOnWatchOnMounted = async () => {
         await store.dispatch('tokenOps/resetFields');
 
-        // const { params = [], skipConditions = [] } = currentOp.value || {};
-
-        // await performSkipConditions(skipConditions);
-
-        // return await performFields(params);
+        if (!currentOp.value) return;
 
         await performFields(currentOp.value.moduleType, currentOp.value.params, {
             isUpdateInStore: true,
             id: currentOp.value.id,
         });
     };
-
-    watch([currentOp, isConfigLoading], async () => await callOnWatchOnMounted());
-    watch(isConfigLoading, async () => {
-        if (!isConfigLoading.value) {
-            await performShortcut(false);
-        }
-    });
-    watch(operationsFactory, async () => await callOnWatchOnMounted());
 
     onBeforeMount(async () => {
         await store.dispatch('shortcuts/setShortcut', {
@@ -265,6 +256,8 @@ const useShortcuts = (Shortcut: any) => {
     onMounted(async () => {
         shortcutIndex.value = 0;
 
+        await performShortcut(true);
+
         store.dispatch('shortcuts/setCurrentStepId', {
             stepId: steps.value[shortcutIndex.value].id,
             shortcutId: Shortcut.id,
@@ -274,7 +267,10 @@ const useShortcuts = (Shortcut: any) => {
             shortcutId: Shortcut.id,
         });
 
-        await performShortcut(true);
+        store.dispatch('shortcuts/setShortcutStatus', {
+            shortcutId: Shortcut.id,
+            status: SHORTCUT_STATUSES.PENDING,
+        });
 
         await callOnWatchOnMounted();
     });
@@ -327,6 +323,14 @@ const useShortcuts = (Shortcut: any) => {
         },
     );
 
+    watch([currentOp, isConfigLoading], async () => await callOnWatchOnMounted());
+    watch(isConfigLoading, async () => {
+        if (!isConfigLoading.value) {
+            await performShortcut(false);
+        }
+    });
+    watch(operationsFactory, async () => await callOnWatchOnMounted());
+
     watch(shortcutIndex, async () => {
         await store.dispatch('tokenOps/resetFields');
 
@@ -334,6 +338,14 @@ const useShortcuts = (Shortcut: any) => {
             shortcutId: Shortcut.id,
             stepId: steps.value[shortcutIndex.value].id,
         });
+    });
+
+    // * Watch for changes in the addressesByChain, and update the ownerAddresses field in the operations
+    watch(addressesByChain, () => {
+        for (const id of opIds.value) {
+            const operation = operationsFactory.value.getOperationById(id);
+            operation.setParamByField('ownerAddresses', addressesByChain.value);
+        }
     });
 
     onUnmounted(() => {
@@ -345,6 +357,8 @@ const useShortcuts = (Shortcut: any) => {
     return {
         shortcut: CurrentShortcut,
         shortcutIndex,
+        shortcutLayout,
+        shortcutStatus,
         steps,
     };
 };

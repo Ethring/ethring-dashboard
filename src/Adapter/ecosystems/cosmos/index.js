@@ -307,7 +307,7 @@ class CosmosAdapter extends AdapterBase {
     }
 
     async setChain(chainInfo) {
-        const { walletModule, chain, chain_id } = chainInfo;
+        const { walletModule, chain, chain_id } = chainInfo || {};
 
         const chainForConnect = chain || chain_id || this.DEFAULT_CHAIN;
 
