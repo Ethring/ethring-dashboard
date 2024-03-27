@@ -54,7 +54,7 @@ export const testMetaMask = base.extend<{
     swapPageMockBalancesAndTokensList: SwapPage;
     superSwapPageBalanceMock: SuperSwapPage;
 }>({
-    context: async ({}, use) => {
+    context: async ({ }, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -144,7 +144,7 @@ export const testMetaMaskMockTx = base.extend<{
     context: BrowserContext;
     sendPage: SendPage;
 }>({
-    context: async ({}, use) => {
+    context: async ({ }, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -179,8 +179,9 @@ export const testKeplr = base.extend<{
     dashboard: DashboardPage;
     dashboardProtocol: DashboardPage;
     sendPage: SendPage;
+    swapPage: SwapPage;
 }>({
-    context: async ({}, use) => {
+    context: async ({ }, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -219,6 +220,11 @@ export const testKeplr = base.extend<{
     dashboardProtocol: async ({ context }, use) => {
         const zometPage = await authByKeplrErrorJunoBalanceMock(context, SEED_PHRASE_BY_PROTOCOL, COSMOS_WALLETS_BY_PROTOCOL_SEED);
         await use(zometPage);
+    },
+    swapPage: async ({ context }, use) => {
+        const zometPage = await authByKeplr(context, SEED_PHRASE_BY_TX, COSMOS_WALLETS_BY_SEED_MOCK_TX);
+        const swapPage = await zometPage.goToModule('swap');
+        await use(swapPage);
     },
 });
 

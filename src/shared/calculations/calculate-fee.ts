@@ -1,4 +1,5 @@
 import { IQuoteRoute } from '@/modules/bridge-dex/models/Response.interface';
+
 import BigNumber from 'bignumber.js';
 
 // Calculate fee by currency (USD or native token symbol)
@@ -26,4 +27,10 @@ export const calculateFeeInNativeToUsd = (route: IQuoteRoute, { symbol, price }:
 
 export const convertFeeToCurrency = (fee: BigNumber, price: string) => {
     return fee.times(price);
+};
+
+export const calculateMinAmount = (amount: string, slippage: number) => {
+    const slippageProcent = slippage / 100;
+
+    return BigNumber(amount).multipliedBy(1 - slippageProcent).toString();
 };
