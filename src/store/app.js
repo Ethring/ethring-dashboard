@@ -10,7 +10,7 @@ const STORAGE = {
 
 const appThemeStorage = useLocalStorage(STORAGE.THEME, 'light', { mergeDefaults: true });
 const showBalanceStorage = useLocalStorage(STORAGE.SHOW_BALANCE, true, { mergeDefaults: true });
-const appVersionStorage = useLocalStorage(STORAGE.LAST_VERSION, '0.1.0', { mergeDefaults: true });
+const appVersionStorage = useLocalStorage(STORAGE.LAST_VERSION, process.env.APP_VERSION || '0.1.0', { mergeDefaults: true });
 const collapsedSidebarStorage = useLocalStorage(STORAGE.COLLAPSED_SIDEBAR, false, { mergeDefaults: true });
 const collapsedAssetsStorage = useLocalStorage(STORAGE.COLLAPSED_ASSETS, [], { mergeDefaults: true });
 
