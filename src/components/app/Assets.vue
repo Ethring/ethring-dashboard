@@ -213,10 +213,6 @@ export default {
             store.dispatch('app/setCollapsedAssets', hiddenKeys);
         });
 
-        watch(walletAccount, () => {
-            store.dispatch('app/setCollapsedAssets', []);
-        });
-
         return {
             isLoadingForChain,
             isLoadingByAccount,

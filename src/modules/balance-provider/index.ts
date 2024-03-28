@@ -42,8 +42,9 @@ export const updateBalanceForAccount = async (account: string, addresses: ChainA
 
     // * Get data from API
     for (const chain in addresses) {
-        const { address, logo } = addresses[chain];
-        queue.add(async () => await updateBalanceByChain(account, address, chain, { ...opt, isUpdate, logo }));
+        const { address, logo, nativeTokenLogo } = addresses[chain];
+
+        queue.add(async () => await updateBalanceByChain(account, address, chain, { ...opt, isUpdate, logo, nativeTokenLogo }));
     }
 };
 
@@ -62,7 +63,7 @@ export const updateBalanceByChain = async (account: string, address: string, cha
         fetchNfts: true,
     };
 
-    if (isUpdate) {
+    if (!isInitCalled && isUpdate) {
         providerOptions.fetchIntegrations = false;
         providerOptions.fetchNfts = false;
     }

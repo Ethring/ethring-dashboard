@@ -69,3 +69,11 @@ export const captureTransactionException = ({ error, ...args }) => {
         },
     });
 };
+
+export const captureException = (error) => {
+    if (!process.env.SENTRY_DSN) {
+        return;
+    }
+
+    return Sentry.captureException(error);
+};

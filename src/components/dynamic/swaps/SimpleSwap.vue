@@ -2,7 +2,7 @@
     <a-form>
         <a-form-item>
             <SelectRecord
-                :disabled="isWaitingTxStatusForModule"
+                :disabled="isDisableSelect"
                 :current="selectedSrcNetwork"
                 :placeholder="$t('tokenOperations.selectNetwork')"
                 @click="onSelectNetwork"
@@ -12,32 +12,32 @@
         <div class="switch-direction-wrap">
             <SelectAmountInput
                 :value="selectedSrcToken"
-                :disabled="isWaitingTxStatusForModule"
-                :disabled-select="isWaitingTxStatusForModule"
+                :disabled="isDisableSelect"
+                :disabled-select="isDisableSelect"
                 :selected-network="selectedSrcNetwork"
                 :error="!!isBalanceError"
                 :on-reset="resetSrcAmount"
-                :is-update="isUpdateSwapDirection"
+                :is-update="isSwapDirectionAvailable"
                 :label="$t('tokenOperations.pay')"
                 :amount-value="srcAmount"
                 @clickToken="onSelectToken(true)"
-                @setAmount="onSetAmount"
+                @setAmount="handleOnSetAmount"
             />
 
             <SwitchDirection
                 class="swap-module"
-                :disabled="isWaitingTxStatusForModule || !selectedDstToken || !isUpdateSwapDirection"
-                :on-click-switch="() => swapDirections(false)"
+                :disabled="isQuoteLoading || isDirectionSwapped || isTransactionSigning || !selectedDstToken || !isSwapDirectionAvailable"
+                :on-click-switch="() => handleOnSwapDirections()"
             />
 
             <SelectAmountInput
                 disabled
                 hide-max
-                :disabled-select="isWaitingTxStatusForModule"
-                :is-amount-loading="isEstimating"
+                :disabled-select="isDisableSelect"
+                :is-amount-loading="isQuoteLoading"
                 :value="selectedDstToken"
                 :on-reset="resetDstAmount"
-                :is-update="isUpdateSwapDirection"
+                :is-update="isSwapDirectionAvailable"
                 :label="$t('tokenOperations.receive')"
                 :disabled-value="dstAmount"
                 :amount-value="dstAmount"
@@ -46,133 +46,123 @@
         </div>
 
         <EstimatePreviewInfo
-            v-if="(selectedDstToken && +srcAmount) || isShowEstimateInfo"
-            :is-loading="isEstimating"
-            :service="selectedService"
+            v-if="isShowEstimateInfo"
+            :is-loading="isQuoteLoading"
+            :services="[selectedRoute]"
+            :fee-in-usd="fees[FEE_TYPE.BASE] || 0"
             :title="$t('tokenOperations.routeInfo')"
-            :main-rate="rateFeeInfo"
-            :fees="[baseFeeInfo]"
-            :error="estimateErrorTitle"
+            :main-rate="fees[FEE_TYPE.RATE] || null"
+            :is-show-expand="otherRoutes?.length > 0"
+            :error="quoteErrorMessage"
+            :on-click-expand="toggleRoutesModal"
         />
 
-        <Button
-            class="module-layout-view-btn"
-            v-bind="btnState"
-            :title="$t(btnState.title)"
-            :tip="$t(btnState.tip)"
-            @click="handleOnSwap"
-        />
+        <Button v-bind="btnState" :title="$t(btnState.title)" :tip="$t(btnState.tip)" @click="handleOnConfirm" />
     </a-form>
 </template>
 <script>
-import { h, ref, watch, inject, computed, onMounted } from 'vue';
+import { ref, watch, inject, computed, onMounted } from 'vue';
 
 import { useStore } from 'vuex';
-import { useRouter } from 'vue-router';
 
-import { getBridgeTx, getSwapTx } from '@/api/services';
+// Compositions
+import useModuleOperations from '@/compositions/useModuleOperation';
 
-// Notification
-import useNotification from '@/compositions/useNotification';
-import useServices from '../../../compositions/useServices';
-
-// Transaction Management
-import useTransactions from '../../../Transactions/compositions/useTransactions';
-import { STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
-
-// Components
+// UI Components
 import Button from '@/components/ui/Button';
-
-import SelectRecord from '@/components/ui/Select/SelectRecord';
-import SelectAmountInput from '@/components/ui/Select/SelectAmountInput';
-
-import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewInfo.vue';
-
 import SwitchDirection from '@/components/ui/SwitchDirection.vue';
 
-import { isCorrectChain } from '@/shared/utils/operations';
+// Select Components
+import SelectRecord from '@/components/ui/Select/SelectRecord';
 
-import { errorRegister } from '@/shared/utils/errors';
+// Input Components
+import SelectAmountInput from '@/components/ui/Select/SelectAmountInput';
+
+// Fee Component
+import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewInfo.vue';
 
 // Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
+import { ModuleType } from '../../../modules/bridge-dex/enums/ServiceType.enum';
+import useInputValidation from '@/shared/form-validations';
 
 export default {
     name: 'SimpleSwap',
 
     components: {
+        Button,
+        SwitchDirection,
         SelectRecord,
         SelectAmountInput,
-        Button,
         EstimatePreviewInfo,
-        SwitchDirection,
     },
 
     setup() {
         const store = useStore();
-        const router = useRouter();
 
         const useAdapter = inject('useAdapter');
 
-        const { name: module } = router.currentRoute.value;
+        const { walletAccount } = useAdapter();
 
-        // * Notification
-        const { showNotification, closeNotification } = useNotification();
+        // =================================================================================================================
+        // * Module Operations composition
+        // =================================================================================================================
 
-        const { walletAddress, currentChainInfo, walletAccount, setChain } = useAdapter();
+        const { handleOnConfirm, moduleInstance, isTransactionSigning, isDisableSelect, isDisableConfirmButton } = useModuleOperations(
+            ModuleType.swap,
+        );
 
+        // =================================================================================================================
         // * Module values
+        // =================================================================================================================
+
         const {
-            selectedService,
+            // - Main Data
+            selectedSrcNetwork,
             selectedSrcToken,
             selectedDstToken,
-            selectedSrcNetwork,
-
-            onlyWithBalance,
-
             srcAmount,
             dstAmount,
 
-            srcTokenApprove,
-            isNeedApprove,
-
-            txError,
-            txErrorTitle,
-            estimateErrorTitle,
-
-            isEstimating,
+            // - Loadings
             isLoading,
+            isEstimating,
+            isQuoteLoading,
+            isAllowanceLoading,
 
-            opTitle,
+            // - Swap direction
+            isSwapDirectionAvailable,
+            isDirectionSwapped,
 
-            baseFeeInfo,
-            rateFeeInfo,
-
-            isBalanceError,
+            // - Fee Info
+            fees,
             isShowEstimateInfo,
 
-            addressesByChains,
-            isUpdateSwapDirection,
-            isWaitingTxStatusForModule,
+            // - Errors
+            isBalanceError,
+            quoteErrorMessage,
 
-            clearApproveForService,
+            // - Current Selected service route and other routes
+            selectedRoute,
+            quoteRoutes,
+            otherRoutes,
 
-            makeApproveRequest,
+            // - other flags
+            onlyWithBalance,
 
-            swapDirections,
+            // Operation title
+            opTitle,
 
+            // - Handlers
+            toggleRoutesModal,
             handleOnSelectToken,
             handleOnSelectNetwork,
-            makeEstimateRequest,
-        } = useServices({
-            module,
-            moduleType: 'swap',
-        });
+            handleOnSwapDirections,
+            handleOnSetAmount,
+        } = moduleInstance;
 
-        // =================================================================================================================
-
-        // * Transaction Manager
-        const { currentRequestID, transactionForSign, createTransactions, signAndSend, addTransactionToRequestID } = useTransactions();
+        const { isDstTokenSet, isSrcAmountSet } = useInputValidation();
 
         // =================================================================================================================
 
@@ -181,23 +171,17 @@ export default {
 
         // =================================================================================================================
 
-        const isTokensLoadingForChain = computed(() =>
-            store.getters['tokens/loadingByChain'](walletAccount.value, selectedSrcNetwork.value?.net),
-        );
-
-        // =================================================================================================================
-
-        const disabledSwap = computed(
-            () =>
-                isLoading.value ||
-                isBalanceError.value ||
-                isWaitingTxStatusForModule.value ||
-                !+srcAmount.value ||
-                !dstAmount.value ||
-                !selectedSrcNetwork.value ||
-                !selectedSrcToken.value ||
-                !selectedDstToken.value
-        );
+        const btnState = computed(() => {
+            return {
+                class: 'module-layout-view-btn',
+                type: isTransactionSigning.value || isLoading.value ? 'primary' : 'success',
+                title: opTitle.value,
+                tip: isAllowanceLoading.value ? '' : opTitle.value,
+                loading: isTransactionSigning.value || isAllowanceLoading.value || isLoading.value,
+                disabled: isDisableConfirmButton.value,
+                size: 'large',
+            };
+        });
 
         // =================================================================================================================
 
@@ -214,8 +198,6 @@ export default {
                 direction: DIRECTIONS.SOURCE,
                 type: withBalance ? TOKEN_SELECT_TYPES.FROM : TOKEN_SELECT_TYPES.TO,
             });
-
-            withBalance && clearApproveForService();
         };
 
         const resetAmounts = async (type = DIRECTIONS.SOURCE, amount) => {
@@ -239,194 +221,6 @@ export default {
             }
         };
 
-        const onSetAmount = async (value) => {
-            srcAmount.value = value;
-
-            txError.value = '';
-            dstAmount.value = '';
-
-            return await makeEstimateRequest();
-        };
-
-        // =================================================================================================================
-
-        const makeSwapRequest = async () => {
-            showNotification({
-                key: 'prepare-tx',
-                type: 'info',
-                title: `Swap ${srcAmount.value} ${selectedSrcToken.value.symbol} to ~${dstAmount.value} ${selectedDstToken.value.symbol}`,
-                description: 'Please wait, transaction is preparing',
-                duration: 0,
-            });
-
-            try {
-                const params = {
-                    url: selectedService.value?.url,
-                    net: selectedSrcNetwork.value.net,
-                    fromTokenAddress: selectedSrcToken.value.address,
-                    toTokenAddress: selectedDstToken.value.address,
-                    amount: srcAmount.value,
-                    ownerAddress: walletAddress.value,
-                };
-
-                let response = null;
-
-                if (selectedService.value?.id === 'swap-skip') {
-                    params.ownerAddresses = JSON.stringify(addressesByChains.value);
-
-                    params.fromNet = selectedSrcNetwork.value.net;
-                    params.toNet = selectedSrcNetwork.value.net;
-
-                    response = await getBridgeTx(params);
-                } else {
-                    response = await getSwapTx(params);
-                }
-
-                if (response.error) {
-                    txError.value = response?.error || response;
-                    txErrorTitle.value = 'Swap error';
-                    closeNotification('prepare-tx');
-
-                    return (isLoading.value = false);
-                }
-
-                return response;
-            } catch (error) {
-                txError.value = error?.message || error?.error || error;
-                closeNotification('prepare-tx');
-            }
-        };
-
-        // =================================================================================================================
-
-        const handleApprove = async () => {
-            await makeApproveRequest(selectedService.value);
-
-            if (!srcTokenApprove.value) {
-                store.dispatch('txManager/setTransactionForSign', null);
-                return (isLoading.value = false);
-            }
-
-            txError.value = '';
-            txErrorTitle.value = '';
-
-            const txToSave = {
-                index: 0,
-                ecosystem: selectedSrcNetwork.value.ecosystem,
-                module,
-                status: STATUSES.IN_PROGRESS,
-                parameters: {
-                    ...srcTokenApprove.value,
-                    from: walletAddress.value,
-                },
-                account: walletAddress.value,
-                chainId: `${selectedSrcNetwork.value?.chain_id}`,
-                metaData: {
-                    action: 'formatTransactionForSign',
-                    type: TRANSACTION_TYPES.APPROVE,
-                    successCallback: {
-                        action: 'GET_ALLOWANCE',
-                        requestParams: {
-                            url: selectedService.value?.url,
-                            net: selectedSrcNetwork.value.net,
-                            tokenAddress: selectedSrcToken.value.address,
-                            ownerAddress: walletAddress.value,
-                            service: selectedService.value,
-                        },
-                    },
-                },
-            };
-
-            await createTransactions([txToSave]);
-        };
-
-        const handleSwap = async () => {
-            opTitle.value = 'tokenOperations.swap';
-
-            const responseSwap = await makeSwapRequest();
-
-            if (!responseSwap) {
-                store.dispatch('txManager/setTransactionForSign', null);
-                return (isLoading.value = false);
-            }
-
-            const txToSave = {
-                ecosystem: selectedSrcNetwork.value.ecosystem,
-                module,
-                status: STATUSES.IN_PROGRESS,
-                parameters: responseSwap,
-                account: walletAddress.value,
-                chainId: `${selectedSrcNetwork.value?.chain_id}`,
-                metaData: {
-                    action: 'formatTransactionForSign',
-                    type: TRANSACTION_TYPES.DEX,
-                },
-            };
-
-            if (currentRequestID.value && currentRequestID.value !== '') {
-                return await addTransactionToRequestID(currentRequestID.value, txToSave);
-            }
-
-            txToSave.index = 0;
-
-            return await createTransactions([txToSave]);
-        };
-
-        // =================================================================================================================
-
-        const handleOnSwap = async () => {
-            isLoading.value = true;
-            txError.value = '';
-
-            const { isChanged, btnTitle } = await isCorrectChain(selectedSrcNetwork, currentChainInfo, setChain);
-
-            opTitle.value = btnTitle;
-
-            if (!isChanged) {
-                return (isLoading.value = false);
-            }
-
-            if (isNeedApprove.value) {
-                opTitle.value = 'tokenOperations.approve';
-                await handleApprove();
-            } else {
-                opTitle.value = 'tokenOperations.swap';
-                await handleSwap();
-            }
-
-            if (!transactionForSign.value) {
-                return (isLoading.value = false);
-            }
-
-            try {
-                isLoading.value = true;
-
-                const responseSendTx = await signAndSend(transactionForSign.value);
-
-                closeNotification('prepare-tx');
-
-                clearApproveForService();
-
-                if (responseSendTx.error) {
-                    resetSrcAmount.value = false;
-                    resetDstAmount.value = false;
-
-                    txError.value = responseSendTx.error;
-                    txErrorTitle.value = 'Sign transaction error';
-
-                    txError.value = errorRegister(responseSendTx.error).error;
-
-                    return (isLoading.value = false);
-                }
-
-                isLoading.value = false;
-            } catch (error) {
-                txError.value = error?.message || error?.error || error;
-            }
-        };
-
-        // =================================================================================================================
-
         watch(srcAmount, () => resetAmounts(DIRECTIONS.SOURCE, srcAmount.value));
 
         watch(dstAmount, () => resetAmounts(DIRECTIONS.DESTINATION, dstAmount.value));
@@ -440,58 +234,63 @@ export default {
 
         onMounted(() => store.dispatch('txManager/setCurrentRequestID', null));
 
-        const btnState = computed(() => {
-            return {
-                type: isWaitingTxStatusForModule.value || isLoading.value ? 'primary' : 'success',
-                title: opTitle.value,
-                tip: opTitle.value,
-                loading: isWaitingTxStatusForModule.value || isLoading.value,
-                disabled: !!disabledSwap.value,
-                size: 'large',
-            };
-        });
-
         return {
+            // Main Data
+            selectedSrcNetwork,
+            selectedSrcToken,
+            selectedDstToken,
+            srcAmount,
+            dstAmount,
+
+            // Loadings
             isLoading,
             isEstimating,
-            isTokensLoadingForChain,
-            isWaitingTxStatusForModule,
+            isTransactionSigning,
 
+            // Operation title
             opTitle,
             btnState,
-
-            disabledSwap,
-            walletAddress,
-
-            isBalanceError,
-            estimateErrorTitle,
-            selectedSrcNetwork,
 
             resetSrcAmount,
             resetDstAmount,
 
-            isUpdateSwapDirection,
-            currentChainInfo,
-
-            selectedSrcToken,
-            selectedDstToken,
-
-            srcAmount,
-            dstAmount,
-
-            baseFeeInfo,
-            rateFeeInfo,
+            // Flags
+            isBalanceError,
             isShowEstimateInfo,
+            isSwapDirectionAvailable,
+            isDirectionSwapped,
+            isDisableSelect,
 
-            selectedService,
-
+            // Handlers
+            handleOnSwapDirections,
             onSelectToken,
             onSelectNetwork,
+            handleOnSetAmount,
+            toggleRoutesModal,
 
-            onSetAmount,
+            // * Transaction Manager
+            isDisableConfirmButton,
+            handleOnConfirm,
 
-            handleOnSwap,
-            swapDirections,
+            // - BridgeDex
+            fees,
+            // - BridgeDex Loadings
+            isQuoteLoading,
+            isAllowanceLoading,
+
+            // - BridgeDex Current Selected service route and other routes
+            selectedRoute,
+            quoteRoutes,
+            otherRoutes,
+
+            // - BridgeDex other flags
+            FEE_TYPE,
+
+            // - BridgeDex Errors
+            quoteErrorMessage,
+
+            isSrcAmountSet,
+            isDstTokenSet,
         };
     },
 };

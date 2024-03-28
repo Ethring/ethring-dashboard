@@ -1,7 +1,13 @@
 <template>
     <a-tooltip>
         <div class="service-info-container">
-            <div class="service-icon">
+            <div
+                class="service-icon"
+                :style="{
+                    width: `${width}px`,
+                    height: `${height}px`,
+                }"
+            >
                 <img :src="icon" alt="service-icon" />
             </div>
             <div v-if="showTitle" class="service-title">
@@ -9,7 +15,7 @@
             </div>
         </div>
 
-        <template #title v-if="!showTitle">
+        <template #title v-if="!showTitle && showTooltip">
             {{ name }}
         </template>
     </a-tooltip>
@@ -36,11 +42,14 @@ export default {
             type: Number,
             default: 24,
         },
-
         showTitle: {
             type: Boolean,
             required: true,
             default: false,
+        },
+        showTooltip: {
+            type: Boolean,
+            default: true,
         },
     },
 };
@@ -60,8 +69,8 @@ export default {
 
         cursor: default;
 
-        width: 24px;
-        height: 24px;
+        width: 100%;
+        height: 100%;
         border-radius: 50%;
 
         font-weight: 600;
@@ -74,8 +83,8 @@ export default {
         margin-right: 8px;
 
         img {
-            width: 20px;
-            height: 20px;
+            width: 100%;
+            height: 100%;
             object-fit: contain;
             border-radius: 50%;
         }

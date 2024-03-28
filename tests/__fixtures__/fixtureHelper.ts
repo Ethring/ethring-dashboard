@@ -164,6 +164,8 @@ export const authMmBalanceBySwapAndTokensListMock = async (
     return __loginByMmAndWaitElement__(context, zometPage);
 };
 
+//======================================= KEPLR MOCK =======================================
+
 export const authByKeplr = async (context: BrowserContext, seed: string, cosmosWallets: any) => {
     await addWalletToKeplr(context, seed);
 

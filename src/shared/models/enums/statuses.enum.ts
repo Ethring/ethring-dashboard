@@ -4,12 +4,14 @@ export enum STATUSES {
     REJECTED = 'REJECTED',
     PENDING = 'PENDING',
     IN_PROGRESS = 'IN PROGRESS',
+    SIGNING = 'SIGNING',
 }
 
 export enum TRANSACTION_TYPES {
     TRANSFER = 'TRANSFER',
     SIGN = 'SIGN',
-    DEX = 'SWAP',
+    DEX = 'DEX',
+    SWAP = 'SWAP',
     BRIDGE = 'BRIDGE',
     APPROVE = 'APPROVE',
 }

@@ -10,23 +10,26 @@ export const trackingBalanceUpdate = (store) => {
     const timeout = ref({});
     const waitTime = ref(3);
 
-    const { walletAccount, chainList, getAddressesWithChainsByEcosystem } = useAdapter();
+    const { walletAccount, chainList } = useAdapter();
 
     const selectedSrcNetwork = computed(() => store.getters['tokenOps/srcNetwork']);
 
     const updateBalanceQueues = computed(() => store.getters['updateBalance/updateBalanceForAddress']);
 
-    const updateBalanceQueuesByChain = computed(() => {
-        const chainWithAddresses = getAddressesWithChainsByEcosystem(selectedSrcNetwork.value?.ecosystem);
+    const chainWithAddresses = computed(() => {
+        const { ecosystem } = selectedSrcNetwork.value || {};
+        return store.getters['adapters/getAddressesByEcosystemList'](ecosystem) || {};
+    });
 
+    const updateBalanceQueuesByChain = computed(() => {
         const queues = [];
         const target = {
             chains: [],
             address: '',
         };
 
-        for (const chain in chainWithAddresses) {
-            const { address } = chainWithAddresses[chain];
+        for (const chain in chainWithAddresses.value) {
+            const { address } = chainWithAddresses.value[chain];
 
             if (!address || !updateBalanceQueues.value[address]) {
                 continue;
@@ -49,11 +52,11 @@ export const trackingBalanceUpdate = (store) => {
                 continue;
             }
 
-            if (!chainWithAddresses[config?.net]) {
+            if (!chainWithAddresses.value[config?.net]) {
                 continue;
             }
 
-            const { address: targetAddress } = chainWithAddresses[config?.net];
+            const { address: targetAddress } = chainWithAddresses.value[config?.net];
             queues.push({ chain: targetChain, address: targetAddress, mainAddress: target.address, config });
         }
 
