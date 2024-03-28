@@ -204,7 +204,6 @@ export default class OperationFactory implements IOperationFactory {
                         const value = BigNumber(depValue).multipliedBy(usePercentage).dividedBy(100).toFixed(6);
 
                         console.log(`${dependencyParamKey} from ${operationId}`);
-
                         console.log(`${paramKey} = ${dependencyParamKey} * ${usePercentage} / 100`);
                         console.log(`${paramKey} = ${depValue} * ${usePercentage} / 100 = ${value}`);
 
@@ -218,8 +217,13 @@ export default class OperationFactory implements IOperationFactory {
 
             const isSuccessOrFail = [STATUSES.SUCCESS, STATUSES.FAILED].includes(this.operationsStatusByKey.get(operation));
 
-            if (this.operationsMap.get(operation).estimateOutput && !isSuccessOrFail) {
+            if (
+                isAmountCorrect(currentOperation.getParamByField('amount')) &&
+                this.operationsMap.get(operation).estimateOutput &&
+                !isSuccessOrFail
+            ) {
                 await this.operationsMap.get(operation).estimateOutput();
+
                 console.log(`${opId} - DONE ############`);
 
                 console.log('OUTPUT AMOUNT', currentOperation.getParamByField('outputAmount'));

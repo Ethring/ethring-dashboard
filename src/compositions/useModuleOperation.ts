@@ -191,7 +191,7 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
 
     const ecosystemToConnect = computed(() => {
-        const isSuperSwap = module === ModuleType.superSwap;
+        const isSuperSwap = [ModuleType.superSwap, ModuleType.shortcut].includes(module);
 
         // ! If not super swap, return
         if (!isSuperSwap) return;

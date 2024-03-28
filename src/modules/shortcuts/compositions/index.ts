@@ -346,9 +346,8 @@ const useShortcuts = (Shortcut: any) => {
         (state, getters) => getters['tokenOps/srcAmount'],
         async (srcAmount) => {
             if (!srcAmount) return;
-            operationsFactory.value.resetEstimatedOutputs();
-
             if (currentOp.value?.id) {
+                operationsFactory.value.resetEstimatedOutputs();
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('amount', srcAmount);
             }
 

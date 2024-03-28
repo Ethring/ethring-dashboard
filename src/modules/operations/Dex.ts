@@ -74,7 +74,7 @@ export default class DexOperation extends BaseOperation {
     }
 
     async estimateOutput(): Promise<void> {
-        if (this.params.fromNet === this.params.toNet) {
+        if (this.getParamByField('fromNet') === this.getParamByField('toNet')) {
             this.service = new BridgeDexService(ServiceType.dex);
         } else {
             this.service = new BridgeDexService(ServiceType.bridgedex);
@@ -94,9 +94,14 @@ export default class DexOperation extends BaseOperation {
             bestRouteServiceId = best;
         }
 
-        const bestRoute = routes.find((route) => route.serviceId === bestRouteServiceId) || routes[0];
+        const bestRoute: IQuoteRoute = routes.find((route) => route.serviceId === bestRouteServiceId) || routes[0];
 
-        this.setParamByField('outputAmount', bestRoute?.toAmount || null);
+        if (!bestRoute) {
+            console.warn('No route found', 'For params:', this.params);
+            return;
+        }
+
+        this.setParamByField('outputAmount', bestRoute.toAmount);
     }
 
     async performTx(ecosystem: string, { serviceId }: PerformTxParams): Promise<IBridgeDexTransaction> {

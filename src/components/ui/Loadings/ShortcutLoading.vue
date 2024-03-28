@@ -174,7 +174,7 @@ export default {
         animation: spin 10s linear infinite;
 
         &.error {
-            animation: none;
+            animation-play-state: paused;
 
             g {
                 stroke: var(--#{$prefix}danger);
@@ -182,7 +182,7 @@ export default {
         }
 
         &.success {
-            animation: none;
+            animation-play-state: paused;
 
             g {
                 stroke: var(--#{$prefix}success);
