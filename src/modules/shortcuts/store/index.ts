@@ -222,5 +222,11 @@ export default {
         setShortcutStatus({ commit }: any, { shortcutId, status }: { shortcutId: string; status: SHORTCUT_STATUSES }) {
             commit(TYPES.SET_SHORTCUT_STATUS, { shortcutId, status });
         },
+
+        resetShortcut({ commit }: any, { shortcutId }: { shortcutId: string }) {
+            commit(TYPES.SET_CURRENT_INDEX, { index: 0 });
+            commit(TYPES.SET_CURRENT_STEP_ID, { stepId: '', shortcutId });
+            commit(TYPES.SET_SHORTCUT_STATUS, { shortcutId, status: SHORTCUT_STATUSES.PENDING });
+        },
     },
 };

@@ -113,8 +113,6 @@ export default {
             state[module][field][attr] = value;
         },
         [TYPES.RESET_FIELDS](state: IState, { module }: { module: ModuleType }) {
-            console.log('resetting fields', module, state, state[module]);
-
             if (!state[module]) {
                 return;
             }

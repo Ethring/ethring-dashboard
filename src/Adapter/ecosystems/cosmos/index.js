@@ -273,7 +273,14 @@ class CosmosAdapter extends AdapterBase {
             if (!this.walletManager) {
                 await this.init();
             }
+        } catch (error) {
+            logger.error('[COSMOS -> connectWallet -> INIT WM]', error, this.walletManager?.isError);
+            return false;
+        }
 
+        try {
+            console.log('CONNECT WALLET', this.walletManager);
+            console.log('walletName', walletName, chain);
             const chainWallet = this.walletManager.getChainWallet(chain, walletName);
 
             await this.getSupportedEcosystemChains(this.walletManager.chainRecords, chainWallet.client);
@@ -301,13 +308,16 @@ class CosmosAdapter extends AdapterBase {
                 walletName: walletName,
             };
         } catch (error) {
-            logger.error(error, this.walletManager?.isError);
+            logger.error('[COSMOS -> connectWallet -> CONNECT]', error, this.walletManager?.isError);
             return false;
         }
     }
 
     async setChain(chainInfo) {
         const { walletModule, chain, chain_id } = chainInfo || {};
+
+        console.log('SET CHAIN', walletModule, chain, chain_id);
+        console.log('SET CHAIN -> chainInfo', chainInfo);
 
         const chainForConnect = chain || chain_id || this.DEFAULT_CHAIN;
 
@@ -501,6 +511,12 @@ class CosmosAdapter extends AdapterBase {
             const [asset = {}] = assets || [];
 
             asset.decimals = asset.denom_units[1].exponent;
+
+            const [mainWallet] = this.walletManager.mainWallets || [];
+
+            if (!this.walletName && mainWallet) {
+                this.walletName = mainWallet.walletName;
+            }
 
             const chainRecord = {
                 ...chain,
