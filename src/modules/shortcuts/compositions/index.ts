@@ -20,6 +20,7 @@ import { IAsset } from '@/shared/models/fields/module-fields';
 import { IOperationParam, OperationStep } from '../core/models/Operation';
 import { Ecosystems } from '@/modules/bridge-dex/enums/Ecosystem.enum';
 import { IBaseOperation } from '@/modules/operations/models/Operations';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
 
 const useShortcuts = (Shortcut: any) => {
     // Create a new instance of the Shortcut class
@@ -263,6 +264,16 @@ const useShortcuts = (Shortcut: any) => {
             shortcutId: Shortcut.id,
             status: SHORTCUT_STATUSES.PENDING,
         });
+
+        if (currentOp.value?.id) {
+            const serviceId = operationsFactory.value.getOperationById(currentOp.value.id)?.getParamByField('serviceId');
+
+            serviceId &&
+                store.dispatch('tokenOps/setServiceId', {
+                    value: serviceId,
+                    module: ModuleType.shortcut,
+                });
+        }
 
         await callOnWatchOnMounted();
     });

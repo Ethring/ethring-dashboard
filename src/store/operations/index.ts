@@ -47,6 +47,8 @@ const TYPES = {
     SET_VALUE_BY_MODULE: 'SET_VALUE_BY_MODULE',
 
     SET_CALL_CONFIRM: 'SET_CALL_CONFIRM',
+
+    SET_SERVICE_ID: 'SET_SERVICE_ID',
 };
 
 const fieldSetter = {
@@ -76,6 +78,10 @@ interface IState extends IFields {
 
     onlyWithBalance: boolean;
 
+    serviceId: {
+        [key in ModuleType]?: string;
+    };
+
     isForceCallConfirm: {
         [key in ModuleType]?: boolean;
     };
@@ -85,6 +91,15 @@ export default {
     namespaced: true,
     state: (): IState => ({
         module: null,
+
+        serviceId: {
+            [ModuleType.send]: null,
+            [ModuleType.stake]: null,
+            [ModuleType.swap]: null,
+            [ModuleType.bridge]: null,
+            [ModuleType.superSwap]: null,
+            [ModuleType.shortcut]: null,
+        },
 
         direction: DIRECTIONS.SOURCE,
         selectType: TOKEN_SELECT_TYPES.FROM,
@@ -124,6 +139,11 @@ export default {
         selectType: (state: IState): TOKEN_SELECT_TYPES_TYPE => state.selectType,
 
         onlyWithBalance: (state: IState): boolean => state.onlyWithBalance,
+
+        getServiceId:
+            (state: IState) =>
+            (module: ModuleType): string =>
+                state.serviceId[module] || null,
 
         // ****************************************************
         // * =================== NETWORKS =================== *
@@ -260,6 +280,10 @@ export default {
         [TYPES.SET_CALL_CONFIRM](state: IState, { module, value }) {
             state.isForceCallConfirm[module] = value;
         },
+
+        [TYPES.SET_SERVICE_ID](state: IState, { module, value }) {
+            state.serviceId[module] = value;
+        },
     },
 
     actions: {
@@ -326,6 +350,10 @@ export default {
 
         setCallConfirm({ commit }, { module, value }) {
             commit(TYPES.SET_CALL_CONFIRM, { module, value });
+        },
+
+        setServiceId({ commit }, { module, value }) {
+            commit(TYPES.SET_SERVICE_ID, { module, value });
         },
     },
 };

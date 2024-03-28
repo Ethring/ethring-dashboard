@@ -93,6 +93,8 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     const selectedDstToken = computed(() => store.getters['tokenOps/dstToken']);
     const srcAmount = computed(() => store.getters['tokenOps/srcAmount']);
 
+    const shortcutServiceId = computed(() => store.getters['tokenOps/getServiceId'](ModuleType.shortcut));
+
     // ===========================================================================================
     // * Address
     // ===========================================================================================
@@ -220,7 +222,11 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
             isQuoteLoading.value = true;
             quoteErrorMessage.value = '';
 
-            const { best, routes } = await bridgeDexService.getQuote(requestParams);
+            shortcutServiceId.value && (requestParams.serviceId = shortcutServiceId.value);
+
+            const withServiceId = requestParams.serviceId ? true : false;
+
+            const { best, routes } = await bridgeDexService.getQuote(requestParams, { withServiceId });
 
             let selectedRoute = routes.find(({ serviceId }) => serviceId === best);
 

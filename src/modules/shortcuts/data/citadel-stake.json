@@ -36,7 +36,7 @@
                     "COSMOS"
                 ],
                 "operationParams": {
-                    "fromNet": "eth",
+                    "fromNet": "bsc",
                     "toNet": "osmosis",
                     "fromToken": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
                     "toToken": "uosmo"
@@ -47,15 +47,15 @@
                         "hide": false,
                         "disabled": false,
                         "ecosystem": "EVM",
-                        "chainId": 1
+                        "chainId": 56
                     },
                     {
                         "name": "srcToken",
                         "disabled": false,
                         "hide": false,
-                        "chain": "eth",
+                        "chain": "bsc",
                         "address": null,
-                        "id": "eth:tokens__native:ETH"
+                        "id": "bsc:tokens__native:BNB"
                     },
                     {
                         "name": "dstNetwork",
