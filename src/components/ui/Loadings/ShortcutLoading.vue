@@ -84,16 +84,16 @@ export default {
                 });
             }
 
+            if (props.shortcutId && props.shortcutIndex === props.total - 1) {
+                store.dispatch('shortcuts/resetShortcut', {
+                    shortcutId: props.shortcutId,
+                });
+            }
+
             if (props.shortcutIndex !== 0) {
                 store.dispatch('tokenOps/setCallConfirm', {
                     module: ModuleType.shortcut,
                     value: true,
-                });
-            }
-
-            if (props.shortcutId && props.shortcutIndex === props.total - 1) {
-                store.dispatch('shortcuts/resetShortcut', {
-                    shortcutId: props.shortcutId,
                 });
             }
         };

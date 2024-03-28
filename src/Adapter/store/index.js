@@ -66,8 +66,6 @@ export default {
         wallets: connectedWalletsStorage.value,
         lastConnectedWallet: lastConnectedWalletStorage.value,
 
-        isConnected: isConnectedStorage.value,
-
         isConnected: {
             [ECOSYSTEMS.EVM]: isConnectedStorage.value[ECOSYSTEMS.EVM],
             [ECOSYSTEMS.COSMOS]: isConnectedStorage.value[ECOSYSTEMS.COSMOS],
@@ -244,7 +242,8 @@ export default {
                 delete addressesByEcosystemListStorage.value[ecosystem];
             }
 
-            isConnectedStorage.value = false;
+            !isConnectedStorage.value && (isConnectedStorage.value = {});
+            isConnectedStorage.value[ecosystem] && (isConnectedStorage.value[ecosystem] = false);
 
             return (connectedWalletsStorage.value = state.wallets);
         },
@@ -261,14 +260,22 @@ export default {
 
             connectedWalletsStorage.value = [];
             lastConnectedWalletStorage.value = {};
-            isConnectedStorage.value = false;
+
+            isConnectedStorage.value = {
+                [ECOSYSTEMS.EVM]: false,
+                [ECOSYSTEMS.COSMOS]: false,
+            };
 
             addressesByEcosystemListStorage.value = {};
             addressesByEcosystemStorage.value = {};
         },
         [TYPES.SET_IS_CONNECTED](state, { ecosystem, isConnected }) {
-            !state.isConnected[ecosystem] && (state.isConnected[ecosystem] = isConnected);
+            !state.isConnected && (state.isConnected = {});
+            !state.isConnected[ecosystem] && (state.isConnected[ecosystem] = false);
+            state.isConnected[ecosystem] = isConnected;
+
             !isConnectedStorage.value && (isConnectedStorage.value = {});
+            !isConnectedStorage.value[ecosystem] && (isConnectedStorage.value[ecosystem] = false);
             isConnectedStorage.value[ecosystem] = isConnected;
         },
         [TYPES.SET_ADDRESSES_BY_ECOSYSTEM](state, { ecosystem, addresses }) {

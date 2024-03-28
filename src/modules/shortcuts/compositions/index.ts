@@ -244,7 +244,6 @@ const useShortcuts = (Shortcut: any) => {
     // * Perform the shortcut when the component is mounted
     // ====================================================================================================
     onMounted(async () => {
-        console.log('mounted', CurrentShortcut.id, Shortcut);
         if (!CurrentShortcut.id) return;
 
         shortcutIndex.value = 0;
