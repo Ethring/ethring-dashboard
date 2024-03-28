@@ -101,6 +101,7 @@ export type NftBalance = NftResponse & {
 type ChainAddress = {
     logo: string;
     address: string;
+    nativeTokenLogo?: string
 };
 
 export type ChainAddresses = {
@@ -126,6 +127,7 @@ export type RequestOptions = {
 export type RecordOptions = RequestOptions & {
     logo?: string;
     chain?: string;
+    nativeTokenLogo?: string
     store?: any;
 };
 

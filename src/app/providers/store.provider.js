@@ -27,6 +27,9 @@ import updateBalance from '@/store/update-balance';
 import moduleStates from '@/store/moduleStates';
 import shortcuts from '@/modules/shortcuts/store';
 
+// Shortcuts
+import shortcutsList from '@/store/shortcuts';
+
 export default createStore({
     state: {},
     mutations: {},
@@ -43,5 +46,6 @@ export default createStore({
         updateBalance,
         moduleStates,
         shortcuts,
+        shortcutsList,
     },
 });

@@ -215,18 +215,22 @@ export default function useSelectModal(type) {
             const isSameNet =
                 selectedSrcNetwork.value && selectedDstNetwork.value && selectedSrcNetwork.value.net === selectedDstNetwork.value.net;
 
-            const isSwap = module.value === ModuleType.swap;
+            const isExcludeExist = module.value === ModuleType.swap || isSameNet;
 
             const exclude = [];
 
-            if (isSwap) {
+            if (isExcludeExist && isFromSelect.value) {
                 selectedTokenTo.value && exclude.push(selectedTokenTo.value?.id);
+            }
+
+            if (isExcludeExist && !isFromSelect.value) {
+                selectedTokenFrom.value && exclude.push(selectedTokenFrom.value?.id);
             }
 
             tokens.value = await getTokensList({
                 srcNet: selectedNetwork.value,
                 srcToken: selectedTokenFrom.value,
-                dstToken: isSwap ? selectedTokenFrom.value : selectedTokenTo.value,
+                dstToken: selectedTokenTo.value,
                 isSameNet,
                 onlyWithBalance: isFromSelect.value,
                 exclude,

@@ -25,7 +25,7 @@ $trout: #494c56;
 $mineralGreen: #486060;
 $gulfStream: #73b1b1;
 $aquamarine: #97ffd0;
-$geyser: #c9e0e0;
+$geyser: #A0B3C3;
 $pizazz: #f69502;
 $green: #04b600;
 $cyan: #02e7f6;
@@ -39,6 +39,7 @@ $deepCerulean: #00839f;
 $japaneseLaurel: #038d00;
 $blazeOrange: #ff6b00;
 $neutral-text: $medWhite;
+$outerSpace: #2b353e;
 
 //  ===========================================================================
 //  GRADIENTS
@@ -87,6 +88,9 @@ $amount-text: $white;
 $input-disabled-text: $paleSky;
 $balance-text: $aquamarine;
 $unlock-text: $aquamarine;
+$base-amount-text: $springGreen;
+$description-text: $geyser;
+$currency-text: $paleSky;
 
 // Adapter text
 $adapter-label-text: $gulfStream;
@@ -138,6 +142,8 @@ $btn-disabled: $ebonyClay;
 $btn-disabled-text: $mineralGreen;
 $btn-disabled-icon: $geyser;
 $swap-btn-bg-color: $ebonyClay;
+$small-btn-bg-color: $springGreen;
+$base-btn-bg-color: $outerSpace;
 
 // Select
 $select-bg-color: $ebonyClay;
@@ -198,6 +204,8 @@ $icon-logo-bg-hover: $aquamarine;
 $icon-secondary-bg-color: $ebonyClay;
 $icon-secondary-bg-hover: $mineralGreen;
 $icon-bg-color: $white;
+$token-primary-icon-color: $charade;
+$token-secondary-icon-color: $springGreen;
 
 $icon-placeholder: $medievalBlue;
 $icon-placeholder-border: $ghostWhite;
@@ -235,6 +243,13 @@ $nav-bar-bg-color: $chineseBlack;
 $tag-01: $aquamarine;
 $tag-02: $cyan;
 $tag-03: $springGreen;
+$tag-selected: $gulfStream;
+
+// Card
+$card-bg-color: $ebonyClay;
+$card-btn-bg-color: $aquamarine;
+$card-tag-bg-color: $turquoise;
+$card-btn-secondary-color: $gainsboro;
 
 //  ===========================================================================
 //  THEME MAP
@@ -267,6 +282,9 @@ $theme-colors-dark: (
     "balance-text": $balance-text,
     "unlock-text": $unlock-text,
     "neutral-text": $neutral-text,
+    "base-amount-text": $base-amount-text,
+    "description-text": $description-text,
+    "currency-text": $currency-text,
 
     "assets-border-color": $assets-border-color,
     "assets-header-border-color": $assets-header-border-color,
@@ -311,6 +329,8 @@ $theme-colors-dark: (
     "btn-disabled-text": $btn-disabled-text,
     "btn-disabled-icon": $btn-disabled-icon,
     "swap-btn-bg-color": $swap-btn-bg-color,
+    "small-btn-bg-color": $small-btn-bg-color,
+    "base-btn-bg-color": $base-btn-bg-color,
 
     "select-bg-color": $select-bg-color,
     "select-secondary-bg-color": $select-secondary-bg-color,
@@ -344,6 +364,8 @@ $theme-colors-dark: (
     "icon-disabled": $icon-disabled,
     "icon-border": $icon-border,
     "icon-bg-color": $icon-bg-color,
+    "token-primary-icon-color": $token-primary-icon-color,
+    "token-secondary-icon-color": $token-secondary-icon-color,
 
     "icon-logo-bg-color": $icon-logo-bg-color,
     "icon-logo-bg-hover": $icon-logo-bg-hover,
@@ -393,5 +415,11 @@ $theme-colors-dark: (
 
     "tag-01": $tag-01,
     "tag-02": $tag-02,
-    "tag-03": $tag-03
+    "tag-03": $tag-03,
+    "tag-selected": $tag-selected,
+
+    "card-bg-color": $card-bg-color,
+    "card-btn-bg-color": $card-btn-bg-color,
+    "card-tag-bg-color": $card-tag-bg-color,
+    "card-btn-secondary-color": $card-btn-secondary-color
 );

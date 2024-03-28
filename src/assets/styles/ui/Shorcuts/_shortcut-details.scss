@@ -1,0 +1,81 @@
+.shortcut-details {
+    .wallpaper {
+        width: 100%;
+        height: 140px;
+        margin-bottom: 16px;
+        background-image: url(@/assets/images/placeholder/wallpaper.svg);
+        background-position: center;
+    }
+
+    .title {
+        font-size: var(--#{$prefix}h4-fs);
+        line-height: 28px;
+        font-weight: 600;
+        color: var(--#{$prefix}primary-text);
+
+        width: 60%;
+        overflow-x: hidden;
+        text-wrap: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .description {
+        margin: 16px 0 24px;
+        font-size: var(--#{$prefix}small-lg-fs);
+        line-height: 20px;
+        font-weight: 400;
+        color: var(--#{$prefix}description-text);
+    }
+
+    .link {
+        @include pageFlexRow;
+        color: var(--#{$prefix}base-text);
+
+        &:hover {
+            color: var(--#{$prefix}primary-text);
+        }
+
+        span {
+            margin-left: 10px;
+        }
+    }
+
+    &-btn {
+        min-width: 80px;
+        min-height: 30px;
+        height: 30px;
+        border-radius: 4px;
+        text-transform: capitalize;
+
+        color: var(--#{$prefix}mute-text);
+        background-color: var(--#{$prefix}base-btn-bg-color);
+
+        &:hover {
+            background-color: var(--#{$prefix}small-btn-bg-color) !important;
+            color: var(--#{$prefix}primary) !important;
+        }
+    }
+
+    .ant-steps-item-icon,
+    .ant-steps-icon {
+        // width: 24px;
+        // height: 24px;
+        // margin: 16px 0;
+    }
+
+    .ant-steps-item-tail {
+        // margin-left: -4px !important;
+        // margin-top: 50px;
+        // height: 24px !important;
+        // padding: 0 !important;
+        // background-color: var(--#{$prefix}neutral-gray-100) !important;
+    }
+
+    .ant-steps-item-tail::after {
+        // background-color: var(--#{$prefix}neutral-gray-100) !important;
+    }
+
+    .ant-steps-item-title {
+        // width: 100%;
+    }
+}

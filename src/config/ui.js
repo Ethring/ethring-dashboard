@@ -57,7 +57,19 @@ const SHORTCUTS = {
     type: 'layout',
 };
 
-const SIDEBAR_MODULES = [MAIN_DASHBOARD, SEND, SWAP, BRIDGE, SUPER_SWAP, SHORTCUTS];
+const SHORTCUT = {
+    icon: 'shortcutIcon',
+    title: 'Shortcuts',
+    key: 'shortcut',
+    to: '/shortcuts',
+    status: 'NEW',
+    disabled: false,
+    type: 'layout',
+};
+
+const SIDEBAR_MODULES = [MAIN_DASHBOARD, SHORTCUT, SEND, SWAP, BRIDGE, SUPER_SWAP];
+
+const CUSTOM_CONFIG = [MAIN_DASHBOARD];
 
 const defaultConfig = {
     [ECOSYSTEMS.EVM]: {
@@ -77,6 +89,9 @@ const defaultConfig = {
         buyCrypto: {
             component: 'BuyCrypto',
         },
+        shortcut: {
+            component: 'Shortcut',
+        },
     },
     [ECOSYSTEMS.COSMOS]: {
         sidebar: SIDEBAR_MODULES,
@@ -94,6 +109,9 @@ const defaultConfig = {
         },
         buyCrypto: {
             component: 'BuyCrypto',
+        },
+        shortcut: {
+            component: 'Shortcut',
         },
     },
 };

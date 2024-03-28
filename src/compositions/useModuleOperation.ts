@@ -521,7 +521,6 @@ const useModuleOperations = (module: ModuleType) => {
 
                         if (index === 0) {
                             const toSave = { ...tx.getTransaction(), ...prepared, id: transaction.id };
-                            await tx.updateTransactionById(Number(tx.id), toSave);
                             tx.setTransaction(toSave);
                         } else {
                             tx.setId(transaction.id);
@@ -603,6 +602,12 @@ const useModuleOperations = (module: ModuleType) => {
                     }
 
                     console.debug('-'.repeat(10), 'TX ECOSYSTEM CHECK --- DONE', '-'.repeat(10), '\n\n');
+                    await delay(1000);
+
+                    if (tx.getChainId() !== currentChainInfo.value?.chain_id) {
+                        closeNotification(`tx-${tx.getTxId()}`);
+                        throw new Error('Incorrect chain');
+                    }
 
                     try {
                         const forSign = tx.getTransaction();
@@ -653,6 +658,8 @@ const useModuleOperations = (module: ModuleType) => {
 
                 // * On error
                 tx.onError = async (error) => {
+                    closeNotification(`tx-${tx.getTxId()}`);
+
                     console.error('Error on transaction:', error);
                     const errorMessage = error?.message || JSON.stringify(error);
 
@@ -675,6 +682,28 @@ const useModuleOperations = (module: ModuleType) => {
                         });
                     }
                 };
+
+                // * On canceled in prepare
+                // tx.onCancel = async () => {
+                //     if (isTransactionCanceled.value) {
+                //         console.log('Transaction canceled by user');
+
+                //         isTransactionCanceled.value = false;
+
+                //         isTransactionSigning.value = false;
+
+                //         isLoading.value = false;
+
+                //         await store.dispatch('tokenOps/setOperationResult', {
+                //             module,
+                //             result: {
+                //                 status: 'success',
+                //                 title: 'Transaction Cancelled',
+                //                 description: 'Transaction successfully cancelled',
+                //             },
+                //         });
+                //     }
+                // };
 
                 txManager.addTransaction(tx);
             }

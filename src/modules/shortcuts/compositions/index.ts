@@ -23,6 +23,18 @@ import { IBaseOperation } from '@/modules/operations/models/Operations';
 
 const useShortcuts = (Shortcut: any) => {
     // Create a new instance of the Shortcut class
+
+    if (!Shortcut) {
+        return {
+            shortcut: {},
+            shortcutId: null,
+            shortcutIndex: 0,
+            shortcutLayout: null,
+            shortcutStatus: STATUSES.PENDING,
+            steps: [],
+        };
+    }
+
     const CurrentShortcut = new ShortcutCl(Shortcut);
 
     const { getChainByChainId } = useAdapter();
@@ -231,6 +243,9 @@ const useShortcuts = (Shortcut: any) => {
     // * Perform the shortcut when the component is mounted
     // ====================================================================================================
     onMounted(async () => {
+        console.log('mounted', CurrentShortcut.id, Shortcut);
+        if (!CurrentShortcut.id) return;
+
         shortcutIndex.value = 0;
 
         await performShortcut(true);

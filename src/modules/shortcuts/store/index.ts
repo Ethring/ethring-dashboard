@@ -11,6 +11,7 @@ import { ShortcutStatus, ShortcutType, ShortcutStatuses } from '../core/types/Sh
 import OperationFactory from '@/modules/operations/OperationsFactory';
 import { OperationStep } from '../core/models/Operation';
 import { STATUSES, SHORTCUT_STATUSES } from '@/shared/models/enums/statuses.enum';
+// import StepItem from '@/components/shortcuts/StepItem.vue';
 
 const TYPES = {
     SET_SHORTCUT: 'SET_SHORTCUT',
@@ -145,6 +146,9 @@ export default {
                         spin: true,
                     });
                 }
+
+                // TODO: add step component
+                // step.title = h(StepItem, { data: step });
 
                 return step;
             });

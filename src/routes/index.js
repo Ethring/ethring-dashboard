@@ -106,7 +106,19 @@ export const routes = [
     {
         path: '/shortcuts',
         name: 'Zomet - Shortcuts',
-        component: () => import('@/pages/Shortcuts.vue'),
+        meta: {
+            key: 'shortcut',
+        },
+        component: () => import('@/pages/Shortcut.vue'),
+        // component: () => import('@/pages/Shortcuts.vue'),
+    },
+    {
+        path: '/shortcuts/:id',
+        name: 'Shortcut details',
+        meta: {
+            key: 'shortcuts-details',
+        },
+        component: () => import('@/components/shortcuts/ShortcutDetails.vue'),
     },
     {
         path: '/:pathMatch(.*)*',

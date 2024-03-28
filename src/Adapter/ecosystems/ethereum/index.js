@@ -89,7 +89,7 @@ class EthereumAdapter extends AdapterBase {
                 continue;
             }
 
-            const { net, logo } = chainInfo || {};
+            const { net, logo, native_token } = chainInfo || {};
 
             if (!this.addressByNetwork[net]) {
                 this.addressByNetwork[net] = null;
@@ -98,6 +98,7 @@ class EthereumAdapter extends AdapterBase {
             this.addressByNetwork[net] = {
                 address: mainAddress,
                 logo,
+                nativeTokenLogo: native_token.logo,
             };
         }
     }

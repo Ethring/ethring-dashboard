@@ -109,7 +109,12 @@ function useAdapter() {
             walletModule: connectedWalletModule.value,
         };
 
-        if (!walletInfo.address || !walletInfo.walletName || !walletInfo.ecosystem) {
+        if (
+            currentChainInfo.value?.ecosystem !== walletInfo.ecosystem ||
+            !walletInfo.address ||
+            !walletInfo.walletName ||
+            !walletInfo.ecosystem
+        ) {
             return;
         }
 

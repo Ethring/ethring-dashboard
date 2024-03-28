@@ -20,7 +20,15 @@ export default function useTransactions() {
     const transactionForSign = computed(() => store.getters['txManager/transactionForSign']);
     const currentRequestID = computed(() => store.getters['txManager/currentRequestID']);
 
-    const { signSend, currentChainInfo, connectedWallet, getTxExplorerLink, prepareTransaction, prepareDelegateTransaction, formatTransactionForSign } = useAdapter();
+    const {
+        signSend,
+        currentChainInfo,
+        connectedWallet,
+        getTxExplorerLink,
+        prepareTransaction,
+        prepareDelegateTransaction,
+        formatTransactionForSign,
+    } = useAdapter();
 
     // * Create transactions queue
     const createTransactions = async (transactions) => {

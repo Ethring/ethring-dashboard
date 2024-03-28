@@ -18,7 +18,7 @@ export interface IOperationParam {
 export interface OperationStep {
     id: string;
     index: number;
-    title: string;
+    title: any;
     status: ShortcutStatuses;
     description?: string;
 

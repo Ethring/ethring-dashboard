@@ -144,5 +144,12 @@
     "supportedWallets": "User-Friendly Access",
     "dashboardProtocols": "Dashboard Insights",
     "keyModules": "Key Modules"
+  },
+  "shortcuts": {
+    "label": "Create your own shortcut and monetize your strategy!",
+    "description": "Enable users to follow your guidance and earn with our revenue share program!",
+    "createdBy": "Created by",
+    "clearAll": "Clear all",
+    "backTo": "Back to shortcuts"
   }
 }
