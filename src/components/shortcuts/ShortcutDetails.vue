@@ -23,7 +23,11 @@
                     </div>
 
                     <ShortcutLoading
-                        v-if="shortcutId !== null"
+                        v-if="
+                            shortcutId !== null &&
+                            [STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(shortcutStatus) &&
+                            shortcutStatus !== STATUSES.PENDING
+                        "
                         :status="shortcutStatus"
                         :shortcutIndex="shortcutIndex"
                         :shortcutId="shortcutId"
@@ -57,7 +61,7 @@ import ShortcutLoading from '@/components/ui/Loadings/ShortcutLoading.vue';
 
 import useShortcuts from '@/modules/shortcuts/compositions/index';
 
-import { SHORTCUT_STATUSES } from '@/shared/models/enums/statuses.enum';
+import { SHORTCUT_STATUSES, STATUSES } from '@/shared/models/enums/statuses.enum';
 import _ from 'lodash';
 
 export default {
@@ -107,6 +111,7 @@ export default {
             steps,
             shortcutLayout,
             SHORTCUT_STATUSES,
+            STATUSES,
         };
     },
 };
