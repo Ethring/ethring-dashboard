@@ -144,10 +144,14 @@ export default {
         });
 
         const allCollapsedActiveKeys = computed(() => {
+            if (!allIntegrationsByPlatforms.value.length) return [];
+
             const keys = ['assets', 'nfts'];
+
             allIntegrationsByPlatforms.value.map((item) => {
                 keys.push(item.platform);
             });
+
             return keys;
         });
 
@@ -191,18 +195,22 @@ export default {
         };
 
         const updateCollapsedAssets = () => {
-            const list = allCollapsedActiveKeys.value.filter((key) => !collapsedAssets.value.includes(key));
+            if (allCollapsedActiveKeys.value.length && allIntegrationsByPlatforms.value.length) {
+                const list = allCollapsedActiveKeys.value.filter((key) => !collapsedAssets.value.includes(key));
 
-            if (collapsedAssets.value) {
-                collapseActiveKey.value = list;
-            } else {
-                collapseActiveKey.value = allCollapsedActiveKeys.value;
+                if (collapsedAssets.value) {
+                    collapseActiveKey.value = list;
+                } else {
+                    collapseActiveKey.value = allCollapsedActiveKeys.value;
+                }
             }
         };
 
-        onMounted(() => {
+        onMounted(async () => {
             window.addEventListener('keydown', handleKeyDown);
             keyPressCombination.value = '';
+
+            await Promise.all([allCollapsedActiveKeys.value, allIntegrationsByPlatforms.value]);
 
             updateCollapsedAssets();
         });
@@ -219,6 +227,10 @@ export default {
 
         watch(walletAccount, () => {
             store.dispatch('app/setCollapsedAssets', []);
+        });
+
+        watch(allIntegrationsByPlatforms, () => {
+            updateCollapsedAssets();
         });
 
         return {
