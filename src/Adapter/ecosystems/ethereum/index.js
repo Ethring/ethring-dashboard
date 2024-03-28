@@ -11,13 +11,19 @@ import { web3OnBoardConfig, ECOSYSTEMS, chainConfig, NATIVE_CONTRACT, TRANSFER_A
 import { validateEthAddress } from '@/Adapter/utils/validations';
 
 import { errorRegister } from '@/shared/utils/errors';
+
+import { useLocalStorage } from '@vueuse/core';
+
 import _ from 'lodash';
 
 let web3Onboard = null;
 
 const STORAGE = {
     WALLET: 'onboard.js:last_connected_wallet',
+    CONNECTED_WALLETS_KEY: 'adapter:connectedWallets'
 };
+
+const connectedWalletsStorage = useLocalStorage(STORAGE.CONNECTED_WALLETS_KEY, [], { mergeDefaults: true })
 
 const [DEFAULT_CHAIN] = chainConfig;
 
@@ -225,9 +231,19 @@ class EthereumAdapter extends AdapterBase {
         }
     }
 
-    async getWalletLogo(walletModule) {
+    async getWalletLogo(walletModule, store) {
         if (!walletModule) {
             return null;
+        }
+
+        const adaptersDispatch = (...args) => store.dispatch('adapters/SET_WALLET', ...args);
+
+        let connectedWallet = connectedWalletsStorage.value.find((wallet) => wallet.walletModule === walletModule);
+
+        if (connectedWallet && connectedWallet.icon) {
+            adaptersDispatch({ ecosystem: ECOSYSTEMS.EVM, wallet: connectedWallet });
+
+            return connectedWallet.icon;
         }
 
         const { walletModules } = web3Onboard.state.get() || {};
@@ -237,7 +253,18 @@ class EthereumAdapter extends AdapterBase {
             return null;
         }
 
-        return (await exist.getIcon()) || null;
+        const icon = await exist.getIcon();
+
+        const index = connectedWalletsStorage.value.findIndex((wallet) => wallet.walletModule === walletModule);
+
+        if (index !== -1) {
+            connectedWallet = { ...connectedWalletsStorage.value[index], icon };
+            connectedWalletsStorage.value[index] = connectedWallet;
+        }
+
+        adaptersDispatch({ ecosystem: ECOSYSTEMS.EVM, wallet: connectedWallet });
+
+        return icon;
     }
 
     validateAddress(address, { validation }) {

@@ -409,7 +409,7 @@ function useAdapter() {
     // * Get Wallet Logo by Ecosystem
     const getWalletLogo = async (ecosystem, module) => {
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
-        return await adapter.getWalletLogo(module);
+        return await adapter.getWalletLogo(module, store);
     };
 
     // * Get addressesWithChains by Ecosystem

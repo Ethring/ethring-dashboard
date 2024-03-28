@@ -78,8 +78,8 @@ export default {
     getters: {
         [GETTERS.IS_OPEN]:
             (state) =>
-            (name = MODALS.WALLETS) =>
-                state.modals[name],
+                (name = MODALS.WALLETS) =>
+                    state.modals[name],
 
         [GETTERS.IS_CONNECTING]: (state) => state.isConnecting,
 
@@ -170,7 +170,7 @@ export default {
             lastConnectedWalletStorage.value = wallet;
             state.lastConnectedWallet = wallet;
 
-            const found = state.wallets.filter((w) => w.id === wallet.id || w.ecosystem === ecosystem);
+            const found = state.wallets.filter((w) => w?.id === wallet?.id || w.ecosystem === ecosystem);
             const [exist] = found;
 
             if (!exist) {
@@ -178,9 +178,11 @@ export default {
                 return (connectedWalletsStorage.value = state.wallets);
             }
 
-            findKeyDifferences(exist, wallet).forEach((key) => {
-                exist[key] = wallet[key];
-            });
+            if (wallet) {
+                findKeyDifferences(exist, wallet).forEach((key) => {
+                    exist[key] = wallet[key];
+                });
+            }
 
             return (connectedWalletsStorage.value = state.wallets);
         },
