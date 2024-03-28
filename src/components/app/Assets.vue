@@ -143,6 +143,14 @@ export default {
             return totalSum.toNumber();
         });
 
+        const allCollapsedActiveKeys = computed(() => {
+            const keys = ['assets', 'nfts'];
+            allIntegrationsByPlatforms.value.map((item) => {
+                keys.push(item.platform);
+            });
+            return keys;
+        });
+
         const getAssetsShare = (balance) => {
             if (!balance || !totalBalances.value) {
                 return 0;
@@ -182,10 +190,7 @@ export default {
             }
         };
 
-        onMounted(() => {
-            window.addEventListener('keydown', handleKeyDown);
-            keyPressCombination.value = '';
-
+        const updateCollapsedAssets = () => {
             const list = allCollapsedActiveKeys.value.filter((key) => !collapsedAssets.value.includes(key));
 
             if (collapsedAssets.value) {
@@ -193,6 +198,13 @@ export default {
             } else {
                 collapseActiveKey.value = allCollapsedActiveKeys.value;
             }
+        };
+
+        onMounted(() => {
+            window.addEventListener('keydown', handleKeyDown);
+            keyPressCombination.value = '';
+
+            updateCollapsedAssets();
         });
 
         onBeforeUnmount(() => {
@@ -200,17 +212,13 @@ export default {
             keyPressCombination.value = '';
         });
 
-        const allCollapsedActiveKeys = computed(() => {
-            const keys = ['assets', 'nfts'];
-            allIntegrationsByPlatforms.value.map((item) => {
-                keys.push(item.platform);
-            });
-            return keys;
-        });
-
         watch(collapseActiveKey, () => {
             const hiddenKeys = allCollapsedActiveKeys.value.filter((key) => !collapseActiveKey.value.includes(key));
             store.dispatch('app/setCollapsedAssets', hiddenKeys);
+        });
+
+        watch(walletAccount, () => {
+            store.dispatch('app/setCollapsedAssets', []);
         });
 
         return {

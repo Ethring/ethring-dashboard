@@ -103,8 +103,6 @@ export default {
         const unWatchAcc = watch(walletAccount, async () => {
             store.dispatch('tokens/setLoader', true);
             store.dispatch('tokens/setTargetAccount', walletAccount.value);
-            store.dispatch('app/setCollapsedAssets', []);
-
             callSubscription();
             await callInit();
         });
