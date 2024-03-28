@@ -243,13 +243,15 @@ export default class OperationFactory implements IOperationFactory {
         this.operationsIndex.delete(key);
     }
 
-    resetOperations(): void {
-        this.operationsMap.clear();
-        this.operationsIds.clear();
-        this.operationsIndex.clear();
-        this.groupOps.clear();
-        this.operationDependencies.clear();
-        this.operationsStatusByKey.clear();
+    resetOperationsStatus(): void {
+        const operations = Array.from(this.operationsMap.keys());
+
+        for (const operation of operations) {
+            console.log('RESET STATUS', operation, this.operationsStatusByKey.get(operation), STATUSES.PENDING);
+            this.setOperationStatusByKey(operation, STATUSES.PENDING);
+        }
+
+        // this.resetEstimatedOutputs();
     }
 
     resetEstimatedOutputs(): void {

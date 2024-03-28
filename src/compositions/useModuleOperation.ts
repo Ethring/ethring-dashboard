@@ -481,15 +481,15 @@ const useModuleOperations = (module: ModuleType) => {
             await txManager.createTransactionGroup(group as ITransaction);
 
             for (const { index, type, make, moduleIndex } of OP_FLOW) {
-                const tx = new Transaction(type);
-
-                // * Set first transaction ID
-                if (index === 0) tx.setId(txManager.getFirstTxId());
-
                 if (operations.getOperationsStatusByKey(moduleIndex) === STATUSES.SUCCESS) {
                     console.log('Operation already success, skip', moduleIndex);
                     continue;
                 }
+
+                const tx = new Transaction(type);
+
+                // * Set first transaction ID
+                if (index === 0) tx.setId(txManager.getFirstTxId());
 
                 // * Set request ID
                 tx.setRequestID(txManager.getRequestId());
@@ -679,6 +679,17 @@ const useModuleOperations = (module: ModuleType) => {
                 txManager.addTransaction(tx);
             }
 
+            if (!txManager.getTransactions().length) {
+                console.warn('No transactions to execute');
+
+                shortcutOps.value &&
+                    store.dispatch('shortcuts/setShortcutStatus', { status: STATUSES.FAILED, shortcutId: currentShortcut.value.id });
+
+                isTransactionSigning.value = false;
+
+                return;
+            }
+
             await txManager.executeTransactions();
         } catch (error) {
             console.error('useModuleOperations -> handleOnConfirm -> error', error);
@@ -761,10 +772,16 @@ const useModuleOperations = (module: ModuleType) => {
     });
 
     const unWatchIsForceCallConfirm = watch(isForceCallConfirm, (value) => {
-        if (value) {
-            handleOnConfirm();
-            isForceCallConfirm.value = false;
+        if (!value) {
+            return;
         }
+
+        if (shortcutOps.value) {
+        }
+
+        handleOnConfirm();
+
+        isForceCallConfirm.value = false;
     });
 
     // ===============================================================================================

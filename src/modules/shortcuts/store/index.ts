@@ -93,17 +93,15 @@ export default {
         },
 
         getShortcutSteps: (state: IState) => (shortcutId: string) => {
-            const opFactory = state.shortcutOps[shortcutId];
-
-            const flow = opFactory.getFullOperationFlow();
+            const flow = state.shortcutOps[shortcutId].getFullOperationFlow();
 
             let hasError = false;
 
             const steps: OperationStep[] = flow.map((operation, index) => {
                 const step = operation as OperationStep;
 
-                if (opFactory.getOperationById(step.operationId)) {
-                    const op = opFactory.getOperationById(step.operationId);
+                if (state.shortcutOps[shortcutId].getOperationById(step.operationId)) {
+                    const op = state.shortcutOps[shortcutId].getOperationById(step.operationId);
 
                     if (op?.getTitle) {
                         step.description = _.isEqual(op.getTitle(), step.title) ? null : op.getTitle();
@@ -112,7 +110,7 @@ export default {
                     }
                 }
 
-                const status = opFactory.getOperationsStatusByKey(step.moduleIndex);
+                const status = state.shortcutOps[shortcutId].getOperationsStatusByKey(step.moduleIndex);
 
                 if ([STATUSES.FAILED, STATUSES.SUCCESS].includes(status)) {
                     hasError = true;
@@ -223,10 +221,14 @@ export default {
             commit(TYPES.SET_SHORTCUT_STATUS, { shortcutId, status });
         },
 
-        resetShortcut({ commit }: any, { shortcutId }: { shortcutId: string }) {
+        resetShortcut({ commit, state }: any, { shortcutId }: { shortcutId: string }) {
             commit(TYPES.SET_CURRENT_INDEX, { index: 0 });
             commit(TYPES.SET_CURRENT_STEP_ID, { stepId: '', shortcutId });
             commit(TYPES.SET_SHORTCUT_STATUS, { shortcutId, status: SHORTCUT_STATUSES.PENDING });
+
+            if (state.shortcutOps[shortcutId]) {
+                state.shortcutOps[shortcutId].resetOperationsStatus();
+            }
         },
     },
 };

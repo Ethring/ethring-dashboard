@@ -119,5 +119,7 @@ export interface IOperationFactory {
 
     getOperationsIds(): Map<string, string>;
 
+    resetOperationsStatus(): void;
+
     // getOperation(module: string, operationIndex: number): IBaseOperation;
 }

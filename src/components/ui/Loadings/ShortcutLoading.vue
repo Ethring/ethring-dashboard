@@ -77,13 +77,24 @@ export default {
         const store = useStore();
 
         const handleOnTryAgain = () => {
-            store.dispatch('tokenOps/setCallConfirm', {
-                module: ModuleType.shortcut,
-                value: true,
-            });
+            if (props.shortcutIndex === 0 || props.shortcutIndex === props.total - 1) {
+                store.dispatch('shortcuts/setShortcutStatus', {
+                    shortcutId: props.shortcutId,
+                    status: STATUSES.PENDING,
+                });
+            }
+
+            if (props.shortcutIndex !== 0) {
+                store.dispatch('tokenOps/setCallConfirm', {
+                    module: ModuleType.shortcut,
+                    value: true,
+                });
+            }
 
             if (props.shortcutId && props.shortcutIndex === props.total - 1) {
-                store.dispatch('shortcuts/setShortcutStatus', STATUSES.PENDING);
+                store.dispatch('shortcuts/resetShortcut', {
+                    shortcutId: props.shortcutId,
+                });
             }
         };
 

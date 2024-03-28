@@ -263,4 +263,16 @@ export class TransactionList {
             this.socket.off(event);
         }
     }
+
+    getTransactions(): Transaction[] {
+        let current = this.head;
+        const transactions = [];
+
+        while (current) {
+            transactions.push(current.transaction);
+            current = current.next;
+        }
+
+        return transactions;
+    }
 }
