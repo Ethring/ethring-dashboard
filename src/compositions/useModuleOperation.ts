@@ -571,19 +571,17 @@ const useModuleOperations = (module: ModuleType) => {
                 tx.execute = async () => {
                     console.debug('-'.repeat(10), 'TX ECOSYSTEM CHECK', '-'.repeat(10), '\n');
                     try {
-                        if (getConnectedStatus(tx.getEcosystem())) {
+                        if (getConnectedStatus(tx.getEcosystem() && currentChainInfo.value?.ecosystem !== tx.getEcosystem())) {
                             console.debug('Already connected to ecosystem try to switch to ecosystem', tx.getEcosystem());
                             await switchEcosystem(tx.getEcosystem());
-                            await delay(1000);
                         }
+
+                        await delay(1000);
 
                         if (currentChainInfo.value?.ecosystem !== tx.getEcosystem()) {
                             console.debug('Ecosystem is not connected, try to connect to ecosystem', tx.getEcosystem());
                             await connectByEcosystems(tx.getEcosystem());
-                            await delay(1000);
-                        }
-
-                        if (currentChainInfo.value?.ecosystem === tx.getEcosystem()) {
+                        } else if (`${currentChainInfo.value?.chain_id}` !== `${tx.getChainId()}`) {
                             console.debug('Ecosystem is connected, try to switch to chain', tx.getChainId());
                             const chainInfo = getChainByChainId(tx.getEcosystem(), tx.getChainId());
 
@@ -603,11 +601,6 @@ const useModuleOperations = (module: ModuleType) => {
 
                     console.debug('-'.repeat(10), 'TX ECOSYSTEM CHECK --- DONE', '-'.repeat(10), '\n\n');
                     await delay(1000);
-
-                    if (tx.getChainId() !== currentChainInfo.value?.chain_id) {
-                        closeNotification(`tx-${tx.getTxId()}`);
-                        throw new Error('Incorrect chain');
-                    }
 
                     try {
                         const forSign = tx.getTransaction();
