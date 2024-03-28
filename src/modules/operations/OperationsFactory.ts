@@ -216,7 +216,9 @@ export default class OperationFactory implements IOperationFactory {
                 });
             }
 
-            if (this.operationsMap.get(operation).estimateOutput) {
+            const isSuccessOrFail = [STATUSES.SUCCESS, STATUSES.FAILED].includes(this.operationsStatusByKey.get(operation));
+
+            if (this.operationsMap.get(operation).estimateOutput && !isSuccessOrFail) {
                 await this.operationsMap.get(operation).estimateOutput();
                 console.log(`${opId} - DONE ############`);
 
@@ -268,14 +270,24 @@ export default class OperationFactory implements IOperationFactory {
     }
 
     getOperationsStatusById(id: string): STATUSES {
-        return this.operationsStatusByKey.get(this.operationsIndex.get(id));
+        return this.operationsStatusByKey.get(this.operationsIds.get(id));
     }
 
     setOperationStatusById(id: string, status: STATUSES): void {
-        this.operationsStatusByKey.set(this.operationsIndex.get(id), status);
+        if (!this.operationsIds.get(id)) {
+            console.warn(`Operation with id ${id} not found`);
+            return;
+        }
+
+        this.operationsStatusByKey.set(this.operationsIds.get(id), status);
     }
 
     setOperationStatusByKey(key: string, status: STATUSES): void {
+        if (!this.operationsMap.has(key)) {
+            console.warn(`Operation with key ${key} not found`);
+            return;
+        }
+
         this.operationsStatusByKey.set(key, status);
     }
 

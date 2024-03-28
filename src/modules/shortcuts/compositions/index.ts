@@ -11,7 +11,7 @@ import ShortcutCl from '../core/Shortcut';
 import DexOperation from '@/modules/operations/Dex';
 import TransferOperation from '@/modules/operations/Transfer';
 import { ApproveOperation } from '@/modules/operations/Approve';
-import { SHORTCUT_STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
+import { SHORTCUT_STATUSES, STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
 import { ShortcutType } from '../core/types/ShortcutType';
 import { AddressByChainHash } from '../../../shared/models/types/Address';
 import { ECOSYSTEMS } from '@/Adapter/config';
