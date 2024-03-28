@@ -45,6 +45,8 @@ const TYPES = {
     SET_CURRENT_MODULE: 'SET_CURRENT_MODULE',
 
     SET_VALUE_BY_MODULE: 'SET_VALUE_BY_MODULE',
+
+    SET_CALL_CONFIRM: 'SET_CALL_CONFIRM',
 };
 
 const fieldSetter = {
@@ -73,6 +75,10 @@ interface IState extends IFields {
     };
 
     onlyWithBalance: boolean;
+
+    isForceCallConfirm: {
+        [key in ModuleType]?: boolean;
+    };
 }
 
 export default {
@@ -97,9 +103,23 @@ export default {
         [Field.receiverAddress]: '',
         [Field.memo]: '',
         [Field.isSendToAnotherAddress]: false,
+
+        isForceCallConfirm: {
+            [ModuleType.send]: false,
+            [ModuleType.stake]: false,
+            [ModuleType.swap]: false,
+            [ModuleType.bridge]: false,
+            [ModuleType.superSwap]: false,
+            [ModuleType.shortcut]: false,
+        },
     }),
 
     getters: {
+        isForceCallConfirm:
+            (state: IState) =>
+            (module: ModuleType): boolean =>
+                state.isForceCallConfirm[module] || false,
+
         direction: (state: IState): DIRECTIONS_TYPE => state.direction,
         selectType: (state: IState): TOKEN_SELECT_TYPES_TYPE => state.selectType,
 
@@ -236,6 +256,10 @@ export default {
         [TYPES.SET_VALUE_BY_MODULE](state: IState, { module, field, value }) {
             state[module][field] = value;
         },
+
+        [TYPES.SET_CALL_CONFIRM](state: IState, { module, value }) {
+            state.isForceCallConfirm[module] = value;
+        },
     },
 
     actions: {
@@ -298,6 +322,10 @@ export default {
 
         setValueByModule({ commit }, { module, field, value }) {
             commit(TYPES.SET_VALUE_BY_MODULE, { module, field, value });
+        },
+
+        setCallConfirm({ commit }, { module, value }) {
+            commit(TYPES.SET_CALL_CONFIRM, { module, value });
         },
     },
 };

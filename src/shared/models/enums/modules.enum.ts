@@ -4,6 +4,7 @@ export enum ModuleType {
     bridge = 'bridge',
     superSwap = 'superSwap',
     stake = 'stake',
+    shortcut = 'shortcut',
 }
 
 export type ModuleTypes = keyof typeof ModuleType;

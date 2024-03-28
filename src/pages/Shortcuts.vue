@@ -17,7 +17,12 @@
                         <component :is="shortcutLayout" />
                     </div>
 
-                    <ShortcutLoading :status="shortcutStatus" />
+                    <ShortcutLoading
+                        :status="shortcutStatus"
+                        :shortcutIndex="shortcutIndex"
+                        :shortcutId="shortcutId"
+                        :total="steps.length || 0"
+                    />
                 </a-col>
                 <a-col :span="12">
                     <a-card>
@@ -47,9 +52,10 @@ export default {
     },
 
     setup() {
-        const { shortcutIndex, steps, shortcutLayout, shortcutStatus } = useShortcuts(RecipeStake);
+        const { shortcutId, shortcutIndex, steps, shortcutLayout, shortcutStatus } = useShortcuts(RecipeStake);
 
         return {
+            shortcutId,
             shortcutStatus,
             shortcut: RecipeStake,
             shortcutIndex,

@@ -38,6 +38,8 @@ import { ApproveOperation } from '@/modules/operations/Approve';
 import DexOperation from '@/modules/operations/Dex';
 
 const useModuleOperations = (module: ModuleType) => {
+    const currentModule = ref(module);
+
     const {
         walletAddress,
         currentChainInfo,
@@ -54,6 +56,15 @@ const useModuleOperations = (module: ModuleType) => {
     const isTransactionSigning = computed({
         get: () => store.getters['txManager/isTransactionSigning'],
         set: (value) => store.dispatch('txManager/setTransactionSigning', value),
+    });
+
+    const isForceCallConfirm = computed({
+        get: () => store.getters['tokenOps/isForceCallConfirm'](currentModule.value),
+        set: (value) =>
+            store.dispatch('tokenOps/setCallConfirm', {
+                module: currentModule.value,
+                value,
+            }),
     });
 
     const { showNotification, closeNotification } = useNotification();
@@ -137,7 +148,14 @@ const useModuleOperations = (module: ModuleType) => {
         if (!value) return;
 
         console.log('Shortcut ops:', value);
+        console.log('CURRENT MODULE #-------:', JSON.parse(JSON.stringify(module)));
+
+        module = ModuleType.shortcut;
+        currentModule.value = ModuleType.shortcut;
+
+        console.log('CURRENT MODULE #shortcut:', JSON.parse(JSON.stringify(module)));
     });
+
     // ===============================================================================================
     // * Addresses with chains by ecosystem
     // ===============================================================================================
@@ -320,23 +338,6 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
     // * Shortcut status
     // ===============================================================================================
-
-    const updateShortcutStatus = (status = 'finish') => {
-        if (currentShortcut.value && currentShortcut.value?.id) {
-            console.log('Set shortcut step status to finish', currentShortcut.value);
-
-            store.dispatch('shortcuts/setShortcutStepStatus', {
-                status,
-                stepId: currentShortcut.value.stepId,
-                shortcutId: currentShortcut.value.id,
-            });
-
-            status === 'finish' &&
-                store.dispatch('shortcuts/nextStep', {
-                    shortcutId: currentShortcut.value.id,
-                });
-        }
-    };
 
     const createOpsByModule = () => {
         const ops = new OperationsFactory();
@@ -759,12 +760,20 @@ const useModuleOperations = (module: ModuleType) => {
         opTitle.value = `tokenOperations.pleaseConnectWallet${ecosystemToConnect.value}`;
     });
 
+    const unWatchIsForceCallConfirm = watch(isForceCallConfirm, (value) => {
+        if (value) {
+            handleOnConfirm();
+            isForceCallConfirm.value = false;
+        }
+    });
+
     // ===============================================================================================
     // * On unmounted
     // ===============================================================================================
 
     onUnmounted(() => {
         unWatchEcosystem();
+        unWatchIsForceCallConfirm();
     });
 
     return {

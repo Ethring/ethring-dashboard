@@ -361,6 +361,7 @@ const useShortcuts = (Shortcut: any) => {
 
     return {
         shortcut: CurrentShortcut,
+        shortcutId: CurrentShortcut.id,
         shortcutIndex,
         shortcutLayout,
         shortcutStatus,

@@ -22,7 +22,7 @@
         <div class="overlay-bottom">
             <Button
                 v-if="[STATUSES.FAILED, STATUSES.SUCCESS].includes(status)"
-                @click="status = STATUSES.PENDING"
+                @click="handleOnTryAgain"
                 :loading="status === STATUSES.IN_PROGRESS"
                 title="Try Again"
             />
@@ -36,6 +36,8 @@ import { STATUSES } from '../../../shared/models/enums/statuses.enum';
 import Button from '@/components/ui/Button.vue';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 import ModuleIcon from '@/Adapter/UI/Entities/ModuleIcon.vue';
+import { useStore } from 'vuex';
+import { ModuleType } from '../../../shared/models/enums/modules.enum';
 
 export default {
     name: 'ShortcutLoading',
@@ -50,6 +52,18 @@ export default {
             required: true,
             default: STATUSES.PENDING,
         },
+        shortcutIndex: {
+            type: Number,
+            required: true,
+        },
+        total: {
+            type: Number,
+            required: true,
+        },
+        shortcutId: {
+            type: String,
+            required: true,
+        },
     },
     data() {
         return {
@@ -57,11 +71,25 @@ export default {
         };
     },
 
-    setup() {
+    setup(props) {
         const { connectedWallet } = useAdapter();
+
+        const store = useStore();
+
+        const handleOnTryAgain = () => {
+            store.dispatch('tokenOps/setCallConfirm', {
+                module: ModuleType.shortcut,
+                value: true,
+            });
+
+            if (props.shortcutId && props.shortcutIndex === props.total - 1) {
+                store.dispatch('shortcuts/setShortcutStatus', STATUSES.PENDING);
+            }
+        };
 
         return {
             connectedWallet,
+            handleOnTryAgain,
         };
     },
 };
