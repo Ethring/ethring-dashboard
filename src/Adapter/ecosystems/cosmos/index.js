@@ -279,8 +279,6 @@ class CosmosAdapter extends AdapterBase {
         }
 
         try {
-            console.log('CONNECT WALLET', this.walletManager);
-            console.log('walletName', walletName, chain);
             const chainWallet = this.walletManager.getChainWallet(chain, walletName);
 
             await this.getSupportedEcosystemChains(this.walletManager.chainRecords, chainWallet.client);
@@ -315,9 +313,6 @@ class CosmosAdapter extends AdapterBase {
 
     async setChain(chainInfo) {
         const { walletModule, chain, chain_id } = chainInfo || {};
-
-        console.log('SET CHAIN', walletModule, chain, chain_id);
-        console.log('SET CHAIN -> chainInfo', chainInfo);
 
         const chainForConnect = chain || chain_id || this.DEFAULT_CHAIN;
 

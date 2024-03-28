@@ -356,7 +356,7 @@ const useShortcuts = (Shortcut: any) => {
 
         store.dispatch('moduleStates/resetModuleStates', { module: moduleType });
 
-        store.dispatch('shortcuts/resetShortcut');
+        // store.dispatch('shortcuts/resetShortcut');
     });
 
     return {

@@ -485,6 +485,11 @@ const useModuleOperations = (module: ModuleType) => {
                 // * Set first transaction ID
                 if (index === 0) tx.setId(txManager.getFirstTxId());
 
+                if (operations.getOperationsStatusByKey(moduleIndex) === STATUSES.SUCCESS) {
+                    console.log('Operation already success, skip', moduleIndex);
+                    continue;
+                }
+
                 // * Set request ID
                 tx.setRequestID(txManager.getRequestId());
 
