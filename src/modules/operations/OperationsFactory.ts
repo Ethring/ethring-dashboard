@@ -253,7 +253,7 @@ export default class OperationFactory implements IOperationFactory {
             this.setOperationStatusByKey(operation, STATUSES.PENDING);
         }
 
-        // this.resetEstimatedOutputs();
+        this.resetEstimatedOutputs();
     }
 
     resetEstimatedOutputs(): void {

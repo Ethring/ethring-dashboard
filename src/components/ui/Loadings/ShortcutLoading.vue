@@ -77,6 +77,22 @@ export default {
         const store = useStore();
 
         const handleOnTryAgain = () => {
+            if (props.status === STATUSES.SUCCESS) {
+                store.dispatch('shortcuts/setShortcutStatus', {
+                    shortcutId: props.shortcutId,
+                    status: STATUSES.PENDING,
+                });
+
+                store.dispatch('shortcuts/resetShortcut', {
+                    shortcutId: props.shortcutId,
+                });
+
+                store.dispatch('tokenOps/setSrcAmount', null);
+                store.dispatch('tokenOps/setDstAmount', null);
+
+                return;
+            }
+
             if (props.shortcutIndex === 0 || props.shortcutIndex === props.total - 1) {
                 store.dispatch('shortcuts/setShortcutStatus', {
                     shortcutId: props.shortcutId,

@@ -353,6 +353,11 @@ const useShortcuts = (Shortcut: any) => {
             }
 
             await operationsFactory.value.estimateOutput();
+
+            if (currentOp.value?.id) {
+                const outputAmount = operationsFactory.value.getOperationById(currentOp.value.id)?.getParamByField('outputAmount');
+                store.dispatch('tokenOps/setDstAmount', outputAmount);
+            }
         },
     );
 
