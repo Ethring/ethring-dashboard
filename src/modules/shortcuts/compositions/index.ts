@@ -382,6 +382,11 @@ const useShortcuts = (Shortcut: any) => {
 
         store.dispatch('moduleStates/resetModuleStates', { module: moduleType });
 
+        store.dispatch('tokenOps/setServiceId', {
+            value: null,
+            module: ModuleType.shortcut,
+        });
+
         // store.dispatch('shortcuts/resetShortcut');
     });
 
