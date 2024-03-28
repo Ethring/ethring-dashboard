@@ -22,7 +22,7 @@ import { getConfigsByEcosystems, getTokensConfigByChain, getCosmologyTokensConfi
 
 // * Helpers
 import { validateCosmosAddress } from '@/Adapter/utils/validations';
-import { reEncodeWithNewPrefix, isDifferentSlip44, isActiveChain } from '@/Adapter/utils';
+import { reEncodeWithNewPrefix, isDifferentSlip44, isActiveChain, isDefaultChain } from '@/Adapter/utils';
 import { errorRegister } from '@/shared/utils/errors';
 
 import logger from '@/shared/logger';
@@ -76,13 +76,14 @@ class CosmosAdapter extends AdapterBase {
         // ========= Init Cosmos Chains =========
         const chains = await getConfigsByEcosystems(ECOSYSTEMS.COSMOS, { isCosmology: true });
         const activeChains = _.values(chains).filter(isActiveChain);
+        const defaultChains = _.values(activeChains).filter(isDefaultChain);
 
         this.chainsFromStore = store?.state?.configs?.chains[ECOSYSTEMS.COSMOS] || {};
 
         const assets = await getCosmologyTokensConfig();
 
         await Promise.all(
-            activeChains.map(
+            defaultChains.map(
                 async ({ chain_name }) => (this.ibcAssetsByChain[chain_name] = await getTokensConfigByChain(chain_name, ECOSYSTEMS.COSMOS)),
             ),
         );
@@ -517,7 +518,7 @@ class CosmosAdapter extends AdapterBase {
             return chainRecord;
         });
 
-        return chainList;
+        return _.values(chainList).filter(isDefaultChain);
     }
 
     getWalletLogo(walletModule) {

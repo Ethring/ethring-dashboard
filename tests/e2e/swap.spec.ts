@@ -129,7 +129,9 @@ testMetaMask.describe('Swap e2e tests', () => {
         await swapPage.waitDetachedSkeleton();
         await swapPage.waitLoadImg();
 
-        await expect(swapPage.getBaseContentElement()).toHaveScreenshot({ mask: [swapPage.page.locator('div.service-icon')] });
+        await expect(swapPage.getBaseContentElement()).toHaveScreenshot({
+            mask: [swapPage.page.locator(IGNORED_LOCATORS.SERVICE_ICON)],
+        });
     });
 
     testMetaMask.skip( // TODO

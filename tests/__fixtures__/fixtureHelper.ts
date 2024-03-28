@@ -206,6 +206,7 @@ export const authByKeplrErrorJunoBalanceMock = async (context: BrowserContext, s
     await Promise.all(
         Object.keys(cosmosWallets).map((network) => zometPage.page.waitForResponse(`**/srv-data-provider/api/balances?net=${network}**`)),
     );
+
     return zometPage;
 };
 
@@ -222,6 +223,12 @@ export const confirmConnectMmWallet = async (context: BrowserContext, page: Base
 export const confirmConnectKeplrWallet = async (context: BrowserContext, page: BasePage) => {
     const notifyKeplr = new KeplrNotifyPage(await getNotifyKeplrPage(context));
     await notifyKeplr.assignPage();
+
+    while (!await notifyKeplr.isClosed()) {
+        await sleep(ONE_SECOND);
+
+        await notifyKeplr.assignPage();
+    }
 
     await page.waitMainElementVisible();
 };
