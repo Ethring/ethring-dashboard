@@ -36,7 +36,6 @@ import RecipeStake from '@/modules/shortcuts/data/citadel-stake.json';
 
 import useShortcuts from '../modules/shortcuts/compositions/index';
 
-import { watch } from 'vue';
 import { SHORTCUT_STATUSES } from '../shared/models/enums/statuses.enum';
 
 export default {
@@ -50,12 +49,6 @@ export default {
     setup() {
         const { shortcutIndex, steps, shortcutLayout, shortcutStatus } = useShortcuts(RecipeStake);
 
-        watch(
-            () => steps,
-            () => {
-                console.log('steps', steps);
-            },
-        );
         return {
             shortcutStatus,
             shortcut: RecipeStake,

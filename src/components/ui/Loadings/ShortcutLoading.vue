@@ -14,7 +14,9 @@
                 }"
             />
 
-            <div class="wallet-icon-container">Wallet</div>
+            <div class="wallet-icon-container">
+                <ModuleIcon v-if="connectedWallet" :module="connectedWallet.walletModule" :ecosystem="connectedWallet.ecosystem" />
+            </div>
         </div>
 
         <div class="overlay-bottom">
@@ -32,12 +34,15 @@ import OverlayIcon from '@/assets/icons/platform-icons/overlay-loading.svg';
 import { STATUSES } from '../../../shared/models/enums/statuses.enum';
 
 import Button from '@/components/ui/Button.vue';
+import useAdapter from '@/Adapter/compositions/useAdapter';
+import ModuleIcon from '@/Adapter/UI/Entities/ModuleIcon.vue';
 
 export default {
     name: 'ShortcutLoading',
     components: {
         OverlayIcon,
         Button,
+        ModuleIcon,
     },
     props: {
         status: {
@@ -49,6 +54,14 @@ export default {
     data() {
         return {
             STATUSES,
+        };
+    },
+
+    setup() {
+        const { connectedWallet } = useAdapter();
+
+        return {
+            connectedWallet,
         };
     },
 };
@@ -64,6 +77,8 @@ export default {
 
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
 
     position: absolute;
 
@@ -74,7 +89,7 @@ export default {
     &.active {
         display: flex;
 
-        z-index: 1;
+        z-index: 7;
     }
 
     .overlay-bottom {
@@ -92,8 +107,8 @@ export default {
         justify-content: center;
         align-items: center;
 
-        height: 100%;
-        width: 100%;
+        height: 80%;
+        width: 80%;
     }
 
     .overlay-icon {
@@ -119,8 +134,8 @@ export default {
     }
 
     .wallet-icon-container {
-        width: 180px;
-        height: 180px;
+        width: 160px;
+        height: 160px;
 
         background: var(--#{$prefix}secondary-background);
 
@@ -138,6 +153,13 @@ export default {
         display: flex;
         justify-content: center;
         align-items: center;
+
+        > div {
+            width: 100% !important;
+            height: 100% !important;
+
+            background: transparent !important;
+        }
     }
 
     @keyframes spin {

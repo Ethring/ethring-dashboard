@@ -248,8 +248,8 @@ const useShortcuts = (Shortcut: any) => {
 
     onBeforeMount(async () => {
         await store.dispatch('shortcuts/setShortcut', {
-            shortcut: Shortcut.id,
-            data: Shortcut.recipe,
+            shortcut: CurrentShortcut.id,
+            data: CurrentShortcut,
         });
     });
 

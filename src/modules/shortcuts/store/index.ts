@@ -4,7 +4,8 @@ import { h } from 'vue';
 import { LoadingOutlined } from '@ant-design/icons-vue';
 
 import { IShortcutOp } from '../core/ShortcutOp';
-import { IShortcutRecipe } from '../core/ShortcutRecipes';
+import ShortcutRecipe, { IShortcutRecipe } from '../core/ShortcutRecipes';
+import Shortcut, { IShortcutData } from '../core/Shortcut';
 
 import { ShortcutStatus, ShortcutType, ShortcutStatuses } from '../core/types/ShortcutType';
 import OperationFactory from '@/modules/operations/OperationsFactory';
@@ -36,7 +37,7 @@ interface IState {
     };
 
     shortcut: {
-        [key: string]: IShortcutRecipe;
+        [key: string]: IShortcutData;
     };
 
     shortcutOps: {
@@ -84,15 +85,11 @@ export default {
                 return null;
             }
 
-            if (!shortcut[shortcutId].operations) {
+            if (!shortcut[shortcutId].recipe || !shortcut[shortcutId].recipe.operations) {
                 return null;
             }
 
-            return (
-                _.flatMap(shortcut[shortcutId].operations, (operation) => operation.operations || operation).find(
-                    (operation) => operation.id === currentStepId,
-                ) || null
-            );
+            return shortcut[shortcutId].recipe.operations.find((op: IShortcutOp | ShortcutRecipe) => op.id === currentStepId);
         },
 
         getShortcutSteps: (state: IState) => (shortcutId: string) => {
@@ -163,7 +160,7 @@ export default {
     },
 
     mutations: {
-        [TYPES.SET_SHORTCUT](state: IState, { shortcut, data }: { shortcut: string; data: IShortcutRecipe }) {
+        [TYPES.SET_SHORTCUT](state: IState, { shortcut, data }: { shortcut: string; data: IShortcutData }) {
             state.shortcut[shortcut] = data;
         },
         [TYPES.SET_CURRENT_INDEX](state: IState, { index }: { index: number }) {
