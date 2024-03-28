@@ -24,7 +24,7 @@
                 "type": "operation",
                 "moduleType": "superSwap",
                 "operationType": "BRIDGE",
-                "serviceId": "skip",
+                "serviceId": "squid",
                 "layoutComponent": "SuperSwap",
                 "isShowLayout": true,
                 "ecosystems": [
