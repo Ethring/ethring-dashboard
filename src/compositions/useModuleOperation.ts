@@ -646,6 +646,9 @@ const useModuleOperations = (module: ModuleType) => {
                     if (shortcutOps.value?.getOperationByKey(moduleIndex)) {
                         shortcutOps.value.getOperationByKey(moduleIndex).setParamByField('txHash', tx.getTransaction().txHash);
                         shortcutOps.value.setOperationStatusByKey(moduleIndex, STATUSES.SUCCESS);
+                        store.dispatch('shortcuts/nextStep', {
+                            shortcutId: currentShortcut.value.id,
+                        });
                     }
 
                     console.log('-'.repeat(30), '\n');
