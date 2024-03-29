@@ -442,6 +442,19 @@ const useShortcuts = (Shortcut: any) => {
         // });
     });
 
+    watch(shortcutIndex, () => {
+        if (!currentOp.value) return;
+
+        const operation = operationsFactory.value.getOperationById(currentOp.value.id);
+        if (!operation) return;
+
+        if (!operation.getParamByField('fromNet')) return;
+
+        if (!operation.getAccount()) {
+            operation.setAccount(addressesByChain.value[operation.getParamByField('fromNet')]);
+        }
+    });
+
     // ====================================================================================================
     // * Reset the module states when the component is unmounted
     // ====================================================================================================
