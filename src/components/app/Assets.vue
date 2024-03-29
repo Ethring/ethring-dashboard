@@ -209,10 +209,6 @@ export default {
         onMounted(async () => {
             window.addEventListener('keydown', handleKeyDown);
             keyPressCombination.value = '';
-
-            await Promise.all([allCollapsedActiveKeys.value, allIntegrationsByPlatforms.value]);
-
-            updateCollapsedAssets();
         });
 
         onBeforeUnmount(() => {
