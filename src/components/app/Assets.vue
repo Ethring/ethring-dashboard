@@ -209,6 +209,8 @@ export default {
         onMounted(async () => {
             window.addEventListener('keydown', handleKeyDown);
             keyPressCombination.value = '';
+
+            updateCollapsedAssets();
         });
 
         onBeforeUnmount(() => {
