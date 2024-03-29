@@ -18,6 +18,8 @@ import StepOpInfo from '@/components/shortcuts/StepItem/StepOpInfo.vue';
 import ClearIcon from '@/assets/icons/form-icons/clear.svg';
 import SuccessIcon from '@/assets/icons/form-icons/success.svg';
 import WaitingIcon from '@/assets/icons/form-icons/waiting.svg';
+import ProcessIcon from '@/assets/icons/form-icons/process.svg';
+
 import { Spin } from 'ant-design-vue';
 
 const TYPES = {
@@ -157,10 +159,6 @@ export default {
                     hasError = true;
                 }
 
-                if (state.currentIndex === step.index && !hasError) {
-                    step.status = ShortcutStatus.process;
-                }
-
                 if (status === STATUSES.SUCCESS) {
                     step.status = ShortcutStatus.finish;
                 }
@@ -191,6 +189,11 @@ export default {
                         spin: true,
                         class: 'estimating-icon',
                     });
+                }
+
+                if (state.currentIndex === step.index && !hasError && status === STATUSES.PENDING) {
+                    step.status = ShortcutStatus.process;
+                    step.icon = h(ProcessIcon);
                 }
 
                 return step;

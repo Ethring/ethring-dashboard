@@ -496,6 +496,8 @@ const useModuleOperations = (module: ModuleType) => {
 
                 // * Prepare transaction
                 tx.prepare = async () => {
+                    console.debug('-'.repeat(10), 'TX PREPARE', '-'.repeat(10), '\n\n');
+
                     try {
                         shortcutOps.value.setOperationStatusByKey(moduleIndex, STATUSES.IN_PROGRESS);
                     } catch (error) {
@@ -547,6 +549,8 @@ const useModuleOperations = (module: ModuleType) => {
 
                 // * Set execute parameters
                 tx.setTxExecuteParameters = async () => {
+                    console.debug('-'.repeat(10), 'TX EXECUTE PARAMS', '-'.repeat(10), '\n\n');
+
                     try {
                         const { transaction, ecosystem } = await operations
                             .getOperationByKey(moduleIndex)
@@ -651,7 +655,7 @@ const useModuleOperations = (module: ModuleType) => {
                         });
                     }
 
-                    console.log('-'.repeat(30), '\n');
+                    console.log('-'.repeat(30), '\n\n\n');
                 };
 
                 // * On error
