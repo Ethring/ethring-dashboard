@@ -200,11 +200,7 @@ export default {
             if (allCollapsedActiveKeys.value.length && allIntegrationsByPlatforms.value.length) {
                 const list = allCollapsedActiveKeys.value.filter((key) => !collapsedAssets.value.includes(key));
 
-                if (collapsedAssets.value) {
-                    collapseActiveKey.value = list;
-                } else {
-                    collapseActiveKey.value = allCollapsedActiveKeys.value;
-                }
+                collapseActiveKey.value = collapsedAssets.value ? list : allCollapsedActiveKeys.value;
             } else if (!collapsedAssets.value.length) {
                 collapseActiveKey.value = allCollapsedActiveKeys.value;
             }
