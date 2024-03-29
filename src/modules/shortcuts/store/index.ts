@@ -18,6 +18,7 @@ import StepOpInfo from '@/components/shortcuts/StepItem/StepOpInfo.vue';
 import ClearIcon from '@/assets/icons/form-icons/clear.svg';
 import SuccessIcon from '@/assets/icons/form-icons/success.svg';
 import WaitingIcon from '@/assets/icons/form-icons/waiting.svg';
+import { Spin } from 'ant-design-vue';
 
 const TYPES = {
     SET_SHORTCUT: 'SET_SHORTCUT',
@@ -178,7 +179,7 @@ export default {
                 } else if (status === STATUSES.FAILED) {
                     step.icon = h(ClearIcon);
                 } else if (status === STATUSES.ESTIMATING) {
-                    step.icon = h(SettingOutlined, {
+                    step.icon = h(Spin, {
                         spin: true,
                         class: 'estimating-icon',
                     });
