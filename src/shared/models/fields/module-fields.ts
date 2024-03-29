@@ -76,6 +76,7 @@ export class SuperSwapFields implements ISuperSwapFields {
     [Field.switchDirection]!: boolean;
     [Field.receiverAddress]!: string;
     [Field.isSendToAnotherAddress]!: boolean;
+    [Field.isReload]!: boolean;
 }
 
 export class BridgeFields implements IBridgeFields {

@@ -1,6 +1,7 @@
 <template>
     <a-form class="super-swap superswap-panel">
         <div
+            v-if="!fieldStates.isReload?.hide"
             class="reload-btn"
             :class="{ active: !isTransactionSigning && !isQuoteLoading && dstAmount }"
             @click="() => getEstimateInfo(true)"

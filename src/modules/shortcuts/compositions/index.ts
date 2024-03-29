@@ -1,4 +1,4 @@
-import { computed, onBeforeMount, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue';
+import { computed, onBeforeMount, onMounted, onUnmounted, onUpdated, ref, watch, watchEffect } from 'vue';
 import { useStore } from 'vuex';
 
 import _ from 'lodash';
@@ -43,6 +43,20 @@ const useShortcuts = (Shortcut: any) => {
 
     const store = useStore();
 
+    const isShortcutLoading = computed({
+        get: () => store.getters['shortcuts/getIsShortcutLoading'](Shortcut.id),
+        set: (value) =>
+            store.dispatch('shortcuts/setIsShortcutLoading', {
+                shortcutId: Shortcut.id,
+                value,
+            }),
+    });
+
+    const isQuoteLoading = computed({
+        get: () => store.getters['bridgeDexAPI/getLoaderState']('quote'),
+        set: (value) => store.dispatch('bridgeDexAPI/setLoaderStateByType', { type: 'quote', value }),
+    });
+
     // ====================================================================================================
     // Set the operations factory to the store
     // ====================================================================================================
@@ -60,6 +74,7 @@ const useShortcuts = (Shortcut: any) => {
 
     // Get the current operation from the store
     const currentOp = computed<IShortcutOp>(() => store.getters['shortcuts/getCurrentOperation'](Shortcut.id));
+    const currentOpDisabledFields = computed(() => store.getters['moduleStates/getDisabledFieldsForModule'](currentOp.value?.moduleType));
 
     // Get the steps from the store
     const steps = computed<OperationStep[]>(() => store.getters['shortcuts/getShortcutSteps'](Shortcut.id) || []);
@@ -140,12 +155,45 @@ const useShortcuts = (Shortcut: any) => {
         }
     };
 
-    const performFields = async (
-        moduleType: string,
-        params: IOperationParam[],
-        { isUpdateInStore = false, id: targetOpId }: { isUpdateInStore: boolean; id: string },
+    const performDisabledOrHiddenFields = async (opId: string, module: string, fields: IOperationParam[]) => {
+        if (!fields) return;
+        if (!opId) return;
+        if (!module) return;
+
+        const isUpdateInStore = currentOp.value?.id === opId;
+
+        if (!isUpdateInStore) return;
+
+        for (const field of fields) {
+            const { name, disabled = false, hide = false } = field || {};
+
+            await store.dispatch('moduleStates/setDisabledField', {
+                module,
+                field: name,
+                attr: 'disabled',
+                value: disabled,
+            });
+
+            await store.dispatch('moduleStates/setHideField', {
+                module,
+                field: name,
+                attr: 'hide',
+                value: hide,
+            });
+        }
+    };
+
+    const performDefaultValues = async (
+        fields: IOperationParam[],
+        {
+            targetOpId,
+            isUpdateInStore,
+        }: {
+            targetOpId: string;
+            isUpdateInStore: boolean;
+        },
     ) => {
-        for (const paramField of params) {
+        for (const paramField of fields) {
             const {
                 name: field,
                 ecosystem = null,
@@ -200,23 +248,16 @@ const useShortcuts = (Shortcut: any) => {
                     operationsFactory.value?.getOperationById(targetOpId)?.setParamByField('memo', memo);
                     break;
             }
-
-            isUpdateInStore &&
-                (await store.dispatch('moduleStates/setHideField', {
-                    module: moduleType,
-                    field,
-                    attr: 'hide',
-                    value: hide,
-                }));
-
-            isUpdateInStore &&
-                store.dispatch('moduleStates/setDisabledField', {
-                    module: moduleType,
-                    field,
-                    attr: 'disabled',
-                    value: disabled,
-                });
         }
+    };
+
+    const performFields = async (
+        moduleType: string,
+        params: IOperationParam[],
+        { isUpdateInStore = false, id: targetOpId }: { isUpdateInStore: boolean; id: string },
+    ) => {
+        await performDisabledOrHiddenFields(targetOpId, moduleType, params);
+        await performDefaultValues(params, { targetOpId, isUpdateInStore });
     };
 
     const callOnWatchOnMounted = async () => {
@@ -248,6 +289,7 @@ const useShortcuts = (Shortcut: any) => {
 
         shortcutIndex.value = 0;
 
+        isShortcutLoading.value = true;
         await performShortcut(true);
 
         store.dispatch('shortcuts/setCurrentStepId', {
@@ -273,6 +315,8 @@ const useShortcuts = (Shortcut: any) => {
                     module: ModuleType.shortcut,
                 });
         }
+
+        isShortcutLoading.value = false;
     });
 
     // ====================================================================================================
@@ -349,7 +393,9 @@ const useShortcuts = (Shortcut: any) => {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('amount', srcAmount);
             }
 
+            isQuoteLoading.value = true;
             await operationsFactory.value.estimateOutput();
+            isQuoteLoading.value = false;
 
             const flow = operationsFactory.value.getFullOperationFlow();
 
@@ -370,22 +416,30 @@ const useShortcuts = (Shortcut: any) => {
         }
     });
 
-    watch(shortcutIndex, async () => {
-        if (!currentOp.value) return;
+    watch(isQuoteLoading, async () => {
+        if (isQuoteLoading.value || !currentOp.value?.id) return;
 
-        await performFields(currentOp.value.moduleType, currentOp.value.params, {
-            isUpdateInStore: true,
-            id: currentOp.value.id,
+        const operation = operationsFactory.value.getOperationById(currentOp.value.id);
+        const quoteRoute = operation.getQuoteRoute();
+
+        if (!quoteRoute) return;
+
+        store.dispatch('bridgeDexAPI/setSelectedRoute', {
+            serviceType: operation.getServiceType(),
+            value: quoteRoute,
         });
-    });
 
-    watch(shortcutIndex, async () => {
-        await store.dispatch('tokenOps/resetFields');
-
-        await store.dispatch('shortcuts/setCurrentStepId', {
-            shortcutId: Shortcut.id,
-            stepId: steps.value[shortcutIndex.value].id,
+        store.dispatch('bridgeDexAPI/setQuoteRoutes', {
+            serviceType: operation.getServiceType(),
+            value: [quoteRoute],
         });
+
+        await performDisabledOrHiddenFields(currentOp.value.id, currentOp.value.moduleType, currentOp.value.params);
+
+        // await performFields(currentOp.value.moduleType, currentOp.value.params, {
+        //     isUpdateInStore: true,
+        //     id: currentOp.value.id,
+        // });
     });
 
     // ====================================================================================================
@@ -407,6 +461,7 @@ const useShortcuts = (Shortcut: any) => {
     return {
         shortcut: CurrentShortcut,
         shortcutId: CurrentShortcut.id,
+        isShortcutLoading,
         shortcutIndex,
         shortcutLayout,
         shortcutStatus,

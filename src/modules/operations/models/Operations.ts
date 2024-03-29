@@ -6,6 +6,7 @@ import { Ecosystems } from '@/modules/bridge-dex/enums/Ecosystem.enum';
 import { IAsset } from '@/shared/models/fields/module-fields';
 import { AllQuoteParams } from '@/modules/bridge-dex/models/Request.type';
 import { TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
+import { ServiceTypes } from '@/modules/bridge-dex/enums/ServiceType.enum';
 
 export type PerformOptionalParams = {
     make: string;
@@ -40,8 +41,10 @@ export interface IBaseOperation {
         to?: IAsset;
     };
 
-    account?: string;
+    account: string;
     service?: any;
+
+    quoteRoute?: IQuoteRoute;
 
     // name
     getName: () => string;
@@ -99,6 +102,11 @@ export interface IBaseOperation {
     performTx?: (ecosystem: Ecosystems, params: PerformTxParams) => Promise<IBridgeDexTransaction>;
 
     perform?: (index: number, account: string, ecosystem: string, chainId: string, options: PerformOptionalParams) => ICreateTransaction;
+
+    setQuoteRoute?: (route: IQuoteRoute) => void;
+
+    getQuoteRoute?: () => IQuoteRoute;
+    getServiceType?: () => ServiceTypes;
 }
 
 export interface IRegisterOperation {

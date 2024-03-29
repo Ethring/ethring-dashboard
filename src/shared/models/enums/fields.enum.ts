@@ -15,6 +15,8 @@ export enum Field {
     memo = 'memo',
 
     isSendToAnotherAddress = 'isSendToAnotherAddress',
+
+    isReload = 'isReload',
 }
 
 export enum FieldAttr {

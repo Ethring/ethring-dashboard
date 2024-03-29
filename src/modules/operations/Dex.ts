@@ -41,6 +41,14 @@ export default class DexOperation extends BaseOperation {
 
     flow: TxOperationFlow[];
 
+    getServiceType(): ServiceType {
+        if (this.getModule() === ModuleType.superSwap) {
+            return ServiceType.superswap;
+        }
+
+        return this.getParamByField('fromNet') === this.getParamByField('toNet') ? ServiceType.dex : ServiceType.bridgedex;
+    }
+
     constructor() {
         super();
         this.service = new BridgeDexService(ServiceType.dex);
@@ -100,6 +108,8 @@ export default class DexOperation extends BaseOperation {
             console.warn('No route found', 'For params:', this.params);
             return;
         }
+
+        this.setQuoteRoute(bestRoute);
 
         this.setParamByField('outputAmount', bestRoute.toAmount);
     }

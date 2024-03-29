@@ -80,6 +80,10 @@
                     {
                         "name": "isSendToAnotherAddress",
                         "hide": true
+                    },
+                    {
+                        "name": "isReload",
+                        "hide": true
                     }
                 ]
             },
@@ -157,6 +161,10 @@
                                 "name": "switchDirection",
                                 "disabled": true,
                                 "hide": false
+                            },
+                            {
+                                "name": "isReload",
+                                "hide": true
                             }
                         ]
                     },
@@ -223,6 +231,10 @@
                                 "name": "switchDirection",
                                 "disabled": true,
                                 "hide": false
+                            },
+                            {
+                                "name": "isReload",
+                                "hide": true
                             }
                         ]
                     }

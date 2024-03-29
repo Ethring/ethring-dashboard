@@ -30,6 +30,8 @@ const TYPES = {
     SET_SHORTCUT_OPS: 'SET_SHORTCUT_OPS',
     SET_CURRENT_LAYOUT: 'SET_CURRENT_LAYOUT',
     SET_OPERATION_STEPS: 'SET_OPERATION_STEPS',
+
+    SET_IS_SHORTCUT_LOADING: 'SET_IS_SHORTCUT_LOADING',
 };
 
 const DISABLED_STATUS = [ShortcutStatus.finish, ShortcutStatus.error];
@@ -51,6 +53,10 @@ interface IState {
     shortcutOps: {
         [key: string]: OperationFactory;
     };
+
+    isShortcutLoading: {
+        [key: string]: boolean;
+    };
 }
 
 export default {
@@ -65,9 +71,11 @@ export default {
 
         shortcutOps: {},
         shortcutStatus: {},
+        isShortcutLoading: {},
     }),
 
     getters: {
+        getIsShortcutLoading: (state: IState) => (shortcutId: string) => state.isShortcutLoading[shortcutId] || false,
         getCurrentShortcutId: (state: IState) => state.currentShortcutId,
         getCurrentLayout: (state: IState) => state.currentLayout,
         getShortcutStatus: (state: IState) => (shortcutId: string) => state.shortcutStatus[shortcutId] || null,
@@ -220,6 +228,10 @@ export default {
         [TYPES.SET_SHORTCUT_STATUS](state: IState, { shortcutId, status }: { shortcutId: string; status: SHORTCUT_STATUSES }) {
             state.shortcutStatus[shortcutId] = status;
         },
+        [TYPES.SET_IS_SHORTCUT_LOADING](state: IState, { shortcutId, value }: { shortcutId: string; value: boolean }) {
+            !state.isShortcutLoading[shortcutId] && (state.isShortcutLoading[shortcutId] = false);
+            state.isShortcutLoading[shortcutId] = value;
+        },
     },
     actions: {
         setCurrentShortcutId({ commit }: any, { shortcutId }: { shortcutId: string }) {
@@ -269,6 +281,10 @@ export default {
                 const [firstStep] = getters.getShortcutSteps(shortcutId) || [];
                 firstStep && commit(TYPES.SET_CURRENT_STEP_ID, { stepId: firstStep.id, shortcutId });
             }
+        },
+
+        setIsShortcutLoading({ commit }: any, { shortcutId, value }: { shortcutId: string; value: boolean }) {
+            commit(TYPES.SET_IS_SHORTCUT_LOADING, { shortcutId, value });
         },
     },
 };

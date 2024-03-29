@@ -63,6 +63,7 @@ export default {
             [Field.srcAmount]: new FieldState(),
             [Field.dstAmount]: new FieldState(),
             [Field.switchDirection]: new FieldState(),
+            [Field.isReload]: new FieldState(),
         },
         [ModuleType.send]: {
             [Field.srcNetwork]: new FieldState(),
@@ -95,6 +96,14 @@ export default {
             }
 
             return state[module];
+        },
+
+        getDisabledFieldsForModule: (state: IState) => (module: ModuleType) => {
+            if (!state[module]) {
+                return {};
+            }
+
+            return _.pickBy(state[module], (field: IFieldState) => field[FieldAttr.disabled]);
         },
     },
 

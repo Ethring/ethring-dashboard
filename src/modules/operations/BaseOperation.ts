@@ -1,13 +1,14 @@
 import { ModuleType, ModuleTypes } from '@/shared/models/enums/modules.enum';
 import { TxOperationFlow } from '../../shared/models/types/Operations';
 import { ICreateTransaction } from '@/Transactions/types/Transaction';
-import { IBridgeDexTransaction } from '../bridge-dex/models/Response.interface';
+import { IBridgeDexTransaction, IQuoteRoute } from '../bridge-dex/models/Response.interface';
 import { Ecosystems } from '../bridge-dex/enums/Ecosystem.enum';
 import { IAsset } from '../../shared/models/fields/module-fields';
 import { AllQuoteParams } from '../bridge-dex/models/Request.type';
 import { IBaseOperation, BaseOpParams, PerformOptionalParams, PerformTxParams } from '@/modules/operations/models/Operations';
 import { TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
 import { getActionByTxType } from './shared/utils';
+import { ServiceType } from '../bridge-dex/enums/ServiceType.enum';
 
 const DEFAULT_TX_TYPE_BY_MODULE = {
     [ModuleType.stake]: TRANSACTION_TYPES.STAKE,
@@ -38,6 +39,8 @@ export class BaseOperation implements IBaseOperation {
         from?: IAsset;
         to?: IAsset;
     };
+
+    quoteRoute?: IQuoteRoute;
 
     constructor() {
         this.service = null;
@@ -132,6 +135,14 @@ export class BaseOperation implements IBaseOperation {
 
     getAction(): string {
         return getActionByTxType(this.transactionType);
+    }
+
+    setQuoteRoute(route: IQuoteRoute): void {
+        this.quoteRoute = route;
+    }
+
+    getQuoteRoute(): IQuoteRoute {
+        return this.quoteRoute;
     }
 
     getTitle(): string {

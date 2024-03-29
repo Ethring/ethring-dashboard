@@ -16,28 +16,30 @@
         <div class="description" v-if="shortcut && shortcut.description">{{ shortcut.description }}</div>
 
         <div class="layout-page__content">
-            <a-row :gutter="16">
-                <a-col :span="12">
-                    <div class="steps-content">
-                        <component :is="shortcutLayout" />
-                    </div>
+            <a-spin :spinning="isShortcutLoading" size="large">
+                <a-row :gutter="16">
+                    <a-col :span="12">
+                        <div class="steps-content">
+                            <component :is="shortcutLayout" />
+                        </div>
 
-                    <ShortcutLoading
-                        v-if="
-                            shortcutId !== null &&
-                            [STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(shortcutStatus) &&
-                            shortcutStatus !== STATUSES.PENDING
-                        "
-                        :status="shortcutStatus"
-                        :shortcutIndex="shortcutIndex"
-                        :shortcutId="shortcutId"
-                        :total="steps.length || 0"
-                    />
-                </a-col>
-                <a-col :span="12">
-                    <a-steps direction="vertical" v-model:current="shortcutIndex" :items="steps" />
-                </a-col>
-            </a-row>
+                        <ShortcutLoading
+                            v-if="
+                                shortcutId !== null &&
+                                [STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(shortcutStatus) &&
+                                shortcutStatus !== STATUSES.PENDING
+                            "
+                            :status="shortcutStatus"
+                            :shortcutIndex="shortcutIndex"
+                            :shortcutId="shortcutId"
+                            :total="steps.length || 0"
+                        />
+                    </a-col>
+                    <a-col :span="12">
+                        <a-steps direction="vertical" v-model:current="shortcutIndex" :items="steps" />
+                    </a-col>
+                </a-row>
+            </a-spin>
         </div>
     </div>
 </template>
@@ -71,7 +73,7 @@ export default {
 
         const shortcut = computed(() => store.getters['shortcutsList/getShortcutById'](route.params.id));
 
-        const { shortcutId, shortcutIndex, steps, shortcutLayout, shortcutStatus } = useShortcuts(shortcut.value);
+        const { shortcutId, shortcutIndex, steps, shortcutLayout, shortcutStatus, isShortcutLoading } = useShortcuts(shortcut.value);
 
         onMounted(() => {
             if (_.isEmpty(shortcut.value)) {
@@ -81,7 +83,7 @@ export default {
 
         return {
             shortcut,
-
+            isShortcutLoading,
             shortcutId,
             shortcutStatus,
             shortcutIndex,
