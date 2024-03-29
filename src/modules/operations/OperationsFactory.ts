@@ -182,6 +182,13 @@ export default class OperationFactory implements IOperationFactory {
 
             const mainStatus = this.operationsStatusByKey.get(operation);
 
+            const restoreStatus = () => {
+                if (mainStatus === STATUSES.ESTIMATING) {
+                    return this.setOperationStatusByKey(operation, STATUSES.PENDING);
+                }
+                return this.setOperationStatusByKey(operation, mainStatus);
+            };
+
             this.setOperationStatusByKey(operation, STATUSES.ESTIMATING);
 
             if (this.operationDependencies.has(opId)) {
@@ -221,21 +228,22 @@ export default class OperationFactory implements IOperationFactory {
 
             const isSuccessOrFail = [STATUSES.SUCCESS, STATUSES.FAILED].includes(mainStatus);
 
-            if (
-                isAmountCorrect(currentOperation.getParamByField('amount')) &&
-                this.operationsMap.get(operation).estimateOutput &&
-                !isSuccessOrFail
-            ) {
-                await this.operationsMap.get(operation).estimateOutput();
-
-                console.log(`${opId} - DONE ############`);
-
-                console.log('OUTPUT AMOUNT', currentOperation.getParamByField('outputAmount'));
-
-                console.log('\n\n');
+            if (isSuccessOrFail || !isAmountCorrect(currentOperation.getParamByField('amount'))) {
+                restoreStatus();
+                continue;
             }
 
-            this.setOperationStatusByKey(operation, mainStatus);
+            try {
+                await this.operationsMap.get(operation).estimateOutput();
+                restoreStatus();
+            } catch (error) {
+                console.error(`${opId} - ERROR ############`);
+                console.error(error);
+                restoreStatus();
+                continue;
+            }
+
+            console.log(`${opId} - DONE ############`);
 
             table.push({
                 operation: opId,

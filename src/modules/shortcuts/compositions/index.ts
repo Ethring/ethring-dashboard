@@ -273,8 +273,6 @@ const useShortcuts = (Shortcut: any) => {
                     module: ModuleType.shortcut,
                 });
         }
-
-        await callOnWatchOnMounted();
     });
 
     // ====================================================================================================
@@ -365,12 +363,21 @@ const useShortcuts = (Shortcut: any) => {
     );
 
     watch([currentOp, isConfigLoading], async () => await callOnWatchOnMounted());
+
     watch(isConfigLoading, async () => {
         if (!isConfigLoading.value) {
             await performShortcut(false);
         }
     });
-    watch(operationsFactory, async () => await callOnWatchOnMounted());
+
+    watch(shortcutIndex, async () => {
+        if (!currentOp.value) return;
+
+        await performFields(currentOp.value.moduleType, currentOp.value.params, {
+            isUpdateInStore: true,
+            id: currentOp.value.id,
+        });
+    });
 
     watch(shortcutIndex, async () => {
         await store.dispatch('tokenOps/resetFields');
