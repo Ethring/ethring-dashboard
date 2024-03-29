@@ -144,7 +144,9 @@ export default {
         });
 
         const allCollapsedActiveKeys = computed(() => {
-            if (!allIntegrationsByPlatforms.value.length) return [];
+            if (!allIntegrationsByPlatforms.value.length) {
+                return ['assets'];
+            }
 
             const keys = ['assets', 'nfts'];
 
@@ -203,6 +205,8 @@ export default {
                 } else {
                     collapseActiveKey.value = allCollapsedActiveKeys.value;
                 }
+            } else if (!collapsedAssets.value.length) {
+                collapseActiveKey.value = allCollapsedActiveKeys.value;
             }
         };
 
