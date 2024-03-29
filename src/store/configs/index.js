@@ -44,6 +44,16 @@ export default {
 
             return chainList.find((chain) => chain.chain_id === chainId) || {};
         },
+
+        getChainLogoByNet: (state) => (net) => {
+            for (const ecosystem in state.chains) {
+                for (const chain in state.chains[ecosystem]) {
+                    if (state.chains[ecosystem][chain].net === net) {
+                        return state.chains[ecosystem][chain].logo;
+                    }
+                }
+            }
+        },
     },
 
     mutations: {

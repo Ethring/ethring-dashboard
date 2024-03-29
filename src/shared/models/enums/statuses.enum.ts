@@ -5,6 +5,7 @@ export enum STATUSES {
     PENDING = 'PENDING',
     IN_PROGRESS = 'IN PROGRESS',
     SIGNING = 'SIGNING',
+    ESTIMATING = 'ESTIMATING',
 }
 
 export enum SHORTCUT_STATUSES {

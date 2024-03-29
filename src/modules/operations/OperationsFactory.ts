@@ -180,6 +180,10 @@ export default class OperationFactory implements IOperationFactory {
 
             console.log(`${opId}  - ESTIMATE START ############`);
 
+            const mainStatus = this.operationsStatusByKey.get(operation);
+
+            this.setOperationStatusByKey(operation, STATUSES.ESTIMATING);
+
             if (this.operationDependencies.has(opId)) {
                 const { operationId, operationParams } = this.operationDependencies.get(opId);
 
@@ -215,7 +219,7 @@ export default class OperationFactory implements IOperationFactory {
                 });
             }
 
-            const isSuccessOrFail = [STATUSES.SUCCESS, STATUSES.FAILED].includes(this.operationsStatusByKey.get(operation));
+            const isSuccessOrFail = [STATUSES.SUCCESS, STATUSES.FAILED].includes(mainStatus);
 
             if (
                 isAmountCorrect(currentOperation.getParamByField('amount')) &&
@@ -230,6 +234,8 @@ export default class OperationFactory implements IOperationFactory {
 
                 console.log('\n\n');
             }
+
+            this.setOperationStatusByKey(operation, mainStatus);
 
             table.push({
                 operation: opId,

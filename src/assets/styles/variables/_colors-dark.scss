@@ -21,11 +21,12 @@ $medievalBlue: #2b3450;
 $medWhite: #e8efff;
 
 $charade: #2e323e;
+$iceberg: #d9f4f1;
 $trout: #494c56;
 $mineralGreen: #486060;
 $gulfStream: #73b1b1;
 $aquamarine: #97ffd0;
-$geyser: #A0B3C3;
+$geyser: #a0b3c3;
 $pizazz: #f69502;
 $green: #04b600;
 $cyan: #02e7f6;
@@ -251,6 +252,8 @@ $card-btn-bg-color: $aquamarine;
 $card-tag-bg-color: $turquoise;
 $card-btn-secondary-color: $gainsboro;
 
+$shortcut-step-success: $iceberg;
+
 //  ===========================================================================
 //  THEME MAP
 //  ===========================================================================
@@ -421,5 +424,7 @@ $theme-colors-dark: (
     "card-bg-color": $card-bg-color,
     "card-btn-bg-color": $card-btn-bg-color,
     "card-tag-bg-color": $card-tag-bg-color,
-    "card-btn-secondary-color": $card-btn-secondary-color
+    "card-btn-secondary-color": $card-btn-secondary-color,
+
+    "shortcut-step-success": $shortcut-step-success
 );

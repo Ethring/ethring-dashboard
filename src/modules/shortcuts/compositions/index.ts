@@ -353,6 +353,10 @@ const useShortcuts = (Shortcut: any) => {
 
             await operationsFactory.value.estimateOutput();
 
+            const flow = operationsFactory.value.getFullOperationFlow();
+
+            console.table(flow);
+
             if (currentOp.value?.id) {
                 const outputAmount = operationsFactory.value.getOperationById(currentOp.value.id)?.getParamByField('outputAmount');
                 store.dispatch('tokenOps/setDstAmount', outputAmount);

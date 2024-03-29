@@ -1,17 +1,23 @@
 import _ from 'lodash';
 
 import { h } from 'vue';
-import { LoadingOutlined } from '@ant-design/icons-vue';
+import { LoadingOutlined, SettingOutlined } from '@ant-design/icons-vue';
 
 import { IShortcutOp } from '../core/ShortcutOp';
-import ShortcutRecipe, { IShortcutRecipe } from '../core/ShortcutRecipes';
-import Shortcut, { IShortcutData } from '../core/Shortcut';
+import ShortcutRecipe from '../core/ShortcutRecipes';
+import { IShortcutData } from '../core/Shortcut';
 
-import { ShortcutStatus, ShortcutType, ShortcutStatuses } from '../core/types/ShortcutType';
+import { ShortcutStatus } from '../core/types/ShortcutType';
 import OperationFactory from '@/modules/operations/OperationsFactory';
 import { OperationStep } from '../core/models/Operation';
 import { STATUSES, SHORTCUT_STATUSES } from '@/shared/models/enums/statuses.enum';
-// import StepItem from '@/components/shortcuts/StepItem.vue';
+
+import StepOp from '@/components/shortcuts/StepItem/StepOp.vue';
+import StepOpInfo from '@/components/shortcuts/StepItem/StepOpInfo.vue';
+
+import ClearIcon from '@/assets/icons/form-icons/clear.svg';
+import SuccessIcon from '@/assets/icons/form-icons/success.svg';
+import WaitingIcon from '@/assets/icons/form-icons/waiting.svg';
 
 const TYPES = {
     SET_SHORTCUT: 'SET_SHORTCUT',
@@ -93,7 +99,7 @@ export default {
             return shortcut[shortcutId].recipe.operations.find((op: IShortcutOp | ShortcutRecipe) => op.id === currentStepId);
         },
 
-        getShortcutSteps: (state: IState) => (shortcutId: string) => {
+        getShortcutSteps: (state: IState, g, rs, rootGetters) => (shortcutId: string) => {
             const flow = state.shortcutOps[shortcutId].getFullOperationFlow();
 
             let hasError = false;
@@ -101,15 +107,35 @@ export default {
             const steps: OperationStep[] = flow.map((operation, index) => {
                 const step = operation as OperationStep;
 
-                if (state.shortcutOps[shortcutId].getOperationById(step.operationId)) {
-                    const op = state.shortcutOps[shortcutId].getOperationById(step.operationId);
+                const fromAssetChain = {
+                    symbol: state.shortcutOps[shortcutId].getOperationById(step.operationId)?.getToken('from')?.chain,
+                    logo: rootGetters['configs/getChainLogoByNet'](
+                        state.shortcutOps[shortcutId].getOperationById(step.operationId)?.getToken('from')?.chain,
+                    ),
+                };
 
-                    if (op?.getTitle) {
-                        step.description = _.isEqual(op.getTitle(), step.title) ? null : op.getTitle();
-                    } else {
-                        step.description = null;
-                    }
-                }
+                const toAssetChain = {
+                    symbol: state.shortcutOps[shortcutId].getOperationById(step.operationId)?.getToken('to')?.chain,
+                    logo: rootGetters['configs/getChainLogoByNet'](
+                        state.shortcutOps[shortcutId].getOperationById(step.operationId)?.getToken('to')?.chain,
+                    ),
+                };
+
+                step.title = h(StepOpInfo, {
+                    label: operation.title,
+                    assetChain: {
+                        from: fromAssetChain,
+                        to: toAssetChain,
+                    },
+                    shortcutId,
+                    operationId: step.operationId,
+                });
+
+                step.description = h(StepOp, {
+                    operationType: step.make,
+                    // assetChain: toAssetChain?.logo ? toAssetChain : fromAssetChain,
+                    assetChain: fromAssetChain,
+                });
 
                 const status = state.shortcutOps[shortcutId].getOperationsStatusByKey(step.moduleIndex);
 
@@ -140,15 +166,23 @@ export default {
 
                 if (status === STATUSES.IN_PROGRESS) {
                     step.icon = h(LoadingOutlined, {
-                        style: {
-                            fontSize: '24px',
-                        },
                         spin: true,
+                        class: 'loading-icon',
                     });
                 }
 
-                // TODO: add step component
-                // step.title = h(StepItem, { data: step });
+                if (status === STATUSES.SUCCESS) {
+                    step.icon = h(SuccessIcon);
+                } else if (status === STATUSES.PENDING) {
+                    step.icon = h(WaitingIcon);
+                } else if (status === STATUSES.FAILED) {
+                    step.icon = h(ClearIcon);
+                } else if (status === STATUSES.ESTIMATING) {
+                    step.icon = h(SettingOutlined, {
+                        spin: true,
+                        class: 'estimating-icon',
+                    });
+                }
 
                 return step;
             });

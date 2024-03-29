@@ -19,8 +19,9 @@ export interface OperationStep {
     id: string;
     index: number;
     title: any;
+    subTitle: string;
     status: ShortcutStatuses;
-    description?: string;
+    description?: string | any;
 
     make: string;
     type: string;

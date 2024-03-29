@@ -290,6 +290,8 @@ $card-btn-bg-color: $aquamarine;
 $card-tag-bg-color: $turquoise;
 $card-btn-secondary-color: $gainsboro;
 
+$shortcut-step-success: $iceberg;
+
 //  ===========================================================================
 //  THEME MAP
 //  ===========================================================================
@@ -476,5 +478,7 @@ $theme-colors: (
     "card-bg-color": $card-bg-color,
     "card-btn-bg-color": $card-btn-bg-color,
     "card-tag-bg-color": $card-tag-bg-color,
-    "card-btn-secondary-color": $card-btn-secondary-color
+    "card-btn-secondary-color": $card-btn-secondary-color,
+
+    "shortcut-step-success": $shortcut-step-success
 );

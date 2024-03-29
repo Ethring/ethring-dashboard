@@ -35,9 +35,7 @@
                     />
                 </a-col>
                 <a-col :span="12">
-                    <a-card>
-                        <a-steps direction="vertical" v-model:current="shortcutIndex" :items="steps" />
-                    </a-card>
+                    <a-steps direction="vertical" v-model:current="shortcutIndex" :items="steps" />
                 </a-col>
             </a-row>
         </div>
@@ -45,29 +43,23 @@
 </template>
 
 <script>
-import { computed, h, onMounted } from 'vue';
+import _ from 'lodash';
+
+import { computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 
-import StepItem from './StepItem.vue';
-
 import ArrowIcon from '@/assets/icons/form-icons/arrow-back.svg';
 
-import SuccessIcon from '@/assets/icons/form-icons/success.svg';
-import WaitingIcon from '@/assets/icons/form-icons/waiting.svg';
-import ProcessIcon from '@/assets/icons/form-icons/process.svg';
-
-import ShortcutLoading from '@/components/ui/Loadings/ShortcutLoading.vue';
+import ShortcutLoading from '@/components/shortcuts/Loading/ShortcutLoading.vue';
 
 import useShortcuts from '@/modules/shortcuts/compositions/index';
 
 import { SHORTCUT_STATUSES, STATUSES } from '@/shared/models/enums/statuses.enum';
-import _ from 'lodash';
 
 export default {
     name: 'ShortcutDetails',
     components: {
-        StepItem,
         ArrowIcon,
         ShortcutLoading,
     },
@@ -80,21 +72,6 @@ export default {
         const shortcut = computed(() => store.getters['shortcutsList/getShortcutById'](route.params.id));
 
         const { shortcutId, shortcutIndex, steps, shortcutLayout, shortcutStatus } = useShortcuts(shortcut.value);
-        // const currentStep = ref(1);
-
-        // const getStepIcon = (id) => {
-        //     return currentStep.value === id ? h(ProcessIcon) : currentStep.value > id ? h(SuccessIcon) : h(WaitingIcon);
-        // };
-
-        // const steps = computed(() =>
-        //     shortcut.value.recipe.operations?.map((item, i) => {
-        //         return {
-        //             id: i,
-        //             title: h(StepItem, { data: item }),
-        //             icon: getStepIcon(i),
-        //         };
-        //     }),
-        // );
 
         onMounted(() => {
             if (_.isEmpty(shortcut.value)) {

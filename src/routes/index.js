@@ -118,7 +118,7 @@ export const routes = [
         meta: {
             key: 'shortcuts-details',
         },
-        component: () => import('@/components/shortcuts/ShortcutDetails.vue'),
+        component: () => import('@/pages/ShortcutDetails.vue'),
     },
     {
         path: '/:pathMatch(.*)*',

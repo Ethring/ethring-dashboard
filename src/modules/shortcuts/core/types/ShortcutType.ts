@@ -10,6 +10,7 @@ export enum ShortcutStatus {
     finish = 'finish',
     process = 'process',
     currentInProgress = 'currentInProgress',
+    estimating = 'estimating',
     error = 'error',
 }
 

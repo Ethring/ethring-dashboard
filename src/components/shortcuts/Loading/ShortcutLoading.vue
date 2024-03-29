@@ -128,7 +128,7 @@ export default {
     min-height: 500px;
     max-width: 520px;
 
-    background: var(--#{$prefix}secondary-background);
+    background: var(--#{$prefix}main-background);
 
     display: flex;
     flex-direction: column;
