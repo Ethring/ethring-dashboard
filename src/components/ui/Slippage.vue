@@ -1,5 +1,6 @@
 <template>
-    <a-dropdown :arrow="{ pointAtCenter: true }" trigger="click" class="slippage" placement="bottom">
+    <a-dropdown v-model:open="isOpen" :arrow="{ pointAtCenter: true }" trigger="click" class="slippage"
+        placement="bottom">
         <div class="slippage__icon" data-qa="slippage-icon">
             <SettingsIcon />
         </div>
@@ -53,6 +54,7 @@ export default {
     },
     setup() {
         const warningText = ref(null);
+        const isOpen = ref(false);
 
         const store = useStore();
 
@@ -83,7 +85,14 @@ export default {
             }
         })
 
+        watch(isOpen, () => {
+            if (!slippage.value && isOpen.value) {
+                slippage.value = 1;
+            }
+        })
+
         return {
+            isOpen,
             slippage,
             activeOption,
             warningText
