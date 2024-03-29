@@ -286,6 +286,20 @@ export default {
             }
         },
 
+        resetAllShortcuts({ commit, state, getters }: any) {
+            commit(TYPES.SET_CURRENT_INDEX, { index: 0 });
+
+            for (const shortcut in state.shortcut) {
+                commit(TYPES.SET_SHORTCUT_STATUS, { shortcutId: shortcut, status: SHORTCUT_STATUSES.PENDING });
+
+                if (state.shortcutOps[shortcut]) {
+                    state.shortcutOps[shortcut].resetOperationsStatus();
+                    const [firstStep] = getters.getShortcutSteps(shortcut) || [];
+                    firstStep && commit(TYPES.SET_CURRENT_STEP_ID, { stepId: firstStep.id, shortcut });
+                }
+            }
+        },
+
         setIsShortcutLoading({ commit }: any, { shortcutId, value }: { shortcutId: string; value: boolean }) {
             commit(TYPES.SET_IS_SHORTCUT_LOADING, { shortcutId, value });
         },

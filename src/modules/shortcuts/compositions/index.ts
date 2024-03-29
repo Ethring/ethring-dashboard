@@ -442,18 +442,30 @@ const useShortcuts = (Shortcut: any) => {
         // });
     });
 
-    watch(shortcutIndex, () => {
-        if (!currentOp.value) return;
+    store.watch(
+        (state, getters) => getters['shortcuts/getCurrentStepId'],
+        async (stepId) => {
+            if (!stepId) return;
 
-        const operation = operationsFactory.value.getOperationById(currentOp.value.id);
-        if (!operation) return;
+            if (!operationsFactory.value.getOperationById(stepId)) return;
 
-        if (!operation.getParamByField('fromNet')) return;
+            if (!operationsFactory.value.getOperationById(stepId).getParamByField('fromNet')) return;
 
-        if (!operation.getAccount()) {
-            operation.setAccount(addressesByChain.value[operation.getParamByField('fromNet')]);
-        }
-    });
+            console.log(`ACCOUNT for :${stepId} =`, operationsFactory.value.getOperationById(stepId).getAccount());
+
+            if (!operationsFactory.value.getOperationById(stepId).getAccount()) {
+                console.log(
+                    'ACCOUNT NOT SET',
+                    stepId,
+                    operationsFactory.value.getOperationById(stepId).getParamByField('fromNet'),
+                    addressesByChain.value[operationsFactory.value.getOperationById(stepId).getParamByField('fromNet')],
+                );
+                operationsFactory.value
+                    .getOperationById(stepId)
+                    .setAccount(addressesByChain.value[operationsFactory.value.getOperationById(stepId).getParamByField('fromNet')]);
+            }
+        },
+    );
 
     // ====================================================================================================
     // * Reset the module states when the component is unmounted
@@ -468,7 +480,7 @@ const useShortcuts = (Shortcut: any) => {
             module: ModuleType.shortcut,
         });
 
-        // store.dispatch('shortcuts/resetShortcut');
+        store.dispatch('shortcuts/resetAllShortcuts');
     });
 
     return {

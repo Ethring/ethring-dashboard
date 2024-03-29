@@ -861,12 +861,10 @@ class CosmosAdapter extends AdapterBase {
         const { clientOptions = {} } = chainRecord || {};
         const { signingStargate = {} } = clientOptions;
 
-        console.log('rpc', signingStargate, chainWallet.value.offlineSigner);
         const client = await this.getSignClient(rpcEndpoints, {
             signingStargate,
             offlineSigner: chainWallet.value.offlineSigner,
         });
-        console.log('client', client);
 
         // Check if client exist
         if (!client) {
