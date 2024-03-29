@@ -35,6 +35,10 @@ class EthereumAdapter extends AdapterBase {
         web3Onboard.state.select('wallets').subscribe(() => this.setAddressForChains());
     }
 
+    init(store) {
+        this.store = store;
+    }
+
     subscribeToWalletsChange() {
         return web3Onboard.state.select('wallets');
     }
@@ -350,6 +354,16 @@ class EthereumAdapter extends AdapterBase {
 
     async signSend(transaction) {
         const ethersProvider = this.getProvider();
+
+        // Check timer
+        const txTimerID = this.store.getters['txManager/txTimerID'];
+
+        if (!txTimerID) {
+            return {
+                isCanceled: true,
+            };
+        }
+        this.store.dispatch('txManager/setTxTimerID', null);
 
         try {
             if (ethersProvider) {

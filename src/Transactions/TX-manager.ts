@@ -225,9 +225,8 @@ export class TransactionList {
                 // ? Set the transaction execute parameters
                 await current.transaction.setTxExecuteParameters();
             } catch (error) {
-                if (current.transaction.onCancel) {
-                    await current.transaction.onCancel();
-                }
+                this.store.dispatch('txManager/setTxTimerID', null);
+
                 if (current.transaction.onError) {
                     current.transaction.onError(error);
                 }
@@ -237,8 +236,8 @@ export class TransactionList {
             try {
                 const hash = await current.transaction.execute();
 
-                if (current.transaction.onCancel) {
-                    await current.transaction.onCancel();
+                if (!hash) {
+                    return;
                 }
 
                 if (current.transaction.onSuccessSignTransaction) {
@@ -269,6 +268,7 @@ export class TransactionList {
                 throw error;
             } finally {
                 current = current.next;
+                this.store.dispatch('txManager/setTxTimerID', null);
             }
         }
 

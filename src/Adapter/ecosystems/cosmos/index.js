@@ -78,6 +78,7 @@ class CosmosAdapter extends AdapterBase {
         const activeChains = _.values(chains).filter(isActiveChain);
         const defaultChains = _.values(activeChains).filter(isDefaultChain);
 
+        this.store = store;
         this.chainsFromStore = store?.state?.configs?.chains[ECOSYSTEMS.COSMOS] || {};
 
         const assets = await getCosmologyTokensConfig();
@@ -855,6 +856,16 @@ class CosmosAdapter extends AdapterBase {
         } catch (error) {
             logger.error('[COSMOS -> signSend -> estimate]', error);
         }
+
+         // Check timer
+         const txTimerID = this.store.getters['txManager/txTimerID'];
+
+         if (!txTimerID) {
+             return {
+                 isCanceled: true,
+             };
+         }
+         this.store.dispatch('txManager/setTxTimerID', null);
 
         // Sign and send transaction
         try {
