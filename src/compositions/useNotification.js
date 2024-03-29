@@ -5,8 +5,6 @@ import { notification } from 'ant-design-vue';
 import { LoadingOutlined, SettingOutlined, DoubleRightOutlined } from '@ant-design/icons-vue';
 import ExternalLinkIcon from '@/assets/icons/module-icons/external-link.svg';
 
-import Button from '@/components/ui/Button';
-
 export default function useNotification() {
     const openExplorer = (explorer, key) => {
         window.open(explorer, '_blank');
@@ -20,7 +18,6 @@ export default function useNotification() {
         description = null,
         duration = 3,
         prepare = false,
-        onCancel = () => {},
         ...args
     } = {}) => {
         const { explorerLink, txHash, wait } = args;
@@ -54,15 +51,6 @@ export default function useNotification() {
                 h(SettingOutlined, {
                     spin: true,
                     'data-qa': 'prepare-tx',
-                });
-            notificationParams.btn = () =>
-                h(Button, {
-                    type: 'primary',
-                    title: 'Cancel',
-                    onClick: () => {
-                        onCancel();
-                        closeNotification('prepare-tx');
-                    },
                 });
         } else if (key?.startsWith('switch')) {
             notificationParams.icon = () =>

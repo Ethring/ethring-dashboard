@@ -234,14 +234,14 @@ export default function useTransactions() {
      *
      * @returns {object}
      */
-    const signAndSend = async (transaction, { ecosystem, chain }, isCanceled) => {
+    const signAndSend = async (transaction, { ecosystem, chain }) => {
         const ACTIONS_FOR_TX = {
             prepareTransaction: async (parameters, txParams = {}) => await prepareTransaction(parameters, { ecosystem, ...txParams }),
             formatTransactionForSign: async (parameters, txParams = {}) =>
                 await formatTransactionForSign(parameters, { ecosystem, ...txParams }),
         };
 
-        if (!transaction || isCanceled.value) {
+        if (!transaction) {
             return;
         }
 
@@ -295,6 +295,10 @@ export default function useTransactions() {
             console.log('signSend error', response.error);
             store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
             throw new Error(response.error);
+        }
+
+        if (response && response.isCanceled) {
+            return null;
         }
 
         try {

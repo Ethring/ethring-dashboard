@@ -344,7 +344,7 @@ function useAdapter() {
     };
 
     // * Sign & Send Transaction
-    const signSend = async (transaction, { ecosystem = null, chain = null }) => {
+    const signSend = async (transaction, { ecosystem = null }) => {
         if (!ecosystem) {
             return await mainAdapter.value.signSend(transaction);
         }
