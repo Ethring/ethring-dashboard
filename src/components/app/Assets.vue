@@ -145,7 +145,7 @@ export default {
 
         const allCollapsedActiveKeys = computed(() => {
             if (!allIntegrationsByPlatforms.value.length) {
-                return ['assets'];
+                return ['assets', 'nfts'];
             }
 
             const keys = ['assets', 'nfts'];
@@ -225,6 +225,7 @@ export default {
 
         watch(walletAccount, () => {
             store.dispatch('app/setCollapsedAssets', []);
+            updateCollapsedAssets();
         });
 
         const updateCollapsedKey = (item) => {
