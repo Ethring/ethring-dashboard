@@ -63,31 +63,31 @@ export default {
 
         const isShowRoutesModal = computed(() => store.getters['app/modal']('routesModal'));
 
-        const addressesWithChains = computed(async () => {
-            const { ecosystem } = currentChainInfo.value || {};
-
+        const getAddressesWithChains = async (ecosystem) => {
             const chainAddresses = await getAddressesWithChainsByEcosystem(ecosystem);
 
             return _.pick(chainAddresses, Object.values(DP_CHAINS)) || {};
-        });
+        };
 
-        const addressByChain = computed(async () => {
-            const { ecosystem } = currentChainInfo.value || {};
-            return (await getAddressesWithChainsByEcosystem(ecosystem, { hash: true })) || {};
-        });
 
         const callSubscription = async () => {
             const { ecosystem } = currentChainInfo.value || {};
 
-            if (JSON.stringify(await addressesWithChains.value) !== '{}' && walletAddress.value) {
-                Socket.setAddresses(await addressesWithChains.value, ecosystem, {
+            if (JSON.stringify(await getAddressesWithChains(ecosystem)) !== '{}' && walletAddress.value) {
+                Socket.setAddresses(await getAddressesWithChains(ecosystem), ecosystem, {
                     walletAccount: walletAccount.value,
                 });
             }
         };
 
         const updateBalanceForAllAccounts = async () => {
-            for (const { account, addresses } of connectedWallets.value) {
+            for (const { account, ecosystem } of connectedWallets.value) {
+                const addresses = await getAddressesWithChains(ecosystem);
+                const addressHash = await getAddressesWithChainsByEcosystem(ecosystem, { hash: true }) || {};
+
+                store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM', { ecosystem, addresses: addressHash });
+                store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses });
+
                 await updateBalanceForAccount(account, addresses);
             }
         };
@@ -100,14 +100,8 @@ export default {
                 return setTimeout(callInit, 1000);
             }
 
-            const addresses = await addressesWithChains.value;
-            const addressHash = await addressByChain.value;
-
             await setNativeTokensPrices(store, ecosystem);
             await updateBalanceForAllAccounts();
-
-            store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM', { ecosystem, addresses: addressHash });
-            store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses });
         };
 
         // ==========================================================================================

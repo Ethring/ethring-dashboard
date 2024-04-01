@@ -857,15 +857,15 @@ class CosmosAdapter extends AdapterBase {
             logger.error('[COSMOS -> signSend -> estimate]', error);
         }
 
-         // Check timer
-         const txTimerID = this.store.getters['txManager/txTimerID'];
+        // Check timer
+        const txTimerID = this.store.getters['txManager/txTimerID'];
 
-         if (!txTimerID) {
-             return {
-                 isCanceled: true,
-             };
-         }
-         this.store.dispatch('txManager/setTxTimerID', null);
+        if (!txTimerID) {
+            return {
+                isCanceled: true,
+            };
+        }
+        this.store.dispatch('txManager/setTxTimerID', null);
 
         // Sign and send transaction
         try {
