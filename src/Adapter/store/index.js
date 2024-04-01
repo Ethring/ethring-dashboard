@@ -78,8 +78,8 @@ export default {
     getters: {
         [GETTERS.IS_OPEN]:
             (state) =>
-                (name = MODALS.WALLETS) =>
-                    state.modals[name],
+            (name = MODALS.WALLETS) =>
+                state.modals[name],
 
         [GETTERS.IS_CONNECTING]: (state) => state.isConnecting,
 
@@ -99,16 +99,6 @@ export default {
         [GETTERS.GET_ADDRESSES_BY_ECOSYSTEM]: (state) => (ecosystem) => state.addressesByEcosystem[ecosystem] || {},
         [GETTERS.GET_ADDRESSES_BY_ECOSYSTEM_LIST]: (state) => (ecosystem) => state.addressesByEcosystemList[ecosystem] || {},
         [GETTERS.GET_ACCOUNT_BY_ECOSYSTEM]: (state) => (ecosystem) => state.accountByEcosystem[ecosystem] || null,
-
-        [GETTERS.GET_ALL_CONNECTED_WALLETS]: (state) => {
-            const wallets = state.wallets.map((wallet) => {
-                return {
-                    ...wallet,
-                };
-            });
-
-            return wallets;
-        },
     },
     actions: {
         // * Actions for Modals

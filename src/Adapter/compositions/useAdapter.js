@@ -48,7 +48,7 @@ function useAdapter() {
     const isConnecting = computed(() => adaptersGetter(GETTERS.IS_CONNECTING));
 
     const connectedWallets = computed(() => adaptersGetter(GETTERS.CONNECTED_WALLETS));
-    const getAllConnectedWallets = computed(() => adaptersGetter(GETTERS.GET_ALL_CONNECTED_WALLETS));
+
     const currentChainInfo = computed(() => (mainAdapter.value ? mainAdapter.value.getCurrentChain(store) : null));
 
     const chainList = computed(() => (mainAdapter.value ? mainAdapter.value.getChainList(store) : []));
@@ -477,7 +477,6 @@ function useAdapter() {
         connectedWallets,
 
         chainList,
-        getAllConnectedWallets,
 
         initAdapter,
 

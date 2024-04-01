@@ -56,7 +56,7 @@ export default {
             walletAddress,
             walletAccount,
             currentChainInfo,
-            getAllConnectedWallets,
+            connectedWallets,
             connectLastConnectedWallet,
             getAddressesWithChainsByEcosystem,
         } = useAdapter();
@@ -87,9 +87,8 @@ export default {
         };
 
         const updateBalanceForAllAccounts = async () => {
-            const allConnectedWallets = await getAllConnectedWallets.value
-            for (const wallet of allConnectedWallets) {
-                await updateBalanceForAccount(wallet.account, wallet.addresses);
+            for (const { account, addresses } of connectedWallets.value) {
+                await updateBalanceForAccount(account, addresses);
             }
         };
 
@@ -117,7 +116,7 @@ export default {
             store.dispatch('tokens/setLoader', true);
             store.dispatch('tokens/setTargetAccount', walletAccount.value);
             callSubscription();
-            await callInit();
+            setTimeout(callInit, 1000);
         });
 
         const unWatchLoading = watch(isConfigLoading, async () => {
@@ -149,8 +148,6 @@ export default {
         onMounted(() => {
             // * Tracking balance update for all accounts
             trackingBalanceUpdate(store);
-
-            // console.log('App mounted', store.getters['adapters/getAllConnectedWallets']);
         });
     },
 };
