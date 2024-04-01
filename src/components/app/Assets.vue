@@ -25,7 +25,7 @@
                 v-for="item in allIntegrationsByPlatforms"
                 :key="item.platform"
                 class="assets-block-panel"
-                @vue:mounted="collapseActiveKey.push(item.platform)"
+                @vue:mounted="updateCollapsedKey(item)"
             >
                 <template #header>
                     <AssetGroupHeader
@@ -227,9 +227,11 @@ export default {
             store.dispatch('app/setCollapsedAssets', []);
         });
 
-        watch(allIntegrationsByPlatforms, () => {
-            updateCollapsedAssets();
-        });
+        const updateCollapsedKey = (item) => {
+            if (!collapsedAssets.value.includes(item.platform)) {
+                collapseActiveKey.value.push(item.platform);
+            }
+        };
 
         return {
             isLoadingForChain,
@@ -251,6 +253,7 @@ export default {
             getFormattedName,
 
             collapseActiveKey,
+            updateCollapsedKey,
 
             // ===================== Columns =====================
 
