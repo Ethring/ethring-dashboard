@@ -4,8 +4,7 @@
 
     &-action {
         background: var(--#{$prefix}select-bg-color);
-        height: 72px;
-        padding: 0 24px;
+        padding: 20px 24px;
 
         .link {
             @include pageFlexRow;
@@ -70,14 +69,27 @@
                 }
             }
         }
+
+        @media (max-width: 630px) {
+            flex-direction: column;
+            align-items: baseline;
+            overflow-x: scroll;
+
+            .social-details {
+                margin-top: 10px;
+                flex-wrap: nowrap;
+            }
+        }
     }
 
     &-author {
         @include pageFlexColumn;
         justify-content: center;
+
         position: absolute;
         top: 20px;
-        left: 45%;
+        left: 50%;
+        transform: translateX(-50%);
 
         .custom-avatar {
             width: 100px;
@@ -124,6 +136,22 @@
                     line-height: 26px;
                 }
             }
+
+            @media (max-width: 1024px) {
+                text-align: justify;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            top: 80px;
+            left: 0;
+            transform: none;
+
+            flex-direction: row;
+        }
+
+        @media (max-width: 630px) {
+            top: 105px;
         }
     }
 }
