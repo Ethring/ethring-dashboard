@@ -6,11 +6,8 @@ import { useStore } from 'vuex';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
-import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
-
-export default function useTokensList({ network = null, fromToken = null, toToken = null, isSameNet = true } = {}) {
+export default function useTokensList({ network = null, fromToken = null, toToken = null } = {}) {
     const store = useStore();
-    const selectType = computed(() => store.getters['tokenOps/selectType']);
 
     const getAccount = (ecosystem) => store.getters['adapters/getAccountByEcosystem'](ecosystem);
 
@@ -142,7 +139,6 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
         // Set native token info
         allTokens = setNativeTokenInfo(allTokens);
-
 
         if (exclude.length) {
             allTokens = allTokens.filter((tkn) => !exclude.includes(tkn.id) && !exclude.includes(tkn.coingecko_id));

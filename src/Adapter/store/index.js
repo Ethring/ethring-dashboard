@@ -98,7 +98,7 @@ export default {
 
         [GETTERS.GET_ADDRESSES_BY_ECOSYSTEM]: (state) => (ecosystem) => state.addressesByEcosystem[ecosystem] || {},
         [GETTERS.GET_ADDRESSES_BY_ECOSYSTEM_LIST]: (state) => (ecosystem) => state.addressesByEcosystemList[ecosystem] || {},
-        [GETTERS.GET_ACCOUNT_BY_ECOSYSTEM]: (state) => (ecosystem) => state.accountByEcosystem[ecosystem] || null,
+        [GETTERS.GET_ACCOUNT_BY_ECOSYSTEM]: () => (ecosystem) => getAccountByEcosystem(ecosystem) || null,
     },
     actions: {
         // * Actions for Modals
