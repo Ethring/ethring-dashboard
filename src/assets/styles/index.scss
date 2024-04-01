@@ -67,6 +67,10 @@ body {
   margin-inline-end: 0 !important;
 }
 
+.ant-upload-wrapper.ant-upload-picture-card-wrapper {
+  width: auto !important;
+}
+
 ::-webkit-input-placeholder {
   color: var(--#{$prefix}select-placeholder-text) !important;
 }

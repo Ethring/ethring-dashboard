@@ -148,10 +148,11 @@
             transform: none;
 
             flex-direction: row;
+            gap: 16px;
         }
 
         @media (max-width: 630px) {
-            top: 105px;
+            top: 110px;
         }
     }
 }
