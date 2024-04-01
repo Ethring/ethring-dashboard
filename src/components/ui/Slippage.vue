@@ -74,7 +74,7 @@ export default {
                 slippage.value = 20;
             }
 
-            if (slippage.value > 20) {
+            if (slippage.value >= 20) {
                 warningText.value = t('slippage.limitWarning1');
             } else if (slippage.value > 2) {
                 warningText.value = t('slippage.limitWarning3');
@@ -88,6 +88,9 @@ export default {
         watch(isOpen, () => {
             if (!slippage.value && isOpen.value) {
                 slippage.value = 1;
+            }
+            if (slippage.value > 20) {
+                slippage.value = 20;
             }
         })
 
