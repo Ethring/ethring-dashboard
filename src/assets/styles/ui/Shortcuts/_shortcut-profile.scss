@@ -1,0 +1,129 @@
+.shortcut-profile {
+    position: relative;
+    margin-bottom: 120px;
+
+    &-action {
+        background: var(--#{$prefix}select-bg-color);
+        height: 72px;
+        padding: 0 24px;
+
+        .link {
+            @include pageFlexRow;
+            color: var(--#{$prefix}base-text);
+            font-weight: 500;
+
+            &:hover {
+                color: var(--#{$prefix}primary-text);
+            }
+
+            span {
+                margin-left: 10px;
+            }
+        }
+
+        .social-details {
+            gap: 20px;
+
+            .item {
+                @include pageFlexRow;
+                gap: 8px;
+
+                .icon {
+                    @include pageFlexRow;
+                    justify-content: center;
+
+                    width: 24px;
+                    height: 24px;
+
+                    border-radius: 50%;
+                    background: var(--#{$prefix}main-background);
+                }
+
+                svg.social {
+                    fill: var(--#{$prefix}assets-arrow-hover-color);
+                }
+
+                svg.like {
+                    stroke: var(--#{$prefix}assets-arrow-hover-color) !important;
+                    width: 14px;
+                    height: 14px;
+                }
+
+                .label {
+                    color: var(--#{$prefix}description-text);
+                    font-size: var(--#{$prefix}small-sm-fs);
+                    font-weight: 400;
+
+                    text-align: justify;
+                    line-height: 18px;
+                }
+
+                .value {
+                    font-size: var(--#{$prefix}default-fs);
+                    font-weight: 500;
+
+                    color: var(--#{$prefix}info);
+                }
+
+                .account {
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+
+    &-author {
+        @include pageFlexColumn;
+        justify-content: center;
+        position: absolute;
+        top: 20px;
+        left: 45%;
+
+        .custom-avatar {
+            width: 100px;
+            height: 100px;
+
+            border-radius: 50%;
+        }
+
+        .avatar {
+            @include pageFlexRow;
+            justify-content: center;
+
+            width: 100px;
+            height: 100px;
+
+            border-radius: 50%;
+            background-color: var(--#{$prefix}primary);
+
+            svg {
+                width: 50px;
+                height: 50px;
+            }
+
+            cursor: pointer;
+        }
+
+        .info {
+            text-align: center;
+
+            .label {
+                color: var(--#{$prefix}mute-text);
+                font-size: var(--#{$prefix}default-fs);
+                font-weight: 400;
+                line-height: 20px;
+            }
+
+            .author-block {
+                gap: 6px;
+
+                .author {
+                    font-weight: 600;
+                    font-size: var(--#{$prefix}h5-fs);
+                    color: var(--#{$prefix}primary-text);
+                    line-height: 26px;
+                }
+            }
+        }
+    }
+}

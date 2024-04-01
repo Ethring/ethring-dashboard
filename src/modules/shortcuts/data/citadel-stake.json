@@ -17,7 +17,13 @@
     "website": "https://citadel.one/",
     "author": {
         "name": "zomet.app",
-        "avatar": "https://zomet-logo.png"
+        "avatar": "https://zomet-logo.png",
+        "social": {
+            "twitter": {
+                "nickname": "zometapp",
+                "link": "https://twitter.com/zometapp"
+            }
+        }
     },
     "recipe": {
         "id": "citadel-one-stake",
