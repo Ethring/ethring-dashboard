@@ -18,7 +18,7 @@
                 </a>
                 <div class="item">
                     <div class="icon">
-                        <CreatedIcon />
+                        <CreatedIcon class="more-action" />
                     </div>
                     <div class="info">
                         <div class="label">{{ $t('shortcuts.profile.created') }}</div>

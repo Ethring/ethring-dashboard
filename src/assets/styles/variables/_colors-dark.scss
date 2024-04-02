@@ -188,7 +188,7 @@ $danger-color: $wildWatermelon;
 $warning: $pizazz;
 $warning-op-01: rgba($warning, 0.1);
 
-$info: $deepCerulean;
+$info: $gulfStream;
 $info-op-01: rgba($info, 0.1);
 
 $white: $white;
@@ -207,6 +207,7 @@ $icon-secondary-bg-hover: $mineralGreen;
 $icon-bg-color: $white;
 $token-primary-icon-color: $charade;
 $token-secondary-icon-color: $springGreen;
+$base-icon-color: $geyser;
 
 $icon-placeholder: $medievalBlue;
 $icon-placeholder-border: $ghostWhite;
@@ -375,6 +376,7 @@ $theme-colors-dark: (
     "icon-secondary-bg-color": $icon-secondary-bg-color,
     "icon-secondary-bg-hover": $icon-secondary-bg-hover,
     "arrow-color": $arrow-color,
+    "base-icon-color": $base-icon-color,
 
     "icon-placeholder": $icon-placeholder,
     "icon-placeholder-border": $icon-placeholder-border,

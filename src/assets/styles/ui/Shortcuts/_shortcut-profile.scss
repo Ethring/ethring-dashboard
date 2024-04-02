@@ -18,6 +18,12 @@
             span {
                 margin-left: 10px;
             }
+
+            svg {
+                path {
+                    fill: var(--#{$prefix}base-text);
+                }
+            }
         }
 
         .social-details {
@@ -38,12 +44,13 @@
                     background: var(--#{$prefix}main-background);
                 }
 
-                svg.social {
-                    fill: var(--#{$prefix}assets-arrow-hover-color);
+                svg.social,
+                svg.more-action {
+                    fill: var(--#{$prefix}base-icon-color);
                 }
 
                 svg.like {
-                    stroke: var(--#{$prefix}assets-arrow-hover-color) !important;
+                    stroke: var(--#{$prefix}base-icon-color) !important;
                     width: 14px;
                     height: 14px;
                 }
@@ -120,7 +127,7 @@
             text-align: center;
 
             .label {
-                color: var(--#{$prefix}mute-text);
+                color: var(--#{$prefix}adapter-label-text);
                 font-size: var(--#{$prefix}default-fs);
                 font-weight: 400;
                 line-height: 20px;

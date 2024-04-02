@@ -56,6 +56,7 @@ $caneelBay: #00839f;
 $blueHalk: #e6eeff;
 $pastelPink: #f7d0d0;
 $gainsboro: #e1e4e9;
+$outerSpace: #2b353e;
 
 //  ===========================================================================
 //  GRADIENTS
@@ -235,6 +236,7 @@ $icon-border: $dinastyDragon;
 
 $icon-placeholder: $aliceBlue;
 $icon-placeholder-border: $grayX50;
+$base-icon-color: $outerSpace;
 
 $icon-bg-color: $iceberg;
 $token-primary-icon-color: $charade;
@@ -429,6 +431,7 @@ $theme-colors: (
     "icon-secondary-bg-hover": $icon-secondary-bg-hover,
     "icon-placeholder": $icon-placeholder,
     "icon-placeholder-border": $icon-placeholder-border,
+    "base-icon-color": $base-icon-color,
 
     "arrow-color": $arrow-color,
 
