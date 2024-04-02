@@ -16,17 +16,13 @@ import { ECOSYSTEMS } from '@/Adapter/config';
 // Transaction manager
 import { Transaction, TransactionList } from '@/Transactions/TX-manager';
 
-// Utils
-import { isCorrectChain } from '@/shared/utils/operations';
-
 // Types
 import { ModuleType, ServiceType } from '@/modules/bridge-dex/enums/ServiceType.enum';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
 import { TRANSACTION_TYPES, STATUSES } from '@/shared/models/enums/statuses.enum';
 import { ServiceByModule } from '../modules/bridge-dex/enums/ServiceType.enum';
-import { IBaseTransactionParams } from '@/modules/bridge-dex/models/Transaction/EvmTx.type';
-import { ITransaction, ITransactionResponse } from '../Transactions/types/Transaction';
-import { BridgeDexTx, IBridgeDexTransaction } from '@/modules/bridge-dex/models/Response.interface';
+import { ITransaction } from '../Transactions/types/Transaction';
+import { IBridgeDexTransaction } from '@/modules/bridge-dex/models/Response.interface';
 import { AllQuoteParams, Approve, OwnerAddresses } from '@/modules/bridge-dex/models/Request.type';
 import { AddressByChainHash } from '../shared/models/types/Address';
 import useInputValidation from '@/shared/form-validations';
@@ -39,8 +35,6 @@ const useModuleOperations = (module: ModuleType) => {
     const store = useStore();
 
     const isTransactionSigning = ref(false);
-
-    const isTransactionCanceled = ref(false);
 
     const { showNotification, closeNotification } = useNotification();
 
@@ -72,6 +66,7 @@ const useModuleOperations = (module: ModuleType) => {
         selectedRoute,
         memo,
         receiverAddress,
+        slippage,
 
         makeApproveRequest,
         makeSwapRequest,
@@ -177,7 +172,7 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
 
     const getOperationFlow = (): TxOperationFlow[] => {
-        const flow = [];
+        const flow: TxOperationFlow[] = [];
 
         if (isNeedApprove.value) {
             flow.push({
@@ -252,6 +247,7 @@ const useModuleOperations = (module: ModuleType) => {
             toToken: selectedDstToken.value?.address,
             ownerAddresses: addressByChain.value as OwnerAddresses,
             amount: srcAmount.value,
+            slippageTolerance: slippage.value
         } as AllQuoteParams;
 
         const TARGET_TYPE = TRANSACTION_TYPES[type];
@@ -323,6 +319,7 @@ const useModuleOperations = (module: ModuleType) => {
                 ownerAddresses: addressByChain.value as OwnerAddresses,
                 receiverAddress: receiverAddress.value,
                 amount: srcAmount.value,
+                slippageTolerance: slippage.value
             } as AllQuoteParams;
 
             // * Bridge transaction, add receiver address to ownerAddresses
@@ -392,6 +389,26 @@ const useModuleOperations = (module: ModuleType) => {
     };
 
     // ===============================================================================================
+    // * Handle on cancel by timeout
+    // ===============================================================================================
+
+    const handleOnCancel = async (tx: Transaction) => {
+        console.log('useModuleOperations -> handleOnCancel');
+        closeNotification(`tx-${tx.getTxId()}`);
+
+        store.dispatch('txManager/setTxTimerID', null);
+        store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
+
+        showNotification({
+            key: 'tx-error',
+            type: 'error',
+            title: 'Transaction canceled',
+            description: 'Your transaction has been canceled because the response from the node took too long. Please try again.',
+            duration: 4,
+        });
+    }
+
+    // ===============================================================================================
     // * Handle on confirm
     // ===============================================================================================
 
@@ -432,6 +449,21 @@ const useModuleOperations = (module: ModuleType) => {
                 tx.prepare = async () => {
                     try {
                         console.log('Prepare:', index, type, 'Transaction');
+                        // * Timer for preparing transaction for sign
+                        const worker = store.getters['txManager/txTimerWorker'];
+
+                        worker.postMessage('start_timer');
+
+                        worker.onmessage = function (event: MessageEvent) {
+                            if (event.data?.timerID) {
+                                store.dispatch('txManager/setTxTimerID', event.data.timerID);
+                            }
+
+                            if (event.data === 'timer_expired') {
+                                handleOnCancel(tx);
+                            }
+                        };
+
                         const prepared = prepare(index, type as TRANSACTION_TYPES, make);
                         const transaction = await txManager.addTransactionToGroup(index, prepared); // * Add or create transaction
 
@@ -454,9 +486,6 @@ const useModuleOperations = (module: ModuleType) => {
                             description: 'Please wait, transaction is preparing',
                             duration: 0,
                             prepare: true,
-                            onCancel: () => {
-                                isTransactionCanceled.value = true;
-                            },
                         });
                     } catch (error) {
                         console.error('useModuleOperations -> prepare -> error', error);
@@ -491,7 +520,7 @@ const useModuleOperations = (module: ModuleType) => {
                             await connectByEcosystems(tx.getEcosystem());
                         }
 
-                        if (tx.getChainId() !== currentChainInfo.value?.chain_id && !isTransactionCanceled.value) {
+                        if (tx.getChainId() !== currentChainInfo.value?.chain_id) {
                             await delay(1000);
                             const chainInfo = getChainByChainId(tx.getEcosystem(), tx.getChainId());
                             await setChain(chainInfo);
@@ -505,7 +534,7 @@ const useModuleOperations = (module: ModuleType) => {
 
                     await delay(1000);
 
-                    if (tx.getChainId() !== currentChainInfo.value?.chain_id && !isTransactionCanceled.value) {
+                    if (tx.getChainId() !== currentChainInfo.value?.chain_id) {
                         closeNotification(`tx-${tx.getTxId()}`);
                         throw new Error('Incorrect chain');
                     }
@@ -513,7 +542,7 @@ const useModuleOperations = (module: ModuleType) => {
                     try {
                         const forSign = tx.getTransaction();
 
-                        return await signAndSend(forSign, { ecosystem: tx.getEcosystem(), chain: tx.getChainId() }, isTransactionCanceled);
+                        return await signAndSend(forSign, { ecosystem: tx.getEcosystem() });
                     } catch (error) {
                         console.error('useModuleOperations -> execute -> error', error);
                         throw error;
@@ -554,29 +583,6 @@ const useModuleOperations = (module: ModuleType) => {
                         duration: 6,
                     });
                 };
-
-                // * On canceled in prepare
-                tx.onCancel = async () => {
-                    if (isTransactionCanceled.value) {
-                        console.log('Transaction canceled by user');
-
-                        isTransactionCanceled.value = false;
-
-                        isTransactionSigning.value = false;
-
-                        isLoading.value = false;
-
-                        await store.dispatch('tokenOps/setOperationResult', {
-                            module,
-                            result: {
-                                status: 'success',
-                                title: 'Transaction Cancelled',
-                                description:
-                                    'Transaction successfully cancelled',
-                            },
-                        });
-                    }
-                }
 
                 txManager.addTransaction(tx);
             }

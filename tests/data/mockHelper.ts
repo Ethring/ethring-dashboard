@@ -1244,6 +1244,32 @@ const marketCapNativeEvmTokens = {
     error: '',
 };
 
+const estimateSwapMockData = {
+    ok: true,
+    data: {
+        best: 'skip',
+        priority: 'bestFee',
+        routes: [
+            {
+                fromAmount: '0.001',
+                toAmount: '0.03609',
+                gasEstimated: null,
+                fee: [
+                    {
+                        amount: '0',
+                        currency: 'USD',
+                    },
+                ],
+                serviceId: 'skip',
+                bestFee: false,
+                bestReturn: false,
+            },
+        ],
+    },
+    error: '',
+    errorData: [],
+};
+
 export {
     mockBalanceData,
     marketCapMockData,
@@ -1254,4 +1280,5 @@ export {
     errorGetBalanceMockData,
     errorEstimateSwap,
     mockBalanceCosmosWallet,
+    estimateSwapMockData
 };

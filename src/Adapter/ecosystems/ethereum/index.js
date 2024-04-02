@@ -11,13 +11,19 @@ import { web3OnBoardConfig, ECOSYSTEMS, chainConfig, NATIVE_CONTRACT, TRANSFER_A
 import { validateEthAddress } from '@/Adapter/utils/validations';
 
 import { errorRegister } from '@/shared/utils/errors';
+
+import { useLocalStorage } from '@vueuse/core';
+
 import _ from 'lodash';
 
 let web3Onboard = null;
 
 const STORAGE = {
     WALLET: 'onboard.js:last_connected_wallet',
+    CONNECTED_WALLETS_KEY: 'adapter:connectedWallets'
 };
+
+const connectedWalletsStorage = useLocalStorage(STORAGE.CONNECTED_WALLETS_KEY, [], { mergeDefaults: true })
 
 const [DEFAULT_CHAIN] = chainConfig;
 
@@ -27,6 +33,10 @@ class EthereumAdapter extends AdapterBase {
         !web3Onboard && (web3Onboard = init({ ...web3OnBoardConfig }));
 
         web3Onboard.state.select('wallets').subscribe(() => this.setAddressForChains());
+    }
+
+    init(store) {
+        this.store = store;
     }
 
     subscribeToWalletsChange() {
@@ -73,10 +83,6 @@ class EthereumAdapter extends AdapterBase {
 
         const { chains } = web3Onboard.state.get();
         const mainAddress = this.getAccountAddress();
-
-        if (!mainAddress) {
-            return null;
-        }
 
         for (const { id } of chains) {
             if (!id) {
@@ -229,9 +235,19 @@ class EthereumAdapter extends AdapterBase {
         }
     }
 
-    async getWalletLogo(walletModule) {
+    async getWalletLogo(walletModule, store) {
         if (!walletModule) {
             return null;
+        }
+
+        const adaptersDispatch = (...args) => store.dispatch('adapters/SET_WALLET', ...args);
+
+        let connectedWallet = connectedWalletsStorage.value.find((wallet) => wallet.walletModule === walletModule);
+
+        if (connectedWallet && connectedWallet.icon) {
+            adaptersDispatch({ ecosystem: ECOSYSTEMS.EVM, wallet: connectedWallet });
+
+            return connectedWallet.icon;
         }
 
         const { walletModules } = web3Onboard.state.get() || {};
@@ -241,7 +257,18 @@ class EthereumAdapter extends AdapterBase {
             return null;
         }
 
-        return (await exist.getIcon()) || null;
+        const icon = await exist.getIcon();
+
+        const index = connectedWalletsStorage.value.findIndex((wallet) => wallet.walletModule === walletModule);
+
+        if (index !== -1) {
+            connectedWallet = { ...connectedWalletsStorage.value[index], icon };
+            connectedWalletsStorage.value[index] = connectedWallet;
+        }
+
+        adaptersDispatch({ ecosystem: ECOSYSTEMS.EVM, wallet: connectedWallet });
+
+        return icon;
     }
 
     validateAddress(address, { validation }) {
@@ -328,6 +355,16 @@ class EthereumAdapter extends AdapterBase {
     async signSend(transaction) {
         const ethersProvider = this.getProvider();
 
+        // Check timer
+        const txTimerID = this.store.getters['txManager/txTimerID'];
+
+        if (!txTimerID) {
+            return {
+                isCanceled: true,
+            };
+        }
+        this.store.dispatch('txManager/setTxTimerID', null);
+
         try {
             if (ethersProvider) {
                 const signer = ethersProvider.getSigner();
@@ -361,6 +398,7 @@ class EthereumAdapter extends AdapterBase {
     }
 
     async getAddressesWithChains() {
+        this.setAddressForChains()
         return this.addressByNetwork || {};
     }
 

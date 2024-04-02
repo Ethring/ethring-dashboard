@@ -1,0 +1,124 @@
+.slippage {
+
+    &__icon {
+        width: 32px;
+        height: 32px;
+
+        @include pageFlexRow;
+        justify-content: center;
+        border-radius: 50%;
+        background-color: var(--#{$prefix}icon-secondary-bg-color);
+        border: 1px solid var(--#{$prefix}border-secondary-color);
+
+        cursor: pointer;
+        transition: 0.2s ease-in-out;
+
+        &:hover {
+            background-color: var(--#{$prefix}icon-logo-bg-hover);
+        }
+
+        svg {
+            width: 20px;
+            height: 20px;
+
+            path {
+                fill: var(--#{$prefix}base-text);
+            }
+        }
+    }
+
+    &__control {
+        width: 356px;
+        background-color: var(--#{$prefix}accordion-bg-color) !important;
+        padding: 16px !important;
+
+        .label {
+            color: var(--#{$prefix}mute-text);
+            margin-right: 8px;
+        }
+
+        &-options {
+            font-weight: 500;
+            border-radius: 8px;
+            padding: 4px;
+            margin-right: 8px;
+            border: 1px solid var(--#{$prefix}radio-btn-bg-color);
+
+            .ant-radio-button-wrapper {
+                transition: all 0.2s !important;
+                border: none;
+                background-color: var(--#{$prefix}accordion-bg-color) !important;
+                color: var(--#{$prefix}primary-text) !important;
+
+                &:hover {
+                    color: var(--#{$prefix}btn-bg-color-hover);
+                }
+            }
+
+            .ant-radio-button-wrapper-checked {
+
+                border-radius: 6px;
+                background-color: var(--#{$prefix}radio-btn-bg-color) !important;
+            }
+
+            .ant-radio-button-wrapper::before {
+                display: none;
+            }
+        }
+    }
+
+    &__input {
+        background: var(--#{$prefix}accordion-bg-color) !important;
+
+        input {
+            height: 30px;
+            font-weight: 500;
+            color: var(--#{$prefix}notification-text) !important;
+            text-align: end !important;
+            background: var(--#{$prefix}accordion-bg-color) !important;
+        }
+
+        .ant-input-affix-wrapper {
+            font-weight: 500;
+            color: var(--#{$prefix}notification-text);
+            background: var(--#{$prefix}accordion-bg-color) !important;
+            border-color: var(--#{$prefix}radio-btn-bg-color) !important;
+        }
+
+        .ant-input-affix-wrapper-disabled {
+            background: var(--#{$prefix}select-bg-color) !important;
+            border-color: var(--#{$prefix}select-bg-color) !important;
+
+            input {
+                background: var(--#{$prefix}select-bg-color)!important;
+            }
+        }
+
+        .ant-input-affix-wrapper:not(.ant-input-affix-wrapper-disabled) {
+            &:hover {
+                border-color: var(--#{$prefix}checkbox-checked) !important;
+            }
+        }
+    }
+
+    &__warning {
+        padding: 8px;
+        border-radius: 8px;
+        margin-top: 16px;
+        border: 1px solid var(--#{$prefix}warning);
+        background: var(--#{$prefix}warning-op-01);
+
+        span {
+            margin-left: 8px;
+            width: 90%;
+            color: var(--#{$prefix}warning);
+            font-size: var(--#{$prefix}default-fs);
+            line-height: 18px;
+        }
+
+        svg {
+            margin: auto;
+        }
+    }
+
+}

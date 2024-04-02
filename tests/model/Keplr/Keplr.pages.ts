@@ -115,7 +115,19 @@ class KeplrNotifyPage {
     }
 
     async assignPage() {
-        await this.page.getByText('Approve', { exact: true }).click();
+        if (this.page.isClosed()) {
+            return;
+        }
+
+        const approveButton = await this.page.$('text=Approve');
+
+        if (approveButton) {
+            await approveButton.click();
+        }
+    }
+
+    async isClosed() {
+        return await this.page.isClosed();
     }
 
     async signTx() {

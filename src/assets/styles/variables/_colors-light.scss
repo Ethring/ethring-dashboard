@@ -276,6 +276,7 @@ $percentage-bar-75: $lightGreen;
 $percentage-bar-50: $blazeOrange;
 $percentage-bar-25: $wildWatermelon;
 
+$radio-btn-bg-color: $gainsboro;
 //  ===========================================================================
 //  THEME MAP
 //  ===========================================================================
@@ -449,5 +450,7 @@ $theme-colors: (
 
     "tag-01": $tag-01,
     "tag-02": $tag-02,
-    "tag-03": $tag-03
+    "tag-03": $tag-03,
+
+    "radio-btn-bg-color": $radio-btn-bg-color
 );

@@ -1,12 +1,17 @@
-import { testMetaMask } from '../__fixtures__/fixtures';
+import { testMetaMask, testKeplr } from '../__fixtures__/fixtures';
 import { expect } from '@playwright/test';
-import { emptyBalanceMockData, errorEstimateSwap, mockBalanceDataBySwapTest } from '../data/mockHelper';
+import { emptyBalanceMockData, errorEstimateSwap, mockBalanceDataBySwapTest, estimateSwapMockData } from '../data/mockHelper';
 import { INCORRECT_IMAGE_URL } from '../data/mockTokensListData';
 import { TEST_CONST, getTestVar } from '../envHelper';
 import { getHomeMmPage } from '../model/MetaMask/MetaMask.pages';
 import { EVM_NETWORKS, IGNORED_LOCATORS } from '../data/constants';
 import util from 'util';
 import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
+
+import {
+    mockPostTransactionsRouteSwapRejectKeplr,
+    mockPostTransactionsWsByCreateEventSendRejectKeplr,
+} from '../data/mockDataByTxManager/SendRejectTxKeplrMock';
 
 const sleep = util.promisify(setTimeout);
 
@@ -124,10 +129,12 @@ testMetaMask.describe('Swap e2e tests', () => {
         await swapPage.waitDetachedSkeleton();
         await swapPage.waitLoadImg();
 
-        await expect(swapPage.getBaseContentElement()).toHaveScreenshot({ mask: [swapPage.page.locator('div.service-icon')] });
+        await expect(swapPage.getBaseContentElement()).toHaveScreenshot({
+            mask: [swapPage.page.locator(IGNORED_LOCATORS.SERVICE_ICON)],
+        });
     });
 
-    testMetaMask.skip( // TODO 
+    testMetaMask.skip( // TODO
         'Case#: Check tokens and net in network change in MM',
         async ({ browser, context, page, swapPageMockTokensList: swapPage }) => {
             const NET = 'Arbitrum';
@@ -244,4 +251,41 @@ testMetaMask.describe('Swap e2e tests', () => {
 
     //     expect(await swapPage.getLinkFromSuccessPanel()).toContain(txHash);
     // });
+});
+
+testKeplr.describe('Keplr Swap e2e tests', () => {
+    testKeplr('Case#: Swap with custom slippage in Cosmos', async ({ browser, context, page, swapPage }) => {
+        const amount = '0.001';
+        const slippage = '1.5';
+
+        await swapPage.openSlippageDropdown();
+        await swapPage.setCustomSlippage(slippage);
+
+        await swapPage.setAmount(amount);
+
+        await swapPage.mockEstimateSwapRequest(estimateSwapMockData, 200);
+        await swapPage.page.waitForResponse(`**/getQuote**`);
+
+        await swapPage.waitDetachedSkeleton();
+        await swapPage.waitLoadImg();
+
+        await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
+
+        await swapPage.modifyDataByPostTxRequest(
+            mockPostTransactionsRouteSwapRejectKeplr,
+            mockPostTransactionsWsByCreateEventSendRejectKeplr,
+        );
+
+        await swapPage.modifyDataByGetTxRequest(
+            mockPostTransactionsRouteSwapRejectKeplr
+        );
+
+        await swapPage.clickSwap();
+
+        const getSwapTxRequest = await swapPage.page.waitForRequest('**/getSwapTx**');
+        const getSwapTxPayloadData = JSON.parse(getSwapTxRequest.postData());
+
+        // Check that slippage from input and slippage for request are equal
+        expect(getSwapTxPayloadData?.slippageTolerance).toEqual(slippage);
+    });
 });

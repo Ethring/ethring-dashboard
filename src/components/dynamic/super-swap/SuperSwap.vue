@@ -1,141 +1,87 @@
 <template>
     <a-form class="super-swap superswap-panel">
-        <div
-            class="reload-btn"
-            :class="{ active: dstAmount && (!isQuoteLoading || !isTransactionSigning) }"
-            @click="() => getEstimateInfo(true)"
-        >
-            <SyncOutlined :spin="isQuoteLoading" />
-        </div>
+        <a-row class="panel-control">
+            <div class="reload-btn" :class="{ active: dstAmount && (!isQuoteLoading || !isTransactionSigning) }"
+                @click="() => getEstimateInfo(true)">
+                <SyncOutlined :spin="isQuoteLoading" />
+            </div>
+            <Slippage />
+        </a-row>
 
         <a-form-item class="switch-direction-wrap">
             <a-form-item>
-                <SwapField
-                    :value="srcAmount"
-                    :label="$t('tokenOperations.from')"
-                    :token="selectedSrcToken"
-                    :disabled="isDisableSelect"
-                    @setAmount="handleOnSetAmount"
-                >
-                    <SelectRecord
-                        :placeholder="$t('tokenOperations.selectNetwork')"
-                        :current="selectedSrcNetwork"
-                        @click="() => onSelectNetwork(DIRECTIONS.SOURCE)"
-                        :disabled="isDisableSelect"
-                    />
-                    <SelectRecord
-                        :placeholder="$t('tokenOperations.selectToken')"
-                        :current="selectedSrcToken"
+                <SwapField :value="srcAmount" :label="$t('tokenOperations.from')" :token="selectedSrcToken"
+                    :disabled="isDisableSelect" @setAmount="handleOnSetAmount">
+                    <SelectRecord :placeholder="$t('tokenOperations.selectNetwork')" :current="selectedSrcNetwork"
+                        @click="() => onSelectNetwork(DIRECTIONS.SOURCE)" :disabled="isDisableSelect" />
+                    <SelectRecord :placeholder="$t('tokenOperations.selectToken')" :current="selectedSrcToken"
                         @click="() => onSelectToken(true, DIRECTIONS.SOURCE)"
-                        :disabled="isDisableSelect || !selectedSrcNetwork"
-                    />
+                        :disabled="isDisableSelect || !selectedSrcNetwork" />
                 </SwapField>
             </a-form-item>
-            <SwitchDirection
-                icon="SwapIcon"
-                :disabled="
-                    isDirectionSwapped ||
-                    isQuoteLoading ||
-                    isTransactionSigning ||
-                    !isSwapDirectionAvailable ||
-                    !selectedDstNetwork ||
-                    !selectedDstToken
-                "
-                class="switch-direction"
-                @click="() => handleOnSwapDirections(true)"
-            />
+            <SwitchDirection icon="SwapIcon" :disabled="isDirectionSwapped ||
+                isQuoteLoading ||
+                isTransactionSigning ||
+                !isSwapDirectionAvailable ||
+                !selectedDstNetwork ||
+                !selectedDstToken
+                " class="switch-direction" @click="() => handleOnSwapDirections(true)" />
 
-            <SwapField
-                :label="$t('tokenOperations.to')"
-                :value="dstAmount"
-                :token="selectedDstToken"
-                :isAmountLoading="isQuoteLoading"
-                :percentage="differPercentage"
-                disabled
-                hide-max
-            >
-                <SelectRecord
-                    :disabled="isDisableSelect"
-                    :placeholder="$t('tokenOperations.selectNetwork')"
-                    :current="selectedDstNetwork"
-                    @click="() => onSelectNetwork(DIRECTIONS.DESTINATION)"
-                />
-                <SelectRecord
-                    :disabled="isDisableSelect || !selectedDstNetwork"
-                    :placeholder="$t('tokenOperations.selectToken')"
-                    :current="selectedDstToken"
-                    @click="() => onSelectToken(false, DIRECTIONS.DESTINATION)"
-                />
+            <SwapField :label="$t('tokenOperations.to')" :value="dstAmount" :token="selectedDstToken"
+                :isAmountLoading="isQuoteLoading" :percentage="differPercentage" disabled hide-max>
+                <SelectRecord :disabled="isDisableSelect" :placeholder="$t('tokenOperations.selectNetwork')"
+                    :current="selectedDstNetwork" @click="() => onSelectNetwork(DIRECTIONS.DESTINATION)" />
+                <SelectRecord :disabled="isDisableSelect || !selectedDstNetwork"
+                    :placeholder="$t('tokenOperations.selectToken')" :current="selectedDstToken"
+                    @click="() => onSelectToken(false, DIRECTIONS.DESTINATION)" />
             </SwapField>
         </a-form-item>
 
-        <Checkbox
-            v-if="selectedDstToken && selectedDstNetwork && !isSameNetwork"
-            v-model:value="isSendToAnotherAddress"
-            :disabled="isDisableSelect"
-            :label="$t('tokenOperations.chooseAddress')"
-        />
+        <Checkbox v-if="selectedDstToken && selectedDstNetwork && !isSameNetwork" v-model:value="isSendToAnotherAddress"
+            :disabled="isDisableSelect" :label="$t('tokenOperations.chooseAddress')" />
 
-        <SelectAddressInput
-            v-if="isSendToAnotherAddress && selectedDstNetwork && selectedDstToken"
-            class="mt-8"
-            :selected-network="selectedDstNetwork"
-            :on-reset="isSendToAnotherAddress"
-            :disabled="isDisableSelect"
-            @error-status="(status) => (isAddressError = status)"
-        />
+        <SelectAddressInput v-if="isSendToAnotherAddress && selectedDstNetwork && selectedDstToken" class="mt-8"
+            :selected-network="selectedDstNetwork" :on-reset="isSendToAnotherAddress" :disabled="isDisableSelect"
+            @error-status="(status) => (isAddressError = status)" />
 
-        <EstimatePreviewInfo
-            v-if="isShowEstimateInfo"
-            :title="$t('tokenOperations.routeInfo')"
-            :is-loading="isQuoteLoading"
-            :fee-in-usd="fees[FEE_TYPE.BASE] || 0"
-            :main-rate="fees[FEE_TYPE.RATE] || null"
-            :services="[selectedRoute]"
-            :is-show-expand="otherRoutes?.length > 0"
-            :error="quoteErrorMessage"
-            :on-click-expand="toggleRoutesModal"
-        />
+        <EstimatePreviewInfo v-if="isShowEstimateInfo" :is-loading="isQuoteLoading"
+            :fee-in-usd="fees[FEE_TYPE.BASE] || 0" :main-rate="fees[FEE_TYPE.RATE] || null" :services="[selectedRoute]"
+            :is-show-expand="otherRoutes?.length > 0" :error="quoteErrorMessage" :on-click-expand="toggleRoutesModal"
+            :amount="dstAmount" />
 
-        <Button
-            :title="$t(opTitle)"
-            :disabled="isDisableConfirmButton"
-            :tip="$t(opTitle)"
-            :loading="isAllowanceLoading || isTransactionSigning || isSwapLoading"
-            class="module-layout-view-btn"
-            data-qa="confirm"
-            @click="handleOnConfirm"
-            size="large"
-        />
+        <Button :title="$t(opTitle)" :disabled="isDisableConfirmButton" :tip="$t(opTitle)"
+            :loading="isAllowanceLoading || isTransactionSigning || isSwapLoading" class="module-layout-view-btn"
+            data-qa="confirm" @click="handleOnConfirm" size="large" />
     </a-form>
 </template>
 <script>
 import { computed, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 
+// Compositions
+import useModuleOperations from '@/compositions/useModuleOperation';
+
+// Components
 import SelectRecord from '@/components/ui/Select/SelectRecord';
 import SelectAddressInput from '@/components/ui/Select/SelectAddressInput';
 import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewInfo.vue';
-
 import Checkbox from '@/components/ui/Checkbox';
-
 import Button from '@/components/ui/Button';
 import SwitchDirection from '@/components/ui/SwitchDirection.vue';
-
+import Slippage from '@/components/ui/Slippage.vue';
 import SwapField from './SwapField';
 
-import { formatNumber } from '@/shared/utils/numbers';
-
+// Icons
 import { SyncOutlined } from '@ant-design/icons-vue';
-
-import useModuleOperations from '@/compositions/useModuleOperation';
 
 // Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
 import { ModuleType } from '@/modules/bridge-dex/enums/ServiceType.enum';
+
 import useInputValidation from '@/shared/form-validations';
 import { differenceInPercentage } from '@/shared/calculations/percentage-diff';
+import { formatNumber } from '@/shared/utils/numbers';
 
 export default {
     name: 'SuperSwap',
@@ -149,12 +95,13 @@ export default {
         SelectAddressInput,
         SwitchDirection,
         EstimatePreviewInfo,
+        Slippage
     },
     setup() {
         const store = useStore();
 
         const { moduleInstance, isTransactionSigning, isDisableConfirmButton, isDisableSelect, handleOnConfirm } = useModuleOperations(
-            ModuleType.superSwap,
+            ModuleType.superSwap
         );
 
         // =================================================================================================================
@@ -443,6 +390,7 @@ export default {
 
     .accordion-item {
         position: relative;
+
         &__value {
             .route {
                 @include pageFlexRow;
@@ -453,6 +401,7 @@ export default {
                 }
             }
         }
+
         &__row {
             display: flex;
         }
