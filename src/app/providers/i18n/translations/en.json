@@ -120,7 +120,8 @@
     "minReceived": "Minimum Received",
     "maxSlippage": "Max Slippage",
     "fee": "Fee",
-    "route": "Route"
+    "route": "Route",
+    "noAvailableRoute": "Possible explanations for this could be limited liquidity, an insufficiently selected amount, excessively high gas costs, or the availability of routes for the chosen combination"
   },
   "simpleSend": {
     "title": "Send"
