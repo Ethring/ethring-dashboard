@@ -120,7 +120,8 @@
     "minReceived": "Minimum Received",
     "maxSlippage": "Max Slippage",
     "fee": "Fee",
-    "route": "Route"
+    "route": "Route",
+    "unknownGas": "unknown gas fee"
   },
   "simpleSend": {
     "title": "Send"
