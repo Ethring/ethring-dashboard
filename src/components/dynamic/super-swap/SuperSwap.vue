@@ -1,8 +1,11 @@
 <template>
     <a-form class="super-swap superswap-panel">
         <a-row class="panel-control">
-            <div class="reload-btn" :class="{ active: dstAmount && (!isQuoteLoading || !isTransactionSigning) }"
-                @click="() => getEstimateInfo(true)">
+            <div
+                class="reload-btn"
+                :class="{ active: dstAmount && (!isQuoteLoading || !isTransactionSigning) }"
+                @click="() => getEstimateInfo(true)"
+            >
                 <SyncOutlined :spin="isQuoteLoading" />
             </div>
             <Slippage />
@@ -10,48 +13,103 @@
 
         <a-form-item class="switch-direction-wrap">
             <a-form-item>
-                <SwapField :value="srcAmount" :label="$t('tokenOperations.from')" :token="selectedSrcToken"
-                    :disabled="isDisableSelect" @setAmount="handleOnSetAmount">
-                    <SelectRecord :placeholder="$t('tokenOperations.selectNetwork')" :current="selectedSrcNetwork"
-                        @click="() => onSelectNetwork(DIRECTIONS.SOURCE)" :disabled="isDisableSelect" />
-                    <SelectRecord :placeholder="$t('tokenOperations.selectToken')" :current="selectedSrcToken"
+                <SwapField
+                    :value="srcAmount"
+                    :label="$t('tokenOperations.from')"
+                    :token="selectedSrcToken"
+                    :disabled="isDisableSelect"
+                    @setAmount="handleOnSetAmount"
+                >
+                    <SelectRecord
+                        :placeholder="$t('tokenOperations.selectNetwork')"
+                        :current="selectedSrcNetwork"
+                        @click="() => onSelectNetwork(DIRECTIONS.SOURCE)"
+                        :disabled="isDisableSelect"
+                    />
+                    <SelectRecord
+                        :placeholder="$t('tokenOperations.selectToken')"
+                        :current="selectedSrcToken"
                         @click="() => onSelectToken(true, DIRECTIONS.SOURCE)"
-                        :disabled="isDisableSelect || !selectedSrcNetwork" />
+                        :disabled="isDisableSelect || !selectedSrcNetwork"
+                    />
                 </SwapField>
             </a-form-item>
-            <SwitchDirection icon="SwapIcon" :disabled="isDirectionSwapped ||
-                isQuoteLoading ||
-                isTransactionSigning ||
-                !isSwapDirectionAvailable ||
-                !selectedDstNetwork ||
-                !selectedDstToken
-                " class="switch-direction" @click="() => handleOnSwapDirections(true)" />
+            <SwitchDirection
+                icon="SwapIcon"
+                :disabled="
+                    isDirectionSwapped ||
+                    isQuoteLoading ||
+                    isTransactionSigning ||
+                    !isSwapDirectionAvailable ||
+                    !selectedDstNetwork ||
+                    !selectedDstToken
+                "
+                class="switch-direction"
+                @click="() => handleOnSwapDirections(true)"
+            />
 
-            <SwapField :label="$t('tokenOperations.to')" :value="dstAmount" :token="selectedDstToken"
-                :isAmountLoading="isQuoteLoading" :percentage="differPercentage" disabled hide-max>
-                <SelectRecord :disabled="isDisableSelect" :placeholder="$t('tokenOperations.selectNetwork')"
-                    :current="selectedDstNetwork" @click="() => onSelectNetwork(DIRECTIONS.DESTINATION)" />
-                <SelectRecord :disabled="isDisableSelect || !selectedDstNetwork"
-                    :placeholder="$t('tokenOperations.selectToken')" :current="selectedDstToken"
-                    @click="() => onSelectToken(false, DIRECTIONS.DESTINATION)" />
+            <SwapField
+                :label="$t('tokenOperations.to')"
+                :value="dstAmount"
+                :token="selectedDstToken"
+                :isAmountLoading="isQuoteLoading"
+                :percentage="differPercentage"
+                disabled
+                hide-max
+            >
+                <SelectRecord
+                    :disabled="isDisableSelect"
+                    :placeholder="$t('tokenOperations.selectNetwork')"
+                    :current="selectedDstNetwork"
+                    @click="() => onSelectNetwork(DIRECTIONS.DESTINATION)"
+                />
+                <SelectRecord
+                    :disabled="isDisableSelect || !selectedDstNetwork"
+                    :placeholder="$t('tokenOperations.selectToken')"
+                    :current="selectedDstToken"
+                    @click="() => onSelectToken(false, DIRECTIONS.DESTINATION)"
+                />
             </SwapField>
         </a-form-item>
 
-        <Checkbox v-if="selectedDstToken && selectedDstNetwork && !isSameNetwork" v-model:value="isSendToAnotherAddress"
-            :disabled="isDisableSelect" :label="$t('tokenOperations.chooseAddress')" />
+        <Checkbox
+            v-if="selectedDstToken && selectedDstNetwork && !isSameNetwork"
+            v-model:value="isSendToAnotherAddress"
+            :disabled="isDisableSelect"
+            :label="$t('tokenOperations.chooseAddress')"
+        />
 
-        <SelectAddressInput v-if="isSendToAnotherAddress && selectedDstNetwork && selectedDstToken" class="mt-8"
-            :selected-network="selectedDstNetwork" :on-reset="isSendToAnotherAddress" :disabled="isDisableSelect"
-            @error-status="(status) => (isAddressError = status)" />
+        <SelectAddressInput
+            v-if="isSendToAnotherAddress && selectedDstNetwork && selectedDstToken"
+            class="mt-8"
+            :selected-network="selectedDstNetwork"
+            :on-reset="isSendToAnotherAddress"
+            :disabled="isDisableSelect"
+            @error-status="(status) => (isAddressError = status)"
+        />
 
-        <EstimatePreviewInfo v-if="isShowEstimateInfo" :is-loading="isQuoteLoading"
-            :fee-in-usd="fees[FEE_TYPE.BASE] || 0" :main-rate="fees[FEE_TYPE.RATE] || null" :services="[selectedRoute]"
-            :is-show-expand="otherRoutes?.length > 0" :error="quoteErrorMessage" :on-click-expand="toggleRoutesModal"
-            :amount="dstAmount" />
+        <EstimatePreviewInfo
+            v-if="isShowEstimateInfo"
+            :is-loading="isQuoteLoading"
+            :fee-in-usd="fees[FEE_TYPE.BASE] || 0"
+            :main-rate="fees[FEE_TYPE.RATE] || null"
+            :services="[selectedRoute]"
+            :is-show-expand="otherRoutes?.length > 0"
+            :error="quoteErrorMessage"
+            :on-click-expand="toggleRoutesModal"
+            :amount="dstAmount"
+        />
 
-        <Button :title="$t(opTitle)" :disabled="isDisableConfirmButton" :tip="$t(opTitle)"
-            :loading="isAllowanceLoading || isTransactionSigning || isSwapLoading" class="module-layout-view-btn"
-            data-qa="confirm" @click="handleOnConfirm" size="large" />
+        <Button
+            :title="$t(opTitle)"
+            :disabled="isDisableConfirmButton"
+            :tip="$t(opTitle)"
+            :loading="isAllowanceLoading || isTransactionSigning || isSwapLoading"
+            class="module-layout-view-btn"
+            data-qa="confirm"
+            @click="handleOnConfirm"
+            size="large"
+        />
     </a-form>
 </template>
 <script>
@@ -95,7 +153,7 @@ export default {
         SelectAddressInput,
         SwitchDirection,
         EstimatePreviewInfo,
-        Slippage
+        Slippage,
     },
     setup() {
         const store = useStore();
@@ -107,10 +165,6 @@ export default {
         // =================================================================================================================
 
         const isSwapLoading = ref(false);
-
-        const routeInfo = computed(() => store.getters['bridgeDex/selectedRoute']);
-        const bestRouteInfo = computed(() => routeInfo.value?.bestRoute);
-        const otherRoutesInfo = computed(() => routeInfo.value?.otherRoutes);
 
         // * Module values
         const {
@@ -134,8 +188,6 @@ export default {
             quoteErrorMessage,
 
             // --------------------------------
-
-            selectedService,
             selectedSrcToken,
             selectedDstToken,
             selectedSrcNetwork,
@@ -237,9 +289,6 @@ export default {
             srcAmount,
 
             opTitle,
-
-            bestRouteInfo,
-            otherRoutesInfo,
 
             selectedSrcNetwork,
             selectedDstNetwork,

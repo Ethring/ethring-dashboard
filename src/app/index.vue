@@ -24,7 +24,6 @@ import ReleaseNotes from '@/app/layouts/DefaultLayout/header/ReleaseNotes.vue';
 import WalletsModal from '@/Adapter/UI/Modal/WalletsModal';
 import AddressModal from '@/Adapter/UI/Modal/AddressModal';
 import KadoModal from '@/components/app/modals/KadoModal.vue';
-// import RoutesModal from '@/components/app/modals/RoutesModal.vue';
 import BridgeDexRoutesModal from '@/components/app/modals/BridgeDexRoutesModal.vue';
 
 import { updateBalanceForAccount } from '@/modules/balance-provider';
@@ -125,7 +124,6 @@ export default {
             await store.dispatch('configs/setConfigLoading', true);
 
             await store.dispatch('configs/initConfigs');
-            // await store.dispatch('bridgeDex/getServices');
             await store.dispatch('bridgeDexAPI/getServices');
 
             await initAdapter();

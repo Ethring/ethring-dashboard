@@ -3,39 +3,89 @@
         <Slippage class="panel-control" />
         <a-form-item>
             <div class="select-network-group">
-                <SelectRecord :current="selectedSrcNetwork" :placeholder="$t('tokenOperations.selectNetwork')"
-                    @click="() => onSelectNetwork(DIRECTIONS.SOURCE)" :disabled="isDisableSelect" />
+                <SelectRecord
+                    :current="selectedSrcNetwork"
+                    :placeholder="$t('tokenOperations.selectNetwork')"
+                    @click="() => onSelectNetwork(DIRECTIONS.SOURCE)"
+                    :disabled="isDisableSelect"
+                />
 
-                <SwitchDirection :disabled="isDirectionSwapped || isQuoteLoading || isTransactionSigning || !isSwapDirectionAvailable || !selectedDstNetwork
-                    " @click="() => handleOnSwapDirections(true)" />
+                <SwitchDirection
+                    :disabled="
+                        isDirectionSwapped || isQuoteLoading || isTransactionSigning || !isSwapDirectionAvailable || !selectedDstNetwork
+                    "
+                    @click="() => handleOnSwapDirections(true)"
+                />
 
-                <SelectRecord :disabled="isDisableSelect" :current="selectedDstNetwork"
-                    :placeholder="$t('tokenOperations.selectNetwork')" class="select-group-to"
-                    @click="() => onSelectNetwork(DIRECTIONS.DESTINATION)" />
+                <SelectRecord
+                    :disabled="isDisableSelect"
+                    :current="selectedDstNetwork"
+                    :placeholder="$t('tokenOperations.selectNetwork')"
+                    class="select-group-to"
+                    @click="() => onSelectNetwork(DIRECTIONS.DESTINATION)"
+                />
             </div>
         </a-form-item>
 
-        <SelectAmountInput :value="selectedSrcToken" :error="!!isBalanceError" :on-reset="resetSrcAmount"
-            :disabled-select="isDisableSelect" :disabled="isDisableSelect || !selectedSrcToken"
-            :label="$t('tokenOperations.transferFrom')" :is-update="isSwapDirectionAvailable" :amount-value="srcAmount"
-            class="mt-8" @setAmount="handleOnSetAmount" @clickToken="onSelectToken(true, DIRECTIONS.SOURCE)" />
+        <SelectAmountInput
+            :value="selectedSrcToken"
+            :error="!!isBalanceError"
+            :on-reset="resetSrcAmount"
+            :disabled-select="isDisableSelect"
+            :disabled="isDisableSelect || !selectedSrcToken"
+            :label="$t('tokenOperations.transferFrom')"
+            :is-update="isSwapDirectionAvailable"
+            :amount-value="srcAmount"
+            class="mt-8"
+            @setAmount="handleOnSetAmount"
+            @clickToken="onSelectToken(true, DIRECTIONS.SOURCE)"
+        />
 
-        <SelectAmountInput v-if="selectedDstNetwork" hide-max disabled :disabled-select="isDisableSelect"
-            :value="selectedDstToken" :is-amount-loading="isQuoteLoading" :is-update="isSwapDirectionAvailable"
-            :label="$t('tokenOperations.transferTo')" :disabled-value="dstAmount" :on-reset="resetDstAmount"
-            :amount-value="dstAmount" class="mt-8" @clickToken="onSelectToken(false, DIRECTIONS.DESTINATION)" />
+        <SelectAmountInput
+            v-if="selectedDstNetwork"
+            hide-max
+            disabled
+            :disabled-select="isDisableSelect"
+            :value="selectedDstToken"
+            :is-amount-loading="isQuoteLoading"
+            :is-update="isSwapDirectionAvailable"
+            :label="$t('tokenOperations.transferTo')"
+            :disabled-value="dstAmount"
+            :on-reset="resetDstAmount"
+            :amount-value="dstAmount"
+            class="mt-8"
+            @clickToken="onSelectToken(false, DIRECTIONS.DESTINATION)"
+        />
 
-        <Checkbox v-if="selectedDstToken && selectedDstNetwork" id="isSendToAnotherAddress" :disabled="isDisableSelect"
-            v-model:value="isSendToAnotherAddress" :label="`Receive ${selectedDstToken?.symbol} to another wallet`"
-            class="mt-8" />
+        <Checkbox
+            v-if="selectedDstToken && selectedDstNetwork"
+            id="isSendToAnotherAddress"
+            :disabled="isDisableSelect"
+            v-model:value="isSendToAnotherAddress"
+            :label="`Receive ${selectedDstToken?.symbol} to another wallet`"
+            class="mt-8"
+        />
 
-        <SelectAddressInput v-if="isSendToAnotherAddress && selectedDstNetwork && selectedDstToken" class="mt-8"
-            :selected-network="selectedDstNetwork" :on-reset="isSendToAnotherAddress" :disabled="isDisableSelect"
-            @error-status="(status) => (isAddressError = status)" />
+        <SelectAddressInput
+            v-if="isSendToAnotherAddress && selectedDstNetwork && selectedDstToken"
+            class="mt-8"
+            :selected-network="selectedDstNetwork"
+            :on-reset="isSendToAnotherAddress"
+            :disabled="isDisableSelect"
+            @error-status="(status) => (isAddressError = status)"
+        />
 
-        <EstimatePreviewInfo v-if="isShowEstimateInfo" :is-loading="isQuoteLoading" :services="[selectedRoute]"
-            :fee-in-usd="fees[FEE_TYPE.BASE] || 0" :main-rate="fees[FEE_TYPE.RATE] || null" :error="quoteErrorMessage"
-            :is-show-expand="otherRoutes?.length > 0" :on-click-expand="toggleRoutesModal" :amount="dstAmount" />
+        <EstimatePreviewInfo
+            v-if="isShowEstimateInfo"
+            :is-loading="isQuoteLoading"
+            :services="[selectedRoute]"
+            :fee-in-usd="fees[FEE_TYPE.BASE] || 0"
+            :main-rate="fees[FEE_TYPE.RATE] || null"
+            :error="quoteErrorMessage"
+            :is-show-expand="otherRoutes?.length > 0"
+            :on-click-expand="toggleRoutesModal"
+            :amount="dstAmount"
+        />
 
         <Button v-bind="opBtnState" :title="$t(opTitle)" :tip="$t(opTitle)" @click="handleOnConfirm" />
     </a-form>
@@ -83,7 +133,7 @@ export default {
 
         EstimatePreviewInfo,
 
-        Slippage
+        Slippage,
     },
     setup() {
         const { handleOnConfirm, moduleInstance, isTransactionSigning, isDisableConfirmButton, isDisableSelect } = useModuleOperations(
