@@ -1,9 +1,12 @@
+import Amount from '@/components/app/Amount.vue';
 import { IBaseOperation, IOperationFactory, IRegisterOperation } from '@/modules/operations/models/Operations';
 import { ModuleType, ModuleTypes } from '@/shared/models/enums/modules.enum';
 import { STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
+import { Col, Row, Space, Tag } from 'ant-design-vue';
 import BigNumber from 'bignumber.js';
 import _ from 'lodash';
+import { h } from 'vue';
 // import { BaseOperation } from '@/modules/operations/BaseOperation';
 // import DexOperation from '@/modules/operations/Dex';
 // import TransferOperation from './Transfer';
@@ -169,6 +172,47 @@ export default class OperationFactory implements IOperationFactory {
         return flow.map((f, i) => ({ ...f, index: i })).sort((a, b) => a.index - b.index);
     }
 
+    getDependenciesById(id: string): IOperationDependencies {
+        if (!this.operationDependencies.has(id)) return null;
+
+        const { operationId = null, operationParams = [] } = this.operationDependencies.get(id) || {};
+
+        if (!operationId || !operationParams.length) return null;
+        if (operationId && !this.operationsIds.has(operationId)) return null;
+
+        return { operationId, operationParams };
+    }
+
+    processDependencyParams(opId: string, { isSetParam = false }: { isSetParam: boolean }): void {
+        const operation = this.getOperationById(opId);
+        const { operationId = null, operationParams = [] } = this.getDependenciesById(opId) || {};
+
+        if (!operationId || !operationParams.length) return;
+
+        const dependOperation = this.getOperationById(operationId);
+
+        if (!dependOperation) {
+            console.warn(`Operation ${operationId} not found`);
+            return;
+        }
+
+        for (const param of operationParams) {
+            const { dependencyParamKey, paramKey, usePercentage = 0 } = param || {};
+
+            const depValue = dependOperation.getParamByField(dependencyParamKey);
+
+            if (!isAmountCorrect(depValue)) return;
+
+            if (usePercentage) {
+                const value = this.calculatePercentage(depValue, usePercentage);
+
+                isSetParam && operation.setParamByField(paramKey, value);
+            } else {
+                isSetParam && operation.setParamByField(paramKey, depValue);
+            }
+        }
+    }
+
     async estimateOutput(): Promise<void> {
         const operations = Array.from(this.operationsMap.keys());
 
@@ -178,53 +222,21 @@ export default class OperationFactory implements IOperationFactory {
             const opId = this.operationsIndex.get(operation);
             const currentOperation = this.operationsMap.get(operation);
 
-            console.log(`${opId}  - ESTIMATE START ############`);
-
             const mainStatus = this.operationsStatusByKey.get(operation);
 
             const restoreStatus = () => {
-                if (mainStatus === STATUSES.ESTIMATING) {
-                    return this.setOperationStatusByKey(operation, STATUSES.PENDING);
-                }
-                return this.setOperationStatusByKey(operation, mainStatus);
+                return this.setOperationStatusByKey(operation, mainStatus === STATUSES.ESTIMATING ? STATUSES.PENDING : mainStatus);
             };
 
             this.setOperationStatusByKey(operation, STATUSES.ESTIMATING);
 
-            if (this.operationDependencies.has(opId)) {
-                const { operationId, operationParams } = this.operationDependencies.get(opId);
-
-                const dependOperation = this.operationsMap.get(this.operationsIds.get(operationId));
-
-                operationParams.forEach((param) => {
-                    const { dependencyParamKey, paramKey, usePercentage } = param;
-
-                    if (!dependOperation) {
-                        console.warn(`Operation ${operationId} not found`);
-                        return;
-                    }
-
-                    const depValue = dependOperation.getParamByField(dependencyParamKey);
-
-                    if (usePercentage) {
-                        if (!isAmountCorrect(depValue)) {
-                            console.warn(`Incorrect value for ${dependencyParamKey} in ${operationId}`);
-                            return;
-                        }
-
-                        const value = BigNumber(depValue).multipliedBy(usePercentage).dividedBy(100).toFixed(6);
-
-                        console.log(`${dependencyParamKey} from ${operationId}`);
-                        console.log(`${paramKey} = ${dependencyParamKey} * ${usePercentage} / 100`);
-                        console.log(`${paramKey} = ${depValue} * ${usePercentage} / 100 = ${value}`);
-
-                        currentOperation.setParamByField(paramKey, value);
-                    } else {
-                        console.log('Set param', paramKey, depValue);
-                        currentOperation.setParamByField(paramKey, depValue);
-                    }
-                });
+            if (!this.operationsIds.has(opId)) {
+                console.warn(`Operation ${opId} not found`);
+                restoreStatus();
+                continue;
             }
+
+            this.processDependencyParams(opId, { isSetParam: true });
 
             const isSuccessOrFail = [STATUSES.SUCCESS, STATUSES.FAILED].includes(mainStatus);
 
@@ -237,13 +249,11 @@ export default class OperationFactory implements IOperationFactory {
                 await this.operationsMap.get(operation).estimateOutput();
                 restoreStatus();
             } catch (error) {
-                console.error(`${opId} - ERROR ############`);
+                console.warn(`${opId} - ESTIMATE ERROR ############`);
                 console.error(error);
                 restoreStatus();
                 continue;
             }
-
-            console.log(`${opId} - DONE ############`);
 
             table.push({
                 operation: opId,
@@ -311,5 +321,92 @@ export default class OperationFactory implements IOperationFactory {
 
     getOperationsStatusByKey(key: string): STATUSES {
         return this.operationsStatusByKey.get(key);
+    }
+
+    getOperationAdditionalTooltipById(id: string): any {
+        const ALLOW_KEYS = ['amount', 'outputAmount'];
+
+        const tooltips = [];
+
+        const operation = this.getOperationById(id);
+
+        if (!operation || !operation.getAdditionalTooltip) return null;
+
+        if (!this.getDependenciesById(id)) return null;
+
+        const { operationId, operationParams } = this.getDependenciesById(id);
+
+        const dependOperation = this.getOperationById(operationId);
+
+        if (!operationParams.length) return null;
+
+        for (const param of operationParams) {
+            const info = {
+                amountSrcInfo: null,
+                percentageInfo: null,
+            };
+
+            const { dependencyParamKey, paramKey, usePercentage = 0 } = param || {};
+
+            if (!dependOperation) {
+                console.warn(`Operation ${operationId} not found`);
+                continue;
+            }
+
+            if (!ALLOW_KEYS.includes(dependencyParamKey) || !ALLOW_KEYS.includes(paramKey)) continue;
+
+            if (!usePercentage) continue;
+
+            const dependUniqueKey = this.operationsIds.get(operationId);
+            const [m2, depOpIndex] = dependUniqueKey.split('_');
+
+            const { from: depFrom, to: depTo } = dependOperation.getTokens() || {};
+            const { from: opFrom, to: opTo } = operation.getTokens() || {};
+
+            const isDepSrc = _.isEqual(dependencyParamKey, 'amount');
+            const isOpSrc = _.isEqual(paramKey, 'amount');
+
+            const depToken = isDepSrc ? depFrom : depTo;
+            const opToken = isOpSrc ? opFrom : opTo;
+
+            const depValue = dependOperation.getParamByField(dependencyParamKey);
+            const value = this.calculatePercentage(depValue, usePercentage);
+
+            info.percentageInfo = {
+                percentage: {
+                    amount: usePercentage,
+                    symbol: '%',
+                },
+                from: {
+                    amount: depValue,
+                    symbol: depToken?.symbol,
+                },
+                to: {
+                    amount: value,
+                    symbol: opToken?.symbol,
+                },
+            };
+
+            info.amountSrcInfo = {
+                to: {
+                    amount: value || '0',
+                    symbol: opToken?.symbol,
+                },
+                from: {
+                    amount: depValue || '0',
+                    symbol: depToken?.symbol,
+                },
+                stepIndex: +depOpIndex + 1,
+            };
+
+            tooltips.push(info);
+        }
+
+        return tooltips;
+    }
+
+    private calculatePercentage(amount: string, percentage: number): string {
+        if (!isAmountCorrect(amount)) return '0';
+        return BigNumber(amount).multipliedBy(percentage).dividedBy(100).toFixed(6);
     }
 }

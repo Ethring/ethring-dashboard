@@ -7,6 +7,7 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    AAlert: typeof import('ant-design-vue/es')['Alert']
     AAvatar: typeof import('ant-design-vue/es')['Avatar']
     ABadge: typeof import('ant-design-vue/es')['Badge']
     AButton: typeof import('ant-design-vue/es')['Button']
@@ -56,6 +57,8 @@ declare module 'vue' {
     ASteps: typeof import('ant-design-vue/es')['Steps']
     ATable: typeof import('ant-design-vue/es')['Table']
     ATag: typeof import('ant-design-vue/es')['Tag']
+    ATimeline: typeof import('ant-design-vue/es')['Timeline']
+    ATimelineItem: typeof import('ant-design-vue/es')['TimelineItem']
     ATooltip: typeof import('ant-design-vue/es')['Tooltip']
     ATypographyLink: typeof import('ant-design-vue/es')['TypographyLink']
     ATypographyParagraph: typeof import('ant-design-vue/es')['TypographyParagraph']
@@ -101,12 +104,14 @@ declare module 'vue' {
     SimpleSend: typeof import('./src/components/dynamic/send/SimpleSend.vue')['default']
     SimpleSwap: typeof import('./src/components/dynamic/swaps/SimpleSwap.vue')['default']
     Spinner: typeof import('./src/components/app/Spinner.vue')['default']
+    StepAdditionalInfo: typeof import('./src/components/shortcuts/StepItem/StepAdditionalInfo.vue')['default']
     StepDescription: typeof import('./src/components/shortcuts/StepItem/StepDescription.vue')['default']
     StepItem: typeof import('./src/components/shortcuts/StepItem.vue')['default']
     StepOp: typeof import('./src/components/shortcuts/StepItem/StepOp.vue')['default']
     StepOpInfo: typeof import('./src/components/shortcuts/StepItem/StepOpInfo.vue')['default']
     StepSubTitle: typeof import('./src/components/shortcuts/StepItem/StepSubTitle.vue')['default']
     StepTitle: typeof import('./src/components/shortcuts/StepItem/StepTitle.vue')['default']
+    StepToken: typeof import('./src/components/shortcuts/StepItem/StepToken.vue')['default']
     SuperSwap: typeof import('./src/components/dynamic/super-swap/SuperSwap.vue')['default']
     SwapField: typeof import('./src/components/dynamic/super-swap/SwapField.vue')['default']
     SwitchDirection: typeof import('./src/components/ui/SwitchDirection.vue')['default']

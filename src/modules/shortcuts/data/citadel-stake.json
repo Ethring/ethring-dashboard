@@ -19,6 +19,7 @@
         "name": "zomet.app",
         "avatar": "https://zomet-logo.png"
     },
+    "minUsdAmount": 10,
     "recipe": {
         "id": "citadel-one-stake",
         "operations": [
@@ -31,6 +32,15 @@
                 "serviceId": "squid",
                 "layoutComponent": "SuperSwap",
                 "isShowLayout": true,
+                "excludeChains": [
+                    "osmosis",
+                    "stargaze",
+                    "cosmoshub",
+                    "optimism",
+                    "eth",
+                    "fantom",
+                    "injective"
+                ],
                 "ecosystems": [
                     "EVM",
                     "COSMOS"

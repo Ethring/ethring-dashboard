@@ -8,6 +8,7 @@ export interface IShortcutData {
     logoURI: string;
     keywords: string[];
     tags: string[];
+    minUsdAmount: number;
     type: 'stake'; // Assuming this is the only possible type
     description: string;
     website: string;
@@ -25,6 +26,7 @@ export default class Shortcut implements IShortcutData {
     tags: string[];
     type: 'stake'; // Assuming this is the only possible type
     description: string;
+    minUsdAmount: number;
     website: string;
     recipe: {
         id: string;
@@ -43,6 +45,7 @@ export default class Shortcut implements IShortcutData {
         this.type = shortcut.type;
         this.description = shortcut.description;
         this.website = shortcut.website;
+        this.minUsdAmount = shortcut.minUsdAmount;
 
         const { operations = [] } = shortcut.recipe || {};
 

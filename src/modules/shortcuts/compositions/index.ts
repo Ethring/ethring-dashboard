@@ -7,7 +7,7 @@ import useAdapter from '@/Adapter/compositions/useAdapter';
 import useTokensList from '@/compositions/useTokensList';
 import OperationsFactory from '@/modules/operations/OperationsFactory';
 import ShortcutRecipe from '../core/ShortcutRecipes';
-import ShortcutCl from '../core/Shortcut';
+import ShortcutCl, { IShortcutData } from '../core/Shortcut';
 import DexOperation from '@/modules/operations/Dex';
 import TransferOperation from '@/modules/operations/Transfer';
 import { ApproveOperation } from '@/modules/operations/Approve';
@@ -21,20 +21,10 @@ import { IOperationParam, OperationStep } from '../core/models/Operation';
 import { Ecosystems } from '@/modules/bridge-dex/enums/Ecosystem.enum';
 import { IBaseOperation } from '@/modules/operations/models/Operations';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
+import BigNumber from 'bignumber.js';
 
-const useShortcuts = (Shortcut: any) => {
+const useShortcuts = (Shortcut: IShortcutData) => {
     // Create a new instance of the Shortcut class
-
-    if (!Shortcut) {
-        return {
-            shortcut: {},
-            shortcutId: null,
-            shortcutIndex: 0,
-            shortcutLayout: null,
-            shortcutStatus: STATUSES.PENDING,
-            steps: [],
-        };
-    }
 
     const CurrentShortcut = new ShortcutCl(Shortcut);
 
@@ -42,6 +32,11 @@ const useShortcuts = (Shortcut: any) => {
     const { getTokenById } = useTokensList();
 
     const store = useStore();
+
+    const quoteErrorMessage = computed({
+        get: () => store.getters['bridgeDexAPI/getQuoteErrorMessage'],
+        set: (value) => store.dispatch('bridgeDexAPI/setQuoteErrorMessage', value),
+    });
 
     const isShortcutLoading = computed({
         get: () => store.getters['shortcuts/getIsShortcutLoading'](Shortcut.id),
@@ -57,14 +52,6 @@ const useShortcuts = (Shortcut: any) => {
         set: (value) => store.dispatch('bridgeDexAPI/setLoaderStateByType', { type: 'quote', value }),
     });
 
-    // ====================================================================================================
-    // Set the operations factory to the store
-    // ====================================================================================================
-    store.dispatch('shortcuts/setShortcutOpsFactory', {
-        shortcutId: Shortcut.id,
-        operations: new OperationsFactory(),
-    });
-
     const shortcutIndex = computed({
         get: () => store.getters['shortcuts/getShortcutIndex'],
         set: (value) => store.dispatch('shortcuts/setShortcutIndex', { index: value }),
@@ -74,7 +61,6 @@ const useShortcuts = (Shortcut: any) => {
 
     // Get the current operation from the store
     const currentOp = computed<IShortcutOp>(() => store.getters['shortcuts/getCurrentOperation'](Shortcut.id));
-    const currentOpDisabledFields = computed(() => store.getters['moduleStates/getDisabledFieldsForModule'](currentOp.value?.moduleType));
 
     // Get the steps from the store
     const steps = computed<OperationStep[]>(() => store.getters['shortcuts/getShortcutSteps'](Shortcut.id) || []);
@@ -83,6 +69,8 @@ const useShortcuts = (Shortcut: any) => {
 
     const shortcutStatus = computed(() => store.getters['shortcuts/getShortcutStatus'](Shortcut.id));
     const operationsFactory = computed<OperationsFactory>(() => store.getters['shortcuts/getShortcutOpsFactory'](Shortcut.id));
+
+    const firstOperation = computed<IBaseOperation>(() => operationsFactory.value.getFirstOperation());
 
     // Operations Ids from the factory
     const opIds = computed(() => Array.from(operationsFactory.value.getOperationsIds().keys()));
@@ -104,6 +92,8 @@ const useShortcuts = (Shortcut: any) => {
                 id,
             });
         }
+
+        if (!operationsFactory.value) return;
 
         let module: any, index: number;
 
@@ -134,6 +124,11 @@ const useShortcuts = (Shortcut: any) => {
     };
 
     const performShortcut = async (addToFactory = false) => {
+        if (!operationsFactory.value) {
+            console.warn('No operations factory found');
+            return;
+        }
+
         const { operations = [] } = CurrentShortcut.recipe || {};
 
         for (const step of operations) {
@@ -181,6 +176,32 @@ const useShortcuts = (Shortcut: any) => {
                 value: hide,
             });
         }
+    };
+
+    const checkMinAmount = async () => {
+        const amount = firstOperation.value.getParamByField('amount') || 0;
+
+        if (!amount) return true;
+
+        const fromToken = firstOperation.value.getToken('from');
+
+        const { price = 0 } = fromToken || {};
+
+        if (!price) {
+            return true;
+        }
+
+        const amountToUsd = BigNumber(amount)
+            .multipliedBy(price || 0)
+            .toString();
+
+        const isGreaterThanMinAmount = BigNumber(amountToUsd).isGreaterThanOrEqualTo(CurrentShortcut.minUsdAmount);
+
+        if (!isGreaterThanMinAmount) {
+            quoteErrorMessage.value = `Min USD amount is: $${CurrentShortcut.minUsdAmount}, your amount is: $${amountToUsd}`;
+        }
+
+        return isGreaterThanMinAmount;
     };
 
     const performDefaultValues = async (
@@ -273,27 +294,39 @@ const useShortcuts = (Shortcut: any) => {
 
     // ====================================================================================================
     // * Set the shortcut when the component is mounted
+    // * Perform the shortcut when the component is mounted
     // ====================================================================================================
-    onBeforeMount(async () => {
+    onMounted(async () => {
+        if (!CurrentShortcut.id) {
+            console.warn('No shortcut id found');
+            return;
+        }
+
         await store.dispatch('shortcuts/setShortcut', {
             shortcut: CurrentShortcut.id,
             data: CurrentShortcut,
         });
-    });
 
-    // ====================================================================================================
-    // * Perform the shortcut when the component is mounted
-    // ====================================================================================================
-    onMounted(async () => {
-        if (!CurrentShortcut.id) return;
+        // ====================================================================================================
+        // Set the operations factory to the store
+        // ====================================================================================================
+        await store.dispatch('shortcuts/setShortcutOpsFactory', {
+            shortcutId: CurrentShortcut.id,
+            operations: new OperationsFactory(),
+        });
 
         shortcutIndex.value = 0;
 
         isShortcutLoading.value = true;
+
         await performShortcut(true);
 
+        const { id: stepId = null } = steps.value[shortcutIndex.value] || {};
+
+        if (!stepId) return;
+
         store.dispatch('shortcuts/setCurrentStepId', {
-            stepId: steps.value[shortcutIndex.value].id,
+            stepId,
             shortcutId: Shortcut.id,
         });
 
@@ -387,13 +420,26 @@ const useShortcuts = (Shortcut: any) => {
     store.watch(
         (state, getters) => getters['tokenOps/srcAmount'],
         async (srcAmount) => {
-            if (!srcAmount) return;
+            if (!srcAmount) {
+                operationsFactory.value.resetEstimatedOutputs();
+                return;
+            }
+
             if (currentOp.value?.id) {
                 operationsFactory.value.resetEstimatedOutputs();
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('amount', srcAmount);
             }
 
             isQuoteLoading.value = true;
+
+            const isMinAmountAccepted = await checkMinAmount();
+
+            if (!isMinAmountAccepted) {
+                return (isQuoteLoading.value = false);
+            }
+
+            quoteErrorMessage.value = '';
+
             await operationsFactory.value.estimateOutput();
             isQuoteLoading.value = false;
 
@@ -471,6 +517,8 @@ const useShortcuts = (Shortcut: any) => {
     // * Reset the module states when the component is unmounted
     // ====================================================================================================
     onUnmounted(() => {
+        quoteErrorMessage.value = '';
+
         const { moduleType } = currentOp.value || {};
 
         store.dispatch('moduleStates/resetModuleStates', { module: moduleType });

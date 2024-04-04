@@ -2,7 +2,7 @@
     <div class="shortcut-details">
         <div class="wallpaper" />
 
-        <a-row align="center" justify="space-between" :wrap="false">
+        <a-row align="middle" justify="space-between" :wrap="false">
             <router-link to="/shortcuts" class="link">
                 <ArrowIcon />
                 <span>{{ $t('shortcuts.backTo') }}</span>
@@ -13,7 +13,15 @@
             <Button title="Details" class="shortcut-details-btn" disabled />
         </a-row>
 
-        <div class="description" v-if="shortcut && shortcut.description">{{ shortcut.description }}</div>
+        <div class="description" v-if="shortcut && (shortcut.description || shortcut.minUsdAmount)">
+            <p v-if="shortcut.description">{{ shortcut.description }}</p>
+
+            <p v-if="shortcut.minUsdAmount && shortcut.minUsdAmount > 0">
+                {{ $t('shortcuts.minUsdAmount') }}: ${{ shortcut.minUsdAmount }}
+            </p>
+        </div>
+
+        <a-divider />
 
         <div class="layout-page__content">
             <a-spin :spinning="isShortcutLoading" size="large">
@@ -44,10 +52,10 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import _ from 'lodash';
 
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -95,8 +103,3 @@ export default {
     },
 };
 </script>
-<style lang="scss" scoped>
-.layout-page__content {
-    margin-top: 80px;
-}
-</style>

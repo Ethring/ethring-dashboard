@@ -27,6 +27,8 @@ const TYPES = {
     SET_SERVICE_ALLOWANCE: 'SET_SERVICE_ALLOWANCE',
 
     SET_LOADER_STATE_BY_TYPE: 'SET_LOADER_STATE_BY_TYPE',
+
+    SET_QUOTE_ERROR_MESSAGE: 'SET_QUOTE_ERROR_MESSAGE',
 };
 
 interface IState {
@@ -51,6 +53,8 @@ interface IState {
     selectedServiceId: string;
 
     selectedServiceType: ServiceTypes | null;
+
+    quoteErrorMessage: string;
 
     allowanceByService: {
         [key: string]: {
@@ -86,6 +90,8 @@ export default {
         selectedServiceId: '',
 
         selectedServiceType: null,
+
+        quoteErrorMessage: '',
     }),
 
     getters: {
@@ -132,6 +138,8 @@ export default {
 
         // * Getters for Service Type
         getSelectedServiceType: (state: IState) => state.selectedServiceType,
+
+        getQuoteErrorMessage: (state: IState) => state.quoteErrorMessage,
     },
 
     mutations: {
@@ -165,6 +173,9 @@ export default {
         },
         [TYPES.SET_RELOAD_ROUTES](state: IState, value: boolean) {
             state.reloadRoutes = value;
+        },
+        [TYPES.SET_QUOTE_ERROR_MESSAGE](state: IState, value: string) {
+            state.quoteErrorMessage = value;
         },
     },
     actions: {
@@ -207,6 +218,9 @@ export default {
 
         setReloadRoutes({ commit }, value: boolean) {
             commit(TYPES.SET_RELOAD_ROUTES, value);
+        },
+        setQuoteErrorMessage({ commit }, value: string) {
+            commit(TYPES.SET_QUOTE_ERROR_MESSAGE, value);
         },
     },
 };

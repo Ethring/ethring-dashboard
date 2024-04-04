@@ -75,7 +75,10 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     // ===========================================================================================
     // !Quote Route Error Message
     // ===========================================================================================
-    const quoteErrorMessage = ref('');
+    const quoteErrorMessage = computed({
+        get: () => store.getters['bridgeDexAPI/getQuoteErrorMessage'],
+        set: (value) => store.dispatch('bridgeDexAPI/setQuoteErrorMessage', value),
+    });
 
     // ===========================================================================================
     // * Quote Routes List by ServiceType (bridge, dex, bridgedex)

@@ -47,6 +47,14 @@ export class BaseOperation implements IBaseOperation {
         this.setTxType(DEFAULT_TX_TYPE_BY_MODULE[this.module]);
     }
 
+    setAction?: (action: string) => void;
+    estimateOutput?: () => Promise<void>;
+    getOperationFlow?: () => TxOperationFlow[];
+
+    performTx?: (ecosystem: 'evm' | 'cosmos' | 'EVM' | 'COSMOS', params: PerformTxParams) => Promise<IBridgeDexTransaction>;
+    perform: (index: number, account: string, ecosystem: string, chainId: string, options: PerformOptionalParams) => ICreateTransaction;
+    getServiceType?: () => 'bridgedex' | 'superswap' | 'dex';
+
     getName(): string {
         return this.name;
     }
@@ -157,6 +165,27 @@ export class BaseOperation implements IBaseOperation {
         }
 
         return title;
+    }
+
+    getAdditionalTooltip() {
+        const { from, to } = this.getTokens() || {};
+        const { amount, outputAmount } = this.getParams() || {};
+
+        const type = this.getTxType();
+
+        if ((!amount && !outputAmount && from) || to) {
+            return `${type} ${from.symbol}`;
+        }
+
+        // if (from && to && amount && outputAmount) {
+        //     return `${type} ${amount} ${from.symbol} to ${outputAmount} ${to.symbol}`;
+        // }
+
+        // if (from && !to && amount) {
+        //     return `${type} ${amount} ${from.symbol}`;
+        // }
+
+        return '';
     }
 
     static perform: (

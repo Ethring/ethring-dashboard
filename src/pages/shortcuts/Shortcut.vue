@@ -1,8 +1,6 @@
 <template>
-    <div>
-        <ShortcutInfoLarge />
-        <ShortcutList />
-    </div>
+    <ShortcutInfoLarge />
+    <ShortcutList />
 </template>
 
 <script>
@@ -13,7 +11,7 @@ export default {
     name: 'Shortcuts',
     components: {
         ShortcutList,
-        ShortcutInfoLarge
+        ShortcutInfoLarge,
     },
     setup() {},
 };

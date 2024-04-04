@@ -38,6 +38,7 @@
     "@web3-onboard/injected-wallets": "^2.10.11",
     "@web3-onboard/ledger": "^2.5.2",
     "@web3-onboard/vue": "^2.7.12",
+    "animejs": "^3.2.2",
     "ant-design-vue": "^4.1.2",
     "axios": "^1.6.7",
     "axios-extensions": "^3.1.6",

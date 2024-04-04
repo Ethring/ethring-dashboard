@@ -150,6 +150,7 @@
     "description": "Enable users to follow your guidance and earn with our revenue share program!",
     "createdBy": "Created by",
     "clearAll": "Clear all",
-    "backTo": "Back to shortcuts"
+    "backTo": "Back to shortcuts",
+    "minUsdAmount": "Min USD amount is"
   }
 }

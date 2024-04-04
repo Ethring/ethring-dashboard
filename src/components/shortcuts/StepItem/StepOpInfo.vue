@@ -1,11 +1,13 @@
 <template>
     <div class="step-operation-info">
-        <div class="label">{{ label }}</div>
+        <div class="label">
+            {{ label }}
+        </div>
         <div class="content">
             <div class="token-info">
                 <AssetWithChain type="asset" :asset="operation.getToken('from') || {}" :chain="assetChain.from" :width="24" :height="24" />
 
-                <Amount :value="operation.getParamByField('amount') || 0" :symbol="operation.getToken('from')?.symbol" type="currency" />
+                <Amount :value="operation.getParamByField('amount')" :symbol="operation.getToken('from')?.symbol" type="currency" />
             </div>
 
             <template v-if="operation.getToken('to')">
@@ -21,6 +23,19 @@
                     />
                 </div>
             </template>
+
+            <template v-if="additionalTooltips && additionalTooltips.length">
+                <a-popover placement="top" class="step-additional-info-popover">
+                    <template #content class="step-additional-info-popover">
+                        <StepAdditionalInfo
+                            v-for="additionalInfo in additionalTooltips"
+                            :amount-info="additionalInfo?.amountSrcInfo"
+                            :percentage-info="additionalInfo?.percentageInfo"
+                        />
+                    </template>
+                    <InfoCircleOutlined class="step-operation-info-additional" />
+                </a-popover>
+            </template>
         </div>
     </div>
 </template>
@@ -28,6 +43,9 @@
 import { useStore } from 'vuex';
 import { computed } from 'vue';
 import { IBaseOperation } from '@/modules/operations/models/Operations';
+import { InfoCircleOutlined } from '@ant-design/icons-vue';
+
+import StepAdditionalInfo from './StepAdditionalInfo.vue';
 
 export default {
     name: 'StepOpInfo',
@@ -53,19 +71,31 @@ export default {
             }),
         },
     },
+    components: {
+        InfoCircleOutlined,
+        StepAdditionalInfo,
+    },
     setup(props) {
         const store = useStore();
 
+        const factory = computed(() => store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId));
+
         const operation = computed<IBaseOperation>(() => {
-            const factory = store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId);
+            if (!factory.value) return {} as IBaseOperation;
 
-            if (!factory) return {} as IBaseOperation;
+            return factory.value.getOperationById(props.operationId);
+        });
 
-            return factory.getOperationById(props.operationId);
+        const additionalTooltips = computed(() => {
+            if (!operation.value) return [];
+
+            return factory.value.getOperationAdditionalTooltipById(props.operationId) || [];
         });
 
         return {
+            factory,
             operation,
+            additionalTooltips,
         };
     },
 };

@@ -147,13 +147,8 @@ const useModuleOperations = (module: ModuleType) => {
     watch(shortcutOps, (value) => {
         if (!value) return;
 
-        console.log('Shortcut ops:', value);
-        console.log('CURRENT MODULE #-------:', JSON.parse(JSON.stringify(module)));
-
         module = ModuleType.shortcut;
         currentModule.value = ModuleType.shortcut;
-
-        console.log('CURRENT MODULE #shortcut:', JSON.parse(JSON.stringify(module)));
     });
 
     // ===============================================================================================
@@ -504,22 +499,36 @@ const useModuleOperations = (module: ModuleType) => {
                         console.log(`Error on set operation status by key ${moduleIndex}`);
                     }
 
+                    const operation = operations.getOperationByKey(moduleIndex);
+
+                    if (!operation) {
+                        console.error('Operation not found by key', moduleIndex);
+                        return;
+                    }
+
+                    if (!index) {
+                        return null;
+                    }
+
                     try {
                         console.log('Prepare:', index, type, 'Transaction', operations.getOperationByKey(moduleIndex).params);
 
-                        const prepared = operations
-                            .getOperationByKey(moduleIndex)
-                            .perform(
-                                index,
-                                operations.getOperationByKey(moduleIndex).getAccount(),
-                                operations.getOperationByKey(moduleIndex).getEcosystem(),
-                                operations.getOperationByKey(moduleIndex).getChainId(),
-                                {
-                                    make,
-                                },
-                            );
+                        const prepared = operation.perform(
+                            index,
+                            operation.getAccount(),
+                            operation.getEcosystem(),
+                            operation.getChainId(),
+                            {
+                                make,
+                            },
+                        );
 
                         const transaction = await txManager.addTransactionToGroup(index, prepared); // * Add or create transaction
+
+                        if (!transaction) {
+                            console.error('Transaction not added to group', index, type, moduleIndex);
+                            return;
+                        }
 
                         if (index === 0) {
                             const toSave = { ...tx.getTransaction(), ...prepared, id: transaction.id };

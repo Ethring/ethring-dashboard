@@ -58,16 +58,16 @@ export interface IBaseOperation {
     getParamByField: (field: string) => any;
 
     // chainId for sign
-    setChainId?: (chainId: string) => void;
-    getChainId?: () => string;
+    setChainId: (chainId: string) => void;
+    getChainId: () => string;
 
     // Ecosystems
     getEcosystem: () => Ecosystems;
     setEcosystem: (ecosystem: Ecosystems) => void;
 
     // Account
-    setAccount?: (account: string) => void;
-    getAccount?: () => string;
+    setAccount: (account: string) => void;
+    getAccount: () => string;
 
     // Module
     getModule: () => ModuleTypes;
@@ -101,12 +101,14 @@ export interface IBaseOperation {
 
     performTx?: (ecosystem: Ecosystems, params: PerformTxParams) => Promise<IBridgeDexTransaction>;
 
-    perform?: (index: number, account: string, ecosystem: string, chainId: string, options: PerformOptionalParams) => ICreateTransaction;
+    perform: (index: number, account: string, ecosystem: string, chainId: string, options: PerformOptionalParams) => ICreateTransaction;
 
     setQuoteRoute?: (route: IQuoteRoute) => void;
 
     getQuoteRoute?: () => IQuoteRoute;
     getServiceType?: () => ServiceTypes;
+
+    getAdditionalTooltip?: () => string;
 }
 
 export interface IRegisterOperation {

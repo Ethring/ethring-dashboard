@@ -1,6 +1,6 @@
 <template>
-    <div class="loading-overlay">
-        <LogoLoading :tip="tip" :spinning="spinning" />
+    <div class="loading-overlay" :class="{ active: spinning }">
+        <LogoLoading :tip="tip" :spinning="spinning" :overlay="overlay" />
     </div>
 </template>
 <script>
@@ -16,6 +16,10 @@ export default {
         tip: {
             type: String,
             default: 'dashboard.connecting',
+        },
+        overlay: {
+            type: Boolean,
+            default: false,
         },
     },
     components: {
@@ -33,11 +37,41 @@ export default {
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 9999;
 
     width: 100%;
     height: 100%;
 
     background: var(--#{$prefix}main-background);
+
+    transition: all 0.3s;
+
+    @keyframes slideUp {
+        0% {
+            transform: translateY(0);
+        }
+        100% {
+            transform: translateY(100%);
+            z-index: -9999;
+        }
+    }
+
+    @keyframes slideDown {
+        0% {
+            transform: translateY(100%);
+        }
+        100% {
+            transform: translateY(0);
+            z-index: 9999;
+        }
+    }
+
+    animation: slideUp 0.3s 0.1s;
+    animation-fill-mode: forwards;
+
+    &.active {
+        animation: slideDown 0.3s;
+        animation-fill-mode: forwards;
+        cursor: progress;
+    }
 }
 </style>
