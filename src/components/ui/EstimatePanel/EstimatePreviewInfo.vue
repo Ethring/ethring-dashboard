@@ -250,7 +250,6 @@ export default {
         );
 
         const minOutAmount = (amount) => {
-            console.log(props.feeInUsd);
             return calculateMinAmount(amount, slippage.value);
         };
 
