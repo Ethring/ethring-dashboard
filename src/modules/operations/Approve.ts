@@ -24,6 +24,7 @@ export class ApproveOperation extends DexOperation {
 
     perform(index: number, account: string, ecosystem: string, chainId: string, options: PerformOptionalParams): ICreateTransaction {
         const { make } = options;
+        let notificationTitle = `${make} ${this.getTitle()}`;
 
         return {
             index,
@@ -33,11 +34,10 @@ export class ApproveOperation extends DexOperation {
             ecosystem,
             chainId,
             metaData: {
-                action: getActionByTxType(TRANSACTION_TYPES.APPROVE),
-                type: TRANSACTION_TYPES.APPROVE,
-                params: this.params,
-                notificationTitle: `${make} ${this.params.amount} ${this.getToken('from')?.symbol || ''}`,
-                metaData: {
+                action: this.getAction(),
+                type: this.getTxType(),
+                notificationTitle,
+                params: {
                     ...this.params,
                     tokens: this.getTokens(),
                 },
@@ -57,12 +57,14 @@ export class ApproveOperation extends DexOperation {
             serviceId && this.service.setServiceId(serviceId);
 
             const responseApprove = await this.service.getApproveTx(params);
+            console.log('responseApprove', responseApprove);
 
             const [tx] = responseApprove;
 
             return tx;
         } catch (error) {
-            return Promise.reject(error);
+            console.error('ApproveOperation performTx error', error);
+            return null;
         }
     }
 

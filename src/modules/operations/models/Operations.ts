@@ -28,6 +28,8 @@ export type PerformTxParams = {
 };
 
 export interface IBaseOperation {
+    uniqueId: string;
+
     name: string;
     params: BaseOpParams;
     module: ModuleTypes;
@@ -45,6 +47,10 @@ export interface IBaseOperation {
     service?: any;
 
     quoteRoute?: IQuoteRoute;
+
+    // Unique Id
+    getUniqueId: () => string;
+    setUniqueId: (id: string) => void;
 
     // name
     getName: () => string;
@@ -74,7 +80,7 @@ export interface IBaseOperation {
     setModule: (module: ModuleTypes) => void;
 
     // Tokens for ops
-    setTokens?: (tokens: { from: IAsset; to: IAsset }) => void;
+    setTokens?: (tokens: { from: IAsset; to?: IAsset }) => void;
     getTokens?: () => { from?: IAsset; to?: IAsset };
 
     getToken(target: 'from' | 'to'): IAsset;

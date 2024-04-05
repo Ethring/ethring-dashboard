@@ -41,22 +41,51 @@ export default class OperationFactory implements IOperationFactory {
     private groupOps: Map<string, string[]> = new Map<string, string[]>();
     private operationDependencies: Map<string, IOperationDependencies> = new Map<string, IOperationDependencies>();
     private operationsStatusByKey: Map<string, STATUSES> = new Map<string, STATUSES>();
+    private operationOrder: string[] = [];
 
     getOperationsIds(): Map<string, string> {
         return this.operationsIds;
     }
 
-    registerOperation(module: string, operationClass: new () => IBaseOperation, options?): IRegisterOperation {
-        const { id = null, name = null } = options || {};
+    registerOperation(
+        module: string,
+        operationClass: new () => IBaseOperation,
+        options?: { id?: string; name?: string; before?: string; after?: string },
+    ): IRegisterOperation {
+        const { id = null, name = null, before = null, after = null } = options || {};
+
+        const uniqueKey = `${module}_${this.operationsMap.size}`;
 
         if (this.operationsIds.get(id)) {
             console.warn(`Operation with id ${id} already exists`);
             return null;
         }
 
-        const uniqueKey = `${module}_${this.operationsMap.size}`;
+        if (!before && !after) {
+            this.operationOrder.push(uniqueKey);
+        } else if (before) {
+            const beforeIndex = this.operationOrder.indexOf(before);
+
+            if (beforeIndex === -1) {
+                console.warn(`Operation ${before} not found`);
+                return null;
+            }
+
+            this.operationOrder.splice(beforeIndex, 0, `${module}_${this.operationsMap.size}`);
+        } else if (after) {
+            const afterIndex = this.operationOrder.indexOf(after);
+
+            if (afterIndex === -1) {
+                console.warn(`Operation ${after} not found`);
+                return null;
+            }
+
+            this.operationOrder.splice(afterIndex + 1, 0, `${module}_${this.operationsMap.size}`);
+        }
 
         const operation = new operationClass();
+
+        operation.setUniqueId(uniqueKey);
 
         operation.setModule(module as ModuleTypes);
 
@@ -139,24 +168,10 @@ export default class OperationFactory implements IOperationFactory {
         return this.operationsMap.values().next().value;
     }
 
-    passParams(fromModule: string, fromIndex: number, toModule: string, toIndex: number): void {
-        const fromKey = `${fromModule}_${fromIndex}`;
-        const toKey = `${toModule}_${toIndex}`;
-
-        const fromOperation = this.operationsMap.get(fromKey);
-        const toOperation = this.operationsMap.get(toKey);
-
-        if (fromOperation && toOperation) {
-            const params = fromOperation.getParams();
-            toOperation.setParamByField('amount', params.amount);
-        }
-    }
-
     getFullOperationFlow(): TxOperationFlow[] {
         const flow: TxOperationFlow[] = [];
-        const operations = Array.from(this.operationsMap.keys());
 
-        for (const operation of operations) {
+        for (const operation of this.operationOrder) {
             const opFlow = this.operationsMap.get(operation).getOperationFlow();
 
             flow.push(

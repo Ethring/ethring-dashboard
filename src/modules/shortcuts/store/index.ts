@@ -10,7 +10,7 @@ import { IShortcutData } from '../core/Shortcut';
 import { ShortcutStatus } from '../core/types/ShortcutType';
 import OperationFactory from '@/modules/operations/OperationsFactory';
 import { OperationStep } from '../core/models/Operation';
-import { STATUSES, SHORTCUT_STATUSES } from '@/shared/models/enums/statuses.enum';
+import { STATUSES, SHORTCUT_STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
 
 import StepOp from '@/components/shortcuts/StepItem/StepOp.vue';
 import StepOpInfo from '@/components/shortcuts/StepItem/StepOpInfo.vue';
@@ -148,88 +148,90 @@ export default {
 
             let hasError = false;
 
-            const steps: OperationStep[] = flow.map((operation, index) => {
-                const step = operation as OperationStep;
+            const steps: OperationStep[] = flow
+                .filter((op) => op.type !== TRANSACTION_TYPES.APPROVE)
+                .map((operation, index) => {
+                    const step = operation as OperationStep;
 
-                if (!step.id && step.operationId) {
-                    step.id = step.operationId;
-                }
+                    if (!step.id && step.operationId) {
+                        step.id = step.operationId;
+                    }
 
-                // ================================================================================
-                // * Operation chain info
-                // ================================================================================
+                    // ================================================================================
+                    // * Operation chain info
+                    // ================================================================================
 
-                const fromAssetChain = {
-                    symbol: state.shortcutOps[shortcutId].getOperationById(step.operationId)?.getToken('from')?.chain,
-                    logo: rootGetters['configs/getChainLogoByNet'](
-                        state.shortcutOps[shortcutId].getOperationById(step.operationId)?.getToken('from')?.chain,
-                    ),
-                };
+                    const fromAssetChain = {
+                        symbol: state.shortcutOps[shortcutId].getOperationById(step.operationId)?.getToken('from')?.chain,
+                        logo: rootGetters['configs/getChainLogoByNet'](
+                            state.shortcutOps[shortcutId].getOperationById(step.operationId)?.getToken('from')?.chain,
+                        ),
+                    };
 
-                const toAssetChain = {
-                    symbol: state.shortcutOps[shortcutId].getOperationById(step.operationId)?.getToken('to')?.chain,
-                    logo: rootGetters['configs/getChainLogoByNet'](
-                        state.shortcutOps[shortcutId].getOperationById(step.operationId)?.getToken('to')?.chain,
-                    ),
-                };
+                    const toAssetChain = {
+                        symbol: state.shortcutOps[shortcutId].getOperationById(step.operationId)?.getToken('to')?.chain,
+                        logo: rootGetters['configs/getChainLogoByNet'](
+                            state.shortcutOps[shortcutId].getOperationById(step.operationId)?.getToken('to')?.chain,
+                        ),
+                    };
 
-                // ================================================================================
-                // * Shortcut operation info component, title & token from/to chain info
-                // ================================================================================\
+                    // ================================================================================
+                    // * Shortcut operation info component, title & token from/to chain info
+                    // ================================================================================\
 
-                step.title = h(StepOpInfo, {
-                    label: operation.title,
-                    assetChain: {
-                        from: fromAssetChain,
-                        to: toAssetChain,
-                    },
-                    shortcutId,
-                    operationId: step.operationId,
-                });
-
-                // ================================================================================
-                // * Shortcut operation icon component & from chain info
-                // ================================================================================
-
-                step.description = h(StepOp, {
-                    operationType: step.make,
-                    assetChain: fromAssetChain,
-                });
-
-                // ================================================================================
-                // * Shortcut operation status
-                // ================================================================================
-                const operationStatus = state.shortcutOps[shortcutId].getOperationsStatusByKey(step.moduleIndex);
-
-                // Status by operation status
-                step.status = ShortcutStatusByOpStatus[operationStatus] || ShortcutStatus.wait;
-
-                // Icon by operation status
-                step.icon = StatusIcons[operationStatus] || null;
-
-                // Disable step if it's not current step
-                step.disabled = DISABLED_STATUS.includes(step.status as ShortcutStatus) || step.index !== state.currentIndex;
-
-                // Check if operation has error
-                if ([STATUSES.FAILED, STATUSES.SUCCESS].includes(operationStatus)) {
-                    hasError = true;
-                }
-
-                if (step.status === ShortcutStatus.process && !hasError && operationStatus === STATUSES.IN_PROGRESS) {
-                    step.icon = h(LoadingOutlined, {
-                        spin: true,
-                        class: 'loading-icon',
+                    step.title = h(StepOpInfo, {
+                        label: operation.title,
+                        assetChain: {
+                            from: fromAssetChain,
+                            to: toAssetChain,
+                        },
+                        shortcutId,
+                        operationId: step.operationId,
                     });
-                }
 
-                // Check if operation is in progress
-                if (state.currentIndex === step.index && !hasError && step.status === ShortcutStatus.wait) {
-                    step.status = ShortcutStatus.process;
-                    step.icon = h(ProcessIcon);
-                }
+                    // ================================================================================
+                    // * Shortcut operation icon component & from chain info
+                    // ================================================================================
 
-                return step;
-            });
+                    step.description = h(StepOp, {
+                        operationType: step.make,
+                        assetChain: fromAssetChain,
+                    });
+
+                    // ================================================================================
+                    // * Shortcut operation status
+                    // ================================================================================
+                    const operationStatus = state.shortcutOps[shortcutId].getOperationsStatusByKey(step.moduleIndex);
+
+                    // Status by operation status
+                    step.status = ShortcutStatusByOpStatus[operationStatus] || ShortcutStatus.wait;
+
+                    // Icon by operation status
+                    step.icon = StatusIcons[operationStatus] || null;
+
+                    // Disable step if it's not current step
+                    step.disabled = DISABLED_STATUS.includes(step.status as ShortcutStatus) || step.index !== state.currentIndex;
+
+                    // Check if operation has error
+                    if ([STATUSES.FAILED, STATUSES.SUCCESS].includes(operationStatus)) {
+                        hasError = true;
+                    }
+
+                    if (step.status === ShortcutStatus.process && !hasError && operationStatus === STATUSES.IN_PROGRESS) {
+                        step.icon = h(LoadingOutlined, {
+                            spin: true,
+                            class: 'loading-icon',
+                        });
+                    }
+
+                    // Check if operation is in progress
+                    if (state.currentIndex === step.index && !hasError && step.status === ShortcutStatus.wait) {
+                        step.status = ShortcutStatus.process;
+                        step.icon = h(ProcessIcon);
+                    }
+
+                    return step;
+                });
 
             if (!steps.length) {
                 return [];

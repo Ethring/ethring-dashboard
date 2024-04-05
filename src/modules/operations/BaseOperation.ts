@@ -19,6 +19,8 @@ const DEFAULT_TX_TYPE_BY_MODULE = {
 };
 
 export class BaseOperation implements IBaseOperation {
+    uniqueId: string;
+
     name: string;
 
     service: any;
@@ -61,6 +63,14 @@ export class BaseOperation implements IBaseOperation {
 
     setName(name: string): void {
         this.name = name;
+    }
+
+    setUniqueId(uniqueId: string): void {
+        this.uniqueId = uniqueId;
+    }
+
+    getUniqueId(): string {
+        return this.uniqueId;
     }
 
     execute?: () => Promise<string>;

@@ -14,7 +14,7 @@ import { ApproveOperation } from '@/modules/operations/Approve';
 import { SHORTCUT_STATUSES, STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
 import { ShortcutType } from '../core/types/ShortcutType';
 import { AddressByChainHash } from '../../../shared/models/types/Address';
-import { ECOSYSTEMS } from '@/Adapter/config';
+import { ECOSYSTEMS, NATIVE_CONTRACT } from '@/Adapter/config';
 import { IShortcutOp } from '../core/ShortcutOp';
 import { IAsset } from '@/shared/models/fields/module-fields';
 import { IOperationParam, OperationStep } from '../core/models/Operation';
@@ -82,6 +82,24 @@ const useShortcuts = (Shortcut: IShortcutData) => {
 
         return { ...src, ...dst };
     });
+
+    const getAllowanceByService = () => {
+        const operation = operationsFactory.value.getOperationById(currentOp.value.id);
+        if (!operation) return null;
+
+        const token = operation?.getParamByField('fromToken');
+
+        if (token === NATIVE_CONTRACT) return null;
+
+        if (!operation) return null;
+
+        const serviceId = operation?.getParamByField('serviceId');
+        const owner = operationsFactory.value.getOperationById(currentOp.value.id)?.getAccount();
+
+        if (!serviceId || !owner) return null;
+
+        return store.getters['bridgeDexAPI/getServiceAllowance'](serviceId, owner, token);
+    };
 
     const processOperation = async (operation: IShortcutOp, { addToFactory = false }: { addToFactory: boolean }) => {
         const { id, moduleType, name, operationType, operationParams, dependencies, serviceId, params = [] } = operation || {};
@@ -421,9 +439,10 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         (state, getters) => getters['tokenOps/srcAmount'],
         async (srcAmount) => {
             if (!srcAmount) {
-                operationsFactory.value.resetEstimatedOutputs();
                 return;
             }
+
+            console.log('Amount changed', srcAmount);
 
             if (currentOp.value?.id) {
                 operationsFactory.value.resetEstimatedOutputs();

@@ -36,6 +36,7 @@ import TransferOperation from '@/modules/operations/Transfer';
 import { IAsset } from '@/shared/models/fields/module-fields';
 import { ApproveOperation } from '@/modules/operations/Approve';
 import DexOperation from '@/modules/operations/Dex';
+import { IBaseOperation } from '@/modules/operations/models/Operations';
 
 const useModuleOperations = (module: ModuleType) => {
     const currentModule = ref(module);
@@ -99,8 +100,6 @@ const useModuleOperations = (module: ModuleType) => {
         selectedRoute,
         receiverAddress,
 
-        makeApproveRequest,
-        makeSwapRequest,
         clearAllowance,
 
         opTitle,
@@ -144,6 +143,9 @@ const useModuleOperations = (module: ModuleType) => {
 
     const shortcutOps = computed<OperationsFactory>(() => store.getters['shortcuts/getShortcutOpsFactory'](currentShortcut.value.id));
 
+    // ===============================================================================================
+    // * Shortcut Module type
+    // ===============================================================================================
     watch(shortcutOps, (value) => {
         if (!value) return;
 
@@ -154,7 +156,6 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
     // * Addresses with chains by ecosystem
     // ===============================================================================================
-
     const srcAddressByChain = computed<AddressByChainHash>(() => {
         const { ecosystem: srcEcosystem } = selectedSrcNetwork.value || {};
         if (!srcEcosystem) return {};
@@ -207,108 +208,26 @@ const useModuleOperations = (module: ModuleType) => {
     });
 
     // ===============================================================================================
-    // * Operations - Transaction parameters
-    // ===============================================================================================
-
-    // const TX_PARAMS_BY_TYPE = {
-    //     [TRANSACTION_TYPES.APPROVE]: async (): Promise<IBridgeDexTransaction> => {
-    //         const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
-
-    //         const params: Approve = {
-    //             net: selectedSrcNetwork.value.net,
-    //             tokenAddress: selectedSrcToken.value.address,
-    //             ownerAddress,
-    //             amount: srcAmount.value,
-    //         };
-
-    //         const responseApprove: IBridgeDexTransaction[] = await makeApproveRequest(selectedRoute.value.serviceId, params);
-
-    //         const [tx] = responseApprove;
-
-    //         return tx;
-    //     },
-    //     [TRANSACTION_TYPES.DEX]: async (): Promise<IBridgeDexTransaction> => {
-    //         const params = {
-    //             net: selectedSrcNetwork.value.net,
-    //             fromNet: selectedSrcNetwork.value.net,
-    //             toNet: selectedDstNetwork.value?.net || selectedSrcNetwork.value.net,
-
-    //             fromToken: selectedSrcToken.value.address,
-    //             toToken: selectedDstToken.value.address,
-
-    //             ownerAddresses: addressByChain.value as OwnerAddresses,
-    //             receiverAddress: receiverAddress.value,
-    //             amount: srcAmount.value,
-    //         } as AllQuoteParams;
-
-    //         // * Bridge transaction, add receiver address to ownerAddresses
-    //         if (isSendToAnotherAddress.value && receiverAddress.value) {
-    //             params.ownerAddresses = {
-    //                 ...addressByChain.value,
-    //                 [selectedDstNetwork.value.net]: receiverAddress.value,
-    //             };
-    //         }
-
-    //         const responseSwap = await makeSwapRequest(selectedRoute.value.serviceId, params, { toType: currentServiceType.value });
-
-    //         const [tx] = responseSwap;
-
-    //         return tx;
-    //     },
-    //     [TRANSACTION_TYPES.TRANSFER]: async (): Promise<IBridgeDexTransaction> => {
-    //         const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
-
-    //         const params = {
-    //             toAddress: receiverAddress.value,
-    //             amount: srcAmount.value,
-    //             token: selectedSrcToken.value,
-    //             fromAddress: ownerAddress,
-    //             memo: '',
-    //         };
-
-    //         if (isMemoAllowed && memo.value) {
-    //             params.memo = memo.value;
-    //         }
-
-    //         return {
-    //             ecosystem: selectedSrcNetwork.value.ecosystem,
-    //             transaction: params,
-    //         };
-    //     },
-    //     [TRANSACTION_TYPES.STAKE]: async (): Promise<IBridgeDexTransaction> => {
-    //         const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
-
-    //         const params = {
-    //             toAddress: receiverAddress.value,
-    //             amount: srcAmount.value,
-    //             token: selectedSrcToken.value,
-    //             fromAddress: ownerAddress,
-    //             memo: '',
-    //         };
-
-    //         if (isMemoAllowed && memo.value) {
-    //             params.memo = memo.value;
-    //         }
-
-    //         return {
-    //             ecosystem: selectedSrcNetwork.value.ecosystem,
-    //             transaction: params,
-    //         };
-    //     },
-    // };
-
-    // ===============================================================================================
     // * Operations - On success by transaction type
     // ===============================================================================================
 
     const ON_SUCCESS_BY_TYPE = {
-        [TRANSACTION_TYPES.APPROVE]: async () => {
-            console.log('Approve success', 'Update allowance');
+        [TRANSACTION_TYPES.APPROVE]: async (operation: IBaseOperation) => {
+            console.log('Approve success', 'Update allowance', operation);
 
-            await clearAllowance(selectedRoute.value.serviceId, {
-                net: selectedSrcNetwork.value.net,
-                tokenAddress: selectedSrcToken.value.address,
-                ownerAddress: walletAddress.value,
+            if (!operation) return;
+
+            const serviceId = operation.getParamByField('serviceId');
+            const net = operation.getParamByField('net');
+            const ownerAddress = operation.getParamByField('ownerAddress');
+            const tokenAddress = operation.getParamByField('tokenAddress');
+
+            if (!serviceId || !ownerAddress || !tokenAddress) return;
+
+            return await clearAllowance(serviceId, {
+                net,
+                ownerAddress,
+                tokenAddress,
             });
         },
         [TRANSACTION_TYPES.DEX]: () => {
@@ -459,15 +378,35 @@ const useModuleOperations = (module: ModuleType) => {
             module: firstInGroup.getModule(),
         };
 
+        if (isNeedApprove.value) {
+            const beforeId = firstInGroup.getUniqueId();
+
+            const { key } =
+                operations.registerOperation(module, ApproveOperation, {
+                    before: beforeId,
+                }) || {};
+
+            const approveOperation = operations.getOperationByKey(key);
+
+            approveOperation.setParams({
+                net: selectedSrcNetwork.value?.net,
+                tokenAddress: selectedSrcToken.value?.address,
+                ownerAddress: srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value,
+                amount: srcAmount.value,
+                serviceId: selectedRoute.value.serviceId,
+            });
+
+            approveOperation.setEcosystem(selectedSrcNetwork.value?.ecosystem);
+            approveOperation.setChainId(selectedSrcNetwork.value?.chain_id);
+            approveOperation.setAccount(srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value);
+            approveOperation.setTokens({ from: selectedSrcToken.value });
+        }
+
         const OP_FLOW = operations.getFullOperationFlow();
 
         const ops = OP_FLOW.map((step, i) => {
             return `${i === 0 ? '\t' : ''}${step.index}: ${step.type} [${step.moduleIndex}]\n`;
         }).join(' -> ');
-
-        console.log('----- Operation flow MODULE OPS START -----');
-        console.log(ops);
-        console.log('----- Operation flow MODULE OPS END -----\n\n');
 
         try {
             const txManager = new TransactionList(socket.getSocket(), store);
@@ -475,7 +414,7 @@ const useModuleOperations = (module: ModuleType) => {
             console.log(`Create transaction group for ${module}`, txManager);
             await txManager.createTransactionGroup(group as ITransaction);
 
-            for (const { index, type, make, moduleIndex } of OP_FLOW) {
+            for (const { index, type, make, moduleIndex, operationId } of OP_FLOW) {
                 if (operations.getOperationsStatusByKey(moduleIndex) === STATUSES.SUCCESS) {
                     console.log('Operation already success, skip', moduleIndex);
                     continue;
@@ -493,10 +432,13 @@ const useModuleOperations = (module: ModuleType) => {
                 tx.prepare = async () => {
                     console.debug('-'.repeat(10), 'TX PREPARE', '-'.repeat(10), '\n\n');
 
+                    console.log('moduleIndex', moduleIndex);
+
                     try {
-                        shortcutOps.value.setOperationStatusByKey(moduleIndex, STATUSES.IN_PROGRESS);
+                        if (operationId) shortcutOps.value.setOperationStatusById(operationId, STATUSES.IN_PROGRESS);
+                        else shortcutOps.value.setOperationStatusByKey(moduleIndex, STATUSES.IN_PROGRESS);
                     } catch (error) {
-                        console.log(`Error on set operation status by key ${moduleIndex}`);
+                        console.log(`Error on set operation status by key ${moduleIndex} or id ${operationId}`, error);
                     }
 
                     const operation = operations.getOperationByKey(moduleIndex);
@@ -504,10 +446,6 @@ const useModuleOperations = (module: ModuleType) => {
                     if (!operation) {
                         console.error('Operation not found by key', moduleIndex);
                         return;
-                    }
-
-                    if (!index) {
-                        return null;
                     }
 
                     try {
@@ -522,6 +460,8 @@ const useModuleOperations = (module: ModuleType) => {
                                 make,
                             },
                         );
+
+                        console.log('PREPARED TX:', prepared);
 
                         const transaction = await txManager.addTransactionToGroup(index, prepared); // * Add or create transaction
 
@@ -567,13 +507,15 @@ const useModuleOperations = (module: ModuleType) => {
                                 serviceId: operations.getOperationByKey(moduleIndex).getParamByField('serviceId'),
                             });
 
-                        tx.transaction.parameters = transaction;
-                        tx.transaction.ecosystem = ecosystem.toUpperCase();
+                        tx.setTransaction({
+                            ...tx.getTransaction(),
+                            parameters: transaction,
+                        });
 
                         tx.setTransactionEcosystem(ecosystem.toUpperCase());
                         tx.setChainId(operations.getOperationByKey(moduleIndex).getChainId());
 
-                        await tx.updateTransactionById(Number(tx.id), tx.transaction);
+                        await tx.updateTransactionById(Number(tx.id), tx.getTransaction());
                     } catch (error) {
                         console.error('useModuleOperations -> setTxExecuteParameters -> error', error);
                         throw error;
@@ -633,7 +575,7 @@ const useModuleOperations = (module: ModuleType) => {
                 // * On success
                 tx.onSuccess = async () => {
                     if (ON_SUCCESS_BY_TYPE[type]) {
-                        await ON_SUCCESS_BY_TYPE[type]();
+                        await ON_SUCCESS_BY_TYPE[type](operations.getOperationByKey(moduleIndex));
                     }
 
                     if (index === OP_FLOW.length - 1) {
@@ -656,12 +598,15 @@ const useModuleOperations = (module: ModuleType) => {
                 tx.onSuccessSignTransaction = async () => {
                     console.log('Success sign and send transaction');
 
-                    if (shortcutOps.value?.getOperationByKey(moduleIndex)) {
-                        shortcutOps.value.getOperationByKey(moduleIndex).setParamByField('txHash', tx.getTransaction().txHash);
-                        shortcutOps.value.setOperationStatusByKey(moduleIndex, STATUSES.SUCCESS);
+                    if (_.isEqual(currentShortcut.value.stepId, operationId) && shortcutOps.value?.getOperationById(operationId)) {
                         store.dispatch('shortcuts/nextStep', {
                             shortcutId: currentShortcut.value.id,
                         });
+                    }
+
+                    if (shortcutOps.value?.getOperationByKey(moduleIndex)) {
+                        shortcutOps.value.getOperationByKey(moduleIndex).setParamByField('txHash', tx.getTransaction().txHash);
+                        shortcutOps.value.setOperationStatusByKey(moduleIndex, STATUSES.SUCCESS);
                     }
 
                     console.log('-'.repeat(30), '\n\n\n');
@@ -693,28 +638,6 @@ const useModuleOperations = (module: ModuleType) => {
                         });
                     }
                 };
-
-                // * On canceled in prepare
-                // tx.onCancel = async () => {
-                //     if (isTransactionCanceled.value) {
-                //         console.log('Transaction canceled by user');
-
-                //         isTransactionCanceled.value = false;
-
-                //         isTransactionSigning.value = false;
-
-                //         isLoading.value = false;
-
-                //         await store.dispatch('tokenOps/setOperationResult', {
-                //             module,
-                //             result: {
-                //                 status: 'success',
-                //                 title: 'Transaction Cancelled',
-                //                 description: 'Transaction successfully cancelled',
-                //             },
-                //         });
-                //     }
-                // };
 
                 txManager.addTransaction(tx);
             }

@@ -8,4 +8,5 @@ export type TxOperationFlow = {
     make: TxOperations;
     moduleIndex: string;
     title?: string;
+    operationId?: string;
 };
