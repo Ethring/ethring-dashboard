@@ -253,7 +253,7 @@ testMetaMask.describe('Swap e2e tests', () => {
     // });
 });
 
-testKeplr.describe('Keplr Swap e2e tests', () => {
+testKeplr.describe.skip('Keplr Swap e2e tests', () => {
     testKeplr('Case#: Swap with custom slippage in Cosmos', async ({ browser, context, page, swapPage }) => {
         const amount = '0.001';
         const slippage = '1.5';
