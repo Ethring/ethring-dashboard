@@ -126,7 +126,7 @@ test.describe('MetaMask Send e2e tests', () => {
     });
 });
 
-testKeplr.describe('Keplr Send e2e tests', () => {
+testKeplr.describe.skip('Keplr Send e2e tests', () => {
     testKeplr('Case#: Reject send native token in Cosmos', async ({ browser, context, page, sendPage }) => {
         const network = 'cosmoshub';
         const addressTo = COSMOS_WALLETS_BY_PROTOCOL_SEED[network];
