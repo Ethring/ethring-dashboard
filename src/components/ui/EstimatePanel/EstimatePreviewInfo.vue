@@ -1,18 +1,26 @@
 <template>
-    <a-collapse expand-icon-position="end" v-model:activeKey="activeKey" :class="{ isActive }" :bordered="false"
-        class="estimate-info" @change="() => (isActive = !isActive)">
+    <a-collapse
+        expand-icon-position="end"
+        v-model:activeKey="activeKey"
+        :class="{ isActive }"
+        :bordered="false"
+        class="estimate-info"
+        @change="() => (isActive = !isActive)"
+    >
         <template #expandIcon>
             <ArrowDownIcon class="arrow" />
         </template>
 
-        <a-collapse-panel key="estimate-info"
+        <a-collapse-panel
+            key="estimate-info"
             :collapsible="(isCollapsible || isShowExpand) && !isLoading ? '' : 'disabled'"
-            :showArrow="isCollapsible || (isShowExpand && !isLoading)" data-qa="estimate-info">
+            :showArrow="isCollapsible || (isShowExpand && !isLoading)"
+            data-qa="estimate-info"
+        >
             <template #header>
                 <div class="top-block">
                     <template v-if="isLoading">
                         <a-space>
-                            <a-skeleton-avatar active size="small" class="icon-skeleton" />
                             <a-skeleton-input active size="small" class="skeleton" />
                         </a-space>
                     </template>
@@ -52,8 +60,11 @@
 
             <!-- Collapse content -->
             <template v-if="((isCollapsible && !isLoading) || isShowExpand) && services">
-                <EstimateStats :title="$t('tokenOperations.minReceived')" :fromAmount="minOutAmount(amount)"
-                    :fromSymbol="mainRate?.toSymbol" />
+                <EstimateStats
+                    :title="$t('tokenOperations.minReceived')"
+                    :fromAmount="minOutAmount(amount)"
+                    :fromSymbol="mainRate?.toSymbol"
+                />
                 <EstimateStats :title="$t('tokenOperations.maxSlippage')" :fromAmount="slippage" fromSymbol="%" />
 
                 <a-row justify="space-between" align="middle">
@@ -69,15 +80,21 @@
                         <div class="preview-title">{{ $t('tokenOperations.route') }}</div>
 
                         <a-row>
-                            <div v-for="tag in estimatedTag(services)" :key="tag"
-                                :class="{ 'preview-services-tag': true, [tag.class]: true }">
+                            <div
+                                v-for="tag in estimatedTag(services)"
+                                :key="tag"
+                                :class="{ 'preview-services-tag': true, [tag.class]: true }"
+                            >
                                 {{ tag.status }}
                             </div>
 
                             <template v-for="(route, index) in services" :key="route">
-                                <ServiceIcon :icon="servicesHash[route.serviceId]?.icon"
-                                    :name="servicesHash[route.serviceId]?.name" :show-title="true"
-                                    class="services-icon" />
+                                <ServiceIcon
+                                    :icon="servicesHash[route.serviceId]?.icon"
+                                    :name="servicesHash[route.serviceId]?.name"
+                                    :show-title="true"
+                                    class="services-icon"
+                                />
                                 <ArrowDownIcon class="arrow" v-if="index !== services?.length - 1" />
                             </template>
                         </a-row>
@@ -165,7 +182,7 @@ export default {
 
         onClickExpand: {
             type: Function,
-            default: () => { },
+            default: () => {},
         },
 
         amount: {
@@ -264,7 +281,6 @@ export default {
 </script>
 <style lang="scss">
 .preview {
-
     &-header,
     &-services-wrap,
     &-row {
@@ -295,7 +311,7 @@ export default {
         @include pageFlexRow;
         justify-content: space-between;
 
-        &>div {
+        & > div {
             display: flex;
             align-items: center;
             height: 24px;
@@ -365,10 +381,11 @@ export default {
 
     .skeleton {
         height: 24px;
-    }
 
-    .icon-skeleton {
-        margin-right: 8px;
+        span {
+            width: 200px !important;
+            min-width: 200px !important;
+        }
     }
 
     .top-block {
