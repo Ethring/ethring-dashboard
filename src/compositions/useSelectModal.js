@@ -20,7 +20,7 @@ export default function useSelectModal(type) {
 
     const LIST_CONTAINER = '.select-modal-list-container';
 
-    const MAX_OPTIONS_PER_PAGE = 12;
+    const MAX_OPTIONS_PER_PAGE = 20;
 
     // =================================================================================================================
 
@@ -129,7 +129,7 @@ export default function useSelectModal(type) {
     };
 
     const handleAfterClose = () => {
-        changeScroll(true);
+        changeScroll();
         isLoadMore.value = false;
         currentIndex.value = MAX_OPTIONS_PER_PAGE;
         handleOnFilterNetworks('');
@@ -142,7 +142,7 @@ export default function useSelectModal(type) {
             isLoadMore.value = false;
         }
 
-        changeScroll();
+        // changeScroll();
     };
 
     // =================================================================================================================
