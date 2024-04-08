@@ -103,7 +103,7 @@ Build dev:
 Build beta:
   extends: .dockerBuildJob
   environment:
-    name: dev
+    name: prod
   rules:
     - if: $CI_COMMIT_BRANCH == "beta"
 
@@ -149,7 +149,7 @@ Deploy beta:
     NAME: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
     TEMPLATE: auth-template.yml
   environment:
-    name: dev
+    name: prod
   rules:
     - if: $CI_COMMIT_BRANCH == "beta"
 
