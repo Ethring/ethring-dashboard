@@ -448,7 +448,7 @@ export default class OperationFactory implements IOperationFactory {
         return BigNumber(amount).multipliedBy(percentage).dividedBy(100).toFixed(6);
     }
 
-    getPercentageOfSuccessOperations(): string {
+    getPercentageOfSuccessOperations(): number {
         const STATUS_TO_EXCLUDE = [STATUSES.PENDING, STATUSES.ESTIMATING];
         const STATUS_TO_HALF_SUCCESS = [STATUSES.IN_PROGRESS, STATUSES.SIGNING, STATUSES.REJECTED, STATUSES.FAILED];
 
@@ -456,16 +456,19 @@ export default class OperationFactory implements IOperationFactory {
 
         const successScore = operations.reduce((score, operation) => {
             const status = this.operationsStatusByKey.get(operation);
-            if (STATUS_TO_EXCLUDE.includes(status)) {
-                return 0;
-            } else if (STATUS_TO_HALF_SUCCESS.includes(status)) {
-                return score + 0.5;
-            } else {
-                return score + 1;
-            }
+
+            if (STATUS_TO_HALF_SUCCESS.includes(status)) return score + 0.5;
+            if (STATUS_TO_EXCLUDE.includes(status)) return score;
+            return score + 1;
         }, 0);
 
-        return BigNumber(successScore).dividedBy(operations.length).multipliedBy(100).toFixed(2);
+        console.log('SUCCESS SCORE', successScore);
+
+        console.log('OPERATIONS LENGTH', operations.length);
+
+        console.log('PERCENTAGE', BigNumber(successScore).dividedBy(operations.length).multipliedBy(100).toFixed(2));
+
+        return Number(BigNumber(successScore).dividedBy(operations.length).multipliedBy(100).toFixed(2));
     }
 
     getOperationsCount(): number {

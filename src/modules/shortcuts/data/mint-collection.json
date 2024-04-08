@@ -1,0 +1,105 @@
+{
+    "id": "mint-collection",
+    "name": "Recipe #2: Mint collection",
+    "logoURI": "https://citadel.one/static/media/logo.3e3e3e3e.svg",
+    "keywords": [
+        "NFT",
+        "MINT",
+        "STARS"
+    ],
+    "tags": [
+        "NFT",
+        "MINT"
+    ],
+    "type": "nft",
+    "description": "Mint collection of NFTs on Stargaze Zone",
+    "website": "https://www.stargaze.zone/",
+    "author": {
+        "name": "zomet.app",
+        "avatar": "https://zomet-logo.png"
+    },
+    "ecosystems": [
+        "EVM",
+        "COSMOS"
+    ],
+    "minUsdAmount": 1,
+    "recipe": {
+        "id": "mint-collection",
+        "operations": [
+            {
+                "id": "bridge-eth-to-osmo",
+                "name": "Bridge Tokens to COSMOS (Osmosis)",
+                "type": "operation",
+                "moduleType": "superSwap",
+                "operationType": "BRIDGE",
+                "serviceId": "squid",
+                "layoutComponent": "SuperSwap",
+                "isShowLayout": true,
+                "excludeChains": [
+                    "osmosis",
+                    "stargaze",
+                    "cosmoshub",
+                    "optimism",
+                    "eth",
+                    "fantom",
+                    "injective"
+                ],
+                "ecosystems": [
+                    "EVM",
+                    "COSMOS"
+                ],
+                "operationParams": {
+                    "fromNet": "bsc",
+                    "toNet": "osmosis",
+                    "fromToken": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+                    "toToken": "uosmo"
+                },
+                "params": [
+                    {
+                        "name": "srcNetwork",
+                        "hide": false,
+                        "disabled": false,
+                        "ecosystem": "EVM",
+                        "chainId": 56
+                    },
+                    {
+                        "name": "srcToken",
+                        "disabled": false,
+                        "hide": false,
+                        "chain": "bsc",
+                        "address": null,
+                        "id": "bsc:tokens__native:BNB"
+                    },
+                    {
+                        "name": "dstNetwork",
+                        "disabled": true,
+                        "hide": false,
+                        "ecosystem": "COSMOS",
+                        "chainId": "osmosis"
+                    },
+                    {
+                        "name": "dstToken",
+                        "disabled": true,
+                        "hide": false,
+                        "id": "osmosis:tokens__native:OSMO",
+                        "chain": "osmosis",
+                        "address": "uosmo"
+                    },
+                    {
+                        "name": "switchDirection",
+                        "disabled": true,
+                        "hide": true
+                    },
+                    {
+                        "name": "isSendToAnotherAddress",
+                        "hide": true
+                    },
+                    {
+                        "name": "isReload",
+                        "hide": true
+                    }
+                ]
+            }
+        ]
+    }
+}

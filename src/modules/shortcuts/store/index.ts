@@ -309,13 +309,16 @@ export default {
             commit(TYPES.SET_SHORTCUT_STATUS, { shortcutId, status });
         },
 
-        resetShortcut({ commit, state, getters }: any, { shortcutId }: { shortcutId: string }) {
-            commit(TYPES.SET_CURRENT_INDEX, { index: 0 });
-            commit(TYPES.SET_SHORTCUT_STATUS, { shortcutId, status: SHORTCUT_STATUSES.PENDING });
-
+        resetShortcut({ commit, state }: any, { shortcutId, stepId }: { shortcutId: string; stepId?: string }) {
             if (state.shortcutOps[shortcutId]) {
                 state.shortcutOps[shortcutId].resetOperationsStatus();
             }
+
+            commit(TYPES.SET_CURRENT_INDEX, { index: 0 });
+
+            commit(TYPES.SET_SHORTCUT_STATUS, { shortcutId, status: SHORTCUT_STATUSES.PENDING });
+
+            stepId && commit(TYPES.SET_CURRENT_STEP_ID, { stepId, shortcutId });
         },
 
         resetAllShortcuts({ commit, state, getters }: any) {

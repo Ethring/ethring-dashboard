@@ -12,6 +12,10 @@
         "COSMOS",
         "STAKE"
     ],
+    "ecosystems": [
+        "EVM",
+        "COSMOS"
+    ],
     "type": "stake",
     "description": "Stake your COSMOS ecosystem tokens to the Citadel.one validator and earn rewards.",
     "website": "https://citadel.one/",
@@ -19,7 +23,7 @@
         "name": "zomet.app",
         "avatar": "https://zomet-logo.png"
     },
-    "minUsdAmount": 2,
+    "minUsdAmount": 1,
     "recipe": {
         "id": "citadel-one-stake",
         "operations": [
@@ -34,7 +38,6 @@
                 "isShowLayout": true,
                 "excludeChains": [
                     "osmosis",
-                    "stargaze",
                     "cosmoshub",
                     "optimism",
                     "eth",

@@ -35,7 +35,7 @@
                         [operationProgressStatus]: operationProgressStatus,
                     }"
                 >
-                    <a-progress :percent="+operationProgress" size="small" :status="operationProgressStatus" />
+                    <a-progress :percent="operationProgress" size="small" :status="operationProgressStatus" />
                 </div>
 
                 <div class="status-title">{{ statusTitle }} {{ shortcutIndex + 1 }} / {{ operationsCount }}</div>
@@ -53,7 +53,7 @@
     </div>
 </template>
 <script lang="ts">
-import { h, computed, ref } from 'vue';
+import { h, computed, ref, watch, onMounted, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
@@ -107,8 +107,6 @@ export default {
                 shortcutStatus.value !== STATUSES.PENDING,
         );
 
-        const steps = computed(() => store.getters['shortcuts/getShortcutSteps'](props.shortcutId));
-
         const isShowTryAgain = computed(() => [STATUSES.FAILED, STATUSES.SUCCESS].includes(shortcutStatus.value as STATUSES));
 
         const isShortcutLoading = computed(() => store.getters['shortcuts/getIsShortcutLoading'](props.shortcutId));
@@ -127,19 +125,23 @@ export default {
         });
 
         const operationsCount = computed<number>(() => {
-            if (!factory.value) return 0;
-            if (typeof factory.value.getOperationsCount !== 'function') return 0;
-            return factory.value.getOperationsCount() || 0;
+            if (!store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId)) return 0;
+            if (typeof store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId).getOperationsCount !== 'function') return 0;
+            return store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId).getOperationsCount() || 0;
         });
 
-        const operationProgress = computed<string>(() => {
-            if (!factory.value) return '0';
-            if (typeof factory.value.getPercentageOfSuccessOperations !== 'function') return '0';
-            return factory.value?.getPercentageOfSuccessOperations() || '0';
-        });
+        const operationProgress = ref<number>(0);
+
+        const updateProgress = () => {
+            if (!store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId)) return 0;
+            if (typeof store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId)?.getPercentageOfSuccessOperations !== 'function')
+                return 0;
+
+            return store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId)?.getPercentageOfSuccessOperations() || 0;
+        };
 
         const operationProgressStatus = computed(() => {
-            if (+operationProgress.value === 100) {
+            if (operationProgress.value === 100) {
                 return 'success';
             } else if (shortcutStatus.value === STATUSES.FAILED) {
                 return 'exception';
@@ -149,7 +151,7 @@ export default {
         });
 
         const handleOnTryAgain = () => {
-            console.log('CALLING TRY AGAIN', shortcutIndex.value, shortcutStatus.value, operationsCount.value);
+            console.log('CALLING TRY AGAIN', shortcutIndex.value, shortcutStatus.value, operationsCount.value - 1);
 
             const flow = factory.value.getFullOperationFlow();
 
@@ -164,37 +166,28 @@ export default {
             console.log('firstOpId', firstOpId, 'lastOpId', lastOpId, 'currentStepId', currentStepId.value);
 
             if (shortcutIndex.value === 0 && shortcutStatus.value === STATUSES.FAILED) {
-                store.dispatch('tokenOps/setCallConfirm', {
+                return store.dispatch('tokenOps/setCallConfirm', {
                     module: ModuleType.shortcut,
                     value: true,
                 });
             }
 
-            if (currentStepId.value === firstOpId) {
-                store.dispatch('shortcuts/setShortcutStatus', {
+            if (currentStepId.value === firstOpId || shortcutIndex.value === 0) {
+                return store.dispatch('shortcuts/setShortcutStatus', {
                     shortcutId: props.shortcutId,
                     status: STATUSES.PENDING,
                 });
-            } else if (currentStepId.value === lastOpId) {
-                store.dispatch('shortcuts/resetShortcut', {
-                    shortcutId: props.shortcutId,
-                });
-            }
+            } else if (currentStepId.value === lastOpId || operationsCount.value - 1 === shortcutIndex.value) {
+                operationProgress.value = 0;
 
-            if (shortcutStatus.value === SHORTCUT_STATUSES.SUCCESS) {
-                store.dispatch('shortcuts/setShortcutStatus', {
-                    shortcutId: props.shortcutId,
-                    status: SHORTCUT_STATUSES.PENDING,
-                });
-
-                store.dispatch('shortcuts/resetShortcut', {
-                    shortcutId: props.shortcutId,
-                });
+                store.dispatch('shortcuts/setCurrentStepId', firstOpId);
 
                 store.dispatch('tokenOps/setSrcAmount', null);
                 store.dispatch('tokenOps/setDstAmount', null);
 
-                return;
+                return store.dispatch('shortcuts/resetShortcut', {
+                    shortcutId: props.shortcutId,
+                });
             }
         };
 
@@ -260,6 +253,28 @@ export default {
                 default:
                     return 'Transaction waiting for confirmation';
             }
+        });
+
+        store.watch(
+            (state, getters) => getters['shortcuts/getShortcutIndex'],
+            () => {
+                console.log('operationProgress #OP-INDEX', operationProgress.value, updateProgress());
+                operationProgress.value = updateProgress();
+            },
+        );
+
+        watch(operationStatus, () => {
+            console.log('operationProgress #OP-STATUS', operationProgress.value, updateProgress());
+            operationProgress.value = updateProgress();
+        });
+
+        onMounted(() => {
+            operationProgress.value = 0;
+            operationProgress.value = updateProgress();
+        });
+
+        onUnmounted(() => {
+            operationProgress.value = 0;
         });
 
         return {
@@ -413,9 +428,16 @@ export default {
             justify-content: center;
             align-items: center;
 
+            background-color: var(--#{$prefix}select-bg-color);
+            width: 30px;
+            height: 30px;
+            max-width: 30px;
+            max-height: 30px;
+
+            border-radius: 50%;
             svg {
-                width: 30px;
-                height: 30px;
+                width: 20px;
+                height: 20px;
             }
         }
     }
