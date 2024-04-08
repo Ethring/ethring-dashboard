@@ -740,9 +740,17 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
 
     const handleOnConfirm = async () => {
-        isTransactionSigning.value = true;
+        try {
+            isTransactionSigning.value = true;
+            if (ecosystemToConnect.value) return await connectWalletByEcosystem(ecosystemToConnect.value);
+        } catch (error) {
+            console.error('useModuleOperations -> handleOnConfirm -> connectWalletByEcosystem -> error', error);
+            throw error;
+        } finally {
+            isTransactionSigning.value = false;
+        }
 
-        if (ecosystemToConnect.value) return await connectWalletByEcosystem(ecosystemToConnect.value);
+        isTransactionSigning.value = true;
 
         // ===============================================================================================
         // * Get operations

@@ -97,7 +97,10 @@ export default {
     getters: {
         // * Loaders
         isReloadRoutes: (state: IState) => state.reloadRoutes,
-        getLoaderState: (state: IState) => (type: string) => state.loaders[type] || false,
+        getLoaderState: (state: IState) => (type: string) => {
+            if (typeof state.loaders[type] === 'undefined') state.loaders[type] = false;
+            return state.loaders[type] || false;
+        },
 
         // * Getters for Services
         getAllServiceList: (state: IState) => state.services,
