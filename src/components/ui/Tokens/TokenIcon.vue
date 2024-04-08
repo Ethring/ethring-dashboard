@@ -1,20 +1,11 @@
 <template>
-    <div
-        class="token-icon"
-        :style="{
-            width: `${width}px`,
-            height: `${height}px`,
-        }"
-    >
+    <div class="token-icon" :style="{
+        width: `${width}px`,
+        height: `${height}px`,
+    }">
         <template v-if="token && !isShowPlaceholder">
-            <img
-                :key="token?.symbol"
-                :src="token?.logo"
-                :alt="token?.name || token?.symbol"
-                loading="lazy"
-                @error="() => handleOnErrorImg()"
-                @load="() => handleOnLoadImg()"
-            />
+            <img :key="token?.symbol" :src="token?.logo" :alt="token?.name || token?.symbol" loading="lazy"
+                @error="() => handleOnErrorImg()" @load="() => handleOnLoadImg()" />
         </template>
         <template v-else>
             <div class="token-icon__placeholder">
@@ -107,8 +98,9 @@ export default {
     }
 
     &__placeholder {
-        font-size: var(--#{$prefix}small-sm-fs);
         span {
+            font-size: var(--#{$prefix}small-xs-fs) !important;
+            color: var(--#{$prefix}primary-text);
             background: var(--#{$prefix}icon-logo-bg-color);
         }
     }
