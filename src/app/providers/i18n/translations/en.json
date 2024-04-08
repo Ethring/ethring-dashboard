@@ -15,7 +15,7 @@
     "asset": "Asset",
     "updateAvailable": "A new version of application is available. Click the Update button below to get the new version with the latest features and improvements",
     "updatingBalances": "Fetching balances ...",
-    "updateBalances": "Fetch balances (Coming soon)",
+    "updateBalances": "Fetch balances",
     "releaseNotes": "Read release notes",
     "switchTheme": "Switch theme",
     "buyCrypto": "Buy crypto",
