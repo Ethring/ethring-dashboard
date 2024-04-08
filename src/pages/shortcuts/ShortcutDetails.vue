@@ -45,7 +45,7 @@
 <script lang="ts">
 import _ from 'lodash';
 
-import { computed, onMounted, onUnmounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -92,10 +92,6 @@ export default {
             if (_.isEmpty(shortcut.value)) {
                 return router.push('/shortcuts');
             }
-        });
-
-        onUnmounted(() => {
-            store.dispatch('shortcuts/resetShortcut');
         });
 
         return {
