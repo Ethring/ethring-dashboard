@@ -12,10 +12,14 @@ export interface IShortcutData {
     type: 'stake'; // Assuming this is the only possible type
     description: string;
     website: string;
-    recipe: {
+
+    recipe?: {
         id: string;
-        operations: (IShortcutRecipe | IShortcutOp)[];
+        operations: IShortcutRecipe[] | IShortcutOp[];
     };
+
+    recipes: ShortcutRecipe[];
+    operations: IShortcutOp[];
 }
 
 export default class Shortcut implements IShortcutData {
@@ -28,13 +32,15 @@ export default class Shortcut implements IShortcutData {
     description: string;
     minUsdAmount: number;
     website: string;
-    recipe: {
+
+    recipe?: {
         id: string;
-        operations: (ShortcutRecipe | ShortcutOp)[];
-    } = {
-        id: '',
-        operations: [],
+        operations: IShortcutRecipe[];
     };
+
+    recipes: ShortcutRecipe[];
+
+    operations: ShortcutOp[] = []; // Assuming this is the only possible type
 
     constructor(shortcut: IShortcutData) {
         this.id = shortcut.id;
@@ -46,18 +52,35 @@ export default class Shortcut implements IShortcutData {
         this.description = shortcut.description;
         this.website = shortcut.website;
         this.minUsdAmount = shortcut.minUsdAmount;
+        this.recipes = [];
 
-        const { operations = [] } = shortcut.recipe || {};
+        this.recipe = shortcut.recipe as any;
 
-        for (const op of operations || []) {
+        const { id, operations: recipeOperations } = shortcut.recipe || {};
+
+        for (const op of recipeOperations || []) {
             switch (op.type) {
                 case ShortcutType.recipe:
-                    this.recipe.operations.push(new ShortcutRecipe(op as IShortcutRecipe));
+                    this.processRecipe(op as IShortcutRecipe);
                     break;
                 case ShortcutType.operation:
-                    this.recipe.operations.push(new ShortcutOp(op as IShortcutOp));
+                    this.processOperation(op as IShortcutOp);
                     break;
             }
         }
+    }
+
+    processRecipe(recipe: IShortcutRecipe) {
+        this.recipes.push(new ShortcutRecipe(recipe));
+
+        const { operations = [] } = recipe;
+
+        for (const op of operations) {
+            this.operations.push(new ShortcutOp(op as IShortcutOp));
+        }
+    }
+
+    processOperation(operation: IShortcutOp) {
+        this.operations.push(new ShortcutOp(operation));
     }
 }

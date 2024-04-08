@@ -1,5 +1,5 @@
 <template>
-    <div class="step-operation-info">
+    <div class="step-operation-info" v-if="operation">
         <div class="label">
             {{ label }}
         </div>
@@ -62,14 +62,6 @@ export default {
             type: String,
             required: true,
         },
-        assetChain: {
-            type: Object,
-            required: true,
-            default: () => ({
-                from: {},
-                to: {},
-            }),
-        },
     },
     components: {
         InfoCircleOutlined,
@@ -86,6 +78,23 @@ export default {
             return factory.value.getOperationById(props.operationId);
         });
 
+        const assetChain = computed(() => {
+            const fromAssetChain = {
+                symbol: operation.value.getToken('from')?.chain,
+                logo: store.getters['configs/getChainLogoByNet'](operation.value.getToken('from')?.chain),
+            };
+
+            const toAssetChain = {
+                symbol: operation.value.getToken('to')?.chain,
+                logo: store.getters['configs/getChainLogoByNet'](operation.value.getToken('to')?.chain),
+            };
+
+            return {
+                from: fromAssetChain,
+                to: toAssetChain,
+            };
+        });
+
         const additionalTooltips = computed(() => {
             if (!operation.value) return [];
 
@@ -95,6 +104,7 @@ export default {
         return {
             factory,
             operation,
+            assetChain,
             additionalTooltips,
         };
     },

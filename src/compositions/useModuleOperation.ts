@@ -20,7 +20,7 @@ import { Transaction, TransactionList } from '@/Transactions/TX-manager';
 import { ServiceType } from '@/modules/bridge-dex/enums/ServiceType.enum';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
-import { TRANSACTION_TYPES, STATUSES } from '@/shared/models/enums/statuses.enum';
+import { TRANSACTION_TYPES, STATUSES, SHORTCUT_STATUSES } from '@/shared/models/enums/statuses.enum';
 import { ServiceByModule } from '../modules/bridge-dex/enums/ServiceType.enum';
 import { IBaseTransactionParams } from '@/modules/bridge-dex/models/Transaction/EvmTx.type';
 import { ITransaction, ITransactionResponse } from '../Transactions/types/Transaction';
@@ -39,25 +39,9 @@ import DexOperation from '@/modules/operations/Dex';
 import { IBaseOperation } from '@/modules/operations/models/Operations';
 
 const useModuleOperations = (module: ModuleType) => {
-    const currentModule = ref(module);
-
-    const {
-        walletAddress,
-        currentChainInfo,
-        setNewChain,
-        setChain,
-        connectByEcosystems,
-        getChainByChainId,
-        getConnectedStatus,
-        switchEcosystem,
-    } = useAdapter();
-
     const store = useStore();
 
-    const isTransactionSigning = computed({
-        get: () => store.getters['txManager/isTransactionSigning'],
-        set: (value) => store.dispatch('txManager/setTransactionSigning', value),
-    });
+    const currentModule = ref(module);
 
     const isForceCallConfirm = computed({
         get: () => store.getters['tokenOps/isForceCallConfirm'](currentModule.value),
@@ -68,9 +52,33 @@ const useModuleOperations = (module: ModuleType) => {
             }),
     });
 
+    const isTransactionSigning = computed({
+        get: () => store.getters['txManager/isTransactionSigning'],
+        set: (value) => store.dispatch('txManager/setTransactionSigning', value),
+    });
+
+    const setIsTransactionSigning = (from: string, value: boolean) => {
+        console.log('########## Set is transaction signing', from, value);
+        isTransactionSigning.value = value;
+    };
+
+    // *************************** MODULE COMPOSITIONS ***************************
+
+    // ===============================================================================================
+    // * Adapter
+    // ===============================================================================================
+
+    const { walletAddress, currentChainInfo, setChain, connectByEcosystems, getChainByChainId, getConnectedStatus, switchEcosystem } =
+        useAdapter();
+
+    // ===============================================================================================
+    // * Notification
+    // ===============================================================================================
     const { showNotification, closeNotification } = useNotification();
 
+    // ===============================================================================================
     // * Module values
+    // ===============================================================================================
     const moduleInstance = useServices(module);
 
     const {
@@ -100,13 +108,12 @@ const useModuleOperations = (module: ModuleType) => {
         selectedRoute,
         receiverAddress,
 
-        clearAllowance,
-
         opTitle,
     } = moduleInstance;
 
     const { signAndSend } = useTransactions();
 
+    // * Input validation composition helpers
     const {
         isSameNetwork,
         isSrcTokenChainCorrect,
@@ -132,16 +139,31 @@ const useModuleOperations = (module: ModuleType) => {
         return ServiceType[ServiceByModule[module]];
     });
 
-    const currentShortcut = computed<{ id: string; stepId: string }>(() => {
-        const shortcutId = store.getters['shortcuts/getCurrentShortcutId'];
+    // ************************************** SHORTCUTS **************************************
 
-        return {
-            id: shortcutId,
-            stepId: store.getters['shortcuts/getCurrentStepId'],
-        };
-    });
+    // ===============================================================================================
+    // * Current shortcut
+    // ===============================================================================================
 
-    const shortcutOps = computed<OperationsFactory>(() => store.getters['shortcuts/getShortcutOpsFactory'](currentShortcut.value.id));
+    const currentShortcutId = computed(() => store.getters['shortcuts/getCurrentShortcutId']);
+    const currentStepId = computed(() => store.getters['shortcuts/getCurrentStepId']);
+    const shortcutIndex = computed(() => store.getters['shortcuts/getShortcutIndex']);
+    const firstOp = ref({} as IBaseOperation);
+
+    // ===============================================================================================
+    // * Shortcut operations
+    // ===============================================================================================
+    const shortcutOps = computed<OperationsFactory>(() => store.getters['shortcuts/getShortcutOpsFactory'](currentShortcutId.value));
+
+    const setShortcutStatus = (status: SHORTCUT_STATUSES): void => {
+        if (!shortcutOps.value) return;
+        if (!currentShortcutId.value) return;
+
+        store.dispatch('shortcuts/setShortcutStatus', {
+            status,
+            shortcutId: currentShortcutId.value,
+        });
+    };
 
     // ===============================================================================================
     // * Shortcut Module type
@@ -152,6 +174,8 @@ const useModuleOperations = (module: ModuleType) => {
         module = ModuleType.shortcut;
         currentModule.value = ModuleType.shortcut;
     });
+
+    // *************************************** WALLET ADDRESSES ***************************************
 
     // ===============================================================================================
     // * Addresses with chains by ecosystem
@@ -185,6 +209,9 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
     // * Check if need to connect
     // ===============================================================================================
+    // ===============================================================================================
+    // * Connect by ecosystem
+    // ===============================================================================================
 
     const ecosystemToConnect = computed(() => {
         const isSuperSwap = [ModuleType.superSwap, ModuleType.shortcut].includes(module);
@@ -207,51 +234,103 @@ const useModuleOperations = (module: ModuleType) => {
         return null;
     });
 
-    // ===============================================================================================
-    // * Operations - On success by transaction type
-    // ===============================================================================================
-
-    const ON_SUCCESS_BY_TYPE = {
-        [TRANSACTION_TYPES.APPROVE]: async (operation: IBaseOperation) => {
-            console.log('Approve success', 'Update allowance', operation);
-
-            if (!operation) return;
-
-            const serviceId = operation.getParamByField('serviceId');
-            const net = operation.getParamByField('net');
-            const ownerAddress = operation.getParamByField('ownerAddress');
-            const tokenAddress = operation.getParamByField('tokenAddress');
-
-            if (!serviceId || !ownerAddress || !tokenAddress) return;
-
-            return await clearAllowance(serviceId, {
-                net,
-                ownerAddress,
-                tokenAddress,
-            });
-        },
-        [TRANSACTION_TYPES.DEX]: () => {
-            console.log('Swap success', 'Update balance');
-        },
-        [TRANSACTION_TYPES.TRANSFER]: () => {
-            console.log('Transfer success', 'Update balance');
-        },
-        [TRANSACTION_TYPES.STAKE]: () => {
-            console.log('Stake success', 'Update balance');
-        },
-    };
-
-    // ===============================================================================================
-    // * Connect by ecosystem
-    // ===============================================================================================
-
     const connectWalletByEcosystem = async (ecosystem: string) => {
-        await connectByEcosystems(ecosystem);
+        return await connectByEcosystems(ecosystem);
     };
 
+    // ***********************************************************************************************
+
     // ===============================================================================================
-    // * Shortcut status
+    // * Check wallet connected by ecosystem and chain
     // ===============================================================================================
+    const checkWalletConnected = async (tx: Transaction): Promise<boolean> => {
+        console.debug('-'.repeat(10), 'TX ECOSYSTEM CHECK', '-'.repeat(10), '\n');
+
+        console.debug('Current ecosystem:', currentChainInfo.value?.ecosystem);
+        console.debug('Current chain:', currentChainInfo.value);
+
+        const isEcosystemEqual = () => _.isEqual(currentChainInfo.value?.ecosystem, tx.getEcosystem());
+        const isChainsEqual = () => {
+            const { ecosystem, chain_id = '' } = currentChainInfo.value || {};
+
+            if (_.isEmpty(chain_id)) return false;
+
+            if ([ECOSYSTEMS.EVM].includes(ecosystem) && typeof chain_id === 'string' && _.startsWith(chain_id, '0x')) {
+                return _.isEqual(`${+chain_id}`, tx.getChainId());
+            }
+
+            return _.isEqual(`${chain_id}`, tx.getChainId());
+        };
+
+        const isEverythingCorrect = () => {
+            const isOk = isEcosystemEqual() && isChainsEqual();
+
+            isOk && console.debug('Ecosystem and chain is correct');
+
+            return isOk;
+        };
+
+        const generateError = (): string => {
+            const ecosystemError = `Ecosystem is not correct, expected ${tx.getEcosystem()}, got ${currentChainInfo.value?.ecosystem}`;
+            const chainError = `Chain is not correct, expected ${tx.getChainId()}, got ${currentChainInfo.value?.chain_id}`;
+
+            let errorMessage = '';
+
+            if (!isEcosystemEqual()) errorMessage += ecosystemError + '\n';
+            if (!isChainsEqual()) errorMessage += chainError + '\n';
+
+            return errorMessage;
+        };
+
+        try {
+            // #1 - Check if wallet chain is correct, if correct, skip
+            if (isEverythingCorrect()) return;
+
+            // #2 - Check if wallet ecosystem is connected
+            if (getConnectedStatus(tx.getEcosystem()) && !isEcosystemEqual()) {
+                console.debug('Ecosystem is connected, but not correct, try to switch', tx.getEcosystem());
+                await switchEcosystem(tx.getEcosystem());
+                await delay(500); // ! Wait for ecosystem switch
+            }
+
+            // #3 - If ecosystem is not connected, try to connect
+            if (!isEcosystemEqual()) {
+                console.debug('Ecosystem is not connected, try to connect', tx.getEcosystem(), 'wallet');
+                await connectByEcosystems(tx.getEcosystem());
+            }
+
+            // #4 - If ecosystem is connected, but chain is not correct, try to switch chain
+            if (isEcosystemEqual() && !isChainsEqual()) {
+                console.debug('Ecosystem is connected, but chain is not correct, try to switch', tx.getChainId());
+
+                const chainInfo = getChainByChainId(tx.getEcosystem(), tx.getChainId());
+
+                const changed = await setChain(chainInfo);
+
+                await delay(1200); // ! Wait for chain switch
+
+                if (!changed) throw new Error(generateError());
+            }
+
+            // #5 - If ecosystem and chain is correct, return or throw error
+            if (isEverythingCorrect()) return;
+
+            throw new Error(generateError());
+        } catch (error) {
+            console.error('useModuleOperations -> checkWalletConnected -> error', error);
+            closeNotification(`tx-${tx.getTxId()}`);
+            throw error;
+        } finally {
+            console.debug('-'.repeat(20));
+
+            console.debug('Current ecosystem:', currentChainInfo.value?.ecosystem);
+            console.debug('Current chain:', currentChainInfo.value?.chain_id);
+
+            console.debug('-'.repeat(10), 'TX ECOSYSTEM CHECK - DONE', '-'.repeat(10), '\n');
+        }
+    };
+
+    // ************************************** OPERATIONS **************************************
 
     const createOpsByModule = () => {
         const ops = new OperationsFactory();
@@ -339,37 +418,19 @@ const useModuleOperations = (module: ModuleType) => {
         return ops;
     };
 
-    // ===============================================================================================
-    // * Handle on confirm
-    // ===============================================================================================
+    const isShortcutOpsExist = () => shortcutOps.value && typeof shortcutOps.value.getFullOperationFlow === 'function';
 
-    const handleOnConfirm = async () => {
-        if (ecosystemToConnect.value) {
-            return await connectWalletByEcosystem(ecosystemToConnect.value);
-        }
+    const getOperations = (): OperationsFactory => {
+        // * If shortcut operations exist, return it
+        if (isShortcutOpsExist()) return shortcutOps.value;
 
-        isTransactionSigning.value = true;
+        // * if not, create new operations
+        return createOpsByModule();
+    };
 
-        let operations = shortcutOps.value;
-
-        console.log('Shortcut operations:', operations);
-
-        // * If operations not provided, create by module
-        if (!operations || typeof operations.getFullOperationFlow !== 'function') {
-            operations = createOpsByModule();
-        }
-
-        if (typeof shortcutOps.value?.getFullOperationFlow === 'function') {
-            store.dispatch('shortcuts/setShortcutStatus', {
-                status: STATUSES.IN_PROGRESS,
-                shortcutId: currentShortcut.value.id,
-            });
-        }
-
-        // * Get first operation
+    const initTransactionsGroupForOps = async (operations: OperationsFactory): Promise<TransactionList> => {
         const firstInGroup = operations.getFirstOperation();
 
-        // * Create transaction group
         const group = {
             index: 0,
             ecosystem: firstInGroup.getEcosystem(),
@@ -378,286 +439,394 @@ const useModuleOperations = (module: ModuleType) => {
             module: firstInGroup.getModule(),
         };
 
-        if (isNeedApprove.value) {
-            const beforeId = firstInGroup.getUniqueId();
-
-            const { key } =
-                operations.registerOperation(module, ApproveOperation, {
-                    before: beforeId,
-                }) || {};
-
-            const approveOperation = operations.getOperationByKey(key);
-
-            approveOperation.setParams({
-                net: selectedSrcNetwork.value?.net,
-                tokenAddress: selectedSrcToken.value?.address,
-                ownerAddress: srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value,
-                amount: srcAmount.value,
-                serviceId: selectedRoute.value.serviceId,
-            });
-
-            approveOperation.setEcosystem(selectedSrcNetwork.value?.ecosystem);
-            approveOperation.setChainId(selectedSrcNetwork.value?.chain_id);
-            approveOperation.setAccount(srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value);
-            approveOperation.setTokens({ from: selectedSrcToken.value });
-        }
-
-        const OP_FLOW = operations.getFullOperationFlow();
-
-        const ops = OP_FLOW.map((step, i) => {
-            return `${i === 0 ? '\t' : ''}${step.index}: ${step.type} [${step.moduleIndex}]\n`;
-        }).join(' -> ');
+        const txManager = new TransactionList(socket.getSocket(), store);
 
         try {
-            const txManager = new TransactionList(socket.getSocket(), store);
-
-            console.log(`Create transaction group for ${module}`, txManager);
             await txManager.createTransactionGroup(group as ITransaction);
 
-            for (const { index, type, make, moduleIndex, operationId } of OP_FLOW) {
-                if (operations.getOperationsStatusByKey(moduleIndex) === STATUSES.SUCCESS) {
-                    console.log('Operation already success, skip', moduleIndex);
-                    continue;
-                }
+            return txManager;
+        } catch (error) {
+            console.error('initTransactionsGroupForOps -> error', error);
+            throw error;
+        }
+    };
 
-                const tx = new Transaction(type);
+    const insertOrPassApproveOp = (operations: OperationsFactory): void => {
+        if (!isNeedApprove.value) return;
 
-                // * Set first transaction ID
-                if (index === 0) tx.setId(txManager.getFirstTxId());
+        const firstOpKeyByOrder = operations.getFirstOperationByOrder();
 
-                // * Set request ID
-                tx.setRequestID(txManager.getRequestId());
+        const firstInGroup = operations.getOperationByKey(firstOpKeyByOrder);
 
-                // * Prepare transaction
-                tx.prepare = async () => {
-                    console.debug('-'.repeat(10), 'TX PREPARE', '-'.repeat(10), '\n\n');
+        console.log('First in group', firstInGroup);
 
-                    console.log('moduleIndex', moduleIndex);
+        if (firstInGroup.transactionType === TRANSACTION_TYPES.APPROVE) return;
 
-                    try {
-                        if (operationId) shortcutOps.value.setOperationStatusById(operationId, STATUSES.IN_PROGRESS);
-                        else shortcutOps.value.setOperationStatusByKey(moduleIndex, STATUSES.IN_PROGRESS);
-                    } catch (error) {
-                        console.log(`Error on set operation status by key ${moduleIndex} or id ${operationId}`, error);
-                    }
+        const beforeId = firstInGroup.getUniqueId();
 
-                    const operation = operations.getOperationByKey(moduleIndex);
+        firstOp.value = firstInGroup;
 
-                    if (!operation) {
-                        console.error('Operation not found by key', moduleIndex);
-                        return;
-                    }
+        const { key } =
+            operations.registerOperation(module, ApproveOperation, {
+                before: beforeId,
+            }) || {};
 
-                    try {
-                        console.log('Prepare:', index, type, 'Transaction', operations.getOperationByKey(moduleIndex).params);
+        const approveOperation = operations.getOperationByKey(key);
 
-                        const prepared = operation.perform(
-                            index,
-                            operation.getAccount(),
-                            operation.getEcosystem(),
-                            operation.getChainId(),
-                            {
-                                make,
-                            },
-                        );
+        approveOperation.setParams({
+            net: selectedSrcNetwork.value?.net,
+            tokenAddress: selectedSrcToken.value?.address,
+            ownerAddress: srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value,
+            amount: srcAmount.value,
+            serviceId: selectedRoute.value.serviceId,
+        });
 
-                        console.log('PREPARED TX:', prepared);
+        approveOperation.setEcosystem(selectedSrcNetwork.value?.ecosystem);
+        approveOperation.setChainId(selectedSrcNetwork.value?.chain_id);
+        approveOperation.setAccount(srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value);
+        approveOperation.setTokens({ from: selectedSrcToken.value });
+    };
 
-                        const transaction = await txManager.addTransactionToGroup(index, prepared); // * Add or create transaction
+    const updateOperationStatus = (
+        status: STATUSES,
+        {
+            moduleIndex,
+            operationId,
+            hash,
+        }: {
+            moduleIndex: string;
+            operationId?: string;
+            hash?: string;
+        },
+    ): void => {
+        const operations = getOperations();
 
-                        if (!transaction) {
-                            console.error('Transaction not added to group', index, type, moduleIndex);
-                            return;
-                        }
+        const firstOpKeyByOrder = operations.getFirstOperationByOrder();
+        const firstInGroupByOrder = operations.getOperationByKey(firstOpKeyByOrder);
+        const firstInGroup = operations.getFirstOperation();
 
-                        if (index === 0) {
-                            const toSave = { ...tx.getTransaction(), ...prepared, id: transaction.id };
-                            tx.setTransaction(toSave);
-                        } else {
-                            tx.setId(transaction.id);
-                            tx.setTransaction(transaction);
-                        }
+        console.log('Update operation status', { status, moduleIndex, operationId, hash });
 
-                        const notificationTitle =
-                            tx.transaction.metaData.notificationTitle || `${tx.type} ${tx.transaction.metaData.params?.amount} ...`;
+        if (!operations || !status || !moduleIndex) {
+            console.warn('updateOperationStatus -> Error: Missing params', { operations, status, moduleIndex });
+            return;
+        }
 
-                        // * Show notification
-                        showNotification({
-                            key: `tx-${tx.getTxId()}`,
-                            type: 'info',
-                            title: notificationTitle,
-                            description: 'Please wait, transaction is preparing',
-                            duration: 0,
-                            prepare: true,
-                        });
-                    } catch (error) {
-                        console.error('useModuleOperations -> prepare -> error', error);
-                        throw error;
-                    }
-                };
+        if (!operations.getOperationByKey(moduleIndex) || (operationId && !operations.getOperationById(operationId))) {
+            console.error('Operation not found by id/key', moduleIndex, operationId);
+            return;
+        }
 
-                // * Set execute parameters
-                tx.setTxExecuteParameters = async () => {
-                    console.debug('-'.repeat(10), 'TX EXECUTE PARAMS', '-'.repeat(10), '\n\n');
+        if (hash) operations.getOperationByKey(moduleIndex).setParamByField('txHash', hash);
 
-                    try {
-                        const { transaction, ecosystem } = await operations
-                            .getOperationByKey(moduleIndex)
-                            .performTx(operations.getOperationByKey(moduleIndex).getEcosystem(), {
-                                serviceId: operations.getOperationByKey(moduleIndex).getParamByField('serviceId'),
-                            });
+        if (firstInGroupByOrder.getUniqueId() === moduleIndex) {
+            console.log('First in group', firstInGroup.getUniqueId(), 'Set status:', status);
+            operations.setOperationStatusByKey(firstInGroup.getUniqueId(), status);
+        }
 
-                        tx.setTransaction({
-                            ...tx.getTransaction(),
-                            parameters: transaction,
-                        });
+        if (operationId) return operations.setOperationStatusById(operationId, status);
 
-                        tx.setTransactionEcosystem(ecosystem.toUpperCase());
-                        tx.setChainId(operations.getOperationByKey(moduleIndex).getChainId());
+        operations.setOperationStatusByKey(moduleIndex, status);
+    };
 
-                        await tx.updateTransactionById(Number(tx.id), tx.getTransaction());
-                    } catch (error) {
-                        console.error('useModuleOperations -> setTxExecuteParameters -> error', error);
-                        throw error;
-                    }
-                };
+    const processTxOperation = (
+        txManager: TransactionList,
+        operations: OperationsFactory,
+        { flow, flowCount }: { flow: TxOperationFlow; flowCount: number },
+    ): void => {
+        const { index, type, make, moduleIndex, operationId } = flow;
 
-                // * Execute transaction
-                tx.execute = async () => {
-                    console.debug('-'.repeat(10), 'TX ECOSYSTEM CHECK', '-'.repeat(10), '\n');
-                    try {
-                        if (getConnectedStatus(tx.getEcosystem()) && currentChainInfo.value?.ecosystem !== tx.getEcosystem()) {
-                            console.debug('Already connected to ecosystem try to switch to ecosystem', tx.getEcosystem());
-                            await switchEcosystem(tx.getEcosystem());
-                            await delay(500);
-                        }
+        const checkOpIsExist = (): boolean => {
+            console.log('Check operation is exist', index, moduleIndex, operationId);
 
-                        if (!_.isEqual(currentChainInfo.value?.ecosystem, tx.getEcosystem())) {
-                            console.debug('Ecosystem is not connected, try to connect to ecosystem', tx.getEcosystem());
-                            await connectByEcosystems(tx.getEcosystem());
-                        } else if (
-                            _.isEqual(currentChainInfo.value?.ecosystem, tx.getEcosystem()) &&
-                            !_.isEqual(`${currentChainInfo.value?.chain_id}`, `${tx.getChainId()}`)
-                        ) {
-                            console.debug('Ecosystem is connected, try to switch to chain', tx.getChainId());
-                            const chainInfo = getChainByChainId(tx.getEcosystem(), tx.getChainId());
-
-                            const changed = await setChain(chainInfo);
-
-                            await delay(1000);
-
-                            if (!changed) {
-                                throw new Error('Incorrect chain');
-                            }
-                        }
-                    } catch (error) {
-                        console.error('useModuleOperations -> execute -> setChain -> error', error);
-                        closeNotification(`tx-${tx.getTxId()}`);
-                        throw error;
-                    }
-
-                    console.debug('-'.repeat(10), 'TX ECOSYSTEM CHECK --- DONE', '-'.repeat(10), '\n\n');
-                    await delay(1000);
-
-                    try {
-                        const forSign = tx.getTransaction();
-
-                        return await signAndSend(forSign, { ecosystem: tx.getEcosystem(), chain: tx.getChainId() });
-                    } catch (error) {
-                        console.error('useModuleOperations -> execute -> error', error);
-                        throw error;
-                    } finally {
-                        // * Close notification after transaction is signed and sent or failed
-                        closeNotification(`tx-${tx.getTxId()}`);
-                    }
-                };
-
-                // * On success
-                tx.onSuccess = async () => {
-                    if (ON_SUCCESS_BY_TYPE[type]) {
-                        await ON_SUCCESS_BY_TYPE[type](operations.getOperationByKey(moduleIndex));
-                    }
-
-                    if (index === OP_FLOW.length - 1) {
-                        isTransactionSigning.value = false;
-
-                        if (typeof shortcutOps.value?.getFullOperationFlow === 'function') {
-                            store.dispatch('shortcuts/setShortcutStatus', {
-                                status: STATUSES.SUCCESS,
-                                shortcutId: currentShortcut.value.id,
-                            });
-                        }
-                    }
-
-                    if (shortcutOps.value?.getOperationByKey(moduleIndex)) {
-                        shortcutOps.value.getOperationByKey(moduleIndex).setParamByField('txHash', tx.getTransaction().txHash);
-                        shortcutOps.value.setOperationStatusByKey(moduleIndex, STATUSES.SUCCESS);
-                    }
-                };
-
-                tx.onSuccessSignTransaction = async () => {
-                    console.log('Success sign and send transaction');
-
-                    if (_.isEqual(currentShortcut.value.stepId, operationId) && shortcutOps.value?.getOperationById(operationId)) {
-                        store.dispatch('shortcuts/nextStep', {
-                            shortcutId: currentShortcut.value.id,
-                        });
-                    }
-
-                    if (shortcutOps.value?.getOperationByKey(moduleIndex)) {
-                        shortcutOps.value.getOperationByKey(moduleIndex).setParamByField('txHash', tx.getTransaction().txHash);
-                        shortcutOps.value.setOperationStatusByKey(moduleIndex, STATUSES.SUCCESS);
-                    }
-
-                    console.log('-'.repeat(30), '\n\n\n');
-                };
-
-                // * On error
-                tx.onError = async (error) => {
-                    closeNotification(`tx-${tx.getTxId()}`);
-
-                    console.error('Error on transaction:', error);
-                    const errorMessage = error?.message || JSON.stringify(error);
-
-                    showNotification({
-                        key: 'tx-error',
-                        type: 'error',
-                        title: 'Transaction error',
-                        description: errorMessage,
-                        duration: 6,
-                    });
-
-                    if (shortcutOps.value?.getOperationByKey(moduleIndex)) {
-                        shortcutOps.value.setOperationStatusByKey(moduleIndex, STATUSES.FAILED);
-                    }
-
-                    if (typeof shortcutOps.value?.getFullOperationFlow === 'function') {
-                        store.dispatch('shortcuts/setShortcutStatus', {
-                            status: STATUSES.FAILED,
-                            shortcutId: currentShortcut.value.id,
-                        });
-                    }
-                };
-
-                txManager.addTransaction(tx);
+            if (!operations.getOperationByKey(moduleIndex)) {
+                console.error('Operation not found by key', index, moduleIndex);
+                return false;
             }
 
-            if (!txManager.getTransactions().length) {
+            console.log('Operation is exist', moduleIndex, index, operationId);
+
+            return true;
+        };
+
+        // Check if operation already success
+        // If operation already success, skip
+        if (operations.getOperationsStatusByKey(moduleIndex) === STATUSES.SUCCESS) {
+            console.log('Operation already success, skip', moduleIndex);
+            return;
+        }
+
+        // Create transaction instance
+        const txInstance = new Transaction(type);
+
+        // if is first transaction in group, set transaction id
+        if (index === 0) txInstance.setId(txManager.getFirstTxId());
+
+        // Set request ID for transaction
+        txInstance.setRequestID(txManager.getRequestId());
+
+        // ===============================================================================================
+        // * #1 - PREPARE TRANSACTION - function which describe how transaction should be prepared
+        // ===============================================================================================
+        txInstance.prepare = async () => {
+            console.debug('-'.repeat(10), 'TX PREPARE', '-'.repeat(10), '\n\n');
+
+            updateOperationStatus(STATUSES.IN_PROGRESS, { moduleIndex, operationId });
+
+            if (!checkOpIsExist()) return;
+
+            const operation = operations.getOperationByKey(moduleIndex);
+
+            const prepared = operation.perform(index, operation.getAccount(), operation.getEcosystem(), operation.getChainId(), {
+                make,
+            });
+
+            try {
+                const transaction = await txManager.addTransactionToGroup(index, prepared); // * Add or create transaction
+
+                if (!transaction) {
+                    console.error('Transaction not added to group', index, type, moduleIndex);
+                    return;
+                }
+
+                if (index === 0) {
+                    const toSave = { ...txInstance.getTransaction(), ...prepared, id: transaction.id };
+                    txInstance.setTransaction(toSave);
+                } else {
+                    txInstance.setId(transaction.id);
+                    txInstance.setTransaction(transaction);
+                }
+
+                const nTitle =
+                    txInstance.transaction.metaData.notificationTitle ||
+                    `${txInstance.type} ${txInstance.transaction.metaData.params?.amount} ...`;
+
+                const [title = '', description = ''] = nTitle.split('to');
+
+                // * Show notification
+                showNotification({
+                    key: `tx-${txInstance.getTxId()}`,
+                    type: 'info',
+                    title: title,
+                    description: description ? `for ${description}` : null,
+                    duration: 0,
+                    prepare: true,
+                });
+            } catch (error) {
+                console.error('useModuleOperations -> prepare -> error', error);
+                throw error;
+            }
+        };
+
+        // ===============================================================================================
+        // * #2 - PREPARE EXECUTE PARAMETERS - function which describe how transaction should have parameters
+        // ===============================================================================================
+        txInstance.setTxExecuteParameters = async () => {
+            if (!checkOpIsExist()) return;
+
+            console.debug('-'.repeat(10), 'TX EXECUTE PARAMS', '-'.repeat(10), '\n\n');
+
+            const operation = operations.getOperationByKey(moduleIndex);
+
+            try {
+                const { transaction, ecosystem } = await operation.performTx(operation.getEcosystem(), {
+                    serviceId: operation.getParamByField('serviceId'),
+                });
+
+                txInstance.setTransaction({
+                    ...txInstance.getTransaction(),
+                    parameters: transaction,
+                });
+
+                txInstance.setTransactionEcosystem(ecosystem.toUpperCase());
+                txInstance.setChainId(operation.getChainId());
+
+                await txInstance.updateTransactionById(Number(txInstance.id), txInstance.getTransaction());
+            } catch (error) {
+                console.error('useModuleOperations -> setTxExecuteParameters -> error', error);
+                throw error;
+            }
+        };
+
+        // ===============================================================================================
+        // * #3 - EXECUTE TRANSACTION - function which describe how to execute transaction
+        // ===============================================================================================
+        txInstance.execute = async () => {
+            if (!checkOpIsExist()) return;
+
+            await checkWalletConnected(txInstance);
+
+            console.debug('-'.repeat(10), 'TX EXECUTE', '-'.repeat(10), '\n\n');
+
+            try {
+                const forSign = txInstance.getTransaction();
+
+                return await signAndSend(forSign, { ecosystem: txInstance.getEcosystem(), chain: txInstance.getChainId() });
+            } catch (error) {
+                console.error('useModuleOperations -> execute -> error', error);
+                throw error;
+            } finally {
+                // * Close notification after transaction is signed and sent or failed
+                closeNotification(`tx-${txInstance.getTxId()}`);
+            }
+        };
+
+        // ===============================================================================================
+        // * #4 - On success execute transaction
+        // ===============================================================================================
+        txInstance.onSuccess = async () => {
+            if (!checkOpIsExist()) return;
+
+            const operation = operations.getOperationByKey(moduleIndex);
+
+            updateOperationStatus(STATUSES.SUCCESS, { moduleIndex, operationId, hash: txInstance.getTransaction().txHash });
+
+            // * On success by transaction type
+            if (operation && operation.onSuccess) {
+                await operations.getOperationByKey(moduleIndex).onSuccess(store);
+            }
+
+            if (index === flowCount) {
+                console.log(
+                    'Last operation in group',
+                    moduleIndex,
+                    'Shortcut index:',
+                    shortcutIndex.value,
+                    'index:',
+                    index,
+                    'flowCount:',
+                    flowCount,
+                );
+
+                setIsTransactionSigning('onSuccess', false);
+                isShortcutOpsExist() && setShortcutStatus(SHORTCUT_STATUSES.SUCCESS);
+            }
+        };
+
+        // ===============================================================================================
+        // * On success Sign and send transaction
+        // ===============================================================================================
+        txInstance.onSuccessSignTransaction = async () => {
+            console.log('Success sign and send transaction');
+
+            console.log(
+                'operation',
+                operations.getOperationByKey(moduleIndex),
+                'Status:',
+                operations.getOperationsStatusByKey(moduleIndex),
+            );
+
+            updateOperationStatus(STATUSES.SUCCESS, { moduleIndex, operationId, hash: txInstance.getTransaction().txHash });
+
+            if (operations?.getOperationByKey(moduleIndex)) {
+                console.log('Operation is exist, call next step of operation', moduleIndex);
+                const operation = operations.getOperationByKey(moduleIndex);
+
+                const isApprove = operation.transactionType === TRANSACTION_TYPES.APPROVE;
+
+                console.log(`Shortcut operation is exist, call next step of operation, shortcutIndex: ${shortcutIndex.value}`, {
+                    isApprove,
+                });
+
+                !isApprove &&
+                    store.dispatch('shortcuts/nextStep', {
+                        shortcutId: currentShortcutId.value,
+                        stepId: currentStepId.value,
+                    });
+            }
+
+            console.log('-'.repeat(30), '\n\n\n');
+        };
+
+        // ===============================================================================================
+        // !On error execute transaction
+        // ===============================================================================================
+        txInstance.onError = async (error) => {
+            closeNotification(`tx-${txInstance.getTxId()}`);
+
+            const errorMessage = error?.message || JSON.stringify(error);
+
+            showNotification({
+                key: 'tx-error',
+                type: 'error',
+                title: 'Transaction error',
+                description: errorMessage,
+                duration: 6,
+            });
+
+            updateOperationStatus(STATUSES.FAILED, { moduleIndex, operationId, hash: txInstance.getTransaction()?.txHash });
+
+            isShortcutOpsExist() && setShortcutStatus(SHORTCUT_STATUSES.FAILED);
+        };
+
+        // If everything is ok, add transaction to manager
+        txManager.addTransaction(txInstance);
+    };
+
+    const printFlow = (flow: TxOperationFlow[]) => {
+        const ops = flow.map((step, i) => `${i === 0 ? '\t' : ''}${step.index}: ${step.type} [${step.moduleIndex}]\n`).join(' -> ');
+
+        console.log('-'.repeat(10), 'Operations flow', '-'.repeat(10));
+        console.log(ops);
+        console.log('-'.repeat(30), '\n\n');
+    };
+
+    // ***********************************************************************************************
+
+    // ===============================================================================================
+    // * Handle on confirm
+    // ===============================================================================================
+
+    const handleOnConfirm = async () => {
+        setIsTransactionSigning('handleOnConfirm', true);
+
+        if (ecosystemToConnect.value) return await connectWalletByEcosystem(ecosystemToConnect.value);
+
+        // ===============================================================================================
+        // * Get operations
+        // ===============================================================================================
+
+        const operations = getOperations();
+
+        // ! Check if operation need to approve
+        insertOrPassApproveOp(operations);
+
+        const opsFullFlow = operations.getFullOperationFlow();
+
+        printFlow(opsFullFlow); // TODO: Remove this after debug
+
+        const txManager = await initTransactionsGroupForOps(operations);
+
+        // ===============================================================================================
+        // * Process each operation in flow & add to transaction manager
+        // ===============================================================================================
+
+        for (const flow of opsFullFlow) {
+            processTxOperation(txManager, operations, { flow, flowCount: opsFullFlow.length - 1 });
+        }
+
+        // ===============================================================================================
+        // * Execute transactions in group
+        // ===============================================================================================
+        try {
+            isShortcutOpsExist() && setShortcutStatus(SHORTCUT_STATUSES.IN_PROGRESS);
+
+            const isEmptyTxs = !txManager.getTransactions().length || !opsFullFlow.length;
+
+            // ! if no transactions to execute, return
+            if (isEmptyTxs) {
                 console.warn('No transactions to execute');
-
-                shortcutOps.value &&
-                    store.dispatch('shortcuts/setShortcutStatus', { status: STATUSES.FAILED, shortcutId: currentShortcut.value.id });
-
-                isTransactionSigning.value = false;
-
+                isShortcutOpsExist() && setShortcutStatus(SHORTCUT_STATUSES.SUCCESS);
+                setIsTransactionSigning('handleOnConfirm -> isEmptyTxs', false);
                 return;
             }
 
             await txManager.executeTransactions();
         } catch (error) {
-            console.error('useModuleOperations -> handleOnConfirm -> error', error);
+            console.error('useModuleOperations -> executeTransactions -> error', error);
+            throw error;
         } finally {
-            isTransactionSigning.value = false;
+            setIsTransactionSigning('handleOnConfirm -> finally', false);
         }
     };
 
@@ -720,9 +889,7 @@ const useModuleOperations = (module: ModuleType) => {
         }
     });
 
-    const isDisableSelect = computed(() => {
-        return isQuoteLoading.value || isTransactionSigning.value;
-    });
+    const isDisableSelect = computed(() => isQuoteLoading.value || isTransactionSigning.value);
 
     // ===============================================================================================
     // * Watchers
@@ -735,12 +902,7 @@ const useModuleOperations = (module: ModuleType) => {
     });
 
     const unWatchIsForceCallConfirm = watch(isForceCallConfirm, (value) => {
-        if (!value) {
-            return;
-        }
-
-        if (shortcutOps.value) {
-        }
+        if (!value) return;
 
         handleOnConfirm();
 

@@ -1,4 +1,4 @@
-import { computed, onBeforeMount, onMounted, onUnmounted, onUpdated, ref, watch, watchEffect } from 'vue';
+import { computed, h, onBeforeMount, onMounted, onUnmounted, onUpdated, ref, watch, watchEffect } from 'vue';
 import { useStore } from 'vuex';
 
 import _ from 'lodash';
@@ -12,7 +12,6 @@ import DexOperation from '@/modules/operations/Dex';
 import TransferOperation from '@/modules/operations/Transfer';
 import { ApproveOperation } from '@/modules/operations/Approve';
 import { SHORTCUT_STATUSES, STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
-import { ShortcutType } from '../core/types/ShortcutType';
 import { AddressByChainHash } from '../../../shared/models/types/Address';
 import { ECOSYSTEMS, NATIVE_CONTRACT } from '@/Adapter/config';
 import { IShortcutOp } from '../core/ShortcutOp';
@@ -23,6 +22,9 @@ import { IBaseOperation } from '@/modules/operations/models/Operations';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 import BigNumber from 'bignumber.js';
 
+import { useRouter } from 'vue-router';
+import { StepProps, message } from 'ant-design-vue';
+
 const useShortcuts = (Shortcut: IShortcutData) => {
     // Create a new instance of the Shortcut class
 
@@ -32,6 +34,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     const { getTokenById } = useTokensList();
 
     const store = useStore();
+    const router = useRouter();
 
     const quoteErrorMessage = computed({
         get: () => store.getters['bridgeDexAPI/getQuoteErrorMessage'],
@@ -60,20 +63,25 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     const isConfigLoading = computed(() => store.getters['configs/isConfigLoading']);
 
     // Get the current operation from the store
-    const currentOp = computed<IShortcutOp>(() => store.getters['shortcuts/getCurrentOperation'](Shortcut.id));
+    const currentStepId = computed(() => store.getters['shortcuts/getCurrentStepId']);
 
-    // Get the steps from the store
-    const steps = computed<OperationStep[]>(() => store.getters['shortcuts/getShortcutSteps'](Shortcut.id) || []);
+    const currentOp = computed<IShortcutOp>(() => {
+        if (!CurrentShortcut.id || !currentStepId.value) return null;
+
+        return store.getters['shortcuts/getCurrentOperation'](CurrentShortcut.id);
+    });
 
     const shortcutLayout = computed(() => store.getters['shortcuts/getCurrentLayout']);
 
-    const shortcutStatus = computed(() => store.getters['shortcuts/getShortcutStatus'](Shortcut.id));
-    const operationsFactory = computed<OperationsFactory>(() => store.getters['shortcuts/getShortcutOpsFactory'](Shortcut.id));
+    const shortcutStatus = computed(() => store.getters['shortcuts/getShortcutStatus'](CurrentShortcut.id));
+    const operationsFactory = computed<OperationsFactory>(() => store.getters['shortcuts/getShortcutOpsFactory'](CurrentShortcut.id));
+
+    const steps = computed<StepProps[]>(() => store.getters['shortcuts/getShortcutSteps'](CurrentShortcut.id));
 
     const firstOperation = computed<IBaseOperation>(() => operationsFactory.value.getFirstOperation());
 
     // Operations Ids from the factory
-    const opIds = computed(() => Array.from(operationsFactory.value.getOperationsIds().keys()));
+    const opIds = computed(() => operationsFactory.value && Array.from(operationsFactory.value.getOperationsIds().keys()));
 
     // Get the addresses by chain from the store
     const addressesByChain = computed(() => {
@@ -147,24 +155,14 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             return;
         }
 
-        const { operations = [] } = CurrentShortcut.recipe || {};
+        const { operations = [] } = CurrentShortcut || {};
 
-        for (const step of operations) {
-            const { type, id: opId, operations: subOps = [], dependencies: opDeps = null, moduleType = null } = step as any;
+        for (const shortcutOperation of operations) {
+            const { id: opId, dependencies: opDeps = null } = shortcutOperation as any;
 
-            if (type === ShortcutType.recipe) {
-                for (const op of subOps || []) {
-                    const { id: subId, dependencies: subDependency = null } = op || {};
+            await processOperation(shortcutOperation as IShortcutOp, { addToFactory });
 
-                    await processOperation(op, { addToFactory });
-
-                    operationsFactory.value.setOperationToGroup(opId, subId);
-                    subDependency && operationsFactory.value.setDependencies(subId, subDependency);
-                }
-            } else if (type === ShortcutType.operation) {
-                await processOperation(step as IShortcutOp, { addToFactory });
-                opDeps && operationsFactory.value.setDependencies(opId, opDeps);
-            }
+            opDeps && operationsFactory.value.setDependencies(opId, opDeps);
         }
     };
 
@@ -233,17 +231,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         },
     ) => {
         for (const paramField of fields) {
-            const {
-                name: field,
-                ecosystem = null,
-                chainId = null,
-                chain = null,
-                disabled = false,
-                id = null,
-                address,
-                memo,
-                hide = false,
-            } = paramField || {};
+            const { name: field, ecosystem = null, chainId = null, chain = null, id = null, address, memo } = paramField || {};
 
             switch (field) {
                 case 'srcNetwork':
@@ -300,9 +288,9 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     };
 
     const callOnWatchOnMounted = async () => {
-        await store.dispatch('tokenOps/resetFields');
-
         if (!currentOp.value) return;
+
+        await store.dispatch('tokenOps/resetFields');
 
         await performFields(currentOp.value.moduleType, currentOp.value.params, {
             isUpdateInStore: true,
@@ -339,21 +327,26 @@ const useShortcuts = (Shortcut: IShortcutData) => {
 
         await performShortcut(true);
 
-        const { id: stepId = null } = steps.value[shortcutIndex.value] || {};
+        const [order] = operationsFactory.value.getOperationOrder() || [];
 
-        if (!stepId) return;
+        const stepId = operationsFactory.value.getOperationIdByKey(order);
+
+        if (!stepId) {
+            isShortcutLoading.value = false;
+            return router.push('/shortcuts');
+        }
+
+        store.dispatch('shortcuts/setCurrentShortcutId', {
+            shortcutId: CurrentShortcut.id,
+        });
 
         store.dispatch('shortcuts/setCurrentStepId', {
             stepId,
-            shortcutId: Shortcut.id,
-        });
-
-        store.dispatch('shortcuts/setCurrentShortcutId', {
-            shortcutId: Shortcut.id,
+            shortcutId: CurrentShortcut.id,
         });
 
         store.dispatch('shortcuts/setShortcutStatus', {
-            shortcutId: Shortcut.id,
+            shortcutId: CurrentShortcut.id,
             status: SHORTCUT_STATUSES.PENDING,
         });
 
@@ -442,8 +435,6 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                 return;
             }
 
-            console.log('Amount changed', srcAmount);
-
             if (currentOp.value?.id) {
                 operationsFactory.value.resetEstimatedOutputs();
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('amount', srcAmount);
@@ -459,8 +450,14 @@ const useShortcuts = (Shortcut: IShortcutData) => {
 
             quoteErrorMessage.value = '';
 
-            await operationsFactory.value.estimateOutput();
-            isQuoteLoading.value = false;
+            try {
+                await operationsFactory.value.estimateOutput();
+            } catch (error) {
+                const { message = 'Error in evaluating output data' } = error || {};
+                quoteErrorMessage.value = message;
+            } finally {
+                isQuoteLoading.value = false;
+            }
 
             const flow = operationsFactory.value.getFullOperationFlow();
 
@@ -480,6 +477,14 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             await performShortcut(false);
         }
     });
+
+    store.watch(
+        (state, getters) => getters['shortcuts/getCurrentOperation'](CurrentShortcut.id, currentStepId.value),
+        async (operation) => {
+            if (!operation) return;
+            await callOnWatchOnMounted();
+        },
+    );
 
     watch(isQuoteLoading, async () => {
         if (isQuoteLoading.value || !currentOp.value?.id) return;
@@ -558,50 +563,9 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         shortcutLayout,
         shortcutStatus,
         steps,
+        currentStepId,
+        operationsFactory,
     };
 };
 
 export default useShortcuts;
-
-// const performSkipConditions = async (skipConditions = []) => {
-//     for (const condition of skipConditions) {
-//         const { name: field, value } = condition || {};
-//         const fieldValue = store.getters['tokenOps/getFieldValue'](field);
-//         const current = JSON.parse(JSON.stringify(currentOp.value));
-
-//         switch (field) {
-//             case 'srcNetwork':
-//             case 'dstNetwork':
-//                 const isSkipNet = fieldValue && fieldValue.net === value;
-
-//                 isSkipNet &&
-//                     store.dispatch('shortcuts/setShortcutStepStatus', {
-//                         shortcutId: Shortcut.id,
-//                         stepId: steps.value[shortcutIndex.value].id,
-//                         status: 'skipped',
-//                     });
-
-//                 shortcutIndex.value = isSkipNet ? shortcutIndex.value + 1 : shortcutIndex.value;
-
-//                 if (isSkipNet) {
-//                     operationsFactory.value.removeOperationById(current.id);
-//                 }
-
-//             case 'srcToken':
-//             case 'dstToken':
-//                 const isSkipToken = fieldValue && fieldValue.id === value;
-//                 isSkipToken &&
-//                     store.dispatch('shortcuts/setShortcutStepStatus', {
-//                         shortcutId: Shortcut.id,
-//                         stepId: steps.value[shortcutIndex.value].id,
-//                         status: 'skipped',
-//                     });
-
-//                 shortcutIndex.value = isSkipToken ? shortcutIndex.value + 1 : shortcutIndex.value;
-
-//                 if (isSkipToken) {
-//                     operationsFactory.value.removeOperationById(current.id);
-//                 }
-//         }
-//     }
-// };

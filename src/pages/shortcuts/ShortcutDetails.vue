@@ -31,17 +31,7 @@
                             <component :is="shortcutLayout" />
                         </div>
 
-                        <ShortcutLoading
-                            v-if="
-                                shortcutId !== null &&
-                                [STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(shortcutStatus) &&
-                                shortcutStatus !== STATUSES.PENDING
-                            "
-                            :status="shortcutStatus"
-                            :shortcutIndex="shortcutIndex"
-                            :shortcutId="shortcutId"
-                            :total="steps.length || 0"
-                        />
+                        <ShortcutLoading v-show="isShowLoading" :shortcutId="shortcutId" />
                     </a-col>
                     <a-col :span="12">
                         <a-steps direction="vertical" v-model:current="shortcutIndex" :items="steps" />
@@ -55,7 +45,7 @@
 <script lang="ts">
 import _ from 'lodash';
 
-import { computed, onMounted, watch } from 'vue';
+import { computed, onMounted, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -83,13 +73,33 @@ export default {
 
         const { shortcutId, shortcutIndex, steps, shortcutLayout, shortcutStatus, isShortcutLoading } = useShortcuts(shortcut.value);
 
+        const isShowLoading = computed(() => {
+            if (isShortcutLoading.value) return false;
+
+            if (!shortcut.value) return false;
+            if (!shortcutStatus.value) return false;
+            if (shortcutStatus.value === STATUSES.PENDING) return false;
+
+            console.log('-'.repeat(50));
+            console.log('shortcutStatus.value', shortcutStatus.value);
+            console.log('STATUSES', [STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(shortcutStatus.value));
+            console.log('-'.repeat(50));
+
+            return [STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(shortcutStatus.value);
+        });
+
         onMounted(() => {
             if (_.isEmpty(shortcut.value)) {
                 return router.push('/shortcuts');
             }
         });
 
+        onUnmounted(() => {
+            store.dispatch('shortcuts/resetShortcut');
+        });
+
         return {
+            isShowLoading,
             shortcut,
             isShortcutLoading,
             shortcutId,

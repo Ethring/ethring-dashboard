@@ -36,7 +36,7 @@ export interface IBaseOperation {
     ecosystem: Ecosystems;
     chainId: string;
 
-    transactionType: keyof typeof TRANSACTION_TYPES;
+    transactionType: TRANSACTION_TYPES;
 
     tokens: {
         from?: IAsset;
@@ -91,9 +91,6 @@ export interface IBaseOperation {
     setTxType?: (type: keyof typeof TRANSACTION_TYPES) => void;
     getTxType?: () => keyof typeof TRANSACTION_TYPES;
 
-    getAction?: () => string;
-    setAction?: (action: string) => void;
-
     // Execute
     execute?: () => Promise<string>;
 
@@ -107,7 +104,7 @@ export interface IBaseOperation {
 
     performTx?: (ecosystem: Ecosystems, params: PerformTxParams) => Promise<IBridgeDexTransaction>;
 
-    perform: (index: number, account: string, ecosystem: string, chainId: string, options: PerformOptionalParams) => ICreateTransaction;
+    perform?: (index: number, account: string, ecosystem: string, chainId: string, options: PerformOptionalParams) => ICreateTransaction;
 
     setQuoteRoute?: (route: IQuoteRoute) => void;
 
@@ -115,6 +112,8 @@ export interface IBaseOperation {
     getServiceType?: () => ServiceTypes;
 
     getAdditionalTooltip?: () => string;
+
+    onSuccess?: (store: any) => Promise<void>;
 }
 
 export interface IRegisterOperation {
@@ -135,6 +134,7 @@ export interface IOperationFactory {
 
     getOperationsIds(): Map<string, string>;
 
+    getOperationOrder(): string[];
     resetOperationsStatus(): void;
 
     // getOperation(module: string, operationIndex: number): IBaseOperation;

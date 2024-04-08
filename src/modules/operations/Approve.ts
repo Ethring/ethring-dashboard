@@ -10,8 +10,8 @@ import { AllQuoteParams, GetApproveTxParams } from '../bridge-dex/models/Request
 import { ICreateTransaction } from '@/Transactions/types/Transaction';
 import { TxOperationFlow } from '../../shared/models/types/Operations';
 import { STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
-import { getActionByTxType } from './shared/utils';
 import DexOperation from './Dex';
+import { getActionByTxType } from './shared/utils';
 
 export class ApproveOperation extends DexOperation {
     flow: TxOperationFlow[];
@@ -34,8 +34,8 @@ export class ApproveOperation extends DexOperation {
             ecosystem,
             chainId,
             metaData: {
-                action: this.getAction(),
-                type: this.getTxType(),
+                action: getActionByTxType(this.transactionType),
+                type: this.transactionType,
                 notificationTitle,
                 params: {
                     ...this.params,
@@ -57,7 +57,6 @@ export class ApproveOperation extends DexOperation {
             serviceId && this.service.setServiceId(serviceId);
 
             const responseApprove = await this.service.getApproveTx(params);
-            console.log('responseApprove', responseApprove);
 
             const [tx] = responseApprove;
 
@@ -71,12 +70,23 @@ export class ApproveOperation extends DexOperation {
     getOperationFlow(): TxOperationFlow[] {
         this.flow = [
             {
-                type: TRANSACTION_TYPES.APPROVE,
-                make: TRANSACTION_TYPES.APPROVE,
+                type: this.transactionType,
+                make: this.transactionType,
                 moduleIndex: this.getModule(),
             },
         ];
 
         return this.flow;
     }
+
+    onSuccess = async (store: any): Promise<void> => {
+        console.log('Approve success', 'Update allowance');
+
+        await store.dispatch('bridgeDexAPI/setServiceAllowance', {
+            serviceId: this.getParamByField('serviceId'),
+            owner: this.getParamByField('ownerAddress'),
+            token: this.getParamByField('tokenAddress'),
+            value: null,
+        });
+    };
 }

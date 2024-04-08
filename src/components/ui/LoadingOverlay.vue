@@ -45,33 +45,6 @@ export default {
 
     transition: all 0.3s;
 
-    @keyframes slideUp {
-        0% {
-            transform: translateY(0);
-        }
-        100% {
-            transform: translateY(100%);
-            z-index: -9999;
-        }
-    }
-
-    @keyframes slideDown {
-        0% {
-            transform: translateY(100%);
-        }
-        100% {
-            transform: translateY(0);
-            z-index: 9999;
-        }
-    }
-
-    animation: slideUp 0.3s 0.1s;
-    animation-fill-mode: forwards;
-
-    &.active {
-        animation: slideDown 0.3s;
-        animation-fill-mode: forwards;
-        cursor: progress;
-    }
+    z-index: 9999;
 }
 </style>

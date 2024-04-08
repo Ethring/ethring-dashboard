@@ -101,6 +101,7 @@ const useInputValidation = () => {
 
     // ? Check if the quote route is set
     const isQuoteRouteSet = computed(() => {
+        if (!quoteRoutes.value?.length) return false;
         return !_.isEmpty(quoteRoutes.value);
     });
 

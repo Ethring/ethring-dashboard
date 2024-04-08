@@ -7,6 +7,8 @@ import ExternalLinkIcon from '@/assets/icons/module-icons/external-link.svg';
 
 import Button from '@/components/ui/Button';
 
+const MAX_TEXT_LENGTH = 100;
+
 export default function useNotification() {
     const openExplorer = (explorer, key) => {
         window.open(explorer, '_blank');
@@ -25,12 +27,18 @@ export default function useNotification() {
     } = {}) => {
         const { explorerLink, txHash, wait } = args;
 
+        let descriptionText = description;
+
+        if (description && description.length > MAX_TEXT_LENGTH) {
+            descriptionText = `${description.slice(0, MAX_TEXT_LENGTH)}.......`;
+        }
+
         const notificationParams = {
             class: `custom-notification ${type} ${key}`,
             key,
             type,
             message: title,
-            description,
+            description: descriptionText,
             placement: 'bottomRight',
             duration,
             ...args,

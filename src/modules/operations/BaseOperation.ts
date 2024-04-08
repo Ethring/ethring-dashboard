@@ -29,8 +29,6 @@ export class BaseOperation implements IBaseOperation {
 
     module: ModuleTypes;
 
-    transactionType: keyof typeof TRANSACTION_TYPES;
-
     params: BaseOpParams;
 
     chainId: string;
@@ -44,18 +42,19 @@ export class BaseOperation implements IBaseOperation {
 
     quoteRoute?: IQuoteRoute;
 
+    transactionType: TRANSACTION_TYPES;
+    static transactionType: keyof typeof TRANSACTION_TYPES;
+
     constructor() {
         this.service = null;
         this.setTxType(DEFAULT_TX_TYPE_BY_MODULE[this.module]);
     }
 
-    setAction?: (action: string) => void;
-    estimateOutput?: () => Promise<void>;
-    getOperationFlow?: () => TxOperationFlow[];
+    onSuccess?: (store: any) => Promise<void>;
 
-    performTx?: (ecosystem: 'evm' | 'cosmos' | 'EVM' | 'COSMOS', params: PerformTxParams) => Promise<IBridgeDexTransaction>;
-    perform: (index: number, account: string, ecosystem: string, chainId: string, options: PerformOptionalParams) => ICreateTransaction;
-    getServiceType?: () => 'bridgedex' | 'superswap' | 'dex';
+    setAction?: (action: string) => void;
+
+    static getServiceType?: () => 'bridgedex' | 'superswap' | 'dex';
 
     getName(): string {
         return this.name;
@@ -143,16 +142,12 @@ export class BaseOperation implements IBaseOperation {
         return this.tokens[target];
     }
 
-    setTxType(type: keyof typeof TRANSACTION_TYPES): void {
+    setTxType(type: TRANSACTION_TYPES): void {
         this.transactionType = type;
     }
 
-    getTxType(): keyof typeof TRANSACTION_TYPES {
+    static getTxType(): keyof typeof TRANSACTION_TYPES {
         return this.transactionType;
-    }
-
-    getAction(): string {
-        return getActionByTxType(this.transactionType);
     }
 
     setQuoteRoute(route: IQuoteRoute): void {
@@ -165,7 +160,7 @@ export class BaseOperation implements IBaseOperation {
 
     getTitle(): string {
         if (!this.getToken('from') || !this.params.amount) {
-            return this.getName() || `${this.getModule()} - ${this.getTxType()}`;
+            return this.getName() || `${this.getModule()} - ${BaseOperation.getTxType()}`;
         }
 
         const title = `${this.params.amount} ${this.getToken('from')?.symbol || ''}`;
@@ -181,7 +176,7 @@ export class BaseOperation implements IBaseOperation {
         const { from, to } = this.getTokens() || {};
         const { amount, outputAmount } = this.getParams() || {};
 
-        const type = this.getTxType();
+        const type = BaseOperation.getTxType();
 
         if ((!amount && !outputAmount && from) || to) {
             return `${type} ${from.symbol}`;
@@ -198,23 +193,24 @@ export class BaseOperation implements IBaseOperation {
         return '';
     }
 
-    static perform: (
-        index: number,
-        account: string,
-        ecosystem: string,
-        chainId: string,
-        options: PerformOptionalParams,
-    ) => ICreateTransaction;
+    static perform(index: number, account: string, ecosystem: string, chainId: string, options: PerformOptionalParams): ICreateTransaction {
+        throw new Error('Not implemented');
+    }
 
-    static async getOperationFlow(): Promise<TxOperationFlow[]> {
+    static getOperationFlow(): TxOperationFlow[] {
         return [];
     }
 
     static async estimateOutput(): Promise<void> {
-        // if (Object.keys(this.params).length === 0) return Promise.reject('Params are empty');
+        return Promise.reject('Not implemented');
     }
 
     static async performTx(ecosystem: Ecosystems, { serviceId }: PerformTxParams): Promise<IBridgeDexTransaction> {
-        return Promise.resolve(null);
+        return Promise.reject('Not implemented');
+    }
+
+    static async onSuccess(store: any): Promise<void> {
+        console.log('onSuccess', this.transactionType, 'operation');
+        return Promise.resolve();
     }
 }

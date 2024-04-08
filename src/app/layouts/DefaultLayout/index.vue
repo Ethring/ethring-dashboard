@@ -1,5 +1,5 @@
 <template>
-    <LoadingOverlay :spinning="isSpinning" :tip="loadingTitle" :overlay="true" />
+    <LoadingOverlay v-if="isSpinning" :spinning="isSpinning" :tip="loadingTitle" :overlay="true" />
 
     <a-layout has-sider>
         <Sidebar />

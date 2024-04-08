@@ -27,8 +27,15 @@ export default function useSelectModal(type) {
     const store = useStore();
     const useAdapter = inject('useAdapter');
 
+    const CurrentStepId = computed(() => store.getters['shortcuts/getCurrentStepId']);
     const CurrentShortcut = computed(() => store.getters['shortcuts/getCurrentShortcutId']);
-    const CurrentOperation = computed(() => store.getters['shortcuts/getCurrentOperation'](CurrentShortcut.value));
+
+    const CurrentOperation = computed(() => {
+        if (!CurrentShortcut.value) return null;
+        if (!CurrentStepId.value) return null;
+
+        return store.getters['shortcuts/getCurrentOperation'](CurrentShortcut.value);
+    });
     const excludeChainList = computed(() => {
         const { excludeChains = [] } = CurrentOperation.value || {};
 

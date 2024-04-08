@@ -47,14 +47,29 @@ export default class OperationFactory implements IOperationFactory {
         return this.operationsIds;
     }
 
+    getOperationOrder(): string[] {
+        return this.operationOrder;
+    }
+
+    getOperationByOrderIndex(index: number): IBaseOperation {
+        return this.operationsMap.get(this.operationOrder[index]);
+    }
+
     registerOperation(
         module: string,
         operationClass: new () => IBaseOperation,
         options?: { id?: string; name?: string; before?: string; after?: string },
     ): IRegisterOperation {
-        const { id = null, name = null, before = null, after = null } = options || {};
+        const { name = null, before = null, after = null } = options || {};
+
+        let { id = null } = options || {};
 
         const uniqueKey = `${module}_${this.operationsMap.size}`;
+
+        if (!id) {
+            console.warn('OperationId not provided');
+            id = uniqueKey;
+        }
 
         if (this.operationsIds.get(id)) {
             console.warn(`Operation with id ${id} already exists`);
@@ -164,8 +179,17 @@ export default class OperationFactory implements IOperationFactory {
         return params[key] || null;
     }
 
+    getFirstOperationByOrder(): string {
+        if (!this.operationOrder.length) return null;
+        return this.operationOrder[0];
+    }
+
     getFirstOperation(): IBaseOperation {
         return this.operationsMap.values().next().value;
+    }
+
+    getLastOperation(): IBaseOperation {
+        return Array.from(this.operationsMap.values()).pop();
     }
 
     getFullOperationFlow(): TxOperationFlow[] {
@@ -267,7 +291,7 @@ export default class OperationFactory implements IOperationFactory {
                 console.warn(`${opId} - ESTIMATE ERROR ############`);
                 console.error(error);
                 restoreStatus();
-                continue;
+                throw error;
             }
 
             table.push({
@@ -292,7 +316,6 @@ export default class OperationFactory implements IOperationFactory {
         const operations = Array.from(this.operationsMap.keys());
 
         for (const operation of operations) {
-            console.log('RESET STATUS', operation, this.operationsStatusByKey.get(operation), STATUSES.PENDING);
             this.setOperationStatusByKey(operation, STATUSES.PENDING);
         }
 
@@ -423,5 +446,29 @@ export default class OperationFactory implements IOperationFactory {
     private calculatePercentage(amount: string, percentage: number): string {
         if (!isAmountCorrect(amount)) return '0';
         return BigNumber(amount).multipliedBy(percentage).dividedBy(100).toFixed(6);
+    }
+
+    getPercentageOfSuccessOperations(): string {
+        const STATUS_TO_EXCLUDE = [STATUSES.PENDING, STATUSES.ESTIMATING];
+        const STATUS_TO_HALF_SUCCESS = [STATUSES.IN_PROGRESS, STATUSES.SIGNING, STATUSES.REJECTED, STATUSES.FAILED];
+
+        const operations = Array.from(this.operationsMap.keys());
+
+        const successScore = operations.reduce((score, operation) => {
+            const status = this.operationsStatusByKey.get(operation);
+            if (STATUS_TO_EXCLUDE.includes(status)) {
+                return 0;
+            } else if (STATUS_TO_HALF_SUCCESS.includes(status)) {
+                return score + 0.5;
+            } else {
+                return score + 1;
+            }
+        }, 0);
+
+        return BigNumber(successScore).dividedBy(operations.length).multipliedBy(100).toFixed(2);
+    }
+
+    getOperationsCount(): number {
+        return this.operationsMap.size;
     }
 }

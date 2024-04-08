@@ -134,7 +134,7 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     const resetQuoteRoutes = () => {
         store.dispatch('bridgeDexAPI/setQuoteRoutes', {
             serviceType: targetType,
-            value: [],
+            value: null,
         });
 
         store.dispatch('bridgeDexAPI/setSelectedRoute', {
@@ -253,8 +253,8 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
                 routes,
             };
         } catch (error) {
-            const { message = '' } = error;
-            quoteErrorMessage.value = message;
+            console.error('useBridgeDexQuote -> makeQuoteRoutes', error);
+            quoteErrorMessage.value = error?.message || 'An error occurred while making a quote request';
 
             resetQuoteRoutes();
 
