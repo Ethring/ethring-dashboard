@@ -19,7 +19,7 @@
         "name": "zomet.app",
         "avatar": "https://zomet-logo.png"
     },
-    "minUsdAmount": 0,
+    "minUsdAmount": 2,
     "recipe": {
         "id": "citadel-one-stake",
         "operations": [
