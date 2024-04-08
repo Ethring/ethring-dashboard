@@ -42,7 +42,15 @@ export default {
 
             const chainList = _.values(state.chains[ecosystem]);
 
-            return chainList.find((chain) => chain.chain_id === chainId) || {};
+            let cId = chainId;
+
+            if (typeof chainId === 'string' && chainId.startsWith('0x')) {
+                cId = parseInt(chainId, 16);
+            }
+
+            const chain = chainList.find((chain) => chain.chain_id === cId);
+
+            return chain || {};
         },
 
         getChainLogoByNet: (state) => (net) => {

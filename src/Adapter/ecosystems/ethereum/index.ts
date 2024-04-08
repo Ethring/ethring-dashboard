@@ -175,7 +175,7 @@ class EthereumAdapter extends AdapterBase {
             return null;
         }
 
-        const chainInfo = chainFromStore(String(id));
+        const chainInfo = chainFromStore(id);
 
         if (JSON.stringify(chainInfo) === '{}') {
             chainInfo.chain_id = id;

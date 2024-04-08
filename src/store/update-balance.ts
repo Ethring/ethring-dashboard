@@ -19,10 +19,7 @@ export default {
 
     getters: {
         getInProgress: (state) => (address: string) => {
-            console.log('getInProgress', JSON.parse(JSON.stringify(state.inProgress)));
-            if (_.isEmpty(state.inProgress[address])) {
-                return false;
-            }
+            if (state.inProgress[address]) return state.inProgress[address];
             return state.inProgress[address];
         },
         getQueueToUpdate: (state) => _.values(state.queueToUpdate),
@@ -78,7 +75,8 @@ export default {
                 }
             }
         },
-        [TYPES.SET_IN_PROGRESS](state, { address, status }) {
+        [TYPES.SET_IN_PROGRESS](state, { address, status }: { address: string; status: boolean }) {
+            if (!state.inProgress[address]) return (state.inProgress[address] = status);
             state.inProgress[address] = status;
         },
         [TYPES.SET_QUEUES_TO_UPDATE](
@@ -95,7 +93,6 @@ export default {
                 config: any;
             },
         ) {
-            console.log(`SET_QUEUES_TO_UPDATE`, chain, address, mainAddress, config);
             const uniqueKey = `${chain}_${mainAddress}`;
 
             state.queueToUpdate[uniqueKey] = {

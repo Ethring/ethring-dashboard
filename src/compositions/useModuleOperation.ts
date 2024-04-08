@@ -57,11 +57,6 @@ const useModuleOperations = (module: ModuleType) => {
         set: (value) => store.dispatch('txManager/setTransactionSigning', value),
     });
 
-    const setIsTransactionSigning = (from: string, value: boolean) => {
-        console.log('########## Set is transaction signing', from, value);
-        isTransactionSigning.value = value;
-    };
-
     // *************************** MODULE COMPOSITIONS ***************************
 
     // ===============================================================================================
@@ -247,16 +242,15 @@ const useModuleOperations = (module: ModuleType) => {
         console.debug('-'.repeat(10), 'TX ECOSYSTEM CHECK', '-'.repeat(10), '\n');
 
         console.debug('Current ecosystem:', currentChainInfo.value?.ecosystem);
-        console.debug('Current chain:', currentChainInfo.value);
+        console.debug('Current chain:', currentChainInfo.value?.chain_id);
 
         const isEcosystemEqual = () => _.isEqual(currentChainInfo.value?.ecosystem, tx.getEcosystem());
+
         const isChainsEqual = () => {
             const { ecosystem, chain_id = '' } = currentChainInfo.value || {};
 
-            if (_.isEmpty(chain_id)) return false;
-
             if ([ECOSYSTEMS.EVM].includes(ecosystem) && typeof chain_id === 'string' && _.startsWith(chain_id, '0x')) {
-                return _.isEqual(`${+chain_id}`, tx.getChainId());
+                return _.isEqual(`${+chain_id}`, +tx.getChainId());
             }
 
             return _.isEqual(`${chain_id}`, tx.getChainId());
@@ -349,6 +343,8 @@ const useModuleOperations = (module: ModuleType) => {
             ops.getOperationByKey(`${module}_0`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
             ops.getOperationByKey(`${module}_0`).setChainId(selectedSrcNetwork.value?.chain_id);
             ops.getOperationByKey(`${module}_0`).setAccount(srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value);
+
+            ops.getOperationByKey(`${module}_0`).setToken('from', selectedSrcToken.value);
         }
 
         const account = srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value;
@@ -371,12 +367,12 @@ const useModuleOperations = (module: ModuleType) => {
                     type: null,
                 });
 
-                ops.getOperationByKey(`${module}_0`).setTokens({ from: selectedSrcToken.value, to: selectedDstToken.value });
                 ops.getOperationByKey(`${module}_0`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
                 ops.getOperationByKey(`${module}_0`).setChainId(selectedSrcNetwork.value?.chain_id);
                 ops.getOperationByKey(`${module}_0`).setAccount(account);
 
-                ops.getOperationByKey(`${module}_0`).setTokens({ from: selectedSrcToken.value, to: selectedDstToken.value });
+                ops.getOperationByKey(`${module}_0`).setToken('from', selectedSrcToken.value);
+                ops.getOperationByKey(`${module}_0`).setToken('to', selectedDstToken.value);
 
                 break;
 
@@ -396,6 +392,7 @@ const useModuleOperations = (module: ModuleType) => {
                     toToken: selectedDstToken.value?.address,
                     ownerAddresses: addressByChain.value as OwnerAddresses,
                     amount: srcAmount.value,
+                    outputAmount: dstAmount.value,
                     receiverAddress: receiverAddress.value,
                     memo: memo.value,
                     serviceId: selectedRoute.value.serviceId,
@@ -406,8 +403,6 @@ const useModuleOperations = (module: ModuleType) => {
                 ops.getOperationByKey(`${module}_${index}`).setChainId(selectedSrcNetwork.value?.chain_id);
                 ops.getOperationByKey(`${module}_${index}`).setAccount(account);
                 ops.getOperationByKey(`${module}_${index}`).setTokens({ from: selectedSrcToken.value, to: selectedDstToken.value });
-
-                console.log('Operations:', ops);
 
                 break;
 
@@ -458,8 +453,6 @@ const useModuleOperations = (module: ModuleType) => {
 
         const firstInGroup = operations.getOperationByKey(firstOpKeyByOrder);
 
-        console.log('First in group', firstInGroup);
-
         if (firstInGroup.transactionType === TRANSACTION_TYPES.APPROVE) return;
 
         const beforeId = firstInGroup.getUniqueId();
@@ -505,22 +498,19 @@ const useModuleOperations = (module: ModuleType) => {
         const firstInGroupByOrder = operations.getOperationByKey(firstOpKeyByOrder);
         const firstInGroup = operations.getFirstOperation();
 
-        console.log('Update operation status', { status, moduleIndex, operationId, hash });
-
         if (!operations || !status || !moduleIndex) {
             console.warn('updateOperationStatus -> Error: Missing params', { operations, status, moduleIndex });
             return;
         }
 
-        if (!operations.getOperationByKey(moduleIndex) || (operationId && !operations.getOperationById(operationId))) {
-            console.error('Operation not found by id/key', moduleIndex, operationId);
+        if ((operationId && !operations.getOperationById(operationId)) || !operations.getOperationByKey(moduleIndex)) {
+            console.warn('Operation not found by id/key', moduleIndex, operationId);
             return;
         }
 
         if (hash) operations.getOperationByKey(moduleIndex).setParamByField('txHash', hash);
 
         if (firstInGroupByOrder.getUniqueId() === moduleIndex) {
-            console.log('First in group', firstInGroup.getUniqueId(), 'Set status:', status);
             operations.setOperationStatusByKey(firstInGroup.getUniqueId(), status);
         }
 
@@ -537,14 +527,9 @@ const useModuleOperations = (module: ModuleType) => {
         const { index, type, make, moduleIndex, operationId } = flow;
 
         const checkOpIsExist = (): boolean => {
-            console.log('Check operation is exist', index, moduleIndex, operationId);
-
             if (!operations.getOperationByKey(moduleIndex)) {
-                console.error('Operation not found by key', index, moduleIndex);
                 return false;
             }
-
-            console.log('Operation is exist', moduleIndex, index, operationId);
 
             return true;
         };
@@ -687,18 +672,7 @@ const useModuleOperations = (module: ModuleType) => {
             }
 
             if (index === flowCount) {
-                console.log(
-                    'Last operation in group',
-                    moduleIndex,
-                    'Shortcut index:',
-                    shortcutIndex.value,
-                    'index:',
-                    index,
-                    'flowCount:',
-                    flowCount,
-                );
-
-                setIsTransactionSigning('onSuccess', false);
+                isTransactionSigning.value = false;
                 isShortcutOpsExist() && setShortcutStatus(SHORTCUT_STATUSES.SUCCESS);
             }
         };
@@ -709,26 +683,14 @@ const useModuleOperations = (module: ModuleType) => {
         txInstance.onSuccessSignTransaction = async () => {
             console.log('Success sign and send transaction');
 
-            console.log(
-                'operation',
-                operations.getOperationByKey(moduleIndex),
-                'Status:',
-                operations.getOperationsStatusByKey(moduleIndex),
-            );
-
             updateOperationStatus(STATUSES.SUCCESS, { moduleIndex, operationId, hash: txInstance.getTransaction().txHash });
 
             if (operations?.getOperationByKey(moduleIndex)) {
-                console.log('Operation is exist, call next step of operation', moduleIndex);
                 const operation = operations.getOperationByKey(moduleIndex);
 
                 const isApprove = operation.transactionType === TRANSACTION_TYPES.APPROVE;
 
-                console.log(`Shortcut operation is exist, call next step of operation, shortcutIndex: ${shortcutIndex.value}`, {
-                    isApprove,
-                });
-
-                !isApprove &&
+                if (!isApprove && isShortcutOpsExist())
                     store.dispatch('shortcuts/nextStep', {
                         shortcutId: currentShortcutId.value,
                         stepId: currentStepId.value,
@@ -778,7 +740,7 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
 
     const handleOnConfirm = async () => {
-        setIsTransactionSigning('handleOnConfirm', true);
+        isTransactionSigning.value = true;
 
         if (ecosystemToConnect.value) return await connectWalletByEcosystem(ecosystemToConnect.value);
 
@@ -817,7 +779,7 @@ const useModuleOperations = (module: ModuleType) => {
             if (isEmptyTxs) {
                 console.warn('No transactions to execute');
                 isShortcutOpsExist() && setShortcutStatus(SHORTCUT_STATUSES.SUCCESS);
-                setIsTransactionSigning('handleOnConfirm -> isEmptyTxs', false);
+                isTransactionSigning.value = false;
                 return;
             }
 
@@ -826,7 +788,7 @@ const useModuleOperations = (module: ModuleType) => {
             console.error('useModuleOperations -> executeTransactions -> error', error);
             throw error;
         } finally {
-            setIsTransactionSigning('handleOnConfirm -> finally', false);
+            isTransactionSigning.value = false;
         }
     };
 

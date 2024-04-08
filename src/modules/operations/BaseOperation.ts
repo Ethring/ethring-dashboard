@@ -165,7 +165,7 @@ export class BaseOperation implements IBaseOperation {
 
         const title = `${this.params.amount} ${this.getToken('from')?.symbol || ''}`;
 
-        if (this.getToken('to') && this.getToken('from') && this.params.outputAmount) {
+        if (this.getToken('to') && this.params.outputAmount) {
             return `${title} to ${this.params.outputAmount} ${this.getToken('to').symbol}`;
         }
 

@@ -71,9 +71,7 @@ import WaitingIcon from '@/assets/icons/form-icons/waiting.svg';
 
 import { ModuleType } from '../../../shared/models/enums/modules.enum';
 import { STATUSES, TRANSACTION_TYPES, SHORTCUT_STATUSES } from '../../../shared/models/enums/statuses.enum';
-import { IBaseOperation } from '../../../modules/operations/models/Operations';
 import OperationFactory from '../../../modules/operations/OperationsFactory';
-import BigNumber from 'bignumber.js';
 
 export default {
     name: 'ShortcutLoading',

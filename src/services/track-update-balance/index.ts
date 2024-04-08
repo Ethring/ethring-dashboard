@@ -6,9 +6,15 @@ import { updateBalanceByChain } from '@/modules/balance-provider';
 
 import { delay } from '@/shared/utils/helpers';
 
+declare global {
+    interface Window {
+        BALANCE_WAIT_TIME: number;
+    }
+}
 export const trackingBalanceUpdate = (store) => {
-    const timeout = ref({});
-    const waitTime = ref(3);
+    if (!window.BALANCE_WAIT_TIME) window.BALANCE_WAIT_TIME = 3; // Default 3 sec wait time
+
+    const WAIT_TIME = ref(window.BALANCE_WAIT_TIME || 3);
 
     const { walletAccount, chainList } = useAdapter();
 
@@ -71,18 +77,16 @@ export const trackingBalanceUpdate = (store) => {
     const handleUpdateBalance = async (network, address: string) => {
         const targetAccount = JSON.parse(JSON.stringify(walletAccount.value)) || '';
 
-        timeout.value[network.net] = waitTime.value;
-
         if (!network || !address || !targetAccount) {
             return;
         }
 
         message.loading({
-            content: () => `Updating balance for ${network.net} after ${timeout.value[network.net]} sec`,
+            content: () => `Updating balance for ${network.net} after ${WAIT_TIME.value} sec`,
         });
 
         // Wait for 3 sec before updating balance
-        await delay(waitTime.value * 1000); // 3 sec
+        await delay(WAIT_TIME.value * 1000); // 3 sec
 
         await updateBalanceByChain(targetAccount, address, network.net, {
             isUpdate: true,
@@ -105,37 +109,20 @@ export const trackingBalanceUpdate = (store) => {
                 }
 
                 const uniqueKey = `${chain}_${mainAddress}`;
-                console.log(`uniqueKey`, uniqueKey);
 
                 if (!uniqueKey) {
                     return;
                 }
 
-                const inProgress = await store.getters['updateBalance/getInProgress'](uniqueKey);
-                console.log(`Balance update for ${chain}_${mainAddress} is in progress status`, inProgress);
-                if (inProgress) {
-                    console.log(`Balance update for ${chain}_${mainAddress} is in progress`);
-                    return;
-                }
+                const inProgress = (await store.getters['updateBalance/getInProgress'](uniqueKey)) || false;
 
-                console.log(`Balance update for ${chain}_${mainAddress} not in progress, starting...`);
-                store.dispatch('updateBalance/setInProgress', { key: `${chain}_${mainAddress}`, status: true });
+                if (inProgress) return;
+
+                store.dispatch('updateBalance/setInProgress', { address: `${chain}_${mainAddress}`, status: true });
 
                 await handleUpdateBalance(config, address);
 
-                setInterval(() => {
-                    if (timeout.value[config.net] > 0) {
-                        timeout.value[config.net] -= 1;
-                    }
-                }, 1000);
-
-                if (timeout.value[config.net] === 0) {
-                    clearInterval(timeout.value[config.net]);
-                    message.destroy();
-                }
-
                 await removeUpdateBalanceQueues(mainAddress, chain);
-                console.log(`Balance update for ${chain}_${mainAddress} is done`);
 
                 store.dispatch('updateBalance/setInProgress', { key: `${chain}_${mainAddress}`, status: false });
             }),

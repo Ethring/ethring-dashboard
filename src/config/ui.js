@@ -15,7 +15,7 @@ const SEND = {
     title: 'Send',
     key: 'send',
     to: '/send',
-    disabled: true,
+    disabled: false,
     type: 'layout',
 };
 
@@ -24,7 +24,7 @@ const BRIDGE = {
     title: 'Bridge',
     key: 'bridge',
     to: '/bridge',
-    disabled: true,
+    disabled: false,
     type: 'layout',
 };
 
@@ -33,7 +33,7 @@ const SWAP = {
     title: 'Swap',
     key: 'swap',
     to: '/swap',
-    disabled: true,
+    disabled: false,
     type: 'layout',
 };
 
@@ -43,16 +43,6 @@ const SUPER_SWAP = {
     key: 'superSwap',
     to: '/super-swap',
     status: 'BETA',
-    disabled: true,
-    type: 'layout',
-};
-
-const SHORTCUTS = {
-    icon: 'superSwapIcon',
-    title: 'Shortcuts',
-    key: 'shortcuts',
-    to: '/shortcuts',
-    status: '',
     disabled: false,
     type: 'layout',
 };
@@ -68,8 +58,6 @@ const SHORTCUT = {
 };
 
 const SIDEBAR_MODULES = [MAIN_DASHBOARD, SHORTCUT, SEND, SWAP, BRIDGE, SUPER_SWAP];
-
-const CUSTOM_CONFIG = [MAIN_DASHBOARD];
 
 const defaultConfig = {
     [ECOSYSTEMS.EVM]: {
