@@ -224,11 +224,5 @@ export const confirmConnectKeplrWallet = async (context: BrowserContext, page: B
     const notifyKeplr = new KeplrNotifyPage(await getNotifyKeplrPage(context));
     await notifyKeplr.assignPage();
 
-    while (!await notifyKeplr.isClosed()) {
-        await sleep(ONE_SECOND);
-
-        await notifyKeplr.assignPage();
-    }
-
     await page.waitMainElementVisible();
 };
