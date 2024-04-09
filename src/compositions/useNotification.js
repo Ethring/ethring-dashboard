@@ -51,9 +51,9 @@ export default function useNotification() {
             const updateProgressLine = () => {
                 const elapsedTime = Date.now() - progressStartTime;
 
-                const remainingTime = (duration * 1000) - elapsedTime;
+                const remainingTime = ((duration - 1) * 1000) - elapsedTime;
 
-                const calculatedProgress = (remainingTime / (duration * 1000)) * 100;
+                const calculatedProgress = (remainingTime / ((duration - 1) * 1000)) * 100;
 
                 progressPercent.value = Math.round(Math.max(calculatedProgress, 0));
 
@@ -62,7 +62,7 @@ export default function useNotification() {
                 }
             };
 
-            const progressInterval = setInterval(updateProgressLine, 120);
+            const progressInterval = setInterval(updateProgressLine, 100);
         }
 
         if (btnComponents.length > 0) {
