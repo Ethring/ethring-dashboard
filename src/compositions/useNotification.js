@@ -34,9 +34,11 @@ export default function useNotification() {
             ...args,
         };
 
+        const btnComponents = [];
+
         if (explorerLink) {
-            notificationParams.btn = () =>
-                h(ExternalLinkIcon, { class: 'notification-explorer', onClick: () => openExplorer(explorerLink, key) });
+            btnComponents.push(() =>
+                h(ExternalLinkIcon, { class: 'notification-explorer', onClick: () => openExplorer(explorerLink, key) }));
         }
 
         if (progress) {
@@ -44,7 +46,7 @@ export default function useNotification() {
 
             const progressStartTime = Date.now();
 
-            notificationParams.btn = () => h(Progress, { class: 'notification-progress-line', percent: progressPercent.value, size: 'small', showInfo: false, strokeColor: type === 'error' ? '#E4455D' : '#14EC8A' });
+            btnComponents.push(() => h(Progress, { class: 'notification-progress-line', percent: progressPercent.value, size: 'small', showInfo: false, strokeColor: type === 'error' ? '#E4455D' : '#14EC8A' }));
 
             const updateProgressLine = () => {
                 const elapsedTime = Date.now() - progressStartTime;
@@ -61,6 +63,10 @@ export default function useNotification() {
             };
 
             const progressInterval = setInterval(updateProgressLine, 1000);
+        }
+
+        if (btnComponents.length > 0) {
+            notificationParams.btn = () => btnComponents.map(component => component());
         }
 
         if (txHash && wait) {

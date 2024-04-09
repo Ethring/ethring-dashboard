@@ -23,17 +23,18 @@ const NOTIFICATION_TYPE_BY_STATUS = {
     [STATUSES.FAILED]: 'error',
 };
 
-const statusNotification = (status, { store, metaData, txHash, explorerLink, successCallback }) => {
+const statusNotification = (status, { store, id = null, metaData, txHash, explorerLink, successCallback }) => {
     const { showNotification } = useNotification();
 
-    const notificationKey = txHash ? `waiting-${txHash}-tx` : `${status}-tx`;
+    const hashKey = txHash ? `waiting-${txHash}-tx` : `${status}-tx`;
+    const notificationKey = hashKey || `tx-${id}`;
 
     const notificationBody = {
         key: notificationKey,
         type: NOTIFICATION_TYPE_BY_STATUS[status],
         title: metaData.notificationTitle,
         description: metaData.notificationDescription,
-        duration: 3,
+        duration: 4,
         progress: true
     };
 
@@ -72,7 +73,7 @@ export const handleTransactionStatus = async (transaction, store, event) => {
         console.error('Error on detectUpdateForAccount', error);
     }
 
-    const { metaData, module, status, txHash = '' } = transaction;
+    const { id, metaData, module, status, txHash = '' } = transaction;
     const { explorerLink, successCallback = null } = metaData || {};
 
     if (FINISHED_STATUSES.includes(status)) {
@@ -81,9 +82,7 @@ export const handleTransactionStatus = async (transaction, store, event) => {
         await store.dispatch('txManager/setCurrentRequestID', null);
     }
 
-    // const displayHash = (txHash && txHash.slice(0, 8) + '...' + txHash.slice(-8)) || txHash;
-
-    statusNotification(status, { store, metaData, txHash, explorerLink, successCallback });
+    statusNotification(status, { store, id, metaData, txHash, explorerLink, successCallback });
 
     return status;
 };
