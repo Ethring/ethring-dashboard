@@ -1,23 +1,58 @@
 .custom-notification {
+    @include pageFlexRow;
+
     background-color: var(--#{$prefix}primary);
     border: 1px solid transparent;
     border-radius: 16px;
+    padding: 12px 24px !important;
 
     .ant-notification-notice-message {
         color: var(--#{$prefix}white);
-        font-size: var(--#{$prefix}h6-fs) !important;
+        font-size: var(--#{$prefix}default-fs) !important;
+        margin-bottom: 2px !important;
     }
 
     .ant-notification-notice-description {
         color: var(--#{$prefix}notification-text);
-        font-size: var(--#{$prefix}small-lg-fs) !important;
+        font-size: var(--#{$prefix}small-sm-fs) !important;
+    }
+
+    .ant-notification-notice-close {
+        top: 10px;
     }
 
     [class^="anticon"]:not(.anticon-check-circle):not(.anticon-close-circle) {
         color: var(--#{$prefix}white);
     }
 
+    @keyframes checkAnimation {
+        0% {
+            transform: scale3d(1, 1, 1) rotate(0deg);
+        }
+
+        20% {
+            transform: scale3d(1.2, 1.2, 1.2) rotate(-5deg);
+        }
+
+        40% {
+            transform: scale3d(1, 1, 1) rotate(5deg);
+        }
+
+        60% {
+            transform: scale3d(1.2, 1.2, 1.2) rotate(-5deg);
+        }
+
+        80% {
+            transform: scale3d(1, 1, 1) rotate(5deg);
+        }
+
+        100% {
+            transform: scale3d(1, 1, 1) rotate(0deg);
+        }
+    }
+
     .anticon-check-circle {
+        animation: checkAnimation 0.5s ease infinite;
         color: var(--#{$prefix}success) !important;
     }
 
@@ -61,7 +96,7 @@
     .notification-explorer {
         cursor: pointer;
         position: absolute;
-        top: 20px;
+        top: 10px;
         inset-inline-end: 48px;
 
         fill: var(--#{$prefix}white);
@@ -86,5 +121,14 @@
             fill: var(--#{$prefix}success);
             border-color: var(--#{$prefix}white);
         }
+    }
+
+    .notification-progress-line {
+        position: absolute;
+        left: 0px;
+    }
+
+    .ant-progress-bg {
+        transition: width 0.2s ease-in-out;
     }
 }

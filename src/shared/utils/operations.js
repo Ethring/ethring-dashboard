@@ -14,6 +14,7 @@ export const isCorrectChain = async (selectedNetwork, currentChainInfo, setChain
             type: 'error',
             title: `Different ecosystem`,
             duration: 3,
+            progress: true
         });
 
         return false;
@@ -41,6 +42,7 @@ export const isCorrectChain = async (selectedNetwork, currentChainInfo, setChain
                 title: `Failed to switch network to ${selectedNetwork.value.name}`,
                 description: 'Please try again',
                 duration: 2,
+                progress: true
             });
         }
 
