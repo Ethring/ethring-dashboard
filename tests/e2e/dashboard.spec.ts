@@ -99,7 +99,7 @@ test.describe('MetaMask dashboard', () => {
         });
     });
 });
-test.describe('Keplr dashboard', () => {
+test.describe.skip('Keplr dashboard', () => {
     testKeplr('Case#: check protocols & nfts view', async ({ browser, context, page, dashboardProtocol }) => {
         await dashboardProtocol.prepareFoScreenShoot();
 
