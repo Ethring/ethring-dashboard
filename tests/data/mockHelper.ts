@@ -9,7 +9,7 @@ const errorGetBalanceMockData = {
 const errorEstimateSwap = {
     ok: false,
     data: null,
-    error: "No routes available",
+    error: "Route not found",
 };
 
 const mockBalanceData = {
