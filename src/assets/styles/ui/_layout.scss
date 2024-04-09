@@ -198,3 +198,100 @@ $top-bar-spacing: 20px;
         opacity: 1;
     }
 }
+
+.nft-base-info .ant-card .ant-card-body {
+    padding: 16px !important;
+}
+
+.nft-stats {
+    margin: 10px;
+
+    .nft-stats-card {
+        background-color: var(--#{$prefix}secondary-bg-color);
+        height: 80px;
+        max-height: 80px;
+
+        .type {
+            font-size: var(--#{$prefix}small-sm-fs);
+            color: var(--#{$prefix}mute-text);
+        }
+
+        .amount {
+            font-size: var(--#{$prefix}h5-fs);
+            font-weight: 400;
+            color: var(--#{$prefix}primary-text);
+        }
+    }
+}
+
+.nft-base-info .nft-base-info-time {
+    color: var(--#{$prefix}primary-text);
+    margin-top: 16px;
+
+    .time-icon {
+        width: 16px;
+        height: 16px;
+        font-size: 16px;
+
+        fill: var(--#{$prefix}warning);
+        color: var(--#{$prefix}warning);
+
+        position: relative;
+
+        z-index: 2;
+    }
+
+    .time-countdown * {
+        font-size: var(--#{$prefix}default-fs);
+        color: var(--#{$prefix}primary-text);
+    }
+
+    .time-type {
+        color: var(--#{$prefix}mute-text);
+        font-weight: 600;
+    }
+}
+
+@mixin wavePseudo {
+    background: var(--#{$prefix}warning);
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    margin: auto;
+    width: 16px;
+    height: 16px;
+    content: "";
+    display: block;
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.nft-base-info .nft-base-info-time {
+    // .time-icon::after {
+    //     @include wavePseudo;
+    //     animation: wave-animate 2s infinite ease-out;
+    // }
+
+    // .time-icon::before {
+    //     @include wavePseudo;
+    //     opacity: 0;
+    //     animation: wave-animate 2s 1s infinite ease-out;
+    // }
+}
+
+@keyframes wave-animate {
+    0% {
+        transform: scale(0);
+        opacity: 1;
+        transform-origin: center;
+    }
+    100% {
+        transform: scale(2);
+        opacity: 0;
+        transform-origin: center;
+    }
+}

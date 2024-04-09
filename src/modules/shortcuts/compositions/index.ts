@@ -24,13 +24,14 @@ import BigNumber from 'bignumber.js';
 
 import { useRouter } from 'vue-router';
 import { StepProps, message } from 'ant-design-vue';
+import MultipleContractExec from '@/modules/operations/MultipleExec';
 
 const useShortcuts = (Shortcut: IShortcutData) => {
     // Create a new instance of the Shortcut class
 
     const CurrentShortcut = new ShortcutCl(Shortcut);
 
-    const { getChainByChainId } = useAdapter();
+    const { getChainByChainId, getContractInfo, getChainListByEcosystem } = useAdapter();
     const { getTokenById } = useTokensList();
 
     const store = useStore();
@@ -121,23 +122,26 @@ const useShortcuts = (Shortcut: IShortcutData) => {
 
         if (!operationsFactory.value) return;
 
-        let module: any, index: number;
+        let key: string;
 
         switch (operationType) {
             case TRANSACTION_TYPES.DEX:
             case TRANSACTION_TYPES.BRIDGE:
-                ({ module, index } = operationsFactory.value.registerOperation(moduleType, DexOperation, { id, name }));
+                ({ key } = operationsFactory.value.registerOperation(moduleType, DexOperation, { id, name }));
                 break;
             case TRANSACTION_TYPES.TRANSFER:
             case TRANSACTION_TYPES.STAKE:
-                ({ module, index } = operationsFactory.value.registerOperation(moduleType, TransferOperation, { id, name }));
+                ({ key } = operationsFactory.value.registerOperation(moduleType, TransferOperation, { id, name }));
                 break;
             case TRANSACTION_TYPES.APPROVE:
-                ({ module, index } = operationsFactory.value.registerOperation(moduleType, ApproveOperation, { id, name }));
+                ({ key } = operationsFactory.value.registerOperation(moduleType, ApproveOperation, { id, name }));
+                break;
+            case TRANSACTION_TYPES.EXECUTE_MULTIPLE:
+                ({ key } = operationsFactory.value.registerOperation(moduleType, MultipleContractExec, { id, name }));
                 break;
         }
 
-        operationsFactory.value.setParams(module, index, {
+        operationsFactory.value.setParamsByKey(key, {
             ...operationParams,
             ownerAddresses: addressesByChain.value,
             serviceId,
@@ -270,6 +274,10 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                     isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value: address }));
                     operationsFactory.value?.getOperationById(targetOpId)?.setParamByField('receiverAddress', address);
                     break;
+                case 'contractAddress':
+                    isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value: address }));
+                    operationsFactory.value?.getOperationById(targetOpId)?.setParamByField('contract', address);
+                    break;
                 case 'memo':
                     isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value: memo }));
                     operationsFactory.value?.getOperationById(targetOpId)?.setParamByField('memo', memo);
@@ -313,6 +321,20 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             data: CurrentShortcut,
         });
 
+        const [firstOp] = CurrentShortcut.operations;
+
+        const { layoutComponent } = firstOp as IShortcutOp;
+
+        if (layoutComponent) {
+            store.dispatch('shortcuts/setCurrentLayout', {
+                layout: layoutComponent,
+            });
+        }
+
+        store.dispatch('shortcuts/setCurrentShortcutId', {
+            shortcutId: CurrentShortcut.id,
+        });
+
         // ====================================================================================================
         // Set the operations factory to the store
         // ====================================================================================================
@@ -335,10 +357,6 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             isShortcutLoading.value = false;
             return router.push('/shortcuts');
         }
-
-        store.dispatch('shortcuts/setCurrentShortcutId', {
-            shortcutId: CurrentShortcut.id,
-        });
 
         store.dispatch('shortcuts/setCurrentStepId', {
             stepId,
@@ -374,24 +392,29 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             getters['tokenOps/dstToken'],
             getters['tokenOps/srcAmount'],
             getters['tokenOps/dstAmount'],
+            getters['tokenOps/contractAddress'],
+            getters['tokenOps/contractCallCount'],
         ],
-        async ([srcNet, dstNet, srcToken, dstToken, srcAmount, dstAmount]) => {
+        async ([srcNet, dstNet, srcToken, dstToken, srcAmount, dstAmount, contractAddress, contractCallCount]) => {
+            if (!currentOp.value) return;
+
             if (!srcNet || !dstNet) return;
 
-            if (currentOp.value?.id) {
+            if (currentOp.value?.id && srcNet?.net && srcNet?.ecosystem) {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setChainId(srcNet.chain_id || srcNet.net);
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setEcosystem(srcNet.ecosystem);
+                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('net', srcNet.net);
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('fromNet', srcNet.net);
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setAccount(addressesByChain.value[srcNet.net]);
             }
 
-            if (currentOp.value?.id) {
+            if (currentOp.value?.id && dstNet?.net && dstNet?.ecosystem) {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('toNet', dstNet.net);
             }
 
             if (!srcToken || !dstToken) return;
 
-            if (currentOp.value?.id) {
+            if (currentOp.value?.id && srcToken?.id) {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('fromToken', srcToken.address);
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setToken('from', srcToken);
             }
@@ -401,16 +424,24 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setToken('to', dstToken);
             }
 
-            if (!srcAmount) return;
+            if (!srcAmount || !dstAmount) return;
 
-            if (currentOp.value?.id) {
+            if (currentOp.value?.id && srcAmount) {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('amount', srcAmount);
             }
 
-            if (!dstAmount) return;
-
-            if (currentOp.value?.id) {
+            if (currentOp.value?.id && dstAmount) {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('outputAmount', dstAmount);
+            }
+
+            if (!contractAddress || !contractCallCount) return;
+
+            if (currentOp.value?.id && contractAddress) {
+                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('contractAddress', contractAddress);
+            }
+
+            if (currentOp.value?.id && contractCallCount) {
+                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('count', contractCallCount);
             }
         },
     );

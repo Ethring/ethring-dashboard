@@ -1,7 +1,9 @@
 import { ref } from 'vue';
 import _, { chain } from 'lodash';
 
-import { cosmos } from 'osmojs';
+import { cosmos, cosmwasm } from 'osmojs';
+import { contracts } from 'stargazejs';
+
 import { SigningStargateClient, GasPrice } from '@cosmjs/stargate';
 
 import { Logger, WalletManager } from '@cosmos-kit/core';
@@ -30,6 +32,7 @@ import logger from '@/shared/logger';
 import IndexedDBService from '@/services/indexed-db';
 
 import { ignoreRPC } from '@/Adapter/utils/ignore-rpc';
+import { CosmWasmClient } from '@cosmjs/cosmwasm-stargate';
 
 const configsDB = new IndexedDBService('configs');
 
@@ -55,7 +58,7 @@ const connectedAccounts = () => JSON.parse(window?.localStorage?.getItem(STORAGE
 const connectedWalletModule = () => window?.localStorage.getItem(STORAGE.WALLET) || null;
 const addressByNetwork = () => JSON.parse(window?.localStorage.getItem(STORAGE.ADDRESS_BY_NETWORK)) || {};
 
-class CosmosAdapter extends AdapterBase {
+export class CosmosAdapter extends AdapterBase {
     chainsFromStore = {};
     walletManager = null;
 
@@ -600,7 +603,9 @@ class CosmosAdapter extends AdapterBase {
         const GAS_ADJUSTMENT = 1.4;
 
         try {
-            const simGas = await client.simulate(this.getAccountAddress(), [msg]);
+            const msgs = Array.isArray(msg) ? msg : [msg];
+
+            const simGas = await client.simulate(this.getAccountAddress(), msgs);
 
             if (!simGas) {
                 return null;
@@ -621,7 +626,8 @@ class CosmosAdapter extends AdapterBase {
         const chainWallet = this._getCurrentWallet();
 
         try {
-            const estimatedFee = await chainWallet.value.estimateFee([msg]);
+            const msgs = Array.isArray(msg) ? msg : [msg];
+            const estimatedFee = await chainWallet.value.estimateFee(msgs);
 
             if (estimatedFee) {
                 return estimatedFee;
@@ -685,6 +691,50 @@ class CosmosAdapter extends AdapterBase {
                 memo,
             };
         } catch (error) {}
+    }
+
+    async prepareMultipleExecuteMsgs({ fromAddress, amount, token, memo, count = 1, contract, funds = [] }) {
+        const fee = this.setDefaultFeeForTx();
+
+        console.log('params -> prepareMultipleExecuteMsgs', { fromAddress, amount, token, memo, count, contract, funds });
+
+        const prepareMsgs = () => {
+            try {
+                const { executeContract } = cosmwasm.wasm.v1.MessageComposer.withTypeUrl;
+
+                const msg = executeContract({
+                    sender: this.getAccountAddress(),
+                    contract,
+                    funds,
+                });
+
+                console.log('msg -> prepareMultipleExecuteMsgs', msg);
+
+                return msg;
+            } catch (error) {
+                logger.error('error while prepare', error);
+            }
+        };
+
+        let msgs = [];
+
+        try {
+            console.log('prepareMultipleExecuteMsgs', count);
+
+            for (let i = 0; i < count; i++) {
+                const msg = prepareMsgs();
+                if (!msg) continue;
+                msgs.push(msg);
+            }
+
+            return {
+                msg: msgs,
+                fee,
+            };
+        } catch (error) {
+            logger.error('error while prepareMultipleExecute', error);
+            return errorRegister(error);
+        }
     }
 
     async prepareTransaction({ fromAddress, toAddress, amount, token, memo }) {
@@ -829,14 +879,21 @@ class CosmosAdapter extends AdapterBase {
                 setTimeout(() => reject(new Error(`TIMEOUT ${rpc}`)), TIMEOUT);
             });
 
+        const connected = {
+            rpc: null,
+            client: null,
+        };
+
         for (const rpc of filteredRPCs) {
             try {
                 const timeoutPromise = timeoutFN(TIMEOUT_PROMISE, rpc);
                 const connectPromise = SigningStargateClient.connectWithSigner(rpc, offlineSigner, signingStargate);
                 await Promise.race([timeoutPromise, connectPromise]);
                 console.log('Client connected', rpc);
+                connected.rpc = rpc;
+                connected.client = await connectPromise;
+                return connected;
                 // Success
-                return connectPromise;
             } catch (error) {
                 if (error?.message === `TIMEOUT ${rpc}`) {
                     logger.warn(`[COSMOS -> getSignClient TIMEOUT] Timeout connecting to RPC: ${rpc}`);
@@ -851,6 +908,22 @@ class CosmosAdapter extends AdapterBase {
         return null;
     }
 
+    async getSignClientByChain(chain) {
+        const chainWallet = ref(this.walletManager.getChainWallet(chain, this.walletName));
+        await chainWallet.value.initOfflineSigner('amino');
+
+        const { rpcEndpoints, chainRecord } = chainWallet.value || {};
+        const { clientOptions = {} } = chainRecord || {};
+        const { signingStargate = {} } = clientOptions;
+
+        return (
+            (await this.getSignClient(rpcEndpoints, {
+                signingStargate,
+                offlineSigner: chainWallet.value.offlineSigner,
+            })) || {}
+        );
+    }
+
     async signSend(transaction) {
         const { msg, fee, memo } = transaction;
 
@@ -861,13 +934,13 @@ class CosmosAdapter extends AdapterBase {
         const { clientOptions = {} } = chainRecord || {};
         const { signingStargate = {} } = clientOptions;
 
-        const client = await this.getSignClient(rpcEndpoints, {
+        const signClient = await this.getSignClient(rpcEndpoints, {
             signingStargate,
             offlineSigner: chainWallet.value.offlineSigner,
         });
 
         // Check if client exist
-        if (!client) {
+        if (!signClient || !signClient.client) {
             return {
                 error: 'Signing Stargate client not found',
             };
@@ -875,7 +948,7 @@ class CosmosAdapter extends AdapterBase {
 
         // Try to get estimated fee
         try {
-            const estimatedFee = await this.getTransactionFee(client, msg);
+            const estimatedFee = await this.getTransactionFee(signClient.client, msg);
 
             if (estimatedFee) {
                 fee.gas = estimatedFee.gas;
@@ -888,9 +961,14 @@ class CosmosAdapter extends AdapterBase {
             logger.error('[COSMOS -> signSend -> estimate]', error);
         }
 
+        const msgs = Array.isArray(msg) ? msg : [msg];
+
+        console.log('signSend', { msgs, fee, memo });
         // Sign and send transaction
         try {
-            return await client.signAndBroadcast(this.getAccountAddress(), [msg], fee, memo);
+            console.log('SignClient', signClient.client);
+
+            return await signClient.client.signAndBroadcast(this.getAccountAddress(), msgs, fee, memo);
         } catch (error) {
             logger.error('[COSMOS -> signSend] Error while broadcasting transaction', error);
             return errorRegister(error);

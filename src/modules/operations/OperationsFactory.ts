@@ -146,6 +146,11 @@ export default class OperationFactory implements IOperationFactory {
         return this.operationsMap.get(this.operationsIds.get(id));
     }
 
+    setParamsByKey(moduleKey: string, params: any): void {
+        const operation = this.getOperationByKey(moduleKey);
+        operation.setParams(params);
+    }
+
     setParams(module: string, operationIndex: number, params: any): void {
         const operation = this.getOperation(module, operationIndex);
         operation.setParams(params);
@@ -461,12 +466,6 @@ export default class OperationFactory implements IOperationFactory {
             if (STATUS_TO_EXCLUDE.includes(status)) return score;
             return score + 1;
         }, 0);
-
-        console.log('SUCCESS SCORE', successScore);
-
-        console.log('OPERATIONS LENGTH', operations.length);
-
-        console.log('PERCENTAGE', BigNumber(successScore).dividedBy(operations.length).multipliedBy(100).toFixed(2));
 
         return Number(BigNumber(successScore).dividedBy(operations.length).multipliedBy(100).toFixed(2));
     }

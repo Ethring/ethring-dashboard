@@ -49,6 +49,12 @@ const TYPES = {
     SET_CALL_CONFIRM: 'SET_CALL_CONFIRM',
 
     SET_SERVICE_ID: 'SET_SERVICE_ID',
+
+    SET_CONTRACT_ADDRESS: 'SET_CONTRACT_ADDRESS',
+
+    SET_CONTRACT_CALL_COUNT: 'SET_CONTRACT_CALL_COUNT',
+
+    SET_FUNDS: 'SET_FUNDS',
 };
 
 const fieldSetter = {
@@ -64,6 +70,10 @@ const fieldSetter = {
     direction: TYPES.SET_DIRECTION,
     selectType: TYPES.SET_TOKEN_SELECT_TYPE,
     memo: TYPES.SET_MEMO,
+    serviceId: TYPES.SET_SERVICE_ID,
+    contractAddress: TYPES.SET_CONTRACT_ADDRESS,
+    contractCallCount: TYPES.SET_CONTRACT_CALL_COUNT,
+    funds: TYPES.SET_FUNDS,
 };
 
 interface IState extends IFields {
@@ -99,6 +109,7 @@ export default {
             [ModuleType.bridge]: null,
             [ModuleType.superSwap]: null,
             [ModuleType.shortcut]: null,
+            [ModuleType.nft]: null,
         },
 
         direction: DIRECTIONS.SOURCE,
@@ -119,6 +130,11 @@ export default {
         [Field.memo]: '',
         [Field.isSendToAnotherAddress]: false,
 
+        [Field.contractAddress]: '',
+        [Field.contractCallCount]: 0,
+
+        [Field.funds]: null,
+
         isForceCallConfirm: {
             [ModuleType.send]: false,
             [ModuleType.stake]: false,
@@ -126,6 +142,7 @@ export default {
             [ModuleType.bridge]: false,
             [ModuleType.superSwap]: false,
             [ModuleType.shortcut]: false,
+            [ModuleType.nft]: false,
         },
     }),
 
@@ -175,6 +192,11 @@ export default {
         // ****************************************************
         // * =================== OTHER =================== *
         // ****************************************************
+
+        contractAddress: (state: IState): string => state[Field.contractAddress],
+        contractCallCount: (state: IState): number => state[Field.contractCallCount],
+
+        funds: (state: IState): any => state[Field.funds],
 
         switchDirection: (state: IState): boolean => state[Field.switchDirection],
 
@@ -284,6 +306,16 @@ export default {
         [TYPES.SET_SERVICE_ID](state: IState, { module, value }) {
             state.serviceId[module] = value;
         },
+        [TYPES.SET_CONTRACT_ADDRESS](state: IState, value: string) {
+            state[Field.contractAddress] = value;
+        },
+        [TYPES.SET_CONTRACT_CALL_COUNT](state: IState, value: number) {
+            state[Field.contractCallCount] = value;
+        },
+
+        [TYPES.SET_FUNDS](state: IState, value: any) {
+            state[Field.funds] = value;
+        },
     },
 
     actions: {
@@ -354,6 +386,15 @@ export default {
 
         setServiceId({ commit }, { module, value }) {
             commit(TYPES.SET_SERVICE_ID, { module, value });
+        },
+        setContractAddress({ commit }, value: string) {
+            commit(TYPES.SET_CONTRACT_ADDRESS, value);
+        },
+        setContractCallCount({ commit }, value: number) {
+            commit(TYPES.SET_CONTRACT_CALL_COUNT, value);
+        },
+        setFunds({ commit }, value: { amount: string; denom: string }) {
+            commit(TYPES.SET_FUNDS, value);
         },
     },
 };

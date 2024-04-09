@@ -342,6 +342,21 @@ function useAdapter() {
         return await adapter?.prepareDelegateTransaction(transaction);
     };
 
+    // * Prepare Delegate Transaction
+    const prepareMultipleExecuteMsgs = async (transaction, { ecosystem }) => {
+        if (!mainAdapter.value) {
+            return null;
+        }
+
+        if (!ecosystem && mainAdapter.value?.prepareMultipleExecuteMsgs) {
+            return await mainAdapter.value?.prepareMultipleExecuteMsgs(transaction);
+        }
+
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+
+        return await adapter?.prepareMultipleExecuteMsgs(transaction);
+    };
+
     // * Get Explorer Link by Tx Hash
     const getTxExplorerLink = (...args) => {
         return mainAdapter.value.getTxExplorerLink(...args) || null;
@@ -511,6 +526,16 @@ function useAdapter() {
         return await adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
     };
 
+    const getContractInfo = async (ecosystem, chainInfo, contract) => {
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+
+        await setChain(chainInfo);
+
+        return adapter.getContractInfo(contract);
+    };
+
+    const getAdapterByEcosystem = (ecosystem) => adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+
     // ==================== HOOKS ====================
     // * Subscribe to Wallets Change
     onMounted(() => {
@@ -555,15 +580,17 @@ function useAdapter() {
         getIBCAssets,
         getNativeTokenByChain,
 
-        formatTransactionForSign,
-
         setChain,
         setNewChain,
 
         validateAddress,
 
+        // * Transaction Actions
+        formatTransactionForSign,
         prepareTransaction,
         prepareDelegateTransaction,
+        prepareMultipleExecuteMsgs,
+
         signSend,
 
         disconnectWallet,
@@ -571,6 +598,10 @@ function useAdapter() {
 
         getConnectedStatus,
         switchEcosystem,
+
+        getContractInfo,
+
+        getAdapterByEcosystem,
     };
 }
 

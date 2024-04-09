@@ -20,6 +20,12 @@ export type BaseOpParams = AllQuoteParams & {
     memo?: string;
     type?: string;
     outputAmount?: string;
+    contract?: string;
+    count?: number;
+    funds?: {
+        amount: string;
+        denom: string;
+    };
     [key: string]: any;
 };
 

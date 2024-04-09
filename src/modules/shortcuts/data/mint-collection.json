@@ -27,76 +27,46 @@
         "id": "mint-collection",
         "operations": [
             {
-                "id": "bridge-eth-to-osmo",
-                "name": "Bridge Tokens to COSMOS (Osmosis)",
+                "id": "mint-nft-stargaze",
+                "name": "Mint NFT",
                 "type": "operation",
-                "moduleType": "superSwap",
-                "operationType": "BRIDGE",
-                "serviceId": "squid",
-                "layoutComponent": "SuperSwap",
+                "moduleType": "nft",
+                "operationType": "EXECUTE_MULTIPLE",
+                "layoutComponent": "MintNftLayout",
                 "isShowLayout": true,
-                "excludeChains": [
-                    "osmosis",
-                    "stargaze",
-                    "cosmoshub",
-                    "optimism",
-                    "eth",
-                    "fantom",
-                    "injective"
-                ],
+                "contractAddress": "stars156wh2mm8j9wug5kf929xyezxwf0cnyfu2dssxg6yppxstm9slacq6j9ng5",
+                "chainId": "stargaze",
+                "excludeChains": [],
                 "ecosystems": [
-                    "EVM",
                     "COSMOS"
                 ],
                 "operationParams": {
-                    "fromNet": "bsc",
-                    "toNet": "osmosis",
-                    "fromToken": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-                    "toToken": "uosmo"
+                    "fromNet": "stargaze",
+                    "fromToken": "ustars",
+                    "toNet": null,
+                    "toToken": null
                 },
                 "params": [
                     {
                         "name": "srcNetwork",
                         "hide": false,
                         "disabled": false,
-                        "ecosystem": "EVM",
-                        "chainId": 56
+                        "ecosystem": "COSMOS",
+                        "chainId": "stargaze"
                     },
                     {
                         "name": "srcToken",
-                        "disabled": false,
-                        "hide": false,
-                        "chain": "bsc",
-                        "address": null,
-                        "id": "bsc:tokens__native:BNB"
-                    },
-                    {
-                        "name": "dstNetwork",
                         "disabled": true,
-                        "hide": false,
-                        "ecosystem": "COSMOS",
-                        "chainId": "osmosis"
+                        "id": "stargaze:tokens__native:STARS",
+                        "chain": "stargaze",
+                        "address": "ustars"
                     },
                     {
-                        "name": "dstToken",
+                        "name": "contractAddress",
+                        "type": "address",
                         "disabled": true,
-                        "hide": false,
-                        "id": "osmosis:tokens__native:OSMO",
-                        "chain": "osmosis",
-                        "address": "uosmo"
-                    },
-                    {
-                        "name": "switchDirection",
-                        "disabled": true,
-                        "hide": true
-                    },
-                    {
-                        "name": "isSendToAnotherAddress",
-                        "hide": true
-                    },
-                    {
-                        "name": "isReload",
-                        "hide": true
+                        "address": "stars156wh2mm8j9wug5kf929xyezxwf0cnyfu2dssxg6yppxstm9slacq6j9ng5",
+                        "hide": false
                     }
                 ]
             }

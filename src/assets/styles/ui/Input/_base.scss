@@ -11,6 +11,10 @@
         text-overflow: ellipsis;
     }
 
+    .ant-input-number-input {
+        padding: 0;
+    }
+
     .ant-input[disabled] {
         user-select: none;
         cursor: not-allowed;

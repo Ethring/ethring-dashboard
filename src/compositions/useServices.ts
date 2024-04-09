@@ -118,6 +118,16 @@ export default function useModule(moduleType: ModuleType) {
         set: (value) => store.dispatch('tokenOps/setReceiverAddress', value),
     });
 
+    const contractAddress = computed({
+        get: () => store.getters['tokenOps/contractAddress'],
+        set: (value) => store.dispatch('tokenOps/setContractAddress', value),
+    });
+
+    const contractCallCount = computed({
+        get: () => store.getters['tokenOps/contractCallCount'],
+        set: (value) => store.dispatch('tokenOps/setContractCallCount', value),
+    });
+
     const isSendToAnotherAddress = ref(false);
     const isAddressError = ref(false);
 
@@ -280,6 +290,9 @@ export default function useModule(moduleType: ModuleType) {
         isSendToAnotherAddress,
         isAddressError,
         receiverAddress,
+
+        contractAddress,
+        contractCallCount,
 
         // Amounts
         srcAmount,

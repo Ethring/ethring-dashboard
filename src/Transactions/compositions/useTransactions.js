@@ -28,6 +28,7 @@ export default function useTransactions() {
         prepareTransaction,
         prepareDelegateTransaction,
         formatTransactionForSign,
+        prepareMultipleExecuteMsgs,
     } = useAdapter();
 
     // * Create transactions queue
@@ -249,6 +250,8 @@ export default function useTransactions() {
                 await formatTransactionForSign(parameters, { ecosystem, ...txParams }),
             prepareDelegateTransaction: async (parameters, txParams = {}) =>
                 await prepareDelegateTransaction(parameters, { ecosystem, ...txParams }),
+            prepareMultipleExecuteMsgs: async (parameters, txParams = {}) =>
+                await prepareMultipleExecuteMsgs(parameters, { ecosystem, ...txParams }),
         };
 
         if (!transaction) {

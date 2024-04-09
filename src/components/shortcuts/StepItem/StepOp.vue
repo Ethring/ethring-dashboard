@@ -12,6 +12,8 @@
 import SWAP from '@/assets/icons/operations/swap.svg';
 import STAKE from '@/assets/icons/operations/stake.svg';
 import BRIDGE from '@/assets/icons/operations/bridge.svg';
+import EXECUTE_MULTIPLE from '@/assets/icons/operations/nft.svg';
+import MINT from '@/assets/icons/operations/nft.svg';
 
 import TokenIcon from '@/components/ui/Tokens/TokenIcon.vue';
 
@@ -21,6 +23,8 @@ export default {
         SWAP,
         BRIDGE,
         STAKE,
+        EXECUTE_MULTIPLE,
+        MINT,
         TokenIcon,
     },
     props: {

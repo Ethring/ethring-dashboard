@@ -19,6 +19,7 @@ export interface IShortcutOp {
     skipConditions?: { name: string; value: string }[];
     dependencies?: any;
     excludeChains?: string[];
+    contractAddress?: string;
 
     operationParams: {
         fromNet: string;
@@ -58,6 +59,8 @@ export default class ShortcutOp implements IShortcutOp {
 
     excludeChains?: string[];
 
+    contractAddress?: string;
+
     constructor(shortcut: IShortcutOp) {
         this.id = shortcut.id;
         this.name = shortcut.name;
@@ -71,6 +74,8 @@ export default class ShortcutOp implements IShortcutOp {
         this.params = shortcut.params;
         this.dependencies = shortcut.dependencies;
         this.ecosystems = shortcut.ecosystems;
+
+        this.contractAddress = shortcut.contractAddress;
 
         this.excludeChains = shortcut.excludeChains || [];
     }

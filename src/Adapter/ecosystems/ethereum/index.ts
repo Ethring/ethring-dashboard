@@ -15,7 +15,7 @@ const STORAGE = {
     WALLET: 'onboard.js:last_connected_wallet',
 };
 
-class EthereumAdapter extends AdapterBase {
+export class EthereumAdapter extends AdapterBase {
     private addressByNetwork: { [key: string]: any } = {};
 
     constructor() {

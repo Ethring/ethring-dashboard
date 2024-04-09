@@ -37,6 +37,7 @@ import { IAsset } from '@/shared/models/fields/module-fields';
 import { ApproveOperation } from '@/modules/operations/Approve';
 import DexOperation from '@/modules/operations/Dex';
 import { IBaseOperation } from '@/modules/operations/models/Operations';
+import MultipleContractExec from '@/modules/operations/MultipleExec';
 
 const useModuleOperations = (module: ModuleType) => {
     const store = useStore();
@@ -102,6 +103,8 @@ const useModuleOperations = (module: ModuleType) => {
 
         selectedRoute,
         receiverAddress,
+        contractAddress,
+        contractCallCount,
 
         opTitle,
     } = moduleInstance;
@@ -403,6 +406,32 @@ const useModuleOperations = (module: ModuleType) => {
                 ops.getOperationByKey(`${module}_${index}`).setChainId(selectedSrcNetwork.value?.chain_id);
                 ops.getOperationByKey(`${module}_${index}`).setAccount(account);
                 ops.getOperationByKey(`${module}_${index}`).setTokens({ from: selectedSrcToken.value, to: selectedDstToken.value });
+
+                break;
+
+            case ModuleType.nft:
+                ops.registerOperation(module, MultipleContractExec);
+
+                ops.setParams(module, 0, {
+                    net: selectedSrcNetwork.value?.net,
+                    fromNet: selectedSrcNetwork.value?.net,
+                    fromToken: selectedSrcToken.value?.address,
+                    ownerAddresses: addressByChain.value as OwnerAddresses,
+                    amount: srcAmount.value,
+                    contract: contractAddress.value,
+                    count: contractCallCount.value,
+                    type: null,
+                });
+
+                ops.getOperationByKey(`${module}_0`).setParamByField('contract', contractAddress.value);
+                ops.getOperationByKey(`${module}_0`).setParamByField('count', contractCallCount.value);
+
+                ops.getOperationByKey(`${module}_0`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
+                ops.getOperationByKey(`${module}_0`).setChainId(selectedSrcNetwork.value?.chain_id);
+                ops.getOperationByKey(`${module}_0`).setAccount(account);
+
+                ops.getOperationByKey(`${module}_0`).setToken('from', selectedSrcToken.value);
+                ops.getOperationByKey(`${module}_0`).setToken('to', selectedDstToken.value);
 
                 break;
 

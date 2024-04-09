@@ -1,4 +1,5 @@
 export enum ModuleType {
+    nft = 'nft',
     send = 'send',
     swap = 'swap',
     bridge = 'bridge',
