@@ -62,7 +62,7 @@ export default function useNotification() {
                 }
             };
 
-            const progressInterval = setInterval(updateProgressLine, 1000);
+            const progressInterval = setInterval(updateProgressLine, 100);
         }
 
         if (btnComponents.length > 0) {

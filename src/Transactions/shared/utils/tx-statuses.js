@@ -34,7 +34,7 @@ const statusNotification = (status, { store, id = null, metaData, txHash, explor
         type: NOTIFICATION_TYPE_BY_STATUS[status],
         title: metaData.notificationTitle,
         description: metaData.notificationDescription,
-        duration: 4,
+        duration: 3,
         progress: true
     };
 
