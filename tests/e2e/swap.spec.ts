@@ -15,7 +15,6 @@ import {
 
 const sleep = util.promisify(setTimeout);
 
-
 testMetaMask.describe('Swap e2e tests', () => {
     testMetaMask('Case#: Swap page', async ({ browser, context, page, dashboardEmptyWallet }) => {
         const swapPage = await dashboardEmptyWallet.goToModule('swap');
