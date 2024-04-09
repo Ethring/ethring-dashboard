@@ -55,14 +55,14 @@ export default function useNotification() {
 
                 const calculatedProgress = (remainingTime / (duration * 1000)) * 100;
 
-                progressPercent.value = Math.max(calculatedProgress, 0);
+                progressPercent.value = Math.round(Math.max(calculatedProgress, 0));
 
                 if (remainingTime <= 0) {
                     clearInterval(progressInterval);
                 }
             };
 
-            const progressInterval = setInterval(updateProgressLine, 100);
+            const progressInterval = setInterval(updateProgressLine, 120);
         }
 
         if (btnComponents.length > 0) {

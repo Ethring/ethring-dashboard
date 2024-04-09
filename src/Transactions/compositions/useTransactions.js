@@ -115,7 +115,7 @@ export default function useTransactions() {
             type: 'error',
             title: 'Transaction error',
             description: strError,
-            duration: 3,
+            duration: 6,
             progress: true
         });
 

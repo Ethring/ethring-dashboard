@@ -412,7 +412,7 @@ const useModuleOperations = (module: ModuleType) => {
             type: 'error',
             title: 'Transaction canceled',
             description: 'Your transaction has been canceled because the response from the node took too long. Please try again.',
-            duration: 4,
+            duration: 6,
             progress: true
         });
     }
