@@ -398,6 +398,16 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         async ([srcNet, dstNet, srcToken, dstToken, srcAmount, dstAmount, contractAddress, contractCallCount]) => {
             if (!currentOp.value) return;
 
+            if (!contractAddress || !contractCallCount) return;
+
+            if (currentOp.value?.id && contractAddress) {
+                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('contractAddress', contractAddress);
+            }
+
+            if (currentOp.value?.id && contractCallCount) {
+                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('count', contractCallCount);
+            }
+
             if (!srcNet || !dstNet) return;
 
             if (currentOp.value?.id && srcNet?.net && srcNet?.ecosystem) {
@@ -432,16 +442,6 @@ const useShortcuts = (Shortcut: IShortcutData) => {
 
             if (currentOp.value?.id && dstAmount) {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('outputAmount', dstAmount);
-            }
-
-            if (!contractAddress || !contractCallCount) return;
-
-            if (currentOp.value?.id && contractAddress) {
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('contractAddress', contractAddress);
-            }
-
-            if (currentOp.value?.id && contractCallCount) {
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('count', contractCallCount);
             }
         },
     );
