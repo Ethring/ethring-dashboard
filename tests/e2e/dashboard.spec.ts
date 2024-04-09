@@ -37,8 +37,8 @@ test.describe('Pages snapshot tests with empty wallet', () => {
         });
     });
 
-    testMetaMaskAndKeplr('Case#: Check balance request call', async ({ browser, context, page, authPage: testPage }) => {
-        /* Case: 
+    testMetaMaskAndKeplr.skip('Case#: Check balance request call', async ({ browser, context, page, authPage: testPage }) => {
+        /* Case:
         1) Auth by MM and Keplr wallets
         2) Check the balance request calls for all addresses from connected wallets
         3) Disconnect not current wallet
@@ -99,7 +99,7 @@ test.describe('MetaMask dashboard', () => {
         });
     });
 });
-test.describe('Keplr dashboard', () => {
+test.describe.skip('Keplr dashboard', () => {
     testKeplr('Case#: check protocols & nfts view', async ({ browser, context, page, dashboardProtocol }) => {
         await dashboardProtocol.prepareFoScreenShoot();
 

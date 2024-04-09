@@ -23,7 +23,7 @@ export const updateBalanceForAccount = async (account: string, addresses: ChainA
     const isInitCalled = store.getters['tokens/isInitCalled'](account);
 
     if (!isInitCalled) {
-        await store.dispatch('tokens/setIsInitCall', { account, time: Date.now() });
+        store.dispatch('tokens/setIsInitCall', { account, time: Date.now() });
         isUpdate = true;
     }
 

@@ -1,7 +1,7 @@
 <template>
     <a-form class="super-swap superswap-panel">
         <a-row class="panel-control">
-            <div class="reload-btn" :class="{ active: dstAmount && (!isQuoteLoading || !isTransactionSigning) }"
+            <div class="reload-btn" :class="{ active: dstAmount && !isQuoteLoading && !isTransactionSigning }"
                 @click="() => getEstimateInfo(true)">
                 <SyncOutlined :spin="isQuoteLoading" />
             </div>
@@ -95,7 +95,7 @@ export default {
         SelectAddressInput,
         SwitchDirection,
         EstimatePreviewInfo,
-        Slippage
+        Slippage,
     },
     setup() {
         const store = useStore();
@@ -107,10 +107,6 @@ export default {
         // =================================================================================================================
 
         const isSwapLoading = ref(false);
-
-        const routeInfo = computed(() => store.getters['bridgeDex/selectedRoute']);
-        const bestRouteInfo = computed(() => routeInfo.value?.bestRoute);
-        const otherRoutesInfo = computed(() => routeInfo.value?.otherRoutes);
 
         // * Module values
         const {
@@ -134,8 +130,6 @@ export default {
             quoteErrorMessage,
 
             // --------------------------------
-
-            selectedService,
             selectedSrcToken,
             selectedDstToken,
             selectedSrcNetwork,
@@ -201,6 +195,9 @@ export default {
         // =================================================================================================================
 
         const getEstimateInfo = async (isReload = false) => {
+            if (isReload && (isQuoteLoading.value || isTransactionSigning.value)) {
+                return;
+            }
             dstAmount.value = null;
             store.dispatch('bridgeDexAPI/setReloadRoutes', isReload);
         };
@@ -237,9 +234,6 @@ export default {
             srcAmount,
 
             opTitle,
-
-            bestRouteInfo,
-            otherRoutesInfo,
 
             selectedSrcNetwork,
             selectedDstNetwork,

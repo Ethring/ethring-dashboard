@@ -16,6 +16,7 @@ $default-fs: 14px !default;
 $small-lg-fs: 14px !default;
 $small-md-fs: 13px !default;
 $small-sm-fs: 12px !default;
+$small-xs-fs: 10px !default;
 
 //  ===========================================================================
 //  FONT SIZE MAP
@@ -36,4 +37,5 @@ $font-sizes: (
     "small-lg-fs": $small-lg-fs,
     "small-md-fs": $small-md-fs,
     "small-sm-fs": $small-sm-fs,
+    "small-xs-fs": $small-xs-fs,
 ) !default;

@@ -21,7 +21,6 @@
                 <div class="top-block">
                     <template v-if="isLoading">
                         <a-space>
-                            <a-skeleton-avatar active size="small" class="icon-skeleton" />
                             <a-skeleton-input active size="small" class="skeleton" />
                         </a-space>
                     </template>
@@ -36,7 +35,8 @@
                             <div v-if="isActive">
                                 <div class="preview-custom-fee" v-if="feeInUsd">
                                     <FeeIcon />
-                                    <Amount :value="feeInUsd" :decimals="2" symbol="$" type="usd" />
+                                    <Amount v-if="feeInUsd > 0" :value="feeInUsd" :decimals="2" symbol="$" type="usd" />
+                                    <div class="text" v-else>{{ $t('tokenOperations.unknownGas') }}</div>
                                 </div>
                             </div>
 
@@ -80,7 +80,8 @@
                     <div class="preview-title">{{ $t('tokenOperations.fee') }}</div>
                     <div class="preview-custom-fee" v-if="feeInUsd">
                         <FeeIcon />
-                        <Amount :value="feeInUsd" :decimals="2" symbol="$" type="usd" />
+                        <Amount v-if="feeInUsd > 0" :value="feeInUsd" :decimals="2" symbol="$" type="usd" />
+                        <div class="text" v-else>{{ $t('tokenOperations.unknownGas') }}</div>
                     </div>
                 </a-row>
 
@@ -306,6 +307,11 @@ export default {
         svg {
             margin-right: 5px;
         }
+
+        .text {
+            font-weight: 500;
+            color: var(--#{$prefix}warning);
+        }
     }
 
     &-header {
@@ -392,10 +398,11 @@ export default {
 
     .skeleton {
         height: 24px;
-    }
 
-    .icon-skeleton {
-        margin-right: 8px;
+        span {
+            width: 200px !important;
+            min-width: 200px !important;
+        }
     }
 
     .top-block {
