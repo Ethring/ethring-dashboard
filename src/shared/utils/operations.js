@@ -41,7 +41,7 @@ export const isCorrectChain = async (selectedNetwork, currentChainInfo, setChain
                 type: 'error',
                 title: `Failed to switch network to ${selectedNetwork.value.name}`,
                 description: 'Please try again',
-                duration: 2,
+                duration: 3,
                 progress: true
             });
         }
