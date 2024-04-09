@@ -15,7 +15,7 @@ test.describe('Auth page tests', () => {
     });
 });
 
-test.describe.skip('Pages snapshot tests with empty wallet', () => {
+test.describe('Pages snapshot tests with empty wallet', () => {
     testMetaMask('Case#: Dashboard page', async ({ browser, context, page, dashboardEmptyWallet }) => {
         const address = getTestVar(TEST_CONST.EMPTY_ETH_ADDRESS);
         await Promise.all(EVM_NETWORKS.map((network) => dashboardEmptyWallet.mockBalanceRequest(network, emptyBalanceMockData, address)));
@@ -85,7 +85,7 @@ test.describe.skip('Pages snapshot tests with empty wallet', () => {
     });
 });
 
-test.describe.skip('MetaMask dashboard', () => {
+test.describe('MetaMask dashboard', () => {
     testMetaMask('Case#: Check ETH protocol view', async ({ browser, context, page, dashboardProtocol }) => {
         await dashboardProtocol.prepareFoScreenShoot();
         await dashboardProtocol.setFocusToFirstSpan();

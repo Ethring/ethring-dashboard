@@ -21,7 +21,7 @@ const waitMmNotifyPage = async (context: BrowserContext) => {
 };
 
 const getNotifyMmPage = async (context: BrowserContext): Promise<Page> => {
-    const expectedMmPageTitle = 'MetaMask Notification';
+    const expectedMmPageTitle = 'MetaMask';
 
     await waitMmNotifyPage(context);
 
