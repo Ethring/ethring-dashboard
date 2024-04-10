@@ -149,9 +149,10 @@ class MetaMaskNotifyPage {
 
     async getReceiverAddress() {
         await this.page.click('//div[@data-testid="sender-to-recipient"]//div[@class="name name__missing"]');
-        const result = await this.page.innerText('//input[@disabled]');
+        const inputAddress = this.page.locator('//input[@disabled]');
+        const receiverAddressInMmNotify = inputAddress.getAttribute('defaultValue');
         await this.page.click('//header//button');
-        return result;
+        return receiverAddressInMmNotify;
     }
 
     async getAmount() {
