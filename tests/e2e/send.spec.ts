@@ -12,17 +12,17 @@ import {
     mockPostTransactionsWsByCreateEventSendReject,
     mockPutTransactionsRouteSendReject,
     mockPutTransactionsWsByUpdateTransactionEventInProgressSendReject,
-} from '../data/mockDataByTxManager/SendRejectTxMock';
+} from '../data/mockDataByTests/SendRejectTxMock';
 import {
     mockPostTransactionsRouteSendRejectKeplr,
     mockPostTransactionsWsByCreateEventSendRejectKeplr,
     mockPutTransactionsRouteSendRejectKeplr,
     mockPutTransactionsWsByUpdateTransactionEventInProgressSendRejectKeplr,
-} from '../data/mockDataByTxManager/SendRejectTxKeplrMock';
+} from '../data/mockDataByTests/SendRejectTxKeplrMock';
 
 const sleep = util.promisify(setTimeout);
 
-test.describe('MetaMask Send e2e tests', () => {
+testMetaMask.describe('MetaMask Send e2e tests', () => {
     testMetaMask('Case#: Send page', async ({ browser, context, page, dashboardEmptyWallet }) => {
         const address = getTestVar(TEST_CONST.EMPTY_ETH_ADDRESS);
         await dashboardEmptyWallet.mockBalanceRequest('eth', emptyBalanceMockData, address);

@@ -1,4 +1,5 @@
 export const INCORRECT_IMAGE_URL = 'https://snowtrace.io/token/images/111lolo43521';
+export const AAVE_ASSET = 'https://assets.coingecko.com/coins/images/12645/large/AAVE.png?1601374110'
 
 export default {
     eth: {
@@ -185,7 +186,7 @@ export default {
             address: '0x76FB31fb4af56892A25e32cFC43De717950c9278',
             decimals: 18,
             standard: 'erc20',
-            logo: 'https://assets.coingecko.com/coins/images/12645/large/AAVE.png?1601374110',
+            logo: AAVE_ASSET,
         },
         '0x334cc734866e97d8452ae6261d68fd9bc9bfa31e': {
             name: 'ARPA Chain',
@@ -255,7 +256,7 @@ export default {
             address: '0x63a72806098Bd3D9520cC43356dD78afe5D386D9',
             decimals: 18,
             standard: 'erc20',
-            logo: 'https://assets.coingecko.com/coins/images/12645/large/AAVE.png?1601374110',
+            logo: AAVE_ASSET,
         },
         '0x8a0cac13c7da965a312f08ea4229c37869e85cb9': {
             name: 'Graph Token',
