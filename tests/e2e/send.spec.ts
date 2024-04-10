@@ -12,17 +12,17 @@ import {
     mockPostTransactionsWsByCreateEventSendReject,
     mockPutTransactionsRouteSendReject,
     mockPutTransactionsWsByUpdateTransactionEventInProgressSendReject,
-} from '../data/mockDataByTxManager/SendRejectTxMock';
+} from '../data/mockDataByTests/SendRejectTxMock';
 import {
     mockPostTransactionsRouteSendRejectKeplr,
     mockPostTransactionsWsByCreateEventSendRejectKeplr,
     mockPutTransactionsRouteSendRejectKeplr,
     mockPutTransactionsWsByUpdateTransactionEventInProgressSendRejectKeplr,
-} from '../data/mockDataByTxManager/SendRejectTxKeplrMock';
+} from '../data/mockDataByTests/SendRejectTxKeplrMock';
 
 const sleep = util.promisify(setTimeout);
 
-test.describe('MetaMask Send e2e tests', () => {
+testMetaMask.describe('MetaMask Send e2e tests', () => {
     testMetaMask('Case#: Send page', async ({ browser, context, page, dashboardEmptyWallet }) => {
         const address = getTestVar(TEST_CONST.EMPTY_ETH_ADDRESS);
         await dashboardEmptyWallet.mockBalanceRequest('eth', emptyBalanceMockData, address);
@@ -126,7 +126,7 @@ test.describe('MetaMask Send e2e tests', () => {
     });
 });
 
-testKeplr.describe.skip('Keplr Send e2e tests', () => {
+testKeplr.describe('Keplr Send e2e tests', () => {
     testKeplr('Case#: Reject send native token in Cosmos', async ({ browser, context, page, sendPage }) => {
         const network = 'cosmoshub';
         const addressTo = COSMOS_WALLETS_BY_PROTOCOL_SEED[network];

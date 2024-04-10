@@ -8,9 +8,7 @@ dotenv.config({
 
 const localFrontUrl = 'http://localhost:5173';
 
-const testFilesNameNoTx = 'dashboard|send|swap';
-
-export const proxyUrl = process.env.CI ? 'http://mitmproxy:8080' : 'http://localhost:8082';
+const testFilesName = 'dashboard|send|swap|mockTxSend';
 
 export default defineConfig({
     testDir: './tests/e2e',
@@ -50,13 +48,11 @@ export default defineConfig({
             name: 'chromium',
             use: { ...devices['Desktop Chrome'] },
             dependencies: ['setup'],
-            testMatch: process.env.CI
-                ? `**/tests/e2e/@(${testFilesNameNoTx}|mockTxSend).spec.ts`
-                : `**/tests/e2e/@(${testFilesNameNoTx}).spec.ts`, //mocked tx test run only CI because proxy correct work only linux os
-            teardown: 'delete mm',
+            testMatch: `**/tests/e2e/@(${testFilesName}).spec.ts`,
+            teardown: 'delete extensions',
         },
         {
-            name: 'delete mm',
+            name: 'delete extensions',
             testDir: './tests/__fixtures__/global',
             testMatch: 'global.teardown.ts',
         },

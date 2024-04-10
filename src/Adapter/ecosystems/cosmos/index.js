@@ -31,6 +31,8 @@ import IndexedDBService from '@/services/indexed-db';
 
 import { ignoreRPC } from '@/Adapter/utils/ignore-rpc';
 
+import { DP_CHAINS } from '@/modules/balance-provider/models/enums';
+
 const configsDB = new IndexedDBService('configs');
 
 // * Config for cosmos
@@ -337,6 +339,10 @@ class CosmosAdapter extends AdapterBase {
                 }
 
                 const { chainName } = wallet;
+
+                if (!Object.values(DP_CHAINS).includes(chainName)) {
+                    return;
+                }
 
                 if (!isDifferentSlip44(chainName, this.differentSlip44)) {
                     return;
