@@ -21,7 +21,9 @@ export type BaseOpParams = AllQuoteParams & {
     type?: string;
     outputAmount?: string;
     contract?: string;
+    minter?: string;
     count?: number;
+    nfts?: string[];
     funds?: {
         amount: string;
         denom: string;
@@ -142,6 +144,8 @@ export interface IOperationFactory {
 
     getOperationOrder(): string[];
     resetOperationsStatus(): void;
+
+    getOperationsResult(): any;
 
     // getOperation(module: string, operationIndex: number): IBaseOperation;
 }

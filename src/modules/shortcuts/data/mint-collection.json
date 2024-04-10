@@ -22,7 +22,7 @@
         "EVM",
         "COSMOS"
     ],
-    "minUsdAmount": 1,
+    "minUsdAmount": 0,
     "recipe": {
         "id": "mint-collection",
         "operations": [
@@ -63,7 +63,7 @@
                         "name": "contractAddress",
                         "type": "address",
                         "disabled": true,
-                        "address": "stars156wh2mm8j9wug5kf929xyezxwf0cnyfu2dssxg6yppxstm9slacq6j9ng5",
+                        "address": "stars13mghwhxmj9athjgc3ge8pgdmh6hnchl0gkqsk29s925p9ta0em3sqssr39",
                         "hide": false
                     }
                 ]

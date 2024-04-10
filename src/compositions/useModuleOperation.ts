@@ -591,6 +591,8 @@ const useModuleOperations = (module: ModuleType) => {
 
             const operation = operations.getOperationByKey(moduleIndex);
 
+            operation.setParamByField('startTime', Number(new Date()));
+
             const prepared = operation.perform(index, operation.getAccount(), operation.getEcosystem(), operation.getChainId(), {
                 make,
             });
@@ -692,6 +694,8 @@ const useModuleOperations = (module: ModuleType) => {
             if (!checkOpIsExist()) return;
 
             const operation = operations.getOperationByKey(moduleIndex);
+
+            operation.setParamByField('endTime', Number(new Date()));
 
             updateOperationStatus(STATUSES.SUCCESS, { moduleIndex, operationId, hash: txInstance.getTransaction().txHash });
 
@@ -884,7 +888,7 @@ const useModuleOperations = (module: ModuleType) => {
                     isDstAddressesEmpty.value
                 );
             default:
-                return isDisabled ? true : false;
+                return isDisabled;
         }
     });
 

@@ -48,10 +48,11 @@ export default class MultipleContractExec extends BaseOperation {
 
     async performTx(ecosystem: Ecosystems): Promise<IBridgeDexTransaction> {
         const params = {
+            net: this.params.net,
             fromAddress: this.params.ownerAddresses[this.params.net],
             amount: this.params.amount,
             token: this.getToken('from'),
-            contract: this.params.contract,
+            contract: this.params.minter ? this.params.minter : this.params.contract,
             count: this.params.count,
             funds: this.params.funds ? [this.params.funds] : null,
         };

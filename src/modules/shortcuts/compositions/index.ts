@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import BigNumber from 'bignumber.js';
 
-import { computed, onMounted, onUnmounted, watch } from 'vue';
+import { computed, onMounted, onUnmounted, onUpdated, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { StepProps } from 'ant-design-vue';
@@ -399,12 +399,8 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             getters['tokenOps/contractCallCount'],
         ],
         async ([srcNet, dstNet, srcToken, dstToken, srcAmount, dstAmount, contractAddress, contractCallCount]) => {
-            if (!currentOp.value) return;
-
-            if (!contractAddress || !contractCallCount) return;
-
             if (currentOp.value?.id && contractAddress) {
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('contractAddress', contractAddress);
+                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('contract', contractAddress);
             }
 
             if (currentOp.value?.id && contractCallCount) {
@@ -515,7 +511,6 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     store.watch(
         (state, getters) => getters['shortcuts/getCurrentOperation'](CurrentShortcut.id, currentStepId.value),
         async (operation) => {
-            if (!operation) return;
             await callOnWatchOnMounted();
         },
     );

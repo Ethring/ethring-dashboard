@@ -166,18 +166,15 @@ export default {
             console.log('firstOpId', firstOpId, 'lastOpId', lastOpId, 'currentStepId', currentStepId.value);
 
             if (shortcutIndex.value === 0 && shortcutStatus.value === STATUSES.FAILED) {
+                console.log('setCallConfirm, for shortcut', 'ModuleType.shortcut', true);
                 return store.dispatch('tokenOps/setCallConfirm', {
                     module: ModuleType.shortcut,
                     value: true,
                 });
             }
 
-            if (currentStepId.value === firstOpId || shortcutIndex.value === 0) {
-                return store.dispatch('shortcuts/setShortcutStatus', {
-                    shortcutId: props.shortcutId,
-                    status: STATUSES.PENDING,
-                });
-            } else if (currentStepId.value === lastOpId || operationsCount.value - 1 === shortcutIndex.value) {
+            if (currentStepId.value === lastOpId || operationsCount.value - 1 === shortcutIndex.value) {
+                console.log('setCallConfirm, for shortcut', 'LastOp', true, 'resetShortcut');
                 operationProgress.value = 0;
 
                 store.dispatch('shortcuts/setCurrentStepId', firstOpId);
@@ -187,6 +184,13 @@ export default {
 
                 return store.dispatch('shortcuts/resetShortcut', {
                     shortcutId: props.shortcutId,
+                });
+            } else if (currentStepId.value === firstOpId || shortcutIndex.value === 0) {
+                console.log('setCallConfirm, for shortcut', 'FirstOp', true);
+
+                return store.dispatch('shortcuts/setShortcutStatus', {
+                    shortcutId: props.shortcutId,
+                    status: STATUSES.PENDING,
                 });
             }
         };

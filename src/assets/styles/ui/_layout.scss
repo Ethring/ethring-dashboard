@@ -204,7 +204,7 @@ $top-bar-spacing: 20px;
 }
 
 .nft-stats {
-    margin: 10px;
+    margin: 16px;
 
     .nft-stats-card {
         background-color: var(--#{$prefix}secondary-bg-color);
@@ -243,31 +243,12 @@ $top-bar-spacing: 20px;
 
     .time-countdown * {
         font-size: var(--#{$prefix}default-fs);
-        color: var(--#{$prefix}primary-text);
     }
 
     .time-type {
         color: var(--#{$prefix}mute-text);
         font-weight: 600;
     }
-}
-
-@mixin wavePseudo {
-    background: var(--#{$prefix}warning);
-
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-
-    margin: auto;
-    width: 16px;
-    height: 16px;
-    content: "";
-    display: block;
-    border-radius: 50%;
-    z-index: 1;
 }
 
 .nft-base-info .nft-base-info-time {
@@ -280,12 +261,18 @@ $top-bar-spacing: 20px;
 
         height: 30px;
 
-        color: var(--#{$prefix}black) !important;
+        color: var(--#{$prefix}primary-text);
 
         user-select: none;
     }
+
+    .time-countdown * {
+        color: var(--#{$prefix}black) !important;
+    }
+
     .time-info {
         padding: 0 16px;
+        color: var(--#{$prefix}black) !important;
 
         .ant-badge-status-text {
             margin-inline-start: 0;
@@ -309,17 +296,24 @@ $top-bar-spacing: 20px;
         font-size: 14px;
         color: var(--#{$prefix}warning);
     }
+}
 
-    // .time-icon::after {
-    //     @include wavePseudo;
-    //     animation: wave-animate 2s infinite ease-out;
-    // }
+@mixin wavePseudo {
+    background: var(--#{$prefix}warning);
 
-    // .time-icon::before {
-    //     @include wavePseudo;
-    //     opacity: 0;
-    //     animation: wave-animate 2s 1s infinite ease-out;
-    // }
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    margin: auto;
+    width: 16px;
+    height: 16px;
+    content: "";
+    display: block;
+    border-radius: 50%;
+    z-index: 1;
 }
 
 @keyframes wave-animate {

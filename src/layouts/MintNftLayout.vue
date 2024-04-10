@@ -21,7 +21,7 @@
                     <a-space
                         class="time-info"
                         align="center"
-                        :class="{ soldOut: nftCollectionInfo.isSoldOut, active: endTime, ended: !endTime }"
+                        :class="{ soldOut: nftCollectionInfo.isSoldOut, active: endTime || (!nftCollectionInfo.isSoldOut && !endTime) }"
                     >
                         <template v-if="nftCollectionInfo.isSoldOut"> Sold out </template>
                         <template v-else-if="endTime">
@@ -69,7 +69,7 @@
             </a-col>
         </a-row>
 
-        <template v-if="!nftCollectionInfo.isSoldOut || !nftCollectionInfo.perAddressLimit">
+        <template v-if="nftCollectionInfo.perAddressLimit && !nftCollectionInfo.isSoldOut">
             <a-form-item>
                 <CountInput :max="nftCollectionInfo.perAddressLimit" />
             </a-form-item>
@@ -117,6 +117,10 @@ import DisplayAddress from '@/components/ui/DisplayAddress.vue';
 import { ClockCircleOutlined } from '@ant-design/icons-vue';
 import BigNumber from 'bignumber.js';
 
+import { IShortcutOp } from '@/modules/shortcuts/core/ShortcutOp';
+import OperationsFactory from '@/modules/operations/OperationsFactory';
+import { SHORTCUT_STATUSES } from '../shared/models/enums/statuses.enum';
+
 export default {
     name: 'MintNftLayout',
     components: {
@@ -132,6 +136,19 @@ export default {
     },
     setup() {
         const store = useStore();
+
+        const shortcutModalState = computed(() => store.getters['app/modal']('successShortcutModal'));
+
+        const currentShortcutId = computed(() => store.getters['shortcuts/getCurrentShortcutId']);
+
+        const isShortcutLoading = computed({
+            get: () => store.getters['shortcuts/getIsShortcutLoading'](currentShortcutId.value),
+            set: (value) =>
+                store.dispatch('shortcuts/setIsShortcutLoading', {
+                    shortcutId: currentShortcutId.value,
+                    value,
+                }),
+        });
 
         // * Init module operations, and get all necessary data, (methods, states, etc.) for the module
         // * Also, its necessary to sign the transaction (Transaction manger)
@@ -256,8 +273,8 @@ export default {
             await getCollectionInfoData();
         });
 
-        watch(contractCallCount, () => {
-            if (contractCallCount.value === 0) {
+        watch(contractCallCount, (value) => {
+            if (value === 0) {
                 return handleOnSetAmount(null);
             }
 
@@ -265,11 +282,18 @@ export default {
 
             const { price } = nftCollectionInfo.value;
 
-            const amountByCount = BigNumber(price).multipliedBy(contractCallCount.value).toString();
+            const amountByCount = BigNumber(price).multipliedBy(value).toString();
 
-            console.log('contractCallCount', contractCallCount.value, amountByCount);
+            console.log('contractCallCount', value, amountByCount);
 
             handleOnSetAmount(amountByCount);
+        });
+
+        watch(shortcutModalState, async () => {
+            if (shortcutModalState.value) return;
+            isShortcutLoading.value = true;
+            await getCollectionInfoData();
+            isShortcutLoading.value = false;
         });
 
         return {

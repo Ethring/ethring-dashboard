@@ -469,6 +469,28 @@ export default class OperationFactory implements IOperationFactory {
 
         return Number(BigNumber(successScore).dividedBy(operations.length).multipliedBy(100).toFixed(2));
     }
+    getOperationsResult() {
+        const result = [];
+
+        for (const op of this.operationOrder) {
+            result.push({
+                type: this.getOperationByKey(op).transactionType,
+
+                status: this.getOperationsStatusByKey(op),
+
+                hash: this.getOperationByKey(op).getParamByField('txHash'),
+
+                amount: this.getOperationByKey(op).getParamByField('amount'),
+
+                token: {
+                    symbol: this.getOperationByKey(op).getToken('from').symbol,
+                    logo: this.getOperationByKey(op).getToken('from').logo,
+                },
+            });
+        }
+
+        return result;
+    }
 
     getOperationsCount(): number {
         return this.operationsMap.size;

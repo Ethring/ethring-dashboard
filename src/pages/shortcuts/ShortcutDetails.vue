@@ -40,18 +40,20 @@
             </a-spin>
         </div>
     </div>
+    <SuccessShortcutModal />
 </template>
 
 <script lang="ts">
 import _ from 'lodash';
 
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 
 import ArrowIcon from '@/assets/icons/form-icons/arrow-back.svg';
 
 import ShortcutLoading from '@/components/shortcuts/Loading/ShortcutLoading.vue';
+import SuccessShortcutModal from '@/components/app/modals/SuccessShortcutModal.vue';
 
 import useShortcuts from '@/modules/shortcuts/compositions/index';
 
@@ -62,6 +64,7 @@ export default {
     components: {
         ArrowIcon,
         ShortcutLoading,
+        SuccessShortcutModal,
     },
     setup() {
         const store = useStore();
@@ -91,6 +94,12 @@ export default {
         onMounted(() => {
             if (_.isEmpty(shortcut.value)) {
                 return router.push('/shortcuts');
+            }
+        });
+
+        watch(shortcutStatus, (newVal) => {
+            if (newVal === STATUSES.SUCCESS) {
+                store.dispatch('app/toggleModal', 'successShortcutModal');
             }
         });
 
