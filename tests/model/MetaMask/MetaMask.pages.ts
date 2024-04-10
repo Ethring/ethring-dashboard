@@ -148,9 +148,9 @@ class MetaMaskNotifyPage {
     }
 
     async getReceiverAddress() {
-        await this.page.click('[data-testid="sender-to-recipient__name"]');
-        const result = await this.page.innerText('div.nickname-popover__public-address__constant');
-        await this.page.click('[data-testid="popover-close"]');
+        await this.page.click('//div[@data-testid="sender-to-recipient"]//div[@class="name name__missing"]');
+        const result = await this.page.innerText('//input[@disabled]');
+        await this.page.click('//header//button');
         return result;
     }
 
