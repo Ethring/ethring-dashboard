@@ -34,7 +34,7 @@ testMetaMask.describe('MetaMask Send e2e tests', () => {
         });
     });
 
-    testMetaMask.skip(
+    testMetaMask(
         'Case#: Reject send native token to another address in Avalanche with change MM network',
         async ({ browser, context, page, sendPageCoingeckoMockRejectTest }) => {
             const network = 'Avalanche';
