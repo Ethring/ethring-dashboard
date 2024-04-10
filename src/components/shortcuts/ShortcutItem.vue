@@ -45,7 +45,7 @@
         <a-row justify="space-between">
             <a-row align="middle" class="favorites">
                 <LikeIcon :class="{ 'favorites-icon--active': watchList.includes(item.id) }" @click="addToWatchList" />
-                <div class="favorites-count">15</div>
+                <div class="favorites-count"></div>
             </a-row>
             <Button title="Try" class="shortcut-item__btn" @click="openShortcut" />
         </a-row>

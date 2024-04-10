@@ -34,8 +34,6 @@
                 "operationType": "EXECUTE_MULTIPLE",
                 "layoutComponent": "MintNftLayout",
                 "isShowLayout": true,
-                "contractAddress": "stars156wh2mm8j9wug5kf929xyezxwf0cnyfu2dssxg6yppxstm9slacq6j9ng5",
-                "chainId": "stargaze",
                 "excludeChains": [],
                 "ecosystems": [
                     "COSMOS"

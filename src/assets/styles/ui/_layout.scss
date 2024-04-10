@@ -271,6 +271,45 @@ $top-bar-spacing: 20px;
 }
 
 .nft-base-info .nft-base-info-time {
+    .time-type,
+    .time-info {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 24px;
+
+        height: 30px;
+
+        color: var(--#{$prefix}black) !important;
+
+        user-select: none;
+    }
+    .time-info {
+        padding: 0 16px;
+
+        .ant-badge-status-text {
+            margin-inline-start: 0;
+        }
+
+        &.active {
+            background: var(--#{$prefix}card-btn-bg-color);
+        }
+
+        &.ended {
+            background: var(--#{$prefix}danger);
+            opacity: 0.6;
+        }
+
+        &.soldOut {
+            background: var(--#{$prefix}warning);
+            opacity: 0.6;
+        }
+    }
+    .time-icon {
+        font-size: 14px;
+        color: var(--#{$prefix}warning);
+    }
+
     // .time-icon::after {
     //     @include wavePseudo;
     //     animation: wave-animate 2s infinite ease-out;

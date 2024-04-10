@@ -43,6 +43,37 @@ interface CustomConfigResponse extends ConfigExtension, ConfigResponse {
     end_time: string;
 }
 
+export interface INftCollectionStats {
+    type: string;
+    stats: INftStats[];
+    priceStats: INftStats;
+    price: string;
+    isSoldOut: boolean;
+}
+
+export interface INftCollectionInfo {
+    type: string;
+    stats: INftStats[];
+    priceStats: INftStats;
+    price: string;
+    perAddressLimit: number;
+
+    collectionAddress: string;
+    minterAddress: string;
+
+    isSoldOut: boolean;
+
+    time: {
+        startTime: string;
+        endTime: string;
+    };
+
+    funds: {
+        amount: string;
+        denom: string;
+    };
+}
+
 export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
     const store = useStore();
     const { getAdapterByEcosystem, getChainByChainId } = useAdapter();
@@ -108,12 +139,7 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
         mintedCount: number;
         totalCount: number;
         queryClient: VendingMinterQueryClient;
-    }): Promise<{
-        type: string;
-        price: string;
-        priceStats: INftStats;
-        stats: INftStats[];
-    }> => {
+    }): Promise<INftCollectionStats> => {
         isShortcutLoading.value = true;
 
         const stats: INftStats[] = [];
@@ -156,14 +182,19 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
 
         let mintedPercentage: string = '';
 
+        let isSoldOut = false;
+
         try {
             const mintableNumTokens = await queryClient.mintableNumTokens();
 
             const { count: remainingTokensCount } = mintableNumTokens;
 
-            mintedPercentage = BigNumber(totalCount)
+            console.log('remainingTokensCount', remainingTokensCount);
+            isSoldOut = !remainingTokensCount;
+
+            mintedPercentage = BigNumber(totalCount || 0)
                 .minus(remainingTokensCount)
-                .div(totalCount || 1)
+                .div(totalCount)
                 .multipliedBy(100)
                 .decimalPlaces(0, BigNumber.ROUND_DOWN)
                 .toString();
@@ -208,10 +239,11 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
             stats,
             priceStats,
             price: priceDisplayAmount,
+            isSoldOut,
         };
     };
 
-    const getCollectionInfo = async (chain: string, contractAddress: string) => {
+    const getCollectionInfo = async (chain: string, contractAddress: string): Promise<INftCollectionInfo> => {
         const minterAddress = ref(null);
 
         console.log('isShortcutLoading', isShortcutLoading.value, ' for shortcut', currentShortcutId.value);
@@ -244,7 +276,7 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
 
             minterAddress.value = minterInfo.minter;
 
-            if (!minterAddress.value) return {};
+            if (!minterAddress.value) return null;
 
             const vendingMinterQueryClient = new VendingMinterQueryClient(cosmWasmClient, minterAddress.value);
 
@@ -280,15 +312,11 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
 
             // * STATS *
 
-            console.log('FINAL COLLECTION INFO');
-            console.log(baseQuery);
-            console.log(minterQuery);
-            console.log('---------------------------');
-
-            const response = {
-                collectionStats,
+            const response: INftCollectionInfo = {
+                stats: collectionStats,
                 priceStats: stats.priceStats,
-                collectionType: stats.type,
+                type: stats.type,
+                isSoldOut: stats.isSoldOut,
 
                 collectionAddress: contractAddress,
                 minterAddress: minterAddress.value,
@@ -310,6 +338,13 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
             if (currentOp.value?.id) {
                 operationsFactory.value.getOperationById(currentOp.value.id).setParamByField('funds', funds);
             }
+
+            console.log('FINAL COLLECTION INFO');
+            console.log(baseQuery);
+            console.log(minterQuery);
+            console.log(stats);
+            console.log(response);
+            console.log('---------------------------');
 
             return response;
         } catch (error) {
