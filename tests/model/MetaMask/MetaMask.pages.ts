@@ -21,7 +21,7 @@ const waitMmNotifyPage = async (context: BrowserContext) => {
 };
 
 const getNotifyMmPage = async (context: BrowserContext): Promise<Page> => {
-    const expectedMmPageTitle = 'MetaMask Notification';
+    const expectedMmPageTitle = 'MetaMask';
 
     await waitMmNotifyPage(context);
 
@@ -47,6 +47,30 @@ const getHomeMmPage = async (context: BrowserContext, indexMmPage = 0): Promise<
     const page = new MetaMaskHomePage(mainPage);
     await page.closeWhatsNewNotify();
     return page;
+};
+
+export const mockMetaMaskSignTransaction = async (
+    context: BrowserContext,
+    nodeDomain: string,
+    mockedTxHash: string,
+    mockTransactionReceipt: object,
+) => {
+    let [background] = context.backgroundPages();
+
+    background.route(nodeDomain, async (route) => {
+        const data = route.request().postData();
+        if (data.includes('eth_sendRawTransaction')) {
+            await route.fulfill({
+                json: {
+                    jsonrpc: '2.0',
+                    id: 5484248696370,
+                    result: mockedTxHash,
+                },
+            });
+        } else if (data.includes('eth_getTransactionReceipt')) {
+            await route.fulfill({ json: mockTransactionReceipt });
+        } else route.continue();
+    });
 };
 
 class MetaMaskHomePage {
@@ -148,10 +172,11 @@ class MetaMaskNotifyPage {
     }
 
     async getReceiverAddress() {
-        await this.page.click('[data-testid="sender-to-recipient__name"]');
-        const result = await this.page.innerText('div.nickname-popover__public-address__constant');
-        await this.page.click('[data-testid="popover-close"]');
-        return result;
+        await this.page.click('//div[@data-testid="sender-to-recipient"]//div[@class="name name__missing"]');
+        const inputAddressElement = this.page.locator('//input[@id="address"]');
+        const receiverAddressInMmNotify = await inputAddressElement.getAttribute('value', { timeout: 1000 });
+        await this.page.click('//header//button');
+        return receiverAddressInMmNotify;
     }
 
     async getAmount() {

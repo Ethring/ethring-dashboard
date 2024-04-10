@@ -15,7 +15,6 @@ import {
     authByKeplr,
     authByMmMockErrorBalance,
 } from './fixtureHelper';
-import { proxyUrl } from '../../playwright.config';
 import { COSMOS_WALLETS_BY_PROTOCOL_SEED, COSMOS_WALLETS_BY_SEED_MOCK_TX } from '../data/constants';
 import { mockBalanceData } from '../data/mockHelper';
 
@@ -54,7 +53,7 @@ export const testMetaMask = base.extend<{
     swapPageMockBalancesAndTokensList: SwapPage;
     superSwapPageBalanceMock: SuperSwapPage;
 }>({
-    context: async ({ }, use) => {
+    context: async ({}, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -144,7 +143,7 @@ export const testMetaMaskMockTx = base.extend<{
     context: BrowserContext;
     sendPage: SendPage;
 }>({
-    context: async ({ }, use) => {
+    context: async ({}, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -154,7 +153,6 @@ export const testMetaMaskMockTx = base.extend<{
                 '--force-fieldtrials',
 
                 '--ignore-certificate-errors',
-                `--proxy-server=${proxyUrl}`,
                 '--disable-background-timer-throttling',
                 '--disable-backgrounding-occluded-windows',
                 '--disable-renderer-backgrounding',
@@ -181,7 +179,7 @@ export const testKeplr = base.extend<{
     sendPage: SendPage;
     swapPage: SwapPage;
 }>({
-    context: async ({ }, use) => {
+    context: async ({}, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -191,7 +189,6 @@ export const testKeplr = base.extend<{
                 '--force-fieldtrials',
 
                 '--ignore-certificate-errors',
-                // '--disable-web-security',
 
                 '--disable-background-timer-throttling',
                 '--disable-backgrounding-occluded-windows',
