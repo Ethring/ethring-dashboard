@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
 import _ from 'lodash';
 
-import { ref, computed, watch, onBeforeUnmount, onMounted } from 'vue';
+import { ref, computed, watch, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
@@ -9,9 +9,9 @@ import { ECOSYSTEMS } from '@/Adapter/config';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 import useBridgeDexService from '@/modules/bridge-dex/compositions';
 
-import { STATUSES } from '@/shared/models/enums/statuses.enum';
-import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
+import { DIRECTIONS } from '@/shared/constants/operations';
 import { ModuleType } from '@/modules/bridge-dex/enums/ServiceType.enum';
+
 import useChainTokenManger from './useChainTokenManager';
 
 export default function useModule(moduleType: ModuleType) {
@@ -56,11 +56,6 @@ export default function useModule(moduleType: ModuleType) {
 
     const isWaitingTxStatusForModule = computed(() => store.getters['txManager/isWaitingTxStatusForModule'](moduleType));
 
-    // * Bridge Dex
-    const bridgeDexRoutes = computed(() => store.getters['bridgeDex/selectedRoute']);
-    const bestRouteInfo = computed(() => bridgeDexRoutes.value?.bestRoute);
-    const currentRouteInfo = computed(() => bestRouteInfo.value?.routes.find((elem) => elem.status === STATUSES.SIGNING));
-
     // =================================================================================================================
 
     // * Operation title for module
@@ -73,7 +68,7 @@ export default function useModule(moduleType: ModuleType) {
 
     // =================================================================================================================
 
-    const { walletAccount, walletAddress, currentChainInfo, chainList } = useAdapter();
+    const { walletAccount, currentChainInfo } = useAdapter();
 
     // =================================================================================================================
 
@@ -261,6 +256,12 @@ export default function useModule(moduleType: ModuleType) {
             opTitle.value = 'tokenOperations.approve';
         }
     });
+
+    watch(selectedRoute, () => {
+        if (selectedRoute.value) {
+            dstAmount.value = selectedRoute.value.toAmount;
+        }
+    })
 
     onBeforeUnmount(() => {
         // Clear all data

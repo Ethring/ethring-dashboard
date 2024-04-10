@@ -83,7 +83,6 @@ declare module 'vue' {
     Result: typeof import('./src/components/ui/Result.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    RoutesModal: typeof import('./src/components/app/modals/RoutesModal.vue')['default']
     SearchInput: typeof import('./src/components/ui/SearchInput.vue')['default']
     SelectAddressInput: typeof import('./src/components/ui/Select/SelectAddressInput.vue')['default']
     SelectAmountInput: typeof import('./src/components/ui/Select/SelectAmountInput.vue')['default']

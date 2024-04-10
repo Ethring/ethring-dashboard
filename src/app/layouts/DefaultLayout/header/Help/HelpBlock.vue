@@ -14,7 +14,7 @@
                 <BuyCryptoIcon />
             </HelpItem>
 
-            <HelpItem :tooltipText="tooltipText" :disabled="true">
+            <HelpItem :tooltipText="tooltipText" :disabled="isLoading" @click="loadBalances">
                 <SyncOutlined :spin="isLoading" />
             </HelpItem>
         </template>
@@ -23,12 +23,17 @@
 <script>
 import { computed, inject } from 'vue';
 import { useStore } from 'vuex';
+import _ from 'lodash';
 
 import { FileDoneOutlined, SyncOutlined } from '@ant-design/icons-vue';
+
 import BuyCryptoIcon from '@/assets/icons/sidebar/buy-crypto.svg';
 import ThemeSwitcher from '../ThemeSwitcher.vue';
-
 import HelpItem from './HelpItem.vue';
+
+import { updateBalanceForAccount } from '@/modules/balance-provider';
+
+import { DP_CHAINS } from '@/modules/balance-provider/models/enums';
 
 export default {
     name: 'HelpBlock',
@@ -43,7 +48,7 @@ export default {
         const store = useStore();
         const useAdapter = inject('useAdapter');
 
-        const { currentChainInfo } = useAdapter();
+        const { currentChainInfo, connectedWallets } = useAdapter();
 
         const showReleaseNotes = () => store.dispatch('app/toggleReleaseNotes');
 
@@ -67,12 +72,26 @@ export default {
 
         const toggleBuyCryptoModal = () => store.dispatch('app/toggleModal', 'buyCrypto');
 
+        const loadBalances = async () => {
+            if (isLoading.value) {
+                return;
+            }
+            for (const { account, addresses } of connectedWallets.value) {
+                store.dispatch('tokens/setIsInitCall', { account, time: null });
+
+                const list = _.pick(addresses, Object.values(DP_CHAINS)) || {};
+
+                await updateBalanceForAccount(account, list);
+            }
+        }
+
         return {
             isLoading,
             tooltipText,
             currentChainInfo,
             showBadge,
 
+            loadBalances,
             handleReload,
             toggleBuyCryptoModal,
             showReleaseNotes,
@@ -85,7 +104,7 @@ export default {
     @include pageFlexRow;
     max-height: 32px !important;
 
-    & > div:not(:last-child) {
+    &>div:not(:last-child) {
         margin-right: 10px;
     }
 }

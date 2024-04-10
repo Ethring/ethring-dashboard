@@ -2,35 +2,65 @@
     <a-form>
         <a-form-item>
             <a-row justify="space-between">
-                <SelectRecord :disabled="isDisableSelect" :current="selectedSrcNetwork"
-                    :placeholder="$t('tokenOperations.selectNetwork')" @click="onSelectNetwork" />
+                <SelectRecord
+                    :disabled="isDisableSelect"
+                    :current="selectedSrcNetwork"
+                    :placeholder="$t('tokenOperations.selectNetwork')"
+                    @click="onSelectNetwork"
+                />
                 <Slippage />
             </a-row>
         </a-form-item>
 
         <div class="switch-direction-wrap">
-            <SelectAmountInput :value="selectedSrcToken" :disabled="isDisableSelect" :disabled-select="isDisableSelect"
-                :selected-network="selectedSrcNetwork" :error="!!isBalanceError" :on-reset="resetSrcAmount"
-                :is-update="isSwapDirectionAvailable" :label="$t('tokenOperations.pay')" :amount-value="srcAmount"
-                @clickToken="onSelectToken(true)" @setAmount="handleOnSetAmount" />
+            <SelectAmountInput
+                :value="selectedSrcToken"
+                :disabled="isDisableSelect"
+                :disabled-select="isDisableSelect"
+                :selected-network="selectedSrcNetwork"
+                :error="!!isBalanceError"
+                :on-reset="resetSrcAmount"
+                :is-update="isSwapDirectionAvailable"
+                :label="$t('tokenOperations.pay')"
+                :amount-value="srcAmount"
+                @clickToken="onSelectToken(true)"
+                @setAmount="handleOnSetAmount"
+            />
 
-            <SwitchDirection class="swap-module"
+            <SwitchDirection
+                class="swap-module"
                 :disabled="isQuoteLoading || isDirectionSwapped || isTransactionSigning || !selectedDstToken || !isSwapDirectionAvailable"
-                :on-click-switch="() => handleOnSwapDirections()" />
+                :on-click-switch="() => handleOnSwapDirections()"
+            />
 
-            <SelectAmountInput disabled hide-max :disabled-select="isDisableSelect" :is-amount-loading="isQuoteLoading"
-                :value="selectedDstToken" :on-reset="resetDstAmount" :is-update="isSwapDirectionAvailable"
-                :label="$t('tokenOperations.receive')" :disabled-value="dstAmount" :amount-value="dstAmount"
-                @clickToken="onSelectToken(false)" />
+            <SelectAmountInput
+                disabled
+                hide-max
+                :disabled-select="isDisableSelect"
+                :is-amount-loading="isQuoteLoading"
+                :value="selectedDstToken"
+                :on-reset="resetDstAmount"
+                :is-update="isSwapDirectionAvailable"
+                :label="$t('tokenOperations.receive')"
+                :disabled-value="dstAmount"
+                :amount-value="dstAmount"
+                @clickToken="onSelectToken(false)"
+            />
         </div>
 
-        <EstimatePreviewInfo v-if="isShowEstimateInfo" :is-loading="isQuoteLoading" :services="[selectedRoute]"
-            :fee-in-usd="fees[FEE_TYPE.BASE] || 0" :main-rate="fees[FEE_TYPE.RATE] || null"
-            :is-show-expand="otherRoutes?.length > 0" :error="quoteErrorMessage" :on-click-expand="toggleRoutesModal"
-            :amount="dstAmount" />
+        <EstimatePreviewInfo
+            v-if="isShowEstimateInfo"
+            :is-loading="isQuoteLoading"
+            :services="[selectedRoute]"
+            :fee-in-usd="fees[FEE_TYPE.BASE] || 0"
+            :main-rate="fees[FEE_TYPE.RATE] || null"
+            :is-show-expand="otherRoutes?.length > 0"
+            :error="quoteErrorMessage"
+            :on-click-expand="toggleRoutesModal"
+            :amount="dstAmount"
+        />
 
-        <Button data-qa="confirm" v-bind="btnState" :title="$t(btnState.title)" :tip="$t(btnState.tip)"
-            @click="handleOnConfirm" />
+        <Button data-qa="confirm" v-bind="btnState" :title="$t(btnState.title)" :tip="$t(btnState.tip)" @click="handleOnConfirm" />
     </a-form>
 </template>
 <script>
@@ -72,7 +102,7 @@ export default {
         SelectRecord,
         SelectAmountInput,
         EstimatePreviewInfo,
-        Slippage
+        Slippage,
     },
 
     setup() {
