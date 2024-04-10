@@ -693,7 +693,7 @@ export class CosmosAdapter extends AdapterBase {
         } catch (error) {}
     }
 
-    async prepareMultipleExecuteMsgs({ fromAddress, amount, token, memo, count = 1, contract, funds = [] }) {
+    async prepareMultipleExecuteMsgs({ fromAddress, amount, token, memo, count = 1, contract, funds = [], msgKey = 'mint' }) {
         const fee = this.setDefaultFeeForTx();
 
         console.log('params -> prepareMultipleExecuteMsgs', { fromAddress, amount, token, memo, count, contract, funds });
@@ -702,10 +702,17 @@ export class CosmosAdapter extends AdapterBase {
             try {
                 const { executeContract } = cosmwasm.wasm.v1.MessageComposer.withTypeUrl;
 
+                const jsonMsg = {
+                    [msgKey]: {},
+                };
+
+                const contractMsg = toUtf8(JSON.stringify(jsonMsg));
+
                 const msg = executeContract({
                     sender: this.getAccountAddress(),
                     contract,
                     funds,
+                    msg: contractMsg,
                 });
 
                 console.log('msg -> prepareMultipleExecuteMsgs', msg);
@@ -963,12 +970,17 @@ export class CosmosAdapter extends AdapterBase {
 
         const msgs = Array.isArray(msg) ? msg : [msg];
 
-        console.log('signSend', { msgs, fee, memo });
+        console.log('signSend', { msgs, fee, memo, isArray: Array.isArray(msg) });
         // Sign and send transaction
         try {
-            console.log('SignClient', signClient.client);
+            console.log('msgs', msgs);
+            console.log('fee', fee);
+            console.log('memo', memo);
 
-            return await signClient.client.signAndBroadcast(this.getAccountAddress(), msgs, fee, memo);
+            const response = await signClient.client.signAndBroadcast(this.getAccountAddress(), msgs, fee, memo);
+
+            console.log('response', response);
+            return response;
         } catch (error) {
             logger.error('[COSMOS -> signSend] Error while broadcasting transaction', error);
             return errorRegister(error);

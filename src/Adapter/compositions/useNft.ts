@@ -335,7 +335,8 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
                 response.time.endTime = moment.unix(+end_time.slice(0, 10)).format('YYYY-MM-DD HH:mm:ss');
             }
 
-            if (currentOp.value?.id) {
+            if (currentOp.value?.id && minterAddress.value) {
+                operationsFactory.value.getOperationById(currentOp.value.id).setParamByField('contract', minterAddress.value);
                 operationsFactory.value.getOperationById(currentOp.value.id).setParamByField('funds', funds);
             }
 

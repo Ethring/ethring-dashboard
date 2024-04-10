@@ -1,30 +1,33 @@
-import { computed, h, onBeforeMount, onMounted, onUnmounted, onUpdated, ref, watch, watchEffect } from 'vue';
-import { useStore } from 'vuex';
-
 import _ from 'lodash';
+import BigNumber from 'bignumber.js';
+
+import { computed, onMounted, onUnmounted, watch } from 'vue';
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
+import { StepProps } from 'ant-design-vue';
 
 import useAdapter from '@/Adapter/compositions/useAdapter';
 import useTokensList from '@/compositions/useTokensList';
+
+import { ECOSYSTEMS, NATIVE_CONTRACT } from '@/Adapter/config';
+
+// Operations
 import OperationsFactory from '@/modules/operations/OperationsFactory';
-import ShortcutRecipe from '../core/ShortcutRecipes';
-import ShortcutCl, { IShortcutData } from '../core/Shortcut';
 import DexOperation from '@/modules/operations/Dex';
 import TransferOperation from '@/modules/operations/Transfer';
 import { ApproveOperation } from '@/modules/operations/Approve';
-import { SHORTCUT_STATUSES, STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
-import { AddressByChainHash } from '../../../shared/models/types/Address';
-import { ECOSYSTEMS, NATIVE_CONTRACT } from '@/Adapter/config';
-import { IShortcutOp } from '../core/ShortcutOp';
-import { IAsset } from '@/shared/models/fields/module-fields';
-import { IOperationParam, OperationStep } from '../core/models/Operation';
-import { Ecosystems } from '@/modules/bridge-dex/enums/Ecosystem.enum';
-import { IBaseOperation } from '@/modules/operations/models/Operations';
-import { ModuleType } from '@/shared/models/enums/modules.enum';
-import BigNumber from 'bignumber.js';
-
-import { useRouter } from 'vue-router';
-import { StepProps, message } from 'ant-design-vue';
 import MultipleContractExec from '@/modules/operations/MultipleExec';
+import { IBaseOperation } from '@/modules/operations/models/Operations';
+
+// Shortcuts
+import ShortcutCl, { IShortcutData } from '@/modules/shortcuts/core/Shortcut';
+import { IShortcutOp } from '@/modules/shortcuts/core/ShortcutOp';
+import { IOperationParam } from '@/modules/shortcuts/core/models/Operation';
+
+import { IAsset } from '@/shared/models/fields/module-fields';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
+import { AddressByChainHash } from '@/shared/models/types/Address';
+import { SHORTCUT_STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
 
 const useShortcuts = (Shortcut: IShortcutData) => {
     // Create a new instance of the Shortcut class
