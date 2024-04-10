@@ -280,12 +280,16 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
 
             const vendingMinterQueryClient = new VendingMinterQueryClient(cosmWasmClient, minterAddress.value);
 
+            console.log('MINTER ADDRESS', minterAddress.value);
+
             // * MINTER QUERY By Collection Minter *
             const [minterConfig, mintPrice, startTime] = await Promise.all([
                 vendingMinterQueryClient.config(),
                 vendingMinterQueryClient.mintPrice(),
                 vendingMinterQueryClient.startTime(),
             ]);
+
+            console.log('MINTER CONFIG', minterConfig);
 
             const minterQuery = {
                 minterConfig,
@@ -307,11 +311,36 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
             });
 
             const { stats: collectionStats } = stats;
-
             const funds = mintPrice.current_price;
 
-            // * STATS *
+            let userAddress = '';
+            if (currentOp.value?.id) {
+                userAddress = operationsFactory.value.getOperationById(currentOp.value.id).getAccount();
+            }
 
+            let availablePerAddressLimit = per_address_limit;
+
+            try {
+                const userMinterCount = await vendingMinterQueryClient.mintCount({ address: userAddress });
+                const { count = 0 } = userMinterCount;
+
+                const userMinterCountStats = {
+                    type: 'User minted',
+                    value: {
+                        type: 'currency',
+                        value: count,
+                        symbol: `/${per_address_limit}`,
+                    },
+                } as INftStats;
+
+                availablePerAddressLimit = per_address_limit - count;
+
+                collectionStats.push(userMinterCountStats);
+            } catch (error) {
+                console.log('Missing userMinterCount');
+            }
+
+            // * STATS *
             const response: INftCollectionInfo = {
                 stats: collectionStats,
                 priceStats: stats.priceStats,
@@ -328,7 +357,7 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
 
                 funds,
                 price: stats.price,
-                perAddressLimit: per_address_limit,
+                perAddressLimit: availablePerAddressLimit,
             };
 
             if (end_time) {
@@ -352,7 +381,6 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
             console.error(error);
         } finally {
             isShortcutLoading.value = false;
-            console.log('isShortcutLoading', isShortcutLoading.value, ' for shortcut', currentShortcutId.value);
         }
     };
 

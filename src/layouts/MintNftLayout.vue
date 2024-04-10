@@ -69,7 +69,7 @@
             </a-col>
         </a-row>
 
-        <template v-if="!nftCollectionInfo.isSoldOut">
+        <template v-if="!nftCollectionInfo.isSoldOut || !nftCollectionInfo.perAddressLimit">
             <a-form-item>
                 <CountInput :max="nftCollectionInfo.perAddressLimit" />
             </a-form-item>
