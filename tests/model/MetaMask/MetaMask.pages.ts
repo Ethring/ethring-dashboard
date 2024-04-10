@@ -49,6 +49,30 @@ const getHomeMmPage = async (context: BrowserContext, indexMmPage = 0): Promise<
     return page;
 };
 
+export const mockMetaMaskSignTransaction = async (
+    context: BrowserContext,
+    nodeDomain: string,
+    mockedTxHash: string,
+    mockTransactionReceipt: object,
+) => {
+    let [background] = context.backgroundPages();
+
+    background.route(nodeDomain, async (route) => {
+        const data = route.request().postData();
+        if (data.includes('eth_sendRawTransaction')) {
+            await route.fulfill({
+                json: {
+                    jsonrpc: '2.0',
+                    id: 5484248696370,
+                    result: mockedTxHash,
+                },
+            });
+        } else if (data.includes('eth_getTransactionReceipt')) {
+            await route.fulfill({ json: mockTransactionReceipt });
+        } else route.continue();
+    });
+};
+
 class MetaMaskHomePage {
     readonly page: Page;
 
