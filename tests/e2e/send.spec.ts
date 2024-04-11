@@ -101,6 +101,7 @@ testMetaMask.describe('MetaMask Send e2e tests', () => {
                 mask: [
                     sendPageCoingeckoMockRejectTest.page.locator(IGNORED_LOCATORS.HEADER),
                     sendPageCoingeckoMockRejectTest.page.locator(IGNORED_LOCATORS.ASIDE),
+                    sendPageCoingeckoMockRejectTest.page.locator(IGNORED_LOCATORS.TRANSACTION_PROGRESS)
                 ],
             });
             // TODO нужен тест на отправку НЕ нативного токена (например USDC)
