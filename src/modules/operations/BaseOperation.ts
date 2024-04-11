@@ -42,6 +42,8 @@ export class BaseOperation implements IBaseOperation {
 
     quoteRoute?: IQuoteRoute;
 
+    txResponse: any;
+
     transactionType: TRANSACTION_TYPES;
     static transactionType: keyof typeof TRANSACTION_TYPES;
 
@@ -191,6 +193,14 @@ export class BaseOperation implements IBaseOperation {
         // }
 
         return '';
+    }
+
+    getTxResponse() {
+        return this.txResponse;
+    }
+
+    setTxResponse(response: any) {
+        this.txResponse = response;
     }
 
     static perform(index: number, account: string, ecosystem: string, chainId: string, options: PerformOptionalParams): ICreateTransaction {

@@ -677,7 +677,11 @@ const useModuleOperations = (module: ModuleType) => {
             try {
                 const forSign = txInstance.getTransaction();
 
-                return await signAndSend(forSign, { ecosystem: txInstance.getEcosystem(), chain: txInstance.getChainId() });
+                return await signAndSend(forSign, {
+                    ecosystem: txInstance.getEcosystem(),
+                    chain: txInstance.getChainId(),
+                    opInstance: operations.getOperationByKey(moduleIndex),
+                });
             } catch (error) {
                 console.error('useModuleOperations -> execute -> error', error);
                 throw error;
@@ -718,9 +722,41 @@ const useModuleOperations = (module: ModuleType) => {
 
             updateOperationStatus(STATUSES.SUCCESS, { moduleIndex, operationId, hash: txInstance.getTransaction().txHash });
 
-            if (operations?.getOperationByKey(moduleIndex)) {
-                const operation = operations.getOperationByKey(moduleIndex);
+            if (!checkOpIsExist()) return;
 
+            const operation = operations.getOperationByKey(moduleIndex);
+
+            // Getting token ids from wasm events
+            try {
+                if ([ModuleType.nft].includes(operation.getModule() as ModuleType) && ECOSYSTEMS.COSMOS === operation.getEcosystem()) {
+                    const response = operation.getTxResponse();
+
+                    const { events = [] } = response || {};
+
+                    const wasmEvents = events.filter((event: any) => event?.type === 'wasm') || [];
+
+                    let tokenIdsUnique = null;
+
+                    const ids = [];
+
+                    console.log('Wasm events:', wasmEvents);
+
+                    for (const event of wasmEvents) {
+                        const { attributes = [] } = event || {};
+
+                        const tokenIds = attributes.filter((attr: any) => attr?.key === 'token_id').map((attr: any) => attr?.value) || [];
+
+                        if (!tokenIds.length) continue;
+
+                        ids.push(...tokenIds);
+                    }
+
+                    tokenIdsUnique = _.uniq(ids);
+
+                    operation.setParamByField('tokenIds', tokenIdsUnique);
+                }
+            } catch (error) {
+            } finally {
                 const isApprove = operation.transactionType === TRANSACTION_TYPES.APPROVE;
 
                 if (!isApprove && isShortcutOpsExist())
@@ -851,7 +887,7 @@ const useModuleOperations = (module: ModuleType) => {
             isLoading.value ||
             isEstimating.value ||
             isQuoteLoading.value ||
-            isBalanceError.value ||
+            // isBalanceError.value ||
             isAllowanceLoading.value ||
             isTransactionSigning.value ||
             isQuoteErrorExist ||

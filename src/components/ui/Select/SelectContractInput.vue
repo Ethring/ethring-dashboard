@@ -102,7 +102,7 @@ export default {
             }
 
             const isAllow =
-                address.value?.length > 0 && validateAddress(contractAddress.value, { chainId: selectedSrcNetwork?.value?.net });
+                contractAddress.value?.length > 0 && validateAddress(contractAddress.value, { chainId: selectedSrcNetwork?.value?.net });
 
             emit('error-status', !isAllow);
 
@@ -137,12 +137,12 @@ export default {
         const onInput = () => (active.value = false);
 
         const onBlur = () => {
-            emit('setAddress', address.value);
+            emit('setAddress', contractAddress.value);
             focused.value = false;
         };
 
         const selectAddress = (addr) => {
-            address.value = addr;
+            contractAddress.value = addr;
         };
 
         const displayAddress = computed(() => {

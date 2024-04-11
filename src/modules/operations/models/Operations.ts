@@ -46,6 +46,8 @@ export interface IBaseOperation {
 
     transactionType: TRANSACTION_TYPES;
 
+    txResponse: any;
+
     tokens: {
         from?: IAsset;
         to?: IAsset;
@@ -122,6 +124,9 @@ export interface IBaseOperation {
     getAdditionalTooltip?: () => string;
 
     onSuccess?: (store: any) => Promise<void>;
+
+    setTxResponse?: (txResponse: any) => void;
+    getTxResponse?: () => any;
 }
 
 export interface IRegisterOperation {

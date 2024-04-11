@@ -100,6 +100,15 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
         return store.getters['shortcuts/getShortcutOpsFactory'](currentShortcutId.value);
     });
 
+    const isRequestingNfts = computed({
+        get: () => store.getters['shortcuts/getIsRequestingNfts'](currentShortcutId.value),
+        set: (value) =>
+            store.dispatch('shortcuts/setIsRequestingNfts', {
+                shortcutId: currentShortcutId.value,
+                value,
+            }),
+    });
+
     const isShortcutLoading = computed({
         get: () => store.getters['shortcuts/getIsShortcutLoading'](currentShortcutId.value),
         set: (value) =>
@@ -253,7 +262,13 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
         };
     };
 
-    const getMintedTokensImage = async (chain: string, contractAddress: string, { owner }: { owner?: string }): Promise<string[]> => {
+    const getMintedTokensImage = async (
+        chain: string,
+        contractAddress: string,
+        { owner, tokenIds, callCount }: { owner?: string; tokenIds?: string[]; callCount?: number },
+    ): Promise<string[]> => {
+        isRequestingNfts.value = true;
+
         try {
             const { client, rpc, cosmWasmClient } = await getClient(chain);
 
@@ -271,29 +286,13 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
 
             if (!owner) return [];
 
-            const limit = perAddressLimit.value || 20;
-
-            const tokensList = await mediaQueryClient.tokens({
-                limit,
-                owner,
-            });
-
-            const startAfter = !userAlreadyMinted.value ? '' : tokensList.tokens[userAlreadyMinted.value - 1] || '';
-
-            console.log('START AFTER', startAfter, 'already minted', userAlreadyMinted.value, tokensList.tokens.length);
-
-            const tokens = await mediaQueryClient.tokens({
-                limit,
-                owner,
-                startAfter: startAfter || '',
-            });
-
             const images = [];
 
-            console.log('NFT TOKENS', tokens.tokens);
+            console.log('NFT TOKENS', tokenIds);
 
             const getImage = async (uri: string) => {
                 const formattedTokenUri = uri.replace('ipfs://', 'https://ipfs.io/ipfs/');
+                console.log('FORMATTED URI', formattedTokenUri);
 
                 // regex to get extension
                 const match = formattedTokenUri.match(/\.\w{3,4}($|\?)/gm);
@@ -304,7 +303,7 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
                 if (isCorrectExtension) return images.push(formattedTokenUri);
 
                 try {
-                    const response = await axios.get(formattedTokenUri, { timeout: 5000 });
+                    const response = await axios.get(formattedTokenUri, { timeout: 3000 });
 
                     const { data } = response || {};
 
@@ -321,18 +320,29 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
                 }
             };
 
-            for (const token of tokens.tokens) {
-                const nftInfo = await mediaQueryClient.nftInfo({ tokenId: token });
+            const getImagesFromIds = async () => {
+                for (const token of tokenIds) {
+                    const nftInfo = await mediaQueryClient.nftInfo({ tokenId: token });
+                    console.log('NFT INFO', nftInfo);
+                    if (!nftInfo.token_uri) continue;
+                    await getImage(nftInfo.token_uri);
+                }
+            };
 
-                if (!nftInfo.token_uri) continue;
-                await getImage(nftInfo.token_uri);
-            }
+            const fillImagesByCount = () => {
+                for (let i = 0; i < callCount; i++) images.push(formattedCollectionImg);
+            };
 
-            console.log('IMAGES', images);
+            // * GET IMAGES BY CONDITIONS
+
+            if (!tokenIds.length) fillImagesByCount();
+            else await getImagesFromIds();
 
             return images;
         } catch (error) {
             console.error(error);
+        } finally {
+            console.log('GetMintedTokensImage done');
         }
     };
 
@@ -481,12 +491,12 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
     };
 
     watch(shortcutStatus, async () => {
+        console.log('SHORTCUT STATUS', shortcutStatus.value);
+
         if (shortcutStatus.value !== SHORTCUT_STATUSES.SUCCESS) return;
 
         for (const op of operationsFactory.value.getOperationOrder()) {
             const operation = operationsFactory.value.getOperationByKey(op);
-
-            operation.getModule();
 
             if (!operation) continue;
             if (![ModuleType.nft].includes(operation.getModule() as ModuleType)) continue;
@@ -495,16 +505,29 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
             const chain = operation.getChainId();
             const account = operation.getAccount();
 
-            console.log('getting collection info', chain, contractAddress, account);
+            const tokenIds = operation.getParamByField('tokenIds') || [];
+            const count = operation.getParamByField('count');
 
-            const nfts = (await getMintedTokensImage(chain, contractAddress, { owner: account })) || [];
+            console.log('getting collection info', {
+                chain,
+                contractAddress,
+                account,
+                tokenIds,
+                count,
+            });
+
+            if (count <= 0 || !tokenIds.length) continue;
+
+            const nfts = (await getMintedTokensImage(chain, contractAddress, { owner: account, callCount: count, tokenIds })) || [];
 
             if (!nfts.length) continue;
 
-            console.log('NFT IMAGES', nfts);
-
             operation.setParamByField('nfts', nfts);
+
+            console.log('NFT IMAGES', nfts);
         }
+
+        isRequestingNfts.value = false;
     });
 
     return {

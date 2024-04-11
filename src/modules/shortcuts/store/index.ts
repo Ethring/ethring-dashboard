@@ -26,6 +26,7 @@ const TYPES = {
     SET_OPERATION_STEPS: 'SET_OPERATION_STEPS',
 
     SET_IS_SHORTCUT_LOADING: 'SET_IS_SHORTCUT_LOADING',
+    SET_IS_REQUESTING_NFT: 'SET_IS_REQUESTING_NFT',
 };
 
 const DISABLED_STATUS = [ShortcutStatus.finish, ShortcutStatus.error];
@@ -51,6 +52,10 @@ interface IState {
     isShortcutLoading: {
         [key: string]: boolean;
     };
+
+    isRequestingNfts: {
+        [key: string]: boolean;
+    };
 }
 
 export default {
@@ -70,6 +75,8 @@ export default {
         shortcutOps: {},
         shortcutStatus: {},
         isShortcutLoading: {},
+
+        isRequestingNfts: {},
     }),
 
     // ================================================================================
@@ -77,7 +84,9 @@ export default {
     // ================================================================================
 
     getters: {
+        getIsRequestingNfts: (state: IState) => (shortcutId: string) => state.isRequestingNfts[shortcutId] || false,
         getIsShortcutLoading: (state: IState) => (shortcutId: string) => state.isShortcutLoading[shortcutId] || false,
+
         getCurrentShortcutId: (state: IState) => state.currentShortcutId,
         getCurrentLayout: (state: IState) => state.currentLayout,
         getShortcutStatus: (state: IState) => (shortcutId: string) => state.shortcutStatus[shortcutId] || null,
@@ -251,6 +260,10 @@ export default {
             !state.isShortcutLoading[shortcutId] && (state.isShortcutLoading[shortcutId] = false);
             state.isShortcutLoading[shortcutId] = value;
         },
+        [TYPES.SET_IS_REQUESTING_NFT](state: IState, { shortcutId, value }: { shortcutId: string; value: boolean }) {
+            !state.isRequestingNfts[shortcutId] && (state.isRequestingNfts[shortcutId] = false);
+            state.isRequestingNfts[shortcutId] = value;
+        },
     },
 
     // ================================================================================
@@ -335,6 +348,9 @@ export default {
 
         setIsShortcutLoading({ commit }: any, { shortcutId, value }: { shortcutId: string; value: boolean }) {
             commit(TYPES.SET_IS_SHORTCUT_LOADING, { shortcutId, value });
+        },
+        setIsRequestingNfts({ commit }: any, { shortcutId, value }: { shortcutId: string; value: boolean }) {
+            commit(TYPES.SET_IS_REQUESTING_NFT, { shortcutId, value });
         },
     },
 };

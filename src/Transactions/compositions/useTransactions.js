@@ -243,7 +243,7 @@ export default function useTransactions() {
      *
      * @returns {object}
      */
-    const signAndSend = async (transaction, { ecosystem, chain }) => {
+    const signAndSend = async (transaction, { ecosystem, chain, opInstance }) => {
         const ACTIONS_FOR_TX = {
             prepareTransaction: async (parameters, txParams = {}) => await prepareTransaction(parameters, { ecosystem, ...txParams }),
             formatTransactionForSign: async (parameters, txParams = {}) =>
@@ -296,6 +296,11 @@ export default function useTransactions() {
         try {
             response = await signSend(txFoSign, { ecosystem, chain });
             console.log('signSend response', response);
+            console.log('opInstance', opInstance);
+            if (opInstance && opInstance.setTxResponse) {
+                console.log(opInstance, 'opInstance.setTxResponse', response);
+                opInstance.setTxResponse(response);
+            }
         } catch (error) {
             closeNotification('prepare-tx');
             console.error('signSend error', error);

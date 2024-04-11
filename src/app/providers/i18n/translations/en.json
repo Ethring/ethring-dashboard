@@ -70,6 +70,7 @@
   "actionTokens": "Tokens",
   "actionTransactions": "Transactions",
   "tokenOperations": {
+    "contractAddress": "Contract address",
     "confirm": "Confirm",
     "recipient": "Recipient",
     "validator": "Validator",

@@ -30,6 +30,9 @@ interface IState {
     [ModuleType.stake]: {
         [key in Field]: IFieldState;
     };
+    [ModuleType.nft]: {
+        [key in Field]: IFieldState;
+    };
 }
 
 export default {
@@ -78,6 +81,13 @@ export default {
             [Field.srcAmount]: new FieldState(),
             [Field.receiverAddress]: new FieldState(),
             [Field.memo]: new FieldState(),
+        },
+        [ModuleType.nft]: {
+            [Field.srcNetwork]: new FieldState(),
+            [Field.srcToken]: new FieldState(),
+            [Field.srcAmount]: new FieldState(),
+            [Field.contractAddress]: new FieldState(),
+            [Field.contractCallCount]: new FieldState(),
         },
     }),
 

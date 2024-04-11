@@ -4,7 +4,9 @@
             <div v-for="nft in nftsList">
                 <a-image :preview="false" :src="nft" class="shortcut-nft-image" alt="nft-image" :fallback="Placeholder">
                     <template #placeholder>
-                        <div>placeholder</div>
+                        <div class="carousel-img-placeholder">
+                            <a-spin size="large" />
+                        </div>
                     </template>
                 </a-image>
             </div>
@@ -42,13 +44,18 @@ import { computed, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 
 import { Carousel } from 'ant-design-vue';
-import OperationsFactory from '../../../modules/operations/OperationsFactory';
-import { IShortcutOp } from '../../../modules/shortcuts/core/ShortcutOp';
-import { SHORTCUT_STATUSES } from '../../../shared/models/enums/statuses.enum';
+
 import Amount from '@/components/app/Amount.vue';
-import { delay } from '@/shared/utils/helpers';
-import { ModuleType } from '../../../shared/models/enums/modules.enum';
+
 import Placeholder from '@/assets/images/placeholder/mask.png';
+
+import { IShortcutOp } from '@/modules/shortcuts/core/ShortcutOp';
+import OperationsFactory from '@/modules/operations/OperationsFactory';
+
+import { ModuleType } from '@/shared/models/enums/modules.enum';
+import { SHORTCUT_STATUSES } from '@/shared/models/enums/statuses.enum';
+
+import { delay } from '@/shared/utils/helpers';
 
 export default {
     name: 'SuccessShortcutModal',
@@ -70,6 +77,15 @@ export default {
             return store.getters['shortcuts/getCurrentOperation'](currentShortcutId.value);
         });
 
+        const isRequestingNfts = computed({
+            get: () => store.getters['shortcuts/getIsRequestingNfts'](currentShortcutId.value),
+            set: (value) =>
+                store.dispatch('shortcuts/setIsRequestingNfts', {
+                    shortcutId: currentShortcutId.value,
+                    value,
+                }),
+        });
+
         const operationsFactory = computed<OperationsFactory>(() => {
             if (!currentShortcutId.value) return;
             return store.getters['shortcuts/getShortcutOpsFactory'](currentShortcutId.value);
@@ -87,10 +103,18 @@ export default {
             if (!operationsFactory.value) return;
             if (shortcutStatus.value !== SHORTCUT_STATUSES.SUCCESS) return;
             isLoading.value = true;
-
             results.value = operationsFactory.value.getOperationsResult();
+            isLoading.value = false;
+        });
 
-            await delay(4000);
+        watch(isRequestingNfts, async (value) => {
+            if (!operationsFactory.value) return (isLoading.value = false);
+            if (!currentOp.value) return (isLoading.value = false);
+
+            if (value) {
+                isLoading.value = true;
+                await delay(2500);
+            }
 
             for (const op of operationsFactory.value.getOperationOrder()) {
                 const operation = operationsFactory.value.getOperationByKey(op);
@@ -106,7 +130,7 @@ export default {
                 nftsList.value.push(...nfts);
             }
 
-            isLoading.value = false;
+            return (isLoading.value = false);
         });
 
         return {

@@ -1,16 +1,20 @@
 <template>
-    <a-form v-if="nftCollectionInfo">
-        <a-row :gutter="8" class="nft-base-info">
+    <a-form>
+        <a-form-item>
+            <SelectContractInput
+                label="tokenOperations.contractAddress"
+                :selectedNetwork="selectedSrcNetwork"
+                :onReset="clearAddress"
+                :disabled="fieldStates.contractAddress.disabled"
+            />
+        </a-form-item>
+        <a-row :gutter="8" class="nft-base-info" v-if="nftCollectionInfo">
             <a-col :span="24" v-if="nftCollectionInfo">
                 <div class="title">Quick access</div>
             </a-col>
             <a-col :span="24" v-if="nftCollectionInfo.collectionAddress || nftCollectionInfo.minterAddress">
-                <p class="description" v-if="nftCollectionInfo.collectionAddress">
-                    Collection Address:
-                    <DisplayAddress :address="nftCollectionInfo.collectionAddress" />
-                </p>
                 <p class="description" v-if="nftCollectionInfo.minterAddress">
-                    Minter:
+                    Minter address:
                     <DisplayAddress :address="nftCollectionInfo.minterAddress" />
                 </p>
             </a-col>
@@ -69,7 +73,7 @@
             </a-col>
         </a-row>
 
-        <template v-if="nftCollectionInfo.perAddressLimit && !nftCollectionInfo.isSoldOut">
+        <template v-if="nftCollectionInfo && nftCollectionInfo.perAddressLimit && !nftCollectionInfo.isSoldOut">
             <a-form-item>
                 <CountInput :max="nftCollectionInfo.perAddressLimit" />
             </a-form-item>
@@ -98,7 +102,8 @@ import Checkbox from '@/components/ui/Checkbox.vue';
 import SelectRecord from '@/components/ui/Select/SelectRecord.vue';
 
 // Input components
-import SelectAddressInput from '@/components/ui/Select/SelectAddressInput.vue';
+
+import SelectContractInput from '@/components/ui/Select/SelectContractInput.vue';
 import CountInput from '@/components/ui/CountInput.vue';
 
 // Icons
@@ -127,7 +132,7 @@ export default {
         Button,
         Checkbox,
         SelectRecord,
-        SelectAddressInput,
+        SelectContractInput,
         InfoIcon,
         Amount,
         ClockCircleOutlined,
@@ -140,15 +145,6 @@ export default {
         const shortcutModalState = computed(() => store.getters['app/modal']('successShortcutModal'));
 
         const currentShortcutId = computed(() => store.getters['shortcuts/getCurrentShortcutId']);
-
-        const isShortcutLoading = computed({
-            get: () => store.getters['shortcuts/getIsShortcutLoading'](currentShortcutId.value),
-            set: (value) =>
-                store.dispatch('shortcuts/setIsShortcutLoading', {
-                    shortcutId: currentShortcutId.value,
-                    value,
-                }),
-        });
 
         // * Init module operations, and get all necessary data, (methods, states, etc.) for the module
         // * Also, its necessary to sign the transaction (Transaction manger)
@@ -291,9 +287,19 @@ export default {
 
         watch(shortcutModalState, async () => {
             if (shortcutModalState.value) return;
-            isShortcutLoading.value = true;
+            if (!currentShortcutId.value) return console.warn('No current shortcut id');
+
+            store.dispatch('shortcuts/setIsShortcutLoading', {
+                shortcutId: currentShortcutId.value,
+                value: true,
+            });
+
             await getCollectionInfoData();
-            isShortcutLoading.value = false;
+
+            store.dispatch('shortcuts/setIsShortcutLoading', {
+                shortcutId: currentShortcutId.value,
+                value: false,
+            });
         });
 
         return {
@@ -305,6 +311,8 @@ export default {
             selectedSrcNetwork,
             selectedSrcToken,
             srcAmount,
+            contractAddress,
+            contractCallCount,
 
             isDisableSelect,
 
