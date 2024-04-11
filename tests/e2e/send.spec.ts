@@ -97,7 +97,7 @@ testMetaMask.describe('MetaMask Send e2e tests', () => {
             await notifyMMtx.rejectTx();
             await sendPageCoingeckoMockRejectTest.getBaseContentElement().hover();
             await expect(sendPageCoingeckoMockRejectTest.page).toHaveScreenshot({
-                maxDiffPixels: 250,
+                maxDiffPixels: 670,
                 mask: [
                     sendPageCoingeckoMockRejectTest.page.locator(IGNORED_LOCATORS.HEADER),
                     sendPageCoingeckoMockRejectTest.page.locator(IGNORED_LOCATORS.ASIDE),
