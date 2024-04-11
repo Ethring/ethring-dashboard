@@ -16,7 +16,13 @@
     "website": "https://www.stargaze.zone/",
     "author": {
         "name": "zomet.app",
-        "avatar": "https://zomet-logo.png"
+        "avatar": "https://zomet-logo.png",
+        "social": {
+            "twitter": {
+                "nickname": "zometapp",
+                "link": "https://twitter.com/zometapp"
+            }
+        }
     },
     "ecosystems": [
         "EVM",
