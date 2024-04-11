@@ -10,15 +10,12 @@ export const trackingBalanceUpdate = (store) => {
     const timeout = ref({});
     const waitTime = ref(3);
 
-    const { walletAccount, chainList } = useAdapter();
-
-    const selectedSrcNetwork = computed(() => store.getters['tokenOps/srcNetwork']);
+    const { walletAccount, chainList, ecosystem } = useAdapter();
 
     const updateBalanceQueues = computed(() => store.getters['updateBalance/updateBalanceForAddress']);
 
     const chainWithAddresses = computed(() => {
-        const { ecosystem } = selectedSrcNetwork.value || {};
-        return store.getters['adapters/getAddressesByEcosystemList'](ecosystem) || {};
+        return store.getters['adapters/getAddressesByEcosystemList'](ecosystem.value) || {};
     });
 
     const updateBalanceQueuesByChain = computed(() => {
@@ -73,11 +70,19 @@ export const trackingBalanceUpdate = (store) => {
         }
 
         message.loading({
+            key: 'update_balace',
             content: () => `Updating balance for ${network.net} after ${timeout.value[network.net]} sec`,
         });
 
         // Wait for 3 sec before updating balance
-        await delay(waitTime.value * 1000); // 3 sec
+        for (let index = 0; index < waitTime.value; index++) {
+            await delay(1000); // 3 sec
+            if (timeout.value[network.net] > 0) {
+                timeout.value[network.net] -= 1;
+            } else {
+                message.destroy();
+            }
+        }
 
         await updateBalanceByChain(targetAccount, address, network.net, {
             isUpdate: true,
@@ -100,17 +105,6 @@ export const trackingBalanceUpdate = (store) => {
                 }
 
                 await handleUpdateBalance(config, address);
-
-                setInterval(() => {
-                    if (timeout.value[config.net] > 0) {
-                        timeout.value[config.net] -= 1;
-                    }
-                }, 1000);
-
-                if (timeout.value[config.net] === 0) {
-                    clearInterval(timeout.value[config.net]);
-                    message.destroy();
-                }
 
                 await removeUpdateBalanceQueues(mainAddress, chain);
             }),

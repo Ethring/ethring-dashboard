@@ -1,6 +1,6 @@
 <template>
     <div class="estimate-stats">
-        <p class="title" v-if="title">{{ $t(title) }}</p>
+        <p class="title" v-if="title">{{ title }}</p>
 
         <div class="row">
             <Amount
