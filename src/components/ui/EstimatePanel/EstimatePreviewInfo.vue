@@ -40,20 +40,28 @@
                                 </div>
                             </div>
 
-                            <div v-else-if="error && !isLoading" class="error">
+                            <a-tooltip v-else-if="error && !isLoading" class="error" :title="$t('tokenOperations.noAvailableRoute')">
                                 <template v-if="error.length <= MAX_LENGTH">
-                                    {{ error }}
+                                    <a-row align="middle" class="route-error">
+                                        <RouteIcon />
+                                        {{ error }}
+                                    </a-row>
                                 </template>
                                 <template v-else>
                                     <a-tooltip placement="topLeft">
                                         <template #title>
-                                            {{ error }}
+                                            <a-row align="middle" class="route-error">
+                                                <RouteIcon />
+                                                {{ error }}
+                                            </a-row>
                                         </template>
-
-                                        {{ error }}
+                                        <a-row align="middle" class="route-error">
+                                            <RouteIcon />
+                                            {{ error }}
+                                        </a-row>
                                     </a-tooltip>
                                 </template>
-                            </div>
+                            </a-tooltip>
                         </div>
                     </template>
                 </div>
@@ -115,6 +123,7 @@ import ArrowDownIcon from '@/assets/icons/form-icons/arrow-down.svg';
 import FeeIcon from '@/assets/icons/module-icons/fee.svg';
 import TimeIcon from '@/assets/icons/module-icons/time.svg';
 import ExpandIcon from '@/assets/icons/module-icons/expand.svg';
+import RouteIcon from '@/assets/icons/module-icons/route.svg';
 
 import Amount from '@/components/app/Amount.vue';
 import EstimateStats from './EstimateStats.vue';
@@ -129,6 +138,7 @@ export default {
         FeeIcon,
         TimeIcon,
         ExpandIcon,
+        RouteIcon,
 
         Amount,
         ServiceIcon,
@@ -413,6 +423,8 @@ export default {
             text-overflow: ellipsis;
             overflow: hidden;
             max-width: 360px;
+
+            gap: 8px;
         }
     }
 
