@@ -208,7 +208,6 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
 
             const { count: remainingTokensCount } = mintableNumTokens;
 
-            console.log('remainingTokensCount', remainingTokensCount);
             isSoldOut = !remainingTokensCount;
 
             mintedPercentage = BigNumber(totalCount || 0)
@@ -491,8 +490,6 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
     };
 
     watch(shortcutStatus, async () => {
-        console.log('SHORTCUT STATUS', shortcutStatus.value);
-
         if (shortcutStatus.value !== SHORTCUT_STATUSES.SUCCESS) return;
 
         for (const op of operationsFactory.value.getOperationOrder()) {

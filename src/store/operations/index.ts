@@ -373,8 +373,6 @@ export default {
                 return;
             }
 
-            console.log('fieldSetter[field]', fieldSetter[field], value);
-
             commit(fieldSetter[field], value);
         },
 

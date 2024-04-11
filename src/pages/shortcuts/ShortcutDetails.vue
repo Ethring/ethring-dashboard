@@ -1,6 +1,6 @@
 <template>
     <div class="shortcut-details">
-        <div class="wallpaper" />
+        <div class="wallpaper" :style="{ ...wallpaper }" />
 
         <a-row align="middle" justify="space-between" :wrap="false">
             <router-link to="/shortcuts" class="link">
@@ -52,6 +52,8 @@ import { useRoute, useRouter } from 'vue-router';
 
 import ArrowIcon from '@/assets/icons/form-icons/arrow-back.svg';
 
+import ShortcutPlaceholder from '@/assets/images/placeholder/shortcut.png';
+
 import ShortcutLoading from '@/components/shortcuts/Loading/ShortcutLoading.vue';
 import SuccessShortcutModal from '@/components/app/modals/SuccessShortcutModal.vue';
 
@@ -91,6 +93,18 @@ export default {
             return [STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(shortcutStatus.value);
         });
 
+        const wallpaper = computed(() => {
+            if (shortcut.value && !shortcut.value.wallpaper) {
+                return {
+                    backgroundImage: `url(${ShortcutPlaceholder})`,
+                };
+            }
+
+            return {
+                backgroundImage: `url(${shortcut.value.wallpaper})`,
+            };
+        });
+
         onMounted(() => {
             if (_.isEmpty(shortcut.value)) {
                 return router.push('/shortcuts');
@@ -114,6 +128,7 @@ export default {
             shortcutLayout,
             SHORTCUT_STATUSES,
             STATUSES,
+            wallpaper,
         };
     },
 };

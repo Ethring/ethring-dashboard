@@ -12,6 +12,7 @@ export interface IShortcutData {
     type: 'stake'; // Assuming this is the only possible type
     description: string;
     website: string;
+    wallpaper: string;
 
     recipe?: {
         id: string;
@@ -32,6 +33,7 @@ export default class Shortcut implements IShortcutData {
     description: string;
     minUsdAmount: number;
     website: string;
+    wallpaper: string;
 
     recipe?: {
         id: string;
@@ -52,6 +54,8 @@ export default class Shortcut implements IShortcutData {
         this.description = shortcut.description;
         this.website = shortcut.website;
         this.minUsdAmount = shortcut.minUsdAmount;
+        this.wallpaper = shortcut.wallpaper;
+
         this.recipes = [];
 
         this.recipe = shortcut.recipe as any;

@@ -18,6 +18,7 @@
     ],
     "type": "stake",
     "description": "Stake your COSMOS ecosystem tokens to the Citadel.one validator and earn rewards.",
+    "wallpaper": "",
     "website": "https://citadel.one/",
     "author": {
         "name": "zomet.app",

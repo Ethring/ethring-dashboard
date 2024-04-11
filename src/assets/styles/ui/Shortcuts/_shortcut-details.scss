@@ -1,10 +1,12 @@
 .shortcut-details {
     .wallpaper {
+        max-width: inherit;
         width: 100%;
         height: 140px;
         margin-bottom: 16px;
-        background-image: url(@/assets/images/placeholder/wallpaper.svg);
         background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
     }
 
     .title {
