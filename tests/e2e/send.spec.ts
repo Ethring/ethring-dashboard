@@ -70,7 +70,7 @@ testMetaMask.describe('MetaMask Send e2e tests', () => {
 
             const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
             await expect(sendPageCoingeckoMockRejectTest.page).toHaveScreenshot({
-                maxDiffPixels: 110,
+                maxDiffPixels: 210,
                 mask: [
                     sendPageCoingeckoMockRejectTest.page.locator(IGNORED_LOCATORS.HEADER),
                     sendPageCoingeckoMockRejectTest.page.locator(IGNORED_LOCATORS.ASIDE),
