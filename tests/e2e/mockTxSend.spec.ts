@@ -58,8 +58,16 @@ testMetaMaskMockTx.describe('Mocked send tx Metamask', () => {
 
         await sleep(2000);
 
-        expect(sendPage.page).toHaveScreenshot({
-            mask: [sendPage.page.locator(IGNORED_LOCATORS.HEADER), sendPage.page.locator(IGNORED_LOCATORS.ASIDE)],
-        });
+        const txNotification = sendPage.page.locator('div.ant-notification');
+
+        expect(await txNotification.count()).toEqual(1); // check the count of notification
+
+        const expectedTxStatus = 'check-circle'; // check txStatus: success
+
+        const svgElement = await sendPage.page.locator('span.ant-notification-notice-icon svg');
+
+        const txStatusValue = await svgElement.getAttribute('data-icon', { timeout: 1000 });
+
+        expect(txStatusValue).toBe(expectedTxStatus);
     });
 });
