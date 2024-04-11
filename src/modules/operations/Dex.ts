@@ -11,9 +11,9 @@ import _ from 'lodash';
 import { IAsset } from '@/shared/models/fields/module-fields';
 import { ICreateTransaction } from '@/Transactions/types/Transaction';
 import { IBridgeDexTransaction, IQuoteRoute, IQuoteRoutes } from '../bridge-dex/models/Response.interface';
-import { getActionByTxType } from './shared/utils';
 import { STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
 import { ECOSYSTEMS } from '@/Adapter/config';
+import { getActionByTxType } from './shared/utils';
 
 // [TRANSACTION_TYPES.APPROVE]: async (): Promise<IBridgeDexTransaction> => {
 //     const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
@@ -35,8 +35,6 @@ import { ECOSYSTEMS } from '@/Adapter/config';
 export default class DexOperation extends BaseOperation {
     module: ModuleType.swap;
 
-    transactionType: TRANSACTION_TYPES.DEX;
-
     service: BridgeDexService<ServiceType.dex | ServiceType.bridgedex>;
 
     flow: TxOperationFlow[];
@@ -52,7 +50,7 @@ export default class DexOperation extends BaseOperation {
     constructor() {
         super();
         this.service = new BridgeDexService(ServiceType.dex);
-        this.transactionType = TRANSACTION_TYPES.DEX;
+        super.setTxType(TRANSACTION_TYPES.DEX);
     }
 
     getOperationFlow(): TxOperationFlow[] {
@@ -147,8 +145,8 @@ export default class DexOperation extends BaseOperation {
             chainId,
 
             metaData: {
-                action: this.getAction(),
-                type: this.getTxType(),
+                action: getActionByTxType(this.transactionType),
+                type: this.transactionType,
                 notificationTitle,
                 params: {
                     ...this.params,

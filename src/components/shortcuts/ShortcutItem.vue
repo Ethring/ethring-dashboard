@@ -30,9 +30,7 @@
                 <a-divider type="vertical" style="height: 10px; background-color: #c9e0e0" />
                 <div class="amount">
                     Min amount
-                    <span v-if="item.minAmount" class="amount"
-                        >{{ item.minAmount.value }} <span>{{ item.minAmount.currency }}</span></span
-                    >
+                    <Amount v-if="item.minUsdAmount" type="usd" :value="item.minUsdAmount" symbol="$" />
                     <span v-else class="amount">Any</span>
                 </div>
             </a-row>
@@ -47,7 +45,7 @@
         <a-row justify="space-between">
             <a-row align="middle" class="favorites">
                 <LikeIcon :class="{ 'favorites-icon--active': watchList.includes(item.id) }" @click="addToWatchList" />
-                <div class="favorites-count">15</div>
+                <div class="favorites-count"></div>
             </a-row>
             <Button title="Try" class="shortcut-item__btn" @click="openShortcut" />
         </a-row>
@@ -62,6 +60,7 @@ import { useRouter } from 'vue-router';
 import ShortcutPlaceHolder from '@/assets/icons/dashboard/shortcut.svg';
 import ZometLogo from '@/assets/icons/sidebar/logo.svg';
 import LikeIcon from '@/assets/icons/dashboard/heart.svg';
+import Amount from '@/components/app/Amount.vue';
 
 export default {
     name: 'ShortcutItem',
@@ -69,6 +68,7 @@ export default {
         ShortcutPlaceHolder,
         ZometLogo,
         LikeIcon,
+        Amount,
     },
     props: {
         item: {

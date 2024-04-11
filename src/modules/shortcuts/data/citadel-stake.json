@@ -12,6 +12,10 @@
         "COSMOS",
         "STAKE"
     ],
+    "ecosystems": [
+        "EVM",
+        "COSMOS"
+    ],
     "type": "stake",
     "description": "Stake your COSMOS ecosystem tokens to the Citadel.one validator and earn rewards.",
     "website": "https://citadel.one/",
@@ -25,6 +29,7 @@
             }
         }
     },
+    "minUsdAmount": 1,
     "recipe": {
         "id": "citadel-one-stake",
         "operations": [
@@ -37,6 +42,14 @@
                 "serviceId": "squid",
                 "layoutComponent": "SuperSwap",
                 "isShowLayout": true,
+                "excludeChains": [
+                    "osmosis",
+                    "cosmoshub",
+                    "optimism",
+                    "eth",
+                    "fantom",
+                    "injective"
+                ],
                 "ecosystems": [
                     "EVM",
                     "COSMOS"

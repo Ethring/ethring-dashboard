@@ -1,9 +1,12 @@
+import Amount from '@/components/app/Amount.vue';
 import { IBaseOperation, IOperationFactory, IRegisterOperation } from '@/modules/operations/models/Operations';
 import { ModuleType, ModuleTypes } from '@/shared/models/enums/modules.enum';
 import { STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
+import { Col, Row, Space, Tag } from 'ant-design-vue';
 import BigNumber from 'bignumber.js';
 import _ from 'lodash';
+import { h } from 'vue';
 // import { BaseOperation } from '@/modules/operations/BaseOperation';
 // import DexOperation from '@/modules/operations/Dex';
 // import TransferOperation from './Transfer';
@@ -38,22 +41,66 @@ export default class OperationFactory implements IOperationFactory {
     private groupOps: Map<string, string[]> = new Map<string, string[]>();
     private operationDependencies: Map<string, IOperationDependencies> = new Map<string, IOperationDependencies>();
     private operationsStatusByKey: Map<string, STATUSES> = new Map<string, STATUSES>();
+    private operationOrder: string[] = [];
 
     getOperationsIds(): Map<string, string> {
         return this.operationsIds;
     }
 
-    registerOperation(module: string, operationClass: new () => IBaseOperation, options?): IRegisterOperation {
-        const { id = null, name = null } = options || {};
+    getOperationOrder(): string[] {
+        return this.operationOrder;
+    }
+
+    getOperationByOrderIndex(index: number): IBaseOperation {
+        return this.operationsMap.get(this.operationOrder[index]);
+    }
+
+    registerOperation(
+        module: string,
+        operationClass: new () => IBaseOperation,
+        options?: { id?: string; name?: string; before?: string; after?: string },
+    ): IRegisterOperation {
+        const { name = null, before = null, after = null } = options || {};
+
+        let { id = null } = options || {};
+
+        const uniqueKey = `${module}_${this.operationsMap.size}`;
+
+        if (!id) {
+            console.warn('OperationId not provided');
+            id = uniqueKey;
+        }
 
         if (this.operationsIds.get(id)) {
             console.warn(`Operation with id ${id} already exists`);
             return null;
         }
 
-        const uniqueKey = `${module}_${this.operationsMap.size}`;
+        if (!before && !after) {
+            this.operationOrder.push(uniqueKey);
+        } else if (before) {
+            const beforeIndex = this.operationOrder.indexOf(before);
+
+            if (beforeIndex === -1) {
+                console.warn(`Operation ${before} not found`);
+                return null;
+            }
+
+            this.operationOrder.splice(beforeIndex, 0, `${module}_${this.operationsMap.size}`);
+        } else if (after) {
+            const afterIndex = this.operationOrder.indexOf(after);
+
+            if (afterIndex === -1) {
+                console.warn(`Operation ${after} not found`);
+                return null;
+            }
+
+            this.operationOrder.splice(afterIndex + 1, 0, `${module}_${this.operationsMap.size}`);
+        }
 
         const operation = new operationClass();
+
+        operation.setUniqueId(uniqueKey);
 
         operation.setModule(module as ModuleTypes);
 
@@ -99,6 +146,11 @@ export default class OperationFactory implements IOperationFactory {
         return this.operationsMap.get(this.operationsIds.get(id));
     }
 
+    setParamsByKey(moduleKey: string, params: any): void {
+        const operation = this.getOperationByKey(moduleKey);
+        operation.setParams(params);
+    }
+
     setParams(module: string, operationIndex: number, params: any): void {
         const operation = this.getOperation(module, operationIndex);
         operation.setParams(params);
@@ -132,28 +184,23 @@ export default class OperationFactory implements IOperationFactory {
         return params[key] || null;
     }
 
+    getFirstOperationByOrder(): string {
+        if (!this.operationOrder.length) return null;
+        return this.operationOrder[0];
+    }
+
     getFirstOperation(): IBaseOperation {
         return this.operationsMap.values().next().value;
     }
 
-    passParams(fromModule: string, fromIndex: number, toModule: string, toIndex: number): void {
-        const fromKey = `${fromModule}_${fromIndex}`;
-        const toKey = `${toModule}_${toIndex}`;
-
-        const fromOperation = this.operationsMap.get(fromKey);
-        const toOperation = this.operationsMap.get(toKey);
-
-        if (fromOperation && toOperation) {
-            const params = fromOperation.getParams();
-            toOperation.setParamByField('amount', params.amount);
-        }
+    getLastOperation(): IBaseOperation {
+        return Array.from(this.operationsMap.values()).pop();
     }
 
     getFullOperationFlow(): TxOperationFlow[] {
         const flow: TxOperationFlow[] = [];
-        const operations = Array.from(this.operationsMap.keys());
 
-        for (const operation of operations) {
+        for (const operation of this.operationOrder) {
             const opFlow = this.operationsMap.get(operation).getOperationFlow();
 
             flow.push(
@@ -169,6 +216,47 @@ export default class OperationFactory implements IOperationFactory {
         return flow.map((f, i) => ({ ...f, index: i })).sort((a, b) => a.index - b.index);
     }
 
+    getDependenciesById(id: string): IOperationDependencies {
+        if (!this.operationDependencies.has(id)) return null;
+
+        const { operationId = null, operationParams = [] } = this.operationDependencies.get(id) || {};
+
+        if (!operationId || !operationParams.length) return null;
+        if (operationId && !this.operationsIds.has(operationId)) return null;
+
+        return { operationId, operationParams };
+    }
+
+    processDependencyParams(opId: string, { isSetParam = false }: { isSetParam: boolean }): void {
+        const operation = this.getOperationById(opId);
+        const { operationId = null, operationParams = [] } = this.getDependenciesById(opId) || {};
+
+        if (!operationId || !operationParams.length) return;
+
+        const dependOperation = this.getOperationById(operationId);
+
+        if (!dependOperation) {
+            console.warn(`Operation ${operationId} not found`);
+            return;
+        }
+
+        for (const param of operationParams) {
+            const { dependencyParamKey, paramKey, usePercentage = 0 } = param || {};
+
+            const depValue = dependOperation.getParamByField(dependencyParamKey);
+
+            if (!isAmountCorrect(depValue)) return;
+
+            if (usePercentage) {
+                const value = this.calculatePercentage(depValue, usePercentage);
+
+                isSetParam && operation.setParamByField(paramKey, value);
+            } else {
+                isSetParam && operation.setParamByField(paramKey, depValue);
+            }
+        }
+    }
+
     async estimateOutput(): Promise<void> {
         const operations = Array.from(this.operationsMap.keys());
 
@@ -178,53 +266,21 @@ export default class OperationFactory implements IOperationFactory {
             const opId = this.operationsIndex.get(operation);
             const currentOperation = this.operationsMap.get(operation);
 
-            console.log(`${opId}  - ESTIMATE START ############`);
-
             const mainStatus = this.operationsStatusByKey.get(operation);
 
             const restoreStatus = () => {
-                if (mainStatus === STATUSES.ESTIMATING) {
-                    return this.setOperationStatusByKey(operation, STATUSES.PENDING);
-                }
-                return this.setOperationStatusByKey(operation, mainStatus);
+                return this.setOperationStatusByKey(operation, mainStatus === STATUSES.ESTIMATING ? STATUSES.PENDING : mainStatus);
             };
 
             this.setOperationStatusByKey(operation, STATUSES.ESTIMATING);
 
-            if (this.operationDependencies.has(opId)) {
-                const { operationId, operationParams } = this.operationDependencies.get(opId);
-
-                const dependOperation = this.operationsMap.get(this.operationsIds.get(operationId));
-
-                operationParams.forEach((param) => {
-                    const { dependencyParamKey, paramKey, usePercentage } = param;
-
-                    if (!dependOperation) {
-                        console.warn(`Operation ${operationId} not found`);
-                        return;
-                    }
-
-                    const depValue = dependOperation.getParamByField(dependencyParamKey);
-
-                    if (usePercentage) {
-                        if (!isAmountCorrect(depValue)) {
-                            console.warn(`Incorrect value for ${dependencyParamKey} in ${operationId}`);
-                            return;
-                        }
-
-                        const value = BigNumber(depValue).multipliedBy(usePercentage).dividedBy(100).toFixed(6);
-
-                        console.log(`${dependencyParamKey} from ${operationId}`);
-                        console.log(`${paramKey} = ${dependencyParamKey} * ${usePercentage} / 100`);
-                        console.log(`${paramKey} = ${depValue} * ${usePercentage} / 100 = ${value}`);
-
-                        currentOperation.setParamByField(paramKey, value);
-                    } else {
-                        console.log('Set param', paramKey, depValue);
-                        currentOperation.setParamByField(paramKey, depValue);
-                    }
-                });
+            if (!this.operationsIds.has(opId)) {
+                console.warn(`Operation ${opId} not found`);
+                restoreStatus();
+                continue;
             }
+
+            this.processDependencyParams(opId, { isSetParam: true });
 
             const isSuccessOrFail = [STATUSES.SUCCESS, STATUSES.FAILED].includes(mainStatus);
 
@@ -237,13 +293,11 @@ export default class OperationFactory implements IOperationFactory {
                 await this.operationsMap.get(operation).estimateOutput();
                 restoreStatus();
             } catch (error) {
-                console.error(`${opId} - ERROR ############`);
+                console.warn(`${opId} - ESTIMATE ERROR ############`);
                 console.error(error);
                 restoreStatus();
-                continue;
+                throw error;
             }
-
-            console.log(`${opId} - DONE ############`);
 
             table.push({
                 operation: opId,
@@ -267,7 +321,6 @@ export default class OperationFactory implements IOperationFactory {
         const operations = Array.from(this.operationsMap.keys());
 
         for (const operation of operations) {
-            console.log('RESET STATUS', operation, this.operationsStatusByKey.get(operation), STATUSES.PENDING);
             this.setOperationStatusByKey(operation, STATUSES.PENDING);
         }
 
@@ -311,5 +364,135 @@ export default class OperationFactory implements IOperationFactory {
 
     getOperationsStatusByKey(key: string): STATUSES {
         return this.operationsStatusByKey.get(key);
+    }
+
+    getOperationAdditionalTooltipById(id: string): any {
+        const ALLOW_KEYS = ['amount', 'outputAmount'];
+
+        const tooltips = [];
+
+        const operation = this.getOperationById(id);
+
+        if (!operation || !operation.getAdditionalTooltip) return null;
+
+        if (!this.getDependenciesById(id)) return null;
+
+        const { operationId, operationParams } = this.getDependenciesById(id);
+
+        const dependOperation = this.getOperationById(operationId);
+
+        if (!operationParams.length) return null;
+
+        for (const param of operationParams) {
+            const info = {
+                amountSrcInfo: null,
+                percentageInfo: null,
+            };
+
+            const { dependencyParamKey, paramKey, usePercentage = 0 } = param || {};
+
+            if (!dependOperation) {
+                console.warn(`Operation ${operationId} not found`);
+                continue;
+            }
+
+            if (!ALLOW_KEYS.includes(dependencyParamKey) || !ALLOW_KEYS.includes(paramKey)) continue;
+
+            if (!usePercentage) continue;
+
+            const dependUniqueKey = this.operationsIds.get(operationId);
+            const [m2, depOpIndex] = dependUniqueKey.split('_');
+
+            const { from: depFrom, to: depTo } = dependOperation.getTokens() || {};
+            const { from: opFrom, to: opTo } = operation.getTokens() || {};
+
+            const isDepSrc = _.isEqual(dependencyParamKey, 'amount');
+            const isOpSrc = _.isEqual(paramKey, 'amount');
+
+            const depToken = isDepSrc ? depFrom : depTo;
+            const opToken = isOpSrc ? opFrom : opTo;
+
+            const depValue = dependOperation.getParamByField(dependencyParamKey);
+            const value = this.calculatePercentage(depValue, usePercentage);
+
+            info.percentageInfo = {
+                percentage: {
+                    amount: usePercentage,
+                    symbol: '%',
+                },
+                from: {
+                    amount: depValue,
+                    symbol: depToken?.symbol,
+                },
+                to: {
+                    amount: value,
+                    symbol: opToken?.symbol,
+                },
+            };
+
+            info.amountSrcInfo = {
+                to: {
+                    amount: value || '0',
+                    symbol: opToken?.symbol,
+                },
+                from: {
+                    amount: depValue || '0',
+                    symbol: depToken?.symbol,
+                },
+                stepIndex: +depOpIndex + 1,
+            };
+
+            tooltips.push(info);
+        }
+
+        return tooltips;
+    }
+
+    private calculatePercentage(amount: string, percentage: number): string {
+        if (!isAmountCorrect(amount)) return '0';
+        return BigNumber(amount).multipliedBy(percentage).dividedBy(100).toFixed(6);
+    }
+
+    getPercentageOfSuccessOperations(): number {
+        const STATUS_TO_EXCLUDE = [STATUSES.PENDING, STATUSES.ESTIMATING];
+        const STATUS_TO_HALF_SUCCESS = [STATUSES.IN_PROGRESS, STATUSES.SIGNING, STATUSES.REJECTED, STATUSES.FAILED];
+
+        const operations = Array.from(this.operationsMap.keys());
+
+        const successScore = operations.reduce((score, operation) => {
+            const status = this.operationsStatusByKey.get(operation);
+
+            if (STATUS_TO_HALF_SUCCESS.includes(status)) return score + 0.5;
+            if (STATUS_TO_EXCLUDE.includes(status)) return score;
+            return score + 1;
+        }, 0);
+
+        return Number(BigNumber(successScore).dividedBy(operations.length).multipliedBy(100).toFixed(2));
+    }
+    getOperationsResult() {
+        const result = [];
+
+        for (const op of this.operationOrder) {
+            result.push({
+                type: this.getOperationByKey(op).transactionType,
+
+                status: this.getOperationsStatusByKey(op),
+
+                hash: this.getOperationByKey(op).getParamByField('txHash'),
+
+                amount: this.getOperationByKey(op).getParamByField('amount'),
+
+                token: {
+                    symbol: this.getOperationByKey(op).getToken('from').symbol,
+                    logo: this.getOperationByKey(op).getToken('from').logo,
+                },
+            });
+        }
+
+        return result;
+    }
+
+    getOperationsCount(): number {
+        return this.operationsMap.size;
     }
 }

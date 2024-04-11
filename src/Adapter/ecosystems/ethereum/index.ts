@@ -1,31 +1,27 @@
 /* eslint-disable no-unused-vars */
 
 import AdapterBase from '@/Adapter/utils/AdapterBase';
-
 import * as ethers from 'ethers';
-
 import { init, useOnboard } from '@web3-onboard/vue';
-
-import { web3OnBoardConfig, ECOSYSTEMS, chainConfig, NATIVE_CONTRACT, TRANSFER_ABI, EVM_CHAINS } from '@/Adapter/config';
-
+import type { InitOptions, OnboardAPI } from '@web3-onboard/core';
+import { web3OnBoardConfig, ECOSYSTEMS, chainConfig, EVM_CHAINS, TRANSFER_ABI } from '@/Adapter/config';
 import { validateEthAddress } from '@/Adapter/utils/validations';
-
 import { errorRegister } from '@/shared/utils/errors';
 import _ from 'lodash';
 
-let web3Onboard = null;
+let web3Onboard: any = null;
 
 const STORAGE = {
     WALLET: 'onboard.js:last_connected_wallet',
 };
 
-const [DEFAULT_CHAIN] = chainConfig;
+export class EthereumAdapter extends AdapterBase {
+    private addressByNetwork: { [key: string]: any } = {};
 
-class EthereumAdapter extends AdapterBase {
     constructor() {
         super();
-        !web3Onboard && (web3Onboard = init({ ...web3OnBoardConfig }));
-
+        const initOptions = web3OnBoardConfig as InitOptions;
+        !web3Onboard && (web3Onboard = init(initOptions));
         web3Onboard.state.select('wallets').subscribe(() => this.setAddressForChains());
     }
 
@@ -38,9 +34,8 @@ class EthereumAdapter extends AdapterBase {
         return web3Onboard.state.select('wallets').unsubscribe();
     }
 
-    async connectWallet(walletName) {
+    async connectWallet(walletName: string | null) {
         const { connectWallet, connectedWallet } = useOnboard();
-
         const connectionOption = {
             autoSelect: {
                 label: walletName,
@@ -103,7 +98,7 @@ class EthereumAdapter extends AdapterBase {
         }
     }
 
-    async disconnectWallet(label) {
+    async disconnectWallet(label: string) {
         const { disconnectWallet } = useOnboard();
 
         try {
@@ -143,31 +138,31 @@ class EthereumAdapter extends AdapterBase {
         }
     }
 
-    getMainWallets() {
+    getMainWallets(): any[] {
         return [];
     }
 
-    getWalletModule() {
+    getWalletModule(): string | null {
         const { connectedWallet } = useOnboard();
         const { label = null } = connectedWallet.value || {};
         return label;
     }
 
-    getAccount() {
+    getAccount(): string | null {
         return this.getAccountAddress();
     }
 
-    getAccountAddress() {
+    getAccountAddress(): string | null {
         const { connectedWallet } = useOnboard();
         const [primaryAccount] = connectedWallet.value?.accounts || [];
-        return primaryAccount?.address;
+        return primaryAccount?.address || null;
     }
 
-    getCurrentChain(store) {
+    getCurrentChain(store: any): any {
         const { connectedWallet, connectedChain } = useOnboard();
         const { label = null } = connectedWallet.value || {};
 
-        const chainFromStore = (chainId) => {
+        const chainFromStore = (chainId: string) => {
             if (!store?.getters) {
                 return {};
             }
@@ -180,7 +175,7 @@ class EthereumAdapter extends AdapterBase {
             return null;
         }
 
-        const chainInfo = chainFromStore(+id);
+        const chainInfo = chainFromStore(id);
 
         if (JSON.stringify(chainInfo) === '{}') {
             chainInfo.chain_id = id;
@@ -192,7 +187,7 @@ class EthereumAdapter extends AdapterBase {
         return chainInfo;
     }
 
-    getConnectedWallet() {
+    getConnectedWallet(): any {
         const connectedWallet = {
             account: this.getAccount(),
             address: this.getAccountAddress(),
@@ -203,7 +198,7 @@ class EthereumAdapter extends AdapterBase {
         return connectedWallet || null;
     }
 
-    getChainList(store) {
+    getChainList(store: any): any[] {
         const chains = store.getters['configs/getConfigsListByEcosystem'](ECOSYSTEMS.EVM) || [];
 
         for (const chain of chains) {
@@ -214,7 +209,7 @@ class EthereumAdapter extends AdapterBase {
         return chains;
     }
 
-    async setChain(chainInfo) {
+    async setChain(chainInfo: any): Promise<boolean> {
         const { chain_id, chain } = chainInfo || {};
 
         const id = chain_id || chain;
@@ -233,13 +228,13 @@ class EthereumAdapter extends AdapterBase {
         }
     }
 
-    async getWalletLogo(walletModule) {
+    async getWalletLogo(walletModule: string | null): Promise<string | null> {
         if (!walletModule) {
             return null;
         }
 
         const { walletModules } = web3Onboard.state.get() || {};
-        const exist = walletModules.find((module) => module.label === walletModule);
+        const exist = walletModules.find((module: any) => module.label === walletModule);
 
         if (!exist) {
             return null;
@@ -248,11 +243,11 @@ class EthereumAdapter extends AdapterBase {
         return (await exist.getIcon()) || null;
     }
 
-    validateAddress(address, { validation }) {
+    validateAddress(address: string, { validation }: any): boolean {
         return validateEthAddress(address, validation);
     }
 
-    getProvider() {
+    getProvider(): ethers.providers.Web3Provider | null {
         const { connectedWallet } = useOnboard();
         const { provider } = connectedWallet.value || {};
 
@@ -265,7 +260,7 @@ class EthereumAdapter extends AdapterBase {
         return ethersProvider;
     }
 
-    async formatTransactionForSign(transaction) {
+    async formatTransactionForSign(transaction: any): Promise<any> {
         if (typeof transaction.chainId === 'number') {
             transaction.chainId = `0x${transaction.chainId.toString(16)}`;
         }
@@ -293,43 +288,45 @@ class EthereumAdapter extends AdapterBase {
         return transaction;
     }
 
-    async prepareTransaction({ fromAddress, toAddress, amount, token }) {
+    async prepareTransaction({ fromAddress, toAddress, amount, token }: any): Promise<any> {
         const ethersProvider = this.getProvider();
 
+        if (!ethersProvider) {
+            throw new Error('EVM provider is not available');
+        }
+
         try {
-            if (ethersProvider) {
-                const value = !token?.address ? ethers.utils.parseEther(amount) : ethers.utils.parseUnits('0');
+            const value = !token?.address ? ethers.utils.parseEther(amount) : ethers.utils.parseUnits('0');
 
-                const nonce = await ethersProvider.getTransactionCount(fromAddress);
+            const nonce = await ethersProvider.getTransactionCount(fromAddress);
 
-                const contractAddress = token?.address;
+            const contractAddress = token?.address;
 
-                const response = {
-                    from: fromAddress,
-                    to: toAddress,
-                    value,
-                    nonce,
-                };
+            const response = {
+                from: fromAddress,
+                to: toAddress,
+                value,
+                nonce,
+            };
 
-                if (!contractAddress) {
-                    return response;
-                }
-
-                const tokenContract = new ethers.Contract(contractAddress, TRANSFER_ABI, ethersProvider);
-
-                const res = await tokenContract.populateTransaction.transfer(toAddress, ethers.utils.parseUnits(amount, token.decimals));
-
-                return {
-                    ...response,
-                    ...res,
-                };
+            if (!contractAddress) {
+                return response;
             }
+
+            const tokenContract = new ethers.Contract(contractAddress, TRANSFER_ABI);
+
+            const res = await tokenContract.populateTransaction.transfer(toAddress, ethers.utils.parseUnits(amount, token.decimals));
+
+            return {
+                ...response,
+                ...res,
+            };
         } catch (e) {
             return errorRegister(e);
         }
     }
 
-    async signSend(transaction) {
+    async signSend(transaction: any): Promise<any> {
         const ethersProvider = this.getProvider();
 
         try {
@@ -350,25 +347,25 @@ class EthereumAdapter extends AdapterBase {
         }
     }
 
-    getTxExplorerLink(txHash, chainInfo) {
+    getTxExplorerLink(txHash: string, chainInfo: any): string {
         const { explorers } = chainInfo || {};
         const [explorer] = explorers || [];
 
         return `${explorer}/tx/${txHash}`;
     }
 
-    getTokenExplorerLink(tokenAddress, chainInfo) {
+    getTokenExplorerLink(tokenAddress: string, chainInfo: any): string {
         const { explorers } = chainInfo || {};
         const [explorer] = explorers || [];
 
         return `${explorer}/token/${tokenAddress}`;
     }
 
-    async getAddressesWithChains() {
+    async getAddressesWithChains(): Promise<{ [key: string]: any }> {
         return this.addressByNetwork || {};
     }
 
-    getNativeTokenByChain(chain, store) {
+    getNativeTokenByChain(chain: string, store: any): any {
         const isLoadingConfig = store.getters['configs/isConfigLoading'];
 
         if (isLoadingConfig) {

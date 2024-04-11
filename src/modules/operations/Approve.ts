@@ -10,8 +10,8 @@ import { AllQuoteParams, GetApproveTxParams } from '../bridge-dex/models/Request
 import { ICreateTransaction } from '@/Transactions/types/Transaction';
 import { TxOperationFlow } from '../../shared/models/types/Operations';
 import { STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
-import { getActionByTxType } from './shared/utils';
 import DexOperation from './Dex';
+import { getActionByTxType } from './shared/utils';
 
 export class ApproveOperation extends DexOperation {
     flow: TxOperationFlow[];
@@ -24,6 +24,7 @@ export class ApproveOperation extends DexOperation {
 
     perform(index: number, account: string, ecosystem: string, chainId: string, options: PerformOptionalParams): ICreateTransaction {
         const { make } = options;
+        let notificationTitle = `${make} ${this.getTitle()}`;
 
         return {
             index,
@@ -33,11 +34,10 @@ export class ApproveOperation extends DexOperation {
             ecosystem,
             chainId,
             metaData: {
-                action: getActionByTxType(TRANSACTION_TYPES.APPROVE),
-                type: TRANSACTION_TYPES.APPROVE,
-                params: this.params,
-                notificationTitle: `${make} ${this.params.amount} ${this.getToken('from')?.symbol || ''}`,
-                metaData: {
+                action: getActionByTxType(this.transactionType),
+                type: this.transactionType,
+                notificationTitle,
+                params: {
                     ...this.params,
                     tokens: this.getTokens(),
                 },
@@ -62,19 +62,31 @@ export class ApproveOperation extends DexOperation {
 
             return tx;
         } catch (error) {
-            return Promise.reject(error);
+            console.error('ApproveOperation performTx error', error);
+            return null;
         }
     }
 
     getOperationFlow(): TxOperationFlow[] {
         this.flow = [
             {
-                type: TRANSACTION_TYPES.APPROVE,
-                make: TRANSACTION_TYPES.APPROVE,
+                type: this.transactionType,
+                make: this.transactionType,
                 moduleIndex: this.getModule(),
             },
         ];
 
         return this.flow;
     }
+
+    onSuccess = async (store: any): Promise<void> => {
+        console.log('Approve success', 'Update allowance');
+
+        await store.dispatch('bridgeDexAPI/setServiceAllowance', {
+            serviceId: this.getParamByField('serviceId'),
+            owner: this.getParamByField('ownerAddress'),
+            token: this.getParamByField('tokenAddress'),
+            value: null,
+        });
+    };
 }

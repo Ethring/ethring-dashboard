@@ -1,44 +1,45 @@
 class AdapterBase {
-    async connectWallet() {
+    static async connectWallet() {
         throw new Error('Method not implemented.');
     }
 
-    async disconnectWallet() {
+    static async disconnectWallet() {
         throw new Error('Method not implemented.');
     }
 
-    async disconnectAllWallets() {
+    static async disconnectAllWallets() {
         throw new Error('Method not implemented.');
     }
 
-    async getCurrentAccount() {
+    static async getCurrentAccount() {
         throw new Error('Method not implemented.');
     }
 
-    async getCurrentChain() {
+    static async getCurrentChain() {
         throw new Error('Method not implemented.');
     }
 
-    async getChainList() {
+    static async getChainList() {
         throw new Error('Method not implemented.');
     }
 
-    async setChain() {
+    static async setChain() {
         throw new Error('Method not implemented.');
     }
 
-    async getAccount() {
+    static async getAccount() {
         throw new Error('Method not implemented.');
     }
 
-    async getMainWallets() {
+    static async getMainWallets() {
         throw new Error('Method not implemented.');
     }
 
-    getWalletLogo() {
+    static getWalletLogo() {
         throw new Error('Method not implemented.');
     }
-    validateAddress() {
+
+    static validateAddress() {
         throw new Error('Method not implemented.');
     }
 }

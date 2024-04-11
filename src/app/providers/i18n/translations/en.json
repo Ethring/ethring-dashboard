@@ -156,6 +156,7 @@
       "author": "Author",
       "created": "Created",
       "likes": "Likes"
-    }
+    },
+    "minUsdAmount": "Min USD amount is"
   }
 }

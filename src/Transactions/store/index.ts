@@ -50,7 +50,7 @@ export default {
     }),
 
     getters: {
-        isTransactionSigning: (state: IState) => state.isTransactionSigning || false,
+        isTransactionSigning: (state: IState) => state.isTransactionSigning,
         transactionForSign: (state: IState) => state.transactionForSign,
         currentRequestID: (state: IState) => state.currentRequestID,
 
@@ -103,6 +103,7 @@ export default {
             state.isWaitingTxStatus[module] = isWaiting;
         },
         [TYPES.SET_TRANSACTION_SIGNING_STATUS](state: IState, value: boolean) {
+            if (state.isTransactionSigning === value) return;
             state.isTransactionSigning = value;
         },
     },
@@ -114,7 +115,7 @@ export default {
         setTransactionsForRequestID({ commit }, { requestID, transactions }) {
             commit(TYPES.SET_TRANSACTIONS_BY_REQUEST_ID, { requestID, transactions });
         },
-        setTransactionForSign({ commit }, transaction) {
+        setTransactionForSign({ commit }, transaction: ITransactionResponse) {
             commit(TYPES.SET_TRANSACTION_FOR_SIGN, transaction);
         },
         setCurrentRequestID({ commit }, requestID: string) {
@@ -123,7 +124,7 @@ export default {
         setIsWaitingTxStatusForModule({ commit }, value: { module: ModuleTypes; isWaiting: boolean }) {
             commit(TYPES.SET_IS_WAITING_TX_STATUS_FOR_MODULE, value);
         },
-        setTransactionSigning({ commit }, value) {
+        setTransactionSigning({ commit }, value: boolean) {
             commit(TYPES.SET_TRANSACTION_SIGNING_STATUS, value);
         },
     },

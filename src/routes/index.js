@@ -109,8 +109,7 @@ export const routes = [
         meta: {
             key: 'shortcut',
         },
-        component: () => import('@/pages/Shortcut.vue'),
-        // component: () => import('@/pages/Shortcuts.vue'),
+        component: () => import('@/pages/shortcuts/Shortcut.vue'),
     },
     {
         path: '/shortcuts/:id',
@@ -118,7 +117,7 @@ export const routes = [
         meta: {
             key: 'shortcuts-details',
         },
-        component: () => import('@/pages/ShortcutDetails.vue'),
+        component: () => import('@/pages/shortcuts/ShortcutDetails.vue'),
     },
     {
         path: '/shortcuts/profile/:author',
@@ -131,6 +130,6 @@ export const routes = [
     {
         path: '/:pathMatch(.*)*',
         name: 'Not Found',
-        component: () => import('@/pages/NotFound.vue'),
+        component: () => import('@/pages/general/NotFound.vue'),
     },
 ];

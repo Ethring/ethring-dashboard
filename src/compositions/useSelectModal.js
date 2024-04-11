@@ -27,6 +27,21 @@ export default function useSelectModal(type) {
     const store = useStore();
     const useAdapter = inject('useAdapter');
 
+    const CurrentStepId = computed(() => store.getters['shortcuts/getCurrentStepId']);
+    const CurrentShortcut = computed(() => store.getters['shortcuts/getCurrentShortcutId']);
+
+    const CurrentOperation = computed(() => {
+        if (!CurrentShortcut.value) return null;
+        if (!CurrentStepId.value) return null;
+
+        return store.getters['shortcuts/getCurrentOperation'](CurrentShortcut.value);
+    });
+    const excludeChainList = computed(() => {
+        const { excludeChains = [] } = CurrentOperation.value || {};
+
+        return excludeChains || [];
+    });
+
     const { chainList, getChainListByEcosystem } = useAdapter();
     const { getTokensList } = useTokenList();
 
@@ -169,13 +184,15 @@ export default function useSelectModal(type) {
             chain.selected = chain.net === selectedSrcNetwork.value?.net || chain.net === selectedDstNetwork.value?.net;
         }
 
-        return list.filter((chain) => {
-            if (module.value === 'bridge') {
-                return !chain.selected || chain?.net !== selectedNetwork.value?.net;
-            }
+        return list
+            .filter((chain) => !excludeChainList.value.includes(chain?.net))
+            .filter((chain) => {
+                if (module.value === 'bridge') {
+                    return !chain.selected || chain?.net !== selectedNetwork.value?.net;
+                }
 
-            return chain;
-        });
+                return chain;
+            });
     });
 
     const tokens = ref([]);

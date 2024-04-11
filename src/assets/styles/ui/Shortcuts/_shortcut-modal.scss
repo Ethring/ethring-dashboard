@@ -1,0 +1,29 @@
+.success-shortcut {
+    .ant-modal-content {
+        max-width: 580px;
+        width: 100%;
+    }
+
+    .ant-modal-body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    &-carousel {
+        max-width: 300px;
+        margin-bottom: 30px;
+
+
+        .shortcut-nft-image {
+            min-width: 300px;
+            max-width: 300px;
+            width: 100%;
+            min-height: 300px;
+            background-color: var(--#{$prefix}icon-placeholder);
+        }
+        .ant-image-img {
+            border-radius: 8px;
+        }
+    }
+}

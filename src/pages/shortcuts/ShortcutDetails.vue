@@ -2,7 +2,7 @@
     <div class="shortcut-details">
         <div class="wallpaper" />
 
-        <a-row align="center" justify="space-between" :wrap="false">
+        <a-row align="middle" justify="space-between" :wrap="false">
             <router-link to="/shortcuts" class="link">
                 <ArrowIcon />
                 <span>{{ $t('shortcuts.backTo') }}</span>
@@ -13,7 +13,15 @@
             <Button title="Details" class="shortcut-details-btn" disabled />
         </a-row>
 
-        <div class="description" v-if="shortcut && shortcut.description">{{ shortcut.description }}</div>
+        <div class="description" v-if="shortcut && (shortcut.description || shortcut.minUsdAmount)">
+            <p v-if="shortcut.description">{{ shortcut.description }}</p>
+
+            <p v-if="shortcut.minUsdAmount && shortcut.minUsdAmount > 0">
+                {{ $t('shortcuts.minUsdAmount') }}: ${{ shortcut.minUsdAmount }}
+            </p>
+        </div>
+
+        <a-divider />
 
         <div class="layout-page__content">
             <a-spin :spinning="isShortcutLoading" size="large">
@@ -23,17 +31,7 @@
                             <component :is="shortcutLayout" />
                         </div>
 
-                        <ShortcutLoading
-                            v-if="
-                                shortcutId !== null &&
-                                [STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(shortcutStatus) &&
-                                shortcutStatus !== STATUSES.PENDING
-                            "
-                            :status="shortcutStatus"
-                            :shortcutIndex="shortcutIndex"
-                            :shortcutId="shortcutId"
-                            :total="steps.length || 0"
-                        />
+                        <ShortcutLoading v-show="isShowLoading" :shortcutId="shortcutId" />
                     </a-col>
                     <a-col :span="12">
                         <a-steps direction="vertical" v-model:current="shortcutIndex" :items="steps" />
@@ -42,18 +40,20 @@
             </a-spin>
         </div>
     </div>
+    <SuccessShortcutModal />
 </template>
 
-<script>
+<script lang="ts">
 import _ from 'lodash';
 
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 
 import ArrowIcon from '@/assets/icons/form-icons/arrow-back.svg';
 
 import ShortcutLoading from '@/components/shortcuts/Loading/ShortcutLoading.vue';
+import SuccessShortcutModal from '@/components/app/modals/SuccessShortcutModal.vue';
 
 import useShortcuts from '@/modules/shortcuts/compositions/index';
 
@@ -64,6 +64,7 @@ export default {
     components: {
         ArrowIcon,
         ShortcutLoading,
+        SuccessShortcutModal,
     },
     setup() {
         const store = useStore();
@@ -75,13 +76,35 @@ export default {
 
         const { shortcutId, shortcutIndex, steps, shortcutLayout, shortcutStatus, isShortcutLoading } = useShortcuts(shortcut.value);
 
+        const isShowLoading = computed(() => {
+            if (isShortcutLoading.value) return false;
+
+            if (!shortcut.value) return false;
+            if (!shortcutStatus.value) return false;
+            if (shortcutStatus.value === STATUSES.PENDING) return false;
+
+            console.log('-'.repeat(50));
+            console.log('shortcutStatus.value', shortcutStatus.value);
+            console.log('STATUSES', [STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(shortcutStatus.value));
+            console.log('-'.repeat(50));
+
+            return [STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(shortcutStatus.value);
+        });
+
         onMounted(() => {
             if (_.isEmpty(shortcut.value)) {
                 return router.push('/shortcuts');
             }
         });
 
+        watch(shortcutStatus, (newVal) => {
+            if (newVal === STATUSES.SUCCESS) {
+                store.dispatch('app/toggleModal', 'successShortcutModal');
+            }
+        });
+
         return {
+            isShowLoading,
             shortcut,
             isShortcutLoading,
             shortcutId,
@@ -95,8 +118,3 @@ export default {
     },
 };
 </script>
-<style lang="scss" scoped>
-.layout-page__content {
-    margin-top: 80px;
-}
-</style>

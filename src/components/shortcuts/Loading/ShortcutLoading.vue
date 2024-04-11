@@ -2,42 +2,76 @@
     <div
         class="overlay-container"
         :class="{
-            active: [STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(status) && status !== STATUSES.PENDING,
+            active: isActive,
         }"
     >
-        <div class="overlay-content">
-            <OverlayIcon
-                class="overlay-icon"
-                :class="{
-                    error: status === STATUSES.FAILED,
-                    success: status === STATUSES.SUCCESS,
-                }"
-            />
+        <div
+            class="overlay-content"
+            :class="{
+                error: shortcutStatus === STATUSES.FAILED,
+                success: shortcutStatus === STATUSES.SUCCESS,
+            }"
+        >
+            <OverlayIcon class="overlay-icon" />
 
             <div class="wallet-icon-container">
-                <ModuleIcon v-if="connectedWallet" :module="connectedWallet.walletModule" :ecosystem="connectedWallet.ecosystem" />
+                <ModuleIcon
+                    class="wallet-icon"
+                    v-if="connectedWallet"
+                    :module="connectedWallet.walletModule"
+                    :ecosystem="connectedWallet.ecosystem"
+                />
+                <div class="status-icon-container">
+                    <component :is="moduleStatusIcon" />
+                </div>
             </div>
         </div>
 
         <div class="overlay-bottom">
+            <div class="overlay-status-info">
+                <div
+                    class="status-progress"
+                    :class="{
+                        [operationProgressStatus]: operationProgressStatus,
+                    }"
+                >
+                    <a-progress :percent="operationProgress" size="small" :status="operationProgressStatus" />
+                </div>
+
+                <div class="status-title">{{ statusTitle }} {{ shortcutIndex + 1 }} / {{ operationsCount }}</div>
+
+                <div class="status-description">{{ statusDescription }}</div>
+            </div>
             <Button
-                v-if="[STATUSES.FAILED, STATUSES.SUCCESS].includes(status)"
+                class="overlay-btn"
+                :class="{ active: isShowTryAgain }"
                 @click="handleOnTryAgain"
-                :loading="status === STATUSES.IN_PROGRESS"
+                :loading="shortcutStatus === STATUSES.IN_PROGRESS"
                 title="Try Again"
             />
         </div>
     </div>
 </template>
-<script>
-import OverlayIcon from '@/assets/icons/platform-icons/overlay-loading.svg';
-import { STATUSES } from '../../../shared/models/enums/statuses.enum';
+<script lang="ts">
+import { h, computed, ref, watch, onMounted, onUnmounted } from 'vue';
+import { useStore } from 'vuex';
+import useAdapter from '@/Adapter/compositions/useAdapter';
+
+import { LoadingOutlined } from '@ant-design/icons-vue';
 
 import Button from '@/components/ui/Button.vue';
-import useAdapter from '@/Adapter/compositions/useAdapter';
+
 import ModuleIcon from '@/Adapter/UI/Entities/ModuleIcon.vue';
-import { useStore } from 'vuex';
+
+import OverlayIcon from '@/assets/icons/platform-icons/overlay-loading.svg';
+import SuccessIcon from '@/assets/icons/form-icons/check-circle.svg';
+import FailedIcon from '@/assets/icons/form-icons/clear.svg';
+import ProcessIcon from '@/assets/icons/form-icons/process.svg';
+import WaitingIcon from '@/assets/icons/form-icons/waiting.svg';
+
 import { ModuleType } from '../../../shared/models/enums/modules.enum';
+import { STATUSES, TRANSACTION_TYPES, SHORTCUT_STATUSES } from '../../../shared/models/enums/statuses.enum';
+import OperationFactory from '../../../modules/operations/OperationsFactory';
 
 export default {
     name: 'ShortcutLoading',
@@ -47,19 +81,6 @@ export default {
         ModuleIcon,
     },
     props: {
-        status: {
-            type: [String, null],
-            required: true,
-            default: STATUSES.PENDING,
-        },
-        shortcutIndex: {
-            type: Number,
-            required: true,
-        },
-        total: {
-            type: Number,
-            required: true,
-        },
         shortcutId: {
             type: String,
             required: true,
@@ -72,53 +93,212 @@ export default {
     },
 
     setup(props) {
+        if (props.shortcutId === 'undefined') return;
+
         const { connectedWallet } = useAdapter();
 
         const store = useStore();
 
-        const handleOnTryAgain = () => {
-            console.log('CALLING TRY AGAIN', props.shortcutIndex, props.total, props.status);
+        const shortcutStatus = computed(() => store.getters['shortcuts/getShortcutStatus'](props.shortcutId));
 
-            if (props.shortcutIndex !== 0) {
-                store.dispatch('tokenOps/setCallConfirm', {
+        const isActive = computed(
+            () =>
+                [STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(shortcutStatus.value as STATUSES) &&
+                shortcutStatus.value !== STATUSES.PENDING,
+        );
+
+        const isShowTryAgain = computed(() => [STATUSES.FAILED, STATUSES.SUCCESS].includes(shortcutStatus.value as STATUSES));
+
+        const isShortcutLoading = computed(() => store.getters['shortcuts/getIsShortcutLoading'](props.shortcutId));
+
+        const shortcutIndex = computed(() => store.getters['shortcuts/getShortcutIndex']);
+
+        const currentStepId = computed(() => store.getters['shortcuts/getCurrentStepId']);
+
+        const factory = computed<OperationFactory>(() => {
+            if (isShortcutLoading.value) return null;
+            return store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId);
+        });
+
+        const operationStatus = computed(() => {
+            return factory.value?.getOperationsStatusById(currentStepId.value) || STATUSES.PENDING;
+        });
+
+        const operationsCount = computed<number>(() => {
+            if (!store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId)) return 0;
+            if (typeof store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId).getOperationsCount !== 'function') return 0;
+            return store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId).getOperationsCount() || 0;
+        });
+
+        const operationProgress = ref<number>(0);
+
+        const updateProgress = () => {
+            if (!store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId)) return 0;
+            if (typeof store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId)?.getPercentageOfSuccessOperations !== 'function')
+                return 0;
+
+            return store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId)?.getPercentageOfSuccessOperations() || 0;
+        };
+
+        const operationProgressStatus = computed(() => {
+            if (operationProgress.value === 100) {
+                return 'success';
+            } else if (shortcutStatus.value === STATUSES.FAILED) {
+                return 'exception';
+            }
+
+            return 'active';
+        });
+
+        const handleOnTryAgain = () => {
+            console.log('CALLING TRY AGAIN', shortcutIndex.value, shortcutStatus.value, operationsCount.value - 1);
+
+            const flow = factory.value.getFullOperationFlow();
+
+            const withoutApprove = flow.filter((op) => op.type !== TRANSACTION_TYPES.APPROVE);
+
+            const firstOp = withoutApprove[0];
+            const lastOp = withoutApprove[withoutApprove.length - 1];
+
+            const firstOpId = factory.value.getOperationIdByKey(firstOp.moduleIndex);
+            const lastOpId = factory.value.getOperationIdByKey(lastOp.moduleIndex);
+
+            console.log('firstOpId', firstOpId, 'lastOpId', lastOpId, 'currentStepId', currentStepId.value);
+
+            if (shortcutIndex.value === 0 && shortcutStatus.value === STATUSES.FAILED) {
+                console.log('setCallConfirm, for shortcut', 'ModuleType.shortcut', true);
+                return store.dispatch('tokenOps/setCallConfirm', {
                     module: ModuleType.shortcut,
                     value: true,
                 });
             }
 
-            if (props.status === STATUSES.SUCCESS) {
-                store.dispatch('shortcuts/setShortcutStatus', {
-                    shortcutId: props.shortcutId,
-                    status: STATUSES.PENDING,
-                });
+            if (currentStepId.value === lastOpId || operationsCount.value - 1 === shortcutIndex.value) {
+                console.log('setCallConfirm, for shortcut', 'LastOp', true, 'resetShortcut');
+                operationProgress.value = 0;
 
-                store.dispatch('shortcuts/resetShortcut', {
-                    shortcutId: props.shortcutId,
-                });
+                store.dispatch('shortcuts/setCurrentStepId', firstOpId);
 
                 store.dispatch('tokenOps/setSrcAmount', null);
                 store.dispatch('tokenOps/setDstAmount', null);
 
-                return;
-            }
+                return store.dispatch('shortcuts/resetShortcut', {
+                    shortcutId: props.shortcutId,
+                });
+            } else if (currentStepId.value === firstOpId || shortcutIndex.value === 0) {
+                console.log('setCallConfirm, for shortcut', 'FirstOp', true);
 
-            if (props.shortcutIndex === 0 || props.shortcutIndex === props.total - 1) {
-                store.dispatch('shortcuts/setShortcutStatus', {
+                return store.dispatch('shortcuts/setShortcutStatus', {
                     shortcutId: props.shortcutId,
                     status: STATUSES.PENDING,
                 });
             }
-
-            if (props.shortcutId && props.shortcutIndex === props.total - 1) {
-                store.dispatch('shortcuts/resetShortcut', {
-                    shortcutId: props.shortcutId,
-                });
-            }
         };
 
+        const moduleStatusIcon = computed(() => {
+            switch (operationStatus.value) {
+                case STATUSES.IN_PROGRESS:
+                    return h(LoadingOutlined, { spin: true });
+
+                case STATUSES.PENDING:
+                    return h(ProcessIcon);
+
+                case STATUSES.REJECTED:
+                case STATUSES.FAILED:
+                    return h(FailedIcon);
+
+                case STATUSES.SUCCESS:
+                    return h(SuccessIcon);
+
+                default:
+                    return h(WaitingIcon);
+            }
+        });
+
+        const statusTitle = computed(() => {
+            switch (operationStatus.value) {
+                case STATUSES.IN_PROGRESS:
+                    return 'Transaction in progress';
+
+                case STATUSES.PENDING:
+                    return 'Transaction pending';
+
+                case STATUSES.FAILED:
+                    return 'Transaction failed';
+
+                case STATUSES.REJECTED:
+                    return 'Transaction rejected';
+
+                case STATUSES.SUCCESS:
+                    return 'Transaction success';
+
+                default:
+                    return 'Transaction waiting';
+            }
+        });
+
+        const statusDescription = computed(() => {
+            switch (operationStatus.value) {
+                case STATUSES.IN_PROGRESS:
+                    return 'Transaction preparing, please check your wallet for confirmation';
+
+                case STATUSES.PENDING:
+                    return 'Transaction pending, please check your wallet for confirmation';
+
+                case STATUSES.REJECTED:
+                    return 'Transaction has been rejected';
+
+                case STATUSES.FAILED:
+                    return 'Transaction has been failed';
+
+                case STATUSES.SUCCESS:
+                    return 'Transaction has been successfully completed';
+
+                default:
+                    return 'Transaction waiting for confirmation';
+            }
+        });
+
+        store.watch(
+            (state, getters) => getters['shortcuts/getShortcutIndex'],
+            () => {
+                console.log('operationProgress #OP-INDEX', operationProgress.value, updateProgress());
+                operationProgress.value = updateProgress();
+            },
+        );
+
+        watch(operationStatus, () => {
+            console.log('operationProgress #OP-STATUS', operationProgress.value, updateProgress());
+            operationProgress.value = updateProgress();
+        });
+
+        onMounted(() => {
+            operationProgress.value = 0;
+            operationProgress.value = updateProgress();
+        });
+
+        onUnmounted(() => {
+            operationProgress.value = 0;
+        });
+
         return {
+            isActive,
+            isShowTryAgain,
+
+            shortcutStatus,
+
+            shortcutIndex,
             connectedWallet,
             handleOnTryAgain,
+            moduleStatusIcon,
+
+            statusTitle,
+            statusDescription,
+
+            operationStatus,
+            operationProgressStatus,
+            operationProgress,
+            operationsCount,
         };
     },
 };
@@ -142,13 +322,14 @@ export default {
     top: 0;
     left: -1%;
     right: 0;
+    bottom: 0;
 
     z-index: -1;
 
     &.active {
         display: flex;
 
-        z-index: 7;
+        z-index: 15;
     }
 
     .overlay-bottom {
@@ -156,7 +337,26 @@ export default {
         display: flex;
         justify-content: center;
         align-items: center;
+        flex-direction: column;
         padding: 20px 0;
+        & > div:not(:last-child) {
+            margin-bottom: 10px;
+        }
+
+        .overlay-btn {
+            width: 100%;
+            max-width: 200px;
+
+            &:not(.active) {
+                opacity: 0;
+                user-select: none;
+                visibility: hidden;
+            }
+
+            &.active {
+                opacity: 1;
+            }
+        }
     }
 
     .overlay-content {
@@ -165,38 +365,43 @@ export default {
         display: flex;
         justify-content: center;
         align-items: center;
-
-        height: 80%;
-        width: 80%;
+        width: 100%;
     }
 
-    .overlay-icon {
-        width: 100%;
-        height: 100%;
-        animation: spin 10s linear infinite;
-
-        &.error {
+    .overlay-content.error,
+    .overlay-content.success {
+        .overlay-icon {
             animation-play-state: paused;
-
+        }
+    }
+    .overlay-content.error {
+        .overlay-icon {
             g {
                 stroke: var(--#{$prefix}danger);
             }
         }
+    }
 
-        &.success {
-            animation-play-state: paused;
-
+    .overlay-content.success {
+        .overlay-icon {
             g {
                 stroke: var(--#{$prefix}success);
             }
         }
     }
 
+    .overlay-icon {
+        width: 60%;
+        max-width: 260px;
+        animation: spin 10s linear infinite;
+    }
+
     .wallet-icon-container {
-        width: 160px;
-        height: 160px;
+        width: 140px;
+        height: 140px;
 
         background: var(--#{$prefix}secondary-background);
+        border: 0.5px solid var(--#{$prefix}icon-placeholder);
 
         border-radius: 50%;
 
@@ -213,11 +418,73 @@ export default {
         justify-content: center;
         align-items: center;
 
-        > div {
+        .wallet-icon {
             width: 100% !important;
             height: 100% !important;
-
             background: transparent !important;
+        }
+
+        .status-icon-container {
+            position: absolute;
+            right: 10px;
+            bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            background-color: var(--#{$prefix}select-bg-color);
+            width: 30px;
+            height: 30px;
+            max-width: 30px;
+            max-height: 30px;
+
+            border-radius: 50%;
+            svg {
+                width: 20px;
+                height: 20px;
+            }
+        }
+    }
+
+    .overlay-status-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        & > div:not(:last-child) {
+            margin-bottom: 10px;
+        }
+
+        text-align: center;
+
+        line-height: 1.5;
+        .status-title {
+            font-size: var(--#{$prefix}default-fs);
+            font-weight: 600;
+            color: var(--#{$prefix}primary-text);
+        }
+
+        .status-description {
+            font-size: var(--#{$prefix}small-lg-fs);
+            color: var(--#{$prefix}primary-text);
+        }
+
+        .status-progress {
+            width: 100%;
+            min-width: 200px;
+            max-width: 200px;
+
+            &:not(.success, .exception) {
+                .ant-progress-text {
+                    color: var(--#{$prefix}primary-text);
+                }
+            }
+
+            .ant-progress-inner {
+                background: var(--#{$prefix}icon-placeholder);
+            }
         }
     }
 

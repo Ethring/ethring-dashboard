@@ -19,6 +19,8 @@ const DEFAULT_TX_TYPE_BY_MODULE = {
 };
 
 export class BaseOperation implements IBaseOperation {
+    uniqueId: string;
+
     name: string;
 
     service: any;
@@ -26,8 +28,6 @@ export class BaseOperation implements IBaseOperation {
     ecosystem: Ecosystems;
 
     module: ModuleTypes;
-
-    transactionType: keyof typeof TRANSACTION_TYPES;
 
     params: BaseOpParams;
 
@@ -42,10 +42,19 @@ export class BaseOperation implements IBaseOperation {
 
     quoteRoute?: IQuoteRoute;
 
+    transactionType: TRANSACTION_TYPES;
+    static transactionType: keyof typeof TRANSACTION_TYPES;
+
     constructor() {
         this.service = null;
         this.setTxType(DEFAULT_TX_TYPE_BY_MODULE[this.module]);
     }
+
+    onSuccess?: (store: any) => Promise<void>;
+
+    setAction?: (action: string) => void;
+
+    static getServiceType?: () => 'bridgedex' | 'superswap' | 'dex';
 
     getName(): string {
         return this.name;
@@ -53,6 +62,14 @@ export class BaseOperation implements IBaseOperation {
 
     setName(name: string): void {
         this.name = name;
+    }
+
+    setUniqueId(uniqueId: string): void {
+        this.uniqueId = uniqueId;
+    }
+
+    getUniqueId(): string {
+        return this.uniqueId;
     }
 
     execute?: () => Promise<string>;
@@ -125,16 +142,12 @@ export class BaseOperation implements IBaseOperation {
         return this.tokens[target];
     }
 
-    setTxType(type: keyof typeof TRANSACTION_TYPES): void {
+    setTxType(type: TRANSACTION_TYPES): void {
         this.transactionType = type;
     }
 
-    getTxType(): keyof typeof TRANSACTION_TYPES {
+    static getTxType(): keyof typeof TRANSACTION_TYPES {
         return this.transactionType;
-    }
-
-    getAction(): string {
-        return getActionByTxType(this.transactionType);
     }
 
     setQuoteRoute(route: IQuoteRoute): void {
@@ -147,35 +160,57 @@ export class BaseOperation implements IBaseOperation {
 
     getTitle(): string {
         if (!this.getToken('from') || !this.params.amount) {
-            return this.getName() || `${this.getModule()} - ${this.getTxType()}`;
+            return this.getName() || `${this.getModule()} - ${BaseOperation.getTxType()}`;
         }
 
         const title = `${this.params.amount} ${this.getToken('from')?.symbol || ''}`;
 
-        if (this.getToken('to') && this.getToken('from') && this.params.outputAmount) {
+        if (this.getToken('to') && this.params.outputAmount) {
             return `${title} to ${this.params.outputAmount} ${this.getToken('to').symbol}`;
         }
 
         return title;
     }
 
-    static perform: (
-        index: number,
-        account: string,
-        ecosystem: string,
-        chainId: string,
-        options: PerformOptionalParams,
-    ) => ICreateTransaction;
+    getAdditionalTooltip() {
+        const { from, to } = this.getTokens() || {};
+        const { amount, outputAmount } = this.getParams() || {};
 
-    static async getOperationFlow(): Promise<TxOperationFlow[]> {
+        const type = BaseOperation.getTxType();
+
+        if ((!amount && !outputAmount && from) || to) {
+            return `${type} ${from.symbol}`;
+        }
+
+        // if (from && to && amount && outputAmount) {
+        //     return `${type} ${amount} ${from.symbol} to ${outputAmount} ${to.symbol}`;
+        // }
+
+        // if (from && !to && amount) {
+        //     return `${type} ${amount} ${from.symbol}`;
+        // }
+
+        return '';
+    }
+
+    static perform(index: number, account: string, ecosystem: string, chainId: string, options: PerformOptionalParams): ICreateTransaction {
+        throw new Error('Not implemented');
+    }
+
+    static getOperationFlow(): TxOperationFlow[] {
         return [];
     }
 
     static async estimateOutput(): Promise<void> {
-        // if (Object.keys(this.params).length === 0) return Promise.reject('Params are empty');
+        return Promise.reject('Not implemented');
     }
 
     static async performTx(ecosystem: Ecosystems, { serviceId }: PerformTxParams): Promise<IBridgeDexTransaction> {
-        return Promise.resolve(null);
+        return Promise.reject('Not implemented');
+    }
+
+    static async onSuccess(store: any): Promise<void> {
+        console.log('onSuccess', this.transactionType, 'operation');
+        return Promise.resolve();
     }
 }

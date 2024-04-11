@@ -74,7 +74,7 @@ $top-bar-spacing: 20px;
     top: 0;
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: -50px;
 
     z-index: 10;
 
@@ -196,5 +196,135 @@ $top-bar-spacing: 20px;
         cursor: pointer;
         background-color: var(--#{$prefix}icon-secondary-bg-color);
         opacity: 1;
+    }
+}
+
+.nft-base-info .ant-card .ant-card-body {
+    padding: 16px !important;
+}
+
+.nft-stats {
+    margin: 16px;
+
+    .nft-stats-card {
+        background-color: var(--#{$prefix}secondary-bg-color);
+        height: 80px;
+        max-height: 80px;
+
+        .type {
+            font-size: var(--#{$prefix}small-sm-fs);
+            color: var(--#{$prefix}mute-text);
+        }
+
+        .amount {
+            font-size: var(--#{$prefix}h5-fs);
+            font-weight: 400;
+            color: var(--#{$prefix}primary-text);
+        }
+    }
+}
+
+.nft-base-info .nft-base-info-time {
+    color: var(--#{$prefix}primary-text);
+    margin-top: 16px;
+
+    .time-icon {
+        width: 16px;
+        height: 16px;
+        font-size: 16px;
+
+        fill: var(--#{$prefix}warning);
+        color: var(--#{$prefix}warning);
+
+        position: relative;
+
+        z-index: 2;
+    }
+
+    .time-countdown * {
+        font-size: var(--#{$prefix}default-fs);
+    }
+
+    .time-type {
+        color: var(--#{$prefix}mute-text);
+        font-weight: 600;
+    }
+}
+
+.nft-base-info .nft-base-info-time {
+    .time-type,
+    .time-info {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 24px;
+
+        height: 30px;
+
+        color: var(--#{$prefix}primary-text);
+
+        user-select: none;
+    }
+
+    .time-countdown * {
+        color: var(--#{$prefix}black) !important;
+    }
+
+    .time-info {
+        padding: 0 16px;
+        color: var(--#{$prefix}black) !important;
+
+        .ant-badge-status-text {
+            margin-inline-start: 0;
+        }
+
+        &.active {
+            background: var(--#{$prefix}card-btn-bg-color);
+        }
+
+        &.ended {
+            background: var(--#{$prefix}danger);
+            opacity: 0.6;
+        }
+
+        &.soldOut {
+            background: var(--#{$prefix}warning);
+            opacity: 0.6;
+        }
+    }
+    .time-icon {
+        font-size: 14px;
+        color: var(--#{$prefix}warning);
+    }
+}
+
+@mixin wavePseudo {
+    background: var(--#{$prefix}warning);
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    margin: auto;
+    width: 16px;
+    height: 16px;
+    content: "";
+    display: block;
+    border-radius: 50%;
+    z-index: 1;
+}
+
+@keyframes wave-animate {
+    0% {
+        transform: scale(0);
+        opacity: 1;
+        transform-origin: center;
+    }
+    100% {
+        transform: scale(2);
+        opacity: 0;
+        transform-origin: center;
     }
 }

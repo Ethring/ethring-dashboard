@@ -28,6 +28,12 @@ export interface IFields {
     [Field.receiverAddress]: string;
     [Field.memo]: string;
     [Field.isSendToAnotherAddress]: boolean;
+    [Field.contractAddress]?: string;
+    [Field.contractCallCount]?: number;
+    [Field.funds]?: {
+        amount: string;
+        denom: string;
+    };
 }
 
 type SendExcludeFields = Field.switchDirection | Field.dstNetwork | Field.dstToken | Field.dstAmount | Field.isSendToAnotherAddress;

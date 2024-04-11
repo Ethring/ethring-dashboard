@@ -320,6 +320,8 @@ export default {
             font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 600;
             margin-right: 10px;
+            width: fit-content;
+            max-width: 100px;
         }
 
         .error {
@@ -328,7 +330,7 @@ export default {
             white-space: nowrap;
             text-overflow: ellipsis;
             overflow: hidden;
-            max-width: 360px;
+            max-width: 380px;
         }
     }
 

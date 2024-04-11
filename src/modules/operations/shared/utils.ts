@@ -8,6 +8,8 @@ export const getActionByTxType = (txType: string): TransactionActionType => {
 
         case TRANSACTION_TYPES.STAKE:
             return TransactionAction.prepareDelegateTransaction;
+        case TRANSACTION_TYPES.EXECUTE_MULTIPLE:
+            return TransactionAction.prepareMultipleExecuteMsgs;
         default:
             return TransactionAction.formatTransactionForSign;
     }

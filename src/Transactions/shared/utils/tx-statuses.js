@@ -18,15 +18,19 @@ const NOTIFICATION_TYPE_BY_STATUS = {
     [STATUSES.FAILED]: 'error',
 };
 
-const statusNotification = (status, { store, type = 'Transfer', txHash, displayHash, explorerLink, successCallback, failCallback }) => {
+const statusNotification = (
+    status,
+    { store, id = null, type = 'Transfer', txHash, displayHash, explorerLink, successCallback, failCallback },
+) => {
     const { showNotification, closeNotification } = useNotification();
 
-    const notificationKey = txHash ? `waiting-${txHash}-tx` : `${status}-tx`;
+    const hashKey = txHash ? `waiting-${txHash}-tx` : `${status}-tx`;
+    const notificationKey = hashKey || `tx-${id}`;
 
     const notificationBody = {
         key: notificationKey,
         type: NOTIFICATION_TYPE_BY_STATUS[status],
-        title: `${type} "${displayHash}" ${status}`,
+        title: `${type} "${displayHash}"`,
         duration: 4,
     };
 
@@ -65,7 +69,7 @@ export const handleTransactionStatus = async (transaction, store, event) => {
         console.error('Error on detectUpdateForAccount', error);
     }
 
-    const { metaData, module, status, txHash = '' } = transaction;
+    const { id, metaData, module, status, txHash = '' } = transaction;
     const { explorerLink, type, successCallback = null, failCallback = null } = metaData || {};
 
     if (FINISHED_STATUSES.includes(status)) {
@@ -76,7 +80,7 @@ export const handleTransactionStatus = async (transaction, store, event) => {
 
     const displayHash = (txHash && txHash.slice(0, 8) + '...' + txHash.slice(-8)) || txHash;
 
-    statusNotification(status, { store, type, txHash, displayHash, explorerLink, successCallback, failCallback });
+    statusNotification(status, { store, id, type, txHash, displayHash, explorerLink, successCallback, failCallback });
 
     return status;
 };

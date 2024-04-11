@@ -17,11 +17,13 @@ export default class TransferOperation extends BaseOperation {
 
     flow: TxOperationFlow[];
 
-    transactionType: TRANSACTION_TYPES.TRANSFER;
-
     constructor() {
         super();
-        this.setTxType(TRANSACTION_TYPES.TRANSFER);
+        super.setTxType(TRANSACTION_TYPES.TRANSFER);
+
+        const isStake = this.getModule() === ModuleType.stake;
+
+        isStake ? this.setTxType(TRANSACTION_TYPES.STAKE) : this.setTxType(TRANSACTION_TYPES.TRANSFER);
     }
 
     perform(index: number, account: string, ecosystem: string, chainId: string, { make }: PerformOptionalParams): ICreateTransaction {
@@ -43,14 +45,11 @@ export default class TransferOperation extends BaseOperation {
             chainId,
 
             metaData: {
-                action: this.getAction(),
-                type: this.getTxType(),
+                action: getActionByTxType(this.transactionType),
+                type: this.transactionType,
                 notificationTitle,
                 params: this.params,
-                metaData: {
-                    ...this.params,
-                    tokens: this.getTokens(),
-                },
+                tokens: this.getTokens(),
             },
         } as ICreateTransaction;
     }
@@ -77,8 +76,8 @@ export default class TransferOperation extends BaseOperation {
 
         this.flow = [
             {
-                type: this.getTxType(),
-                make: this.getTxType(),
+                type: this.transactionType,
+                make: this.transactionType,
                 moduleIndex: this.getModule(),
             },
         ];

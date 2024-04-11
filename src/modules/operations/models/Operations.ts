@@ -20,6 +20,14 @@ export type BaseOpParams = AllQuoteParams & {
     memo?: string;
     type?: string;
     outputAmount?: string;
+    contract?: string;
+    minter?: string;
+    count?: number;
+    nfts?: string[];
+    funds?: {
+        amount: string;
+        denom: string;
+    };
     [key: string]: any;
 };
 
@@ -28,13 +36,15 @@ export type PerformTxParams = {
 };
 
 export interface IBaseOperation {
+    uniqueId: string;
+
     name: string;
     params: BaseOpParams;
     module: ModuleTypes;
     ecosystem: Ecosystems;
     chainId: string;
 
-    transactionType: keyof typeof TRANSACTION_TYPES;
+    transactionType: TRANSACTION_TYPES;
 
     tokens: {
         from?: IAsset;
@@ -45,6 +55,10 @@ export interface IBaseOperation {
     service?: any;
 
     quoteRoute?: IQuoteRoute;
+
+    // Unique Id
+    getUniqueId: () => string;
+    setUniqueId: (id: string) => void;
 
     // name
     getName: () => string;
@@ -58,23 +72,23 @@ export interface IBaseOperation {
     getParamByField: (field: string) => any;
 
     // chainId for sign
-    setChainId?: (chainId: string) => void;
-    getChainId?: () => string;
+    setChainId: (chainId: string) => void;
+    getChainId: () => string;
 
     // Ecosystems
     getEcosystem: () => Ecosystems;
     setEcosystem: (ecosystem: Ecosystems) => void;
 
     // Account
-    setAccount?: (account: string) => void;
-    getAccount?: () => string;
+    setAccount: (account: string) => void;
+    getAccount: () => string;
 
     // Module
     getModule: () => ModuleTypes;
     setModule: (module: ModuleTypes) => void;
 
     // Tokens for ops
-    setTokens?: (tokens: { from: IAsset; to: IAsset }) => void;
+    setTokens?: (tokens: { from: IAsset; to?: IAsset }) => void;
     getTokens?: () => { from?: IAsset; to?: IAsset };
 
     getToken(target: 'from' | 'to'): IAsset;
@@ -84,9 +98,6 @@ export interface IBaseOperation {
 
     setTxType?: (type: keyof typeof TRANSACTION_TYPES) => void;
     getTxType?: () => keyof typeof TRANSACTION_TYPES;
-
-    getAction?: () => string;
-    setAction?: (action: string) => void;
 
     // Execute
     execute?: () => Promise<string>;
@@ -107,6 +118,10 @@ export interface IBaseOperation {
 
     getQuoteRoute?: () => IQuoteRoute;
     getServiceType?: () => ServiceTypes;
+
+    getAdditionalTooltip?: () => string;
+
+    onSuccess?: (store: any) => Promise<void>;
 }
 
 export interface IRegisterOperation {
@@ -127,7 +142,10 @@ export interface IOperationFactory {
 
     getOperationsIds(): Map<string, string>;
 
+    getOperationOrder(): string[];
     resetOperationsStatus(): void;
+
+    getOperationsResult(): any;
 
     // getOperation(module: string, operationIndex: number): IBaseOperation;
 }

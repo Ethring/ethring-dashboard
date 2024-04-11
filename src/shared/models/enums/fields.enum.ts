@@ -17,6 +17,11 @@ export enum Field {
     isSendToAnotherAddress = 'isSendToAnotherAddress',
 
     isReload = 'isReload',
+
+    contractAddress = 'contractAddress',
+    contractCallCount = 'contractCallCount',
+
+    funds = 'funds',
 }
 
 export enum FieldAttr {

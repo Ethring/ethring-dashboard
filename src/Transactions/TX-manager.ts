@@ -247,11 +247,11 @@ export class TransactionList {
                     current.transaction.setTransaction({ ...current.transaction.getTransaction(), txHash: hash });
                 }
 
-                console.log('Current Transaction', current.transaction.getTransaction());
-
                 console.log(`Waiting ${WAIT_TIME_BETWEEN_TX / 1000} seconds before next transaction`);
 
                 await delay(WAIT_TIME_BETWEEN_TX);
+
+                console.log('CALLING NEXT TRANSACTION', '\n\n\n');
 
                 if (current.transaction.onSuccess) {
                     await current.transaction.onSuccess();
