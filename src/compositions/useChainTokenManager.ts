@@ -14,7 +14,7 @@ import logger from '@/shared/logger';
 export default function useChainTokenManger(moduleType: ModuleType) {
     const store = useStore();
 
-    const isSuperSwap = computed(() => _.isEqual(moduleType, ModuleType.superSwap));
+    const isSuperSwap = computed(() => [ModuleType.superSwap, ModuleType.shortcut].includes(moduleType));
     const isNeedDstNetwork = computed(() => [ModuleType.bridge, ModuleType.superSwap].includes(moduleType));
     const isSameNet = computed(() => [ModuleType.bridge, ModuleType.superSwap].includes(moduleType));
     const isConfigLoading = computed(() => store.getters['configs/isConfigLoading']);
