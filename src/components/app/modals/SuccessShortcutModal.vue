@@ -133,6 +133,13 @@ export default {
             return (isLoading.value = false);
         });
 
+        watch(isModalOpen, (value) => {
+            if (!value) {
+                results.value = [];
+                nftsList.value = [];
+            }
+        });
+
         return {
             isLoading,
             nftsList,

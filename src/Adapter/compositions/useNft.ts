@@ -24,6 +24,7 @@ import { watch } from 'vue';
 import { SHORTCUT_STATUSES } from '@/shared/models/enums/statuses.enum';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 import axios from 'axios';
+import { delay } from '@/shared/utils/helpers';
 
 type ECOSYSTEMS_TYPE = keyof typeof ECOSYSTEMS;
 
@@ -159,8 +160,6 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
         totalCount: number;
         queryClient: VendingMinterQueryClient;
     }): Promise<INftCollectionStats> => {
-        isShortcutLoading.value = true;
-
         const stats: INftStats[] = [];
 
         // * QUANTITY *
@@ -229,8 +228,6 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
                     symbol: mintedPercentage,
                 },
             });
-
-            isShortcutLoading.value = false;
         }
 
         // * PRICE *
@@ -266,8 +263,6 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
         contractAddress: string,
         { owner, tokenIds, callCount }: { owner?: string; tokenIds?: string[]; callCount?: number },
     ): Promise<string[]> => {
-        isRequestingNfts.value = true;
-
         try {
             const { client, rpc, cosmWasmClient } = await getClient(chain);
 
@@ -302,7 +297,7 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
                 if (isCorrectExtension) return images.push(formattedTokenUri);
 
                 try {
-                    const response = await axios.get(formattedTokenUri, { timeout: 3000 });
+                    const response = await axios.get(formattedTokenUri, { timeout: 5000 });
 
                     const { data } = response || {};
 
@@ -349,9 +344,10 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
         const minterAddress = ref(null);
 
         console.log('isShortcutLoading', isShortcutLoading.value, ' for shortcut', currentShortcutId.value);
-        isShortcutLoading.value = true;
 
         try {
+            isShortcutLoading.value = true;
+
             const { client, rpc, cosmWasmClient } = await getClient(chain);
 
             const { SG721Base, VendingMinter } = contracts;
@@ -492,6 +488,8 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
     watch(shortcutStatus, async () => {
         if (shortcutStatus.value !== SHORTCUT_STATUSES.SUCCESS) return;
 
+        isRequestingNfts.value = true;
+
         for (const op of operationsFactory.value.getOperationOrder()) {
             const operation = operationsFactory.value.getOperationByKey(op);
 
@@ -524,6 +522,7 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
             console.log('NFT IMAGES', nfts);
         }
 
+        await delay(500);
         isRequestingNfts.value = false;
     });
 

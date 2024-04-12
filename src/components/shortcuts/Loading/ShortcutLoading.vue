@@ -187,6 +187,7 @@ export default {
 
                 return store.dispatch('shortcuts/resetShortcut', {
                     shortcutId: props.shortcutId,
+                    stepId: firstOpId,
                 });
             } else if (currentStepId.value === firstOpId || shortcutIndex.value === 0) {
                 console.log('setCallConfirm, for shortcut', 'FirstOp', true);

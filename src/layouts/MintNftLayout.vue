@@ -252,20 +252,13 @@ export default {
             }
         });
 
-        watch(isConfigLoading, async () => {
-            if (isConfigLoading.value) return;
-
+        watch([isConfigLoading, contractAddress], async ([configLoading, contract]) => {
+            if (configLoading || !contract) return;
             await getCollectionInfoData();
         });
 
         onMounted(async () => {
             if (isConfigLoading.value) return;
-            await getCollectionInfoData();
-        });
-
-        watch(contractAddress, async () => {
-            if (!contractAddress.value) return;
-
             await getCollectionInfoData();
         });
 
@@ -289,17 +282,7 @@ export default {
             if (shortcutModalState.value) return;
             if (!currentShortcutId.value) return console.warn('No current shortcut id');
 
-            store.dispatch('shortcuts/setIsShortcutLoading', {
-                shortcutId: currentShortcutId.value,
-                value: true,
-            });
-
             await getCollectionInfoData();
-
-            store.dispatch('shortcuts/setIsShortcutLoading', {
-                shortcutId: currentShortcutId.value,
-                value: false,
-            });
         });
 
         return {
