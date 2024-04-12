@@ -308,6 +308,8 @@ const useModuleOperations = (module: ModuleType) => {
             return tx;
         },
         [TRANSACTION_TYPES.DEX]: async (): Promise<IBridgeDexTransaction> => {
+            const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
+
             const params = {
                 net: selectedSrcNetwork.value.net,
                 fromNet: selectedSrcNetwork.value.net,
@@ -317,16 +319,16 @@ const useModuleOperations = (module: ModuleType) => {
                 toToken: selectedDstToken.value.address,
 
                 ownerAddresses: addressByChain.value as OwnerAddresses,
-                receiverAddress: receiverAddress.value,
+                receiverAddress: { [selectedDstNetwork.value?.net || selectedSrcNetwork.value.net]: receiverAddress.value || ownerAddress },
                 amount: srcAmount.value,
                 slippageTolerance: slippage.value
             } as AllQuoteParams;
 
             // * Bridge transaction, add receiver address to ownerAddresses
-            if (isSendToAnotherAddress.value && receiverAddress.value) {
+            if (isSendToAnotherAddress.value && receiverAddress.value && selectedRoute.value.serviceId === 'skip') {
                 params.ownerAddresses = {
                     ...addressByChain.value,
-                    [selectedDstNetwork.value.net]: receiverAddress.value,
+                    [selectedDstNetwork.value?.net || selectedSrcNetwork.value.net]: receiverAddress.value,
                 };
             }
 
