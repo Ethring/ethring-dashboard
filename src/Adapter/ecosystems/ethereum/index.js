@@ -20,10 +20,10 @@ let web3Onboard = null;
 
 const STORAGE = {
     WALLET: 'onboard.js:last_connected_wallet',
-    CONNECTED_WALLETS_KEY: 'adapter:connectedWallets'
+    CONNECTED_WALLETS_KEY: 'adapter:connectedWallets',
 };
 
-const connectedWalletsStorage = useLocalStorage(STORAGE.CONNECTED_WALLETS_KEY, [], { mergeDefaults: true })
+const connectedWalletsStorage = useLocalStorage(STORAGE.CONNECTED_WALLETS_KEY, [], { mergeDefaults: true });
 
 const [DEFAULT_CHAIN] = chainConfig;
 
@@ -43,9 +43,9 @@ class EthereumAdapter extends AdapterBase {
         return web3Onboard.state.select('wallets');
     }
 
-    unsubscribeToWalletsChange() {
-        console.log('Unsubscribe to wallets change', 'ethereum');
-        return web3Onboard.state.select('wallets').unsubscribe();
+    unsubscribeFromWalletsChange(walletsSubscription) {
+        console.log('Unsubscribe from wallets change', 'ethereum');
+        return walletsSubscription?.unsubscribe();
     }
 
     async connectWallet(walletName) {
@@ -398,7 +398,7 @@ class EthereumAdapter extends AdapterBase {
     }
 
     async getAddressesWithChains() {
-        this.setAddressForChains()
+        this.setAddressForChains();
         return this.addressByNetwork || {};
     }
 
