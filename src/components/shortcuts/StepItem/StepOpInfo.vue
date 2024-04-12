@@ -13,7 +13,7 @@
                     cancel-text="No"
                     @confirm="handleOnConfirm"
                     @cancel="handleOnCancel"
-                    :disabled="!shortcutOpInfo.editableFromAmount"
+                    :disabled="isEditDisabled"
                 >
                     <template #description>
                         <a-input-number
@@ -23,7 +23,7 @@
                             :value="operation.getParamByField('amount')"
                             :controls="false"
                             :min="0"
-                            :max="operation.getToken('from')?.balance"
+                            :max="operation.getToken('from')?.balance ? operation.getToken('from')?.balance : Infinity"
                         >
                             <template #addonAfter v-if="operation.getToken('from')?.balance">
                                 <span class="max-balance" @click="handleOnMax">MAX: {{ operation.getToken('from')?.balance }}</span>
@@ -36,6 +36,7 @@
                         type="currency"
                         :class="{
                             'editable-amount': shortcutOpInfo.editableFromAmount,
+                            'editable-amount-disabled': isEditDisabled,
                         }"
                     />
                 </a-popconfirm>
@@ -78,6 +79,7 @@ import { InfoCircleOutlined } from '@ant-design/icons-vue';
 
 import StepAdditionalInfo from './StepAdditionalInfo.vue';
 import { IShortcutOp } from '../../../modules/shortcuts/core/ShortcutOp';
+import { SHORTCUT_STATUSES } from '@/shared/models/enums/statuses.enum';
 
 export default {
     name: 'StepOpInfo',
@@ -104,6 +106,9 @@ export default {
 
         const factory = computed(() => store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId));
 
+        const shortcutStatus = computed(() => store.getters['shortcuts/getShortcutStatus'](props.shortcutId));
+        const isTransactionSigning = computed(() => store.getters['txManager/isTransactionSigning']);
+
         const operation = computed<IBaseOperation>(() => {
             if (!factory.value) return {} as IBaseOperation;
 
@@ -114,6 +119,14 @@ export default {
             if (!props.shortcutId || !props.operationId) return {} as IShortcutOp;
             if (!operation.value) return {} as IShortcutOp;
             return store.getters['shortcuts/getShortcutOpInfoById'](props.shortcutId, props.operationId);
+        });
+
+        const isEditDisabled = computed(() => {
+            return (
+                isTransactionSigning.value ||
+                ![SHORTCUT_STATUSES.PENDING].includes(shortcutStatus.value) ||
+                !shortcutOpInfo.value.editableFromAmount
+            );
         });
 
         const assetChain = computed(() => {
@@ -177,6 +190,7 @@ export default {
             operation,
             assetChain,
             additionalTooltips,
+            isEditDisabled,
             editedAmount,
 
             handleOnCancel,
