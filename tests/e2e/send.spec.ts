@@ -42,7 +42,7 @@ testMetaMask.describe('MetaMask Send e2e tests', () => {
             const amount = '0.001';
             const expectedNotificationTitle = 'SEND 0.001 AVAX';
             const expectedNotificationDescription = ` To 0x12f80578***2F563c`;
-            const expectedNotificationTitleAfterReject = 'Transaction Error';
+            const expectedNotificationTitleAfterReject = 'Transaction error';
             const expectedNotificationDescAfterReject = 'MetaMask Tx Signature: User denied transaction signature.';
 
             await sendPageCoingeckoMockRejectTest.changeNetwork(network);
@@ -92,7 +92,6 @@ testMetaMask.describe('MetaMask Send e2e tests', () => {
             await sleep(ONE_SECOND);
             const receivedDataAfterRejectTest = await sendPageCoingeckoMockRejectTest.getNotificationData();
 
-            console.log(receivedDataAfterRejectTest, '-receivedDataAfterRejectTest');
             expect(receivedDataAfterRejectTest.notificationCount).toBe(1);
             expect(receivedDataAfterRejectTest.notificationTitle).toEqual(expectedNotificationTitleAfterReject);
             expect(receivedDataAfterRejectTest.notificationDescription).toEqual(expectedNotificationDescAfterReject);
