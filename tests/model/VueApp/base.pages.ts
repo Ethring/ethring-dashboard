@@ -326,6 +326,23 @@ class SendPage extends BasePage {
     async getTokenTo() {
         return await this.page.locator(`(//*[@data-qa="${DATA_QA_LOCATORS.SELECT_TOKEN}"]/div[@class="token"])[2]`).textContent();
     }
+
+    async getNotificationData() {
+        const txNotification = await this.page.locator('div.ant-notification');
+        const txNotificationTitle = await this.page.locator('div.ant-notification-notice-message');
+        const txNotificationDesc = await this.page.locator('div.ant-notification-notice-description');
+
+        const svgElement = await this.page.locator('span.ant-notification-notice-icon svg');
+
+        const txStatusValue = await svgElement.getAttribute('data-icon', { timeout: 1000 });
+
+        return {
+            notificationCount: await txNotification.count(),
+            notificationTitle: await txNotificationTitle.textContent(),
+            notificationDescription: await txNotificationDesc.textContent(),
+            notificationStatus: txStatusValue,
+        };
+    }
 }
 
 class SuperSwapPage extends BasePage {

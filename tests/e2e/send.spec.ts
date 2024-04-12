@@ -40,18 +40,17 @@ testMetaMask.describe('MetaMask Send e2e tests', () => {
             const network = 'Avalanche';
             const addressTo = getTestVar(TEST_CONST.RECIPIENT_ADDRESS);
             const amount = '0.001';
+            const expectedNotificationTitle = 'SEND 0.001 AVAX';
+            const expectedNotificationDescription = `To 0x12f80578***2F563c`;
+            const expectedNotificationTitleAfterReject = 'Transaction Error';
+            const expectedNotificationDescAfterReject = 'MetaMask Tx Signature: User denied transaction signature.';
 
             await sendPageCoingeckoMockRejectTest.changeNetwork(network);
             await sendPageCoingeckoMockRejectTest.setAddressTo(addressTo);
             await sendPageCoingeckoMockRejectTest.setAmount(amount);
             await sleep(FIVE_SECONDS); // wait able button "change network"
 
-            await expect(sendPageCoingeckoMockRejectTest.page).toHaveScreenshot({
-                mask: [
-                    sendPageCoingeckoMockRejectTest.page.locator(IGNORED_LOCATORS.HEADER),
-                    sendPageCoingeckoMockRejectTest.page.locator(IGNORED_LOCATORS.ASIDE),
-                ],
-            });
+            await expect(sendPageCoingeckoMockRejectTest.getBaseContentElement()).toHaveScreenshot();
 
             await sendPageCoingeckoMockRejectTest.modifyDataByPostTxRequest(
                 mockPostTransactionsRouteSendReject,
@@ -69,13 +68,14 @@ testMetaMask.describe('MetaMask Send e2e tests', () => {
             await sendPageCoingeckoMockRejectTest.clickConfirm();
 
             const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
-            await expect(sendPageCoingeckoMockRejectTest.page).toHaveScreenshot({
-                maxDiffPixels: 210,
-                mask: [
-                    sendPageCoingeckoMockRejectTest.page.locator(IGNORED_LOCATORS.HEADER),
-                    sendPageCoingeckoMockRejectTest.page.locator(IGNORED_LOCATORS.ASIDE),
-                ],
-            });
+
+            const receivedData = await sendPageCoingeckoMockRejectTest.getNotificationData();
+
+            expect(receivedData.notificationCount).toBe(1);
+            expect(receivedData.notificationTitle).toEqual(expectedNotificationTitle);
+            expect(receivedData.notificationDescription).toEqual(expectedNotificationDescription);
+
+            await expect(sendPageCoingeckoMockRejectTest.getBaseContentElement()).toHaveScreenshot();
             await notifyMM.changeNetwork();
 
             const notifyMMtx = new MetaMaskNotifyPage(await getNotifyMmPage(context));
@@ -86,24 +86,15 @@ testMetaMask.describe('MetaMask Send e2e tests', () => {
             const amountFromMM = await notifyMMtx.getAmount();
             expect(amountFromMM).toBe(amount);
 
-            await expect(sendPageCoingeckoMockRejectTest.page).toHaveScreenshot({
-                maxDiffPixels: 240,
-                mask: [
-                    sendPageCoingeckoMockRejectTest.page.locator(IGNORED_LOCATORS.HEADER),
-                    sendPageCoingeckoMockRejectTest.page.locator(IGNORED_LOCATORS.ASIDE),
-                ],
-            });
-
             await notifyMMtx.rejectTx();
             await sendPageCoingeckoMockRejectTest.getBaseContentElement().hover();
-            await expect(sendPageCoingeckoMockRejectTest.page).toHaveScreenshot({
-                maxDiffPixels: 670,
-                mask: [
-                    sendPageCoingeckoMockRejectTest.page.locator(IGNORED_LOCATORS.HEADER),
-                    sendPageCoingeckoMockRejectTest.page.locator(IGNORED_LOCATORS.ASIDE),
-                    sendPageCoingeckoMockRejectTest.page.locator(IGNORED_LOCATORS.TRANSACTION_PROGRESS)
-                ],
-            });
+            const receivedDataAfterRejectTest = await sendPageCoingeckoMockRejectTest.getNotificationData();
+
+            expect(receivedDataAfterRejectTest.notificationCount).toBe(1);
+            expect(receivedDataAfterRejectTest.notificationTitle).toEqual(expectedNotificationTitleAfterReject);
+            expect(receivedDataAfterRejectTest.notificationDescription).toEqual(expectedNotificationDescAfterReject);
+
+            await expect(sendPageCoingeckoMockRejectTest.getBaseContentElement()).toHaveScreenshot();
             // TODO нужен тест на отправку НЕ нативного токена (например USDC)
             // TODO нужен тест когда отменяем переключение сети ММ (скрином проверять текст ошибки)
         },
