@@ -6,7 +6,7 @@ import { emptyBalanceMockData, mockBalanceDataBySendTest } from '../data/mockHel
 import { MetaMaskNotifyPage, getNotifyMmPage, getHomeMmPage } from '../model/MetaMask/MetaMask.pages';
 import { KeplrNotifyPage, getNotifyKeplrPage } from '../model/Keplr/Keplr.pages';
 import { COSMOS_WALLETS_BY_PROTOCOL_SEED, IGNORED_LOCATORS, MEMO_BY_KEPLR_TEST } from '../data/constants';
-import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
+import { FIVE_SECONDS, ONE_SECOND } from '../__fixtures__/fixtureHelper';
 import {
     mockPostTransactionsRouteSendReject,
     mockPostTransactionsWsByCreateEventSendReject,
@@ -88,8 +88,11 @@ testMetaMask.describe('MetaMask Send e2e tests', () => {
 
             await notifyMMtx.rejectTx();
             await sendPageCoingeckoMockRejectTest.getBaseContentElement().hover();
+
+            await sleep(ONE_SECOND);
             const receivedDataAfterRejectTest = await sendPageCoingeckoMockRejectTest.getNotificationData();
 
+            console.log(receivedDataAfterRejectTest, '-receivedDataAfterRejectTest');
             expect(receivedDataAfterRejectTest.notificationCount).toBe(1);
             expect(receivedDataAfterRejectTest.notificationTitle).toEqual(expectedNotificationTitleAfterReject);
             expect(receivedDataAfterRejectTest.notificationDescription).toEqual(expectedNotificationDescAfterReject);

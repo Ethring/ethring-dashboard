@@ -60,6 +60,6 @@ testMetaMaskMockTx.describe('Mocked send tx Metamask', () => {
 
         const receivedData = await sendPage.getNotificationData();
         expect(receivedData.notificationCount).toEqual(1);
-        console.log(receivedData, '---receivedData');
+        expect(receivedData.notificationTitle).toEqual('notification');
     });
 });
