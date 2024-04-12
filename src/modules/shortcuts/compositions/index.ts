@@ -54,6 +54,15 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             }),
     });
 
+    const isCallEstimate = computed({
+        get: () => store.getters['shortcuts/getIsCallEstimate'](Shortcut.id),
+        set: (value) =>
+            store.dispatch('shortcuts/setIsCallEstimate', {
+                shortcutId: Shortcut.id,
+                value,
+            }),
+    });
+
     const isQuoteLoading = computed({
         get: () => store.getters['bridgeDexAPI/getLoaderState']('quote'),
         set: (value) => store.dispatch('bridgeDexAPI/setLoaderStateByType', { type: 'quote', value }),
@@ -309,6 +318,68 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         });
     };
 
+    const callEstimate = async () => {
+        // if (currentOp.value?.id) {
+        //     operationsFactory.value.resetEstimatedOutputs();
+        // }
+
+        isQuoteLoading.value = true;
+
+        const isMinAmountAccepted = await checkMinAmount();
+
+        if (!isMinAmountAccepted) return (isQuoteLoading.value = false);
+
+        quoteErrorMessage.value = '';
+
+        try {
+            await operationsFactory.value.estimateOutput();
+        } catch (error) {
+            const { message = 'Error in evaluating output data' } = error || {};
+            quoteErrorMessage.value = message;
+        } finally {
+            const flow = operationsFactory.value.getFullOperationFlow();
+
+            const withoutApprove = flow.filter((op) => op.type !== TRANSACTION_TYPES.APPROVE);
+
+            for (const op of withoutApprove) {
+                const { moduleIndex, operationId } = op || {};
+
+                const operation = operationsFactory.value.getOperationByKey(moduleIndex);
+
+                if (!operation) continue;
+
+                if (operationId) {
+                    const shortcutOpInfo = store.getters['shortcuts/getShortcutOpInfoById'](CurrentShortcut.id, operationId);
+
+                    const { isNeedFromAmount = true } = shortcutOpInfo || {};
+
+                    const fromAmount = operation.getParamByField('amount');
+                    console.log('SHORTCUT OP INFO:', operationId, isNeedFromAmount, fromAmount);
+
+                    console.table({
+                        isNeedFromAmount,
+                        fromAmount,
+                        isFinite: _.isFinite(fromAmount),
+                        '!isNumber': !_.isNumber(fromAmount),
+                    })
+
+                    if (isNeedFromAmount && (!fromAmount || _.isFinite(fromAmount) && fromAmount <= 0)) {
+                        quoteErrorMessage.value = 'Please Fill all from token amounts';
+                    }
+                }
+            }
+
+            console.table(flow);
+
+            isQuoteLoading.value = false;
+        }
+
+        if (currentOp.value?.id) {
+            const outputAmount = operationsFactory.value.getOperationById(currentOp.value.id)?.getParamByField('outputAmount');
+            outputAmount && store.dispatch(`tokenOps/setFieldValue`, { field: 'dstAmount', value: outputAmount });
+        }
+    };
+
     // ====================================================================================================
     // * Set the shortcut when the component is mounted
     // * Perform the shortcut when the component is mounted
@@ -460,45 +531,23 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     // ====================================================================================================
     store.watch(
         (state, getters) => getters['tokenOps/srcAmount'],
+
         async (srcAmount) => {
-            if (!srcAmount) {
-                return;
-            }
-
-            if (currentOp.value?.id) {
-                operationsFactory.value.resetEstimatedOutputs();
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('amount', srcAmount);
-            }
-
-            isQuoteLoading.value = true;
-
-            const isMinAmountAccepted = await checkMinAmount();
-
-            if (!isMinAmountAccepted) {
-                return (isQuoteLoading.value = false);
-            }
-
-            quoteErrorMessage.value = '';
-
-            try {
-                await operationsFactory.value.estimateOutput();
-            } catch (error) {
-                const { message = 'Error in evaluating output data' } = error || {};
-                quoteErrorMessage.value = message;
-            } finally {
-                isQuoteLoading.value = false;
-            }
-
-            const flow = operationsFactory.value.getFullOperationFlow();
-
-            console.table(flow);
-
-            if (currentOp.value?.id) {
-                const outputAmount = operationsFactory.value.getOperationById(currentOp.value.id)?.getParamByField('outputAmount');
-                store.dispatch('tokenOps/setDstAmount', outputAmount);
-            }
+            if (!srcAmount) return;
+            if (!currentOp.value?.id) return;
+            if (!operationsFactory.value) return;
+            if (!operationsFactory.value.getOperationById(currentOp.value.id)) return;
+            operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('amount', srcAmount);
+            await callEstimate();
         },
     );
+
+    watch(isCallEstimate, async () => {
+        if (isCallEstimate.value) {
+            await callEstimate();
+            isCallEstimate.value = false;
+        }
+    });
 
     watch([currentOp, isConfigLoading], async () => await callOnWatchOnMounted());
 

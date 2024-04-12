@@ -139,6 +139,9 @@ export default {
             // * Tracking balance update for all accounts
             trackingBalanceUpdate(store);
 
+            // import('@/app/scripts/development').then(({ default: dev }) => {
+            //     dev();
+            // });
             // console.log('App mounted', store.getters['adapters/getAllConnectedWallets']);
         });
     },

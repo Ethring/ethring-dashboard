@@ -27,6 +27,7 @@ const TYPES = {
 
     SET_IS_SHORTCUT_LOADING: 'SET_IS_SHORTCUT_LOADING',
     SET_IS_REQUESTING_NFT: 'SET_IS_REQUESTING_NFT',
+    SET_IS_CALL_ESTIMATE: 'SET_IS_CALL_ESTIMATE',
 };
 
 const DISABLED_STATUS = [ShortcutStatus.finish, ShortcutStatus.error];
@@ -56,6 +57,9 @@ interface IState {
     isRequestingNfts: {
         [key: string]: boolean;
     };
+    isCallEstimate: {
+        [key: string]: boolean;
+    };
 }
 
 export default {
@@ -77,6 +81,7 @@ export default {
         isShortcutLoading: {},
 
         isRequestingNfts: {},
+        isCallEstimate: {},
     }),
 
     // ================================================================================
@@ -86,6 +91,7 @@ export default {
     getters: {
         getIsRequestingNfts: (state: IState) => (shortcutId: string) => state.isRequestingNfts[shortcutId] || false,
         getIsShortcutLoading: (state: IState) => (shortcutId: string) => state.isShortcutLoading[shortcutId] || false,
+        getIsCallEstimate: (state: IState) => (shortcutId: string) => state.isCallEstimate[shortcutId] || false,
 
         getCurrentShortcutId: (state: IState) => state.currentShortcutId,
         getCurrentLayout: (state: IState) => state.currentLayout,
@@ -101,6 +107,24 @@ export default {
             return state.shortcut[shortcut];
         },
 
+        getShortcutOpInfoById: (state: IState) => (shortcutId: string, operationId: string) => {
+            // ! if shortcut id is not provided, return null
+            if (!shortcutId) return null;
+
+            // ! if shortcut is empty, return null
+            if (JSON.stringify(state.shortcut) === '{}') return null;
+
+            if (!state.shortcut[shortcutId]) return null;
+
+            // ! if operations exist but empty, return null
+            if (state.shortcut[shortcutId].operations && !state.shortcut[shortcutId].operations.length) return null;
+
+            const operation = state.shortcut[shortcutId].operations.find((op) => op.id === operationId) as IShortcutOp;
+
+            if (!operation) return null;
+
+            return operation;
+        },
         getCurrentOperation: (state: IState) => (shortcutId: string) => {
             // ! if shortcut id is not provided, return null
             if (!shortcutId) return null;
@@ -264,6 +288,10 @@ export default {
             !state.isRequestingNfts[shortcutId] && (state.isRequestingNfts[shortcutId] = false);
             state.isRequestingNfts[shortcutId] = value;
         },
+        [TYPES.SET_IS_CALL_ESTIMATE](state: IState, { shortcutId, value }: { shortcutId: string; value: boolean }) {
+            !state.isCallEstimate[shortcutId] && (state.isCallEstimate[shortcutId] = false);
+            state.isCallEstimate[shortcutId] = value;
+        },
     },
 
     // ================================================================================
@@ -351,6 +379,9 @@ export default {
         },
         setIsRequestingNfts({ commit }: any, { shortcutId, value }: { shortcutId: string; value: boolean }) {
             commit(TYPES.SET_IS_REQUESTING_NFT, { shortcutId, value });
+        },
+        setIsCallEstimate({ commit }: any, { shortcutId, value }: { shortcutId: string; value: boolean }) {
+            commit(TYPES.SET_IS_CALL_ESTIMATE, { shortcutId, value });
         },
     },
 };

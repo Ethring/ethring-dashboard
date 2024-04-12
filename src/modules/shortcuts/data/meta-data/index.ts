@@ -1,6 +1,6 @@
 import { getAuthorById, IAuthor } from '@/modules/shortcuts/data/authors';
 import { IShortcutData } from '@/modules/shortcuts/core/Shortcut';
-import { AvailableShortcuts } from '../shortcuts';
+import { AvailableShortcuts, ShortcutAuthor } from '../shortcuts';
 
 interface IShortcutMeta extends IShortcutData {
     ecosystems: string[];
@@ -9,32 +9,21 @@ interface IShortcutMeta extends IShortcutData {
 
 const META_DATA: Record<string, IShortcutMeta> = {
     [AvailableShortcuts.CitadelOneStake]: {
-        id: 'citadel-one-stake',
-        name: 'Recipe #1: Stake to the Citadel.one validator',
+        id: AvailableShortcuts.CitadelOneStake,
+        name: 'Recipe #1: Transfer & Stake to the Citadel.one validator',
         logoURI: 'https://citadel.one/static/media/logo.3e3e3e3e.svg',
         keywords: ['citadel', 'one', 'staking'],
         tags: ['EVM', 'COSMOS', 'STAKE'],
         ecosystems: ['EVM', 'COSMOS'],
         type: 'stake',
-        description: 'Stake your COSMOS ecosystem tokens to the Citadel.one validator and earn rewards.',
+        description: 'Transfer your tokens from EVM or COSMOS ecosystem and stake them to the Citadel.one validator and earn rewards.',
         wallpaper: '',
         website: 'https://citadel.one/',
-        author: {
-            id: 'zomet.app',
-            name: 'zomet.app',
-            avatar: 'https://zomet-logo.png',
-            socials: [
-                {
-                    type: 'x.com',
-                    nickname: 'zometapp',
-                    link: 'https://twitter.com/zometapp',
-                },
-            ],
-        },
+        author: getAuthorById(ShortcutAuthor.ZometApp),
         minUsdAmount: 1,
     },
     [AvailableShortcuts.MintCollection]: {
-        id: 'mint-collection',
+        id: AvailableShortcuts.MintCollection,
         name: 'Recipe #2: Mint collection',
         logoURI: 'https://citadel.one/static/media/logo.3e3e3e3e.svg',
         wallpaper: '',
@@ -43,20 +32,37 @@ const META_DATA: Record<string, IShortcutMeta> = {
         type: 'nft',
         description: 'Mint collection of NFTs on Stargaze Zone',
         website: 'https://www.stargaze.zone/',
-        author: {
-            id: 'zomet.app',
-            name: 'zomet.app',
-            avatar: 'https://zomet-logo.png',
-            socials: [
-                {
-                    type: 'x.com',
-                    nickname: 'zometapp',
-                    link: 'https://twitter.com/zometapp',
-                },
-            ],
-        },
+        author: getAuthorById(ShortcutAuthor.ZometApp),
         ecosystems: ['EVM', 'COSMOS'],
         minUsdAmount: 0,
+    },
+    [AvailableShortcuts.StakeToCitadelOne]: {
+        id: AvailableShortcuts.StakeToCitadelOne,
+        name: 'Recipe #3: Stake to the Citadel.one validator',
+        logoURI: 'https://citadel.one/static/media/logo.3e3e3e3e.svg',
+        keywords: ['citadel', 'one', 'staking'],
+        tags: ['COSMOS', 'STAKE'],
+        ecosystems: ['COSMOS'],
+        type: 'stake',
+        description: 'Stake your COSMOS ecosystem tokens to the Citadel.one validator and earn rewards.',
+        wallpaper: '',
+        website: 'https://citadel.one/',
+        author: getAuthorById(ShortcutAuthor.ZometApp),
+        minUsdAmount: 0.1,
+    },
+    [AvailableShortcuts.SwapToAtomAndStars]: {
+        id: AvailableShortcuts.SwapToAtomAndStars,
+        name: 'Recipe #4: Swap OSMO to ATOM and STARS',
+        logoURI: 'https://citadel.one/static/media/logo.3e3e3e3e.svg',
+        keywords: ['ATOM', 'STARS', 'SWAP'],
+        tags: ['ATOM', 'STARS', 'SWAP'],
+        ecosystems: ['COSMOS'],
+        type: 'swap',
+        description: 'Swap your OSMO tokens to ATOM and STARS',
+        wallpaper: '',
+        website: 'https://citadel.one/',
+        author: getAuthorById(ShortcutAuthor.ZometApp),
+        minUsdAmount: 0.1,
     },
 };
 

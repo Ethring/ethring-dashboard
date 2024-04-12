@@ -78,6 +78,15 @@
                 <CountInput :max="nftCollectionInfo.perAddressLimit" />
             </a-form-item>
 
+            <EstimatePreviewInfo
+                v-if="isShowEstimateInfo"
+                :title="$t('tokenOperations.routeInfo')"
+                :is-loading="isQuoteLoading"
+                :fee-in-usd="fees[FEE_TYPE.BASE] || 0"
+                :main-rate="fees[FEE_TYPE.RATE] || null"
+                :error="quoteErrorMessage"
+            />
+
             <Button
                 data-qa="confirm"
                 v-bind="opBtnState"
@@ -97,6 +106,7 @@ import useModuleOperations from '@/compositions/useModuleOperation';
 // UI components
 import Button from '@/components/ui/Button.vue';
 import Checkbox from '@/components/ui/Checkbox.vue';
+import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewInfo.vue';
 
 // Select components
 import SelectRecord from '@/components/ui/Select/SelectRecord.vue';
@@ -125,6 +135,7 @@ import BigNumber from 'bignumber.js';
 import { IShortcutOp } from '@/modules/shortcuts/core/ShortcutOp';
 import OperationsFactory from '@/modules/operations/OperationsFactory';
 import { SHORTCUT_STATUSES } from '../shared/models/enums/statuses.enum';
+import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
 
 export default {
     name: 'MintNftLayout',
@@ -138,6 +149,7 @@ export default {
         ClockCircleOutlined,
         CountInput,
         DisplayAddress,
+        EstimatePreviewInfo,
     },
     setup() {
         const store = useStore();
@@ -166,7 +178,12 @@ export default {
 
             // - Loading
             isLoading,
+            isShowEstimateInfo,
+            isQuoteLoading,
             isTokensLoadingForSrc,
+            fees,
+
+            quoteErrorMessage,
 
             // - Title for operation (Confirm, Approve, etc.)
             opTitle,
@@ -317,7 +334,7 @@ export default {
             // handlers
             onSelectNetwork,
             onSelectToken,
-
+            isShowEstimateInfo,
             handleOnSetAmount,
 
             // Handle Confirm (Transaction signing)
@@ -326,6 +343,10 @@ export default {
             fieldStates,
             endTime,
             nftCollectionInfo,
+            isQuoteLoading,
+            fees,
+            quoteErrorMessage,
+            FEE_TYPE,
         };
     },
 };

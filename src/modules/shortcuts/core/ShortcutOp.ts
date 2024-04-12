@@ -19,6 +19,8 @@ export interface IShortcutOp {
     serviceId?: string;
     dependencies?: any;
     excludeChains?: string[];
+    editableFromAmount?: boolean;
+    isNeedFromAmount?: boolean;
 
     operationParams: {
         net?: string;
@@ -46,6 +48,8 @@ export default class ShortcutOp implements IShortcutOp {
     paramsInterface?: string;
     layoutComponent: string;
     isShowLayout: boolean;
+    editableFromAmount: boolean = false;
+    isNeedFromAmount: boolean = true;
 
     operationParams: {
         fromNet: string;
@@ -71,6 +75,7 @@ export default class ShortcutOp implements IShortcutOp {
         this.serviceId = shortcut.serviceId;
         this.operationType = shortcut.operationType;
         this.moduleType = shortcut.moduleType;
+        this.editableFromAmount = shortcut.editableFromAmount || false;
         this.layoutComponent = shortcut.layoutComponent;
         this.operationParams = shortcut.operationParams;
         this.params = shortcut.params;

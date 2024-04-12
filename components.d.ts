@@ -41,6 +41,7 @@ declare module 'vue' {
     AMenuItem: typeof import('ant-design-vue/es')['MenuItem']
     AModal: typeof import('ant-design-vue/es')['Modal']
     Amount: typeof import('./src/components/app/Amount.vue')['default']
+    APopconfirm: typeof import('ant-design-vue/es')['Popconfirm']
     APopover: typeof import('ant-design-vue/es')['Popover']
     AProgress: typeof import('ant-design-vue/es')['Progress']
     AQrcode: typeof import('ant-design-vue/es')['QRCode']

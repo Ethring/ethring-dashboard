@@ -3,6 +3,7 @@
     font-weight: 400;
 
     background: transparent;
+    outline: none;
 
     input {
         color: var(--#{$prefix}primary-text);
@@ -19,6 +20,18 @@
         user-select: none;
         cursor: not-allowed;
         color: var(--#{$prefix}input-disabled-text) !important;
+    }
+}
+
+.editable-amount-input {
+    border: 1px solid var(--#{$prefix}select-border-color);
+    background: transparent;
+
+    .ant-input-number-input {
+        color: var(--#{$prefix}primary-text);
+        font-family: "Poppins", sans-serif !important;
+        transition: 0.2s ease-in-out;
+        text-overflow: ellipsis;
     }
 }
 

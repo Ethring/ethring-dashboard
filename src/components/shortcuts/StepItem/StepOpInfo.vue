@@ -7,7 +7,32 @@
             <div class="token-info">
                 <AssetWithChain type="asset" :asset="operation.getToken('from') || {}" :chain="assetChain.from" :width="24" :height="24" />
 
-                <Amount :value="operation.getParamByField('amount')" :symbol="operation.getToken('from')?.symbol" type="currency" />
+                <a-popconfirm
+                    title="Change From amount?"
+                    ok-text="Change"
+                    cancel-text="No"
+                    @confirm="handleOnConfirm"
+                    @cancel="handleOnCancel"
+                    :disabled="!shortcutOpInfo.editableFromAmount"
+                >
+                    <template #description>
+                        <a-input-number
+                            class="editable-amount-input"
+                            v-model:value="editedAmount"
+                            :value="operation.getParamByField('amount')"
+                            :controls="false"
+                            :min="0"
+                        />
+                    </template>
+                    <Amount
+                        :value="operation.getParamByField('amount')"
+                        :symbol="operation.getToken('from')?.symbol"
+                        type="currency"
+                        :class="{
+                            'editable-amount': shortcutOpInfo.editableFromAmount,
+                        }"
+                    />
+                </a-popconfirm>
             </div>
 
             <template v-if="operation.getToken('to')">
@@ -41,11 +66,12 @@
 </template>
 <script lang="ts">
 import { useStore } from 'vuex';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { IBaseOperation } from '@/modules/operations/models/Operations';
 import { InfoCircleOutlined } from '@ant-design/icons-vue';
 
 import StepAdditionalInfo from './StepAdditionalInfo.vue';
+import { IShortcutOp } from '../../../modules/shortcuts/core/ShortcutOp';
 
 export default {
     name: 'StepOpInfo',
@@ -78,6 +104,12 @@ export default {
             return factory.value.getOperationById(props.operationId);
         });
 
+        const shortcutOpInfo = computed<IShortcutOp>(() => {
+            if (!props.shortcutId || !props.operationId) return {} as IShortcutOp;
+            if (!operation.value) return {} as IShortcutOp;
+            return store.getters['shortcuts/getShortcutOpInfoById'](props.shortcutId, props.operationId);
+        });
+
         const assetChain = computed(() => {
             const fromAssetChain = {
                 symbol: operation.value.getToken('from')?.chain,
@@ -95,17 +127,51 @@ export default {
             };
         });
 
+        const editedAmount = ref(operation.value?.getParamByField('amount') || 0);
+
         const additionalTooltips = computed(() => {
             if (!operation.value) return [];
 
             return factory.value.getOperationAdditionalTooltipById(props.operationId) || [];
         });
 
+        const handleOnConfirm = () => {
+            console.log('handleOnConfirm', editedAmount.value.toString());
+            const opsFullFlow = factory.value.getFullOperationFlow() || {};
+
+            const [firstOp] = opsFullFlow || [];
+
+            const { moduleIndex } = firstOp || {};
+            console.log('firstOp', moduleIndex, operation.value.getUniqueId());
+
+            if (moduleIndex === operation.value.getUniqueId()) {
+                operation.value.setParamByField('amount', editedAmount.value.toString());
+                store.dispatch(`tokenOps/setFieldValue`, { field: 'srcAmount', value: editedAmount.value.toString() });
+            } else {
+                operation.value.setParamByField('amount', editedAmount.value.toString());
+                console.log('setIsCallEstimate', props.shortcutId, true);
+                store.dispatch('shortcuts/setIsCallEstimate', {
+                    shortcutId: props.shortcutId,
+                    value: true,
+                });
+            }
+        };
+
+        const handleOnCancel = () => {
+            editedAmount.value = operation.value.getParamByField('amount');
+            console.log('handleOnCancel', editedAmount.value);
+        };
+
         return {
             factory,
             operation,
             assetChain,
             additionalTooltips,
+            editedAmount,
+
+            handleOnCancel,
+            handleOnConfirm,
+            shortcutOpInfo,
         };
     },
 };

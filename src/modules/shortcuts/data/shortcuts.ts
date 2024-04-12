@@ -1,6 +1,8 @@
 export enum AvailableShortcuts {
-    CitadelOneStake = 'citadel-one-stake',
-    MintCollection = 'mint-collection',
+    CitadelOneStake = 'SC-citadel-one-stake',
+    MintCollection = 'SC-mint-collection',
+    StakeToCitadelOne = 'SC-stake-to-citadel-one',
+    SwapToAtomAndStars = 'SC-swap-to-atom-and-stars',
 }
 
 export enum ShortcutAuthor {

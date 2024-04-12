@@ -26,6 +26,15 @@
             <MemoInput :disabled="fieldStates.memo.disabled" class="mt-8" />
         </a-form-item>
 
+        <EstimatePreviewInfo
+            v-if="isShowEstimateInfo"
+            :title="$t('tokenOperations.routeInfo')"
+            :is-loading="isQuoteLoading"
+            :fee-in-usd="fees[FEE_TYPE.BASE] || 0"
+            :main-rate="fees[FEE_TYPE.RATE] || null"
+            :error="quoteErrorMessage"
+        />
+
         <Button data-qa="confirm" v-bind="opBtnState" :title="$t(opBtnState.title)" :tip="$t(opBtnState.tip)" @click="handleOnConfirm" />
     </a-form>
 </template>
@@ -38,6 +47,7 @@ import useModuleOperations from '@/compositions/useModuleOperation';
 // UI components
 import Button from '@/components/ui/Button';
 import Checkbox from '@/components/ui/Checkbox';
+import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewInfo.vue';
 
 // Select components
 import SelectRecord from '@/components/ui/Select/SelectRecord';
@@ -53,6 +63,7 @@ import InfoIcon from '@/assets/icons/platform-icons/info.svg';
 // Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
+import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
 
 export default {
     name: 'StakeLayout',
@@ -64,6 +75,7 @@ export default {
         SelectAddressInput,
         SelectAmountInput,
         InfoIcon,
+        EstimatePreviewInfo,
     },
     setup() {
         // * Init module operations, and get all necessary data, (methods, states, etc.) for the module
@@ -91,6 +103,11 @@ export default {
             // - Loading
             isLoading,
             isTokensLoadingForSrc,
+            isShowEstimateInfo,
+            isQuoteLoading,
+            fees,
+
+            quoteErrorMessage,
 
             // - Title for operation (Confirm, Approve, etc.)
             opTitle,
@@ -192,6 +209,12 @@ export default {
             handleOnConfirm,
 
             fieldStates,
+
+            isQuoteLoading,
+            fees,
+            quoteErrorMessage,
+            FEE_TYPE,
+            isShowEstimateInfo,
         };
     },
 };

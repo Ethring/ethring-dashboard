@@ -56,6 +56,7 @@ import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { SHORTCUT_STATUSES } from '@/shared/models/enums/statuses.enum';
 
 import { delay } from '@/shared/utils/helpers';
+import { TRANSACTION_TYPES } from '../../../shared/models/enums/statuses.enum';
 
 export default {
     name: 'SuccessShortcutModal',
@@ -111,10 +112,8 @@ export default {
             if (!operationsFactory.value) return (isLoading.value = false);
             if (!currentOp.value) return (isLoading.value = false);
 
-            if (value) {
-                isLoading.value = true;
-                await delay(2500);
-            }
+            isLoading.value = value;
+            await delay(2500);
 
             for (const op of operationsFactory.value.getOperationOrder()) {
                 const operation = operationsFactory.value.getOperationByKey(op);
@@ -129,14 +128,34 @@ export default {
 
                 nftsList.value.push(...nfts);
             }
-
-            return (isLoading.value = false);
         });
 
         watch(isModalOpen, (value) => {
             if (!value) {
                 results.value = [];
                 nftsList.value = [];
+
+                console.log('Resetting shortcut');
+
+                const flow = operationsFactory.value.getFullOperationFlow();
+
+                const withoutApprove = flow.filter((op) => op.type !== TRANSACTION_TYPES.APPROVE);
+
+                const firstOp = withoutApprove[0];
+                const lastOp = withoutApprove[withoutApprove.length - 1];
+
+                const firstOpId = operationsFactory.value.getOperationIdByKey(firstOp.moduleIndex);
+                const lastOpId = operationsFactory.value.getOperationIdByKey(lastOp.moduleIndex);
+
+                store.dispatch('shortcuts/setCurrentStepId', firstOpId);
+
+                store.dispatch('tokenOps/setSrcAmount', null);
+                store.dispatch('tokenOps/setDstAmount', null);
+
+                return store.dispatch('shortcuts/resetShortcut', {
+                    shortcutId: currentShortcutId.value,
+                    stepId: firstOpId,
+                });
             }
         });
 
