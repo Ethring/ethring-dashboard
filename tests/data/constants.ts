@@ -78,6 +78,7 @@ export enum IGNORED_LOCATORS {
     TOKEN_ICON_2 = 'div.token-icon > img[alt="Wrapped Bitcoin"]',
     TOKEN_ICON_3 = 'div.token-icon > img[alt="Polygon"]',
     TOKEN_ICON_4 = 'div.token-icon > img[alt="Stader MaticX"]',
+    TRANSACTION_PROGRESS = 'div.notification-progress-line'
 }
 
 export const MEMO_BY_KEPLR_TEST = '105371789';

@@ -241,17 +241,10 @@ export class TransactionList {
                 }
 
                 if (current.transaction.onSuccessSignTransaction) {
+                    await this.waitForTransaction(hash);
                     await current.transaction.onSuccessSignTransaction();
+                    current.transaction.setTransaction({ ...current.transaction.getTransaction(), txHash: hash });
                 }
-
-                current.transaction.setTransaction({ ...current.transaction.getTransaction(), txHash: hash });
-
-                const waitResponse = await this.waitForTransaction(hash);
-
-                await current.transaction.updateTransactionById(Number(current.transaction.id), {
-                    ...current.transaction.getTransaction(),
-                    status: waitResponse.status,
-                });
 
                 console.log(`Waiting ${WAIT_TIME_BETWEEN_TX / 1000} seconds before next transaction`);
 

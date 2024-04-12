@@ -115,7 +115,8 @@ export default function useTransactions() {
             type: 'error',
             title: 'Transaction error',
             description: strError,
-            duration: 3,
+            duration: 6,
+            progress: true
         });
 
         if (!ignoreRegex.test(strError)) {
@@ -182,7 +183,7 @@ export default function useTransactions() {
             explorerLink,
             key: `waiting-${transactionHash}-tx`,
             type: 'info',
-            title: `Waiting for confirmation: "${displayHash}"`,
+            title: `Waiting for confirmation`,
             txHash: transactionHash,
             wait: true,
             duration: 0,
