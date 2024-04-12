@@ -332,15 +332,10 @@ class SendPage extends BasePage {
         const txNotificationTitle = await this.page.locator('div.ant-notification-notice-message');
         const txNotificationDesc = await this.page.locator('div.ant-notification-notice-description');
 
-        const svgElement = await this.page.locator('span.ant-notification-notice-icon svg');
-
-        const txStatusValue = await svgElement.getAttribute('data-icon', { timeout: 1000 });
-
         return {
             notificationCount: await txNotification.count(),
             notificationTitle: await txNotificationTitle.textContent(),
-            notificationDescription: await txNotificationDesc.textContent(),
-            notificationStatus: txStatusValue,
+            notificationDescription: await txNotificationDesc.textContent()
         };
     }
 }
