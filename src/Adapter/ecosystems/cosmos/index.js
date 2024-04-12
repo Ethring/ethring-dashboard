@@ -200,6 +200,7 @@ class CosmosAdapter extends AdapterBase {
     }
 
     unsubscribeFromWalletsChange() {
+        console.log('Unsubscribe from wallets change', 'cosmos');
         this.unsubscribe.next();
         this.unsubscribe.complete();
     }
@@ -349,6 +350,10 @@ class CosmosAdapter extends AdapterBase {
                 }
 
                 const diffChain = wallet.getWallet(walletName);
+
+                if (!diffChain) {
+                    return;
+                }
 
                 diffChain.activate();
 

@@ -71,10 +71,6 @@ function useAdapter() {
             return;
         }
 
-        if (walletsSubscription.value) {
-            unsubscribeFromWalletsChange();
-        }
-
         walletsSubscription.value = wallets.subscribe(async () => {
             await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -86,12 +82,12 @@ function useAdapter() {
         });
     }
 
-    function unsubscribeFromWalletsChange() {
-        if (!mainAdapter.value?.unsubscribeFromWalletsChange) {
+    function unsubscribeFromWalletsChange(adapter) {
+        if (!adapter?.unsubscribeFromWalletsChange) {
             return;
         }
 
-        mainAdapter.value?.unsubscribeFromWalletsChange();
+        adapter.unsubscribeFromWalletsChange(walletsSubscription.value);
 
         if (walletsSubscription.value) {
             walletsSubscription.value = null; // Reset subscription
@@ -100,6 +96,10 @@ function useAdapter() {
 
     // * Store Wallet Info
     async function storeWalletInfo() {
+        if (!currEcosystem.value) {
+            return;
+        }
+
         const walletInfo = {
             id: `${currEcosystem.value}-${currentChainInfo.value?.walletName}`,
             account: mainAdapter.value?.getAccount(),
@@ -143,6 +143,8 @@ function useAdapter() {
                 await storeWalletInfo();
             }
 
+            subscribeToWalletsChange();
+
             return isConnected;
         } catch (error) {
             console.error('Failed to connect to:', ecosystem, error);
@@ -157,6 +159,8 @@ function useAdapter() {
         if (!ecosystem) {
             return;
         }
+
+        subscribeToWalletsChange();
 
         if (ecosystem === ECOSYSTEMS.COSMOS) {
             return adaptersDispatch(TYPES.SET_MODAL_STATE, { name: 'wallets', isOpen: true });
@@ -258,6 +262,8 @@ function useAdapter() {
         }
 
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+
+        unsubscribeFromWalletsChange(adapter);
 
         adaptersDispatch(TYPES.DISCONNECT_WALLET, wallet);
 
@@ -452,17 +458,6 @@ function useAdapter() {
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
         return adapter.getNativeTokenByChain(chain, store);
     };
-
-    // ==================== HOOKS ====================
-    // * Subscribe to Wallets Change
-    onMounted(() => {
-        subscribeToWalletsChange();
-    });
-
-    // * Unsubscribe from Wallets Change
-    onBeforeUnmount(() => {
-        unsubscribeFromWalletsChange();
-    });
 
     return {
         isConnecting,
