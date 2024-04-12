@@ -454,7 +454,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                         name: 'contractAddress',
                         type: 'address',
                         disabled: true,
-                        address: 'stars1r4xt332xfe2n5auw38ltthss45rc0nqvzxlpspqufe4ktg756tls9rk3cz',
+                        address: 'stars13mghwhxmj9athjgc3ge8pgdmh6hnchl0gkqsk29s925p9ta0em3sqssr39',
                         hide: false,
                     },
                 ],
