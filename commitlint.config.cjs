@@ -24,6 +24,7 @@ module.exports = {
                 'release',
                 'add',
                 'update',
+                'merge'
             ],
         ],
         'subject-full-stop': [0, 'never'],
