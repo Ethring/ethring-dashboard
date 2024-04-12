@@ -26,12 +26,20 @@
 .editable-amount-input {
     border: 1px solid var(--#{$prefix}select-border-color);
     background: transparent;
-
+    border-radius: 8px;
     .ant-input-number-input {
         color: var(--#{$prefix}primary-text);
         font-family: "Poppins", sans-serif !important;
         transition: 0.2s ease-in-out;
         text-overflow: ellipsis;
+    }
+
+    .ant-input-number-group-addon {
+        color: var(--#{$prefix}primary-text);
+
+        .max-balance {
+            cursor: pointer;
+        }
     }
 }
 

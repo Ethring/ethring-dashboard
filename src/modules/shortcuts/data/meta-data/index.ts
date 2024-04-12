@@ -48,7 +48,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         wallpaper: '',
         website: 'https://citadel.one/',
         author: getAuthorById(ShortcutAuthor.ZometApp),
-        minUsdAmount: 0.1,
+        minUsdAmount: 0,
     },
     [AvailableShortcuts.SwapToAtomAndStars]: {
         id: AvailableShortcuts.SwapToAtomAndStars,
@@ -62,7 +62,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         wallpaper: '',
         website: 'https://citadel.one/',
         author: getAuthorById(ShortcutAuthor.ZometApp),
-        minUsdAmount: 0.1,
+        minUsdAmount: 0,
     },
 };
 

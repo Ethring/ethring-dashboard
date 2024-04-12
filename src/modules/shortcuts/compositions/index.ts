@@ -34,7 +34,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
 
     const CurrentShortcut = new ShortcutCl(Shortcut);
 
-    const { getChainByChainId, getContractInfo, getChainListByEcosystem } = useAdapter();
+    const { getChainByChainId, getContractInfo, getChainListByEcosystem, isConnecting, connectedWallets } = useAdapter();
     const { getTokenById } = useTokensList();
 
     const store = useStore();
@@ -103,24 +103,6 @@ const useShortcuts = (Shortcut: IShortcutData) => {
 
         return { ...src, ...dst };
     });
-
-    const getAllowanceByService = () => {
-        const operation = operationsFactory.value.getOperationById(currentOp.value.id);
-        if (!operation) return null;
-
-        const token = operation?.getParamByField('fromToken');
-
-        if (token === NATIVE_CONTRACT) return null;
-
-        if (!operation) return null;
-
-        const serviceId = operation?.getParamByField('serviceId');
-        const owner = operationsFactory.value.getOperationById(currentOp.value.id)?.getAccount();
-
-        if (!serviceId || !owner) return null;
-
-        return store.getters['bridgeDexAPI/getServiceAllowance'](serviceId, owner, token);
-    };
 
     const processOperation = async (operation: IShortcutOp, { addToFactory = false }: { addToFactory: boolean }) => {
         const { id, moduleType, name, operationType, operationParams, dependencies, serviceId, params = [] } = operation || {};
@@ -276,6 +258,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                 case 'dstToken':
                     const tokenNet = getChainByChainId(ecosystem, chain);
                     const token = (await getTokenById(tokenNet, id)) as IAsset;
+
                     isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value: token }));
 
                     const target = field === 'srcToken' ? 'from' : 'to';
@@ -319,10 +302,6 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     };
 
     const callEstimate = async () => {
-        // if (currentOp.value?.id) {
-        //     operationsFactory.value.resetEstimatedOutputs();
-        // }
-
         isQuoteLoading.value = true;
 
         const isMinAmountAccepted = await checkMinAmount();
@@ -360,10 +339,10 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                         isNeedFromAmount,
                         fromAmount,
                         isFinite: _.isFinite(fromAmount),
-                        '!isNumber': !_.isNumber(fromAmount),
+                        fromAmountLessZero: fromAmount <= 0,
                     })
 
-                    if (isNeedFromAmount && (!fromAmount || _.isFinite(fromAmount) && fromAmount <= 0)) {
+                    if (isNeedFromAmount && (!fromAmount || _.isFinite(fromAmount) || fromAmount <= 0)) {
                         quoteErrorMessage.value = 'Please Fill all from token amounts';
                     }
                 }
@@ -551,10 +530,8 @@ const useShortcuts = (Shortcut: IShortcutData) => {
 
     watch([currentOp, isConfigLoading], async () => await callOnWatchOnMounted());
 
-    watch(isConfigLoading, async () => {
-        if (!isConfigLoading.value) {
-            await performShortcut(false);
-        }
+    watch([isConfigLoading, isConnecting, connectedWallets], async ([isConfig, isConnect, wallets]) => {
+        if (!isConfig || !isConnect || wallets.length > 0) await performShortcut(false);
     });
 
     store.watch(

@@ -17,12 +17,18 @@
                 >
                     <template #description>
                         <a-input-number
+                            string-mode
                             class="editable-amount-input"
                             v-model:value="editedAmount"
                             :value="operation.getParamByField('amount')"
                             :controls="false"
                             :min="0"
-                        />
+                            :max="operation.getToken('from')?.balance"
+                        >
+                            <template #addonAfter v-if="operation.getToken('from')?.balance">
+                                <span class="max-balance" @click="handleOnMax">MAX: {{ operation.getToken('from')?.balance }}</span>
+                            </template>
+                        </a-input-number>
                     </template>
                     <Amount
                         :value="operation.getParamByField('amount')"
@@ -66,7 +72,7 @@
 </template>
 <script lang="ts">
 import { useStore } from 'vuex';
-import { computed, ref } from 'vue';
+import { computed, ref, h } from 'vue';
 import { IBaseOperation } from '@/modules/operations/models/Operations';
 import { InfoCircleOutlined } from '@ant-design/icons-vue';
 
@@ -136,13 +142,13 @@ export default {
         });
 
         const handleOnConfirm = () => {
+            if (!editedAmount.value) editedAmount.value = 0;
             console.log('handleOnConfirm', editedAmount.value.toString());
             const opsFullFlow = factory.value.getFullOperationFlow() || {};
 
             const [firstOp] = opsFullFlow || [];
 
             const { moduleIndex } = firstOp || {};
-            console.log('firstOp', moduleIndex, operation.value.getUniqueId());
 
             if (moduleIndex === operation.value.getUniqueId()) {
                 operation.value.setParamByField('amount', editedAmount.value.toString());
@@ -162,6 +168,10 @@ export default {
             console.log('handleOnCancel', editedAmount.value);
         };
 
+        const handleOnMax = () => {
+            editedAmount.value = operation.value.getToken('from')?.balance || 0;
+        };
+
         return {
             factory,
             operation,
@@ -172,6 +182,7 @@ export default {
             handleOnCancel,
             handleOnConfirm,
             shortcutOpInfo,
+            handleOnMax,
         };
     },
 };

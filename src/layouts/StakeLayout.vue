@@ -35,7 +35,7 @@
             :error="quoteErrorMessage"
         />
 
-        <Button data-qa="confirm" v-bind="opBtnState" :title="$t(opBtnState.title)" :tip="$t(opBtnState.tip)" @click="handleOnConfirm" />
+        <Button data-qa="confirm" v-bind="opBtnState" :title="$t(opTitle)" :tip="$t(opBtnState.tip)" @click="handleOnConfirm" />
     </a-form>
 </template>
 <script>
