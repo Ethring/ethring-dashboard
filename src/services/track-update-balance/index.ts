@@ -118,13 +118,13 @@ export const trackingBalanceUpdate = (store) => {
 
                 if (inProgress) return;
 
-                store.dispatch('updateBalance/setInProgress', { address: `${chain}_${mainAddress}`, status: true });
+                store.dispatch('updateBalance/setInProgress', { address: uniqueKey, status: true });
 
                 await handleUpdateBalance(config, address);
 
                 await removeUpdateBalanceQueues(mainAddress, chain);
 
-                store.dispatch('updateBalance/setInProgress', { key: `${chain}_${mainAddress}`, status: false });
+                store.dispatch('updateBalance/setInProgress', { address: uniqueKey, status: false });
             }),
         );
     });

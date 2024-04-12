@@ -152,6 +152,12 @@
     "createdBy": "Created by",
     "clearAll": "Clear all",
     "backTo": "Back to shortcuts",
+    "back": "Back",
+    "profile": {
+      "author": "Author",
+      "created": "Created",
+      "likes": "Likes"
+    },
     "minUsdAmount": "Min USD amount is"
   }
 }

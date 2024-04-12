@@ -10,7 +10,7 @@
                 <a-row align="middle" :wrap="false">
                     <a-col align="right">
                         <div class="title">{{ $t('shortcuts.createdBy') }}</div>
-                        <span class="author">{{ item.author.name }}</span>
+                        <span class="author" @click="openProfile">{{ item.author.name }}</span>
                     </a-col>
                     <div class="avatar">
                         <ZometLogo />
@@ -91,6 +91,11 @@ export default {
             router.push('/shortcuts/' + props.item.id);
         };
 
+        const openProfile = () => {
+            store.dispatch('shortcutsList/setSelectedShortcut', props.item);
+            router.push('/shortcuts/profile/' + props.item.author.name);
+        };
+
         const selectTag = (tag) => {
             store.dispatch('shortcutsList/setFilterTags', tag);
         };
@@ -101,6 +106,7 @@ export default {
             addToWatchList,
             openShortcut,
             selectTag,
+            openProfile,
         };
     },
 };

@@ -120,6 +120,14 @@ export const routes = [
         component: () => import('@/pages/shortcuts/ShortcutDetails.vue'),
     },
     {
+        path: '/shortcuts/profile/:author',
+        name: 'Shortcut Author',
+        meta: {
+            key: 'shortcut-author',
+        },
+        component: () => import('@/pages/shortcuts/ShortcutProfile.vue'),
+    },
+    {
         path: '/:pathMatch(.*)*',
         name: 'Not Found',
         component: () => import('@/pages/general/NotFound.vue'),

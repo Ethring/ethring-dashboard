@@ -42,6 +42,10 @@ export default {
         watchList: (state) => state.watchList,
         selectedShortcut: (state) => state.selectedShortcut,
         getShortcutById: (state) => (id) => state.shortcuts.find((item) => item.id === id) || null,
+        getShortcutsByAuthor: (state) => (author, type) =>
+            filterShortcuts(state, type || 'all').filter((item) => item.author.id === author),
+
+        getCreatedShortcutsCount: (state) => (author) => filterShortcuts(state, 'all').filter((item) => item.author.id === author).length,
         getShortcutsByType: (state) => (type) => filterShortcuts(state, type),
     },
     mutations: {
