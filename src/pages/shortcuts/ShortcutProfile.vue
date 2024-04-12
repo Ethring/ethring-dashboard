@@ -103,8 +103,6 @@ export default {
         const activeTabKey = ref('all');
         const route = useRoute();
 
-        console.log('Route', route.params);
-
         // author avatar
         const imageUrl = ref('');
 
@@ -118,9 +116,8 @@ export default {
             avatar: string;
             socials: { type: string; nickname: string; link: string }[];
         }>(() => {
-            console.log('shortcuts', shortcuts.value);
             const [shortcut] = shortcuts.value || [];
-            console.log('shortcut', shortcut);
+
             return (
                 shortcut?.author || {
                     name: '',

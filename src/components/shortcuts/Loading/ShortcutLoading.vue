@@ -163,15 +163,18 @@ export default {
             const firstOpId = factory.value.getOperationIdByKey(firstOp.moduleIndex);
             const lastOpId = factory.value.getOperationIdByKey(lastOp.moduleIndex);
 
-            console.log('firstOpId', firstOpId, 'lastOpId', lastOpId, 'currentStepId', currentStepId.value);
+            console.table({
+                firstOpId,
+                lastOpId,
+                currentStepId: currentStepId.value,
+                shortcutIndex: shortcutIndex.value,
+                operationsCount: operationsCount.value,
+                isNeedToCallConfirm: shortcutIndex.value !== 0 && shortcutStatus.value === STATUSES.FAILED,
+                isLastOp: currentStepId.value === lastOpId || operationsCount.value - 1 === shortcutIndex.value,
+                isFirstOp: currentStepId.value === firstOpId || shortcutIndex.value === 0,
+            });
 
-            if (shortcutIndex.value === 0 && shortcutStatus.value === STATUSES.FAILED) {
-                console.log('setCallConfirm, for shortcut', 'ModuleType.shortcut', true);
-                return store.dispatch('tokenOps/setCallConfirm', {
-                    module: ModuleType.shortcut,
-                    value: true,
-                });
-            }
+            console.log('-'.repeat(50));
 
             if (currentStepId.value === lastOpId || operationsCount.value - 1 === shortcutIndex.value) {
                 console.log('setCallConfirm, for shortcut', 'LastOp', true, 'resetShortcut');
@@ -191,6 +194,12 @@ export default {
                 return store.dispatch('shortcuts/setShortcutStatus', {
                     shortcutId: props.shortcutId,
                     status: STATUSES.PENDING,
+                });
+            } else if (shortcutIndex.value !== 0 && shortcutStatus.value === STATUSES.FAILED) {
+                console.log('setCallConfirm, for shortcut', 'ModuleType.shortcut', true);
+                return store.dispatch('tokenOps/setCallConfirm', {
+                    module: ModuleType.shortcut,
+                    value: true,
                 });
             }
         };

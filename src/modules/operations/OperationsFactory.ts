@@ -453,21 +453,23 @@ export default class OperationFactory implements IOperationFactory {
         return BigNumber(amount).multipliedBy(percentage).dividedBy(100).toFixed(6);
     }
 
-    getPercentageOfSuccessOperations(): number {
-        const STATUS_TO_EXCLUDE = [STATUSES.PENDING, STATUSES.ESTIMATING];
-        const STATUS_TO_HALF_SUCCESS = [STATUSES.IN_PROGRESS, STATUSES.SIGNING, STATUSES.REJECTED, STATUSES.FAILED];
+    getPercentageOfSuccessOperations(excludeOpTypes: TRANSACTION_TYPES[] = [TRANSACTION_TYPES.APPROVE]): number {
+        const STATUS_TO_EXCLUDE = [STATUSES.PENDING, STATUSES.ESTIMATING, STATUSES.IN_PROGRESS];
+        const STATUS_TO_HALF_SUCCESS = [STATUSES.REJECTED, STATUSES.FAILED];
 
-        const operations = Array.from(this.operationsMap.keys());
-
-        const successScore = operations.reduce((score, operation) => {
+        const successScore = this.operationOrder.reduce((score, operation) => {
             const status = this.operationsStatusByKey.get(operation);
 
+            const type = this.getOperationByKey(operation).transactionType;
+
+            if (excludeOpTypes.includes(type)) return score;
             if (STATUS_TO_HALF_SUCCESS.includes(status)) return score + 0.5;
             if (STATUS_TO_EXCLUDE.includes(status)) return score;
+
             return score + 1;
         }, 0);
 
-        return Number(BigNumber(successScore).dividedBy(operations.length).multipliedBy(100).toFixed(2));
+        return Number(BigNumber(successScore).dividedBy(this.operationOrder.length).multipliedBy(100).toFixed(2));
     }
     getOperationsResult() {
         const result = [];
@@ -492,7 +494,16 @@ export default class OperationFactory implements IOperationFactory {
         return result;
     }
 
-    getOperationsCount(): number {
-        return this.operationsMap.size;
+    getOperationsCount(excludeOpTypes: TRANSACTION_TYPES[] = [TRANSACTION_TYPES.APPROVE]): number {
+        let count = 0;
+        const ops = Array.from(this.operationsMap.keys());
+
+        for (const op of ops) {
+            const type = this.operationsMap.get(op).transactionType;
+            if (excludeOpTypes.includes(type)) continue;
+            count += 1;
+        }
+
+        return count;
     }
 }

@@ -28,7 +28,7 @@ import moduleStates from '@/store/moduleStates';
 import shortcuts from '@/modules/shortcuts/store';
 
 // Shortcuts
-import shortcutsList from '@/store/shortcuts';
+import shortcutsList from '@/store/shortcut-list';
 
 export default createStore({
     state: {},

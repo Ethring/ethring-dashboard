@@ -1,6 +1,9 @@
 import { Ecosystems } from '@/modules/bridge-dex/enums/Ecosystem.enum';
 import ShortcutOp, { IShortcutOp } from './ShortcutOp';
 import { ShortcutType } from './types/ShortcutType';
+import { IOperationParam } from './models/Operation';
+import { TX_TYPES } from '@/shared/models/enums/statuses.enum';
+import { ModuleTypes } from '@/shared/models/enums/modules.enum';
 
 export interface IShortcutRecipe {
     id: string;
@@ -9,7 +12,7 @@ export interface IShortcutRecipe {
     layoutComponent: string;
     isShowLayout: boolean;
 
-    operations: IShortcutOp[] | IShortcutRecipe[];
+    operations?: IShortcutOp[];
     ecosystems: Ecosystems[];
 }
 
@@ -21,7 +24,7 @@ export default class ShortcutRecipe implements IShortcutRecipe {
     isShowLayout: boolean;
     ecosystems: Ecosystems[];
 
-    operations: IShortcutOp[];
+    operations?: IShortcutOp[];
 
     constructor(recipe: IShortcutRecipe) {
         this.id = recipe.id;
@@ -32,6 +35,6 @@ export default class ShortcutRecipe implements IShortcutRecipe {
 
         this.type = recipe.type;
 
-        this.operations = recipe.operations.map((op) => new ShortcutOp(op));
+        this.operations = recipe.operations.map((op: any) => new ShortcutOp(op));
     }
 }

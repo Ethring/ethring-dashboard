@@ -9,7 +9,7 @@ export interface IShortcutData {
     keywords: string[];
     tags: string[];
     minUsdAmount: number;
-    type: 'stake'; // Assuming this is the only possible type
+    type: string;
     description: string;
     website: string;
     wallpaper: string;
@@ -19,8 +19,8 @@ export interface IShortcutData {
         operations: IShortcutRecipe[] | IShortcutOp[];
     };
 
-    recipes: ShortcutRecipe[];
-    operations: IShortcutOp[];
+    recipes?: ShortcutRecipe[];
+    operations?: IShortcutOp[];
 }
 
 export default class Shortcut implements IShortcutData {
@@ -29,7 +29,7 @@ export default class Shortcut implements IShortcutData {
     logoURI: string;
     keywords: string[];
     tags: string[];
-    type: 'stake'; // Assuming this is the only possible type
+    type: string;
     description: string;
     minUsdAmount: number;
     website: string;
@@ -42,7 +42,7 @@ export default class Shortcut implements IShortcutData {
 
     recipes: ShortcutRecipe[];
 
-    operations: ShortcutOp[] = []; // Assuming this is the only possible type
+    operations: ShortcutOp[] = [];
 
     constructor(shortcut: IShortcutData) {
         this.id = shortcut.id;

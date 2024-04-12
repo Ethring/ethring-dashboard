@@ -82,23 +82,13 @@ export default {
 
         const watchList = computed(() => store.getters['shortcutsList/watchList']);
 
-        const addToWatchList = () => {
-            store.dispatch('shortcutsList/setWatchlist', props.item.id);
-        };
+        const addToWatchList = () => store.dispatch('shortcutsList/setWatchList', props.item.id);
 
-        const openShortcut = () => {
-            store.dispatch('shortcutsList/setSelectedShortcut', props.item);
-            router.push('/shortcuts/' + props.item.id);
-        };
+        const openShortcut = () => router.push('/shortcuts/' + props.item.id);
 
-        const openProfile = () => {
-            store.dispatch('shortcutsList/setSelectedShortcut', props.item);
-            router.push('/shortcuts/profile/' + props.item.author.name);
-        };
+        const openProfile = () => router.push('/shortcuts/profile/' + props.item.author.name);
 
-        const selectTag = (tag) => {
-            store.dispatch('shortcutsList/setFilterTags', tag);
-        };
+        const selectTag = (tag) => store.dispatch('shortcutsList/setFilterTags', tag);
 
         return {
             watchList,

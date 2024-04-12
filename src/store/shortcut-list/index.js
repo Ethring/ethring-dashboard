@@ -1,16 +1,16 @@
 import { useLocalStorage } from '@vueuse/core';
 
-import { SHORTCUTS } from '@/config/shortcuts';
+import { getAllShortcuts, getDataByIdAndType } from '@/modules/shortcuts/data';
 
 const TYPES = {
     SET_FILTERED_TAGS: 'SET_FILTERED_TAGS',
-    SET_WATCHLIST: 'SET_WATCHLIST',
+    SET_WATCH_LIST: 'SET_WATCH_LIST',
     SET_SELECTED_SHORTCUT: 'SET_SELECTED_SHORTCUT',
 };
 
-const SHORTCUT_WATCHLIST_KEY = 'shortcuts:watchlist';
+const SHORTCUT_WATCH_LIST_KEY = 'shortcuts:watchList';
 
-const shortcutWatchList = useLocalStorage(SHORTCUT_WATCHLIST_KEY, [], { mergeDefaults: true });
+const shortcutWatchList = useLocalStorage(SHORTCUT_WATCH_LIST_KEY, [], { mergeDefaults: true });
 
 const filterShortcuts = (state, type) => {
     let list = state.shortcuts;
@@ -31,7 +31,7 @@ const filterShortcuts = (state, type) => {
 export default {
     namespaced: true,
     state: () => ({
-        shortcuts: SHORTCUTS,
+        shortcuts: getAllShortcuts('META'),
         selectedTags: [],
         watchList: shortcutWatchList.value,
         selectedShortcut: null,
@@ -41,7 +41,8 @@ export default {
         selectedTags: (state) => state.selectedTags,
         watchList: (state) => state.watchList,
         selectedShortcut: (state) => state.selectedShortcut,
-        getShortcutById: (state) => (id) => state.shortcuts.find((item) => item.id === id) || null,
+        getShortcutById: (state) => (id) => getDataByIdAndType(id, 'ALL'),
+        getAuthorById: (state) => (id) => getDataByIdAndType(id, 'AUTHOR'),
         getShortcutsByAuthor: (state) => (author, type) =>
             filterShortcuts(state, type || 'all').filter((item) => item.author.id === author),
 
@@ -52,7 +53,7 @@ export default {
         [TYPES.SET_FILTERED_TAGS](state, value) {
             state.selectedTags = value;
         },
-        [TYPES.SET_WATCHLIST](state, value) {
+        [TYPES.SET_WATCH_LIST](state, value) {
             state.watchList = value;
         },
         [TYPES.SET_SELECTED_SHORTCUT](state, value) {
@@ -78,14 +79,14 @@ export default {
         clearAllTags({ commit }) {
             commit(TYPES.SET_FILTERED_TAGS, []);
         },
-        setWatchlist({ commit }, value) {
+        setWatchList({ commit }, value) {
             if (shortcutWatchList.value.includes(value)) {
                 shortcutWatchList.value = shortcutWatchList.value.filter((item) => item !== value);
             } else {
                 shortcutWatchList.value = [...shortcutWatchList.value, value];
             }
 
-            commit(TYPES.SET_WATCHLIST, shortcutWatchList.value);
+            commit(TYPES.SET_WATCH_LIST, shortcutWatchList.value);
         },
     },
 };
