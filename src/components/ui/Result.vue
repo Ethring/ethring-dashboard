@@ -1,11 +1,17 @@
 <template>
-    <a-result :status="status" :title="title" class="operation-result">
+    <a-result :status="status" class="operation-result">
+        <template #title>
+            <span v-html="title"></span>
+        </template>
         <template #subTitle>
             <div class="operation-result-subtitle">
-                <span class="description">{{ description }}</span>
+                <span class="value">{{ description }}</span>
 
                 <template v-if="link">
                     <a-divider />
+
+                    <div class="description">{{ $t('tokenOperations.pendingTransactions') }}</div>
+
                     <a-tooltip :title="link">
                         <a :href="link" target="_blank" title="explorer link" class="result-link">
                             <a-space align="center" :size="4">

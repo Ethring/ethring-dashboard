@@ -276,6 +276,7 @@ const useModuleOperations = (module: ModuleType) => {
                     ...params,
                     receiverAddress: receiverAddress.value,
                     memo: memo.value,
+                    dstAmount: dstAmount.value,
                     tokens: {
                         from: selectedSrcToken.value,
                         to: selectedDstToken.value,

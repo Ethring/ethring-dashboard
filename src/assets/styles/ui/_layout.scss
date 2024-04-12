@@ -139,6 +139,25 @@ $top-bar-spacing: 20px;
         background-color: var(--#{$prefix}border-secondary-color);
     }
 
+    .ant-result-title {
+
+        span {
+            @include pageFlexRow;
+            justify-content: center;
+        }
+
+        .network-icon {
+            width: 20px;
+            height: 20px;
+
+            margin: 0 6px;
+            padding: 2px;
+
+            border: 0.2px solid var(--#{$prefix}icon-placeholder-border);
+            border-radius: 50%;
+        }
+    }
+
     .ant-result-content {
         padding: 0;
         background: transparent;
@@ -168,13 +187,24 @@ $top-bar-spacing: 20px;
         max-width: 520px;
         width: 100%;
 
+        .value {
+            font-size: var(--#{$prefix}h3-fs);
+            color: var(--#{$prefix}sub-text);
+        }
+
         .description {
             color: var(--#{$prefix}mute-text);
+            font-size: var(--#{$prefix}small-sm-fs);
         }
     }
 
     .result-link {
         color: var(--#{$prefix}sub-text);
+
+        div {
+            font-size: var(--#{$prefix}small-sm-fs);
+            margin-top: 6px;
+        }
 
         &,
         svg {

@@ -5,11 +5,16 @@ import { addTransactionToExistingQueue, createTransactionsQueue, getTransactions
 
 import useNotification from '@/compositions/useNotification';
 
-import { STATUSES, DISALLOW_UPDATE_TYPES } from '@/shared/models/enums/statuses.enum';
+import { STATUSES, DISALLOW_UPDATE_TYPES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
+
+import { ModuleType } from '@/modules/bridge-dex/enums/ServiceType.enum';
 
 import { captureTransactionException } from '@/app/modules/sentry';
 
+import { capitalize } from 'lodash';
+
 import logger from '@/shared/logger';
+
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
 export default function useTransactions() {
@@ -159,20 +164,33 @@ export default function useTransactions() {
 
         const displayHash = transactionHash.slice(0, 8) + '...' + transactionHash.slice(-8);
 
-        const { type } = metaData || {};
+        const { type, params } = metaData || {};
+
+        const TARGET_TYPE = TRANSACTION_TYPES[type];
+
+        const isSameNetwork = params.tokens.from?.chain === params.tokens.to?.chain;
 
         if (!DISALLOW_UPDATE_TYPES.includes(type)) {
             console.log('handleSuccessfulSign -> metaData', metaData);
 
             await store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
 
+            const operationResultDesc = module === ModuleType.send ? `${params.amount} ${params.tokens.from.symbol}` : `${params.dstAmount} ${params.tokens.to.symbol}`;
+
+            let operationResultTitle = `Initiated a ${module}`;
+
+            if ([TRANSACTION_TYPES.DEX, TRANSACTION_TYPES.SWAP, TRANSACTION_TYPES.BRIDGE].includes(TARGET_TYPE)) {
+                operationResultTitle += isSameNetwork ? ` on <img class="network-icon" src="${params.tokens.from.chainLogo}"/> ${capitalize(params.fromNet)} from ${params.amount} to` : ` from <img class="network-icon" src="${params.tokens.from.chainLogo}"/> ${capitalize(params.tokens.from.chain)} to <img class="network-icon" src="${params.tokens.to.chainLogo}"/> ${capitalize(params.tokens.to.chain)}`;
+            } else if ([TRANSACTION_TYPES.TRANSFER].includes(TARGET_TYPE)) {
+                operationResultTitle += ` on <img class="network-icon" src="${params.tokens.from.chainLogo}" /> ${capitalize(params.fromNet)} `;
+            }
+
             await store.dispatch('tokenOps/setOperationResult', {
                 module,
                 result: {
                     status: 'success',
-                    title: 'Transaction sent to blockchain',
-                    description:
-                        'Transaction successfully sent to blockchain, but the transaction still pending. Please wait for confirmation.',
+                    title: operationResultTitle,
+                    description: operationResultDesc,
                     link: explorerLink,
                 },
             });
