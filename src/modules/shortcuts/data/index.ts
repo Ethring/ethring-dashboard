@@ -39,7 +39,6 @@ const getAllShortcuts = (type: RequestDataType = 'ALL', limit: number = 10, offs
 };
 
 const getDataByIdAndType = (id: string, type: RequestDataType = 'ALL') => {
-    console.log('getDataByIdAndType', id, type);
     switch (type) {
         case 'META':
             return getShortcutMetaById(id);
@@ -64,12 +63,11 @@ const getShortcutsByAuthor = (authorId: string) => {
     return availableShortcuts
         .map((key) => {
             const meta = getShortcutMetaById(key);
-            if (meta.author.id === authorId) {
+            if (meta.author.id === authorId)
                 return {
                     ...meta,
                     recipe: getRecipeById(key),
                 };
-            }
         })
         .filter((item) => item);
 };

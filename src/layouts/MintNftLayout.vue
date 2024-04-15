@@ -50,23 +50,29 @@
                     <a-col :span="8" v-for="stats in nftCollectionInfo.stats">
                         <a-card class="nft-stats-card">
                             <p class="type">{{ stats.type }}</p>
-                            <template v-if="stats.type === 'Quantity' && stats.value === 'Unlimited'">
+                            <template v-if="stats.type === 'Quantity' && typeof stats.value === 'string' && stats.value === 'Unlimited'">
                                 <p class="amount">Unlimited</p>
                             </template>
-                            <template v-else>
-                                <Amount class="amount" v-bind="stats.value as Object" />
+                            <template v-else-if="typeof stats.value !== 'string'">
+                                <Amount class="amount" :type="stats.value.type" :value="stats.value.value" :symbol="stats.value.symbol" />
                             </template>
                         </a-card>
                     </a-col>
                 </a-row>
             </a-col>
 
-            <a-col :span="24">
+            <a-col :span="24" v-if="nftCollectionInfo && nftCollectionInfo.priceStats">
                 <a-row :gutter="[8, 8]" class="nft-stats">
                     <a-col :span="24">
                         <a-card class="nft-stats-card">
                             <p class="type">{{ nftCollectionInfo.priceStats.type }}</p>
-                            <Amount class="amount" v-bind="nftCollectionInfo.priceStats.value as Object" />
+                            <Amount
+                                v-if="nftCollectionInfo.priceStats.value && typeof nftCollectionInfo.priceStats.value !== 'string'"
+                                class="amount"
+                                :type="nftCollectionInfo.priceStats.value.type"
+                                :value="nftCollectionInfo.priceStats.value.value"
+                                :symbol="nftCollectionInfo.priceStats.value.symbol"
+                            />
                         </a-card>
                     </a-col>
                 </a-row>
@@ -81,13 +87,13 @@
             <EstimatePreviewInfo
                 v-if="isShowEstimateInfo"
                 :title="$t('tokenOperations.routeInfo')"
+                :error="quoteErrorMessage"
                 :is-loading="isQuoteLoading"
                 :fee-in-usd="fees[FEE_TYPE.BASE] || 0"
                 :main-rate="fees[FEE_TYPE.RATE] || null"
-                :error="quoteErrorMessage"
             />
 
-            <Button
+            <UiButton
                 data-qa="confirm"
                 v-bind="opBtnState"
                 :title="$t(opBtnState.title)"
@@ -104,7 +110,7 @@ import { ref, watch, computed, onMounted } from 'vue';
 import useModuleOperations from '@/compositions/useModuleOperation';
 
 // UI components
-import Button from '@/components/ui/Button.vue';
+import UiButton from '@/components/ui/Button.vue';
 import Checkbox from '@/components/ui/Checkbox.vue';
 import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewInfo.vue';
 
@@ -115,9 +121,6 @@ import SelectRecord from '@/components/ui/Select/SelectRecord.vue';
 
 import SelectContractInput from '@/components/ui/Select/SelectContractInput.vue';
 import CountInput from '@/components/ui/CountInput.vue';
-
-// Icons
-import InfoIcon from '@/assets/icons/platform-icons/info.svg';
 
 // Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
@@ -132,15 +135,15 @@ import DisplayAddress from '@/components/ui/DisplayAddress.vue';
 import { ClockCircleOutlined } from '@ant-design/icons-vue';
 import BigNumber from 'bignumber.js';
 
-import { IShortcutOp } from '@/modules/shortcuts/core/ShortcutOp';
-import OperationsFactory from '@/modules/operations/OperationsFactory';
-import { SHORTCUT_STATUSES } from '../shared/models/enums/statuses.enum';
 import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
+
+// Icons
+import InfoIcon from '@/assets/icons/platform-icons/info.svg';
 
 export default {
     name: 'MintNftLayout',
     components: {
-        Button,
+        UiButton,
         Checkbox,
         SelectRecord,
         SelectContractInput,
@@ -200,9 +203,9 @@ export default {
 
         const { getCollectionInfo } = useNft(ECOSYSTEMS.COSMOS as 'COSMOS');
 
-        const endTime = ref(null);
+        const endTime = ref<number>(0);
 
-        const nftCollectionInfo = ref<INftCollectionInfo>(null);
+        const nftCollectionInfo = ref<INftCollectionInfo | null>({});
 
         const getCollectionInfoData = async () => {
             console.log('getCollectionInfoData', selectedSrcNetwork.value?.net, contractAddress.value);

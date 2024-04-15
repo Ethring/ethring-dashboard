@@ -1,12 +1,8 @@
-import BridgeDexService, { IBridgeDexService } from '@/modules/bridge-dex';
-import { ServiceByModule } from '@/modules/bridge-dex/enums/ServiceType.enum';
-import { TxOperationFlow } from '../../../shared/models/types/Operations';
-import { Field } from '@/shared/models/enums/fields.enum';
-import { ShortcutType } from './types/ShortcutType';
-import { TRANSACTION_TYPES, TX_TYPES } from '../../../shared/models/enums/statuses.enum';
-import { ModuleType } from '@/shared/models/enums/modules.enum';
-import { IOperationParam } from './models/Operation';
 import { Ecosystems } from '@/modules/bridge-dex/enums/Ecosystem.enum';
+import { IOperationParam } from './models/Operation';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
+import { ShortcutType } from './types/ShortcutType';
+import { TX_TYPES } from '../../../shared/models/enums/statuses.enum';
 
 export interface IShortcutOp {
     id: string;
@@ -23,11 +19,11 @@ export interface IShortcutOp {
     isNeedFromAmount?: boolean;
 
     operationParams: {
-        net?: string;
+        net?: string | null;
         fromNet: string;
         fromToken: string;
-        toNet?: string;
-        toToken?: string;
+        toNet?: string | null;
+        toToken?: string | null;
 
         // others
         [key: string]: any;
@@ -44,7 +40,7 @@ export default class ShortcutOp implements IShortcutOp {
     type: ShortcutType.operation | ShortcutType.recipe;
     operationType: TX_TYPES;
     moduleType: keyof typeof ModuleType;
-    serviceId?: string;
+    serviceId?: string = '';
     paramsInterface?: string;
     layoutComponent: string;
     isShowLayout: boolean;
@@ -53,10 +49,10 @@ export default class ShortcutOp implements IShortcutOp {
 
     operationParams: {
         fromNet: string;
-        toNet?: string;
         fromToken: string;
-        toToken?: string;
-        net?: string;
+        toNet?: string | null;
+        toToken?: string | null;
+        net?: string | null;
         [key: string]: any;
     };
 
