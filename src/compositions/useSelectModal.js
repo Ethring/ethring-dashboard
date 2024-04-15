@@ -208,7 +208,7 @@ export default function useSelectModal(type) {
         return _.slice(records, 0, currentIndex.value);
     });
 
-    watch(isOpen, async () => {
+    watch([isOpen, selectedNetwork, selectedTokenFrom], async () => {
         if (isOpen.value && selectModal.value?.type === TYPES.TOKEN) {
             store.dispatch('app/setLoadingTokenList', true);
 
