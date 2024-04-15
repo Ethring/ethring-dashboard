@@ -161,17 +161,79 @@ export class BaseOperation implements IBaseOperation {
     }
 
     getTitle(): string {
-        if (!this.getToken('from') || !this.params.amount) {
-            return this.getName() || `${this.getModule()} - ${BaseOperation.getTxType()}`;
+        const module = this.getModule() as ModuleType;
+        const { count = 0, outputAmount = 0, amount } = this.getParams();
+        const { from, to } = this.getTokens() || {};
+
+        let fromTokenTitle = Number(amount) > 0 && from?.symbol ? `${amount} ${from.symbol}` : '';
+        let toTokenTitle = Number(outputAmount) > 0 && to?.symbol ? ` to ${outputAmount} ${to.symbol}` : '';
+
+        switch (module) {
+            case ModuleType.stake:
+                return `STAKE ${fromTokenTitle}`;
+            case ModuleType.swap:
+                return `SWAP ${fromTokenTitle} ${toTokenTitle}`;
+            case ModuleType.send:
+                return `SEND ${fromTokenTitle}`;
+            case ModuleType.bridge:
+                return `BRIDGE ${fromTokenTitle} ${toTokenTitle}`;
+            case ModuleType.superSwap:
+                const isSameNetwork = this.getParamByField('fromNet') === this.getParamByField('toNet');
+                const TYPE = isSameNetwork ? TRANSACTION_TYPES.SWAP : TRANSACTION_TYPES.BRIDGE;
+                return `${TYPE} ${fromTokenTitle} ${toTokenTitle}`;
+            case ModuleType.nft:
+                return `MINT ${count} NFTs`;
+            default:
+                return `${this.getModule()} - ${BaseOperation.getTxType()}`;
         }
+    }
 
-        const title = `${this.params.amount} ${this.getToken('from')?.symbol || ''}`;
+    getNotificationInfo(make: string): {
+        title: string;
+        description?: string;
+    } {
+        const module = this.getModule() as ModuleType;
+        const { count = 0, outputAmount = 0, amount } = this.getParams();
+        const { from, to } = this.getTokens() || {};
 
-        if (this.getToken('to') && this.params.outputAmount) {
-            return `${title} to ${this.params.outputAmount} ${this.getToken('to').symbol}`;
+        let fromTokenTitle = Number(amount) > 0 && from?.symbol ? `${amount} ${from.symbol}` : '';
+        let toTokenTitle = Number(outputAmount) > 0 && to?.symbol ? `For ${outputAmount} ${to.symbol}` : '';
+
+        if (this.transactionType === TRANSACTION_TYPES.APPROVE) toTokenTitle = '';
+
+        switch (module) {
+            case ModuleType.stake:
+                return {
+                    title: `STAKE ${fromTokenTitle}`,
+                };
+            case ModuleType.swap:
+                return {
+                    title: `${make} ${fromTokenTitle}`,
+                    description: toTokenTitle,
+                };
+            case ModuleType.send:
+                return {
+                    title: `SEND ${fromTokenTitle}`,
+                };
+            case ModuleType.bridge:
+                return {
+                    title: `${make} ${fromTokenTitle}`,
+                    description: toTokenTitle,
+                };
+            case ModuleType.superSwap:
+                return {
+                    title: `${make} ${fromTokenTitle}`,
+                    description: toTokenTitle,
+                };
+            case ModuleType.nft:
+                return {
+                    title: `MINT ${count} NFTs`,
+                };
+            default:
+                return {
+                    title: `${this.getModule()} - ${BaseOperation.getTxType()}`,
+                };
         }
-
-        return title;
     }
 
     getAdditionalTooltip() {

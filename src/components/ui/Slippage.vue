@@ -1,6 +1,12 @@
 <template>
-    <a-dropdown v-model:open="isOpen" :arrow="{ pointAtCenter: true }" trigger="click" class="slippage"
-        placement="bottom">
+    <a-dropdown
+        v-model:open="isOpen"
+        :arrow="{ pointAtCenter: true }"
+        trigger="click"
+        class="slippage"
+        placement="bottom"
+        @open-change="handleOpenChange"
+    >
         <div class="slippage__icon" data-qa="slippage-icon">
             <SettingsIcon />
         </div>
@@ -16,12 +22,19 @@
                 <a-row :wrap="false" :style="{ marginTop: '10px' }">
                     <a-radio-group v-model:value="activeOption" button-style="solid" class="slippage__control-options">
                         <a-row :wrap="false">
-                            <a-radio-button value="auto" @click="() => slippage = 1">Auto</a-radio-button>
+                            <a-radio-button value="auto" @click="() => (slippage = 1)">Auto</a-radio-button>
                             <a-radio-button value="custom" data-qa="slippage-custom">Custom</a-radio-button>
                         </a-row>
                     </a-radio-group>
                     <div class="slippage__input" data-qa="slippage-custom-input">
-                        <a-input v-model:value="slippage" :disabled="activeOption === 'auto'" suffix="%" />
+                        <a-input-number
+                            v-model:value="slippage"
+                            :controls="false"
+                            :disabled="activeOption === 'auto'"
+                            :min="0.1"
+                            :max="20"
+                            addon-after="%"
+                        />
                     </div>
                 </a-row>
                 <a-row v-if="warningText" class="slippage__warning" :wrap="false" align="center">
@@ -33,7 +46,7 @@
     </a-dropdown>
 </template>
 <script>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
@@ -50,7 +63,7 @@ export default {
     components: {
         SettingsIcon,
         InfoIcon,
-        WarningIcon
+        WarningIcon,
     },
     setup() {
         const warningText = ref(null);
@@ -67,12 +80,12 @@ export default {
 
         const activeOption = ref(slippage.value === 1 ? 'auto' : 'custom');
 
-        watch(() => slippage.value, (val) => {
-            slippage.value = formatInputNumber(val)
+        watch(slippage, (val = '') => {
+            if (isNaN(val)) return (slippage.value = 1);
 
-            if (slippage.value >= 50) {
-                slippage.value = 20;
-            }
+            slippage.value = formatInputNumber(val || '');
+
+            warningText.value = null;
 
             if (slippage.value >= 20) {
                 warningText.value = t('slippage.limitWarning1');
@@ -80,26 +93,39 @@ export default {
                 warningText.value = t('slippage.limitWarning3');
             } else if (slippage.value < 0.1) {
                 warningText.value = t('slippage.limitWarning2');
-            } else {
-                warningText.value = null;
             }
-        })
+        });
 
-        watch(isOpen, () => {
-            if (!slippage.value && isOpen.value) {
-                slippage.value = 1;
-            }
+        const handleOpenChange = (open) => {
+            isOpen.value = open;
+
             if (slippage.value > 20) {
                 slippage.value = 20;
             }
-        })
+
+            if (isOpen.value && !slippage.value) slippage.value = 1;
+
+            if (!isOpen.value) {
+                !slippage.value && (slippage.value = 1);
+
+                activeOption.value = slippage.value === 1 ? 'auto' : 'custom';
+
+                warningText.value && (warningText.value = null);
+            }
+        };
+
+        onMounted(() => {
+            if (!slippage.value) slippage.value = 1;
+            activeOption.value = slippage.value === 1 ? 'auto' : 'custom';
+        });
 
         return {
             isOpen,
             slippage,
             activeOption,
-            warningText
-        }
-    }
+            warningText,
+            handleOpenChange,
+        };
+    },
 };
 </script>

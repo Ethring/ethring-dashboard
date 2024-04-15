@@ -26,6 +26,7 @@ export class ApproveOperation extends DexOperation {
         const { make } = options;
         let notificationTitle = `${make} ${this.getTitle()}`;
 
+        const { title, description } = this.getNotificationInfo(make);
         return {
             index,
             module: this.module,
@@ -36,7 +37,8 @@ export class ApproveOperation extends DexOperation {
             metaData: {
                 action: getActionByTxType(this.transactionType),
                 type: this.transactionType,
-                notificationTitle,
+                notificationTitle: title || notificationTitle,
+                notificationDescription: description || '',
                 params: {
                     ...this.params,
                     tokens: this.getTokens(),

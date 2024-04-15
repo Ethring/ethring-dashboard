@@ -100,6 +100,7 @@ export default class DexOperation extends BaseOperation {
 
         if (!serviceId) {
             bestRouteServiceId = best;
+            this.setParamByField('serviceId', bestRouteServiceId);
         }
 
         const bestRoute: IQuoteRoute = routes.find((route) => route.serviceId === bestRouteServiceId) || routes[0];
@@ -134,6 +135,7 @@ export default class DexOperation extends BaseOperation {
 
     perform(index: number, account: string, ecosystem: string, chainId: string, { make }: PerformOptionalParams): ICreateTransaction {
         let notificationTitle = `${make} ${this.getTitle()}`;
+        const { title, description } = this.getNotificationInfo(make);
 
         return {
             index,
@@ -149,7 +151,8 @@ export default class DexOperation extends BaseOperation {
             metaData: {
                 action: getActionByTxType(this.transactionType),
                 type: this.transactionType,
-                notificationTitle,
+                notificationTitle: title || notificationTitle,
+                notificationDescription: description,
                 params: {
                     ...this.params,
                     tokens: this.getTokens(),

@@ -33,6 +33,8 @@ export default class TransferOperation extends BaseOperation {
 
         const notificationTitle = `${make} ${this.getTitle()}`;
 
+        const { title, description } = this.getNotificationInfo(make);
+
         return {
             index,
             module: this.getModule(),
@@ -47,7 +49,8 @@ export default class TransferOperation extends BaseOperation {
             metaData: {
                 action: getActionByTxType(this.transactionType),
                 type: this.transactionType,
-                notificationTitle,
+                notificationTitle: title || notificationTitle,
+                notificationDescription: description || '',
                 params: this.params,
                 tokens: this.getTokens(),
             },

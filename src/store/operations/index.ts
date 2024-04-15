@@ -137,7 +137,7 @@ export default {
         [Field.contractCallCount]: 0,
 
         [Field.funds]: null,
-        [Field.slippage]: slippageFromStore.value,
+        [Field.slippage]: slippageFromStore.value || 1,
 
         isForceCallConfirm: {
             [ModuleType.send]: false,

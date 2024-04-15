@@ -226,6 +226,7 @@ const useModuleOperations = (module: ModuleType) => {
         closeNotification(`tx-${tx.getTxId()}`);
         store.dispatch('txManager/setTxTimerID', null);
         store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
+        isTransactionSigning.value = false;
 
         showNotification({
             key: 'tx-error',
@@ -410,8 +411,10 @@ const useModuleOperations = (module: ModuleType) => {
                         [selectedDstNetwork.value?.net || selectedSrcNetwork.value.net]: receiverAddress.value,
                     };
                 } else {
+                    let receiverAddressValue = addressByChain.value[selectedDstNetwork.value?.net || selectedSrcNetwork.value.net];
+
                     params.receiverAddress = {
-                        [selectedDstNetwork.value?.net || selectedSrcNetwork.value.net]: receiverAddress.value || ownerAddress,
+                        [selectedDstNetwork.value?.net || selectedSrcNetwork.value.net]: receiverAddress.value || receiverAddressValue,
                     };
                 }
 
@@ -664,18 +667,14 @@ const useModuleOperations = (module: ModuleType) => {
                 // Notification Block
 
                 const { metaData } = txInstance.getTransaction() || ({} as ITransactionResponse);
-                const { notificationTitle, params } = metaData || {};
-                const { amount } = params || {};
-                const nTitle = notificationTitle || `${txInstance.type} ${amount} ...`;
-
-                const [title = '', description = ''] = nTitle.split('to');
+                const { notificationTitle, notificationDescription } = metaData || {};
 
                 // * Show notification
                 showNotification({
                     key: `tx-${txInstance.getTxId()}`,
                     type: 'info',
-                    title: title,
-                    description: description ? `for ${description}` : '',
+                    title: notificationTitle,
+                    description: notificationDescription || '',
                     duration: 0,
                     prepare: true,
                 });

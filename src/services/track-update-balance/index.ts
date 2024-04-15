@@ -73,14 +73,15 @@ export const trackingBalanceUpdate = (store: any) => {
 
         if (!network || !address || !targetAccount) return;
 
-        message.loading({
-            content: () => `Updating balance for ${network.net} after ${BALANCE_WAIT_TIME.value} sec`,
-            duration: BALANCE_WAIT_TIME.value || 3,
-        });
-
         // Wait for 3 sec before updating balance
         console.log(`Waiting for ${BALANCE_WAIT_TIME.value} sec before updating balance for ${network.net}`);
+
         await delay(BALANCE_WAIT_TIME.value * 1000);
+
+        message.loading({
+            content: () => `Fetching balance for ${network.net} & ${address}`,
+        });
+
         console.log('Finished waiting for balance update, updating balance now...');
 
         console.log('Updating balance for', network.net, 'with address', address);

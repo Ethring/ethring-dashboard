@@ -127,6 +127,8 @@ export interface IBaseOperation {
 
     setTxResponse?: (txResponse: any) => void;
     getTxResponse?: () => any;
+
+    getNotificationInfo: (make: string) => { title: string; description?: string };
 }
 
 export interface IRegisterOperation {
