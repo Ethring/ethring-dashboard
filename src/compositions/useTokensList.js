@@ -4,7 +4,7 @@ import { computed } from 'vue';
 
 import { useStore } from 'vuex';
 
-import { ECOSYSTEMS } from '@/Adapter/config';
+import { ECOSYSTEMS, NATIVE_CONTRACT } from '@/Adapter/config';
 
 export default function useTokensList({ network = null, fromToken = null, toToken = null } = {}) {
     const store = useStore();
@@ -132,13 +132,18 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
         const tokensListFromNetVerified = tokensListFromNet.filter((token) => token.verified);
 
-        const tokensVerifiedMap = new Map(tokensListFromNetVerified.map((token) => [token.id.toLowerCase(), true]));
+        const tokensVerifiedMap = new Map(
+            tokensListFromNetVerified.map((token) => [token.address ? token.address.toLowerCase() : NATIVE_CONTRACT, true]),
+        );
 
-        // Update the tokens list with balance to include the verified status
-        const tokensWithBalanceVerified = tokensWithBalance.map((token) => ({
-            ...token,
-            verified: tokensVerifiedMap.has(token.id.toLowerCase()),
-        }));
+        let tokensWithBalanceVerified = tokensWithBalance;
+        if (tokensListFromNetVerified) {
+            // Update the tokens list with balance to include the verified status
+            tokensWithBalanceVerified = tokensWithBalance.map((token) => ({
+                ...token,
+                verified: tokensVerifiedMap.has(token?.address?.toLowerCase() || NATIVE_CONTRACT),
+            }));
+        }
 
         // Target tokens list with or without balance
         if (onlyWithBalance) {
