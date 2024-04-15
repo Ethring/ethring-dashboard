@@ -37,10 +37,10 @@
             </SwapField>
         </a-form-item>
 
-        <Checkbox v-if="selectedDstToken && selectedDstNetwork && !isSameNetwork" v-model:value="isSendToAnotherAddress"
-            :disabled="isDisableSelect" :label="$t('tokenOperations.chooseAddress')" />
+        <Checkbox class="mt-8" v-model:value="isSendToAnotherAddress" :disabled="isDisableCheckbox"
+            :label="$t('tokenOperations.chooseAddress')" />
 
-        <SelectAddressInput v-if="isSendToAnotherAddress && selectedDstNetwork && selectedDstToken" class="mt-8"
+        <SelectAddressInput v-if="isSendToAnotherAddress && selectedDstNetwork" class="mt-8"
             :selected-network="selectedDstNetwork" :on-reset="isSendToAnotherAddress" :disabled="isDisableSelect"
             @error-status="(status) => (isAddressError = status)" />
 
@@ -107,6 +107,8 @@ export default {
         // =================================================================================================================
 
         const isSwapLoading = ref(false);
+
+        const servicesHash = computed(() => store.getters['bridgeDexAPI/getAllServicesHash']);
 
         // * Module values
         const {
@@ -194,6 +196,20 @@ export default {
 
         // =================================================================================================================
 
+        const isDisableCheckbox = computed(() => {
+            if (!selectedRoute.value) {
+                return isDisableSelect.value;
+            }
+            if (servicesHash.value[selectedRoute.value?.serviceId]) {
+                if (isSendToAnotherAddress.value) {
+                    isSendToAnotherAddress.value = servicesHash.value[selectedRoute.value?.serviceId].features_support?.receiver;
+                }
+                return !servicesHash.value[selectedRoute.value?.serviceId].features_support?.receiver;
+            }
+        })
+
+        // =================================================================================================================
+
         const getEstimateInfo = async (isReload = false) => {
             if (isReload && (isQuoteLoading.value || isTransactionSigning.value)) {
                 return;
@@ -248,6 +264,7 @@ export default {
             differPercentage,
 
             isDisableConfirmButton,
+            isDisableCheckbox,
 
             getEstimateInfo,
             toggleRoutesModal,

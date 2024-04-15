@@ -29,6 +29,8 @@ import useInputValidation from '@/shared/form-validations';
 
 import { delay } from '@/shared/utils/helpers';
 
+import { cutAddress } from '@/shared/utils/address';
+
 const useModuleOperations = (module: ModuleType) => {
     const { walletAddress, currentChainInfo, setChain, connectByEcosystems, getChainByChainId } = useAdapter();
 
@@ -164,7 +166,7 @@ const useModuleOperations = (module: ModuleType) => {
         [TRANSACTION_TYPES.APPROVE]: 'formatTransactionForSign',
         [TRANSACTION_TYPES.DEX]: 'formatTransactionForSign',
         [TRANSACTION_TYPES.SWAP]: 'formatTransactionForSign',
-        [TRANSACTION_TYPES.TRANSFER]: 'prepareTransaction',
+        [TRANSACTION_TYPES.SEND]: 'prepareTransaction',
     };
 
     // ===============================================================================================
@@ -183,8 +185,8 @@ const useModuleOperations = (module: ModuleType) => {
         }
 
         const flowTransfer = {
-            type: TRANSACTION_TYPES.TRANSFER,
-            make: TRANSACTION_TYPES.TRANSFER,
+            type: TRANSACTION_TYPES.SEND,
+            make: TRANSACTION_TYPES.SEND,
             index: flow.length,
         };
 
@@ -253,9 +255,14 @@ const useModuleOperations = (module: ModuleType) => {
         const TARGET_TYPE = TRANSACTION_TYPES[type];
 
         let notificationTitle = `${make} ${srcAmount.value} ${selectedSrcToken.value?.symbol || ''}`;
+        let notificationDescription = 'Please wait, transaction is preparing';
 
         if ([TRANSACTION_TYPES.DEX, TRANSACTION_TYPES.SWAP, TRANSACTION_TYPES.BRIDGE].includes(TARGET_TYPE)) {
-            notificationTitle += ` to ~${dstAmount.value} ${selectedDstToken.value?.symbol || ''}`;
+            notificationDescription = ` to ~${dstAmount.value} ${selectedDstToken.value?.symbol || ''}`;
+        }
+
+        if ([TRANSACTION_TYPES.SEND].includes(TARGET_TYPE)) {
+            notificationDescription = ` To ${cutAddress(receiverAddress.value)}`;
         }
 
         return {
@@ -283,6 +290,7 @@ const useModuleOperations = (module: ModuleType) => {
                     },
                 },
                 notificationTitle,
+                notificationDescription,
             },
         };
     };
@@ -309,6 +317,8 @@ const useModuleOperations = (module: ModuleType) => {
             return tx;
         },
         [TRANSACTION_TYPES.DEX]: async (): Promise<IBridgeDexTransaction> => {
+            const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
+
             const params = {
                 net: selectedSrcNetwork.value.net,
                 fromNet: selectedSrcNetwork.value.net,
@@ -318,16 +328,16 @@ const useModuleOperations = (module: ModuleType) => {
                 toToken: selectedDstToken.value.address,
 
                 ownerAddresses: addressByChain.value as OwnerAddresses,
-                receiverAddress: receiverAddress.value,
+                receiverAddress: { [selectedDstNetwork.value?.net || selectedSrcNetwork.value.net]: receiverAddress.value || ownerAddress },
                 amount: srcAmount.value,
                 slippageTolerance: slippage.value
             } as AllQuoteParams;
 
             // * Bridge transaction, add receiver address to ownerAddresses
-            if (isSendToAnotherAddress.value && receiverAddress.value) {
+            if (isSendToAnotherAddress.value && receiverAddress.value && selectedRoute.value.serviceId === 'skip') {
                 params.ownerAddresses = {
                     ...addressByChain.value,
-                    [selectedDstNetwork.value.net]: receiverAddress.value,
+                    [selectedDstNetwork.value?.net || selectedSrcNetwork.value.net]: receiverAddress.value,
                 };
             }
 
@@ -337,7 +347,7 @@ const useModuleOperations = (module: ModuleType) => {
 
             return tx;
         },
-        [TRANSACTION_TYPES.TRANSFER]: async (): Promise<IBridgeDexTransaction> => {
+        [TRANSACTION_TYPES.SEND]: async (): Promise<IBridgeDexTransaction> => {
             const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
 
             const params = {
@@ -376,7 +386,7 @@ const useModuleOperations = (module: ModuleType) => {
         [TRANSACTION_TYPES.DEX]: () => {
             console.log('Swap success', 'Update balance');
         },
-        [TRANSACTION_TYPES.TRANSFER]: () => {
+        [TRANSACTION_TYPES.SEND]: () => {
             console.log('Transfer success', 'Update balance');
         },
     };
@@ -405,7 +415,8 @@ const useModuleOperations = (module: ModuleType) => {
             type: 'error',
             title: 'Transaction canceled',
             description: 'Your transaction has been canceled because the response from the node took too long. Please try again.',
-            duration: 4,
+            duration: 6,
+            progress: true
         });
     }
 
@@ -479,12 +490,14 @@ const useModuleOperations = (module: ModuleType) => {
                         const notificationTitle =
                             tx.transaction.metaData.notificationTitle || `${tx.type} ${tx.transaction.metaData.params?.amount} ...`;
 
+                        const notificationDescription = tx.transaction.metaData.notificationDescription;
+
                         // * Show notification
                         showNotification({
                             key: `tx-${tx.getTxId()}`,
                             type: 'info',
                             title: notificationTitle,
-                            description: 'Please wait, transaction is preparing',
+                            description: notificationDescription,
                             duration: 0,
                             prepare: true,
                         });
@@ -582,6 +595,7 @@ const useModuleOperations = (module: ModuleType) => {
                         title: 'Transaction error',
                         description: errorMessage,
                         duration: 6,
+                        progress: true
                     });
                 };
 

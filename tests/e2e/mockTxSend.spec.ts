@@ -58,8 +58,8 @@ testMetaMaskMockTx.describe('Mocked send tx Metamask', () => {
 
         await sleep(2000);
 
-        expect(sendPage.page).toHaveScreenshot({
-            mask: [sendPage.page.locator(IGNORED_LOCATORS.HEADER), sendPage.page.locator(IGNORED_LOCATORS.ASIDE)],
-        });
+        const receivedData = await sendPage.getNotificationData();
+        expect(receivedData.notificationCount).toEqual(1);
+        expect(receivedData.notificationTitle).toEqual('notification');
     });
 });
