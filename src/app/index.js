@@ -35,6 +35,8 @@ import VueClickAway from 'vue3-click-away';
 // Logger (custom)
 import logger from '@/shared/logger';
 
+import '@/app/scripts/window-custom.ts';
+
 // SCSS styles
 import '@/assets/styles/index.scss';
 

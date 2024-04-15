@@ -79,6 +79,8 @@ export const getShortcutMetaById = (id: string): IShortcutMeta => {
             website: '',
             wallpaper: '',
             ecosystems: [],
+            minUsdAmount: 0,
+            author: getAuthorById(ShortcutAuthor.ZometApp),
         } as IShortcutMeta;
 
     return META_DATA[id];

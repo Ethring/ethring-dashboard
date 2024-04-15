@@ -6,7 +6,7 @@ export interface IShortcutData {
     id: string;
     name: string;
     logoURI: string;
-    keywords: string[];
+    keywords: string[] | null;
     tags: string[];
     minUsdAmount: number;
     type: string;
@@ -27,7 +27,7 @@ export default class Shortcut implements IShortcutData {
     id: string;
     name: string;
     logoURI: string;
-    keywords: string[];
+    keywords: string[] | null;
     tags: string[];
     type: string;
     description: string;

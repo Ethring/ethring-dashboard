@@ -9,6 +9,7 @@ declare global {
         };
     }
 }
+
 export default function development() {
     console.log('development script');
 
@@ -19,7 +20,7 @@ export default function development() {
     }
 
     window.customNotifications = {
-        showSuccess: (title: string = 'Success test', description: string = null, duration: number = 3) => {
+        showSuccess: (title: string = 'Success test', description: string = '', duration: number = 3) => {
             showNotification({
                 type: 'success',
                 key: 'success-notification',
@@ -29,7 +30,7 @@ export default function development() {
             });
         },
 
-        showPrepare: (title: string = 'Prepare test', description: string = null, duration: number = 3) => {
+        showPrepare: (title: string = 'Prepare test', description: string = '', duration: number = 3) => {
             showNotification({
                 type: 'info',
                 key: 'prepare-notification',

@@ -19,7 +19,7 @@ export default function useNotification() {
         key,
         type = 'info',
         title = 'notification',
-        description = null,
+        description = '',
         duration = 3,
         prepare = false,
         onCancel = () => {},

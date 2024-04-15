@@ -216,7 +216,7 @@ export class TransactionList {
     // ===========================================================================================
     async executeTransactions() {
         let current = this.head;
-        const WAIT_TIME_BETWEEN_TX = 3500;
+        const WAIT_TIME_BETWEEN_TX = (window.CALL_NEXT_TX_WAIT_TIME.value || 3.5) * 1000;
 
         while (current) {
             try {
