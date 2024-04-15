@@ -1,15 +1,14 @@
 <template>
-    <div
-        class="select-token-option"
-        data-qa="token-record"
-        :data-key="record?.id || record?.address"
-        :class="{ selected: record.selected }"
-    >
+    <div class="select-token-option" data-qa="token-record" :data-key="record?.id || record?.address"
+        :class="{ selected: record.selected }">
         <div class="info-container">
             <TokenIcon width="32" height="32" :token="record" class="logo" />
 
             <div class="label-container">
-                <div class="top">{{ label }}</div>
+                <div class="row">
+                    <span class="top">{{ label }}</span>
+                    <CheckIcon class="check-icon" v-if="record?.verified" />
+                </div>
 
                 <div class="bottom" v-if="displayName">
                     <div class="sub-text-container">
@@ -25,12 +24,8 @@
                             </template>
                         </div>
 
-                        <a-typography-link
-                            v-if="record.address && tokenExplorerLink"
-                            :href="tokenExplorerLink"
-                            target="_blank"
-                            class="link"
-                        >
+                        <a-typography-link v-if="record.address && tokenExplorerLink" :href="tokenExplorerLink"
+                            target="_blank" class="link">
                             ({{ displayAddress }})
                             <ExternalLinkIcon class="link-icon" />
                         </a-typography-link>
@@ -49,7 +44,9 @@
 import { computed, inject } from 'vue';
 
 import Amount from '../../app/Amount.vue';
+
 import TokenIcon from '@/components/ui/Tokens/TokenIcon';
+import CheckIcon from '@/assets/icons/module-icons/check.svg';
 import ExternalLinkIcon from '@/assets/icons/module-icons/external-link.svg';
 
 export default {
@@ -58,6 +55,7 @@ export default {
         Amount,
         TokenIcon,
         ExternalLinkIcon,
+        CheckIcon
     },
     props: {
         type: {

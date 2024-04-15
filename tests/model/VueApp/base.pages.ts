@@ -138,7 +138,7 @@ class BasePage {
 
     async selectNetwork(netName: string) {
         await this.openAccordionWithNetworks();
-        await this.page.locator(`//div[@data-qa="${DATA_QA_LOCATORS.TOKEN_RECORD}"]//div[text()="${netName}"]`).click();
+        await this.page.locator(`//div[@data-qa="${DATA_QA_LOCATORS.TOKEN_RECORD}"]//span[text()="${netName}"]`).click();
         await sleep(ONE_SECOND);
     }
 
@@ -296,7 +296,7 @@ class BridgePage extends BasePage {
 class SendPage extends BasePage {
     async setNetworkTo(netName: string) {
         await this.page.getByTestId(DATA_QA_LOCATORS.SELECT_NETWORK).click();
-        await this.page.locator(`//div[@data-qa="${DATA_QA_LOCATORS.TOKEN_RECORD}"]//div[text()="${netName}"]`).click();
+        await this.page.locator(`//div[@data-qa="${DATA_QA_LOCATORS.TOKEN_RECORD}"]//span[text()="${netName}"]`).click();
     }
 
     async setAddressTo(address: string) {
@@ -422,7 +422,7 @@ class SwapPage extends BasePage {
     }
 
     async setTokenInTokensList(token: string) {
-        await this.page.locator(`//div[@data-qa="${DATA_QA_LOCATORS.TOKEN_RECORD}"]//div[@class="top"][text()="${token}"]`).click();
+        await this.page.locator(`//div[@data-qa="${DATA_QA_LOCATORS.TOKEN_RECORD}"]//span[@class="top"][text()="${token}"]`).click();
     }
 
     async getTokenFrom() {
