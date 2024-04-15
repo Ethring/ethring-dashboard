@@ -34,6 +34,7 @@ export interface IFields {
         amount: string;
         denom: string;
     };
+    [Field.slippage]?: number;
 }
 
 type SendExcludeFields = Field.switchDirection | Field.dstNetwork | Field.dstToken | Field.dstAmount | Field.isSendToAnotherAddress;

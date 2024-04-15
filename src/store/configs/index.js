@@ -108,13 +108,26 @@ export default {
             }
         },
 
-        async initTokensByChain({ }, { chain, ecosystem }) {
+        async initTokensByChain({}, { chain, ecosystem }) {
             await getTokensConfigByChain(chain, ecosystem);
         },
 
-        async getTokensListForChain({ }, chain) {
+        async getTokensListForChain({}, chain) {
             const list = await configsDB.getAllObjectFrom(DB_TABLES.TOKENS, 'chain', chain, { isArray: true });
-            return _.orderBy(list, ['name'], ['asc']);
+            return _.orderBy(list, ['name'], ['asc']).map((item) => {
+                if (item.ecosystem === ECOSYSTEMS.COSMOS) return item;
+                if (item.id && item.id.includes('tokens__')) {
+                    const [chain, prefixAddress, symbol] = item.id.split(':');
+
+                    const [prefix, address] = prefixAddress.split('__');
+
+                    const lowerCaseAddress = address.toLowerCase();
+
+                    item.id = `${chain}:${prefix}__${lowerCaseAddress}:${symbol}`;
+                }
+                if (item.address) item.address = item.address.toLowerCase();
+                return item;
+            });
         },
 
         setConfigLoading({ commit }, value) {

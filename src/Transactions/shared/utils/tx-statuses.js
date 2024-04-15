@@ -16,10 +16,7 @@ const NOTIFICATION_TYPE_BY_STATUS = {
     [STATUSES.FAILED]: 'error',
 };
 
-const statusNotification = (
-    status,
-    { store, id = null, type = 'Transfer', txHash, displayHash, explorerLink, successCallback, failCallback },
-) => {
+const statusNotification = (status, { store, id = null, metaData, txHash, displayHash, explorerLink, successCallback, failCallback }) => {
     const { showNotification } = useNotification();
 
     const hashKey = txHash ? `waiting-${txHash}-tx` : `${status}-tx`;
@@ -29,10 +26,10 @@ const statusNotification = (
         key: notificationKey,
         type: NOTIFICATION_TYPE_BY_STATUS[status],
         duration: 4,
-        title: metaData.notificationTitle,
-        description: metaData.notificationDescription,
+        title: metaData.notificationTitle || `Transaction ${status}`,
+        description: metaData.notificationDescription || displayHash,
         duration: 6,
-        progress: true
+        progress: true,
     };
 
     explorerLink && (notificationBody.explorerLink = explorerLink);
@@ -71,7 +68,7 @@ export const handleTransactionStatus = async (transaction, store, event) => {
     }
 
     const { id, metaData, module, status, txHash = '' } = transaction;
-    const { explorerLink, type, successCallback = null, failCallback = null } = metaData || {};
+    const { explorerLink, successCallback = null, failCallback = null } = metaData || {};
 
     if (FINISHED_STATUSES.includes(status)) {
         await store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
@@ -81,7 +78,7 @@ export const handleTransactionStatus = async (transaction, store, event) => {
 
     const displayHash = (txHash && txHash.slice(0, 8) + '...' + txHash.slice(-8)) || txHash;
 
-    statusNotification(status, { store, id, type, txHash, displayHash, explorerLink, successCallback, failCallback });
+    statusNotification(status, { store, id, metaData, txHash, displayHash, explorerLink, successCallback, failCallback });
 
     return status;
 };

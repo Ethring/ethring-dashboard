@@ -94,7 +94,7 @@ const useModuleOperations = (module: ModuleType) => {
         receiverAddress,
         contractAddress,
         contractCallCount,
-
+        slippage,
         opTitle,
     } = moduleInstance;
 
@@ -384,10 +384,11 @@ const useModuleOperations = (module: ModuleType) => {
             case ModuleType.bridge:
                 const index = isNeedApprove.value ? 1 : 0;
                 const type = isSameNetwork.value ? ServiceType.dex : ServiceType.bridgedex;
+                const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
 
                 ops.registerOperation(module, DexOperation);
 
-                ops.setParams(module, index, {
+                const params = {
                     net: selectedSrcNetwork.value?.net,
                     fromNet: selectedSrcNetwork.value?.net,
                     toNet: ModuleType.swap === module ? selectedSrcNetwork.value?.net : selectedDstNetwork.value?.net,
@@ -396,11 +397,25 @@ const useModuleOperations = (module: ModuleType) => {
                     ownerAddresses: addressByChain.value as OwnerAddresses,
                     amount: srcAmount.value,
                     outputAmount: dstAmount.value,
-                    receiverAddress: receiverAddress.value,
                     memo: memo.value,
                     serviceId: selectedRoute.value.serviceId,
                     type,
-                });
+                    slippageTolerance: slippage.value,
+                    receiverAddress: receiverAddress.value,
+                };
+
+                if (isSendToAnotherAddress.value && receiverAddress.value && selectedRoute.value.serviceId === 'skip') {
+                    params.ownerAddresses = {
+                        ...addressByChain.value,
+                        [selectedDstNetwork.value?.net || selectedSrcNetwork.value.net]: receiverAddress.value,
+                    };
+                } else {
+                    params.receiverAddress = {
+                        [selectedDstNetwork.value?.net || selectedSrcNetwork.value.net]: receiverAddress.value || ownerAddress,
+                    };
+                }
+
+                ops.setParams(module, index, params);
 
                 ops.getOperationByKey(`${module}_${index}`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
                 ops.getOperationByKey(`${module}_${index}`).setChainId(selectedSrcNetwork.value?.chain_id);

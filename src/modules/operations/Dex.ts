@@ -153,6 +153,7 @@ export default class DexOperation extends BaseOperation {
                 params: {
                     ...this.params,
                     tokens: this.getTokens(),
+                    slippageTolerance: this.getParamByField('slippageTolerance'),
                 },
             },
         } as ICreateTransaction;

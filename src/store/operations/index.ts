@@ -76,6 +76,7 @@ const fieldSetter = {
     contractAddress: TYPES.SET_CONTRACT_ADDRESS,
     contractCallCount: TYPES.SET_CONTRACT_CALL_COUNT,
     funds: TYPES.SET_FUNDS,
+    slippage: TYPES.SET_SLIPPAGE,
 };
 
 interface IState extends IFields {
@@ -136,6 +137,7 @@ export default {
         [Field.contractCallCount]: 0,
 
         [Field.funds]: null,
+        [Field.slippage]: slippageFromStore.value,
 
         isForceCallConfirm: {
             [ModuleType.send]: false,
@@ -221,6 +223,8 @@ export default {
 
             return state[field];
         },
+
+        slippage: (state: IState): number => state[Field.slippage],
     },
 
     mutations: {
