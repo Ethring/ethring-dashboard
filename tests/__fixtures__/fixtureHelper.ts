@@ -61,7 +61,7 @@ export const addWalletToKeplr = async (context: BrowserContext, seed: string) =>
 
 const __loginByMmAndWaitElement__ = async (context: BrowserContext, page: DashboardPage): Promise<DashboardPage> => {
     await page.goToPage();
-    await page.clickLoginByMetaMask(context); // set "context" param by debug
+    await page.clickLoginByMetaMask();
     await confirmConnectMmWallet(context, page);
     return page;
 };
