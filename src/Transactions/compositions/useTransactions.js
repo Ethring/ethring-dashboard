@@ -182,7 +182,7 @@ export default function useTransactions() {
 
             if ([TRANSACTION_TYPES.DEX, TRANSACTION_TYPES.SWAP, TRANSACTION_TYPES.BRIDGE].includes(TARGET_TYPE)) {
                 operationResultTitle += isSameNetwork ? ` on <img class="network-icon" src="${params.tokens.from.chainLogo}"/> ${capitalize(params.fromNet)} from ${params.amount} to` : ` from <img class="network-icon" src="${params.tokens.from.chainLogo}"/> ${capitalize(params.tokens.from.chain)} to <img class="network-icon" src="${params.tokens.to.chainLogo}"/> ${capitalize(params.tokens.to.chain)}`;
-            } else if ([TRANSACTION_TYPES.TRANSFER].includes(TARGET_TYPE)) {
+            } else if ([TRANSACTION_TYPES.SEND].includes(TARGET_TYPE)) {
                 operationResultTitle += ` on <img class="network-icon" src="${params.tokens.from.chainLogo}" /> ${capitalize(params.fromNet)} `;
             }
 
