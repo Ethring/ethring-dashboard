@@ -324,7 +324,7 @@ export default {
         },
 
         [TYPES.SET_SLIPPAGE](state: IState, value: number) {
-            slippageFromStore.value = value;
+            state[Field.slippage] = value;
         },
     },
 

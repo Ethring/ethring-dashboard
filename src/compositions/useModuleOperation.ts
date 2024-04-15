@@ -65,7 +65,7 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
     // * Module values
     // ===============================================================================================
-    const moduleInstance = useServices(module);
+    const moduleInstance = useServices(currentModule.value);
 
     const {
         isNeedApprove,

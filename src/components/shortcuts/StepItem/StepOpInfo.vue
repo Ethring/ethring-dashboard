@@ -42,7 +42,7 @@
                 </a-popconfirm>
             </div>
 
-            <template v-if="operation.getToken('to')">
+            <template v-if="operation.getToken('to') && operation.getToken('to')?.id !== operation.getToken('from')?.id">
                 <div class="space-between">to</div>
 
                 <div class="token-info">
