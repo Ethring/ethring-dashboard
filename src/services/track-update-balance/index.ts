@@ -83,6 +83,8 @@ export const trackingBalanceUpdate = (store: any) => {
         await delay(BALANCE_WAIT_TIME.value * 1000);
         console.log('Finished waiting for balance update, updating balance now...');
 
+        console.log('Updating balance for', network.net, 'with address', address);
+
         await updateBalanceByChain(targetAccount, address, network.net, {
             isUpdate: true,
             chain: network.net,
