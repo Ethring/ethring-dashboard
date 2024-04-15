@@ -5,7 +5,7 @@ import {
     cosmwasmProtoRegistry,
     ibcProtoRegistry,
     ibcAminoConverters,
-} from 'osmojs';
+} from 'stargazejs';
 
 // import { injectiveAminoConverters, injectiveProtoRegistry } from 'injectivejs';
 

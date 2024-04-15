@@ -1,8 +1,7 @@
 import { ref } from 'vue';
 import _, { chain } from 'lodash';
 
-import { cosmos, cosmwasm } from 'osmojs';
-import { contracts } from 'stargazejs';
+import { cosmos, cosmwasm, contracts } from 'stargazejs';
 
 import { SigningStargateClient, GasPrice } from '@cosmjs/stargate';
 
