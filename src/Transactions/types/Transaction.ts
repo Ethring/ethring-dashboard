@@ -6,6 +6,9 @@ interface MetaData {
     };
 
     [key: string]: any;
+
+    notificationTitle?: string | null;
+    notificationDescription?: string | null;
 }
 
 export interface ICreateTransaction {
