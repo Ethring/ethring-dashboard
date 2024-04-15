@@ -1,18 +1,20 @@
 <template>
     <div class="estimate-stats">
-        <p class="title" v-if="title">{{ $t(title) }}:</p>
+        <p class="title" v-if="title">{{ title }}</p>
 
         <div class="row">
             <Amount
+                v-if="fromAmount"
                 :value="fromAmount || 0"
                 :decimals="fromSymbol === '$' ? 2 : 3"
                 :type="fromSymbol === '$' ? 'usd' : 'currency'"
                 :symbol="fromSymbol"
             />
 
-            <span class="symbol-between">{{ symbolBetween }}</span>
+            <span class="symbol-between" v-if="toAmount">{{ symbolBetween }}</span>
 
             <Amount
+                v-if="toAmount"
                 :value="toAmount || 0"
                 :decimals="toSymbol === '$' ? 2 : 3"
                 :type="toSymbol === '$' ? 'usd' : 'currency'"
@@ -59,36 +61,30 @@ export default {
     },
 };
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
 .estimate-stats {
-    display: flex;
-    align-items: center;
+    @include pageFlexRow;
     flex-wrap: wrap;
     justify-content: space-between;
+
     font-size: var(--#{$prefix}default-fs);
     color: var(--#{$prefix}primary-text);
+
+    line-height: 24px;
 
     .title {
         font-weight: 400;
         color: var(--#{$prefix}accordion-label-color);
-        margin-right: 10px;
     }
 
-    .amount {
-        font-weight: 700;
-        color: var(--#{$prefix}primary-text);
+    .amount-block.currency {
+        .value,
+        .symbol {
+            color: var(--#{$prefix}base-text) !important;
+            font-weight: 400;
+        }
     }
 
-    .usd-symbol,
-    .symbol {
-        font-weight: 300;
-        color: var(--#{$prefix}primary-text);
-        margin-left: 3px;
-    }
-
-    .usd-symbol {
-        margin-left: 0px;
-    }
     .symbol-between {
         margin: 0 4px;
     }

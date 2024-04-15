@@ -109,8 +109,9 @@ export default {
     }
 
     &__placeholder {
-        font-size: var(--#{$prefix}small-sm-fs);
         span {
+            font-size: var(--#{$prefix}small-xs-fs) !important;
+            color: var(--#{$prefix}primary-text);
             background: var(--#{$prefix}icon-logo-bg-color);
         }
     }

@@ -1,13 +1,16 @@
 <template>
     <a-form class="super-swap superswap-panel">
-        <div
-            v-if="!fieldStates.isReload?.hide"
-            class="reload-btn"
-            :class="{ active: !isTransactionSigning && !isQuoteLoading && dstAmount }"
-            @click="() => getEstimateInfo(true)"
-        >
-            <SyncOutlined :spin="isQuoteLoading" />
-        </div>
+        <a-row class="panel-control">
+            <div
+                v-if="!fieldStates.isReload?.hide"
+                class="reload-btn"
+                :class="{ active: dstAmount && !isQuoteLoading && !isTransactionSigning }"
+                @click="() => getEstimateInfo(true)"
+            >
+                <SyncOutlined :spin="isQuoteLoading" />
+            </div>
+            <Slippage />
+        </a-row>
 
         <a-form-item class="switch-direction-wrap">
             <a-form-item>
@@ -96,7 +99,6 @@
 
         <EstimatePreviewInfo
             v-if="isShowEstimateInfo"
-            :title="$t('tokenOperations.routeInfo')"
             :is-loading="isQuoteLoading"
             :fee-in-usd="fees[FEE_TYPE.BASE] || 0"
             :main-rate="fees[FEE_TYPE.RATE] || null"
@@ -104,6 +106,7 @@
             :is-show-expand="otherRoutes?.length > 0"
             :error="quoteErrorMessage"
             :on-click-expand="toggleRoutesModal"
+            :amount="dstAmount"
         />
 
         <Button
@@ -122,22 +125,21 @@
 import { computed, onMounted, onUpdated, ref, watch, watchEffect } from 'vue';
 import { useStore } from 'vuex';
 
+// Compositions
+import useModuleOperations from '@/compositions/useModuleOperation';
+
+// Components
 import SelectRecord from '@/components/ui/Select/SelectRecord';
 import SelectAddressInput from '@/components/ui/Select/SelectAddressInput';
 import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewInfo.vue';
-
 import Checkbox from '@/components/ui/Checkbox';
-
 import Button from '@/components/ui/Button';
 import SwitchDirection from '@/components/ui/SwitchDirection.vue';
-
+import Slippage from '@/components/ui/Slippage.vue';
 import SwapField from './SwapField';
 
-import { formatNumber } from '@/shared/utils/numbers';
-
+// Icons
 import { SyncOutlined } from '@ant-design/icons-vue';
-
-import useModuleOperations from '@/compositions/useModuleOperation';
 
 // Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
@@ -145,6 +147,7 @@ import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 import useInputValidation from '@/shared/form-validations';
 import { differenceInPercentage } from '@/shared/calculations/percentage-diff';
+import { formatNumber } from '@/shared/utils/numbers';
 
 export default {
     name: 'SuperSwap',
@@ -158,6 +161,7 @@ export default {
         SelectAddressInput,
         SwitchDirection,
         EstimatePreviewInfo,
+        Slippage,
     },
     setup() {
         const store = useStore();
@@ -170,9 +174,7 @@ export default {
 
         const isSwapLoading = ref(false);
 
-        // const routeInfo = computed(() => store.getters['bridgeDex/selectedRoute']);
-        // const bestRouteInfo = computed(() => routeInfo.value?.bestRoute);
-        // const otherRoutesInfo = computed(() => routeInfo.value?.otherRoutes);
+        const servicesHash = computed(() => store.getters['bridgeDexAPI/getAllServicesHash']);
 
         // * Module values
         const {
@@ -196,8 +198,6 @@ export default {
             quoteErrorMessage,
 
             // --------------------------------
-
-            selectedService,
             selectedSrcToken,
             selectedDstToken,
             selectedSrcNetwork,
@@ -263,7 +263,24 @@ export default {
 
         // =================================================================================================================
 
+        const isDisableCheckbox = computed(() => {
+            if (!selectedRoute.value) {
+                return isDisableSelect.value;
+            }
+            if (servicesHash.value[selectedRoute.value?.serviceId]) {
+                if (isSendToAnotherAddress.value) {
+                    isSendToAnotherAddress.value = servicesHash.value[selectedRoute.value?.serviceId].features_support?.receiver;
+                }
+                return !servicesHash.value[selectedRoute.value?.serviceId].features_support?.receiver;
+            }
+        });
+
+        // =================================================================================================================
+
         const getEstimateInfo = async (isReload = false) => {
+            if (isReload && (isQuoteLoading.value || isTransactionSigning.value)) {
+                return;
+            }
             dstAmount.value = null;
             store.dispatch('bridgeDexAPI/setReloadRoutes', isReload);
         };
@@ -312,9 +329,6 @@ export default {
 
             opTitle,
 
-            // bestRouteInfo,
-            // otherRoutesInfo,
-
             selectedSrcNetwork,
             selectedDstNetwork,
             selectedSrcToken,
@@ -328,6 +342,7 @@ export default {
             differPercentage,
 
             isDisableConfirmButton,
+            isDisableCheckbox,
 
             getEstimateInfo,
             toggleRoutesModal,
@@ -466,6 +481,7 @@ export default {
 
     .accordion-item {
         position: relative;
+
         &__value {
             .route {
                 @include pageFlexRow;
@@ -476,6 +492,7 @@ export default {
                 }
             }
         }
+
         &__row {
             display: flex;
         }
@@ -487,4 +504,3 @@ export default {
     }
 }
 </style>
-@/shared/models/enums/modules.enum

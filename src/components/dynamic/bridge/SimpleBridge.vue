@@ -1,5 +1,6 @@
 <template>
     <a-form class="simple-bridge">
+        <Slippage class="panel-control" />
         <a-form-item>
             <div class="select-network-group">
                 <SelectRecord
@@ -79,11 +80,11 @@
             :is-loading="isQuoteLoading"
             :services="[selectedRoute]"
             :fee-in-usd="fees[FEE_TYPE.BASE] || 0"
-            :title="$t('tokenOperations.routeInfo')"
             :main-rate="fees[FEE_TYPE.RATE] || null"
             :error="quoteErrorMessage"
             :is-show-expand="otherRoutes?.length > 0"
             :on-click-expand="toggleRoutesModal"
+            :amount="dstAmount"
         />
 
         <Button v-bind="opBtnState" :title="$t(opTitle)" :tip="$t(opTitle)" @click="handleOnConfirm" />
@@ -109,6 +110,8 @@ import SelectAmountInput from '@/components/ui/Select/SelectAmountInput';
 
 // Fee Component
 import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewInfo.vue';
+// Slippage Component
+import Slippage from '@/components/ui/Slippage.vue';
 
 // Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
@@ -129,10 +132,12 @@ export default {
         SelectAddressInput,
 
         EstimatePreviewInfo,
+
+        Slippage,
     },
     setup() {
         const { handleOnConfirm, moduleInstance, isTransactionSigning, isDisableConfirmButton, isDisableSelect } = useModuleOperations(
-            ModuleType.bridge,
+            ModuleType.bridge
         );
 
         // * Module values

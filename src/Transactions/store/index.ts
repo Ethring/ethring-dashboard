@@ -1,7 +1,11 @@
-import { ModuleTypes } from '@/shared/models/enums/modules.enum';
-import { TxOperationFlow } from '@/shared/models/types/Operations';
-import { TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
 import { ITransaction, ITransactionResponse } from '../types/Transaction';
+
+import { ModuleTypes } from '@/shared/models/enums/modules.enum';
+import { TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
+import TimerWorker from '@/timer-worker.js?worker';
+import { TxOperationFlow } from '@/shared/models/types/Operations';
+
+const worker = new TimerWorker();
 
 const TYPES = {
     SET_TRANSACTION_FOR_SIGN: 'SET_TRANSACTION_FOR_SIGN',
@@ -12,6 +16,8 @@ const TYPES = {
 
     SET_TRANSACTION_SIGNING_STATUS: 'SET_TRANSACTION_SIGNING_STATUS',
     SET_IS_WAITING_TX_STATUS_FOR_MODULE: 'SET_IS_WAITING_TX_STATUS_FOR_MODULE',
+
+    SET_TX_TIMER_ID: 'SET_TX_TIMER_ID',
 };
 
 interface IState {
@@ -32,6 +38,10 @@ interface IState {
     isTransactionSigning: boolean;
 
     currentRequestID: string | null;
+
+    txTimerID: number | null;
+
+    txTimerWorker: TimerWorker | null;
 }
 
 export default {
@@ -47,6 +57,9 @@ export default {
         isTransactionSigning: false,
 
         currentRequestID: null,
+
+        txTimerID: null,
+        txTimerWorker: worker,
     }),
 
     getters: {
@@ -55,6 +68,9 @@ export default {
         currentRequestID: (state: IState) => state.currentRequestID,
 
         isWaitingTxStatusForModule: (state: IState) => (module: ModuleTypes) => state.isWaitingTxStatus[module] || false,
+
+        txTimerID: (state: IState) => state.txTimerID,
+        txTimerWorker: (state: IState) => state.txTimerWorker,
     },
 
     mutations: {
@@ -106,6 +122,10 @@ export default {
             if (state.isTransactionSigning === value) return;
             state.isTransactionSigning = value;
         },
+
+        [TYPES.SET_TX_TIMER_ID](state: IState, timerID) {
+            state.txTimerID = timerID;
+        },
     },
 
     actions: {
@@ -126,6 +146,12 @@ export default {
         },
         setTransactionSigning({ commit }, value: boolean) {
             commit(TYPES.SET_TRANSACTION_SIGNING_STATUS, value);
+        },
+        setTxTimerID({ state, commit }, value: number) {
+            if (!value && state.txTimerID) {
+                state.txTimerWorker.postMessage({ clearTimer: true, timerID: state.txTimerID });
+            }
+            commit(TYPES.SET_TX_TIMER_ID, value);
         },
     },
 };

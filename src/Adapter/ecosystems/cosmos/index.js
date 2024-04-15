@@ -24,7 +24,7 @@ import { getConfigsByEcosystems, getTokensConfigByChain, getCosmologyTokensConfi
 
 // * Helpers
 import { validateCosmosAddress } from '@/Adapter/utils/validations';
-import { reEncodeWithNewPrefix, isDifferentSlip44, isActiveChain } from '@/Adapter/utils';
+import { reEncodeWithNewPrefix, isDifferentSlip44, isActiveChain, isDefaultChain } from '@/Adapter/utils';
 import { errorRegister } from '@/shared/utils/errors';
 
 import logger from '@/shared/logger';
@@ -33,6 +33,8 @@ import IndexedDBService from '@/services/indexed-db';
 
 import { ignoreRPC } from '@/Adapter/utils/ignore-rpc';
 import { CosmWasmClient } from '@cosmjs/cosmwasm-stargate';
+
+import { DP_CHAINS } from '@/modules/balance-provider/models/enums';
 
 const configsDB = new IndexedDBService('configs');
 
@@ -79,13 +81,16 @@ export class CosmosAdapter extends AdapterBase {
         // ========= Init Cosmos Chains =========
         const chains = await getConfigsByEcosystems(ECOSYSTEMS.COSMOS, { isCosmology: true });
         const activeChains = _.values(chains).filter(isActiveChain);
+        const defaultChains = _.values(activeChains).filter(isDefaultChain);
+
+        this.store = store;
 
         this.chainsFromStore = store?.state?.configs?.chains[ECOSYSTEMS.COSMOS] || {};
 
         const assets = await getCosmologyTokensConfig();
 
         await Promise.all(
-            activeChains.map(
+            defaultChains.map(
                 async ({ chain_name }) => (this.ibcAssetsByChain[chain_name] = await getTokensConfigByChain(chain_name, ECOSYSTEMS.COSMOS)),
             ),
         );
@@ -199,6 +204,7 @@ export class CosmosAdapter extends AdapterBase {
     }
 
     unsubscribeFromWalletsChange() {
+        console.log('Unsubscribe from wallets change', 'cosmos');
         this.unsubscribe.next();
         this.unsubscribe.complete();
     }
@@ -344,11 +350,19 @@ export class CosmosAdapter extends AdapterBase {
 
                 const { chainName } = wallet;
 
+                if (!Object.values(DP_CHAINS).includes(chainName)) {
+                    return;
+                }
+
                 if (!isDifferentSlip44(chainName, this.differentSlip44)) {
                     return;
                 }
 
                 const diffChain = wallet.getWallet(walletName);
+
+                if (!diffChain) {
+                    return;
+                }
 
                 diffChain.activate();
 
@@ -531,7 +545,7 @@ export class CosmosAdapter extends AdapterBase {
             return chainRecord;
         });
 
-        return chainList;
+        return _.values(chainList).filter(isDefaultChain);
     }
 
     getWalletLogo(walletModule) {
@@ -971,6 +985,18 @@ export class CosmosAdapter extends AdapterBase {
         const msgs = Array.isArray(msg) ? msg : [msg];
 
         console.log('signSend', { msgs, fee, memo, isArray: Array.isArray(msg) });
+
+        // Check timer
+        const txTimerID = this.store.getters['txManager/txTimerID'];
+
+        if (!txTimerID) {
+            return {
+                isCanceled: true,
+            };
+        }
+
+        this.store.dispatch('txManager/setTxTimerID', null);
+
         // Sign and send transaction
         try {
             console.log('msgs', msgs);

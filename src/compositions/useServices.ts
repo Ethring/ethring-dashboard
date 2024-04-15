@@ -1,18 +1,13 @@
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
+
 import BigNumber from 'bignumber.js';
-import _ from 'lodash';
-
-import { ref, computed, watch, onBeforeUnmount, onMounted, reactive } from 'vue';
-import { useStore } from 'vuex';
-
 import { ECOSYSTEMS } from '@/Adapter/config';
-
+import { ModuleType } from '@/shared/models/enums/modules.enum';
+import _ from 'lodash';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 import useBridgeDexService from '@/modules/bridge-dex/compositions';
-
-import { STATUSES } from '@/shared/models/enums/statuses.enum';
-import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
-import { ModuleType } from '@/shared/models/enums/modules.enum';
 import useChainTokenManger from './useChainTokenManager';
+import { useStore } from 'vuex';
 
 export default function useModule(moduleType: ModuleType) {
     const store = useStore();
@@ -56,11 +51,6 @@ export default function useModule(moduleType: ModuleType) {
 
     const isWaitingTxStatusForModule = computed(() => store.getters['txManager/isWaitingTxStatusForModule'](moduleType));
 
-    // * Bridge Dex
-    // const bridgeDexRoutes = computed(() => store.getters['bridgeDex/selectedRoute']);
-    // const bestRouteInfo = computed(() => bridgeDexRoutes.value?.bestRoute);
-    // const currentRouteInfo = computed(() => bestRouteInfo.value?.routes.find((elem) => elem.status === STATUSES.SIGNING));
-
     // =================================================================================================================
 
     // * Operation title for module
@@ -73,7 +63,7 @@ export default function useModule(moduleType: ModuleType) {
 
     // =================================================================================================================
 
-    const { walletAccount, walletAddress, currentChainInfo, chainList } = useAdapter();
+    const { walletAccount, currentChainInfo } = useAdapter();
 
     // =================================================================================================================
 
@@ -127,6 +117,12 @@ export default function useModule(moduleType: ModuleType) {
         get: () => store.getters['tokenOps/contractCallCount'],
         set: (value) => store.dispatch('tokenOps/setContractCallCount', value),
     });
+    const slippage = computed({
+        get: () => store.getters['tokenOps/slippage'],
+        set: (value) => store.dispatch('tokenOps/setSlippage', value),
+    });
+
+    // =================================================================================================================
 
     const isSendToAnotherAddress = ref(false);
     const isAddressError = ref(false);
@@ -265,6 +261,12 @@ export default function useModule(moduleType: ModuleType) {
         }
     });
 
+    watch(selectedRoute, () => {
+        if (selectedRoute.value) {
+            dstAmount.value = selectedRoute.value.toAmount;
+        }
+    });
+
     onBeforeUnmount(() => {
         // Clear all data
         store.dispatch('tokenOps/resetFields');
@@ -302,6 +304,9 @@ export default function useModule(moduleType: ModuleType) {
         isMemoAllowed,
         isSendWithMemo,
         memo,
+
+        // Slippage tolerance
+        slippage,
 
         // Operation title
         opTitle,

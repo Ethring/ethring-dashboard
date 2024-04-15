@@ -8,6 +8,8 @@ import IndexedDBService from '@/services/indexed-db';
 
 import { DB_TABLES } from '@/shared/constants/indexedDb';
 
+import { DP_CHAINS } from '@/modules/balance-provider/models/enums';
+
 const TYPES = {
     SET_CONFIG_LOADING: 'SET_CONFIG_LOADING',
     SET_TOKENS_BY_CHAIN: 'SET_TOKENS_BY_CHAIN',
@@ -100,15 +102,17 @@ export default {
                     commit(TYPES.SET_CHAIN_CONFIG, { chain, ecosystem, config: response[chain] });
                 }
 
-                dispatch('initTokensByChain', { chain, ecosystem });
+                if (Object.values(DP_CHAINS).includes(chain)) {
+                    dispatch('initTokensByChain', { chain, ecosystem });
+                }
             }
         },
 
-        async initTokensByChain({}, { chain, ecosystem }) {
+        async initTokensByChain({ }, { chain, ecosystem }) {
             await getTokensConfigByChain(chain, ecosystem);
         },
 
-        async getTokensListForChain({}, chain) {
+        async getTokensListForChain({ }, chain) {
             const list = await configsDB.getAllObjectFrom(DB_TABLES.TOKENS, 'chain', chain, { isArray: true });
             return _.orderBy(list, ['name'], ['asc']);
         },

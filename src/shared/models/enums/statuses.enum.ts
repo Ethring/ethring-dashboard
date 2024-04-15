@@ -19,6 +19,7 @@ export enum SHORTCUT_STATUSES {
 export enum TRANSACTION_TYPES {
     TRANSFER = 'TRANSFER',
     EXECUTE_MULTIPLE = 'EXECUTE_MULTIPLE',
+    SEND = 'SEND',
     SIGN = 'SIGN',
     DEX = 'DEX',
     SWAP = 'SWAP',

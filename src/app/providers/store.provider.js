@@ -19,7 +19,6 @@ import txManager from '@/Transactions/store';
 import adapters from '@/Adapter/store';
 
 // Bridge-dex
-import bridgeDex from '@/store/bridge-dex';
 import bridgeDexAPI from '@/modules/bridge-dex/store';
 
 // Update balance for account
@@ -41,7 +40,6 @@ export default createStore({
         tokens,
         tokenOps: operations,
         txManager,
-        bridgeDex,
         bridgeDexAPI,
         updateBalance,
         moduleStates,

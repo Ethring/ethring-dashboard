@@ -1,15 +1,19 @@
-import { testMetaMask } from '../__fixtures__/fixtures';
+import { testMetaMask, testKeplr } from '../__fixtures__/fixtures';
 import { expect } from '@playwright/test';
-import { emptyBalanceMockData, errorEstimateSwap, mockBalanceDataBySwapTest } from '../data/mockHelper';
-import { INCORRECT_IMAGE_URL } from '../data/mockTokensListData';
+import { emptyBalanceMockData, errorEstimateSwap, mockBalanceDataBySwapTest, estimateSwapMockData } from '../data/mockHelper';
+import { AAVE_ASSET, INCORRECT_IMAGE_URL } from '../data/mockTokensListData';
 import { TEST_CONST, getTestVar } from '../envHelper';
 import { getHomeMmPage } from '../model/MetaMask/MetaMask.pages';
 import { EVM_NETWORKS, IGNORED_LOCATORS } from '../data/constants';
 import util from 'util';
 import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
 
-const sleep = util.promisify(setTimeout);
+import {
+    mockPostTransactionsRouteSwapRejectKeplr,
+    mockPostTransactionsWsByCreateEventSendRejectKeplr,
+} from '../data/mockDataByTests/SendRejectTxKeplrMock';
 
+const sleep = util.promisify(setTimeout);
 
 testMetaMask.describe('Swap e2e tests', () => {
     testMetaMask('Case#: Swap page', async ({ browser, context, page, dashboardEmptyWallet }) => {
@@ -40,18 +44,21 @@ testMetaMask.describe('Swap e2e tests', () => {
             await avalancheBalancePromise;
 
             const imagePromiseTokenFrom = swapPage.page.waitForResponse('https://assets.coingecko.com/coins/images/6319/large/usdc.png**');
+
+            // open select modal
             await swapPage.openTokenPageFrom();
             await imagePromiseTokenFrom; // wait load last token image
 
-            // open select modal
-            await expect(swapPage.getSelectModalContent()).toHaveScreenshot();
+            await swapPage.page.getByTestId('token-record').nth(2).hover();
+            await expect(swapPage.getSelectModalContent()).toHaveScreenshot(); // must be hover to last token in list
 
             await swapPage.setTokenInTokensList(TOKEN_FROM);
             await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
 
-            const imagePromiseTokenTo = swapPage.page.waitForResponse(INCORRECT_IMAGE_URL);
+            const imagePromiseTokenTo = swapPage.page.waitForResponse(AAVE_ASSET);
             await swapPage.openTokenPageTo();
             await imagePromiseTokenTo; // wait load last token image
+
             await swapPage.page.getByTestId('token-record').nth(0).hover();
             await expect(swapPage.getSelectModalContent()).toHaveScreenshot();
 
@@ -124,10 +131,13 @@ testMetaMask.describe('Swap e2e tests', () => {
         await swapPage.waitDetachedSkeleton();
         await swapPage.waitLoadImg();
 
-        await expect(swapPage.getBaseContentElement()).toHaveScreenshot({ mask: [swapPage.page.locator('div.service-icon')] });
+        await expect(swapPage.getBaseContentElement()).toHaveScreenshot({
+            mask: [swapPage.page.locator(IGNORED_LOCATORS.SERVICE_ICON)],
+        });
     });
 
-    testMetaMask.skip( // TODO 
+    testMetaMask.skip(
+        // TODO
         'Case#: Check tokens and net in network change in MM',
         async ({ browser, context, page, swapPageMockTokensList: swapPage }) => {
             const NET = 'Arbitrum';
@@ -180,28 +190,28 @@ testMetaMask.describe('Swap e2e tests', () => {
             const AMOUNT = '1';
 
             const estimateMockData = {
-                "ok": true,
-                "data": {
-                    "best": "paraswap",
-                    "priority": "bestFee",
-                    "routes": [
+                ok: true,
+                data: {
+                    best: 'paraswap',
+                    priority: 'bestFee',
+                    routes: [
                         {
-                            "fromAmount": "1.0",
-                            "toAmount": "13.053686135276324996",
-                            "gasEstimated": "295300",
-                            "fee": [
+                            fromAmount: '1.0',
+                            toAmount: '13.053686135276324996',
+                            gasEstimated: '295300',
+                            fee: [
                                 {
-                                    "currency": "USD",
-                                    "amount": "0.048636"
-                                }
+                                    currency: 'USD',
+                                    amount: '0.048636',
+                                },
                             ],
-                            "serviceId": "paraswap",
-                            "bestFee": true,
-                            "bestReturn": true
-                        }
-                    ]
+                            serviceId: 'paraswap',
+                            bestFee: true,
+                            bestReturn: true,
+                        },
+                    ],
                 },
-                "error": ""
+                error: '',
             };
 
             await swapPage.mockEstimateSwapRequest(errorEstimateSwap, 500);
@@ -222,6 +232,9 @@ testMetaMask.describe('Swap e2e tests', () => {
             await expect(swapPage.getBaseContentElement()).toHaveScreenshot({ mask: [swapPage.page.locator('div.service-icon')] });
 
             await swapPage.openTokenPageTo();
+            await swapPage.page.getByTestId('token-record').nth(0).hover();
+            await sleep(1000); // need wait disable hover animation from middle token in list
+
             await expect(swapPage.getSelectModalContent()).toHaveScreenshot();
         },
     );
@@ -244,4 +257,39 @@ testMetaMask.describe('Swap e2e tests', () => {
 
     //     expect(await swapPage.getLinkFromSuccessPanel()).toContain(txHash);
     // });
+});
+
+testKeplr.describe('Keplr Swap e2e tests', () => {
+    testKeplr('Case#: Swap with custom slippage in Cosmos', async ({ browser, context, page, swapPage }) => {
+        const amount = '0.001';
+        const slippage = '1.5';
+
+        await swapPage.openSlippageDropdown();
+        await swapPage.setCustomSlippage(slippage);
+
+        await swapPage.setAmount(amount);
+
+        await swapPage.mockEstimateSwapRequest(estimateSwapMockData, 200);
+        await swapPage.page.waitForResponse(`**/getQuote**`);
+
+        await swapPage.waitDetachedSkeleton();
+        await swapPage.waitLoadImg();
+
+        await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
+
+        await swapPage.modifyDataByPostTxRequest(
+            mockPostTransactionsRouteSwapRejectKeplr,
+            mockPostTransactionsWsByCreateEventSendRejectKeplr,
+        );
+
+        await swapPage.modifyDataByGetTxRequest(mockPostTransactionsRouteSwapRejectKeplr);
+
+        await swapPage.clickSwap();
+
+        const getSwapTxRequest = await swapPage.page.waitForRequest('**/getSwapTx**');
+        const getSwapTxPayloadData = JSON.parse(getSwapTxRequest.postData());
+
+        // Check that slippage from input and slippage for request are equal
+        expect(getSwapTxPayloadData?.slippageTolerance).toEqual(slippage);
+    });
 });

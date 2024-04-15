@@ -188,7 +188,7 @@ $danger-color: $wildWatermelon;
 $warning: $pizazz;
 $warning-op-01: rgba($warning, 0.1);
 
-$info: $gulfStream;
+$info: $cyan;
 $info-op-01: rgba($info, 0.1);
 
 $white: $white;
@@ -255,6 +255,7 @@ $card-btn-secondary-color: $gainsboro;
 
 $shortcut-step-success: $iceberg;
 
+$radio-btn-bg-color: $gulfStream;
 //  ===========================================================================
 //  THEME MAP
 //  ===========================================================================
@@ -428,5 +429,7 @@ $theme-colors-dark: (
     "card-tag-bg-color": $card-tag-bg-color,
     "card-btn-secondary-color": $card-btn-secondary-color,
 
-    "shortcut-step-success": $shortcut-step-success
+    "shortcut-step-success": $shortcut-step-success,
+
+    "radio-btn-bg-color": $radio-btn-bg-color
 );

@@ -34,7 +34,9 @@ type SwapParams = {
     ownerAddresses: OwnerAddresses | string;
 
     gasPrice?: string;
-    receiverAddress?: string;
+    receiverAddress?: OwnerAddresses;
+
+    slippageTolerance: number
 };
 
 type FromToNetworks = {
@@ -72,7 +74,7 @@ export type SwapTxParams<T extends ServiceType> = T extends ServiceType.dex
     : Omit<AllQuoteParams, Exclude<keyof AllQuoteParams, BridgedexAllowedKeys>>;
 
 // variable with key of type ServiceType
-export const DexKeys: DexAllowedKeys[] = ['type', 'fromToken', 'toToken', 'amount', 'ownerAddresses', 'net'];
+export const DexKeys: DexAllowedKeys[] = ['type', 'fromToken', 'toToken', 'amount', 'ownerAddresses', 'net', 'slippageTolerance', 'receiverAddress'];
 
 export const BridgedexKeys: BridgedexAllowedKeys[] = [
     'type',
@@ -83,9 +85,11 @@ export const BridgedexKeys: BridgedexAllowedKeys[] = [
     'ownerAddresses',
     'fromNet',
     'toNet',
+    'slippageTolerance',
+    'receiverAddress'
 ];
 
-export const AllQuoteParamsKeys = ['type', 'fromToken', 'toToken', 'amount', 'net', 'toNet', 'fromNet', 'serviceId', 'ownerAddresses'];
+export const AllQuoteParamsKeys = ['type', 'fromToken', 'toToken', 'amount', 'net', 'toNet', 'fromNet', 'serviceId', 'ownerAddresses', 'slippageTolerance'];
 
 export const QuoteParamsKeys = {
     [ServiceType.dex]: DexKeys,

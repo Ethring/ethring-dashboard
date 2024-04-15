@@ -1,6 +1,5 @@
 variables:
-  IMAGE_PLAYWRIGHT: mcr.microsoft.com/playwright:v1.41.1-jammy
-  IMAGE_MITMPROXY: mitmproxy/mitmproxy:10.2.1
+  IMAGE_PLAYWRIGHT: mcr.microsoft.com/playwright:v1.43.0-jammy
   IMAGE_TXMANAGER_MOCK: registry.citadel.one/public/stubtxmanager/master:latest
   TX_MANAGER_API: http://txmanager:3000
   FF_NETWORK_PER_BUILD: "true"
@@ -15,17 +14,6 @@ variables:
   expire_in: 1 days
 
 .default_services: &default_services
-  - name: $IMAGE_MITMPROXY
-    alias: mitmproxy
-    entrypoint:
-      - "/bin/bash"
-      - "-c"
-      - |
-        until [ -f "$CI_PROJECT_DIR/.git/index" ]; do true; done;
-        while [ -f "$CI_PROJECT_DIR/.git/index.lock" ]; do true; done;
-        while [ "$(cat $CI_PROJECT_DIR/.git/HEAD)" != "$CI_COMMIT_SHA" ]; do true; done;
-        cd $CI_PROJECT_DIR/tests/mockserver2
-        mitmdump -q -s ./moxy.py --set mock=./config.json --set flow_detail=0
   - name: $IMAGE_TXMANAGER_MOCK
     alias: txmanager
 

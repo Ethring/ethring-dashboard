@@ -23,10 +23,10 @@
 
                 <a-collapse-panel
                     v-show="isAllTokensLoading || allIntegrationsByPlatforms.length > 0"
-                    v-for="(item, i) in allIntegrationsByPlatforms"
-                    :key="`protocol-${i}`"
+                    v-for="item in allIntegrationsByPlatforms"
+                    :key="item.platform"
                     class="assets-block-panel"
-                    @vue:mounted="collapseActiveKey.push(`protocol-${i}`)"
+                    @vue:mounted="updateCollapsedKey(item)"
                 >
                     <template #header>
                         <AssetGroupHeader
@@ -75,7 +75,7 @@
     </KeepAlive>
 </template>
 <script>
-import { ref, computed, inject, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, inject, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useStore } from 'vuex';
 import { message } from 'ant-design-vue';
 
@@ -96,13 +96,15 @@ export default {
         const store = useStore();
 
         // TODO: collapse active key by step
-        const collapseActiveKey = ref(['assets', 'nfts']);
+        const collapseActiveKey = ref([]);
 
         const useAdapter = inject('useAdapter');
 
         const { walletAccount, currentChainInfo } = useAdapter();
 
         const keyPressCombination = ref('');
+
+        const collapsedAssets = computed(() => store.getters['app/collapsedAssets']);
 
         const targetAccount = computed(() => store.getters['tokens/targetAccount'] || walletAccount.value);
 
@@ -148,6 +150,20 @@ export default {
             return totalSum.toNumber();
         });
 
+        const allCollapsedActiveKeys = computed(() => {
+            if (!allIntegrationsByPlatforms.value.length) {
+                return ['assets', 'nfts'];
+            }
+
+            const keys = ['assets', 'nfts'];
+
+            allIntegrationsByPlatforms.value.map((item) => {
+                keys.push(item.platform);
+            });
+
+            return keys;
+        });
+
         const getAssetsShare = (balance) => {
             if (!balance || !totalBalances.value) {
                 return 0;
@@ -187,15 +203,43 @@ export default {
             }
         };
 
-        onMounted(() => {
+        const updateCollapsedAssets = () => {
+            if (allCollapsedActiveKeys.value.length && allIntegrationsByPlatforms.value.length) {
+                const list = allCollapsedActiveKeys.value.filter((key) => !collapsedAssets.value.includes(key));
+
+                collapseActiveKey.value = collapsedAssets.value ? list : allCollapsedActiveKeys.value;
+            } else if (!collapsedAssets.value.length) {
+                collapseActiveKey.value = allCollapsedActiveKeys.value;
+            }
+        };
+
+        onMounted(async () => {
             window.addEventListener('keydown', handleKeyDown);
             keyPressCombination.value = '';
+
+            updateCollapsedAssets();
         });
 
         onBeforeUnmount(() => {
             window.removeEventListener('keydown', handleKeyDown);
             keyPressCombination.value = '';
         });
+
+        watch(collapseActiveKey, () => {
+            const hiddenKeys = allCollapsedActiveKeys.value.filter((key) => !collapseActiveKey.value.includes(key));
+            store.dispatch('app/setCollapsedAssets', hiddenKeys);
+        });
+
+        watch(walletAccount, () => {
+            store.dispatch('app/setCollapsedAssets', []);
+            updateCollapsedAssets();
+        });
+
+        const updateCollapsedKey = (item) => {
+            if (!collapsedAssets.value.includes(item.platform)) {
+                collapseActiveKey.value.push(item.platform);
+            }
+        };
 
         return {
             isLoadingForChain,
@@ -217,6 +261,7 @@ export default {
             getFormattedName,
 
             collapseActiveKey,
+            updateCollapsedKey,
 
             // ===================== Columns =====================
 

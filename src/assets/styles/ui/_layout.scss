@@ -67,6 +67,59 @@ $top-bar-spacing: 20px;
         width: 100%;
         margin-top: 16px;
     }
+
+    .panel-control {
+        position: absolute;
+        top: -50px;
+        right: 0;
+    }
+
+    .reload-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        cursor: not-allowed;
+
+        z-index: 10;
+
+        border-radius: 50%;
+
+        height: 32px;
+        width: 32px;
+        margin-right: 8px;
+
+        font-size: 18px;
+
+        border: 1px solid var(--#{$prefix}border-secondary-color);
+
+        background-color: var(--#{$prefix}icon-placeholder);
+
+        opacity: 0.8;
+
+        transition: 0.2s ease-in-out;
+
+        svg {
+            fill: var(--#{$prefix}base-text);
+            transition: 0.2s ease-in-out;
+        }
+
+        &.active:hover {
+            background-color: var(--#{$prefix}icon-logo-bg-hover);
+            opacity: 1;
+
+            svg {
+                transform: rotate(180deg);
+                opacity: 1;
+            }
+        }
+
+        &.active {
+            cursor: pointer;
+            background-color: var(--#{$prefix}icon-secondary-bg-color);
+            opacity: 1;
+        }
+    }
 }
 
 .operation-result {

@@ -1,10 +1,8 @@
-import useNotification from '@/compositions/useNotification';
-
-import { getAllowance, getApproveTx, getSwapTx, getBridgeTx } from '../../../api/services';
-
-import { STATUSES, FINISHED_STATUSES } from '@/shared/models/enums/statuses.enum';
+import { FINISHED_STATUSES, STATUSES } from '@/shared/models/enums/statuses.enum';
+import { getAllowance, getApproveTx, getBridgeTx, getSwapTx } from '../../../api/services';
 
 import { detectUpdateForAccount } from '@/services/track-update-balance/utils';
+import useNotification from '@/compositions/useNotification';
 
 const SUCCESS_CALLBACKS = {
     GET_SWAP_TX: getSwapTx,
@@ -22,7 +20,7 @@ const statusNotification = (
     status,
     { store, id = null, type = 'Transfer', txHash, displayHash, explorerLink, successCallback, failCallback },
 ) => {
-    const { showNotification, closeNotification } = useNotification();
+    const { showNotification } = useNotification();
 
     const hashKey = txHash ? `waiting-${txHash}-tx` : `${status}-tx`;
     const notificationKey = hashKey || `tx-${id}`;
@@ -30,8 +28,11 @@ const statusNotification = (
     const notificationBody = {
         key: notificationKey,
         type: NOTIFICATION_TYPE_BY_STATUS[status],
-        title: `${type} "${displayHash}"`,
         duration: 4,
+        title: metaData.notificationTitle,
+        description: metaData.notificationDescription,
+        duration: 6,
+        progress: true
     };
 
     explorerLink && (notificationBody.explorerLink = explorerLink);

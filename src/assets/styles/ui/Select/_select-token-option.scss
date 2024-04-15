@@ -1,16 +1,20 @@
 .select-token-option {
     cursor: pointer !important;
     align-self: flex-start;
-
+    justify-content: space-between;
     width: 100%;
-
-    &,
-    .info-container {
-        display: flex;
-        align-items: center;
-    }
-
     transition: 0.2s ease-in-out;
+    overflow: visible;
+
+    height: 56px;
+    max-height: 56px;
+    min-height: 56px;
+    padding: 8px 12px 8px 8px;
+
+    border-radius: 8px;
+    border: 1px solid var(--#{$prefix}collapse-border-color);
+
+    background-color: var(--#{$prefix}secondary-background);
 
     &:hover {
         border-color: var(--#{$prefix}btn-bg-color-hover);
@@ -25,20 +29,10 @@
         }
     }
 
-    justify-content: space-between;
-
-    overflow: visible;
-
-    height: 56px;
-    max-height: 56px;
-    min-height: 56px;
-
-    padding: 8px 12px 8px 8px;
-
-    border-radius: 8px;
-    border: 1px solid var(--#{$prefix}collapse-border-color);
-
-    background-color: var(--#{$prefix}secondary-background);
+    &,
+    .info-container {
+        @include pageFlexRow;
+    }
 
     &.selected {
         border: 1px solid var(--#{$prefix}banner-logo-color);
@@ -49,10 +43,20 @@
         margin-bottom: 8px;
     }
 
+    .check-icon {
+        margin-top: -2px;
+
+        fill: var(--#{$prefix}info);
+    }
+
     .label-container {
         display: flex;
         flex-direction: column;
         justify-content: center;
+
+        .row {
+            gap: 4px;
+        }
 
         .top {
             color: var(--#{$prefix}primary-text);
@@ -62,8 +66,7 @@
 
         .bottom {
             .sub-text-container {
-                display: flex;
-                align-items: center;
+                @include pageFlexRow;
                 overflow: hidden;
                 position: relative;
                 width: 100%;
@@ -123,8 +126,7 @@
     }
 
     .stat-container {
-        display: flex;
-        flex-direction: column;
+        @include pageFlexColumn;
         justify-content: center;
         align-items: flex-end;
 
@@ -160,8 +162,7 @@
     }
 
     .balance {
-        display: flex;
-        flex-direction: column;
+        @include pageFlexColumn;
         justify-content: center;
         align-items: flex-end;
 

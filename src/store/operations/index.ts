@@ -1,9 +1,11 @@
-import _ from 'lodash';
+import { DIRECTIONS, DIRECTIONS_TYPE, ModuleType, TOKEN_SELECT_TYPES, TOKEN_SELECT_TYPES_TYPE } from '@/shared/models/enums/modules.enum';
+import { IAsset, IFields, INetwork } from '@/shared/models/fields/module-fields';
 
-import { ModuleType, DIRECTIONS, TOKEN_SELECT_TYPES, DIRECTIONS_TYPE, TOKEN_SELECT_TYPES_TYPE } from '@/shared/models/enums/modules.enum';
-import { Field, FieldAttr } from '@/shared/models/enums/fields.enum';
+import { Field } from '@/shared/models/enums/fields.enum';
+import { useLocalStorage } from '@vueuse/core';
 
-import { IFields, FieldsByModule, IAsset, INetwork, AllFields } from '@/shared/models/fields/module-fields';
+const CUSTOM_SLIPPAGE_KEY = 'slippage';
+const slippageFromStore = useLocalStorage(CUSTOM_SLIPPAGE_KEY, 1, { mergeDefaults: true });
 
 const TYPES = {
     SET_SRC_NETWORK: 'SET_FROM_NETWORK',
@@ -316,6 +318,10 @@ export default {
         [TYPES.SET_FUNDS](state: IState, value: any) {
             state[Field.funds] = value;
         },
+
+        [TYPES.SET_SLIPPAGE](state: IState, value: number) {
+            slippageFromStore.value = value;
+        },
     },
 
     actions: {
@@ -395,6 +401,11 @@ export default {
         },
         setFunds({ commit }, value: { amount: string; denom: string }) {
             commit(TYPES.SET_FUNDS, value);
+        },
+
+        setSlippage({ commit }, value: number) {
+            slippageFromStore.value = value;
+            commit(TYPES.SET_SLIPPAGE, value);
         },
     },
 };

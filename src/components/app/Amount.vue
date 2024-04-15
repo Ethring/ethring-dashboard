@@ -26,8 +26,8 @@
     </div>
 </template>
 <script>
-import { useStore } from 'vuex';
 import { computed } from 'vue';
+import { useStore } from 'vuex';
 
 import Censorship from './Censorship.vue';
 
@@ -116,10 +116,26 @@ export default {
     font-weight: 700;
 }
 
-.preview-custom-fee .amount-block .value {
-    color: var(--#{$prefix}warning);
+.preview-custom-fee .amount-block {
     font-size: var(--#{$prefix}small-lg-fs);
-    font-weight: 600;
+
+    .value {
+        font-weight: 600;
+        color: var(--#{$prefix}warning);
+    }
+
+    .symbol {
+        font-weight: 400;
+        color: var(--#{$prefix}base-text) !important;
+    }
+}
+
+.preview-custom-rate .amount-block {
+    .value,
+    .symbol {
+        color: var(--#{$prefix}base-text) !important;
+        font-weight: 600 !important;
+    }
 }
 
 .stat-container .amount-block.usd {

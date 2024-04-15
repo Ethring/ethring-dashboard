@@ -6,11 +6,8 @@ import { useStore } from 'vuex';
 
 import { ECOSYSTEMS } from '@/Adapter/config';
 
-import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
-
-export default function useTokensList({ network = null, fromToken = null, toToken = null, isSameNet = true } = {}) {
+export default function useTokensList({ network = null, fromToken = null, toToken = null } = {}) {
     const store = useStore();
-    const selectType = computed(() => store.getters['tokenOps/selectType']);
 
     const getAccount = (ecosystem) => store.getters['adapters/getAccountByEcosystem'](ecosystem);
 
@@ -133,11 +130,21 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             return allTokens;
         };
 
+        const tokensListFromNetVerified = tokensListFromNet.filter((token) => token.verified);
+
+        const tokensVerifiedMap = new Map(tokensListFromNetVerified.map((token) => [token.id.toLowerCase(), true]));
+
+        // Update the tokens list with balance to include the verified status
+        const tokensWithBalanceVerified = tokensWithBalance.map((token) => ({
+            ...token,
+            verified: tokensVerifiedMap.has(token.id.toLowerCase()),
+        }));
+
         // Target tokens list with or without balance
         if (onlyWithBalance) {
-            allTokens = tokensWithBalance;
+            allTokens = tokensWithBalanceVerified;
         } else {
-            allTokens = _.unionBy(tokensWithBalance, tokensListFromNet, (tkn) => tkn.address?.toLowerCase());
+            allTokens = _.unionBy(tokensWithBalanceVerified, tokensListFromNet, (tkn) => tkn.address?.toLowerCase());
         }
 
         // Set native token info
@@ -169,6 +176,9 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
                 // Sorting by balance
                 (tkn) => Number(tkn.balanceUsd),
+
+                // Sorting by verified
+                (tkn) => tkn.verified,
             ],
             ['desc', 'desc', 'desc'],
         );

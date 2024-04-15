@@ -57,7 +57,34 @@
         color: var(--#{$prefix}white);
     }
 
+    @keyframes checkAnimation {
+        0% {
+            transform: scale3d(1, 1, 1) rotate(0deg);
+        }
+
+        10% {
+            transform: scale3d(1.2, 1.2, 1.2) rotate(-5deg);
+        }
+
+        30% {
+            transform: scale3d(1, 1, 1) rotate(5deg);
+        }
+
+        50% {
+            transform: scale3d(1.2, 1.2, 1.2) rotate(-5deg);
+        }
+
+        70% {
+            transform: scale3d(1, 1, 1) rotate(5deg);
+        }
+
+        100% {
+            transform: scale3d(1, 1, 1) rotate(0deg);
+        }
+    }
+
     .anticon-check-circle {
+        animation: checkAnimation 1s ease infinite;
         color: var(--#{$prefix}success) !important;
     }
 
@@ -108,5 +135,10 @@
         &:hover {
             fill: var(--#{$prefix}success);
         }
+    }
+
+    .notification-progress-line {
+        position: absolute;
+        left: 0px;
     }
 }

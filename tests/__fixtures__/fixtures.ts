@@ -15,7 +15,6 @@ import {
     authByKeplr,
     authByMmMockErrorBalance,
 } from './fixtureHelper';
-import { proxyUrl } from '../../playwright.config';
 import { COSMOS_WALLETS_BY_PROTOCOL_SEED, COSMOS_WALLETS_BY_SEED_MOCK_TX } from '../data/constants';
 import { mockBalanceData } from '../data/mockHelper';
 
@@ -154,7 +153,6 @@ export const testMetaMaskMockTx = base.extend<{
                 '--force-fieldtrials',
 
                 '--ignore-certificate-errors',
-                `--proxy-server=${proxyUrl}`,
                 '--disable-background-timer-throttling',
                 '--disable-backgrounding-occluded-windows',
                 '--disable-renderer-backgrounding',
@@ -179,6 +177,7 @@ export const testKeplr = base.extend<{
     dashboard: DashboardPage;
     dashboardProtocol: DashboardPage;
     sendPage: SendPage;
+    swapPage: SwapPage;
 }>({
     context: async ({}, use) => {
         const context = await chromium.launchPersistentContext('', {
@@ -190,7 +189,6 @@ export const testKeplr = base.extend<{
                 '--force-fieldtrials',
 
                 '--ignore-certificate-errors',
-                // '--disable-web-security',
 
                 '--disable-background-timer-throttling',
                 '--disable-backgrounding-occluded-windows',
@@ -218,6 +216,45 @@ export const testKeplr = base.extend<{
     },
     dashboardProtocol: async ({ context }, use) => {
         const zometPage = await authByKeplrErrorJunoBalanceMock(context, SEED_PHRASE_BY_PROTOCOL, COSMOS_WALLETS_BY_PROTOCOL_SEED);
+        await use(zometPage);
+    },
+    swapPage: async ({ context }, use) => {
+        const zometPage = await authByKeplr(context, SEED_PHRASE_BY_TX, COSMOS_WALLETS_BY_SEED_MOCK_TX);
+        const swapPage = await zometPage.goToModule('swap');
+        await use(swapPage);
+    },
+});
+
+export const testMetaMaskAndKeplr = base.extend<{
+    context: BrowserContext;
+    authPage: BasePage;
+}>({
+    context: async ({}, use) => {
+        const context = await chromium.launchPersistentContext('', {
+            headless: false,
+            ignoreHTTPSErrors: true,
+            args: [
+                `--disable-extensions-except=${getPathToKeplrExtension()},${getPathToMmExtension()}`,
+                `--load-extension=${getPathToKeplrExtension()},${getPathToMmExtension()}`,
+                '--force-fieldtrials',
+
+                '--ignore-certificate-errors',
+
+                '--disable-background-timer-throttling',
+                '--disable-backgrounding-occluded-windows',
+                '--disable-renderer-backgrounding',
+            ],
+        });
+
+        await use(context);
+        await context.close();
+    },
+    authPage: async ({ context }, use) => {
+        await addWalletToKeplr(context, SEED_EMPTY_WALLET);
+        await addWalletToMm(context, SEED_EMPTY_WALLET, 1);
+
+        const zometPage = new BasePage(await context.newPage());
+        await zometPage.goToPage();
         await use(zometPage);
     },
 });

@@ -15,7 +15,7 @@
     "asset": "Asset",
     "updateAvailable": "A new version of application is available. Click the Update button below to get the new version with the latest features and improvements",
     "updatingBalances": "Fetching balances ...",
-    "updateBalances": "Fetch balances (Coming soon)",
+    "updateBalances": "Fetch balances",
     "releaseNotes": "Read release notes",
     "switchTheme": "Switch theme",
     "buyCrypto": "Buy crypto",
@@ -118,7 +118,13 @@
     "memoLabel": "Input memo",
     "memoDescription": "Required for sending to centralized exchanges.",
     "pleaseConnectWalletEVM": "Please connect EVM wallet",
-    "pleaseConnectWalletCOSMOS": "Please connect COSMOS wallet"
+    "pleaseConnectWalletCOSMOS": "Please connect COSMOS wallet",
+    "minReceived": "Minimum Received",
+    "maxSlippage": "Max Slippage",
+    "fee": "Fee",
+    "route": "Route",
+    "noAvailableRoute": "Possible explanations for this could be limited liquidity, an insufficiently selected amount, excessively high gas costs, or the availability of routes for the chosen combination",
+    "unknownGas": "unknown gas fee"
   },
   "simpleSend": {
     "title": "Send"
@@ -159,5 +165,12 @@
       "likes": "Likes"
     },
     "minUsdAmount": "Min USD amount is"
+  },
+  "slippage": {
+    "description": "The maximum amount of additional slippage",
+    "maxSlippage": "Max. slippage",
+    "limitWarning1": "Please set a slippage value that is within 0% to 20%",
+    "limitWarning2": "Slippage bellow 0.1% may result in a failed transaction",
+    "limitWarning3": "Your transaction may be frontrun and result in an unfavorable trade"
   }
 }

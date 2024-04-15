@@ -15,6 +15,8 @@
 import { onMounted, watch, computed, inject, onBeforeMount, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 
+import _ from 'lodash';
+
 import Socket from '@/app/modules/socket';
 
 import AppLayout from '@/app/layouts/DefaultLayout';
@@ -24,13 +26,14 @@ import WalletsModal from '@/Adapter/UI/Modal/WalletsModal';
 import AddressModal from '@/Adapter/UI/Modal/AddressModal';
 import KadoModal from '@/components/app/modals/KadoModal.vue';
 import SelectModal from '@/components/app/modals/SelectModal.vue';
-// import RoutesModal from '@/components/app/modals/RoutesModal.vue';
 import BridgeDexRoutesModal from '@/components/app/modals/BridgeDexRoutesModal.vue';
 
 import { updateBalanceForAccount } from '@/modules/balance-provider';
 
 import { trackingBalanceUpdate } from '@/services/track-update-balance';
 import { setNativeTokensPrices } from '../modules/balance-provider/native-token';
+
+import { DP_CHAINS } from '@/modules/balance-provider/models/enums';
 
 export default {
     name: 'App',
@@ -62,27 +65,32 @@ export default {
 
         const isShowRoutesModal = computed(() => store.getters['app/modal']('routesModal'));
 
-        const addressesWithChains = computed(async () => {
-            const { ecosystem } = currentChainInfo.value || {};
-            return (await getAddressesWithChainsByEcosystem(ecosystem)) || {};
-        });
+        const getAddressesWithChains = async (ecosystem) => {
+            const chainAddresses = await getAddressesWithChainsByEcosystem(ecosystem);
 
-        const addressByChain = computed(async () => {
-            const { ecosystem } = currentChainInfo.value || {};
-            return (await getAddressesWithChainsByEcosystem(ecosystem, { hash: true })) || {};
-        });
+            return _.pick(chainAddresses, Object.values(DP_CHAINS)) || {};
+        };
+
 
         const callSubscription = async () => {
             const { ecosystem } = currentChainInfo.value || {};
 
-            if (JSON.stringify(await addressesWithChains.value) !== '{}' && walletAddress.value) {
-                Socket.setAddresses(await addressesWithChains.value, ecosystem, {
+            if (JSON.stringify(await getAddressesWithChains(ecosystem)) !== '{}' && walletAddress.value) {
+                Socket.setAddresses(await getAddressesWithChains(ecosystem), ecosystem, {
                     walletAccount: walletAccount.value,
                 });
             }
         };
 
-        // TODO: Update balance for all connected wallets (not only for the current one)
+        const updateBalanceForAllAccounts = async () => {
+            for (const { account, ecosystem, addresses } of connectedWallets.value) {
+                const list = _.pick(addresses, Object.values(DP_CHAINS)) || {};
+                store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses: list });
+
+                await updateBalanceForAccount(account, list);
+            }
+        };
+
         const callInit = async () => {
             const { ecosystem, walletModule } = currentChainInfo.value || {};
 
@@ -91,14 +99,11 @@ export default {
                 return setTimeout(callInit, 1000);
             }
 
-            const addresses = await addressesWithChains.value;
-            const addressHash = await addressByChain.value;
+            const addressHash = await getAddressesWithChainsByEcosystem(ecosystem, { hash: true }) || {};
+            store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM', { ecosystem, addresses: addressHash });
 
             await setNativeTokensPrices(store, ecosystem);
-            await updateBalanceForAccount(walletAccount.value, addresses);
-
-            store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM', { ecosystem, addresses: addressHash });
-            store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses });
+            await updateBalanceForAllAccounts();
         };
 
         // ==========================================================================================
@@ -107,7 +112,7 @@ export default {
             store.dispatch('tokens/setLoader', true);
             store.dispatch('tokens/setTargetAccount', walletAccount.value);
             callSubscription();
-            await callInit();
+            setTimeout(callInit, 1000);
         });
 
         const unWatchLoading = watch(isConfigLoading, async () => {
@@ -138,11 +143,11 @@ export default {
         onMounted(() => {
             // * Tracking balance update for all accounts
             trackingBalanceUpdate(store);
-
             // import('@/app/scripts/development').then(({ default: dev }) => {
             //     dev();
             // });
             // console.log('App mounted', store.getters['adapters/getAllConnectedWallets']);
+
         });
     },
 };

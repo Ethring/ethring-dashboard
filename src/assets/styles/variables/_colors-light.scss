@@ -242,7 +242,7 @@ $icon-bg-color: $iceberg;
 $token-primary-icon-color: $charade;
 $token-secondary-icon-color: $chineseBlack;
 
-$icon-logo-bg-color: $ebonyClay;
+$icon-logo-bg-color: $gainsboro;
 $icon-logo-bg-hover: $aquamarine;
 $icon-secondary-bg-color: $iceberg;
 $icon-secondary-bg-hover: $geyser;
@@ -294,6 +294,7 @@ $card-btn-secondary-color: $gainsboro;
 
 $shortcut-step-success: $iceberg;
 
+$radio-btn-bg-color: $gainsboro;
 //  ===========================================================================
 //  THEME MAP
 //  ===========================================================================
@@ -483,5 +484,7 @@ $theme-colors: (
     "card-tag-bg-color": $card-tag-bg-color,
     "card-btn-secondary-color": $card-btn-secondary-color,
 
-    "shortcut-step-success": $shortcut-step-success
+    "shortcut-step-success": $shortcut-step-success,
+
+    "radio-btn-bg-color": $radio-btn-bg-color
 );

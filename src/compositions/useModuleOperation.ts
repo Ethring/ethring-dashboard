@@ -1,43 +1,33 @@
-import _ from 'lodash';
-import { useStore } from 'vuex';
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
-
-import socket from '@/app/modules/socket';
-
-// Compositions
-import useServices from '@/compositions/useServices';
-import useNotification from './useNotification';
-import useAdapter from '@/Adapter/compositions/useAdapter';
-import useTransactions from '@/Transactions/compositions/useTransactions';
-
-// Config
-import { ECOSYSTEMS } from '@/Adapter/config';
-
+import { ITransaction, ITransactionResponse } from '../Transactions/types/Transaction';
+import { SHORTCUT_STATUSES, STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
 // Transaction manager
 import { Transaction, TransactionList } from '@/Transactions/TX-manager';
+import { computed, onUnmounted, ref, watch } from 'vue';
 
-// Types
-import { ServiceType } from '@/modules/bridge-dex/enums/ServiceType.enum';
-import { ModuleType } from '@/shared/models/enums/modules.enum';
-import { TxOperationFlow } from '@/shared/models/types/Operations';
-import { TRANSACTION_TYPES, STATUSES, SHORTCUT_STATUSES } from '@/shared/models/enums/statuses.enum';
-import { ServiceByModule } from '../modules/bridge-dex/enums/ServiceType.enum';
-import { IBaseTransactionParams } from '@/modules/bridge-dex/models/Transaction/EvmTx.type';
-import { ITransaction, ITransactionResponse } from '../Transactions/types/Transaction';
-import { BridgeDexTx, IBridgeDexTransaction } from '@/modules/bridge-dex/models/Response.interface';
-import { AllQuoteParams, Approve, OwnerAddresses } from '@/modules/bridge-dex/models/Request.type';
 import { AddressByChainHash } from '../shared/models/types/Address';
-import useInputValidation from '@/shared/form-validations';
-
-import { delay } from '@/shared/utils/helpers';
-import OperationsFactory from '@/modules/operations/OperationsFactory';
-import { Ecosystems } from '@/modules/bridge-dex/enums/Ecosystem.enum';
-import TransferOperation from '@/modules/operations/Transfer';
-import { IAsset } from '@/shared/models/fields/module-fields';
 import { ApproveOperation } from '@/modules/operations/Approve';
 import DexOperation from '@/modules/operations/Dex';
+// Config
+import { ECOSYSTEMS } from '@/Adapter/config';
 import { IBaseOperation } from '@/modules/operations/models/Operations';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
 import MultipleContractExec from '@/modules/operations/MultipleExec';
+import OperationsFactory from '@/modules/operations/OperationsFactory';
+import { OwnerAddresses } from '@/modules/bridge-dex/models/Request.type';
+// Types
+import { ServiceType } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import TransferOperation from '@/modules/operations/Transfer';
+import { TxOperationFlow } from '@/shared/models/types/Operations';
+import _ from 'lodash';
+import { delay } from '@/shared/utils/helpers';
+import socket from '@/app/modules/socket';
+import useAdapter from '@/Adapter/compositions/useAdapter';
+import useInputValidation from '@/shared/form-validations';
+// Compositions
+import useNotification from '@/compositions/useNotification';
+import useServices from '@/compositions/useServices';
+import { useStore } from 'vuex';
+import useTransactions from '@/Transactions/compositions/useTransactions.js';
 
 const useModuleOperations = (module: ModuleType) => {
     const store = useStore();
@@ -80,7 +70,6 @@ const useModuleOperations = (module: ModuleType) => {
     const {
         isNeedApprove,
         isAllowanceLoading,
-        isBalanceError,
         isQuoteLoading,
         isLoading,
         isSendWithMemo,
@@ -125,17 +114,13 @@ const useModuleOperations = (module: ModuleType) => {
         isDstAddressesEmpty,
     } = useInputValidation();
 
-    const currentServiceType = computed(() => {
-        if (selectedSrcNetwork.value?.ecosystem === ECOSYSTEMS.COSMOS) {
-            return ServiceType.bridgedex;
-        }
+    // const currentServiceType = computed(() => {
+    //     if (selectedSrcNetwork.value?.ecosystem === ECOSYSTEMS.COSMOS) return ServiceType.bridgedex;
 
-        if (isSameNetwork.value) {
-            return ServiceType.dex;
-        }
+    //     if (isSameNetwork.value) return ServiceType.dex;
 
-        return ServiceType[ServiceByModule[module]];
-    });
+    //     return ServiceType[ServiceByModule[module]];
+    // });
 
     // ************************************** SHORTCUTS **************************************
 
@@ -145,7 +130,6 @@ const useModuleOperations = (module: ModuleType) => {
 
     const currentShortcutId = computed(() => store.getters['shortcuts/getCurrentShortcutId']);
     const currentStepId = computed(() => store.getters['shortcuts/getCurrentStepId']);
-    const shortcutIndex = computed(() => store.getters['shortcuts/getShortcutIndex']);
     const firstOp = ref({} as IBaseOperation);
 
     // ===============================================================================================
@@ -194,12 +178,11 @@ const useModuleOperations = (module: ModuleType) => {
         const { ecosystem: srcEcosystem } = selectedSrcNetwork.value || {};
         const { ecosystem: dstEcosystem } = selectedDstNetwork.value || {};
 
-        if (srcEcosystem !== dstEcosystem) {
+        if (srcEcosystem !== dstEcosystem)
             return {
                 ...srcAddressByChain.value,
                 ...dstAddressByChain.value,
             };
-        }
 
         return srcAddressByChain.value;
     });
@@ -223,9 +206,7 @@ const useModuleOperations = (module: ModuleType) => {
         const isSrcEmpty = isSuperSwap && isSrcAddressesEmpty.value;
         const isDstEmpty = isSuperSwap && isDstAddressesEmpty.value;
 
-        if (isSrcEmpty || isDstEmpty) {
-            return isSrcEmpty ? srcEcosystem : dstEcosystem;
-        }
+        if (isSrcEmpty || isDstEmpty) return isSrcEmpty ? srcEcosystem : dstEcosystem;
 
         opTitle.value = 'tokenOperations.confirm';
 
@@ -234,6 +215,26 @@ const useModuleOperations = (module: ModuleType) => {
 
     const connectWalletByEcosystem = async (ecosystem: string) => {
         return await connectByEcosystems(ecosystem);
+    };
+
+    // ===============================================================================================
+    // * Handle on cancel by timeout
+    // ===============================================================================================
+
+    const handleOnCancel = (tx: Transaction) => {
+        console.log('useModuleOperations -> handleOnCancel');
+        closeNotification(`tx-${tx.getTxId()}`);
+        store.dispatch('txManager/setTxTimerID', null);
+        store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
+
+        showNotification({
+            key: 'tx-error',
+            type: 'error',
+            title: 'Transaction canceled',
+            description: 'Your transaction has been canceled because the response from the node took too long. Please try again.',
+            duration: 6,
+            progress: true,
+        });
     };
 
     // ***********************************************************************************************
@@ -252,9 +253,8 @@ const useModuleOperations = (module: ModuleType) => {
         const isChainsEqual = () => {
             const { ecosystem, chain_id = '' } = currentChainInfo.value || {};
 
-            if ([ECOSYSTEMS.EVM].includes(ecosystem) && typeof chain_id === 'string' && _.startsWith(chain_id, '0x')) {
+            if ([ECOSYSTEMS.EVM].includes(ecosystem) && typeof chain_id === 'string' && _.startsWith(chain_id, '0x'))
                 return _.isEqual(`${+chain_id}`, +tx.getChainId());
-            }
 
             return _.isEqual(`${chain_id}`, tx.getChainId());
         };
@@ -281,7 +281,7 @@ const useModuleOperations = (module: ModuleType) => {
 
         try {
             // #1 - Check if wallet chain is correct, if correct, skip
-            if (isEverythingCorrect()) return;
+            if (isEverythingCorrect()) return true;
 
             // #2 - Check if wallet ecosystem is connected
             if (getConnectedStatus(tx.getEcosystem()) && !isEcosystemEqual()) {
@@ -310,7 +310,7 @@ const useModuleOperations = (module: ModuleType) => {
             }
 
             // #5 - If ecosystem and chain is correct, return or throw error
-            if (isEverythingCorrect()) return;
+            if (isEverythingCorrect()) return true;
 
             throw new Error(generateError());
         } catch (error) {
@@ -405,7 +405,8 @@ const useModuleOperations = (module: ModuleType) => {
                 ops.getOperationByKey(`${module}_${index}`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
                 ops.getOperationByKey(`${module}_${index}`).setChainId(selectedSrcNetwork.value?.chain_id);
                 ops.getOperationByKey(`${module}_${index}`).setAccount(account);
-                ops.getOperationByKey(`${module}_${index}`).setTokens({ from: selectedSrcToken.value, to: selectedDstToken.value });
+                selectedSrcToken.value && ops.getOperationByKey(`${module}_${index}`).setToken('from', selectedSrcToken.value);
+                selectedDstToken.value && ops.getOperationByKey(`${module}_${index}`).setToken('to', selectedDstToken.value);
 
                 break;
 
@@ -493,7 +494,7 @@ const useModuleOperations = (module: ModuleType) => {
                 before: beforeId,
             }) || {};
 
-        const approveOperation = operations.getOperationByKey(key);
+        const approveOperation = operations.getOperationByKey(key as string);
 
         approveOperation.setParams({
             net: selectedSrcNetwork.value?.net,
@@ -506,7 +507,7 @@ const useModuleOperations = (module: ModuleType) => {
         approveOperation.setEcosystem(selectedSrcNetwork.value?.ecosystem);
         approveOperation.setChainId(selectedSrcNetwork.value?.chain_id);
         approveOperation.setAccount(srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value);
-        approveOperation.setTokens({ from: selectedSrcToken.value });
+        selectedSrcToken.value && approveOperation.setToken('from', selectedSrcToken.value);
     };
 
     const updateOperationStatus = (
@@ -539,13 +540,36 @@ const useModuleOperations = (module: ModuleType) => {
 
         if (hash) operations.getOperationByKey(moduleIndex).setParamByField('txHash', hash);
 
-        if (firstInGroupByOrder.getUniqueId() === moduleIndex) {
-            operations.setOperationStatusByKey(firstInGroup.getUniqueId(), status);
-        }
+        if (firstInGroupByOrder.getUniqueId() === moduleIndex) operations.setOperationStatusByKey(firstInGroup.getUniqueId(), status);
 
         if (operationId) return operations.setOperationStatusById(operationId, status);
 
         operations.setOperationStatusByKey(moduleIndex, status);
+    };
+
+    const setupWorkerForTx = (tx: Transaction) => {
+        if (!tx) {
+            console.warn('Transaction not found fo "tx timer worker"');
+            return;
+        }
+
+        const worker = store.getters['txManager/txTimerWorker'];
+
+        if (!worker) {
+            console.warn('Tx timer worker not found');
+            return;
+        }
+
+        worker.postMessage('start_timer');
+
+        worker.onmessage = function (event: MessageEvent) {
+            if (!event.data) return;
+
+            const { timerID } = event.data || {};
+
+            if (timerID) store.dispatch('txManager/setTxTimerID', timerID);
+            if (event.data === 'timer_expired') handleOnCancel(tx);
+        };
     };
 
     const processTxOperation = (
@@ -556,9 +580,7 @@ const useModuleOperations = (module: ModuleType) => {
         const { index, type, make, moduleIndex, operationId } = flow;
 
         const checkOpIsExist = (): boolean => {
-            if (!operations.getOperationByKey(moduleIndex)) {
-                return false;
-            }
+            if (!operations.getOperationByKey(moduleIndex)) return false;
 
             return true;
         };
@@ -593,12 +615,23 @@ const useModuleOperations = (module: ModuleType) => {
 
             operation.setParamByField('startTime', Number(new Date()));
 
-            const prepared = operation.perform(index, operation.getAccount(), operation.getEcosystem(), operation.getChainId(), {
+            if (!operation || !operation.perform) {
+                console.warn('Operation not found or perform function not implemented', moduleIndex);
+                throw new Error('Operation not found or perform function not implemented');
+            }
+
+            const prepared = operation.perform(index as number, operation.getAccount(), operation.getEcosystem(), operation.getChainId(), {
                 make,
             });
 
             try {
-                const transaction = await txManager.addTransactionToGroup(index, prepared); // * Add or create transaction
+                setupWorkerForTx(txInstance);
+            } catch (error) {
+                console.error('useModuleOperations -> prepare -> setupWorkerForTx -> error', error);
+            }
+
+            try {
+                const transaction = await txManager.addTransactionToGroup(index as number, prepared); // * Add or create transaction
 
                 if (!transaction) {
                     console.error('Transaction not added to group', index, type, moduleIndex);
@@ -606,16 +639,19 @@ const useModuleOperations = (module: ModuleType) => {
                 }
 
                 if (index === 0) {
-                    const toSave = { ...txInstance.getTransaction(), ...prepared, id: transaction.id };
+                    const toSave = { ...txInstance.getTransaction(), ...prepared, id: transaction.id } as ITransactionResponse;
                     txInstance.setTransaction(toSave);
                 } else {
-                    txInstance.setId(transaction.id);
+                    txInstance.setId(transaction.id as string);
                     txInstance.setTransaction(transaction);
                 }
 
-                const nTitle =
-                    txInstance.transaction.metaData.notificationTitle ||
-                    `${txInstance.type} ${txInstance.transaction.metaData.params?.amount} ...`;
+                // Notification Block
+
+                const { metaData } = txInstance.getTransaction() || ({} as ITransactionResponse);
+                const { notificationTitle, params } = metaData || {};
+                const { amount } = params || {};
+                const nTitle = notificationTitle || `${txInstance.type} ${amount} ...`;
 
                 const [title = '', description = ''] = nTitle.split('to');
 
@@ -624,7 +660,7 @@ const useModuleOperations = (module: ModuleType) => {
                     key: `tx-${txInstance.getTxId()}`,
                     type: 'info',
                     title: title,
-                    description: description ? `for ${description}` : null,
+                    description: description ? `for ${description}` : '',
                     duration: 0,
                     prepare: true,
                 });
@@ -645,13 +681,16 @@ const useModuleOperations = (module: ModuleType) => {
             const operation = operations.getOperationByKey(moduleIndex);
 
             try {
+                if ((operation && !operation.performTx) || typeof operation.performTx !== 'function')
+                    throw new Error('Operation performTx function not implemented');
+
                 const { transaction, ecosystem } = await operation.performTx(operation.getEcosystem(), {
                     serviceId: operation.getParamByField('serviceId'),
                 });
 
                 txInstance.setTransaction({
-                    ...txInstance.getTransaction(),
-                    parameters: transaction,
+                    ...(txInstance.transaction as ITransactionResponse),
+                    parameters: transaction || {},
                 });
 
                 txInstance.setTransactionEcosystem(ecosystem.toUpperCase());
@@ -668,7 +707,7 @@ const useModuleOperations = (module: ModuleType) => {
         // * #3 - EXECUTE TRANSACTION - function which describe how to execute transaction
         // ===============================================================================================
         txInstance.execute = async () => {
-            if (!checkOpIsExist()) return;
+            if (!checkOpIsExist()) return null;
 
             await checkWalletConnected(txInstance);
 
@@ -677,11 +716,13 @@ const useModuleOperations = (module: ModuleType) => {
             try {
                 const forSign = txInstance.getTransaction();
 
-                return await signAndSend(forSign, {
+                const hash = await signAndSend(forSign, {
                     ecosystem: txInstance.getEcosystem(),
                     chain: txInstance.getChainId(),
                     opInstance: operations.getOperationByKey(moduleIndex),
                 });
+
+                return hash;
             } catch (error) {
                 console.error('useModuleOperations -> execute -> error', error);
                 throw error;
@@ -701,12 +742,10 @@ const useModuleOperations = (module: ModuleType) => {
 
             operation.setParamByField('endTime', Number(new Date()));
 
-            updateOperationStatus(STATUSES.SUCCESS, { moduleIndex, operationId, hash: txInstance.getTransaction().txHash });
+            updateOperationStatus(STATUSES.SUCCESS, { moduleIndex, operationId, hash: txInstance.getTransaction().txHash as string });
 
             // * On success by transaction type
-            if (operation && operation.onSuccess) {
-                await operations.getOperationByKey(moduleIndex).onSuccess(store);
-            }
+            if (operation && operation.onSuccess) await operation.onSuccess(store);
 
             if (index === flowCount) {
                 isTransactionSigning.value = false;
@@ -720,7 +759,7 @@ const useModuleOperations = (module: ModuleType) => {
         txInstance.onSuccessSignTransaction = async () => {
             console.log('Success sign and send transaction');
 
-            updateOperationStatus(STATUSES.SUCCESS, { moduleIndex, operationId, hash: txInstance.getTransaction().txHash });
+            updateOperationStatus(STATUSES.SUCCESS, { moduleIndex, operationId, hash: txInstance.getTransaction().txHash as string });
 
             if (!checkOpIsExist()) return;
 
@@ -756,6 +795,7 @@ const useModuleOperations = (module: ModuleType) => {
                     operation.setParamByField('tokenIds', tokenIdsUnique);
                 }
             } catch (error) {
+                /* empty */
             } finally {
                 const isApprove = operation.transactionType === TRANSACTION_TYPES.APPROVE;
 
@@ -785,7 +825,7 @@ const useModuleOperations = (module: ModuleType) => {
                 duration: 6,
             });
 
-            updateOperationStatus(STATUSES.FAILED, { moduleIndex, operationId, hash: txInstance.getTransaction()?.txHash });
+            updateOperationStatus(STATUSES.FAILED, { moduleIndex, operationId, hash: txInstance.getTransaction()?.txHash as string });
 
             isShortcutOpsExist() && setShortcutStatus(SHORTCUT_STATUSES.FAILED);
         };
@@ -840,9 +880,7 @@ const useModuleOperations = (module: ModuleType) => {
         // * Process each operation in flow & add to transaction manager
         // ===============================================================================================
 
-        for (const flow of opsFullFlow) {
-            processTxOperation(txManager, operations, { flow, flowCount: opsFullFlow.length - 1 });
-        }
+        for (const flow of opsFullFlow) processTxOperation(txManager, operations, { flow, flowCount: opsFullFlow.length - 1 });
 
         // ===============================================================================================
         // * Execute transactions in group
@@ -873,9 +911,7 @@ const useModuleOperations = (module: ModuleType) => {
     // * Confirm button state for each module
     // ===============================================================================================
     const isDisableConfirmButton = computed(() => {
-        if (ecosystemToConnect.value) {
-            return false;
-        }
+        if (ecosystemToConnect.value) return false;
 
         const isWithMemo = isSendWithMemo.value && isMemoAllowed.value && !memo.value;
         const isWithAddress = isSendToAnotherAddress.value && (isAddressError.value || !isReceiverAddressSet.value);

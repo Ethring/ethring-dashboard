@@ -109,18 +109,7 @@ export default {
 
         [GETTERS.GET_ADDRESSES_BY_ECOSYSTEM]: (state) => (ecosystem) => state.addressesByEcosystem[ecosystem] || {},
         [GETTERS.GET_ADDRESSES_BY_ECOSYSTEM_LIST]: (state) => (ecosystem) => state.addressesByEcosystemList[ecosystem] || {},
-        [GETTERS.GET_ACCOUNT_BY_ECOSYSTEM]: (state) => (ecosystem) => state.accountByEcosystem[ecosystem] || null,
-
-        [GETTERS.GET_ALL_CONNECTED_WALLETS]: (state) => {
-            const wallets = state.wallets.map((wallet) => {
-                return {
-                    ...wallet,
-                    addresses: state.addressesByEcosystem[wallet.ecosystem] || {},
-                };
-            });
-
-            return wallets;
-        },
+        [GETTERS.GET_ACCOUNT_BY_ECOSYSTEM]: () => (ecosystem) => getAccountByEcosystem(ecosystem) || null,
     },
     actions: {
         // * Actions for Modals
@@ -182,7 +171,7 @@ export default {
             lastConnectedWalletStorage.value = wallet;
             state.lastConnectedWallet = wallet;
 
-            const found = state.wallets.filter((w) => w.id === wallet.id || w.ecosystem === ecosystem);
+            const found = state.wallets.filter((w) => w?.id === wallet?.id || w.ecosystem === ecosystem);
             const [exist] = found;
 
             if (!exist) {
@@ -190,9 +179,11 @@ export default {
                 return (connectedWalletsStorage.value = state.wallets);
             }
 
-            findKeyDifferences(exist, wallet).forEach((key) => {
-                exist[key] = wallet[key];
-            });
+            if (wallet) {
+                findKeyDifferences(exist, wallet).forEach((key) => {
+                    exist[key] = wallet[key];
+                });
+            }
 
             return (connectedWalletsStorage.value = state.wallets);
         },
