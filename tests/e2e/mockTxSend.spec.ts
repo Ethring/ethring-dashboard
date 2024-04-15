@@ -11,7 +11,6 @@ import {
     mockPutTransactionsWsByUpdateTransactionEventInProgressSendMockTx,
     mockTxReceipt,
 } from '../data/mockDataByTests/SendTxPolygonMock';
-import { IGNORED_LOCATORS } from '../data/constants';
 
 const sleep = util.promisify(setTimeout);
 
@@ -23,6 +22,8 @@ testMetaMaskMockTx.describe('Mocked send tx Metamask', () => {
         const amount = '0.001';
         const WAITED_URL = `**/srv-data-provider/api/balances?net=${network.toLowerCase()}**`;
         const URL_MM = `https://polygon-rpc.com/`;
+        const expectedNotificationTitle = 'Transaction SUCCESS';
+        const expectedNotificationDesc = '0xd9193b...2884a368';
 
         await mockMetaMaskSignTransaction(
             context,
@@ -58,8 +59,6 @@ testMetaMaskMockTx.describe('Mocked send tx Metamask', () => {
 
         await sleep(2000);
 
-        const receivedData = await sendPage.getNotificationData();
-        expect(receivedData.notificationCount).toEqual(1);
-        expect(receivedData.notificationTitle).toEqual('notification');
+        await sendPage.assertNotificationByPage(1, expectedNotificationTitle, expectedNotificationDesc);
     });
 });

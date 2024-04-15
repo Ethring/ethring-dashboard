@@ -260,24 +260,14 @@ class BasePage {
         });
     }
 
-    private async getNotificationData() {
+    async assertNotificationByPage(expectNotifyCount: number, expectedNotificationTitle: string, expectedNotificationDescription: string) {
         const txNotification = this.page.locator('div.ant-notification');
         const txNotificationTitle = this.page.locator('div.ant-notification-notice-message');
         const txNotificationDesc = this.page.locator('div.ant-notification-notice-description');
 
-        return {
-            notificationCount: await txNotification.count(),
-            notificationTitle: await txNotificationTitle.textContent(),
-            notificationDescription: await txNotificationDesc.textContent(),
-        };
-    }
-
-    async assertNotificationByPage(expectNotifyCount: Number, expectedNotificationTitle: String, expectedNotificationDescription: String) {
-        const receivedNotification = await this.getNotificationData();
-
-        expect(receivedNotification.notificationCount).toBe(expectNotifyCount);
-        expect(receivedNotification.notificationTitle).toEqual(expectedNotificationTitle);
-        expect(receivedNotification.notificationDescription).toEqual(expectedNotificationDescription);
+        expect(txNotification).toBe(expectNotifyCount);
+        expect(txNotificationTitle).toHaveText(expectedNotificationTitle);
+        expect(txNotificationDesc).toHaveText(expectedNotificationDescription);
     }
 }
 
