@@ -75,6 +75,7 @@ export const trackingBalanceUpdate = (store: any) => {
 
         message.loading({
             content: () => `Updating balance for ${network.net} after ${BALANCE_WAIT_TIME.value} sec`,
+            duration: BALANCE_WAIT_TIME.value || 3,
         });
 
         // Wait for 3 sec before updating balance
