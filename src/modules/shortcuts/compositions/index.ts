@@ -282,8 +282,6 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                     operationsFactory.value?.getOperationById(targetOpId)?.setParamByField('memo', memo);
                     break;
             }
-
-            console.log('OPERATION:', operationsFactory.value?.getOperationById(targetOpId).getParams());
         }
     };
 
