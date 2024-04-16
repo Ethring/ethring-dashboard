@@ -14,11 +14,11 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'; // * Node Polyfills,
 
 import packageJson from './package.json'; // * Package.json to get the version
 
-import chunkSizeControlPlugin from './plugins/chunkSizeControlPlugin';
+// import chunkSizeControlPlugin from './plugins/chunkSizeControlPlugin';
 
 const isProduction = process.env.NODE_ENV === 'production'; // Production environment
 const isAnalyzeBundle = process.env.IS_ANALYZE === 'true'; // Analyze bundle size
-const maxChunkSize = 3 * 1024 * 1024; // Default size limit: 3MB
+const maxChunkSize = 5 * 1024 * 1024; // Default size limit: 3MB
 
 export default defineConfig({
     base: '/',
@@ -31,7 +31,7 @@ export default defineConfig({
         manifest: true,
         minify: isProduction,
         sourcemap: !isProduction,
-        chunkSizeWarningLimit: 2048,
+        chunkSizeWarningLimit: maxChunkSize,
         rollupOptions: {
             // EXCLUDE
             external: ['stargazejs/main/codegen/ibc', 'stargazejs/main/codegen/cosmos'],
@@ -128,7 +128,7 @@ export default defineConfig({
                 }),
             ],
         }),
-        chunkSizeControlPlugin({ maxSize: maxChunkSize }),
+        // chunkSizeControlPlugin({ maxSize: maxChunkSize }), // TODO: Optimize this
         isAnalyzeBundle &&
             visualizer({
                 open: true,
