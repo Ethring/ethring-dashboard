@@ -52,9 +52,16 @@ export default defineConfig({
                     '@cosmology-wallets-leap': ['@cosmos-kit/leap', '@cosmos-kit/leap-extension', '@cosmos-kit/leap-mobile'],
                     '@cosmjs-stargate': ['@cosmjs/cosmwasm-stargate', '@cosmjs/stargate'],
 
-                    // // injectivejs
+                    // injectivejs
                     '@cosmology-telescope-ibc': ['injectivejs/main/codegen/ibc/bundle', 'injectivejs/main/codegen/ibc/client'],
                     '@cosmology-telescope-cosmos': ['injectivejs/main/codegen/cosmos/bundle', 'injectivejs/main/codegen/cosmos/client'],
+
+                    // Stargazejs
+                    '@cosmology-telescope-ibc-stargaze': ['stargazejs/main/codegen/ibc/bundle', 'stargazejs/main/codegen/ibc/client'],
+                    '@cosmology-telescope-cosmos-stargaze': [
+                        'stargazejs/main/codegen/cosmos/bundle',
+                        'stargazejs/main/codegen/cosmos/client',
+                    ],
 
                     // // Osmosis
                     // '@cosmology-telescope-ibc-osmosis': ['osmojs/dist/codegen/ibc/bundle', 'osmojs/dist/codegen/ibc/client'],
