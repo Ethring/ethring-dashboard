@@ -193,7 +193,7 @@ export class BaseOperation implements IBaseOperation {
         description?: string;
     } {
         const module = this.getModule() as ModuleType;
-        const { count = 0, outputAmount = 0, amount } = this.getParams();
+        const { count = 0, outputAmount = 0, amount, receiverAddress = '' } = this.getParams();
         const { from, to } = this.getTokens() || {};
 
         let fromTokenTitle = Number(amount) > 0 && from?.symbol ? `${amount} ${from.symbol}` : '';
@@ -214,6 +214,7 @@ export class BaseOperation implements IBaseOperation {
             case ModuleType.send:
                 return {
                     title: `SEND ${fromTokenTitle}`,
+                    description: receiverAddress as string,
                 };
             case ModuleType.bridge:
                 return {

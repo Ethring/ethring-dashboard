@@ -284,17 +284,17 @@ const useModuleOperations = (module: ModuleType) => {
             // #1 - Check if wallet chain is correct, if correct, skip
             if (isEverythingCorrect()) return true;
 
-            // #2 - Check if wallet ecosystem is connected
+            // #2 - If ecosystem is not connected, try to connect
+            if (!isEcosystemEqual()) {
+                console.debug('Ecosystem is not connected, try to connect', tx.getEcosystem(), 'wallet');
+                await connectByEcosystems(tx.getEcosystem());
+            }
+
+            // #3 - Check if wallet ecosystem is connected
             if (getConnectedStatus(tx.getEcosystem()) && !isEcosystemEqual()) {
                 console.debug('Ecosystem is connected, but not correct, try to switch', tx.getEcosystem());
                 await switchEcosystem(tx.getEcosystem());
                 await delay(500); // ! Wait for ecosystem switch
-            }
-
-            // #3 - If ecosystem is not connected, try to connect
-            if (!isEcosystemEqual()) {
-                console.debug('Ecosystem is not connected, try to connect', tx.getEcosystem(), 'wallet');
-                await connectByEcosystems(tx.getEcosystem());
             }
 
             // #4 - If ecosystem is connected, but chain is not correct, try to switch chain

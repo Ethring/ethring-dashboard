@@ -282,6 +282,8 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                     operationsFactory.value?.getOperationById(targetOpId)?.setParamByField('memo', memo);
                     break;
             }
+
+            console.log('OPERATION:', operationsFactory.value?.getOperationById(targetOpId).getParams());
         }
     };
 
@@ -433,18 +435,16 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     // ====================================================================================================
     // * Update operation fields when the srcNetwork, dstNetwork, srcToken, dstToken, srcAmount, dstAmount change
     // ====================================================================================================
+
+    // Watch for changes in contractAddress, contractCallCount, srcAmount, dstAmount
     store.watch(
         (state, getters) => [
-            getters['tokenOps/srcNetwork'],
-            getters['tokenOps/dstNetwork'],
-            getters['tokenOps/srcToken'],
-            getters['tokenOps/dstToken'],
-            getters['tokenOps/srcAmount'],
-            getters['tokenOps/dstAmount'],
             getters['tokenOps/contractAddress'],
             getters['tokenOps/contractCallCount'],
+            getters['tokenOps/srcAmount'],
+            getters['tokenOps/dstAmount'],
         ],
-        async ([srcNet, dstNet, srcToken, dstToken, srcAmount, dstAmount, contractAddress, contractCallCount]) => {
+        async ([contractAddress, contractCallCount, srcAmount, dstAmount]) => {
             if (currentOp.value?.id && contractAddress) {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('contract', contractAddress);
             }
@@ -460,7 +460,13 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             if (currentOp.value?.id && dstAmount) {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('outputAmount', dstAmount);
             }
+        },
+    );
 
+    // Watch for changes in srcNet
+    store.watch(
+        (state, getters) => [getters['tokenOps/srcNetwork']],
+        async ([srcNet]) => {
             if (currentOp.value?.id && srcNet?.net && srcNet?.ecosystem) {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setChainId(srcNet.chain_id || srcNet.net);
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setEcosystem(srcNet.ecosystem);
@@ -468,11 +474,23 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('fromNet', srcNet.net);
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setAccount(addressesByChain.value[srcNet.net]);
             }
+        },
+    );
 
+    // Watch for changes in dstNet
+    store.watch(
+        (state, getters) => [getters['tokenOps/dstNetwork']],
+        async ([dstNet]) => {
             if (currentOp.value?.id && dstNet?.net && dstNet?.ecosystem) {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('toNet', dstNet.net);
             }
+        },
+    );
 
+    // Watch for changes in srcToken and dstToken
+    store.watch(
+        (state, getters) => [getters['tokenOps/srcToken'], getters['tokenOps/dstToken']],
+        async ([srcToken, dstToken]) => {
             if (currentOp.value?.id && srcToken?.id) {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('fromToken', srcToken.address);
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setToken('from', srcToken);

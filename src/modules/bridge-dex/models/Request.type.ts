@@ -34,7 +34,7 @@ type SwapParams = {
     ownerAddresses: OwnerAddresses | string;
 
     gasPrice?: string;
-    receiverAddress?: OwnerAddresses;
+    receiverAddress?: OwnerAddresses | string;
 
     slippageTolerance: number
 };
