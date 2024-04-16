@@ -30,8 +30,6 @@ import {
 
 // import { injectiveAminoConverters, injectiveProtoRegistry } from 'injectivejs';
 
-console.log('Amino', cosmosAminoConverters['/cosmos.staking.v1beta1.MsgDelegate']);
-
 // Custom Registry for stargate
 
 const AMINO_CONVERTERS = {
