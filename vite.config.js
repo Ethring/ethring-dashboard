@@ -33,6 +33,8 @@ export default defineConfig({
         sourcemap: !isProduction,
         chunkSizeWarningLimit: 2048,
         rollupOptions: {
+            // EXCLUDE
+            external: ['stargazejs/main/codegen/ibc', 'stargazejs/main/codegen/cosmos'],
             output: {
                 chunkFileNames: 'js/[name]-[hash].js',
                 entryFileNames: 'js/[name]-[hash].js',
@@ -42,7 +44,7 @@ export default defineConfig({
                     sentry: ['@sentry/vue', '@sentry/tracing'],
                     mixpanel: ['mixpanel-browser'],
                     axios: ['axios', 'axios-extensions'],
-                    utils: ['bignumber.js', 'lodash', 'moment', 'socket.io-client'],
+                    utils: ['bignumber.js', 'lodash', 'moment', 'socket.io-client', '@osmonauts/helpers'],
                     'ant-design': ['ant-design-vue'],
                     'ant-design-icons': ['@ant-design/icons-vue'],
                     '@cosmology-cosmos-kit': ['@cosmos-kit/core'],
@@ -50,9 +52,9 @@ export default defineConfig({
                     '@cosmology-wallets-leap': ['@cosmos-kit/leap', '@cosmos-kit/leap-extension', '@cosmos-kit/leap-mobile'],
                     '@cosmjs-stargate': ['@cosmjs/cosmwasm-stargate', '@cosmjs/stargate'],
 
-                    // // Stargaze
-                    '@cosmology-telescope-ibc': ['stargazejs/main/codegen/ibc/bundle', 'stargazejs/main/codegen/ibc/client'],
-                    '@cosmology-telescope-cosmos': ['stargazejs/main/codegen/cosmos/bundle', 'stargazejs/main/codegen/cosmos/client'],
+                    // // injectivejs
+                    '@cosmology-telescope-ibc': ['injectivejs/main/codegen/ibc/bundle', 'injectivejs/main/codegen/ibc/client'],
+                    '@cosmology-telescope-cosmos': ['injectivejs/main/codegen/cosmos/bundle', 'injectivejs/main/codegen/cosmos/client'],
 
                     // // Osmosis
                     // '@cosmology-telescope-ibc-osmosis': ['osmojs/dist/codegen/ibc/bundle', 'osmojs/dist/codegen/ibc/client'],
