@@ -23,7 +23,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 serviceId: 'squid',
                 layoutComponent: 'SuperSwap',
                 isShowLayout: true,
-                excludeChains: ['osmosis', 'cosmoshub', 'optimism', 'eth', 'fantom', 'injective'],
+                excludeChains: ['osmosis', 'cosmoshub', 'eth', 'fantom', 'injective', 'stargaze'],
                 ecosystems: ['EVM', 'COSMOS'],
                 operationParams: {
                     fromNet: 'bsc',
