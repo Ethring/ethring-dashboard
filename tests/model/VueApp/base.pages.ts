@@ -265,7 +265,7 @@ class BasePage {
         const txNotificationTitle = this.page.locator('div.ant-notification-notice-message');
         const txNotificationDesc = this.page.locator('div.ant-notification-notice-description');
 
-        expect(txNotification).toBe(expectNotifyCount);
+        expect(txNotification).toHaveCount(expectNotifyCount);
         expect(txNotificationTitle).toHaveText(expectedNotificationTitle);
         expect(txNotificationDesc).toHaveText(expectedNotificationDescription);
     }
