@@ -613,7 +613,7 @@ export class CosmosAdapter extends AdapterBase {
 
     // * Simulate transaction
     async simulateTxGas(client = SigningStargateClient, msg) {
-        const GAS_ADJUSTMENT = 1.4;
+        const GAS_ADJUSTMENT = 1.45;
 
         try {
             const msgs = Array.isArray(msg) ? msg : [msg];
