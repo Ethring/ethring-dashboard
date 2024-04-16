@@ -55,6 +55,18 @@ export default {
             return chain || {};
         },
 
+        getChainConfigByChainOrNet: (state) => (chainOrNet, ecosystem) => {
+            if (!state.chains[ecosystem]) {
+                return {};
+            }
+
+            const chainList = _.values(state.chains[ecosystem]);
+
+            const chain = chainList.find((chain) => chain.chain === chainOrNet || chain.net === chainOrNet);
+
+            return chain || {};
+        },
+
         getChainLogoByNet: (state) => (net) => {
             for (const ecosystem in state.chains) {
                 for (const chain in state.chains[ecosystem]) {

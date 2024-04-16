@@ -86,7 +86,6 @@ export default class DexOperation extends BaseOperation {
             this.service = new BridgeDexService(ServiceType.bridgedex);
         }
 
-        console.log('Estimate output', this.params);
         if (_.isNaN(Number(this.params.amount)) && Number(this.params.amount) <= 0) {
             console.warn('Amount is required');
             return;

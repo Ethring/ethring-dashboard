@@ -368,8 +368,6 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
     const getCollectionInfo = async (chain: string, contractAddress: string): Promise<INftCollectionInfo> => {
         const minterAddress = ref(null);
 
-        console.log('isShortcutLoading', isShortcutLoading.value, ' for shortcut', currentShortcutId.value);
-
         try {
             isShortcutLoading.value = true;
 
@@ -402,8 +400,6 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
             if (!minterAddress.value) return null;
 
             const vendingMinterQueryClient = new VendingMinterQueryClient(cosmWasmClient, minterAddress.value);
-
-            console.log('MINTER ADDRESS', minterAddress.value);
 
             // * MINTER QUERY By Collection Minter *
             const [minterConfig, mintPrice, startTime] = await Promise.all([
@@ -494,12 +490,6 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
             if (currentOp.value?.id && minterAddress.value) {
                 operationsFactory.value.getOperationById(currentOp.value.id).setParamByField('minter', minterAddress.value);
                 operationsFactory.value.getOperationById(currentOp.value.id).setParamByField('funds', funds);
-                console.log(
-                    'Setted Minter & funds for operation',
-                    minterAddress.value,
-                    funds,
-                    operationsFactory.value.getOperationById(currentOp.value.id).getParams(),
-                );
             }
 
             console.log('FINAL COLLECTION INFO');

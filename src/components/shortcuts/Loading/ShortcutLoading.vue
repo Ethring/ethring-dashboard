@@ -272,13 +272,11 @@ export default {
         store.watch(
             (state, getters) => getters['shortcuts/getShortcutIndex'],
             () => {
-                console.log('operationProgress #OP-INDEX', operationProgress.value, updateProgress());
                 operationProgress.value = updateProgress();
             },
         );
 
         watch(operationStatus, () => {
-            console.log('operationProgress #OP-STATUS', operationProgress.value, updateProgress());
             operationProgress.value = updateProgress();
         });
 

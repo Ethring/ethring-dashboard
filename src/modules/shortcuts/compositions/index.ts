@@ -211,8 +211,11 @@ const useShortcuts = (Shortcut: IShortcutData) => {
 
         const isGreaterThanMinAmount = BigNumber(amountToUsd).isGreaterThanOrEqualTo(CurrentShortcut.minUsdAmount);
 
+        const isAmountNaN = isNaN(+amountToUsd);
+
         if (!isGreaterThanMinAmount) {
-            quoteErrorMessage.value = `Min USD amount is: $${CurrentShortcut.minUsdAmount}, your amount is: $${amountToUsd}`;
+            quoteErrorMessage.value =
+                `Min USD amount is: $${CurrentShortcut.minUsdAmount}` + (isAmountNaN ? '' : `,your amount is: $${amountToUsd}`);
         }
 
         return isGreaterThanMinAmount;
@@ -457,8 +460,6 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('outputAmount', dstAmount);
             }
 
-            if (!srcNet || !dstNet) return;
-
             if (currentOp.value?.id && srcNet?.net && srcNet?.ecosystem) {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setChainId(srcNet.chain_id || srcNet.net);
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setEcosystem(srcNet.ecosystem);
@@ -470,8 +471,6 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             if (currentOp.value?.id && dstNet?.net && dstNet?.ecosystem) {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('toNet', dstNet.net);
             }
-
-            if (!srcToken || !dstToken) return;
 
             if (currentOp.value?.id && srcToken?.id) {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('fromToken', srcToken.address);

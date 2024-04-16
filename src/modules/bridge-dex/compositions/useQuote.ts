@@ -229,9 +229,11 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
 
             const withServiceId = requestParams.serviceId ? true : false;
 
-            const { best, routes } = await bridgeDexService.getQuote(requestParams, { withServiceId });
+            const { best = null, routes = [] } = await bridgeDexService.getQuote(requestParams, { withServiceId });
 
             let selectedRoute = routes.find(({ serviceId }) => serviceId === best);
+
+            if (!routes.length) return resetQuoteRoutes();
 
             // * If there is only one route, set it as selected
             if (routes.length === 1 && !selectedRoute) {

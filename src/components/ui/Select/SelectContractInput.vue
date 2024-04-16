@@ -8,7 +8,7 @@
         <div class="input-label">{{ $t(label) }}</div>
 
         <a-input-group compact class="input-group">
-            <div>
+            <div v-if="selectedNetwork">
                 <TokenIcon :token="selectedNetwork" class="network" width="32" height="32" />
             </div>
             <a-input
@@ -59,7 +59,7 @@ export default {
             default: 'tokenOperations.recipient',
         },
         selectedNetwork: {
-            required: true,
+            required: false,
             default: () => {},
         },
         onReset: {

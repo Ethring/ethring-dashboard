@@ -2,10 +2,10 @@
     <a-form>
         <a-form-item>
             <SelectContractInput
+                :selected-network="nftOpChain"
                 label="tokenOperations.contractAddress"
-                :selectedNetwork="selectedSrcNetwork"
                 :onReset="clearAddress"
-                :disabled="fieldStates.contractAddress.disabled"
+                :disabled="true"
             />
         </a-form-item>
         <a-row :gutter="8" class="nft-base-info" v-if="nftCollectionInfo">
@@ -90,7 +90,7 @@
                     :value="srcAmount"
                     :label="$t('tokenOperations.from')"
                     :token="selectedSrcToken"
-                    :disabled="fieldStates.srcAmount.disabled"
+                    :disabled="true"
                     @set-amount="handleOnSetAmount"
                 >
                     <SelectRecord
@@ -166,6 +166,8 @@ import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
 
 // Icons
 import InfoIcon from '@/assets/icons/platform-icons/info.svg';
+import { IShortcutOp } from '../modules/shortcuts/core/ShortcutOp';
+import OperationsFactory from '@/modules/operations/OperationsFactory';
 
 export default {
     name: 'MintNftLayout',
@@ -188,6 +190,36 @@ export default {
         const shortcutModalState = computed(() => store.getters['app/modal']('successShortcutModal'));
 
         const currentShortcutId = computed(() => store.getters['shortcuts/getCurrentShortcutId']);
+
+        const operationsFactory = computed<OperationsFactory>(() =>
+            store.getters['shortcuts/getShortcutOpsFactory'](currentShortcutId.value),
+        );
+
+        const NFTOp = computed<IShortcutOp>(() => {
+            if (!currentShortcutId.value) return null;
+
+            const NFTOp = store.getters['shortcuts/getOperationByModuleType'](currentShortcutId.value, ModuleType.nft);
+
+            if (!NFTOp) return console.warn('No NFT operation found');
+
+            return NFTOp;
+        });
+
+        const nftOpChain = computed(() => {
+            if (!NFTOp.value) return null;
+
+            if (!operationsFactory.value) return null;
+
+            const op = operationsFactory.value.getOperationById(NFTOp.value.id);
+
+            if (!op) return null;
+
+            const chainInfo = store.getters['configs/getChainConfigByChainOrNet'](op.getChainId(), op.getEcosystem());
+
+            if (!chainInfo) return null;
+
+            return chainInfo;
+        });
 
         // * Init module operations, and get all necessary data, (methods, states, etc.) for the module
         // * Also, its necessary to sign the transaction (Transaction manger)
@@ -237,7 +269,7 @@ export default {
 
         const endTime = ref<number>(0);
 
-        const nftCollectionInfo = ref<INftCollectionInfo | null>({});
+        const nftCollectionInfo = ref<INftCollectionInfo | null>(null);
 
         const isNeedToShowPriceStats = computed(
             () => nftCollectionInfo.value.priceStats.value && typeof nftCollectionInfo.value.priceStats.value !== 'string',
@@ -254,8 +286,6 @@ export default {
         };
 
         const getCollectionInfoData = async () => {
-            console.log('getCollectionInfoData', selectedSrcNetwork.value?.net, contractAddress.value);
-
             if (!selectedSrcNetwork.value?.net || !contractAddress.value) return;
 
             try {
@@ -294,7 +324,7 @@ export default {
 
         // =================================================================================================================
 
-        const onSelectNetwork = (direction) => handleOnSelectNetwork({ direction: DIRECTIONS[direction] });
+        const onSelectNetwork = (direction) => handleOnSelectNetwork({ direction: DIRECTIONS[direction], type: null });
 
         const onSelectToken = (withBalance = false, direction = DIRECTIONS.SOURCE) => {
             onlyWithBalance.value = withBalance;
@@ -318,12 +348,14 @@ export default {
         const calculateCallCount = () => {
             if (!nftCollectionInfo.value) return;
 
-            const { price, priceInfo } = nftCollectionInfo.value;
+            const { priceInfo } = nftCollectionInfo.value || {};
 
-            const {
-                currency: { amount: nftCurrencyPrice, symbol },
-                usd: { amount: nftUsdPrice },
-            } = priceInfo || {};
+            const { currency, usd } = priceInfo || {};
+
+            if (!usd?.amount || !currency?.amount) return;
+
+            const { amount: nftUsdPrice } = usd || {};
+            const { symbol } = currency || {};
 
             const { price: srcPrice, symbol: srcSymbol, decimals: srcDecimals } = selectedSrcToken.value || {};
 
@@ -336,6 +368,25 @@ export default {
         };
 
         // =================================================================================================================
+
+        onMounted(async () => {
+            if (isConfigLoading.value) return;
+            await getCollectionInfoData();
+        });
+
+        // =================================================================================================================
+
+        store.watch(
+            (state, getters) => [getters['tokenOps/contractCallCount'], getters['tokenOps/srcToken']],
+            ([count, token]) => calculateCallCount(),
+        );
+
+        watch(shortcutModalState, async () => {
+            if (shortcutModalState.value) return;
+            if (!currentShortcutId.value) return console.warn('No current shortcut id');
+
+            await getCollectionInfoData();
+        });
 
         watch(nftCollectionInfo, () => {
             if (!nftCollectionInfo.value) return;
@@ -353,27 +404,6 @@ export default {
 
         watch([isConfigLoading, contractAddress], async ([configLoading, contract]) => {
             if (configLoading || !contract) return;
-            await getCollectionInfoData();
-        });
-
-        onMounted(async () => {
-            if (isConfigLoading.value) return;
-            await getCollectionInfoData();
-        });
-
-        store.watch(
-            (state, getters) => [getters['tokenOps/contractCallCount'], getters['tokenOps/srcToken']],
-            ([count, token]) => {
-                if (!count || !token) return;
-
-                calculateCallCount();
-            },
-        );
-
-        watch(shortcutModalState, async () => {
-            if (shortcutModalState.value) return;
-            if (!currentShortcutId.value) return console.warn('No current shortcut id');
-
             await getCollectionInfoData();
         });
 
@@ -425,6 +455,7 @@ export default {
             FEE_TYPE,
             DIRECTIONS,
             getStatsType,
+            nftOpChain,
         };
     },
 };

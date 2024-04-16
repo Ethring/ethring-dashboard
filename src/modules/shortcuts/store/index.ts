@@ -149,6 +149,27 @@ export default {
             return operation;
         },
 
+        getOperationByModuleType: (state: IState) => (shortcutId: string, type: string) => {
+            // ! if shortcut id is not provided, return null
+            if (!shortcutId) return null;
+
+            // ! if shortcut is empty, return null
+            if (JSON.stringify(state.shortcut) === '{}') return null;
+
+            // ! if shortcut id is not found in the state, return null
+            if (!state.shortcut[shortcutId]) return null;
+
+            // ! if operations exist but empty, return null
+            if (state.shortcut[shortcutId].operations && !state.shortcut[shortcutId].operations.length) return null;
+
+            const operation = state.shortcut[shortcutId].operations.find((op) => op.moduleType === type) as IShortcutOp;
+
+            // ! if operation is not found, return null
+            if (!operation) return null;
+
+            return operation;
+        },
+
         getShortcutOpsFlow:
             (state: IState) =>
             (shortcutId: string): TxOperationFlow[] => {
