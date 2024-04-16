@@ -7,6 +7,8 @@ import { ModuleType } from '@/shared/models/enums/modules.enum';
 const TYPES = {
     SET_BOOLEAN_FIELD: 'SET_BOOLEAN_FIELD',
     RESET_FIELDS: 'RESET_FIELDS',
+
+    SET_IS_NEED_INPUT_FOCUS: 'SET_IS_NEED_INPUT_FOCUS',
 };
 
 class FieldState implements IFieldState {
@@ -33,6 +35,12 @@ interface IState {
     [ModuleType.nft]: {
         [key in Field]: IFieldState;
     };
+
+    [ModuleType.shortcut]: {
+        [key in Field]: IFieldState;
+    }
+
+    isNeedInputFocus: boolean;
 }
 
 export default {
@@ -89,6 +97,23 @@ export default {
             [Field.contractAddress]: new FieldState(),
             [Field.contractCallCount]: new FieldState(),
         },
+
+        [ModuleType.shortcut]: {
+            [Field.srcNetwork]: new FieldState(),
+            [Field.srcToken]: new FieldState(),
+            [Field.dstNetwork]: new FieldState(),
+            [Field.dstToken]: new FieldState(),
+            [Field.srcAmount]: new FieldState(),
+            [Field.dstAmount]: new FieldState(),
+            [Field.switchDirection]: new FieldState(),
+            [Field.isReload]: new FieldState(),
+            [Field.receiverAddress]: new FieldState(),
+            [Field.memo]: new FieldState(),
+            [Field.contractAddress]: new FieldState(),
+            [Field.contractCallCount]: new FieldState(),
+        },
+
+        isNeedInputFocus: true,
     }),
 
     getters: {
@@ -115,6 +140,8 @@ export default {
 
             return _.pickBy(state[module], (field: IFieldState) => field[FieldAttr.disabled]);
         },
+
+        getIsNeedInputFocus: (state: IState) => state.isNeedInputFocus,
     },
 
     mutations: {
@@ -140,6 +167,10 @@ export default {
                 state[module][key] = new FieldState();
             }
         },
+
+        [TYPES.SET_IS_NEED_INPUT_FOCUS](state: IState, value: boolean) {
+            state.isNeedInputFocus = value;
+        },
     },
 
     actions: {
@@ -159,6 +190,10 @@ export default {
 
         resetModuleStates({ commit }: any, { module }: { module: ModuleType }) {
             commit(TYPES.RESET_FIELDS, { module });
+        },
+
+        setIsNeedInputFocus({ commit }: any, value: boolean) {
+            commit(TYPES.SET_IS_NEED_INPUT_FOCUS, value);
         },
     },
 };

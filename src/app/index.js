@@ -20,6 +20,7 @@ import SimpleSwap from '@/components/dynamic/swaps/SimpleSwap.vue';
 import SuperSwap from '@/components/dynamic/super-swap/SuperSwap.vue';
 import StakeLayout from '@/layouts/StakeLayout.vue';
 import MintNftLayout from '@/layouts/MintNftLayout.vue';
+import MintNftLayoutWithTransfer from '@/layouts/MintNftLayoutWithTransfer.vue';
 
 // Service worker
 import '@/registerServiceWorker';
@@ -73,5 +74,6 @@ app.component('SimpleSend', SimpleSend, { meta: { key: 'send' } });
 app.component('SuperSwap', SuperSwap, { meta: { key: 'superSwap' } });
 app.component('StakeLayout', StakeLayout);
 app.component('MintNftLayout', MintNftLayout);
+app.component('MintNftLayoutWithTransfer', MintNftLayoutWithTransfer);
 
 export default app;

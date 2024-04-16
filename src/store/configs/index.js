@@ -64,6 +64,14 @@ export default {
                 }
             }
         },
+
+        getNativeTokenByChain: (state) => (chain, ecosystem) => {
+            if (!state.chains[ecosystem][chain]) return {};
+
+            if (!state.chains[ecosystem][chain].native_token) return {};
+
+            return state.chains[ecosystem][chain].native_token || {};
+        },
     },
 
     mutations: {

@@ -236,7 +236,7 @@ export default class OperationFactory implements IOperationFactory {
         const dependOperation = this.getOperationById(operationId);
 
         if (!dependOperation) {
-            console.warn(`Operation ${operationId} not found`);
+            console.warn(`ProcessDependency: Operation ${operationId} not found`);
             return;
         }
 
@@ -245,11 +245,9 @@ export default class OperationFactory implements IOperationFactory {
 
             const depValue = dependOperation.getParamByField(dependencyParamKey);
 
-            if (!isAmountCorrect(depValue)) return;
-
             if (usePercentage) {
+                if (!isAmountCorrect(depValue)) return;
                 const value = this.calculatePercentage(depValue, usePercentage);
-
                 isSetParam && operation.setParamByField(paramKey, value);
             } else {
                 isSetParam && operation.setParamByField(paramKey, depValue);
@@ -268,9 +266,8 @@ export default class OperationFactory implements IOperationFactory {
 
             const mainStatus = this.operationsStatusByKey.get(operation);
 
-            const restoreStatus = () => {
-                return this.setOperationStatusByKey(operation, mainStatus === STATUSES.ESTIMATING ? STATUSES.PENDING : mainStatus);
-            };
+            const restoreStatus = () =>
+                this.setOperationStatusByKey(operation, mainStatus === STATUSES.ESTIMATING ? STATUSES.PENDING : mainStatus);
 
             this.setOperationStatusByKey(operation, STATUSES.ESTIMATING);
 

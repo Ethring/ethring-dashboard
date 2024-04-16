@@ -1,4 +1,4 @@
-import { computed, nextTick, onUnmounted, ref, watch } from 'vue';
+import { computed, onUnmounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 import BigNumber from 'bignumber.js';
 
@@ -418,18 +418,8 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
         },
     );
 
-    const inputFocus = () => {
-        const input = document.querySelector('input.input-balance');
-        if (input && input instanceof HTMLInputElement) {
-            input.focus();
-        }
-    };
     const unWatchLoading = watch(isQuoteLoading, () => {
-        if (!isQuoteLoading.value) {
-            isReloadRoutes.value && (isReloadRoutes.value = false);
-
-            nextTick(() => inputFocus());
-        }
+        if (!isQuoteLoading.value) isReloadRoutes.value && (isReloadRoutes.value = false);
     });
 
     // ===========================================================================================

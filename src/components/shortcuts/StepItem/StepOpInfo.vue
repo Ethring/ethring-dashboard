@@ -7,39 +7,51 @@
             <div class="token-info">
                 <AssetWithChain type="asset" :asset="operation.getToken('from') || {}" :chain="assetChain.from" :width="24" :height="24" />
 
-                <a-popconfirm
-                    title="Change From amount?"
-                    ok-text="Change"
-                    cancel-text="No"
-                    @confirm="handleOnConfirm"
-                    @cancel="handleOnCancel"
-                    :disabled="isEditDisabled"
-                >
-                    <template #description>
-                        <a-input-number
-                            string-mode
-                            class="editable-amount-input"
-                            v-model:value="editedAmount"
-                            :value="operation.getParamByField('amount')"
-                            :controls="false"
-                            :min="0"
-                            :max="operation.getToken('from')?.balance ? operation.getToken('from')?.balance : Infinity"
-                        >
-                            <template #addonAfter v-if="operation.getToken('from')?.balance">
-                                <span class="max-balance" @click="handleOnMax">MAX: {{ operation.getToken('from')?.balance }}</span>
-                            </template>
-                        </a-input-number>
-                    </template>
+                <template v-if="operation.getModule() === ModuleType.nft">
                     <Amount
-                        :value="operation.getParamByField('amount')"
-                        :symbol="operation.getToken('from')?.symbol"
+                        :value="operation.getParamByField('count')"
+                        symbol="NFT"
                         type="currency"
                         :class="{
                             'editable-amount': shortcutOpInfo.editableFromAmount,
                             'editable-amount-disabled': isEditDisabled,
                         }"
                     />
-                </a-popconfirm>
+                </template>
+                <template v-else>
+                    <a-popconfirm
+                        title="Change From amount?"
+                        ok-text="Change"
+                        cancel-text="No"
+                        @confirm="handleOnConfirm"
+                        @cancel="handleOnCancel"
+                        :disabled="isEditDisabled"
+                    >
+                        <template #description>
+                            <a-input-number
+                                string-mode
+                                class="editable-amount-input"
+                                v-model:value="editedAmount"
+                                :controls="false"
+                                :min="0"
+                                :max="operation.getToken('from')?.balance ? operation.getToken('from')?.balance : Infinity"
+                            >
+                                <template #addonAfter v-if="operation.getToken('from')?.balance">
+                                    <span class="max-balance" @click="handleOnMax">MAX: {{ operation.getToken('from')?.balance }}</span>
+                                </template>
+                            </a-input-number>
+                        </template>
+                        <Amount
+                            :value="operation.getParamByField('amount')"
+                            :symbol="operation.getToken('from')?.symbol"
+                            type="currency"
+                            :class="{
+                                'editable-amount': shortcutOpInfo.editableFromAmount,
+                                'editable-amount-disabled': isEditDisabled,
+                            }"
+                        />
+                    </a-popconfirm>
+                </template>
             </div>
 
             <template v-if="operation.getToken('to') && operation.getToken('to')?.id !== operation.getToken('from')?.id">
@@ -80,6 +92,7 @@ import { InfoCircleOutlined } from '@ant-design/icons-vue';
 import StepAdditionalInfo from './StepAdditionalInfo.vue';
 import { IShortcutOp } from '../../../modules/shortcuts/core/ShortcutOp';
 import { SHORTCUT_STATUSES } from '@/shared/models/enums/statuses.enum';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
 
 export default {
     name: 'StepOpInfo',
@@ -192,6 +205,8 @@ export default {
             additionalTooltips,
             isEditDisabled,
             editedAmount,
+
+            ModuleType,
 
             handleOnCancel,
             handleOnConfirm,

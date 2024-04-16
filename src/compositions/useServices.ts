@@ -1,4 +1,4 @@
-import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 
 import BigNumber from 'bignumber.js';
 import { ECOSYSTEMS } from '@/Adapter/config';
@@ -151,6 +151,13 @@ export default function useModule(moduleType: ModuleType) {
 
     // =================================================================================================================
 
+    const isNeedInputFocus = computed({
+        get: () => store.getters['moduleStates/getIsNeedInputFocus'],
+        set: (value) => store.dispatch('moduleStates/setIsNeedInputFocus', value),
+    });
+
+    // =================================================================================================================
+
     const estimateErrorTitle = ref('');
     const isBalanceError = computed(() => BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance) || false);
 
@@ -179,6 +186,12 @@ export default function useModule(moduleType: ModuleType) {
     );
 
     // =================================================================================================================
+
+    const inputFocus = () => {
+        const input = document.querySelector('input.input-balance');
+
+        if (input && input instanceof HTMLInputElement && isNeedInputFocus.value) input.focus();
+    };
 
     const checkSelectedNetwork = () => {
         // if (!walletAccount.value && !currentChainInfo.value) {
@@ -267,6 +280,10 @@ export default function useModule(moduleType: ModuleType) {
         }
     });
 
+    watch(isQuoteLoading, () => {
+        if (!isQuoteLoading.value) nextTick(() => inputFocus());
+    });
+
     onBeforeUnmount(() => {
         // Clear all data
         store.dispatch('tokenOps/resetFields');
@@ -325,6 +342,9 @@ export default function useModule(moduleType: ModuleType) {
         isTokensLoadingForSrc,
         isTokensLoadingForDst,
         isWaitingTxStatusForModule,
+
+        // Flags
+        isNeedInputFocus,
 
         // Functions
         openSelectModal,

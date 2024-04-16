@@ -64,6 +64,20 @@ const META_DATA: Record<string, IShortcutMeta> = {
         author: getAuthorById(ShortcutAuthor.ZometApp),
         minUsdAmount: 0,
     },
+    [AvailableShortcuts.MintCollectionWithTransfer]: {
+        id: AvailableShortcuts.MintCollectionWithTransfer,
+        name: 'Recipe #5: Mint collection with transfer',
+        logoURI: 'https://citadel.one/static/media/logo.3e3e3e3e.svg',
+        wallpaper: '',
+        keywords: ['NFT', 'MINT', 'STARS'],
+        tags: ['NFT', 'MINT'],
+        type: 'nft',
+        description: 'Mint collection of NFTs on Stargaze Zone with transfer',
+        website: 'https://www.stargaze.zone/',
+        author: getAuthorById(ShortcutAuthor.ZometApp),
+        ecosystems: ['EVM', 'COSMOS'],
+        minUsdAmount: 0,
+    },
 };
 
 export const getShortcutMetaById = (id: string): IShortcutMeta => {

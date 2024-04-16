@@ -619,6 +619,23 @@ const useModuleOperations = (module: ModuleType) => {
         // Set request ID for transaction
         txInstance.setRequestID(txManager.getRequestId());
 
+        const isParamsEqual = () => {
+            const isNetEq =
+                operations.getOperationByKey(moduleIndex).getParamByField('fromNet') ===
+                operations.getOperationByKey(moduleIndex).getParamByField('toNet');
+
+            const isTokenEq =
+                operations.getOperationByKey(moduleIndex).getParamByField('fromToken') ===
+                operations.getOperationByKey(moduleIndex).getParamByField('toToken');
+
+            return isNetEq && isTokenEq;
+        };
+
+        if (isParamsEqual()) {
+            console.log('Params are equal, skip prepare', moduleIndex);
+            return updateOperationStatus(STATUSES.SUCCESS, { moduleIndex, operationId });
+        }
+
         // ===============================================================================================
         // * #1 - PREPARE TRANSACTION - function which describe how transaction should be prepared
         // ===============================================================================================

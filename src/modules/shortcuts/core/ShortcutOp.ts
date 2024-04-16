@@ -45,7 +45,7 @@ export default class ShortcutOp implements IShortcutOp {
     layoutComponent: string;
     isShowLayout: boolean;
     editableFromAmount: boolean = false;
-    isNeedFromAmount: boolean = true;
+    isNeedFromAmount: boolean = false;
 
     operationParams: {
         fromNet: string;

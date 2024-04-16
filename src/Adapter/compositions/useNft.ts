@@ -49,11 +49,23 @@ interface CustomConfigResponse extends ConfigExtension, ConfigResponse {
     end_time: string;
 }
 
+interface IPriceInfo {
+    currency: {
+        amount: string;
+        symbol: string;
+    };
+    usd: {
+        amount: string;
+        symbol: string;
+    };
+}
+
 export interface INftCollectionStats {
     type: string;
     stats: INftStats[];
     priceStats: INftStats;
     price: string;
+    priceInfo: IPriceInfo;
     isSoldOut: boolean;
 }
 
@@ -78,6 +90,8 @@ export interface INftCollectionInfo {
         amount: string;
         denom: string;
     };
+
+    priceInfo: IPriceInfo;
 }
 
 export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
@@ -232,10 +246,9 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
 
         // * PRICE *
 
-        const chainInfo = getChainByChainId(ECOSYSTEMS.COSMOS, chain);
+        const nativeToken = store.getters['configs/getNativeTokenByChain'](chain, ECOSYSTEMS.COSMOS);
 
-        const { asset } = chainInfo || {};
-        const { decimals, symbol } = asset || {};
+        const { symbol, decimals, price } = nativeToken || {};
 
         const priceRawAmount = mintPrice.current_price.amount || '0';
         const priceDisplayAmount = BigNumber(priceRawAmount).dividedBy(BigNumber(10).pow(decimals)).toString();
@@ -249,11 +262,23 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
             },
         };
 
+        const priceInfo = {
+            currency: {
+                amount: priceDisplayAmount,
+                symbol: nativeToken.symbol,
+            },
+            usd: {
+                amount: BigNumber(priceDisplayAmount).multipliedBy(price).toString(),
+                symbol: 'usd',
+            },
+        };
+
         return {
             type: nftType,
             stats,
             priceStats,
             price: priceDisplayAmount,
+            priceInfo,
             isSoldOut,
         };
     };
@@ -458,6 +483,7 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
 
                 funds,
                 price: stats.price,
+                priceInfo: stats.priceInfo,
                 perAddressLimit: availablePerAddressLimit,
             };
 
@@ -468,6 +494,12 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
             if (currentOp.value?.id && minterAddress.value) {
                 operationsFactory.value.getOperationById(currentOp.value.id).setParamByField('minter', minterAddress.value);
                 operationsFactory.value.getOperationById(currentOp.value.id).setParamByField('funds', funds);
+                console.log(
+                    'Setted Minter & funds for operation',
+                    minterAddress.value,
+                    funds,
+                    operationsFactory.value.getOperationById(currentOp.value.id).getParams(),
+                );
             }
 
             console.log('FINAL COLLECTION INFO');

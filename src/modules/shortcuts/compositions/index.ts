@@ -333,14 +333,6 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                     const { isNeedFromAmount = true } = shortcutOpInfo || {};
 
                     const fromAmount = operation.getParamByField('amount');
-                    console.log('SHORTCUT OP INFO:', operationId, isNeedFromAmount, fromAmount);
-
-                    console.table({
-                        isNeedFromAmount,
-                        fromAmount,
-                        isFinite: _.isFinite(fromAmount),
-                        fromAmountLessZero: fromAmount <= 0,
-                    })
 
                     if (isNeedFromAmount && (!fromAmount || _.isFinite(fromAmount) || fromAmount <= 0)) {
                         quoteErrorMessage.value = 'Please Fill all from token amounts';
@@ -457,6 +449,14 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('count', contractCallCount);
             }
 
+            if (currentOp.value?.id && srcAmount) {
+                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('amount', srcAmount);
+            }
+
+            if (currentOp.value?.id && dstAmount) {
+                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('outputAmount', dstAmount);
+            }
+
             if (!srcNet || !dstNet) return;
 
             if (currentOp.value?.id && srcNet?.net && srcNet?.ecosystem) {
@@ -481,16 +481,6 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             if (currentOp.value?.id && dstToken?.id) {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('toToken', dstToken.address);
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setToken('to', dstToken);
-            }
-
-            if (!srcAmount || !dstAmount) return;
-
-            if (currentOp.value?.id && srcAmount) {
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('amount', srcAmount);
-            }
-
-            if (currentOp.value?.id && dstAmount) {
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('outputAmount', dstAmount);
             }
         },
     );
