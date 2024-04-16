@@ -12,7 +12,7 @@
                 :controls="false"
                 allow-clear
                 v-model:value="contractCallCount"
-                class="base-input"
+                class="base-input mint-count-input"
                 data-qa="custom-input"
                 :min="1"
                 :max="max"
@@ -82,8 +82,15 @@ export default {
 
 <style lang="scss" scoped>
 .select-input {
-    min-height: 80px;
+    min-height: 64px;
+    max-height: 64px;
 
+    .input-label {
+        font-size: var(--#{$prefix}small-sm-fs);
+    }
+    .input-group {
+        min-height: 30px !important;
+    }
     .base-input {
         padding: 0;
     }

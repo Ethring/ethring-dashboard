@@ -63,8 +63,6 @@ interface IPriceInfo {
 export interface INftCollectionStats {
     type: string;
     stats: INftStats[];
-    priceStats: INftStats;
-    price: string;
     priceInfo: IPriceInfo;
     isSoldOut: boolean;
 }
@@ -72,8 +70,6 @@ export interface INftCollectionStats {
 export interface INftCollectionInfo {
     type: string;
     stats: INftStats[];
-    priceStats: INftStats;
-    price: string;
     perAddressLimit: number;
 
     collectionAddress: string;
@@ -262,6 +258,8 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
             },
         };
 
+        stats.push(priceStats);
+
         const priceInfo = {
             currency: {
                 amount: priceDisplayAmount,
@@ -276,8 +274,6 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
         return {
             type: nftType,
             stats,
-            priceStats,
-            price: priceDisplayAmount,
             priceInfo,
             isSoldOut,
         };
@@ -465,7 +461,6 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
             // * STATS *
             const response: INftCollectionInfo = {
                 stats: collectionStats,
-                priceStats: stats.priceStats,
                 type: stats.type,
                 isSoldOut: stats.isSoldOut,
 
@@ -478,7 +473,6 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
                 },
 
                 funds,
-                price: stats.price,
                 priceInfo: stats.priceInfo,
                 perAddressLimit: availablePerAddressLimit,
             };

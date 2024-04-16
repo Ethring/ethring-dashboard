@@ -23,6 +23,10 @@
     }
 }
 
+.mint-count-input input {
+    font-weight: 700 !important;
+}
+
 .editable-amount-input {
     border: 1px solid var(--#{$prefix}select-border-color);
     background: transparent;

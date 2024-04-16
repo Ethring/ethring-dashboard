@@ -60,23 +60,6 @@
                     </a-col>
                 </a-row>
             </a-col>
-
-            <a-col :span="24" v-if="nftCollectionInfo && nftCollectionInfo.priceStats">
-                <a-row :gutter="[8, 8]" class="nft-stats">
-                    <a-col :span="24">
-                        <a-card class="nft-stats-card">
-                            <p class="type">{{ nftCollectionInfo.priceStats.type }}</p>
-                            <Amount
-                                v-if="isNeedToShowPriceStats"
-                                class="amount"
-                                :type="nftCollectionInfo.priceStats.value.type"
-                                :value="nftCollectionInfo.priceStats.value.value"
-                                :symbol="nftCollectionInfo.priceStats.value.symbol"
-                            />
-                        </a-card>
-                    </a-col>
-                </a-row>
-            </a-col>
         </a-row>
 
         <template v-if="nftCollectionInfo && nftCollectionInfo.perAddressLimit && !nftCollectionInfo.isSoldOut">
