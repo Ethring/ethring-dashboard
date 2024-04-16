@@ -34,7 +34,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         website: 'https://www.stargaze.zone/',
         author: getAuthorById(ShortcutAuthor.ZometApp),
         ecosystems: ['EVM', 'COSMOS'],
-        minUsdAmount: 0.1,
+        minUsdAmount: 0.0001,
     },
     [AvailableShortcuts.StakeToCitadelOne]: {
         id: AvailableShortcuts.StakeToCitadelOne,
@@ -48,7 +48,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         wallpaper: 'https://i.imgur.com/TzfbhhA.png',
         website: 'https://citadel.one/',
         author: getAuthorById(ShortcutAuthor.ZometApp),
-        minUsdAmount: 0.1,
+        minUsdAmount: 0.0001,
     },
     [AvailableShortcuts.SwapToAtomAndStars]: {
         id: AvailableShortcuts.SwapToAtomAndStars,
@@ -62,7 +62,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         wallpaper: '',
         website: 'https://citadel.one/',
         author: getAuthorById(ShortcutAuthor.ZometApp),
-        minUsdAmount: 0.1,
+        minUsdAmount: 0.0001,
     },
     [AvailableShortcuts.MintCollectionWithTransfer]: {
         id: AvailableShortcuts.MintCollectionWithTransfer,
@@ -76,7 +76,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         website: 'https://www.stargaze.zone/',
         author: getAuthorById(ShortcutAuthor.ZometApp),
         ecosystems: ['EVM', 'COSMOS'],
-        minUsdAmount: 0.1,
+        minUsdAmount: 0.0001,
     },
 };
 
