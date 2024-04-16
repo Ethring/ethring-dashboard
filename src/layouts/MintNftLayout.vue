@@ -172,6 +172,9 @@ export default {
             selectedSrcToken,
             selectedSrcNetwork,
 
+            selectedDstNetwork,
+            selectedDstToken,
+
             contractAddress,
             contractCallCount,
             srcAmount,
@@ -261,6 +264,28 @@ export default {
             resetAmount.value = amount === null;
         };
 
+        const calculateCallCount = () => {
+            if (!nftCollectionInfo.value) return;
+
+            const { priceInfo } = nftCollectionInfo.value || {};
+
+            const { currency, usd } = priceInfo || {};
+
+            if (!usd?.amount || !currency?.amount) return;
+
+            const { amount: nftUsdPrice } = usd || {};
+            const { symbol } = currency || {};
+
+            const { price: srcPrice, symbol: srcSymbol, decimals: srcDecimals } = selectedSrcToken.value || {};
+
+            // * Calculate amount by count and src price
+            const amountByCount = BigNumber(nftUsdPrice).dividedBy(srcPrice).multipliedBy(contractCallCount.value).toFixed(srcDecimals);
+
+            if (srcSymbol !== symbol) console.warn('Different tokens', srcSymbol, symbol);
+
+            handleOnSetAmount(amountByCount);
+        };
+
         // =================================================================================================================
 
         watch(srcAmount, () => resetAmounts(srcAmount.value));
@@ -279,24 +304,15 @@ export default {
 
         onMounted(async () => {
             if (isConfigLoading.value) return;
+            selectedDstNetwork.value = null;
+            selectedDstToken.value = null;
             await getCollectionInfoData();
         });
 
-        watch(contractCallCount, (value) => {
-            if (value === 0) {
-                return handleOnSetAmount(null);
-            }
-
-            if (!nftCollectionInfo.value) return;
-
-            const { price } = nftCollectionInfo.value;
-
-            const amountByCount = BigNumber(price).multipliedBy(value).toString();
-
-            console.log('contractCallCount', value, amountByCount);
-
-            handleOnSetAmount(amountByCount);
-        });
+        store.watch(
+            (state, getters) => getters['tokenOps/contractCallCount'],
+            () => calculateCallCount(),
+        );
 
         watch(shortcutModalState, async () => {
             if (shortcutModalState.value) return;

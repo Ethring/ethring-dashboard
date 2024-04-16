@@ -136,6 +136,11 @@ export default function useChainTokenManger(moduleType: ModuleType) {
 
         switch (moduleType) {
             // * If the module is Swap, then the destination network is set to the source network
+            case ModuleType.nft:
+                selectedDstNetwork.value = null;
+                selectedDstToken.value = null;
+                break;
+
             case ModuleType.swap:
                 selectedDstNetwork.value = null;
                 break;

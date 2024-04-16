@@ -196,6 +196,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         const amount = firstOperation.value.getParamByField('amount') || 0;
 
         if (!amount) return true;
+        if (!CurrentShortcut.minUsdAmount) return true;
 
         const fromToken = firstOperation.value.getToken('from');
 
