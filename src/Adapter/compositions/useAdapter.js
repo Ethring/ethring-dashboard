@@ -337,10 +337,6 @@ function useAdapter() {
 
     // * Prepare Delegate Transaction
     const prepareDelegateTransaction = async (transaction, { ecosystem }) => {
-        if (!mainAdapter.value) {
-            return null;
-        }
-
         if (!ecosystem && mainAdapter.value?.prepareDelegateTransaction) {
             return await mainAdapter.value?.prepareDelegateTransaction(transaction);
         }
@@ -385,15 +381,11 @@ function useAdapter() {
 
     // * Sign & Send Transaction
     const signSend = async (transaction, { ecosystem = null }) => {
-        if (!ecosystem) {
-            return await mainAdapter.value.signSend(transaction);
-        }
+        if (!ecosystem) return await mainAdapter.value.signSend(transaction);
 
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
-        if (!adapter) {
-            return { error: `Please connect your ${ecosystem} wallet` };
-        }
+        if (!adapter) return { error: `Please connect your ${ecosystem} wallet` };
 
         return await adapter.signSend(transaction);
     };

@@ -71,7 +71,7 @@ export const trackingBalanceUpdate = (store: any) => {
     const handleUpdateBalance = async (network: ChainConfig, address: string) => {
         const targetAccount = JSON.parse(JSON.stringify(walletAccount.value)) || '';
 
-        if (!network || !address || !targetAccount) return;
+        if (!network || !address || !targetAccount) return false;
 
         // Wait for 3 sec before updating balance
         console.log(`Waiting for ${BALANCE_WAIT_TIME.value} sec before updating balance for ${network.net}`);
@@ -91,6 +91,12 @@ export const trackingBalanceUpdate = (store: any) => {
             chain: network.net,
             logo: network.logo,
         });
+
+        message.success({
+            content: () => `Balance updated for ${network.net} & ${address}`,
+        });
+
+        return true;
     };
 
     const removeUpdateBalanceQueues = async (address: string, chain: string) => {
@@ -106,19 +112,21 @@ export const trackingBalanceUpdate = (store: any) => {
 
                 const uniqueKey = `${chain}_${mainAddress}`;
 
-                if (!uniqueKey) return;
+                if (!uniqueKey) return console.log('Invalid unique key for balance update');
 
                 const inProgress = (await store.getters['updateBalance/getInProgress'](uniqueKey)) || false;
 
-                if (inProgress) return;
+                if (inProgress) return console.log('Balance update in progress for', uniqueKey);
 
-                store.dispatch('updateBalance/setInProgress', { address: uniqueKey, status: true });
+                await store.dispatch('updateBalance/setInProgress', { address: uniqueKey, status: true });
 
-                await handleUpdateBalance(config, address);
+                const updated = await handleUpdateBalance(config, address);
 
-                await removeUpdateBalanceQueues(mainAddress, chain);
+                console.log('Balance updated for', uniqueKey, 'now removing from queue');
 
-                store.dispatch('updateBalance/setInProgress', { address: uniqueKey, status: false });
+                updated && (await removeUpdateBalanceQueues(mainAddress, chain));
+
+                await store.dispatch('updateBalance/setInProgress', { address: uniqueKey, status: false });
             }),
         );
     });

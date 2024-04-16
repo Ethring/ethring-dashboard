@@ -49,8 +49,16 @@ export default defineConfig({
                     '@cosmology-wallets-keplr': ['@cosmos-kit/keplr', '@cosmos-kit/keplr-extension', '@cosmos-kit/keplr-mobile'],
                     '@cosmology-wallets-leap': ['@cosmos-kit/leap', '@cosmos-kit/leap-extension', '@cosmos-kit/leap-mobile'],
                     '@cosmjs-stargate': ['@cosmjs/cosmwasm-stargate', '@cosmjs/stargate'],
+
+                    // // Stargaze
                     '@cosmology-telescope-ibc': ['stargazejs/main/codegen/ibc/bundle', 'stargazejs/main/codegen/ibc/client'],
                     '@cosmology-telescope-cosmos': ['stargazejs/main/codegen/cosmos/bundle', 'stargazejs/main/codegen/cosmos/client'],
+
+                    // // Osmosis
+                    // '@cosmology-telescope-ibc-osmosis': ['osmojs/dist/codegen/ibc/bundle', 'osmojs/dist/codegen/ibc/client'],
+                    // '@cosmology-telescope-cosmos-osmosis': ['osmojs/dist/codegen/cosmos/bundle', 'osmojs/dist/codegen/cosmos/client'],
+                    // '@cosmology-telescope-osmosis': ['osmojs/dist/codegen/osmosis/bundle', 'osmojs/dist/codegen/osmosis/client'],
+
                     '@web3-onboard-cores': ['@web3-onboard/core', '@web3-onboard/vue', '@web3-onboard/common'],
                     '@web3-onboard-wallets': ['@web3-onboard/injected-wallets', '@web3-onboard/coinbase', '@web3-onboard/ledger'],
                 },
@@ -69,6 +77,7 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': resolve(__dirname, 'src'),
+            '@cosmology/helpers': '@osmonauts/helpers',
             'axios/lib': resolve(__dirname, './node_modules/axios/lib'),
         },
         extensions: ['.js', '.ts', '.vue', '.svg', 'json'],

@@ -76,8 +76,8 @@ export default {
             }
         },
         [TYPES.SET_IN_PROGRESS](state, { address, status }: { address: string; status: boolean }) {
-            if (!state.inProgress[address]) return (state.inProgress[address] = status);
             state.inProgress[address] = status;
+            if (!status) delete state.inProgress[address];
         },
         [TYPES.SET_QUEUES_TO_UPDATE](
             state,

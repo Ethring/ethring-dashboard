@@ -67,7 +67,6 @@ declare module 'vue' {
     ATypographyLink: typeof import('ant-design-vue/es')['TypographyLink']
     ATypographyText: typeof import('ant-design-vue/es')['TypographyText']
     ATypographyTitle: typeof import('ant-design-vue/es')['TypographyTitle']
-    AUpload: typeof import('ant-design-vue/es')['Upload']
     BridgeDexRoutesModal: typeof import('./src/components/app/modals/BridgeDexRoutesModal.vue')['default']
     Button: typeof import('./src/components/ui/Button.vue')['default']
     Censorship: typeof import('./src/components/app/Censorship.vue')['default']

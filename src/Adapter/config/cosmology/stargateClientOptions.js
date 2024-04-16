@@ -1,16 +1,36 @@
+import { AminoTypes } from '@cosmjs/stargate';
+import { Registry } from '@cosmjs/proto-signing';
+
+// import {
+//     // Cosmos
+//     cosmosAminoConverters,
+//     cosmosProtoRegistry,
+//     // CosmWasm
+//     cosmwasmAminoConverters,
+//     cosmwasmProtoRegistry,
+//     // IBC
+//     ibcProtoRegistry,
+//     ibcAminoConverters,
+//     // Publicawesome
+//     publicawesomeAminoConverters,
+//     publicawesomeProtoRegistry,
+// } from 'stargazejs';
+
 import {
+    // Cosmos
     cosmosAminoConverters,
     cosmosProtoRegistry,
+    // CosmWasm
     cosmwasmAminoConverters,
     cosmwasmProtoRegistry,
+    // IBC
     ibcProtoRegistry,
     ibcAminoConverters,
-} from 'stargazejs';
+} from 'injectivejs';
 
 // import { injectiveAminoConverters, injectiveProtoRegistry } from 'injectivejs';
 
-import { AminoTypes } from '@cosmjs/stargate';
-import { Registry } from '@cosmjs/proto-signing';
+console.log('Amino', cosmosAminoConverters['/cosmos.staking.v1beta1.MsgDelegate']);
 
 // Custom Registry for stargate
 

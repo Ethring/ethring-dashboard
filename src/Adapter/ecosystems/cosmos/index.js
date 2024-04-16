@@ -1,7 +1,7 @@
 import { ref } from 'vue';
-import _, { chain } from 'lodash';
+import _ from 'lodash';
 
-import { cosmos, cosmwasm, contracts } from 'stargazejs';
+import { cosmos, cosmwasm } from 'injectivejs';
 
 import { SigningStargateClient, GasPrice } from '@cosmjs/stargate';
 
@@ -628,6 +628,8 @@ export class CosmosAdapter extends AdapterBase {
 
             logger.log('Simulated gas |', simGas.toString(), `| multiplied to ${GAS_ADJUSTMENT} |`, adjustedGas);
 
+            logger.log('-'.repeat(50), '\n\n');
+
             return adjustedGas;
         } catch (error) {
             logger.error('[COSMOS -> getTransactionFee -> simulateTxGas]', error);
@@ -687,6 +689,7 @@ export class CosmosAdapter extends AdapterBase {
 
         try {
             const { delegate } = cosmos.staking.v1beta1.MessageComposer.withTypeUrl;
+
             const amountFormatted = utils.parseUnits(amount, token.decimals).toString();
 
             const msg = delegate({
@@ -703,14 +706,13 @@ export class CosmosAdapter extends AdapterBase {
                 fee,
                 memo,
             };
-        } catch (error) {}
+        } catch (error) {
+            logger.error('COSMOS -> prepareDelegateTransaction', error);
+        }
     }
 
     async prepareMultipleExecuteMsgs({ fromAddress, amount, token, memo, count = 1, contract, funds = [], msgKey = 'mint' }) {
         const fee = this.setDefaultFeeForTx();
-
-        console.log('params -> prepareMultipleExecuteMsgs', { fromAddress, amount, token, memo, count, contract, funds });
-
         const prepareMsgs = () => {
             try {
                 const { executeContract } = cosmwasm.wasm.v1.MessageComposer.withTypeUrl;
@@ -728,8 +730,6 @@ export class CosmosAdapter extends AdapterBase {
                     msg: contractMsg,
                 });
 
-                console.log('msg -> prepareMultipleExecuteMsgs', msg);
-
                 return msg;
             } catch (error) {
                 logger.error('error while prepare', error);
@@ -739,8 +739,6 @@ export class CosmosAdapter extends AdapterBase {
         let msgs = [];
 
         try {
-            console.log('prepareMultipleExecuteMsgs', count);
-
             for (let i = 0; i < count; i++) {
                 const msg = prepareMsgs();
                 if (!msg) continue;
@@ -945,6 +943,7 @@ export class CosmosAdapter extends AdapterBase {
     }
 
     async signSend(transaction) {
+        console.log('transaction', transaction);
         const { msg, fee, memo } = transaction;
 
         const chainWallet = this._getCurrentWallet();
