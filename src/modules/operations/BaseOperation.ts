@@ -213,8 +213,7 @@ export class BaseOperation implements IBaseOperation {
                 };
             case ModuleType.send:
                 return {
-                    title: `SEND ${fromTokenTitle}`,
-                    description: receiverAddress as string,
+                    title: `SEND ${fromTokenTitle} to ${receiverAddress?.slice(0, 9) as string}...${receiverAddress?.slice(-4) as string}`,
                 };
             case ModuleType.bridge:
                 return {
