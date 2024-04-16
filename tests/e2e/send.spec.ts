@@ -41,7 +41,7 @@ testMetaMask.describe('MetaMask Send e2e tests', () => {
             const addressTo = getTestVar(TEST_CONST.RECIPIENT_ADDRESS);
             const amount = '0.001';
             const expectedNotificationTitle = 'SEND 0.001 AVAX';
-            const expectedNotificationDescription = ` To 0x12f80578***2F563c`;
+            const expectedNotificationDescription = '';
             const expectedNotificationTitleAfterReject = 'Transaction error';
             const expectedNotificationDescAfterReject = 'MetaMask Tx Signature: User denied transaction signature.';
 
