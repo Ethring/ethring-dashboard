@@ -620,13 +620,13 @@ const useModuleOperations = (module: ModuleType) => {
         txInstance.setRequestID(txManager.getRequestId());
 
         const isParamsEqual = () => {
-            const isNetEq =
-                operations.getOperationByKey(moduleIndex).getParamByField('fromNet') ===
-                operations.getOperationByKey(moduleIndex).getParamByField('toNet');
+            const { fromNet, toNet, fromToken, toToken } = operations.getOperationByKey(moduleIndex).getParams();
 
-            const isTokenEq =
-                operations.getOperationByKey(moduleIndex).getParamByField('fromToken') ===
-                operations.getOperationByKey(moduleIndex).getParamByField('toToken');
+            if (!fromNet || !toNet || !fromToken || !toToken) return false;
+
+            const isNetEq = fromNet === toNet;
+
+            const isTokenEq = fromToken === toToken;
 
             return isNetEq && isTokenEq;
         };
