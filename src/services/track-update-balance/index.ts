@@ -79,7 +79,7 @@ export const trackingBalanceUpdate = (store: any) => {
         await delay(BALANCE_WAIT_TIME.value * 1000);
 
         message.loading({
-            content: () => `Fetching balance for ${network.net} & ${address}`,
+            content: () => `Update balance: ${address}`,
         });
 
         console.log('Finished waiting for balance update, updating balance now...');
@@ -90,10 +90,6 @@ export const trackingBalanceUpdate = (store: any) => {
             isUpdate: true,
             chain: network.net,
             logo: network.logo,
-        });
-
-        message.success({
-            content: () => `Balance updated for ${network.net} & ${address}`,
         });
 
         return true;
