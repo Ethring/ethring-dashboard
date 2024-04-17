@@ -27,7 +27,7 @@ const statusNotification = (status, { store, id = null, metaData, txHash, displa
         type: NOTIFICATION_TYPE_BY_STATUS[status],
         duration: 4,
         title: metaData.notificationTitle || `Transaction ${status}`,
-        description: metaData.notificationDescription || displayHash,
+        description: metaData.notificationDescription || null,
         duration: 6,
         progress: true,
     };

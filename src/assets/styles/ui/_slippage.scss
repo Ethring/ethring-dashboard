@@ -1,10 +1,14 @@
 .slippage {
-    &__icon {
+    &__icon-container {
         width: 32px;
         height: 32px;
 
-        @include pageFlexRow;
-        justify-content: center;
+        &,
+        & > span {
+            @include pageFlexRow;
+            justify-content: center;
+        }
+
         border-radius: 50%;
         background-color: var(--#{$prefix}icon-secondary-bg-color);
         border: 1px solid var(--#{$prefix}border-secondary-color);
@@ -15,14 +19,14 @@
         &:hover {
             background-color: var(--#{$prefix}icon-logo-bg-hover);
         }
+    }
 
-        svg {
-            width: 20px;
-            height: 20px;
+    &__icon {
+        width: 20px;
+        height: 20px;
 
-            path {
-                fill: var(--#{$prefix}base-text);
-            }
+        path {
+            fill: var(--#{$prefix}base-text);
         }
     }
 

@@ -9,6 +9,7 @@ import { IBaseOperation, BaseOpParams, PerformOptionalParams, PerformTxParams } 
 import { TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
 import { getActionByTxType } from './shared/utils';
 import { ServiceType } from '../bridge-dex/enums/ServiceType.enum';
+import { formatNumber } from '@/shared/utils/numbers';
 
 const DEFAULT_TX_TYPE_BY_MODULE = {
     [ModuleType.stake]: TRANSACTION_TYPES.STAKE,
@@ -196,8 +197,8 @@ export class BaseOperation implements IBaseOperation {
         const { count = 0, outputAmount = 0, amount, receiverAddress = '' } = this.getParams();
         const { from, to } = this.getTokens() || {};
 
-        let fromTokenTitle = Number(amount) > 0 && from?.symbol ? `${amount} ${from.symbol}` : '';
-        let toTokenTitle = Number(outputAmount) > 0 && to?.symbol ? `For ${outputAmount} ${to.symbol}` : '';
+        let fromTokenTitle = Number(amount) > 0 && from?.symbol ? `${formatNumber(amount)} ${from.symbol}` : '';
+        let toTokenTitle = Number(outputAmount) > 0 && to?.symbol ? `For ${formatNumber(outputAmount)} ${to.symbol}` : '';
 
         if (this.transactionType === TRANSACTION_TYPES.APPROVE) toTokenTitle = '';
 
@@ -213,7 +214,7 @@ export class BaseOperation implements IBaseOperation {
                 };
             case ModuleType.send:
                 return {
-                    title: `SEND ${fromTokenTitle} to ${receiverAddress?.slice(0, 9) as string}...${receiverAddress?.slice(-4) as string}`,
+                    title: `SEND ${fromTokenTitle} to ${receiverAddress}`,
                 };
             case ModuleType.bridge:
                 return {

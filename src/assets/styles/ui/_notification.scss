@@ -45,6 +45,10 @@
         color: var(--#{$prefix}white);
         font-size: var(--#{$prefix}small-lg-fs) !important;
         margin-bottom: 2px !important;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        max-width: 290px;
     }
 
     .ant-notification-notice-description {
