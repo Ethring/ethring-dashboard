@@ -312,11 +312,19 @@ const useModuleOperations = (module: ModuleType) => {
             [METHODS.ECOSYSTEM_CONNECTED_CHAIN_NOT_CORRECT]: () => isEcosystemEqual() && !isChainsEqual(),
         };
 
-        const SHORTCUT_FLOW = [
-            METHODS.ECOSYSTEM_NOT_CONNECT,
-            METHODS.ECOSYSTEM_CONNECTED_NOT_CORRECT,
-            METHODS.ECOSYSTEM_CONNECTED_CHAIN_NOT_CORRECT,
-        ];
+        const isEVM = tx.getEcosystem() === ECOSYSTEMS.EVM;
+
+        const SHORTCUT_FLOW = [];
+
+        if (isEVM) {
+            SHORTCUT_FLOW.push(METHODS.ECOSYSTEM_NOT_CONNECT);
+            SHORTCUT_FLOW.push(METHODS.ECOSYSTEM_CONNECTED_NOT_CORRECT);
+            SHORTCUT_FLOW.push(METHODS.ECOSYSTEM_CONNECTED_CHAIN_NOT_CORRECT);
+        } else {
+            SHORTCUT_FLOW.push(METHODS.ECOSYSTEM_CONNECTED_NOT_CORRECT);
+            SHORTCUT_FLOW.push(METHODS.ECOSYSTEM_NOT_CONNECT);
+            SHORTCUT_FLOW.push(METHODS.ECOSYSTEM_CONNECTED_CHAIN_NOT_CORRECT);
+        }
 
         const DEFAULT_FLOW = [
             METHODS.ECOSYSTEM_CONNECTED_NOT_CORRECT,
@@ -325,9 +333,6 @@ const useModuleOperations = (module: ModuleType) => {
         ];
 
         const validationFlow = isShortcutOpsExist() ? SHORTCUT_FLOW : DEFAULT_FLOW;
-        // const validationFlow = DEFAULT_FLOW;
-
-        console.log('FLOW FOR VALIDATION:', 'DEFAULT_FLOW', '\n\n');
 
         try {
             // * START: Check if wallet chain is correct, if correct, skip
