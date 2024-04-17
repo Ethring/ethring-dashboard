@@ -55,6 +55,7 @@ $gradient-dark-green: linear-gradient(198.01deg, #00bf57 0.44%, #005f91 108.3%);
 
 $black-op-085: rgba(0, 0, 0, 0.85);
 $black-op-02: rgba(0, 0, 0, 0.2);
+$white-op-075: #0c0d18BF;
 
 //  ===========================================================================
 //  COLORS MAP
@@ -431,5 +432,6 @@ $theme-colors-dark: (
 
     "shortcut-step-success": $shortcut-step-success,
 
-    "radio-btn-bg-color": $radio-btn-bg-color
+    "radio-btn-bg-color": $radio-btn-bg-color,
+    "white-op-075": $white-op-075,
 );

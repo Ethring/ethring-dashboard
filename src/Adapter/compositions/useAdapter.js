@@ -417,7 +417,7 @@ function useAdapter() {
             try {
                 const chainList = adapter.getChainList(store);
 
-                const chain = chainList.find((chain) => `${chain.chain_id}` === `${chainId}`);
+                const chain = chainList.find((chain) => `${chain.chain_id}` === `${chainId}` || chain.net === chainId);
 
                 if (!chain) {
                     return null;

@@ -206,7 +206,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
                 onlyWithBalance: false,
             });
 
-            return _.find(tokens, { id: tokenId });
+            return _.find(tokens, (token) => token.id.toLowerCase() === tokenId.toLowerCase());
         } catch (error) {
             console.error('getTokenById', error);
         }

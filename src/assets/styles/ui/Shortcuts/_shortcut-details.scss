@@ -63,26 +63,35 @@
         }
     }
 
-    .ant-steps-item-icon,
-    .ant-steps-icon {
-        // width: 24px;
-        // height: 24px;
-        // margin: 16px 0;
-    }
+    .coming-soon {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        z-index: 10;
 
-    .ant-steps-item-tail {
-        // margin-left: -4px !important;
-        // margin-top: 50px;
-        // height: 24px !important;
-        // padding: 0 !important;
-        // background-color: var(--#{$prefix}neutral-gray-100) !important;
-    }
+        text-align: center;
 
-    .ant-steps-item-tail::after {
-        // background-color: var(--#{$prefix}neutral-gray-100) !important;
-    }
+        box-shadow: inset 10px 10px 10px 20px var(--#{$prefix}white-op-075);
+        background: var(--#{$prefix}white-op-075);
+        backdrop-filter: blur(5px);
 
-    .ant-steps-item-title {
-        // width: 100%;
+        &__title {
+            margin-top: 25%;
+            font-size: var(--#{$prefix}h5-fs);
+            line-height: 28px;
+            font-weight: 600;
+            color: var(--#{$prefix}primary-text);
+        }
+
+        &__description {
+            color: var(--#{$prefix}mute-text);
+            margin: 8px auto 16px;
+        }
+
+        button {
+            margin: auto;
+        }
     }
 }
