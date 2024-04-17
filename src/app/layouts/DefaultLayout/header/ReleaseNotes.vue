@@ -25,12 +25,20 @@
                 <a-typography-text strong underline>
                     <router-link to="/super-swap" class="route-link"> SuperSwap </router-link>
                 </a-typography-text>
-                . Simply select the tokens you want to exchange and the system will find you the best route. You can view all available
-                tokens and protocols on our dashboard.
+                . Simply select the tokens you want to exchange and the system will find you the best route.
             </a-typography-text>
 
             <a-typography-text>
-                Currently, the selection of networks is limited, but a wider range will be available soon, so stay tuned for updates!
+                You can view all available tokens and protocols on our
+                <a-typography-text strong underline>
+                    <router-link to="/main" class="route-link"> dashboard </router-link>
+                </a-typography-text>.
+            </a-typography-text>
+
+            <a-typography-text>
+                Currently, the selection of
+                <a-typography-text strong underline>networks is limited</a-typography-text>, but a wider range will be available soon, so
+                stay tuned for updates!
             </a-typography-text>
 
             <a-typography-text>
