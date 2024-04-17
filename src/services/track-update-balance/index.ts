@@ -2,7 +2,6 @@ import { computed, ref, watch } from 'vue';
 
 import { ChainConfig } from '@/modules/chain-configs/types/chain-config';
 import { delay } from '@/shared/utils/helpers';
-import { message } from 'ant-design-vue';
 import { updateBalanceByChain } from '@/modules/balance-provider';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 
@@ -73,14 +72,11 @@ export const trackingBalanceUpdate = (store: any) => {
 
         if (!network || !address || !targetAccount) return false;
 
+        console.log('------------------------------------------------');
         // Wait for 3 sec before updating balance
         console.log(`Waiting for ${BALANCE_WAIT_TIME.value} sec before updating balance for ${network.net}`);
 
         await delay(BALANCE_WAIT_TIME.value * 1000);
-
-        message.loading({
-            content: () => `Update balance: ${address}`,
-        });
 
         console.log('Finished waiting for balance update, updating balance now...');
 
@@ -121,6 +117,8 @@ export const trackingBalanceUpdate = (store: any) => {
                 console.log('Balance updated for', uniqueKey, 'now removing from queue');
 
                 updated && (await removeUpdateBalanceQueues(mainAddress, chain));
+
+                console.log('\n\n\n');
 
                 await store.dispatch('updateBalance/setInProgress', { address: uniqueKey, status: false });
             }),

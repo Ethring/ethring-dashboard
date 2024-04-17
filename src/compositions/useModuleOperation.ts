@@ -324,8 +324,8 @@ const useModuleOperations = (module: ModuleType) => {
             METHODS.ECOSYSTEM_CONNECTED_CHAIN_NOT_CORRECT,
         ];
 
-        // const validationFlow = isShortcutOpsExist() ? SHORTCUT_FLOW : DEFAULT_FLOW; // ! Shortcut flow uncomment after debug
-        const validationFlow = DEFAULT_FLOW;
+        const validationFlow = isShortcutOpsExist() ? SHORTCUT_FLOW : DEFAULT_FLOW;
+        // const validationFlow = DEFAULT_FLOW;
 
         console.log('FLOW FOR VALIDATION:', 'DEFAULT_FLOW', '\n\n');
 
