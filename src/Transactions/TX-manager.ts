@@ -110,11 +110,15 @@ export class TransactionList {
     // * Create Transactions Queue
     // ===========================================================================================
     async createTransactionGroup(data: ICreateTransaction): Promise<ITransactionResponse[]> {
-        const response = await createTransactionsQueue([data]);
+        const response = (await createTransactionsQueue([data])) || [];
 
-        const [group] = response;
+        if (!response || !response?.length) {
+            throw new Error('Failed to create transaction group');
+        }
 
-        const { id, requestID } = group;
+        const [group] = response || [];
+
+        const { id, requestID } = group || {};
 
         this.setRequestID(requestID);
 
@@ -127,7 +131,7 @@ export class TransactionList {
     // * Add Transaction to Existing Queue
     // ===========================================================================================
     async addTransactionToGroup(index: number, data: ICreateTransaction): Promise<ITransactionResponse> {
-        const transactions = await getTransactionsByRequestID(this.requestID);
+        const transactions = (await getTransactionsByRequestID(this.requestID)) || [];
 
         if (index === 0) {
             return transactions[0];
