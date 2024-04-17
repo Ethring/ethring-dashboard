@@ -44,7 +44,7 @@ export const detectUpdateForAccount = async (socketEvent: string, store: any, tr
 
     let recAddress = receiverAddress;
 
-    if (typeof receiverAddress === 'object' && toNet) {
+    if (typeof receiverAddress === 'object' && toNet && receiverAddress[toNet]) {
         recAddress = receiverAddress[toNet];
     }
 
