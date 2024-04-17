@@ -2,7 +2,8 @@ import { computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 
 import BridgeDexService from '@/modules/bridge-dex';
-import { ModuleTypes, ServiceType } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import { ServiceType } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import { ModuleTypes } from '@/shared/models/enums/modules.enum';
 
 import { IQuoteRoute } from '@/modules/bridge-dex/models/Response.interface';
 import { ServiceByModule } from '../enums/ServiceType.enum';

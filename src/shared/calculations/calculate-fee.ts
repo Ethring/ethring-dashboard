@@ -30,7 +30,7 @@ export const convertFeeToCurrency = (fee: BigNumber, price: string) => {
 };
 
 export const calculateMinAmount = (amount: string, slippage: number) => {
-    const slippageProcent = slippage / 100;
+    const slippagePercent = slippage / 100;
 
-    return BigNumber(amount).multipliedBy(1 - slippageProcent).toString();
+    return BigNumber(amount).multipliedBy(1 - slippagePercent).toString();
 };

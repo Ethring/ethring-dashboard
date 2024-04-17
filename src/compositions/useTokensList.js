@@ -4,7 +4,7 @@ import { computed } from 'vue';
 
 import { useStore } from 'vuex';
 
-import { ECOSYSTEMS } from '@/Adapter/config';
+import { ECOSYSTEMS, NATIVE_CONTRACT } from '@/Adapter/config';
 
 export default function useTokensList({ network = null, fromToken = null, toToken = null } = {}) {
     const store = useStore();
@@ -32,7 +32,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         return store.getters['tokens/getTokensListForChain'](net, { account });
     };
 
-    const getAllTokensList = async (network, fromToken, toToken, { isSameNet = true, onlyWithBalance = false, exclude = [] }) => {
+    const getAllTokensList = async (network, fromToken, toToken, { onlyWithBalance = false, exclude = [] }) => {
         if (!network) {
             return [];
         }
@@ -130,11 +130,26 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             return allTokens;
         };
 
+        const tokensListFromNetVerified = tokensListFromNet.filter((token) => token.verified);
+
+        const tokensVerifiedMap = new Map(
+            tokensListFromNetVerified.map((token) => [token.address ? token.address.toLowerCase() : NATIVE_CONTRACT, true]),
+        );
+
+        let tokensWithBalanceVerified = tokensWithBalance;
+        if (tokensListFromNetVerified) {
+            // Update the tokens list with balance to include the verified status
+            tokensWithBalanceVerified = tokensWithBalance.map((token) => ({
+                ...token,
+                verified: tokensVerifiedMap.has(token?.address?.toLowerCase() || NATIVE_CONTRACT),
+            }));
+        }
+
         // Target tokens list with or without balance
         if (onlyWithBalance) {
-            allTokens = tokensWithBalance;
+            allTokens = tokensWithBalanceVerified;
         } else {
-            allTokens = _.unionBy(tokensWithBalance, tokensListFromNet, (tkn) => tkn.address?.toLowerCase());
+            allTokens = _.unionBy(tokensWithBalanceVerified, tokensListFromNet, (tkn) => tkn.address?.toLowerCase());
         }
 
         // Set native token info
@@ -166,6 +181,9 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
                 // Sorting by balance
                 (tkn) => Number(tkn.balanceUsd),
+
+                // Sorting by verified
+                (tkn) => tkn.verified,
             ],
             ['desc', 'desc', 'desc'],
         );
@@ -173,22 +191,28 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         return sortedList;
     };
 
-    const getTokensList = async ({
-        srcNet = null,
-        srcToken = null,
-        dstToken = null,
-        isSameNet = true,
-        onlyWithBalance = false,
-        exclude = [],
-    } = {}) => {
+    const getTokensList = async ({ srcNet = null, srcToken = null, dstToken = null, onlyWithBalance = false, exclude = [] } = {}) => {
         network = srcNet;
         fromToken = srcToken;
         toToken = dstToken;
 
-        return await getAllTokensList(network, fromToken, toToken, { isSameNet, onlyWithBalance, exclude });
+        return await getAllTokensList(network, fromToken, toToken, { onlyWithBalance, exclude });
     };
 
+    const getTokenById = async (network, tokenId) => {
+        try {
+            const tokens = await getTokensList({
+                srcNet: network,
+                onlyWithBalance: false,
+            });
+
+            return _.find(tokens, (token) => token.id.toLowerCase() === tokenId.toLowerCase());
+        } catch (error) {
+            console.error('getTokenById', error);
+        }
+    };
     return {
         getTokensList,
+        getTokenById,
     };
 }

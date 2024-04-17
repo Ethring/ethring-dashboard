@@ -17,7 +17,6 @@
                 </div>
                 <component :is="component" class="module-layout-view" />
                 <OperationResult v-if="operationResult?.title" v-bind="operationResult" :module="currentModule" />
-                <SelectModal />
             </template>
         </div>
     </div>
@@ -31,8 +30,6 @@ import SimpleBridge from '@/components/dynamic/bridge/SimpleBridge.vue';
 import SimpleSwap from '@/components/dynamic/swaps/SimpleSwap.vue';
 import SimpleSend from '@/components/dynamic/send/SimpleSend.vue';
 import SuperSwap from '@/components/dynamic/super-swap/SuperSwap.vue';
-
-import SelectModal from '@/components/app/modals/SelectModal.vue';
 
 import UnsupportedResult from '@/components/ui/UnsupportedResult';
 import OperationResult from '@/components/ui/Result';
@@ -51,7 +48,6 @@ export default {
         OperationResult,
         UnsupportedResult,
         ArrowUpIcon,
-        SelectModal,
     },
     props: {
         component: {

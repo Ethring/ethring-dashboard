@@ -1,6 +1,11 @@
+import _ from 'lodash';
 import { ECOSYSTEMS } from '@/Adapter/config';
 
 export const formatRecord = (ecosystem: string, chain: string, token: any) => {
+    if (![ECOSYSTEMS.COSMOS].includes(ecosystem?.toUpperCase())) {
+        token.address = _.toLower(token.address);
+    }
+
     token.id = `${chain}:tokens__${token.address}:${token.symbol}`;
     token.chain = chain;
     token.ecosystem = ecosystem?.toUpperCase() || '';

@@ -9,7 +9,7 @@ import { searchByKey } from '@/shared/utils/helpers';
 import { assignPriceInfo } from '@/shared/utils/prices';
 
 import { DIRECTIONS, TOKEN_SELECT_TYPES, PRICE_UPDATE_TIME } from '@/shared/constants/operations';
-import { ModuleType } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { ECOSYSTEMS } from '@/Adapter/config';
 
 export default function useSelectModal(type) {
@@ -20,12 +20,27 @@ export default function useSelectModal(type) {
 
     const LIST_CONTAINER = '.select-modal-list-container';
 
-    const MAX_OPTIONS_PER_PAGE = 12;
+    const MAX_OPTIONS_PER_PAGE = 20;
 
     // =================================================================================================================
 
     const store = useStore();
     const useAdapter = inject('useAdapter');
+
+    const CurrentStepId = computed(() => store.getters['shortcuts/getCurrentStepId']);
+    const CurrentShortcut = computed(() => store.getters['shortcuts/getCurrentShortcutId']);
+
+    const CurrentOperation = computed(() => {
+        if (!CurrentShortcut.value) return null;
+        if (!CurrentStepId.value) return null;
+
+        return store.getters['shortcuts/getCurrentOperation'](CurrentShortcut.value);
+    });
+    const excludeChainList = computed(() => {
+        const { excludeChains = [] } = CurrentOperation.value || {};
+
+        return excludeChains || [];
+    });
 
     const { chainList, getChainListByEcosystem } = useAdapter();
     const { getTokensList } = useTokenList();
@@ -129,7 +144,7 @@ export default function useSelectModal(type) {
     };
 
     const handleAfterClose = () => {
-        changeScroll(true);
+        changeScroll();
         isLoadMore.value = false;
         currentIndex.value = MAX_OPTIONS_PER_PAGE;
         handleOnFilterNetworks('');
@@ -142,7 +157,7 @@ export default function useSelectModal(type) {
             isLoadMore.value = false;
         }
 
-        changeScroll();
+        // changeScroll();
     };
 
     // =================================================================================================================
@@ -169,13 +184,15 @@ export default function useSelectModal(type) {
             chain.selected = chain.net === selectedSrcNetwork.value?.net || chain.net === selectedDstNetwork.value?.net;
         }
 
-        return list.filter((chain) => {
-            if (module.value === 'bridge') {
-                return !chain.selected || chain?.net !== selectedNetwork.value?.net;
-            }
+        return list
+            .filter((chain) => !excludeChainList.value.includes(chain?.net))
+            .filter((chain) => {
+                if (module.value === 'bridge') {
+                    return !chain.selected || chain?.net !== selectedNetwork.value?.net;
+                }
 
-            return chain;
-        });
+                return chain;
+            });
     });
 
     const tokens = ref([]);
@@ -208,7 +225,7 @@ export default function useSelectModal(type) {
         return _.slice(records, 0, currentIndex.value);
     });
 
-    watch(isOpen, async () => {
+    watch([isOpen, selectedNetwork, selectedTokenFrom], async () => {
         if (isOpen.value && selectModal.value?.type === TYPES.TOKEN) {
             store.dispatch('app/setLoadingTokenList', true);
 

@@ -6,6 +6,7 @@
             <AddressModal />
             <BridgeDexRoutesModal />
             <KadoModal />
+            <SelectModal />
             <ReleaseNotes />
         </a-config-provider>
     </KeepAlive>
@@ -24,7 +25,7 @@ import ReleaseNotes from '@/app/layouts/DefaultLayout/header/ReleaseNotes.vue';
 import WalletsModal from '@/Adapter/UI/Modal/WalletsModal';
 import AddressModal from '@/Adapter/UI/Modal/AddressModal';
 import KadoModal from '@/components/app/modals/KadoModal.vue';
-// import RoutesModal from '@/components/app/modals/RoutesModal.vue';
+import SelectModal from '@/components/app/modals/SelectModal.vue';
 import BridgeDexRoutesModal from '@/components/app/modals/BridgeDexRoutesModal.vue';
 
 import { updateBalanceForAccount } from '@/modules/balance-provider';
@@ -39,6 +40,7 @@ export default {
     components: {
         AppLayout,
         KadoModal,
+        SelectModal,
         BridgeDexRoutesModal,
         ReleaseNotes,
         WalletsModal,
@@ -81,14 +83,11 @@ export default {
         };
 
         const updateBalanceForAllAccounts = async () => {
-            for (const { account, ecosystem } of connectedWallets.value) {
-                const addresses = await getAddressesWithChains(ecosystem);
-                const addressHash = await getAddressesWithChainsByEcosystem(ecosystem, { hash: true }) || {};
+            for (const { account, ecosystem, addresses } of connectedWallets.value) {
+                const list = _.pick(addresses, Object.values(DP_CHAINS)) || {};
+                store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses: list });
 
-                store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM', { ecosystem, addresses: addressHash });
-                store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses });
-
-                await updateBalanceForAccount(account, addresses);
+                await updateBalanceForAccount(account, list);
             }
         };
 
@@ -99,6 +98,9 @@ export default {
                 store.dispatch('tokens/setLoader', false);
                 return setTimeout(callInit, 1000);
             }
+
+            const addressHash = await getAddressesWithChainsByEcosystem(ecosystem, { hash: true }) || {};
+            store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM', { ecosystem, addresses: addressHash });
 
             await setNativeTokensPrices(store, ecosystem);
             await updateBalanceForAllAccounts();
@@ -125,7 +127,6 @@ export default {
             await store.dispatch('configs/setConfigLoading', true);
 
             await store.dispatch('configs/initConfigs');
-            // await store.dispatch('bridgeDex/getServices');
             await store.dispatch('bridgeDexAPI/getServices');
 
             await initAdapter();
@@ -142,6 +143,11 @@ export default {
         onMounted(() => {
             // * Tracking balance update for all accounts
             trackingBalanceUpdate(store);
+            // import('@/app/scripts/development').then(({ default: dev }) => {
+            //     dev();
+            // });
+            // console.log('App mounted', store.getters['adapters/getAllConnectedWallets']);
+
         });
     },
 };

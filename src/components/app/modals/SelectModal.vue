@@ -10,7 +10,7 @@
                 />
             </a-form>
 
-            <div class="select-modal-list-container">
+            <div class="select-modal-list-container" ref="scrollComponent" @scroll="handleScroll">
                 <SelectOption
                     v-for="option in optionList"
                     :key="option"
@@ -20,9 +20,9 @@
                     @click="(event) => handleOnSelect(event, option)"
                 />
 
-                <div v-if="isLoadMore" class="select-modal-load-more">
+                <!-- <div v-if="isLoadMore" class="select-modal-load-more">
                     <Button :title="$t('tokenOperations.loadMore')" @click="handleLoadMore" />
-                </div>
+                </div> -->
 
                 <a-empty
                     v-if="isModalOpen && !isLoadingTokenList && !optionList.length"
@@ -66,6 +66,7 @@ export default {
             network: 'tokenOperations.searchNetwork',
             token: 'tokenOperations.searchToken',
         };
+        const scrollComponent = ref(null);
 
         const store = useStore();
         const useSelectModal = inject('useSelectModal');
@@ -110,6 +111,14 @@ export default {
             });
         });
 
+        const handleScroll = () => {
+            const modalContent = scrollComponent.value;
+
+            if (modalContent.scrollHeight - modalContent.scrollTop <= modalContent.clientHeight + 10) {
+                handleLoadMore();
+            }
+        };
+
         return {
             type,
 
@@ -122,7 +131,9 @@ export default {
 
             searchValue,
             optionList,
+            scrollComponent,
 
+            handleScroll,
             handleLoadMore,
             handleOnSelect,
             handleAfterClose,

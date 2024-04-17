@@ -1,19 +1,12 @@
 <template>
     <div class="asset-with-chain">
-        <a-image
-            v-if="type === 'NFTS'"
-            :preview="false"
-            class="asset-with-chain__nft-img"
-            :width="width"
-            :height="height"
-            :src="asset.avatar"
-            :fallback="nftPlaceholder"
-        />
+        <a-image v-if="type === 'NFTS'" :preview="false" class="asset-with-chain__nft-img" :width="width"
+            :height="height" :src="asset.avatar" :fallback="nftPlaceholder" />
 
         <TokenIcon v-else :width="width" :height="height" :token="asset" />
 
         <div class="chain">
-            <TokenIcon width="16" :height="16" :token="chain" />
+            <TokenIcon :width="width / 2" :height="height / 2" :token="chain" />
         </div>
     </div>
 </template>
@@ -59,9 +52,10 @@ export default {
 <style lang="scss">
 .asset-with-chain {
     position: relative;
+
     .chain {
         position: absolute;
-        right: -10px;
+        right: -8px;
         bottom: 0;
     }
 }

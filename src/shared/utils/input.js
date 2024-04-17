@@ -1,4 +1,6 @@
-export const formatInputNumber = (val) => {
+export const formatInputNumber = (val = '') => {
+    if (!val) return val;
+
     val = val
         .toString()
         // remove spaces

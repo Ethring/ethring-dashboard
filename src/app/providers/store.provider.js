@@ -19,11 +19,15 @@ import txManager from '@/Transactions/store';
 import adapters from '@/Adapter/store';
 
 // Bridge-dex
-import bridgeDex from '@/store/bridge-dex';
 import bridgeDexAPI from '@/modules/bridge-dex/store';
 
 // Update balance for account
 import updateBalance from '@/store/update-balance';
+import moduleStates from '@/store/moduleStates';
+import shortcuts from '@/modules/shortcuts/store';
+
+// Shortcuts
+import shortcutsList from '@/store/shortcut-list';
 
 export default createStore({
     state: {},
@@ -36,8 +40,10 @@ export default createStore({
         tokens,
         tokenOps: operations,
         txManager,
-        bridgeDex,
         bridgeDexAPI,
         updateBalance,
+        moduleStates,
+        shortcuts,
+        shortcutsList,
     },
 });

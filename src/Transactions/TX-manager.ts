@@ -1,4 +1,4 @@
-import { ModuleType } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { ITransactionResponse, ICreateTransaction } from '@/Transactions/types/Transaction';
 import { addTransactionToExistingQueue, createTransactionsQueue, getTransactionsByRequestID, updateTransaction } from '@/Transactions/api';
 import { Socket } from 'socket.io-client';
@@ -54,7 +54,7 @@ export class Transaction {
     }
 
     getChainId() {
-        return this.chainId;
+        return this.chainId?.toString();
     }
 
     async updateTransactionById(id: number, transaction: ITransactionResponse): Promise<ITransactionResponse> {
@@ -110,11 +110,15 @@ export class TransactionList {
     // * Create Transactions Queue
     // ===========================================================================================
     async createTransactionGroup(data: ICreateTransaction): Promise<ITransactionResponse[]> {
-        const response = await createTransactionsQueue([data]);
+        const response = (await createTransactionsQueue([data])) || [];
 
-        const [group] = response;
+        if (!response || !response?.length) {
+            throw new Error('Failed to create transaction group');
+        }
 
-        const { id, requestID } = group;
+        const [group] = response || [];
+
+        const { id, requestID } = group || {};
 
         this.setRequestID(requestID);
 
@@ -127,7 +131,7 @@ export class TransactionList {
     // * Add Transaction to Existing Queue
     // ===========================================================================================
     async addTransactionToGroup(index: number, data: ICreateTransaction): Promise<ITransactionResponse> {
-        const transactions = await getTransactionsByRequestID(this.requestID);
+        const transactions = (await getTransactionsByRequestID(this.requestID)) || [];
 
         if (index === 0) {
             return transactions[0];
@@ -216,7 +220,7 @@ export class TransactionList {
     // ===========================================================================================
     async executeTransactions() {
         let current = this.head;
-        const WAIT_TIME_BETWEEN_TX = 3500;
+        const WAIT_TIME_BETWEEN_TX = (window.CALL_NEXT_TX_WAIT_TIME.value || 3.5) * 1000;
 
         while (current) {
             try {
@@ -241,21 +245,16 @@ export class TransactionList {
                 }
 
                 if (current.transaction.onSuccessSignTransaction) {
+                    await this.waitForTransaction(hash);
                     await current.transaction.onSuccessSignTransaction();
+                    current.transaction.setTransaction({ ...current.transaction.getTransaction(), txHash: hash });
                 }
-
-                current.transaction.setTransaction({ ...current.transaction.getTransaction(), txHash: hash });
-
-                const waitResponse = await this.waitForTransaction(hash);
-
-                await current.transaction.updateTransactionById(Number(current.transaction.id), {
-                    ...current.transaction.getTransaction(),
-                    status: waitResponse.status,
-                });
 
                 console.log(`Waiting ${WAIT_TIME_BETWEEN_TX / 1000} seconds before next transaction`);
 
                 await delay(WAIT_TIME_BETWEEN_TX);
+
+                console.log('CALLING NEXT TRANSACTION', '\n\n\n');
 
                 if (current.transaction.onSuccess) {
                     await current.transaction.onSuccess();
@@ -275,5 +274,17 @@ export class TransactionList {
         for (const event of this._events) {
             this.socket.off(event);
         }
+    }
+
+    getTransactions(): Transaction[] {
+        let current = this.head;
+        const transactions = [];
+
+        while (current) {
+            transactions.push(current.transaction);
+            current = current.next;
+        }
+
+        return transactions;
     }
 }

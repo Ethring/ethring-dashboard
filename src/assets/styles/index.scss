@@ -61,16 +61,29 @@ body {
   fill: var(--#{$prefix}primary-text) !important;
 }
 
+.ant-upload-select-picture-card {
+  border: 2px solid var(--#{$prefix}border-secondary-color) !important;
+  border-radius: 50% !important;
+  margin-inline-end: 0 !important;
+}
+
+.ant-upload-wrapper.ant-upload-picture-card-wrapper {
+  width: auto !important;
+}
+
 ::-webkit-input-placeholder {
   color: var(--#{$prefix}select-placeholder-text) !important;
 }
+
 ::-moz-placeholder {
   color: var(--#{$prefix}select-placeholder-text) !important;
   opacity: 1;
 }
+
 :-ms-input-placeholder {
   color: var(--#{$prefix}select-placeholder-text) !important;
 }
+
 ::placeholder {
   color: var(--#{$prefix}select-placeholder-text) !important;
 }
@@ -108,6 +121,7 @@ li.ecosystem-item {
 }
 
 .connect-wallet__ecosystems {
+
   .wallets-item,
   li.ecosystem-item {
     width: 400px !important;
@@ -140,7 +154,7 @@ li.ecosystem-item {
 }
 
 .connect-wallet__ecosystems .wallets-item {
-  & > div {
+  &>div {
     width: 45%;
   }
 
@@ -178,6 +192,7 @@ li.ecosystem-item {
 }
 
 .logo-loading {
+
   span,
   div {
     font-weight: 400;
@@ -190,9 +205,11 @@ li.ecosystem-item {
   0% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-35%);
   }
+
   100% {
     transform: translateY(0);
   }

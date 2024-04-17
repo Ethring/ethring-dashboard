@@ -1,18 +1,26 @@
 <template>
-    <a-collapse expand-icon-position="end" v-model:activeKey="activeKey" :class="{ isActive }" :bordered="false"
-        class="estimate-info" @change="() => (isActive = !isActive)">
+    <a-collapse
+        expand-icon-position="end"
+        v-model:activeKey="activeKey"
+        :class="{ isActive }"
+        :bordered="false"
+        class="estimate-info"
+        @change="() => (isActive = !isActive)"
+    >
         <template #expandIcon>
             <ArrowDownIcon class="arrow" />
         </template>
 
-        <a-collapse-panel key="estimate-info"
+        <a-collapse-panel
+            key="estimate-info"
             :collapsible="(isCollapsible || isShowExpand) && !isLoading ? '' : 'disabled'"
-            :showArrow="isCollapsible || (isShowExpand && !isLoading)" data-qa="estimate-info">
+            :showArrow="isCollapsible || (isShowExpand && !isLoading)"
+            data-qa="estimate-info"
+        >
             <template #header>
                 <div class="top-block">
                     <template v-if="isLoading">
                         <a-space>
-                            <a-skeleton-avatar active size="small" class="icon-skeleton" />
                             <a-skeleton-input active size="small" class="skeleton" />
                         </a-space>
                     </template>
@@ -27,24 +35,33 @@
                             <div v-if="isActive">
                                 <div class="preview-custom-fee" v-if="feeInUsd">
                                     <FeeIcon />
-                                    <Amount :value="feeInUsd" :decimals="2" symbol="$" type="usd" />
+                                    <Amount v-if="feeInUsd > 0" :value="feeInUsd" :decimals="2" symbol="$" type="usd" />
+                                    <div class="text" v-else>{{ $t('tokenOperations.unknownGas') }}</div>
                                 </div>
                             </div>
 
-                            <div v-else-if="error && !isLoading" class="error">
+                            <a-tooltip v-else-if="error && !isLoading" class="error" :title="!error ? $t('tokenOperations.noAvailableRoute') : error">
                                 <template v-if="error.length <= MAX_LENGTH">
-                                    {{ error }}
+                                    <a-row align="middle" class="route-error">
+                                        <RouteIcon />
+                                        {{ error }}
+                                    </a-row>
                                 </template>
                                 <template v-else>
                                     <a-tooltip placement="topLeft">
                                         <template #title>
-                                            {{ error }}
+                                            <a-row align="middle" class="route-error">
+                                                <RouteIcon />
+                                                {{ error }}
+                                            </a-row>
                                         </template>
-
-                                        {{ error }}
+                                        <a-row align="middle" class="route-error">
+                                            <RouteIcon />
+                                            {{ error }}
+                                        </a-row>
                                     </a-tooltip>
                                 </template>
-                            </div>
+                            </a-tooltip>
                         </div>
                     </template>
                 </div>
@@ -52,15 +69,19 @@
 
             <!-- Collapse content -->
             <template v-if="((isCollapsible && !isLoading) || isShowExpand) && services">
-                <EstimateStats :title="$t('tokenOperations.minReceived')" :fromAmount="minOutAmount(amount)"
-                    :fromSymbol="mainRate?.toSymbol" />
+                <EstimateStats
+                    :title="$t('tokenOperations.minReceived')"
+                    :fromAmount="minOutAmount(amount)"
+                    :fromSymbol="mainRate?.toSymbol"
+                />
                 <EstimateStats :title="$t('tokenOperations.maxSlippage')" :fromAmount="slippage" fromSymbol="%" />
 
                 <a-row justify="space-between" align="middle">
                     <div class="preview-title">{{ $t('tokenOperations.fee') }}</div>
                     <div class="preview-custom-fee" v-if="feeInUsd">
                         <FeeIcon />
-                        <Amount :value="feeInUsd" :decimals="2" symbol="$" type="usd" />
+                        <Amount v-if="feeInUsd > 0" :value="feeInUsd" :decimals="2" symbol="$" type="usd" />
+                        <div class="text" v-else>{{ $t('tokenOperations.unknownGas') }}</div>
                     </div>
                 </a-row>
 
@@ -69,15 +90,21 @@
                         <div class="preview-title">{{ $t('tokenOperations.route') }}</div>
 
                         <a-row>
-                            <div v-for="tag in estimatedTag(services)" :key="tag"
-                                :class="{ 'preview-services-tag': true, [tag.class]: true }">
+                            <div
+                                v-for="tag in estimatedTag(services)"
+                                :key="tag"
+                                :class="{ 'preview-services-tag': true, [tag.class]: true }"
+                            >
                                 {{ tag.status }}
                             </div>
 
                             <template v-for="(route, index) in services" :key="route">
-                                <ServiceIcon :icon="servicesHash[route.serviceId]?.icon"
-                                    :name="servicesHash[route.serviceId]?.name" :show-title="true"
-                                    class="services-icon" />
+                                <ServiceIcon
+                                    :icon="servicesHash[route.serviceId]?.icon"
+                                    :name="servicesHash[route.serviceId]?.name"
+                                    :show-title="true"
+                                    class="services-icon"
+                                />
                                 <ArrowDownIcon class="arrow" v-if="index !== services?.length - 1" />
                             </template>
                         </a-row>
@@ -96,6 +123,7 @@ import ArrowDownIcon from '@/assets/icons/form-icons/arrow-down.svg';
 import FeeIcon from '@/assets/icons/module-icons/fee.svg';
 import TimeIcon from '@/assets/icons/module-icons/time.svg';
 import ExpandIcon from '@/assets/icons/module-icons/expand.svg';
+import RouteIcon from '@/assets/icons/module-icons/route.svg';
 
 import Amount from '@/components/app/Amount.vue';
 import EstimateStats from './EstimateStats.vue';
@@ -110,6 +138,7 @@ export default {
         FeeIcon,
         TimeIcon,
         ExpandIcon,
+        RouteIcon,
 
         Amount,
         ServiceIcon,
@@ -165,7 +194,7 @@ export default {
 
         onClickExpand: {
             type: Function,
-            default: () => { },
+            default: () => {},
         },
 
         amount: {
@@ -264,7 +293,6 @@ export default {
 </script>
 <style lang="scss">
 .preview {
-
     &-header,
     &-services-wrap,
     &-row {
@@ -278,6 +306,11 @@ export default {
 
         svg {
             margin-right: 5px;
+        }
+
+        .text {
+            font-weight: 500;
+            color: var(--#{$prefix}warning);
         }
     }
 
@@ -295,7 +328,7 @@ export default {
         @include pageFlexRow;
         justify-content: space-between;
 
-        &>div {
+        & > div {
             display: flex;
             align-items: center;
             height: 24px;
@@ -365,10 +398,11 @@ export default {
 
     .skeleton {
         height: 24px;
-    }
 
-    .icon-skeleton {
-        margin-right: 8px;
+        span {
+            width: 200px !important;
+            min-width: 200px !important;
+        }
     }
 
     .top-block {
@@ -380,6 +414,8 @@ export default {
             font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 600;
             margin-right: 10px;
+            width: fit-content;
+            max-width: 100px;
         }
 
         .error {
@@ -389,6 +425,7 @@ export default {
             text-overflow: ellipsis;
             overflow: hidden;
             max-width: 360px;
+            gap: 8px;
         }
     }
 

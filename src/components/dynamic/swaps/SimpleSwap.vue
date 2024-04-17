@@ -24,6 +24,13 @@
                 @clickToken="onSelectToken(false)" />
         </div>
 
+        <Checkbox v-model:value="isSendToAnotherAddress" class="mt-8" :disabled="isDisableCheckbox"
+            :label="$t('tokenOperations.chooseAddress')" />
+
+        <SelectAddressInput v-if="isSendToAnotherAddress" class="mt-8" :selected-network="selectedSrcNetwork"
+            :on-reset="isSendToAnotherAddress" :disabled="isDisableSelect"
+            @error-status="(status) => (isAddressError = status)" />
+
         <EstimatePreviewInfo v-if="isShowEstimateInfo" :is-loading="isQuoteLoading" :services="[selectedRoute]"
             :fee-in-usd="fees[FEE_TYPE.BASE] || 0" :main-rate="fees[FEE_TYPE.RATE] || null"
             :is-show-expand="otherRoutes?.length > 0" :error="quoteErrorMessage" :on-click-expand="toggleRoutesModal"
@@ -44,6 +51,8 @@ import useModuleOperations from '@/compositions/useModuleOperation';
 // UI Components
 import Button from '@/components/ui/Button';
 import SwitchDirection from '@/components/ui/SwitchDirection.vue';
+import Checkbox from '@/components/ui/Checkbox';
+import SelectAddressInput from '@/components/ui/Select/SelectAddressInput';
 
 // Select Components
 import SelectRecord from '@/components/ui/Select/SelectRecord';
@@ -60,7 +69,7 @@ import Slippage from '@/components/ui/Slippage.vue';
 // Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
-import { ModuleType } from '../../../modules/bridge-dex/enums/ServiceType.enum';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
 import useInputValidation from '@/shared/form-validations';
 
 export default {
@@ -72,6 +81,8 @@ export default {
         SelectRecord,
         SelectAmountInput,
         EstimatePreviewInfo,
+        SelectAddressInput,
+        Checkbox,
         Slippage
     },
 
@@ -81,6 +92,8 @@ export default {
         const useAdapter = inject('useAdapter');
 
         const { walletAccount } = useAdapter();
+
+        const servicesHash = computed(() => store.getters['bridgeDexAPI/getAllServicesHash']);
 
         // =================================================================================================================
         // * Module Operations composition
@@ -128,6 +141,9 @@ export default {
             // - other flags
             onlyWithBalance,
 
+            isAddressError,
+            isSendToAnotherAddress,
+
             // Operation title
             opTitle,
 
@@ -159,6 +175,20 @@ export default {
                 size: 'large',
             };
         });
+
+        // =================================================================================================================
+
+        const isDisableCheckbox = computed(() => {
+            if (!selectedRoute.value) {
+                return isDisableSelect.value;
+            }
+            if (servicesHash.value[selectedRoute.value?.serviceId]) {
+                if (isSendToAnotherAddress.value) {
+                    isSendToAnotherAddress.value = servicesHash.value[selectedRoute.value?.serviceId].features_support?.receiver;
+                }
+                return !servicesHash.value[selectedRoute.value?.serviceId].features_support?.receiver;
+            }
+        })
 
         // =================================================================================================================
 
@@ -237,6 +267,7 @@ export default {
             isSwapDirectionAvailable,
             isDirectionSwapped,
             isDisableSelect,
+            isDisableCheckbox,
 
             // Handlers
             handleOnSwapDirections,
@@ -255,6 +286,9 @@ export default {
             isQuoteLoading,
             isAllowanceLoading,
 
+            isSendToAnotherAddress,
+            isAddressError,
+
             // - BridgeDex Current Selected service route and other routes
             selectedRoute,
             quoteRoutes,
@@ -272,3 +306,4 @@ export default {
     },
 };
 </script>
+@/shared/models/enums/modules.enum

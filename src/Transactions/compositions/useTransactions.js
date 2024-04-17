@@ -11,6 +11,7 @@ import { captureTransactionException } from '@/app/modules/sentry';
 
 import logger from '@/shared/logger';
 import useAdapter from '@/Adapter/compositions/useAdapter';
+import { ConsoleSqlOutlined } from '@ant-design/icons-vue';
 
 export default function useTransactions() {
     const store = useStore();
@@ -20,7 +21,16 @@ export default function useTransactions() {
     const transactionForSign = computed(() => store.getters['txManager/transactionForSign']);
     const currentRequestID = computed(() => store.getters['txManager/currentRequestID']);
 
-    const { signSend, currentChainInfo, connectedWallet, getTxExplorerLink, prepareTransaction, formatTransactionForSign } = useAdapter();
+    const {
+        signSend,
+        currentChainInfo,
+        connectedWallet,
+        getTxExplorerLink,
+        prepareTransaction,
+        prepareDelegateTransaction,
+        formatTransactionForSign,
+        prepareMultipleExecuteMsgs,
+    } = useAdapter();
 
     // * Create transactions queue
     const createTransactions = async (transactions) => {
@@ -115,7 +125,8 @@ export default function useTransactions() {
             type: 'error',
             title: 'Transaction error',
             description: strError,
-            duration: 3,
+            duration: 6,
+            progress: true,
         });
 
         if (!ignoreRegex.test(strError)) {
@@ -162,8 +173,6 @@ export default function useTransactions() {
         const { type } = metaData || {};
 
         if (!DISALLOW_UPDATE_TYPES.includes(type)) {
-            console.log('handleSuccessfulSign -> metaData', metaData);
-
             await store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
 
             await store.dispatch('tokenOps/setOperationResult', {
@@ -182,7 +191,7 @@ export default function useTransactions() {
             explorerLink,
             key: `waiting-${transactionHash}-tx`,
             type: 'info',
-            title: `Waiting for confirmation: "${displayHash}"`,
+            title: `Waiting for confirmation`,
             txHash: transactionHash,
             wait: true,
             duration: 0,
@@ -234,16 +243,18 @@ export default function useTransactions() {
      *
      * @returns {object}
      */
-    const signAndSend = async (transaction, { ecosystem, chain }) => {
+    const signAndSend = async (transaction, { ecosystem, chain, opInstance }) => {
         const ACTIONS_FOR_TX = {
             prepareTransaction: async (parameters, txParams = {}) => await prepareTransaction(parameters, { ecosystem, ...txParams }),
             formatTransactionForSign: async (parameters, txParams = {}) =>
                 await formatTransactionForSign(parameters, { ecosystem, ...txParams }),
+            prepareDelegateTransaction: async (parameters, txParams = {}) =>
+                await prepareDelegateTransaction(parameters, { ecosystem, ...txParams }),
+            prepareMultipleExecuteMsgs: async (parameters, txParams = {}) =>
+                await prepareMultipleExecuteMsgs(parameters, { ecosystem, ...txParams }),
         };
 
-        if (!transaction) {
-            return;
-        }
+        if (!transaction) return null;
 
         const { id, module, ...txBody } = transaction;
 
@@ -256,9 +267,7 @@ export default function useTransactions() {
         await store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: true });
 
         try {
-            if (!action || !ACTIONS_FOR_TX[action]) {
-                console.error('Unknown action', action);
-            }
+            if (!action || !ACTIONS_FOR_TX[action]) console.error('Unknown action', action);
 
             txFoSign = await ACTIONS_FOR_TX[action](parameters, txParams);
         } catch (error) {
@@ -282,24 +291,22 @@ export default function useTransactions() {
 
         try {
             response = await signSend(txFoSign, { ecosystem, chain });
-            console.log('signSend response', response);
+            if (opInstance && opInstance.setTxResponse) opInstance.setTxResponse(response);
         } catch (error) {
             closeNotification('prepare-tx');
-            console.error('signSend error', error);
+            console.error('signSend error while sending transaction', error);
             store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
             throw error;
         }
 
         if (response && response.error) {
             closeNotification('prepare-tx');
-            console.log('signSend error', response.error);
+            console.error('signSend error response', response);
             store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
             throw new Error(response.error);
         }
 
-        if (response && response.isCanceled) {
-            return null;
-        }
+        if (response && response.isCanceled) return null;
 
         try {
             await handleSignedTxResponse(id, response, { metaData, module, tx: txFoSign });
@@ -308,7 +315,7 @@ export default function useTransactions() {
             throw error;
         }
 
-        const { transactionHash } = response;
+        const { transactionHash } = response || {};
 
         return transactionHash;
     };

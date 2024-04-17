@@ -1,6 +1,5 @@
 .button {
     cursor: pointer;
-
     @include pageFlexRow;
     justify-content: center;
 
@@ -16,28 +15,50 @@
     outline: none;
 
     background: var(--#{$prefix}btn-bg-color);
-    color: var(--#{$prefix}btn-text-color);
-
-    font-size: var(--#{$prefix}small-lg-fs);
-    font-weight: 600;
-
-    text-transform: uppercase;
 
     border: 1px solid transparent;
 
     transition: 0.2s;
 
+    div {
+        @include pageFlexRow;
+        justify-content: center;
+    }
+
+    span {
+        text-transform: uppercase;
+        color: var(--#{$prefix}btn-text-color);
+        font-size: var(--#{$prefix}small-lg-fs);
+        font-weight: 600;
+        margin: auto;
+    }
+
+    svg {
+        width: 18px;
+        height: 18px;
+        margin-right: 4px;
+    }
+
+    svg path {
+        stroke: var(--#{$prefix}btn-text-color);
+    }
+
     &:not(.disabled):hover {
         background: var(--#{$prefix}btn-bg-color-hover);
-        color: var(--#{$prefix}btn-text-hover);
 
-        &-icon {
-            fill: var(--#{$prefix}--#{$prefix}icon-hover);
+        span {
+            color: var(--#{$prefix}btn-text-hover);
+        }
+
+        svg path  {
+            stroke: var(--#{$prefix}btn-text-hover);
         }
     }
 
     &.large {
-        font-size: var(--#{$prefix}h4-fs);
+        span {
+            font-size: var(--#{$prefix}h4-fs);
+        }
 
         height: 56px;
     }
@@ -57,16 +78,13 @@
         padding: 0;
     }
 
-    &>&-icon {
-        width: 22px;
-        height: 22px;
-        fill: var(--#{$prefix}icon-active);
-    }
-
     &.secondary {
         background: transparent;
         border-color: var(--#{$prefix}primary);
-        color: var(--#{$prefix}primary);
+
+        span {
+            color: var(--#{$prefix}primary);
+        }
 
         &:not(.disabled):hover {
             color: var(--#{$prefix}btn-secondary-hover);
@@ -78,15 +96,13 @@
         cursor: not-allowed;
         background: var(--#{$prefix}btn-disabled);
 
-        color: var(--#{$prefix}btn-disabled-text);
+        span {
+            color: var(--#{$prefix}btn-disabled-text);
+        }
 
         &.secondary {
             border-color: var(--#{$prefix}btn-disabled-text);
             background: transparent;
-        }
-
-        &-icon {
-            fill: var(--#{$prefix}--#{$prefix}icon-disabled);
         }
 
         &.circle {

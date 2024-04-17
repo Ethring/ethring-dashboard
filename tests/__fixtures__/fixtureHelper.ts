@@ -61,7 +61,7 @@ export const addWalletToKeplr = async (context: BrowserContext, seed: string) =>
 
 const __loginByMmAndWaitElement__ = async (context: BrowserContext, page: DashboardPage): Promise<DashboardPage> => {
     await page.goToPage();
-    await page.clickLoginByMetaMask(context); // set "context" param by debug
+    await page.clickLoginByMetaMask();
     await confirmConnectMmWallet(context, page);
     return page;
 };
@@ -223,12 +223,6 @@ export const confirmConnectMmWallet = async (context: BrowserContext, page: Base
 export const confirmConnectKeplrWallet = async (context: BrowserContext, page: BasePage) => {
     const notifyKeplr = new KeplrNotifyPage(await getNotifyKeplrPage(context));
     await notifyKeplr.assignPage();
-
-    while (!await notifyKeplr.isClosed()) {
-        await sleep(ONE_SECOND);
-
-        await notifyKeplr.assignPage();
-    }
 
     await page.waitMainElementVisible();
 };

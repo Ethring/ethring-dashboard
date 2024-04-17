@@ -35,6 +35,7 @@ const formatIntegration = (integration: IntegrationBalance, opt: RecordOptions =
     const { chain, store, logo } = opt;
 
     if (integration.platform) {
+        integration.platform = integration.platform.replace('_', ' ');
         integration.id = `${chain}:integration__${integration.platform}:${integration.type}:${integration.stakingType}`;
     }
 
