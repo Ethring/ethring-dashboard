@@ -281,39 +281,65 @@ const useModuleOperations = (module: ModuleType) => {
             return errorMessage;
         };
 
-        try {
-            // #1 - Check if wallet chain is correct, if correct, skip
-            if (isEverythingCorrect()) return true;
+        const METHODS = {
+            ECOSYSTEM_NOT_CONNECT: 'ECOSYSTEM_NOT_CONNECT',
+            ECOSYSTEM_CONNECTED_NOT_CORRECT: 'ECOSYSTEM_CONNECTED_NOT_CORRECT',
+            ECOSYSTEM_CONNECTED_CHAIN_NOT_CORRECT: 'ECOSYSTEM_CONNECTED_CHAIN_NOT_CORRECT',
+        };
 
-            // #2 - If ecosystem is not connected, try to connect
-            if (!isEcosystemEqual()) {
+        const FLOW_METHODS = {
+            [METHODS.ECOSYSTEM_NOT_CONNECT]: async () => {
                 console.debug('Ecosystem is not connected, try to connect', tx.getEcosystem(), 'wallet');
                 await connectByEcosystems(tx.getEcosystem());
-            }
-
-            // #3 - Check if wallet ecosystem is connected
-            if (getConnectedStatus(tx.getEcosystem()) && !isEcosystemEqual()) {
+            },
+            [METHODS.ECOSYSTEM_CONNECTED_NOT_CORRECT]: async () => {
                 console.debug('Ecosystem is connected, but not correct, try to switch', tx.getEcosystem());
                 await switchEcosystem(tx.getEcosystem());
                 await delay(500); // ! Wait for ecosystem switch
-            }
-
-            // #4 - If ecosystem is connected, but chain is not correct, try to switch chain
-            if (isEcosystemEqual() && !isChainsEqual()) {
+            },
+            [METHODS.ECOSYSTEM_CONNECTED_CHAIN_NOT_CORRECT]: async () => {
                 console.debug('Ecosystem is connected, but chain is not correct, try to switch', tx.getChainId());
-
                 const chainInfo = getChainByChainId(tx.getEcosystem(), tx.getChainId());
-
                 const changed = await setChain(chainInfo);
-
                 await delay(1200); // ! Wait for chain switch
-
                 if (!changed) throw new Error(generateError());
-            }
+            },
+        };
 
-            // #5 - If ecosystem and chain is correct, return or throw error
+        const FLOW_CONDITIONS = {
+            [METHODS.ECOSYSTEM_NOT_CONNECT]: () => !isEcosystemEqual(),
+            [METHODS.ECOSYSTEM_CONNECTED_NOT_CORRECT]: () => getConnectedStatus(tx.getEcosystem()) && !isEcosystemEqual(),
+            [METHODS.ECOSYSTEM_CONNECTED_CHAIN_NOT_CORRECT]: () => isEcosystemEqual() && !isChainsEqual(),
+        };
+
+        const SHORTCUT_FLOW = [
+            METHODS.ECOSYSTEM_NOT_CONNECT,
+            METHODS.ECOSYSTEM_CONNECTED_NOT_CORRECT,
+            METHODS.ECOSYSTEM_CONNECTED_CHAIN_NOT_CORRECT,
+        ];
+
+        const DEFAULT_FLOW = [
+            METHODS.ECOSYSTEM_CONNECTED_NOT_CORRECT,
+            METHODS.ECOSYSTEM_NOT_CONNECT,
+            METHODS.ECOSYSTEM_CONNECTED_CHAIN_NOT_CORRECT,
+        ];
+
+        // const validationFlow = isShortcutOpsExist() ? SHORTCUT_FLOW : DEFAULT_FLOW; // ! Shortcut flow uncomment after debug
+        const validationFlow = DEFAULT_FLOW;
+
+        console.log('FLOW FOR VALIDATION:', 'DEFAULT_FLOW', '\n\n');
+
+        try {
+            // * START: Check if wallet chain is correct, if correct, skip
             if (isEverythingCorrect()) return true;
 
+            for (const method of validationFlow) {
+                if (FLOW_CONDITIONS[method]()) await FLOW_METHODS[method]();
+                await delay(500); // ! Wait before next check
+            }
+
+            // * END: If ecosystem and chain is correct, return or throw error
+            if (isEverythingCorrect()) return true;
             throw new Error(generateError());
         } catch (error) {
             console.error('useModuleOperations -> checkWalletConnected -> error', error);
