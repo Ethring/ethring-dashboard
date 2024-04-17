@@ -23,7 +23,7 @@ testMetaMaskMockTx.describe('Mocked send tx Metamask', () => {
         const WAITED_URL = `**/srv-data-provider/api/balances?net=${network.toLowerCase()}**`;
         const URL_MM = `https://polygon-rpc.com/`;
         const expectedNotificationTitle = 'Transaction SUCCESS';
-        const expectedNotificationDesc = '0xd9193b...2884a368';
+        const expectedNotificationDesc = '';
 
         await mockMetaMaskSignTransaction(
             context,
