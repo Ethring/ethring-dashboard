@@ -10,6 +10,7 @@ import { TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
 import { getActionByTxType } from './shared/utils';
 import { ServiceType } from '../bridge-dex/enums/ServiceType.enum';
 import { formatNumber } from '@/shared/utils/numbers';
+import { cutAddress } from '@/shared/utils/address';
 
 const DEFAULT_TX_TYPE_BY_MODULE = {
     [ModuleType.stake]: TRANSACTION_TYPES.STAKE,
@@ -202,6 +203,7 @@ export class BaseOperation implements IBaseOperation {
 
         if (this.transactionType === TRANSACTION_TYPES.APPROVE) toTokenTitle = '';
 
+
         switch (module) {
             case ModuleType.stake:
                 return {
@@ -214,7 +216,7 @@ export class BaseOperation implements IBaseOperation {
                 };
             case ModuleType.send:
                 return {
-                    title: `SEND ${fromTokenTitle} to ${receiverAddress}`,
+                    title: `SEND ${fromTokenTitle} to ${cutAddress(receiverAddress, 6, 4)}`,
                 };
             case ModuleType.bridge:
                 return {

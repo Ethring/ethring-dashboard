@@ -74,6 +74,7 @@ const useModuleOperations = (module: ModuleType) => {
         isLoading,
         isSendWithMemo,
         isMemoAllowed,
+        isBalanceError,
 
         isEstimating,
         isSendToAnotherAddress,
@@ -954,7 +955,7 @@ const useModuleOperations = (module: ModuleType) => {
             isLoading.value ||
             isEstimating.value ||
             isQuoteLoading.value ||
-            // isBalanceError.value ||
+            isBalanceError.value ||
             isAllowanceLoading.value ||
             isTransactionSigning.value ||
             isQuoteErrorExist ||

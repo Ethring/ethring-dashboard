@@ -50,7 +50,7 @@
     </a-dropdown>
 </template>
 <script>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, onUnmounted, onMounted } from 'vue';
 
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
@@ -197,6 +197,11 @@ export default {
         onMounted(() => {
             // Set the default slippage value
             return defaultSlippage();
+        });
+
+        onUnmounted(() => {
+            // Reset the slippage value
+            slippage.value = DEFAULT_SLIPPAGE;
         });
 
         return {

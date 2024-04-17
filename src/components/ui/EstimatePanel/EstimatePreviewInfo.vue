@@ -40,7 +40,7 @@
                                 </div>
                             </div>
 
-                            <a-tooltip v-else-if="error && !isLoading" class="error" :title="$t('tokenOperations.noAvailableRoute')">
+                            <a-tooltip v-else-if="error && !isLoading" class="error" :title="!error ? $t('tokenOperations.noAvailableRoute') : error">
                                 <template v-if="error.length <= MAX_LENGTH">
                                     <a-row align="middle" class="route-error">
                                         <RouteIcon />

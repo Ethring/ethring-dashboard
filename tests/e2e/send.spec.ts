@@ -19,6 +19,8 @@ import {
     mockPutTransactionsRouteSendRejectKeplr,
     mockPutTransactionsWsByUpdateTransactionEventInProgressSendRejectKeplr,
 } from '../data/mockDataByTests/SendRejectTxKeplrMock';
+import { cutAddress } from '@/shared/utils/address';
+import { formatNumber } from '@/shared/utils/numbers';
 
 const sleep = util.promisify(setTimeout);
 
@@ -40,7 +42,7 @@ testMetaMask.describe('MetaMask Send e2e tests', () => {
             const network = 'Avalanche';
             const addressTo = getTestVar(TEST_CONST.RECIPIENT_ADDRESS);
             const amount = '0.001';
-            const expectedNotificationTitle = `SEND ${amount} AVAX to ${addressTo}`;
+            const expectedNotificationTitle = `SEND ${formatNumber(amount)} AVAX to ${cutAddress(addressTo, 6, 4)}`;
             const expectedNotificationDescription = '';
             const expectedNotificationTitleAfterReject = 'Transaction error';
             const expectedNotificationDescAfterReject = 'MetaMask Tx Signature: User denied transaction signature.';
