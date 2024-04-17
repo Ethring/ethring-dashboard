@@ -2,6 +2,7 @@
     <a-dropdown
         v-model:open="isOpen"
         :arrow="{ pointAtCenter: true }"
+        :disabled="isTransactionSigning || isQuoteLoading"
         trigger="click"
         class="slippage"
         placement="bottom"
@@ -91,6 +92,10 @@ export default {
             get: () => store.getters['tokenOps/slippage'],
             set: (value) => store.dispatch('tokenOps/setSlippage', value),
         });
+
+        const isQuoteLoading = computed(() => store.getters['bridgeDexAPI/getLoaderState']('quote'));
+
+        const isTransactionSigning = computed(() => store.getters['txManager/isTransactionSigning']);
 
         // ======================================================================
         // * Refs
@@ -196,6 +201,10 @@ export default {
 
         return {
             isOpen,
+
+            isTransactionSigning,
+            isQuoteLoading,
+
             slippage,
             activeOption,
             warningText,

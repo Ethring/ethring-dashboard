@@ -1,5 +1,13 @@
 .slippage {
     &__icon-container {
+
+        &[disabled="true"] {
+            pointer-events: none;
+            cursor: not-allowed;
+            background-color: var(--#{$prefix}icon-placeholder);
+            opacity: 0.8;
+        }
+
         width: 32px;
         height: 32px;
 
