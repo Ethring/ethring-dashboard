@@ -11,7 +11,10 @@
         text-transform: capitalize;
 
         background: var(--#{$prefix}small-btn-bg-color);
-        color: var(--#{$prefix}black);
+
+        span {
+            color: var(--#{$prefix}black);
+        }
     }
 
     &__tag {

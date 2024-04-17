@@ -119,6 +119,8 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         let key: string;
 
         switch (operationType) {
+            case TRANSACTION_TYPES.BUY:
+            case TRANSACTION_TYPES.WRAP:
             case TRANSACTION_TYPES.DEX:
             case TRANSACTION_TYPES.BRIDGE:
                 ({ key } = operationsFactory.value.registerOperation(moduleType, DexOperation, { id, name }));
@@ -233,7 +235,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         },
     ) => {
         for (const paramField of fields) {
-            const { name: field, ecosystem = null, chainId = null, chain = null, id = null, address, memo } = paramField || {};
+            const { name: field, ecosystem = null, chainId = null, chain = null, id = null, address, memo, amount = null } = paramField || {};
 
             switch (field) {
                 case 'srcNetwork':
@@ -266,7 +268,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                     isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value: token }));
 
                     const target = field === 'srcToken' ? 'from' : 'to';
-                    operationsFactory.value?.getOperationById(targetOpId)?.setToken(target, token);
+                    operationsFactory.value?.getOperationById(targetOpId)?.setToken(target, { ...token, amount });
 
                     break;
                 case 'receiverAddress':
@@ -394,7 +396,11 @@ const useShortcuts = (Shortcut: IShortcutData) => {
 
         shortcutIndex.value = 0;
 
-        isShortcutLoading.value = true;
+        if (CurrentShortcut?.isComingSoon) {
+            isShortcutLoading.value = false;
+        } else {
+            isShortcutLoading.value = true;
+        }
 
         await performShortcut(true);
 
@@ -489,12 +495,12 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     store.watch(
         (state, getters) => [getters['tokenOps/srcToken'], getters['tokenOps/dstToken']],
         async ([srcToken, dstToken]) => {
-            if (currentOp.value?.id && srcToken?.id) {
+            if (currentOp.value?.id && srcToken?.id && !CurrentShortcut.isComingSoon) {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('fromToken', srcToken.address);
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setToken('from', srcToken);
             }
 
-            if (currentOp.value?.id && dstToken?.id) {
+            if (currentOp.value?.id && dstToken?.id && !CurrentShortcut.isComingSoon) {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('toToken', dstToken.address);
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setToken('to', dstToken);
             }

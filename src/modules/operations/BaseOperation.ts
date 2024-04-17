@@ -17,7 +17,7 @@ const DEFAULT_TX_TYPE_BY_MODULE = {
     [ModuleType.swap]: TRANSACTION_TYPES.DEX,
     [ModuleType.send]: TRANSACTION_TYPES.TRANSFER,
     [ModuleType.bridge]: TRANSACTION_TYPES.BRIDGE,
-    [ModuleType.superSwap]: TRANSACTION_TYPES.BRIDGE,
+    [ModuleType.superSwap]: TRANSACTION_TYPES.BRIDGE
 };
 
 export class BaseOperation implements IBaseOperation {

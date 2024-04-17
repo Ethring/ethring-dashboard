@@ -21,6 +21,7 @@ export interface IShortcutData {
 
     recipes?: ShortcutRecipe[];
     operations?: IShortcutOp[];
+    isComingSoon?: boolean;
 }
 
 export default class Shortcut implements IShortcutData {
@@ -43,6 +44,7 @@ export default class Shortcut implements IShortcutData {
     recipes: ShortcutRecipe[];
 
     operations: ShortcutOp[] = [];
+    isComingSoon?: boolean;
 
     constructor(shortcut: IShortcutData) {
         this.id = shortcut.id;
@@ -55,6 +57,7 @@ export default class Shortcut implements IShortcutData {
         this.website = shortcut.website;
         this.minUsdAmount = shortcut.minUsdAmount;
         this.wallpaper = shortcut.wallpaper;
+        this.isComingSoon = shortcut.isComingSoon;
 
         this.recipes = [];
 

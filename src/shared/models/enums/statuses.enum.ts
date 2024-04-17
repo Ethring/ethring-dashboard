@@ -28,6 +28,8 @@ export enum TRANSACTION_TYPES {
     STAKE = 'STAKE',
     IBC = 'IBC',
     MINT = 'MINT',
+    WRAP = 'WRAP',
+    BUY = 'BUY'
 }
 
 export type TX_TYPES = keyof typeof TRANSACTION_TYPES;

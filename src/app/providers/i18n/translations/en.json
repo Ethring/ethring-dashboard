@@ -164,7 +164,9 @@
       "created": "Created",
       "likes": "Likes"
     },
-    "minUsdAmount": "Min USD amount is"
+    "minUsdAmount": "Min USD amount is",
+    "comingSoon": "Coming Soon",
+    "comingSoonDescription": "Stay tuned for updates on what's coming next!"
   },
   "slippage": {
     "description": "The maximum amount of additional slippage",

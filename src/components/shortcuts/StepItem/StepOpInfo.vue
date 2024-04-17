@@ -5,77 +5,56 @@
         </div>
         <div class="content">
             <div class="token-info">
-                <AssetWithChain type="asset" :asset="operation.getToken('from') || {}" :chain="assetChain.from" :width="24" :height="24" />
+                <AssetWithChain type="asset" :asset="operation.getToken('from') || {}" :chain="assetChain.from"
+                    :width="24" :height="24" />
 
                 <template v-if="operation.getModule() === ModuleType.nft">
-                    <Amount
-                        :value="operation.getParamByField('count')"
-                        symbol="NFT"
-                        type="currency"
-                        :class="{
-                            'editable-amount': shortcutOpInfo.editableFromAmount,
-                            'editable-amount-disabled': isEditDisabled,
-                        }"
-                    />
+                    <Amount :value="operation.getParamByField('count')" symbol="NFT" type="currency" :class="{
+        'editable-amount': shortcutOpInfo.editableFromAmount,
+        'editable-amount-disabled': isEditDisabled,
+    }" />
                 </template>
                 <template v-else>
-                    <a-popconfirm
-                        title="Change From amount?"
-                        ok-text="Change"
-                        cancel-text="No"
-                        @confirm="handleOnConfirm"
-                        @cancel="handleOnCancel"
-                        :disabled="isEditDisabled"
-                    >
+                    <a-popconfirm title="Change From amount?" ok-text="Change" cancel-text="No"
+                        @confirm="handleOnConfirm" @cancel="handleOnCancel" :disabled="isEditDisabled">
                         <template #description>
-                            <a-input-number
-                                string-mode
-                                class="editable-amount-input"
-                                v-model:value="editedAmount"
-                                :controls="false"
-                                :min="0"
-                                :max="operation.getToken('from')?.balance ? operation.getToken('from')?.balance : Infinity"
-                            >
+                            <a-input-number string-mode class="editable-amount-input" v-model:value="editedAmount"
+                                :controls="false" :min="0"
+                                :max="operation.getToken('from')?.balance ? operation.getToken('from')?.balance : Infinity">
                                 <template #addonAfter v-if="operation.getToken('from')?.balance">
-                                    <span class="max-balance" @click="handleOnMax">MAX: {{ operation.getToken('from')?.balance }}</span>
+                                    <span class="max-balance" @click="handleOnMax">MAX: {{
+        operation.getToken('from')?.balance }}</span>
                                 </template>
                             </a-input-number>
                         </template>
-                        <Amount
-                            :value="operation.getParamByField('amount')"
-                            :symbol="operation.getToken('from')?.symbol"
-                            type="currency"
-                            :class="{
-                                'editable-amount': shortcutOpInfo.editableFromAmount,
-                                'editable-amount-disabled': isEditDisabled,
-                            }"
-                        />
+                        <Amount :value="operation.getToken('from')?.amount || operation.getParamByField('amount')"
+                            :symbol="operation.getToken('from')?.symbol" type="currency" :class="{
+        'editable-amount': shortcutOpInfo.editableFromAmount,
+        'editable-amount-disabled': isEditDisabled,
+    }" />
                     </a-popconfirm>
                 </template>
             </div>
 
-            <template v-if="operation.getToken('to') && operation.getToken('to')?.id !== operation.getToken('from')?.id">
+            <template
+                v-if="operation.getToken('to') && operation.getToken('to')?.id !== operation.getToken('from')?.id">
                 <div class="space-between">to</div>
 
                 <div class="token-info">
-                    <AssetWithChain type="asset" :asset="operation.getToken('to') || {}" :chain="assetChain.to" :width="24" :height="24" />
+                    <AssetWithChain type="asset" :asset="operation.getToken('to') || {}" :chain="assetChain.to"
+                        :width="24" :height="24" />
 
-                    <Amount
-                        :value="operation.getParamByField('outputAmount') || 0"
-                        :symbol="operation.getToken('to')?.symbol"
-                        type="currency"
-                    />
+                    <Amount :value="operation.getToken('to')?.amount || operation.getParamByField('outputAmount') || 0"
+                        :symbol="operation.getToken('to')?.symbol" type="currency" />
                 </div>
             </template>
 
             <template v-if="additionalTooltips && additionalTooltips.length">
                 <a-popover placement="top" class="step-additional-info-popover">
                     <template #content class="step-additional-info-popover">
-                        <StepAdditionalInfo
-                            v-for="additionalInfo in additionalTooltips"
+                        <StepAdditionalInfo v-for="additionalInfo in additionalTooltips"
                             :amount-info="additionalInfo?.amountSrcInfo"
-                            :percentage-info="additionalInfo?.percentageInfo"
-                        />
+                            :percentage-info="additionalInfo?.percentageInfo" />
                     </template>
                     <InfoCircleOutlined class="step-operation-info-additional" />
                 </a-popover>

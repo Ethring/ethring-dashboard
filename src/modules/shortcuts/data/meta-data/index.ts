@@ -78,6 +78,86 @@ const META_DATA: Record<string, IShortcutMeta> = {
         ecosystems: ['EVM', 'COSMOS'],
         minUsdAmount: 0,
     },
+    [AvailableShortcuts.SellEverything]: {
+        id: 'sell-everything-in-one-click',
+        name: 'Recipe #6: Rage Quit - Sell everything in one click',
+        logoURI: 'https://citadel.one/static/media/logo.3e3e3e3e.svg',
+        keywords: ['sell', 'swap', 'bridge'],
+        tags: ['EVM', 'COSMOS', 'SELL'],
+        ecosystems: ['EVM', 'COSMOS'],
+        type: 'swap',
+        description: 'Sell all the assets you have on your chosen addresses.',
+        wallpaper: '/img/wallpapers/rage-quite.svg',
+        website: 'https://citadel.one/',
+        author: {
+            id: 'zomet.app',
+            name: 'zomet.app',
+            avatar: 'https://zomet-logo.png',
+            socials: [
+                {
+                    type: 'x.com',
+                    nickname: 'zometapp',
+                    link: 'https://twitter.com/zometapp',
+                },
+            ],
+        },
+        minUsdAmount: 1,
+        isComingSoon: true,
+    },
+    [AvailableShortcuts.WithdrawDydx]: {
+        id: 'withdraw-dYdX-usdc-rewards-to-usdt-on-tron',
+        name: 'Recipe #7: Withdraw dYdX USDC rewards to USDT on Tron',
+        logoURI: 'https://citadel.one/static/media/logo.3e3e3e3e.svg',
+        keywords: ['stake', 'swap', 'bridge'],
+        tags: ['EVM', 'SWAP'],
+        ecosystems: ['EVM'],
+        type: 'swap',
+        description:
+            'Transfer your earned dYdX USDC rewards seamlessly to USDT on Tron blockchain with ease and convenience. Maximize your flexibility and liquidity while managing your crypto assets efficiently.',
+        wallpaper: '/img/wallpapers/dydx.svg',
+        website: 'https://citadel.one/',
+        author: {
+            id: 'zomet.app',
+            name: 'zomet.app',
+            avatar: 'https://zomet-logo.png',
+            socials: [
+                {
+                    type: 'x.com',
+                    nickname: 'zometapp',
+                    link: 'https://twitter.com/zometapp',
+                },
+            ],
+        },
+        minUsdAmount: 1,
+        isComingSoon: true,
+    },
+    [AvailableShortcuts.ConvertTia]: {
+        id: 'convert-tia-to-sttia',
+        name: 'Recipe #8: Convert TIA to stTiA',
+        logoURI: 'https://citadel.one/static/media/logo.3e3e3e3e.svg',
+        keywords: ['swap', 'bridge'],
+        tags: ['COSMOS', 'SWAP'],
+        ecosystems: ['COSMOS'],
+        type: 'swap',
+        description:
+            "TIA represents an intriguing asset with its unique dynamics and potential for value appreciation. However, the transition from TIA to stTiA, or 'suspected TIA,' introduces complexities that require careful consideration by investors and stakeholders.",
+        wallpaper: '/img/wallpapers/convert-tia.svg',
+        website: 'https://citadel.one/',
+        author: {
+            id: 'zomet.app',
+            name: 'zomet.app',
+            avatar: 'https://zomet-logo.png',
+            socials: [
+                {
+                    type: 'x.com',
+                    nickname: 'zometapp',
+                    link: 'https://twitter.com/zometapp',
+                },
+            ],
+        },
+        minUsdAmount: 1,
+        isComingSoon: true,
+    }
 };
 
 export const getShortcutMetaById = (id: string): IShortcutMeta => {

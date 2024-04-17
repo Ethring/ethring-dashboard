@@ -25,15 +25,21 @@
 
         <div class="layout-page__content">
             <a-spin :spinning="isShortcutLoading" size="large">
-                <a-row :gutter="16">
-                    <a-col :span="12">
+                <a-row :gutter="[16, 16]">
+                    <a-col :md="24" :lg="12">
                         <div class="steps-content">
                             <component :is="shortcutLayout" />
+
+                            <div v-if="shortcut?.isComingSoon" class="coming-soon">
+                                <p class="coming-soon__title">{{ $t('shortcuts.comingSoon') }}</p>
+                                <p class="coming-soon__description">{{ $t('shortcuts.comingSoonDescription') }}</p>
+                                <Button title="Whitelist" :icon="LikeIcon" />
+                            </div>
                         </div>
 
                         <ShortcutLoading v-show="isShowLoading" :shortcutId="shortcutId" />
                     </a-col>
-                    <a-col :span="12">
+                    <a-col :md="24" :lg="12">
                         <a-steps direction="vertical" v-model:current="shortcutIndex" :items="steps" />
                     </a-col>
                 </a-row>
@@ -51,6 +57,7 @@ import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 
 import ArrowIcon from '@/assets/icons/form-icons/arrow-back.svg';
+import LikeIcon from '@/assets/icons/dashboard/heart.svg';
 
 import ShortcutPlaceholder from '@/assets/images/placeholder/shortcut.png';
 
@@ -65,6 +72,7 @@ export default {
     name: 'ShortcutDetails',
     components: {
         ArrowIcon,
+        LikeIcon,
         ShortcutLoading,
         SuccessShortcutModal,
     },
@@ -129,6 +137,7 @@ export default {
             SHORTCUT_STATUSES,
             STATUSES,
             wallpaper,
+            LikeIcon
         };
     },
 };
