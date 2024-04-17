@@ -116,7 +116,7 @@ import Slippage from '@/components/ui/Slippage.vue';
 // Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
-import { ModuleType } from '../../../modules/bridge-dex/enums/ServiceType.enum';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
 import useInputValidation from '@/shared/form-validations';
 
 export default {
@@ -334,3 +334,4 @@ export default {
     },
 };
 </script>
+@/shared/models/enums/modules.enum

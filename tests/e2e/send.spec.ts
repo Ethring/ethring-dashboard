@@ -19,6 +19,8 @@ import {
     mockPutTransactionsRouteSendRejectKeplr,
     mockPutTransactionsWsByUpdateTransactionEventInProgressSendRejectKeplr,
 } from '../data/mockDataByTests/SendRejectTxKeplrMock';
+import { cutAddress } from '@/shared/utils/address';
+import { formatNumber } from '@/shared/utils/numbers';
 
 const sleep = util.promisify(setTimeout);
 
@@ -40,8 +42,8 @@ testMetaMask.describe('MetaMask Send e2e tests', () => {
             const network = 'Avalanche';
             const addressTo = getTestVar(TEST_CONST.RECIPIENT_ADDRESS);
             const amount = '0.001';
-            const expectedNotificationTitle = 'SEND 0.001 AVAX';
-            const expectedNotificationDescription = ` To 0x12f80578***2F563c`;
+            const expectedNotificationTitle = `SEND ${formatNumber(amount)} AVAX to ${cutAddress(addressTo, 6, 4)}`;
+            const expectedNotificationDescription = '';
             const expectedNotificationTitleAfterReject = 'Transaction error';
             const expectedNotificationDescAfterReject = 'MetaMask Tx Signature: User denied transaction signature.';
 
@@ -57,9 +59,7 @@ testMetaMask.describe('MetaMask Send e2e tests', () => {
                 mockPostTransactionsWsByCreateEventSendReject,
             );
 
-            await sendPageCoingeckoMockRejectTest.modifyDataByGetTxRequest(
-                mockPostTransactionsRouteSendReject,
-            );
+            await sendPageCoingeckoMockRejectTest.modifyDataByGetTxRequest(mockPostTransactionsRouteSendReject);
 
             await sendPageCoingeckoMockRejectTest.modifyDataByPutTxRequest(
                 mockPutTransactionsRouteSendReject,
@@ -69,11 +69,7 @@ testMetaMask.describe('MetaMask Send e2e tests', () => {
 
             const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
 
-            const receivedData = await sendPageCoingeckoMockRejectTest.getNotificationData();
-
-            expect(receivedData.notificationCount).toBe(1);
-            expect(receivedData.notificationTitle).toEqual(expectedNotificationTitle);
-            expect(receivedData.notificationDescription).toEqual(expectedNotificationDescription);
+            await sendPageCoingeckoMockRejectTest.assertNotificationByPage(1, expectedNotificationTitle, expectedNotificationDescription);
 
             await expect(sendPageCoingeckoMockRejectTest.getBaseContentElement()).toHaveScreenshot();
             await notifyMM.changeNetwork();
@@ -90,11 +86,12 @@ testMetaMask.describe('MetaMask Send e2e tests', () => {
             await sendPageCoingeckoMockRejectTest.getBaseContentElement().hover();
 
             await sleep(ONE_SECOND);
-            const receivedDataAfterRejectTest = await sendPageCoingeckoMockRejectTest.getNotificationData();
 
-            expect(receivedDataAfterRejectTest.notificationCount).toBe(1);
-            expect(receivedDataAfterRejectTest.notificationTitle).toEqual(expectedNotificationTitleAfterReject);
-            expect(receivedDataAfterRejectTest.notificationDescription).toEqual(expectedNotificationDescAfterReject);
+            await sendPageCoingeckoMockRejectTest.assertNotificationByPage(
+                1,
+                expectedNotificationTitleAfterReject,
+                expectedNotificationDescAfterReject,
+            );
 
             await expect(sendPageCoingeckoMockRejectTest.getBaseContentElement()).toHaveScreenshot();
             // TODO нужен тест на отправку НЕ нативного токена (например USDC)
@@ -140,9 +137,7 @@ testKeplr.describe('Keplr Send e2e tests', () => {
             mockPostTransactionsWsByCreateEventSendRejectKeplr,
         );
 
-        await sendPage.modifyDataByGetTxRequest(
-            mockPostTransactionsRouteSendRejectKeplr
-        );
+        await sendPage.modifyDataByGetTxRequest(mockPostTransactionsRouteSendRejectKeplr);
 
         await sendPage.modifyDataByPutTxRequest(
             mockPutTransactionsRouteSendRejectKeplr,

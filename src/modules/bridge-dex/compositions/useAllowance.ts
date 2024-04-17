@@ -61,7 +61,7 @@ const useBridgeDexAllowance = (targetType: ServiceTypes, bridgeDexService: Bridg
     // ===========================================================================================
 
     const isAllowanceLoading = computed({
-        get: () => store.getters['bridgeDexAPI/getLoaderState']('allowance'),
+        get: () => store.getters['bridgeDexAPI/getLoaderState']('allowance') || false,
         set: (value) => store.dispatch('bridgeDexAPI/setLoaderStateByType', { type: 'allowance', value }),
     });
 

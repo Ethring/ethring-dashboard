@@ -1,4 +1,4 @@
-import { ModuleType } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { ITransactionResponse, ICreateTransaction } from '@/Transactions/types/Transaction';
 import { addTransactionToExistingQueue, createTransactionsQueue, getTransactionsByRequestID, updateTransaction } from '@/Transactions/api';
 import { Socket } from 'socket.io-client';
@@ -54,7 +54,7 @@ export class Transaction {
     }
 
     getChainId() {
-        return this.chainId;
+        return this.chainId?.toString();
     }
 
     async updateTransactionById(id: number, transaction: ITransactionResponse): Promise<ITransactionResponse> {
@@ -216,7 +216,7 @@ export class TransactionList {
     // ===========================================================================================
     async executeTransactions() {
         let current = this.head;
-        const WAIT_TIME_BETWEEN_TX = 3500;
+        const WAIT_TIME_BETWEEN_TX = (window.CALL_NEXT_TX_WAIT_TIME.value || 3.5) * 1000;
 
         while (current) {
             try {
@@ -250,6 +250,8 @@ export class TransactionList {
 
                 await delay(WAIT_TIME_BETWEEN_TX);
 
+                console.log('CALLING NEXT TRANSACTION', '\n\n\n');
+
                 if (current.transaction.onSuccess) {
                     await current.transaction.onSuccess();
                 }
@@ -268,5 +270,17 @@ export class TransactionList {
         for (const event of this._events) {
             this.socket.off(event);
         }
+    }
+
+    getTransactions(): Transaction[] {
+        let current = this.head;
+        const transactions = [];
+
+        while (current) {
+            transactions.push(current.transaction);
+            current = current.next;
+        }
+
+        return transactions;
     }
 }

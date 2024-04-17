@@ -56,6 +56,7 @@ $caneelBay: #00839f;
 $blueHalk: #e6eeff;
 $pastelPink: #f7d0d0;
 $gainsboro: #e1e4e9;
+$outerSpace: #2b353e;
 
 //  ===========================================================================
 //  GRADIENTS
@@ -114,6 +115,9 @@ $input-disabled-text: $mineralGreen;
 $balance-text: $surfieGreen;
 $unlock-text: $paleSky;
 $neutral-text: $stormGrey;
+$base-amount-text: $ebonyClay;
+$description-text: $paleSky;
+$currency-text: $paleSky;
 
 $neutral-gray: $stormGrey;
 $neutral-gray-100: rgba($neutral-gray, 0.3);
@@ -175,6 +179,8 @@ $btn-disabled-text: $gulfStream;
 $btn-disabled-icon: $iceberg;
 
 $swap-btn-bg-color: $aquamarine;
+$small-btn-bg-color: $aquamarine;
+$base-btn-bg-color: $aquamarine;
 
 // Select
 $select-bg-color: $gallery;
@@ -215,7 +221,7 @@ $danger: $wildWatermelon;
 $danger-op-01: rgba($danger, 0.1);
 $danger-color: $watermelon;
 
-$warning: $blazeOrange;
+$warning: $pizazz;
 $warning-op-01: rgba($warning, 0.1);
 
 $info: $deepCerulean;
@@ -230,8 +236,11 @@ $icon-border: $dinastyDragon;
 
 $icon-placeholder: $aliceBlue;
 $icon-placeholder-border: $grayX50;
+$base-icon-color: $outerSpace;
 
 $icon-bg-color: $iceberg;
+$token-primary-icon-color: $charade;
+$token-secondary-icon-color: $chineseBlack;
 
 $icon-logo-bg-color: $gainsboro;
 $icon-logo-bg-hover: $aquamarine;
@@ -268,6 +277,7 @@ $loader-border-color: $ficus;
 $tag-01: $deepCerulean;
 $tag-02: $cyan;
 $tag-03: $lightGreen;
+$tag-selected: $turquoise;
 
 // Percentage bar
 $percentage-bar-bg-color: $iceberg;
@@ -275,6 +285,14 @@ $percentage-bar-100: $springGreen;
 $percentage-bar-75: $lightGreen;
 $percentage-bar-50: $blazeOrange;
 $percentage-bar-25: $wildWatermelon;
+
+// Card
+$card-bg-color: rgba($gallery, 0.5);
+$card-btn-bg-color: $aquamarine;
+$card-tag-bg-color: $turquoise;
+$card-btn-secondary-color: $gainsboro;
+
+$shortcut-step-success: $iceberg;
 
 $radio-btn-bg-color: $gainsboro;
 //  ===========================================================================
@@ -314,6 +332,9 @@ $theme-colors: (
     "balance-text": $balance-text,
     "unlock-text": $unlock-text,
     "neutral-text": $neutral-text,
+    "base-amount-text": $base-amount-text,
+    "description-text": $description-text,
+    "currency-text": $currency-text,
 
     "neutral-gray": $neutral-gray,
     "neutral-gray-100": $neutral-gray-100,
@@ -368,6 +389,8 @@ $theme-colors: (
     "btn-text-color": $btn-text-color,
     "btn-bg-color": $btn-bg-color,
     "swap-btn-bg-color": $swap-btn-bg-color,
+    "small-btn-bg-color": $small-btn-bg-color,
+    "base-btn-bg-color": $base-btn-bg-color,
 
     "select-bg-color": $select-bg-color,
     "select-secondary-bg-color": $select-secondary-bg-color,
@@ -400,6 +423,8 @@ $theme-colors: (
     "icon-disabled": $icon-disabled,
     "icon-border": $icon-border,
     "icon-bg-color": $icon-bg-color,
+    "token-primary-icon-color": $token-primary-icon-color,
+    "token-secondary-icon-color": $token-secondary-icon-color,
 
     "icon-logo-bg-color": $icon-logo-bg-color,
     "icon-logo-bg-hover": $icon-logo-bg-hover,
@@ -407,6 +432,7 @@ $theme-colors: (
     "icon-secondary-bg-hover": $icon-secondary-bg-hover,
     "icon-placeholder": $icon-placeholder,
     "icon-placeholder-border": $icon-placeholder-border,
+    "base-icon-color": $base-icon-color,
 
     "arrow-color": $arrow-color,
 
@@ -451,6 +477,14 @@ $theme-colors: (
     "tag-01": $tag-01,
     "tag-02": $tag-02,
     "tag-03": $tag-03,
+    "tag-selected": $tag-selected,
+
+    "card-bg-color": $card-bg-color,
+    "card-btn-bg-color": $card-btn-bg-color,
+    "card-tag-bg-color": $card-tag-bg-color,
+    "card-btn-secondary-color": $card-btn-secondary-color,
+
+    "shortcut-step-success": $shortcut-step-success,
 
     "radio-btn-bg-color": $radio-btn-bg-color
 );

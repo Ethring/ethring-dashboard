@@ -1,17 +1,19 @@
 <template>
-    <a-spin :tip="tipTranslate" size="large" class="logo-loading" :spinning="spinning">
-        <template #indicator>
-            <Logo class="logo-indicator" />
-        </template>
+    <div>
+        <a-spin :tip="tipTranslate" size="large" class="logo-loading" :spinning="spinning">
+            <template #indicator>
+                <Logo class="logo-indicator" />
+            </template>
 
-        <slot name="content" />
-    </a-spin>
+            <slot name="content" />
+        </a-spin>
+    </div>
 </template>
 <script>
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import Logo from '../../assets/icons/sidebar/logo.svg';
+import Logo from '@/assets/icons/sidebar/logo.svg';
 
 export default {
     name: 'LogoLoading',
@@ -28,6 +30,11 @@ export default {
         tip: {
             type: String,
             default: 'loadings.initLoading',
+        },
+
+        overlay: {
+            type: Boolean,
+            default: false,
         },
     },
 

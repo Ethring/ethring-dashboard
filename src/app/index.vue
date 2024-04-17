@@ -6,6 +6,7 @@
             <AddressModal />
             <BridgeDexRoutesModal />
             <KadoModal />
+            <SelectModal />
             <ReleaseNotes />
         </a-config-provider>
     </KeepAlive>
@@ -24,6 +25,7 @@ import ReleaseNotes from '@/app/layouts/DefaultLayout/header/ReleaseNotes.vue';
 import WalletsModal from '@/Adapter/UI/Modal/WalletsModal';
 import AddressModal from '@/Adapter/UI/Modal/AddressModal';
 import KadoModal from '@/components/app/modals/KadoModal.vue';
+import SelectModal from '@/components/app/modals/SelectModal.vue';
 import BridgeDexRoutesModal from '@/components/app/modals/BridgeDexRoutesModal.vue';
 
 import { updateBalanceForAccount } from '@/modules/balance-provider';
@@ -38,6 +40,7 @@ export default {
     components: {
         AppLayout,
         KadoModal,
+        SelectModal,
         BridgeDexRoutesModal,
         ReleaseNotes,
         WalletsModal,
@@ -140,6 +143,11 @@ export default {
         onMounted(() => {
             // * Tracking balance update for all accounts
             trackingBalanceUpdate(store);
+            // import('@/app/scripts/development').then(({ default: dev }) => {
+            //     dev();
+            // });
+            // console.log('App mounted', store.getters['adapters/getAllConnectedWallets']);
+
         });
     },
 };

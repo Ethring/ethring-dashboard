@@ -1,0 +1,169 @@
+.shortcut-profile {
+    position: relative;
+    max-height: 170px;
+
+    &-action {
+        background: var(--#{$prefix}select-bg-color);
+        padding: 20px 24px;
+        min-height: 72px;
+        max-height: 72px;
+        border-radius: 8px;
+        position: relative;
+        z-index: 2;
+        margin-bottom: 120px;
+
+        .link {
+            @include pageFlexRow;
+            color: var(--#{$prefix}base-text);
+            font-weight: 500;
+
+            &:hover {
+                color: var(--#{$prefix}primary-text);
+            }
+
+            span {
+                margin-left: 10px;
+            }
+
+            svg {
+                path {
+                    fill: var(--#{$prefix}base-text);
+                }
+            }
+        }
+
+        .social-details {
+            gap: 20px;
+
+            .item {
+                @include pageFlexRow;
+                gap: 8px;
+
+                .icon {
+                    @include pageFlexRow;
+                    justify-content: center;
+
+                    width: 24px;
+                    height: 24px;
+
+                    border-radius: 50%;
+                    background: var(--#{$prefix}main-background);
+                }
+
+                svg.social,
+                svg.more-action {
+                    fill: var(--#{$prefix}base-icon-color);
+                }
+
+                svg.like {
+                    stroke: var(--#{$prefix}base-icon-color) !important;
+                    width: 14px;
+                    height: 14px;
+                }
+
+                .label {
+                    color: var(--#{$prefix}description-text);
+                    font-size: var(--#{$prefix}small-sm-fs);
+                    font-weight: 400;
+
+                    text-align: justify;
+                    line-height: 18px;
+                }
+
+                .value {
+                    font-size: var(--#{$prefix}default-fs);
+                    font-weight: 500;
+
+                    color: var(--#{$prefix}info);
+                }
+
+                .account {
+                    text-decoration: underline;
+                }
+            }
+        }
+
+        @media (max-width: 630px) {
+            flex-direction: column;
+            align-items: baseline;
+            overflow-x: scroll;
+
+            .social-details {
+                margin-top: 10px;
+                flex-wrap: nowrap;
+            }
+        }
+    }
+
+    &-author {
+        @include pageFlexColumn;
+        justify-content: center;
+        position: absolute;
+        top: 30%;
+        left: 0;
+        right: 0;
+
+        .custom-avatar {
+            width: 100px;
+            height: 100px;
+
+            border-radius: 50%;
+        }
+
+        .avatar {
+            @include pageFlexRow;
+            justify-content: center;
+
+            position: relative;
+            z-index: 2;
+
+            width: 100px;
+            height: 100px;
+
+            border: 1px solid var(--#{$prefix}border-secondary-color);
+            border-radius: 50%;
+            background-color: var(--#{$prefix}primary);
+
+            svg {
+                width: 50px;
+                height: 50px;
+            }
+
+            cursor: pointer;
+        }
+
+        .info {
+            text-align: center;
+            margin-top: 10px;
+
+            .label {
+                color: var(--#{$prefix}adapter-label-text);
+                font-size: var(--#{$prefix}default-fs);
+                font-weight: 400;
+            }
+
+            &-author {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 6px;
+                margin-top: 6px;
+
+                .author {
+                    color: var(--#{$prefix}primary-text);
+                    font-size: var(--#{$prefix}default-fs);
+                    font-weight: 500;
+                }
+
+                svg {
+                    width: 12px;
+                    height: 12px;
+                }
+            }
+
+            @media (max-width: 1024px) {
+                text-align: justify;
+            }
+        }
+    }
+}

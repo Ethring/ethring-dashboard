@@ -1,7 +1,8 @@
 import { ref } from 'vue';
-import _, { chain } from 'lodash';
+import _ from 'lodash';
 
-import { cosmos } from 'osmojs';
+import { cosmos, cosmwasm } from 'injectivejs';
+
 import { SigningStargateClient, GasPrice } from '@cosmjs/stargate';
 
 import { Logger, WalletManager } from '@cosmos-kit/core';
@@ -30,6 +31,7 @@ import logger from '@/shared/logger';
 import IndexedDBService from '@/services/indexed-db';
 
 import { ignoreRPC } from '@/Adapter/utils/ignore-rpc';
+import { CosmWasmClient } from '@cosmjs/cosmwasm-stargate';
 
 import { DP_CHAINS } from '@/modules/balance-provider/models/enums';
 
@@ -57,7 +59,7 @@ const connectedAccounts = () => JSON.parse(window?.localStorage?.getItem(STORAGE
 const connectedWalletModule = () => window?.localStorage.getItem(STORAGE.WALLET) || null;
 const addressByNetwork = () => JSON.parse(window?.localStorage.getItem(STORAGE.ADDRESS_BY_NETWORK)) || {};
 
-class CosmosAdapter extends AdapterBase {
+export class CosmosAdapter extends AdapterBase {
     chainsFromStore = {};
     walletManager = null;
 
@@ -81,6 +83,7 @@ class CosmosAdapter extends AdapterBase {
         const defaultChains = _.values(activeChains).filter(isDefaultChain);
 
         this.store = store;
+
         this.chainsFromStore = store?.state?.configs?.chains[ECOSYSTEMS.COSMOS] || {};
 
         const assets = await getCosmologyTokensConfig();
@@ -278,7 +281,12 @@ class CosmosAdapter extends AdapterBase {
             if (!this.walletManager) {
                 await this.init();
             }
+        } catch (error) {
+            logger.error('[COSMOS -> connectWallet -> INIT WM]', error, this.walletManager?.isError);
+            return false;
+        }
 
+        try {
             const chainWallet = this.walletManager.getChainWallet(chain, walletName);
 
             await this.getSupportedEcosystemChains(this.walletManager.chainRecords, chainWallet.client);
@@ -306,13 +314,13 @@ class CosmosAdapter extends AdapterBase {
                 walletName: walletName,
             };
         } catch (error) {
-            logger.error(error, this.walletManager?.isError);
+            logger.error('[COSMOS -> connectWallet -> CONNECT]', error, this.walletManager?.isError);
             return false;
         }
     }
 
     async setChain(chainInfo) {
-        const { walletModule, chain, chain_id } = chainInfo;
+        const { walletModule, chain, chain_id } = chainInfo || {};
 
         const chainForConnect = chain || chain_id || this.DEFAULT_CHAIN;
 
@@ -515,6 +523,12 @@ class CosmosAdapter extends AdapterBase {
 
             asset.decimals = asset.denom_units[1].exponent;
 
+            const [mainWallet] = this.walletManager.mainWallets || [];
+
+            if (!this.walletName && mainWallet) {
+                this.walletName = mainWallet.walletName;
+            }
+
             const chainRecord = {
                 ...chain,
                 asset,
@@ -599,10 +613,12 @@ class CosmosAdapter extends AdapterBase {
 
     // * Simulate transaction
     async simulateTxGas(client = SigningStargateClient, msg) {
-        const GAS_ADJUSTMENT = 1.4;
+        const GAS_ADJUSTMENT = 1.45;
 
         try {
-            const simGas = await client.simulate(this.getAccountAddress(), [msg]);
+            const msgs = Array.isArray(msg) ? msg : [msg];
+
+            const simGas = await client.simulate(this.getAccountAddress(), msgs);
 
             if (!simGas) {
                 return null;
@@ -611,6 +627,8 @@ class CosmosAdapter extends AdapterBase {
             const adjustedGas = BigNumber(simGas).multipliedBy(GAS_ADJUSTMENT).toString();
 
             logger.log('Simulated gas |', simGas.toString(), `| multiplied to ${GAS_ADJUSTMENT} |`, adjustedGas);
+
+            logger.log('-'.repeat(50), '\n\n');
 
             return adjustedGas;
         } catch (error) {
@@ -623,7 +641,8 @@ class CosmosAdapter extends AdapterBase {
         const chainWallet = this._getCurrentWallet();
 
         try {
-            const estimatedFee = await chainWallet.value.estimateFee([msg]);
+            const msgs = Array.isArray(msg) ? msg : [msg];
+            const estimatedFee = await chainWallet.value.estimateFee(msgs);
 
             if (estimatedFee) {
                 return estimatedFee;
@@ -663,6 +682,77 @@ class CosmosAdapter extends AdapterBase {
         logger.warn('[COSMOS -> getTransactionFee] Fee not found, Use default fee');
 
         return null;
+    }
+
+    async prepareDelegateTransaction({ fromAddress, toAddress, amount, token, memo }) {
+        const fee = this.setDefaultFeeForTx();
+
+        try {
+            const { delegate } = cosmos.staking.v1beta1.MessageComposer.withTypeUrl;
+
+            const amountFormatted = utils.parseUnits(amount, token.decimals).toString();
+
+            const msg = delegate({
+                amount: {
+                    denom: token.base,
+                    amount: amountFormatted,
+                },
+                delegatorAddress: fromAddress,
+                validatorAddress: toAddress,
+            });
+
+            return {
+                msg,
+                fee,
+                memo,
+            };
+        } catch (error) {
+            logger.error('COSMOS -> prepareDelegateTransaction', error);
+        }
+    }
+
+    async prepareMultipleExecuteMsgs({ fromAddress, amount, token, memo, count = 1, contract, funds = [], msgKey = 'mint' }) {
+        const fee = this.setDefaultFeeForTx();
+        const prepareMsgs = () => {
+            try {
+                const { executeContract } = cosmwasm.wasm.v1.MessageComposer.withTypeUrl;
+
+                const jsonMsg = {
+                    [msgKey]: {},
+                };
+
+                const contractMsg = toUtf8(JSON.stringify(jsonMsg));
+
+                const msg = executeContract({
+                    sender: this.getAccountAddress(),
+                    contract,
+                    funds,
+                    msg: contractMsg,
+                });
+
+                return msg;
+            } catch (error) {
+                logger.error('error while prepare', error);
+            }
+        };
+
+        let msgs = [];
+
+        try {
+            for (let i = 0; i < count; i++) {
+                const msg = prepareMsgs();
+                if (!msg) continue;
+                msgs.push(msg);
+            }
+
+            return {
+                msg: msgs,
+                fee,
+            };
+        } catch (error) {
+            logger.error('error while prepareMultipleExecute', error);
+            return errorRegister(error);
+        }
     }
 
     async prepareTransaction({ fromAddress, toAddress, amount, token, memo }) {
@@ -807,14 +897,21 @@ class CosmosAdapter extends AdapterBase {
                 setTimeout(() => reject(new Error(`TIMEOUT ${rpc}`)), TIMEOUT);
             });
 
+        const connected = {
+            rpc: null,
+            client: null,
+        };
+
         for (const rpc of filteredRPCs) {
             try {
                 const timeoutPromise = timeoutFN(TIMEOUT_PROMISE, rpc);
                 const connectPromise = SigningStargateClient.connectWithSigner(rpc, offlineSigner, signingStargate);
                 await Promise.race([timeoutPromise, connectPromise]);
                 console.log('Client connected', rpc);
+                connected.rpc = rpc;
+                connected.client = await connectPromise;
+                return connected;
                 // Success
-                return connectPromise;
             } catch (error) {
                 if (error?.message === `TIMEOUT ${rpc}`) {
                     logger.warn(`[COSMOS -> getSignClient TIMEOUT] Timeout connecting to RPC: ${rpc}`);
@@ -829,7 +926,24 @@ class CosmosAdapter extends AdapterBase {
         return null;
     }
 
+    async getSignClientByChain(chain) {
+        const chainWallet = ref(this.walletManager.getChainWallet(chain, this.walletName));
+        await chainWallet.value.initOfflineSigner('amino');
+
+        const { rpcEndpoints, chainRecord } = chainWallet.value || {};
+        const { clientOptions = {} } = chainRecord || {};
+        const { signingStargate = {} } = clientOptions;
+
+        return (
+            (await this.getSignClient(rpcEndpoints, {
+                signingStargate,
+                offlineSigner: chainWallet.value.offlineSigner,
+            })) || {}
+        );
+    }
+
     async signSend(transaction) {
+        console.log('transaction', transaction);
         const { msg, fee, memo } = transaction;
 
         const chainWallet = this._getCurrentWallet();
@@ -839,15 +953,13 @@ class CosmosAdapter extends AdapterBase {
         const { clientOptions = {} } = chainRecord || {};
         const { signingStargate = {} } = clientOptions;
 
-        console.log('rpc', signingStargate, chainWallet.value.offlineSigner);
-        const client = await this.getSignClient(rpcEndpoints, {
+        const signClient = await this.getSignClient(rpcEndpoints, {
             signingStargate,
             offlineSigner: chainWallet.value.offlineSigner,
         });
-        console.log('client', client);
 
         // Check if client exist
-        if (!client) {
+        if (!signClient || !signClient.client) {
             return {
                 error: 'Signing Stargate client not found',
             };
@@ -855,7 +967,7 @@ class CosmosAdapter extends AdapterBase {
 
         // Try to get estimated fee
         try {
-            const estimatedFee = await this.getTransactionFee(client, msg);
+            const estimatedFee = await this.getTransactionFee(signClient.client, msg);
 
             if (estimatedFee) {
                 fee.gas = estimatedFee.gas;
@@ -868,6 +980,10 @@ class CosmosAdapter extends AdapterBase {
             logger.error('[COSMOS -> signSend -> estimate]', error);
         }
 
+        const msgs = Array.isArray(msg) ? msg : [msg];
+
+        console.log('signSend', { msgs, fee, memo, isArray: Array.isArray(msg) });
+
         // Check timer
         const txTimerID = this.store.getters['txManager/txTimerID'];
 
@@ -876,11 +992,19 @@ class CosmosAdapter extends AdapterBase {
                 isCanceled: true,
             };
         }
+
         this.store.dispatch('txManager/setTxTimerID', null);
 
         // Sign and send transaction
         try {
-            return await client.signAndBroadcast(this.getAccountAddress(), [msg], fee, memo);
+            console.log('msgs', msgs);
+            console.log('fee', fee);
+            console.log('memo', memo);
+
+            const response = await signClient.client.signAndBroadcast(this.getAccountAddress(), msgs, fee, memo);
+
+            console.log('response', response);
+            return response;
         } catch (error) {
             logger.error('[COSMOS -> signSend] Error while broadcasting transaction', error);
             return errorRegister(error);

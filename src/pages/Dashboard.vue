@@ -7,7 +7,9 @@
             <div class="dashboard__wallet">
                 <WalletInfoLarge />
             </div>
-            <Assets />
+            <KeepAlive>
+                <Assets />
+            </KeepAlive>
         </template>
     </div>
 </template>

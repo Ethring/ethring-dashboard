@@ -5,7 +5,7 @@
         @click="active = true"
         v-click-away="(active = false)"
     >
-        <div class="input-label">{{ $t('tokenOperations.recipient') }}</div>
+        <div class="input-label">{{ $t(label) }}</div>
 
         <a-input-group compact class="input-group">
             <div>
@@ -53,6 +53,10 @@ export default {
         value: {
             type: String,
             default: '',
+        },
+        label: {
+            type: String,
+            default: 'tokenOperations.recipient',
         },
         selectedNetwork: {
             required: true,

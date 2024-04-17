@@ -122,7 +122,9 @@ function useAdapter() {
 
         adaptersDispatch(TYPES.SET_WALLET, { ecosystem: currEcosystem.value, wallet: walletInfo });
         adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
-        adaptersDispatch(TYPES.SET_IS_CONNECTED, true);
+        adaptersDispatch(TYPES.SET_IS_CONNECTED, { ecosystem: currEcosystem.value, isConnected: true });
+
+        // return subscribeToWalletsChange();
     }
 
     // * Connect to Wallet by Ecosystem
@@ -138,7 +140,7 @@ function useAdapter() {
 
             if (walletName && isConnected) {
                 adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
-                adaptersDispatch(TYPES.SET_IS_CONNECTED, true);
+                adaptersDispatch(TYPES.SET_IS_CONNECTED, { ecosystem, isConnected });
                 adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
                 await storeWalletInfo();
             }
@@ -149,7 +151,7 @@ function useAdapter() {
         } catch (error) {
             console.error('Failed to connect to:', ecosystem, error);
             adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
-            adaptersDispatch(TYPES.SET_IS_CONNECTED, false);
+            adaptersDispatch(TYPES.SET_IS_CONNECTED, { ecosystem, isConnected: false });
             return false;
         }
     };
@@ -157,21 +159,23 @@ function useAdapter() {
     // * Connect to Wallet by Ecosystems
     const connectByEcosystems = async (ecosystem) => {
         if (!ecosystem) {
-            return;
+            return false;
         }
 
         subscribeToWalletsChange();
 
         if (ecosystem === ECOSYSTEMS.COSMOS) {
-            return adaptersDispatch(TYPES.SET_MODAL_STATE, { name: 'wallets', isOpen: true });
+            return await adaptersDispatch(TYPES.SET_MODAL_STATE, { name: 'wallets', isOpen: true });
         }
 
         try {
             const status = await connectTo(ecosystem);
             status && adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
+            return status;
         } catch (error) {
             adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
-            console.log(error);
+            console.warn('Failed to connect to:', ecosystem, error);
+            return false;
         }
     };
 
@@ -211,7 +215,7 @@ function useAdapter() {
 
                 if (!isConnected) {
                     adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
-                    adaptersDispatch(TYPES.SET_IS_CONNECTED, false);
+                    adaptersDispatch(TYPES.SET_IS_CONNECTED, { ecosystem, isConnected: false });
                     return router.push('/connect-wallet');
                 }
             }
@@ -225,7 +229,7 @@ function useAdapter() {
             return subscribeToWalletsChange();
         } catch (error) {
             adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
-            adaptersDispatch(TYPES.SET_IS_CONNECTED, false);
+            adaptersDispatch(TYPES.SET_IS_CONNECTED, { ecosystem, isConnected: false });
         }
     };
 
@@ -331,6 +335,32 @@ function useAdapter() {
         return await adapter.prepareTransaction(transaction);
     };
 
+    // * Prepare Delegate Transaction
+    const prepareDelegateTransaction = async (transaction, { ecosystem }) => {
+        if (!ecosystem && mainAdapter.value?.prepareDelegateTransaction) {
+            return await mainAdapter.value?.prepareDelegateTransaction(transaction);
+        }
+
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+
+        return await adapter?.prepareDelegateTransaction(transaction);
+    };
+
+    // * Prepare Delegate Transaction
+    const prepareMultipleExecuteMsgs = async (transaction, { ecosystem }) => {
+        if (!mainAdapter.value) {
+            return null;
+        }
+
+        if (!ecosystem && mainAdapter.value?.prepareMultipleExecuteMsgs) {
+            return await mainAdapter.value?.prepareMultipleExecuteMsgs(transaction);
+        }
+
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+
+        return await adapter?.prepareMultipleExecuteMsgs(transaction);
+    };
+
     // * Get Explorer Link by Tx Hash
     const getTxExplorerLink = (...args) => {
         return mainAdapter.value.getTxExplorerLink(...args) || null;
@@ -351,15 +381,11 @@ function useAdapter() {
 
     // * Sign & Send Transaction
     const signSend = async (transaction, { ecosystem = null }) => {
-        if (!ecosystem) {
-            return await mainAdapter.value.signSend(transaction);
-        }
+        if (!ecosystem) return await mainAdapter.value.signSend(transaction);
 
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
-        if (!adapter) {
-            return { error: `Please connect your ${ecosystem} wallet` };
-        }
+        if (!adapter) return { error: `Please connect your ${ecosystem} wallet` };
 
         return await adapter.signSend(transaction);
     };
@@ -380,19 +406,52 @@ function useAdapter() {
     };
 
     // * Get Chain by Chain ID
-    const getChainByChainId = (ecosystem, chainId) => {
-        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
-        const chainList = adapter.getChainList(store);
+    const getChainByChainId = (ecosystem = null, chainId) => {
+        const getChain = (ecosystem) => {
+            const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
-        const chain = chainList.find((chain) => chain.chain_id === chainId);
+            if (!adapter) {
+                return null;
+            }
 
-        return {
-            ...chain,
-            chain: chain?.chain_id,
-            name: chain?.name,
-            logo: chain?.logo,
-            ecosystem,
+            try {
+                const chainList = adapter.getChainList(store);
+
+                const chain = chainList.find((chain) => `${chain.chain_id}` === `${chainId}`);
+
+                if (!chain) {
+                    return null;
+                }
+
+                return {
+                    ...chain,
+                    chain: chain?.chain_id,
+                    name: chain?.name,
+                    logo: chain?.logo,
+                    ecosystem,
+                };
+            } catch (error) {
+                return null;
+            }
         };
+
+        // * If Ecosystem not provided, get chain from all ecosystems
+        if (!ecosystem) {
+            for (const ecosystem in ECOSYSTEMS) {
+                const chain = getChain(ecosystem);
+                if (chain) {
+                    return chain;
+                }
+            }
+        }
+
+        const chain = getChain(ecosystem);
+
+        if (!chain) {
+            return null;
+        }
+
+        return chain;
     };
 
     // * Set New Chain by Ecosystem
@@ -459,6 +518,24 @@ function useAdapter() {
         return adapter.getNativeTokenByChain(chain, store);
     };
 
+    const getConnectedStatus = (ecosystem) => {
+        return adaptersGetter(GETTERS.IS_CONNECTED)(ecosystem);
+    };
+
+    const switchEcosystem = async (ecosystem) => {
+        return await adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
+    };
+
+    const getContractInfo = async (ecosystem, chainInfo, contract) => {
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+
+        await setChain(chainInfo);
+
+        return adapter.getContractInfo(contract);
+    };
+
+    const getAdapterByEcosystem = (ecosystem) => adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+
     return {
         isConnecting,
 
@@ -492,18 +569,28 @@ function useAdapter() {
         getIBCAssets,
         getNativeTokenByChain,
 
-        formatTransactionForSign,
-
         setChain,
         setNewChain,
 
         validateAddress,
 
+        // * Transaction Actions
+        formatTransactionForSign,
         prepareTransaction,
+        prepareDelegateTransaction,
+        prepareMultipleExecuteMsgs,
+
         signSend,
 
         disconnectWallet,
         disconnectAllWallets,
+
+        getConnectedStatus,
+        switchEcosystem,
+
+        getContractInfo,
+
+        getAdapterByEcosystem,
     };
 }
 

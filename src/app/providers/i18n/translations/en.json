@@ -70,8 +70,10 @@
   "actionTokens": "Tokens",
   "actionTransactions": "Transactions",
   "tokenOperations": {
+    "contractAddress": "Contract address",
     "confirm": "Confirm",
     "recipient": "Recipient",
+    "validator": "Validator",
     "amount": "Amount",
     "balance": "Balance",
     "max": "Max",
@@ -150,11 +152,25 @@
     "dashboardProtocols": "Dashboard Insights",
     "keyModules": "Key Modules"
   },
+  "shortcuts": {
+    "label": "Create your own shortcut and monetize your strategy!",
+    "description": "Enable users to follow your guidance and earn with our revenue share program!",
+    "createdBy": "Created by",
+    "clearAll": "Clear all",
+    "backTo": "Back to shortcuts",
+    "back": "Back",
+    "profile": {
+      "author": "Author",
+      "created": "Created",
+      "likes": "Likes"
+    },
+    "minUsdAmount": "Min USD amount is"
+  },
   "slippage": {
     "description": "The maximum amount of additional slippage",
     "maxSlippage": "Max. slippage",
-    "limitWarning1": "Please set a slippage value that is within 0% to 20%",
-    "limitWarning2": "Slippage bellow 0.1% may result in a failed transaction",
-    "limitWarning3": "Your transaction may be frontrun and result in an unfavorable trade"
+    "warningRange": "Please set a slippage value that is within 0.1% to 20%",
+    "warningLess01": "Slippage bellow 0.1% may result in a failed transaction",
+    "warningMoreThan2": "Your transaction may be frontrun and result in an unfavorable trade"
   }
 }

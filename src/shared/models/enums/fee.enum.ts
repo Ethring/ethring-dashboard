@@ -4,3 +4,5 @@ export enum FEE_TYPE {
     PROTOCOL = 'PROTOCOL',
     ESTIMATE = 'ESTIMATE',
 }
+
+export type FEE_TYPES = keyof typeof FEE_TYPE;

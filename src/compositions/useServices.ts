@@ -1,18 +1,13 @@
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
+
 import BigNumber from 'bignumber.js';
-import _ from 'lodash';
-
-import { ref, computed, watch, onBeforeUnmount } from 'vue';
-import { useStore } from 'vuex';
-
 import { ECOSYSTEMS } from '@/Adapter/config';
-
+import { ModuleType } from '@/shared/models/enums/modules.enum';
+import _ from 'lodash';
 import useAdapter from '@/Adapter/compositions/useAdapter';
 import useBridgeDexService from '@/modules/bridge-dex/compositions';
-
-import { DIRECTIONS } from '@/shared/constants/operations';
-import { ModuleType } from '@/modules/bridge-dex/enums/ServiceType.enum';
-
 import useChainTokenManger from './useChainTokenManager';
+import { useStore } from 'vuex';
 
 export default function useModule(moduleType: ModuleType) {
     const store = useStore();
@@ -113,6 +108,15 @@ export default function useModule(moduleType: ModuleType) {
         set: (value) => store.dispatch('tokenOps/setReceiverAddress', value),
     });
 
+    const contractAddress = computed({
+        get: () => store.getters['tokenOps/contractAddress'],
+        set: (value) => store.dispatch('tokenOps/setContractAddress', value),
+    });
+
+    const contractCallCount = computed({
+        get: () => store.getters['tokenOps/contractCallCount'],
+        set: (value) => store.dispatch('tokenOps/setContractCallCount', value),
+    });
     const slippage = computed({
         get: () => store.getters['tokenOps/slippage'],
         set: (value) => store.dispatch('tokenOps/setSlippage', value),
@@ -147,6 +151,13 @@ export default function useModule(moduleType: ModuleType) {
 
     // =================================================================================================================
 
+    const isNeedInputFocus = computed({
+        get: () => store.getters['moduleStates/getIsNeedInputFocus'],
+        set: (value) => store.dispatch('moduleStates/setIsNeedInputFocus', value),
+    });
+
+    // =================================================================================================================
+
     const estimateErrorTitle = ref('');
     const isBalanceError = computed(() => BigNumber(srcAmount.value).gt(selectedSrcToken.value?.balance) || false);
 
@@ -175,6 +186,12 @@ export default function useModule(moduleType: ModuleType) {
     );
 
     // =================================================================================================================
+
+    const inputFocus = () => {
+        const input = document.querySelector('input.input-balance');
+
+        if (input && input instanceof HTMLInputElement && isNeedInputFocus.value) input.focus();
+    };
 
     const checkSelectedNetwork = () => {
         // if (!walletAccount.value && !currentChainInfo.value) {
@@ -261,26 +278,15 @@ export default function useModule(moduleType: ModuleType) {
         if (selectedRoute.value) {
             dstAmount.value = selectedRoute.value.toAmount;
         }
-    })
+    });
+
+    watch(isQuoteLoading, () => {
+        if (!isQuoteLoading.value) nextTick(() => inputFocus());
+    });
 
     onBeforeUnmount(() => {
         // Clear all data
-
-        // Reset all data
-        targetDirection.value = DIRECTIONS.SOURCE;
-        selectedSrcNetwork.value = null;
-        selectedSrcToken.value = null;
-        selectedDstNetwork.value = null;
-        selectedDstToken.value = null;
-        receiverAddress.value = '';
-
-        isEstimating.value = false;
-        txError.value = '';
-        isLoading.value = false;
-        estimateErrorTitle.value = '';
-
-        srcAmount.value = null;
-        dstAmount.value = null;
+        store.dispatch('tokenOps/resetFields');
     });
 
     return {
@@ -303,6 +309,9 @@ export default function useModule(moduleType: ModuleType) {
         isSendToAnotherAddress,
         isAddressError,
         receiverAddress,
+
+        contractAddress,
+        contractCallCount,
 
         // Amounts
         srcAmount,
@@ -334,6 +343,9 @@ export default function useModule(moduleType: ModuleType) {
         isTokensLoadingForDst,
         isWaitingTxStatusForModule,
 
+        // Flags
+        isNeedInputFocus,
+
         // Functions
         openSelectModal,
         toggleRoutesModal,
@@ -361,5 +373,8 @@ export default function useModule(moduleType: ModuleType) {
         makeSwapRequest,
         makeAllowanceRequest,
         clearAllowance,
+
+        // Fields
+        fieldStates: computed(() => store.getters['moduleStates/getFieldsForModule'](moduleType)),
     };
 }

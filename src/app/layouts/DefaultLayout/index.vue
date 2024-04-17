@@ -1,5 +1,5 @@
 <template>
-    <LoadingOverlay v-if="isSpinning" :spinning="isSpinning" :tip="loadingTitle" />
+    <LoadingOverlay v-if="isSpinning" :spinning="isSpinning" :tip="loadingTitle" :overlay="true" />
 
     <a-layout has-sider>
         <Sidebar />
@@ -50,7 +50,6 @@ export default {
                 return 'loadings.walletConnecting';
             }
 
-            isSpinning.value = false;
             return '';
         });
 

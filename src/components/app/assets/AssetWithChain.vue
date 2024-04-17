@@ -6,7 +6,7 @@
         <TokenIcon v-else :width="width" :height="height" :token="asset" />
 
         <div class="chain">
-            <TokenIcon width="16" :height="16" :token="chain" />
+            <TokenIcon :width="width / 2" :height="height / 2" :token="chain" />
         </div>
     </div>
 </template>

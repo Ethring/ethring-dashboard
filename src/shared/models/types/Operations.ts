@@ -3,10 +3,10 @@ import { TRANSACTION_TYPES } from '../enums/statuses.enum';
 type TxOperations = keyof typeof TRANSACTION_TYPES;
 
 export type TxOperationFlow = {
-    index: number;
+    index?: number;
     type: TxOperations;
     make: TxOperations;
-
-    // Wait for the previous operation to be completed
-    waitFor?: TxOperations;
+    moduleIndex: string;
+    title?: string;
+    operationId?: string;
 };

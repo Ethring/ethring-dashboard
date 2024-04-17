@@ -16,7 +16,14 @@ const connectedWalletsStorage = useLocalStorage(CONNECTED_WALLETS_KEY, [], { mer
 const addressesByEcosystemStorage = useLocalStorage(ADDRESSES_BY_ECOSYSTEM_KEY, {}, { mergeDefaults: true });
 const addressesByEcosystemListStorage = useLocalStorage(ADDRESSES_BY_ECOSYSTEM_LIST_KEY, {}, { mergeDefaults: true });
 const lastConnectedWalletStorage = useLocalStorage(LAST_CONNECTED_WALLET_KEY, {}, { mergeDefaults: true });
-const isConnectedStorage = useLocalStorage(IS_CONNECTED_KEY, false, { mergeDefaults: true });
+const isConnectedStorage = useLocalStorage(
+    IS_CONNECTED_KEY,
+    {
+        [ECOSYSTEMS.EVM]: false,
+        [ECOSYSTEMS.COSMOS]: false,
+    },
+    { mergeDefaults: true },
+);
 
 const getAccountByEcosystem = (ecosystem) => {
     const result = connectedWalletsStorage.value.find((wallet) => wallet.ecosystem === ecosystem);
@@ -58,7 +65,11 @@ export default {
 
         wallets: connectedWalletsStorage.value,
         lastConnectedWallet: lastConnectedWalletStorage.value,
-        isConnected: isConnectedStorage.value,
+
+        isConnected: {
+            [ECOSYSTEMS.EVM]: isConnectedStorage.value[ECOSYSTEMS.EVM],
+            [ECOSYSTEMS.COSMOS]: isConnectedStorage.value[ECOSYSTEMS.COSMOS],
+        },
 
         addressesByEcosystem: {
             [ECOSYSTEMS.EVM]: addressesByEcosystemStorage.value[ECOSYSTEMS.EVM] || {},
@@ -94,7 +105,7 @@ export default {
         [GETTERS.CONNECTED_WALLETS]: (state) => state.wallets,
         [GETTERS.LAST_CONNECTED_WALLET]: (state) => state.lastConnectedWallet,
 
-        [GETTERS.IS_CONNECTED]: (state) => state.isConnected,
+        [GETTERS.IS_CONNECTED]: (state) => (ecosystem) => state.isConnected[ecosystem] || false,
 
         [GETTERS.GET_ADDRESSES_BY_ECOSYSTEM]: (state) => (ecosystem) => state.addressesByEcosystem[ecosystem] || {},
         [GETTERS.GET_ADDRESSES_BY_ECOSYSTEM_LIST]: (state) => (ecosystem) => state.addressesByEcosystemList[ecosystem] || {},
@@ -142,8 +153,8 @@ export default {
         [TYPES.DISCONNECT_ALL_WALLETS]({ commit }) {
             commit(TYPES.DISCONNECT_ALL_WALLETS);
         },
-        [TYPES.SET_IS_CONNECTED]({ commit }, isConnected) {
-            commit(TYPES.SET_IS_CONNECTED, isConnected);
+        [TYPES.SET_IS_CONNECTED]({ commit }, value) {
+            commit(TYPES.SET_IS_CONNECTED, value);
         },
         [TYPES.SET_ADDRESSES_BY_ECOSYSTEM]({ commit }, { ecosystem, addresses }) {
             commit(TYPES.SET_ADDRESSES_BY_ECOSYSTEM, { ecosystem, addresses });
@@ -222,7 +233,8 @@ export default {
                 delete addressesByEcosystemListStorage.value[ecosystem];
             }
 
-            isConnectedStorage.value = false;
+            !isConnectedStorage.value && (isConnectedStorage.value = {});
+            isConnectedStorage.value[ecosystem] && (isConnectedStorage.value[ecosystem] = false);
 
             return (connectedWalletsStorage.value = state.wallets);
         },
@@ -239,13 +251,23 @@ export default {
 
             connectedWalletsStorage.value = [];
             lastConnectedWalletStorage.value = {};
-            isConnectedStorage.value = false;
+
+            isConnectedStorage.value = {
+                [ECOSYSTEMS.EVM]: false,
+                [ECOSYSTEMS.COSMOS]: false,
+            };
 
             addressesByEcosystemListStorage.value = {};
             addressesByEcosystemStorage.value = {};
         },
-        [TYPES.SET_IS_CONNECTED](state, value) {
-            state.isConnected = value;
+        [TYPES.SET_IS_CONNECTED](state, { ecosystem, isConnected }) {
+            !state.isConnected && (state.isConnected = {});
+            !state.isConnected[ecosystem] && (state.isConnected[ecosystem] = false);
+            state.isConnected[ecosystem] = isConnected;
+
+            !isConnectedStorage.value && (isConnectedStorage.value = {});
+            !isConnectedStorage.value[ecosystem] && (isConnectedStorage.value[ecosystem] = false);
+            isConnectedStorage.value[ecosystem] = isConnected;
         },
         [TYPES.SET_ADDRESSES_BY_ECOSYSTEM](state, { ecosystem, addresses }) {
             !state.addressesByEcosystem[ecosystem] && (state.addressesByEcosystem[ecosystem] = {});

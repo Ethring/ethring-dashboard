@@ -1,4 +1,4 @@
-import { BrowserContext, Page, Route } from '@playwright/test';
+import { Page, Route, expect } from '@playwright/test';
 import { FIVE_SECONDS, ONE_SECOND } from '../../__fixtures__/fixtureHelper';
 import { DATA_QA_LOCATORS } from '../../data/constants';
 import util from 'util';
@@ -40,19 +40,12 @@ class BasePage {
         await this.page.goto(url);
     }
 
-    // arg context add by debug playwright error
-    async clickLoginByMetaMask(context?: BrowserContext) {
+    async clickLoginByMetaMask() {
         try {
             await this.page.locator('div.wallet-adapter-container').click();
             await this.page.getByTestId(DATA_QA_LOCATORS.EVM_ECOSYSTEM_WALLET).click();
         } catch (e) {
             console.log('\nFirst login by metamask fail:\n', `\t${e}`);
-            console.log(context.pages().length);
-            console.log(context.pages());
-            await context.pages()[1].reload();
-            // await this.page.reload();
-            // await this.page.locator('div.wallet-adapter-container').click();
-            // await this.page.getByTestId('EVM Ecosystem wallet').click();
         }
 
         await this.page.getByText('MetaMask').click();
@@ -235,10 +228,10 @@ class BasePage {
     }
 
     /**
-    * This method is designed to modify the data in a GET request for /transaction/{:id} path.
-    *
-    * @param {Object} dataToReturnInHttpResponse - This object was returned from stub-tx-manager as HTTP response.
-    */
+     * This method is designed to modify the data in a GET request for /transaction/{:id} path.
+     *
+     * @param {Object} dataToReturnInHttpResponse - This object was returned from stub-tx-manager as HTTP response.
+     */
     async modifyDataByGetTxRequest(dataToReturnInHttpResponse: Object) {
         return await this.page.route(/\/transactions\/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/, (route) => {
             this.handleGetRequest(route, 'GET', dataToReturnInHttpResponse);
@@ -258,14 +251,23 @@ class BasePage {
     }
 
     /**
-    * This method is designed to get payload values from POST getSwapTx request /getSwapTx path.
-    */
+     * This method is designed to get payload values from POST getSwapTx request /getSwapTx path.
+     */
     async getPayloadOfPostSwapTxRequest() {
         return await this.page.route(/\/getSwapTx$/, (route) => {
             console.log(route.request().postData(), '---route.request().postData();');
             return route.request().postData();
-        }
-        );
+        });
+    }
+
+    async assertNotificationByPage(expectNotifyCount: number, expectedNotificationTitle: string, expectedNotificationDescription: string) {
+        const txNotification = this.page.locator('div.ant-notification');
+        const txNotificationTitle = this.page.locator('div.ant-notification-notice-message');
+        const txNotificationDesc = this.page.locator('div.ant-notification-notice-description');
+
+        expect(txNotification).toHaveCount(expectNotifyCount);
+        expect(txNotificationTitle).toHaveText(expectedNotificationTitle);
+        expect(txNotificationDesc).toHaveText(expectedNotificationDescription);
     }
 }
 
@@ -325,18 +327,6 @@ class SendPage extends BasePage {
 
     async getTokenTo() {
         return await this.page.locator(`(//*[@data-qa="${DATA_QA_LOCATORS.SELECT_TOKEN}"]/div[@class="token"])[2]`).textContent();
-    }
-
-    async getNotificationData() {
-        const txNotification = await this.page.locator('div.ant-notification');
-        const txNotificationTitle = await this.page.locator('div.ant-notification-notice-message');
-        const txNotificationDesc = await this.page.locator('div.ant-notification-notice-description');
-
-        return {
-            notificationCount: await txNotification.count(),
-            notificationTitle: await txNotificationTitle.textContent(),
-            notificationDescription: await txNotificationDesc.textContent()
-        };
     }
 }
 

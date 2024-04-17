@@ -67,59 +67,6 @@ $top-bar-spacing: 20px;
         width: 100%;
         margin-top: 16px;
     }
-
-    .panel-control {
-        position: absolute;
-        top: -50px;
-        right: 0;
-    }
-
-    .reload-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        cursor: not-allowed;
-
-        z-index: 10;
-
-        border-radius: 50%;
-
-        height: 32px;
-        width: 32px;
-        margin-right: 8px;
-
-        font-size: 18px;
-
-        border: 1px solid var(--#{$prefix}border-secondary-color);
-
-        background-color: var(--#{$prefix}icon-placeholder);
-
-        opacity: 0.8;
-
-        transition: 0.2s ease-in-out;
-
-        svg {
-            fill: var(--#{$prefix}base-text);
-            transition: 0.2s ease-in-out;
-        }
-
-        &.active:hover {
-            background-color: var(--#{$prefix}icon-logo-bg-hover);
-            opacity: 1;
-
-            svg {
-                transform: rotate(180deg);
-                opacity: 1;
-            }
-        }
-
-        &.active {
-            cursor: pointer;
-            background-color: var(--#{$prefix}icon-secondary-bg-color);
-            opacity: 1;
-        }
-    }
 }
 
 .operation-result {
@@ -127,7 +74,7 @@ $top-bar-spacing: 20px;
     top: 0;
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: -50px;
 
     z-index: 10;
 
@@ -162,8 +109,7 @@ $top-bar-spacing: 20px;
             color: var(--#{$prefix}danger);
         }
     }
-
-    &-subtitle {
+    .reload-btn &-subtitle {
         margin: auto;
         max-width: 520px;
         width: 100%;
@@ -200,5 +146,191 @@ $top-bar-spacing: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+}
+
+.panel-control {
+    position: absolute;
+    top: -50px;
+    right: 0;
+
+    z-index: 10;
+
+    & > div:not(:last-child) {
+        margin-right: 8px;
+    }
+}
+
+.reload-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: not-allowed;
+
+    border-radius: 50%;
+
+    height: 32px;
+    width: 32px;
+
+    font-size: 18px;
+
+    border: 1px solid var(--#{$prefix}border-secondary-color);
+
+    background-color: var(--#{$prefix}icon-placeholder);
+
+    opacity: 0.8;
+
+    transition: 0.2s ease-in-out;
+
+    svg {
+        fill: var(--#{$prefix}base-text);
+        transition: 0.2s ease-in-out;
+    }
+
+    &.active:hover {
+        background-color: var(--#{$prefix}icon-logo-bg-hover);
+        opacity: 1;
+
+        svg {
+            transform: rotate(180deg);
+            opacity: 1;
+        }
+    }
+
+    &.active {
+        cursor: pointer;
+        background-color: var(--#{$prefix}icon-secondary-bg-color);
+        opacity: 1;
+    }
+}
+
+.nft-base-info .ant-card .ant-card-body {
+    padding: 16px !important;
+}
+
+.nft-stats {
+    margin: 16px;
+
+    .nft-stats-card {
+        background-color: var(--#{$prefix}secondary-bg-color);
+        height: 80px;
+        max-height: 80px;
+
+        .type {
+            font-size: var(--#{$prefix}small-sm-fs);
+            color: var(--#{$prefix}mute-text);
+        }
+
+        .amount {
+            font-size: var(--#{$prefix}h5-fs);
+            font-weight: 400;
+            color: var(--#{$prefix}primary-text);
+        }
+    }
+}
+
+.nft-base-info .nft-base-info-time {
+    color: var(--#{$prefix}primary-text);
+    margin-top: 16px;
+
+    .time-icon {
+        width: 16px;
+        height: 16px;
+        font-size: 16px;
+
+        fill: var(--#{$prefix}warning);
+        color: var(--#{$prefix}warning);
+
+        position: relative;
+
+        z-index: 2;
+    }
+
+    .time-countdown * {
+        font-size: var(--#{$prefix}default-fs);
+    }
+
+    .time-type {
+        color: var(--#{$prefix}mute-text);
+        font-weight: 600;
+    }
+}
+
+.nft-base-info .nft-base-info-time {
+    .time-type,
+    .time-info {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 24px;
+
+        height: 30px;
+
+        color: var(--#{$prefix}primary-text);
+
+        user-select: none;
+    }
+
+    .time-countdown * {
+        color: var(--#{$prefix}black) !important;
+    }
+
+    .time-info {
+        padding: 0 16px;
+        color: var(--#{$prefix}black) !important;
+
+        .ant-badge-status-text {
+            margin-inline-start: 0;
+        }
+
+        &.active {
+            background: var(--#{$prefix}card-btn-bg-color);
+        }
+
+        &.ended {
+            background: var(--#{$prefix}danger);
+            opacity: 0.6;
+        }
+
+        &.soldOut {
+            background: var(--#{$prefix}warning);
+            opacity: 0.6;
+        }
+    }
+    .time-icon {
+        font-size: 14px;
+        color: var(--#{$prefix}warning);
+    }
+}
+
+@mixin wavePseudo {
+    background: var(--#{$prefix}warning);
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    margin: auto;
+    width: 16px;
+    height: 16px;
+    content: "";
+    display: block;
+    border-radius: 50%;
+    z-index: 1;
+}
+
+@keyframes wave-animate {
+    0% {
+        transform: scale(0);
+        opacity: 1;
+        transform-origin: center;
+    }
+    100% {
+        transform: scale(2);
+        opacity: 0;
+        transform-origin: center;
     }
 }

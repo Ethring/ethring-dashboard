@@ -1,11 +1,22 @@
 .slippage {
+    &__icon-container {
 
-    &__icon {
+        &[disabled="true"] {
+            pointer-events: none;
+            cursor: not-allowed;
+            background-color: var(--#{$prefix}icon-placeholder);
+            opacity: 0.8;
+        }
+
         width: 32px;
         height: 32px;
 
-        @include pageFlexRow;
-        justify-content: center;
+        &,
+        & > span {
+            @include pageFlexRow;
+            justify-content: center;
+        }
+
         border-radius: 50%;
         background-color: var(--#{$prefix}icon-secondary-bg-color);
         border: 1px solid var(--#{$prefix}border-secondary-color);
@@ -16,14 +27,14 @@
         &:hover {
             background-color: var(--#{$prefix}icon-logo-bg-hover);
         }
+    }
 
-        svg {
-            width: 20px;
-            height: 20px;
+    &__icon {
+        width: 20px;
+        height: 20px;
 
-            path {
-                fill: var(--#{$prefix}base-text);
-            }
+        path {
+            fill: var(--#{$prefix}base-text);
         }
     }
 
@@ -56,7 +67,6 @@
             }
 
             .ant-radio-button-wrapper-checked {
-
                 border-radius: 6px;
                 background-color: var(--#{$prefix}radio-btn-bg-color) !important;
             }
@@ -70,12 +80,43 @@
     &__input {
         background: var(--#{$prefix}accordion-bg-color) !important;
 
+        .ant-input-number {
+            border-color: var(--#{$prefix}select-bg-color) !important;
+            border-right: none !important;
+            outline: none !important;
+            border-radius: 6px 0 0 6px !important;
+            box-shadow: none !important;
+            &-disabled {
+                background: var(--#{$prefix}select-bg-color) !important;
+                border-color: var(--#{$prefix}select-bg-color) !important;
+
+                input {
+                    background: var(--#{$prefix}select-bg-color) !important;
+                }
+            }
+        }
+
+        .ant-input-number-disabled + .ant-input-number-group-addon {
+            background: var(--#{$prefix}select-bg-color) !important;
+            border-color: var(--#{$prefix}select-bg-color) !important;
+        }
+
         input {
-            height: 30px;
-            font-weight: 500;
+            height: 42px !important;
+            font-weight: 500 !important;
             color: var(--#{$prefix}notification-text) !important;
             text-align: end !important;
             background: var(--#{$prefix}accordion-bg-color) !important;
+            padding: 0 !important;
+            outline: none !important;
+        }
+
+        .ant-input-number-group-addon {
+            background: var(--#{$prefix}accordion-bg-color) !important;
+            border-color: var(--#{$prefix}select-bg-color) !important;
+            border-left: none !important;
+            color: var(--#{$prefix}notification-text);
+            font-weight: 500;
         }
 
         .ant-input-affix-wrapper {
@@ -83,15 +124,6 @@
             color: var(--#{$prefix}notification-text);
             background: var(--#{$prefix}accordion-bg-color) !important;
             border-color: var(--#{$prefix}radio-btn-bg-color) !important;
-        }
-
-        .ant-input-affix-wrapper-disabled {
-            background: var(--#{$prefix}select-bg-color) !important;
-            border-color: var(--#{$prefix}select-bg-color) !important;
-
-            input {
-                background: var(--#{$prefix}select-bg-color)!important;
-            }
         }
 
         .ant-input-affix-wrapper:not(.ant-input-affix-wrapper-disabled) {
@@ -120,5 +152,4 @@
             margin: auto;
         }
     }
-
 }
