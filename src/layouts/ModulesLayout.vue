@@ -134,12 +134,12 @@ export default {
 
         const unWatchCurrRoute = watch(
             () => router.currentRoute.value,
-            () => callResetToDefaultValues(),
+            () => callResetToDefaultValues()
         );
 
         const unWatchIsConnecting = watch(
             () => isConnecting,
-            async () => await callRedirectOrStay(),
+            async () => await callRedirectOrStay()
         );
 
         onBeforeUnmount(() => {
@@ -147,6 +147,10 @@ export default {
             unWatchCurrRoute();
             unWatchIsConnecting();
             callResetToDefaultValues();
+        });
+
+        watch(operationResult, () => {
+            store.dispatch('app/toggleModal', 'txResultModal');
         });
 
         return {
