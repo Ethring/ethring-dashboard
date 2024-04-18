@@ -11,7 +11,7 @@ import {
     // IBC
     ibcProtoRegistry,
     ibcAminoConverters,
-} from 'stargazejs';
+} from 'osmojs';
 
 // import {
 //     // Cosmos
