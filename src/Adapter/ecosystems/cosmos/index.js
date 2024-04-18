@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import _ from 'lodash';
 
-import { cosmos, cosmwasm } from 'injectivejs';
+import { cosmos, cosmwasm } from 'osmojs';
 
 import { SigningStargateClient, GasPrice } from '@cosmjs/stargate';
 
@@ -834,6 +834,8 @@ export class CosmosAdapter extends AdapterBase {
                 delete value.timeoutHeight;
             }
 
+            console.log('MSG typeUrl', typeUrl, value);
+
             // Custom actions for different types of transactions
             switch (typeUrl) {
                 case '/cosmwasm.wasm.v1.MsgExecuteContract':
@@ -868,8 +870,11 @@ export class CosmosAdapter extends AdapterBase {
 
                     value.wasm && delete value.wasm; // Remove wasm from value
 
+                    console.log('value', value);
                     break;
             }
+
+            console.log('value', value);
 
             response.msg = transaction;
 
@@ -997,11 +1002,13 @@ export class CosmosAdapter extends AdapterBase {
 
         // Sign and send transaction
         try {
-            console.log('msgs', msgs);
-            console.log('fee', fee);
-            console.log('memo', memo);
+            const tx = [this.getAccountAddress(), msgs, fee];
 
-            const response = await signClient.client.signAndBroadcast(this.getAccountAddress(), msgs, fee, memo);
+            if (memo && memo !== undefined) tx.push(memo);
+
+            console.log('tx', { ...tx });
+
+            const response = await signClient.client.signAndBroadcast(...tx);
 
             console.log('response', response);
             return response;
