@@ -41,11 +41,14 @@
         inset-inline-end: 16px;
     }
 
-
     .ant-notification-notice-message {
         color: var(--#{$prefix}white);
-        font-size: var(--#{$prefix}default-fs) !important;
+        font-size: var(--#{$prefix}small-lg-fs) !important;
         margin-bottom: 2px !important;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        max-width: 290px;
     }
 
     .ant-notification-notice-description {

@@ -44,7 +44,45 @@ export default {
 
             const chainList = _.values(state.chains[ecosystem]);
 
-            return chainList.find((chain) => chain.chain_id === chainId) || {};
+            let cId = chainId;
+
+            if (typeof chainId === 'string' && chainId.startsWith('0x')) {
+                cId = parseInt(chainId, 16);
+            }
+
+            const chain = chainList.find((chain) => chain.chain_id === cId);
+
+            return chain || {};
+        },
+
+        getChainConfigByChainOrNet: (state) => (chainOrNet, ecosystem) => {
+            if (!state.chains[ecosystem]) {
+                return {};
+            }
+
+            const chainList = _.values(state.chains[ecosystem]);
+
+            const chain = chainList.find((chain) => chain.chain === chainOrNet || chain.net === chainOrNet);
+
+            return chain || {};
+        },
+
+        getChainLogoByNet: (state) => (net) => {
+            for (const ecosystem in state.chains) {
+                for (const chain in state.chains[ecosystem]) {
+                    if (state.chains[ecosystem][chain].net === net) {
+                        return state.chains[ecosystem][chain].logo;
+                    }
+                }
+            }
+        },
+
+        getNativeTokenByChain: (state) => (chain, ecosystem) => {
+            if (!state.chains[ecosystem][chain]) return {};
+
+            if (!state.chains[ecosystem][chain].native_token) return {};
+
+            return state.chains[ecosystem][chain].native_token || {};
         },
     },
 
@@ -90,13 +128,26 @@ export default {
             }
         },
 
-        async initTokensByChain({ }, { chain, ecosystem }) {
+        async initTokensByChain({}, { chain, ecosystem }) {
             await getTokensConfigByChain(chain, ecosystem);
         },
 
-        async getTokensListForChain({ }, chain) {
+        async getTokensListForChain({}, chain) {
             const list = await configsDB.getAllObjectFrom(DB_TABLES.TOKENS, 'chain', chain, { isArray: true });
-            return _.orderBy(list, ['name'], ['asc']);
+            return _.orderBy(list, ['name'], ['asc']).map((item) => {
+                if (item.ecosystem === ECOSYSTEMS.COSMOS) return item;
+                if (item.id && item.id.includes('tokens__')) {
+                    const [chain, prefixAddress, symbol] = item.id.split(':');
+
+                    const [prefix, address] = prefixAddress.split('__');
+
+                    const lowerCaseAddress = address.toLowerCase();
+
+                    item.id = `${chain}:${prefix}__${lowerCaseAddress}:${symbol}`;
+                }
+                if (item.address) item.address = item.address.toLowerCase();
+                return item;
+            });
         },
 
         setConfigLoading({ commit }, value) {

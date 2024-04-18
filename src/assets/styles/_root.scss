@@ -2,6 +2,8 @@
     @each $size, $value in $font-sizes {
         --#{$prefix}#{$size}: #{$value};
     }
+
+    --#{$prefix}font-family: #{$font-family};
 }
 
 :root, [data-theme="light"] {

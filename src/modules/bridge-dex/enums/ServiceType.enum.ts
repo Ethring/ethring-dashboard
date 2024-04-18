@@ -1,3 +1,5 @@
+import { ModuleType } from '@/shared/models/enums/modules.enum';
+
 export enum ServiceType {
     'bridgedex' = 'bridgedex',
     'superswap' = 'superswap',
@@ -5,15 +7,6 @@ export enum ServiceType {
 }
 
 export type ServiceTypes = keyof typeof ServiceType;
-
-export enum ModuleType {
-    send = 'send',
-    swap = 'swap',
-    bridge = 'bridge',
-    superSwap = 'superSwap',
-}
-
-export type ModuleTypes = keyof typeof ModuleType;
 
 export const ServiceByModule = {
     [ModuleType.swap]: ServiceType.dex,

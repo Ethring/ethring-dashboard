@@ -1,21 +1,14 @@
-import useNotification from '@/compositions/useNotification';
-
-import { getAllowance, getApproveTx, getSwapTx, getBridgeTx } from '../../../api/services';
-
-import { STATUSES, FINISHED_STATUSES } from '@/shared/models/enums/statuses.enum';
+import { FINISHED_STATUSES, STATUSES } from '@/shared/models/enums/statuses.enum';
+import { getAllowance, getApproveTx, getBridgeTx, getSwapTx } from '../../../api/services';
 
 import { detectUpdateForAccount } from '@/services/track-update-balance/utils';
+import useNotification from '@/compositions/useNotification';
 
 const SUCCESS_CALLBACKS = {
     GET_SWAP_TX: getSwapTx,
     GET_BRIDGE_TX: getBridgeTx,
     GET_ALLOWANCE: getAllowance,
     GET_APPROVE_TX: getApproveTx,
-    // CLEAR_AMOUNTS: ({ store }) => {
-    //     store.dispatch('tokenOps/setReceiverAddress', null);
-    //     store.dispatch('tokenOps/setSrcAmount', null);
-    //     store.dispatch('tokenOps/setDstAmount', null);
-    // },
 };
 
 const NOTIFICATION_TYPE_BY_STATUS = {
@@ -23,7 +16,7 @@ const NOTIFICATION_TYPE_BY_STATUS = {
     [STATUSES.FAILED]: 'error',
 };
 
-const statusNotification = (status, { store, id = null, metaData, txHash, explorerLink, successCallback }) => {
+const statusNotification = (status, { store, id = null, metaData, txHash, displayHash, explorerLink, successCallback, failCallback }) => {
     const { showNotification } = useNotification();
 
     const hashKey = txHash ? `waiting-${txHash}-tx` : `${status}-tx`;
@@ -32,10 +25,11 @@ const statusNotification = (status, { store, id = null, metaData, txHash, explor
     const notificationBody = {
         key: notificationKey,
         type: NOTIFICATION_TYPE_BY_STATUS[status],
-        title: metaData.notificationTitle,
-        description: metaData.notificationDescription,
+        duration: 4,
+        title: metaData.notificationTitle || `Transaction ${status}`,
+        description: metaData.notificationDescription || null,
         duration: 6,
-        progress: true
+        progress: true,
     };
 
     explorerLink && (notificationBody.explorerLink = explorerLink);
@@ -74,7 +68,7 @@ export const handleTransactionStatus = async (transaction, store, event) => {
     }
 
     const { id, metaData, module, status, txHash = '' } = transaction;
-    const { explorerLink, successCallback = null } = metaData || {};
+    const { explorerLink, successCallback = null, failCallback = null } = metaData || {};
 
     if (FINISHED_STATUSES.includes(status)) {
         await store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
@@ -82,7 +76,9 @@ export const handleTransactionStatus = async (transaction, store, event) => {
         await store.dispatch('txManager/setCurrentRequestID', null);
     }
 
-    statusNotification(status, { store, id, metaData, txHash, explorerLink, successCallback });
+    const displayHash = (txHash && txHash.slice(0, 8) + '...' + txHash.slice(-8)) || txHash;
+
+    statusNotification(status, { store, id, metaData, txHash, displayHash, explorerLink, successCallback, failCallback });
 
     return status;
 };

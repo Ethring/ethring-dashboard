@@ -3,6 +3,7 @@
     font-weight: 400;
 
     background: transparent;
+    outline: none;
 
     input {
         color: var(--#{$prefix}primary-text);
@@ -11,10 +12,38 @@
         text-overflow: ellipsis;
     }
 
+    .ant-input-number-input {
+        padding: 0;
+    }
+
     .ant-input[disabled] {
         user-select: none;
         cursor: not-allowed;
         color: var(--#{$prefix}input-disabled-text) !important;
+    }
+}
+
+.mint-count-input input {
+    font-weight: 700 !important;
+}
+
+.editable-amount-input {
+    border: 1px solid var(--#{$prefix}select-border-color);
+    background: transparent;
+    border-radius: 8px;
+    .ant-input-number-input {
+        color: var(--#{$prefix}primary-text);
+        font-family: "Poppins", sans-serif !important;
+        transition: 0.2s ease-in-out;
+        text-overflow: ellipsis;
+    }
+
+    .ant-input-number-group-addon {
+        color: var(--#{$prefix}primary-text);
+
+        .max-balance {
+            cursor: pointer;
+        }
     }
 }
 
@@ -59,6 +88,10 @@
 
 .input-clear-icon {
     width: var(--#{$prefix}h5-fs);
+
+    path {
+        fill: $wildWatermelon;
+    }
 }
 
 //         .input-address {

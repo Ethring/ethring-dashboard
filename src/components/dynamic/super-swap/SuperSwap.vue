@@ -1,8 +1,11 @@
 <template>
     <a-form class="super-swap superswap-panel">
-        <a-row class="panel-control">
-            <div class="reload-btn" :class="{ active: dstAmount && !isQuoteLoading && !isTransactionSigning }"
-                @click="() => getEstimateInfo(true)">
+        <a-row class="panel-control" v-if="!fieldStates.isReload?.hide">
+            <div
+                class="reload-btn"
+                :class="{ active: dstAmount && !isQuoteLoading && !isTransactionSigning }"
+                @click="() => getEstimateInfo(true)"
+            >
                 <SyncOutlined :spin="isQuoteLoading" />
             </div>
             <Slippage />
@@ -10,52 +13,115 @@
 
         <a-form-item class="switch-direction-wrap">
             <a-form-item>
-                <SwapField :value="srcAmount" :label="$t('tokenOperations.from')" :token="selectedSrcToken"
-                    :disabled="isDisableSelect" @setAmount="handleOnSetAmount">
-                    <SelectRecord :placeholder="$t('tokenOperations.selectNetwork')" :current="selectedSrcNetwork"
-                        @click="() => onSelectNetwork(DIRECTIONS.SOURCE)" :disabled="isDisableSelect" />
-                    <SelectRecord :placeholder="$t('tokenOperations.selectToken')" :current="selectedSrcToken"
+                <SwapField
+                    name="srcAmount"
+                    :value="srcAmount"
+                    :label="$t('tokenOperations.from')"
+                    :token="selectedSrcToken"
+                    :disabled="fieldStates.srcAmount.disabled"
+                    @setAmount="handleOnSetAmount"
+                >
+                    <SelectRecord
+                        v-if="!fieldStates.srcNetwork?.hide"
+                        :placeholder="$t('tokenOperations.selectNetwork')"
+                        :current="selectedSrcNetwork"
+                        @click="() => onSelectNetwork(DIRECTIONS.SOURCE)"
+                        :disabled="fieldStates.srcNetwork.disabled"
+                    />
+                    <SelectRecord
+                        v-if="!fieldStates.srcToken?.hide"
+                        :placeholder="$t('tokenOperations.selectToken')"
+                        :current="selectedSrcToken"
                         @click="() => onSelectToken(true, DIRECTIONS.SOURCE)"
-                        :disabled="isDisableSelect || !selectedSrcNetwork" />
+                        :disabled="fieldStates.srcToken.disabled"
+                    />
                 </SwapField>
             </a-form-item>
-            <SwitchDirection icon="SwapIcon" :disabled="isDirectionSwapped ||
-                isQuoteLoading ||
-                isTransactionSigning ||
-                !isSwapDirectionAvailable ||
-                !selectedDstNetwork ||
-                !selectedDstToken
-                " class="switch-direction" @click="() => handleOnSwapDirections(true)" />
+            <SwitchDirection
+                v-if="!fieldStates.switchDirection?.hide"
+                icon="SwapIcon"
+                :disabled="
+                    fieldStates.switchDirection?.disabled ||
+                    isDirectionSwapped ||
+                    isQuoteLoading ||
+                    isTransactionSigning ||
+                    !isSwapDirectionAvailable ||
+                    !selectedDstNetwork ||
+                    !selectedDstToken
+                "
+                class="switch-direction"
+                @click="() => handleOnSwapDirections(true)"
+            />
 
-            <SwapField :label="$t('tokenOperations.to')" :value="dstAmount" :token="selectedDstToken"
-                :isAmountLoading="isQuoteLoading" :percentage="differPercentage" disabled hide-max>
-                <SelectRecord :disabled="isDisableSelect" :placeholder="$t('tokenOperations.selectNetwork')"
-                    :current="selectedDstNetwork" @click="() => onSelectNetwork(DIRECTIONS.DESTINATION)" />
-                <SelectRecord :disabled="isDisableSelect || !selectedDstNetwork"
-                    :placeholder="$t('tokenOperations.selectToken')" :current="selectedDstToken"
-                    @click="() => onSelectToken(false, DIRECTIONS.DESTINATION)" />
+            <SwapField
+                :name="dstAmount"
+                :label="$t('tokenOperations.to')"
+                :value="dstAmount"
+                :token="selectedDstToken"
+                :isAmountLoading="isQuoteLoading"
+                :percentage="differPercentage"
+                :disabled="fieldStates.dstAmount.disabled"
+                hide-max
+            >
+                <SelectRecord
+                    v-if="!fieldStates.dstNetwork?.hide"
+                    :disabled="fieldStates.dstNetwork.disabled"
+                    :placeholder="$t('tokenOperations.selectNetwork')"
+                    :current="selectedDstNetwork"
+                    @click="() => onSelectNetwork(DIRECTIONS.DESTINATION)"
+                />
+                <SelectRecord
+                    v-if="!fieldStates.dstToken?.hide"
+                    :disabled="fieldStates.dstToken.disabled"
+                    :placeholder="$t('tokenOperations.selectToken')"
+                    :current="selectedDstToken"
+                    @click="() => onSelectToken(false, DIRECTIONS.DESTINATION)"
+                />
             </SwapField>
         </a-form-item>
 
-        <Checkbox class="mt-8" v-model:value="isSendToAnotherAddress" :disabled="isDisableCheckbox"
-            :label="$t('tokenOperations.chooseAddress')" />
+        <Checkbox
+            v-if="!fieldStates.isSendToAnotherAddress?.hide && selectedDstToken && selectedDstNetwork && !isSameNetwork"
+            v-model:value="isSendToAnotherAddress"
+            :disabled="isDisableSelect"
+            :label="$t('tokenOperations.chooseAddress')"
+        />
 
-        <SelectAddressInput v-if="isSendToAnotherAddress && selectedDstNetwork" class="mt-8"
-            :selected-network="selectedDstNetwork" :on-reset="isSendToAnotherAddress" :disabled="isDisableSelect"
-            @error-status="(status) => (isAddressError = status)" />
+        <SelectAddressInput
+            v-if="!fieldStates.receiverAddress?.hide && isSendToAnotherAddress && selectedDstNetwork && selectedDstToken"
+            class="mt-8"
+            :selected-network="selectedDstNetwork"
+            :on-reset="isSendToAnotherAddress"
+            :disabled="isDisableSelect"
+            @error-status="(status) => (isAddressError = status)"
+        />
 
-        <EstimatePreviewInfo v-if="isShowEstimateInfo" :is-loading="isQuoteLoading"
-            :fee-in-usd="fees[FEE_TYPE.BASE] || 0" :main-rate="fees[FEE_TYPE.RATE] || null" :services="[selectedRoute]"
-            :is-show-expand="otherRoutes?.length > 0" :error="quoteErrorMessage" :on-click-expand="toggleRoutesModal"
-            :amount="dstAmount" />
+        <EstimatePreviewInfo
+            v-if="isShowEstimateInfo"
+            :is-loading="isQuoteLoading"
+            :fee-in-usd="fees[FEE_TYPE.BASE] || 0"
+            :main-rate="fees[FEE_TYPE.RATE] || null"
+            :services="[selectedRoute]"
+            :is-show-expand="otherRoutes?.length > 0"
+            :error="quoteErrorMessage"
+            :on-click-expand="toggleRoutesModal"
+            :amount="dstAmount"
+        />
 
-        <Button :title="$t(opTitle)" :disabled="isDisableConfirmButton" :tip="$t(opTitle)"
-            :loading="isAllowanceLoading || isTransactionSigning || isSwapLoading" class="module-layout-view-btn"
-            data-qa="confirm" @click="handleOnConfirm" size="large" />
+        <Button
+            :title="$t(opTitle)"
+            :disabled="isDisableConfirmButton"
+            :tip="$t(opTitle)"
+            :loading="isAllowanceLoading || isTransactionSigning || isSwapLoading"
+            class="module-layout-view-btn"
+            data-qa="confirm"
+            @click="handleOnConfirm"
+            size="large"
+        />
     </a-form>
 </template>
 <script>
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, onUpdated, ref, watch, watchEffect } from 'vue';
 import { useStore } from 'vuex';
 
 // Compositions
@@ -77,8 +143,7 @@ import { SyncOutlined } from '@ant-design/icons-vue';
 // Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
-import { ModuleType } from '@/modules/bridge-dex/enums/ServiceType.enum';
-
+import { ModuleType } from '@/shared/models/enums/modules.enum';
 import useInputValidation from '@/shared/form-validations';
 import { differenceInPercentage } from '@/shared/calculations/percentage-diff';
 import { formatNumber } from '@/shared/utils/numbers';
@@ -101,7 +166,7 @@ export default {
         const store = useStore();
 
         const { moduleInstance, isTransactionSigning, isDisableConfirmButton, isDisableSelect, handleOnConfirm } = useModuleOperations(
-            ModuleType.superSwap
+            ModuleType.superSwap,
         );
 
         // =================================================================================================================
@@ -162,6 +227,7 @@ export default {
             handleOnSelectNetwork,
             toggleRoutesModal,
             handleOnSetAmount,
+            fieldStates,
         } = moduleInstance;
 
         const { isSrcAmountSet, isDstTokenSet, isSameNetwork } = useInputValidation();
@@ -206,7 +272,7 @@ export default {
                 }
                 return !servicesHash.value[selectedRoute.value?.serviceId].features_support?.receiver;
             }
-        })
+        });
 
         // =================================================================================================================
 
@@ -224,6 +290,17 @@ export default {
             }
 
             return await getEstimateInfo();
+        });
+
+        watch(isDisableSelect, () => {
+            for (const field of ['srcNetwork', 'dstNetwork', 'srcToken', 'dstToken', 'srcAmount', 'dstAmount']) {
+                store.dispatch('moduleStates/setDisabledField', {
+                    module: ModuleType.superSwap,
+                    field,
+                    attr: 'disabled',
+                    value: isDisableSelect.value,
+                });
+            }
         });
 
         return {
@@ -291,6 +368,8 @@ export default {
 
             isSrcAmountSet,
             isDstTokenSet,
+
+            fieldStates,
         };
     },
 };

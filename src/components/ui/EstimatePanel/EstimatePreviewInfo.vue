@@ -40,7 +40,7 @@
                                 </div>
                             </div>
 
-                            <a-tooltip v-else-if="error && !isLoading" class="error" :title="$t('tokenOperations.noAvailableRoute')">
+                            <a-tooltip v-else-if="error && !isLoading" class="error" :title="!error ? $t('tokenOperations.noAvailableRoute') : error">
                                 <template v-if="error.length <= MAX_LENGTH">
                                     <a-row align="middle" class="route-error">
                                         <RouteIcon />
@@ -414,6 +414,8 @@ export default {
             font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 600;
             margin-right: 10px;
+            width: fit-content;
+            max-width: 100px;
         }
 
         .error {
@@ -423,7 +425,6 @@ export default {
             text-overflow: ellipsis;
             overflow: hidden;
             max-width: 360px;
-
             gap: 8px;
         }
     }

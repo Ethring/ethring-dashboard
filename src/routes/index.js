@@ -1,4 +1,4 @@
-import { ModuleType } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
 
 export const routes = [
     {
@@ -104,8 +104,32 @@ export const routes = [
         },
     },
     {
+        path: '/shortcuts',
+        name: 'Zomet - Shortcuts',
+        meta: {
+            key: 'shortcut',
+        },
+        component: () => import('@/pages/shortcuts/Shortcut.vue'),
+    },
+    {
+        path: '/shortcuts/:id',
+        name: 'Shortcut details',
+        meta: {
+            key: 'shortcuts-details',
+        },
+        component: () => import('@/pages/shortcuts/ShortcutDetails.vue'),
+    },
+    {
+        path: '/shortcuts/profile/:author',
+        name: 'Shortcut Author',
+        meta: {
+            key: 'shortcut-author',
+        },
+        component: () => import('@/pages/shortcuts/ShortcutProfile.vue'),
+    },
+    {
         path: '/:pathMatch(.*)*',
         name: 'Not Found',
-        component: () => import('@/pages/NotFound.vue'),
+        component: () => import('@/pages/general/NotFound.vue'),
     },
 ];

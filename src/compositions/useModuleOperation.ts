@@ -1,56 +1,80 @@
-import _ from 'lodash';
-import { useStore } from 'vuex';
-import { computed, onUnmounted, ref, watch } from 'vue';
-
-import socket from '@/app/modules/socket';
-
-// Compositions
-import useServices from '@/compositions/useServices';
-import useNotification from './useNotification';
-import useAdapter from '@/Adapter/compositions/useAdapter';
-import useTransactions from '@/Transactions/compositions/useTransactions';
-
-// Config
-import { ECOSYSTEMS } from '@/Adapter/config';
-
+import { ITransaction, ITransactionResponse } from '../Transactions/types/Transaction';
+import { SHORTCUT_STATUSES, STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
 // Transaction manager
 import { Transaction, TransactionList } from '@/Transactions/TX-manager';
+import { computed, onUnmounted, ref, watch } from 'vue';
 
-// Types
-import { ModuleType, ServiceType } from '@/modules/bridge-dex/enums/ServiceType.enum';
-import { TxOperationFlow } from '@/shared/models/types/Operations';
-import { TRANSACTION_TYPES, STATUSES } from '@/shared/models/enums/statuses.enum';
-import { ServiceByModule } from '../modules/bridge-dex/enums/ServiceType.enum';
-import { ITransaction } from '../Transactions/types/Transaction';
-import { IBridgeDexTransaction } from '@/modules/bridge-dex/models/Response.interface';
-import { AllQuoteParams, Approve, OwnerAddresses } from '@/modules/bridge-dex/models/Request.type';
 import { AddressByChainHash } from '../shared/models/types/Address';
-import useInputValidation from '@/shared/form-validations';
-
+import { ApproveOperation } from '@/modules/operations/Approve';
+import DexOperation from '@/modules/operations/Dex';
+// Config
+import { ECOSYSTEMS } from '@/Adapter/config';
+import { IBaseOperation } from '@/modules/operations/models/Operations';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
+import MultipleContractExec from '@/modules/operations/MultipleExec';
+import OperationsFactory from '@/modules/operations/OperationsFactory';
+import { OwnerAddresses } from '@/modules/bridge-dex/models/Request.type';
+// Types
+import { ServiceType } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import TransferOperation from '@/modules/operations/Transfer';
+import { TxOperationFlow } from '@/shared/models/types/Operations';
+import _ from 'lodash';
 import { delay } from '@/shared/utils/helpers';
-
-import { cutAddress } from '@/shared/utils/address';
+import socket from '@/app/modules/socket';
+import useAdapter from '@/Adapter/compositions/useAdapter';
+import useInputValidation from '@/shared/form-validations';
+// Compositions
+import useNotification from '@/compositions/useNotification';
+import useServices from '@/compositions/useServices';
+import { useStore } from 'vuex';
+import useTransactions from '@/Transactions/compositions/useTransactions.js';
 
 const useModuleOperations = (module: ModuleType) => {
-    const { walletAddress, currentChainInfo, setChain, connectByEcosystems, getChainByChainId } = useAdapter();
-
     const store = useStore();
 
-    const isTransactionSigning = ref(false);
+    const currentModule = ref(module);
 
+    const isForceCallConfirm = computed({
+        get: () => store.getters['tokenOps/isForceCallConfirm'](currentModule.value),
+        set: (value) =>
+            store.dispatch('tokenOps/setCallConfirm', {
+                module: currentModule.value,
+                value,
+            }),
+    });
+
+    const isTransactionSigning = computed({
+        get: () => store.getters['txManager/isTransactionSigning'],
+        set: (value) => store.dispatch('txManager/setTransactionSigning', value),
+    });
+
+    // *************************** MODULE COMPOSITIONS ***************************
+
+    // ===============================================================================================
+    // * Adapter
+    // ===============================================================================================
+
+    const { walletAddress, currentChainInfo, setChain, connectByEcosystems, getChainByChainId, getConnectedStatus, switchEcosystem } =
+        useAdapter();
+
+    // ===============================================================================================
+    // * Notification
+    // ===============================================================================================
     const { showNotification, closeNotification } = useNotification();
 
+    // ===============================================================================================
     // * Module values
-    const moduleInstance = useServices(module);
+    // ===============================================================================================
+    const moduleInstance = useServices(currentModule.value);
 
     const {
         isNeedApprove,
         isAllowanceLoading,
-        isBalanceError,
         isQuoteLoading,
         isLoading,
         isSendWithMemo,
         isMemoAllowed,
+        isBalanceError,
 
         isEstimating,
         isSendToAnotherAddress,
@@ -65,20 +89,19 @@ const useModuleOperations = (module: ModuleType) => {
         srcAmount,
         dstAmount,
 
-        selectedRoute,
         memo,
+
+        selectedRoute,
         receiverAddress,
+        contractAddress,
+        contractCallCount,
         slippage,
-
-        makeApproveRequest,
-        makeSwapRequest,
-        clearAllowance,
-
         opTitle,
     } = moduleInstance;
 
     const { signAndSend } = useTransactions();
 
+    // * Input validation composition helpers
     const {
         isSameNetwork,
         isSrcTokenChainCorrect,
@@ -92,22 +115,54 @@ const useModuleOperations = (module: ModuleType) => {
         isDstAddressesEmpty,
     } = useInputValidation();
 
-    const currentServiceType = computed(() => {
-        if (selectedSrcNetwork.value?.ecosystem === ECOSYSTEMS.COSMOS) {
-            return ServiceType.bridgedex;
-        }
+    // const currentServiceType = computed(() => {
+    //     if (selectedSrcNetwork.value?.ecosystem === ECOSYSTEMS.COSMOS) return ServiceType.bridgedex;
 
-        if (isSameNetwork.value) {
-            return ServiceType.dex;
-        }
+    //     if (isSameNetwork.value) return ServiceType.dex;
 
-        return ServiceType[ServiceByModule[module]];
+    //     return ServiceType[ServiceByModule[module]];
+    // });
+
+    // ************************************** SHORTCUTS **************************************
+
+    // ===============================================================================================
+    // * Current shortcut
+    // ===============================================================================================
+
+    const currentShortcutId = computed(() => store.getters['shortcuts/getCurrentShortcutId']);
+    const currentStepId = computed(() => store.getters['shortcuts/getCurrentStepId']);
+    const firstOp = ref({} as IBaseOperation);
+
+    // ===============================================================================================
+    // * Shortcut operations
+    // ===============================================================================================
+    const shortcutOps = computed<OperationsFactory>(() => store.getters['shortcuts/getShortcutOpsFactory'](currentShortcutId.value));
+
+    const setShortcutStatus = (status: SHORTCUT_STATUSES): void => {
+        if (!shortcutOps.value) return;
+        if (!currentShortcutId.value) return;
+
+        store.dispatch('shortcuts/setShortcutStatus', {
+            status,
+            shortcutId: currentShortcutId.value,
+        });
+    };
+
+    // ===============================================================================================
+    // * Shortcut Module type
+    // ===============================================================================================
+    watch(shortcutOps, (value) => {
+        if (!value) return;
+
+        module = ModuleType.shortcut;
+        currentModule.value = ModuleType.shortcut;
     });
+
+    // *************************************** WALLET ADDRESSES ***************************************
 
     // ===============================================================================================
     // * Addresses with chains by ecosystem
     // ===============================================================================================
-
     const srcAddressByChain = computed<AddressByChainHash>(() => {
         const { ecosystem: srcEcosystem } = selectedSrcNetwork.value || {};
         if (!srcEcosystem) return {};
@@ -124,12 +179,11 @@ const useModuleOperations = (module: ModuleType) => {
         const { ecosystem: srcEcosystem } = selectedSrcNetwork.value || {};
         const { ecosystem: dstEcosystem } = selectedDstNetwork.value || {};
 
-        if (srcEcosystem !== dstEcosystem) {
+        if (srcEcosystem !== dstEcosystem)
             return {
                 ...srcAddressByChain.value,
                 ...dstAddressByChain.value,
             };
-        }
 
         return srcAddressByChain.value;
     });
@@ -137,9 +191,12 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
     // * Check if need to connect
     // ===============================================================================================
+    // ===============================================================================================
+    // * Connect by ecosystem
+    // ===============================================================================================
 
     const ecosystemToConnect = computed(() => {
-        const isSuperSwap = module === ModuleType.superSwap;
+        const isSuperSwap = [ModuleType.superSwap, ModuleType.shortcut].includes(currentModule.value);
 
         // ! If not super swap, return
         if (!isSuperSwap) return;
@@ -150,265 +207,27 @@ const useModuleOperations = (module: ModuleType) => {
         const isSrcEmpty = isSuperSwap && isSrcAddressesEmpty.value;
         const isDstEmpty = isSuperSwap && isDstAddressesEmpty.value;
 
-        if (isSrcEmpty || isDstEmpty) {
-            return isSrcEmpty ? srcEcosystem : dstEcosystem;
-        }
+        if (isSrcEmpty || isDstEmpty) return isSrcEmpty ? srcEcosystem : dstEcosystem;
 
         opTitle.value = 'tokenOperations.confirm';
 
         return null;
     });
 
-    // ===============================================================================================
-    // * Operation actions by transaction type
-    // ===============================================================================================
-    const OP_ACTIONS = {
-        [TRANSACTION_TYPES.APPROVE]: 'formatTransactionForSign',
-        [TRANSACTION_TYPES.DEX]: 'formatTransactionForSign',
-        [TRANSACTION_TYPES.SWAP]: 'formatTransactionForSign',
-        [TRANSACTION_TYPES.SEND]: 'prepareTransaction',
-    };
-
-    // ===============================================================================================
-    // * Operation flow for the module
-    // ===============================================================================================
-
-    const getOperationFlow = (): TxOperationFlow[] => {
-        const flow: TxOperationFlow[] = [];
-
-        if (isNeedApprove.value) {
-            flow.push({
-                type: TRANSACTION_TYPES.APPROVE,
-                make: TRANSACTION_TYPES.APPROVE,
-                index: flow.length,
-            });
-        }
-
-        const flowTransfer = {
-            type: TRANSACTION_TYPES.SEND,
-            make: TRANSACTION_TYPES.SEND,
-            index: flow.length,
-        };
-
-        const flowDex = {
-            type: TRANSACTION_TYPES.DEX,
-            make: TRANSACTION_TYPES.SWAP,
-            index: flow.length,
-        };
-
-        const flowBridge = {
-            type: TRANSACTION_TYPES.DEX,
-            make: TRANSACTION_TYPES.BRIDGE,
-            index: flow.length,
-        };
-
-        switch (module) {
-            case ModuleType.send:
-                flow.push(flowTransfer);
-                break;
-            case ModuleType.swap:
-                flow.push(flowDex);
-                break;
-            case ModuleType.bridge:
-                flow.push(flowBridge);
-                break;
-
-            case ModuleType.superSwap:
-                isSameNetwork.value && flow.push(flowDex);
-                !isSameNetwork.value && flow.push(flowBridge);
-                break;
-            default:
-                break;
-        }
-
-        // Flow with all available operations, and in the order of execution
-        const ops = flow
-            .map((step, i) => {
-                return `${step.index}: ${step.type}`;
-            })
-            .join(' -> ');
-
-        console.log('----- Operation flow START -----');
-        console.log(ops);
-        console.log('----- Operation flow END -----\n\n');
-
-        // Flow with all available operations, and in the order of execution
-        return flow;
-    };
-
-    // ===============================================================================================
-    // * Operations - Prepare transaction
-    // ===============================================================================================
-
-    const prepare = (index: number, type: string, make: string) => {
-        const params = {
-            net: selectedSrcNetwork.value.net,
-            fromNet: selectedSrcNetwork.value.net,
-            toNet: selectedDstNetwork.value?.net,
-            fromToken: selectedSrcToken.value?.address,
-            toToken: selectedDstToken.value?.address,
-            ownerAddresses: addressByChain.value as OwnerAddresses,
-            amount: srcAmount.value,
-            slippageTolerance: slippage.value
-        } as AllQuoteParams;
-
-        const TARGET_TYPE = TRANSACTION_TYPES[type];
-
-        let notificationTitle = `${make} ${srcAmount.value} ${selectedSrcToken.value?.symbol || ''}`;
-        let notificationDescription = 'Please wait, transaction is preparing';
-
-        if ([TRANSACTION_TYPES.DEX, TRANSACTION_TYPES.SWAP, TRANSACTION_TYPES.BRIDGE].includes(TARGET_TYPE)) {
-            notificationDescription = ` to ~${dstAmount.value} ${selectedDstToken.value?.symbol || ''}`;
-        }
-
-        if ([TRANSACTION_TYPES.SEND].includes(TARGET_TYPE)) {
-            notificationDescription = ` To ${cutAddress(receiverAddress.value)}`;
-        }
-
-        return {
-            index,
-            module,
-            account: addressByChain.value[selectedSrcNetwork.value.net],
-
-            status: index === 0 ? STATUSES.IN_PROGRESS : STATUSES.PENDING,
-
-            ecosystem: selectedSrcNetwork.value.ecosystem.toUpperCase(),
-
-            chainId: `${selectedSrcNetwork.value?.chain_id}`,
-
-            metaData: {
-                action: OP_ACTIONS[TARGET_TYPE],
-                type: TARGET_TYPE,
-                params: {
-                    ...params,
-                    receiverAddress: receiverAddress.value,
-                    memo: memo.value,
-                    dstAmount: dstAmount.value,
-                    tokens: {
-                        from: selectedSrcToken.value,
-                        to: selectedDstToken.value,
-                    },
-                },
-                notificationTitle,
-                notificationDescription,
-            },
-        };
-    };
-
-    // ===============================================================================================
-    // * Operations - Transaction parameters
-    // ===============================================================================================
-
-    const TX_PARAMS_BY_TYPE = {
-        [TRANSACTION_TYPES.APPROVE]: async (): Promise<IBridgeDexTransaction> => {
-            const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
-
-            const params: Approve = {
-                net: selectedSrcNetwork.value.net,
-                tokenAddress: selectedSrcToken.value.address,
-                ownerAddress,
-                amount: srcAmount.value,
-            };
-
-            const responseApprove: IBridgeDexTransaction[] = await makeApproveRequest(selectedRoute.value.serviceId, params);
-
-            const [tx] = responseApprove;
-
-            return tx;
-        },
-        [TRANSACTION_TYPES.DEX]: async (): Promise<IBridgeDexTransaction> => {
-            const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
-
-            const params = {
-                net: selectedSrcNetwork.value.net,
-                fromNet: selectedSrcNetwork.value.net,
-                toNet: selectedDstNetwork.value?.net || selectedSrcNetwork.value.net,
-
-                fromToken: selectedSrcToken.value.address,
-                toToken: selectedDstToken.value.address,
-
-                ownerAddresses: addressByChain.value as OwnerAddresses,
-                receiverAddress: { [selectedDstNetwork.value?.net || selectedSrcNetwork.value.net]: receiverAddress.value || ownerAddress },
-                amount: srcAmount.value,
-                slippageTolerance: slippage.value
-            } as AllQuoteParams;
-
-            // * Bridge transaction, add receiver address to ownerAddresses
-            if (isSendToAnotherAddress.value && receiverAddress.value && selectedRoute.value.serviceId === 'skip') {
-                params.ownerAddresses = {
-                    ...addressByChain.value,
-                    [selectedDstNetwork.value?.net || selectedSrcNetwork.value.net]: receiverAddress.value,
-                };
-            }
-
-            const responseSwap = await makeSwapRequest(selectedRoute.value.serviceId, params, { toType: currentServiceType.value });
-
-            const [tx] = responseSwap;
-
-            return tx;
-        },
-        [TRANSACTION_TYPES.SEND]: async (): Promise<IBridgeDexTransaction> => {
-            const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
-
-            const params = {
-                toAddress: receiverAddress.value,
-                amount: srcAmount.value,
-                token: selectedSrcToken.value,
-                fromAddress: ownerAddress,
-                memo: '',
-            };
-
-            if (isMemoAllowed && memo.value) {
-                params.memo = memo.value;
-            }
-
-            return {
-                ecosystem: selectedSrcNetwork.value.ecosystem,
-                transaction: params,
-            };
-        },
-    };
-
-    // ===============================================================================================
-    // * Operations - On success by transaction type
-    // ===============================================================================================
-
-    const ON_SUCCESS_BY_TYPE = {
-        [TRANSACTION_TYPES.APPROVE]: async () => {
-            console.log('Approve success', 'Update allowance');
-
-            await clearAllowance(selectedRoute.value.serviceId, {
-                net: selectedSrcNetwork.value.net,
-                tokenAddress: selectedSrcToken.value.address,
-                ownerAddress: walletAddress.value,
-            });
-        },
-        [TRANSACTION_TYPES.DEX]: () => {
-            console.log('Swap success', 'Update balance');
-        },
-        [TRANSACTION_TYPES.SEND]: () => {
-            console.log('Transfer success', 'Update balance');
-        },
-    };
-
-    // ===============================================================================================
-    // * Connect by ecosystem
-    // ===============================================================================================
-
     const connectWalletByEcosystem = async (ecosystem: string) => {
-        await connectByEcosystems(ecosystem);
+        return await connectByEcosystems(ecosystem);
     };
 
     // ===============================================================================================
     // * Handle on cancel by timeout
     // ===============================================================================================
 
-    const handleOnCancel = async (tx: Transaction) => {
+    const handleOnCancel = (tx: Transaction) => {
         console.log('useModuleOperations -> handleOnCancel');
         closeNotification(`tx-${tx.getTxId()}`);
-
         store.dispatch('txManager/setTxTimerID', null);
         store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
+        isTransactionSigning.value = false;
 
         showNotification({
             key: 'tx-error',
@@ -416,195 +235,736 @@ const useModuleOperations = (module: ModuleType) => {
             title: 'Transaction canceled',
             description: 'Your transaction has been canceled because the response from the node took too long. Please try again.',
             duration: 6,
-            progress: true
+            progress: true,
         });
-    }
+    };
+
+    // ***********************************************************************************************
+
+    // ===============================================================================================
+    // * Check wallet connected by ecosystem and chain
+    // ===============================================================================================
+    const checkWalletConnected = async (tx: Transaction): Promise<boolean> => {
+        console.debug('-'.repeat(10), 'TX ECOSYSTEM CHECK', '-'.repeat(10), '\n');
+
+        console.debug('Current ecosystem:', currentChainInfo.value?.ecosystem);
+        console.debug('Current chain:', currentChainInfo.value?.chain_id);
+
+        const isEcosystemEqual = () => _.isEqual(currentChainInfo.value?.ecosystem, tx.getEcosystem());
+
+        const isChainsEqual = () => {
+            const { ecosystem, chain_id = '' } = currentChainInfo.value || {};
+
+            if ([ECOSYSTEMS.EVM].includes(ecosystem) && typeof chain_id === 'string' && _.startsWith(chain_id, '0x'))
+                return _.isEqual(`${+chain_id}`, +tx.getChainId());
+
+            return _.isEqual(`${chain_id}`, tx.getChainId());
+        };
+
+        const isEverythingCorrect = () => {
+            const isOk = isEcosystemEqual() && isChainsEqual();
+
+            isOk && console.debug('Ecosystem and chain is correct');
+
+            return isOk;
+        };
+
+        const generateError = (): string => {
+            const ecosystemError = `Ecosystem is not correct, expected ${tx.getEcosystem()}, got ${currentChainInfo.value?.ecosystem}`;
+            const chainError = `Chain is not correct, expected ${tx.getChainId()}, got ${currentChainInfo.value?.chain_id}`;
+
+            let errorMessage = '';
+
+            if (!isEcosystemEqual()) errorMessage += ecosystemError + '\n';
+            if (!isChainsEqual()) errorMessage += chainError + '\n';
+
+            return errorMessage;
+        };
+
+        const METHODS = {
+            ECOSYSTEM_NOT_CONNECT: 'ECOSYSTEM_NOT_CONNECT',
+            ECOSYSTEM_CONNECTED_NOT_CORRECT: 'ECOSYSTEM_CONNECTED_NOT_CORRECT',
+            ECOSYSTEM_CONNECTED_CHAIN_NOT_CORRECT: 'ECOSYSTEM_CONNECTED_CHAIN_NOT_CORRECT',
+        };
+
+        const FLOW_METHODS = {
+            [METHODS.ECOSYSTEM_NOT_CONNECT]: async () => {
+                console.debug('Ecosystem is not connected, try to connect', tx.getEcosystem(), 'wallet');
+                await connectByEcosystems(tx.getEcosystem());
+            },
+            [METHODS.ECOSYSTEM_CONNECTED_NOT_CORRECT]: async () => {
+                console.debug('Ecosystem is connected, but not correct, try to switch', tx.getEcosystem());
+                await switchEcosystem(tx.getEcosystem());
+                await delay(500); // ! Wait for ecosystem switch
+            },
+            [METHODS.ECOSYSTEM_CONNECTED_CHAIN_NOT_CORRECT]: async () => {
+                console.debug('Ecosystem is connected, but chain is not correct, try to switch', tx.getChainId());
+                const chainInfo = getChainByChainId(tx.getEcosystem(), tx.getChainId());
+                const changed = await setChain(chainInfo);
+                await delay(1200); // ! Wait for chain switch
+                if (!changed) throw new Error(generateError());
+            },
+        };
+
+        const FLOW_CONDITIONS = {
+            [METHODS.ECOSYSTEM_NOT_CONNECT]: () => !isEcosystemEqual(),
+            [METHODS.ECOSYSTEM_CONNECTED_NOT_CORRECT]: () => getConnectedStatus(tx.getEcosystem()) && !isEcosystemEqual(),
+            [METHODS.ECOSYSTEM_CONNECTED_CHAIN_NOT_CORRECT]: () => isEcosystemEqual() && !isChainsEqual(),
+        };
+
+        const isEVM = tx.getEcosystem() === ECOSYSTEMS.EVM;
+
+        const SHORTCUT_FLOW = [];
+
+        if (isEVM) {
+            SHORTCUT_FLOW.push(METHODS.ECOSYSTEM_NOT_CONNECT);
+            SHORTCUT_FLOW.push(METHODS.ECOSYSTEM_CONNECTED_NOT_CORRECT);
+            SHORTCUT_FLOW.push(METHODS.ECOSYSTEM_CONNECTED_CHAIN_NOT_CORRECT);
+        } else {
+            SHORTCUT_FLOW.push(METHODS.ECOSYSTEM_CONNECTED_NOT_CORRECT);
+            SHORTCUT_FLOW.push(METHODS.ECOSYSTEM_NOT_CONNECT);
+            SHORTCUT_FLOW.push(METHODS.ECOSYSTEM_CONNECTED_CHAIN_NOT_CORRECT);
+        }
+
+        const DEFAULT_FLOW = [
+            METHODS.ECOSYSTEM_CONNECTED_NOT_CORRECT,
+            METHODS.ECOSYSTEM_NOT_CONNECT,
+            METHODS.ECOSYSTEM_CONNECTED_CHAIN_NOT_CORRECT,
+        ];
+
+        const validationFlow = isShortcutOpsExist() ? SHORTCUT_FLOW : DEFAULT_FLOW;
+
+        try {
+            // * START: Check if wallet chain is correct, if correct, skip
+            if (isEverythingCorrect()) return true;
+
+            for (const method of validationFlow) {
+                if (FLOW_CONDITIONS[method]()) await FLOW_METHODS[method]();
+                await delay(500); // ! Wait before next check
+            }
+
+            // * END: If ecosystem and chain is correct, return or throw error
+            if (isEverythingCorrect()) return true;
+            throw new Error(generateError());
+        } catch (error) {
+            console.error('useModuleOperations -> checkWalletConnected -> error', error);
+            closeNotification(`tx-${tx.getTxId()}`);
+            throw error;
+        } finally {
+            console.debug('-'.repeat(20));
+
+            console.debug('Current ecosystem:', currentChainInfo.value?.ecosystem);
+            console.debug('Current chain:', currentChainInfo.value?.chain_id);
+
+            console.debug('-'.repeat(10), 'TX ECOSYSTEM CHECK - DONE', '-'.repeat(10), '\n');
+        }
+    };
+
+    // ************************************** OPERATIONS **************************************
+
+    const createOpsByModule = () => {
+        const ops = new OperationsFactory();
+
+        if (isNeedApprove.value) {
+            ops.registerOperation(module, ApproveOperation);
+
+            ops.setParams(module, 0, {
+                net: selectedSrcNetwork.value?.net,
+                tokenAddress: selectedSrcToken.value?.address,
+                ownerAddress: srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value,
+                amount: srcAmount.value,
+                serviceId: selectedRoute.value.serviceId,
+            });
+
+            ops.getOperationByKey(`${module}_0`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
+            ops.getOperationByKey(`${module}_0`).setChainId(selectedSrcNetwork.value?.chain_id);
+            ops.getOperationByKey(`${module}_0`).setAccount(srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value);
+
+            ops.getOperationByKey(`${module}_0`).setToken('from', selectedSrcToken.value);
+        }
+
+        const account = srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value;
+
+        switch (module) {
+            case ModuleType.stake:
+            case ModuleType.send:
+                ops.registerOperation(module, TransferOperation);
+
+                ops.setParams(module, 0, {
+                    net: selectedSrcNetwork.value?.net,
+                    fromNet: selectedSrcNetwork.value?.net,
+                    toNet: selectedDstNetwork.value?.net,
+                    fromToken: selectedSrcToken.value?.address,
+                    toToken: selectedDstToken.value?.address,
+                    ownerAddresses: addressByChain.value as OwnerAddresses,
+                    amount: srcAmount.value,
+                    receiverAddress: receiverAddress.value,
+                    memo: memo.value,
+                    type: null,
+                });
+
+                ops.getOperationByKey(`${module}_0`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
+                ops.getOperationByKey(`${module}_0`).setChainId(selectedSrcNetwork.value?.chain_id);
+                ops.getOperationByKey(`${module}_0`).setAccount(account);
+
+                ops.getOperationByKey(`${module}_0`).setToken('from', selectedSrcToken.value);
+                ops.getOperationByKey(`${module}_0`).setToken('to', selectedDstToken.value);
+
+                break;
+
+            case ModuleType.swap:
+            case ModuleType.superSwap:
+            case ModuleType.bridge:
+                const index = isNeedApprove.value ? 1 : 0;
+                const type = isSameNetwork.value ? ServiceType.dex : ServiceType.bridgedex;
+                const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
+
+                ops.registerOperation(module, DexOperation);
+
+                const params = {
+                    net: selectedSrcNetwork.value?.net,
+                    fromNet: selectedSrcNetwork.value?.net,
+                    toNet: ModuleType.swap === module ? selectedSrcNetwork.value?.net : selectedDstNetwork.value?.net,
+                    fromToken: selectedSrcToken.value?.address,
+                    toToken: selectedDstToken.value?.address,
+                    ownerAddresses: addressByChain.value as OwnerAddresses,
+                    amount: srcAmount.value,
+                    outputAmount: dstAmount.value,
+                    memo: memo.value,
+                    serviceId: selectedRoute.value.serviceId,
+                    type,
+                    slippageTolerance: slippage.value,
+                    receiverAddress: receiverAddress.value,
+                };
+
+                if (isSendToAnotherAddress.value && receiverAddress.value && selectedRoute.value.serviceId === 'skip') {
+                    params.ownerAddresses = {
+                        ...addressByChain.value,
+                        [selectedDstNetwork.value?.net || selectedSrcNetwork.value.net]: receiverAddress.value,
+                    };
+                } else {
+                    let receiverAddressValue = addressByChain.value[selectedDstNetwork.value?.net || selectedSrcNetwork.value.net];
+
+                    params.receiverAddress = {
+                        [selectedDstNetwork.value?.net || selectedSrcNetwork.value.net]: receiverAddress.value || receiverAddressValue,
+                    };
+                }
+
+                ops.setParams(module, index, params);
+
+                ops.getOperationByKey(`${module}_${index}`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
+                ops.getOperationByKey(`${module}_${index}`).setChainId(selectedSrcNetwork.value?.chain_id);
+                ops.getOperationByKey(`${module}_${index}`).setAccount(account);
+                selectedSrcToken.value && ops.getOperationByKey(`${module}_${index}`).setToken('from', selectedSrcToken.value);
+                selectedDstToken.value && ops.getOperationByKey(`${module}_${index}`).setToken('to', selectedDstToken.value);
+
+                break;
+
+            case ModuleType.nft:
+                ops.registerOperation(module, MultipleContractExec);
+
+                ops.setParams(module, 0, {
+                    net: selectedSrcNetwork.value?.net,
+                    fromNet: selectedSrcNetwork.value?.net,
+                    fromToken: selectedSrcToken.value?.address,
+                    ownerAddresses: addressByChain.value as OwnerAddresses,
+                    amount: srcAmount.value,
+                    contract: contractAddress.value,
+                    count: contractCallCount.value,
+                    type: null,
+                });
+
+                ops.getOperationByKey(`${module}_0`).setParamByField('contract', contractAddress.value);
+                ops.getOperationByKey(`${module}_0`).setParamByField('count', contractCallCount.value);
+
+                ops.getOperationByKey(`${module}_0`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
+                ops.getOperationByKey(`${module}_0`).setChainId(selectedSrcNetwork.value?.chain_id);
+                ops.getOperationByKey(`${module}_0`).setAccount(account);
+
+                ops.getOperationByKey(`${module}_0`).setToken('from', selectedSrcToken.value);
+                ops.getOperationByKey(`${module}_0`).setToken('to', selectedDstToken.value);
+
+                break;
+
+            default:
+                break;
+        }
+
+        return ops;
+    };
+
+    const isShortcutOpsExist = () => shortcutOps.value && typeof shortcutOps.value.getFullOperationFlow === 'function';
+
+    const getOperations = (): OperationsFactory => {
+        // * If shortcut operations exist, return it
+        if (isShortcutOpsExist()) return shortcutOps.value;
+
+        // * if not, create new operations
+        return createOpsByModule();
+    };
+
+    const initTransactionsGroupForOps = async (operations: OperationsFactory): Promise<TransactionList> => {
+        const firstInGroup = operations.getFirstOperation();
+
+        const group = {
+            index: 0,
+            ecosystem: firstInGroup.getEcosystem(),
+            chainId: firstInGroup.getChainId(),
+            account: firstInGroup.getAccount(),
+            module: firstInGroup.getModule(),
+        };
+
+        const txManager = new TransactionList(socket.getSocket(), store);
+
+        try {
+            await txManager.createTransactionGroup(group as ITransaction);
+
+            return txManager;
+        } catch (error) {
+            console.error('initTransactionsGroupForOps -> error', error);
+            throw error;
+        }
+    };
+
+    const insertOrPassApproveOp = (operations: OperationsFactory): void => {
+        if (!isNeedApprove.value) return;
+
+        const firstOpKeyByOrder = operations.getFirstOperationByOrder();
+
+        const firstInGroup = operations.getOperationByKey(firstOpKeyByOrder);
+
+        if (firstInGroup.transactionType === TRANSACTION_TYPES.APPROVE) return;
+
+        const beforeId = firstInGroup.getUniqueId();
+
+        firstOp.value = firstInGroup;
+
+        const { key } =
+            operations.registerOperation(module, ApproveOperation, {
+                before: beforeId,
+            }) || {};
+
+        const approveOperation = operations.getOperationByKey(key as string);
+
+        approveOperation.setParams({
+            net: selectedSrcNetwork.value?.net,
+            tokenAddress: selectedSrcToken.value?.address,
+            ownerAddress: srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value,
+            amount: srcAmount.value,
+            serviceId: selectedRoute.value.serviceId,
+        });
+
+        approveOperation.setEcosystem(selectedSrcNetwork.value?.ecosystem);
+        approveOperation.setChainId(selectedSrcNetwork.value?.chain_id);
+        approveOperation.setAccount(srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value);
+        selectedSrcToken.value && approveOperation.setToken('from', selectedSrcToken.value);
+    };
+
+    const updateOperationStatus = (
+        status: STATUSES,
+        {
+            moduleIndex,
+            operationId,
+            hash,
+        }: {
+            moduleIndex: string;
+            operationId?: string;
+            hash?: string;
+        },
+    ): void => {
+        const operations = getOperations();
+
+        const firstOpKeyByOrder = operations.getFirstOperationByOrder();
+        const firstInGroupByOrder = operations.getOperationByKey(firstOpKeyByOrder);
+        const firstInGroup = operations.getFirstOperation();
+
+        if (!operations || !status || !moduleIndex) {
+            console.warn('updateOperationStatus -> Error: Missing params', { operations, status, moduleIndex });
+            return;
+        }
+
+        if ((operationId && !operations.getOperationById(operationId)) || !operations.getOperationByKey(moduleIndex)) {
+            console.warn('Operation not found by id/key', moduleIndex, operationId);
+            return;
+        }
+
+        if (hash) operations.getOperationByKey(moduleIndex).setParamByField('txHash', hash);
+
+        if (firstInGroupByOrder.getUniqueId() === moduleIndex) operations.setOperationStatusByKey(firstInGroup.getUniqueId(), status);
+
+        if (operationId) return operations.setOperationStatusById(operationId, status);
+
+        operations.setOperationStatusByKey(moduleIndex, status);
+    };
+
+    const setupWorkerForTx = (tx: Transaction) => {
+        if (!tx) {
+            console.warn('Transaction not found fo "tx timer worker"');
+            return;
+        }
+
+        const worker = store.getters['txManager/txTimerWorker'];
+
+        if (!worker) {
+            console.warn('Tx timer worker not found');
+            return;
+        }
+
+        worker.postMessage('start_timer');
+
+        worker.onmessage = function (event: MessageEvent) {
+            if (!event.data) return;
+
+            const { timerID } = event.data || {};
+
+            if (timerID) store.dispatch('txManager/setTxTimerID', timerID);
+            if (event.data === 'timer_expired') handleOnCancel(tx);
+        };
+    };
+
+    const processTxOperation = (
+        txManager: TransactionList,
+        operations: OperationsFactory,
+        { flow, flowCount }: { flow: TxOperationFlow; flowCount: number },
+    ): void => {
+        const { index, type, make, moduleIndex, operationId } = flow;
+
+        const checkOpIsExist = (): boolean => {
+            if (!operations.getOperationByKey(moduleIndex)) return false;
+
+            return true;
+        };
+
+        // Check if operation already success
+        // If operation already success, skip
+        if (operations.getOperationsStatusByKey(moduleIndex) === STATUSES.SUCCESS) {
+            console.log('Operation already success, skip', moduleIndex);
+            return;
+        }
+
+        // Create transaction instance
+        const txInstance = new Transaction(type);
+
+        // if is first transaction in group, set transaction id
+        if (index === 0) txInstance.setId(txManager.getFirstTxId());
+
+        // Set request ID for transaction
+        txInstance.setRequestID(txManager.getRequestId());
+
+        const isParamsEqual = () => {
+            const { fromNet, toNet, fromToken, toToken } = operations.getOperationByKey(moduleIndex).getParams();
+
+            if (!fromNet || !toNet || !fromToken || !toToken) return false;
+
+            const isNetEq = fromNet === toNet;
+
+            const isTokenEq = fromToken === toToken;
+
+            return isNetEq && isTokenEq;
+        };
+
+        if (isParamsEqual()) {
+            console.log('Params are equal, skip prepare', moduleIndex);
+            return updateOperationStatus(STATUSES.SUCCESS, { moduleIndex, operationId });
+        }
+
+        // ===============================================================================================
+        // * #1 - PREPARE TRANSACTION - function which describe how transaction should be prepared
+        // ===============================================================================================
+        txInstance.prepare = async () => {
+            console.debug('-'.repeat(10), 'TX PREPARE', '-'.repeat(10), '\n\n');
+
+            updateOperationStatus(STATUSES.IN_PROGRESS, { moduleIndex, operationId });
+
+            if (!checkOpIsExist()) return;
+
+            const operation = operations.getOperationByKey(moduleIndex);
+
+            operation.setParamByField('startTime', Number(new Date()));
+
+            if (!operation || !operation.perform) {
+                console.warn('Operation not found or perform function not implemented', moduleIndex);
+                throw new Error('Operation not found or perform function not implemented');
+            }
+
+            const prepared = operation.perform(index as number, operation.getAccount(), operation.getEcosystem(), operation.getChainId(), {
+                make,
+            });
+
+            try {
+                setupWorkerForTx(txInstance);
+            } catch (error) {
+                console.error('useModuleOperations -> prepare -> setupWorkerForTx -> error', error);
+            }
+
+            try {
+                const transaction = await txManager.addTransactionToGroup(index as number, prepared); // * Add or create transaction
+
+                if (!transaction) {
+                    console.error('Transaction not added to group', index, type, moduleIndex);
+                    return;
+                }
+
+                if (index === 0) {
+                    const toSave = { ...txInstance.getTransaction(), ...prepared, id: transaction.id } as ITransactionResponse;
+                    txInstance.setTransaction(toSave);
+                } else {
+                    txInstance.setId(transaction.id as string);
+                    txInstance.setTransaction(transaction);
+                }
+
+                // Notification Block
+
+                const { metaData } = txInstance.getTransaction() || ({} as ITransactionResponse);
+                const { notificationTitle, notificationDescription } = metaData || {};
+
+                // * Show notification
+                showNotification({
+                    key: `tx-${txInstance.getTxId()}`,
+                    type: 'info',
+                    title: notificationTitle,
+                    description: notificationDescription || '',
+                    duration: 0,
+                    prepare: true,
+                });
+            } catch (error) {
+                console.error('useModuleOperations -> prepare -> error', error);
+                throw error;
+            }
+        };
+
+        // ===============================================================================================
+        // * #2 - PREPARE EXECUTE PARAMETERS - function which describe how transaction should have parameters
+        // ===============================================================================================
+        txInstance.setTxExecuteParameters = async () => {
+            if (!checkOpIsExist()) return;
+
+            console.debug('-'.repeat(10), 'TX EXECUTE PARAMS', '-'.repeat(10), '\n\n');
+
+            const operation = operations.getOperationByKey(moduleIndex);
+
+            try {
+                if ((operation && !operation.performTx) || typeof operation.performTx !== 'function')
+                    throw new Error('Operation performTx function not implemented');
+
+                const { transaction, ecosystem } = await operation.performTx(operation.getEcosystem(), {
+                    serviceId: operation.getParamByField('serviceId'),
+                });
+
+                txInstance.setTransaction({
+                    ...(txInstance.transaction as ITransactionResponse),
+                    parameters: transaction || {},
+                });
+
+                txInstance.setTransactionEcosystem(ecosystem.toUpperCase());
+                txInstance.setChainId(operation.getChainId());
+
+                await txInstance.updateTransactionById(Number(txInstance.id), txInstance.getTransaction());
+            } catch (error) {
+                console.error('useModuleOperations -> setTxExecuteParameters -> error', error);
+                throw error;
+            }
+        };
+
+        // ===============================================================================================
+        // * #3 - EXECUTE TRANSACTION - function which describe how to execute transaction
+        // ===============================================================================================
+        txInstance.execute = async () => {
+            if (!checkOpIsExist()) return null;
+
+            await checkWalletConnected(txInstance);
+
+            console.debug('-'.repeat(10), 'TX EXECUTE', '-'.repeat(10), '\n\n');
+
+            try {
+                const forSign = txInstance.getTransaction();
+
+                const hash = await signAndSend(forSign, {
+                    ecosystem: txInstance.getEcosystem(),
+                    chain: txInstance.getChainId(),
+                    opInstance: operations.getOperationByKey(moduleIndex),
+                });
+
+                return hash;
+            } catch (error) {
+                console.error('useModuleOperations -> execute -> error', error);
+                throw error;
+            } finally {
+                // * Close notification after transaction is signed and sent or failed
+                closeNotification(`tx-${txInstance.getTxId()}`);
+            }
+        };
+
+        // ===============================================================================================
+        // * #4 - On success execute transaction
+        // ===============================================================================================
+        txInstance.onSuccess = async () => {
+            if (!checkOpIsExist()) return;
+
+            const operation = operations.getOperationByKey(moduleIndex);
+
+            operation.setParamByField('endTime', Number(new Date()));
+
+            updateOperationStatus(STATUSES.SUCCESS, { moduleIndex, operationId, hash: txInstance.getTransaction().txHash as string });
+
+            // * On success by transaction type
+            if (operation && operation.onSuccess) await operation.onSuccess(store);
+
+            if (index === flowCount) {
+                isTransactionSigning.value = false;
+                isShortcutOpsExist() && setShortcutStatus(SHORTCUT_STATUSES.SUCCESS);
+            }
+        };
+
+        // ===============================================================================================
+        // * On success Sign and send transaction
+        // ===============================================================================================
+        txInstance.onSuccessSignTransaction = async () => {
+            console.log('Success sign and send transaction');
+
+            updateOperationStatus(STATUSES.SUCCESS, { moduleIndex, operationId, hash: txInstance.getTransaction().txHash as string });
+
+            if (!checkOpIsExist()) return;
+
+            const operation = operations.getOperationByKey(moduleIndex);
+
+            // Getting token ids from wasm events
+            try {
+                if ([ModuleType.nft].includes(operation.getModule() as ModuleType) && ECOSYSTEMS.COSMOS === operation.getEcosystem()) {
+                    const response = operation.getTxResponse();
+
+                    const { events = [] } = response || {};
+
+                    const wasmEvents = events.filter((event: any) => event?.type === 'wasm') || [];
+
+                    let tokenIdsUnique = null;
+
+                    const ids = [];
+
+                    console.log('Wasm events:', wasmEvents);
+
+                    for (const event of wasmEvents) {
+                        const { attributes = [] } = event || {};
+
+                        const tokenIds = attributes.filter((attr: any) => attr?.key === 'token_id').map((attr: any) => attr?.value) || [];
+
+                        if (!tokenIds.length) continue;
+
+                        ids.push(...tokenIds);
+                    }
+
+                    tokenIdsUnique = _.uniq(ids);
+
+                    operation.setParamByField('tokenIds', tokenIdsUnique);
+                }
+            } catch (error) {
+                /* empty */
+            } finally {
+                const isApprove = operation.transactionType === TRANSACTION_TYPES.APPROVE;
+
+                if (!isApprove && isShortcutOpsExist())
+                    store.dispatch('shortcuts/nextStep', {
+                        shortcutId: currentShortcutId.value,
+                        stepId: currentStepId.value,
+                    });
+            }
+
+            console.log('-'.repeat(30), '\n\n\n');
+        };
+
+        // ===============================================================================================
+        // !On error execute transaction
+        // ===============================================================================================
+        txInstance.onError = async (error) => {
+            closeNotification(`tx-${txInstance.getTxId()}`);
+
+            const errorMessage = error?.message || JSON.stringify(error);
+
+            showNotification({
+                key: 'tx-error',
+                type: 'error',
+                title: 'Transaction error',
+                description: errorMessage,
+                duration: 6,
+            });
+
+            updateOperationStatus(STATUSES.FAILED, { moduleIndex, operationId, hash: txInstance.getTransaction()?.txHash as string });
+
+            isShortcutOpsExist() && setShortcutStatus(SHORTCUT_STATUSES.FAILED);
+        };
+
+        // If everything is ok, add transaction to manager
+        txManager.addTransaction(txInstance);
+    };
+
+    const printFlow = (flow: TxOperationFlow[]) => {
+        const ops = flow.map((step, i) => `${i === 0 ? '\t' : ''}${step.index}: ${step.type} [${step.moduleIndex}]\n`).join(' -> ');
+
+        console.log('-'.repeat(10), 'Operations flow', '-'.repeat(10));
+        console.log(ops);
+        console.log('-'.repeat(30), '\n\n');
+    };
+
+    // ***********************************************************************************************
 
     // ===============================================================================================
     // * Handle on confirm
     // ===============================================================================================
 
     const handleOnConfirm = async () => {
-        if (ecosystemToConnect.value) {
-            return await connectWalletByEcosystem(ecosystemToConnect.value);
+        try {
+            isTransactionSigning.value = true;
+            if (ecosystemToConnect.value) return await connectWalletByEcosystem(ecosystemToConnect.value);
+        } catch (error) {
+            console.error('useModuleOperations -> handleOnConfirm -> connectWalletByEcosystem -> error', error);
+            throw error;
+        } finally {
+            isTransactionSigning.value = false;
         }
 
         isTransactionSigning.value = true;
 
-        const operationFlow = getOperationFlow();
+        // ===============================================================================================
+        // * Get operations
+        // ===============================================================================================
 
+        const operations = getOperations();
+
+        // ! Check if operation need to approve
+        insertOrPassApproveOp(operations);
+
+        const opsFullFlow = operations.getFullOperationFlow();
+
+        printFlow(opsFullFlow); // TODO: Remove this after debug
+
+        const txManager = await initTransactionsGroupForOps(operations);
+
+        // ===============================================================================================
+        // * Process each operation in flow & add to transaction manager
+        // ===============================================================================================
+
+        for (const flow of opsFullFlow) processTxOperation(txManager, operations, { flow, flowCount: opsFullFlow.length - 1 });
+
+        // ===============================================================================================
+        // * Execute transactions in group
+        // ===============================================================================================
         try {
-            const group = {
-                index: 0,
-                ecosystem: selectedSrcNetwork.value.ecosystem,
-                account: walletAddress.value,
-                chainId: `${selectedSrcNetwork.value?.chain_id}`,
-                module,
-            };
+            isShortcutOpsExist() && setShortcutStatus(SHORTCUT_STATUSES.IN_PROGRESS);
 
-            const txManager = new TransactionList(socket.getSocket(), store);
+            const isEmptyTxs = !txManager.getTransactions().length || !opsFullFlow.length;
 
-            await txManager.createTransactionGroup(group as ITransaction);
-
-            for (const { index, type, make } of operationFlow) {
-                const tx = new Transaction(type);
-
-                // * Set first transaction ID
-                if (index === 0) tx.setId(txManager.getFirstTxId());
-
-                console.log('TX', tx.getTransaction());
-
-                // * Set request ID
-                tx.setRequestID(txManager.getRequestId());
-
-                // * Prepare transaction
-                tx.prepare = async () => {
-                    try {
-                        console.log('Prepare:', index, type, 'Transaction');
-                        // * Timer for preparing transaction for sign
-                        const worker = store.getters['txManager/txTimerWorker'];
-
-                        worker.postMessage('start_timer');
-
-                        worker.onmessage = function (event: MessageEvent) {
-                            if (event.data?.timerID) {
-                                store.dispatch('txManager/setTxTimerID', event.data.timerID);
-                            }
-
-                            if (event.data === 'timer_expired') {
-                                handleOnCancel(tx);
-                            }
-                        };
-
-                        const prepared = prepare(index, type as TRANSACTION_TYPES, make);
-                        const transaction = await txManager.addTransactionToGroup(index, prepared); // * Add or create transaction
-
-                        if (index === 0) {
-                            const toSave = { ...tx.getTransaction(), ...prepared, id: transaction.id };
-                            tx.setTransaction(toSave);
-                        } else {
-                            tx.setId(transaction.id);
-                            tx.setTransaction(transaction);
-                        }
-
-                        const notificationTitle =
-                            tx.transaction.metaData.notificationTitle || `${tx.type} ${tx.transaction.metaData.params?.amount} ...`;
-
-                        const notificationDescription = tx.transaction.metaData.notificationDescription;
-
-                        // * Show notification
-                        showNotification({
-                            key: `tx-${tx.getTxId()}`,
-                            type: 'info',
-                            title: notificationTitle,
-                            description: notificationDescription,
-                            duration: 0,
-                            prepare: true,
-                        });
-                    } catch (error) {
-                        console.error('useModuleOperations -> prepare -> error', error);
-                        throw error;
-                    }
-                };
-
-                // * Set execute parameters
-                tx.setTxExecuteParameters = async () => {
-                    try {
-                        const { transaction, ecosystem } = await TX_PARAMS_BY_TYPE[type]();
-
-                        tx.transaction.parameters = transaction;
-                        tx.transaction.ecosystem = ecosystem.toUpperCase();
-
-                        tx.setTransactionEcosystem(ecosystem.toUpperCase());
-                        tx.setChainId(selectedSrcNetwork.value?.chain_id);
-
-                        await tx.updateTransactionById(Number(tx.id), tx.transaction);
-                    } catch (error) {
-                        console.error('useModuleOperations -> setTxExecuteParameters -> error', error);
-                        throw error;
-                    }
-                };
-
-                // * Execute transaction
-                tx.execute = async () => {
-                    const { ecosystem: currEcosystem } = currentChainInfo.value || {};
-
-                    try {
-                        if (currEcosystem !== tx.getEcosystem()) {
-                            await connectByEcosystems(tx.getEcosystem());
-                        }
-
-                        if (tx.getChainId() !== currentChainInfo.value?.chain_id) {
-                            await delay(1000);
-                            const chainInfo = getChainByChainId(tx.getEcosystem(), tx.getChainId());
-                            await setChain(chainInfo);
-                            await delay(1000);
-                        }
-                    } catch (error) {
-                        console.error('useModuleOperations -> execute -> setChain -> error', error);
-                        closeNotification(`tx-${tx.getTxId()}`);
-                        throw error;
-                    }
-
-                    await delay(1000);
-
-                    if (tx.getChainId() !== currentChainInfo.value?.chain_id) {
-                        closeNotification(`tx-${tx.getTxId()}`);
-                        throw new Error('Incorrect chain');
-                    }
-
-                    try {
-                        const forSign = tx.getTransaction();
-
-                        return await signAndSend(forSign, { ecosystem: tx.getEcosystem() });
-                    } catch (error) {
-                        console.error('useModuleOperations -> execute -> error', error);
-                        throw error;
-                    } finally {
-                        // * Close notification after transaction is signed and sent or failed
-                        closeNotification(`tx-${tx.getTxId()}`);
-                    }
-                };
-
-                // * On success
-                tx.onSuccess = async () => {
-                    if (ON_SUCCESS_BY_TYPE[type]) {
-                        await ON_SUCCESS_BY_TYPE[type]();
-                    }
-
-                    if (index === operationFlow.length - 1) {
-                        console.log('Success all transactions');
-                        isTransactionSigning.value = false;
-                    }
-                };
-
-                tx.onSuccessSignTransaction = async () => {
-                    console.log('Success sign and send transaction');
-                };
-
-                // * On error
-                tx.onError = async (error) => {
-                    closeNotification(`tx-${tx.getTxId()}`);
-
-                    console.error('Error on transaction:', error);
-                    const errorMessage = error?.message || JSON.stringify(error);
-
-                    showNotification({
-                        key: 'tx-error',
-                        type: 'error',
-                        title: 'Transaction error',
-                        description: errorMessage,
-                        duration: 6,
-                        progress: true
-                    });
-                };
-
-                txManager.addTransaction(tx);
+            // ! if no transactions to execute, return
+            if (isEmptyTxs) {
+                console.warn('No transactions to execute');
+                isShortcutOpsExist() && setShortcutStatus(SHORTCUT_STATUSES.SUCCESS);
+                isTransactionSigning.value = false;
+                return;
             }
 
             await txManager.executeTransactions();
         } catch (error) {
-            console.error('useModuleOperations -> handleOnConfirm -> error', error);
+            console.error('useModuleOperations -> executeTransactions -> error', error);
+            throw error;
         } finally {
             isTransactionSigning.value = false;
         }
@@ -614,9 +974,7 @@ const useModuleOperations = (module: ModuleType) => {
     // * Confirm button state for each module
     // ===============================================================================================
     const isDisableConfirmButton = computed(() => {
-        if (ecosystemToConnect.value) {
-            return false;
-        }
+        if (ecosystemToConnect.value) return false;
 
         const isWithMemo = isSendWithMemo.value && isMemoAllowed.value && !memo.value;
         const isWithAddress = isSendToAnotherAddress.value && (isAddressError.value || !isReceiverAddressSet.value);
@@ -665,13 +1023,11 @@ const useModuleOperations = (module: ModuleType) => {
                     isDstAddressesEmpty.value
                 );
             default:
-                return isDisabled ? true : false;
+                return isDisabled;
         }
     });
 
-    const isDisableSelect = computed(() => {
-        return isQuoteLoading.value || isTransactionSigning.value;
-    });
+    const isDisableSelect = computed(() => isQuoteLoading.value || isTransactionSigning.value);
 
     // ===============================================================================================
     // * Watchers
@@ -683,12 +1039,21 @@ const useModuleOperations = (module: ModuleType) => {
         opTitle.value = `tokenOperations.pleaseConnectWallet${ecosystemToConnect.value}`;
     });
 
+    const unWatchIsForceCallConfirm = watch(isForceCallConfirm, (value) => {
+        if (!value) return;
+
+        handleOnConfirm();
+
+        isForceCallConfirm.value = false;
+    });
+
     // ===============================================================================================
     // * On unmounted
     // ===============================================================================================
 
     onUnmounted(() => {
         unWatchEcosystem();
+        unWatchIsForceCallConfirm();
     });
 
     return {

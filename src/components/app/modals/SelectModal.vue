@@ -1,23 +1,34 @@
 <template>
-    <a-modal v-model:open="isModalOpen" centered :footer="null" :title="$t(modalTitle)" :afterClose="handleAfterClose"
-        class="select-modal">
+    <a-modal v-model:open="isModalOpen" centered :footer="null" :title="$t(modalTitle)" :afterClose="handleAfterClose" class="select-modal">
         <div data-qa="select-record-modal">
             <a-form>
-                <SearchInput @onChange="handleOnFilterNetworks" :placeholder="$t(inputPlaceholder)" :value="searchValue"
-                    class="select-modal-search" />
+                <SearchInput
+                    @onChange="handleOnFilterNetworks"
+                    :placeholder="$t(inputPlaceholder)"
+                    :value="searchValue"
+                    class="select-modal-search"
+                />
             </a-form>
 
             <div class="select-modal-list-container" ref="scrollComponent" @scroll="handleScroll">
-                <SelectOption v-for="option in optionList" :key="option" :record="option" :type="type"
+                <SelectOption
+                    v-for="option in optionList"
+                    :key="option"
+                    :record="option"
+                    :type="type"
                     :label="type === 'network' ? option?.name : option?.symbol"
-                    @click="(event) => handleOnSelect(event, option)" />
+                    @click="(event) => handleOnSelect(event, option)"
+                />
 
                 <!-- <div v-if="isLoadMore" class="select-modal-load-more">
                     <Button :title="$t('tokenOperations.loadMore')" @click="handleLoadMore" />
                 </div> -->
 
-                <a-empty v-if="isModalOpen && !isLoadingTokenList && !optionList.length" class="select-modal-empty"
-                    :description="$t('dashboard.notFound')">
+                <a-empty
+                    v-if="isModalOpen && !isLoadingTokenList && !optionList.length"
+                    class="select-modal-empty"
+                    :description="$t('dashboard.notFound')"
+                >
                     <template #image>
                         <NotFoundIcon />
                     </template>
@@ -55,7 +66,7 @@ export default {
             network: 'tokenOperations.searchNetwork',
             token: 'tokenOperations.searchToken',
         };
-        const scrollComponent = ref(null)
+        const scrollComponent = ref(null);
 
         const store = useStore();
         const useSelectModal = inject('useSelectModal');
@@ -106,7 +117,7 @@ export default {
             if (modalContent.scrollHeight - modalContent.scrollTop <= modalContent.clientHeight + 10) {
                 handleLoadMore();
             }
-        }
+        };
 
         return {
             type,

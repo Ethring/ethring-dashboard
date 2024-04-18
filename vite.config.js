@@ -14,11 +14,11 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'; // * Node Polyfills,
 
 import packageJson from './package.json'; // * Package.json to get the version
 
-import chunkSizeControlPlugin from './plugins/chunkSizeControlPlugin';
+// import chunkSizeControlPlugin from './plugins/chunkSizeControlPlugin';
 
 const isProduction = process.env.NODE_ENV === 'production'; // Production environment
 const isAnalyzeBundle = process.env.IS_ANALYZE === 'true'; // Analyze bundle size
-const maxChunkSize = 3 * 1024 * 1024; // Default size limit: 3MB
+const maxChunkSize = 5 * 1024 * 1024; // Default size limit: 3MB
 
 export default defineConfig({
     base: '/',
@@ -31,8 +31,10 @@ export default defineConfig({
         manifest: true,
         minify: isProduction,
         sourcemap: !isProduction,
-        chunkSizeWarningLimit: 2048,
+        chunkSizeWarningLimit: maxChunkSize,
         rollupOptions: {
+            // EXCLUDE
+            external: ['stargazejs/main/codegen/ibc', 'stargazejs/main/codegen/cosmos'],
             output: {
                 chunkFileNames: 'js/[name]-[hash].js',
                 entryFileNames: 'js/[name]-[hash].js',
@@ -42,17 +44,30 @@ export default defineConfig({
                     sentry: ['@sentry/vue', '@sentry/tracing'],
                     mixpanel: ['mixpanel-browser'],
                     axios: ['axios', 'axios-extensions'],
-                    utils: ['bignumber.js', 'lodash', 'moment', 'socket.io-client'],
+                    utils: ['bignumber.js', 'lodash', 'moment', 'socket.io-client', '@osmonauts/helpers'],
                     'ant-design': ['ant-design-vue'],
                     'ant-design-icons': ['@ant-design/icons-vue'],
-                    '@cosmology': ['@cosmology/lcd'],
                     '@cosmology-cosmos-kit': ['@cosmos-kit/core'],
                     '@cosmology-wallets-keplr': ['@cosmos-kit/keplr', '@cosmos-kit/keplr-extension', '@cosmos-kit/keplr-mobile'],
                     '@cosmology-wallets-leap': ['@cosmos-kit/leap', '@cosmos-kit/leap-extension', '@cosmos-kit/leap-mobile'],
                     '@cosmjs-stargate': ['@cosmjs/cosmwasm-stargate', '@cosmjs/stargate'],
-                    '@cosmology-telescope-ibc': ['osmojs/dist/codegen/ibc/bundle', 'osmojs/dist/codegen/ibc/client'],
-                    '@cosmology-telescope-cosmos': ['osmojs/dist/codegen/cosmos/bundle', 'osmojs/dist/codegen/cosmos/client'],
-                    '@cosmology-telescope-osmosis': ['osmojs/dist/codegen/osmosis/bundle', 'osmojs/dist/codegen/osmosis/client'],
+
+                    // injectivejs
+                    '@cosmology-telescope-ibc': ['injectivejs/main/codegen/ibc/bundle', 'injectivejs/main/codegen/ibc/client'],
+                    '@cosmology-telescope-cosmos': ['injectivejs/main/codegen/cosmos/bundle', 'injectivejs/main/codegen/cosmos/client'],
+
+                    // Stargazejs
+                    '@cosmology-telescope-ibc-stargaze': ['stargazejs/main/codegen/ibc/bundle', 'stargazejs/main/codegen/ibc/client'],
+                    '@cosmology-telescope-cosmos-stargaze': [
+                        'stargazejs/main/codegen/cosmos/bundle',
+                        'stargazejs/main/codegen/cosmos/client',
+                    ],
+
+                    // // Osmosis
+                    // '@cosmology-telescope-ibc-osmosis': ['osmojs/dist/codegen/ibc/bundle', 'osmojs/dist/codegen/ibc/client'],
+                    // '@cosmology-telescope-cosmos-osmosis': ['osmojs/dist/codegen/cosmos/bundle', 'osmojs/dist/codegen/cosmos/client'],
+                    // '@cosmology-telescope-osmosis': ['osmojs/dist/codegen/osmosis/bundle', 'osmojs/dist/codegen/osmosis/client'],
+
                     '@web3-onboard-cores': ['@web3-onboard/core', '@web3-onboard/vue', '@web3-onboard/common'],
                     '@web3-onboard-wallets': ['@web3-onboard/injected-wallets', '@web3-onboard/coinbase', '@web3-onboard/ledger'],
                 },
@@ -71,9 +86,10 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': resolve(__dirname, 'src'),
+            '@cosmology/helpers': '@osmonauts/helpers',
             'axios/lib': resolve(__dirname, './node_modules/axios/lib'),
         },
-        extensions: ['.js', '.ts', '.vue'],
+        extensions: ['.js', '.ts', '.vue', '.svg', 'json'],
     },
 
     // * ========= CSS Settings =========
@@ -119,7 +135,7 @@ export default defineConfig({
                 }),
             ],
         }),
-        chunkSizeControlPlugin({ maxSize: maxChunkSize }),
+        // chunkSizeControlPlugin({ maxSize: maxChunkSize }), // TODO: Optimize this
         isAnalyzeBundle &&
             visualizer({
                 open: true,

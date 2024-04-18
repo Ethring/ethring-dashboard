@@ -44,7 +44,7 @@ export default {
             required: true,
         },
         symbol: {
-            required: true,
+            required: false,
             type: String,
             default: '',
         },

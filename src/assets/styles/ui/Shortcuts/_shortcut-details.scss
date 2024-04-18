@@ -1,0 +1,97 @@
+.shortcut-details {
+    .wallpaper {
+        max-width: inherit;
+        width: 100%;
+        height: 140px;
+        margin-bottom: 16px;
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
+    }
+
+    > div > .title {
+        font-size: var(--#{$prefix}h4-fs);
+        line-height: 28px;
+        font-weight: 600;
+        color: var(--#{$prefix}primary-text);
+
+        width: 60%;
+        overflow-x: hidden;
+        text-wrap: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    > .description {
+        font-size: var(--#{$prefix}small-lg-fs);
+        font-weight: 400;
+        line-height: 20px;
+        margin: 16px 0 0;
+
+        color: var(--#{$prefix}description-text);
+
+        & > p:not(:last-child) {
+            margin-bottom: 8px;
+        }
+    }
+
+    .link {
+        @include pageFlexRow;
+        color: var(--#{$prefix}base-text);
+
+        &:hover {
+            color: var(--#{$prefix}primary-text);
+        }
+
+        span {
+            margin-left: 10px;
+        }
+    }
+
+    &-btn {
+        min-width: 80px;
+        min-height: 30px;
+        height: 30px;
+        border-radius: 4px;
+        text-transform: capitalize;
+
+        color: var(--#{$prefix}mute-text);
+        background-color: var(--#{$prefix}base-btn-bg-color);
+
+        &:hover {
+            background-color: var(--#{$prefix}small-btn-bg-color) !important;
+            color: var(--#{$prefix}primary) !important;
+        }
+    }
+
+    .coming-soon {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        z-index: 10;
+
+        text-align: center;
+
+        box-shadow: inset 10px 10px 10px 20px var(--#{$prefix}white-op-075);
+        background: var(--#{$prefix}white-op-075);
+        backdrop-filter: blur(5px);
+
+        &__title {
+            margin-top: 25%;
+            font-size: var(--#{$prefix}h5-fs);
+            line-height: 28px;
+            font-weight: 600;
+            color: var(--#{$prefix}primary-text);
+        }
+
+        &__description {
+            color: var(--#{$prefix}mute-text);
+            margin: 8px auto 16px;
+        }
+
+        button {
+            margin: auto;
+        }
+    }
+}

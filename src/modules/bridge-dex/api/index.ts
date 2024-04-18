@@ -93,6 +93,11 @@ class BridgeDexApi<T extends ServiceType> {
                 return (await ApiClient.post(`/services/${ServiceType.bridgedex}/getQuote`, params)) as IQuoteRoutes;
             }
 
+            if (!type) {
+                logger.error('(API) -> [BRIDGE_DEX_API] Error fetching quote: No service type provided');
+                return {} as IQuoteRoutes;
+            }
+
             return (await ApiClient.post(`/services/${type}/getQuote`, params)) as IQuoteRoutes;
         } catch (error) {
             logger.error('(API) -> [BRIDGE_DEX_API] Error fetching quote', error);

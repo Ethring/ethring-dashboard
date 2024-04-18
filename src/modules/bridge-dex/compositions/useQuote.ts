@@ -1,15 +1,16 @@
-import { computed, nextTick, onUnmounted, ref, watch } from 'vue';
+import { computed, onUnmounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 import BigNumber from 'bignumber.js';
 
 import BridgeDexService from '@/modules/bridge-dex';
-import { ModuleType, ModulesByService, ServiceType, ServiceTypes } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import { ModulesByService, ServiceType, ServiceTypes } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { AllQuoteParams } from '@/modules/bridge-dex/models/Request.type';
 
 import { IQuoteRoute, ErrorResponse } from '@/modules/bridge-dex/models/Response.interface';
 import { NATIVE_CONTRACT } from '@/Adapter/config';
 
-import { FEE_TYPES } from '@/shared/constants/operations';
+import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
 
 import { FeeInfo } from '@/shared/models/types/Fee';
 import { calculateFeeByCurrency, calculateFeeInNativeToUsd } from '@/shared/calculations/calculate-fee';
@@ -74,7 +75,10 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     // ===========================================================================================
     // !Quote Route Error Message
     // ===========================================================================================
-    const quoteErrorMessage = ref('');
+    const quoteErrorMessage = computed({
+        get: () => store.getters['bridgeDexAPI/getQuoteErrorMessage'],
+        set: (value) => store.dispatch('bridgeDexAPI/setQuoteErrorMessage', value),
+    });
 
     // ===========================================================================================
     // * Quote Routes List by ServiceType (bridge, dex, bridgedex)
@@ -91,6 +95,8 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     const selectedSrcToken = computed(() => store.getters['tokenOps/srcToken']);
     const selectedDstToken = computed(() => store.getters['tokenOps/dstToken']);
     const srcAmount = computed(() => store.getters['tokenOps/srcAmount']);
+
+    const shortcutServiceId = computed(() => store.getters['tokenOps/getServiceId'](ModuleType.shortcut));
 
     // ===========================================================================================
     // * Address
@@ -128,7 +134,7 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     const resetQuoteRoutes = () => {
         store.dispatch('bridgeDexAPI/setQuoteRoutes', {
             serviceType: targetType,
-            value: [],
+            value: null,
         });
 
         store.dispatch('bridgeDexAPI/setSelectedRoute', {
@@ -219,9 +225,15 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
             isQuoteLoading.value = true;
             quoteErrorMessage.value = '';
 
-            const { best, routes } = await bridgeDexService.getQuote(requestParams);
+            shortcutServiceId.value && (requestParams.serviceId = shortcutServiceId.value);
+
+            const withServiceId = requestParams.serviceId ? true : false;
+
+            const { best = null, routes = [] } = await bridgeDexService.getQuote(requestParams, { withServiceId });
 
             let selectedRoute = routes.find(({ serviceId }) => serviceId === best);
+
+            if (!routes.length) return resetQuoteRoutes();
 
             // * If there is only one route, set it as selected
             if (routes.length === 1 && !selectedRoute) {
@@ -243,8 +255,8 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
                 routes,
             };
         } catch (error) {
-            const { message = '' } = error;
-            quoteErrorMessage.value = message;
+            console.error('useBridgeDexQuote -> makeQuoteRoutes', error);
+            quoteErrorMessage.value = error?.message || 'An error occurred while making a quote request';
 
             resetQuoteRoutes();
 
@@ -324,9 +336,9 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     });
 
     const allFees = computed(() => ({
-        [FEE_TYPES.RATE]: rateFeeInfo.value,
-        [FEE_TYPES.BASE]: feeInCurrency.value,
-        [FEE_TYPES.PROTOCOL]: emptyFee.value,
+        [FEE_TYPE.RATE]: rateFeeInfo.value,
+        [FEE_TYPE.BASE]: feeInCurrency.value,
+        [FEE_TYPE.PROTOCOL]: emptyFee.value,
     }));
 
     // ===========================================================================================
@@ -408,18 +420,8 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
         },
     );
 
-    const inputFocus = () => {
-        const input = document.querySelector('input.input-balance');
-        if (input && input instanceof HTMLInputElement) {
-            input.focus();
-        }
-    };
     const unWatchLoading = watch(isQuoteLoading, () => {
-        if (!isQuoteLoading.value) {
-            isReloadRoutes.value && (isReloadRoutes.value = false);
-
-            nextTick(() => inputFocus());
-        }
+        if (!isQuoteLoading.value) isReloadRoutes.value && (isReloadRoutes.value = false);
     });
 
     // ===========================================================================================
@@ -518,5 +520,3 @@ export default useBridgeDexQuote;
 //     //     toSymbol: '$',
 //     // };
 // };
-
-// const getServiceAllowance = async (requestParams: GetAllowanceParams) => await store.dispatch('bridgeDexAPI/getAllowance', { serviceType, requestParams });
