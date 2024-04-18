@@ -1,21 +1,6 @@
 import { AminoTypes } from '@cosmjs/stargate';
 import { Registry } from '@cosmjs/proto-signing';
 
-// import {
-//     // Cosmos
-//     cosmosAminoConverters,
-//     cosmosProtoRegistry,
-//     // CosmWasm
-//     cosmwasmAminoConverters,
-//     cosmwasmProtoRegistry,
-//     // IBC
-//     ibcProtoRegistry,
-//     ibcAminoConverters,
-//     // Publicawesome
-//     publicawesomeAminoConverters,
-//     publicawesomeProtoRegistry,
-// } from 'stargazejs';
-
 import {
     // Cosmos
     cosmosAminoConverters,
@@ -26,7 +11,19 @@ import {
     // IBC
     ibcProtoRegistry,
     ibcAminoConverters,
-} from 'injectivejs';
+} from 'stargazejs';
+
+// import {
+//     // Cosmos
+//     cosmosAminoConverters,
+//     cosmosProtoRegistry,
+//     // CosmWasm
+//     cosmwasmAminoConverters,
+//     cosmwasmProtoRegistry,
+//     // IBC
+//     ibcProtoRegistry,
+//     ibcAminoConverters,
+// } from 'injectivejs';
 
 // import { injectiveAminoConverters, injectiveProtoRegistry } from 'injectivejs';
 
