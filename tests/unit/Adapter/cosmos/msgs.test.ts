@@ -24,16 +24,34 @@ describe('MsgTransfer', () => {
         };
 
         expect(msg.memo).toBeDefined();
+        expect(typeof msg.memo).toBe('string');
     });
 });
 
 describe('Osmojs', () => {
-    test('Case #1. Cosmos should have staking module', () => {
-        expect(cosmos.staking).toBeDefined();
-    });
-
-    test('Case #2. Staking module should have delegate message', () => {
+    test('Case #1. Cosmos should have staking module and delegate message', () => {
         const { delegate } = cosmos.staking.v1beta1.MessageComposer.withTypeUrl;
+
+        expect(cosmos).toBeDefined();
+        expect(typeof cosmos).toBe('object');
+
+        expect(cosmos.staking).toBeDefined();
+        expect(typeof cosmos.staking).toBe('object');
+
+        expect(cosmos.staking.v1beta1).toBeDefined();
+        expect(typeof cosmos.staking.v1beta1).toBe('object');
+
+        expect(cosmos.staking.v1beta1).toBeDefined();
+        expect(typeof cosmos.staking.v1beta1).toBe('object');
+
+        expect(cosmos.staking.v1beta1.MessageComposer).toBeDefined();
+        expect(typeof cosmos.staking.v1beta1.MessageComposer).toBe('object');
+
+        expect(cosmos.staking.v1beta1.MessageComposer.withTypeUrl).toBeDefined();
+        expect(typeof cosmos.staking.v1beta1.MessageComposer.withTypeUrl).toBe('object');
+
+        expect(cosmos.staking.v1beta1.MessageComposer.withTypeUrl.delegate).toBeDefined();
+        expect(typeof cosmos.staking.v1beta1.MessageComposer.withTypeUrl.delegate).toBe('function');
 
         expect(delegate).toBeDefined();
     });
