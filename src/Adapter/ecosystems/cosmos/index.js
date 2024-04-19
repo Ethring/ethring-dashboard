@@ -834,8 +834,6 @@ export class CosmosAdapter extends AdapterBase {
                 delete value.timeoutHeight;
             }
 
-            console.log('MSG typeUrl', typeUrl, value);
-
             // Custom actions for different types of transactions
             switch (typeUrl) {
                 case '/cosmwasm.wasm.v1.MsgExecuteContract':
@@ -870,11 +868,8 @@ export class CosmosAdapter extends AdapterBase {
 
                     value.wasm && delete value.wasm; // Remove wasm from value
 
-                    console.log('value', value);
                     break;
             }
-
-            console.log('value', value);
 
             response.msg = transaction;
 
@@ -948,7 +943,6 @@ export class CosmosAdapter extends AdapterBase {
     }
 
     async signSend(transaction) {
-        console.log('transaction', transaction);
         const { msg, fee, memo } = transaction;
 
         const chainWallet = this._getCurrentWallet();
@@ -987,8 +981,6 @@ export class CosmosAdapter extends AdapterBase {
 
         const msgs = Array.isArray(msg) ? msg : [msg];
 
-        console.log('signSend', { msgs, fee, memo, isArray: Array.isArray(msg) });
-
         // Check timer
         const txTimerID = this.store.getters['txManager/txTimerID'];
 
@@ -1006,11 +998,10 @@ export class CosmosAdapter extends AdapterBase {
 
             if (memo && memo !== undefined) tx.push(memo);
 
-            console.log('tx', { ...tx });
-
             const response = await signClient.client.signAndBroadcast(...tx);
 
-            console.log('response', response);
+            console.log('Sign and broadcast response', response);
+
             return response;
         } catch (error) {
             logger.error('[COSMOS -> signSend] Error while broadcasting transaction', error);

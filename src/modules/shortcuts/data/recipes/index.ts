@@ -426,54 +426,6 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
             } as IShortcutRecipe,
         ],
     },
-    [AvailableShortcuts.MintCollection]: {
-        id: AvailableShortcuts.MintCollection,
-        operations: [
-            {
-                id: 'mint-nft-stargaze',
-                name: 'Mint NFT',
-                type: ShortcutType.operation,
-                moduleType: ModuleType.nft,
-                operationType: TRANSACTION_TYPES.EXECUTE_MULTIPLE,
-                layoutComponent: 'MintNftLayout',
-                isShowLayout: true,
-                excludeChains: [],
-                ecosystems: ['COSMOS'],
-                editableFromAmount: false,
-                isNeedFromAmount: true,
-                operationParams: {
-                    fromNet: 'stargaze',
-                    fromToken: 'ustars',
-                    toNet: null,
-                    toToken: null,
-                },
-                params: [
-                    {
-                        name: 'srcNetwork',
-                        hide: false,
-                        disabled: false,
-                        ecosystem: 'COSMOS',
-                        chainId: 'stargaze',
-                    },
-                    {
-                        name: 'srcToken',
-                        disabled: true,
-                        id: 'stargaze:tokens__native:STARS',
-                        chain: 'stargaze',
-                        address: 'ustars',
-                        hide: false,
-                    },
-                    {
-                        name: 'contractAddress',
-                        type: 'address',
-                        disabled: true,
-                        address: 'stars169j3qrvks9vhz0tcuqt6lgnvfwlnspyx3pfpe2w2rqtw79ucp76qz73xy7',
-                        hide: false,
-                    },
-                ],
-            } as IShortcutOp,
-        ],
-    },
     [AvailableShortcuts.StakeToCitadelOne]: {
         id: AvailableShortcuts.StakeToCitadelOne,
         operations: [
@@ -884,6 +836,10 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                                 {
                                     dependencyParamKey: 'outputAmount',
                                     paramKey: 'amount',
+                                },
+                                {
+                                    dependencyParamKey: 'outputAmount',
+                                    paramKey: 'outputAmount',
                                 },
                             ],
                         },

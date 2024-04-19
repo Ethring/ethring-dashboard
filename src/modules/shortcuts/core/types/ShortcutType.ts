@@ -25,6 +25,7 @@ export enum ShortcutStatus {
 
 export const StepStatusIcons = {
     [STATUSES.SUCCESS]: h(SuccessIcon),
+    [STATUSES.SKIPPED]: h(SuccessIcon),
     [STATUSES.SIGNING]: h(ProcessIcon),
     [STATUSES.PENDING]: h(WaitingIcon),
     [STATUSES.FAILED]: h(ClearIcon),

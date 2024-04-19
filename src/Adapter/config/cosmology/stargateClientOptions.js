@@ -13,20 +13,6 @@ import {
     ibcAminoConverters,
 } from 'osmojs';
 
-// import {
-//     // Cosmos
-//     cosmosAminoConverters,
-//     cosmosProtoRegistry,
-//     // CosmWasm
-//     cosmwasmAminoConverters,
-//     cosmwasmProtoRegistry,
-//     // IBC
-//     ibcProtoRegistry,
-//     ibcAminoConverters,
-// } from 'injectivejs';
-
-// import { injectiveAminoConverters, injectiveProtoRegistry } from 'injectivejs';
-
 // Custom Registry for stargate
 
 const AMINO_CONVERTERS = {

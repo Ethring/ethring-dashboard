@@ -10,7 +10,7 @@ interface IShortcutMeta extends IShortcutData {
 const META_DATA: Record<string, IShortcutMeta> = {
     [AvailableShortcuts.CitadelOneStake]: {
         id: AvailableShortcuts.CitadelOneStake,
-        name: 'Recipe #1: Transfer & Stake to the Citadel.one validator',
+        name: 'Transfer & Stake to the Citadel.one validator',
         logoURI: 'https://citadel.one/static/media/logo.3e3e3e3e.svg',
         keywords: ['citadel', 'one', 'staking'],
         tags: ['EVM', 'COSMOS', 'STAKE'],
@@ -22,23 +22,9 @@ const META_DATA: Record<string, IShortcutMeta> = {
         author: getAuthorById(ShortcutAuthor.ZometApp),
         minUsdAmount: 1,
     },
-    [AvailableShortcuts.MintCollection]: {
-        id: AvailableShortcuts.MintCollection,
-        name: 'Recipe #2: Mint collection',
-        logoURI: 'https://citadel.one/static/media/logo.3e3e3e3e.svg',
-        wallpaper: 'https://i.imgur.com/GLaOOnq.png',
-        keywords: ['NFT', 'MINT', 'STARS'],
-        tags: ['NFT', 'MINT'],
-        type: 'nft',
-        description: 'Mint collection of NFTs on Stargaze Zone',
-        website: 'https://www.stargaze.zone/',
-        author: getAuthorById(ShortcutAuthor.ZometApp),
-        ecosystems: ['EVM', 'COSMOS'],
-        minUsdAmount: 0,
-    },
     [AvailableShortcuts.StakeToCitadelOne]: {
         id: AvailableShortcuts.StakeToCitadelOne,
-        name: 'Recipe #3: Stake to the Citadel.one validator',
+        name: 'Stake to the Citadel.one validator',
         logoURI: 'https://citadel.one/static/media/logo.3e3e3e3e.svg',
         keywords: ['citadel', 'one', 'staking'],
         tags: ['COSMOS', 'STAKE'],
@@ -52,7 +38,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
     },
     [AvailableShortcuts.SwapToAtomAndStars]: {
         id: AvailableShortcuts.SwapToAtomAndStars,
-        name: 'Recipe #4: Swap OSMO to ATOM and STARS',
+        name: 'Swap OSMO to ATOM and STARS',
         logoURI: 'https://citadel.one/static/media/logo.3e3e3e3e.svg',
         keywords: ['ATOM', 'STARS', 'SWAP'],
         tags: ['ATOM', 'STARS', 'SWAP'],
@@ -66,7 +52,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
     },
     [AvailableShortcuts.MintCollectionWithTransfer]: {
         id: AvailableShortcuts.MintCollectionWithTransfer,
-        name: 'Recipe #5: Mint collection with transfer',
+        name: 'Mint collection with transfer',
         logoURI: 'https://citadel.one/static/media/logo.3e3e3e3e.svg',
         wallpaper: 'https://i.imgur.com/GLaOOnq.png',
         keywords: ['NFT', 'MINT', 'STARS'],
