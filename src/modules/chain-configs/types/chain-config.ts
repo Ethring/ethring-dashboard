@@ -2,7 +2,7 @@ export interface ChainConfig {
     ecosystem: string;
     net: string;
     name: string;
-    chain_id: number;
+    chain_id: number | string;
     logo: string;
     coingecko_id: string;
 

@@ -254,10 +254,6 @@ export default {
 
         const nftCollectionInfo = ref<INftCollectionInfo | null>(null);
 
-        const isNeedToShowPriceStats = computed(
-            () => nftCollectionInfo.value.priceStats.value && typeof nftCollectionInfo.value.priceStats.value !== 'string',
-        );
-
         const getStatsType = (stats) => {
             if (stats.type === 'Quantity' && typeof stats.value === 'string' && stats.value === 'Unlimited') {
                 return 'string';
@@ -335,9 +331,18 @@ export default {
 
             const { currency, usd } = priceInfo || {};
 
-            if (!usd?.amount || !currency?.amount) return;
+            if (!usd?.amount || !currency?.amount) {
+                console.warn('No price info', usd, currency);
+                return;
+            }
 
             const { amount: nftUsdPrice } = usd || {};
+
+            if (isNaN(Number(nftUsdPrice))) {
+                console.warn('Invalid usd price for NFT', nftUsdPrice);
+                return;
+            }
+
             const { symbol } = currency || {};
 
             const { price: srcPrice, symbol: srcSymbol, decimals: srcDecimals } = selectedSrcToken.value || {};
@@ -429,7 +434,6 @@ export default {
             handleOnConfirm,
 
             fieldStates,
-            isNeedToShowPriceStats,
             endTime,
             nftCollectionInfo,
             isQuoteLoading,

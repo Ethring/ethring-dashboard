@@ -68,10 +68,7 @@ export default class OperationFactory implements IOperationFactory {
 
         const uniqueKey = `${module}_${this.operationsMap.size}`;
 
-        if (!id) {
-            console.warn('OperationId not provided');
-            id = uniqueKey;
-        }
+        if (!id) id = uniqueKey;
 
         if (this.operationsIds.get(id)) {
             console.warn(`Operation with id ${id} already exists`);

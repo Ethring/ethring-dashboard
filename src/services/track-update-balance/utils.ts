@@ -2,6 +2,7 @@ import { TRANSACTION_TYPES, DISALLOW_TO_UPDATE_STATUES, DISALLOW_UPDATE_TYPES } 
 
 import { SocketEvents } from '@/shared/models/enums/socket-events.enum';
 import { ECOSYSTEMS } from '@/Adapter/config';
+import { IUpdateBalanceByHash } from '../../shared/models/types/UpdateBalance';
 
 export const detectUpdateForAccount = async (socketEvent: string, store: any, transaction: any = {}) => {
     const { metaData, status, txHash = '', account, chainId, ecosystem } = transaction || {};
@@ -29,11 +30,11 @@ export const detectUpdateForAccount = async (socketEvent: string, store: any, tr
         chains.push(chainId);
     }
 
-    const storeParams = {
+    const storeParams: IUpdateBalanceByHash = {
         hash: txHash,
-        address: account,
-        ecosystem,
-        chains,
+        addresses: {
+            [fromNet]: account,
+        },
     };
 
     const addresses = store.getters['adapters/getAddressesByEcosystemList'](ecosystem) || {};
@@ -51,12 +52,8 @@ export const detectUpdateForAccount = async (socketEvent: string, store: any, tr
 
     const isDiffAddress = recAddress && recAddress !== dstAddress;
 
-    for (const chain of chains) {
-        if (chainId === chain) continue;
-
-        if (!recAddress) continue;
-
-        if ((isBridge || isCosmosBridge) && isDiffAddress) chains.splice(chains.indexOf(chain), 1);
+    if ((isBridge || isCosmosBridge) && !isDiffAddress) {
+        storeParams.addresses[toNet] = dstAddress;
     }
 
     await store.dispatch('updateBalance/setUpdateBalanceForAddress', storeParams);
