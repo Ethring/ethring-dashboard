@@ -7,6 +7,36 @@ import { IAsset } from '@/shared/models/fields/module-fields';
 import { AllQuoteParams } from '@/modules/bridge-dex/models/Request.type';
 import { TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
 import { ServiceTypes } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import { TX_TYPES, STATUSES } from '../../../shared/models/enums/statuses.enum';
+
+export interface IOperationsResultToken {
+    from?: {
+        symbol: string;
+        logo: string;
+        amount: string;
+    };
+    to?: {
+        symbol: string;
+        logo: string;
+        amount: string;
+    };
+}
+
+export interface IOperationsResult {
+    type: TX_TYPES;
+
+    status: keyof typeof STATUSES;
+
+    ecosystem: Ecosystems;
+
+    chainId: string | number | null;
+
+    hash: string | null;
+
+    explorerLink?: string | null;
+
+    tokens: IOperationsResultToken;
+}
 
 export type PerformOptionalParams = {
     make: string;

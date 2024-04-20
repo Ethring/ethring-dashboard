@@ -622,6 +622,44 @@ const useModuleOperations = (module: ModuleType) => {
         };
     };
 
+    const getNftTokenIds = (operation: IBaseOperation) => {
+        const response = operation.getTxResponse();
+
+        const { events = [] } = response || {};
+
+        const wasmEvents = events.filter((event: any) => event?.type === 'wasm') || [];
+
+        let tokenIdsUnique = null;
+
+        const ids = [];
+
+        console.log('Wasm events:', wasmEvents);
+
+        for (const event of wasmEvents) {
+            const { attributes = [] } = event || {};
+
+            const tokenIds = attributes.filter((attr: any) => attr?.key === 'token_id').map((attr: any) => attr?.value) || [];
+
+            if (!tokenIds.length) continue;
+
+            ids.push(...tokenIds);
+        }
+
+        tokenIdsUnique = _.uniq(ids);
+
+        operation.setParamByField('tokenIds', tokenIdsUnique);
+    };
+
+    const callNextOperation = (operation: IBaseOperation) => {
+        const isApprove = operation.transactionType === TRANSACTION_TYPES.APPROVE;
+
+        if (!isApprove && isShortcutOpsExist())
+            store.dispatch('shortcuts/nextStep', {
+                shortcutId: currentShortcutId.value,
+                stepId: currentStepId.value,
+            });
+    };
+
     const processTxOperation = (
         txManager: TransactionList,
         operations: OperationsFactory,
@@ -665,7 +703,8 @@ const useModuleOperations = (module: ModuleType) => {
 
         if (isParamsEqual()) {
             console.log('Params are equal, skip prepare', moduleIndex);
-            return updateOperationStatus(STATUSES.SUCCESS, { moduleIndex, operationId });
+            updateOperationStatus(STATUSES.SKIPPED, { moduleIndex, operationId });
+            return callNextOperation(operations.getOperationByKey(moduleIndex));
         }
 
         // ===============================================================================================
@@ -803,9 +842,11 @@ const useModuleOperations = (module: ModuleType) => {
 
             const operation = operations.getOperationByKey(moduleIndex);
 
+            const { txHash } = txInstance.getTransaction() || {};
+
             operation.setParamByField('endTime', Number(new Date()));
 
-            updateOperationStatus(STATUSES.SUCCESS, { moduleIndex, operationId, hash: txInstance.getTransaction().txHash as string });
+            updateOperationStatus(STATUSES.SUCCESS, { moduleIndex, operationId, hash: txHash as string });
 
             // * On success by transaction type
             if (operation && operation.onSuccess) await operation.onSuccess(store);
@@ -830,43 +871,12 @@ const useModuleOperations = (module: ModuleType) => {
 
             // Getting token ids from wasm events
             try {
-                if ([ModuleType.nft].includes(operation.getModule() as ModuleType) && ECOSYSTEMS.COSMOS === operation.getEcosystem()) {
-                    const response = operation.getTxResponse();
-
-                    const { events = [] } = response || {};
-
-                    const wasmEvents = events.filter((event: any) => event?.type === 'wasm') || [];
-
-                    let tokenIdsUnique = null;
-
-                    const ids = [];
-
-                    console.log('Wasm events:', wasmEvents);
-
-                    for (const event of wasmEvents) {
-                        const { attributes = [] } = event || {};
-
-                        const tokenIds = attributes.filter((attr: any) => attr?.key === 'token_id').map((attr: any) => attr?.value) || [];
-
-                        if (!tokenIds.length) continue;
-
-                        ids.push(...tokenIds);
-                    }
-
-                    tokenIdsUnique = _.uniq(ids);
-
-                    operation.setParamByField('tokenIds', tokenIdsUnique);
-                }
+                if ([ModuleType.nft].includes(operation.getModule() as ModuleType) && ECOSYSTEMS.COSMOS === operation.getEcosystem())
+                    getNftTokenIds(operation);
             } catch (error) {
                 /* empty */
             } finally {
-                const isApprove = operation.transactionType === TRANSACTION_TYPES.APPROVE;
-
-                if (!isApprove && isShortcutOpsExist())
-                    store.dispatch('shortcuts/nextStep', {
-                        shortcutId: currentShortcutId.value,
-                        stepId: currentStepId.value,
-                    });
+                callNextOperation(operation);
             }
 
             console.log('-'.repeat(30), '\n\n\n');

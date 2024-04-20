@@ -362,8 +362,16 @@ function useAdapter() {
     };
 
     // * Get Explorer Link by Tx Hash
-    const getTxExplorerLink = (...args) => {
-        return mainAdapter.value.getTxExplorerLink(...args) || null;
+    const getTxExplorerLink = (hash, chainInfo) => {
+        if (!mainAdapter.value) {
+            return null;
+        }
+
+        if (!mainAdapter.value.getTxExplorerLink) {
+            return null;
+        }
+
+        return mainAdapter.value.getTxExplorerLink(hash, chainInfo) || null;
     };
 
     // * Get Explorer Link by Tx Hash
@@ -536,6 +544,27 @@ function useAdapter() {
 
     const getAdapterByEcosystem = (ecosystem) => adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
+    const callTransactionAction = async (action, { ecosystem, parameters, txParams = {} }) => {
+        const TX_ACTIONS = {
+            formatTransactionForSign,
+            prepareTransaction,
+            prepareDelegateTransaction,
+            prepareMultipleExecuteMsgs,
+        };
+
+        try {
+            if (!action || !TX_ACTIONS[action]) {
+                console.error('Unknown action', action);
+                throw new Error(`Invalid transaction action: ${action}`);
+            }
+
+            return await TX_ACTIONS[action](parameters, { ecosystem, ...txParams });
+        } catch (error) {
+            console.error('Failed to call transaction action:', action, error);
+            throw new Error(`Failed to call transaction action: ${action}`);
+        }
+    };
+
     return {
         isConnecting,
 
@@ -579,6 +608,8 @@ function useAdapter() {
         prepareTransaction,
         prepareDelegateTransaction,
         prepareMultipleExecuteMsgs,
+
+        callTransactionAction,
 
         signSend,
 

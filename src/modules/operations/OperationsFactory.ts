@@ -1,15 +1,17 @@
-import Amount from '@/components/app/Amount.vue';
-import { IBaseOperation, IOperationFactory, IRegisterOperation } from '@/modules/operations/models/Operations';
-import { ModuleType, ModuleTypes } from '@/shared/models/enums/modules.enum';
+import _ from 'lodash';
+import BigNumber from 'bignumber.js';
+
+import {
+    IBaseOperation,
+    IOperationFactory,
+    IRegisterOperation,
+    IOperationsResult,
+    IOperationsResultToken,
+} from '@/modules/operations/models/Operations';
+
+import { ModuleTypes } from '@/shared/models/enums/modules.enum';
 import { STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
-import { Col, Row, Space, Tag } from 'ant-design-vue';
-import BigNumber from 'bignumber.js';
-import _ from 'lodash';
-import { h } from 'vue';
-// import { BaseOperation } from '@/modules/operations/BaseOperation';
-// import DexOperation from '@/modules/operations/Dex';
-// import TransferOperation from './Transfer';
 
 interface IDependencyParams {
     dependencyParamKey: string;
@@ -66,10 +68,7 @@ export default class OperationFactory implements IOperationFactory {
 
         const uniqueKey = `${module}_${this.operationsMap.size}`;
 
-        if (!id) {
-            console.warn('OperationId not provided');
-            id = uniqueKey;
-        }
+        if (!id) id = uniqueKey;
 
         if (this.operationsIds.get(id)) {
             console.warn(`Operation with id ${id} already exists`);
@@ -469,22 +468,63 @@ export default class OperationFactory implements IOperationFactory {
         return Number(BigNumber(successScore).dividedBy(this.operationOrder.length).multipliedBy(100).toFixed(2));
     }
     getOperationsResult() {
-        const result = [];
+        const result: IOperationsResult[] = [];
 
         for (const op of this.operationOrder) {
-            result.push({
-                type: this.getOperationByKey(op).transactionType,
+            console.log('OPERATION RESULT');
+            console.log(op);
+            console.log(this.getOperationByKey(op));
+            console.log(this.getOperationByKey(op).getParams());
+            console.log('-'.repeat(50));
+            if (this.getOperationsStatusByKey(op) === STATUSES.SKIPPED) continue;
 
-                status: this.getOperationsStatusByKey(op),
+            const tokens: IOperationsResultToken = {};
 
-                hash: this.getOperationByKey(op).getParamByField('txHash'),
+            // By default, the type is the same as the operation type
+            let type = this.getOperationByKey(op).transactionType;
 
-                amount: this.getOperationByKey(op).getParamByField('amount'),
-
-                token: {
+            if (this.getOperationByKey(op).getToken('from')) {
+                tokens.from = {
                     symbol: this.getOperationByKey(op).getToken('from').symbol,
                     logo: this.getOperationByKey(op).getToken('from').logo,
-                },
+                    amount: this.getOperationByKey(op).getParamByField('amount'),
+                };
+            }
+
+            if (this.getOperationByKey(op).getToken('to')) {
+                tokens.to = {
+                    symbol: this.getOperationByKey(op).getToken('to').symbol,
+                    logo: this.getOperationByKey(op).getToken('to').logo,
+                    amount: this.getOperationByKey(op).getParamByField('outputAmount'),
+                };
+            }
+
+            // If the operation is a multiple execution, we need to change the type to mint
+            switch (this.getOperationByKey(op).transactionType) {
+                case TRANSACTION_TYPES.EXECUTE_MULTIPLE:
+                    type = TRANSACTION_TYPES.MINT;
+                    tokens.from.amount = isNaN(Number(tokens.from.amount))
+                        ? this.getOperationByKey(op).getParamByField('outputAmount')
+                        : tokens.from.amount;
+
+                    tokens.to = {
+                        symbol: 'NFT',
+                        logo: tokens.from.logo,
+                        amount: this.getOperationByKey(op).getParamByField('count'),
+                    };
+                    break;
+                case TRANSACTION_TYPES.DEX:
+                    type = TRANSACTION_TYPES.SWAP;
+                    break;
+            }
+
+            result.push({
+                type,
+                status: this.getOperationsStatusByKey(op) as keyof typeof STATUSES,
+                ecosystem: this.getOperationByKey(op).getEcosystem(),
+                chainId: this.getOperationByKey(op).getChainId(),
+                hash: this.getOperationByKey(op).getParamByField('txHash'),
+                tokens,
             });
         }
 
