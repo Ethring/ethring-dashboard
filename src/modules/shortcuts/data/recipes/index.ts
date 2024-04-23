@@ -54,6 +54,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                         'arbitrum:tokens__0x912ce59144191c1204e64559fe8253a0e49e6548:ARB',
                         'arbitrum:tokens__0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9:USDT',
                         'arbitrum:tokens__0xaf88d065e77c8cc2239327c5edb3a432268e5831:USDC',
+                        'arbitrum:tokens__0x82af49447d8a07e3bd95bd0d56f35241523fbab1:WETH',
                     ],
                     optimism: [
                         'optimism:tokens__native:ETH',
