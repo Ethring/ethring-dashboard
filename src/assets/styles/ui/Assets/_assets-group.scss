@@ -50,6 +50,8 @@
             width: 34px;
             height: 34px;
             border-radius: 50%;
+            border: 0.1px solid var(--#{$prefix}icon-placeholder-border);
+            background-color: var(--#{$prefix}icon-placeholder);
 
             display: flex;
             justify-content: center;
