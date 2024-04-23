@@ -6,7 +6,7 @@
         </a-tooltip>
 
         <HelpItem tooltipText="dashboard.releaseNotes" @click="showReleaseNotes" :badge="showBadge">
-            <FileDoneOutlined />
+            <ReleaseNoteIcon />
         </HelpItem>
 
         <template v-if="currentChainInfo">
@@ -23,11 +23,14 @@
 <script>
 import { computed, inject } from 'vue';
 import { useStore } from 'vuex';
+
 import _ from 'lodash';
 
-import { FileDoneOutlined, SyncOutlined } from '@ant-design/icons-vue';
+import { SyncOutlined } from '@ant-design/icons-vue';
 
+import ReleaseNoteIcon from '@/assets/icons/platform-icons/note.svg';
 import BuyCryptoIcon from '@/assets/icons/sidebar/buy-crypto.svg';
+
 import ThemeSwitcher from '../ThemeSwitcher.vue';
 import HelpItem from './HelpItem.vue';
 
@@ -41,8 +44,8 @@ export default {
         HelpItem,
         ThemeSwitcher,
         BuyCryptoIcon,
-        FileDoneOutlined,
         SyncOutlined,
+        ReleaseNoteIcon,
     },
     setup() {
         const store = useStore();
@@ -83,7 +86,7 @@ export default {
 
                 await updateBalanceForAccount(account, list);
             }
-        }
+        };
 
         return {
             isLoading,
@@ -104,7 +107,7 @@ export default {
     @include pageFlexRow;
     max-height: 32px !important;
 
-    &>div:not(:last-child) {
+    & > div:not(:last-child) {
         margin-right: 10px;
     }
 }

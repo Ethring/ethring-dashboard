@@ -19,7 +19,7 @@ $top-bar-spacing: 20px;
     &-content {
         width: $layout-width;
         max-width: $layout-max-width;
-        margin: 25px auto;
+        margin: 5px auto 25px;
     }
 }
 
@@ -35,13 +35,16 @@ $top-bar-spacing: 20px;
     padding: 0 !important;
 
     background-color: var(--#{$prefix}nav-bar-bg-color) !important;
-    border-bottom: 1px solid var(--#{$prefix}border-secondary-color);
 
     .nav-bar-container {
         width: $layout-width;
         max-width: $layout-max-width;
         margin: 20px auto;
     }
+}
+
+.scroll {
+    border-bottom: 1px solid var(--#{$prefix}border-secondary-color);
 }
 
 .sidebar-trigger {
@@ -109,6 +112,7 @@ $top-bar-spacing: 20px;
             color: var(--#{$prefix}danger);
         }
     }
+
     .reload-btn &-subtitle {
         margin: auto;
         max-width: 520px;
@@ -156,7 +160,7 @@ $top-bar-spacing: 20px;
 
     z-index: 10;
 
-    & > div:not(:last-child) {
+    &>div:not(:last-child) {
         margin-right: 8px;
     }
 }
@@ -258,6 +262,7 @@ $top-bar-spacing: 20px;
 }
 
 .nft-base-info .nft-base-info-time {
+
     .time-type,
     .time-info {
         display: flex;
@@ -298,6 +303,7 @@ $top-bar-spacing: 20px;
             opacity: 0.6;
         }
     }
+
     .time-icon {
         font-size: 14px;
         color: var(--#{$prefix}warning);
@@ -328,6 +334,7 @@ $top-bar-spacing: 20px;
         opacity: 1;
         transform-origin: center;
     }
+
     100% {
         transform: scale(2);
         opacity: 0;
