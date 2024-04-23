@@ -71,6 +71,19 @@ body {
   width: auto !important;
 }
 
+.ant-empty {
+  &-image {
+    height: fit-content;
+  }
+
+  &-description {
+    font-style: normal;
+    font-weight: 400;
+    font-size: var(--#{$prefix}default-fs);
+    color: var(--#{$prefix}mute-text);
+  }
+}
+
 ::-webkit-input-placeholder {
   color: var(--#{$prefix}select-placeholder-text) !important;
 }
