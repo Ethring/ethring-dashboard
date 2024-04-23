@@ -6,11 +6,14 @@
             margin: auto;
 
             .ant-collapse-arrow {
-                padding: 4px;
-                border-radius: 8px;
-                border: 1px solid var(--#{$prefix}assets-arrow-border-color) !important;
+                // padding: 4px;
+                // border-radius: 8px;
+                // border: 1px solid var(--#{$prefix}assets-arrow-border-color) !important;
                 transition: all 0.2s ease-in-out;
+
                 svg {
+                    width: 16px;
+                    height: 16px;
                     fill: var(--#{$prefix}assets-arrow-color) !important;
                 }
             }
@@ -34,20 +37,20 @@
         padding-block: 0 16px !important;
     }
 
-    & > &-panel:not(:last-child) {
+    &>&-panel:not(:last-child) {
         margin-bottom: 16px;
     }
 
     .ant-collapse-item:hover,
     .ant-collapse-item.active-panel {
         border-color: var(--#{$prefix}assets-arrow-hover-color) !important;
-        .ant-collapse-arrow {
-            background-color: var(--#{$prefix}assets-arrow-hover-color) !important;
-            border-color: var(--#{$prefix}white) !important;
-            svg {
-                fill: var(--#{$prefix}white) !important;
-            }
-        }
+        // .ant-collapse-arrow {
+        // background-color: var(--#{$prefix}assets-arrow-hover-color) !important;
+        // border-color: var(--#{$prefix}white) !important;
+        // svg {
+        //     fill: var(--#{$prefix}white) !important;
+        // }
+        // }
     }
 }
 
@@ -78,7 +81,7 @@
         padding: 0 !important;
     }
 
-    .ant-table-tbody > tr:last-child > td {
+    .ant-table-tbody>tr:last-child>td {
         border-bottom: none !important;
         padding-bottom: 0 !important;
     }
@@ -110,8 +113,9 @@
         height: 36px;
     }
 
-    .ant-table-tbody > .ant-table-row > .ant-table-cell {
+    .ant-table-tbody>.ant-table-row>.ant-table-cell {
         height: 48px;
+
         .assets__item {
             padding: 8px 0;
         }
@@ -121,6 +125,7 @@
         from {
             opacity: 0;
         }
+
         to {
             opacity: 1;
         }

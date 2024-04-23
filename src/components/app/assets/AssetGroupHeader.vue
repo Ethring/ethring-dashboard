@@ -1,7 +1,7 @@
 <template>
     <div class="assets-group-container">
         <div class="assets-group-info">
-            <div class="assets-group-icon-container">
+            <div class="assets-group-icon-container" :class="{ border: icon }">
                 <component v-if="icon" :is="icon" class="asset-group-icon-svg" />
                 <TokenIcon
                     v-if="!icon"
