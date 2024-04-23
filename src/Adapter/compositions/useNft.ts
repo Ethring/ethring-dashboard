@@ -285,7 +285,7 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
         { owner, tokenIds, callCount }: { owner?: string; tokenIds?: string[]; callCount?: number },
     ): Promise<string[]> => {
         try {
-            const { client, rpc, cosmWasmClient } = await getClient(chain);
+            const { cosmWasmClient } = await getClient(chain);
 
             const { SG721MetadataOnchain } = contracts;
 
@@ -318,7 +318,7 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
                 if (isCorrectExtension) return images.push(formattedTokenUri);
 
                 try {
-                    const response = await axios.get(formattedTokenUri, { timeout: 5000 });
+                    const response = await axios.get(formattedTokenUri, { timeout: 3000 });
 
                     const { data } = response || {};
 
@@ -330,7 +330,7 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
 
                     return images.push(formattedCollectionImg);
                 } catch (error) {
-                    console.error('Error getting image', error);
+                    console.warn('Error getting image', error);
                     return images.push(formattedCollectionImg);
                 }
             };
@@ -403,12 +403,6 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
                 vendingMinterQueryClient.mintPrice(),
                 vendingMinterQueryClient.startTime(),
             ]);
-
-            const minterQuery = {
-                minterConfig,
-                mintPrice,
-                startTime,
-            };
 
             const { start_time } = startTime || {};
             const { end_time } = minterConfig as CustomConfigResponse;
@@ -486,13 +480,6 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
                 operationsFactory.value.getOperationById(currentOp.value.id).setParamByField('funds', funds);
             }
 
-            console.log('FINAL COLLECTION INFO');
-            console.log(baseQuery);
-            console.log(minterQuery);
-            console.log(stats);
-            console.log(response);
-            console.log('---------------------------');
-
             return response;
         } catch (error) {
             console.error(error);
@@ -538,7 +525,7 @@ export default function useNft(ecosystem: ECOSYSTEMS_TYPE): IUseNFT {
             console.log('NFT IMAGES', nfts);
         }
 
-        await delay(500);
+        await delay(1000);
         isRequestingNfts.value = false;
     });
 

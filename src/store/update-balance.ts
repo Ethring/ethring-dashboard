@@ -1,3 +1,4 @@
+import { IUpdateBalanceByHash } from '@/shared/models/types/UpdateBalance';
 import _ from 'lodash';
 
 const TYPES = {
@@ -7,115 +8,80 @@ const TYPES = {
     SET_QUEUES_TO_UPDATE: 'SET_QUEUES_TO_UPDATE',
 };
 
+interface IState {
+    transactionHash: {
+        [key: string]: Record<string, string>;
+    };
+    queueToUpdate: Record<
+        string,
+        {
+            chain: string;
+            address: string;
+            hash: string;
+            startTimestamp: number;
+        }
+    >;
+}
+
 export default {
     namespaced: true,
 
-    state: () => ({
-        inProgress: {},
+    state: (): IState => ({
         transactionHash: {},
-        updateBalanceForAddress: {},
         queueToUpdate: {},
     }),
 
     getters: {
-        getInProgress: (state) => (address: string) => {
-            if (state.inProgress[address]) return state.inProgress[address];
-            return state.inProgress[address];
-        },
-        getQueueToUpdate: (state) => _.values(state.queueToUpdate),
-        updateBalanceForAddress: (state) => {
-            const response = {};
-
-            for (const address in state.updateBalanceForAddress) {
-                response[address] = _.keys(state.updateBalanceForAddress[address]);
-            }
-
-            return response;
-        },
-
-        isWaitingTxStatusForModule: (state) => (module) => state.isWaitingTxStatus[module] || null,
+        getQueueToUpdate: (state: IState) => _.values(state.queueToUpdate).filter((queue) => queue.startTimestamp === 0),
     },
 
     mutations: {
-        [TYPES.SET_UPDATE_BALANCE_FOR_ADDRESS](state, { hash, address, chains }) {
+        [TYPES.SET_UPDATE_BALANCE_FOR_ADDRESS](state: IState, { hash, addresses }: IUpdateBalanceByHash) {
             !state.transactionHash[hash] && (state.transactionHash[hash] = {});
+            state.transactionHash[hash] = addresses;
 
-            for (const chain of chains) {
-                const uniqueKey = `${chain}_${address}`;
+            for (const chain in addresses) {
+                const address = addresses[chain];
 
-                if (state.transactionHash[hash] && state.transactionHash[hash][uniqueKey]) {
-                    return;
-                }
-
-                state.transactionHash[hash][uniqueKey] = true;
-
-                !state.updateBalanceForAddress[address] && (state.updateBalanceForAddress[address] = {});
-                !state.updateBalanceForAddress[address][chain] && (state.updateBalanceForAddress[address][chain] = true);
+                state.queueToUpdate[`${chain}_${address}_${hash}`] = {
+                    chain,
+                    address,
+                    hash,
+                    startTimestamp: 0,
+                };
             }
         },
-        [TYPES.REMOVE_UPDATE_BALANCE_FOR_ADDRESS](state, { address, chain }) {
-            if (!state.updateBalanceForAddress[address]) {
-                return;
-            }
-
-            const uniqueKey = `${chain}_${address}`;
-
-            delete state.updateBalanceForAddress[address][chain];
-            delete state.updateBalanceForAddress[address];
-            delete state.queueToUpdate[uniqueKey];
-            delete state.inProgress[uniqueKey];
-
-            for (const key in state.transactionHash) {
-                if (state.transactionHash[key][uniqueKey]) {
-                    delete state.transactionHash[key][uniqueKey];
-                }
-
-                if (!Object.keys(state.transactionHash[key]).length) {
-                    delete state.transactionHash[key];
-                }
-            }
-        },
-        [TYPES.SET_IN_PROGRESS](state, { address, status }: { address: string; status: boolean }) {
-            state.inProgress[address] = status;
-            if (!status) delete state.inProgress[address];
-        },
-        [TYPES.SET_QUEUES_TO_UPDATE](
-            state,
-            {
-                chain,
-                address,
-                mainAddress,
-                config,
-            }: {
-                chain: string;
-                address: string;
-                mainAddress: string;
-                config: any;
-            },
+        [TYPES.REMOVE_UPDATE_BALANCE_FOR_ADDRESS](
+            state: IState,
+            { address, chain, hash }: { address: string; chain: string; hash: string },
         ) {
-            const uniqueKey = `${chain}_${mainAddress}`;
+            if (state.transactionHash[hash]) {
+                delete state.transactionHash[hash][chain];
+            }
 
-            state.queueToUpdate[uniqueKey] = {
-                chain,
-                address,
-                mainAddress,
-                config,
-            };
+            const queueKey = `${chain}_${address}_${hash}`;
+
+            delete state.queueToUpdate[queueKey];
+
+            if (!Object.keys(state.transactionHash[hash]).length) {
+                delete state.transactionHash[hash];
+            }
+        },
+        [TYPES.SET_IN_PROGRESS](state: IState, queueKey: string) {
+            if (!queueKey) return;
+            state.queueToUpdate[queueKey]['startTimestamp'] = Date.now();
         },
     },
 
     actions: {
-        setUpdateBalanceForAddress({ commit }, value) {
+        setUpdateBalanceForAddress({ commit }, value: IUpdateBalanceByHash) {
             commit(TYPES.SET_UPDATE_BALANCE_FOR_ADDRESS, value);
         },
-        removeUpdateBalanceForAddress({ commit }, value) {
+        removeUpdateBalanceForAddress({ commit }, value: { address: string; chain: string; hash: string }) {
             commit(TYPES.REMOVE_UPDATE_BALANCE_FOR_ADDRESS, value);
         },
-        setInProgress({ commit }, { address, status }) {
-            commit(TYPES.SET_IN_PROGRESS, { address, status });
-        },
-        setQueuesToUpdate({ commit }, value) {
-            commit(TYPES.SET_QUEUES_TO_UPDATE, value);
+        setInProgress({ commit }, value) {
+            commit(TYPES.SET_IN_PROGRESS, value);
         },
     },
 };

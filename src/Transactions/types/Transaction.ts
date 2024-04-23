@@ -9,6 +9,7 @@ interface MetaData {
 
     notificationTitle?: string | null;
     notificationDescription?: string | null;
+    explorerLink?: string | null;
 }
 
 export interface ICreateTransaction {

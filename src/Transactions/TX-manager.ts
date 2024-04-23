@@ -6,6 +6,7 @@ import { SocketEvents } from '@/shared/models/enums/socket-events.enum';
 import { handleTransactionStatus } from './shared/utils/tx-statuses';
 import { STATUSES } from '@/shared/models/enums/statuses.enum';
 import { delay } from '@/shared/utils/helpers';
+import { ECOSYSTEMS } from '@/Adapter/config';
 
 export class Transaction {
     id: string | number;
@@ -50,7 +51,7 @@ export class Transaction {
     }
 
     getEcosystem() {
-        return this.ecosystem;
+        return this.ecosystem as keyof typeof ECOSYSTEMS;
     }
 
     getChainId() {

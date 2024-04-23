@@ -1,4 +1,4 @@
-import { ref, computed, onBeforeUnmount, onMounted } from 'vue';
+import { Ref, ref, computed, onBeforeUnmount, onMounted } from 'vue';
 
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
@@ -7,6 +7,50 @@ import { ECOSYSTEMS } from '@/Adapter/config';
 
 import * as GETTERS from '../store/getters';
 import * as TYPES from '../store/types';
+import { ChainConfig } from '../../modules/chain-configs/types/chain-config';
+import { ITransaction, ITransactionResponse } from '../../Transactions/types/Transaction';
+
+interface WalletInfo {
+    id: string;
+    account: any; // тип аккаунта определите сами
+    address: string | null;
+    addresses: Record<string, string>; // тип адресов определите сами
+    chain: string | number | null;
+    ecosystem: string | null;
+    walletName: string | null;
+    walletModule: string | null;
+}
+
+interface ChainInfo extends ChainConfig, WalletInfo {
+    name: string;
+    logo: string;
+    chain_id: string | number;
+    ecosystem: string;
+    chainName?: string;
+}
+
+export interface IAdapter {
+    initAdapter: () => Promise<void>;
+    connectTo: (ecosystem: keyof typeof ECOSYSTEMS, ...args: any[]) => Promise<boolean>;
+    connectByEcosystems: (ecosystem: keyof typeof ECOSYSTEMS) => Promise<void>;
+    connectLastConnectedWallet: () => Promise<void | boolean>;
+    getWalletsModuleByEcosystem: (ecosystem: keyof typeof ECOSYSTEMS) => string[];
+    getAddressesWithChainsByEcosystem: (ecosystem: keyof typeof ECOSYSTEMS, options?: { hash: boolean }) => Promise<Record<string, string>>;
+    getTxExplorerLink: (hash: string, chainInfo: ChainInfo) => string;
+    getTokenExplorerLink: (tokenAddress: string, chain: string) => string;
+    setChain: (chainInfo: ChainInfo) => Promise<boolean>;
+    setNewChain: (ecosystem: keyof typeof ECOSYSTEMS, newChainInfo: ChainInfo) => Promise<boolean>;
+    validateAddress: (address: string, { chainId }) => boolean;
+    formatTransactionForSign: (transaction: ITransactionResponse, txParams: { ecosystem: string; [key: string]: any }) => ITransaction;
+    prepareTransaction: (transaction: ITransactionResponse, { ecosystem }) => Promise<ITransaction>;
+    prepareDelegateTransaction: (transaction: ITransactionResponse, { ecosystem }) => Promise<ITransaction>;
+    prepareMultipleExecuteMsgs: (transaction: ITransactionResponse, { ecosystem }) => Promise<ITransaction>;
+    signSend: (transaction: ITransactionResponse, { ecosystem }) => Promise<any>;
+    getChainListByEcosystem: (ecosystem: keyof typeof ECOSYSTEMS) => ChainConfig[];
+    getChainByChainId: (ecosystem: keyof typeof ECOSYSTEMS, chainId: string | number) => ChainConfig;
+    getWalletLogo: (ecosystem: keyof typeof ECOSYSTEMS, module: string) => Promise<string>;
+    getIBCAssets: (ecosystem: keyof typeof ECOSYSTEMS, chain: ChainInfo) => any[];
+}
 
 function useAdapter() {
     // * Store Module
@@ -14,12 +58,11 @@ function useAdapter() {
     const router = useRouter();
 
     const storeModule = 'adapters';
-
-    const walletsSubscription = ref(null);
+    const walletsSubscription: Ref<any> | null = ref(null);
 
     // * Store Getters & Dispatch
-    const adaptersGetter = (getter) => store.getters[`${storeModule}/${getter}`];
-    const adaptersDispatch = (dispatch, ...args) => store.dispatch(`${storeModule}/${dispatch}`, ...args);
+    const adaptersGetter = (getter: string) => store.getters[`${storeModule}/${getter}`];
+    const adaptersDispatch = (dispatch: string, ...args: any[]) => store.dispatch(`${storeModule}/${dispatch}`, ...args);
 
     const isConfigsLoading = computed(() => store.getters['configs/isConfigLoading']);
 
@@ -37,27 +80,27 @@ function useAdapter() {
     };
 
     // * Last Connected Wallet
-    const lastConnectedWallet = computed(() => adaptersGetter(GETTERS.LAST_CONNECTED_WALLET));
+    const lastConnectedWallet = computed<WalletInfo>(() => adaptersGetter(GETTERS.LAST_CONNECTED_WALLET));
 
-    const currEcosystem = computed(() => adaptersGetter(GETTERS.CURRENT_ECOSYSTEM));
+    const currEcosystem = computed<keyof typeof ECOSYSTEMS>(() => adaptersGetter(GETTERS.CURRENT_ECOSYSTEM));
 
     // * Main Adapter for current ecosystem
     const mainAdapter = computed(() => adaptersGetter(GETTERS.CURRENT_ADAPTER));
 
     // * Main Variables
-    const isConnecting = computed(() => adaptersGetter(GETTERS.IS_CONNECTING));
+    const isConnecting = computed<boolean>(() => adaptersGetter(GETTERS.IS_CONNECTING));
 
-    const connectedWallets = computed(() => adaptersGetter(GETTERS.CONNECTED_WALLETS));
+    const connectedWallets = computed<WalletInfo[]>(() => adaptersGetter(GETTERS.CONNECTED_WALLETS));
 
-    const currentChainInfo = computed(() => (mainAdapter.value ? mainAdapter.value.getCurrentChain(store) : null));
+    const currentChainInfo = computed<ChainInfo>(() => (mainAdapter.value ? mainAdapter.value.getCurrentChain(store) : null));
 
-    const chainList = computed(() => (mainAdapter.value ? mainAdapter.value.getChainList(store) : []));
+    const chainList = computed<ChainConfig[]>(() => (mainAdapter.value ? mainAdapter.value.getChainList(store) : []));
 
-    const walletAddress = computed(() => (mainAdapter.value ? mainAdapter.value.getAccountAddress() : null));
-    const walletAccount = computed(() => (mainAdapter.value ? mainAdapter.value.getAccount() : null));
+    const walletAddress = computed<string>(() => (mainAdapter.value ? mainAdapter.value.getAccountAddress() : null));
+    const walletAccount = computed<string>(() => (mainAdapter.value ? mainAdapter.value.getAccount() : null));
 
-    const connectedWallet = computed(() => (mainAdapter.value ? mainAdapter.value.getConnectedWallet() : null));
-    const connectedWalletModule = computed(() => (mainAdapter.value ? mainAdapter.value.getWalletModule() : null));
+    const connectedWallet = computed<WalletInfo>(() => (mainAdapter.value ? mainAdapter.value.getConnectedWallet() : null));
+    const connectedWalletModule = computed<string>(() => (mainAdapter.value ? mainAdapter.value.getWalletModule() : null));
 
     // * Functions
     function subscribeToWalletsChange() {
@@ -157,16 +200,10 @@ function useAdapter() {
     };
 
     // * Connect to Wallet by Ecosystems
-    const connectByEcosystems = async (ecosystem) => {
-        if (!ecosystem) {
-            return false;
-        }
+    const connectByEcosystems = async (ecosystem: keyof typeof ECOSYSTEMS) => {
+        if (!ecosystem) return false;
 
-        subscribeToWalletsChange();
-
-        if (ecosystem === ECOSYSTEMS.COSMOS) {
-            return await adaptersDispatch(TYPES.SET_MODAL_STATE, { name: 'wallets', isOpen: true });
-        }
+        if (ecosystem === ECOSYSTEMS.COSMOS) return await adaptersDispatch(TYPES.SET_MODAL_STATE, { name: 'wallets', isOpen: true });
 
         try {
             const status = await connectTo(ecosystem);
@@ -176,32 +213,29 @@ function useAdapter() {
             adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
             console.warn('Failed to connect to:', ecosystem, error);
             return false;
+        } finally {
+            subscribeToWalletsChange();
         }
     };
 
     // * Connect to another connected wallet, if last connected not available
-    const connectAnotherConnectedWallet = async (lastModule) => {
+    const connectAnotherConnectedWallet = async (lastModule: string): Promise<boolean> => {
         const connectedWallet = connectedWallets.value.find((wallet) => wallet.walletModule !== lastModule);
 
-        if (!connectedWallet) {
-            return false;
-        }
+        if (!connectedWallet) return false;
 
         const { ecosystem, chain, walletModule } = connectedWallet;
+
         return await connectTo(ecosystem, walletModule, chain);
     };
 
     // * Connect to Last Connected Wallet
-    const connectLastConnectedWallet = async () => {
-        if (!lastConnectedWallet.value || walletAddress.value) {
-            return;
-        }
+    const connectLastConnectedWallet = async (): Promise<void | boolean> => {
+        if (!lastConnectedWallet.value || walletAddress.value) return;
 
         const { ecosystem, chain, walletModule } = lastConnectedWallet.value;
 
-        if (!ecosystem || !chain || !walletModule) {
-            return;
-        }
+        if (!ecosystem || !chain || !walletModule) return;
 
         try {
             adaptersDispatch(TYPES.SET_IS_CONNECTING, true);
@@ -216,7 +250,8 @@ function useAdapter() {
                 if (!isConnected) {
                     adaptersDispatch(TYPES.SET_IS_CONNECTING, false);
                     adaptersDispatch(TYPES.SET_IS_CONNECTED, { ecosystem, isConnected: false });
-                    return router.push('/connect-wallet');
+                    router.push('/connect-wallet');
+                    return;
                 }
             }
 
@@ -234,7 +269,7 @@ function useAdapter() {
     };
 
     // * Get Wallets Module by Ecosystem
-    const getWalletsModuleByEcosystem = (ecosystem) => {
+    const getWalletsModuleByEcosystem = (ecosystem: keyof typeof ECOSYSTEMS): string[] => {
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
         return adapter.getMainWallets() || [];
     };
@@ -258,12 +293,10 @@ function useAdapter() {
     };
 
     // * Disconnect Wallet by Ecosystem
-    const disconnectWallet = async (ecosystem, wallet) => {
+    const disconnectWallet = async (ecosystem: keyof typeof ECOSYSTEMS, wallet: WalletInfo): Promise<void> => {
         const { walletModule } = wallet || {};
 
-        if (ecosystem === currEcosystem.value) {
-            console.log('disconnectWallet curr', ecosystem, walletModule);
-        }
+        if (ecosystem === currEcosystem.value) console.log('disconnectWallet curr', ecosystem, walletModule);
 
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
@@ -273,9 +306,7 @@ function useAdapter() {
 
         await adapter.disconnectWallet(walletModule);
 
-        if (!connectedWallets.value.length) {
-            router.push('/connect-wallet');
-        }
+        if (!connectedWallets.value.length) router.push('/connect-wallet');
 
         await storeWalletInfo();
     };
@@ -293,10 +324,8 @@ function useAdapter() {
     };
 
     // * Validate Address
-    const validateAddress = (address, { chainId }) => {
-        if (!mainAdapter.value) {
-            return false;
-        }
+    const validateAddress = (address: string, { chainId }): boolean => {
+        if (!mainAdapter.value) return false;
 
         const validation = currentChainInfo.value.address_validating;
 
@@ -304,16 +333,12 @@ function useAdapter() {
     };
 
     // * Format Tx for Ecosystem
-    const formatTransactionForSign = (transaction, txParams = {}) => {
-        if (!mainAdapter.value) {
-            return null;
-        }
+    const formatTransactionForSign = (transaction: ITransactionResponse, txParams: { ecosystem: string; [key: string]: any }) => {
+        if (!mainAdapter.value) return null;
 
         const { ecosystem, ...params } = txParams || {};
 
-        if (!ecosystem) {
-            return mainAdapter.value.formatTransactionForSign(transaction, params);
-        }
+        if (!ecosystem) return mainAdapter.value.formatTransactionForSign(transaction, params);
 
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
@@ -321,14 +346,10 @@ function useAdapter() {
     };
 
     // * Prepare Transaction
-    const prepareTransaction = async (transaction, { ecosystem }) => {
-        if (!mainAdapter.value) {
-            return null;
-        }
+    const prepareTransaction = async (transaction: ITransactionResponse, { ecosystem }) => {
+        if (!mainAdapter.value) return null;
 
-        if (!ecosystem) {
-            return await mainAdapter.value.prepareTransaction(transaction);
-        }
+        if (!ecosystem) return await mainAdapter.value.prepareTransaction(transaction);
 
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
@@ -336,10 +357,9 @@ function useAdapter() {
     };
 
     // * Prepare Delegate Transaction
-    const prepareDelegateTransaction = async (transaction, { ecosystem }) => {
-        if (!ecosystem && mainAdapter.value?.prepareDelegateTransaction) {
+    const prepareDelegateTransaction = async (transaction: ITransactionResponse, { ecosystem }) => {
+        if (!ecosystem && mainAdapter.value?.prepareDelegateTransaction)
             return await mainAdapter.value?.prepareDelegateTransaction(transaction);
-        }
 
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
@@ -347,10 +367,8 @@ function useAdapter() {
     };
 
     // * Prepare Delegate Transaction
-    const prepareMultipleExecuteMsgs = async (transaction, { ecosystem }) => {
-        if (!mainAdapter.value) {
-            return null;
-        }
+    const prepareMultipleExecuteMsgs = async (transaction: ITransactionResponse, { ecosystem }) => {
+        if (!mainAdapter.value) return null;
 
         if (!ecosystem && mainAdapter.value?.prepareMultipleExecuteMsgs) {
             return await mainAdapter.value?.prepareMultipleExecuteMsgs(transaction);
@@ -362,17 +380,19 @@ function useAdapter() {
     };
 
     // * Get Explorer Link by Tx Hash
-    const getTxExplorerLink = (...args) => {
-        return mainAdapter.value.getTxExplorerLink(...args) || null;
+    const getTxExplorerLink = (hash: string, chainInfo: ChainInfo): string => {
+        if (!mainAdapter.value) return null;
+
+        if (!mainAdapter.value.getTxExplorerLink) return null;
+
+        return mainAdapter.value.getTxExplorerLink(hash, chainInfo) || null;
     };
 
     // * Get Explorer Link by Tx Hash
-    const getTokenExplorerLink = (tokenAddress, chain) => {
+    const getTokenExplorerLink = (tokenAddress: string, chain: string): string => {
         const chains = getChainListByEcosystem(currEcosystem.value);
 
-        if (!chains?.length) {
-            return null;
-        }
+        if (!chains?.length) return null;
 
         const chainInfo = chains.find(({ net, bech32_prefix }) => net === chain || bech32_prefix === chain);
 
@@ -380,7 +400,7 @@ function useAdapter() {
     };
 
     // * Sign & Send Transaction
-    const signSend = async (transaction, { ecosystem = null }) => {
+    const signSend = async (transaction: ITransactionResponse, { ecosystem = null }) => {
         if (!ecosystem) return await mainAdapter.value.signSend(transaction);
 
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
@@ -391,28 +411,22 @@ function useAdapter() {
     };
 
     // * Get Chain List by Ecosystem
-    const getChainListByEcosystem = (ecosystem) => {
+    const getChainListByEcosystem = (ecosystem: keyof typeof ECOSYSTEMS): ChainConfig[] => {
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
-        if (!adapter) {
-            return [];
-        }
+        if (!adapter) return [];
 
-        if (!adapter.getChainList) {
-            return [];
-        }
+        if (!adapter.getChainList) return [];
 
         return adapter.getChainList(store);
     };
 
     // * Get Chain by Chain ID
-    const getChainByChainId = (ecosystem = null, chainId) => {
-        const getChain = (ecosystem) => {
+    const getChainByChainId = (ecosystem = null, chainId: string | number): ChainConfig => {
+        const getChain = (ecosystem: keyof typeof ECOSYSTEMS) => {
             const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
-            if (!adapter) {
-                return null;
-            }
+            if (!adapter) return null;
 
             try {
                 const chainList = adapter.getChainList(store);
@@ -438,7 +452,7 @@ function useAdapter() {
         // * If Ecosystem not provided, get chain from all ecosystems
         if (!ecosystem) {
             for (const ecosystem in ECOSYSTEMS) {
-                const chain = getChain(ecosystem);
+                const chain = getChain(ecosystem as keyof typeof ECOSYSTEMS);
                 if (chain) {
                     return chain;
                 }
@@ -455,14 +469,13 @@ function useAdapter() {
     };
 
     // * Set New Chain by Ecosystem
-    const setNewChain = async (ecosystem, newChainInfo) => {
+    const setNewChain = async (ecosystem: keyof typeof ECOSYSTEMS, newChainInfo: ChainInfo): Promise<boolean> => {
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
         const changed = await adapter.setChain(newChainInfo);
 
         if (changed) {
             adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
-
             return true;
         }
 
@@ -472,16 +485,14 @@ function useAdapter() {
     };
 
     // * Get Wallet Logo by Ecosystem
-    const getWalletLogo = async (ecosystem, module) => {
+    const getWalletLogo = async (ecosystem: keyof typeof ECOSYSTEMS, module: string) => {
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
         return await adapter.getWalletLogo(module, store);
     };
 
     // * Get addressesWithChains by Ecosystem
-    const getAddressesWithChainsByEcosystem = async (ecosystem = null, { hash = false } = {}) => {
-        if (!ecosystem) {
-            return {};
-        }
+    const getAddressesWithChainsByEcosystem = async (ecosystem: keyof typeof ECOSYSTEMS | null, { hash = false } = {}) => {
+        if (!ecosystem) return {};
 
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
@@ -490,11 +501,7 @@ function useAdapter() {
         // * Return Hash of Addresses
         if (hash) {
             const hashAddresses = {};
-
-            for (const chain in addresses) {
-                hashAddresses[chain] = addresses[chain].address;
-            }
-
+            for (const chain in addresses) hashAddresses[chain] = addresses[chain].address;
             return hashAddresses;
         }
 
@@ -503,30 +510,34 @@ function useAdapter() {
     };
 
     // * Get Ibc assets for COSMOS ecosystem
-    const getIBCAssets = (ecosystem, chain) => {
-        if (ecosystem !== ECOSYSTEMS.COSMOS) {
-            return [];
-        }
+    const getIBCAssets = (ecosystem: keyof typeof ECOSYSTEMS, chain: ChainInfo) => {
+        if (ecosystem !== ECOSYSTEMS.COSMOS) return [];
 
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
         return adapter.getIBCAssets(chain);
     };
 
     // * Get Native asset for by Ecosystem and Chain
-    const getNativeTokenByChain = (ecosystem, chain, store) => {
+    const getNativeTokenByChain = (ecosystem: keyof typeof ECOSYSTEMS, chain: ChainInfo, store: any) => {
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
         return adapter.getNativeTokenByChain(chain, store);
     };
 
-    const getConnectedStatus = (ecosystem) => {
+    const getConnectedStatus = (ecosystem: keyof typeof ECOSYSTEMS): boolean => {
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+
+        if (adapter.isLocked()) {
+            adaptersDispatch(TYPES.SET_IS_CONNECTED, { ecosystem, isConnected: false });
+            return false;
+        }
+
         return adaptersGetter(GETTERS.IS_CONNECTED)(ecosystem);
     };
 
-    const switchEcosystem = async (ecosystem) => {
-        return await adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
-    };
+    const switchEcosystem = async (ecosystem: keyof typeof ECOSYSTEMS): Promise<void> =>
+        await adaptersDispatch(TYPES.SWITCH_ECOSYSTEM, ecosystem);
 
-    const getContractInfo = async (ecosystem, chainInfo, contract) => {
+    const getContractInfo = async (ecosystem: keyof typeof ECOSYSTEMS, chainInfo: ChainConfig, contract: string) => {
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
         await setChain(chainInfo);
@@ -534,7 +545,28 @@ function useAdapter() {
         return adapter.getContractInfo(contract);
     };
 
-    const getAdapterByEcosystem = (ecosystem) => adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+    const getAdapterByEcosystem = (ecosystem: keyof typeof ECOSYSTEMS) => adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+
+    const callTransactionAction = async (action: string, { ecosystem, parameters, txParams = {} }) => {
+        const TX_ACTIONS = {
+            formatTransactionForSign,
+            prepareTransaction,
+            prepareDelegateTransaction,
+            prepareMultipleExecuteMsgs,
+        };
+
+        try {
+            if (!action || !TX_ACTIONS[action]) {
+                console.error('Unknown action', action);
+                throw new Error(`Invalid transaction action: ${action}`);
+            }
+
+            return await TX_ACTIONS[action](parameters, { ecosystem, ...txParams });
+        } catch (error) {
+            console.error('Failed to call transaction action:', action, error);
+            throw new Error(`Failed to call transaction action: ${action}`);
+        }
+    };
 
     return {
         isConnecting,
@@ -579,6 +611,8 @@ function useAdapter() {
         prepareTransaction,
         prepareDelegateTransaction,
         prepareMultipleExecuteMsgs,
+
+        callTransactionAction,
 
         signSend,
 
