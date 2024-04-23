@@ -75,6 +75,10 @@ export class CosmosAdapter extends AdapterBase {
         super();
     }
 
+    isLocked() {
+        return !this.getConnectedWallet();
+    }
+
     async init(store) {
         // * Get chains
         // ========= Init Cosmos Chains =========
