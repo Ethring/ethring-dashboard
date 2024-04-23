@@ -21,4 +21,5 @@ export interface ChainConfig {
     address_validating?: string;
     derivation_path?: { [key: string]: string };
     main_standards?: string[];
+    bech32_prefix?: string;
 }

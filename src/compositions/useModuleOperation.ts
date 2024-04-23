@@ -214,7 +214,7 @@ const useModuleOperations = (module: ModuleType) => {
         return null;
     });
 
-    const connectWalletByEcosystem = async (ecosystem: string) => {
+    const connectWalletByEcosystem = async (ecosystem: keyof typeof ECOSYSTEMS) => {
         return await connectByEcosystems(ecosystem);
     };
 
@@ -312,33 +312,17 @@ const useModuleOperations = (module: ModuleType) => {
             [METHODS.ECOSYSTEM_CONNECTED_CHAIN_NOT_CORRECT]: () => isEcosystemEqual() && !isChainsEqual(),
         };
 
-        const isEVM = tx.getEcosystem() === ECOSYSTEMS.EVM;
-
-        const SHORTCUT_FLOW = [];
-
-        if (isEVM) {
-            SHORTCUT_FLOW.push(METHODS.ECOSYSTEM_NOT_CONNECT);
-            SHORTCUT_FLOW.push(METHODS.ECOSYSTEM_CONNECTED_NOT_CORRECT);
-            SHORTCUT_FLOW.push(METHODS.ECOSYSTEM_CONNECTED_CHAIN_NOT_CORRECT);
-        } else {
-            SHORTCUT_FLOW.push(METHODS.ECOSYSTEM_CONNECTED_NOT_CORRECT);
-            SHORTCUT_FLOW.push(METHODS.ECOSYSTEM_NOT_CONNECT);
-            SHORTCUT_FLOW.push(METHODS.ECOSYSTEM_CONNECTED_CHAIN_NOT_CORRECT);
-        }
-
         const DEFAULT_FLOW = [
             METHODS.ECOSYSTEM_CONNECTED_NOT_CORRECT,
             METHODS.ECOSYSTEM_NOT_CONNECT,
             METHODS.ECOSYSTEM_CONNECTED_CHAIN_NOT_CORRECT,
         ];
 
-        const validationFlow = isShortcutOpsExist() ? SHORTCUT_FLOW : DEFAULT_FLOW;
-
         try {
             // * START: Check if wallet chain is correct, if correct, skip
             if (isEverythingCorrect()) return true;
 
-            for (const method of validationFlow) {
+            for (const method of DEFAULT_FLOW) {
                 if (FLOW_CONDITIONS[method]()) await FLOW_METHODS[method]();
                 await delay(500); // ! Wait before next check
             }
