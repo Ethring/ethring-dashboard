@@ -144,6 +144,6 @@ export default defineConfig({
                 filename: 'stats.html',
             }),
 
-        // eslintPlugin(), // TURN ON FOR ESLINT_DEBUG
+        // eslintPlugin(), // TURN ON FOR ESLINT_DEBUG = true
     ],
 });
