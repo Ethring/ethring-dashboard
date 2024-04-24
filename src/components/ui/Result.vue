@@ -6,14 +6,7 @@
 
                 <template v-if="link">
                     <a-divider />
-                    <a-tooltip :title="link">
-                        <a :href="link" target="_blank" title="explorer link" class="result-link">
-                            <a-space align="center" :size="4">
-                                {{ $t('tokenOperations.viewDetails') }}
-                                <ExternalLinkIcon />
-                            </a-space>
-                        </a>
-                    </a-tooltip>
+                    <ExternalLink :link="link" :text="$t('tokenOperations.viewDetails')" />
                 </template>
             </div>
         </template>
@@ -33,7 +26,7 @@
 import { useStore } from 'vuex';
 
 import Button from '@/components/ui/Button.vue';
-import ExternalLinkIcon from '@/assets/icons/module-icons/external-link.svg';
+import ExternalLink from '@/components/ui/ExternalLink.vue';
 
 export default {
     name: 'Result',
@@ -66,7 +59,7 @@ export default {
     },
     components: {
         Button,
-        ExternalLinkIcon,
+        ExternalLink,
     },
     setup() {
         const store = useStore();

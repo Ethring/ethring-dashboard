@@ -2,7 +2,7 @@ export interface ChainConfig {
     ecosystem: string;
     net: string;
     name: string;
-    chain_id: number;
+    chain_id: number | string;
     logo: string;
     coingecko_id: string;
 
@@ -21,4 +21,5 @@ export interface ChainConfig {
     address_validating?: string;
     derivation_path?: { [key: string]: string };
     main_standards?: string[];
+    bech32_prefix?: string;
 }
