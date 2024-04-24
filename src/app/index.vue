@@ -34,6 +34,7 @@ import { trackingBalanceUpdate } from '@/services/track-update-balance';
 import { setNativeTokensPrices } from '../modules/balance-provider/native-token';
 
 import { DP_CHAINS } from '@/modules/balance-provider/models/enums';
+import { ECOSYSTEMS } from '@/Adapter/config';
 
 export default {
     name: 'App',
@@ -71,7 +72,6 @@ export default {
             return _.pick(chainAddresses, Object.values(DP_CHAINS)) || {};
         };
 
-
         const callSubscription = async () => {
             const { ecosystem } = currentChainInfo.value || {};
 
@@ -99,10 +99,9 @@ export default {
                 return setTimeout(callInit, 1000);
             }
 
-            const addressHash = await getAddressesWithChainsByEcosystem(ecosystem, { hash: true }) || {};
+            const addressHash = (await getAddressesWithChainsByEcosystem(ecosystem, { hash: true })) || {};
             store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM', { ecosystem, addresses: addressHash });
 
-            await setNativeTokensPrices(store, ecosystem);
             await updateBalanceForAllAccounts();
         };
 
@@ -130,6 +129,9 @@ export default {
             await store.dispatch('bridgeDexAPI/getServices');
 
             await initAdapter();
+
+            await setNativeTokensPrices(store, ECOSYSTEMS.EVM);
+            await setNativeTokensPrices(store, ECOSYSTEMS.COSMOS);
         });
 
         onBeforeUnmount(() => {
@@ -143,11 +145,10 @@ export default {
         onMounted(() => {
             // * Tracking balance update for all accounts
             trackingBalanceUpdate(store);
-            // import('@/app/scripts/development').then(({ default: dev }) => {
-            //     dev();
-            // });
+            // if (process.env.NODE_ENV === 'development') {
+            //     import('@/app/scripts/development').then(({ default: dev }) => dev());
+            // }
             // console.log('App mounted', store.getters['adapters/getAllConnectedWallets']);
-
         });
     },
 };

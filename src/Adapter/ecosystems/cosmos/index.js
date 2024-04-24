@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import _ from 'lodash';
 
-import { cosmos, cosmwasm } from 'injectivejs';
+import { cosmos, cosmwasm } from 'osmojs';
 
 import { SigningStargateClient, GasPrice } from '@cosmjs/stargate';
 
@@ -73,6 +73,10 @@ export class CosmosAdapter extends AdapterBase {
 
     constructor() {
         super();
+    }
+
+    isLocked() {
+        return !this.getConnectedWallet();
     }
 
     async init(store) {
@@ -943,7 +947,6 @@ export class CosmosAdapter extends AdapterBase {
     }
 
     async signSend(transaction) {
-        console.log('transaction', transaction);
         const { msg, fee, memo } = transaction;
 
         const chainWallet = this._getCurrentWallet();
@@ -982,8 +985,6 @@ export class CosmosAdapter extends AdapterBase {
 
         const msgs = Array.isArray(msg) ? msg : [msg];
 
-        console.log('signSend', { msgs, fee, memo, isArray: Array.isArray(msg) });
-
         // Check timer
         const txTimerID = this.store.getters['txManager/txTimerID'];
 
@@ -997,13 +998,14 @@ export class CosmosAdapter extends AdapterBase {
 
         // Sign and send transaction
         try {
-            console.log('msgs', msgs);
-            console.log('fee', fee);
-            console.log('memo', memo);
+            const tx = [this.getAccountAddress(), msgs, fee];
 
-            const response = await signClient.client.signAndBroadcast(this.getAccountAddress(), msgs, fee, memo);
+            if (memo && memo !== undefined) tx.push(memo);
 
-            console.log('response', response);
+            const response = await signClient.client.signAndBroadcast(...tx);
+
+            console.log('Sign and broadcast response', response);
+
             return response;
         } catch (error) {
             logger.error('[COSMOS -> signSend] Error while broadcasting transaction', error);

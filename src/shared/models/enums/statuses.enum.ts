@@ -6,6 +6,7 @@ export enum STATUSES {
     IN_PROGRESS = 'IN PROGRESS',
     SIGNING = 'SIGNING',
     ESTIMATING = 'ESTIMATING',
+    SKIPPED = 'SKIPPED',
 }
 
 export enum SHORTCUT_STATUSES {

@@ -18,7 +18,7 @@ import packageJson from './package.json'; // * Package.json to get the version
 
 const isProduction = process.env.NODE_ENV === 'production'; // Production environment
 const isAnalyzeBundle = process.env.IS_ANALYZE === 'true'; // Analyze bundle size
-const maxChunkSize = 5 * 1024 * 1024; // Default size limit: 3MB
+const MAX_CHUNK_SIZE_PER_FILE = 3 * 1024 * 1024; // Default size limit: 3MB
 
 export default defineConfig({
     base: '/',
@@ -31,7 +31,7 @@ export default defineConfig({
         manifest: true,
         minify: isProduction,
         sourcemap: !isProduction,
-        chunkSizeWarningLimit: maxChunkSize,
+        chunkSizeWarningLimit: MAX_CHUNK_SIZE_PER_FILE,
         rollupOptions: {
             // EXCLUDE
             external: ['stargazejs/main/codegen/ibc', 'stargazejs/main/codegen/cosmos'],
@@ -52,10 +52,6 @@ export default defineConfig({
                     '@cosmology-wallets-leap': ['@cosmos-kit/leap', '@cosmos-kit/leap-extension', '@cosmos-kit/leap-mobile'],
                     '@cosmjs-stargate': ['@cosmjs/cosmwasm-stargate', '@cosmjs/stargate'],
 
-                    // injectivejs
-                    '@cosmology-telescope-ibc': ['injectivejs/main/codegen/ibc/bundle', 'injectivejs/main/codegen/ibc/client'],
-                    '@cosmology-telescope-cosmos': ['injectivejs/main/codegen/cosmos/bundle', 'injectivejs/main/codegen/cosmos/client'],
-
                     // Stargazejs
                     '@cosmology-telescope-ibc-stargaze': ['stargazejs/main/codegen/ibc/bundle', 'stargazejs/main/codegen/ibc/client'],
                     '@cosmology-telescope-cosmos-stargaze': [
@@ -63,10 +59,10 @@ export default defineConfig({
                         'stargazejs/main/codegen/cosmos/client',
                     ],
 
-                    // // Osmosis
-                    // '@cosmology-telescope-ibc-osmosis': ['osmojs/dist/codegen/ibc/bundle', 'osmojs/dist/codegen/ibc/client'],
-                    // '@cosmology-telescope-cosmos-osmosis': ['osmojs/dist/codegen/cosmos/bundle', 'osmojs/dist/codegen/cosmos/client'],
-                    // '@cosmology-telescope-osmosis': ['osmojs/dist/codegen/osmosis/bundle', 'osmojs/dist/codegen/osmosis/client'],
+                    // Osmosis
+                    '@cosmology-telescope-ibc-osmosis': ['osmojs/dist/codegen/ibc/bundle', 'osmojs/dist/codegen/ibc/client'],
+                    '@cosmology-telescope-cosmos-osmosis': ['osmojs/dist/codegen/cosmos/bundle', 'osmojs/dist/codegen/cosmos/client'],
+                    '@cosmology-telescope-osmosis': ['osmojs/dist/codegen/osmosis/bundle', 'osmojs/dist/codegen/osmosis/client'],
 
                     '@web3-onboard-cores': ['@web3-onboard/core', '@web3-onboard/vue', '@web3-onboard/common'],
                     '@web3-onboard-wallets': ['@web3-onboard/injected-wallets', '@web3-onboard/coinbase', '@web3-onboard/ledger'],
@@ -135,7 +131,7 @@ export default defineConfig({
                 }),
             ],
         }),
-        // chunkSizeControlPlugin({ maxSize: maxChunkSize }), // TODO: Optimize this
+        // chunkSizeControlPlugin({ maxSize: MAX_CHUNK_SIZE_PER_FILE }), // TODO: Optimize this
         isAnalyzeBundle &&
             visualizer({
                 open: true,

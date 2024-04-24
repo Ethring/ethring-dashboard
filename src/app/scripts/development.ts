@@ -1,15 +1,5 @@
 import useNotification from '@/compositions/useNotification';
 
-declare global {
-    interface Window {
-        customNotifications: {
-            showSuccess: (title: string, description: string, duration: number) => void;
-            showPrepare: (title: string, description: string, duration: number) => void;
-            closeNotificationByKey: (key: string) => void;
-        };
-    }
-}
-
 export default function development() {
     console.log('development script');
 
@@ -20,21 +10,35 @@ export default function development() {
     }
 
     window.customNotifications = {
-        showSuccess: (title: string = 'Success test', description: string = '', duration: number = 3) => {
+        showSuccess: (
+            title: string = 'Success test',
+            description: string = '',
+            duration: number = 3,
+            { withDuration }: { withDuration: boolean } = { withDuration: true },
+        ) => {
+            const durationText = withDuration ? ` - will close in ${duration}s` : '';
+
             showNotification({
                 type: 'success',
                 key: 'success-notification',
-                title: `${title} - will close in ${duration}s`,
+                title: `${title}${durationText}`,
                 description,
                 duration,
             });
         },
 
-        showPrepare: (title: string = 'Prepare test', description: string = '', duration: number = 3) => {
+        showPrepare: (
+            title: string = 'Prepare test',
+            description: string = '',
+            duration: number = 3,
+            { withDuration }: { withDuration: boolean } = { withDuration: true },
+        ) => {
+            const durationText = withDuration ? ` - will close in ${duration}s` : '';
+
             showNotification({
                 type: 'info',
                 key: 'prepare-notification',
-                title: `${title} - will close in ${duration}s`,
+                title: `${title}${durationText}`,
                 description,
                 duration,
                 prepare: true,
