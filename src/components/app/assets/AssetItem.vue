@@ -61,9 +61,11 @@ export default {
             default: 'asset',
         },
         item: {
+            type: Object,
             required: true,
         },
         column: {
+            type: String,
             default: null,
         },
     },
