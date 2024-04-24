@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+echo "HUSKY pre-commit"
+
+. "$(dirname -- "$0")/_/husky.sh"
+
+npm run format:code && npm run lint:code:fix && npm run test:unit

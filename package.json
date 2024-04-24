@@ -116,11 +116,5 @@
     "last 2 versions",
     "not dead"
   ],
-  "prettier-watch": "onchange 'src/**/*.{js|vue}' -- prettier --write {{changed}}",
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run format:code && npm run lint:code:fix && npm run test:unit",
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
-    }
-  }
+  "prettier-watch": "onchange 'src/**/*.{js|vue}' -- prettier --write {{changed}}"
 }
