@@ -80,6 +80,12 @@ $top-bar-spacing: 20px;
 
     background-color: var(--#{$prefix}main-background);
 
+    &-subtitle {
+        .description {
+            color: var(--#{$prefix}description-text);
+        }
+    }
+
     .ant-divider {
         color: var(--#{$prefix}border-secondary-color);
         border-color: var(--#{$prefix}border-secondary-color);
@@ -102,6 +108,14 @@ $top-bar-spacing: 20px;
 
             border: 0.2px solid var(--#{$prefix}icon-placeholder-border);
             border-radius: 50%;
+        }
+    }
+
+    &-subtitle {
+        .value {
+            font-size: var(--#{$prefix}h3-fs);
+            color: var(--#{$prefix}sub-text);
+
         }
     }
 
@@ -128,23 +142,17 @@ $top-bar-spacing: 20px;
             color: var(--#{$prefix}danger);
         }
     }
+
     .reload-btn &-subtitle {
         margin: auto;
         max-width: 520px;
         width: 100%;
-
-        .value {
-            font-size: var(--#{$prefix}h3-fs);
-            color: var(--#{$prefix}sub-text);
-        }
-
-        .description {
-            color: var(--#{$prefix}mute-text);
-            font-size: var(--#{$prefix}small-sm-fs);
-        }
     }
 
     .result-link {
+        width: 100%;
+        justify-content: center;
+
         color: var(--#{$prefix}sub-text);
 
         div {
@@ -186,7 +194,7 @@ $top-bar-spacing: 20px;
 
     z-index: 10;
 
-    & > div:not(:last-child) {
+    &>div:not(:last-child) {
         margin-right: 8px;
     }
 }
@@ -288,6 +296,7 @@ $top-bar-spacing: 20px;
 }
 
 .nft-base-info .nft-base-info-time {
+
     .time-type,
     .time-info {
         display: flex;
@@ -328,6 +337,7 @@ $top-bar-spacing: 20px;
             opacity: 0.6;
         }
     }
+
     .time-icon {
         font-size: 14px;
         color: var(--#{$prefix}warning);
@@ -358,39 +368,10 @@ $top-bar-spacing: 20px;
         opacity: 1;
         transform-origin: center;
     }
+
     100% {
         transform: scale(2);
         opacity: 0;
         transform-origin: center;
-    }
-}
-
-.result-link {
-    &,
-    svg {
-        transition: 0.2s ease-in-out;
-    }
-
-
-    display: flex;
-    align-items: center;
-
-    font-size: var(--#{$prefix}small-lg-fs);
-    color: var(--#{$prefix}sub-text);
-
-    &-icon {
-        width: 16px;
-        height: 12px;
-        fill: var(--#{$prefix}sub-text);
-        margin-inline-start: 4px;
-        transform: translate(0, -1px);
-    }
-
-    &:hover {
-        color: var(--#{$prefix}base-text);
-
-        svg {
-            fill: var(--#{$prefix}base-text);
-        }
     }
 }
