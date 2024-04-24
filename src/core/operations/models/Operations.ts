@@ -138,8 +138,6 @@ export interface IBaseOperation {
     // Get Flow of operations
     getOperationFlow?: () => TxOperationFlow[];
 
-    getTitle: () => string;
-
     performTx?: (ecosystem: Ecosystems, params: PerformTxParams) => Promise<IBridgeDexTransaction | null>;
 
     perform?: (index: number, account: string, ecosystem: string, chainId: string, options: PerformOptionalParams) => ICreateTransaction;

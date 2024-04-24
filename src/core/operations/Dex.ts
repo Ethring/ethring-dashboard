@@ -108,7 +108,6 @@ export default class DexOperation extends BaseOperation {
     }
 
     perform(index: number, account: string, ecosystem: string, chainId: string, { make }: PerformOptionalParams): ICreateTransaction {
-        const notificationTitle = `${make} ${this.getTitle()}`;
         const { title, description } = this.getNotificationInfo(make);
 
         return {
@@ -125,7 +124,7 @@ export default class DexOperation extends BaseOperation {
             metaData: {
                 action: getActionByTxType(this.transactionType),
                 type: this.transactionType,
-                notificationTitle: title || notificationTitle,
+                notificationTitle: title,
                 notificationDescription: description,
                 params: {
                     ...this.params,

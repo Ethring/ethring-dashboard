@@ -9,6 +9,8 @@ const NOTIFICATION_TYPE_BY_STATUS = {
 };
 
 const statusNotification = (status, { store, id = null, metaData, txHash, explorerLink, successCallback }) => {
+    if (![STATUSES.SUCCESS, STATUSES.FAILED, STATUSES.REJECTED].includes(status)) return;
+
     const { showNotification } = useNotification();
 
     const hashKey = txHash ? `waiting-${txHash}-tx` : `${status}-tx`;
@@ -19,12 +21,10 @@ const statusNotification = (status, { store, id = null, metaData, txHash, explor
         type: NOTIFICATION_TYPE_BY_STATUS[status],
         title: metaData.notificationTitle || `Transaction ${status}`,
         description: metaData.notificationDescription || null,
-        duration: 6,
+        duration: 3,
         progress: true,
         wait: txHash ? true : false,
     };
-
-    console.log('statusNotification', status, notificationBody);
 
     explorerLink && (notificationBody.explorerLink = explorerLink);
 

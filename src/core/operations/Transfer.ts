@@ -1,10 +1,10 @@
 import { BaseOpParams, PerformOptionalParams } from '@/core/operations/models/Operations';
-import { STATUSES, TRANSACTION_TYPES } from '../../shared/models/enums/statuses.enum';
+import { STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
 
-import { AllQuoteParams } from '../bridge-dex/models/Request.type';
+import { AllQuoteParams } from '@/modules/bridge-dex/models/Request.type';
 import { BaseOperation } from '@/core/operations/BaseOperation';
-import { Ecosystems } from '../bridge-dex/enums/Ecosystem.enum';
-import { IBridgeDexTransaction } from '../bridge-dex/models/Response.interface';
+import { Ecosystems } from '@/modules/bridge-dex/enums/Ecosystem.enum';
+import { IBridgeDexTransaction } from '@/modules/bridge-dex/models/Response.interface';
 import { ICreateTransaction } from '@/core/transaction-manager/types/Transaction';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
@@ -31,7 +31,7 @@ export default class TransferOperation extends BaseOperation {
 
         isStake ? this.setTxType(TRANSACTION_TYPES.STAKE) : this.setTxType(TRANSACTION_TYPES.TRANSFER);
 
-        const notificationTitle = `${make} ${this.getTitle()}`;
+        const { title, description } = this.getNotificationInfo(make);
 
         return {
             index,
@@ -47,7 +47,8 @@ export default class TransferOperation extends BaseOperation {
             metaData: {
                 action: getActionByTxType(this.transactionType),
                 type: this.transactionType,
-                notificationTitle,
+                notificationTitle: title,
+                notificationDescription: description,
                 params: this.params,
                 tokens: this.getTokens(),
             },

@@ -155,34 +155,6 @@ export class BaseOperation implements IBaseOperation {
         return this.quoteRoute as IQuoteRoute;
     }
 
-    getTitle(): string {
-        const module = this.getModule() as ModuleType;
-        const { count = 0, outputAmount = 0, amount } = this.getParams();
-        const { from, to } = this.getTokens() || {};
-
-        const fromTokenTitle = Number(amount) > 0 && from?.symbol ? `${amount} ${from.symbol}` : '';
-        const toTokenTitle = Number(outputAmount) > 0 && to?.symbol ? ` to ${outputAmount} ${to.symbol}` : '';
-
-        switch (module) {
-            case ModuleType.stake:
-                return `STAKE ${fromTokenTitle}`;
-            case ModuleType.swap:
-                return `SWAP ${fromTokenTitle} ${toTokenTitle}`;
-            case ModuleType.send:
-                return `SEND ${fromTokenTitle}`;
-            case ModuleType.bridge:
-                return `BRIDGE ${fromTokenTitle} ${toTokenTitle}`;
-            case ModuleType.superSwap:
-                const isSameNetwork = this.getParamByField('fromNet') === this.getParamByField('toNet');
-                const TYPE = isSameNetwork ? TRANSACTION_TYPES.SWAP : TRANSACTION_TYPES.BRIDGE;
-                return `${TYPE} ${fromTokenTitle} ${toTokenTitle}`;
-            case ModuleType.nft:
-                return `MINT ${count} NFTs`;
-            default:
-                return `${this.getModule()} - ${this.transactionType}`;
-        }
-    }
-
     getNotificationInfo(make: string): {
         title: string;
         description?: string;

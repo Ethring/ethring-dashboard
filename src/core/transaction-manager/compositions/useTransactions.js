@@ -98,7 +98,7 @@ export default function useTransactions() {
      * @returns {object}
      */
     const handleTransactionErrorResponse = async (id, response, error, { module, tx = {} }) => {
-        closeNotification('prepare-tx');
+        closeNotification(`tx-${id}`);
 
         const ignoreErrors = ['rejected', 'denied'];
         const ignoreRegex = new RegExp(ignoreErrors.join('|'), 'i');
@@ -146,7 +146,7 @@ export default function useTransactions() {
      * @returns {object}
      */
     const handleSuccessfulSign = async (id, response, { metaData = {}, module = null } = {}) => {
-        closeNotification('prepare-tx');
+        closeNotification(`tx-${id}`);
 
         const { transactionHash } = response;
 
@@ -268,21 +268,21 @@ export default function useTransactions() {
             response = await signSend(txFoSign, { ecosystem, chain });
             if (opInstance && opInstance.setTxResponse) opInstance.setTxResponse(response);
         } catch (error) {
-            closeNotification('prepare-tx');
+            closeNotification(`tx-${id}`);
             console.error('useTransactions -> signAndSend -> error', error);
             store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
             throw error;
         }
 
         if (response && response.error) {
-            closeNotification('prepare-tx');
+            closeNotification(`tx-${id}`);
             console.error('useTransactions -> signAndSend -> Transaction error from provider', response.error);
             store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
             throw new Error(response.error);
         }
 
         if (response && response.isCanceled) {
-            closeNotification('prepare-tx');
+            closeNotification(`tx-${id}`);
             console.error('useTransactions -> signAndSend -> Transaction canceled');
             store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
             throw new Error('Transaction canceled');
