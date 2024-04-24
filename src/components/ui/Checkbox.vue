@@ -125,5 +125,4 @@ input[type='checkbox'] {
         margin-right: 5px;
     }
 }
-
 </style>

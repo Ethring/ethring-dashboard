@@ -16,9 +16,7 @@ axiosInstance.interceptors.response.use(
     (response: BaseResponse) => {
         const { ok, data, error }: Response = response.data;
 
-        if (!ok) {
-            return Promise.reject({ data, error });
-        }
+        if (!ok) return Promise.reject({ data, error });
 
         return Promise.resolve(data);
     },

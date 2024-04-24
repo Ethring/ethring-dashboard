@@ -22,14 +22,14 @@ const Template = (args) => ({
 });
 
 const token = {
-    "balance": "3.544955163868191",
-    "balanceUsd": "2.815438281",
-    "net": "polygon",
-    "name": "MATIC Native Token",
-    "symbol": "MATIC",
-    "logo": "https://cryptologos.cc/logos/polygon-matic-logo.png?v=025",
-    "chainLogo": "https://cryptologos.cc/logos/polygon-matic-logo.png?v=025",
-    "chain": "polygon",
+    balance: '3.544955163868191',
+    balanceUsd: '2.815438281',
+    net: 'polygon',
+    name: 'MATIC Native Token',
+    symbol: 'MATIC',
+    logo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
+    chainLogo: 'https://cryptologos.cc/logos/polygon-matic-logo.png?v=025',
+    chain: 'polygon',
 };
 
 export const Default = Template.bind({});
@@ -44,4 +44,3 @@ SelectNetwork.args = {
     label: 'Network',
     record: token,
 };
-

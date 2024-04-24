@@ -6,19 +6,26 @@ import { ServiceType } from '@/modules/bridge-dex/enums/ServiceType.enum';
 import {
     GetAllowanceParams,
     GetApproveTxParams,
-    GetQuoteParams,
     GetSwapTxParams,
     QuoteParamsKeys,
     SwapTxParams,
 } from '@/modules/bridge-dex/models/Request.type';
 
-import { ErrorResponse, IBridgeDexTransaction, IQuoteRoutes, ResponseBridgeDex } from '@/modules/bridge-dex/models/Response.interface';
+import { ErrorResponse, IBridgeDexTransaction, IQuoteRoutes } from '@/modules/bridge-dex/models/Response.interface';
 import logger from '@/shared/logger';
-import { AllQuoteParams, QuoteParams, AllQuoteParamsKeys } from './models/Request.type';
-import { NATIVE_CONTRACT } from '@/Adapter/config';
+import { AllQuoteParams, QuoteParams } from './models/Request.type';
+import { NATIVE_CONTRACT } from '@/core/wallet-adapter/config';
 
-class BridgeDexService<T extends ServiceType> {
-    private serviceId: string;
+export interface IBridgeDexService {
+    getAllowance(params: GetAllowanceParams): Promise<string>;
+    getApproveTx(params: GetApproveTxParams): Promise<IBridgeDexTransaction[]>;
+    getSwapTx(params: GetSwapTxParams): Promise<IBridgeDexTransaction[]>;
+    getQuote(params: AllQuoteParams, options?: { withServiceId: boolean }): Promise<IQuoteRoutes>;
+    getQuoteSuperSwap(params: QuoteParams<ServiceType>): Promise<IQuoteRoutes>;
+}
+
+class BridgeDexService<T extends ServiceType> implements IBridgeDexService {
+    private serviceId: string = '';
     private api: BridgeDexApi<T>;
 
     constructor(
@@ -97,13 +104,13 @@ class BridgeDexService<T extends ServiceType> {
     }
 
     async callMethod(method: string, params: any): Promise<IBridgeDexTransaction[] | IQuoteRoutes> {
-        if (!this[method]) throw new Error(`Method ${method} not found`);
+        if (!this[method as any]) throw new Error(`Method ${method} not found`);
         if (!params) throw new Error('Params are required');
 
         try {
-            if (method === 'getQuote' || method === 'getQuoteSuperSwap') {
+            if (method === 'getQuote' || method === 'getQuoteSuperSwap')
                 return (await this[method](params, { withServiceId: true })) as IQuoteRoutes;
-            }
+
             return (await this[method](params)) as IBridgeDexTransaction[];
         } catch (error) {
             logger.error('(MODULE) -> [BRIDGE_DEX_SERVICE] Error calling method', error);
@@ -113,11 +120,3 @@ class BridgeDexService<T extends ServiceType> {
 }
 
 export default BridgeDexService;
-
-export interface IBridgeDexService {
-    getAllowance(params: GetAllowanceParams): Promise<string>;
-    getApproveTx(params: GetApproveTxParams): Promise<IBridgeDexTransaction[]>;
-    getSwapTx(params: GetSwapTxParams): Promise<IBridgeDexTransaction[]>;
-    getQuote(params: AllQuoteParams, options?: { withServiceId: boolean }): Promise<IQuoteRoutes>;
-    getQuoteSuperSwap(params: QuoteParams<ServiceType>): Promise<IQuoteRoutes>;
-}

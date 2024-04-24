@@ -8,7 +8,7 @@ import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { AllQuoteParams } from '@/modules/bridge-dex/models/Request.type';
 
 import { IQuoteRoute, ErrorResponse } from '@/modules/bridge-dex/models/Response.interface';
-import { NATIVE_CONTRACT } from '@/Adapter/config';
+import { NATIVE_CONTRACT } from '@/core/wallet-adapter/config';
 
 import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
 
@@ -118,12 +118,11 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
         const { ecosystem: srcEcosystem } = selectedSrcNetwork.value || {};
         const { ecosystem: dstEcosystem } = selectedDstNetwork.value || {};
 
-        if (srcEcosystem !== dstEcosystem) {
+        if (srcEcosystem !== dstEcosystem)
             return {
                 ...srcAddressByChain.value,
                 ...dstAddressByChain.value,
             };
-        }
 
         return srcAddressByChain.value;
     });
@@ -166,13 +165,9 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     const isAllowToMakeRequest = computed(() => {
         const isSwap = isSrcTokenChainCorrect.value && isDstTokenChainCorrectSwap.value;
 
-        if (modules.includes(ModuleType.send)) {
-            return false;
-        } else if (modules.includes(ModuleType.swap) && !isSameToken.value) {
-            return isSwap && isSrcAmountSet.value;
-        } else if (modules.includes(ModuleType.superSwap)) {
-            return isSuperSwapModule.value && isSrcAmountSet.value;
-        }
+        if (modules.includes(ModuleType.send)) return false;
+        else if (modules.includes(ModuleType.swap) && !isSameToken.value) return isSwap && isSrcAmountSet.value;
+        else if (modules.includes(ModuleType.superSwap)) return isSuperSwapModule.value && isSrcAmountSet.value;
 
         return isSrcTokenChainCorrect.value && isDstTokenChainCorrect.value && isSrcAmountSet.value;
     });
@@ -180,13 +175,9 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     const isShowEstimateInfo = computed(() => {
         const mainRequired = isQuoteRouteSet.value && isQuoteRouteSelected.value && isSrcAmountSet.value && isDstAmountSet.value;
 
-        if (isQuoteLoading.value) {
-            return true;
-        }
+        if (isQuoteLoading.value) return true;
 
-        if (quoteErrorMessage.value) {
-            return true;
-        }
+        if (quoteErrorMessage.value) return true;
 
         return mainRequired;
     });
@@ -197,9 +188,7 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
 
     const makeQuoteRoutes = async (requestParams: AllQuoteParams) => {
         // !If the quote is loading, return
-        if (isQuoteLoading.value) {
-            return;
-        }
+        if (isQuoteLoading.value) return;
 
         // !If the request is not allowed, return
         if (!isAllowToMakeRequest.value) {
@@ -236,9 +225,7 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
             if (!routes.length) return resetQuoteRoutes();
 
             // * If there is only one route, set it as selected
-            if (routes.length === 1 && !selectedRoute) {
-                selectedRoute = routes[0];
-            }
+            if (routes.length === 1 && !selectedRoute) selectedRoute = routes[0];
 
             store.dispatch('bridgeDexAPI/setSelectedRoute', {
                 serviceType: targetType,
@@ -264,9 +251,7 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
         } finally {
             isQuoteLoading.value = false;
 
-            if (selectedRoute.value && selectedRoute.value.toAmount) {
-                store.dispatch('tokenOps/setDstAmount', selectedRoute.value.toAmount);
-            }
+            if (selectedRoute.value && selectedRoute.value.toAmount) store.dispatch('tokenOps/setDstAmount', selectedRoute.value.toAmount);
         }
     };
 
@@ -286,9 +271,7 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     const rateFeeInfo = computed<FeeInfo>(() => {
         const { fromAmount = 0, toAmount = 0 } = selectedRoute.value || {};
 
-        if (!fromAmount || !toAmount) {
-            return emptyFee.value;
-        }
+        if (!fromAmount || !toAmount) return emptyFee.value;
 
         const { symbol: fromSymbol } = selectedSrcToken.value || {};
         const { symbol: toSymbol } = selectedDstToken.value || {};
@@ -305,9 +288,7 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
             toSymbol,
         };
 
-        if (isAllowToMakeRequest.value) {
-            return rateFee;
-        }
+        if (isAllowToMakeRequest.value) return rateFee;
 
         return emptyFee.value;
     });
@@ -318,9 +299,7 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
 
         const { fee = [] } = selectedRoute.value || {};
 
-        if (!fee.length) {
-            return '0';
-        }
+        if (!fee.length) return '0';
 
         const usdFee = calculateFeeByCurrency(selectedRoute.value, 'USD');
 
@@ -328,9 +307,7 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
 
         const targetFee = nativeTokenFeeToUsd.isZero() ? usdFee : nativeTokenFeeToUsd;
 
-        if (isAllowToMakeRequest.value) {
-            return targetFee.toString();
-        }
+        if (isAllowToMakeRequest.value) return targetFee.toString();
 
         return null;
     });
@@ -403,9 +380,8 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
                     { ...params, isReloadRoutes: isReloadRoutes.value, ownerAddresses: {} },
                     { ...oldParams, isReloadRoutes: oldIsReloadRoutes, ownerAddresses: {} },
                 )
-            ) {
+            )
                 return;
-            }
 
             try {
                 await makeQuoteRoutes(params);

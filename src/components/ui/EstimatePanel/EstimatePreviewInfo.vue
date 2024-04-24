@@ -1,7 +1,7 @@
 <template>
     <a-collapse
-        expand-icon-position="end"
         v-model:activeKey="activeKey"
+        expand-icon-position="end"
         :class="{ isActive }"
         :bordered="false"
         class="estimate-info"
@@ -14,7 +14,7 @@
         <a-collapse-panel
             key="estimate-info"
             :collapsible="(isCollapsible || isShowExpand) && !isLoading ? '' : 'disabled'"
-            :showArrow="isCollapsible || (isShowExpand && !isLoading)"
+            :show-arrow="isCollapsible || (isShowExpand && !isLoading)"
             data-qa="estimate-info"
         >
             <template #header>
@@ -26,21 +26,25 @@
                     </template>
                     <template v-else>
                         <div class="preview-header">
-                            <div class="preview-row" v-if="!error && !isLoading">
+                            <div v-if="!error && !isLoading" class="preview-row">
                                 <div v-if="mainRate && (mainRate?.toAmount != 0 || mainRate?.fromAmount != 0)">
                                     <EstimateStats v-bind="mainRate" class="preview-custom-rate" />
                                 </div>
                             </div>
 
                             <div v-if="isActive">
-                                <div class="preview-custom-fee" v-if="feeInUsd">
+                                <div v-if="feeInUsd" class="preview-custom-fee">
                                     <FeeIcon />
                                     <Amount v-if="feeInUsd > 0" :value="feeInUsd" :decimals="2" symbol="$" type="usd" />
-                                    <div class="text" v-else>{{ $t('tokenOperations.unknownGas') }}</div>
+                                    <div v-else class="text">{{ $t('tokenOperations.unknownGas') }}</div>
                                 </div>
                             </div>
 
-                            <a-tooltip v-else-if="error && !isLoading" class="error" :title="!error ? $t('tokenOperations.noAvailableRoute') : error">
+                            <a-tooltip
+                                v-else-if="error && !isLoading"
+                                class="error"
+                                :title="!error ? $t('tokenOperations.noAvailableRoute') : error"
+                            >
                                 <template v-if="error.length <= MAX_LENGTH">
                                     <a-row align="middle" class="route-error">
                                         <RouteIcon />
@@ -71,17 +75,17 @@
             <template v-if="((isCollapsible && !isLoading) || isShowExpand) && services">
                 <EstimateStats
                     :title="$t('tokenOperations.minReceived')"
-                    :fromAmount="minOutAmount(amount)"
-                    :fromSymbol="mainRate?.toSymbol"
+                    :from-amount="minOutAmount(amount)"
+                    :from-symbol="mainRate?.toSymbol"
                 />
-                <EstimateStats :title="$t('tokenOperations.maxSlippage')" :fromAmount="slippage" fromSymbol="%" />
+                <EstimateStats :title="$t('tokenOperations.maxSlippage')" :from-amount="slippage" from-symbol="%" />
 
                 <a-row justify="space-between" align="middle">
                     <div class="preview-title">{{ $t('tokenOperations.fee') }}</div>
-                    <div class="preview-custom-fee" v-if="feeInUsd">
+                    <div v-if="feeInUsd" class="preview-custom-fee">
                         <FeeIcon />
                         <Amount v-if="feeInUsd > 0" :value="feeInUsd" :decimals="2" symbol="$" type="usd" />
-                        <div class="text" v-else>{{ $t('tokenOperations.unknownGas') }}</div>
+                        <div v-else class="text">{{ $t('tokenOperations.unknownGas') }}</div>
                     </div>
                 </a-row>
 
@@ -105,7 +109,7 @@
                                     :show-title="true"
                                     class="services-icon"
                                 />
-                                <ArrowDownIcon class="arrow" v-if="index !== services?.length - 1" />
+                                <ArrowDownIcon v-if="index !== services?.length - 1" class="arrow" />
                             </template>
                         </a-row>
                     </div>
@@ -121,7 +125,6 @@ import { useStore } from 'vuex';
 
 import ArrowDownIcon from '@/assets/icons/form-icons/arrow-down.svg';
 import FeeIcon from '@/assets/icons/module-icons/fee.svg';
-import TimeIcon from '@/assets/icons/module-icons/time.svg';
 import ExpandIcon from '@/assets/icons/module-icons/expand.svg';
 import RouteIcon from '@/assets/icons/module-icons/route.svg';
 
@@ -136,7 +139,6 @@ export default {
     components: {
         ArrowDownIcon,
         FeeIcon,
-        TimeIcon,
         ExpandIcon,
         RouteIcon,
 
@@ -212,29 +214,19 @@ export default {
         const isCollapsible = computed(() => {
             const { fees = [], services = [], error = null, isLoading } = props || {};
 
-            if (isLoading) {
-                return false;
-            }
+            if (isLoading) return false;
 
-            if (error) {
-                return false;
-            }
+            if (error) return false;
 
-            if (!services.length && !fees.length) {
-                return false;
-            }
+            if (!services.length && !fees.length) return false;
 
-            if (services.length) {
-                return true;
-            }
+            if (services.length) return true;
 
             const [fee] = fees || [];
 
             const isFeeEmpty = fee?.fromAmount == 0 || fee?.toAmount == 0;
 
-            if (isFeeEmpty) {
-                return false;
-            }
+            if (isFeeEmpty) return false;
 
             return true;
         });
@@ -244,18 +236,14 @@ export default {
         const activeKey = ref(isCollapsible.value ? ['estimate-info'] : []);
 
         watch(isCollapsible, () => {
-            if (!isCollapsible.value) {
-                activeKey.value = [];
-            }
+            if (!isCollapsible.value) activeKey.value = [];
         });
 
         watch(
             () => props.isLoading,
             () => {
-                if (isCollapsible.value) {
-                    activeKey.value = ['estimate-info'];
-                }
-            }
+                if (isCollapsible.value) activeKey.value = ['estimate-info'];
+            },
         );
 
         const minOutAmount = (amount) => {
@@ -264,12 +252,10 @@ export default {
 
         const getTag = (services) => {
             const tags = [];
-            if (services[0].bestFee) {
-                tags.push({ status: 'Low fee', class: 'low-fee' });
-            }
-            if (services[0].bestReturn) {
-                tags.push({ status: 'Best return', class: 'best-return' });
-            }
+            if (services[0].bestFee) tags.push({ status: 'Low fee', class: 'low-fee' });
+
+            if (services[0].bestReturn) tags.push({ status: 'Best return', class: 'best-return' });
+
             return tags;
         };
 

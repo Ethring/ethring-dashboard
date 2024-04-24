@@ -1,6 +1,5 @@
 <template>
-    <button :class="{ [type]: type, disabled, [shape]: shape, [size]: size }" class="button"
-        :disabled="disabled || loading">
+    <button :class="{ [type]: type, disabled, [shape]: shape, [size]: size }" class="button" :disabled="disabled || loading">
         <DefaultLoading v-if="loading" :tip="tip" />
         <div v-else>
             <component :is="icon" />
@@ -12,14 +11,14 @@
 import DefaultLoading from './DefaultLoading.vue';
 
 export default {
-    name: 'Button',
+    name: 'UiButton',
     components: {
         DefaultLoading,
     },
     props: {
         title: {
             type: String,
-            default: 'Button',
+            default: 'Button title',
         },
         tip: {
             type: String,
@@ -47,6 +46,7 @@ export default {
         },
         icon: {
             default: null,
+            type: [String, Object],
         },
     },
 };

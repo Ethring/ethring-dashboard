@@ -55,17 +55,13 @@ export default {
             state: IState,
             { address, chain, hash }: { address: string; chain: string; hash: string },
         ) {
-            if (state.transactionHash[hash]) {
-                delete state.transactionHash[hash][chain];
-            }
+            if (state.transactionHash[hash]) delete state.transactionHash[hash][chain];
 
             const queueKey = `${chain}_${address}_${hash}`;
 
             delete state.queueToUpdate[queueKey];
 
-            if (!Object.keys(state.transactionHash[hash]).length) {
-                delete state.transactionHash[hash];
-            }
+            if (!Object.keys(state.transactionHash[hash]).length) delete state.transactionHash[hash];
         },
         [TYPES.SET_IN_PROGRESS](state: IState, queueKey: string) {
             if (!queueKey) return;

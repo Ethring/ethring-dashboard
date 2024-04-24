@@ -14,19 +14,19 @@ import socket from '@/app/modules/socket';
 import initSentry from '@/app/modules/sentry';
 import initMixpanel from '@/app/modules/mixpanel';
 
-import SimpleBridge from '@/components/dynamic/bridge/SimpleBridge.vue';
-import SimpleSend from '@/components/dynamic/send/SimpleSend.vue';
-import SimpleSwap from '@/components/dynamic/swaps/SimpleSwap.vue';
-import SuperSwap from '@/components/dynamic/super-swap/SuperSwap.vue';
-import StakeLayout from '@/layouts/StakeLayout.vue';
-import MintNftLayout from '@/layouts/MintNftLayout.vue';
-import MintNftLayoutWithTransfer from '@/layouts/MintNftLayoutWithTransfer.vue';
+import SimpleBridge from '@/pages/dynamic-modules/SimpleBridge.vue';
+import SimpleSend from '@/pages/dynamic-modules/SimpleSend.vue';
+import SimpleSwap from '@/pages/dynamic-modules/SimpleSwap.vue';
+import SuperSwap from '@/pages/dynamic-modules/SuperSwap.vue';
+
+import StakeLayout from '@/pages/dynamic-modules/StakeLayout.vue';
+import MintNftLayoutWithTransfer from '@/pages/dynamic-modules/MintNftLayoutWithTransfer.vue';
 
 // Service worker
 import '@/registerServiceWorker';
 
 // Compositions
-import useAdapter from '@/Adapter/compositions/useAdapter';
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import useSelectModal from '@/compositions/useSelectModal';
 
 // Directives
@@ -73,7 +73,6 @@ app.component('SimpleBridge', SimpleBridge, { meta: { key: 'bridge' } });
 app.component('SimpleSend', SimpleSend, { meta: { key: 'send' } });
 app.component('SuperSwap', SuperSwap, { meta: { key: 'superSwap' } });
 app.component('StakeLayout', StakeLayout);
-app.component('MintNftLayout', MintNftLayout);
 app.component('MintNftLayoutWithTransfer', MintNftLayoutWithTransfer);
 
 export default app;

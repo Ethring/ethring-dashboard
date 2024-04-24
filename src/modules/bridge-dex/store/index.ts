@@ -1,13 +1,10 @@
-import BridgeDexAPI from '@/modules/bridge-dex';
-
 import { getAllServices } from '@/modules/bridge-dex/api';
 
 import { IService } from '@/modules/bridge-dex/models/Service.interface';
 import { Ecosystems } from '@/modules/bridge-dex/enums/Ecosystem.enum';
 import { ServiceType, ServiceTypes } from '@/modules/bridge-dex/enums/ServiceType.enum';
 
-import { IQuoteRoute, IQuoteRoutes, QuoteRoutes, ResponseBridgeDex } from '@/modules/bridge-dex/models/Response.interface';
-import logger from '@/shared/logger';
+import { IQuoteRoute, IQuoteRoutes } from '@/modules/bridge-dex/models/Response.interface';
 
 const TYPES = {
     SET_SERVICES: 'SET_SERVICES',
@@ -41,13 +38,15 @@ interface IState {
     reloadRoutes: boolean;
 
     quoteRoutes: {
-        [ServiceType.dex]: IQuoteRoutes;
-        [ServiceType.bridgedex]: IQuoteRoutes;
+        [ServiceType.dex]: IQuoteRoutes | null;
+        [ServiceType.bridgedex]: IQuoteRoutes | null;
+        [key: string]: IQuoteRoutes | null;
     };
 
     selectedRoute: {
-        [ServiceType.dex]: IQuoteRoute;
-        [ServiceType.bridgedex]: IQuoteRoute;
+        [ServiceType.dex]: IQuoteRoute | null;
+        [ServiceType.bridgedex]: IQuoteRoute | null;
+        [key: string]: IQuoteRoute | null;
     };
 
     selectedServiceId: string;
@@ -121,20 +120,23 @@ export default {
             state.services.filter((service: IService) => service.ecosystems.includes(ecosystem)),
 
         // * Getters for Quote Routes
-        getQuoteRouteList: (state: IState) => (serviceType: ServiceTypes) => state.quoteRoutes[serviceType] || null,
+        getQuoteRouteList: (state: IState) => (serviceType: ServiceTypes) => {
+            if (!state.quoteRoutes[serviceType]) return [];
+            return state.quoteRoutes[serviceType] || [];
+        },
 
         // * Getters for Selected Route
-        getSelectedRoute: (state: IState) => (serviceType: ServiceTypes) => state.selectedRoute[serviceType] || null,
+        getSelectedRoute: (state: IState) => (serviceType: ServiceTypes) => {
+            if (!state.selectedRoute[serviceType]) return null;
+            return state.selectedRoute[serviceType] || null;
+        },
 
         // * Getters for Service Allowance
         getServiceAllowance: (state: IState) => (serviceId: string, owner: string, token: string) => {
-            if (!serviceId || !owner || !token) {
-                return null;
-            }
+            if (!serviceId || !owner || !token) return null;
 
-            if (state.allowanceByService[serviceId] && state.allowanceByService[serviceId][owner]) {
+            if (state.allowanceByService[serviceId] && state.allowanceByService[serviceId][owner])
                 return state.allowanceByService[serviceId][owner][token] || null;
-            }
 
             return null;
         },
@@ -182,47 +184,46 @@ export default {
         },
     },
     actions: {
-        async getServices({ commit }) {
+        async getServices({ commit }: { commit: any }) {
             const response = await getAllServices();
 
-            if (!response.length) {
-                return [];
-            }
+            if (!response.length) return [];
 
             commit(TYPES.SET_SERVICES, response);
         },
 
-        setSelectedRoute({ commit }, value: { serviceType: ServiceTypes; value: IQuoteRoute }) {
+        setSelectedRoute({ commit }: { commit: any }, value: { serviceType: ServiceTypes; value: IQuoteRoute }) {
             commit(TYPES.SET_SELECTED_ROUTE, value);
         },
 
-        setTargetServiceType({ commit }, value: ServiceTypes) {
+        setTargetServiceType({ commit }: { commit: any }, value: ServiceTypes) {
             commit(TYPES.SET_SERVICE_TYPE, value);
         },
 
-        resetSelectedRoute({ commit }, value: { serviceType: ServiceTypes }) {
+        resetSelectedRoute({ commit }: { commit: any }, value: { serviceType: ServiceTypes }) {
             commit(TYPES.SET_SELECTED_ROUTE, {
                 serviceType: value.serviceType,
                 value: null,
             });
         },
 
-        setQuoteRoutes({ commit }, value: { serviceType: ServiceTypes; value: IQuoteRoute }) {
+        setQuoteRoutes({ commit }: { commit: any }, value: { serviceType: ServiceTypes; value: IQuoteRoute }) {
             commit(TYPES.SET_QUOTE_ROUTES, value);
         },
 
-        setServiceAllowance({ commit }, value: { serviceId: string; owner: string; token: string; value: string }) {
+        setServiceAllowance({ commit }: { commit: any }, value: { serviceId: string; owner: string; token: string; value: string }) {
             commit(TYPES.SET_SERVICE_ALLOWANCE, value);
         },
 
-        setLoaderStateByType({ commit }, value: { type: string; value: boolean }) {
+        setLoaderStateByType({ commit }: { commit: any }, value: { type: string; value: boolean }) {
             commit(TYPES.SET_LOADER_STATE_BY_TYPE, value);
         },
 
-        setReloadRoutes({ commit }, value: boolean) {
+        setReloadRoutes({ commit }: { commit: any }, value: boolean) {
             commit(TYPES.SET_RELOAD_ROUTES, value);
         },
-        setQuoteErrorMessage({ commit }, value: string) {
+
+        setQuoteErrorMessage({ commit }: { commit: any }, value: string) {
             commit(TYPES.SET_QUOTE_ERROR_MESSAGE, value);
         },
     },

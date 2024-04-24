@@ -1,6 +1,6 @@
 <template>
     <div :class="{ active }" class="collapse" @click="toggleCollapse">
-        <div class="collapse__header" v-if="!loading">
+        <div v-if="!loading" class="collapse__header">
             <slot name="header"></slot>
             <ArrowSvg v-if="!hideContent" class="arrow" />
         </div>

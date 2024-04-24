@@ -7,8 +7,7 @@ export default {
     parameters: {
         docs: {
             description: {
-                component:
-                    'SwitchDirection component is best used for changing the state of system functionalities and preferences',
+                component: 'SwitchDirection component is best used for changing the state of system functionalities and preferences',
             },
         },
     },

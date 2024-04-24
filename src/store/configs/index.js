@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import { ECOSYSTEMS } from '@/Adapter/config';
+import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
 
 import { getConfigsByEcosystems, getTokensConfigByChain } from '@/modules/chain-configs/api';
 
@@ -8,7 +8,7 @@ import IndexedDBService from '@/services/indexed-db';
 
 import { DB_TABLES } from '@/shared/constants/indexedDb';
 
-import { DP_CHAINS } from '@/modules/balance-provider/models/enums';
+import { DP_CHAINS } from '@/core/balance-provider/models/enums';
 
 const TYPES = {
     SET_CONFIG_LOADING: 'SET_CONFIG_LOADING',
@@ -38,17 +38,13 @@ export default {
         getConfigsListByEcosystem: (state) => (ecosystem) => _.values(state.chains[ecosystem]) || [],
 
         getChainConfigByChainId: (state) => (chainId, ecosystem) => {
-            if (!state.chains[ecosystem]) {
-                return {};
-            }
+            if (!state.chains[ecosystem]) return {};
 
             const chainList = _.values(state.chains[ecosystem]);
 
             let cId = chainId;
 
-            if (typeof chainId === 'string' && chainId.startsWith('0x')) {
-                cId = parseInt(chainId, 16);
-            }
+            if (typeof chainId === 'string' && chainId.startsWith('0x')) cId = parseInt(chainId, 16);
 
             const chain = chainList.find((chain) => chain.chain_id === cId);
 
@@ -56,9 +52,7 @@ export default {
         },
 
         getChainConfigByChainOrNet: (state) => (chainOrNet, ecosystem) => {
-            if (!state.chains[ecosystem]) {
-                return {};
-            }
+            if (!state.chains[ecosystem]) return {};
 
             const chainList = _.values(state.chains[ecosystem]);
 
@@ -68,13 +62,9 @@ export default {
         },
 
         getChainLogoByNet: (state) => (net) => {
-            for (const ecosystem in state.chains) {
-                for (const chain in state.chains[ecosystem]) {
-                    if (state.chains[ecosystem][chain].net === net) {
-                        return state.chains[ecosystem][chain].logo;
-                    }
-                }
-            }
+            for (const ecosystem in state.chains)
+                for (const chain in state.chains[ecosystem])
+                    if (state.chains[ecosystem][chain].net === net) return state.chains[ecosystem][chain].logo;
         },
 
         getNativeTokenByChain: (state) => (chain, ecosystem) => {
@@ -88,17 +78,13 @@ export default {
 
     mutations: {
         [TYPES.SET_CHAIN_CONFIG](state, { chain, ecosystem, config }) {
-            if (!state.chains[ecosystem][chain]) {
-                state.chains[ecosystem][chain] = {};
-            }
+            if (!state.chains[ecosystem][chain]) state.chains[ecosystem][chain] = {};
 
             state.chains[ecosystem][chain] = config;
         },
 
         [TYPES.SET_TOKENS_BY_CHAIN](state, { chain, tokens }) {
-            if (!state.tokensByChain[chain]) {
-                state.tokensByChain[chain] = {};
-            }
+            if (!state.tokensByChain[chain]) state.tokensByChain[chain] = {};
 
             state.tokensByChain[chain] = tokens;
         },
@@ -118,13 +104,9 @@ export default {
             const response = await getConfigsByEcosystems(ecosystem);
 
             for (const chain in response) {
-                if (!state.chains[ecosystem][chain]) {
-                    commit(TYPES.SET_CHAIN_CONFIG, { chain, ecosystem, config: response[chain] });
-                }
+                if (!state.chains[ecosystem][chain]) commit(TYPES.SET_CHAIN_CONFIG, { chain, ecosystem, config: response[chain] });
 
-                if (Object.values(DP_CHAINS).includes(chain)) {
-                    dispatch('initTokensByChain', { chain, ecosystem });
-                }
+                if (Object.values(DP_CHAINS).includes(chain)) dispatch('initTokensByChain', { chain, ecosystem });
             }
         },
 

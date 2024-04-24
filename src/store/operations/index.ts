@@ -209,17 +209,13 @@ export default {
         getOperationResultByModule:
             (state: IState) =>
             (module: ModuleType): any => {
-                if (!state.operationResult || !state.operationResult[module]) {
-                    return null;
-                }
+                if (!state.operationResult || !state.operationResult[module]) return null;
 
                 return state.operationResult[module];
             },
 
         getFieldValue: (state: IState) => (field: Field) => {
-            if (!state[field]) {
-                return null;
-            }
+            if (!state[field]) return null;
 
             return state[field];
         },
@@ -294,11 +290,7 @@ export default {
         },
 
         [TYPES.RESET_ALL_FIELDS]: (state: IState) => {
-            for (const field in Field) {
-                if (Object.prototype.hasOwnProperty.call(Field, field)) {
-                    state[field] = null;
-                }
-            }
+            for (const field in Field) if (Object.prototype.hasOwnProperty.call(Field, field)) state[field] = null;
         },
 
         [TYPES.SET_VALUE_BY_MODULE](state: IState, { module, field, value }) {
@@ -379,9 +371,7 @@ export default {
         },
 
         setFieldValue({ commit }, { field, value }) {
-            if (!fieldSetter[field]) {
-                return;
-            }
+            if (!fieldSetter[field]) return;
 
             commit(fieldSetter[field], value);
         },

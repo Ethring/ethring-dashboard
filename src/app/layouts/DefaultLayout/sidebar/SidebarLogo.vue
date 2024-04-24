@@ -4,7 +4,7 @@
             <div class="sidebar-item__icon">
                 <ZometLogo />
             </div>
-            <div class="title" v-if="!collapsed">
+            <div v-if="!collapsed" class="title">
                 <ZometText />
                 <a-tag color="#14ec8a" :bordered="false" class="tag"> BETA </a-tag>
             </div>
@@ -18,6 +18,10 @@ import ZometText from '@/assets/icons/sidebar/logo-text.svg';
 
 export default {
     name: 'SidebarLogo',
+    components: {
+        ZometLogo,
+        ZometText,
+    },
     props: {
         collapsed: {
             type: Boolean,
@@ -27,10 +31,6 @@ export default {
             type: String,
             default: '',
         },
-    },
-    components: {
-        ZometLogo,
-        ZometText,
     },
 };
 </script>

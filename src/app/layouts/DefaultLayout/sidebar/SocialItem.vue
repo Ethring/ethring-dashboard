@@ -11,6 +11,12 @@ import GitBookIcon from '@/assets/icons/socials/git-book.svg';
 
 export default {
     name: 'SocialItem',
+    components: {
+        TelegramIcon,
+        TwitterIcon,
+        DiscordIcon,
+        GitBookIcon,
+    },
     props: {
         name: {
             type: String,
@@ -28,12 +34,6 @@ export default {
             type: Boolean,
             default: false,
         },
-    },
-    components: {
-        TelegramIcon,
-        TwitterIcon,
-        DiscordIcon,
-        GitBookIcon,
     },
 };
 </script>

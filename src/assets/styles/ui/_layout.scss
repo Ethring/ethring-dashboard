@@ -298,7 +298,7 @@ $top-bar-spacing: 20px;
     margin: auto;
     width: 16px;
     height: 16px;
-    content: "";
+    content: '';
     display: block;
     border-radius: 50%;
     z-index: 1;
@@ -322,7 +322,6 @@ $top-bar-spacing: 20px;
     svg {
         transition: 0.2s ease-in-out;
     }
-
 
     display: flex;
     align-items: center;

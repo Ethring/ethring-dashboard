@@ -1,8 +1,8 @@
-import Button from '@/components/ui/Button';
+import UiButton from '@/components/ui/Button.vue';
 
 export default {
     title: 'Components/UI/Button',
-    component: Button,
+    component: UiButton,
     tags: ['autodocs'],
     parameters: {
         docs: {
@@ -19,7 +19,7 @@ const Template = (args) => ({
     setup() {
         return { args };
     },
-    template: `<Button v-bind="args" />`,
+    template: `<UiButton v-bind="args" />`,
 });
 
 export const Default = Template.bind({});

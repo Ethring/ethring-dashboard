@@ -18,18 +18,22 @@
         </template>
 
         <template #extra>
-            <Button key="console" title="Done" type="primary" @click="() => handleOnDone(module)" data-qa="operation-done" />
+            <UiButton key="console" title="Done" type="primary" data-qa="operation-done" @click="() => handleOnDone(module)" />
         </template>
     </a-result>
 </template>
 <script>
 import { useStore } from 'vuex';
 
-import Button from '@/components/ui/Button.vue';
+import UiButton from '@/components/ui/Button.vue';
 import ExternalLink from '@/components/ui/ExternalLink.vue';
 
 export default {
     name: 'Result',
+    components: {
+        UiButton,
+        ExternalLink,
+    },
     props: {
         status: {
             type: String,
@@ -56,10 +60,6 @@ export default {
             type: String,
             default: null,
         },
-    },
-    components: {
-        Button,
-        ExternalLink,
     },
     setup() {
         const store = useStore();

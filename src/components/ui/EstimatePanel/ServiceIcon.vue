@@ -15,7 +15,7 @@
             </div>
         </div>
 
-        <template #title v-if="!showTitle && showTooltip">
+        <template v-if="!showTitle && showTooltip" #title>
             {{ name }}
         </template>
     </a-tooltip>

@@ -1,9 +1,9 @@
 <template>
     <a-form-item
+        v-click-away="(active = false)"
         class="select-panel"
         :class="{ active: active, focused, error: isError, disabled }"
         @click="active = true"
-        v-click-away="(active = false)"
     >
         <div class="input-label">{{ $t(label) }}</div>
 
@@ -12,14 +12,14 @@
                 <TokenIcon :token="selectedNetwork" class="network" width="32" height="32" />
             </div>
             <a-input
-                allow-clear
                 v-model:value="contractAddress"
+                v-debounce:1s="onInput"
+                allow-clear
                 class="base-input"
                 data-qa="input-address"
                 :disabled="disabled"
                 :bordered="false"
                 :placeholder="placeholder"
-                v-debounce:1s="onInput"
                 @focus="focused = true"
                 @blur="onBlur"
             >
@@ -49,6 +49,10 @@ import { useStore } from 'vuex';
 
 export default {
     name: 'SelectContractAddressInput',
+    components: {
+        ClearIcon,
+        TokenIcon,
+    },
     props: {
         value: {
             type: String,
@@ -70,10 +74,6 @@ export default {
             type: Boolean,
             default: false,
         },
-    },
-    components: {
-        ClearIcon,
-        TokenIcon,
     },
     setup(props, { emit }) {
         const MAX_LENGTH = 40;
@@ -114,21 +114,15 @@ export default {
 
             const { bech32_prefix = null, address_validating = null } = target || {};
 
-            if (bech32_prefix) {
-                return `${bech32_prefix}1abc...`;
-            }
+            if (bech32_prefix) return `${bech32_prefix}1abc...`;
 
-            if (address_validating) {
-                return '0x1234abcd...';
-            }
+            if (address_validating) return '0x1234abcd...';
 
             return 'Address';
         });
 
         const resetAddress = () => {
-            if (!resetFields.value) {
-                return;
-            }
+            if (!resetFields.value) return;
 
             contractAddress.value = '';
             active.value = false;
@@ -146,22 +140,16 @@ export default {
         };
 
         const displayAddress = computed(() => {
-            if (!contractAddress.value) {
-                return addressPlaceholder.value;
-            }
+            if (!contractAddress.value) return addressPlaceholder.value;
 
-            if (contractAddress.value?.length < MAX_LENGTH) {
-                return contractAddress.value;
-            }
+            if (contractAddress.value?.length < MAX_LENGTH) return contractAddress.value;
 
             return contractAddress.value.slice(0, 12) + '...' + contractAddress.value.slice(-6);
         });
 
         // =================================================================================================================
 
-        if (props.onReset) {
-            resetAddress();
-        }
+        if (props.onReset) resetAddress();
 
         watch(
             () => props.onReset,

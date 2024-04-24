@@ -1,4 +1,4 @@
-<template>
+<template lang>
     <div
         class="overlay-container"
         :class="{
@@ -16,8 +16,8 @@
 
             <div class="wallet-icon-container">
                 <ModuleIcon
-                    class="wallet-icon"
                     v-if="connectedWallet"
+                    class="wallet-icon"
                     :module="connectedWallet.walletModule"
                     :ecosystem="connectedWallet.ecosystem"
                 />
@@ -42,26 +42,26 @@
 
                 <div class="status-description">{{ statusDescription }}</div>
             </div>
-            <Button
+            <UiButton
                 class="overlay-btn"
                 :class="{ active: isShowTryAgain }"
-                @click="handleOnTryAgain"
                 :loading="shortcutStatus === STATUSES.IN_PROGRESS"
                 title="Try Again"
+                @click="handleOnTryAgain"
             />
         </div>
     </div>
 </template>
 <script lang="ts">
-import { h, computed, ref, watch, onMounted, onUnmounted } from 'vue';
+import { defineComponent, h, computed, ref, watch, onMounted, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
-import useAdapter from '@/Adapter/compositions/useAdapter';
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
 import { LoadingOutlined } from '@ant-design/icons-vue';
 
-import Button from '@/components/ui/Button.vue';
+import UiButton from '@/components/ui/Button.vue';
 
-import ModuleIcon from '@/Adapter/UI/Entities/ModuleIcon.vue';
+import ModuleIcon from '@/core/wallet-adapter/UI/Entities/ModuleIcon.vue';
 
 import OverlayIcon from '@/assets/icons/platform-icons/overlay-loading.svg';
 import SuccessIcon from '@/assets/icons/form-icons/check-circle.svg';
@@ -69,15 +69,15 @@ import FailedIcon from '@/assets/icons/form-icons/clear.svg';
 import ProcessIcon from '@/assets/icons/form-icons/process.svg';
 import WaitingIcon from '@/assets/icons/form-icons/waiting.svg';
 
-import { ModuleType } from '../../../shared/models/enums/modules.enum';
-import { STATUSES, TRANSACTION_TYPES, SHORTCUT_STATUSES } from '../../../shared/models/enums/statuses.enum';
-import OperationFactory from '../../../modules/operations/OperationsFactory';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
+import { STATUS_TYPE, STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
+import OperationFactory from '@/core/operations/OperationsFactory';
 
-export default {
+export default defineComponent({
     name: 'ShortcutLoading',
     components: {
         OverlayIcon,
-        Button,
+        UiButton,
         ModuleIcon,
     },
     props: {
@@ -85,11 +85,6 @@ export default {
             type: String,
             required: true,
         },
-    },
-    data() {
-        return {
-            STATUSES,
-        };
     },
 
     setup(props) {
@@ -99,15 +94,24 @@ export default {
 
         const store = useStore();
 
-        const shortcutStatus = computed(() => store.getters['shortcuts/getShortcutStatus'](props.shortcutId));
+        const shortcutStatus = computed<STATUS_TYPE>(() => store.getters['shortcuts/getShortcutStatus'](props.shortcutId));
 
-        const isActive = computed(
-            () =>
-                [STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(shortcutStatus.value as STATUSES) &&
-                shortcutStatus.value !== STATUSES.PENDING,
-        );
+        const isActive = computed<boolean>(() => {
+            if (!shortcutStatus.value) return false;
 
-        const isShowTryAgain = computed(() => [STATUSES.FAILED, STATUSES.SUCCESS].includes(shortcutStatus.value as STATUSES));
+            if (shortcutStatus.value === STATUSES.PENDING) return false;
+
+            const status = STATUSES[shortcutStatus.value];
+
+            if ([STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(status)) return true;
+
+            return false;
+        });
+
+        const isShowTryAgain = computed(() => {
+            const status = STATUSES[shortcutStatus.value];
+            return [STATUSES.FAILED, STATUSES.SUCCESS].includes(status);
+        });
 
         const isShortcutLoading = computed(() => store.getters['shortcuts/getIsShortcutLoading'](props.shortcutId));
 
@@ -141,11 +145,8 @@ export default {
         };
 
         const operationProgressStatus = computed(() => {
-            if (operationProgress.value === 100) {
-                return 'success';
-            } else if (shortcutStatus.value === STATUSES.FAILED) {
-                return 'exception';
-            }
+            if (operationProgress.value === 100) return 'success';
+            else if (shortcutStatus.value === STATUSES.FAILED) return 'exception';
 
             return 'active';
         });
@@ -309,7 +310,12 @@ export default {
             operationsCount,
         };
     },
-};
+    data() {
+        return {
+            STATUSES,
+        };
+    },
+});
 </script>
 <style lang="scss">
 .overlay-container {

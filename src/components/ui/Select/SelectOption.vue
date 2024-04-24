@@ -1,16 +1,20 @@
 <template>
-    <div class="select-token-option" data-qa="token-record" :data-key="record?.id || record?.address"
-        :class="{ selected: record.selected }">
+    <div
+        class="select-token-option"
+        data-qa="token-record"
+        :data-key="record?.id || record?.address"
+        :class="{ selected: record.selected }"
+    >
         <div class="info-container">
             <TokenIcon width="32" height="32" :token="record" class="logo" />
 
             <div class="label-container">
                 <div class="row">
                     <span class="top">{{ label }}</span>
-                    <CheckIcon class="check-icon" v-if="record?.verified" />
+                    <CheckIcon v-if="record?.verified" class="check-icon" />
                 </div>
 
-                <div class="bottom" v-if="displayName">
+                <div v-if="displayName" class="bottom">
                     <div class="sub-text-container">
                         <div class="sub-text" :class="{ showHover: record.address && tokenExplorerLink }">
                             <template v-if="displayName.length > 25">
@@ -24,8 +28,12 @@
                             </template>
                         </div>
 
-                        <a-typography-link v-if="record.address && tokenExplorerLink" :href="tokenExplorerLink"
-                            target="_blank" class="link">
+                        <a-typography-link
+                            v-if="record.address && tokenExplorerLink"
+                            :href="tokenExplorerLink"
+                            target="_blank"
+                            class="link"
+                        >
                             ({{ displayAddress }})
                             <ExternalLinkIcon class="link-icon" />
                         </a-typography-link>
@@ -34,7 +42,7 @@
             </div>
         </div>
 
-        <div class="stat-container" v-if="record?.balance || record?.balanceUsd">
+        <div v-if="record?.balance || record?.balanceUsd" class="stat-container">
             <Amount type="currency" :value="record?.balance" :symbol="record?.symbol" :decimals="3" />
             <Amount type="usd" :value="record?.balanceUsd" symbol="$" :decimals="3" />
         </div>
@@ -55,7 +63,7 @@ export default {
         Amount,
         TokenIcon,
         ExternalLinkIcon,
-        CheckIcon
+        CheckIcon,
     },
     props: {
         type: {
@@ -90,17 +98,13 @@ export default {
         const displayName = computed(() => {
             const { name = '', symbol = '', ecosystem = '' } = props.record || {};
 
-            if (props.type === 'network') {
-                return ecosystem || '';
-            }
+            if (props.type === 'network') return ecosystem || '';
 
             return name || symbol || '';
         });
 
         const displayAddress = computed(() => {
-            if (props.record?.address?.length < 10) {
-                return props.record?.address;
-            }
+            if (props.record?.address?.length < 10) return props.record?.address;
 
             return props.record?.address?.slice(0, 8) + '...' + props.record?.address?.slice(-4);
         });

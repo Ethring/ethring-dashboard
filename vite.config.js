@@ -5,6 +5,8 @@ import { resolve } from 'path'; // * Path for resolving the paths
 // * Plugins
 import vue from '@vitejs/plugin-vue';
 import svgLoader from 'vite-svg-loader';
+import eslintPlugin from 'vite-plugin-eslint';
+
 import EnvironmentPlugin from 'vite-plugin-environment';
 import { VitePWA } from 'vite-plugin-pwa';
 import { visualizer } from 'rollup-plugin-visualizer';
@@ -141,5 +143,7 @@ export default defineConfig({
                 sourcemap: true,
                 filename: 'stats.html',
             }),
+
+        // eslintPlugin(), // TURN ON FOR ESLINT_DEBUG
     ],
 });

@@ -8,7 +8,7 @@
 
             <a-row class="social-details">
                 <template v-if="author.socials && author.socials.length > 0">
-                    <a class="item" align="middle" target="_blank" v-for="social in author.socials" :href="social.link">
+                    <a v-for="social in author.socials" class="item" align="middle" target="_blank" :href="social.link">
                         <div class="icon">
                             <TwitterIcon class="social" />
                         </div>
@@ -66,7 +66,7 @@
         </div>
     </div>
 
-    <a-row :gutter="[16, 16]" v-if="shortcuts.length" class="shortcut-list">
+    <a-row v-if="shortcuts.length" :gutter="[16, 16]" class="shortcut-list">
         <a-col v-for="(item, i) in shortcuts" :key="`shortcut-${i}`" :md="24" :lg="12">
             <ShortcutItem :item="item" />
         </a-col>
@@ -86,6 +86,8 @@ import ArrowIcon from '@/assets/icons/form-icons/arrow-back.svg';
 import CreatedIcon from '@/assets/icons/module-icons/more-action.svg';
 import LikeIcon from '@/assets/icons/dashboard/heart.svg';
 import { useRoute } from 'vue-router';
+
+import { IAuthor } from '@/core/shortcuts/data/authors';
 
 export default {
     name: 'ShortcutProfile',
@@ -111,11 +113,7 @@ export default {
         const allShortcutsCount = computed(() => store.getters['shortcutsList/getCreatedShortcutsCount'](route.params.author));
         const shortcuts = computed(() => store.getters['shortcutsList/getShortcutsByAuthor'](route.params.author, activeTabKey.value));
 
-        const author = computed<{
-            name: string;
-            avatar: string;
-            socials: { type: string; nickname: string; link: string }[];
-        }>(() => {
+        const author = computed<IAuthor>(() => {
             const [shortcut] = shortcuts.value || [];
 
             return (
@@ -125,11 +123,6 @@ export default {
                     socials: [],
                 }
             );
-        });
-
-        const getAuthorShortcut = computed(() => {
-            const list = shortcuts.value.filter((item) => item.author.nickname === shortcut.value.author.nickname);
-            return list.length;
         });
 
         function getBase64(img, callback) {

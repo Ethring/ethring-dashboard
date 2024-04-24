@@ -2,7 +2,7 @@ import { Field, FieldAttr } from '@/shared/models/enums/fields.enum';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 
 import { ChainConfig } from '@/modules/chain-configs/types/chain-config';
-import { AssetBalance } from '@/modules/balance-provider/models/types';
+import { AssetBalance } from '@/core/balance-provider/models/types';
 
 export interface AllowanceByService {
     [key: string]: {
@@ -13,7 +13,6 @@ export interface AllowanceByService {
 export interface INetwork extends ChainConfig {}
 
 export interface IAsset extends AssetBalance {
-    isNeedApprove?: boolean;
     allowanceByService?: AllowanceByService;
 }
 
