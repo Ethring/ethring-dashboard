@@ -119,8 +119,8 @@
   "prettier-watch": "onchange 'src/**/*.{js|vue}' -- prettier --write {{changed}}",
   "husky": {
     "hooks": {
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
-      "pre-commit": "npm run format:code && npm run lint:code:fix && npm run test:unit"
+      "pre-commit": "npm run format:code && npm run lint:code:fix && npm run test:unit",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   }
 }
