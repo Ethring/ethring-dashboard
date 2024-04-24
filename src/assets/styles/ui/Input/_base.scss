@@ -25,6 +25,7 @@
 
 .mint-count-input input {
     font-weight: 700 !important;
+    color: var(--#{$prefix}primary-text) !important;
 }
 
 .editable-amount-input {

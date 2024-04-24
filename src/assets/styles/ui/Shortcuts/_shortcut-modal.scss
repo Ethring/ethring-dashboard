@@ -1,4 +1,76 @@
+.ant-spin-text {
+    color: var(--#{$prefix}primary-text);
+}
+
 .success-shortcut {
+    &-title {
+        font-size: var(--#{$prefix}h5-fs);
+        font-weight: 500;
+        color: var(--#{$prefix}primary-text);
+    }
+
+    &-description {
+        font-size: var(--#{$prefix}body-fs);
+        font-weight: 400;
+        color: var(--#{$prefix}secondary-text);
+        margin-top: 10px;
+    }
+
+    &-hash-link {
+        width: fit-content;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        max-height: 40px;
+        min-height: 12px;
+        height: 12px;
+
+        overflow: hidden;
+    }
+
+    &-tokens-group {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+
+        &-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            .divider {
+                color: var(--#{$prefix}mute-text);
+                margin-inline-end: 10px;
+            }
+
+            &:not(:last-child) {
+                margin-inline-end: 10px;
+            }
+
+            & > div:not(:last-child) {
+                margin-inline-end: 5px;
+            }
+        }
+    }
+
+    .status-icon-container {
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .status-icon {
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    .ant-list-item-meta-title {
+        color: var(--#{$prefix}primary-text) !important;
+    }
+
     .ant-modal-content {
         max-width: 580px;
         width: 100%;
@@ -10,36 +82,49 @@
         align-items: center;
         justify-content: center;
     }
+
+    .shortcut-nft-image {
+        min-width: 300px;
+        max-width: 300px;
+        width: 100%;
+        min-height: 300px;
+        background-color: var(--#{$prefix}icon-placeholder);
+        border-radius: 8px;
+
+        &.placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
+    .carousel-img-placeholder {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(7.5px);
+        border-radius: 8px;
+    }
+
+    .carousel-img-loader,
+    &-carousel {
+        margin-bottom: 30px;
+    }
+
     &-carousel {
         max-width: 300px;
-        margin-bottom: 30px;
-
-        .shortcut-nft-image {
-            min-width: 300px;
-            max-width: 300px;
-            width: 100%;
-            min-height: 300px;
-            background-color: var(--#{$prefix}icon-placeholder);
-        }
 
         .shortcut-nft-image,
         .carousel-img-placeholder,
         .ant-image-img {
             border-radius: 8px;
-        }
-
-        .carousel-img-placeholder {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            right: 0;
-            left: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(7.5px);
         }
     }
 }

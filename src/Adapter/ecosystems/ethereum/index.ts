@@ -23,7 +23,6 @@ const connectedWalletsStorage = useLocalStorage(STORAGE.CONNECTED_WALLETS_KEY, [
 
 const [DEFAULT_CHAIN] = chainConfig;
 
-
 export class EthereumAdapter extends AdapterBase {
     private addressByNetwork: { [key: string]: any } = {};
     store: any = null;
@@ -37,6 +36,10 @@ export class EthereumAdapter extends AdapterBase {
 
     init(store: any) {
         this.store = store;
+    }
+
+    isLocked(): boolean {
+        return !this.getAccountAddress();
     }
 
     subscribeToWalletsChange() {
@@ -181,7 +184,7 @@ export class EthereumAdapter extends AdapterBase {
 
         const { id = null } = connectedChain.value || {};
 
-        if (!id || id && isNaN(+id)) {
+        if (!id || (id && isNaN(+id))) {
             return null;
         }
 
@@ -243,7 +246,7 @@ export class EthereumAdapter extends AdapterBase {
             return null;
         }
 
-        const adaptersDispatch = (...args: { ecosystem: string; wallet: undefined; }[]) => store.dispatch('adapters/SET_WALLET', ...args);
+        const adaptersDispatch = (...args: { ecosystem: string; wallet: undefined }[]) => store.dispatch('adapters/SET_WALLET', ...args);
 
         let connectedWallet = connectedWalletsStorage.value.find((wallet) => wallet?.walletModule === walletModule);
 
@@ -302,7 +305,7 @@ export class EthereumAdapter extends AdapterBase {
 
         if (typeof transaction.nonce === 'number') {
             const ethersProvider = this.getProvider();
-            if (ethersProvider) (transaction.nonce = await ethersProvider.getTransactionCount(transaction.from));
+            if (ethersProvider) transaction.nonce = await ethersProvider.getTransactionCount(transaction.from);
         }
 
         if (['number', 'string'].includes(typeof transaction.gas)) {

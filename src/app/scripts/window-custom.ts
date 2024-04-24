@@ -3,7 +3,7 @@ import { ref, Ref } from 'vue';
 declare global {
     interface Window {
         customNotifications: {
-            showSuccess: (title: string, description: string, duration: number) => void;
+            showSuccess: (title: string, description: string, duration: number, { withDuration }: { withDuration: boolean }) => void;
             showPrepare: (title: string, description: string, duration: number) => void;
             closeNotificationByKey: (key: string) => void;
         };
@@ -16,7 +16,7 @@ declare global {
 
 export default function windowCustom() {
     window.CALL_NEXT_TX_WAIT_TIME = ref(3.5);
-    window.BALANCE_WAIT_TIME = ref(3);
+    window.BALANCE_WAIT_TIME = ref(5);
 }
 
 windowCustom();
