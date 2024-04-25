@@ -28,10 +28,12 @@ export default {
     },
     props: {
         loading: {
+            type: Boolean,
             required: false,
             default: false,
         },
         hideContent: {
+            type: Boolean,
             required: false,
             default: false,
         },

@@ -1,4 +1,4 @@
-<template lang>
+<template>
     <div
         class="overlay-container"
         :class="{
@@ -80,6 +80,7 @@ export default defineComponent({
         UiButton,
         ModuleIcon,
     },
+
     props: {
         shortcutId: {
             type: String,
@@ -291,6 +292,8 @@ export default defineComponent({
         });
 
         return {
+            STATUSES,
+
             isActive,
             isShowTryAgain,
 
@@ -308,11 +311,6 @@ export default defineComponent({
             operationProgressStatus,
             operationProgress,
             operationsCount,
-        };
-    },
-    data() {
-        return {
-            STATUSES,
         };
     },
 });

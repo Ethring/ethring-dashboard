@@ -9,8 +9,8 @@
         </template>
 
         <template v-else>
-            <a-carousel autoplay class="success-shortcut-carousel" v-if="nftsList.length > 0">
-                <div v-for="nft in nftsList">
+            <a-carousel v-if="nftsList.length > 0" autoplay class="success-shortcut-carousel">
+                <div v-for="nft in nftsList" :key="nft">
                     <a-image :preview="false" :src="nft" class="shortcut-nft-image" alt="nft-image" :fallback="Placeholder">
                         <template #placeholder>
                             <div class="carousel-img-placeholder">
@@ -29,7 +29,7 @@
 
                     <a-divider v-if="results.length > 0" />
 
-                    <a-list size="small" class="success-shortcut-list" :item-layout="'horizontal'" :dataSource="results">
+                    <a-list size="small" class="success-shortcut-list" :item-layout="'horizontal'" :data-source="results">
                         <template #renderItem="{ item }">
                             <a-list-item>
                                 <template #extra>

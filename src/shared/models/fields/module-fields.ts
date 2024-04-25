@@ -14,6 +14,7 @@ export interface INetwork extends ChainConfig {}
 
 export interface IAsset extends AssetBalance {
     allowanceByService?: AllowanceByService;
+    amount?: string;
 }
 
 export interface IFields {

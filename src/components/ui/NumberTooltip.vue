@@ -12,9 +12,11 @@ export default {
     name: 'NumberTooltip',
     props: {
         value: {
+            type: [String, Number],
             default: null,
         },
         decimals: {
+            type: Number,
             default: 2,
         },
     },

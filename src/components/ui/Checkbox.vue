@@ -5,7 +5,7 @@
             <span class="checkbox__checkmark">
                 <CheckmarkIcon v-if="value" />
             </span>
-            <span class="checkbox__label" v-html="label" />
+            <span class="checkbox__label" v-text="label" />
         </label>
     </div>
 </template>

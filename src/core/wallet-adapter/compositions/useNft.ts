@@ -36,13 +36,13 @@ interface IUseNFT {
     ) => Promise<string[] | undefined>;
 }
 
-interface INftStatsValue {
+export interface INftStatsValue {
     type: 'currency' | 'usd';
     value: string | number;
     symbol: string;
 }
 
-interface INftStats {
+export interface INftStats {
     type: string;
     value: INftStatsValue | string;
 }

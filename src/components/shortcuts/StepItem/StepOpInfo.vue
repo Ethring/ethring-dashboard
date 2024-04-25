@@ -1,5 +1,5 @@
 <template>
-    <div class="step-operation-info" v-if="operation">
+    <div v-if="operation" class="step-operation-info">
         <div class="label">
             {{ label }}
         </div>
@@ -23,20 +23,20 @@
                         title="Change From amount?"
                         ok-text="Change"
                         cancel-text="No"
+                        :disabled="isEditDisabled"
                         @confirm="handleOnConfirm"
                         @cancel="handleOnCancel"
-                        :disabled="isEditDisabled"
                     >
                         <template #description>
                             <a-input-number
+                                v-model:value="editedAmount"
                                 string-mode
                                 class="editable-amount-input"
-                                v-model:value="editedAmount"
                                 :controls="false"
                                 :min="0"
                                 :max="operation.getToken('from')?.balance ? operation.getToken('from')?.balance : Infinity"
                             >
-                                <template #addonAfter v-if="operation.getToken('from')?.balance">
+                                <template v-if="operation.getToken('from')?.balance" #addonAfter>
                                     <span class="max-balance" @click="handleOnMax">MAX: {{ operation.getToken('from')?.balance }}</span>
                                 </template>
                             </a-input-number>
@@ -70,9 +70,10 @@
 
             <template v-if="additionalTooltips && additionalTooltips.length">
                 <a-popover placement="top" class="step-additional-info-popover">
-                    <template #content class="step-additional-info-popover">
+                    <template #content>
                         <StepAdditionalInfo
                             v-for="additionalInfo in additionalTooltips"
+                            :key="additionalInfo"
                             :amount-info="additionalInfo?.amountSrcInfo"
                             :percentage-info="additionalInfo?.percentageInfo"
                         />
@@ -99,6 +100,10 @@ import { ModuleType } from '@/shared/models/enums/modules.enum';
 
 export default {
     name: 'StepOpInfo',
+    components: {
+        InfoCircleOutlined,
+        StepAdditionalInfo,
+    },
     props: {
         label: {
             type: String,
@@ -112,10 +117,6 @@ export default {
             type: String,
             required: true,
         },
-    },
-    components: {
-        InfoCircleOutlined,
-        StepAdditionalInfo,
     },
     setup(props) {
         const store = useStore();

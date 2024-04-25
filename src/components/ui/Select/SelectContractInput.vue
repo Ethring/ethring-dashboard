@@ -63,6 +63,7 @@ export default {
             default: 'tokenOperations.recipient',
         },
         selectedNetwork: {
+            type: Object,
             required: false,
             default: () => {},
         },
@@ -75,6 +76,7 @@ export default {
             default: false,
         },
     },
+    emits: ['setAddress', 'error-status'],
     setup(props, { emit }) {
         const MAX_LENGTH = 40;
 

@@ -8,7 +8,7 @@
 
             <a-row class="social-details">
                 <template v-if="author.socials && author.socials.length > 0">
-                    <a v-for="social in author.socials" class="item" align="middle" target="_blank" :href="social.link">
+                    <a v-for="social in author.socials" :key="social.type" class="item" align="middle" target="_blank" :href="social.link">
                         <div class="icon">
                             <TwitterIcon class="social" />
                         </div>

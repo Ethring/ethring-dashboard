@@ -265,12 +265,8 @@ export default {
         const isDisableCheckbox = computed(() => {
             if (!selectedRoute.value) return isDisableSelect.value;
 
-            if (servicesHash.value[selectedRoute.value?.serviceId]) {
-                if (isSendToAnotherAddress.value)
-                    isSendToAnotherAddress.value = servicesHash.value[selectedRoute.value?.serviceId].features_support?.receiver;
-
+            if (servicesHash.value[selectedRoute.value?.serviceId])
                 return !servicesHash.value[selectedRoute.value?.serviceId].features_support?.receiver;
-            }
 
             return isDisableSelect.value;
         });
@@ -298,6 +294,11 @@ export default {
                     attr: 'disabled',
                     value: isDisableSelect.value,
                 });
+        });
+
+        watch(selectedRoute, () => {
+            if (servicesHash.value[selectedRoute.value?.serviceId] && isSendToAnotherAddress.value)
+                isSendToAnotherAddress.value = servicesHash.value[selectedRoute.value?.serviceId].features_support?.receiver;
         });
 
         return {

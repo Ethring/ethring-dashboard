@@ -4,16 +4,16 @@
             <SelectContractInput
                 :selected-network="nftOpChain"
                 label="tokenOperations.contractAddress"
-                :onReset="clearAddress"
+                :on-reset="clearAddress"
                 :disabled="true"
             />
         </a-form-item>
-        <a-row :gutter="8" class="nft-base-info" v-if="nftCollectionInfo">
-            <a-col :span="24" v-if="nftCollectionInfo">
+        <a-row v-if="nftCollectionInfo" :gutter="8" class="nft-base-info">
+            <a-col v-if="nftCollectionInfo" :span="24">
                 <div class="title">Quick access</div>
             </a-col>
-            <a-col :span="24" v-if="nftCollectionInfo.collectionAddress || nftCollectionInfo.minterAddress">
-                <p class="description" v-if="nftCollectionInfo.minterAddress">
+            <a-col v-if="nftCollectionInfo.collectionAddress || nftCollectionInfo.minterAddress" :span="24">
+                <p v-if="nftCollectionInfo.minterAddress" class="description">
                     Minter address:
                     <DisplayAddress :address="nftCollectionInfo.minterAddress" />
                 </p>
@@ -47,13 +47,13 @@
 
             <a-col :span="24">
                 <a-row :gutter="[8, 8]" class="nft-stats">
-                    <a-col :span="8" v-for="stats in nftCollectionInfo.stats">
+                    <a-col v-for="stats in nftCollectionInfo.stats" :key="stats" :span="8">
                         <a-card class="nft-stats-card">
                             <p class="type">{{ stats.type }}</p>
-                            <template v-if="getStatsType(stats) === 'string'">
+                            <template v-if="typeof stats.value === 'string'">
                                 <p class="amount">Unlimited</p>
                             </template>
-                            <template v-else-if="getStatsType(stats) !== 'string'">
+                            <template v-else>
                                 <Amount class="amount" :type="stats.value.type" :value="stats.value.value" :symbol="stats.value.symbol" />
                             </template>
                         </a-card>
@@ -80,15 +80,15 @@
                         v-if="!fieldStates.srcNetwork?.hide"
                         :placeholder="$t('tokenOperations.selectNetwork')"
                         :current="selectedSrcNetwork"
-                        @click="() => onSelectNetwork(DIRECTIONS.SOURCE)"
                         :disabled="fieldStates.srcNetwork.disabled"
+                        @click="() => onSelectNetwork('SOURCE')"
                     />
                     <SelectRecord
                         v-if="!fieldStates.srcToken?.hide"
                         :placeholder="$t('tokenOperations.selectToken')"
                         :current="selectedSrcToken"
-                        @click="() => onSelectToken(true, DIRECTIONS.SOURCE)"
                         :disabled="fieldStates.srcToken.disabled"
+                        @click="() => onSelectToken(true, 'SOURCE')"
                     />
                 </SwapField>
             </a-form-item>
@@ -123,7 +123,6 @@ import useNft, { INftCollectionInfo } from '@/core/wallet-adapter/compositions/u
 
 // UI components
 import UiButton from '@/components/ui/Button.vue';
-import Checkbox from '@/components/ui/Checkbox.vue';
 import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewInfo.vue';
 import Amount from '@/components/app/Amount.vue';
 import DisplayAddress from '@/components/ui/DisplayAddress.vue';
@@ -139,12 +138,10 @@ import CountInput from '@/components/ui/CountInput.vue';
 // Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
 
 import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
 
 // Icons
-import InfoIcon from '@/assets/icons/platform-icons/info.svg';
 import { ClockCircleOutlined } from '@ant-design/icons-vue';
 
 // Types
@@ -155,11 +152,9 @@ export default {
     name: 'MintNftLayoutWithTransfer',
     components: {
         UiButton,
-        Checkbox,
         SwapField,
         SelectRecord,
         SelectContractInput,
-        InfoIcon,
         Amount,
         ClockCircleOutlined,
         CountInput,
@@ -255,7 +250,7 @@ export default {
 
         const getStatsType = (stats: { type: string; value: string | any }) => {
             if (stats.type === 'Quantity' && typeof stats.value === 'string' && stats.value === 'Unlimited') return 'string';
-            if (typeof stats.value !== 'string') return 'object';
+            if (typeof stats.value === 'object') return 'object';
         };
 
         const getCollectionInfoData = async () => {
@@ -312,9 +307,7 @@ export default {
         const resetAmounts = async (amount: string | number) => {
             const allowDataTypes = ['string', 'number'];
 
-            if (allowDataTypes.includes(typeof amount)) {
-                return;
-            }
+            if (allowDataTypes.includes(typeof amount)) return;
 
             resetAmount.value = amount === null;
         };

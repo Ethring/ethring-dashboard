@@ -11,7 +11,7 @@
     "build": "vite build",
     "build:debug": "IS_ANALYZE=true vite build",
     "prebuild:optimize": "vite optimize",
-    "test:unit": "vitest --environment jsdom --root tests/unit",
+    "test:unit": "vitest --environment jsdom --root tests/unit --run",
     "test:mockRpc": "./start-mock.sh",
     "test:e2e:debug": "npx playwright test --workers 1 --debug",
     "test:e2e:updateSnapshot": "xvfb-run npx playwright test --update-snapshots",

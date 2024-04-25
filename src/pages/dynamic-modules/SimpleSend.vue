@@ -33,7 +33,7 @@
 
         <a-form-item v-if="isMemoAllowed">
             <div class="row mt-8">
-                <Checkbox v-model:value="isSendWithMemo" :label="`Memo`" :disabled="isTransactionSigning" @change="handleMemoChange" />
+                <Checkbox v-model:value="isSendWithMemo" label="Memo" :disabled="isTransactionSigning" @change="handleMemoChange" />
 
                 <a-tooltip placement="right" :title="$t('tokenOperations.memoDescription')">
                     <InfoIcon />

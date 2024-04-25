@@ -12,14 +12,11 @@ import _ from 'lodash';
 
 const TX_MANAGER_URL = process.env.TX_MANAGER_API || undefined;
 
-type Ecosystems = 'EVM' | 'COSMOS';
+type Ecosystems = keyof typeof ECOSYSTEMS;
 
 interface CustomSocket extends Socket {
     addresses?: {
-        EVM?: {
-            [key: string]: string;
-        };
-        COSMOS?: {
+        [key in Ecosystems]?: {
             [key: string]: string;
         };
     };
@@ -30,6 +27,11 @@ class SocketInstance {
     socket: CustomSocket;
 
     constructor() {
+        if (!TX_MANAGER_URL) {
+            logger.error('[Socket] TX_MANAGER_API is not defined');
+            throw new Error('[Socket] TX_MANAGER_API is not defined');
+        }
+
         this.socket = io(TX_MANAGER_URL, {
             path: '/socket.io',
             transports: ['websocket'],
@@ -38,11 +40,19 @@ class SocketInstance {
             reconnectionDelay: 2000,
         });
 
+        if (!this.socket) {
+            logger.error('[Socket] Socket is not initialized');
+            throw new Error('[Socket] Socket is not initialized');
+        }
+
         this.socket.on('connect', () => {
             logger.info(`[Socket] Connected: ${new Date().toLocaleTimeString()}`);
 
-            this.socket.addresses && this.socket.addresses[ECOSYSTEMS.EVM] && this.subscribeToAddress('EVM');
-            this.socket.addresses && this.socket.addresses[ECOSYSTEMS.COSMOS] && this.subscribeToAddress('COSMOS');
+            if (!this.socket.addresses) return logger.warn('[Socket] Addresses are not set');
+            if (!this.socket.addresses) return logger.warn('[Socket] Addresses are not set');
+
+            if (this.socket.addresses['EVM']) this.subscribeToAddress('EVM');
+            if (this.socket.addresses['COSMOS']) this.subscribeToAddress('COSMOS');
         });
 
         this.socket.on('disconnect', () => {
@@ -60,14 +70,6 @@ class SocketInstance {
         this.socket.on(SocketEvents.update_transaction_status, async (data) => {
             await handleTransactionStatus(data, this.store, SocketEvents.update_transaction_status);
         });
-
-        // For testing purposes only;
-        // TODO: remove
-        if (process.env.NODE_ENV === 'development')
-            window.testReconnect = () => {
-                this.socket.disconnect();
-                this.socket.connect();
-            };
     }
 
     init(store: any) {
@@ -99,11 +101,15 @@ class SocketInstance {
         // !Removing another account addresses for the same ecosystem
         if (ecosystem === 'COSMOS' && this.socket.addresses[ecosystem])
             _.keys(this.socket.addresses[ecosystem]).forEach((targetKey: string) => {
+                if (!this.socket.addresses) return logger.warn('[Socket] Addresses are not set');
+                if (!this.socket.addresses[ecosystem]) return logger.warn('[Socket] Addresses are not set');
                 if (!targetKey.startsWith(walletAccount)) delete this.socket.addresses[ecosystem][targetKey];
             });
     }
 
     subscribeToAddress(ecosystem: Ecosystems) {
+        if (!this.socket.addresses) return logger.warn('[Socket] Addresses are not set');
+
         if (!this.socket.addresses[ecosystem]) return logger.warn(`[Socket] Addresses for ${ecosystem} are not set`);
 
         for (const targetKey in this.socket.addresses[ecosystem]) {

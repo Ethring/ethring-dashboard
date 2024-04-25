@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/no-v-html -->
 <template>
     <div class="wallet-module--icon-container" :style="iconContainerStyle">
         <span v-if="isSVG(logo)" v-html="logo" />
