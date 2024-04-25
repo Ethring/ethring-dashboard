@@ -119,8 +119,8 @@ export interface IBaseOperation {
     setModule: (module: ModuleTypes) => void;
 
     // Tokens for ops
-    setTokens?: (tokens: { from: IAsset; to?: IAsset }) => void;
-    getTokens?: () => { from?: IAsset; to?: IAsset };
+    setTokens: (tokens: { from: IAsset; to?: IAsset }) => void;
+    getTokens: () => { from?: IAsset; to?: IAsset };
 
     getToken(target: 'from' | 'to'): IAsset | null;
     setToken(target: 'from' | 'to', token: IAsset): void;
@@ -165,8 +165,8 @@ export interface IRegisterOperation {
 
 export interface IOperationFactory {
     registerOperation(module: string, operationClass: new () => IBaseOperation, optional?: { id?: string }): IRegisterOperation | null;
-    getOperationById(id: string): IBaseOperation;
-    getOperationByKey(key: string): IBaseOperation;
+    getOperationById(id: string): IBaseOperation | null;
+    getOperationByKey(key: string): IBaseOperation | null;
     setOperationToGroup(group: string, operationKey: string): void;
     setDependencies(id: string, dependencies: any): void;
     setParams(module: string, operationIndex: number, params: any): void;

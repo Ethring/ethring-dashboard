@@ -47,9 +47,16 @@ export default class MultipleContractExec extends BaseOperation {
     }
 
     async performTx(ecosystem: Ecosystems): Promise<IBridgeDexTransaction> {
+        const { fromNet, ownerAddresses = {} } = this.params as any;
+
+        if (!fromNet || !ownerAddresses || (fromNet && ownerAddresses && ownerAddresses[fromNet])) {
+            console.warn('fromNet and ownerAddresses are required');
+            return {} as IBridgeDexTransaction;
+        }
+
         const params = {
             net: this.params.net,
-            fromAddress: this.params.ownerAddresses[this.params.net] || '',
+            fromAddress: ownerAddresses[fromNet],
             amount: this.params.amount,
             token: this.getToken('from'),
             contract: this.params.minter ? this.params.minter : this.params.contract,

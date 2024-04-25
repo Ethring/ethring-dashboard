@@ -1,78 +1,71 @@
 <template>
-    <KeepAlive>
-        <div class="assets-section">
-            <a-collapse v-model:activeKey="collapseActiveKey" expand-icon-position="end" class="assets-block" ghost :bordered="false">
-                <a-collapse-panel key="assets" class="assets-block-panel" data-qa="assets-panel">
-                    <template #header>
-                        <AssetGroupHeader
-                            class="assets-section__group-header"
-                            title="Tokens"
-                            icon="TokensIcon"
-                            :value="getAssetsShare(totalAssetsBalances)"
-                            :total-balance="totalAssetsBalances || 0"
-                        />
-                    </template>
-
-                    <AssetsTable
-                        type="Asset"
-                        :data="allTokensInAccount"
-                        :columns="[DEFAULT_NAME_COLUMN, ...DEFAULT_COLUMNS]"
-                        :loading="isLoadingByAccount || isLoadingForChain"
+    <div class="assets-section">
+        <a-collapse v-model:activeKey="collapseActiveKey" expand-icon-position="end" class="assets-block" ghost :bordered="false">
+            <a-collapse-panel key="assets" class="assets-block-panel" data-qa="assets-panel">
+                <template #header>
+                    <AssetGroupHeader
+                        class="assets-section__group-header"
+                        title="Tokens"
+                        icon="TokensIcon"
+                        :value="getAssetsShare(totalAssetsBalances)"
+                        :total-balance="totalAssetsBalances || 0"
                     />
-                </a-collapse-panel>
+                </template>
 
-                <a-collapse-panel
-                    v-for="item in allIntegrationsByPlatforms"
-                    v-show="isAllTokensLoading || allIntegrationsByPlatforms.length > 0"
-                    :key="item.platform"
-                    class="assets-block-panel"
-                    @vue:mounted="updateCollapsedKey(item)"
-                >
-                    <template #header>
-                        <AssetGroupHeader
-                            v-if="item.platform"
-                            class="assets-section__group-header"
-                            :logo-u-r-i="item.logoURI"
-                            :title="item.platform"
-                            :value="getAssetsShare(item.totalGroupBalance)"
-                            :total-balance="item.totalGroupBalance"
-                            :show-rewards="item.totalRewardsBalance > 0"
-                            :reward="item.totalRewardsBalance"
-                            :health-rate="item.healthRate"
-                        />
-                    </template>
+                <AssetsTable
+                    type="Asset"
+                    :data="allTokensInAccount"
+                    :columns="[DEFAULT_NAME_COLUMN, ...DEFAULT_COLUMNS]"
+                    :loading="isLoadingByAccount || isLoadingForChain"
+                />
+            </a-collapse-panel>
 
-                    <AssetsTable
-                        v-for="(groupItem, n) in item.data"
-                        :key="n"
-                        class="protocols-table"
-                        :data="groupItem.balances"
-                        :columns="[{ ...DEFAULT_NAME_COLUMN, title: groupItem?.name }, ...DEFAULT_COLUMNS]"
-                        :type="getFormattedName(groupItem.type)"
-                        :name="groupItem?.validator?.name"
+            <a-collapse-panel
+                v-for="item in allIntegrationsByPlatforms"
+                v-show="isAllTokensLoading || allIntegrationsByPlatforms.length > 0"
+                :key="item.platform"
+                class="assets-block-panel"
+                @vue:mounted="updateCollapsedKey(item)"
+            >
+                <template #header>
+                    <AssetGroupHeader
+                        v-if="item.platform"
+                        class="assets-section__group-header"
+                        :logo-u-r-i="item.logoURI"
+                        :title="item.platform"
+                        :value="getAssetsShare(item.totalGroupBalance)"
+                        :total-balance="item.totalGroupBalance"
+                        :show-rewards="item.totalRewardsBalance > 0"
+                        :reward="item.totalRewardsBalance"
+                        :health-rate="item.healthRate"
                     />
-                </a-collapse-panel>
+                </template>
 
-                <a-collapse-panel v-show="isAllTokensLoading || allNFTsByCollection.length > 0" key="nfts" class="assets-block-panel">
-                    <template #header>
-                        <AssetGroupHeader
-                            class="assets-section__group-header"
-                            title="NFT Gallery"
-                            :total-balance="totalNftBalances"
-                            icon="NftsIcon"
-                        />
-                    </template>
+                <AssetsTable
+                    v-for="(groupItem, n) in item.data"
+                    :key="n"
+                    class="protocols-table"
+                    :data="groupItem.balances"
+                    :columns="[{ ...DEFAULT_NAME_COLUMN, title: groupItem?.name }, ...DEFAULT_COLUMNS]"
+                    :type="getFormattedName(groupItem.type)"
+                    :name="groupItem?.validator?.name"
+                />
+            </a-collapse-panel>
 
-                    <AssetsTable
-                        :data="allNFTsByCollection"
-                        type="NFTS"
-                        :columns="NFT_COLUMNS"
-                        :loading="allNFTsByCollection.length <= 0"
+            <a-collapse-panel v-show="isAllTokensLoading || allNFTsByCollection.length > 0" key="nfts" class="assets-block-panel">
+                <template #header>
+                    <AssetGroupHeader
+                        class="assets-section__group-header"
+                        title="NFT Gallery"
+                        :total-balance="totalNftBalances"
+                        icon="NftsIcon"
                     />
-                </a-collapse-panel>
-            </a-collapse>
-        </div>
-    </KeepAlive>
+                </template>
+
+                <AssetsTable :data="allNFTsByCollection" type="NFTS" :columns="NFT_COLUMNS" :loading="allNFTsByCollection.length <= 0" />
+            </a-collapse-panel>
+        </a-collapse>
+    </div>
 </template>
 <script>
 import { ref, computed, inject, onMounted, onBeforeUnmount, watch } from 'vue';
