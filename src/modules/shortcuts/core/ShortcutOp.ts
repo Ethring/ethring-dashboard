@@ -14,7 +14,17 @@ export interface IShortcutOp {
     isShowLayout: boolean;
     serviceId?: string;
     dependencies?: any;
-    excludeChains?: string[];
+
+    excludeChains?: string[]; // exclude chain key list
+    excludeTokens?: {
+        [chain: string]: string[];
+    }; // exclude token id list
+
+    includeTokens?: {
+        [chain: string]: string[];
+    }; // include token id list
+    includeChains?: string[]; // include chain key list
+
     editableFromAmount?: boolean;
     isNeedFromAmount?: boolean;
 
@@ -63,6 +73,14 @@ export default class ShortcutOp implements IShortcutOp {
     ecosystems: Ecosystems[];
 
     excludeChains?: string[];
+    excludeTokens?: {
+        [chain: string]: string[];
+    };
+
+    includeTokens?: {
+        [chain: string]: string[];
+    };
+    includeChains?: string[];
 
     constructor(shortcut: IShortcutOp) {
         this.id = shortcut.id;
@@ -79,6 +97,10 @@ export default class ShortcutOp implements IShortcutOp {
         this.ecosystems = shortcut.ecosystems;
         this.isShowLayout = shortcut.isShowLayout;
 
+        this.includeTokens = shortcut.includeTokens || {};
+        this.excludeTokens = shortcut.excludeTokens || {};
+
+        this.includeChains = shortcut.includeChains || [];
         this.excludeChains = shortcut.excludeChains || [];
     }
 }

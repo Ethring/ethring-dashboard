@@ -9,7 +9,7 @@
         background-repeat: no-repeat;
     }
 
-    > div > .title {
+    >div>.title {
         font-size: var(--#{$prefix}h4-fs);
         line-height: 28px;
         font-weight: 600;
@@ -21,7 +21,7 @@
         text-overflow: ellipsis;
     }
 
-    > .description {
+    >.description {
         font-size: var(--#{$prefix}small-lg-fs);
         font-weight: 400;
         line-height: 20px;
@@ -29,7 +29,7 @@
 
         color: var(--#{$prefix}description-text);
 
-        & > p:not(:last-child) {
+        &>p:not(:last-child) {
             margin-bottom: 8px;
         }
     }
@@ -38,12 +38,22 @@
         @include pageFlexRow;
         color: var(--#{$prefix}base-text);
 
+
         &:hover {
             color: var(--#{$prefix}primary-text);
+
+            svg path {
+                fill:  var(--#{$prefix}primary-text);
+            }
         }
 
         span {
             margin-left: 10px;
+        }
+
+        svg path {
+            transition: 0.2s;
+            fill:  var(--#{$prefix}base-text);
         }
     }
 
@@ -52,14 +62,25 @@
         min-height: 30px;
         height: 30px;
         border-radius: 4px;
-        text-transform: capitalize;
 
         color: var(--#{$prefix}mute-text);
         background-color: var(--#{$prefix}base-btn-bg-color);
 
+        span {
+            text-transform: capitalize;
+        }
+
         &:hover {
             background-color: var(--#{$prefix}small-btn-bg-color) !important;
             color: var(--#{$prefix}primary) !important;
+        }
+    }
+
+    .steps-content {
+
+        .description,
+        .title {
+            color: var(--#{$prefix}mute-text);
         }
     }
 
