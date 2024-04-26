@@ -1,17 +1,23 @@
-import { computed, h, inject, onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 
 import { addTransactionToExistingQueue, createTransactionsQueue, getTransactionsByRequestID, updateTransaction } from '@/Transactions/api';
 
 import useNotification from '@/compositions/useNotification';
 
-import { STATUSES, DISALLOW_UPDATE_TYPES } from '@/shared/models/enums/statuses.enum';
+import { STATUSES, DISALLOW_UPDATE_TYPES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
+
+import { ModuleType } from '@/shared/models/enums/modules.enum';
 
 import { captureTransactionException } from '@/app/modules/sentry';
 
+import { capitalize } from 'lodash';
+
 import logger from '@/shared/logger';
+
 import useAdapter from '@/Adapter/compositions/useAdapter';
-import { ConsoleSqlOutlined } from '@ant-design/icons-vue';
+
+import { formatNumber } from '@/shared/utils/numbers';
 
 export default function useTransactions() {
     const store = useStore();
@@ -159,18 +165,34 @@ export default function useTransactions() {
 
         const explorerLink = getTxExplorerLink(transactionHash, currentChainInfo.value);
 
-        const { type } = metaData || {};
+        const { type, params, tokens = module === ModuleType.send ? tokens : params.tokens } = metaData || {};
+
+        const TARGET_TYPE = TRANSACTION_TYPES[type];
+
+        const isSameNetwork = tokens.from.chain === tokens.to?.chain;
 
         if (!DISALLOW_UPDATE_TYPES.includes(type)) {
             await store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
+
+            const operationResultDesc = module === ModuleType.send ? `${params.amount} ${tokens.from.symbol}` : `${formatNumber(params.dstAmount)} ${tokens.to.symbol}`;
+
+            let operationResultTitle = `Initiated a ${module}`;
+
+            const fromChainLogo = `<img class="network-icon" src="${tokens.from.chainLogo}"/>`;
+            const toChainLogo = `<img class="network-icon" src="${tokens.to?.chainLogo}"/>`;
+
+            if ([TRANSACTION_TYPES.DEX, TRANSACTION_TYPES.SWAP, TRANSACTION_TYPES.BRIDGE].includes(TARGET_TYPE)) {
+                operationResultTitle += isSameNetwork ? ` on ${fromChainLogo} ${capitalize(params.fromNet)} from ${params.amount} to` : ` from ${fromChainLogo} ${capitalize(tokens.from.chain)} to ${toChainLogo}"/> ${capitalize(tokens.to.chain)}`;
+            } else if ([TRANSACTION_TYPES.TRANSFER].includes(TARGET_TYPE)) {
+                operationResultTitle += ` on ${fromChainLogo} ${capitalize(params.fromNet)} `;
+            }
 
             await store.dispatch('tokenOps/setOperationResult', {
                 module,
                 result: {
                     status: 'success',
-                    title: 'Transaction sent to blockchain',
-                    description:
-                        'Transaction successfully sent to blockchain, but the transaction still pending. Please wait for confirmation.',
+                    title: operationResultTitle,
+                    description: operationResultDesc,
                     link: explorerLink,
                 },
             });
