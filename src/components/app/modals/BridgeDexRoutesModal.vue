@@ -210,7 +210,7 @@ export default {
         margin-bottom: 16px;
 
         background-color: var(--#{$prefix}select-bg-color);
-        border: 1px solid var(--#{$prefix}select-bg-color);
+        border: 1px solid var(--#{$prefix}border-secondary-color);
 
         cursor: pointer;
     }

@@ -12,7 +12,7 @@
         height: 32px;
 
         &,
-        & > span {
+        &>span {
             @include pageFlexRow;
             justify-content: center;
         }
@@ -86,6 +86,13 @@
             outline: none !important;
             border-radius: 6px 0 0 6px !important;
             box-shadow: none !important;
+
+            overflow: hidden;
+
+            input {
+                border-radius: 0 !important;
+            }
+
             &-disabled {
                 background: var(--#{$prefix}select-bg-color) !important;
                 border-color: var(--#{$prefix}select-bg-color) !important;
@@ -96,7 +103,7 @@
             }
         }
 
-        .ant-input-number-disabled + .ant-input-number-group-addon {
+        .ant-input-number-disabled+.ant-input-number-group-addon {
             background: var(--#{$prefix}select-bg-color) !important;
             border-color: var(--#{$prefix}select-bg-color) !important;
         }

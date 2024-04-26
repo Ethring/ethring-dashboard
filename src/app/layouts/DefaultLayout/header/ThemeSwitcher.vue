@@ -19,6 +19,8 @@ import { useStore } from 'vuex';
 import SunIcon from '@/assets/icons/platform-icons/sun.svg';
 import MoonIcon from '@/assets/icons/platform-icons/moon.svg';
 
+import withoutTransition from '@/compositions/useDisableTransition';
+
 export default {
     name: 'ThemeSwitcher',
     components: {
@@ -30,7 +32,11 @@ export default {
 
         const theme = computed(() => store.getters['app/theme'] || 'light');
 
-        const toggleTheme = () => store.dispatch('app/toggleTheme');
+        const toggleTheme = () => {
+            withoutTransition(() => {
+                store.dispatch('app/toggleTheme');
+            });
+        };
 
         onMounted(() => document.documentElement.setAttribute('data-theme', theme.value));
 
