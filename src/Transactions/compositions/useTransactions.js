@@ -178,10 +178,13 @@ export default function useTransactions() {
 
             let operationResultTitle = `Initiated a ${module}`;
 
+            const fromChainLogo = `<img class="network-icon" src="${tokens.from.chainLogo}"/>`;
+            const toChainLogo = `<img class="network-icon" src="${tokens.to?.chainLogo}"/>`;
+
             if ([TRANSACTION_TYPES.DEX, TRANSACTION_TYPES.SWAP, TRANSACTION_TYPES.BRIDGE].includes(TARGET_TYPE)) {
-                operationResultTitle += isSameNetwork ? ` on <img class="network-icon" src="${tokens.from.chainLogo}"/> ${capitalize(params.fromNet)} from ${params.amount} to` : ` from <img class="network-icon" src="${tokens.from.chainLogo}"/> ${capitalize(tokens.from.chain)} to <img class="network-icon" src="${tokens.to.chainLogo}"/> ${capitalize(tokens.to.chain)}`;
+                operationResultTitle += isSameNetwork ? ` on ${fromChainLogo} ${capitalize(params.fromNet)} from ${params.amount} to` : ` from ${fromChainLogo} ${capitalize(tokens.from.chain)} to ${toChainLogo}"/> ${capitalize(tokens.to.chain)}`;
             } else if ([TRANSACTION_TYPES.TRANSFER].includes(TARGET_TYPE)) {
-                operationResultTitle += ` on <img class="network-icon" src="${tokens.from.chainLogo}" /> ${capitalize(params.fromNet)} `;
+                operationResultTitle += ` on ${fromChainLogo} ${capitalize(params.fromNet)} `;
             }
 
             await store.dispatch('tokenOps/setOperationResult', {

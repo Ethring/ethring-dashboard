@@ -885,6 +885,7 @@ const useModuleOperations = (module: ModuleType) => {
                 title: 'Transaction error',
                 description: errorMessage,
                 duration: 6,
+                progress: true,
             });
 
             updateOperationStatus(STATUSES.FAILED, { moduleIndex, operationId, hash: txInstance.getTransaction()?.txHash as string });
