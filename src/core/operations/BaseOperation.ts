@@ -9,7 +9,9 @@ import { IBaseOperation, BaseOpParams, PerformOptionalParams, PerformTxParams } 
 import { formatNumber } from '@/shared/utils/numbers';
 import { cutAddress } from '@/shared/utils/address';
 
-import { TRANSACTION_TYPES, TX_TYPES } from '@/shared/models/enums/statuses.enum';
+import { TRANSACTION_TYPES, TX_TYPES } from '@/core/operations/models/enums/tx-types.enum';
+import { getActionByTxType } from './shared/utils';
+import { STATUSES } from '../../shared/models/enums/statuses.enum';
 
 const DEFAULT_TX_TYPE_BY_MODULE = {
     [ModuleType.stake]: TRANSACTION_TYPES.STAKE,
@@ -19,35 +21,28 @@ const DEFAULT_TX_TYPE_BY_MODULE = {
     [ModuleType.superSwap]: TRANSACTION_TYPES.BRIDGE,
     [ModuleType.shortcut]: TRANSACTION_TYPES.BRIDGE,
     [ModuleType.nft]: TRANSACTION_TYPES.EXECUTE_MULTIPLE,
+    [ModuleType.pendleSilo]: TRANSACTION_TYPES.SWAP_TOKEN_TO_PT,
 };
 
 export class BaseOperation implements IBaseOperation {
     transactionType: TX_TYPES = '' as TX_TYPES;
-
     uniqueId: string = '';
-
+    make: TX_TYPES = '' as TX_TYPES;
     name: string = '';
-
     service: any = null;
-
     ecosystem: Ecosystems = 'EVM';
-
     module: keyof typeof ModuleType = ModuleType.swap;
-
-    params: BaseOpParams = {} as AllQuoteParams;
-
+    params: BaseOpParams = {} as BaseOpParams;
     chainId: string = '';
-
     account: string = '';
-
     tokens: {
         from?: IAsset;
         to?: IAsset;
     } = {};
-
     quoteRoute?: IQuoteRoute;
-
     txResponse: any;
+
+    flow: TxOperationFlow[] = [];
 
     constructor() {
         this.service = null;
@@ -57,6 +52,10 @@ export class BaseOperation implements IBaseOperation {
     onSuccess?: (store: any) => Promise<void>;
 
     setAction?: (action: string) => void;
+
+    setMake(make: TX_TYPES): void {
+        this.make = make;
+    }
 
     getName(): string {
         return this.name;
@@ -221,13 +220,46 @@ export class BaseOperation implements IBaseOperation {
     setTxResponse(response: any) {
         this.txResponse = response;
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    static perform(index: number, account: string, ecosystem: string, chainId: string, options: PerformOptionalParams): ICreateTransaction {
-        throw new Error('Not implemented');
+
+    perform(index: number, account: string, ecosystem: string, chainId: string, { make }: PerformOptionalParams): ICreateTransaction {
+        const isStake = this.getModule() === ModuleType.stake;
+
+        isStake && this.setTxType(TRANSACTION_TYPES.STAKE);
+
+        const { title, description } = this.getNotificationInfo(make);
+
+        return {
+            index,
+            module: this.getModule(),
+            account,
+
+            status: index === 0 ? STATUSES.IN_PROGRESS : STATUSES.PENDING,
+
+            ecosystem,
+
+            chainId,
+
+            metaData: {
+                action: getActionByTxType(this.transactionType),
+                type: this.transactionType,
+                notificationTitle: title,
+                notificationDescription: description,
+                params: this.params,
+                tokens: this.getTokens(),
+            },
+        } as ICreateTransaction;
     }
 
-    static getOperationFlow(): TxOperationFlow[] {
-        return [];
+    getOperationFlow(): TxOperationFlow[] {
+        this.flow = [
+            {
+                type: this.transactionType,
+                make: this.make || this.transactionType,
+                moduleIndex: this.getModule(),
+            },
+        ];
+
+        return this.flow;
     }
 
     static async estimateOutput(): Promise<void> {

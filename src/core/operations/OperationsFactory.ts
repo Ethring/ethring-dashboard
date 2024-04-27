@@ -10,7 +10,8 @@ import {
 } from '@/core/operations/models/Operations';
 
 import { ModuleTypes } from '@/shared/models/enums/modules.enum';
-import { STATUSES, TRANSACTION_TYPES, TX_TYPES } from '@/shared/models/enums/statuses.enum';
+import { STATUSES } from '@/shared/models/enums/statuses.enum';
+import { TRANSACTION_TYPES, TX_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
 
 interface IDependencyParams {
@@ -62,19 +63,24 @@ export default class OperationFactory implements IOperationFactory {
     registerOperation(
         module: string,
         operationClass: new () => IBaseOperation,
-        options?: { id?: string; name?: string; before?: string; after?: string },
+        options?: { id?: string; name?: string; before?: string; after?: string; make?: string },
     ): IRegisterOperation | null {
-        const { name = null, before = null, after = null } = options || {};
+        const { name = null, before = null, after = null, make } = options || {};
 
         let { id = null } = options || {};
 
         const uniqueKey = `${module}_${this.operationsMap.size}`;
 
+        console.log('Register operation', uniqueKey);
         if (!id) id = uniqueKey;
 
         if (this.operationsIds.get(id)) {
             console.warn(`Operation with id ${id} already exists`);
-            return null;
+            return {
+                key: uniqueKey,
+                module,
+                index: this.operationsMap.size - 1,
+            };
         }
 
         if (!before && !after) {
@@ -100,6 +106,8 @@ export default class OperationFactory implements IOperationFactory {
         }
 
         const operation = new operationClass();
+
+        if (make && make !== undefined) operation.setMake(make as any);
 
         operation.setUniqueId(uniqueKey);
 
@@ -157,7 +165,13 @@ export default class OperationFactory implements IOperationFactory {
 
     setParamsByKey(moduleKey: string, params: any): void {
         const operation = this.getOperationByKey(moduleKey);
-        operation.setParams(params);
+
+        if (!operation) {
+            console.warn(`(setParamsByKey) Operation ${moduleKey} not found`);
+            return;
+        }
+
+        if (operation && operation.setParams) operation.setParams(params);
     }
 
     setParams(module: string, operationIndex: number, params: any): void {
@@ -390,12 +404,14 @@ export default class OperationFactory implements IOperationFactory {
     }
 
     getOperationsStatusById(id: string): STATUSES | undefined {
-        if (!this.operationsIds.has(id)) {
-            console.warn(`Operation with id ${id} not found`);
-            return;
-        }
+        if (!this.operationsIds.has(id)) return;
 
         const key = this.operationsIds.get(id) || '';
+
+        if (!this.operationsStatusByKey.has(key)) {
+            console.warn(`Operation with uniqueId: ${key} not found`);
+            return;
+        }
 
         return this.operationsStatusByKey.get(key);
     }

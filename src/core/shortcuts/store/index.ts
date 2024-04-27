@@ -4,7 +4,8 @@ import { IShortcutOp } from '../core/ShortcutOp';
 import { IShortcutData } from '../core/Shortcut';
 
 import OperationFactory from '@/core/operations/OperationsFactory';
-import { STATUSES, SHORTCUT_STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
+import { STATUSES, SHORTCUT_STATUSES } from '@/shared/models/enums/statuses.enum';
+import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 import OperationsFactory from '@/core/operations/OperationsFactory';
 import { OperationStep } from '../core/models/Operation';
 import { TxOperationFlow } from '@/shared/models/types/Operations';

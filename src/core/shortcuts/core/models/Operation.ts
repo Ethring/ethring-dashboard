@@ -14,6 +14,7 @@ export interface IOperationParam {
     type?: string;
     memo?: string;
     amount?: string;
+    value?: any;
 }
 
 export interface OperationStep {

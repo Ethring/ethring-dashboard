@@ -83,7 +83,7 @@ export default {
         value: {
             type: [String, Number],
             required: false,
-            default: '',
+            default: '' || 0,
         },
         token: {
             type: Object,
@@ -110,9 +110,9 @@ export default {
             default: false,
         },
         percentage: {
-            type: Number,
+            type: [Number, String],
             required: false,
-            default: null,
+            default: 0,
         },
     },
     emits: ['setAmount'],

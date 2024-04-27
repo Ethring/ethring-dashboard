@@ -70,7 +70,8 @@ import ProcessIcon from '@/assets/icons/form-icons/process.svg';
 import WaitingIcon from '@/assets/icons/form-icons/waiting.svg';
 
 import { ModuleType } from '@/shared/models/enums/modules.enum';
-import { STATUS_TYPE, STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
+import { STATUS_TYPE, STATUSES } from '@/shared/models/enums/statuses.enum';
+import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 import OperationFactory from '@/core/operations/OperationsFactory';
 
 export default defineComponent({
@@ -510,3 +511,4 @@ export default defineComponent({
     }
 }
 </style>
+@/shared/models/enums/tx-types

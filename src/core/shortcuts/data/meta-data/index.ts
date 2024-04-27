@@ -5,11 +5,13 @@ import { AvailableShortcuts, ShortcutAuthor } from '../shortcuts';
 interface IShortcutMeta extends IShortcutData {
     ecosystems: string[];
     author: IAuthor;
+    isActive: boolean;
 }
 
 const META_DATA: Record<string, IShortcutMeta> = {
     [AvailableShortcuts.CitadelOneStake]: {
         id: AvailableShortcuts.CitadelOneStake,
+        isActive: true,
         name: 'Transfer & Stake to the Citadel.one validator',
         logoURI: 'https://citadel.one/static/media/logo.3e3e3e3e.svg',
         keywords: ['citadel', 'one', 'staking'],
@@ -35,6 +37,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         website: 'https://citadel.one/',
         author: getAuthorById(ShortcutAuthor.ZometApp),
         minUsdAmount: 0.5,
+        isActive: true,
     },
     [AvailableShortcuts.SwapToAtomAndStars]: {
         id: AvailableShortcuts.SwapToAtomAndStars,
@@ -63,6 +66,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         author: getAuthorById(ShortcutAuthor.ZometApp),
         ecosystems: ['EVM', 'COSMOS'],
         minUsdAmount: 0,
+        isActive: true,
     },
     [AvailableShortcuts.SellEverything]: {
         id: 'sell-everything-in-one-click',
@@ -75,20 +79,10 @@ const META_DATA: Record<string, IShortcutMeta> = {
         description: 'Sell all the assets you have on your chosen addresses.',
         wallpaper: '/img/wallpapers/rage-quite.svg',
         website: 'https://citadel.one/',
-        author: {
-            id: 'zomet.app',
-            name: 'zomet.app',
-            avatar: 'https://zomet-logo.png',
-            socials: [
-                {
-                    type: 'x.com',
-                    nickname: 'zometapp',
-                    link: 'https://twitter.com/zometapp',
-                },
-            ],
-        },
+        author: getAuthorById(ShortcutAuthor.ZometApp),
         minUsdAmount: 1,
         isComingSoon: true,
+        isActive: true,
     },
     [AvailableShortcuts.WithdrawDydx]: {
         id: 'withdraw-dYdX-usdc-rewards-to-usdt-on-tron',
@@ -102,20 +96,10 @@ const META_DATA: Record<string, IShortcutMeta> = {
             'Transfer your earned dYdX USDC rewards seamlessly to USDT on Tron blockchain with ease and convenience. Maximize your flexibility and liquidity while managing your crypto assets efficiently.',
         wallpaper: '/img/wallpapers/dydx.svg',
         website: 'https://citadel.one/',
-        author: {
-            id: 'zomet.app',
-            name: 'zomet.app',
-            avatar: 'https://zomet-logo.png',
-            socials: [
-                {
-                    type: 'x.com',
-                    nickname: 'zometapp',
-                    link: 'https://twitter.com/zometapp',
-                },
-            ],
-        },
+        author: getAuthorById(ShortcutAuthor.ZometApp),
         minUsdAmount: 1,
         isComingSoon: true,
+        isActive: true,
     },
     [AvailableShortcuts.ConvertTia]: {
         id: 'convert-tia-to-sttia',
@@ -129,20 +113,25 @@ const META_DATA: Record<string, IShortcutMeta> = {
             "TIA represents an intriguing asset with its unique dynamics and potential for value appreciation. However, the transition from TIA to stTiA, or 'suspected TIA,' introduces complexities that require careful consideration by investors and stakeholders.",
         wallpaper: '/img/wallpapers/convert-tia.svg',
         website: 'https://citadel.one/',
-        author: {
-            id: 'zomet.app',
-            name: 'zomet.app',
-            avatar: 'https://zomet-logo.png',
-            socials: [
-                {
-                    type: 'x.com',
-                    nickname: 'zometapp',
-                    link: 'https://twitter.com/zometapp',
-                },
-            ],
-        },
+        author: getAuthorById(ShortcutAuthor.ZometApp),
         minUsdAmount: 1,
         isComingSoon: true,
+        isActive: true,
+    },
+    [AvailableShortcuts.PendleEarnFixedYield]: {
+        id: AvailableShortcuts.PendleEarnFixedYield,
+        name: 'Earn fixed yield on Pendle',
+        logoURI: 'https://pendle.finance/images/pendle-logo.svg',
+        keywords: ['pendle', 'yield', 'fixed'],
+        tags: ['PENDLE', 'YIELD'],
+        ecosystems: ['EVM'],
+        type: 'yield',
+        description: 'Earn fixed yield on Pendle with your assets',
+        wallpaper: '/img/wallpapers/SC-pendle-earn-fixed-yield.png',
+        website: 'https://pendle.finance/',
+        minUsdAmount: 1,
+        author: getAuthorById(ShortcutAuthor.ZometApp),
+        isActive: true,
     },
 };
 
@@ -161,6 +150,7 @@ export const getShortcutMetaById = (id: string): IShortcutMeta => {
             ecosystems: [],
             minUsdAmount: 0,
             author: getAuthorById(ShortcutAuthor.ZometApp),
+            isActive: false,
         } as IShortcutMeta;
 
     return META_DATA[id];

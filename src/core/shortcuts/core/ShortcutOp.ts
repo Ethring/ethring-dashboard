@@ -2,19 +2,29 @@ import { Ecosystems } from '@/modules/bridge-dex/enums/Ecosystem.enum';
 import { IOperationParam } from './models/Operation';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { ShortcutType } from './types/ShortcutType';
-import { TX_TYPES } from '../../../shared/models/enums/statuses.enum';
+import { TX_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 
 export interface IShortcutOp {
     id: string;
     name: string;
     moduleType: keyof typeof ModuleType;
+    make: TX_TYPES;
     operationType: TX_TYPES;
     type: ShortcutType.operation | ShortcutType.recipe;
     layoutComponent: string;
     isShowLayout: boolean;
     serviceId?: string;
     dependencies?: any;
-    excludeChains?: string[];
+    excludeChains?: string[]; // exclude chain key list
+    excludeTokens?: {
+        [chain: string]: string[];
+    }; // exclude token id list
+
+    includeTokens?: {
+        [chain: string]: string[];
+    }; // include token id list
+    includeChains?: string[]; // include chain key list
+
     editableFromAmount?: boolean;
     isNeedFromAmount?: boolean;
 
@@ -63,6 +73,16 @@ export default class ShortcutOp implements IShortcutOp {
     ecosystems: Ecosystems[];
 
     excludeChains?: string[];
+    excludeTokens?: {
+        [chain: string]: string[];
+    };
+
+    includeTokens?: {
+        [chain: string]: string[];
+    };
+    includeChains?: string[];
+
+    make: TX_TYPES;
 
     constructor(shortcut: IShortcutOp) {
         this.id = shortcut.id;
@@ -79,6 +99,12 @@ export default class ShortcutOp implements IShortcutOp {
         this.ecosystems = shortcut.ecosystems;
         this.isShowLayout = shortcut.isShowLayout;
 
+        this.make = shortcut.make;
+
+        this.includeTokens = shortcut.includeTokens || {};
+        this.excludeTokens = shortcut.excludeTokens || {};
+
+        this.includeChains = shortcut.includeChains || [];
         this.excludeChains = shortcut.excludeChains || [];
     }
 }

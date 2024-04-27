@@ -46,6 +46,7 @@ export default {
         value: {
             type: [String, Number],
             required: true,
+            default: 0,
         },
         symbol: {
             required: false,

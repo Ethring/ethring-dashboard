@@ -1,0 +1,111 @@
+import { BaseOpParams, PerformOptionalParams } from '@/core/operations/models/Operations';
+import { STATUSES } from '@/shared/models/enums/statuses.enum';
+import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
+
+import { AllQuoteParams } from '@/modules/bridge-dex/models/Request.type';
+import { BaseOperation } from '@/core/operations/BaseOperation';
+import { Ecosystems } from '@/modules/bridge-dex/enums/Ecosystem.enum';
+import { IBridgeDexTransaction } from '@/modules/bridge-dex/models/Response.interface';
+import { ICreateTransaction } from '@/core/transaction-manager/types/Transaction';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
+import { TxOperationFlow } from '@/shared/models/types/Operations';
+import { getActionByTxType } from '../shared/utils';
+import PendleApi, { IPendleApi } from '@/modules/pendle-silo/api';
+import { ISwapExactTokenForPTRequest } from '@/modules/pendle-silo/models/request';
+import BigNumber from 'bignumber.js';
+import * as ethers from 'ethers';
+
+export default class PendleSwapTokenForPT extends BaseOperation {
+    module: keyof typeof ModuleType = ModuleType.pendleSilo;
+
+    params: BaseOpParams = {} as AllQuoteParams;
+
+    flow: TxOperationFlow[] = [];
+
+    service: IPendleApi;
+
+    constructor() {
+        super();
+        super.setTxType(TRANSACTION_TYPES.SWAP_TOKEN_TO_PT);
+        this.service = new PendleApi();
+    }
+
+    async performTx(ecosystem: Ecosystems): Promise<IBridgeDexTransaction> {
+        const { fromNet, net, ownerAddresses = {} } = this.params as any;
+
+        const network = net || fromNet;
+
+        const { from } = this.getTokens();
+
+        const { decimals, address } = from || {};
+
+        const tokenIn = address || '0x0000000000000000000000000000000000000000';
+
+        const value = !address ? ethers.utils.parseEther(this.getParamByField('amount')) : ethers.utils.parseUnits('0');
+        const amountBN = BigInt(BigNumber(this.getParamByField('amount')).multipliedBy(`1e${decimals}`).toString());
+
+        const swapParams: ISwapExactTokenForPTRequest = {
+            chainId: +this.getChainId(),
+            receiverAddr: ownerAddresses[network],
+            marketAddr: this.getParamByField('marketAddress'),
+            tokenInAddr: tokenIn,
+            amountTokenIn: amountBN,
+            slippage: 0.005,
+        };
+
+        try {
+            const response = await this.service.swapExactTokenForPT(swapParams);
+
+            const { transaction } = response;
+
+            return {
+                ecosystem,
+                transaction: {
+                    ...transaction,
+                    from: ownerAddresses[network],
+                    value,
+                },
+            };
+        } catch (error) {
+            console.error('DepositOperation.performTx', error);
+            throw error;
+        }
+    }
+
+    async estimateOutput(): Promise<void> {
+        if (!this.params.amount) {
+            console.warn('Amount is required');
+            return;
+        }
+
+        try {
+            const { fromNet, net, ownerAddresses = {} } = this.params as any;
+            const network = net || fromNet;
+
+            const { from } = this.getTokens();
+
+            const { decimals, address } = from || {};
+            const tokenIn = address || '0x0000000000000000000000000000000000000000';
+
+            const amountBN = BigInt(BigNumber(this.getParamByField('amount')).multipliedBy(`1e${decimals}`).toString());
+
+            const swapParams: ISwapExactTokenForPTRequest = {
+                chainId: +this.getChainId(),
+                receiverAddr: ownerAddresses[network],
+                marketAddr: this.getParamByField('marketAddress'),
+                tokenInAddr: tokenIn,
+                amountTokenIn: amountBN,
+                slippage: 0.005,
+            };
+
+            const transaction = await this.service.swapExactTokenForPT(swapParams);
+
+            const { data } = transaction;
+
+            this.setParamByField('outputAmount', data.amountPtOut);
+        } catch (error) {
+            console.error('DepositOperation.performTx', error);
+            throw error;
+        }
+    }
+}

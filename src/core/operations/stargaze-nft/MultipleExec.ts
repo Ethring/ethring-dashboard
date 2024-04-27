@@ -2,10 +2,11 @@ import { TxOperationFlow } from '@/shared/models/types/Operations';
 import { BaseOpParams, PerformOptionalParams } from '@/core/operations/models/Operations';
 import { BaseOperation } from '@/core/operations/BaseOperation';
 
-import { TRANSACTION_TYPES, STATUSES } from '@/shared/models/enums/statuses.enum';
+import { STATUSES } from '@/shared/models/enums/statuses.enum';
+import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { ICreateTransaction } from '@/core/transaction-manager/types/Transaction';
-import { getActionByTxType } from './shared/utils';
+import { getActionByTxType } from '../shared/utils';
 import { IBridgeDexTransaction } from '@/modules/bridge-dex/models/Response.interface';
 import { Ecosystems } from '@/modules/bridge-dex/enums/Ecosystem.enum';
 
@@ -19,31 +20,6 @@ export default class MultipleContractExec extends BaseOperation {
     constructor() {
         super();
         super.setTxType(TRANSACTION_TYPES.EXECUTE_MULTIPLE);
-    }
-
-    perform(index: number, account: string, ecosystem: string, chainId: string, { make }: PerformOptionalParams): ICreateTransaction {
-        const { title, description } = this.getNotificationInfo(make);
-
-        return {
-            index,
-            module: this.getModule(),
-            account,
-
-            status: index === 0 ? STATUSES.IN_PROGRESS : STATUSES.PENDING,
-
-            ecosystem,
-
-            chainId,
-
-            metaData: {
-                action: getActionByTxType(this.transactionType),
-                type: this.transactionType,
-                notificationTitle: title,
-                notificationDescription: description || '',
-                params: this.params,
-                tokens: this.getTokens(),
-            },
-        } as ICreateTransaction;
     }
 
     async performTx(ecosystem: Ecosystems): Promise<IBridgeDexTransaction> {

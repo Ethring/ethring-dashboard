@@ -42,6 +42,21 @@ export default function useSelectModal(type) {
         return excludeChains || [];
     });
 
+    const includeChainList = computed(() => {
+        const { includeChains = [] } = CurrentOperation.value || {};
+
+        return includeChains || [];
+    });
+
+    // TODO: Add also for exclude tokens
+    const includeTokenList = computed(() => {
+        const { includeTokens = {} } = CurrentOperation.value || {};
+
+        if (includeTokens[selectedSrcNetwork.value?.net]) return includeTokens[selectedSrcNetwork.value?.net];
+
+        return [];
+    });
+
     const { chainList, getChainListByEcosystem } = useAdapter();
     const { getTokensList } = useTokenList();
 
@@ -172,6 +187,8 @@ export default function useSelectModal(type) {
         for (const chain of list)
             chain.selected = chain.net === selectedSrcNetwork.value?.net || chain.net === selectedDstNetwork.value?.net;
 
+        if (includeChainList.value.length) list = list.filter((chain) => includeChainList.value.includes(chain.net));
+
         return list
             .filter((chain) => !excludeChainList.value.includes(chain?.net))
             .filter((chain) => {
@@ -232,6 +249,8 @@ export default function useSelectModal(type) {
                 onlyWithBalance: isFromSelect.value,
                 exclude,
             });
+
+            if (includeTokenList.value.length) tokens.value = tokens.value.filter((token) => includeTokenList.value.includes(token.id));
 
             store.dispatch('app/setLoadingTokenList', false);
         }

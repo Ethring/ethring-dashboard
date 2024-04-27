@@ -1,4 +1,5 @@
-import { TRANSACTION_TYPES, DISALLOW_TO_UPDATE_STATUES, DISALLOW_UPDATE_TYPES } from '@/shared/models/enums/statuses.enum';
+import { DISALLOW_TO_UPDATE_STATUES, DISALLOW_UPDATE_TYPES } from '@/shared/models/enums/statuses.enum';
+import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 
 import { SocketEvents } from '@/shared/models/enums/socket-events.enum';
 import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
