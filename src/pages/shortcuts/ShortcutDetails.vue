@@ -37,7 +37,7 @@
                             </div>
                         </div>
 
-                        <ShortcutLoading v-show="isShowLoading" :shortcut-id="shortcutId" />
+                        <ShortcutLoading v-if="isShowLoading" :shortcut-id="shortcutId" />
                     </a-col>
                     <a-col :md="24" :lg="12">
                         <a-steps v-model:current="shortcutIndex" direction="vertical" :items="steps" />

@@ -167,39 +167,48 @@ export class BaseOperation implements IBaseOperation {
 
         if (this.transactionType === TRANSACTION_TYPES.APPROVE) toTokenTitle = '';
 
-        switch (module) {
-            case ModuleType.stake:
-                return {
-                    title: `STAKE ${fromTokenTitle}`,
-                };
-            case ModuleType.swap:
-                return {
-                    title: `${make} ${fromTokenTitle}`,
-                    description: toTokenTitle,
-                };
-            case ModuleType.send:
-                return {
-                    title: `SEND ${fromTokenTitle} to ${cutAddress(receiverAddress, 6, 4)}`,
-                };
-            case ModuleType.bridge:
-                return {
-                    title: `${make} ${fromTokenTitle}`,
-                    description: toTokenTitle,
-                };
-            case ModuleType.superSwap:
-                return {
-                    title: `${make} ${fromTokenTitle}`,
-                    description: toTokenTitle,
-                };
-            case ModuleType.nft:
-                return {
-                    title: `MINT ${count} NFTs`,
-                };
+        const notification = {
+            title: '',
+            description: '',
+        };
+
+        switch (this.transactionType) {
+            case TRANSACTION_TYPES.APPROVE:
+                notification.title = `APPROVE ${fromTokenTitle}`;
+                break;
+            case TRANSACTION_TYPES.SWAP_TOKEN_TO_PT:
+                notification.title = `SWAP ${fromTokenTitle} to PT`;
+                break;
+
+            case TRANSACTION_TYPES.SWAP:
+                notification.title = `SWAP ${fromTokenTitle}`;
+                notification.description = toTokenTitle;
+                break;
+
+            case TRANSACTION_TYPES.BRIDGE:
+                notification.title = `BRIDGE ${fromTokenTitle}`;
+                notification.description = toTokenTitle;
+                break;
+
+            case TRANSACTION_TYPES.STAKE:
+                notification.title = `STAKE ${fromTokenTitle}`;
+                break;
+
+            case TRANSACTION_TYPES.TRANSFER:
+                notification.title = `SEND ${fromTokenTitle} to ${cutAddress(receiverAddress, 6, 4)}`;
+                break;
+
+            case TRANSACTION_TYPES.EXECUTE_MULTIPLE:
+                module === ModuleType.nft && (notification.title = `MINT ${count} NFTs`);
+                break;
+
             default:
-                return {
-                    title: `${this.getModule()} - ${this.transactionType}`,
-                };
+                notification.title = `${make} ${fromTokenTitle}`;
+                toTokenTitle && (notification.description = toTokenTitle);
+                break;
         }
+
+        return notification;
     }
 
     getAdditionalTooltip() {

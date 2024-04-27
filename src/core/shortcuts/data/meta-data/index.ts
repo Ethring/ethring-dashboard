@@ -11,7 +11,6 @@ interface IShortcutMeta extends IShortcutData {
 const META_DATA: Record<string, IShortcutMeta> = {
     [AvailableShortcuts.CitadelOneStake]: {
         id: AvailableShortcuts.CitadelOneStake,
-        isActive: true,
         name: 'Transfer & Stake to the Citadel.one validator',
         logoURI: 'https://citadel.one/static/media/logo.3e3e3e3e.svg',
         keywords: ['citadel', 'one', 'staking'],
@@ -23,6 +22,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         website: 'https://citadel.one/',
         author: getAuthorById(ShortcutAuthor.ZometApp),
         minUsdAmount: 1,
+        isActive: true,
     },
     [AvailableShortcuts.StakeToCitadelOne]: {
         id: AvailableShortcuts.StakeToCitadelOne,
@@ -52,6 +52,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         website: 'https://citadel.one/',
         author: getAuthorById(ShortcutAuthor.ZometApp),
         minUsdAmount: 0.5,
+        isActive: true,
     },
     [AvailableShortcuts.MintCollectionWithTransfer]: {
         id: AvailableShortcuts.MintCollectionWithTransfer,
@@ -66,7 +67,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         author: getAuthorById(ShortcutAuthor.ZometApp),
         ecosystems: ['EVM', 'COSMOS'],
         minUsdAmount: 0,
-        isActive: true,
+        isActive: false,
     },
     [AvailableShortcuts.SellEverything]: {
         id: 'sell-everything-in-one-click',
@@ -129,7 +130,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         description: 'Earn fixed yield on Pendle with your assets',
         wallpaper: '/img/wallpapers/SC-pendle-earn-fixed-yield.png',
         website: 'https://pendle.finance/',
-        minUsdAmount: 1,
+        minUsdAmount: 1.1,
         author: getAuthorById(ShortcutAuthor.ZometApp),
         isActive: true,
     },

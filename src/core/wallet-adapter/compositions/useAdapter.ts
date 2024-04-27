@@ -540,8 +540,6 @@ function useAdapter() {
                 throw new Error(`Invalid transaction action: ${action}`);
             }
 
-            console.log('Calling transaction action:', action, parameters, { ecosystem, ...txParams });
-
             return await TX_ACTIONS[action](parameters, { ecosystem, ...txParams });
         } catch (error) {
             console.error('Failed to call transaction action:', action, error);

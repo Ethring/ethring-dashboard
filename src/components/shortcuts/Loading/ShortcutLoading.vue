@@ -99,15 +99,7 @@ export default defineComponent({
         const shortcutStatus = computed<STATUS_TYPE>(() => store.getters['shortcuts/getShortcutStatus'](props.shortcutId));
 
         const isActive = computed<boolean>(() => {
-            if (!shortcutStatus.value) return false;
-
-            if (shortcutStatus.value === STATUSES.PENDING) return false;
-
-            const status = STATUSES[shortcutStatus.value];
-
-            if ([STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(status)) return true;
-
-            return false;
+            return [STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(shortcutStatus.value as any);
         });
 
         const isShowTryAgain = computed(() => {
