@@ -171,8 +171,9 @@ export default defineComponent({
 
             console.log('-'.repeat(50));
 
-            if (currentStepId.value === lastOpId || operationsCount.value - 1 === shortcutIndex.value) {
-                console.log('setCallConfirm, for shortcut', 'LastOp', true, 'resetShortcut');
+            const isSuccess = [STATUSES.SUCCESS].includes(shortcutStatus.value as any);
+
+            const callOnSuccess = () => {
                 operationProgress.value = 0;
 
                 store.dispatch('shortcuts/setCurrentStepId', firstOpId);
@@ -184,20 +185,28 @@ export default defineComponent({
                     shortcutId: props.shortcutId,
                     stepId: firstOpId,
                 });
-            } else if (currentStepId.value === firstOpId || shortcutIndex.value === 0) {
+            };
+
+            const isFirstOp = currentStepId.value === firstOpId || shortcutIndex.value === 0;
+
+            if (isFirstOp) {
                 console.log('setCallConfirm, for shortcut', 'FirstOp', true);
 
                 return store.dispatch('shortcuts/setShortcutStatus', {
                     shortcutId: props.shortcutId,
                     status: STATUSES.PENDING,
                 });
-            } else if (shortcutIndex.value !== 0 && shortcutStatus.value === STATUSES.FAILED) {
-                console.log('setCallConfirm, for shortcut', 'ModuleType.shortcut', true);
-                return store.dispatch('tokenOps/setCallConfirm', {
-                    module: ModuleType.shortcut,
-                    value: true,
-                });
             }
+
+            if (isSuccess) {
+                console.log('setCallConfirm, for shortcut', 'Success', true, 'resetShortcut');
+                return callOnSuccess();
+            }
+
+            return store.dispatch('tokenOps/setCallConfirm', {
+                module: ModuleType.shortcut,
+                value: true,
+            });
         };
 
         const moduleStatusIcon = computed(() => {

@@ -86,7 +86,7 @@ export default {
             default: '' || 0,
         },
         token: {
-            type: Object,
+            type: [Object, null],
             required: true,
             default: () => ({}),
         },

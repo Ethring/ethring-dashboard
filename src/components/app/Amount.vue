@@ -44,7 +44,7 @@ export default {
             default: 'usd',
         },
         value: {
-            type: [String, Number],
+            type: [String, Number, null],
             required: true,
             default: 0,
         },

@@ -95,11 +95,6 @@ export default {
             if (!shortcutStatus.value) return false;
             if (shortcutStatus.value === STATUSES.PENDING) return false;
 
-            console.log('-'.repeat(50));
-            console.log('shortcutStatus.value', shortcutStatus.value);
-            console.log('STATUSES', [STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(shortcutStatus.value));
-            console.log('-'.repeat(50));
-
             return [STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(shortcutStatus.value);
         });
 
