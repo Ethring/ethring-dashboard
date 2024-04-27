@@ -1,8 +1,10 @@
 .DS_Store
 node_modules
 /dist
-/tests/data/metamask-*
-/tests/data/keplr-*
+/tests/reserve-extensions/metamask-*
+/tests/reserve-extensions/keplr-*
+/tests/extensions-data/metamask-*
+/tests/extensions-data/keplr-*
 
 # local env files
 .env

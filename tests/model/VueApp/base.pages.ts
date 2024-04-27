@@ -1,6 +1,6 @@
 import { Page, Route, expect } from '@playwright/test';
 import { FIVE_SECONDS, ONE_SECOND } from '../../__fixtures__/fixtureHelper';
-import { DATA_QA_LOCATORS } from '../../data/constants';
+import { DATA_QA_LOCATORS, URL_MOCK_PATTERNS } from '../../data/constants';
 import util from 'util';
 
 const url: string = '/';
@@ -11,6 +11,7 @@ enum Modules {
     swap = 'swap',
     bridge = 'bridge',
     superSwap = 'superSwap',
+    shortcut = 'shortcut',
 }
 
 type ModuleNames = keyof typeof Modules;
@@ -23,6 +24,7 @@ class BasePage {
         [Modules.swap]: DATA_QA_LOCATORS.SIDEBAR_SWAP,
         [Modules.bridge]: DATA_QA_LOCATORS.SIDEBAR_BRIDGE,
         [Modules.superSwap]: DATA_QA_LOCATORS.SIDEBAR_SUPER_SWAP,
+        [Modules.shortcut]: DATA_QA_LOCATORS.SIDEBAR_SHORTCUT,
     };
 
     readonly modules = {
@@ -30,6 +32,7 @@ class BasePage {
         [Modules.swap]: (page: Page) => new SwapPage(page),
         [Modules.bridge]: (page: Page) => new BridgePage(page),
         [Modules.superSwap]: (page: Page) => new SuperSwapPage(page),
+        [Modules.shortcut]: (page: Page) => new ShortcutPage(page),
     };
 
     constructor(page: Page) {
@@ -63,7 +66,7 @@ class BasePage {
         await this.page.locator("(//div[@class='wallet__options-item'])[2]//div[text()='Disconnect']").click();
     }
 
-    async goToModule(module: ModuleNames): Promise<SwapPage | SendPage | BridgePage | SuperSwapPage> {
+    async goToModule(module: ModuleNames): Promise<SwapPage | SendPage | BridgePage | SuperSwapPage | ShortcutPage> {
         const moduleName = this.sideBarLinks[module];
         await this.page.getByTestId(moduleName).click();
         return this.modules[module](this.page);
@@ -100,8 +103,11 @@ class BasePage {
     }
 
     async mockEstimateSwapRequest(mockData: object, statusCode = 200) {
-        const URL = `**/services/dex/getQuote**`;
-        await this.mockRoute(URL, mockData, statusCode);
+        await this.mockRoute(URL_MOCK_PATTERNS.MOCK_SWAP, mockData, statusCode);
+    }
+
+    async mockEstimateBridgeRequest(mockData: object, statusCode = 200) {
+        await this.mockRoute(URL_MOCK_PATTERNS.MOCK_BRIDGE, mockData, statusCode);
     }
 
     async mockTokensList(net: string, tokensList: object) {
@@ -109,13 +115,17 @@ class BasePage {
         this.mockRoute(URL, tokensList, 200);
     }
 
+    protected async fullFillRoute(route: Route, data: object, code: number) {
+        await route.fulfill({
+            status: code,
+            contentType: 'application/json; charset=utf-8',
+            body: JSON.stringify(data),
+        });
+    }
+
     async mockRoute(url: string, mockData: object, statusCode: number = 200): Promise<any> {
-        return this.page.route(url, (route) => {
-            route.fulfill({
-                status: statusCode,
-                contentType: 'application/json; charset=utf-8',
-                body: JSON.stringify(mockData),
-            });
+        return this.page.route(url, async (route) => {
+            await this.fullFillRoute(route, mockData, statusCode);
         });
     }
 
@@ -245,7 +255,7 @@ class BasePage {
      * @param {Object} dataToReturnInWsResponse - This object was returned from stub-tx-manager as WS event.
      */
     async modifyDataByPutTxRequest(dataToReturnInHttpResponse: Object, dataToReturnInWsResponse: Object) {
-        return await this.page.route(/\/transactions\/\d{4}$/, (route) =>
+        return await this.page.route(/\/transactions\/\d+$/, (route) =>
             this.handleRequestWithModification(route, 'PUT', dataToReturnInHttpResponse, dataToReturnInWsResponse),
         );
     }
@@ -261,13 +271,13 @@ class BasePage {
     }
 
     async assertNotificationByPage(expectNotifyCount: number, expectedNotificationTitle: string, expectedNotificationDescription: string) {
-        const txNotification = this.page.locator('div.ant-notification');
+        const txNotification = this.page.locator('div.ant-notification-notice');
         const txNotificationTitle = this.page.locator('div.ant-notification-notice-message');
         const txNotificationDesc = this.page.locator('div.ant-notification-notice-description');
 
-        expect(txNotification).toHaveCount(expectNotifyCount);
-        expect(txNotificationTitle).toHaveText(expectedNotificationTitle);
-        expect(txNotificationDesc).toHaveText(expectedNotificationDescription);
+        await expect(txNotification).toHaveCount(expectNotifyCount);
+        await expect(txNotificationTitle).toHaveText(expectedNotificationTitle);
+        await expect(txNotificationDesc).toHaveText(expectedNotificationDescription);
     }
 }
 
@@ -433,4 +443,28 @@ class SwapPage extends BasePage {
     }
 }
 
-export { BasePage, DashboardPage, BridgePage, SendPage, SuperSwapPage, SwapPage };
+class ShortcutPage extends BasePage {
+    async setAmount(amount: string) {
+        await sleep(2000);
+        await this.page.getByTestId(DATA_QA_LOCATORS.INPUT_AMOUNT).nth(0).fill(amount);
+    }
+
+    async clickFirstShortcut() {
+        await this.page.getByRole('button', { name: 'Try' }).first().click();
+    }
+
+    // * @matcherData is object were key is matcher string and value is mocked data
+    async mockRouteByDataRequestMatcher(url: string, matcherData: object, statusCode: number = 200): Promise<any> {
+        return this.page.route(url, async (route) => {
+            const requestBody = route.request().postData();
+            const mockData: object = matcherData[Object.keys(matcherData).find((matcher: string) => requestBody.includes(matcher.trim()))];
+            await this.fullFillRoute(route, mockData, statusCode);
+        });
+    }
+
+    async mockEstimateBridgeRequestByRequestDataMatcher(mockDataMatcher: object) {
+        await this.mockRouteByDataRequestMatcher(URL_MOCK_PATTERNS.MOCK_BRIDGE, mockDataMatcher, 200);
+    }
+}
+
+export { BasePage, DashboardPage, BridgePage, SendPage, SuperSwapPage, SwapPage, ShortcutPage };
