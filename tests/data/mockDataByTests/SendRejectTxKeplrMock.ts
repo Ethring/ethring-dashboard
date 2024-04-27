@@ -1,4 +1,4 @@
-import { TEST_CONST, getTestVar } from 'tests/envHelper';
+import { getTestVar, TEST_CONST } from '../../envHelper';
 import { COSMOS_WALLETS_BY_PROTOCOL_SEED, MEMO_BY_KEPLR_TEST } from '../constants';
 
 const mockAddressFrom3 = getTestVar(TEST_CONST.COSMOS_ADDRESS_TX);
@@ -284,21 +284,23 @@ const mockPutTransactionsWsByUpdateTransactionEventInProgressSendRejectKeplr = {
 
 const mockPostTransactionsRouteSwapRejectKeplr = {
     ok: true,
-    data: [{
-        id: mockTxIdSwapRejectKeplr,
-        requestID: mockRequestIdSwapRejectKeplr,
-        index: '0',
-        txHash: null,
-        ecosystem: 'COSMOS',
-        module: 'swap',
-        status: null,
-        parameters: null,
-        account: mockAddressFrom3,
-        chainId: 'cosmoshub',
-        metaData: null,
-        createdAt: '2024-03-21T10:21:07.311Z',
-        updatedAt: '2024-03-21T10:21:07.311Z',
-    }],
+    data: [
+        {
+            id: mockTxIdSwapRejectKeplr,
+            requestID: mockRequestIdSwapRejectKeplr,
+            index: '0',
+            txHash: null,
+            ecosystem: 'COSMOS',
+            module: 'swap',
+            status: null,
+            parameters: null,
+            account: mockAddressFrom3,
+            chainId: 'cosmoshub',
+            metaData: null,
+            createdAt: '2024-03-21T10:21:07.311Z',
+            updatedAt: '2024-03-21T10:21:07.311Z',
+        },
+    ],
     error: '',
 };
 
@@ -418,7 +420,6 @@ const mockPostTransactionsWsByCreateEventSwapRejectKeplr = {
     updatedAt: '2024-03-21T10:21:21.709Z',
 };
 
-
 export {
     // Send tx mock
     mockPostTransactionsRouteSendRejectKeplr,
@@ -428,5 +429,5 @@ export {
 
     // Swap tx mock
     mockPostTransactionsRouteSwapRejectKeplr,
-    mockPostTransactionsWsByCreateEventSwapRejectKeplr
+    mockPostTransactionsWsByCreateEventSwapRejectKeplr,
 };

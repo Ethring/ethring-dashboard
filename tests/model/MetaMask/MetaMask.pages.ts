@@ -49,14 +49,26 @@ const getHomeMmPage = async (context: BrowserContext, indexMmPage = 0): Promise<
     return page;
 };
 
+// * Use this method ONLY before sign tx, else mock may be not fulfill!
 export const mockMetaMaskSignTransaction = async (
     context: BrowserContext,
     nodeDomain: string,
     mockedTxHash: string,
     mockTransactionReceipt: object,
 ) => {
-    let [background] = context.backgroundPages();
+    // let [background] = context.backgroundPages();
+    // console.log('>>>');
+    // if (!background) {
+    //     console.log('move to if');
+    //     background = await context.waitForEvent('backgroundpage');
+    // }
 
+    // let [background] = context.serviceWorkers();
+    // if (!background)
+    //   background = await context.waitForEvent('serviceworker');
+
+    // console.log(background);
+    let [background] = context.backgroundPages();
     background.route(nodeDomain, async (route) => {
         const data = route.request().postData();
         if (data.includes('eth_sendRawTransaction')) {
