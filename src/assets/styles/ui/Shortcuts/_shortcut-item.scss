@@ -111,6 +111,19 @@
             font-size: var(--#{$prefix}small-sm-fs);
         }
 
+        .ecosystem {
+            span {
+                @include pageFlexRow;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            &-logo {
+                width: 16px;
+                height: 16px;
+            }
+        }
+
         .amount {
             font-weight: 600;
             color: var(--#{$prefix}primary-text);

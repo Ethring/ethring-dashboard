@@ -22,10 +22,19 @@
         <a-row justify="space-between" class="shortcut-item__info">
             <a-row align="middle">
                 <div class="ecosystem">
-                    <span v-for="(ecosystem, i) in item.ecosystems" :key="i">
-                        {{ ecosystem }}
-                        <span v-if="i < item.ecosystems.length - 1">,</span></span
-                    >
+                    <a-tooltip placement="bottom" v-if="item.ecosystems.length > 1">
+                        <template #title>
+                            <span v-for="(ecosystem, i) in item.ecosystems" :key="i">
+                                {{ ecosystem }}
+                                <span v-if="i < item.ecosystems.length - 1">, </span></span
+                            >
+                        </template>
+                        <span>
+                            <MultiIcon class="ecosystem-logo" />
+                            Multi
+                        </span>
+                    </a-tooltip>
+                    <span v-else><img class="ecosystem-logo" :src="getEcosystemLogo(item.ecosystems[0])" />{{ item.ecosystems[0] }}</span>
                 </div>
                 <a-divider type="vertical" style="height: 10px; background-color: #c9e0e0" />
                 <div class="amount">
@@ -60,7 +69,11 @@ import { useRouter } from 'vue-router';
 import ShortcutPlaceHolder from '@/assets/icons/dashboard/shortcut.svg';
 import ZometLogo from '@/assets/icons/sidebar/logo.svg';
 import LikeIcon from '@/assets/icons/dashboard/heart.svg';
+import MultiIcon from '@/assets/icons/module-icons/multi.svg';
+
 import Amount from '@/components/app/Amount.vue';
+
+import { ECOSYSTEM_LOGOS } from '@/Adapter/config';
 
 export default {
     name: 'ShortcutItem',
@@ -68,7 +81,11 @@ export default {
         ShortcutPlaceHolder,
         ZometLogo,
         LikeIcon,
+        MultiIcon,
+
         Amount,
+
+        ECOSYSTEM_LOGOS,
     },
     props: {
         item: {
@@ -90,6 +107,10 @@ export default {
 
         const selectTag = (tag) => store.dispatch('shortcutsList/setFilterTags', tag);
 
+        const getEcosystemLogo = (ecosystem) => {
+            return ECOSYSTEM_LOGOS[ecosystem];
+        };
+
         return {
             watchList,
 
@@ -97,6 +118,7 @@ export default {
             openShortcut,
             selectTag,
             openProfile,
+            getEcosystemLogo,
         };
     },
 };

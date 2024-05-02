@@ -5,7 +5,7 @@
             <div class="description">{{ $t('shortcuts.description') }}</div>
         </div>
         <div class="shortcut-info__btn">
-            <Button title="Soon" />
+            <Button title="Soon" disabled />
         </div>
         <LinesBack class="shortcut-info-lines" />
     </a-row>

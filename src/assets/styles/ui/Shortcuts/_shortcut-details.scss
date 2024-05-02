@@ -19,6 +19,7 @@
         overflow-x: hidden;
         text-wrap: nowrap;
         text-overflow: ellipsis;
+        text-align: center;
     }
 
     >.description {
@@ -43,7 +44,7 @@
             color: var(--#{$prefix}primary-text);
 
             svg path {
-                fill:  var(--#{$prefix}primary-text);
+                fill: var(--#{$prefix}primary-text);
             }
         }
 
@@ -53,7 +54,7 @@
 
         svg path {
             transition: 0.2s;
-            fill:  var(--#{$prefix}base-text);
+            fill: var(--#{$prefix}base-text);
         }
     }
 
