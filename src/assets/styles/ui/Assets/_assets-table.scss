@@ -5,17 +5,16 @@
         .ant-collapse-expand-icon {
             margin: auto;
 
-            .ant-collapse-arrow {
-                // padding: 4px;
-                // border-radius: 8px;
-                // border: 1px solid var(--#{$prefix}assets-arrow-border-color) !important;
-                transition: all 0.2s ease-in-out;
+            .arrow {
+                @include animateEasy;
 
-                svg {
-                    width: 16px;
-                    height: 16px;
-                    fill: var(--#{$prefix}assets-arrow-color) !important;
-                }
+                cursor: pointer;
+
+                transform: rotate(180deg);
+                fill: var(--#{$prefix}select-icon-color);
+                margin-left: auto;
+
+                transition: all 0.2s ease-in-out;
             }
         }
     }
@@ -30,6 +29,14 @@
     .ant-collapse-item {
         border-radius: 16px !important;
         transition: all 0.2s ease-in-out;
+
+        &-active {
+            .ant-collapse-expand-icon {
+                svg {
+                    transform: rotate(270deg) !important;
+                }
+            }
+        }
     }
 
     .ant-collapse-content-box {

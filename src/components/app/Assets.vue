@@ -2,6 +2,10 @@
     <KeepAlive>
         <div class="assets-section">
             <a-collapse v-model:activeKey="collapseActiveKey" expand-icon-position="end" class="assets-block" ghost :bordered="false">
+                <template #expandIcon>
+                    <ArrowDownIcon class="arrow" />
+                </template>
+
                 <a-collapse-panel key="assets" class="assets-block-panel" data-qa="assets-panel">
                     <template #header>
                         <AssetGroupHeader
@@ -84,6 +88,8 @@ import BigNumber from 'bignumber.js';
 import AssetsTable from './assets/AssetsTable';
 import AssetGroupHeader from './assets/AssetGroupHeader';
 
+import ArrowDownIcon from '@/assets/icons/form-icons/arrow-down.svg';
+
 import { getFormattedName } from '@/shared/utils/assets';
 
 export default {
@@ -91,6 +97,8 @@ export default {
     components: {
         AssetGroupHeader,
         AssetsTable,
+
+        ArrowDownIcon,
     },
     setup() {
         const store = useStore();
@@ -126,7 +134,7 @@ export default {
         // ===================== Total Balances =====================
         const totalBalances = computed(() => store.getters['tokens/getTotalBalanceByType'](targetAccount.value, 'totalBalances') || 0);
         const totalAssetsBalances = computed(
-            () => store.getters['tokens/getTotalBalanceByType'](targetAccount.value, 'assetsBalances') || 0,
+            () => store.getters['tokens/getTotalBalanceByType'](targetAccount.value, 'assetsBalances') || 0
         );
 
         const isEmpty = computed(() => {
