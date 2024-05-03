@@ -11,7 +11,7 @@
         <div>
             <SidebarLogo :collapsed="isCollapsed" @click="() => onClickSidebarItem({ disabled: false, to: '/' })" />
 
-            <a-menu mode="inline" class="sidebar__menu" v-if="walletAddress" v-model:selectedKeys="selectedKeys">
+            <a-menu mode="inline" class="sidebar__menu" v-model:selectedKeys="selectedKeys">
                 <SidebarItem
                     v-for="item in menu"
                     :key="item.key"
@@ -76,10 +76,6 @@ export default {
         const IS_COLLAPSED_KEY = 'user-settings:sidebar-collapsed';
 
         const menu = computed(() => {
-            if (!currentChainInfo.value?.ecosystem) {
-                return [];
-            }
-
             const config = UIConfig(currentChainInfo.value?.net, currentChainInfo.value?.ecosystem);
 
             if (!config) {

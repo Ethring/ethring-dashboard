@@ -41,7 +41,7 @@ export interface IAdapter {
     setChain: (chainInfo: ChainInfo) => Promise<boolean>;
     setNewChain: (ecosystem: keyof typeof ECOSYSTEMS, newChainInfo: ChainInfo) => Promise<boolean>;
     validateAddress: (address: string, { chainId }) => boolean;
-    formatTransactionForSign: (transaction: ITransactionResponse, txParams: { ecosystem: string; [key: string]: any }) => ITransaction;
+    formatTransactionForSign: (transaction: ITransactionResponse, txParams: { ecosystem: string;[key: string]: any }) => ITransaction;
     prepareTransaction: (transaction: ITransactionResponse, { ecosystem }) => Promise<ITransaction>;
     prepareDelegateTransaction: (transaction: ITransactionResponse, { ecosystem }) => Promise<ITransaction>;
     prepareMultipleExecuteMsgs: (transaction: ITransactionResponse, { ecosystem }) => Promise<ITransaction>;
@@ -63,8 +63,6 @@ function useAdapter() {
     // * Store Getters & Dispatch
     const adaptersGetter = (getter: string) => store.getters[`${storeModule}/${getter}`];
     const adaptersDispatch = (dispatch: string, ...args: any[]) => store.dispatch(`${storeModule}/${dispatch}`, ...args);
-
-    const isConfigsLoading = computed(() => store.getters['configs/isConfigLoading']);
 
     const initAdapter = async () => {
         store.dispatch('configs/setConfigLoading', true);
@@ -94,7 +92,7 @@ function useAdapter() {
 
     const currentChainInfo = computed<ChainInfo>(() => (mainAdapter.value ? mainAdapter.value.getCurrentChain(store) : null));
 
-    const chainList = computed<ChainConfig[]>(() => (mainAdapter.value ? mainAdapter.value.getChainList(store) : []));
+    const chainList = computed<ChainConfig[]>(() => (mainAdapter.value || walletAccount.value ? mainAdapter.value.getChainList(store) : getAllChainsList()));
 
     const walletAddress = computed<string>(() => (mainAdapter.value ? mainAdapter.value.getAccountAddress() : null));
     const walletAccount = computed<string>(() => (mainAdapter.value ? mainAdapter.value.getAccount() : null));
@@ -292,6 +290,18 @@ function useAdapter() {
         }
     };
 
+    // * Get All Chains for Ecosystems
+    const getAllChainsList = () => {
+        const chains = [];
+
+        for (const ecosystem in ECOSYSTEMS) {
+            const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+            chains.push(...adapter.getChainList(store));
+        }
+
+        return chains;
+    };
+
     // * Disconnect Wallet by Ecosystem
     const disconnectWallet = async (ecosystem: keyof typeof ECOSYSTEMS, wallet: WalletInfo): Promise<void> => {
         const { walletModule } = wallet || {};
@@ -333,7 +343,7 @@ function useAdapter() {
     };
 
     // * Format Tx for Ecosystem
-    const formatTransactionForSign = (transaction: ITransactionResponse, txParams: { ecosystem: string; [key: string]: any }) => {
+    const formatTransactionForSign = (transaction: ITransactionResponse, txParams: { ecosystem: string;[key: string]: any }) => {
         if (!mainAdapter.value) return null;
 
         const { ecosystem, ...params } = txParams || {};

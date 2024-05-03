@@ -11,6 +11,10 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
     const getAccount = (ecosystem) => store.getters['adapters/getAccountByEcosystem'](ecosystem);
 
+    const { ecosystem } = network || {};
+
+    const account = getAccount(ecosystem);
+
     const getTokensFromConfig = async (network) => {
         const { net } = network || {};
 
@@ -146,7 +150,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
         }
 
         // Target tokens list with or without balance
-        if (onlyWithBalance) {
+        if (onlyWithBalance && account) {
             allTokens = tokensWithBalanceVerified;
         } else {
             allTokens = _.unionBy(tokensWithBalanceVerified, tokensListFromNet, (tkn) => tkn.address?.toLowerCase());
@@ -211,6 +215,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             console.error('getTokenById', error);
         }
     };
+
     return {
         getTokensList,
         getTokenById,

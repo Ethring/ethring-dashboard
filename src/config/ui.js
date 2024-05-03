@@ -59,6 +59,8 @@ const SHORTCUT = {
 
 const SIDEBAR_MODULES = [MAIN_DASHBOARD, SHORTCUT, SEND, SWAP, BRIDGE, SUPER_SWAP];
 
+const SIDEBAR_MODULES_UN_AUTH = [MAIN_DASHBOARD, SHORTCUT, SEND, SWAP, BRIDGE, SUPER_SWAP];
+
 const defaultConfig = {
     [ECOSYSTEMS.EVM]: {
         sidebar: SIDEBAR_MODULES,
@@ -124,7 +126,7 @@ const checkIsDisabled = (config, sidebar) => {
 const getUIConfig = (network, ecosystem) => {
     if (!ecosystem) {
         return {
-            sidebar: [],
+            sidebar: SIDEBAR_MODULES_UN_AUTH,
         };
     }
 

@@ -116,10 +116,6 @@ export default {
 
             const isStay = await redirectOrStay(route.path, currentChainInfo.value);
 
-            if (!isStay || !walletAccount.value) {
-                return router.push('/main');
-            }
-
             return;
         };
 

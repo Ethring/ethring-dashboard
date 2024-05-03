@@ -125,7 +125,8 @@
     "route": "Route",
     "noAvailableRoute": "Possible explanations for this could be limited liquidity, an insufficiently selected amount, excessively high gas costs, or the availability of routes for the chosen combination",
     "unknownGas": "unknown gas fee",
-    "pendingTransactions": "Transaction successfully sent to blockchain, but the transaction still pending. Please wait for confirmation."
+    "pendingTransactions": "Transaction successfully sent to blockchain, but the transaction still pending. Please wait for confirmation.",
+    "connectWallet": "Connect wallet"
   },
   "simpleSend": {
     "title": "Send"
