@@ -5,7 +5,7 @@ import { init, useOnboard } from '@web3-onboard/vue';
 
 import { useLocalStorage } from '@vueuse/core';
 
-import { ECOSYSTEMS, EVM_CHAINS, BASE_ABI, SILO_EXECUTE_ABI, web3OnBoardConfig } from '@/core/wallet-adapter/config';
+import { ECOSYSTEMS, EVM_CHAINS, BASE_ABI, SILO_EXECUTE_ABI, BEEFY_DEPOSIT_ABI, web3OnBoardConfig } from '@/core/wallet-adapter/config';
 
 import AdapterBase from '@/core/wallet-adapter/utils/AdapterBase';
 
@@ -17,6 +17,7 @@ let web3Onboard: any = null;
 const ABI_BY_NAME = {
     DEFAULT: BASE_ABI,
     SILO_EXECUTOR: SILO_EXECUTE_ABI,
+    BEEFY_DEPOSIT: BEEFY_DEPOSIT_ABI
 } as { [key: string]: any };
 
 const STORAGE = {

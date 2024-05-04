@@ -134,6 +134,21 @@ const META_DATA: Record<string, IShortcutMeta> = {
         author: getAuthorById(ShortcutAuthor.ZometApp),
         isActive: true,
     },
+    [AvailableShortcuts.PendleBeefy]: {
+        id: AvailableShortcuts.PendleBeefy,
+        name: 'Earn highest APYs on Pendle + Beefy',
+        logoURI: 'https://pendle.finance/images/pendle-logo.svg',
+        keywords: ['pendle', 'yield', 'fixed'],
+        tags: ['PENDLE', 'BEEFY'],
+        ecosystems: ['EVM'],
+        type: 'yield',
+        description: 'Maximize Your Earnings: Unlock the Highest APYs on Pendle + Beefy for Your Assets',
+        wallpaper: '/img/wallpapers/SC-pendle-earn-fixed-yield.png',
+        website: 'https://pendle.finance/',
+        minUsdAmount: 1.1,
+        author: getAuthorById(ShortcutAuthor.ZometApp),
+        isActive: true,
+    },
 };
 
 export const getShortcutMetaById = (id: string): IShortcutMeta => {

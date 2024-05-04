@@ -211,3 +211,14 @@ export const SILO_EXECUTE_ABI = [
         type: 'receive',
     },
 ];
+
+export const BEEFY_DEPOSIT_ABI = [
+    {
+        inputs: [{ internalType: 'uint256', name: '_amount', type: 'uint256' }],
+        name: 'deposit',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    { inputs: [], name: 'depositAll', outputs: [], stateMutability: 'nonpayable', type: 'function' },
+];
