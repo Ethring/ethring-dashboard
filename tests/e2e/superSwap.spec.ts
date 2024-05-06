@@ -140,6 +140,8 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
 
         await superSwapPage.waitDetachedSkeleton();
 
+        await sleep(FIVE_SECONDS);
+
         await expect(superSwapPage.page).toHaveScreenshot({
             fullPage: true,
             maxDiffPixelRatio: 0.01,
