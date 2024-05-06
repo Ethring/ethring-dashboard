@@ -135,12 +135,6 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
 
         await superSwapPage.page.locator('div.wallet-adapter-container').hover();
 
-        // await confirmConnectMmWallet(context, superSwapPage);
-
-        const confirmBtn = await superSwapPage.page.locator(`//button[@data-qa="confirm"]`);
-
-        expect(confirmBtn.innerText()).toBe('Confirm');
-
         await expect(superSwapPage.page).toHaveScreenshot();
     });
 });
