@@ -10,13 +10,13 @@ interface IShortcutMeta extends IShortcutData {
 const META_DATA: Record<string, IShortcutMeta> = {
     [AvailableShortcuts.CitadelOneStake]: {
         id: AvailableShortcuts.CitadelOneStake,
-        name: 'Transfer & Stake to the Citadel.one validator',
-        logoURI: 'https://citadel.one/static/media/logo.3e3e3e3e.svg',
+        name: 'Stake $ATOM with Citadel.one',
+        logoURI: '/img/icons/shortcuts/stake-c1.svg',
         keywords: ['citadel', 'one', 'staking'],
         tags: ['EVM', 'COSMOS', 'STAKE'],
         ecosystems: ['EVM', 'COSMOS'],
         type: 'stake',
-        description: 'Transfer your tokens from EVM or COSMOS ecosystem and stake them to the Citadel.one validator and earn rewards.',
+        description: 'Transfer your tokens automatically & stake with Citadel.one validator to earn passive income!',
         wallpaper: 'https://i.imgur.com/TzfbhhA.png',
         website: 'https://citadel.one/',
         author: getAuthorById(ShortcutAuthor.ZometApp),
@@ -25,7 +25,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
     [AvailableShortcuts.AirdropFarmingPortfolio]: {
         id: AvailableShortcuts.AirdropFarmingPortfolio,
         name: 'Airdrop-farming portfolio',
-        logoURI: 'https://citadel.one/static/media/logo.3e3e3e3e.svg',
+        logoURI: '/img/icons/shortcuts/airdrop-farming-portfolio.svg',
         keywords: ['airdrop'],
         tags: ['EVM', 'COSMOS', 'airdrop'],
         ecosystems: ['EVM', 'COSMOS'],
@@ -54,7 +54,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
     [AvailableShortcuts.SwapToAtomAndStars]: {
         id: AvailableShortcuts.SwapToAtomAndStars,
         name: 'Swap OSMO to ATOM and STARS',
-        logoURI: 'https://citadel.one/static/media/logo.3e3e3e3e.svg',
+        logoURI: '/img/icons/shortcuts/swap-osmo.svg',
         keywords: ['ATOM', 'STARS', 'SWAP'],
         tags: ['ATOM', 'STARS', 'SWAP'],
         ecosystems: ['COSMOS'],
@@ -67,13 +67,13 @@ const META_DATA: Record<string, IShortcutMeta> = {
     },
     [AvailableShortcuts.MintCollectionWithTransfer]: {
         id: AvailableShortcuts.MintCollectionWithTransfer,
-        name: 'Mint collection with transfer',
-        logoURI: 'https://citadel.one/static/media/logo.3e3e3e3e.svg',
+        name: 'Mint Zomet Club NFTs for early adopters',
+        logoURI: '/img/icons/shortcuts/mint-collection.svg',
         wallpaper: 'https://i.imgur.com/GLaOOnq.png',
         keywords: ['NFT', 'MINT', 'STARS'],
         tags: ['NFT', 'MINT'],
         type: 'nft',
-        description: 'Mint collection of NFTs on Stargaze Zone with transfer',
+        description: 'Zomet Club NFT is only available to you as early adopter of Zomet platform. ZC NFT holders are going to receive perks & benefits at a later stage!',
         website: 'https://www.stargaze.zone/',
         author: getAuthorById(ShortcutAuthor.ZometApp),
         ecosystems: ['EVM', 'COSMOS'],
@@ -81,8 +81,8 @@ const META_DATA: Record<string, IShortcutMeta> = {
     },
     [AvailableShortcuts.SellEverything]: {
         id: 'sell-everything-in-one-click',
-        name: 'Recipe #6: Rage Quit - Sell everything in one click',
-        logoURI: 'https://citadel.one/static/media/logo.3e3e3e3e.svg',
+        name: 'Rage Quit - Sell everything in one click',
+        logoURI: '/img/icons/shortcuts/rage-quite.svg',
         keywords: ['sell', 'swap', 'bridge'],
         tags: ['EVM', 'COSMOS', 'SELL'],
         ecosystems: ['EVM', 'COSMOS'],
@@ -107,14 +107,13 @@ const META_DATA: Record<string, IShortcutMeta> = {
     },
     [AvailableShortcuts.WithdrawDydx]: {
         id: 'withdraw-dYdX-usdc-rewards-to-usdt-on-tron',
-        name: 'Recipe #7: Withdraw dYdX USDC rewards to USDT on Tron',
-        logoURI: 'https://citadel.one/static/media/logo.3e3e3e3e.svg',
+        name: 'Withdraw dYdX USDC to USDT TRC20',
+        logoURI: '/img/icons/shortcuts/dydx.svg',
         keywords: ['stake', 'swap', 'bridge'],
         tags: ['EVM', 'SWAP'],
         ecosystems: ['EVM'],
         type: 'swap',
-        description:
-            'Transfer your earned dYdX USDC rewards seamlessly to USDT on Tron blockchain with ease and convenience. Maximize your flexibility and liquidity while managing your crypto assets efficiently.',
+        description: 'Seamlessly withdraw your dYdX rewards in USDC with no need to deal with bridging yoursel',
         wallpaper: '/img/wallpapers/dydx.svg',
         website: 'https://citadel.one/',
         author: {
@@ -134,14 +133,13 @@ const META_DATA: Record<string, IShortcutMeta> = {
     },
     [AvailableShortcuts.ConvertTia]: {
         id: 'convert-tia-to-sttia',
-        name: 'Recipe #8: Convert TIA to stTiA',
-        logoURI: 'https://citadel.one/static/media/logo.3e3e3e3e.svg',
+        name: 'Convert TIA to stTiA',
+        logoURI: '/img/icons/shortcuts/convert-tia.svg',
         keywords: ['swap', 'bridge'],
         tags: ['COSMOS', 'SWAP'],
         ecosystems: ['COSMOS'],
         type: 'swap',
-        description:
-            "TIA represents an intriguing asset with its unique dynamics and potential for value appreciation. However, the transition from TIA to stTiA, or 'suspected TIA,' introduces complexities that require careful consideration by investors and stakeholders.",
+        description: "stTIA allows holders to earn Celestia staking yields passively while still maintaining a liquid position that can be used in other DeFi projects.",
         wallpaper: '/img/wallpapers/convert-tia.svg',
         website: 'https://citadel.one/',
         author: {

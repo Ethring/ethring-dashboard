@@ -3,7 +3,10 @@
         <template #title>
             <a-row justify="space-between" :wrap="false">
                 <a-row align="middle" :wrap="false" class="shortcut-item__block">
-                    <ShortcutPlaceHolder />
+                    <div class="icon" v-if="item.logoURI">
+                        <img :src="item.logoURI" :alt="item.name" />
+                    </div>
+                    <ShortcutPlaceHolder v-else />
                     <div class="name" :title="item.name">{{ item.name }}</div>
                 </a-row>
 
