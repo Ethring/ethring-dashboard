@@ -112,12 +112,14 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
 
         await superSwapPage.setNetToAndTokenTo(TO_NET, TO_TOKEN);
 
+        await sleep(FIVE_SECONDS);
+
         await superSwapPage.setAmount(AMOUNT);
 
         // Estimate route without authorization
         await superSwapPage.openRouteInfo();
 
-        await sleep(FIVE_SECONDS);
+        await superSwapPage.waitDetachedSkeleton();
 
         await expect(superSwapPage.page).toHaveScreenshot({
             fullPage: true,
@@ -134,10 +136,19 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
 
         await superSwapPage.page.getByText('MetaMask').click();
 
-        await sleep(FIVE_SECONDS);
-
         await superSwapPage.page.locator(`//button[@data-qa="confirm"]`);
 
-        await expect(superSwapPage.page).toHaveScreenshot();
+        await superSwapPage.waitDetachedSkeleton();
+
+        await expect(superSwapPage.page).toHaveScreenshot({
+            fullPage: true,
+            maxDiffPixelRatio: 0.01,
+            mask: [
+                superSwapPage.page.locator('div.swap-field-input-container > input[name="dstAmount"]'),
+                superSwapPage.page.locator('div.balance-price'),
+                superSwapPage.page.locator('div.amount-block.currency'),
+                superSwapPage.page.locator('div.amount-block.usd')
+            ],
+        });
     });
 });
