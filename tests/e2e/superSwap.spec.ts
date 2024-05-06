@@ -136,6 +136,8 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
 
         await superSwapPage.page.getByText('MetaMask').click();
 
+        await sleep(FIVE_SECONDS);
+
         await superSwapPage.page.locator(`//button[@data-qa="confirm"]`);
 
         await superSwapPage.waitDetachedSkeleton();
