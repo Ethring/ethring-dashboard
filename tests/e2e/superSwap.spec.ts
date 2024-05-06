@@ -99,6 +99,8 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
         // Disconnect from account
         await superSwapPage.disconnectFirstWallet();
 
+        await superSwapPage.page.locator('div.wallet-adapter-container').hover();
+
         await sleep(FIVE_SECONDS);
 
         // Go to SuperSwap module without authorization
@@ -131,7 +133,9 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
 
         await superSwapPage.page.getByText('MetaMask').click();
 
-        await confirmConnectMmWallet(context, superSwapPage);
+        await superSwapPage.page.locator('div.wallet-adapter-container').hover();
+
+        // await confirmConnectMmWallet(context, superSwapPage);
 
         const confirmBtn = await superSwapPage.page.locator(`//button[@data-qa="confirm"]`);
 
