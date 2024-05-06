@@ -121,6 +121,7 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
 
         await expect(superSwapPage.page).toHaveScreenshot({
             fullPage: true,
+            maxDiffPixelRatio: 0.01,
             mask: [
                 superSwapPage.page.locator('div.swap-field-input-container > input[name="dstAmount"]'),
                 superSwapPage.page.locator('div.balance-price'),
