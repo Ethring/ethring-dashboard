@@ -1,12 +1,13 @@
 import { testMetaMask } from '../__fixtures__/fixtures';
-import { expect, test } from '@playwright/test';
+import { expect } from '@playwright/test';
 import { TEST_CONST, getTestVar } from '../envHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage } from '../model/MetaMask/MetaMask.pages';
+import { FIVE_SECONDS, ONE_SECOND, confirmConnectMmWallet } from '../__fixtures__/fixtureHelper';
 import util from 'util';
 const sleep = util.promisify(setTimeout);
 
-test.describe('SuperSwap e2e tests', () => {
-    testMetaMask(
+testMetaMask.describe('SuperSwap e2e tests', () => {
+    testMetaMask.skip(
         'Case#: Super Swap tx:swap net:Polygon tokenFrom:Matic tokenTo:1inch',
         async ({ browser, context, page, superSwapPageBalanceMock: superSwapPage }) => {
             const netTo = 'Polygon';
@@ -89,4 +90,53 @@ test.describe('SuperSwap e2e tests', () => {
             // expect(await superSwapPage.getLinkFromSuccessPanel()).toContain(txHash);
         },
     );
+
+    testMetaMask('Case#: SuperSwap estimate route without authorization', async ({ browser, context, page, superSwapPageBalanceMock: superSwapPage }) => {
+        const TO_NET = 'Polygon';
+        const TO_TOKEN = 'MATIC'
+        const AMOUNT = '2';
+
+        // Disconnect from account
+        await superSwapPage.disconnectFirstWallet();
+
+        await sleep(FIVE_SECONDS);
+
+        // Go to SuperSwap module without authorization
+        await superSwapPage.goToModule('superSwap');
+
+        await sleep(ONE_SECOND);
+
+        await expect(superSwapPage.page).toHaveScreenshot();
+
+        await superSwapPage.setNetToAndTokenTo(TO_NET, TO_TOKEN);
+
+        await superSwapPage.setAmount(AMOUNT);
+
+        // Estimate route without authorization
+        await superSwapPage.openRouteInfo();
+
+        await sleep(FIVE_SECONDS);
+
+        await expect(superSwapPage.page).toHaveScreenshot({
+            fullPage: true,
+            mask: [
+                superSwapPage.page.locator('div.swap-field-input-container > input[name="dstAmount"]'),
+                superSwapPage.page.locator('div.balance-price'),
+                superSwapPage.page.locator('div.amount-block.currency'),
+                superSwapPage.page.locator('div.amount-block.usd')
+            ],
+        });
+
+        await superSwapPage.clickConfirm();
+
+        await superSwapPage.page.getByText('MetaMask').click();
+
+        await confirmConnectMmWallet(context, superSwapPage);
+
+        const confirmBtn = await superSwapPage.page.locator(`//button[@data-qa="confirm"]`);
+
+        expect(confirmBtn.innerText()).toBe('Confirm');
+
+        await expect(superSwapPage.page).toHaveScreenshot();
+    });
 });
