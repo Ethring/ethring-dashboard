@@ -136,8 +136,6 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
 
         await sleep(FIVE_SECONDS);
 
-        await superSwapPage.page.locator('div.wallet-adapter-container').hover();
-
         await expect(superSwapPage.page).toHaveScreenshot();
     });
 });
