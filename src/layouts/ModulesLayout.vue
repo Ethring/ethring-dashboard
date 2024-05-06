@@ -1,7 +1,7 @@
 <template>
     <div class="layout-page">
         <div class="layout-page__content">
-            <UnsupportedResult v-if="currentChainInfo && !currentChainInfo.net" />
+            <UnsupportedResult v-if="!component" />
             <template v-else>
                 <div class="layout-page-tab">
                     <router-link

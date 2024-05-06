@@ -274,7 +274,9 @@ export default function useModule(moduleType: ModuleType) {
     const callOnMounted = () => {
         const isAccountAuth = walletAccount.value && currentChainInfo.value;
 
-        if (isAccountAuth && !selectedSrcNetwork.value?.net) {
+        const currentChain = store.getters['configs/getChainConfigByChainId'](currentChainInfo.value?.chain, ECOSYSTEMS.EVM);
+
+        if (isAccountAuth && !selectedSrcNetwork.value?.net && Object.keys(currentChain).length) {
             selectedSrcNetwork.value = currentChainInfo.value;
         } else if (!selectedSrcNetwork.value?.net && chainList.value?.length) {
             selectedSrcNetwork.value = chainList.value[0];
@@ -310,6 +312,7 @@ export default function useModule(moduleType: ModuleType) {
     onBeforeUnmount(() => {
         // Clear all data
         store.dispatch('tokenOps/resetFields');
+        checkSelectedNetwork();
     });
 
     watch([isConfigsLoading, module], () => callOnMounted());
