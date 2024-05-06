@@ -1929,6 +1929,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationParams: {
                     net: 'arbitrum',
                     fromNet: 'arbitrum',
+                    toNet: 'arbitrum',
                     fromToken: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
                     toToken: '0x2416092f143378750bb29b79ed961ab195cceea5',
                 },
@@ -2182,8 +2183,8 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 ],
             } as IShortcutOp,
             {
-                id: 'deposit-all-lp-ezeth',
-                name: 'Deposit all LP ezETH',
+                id: 'deposit-lp-ezeth',
+                name: 'Deposit LP ezETH',
                 type: ShortcutType.operation,
                 moduleType: ModuleType.pendleBeefy,
                 make: TRANSACTION_TYPES.DEPOSIT,
@@ -2202,8 +2203,8 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     tokenAddress: '0x5E03C94Fc5Fb2E21882000A96Df0b63d2c4312e2',
                     contractAddress: '0xdccb85017a996faF5242648B46940E80DE0A36a5',
                     abi: 'BEEFY_DEPOSIT',
-                    method: 'depositAll',
-                    argKeys: [],
+                    method: 'deposit',
+                    argKeys: ['amount'],
                 },
                 dependencies: {
                     operationId: 'give-approval-for-lp-ezETH',

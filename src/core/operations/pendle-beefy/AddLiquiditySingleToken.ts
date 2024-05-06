@@ -69,4 +69,44 @@ export default class PendleAddLiquiditySingleToken extends BaseOperation {
             throw error;
         }
     }
+
+    async estimateOutput(): Promise<void> {
+        if (!this.params.amount) {
+            console.warn('Amount is required');
+            return;
+        }
+
+        try {
+            const { fromNet, net, ownerAddresses = {} } = this.params as any;
+            const network = net || fromNet;
+
+            const { from } = this.getTokens();
+
+            const { decimals, address } = from || {};
+            const tokenIn = address || '0x0000000000000000000000000000000000000000';
+
+            const amountBN = BigInt(BigNumber(this.getParamByField('amount')).multipliedBy(`1e${decimals}`).toString());
+
+            const params: ISwapExactTokenForPTRequest = {
+                chainId: +this.getChainId(),
+                receiverAddr: ownerAddresses[network],
+                marketAddr: this.getParamByField('marketAddress'),
+                tokenInAddr: tokenIn,
+                syTokenInAddr: this.getParamByField('syTokenInAddr'),
+                amountTokenIn: amountBN,
+                slippage: 0.005,
+            };
+
+            const transaction = await this.service.addLiquiditySingleToken(params);
+
+            const { data } = transaction;
+
+            const outputAmount = BigNumber(data.amountLpOut).dividedBy(`1e${decimals}`).toString();
+
+            this.setParamByField('outputAmount', outputAmount);
+        } catch (error) {
+            console.error('DepositOperation.performTx', error);
+            throw error;
+        }
+    }
 }
