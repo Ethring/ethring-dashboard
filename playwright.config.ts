@@ -8,7 +8,7 @@ dotenv.config({
 
 const localFrontUrl = 'http://localhost:5173';
 
-const testFilesName = 'dashboard|send|swap|mockTxSend';
+const testFilesName = 'dashboard|send|swap|mockTxSend|shortcut';
 
 export default defineConfig({
     testDir: './tests/e2e',

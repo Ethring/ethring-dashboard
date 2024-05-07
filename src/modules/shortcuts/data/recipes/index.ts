@@ -23,7 +23,47 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 serviceId: 'squid',
                 layoutComponent: 'SuperSwap',
                 isShowLayout: true,
-                excludeChains: ['osmosis', 'cosmoshub', 'eth', 'fantom', 'injective', 'stargaze'],
+                excludeChains: ['osmosis', 'cosmoshub', 'fantom', 'injective', 'stargaze'],
+                includeTokens: {
+                    bsc: [
+                        'bsc:tokens__native:BNB',
+                        'bsc:tokens__0x55d398326f99059ff775485246999027b3197955:USDT',
+                        'bsc:tokens__0x2170ed0880ac9a755fd29b2688956bd959f933f8:WETH',
+                        'bsc:tokens__0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d:USDC',
+                    ],
+                    eth: [
+                        'eth:tokens__native:ETH',
+                        'eth:tokens__0xdac17f958d2ee523a2206206994597c13d831ec7:USDT',
+                        'eth:tokens__0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48:USDC',
+                        'eth:tokens__0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2:WETH',
+                    ],
+                    avalanche: [
+                        'avalanche:tokens__native:AVAX',
+                        'avalanche:tokens__0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e:USDC',
+                        'avalanche:tokens__0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7:USDt',
+                        'avalanche:tokens__0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab:WETH.e',
+                    ],
+                    polygon: [
+                        'polygon:tokens__native:MATIC',
+                        'polygon:tokens__0xc2132d05d31c914a87c6611c10748aeb04b58e8f:USDT',
+                        'polygon:tokens__0x3c499c542cef5e3811e1192ce70d8cc03d5c3359:USDC',
+                        'polygon:tokens__0x7ceb23fd6bc0add59e62ac25578270cff1b9f619:WETH',
+                    ],
+                    arbitrum: [
+                        'arbitrum:tokens__native:ETH',
+                        'arbitrum:tokens__0x912ce59144191c1204e64559fe8253a0e49e6548:ARB',
+                        'arbitrum:tokens__0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9:USDT',
+                        'arbitrum:tokens__0xaf88d065e77c8cc2239327c5edb3a432268e5831:USDC',
+                        'arbitrum:tokens__0x82af49447d8a07e3bd95bd0d56f35241523fbab1:WETH',
+                    ],
+                    optimism: [
+                        'optimism:tokens__native:ETH',
+                        'optimism:tokens__0x94b008aa00579c1307b0ef2c499ad98a8ce58e58:USDT',
+                        'optimism:tokens__0x0b2c639c533813f4aa9d7837caf62653d097ff85:USDC',
+                        'optimism:tokens__0x4200000000000000000000000000000000000006:WETH',
+                    ],
+                },
+
                 ecosystems: ['EVM', 'COSMOS'],
                 operationParams: {
                     fromNet: 'bsc',
@@ -1188,6 +1228,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     {
                         name: 'isReload',
                         hide: true,
+                        disabled: true,
                     },
                 ],
             },
@@ -1433,7 +1474,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                                 chain: 'cosmoshub',
                                 address: 'uatom',
                                 hide: false,
-                                amount: '12'
+                                amount: '12',
                             },
                             {
                                 name: 'receiverAddress',
@@ -1496,7 +1537,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                                 chain: 'osmosis',
                                 address: 'uosmo',
                                 hide: false,
-                                amount: '65'
+                                amount: '65',
                             },
                             {
                                 name: 'receiverAddress',
@@ -1583,7 +1624,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     {
                         name: 'isReload',
                         hide: true,
-                    }
+                    },
                 ],
             },
             {
@@ -1648,7 +1689,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 ],
             },
         ],
-    }
+    },
 };
 
 export const getRecipeById = (id: string): IRecipesWithOperations => {
