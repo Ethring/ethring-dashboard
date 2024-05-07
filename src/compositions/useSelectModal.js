@@ -47,9 +47,7 @@ export default function useSelectModal(type) {
     const includeTokenList = computed(() => {
         const { includeTokens = {} } = CurrentOperation.value || {};
 
-        if (includeTokens[selectedSrcNetwork.value?.net]) {
-            return includeTokens[selectedSrcNetwork.value?.net];
-        }
+        if (includeTokens[selectedSrcNetwork.value?.net]) return includeTokens[selectedSrcNetwork.value?.net];
 
         return [];
     });

@@ -96,7 +96,6 @@ $top-bar-spacing: 20px;
     }
 
     .ant-result-title {
-
         span {
             @include pageFlexRow;
             justify-content: center;
@@ -118,7 +117,6 @@ $top-bar-spacing: 20px;
         .value {
             font-size: var(--#{$prefix}h3-fs);
             color: var(--#{$prefix}sub-text);
-
         }
     }
 
@@ -197,7 +195,7 @@ $top-bar-spacing: 20px;
 
     z-index: 10;
 
-    &>div:not(:last-child) {
+    & > div:not(:last-child) {
         margin-right: 8px;
     }
 }
@@ -299,7 +297,6 @@ $top-bar-spacing: 20px;
 }
 
 .nft-base-info .nft-base-info-time {
-
     .time-type,
     .time-info {
         display: flex;

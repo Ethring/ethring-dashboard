@@ -1,5 +1,5 @@
 <template>
-    <a-modal v-model:open="isModalOpen" title="ABS" centered :footer="null" :bodyStyle="{ height: '374px', overflowY: 'overlay' }">
+    <a-modal v-model:open="isModalOpen" title="ABS" centered :footer="null" :body-style="{ height: '374px', overflowY: 'overlay' }">
         <a-result :status="status" class="operation-result">
             <template #title>
                 <span v-html="title"></span>
@@ -13,10 +13,7 @@
 
                         <div class="description">{{ $t('tokenOperations.pendingTransactions') }}</div>
 
-                        <ExternalLink :link="link"
-                            :text="$t('tokenOperations.viewDetails')"
-                        />
-
+                        <ExternalLink :link="link" :text="$t('tokenOperations.viewDetails')" />
                     </template>
                 </div>
             </template>
@@ -28,7 +25,7 @@
             </template>
 
             <template #extra>
-                <UiButton key="console" title="Done" type="primary" @click="() => handleOnDone(module)" data-qa="operation-done" />
+                <UiButton key="console" title="Done" type="primary" data-qa="operation-done" @click="() => handleOnDone(module)" />
             </template>
         </a-result>
     </a-modal>

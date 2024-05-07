@@ -5,7 +5,7 @@
             <ThemeSwitcher />
         </a-tooltip>
 
-        <HelpItem tooltipText="dashboard.releaseNotes" @click="showReleaseNotes" :badge="showBadge">
+        <HelpItem tooltip-text="dashboard.releaseNotes" :badge="showBadge" @click="showReleaseNotes">
             <ReleaseNoteIcon />
         </HelpItem>
 

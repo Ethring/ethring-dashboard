@@ -72,17 +72,17 @@ body {
 }
 
 .ant-empty {
-  &-image {
-    height: fit-content;
-  }
+    &-image {
+        height: fit-content;
+    }
 
-  &-description {
-    font-style: normal;
-    font-weight: 400;
-    font-size: var(--#{$prefix}default-fs);
-    color: var(--#{$prefix}neutral-text);
-    opacity: 0.5;
-  }
+    &-description {
+        font-style: normal;
+        font-weight: 400;
+        font-size: var(--#{$prefix}default-fs);
+        color: var(--#{$prefix}neutral-text);
+        opacity: 0.5;
+    }
 }
 
 ::-webkit-input-placeholder {

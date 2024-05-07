@@ -195,7 +195,7 @@ $select-item-color: $ebonyClay;
 $select-item-active-color: $ebonyClay;
 $select-placeholder-text: $gulfStream;
 
-$select-border-color: "transparent";
+$select-border-color: 'transparent';
 $select-active-border-color: $surfieGreen;
 $select-active-bg-color: $iceberg;
 $select-icon-color: $gulfStream;
@@ -320,24 +320,24 @@ $theme-colors: (
     'assets-arrow-hover-color': $assets-arrow-hover-color,
     'assets-arrow-bg-color': $assets-arrow-bg-color,
 
-    "sub-text": $sub-text,
-    "notification-text": $notification-text,
-    "mute-text": $mute-text,
-    "base-text": $base-text,
-    "sidebar-text": $sidebar-text,
-    "primary-text": $primary-text,
-    "secondary-text": $secondary-text,
-    "symbol-text": $symbol-text,
-    "mute-apr-text": $mute-apr-text,
-    "amount-text": $amount-text,
-    "input-disabled-text": $input-disabled-text,
-    "balance-text": $balance-text,
-    "unlock-text": $unlock-text,
-    "neutral-text": $neutral-text,
-    "base-amount-text": $base-amount-text,
-    "description-text": $description-text,
-    "currency-text": $currency-text,
-    "details-text": $details-text,
+    'sub-text': $sub-text,
+    'notification-text': $notification-text,
+    'mute-text': $mute-text,
+    'base-text': $base-text,
+    'sidebar-text': $sidebar-text,
+    'primary-text': $primary-text,
+    'secondary-text': $secondary-text,
+    'symbol-text': $symbol-text,
+    'mute-apr-text': $mute-apr-text,
+    'amount-text': $amount-text,
+    'input-disabled-text': $input-disabled-text,
+    'balance-text': $balance-text,
+    'unlock-text': $unlock-text,
+    'neutral-text': $neutral-text,
+    'base-amount-text': $base-amount-text,
+    'description-text': $description-text,
+    'currency-text': $currency-text,
+    'details-text': $details-text,
 
     'neutral-gray': $neutral-gray,
     'neutral-gray-100': $neutral-gray-100,

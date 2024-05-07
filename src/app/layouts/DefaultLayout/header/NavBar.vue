@@ -9,6 +9,8 @@
     </a-layout-header>
 </template>
 <script>
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+
 import Adapter from '@/core/wallet-adapter/UI/Adapter.vue';
 import HelpBlock from '@/app/layouts/DefaultLayout/header/Help/HelpBlock.vue';
 

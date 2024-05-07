@@ -11,7 +11,7 @@
         height: 32px;
 
         &,
-        &>span {
+        & > span {
             @include pageFlexRow;
             justify-content: center;
         }
@@ -106,7 +106,7 @@
             }
         }
 
-        .ant-input-number-disabled+.ant-input-number-group-addon {
+        .ant-input-number-disabled + .ant-input-number-group-addon {
             background: var(--#{$prefix}select-bg-color) !important;
             border-color: var(--#{$prefix}select-bg-color) !important;
         }
