@@ -26,6 +26,10 @@ import ArrowDownIcon from '@/assets/icons/form-icons/drop-down.svg';
 
 export default {
     name: 'SelectRecord',
+    components: {
+        TokenIcon,
+        ArrowDownIcon,
+    },
     props: {
         current: {
             type: Object,
@@ -40,10 +44,6 @@ export default {
             type: Boolean,
             default: false,
         },
-    },
-    components: {
-        TokenIcon,
-        ArrowDownIcon,
     },
     setup(props) {
         const name = computed(() => {

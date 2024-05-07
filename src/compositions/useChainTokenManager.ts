@@ -1,42 +1,33 @@
-import _, { delay } from 'lodash';
+import _ from 'lodash';
 
 import { ref, computed, watch, onBeforeUnmount, onMounted } from 'vue';
 import { useStore } from 'vuex';
 
-import useAdapter from '@/Adapter/compositions/useAdapter';
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import useTokensList from '@/compositions/useTokensList';
 
 import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 import useInputValidation from '@/shared/form-validations';
 import logger from '@/shared/logger';
+import { ChainConfig } from '@/modules/chain-configs/types/chain-config';
+import { IAsset } from '@/shared/models/fields/module-fields';
 
 export default function useChainTokenManger(moduleType: ModuleType) {
     const store = useStore();
 
     const isSuperSwap = computed(() => [ModuleType.superSwap, ModuleType.shortcut].includes(moduleType));
     const isNeedDstNetwork = computed(() => [ModuleType.bridge, ModuleType.superSwap].includes(moduleType));
-    const isSameNet = computed(() => [ModuleType.bridge, ModuleType.superSwap].includes(moduleType));
     const isConfigLoading = computed(() => store.getters['configs/isConfigLoading']);
 
-    const {
-        isSameTokenSameNet,
-        isSameNetwork,
-        isSameToken,
-        isSrcNetworkSet,
-        isSrcTokenChainCorrect,
-        isDstTokenChainCorrect,
-        isDstTokenChainCorrectSwap,
-        isSrcTokenSet,
-        isDstTokenSet,
-        isDstNetworkSet,
-    } = useInputValidation();
+    const { isSameTokenSameNet, isSameNetwork, isSameToken, isSrcNetworkSet, isSrcTokenSet, isDstTokenSet, isDstNetworkSet } =
+        useInputValidation();
 
     // =================================================================================================================
     // * Adapter
     // * Wallet account, current chain info, chain list
     // =================================================================================================================
-    const { walletAccount, currentChainInfo, chainList, getChainListByEcosystem } = useAdapter();
+    const { walletAccount, currentChainInfo, chainList } = useAdapter();
 
     // =================================================================================================================
     // * Tokens list getter
@@ -44,7 +35,7 @@ export default function useChainTokenManger(moduleType: ModuleType) {
 
     const { getTokensList } = useTokensList();
 
-    const tokensList = ref([]);
+    const tokensList = ref<IAsset[]>([]);
 
     const selectType = computed({
         get: () => store.getters['tokenOps/selectType'],
@@ -87,7 +78,7 @@ export default function useChainTokenManger(moduleType: ModuleType) {
     );
 
     // =================================================================================================================
-    const setTokenOnChangeForNet = async (srcNet, srcToken, { isSameNet = false, excludeTokens = [] } = {}) => {
+    const setTokenOnChangeForNet = async (srcNet: ChainConfig, srcToken: IAsset, { isSameNet = false, excludeTokens = [] } = {}) => {
         const getTokensParams = {
             srcNet,
             isSameNet,
@@ -95,7 +86,7 @@ export default function useChainTokenManger(moduleType: ModuleType) {
             srcToken: srcToken,
             dstToken: null,
             exclude: [],
-        };
+        } as any;
 
         excludeTokens.length ? (getTokensParams.exclude = excludeTokens) : null;
 
@@ -103,9 +94,7 @@ export default function useChainTokenManger(moduleType: ModuleType) {
 
         const [defaultSrcToken = null] = tokensList.value;
 
-        if (!srcToken?.id && defaultSrcToken) {
-            return defaultSrcToken;
-        }
+        if (!srcToken?.id && defaultSrcToken) return defaultSrcToken;
 
         const { id: targetId } = srcToken || {};
 
@@ -113,26 +102,19 @@ export default function useChainTokenManger(moduleType: ModuleType) {
 
         const updatedList = tokensList.value?.filter((tkn) => searchTokens.includes(tkn?.id)) || [];
 
-        if (!updatedList.length) {
-            return defaultSrcToken;
-        }
+        if (!updatedList.length) return defaultSrcToken;
 
         const [tkn = null] = updatedList;
 
-        if (!tkn) {
-            return defaultSrcToken;
-        }
+        if (!tkn) return defaultSrcToken;
 
         return tkn;
     };
 
     const chainManagerByModule = () => {
         // * If the source network is not set, then the source network is set to the current network
-        if (!selectedSrcNetwork.value?.net) {
-            selectedSrcNetwork.value = currentChainInfo.value;
-        } else if (!selectedSrcNetwork.value?.net && chainList.value?.length) {
-            selectedSrcNetwork.value = chainList.value[0];
-        }
+        if (!selectedSrcNetwork.value?.net) selectedSrcNetwork.value = currentChainInfo.value;
+        else if (!selectedSrcNetwork.value?.net && chainList.value?.length) selectedSrcNetwork.value = chainList.value[0];
 
         switch (moduleType) {
             // * If the module is Swap, then the destination network is set to the source network
@@ -155,17 +137,12 @@ export default function useChainTokenManger(moduleType: ModuleType) {
             case ModuleType.bridge:
             case ModuleType.superSwap:
                 // * If the chain list is empty, then the destination network is not set
-                if (!chainList.value?.length) {
-                    break;
-                }
+                if (!chainList.value?.length) break;
 
                 const [dst] = chainList.value?.filter(({ net }) => net !== selectedSrcNetwork.value?.net) || [];
 
-                if (moduleType === ModuleType.bridge) {
-                    selectedDstNetwork.value = dst;
-                } else {
-                    !isDstNetworkSet.value && (selectedDstNetwork.value = dst);
-                }
+                if (moduleType === ModuleType.bridge) selectedDstNetwork.value = dst;
+                else !isDstNetworkSet.value && (selectedDstNetwork.value = dst);
 
                 break;
         }
@@ -173,20 +150,19 @@ export default function useChainTokenManger(moduleType: ModuleType) {
 
     const defaultTokenManagerByModule = async ({ isAccountChanged = false } = {}) => {
         const isSrcTokenChanged = selectedSrcToken.value && selectedSrcToken.value.chain !== selectedSrcNetwork.value?.net;
-        const isDstTokenChanged = selectedDstToken.value && selectedDstToken.value.chain !== selectedDstNetwork.value?.net;
+        // const isDstTokenChanged = selectedDstToken.value && selectedDstToken.value.chain !== selectedDstNetwork.value?.net;
 
         const isDstTokenChangedForSwap = selectedDstToken.value?.chain !== selectedSrcNetwork.value?.net;
 
         const params = {
             isSameNet: false,
             excludeTokens: [],
-        };
+        } as any;
 
         switch (moduleType) {
             case ModuleType.swap:
-                if (isSrcTokenChanged || !selectedSrcToken.value || isAccountChanged) {
+                if (isSrcTokenChanged || !selectedSrcToken.value || isAccountChanged)
                     selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
-                }
 
                 if (isDstTokenChangedForSwap || !selectedDstToken.value || isAccountChanged) {
                     params.isSameNet = true;
@@ -195,17 +171,14 @@ export default function useChainTokenManger(moduleType: ModuleType) {
                     selectedDstToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedDstToken.value, params);
                 }
 
-                if (isSameToken.value) {
-                    selectedDstToken.value = null;
-                }
+                if (isSameToken.value) selectedDstToken.value = null;
 
                 break;
 
             case ModuleType.stake:
             case ModuleType.send:
-                if (isSrcTokenChanged || isAccountChanged) {
+                if (isSrcTokenChanged || isAccountChanged)
                     selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
-                }
 
                 break;
 
@@ -267,15 +240,11 @@ export default function useChainTokenManger(moduleType: ModuleType) {
             });
         }
 
-        if (!selectedSrcNetwork.value?.net) {
-            selectedSrcNetwork.value = currentChainInfo.value;
-        }
+        if (!selectedSrcNetwork.value?.net) selectedSrcNetwork.value = currentChainInfo.value;
 
         // * If the ecosystem is different, and the module is not SuperSwap,
         // * then the selected network is reset to the current network
-        if (isDiffEcosystem && !isSuperSwap.value) {
-            selectedSrcNetwork.value = currentChainInfo.value;
-        }
+        if (isDiffEcosystem && !isSuperSwap.value) selectedSrcNetwork.value = currentChainInfo.value;
 
         // * If the ecosystem is different, and the module is Bridge or SuperSwap
         if (!isSuperSwap.value && isDiffEcosystem && isNeedDstNetwork.value && chainList.value?.length && selectedSrcNetwork.value?.net) {
@@ -325,47 +294,32 @@ export default function useChainTokenManger(moduleType: ModuleType) {
         if (!_.isEmpty(newSrc)) {
             selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
 
-            if ([ModuleType.swap].includes(moduleType)) {
+            if ([ModuleType.swap].includes(moduleType))
                 selectedDstToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedDstToken.value, {
                     isSameNet: true,
                     excludeTokens: [selectedSrcToken.value?.id],
-                });
-            }
+                } as any);
         }
 
-        if (!_.isEmpty(newDst)) {
-            selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
-        }
+        if (!_.isEmpty(newDst)) selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
     });
 
     const unWatchSrcDstToken = watch([selectedSrcToken, selectedDstToken], async () => {
-        if (isSameToken.value) {
-            return (selectedDstToken.value = null);
-        }
+        if (isSameToken.value) return (selectedDstToken.value = null);
 
-        if (isSameTokenSameNet.value) {
-            return (selectedDstToken.value = null);
-        }
+        if (isSameTokenSameNet.value) return (selectedDstToken.value = null);
 
-        if (!isSrcTokenSet.value || !isDstTokenSet.value) {
-            return await defaultTokenManagerByModule();
-        }
+        if (!isSrcTokenSet.value || !isDstTokenSet.value) return await defaultTokenManagerByModule();
     });
 
     // ========================= Watch Tokens Loadings for SRC and DST networks =========================
 
     const unWatchLoadingSrc = watch(isTokensLoadingForSrc, async (loadingState, oldLoading) => {
-        if (loadingState && !oldLoading) {
-            return;
-        }
+        if (loadingState && !oldLoading) return;
 
-        if (!loadingState && !isSrcNetworkSet.value) {
-            return;
-        }
+        if (!loadingState && !isSrcNetworkSet.value) return;
 
-        if (!isSrcNetworkSet.value) {
-            return;
-        }
+        if (!isSrcNetworkSet.value) return;
 
         selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
 
@@ -373,30 +327,21 @@ export default function useChainTokenManger(moduleType: ModuleType) {
         //     return (selectedDstToken.value = null);
         // }
 
-        if ([ModuleType.swap].includes(moduleType)) {
+        if ([ModuleType.swap].includes(moduleType))
             selectedDstToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedDstToken.value, {
                 isSameNet: true,
                 excludeTokens: [selectedSrcToken.value?.id],
-            });
-        }
+            } as any);
 
-        if (isSameToken.value) {
-            selectedDstToken.value = null;
-        }
+        if (isSameToken.value) selectedDstToken.value = null;
     });
 
     const unWatchLoadingDst = watch(isTokensLoadingForDst, async (loadingState) => {
-        if (loadingState) {
-            return;
-        }
+        if (loadingState) return;
 
-        if (!selectedDstNetwork.value) {
-            return;
-        }
+        if (!selectedDstNetwork.value) return;
 
-        if (['send', 'swap'].includes(moduleType)) {
-            return;
-        }
+        if (['send', 'swap'].includes(moduleType)) return;
 
         selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
     });
@@ -404,9 +349,7 @@ export default function useChainTokenManger(moduleType: ModuleType) {
     // =================================================================================================================
 
     watch(isConfigLoading, () => {
-        if (!isConfigLoading.value) {
-            chainManagerByModule();
-        }
+        if (!isConfigLoading.value) chainManagerByModule();
     });
 
     onMounted(async () => {

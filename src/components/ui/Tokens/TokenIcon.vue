@@ -30,9 +30,11 @@ export default {
     name: 'TokenIcon',
     props: {
         width: {
+            type: [String, Number],
             default: '32',
         },
         height: {
+            type: [String, Number],
             default: '32',
         },
         token: {
@@ -54,32 +56,25 @@ export default {
             isShowPlaceholder.value = false;
         };
 
+        const shouldShowImage = computed(() => !isShowPlaceholder.value);
+
         onMounted(() => {
-            if (!props.token?.logo) {
-                isShowPlaceholder.value = true;
-            }
+            if (!props.token?.logo) isShowPlaceholder.value = true;
         });
 
         watch(
             () => props.token,
             () => {
-                if (props.token) {
-                    isShowPlaceholder.value = false;
-                }
-
-                if (!props.token?.logo) {
-                    isShowPlaceholder.value = true;
-                }
+                if (props.token) isShowPlaceholder.value = false;
+                if (!props.token?.logo) isShowPlaceholder.value = true;
             },
         );
 
         return {
-            isShowPlaceholder,
+            shouldShowImage,
 
             handleOnLoadImg,
             handleOnErrorImg,
-
-            shouldShowImage: computed(() => !isShowPlaceholder.value),
         };
     },
 };

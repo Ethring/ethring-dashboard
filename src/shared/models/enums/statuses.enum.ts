@@ -9,6 +9,8 @@ export enum STATUSES {
     SKIPPED = 'SKIPPED',
 }
 
+export type STATUS_TYPE = keyof typeof STATUSES;
+
 export enum SHORTCUT_STATUSES {
     SUCCESS = 'SUCCESS',
     FAILED = 'FAILED',
@@ -30,7 +32,7 @@ export enum TRANSACTION_TYPES {
     IBC = 'IBC',
     MINT = 'MINT',
     WRAP = 'WRAP',
-    BUY = 'BUY'
+    BUY = 'BUY',
 }
 
 export type TX_TYPES = keyof typeof TRANSACTION_TYPES;

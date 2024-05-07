@@ -1,17 +1,11 @@
 import { computed } from 'vue';
 import { useStore } from 'vuex';
-import BigNumber from 'bignumber.js';
 
 import BridgeDexService from '@/modules/bridge-dex';
 import { ServiceTypes } from '@/modules/bridge-dex/enums/ServiceType.enum';
 import { Approve, GetApproveTxParams } from '@/modules/bridge-dex/models/Request.type';
 
-import { IQuoteRoute, ErrorResponse } from '@/modules/bridge-dex/models/Response.interface';
-
-import { ECOSYSTEMS } from '@/Adapter/config';
-import useAdapter from '@/Adapter/compositions/useAdapter';
-
-import { AddressByChain, AddressByChainHash } from '@/shared/models/types/Address';
+import { ErrorResponse } from '@/modules/bridge-dex/models/Response.interface';
 
 /**
  *

@@ -90,7 +90,7 @@
     }
 }
 
-.ant-table-expanded-row[style="display: none;"] {
+.ant-table-expanded-row[style='display: none;'] {
     display: table-row !important;
     & .nft-info-container {
         animation: nftCollapse 0.3s ease-in-out forwards;

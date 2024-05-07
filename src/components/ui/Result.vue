@@ -1,5 +1,5 @@
 <template>
-    <a-modal v-model:open="isModalOpen" title="ABS" centered :footer="null" :bodyStyle="{ height: '374px', overflowY: 'overlay' }">
+    <a-modal v-model:open="isModalOpen" title="ABS" centered :footer="null" :body-style="{ height: '374px', overflowY: 'overlay' }">
         <a-result :status="status" class="operation-result">
             <template #title>
                 <span v-html="title"></span>
@@ -13,14 +13,7 @@
 
                         <div class="description">{{ $t('tokenOperations.pendingTransactions') }}</div>
 
-                        <a-tooltip :title="link">
-                            <a :href="link" target="_blank" title="explorer link" class="result-link">
-                                <a-space align="center" :size="4">
-                                    {{ $t('tokenOperations.viewDetails') }}
-                                    <ExternalLinkIcon />
-                                </a-space>
-                            </a>
-                        </a-tooltip>
+                        <ExternalLink :link="link" :text="$t('tokenOperations.viewDetails')" />
                     </template>
                 </div>
             </template>
@@ -32,7 +25,7 @@
             </template>
 
             <template #extra>
-                <Button key="console" title="Done" type="primary" @click="() => handleOnDone(module)" data-qa="operation-done" />
+                <UiButton key="console" title="Done" type="primary" data-qa="operation-done" @click="() => handleOnDone(module)" />
             </template>
         </a-result>
     </a-modal>
@@ -41,13 +34,15 @@
 import { computed } from 'vue';
 import { useStore } from 'vuex';
 
-import Button from '@/components/ui/Button.vue';
-
-import ExternalLinkIcon from '@/assets/icons/module-icons/external-link.svg';
-import CloseIcon from '@/assets/icons/module-icons/wallet-modal-close.svg';
+import UiButton from '@/components/ui/Button.vue';
+import ExternalLink from '@/components/ui/ExternalLink.vue';
 
 export default {
     name: 'Result',
+    components: {
+        UiButton,
+        ExternalLink,
+    },
     props: {
         status: {
             type: String,
@@ -74,12 +69,6 @@ export default {
             type: String,
             default: null,
         },
-    },
-    components: {
-        Button,
-
-        ExternalLinkIcon,
-        CloseIcon,
     },
     setup() {
         const store = useStore();

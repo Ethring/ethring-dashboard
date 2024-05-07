@@ -12,7 +12,7 @@
         </div>
     </a-row>
 
-    <SearchInput placeholder="Search shortcut" class="mt-16" :value="searchInput" @onChange="handleSearchChange" />
+    <SearchInput placeholder="Search shortcut" class="mt-16" :value="searchInput" @on-change="handleSearchChange" />
 
     <a-row align="middle" class="shortcut-tags">
         <div class="shortcut-tags__title">Results for:</div>
@@ -21,7 +21,7 @@
             <span>All</span>
         </div>
 
-        <div class="shortcut-tags__item" v-for="tag in selectedTags" :key="tag">
+        <div v-for="tag in selectedTags" :key="tag" class="shortcut-tags__item">
             <span>{{ tag }}</span>
             <ClearIcon @click="() => removeTag(tag)" />
         </div>
@@ -32,7 +32,7 @@
         </div>
     </a-row>
 
-    <a-row :gutter="[16, 16]" v-if="shortcutList.length" class="shortcut-list">
+    <a-row v-if="shortcutList.length" :gutter="[16, 16]" class="shortcut-list">
         <a-col v-for="(item, i) in shortcutList" :key="`shortcut-${i}`" :md="24" :lg="12">
             <ShortcutItem :item="item" />
         </a-col>

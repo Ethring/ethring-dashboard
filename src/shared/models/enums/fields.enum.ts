@@ -23,7 +23,7 @@ export enum Field {
 
     funds = 'funds',
 
-    slippage ='slippage'
+    slippage = 'slippage',
 }
 
 export enum FieldAttr {

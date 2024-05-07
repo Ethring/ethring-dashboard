@@ -28,9 +28,7 @@ class IndexedDBService {
 
         this.db.version(version).stores(stores);
 
-        if (!this.db.isOpen()) {
-            this.db.open();
-        }
+        if (!this.db.isOpen()) this.db.open();
 
         if (process.env.NODE_ENV === 'development') {
             !window.db && (window.db = {});
@@ -44,10 +42,6 @@ class IndexedDBService {
         this.db.on('populate', () => {
             logger.debug('Database is populated');
         });
-
-        this.db.on('ready', () => {
-            logger.debug('Database is ready');
-        });
     }
 
     // ==============================================================
@@ -55,18 +49,14 @@ class IndexedDBService {
     // ==============================================================
 
     async saveData(key, value) {
-        if (!key) {
-            return;
-        }
+        if (!key) return;
 
         try {
             const existingRecord = await this.db.data.where('key').equals(key).first();
 
             const parsedVal = JSON.parse(JSON.stringify(value));
 
-            if (!existingRecord) {
-                return await this.db.data.put({ key, value: parsedVal });
-            }
+            if (!existingRecord) return await this.db.data.put({ key, value: parsedVal });
 
             return await this.db.data.update(existingRecord.id, { key, value: parsedVal });
         } catch (error) {
@@ -167,24 +157,18 @@ class IndexedDBService {
     }
 
     async getAllObjectFrom(store, key = 'id', value = null, { index = 'id', isArray = false } = {}) {
-        if (!this.db[store]) {
-            return null;
-        }
+        if (!this.db[store]) return null;
 
         try {
             const request = value ? this.db[store].where(key).equals(value).toArray() : this.db[store].toArray();
 
             const response = await request;
 
-            if (isArray) {
-                return response.map((record) => (record?.value ? JSON.parse(record.value) : record));
-            }
+            if (isArray) return response.map((record) => (record?.value ? JSON.parse(record.value) : record));
 
             const responseObj = {};
 
-            for (const item of response) {
-                responseObj[item[index]] = item?.value ? JSON.parse(item.value) : item;
-            }
+            for (const item of response) responseObj[item[index]] = item?.value ? JSON.parse(item.value) : item;
 
             return responseObj;
         } catch (error) {
@@ -194,20 +178,14 @@ class IndexedDBService {
     }
 
     async getDataFrom(store, key) {
-        if (!key) {
-            return null;
-        }
+        if (!key) return null;
 
-        if (!this.db[store]) {
-            return null;
-        }
+        if (!this.db[store]) return null;
 
         try {
             const response = await this.db[store].where('id').equals(key).first();
 
-            if (!response) {
-                return null;
-            }
+            if (!response) return null;
 
             return JSON.parse(response.value);
         } catch (error) {
@@ -217,9 +195,7 @@ class IndexedDBService {
     }
 
     async getData(key) {
-        if (!key) {
-            return null;
-        }
+        if (!key) return null;
 
         try {
             const result = await this.db.data.where('key').equals(key).first();
@@ -234,9 +210,7 @@ class IndexedDBService {
     // ======================= GETTER FOR BALANCES ==============================
     // ==========================================================================
     async getBalancesByType(store, { account, chain, address, type } = {}) {
-        if (!this.db[store]) {
-            return null;
-        }
+        if (!this.db[store]) return null;
 
         try {
             const response = await this.db[store]
@@ -250,9 +224,7 @@ class IndexedDBService {
 
             const [result] = response || [];
 
-            if (!result) {
-                return null;
-            }
+            if (!result) return null;
 
             return JSON.parse(result.value);
         } catch (error) {

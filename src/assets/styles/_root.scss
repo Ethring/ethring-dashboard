@@ -6,13 +6,14 @@
     --#{$prefix}font-family: #{$font-family};
 }
 
-:root, [data-theme="light"] {
+:root,
+[data-theme='light'] {
     @each $color, $value in $theme-colors {
         --#{$prefix}#{$color}: #{$value};
     }
 }
 
-[data-theme="dark"] {
+[data-theme='dark'] {
     @each $color, $value in $theme-colors-dark {
         --#{$prefix}#{$color}: #{$value};
     }

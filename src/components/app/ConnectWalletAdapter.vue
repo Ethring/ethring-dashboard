@@ -13,9 +13,9 @@
 import { onMounted, onUpdated, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
-import useAdapter from '@/Adapter/compositions/useAdapter';
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
-import ConnectToEcosystems from '@/Adapter/UI/Widgets/ConnectToEcosystems';
+import ConnectToEcosystems from '@/core/wallet-adapter/UI/Widgets/ConnectToEcosystems';
 
 export default {
     name: 'ConnectWalletAdapter',
@@ -28,13 +28,9 @@ export default {
         const { walletAccount, isConnecting } = useAdapter();
 
         const redirectToMain = async () => {
-            if (isConnecting.value) {
-                return null;
-            }
+            if (isConnecting.value) return null;
 
-            if (walletAccount.value) {
-                return await router.push('/main');
-            }
+            if (walletAccount.value) return await router.push('/main');
 
             return null;
         };
