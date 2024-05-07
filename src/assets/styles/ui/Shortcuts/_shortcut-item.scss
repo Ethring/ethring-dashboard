@@ -47,6 +47,17 @@
         }
     }
 
+    .icon {
+        @include pageFlexRow;
+        justify-content: center;
+
+        border-radius: 50%;
+
+        width: 40px;
+        height: 40px;
+        background-color: var(--#{$prefix}logo-bg);
+    }
+
     .name {
         margin-left: 8px;
 
@@ -115,6 +126,21 @@
         div {
             color: var(--#{$prefix}base-text);
             font-size: var(--#{$prefix}small-sm-fs);
+        }
+
+        .ecosystem {
+            span {
+                @include pageFlexRow;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            &-logo {
+                width: 16px;
+                height: 16px;
+
+                stroke: var(--#{$prefix}primary-text);
+            }
         }
 
         .amount {

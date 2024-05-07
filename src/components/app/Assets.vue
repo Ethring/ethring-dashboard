@@ -1,6 +1,10 @@
 <template>
     <div class="assets-section">
         <a-collapse v-model:activeKey="collapseActiveKey" expand-icon-position="end" class="assets-block" ghost :bordered="false">
+            <template #expandIcon>
+                <ArrowDownIcon class="arrow" />
+            </template>
+
             <a-collapse-panel key="assets" class="assets-block-panel" data-qa="assets-panel">
                 <template #header>
                     <AssetGroupHeader
@@ -8,7 +12,7 @@
                         title="Tokens"
                         icon="TokensIcon"
                         :value="getAssetsShare(totalAssetsBalances)"
-                        :total-balance="totalAssetsBalances || 0"
+                        :totalBalance="totalAssetsBalances || 0"
                     />
                 </template>
 
@@ -77,6 +81,8 @@ import BigNumber from 'bignumber.js';
 import AssetsTable from './assets/AssetsTable';
 import AssetGroupHeader from './assets/AssetGroupHeader';
 
+import ArrowDownIcon from '@/assets/icons/form-icons/arrow-down.svg';
+
 import { getFormattedName } from '@/shared/utils/assets';
 
 export default {
@@ -84,6 +90,8 @@ export default {
     components: {
         AssetGroupHeader,
         AssetsTable,
+
+        ArrowDownIcon,
     },
     setup() {
         const store = useStore();

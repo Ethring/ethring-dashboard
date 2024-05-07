@@ -1,3 +1,4 @@
+import { capitalize } from 'lodash';
 import { computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 
@@ -16,8 +17,6 @@ import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum'
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 
 import { captureTransactionException } from '@/app/modules/sentry';
-
-import { capitalize } from 'lodash';
 
 import logger from '@/shared/logger';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';

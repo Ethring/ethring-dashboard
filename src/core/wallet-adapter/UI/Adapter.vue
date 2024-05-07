@@ -42,7 +42,7 @@ export default {
 <style lang="scss" scoped>
 .wallet-adapter-container {
     position: relative;
-    max-width: 360px;
+    max-width: 300px;
 
     width: 100%;
 
