@@ -36,9 +36,30 @@ export const COSMOS_WALLETS_BY_EMPTY_WALLET = {
     terra2: 'terra1tguy55gz22u6qet4pv9jrfjpx79ycg4l5g6hcw',
 };
 
-export const MetaMaskDirPath = path.resolve(process.cwd(), 'data', `metamask-chrome-${getTestVar(TEST_CONST.MM_VERSION)}`);
+export const COSMOS_WALLET_BY_SHORTCUT = {
+    cosmoshub: 'cosmos14urxph3lj0zpfks6psw5ynppwtcc6766kcc26x',
+    crescent: 'cre14urxph3lj0zpfks6psw5ynppwtcc6766jst00t',
+    juno: 'juno14urxph3lj0zpfks6psw5ynppwtcc6766q2m3a6',
+    mars: 'mars14urxph3lj0zpfks6psw5ynppwtcc6766t9pn0a',
+    osmosis: 'osmo14urxph3lj0zpfks6psw5ynppwtcc67667rt6v5',
+    stargaze: 'stars14urxph3lj0zpfks6psw5ynppwtcc6766zy0h3h',
+    injective: 'inj16qq4ypy9sqtprftcvajjehcwn7vpwwtkhnhq02',
+    terra2: 'terra1r8qy45w9gwdchdhrepa8jacq3j8tpzvh7du40j',
+};
 
-export const KeplrDirPath = path.resolve(process.cwd(), 'data', `keplr-extension-manifest-v2-v${getTestVar(TEST_CONST.KEPLR_VERSION)}`);
+export const MetaMaskDirPath = path.resolve(
+    process.cwd(),
+    'tests',
+    'extensions-data',
+    `metamask-chrome-${getTestVar(TEST_CONST.MM_VERSION)}`,
+);
+
+export const KeplrDirPath = path.resolve(
+    process.cwd(),
+    'tests',
+    'extensions-data',
+    `keplr-extension-manifest-v2-v${getTestVar(TEST_CONST.KEPLR_VERSION)}`,
+);
 
 export enum DATA_QA_LOCATORS {
     SELECT_NETWORK = 'select-network',
@@ -50,6 +71,7 @@ export enum DATA_QA_LOCATORS {
     SIDEBAR_SWAP = 'sidebar-item-swap',
     SIDEBAR_BRIDGE = 'sidebar-item-bridge',
     SIDEBAR_SUPER_SWAP = 'sidebar-item-superSwap',
+    SIDEBAR_SHORTCUT = 'sidebar-item-shortcut',
     DASHBOARD = 'dashboard',
     CONTENT = 'content',
     RECORD_MODAL = 'select-record-modal',
@@ -64,8 +86,8 @@ export enum DATA_QA_LOCATORS {
     ITEM = 'item',
     ROUTE_INFO = 'estimate-info',
     SLIPPAGE_ICON = 'slippage-icon',
-    SLIPPAGE_CUSTOM = "slippage-custom",
-    SLIPPAGE_CUSTOM_INPUT = "slippage-custom-input"
+    SLIPPAGE_CUSTOM = 'slippage-custom',
+    SLIPPAGE_CUSTOM_INPUT = 'slippage-custom-input',
 }
 
 export enum IGNORED_LOCATORS {
@@ -78,7 +100,17 @@ export enum IGNORED_LOCATORS {
     TOKEN_ICON_2 = 'div.token-icon > img[alt="Wrapped Bitcoin"]',
     TOKEN_ICON_3 = 'div.token-icon > img[alt="Polygon"]',
     TOKEN_ICON_4 = 'div.token-icon > img[alt="Stader MaticX"]',
-    TRANSACTION_PROGRESS = 'div.notification-progress-line'
+    TRANSACTION_PROGRESS = 'div.notification-progress-line',
+}
+
+export enum URL_MOCK_PATTERNS {
+    MOCK_SWAP = '**/services/dex/getQuote**',
+    MOCK_BRIDGE = '**/services/bridgedex/getQuote**',
 }
 
 export const MEMO_BY_KEPLR_TEST = '105371789';
+
+export enum METAMASK_DEFAULT_URL_NODE {
+    BSC = 'https://bsc.publicnode.com/',
+    POLYGON = 'https://polygon-rpc.com/',
+}

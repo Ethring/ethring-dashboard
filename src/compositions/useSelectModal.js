@@ -42,6 +42,18 @@ export default function useSelectModal(type) {
         return excludeChains || [];
     });
 
+    // TODO: Add also for exclude tokens
+    // TODO: Add also for include chains
+    const includeTokenList = computed(() => {
+        const { includeTokens = {} } = CurrentOperation.value || {};
+
+        if (includeTokens[selectedSrcNetwork.value?.net]) {
+            return includeTokens[selectedSrcNetwork.value?.net];
+        }
+
+        return [];
+    });
+
     const { chainList, getChainListByEcosystem } = useAdapter();
     const { getTokensList } = useTokenList();
 
@@ -232,6 +244,8 @@ export default function useSelectModal(type) {
                 onlyWithBalance: isFromSelect.value,
                 exclude,
             });
+
+            if (includeTokenList.value.length) tokens.value = tokens.value.filter((token) => includeTokenList.value.includes(token.id));
 
             store.dispatch('app/setLoadingTokenList', false);
         }

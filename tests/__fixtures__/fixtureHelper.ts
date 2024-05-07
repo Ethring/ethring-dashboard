@@ -1,9 +1,7 @@
-import path from 'path';
-
 import { BrowserContext } from '@playwright/test';
-import { MetaMaskHomePage, MetaMaskNotifyPage, getNotifyMmPage, metamaskVersion } from '../model/MetaMask/MetaMask.pages';
-import { KeplrHomePage, KeplrNotifyPage, getNotifyKeplrPage, keplrVersion } from '../model/Keplr/Keplr.pages';
-import { EVM_NETWORKS } from '../data/constants';
+import { MetaMaskHomePage, MetaMaskNotifyPage, getNotifyMmPage } from '../model/MetaMask/MetaMask.pages';
+import { KeplrHomePage, KeplrNotifyPage, getNotifyKeplrPage } from '../model/Keplr/Keplr.pages';
+import { COSMOS_WALLETS_BY_EMPTY_WALLET, EVM_NETWORKS, KeplrDirPath, MetaMaskDirPath } from '../data/constants';
 import mockTokensListData from '../data/mockTokensListData';
 import { BasePage, DashboardPage } from '../model/VueApp/base.pages';
 import {
@@ -11,6 +9,7 @@ import {
     errorGetBalanceMockData,
     marketCapNativeEvmTokens,
     mockBalanceCosmosWallet,
+    mockBalanceData,
     mockBalanceDataBySendTest,
     mockBalanceDataBySwapTest,
 } from '../data/mockHelper';
@@ -36,11 +35,11 @@ const closeEmptyPages = async (context: BrowserContext) => {
 };
 
 export const getPathToMmExtension = () => {
-    return path.join(process.cwd(), `/data/metamask-chrome-${metamaskVersion}`);
+    return MetaMaskDirPath;
 };
 
 export const getPathToKeplrExtension = () => {
-    return path.join(process.cwd(), `/data/keplr-extension-manifest-v2-v${keplrVersion}`);
+    return KeplrDirPath;
 };
 
 export const addWalletToMm = async (context: BrowserContext, seed: string, indexMmHomePage = 0) => {
@@ -225,4 +224,53 @@ export const confirmConnectKeplrWallet = async (context: BrowserContext, page: B
     await notifyKeplr.assignPage();
 
     await page.waitMainElementVisible();
+};
+
+//======================================= KEPLR  AND MM LOGIN STUFF =======================================
+
+export const authByKeplerAndMmBalanceMock = async (
+    context: BrowserContext,
+    ethAddress: string,
+    ethSeed: string,
+    cosmosAddressesDict: Object,
+    cosmosSeed: string,
+) => {
+    await addWalletToKeplr(context, cosmosSeed);
+    await addWalletToMm(context, ethSeed, 1);
+
+    const zometPage = new BasePage(await context.newPage());
+    await zometPage.goToPage();
+
+    await context.pages()[0].close();
+
+    // Mock all EVM balance request
+    await Promise.all(EVM_NETWORKS.map((network) => zometPage.mockBalanceRequest(network, mockBalanceData[network], ethAddress)));
+
+    // Create promise by all EMV balance request
+    const evmBalanceRequestPromise = Promise.all(
+        EVM_NETWORKS.map((network) => zometPage.page.waitForResponse(`**/srv-data-provider/api/balances?net=${network}**`)),
+    );
+
+    // Mock all COSMOS balance request
+    await Promise.all(
+        Object.keys(cosmosAddressesDict).map((network) =>
+            zometPage.mockBalanceRequest(network, mockBalanceCosmosWallet[network], cosmosAddressesDict[network]),
+        ),
+    );
+
+    // Create promise by all COSMOS balance request
+    const cosmosBalancePromise = Promise.all(
+        Object.keys(COSMOS_WALLETS_BY_EMPTY_WALLET).map((network) =>
+            zometPage.page.waitForResponse(`**/srv-data-provider/api/balances?net=${network}**`),
+        ),
+    );
+
+    await zometPage.clickLoginByMetaMask();
+    await confirmConnectMmWallet(context, zometPage);
+    await zometPage.clickLoginByKeplr();
+    await confirmConnectKeplrWallet(context, zometPage);
+
+    await evmBalanceRequestPromise;
+    await cosmosBalancePromise;
+    return zometPage;
 };

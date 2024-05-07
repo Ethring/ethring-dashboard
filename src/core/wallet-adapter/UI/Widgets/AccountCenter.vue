@@ -147,6 +147,10 @@ export default {
             font-size: var(--#{$prefix}small-lg-fs);
             font-weight: 500;
             color: var(--#{$prefix}primary-text);
+
+            text-overflow: ellipsis;
+            overflow: hidden;
+            max-width: 160px;
         }
 
         .ecosystem {
