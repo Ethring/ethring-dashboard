@@ -45,11 +45,11 @@
                                         </div>
                                     </template>
 
-                                    <template #title> {{ item.type }} </template>
+                                    <template #title> {{ item.name }} </template>
 
                                     <template #description>
                                         <div class="success-shortcut-tokens-group">
-                                            <template v-if="item.tokens.from">
+                                            <template v-if="item.tokens.from.symbol">
                                                 <div class="success-shortcut-tokens-group-item">
                                                     <TokenIcon :token="item.tokens.from" :width="16" :height="16" />
                                                     <Amount
@@ -59,7 +59,7 @@
                                                     />
                                                 </div>
                                             </template>
-                                            <template v-if="item.tokens.to">
+                                            <template v-if="item.tokens.to.symbol">
                                                 <div class="success-shortcut-tokens-group-item">
                                                     <span class="divider">~</span>
                                                     <TokenIcon :token="item.tokens.to" :width="16" :height="16" />
@@ -181,6 +181,7 @@ export default defineComponent({
             }
 
             results.value = opResults as IOperationsResult[];
+
             isLoading.value = false;
         });
 

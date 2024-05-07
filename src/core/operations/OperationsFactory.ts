@@ -66,6 +66,7 @@ export default class OperationFactory implements IOperationFactory {
         options?: { id?: string; name?: string; before?: string; after?: string; make?: string },
     ): IRegisterOperation | null {
         const { name = null, before = null, after = null, make } = options || {};
+        console.log(options, '--options');
 
         let { id = null } = options || {};
 
@@ -615,6 +616,7 @@ export default class OperationFactory implements IOperationFactory {
 
             result.push({
                 type,
+                name: this.getOperationByKey(op).getName(),
                 status: this.getOperationsStatusByKey(op) as keyof typeof STATUSES,
                 ecosystem: this.getOperationByKey(op).getEcosystem(),
                 chainId: this.getOperationByKey(op).getChainId(),

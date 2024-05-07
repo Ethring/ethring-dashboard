@@ -17,7 +17,7 @@ let web3Onboard: any = null;
 const ABI_BY_NAME = {
     DEFAULT: BASE_ABI,
     SILO_EXECUTOR: SILO_EXECUTE_ABI,
-    BEEFY_DEPOSIT: BEEFY_DEPOSIT_ABI
+    BEEFY_DEPOSIT: BEEFY_DEPOSIT_ABI,
 } as { [key: string]: any };
 
 const STORAGE = {

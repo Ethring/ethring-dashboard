@@ -119,6 +119,7 @@ $neutral-text: $stormGrey;
 $base-amount-text: $ebonyClay;
 $description-text: $paleSky;
 $currency-text: $paleSky;
+$details-text: $trout;
 
 $neutral-gray: $stormGrey;
 $neutral-gray-100: rgba($neutral-gray, 0.3);
@@ -194,7 +195,7 @@ $select-item-color: $ebonyClay;
 $select-item-active-color: $ebonyClay;
 $select-placeholder-text: $gulfStream;
 
-$select-border-color: $gulfStream;
+$select-border-color: 'transparent';
 $select-active-border-color: $surfieGreen;
 $select-active-bg-color: $iceberg;
 $select-icon-color: $gulfStream;
@@ -336,6 +337,7 @@ $theme-colors: (
     'base-amount-text': $base-amount-text,
     'description-text': $description-text,
     'currency-text': $currency-text,
+    'details-text': $details-text,
 
     'neutral-gray': $neutral-gray,
     'neutral-gray-100': $neutral-gray-100,

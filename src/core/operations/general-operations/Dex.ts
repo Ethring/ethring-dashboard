@@ -73,9 +73,7 @@ export default class DexOperation extends BaseOperation {
 
         const serviceId = this.getParamByField('serviceId');
 
-        if (this.params.toToken?.address) {
-            this.params.toToken = this.params.toToken?.address;
-        }
+        if (this.params.toToken?.address) this.params.toToken = this.params.toToken?.address;
 
         const { best = null, routes } = (await this.service.callMethod('getQuote', this.params)) as IQuoteRoutes;
 

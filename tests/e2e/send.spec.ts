@@ -94,10 +94,10 @@ testMetaMask.describe('MetaMask Send e2e tests', () => {
             );
 
             await expect(sendPageCoingeckoMockRejectTest.getBaseContentElement()).toHaveScreenshot();
-            // TODO нужен тест на отправку НЕ нативного токена (например USDC)
-            // TODO нужен тест когда отменяем переключение сети ММ (скрином проверять текст ошибки)
         },
     );
+    // TODO нужен тест на отправку НЕ нативного токена (например USDC)
+    // TODO нужен тест когда отменяем переключение сети ММ (скрином проверять текст ошибки)
 
     // this test was actual when we use handler by change wallet in MM
     testMetaMask.skip('Case#: Checking the token change when changing the network via MM', async ({ browser, context, page, sendPage }) => {

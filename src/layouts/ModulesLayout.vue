@@ -139,6 +139,10 @@ export default {
             callResetToDefaultValues();
         });
 
+        watch(operationResult, () => {
+            store.dispatch('app/toggleModal', 'txResultModal');
+        });
+
         return {
             currentChainInfo,
             operationResult,
