@@ -1,27 +1,18 @@
 <template>
-    <KeepAlive>
-        <div class="assets-section">
-            <a-collapse v-model:activeKey="collapseActiveKey" expand-icon-position="end" class="assets-block" ghost :bordered="false">
-                <template #expandIcon>
-                    <ArrowDownIcon class="arrow" />
-                </template>
+    <div class="assets-section">
+        <a-collapse v-model:activeKey="collapseActiveKey" expand-icon-position="end" class="assets-block" ghost :bordered="false">
+            <template #expandIcon>
+                <ArrowDownIcon class="arrow" />
+            </template>
 
-                <a-collapse-panel key="assets" class="assets-block-panel" data-qa="assets-panel">
-                    <template #header>
-                        <AssetGroupHeader
-                            class="assets-section__group-header"
-                            title="Tokens"
-                            icon="TokensIcon"
-                            :value="getAssetsShare(totalAssetsBalances)"
-                            :totalBalance="totalAssetsBalances || 0"
-                        />
-                    </template>
-
-                    <AssetsTable
-                        type="Asset"
-                        :data="allTokensInAccount"
-                        :columns="[DEFAULT_NAME_COLUMN, ...DEFAULT_COLUMNS]"
-                        :loading="isLoadingByAccount || isLoadingForChain"
+            <a-collapse-panel key="assets" class="assets-block-panel" data-qa="assets-panel">
+                <template #header>
+                    <AssetGroupHeader
+                        class="assets-section__group-header"
+                        title="Tokens"
+                        icon="TokensIcon"
+                        :value="getAssetsShare(totalAssetsBalances)"
+                        :totalBalance="totalAssetsBalances || 0"
                     />
                 </template>
 
@@ -136,7 +127,7 @@ export default {
         // ===================== Total Balances =====================
         const totalBalances = computed(() => store.getters['tokens/getTotalBalanceByType'](targetAccount.value, 'totalBalances') || 0);
         const totalAssetsBalances = computed(
-            () => store.getters['tokens/getTotalBalanceByType'](targetAccount.value, 'assetsBalances') || 0
+            () => store.getters['tokens/getTotalBalanceByType'](targetAccount.value, 'assetsBalances') || 0,
         );
 
         const isEmpty = computed(() => {
