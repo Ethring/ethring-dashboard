@@ -1,6 +1,6 @@
 <template>
     <div class="loading-overlay" :class="{ active: spinning }">
-        <LogoLoading :tip="tip" :spinning="spinning" :overlay="overlay" />
+        <LogoLoading :tip="tip" :spinning="spinning" />
     </div>
 </template>
 <script>
@@ -8,6 +8,9 @@ import LogoLoading from './LogoLoading.vue';
 
 export default {
     name: 'LoadingOverlay',
+    components: {
+        LogoLoading,
+    },
     props: {
         spinning: {
             type: Boolean,
@@ -17,19 +20,10 @@ export default {
             type: String,
             default: 'dashboard.connecting',
         },
-        overlay: {
-            type: Boolean,
-            default: false,
-        },
-    },
-    components: {
-        LogoLoading,
     },
 };
 </script>
 <style lang="scss">
-@import '../../assets/styles/index.scss';
-
 .loading-overlay {
     @include pageFlexRow;
     justify-content: center;

@@ -2,8 +2,8 @@
     "compilerOptions": {
         "baseUrl": ".",
         "paths": {
-            "@/*": [
-                "src/*"
+            "@/composition/*": [
+                "src/composition/*"
             ],
             "@/components/*": [
                 "src/components/*"
@@ -11,6 +11,20 @@
             "@/assets/*": [
                 "src/assets/*"
             ],
-        }
-    }
+            "@/core/*": [
+                "src/core/*"
+            ],
+            "@/*": [
+                "src/*"
+            ],
+        },
+        "allowJs": true,
+    },
+    "include": [
+        "src/**/*.js",
+        "src/**/*.jsx",
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "src/**/*.vue",
+    ],
 }

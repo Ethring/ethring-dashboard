@@ -26,7 +26,7 @@ $trout: #494c56;
 $mineralGreen: #486060;
 $gulfStream: #73b1b1;
 $aquamarine: #97ffd0;
-$geyser: #C9E0E0;
+$geyser: #c9e0e0;
 $pizazz: #f69502;
 $green: #04b600;
 $cyan: #02e7f6;
@@ -56,7 +56,7 @@ $gradient-dark-green: linear-gradient(198.01deg, #00bf57 0.44%, #005f91 108.3%);
 
 $black-op-085: rgba(0, 0, 0, 0.85);
 $black-op-02: rgba(0, 0, 0, 0.2);
-$white-op-075: #0c0d18BF;
+$white-op-075: #0c0d18bf;
 
 //  ===========================================================================
 //  COLORS MAP
@@ -174,7 +174,7 @@ $select-disabled-border-color: $blackGray;
 // Accordion
 $accordion-bg-color: $charade;
 $accordion-label-color: $geyser;
-$accordion-border-color: "transparent";
+$accordion-border-color: 'transparent';
 $accordion-title: $white;
 
 // Collapse
@@ -239,7 +239,7 @@ $modal-item-text: $ebonyClay;
 // Search
 $search-bg-color: $ebonyClay;
 
-$block-box-shadow: "transparent";
+$block-box-shadow: 'transparent';
 $loader-border-color: $ficus;
 
 $theme-switcher-color: $gulfStream;
@@ -265,117 +265,117 @@ $radio-btn-bg-color: $gulfStream;
 //  ===========================================================================
 
 $theme-colors-dark: (
-    "primary": $primary,
+    'primary': $primary,
 
-    "main-background": $main-background,
-    "secondary-background": $secondary-background,
+    'main-background': $main-background,
+    'secondary-background': $secondary-background,
 
-    "banner-color": $banner-color,
-    "banner-logo-color": $banner-logo-color,
-    "banner-secondary-color": $banner-secondary-color,
+    'banner-color': $banner-color,
+    'banner-logo-color': $banner-logo-color,
+    'banner-secondary-color': $banner-secondary-color,
 
-    "eye-logo": $eye-logo,
-    "eye-logo-hover": $eye-logo-hover,
+    'eye-logo': $eye-logo,
+    'eye-logo-hover': $eye-logo-hover,
 
-    "sub-text": $sub-text,
-    "notification-text": $notification-text,
-    "mute-text": $mute-text,
-    "base-text": $base-text,
-    "sidebar-text": $sidebar-text,
-    "primary-text": $primary-text,
-    "secondary-text": $secondary-text,
-    "symbol-text": $symbol-text,
-    "mute-apr-text": $mute-apr-text,
-    "amount-text": $amount-text,
-    "input-disabled-text": $input-disabled-text,
-    "balance-text": $balance-text,
-    "unlock-text": $unlock-text,
-    "neutral-text": $neutral-text,
-    "base-amount-text": $base-amount-text,
-    "description-text": $description-text,
-    "currency-text": $currency-text,
-    "details-text": $details-text,
+    'sub-text': $sub-text,
+    'notification-text': $notification-text,
+    'mute-text': $mute-text,
+    'base-text': $base-text,
+    'sidebar-text': $sidebar-text,
+    'primary-text': $primary-text,
+    'secondary-text': $secondary-text,
+    'symbol-text': $symbol-text,
+    'mute-apr-text': $mute-apr-text,
+    'amount-text': $amount-text,
+    'input-disabled-text': $input-disabled-text,
+    'balance-text': $balance-text,
+    'unlock-text': $unlock-text,
+    'neutral-text': $neutral-text,
+    'base-amount-text': $base-amount-text,
+    'description-text': $description-text,
+    'currency-text': $currency-text,
+    'details-text': $details-text,
 
-    "assets-border-color": $assets-border-color,
-    "assets-header-border-color": $assets-header-border-color,
+    'assets-border-color': $assets-border-color,
+    'assets-header-border-color': $assets-header-border-color,
 
-    "adapter-label-text": $adapter-label-text,
-    "adapter-value-text": $adapter-value-text,
-    "adapter-ecosystem-border-color": $adapter-ecosystem-border-color,
-    "adapter-ecosystem-color": $adapter-ecosystem-color,
-    "adapter-ecosystem-connect-hover": $adapter-ecosystem-connect-hover,
-    "adapter-logo-main-color": $adapter-logo-main-color,
-    "adapter-logo-base-color": $adapter-logo-base-color,
-    "adapter-logo-secondary-color": $adapter-logo-secondary-color,
-    "adapter-connected-border-color": $adapter-connected-border-color,
-    "adapter-connected-icon-color": $adapter-connected-icon-color,
-    "adapter-secondary-border-color": $adapter-secondary-border-color,
-    "adapter-modal-close-color": $adapter-modal-close-color,
-    "adapter-more-option": $adapter-more-option,
-    "adapter-not-connected-bg": $adapter-not-connected-bg,
-    "adapter-not-connected-icon": $adapter-not-connected-icon,
-    "adapter-hover-color": $adapter-hover-color,
+    'adapter-label-text': $adapter-label-text,
+    'adapter-value-text': $adapter-value-text,
+    'adapter-ecosystem-border-color': $adapter-ecosystem-border-color,
+    'adapter-ecosystem-color': $adapter-ecosystem-color,
+    'adapter-ecosystem-connect-hover': $adapter-ecosystem-connect-hover,
+    'adapter-logo-main-color': $adapter-logo-main-color,
+    'adapter-logo-base-color': $adapter-logo-base-color,
+    'adapter-logo-secondary-color': $adapter-logo-secondary-color,
+    'adapter-connected-border-color': $adapter-connected-border-color,
+    'adapter-connected-icon-color': $adapter-connected-icon-color,
+    'adapter-secondary-border-color': $adapter-secondary-border-color,
+    'adapter-modal-close-color': $adapter-modal-close-color,
+    'adapter-more-option': $adapter-more-option,
+    'adapter-not-connected-bg': $adapter-not-connected-bg,
+    'adapter-not-connected-icon': $adapter-not-connected-icon,
+    'adapter-hover-color': $adapter-hover-color,
 
-    "checkbox-text": $checkbox-text,
-    "checkbox-disabled-text": $checkbox-disabled-text,
-    "checkbox-checked": $checkbox-checked,
-    "checkbox-bg-color": $checkbox-bg-color,
-    "checkbox-disabled": $checkbox-disabled,
-    "checkbox-border": $checkbox-border,
-    "checkbox-border-checked": $checkbox-border-checked,
+    'checkbox-text': $checkbox-text,
+    'checkbox-disabled-text': $checkbox-disabled-text,
+    'checkbox-checked': $checkbox-checked,
+    'checkbox-bg-color': $checkbox-bg-color,
+    'checkbox-disabled': $checkbox-disabled,
+    'checkbox-border': $checkbox-border,
+    'checkbox-border-checked': $checkbox-border-checked,
 
-    "border-color": $border-color,
-    "border-secondary-color": $border-secondary-color,
-    "border-color-op-05": $border-color-op-05,
-    "social-border-color": $social-border-color,
-    "info-border-color": $info-border-color,
+    'border-color': $border-color,
+    'border-secondary-color': $border-secondary-color,
+    'border-color-op-05': $border-color-op-05,
+    'social-border-color': $social-border-color,
+    'info-border-color': $info-border-color,
 
-    "btn-text-color": $btn-text-color,
-    "btn-text-hover": $btn-text-hover,
-    "btn-bg-color-hover": $btn-bg-color-hover,
-    "btn-secondary-hover": $btn-secondary-hover,
-    "btn-bg-color": $btn-bg-color,
-    "btn-disabled": $btn-disabled,
-    "btn-disabled-text": $btn-disabled-text,
-    "btn-disabled-icon": $btn-disabled-icon,
-    "swap-btn-bg-color": $swap-btn-bg-color,
-    "small-btn-bg-color": $small-btn-bg-color,
-    "base-btn-bg-color": $base-btn-bg-color,
+    'btn-text-color': $btn-text-color,
+    'btn-text-hover': $btn-text-hover,
+    'btn-bg-color-hover': $btn-bg-color-hover,
+    'btn-secondary-hover': $btn-secondary-hover,
+    'btn-bg-color': $btn-bg-color,
+    'btn-disabled': $btn-disabled,
+    'btn-disabled-text': $btn-disabled-text,
+    'btn-disabled-icon': $btn-disabled-icon,
+    'swap-btn-bg-color': $swap-btn-bg-color,
+    'small-btn-bg-color': $small-btn-bg-color,
+    'base-btn-bg-color': $base-btn-bg-color,
 
-    "select-bg-color": $select-bg-color,
-    "select-secondary-bg-color": $select-secondary-bg-color,
-    "select-dropdown-bg-color": $select-dropdown-bg-color,
-    "select-item-color": $select-item-color,
-    "select-item-secondary-color": $select-item-secondary-color,
-    "select-item-active-color": $select-item-active-color,
-    "select-label-color": $select-label-color,
-    "select-border-color": $select-border-color,
-    "select-active-border-color": $select-active-border-color,
-    "select-active-bg-color": $select-active-bg-color,
-    "select-icon-color": $select-icon-color,
-    "select-icon-bg-color": $select-icon-bg-color,
-    "select-placeholder-text": $select-placeholder-text,
-    "select-symbol-text": $select-symbol-text,
-    "selected-bg-color": $selected-bg-color,
+    'select-bg-color': $select-bg-color,
+    'select-secondary-bg-color': $select-secondary-bg-color,
+    'select-dropdown-bg-color': $select-dropdown-bg-color,
+    'select-item-color': $select-item-color,
+    'select-item-secondary-color': $select-item-secondary-color,
+    'select-item-active-color': $select-item-active-color,
+    'select-label-color': $select-label-color,
+    'select-border-color': $select-border-color,
+    'select-active-border-color': $select-active-border-color,
+    'select-active-bg-color': $select-active-bg-color,
+    'select-icon-color': $select-icon-color,
+    'select-icon-bg-color': $select-icon-bg-color,
+    'select-placeholder-text': $select-placeholder-text,
+    'select-symbol-text': $select-symbol-text,
+    'selected-bg-color': $selected-bg-color,
 
-    "select-disabled-bg-color": $select-disabled-bg-color,
-    "select-disabled-border-color": $select-disabled-border-color,
+    'select-disabled-bg-color': $select-disabled-bg-color,
+    'select-disabled-border-color': $select-disabled-border-color,
 
-    "accordion-bg-color": $accordion-bg-color,
-    "accordion-label-color": $accordion-label-color,
-    "accordion-border-color": $accordion-border-color,
-    "accordion-title": $accordion-title,
+    'accordion-bg-color': $accordion-bg-color,
+    'accordion-label-color': $accordion-label-color,
+    'accordion-border-color': $accordion-border-color,
+    'accordion-title': $accordion-title,
 
-    "collapse-border-color": $collapse-border-color,
+    'collapse-border-color': $collapse-border-color,
 
-    "icon-color": $icon-color,
-    "icon-active": $icon-active,
-    "icon-hover": $icon-hover,
-    "icon-disabled": $icon-disabled,
-    "icon-border": $icon-border,
-    "icon-bg-color": $icon-bg-color,
-    "token-primary-icon-color": $token-primary-icon-color,
-    "token-secondary-icon-color": $token-secondary-icon-color,
+    'icon-color': $icon-color,
+    'icon-active': $icon-active,
+    'icon-hover': $icon-hover,
+    'icon-disabled': $icon-disabled,
+    'icon-border': $icon-border,
+    'icon-bg-color': $icon-bg-color,
+    'token-primary-icon-color': $token-primary-icon-color,
+    'token-secondary-icon-color': $token-secondary-icon-color,
 
     "icon-logo-bg-color": $icon-logo-bg-color,
     "icon-logo-bg-hover": $icon-logo-bg-hover,
@@ -385,58 +385,58 @@ $theme-colors-dark: (
     "base-icon-color": $base-icon-color,
     "logo-bg": $logo-bg,
 
-    "icon-placeholder": $icon-placeholder,
-    "icon-placeholder-border": $icon-placeholder-border,
+    'icon-placeholder': $icon-placeholder,
+    'icon-placeholder-border': $icon-placeholder-border,
 
-    "search-bg-color": $search-bg-color,
+    'search-bg-color': $search-bg-color,
 
-    "success": $success,
-    "success-op-01": $success-op-01,
+    'success': $success,
+    'success-op-01': $success-op-01,
 
-    "danger": $danger,
-    "danger-op-01": $danger-op-01,
-    "danger-color": $danger-color,
+    'danger': $danger,
+    'danger-op-01': $danger-op-01,
+    'danger-color': $danger-color,
 
-    "warning": $warning,
-    "warning-op-01": $warning-op-01,
+    'warning': $warning,
+    'warning-op-01': $warning-op-01,
 
-    "info": $info,
-    "info-op-01": $info-op-01,
+    'info': $info,
+    'info-op-01': $info-op-01,
 
-    "sidebar-active-color": $sidebar-active-color,
+    'sidebar-active-color': $sidebar-active-color,
 
-    "white": $white,
-    "black": $black,
+    'white': $white,
+    'black': $black,
 
-    "modal-bg-color": $modal-bg-color,
-    "modal-content-bg-color": $modal-content-bg-color,
-    "modal-block-bg-color": $modal-block-bg-color,
-    "modal-active-block-bg-color": $modal-active-block-bg-color,
-    "modal-block-text": $modal-block-text,
-    "modal-item-text": $modal-item-text,
-    "block-box-shadow": $block-box-shadow,
-    "loader-border-color": $loader-border-color,
-    "nav-bar-bg-color": $nav-bar-bg-color,
+    'modal-bg-color': $modal-bg-color,
+    'modal-content-bg-color': $modal-content-bg-color,
+    'modal-block-bg-color': $modal-block-bg-color,
+    'modal-active-block-bg-color': $modal-active-block-bg-color,
+    'modal-block-text': $modal-block-text,
+    'modal-item-text': $modal-item-text,
+    'block-box-shadow': $block-box-shadow,
+    'loader-border-color': $loader-border-color,
+    'nav-bar-bg-color': $nav-bar-bg-color,
 
-    "theme-switcher-color": $theme-switcher-color,
-    "percentage-bar-bg-color": $percentage-bar-bg-color,
-    "percentage-bar-100": $percentage-bar-100,
-    "percentage-bar-75": $percentage-bar-75,
-    "percentage-bar-50": $percentage-bar-50,
-    "percentage-bar-25": $percentage-bar-25,
+    'theme-switcher-color': $theme-switcher-color,
+    'percentage-bar-bg-color': $percentage-bar-bg-color,
+    'percentage-bar-100': $percentage-bar-100,
+    'percentage-bar-75': $percentage-bar-75,
+    'percentage-bar-50': $percentage-bar-50,
+    'percentage-bar-25': $percentage-bar-25,
 
-    "tag-01": $tag-01,
-    "tag-02": $tag-02,
-    "tag-03": $tag-03,
-    "tag-selected": $tag-selected,
+    'tag-01': $tag-01,
+    'tag-02': $tag-02,
+    'tag-03': $tag-03,
+    'tag-selected': $tag-selected,
 
-    "card-bg-color": $card-bg-color,
-    "card-btn-bg-color": $card-btn-bg-color,
-    "card-tag-bg-color": $card-tag-bg-color,
-    "card-btn-secondary-color": $card-btn-secondary-color,
+    'card-bg-color': $card-bg-color,
+    'card-btn-bg-color': $card-btn-bg-color,
+    'card-tag-bg-color': $card-tag-bg-color,
+    'card-btn-secondary-color': $card-btn-secondary-color,
 
-    "shortcut-step-success": $shortcut-step-success,
+    'shortcut-step-success': $shortcut-step-success,
 
-    "radio-btn-bg-color": $radio-btn-bg-color,
-    "white-op-075": $white-op-075,
+    'radio-btn-bg-color': $radio-btn-bg-color,
+    'white-op-075': $white-op-075,
 );

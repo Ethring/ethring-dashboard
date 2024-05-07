@@ -5,9 +5,9 @@
         <a-input-group compact class="input-group">
             <div
                 data-qa="select-token"
-                @click="() => $emit('clickToken')"
                 class="input-group__select-token"
                 :class="{ disabled: disabledSelect }"
+                @click="() => $emit('clickToken')"
             >
                 <template v-if="isTokenLoading">
                     <a-space>
@@ -38,6 +38,7 @@
             <a-input
                 v-else
                 v-model:value="amount"
+                v-debounce:1s="onInput"
                 type="text"
                 data-qa="input-amount"
                 class="base-input input-balance"
@@ -45,7 +46,6 @@
                 :bordered="false"
                 :placeholder="placeholder"
                 :disabled="disabled"
-                v-debounce:1s="onInput"
                 @focus="focused = true"
                 @blur="onBlur"
             />
@@ -54,7 +54,7 @@
         <div class="balance-info" :class="{ disabled, disabled: disabledSelect, error }">
             <div class="balance-value">
                 <a-skeleton-input v-if="isTokenLoading" active size="small" class="balance-skeleton" />
-                <div v-else @click.stop="setMax" class="balance-value-row">
+                <div v-else class="balance-value-row" @click.stop="setMax">
                     <span class="balance-label"> {{ $t('tokenOperations.balance') }}: </span>
                     <Amount :value="selectedToken?.balance || 0" :decimals="3" type="currency" :symbol="selectedToken?.symbol" />
                 </div>
@@ -80,9 +80,16 @@ import { formatInputNumber } from '@/shared/utils/input';
 
 export default {
     name: 'SelectAmountInput',
+    components: {
+        ArrowIcon,
+        TokenIcon,
+        Amount,
+    },
     props: {
         value: {
             required: true,
+            type: [Object, null],
+            default: () => ({}),
         },
         onReset: {
             type: [Boolean, String],
@@ -133,14 +140,11 @@ export default {
             default: '',
         },
         selectedNetwork: {
+            type: Object,
             default: () => ({}),
         },
     },
-    components: {
-        ArrowIcon,
-        TokenIcon,
-        Amount,
-    },
+    emits: ['setAmount', 'setToken', 'clickToken'],
     setup(props, { emit }) {
         const active = ref(false);
         const focused = ref(false);
@@ -157,12 +161,12 @@ export default {
 
         const payTokenPrice = computed(() => BigNumber(amount.value * +selectedToken.value?.price || 0).toFixed() || 0);
 
-        const selectPlaceholder = computed(() => (!selectedToken.value && !selectedToken.value?.symbol ? 'tokenOperations.select' : ''));
+        const selectPlaceholder = computed(() =>
+            !selectedToken.value && !selectedToken.value?.symbol ? 'tokenOperations.select' : 'tokenOperations.select',
+        );
 
         const onResetAmount = () => {
-            if (!props.onReset) {
-                return;
-            }
+            if (!props.onReset) return;
 
             amount.value = null;
             active.value = false;
@@ -171,9 +175,7 @@ export default {
         };
 
         const onKeyPressHandler = (e) => {
-            if (e.code === 'Period' || e.code === 'Comma') {
-                symbolForReplace.value = e.key;
-            }
+            if (e.code === 'Period' || e.code === 'Comma') symbolForReplace.value = e.key;
         };
 
         const clickAway = () => {
@@ -199,9 +201,7 @@ export default {
         };
 
         const setActive = () => {
-            if (props.showDropDown) {
-                active.value = !active.value;
-            }
+            if (props.showDropDown) active.value = !active.value;
         };
 
         const setToken = (item) => (selectedToken.value = item);
@@ -211,13 +211,9 @@ export default {
         const unWatchAmount = watch(amount, (val) => {
             amount.value = val;
 
-            if (val === '' || !val?.toString()) {
-                return emit('setAmount', null);
-            }
+            if (val === '' || !val?.toString()) return emit('setAmount', null);
 
-            if (symbolForReplace.value) {
-                val = val.replace(symbolForReplace.value, '.');
-            }
+            if (symbolForReplace.value) val = val.replace(symbolForReplace.value, '.');
 
             return (amount.value = formatInputNumber(val));
         });
@@ -248,31 +244,23 @@ export default {
         watch(
             () => props.isUpdate,
             (isUpdate) => {
-                if (isUpdate) {
-                    setToken(props.value);
-                }
+                if (isUpdate) setToken(props.value);
             },
         );
 
         watch(
             () => props.selectedNetwork,
             (net, oldNet) => {
-                if (net === oldNet) {
-                    return;
-                }
+                if (net === oldNet) return;
 
-                if (net) {
-                    active.value = false;
-                }
+                if (net) active.value = false;
             },
         );
 
         watch(
             () => props.value,
             (tkn, oldTkn) => {
-                if (tkn?.id === oldTkn?.id) {
-                    return;
-                }
+                if (tkn?.id === oldTkn?.id) return;
 
                 if (tkn) {
                     setToken(tkn);

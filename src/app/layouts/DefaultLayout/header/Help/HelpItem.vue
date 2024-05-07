@@ -31,30 +31,3 @@ export default {
     },
 };
 </script>
-<style lang="scss" scoped>
-// .help {
-//     @include pageFlexRow;
-
-//     & > div:not(:last-child) {
-//         margin-right: 10px;
-//     }
-// }
-
-// .release-list {
-//     background: var(--#{$prefix}secondary-background);
-
-//     .release-item {
-//         padding: 4px 0;
-//         color: var(--#{$prefix}mute-text);
-
-//         &:not(:last-child) {
-//             border-bottom: 1px solid var(--zmt-border-color-op-05);
-//         }
-//     }
-// }
-
-// .update-modal {
-//     margin: 10px auto;
-//     width: 100%;
-// }
-</style>

@@ -5,11 +5,11 @@
                 <div class="buy-crypto-iframe">
                     <iframe
                         v-if="IFRAME_URL"
-                        @load="() => (isKadoLoaded = true)"
                         :src="IFRAME_URL"
                         width="100%"
                         height="100%"
                         frameBorder="0"
+                        @load="() => (isKadoLoaded = true)"
                     />
                 </div>
             </template>
@@ -21,7 +21,7 @@ import { computed, inject, ref } from 'vue';
 
 import { KADO_EVM_NETWORKS, KADO_COSMOS_NETWORKS, KADO_DEFAULT_COSMOS, KADO_ACTIONS, KADO_URL } from '@/config/kadoConstants';
 
-import { ECOSYSTEMS } from '@/Adapter/config';
+import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
@@ -53,9 +53,7 @@ export default {
         };
 
         const IFRAME_URL = computed(() => {
-            if (!buyCryptoModal.value) {
-                return null;
-            }
+            if (!buyCryptoModal.value) return null;
 
             return URLS[currentChainInfo.value?.ecosystem] || BASE_URL;
         });

@@ -48,7 +48,7 @@
             </a-row>
 
             <a-row>
-                <div class="shortcut-item__tag" v-for="tag in item.tags" :key="tag" @click="() => selectTag(tag)">{{ tag }}</div>
+                <div v-for="tag in item.tags" :key="tag" class="shortcut-item__tag" @click="() => selectTag(tag)">{{ tag }}</div>
             </a-row>
         </a-row>
 
@@ -59,7 +59,7 @@
                 <LikeIcon :class="{ 'favorites-icon--active': watchList.includes(item.id) }" @click="addToWatchList" />
                 <div class="favorites-count"></div>
             </a-row>
-            <Button title="Try" class="shortcut-item__btn" @click="openShortcut" />
+            <UiButton title="Try" class="shortcut-item__btn" @click="openShortcut" />
         </a-row>
     </a-card>
 </template>
@@ -75,6 +75,7 @@ import LikeIcon from '@/assets/icons/dashboard/heart.svg';
 import MultiIcon from '@/assets/icons/module-icons/multi.svg';
 
 import Amount from '@/components/app/Amount.vue';
+import UiButton from '@/components/ui/Button.vue';
 
 import { ECOSYSTEM_LOGOS } from '@/Adapter/config';
 
@@ -87,13 +88,15 @@ export default {
         MultiIcon,
 
         Amount,
+        UiButton,
 
         ECOSYSTEM_LOGOS,
     },
     props: {
         item: {
+            type: Object,
             required: true,
-            default: {},
+            default: () => ({}),
         },
     },
     setup(props) {
