@@ -73,7 +73,8 @@ const META_DATA: Record<string, IShortcutMeta> = {
         keywords: ['NFT', 'MINT', 'STARS'],
         tags: ['NFT', 'MINT'],
         type: 'nft',
-        description: 'Zomet Club NFT is only available to you as early adopter of Zomet platform. ZC NFT holders are going to receive perks & benefits at a later stage!',
+        description:
+            'Zomet Club NFT is only available to you as early adopter of Zomet platform. ZC NFT holders are going to receive perks & benefits at a later stage!',
         website: 'https://www.stargaze.zone/',
         author: getAuthorById(ShortcutAuthor.ZometApp),
         ecosystems: ['EVM', 'COSMOS'],
@@ -139,7 +140,8 @@ const META_DATA: Record<string, IShortcutMeta> = {
         tags: ['COSMOS', 'SWAP'],
         ecosystems: ['COSMOS'],
         type: 'swap',
-        description: "stTIA allows holders to earn Celestia staking yields passively while still maintaining a liquid position that can be used in other DeFi projects.",
+        description:
+            'stTIA allows holders to earn Celestia staking yields passively while still maintaining a liquid position that can be used in other DeFi projects.',
         wallpaper: '/img/wallpapers/convert-tia.svg',
         website: 'https://citadel.one/',
         author: {

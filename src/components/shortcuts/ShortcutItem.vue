@@ -3,7 +3,7 @@
         <template #title>
             <a-row justify="space-between" :wrap="false">
                 <a-row align="middle" :wrap="false" class="shortcut-item__block">
-                    <div class="icon" v-if="item.logoURI">
+                    <div v-if="item.logoURI" class="icon">
                         <img :src="item.logoURI" :alt="item.name" />
                     </div>
                     <ShortcutPlaceHolder v-else />
@@ -25,7 +25,7 @@
         <a-row justify="space-between" class="shortcut-item__info">
             <a-row align="middle">
                 <div class="ecosystem">
-                    <a-tooltip placement="bottom" v-if="item.ecosystems.length > 1">
+                    <a-tooltip v-if="item.ecosystems.length > 1" placement="bottom">
                         <template #title>
                             <span v-for="(ecosystem, i) in item.ecosystems" :key="i">
                                 {{ ecosystem }}
