@@ -18,8 +18,8 @@ const store = createStore({
         toggleSidebar(state) {
             state.isCollapsed = !state.isCollapsed;
             localStorage.setItem(COLLAPSED_SIDEBAR_KEY, state.isCollapsed);
-        }
-    }
+        },
+    },
 });
 
 const wrapper = shallowMount(SidebarTrigger, { global: { plugins: [store] } });

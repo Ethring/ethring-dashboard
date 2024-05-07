@@ -1,17 +1,12 @@
 import { computed } from 'vue';
 import { useStore } from 'vuex';
-import BigNumber from 'bignumber.js';
 
 import BridgeDexService from '@/modules/bridge-dex';
 import { ServiceType, ServiceTypes } from '@/modules/bridge-dex/enums/ServiceType.enum';
-import { GetApproveTxParams, GetSwapTxParams, Swap } from '@/modules/bridge-dex/models/Request.type';
+import { GetSwapTxParams, Swap } from '@/modules/bridge-dex/models/Request.type';
 
-import { IQuoteRoute, ErrorResponse } from '@/modules/bridge-dex/models/Response.interface';
-
-import useAdapter from '@/Adapter/compositions/useAdapter';
-
-import { AddressByChain, AddressByChainHash } from '@/shared/models/types/Address';
-import { NATIVE_CONTRACT } from '@/Adapter/config';
+import { ErrorResponse } from '@/modules/bridge-dex/models/Response.interface';
+import { NATIVE_CONTRACT } from '@/core/wallet-adapter/config';
 
 /**
  *
@@ -39,12 +34,6 @@ const useBridgeDexSwap = (targetType: ServiceTypes, bridgeDexService: BridgeDexS
     const type = ServiceType[targetType];
 
     // ===========================================================================================
-    // * Current Service & Route
-    // ===========================================================================================
-
-    const selectedRoute = computed<IQuoteRoute>(() => store.getters['bridgeDexAPI/getSelectedRoute'](targetType));
-
-    // ===========================================================================================
     // * Loading
     // ===========================================================================================
 
@@ -52,14 +41,6 @@ const useBridgeDexSwap = (targetType: ServiceTypes, bridgeDexService: BridgeDexS
         get: () => store.getters['bridgeDexAPI/getLoaderState']('swap'),
         set: (value) => store.dispatch('bridgeDexAPI/setLoaderStateByType', { type: 'swap', value }),
     });
-
-    // ===========================================================================================
-    // * Selected Token and Network
-    // ===========================================================================================
-
-    const selectedSrcNetwork = computed(() => store.getters['tokenOps/srcNetwork']);
-    const selectedSrcToken = computed(() => store.getters['tokenOps/srcToken']);
-    const srcAmount = computed(() => store.getters['tokenOps/srcAmount']);
 
     // ===========================================================================================
     // * Requests to the Service by ServiceType

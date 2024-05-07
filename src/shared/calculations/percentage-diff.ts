@@ -31,9 +31,7 @@ export const differenceInPercentage = ({ srcNetwork, dstNetwork, srcToken, dstTo
     const { price: dstPrice = null } = dstToken || {};
 
     // !IMPORTANT: If any of the prices or amounts are not available, return 0
-    if (!srcPrice || !dstPrice || !srcAmount || !dstAmount) {
-        return 0;
-    }
+    if (!srcPrice || !dstPrice || !srcAmount || !dstAmount) return 0;
 
     const n1 = BigNumber(srcPrice).multipliedBy(srcAmount);
     const n2 = BigNumber(dstPrice).multipliedBy(dstAmount);

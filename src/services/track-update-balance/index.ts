@@ -2,8 +2,8 @@ import { computed, watch } from 'vue';
 
 import { ChainConfig } from '@/modules/chain-configs/types/chain-config';
 import { delay } from '@/shared/utils/helpers';
-import { updateBalanceByChain } from '@/modules/balance-provider';
-import useAdapter from '@/Adapter/compositions/useAdapter';
+import { updateBalanceByChain } from '@/core/balance-provider';
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import _ from 'lodash';
 
 interface IQueue {

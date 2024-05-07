@@ -19,7 +19,7 @@
 
                 <div v-else class="balance">
                     <Amount :value="totalBalance" :decimals="3" type="usd" symbol="$" />
-                    <div class="balance__hide" v-if="currentChainInfo" @click="toggleViewBalance">
+                    <div v-if="currentChainInfo" class="balance__hide" @click="toggleViewBalance">
                         <EyeOpenIcon v-if="showBalance" />
                         <EyeCloseIcon v-else />
                     </div>
@@ -34,7 +34,7 @@ import { computed, inject } from 'vue';
 import { useStore } from 'vuex';
 import { useClipboard } from '@vueuse/core';
 
-import { ECOSYSTEMS } from '@/Adapter/config';
+import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
 
 import { cutAddress } from '@/shared/utils/address';
 
@@ -74,9 +74,7 @@ export default {
         const toggleViewBalance = () => store.dispatch('app/toggleViewBalance');
 
         const handleOnCopyAddress = () => {
-            if (currentChainInfo.value.ecosystem === ECOSYSTEMS.EVM) {
-                return copy(walletAccount.value);
-            }
+            if (currentChainInfo.value.ecosystem === ECOSYSTEMS.EVM) return copy(walletAccount.value);
 
             action('SET_MODAL_ECOSYSTEM', currentChainInfo.value.ecosystem);
             return action('SET_MODAL_STATE', { name: 'addresses', isOpen: true });

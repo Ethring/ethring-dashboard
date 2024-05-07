@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { AxiosResponse, HttpStatusCode } from 'axios';
 import ApiClient from '@/shared/axios';
 
-import { ECOSYSTEMS } from '@/Adapter/config';
+import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
 
 import IndexedDBService from '@/services/indexed-db';
 
@@ -25,28 +25,18 @@ export const getConfigsByEcosystems = async (ecosystem = ECOSYSTEMS.EVM, { isCos
 
     const list = await indexedDB.getAllObjectFrom(store, 'ecosystem', ecosystem, { index: 'chain' });
 
-    if (ecosystem === ECOSYSTEMS.COSMOS) {
-        query = '/all';
-    }
+    if (ecosystem === ECOSYSTEMS.COSMOS) query = '/all';
 
-    if (isCosmology) {
-        query = '/all?cosmology=true';
-    }
+    if (isCosmology) query = '/all?cosmology=true';
 
-    if (Object.keys(list).length) {
-        return list;
-    }
+    if (Object.keys(list).length) return list;
 
     try {
         const { data, status }: AxiosResponse = await axiosInstance.get(`networks/${ecosystem.toLowerCase()}${query}`);
 
-        if (status !== HttpStatusCode.Ok) {
-            return {};
-        }
+        if (status !== HttpStatusCode.Ok) return {};
 
-        if (!_.isEqual(list, data)) {
-            await indexedDB.saveNetworksObj(store, data, { ecosystem });
-        }
+        if (!_.isEqual(list, data)) await indexedDB.saveNetworksObj(store, data, { ecosystem });
 
         return data;
     } catch (err) {
@@ -60,9 +50,7 @@ export const getCosmologyTokensConfig = async () => {
 
     const list = await indexedDB.getAllListFrom(store);
 
-    if (Object.keys(list).length) {
-        return list;
-    }
+    if (Object.keys(list).length) return list;
 
     try {
         const { data }: AxiosResponse = await axiosInstance.get(`networks/cosmos/all/tokens`);
@@ -81,9 +69,7 @@ export const getTokensConfigByChain = async (chain: string, ecosystem: string) =
 
     const list = await indexedDB.getAllObjectFrom(store, 'chain', chain);
 
-    if (Object.keys(list).length) {
-        return list;
-    }
+    if (Object.keys(list).length) return list;
 
     try {
         const { data }: AxiosResponse = await axiosInstance.get(`networks/${chain}/tokens`);

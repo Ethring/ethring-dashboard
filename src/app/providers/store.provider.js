@@ -13,10 +13,10 @@ import configs from '@/store/configs';
 import operations from '@/store/operations';
 
 // Transaction manager
-import txManager from '@/Transactions/store';
+import txManager from '@/core/transaction-manager/store';
 
 // Adapters for different networks
-import adapters from '@/Adapter/store';
+import adapters from '@/core/wallet-adapter/store';
 
 // Bridge-dex
 import bridgeDexAPI from '@/modules/bridge-dex/store';
@@ -24,7 +24,7 @@ import bridgeDexAPI from '@/modules/bridge-dex/store';
 // Update balance for account
 import updateBalance from '@/store/update-balance';
 import moduleStates from '@/store/moduleStates';
-import shortcuts from '@/modules/shortcuts/store';
+import shortcuts from '@/core/shortcuts/store';
 
 // Shortcuts
 import shortcutsList from '@/store/shortcut-list';

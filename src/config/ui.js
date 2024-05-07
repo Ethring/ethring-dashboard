@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { ECOSYSTEMS } from '@/Adapter/config';
+import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
 
 const MAIN_DASHBOARD = {
     icon: 'overviewIcon',
@@ -108,9 +108,7 @@ const defaultConfig = {
 
 const checkIsDisabled = (config, sidebar) => {
     for (const module of config) {
-        if (module.disabled) {
-            continue;
-        }
+        if (module.disabled) continue;
 
         if (sidebar.some((item) => item.key === module.key)) {
             module.disabled = false;
@@ -124,11 +122,10 @@ const checkIsDisabled = (config, sidebar) => {
 };
 
 const getUIConfig = (network, ecosystem) => {
-    if (!ecosystem) {
+    if (!ecosystem)
         return {
             sidebar: SIDEBAR_MODULES_UN_AUTH,
         };
-    }
 
     // Copy without reference, to avoid changing the default config
 
@@ -137,9 +134,7 @@ const getUIConfig = (network, ecosystem) => {
 
     let { sidebar = [] } = config || {};
 
-    if (!network) {
-        return { ...config, sidebar };
-    }
+    if (!network) return { ...config, sidebar };
 
     sidebar = checkIsDisabled(defaultSidebar, sidebar);
 

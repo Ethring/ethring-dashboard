@@ -7,7 +7,7 @@ import { captureException } from '@/app/modules/sentry';
 interface ApiConfig {
     baseURL: string;
     headers?: Record<string, string>;
-    timeout?: number
+    timeout?: number;
 }
 
 class ApiClient {
@@ -26,7 +26,7 @@ class ApiClient {
         this.instance = axios.create({
             baseURL,
             headers,
-            ...args
+            ...args,
         });
 
         // Interceptor for response
@@ -52,9 +52,7 @@ class ApiClient {
             }
         }
 
-        if (error.response && error.response.status === 400) {
-            captureException(error);
-        }
+        if (error.response && error.response.status === 400) captureException(error);
 
         return Promise.reject(error);
     }

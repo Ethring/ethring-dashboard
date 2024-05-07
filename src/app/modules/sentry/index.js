@@ -4,9 +4,7 @@ import { BrowserTracing } from '@sentry/browser';
 import { ignorePatterns } from './tx-ignore.json';
 
 export default function useSentry(app, Router) {
-    if (!process.env.SENTRY_DSN) {
-        return;
-    }
+    if (!process.env.SENTRY_DSN) return;
 
     return Sentry.init({
         app,
@@ -34,15 +32,11 @@ export default function useSentry(app, Router) {
 }
 
 export const captureTransactionException = ({ error, ...args }) => {
-    if (!process.env.SENTRY_DSN) {
-        return;
-    }
+    if (!process.env.SENTRY_DSN) return;
 
     const ignoreRegex = new RegExp(ignorePatterns.join('|'), 'i');
 
-    if (ignoreRegex.test(error)) {
-        return;
-    }
+    if (ignoreRegex.test(error)) return;
 
     const { id = null, module = null, tx = {} } = args || {};
 
@@ -71,9 +65,7 @@ export const captureTransactionException = ({ error, ...args }) => {
 };
 
 export const captureException = (error) => {
-    if (!process.env.SENTRY_DSN) {
-        return;
-    }
+    if (!process.env.SENTRY_DSN) return;
 
     return Sentry.captureException(error);
 };

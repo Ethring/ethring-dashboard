@@ -1,24 +1,24 @@
 <template>
     <a-form-item
+        v-click-away="(active = false)"
         class="select-panel select-input"
         :class="{ active: active, focused, disabled }"
         @click="active = true"
-        v-click-away="(active = false)"
     >
         <div class="input-label">To Mint ({{ contractCallCount || 0 }} / {{ max }})</div>
 
         <a-input-group compact class="input-group">
             <a-input-number
+                v-model:value="contractCallCount"
+                v-debounce:1s="onInput"
                 :controls="false"
                 allow-clear
-                v-model:value="contractCallCount"
                 class="base-input mint-count-input"
                 data-qa="custom-input"
                 :min="1"
                 :max="max"
                 :bordered="false"
                 :disabled="disabled"
-                v-debounce:1s="onInput"
                 @focus="focused = true"
                 @blur="onBlur"
             >

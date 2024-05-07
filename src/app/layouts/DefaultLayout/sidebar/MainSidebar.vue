@@ -1,17 +1,17 @@
 <template>
     <a-layout-sider
-        class="sidebar-container"
         v-model:collapsed="isCollapsed"
+        class="sidebar-container"
         breakpoint="xl"
         collapsible
         :trigger="null"
         :width="isCollapsed ? '64px' : '240px'"
-        collapsedWidth="64px"
+        collapsed-width="64px"
     >
         <div>
             <SidebarLogo :collapsed="isCollapsed" @click="() => onClickSidebarItem({ disabled: false, to: '/' })" />
 
-            <a-menu mode="inline" class="sidebar__menu" v-model:selectedKeys="selectedKeys">
+            <a-menu v-model:selectedKeys="selectedKeys" mode="inline" class="sidebar__menu">
                 <SidebarItem
                     v-for="item in menu"
                     :key="item.key"
@@ -78,17 +78,13 @@ export default {
         const menu = computed(() => {
             const config = UIConfig(currentChainInfo.value?.net, currentChainInfo.value?.ecosystem);
 
-            if (!config) {
-                return [];
-            }
+            if (!config) return [];
 
             return config.sidebar;
         });
 
         const onClickSidebarItem = (item) => {
-            if (item.disabled) {
-                return;
-            }
+            if (item.disabled) return;
 
             return router.push(item.to);
         };
@@ -97,15 +93,13 @@ export default {
             () => router.currentRoute.value.path,
             () => {
                 selectedKeys.value = [router.currentRoute.value.meta?.key];
-            }
+            },
         );
 
         onMounted(() => {
             const isCollapsedStorage = JSON.parse(localStorage.getItem(IS_COLLAPSED_KEY));
 
-            if (isCollapsedStorage) {
-                isCollapsed.value = isCollapsedStorage;
-            }
+            if (isCollapsedStorage) isCollapsed.value = isCollapsedStorage;
         });
 
         return {
