@@ -98,6 +98,7 @@
 
     &-balance,
     &-rewards {
+
         .symbol,
         .value {
             font-size: var(--#{$prefix}h5-fs);
@@ -123,6 +124,7 @@
     }
 
     &-rewards {
+
         .value,
         .symbol {
             font-size: var(--#{$prefix}small-sm-fs);

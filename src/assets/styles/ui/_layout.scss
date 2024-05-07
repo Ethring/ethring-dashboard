@@ -19,7 +19,7 @@ $top-bar-spacing: 20px;
     &-content {
         width: $layout-width;
         max-width: $layout-max-width;
-        margin: 25px auto;
+        margin: 5px auto 25px;
     }
 }
 
@@ -35,13 +35,16 @@ $top-bar-spacing: 20px;
     padding: 0 !important;
 
     background-color: var(--#{$prefix}nav-bar-bg-color) !important;
-    border-bottom: 1px solid var(--#{$prefix}border-secondary-color);
 
     .nav-bar-container {
         width: $layout-width;
         max-width: $layout-max-width;
         margin: 20px auto;
     }
+}
+
+.scroll {
+    border-bottom: 1px solid var(--#{$prefix}border-secondary-color);
 }
 
 .sidebar-trigger {
