@@ -91,7 +91,9 @@ function useAdapter() {
 
     const currentChainInfo = computed<ChainInfo>(() => (mainAdapter.value ? mainAdapter.value.getCurrentChain(store) : null));
 
-    const chainList = computed<ChainConfig[]>(() => (mainAdapter.value || walletAccount.value ? mainAdapter.value.getChainList(store) : getAllChainsList()));
+    const chainList = computed<ChainConfig[]>(() =>
+        mainAdapter.value || walletAccount.value ? mainAdapter.value.getChainList(store) : getAllChainsList(),
+    );
 
     const walletAddress = computed<string>(() => (mainAdapter.value ? mainAdapter.value.getAccountAddress() : null));
     const walletAccount = computed<string>(() => (mainAdapter.value ? mainAdapter.value.getAccount() : null));
@@ -321,7 +323,7 @@ function useAdapter() {
     };
 
     // * Format Tx for Ecosystem
-    const formatTransactionForSign = (transaction: ITransactionResponse, txParams: { ecosystem: string;[key: string]: any }) => {
+    const formatTransactionForSign = (transaction: ITransactionResponse, txParams: { ecosystem: string; [key: string]: any }) => {
         if (!mainAdapter.value) return null;
 
         const { ecosystem, ...params } = txParams || {};

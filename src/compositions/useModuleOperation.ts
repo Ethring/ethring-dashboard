@@ -920,9 +920,7 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
 
     const handleOnConfirm = async () => {
-        if (!walletAddress.value) {
-            return await connectWalletByEcosystem(selectedSrcNetwork.value.ecosystem);
-        }
+        if (!walletAddress.value) return await connectWalletByEcosystem(selectedSrcNetwork.value.ecosystem);
 
         try {
             isTransactionSigning.value = true;

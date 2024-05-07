@@ -197,9 +197,7 @@ export default function useModule(moduleType: ModuleType) {
     };
 
     const checkSelectedNetwork = () => {
-        if (!walletAccount.value && !currentChainInfo.value) {
-            return (opTitle.value = 'tokenOperations.connectWallet');
-        }
+        if (!walletAccount.value && !currentChainInfo.value) return (opTitle.value = 'tokenOperations.connectWallet');
 
         const isSameWithCurrent = currentChainInfo.value && currentChainInfo.value.net === selectedSrcNetwork.value?.net;
 
@@ -266,17 +264,13 @@ export default function useModule(moduleType: ModuleType) {
 
         const currentChain = store.getters['configs/getChainConfigByChainId'](currentChainInfo.value?.chain, ECOSYSTEMS.EVM);
 
-        if (isAccountAuth && !selectedSrcNetwork.value?.net && Object.keys(currentChain).length) {
+        if (isAccountAuth && !selectedSrcNetwork.value?.net && Object.keys(currentChain).length)
             selectedSrcNetwork.value = currentChainInfo.value;
-        } else if (!selectedSrcNetwork.value?.net && chainList.value?.length) {
-            selectedSrcNetwork.value = chainList.value[0];
-        }
-    }
+        else if (!selectedSrcNetwork.value?.net && chainList.value?.length) selectedSrcNetwork.value = chainList.value[0];
+    };
 
     watch(isNeedApprove, () => {
-        if (isNeedApprove.value) {
-            opTitle.value = 'tokenOperations.approve';
-        }
+        if (isNeedApprove.value) opTitle.value = 'tokenOperations.approve';
     });
 
     onMounted(() => {
