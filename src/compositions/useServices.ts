@@ -1,10 +1,10 @@
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 
 import BigNumber from 'bignumber.js';
-import { ECOSYSTEMS } from '@/Adapter/config';
+import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 import _ from 'lodash';
-import useAdapter from '@/Adapter/compositions/useAdapter';
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import useBridgeDexService from '@/modules/bridge-dex/compositions';
 import useChainTokenManger from './useChainTokenManager';
 import { useStore } from 'vuex';
@@ -167,9 +167,7 @@ export default function useModule(moduleType: ModuleType) {
     const isDirectionSwapped = ref(false);
 
     const isSwapDirectionAvailable = computed(() => {
-        if (!selectedSrcToken.value || !selectedDstToken.value) {
-            return false;
-        }
+        if (!selectedSrcToken.value || !selectedDstToken.value) return false;
 
         return true;
     });
@@ -202,13 +200,9 @@ export default function useModule(moduleType: ModuleType) {
 
         // setEcosystemService();
 
-        if (isNeedApprove.value) {
-            return (opTitle.value = 'tokenOperations.approve');
-        }
+        if (isNeedApprove.value) return (opTitle.value = 'tokenOperations.approve');
 
-        if (isSameWithCurrent) {
-            return (opTitle.value = DEFAULT_TITLE);
-        }
+        if (isSameWithCurrent) return (opTitle.value = DEFAULT_TITLE);
 
         return (opTitle.value = DEFAULT_TITLE);
     };
@@ -253,13 +247,9 @@ export default function useModule(moduleType: ModuleType) {
     };
 
     const handleOnSetAmount = (amount: string | number) => {
-        if (srcAmount.value === amount) {
-            return;
-        }
+        if (srcAmount.value === amount) return;
 
-        if (amount && _.startsWith(amount.toString(), '.') && amount.toString().length > 1) {
-            return (srcAmount.value = `0${amount}`);
-        }
+        if (amount && _.startsWith(amount.toString(), '.') && amount.toString().length > 1) return (srcAmount.value = `0${amount}`);
 
         srcAmount.value = amount;
     };
@@ -269,15 +259,11 @@ export default function useModule(moduleType: ModuleType) {
     watch(isNeedApprove, () => {
         checkSelectedNetwork();
 
-        if (isNeedApprove.value) {
-            opTitle.value = 'tokenOperations.approve';
-        }
+        if (isNeedApprove.value) opTitle.value = 'tokenOperations.approve';
     });
 
     watch(selectedRoute, () => {
-        if (selectedRoute.value) {
-            dstAmount.value = selectedRoute.value.toAmount;
-        }
+        if (selectedRoute.value) dstAmount.value = selectedRoute.value.toAmount;
     });
 
     watch(isQuoteLoading, () => {

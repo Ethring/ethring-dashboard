@@ -9,6 +9,10 @@ import SwapIcon from '@/assets/icons/module-icons/super-swap.svg';
 
 export default {
     name: 'SwitchDirection',
+    components: {
+        SwitchIcon,
+        SwapIcon,
+    },
     props: {
         disabled: {
             type: Boolean,
@@ -24,10 +28,6 @@ export default {
             required: false,
             default: 'SwitchIcon',
         },
-    },
-    components: {
-        SwitchIcon,
-        SwapIcon,
     },
 };
 </script>

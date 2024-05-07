@@ -22,13 +22,13 @@ const Template = (args) => ({
 });
 
 const network = {
-    "net": "optimism",
-    "name": "Optimism",
-    "chain_id": 10,
-    "logo": "https://cryptologos.cc/logos/optimism-ethereum-op-logo.png?v=025",
-    "ecosystem": "EVM",
-    "id": "EVM:optimism",
-    "chain": "optimism",
+    net: 'optimism',
+    name: 'Optimism',
+    chain_id: 10,
+    logo: 'https://cryptologos.cc/logos/optimism-ethereum-op-logo.png?v=025',
+    ecosystem: 'EVM',
+    id: 'EVM:optimism',
+    chain: 'optimism',
 };
 
 export const Default = Template.bind({});

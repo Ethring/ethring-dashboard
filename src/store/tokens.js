@@ -2,8 +2,8 @@ import _ from 'lodash';
 
 import BigNumber from 'bignumber.js';
 
-import { IntegrationBalanceType, Type } from '@/modules/balance-provider/models/enums';
-import { getTotalBalance, getIntegrationsBalance, getTotalBalanceByType } from '@/modules/balance-provider/calculation';
+import { IntegrationBalanceType, Type } from '@/core/balance-provider/models/enums';
+import { getTotalBalance, getIntegrationsBalance, getTotalBalanceByType } from '@/core/balance-provider/calculation';
 
 import IndexedDBService from '@/services/indexed-db';
 
@@ -65,42 +65,25 @@ export default {
     getters: {
         isInitCalled: (state) => (account) => state.isInitCalled[account] || null,
         loader: (state) => {
-            if (JSON.stringify(state.loadingByChain) === '{}') {
-                return false;
-            }
+            if (JSON.stringify(state.loadingByChain) === '{}') return false;
 
             for (const account in state.loadingByChain) {
-                if (!state.loadingByChain[account]) {
-                    return false;
-                }
-                for (const chain in state.loadingByChain[account]) {
-                    if (state.loadingByChain[account][chain]) {
-                        return true;
-                    }
-                }
+                if (!state.loadingByChain[account]) return false;
+
+                for (const chain in state.loadingByChain[account]) if (state.loadingByChain[account][chain]) return true;
             }
 
             return false;
         },
 
         loadingByAccount: (state) => (account) => {
-            if (JSON.stringify(state.loadingByChain) === '{}') {
-                return false;
-            }
+            if (JSON.stringify(state.loadingByChain) === '{}') return false;
 
-            if (!account) {
-                return false;
-            }
+            if (!account) return false;
 
-            if (!state.loadingByChain[account]) {
-                return false;
-            }
+            if (!state.loadingByChain[account]) return false;
 
-            for (const chain in state.loadingByChain[account]) {
-                if (state.loadingByChain[account][chain]) {
-                    return true;
-                }
-            }
+            for (const chain in state.loadingByChain[account]) if (state.loadingByChain[account][chain]) return true;
 
             return false;
         },
@@ -112,22 +95,14 @@ export default {
         targetAccount: (state) => state.targetAccount,
 
         getAccountBalanceByType: (state) => (account, type) => {
-            if (!state[type]) {
-                return [];
-            }
+            if (!state[type]) return [];
 
-            if (!state[type][account] && account !== BUNDLED_ACCOUNT) {
-                return [];
-            }
+            if (!state[type][account] && account !== BUNDLED_ACCOUNT) return [];
 
             if (account === BUNDLED_ACCOUNT) {
                 const allData = [];
 
-                for (const acc in state[type]) {
-                    if (state[type][acc]) {
-                        allData.push(..._.flatMap(state[type][acc]));
-                    }
-                }
+                for (const acc in state[type]) if (state[type][acc]) allData.push(..._.flatMap(state[type][acc]));
 
                 return allData;
             }
@@ -142,7 +117,7 @@ export default {
             const platforms = allIntegrations.reduce((grouped, integration) => {
                 const { platform, type, balances = [], logo = null, healthRate = null, leverageRate } = integration;
 
-                if (!grouped[platform]) {
+                if (!grouped[platform])
                     grouped[platform] = {
                         data: [],
                         platform,
@@ -151,7 +126,6 @@ export default {
                         totalGroupBalance: 0,
                         totalRewardsBalance: 0,
                     };
-                }
 
                 const platformData = grouped[platform];
 
@@ -159,9 +133,7 @@ export default {
                 platformData.healthRate = healthRate || null;
                 platformData.logoURI = logo || null;
 
-                for (const balance of balances) {
-                    balance.leverageRate = leverageRate || null;
-                }
+                for (const balance of balances) balance.leverageRate = leverageRate || null;
 
                 platformData.totalGroupBalance = BigNumber(platformData.totalGroupBalance)
                     .plus(getTotalBalanceByType(balances, type))
@@ -185,7 +157,7 @@ export default {
 
                 const { address } = collection || {};
 
-                if (!grouped[address]) {
+                if (!grouped[address])
                     grouped[address] = {
                         ...collection,
                         chainLogo,
@@ -194,7 +166,6 @@ export default {
                         floorPriceUsd: BigNumber(0),
                         totalGroupBalance: BigNumber(0),
                     };
-                }
 
                 const collectionData = grouped[address];
 
@@ -219,17 +190,13 @@ export default {
         getTokensListForChain:
             (state) =>
             (chain, { account = null } = {}) => {
-                if (!state.tokens[account] || !chain) {
-                    return [];
-                }
+                if (!state.tokens[account] || !chain) return [];
 
                 return state.tokens[account][chain] || [];
             },
 
         getNativeTokenForChain: (state) => (account, chain) => {
-            if (!state.nativeTokens[account] || !state.nativeTokens[account][chain]) {
-                return null;
-            }
+            if (!state.nativeTokens[account] || !state.nativeTokens[account][chain]) return null;
 
             return state.nativeTokens[account][chain] || null;
         },
@@ -240,16 +207,12 @@ export default {
         assetsBalances: (state) => state.assetsBalances,
 
         getTotalBalanceByType: (state) => (account, balanceType) => {
-            if (!state[balanceType]) {
-                return 0;
-            }
+            if (!state[balanceType]) return 0;
 
             if (account === BUNDLED_ACCOUNT) {
                 let total = BigNumber(0);
 
-                for (const acc in state[balanceType]) {
-                    total = total.plus(state[balanceType][acc] || 0);
-                }
+                for (const acc in state[balanceType]) total = total.plus(state[balanceType][acc] || 0);
 
                 return total.toString() || 0;
             }
@@ -268,17 +231,13 @@ export default {
         },
 
         [TYPES.SET_ASSETS_BALANCE](state, { account, data }) {
-            if (!state.assetsBalances[account]) {
-                state.assetsBalances[account] = {};
-            }
+            if (!state.assetsBalances[account]) state.assetsBalances[account] = {};
 
             state.assetsBalances[account] = data;
         },
 
         [TYPES.SET_TOTAL_BALANCE](state, { account, data }) {
-            if (!state.totalBalances[account]) {
-                state.totalBalances[account] = {};
-            }
+            if (!state.totalBalances[account]) state.totalBalances[account] = {};
 
             state.totalBalances[account] = data;
         },
@@ -301,12 +260,9 @@ export default {
             const { account, type } = value;
 
             // calculating balances
-            if (!state.assetsBalances[account]) {
-                state.assetsBalances[account] = 0;
-            }
-            if (!state.totalBalances[account]) {
-                state.totalBalances[account] = 0;
-            }
+            if (!state.assetsBalances[account]) state.assetsBalances[account] = 0;
+
+            if (!state.totalBalances[account]) state.totalBalances[account] = 0;
 
             const allTokens = getters.getAccountBalanceByType(account, 'tokens');
             const allIntegrations = getters.getAccountBalanceByType(account, 'integrations');
@@ -324,9 +280,7 @@ export default {
             }
         },
         [TYPES.SET_IS_INIT_CALLED](state, { account, time }) {
-            if (!state.isInitCalled[account]) {
-                state.isInitCalled[account] = null;
-            }
+            if (!state.isInitCalled[account]) state.isInitCalled[account] = null;
 
             state.isInitCalled[account] = time;
         },
@@ -347,18 +301,14 @@ export default {
         async loadFromCache({ dispatch }, { account, chain, address, type }) {
             const balances = await balancesDB.getBalancesByType('balances', { account, chain, address, type });
 
-            if (!balances) {
-                return;
-            }
+            if (!balances) return;
 
             dispatch('setDataFor', { type, account, chain, data: balances });
         },
         setDataFor({ commit, getters }, value) {
             commit(TYPES.SET_DATA_FOR, value);
 
-            if (BALANCE_ALLOW_TYPES.includes(value.type)) {
-                commit(TYPES.CALCULATE_BALANCE_BY_TYPE, { value, getters });
-            }
+            if (BALANCE_ALLOW_TYPES.includes(value.type)) commit(TYPES.CALCULATE_BALANCE_BY_TYPE, { value, getters });
         },
         setLoader({ commit }, value) {
             commit(TYPES.SET_LOADER, value);

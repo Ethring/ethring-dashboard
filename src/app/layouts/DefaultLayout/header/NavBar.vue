@@ -9,10 +9,10 @@
     </a-layout-header>
 </template>
 <script>
-import { onMounted, onBeforeUnmount, ref } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 
-import Adapter from '@/Adapter/UI/Adapter';
-import HelpBlock from './Help/HelpBlock.vue';
+import Adapter from '@/core/wallet-adapter/UI/Adapter.vue';
+import HelpBlock from '@/app/layouts/DefaultLayout/header/Help/HelpBlock.vue';
 
 export default {
     name: 'NavBar',

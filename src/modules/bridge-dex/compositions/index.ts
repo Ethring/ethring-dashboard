@@ -45,9 +45,8 @@ const useBridgeDexService = (type: ModuleTypes) => {
     const quoteRoutes = computed<IQuoteRoute[]>(() => store.getters['bridgeDexAPI/getQuoteRouteList'](TARGET_TYPE));
     const selectedRoute = computed<IQuoteRoute>(() => store.getters['bridgeDexAPI/getSelectedRoute'](TARGET_TYPE));
     const otherRoutes = computed<IQuoteRoute[]>(() => {
-        if (!quoteRoutes.value || !selectedRoute.value) {
-            return [];
-        }
+        if (!quoteRoutes.value || !selectedRoute.value) return [];
+
         return quoteRoutes.value.filter((route: IQuoteRoute) => route.serviceId !== selectedRoute.value.serviceId);
     });
 

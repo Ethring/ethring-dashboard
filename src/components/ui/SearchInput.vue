@@ -5,10 +5,10 @@
         </div>
         <div class="search-input__container">
             <input
-                @focus="isActive = 'active'"
-                @blur="isActive = ''"
                 v-model="text"
                 :placeholder="placeholder || $t('tokenOperations.searchToken')"
+                @focus="isActive = 'active'"
+                @blur="isActive = ''"
             />
         </div>
         <div v-if="text.length" class="search-input__clear" @click="clearValue">
@@ -31,12 +31,15 @@ export default {
     },
     props: {
         value: {
+            type: String,
             default: '',
         },
         placeholder: {
+            type: String,
             default: '',
         },
     },
+    emits: ['onChange'],
     setup(props, { emit }) {
         const text = ref(props.value || '');
         const isActive = ref('');
@@ -53,7 +56,7 @@ export default {
             () => props.value,
             () => {
                 text.value = props.value;
-            }
+            },
         );
 
         return {

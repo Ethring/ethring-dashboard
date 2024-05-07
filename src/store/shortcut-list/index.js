@@ -1,6 +1,6 @@
 import { useLocalStorage } from '@vueuse/core';
 
-import { getAllShortcuts, getDataByIdAndType } from '@/modules/shortcuts/data';
+import { getAllShortcuts, getDataByIdAndType } from '@/core/shortcuts/data';
 
 const TYPES = {
     SET_FILTERED_TAGS: 'SET_FILTERED_TAGS',
@@ -15,15 +15,12 @@ const shortcutWatchList = useLocalStorage(SHORTCUT_WATCH_LIST_KEY, [], { mergeDe
 const filterShortcuts = (state, type) => {
     let list = state.shortcuts;
 
-    if (state.selectedTags.length) {
+    if (state.selectedTags.length)
         list = state.shortcuts.filter((item) => {
             return item.tags.some((tag) => state.selectedTags.includes(tag));
         });
-    }
 
-    if (type === 'all') {
-        return list;
-    }
+    if (type === 'all') return list;
 
     return list.filter((item) => state.watchList.includes(item.id));
 };
@@ -65,9 +62,7 @@ export default {
             commit(TYPES.SET_SELECTED_SHORTCUT, value);
         },
         setFilterTags({ state, commit }, value) {
-            if (state.selectedTags.length > 5 || state.selectedTags.includes(value)) {
-                return;
-            }
+            if (state.selectedTags.length > 5 || state.selectedTags.includes(value)) return;
 
             commit(TYPES.SET_FILTERED_TAGS, [...state.selectedTags, value]);
         },
@@ -80,11 +75,8 @@ export default {
             commit(TYPES.SET_FILTERED_TAGS, []);
         },
         setWatchList({ commit }, value) {
-            if (shortcutWatchList.value.includes(value)) {
-                shortcutWatchList.value = shortcutWatchList.value.filter((item) => item !== value);
-            } else {
-                shortcutWatchList.value = [...shortcutWatchList.value, value];
-            }
+            if (shortcutWatchList.value.includes(value)) shortcutWatchList.value = shortcutWatchList.value.filter((item) => item !== value);
+            else shortcutWatchList.value = [...shortcutWatchList.value, value];
 
             commit(TYPES.SET_WATCH_LIST, shortcutWatchList.value);
         },

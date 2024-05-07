@@ -1,6 +1,3 @@
-import { h } from 'vue';
-import { DoubleRightOutlined } from '@ant-design/icons-vue';
-
 import useNotification from '@/compositions/useNotification';
 
 import { delay } from '@/shared/utils/helpers';
@@ -14,14 +11,12 @@ export const isCorrectChain = async (selectedNetwork, currentChainInfo, setChain
             type: 'error',
             title: `Different ecosystem`,
             duration: 3,
-            progress: true
+            progress: true,
         });
 
         return false;
     }
-    if (currentChainInfo.value.net === selectedNetwork.value.net) {
-        return true;
-    }
+    if (currentChainInfo.value.net === selectedNetwork.value.net) return true;
 
     showNotification({
         key: 'switch-network',
@@ -35,16 +30,15 @@ export const isCorrectChain = async (selectedNetwork, currentChainInfo, setChain
 
         await delay(1200);
 
-        if (!isChanged) {
+        if (!isChanged)
             showNotification({
                 key: 'switch-network-error',
                 type: 'error',
                 title: `Failed to switch network to ${selectedNetwork.value.name}`,
                 description: 'Please try again',
                 duration: 3,
-                progress: true
+                progress: true,
             });
-        }
 
         closeNotification('switch-network');
 

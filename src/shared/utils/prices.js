@@ -9,9 +9,7 @@ const getPriceByCoingeckoId = async (coingeckoId) => {
 
         const { usd = null } = priceById[coingeckoId] || {};
 
-        if (!usd) {
-            return 0;
-        }
+        if (!usd) return 0;
 
         const { price = 0 } = usd || {};
 
@@ -23,9 +21,7 @@ const getPriceByCoingeckoId = async (coingeckoId) => {
 };
 
 export const getPriceFromProvider = async (tokenAddress, selectedNetwork, { coingeckoId = null } = {}) => {
-    if (coingeckoId) {
-        return await getPriceByCoingeckoId(coingeckoId);
-    }
+    if (coingeckoId) return await getPriceByCoingeckoId(coingeckoId);
 
     const { chain_id, chainId } = selectedNetwork || {};
 
@@ -38,9 +34,7 @@ export const getPriceFromProvider = async (tokenAddress, selectedNetwork, { coin
         const price = await PricesModule.Coingecko.priceByPlatformContracts(requestPriceFor);
         const address = tokenAddress?.toLowerCase() || tokenAddress;
 
-        if (!price[address]) {
-            return 0;
-        }
+        if (!price[address]) return 0;
 
         const { usd = 0 } = price[address] || {};
 

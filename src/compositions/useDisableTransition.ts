@@ -8,7 +8,7 @@ export default function withoutTransition(action: () => any) {
     clearTimeout(timeoutEnable);
 
     // Create style element to disable transitions
-    const style = document.createElement("style");
+    const style = document.createElement('style');
     const css = document.createTextNode(`* {
      -webkit-transition: none !important;
      -moz-transition: none !important;
@@ -23,7 +23,7 @@ export default function withoutTransition(action: () => any) {
     const enable = () => document.head.removeChild(style);
 
     // Best method, getComputedStyle forces browser to repaint
-    if (typeof window.getComputedStyle !== "undefined") {
+    if (typeof window.getComputedStyle !== 'undefined') {
         disable();
         action();
         window.getComputedStyle(style).opacity;
@@ -32,7 +32,7 @@ export default function withoutTransition(action: () => any) {
     }
 
     // Better method, requestAnimationFrame processes function before next repaint
-    if (typeof window.requestAnimationFrame !== "undefined") {
+    if (typeof window.requestAnimationFrame !== 'undefined') {
         disable();
         action();
         window.requestAnimationFrame(enable);
@@ -45,4 +45,4 @@ export default function withoutTransition(action: () => any) {
         action();
         timeoutEnable = setTimeout(enable, 120);
     }, 120);
-};
+}

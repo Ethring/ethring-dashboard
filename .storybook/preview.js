@@ -7,7 +7,7 @@ import Antd from 'ant-design-vue';
 import i18n from '@/app/providers/i18n';
 import Store from '@/app/providers/store.provider.js';
 
-import useAdapter from '@/Adapter/compositions/useAdapter';
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
 import './storybook.css';
 import '../src/assets/styles/index.scss';

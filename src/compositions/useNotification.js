@@ -27,9 +27,7 @@ export default function useNotification() {
 
         let descriptionText = description;
 
-        if (description && description.length > MAX_TEXT_LENGTH) {
-            descriptionText = `${description.slice(0, MAX_TEXT_LENGTH)}.......`;
-        }
+        if (description && description.length > MAX_TEXT_LENGTH) descriptionText = `${description.slice(0, MAX_TEXT_LENGTH)}.......`;
 
         const notificationParams = {
             class: `custom-notification ${type} ${key}`,
@@ -44,11 +42,10 @@ export default function useNotification() {
 
         const btnComponents = [];
 
-        if (explorerLink) {
+        if (explorerLink)
             btnComponents.push(() =>
                 h(ExternalLinkIcon, { class: 'notification-explorer', onClick: () => openExplorer(explorerLink, key) }),
             );
-        }
 
         if (progress) {
             const progressPercent = ref(100);
@@ -74,33 +71,28 @@ export default function useNotification() {
 
                 progressPercent.value = Math.round(Math.max(calculatedProgress, 0));
 
-                if (remainingTime <= 0) {
-                    clearInterval(progressInterval);
-                }
+                if (remainingTime <= 0) clearInterval(progressInterval);
             };
 
             const progressInterval = setInterval(updateProgressLine, 100);
         }
 
-        if (btnComponents.length > 0) {
-            notificationParams.btn = () => btnComponents.map((component) => component());
-        }
+        if (btnComponents.length > 0) notificationParams.btn = () => btnComponents.map((component) => component());
 
-        if (txHash && wait) {
+        if (txHash && wait)
             notificationParams.icon = () =>
                 h(LoadingOutlined, {
                     spin: true,
                     'data-qa': `waiting-${txHash}-tx`,
                 });
-        }
 
-        if (prepare) {
+        if (prepare)
             notificationParams.icon = () =>
                 h(LoadingOutlined, {
                     spin: true,
                     'data-qa': 'prepare-tx',
                 });
-        } else if (key?.startsWith('switch')) {
+        else if (key?.startsWith('switch'))
             notificationParams.icon = () =>
                 h(DoubleRightOutlined, {
                     style: {
@@ -108,7 +100,6 @@ export default function useNotification() {
                     },
                     'data-qa': 'switch-network',
                 });
-        }
 
         notification[type](notificationParams);
     };

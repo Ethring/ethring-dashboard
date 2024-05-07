@@ -7,12 +7,12 @@ import { ServiceTypes } from '@/modules/bridge-dex/enums/ServiceType.enum';
 import { GetAllowanceParams } from '@/modules/bridge-dex/models/Request.type';
 
 import { IQuoteRoute, ErrorResponse } from '@/modules/bridge-dex/models/Response.interface';
-import { ECOSYSTEMS } from '@/Adapter/config';
-import useAdapter from '@/Adapter/compositions/useAdapter';
+import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
-import { Allowance } from '../models/Request.type';
+import { Allowance } from '@/modules/bridge-dex/models/Request.type';
 
-import { AddressByChain, AddressByChainHash } from '@/shared/models/types/Address';
+import { AddressByChainHash } from '@/shared/models/types/Address';
 
 /**
  *
@@ -92,9 +92,7 @@ const useBridgeDexAllowance = (targetType: ServiceTypes, bridgeDexService: Bridg
             selectedSrcToken.value.address &&
             selectedSrcToken.value.address !== null;
 
-        if (!isEVM) {
-            return false;
-        }
+        if (!isEVM) return false;
 
         return isEVM && isServiceSelected && isTokenSelected;
     });
@@ -104,13 +102,9 @@ const useBridgeDexAllowance = (targetType: ServiceTypes, bridgeDexService: Bridg
     // ===========================================================================================
 
     const srcTokenAllowance = computed(() => {
-        if (!isAllowToMakeRequest.value) {
-            return null;
-        }
+        if (!isAllowToMakeRequest.value) return null;
 
-        if (!selectedSrcToken.value && !selectedSrcToken.value?.address) {
-            return null;
-        }
+        if (!selectedSrcToken.value && !selectedSrcToken.value?.address) return null;
 
         return store.getters['bridgeDexAPI/getServiceAllowance'](
             selectedRoute.value.serviceId,
@@ -123,17 +117,11 @@ const useBridgeDexAllowance = (targetType: ServiceTypes, bridgeDexService: Bridg
     // * Allowance -> Check if need to approve
     // ===========================================================================================
     const isNeedApprove = computed(() => {
-        if (!selectedSrcToken.value && !selectedSrcToken.value?.address) {
-            return false;
-        }
+        if (!selectedSrcToken.value && !selectedSrcToken.value?.address) return false;
 
-        if (!isAllowToMakeRequest.value && !srcAmount.value) {
-            return false;
-        }
+        if (!isAllowToMakeRequest.value && !srcAmount.value) return false;
 
-        if (!srcTokenAllowance.value || srcTokenAllowance.value === null) {
-            return false;
-        }
+        if (!srcTokenAllowance.value || srcTokenAllowance.value === null) return false;
 
         return !BigNumber(srcAmount.value).lte(srcTokenAllowance.value);
     });
@@ -147,9 +135,7 @@ const useBridgeDexAllowance = (targetType: ServiceTypes, bridgeDexService: Bridg
 
         const isAddressEmpty = !requestParams.tokenAddress || requestParams.tokenAddress === null;
 
-        if (!isAllowToMakeRequest.value || isAddressEmpty) {
-            return (isAllowanceLoading.value = false);
-        }
+        if (!isAllowToMakeRequest.value || isAddressEmpty) return (isAllowanceLoading.value = false);
 
         try {
             bridgeDexService.setServiceId(serviceId);
@@ -193,14 +179,13 @@ const useBridgeDexAllowance = (targetType: ServiceTypes, bridgeDexService: Bridg
             (srcTokenAllowance.value !== null && srcTokenAllowance.value !== undefined) ||
             selectedRoute.value?.serviceId === null ||
             selectedRoute.value?.serviceId === undefined
-        ) {
+        )
             return;
-        }
 
         await makeAllowanceRequest(selectedRoute.value.serviceId, {
             net: selectedSrcNetwork.value.net,
             tokenAddress: selectedSrcToken.value.address,
-            ownerAddress: addressByChain[selectedSrcNetwork.value.net] || walletAddress.value,
+            ownerAddress: addressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value,
         });
     });
 

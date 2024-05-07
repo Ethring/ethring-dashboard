@@ -7,7 +7,5 @@ onmessage = function (event) {
         postMessage({ timerID });
     }
 
-    if (event.data?.clearTimer) {
-        this.clearTimeout(event.data.timerID);
-    }
+    if (event.data?.clearTimer) this.clearTimeout(event.data.timerID);
 };
