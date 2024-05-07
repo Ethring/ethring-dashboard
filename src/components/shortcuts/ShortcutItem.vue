@@ -77,7 +77,7 @@ import MultiIcon from '@/assets/icons/module-icons/multi.svg';
 import Amount from '@/components/app/Amount.vue';
 import UiButton from '@/components/ui/Button.vue';
 
-import { ECOSYSTEM_LOGOS } from '@/Adapter/config';
+import { ECOSYSTEM_LOGOS } from '@/core/wallet-adapter/config';
 
 export default {
     name: 'ShortcutItem',
@@ -89,8 +89,6 @@ export default {
 
         Amount,
         UiButton,
-
-        ECOSYSTEM_LOGOS,
     },
     props: {
         item: {
