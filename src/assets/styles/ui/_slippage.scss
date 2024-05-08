@@ -41,6 +41,7 @@
         width: 356px;
         background-color: var(--#{$prefix}accordion-bg-color) !important;
         padding: 16px !important;
+        border-radius: 16px !important;
 
         .label {
             color: var(--#{$prefix}mute-text);
@@ -55,6 +56,9 @@
             border: 1px solid var(--#{$prefix}radio-btn-bg-color);
 
             .ant-radio-button-wrapper {
+                @include pageFlexRow;
+
+                height: 34px;
                 transition: all 0.2s !important;
                 border: none;
                 background-color: var(--#{$prefix}accordion-bg-color) !important;
@@ -162,4 +166,8 @@
             margin: auto;
         }
     }
+}
+
+.ant-dropdown-arrow {
+    right: 12px !important;
 }

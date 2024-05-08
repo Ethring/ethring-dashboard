@@ -4,7 +4,7 @@ $layout-max-width: 1024px;
 $sidebar-size: 240px;
 $sidebar-size-collapse: 64px;
 
-$top-bar-spacing: 20px;
+$top-bar-spacing: 63px;
 
 .main-layout {
     transition: margin-left 0.2s ease-in-out;
@@ -48,16 +48,27 @@ $top-bar-spacing: 20px;
 }
 
 .sidebar-trigger {
+    width: 24px;
+    height: 24px;
     position: absolute;
     top: $top-bar-spacing;
-    right: -25px;
-
+    right: -10px;
     background-color: var(--#{$prefix}primary);
-    border-radius: 0 8px 8px 0;
+    padding: 4px;
+    border-radius: 2px;
+    transform: rotate(45deg);
 
-    padding: 8px;
+    cursor: pointer;
 
-    color: var(--#{$prefix}white);
+    svg {
+        transition: all 0.2s;
+        position: absolute;
+        transform: rotate(-45deg);
+        top: -2px;
+    }
+    &__closed {
+        transform: rotate(135deg) !important;
+    }
 }
 
 .module-layout-view {
