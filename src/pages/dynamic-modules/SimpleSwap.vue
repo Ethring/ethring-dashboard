@@ -135,7 +135,7 @@ export default {
         SelectAddressInput,
         Checkbox,
         Slippage,
-        SyncOutlined
+        SyncOutlined,
     },
 
     setup() {
@@ -283,7 +283,6 @@ export default {
         };
 
         // =================================================================================================================
-
 
         watch(srcAmount, () => resetAmounts(DIRECTIONS.SOURCE, srcAmount.value));
 

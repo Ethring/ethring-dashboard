@@ -88,7 +88,12 @@
     }
 
     .value span {
+        font-weight: 500;
         color: var(--#{$prefix}balance-text);
+    }
+
+    .symbol {
+        color: var(--#{$prefix}select-label-color) !important;
     }
 
     .balance-value * {

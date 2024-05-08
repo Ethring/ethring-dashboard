@@ -16,6 +16,8 @@ html,
 body {
     background: var(--#{$prefix}main-background) !important;
     font-size: var(--#{$prefix}default-fs);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .app-wrap {

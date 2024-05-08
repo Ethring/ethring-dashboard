@@ -39,13 +39,13 @@
         }
 
         .type {
-            color: var(--#{$prefix}neutral-text);
+            color: var(--#{$prefix}mute-apr-text);
         }
 
         .type,
         .apr,
         .unlock {
-            font-weight: 300;
+            font-weight: 400;
             font-size: var(--#{$prefix}small-sm-fs);
         }
 
@@ -67,11 +67,8 @@
     }
 
     .amount {
-        display: inline-flex;
-        align-items: flex-end;
-
         .symbol {
-            font-weight: 300;
+            font-weight: 400;
             color: var(--#{$prefix}secondary-text);
         }
 
