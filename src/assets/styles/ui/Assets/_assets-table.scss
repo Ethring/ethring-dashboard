@@ -5,14 +5,16 @@
         .ant-collapse-expand-icon {
             margin: auto;
 
-            .ant-collapse-arrow {
-                padding: 4px;
-                border-radius: 8px;
-                border: 1px solid var(--#{$prefix}assets-arrow-border-color) !important;
+            .arrow {
+                @include animateEasy;
+
+                cursor: pointer;
+
+                transform: rotate(180deg);
+                fill: var(--#{$prefix}select-icon-color);
+                margin-left: auto;
+
                 transition: all 0.2s ease-in-out;
-                svg {
-                    fill: var(--#{$prefix}assets-arrow-color) !important;
-                }
             }
         }
     }
@@ -27,6 +29,14 @@
     .ant-collapse-item {
         border-radius: 16px !important;
         transition: all 0.2s ease-in-out;
+
+        &-active {
+            .ant-collapse-expand-icon {
+                svg {
+                    transform: rotate(270deg) !important;
+                }
+            }
+        }
     }
 
     .ant-collapse-content-box {
@@ -34,20 +44,20 @@
         padding-block: 0 16px !important;
     }
 
-    & > &-panel:not(:last-child) {
+    &>&-panel:not(:last-child) {
         margin-bottom: 16px;
     }
 
     .ant-collapse-item:hover,
     .ant-collapse-item.active-panel {
         border-color: var(--#{$prefix}assets-arrow-hover-color) !important;
-        .ant-collapse-arrow {
-            background-color: var(--#{$prefix}assets-arrow-hover-color) !important;
-            border-color: var(--#{$prefix}white) !important;
-            svg {
-                fill: var(--#{$prefix}white) !important;
-            }
-        }
+        // .ant-collapse-arrow {
+        // background-color: var(--#{$prefix}assets-arrow-hover-color) !important;
+        // border-color: var(--#{$prefix}white) !important;
+        // svg {
+        //     fill: var(--#{$prefix}white) !important;
+        // }
+        // }
     }
 }
 
@@ -78,7 +88,7 @@
         padding: 0 !important;
     }
 
-    .ant-table-tbody > tr:last-child > td {
+    .ant-table-tbody>tr:last-child>td {
         border-bottom: none !important;
         padding-bottom: 0 !important;
     }
@@ -100,7 +110,7 @@
         }
 
         .name::before {
-            content: "\2022";
+            content: '\2022';
             margin: 0 4px;
             color: var(--#{$prefix}neutral-text);
         }
@@ -110,8 +120,9 @@
         height: 36px;
     }
 
-    .ant-table-tbody > .ant-table-row > .ant-table-cell {
+    .ant-table-tbody>.ant-table-row>.ant-table-cell {
         height: 48px;
+
         .assets__item {
             padding: 8px 0;
         }
@@ -121,6 +132,7 @@
         from {
             opacity: 0;
         }
+
         to {
             opacity: 1;
         }

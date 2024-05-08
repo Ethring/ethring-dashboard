@@ -5,16 +5,16 @@
             <ThemeSwitcher />
         </a-tooltip>
 
-        <HelpItem tooltipText="dashboard.releaseNotes" @click="showReleaseNotes" :badge="showBadge">
-            <FileDoneOutlined />
+        <HelpItem tooltip-text="dashboard.releaseNotes" :badge="showBadge" @click="showReleaseNotes">
+            <ReleaseNoteIcon />
         </HelpItem>
 
         <template v-if="currentChainInfo">
-            <HelpItem tooltipText="dashboard.buyCrypto" @click="toggleBuyCryptoModal">
+            <HelpItem tooltip-text="dashboard.buyCrypto" @click="toggleBuyCryptoModal">
                 <BuyCryptoIcon />
             </HelpItem>
 
-            <HelpItem :tooltipText="tooltipText" :disabled="isLoading" @click="loadBalances">
+            <HelpItem :tooltip-text="tooltipText" :disabled="isLoading" @click="loadBalances">
                 <SyncOutlined :spin="isLoading" />
             </HelpItem>
         </template>
@@ -23,17 +23,20 @@
 <script>
 import { computed, inject } from 'vue';
 import { useStore } from 'vuex';
+
 import _ from 'lodash';
 
-import { FileDoneOutlined, SyncOutlined } from '@ant-design/icons-vue';
+import { SyncOutlined } from '@ant-design/icons-vue';
 
+import ReleaseNoteIcon from '@/assets/icons/platform-icons/note.svg';
 import BuyCryptoIcon from '@/assets/icons/sidebar/buy-crypto.svg';
+
 import ThemeSwitcher from '../ThemeSwitcher.vue';
 import HelpItem from './HelpItem.vue';
 
-import { updateBalanceForAccount } from '@/modules/balance-provider';
+import { updateBalanceForAccount } from '@/core/balance-provider';
 
-import { DP_CHAINS } from '@/modules/balance-provider/models/enums';
+import { DP_CHAINS } from '@/core/balance-provider/models/enums';
 
 export default {
     name: 'HelpBlock',
@@ -41,8 +44,8 @@ export default {
         HelpItem,
         ThemeSwitcher,
         BuyCryptoIcon,
-        FileDoneOutlined,
         SyncOutlined,
+        ReleaseNoteIcon,
     },
     setup() {
         const store = useStore();
@@ -63,9 +66,7 @@ export default {
         };
 
         const showBadge = computed(() => {
-            if (process.env.APP_VERSION !== lastVersion.value) {
-                return 1;
-            }
+            if (process.env.APP_VERSION !== lastVersion.value) return 1;
 
             return 0;
         });
@@ -73,9 +74,8 @@ export default {
         const toggleBuyCryptoModal = () => store.dispatch('app/toggleModal', 'buyCrypto');
 
         const loadBalances = async () => {
-            if (isLoading.value) {
-                return;
-            }
+            if (isLoading.value) return;
+
             for (const { account, addresses } of connectedWallets.value) {
                 store.dispatch('tokens/setIsInitCall', { account, time: null });
 
@@ -83,7 +83,7 @@ export default {
 
                 await updateBalanceForAccount(account, list);
             }
-        }
+        };
 
         return {
             isLoading,
@@ -104,7 +104,7 @@ export default {
     @include pageFlexRow;
     max-height: 32px !important;
 
-    &>div:not(:last-child) {
+    & > div:not(:last-child) {
         margin-right: 10px;
     }
 }

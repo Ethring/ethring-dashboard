@@ -1,21 +1,21 @@
 <template>
     <a-form-item
+        v-click-away="(active = false)"
         class="select-panel select-input"
         :class="{ active: active, focused, disabled }"
         @click="active = true"
-        v-click-away="(active = false)"
     >
         <div class="input-label">{{ $t('tokenOperations.memoLabel') }}</div>
 
         <a-input-group compact class="input-group">
             <a-input
-                allow-clear
                 v-model:value="memo"
+                v-debounce:1s="onInput"
+                allow-clear
                 class="base-input"
                 data-qa="custom-input"
                 :bordered="false"
                 :disabled="disabled"
-                v-debounce:1s="onInput"
                 @focus="focused = true"
                 @blur="onBlur"
             >

@@ -5,18 +5,19 @@
             <div class="description">{{ $t('shortcuts.description') }}</div>
         </div>
         <div class="shortcut-info__btn">
-            <Button title="Soon" />
+            <UiButton title="Soon" disabled />
         </div>
         <LinesBack class="shortcut-info-lines" />
     </a-row>
 </template>
 <script>
 import LinesBack from '@/assets/images/wallet-info/lines.svg';
-
+import UiButton from '@/components/ui/Button.vue';
 export default {
     name: 'ShortcutInfoLarge',
     components: {
         LinesBack,
+        UiButton,
     },
     setup() {},
 };

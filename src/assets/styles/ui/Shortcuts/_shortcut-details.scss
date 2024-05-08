@@ -19,6 +19,7 @@
         overflow-x: hidden;
         text-wrap: nowrap;
         text-overflow: ellipsis;
+        text-align: center;
     }
 
     > .description {
@@ -40,10 +41,19 @@
 
         &:hover {
             color: var(--#{$prefix}primary-text);
+
+            svg path {
+                fill: var(--#{$prefix}primary-text);
+            }
         }
 
         span {
             margin-left: 10px;
+        }
+
+        svg path {
+            transition: 0.2s;
+            fill: var(--#{$prefix}base-text);
         }
     }
 
@@ -52,14 +62,24 @@
         min-height: 30px;
         height: 30px;
         border-radius: 4px;
-        text-transform: capitalize;
 
         color: var(--#{$prefix}mute-text);
         background-color: var(--#{$prefix}base-btn-bg-color);
 
+        span {
+            text-transform: capitalize;
+        }
+
         &:hover {
             background-color: var(--#{$prefix}small-btn-bg-color) !important;
             color: var(--#{$prefix}primary) !important;
+        }
+    }
+
+    .steps-content {
+        .description,
+        .title {
+            color: var(--#{$prefix}mute-text);
         }
     }
 

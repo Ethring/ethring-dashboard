@@ -1,33 +1,39 @@
-import { ITransaction, ITransactionResponse } from '../Transactions/types/Transaction';
+import { useStore } from 'vuex';
+import _ from 'lodash';
+
+import { ITransaction, ITransactionResponse } from '@/core/transaction-manager/types/Transaction';
 import { SHORTCUT_STATUSES, STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
 // Transaction manager
-import { Transaction, TransactionList } from '@/Transactions/TX-manager';
+import { Transaction, TransactionList } from '@/core/transaction-manager/TX-manager';
 import { computed, onUnmounted, ref, watch } from 'vue';
 
-import { AddressByChainHash } from '../shared/models/types/Address';
-import { ApproveOperation } from '@/modules/operations/Approve';
-import DexOperation from '@/modules/operations/Dex';
 // Config
-import { ECOSYSTEMS } from '@/Adapter/config';
-import { IBaseOperation } from '@/modules/operations/models/Operations';
-import { ModuleType } from '@/shared/models/enums/modules.enum';
-import MultipleContractExec from '@/modules/operations/MultipleExec';
-import OperationsFactory from '@/modules/operations/OperationsFactory';
-import { OwnerAddresses } from '@/modules/bridge-dex/models/Request.type';
+import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+
 // Types
+import { AddressByChainHash } from '@/shared/models/types/Address';
+
+import MultipleContractExec from '@/core/operations/MultipleExec';
+import OperationsFactory from '@/core/operations/OperationsFactory';
+import ApproveOperation from '@/core/operations/Approve';
+import TransferOperation from '@/core/operations/Transfer';
+import DexOperation from '@/core/operations/Dex';
+
+import { IBaseOperation } from '@/core/operations/models/Operations';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
+import { OwnerAddresses } from '@/modules/bridge-dex/models/Request.type';
 import { ServiceType } from '@/modules/bridge-dex/enums/ServiceType.enum';
-import TransferOperation from '@/modules/operations/Transfer';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
-import _ from 'lodash';
+
 import { delay } from '@/shared/utils/helpers';
 import socket from '@/app/modules/socket';
-import useAdapter from '@/Adapter/compositions/useAdapter';
-import useInputValidation from '@/shared/form-validations';
+
 // Compositions
+import useInputValidation from '@/shared/form-validations';
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import useNotification from '@/compositions/useNotification';
 import useServices from '@/compositions/useServices';
-import { useStore } from 'vuex';
-import useTransactions from '@/Transactions/compositions/useTransactions.js';
+import useTransactions from '@/core/transaction-manager/compositions/useTransactions.js';
 
 const useModuleOperations = (module: ModuleType) => {
     const store = useStore();
@@ -358,6 +364,7 @@ const useModuleOperations = (module: ModuleType) => {
                 ownerAddress: srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value,
                 amount: srcAmount.value,
                 serviceId: selectedRoute.value.serviceId,
+                dstAmount: dstAmount.value,
             });
 
             ops.getOperationByKey(`${module}_0`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
@@ -385,6 +392,7 @@ const useModuleOperations = (module: ModuleType) => {
                     receiverAddress: receiverAddress.value,
                     memo: memo.value,
                     type: null,
+                    dstAmount: dstAmount.value,
                 });
 
                 ops.getOperationByKey(`${module}_0`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
@@ -401,7 +409,7 @@ const useModuleOperations = (module: ModuleType) => {
             case ModuleType.bridge:
                 const index = isNeedApprove.value ? 1 : 0;
                 const type = isSameNetwork.value ? ServiceType.dex : ServiceType.bridgedex;
-                const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
+                // const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
 
                 ops.registerOperation(module, DexOperation);
 
@@ -419,6 +427,7 @@ const useModuleOperations = (module: ModuleType) => {
                     type,
                     slippageTolerance: slippage.value,
                     receiverAddress: receiverAddress.value,
+                    dstAmount: dstAmount.value,
                 };
 
                 if (isSendToAnotherAddress.value && receiverAddress.value && selectedRoute.value.serviceId === 'skip') {
@@ -427,7 +436,7 @@ const useModuleOperations = (module: ModuleType) => {
                         [selectedDstNetwork.value?.net || selectedSrcNetwork.value.net]: receiverAddress.value,
                     };
                 } else {
-                    let receiverAddressValue = addressByChain.value[selectedDstNetwork.value?.net || selectedSrcNetwork.value.net];
+                    const receiverAddressValue = addressByChain.value[selectedDstNetwork.value?.net || selectedSrcNetwork.value.net];
 
                     params.receiverAddress = {
                         [selectedDstNetwork.value?.net || selectedSrcNetwork.value.net]: receiverAddress.value || receiverAddressValue,
@@ -456,6 +465,7 @@ const useModuleOperations = (module: ModuleType) => {
                     contract: contractAddress.value,
                     count: contractCallCount.value,
                     type: null,
+                    dstAmount: dstAmount.value,
                 });
 
                 ops.getOperationByKey(`${module}_0`).setParamByField('contract', contractAddress.value);
@@ -536,6 +546,7 @@ const useModuleOperations = (module: ModuleType) => {
             ownerAddress: srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value,
             amount: srcAmount.value,
             serviceId: selectedRoute.value.serviceId,
+            dstAmount: dstAmount.value,
         });
 
         approveOperation.setEcosystem(selectedSrcNetwork.value?.ecosystem);
@@ -745,7 +756,7 @@ const useModuleOperations = (module: ModuleType) => {
                 showNotification({
                     key: `tx-${txInstance.getTxId()}`,
                     type: 'info',
-                    title: notificationTitle,
+                    title: notificationTitle || '',
                     description: notificationDescription || '',
                     duration: 0,
                     prepare: true,
@@ -770,9 +781,11 @@ const useModuleOperations = (module: ModuleType) => {
                 if ((operation && !operation.performTx) || typeof operation.performTx !== 'function')
                     throw new Error('Operation performTx function not implemented');
 
-                const { transaction, ecosystem } = await operation.performTx(operation.getEcosystem(), {
+                const performResponse = await operation.performTx(operation.getEcosystem(), {
                     serviceId: operation.getParamByField('serviceId'),
                 });
+
+                const { transaction, ecosystem = '' } = performResponse || {};
 
                 txInstance.setTransaction({
                     ...(txInstance.transaction as ITransactionResponse),
@@ -792,7 +805,7 @@ const useModuleOperations = (module: ModuleType) => {
         // ===============================================================================================
         // * #3 - EXECUTE TRANSACTION - function which describe how to execute transaction
         // ===============================================================================================
-        txInstance.execute = async () => {
+        txInstance.execute = async (): Promise<string | null> => {
             if (!checkOpIsExist()) return null;
 
             await checkWalletConnected(txInstance);
@@ -808,7 +821,7 @@ const useModuleOperations = (module: ModuleType) => {
                     opInstance: operations.getOperationByKey(moduleIndex),
                 });
 
-                return hash;
+                return hash.toString();
             } catch (error) {
                 console.error('useModuleOperations -> execute -> error', error);
                 throw error;
@@ -880,6 +893,7 @@ const useModuleOperations = (module: ModuleType) => {
                 title: 'Transaction error',
                 description: errorMessage,
                 duration: 6,
+                progress: true,
             });
 
             updateOperationStatus(STATUSES.FAILED, { moduleIndex, operationId, hash: txInstance.getTransaction()?.txHash as string });

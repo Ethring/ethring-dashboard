@@ -57,6 +57,7 @@ export default {
             default: '0',
         },
     },
+    emits: ['close'],
 };
 </script>
 

@@ -7,9 +7,7 @@ export function errorRegister(error) {
 
     const errorCodes = error.match(ERRORS_REGEX);
 
-    if (errorCodes) {
-        error = ERRORS[errorCodes[0]];
-    }
+    if (errorCodes) error = ERRORS[errorCodes[0]];
 
     return { error };
 }

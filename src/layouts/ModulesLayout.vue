@@ -6,7 +6,7 @@
                 <div class="layout-page-tab">
                     <router-link
                         v-for="tab in tabs"
-                        v-bind:key="tab"
+                        :key="tab"
                         class="layout-page-tab__title"
                         :class="{ 'layout-page-tab__active': tab.active }"
                         :to="tab.to"
@@ -26,17 +26,17 @@ import { onBeforeUnmount, onMounted, watch, ref, computed, watchEffect } from 'v
 import { useRouter, useRoute } from 'vue-router';
 import { useStore } from 'vuex';
 
-import SimpleBridge from '@/components/dynamic/bridge/SimpleBridge.vue';
-import SimpleSwap from '@/components/dynamic/swaps/SimpleSwap.vue';
-import SimpleSend from '@/components/dynamic/send/SimpleSend.vue';
-import SuperSwap from '@/components/dynamic/super-swap/SuperSwap.vue';
+import SimpleBridge from '@/pages/dynamic-modules/SimpleBridge.vue';
+import SimpleSwap from '@/pages/dynamic-modules/SimpleSwap.vue';
+import SimpleSend from '@/pages/dynamic-modules/SimpleSend.vue';
+import SuperSwap from '@/pages/dynamic-modules/SuperSwap.vue';
 
-import UnsupportedResult from '@/components/ui/UnsupportedResult';
-import OperationResult from '@/components/ui/Result';
+import UnsupportedResult from '@/components/ui/UnsupportedResult.vue';
+import OperationResult from '@/components/ui/Result.vue';
 import ArrowUpIcon from '@/assets/icons/module-icons/pointer-up.svg';
 
 import redirectOrStay from '@/shared/utils/routes';
-import useAdapter from '@/Adapter/compositions/useAdapter';
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
 export default {
     name: 'ModulesLayout',
@@ -92,33 +92,23 @@ export default {
         const callResetToDefaultValues = () => {
             setModuleType();
 
-            if (!moduleType.value) {
-                return;
-            }
+            if (!moduleType.value) return;
 
             const { back } = router.options.history.state || {};
 
-            if (back && back.includes(moduleType.value)) {
-                return;
-            }
+            if (back && back.includes(moduleType.value)) return;
 
             // resetToDefaultValues();
         };
 
         const callRedirectOrStay = async () => {
-            if (isConnecting.value) {
-                return;
-            }
+            if (isConnecting.value) return;
 
-            if (isConfigLoading.value) {
-                return;
-            }
+            if (isConfigLoading.value) return;
 
             const isStay = await redirectOrStay(route.path, currentChainInfo.value);
 
-            if (!isStay || !walletAccount.value) {
-                return router.push('/main');
-            }
+            if (!isStay || !walletAccount.value) return router.push('/main');
 
             return;
         };
@@ -147,6 +137,10 @@ export default {
             unWatchCurrRoute();
             unWatchIsConnecting();
             callResetToDefaultValues();
+        });
+
+        watch(operationResult, () => {
+            store.dispatch('app/toggleModal', 'txResultModal');
         });
 
         return {

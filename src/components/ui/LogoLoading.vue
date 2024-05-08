@@ -10,7 +10,7 @@
     </div>
 </template>
 <script>
-import { computed, onMounted } from 'vue';
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import Logo from '@/assets/icons/sidebar/logo.svg';
@@ -31,11 +31,6 @@ export default {
             type: String,
             default: 'loadings.initLoading',
         },
-
-        overlay: {
-            type: Boolean,
-            default: false,
-        },
     },
 
     setup(props) {
@@ -44,9 +39,7 @@ export default {
         const tipTranslate = computed(() => {
             const [block] = props.tip.split('.') || [];
 
-            if (block === 'loadings') {
-                return t(props.tip);
-            }
+            if (block === 'loadings') return t(props.tip);
 
             return props.tip;
         });

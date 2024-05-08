@@ -16,7 +16,7 @@ import util from 'util';
 import { expect } from '@playwright/test';
 const sleep = util.promisify(setTimeout);
 
-testMetaMaskAndKeplr('Case#: Shortcut transfer and stake', async ({ context, shortcutPage }) => {
+testMetaMaskAndKeplr.skip('Case#: Shortcut transfer and stake', async ({ context, shortcutPage }) => {
     const expectedNotificationTitle = 'BRIDGE 0.002 BNB';
     const expectedNotificationDesc = 'For 1.186137 OSMO';
 

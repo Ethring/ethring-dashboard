@@ -1,5 +1,5 @@
 <template>
-    <LoadingOverlay v-if="isSpinning" :spinning="isSpinning" :tip="loadingTitle" :overlay="true" />
+    <LoadingOverlay v-if="isSpinning" :spinning="isSpinning" :tip="loadingTitle" />
 
     <a-layout has-sider>
         <Sidebar />
@@ -13,7 +13,7 @@
     </a-layout>
 </template>
 <script>
-import { ref, computed, inject, onMounted } from 'vue';
+import { computed, inject, onMounted } from 'vue';
 import { useStore } from 'vuex';
 
 import LoadingOverlay from '@/components/ui/LoadingOverlay';
@@ -42,21 +42,15 @@ export default {
         const isSpinning = computed(() => isConfigLoading.value || isConnecting.value || false);
 
         const loadingTitle = computed(() => {
-            if (isConfigLoading.value) {
-                return 'loadings.initLoading';
-            }
+            if (isConfigLoading.value) return 'loadings.initLoading';
 
-            if (isConnecting.value) {
-                return 'loadings.walletConnecting';
-            }
+            if (isConnecting.value) return 'loadings.walletConnecting';
 
             return '';
         });
 
         onMounted(() => {
-            if (!window.localStorage?.getItem('lastVersion')) {
-                store.dispatch('app/setLastVersion', process.env.APP_VERSION);
-            }
+            if (!window.localStorage?.getItem('lastVersion')) store.dispatch('app/setLastVersion', process.env.APP_VERSION);
         });
 
         return {

@@ -3,10 +3,10 @@
         <div class="routes-modal">
             <div
                 v-for="(item, i) in quoteRoutes"
-                @click="() => (selected = item)"
+                :key="i"
                 class="routes-modal__item"
                 :class="selected?.serviceId === item.serviceId ? 'routes-modal__active-item' : ''"
-                :key="i"
+                @click="() => (selected = item)"
             >
                 <div class="routes-service">
                     <div class="routes-modal__row">
@@ -17,7 +17,7 @@
                             <h3 class="routes-service__name">{{ elem }}</h3>
                              <h1 v-if="j != item.routes.length - 1">-</h1>
                         </div> -->
-                        <div class="routes-modal__row" v-if="services[item.serviceId]">
+                        <div v-if="services[item.serviceId]" class="routes-modal__row">
                             <div class="routes-service__icon">
                                 <ServiceIcon
                                     v-if="services[item.serviceId].icon"
@@ -32,11 +32,11 @@
                             <h3 class="routes-service__name">{{ services[item.serviceId].name }}</h3>
                             <!-- <h1 v-if="j != item.routes.length - 1">-</h1> -->
                         </div>
-                        <p class="routes-service__status" v-for="(status, k) in getRouteStatus(item)" :class="status.class" :key="k">
+                        <p v-for="(status, k) in getRouteStatus(item)" :key="k" class="routes-service__status" :class="status.class">
                             {{ status.value }}
                         </p>
                     </div>
-                    <div class="routes-modal__row routes-time" v-if="item && item.estimateTime">
+                    <div v-if="item && item.estimateTime" class="routes-modal__row routes-time">
                         {{ $t('superSwap.time') }}: ~
                         <h4 class="mr-20">{{ item?.estimateTime }}s</h4>
                         {{ $t('superSwap.fee') }}:
@@ -50,17 +50,17 @@
                     <h3>
                         <Amount type="currency" decimals="6" :value="item.toAmount" :symbol="selectedDstToken?.symbol" />
                     </h3>
-                    <h3 class="blue-text" v-if="selectedDstToken?.price">
+                    <h3 v-if="selectedDstToken?.price" class="blue-text">
                         <Amount type="usd" decimals="6" :value="convert(item.toAmount, selectedDstToken?.price)" symbol="$" />
                     </h3>
                 </div>
             </div>
-            <Button
+            <UiButton
                 :loading="isLoading"
                 :title="$t('tokenOperations.confirm')"
                 class="routes-modal__btn"
-                @click="handleOnConfirm"
                 size="large"
+                @click="handleOnConfirm"
             />
         </div>
     </a-modal>
@@ -69,7 +69,7 @@
 import { computed, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 
-import Button from '@/components/ui/Button.vue';
+import UiButton from '@/components/ui/Button.vue';
 import Amount from '@/components/app/Amount.vue';
 import ServiceIcon from '@/components/ui/EstimatePanel/ServiceIcon.vue';
 
@@ -79,7 +79,7 @@ import BigNumber from 'bignumber.js';
 export default {
     name: 'BridgeDexRoutesModal',
     components: {
-        Button,
+        UiButton,
         Amount,
         ServiceIcon,
     },
@@ -135,21 +135,15 @@ export default {
 
             const statuses = [];
 
-            if (item[ROUTE_STATUS_KEY[ROUTE_STATUS.LOW_FEE]]) {
-                statuses.push(status[ROUTE_STATUS.LOW_FEE]);
-            }
+            if (item[ROUTE_STATUS_KEY[ROUTE_STATUS.LOW_FEE]]) statuses.push(status[ROUTE_STATUS.LOW_FEE]);
 
-            if (item[ROUTE_STATUS_KEY[ROUTE_STATUS.BEST_RETURN]]) {
-                statuses.push(status[ROUTE_STATUS.BEST_RETURN]);
-            }
+            if (item[ROUTE_STATUS_KEY[ROUTE_STATUS.BEST_RETURN]]) statuses.push(status[ROUTE_STATUS.BEST_RETURN]);
 
             return statuses;
         };
 
         const closeModal = () => {
-            if (!isRoutesModalOpen.value) {
-                selectedRoute.value = null;
-            }
+            if (!isRoutesModalOpen.value) selectedRoute.value = null;
 
             return store.dispatch('app/toggleModal', 'routesModal');
         };
@@ -160,9 +154,7 @@ export default {
         };
 
         watch(isRoutesModalOpen, () => {
-            if (isRoutesModalOpen.value) {
-                selected.value = selectedRoute.value;
-            }
+            if (isRoutesModalOpen.value) selected.value = selectedRoute.value;
         });
 
         return {
@@ -210,7 +202,7 @@ export default {
         margin-bottom: 16px;
 
         background-color: var(--#{$prefix}select-bg-color);
-        border: 1px solid var(--#{$prefix}select-bg-color);
+        border: 1px solid var(--#{$prefix}border-secondary-color);
 
         cursor: pointer;
     }

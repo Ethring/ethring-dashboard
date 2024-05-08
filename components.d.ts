@@ -114,7 +114,7 @@ declare module 'vue' {
     StepOpInfo: typeof import('./src/components/shortcuts/StepItem/StepOpInfo.vue')['default']
     SuccessShortcutModal: typeof import('./src/components/app/modals/SuccessShortcutModal.vue')['default']
     SuperSwap: typeof import('./src/components/dynamic/super-swap/SuperSwap.vue')['default']
-    SwapField: typeof import('./src/components/dynamic/super-swap/SwapField.vue')['default']
+    SwapField: typeof import('./src/components/ui/SuperSwap/SwapField.vue')['default']
     SwitchDirection: typeof import('./src/components/ui/SwitchDirection.vue')['default']
     TokenIcon: typeof import('./src/components/ui/Tokens/TokenIcon.vue')['default']
     UnsupportedResult: typeof import('./src/components/ui/UnsupportedResult.vue')['default']

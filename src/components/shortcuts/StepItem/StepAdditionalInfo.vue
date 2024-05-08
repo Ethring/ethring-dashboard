@@ -1,6 +1,6 @@
 <template>
     <a-space size="small" direction="vertical" class="step-additional-info">
-        <a-space size="small" direction="horizontal" v-if="percentageInfo?.from && percentageInfo?.percentage">
+        <a-space v-if="percentageInfo?.from && percentageInfo?.percentage" size="small" direction="horizontal">
             <Amount :value="percentageInfo.to.amount || 0" :symbol="percentageInfo.to.symbol" type="currency" />
             <span>=</span>
             <Amount :value="percentageInfo.percentage.amount" symbol="%" type="currency" />
@@ -26,8 +26,8 @@ export default {
             type: Object,
             required: true,
             default: () => ({
-                from: {} as IAsset,
-                to: {} as IAsset,
+                from: {},
+                to: {},
                 stepIndex: 0,
             }),
         },
@@ -35,9 +35,9 @@ export default {
             type: Object,
             required: true,
             default: () => ({
-                from: {} as IAsset,
-                to: {} as IAsset,
-                percentage: {} as IAsset,
+                from: {},
+                to: {},
+                percentage: {},
             }),
         },
     },

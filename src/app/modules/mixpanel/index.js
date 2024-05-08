@@ -1,9 +1,7 @@
 import VueMixpanel from 'vue-mixpanel';
 
 export default function useMixpanel(app) {
-    if (!process.env.MIXPANEL_TOKEN) {
-        return;
-    }
+    if (!process.env.MIXPANEL_TOKEN) return;
 
     return app.use(VueMixpanel, {
         token: process.env.MIXPANEL_TOKEN,

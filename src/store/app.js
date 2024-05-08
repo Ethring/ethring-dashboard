@@ -5,7 +5,7 @@ const STORAGE = {
     COLLAPSED_SIDEBAR: 'user-settings:sidebar-collapsed',
     THEME: 'theme',
     LAST_VERSION: 'lastVersion',
-    COLLAPSED_ASSETS: 'user-settings:collapsable-assets'
+    COLLAPSED_ASSETS: 'user-settings:collapsable-assets',
 };
 
 const appThemeStorage = useLocalStorage(STORAGE.THEME, 'light', { mergeDefaults: true });
@@ -90,9 +90,8 @@ export default {
             state.selectedKeys = selectedKeys;
         },
         [TYPES.TOGGLE_MODAL](state, modalName) {
-            if (!state.modals[modalName]) {
-                state.modals[modalName] = false;
-            }
+            if (!state.modals[modalName]) state.modals[modalName] = false;
+
             state.modals[modalName] = !state.modals[modalName];
         },
         [TYPES.TOGGLE_SELECT_MODAL](state, { type, module }) {
@@ -110,7 +109,7 @@ export default {
         [TYPES.SET_COLLAPSED_ACTIVE_KEY](state, value) {
             state.collapsedAssets = value;
             collapsedAssetsStorage.value = value;
-        }
+        },
     },
 
     actions: {
@@ -146,6 +145,6 @@ export default {
         },
         setCollapsedAssets({ commit }, value) {
             commit(TYPES.SET_COLLAPSED_ACTIVE_KEY, value);
-        }
+        },
     },
 };

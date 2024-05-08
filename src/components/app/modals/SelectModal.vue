@@ -1,16 +1,23 @@
 <template>
-    <a-modal v-model:open="isModalOpen" centered :footer="null" :title="$t(modalTitle)" :afterClose="handleAfterClose" class="select-modal">
+    <a-modal
+        v-model:open="isModalOpen"
+        centered
+        :footer="null"
+        :title="$t(modalTitle)"
+        :after-close="handleAfterClose"
+        class="select-modal"
+    >
         <div data-qa="select-record-modal">
             <a-form>
                 <SearchInput
-                    @onChange="handleOnFilterNetworks"
                     :placeholder="$t(inputPlaceholder)"
                     :value="searchValue"
                     class="select-modal-search"
+                    @on-change="handleOnFilterNetworks"
                 />
             </a-form>
 
-            <div class="select-modal-list-container" ref="scrollComponent" @scroll="handleScroll">
+            <div ref="scrollComponent" class="select-modal-list-container" @scroll="handleScroll">
                 <SelectOption
                     v-for="option in optionList"
                     :key="option"
@@ -21,7 +28,7 @@
                 />
 
                 <!-- <div v-if="isLoadMore" class="select-modal-load-more">
-                    <Button :title="$t('tokenOperations.loadMore')" @click="handleLoadMore" />
+                    <UiButton :title="$t('tokenOperations.loadMore')" @click="handleLoadMore" />
                 </div> -->
 
                 <a-empty
@@ -41,16 +48,14 @@
 import { computed, inject, ref, onUpdated, nextTick } from 'vue';
 import { useStore } from 'vuex';
 
-import Button from '../../ui/Button.vue';
-import SearchInput from '../../ui/SearchInput.vue';
-import SelectOption from '../../ui/Select/SelectOption.vue';
+import SearchInput from '@/components/ui/SearchInput.vue';
+import SelectOption from '@/components/ui/Select/SelectOption.vue';
 
 import NotFoundIcon from '@/assets/icons/form-icons/not-found.svg';
 
 export default {
     name: 'SelectModal',
     components: {
-        Button,
         SearchInput,
         SelectOption,
 
@@ -114,9 +119,7 @@ export default {
         const handleScroll = () => {
             const modalContent = scrollComponent.value;
 
-            if (modalContent.scrollHeight - modalContent.scrollTop <= modalContent.clientHeight + 10) {
-                handleLoadMore();
-            }
+            if (modalContent.scrollHeight - modalContent.scrollTop <= modalContent.clientHeight + 10) handleLoadMore();
         };
 
         return {

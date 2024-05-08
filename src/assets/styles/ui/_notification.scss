@@ -57,7 +57,7 @@
         margin-inline-end: 50px;
     }
 
-    [class^="anticon"]:not(.anticon-check-circle):not(.anticon-close-circle) {
+    [class^='anticon']:not(.anticon-check-circle):not(.anticon-close-circle) {
         color: var(--#{$prefix}white);
     }
 

@@ -7,7 +7,7 @@
         placement="right"
     >
         <template #footer>
-            <Button title="update" @click="handleReload" class="update-btn" />
+            <UiButton title="update" class="update-btn" @click="handleReload" />
         </template>
 
         <a-space direction="vertical" class="release-info">
@@ -31,8 +31,8 @@
             <a-typography-text>
                 You can view all available tokens and protocols on our
                 <a-typography-text strong underline>
-                    <router-link to="/main" class="route-link"> dashboard </router-link>
-                </a-typography-text>.
+                    <router-link to="/main" class="route-link"> dashboard </router-link> </a-typography-text
+                >.
             </a-typography-text>
 
             <a-typography-text>
@@ -65,12 +65,12 @@
 <script>
 import { useStore } from 'vuex';
 import { computed } from 'vue';
-import Button from '@/components/ui/Button.vue';
+import UiButton from '@/components/ui/Button.vue';
 
 export default {
     name: 'ReleaseNotesDrawer',
     components: {
-        Button,
+        UiButton,
     },
     setup() {
         const store = useStore();

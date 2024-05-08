@@ -1,7 +1,7 @@
 <template>
     <div class="assets-group-container">
         <div class="assets-group-info">
-            <div class="assets-group-icon-container">
+            <div class="assets-group-icon-container" :class="{ border: icon }">
                 <component v-if="icon" :is="icon" class="asset-group-icon-svg" />
                 <TokenIcon
                     v-if="!icon"
@@ -22,7 +22,7 @@
                 <Amount :value="totalBalance || 0" :decimals="3" type="usd" symbol="$" class="assets-group-balance-amount" />
             </div>
 
-            <div class="assets-group-rewards" v-if="showRewards">
+            <div v-if="showRewards" class="assets-group-rewards">
                 <span class="assets-group-rewards-title">{{ $t('tokenOperations.rewards') }}:</span>
                 <div class="assets-group-rewards-block">
                     <Amount :value="reward || 0" :decimals="3" type="usd" symbol="$" class="assets-group-rewards-amount" />
@@ -39,12 +39,21 @@ import NftsIcon from '@/assets/icons/dashboard/nfts.svg';
 
 export default {
     name: 'AssetGroupHeader',
+    components: {
+        TokensIcon,
+        NftsIcon,
+        Amount,
+    },
     props: {
         title: {
+            type: String,
             required: true,
+            default: '',
         },
         value: {
+            type: [String, Number],
             required: false,
+            default: 0,
         },
         reward: {
             type: [String, Number],
@@ -71,12 +80,7 @@ export default {
             default: '',
         },
     },
-    components: {
-        TokensIcon,
-        NftsIcon,
-        Amount,
-    },
-
+    emits: ['click'],
     data() {
         return {
             showImagePlaceholder: false,

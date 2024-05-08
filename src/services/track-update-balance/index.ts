@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import { computed, watch } from 'vue';
+import { computed } from 'vue';
 
 import { ChainConfig } from '@/modules/chain-configs/types/chain-config';
 import { updateBalanceByChain } from '@/modules/balance-provider';

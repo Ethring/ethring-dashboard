@@ -7,9 +7,7 @@ const Router = createRouter({
 });
 
 Router.beforeResolve((to, from, next) => {
-    if (to.name) {
-        document.title = to.name;
-    }
+    if (to.name) document.title = to.name;
 
     if (to.hash && to.hash.includes('/main')) {
         const pathWithoutHash = to.path.replace(to.hash, '');

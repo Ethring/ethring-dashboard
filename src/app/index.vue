@@ -22,19 +22,19 @@ import Socket from '@/app/modules/socket';
 import AppLayout from '@/app/layouts/DefaultLayout';
 import ReleaseNotes from '@/app/layouts/DefaultLayout/header/ReleaseNotes.vue';
 
-import WalletsModal from '@/Adapter/UI/Modal/WalletsModal';
-import AddressModal from '@/Adapter/UI/Modal/AddressModal';
+import WalletsModal from '@/core/wallet-adapter/UI/Modal/WalletsModal';
+import AddressModal from '@/core/wallet-adapter/UI/Modal/AddressModal';
 import KadoModal from '@/components/app/modals/KadoModal.vue';
 import SelectModal from '@/components/app/modals/SelectModal.vue';
 import BridgeDexRoutesModal from '@/components/app/modals/BridgeDexRoutesModal.vue';
 
-import { updateBalanceForAccount } from '@/modules/balance-provider';
+import { updateBalanceForAccount } from '@/core/balance-provider';
 
 import { trackingBalanceUpdate } from '@/services/track-update-balance';
-import { setNativeTokensPrices } from '../modules/balance-provider/native-token';
+import { setNativeTokensPrices } from '@/core/balance-provider/native-token';
 
-import { DP_CHAINS } from '@/modules/balance-provider/models/enums';
-import { ECOSYSTEMS } from '@/Adapter/config';
+import { DP_CHAINS } from '@/core/balance-provider/models/enums';
+import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
 
 export default {
     name: 'App',
@@ -75,11 +75,10 @@ export default {
         const callSubscription = async () => {
             const { ecosystem } = currentChainInfo.value || {};
 
-            if (JSON.stringify(await getAddressesWithChains(ecosystem)) !== '{}' && walletAddress.value) {
+            if (JSON.stringify(await getAddressesWithChains(ecosystem)) !== '{}' && walletAddress.value)
                 Socket.setAddresses(await getAddressesWithChains(ecosystem), ecosystem, {
                     walletAccount: walletAccount.value,
                 });
-            }
         };
 
         const updateBalanceForAllAccounts = async () => {
@@ -115,9 +114,7 @@ export default {
         });
 
         const unWatchLoading = watch(isConfigLoading, async () => {
-            if (!isConfigLoading.value) {
-                await connectLastConnectedWallet();
-            }
+            if (!isConfigLoading.value) await connectLastConnectedWallet();
         });
 
         // ==========================================================================================

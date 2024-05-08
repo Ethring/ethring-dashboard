@@ -1,20 +1,20 @@
 <template>
     <a-table
         class="assets-table"
-        expandRowByClick
+        expand-row-by-click
         :columns="columns"
         :data-source="data"
         :pagination="false"
         :bordered="false"
         :loading="loading"
         :scroll="{ x: 700 }"
-        :rowKey="(record) => record?.id || `${type}-${record?.balanceType}-${record?.name}-${record?.address}-${record?.symbol}`"
-        :rowExpandable="(record) => record.nfts && record.nfts.length > 0"
-        :showExpandColumn="data[0]?.nfts && data[0]?.nfts.length > 0 ? true : false"
+        :row-key="(record) => record?.id || `${type}-${record?.balanceType}-${record?.name}-${record?.address}-${record?.symbol}`"
+        :row-expandable="(record) => record.nfts && record.nfts.length > 0"
+        :show-expand-column="data[0]?.nfts && data[0]?.nfts.length > 0 ? true : false"
     >
         <template #headerCell="{ title, column }">
             <p v-if="column && column.name">
-                {{ title }} <span class="name" v-if="name">{{ name }}</span>
+                {{ title }} <span v-if="name" class="name">{{ name }}</span>
             </p>
         </template>
 
@@ -25,50 +25,43 @@
         <template #expandedRowRender="{ record }">
             <ExpandNftInfo :record="record" />
         </template>
-        <!--
-        <template #footer v-if="isLoadMore">
-            <div class="assets-table__footer">
-                <Button @click="handleLoadMore" type="text" class="assets-table__footer-btn" title="Show All" />
-            </div>
-        </template>
-        -->
     </a-table>
 </template>
 
-<script>
-import { computed, ref, watch } from 'vue';
-import _ from 'lodash';
-
+<script lang="js">
 import AssetItem from '@/components/app/assets/AssetItem.vue';
 import ExpandNftInfo from '@/components/app/assets/NFT/ExpandNftInfo.vue';
-import Button from '@/components/ui/Button.vue';
 
 export default {
     name: 'AssetsTable',
+    components: {
+        AssetItem,
+        ExpandNftInfo,
+    },
     props: {
         data: {
+            type: Array,
             required: true,
-            default: [],
+            default: () => [],
         },
         columns: {
+            type: Array,
             required: false,
-            default: [],
+            default: () => [],
         },
         type: {
+            type: String,
             required: true,
             default: '',
         },
         name: {
+            type: String,
             required: false,
         },
         loading: {
+            type: Boolean,
             required: false,
-            default: false,
         },
-    },
-    components: {
-        AssetItem,
-        ExpandNftInfo,
     },
 };
 </script>

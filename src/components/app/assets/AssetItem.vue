@@ -14,15 +14,15 @@
                             {{ item.name || item.symbol }}
                         </template>
                     </div>
-                    <div class="type" v-if="item.balanceType">{{ getFormattedName(item.balanceType) }}</div>
-                    <div class="unlock" v-if="item.unlockTimestamp">
+                    <div v-if="item.balanceType" class="type">{{ getFormattedName(item.balanceType) }}</div>
+                    <div v-if="item.unlockTimestamp" class="unlock">
                         <a-tooltip>
                             <template #title>{{ getFormattedDate(item.unlockTimestamp) }}</template>
                             Unlock: <span class="unlock__value"> {{ getTimeCountdown(item.unlockTimestamp) }} </span>
                         </a-tooltip>
                     </div>
-                    <div class="apr" v-if="item.leverageRate"><span>Leverage </span> {{ formatNumber(item.leverageRate, 2) }}x</div>
-                    <div class="count" v-if="item.nfts">
+                    <div v-if="item.leverageRate" class="apr"><span>Leverage </span> {{ formatNumber(item.leverageRate, 2) }}x</div>
+                    <div v-if="item.nfts" class="count">
                         <a-badge :count="item.nfts.length" class="asset-nfts-count" />
                     </div>
                 </div>
@@ -44,28 +44,30 @@ import { useStore } from 'vuex';
 import BigNumber from 'bignumber.js';
 
 import Amount from '@/components/app/Amount.vue';
-import AssetWithChain from '@/components/app/assets/AssetWithChain';
+import AssetWithChain from '@/components/app/assets/AssetWithChain.vue';
 
 import { formatNumber } from '@/shared/utils/numbers';
 import { getFormattedName, getFormattedDate, getTimeCountdown } from '@/shared/utils/assets';
 
 export default {
     name: 'AssetItem',
+    components: {
+        Amount,
+        AssetWithChain,
+    },
     props: {
         type: {
             type: String,
             default: 'asset',
         },
         item: {
+            type: Object,
             required: true,
         },
         column: {
+            type: String,
             default: null,
         },
-    },
-    components: {
-        Amount,
-        AssetWithChain,
     },
     setup(props) {
         const BALANCE_KEYS = ['balance', 'totalGroupBalance'];
@@ -75,9 +77,7 @@ export default {
         const showBalance = computed(() => store.getters['app/showBalance']);
 
         const balance = computed(() => {
-            if (!showBalance.value) {
-                return '****';
-            }
+            if (!showBalance.value) return '****';
 
             const balanceKey = BALANCE_KEYS.find((key) => props.column === key);
 
@@ -85,9 +85,7 @@ export default {
         });
 
         const balanceUsd = computed(() => {
-            if (!showBalance.value) {
-                return '****';
-            }
+            if (!showBalance.value) return '****';
 
             const usdKey = VALUE_KEYS.find((key) => props.column === key);
 
@@ -102,9 +100,7 @@ export default {
         });
 
         const ibcTag = computed(() => {
-            if (props.item?.name?.includes('IBC -')) {
-                return props.item.name.split('IBC -')[1];
-            }
+            if (props.item?.name?.includes('IBC -')) return props.item.name.split('IBC -')[1];
 
             return null;
         });

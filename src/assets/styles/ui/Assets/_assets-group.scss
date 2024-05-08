@@ -58,6 +58,10 @@
             align-items: center;
         }
 
+        &-container.border {
+            border: none;
+        }
+
         &-svg,
         &-img,
         &-placeholder {

@@ -10,7 +10,7 @@ const SHOW_BALANCE_KEY = 'user-settings:show-balances';
 const getShowBalance = () => JSON.parse(window.localStorage.getItem(SHOW_BALANCE_KEY));
 const setShowBalance = (showBalance) => localStorage.setItem(SHOW_BALANCE_KEY, JSON.stringify(showBalance));
 
-const cutAddressMock = vi.fn(() => { });
+const cutAddressMock = vi.fn(() => {});
 
 const storeMock = {
     getters: {
@@ -37,9 +37,9 @@ describe('Show/hide balances', () => {
                 cutAddress: cutAddressMock,
             },
             mocks: {
-                $t: (tKey) => tKey
+                $t: (tKey) => tKey,
             },
-        }
+        },
     });
 
     const getItemSpy = vi.spyOn(Storage.prototype, 'getItem');
@@ -67,4 +67,4 @@ describe('Show/hide balances', () => {
         expect(getShowBalance()).toStrictEqual(showBalance);
         expect(getItemSpy).toHaveBeenCalledWith(SHOW_BALANCE_KEY);
     });
-})
+});
