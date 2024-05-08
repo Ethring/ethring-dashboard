@@ -3,8 +3,8 @@ import _ from 'lodash';
 import { computed } from 'vue';
 
 import { ChainConfig } from '@/modules/chain-configs/types/chain-config';
-import { updateBalanceByChain } from '@/modules/balance-provider';
-import useAdapter from '@/Adapter/compositions/useAdapter';
+import { updateBalanceByChain } from '@/core/balance-provider'
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
 interface IQueue {
     chain: string;
