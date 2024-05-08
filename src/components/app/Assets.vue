@@ -12,7 +12,7 @@
                         title="Tokens"
                         icon="TokensIcon"
                         :value="getAssetsShare(totalAssetsBalances)"
-                        :totalBalance="totalAssetsBalances || 0"
+                        :total-balance="totalAssetsBalances || 0"
                     />
                 </template>
 

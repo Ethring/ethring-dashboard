@@ -44,7 +44,7 @@
         padding-block: 0 16px !important;
     }
 
-    &>&-panel:not(:last-child) {
+    & > &-panel:not(:last-child) {
         margin-bottom: 16px;
     }
 
@@ -88,7 +88,7 @@
         padding: 0 !important;
     }
 
-    .ant-table-tbody>tr:last-child>td {
+    .ant-table-tbody > tr:last-child > td {
         border-bottom: none !important;
         padding-bottom: 0 !important;
     }
@@ -120,7 +120,7 @@
         height: 36px;
     }
 
-    .ant-table-tbody>.ant-table-row>.ant-table-cell {
+    .ant-table-tbody > .ant-table-row > .ant-table-cell {
         height: 48px;
 
         .assets__item {

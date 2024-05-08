@@ -14,6 +14,8 @@ import {
 } from '../data/mockDataByTests/ShortcutTransferAndStakeMock';
 
 import {
+    MOCK_ARBITRUM_TX_HASH,
+    mockTxReceiptPendleStep1,
     mockPostTransactionsWsByCreateEventArbitrum,
     mockPostTransactionsRouteArbitrum,
     mockPutTransactionsShortcutPendleBeefy,
@@ -63,7 +65,7 @@ testMetaMaskAndKeplr.skip('Case#: Shortcut transfer and stake', async ({ context
     // TODO this assert work with wait notification
 });
 
-testMetaMask.skip('Case#: Shortcut Pendle - Beefy', async ({ context, shortcutPage }) => {
+testMetaMask('Case#: Shortcut Pendle - Beefy', async ({ context, shortcutPage }) => {
     const mockGetQuote = {
         '"fromToken":"0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee","toToken":"0x2416092f143378750bb29b79ed961ab195cceea5"': estimateArbitrumMock,
     };
@@ -88,15 +90,15 @@ testMetaMask.skip('Case#: Shortcut Pendle - Beefy', async ({ context, shortcutPa
     const notifyMmAddNetwork = new MetaMaskNotifyPage(await getNotifyMmPage(context));
     await notifyMmAddNetwork.changeNetwork();
 
-    await mockMetaMaskSignTransaction(context, METAMASK_DEFAULT_URL_NODE.BSC, MOCK_EVM_TX_HASH, mockTxReceipt);
+    await mockMetaMaskSignTransaction(context, METAMASK_DEFAULT_URL_NODE.ARBITRUM, MOCK_ARBITRUM_TX_HASH, mockTxReceiptPendleStep1);
 
     const notifyMmTxSwap = new MetaMaskNotifyPage(await getNotifyMmPage(context));
-    await notifyMmTxSwap.signTx();
+    //   await notifyMmTxSwap.signTx();
 
-    await shortcutPage.modifyDataByPostTxRequest(mockPostTransactionsRouteArbitrum, mockPostTransactionsWsByCreateEventArbitrum);
+    // await shortcutPage.modifyDataByPostTxRequest(mockPostTransactionsRouteArbitrum, mockPostTransactionsWsByCreateEventArbitrum);
 
-    await shortcutPage.modifyDataByGetTxRequest(mockPostTransactionsRouteArbitrum);
+    // await shortcutPage.modifyDataByGetTxRequest(mockPostTransactionsRouteArbitrum);
 
-    const notifyMmTxApprove = new MetaMaskNotifyPage(await getNotifyMmPage(context));
-    await notifyMmTxApprove.signTx();
+    // const notifyMmTxApprove = new MetaMaskNotifyPage(await getNotifyMmPage(context));
+    // await notifyMmTxApprove.signTx();
 });

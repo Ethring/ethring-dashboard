@@ -2448,7 +2448,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     fromToken: '0x2416092f143378750bb29b79ed961ab195cceea5',
                     tokenAddress: '0x2416092f143378750bb29b79ed961ab195cceea5',
                     marketAddress: '0x5E03C94Fc5Fb2E21882000A96Df0b63d2c4312e2',
-                    syTokenInAddr: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+                    syTokenInAddr: null,
                 },
                 dependencies: {
                     operationId: 'give-approval-for-ezETH',
