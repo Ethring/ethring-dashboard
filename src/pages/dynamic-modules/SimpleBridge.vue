@@ -148,7 +148,7 @@ export default {
         EstimatePreviewInfo,
 
         Slippage,
-        SyncOutlined
+        SyncOutlined,
     },
     setup() {
         const store = useStore();

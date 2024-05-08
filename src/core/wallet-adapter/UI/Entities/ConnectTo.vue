@@ -82,7 +82,7 @@ export default {
 
         .name {
             width: max-content;
-            font-weight: 500;
+            font-weight: 600;
             font-size: var(--#{$prefix}default-fs);
         }
     }
