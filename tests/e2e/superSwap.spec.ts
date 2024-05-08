@@ -165,8 +165,6 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
 
         await unauthSuperSwapPage.waitDetachedSkeleton();
 
-        await expect(unauthSuperSwapPage.page).toHaveScreenshot({
-            maxDiffPixelRatio: 0.01,
-        });
+        await expect(unauthSuperSwapPage.page).toHaveScreenshot();
     });
 });
