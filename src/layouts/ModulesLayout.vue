@@ -8,7 +8,7 @@
                         v-for="tab in tabs"
                         :key="tab"
                         class="layout-page-tab__title"
-                        :class="{ 'layout-page-tab__active': tab.active }"
+                        :class="{ 'layout-page-tab__active': tab.active, 'layout-page-tab__default': tabs.length <= 1 }"
                         :to="tab.to"
                     >
                         {{ $t(tab.title) }}
@@ -169,6 +169,11 @@ export default {
         }
 
         &__active {
+            color: var(--#{$prefix}primary-text);
+            font-weight: 700;
+        }
+
+        &__default {
             color: var(--#{$prefix}primary-text);
             font-weight: 500;
         }

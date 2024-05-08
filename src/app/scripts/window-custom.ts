@@ -16,7 +16,7 @@ declare global {
 
 export default function windowCustom() {
     window.CALL_NEXT_TX_WAIT_TIME = ref(3.5);
-    window.BALANCE_WAIT_TIME = ref(5);
+    window.BALANCE_WAIT_TIME = ref(8);
 }
 
 windowCustom();

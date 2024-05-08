@@ -125,6 +125,10 @@ export default {
             return 'Address';
         });
 
+        const inputPlaceholder = computed(() => {
+            return focused.value ? '' : addressPlaceholder.value;
+        });
+
         const resetAddress = () => {
             if (!resetFields.value) return;
 
@@ -168,7 +172,7 @@ export default {
             address,
             displayAddress,
 
-            placeholder: addressPlaceholder,
+            placeholder: inputPlaceholder,
 
             selectAddress,
 

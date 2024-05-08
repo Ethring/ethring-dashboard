@@ -129,71 +129,33 @@
         @include pageFlexColumn;
         justify-content: center;
         align-items: flex-end;
-
-        // .in-currency {
-        //     font-weight: 500;
-        //     font-size: var(--#{$prefix}h6-fs);
-        //     color: var(--#{$prefix}amount-text);
-
-        //     .symbol {
-        //         font-size: var(--#{$prefix}h6-fs);
-        //         font-weight: 400;
-        //         color: var(--#{$prefix}select-symbol-text);
-        //         margin-left: 3px;
-        //     }
-        // }
-
-        // .in-usd {
-        //     font-size: var(--#{$prefix}small-lg-fs);
-        //     font-weight: 600;
-
-        //     color: var(--#{$prefix}secondary-text);
-        //     .symbol {
-        //         font-size: var(--#{$prefix}small-lg-fs);
-        //         font-weight: 400;
-        //         color: var(--#{$prefix}secondary-text);
-        //         margin-right: -3px;
-        //     }
-        // }
-
-        // p:not(:last-child) {
-        //     margin-bottom: 4px;
-        // }
     }
 
-    .balance {
-        @include pageFlexColumn;
-        justify-content: center;
-        align-items: flex-end;
+    .currency {
+        font-size: var(--#{$prefix}h6-fs);
 
-        .in-currency {
+        .value {
             font-weight: 500;
-            font-size: var(--#{$prefix}h6-fs);
             color: var(--#{$prefix}amount-text);
-
-            .symbol {
-                font-size: var(--#{$prefix}h6-fs);
-                font-weight: 400;
-                color: var(--#{$prefix}select-symbol-text);
-                margin-left: 3px;
-            }
         }
 
-        .in-usd {
-            font-size: var(--#{$prefix}small-lg-fs);
+        .symbol {
+            font-weight: 400;
+            color: var(--#{$prefix}select-symbol-text);
+        }
+    }
+
+    .usd {
+        font-size: var(--#{$prefix}small-lg-fs);
+
+        .value {
             font-weight: 600;
-
-            color: var(--#{$prefix}secondary-text);
-            .symbol {
-                font-size: var(--#{$prefix}small-lg-fs);
-                font-weight: 400;
-                color: var(--#{$prefix}secondary-text);
-                margin-right: -3px;
-            }
+            color: var(--#{$prefix}secondary-text) !important;
         }
 
-        p:not(:last-child) {
-            margin-bottom: 4px;
+        .symbol {
+            font-weight: 400;
+            color: var(--#{$prefix}secondary-text) !important;
         }
     }
 

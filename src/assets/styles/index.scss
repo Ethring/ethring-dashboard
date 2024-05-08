@@ -16,6 +16,8 @@ html,
 body {
     background: var(--#{$prefix}main-background) !important;
     font-size: var(--#{$prefix}default-fs);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .app-wrap {
@@ -286,6 +288,10 @@ li.ecosystem-item {
 
 .ml-8 {
     margin-left: 8px;
+}
+
+.mr-8 {
+    margin-right: 8px;
 }
 
 .preview-custom-fee svg path {

@@ -13,6 +13,7 @@
         background: var(--#{$prefix}small-btn-bg-color);
 
         span {
+            font-weight: 600;
             color: var(--#{$prefix}black);
         }
     }
@@ -39,6 +40,17 @@
         &:hover {
             background: var(--#{$prefix}card-tag-bg-color);
         }
+    }
+
+    .icon {
+        @include pageFlexRow;
+        justify-content: center;
+
+        border-radius: 50%;
+
+        width: 40px;
+        height: 40px;
+        background-color: var(--#{$prefix}logo-bg);
     }
 
     .name {
@@ -109,6 +121,21 @@
         div {
             color: var(--#{$prefix}base-text);
             font-size: var(--#{$prefix}small-sm-fs);
+        }
+
+        .ecosystem {
+            span {
+                @include pageFlexRow;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            &-logo {
+                width: 16px;
+                height: 16px;
+
+                stroke: var(--#{$prefix}primary-text);
+            }
         }
 
         .amount {
