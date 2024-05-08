@@ -6,7 +6,7 @@ import { shallowMount } from '@vue/test-utils';
 
 import SidebarTrigger from '@/app/layouts/DefaultLayout/sidebar/SidebarTrigger';
 
-import { MenuFoldOutlined } from '@ant-design/icons-vue';
+import MenuIcon from '@/assets/icons/sidebar/arrow-open.svg';
 
 const COLLAPSED_SIDEBAR_KEY = 'user-settings:sidebar-collapsed';
 
@@ -27,7 +27,7 @@ const wrapper = shallowMount(SidebarTrigger, { global: { plugins: [store] } });
 describe('Collapsed Sidebar', () => {
     test('Case #1. Check collapsed sidebar icon', () => {
         localStorage.setItem(COLLAPSED_SIDEBAR_KEY, store.state.isCollapsed);
-        expect(wrapper.findComponent(MenuFoldOutlined).exists()).toBe(true);
+        expect(wrapper.findComponent(MenuIcon).exists()).toBe(true);
     });
 
     test('Case #2. Check localStorage value after toggle sidebar', async () => {

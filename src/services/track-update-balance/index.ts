@@ -59,13 +59,17 @@ export const trackingBalanceUpdate = (store: any) => {
 
         const tokens = store.getters['tokens/getTokensListForChain'](config.net, { account: targetAccount });
 
-        if(srcToken.value)  {
-            const srcTokenData = tokens.find(({ id = '', address = '' }) => id === srcToken.value?.id || _.toLower(address) === _.toLower(srcToken.value?.address || ''));
+        if (srcToken.value) {
+            const srcTokenData = tokens.find(
+                ({ id = '', address = '' }) => id === srcToken.value?.id || _.toLower(address) === _.toLower(srcToken.value?.address || ''),
+            );
             if (srcTokenData) srcToken.value.balance = srcTokenData.balance;
         }
 
-        if(dstToken.value) {
-            const dstTokenData = tokens.find(({ id = '', address = '' }) => id === dstToken.value?.id || _.toLower(address) === _.toLower(dstToken.value?.address || ''));
+        if (dstToken.value) {
+            const dstTokenData = tokens.find(
+                ({ id = '', address = '' }) => id === dstToken.value?.id || _.toLower(address) === _.toLower(dstToken.value?.address || ''),
+            );
             if (dstTokenData) dstToken.value.balance = dstTokenData.balance;
         }
     };
@@ -81,7 +85,7 @@ export const trackingBalanceUpdate = (store: any) => {
             for (const queueWallet of queues) {
                 await delay(BALANCE_WAIT_TIME.value * 1000);
                 await processQueueToUpdate(queueWallet);
-            };
+            }
         },
     );
 };
