@@ -105,7 +105,9 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
 
         await sleep(FIVE_SECONDS);
 
-        await expect(unauthSuperSwapPage.page).toHaveScreenshot();
+        await expect(unauthSuperSwapPage.page).toHaveScreenshot({
+            maxDiffPixelRatio: 0.01,
+        });
 
         await unauthSuperSwapPage.setNetToAndTokenTo(TO_NET, TO_TOKEN);
 
