@@ -2,7 +2,7 @@
     <div class="assets-group-container">
         <div class="assets-group-info">
             <div class="assets-group-icon-container" :class="{ border: icon }">
-                <component v-if="icon" :is="icon" class="asset-group-icon-svg" />
+                <component :is="icon" v-if="icon" class="asset-group-icon-svg" />
                 <TokenIcon
                     v-if="!icon"
                     :width="32"

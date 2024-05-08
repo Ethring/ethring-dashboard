@@ -99,6 +99,7 @@ $top-bar-spacing: 20px;
         span {
             @include pageFlexRow;
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         .network-icon {
@@ -155,6 +156,7 @@ $top-bar-spacing: 20px;
         justify-content: center;
 
         color: var(--#{$prefix}sub-text);
+        font-size: var(--#{$prefix}small-sm-fs);
 
         div {
             font-size: var(--#{$prefix}small-sm-fs);
@@ -373,34 +375,5 @@ $top-bar-spacing: 20px;
         transform: scale(2);
         opacity: 0;
         transform-origin: center;
-    }
-}
-
-.result-link {
-    &,
-    svg {
-        transition: 0.2s ease-in-out;
-    }
-
-    display: flex;
-    align-items: center;
-
-    font-size: var(--#{$prefix}small-lg-fs);
-    color: var(--#{$prefix}sub-text);
-
-    &-icon {
-        width: 16px;
-        height: 12px;
-        fill: var(--#{$prefix}sub-text);
-        margin-inline-start: 4px;
-        transform: translate(0, -1px);
-    }
-
-    &:hover {
-        color: var(--#{$prefix}base-text);
-
-        svg {
-            fill: var(--#{$prefix}base-text);
-        }
     }
 }

@@ -51,7 +51,7 @@ export default {
 
 .ant-result-extra {
     width: 80%;
-    margin: 40px auto !important;
+    margin: 20px auto !important;
 
     color: var(--#{$prefix}base-text);
     font-size: 14px;
