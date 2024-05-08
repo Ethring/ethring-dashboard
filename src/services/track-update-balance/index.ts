@@ -3,8 +3,9 @@ import _ from 'lodash';
 import { computed } from 'vue';
 
 import { ChainConfig } from '@/modules/chain-configs/types/chain-config';
-import { updateBalanceByChain } from '@/core/balance-provider'
+import { updateBalanceByChain } from '@/core/balance-provider';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
+import { delay } from '@/shared/utils/helpers';
 
 interface IQueue {
     chain: string;
@@ -58,11 +59,15 @@ export const trackingBalanceUpdate = (store: any) => {
 
         const tokens = store.getters['tokens/getTokensListForChain'](config.net, { account: targetAccount });
 
-        const srcTokenData = tokens.find(({ id }) => id === srcToken.value?.id);
-        if (srcTokenData) srcToken.value = srcTokenData;
+        if(srcToken.value)  {
+            const srcTokenData = tokens.find(({ id = '', address = '' }) => id === srcToken.value?.id || _.toLower(address) === _.toLower(srcToken.value?.address || ''));
+            if (srcTokenData) srcToken.value.balance = srcTokenData.balance;
+        }
 
-        const dstTokenData = tokens.find(({ id }) => id === dstToken.value?.id);
-        if (dstTokenData) dstToken.value = dstTokenData;
+        if(dstToken.value) {
+            const dstTokenData = tokens.find(({ id = '', address = '' }) => id === dstToken.value?.id || _.toLower(address) === _.toLower(dstToken.value?.address || ''));
+            if (dstTokenData) dstToken.value.balance = dstTokenData.balance;
+        }
     };
 
     store.watch(
@@ -73,7 +78,10 @@ export const trackingBalanceUpdate = (store: any) => {
             // ========================================
             // Wait for {N} sec before processing next
             // ========================================
-            for (const queueWallet of queues) _.delay(async () => await processQueueToUpdate(queueWallet), BALANCE_WAIT_TIME.value * 1000);
-        }
+            for (const queueWallet of queues) {
+                await delay(BALANCE_WAIT_TIME.value * 1000);
+                await processQueueToUpdate(queueWallet);
+            };
+        },
     );
 };
