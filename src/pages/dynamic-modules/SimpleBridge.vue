@@ -1,6 +1,15 @@
 <template>
     <a-form class="simple-bridge">
-        <Slippage class="panel-control" />
+        <a-row class="panel-control">
+            <div
+                class="reload-btn"
+                :class="{ active: dstAmount && !isQuoteLoading && !isTransactionSigning }"
+                @click="() => getEstimateInfo(true)"
+            >
+                <SyncOutlined :spin="isQuoteLoading" />
+            </div>
+            <Slippage />
+        </a-row>
         <a-form-item>
             <div class="select-network-group">
                 <SelectRecord
@@ -92,6 +101,7 @@
 </template>
 <script>
 import { ref, watch, computed } from 'vue';
+import { useStore } from 'vuex';
 
 // Compositions
 import useModuleOperations from '@/compositions/useModuleOperation';
@@ -110,8 +120,12 @@ import SelectAmountInput from '@/components/ui/Select/SelectAmountInput';
 
 // Fee Component
 import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewInfo.vue';
+
 // Slippage Component
 import Slippage from '@/components/ui/Slippage.vue';
+
+// Icons
+import { SyncOutlined } from '@ant-design/icons-vue';
 
 // Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
@@ -134,8 +148,11 @@ export default {
         EstimatePreviewInfo,
 
         Slippage,
+        SyncOutlined
     },
     setup() {
+        const store = useStore();
+
         const { handleOnConfirm, moduleInstance, isTransactionSigning, isDisableConfirmButton, isDisableSelect } = useModuleOperations(
             ModuleType.bridge,
         );
@@ -261,6 +278,13 @@ export default {
             if (clearAddress.value) setTimeout(() => (clearAddress.value = false));
         };
 
+        const getEstimateInfo = async (isReload = false) => {
+            if (isReload && (isQuoteLoading.value || isTransactionSigning.value)) return;
+
+            dstAmount.value = null;
+            store.dispatch('bridgeDexAPI/setReloadRoutes', isReload);
+        };
+
         // =================================================================================================================
 
         watch(srcAmount, () => resetAmounts(DIRECTIONS.SOURCE, srcAmount.value));
@@ -313,6 +337,8 @@ export default {
             handleOnConfirm,
             handleOnSwapDirections,
             toggleRoutesModal,
+
+            getEstimateInfo,
 
             fees,
             selectedRoute,
