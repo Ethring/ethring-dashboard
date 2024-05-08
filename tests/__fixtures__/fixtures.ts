@@ -65,8 +65,9 @@ export const testMetaMask = base.extend<{
     swapPageMockTokensList: SwapPage;
     swapPageMockBalancesAndTokensList: SwapPage;
     superSwapPageBalanceMock: SuperSwapPage;
+    unauthSuperSwapPage: SuperSwapPage;
 }>({
-    context: async ({}, use) => {
+    context: async ({ }, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -150,13 +151,19 @@ export const testMetaMask = base.extend<{
         const superSwapPage = await zometPage.goToModule('superSwap');
         await use(superSwapPage as SuperSwapPage);
     },
+    unauthSuperSwapPage: async ({ context }, use) => {
+        await addWalletToMm(context, SEED_EMPTY_WALLET);
+        const zometPage = new SuperSwapPage(await context.newPage());
+        await zometPage.goToPage();
+        await use(zometPage);
+    },
 });
 
 export const testMetaMaskMockTx = base.extend<{
     context: BrowserContext;
     sendPage: SendPage;
 }>({
-    context: async ({}, use) => {
+    context: async ({ }, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -192,7 +199,7 @@ export const testKeplr = base.extend<{
     sendPage: SendPage;
     swapPage: SwapPage;
 }>({
-    context: async ({}, use) => {
+    context: async ({ }, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -243,7 +250,7 @@ export const testMetaMaskAndKeplr = base.extend<{
     authPage: BasePage;
     shortcutPage: ShortcutPage;
 }>({
-    context: async ({}, use) => {
+    context: async ({ }, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,

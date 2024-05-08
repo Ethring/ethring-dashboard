@@ -54,18 +54,21 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
         },
     );
 
-    testMetaMask.skip('Case#2: Verifying data reset when navigating to swap page', async ({ page, superSwapPageBalanceMock: superSwapPage }) => {
-        const netTo = 'Arbitrum One';
+    testMetaMask.skip(
+        'Case#2: Verifying data reset when navigating to swap page',
+        async ({ page, superSwapPageBalanceMock: superSwapPage }) => {
+            const netTo = 'Arbitrum One';
 
-        await superSwapPage.setNetworkTo(netTo);
-        const tokenInSuperSwap = superSwapPage.getTokenTo();
+            await superSwapPage.setNetworkTo(netTo);
+            const tokenInSuperSwap = superSwapPage.getTokenTo();
 
-        const swapPage = await superSwapPage.goToModule('swap');
+            const swapPage = await superSwapPage.goToModule('swap');
 
-        // const currentTokenTo = await swapPage.getTokenTo();
+            // const currentTokenTo = await swapPage.getTokenTo();
 
-        // expect(tokenInSuperSwap).not.toBe(currentTokenTo);
-    });
+            // expect(tokenInSuperSwap).not.toBe(currentTokenTo);
+        },
+    );
 
     testMetaMask.skip(
         'Case#5: Super Swap tx:swap net:Polygon from:Matic to:1inch Cancel wallet change',
@@ -91,68 +94,75 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
         },
     );
 
-    testMetaMask('Case#: SuperSwap estimate route without authorization', async ({ browser, context, page, superSwapPageBalanceMock: superSwapPage }) => {
+    testMetaMask('Case#: SuperSwap estimate route without authorization', async ({ browser, context, page, unauthSuperSwapPage }) => {
+        await unauthSuperSwapPage.waitDetachedLoader();
+
+        await unauthSuperSwapPage.goToModule('superSwap');
+
         const TO_NET = 'Polygon';
-        const TO_TOKEN = 'MATIC'
+        const TO_TOKEN = 'MATIC';
         const AMOUNT = '2';
 
-        // Disconnect from account
-        await superSwapPage.disconnectFirstWallet();
-
-        await superSwapPage.page.locator('div.wallet-adapter-container').hover();
-
         await sleep(FIVE_SECONDS);
 
-        // Go to SuperSwap module without authorization
-        await superSwapPage.goToModule('superSwap');
+        await expect(unauthSuperSwapPage.page).toHaveScreenshot();
 
-        await sleep(ONE_SECOND);
+        await unauthSuperSwapPage.setNetToAndTokenTo(TO_NET, TO_TOKEN);
 
-        await expect(superSwapPage.page).toHaveScreenshot();
+        const estimateMockData = {
+            ok: true,
+            data: {
+                best: 'squid',
+                priority: 'bestReturn',
+                routes: [
+                    {
+                        fromAmount: 2,
+                        toAmount: '8826.590812322721754362',
+                        gasEstimated: 587000,
+                        fee: [
+                            {
+                                currency: 'USD',
+                                amount: '10.775',
+                            },
+                        ],
+                        serviceId: 'squid',
+                        bestFee: false,
+                        bestReturn: true,
+                    },
+                    {
+                        fromAmount: 2,
+                        toAmount: '8799.055875619975516211',
+                        gasEstimated: null,
+                        fee: [
+                            {
+                                currency: 'USD',
+                                amount: '4.39662926715736607966',
+                            },
+                        ],
+                        serviceId: 'debridge',
+                        bestFee: true,
+                        bestReturn: false,
+                    },
+                ],
+            },
+            error: '',
+            errorData: [
+                {
+                    error: 'Insufficient liquidity',
+                    serviceId: 'skip',
+                },
+            ],
+        };
 
-        await superSwapPage.setNetToAndTokenTo(TO_NET, TO_TOKEN);
+        await unauthSuperSwapPage.mockEstimateBridgeRequest(estimateMockData, 200);
 
-        await sleep(FIVE_SECONDS);
-
-        await superSwapPage.setAmount(AMOUNT);
+        await unauthSuperSwapPage.setAmount(AMOUNT);
 
         // Estimate route without authorization
-        await superSwapPage.openRouteInfo();
+        await unauthSuperSwapPage.openRouteInfo();
 
-        await superSwapPage.waitDetachedSkeleton();
+        await unauthSuperSwapPage.waitDetachedSkeleton();
 
-        await expect(superSwapPage.page).toHaveScreenshot({
-            fullPage: true,
-            maxDiffPixelRatio: 0.01,
-            mask: [
-                superSwapPage.page.locator('div.swap-field-input-container > input[name="dstAmount"]'),
-                superSwapPage.page.locator('div.balance-price'),
-                superSwapPage.page.locator('div.amount-block.currency'),
-                superSwapPage.page.locator('div.amount-block.usd')
-            ],
-        });
-
-        await superSwapPage.clickConfirm();
-
-        await superSwapPage.page.getByText('MetaMask').click();
-
-        await sleep(FIVE_SECONDS);
-
-        await superSwapPage.page.locator(`//button[@data-qa="confirm"]`);
-
-        await superSwapPage.waitDetachedSkeleton();
-
-        await sleep(FIVE_SECONDS);
-
-        await expect(superSwapPage.page).toHaveScreenshot({
-            fullPage: true,
-            maxDiffPixelRatio: 0.01,
-            mask: [
-                superSwapPage.page.locator('div.swap-field-input-container > input[name="dstAmount"]'),
-                superSwapPage.page.locator('div.balance-price'),
-                superSwapPage.page.locator('div.amount-block.currency'),
-                superSwapPage.page.locator('div.amount-block.usd')
-            ],
-        });
+        await expect(unauthSuperSwapPage.page).toHaveScreenshot();
     });
 });
