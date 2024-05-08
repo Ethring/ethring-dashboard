@@ -58,7 +58,7 @@ export const trackingBalanceUpdate = (store: any) => {
 
         const tokens = store.getters['tokens/getTokensListForChain'](config.net, { account: targetAccount });
 
-        const srcTokenData = tokens.find(({ id }) =>id === srcToken.value?.id);
+        const srcTokenData = tokens.find(({ id }) => id === srcToken.value?.id);
         if (srcTokenData) srcToken.value = srcTokenData;
 
         const dstTokenData = tokens.find(({ id }) => id === dstToken.value?.id);
