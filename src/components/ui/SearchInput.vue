@@ -78,7 +78,7 @@ export default {
 
     padding: 12px 8px;
 
-    border: 1px solid var(--#{$prefix}select-bg-color);
+    border: 1px solid var(--#{$prefix}select-border-color);
     border-radius: 8px;
 
     background: var(--#{$prefix}select-bg-color);

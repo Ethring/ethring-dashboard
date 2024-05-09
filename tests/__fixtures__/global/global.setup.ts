@@ -96,24 +96,42 @@ function getExtensionInfo(exName: string): { url: string; name: string } {
 }
 
 async function downloadAndUnzipEx(exName: 'mm' | 'keplr') {
+    console.log('current working dir:', process.cwd());
     const { name, url } = getExtensionInfo(exName);
 
-    // Path to the folder with the MetaMask extension
-    const dataFolderPath = path.resolve(process.cwd(), 'data', name);
-    console.log('dataFolderPath', dataFolderPath, '|', process.cwd())
+    // * Path to the folder with reserve downloaded extension
+    const dataFolderWithReserveZipExtensionPath = path.resolve(process.cwd(), 'tests', 'reserve-extensions', name);
+    console.log('dataFolderWithReserveZipExtensionPath', dataFolderWithReserveZipExtensionPath);
 
-    // Path to the archive with the MetaMask extension
-    const pathToArchive = path.resolve(dataFolderPath, `${name}.zip`);
+    // * If reserve dir is not exists - create reserve dir
+    if (!fs.existsSync(dataFolderWithReserveZipExtensionPath)) {
+        fs.mkdirSync(dataFolderWithReserveZipExtensionPath, { recursive: true });
+        console.log('dataFolderWithReserveZipExtensionPath created');
+    }
 
-    console.time('mkdirSync');
-    // * Create folder if not exist
+    // * Path to the reserve archive with extension
+    const pathToReserveArchive = path.resolve(process.cwd(), `${dataFolderWithReserveZipExtensionPath}.zip`);
+    console.log('pathToReserveArchive', pathToReserveArchive);
+
+    // * Path to the folder with extension
+    const dataFolderPath = path.resolve(process.cwd(), 'tests', 'extensions-data', name);
     fs.mkdirSync(dataFolderPath, { recursive: true });
-    console.timeEnd('mkdirSync');
+    console.log('created dataFolderPath', dataFolderPath);
 
-    console.time('download');
-    // * Download and unzip MetaMask extension
-    await download(url, pathToArchive);
-    console.timeEnd('download');
+    // * Path to the archive with extension
+    const pathToArchive = path.resolve(dataFolderPath, `${name}.zip`);
+    console.log('pathToArchive', pathToArchive);
+
+    // * If zip extensions file NOT find in reserve dir - download this
+    if (!fs.existsSync(pathToReserveArchive)) {
+        console.time('download');
+        // * Download zip archive with extension
+        await download(url, pathToReserveArchive);
+        console.timeEnd('download');
+    }
+
+    // * Copy zip archive
+    fs.copyFileSync(pathToReserveArchive, pathToArchive);
 
     // * Unzip archive
     await unzipArchive(pathToArchive, dataFolderPath);

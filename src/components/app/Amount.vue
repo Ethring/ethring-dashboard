@@ -98,7 +98,7 @@ export default {
     align-items: flex-end;
 
     .symbol {
-        font-weight: 300;
+        font-weight: 400;
         color: var(--#{$prefix}secondary-text);
     }
 

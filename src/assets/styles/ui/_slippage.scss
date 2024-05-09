@@ -41,6 +41,7 @@
         width: 356px;
         background-color: var(--#{$prefix}accordion-bg-color) !important;
         padding: 16px !important;
+        border-radius: 16px !important;
 
         .label {
             color: var(--#{$prefix}mute-text);
@@ -55,6 +56,9 @@
             border: 1px solid var(--#{$prefix}radio-btn-bg-color);
 
             .ant-radio-button-wrapper {
+                @include pageFlexRow;
+
+                height: 34px;
                 transition: all 0.2s !important;
                 border: none;
                 background-color: var(--#{$prefix}accordion-bg-color) !important;
@@ -89,6 +93,13 @@
             outline: none !important;
             border-radius: 6px 0 0 6px !important;
             box-shadow: none !important;
+
+            overflow: hidden;
+
+            input {
+                border-radius: 0 !important;
+            }
+
             &-disabled {
                 background: var(--#{$prefix}select-bg-color) !important;
                 border-color: var(--#{$prefix}select-bg-color) !important;
@@ -105,7 +116,7 @@
         }
 
         input {
-            height: 42px !important;
+            height: 40px !important;
             font-weight: 500 !important;
             color: var(--#{$prefix}notification-text) !important;
             text-align: end !important;
@@ -155,4 +166,8 @@
             margin: auto;
         }
     }
+}
+
+.ant-dropdown-arrow {
+    right: 12px !important;
 }

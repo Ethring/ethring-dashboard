@@ -365,6 +365,7 @@ const useModuleOperations = (module: ModuleType) => {
                 ownerAddress: srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value,
                 amount: srcAmount.value,
                 serviceId: selectedRoute.value.serviceId,
+                dstAmount: dstAmount.value,
             });
 
             ops.getOperationByKey(`${module}_0`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
@@ -392,6 +393,7 @@ const useModuleOperations = (module: ModuleType) => {
                     receiverAddress: receiverAddress.value,
                     memo: memo.value,
                     type: null,
+                    dstAmount: dstAmount.value,
                 });
 
                 ops.getOperationByKey(`${module}_0`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
@@ -426,6 +428,7 @@ const useModuleOperations = (module: ModuleType) => {
                     type,
                     slippageTolerance: slippage.value,
                     receiverAddress: receiverAddress.value,
+                    dstAmount: dstAmount.value,
                 };
 
                 if (isSendToAnotherAddress.value && receiverAddress.value && selectedRoute.value.serviceId === 'skip') {
@@ -463,6 +466,7 @@ const useModuleOperations = (module: ModuleType) => {
                     contract: contractAddress.value,
                     count: contractCallCount.value,
                     type: null,
+                    dstAmount: dstAmount.value,
                 });
 
                 ops.getOperationByKey(`${module}_0`).setParamByField('contract', contractAddress.value);
@@ -543,6 +547,7 @@ const useModuleOperations = (module: ModuleType) => {
             ownerAddress: srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value,
             amount: srcAmount.value,
             serviceId: selectedRoute.value.serviceId,
+            dstAmount: dstAmount.value,
         });
 
         approveOperation.setEcosystem(selectedSrcNetwork.value?.ecosystem);
@@ -889,6 +894,7 @@ const useModuleOperations = (module: ModuleType) => {
                 title: 'Transaction error',
                 description: errorMessage,
                 duration: 6,
+                progress: true,
             });
 
             updateOperationStatus(STATUSES.FAILED, { moduleIndex, operationId, hash: txInstance.getTransaction()?.txHash as string });

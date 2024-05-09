@@ -26,7 +26,7 @@ $trout: #494c56;
 $mineralGreen: #486060;
 $gulfStream: #73b1b1;
 $aquamarine: #97ffd0;
-$geyser: #a0b3c3;
+$geyser: #c9e0e0;
 $pizazz: #f69502;
 $green: #04b600;
 $cyan: #02e7f6;
@@ -41,6 +41,7 @@ $japaneseLaurel: #038d00;
 $blazeOrange: #ff6b00;
 $neutral-text: $medWhite;
 $outerSpace: #2b353e;
+$perfectLanding: #a0b3c3;
 
 //  ===========================================================================
 //  GRADIENTS
@@ -85,7 +86,7 @@ $sidebar-text: $geyser;
 $primary-text: $white;
 $secondary-text: $aquamarine;
 $symbol-text: $gulfStream;
-$mute-apr-text: $white;
+$mute-apr-text: $springGreen;
 $amount-text: $white;
 $input-disabled-text: $paleSky;
 $balance-text: $aquamarine;
@@ -93,6 +94,7 @@ $unlock-text: $aquamarine;
 $base-amount-text: $springGreen;
 $description-text: $geyser;
 $currency-text: $paleSky;
+$details-text: $perfectLanding;
 
 // Adapter text
 $adapter-label-text: $gulfStream;
@@ -157,7 +159,7 @@ $select-item-active-color: $white;
 $select-item-secondary-color: $springGreen;
 $select-label-color: $geyser;
 
-$select-border-color: $springGreen;
+$select-border-color: $charade;
 $select-active-border-color: $springGreen;
 $select-icon-color: $mineralGreen;
 $select-icon-bg-color: $charade;
@@ -209,6 +211,7 @@ $icon-bg-color: $white;
 $token-primary-icon-color: $charade;
 $token-secondary-icon-color: $springGreen;
 $base-icon-color: $geyser;
+$logo-bg: $chineseBlack;
 
 $icon-placeholder: $medievalBlue;
 $icon-placeholder-border: $ghostWhite;
@@ -291,6 +294,7 @@ $theme-colors-dark: (
     'base-amount-text': $base-amount-text,
     'description-text': $description-text,
     'currency-text': $currency-text,
+    'details-text': $details-text,
 
     'assets-border-color': $assets-border-color,
     'assets-header-border-color': $assets-header-border-color,
@@ -379,6 +383,7 @@ $theme-colors-dark: (
     'icon-secondary-bg-hover': $icon-secondary-bg-hover,
     'arrow-color': $arrow-color,
     'base-icon-color': $base-icon-color,
+    'logo-bg': $logo-bg,
 
     'icon-placeholder': $icon-placeholder,
     'icon-placeholder-border': $icon-placeholder-border,

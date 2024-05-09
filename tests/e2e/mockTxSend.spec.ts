@@ -11,6 +11,7 @@ import {
     mockPutTransactionsWsByUpdateTransactionEventInProgressSendMockTx,
     mockTxReceipt,
 } from '../data/mockDataByTests/SendTxPolygonMock';
+import { METAMASK_DEFAULT_URL_NODE } from '../data/constants';
 
 const sleep = util.promisify(setTimeout);
 
@@ -21,13 +22,13 @@ testMetaMaskMockTx.describe('Mocked send tx Metamask', () => {
         const addressTo = getTestVar(TEST_CONST.RECIPIENT_ADDRESS);
         const amount = '0.001';
         const WAITED_URL = `**/srv-data-provider/api/balances?net=${network.toLowerCase()}**`;
-        const URL_MM = `https://polygon-rpc.com/`;
         const expectedNotificationTitle = 'Transaction SUCCESS';
         const expectedNotificationDesc = '';
 
+        // Use method mockMetaMaskSignTransaction ONLY before sign tx, else mock may be not fulfill!
         await mockMetaMaskSignTransaction(
             context,
-            URL_MM,
+            METAMASK_DEFAULT_URL_NODE.POLYGON,
             '0xd9193bc27c644e2c0db7353daabe4b268b7ba10c707f80de166d55852884a368',
             mockTxReceipt,
         );

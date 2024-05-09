@@ -16,6 +16,8 @@ html,
 body {
     background: var(--#{$prefix}main-background) !important;
     font-size: var(--#{$prefix}default-fs);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .app-wrap {
@@ -69,6 +71,20 @@ body {
 
 .ant-upload-wrapper.ant-upload-picture-card-wrapper {
     width: auto !important;
+}
+
+.ant-empty {
+    &-image {
+        height: fit-content;
+    }
+
+    &-description {
+        font-style: normal;
+        font-weight: 400;
+        font-size: var(--#{$prefix}default-fs);
+        color: var(--#{$prefix}neutral-text);
+        opacity: 0.5;
+    }
 }
 
 ::-webkit-input-placeholder {
@@ -272,6 +288,10 @@ li.ecosystem-item {
 
 .ml-8 {
     margin-left: 8px;
+}
+
+.mr-8 {
+    margin-right: 8px;
 }
 
 .preview-custom-fee svg path {

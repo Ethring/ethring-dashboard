@@ -52,6 +52,7 @@ export default {
         margin: 0;
 
         font-size: var(--#{$prefix}small-lg-fs);
+        font-weight: 400;
         color: var(--#{$prefix}base-text);
         line-height: 1.5;
     }

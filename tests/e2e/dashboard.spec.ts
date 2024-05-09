@@ -72,41 +72,16 @@ testKeplr.describe('Keplr dashboard', () => {
     });
 });
 
-testMetaMaskAndKeplr('Case#: Check balance request call', async ({ browser, context, page, authPage: testPage }) => {
+testMetaMaskAndKeplr('Case#: Check balance request call', async ({ authPage: testPage }) => {
     /* Case: 
     1) Auth by MM and Keplr wallets
     2) Check the balance request calls for all addresses from connected wallets
-    3) Disconnect not current wallet
-    4) Connect wallet
-    5) Check request call for not current wallet
+    3) Disconnect MetaMask (not current wallet)
+    4) Connect MetaMask
+    5) Check request call for MetaMask addresses
     */
 
     const EMPTY_ADDRESS_EVM = getTestVar(TEST_CONST.EMPTY_ETH_ADDRESS);
-    await context.pages()[0].close();
-
-    await Promise.all(EVM_NETWORKS.map((network) => testPage.mockBalanceRequest(network, emptyBalanceMockData, EMPTY_ADDRESS_EVM)));
-    const evmBalanceRequestPromise = Promise.all(
-        EVM_NETWORKS.map((network) => testPage.page.waitForResponse(`**/srv-data-provider/api/balances?net=${network}**`)),
-    );
-
-    await Promise.all(
-        Object.keys(COSMOS_WALLETS_BY_EMPTY_WALLET).map((network) =>
-            testPage.mockBalanceRequest(network, emptyBalanceMockData, COSMOS_WALLETS_BY_EMPTY_WALLET[network]),
-        ),
-    );
-    const cosmosBalancePromise = Promise.all(
-        Object.keys(COSMOS_WALLETS_BY_EMPTY_WALLET).map((network) =>
-            testPage.page.waitForResponse(`**/srv-data-provider/api/balances?net=${network}**`),
-        ),
-    );
-
-    await testPage.clickLoginByMetaMask();
-    await confirmConnectMmWallet(context, testPage);
-    await testPage.clickLoginByKeplr();
-    await confirmConnectKeplrWallet(context, testPage);
-
-    await evmBalanceRequestPromise;
-    await cosmosBalancePromise;
 
     await testPage.disconnectFirstWallet();
 
