@@ -15,7 +15,9 @@ import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import { captureTransactionException } from '@/app/modules/sentry';
 
 import { ModuleType } from '@/shared/models/enums/modules.enum';
-import { STATUSES, DISALLOW_UPDATE_TYPES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
+
+import { STATUSES, DISALLOW_UPDATE_TYPES } from '@/shared/models/enums/statuses.enum';
+import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 
 import { formatNumber } from '@/shared/utils/numbers';
 import logger from '@/shared/logger';

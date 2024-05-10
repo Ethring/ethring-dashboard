@@ -2,7 +2,8 @@ import { useStore } from 'vuex';
 import _ from 'lodash';
 
 import { ITransaction, ITransactionResponse } from '@/core/transaction-manager/types/Transaction';
-import { SHORTCUT_STATUSES, STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
+import { SHORTCUT_STATUSES, STATUSES } from '@/shared/models/enums/statuses.enum';
+import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 // Transaction manager
 import { Transaction, TransactionList } from '@/core/transaction-manager/TX-manager';
 import { computed, onUnmounted, ref, watch } from 'vue';
@@ -13,11 +14,11 @@ import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
 // Types
 import { AddressByChainHash } from '@/shared/models/types/Address';
 
-import MultipleContractExec from '@/core/operations/MultipleExec';
+import MultipleContractExec from '@/core/operations/stargaze-nft/MultipleExec';
 import OperationsFactory from '@/core/operations/OperationsFactory';
-import ApproveOperation from '@/core/operations/Approve';
-import TransferOperation from '@/core/operations/Transfer';
-import DexOperation from '@/core/operations/Dex';
+import ApproveOperation from '@/core/operations/general-operations/Approve';
+import TransferOperation from '@/core/operations/general-operations/Transfer';
+import DexOperation from '@/core/operations/general-operations/Dex';
 
 import { IBaseOperation } from '@/core/operations/models/Operations';
 import { ModuleType } from '@/shared/models/enums/modules.enum';

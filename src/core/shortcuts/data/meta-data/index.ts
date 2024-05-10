@@ -5,6 +5,7 @@ import { AvailableShortcuts, ShortcutAuthor } from '../shortcuts';
 interface IShortcutMeta extends IShortcutData {
     ecosystems: string[];
     author: IAuthor;
+    isActive: boolean;
 }
 
 const META_DATA: Record<string, IShortcutMeta> = {
@@ -21,6 +22,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         website: 'https://citadel.one/',
         author: getAuthorById(ShortcutAuthor.ZometApp),
         minUsdAmount: 1,
+        isActive: true,
     },
     [AvailableShortcuts.AirdropFarmingPortfolio]: {
         id: AvailableShortcuts.AirdropFarmingPortfolio,
@@ -34,6 +36,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         wallpaper: '/img/wallpapers/airdrop-farming.svg',
         website: 'https://citadel.one/',
         author: getAuthorById(ShortcutAuthor.ZometApp),
+        isActive: true,
         minUsdAmount: 200,
         isComingSoon: true,
     },
@@ -64,6 +67,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         website: 'https://citadel.one/',
         author: getAuthorById(ShortcutAuthor.ZometApp),
         minUsdAmount: 0.5,
+        isActive: true,
     },
     [AvailableShortcuts.MintCollectionWithTransfer]: {
         id: AvailableShortcuts.MintCollectionWithTransfer,
@@ -79,6 +83,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         author: getAuthorById(ShortcutAuthor.ZometApp),
         ecosystems: ['EVM', 'COSMOS'],
         minUsdAmount: 0,
+        isActive: false,
     },
     [AvailableShortcuts.SellEverything]: {
         id: 'sell-everything-in-one-click',
@@ -91,20 +96,10 @@ const META_DATA: Record<string, IShortcutMeta> = {
         description: 'Sell all the assets you have on your chosen addresses.',
         wallpaper: '/img/wallpapers/rage-quite.svg',
         website: 'https://citadel.one/',
-        author: {
-            id: 'zomet.app',
-            name: 'zomet.app',
-            avatar: 'https://zomet-logo.png',
-            socials: [
-                {
-                    type: 'x.com',
-                    nickname: 'zometapp',
-                    link: 'https://twitter.com/zometapp',
-                },
-            ],
-        },
+        author: getAuthorById(ShortcutAuthor.ZometApp),
         minUsdAmount: 1,
         isComingSoon: true,
+        isActive: true,
     },
     [AvailableShortcuts.WithdrawDydx]: {
         id: 'withdraw-dYdX-usdc-rewards-to-usdt-on-tron',
@@ -117,20 +112,10 @@ const META_DATA: Record<string, IShortcutMeta> = {
         description: 'Seamlessly withdraw your dYdX rewards in USDC with no need to deal with bridging yoursel',
         wallpaper: '/img/wallpapers/dydx.svg',
         website: 'https://citadel.one/',
-        author: {
-            id: 'zomet.app',
-            name: 'zomet.app',
-            avatar: 'https://zomet-logo.png',
-            socials: [
-                {
-                    type: 'x.com',
-                    nickname: 'zometapp',
-                    link: 'https://twitter.com/zometapp',
-                },
-            ],
-        },
+        author: getAuthorById(ShortcutAuthor.ZometApp),
         minUsdAmount: 1,
         isComingSoon: true,
+        isActive: true,
     },
     [AvailableShortcuts.ConvertTia]: {
         id: 'convert-tia-to-sttia',
@@ -144,20 +129,27 @@ const META_DATA: Record<string, IShortcutMeta> = {
             'stTIA allows holders to earn Celestia staking yields passively while still maintaining a liquid position that can be used in other DeFi projects.',
         wallpaper: '/img/wallpapers/convert-tia.svg',
         website: 'https://citadel.one/',
-        author: {
-            id: 'zomet.app',
-            name: 'zomet.app',
-            avatar: 'https://zomet-logo.png',
-            socials: [
-                {
-                    type: 'x.com',
-                    nickname: 'zometapp',
-                    link: 'https://twitter.com/zometapp',
-                },
-            ],
-        },
+        author: getAuthorById(ShortcutAuthor.ZometApp),
         minUsdAmount: 1,
         isComingSoon: true,
+        isActive: true,
+    },
+    [AvailableShortcuts.PendleEarnFixedYield]: {
+        id: AvailableShortcuts.PendleEarnFixedYield,
+        name: 'Earn fixed yield on Pendle',
+        logoURI: '/img/icons/shortcuts/rage-quite.svg',
+        // logoURI: 'https://pendle.finance/images/pendle-logo.svg',
+        // logoURI: 'https://www.pendle.finance/uploads/wp-content/uploads/2022/brandguide/logos/dark-svg/no-glow-cropped.svg',
+        keywords: ['pendle', 'yield', 'fixed'],
+        tags: ['PENDLE', 'YIELD'],
+        ecosystems: ['EVM'],
+        type: 'yield',
+        description: 'Earn fixed yield on Pendle with your assets',
+        wallpaper: '/img/wallpapers/SC-pendle-earn-fixed-yield.png',
+        website: 'https://pendle.finance/',
+        minUsdAmount: 1.1,
+        author: getAuthorById(ShortcutAuthor.ZometApp),
+        isActive: true,
     },
 };
 
@@ -176,6 +168,7 @@ export const getShortcutMetaById = (id: string): IShortcutMeta => {
             ecosystems: [],
             minUsdAmount: 0,
             author: getAuthorById(ShortcutAuthor.ZometApp),
+            isActive: false,
         } as IShortcutMeta;
 
     return META_DATA[id];

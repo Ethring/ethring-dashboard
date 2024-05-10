@@ -2,7 +2,7 @@ import { Ecosystems } from '@/modules/bridge-dex/enums/Ecosystem.enum';
 import ShortcutOp, { IShortcutOp } from './ShortcutOp';
 import { ShortcutType } from './types/ShortcutType';
 import { IOperationParam } from './models/Operation';
-import { TX_TYPES } from '@/shared/models/enums/statuses.enum';
+import { TX_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 import { ModuleTypes } from '@/shared/models/enums/modules.enum';
 
 export interface IShortcutRecipe {

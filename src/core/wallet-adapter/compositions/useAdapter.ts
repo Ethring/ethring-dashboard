@@ -353,6 +353,16 @@ function useAdapter() {
 
         return await adapter?.prepareMultipleExecuteMsgs(transaction);
     };
+    // * Prepare Delegate Transaction
+    const callContractMethod = async (transaction: ITransactionResponse, { ecosystem }) => {
+        if (!mainAdapter.value) return null;
+
+        if (!ecosystem && mainAdapter.value?.callContractMethod) return await mainAdapter.value?.callContractMethod(transaction);
+
+        const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+
+        return await adapter?.callContractMethod(transaction);
+    };
 
     // * Get Explorer Link by Tx Hash
     const getTxExplorerLink = (hash: string, chainInfo: ChainInfo): string => {
@@ -521,6 +531,7 @@ function useAdapter() {
             prepareTransaction,
             prepareDelegateTransaction,
             prepareMultipleExecuteMsgs,
+            callContractMethod,
         };
 
         try {

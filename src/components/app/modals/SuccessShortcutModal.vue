@@ -107,7 +107,7 @@ import { SHORTCUT_STATUSES } from '@/shared/models/enums/statuses.enum';
 
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
-import { TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
+import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 
 export default defineComponent({
     name: 'SuccessShortcutModal',
@@ -246,3 +246,4 @@ export default defineComponent({
     padding: 8px 16px 8px 0 !important;
 }
 </style>
+@/shared/models/enums/tx-types

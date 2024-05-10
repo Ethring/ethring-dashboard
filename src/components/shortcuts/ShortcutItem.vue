@@ -1,5 +1,11 @@
 <template>
-    <a-card class="shortcut-item" :bordered="false">
+    <a-card
+        class="shortcut-item"
+        :bordered="false"
+        :class="{
+            disabled: !item?.isActive,
+        }"
+    >
         <template #title>
             <a-row justify="space-between" :wrap="false">
                 <a-row align="middle" :wrap="false" class="shortcut-item__block">
@@ -59,7 +65,7 @@
                 <LikeIcon :class="{ 'favorites-icon--active': watchList.includes(item.id) }" @click="addToWatchList" />
                 <div class="favorites-count"></div>
             </a-row>
-            <UiButton title="Try" class="shortcut-item__btn" @click="openShortcut" />
+            <UiButton :disabled="!item?.isActive" title="Try" class="shortcut-item__btn" @click="openShortcut" />
         </a-row>
     </a-card>
 </template>

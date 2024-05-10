@@ -54,7 +54,7 @@
             />
 
             <SwapField
-                :name="dstAmount"
+                name="dstAmount"
                 :label="$t('tokenOperations.to')"
                 :value="dstAmount"
                 :token="selectedDstToken"

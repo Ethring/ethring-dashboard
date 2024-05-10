@@ -42,8 +42,13 @@ export default function useSelectModal(type) {
         return excludeChains || [];
     });
 
+    const includeChainList = computed(() => {
+        const { includeChains = [] } = CurrentOperation.value || {};
+
+        return includeChains || [];
+    });
+
     // TODO: Add also for exclude tokens
-    // TODO: Add also for include chains
     const includeTokenList = computed(() => {
         const { includeTokens = {} } = CurrentOperation.value || {};
 
@@ -181,6 +186,8 @@ export default function useSelectModal(type) {
 
         for (const chain of list)
             chain.selected = chain.net === selectedSrcNetwork.value?.net || chain.net === selectedDstNetwork.value?.net;
+
+        if (includeChainList.value.length) list = list.filter((chain) => includeChainList.value.includes(chain.net));
 
         return list
             .filter((chain) => !excludeChainList.value.includes(chain?.net))

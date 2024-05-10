@@ -21,6 +21,7 @@ export const trackingBalanceUpdate = (store: any) => {
 
     const chains = computed<ChainConfig[]>(() => chainList.value);
 
+    console.log('chains', chains.value);
     const srcToken = computed({
         get: () => store.getters['tokenOps/srcToken'],
         set: (value) => store.dispatch('tokenOps/setSrcToken', value),
@@ -46,13 +47,26 @@ export const trackingBalanceUpdate = (store: any) => {
         await store.dispatch('updateBalance/setInProgress', queueKey);
 
         const config = chains.value.find(({ net, chain_id }) => net == chain || chain_id == chain) as ChainConfig;
+        const { logo: chainLogo = '', native_token, asset } = config || {};
+
+        let nativeToken: any = native_token || asset;
+
+        if (asset) {
+            nativeToken = asset;
+            const { logo_URIs = {} } = asset as any;
+            const { png, svg } = logo_URIs || {};
+            nativeToken.logo = png || svg || '';
+        }
+
+        const { logo: nativeTokenLogo } = nativeToken || { logo: '' };
 
         const targetAccount = JSON.parse(JSON.stringify(walletAccount.value)) || '';
 
         await updateBalanceByChain(targetAccount, address, config.net, {
             isUpdate: true,
             chain: config.net,
-            logo: config.logo,
+            logo: chainLogo,
+            nativeTokenLogo,
         });
 
         await store.dispatch('updateBalance/removeUpdateBalanceForAddress', queueWallet);

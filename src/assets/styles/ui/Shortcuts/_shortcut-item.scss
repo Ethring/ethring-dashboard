@@ -3,6 +3,12 @@
     padding: 16px;
     background-color: var(--#{$prefix}card-bg-color);
 
+    &.disabled {
+        opacity: 0.5;
+        user-select: none;
+        cursor: not-allowed;
+    }
+
     &__btn {
         min-width: 80px;
         min-height: 30px;
