@@ -46,7 +46,7 @@ const EMPTY_ETH_ADDRESS = getTestVar(TEST_CONST.EMPTY_ETH_ADDRESS);
 const SEED_SHORTCUT_TEST = getTestVar(TEST_CONST.SEED_SHORTCUT_TEST);
 const ETH_ADDRESS_SHORTCUT = getTestVar(TEST_CONST.ETH_ADDRESS_SHORTCUT);
 
-const SEED_SHORTCUT_TEST_2 = getTestVar(TEST_CONST.SEED_SHORTCUT_TEST_2);
+// const SEED_SHORTCUT_TEST_2 = getTestVar(TEST_CONST.SEED_SHORTCUT_TEST_2);
 
 export const testMetaMask = base.extend<{
     context: BrowserContext;
@@ -70,7 +70,7 @@ export const testMetaMask = base.extend<{
 
     shortcutPage: ShortcutPage;
 }>({
-    context: async ({ }, use) => {
+    context: async ({}, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -155,7 +155,7 @@ export const testMetaMask = base.extend<{
         await use(superSwapPage as SuperSwapPage);
     },
     shortcutPage: async ({ browser, context, page }, use) => {
-        const zometPage = await authMmCoingeckoAndBalanceMock(context, SEED_SHORTCUT_TEST_2, SEED_SHORTCUT_TEST_2);
+        const zometPage = await authMmCoingeckoAndBalanceMock(context, SEED_SHORTCUT_TEST, SEED_SHORTCUT_TEST);
 
         const shortcutPage = await zometPage.goToModule('shortcut');
         await use(shortcutPage as ShortcutPage);
@@ -166,7 +166,7 @@ export const testMetaMaskMockTx = base.extend<{
     context: BrowserContext;
     sendPage: SendPage;
 }>({
-    context: async ({ }, use) => {
+    context: async ({}, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -202,7 +202,7 @@ export const testKeplr = base.extend<{
     sendPage: SendPage;
     swapPage: SwapPage;
 }>({
-    context: async ({ }, use) => {
+    context: async ({}, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -253,7 +253,7 @@ export const testMetaMaskAndKeplr = base.extend<{
     authPage: BasePage;
     shortcutPage: ShortcutPage;
 }>({
-    context: async ({ }, use) => {
+    context: async ({}, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
