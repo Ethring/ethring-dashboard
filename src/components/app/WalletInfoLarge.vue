@@ -19,7 +19,7 @@
 
                 <div v-else class="balance">
                     <Amount :value="totalBalance" :decimals="3" type="usd" symbol="$" />
-                    <div class="balance__hide" v-if="currentChainInfo" @click="toggleViewBalance">
+                    <div v-if="currentChainInfo" class="balance__hide" @click="toggleViewBalance">
                         <EyeOpenIcon v-if="showBalance" />
                         <EyeCloseIcon v-else />
                     </div>
@@ -34,7 +34,7 @@ import { computed, inject } from 'vue';
 import { useStore } from 'vuex';
 import { useClipboard } from '@vueuse/core';
 
-import { ECOSYSTEMS } from '@/Adapter/config';
+import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
 
 import { cutAddress } from '@/shared/utils/address';
 
@@ -74,9 +74,7 @@ export default {
         const toggleViewBalance = () => store.dispatch('app/toggleViewBalance');
 
         const handleOnCopyAddress = () => {
-            if (currentChainInfo.value.ecosystem === ECOSYSTEMS.EVM) {
-                return copy(walletAccount.value);
-            }
+            if (currentChainInfo.value.ecosystem === ECOSYSTEMS.EVM) return copy(walletAccount.value);
 
             action('SET_MODAL_ECOSYSTEM', currentChainInfo.value.ecosystem);
             return action('SET_MODAL_STATE', { name: 'addresses', isOpen: true });
@@ -131,6 +129,7 @@ export default {
     align-items: baseline;
 
     z-index: 2;
+
     &__wallet {
         display: flex;
         flex-direction: column;
@@ -155,17 +154,17 @@ export default {
             @include pageFlexRow;
             margin: auto 0;
             font-weight: 700;
-            font-size: var(--#{$prefix}h1-fs);
+            font-size: var(--#{$prefix}h3-fs);
             color: var(--#{$prefix}primary-text);
             user-select: none;
-            height: 32px;
+            height: 28px;
 
             .value {
                 @include pageFlexRow;
             }
 
             &__hide {
-                margin: 1px 0 0 14px;
+                margin: 1px 0 0 10px;
             }
 
             span {
@@ -184,6 +183,7 @@ export default {
             }
         }
     }
+
     &__address {
         @include pageFlexRow;
 

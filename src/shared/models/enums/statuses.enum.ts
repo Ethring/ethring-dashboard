@@ -1,3 +1,5 @@
+import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
+
 export enum STATUSES {
     SUCCESS = 'SUCCESS',
     FAILED = 'FAILED',
@@ -9,6 +11,8 @@ export enum STATUSES {
     SKIPPED = 'SKIPPED',
 }
 
+export type STATUS_TYPE = keyof typeof STATUSES;
+
 export enum SHORTCUT_STATUSES {
     SUCCESS = 'SUCCESS',
     FAILED = 'FAILED',
@@ -16,24 +20,6 @@ export enum SHORTCUT_STATUSES {
     PENDING = 'PENDING',
     IN_PROGRESS = 'IN PROGRESS',
 }
-
-export enum TRANSACTION_TYPES {
-    TRANSFER = 'TRANSFER',
-    EXECUTE_MULTIPLE = 'EXECUTE_MULTIPLE',
-    SEND = 'SEND',
-    SIGN = 'SIGN',
-    DEX = 'DEX',
-    SWAP = 'SWAP',
-    BRIDGE = 'BRIDGE',
-    APPROVE = 'APPROVE',
-    STAKE = 'STAKE',
-    IBC = 'IBC',
-    MINT = 'MINT',
-    WRAP = 'WRAP',
-    BUY = 'BUY'
-}
-
-export type TX_TYPES = keyof typeof TRANSACTION_TYPES;
 
 export const DISALLOW_UPDATE_TYPES = [TRANSACTION_TYPES.APPROVE, TRANSACTION_TYPES.SIGN, TRANSACTION_TYPES.STAKE];
 

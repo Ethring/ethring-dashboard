@@ -1,6 +1,6 @@
 <template>
     <div class="estimate-stats">
-        <p class="title" v-if="title">{{ title }}</p>
+        <p v-if="title" class="title">{{ title }}</p>
 
         <div class="row">
             <Amount
@@ -11,7 +11,7 @@
                 :symbol="fromSymbol"
             />
 
-            <span class="symbol-between" v-if="toAmount">{{ symbolBetween }}</span>
+            <span v-if="toAmount" class="symbol-between">{{ symbolBetween }}</span>
 
             <Amount
                 v-if="toAmount"

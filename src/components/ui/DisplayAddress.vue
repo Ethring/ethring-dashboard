@@ -23,9 +23,7 @@ export default {
     },
     computed: {
         displayAddress() {
-            if (this.address.length <= this.MAX_LENGTH) {
-                return this.address;
-            }
+            if (this.address.length <= this.MAX_LENGTH) return this.address;
 
             return `${this.address.slice(0, 12)}...${this.address.slice(-6)}`;
         },

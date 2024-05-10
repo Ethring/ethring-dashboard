@@ -3,14 +3,8 @@ import ApiClient from '@/modules/bridge-dex/api/axios';
 import { IService } from '@/modules/bridge-dex/models/Service.interface';
 
 import { ServiceType } from '@/modules/bridge-dex/enums/ServiceType.enum';
-import {
-    GetAllowanceParams,
-    GetApproveTxParams,
-    GetSwapTxParams,
-    QuoteParams,
-    SwapTxParams,
-} from '@/modules/bridge-dex/models/Request.type';
-import { IBridgeDexTransaction, ErrorResponse, IQuoteRoutes, ResponseBridgeDex } from '@/modules/bridge-dex/models/Response.interface';
+import { GetAllowanceParams, GetApproveTxParams, QuoteParams, SwapTxParams } from '@/modules/bridge-dex/models/Request.type';
+import { IBridgeDexTransaction, IQuoteRoutes, ResponseBridgeDex } from '@/modules/bridge-dex/models/Response.interface';
 
 import logger from '@/shared/logger';
 
@@ -26,9 +20,8 @@ class BridgeDexApi<T extends ServiceType> {
         try {
             const { type, ...params } = requestParams;
 
-            if (type === ServiceType.superswap) {
+            if (type === ServiceType.superswap)
                 return (await ApiClient.post(`/services/${ServiceType.bridgedex}/getAllowance`, params)) as string;
-            }
 
             return (await ApiClient.post(`/services/${type}/getAllowance`, params)) as string;
         } catch (error) {
@@ -47,9 +40,8 @@ class BridgeDexApi<T extends ServiceType> {
         try {
             const { type, ...params } = requestParams;
 
-            if (type === ServiceType.superswap) {
+            if (type === ServiceType.superswap)
                 return (await ApiClient.post(`/services/${ServiceType.bridgedex}/getApproveTx`, params)) as string;
-            }
 
             return (await ApiClient.post(`/services/${type}/getApproveTx`, params)) as IBridgeDexTransaction[];
         } catch (error) {
@@ -68,9 +60,8 @@ class BridgeDexApi<T extends ServiceType> {
         try {
             const { type, ...params } = requestParams;
 
-            if (type === ServiceType.superswap) {
+            if (type === ServiceType.superswap)
                 return (await ApiClient.post(`/services/${ServiceType.bridgedex}/getSwapTx`, params)) as IBridgeDexTransaction[];
-            }
 
             return (await ApiClient.post(`/services/${type}/getSwapTx`, params)) as IBridgeDexTransaction[];
         } catch (error) {
@@ -89,9 +80,8 @@ class BridgeDexApi<T extends ServiceType> {
         try {
             const { type, ...params } = requestParams;
 
-            if (type === ServiceType.superswap) {
+            if (type === ServiceType.superswap)
                 return (await ApiClient.post(`/services/${ServiceType.bridgedex}/getQuote`, params)) as IQuoteRoutes;
-            }
 
             if (!type) {
                 logger.error('(API) -> [BRIDGE_DEX_API] Error fetching quote: No service type provided');

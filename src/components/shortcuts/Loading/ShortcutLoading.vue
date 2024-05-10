@@ -16,8 +16,8 @@
 
             <div class="wallet-icon-container">
                 <ModuleIcon
-                    class="wallet-icon"
                     v-if="connectedWallet"
+                    class="wallet-icon"
                     :module="connectedWallet.walletModule"
                     :ecosystem="connectedWallet.ecosystem"
                 />
@@ -42,26 +42,26 @@
 
                 <div class="status-description">{{ statusDescription }}</div>
             </div>
-            <Button
+            <UiButton
                 class="overlay-btn"
                 :class="{ active: isShowTryAgain }"
-                @click="handleOnTryAgain"
                 :loading="shortcutStatus === STATUSES.IN_PROGRESS"
                 title="Try Again"
+                @click="handleOnTryAgain"
             />
         </div>
     </div>
 </template>
 <script lang="ts">
-import { h, computed, ref, watch, onMounted, onUnmounted } from 'vue';
+import { defineComponent, h, computed, ref, watch, onMounted, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
-import useAdapter from '@/Adapter/compositions/useAdapter';
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
 import { LoadingOutlined } from '@ant-design/icons-vue';
 
-import Button from '@/components/ui/Button.vue';
+import UiButton from '@/components/ui/Button.vue';
 
-import ModuleIcon from '@/Adapter/UI/Entities/ModuleIcon.vue';
+import ModuleIcon from '@/core/wallet-adapter/UI/Entities/ModuleIcon.vue';
 
 import OverlayIcon from '@/assets/icons/platform-icons/overlay-loading.svg';
 import SuccessIcon from '@/assets/icons/form-icons/check-circle.svg';
@@ -69,27 +69,24 @@ import FailedIcon from '@/assets/icons/form-icons/clear.svg';
 import ProcessIcon from '@/assets/icons/form-icons/process.svg';
 import WaitingIcon from '@/assets/icons/form-icons/waiting.svg';
 
-import { ModuleType } from '../../../shared/models/enums/modules.enum';
-import { STATUSES, TRANSACTION_TYPES, SHORTCUT_STATUSES } from '../../../shared/models/enums/statuses.enum';
-import OperationFactory from '../../../modules/operations/OperationsFactory';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
+import { STATUS_TYPE, STATUSES } from '@/shared/models/enums/statuses.enum';
+import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
+import OperationFactory from '@/core/operations/OperationsFactory';
 
-export default {
+export default defineComponent({
     name: 'ShortcutLoading',
     components: {
         OverlayIcon,
-        Button,
+        UiButton,
         ModuleIcon,
     },
+
     props: {
         shortcutId: {
             type: String,
             required: true,
         },
-    },
-    data() {
-        return {
-            STATUSES,
-        };
     },
 
     setup(props) {
@@ -99,15 +96,16 @@ export default {
 
         const store = useStore();
 
-        const shortcutStatus = computed(() => store.getters['shortcuts/getShortcutStatus'](props.shortcutId));
+        const shortcutStatus = computed<STATUS_TYPE>(() => store.getters['shortcuts/getShortcutStatus'](props.shortcutId));
 
-        const isActive = computed(
-            () =>
-                [STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(shortcutStatus.value as STATUSES) &&
-                shortcutStatus.value !== STATUSES.PENDING,
-        );
+        const isActive = computed<boolean>(() => {
+            return [STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(shortcutStatus.value as any);
+        });
 
-        const isShowTryAgain = computed(() => [STATUSES.FAILED, STATUSES.SUCCESS].includes(shortcutStatus.value as STATUSES));
+        const isShowTryAgain = computed(() => {
+            const status = STATUSES[shortcutStatus.value];
+            return [STATUSES.FAILED, STATUSES.SUCCESS].includes(status);
+        });
 
         const isShortcutLoading = computed(() => store.getters['shortcuts/getIsShortcutLoading'](props.shortcutId));
 
@@ -141,11 +139,8 @@ export default {
         };
 
         const operationProgressStatus = computed(() => {
-            if (operationProgress.value === 100) {
-                return 'success';
-            } else if (shortcutStatus.value === STATUSES.FAILED) {
-                return 'exception';
-            }
+            if (operationProgress.value === 100) return 'success';
+            else if (shortcutStatus.value === STATUSES.FAILED) return 'exception';
 
             return 'active';
         });
@@ -176,8 +171,9 @@ export default {
 
             console.log('-'.repeat(50));
 
-            if (currentStepId.value === lastOpId || operationsCount.value - 1 === shortcutIndex.value) {
-                console.log('setCallConfirm, for shortcut', 'LastOp', true, 'resetShortcut');
+            const isSuccess = [STATUSES.SUCCESS].includes(shortcutStatus.value as any);
+
+            const callOnSuccess = () => {
                 operationProgress.value = 0;
 
                 store.dispatch('shortcuts/setCurrentStepId', firstOpId);
@@ -189,20 +185,28 @@ export default {
                     shortcutId: props.shortcutId,
                     stepId: firstOpId,
                 });
-            } else if (currentStepId.value === firstOpId || shortcutIndex.value === 0) {
+            };
+
+            const isFirstOp = currentStepId.value === firstOpId || shortcutIndex.value === 0;
+
+            if (isFirstOp) {
                 console.log('setCallConfirm, for shortcut', 'FirstOp', true);
 
                 return store.dispatch('shortcuts/setShortcutStatus', {
                     shortcutId: props.shortcutId,
                     status: STATUSES.PENDING,
                 });
-            } else if (shortcutIndex.value !== 0 && shortcutStatus.value === STATUSES.FAILED) {
-                console.log('setCallConfirm, for shortcut', 'ModuleType.shortcut', true);
-                return store.dispatch('tokenOps/setCallConfirm', {
-                    module: ModuleType.shortcut,
-                    value: true,
-                });
             }
+
+            if (isSuccess) {
+                console.log('setCallConfirm, for shortcut', 'Success', true, 'resetShortcut');
+                return callOnSuccess();
+            }
+
+            return store.dispatch('tokenOps/setCallConfirm', {
+                module: ModuleType.shortcut,
+                value: true,
+            });
         };
 
         const moduleStatusIcon = computed(() => {
@@ -290,6 +294,8 @@ export default {
         });
 
         return {
+            STATUSES,
+
             isActive,
             isShowTryAgain,
 
@@ -309,7 +315,7 @@ export default {
             operationsCount,
         };
     },
-};
+});
 </script>
 <style lang="scss">
 .overlay-container {
@@ -506,3 +512,4 @@ export default {
     }
 }
 </style>
+@/shared/models/enums/tx-types

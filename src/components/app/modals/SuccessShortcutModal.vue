@@ -9,8 +9,8 @@
         </template>
 
         <template v-else>
-            <a-carousel autoplay class="success-shortcut-carousel" v-if="nftsList.length > 0">
-                <div v-for="nft in nftsList">
+            <a-carousel v-if="nftsList.length > 0" autoplay class="success-shortcut-carousel">
+                <div v-for="nft in nftsList" :key="nft">
                     <a-image :preview="false" :src="nft" class="shortcut-nft-image" alt="nft-image" :fallback="Placeholder">
                         <template #placeholder>
                             <div class="carousel-img-placeholder">
@@ -29,7 +29,7 @@
 
                     <a-divider v-if="results.length > 0" />
 
-                    <a-list size="small" class="success-shortcut-list" :item-layout="'horizontal'" :dataSource="results">
+                    <a-list size="small" class="success-shortcut-list" :item-layout="'horizontal'" :data-source="results">
                         <template #renderItem="{ item }">
                             <a-list-item>
                                 <template #extra>
@@ -45,11 +45,11 @@
                                         </div>
                                     </template>
 
-                                    <template #title> {{ item.type }} </template>
+                                    <template #title> {{ item.name }} </template>
 
                                     <template #description>
                                         <div class="success-shortcut-tokens-group">
-                                            <template v-if="item.tokens.from">
+                                            <template v-if="item.tokens.from.symbol">
                                                 <div class="success-shortcut-tokens-group-item">
                                                     <TokenIcon :token="item.tokens.from" :width="16" :height="16" />
                                                     <Amount
@@ -59,7 +59,7 @@
                                                     />
                                                 </div>
                                             </template>
-                                            <template v-if="item.tokens.to">
+                                            <template v-if="item.tokens.to.symbol">
                                                 <div class="success-shortcut-tokens-group-item">
                                                     <span class="divider">~</span>
                                                     <TokenIcon :token="item.tokens.to" :width="16" :height="16" />
@@ -82,7 +82,7 @@
     </a-modal>
 </template>
 <script lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { defineComponent, computed, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 
 import { Carousel } from 'ant-design-vue';
@@ -97,20 +97,19 @@ import ExternalLink from '@/components/ui/ExternalLink.vue';
 
 import Placeholder from '@/assets/images/placeholder/mask.png';
 
-import { IShortcutOp } from '@/modules/shortcuts/core/ShortcutOp';
-import OperationsFactory from '@/modules/operations/OperationsFactory';
+import { IShortcutOp } from '@/core/shortcuts/core/ShortcutOp';
+import OperationsFactory from '@/core/operations/OperationsFactory';
 
-import { IOperationsResult } from '@/modules/operations/models/Operations';
+import { IOperationsResult } from '@/core/operations/models/Operations';
 
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { SHORTCUT_STATUSES } from '@/shared/models/enums/statuses.enum';
 
-import { delay } from '@/shared/utils/helpers';
-import useAdapter from '@/Adapter/compositions/useAdapter';
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
-import { TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
+import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 
-export default {
+export default defineComponent({
     name: 'SuccessShortcutModal',
     components: {
         Carousel,
@@ -156,16 +155,9 @@ export default {
             set: () => store.dispatch('app/toggleModal', 'successShortcutModal'),
         });
 
-        const nftsList = ref([]);
+        const nftsList = ref<any>([]);
 
-        const results = ref<IOperationsResult[]>([]);
-
-        const assignExplorerLink = (op: IOperationsResult) => {
-            const { hash, chainId, ecosystem } = op;
-            const chainInfo = getChainByChainId(ecosystem, chainId);
-            const explorerLink = getTxExplorerLink(hash, chainInfo);
-            op.explorerLink = explorerLink;
-        };
+        const results = ref<any>([]);
 
         watch(shortcutStatus, async () => {
             if (!operationsFactory.value) return;
@@ -175,11 +167,21 @@ export default {
 
             const opResults = operationsFactory.value.getOperationsResult();
 
-            for (const op of opResults) {
-                assignExplorerLink(op);
+            for (const operation of opResults) {
+                const { hash, chainId, ecosystem } = operation as IOperationsResult;
+
+                if (!hash || !chainId || !ecosystem) continue;
+
+                const chainInfo = getChainByChainId(ecosystem, chainId);
+
+                if (!chainInfo) continue;
+                const explorerLink = getTxExplorerLink(hash, chainInfo as any);
+
+                operation.explorerLink = explorerLink;
             }
 
-            results.value = opResults;
+            results.value = opResults as IOperationsResult[];
+
             isLoading.value = false;
         });
 
@@ -237,7 +239,7 @@ export default {
             Placeholder,
         };
     },
-};
+});
 </script>
 
 <style lang="scss" scoped>
@@ -245,3 +247,4 @@ export default {
     padding: 8px 16px 8px 0 !important;
 }
 </style>
+@/shared/models/enums/tx-types

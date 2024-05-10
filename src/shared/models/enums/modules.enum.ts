@@ -6,6 +6,8 @@ export enum ModuleType {
     superSwap = 'superSwap',
     stake = 'stake',
     shortcut = 'shortcut',
+    pendleSilo = 'pendleSilo',
+    pendleBeefy = 'pendleBeefy',
 }
 
 export type ModuleTypes = keyof typeof ModuleType;

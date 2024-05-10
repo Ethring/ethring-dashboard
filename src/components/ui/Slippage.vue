@@ -5,7 +5,7 @@
         :disabled="isTransactionSigning || isQuoteLoading"
         trigger="click"
         class="slippage"
-        placement="bottom"
+        placement="bottomRight"
         @open-change="handleOpenChange"
     >
         <div class="slippage__icon-container" data-qa="slippage-icon">
@@ -31,8 +31,8 @@
                     </a-radio-group>
                     <div class="slippage__input" data-qa="slippage-custom-input">
                         <a-input-number
-                            addon-after="%"
                             v-model:value="slippage"
+                            addon-after="%"
                             :controls="false"
                             :disabled="isInputDisabled"
                             :min="SLIPPAGE.MIN - 1"

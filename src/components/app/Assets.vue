@@ -1,78 +1,75 @@
 <template>
-    <KeepAlive>
-        <div class="assets-section">
-            <a-collapse v-model:activeKey="collapseActiveKey" expand-icon-position="end" class="assets-block" ghost :bordered="false">
-                <a-collapse-panel key="assets" class="assets-block-panel" data-qa="assets-panel">
-                    <template #header>
-                        <AssetGroupHeader
-                            class="assets-section__group-header"
-                            title="Tokens"
-                            icon="TokensIcon"
-                            :value="getAssetsShare(totalAssetsBalances)"
-                            :totalBalance="totalAssetsBalances || 0"
-                        />
-                    </template>
+    <div class="assets-section">
+        <a-collapse v-model:activeKey="collapseActiveKey" expand-icon-position="end" class="assets-block" ghost :bordered="false">
+            <template #expandIcon>
+                <ArrowDownIcon class="arrow" />
+            </template>
 
-                    <AssetsTable
-                        type="Asset"
-                        :data="allTokensInAccount"
-                        :columns="[DEFAULT_NAME_COLUMN, ...DEFAULT_COLUMNS]"
-                        :loading="isLoadingByAccount || isLoadingForChain"
+            <a-collapse-panel key="assets" class="assets-block-panel" data-qa="assets-panel">
+                <template #header>
+                    <AssetGroupHeader
+                        class="assets-section__group-header"
+                        title="Tokens"
+                        icon="TokensIcon"
+                        :value="getAssetsShare(totalAssetsBalances)"
+                        :total-balance="totalAssetsBalances || 0"
                     />
-                </a-collapse-panel>
+                </template>
 
-                <a-collapse-panel
-                    v-show="isAllTokensLoading || allIntegrationsByPlatforms.length > 0"
-                    v-for="item in allIntegrationsByPlatforms"
-                    :key="item.platform"
-                    class="assets-block-panel"
-                    @vue:mounted="updateCollapsedKey(item)"
-                >
-                    <template #header>
-                        <AssetGroupHeader
-                            v-if="item.platform"
-                            class="assets-section__group-header"
-                            :logoURI="item.logoURI"
-                            :title="item.platform"
-                            :value="getAssetsShare(item.totalGroupBalance)"
-                            :totalBalance="item.totalGroupBalance"
-                            :showRewards="item.totalRewardsBalance > 0"
-                            :reward="item.totalRewardsBalance"
-                            :healthRate="item.healthRate"
-                        />
-                    </template>
+                <AssetsTable
+                    type="Asset"
+                    :data="allTokensInAccount"
+                    :columns="[DEFAULT_NAME_COLUMN, ...DEFAULT_COLUMNS]"
+                    :loading="isLoadingByAccount || isLoadingForChain"
+                />
+            </a-collapse-panel>
 
-                    <AssetsTable
-                        v-for="(groupItem, n) in item.data"
-                        :key="n"
-                        class="protocols-table"
-                        :data="groupItem.balances"
-                        :columns="[{ ...DEFAULT_NAME_COLUMN, title: groupItem?.name }, ...DEFAULT_COLUMNS]"
-                        :type="getFormattedName(groupItem.type)"
-                        :name="groupItem?.validator?.name"
+            <a-collapse-panel
+                v-for="item in allIntegrationsByPlatforms"
+                v-show="isAllTokensLoading || allIntegrationsByPlatforms.length > 0"
+                :key="item.platform"
+                class="assets-block-panel"
+                @vue:mounted="updateCollapsedKey(item)"
+            >
+                <template #header>
+                    <AssetGroupHeader
+                        v-if="item.platform"
+                        class="assets-section__group-header"
+                        :logo-u-r-i="item.logoURI"
+                        :title="item.platform"
+                        :value="getAssetsShare(item.totalGroupBalance)"
+                        :total-balance="item.totalGroupBalance"
+                        :show-rewards="item.totalRewardsBalance > 0"
+                        :reward="item.totalRewardsBalance"
+                        :health-rate="item.healthRate"
                     />
-                </a-collapse-panel>
+                </template>
 
-                <a-collapse-panel class="assets-block-panel" key="nfts" v-show="isAllTokensLoading || allNFTsByCollection.length > 0">
-                    <template #header>
-                        <AssetGroupHeader
-                            class="assets-section__group-header"
-                            title="NFT Gallery"
-                            :totalBalance="totalNftBalances"
-                            icon="NftsIcon"
-                        />
-                    </template>
+                <AssetsTable
+                    v-for="(groupItem, n) in item.data"
+                    :key="n"
+                    class="protocols-table"
+                    :data="groupItem.balances"
+                    :columns="[{ ...DEFAULT_NAME_COLUMN, title: groupItem?.name }, ...DEFAULT_COLUMNS]"
+                    :type="getFormattedName(groupItem.type)"
+                    :name="groupItem?.validator?.name"
+                />
+            </a-collapse-panel>
 
-                    <AssetsTable
-                        :data="allNFTsByCollection"
-                        type="NFTS"
-                        :columns="NFT_COLUMNS"
-                        :loading="allNFTsByCollection.length <= 0"
+            <a-collapse-panel v-show="isAllTokensLoading || allNFTsByCollection.length > 0" key="nfts" class="assets-block-panel">
+                <template #header>
+                    <AssetGroupHeader
+                        class="assets-section__group-header"
+                        title="NFT Gallery"
+                        :total-balance="totalNftBalances"
+                        icon="NftsIcon"
                     />
-                </a-collapse-panel>
-            </a-collapse>
-        </div>
-    </KeepAlive>
+                </template>
+
+                <AssetsTable :data="allNFTsByCollection" type="NFTS" :columns="NFT_COLUMNS" :loading="allNFTsByCollection.length <= 0" />
+            </a-collapse-panel>
+        </a-collapse>
+    </div>
 </template>
 <script>
 import { ref, computed, inject, onMounted, onBeforeUnmount, watch } from 'vue';
@@ -84,6 +81,8 @@ import BigNumber from 'bignumber.js';
 import AssetsTable from './assets/AssetsTable';
 import AssetGroupHeader from './assets/AssetGroupHeader';
 
+import ArrowDownIcon from '@/assets/icons/form-icons/arrow-down.svg';
+
 import { getFormattedName } from '@/shared/utils/assets';
 
 export default {
@@ -91,6 +90,8 @@ export default {
     components: {
         AssetGroupHeader,
         AssetsTable,
+
+        ArrowDownIcon,
     },
     setup() {
         const store = useStore();
@@ -139,9 +140,7 @@ export default {
         });
 
         const totalNftBalances = computed(() => {
-            if (!allNFTsByCollection.value.length) {
-                return 0;
-            }
+            if (!allNFTsByCollection.value.length) return 0;
 
             const totalSum = allNFTsByCollection.value.reduce((totalBalance, collection) => {
                 return totalBalance.plus(+collection.totalGroupBalance || 0);
@@ -151,9 +150,7 @@ export default {
         });
 
         const allCollapsedActiveKeys = computed(() => {
-            if (!allIntegrationsByPlatforms.value.length) {
-                return ['assets', 'nfts'];
-            }
+            if (!allIntegrationsByPlatforms.value.length) return ['assets', 'nfts'];
 
             const keys = ['assets', 'nfts'];
 
@@ -165,9 +162,7 @@ export default {
         });
 
         const getAssetsShare = (balance) => {
-            if (!balance || !totalBalances.value) {
-                return 0;
-            }
+            if (!balance || !totalBalances.value) return 0;
 
             const share = BigNumber(balance).dividedBy(totalBalances.value).multipliedBy(100);
 
@@ -178,17 +173,11 @@ export default {
             const requiredCombination = 'all';
             const requiredKeys = ['a', 'l'];
 
-            if (!requiredKeys.includes(e.key)) {
-                return (keyPressCombination.value = '');
-            }
+            if (!requiredKeys.includes(e.key)) return (keyPressCombination.value = '');
 
-            if (requiredKeys.includes(e.key)) {
-                keyPressCombination.value += e.key;
-            }
+            if (requiredKeys.includes(e.key)) keyPressCombination.value += e.key;
 
-            if (!keyPressCombination.value.startsWith('a')) {
-                return (keyPressCombination.value = '');
-            }
+            if (!keyPressCombination.value.startsWith('a')) return (keyPressCombination.value = '');
 
             if (keyPressCombination.value === requiredCombination) {
                 const bundleAcc = targetAccount.value === 'all' ? walletAccount.value : 'all';
@@ -236,9 +225,7 @@ export default {
         });
 
         const updateCollapsedKey = (item) => {
-            if (!collapsedAssets.value.includes(item.platform)) {
-                collapseActiveKey.value.push(item.platform);
-            }
+            if (!collapsedAssets.value.includes(item.platform)) collapseActiveKey.value.push(item.platform);
         };
 
         return {

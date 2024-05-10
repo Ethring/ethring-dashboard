@@ -15,7 +15,7 @@ describe('ThemeSwitcher', () => {
             theme: 'light',
         },
         getters: {
-            'app/theme': state => state.theme,
+            'app/theme': (state) => state.theme,
         },
         mutations: {
             SET_THEME: (state, theme) => {

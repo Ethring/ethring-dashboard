@@ -58,6 +58,10 @@
             align-items: center;
         }
 
+        &-container.border {
+            border: none;
+        }
+
         &-svg,
         &-img,
         &-placeholder {
@@ -136,7 +140,7 @@
 
     &-balance-currency,
     &-rewards-currency {
-        font-weight: 300;
+        font-weight: 400;
     }
 
     // &-balance-amount {

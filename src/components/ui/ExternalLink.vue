@@ -13,6 +13,9 @@ import ExternalLinkIcon from '@/assets/icons/module-icons/external-link.svg';
 
 export default {
     name: 'ExternalLink',
+    components: {
+        ExternalLinkIcon,
+    },
     props: {
         link: {
             type: String,
@@ -22,9 +25,6 @@ export default {
             type: String,
             default: '',
         },
-    },
-    components: {
-        ExternalLinkIcon,
     },
 };
 </script>

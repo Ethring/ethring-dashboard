@@ -1,4 +1,4 @@
-import { TRANSACTION_TYPES } from '../enums/statuses.enum';
+import { TRANSACTION_TYPES } from '../../../core/operations/models/enums/tx-types.enum';
 
 type TxOperations = keyof typeof TRANSACTION_TYPES;
 

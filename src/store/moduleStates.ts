@@ -38,7 +38,7 @@ interface IState {
 
     [ModuleType.shortcut]: {
         [key in Field]: IFieldState;
-    }
+    };
 
     isNeedInputFocus: boolean;
 }
@@ -118,25 +118,19 @@ export default {
 
     getters: {
         getDisabledField: (state: IState) => (module: ModuleType, field: Field) => {
-            if (!state[module] || !state[module][field]) {
-                return false;
-            }
+            if (!state[module] || !state[module][field]) return false;
 
             return state[module][field][FieldAttr.disabled];
         },
 
         getFieldsForModule: (state: IState) => (module: ModuleType) => {
-            if (!state[module]) {
-                return {};
-            }
+            if (!state[module]) return {};
 
             return state[module];
         },
 
         getDisabledFieldsForModule: (state: IState) => (module: ModuleType) => {
-            if (!state[module]) {
-                return {};
-            }
+            if (!state[module]) return {};
 
             return _.pickBy(state[module], (field: IFieldState) => field[FieldAttr.disabled]);
         },
@@ -152,20 +146,14 @@ export default {
             !state[module] && (state[module] = {});
             !state[module][field] && (state[module][field] = {});
 
-            if (attr in state[module][field] && state[module][field][attr] === value) {
-                return;
-            }
+            if (attr in state[module][field] && state[module][field][attr] === value) return;
 
             state[module][field][attr] = value;
         },
         [TYPES.RESET_FIELDS](state: IState, { module }: { module: ModuleType }) {
-            if (!state[module]) {
-                return;
-            }
+            if (!state[module]) return;
 
-            for (const key in state[module]) {
-                state[module][key] = new FieldState();
-            }
+            for (const key in state[module]) state[module][key] = new FieldState();
         },
 
         [TYPES.SET_IS_NEED_INPUT_FOCUS](state: IState, value: boolean) {

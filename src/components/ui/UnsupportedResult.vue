@@ -4,18 +4,18 @@
             <div class="supported-layout__description">
                 {{ $t('tokenOperations.supportedNetwork') }}
             </div>
-            <Button :title="$t('tokenOperations.switchNetwork')" size="large" class="unsupported-layout__btn" @click="switchNetwork" />
+            <UiButton :title="$t('tokenOperations.switchNetwork')" size="large" class="unsupported-layout__btn" @click="switchNetwork" />
         </template>
     </a-result>
 </template>
 <script>
 import { inject } from 'vue';
-import Button from '@/components/ui/Button';
+import UiButton from '@/components/ui/Button.vue';
 
 export default {
     name: 'UnsupportedResult',
     components: {
-        Button,
+        UiButton,
     },
     setup() {
         const useAdapter = inject('useAdapter');
@@ -51,7 +51,7 @@ export default {
 
 .ant-result-extra {
     width: 80%;
-    margin: 40px auto !important;
+    margin: 20px auto !important;
 
     color: var(--#{$prefix}base-text);
     font-size: 14px;

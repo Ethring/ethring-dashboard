@@ -4,15 +4,11 @@ import { PLATFORMS } from '@/modules/prices/coingecko/shared/constants';
 const PROXY_API = process.env.PROXY_API;
 
 const priceByPlatformContracts = async ({ chainId = 56, addresses, currencies = 'usd,btc' } = {}) => {
-    if (!PROXY_API) {
-        return {};
-    }
+    if (!PROXY_API) return {};
 
     const platform = PLATFORMS[chainId];
 
-    if (!platform) {
-        return {};
-    }
+    if (!platform) return {};
 
     const url = `${PROXY_API}/token-price/coingecko/${platform}?addresses=${addresses}&currencies=${currencies}`;
 
@@ -23,9 +19,7 @@ const priceByPlatformContracts = async ({ chainId = 56, addresses, currencies = 
 
     const response = await HttpRequest(config);
 
-    if (response.status !== 200) {
-        return {};
-    }
+    if (response.status !== 200) return {};
 
     const { data: prices = {} } = response.data;
 
@@ -33,9 +27,7 @@ const priceByPlatformContracts = async ({ chainId = 56, addresses, currencies = 
 };
 
 const marketCapForNativeCoin = async (tickers = 'binancecoin') => {
-    if (!PROXY_API) {
-        return {};
-    }
+    if (!PROXY_API) return {};
 
     const url = `${PROXY_API}/marketcaps/coingecko?tickers=${tickers}`;
 

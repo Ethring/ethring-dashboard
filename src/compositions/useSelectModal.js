@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import { ref, computed, inject, nextTick, watch, onMounted } from 'vue';
+import { ref, computed, inject, nextTick, watch } from 'vue';
 import { useStore } from 'vuex';
 
 import useTokenList from '@/compositions/useTokensList';
@@ -8,9 +8,9 @@ import useTokenList from '@/compositions/useTokensList';
 import { searchByKey } from '@/shared/utils/helpers';
 import { assignPriceInfo } from '@/shared/utils/prices';
 
-import { DIRECTIONS, TOKEN_SELECT_TYPES, PRICE_UPDATE_TIME } from '@/shared/constants/operations';
+import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
-import { ECOSYSTEMS } from '@/Adapter/config';
+import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
 
 export default function useSelectModal(type) {
     const TYPES = {
@@ -40,6 +40,21 @@ export default function useSelectModal(type) {
         const { excludeChains = [] } = CurrentOperation.value || {};
 
         return excludeChains || [];
+    });
+
+    const includeChainList = computed(() => {
+        const { includeChains = [] } = CurrentOperation.value || {};
+
+        return includeChains || [];
+    });
+
+    // TODO: Add also for exclude tokens
+    const includeTokenList = computed(() => {
+        const { includeTokens = {} } = CurrentOperation.value || {};
+
+        if (includeTokens[selectedSrcNetwork.value?.net]) return includeTokens[selectedSrcNetwork.value?.net];
+
+        return [];
     });
 
     const { chainList, getChainListByEcosystem } = useAdapter();
@@ -111,13 +126,9 @@ export default function useSelectModal(type) {
     const handleOnSelect = (e, item) => {
         const { classList = [] } = e?.target || {};
 
-        if (classList?.contains('link') || classList?.contains('link-icon')) {
-            return;
-        }
+        if (classList?.contains('link') || classList?.contains('link-icon')) return;
 
-        if (!type.value) {
-            return;
-        }
+        if (!type.value) return;
 
         HANDLE_ON_SELECT[type.value](item);
         return store.dispatch('app/toggleSelectModal', { type: type.value });
@@ -126,9 +137,7 @@ export default function useSelectModal(type) {
     // =================================================================================================================
 
     const handleOnFilterNetworks = (val) => {
-        if (!val) {
-            currentIndex.value = MAX_OPTIONS_PER_PAGE;
-        }
+        if (!val) currentIndex.value = MAX_OPTIONS_PER_PAGE;
 
         return (searchValue.value = val);
     };
@@ -153,9 +162,7 @@ export default function useSelectModal(type) {
     const handleLoadMore = () => {
         currentIndex.value += MAX_OPTIONS_PER_PAGE;
 
-        if (currentIndex.value >= list.value.length) {
-            isLoadMore.value = false;
-        }
+        if (currentIndex.value >= list.value.length) isLoadMore.value = false;
 
         // changeScroll();
     };
@@ -170,26 +177,22 @@ export default function useSelectModal(type) {
     };
 
     const chains = computed(() => {
-        if (type.value === TYPES.TOKEN) {
-            return [];
-        }
+        if (type.value === TYPES.TOKEN) return [];
 
         let list = chainList.value || [];
 
-        if (module.value === ModuleType.superSwap) {
+        if (module.value === ModuleType.superSwap)
             list = [...getChainListByEcosystem(ECOSYSTEMS.EVM), ...getChainListByEcosystem(ECOSYSTEMS.COSMOS)];
-        }
 
-        for (const chain of list) {
+        for (const chain of list)
             chain.selected = chain.net === selectedSrcNetwork.value?.net || chain.net === selectedDstNetwork.value?.net;
-        }
+
+        if (includeChainList.value.length) list = list.filter((chain) => includeChainList.value.includes(chain.net));
 
         return list
             .filter((chain) => !excludeChainList.value.includes(chain?.net))
             .filter((chain) => {
-                if (module.value === 'bridge') {
-                    return !chain.selected || chain?.net !== selectedNetwork.value?.net;
-                }
+                if (module.value === 'bridge') return !chain.selected || chain?.net !== selectedNetwork.value?.net;
 
                 return chain;
             });
@@ -211,9 +214,7 @@ export default function useSelectModal(type) {
 
         let records = list.value || [];
 
-        if (searchValue.value) {
-            records = searchInTokens(list.value, searchValue.value);
-        }
+        if (searchValue.value) records = searchInTokens(list.value, searchValue.value);
 
         if (records.length <= MAX_OPTIONS_PER_PAGE) {
             isLoadMore.value = false;
@@ -236,13 +237,9 @@ export default function useSelectModal(type) {
 
             const exclude = [];
 
-            if (isExcludeExist && isFromSelect.value) {
-                selectedTokenTo.value && exclude.push(selectedTokenTo.value?.id);
-            }
+            if (isExcludeExist && isFromSelect.value) selectedTokenTo.value && exclude.push(selectedTokenTo.value?.id);
 
-            if (isExcludeExist && !isFromSelect.value) {
-                selectedTokenFrom.value && exclude.push(selectedTokenFrom.value?.id);
-            }
+            if (isExcludeExist && !isFromSelect.value) selectedTokenFrom.value && exclude.push(selectedTokenFrom.value?.id);
 
             tokens.value = await getTokensList({
                 srcNet: selectedNetwork.value,
@@ -252,6 +249,8 @@ export default function useSelectModal(type) {
                 onlyWithBalance: isFromSelect.value,
                 exclude,
             });
+
+            if (includeTokenList.value.length) tokens.value = tokens.value.filter((token) => includeTokenList.value.includes(token.id));
 
             store.dispatch('app/setLoadingTokenList', false);
         }

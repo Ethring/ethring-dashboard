@@ -1,9 +1,19 @@
 <template>
-    <a-card class="shortcut-item" :bordered="false">
+    <a-card
+        class="shortcut-item"
+        :data-qa="item.id"
+        :bordered="false"
+        :class="{
+            disabled: !item?.isActive,
+        }"
+    >
         <template #title>
             <a-row justify="space-between" :wrap="false">
                 <a-row align="middle" :wrap="false" class="shortcut-item__block">
-                    <ShortcutPlaceHolder />
+                    <div v-if="item.logoURI" class="icon">
+                        <img :src="item.logoURI" :alt="item.name" />
+                    </div>
+                    <ShortcutPlaceHolder v-else />
                     <div class="name" :title="item.name">{{ item.name }}</div>
                 </a-row>
 
@@ -22,10 +32,19 @@
         <a-row justify="space-between" class="shortcut-item__info">
             <a-row align="middle">
                 <div class="ecosystem">
-                    <span v-for="(ecosystem, i) in item.ecosystems" :key="i">
-                        {{ ecosystem }}
-                        <span v-if="i < item.ecosystems.length - 1">,</span></span
-                    >
+                    <a-tooltip v-if="item.ecosystems.length > 1" placement="bottom">
+                        <template #title>
+                            <span v-for="(ecosystem, i) in item.ecosystems" :key="i">
+                                {{ ecosystem }}
+                                <span v-if="i < item.ecosystems.length - 1">, </span></span
+                            >
+                        </template>
+                        <span>
+                            <MultiIcon class="ecosystem-logo" />
+                            Multi
+                        </span>
+                    </a-tooltip>
+                    <span v-else><img class="ecosystem-logo" :src="getEcosystemLogo(item.ecosystems[0])" />{{ item.ecosystems[0] }}</span>
                 </div>
                 <a-divider type="vertical" style="height: 10px; background-color: #c9e0e0" />
                 <div class="amount">
@@ -36,7 +55,7 @@
             </a-row>
 
             <a-row>
-                <div class="shortcut-item__tag" v-for="tag in item.tags" :key="tag" @click="() => selectTag(tag)">{{ tag }}</div>
+                <div v-for="tag in item.tags" :key="tag" class="shortcut-item__tag" @click="() => selectTag(tag)">{{ tag }}</div>
             </a-row>
         </a-row>
 
@@ -47,7 +66,7 @@
                 <LikeIcon :class="{ 'favorites-icon--active': watchList.includes(item.id) }" @click="addToWatchList" />
                 <div class="favorites-count"></div>
             </a-row>
-            <Button title="Try" class="shortcut-item__btn" @click="openShortcut" />
+            <UiButton :disabled="!item?.isActive" title="Try" class="shortcut-item__btn" @click="openShortcut" />
         </a-row>
     </a-card>
 </template>
@@ -60,7 +79,12 @@ import { useRouter } from 'vue-router';
 import ShortcutPlaceHolder from '@/assets/icons/dashboard/shortcut.svg';
 import ZometLogo from '@/assets/icons/sidebar/logo.svg';
 import LikeIcon from '@/assets/icons/dashboard/heart.svg';
+import MultiIcon from '@/assets/icons/module-icons/multi.svg';
+
 import Amount from '@/components/app/Amount.vue';
+import UiButton from '@/components/ui/Button.vue';
+
+import { ECOSYSTEM_LOGOS } from '@/core/wallet-adapter/config';
 
 export default {
     name: 'ShortcutItem',
@@ -68,12 +92,16 @@ export default {
         ShortcutPlaceHolder,
         ZometLogo,
         LikeIcon,
+        MultiIcon,
+
         Amount,
+        UiButton,
     },
     props: {
         item: {
+            type: Object,
             required: true,
-            default: {},
+            default: () => ({}),
         },
     },
     setup(props) {
@@ -90,6 +118,10 @@ export default {
 
         const selectTag = (tag) => store.dispatch('shortcutsList/setFilterTags', tag);
 
+        const getEcosystemLogo = (ecosystem) => {
+            return ECOSYSTEM_LOGOS[ecosystem];
+        };
+
         return {
             watchList,
 
@@ -97,6 +129,7 @@ export default {
             openShortcut,
             selectTag,
             openProfile,
+            getEcosystemLogo,
         };
     },
 };

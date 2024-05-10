@@ -29,7 +29,7 @@
         text-transform: uppercase;
         color: var(--#{$prefix}btn-text-color);
         font-size: var(--#{$prefix}small-lg-fs);
-        font-weight: 600;
+        font-weight: 700;
         margin: auto;
     }
 
@@ -50,7 +50,7 @@
             color: var(--#{$prefix}btn-text-hover);
         }
 
-        svg path  {
+        svg path {
             stroke: var(--#{$prefix}btn-text-hover);
         }
     }

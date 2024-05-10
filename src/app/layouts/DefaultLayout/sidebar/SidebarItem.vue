@@ -26,6 +26,17 @@ import SettingsIcon from '@/assets/icons/sidebar/settings.svg';
 
 export default {
     name: 'SidebarItem',
+    components: {
+        overviewIcon,
+        swapIcon,
+        sendIcon,
+        bridgeIcon,
+        superSwapIcon,
+        buyCryptoIcon,
+        shortcutIcon,
+
+        SettingsIcon,
+    },
     props: {
         collapsed: {
             type: Boolean,
@@ -63,17 +74,6 @@ export default {
             type: String,
             default: '',
         },
-    },
-    components: {
-        overviewIcon,
-        swapIcon,
-        sendIcon,
-        bridgeIcon,
-        superSwapIcon,
-        buyCryptoIcon,
-        shortcutIcon,
-
-        SettingsIcon,
     },
     setup() {},
 };

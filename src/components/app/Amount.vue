@@ -7,7 +7,7 @@
 
             <div class="value">
                 <a-tooltip placement="topRight">
-                    <template #title v-if="isInteger">{{ tooltipValue }}</template>
+                    <template v-if="isInteger" #title>{{ tooltipValue }}</template>
                     {{ displayValue }}
                 </a-tooltip>
             </div>
@@ -35,13 +35,18 @@ import { formatNumber } from '@/shared/utils/numbers';
 
 export default {
     name: 'Amount',
+    components: {
+        Censorship,
+    },
     props: {
         type: {
             type: String,
             default: 'usd',
         },
         value: {
+            type: [String, Number, null],
             required: true,
+            default: 0,
         },
         symbol: {
             required: false,
@@ -54,9 +59,6 @@ export default {
             default: 3,
         },
     },
-    components: {
-        Censorship,
-    },
     setup(props) {
         const store = useStore();
 
@@ -65,21 +67,15 @@ export default {
         const isInteger = computed(() => !Number.isInteger(+props.value));
 
         const displayValue = computed(() => {
-            if (!props.value) {
-                return '0';
-            }
+            if (!props.value) return '0';
 
-            if (Number.isNaN(+props.value)) {
-                return '~0';
-            }
+            if (Number.isNaN(+props.value)) return '~0';
 
             return formatNumber(props.value, props.decimals);
         });
 
         const tooltipValue = computed(() => {
-            if (props.type === 'usd') {
-                return `${props.symbol} ${props.value || 0}`;
-            }
+            if (props.type === 'usd') return `${props.symbol} ${props.value || 0}`;
 
             return `${props.value || 0} ${props.symbol}`;
         });
@@ -102,7 +98,7 @@ export default {
     align-items: flex-end;
 
     .symbol {
-        font-weight: 300;
+        font-weight: 400;
         color: var(--#{$prefix}secondary-text);
     }
 

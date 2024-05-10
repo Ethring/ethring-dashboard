@@ -1,0 +1,34 @@
+{
+    "extends": "./jsconfig.json",
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "outDir": "dist",
+        "strict": true,
+        "paths": {
+            "@/composition/*": [
+                "src/composition/*"
+            ],
+            "@/components/*": [
+                "src/components/*"
+            ],
+            "@/assets/*": [
+                "src/assets/*"
+            ],
+            "@/*": [
+                "src/*"
+            ],
+        },
+        "allowJs": true,
+    },
+    "include": [
+        "src/**/*.ts",
+        "src/**/*.vue",
+        "src/vue-media-files.d.ts",
+    ],
+    "exclude": [
+        "node_modules",
+        // js files are excluded because they are not transpiled
+        "src/**/*.js",
+    ],
+}

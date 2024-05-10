@@ -5,9 +5,7 @@ export default function development() {
 
     const { showNotification, closeNotification } = useNotification();
 
-    if (!window) {
-        return;
-    }
+    if (!window) return;
 
     window.customNotifications = {
         showSuccess: (

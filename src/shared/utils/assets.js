@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import Moment from 'moment';
 
 import { ONE_DAY, ONE_HOUR } from '@/shared/constants/operations';
@@ -10,9 +9,7 @@ const ASSET_TYPES = {
 };
 
 export const getFormattedName = (str) => {
-    if (!str) {
-        return str;
-    }
+    if (!str) return str;
 
     const formattedStr = ASSET_TYPES[str] || str;
 
@@ -28,21 +25,15 @@ export function getTimeCountdown(timestamp) {
 
     const days = Math.floor(timeDifference / ONE_DAY);
 
-    if (days > 0) {
-        return `${days} days`;
-    }
+    if (days > 0) return `${days} days`;
 
     const hours = Math.floor((timeDifference % ONE_DAY) / ONE_HOUR);
 
-    if (hours > 0) {
-        return `${hours} hours`;
-    }
+    if (hours > 0) return `${hours} hours`;
 
     const minutes = Math.floor((timeDifference % ONE_HOUR) / (1000 * 60));
 
-    if (minutes > 0) {
-        return `${minutes} minutes`;
-    }
+    if (minutes > 0) return `${minutes} minutes`;
 
     return 'is available';
 }

@@ -1,9 +1,9 @@
 <template>
     <a-form-item
+        v-click-away="(active = false)"
         class="select-panel"
         :class="{ active: active, focused, error: isError, disabled }"
         @click="active = true"
-        v-click-away="(active = false)"
     >
         <div class="input-label">{{ $t(label) }}</div>
 
@@ -12,14 +12,14 @@
                 <TokenIcon :token="selectedNetwork" class="network" width="32" height="32" />
             </div>
             <a-input
-                allow-clear
                 v-model:value="address"
+                v-debounce:1s="onInput"
+                allow-clear
                 class="base-input"
                 data-qa="input-address"
                 :disabled="disabled"
                 :bordered="false"
                 :placeholder="placeholder"
-                v-debounce:1s="onInput"
                 @focus="focused = true"
                 @blur="onBlur"
             >
@@ -49,6 +49,10 @@ import { useStore } from 'vuex';
 
 export default {
     name: 'SelectAddressInput',
+    components: {
+        ClearIcon,
+        TokenIcon,
+    },
     props: {
         value: {
             type: String,
@@ -59,6 +63,7 @@ export default {
             default: 'tokenOperations.recipient',
         },
         selectedNetwork: {
+            type: [Object, null],
             required: true,
             default: () => {},
         },
@@ -71,10 +76,7 @@ export default {
             default: false,
         },
     },
-    components: {
-        ClearIcon,
-        TokenIcon,
-    },
+    emits: ['setAddress', 'error-status'],
     setup(props, { emit }) {
         const MAX_LENGTH = 40;
 
@@ -116,21 +118,19 @@ export default {
 
             const { bech32_prefix = null, address_validating = null } = target || {};
 
-            if (bech32_prefix) {
-                return `${bech32_prefix}1abc...`;
-            }
+            if (bech32_prefix) return `${bech32_prefix}1abc...`;
 
-            if (address_validating) {
-                return '0x1234abcd...';
-            }
+            if (address_validating) return '0x1234abcd...';
 
             return 'Address';
         });
 
+        const inputPlaceholder = computed(() => {
+            return focused.value ? '' : addressPlaceholder.value;
+        });
+
         const resetAddress = () => {
-            if (!resetFields.value) {
-                return;
-            }
+            if (!resetFields.value) return;
 
             address.value = '';
             active.value = false;
@@ -148,22 +148,16 @@ export default {
         };
 
         const displayAddress = computed(() => {
-            if (!address.value) {
-                return addressPlaceholder.value;
-            }
+            if (!address.value) return addressPlaceholder.value;
 
-            if (address.value?.length < MAX_LENGTH) {
-                return address.value;
-            }
+            if (address.value?.length < MAX_LENGTH) return address.value;
 
             return address.value.slice(0, 12) + '...' + address.value.slice(-6);
         });
 
         // =================================================================================================================
 
-        if (props.onReset) {
-            resetAddress();
-        }
+        if (props.onReset) resetAddress();
 
         watch(
             () => props.onReset,
@@ -178,7 +172,7 @@ export default {
             address,
             displayAddress,
 
-            placeholder: addressPlaceholder,
+            placeholder: inputPlaceholder,
 
             selectAddress,
 

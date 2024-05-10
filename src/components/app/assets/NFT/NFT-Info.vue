@@ -1,6 +1,6 @@
 <template>
-    <a-card :tab-list="tabs" size="small" :active-tab-key="activeTabKey" @tabChange="(key) => onTabChange(key)" class="nft-item-info">
-        <a-descriptions bordered size="small" :column="1" v-if="activeTabKey === 'collection-info'">
+    <a-card :tab-list="tabs" size="small" :active-tab-key="activeTabKey" class="nft-item-info" @tab-change="(key) => onTabChange(key)">
+        <a-descriptions v-if="activeTabKey === 'collection-info'" bordered size="small" :column="1">
             <a-descriptions-item :label="$t('dashboard.nft.floorPrice')">
                 <Amount type="currency" :value="record.floorPrice" :symbol="record.token?.symbol || ''" :decimals="3" />
             </a-descriptions-item>
@@ -13,7 +13,7 @@
             <a-descriptions-item :label="$t('dashboard.nft.numberOfItems')">{{ record.numberOfAssets }}</a-descriptions-item>
             <a-descriptions-item :label="$t('dashboard.nft.contractAddress')">{{ record.address }}</a-descriptions-item>
             <a-descriptions-item :label="$t('dashboard.nft.marketplaces')">
-                <a-button type="link" v-for="(marketplace, i) in record.marketplaces" :key="i" :href="marketplace.url" target="_blank">
+                <a-button v-for="(marketplace, i) in record.marketplaces" :key="i" type="link" :href="marketplace.url" target="_blank">
                     <template #icon>
                         <LinkOutlined />
                     </template>
@@ -22,7 +22,7 @@
             </a-descriptions-item>
         </a-descriptions>
 
-        <a-descriptions bordered size="small" :column="1" v-if="activeTabKey === 'description'" layout="vertical">
+        <a-descriptions v-if="activeTabKey === 'description'" bordered size="small" :column="1" layout="vertical">
             <a-descriptions-item :label="record.name">
                 {{ record.description }}
 
@@ -41,16 +41,16 @@ import { LinkOutlined } from '@ant-design/icons-vue';
 
 export default {
     name: 'NFTInfo',
+    components: {
+        LinkOutlined,
+        Amount,
+    },
     props: {
         record: {
             required: true,
             type: Object,
             default: () => ({}),
         },
-    },
-    components: {
-        LinkOutlined,
-        Amount,
     },
     setup() {
         const { t } = useI18n();

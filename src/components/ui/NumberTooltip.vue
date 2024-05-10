@@ -1,6 +1,6 @@
 <template>
     <a-tooltip placement="topRight">
-        <template #title v-if="!Number.isInteger(+value)">{{ Number.isNaN(+value) ? '~0' : +value }}</template>
+        <template v-if="!Number.isInteger(+value)" #title>{{ Number.isNaN(+value) ? '~0' : +value }}</template>
         {{ formatNumber(value, decimals) }}
     </a-tooltip>
 </template>
@@ -12,9 +12,11 @@ export default {
     name: 'NumberTooltip',
     props: {
         value: {
+            type: [String, Number],
             default: null,
         },
         decimals: {
+            type: Number,
             default: 2,
         },
     },

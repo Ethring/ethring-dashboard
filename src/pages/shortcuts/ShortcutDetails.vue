@@ -10,10 +10,10 @@
 
             <div class="title" :title="shortcut?.name || ''">{{ shortcut?.name || '' }}</div>
 
-            <Button title="Details" class="shortcut-details-btn" disabled />
+            <UiButton title="Details" class="shortcut-details-btn" disabled />
         </a-row>
 
-        <div class="description" v-if="shortcut && (shortcut.description || shortcut.minUsdAmount)">
+        <div v-if="shortcut && (shortcut.description || shortcut.minUsdAmount)" class="description">
             <p v-if="shortcut.description">{{ shortcut.description }}</p>
 
             <p v-if="shortcut.minUsdAmount && shortcut.minUsdAmount > 0">
@@ -33,14 +33,14 @@
                             <div v-if="shortcut?.isComingSoon" class="coming-soon">
                                 <p class="coming-soon__title">{{ $t('shortcuts.comingSoon') }}</p>
                                 <p class="coming-soon__description">{{ $t('shortcuts.comingSoonDescription') }}</p>
-                                <Button title="Whitelist" :icon="LikeIcon" />
+                                <UiButton title="Whitelist" :icon="LikeIcon" />
                             </div>
                         </div>
 
-                        <ShortcutLoading v-show="isShowLoading" :shortcutId="shortcutId" />
+                        <ShortcutLoading v-if="isShowLoading" :shortcut-id="shortcutId" />
                     </a-col>
                     <a-col :md="24" :lg="12">
-                        <a-steps direction="vertical" v-model:current="shortcutIndex" :items="steps" />
+                        <a-steps v-model:current="shortcutIndex" direction="vertical" :items="steps" />
                     </a-col>
                 </a-row>
             </a-spin>
@@ -61,10 +61,11 @@ import LikeIcon from '@/assets/icons/dashboard/heart.svg';
 
 import ShortcutPlaceholder from '@/assets/images/placeholder/shortcut.png';
 
+import UiButton from '@/components/ui/Button.vue';
 import ShortcutLoading from '@/components/shortcuts/Loading/ShortcutLoading.vue';
 import SuccessShortcutModal from '@/components/app/modals/SuccessShortcutModal.vue';
 
-import useShortcuts from '@/modules/shortcuts/compositions/index';
+import useShortcuts from '@/core/shortcuts/compositions/index';
 
 import { SHORTCUT_STATUSES, STATUSES } from '@/shared/models/enums/statuses.enum';
 
@@ -73,6 +74,7 @@ export default {
     components: {
         ArrowIcon,
         LikeIcon,
+        UiButton,
         ShortcutLoading,
         SuccessShortcutModal,
     },
@@ -93,20 +95,14 @@ export default {
             if (!shortcutStatus.value) return false;
             if (shortcutStatus.value === STATUSES.PENDING) return false;
 
-            console.log('-'.repeat(50));
-            console.log('shortcutStatus.value', shortcutStatus.value);
-            console.log('STATUSES', [STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(shortcutStatus.value));
-            console.log('-'.repeat(50));
-
             return [STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(shortcutStatus.value);
         });
 
         const wallpaper = computed(() => {
-            if (shortcut.value && !shortcut.value.wallpaper) {
+            if (shortcut.value && !shortcut.value.wallpaper)
                 return {
                     backgroundImage: `url(${ShortcutPlaceholder})`,
                 };
-            }
 
             return {
                 backgroundImage: `url(${shortcut.value.wallpaper})`,
@@ -114,15 +110,11 @@ export default {
         });
 
         onMounted(() => {
-            if (_.isEmpty(shortcut.value)) {
-                return router.push('/shortcuts');
-            }
+            if (_.isEmpty(shortcut.value)) return router.push('/shortcuts');
         });
 
         watch(shortcutStatus, (newVal) => {
-            if (newVal === STATUSES.SUCCESS) {
-                store.dispatch('app/toggleModal', 'successShortcutModal');
-            }
+            if (newVal === STATUSES.SUCCESS) store.dispatch('app/toggleModal', 'successShortcutModal');
         });
 
         return {
@@ -137,7 +129,7 @@ export default {
             SHORTCUT_STATUSES,
             STATUSES,
             wallpaper,
-            LikeIcon
+            LikeIcon,
         };
     },
 };
