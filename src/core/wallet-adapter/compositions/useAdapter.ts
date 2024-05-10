@@ -10,6 +10,8 @@ import * as TYPES from '@/core/wallet-adapter/store/types';
 
 import { ChainConfig } from '@/modules/chain-configs/types/chain-config';
 import { ITransactionResponse } from '@/core/transaction-manager/types/Transaction';
+import mixpanel from 'mixpanel-browser';
+import { reset } from '@/app/modules/mixpanel/track';
 
 interface WalletInfo {
     id: string;
@@ -297,6 +299,7 @@ function useAdapter() {
         router.push('/connect-wallet');
 
         adaptersDispatch(TYPES.DISCONNECT_ALL_WALLETS);
+        reset(mixpanel);
     };
 
     // * Validate Address

@@ -279,6 +279,7 @@ export default {
         // =================================================================================================================
 
         const opBtnState = computed(() => {
+            // TODO refactor, duplicate
             return {
                 class: 'module-layout-view-btn',
                 type: isTransactionSigning.value || isLoading.value ? 'primary' : 'success',

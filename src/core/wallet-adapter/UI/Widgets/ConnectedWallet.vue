@@ -62,6 +62,9 @@ import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
 
 import { cutAddress } from '@/shared/utils/address';
 
+import mixpanel from 'mixpanel-browser';
+import { reset } from '@/app/modules/mixpanel/track';
+
 export default {
     name: 'ConnectedWallet',
     components: {
@@ -146,7 +149,10 @@ export default {
             return action('SET_MODAL_STATE', { name: 'addresses', isOpen: true });
         };
 
-        const handleOnDisconnectAccount = async (ecosystem, wallet) => await disconnectWallet(ecosystem, wallet);
+        const handleOnDisconnectAccount = async (ecosystem, wallet) => {
+            await disconnectWallet(ecosystem, wallet);
+            reset(mixpanel);
+        };
 
         return {
             chainInfo,

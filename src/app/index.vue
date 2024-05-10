@@ -27,6 +27,7 @@ import AddressModal from '@/core/wallet-adapter/UI/Modal/AddressModal';
 import KadoModal from '@/components/app/modals/KadoModal.vue';
 import SelectModal from '@/components/app/modals/SelectModal.vue';
 import BridgeDexRoutesModal from '@/components/app/modals/BridgeDexRoutesModal.vue';
+import { callTrackEvent, identify } from '@/app/modules/mixpanel/track';
 
 import { updateBalanceForAccount } from '@/core/balance-provider';
 
@@ -51,6 +52,7 @@ export default {
     setup() {
         const useAdapter = inject('useAdapter');
         const store = useStore();
+        const mixpanel = inject('mixpanel');
 
         const isConfigLoading = computed(() => store.getters['configs/isConfigLoading']);
 
@@ -75,10 +77,18 @@ export default {
         const callSubscription = async () => {
             const { ecosystem } = currentChainInfo.value || {};
 
-            if (JSON.stringify(await getAddressesWithChains(ecosystem)) !== '{}' && walletAddress.value)
+            if (JSON.stringify(await getAddressesWithChains(ecosystem)) !== '{}' && walletAddress.value) {
                 Socket.setAddresses(await getAddressesWithChains(ecosystem), ecosystem, {
                     walletAccount: walletAccount.value,
                 });
+
+                identify(mixpanel, walletAddress.value);
+                callTrackEvent(mixpanel, 'connect-wallet', {
+                    Ecosystem: currentChainInfo.value.ecosystem,
+                    WalletProvider: currentChainInfo.value.walletModule,
+                    WalletProviderAccount: walletAccount.value,
+                });
+            }
         };
 
         const updateBalanceForAllAccounts = async () => {
