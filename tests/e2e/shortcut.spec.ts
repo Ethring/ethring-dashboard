@@ -1,9 +1,10 @@
 import { METAMASK_DEFAULT_URL_NODE } from 'tests/data/constants';
-import { testMetaMaskAndKeplr } from '../__fixtures__/fixtures';
+import { testMetaMask, testMetaMaskAndKeplr } from '../__fixtures__/fixtures';
 import {
     estimateBscOsmoMock,
     estimateCosmoStargazeMock,
     estimateOsmoCosmosMock,
+    estimateArbitrumMock,
     MOCK_EVM_TX_HASH,
     mockPostTransactionsRouteEvm,
     mockPostTransactionsWsByCreateEventEvm,
@@ -11,6 +12,16 @@ import {
     mockPutTransactionsWsByUpdateTransactionEventInProgressShortcutBscOsmoMockTx,
     mockTxReceipt,
 } from '../data/mockDataByTests/ShortcutTransferAndStakeMock';
+
+// import {
+//     MOCK_ARBITRUM_TX_HASH,
+//     mockTxReceiptPendleStep1,
+//     mockPostTransactionsWsByCreateEventArbitrum,
+//     mockPostTransactionsRouteArbitrum,
+//     mockPutTransactionsShortcutPendleBeefy,
+//     mockPutTransactionsWsByUpdateTransactionEventInProgressShortcutPendleBeefyTx,
+// } from '../data/mockDataByTests/ShortcutPendleBeefy';
+
 import { MetaMaskNotifyPage, getNotifyMmPage, mockMetaMaskSignTransaction } from 'tests/model/MetaMask/MetaMask.pages';
 import util from 'util';
 import { expect } from '@playwright/test';
@@ -54,3 +65,42 @@ testMetaMaskAndKeplr.skip('Case#: Shortcut transfer and stake', async ({ context
     await shortcutPage.assertNotificationByPage(1, expectedNotificationTitle, expectedNotificationDesc);
     // TODO this assert work with wait notification
 });
+
+// testMetaMask.skip('Case#: Shortcut Pendle - Beefy', async ({ context, shortcutPage }) => {
+//     const mockGetQuote = {
+//         '"fromToken":"0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee","toToken":"0x2416092f143378750bb29b79ed961ab195cceea5"':
+//             estimateArbitrumMock,
+//     };
+
+//     await shortcutPage.clickShortcutById('SC-pendle-beefy');
+
+//     await shortcutPage.mockEstimateDexRequestByRequestDataMatcher(mockGetQuote);
+
+//     await shortcutPage.setAmount('0.00051');
+
+//     await shortcutPage.modifyDataByPostTxRequest(mockPostTransactionsRouteArbitrum, mockPostTransactionsWsByCreateEventArbitrum);
+
+//     await shortcutPage.modifyDataByGetTxRequest(mockPostTransactionsRouteArbitrum);
+
+//     await shortcutPage.modifyDataByPutTxRequest(
+//         mockPutTransactionsShortcutPendleBeefy,
+//         mockPutTransactionsWsByUpdateTransactionEventInProgressShortcutPendleBeefyTx,
+//     );
+
+//     await shortcutPage.clickConfirm();
+
+//     const notifyMmAddNetwork = new MetaMaskNotifyPage(await getNotifyMmPage(context));
+//     await notifyMmAddNetwork.changeNetwork();
+
+//     await mockMetaMaskSignTransaction(context, METAMASK_DEFAULT_URL_NODE.ARBITRUM, MOCK_ARBITRUM_TX_HASH, mockTxReceiptPendleStep1);
+
+//     const notifyMmTxSwap = new MetaMaskNotifyPage(await getNotifyMmPage(context));
+//     //   await notifyMmTxSwap.signTx();
+
+//     // await shortcutPage.modifyDataByPostTxRequest(mockPostTransactionsRouteArbitrum, mockPostTransactionsWsByCreateEventArbitrum);
+
+//     // await shortcutPage.modifyDataByGetTxRequest(mockPostTransactionsRouteArbitrum);
+
+//     // const notifyMmTxApprove = new MetaMaskNotifyPage(await getNotifyMmPage(context));
+//     // await notifyMmTxApprove.signTx();
+// });

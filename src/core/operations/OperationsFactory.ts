@@ -615,6 +615,7 @@ export default class OperationFactory implements IOperationFactory {
 
             result.push({
                 type,
+                name: this.getOperationByKey(op).getName(),
                 status: this.getOperationsStatusByKey(op) as keyof typeof STATUSES,
                 ecosystem: this.getOperationByKey(op).getEcosystem(),
                 chainId: this.getOperationByKey(op).getChainId(),

@@ -10,17 +10,18 @@ import {
 } from '@/core/transaction-manager/api';
 
 import useNotification from '@/compositions/useNotification';
-import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
-
-import { captureTransactionException } from '@/app/modules/sentry';
-
-import { ModuleType } from '@/shared/models/enums/modules.enum';
 
 import { STATUSES, DISALLOW_UPDATE_TYPES } from '@/shared/models/enums/statuses.enum';
 import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 
-import { formatNumber } from '@/shared/utils/numbers';
+import { ModuleType } from '@/shared/models/enums/modules.enum';
+
+import { captureTransactionException } from '@/app/modules/sentry';
+
 import logger from '@/shared/logger';
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
+
+import { formatNumber } from '@/shared/utils/numbers';
 
 export default function useTransactions() {
     const store = useStore();
@@ -175,11 +176,11 @@ export default function useTransactions() {
             const operationResultDesc =
                 module === ModuleType.send
                     ? `${params.amount} ${tokens.from.symbol}`
-                    : `${formatNumber(params.dstAmount)} ${tokens.to.symbol}`;
+                    : `${formatNumber(params.dstAmount)} ${tokens.to?.symbol}`;
 
             let operationResultTitle = `${capitalize(module)}`;
 
-            const fromChainLogo = `<img class="network-icon" src="${tokens.from.chainLogo}"/>`;
+            const fromChainLogo = `<img class="network-icon" src="${tokens.from?.chainLogo}"/>`;
             const toChainLogo = `<img class="network-icon" src="${tokens.to?.chainLogo}"/>`;
 
             if ([TRANSACTION_TYPES.DEX, TRANSACTION_TYPES.SWAP, TRANSACTION_TYPES.BRIDGE].includes(TARGET_TYPE))

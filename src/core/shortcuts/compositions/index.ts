@@ -18,6 +18,7 @@ import TransferOperation from '@/core/operations/general-operations/Transfer';
 import ApproveOperation from '@/core/operations/general-operations/Approve';
 import MultipleContractExec from '@/core/operations/stargaze-nft/MultipleExec';
 import PendleSwapTokenForPT from '@/core/operations/pendle-silo/SwapTokenForPT';
+import PendleAddLiquiditySingleToken from '@/core/operations/pendle-beefy/AddLiquiditySingleToken';
 
 import { IBaseOperation } from '@/core/operations/models/Operations';
 
@@ -152,6 +153,11 @@ const useShortcuts = (Shortcut: IShortcutData) => {
 
             case TRANSACTION_TYPES.SWAP_TOKEN_TO_PT:
                 registerResponse = operationsFactory.value.registerOperation(moduleType, PendleSwapTokenForPT, { id, name, make });
+                registerResponse && ({ key } = registerResponse);
+                break;
+
+            case TRANSACTION_TYPES.ADD_LIQUIDITY_SINGLE_TOKEN:
+                registerResponse = operationsFactory.value.registerOperation(moduleType, PendleAddLiquiditySingleToken, { id, name, make });
                 registerResponse && ({ key } = registerResponse);
                 break;
         }

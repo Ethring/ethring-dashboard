@@ -1,10 +1,10 @@
 import { getTestVar, TEST_CONST } from '../../envHelper';
 
-const ETH_ADDRESS_FROM = getTestVar(TEST_CONST.ETH_ADDRESS_SHORTCUT);
+export const ETH_ADDRESS_FROM = getTestVar(TEST_CONST.ETH_ADDRESS_SHORTCUT);
 const MOCK_TX_ID = '11312';
 const MOCK_REQUEST_ID = 'c045e109-8423-4ff5-929c-70de8b73edf7';
 export const MOCK_EVM_TX_HASH = '0x2b23ba4e0ecd8f379a0835c944f9e5f5c0c777b6235f9358fbed549dc66775f3';
-const MOCK_OWNER_ADDRESS = {
+export const MOCK_OWNER_ADDRESS = {
     eth: '0xd001520485801611a57867652cdf0e9f98173976',
     optimism: '0xd001520485801611a57867652cdf0e9f98173976',
     bsc: '0xd001520485801611a57867652cdf0e9f98173976',
@@ -133,6 +133,46 @@ export const estimateCosmoStargazeMock = {
     errorData: [],
 };
 
+export const estimateArbitrumMock = {
+    ok: true,
+    data: {
+        best: 'paraswap',
+        priority: 'bestReturn',
+        routes: [
+            {
+                fromAmount: '0.0004',
+                toAmount: '0.000404957223253481',
+                gasEstimated: 200600,
+                fee: [
+                    {
+                        currency: 'USD',
+                        amount: '0.255111',
+                    },
+                ],
+                serviceId: 'paraswap',
+                bestFee: false,
+                bestReturn: true,
+            },
+            {
+                fromAmount: '0.0004',
+                toAmount: '0.000404125350687778',
+                gasEstimated: 467613,
+                fee: [
+                    {
+                        currency: 'USD',
+                        amount: '0.0143342556633',
+                    },
+                ],
+                serviceId: 'zerox',
+                bestFee: true,
+                bestReturn: false,
+            },
+        ],
+    },
+    error: '',
+    errorData: [],
+};
+
 export const mockPostTransactionsRouteEvm = {
     ok: true,
     data: [
@@ -170,6 +210,7 @@ export const mockPostTransactionsWsByCreateEventEvm = {
     createdAt: '2024-04-19T13:58:11.453Z',
     updatedAt: '2024-04-19T13:58:11.453Z',
 };
+
 
 export const mockPutTransactionsShortcutBscOsmoRouteMockTx = {
     ok: true,

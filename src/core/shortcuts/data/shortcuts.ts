@@ -8,6 +8,7 @@ export enum AvailableShortcuts {
     WithdrawDydx = 'withdraw-dYdX-usdc-rewards-to-usdt-on-tron',
     ConvertTia = 'convert-tia-to-sttia',
     PendleEarnFixedYield = 'SC-pendle-earn-fixed-yield',
+    PendleBeefy = 'SC-pendle-beefy',
 }
 
 export enum ShortcutAuthor {

@@ -7,6 +7,7 @@ export enum ModuleType {
     stake = 'stake',
     shortcut = 'shortcut',
     pendleSilo = 'pendleSilo',
+    pendleBeefy = 'pendleBeefy',
 }
 
 export type ModuleTypes = keyof typeof ModuleType;

@@ -24,6 +24,7 @@ export interface IOperationsResultToken {
 
 export interface IOperationsResult {
     type: TX_TYPES;
+    name: string;
 
     status: keyof typeof STATUSES;
 

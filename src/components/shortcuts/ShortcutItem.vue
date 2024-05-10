@@ -1,6 +1,7 @@
 <template>
     <a-card
         class="shortcut-item"
+        :data-qa="item.id"
         :bordered="false"
         :class="{
             disabled: !item?.isActive,

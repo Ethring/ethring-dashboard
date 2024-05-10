@@ -113,4 +113,5 @@ export const MEMO_BY_KEPLR_TEST = '105371789';
 export enum METAMASK_DEFAULT_URL_NODE {
     BSC = 'https://bsc.publicnode.com/',
     POLYGON = 'https://polygon-rpc.com/',
+    ARBITRUM = 'https://arb1.arbitrum.io/rpc',
 }

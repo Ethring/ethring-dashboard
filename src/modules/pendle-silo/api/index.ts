@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js';
 
 export interface IPendleApi {
     swapExactTokenForPT(params: ISwapExactTokenForPTRequest): Promise<any>;
+    addLiquiditySingleToken(params: ISwapExactTokenForPTRequest): Promise<any>;
 }
 
 // ============= API Requests Start =============
@@ -24,6 +25,21 @@ class PendleApi implements IPendleApi {
             return swapExactTokenForPTResponse;
         } catch (error) {
             console.error('PendleApi.swapExactTokenForPT', error);
+
+            throw error;
+        }
+    }
+
+    // add Liquidity for pool
+    async addLiquiditySingleToken(params: ISwapExactTokenForPTRequest): Promise<any> {
+        try {
+            const response = await ApiClient.get(`/${this.VERSION}/addLiquiditySingleToken`, { params });
+
+            const addLiquiditySingleTokenResponse = response.data as ISwapExactTokenForPTResponse;
+
+            return addLiquiditySingleTokenResponse;
+        } catch (error) {
+            console.error('PendleApi.addLiquiditySingleToken', error);
 
             throw error;
         }

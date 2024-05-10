@@ -159,13 +159,17 @@
         "createdBy": "Created by",
         "clearAll": "Clear all",
         "backTo": "Back to shortcuts",
+        "minUsdAmount": "Minimum amount is",
         "back": "Back",
         "profile": {
             "author": "Author",
             "created": "Created",
             "likes": "Likes"
         },
-        "minUsdAmount": "Min USD amount is",
+        "loadings": {
+            "walletConnecting": "Connecting wallet ...",
+            "initLoading": "Please wait we are preparing our application for you"
+        },
         "comingSoon": "Coming Soon",
         "comingSoonDescription": "Stay tuned for updates on what's coming next!"
     },
