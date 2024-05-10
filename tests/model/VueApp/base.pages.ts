@@ -173,7 +173,7 @@ class BasePage {
     }
 
     async waitLoadImg(browser?, context?, page?) {
-        let images = await this.page.locator('//img').all();
+        const images = await this.page.locator('//img').all();
         try {
             for (const img of images) await img.scrollIntoViewIfNeeded();
         } catch (e) {
@@ -203,8 +203,8 @@ class BasePage {
     async handleRequestWithModification(route: Route, method: string, httpData: Object, wsData: Object) {
         if (route.request().method() === method) {
             const body = JSON.parse(route.request().postData());
-            // body.expectedDataHttp = httpData;
-            // body.expectedDataWs = wsData;
+            body.expectedDataHttp = httpData;
+            body.expectedDataWs = wsData;
 
             const override = { postData: JSON.stringify(body) };
             route.continue(override);

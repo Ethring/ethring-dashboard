@@ -68,7 +68,7 @@ export const testMetaMask = base.extend<{
     swapPageMockBalancesAndTokensList: SwapPage;
     superSwapPageBalanceMock: SuperSwapPage;
 
-    shortcutPage: ShortcutPage;
+    // shortcutPage: ShortcutPage;
 }>({
     context: async ({}, use) => {
         const context = await chromium.launchPersistentContext('', {
@@ -153,12 +153,6 @@ export const testMetaMask = base.extend<{
         const zometPage = await authMmCoingeckoAndBalanceMock(context, SEED_PHRASE_BY_TX_3, ADDRESS_BY_TX_3);
         const superSwapPage = await zometPage.goToModule('superSwap');
         await use(superSwapPage as SuperSwapPage);
-    },
-    shortcutPage: async ({ browser, context, page }, use) => {
-        const zometPage = await authMmCoingeckoAndBalanceMock(context, SEED_SHORTCUT_TEST, SEED_SHORTCUT_TEST);
-
-        const shortcutPage = await zometPage.goToModule('shortcut');
-        await use(shortcutPage as ShortcutPage);
     },
 });
 
