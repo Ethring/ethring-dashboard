@@ -36,6 +36,9 @@ import useNotification from '@/compositions/useNotification';
 import useServices from '@/compositions/useServices';
 import useTransactions from '@/core/transaction-manager/compositions/useTransactions.js';
 
+import { callTrackEvent } from '@/app/modules/mixpanel/track';
+import mixpanel from 'mixpanel-browser';
+
 const useModuleOperations = (module: ModuleType) => {
     const store = useStore();
 
@@ -747,6 +750,14 @@ const useModuleOperations = (module: ModuleType) => {
                     txInstance.setId(transaction.id as string);
                     txInstance.setTransaction(transaction);
                 }
+
+                // * Track every tx
+                callTrackEvent(mixpanel, 'module-app launch', {
+                    Modules: txInstance.type === TRANSACTION_TYPES.TRANSFER ? 'send' : txInstance.transaction.module,
+                    ServiceType: txInstance.type,
+                    ServiceId: txInstance.type === TRANSACTION_TYPES.TRANSFER ? 'send' : txInstance.transaction.metaData.params.serviceId,
+                    RequestId: txInstance.requestID,
+                });
 
                 // Notification Block
 
