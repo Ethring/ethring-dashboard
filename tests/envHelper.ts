@@ -30,7 +30,7 @@ export enum TEST_CONST {
     ETH_ADDRESS_SHORTCUT = 'ETH_ADDRESS_SHORTCUT',
 
     // SEED_SHORTCUT_TEST_2 = 'SEED_SHORTCUT_TEST_2',
-    ETH_ADDRESS_SHORTCUT_2 = 'ETH_ADDRESS_SHORTCUT_2',
+    // ETH_ADDRESS_SHORTCUT_2 = 'ETH_ADDRESS_SHORTCUT_2',
 } // TODO! If you add new evm address to env.test - use ONLY lower case, because http request from frontend send lower case address in query param in balance request
 
 export function getTestVar(key: TEST_CONST): string {
