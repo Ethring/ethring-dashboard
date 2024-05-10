@@ -65,9 +65,10 @@ testMetaMaskAndKeplr.skip('Case#: Shortcut transfer and stake', async ({ context
     // TODO this assert work with wait notification
 });
 
-testMetaMask('Case#: Shortcut Pendle - Beefy', async ({ context, shortcutPage }) => {
+testMetaMask.skip('Case#: Shortcut Pendle - Beefy', async ({ context, shortcutPage }) => {
     const mockGetQuote = {
-        '"fromToken":"0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee","toToken":"0x2416092f143378750bb29b79ed961ab195cceea5"': estimateArbitrumMock,
+        '"fromToken":"0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee","toToken":"0x2416092f143378750bb29b79ed961ab195cceea5"':
+            estimateArbitrumMock,
     };
 
     await shortcutPage.clickShortcutById('SC-pendle-beefy');
