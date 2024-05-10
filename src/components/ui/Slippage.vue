@@ -5,7 +5,7 @@
         :disabled="isTransactionSigning || isQuoteLoading"
         trigger="click"
         class="slippage"
-        placement="bottom"
+        placement="bottomRight"
         @open-change="handleOpenChange"
     >
         <div class="slippage__icon-container" data-qa="slippage-icon">

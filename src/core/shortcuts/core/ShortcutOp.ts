@@ -92,6 +92,7 @@ export default class ShortcutOp implements IShortcutOp {
         this.operationType = shortcut.operationType;
         this.moduleType = shortcut.moduleType;
         this.editableFromAmount = shortcut.editableFromAmount || false;
+        this.isNeedFromAmount = shortcut.isNeedFromAmount || false;
         this.layoutComponent = shortcut.layoutComponent;
         this.operationParams = shortcut.operationParams;
         this.params = shortcut.params;

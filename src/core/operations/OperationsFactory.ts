@@ -66,7 +66,6 @@ export default class OperationFactory implements IOperationFactory {
         options?: { id?: string; name?: string; before?: string; after?: string; make?: string },
     ): IRegisterOperation | null {
         const { name = null, before = null, after = null, make } = options || {};
-        console.log(options, '--options');
 
         let { id = null } = options || {};
 

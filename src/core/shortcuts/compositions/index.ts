@@ -283,14 +283,14 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                 receiverAddress: 'receiverAddress',
                 contractAddress: 'contract',
                 memo: 'memo',
-            };
+            } as any;
 
             const isToken = ['srcToken', 'dstToken'].includes(field);
 
             const tokenDestination = {
                 srcToken: 'from',
                 dstToken: 'to',
-            };
+            } as any;
 
             if (field && value) {
                 isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value }));
@@ -569,7 +569,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     // ====================================================================================================
     watch(addressesByChain, () => {
         for (const id of opIds.value) {
-            const operation = operationsFactory.value.getOperationById(id);
+            const operation = operationsFactory.value.getOperationById(id) as IBaseOperation;
             operation.setParamByField('ownerAddresses', addressesByChain.value);
         }
     });

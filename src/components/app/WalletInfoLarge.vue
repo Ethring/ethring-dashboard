@@ -129,6 +129,7 @@ export default {
     align-items: baseline;
 
     z-index: 2;
+
     &__wallet {
         display: flex;
         flex-direction: column;
@@ -153,17 +154,17 @@ export default {
             @include pageFlexRow;
             margin: auto 0;
             font-weight: 700;
-            font-size: var(--#{$prefix}h1-fs);
+            font-size: var(--#{$prefix}h3-fs);
             color: var(--#{$prefix}primary-text);
             user-select: none;
-            height: 32px;
+            height: 28px;
 
             .value {
                 @include pageFlexRow;
             }
 
             &__hide {
-                margin: 1px 0 0 14px;
+                margin: 1px 0 0 10px;
             }
 
             span {
@@ -182,6 +183,7 @@ export default {
             }
         }
     }
+
     &__address {
         @include pageFlexRow;
 

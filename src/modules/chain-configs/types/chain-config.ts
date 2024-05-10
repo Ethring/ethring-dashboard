@@ -15,6 +15,8 @@ export interface ChainConfig {
         coingecko_id?: string;
     };
 
+    asset?: any;
+
     explorers: string[];
     nodes: string[];
 

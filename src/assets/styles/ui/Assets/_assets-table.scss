@@ -94,13 +94,13 @@
     }
 
     .ant-table-thead .ant-table-cell {
-        font-weight: 300;
+        font-weight: 400;
         color: var(--#{$prefix}neutral-text);
         font-size: var(--#{$prefix}small-sm-fs);
 
         p {
             display: flex;
-            font-weight: 400;
+            font-weight: 500;
             color: var(--#{$prefix}primary-text);
         }
 

@@ -178,15 +178,15 @@ export default function useTransactions() {
                     ? `${params.amount} ${tokens.from.symbol}`
                     : `${formatNumber(params.dstAmount)} ${tokens.to?.symbol}`;
 
-            let operationResultTitle = `Initiated a ${module}`;
+            let operationResultTitle = `${capitalize(module)}`;
 
             const fromChainLogo = `<img class="network-icon" src="${tokens.from?.chainLogo}"/>`;
             const toChainLogo = `<img class="network-icon" src="${tokens.to?.chainLogo}"/>`;
 
             if ([TRANSACTION_TYPES.DEX, TRANSACTION_TYPES.SWAP, TRANSACTION_TYPES.BRIDGE].includes(TARGET_TYPE))
                 operationResultTitle += isSameNetwork
-                    ? ` on ${fromChainLogo} ${capitalize(params.fromNet)} from ${params.amount} to`
-                    : ` from ${fromChainLogo} ${capitalize(tokens.from.chain)} to ${toChainLogo}" ${capitalize(tokens.to.chain)}`;
+                    ? ` on ${fromChainLogo} ${capitalize(params.fromNet)} from ${params.amount} ${tokens.from.symbol} to`
+                    : ` from ${fromChainLogo} ${capitalize(tokens.from.chain)} to ${toChainLogo} ${capitalize(tokens.to.chain)}`;
             else if ([TRANSACTION_TYPES.TRANSFER].includes(TARGET_TYPE))
                 operationResultTitle += ` on ${fromChainLogo} ${capitalize(params.fromNet)} `;
 

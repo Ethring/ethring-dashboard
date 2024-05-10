@@ -19,6 +19,7 @@
         background: var(--#{$prefix}small-btn-bg-color);
 
         span {
+            font-weight: 600;
             color: var(--#{$prefix}black);
         }
     }

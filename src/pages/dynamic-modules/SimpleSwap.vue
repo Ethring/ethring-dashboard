@@ -8,7 +8,16 @@
                     :placeholder="$t('tokenOperations.selectNetwork')"
                     @click="onSelectNetwork"
                 />
-                <Slippage />
+                <a-row>
+                    <div
+                        class="reload-btn mr-8"
+                        :class="{ active: dstAmount && !isQuoteLoading && !isTransactionSigning }"
+                        @click="() => getEstimateInfo(true)"
+                    >
+                        <SyncOutlined :spin="isQuoteLoading" />
+                    </div>
+                    <Slippage />
+                </a-row>
             </a-row>
         </a-form-item>
 
@@ -105,6 +114,9 @@ import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewIn
 // Slippage Component
 import Slippage from '@/components/ui/Slippage.vue';
 
+// Icons
+import { SyncOutlined } from '@ant-design/icons-vue';
+
 // Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
@@ -123,6 +135,7 @@ export default {
         SelectAddressInput,
         Checkbox,
         Slippage,
+        SyncOutlined,
     },
 
     setup() {
@@ -262,6 +275,15 @@ export default {
             }
         };
 
+        const getEstimateInfo = async (isReload = false) => {
+            if (isReload && (isQuoteLoading.value || isTransactionSigning.value)) return;
+
+            dstAmount.value = null;
+            store.dispatch('bridgeDexAPI/setReloadRoutes', isReload);
+        };
+
+        // =================================================================================================================
+
         watch(srcAmount, () => resetAmounts(DIRECTIONS.SOURCE, srcAmount.value));
 
         watch(dstAmount, () => resetAmounts(DIRECTIONS.DESTINATION, dstAmount.value));
@@ -314,6 +336,8 @@ export default {
             onSelectNetwork,
             handleOnSetAmount,
             toggleRoutesModal,
+
+            getEstimateInfo,
 
             // * Transaction Manager
             isDisableConfirmButton,
