@@ -160,7 +160,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         ecosystems: ['EVM'],
         type: 'yield',
         description: 'Maximize Your Earnings: Unlock the Highest APYs on Pendle + Beefy for Your Assets',
-        wallpaper: '/img/wallpapers/SC-pendle-earn-fixed-yield.png',
+        wallpaper: '/img/wallpapers/SC-pendle-beefy.png',
         website: 'https://pendle.finance/',
         minUsdAmount: 1.1,
         author: getAuthorById(ShortcutAuthor.ZometApp),
