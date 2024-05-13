@@ -15,6 +15,7 @@ import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
 import OperationsFactory from '@/core/operations/OperationsFactory';
 import DexOperation from '@/core/operations/general-operations/Dex';
 import TransferOperation from '@/core/operations/general-operations/Transfer';
+import StakeOperation from '@/core/operations/general-operations/Stake';
 import ApproveOperation from '@/core/operations/general-operations/Approve';
 import MultipleContractExec from '@/core/operations/stargaze-nft/MultipleExec';
 import PendleSwapTokenForPT from '@/core/operations/pendle-silo/SwapTokenForPT';
@@ -132,8 +133,11 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                 registerResponse && ({ key } = registerResponse);
                 break;
             case TRANSACTION_TYPES.TRANSFER:
-            case TRANSACTION_TYPES.STAKE:
                 registerResponse = operationsFactory.value.registerOperation(moduleType, TransferOperation, { id, name, make });
+                registerResponse && ({ key } = registerResponse);
+                break;
+            case TRANSACTION_TYPES.STAKE:
+                registerResponse = operationsFactory.value.registerOperation(moduleType, StakeOperation, { id, name, make });
                 registerResponse && ({ key } = registerResponse);
                 break;
             case TRANSACTION_TYPES.APPROVE:

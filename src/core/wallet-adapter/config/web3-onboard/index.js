@@ -1,4 +1,4 @@
-import injectedModule from '@web3-onboard/injected-wallets';
+import injectedModule, { ProviderLabel } from '@web3-onboard/injected-wallets';
 
 import coinbaseWalletModule from '@web3-onboard/coinbase';
 import ledgerModule from '@web3-onboard/ledger';
@@ -6,7 +6,10 @@ import ledgerModule from '@web3-onboard/ledger';
 import appMetadata from '@/core/wallet-adapter/config/web3-onboard/meta-data';
 import { chainConfig } from '@/core/wallet-adapter/config/web3-onboard/chains';
 
-const injected = injectedModule();
+const injected = injectedModule({
+    displayUnavailable: [ProviderLabel.MetaMask, ProviderLabel.Trust, ProviderLabel.Phantom],
+});
+
 const coinbaseWalletSdk = coinbaseWalletModule();
 
 const wallets = [injected, coinbaseWalletSdk];

@@ -3,7 +3,8 @@ import _ from 'lodash';
 
 import { cosmos, cosmwasm } from 'osmojs';
 
-import { SigningStargateClient, GasPrice } from '@cosmjs/stargate';
+import { SigningStargateClient, StargateClient, GasPrice } from '@cosmjs/stargate';
+import { Decimal } from '@cosmjs/math';
 
 import { Logger, WalletManager } from '@cosmos-kit/core';
 import { wallets as KeplrWallets } from '@cosmos-kit/keplr';
@@ -124,13 +125,19 @@ export class CosmosAdapter extends AdapterBase {
             },
         );
 
-        const stargateClientOptions = {
-            aminoTypes,
-            registry,
-        };
-
         for (const chainRecord of this.walletManager.chainRecords) {
-            const gasPrice = this.getGasPriceFromChain(chainRecord.chain.fees?.fee_tokens);
+            // * Set client options for stargate on chainRecord for each chain
+            const stargateClientOptions = {
+                aminoTypes,
+                registry,
+            };
+
+            const { fees = { fee_tokens: {} } } = chainRecord.chain || {};
+            const { fee_tokens = {} } = fees || {};
+
+            const gasPrice = this.getGasPriceFromChain(chainRecord.assetList.assets, fee_tokens);
+
+            stargateClientOptions.gasPrice = gasPrice;
 
             this.chainsFromStore[chainRecord.chain.chain_name] &&
                 (chainRecord.chain.logo =
@@ -138,26 +145,35 @@ export class CosmosAdapter extends AdapterBase {
                     chainRecord.chain.logo_URIs?.svg ||
                     chainRecord.chain.logo_URIs?.png);
 
-            gasPrice && (stargateClientOptions.gasPrice = gasPrice);
-
             chainRecord.clientOptions.signingStargate = stargateClientOptions;
         }
 
         this.walletManager.onMounted();
     }
 
-    getGasPriceFromChain(feeTokens = []) {
+    getGasPriceFromChain(assets = [], feeTokens = []) {
         if (!feeTokens.length) return 0;
 
         const [feeInfo = {}] = feeTokens;
 
-        const { fixed_min_gas_price, average_gas_price, low_gas_price, high_gas_price, denom } = feeInfo || {};
+        const price = feeInfo.average_gas_price || feeInfo.low_gas_price || feeInfo.fixed_min_gas_price || feeInfo.high_gas_price;
 
-        const price = fixed_min_gas_price || low_gas_price || average_gas_price || high_gas_price;
+        if (!price || !feeInfo.denom) return 0;
 
-        if (!price || !denom) return 0;
+        const asset = assets.find((asset) => asset.base === feeInfo.denom);
+        const decimals = asset?.denom_units[1]?.exponent || asset.decimals;
 
-        return GasPrice.fromString(`${price}${denom}`);
+        try {
+            const atomics = BigNumber(price).multipliedBy(BigNumber(10).pow(decimals)).toString();
+            const Decimals = new Decimal(atomics, decimals);
+            const gasPrice = new GasPrice(Decimals, asset.base);
+            return gasPrice;
+        } catch (error) {
+            console.log('-'.repeat(10), 'GAS PRICE ERROR', '-'.repeat(10));
+            console.log('asset', feeTokens[0].denom);
+            console.log('Error while getting gas price', error);
+            return 0;
+        }
     }
 
     getConnectedWallets() {
@@ -559,15 +575,21 @@ export class CosmosAdapter extends AdapterBase {
     }
 
     // * Simulate transaction
-    async simulateTxGas(client = SigningStargateClient, msg) {
+    async simulateTxGas(client = SigningStargateClient, msg, { rpc }) {
         const GAS_ADJUSTMENT = 1.45;
+
+        const msgs = Array.isArray(msg) ? msg : [msg];
+        const [tx] = msgs || [];
+        const typeUrl = tx?.typeUrl || '';
 
         try {
             const msgs = Array.isArray(msg) ? msg : [msg];
 
-            const simGas = await client.simulate(this.getAccountAddress(), msgs);
+            const signerAccount = await client.signer?.getAccounts();
 
-            if (!simGas) return null;
+            const [account] = signerAccount || [];
+
+            const simGas = await client.simulate(account.address, msgs);
 
             const adjustedGas = BigNumber(simGas).multipliedBy(GAS_ADJUSTMENT).toString();
 
@@ -577,49 +599,65 @@ export class CosmosAdapter extends AdapterBase {
 
             return adjustedGas;
         } catch (error) {
-            logger.error('[COSMOS -> getTransactionFee -> simulateTxGas]', error);
-            return null;
+            logger.warn('[COSMOS -> getTransactionFee -> simulateTxGas]', error);
+            logger.log('Trying to get gas from block', typeUrl);
+
+            try {
+                const stargateClient = await StargateClient.connect(rpc);
+
+                // Get latest block
+                const latestBlock = await stargateClient.getBlock();
+                const { header } = latestBlock || {};
+                const { height = 0 } = header || {};
+
+                const query = `message.action='${typeUrl}' AND tx.height<=${height} AND tx.height>${height - 100}`;
+                const txs = await stargateClient.searchTx(query);
+
+                if (!txs || !txs.length) return null;
+
+                const [transaction] = txs || [];
+                console.log('transaction', transaction);
+
+                return transaction?.gasWanted || transaction?.gasUsed || null;
+            } catch (error) {
+                logger.error('[COSMOS -> getTransactionFee -> searchInBlock gas from block]', error);
+                return null;
+            }
         }
     }
 
-    async estimateFeeTx(msg) {
-        const chainWallet = this._getCurrentWallet();
-
-        try {
-            const msgs = Array.isArray(msg) ? msg : [msg];
-            const estimatedFee = await chainWallet.value.estimateFee(msgs);
-
-            if (estimatedFee) return estimatedFee;
-        } catch (error) {
-            logger.error('[COSMOS -> getTransactionFee -> estimateFee]', error);
-        }
-    }
-
-    async getTransactionFee(client, msg) {
+    async getTransactionFee(client, msg, { rpc }) {
         // SimulateTx to get gas for transaction
         logger.debug('[COSMOS -> getTransactionFee] SimulateTx to get gas for transaction');
+
+        const gasToCoin = (gas) => {
+            const { gasPrice } = client;
+            const { amount = 0 } = gasPrice || {};
+            const { atomics, fractionalDigits } = amount || {};
+
+            const gasPriceAmount = BigNumber(atomics)
+                .dividedBy(10 ** fractionalDigits)
+                .toString();
+
+            const decimalsBN = BigNumber(10).pow(fractionalDigits);
+
+            return BigNumber(gas).multipliedBy(gasPriceAmount).dividedBy(decimalsBN).toString();
+        };
+
         try {
-            const simulatedGas = await this.simulateTxGas(client, msg);
+            const simulatedGas = await this.simulateTxGas(client, msg, { rpc });
+            console.log('gasToCoin', gasToCoin(simulatedGas));
 
             if (simulatedGas)
                 return {
                     gas: simulatedGas,
+                    gasToCoin: gasToCoin(simulatedGas),
                 };
         } catch (error) {
             logger.warn('[COSMOS -> getTransactionFee -> simulateTxFee]', error);
         }
 
-        logger.debug('[COSMOS -> getTransactionFee] SimulateTx not found, Use EstimateFee');
-        // EstimateFee to get gas for transaction
-        try {
-            const estimatedFee = await this.estimateFeeTx(msg);
-
-            if (estimatedFee) return estimatedFee;
-        } catch (error) {
-            logger.warn('[COSMOS -> getTransactionFee -> estimateFee]', error);
-        }
-
-        logger.warn('[COSMOS -> getTransactionFee] Fee not found, Use default fee');
+        logger.debug('[COSMOS -> getTransactionFee] SimulateTx not found, Use default fee');
 
         return null;
     }

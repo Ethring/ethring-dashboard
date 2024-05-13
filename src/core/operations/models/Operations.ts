@@ -8,6 +8,7 @@ import { AllQuoteParams } from '@/modules/bridge-dex/models/Request.type';
 import { STATUSES } from '@/shared/models/enums/statuses.enum';
 import { TRANSACTION_TYPES, TX_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 import { ServiceTypes } from '@/modules/bridge-dex/enums/ServiceType.enum';
+import { IAdapter } from '../../wallet-adapter/compositions/useAdapter';
 
 export interface IOperationsResultToken {
     from?: {
