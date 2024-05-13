@@ -665,6 +665,7 @@ export class CosmosAdapter extends AdapterBase {
     async prepareDelegateTransaction({ fromAddress, toAddress, amount, token, memo }) {
         const fee = this.setDefaultFeeForTx();
 
+        console.log('prepareDelegateTransaction', fromAddress, toAddress, amount, token, memo);
         try {
             const { delegate } = cosmos.staking.v1beta1.MessageComposer.withTypeUrl;
 
@@ -933,7 +934,7 @@ export class CosmosAdapter extends AdapterBase {
 
         // Try to get estimated fee
         try {
-            const estimatedFee = await this.getTransactionFee(signClient.client, msg);
+            const estimatedFee = await this.getTransactionFee(signClient.client, msg, { rpc: signClient.rpc });
 
             if (estimatedFee) fee.gas = estimatedFee.gas;
 

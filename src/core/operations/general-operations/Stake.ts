@@ -34,7 +34,7 @@ export default class TransferOperation extends BaseOperation {
         const params = {
             fromAddress: ownerAddresses[network],
             toAddress: this.params.receiverAddress,
-            amount: this.params.amount,
+            amount: this.params.outputAmount || this.params.amount,
             token: this.getToken('from'),
             memo: this.params.memo,
         };
@@ -85,8 +85,7 @@ export default class TransferOperation extends BaseOperation {
 
             // Set estimated fee
 
-            this.setParamByField('fee', fee);
-            const outputAmount = BigNumber(this.getParamByField('amount')).minus(estimatedFee.gasToCoin).toString();
+            const outputAmount = BigNumber(this.getParamByField('amount')).minus(estimatedFee.gasToCoin).toFixed(6);
             this.setParamByField('outputAmount', outputAmount);
             this.setParamByField('amount', outputAmount);
         } catch (error) {

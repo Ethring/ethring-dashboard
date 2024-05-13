@@ -1001,6 +1001,11 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                         address: 'ustars',
                     },
                     {
+                        name: 'srcAmount',
+                        disabled: true,
+                        hide: false,
+                    },
+                    {
                         name: 'receiverAddress',
                         type: 'address',
                         disabled: true,
