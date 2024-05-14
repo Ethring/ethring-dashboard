@@ -4,6 +4,7 @@ variables:
   TX_MANAGER_API: http://txmanager:3000
   FF_NETWORK_PER_BUILD: "true"
   CI_DEBUG_SERVICES: "false"
+  BRANCH_URL: https://$CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG.$OPENSHIFT_ROUTE
 
 .default_artifacts: &default_artifacts
   paths:
@@ -16,6 +17,56 @@ variables:
 .default_services: &default_services
   - name: $IMAGE_TXMANAGER_MOCK
     alias: txmanager
+
+.non_feature_branches: &non_feature_branches
+  - master
+  - schedules
+  - beta
+
+.buildReportsImageJob:
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  variables:
+    REPORT_TYPE: report
+    DOCKERFILE: Dockerfile
+  before_script:
+    - export IMAGE_TAG=$REGISTRY_URL/$CI_PROJECT_NAME/$REPORT_TYPE:$(date +'%d.%m.%Y')-$CI_COMMIT_SHORT_SHA
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"$REGISTRY_URL\":{\"username\":\"$REGISTRY_USER\",\"password\":\"$REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - time /kaniko/executor
+      --context $CI_PROJECT_DIR
+      --dockerfile $CI_PROJECT_DIR/tests/build/$DOCKERFILE
+      --destination $IMAGE_TAG
+      --cache=false
+
+.deployReportsImageJob:
+  image: widerin/openshift-cli:latest
+  variables:
+    REPORT_TYPE: report
+  before_script:
+    - apk add --update coreutils
+    - export NAME=$REPORT_TYPE-$CI_COMMIT_SHORT_SHA
+    - export IMAGE_TAG=$REGISTRY_URL/$CI_PROJECT_NAME/$REPORT_TYPE:$(date +'%d.%m.%Y')-$CI_COMMIT_SHORT_SHA
+    - DOCKERCONFIGJSON=$(echo -n "{\"auths\":{\"$DOCKER_REPO\":{\"username\":\"$DOCKER_USER_RO\",\"password\":\"$DOCKER_PASS_RO\"},\"$REGISTRY_URL\":{\"username\":\"$REGISTRY_USER\",\"password\":\"$REGISTRY_PASSWORD\"}}}" | base64 -w 0)
+    - apk add --update coreutils
+    - oc login --token $OPENSHIFT_TOKEN_REPORTS $OPENSHIFT_URL --insecure-skip-tls-verify
+    - oc project $OPENSHIFT_PROJECT_REPORTS
+  script:
+    - oc process -f tests/build/template.yml
+      --ignore-unknown-parameters=true
+      -p DC_NAME=$NAME
+      -p APP_NAME=$(echo $CI_PROJECT_NAMESPACE | sed -e 's/\//-/g')
+      -p IMAGE_NAME=$IMAGE_TAG
+      -p NAMESPACE=$OPENSHIFT_PROJECT_REPORTS
+      -p PORT=8080
+      -p DOCKERCONFIGJSON=$DOCKERCONFIGJSON
+      -p ROUTE_DOMAIN=zomet-test-reports.$OPENSHIFT_ROUTE
+      -p ROUTE_PATH="/$NAME" | oc apply -f -
+    - oc secrets link default auth-docker --for=pull
+  after_script:
+    - echo "Report deployed here - https://zomet-test-reports.$OPENSHIFT_ROUTE/$REPORT_TYPE-$CI_COMMIT_SHORT_SHA/"
 
 Update snapshot:
   stage: test_ui
@@ -98,3 +149,46 @@ Deploy tests report page:
     - oc secrets link default auth-docker --for=pull
   after_script:
     - echo "Report deployed here - https://zomet-test-reports.$OPENSHIFT_ROUTE/report-$CI_COMMIT_SHORT_SHA/"
+
+# Performance tests
+Run performance tests:
+  stage: test_performance
+  image: node:18.19.0
+  allow_failure:
+    exit_codes: 1
+  variables:
+    CHROME_PATH: /usr/bin/chromium
+  except: *non_feature_branches
+  before_script:
+    - >
+      if [[ "$CI_COMMIT_BRANCH" == "dev" ]]; then
+        export BRANCH_URL=https://zomet-dev.3ahtim54r.ru
+      fi
+    - apt-get update
+    - apt-get install -y chromium
+  script:
+    - npm ci
+    - npm run test:performance -- $BRANCH_URL
+  timeout: 20 minutes
+  artifacts:
+    paths:
+      - ./tests/performance/performance-report.html
+
+Build perf tests report image:
+  extends: .buildReportsImageJob
+  stage: test_performance
+  except: *non_feature_branches
+  needs:
+    - "Run performance tests"
+  variables:
+    REPORT_TYPE: perf-report
+    DOCKERFILE: Dockerfile.perf
+
+Deploy perf tests report page:
+  extends: .deployReportsImageJob
+  stage: test_performance
+  except: *non_feature_branches
+  needs:
+    - "Build perf tests report image"
+  variables:
+    REPORT_TYPE: perf-report
