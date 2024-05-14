@@ -3,6 +3,7 @@ stages:
   - deploy_reports
   - build_docker
   - deploy
+  - test_performance
   - sentry
 
 include:
@@ -120,7 +121,6 @@ Build branch:
     - master
     - schedules
     - beta
-
 
 Build prod:
   extends: .dockerBuildJob
