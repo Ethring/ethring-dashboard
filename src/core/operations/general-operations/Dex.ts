@@ -12,7 +12,8 @@ import { PerformOptionalParams, PerformTxParams } from '@/core/operations/models
 
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
-import { STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
+import { STATUSES } from '@/shared/models/enums/statuses.enum';
+import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 
 import { getActionByTxType } from '@/core/operations/shared/utils';
 
@@ -72,6 +73,8 @@ export default class DexOperation extends BaseOperation {
 
         const serviceId = this.getParamByField('serviceId');
 
+        if (this.params.toToken?.address) this.params.toToken = this.params.toToken?.address;
+
         const { best = null, routes } = (await this.service.callMethod('getQuote', this.params)) as IQuoteRoutes;
 
         let bestRouteServiceId = null;
@@ -105,33 +108,5 @@ export default class DexOperation extends BaseOperation {
         if (Array.isArray(response)) return response[0];
 
         return null;
-    }
-
-    perform(index: number, account: string, ecosystem: string, chainId: string, { make }: PerformOptionalParams): ICreateTransaction {
-        const { title, description } = this.getNotificationInfo(make);
-
-        return {
-            index,
-            module: this.getModule(),
-            account,
-
-            status: index === 0 ? STATUSES.IN_PROGRESS : STATUSES.PENDING,
-
-            ecosystem,
-
-            chainId,
-
-            metaData: {
-                action: getActionByTxType(this.transactionType),
-                type: this.transactionType,
-                notificationTitle: title,
-                notificationDescription: description,
-                params: {
-                    ...this.params,
-                    tokens: this.getTokens(),
-                    slippageTolerance: this.getParamByField('slippageTolerance'),
-                },
-            },
-        } as ICreateTransaction;
     }
 }

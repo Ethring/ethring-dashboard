@@ -37,7 +37,7 @@
                             </div>
                         </div>
 
-                        <ShortcutLoading v-show="isShowLoading" :shortcut-id="shortcutId" />
+                        <ShortcutLoading v-if="isShowLoading" :shortcut-id="shortcutId" />
                     </a-col>
                     <a-col :md="24" :lg="12">
                         <a-steps v-model:current="shortcutIndex" direction="vertical" :items="steps" />
@@ -94,11 +94,6 @@ export default {
             if (!shortcut.value) return false;
             if (!shortcutStatus.value) return false;
             if (shortcutStatus.value === STATUSES.PENDING) return false;
-
-            console.log('-'.repeat(50));
-            console.log('shortcutStatus.value', shortcutStatus.value);
-            console.log('STATUSES', [STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(shortcutStatus.value));
-            console.log('-'.repeat(50));
 
             return [STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(shortcutStatus.value);
         });

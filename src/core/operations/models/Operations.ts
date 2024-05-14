@@ -5,7 +5,8 @@ import { IBridgeDexTransaction, IQuoteRoute } from '@/modules/bridge-dex/models/
 import { Ecosystems } from '@/modules/bridge-dex/enums/Ecosystem.enum';
 import { IAsset } from '@/shared/models/fields/module-fields';
 import { AllQuoteParams } from '@/modules/bridge-dex/models/Request.type';
-import { TRANSACTION_TYPES, TX_TYPES, STATUSES } from '@/shared/models/enums/statuses.enum';
+import { STATUSES } from '@/shared/models/enums/statuses.enum';
+import { TRANSACTION_TYPES, TX_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 import { ServiceTypes } from '@/modules/bridge-dex/enums/ServiceType.enum';
 
 export interface IOperationsResultToken {
@@ -23,6 +24,7 @@ export interface IOperationsResultToken {
 
 export interface IOperationsResult {
     type: TX_TYPES;
+    name: string;
 
     status: keyof typeof STATUSES;
 
@@ -73,6 +75,7 @@ export interface IBaseOperation {
     ecosystem: Ecosystems;
     chainId: string;
 
+    make?: TX_TYPES;
     transactionType?: TX_TYPES;
 
     txResponse: any;
@@ -86,6 +89,9 @@ export interface IBaseOperation {
     service?: any;
 
     quoteRoute?: IQuoteRoute;
+
+    // Make
+    setMake: (make: TX_TYPES) => void;
 
     // Unique Id
     getUniqueId: () => string;

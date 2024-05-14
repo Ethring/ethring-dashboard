@@ -5,10 +5,11 @@ import { Ecosystems } from '@/modules/bridge-dex/enums/Ecosystem.enum';
 import { GetApproveTxParams } from '@/modules/bridge-dex/models/Request.type';
 import { ICreateTransaction } from '@/core/transaction-manager/types/Transaction';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
-import { STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
+import { STATUSES } from '@/shared/models/enums/statuses.enum';
+import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 
 import DexOperation from './Dex';
-import { getActionByTxType } from './shared/utils';
+import { getActionByTxType } from '../shared/utils';
 
 export default class ApproveOperation extends DexOperation {
     flow: TxOperationFlow[] = [];
@@ -17,30 +18,6 @@ export default class ApproveOperation extends DexOperation {
         super();
 
         super.setTxType(TRANSACTION_TYPES.APPROVE);
-    }
-
-    perform(index: number, account: string, ecosystem: string, chainId: string, options: PerformOptionalParams): ICreateTransaction {
-        const { make } = options;
-        const { title, description } = this.getNotificationInfo(make);
-
-        return {
-            index,
-            module: this.module,
-            account,
-            status: index === 0 ? STATUSES.IN_PROGRESS : STATUSES.PENDING,
-            ecosystem,
-            chainId,
-            metaData: {
-                action: getActionByTxType(this.transactionType),
-                type: this.transactionType,
-                notificationTitle: title,
-                notificationDescription: description || '',
-                params: {
-                    ...this.params,
-                    tokens: this.getTokens(),
-                },
-            },
-        };
     }
 
     async performTx(ecosystem: Ecosystems, { serviceId }: PerformTxParams): Promise<IBridgeDexTransaction | null> {

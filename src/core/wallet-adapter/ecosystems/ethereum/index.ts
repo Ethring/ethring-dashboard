@@ -1,11 +1,11 @@
 import * as ethers from 'ethers';
 
-import { InitOptions } from '@web3-onboard/core';
+import { InitOptions, ConnectOptions } from '@web3-onboard/core';
 import { init, useOnboard } from '@web3-onboard/vue';
 
 import { useLocalStorage } from '@vueuse/core';
 
-import { ECOSYSTEMS, EVM_CHAINS, TRANSFER_ABI, web3OnBoardConfig } from '@/core/wallet-adapter/config';
+import { ECOSYSTEMS, EVM_CHAINS, BASE_ABI, SILO_EXECUTE_ABI, BEEFY_DEPOSIT_ABI, web3OnBoardConfig } from '@/core/wallet-adapter/config';
 
 import AdapterBase from '@/core/wallet-adapter/utils/AdapterBase';
 
@@ -13,6 +13,12 @@ import { errorRegister } from '@/shared/utils/errors';
 import { validateEthAddress } from '@/core/wallet-adapter/utils/validations';
 
 let web3Onboard: any = null;
+
+const ABI_BY_NAME = {
+    DEFAULT: BASE_ABI,
+    SILO_EXECUTOR: SILO_EXECUTE_ABI,
+    BEEFY_DEPOSIT: BEEFY_DEPOSIT_ABI,
+} as { [key: string]: any };
 
 const STORAGE = {
     WALLET: 'onboard.js:last_connected_wallet',
@@ -30,6 +36,8 @@ export class EthereumAdapter extends AdapterBase {
         const initOptions = web3OnBoardConfig as InitOptions;
         !web3Onboard && (web3Onboard = init(initOptions));
         web3Onboard.state.select('wallets').subscribe(() => this.setAddressForChains());
+
+        const ethersProvider = this.getProvider();
     }
 
     init(store: any) {
@@ -51,15 +59,19 @@ export class EthereumAdapter extends AdapterBase {
 
     async connectWallet(walletName: string | null) {
         const { connectWallet, connectedWallet } = useOnboard();
-        const connectionOption = {
-            autoSelect: {
-                label: walletName,
-                disableModals: true,
-            },
-        };
+
+        let connectionOption: ConnectOptions | undefined = undefined;
+
+        if (walletName)
+            connectionOption = {
+                autoSelect: {
+                    label: walletName,
+                    disableModals: true,
+                },
+            };
 
         try {
-            await connectWallet(walletName ? connectionOption : null);
+            await connectWallet(connectionOption);
             const { wallets = [] } = web3Onboard.state.get() || {};
 
             if (wallets.length) this.setAddressForChains();
@@ -256,6 +268,7 @@ export class EthereumAdapter extends AdapterBase {
 
     getProvider(): ethers.providers.Web3Provider | null {
         const { connectedWallet } = useOnboard();
+
         const { provider } = connectedWallet.value || {};
 
         if (!provider) return null;
@@ -270,7 +283,7 @@ export class EthereumAdapter extends AdapterBase {
 
         if (typeof transaction.gasPrice === 'string') transaction.gasPrice = `0x${parseInt(transaction.gasPrice).toString(16)}`;
 
-        if (typeof transaction.nonce === 'number') {
+        if (typeof transaction.nonce === 'number' || !transaction.nonce) {
             const ethersProvider = this.getProvider();
             if (ethersProvider) transaction.nonce = await ethersProvider.getTransactionCount(transaction.from);
         }
@@ -308,9 +321,11 @@ export class EthereumAdapter extends AdapterBase {
 
             if (!contractAddress) return response;
 
-            const tokenContract = new ethers.Contract(contractAddress, TRANSFER_ABI);
-
-            const res = await tokenContract.populateTransaction.transfer(toAddress, ethers.utils.parseUnits(amount, token.decimals));
+            const res = await this.callContractMethod({
+                contractAddress,
+                method: 'transfer',
+                args: [toAddress, ethers.utils.parseUnits(amount, token.decimals)],
+            });
 
             return {
                 ...response,
@@ -321,9 +336,59 @@ export class EthereumAdapter extends AdapterBase {
         }
     }
 
+    async callContractMethod({
+        contractAddress,
+        method,
+        args,
+        abi,
+    }: {
+        contractAddress: string;
+        method: string;
+        args: any[];
+        abi?: string;
+    }): Promise<any> {
+        const ethersProvider = this.getProvider();
+
+        let ABI = ABI_BY_NAME.DEFAULT;
+
+        if (abi && ABI_BY_NAME[abi]) ABI = ABI_BY_NAME[abi];
+
+        if (!ethersProvider) throw new Error('EVM provider is not available');
+
+        try {
+            let argsToCall = args;
+
+            if (abi === 'SILO_EXECUTOR' && method === 'execute') argsToCall = [[args]];
+
+            const signer = ethersProvider.getSigner();
+
+            const contract = new ethers.Contract(contractAddress, ABI, ethersProvider);
+            contract.connect(signer);
+
+            const response = {
+                chainId: (await ethersProvider.getNetwork()).chainId,
+                from: await signer.getAddress(),
+                to: contractAddress,
+            };
+
+            const populatedTransaction = await contract.populateTransaction[method](...argsToCall);
+
+            response.data = populatedTransaction.data;
+
+            const formattedResponse = await this.formatTransactionForSign(response);
+
+            return formattedResponse;
+        } catch (e) {
+            // return errorRegister(e);
+            console.error('Error while calling contract method:', e);
+            throw e;
+        }
+    }
+
     async signSend(transaction: any): Promise<any> {
         const ethersProvider = this.getProvider();
 
+        console.log('Transaction to sign:', transaction);
         // Check timer
         const txTimerID = this.store.getters['txManager/txTimerID'];
 
@@ -334,19 +399,22 @@ export class EthereumAdapter extends AdapterBase {
 
         this.store.dispatch('txManager/setTxTimerID', null);
 
+        if (!ethersProvider) throw new Error('EVM provider is not available');
+        if (!ethersProvider.getSigner()) throw new Error('EVM provider is not available');
+
         try {
-            if (ethersProvider) {
-                const signer = ethersProvider.getSigner();
+            const signer = ethersProvider.getSigner();
 
-                const txn = await signer.sendTransaction(transaction);
+            const txn = await signer.sendTransaction(transaction);
 
-                const { hash } = txn;
+            console.log('Transaction sent:', txn);
 
-                return {
-                    transactionHash: hash,
-                    ...txn,
-                };
-            }
+            const { hash } = txn;
+
+            return {
+                transactionHash: hash,
+                ...txn,
+            };
         } catch (e) {
             return errorRegister(e);
         }

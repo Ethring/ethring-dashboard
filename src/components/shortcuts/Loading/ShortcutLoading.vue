@@ -70,7 +70,8 @@ import ProcessIcon from '@/assets/icons/form-icons/process.svg';
 import WaitingIcon from '@/assets/icons/form-icons/waiting.svg';
 
 import { ModuleType } from '@/shared/models/enums/modules.enum';
-import { STATUS_TYPE, STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
+import { STATUS_TYPE, STATUSES } from '@/shared/models/enums/statuses.enum';
+import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 import OperationFactory from '@/core/operations/OperationsFactory';
 
 export default defineComponent({
@@ -98,15 +99,7 @@ export default defineComponent({
         const shortcutStatus = computed<STATUS_TYPE>(() => store.getters['shortcuts/getShortcutStatus'](props.shortcutId));
 
         const isActive = computed<boolean>(() => {
-            if (!shortcutStatus.value) return false;
-
-            if (shortcutStatus.value === STATUSES.PENDING) return false;
-
-            const status = STATUSES[shortcutStatus.value];
-
-            if ([STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(status)) return true;
-
-            return false;
+            return [STATUSES.IN_PROGRESS, STATUSES.SUCCESS, STATUSES.FAILED].includes(shortcutStatus.value as any);
         });
 
         const isShowTryAgain = computed(() => {
@@ -178,8 +171,9 @@ export default defineComponent({
 
             console.log('-'.repeat(50));
 
-            if (currentStepId.value === lastOpId || operationsCount.value - 1 === shortcutIndex.value) {
-                console.log('setCallConfirm, for shortcut', 'LastOp', true, 'resetShortcut');
+            const isSuccess = [STATUSES.SUCCESS].includes(shortcutStatus.value as any);
+
+            const callOnSuccess = () => {
                 operationProgress.value = 0;
 
                 store.dispatch('shortcuts/setCurrentStepId', firstOpId);
@@ -191,20 +185,28 @@ export default defineComponent({
                     shortcutId: props.shortcutId,
                     stepId: firstOpId,
                 });
-            } else if (currentStepId.value === firstOpId || shortcutIndex.value === 0) {
+            };
+
+            const isFirstOp = currentStepId.value === firstOpId || shortcutIndex.value === 0;
+
+            if (isFirstOp) {
                 console.log('setCallConfirm, for shortcut', 'FirstOp', true);
 
                 return store.dispatch('shortcuts/setShortcutStatus', {
                     shortcutId: props.shortcutId,
                     status: STATUSES.PENDING,
                 });
-            } else if (shortcutIndex.value !== 0 && shortcutStatus.value === STATUSES.FAILED) {
-                console.log('setCallConfirm, for shortcut', 'ModuleType.shortcut', true);
-                return store.dispatch('tokenOps/setCallConfirm', {
-                    module: ModuleType.shortcut,
-                    value: true,
-                });
             }
+
+            if (isSuccess) {
+                console.log('setCallConfirm, for shortcut', 'Success', true, 'resetShortcut');
+                return callOnSuccess();
+            }
+
+            return store.dispatch('tokenOps/setCallConfirm', {
+                module: ModuleType.shortcut,
+                value: true,
+            });
         };
 
         const moduleStatusIcon = computed(() => {
@@ -510,3 +512,4 @@ export default defineComponent({
     }
 }
 </style>
+@/shared/models/enums/tx-types

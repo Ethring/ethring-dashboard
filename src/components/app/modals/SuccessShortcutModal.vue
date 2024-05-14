@@ -45,11 +45,11 @@
                                         </div>
                                     </template>
 
-                                    <template #title> {{ item.type }} </template>
+                                    <template #title> {{ item.name }} </template>
 
                                     <template #description>
                                         <div class="success-shortcut-tokens-group">
-                                            <template v-if="item.tokens.from">
+                                            <template v-if="item.tokens.from.symbol">
                                                 <div class="success-shortcut-tokens-group-item">
                                                     <TokenIcon :token="item.tokens.from" :width="16" :height="16" />
                                                     <Amount
@@ -59,7 +59,7 @@
                                                     />
                                                 </div>
                                             </template>
-                                            <template v-if="item.tokens.to">
+                                            <template v-if="item.tokens.to.symbol">
                                                 <div class="success-shortcut-tokens-group-item">
                                                     <span class="divider">~</span>
                                                     <TokenIcon :token="item.tokens.to" :width="16" :height="16" />
@@ -107,7 +107,7 @@ import { SHORTCUT_STATUSES } from '@/shared/models/enums/statuses.enum';
 
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
-import { TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
+import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 
 export default defineComponent({
     name: 'SuccessShortcutModal',
@@ -181,6 +181,7 @@ export default defineComponent({
             }
 
             results.value = opResults as IOperationsResult[];
+
             isLoading.value = false;
         });
 
@@ -246,3 +247,4 @@ export default defineComponent({
     padding: 8px 16px 8px 0 !important;
 }
 </style>
+@/shared/models/enums/tx-types

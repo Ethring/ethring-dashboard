@@ -173,7 +173,7 @@ class BasePage {
     }
 
     async waitLoadImg(browser?, context?, page?) {
-        let images = await this.page.locator('//img').all();
+        const images = await this.page.locator('//img').all();
         try {
             for (const img of images) await img.scrollIntoViewIfNeeded();
         } catch (e) {
@@ -453,6 +453,10 @@ class ShortcutPage extends BasePage {
         await this.page.getByRole('button', { name: 'Try' }).first().click();
     }
 
+    async clickShortcutById(id: string) {
+        await this.page.locator(`//div[@data-qa="${id}"]//button`).click();
+    }
+
     // * @matcherData is object were key is matcher string and value is mocked data
     async mockRouteByDataRequestMatcher(url: string, matcherData: object, statusCode: number = 200): Promise<any> {
         return this.page.route(url, async (route) => {
@@ -464,6 +468,10 @@ class ShortcutPage extends BasePage {
 
     async mockEstimateBridgeRequestByRequestDataMatcher(mockDataMatcher: object) {
         await this.mockRouteByDataRequestMatcher(URL_MOCK_PATTERNS.MOCK_BRIDGE, mockDataMatcher, 200);
+    }
+
+    async mockEstimateDexRequestByRequestDataMatcher(mockDataMatcher: object) {
+        await this.mockRouteByDataRequestMatcher(URL_MOCK_PATTERNS.MOCK_SWAP, mockDataMatcher, 200);
     }
 }
 

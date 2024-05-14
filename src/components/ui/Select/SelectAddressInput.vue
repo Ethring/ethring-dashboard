@@ -63,7 +63,7 @@ export default {
             default: 'tokenOperations.recipient',
         },
         selectedNetwork: {
-            type: Object,
+            type: [Object, null],
             required: true,
             default: () => {},
         },

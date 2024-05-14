@@ -46,6 +46,8 @@ const EMPTY_ETH_ADDRESS = getTestVar(TEST_CONST.EMPTY_ETH_ADDRESS);
 const SEED_SHORTCUT_TEST = getTestVar(TEST_CONST.SEED_SHORTCUT_TEST);
 const ETH_ADDRESS_SHORTCUT = getTestVar(TEST_CONST.ETH_ADDRESS_SHORTCUT);
 
+// const SEED_SHORTCUT_TEST_2 = getTestVar(TEST_CONST.SEED_SHORTCUT_TEST_2);
+
 export const testMetaMask = base.extend<{
     context: BrowserContext;
 

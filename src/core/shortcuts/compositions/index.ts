@@ -13,10 +13,13 @@ import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
 
 // Operations
 import OperationsFactory from '@/core/operations/OperationsFactory';
-import DexOperation from '@/core/operations/Dex';
-import TransferOperation from '@/core/operations/Transfer';
-import ApproveOperation from '@/core/operations/Approve';
-import MultipleContractExec from '@/core/operations/MultipleExec';
+import DexOperation from '@/core/operations/general-operations/Dex';
+import TransferOperation from '@/core/operations/general-operations/Transfer';
+import ApproveOperation from '@/core/operations/general-operations/Approve';
+import MultipleContractExec from '@/core/operations/stargaze-nft/MultipleExec';
+import PendleSwapTokenForPT from '@/core/operations/pendle-silo/SwapTokenForPT';
+import PendleAddLiquiditySingleToken from '@/core/operations/pendle-beefy/AddLiquiditySingleToken';
+
 import { IBaseOperation } from '@/core/operations/models/Operations';
 
 // Shortcuts
@@ -27,7 +30,9 @@ import { IOperationParam } from '@/core/shortcuts/core/models/Operation';
 import { IAsset } from '@/shared/models/fields/module-fields';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { AddressByChainHash } from '@/shared/models/types/Address';
-import { SHORTCUT_STATUSES, TRANSACTION_TYPES } from '@/shared/models/enums/statuses.enum';
+import { SHORTCUT_STATUSES } from '@/shared/models/enums/statuses.enum';
+import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
+import CallContractMethod from '@/core/operations/evm-contract-ops/CallContractMethod';
 
 const useShortcuts = (Shortcut: IShortcutData) => {
     // Create a new instance of the Shortcut class
@@ -106,8 +111,9 @@ const useShortcuts = (Shortcut: IShortcutData) => {
 
     const processOperation = async (operation: IShortcutOp, { addToFactory = false }: { addToFactory: boolean }) => {
         let key: string = '';
+        let registerResponse = null;
 
-        const { id, moduleType, name, operationType, operationParams, serviceId, params = [] } = operation || {};
+        const { id, moduleType, name, operationType, make, operationParams, serviceId, params = [] } = operation || {};
 
         if (!addToFactory)
             return await performFields(moduleType, params, {
@@ -122,17 +128,37 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             case TRANSACTION_TYPES.WRAP:
             case TRANSACTION_TYPES.DEX:
             case TRANSACTION_TYPES.BRIDGE:
-                ({ key } = operationsFactory.value.registerOperation(moduleType, DexOperation, { id, name }));
+                registerResponse = operationsFactory.value.registerOperation(moduleType, DexOperation, { id, name, make });
+                registerResponse && ({ key } = registerResponse);
                 break;
             case TRANSACTION_TYPES.TRANSFER:
             case TRANSACTION_TYPES.STAKE:
-                ({ key } = operationsFactory.value.registerOperation(moduleType, TransferOperation, { id, name }));
+                registerResponse = operationsFactory.value.registerOperation(moduleType, TransferOperation, { id, name, make });
+                registerResponse && ({ key } = registerResponse);
                 break;
             case TRANSACTION_TYPES.APPROVE:
-                ({ key } = operationsFactory.value.registerOperation(moduleType, ApproveOperation, { id, name }));
+                registerResponse = operationsFactory.value.registerOperation(moduleType, ApproveOperation, { id, name, make });
+                registerResponse && ({ key } = registerResponse);
                 break;
             case TRANSACTION_TYPES.EXECUTE_MULTIPLE:
-                ({ key } = operationsFactory.value.registerOperation(moduleType, MultipleContractExec, { id, name }));
+                registerResponse = operationsFactory.value.registerOperation(moduleType, MultipleContractExec, { id, name, make });
+                registerResponse && ({ key } = registerResponse);
+                break;
+
+            // * Pendle Operations
+            case TRANSACTION_TYPES.CALL_CONTRACT_METHOD:
+                registerResponse = operationsFactory.value.registerOperation(moduleType, CallContractMethod, { id, name, make });
+                registerResponse && ({ key } = registerResponse);
+                break;
+
+            case TRANSACTION_TYPES.SWAP_TOKEN_TO_PT:
+                registerResponse = operationsFactory.value.registerOperation(moduleType, PendleSwapTokenForPT, { id, name, make });
+                registerResponse && ({ key } = registerResponse);
+                break;
+
+            case TRANSACTION_TYPES.ADD_LIQUIDITY_SINGLE_TOKEN:
+                registerResponse = operationsFactory.value.registerOperation(moduleType, PendleAddLiquiditySingleToken, { id, name, make });
+                registerResponse && ({ key } = registerResponse);
                 break;
         }
 
@@ -148,6 +174,8 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             isUpdateInStore: currentOp.value?.id === id,
             id,
         });
+
+        registerResponse && (registerResponse = null);
     };
 
     const performShortcut = async (addToFactory = false) => {
@@ -232,6 +260,8 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             isUpdateInStore: boolean;
         },
     ) => {
+        if (!targetOpId) return;
+
         for (const paramField of fields) {
             const {
                 name: field,
@@ -242,7 +272,37 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                 address,
                 memo,
                 amount = null,
+                value = null,
             } = paramField || {};
+
+            const fieldsAssociated = {
+                srcNetwork: 'fromNet',
+                dstNetwork: 'toNet',
+                srcToken: 'fromToken',
+                dstToken: 'toToken',
+                receiverAddress: 'receiverAddress',
+                contractAddress: 'contract',
+                memo: 'memo',
+            } as any;
+
+            const isToken = ['srcToken', 'dstToken'].includes(field);
+
+            const tokenDestination = {
+                srcToken: 'from',
+                dstToken: 'to',
+            } as any;
+
+            if (field && value) {
+                isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value }));
+
+                isToken ? operationsFactory.value?.getOperationById(targetOpId)?.setToken(tokenDestination[field], value) : null;
+
+                fieldsAssociated[field]
+                    ? operationsFactory.value?.getOperationById(targetOpId)?.setParamByField(fieldsAssociated[field], value)
+                    : null;
+
+                return;
+            }
 
             switch (field) {
                 case 'srcNetwork':
@@ -254,8 +314,6 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                     const isSrc = field === 'srcNetwork';
 
                     if (!srcDstNet) return;
-
-                    if (!targetOpId) return;
 
                     const srcChainId = (srcDstNet.chain_id || srcDstNet.net) as string;
 
@@ -511,7 +569,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     // ====================================================================================================
     watch(addressesByChain, () => {
         for (const id of opIds.value) {
-            const operation = operationsFactory.value.getOperationById(id);
+            const operation = operationsFactory.value.getOperationById(id) as IBaseOperation;
             operation.setParamByField('ownerAddresses', addressesByChain.value);
         }
     });
@@ -554,6 +612,8 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         if (isQuoteLoading.value || !currentOp.value?.id) return;
 
         const operation = operationsFactory.value.getOperationById(currentOp.value.id);
+        if (!operation) return;
+
         const quoteRoute = operation.getQuoteRoute();
 
         if (!quoteRoute) return;
@@ -578,22 +638,22 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         async (stepId) => {
             if (!stepId) return;
 
-            if (!operationsFactory.value.getOperationById(stepId)) return;
+            const operation = operationsFactory.value.getOperationById(stepId);
 
-            if (!operationsFactory.value.getOperationById(stepId).getParamByField('fromNet')) return;
+            if (!operation) return;
 
-            console.log(`ACCOUNT for :${stepId} =`, operationsFactory.value.getOperationById(stepId).getAccount());
+            if (operation.getParamByField('fromNet')) return;
 
-            if (!operationsFactory.value.getOperationById(stepId).getAccount()) {
+            console.log(`ACCOUNT for :${stepId} =`, operation.getAccount());
+
+            if (!operation.getAccount()) {
                 console.log(
                     'ACCOUNT NOT SET',
                     stepId,
-                    operationsFactory.value.getOperationById(stepId).getParamByField('fromNet'),
-                    addressesByChain.value[operationsFactory.value.getOperationById(stepId).getParamByField('fromNet')],
+                    operation.getParamByField('fromNet'),
+                    addressesByChain.value[operation.getParamByField('fromNet')],
                 );
-                operationsFactory.value
-                    .getOperationById(stepId)
-                    .setAccount(addressesByChain.value[operationsFactory.value.getOperationById(stepId).getParamByField('fromNet')]);
+                operation.setAccount(addressesByChain.value[operation.getParamByField('fromNet')]);
             }
         },
     );
