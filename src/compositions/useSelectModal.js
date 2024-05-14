@@ -36,6 +36,7 @@ export default function useSelectModal(type) {
 
         return store.getters['shortcuts/getCurrentOperation'](CurrentShortcut.value);
     });
+
     const excludeChainList = computed(() => {
         const { excludeChains = [] } = CurrentOperation.value || {};
 

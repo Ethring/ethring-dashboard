@@ -932,6 +932,8 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
 
     const handleOnConfirm = async () => {
+        if (!walletAddress.value) return await connectWalletByEcosystem(selectedSrcNetwork.value.ecosystem);
+
         try {
             isTransactionSigning.value = true;
             if (ecosystemToConnect.value) return await connectWalletByEcosystem(ecosystemToConnect.value);
@@ -995,6 +997,8 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
     const isDisableConfirmButton = computed(() => {
         if (ecosystemToConnect.value) return false;
+
+        if (!walletAddress.value) return false;
 
         const isWithMemo = isSendWithMemo.value && isMemoAllowed.value && !memo.value;
         const isWithAddress = isSendToAnotherAddress.value && (isAddressError.value || !isReceiverAddressSet.value);

@@ -466,7 +466,7 @@ export class CosmosAdapter extends AdapterBase {
     }
 
     getChainList() {
-        const chainList = this.walletManager.chainRecords.map((record) => {
+        const chainList = this.walletManager?.chainRecords.map((record) => {
             const { chain, assetList = {} } = record || {};
 
             const { assets = [] } = assetList || {};

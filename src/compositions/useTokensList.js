@@ -117,8 +117,12 @@ export default function useTokensList({ network = null, fromToken = null, toToke
                 verified: tokensVerifiedMap.has(token?.address?.toLowerCase() || NATIVE_CONTRACT),
             }));
 
+        const { ecosystem } = network || {};
+
+        const account = getAccount(ecosystem);
+
         // Target tokens list with or without balance
-        if (onlyWithBalance) allTokens = tokensWithBalanceVerified;
+        if (onlyWithBalance && account) allTokens = tokensWithBalanceVerified;
         else allTokens = _.unionBy(tokensWithBalanceVerified, tokensListFromNet, (tkn) => tkn.address?.toLowerCase());
 
         // Set native token info
@@ -175,6 +179,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             console.error('getTokenById', error);
         }
     };
+
     return {
         getTokensList,
         getTokenById,

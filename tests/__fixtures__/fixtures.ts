@@ -23,7 +23,7 @@ import {
     COSMOS_WALLETS_BY_SEED_MOCK_TX,
     METAMASK_DEFAULT_URL_NODE,
 } from '../data/constants';
-import { mockBalanceData } from '../data/mockHelper';
+import { mockBalanceData, marketCapNativeEvmTokens } from '../data/mockHelper';
 import { mockTxReceipt } from 'tests/data/mockDataByTests/ShortcutTransferAndStakeMock';
 import { MOCK_EVM_TX_HASH } from 'tests/data/mockDataByTests/ShortcutTransferAndStakeMock';
 import { mockMetaMaskSignTransaction } from 'tests/model/MetaMask/MetaMask.pages';
@@ -67,10 +67,9 @@ export const testMetaMask = base.extend<{
     swapPageMockTokensList: SwapPage;
     swapPageMockBalancesAndTokensList: SwapPage;
     superSwapPageBalanceMock: SuperSwapPage;
-
-    // shortcutPage: ShortcutPage;
+    unauthSuperSwapPage: SuperSwapPage;
 }>({
-    context: async ({}, use) => {
+    context: async ({ }, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -154,13 +153,29 @@ export const testMetaMask = base.extend<{
         const superSwapPage = await zometPage.goToModule('superSwap');
         await use(superSwapPage as SuperSwapPage);
     },
+    unauthSuperSwapPage: async ({ context }, use) => {
+        await addWalletToMm(context, SEED_EMPTY_WALLET);
+        const zometPage = new SuperSwapPage(await context.newPage());
+
+        const COINGECKO_ROUTE = '**/marketcaps/coingecko?**';
+        context.route(COINGECKO_ROUTE, (route) => {
+            route.fulfill({
+                status: 200,
+                contentType: 'application/json; charset=utf-8',
+                body: JSON.stringify(marketCapNativeEvmTokens),
+            });
+        });
+
+        await zometPage.goToPage();
+        await use(zometPage);
+    },
 });
 
 export const testMetaMaskMockTx = base.extend<{
     context: BrowserContext;
     sendPage: SendPage;
 }>({
-    context: async ({}, use) => {
+    context: async ({ }, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -196,7 +211,7 @@ export const testKeplr = base.extend<{
     sendPage: SendPage;
     swapPage: SwapPage;
 }>({
-    context: async ({}, use) => {
+    context: async ({ }, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -247,7 +262,7 @@ export const testMetaMaskAndKeplr = base.extend<{
     authPage: BasePage;
     shortcutPage: ShortcutPage;
 }>({
-    context: async ({}, use) => {
+    context: async ({ }, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
