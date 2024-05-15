@@ -52,7 +52,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         wallpaper: 'https://i.imgur.com/TzfbhhA.png',
         website: 'https://citadel.one/',
         author: getAuthorById(ShortcutAuthor.ZometApp),
-        minUsdAmount: 0.5,
+        minUsdAmount: 0,
         isActive: true,
     },
     [AvailableShortcuts.SwapToAtomAndStars]: {
