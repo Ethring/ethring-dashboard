@@ -21,7 +21,6 @@ export const trackingBalanceUpdate = (store: any) => {
 
     const chains = computed<ChainConfig[]>(() => chainList.value);
 
-    console.log('chains', chains.value);
     const srcToken = computed({
         get: () => store.getters['tokenOps/srcToken'],
         set: (value) => store.dispatch('tokenOps/setSrcToken', value),
