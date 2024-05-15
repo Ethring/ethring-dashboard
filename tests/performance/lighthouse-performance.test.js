@@ -27,6 +27,7 @@ async function runLighthouse(url) {
             disabled: false,
         },
         output: 'html',
+        throttlingMethod: 'provided',
     };
 
     // Run Lighthouse audit on the provided URL with specified options
