@@ -250,10 +250,14 @@ export class EthereumAdapter extends AdapterBase {
 
         const icon = await exist.getIcon();
 
-        const index = connectedWalletsStorage.value.findIndex((wallet) => wallet.walletModule === walletModule);
+        const index = connectedWalletsStorage.value.findIndex((wallet) => wallet?.walletModule === walletModule);
 
         if (index !== -1) {
-            connectedWallet = { ...connectedWalletsStorage.value[index], icon };
+            connectedWallet = {
+                ...connectedWalletsStorage.value[index],
+                icon,
+            };
+
             connectedWalletsStorage.value[index] = connectedWallet;
         }
 

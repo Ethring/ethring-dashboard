@@ -26,7 +26,11 @@ const isConnectedStorage = useLocalStorage(
 );
 
 const getAccountByEcosystem = (ecosystem) => {
-    const result = connectedWalletsStorage.value.find((wallet) => wallet.ecosystem === ecosystem);
+    if (!connectedWalletsStorage.value.length) return null;
+
+    const result = connectedWalletsStorage.value.find((wallet) => wallet?.ecosystem === ecosystem);
+
+    if (!result) return null;
 
     const { account } = result || {};
 
@@ -166,23 +170,28 @@ export default {
     },
     mutations: {
         [TYPES.SET_WALLET](state, { ecosystem, wallet }) {
+            if (!wallet || !ecosystem) return;
+
             lastConnectedWalletStorage.value = wallet;
             state.lastConnectedWallet = wallet;
 
-            const found = state.wallets.filter((w) => w?.id === wallet?.id || w.ecosystem === ecosystem);
-            const [exist] = found;
+            const found = state.wallets.filter((w) => w?.id === wallet?.id || w?.ecosystem === ecosystem) || [];
 
-            if (!exist) {
+            if (!found.length) {
                 state.wallets.push(wallet);
                 return (connectedWalletsStorage.value = state.wallets);
             }
+
+            const [exist] = found;
 
             if (wallet)
                 findKeyDifferences(exist, wallet).forEach((key) => {
                     exist[key] = wallet[key];
                 });
 
-            return (connectedWalletsStorage.value = state.wallets);
+            // filter null wallets
+            state.wallets = state.wallets.filter((w) => w);
+            connectedWalletsStorage.value = state.wallets;
         },
         [TYPES.SET_MODAL_STATE](state, { name, isOpen }) {
             state.modals[name] = isOpen;
