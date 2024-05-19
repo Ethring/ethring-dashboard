@@ -16,7 +16,9 @@ import { IAsset } from '@/shared/models/fields/module-fields';
 export default function useChainTokenManger(moduleType: ModuleType) {
     const store = useStore();
 
-    const isSuperSwap = computed(() => [ModuleType.superSwap, ModuleType.shortcut].includes(moduleType));
+    const isSuperSwap = computed(() =>
+        [ModuleType.superSwap, ModuleType.shortcut, ModuleType.pendleBeefy, ModuleType.pendleSilo].includes(moduleType),
+    );
     const isNeedDstNetwork = computed(() => [ModuleType.bridge, ModuleType.superSwap].includes(moduleType));
     const isConfigLoading = computed(() => store.getters['configs/isConfigLoading']);
 
@@ -190,6 +192,9 @@ export default function useChainTokenManger(moduleType: ModuleType) {
                 }
 
                 break;
+
+            case ModuleType.pendleBeefy:
+            case ModuleType.pendleSilo:
             case ModuleType.superSwap:
                 if (isSameToken.value && isSameNetwork.value) {
                     params.isSameNet = true;

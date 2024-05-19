@@ -520,6 +520,7 @@ const useModuleOperations = (module: ModuleType) => {
             return txManager;
         } catch (error) {
             console.error('initTransactionsGroupForOps -> error', error);
+            isTransactionSigning.value = false;
             throw error;
         }
     };

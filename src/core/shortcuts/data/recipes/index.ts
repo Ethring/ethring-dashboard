@@ -2114,6 +2114,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationParams: {
                     net: 'arbitrum',
                     fromNet: 'arbitrum',
+                    toNet: null,
                     fromToken: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
                     toToken: '0x2416092f143378750bb29b79ed961ab195cceea5',
                     marketAddress: '0x5e03c94fc5fb2e21882000a96df0b63d2c4312e2',
@@ -2448,6 +2449,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationParams: {
                     net: 'arbitrum',
                     fromNet: 'arbitrum',
+                    toNet: null,
                     fromToken: '0x5E03C94Fc5Fb2E21882000A96Df0b63d2c4312e2',
                     tokenAddress: '0x5E03C94Fc5Fb2E21882000A96Df0b63d2c4312e2',
                     contractAddress: '0xdccb85017a996faF5242648B46940E80DE0A36a5',
