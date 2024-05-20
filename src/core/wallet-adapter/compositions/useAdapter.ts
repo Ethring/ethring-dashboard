@@ -591,6 +591,7 @@ function useAdapter() {
         getAddressesWithChainsByEcosystem,
         getChainListByEcosystem,
         getChainByChainId,
+        getAllChainsList,
 
         getTxExplorerLink,
         getTokenExplorerLink,

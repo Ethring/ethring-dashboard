@@ -735,7 +735,6 @@ const useModuleOperations = (module: ModuleType) => {
             if (!checkOpIsExist()) return;
 
             const operation = operations.getOperationByKey(moduleIndex);
-            console.log('PREPARE', txInstance);
 
             operation.setParamByField('startTime', Number(new Date()));
 

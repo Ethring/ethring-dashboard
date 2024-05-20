@@ -257,15 +257,8 @@ export class TransactionList {
         let current = this.head;
         if (!current) return;
 
-        console.log('EXCUTE', current.transaction);
-
         const WAIT_TIME_SEC = current.transaction.getWaitTime();
         const WAIT_TIME_MSEC = WAIT_TIME_SEC * 1000;
-
-        console.table({
-            WAIT_TIME_SEC,
-            WAIT_TIME_MSEC,
-        });
 
         while (current) {
             try {
