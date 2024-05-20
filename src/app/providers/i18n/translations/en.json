@@ -180,5 +180,6 @@
         "warningRange": "Please set a slippage value that is within 0.1% to 20%",
         "warningLess01": "Slippage bellow 0.1% may result in a failed transaction",
         "warningMoreThan2": "Your transaction may be frontrun and result in an unfavorable trade"
-    }
+    },
+    "pageNotFound": "Page not found"
 }
