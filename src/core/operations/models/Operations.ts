@@ -90,6 +90,11 @@ export interface IBaseOperation {
 
     quoteRoute?: IQuoteRoute;
 
+    // Wait Time for Transaction to be processed
+    waitTime: number;
+    setWaitTime: (time: number) => void;
+    getWaitTime: () => number;
+
     // Make
     setMake: (make: TX_TYPES) => void;
 

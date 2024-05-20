@@ -19,6 +19,7 @@ interface ITransaction {
     chainId: string;
     transaction: ITransactionResponse;
     ecosystem: string;
+    waitTime: number; // in seconds
     setTransaction: (transaction: ITransactionResponse) => void;
     getTxId: () => string | number;
     getTransaction: () => ITransactionResponse;
@@ -32,6 +33,9 @@ interface ITransaction {
     onSuccessSignTransaction?: () => Promise<void>;
     onError?: (error: any) => Promise<void>;
     onCancel?: () => Promise<void>;
+
+    getWaitTime: () => number;
+    setWaitTime: (waitTime: number) => void;
 }
 
 export class Transaction implements ITransaction {
@@ -39,6 +43,7 @@ export class Transaction implements ITransaction {
     type: string = '';
     requestID: string = '';
     chainId: string = '';
+    waitTime: number = 0;
 
     transaction: ITransactionResponse = {} as ITransactionResponse;
 
@@ -99,6 +104,14 @@ export class Transaction implements ITransaction {
     onSuccessSignTransaction?: () => Promise<void>;
     onError?: (error: any) => Promise<void>;
     onCancel?: () => Promise<void>;
+
+    getWaitTime() {
+        return this.waitTime || 3.5;
+    }
+
+    setWaitTime(waitTime: number) {
+        this.waitTime = waitTime;
+    }
 }
 
 class TransactionNode {
@@ -242,7 +255,17 @@ export class TransactionList {
     // ===========================================================================================
     async executeTransactions() {
         let current = this.head;
-        const WAIT_TIME_BETWEEN_TX = (window.CALL_NEXT_TX_WAIT_TIME.value || 3.5) * 1000;
+        if (!current) return;
+
+        console.log('EXCUTE', current.transaction);
+
+        const WAIT_TIME_SEC = current.transaction.getWaitTime();
+        const WAIT_TIME_MSEC = WAIT_TIME_SEC * 1000;
+
+        console.table({
+            WAIT_TIME_SEC,
+            WAIT_TIME_MSEC,
+        });
 
         while (current) {
             try {
@@ -269,7 +292,9 @@ export class TransactionList {
                     current.transaction.setTransaction({ ...current.transaction.getTransaction(), txHash: hash });
                 }
 
-                await delay(WAIT_TIME_BETWEEN_TX);
+                console.log(`WAITING ${WAIT_TIME_SEC} SECONDS BEFORE NEXT TRANSACTION`);
+
+                await delay(WAIT_TIME_MSEC);
 
                 if (current.transaction.onSuccess) await current.transaction.onSuccess();
             } catch (error) {

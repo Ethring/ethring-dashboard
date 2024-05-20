@@ -683,6 +683,9 @@ const useModuleOperations = (module: ModuleType) => {
         // Create transaction instance
         const txInstance = new Transaction(type);
 
+        const operation = operations.getOperationByKey(moduleIndex);
+        txInstance.setWaitTime(operation.getWaitTime());
+
         // if is first transaction in group, set transaction id
         if (index === 0) txInstance.setId(txManager.getFirstTxId());
 
@@ -718,6 +721,7 @@ const useModuleOperations = (module: ModuleType) => {
             if (!checkOpIsExist()) return;
 
             const operation = operations.getOperationByKey(moduleIndex);
+            console.log('PREPARE', txInstance);
 
             operation.setParamByField('startTime', Number(new Date()));
 

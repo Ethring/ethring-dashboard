@@ -41,6 +41,7 @@ export class BaseOperation implements IBaseOperation {
     } = {};
     quoteRoute?: IQuoteRoute;
     txResponse: any;
+    waitTime: number = 3.5;
 
     flow: TxOperationFlow[] = [];
 
@@ -269,6 +270,14 @@ export class BaseOperation implements IBaseOperation {
         ];
 
         return this.flow;
+    }
+
+    setWaitTime(waitTime: number): void {
+        this.waitTime = waitTime;
+    }
+
+    getWaitTime(): number {
+        return this.waitTime || 3.5;
     }
 
     static async estimateOutput(): Promise<void> {
