@@ -147,7 +147,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         description: 'Earn fixed yield on Pendle with your assets',
         wallpaper: '/img/wallpapers/SC-pendle-earn-fixed-yield.png',
         website: 'https://pendle.finance/',
-        minUsdAmount: 1.5,
+        minUsdAmount: 1.8,
         author: getAuthorById(ShortcutAuthor.ZometApp),
         isActive: true,
     },
