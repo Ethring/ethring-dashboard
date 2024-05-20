@@ -680,10 +680,10 @@ const useModuleOperations = (module: ModuleType) => {
         { flow, flowCount }: { flow: TxOperationFlow; flowCount: number },
     ): void => {
         const { index, type, make, moduleIndex, operationId } = flow;
+        const operation = operations.getOperationByKey(moduleIndex);
 
         const checkOpIsExist = (): boolean => {
             if (!operations.getOperationByKey(moduleIndex)) return false;
-
             return true;
         };
 
@@ -697,7 +697,6 @@ const useModuleOperations = (module: ModuleType) => {
         // Create transaction instance
         const txInstance = new Transaction(type);
 
-        const operation = operations.getOperationByKey(moduleIndex);
         txInstance.setWaitTime(operation.getWaitTime());
 
         // if is first transaction in group, set transaction id

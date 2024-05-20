@@ -257,9 +257,6 @@ export class TransactionList {
         let current = this.head;
         if (!current) return;
 
-        const WAIT_TIME_SEC = current.transaction.getWaitTime();
-        const WAIT_TIME_MSEC = WAIT_TIME_SEC * 1000;
-
         while (current) {
             try {
                 // ? Prepare the transaction
@@ -284,6 +281,9 @@ export class TransactionList {
                     await current.transaction.onSuccessSignTransaction();
                     current.transaction.setTransaction({ ...current.transaction.getTransaction(), txHash: hash });
                 }
+
+                const WAIT_TIME_SEC = current.transaction.getWaitTime();
+                const WAIT_TIME_MSEC = WAIT_TIME_SEC * 1000;
 
                 console.log(`WAITING ${WAIT_TIME_SEC} SECONDS BEFORE NEXT TRANSACTION`);
 

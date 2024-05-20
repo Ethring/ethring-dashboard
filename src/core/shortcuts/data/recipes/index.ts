@@ -2106,6 +2106,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationType: TRANSACTION_TYPES.SWAP_TOKEN_TO_PT,
                 layoutComponent: 'PendleSiloLayout',
                 isShowLayout: true,
+                waitTime: 2,
                 includeChains: ['arbitrum'],
                 includeTokens: {
                     arbitrum: ['arbitrum:tokens__native:ETH'],
