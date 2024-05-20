@@ -381,10 +381,6 @@ export default class OperationFactory implements IOperationFactory {
 
         console.log('ESTIMATE OUTPUT');
         console.table(table);
-
-        console.log('ESTIMATE OUTPUT END');
-
-        console.log('THIS', this.operationsMap);
     }
     removeOperationById(id: string): void {
         const key = this.operationsIds.get(id) || '';

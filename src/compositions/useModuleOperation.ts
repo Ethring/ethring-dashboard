@@ -504,6 +504,20 @@ const useModuleOperations = (module: ModuleType) => {
     const initTransactionsGroupForOps = async (operations: OperationsFactory): Promise<TransactionList> => {
         const firstInGroup = operations.getFirstOperation();
 
+        if (!firstInGroup.getAccount()) {
+            console.warn('initTransactionsGroupForOps -> Account not found', firstInGroup);
+
+            const chainId = firstInGroup.getChainId();
+
+            const chainInfo = getChainByChainId(firstInGroup.getEcosystem(), chainId);
+
+            const { net = '' } = chainInfo || {};
+
+            const account = srcAddressByChain.value[net] || walletAddress.value;
+
+            account && firstInGroup.setAccount(account);
+        }
+
         const group = {
             index: 0,
             ecosystem: firstInGroup.getEcosystem(),
