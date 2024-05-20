@@ -57,10 +57,10 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     // * Computed properties for the shortcuts
     // ****************************************************************************************************
 
-    const srcNetwork = computed(() => store.getters['tokenOps/srcNetwork']);
-    const dstNetwork = computed(() => store.getters['tokenOps/dstNetwork']);
-    const srcToken = computed(() => store.getters['tokenOps/srcToken']);
-    const dstToken = computed(() => store.getters['tokenOps/dstToken']);
+    // const srcNetwork = computed(() => store.getters['tokenOps/srcNetwork']);
+    // const dstNetwork = computed(() => store.getters['tokenOps/dstNetwork']);
+    // const srcToken = computed(() => store.getters['tokenOps/srcToken']);
+    // const dstToken = computed(() => store.getters['tokenOps/dstToken']);
 
     // * Quote error message
     const quoteErrorMessage = computed({
@@ -141,7 +141,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         let key: string = '';
         let registerResponse = null;
 
-        const { id, moduleType, name, operationType, make, operationParams, serviceId, params = [] } = operation || {};
+        const { id, moduleType, name, operationType, make, operationParams, waitTime = 3.5, serviceId, params = [] } = operation || {};
 
         if (!addToFactory)
             return await performFields(moduleType, params, {
@@ -191,6 +191,8 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         }
 
         if (!key) return;
+
+        operationsFactory.value.setWaitTimeByKey(key, waitTime);
 
         operationsFactory.value.setParamsByKey(key, {
             ...operationParams,

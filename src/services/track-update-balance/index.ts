@@ -17,9 +17,9 @@ interface IQueue {
 export const trackingBalanceUpdate = (store: any) => {
     const BALANCE_WAIT_TIME = computed<number>(() => window.BALANCE_WAIT_TIME.value || 3);
 
-    const { walletAccount, chainList } = useAdapter();
+    const { walletAccount, getAllChainsList } = useAdapter();
 
-    const chains = computed<ChainConfig[]>(() => chainList.value);
+    const chains = computed<ChainConfig[]>(() => getAllChainsList());
 
     const srcToken = computed({
         get: () => store.getters['tokenOps/srcToken'],
@@ -45,7 +45,12 @@ export const trackingBalanceUpdate = (store: any) => {
 
         await store.dispatch('updateBalance/setInProgress', queueKey);
 
-        const config = chains.value.find(({ net, chain_id }) => net == chain || chain_id == chain) as ChainConfig;
+        const config = chains.value.find(
+            ({ net, chain_id, chain: configChain }) => net == chain || chain_id == chain || configChain === chain,
+        ) as ChainConfig;
+
+        if (!config) console.warn('CONFIG NOT FOUND for balance update', chain);
+
         const { logo: chainLogo = '', native_token, asset } = config || {};
 
         let nativeToken: any = native_token || asset;

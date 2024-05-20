@@ -13,6 +13,7 @@ export interface IShortcutOp {
     type: ShortcutType.operation | ShortcutType.recipe;
     layoutComponent: string;
     isShowLayout: boolean;
+    waitTime?: number;
     serviceId?: string;
     dependencies?: any;
     excludeChains?: string[]; // exclude chain key list
@@ -56,6 +57,8 @@ export default class ShortcutOp implements IShortcutOp {
     isShowLayout: boolean;
     editableFromAmount: boolean = false;
     isNeedFromAmount: boolean = false;
+
+    waitTime?: number = 3.5;
 
     operationParams: {
         fromNet: string;
@@ -107,5 +110,7 @@ export default class ShortcutOp implements IShortcutOp {
 
         this.includeChains = shortcut.includeChains || [];
         this.excludeChains = shortcut.excludeChains || [];
+
+        this.waitTime = shortcut.waitTime || 3.5;
     }
 }

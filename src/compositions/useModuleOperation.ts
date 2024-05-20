@@ -504,6 +504,20 @@ const useModuleOperations = (module: ModuleType) => {
     const initTransactionsGroupForOps = async (operations: OperationsFactory): Promise<TransactionList> => {
         const firstInGroup = operations.getFirstOperation();
 
+        if (!firstInGroup.getAccount()) {
+            console.warn('initTransactionsGroupForOps -> Account not found', firstInGroup);
+
+            const chainId = firstInGroup.getChainId();
+
+            const chainInfo = getChainByChainId(firstInGroup.getEcosystem(), chainId);
+
+            const { net = '' } = chainInfo || {};
+
+            const account = srcAddressByChain.value[net] || walletAddress.value;
+
+            account && firstInGroup.setAccount(account);
+        }
+
         const group = {
             index: 0,
             ecosystem: firstInGroup.getEcosystem(),
@@ -666,10 +680,10 @@ const useModuleOperations = (module: ModuleType) => {
         { flow, flowCount }: { flow: TxOperationFlow; flowCount: number },
     ): void => {
         const { index, type, make, moduleIndex, operationId } = flow;
+        const operation = operations.getOperationByKey(moduleIndex);
 
         const checkOpIsExist = (): boolean => {
             if (!operations.getOperationByKey(moduleIndex)) return false;
-
             return true;
         };
 
@@ -682,6 +696,8 @@ const useModuleOperations = (module: ModuleType) => {
 
         // Create transaction instance
         const txInstance = new Transaction(type);
+
+        txInstance.setWaitTime(operation.getWaitTime());
 
         // if is first transaction in group, set transaction id
         if (index === 0) txInstance.setId(txManager.getFirstTxId());

@@ -90,6 +90,11 @@ export interface IBaseOperation {
 
     quoteRoute?: IQuoteRoute;
 
+    // Wait Time for Transaction to be processed
+    waitTime: number;
+    setWaitTime: (time: number) => void;
+    getWaitTime: () => number;
+
     // Make
     setMake: (make: TX_TYPES) => void;
 
@@ -185,6 +190,11 @@ export interface IOperationFactory {
     resetOperationsStatus(): void;
 
     getOperationsResult(): any;
+
+    getFullOperationFlow(): TxOperationFlow[];
+    getOperationAdditionalTooltipById(id: string): any;
+    getOperationsStatusById(id: string): STATUSES;
+    getOperationsStatusByKey(key: string): STATUSES;
 
     // getOperation(module: string, operationIndex: number): IBaseOperation;
 }
