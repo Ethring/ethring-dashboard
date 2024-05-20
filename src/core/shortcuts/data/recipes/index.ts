@@ -2168,7 +2168,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationType: TRANSACTION_TYPES.CALL_CONTRACT_METHOD,
                 layoutComponent: 'PendleSiloLayout',
                 isShowLayout: true,
-                waitTime: 6,
+                waitTime: 8.5,
                 includeChains: ['arbitrum'],
                 includeTokens: {
                     arbitrum: ['arbitrum:tokens__native:ETH', 'arbitrum:tokens__0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9:USDT'],
@@ -2373,7 +2373,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationType: TRANSACTION_TYPES.CALL_CONTRACT_METHOD,
                 layoutComponent: 'PendleSiloLayout',
                 isShowLayout: true,
-                waitTime: 6,
+                waitTime: 8.5,
                 includeChains: ['arbitrum'],
                 includeTokens: {
                     arbitrum: ['arbitrum:tokens__native:ETH'],

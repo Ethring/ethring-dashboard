@@ -191,5 +191,10 @@ export interface IOperationFactory {
 
     getOperationsResult(): any;
 
+    getFullOperationFlow(): TxOperationFlow[];
+    getOperationAdditionalTooltipById(id: string): any;
+    getOperationsStatusById(id: string): STATUSES;
+    getOperationsStatusByKey(key: string): STATUSES;
+
     // getOperation(module: string, operationIndex: number): IBaseOperation;
 }
