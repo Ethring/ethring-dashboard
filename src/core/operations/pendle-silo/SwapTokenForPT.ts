@@ -102,7 +102,7 @@ export default class PendleSwapTokenForPT extends BaseOperation {
 
             const { data } = transaction;
 
-            const outputAmount = BigNumber(data.amountPtOut).dividedBy(`1e${decimals}`).toString();
+            const outputAmount = BigNumber(data.amountPtOut).dividedBy(`1e${decimals}`).toFixed(8);
 
             this.setParamByField('outputAmount', outputAmount);
         } catch (error) {
