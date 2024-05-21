@@ -49,6 +49,13 @@ class IndexedDBService {
         await this.db.table(tableName).clear();
     }
 
+    async bulkDeleteByKeys(tableName, key, value) {
+        if (!this.db[tableName]) return;
+        await this.db.transaction('rw', this.db[tableName], async () => {
+            await this.db[tableName].where(key).equals(value).delete();
+        });
+    }
+
     // ==============================================================
     // ======================= SETTERS ==============================
     // ==============================================================
@@ -99,13 +106,13 @@ class IndexedDBService {
     // ==========================================================================
 
     async saveNetworksObj(store, networks, { ecosystem } = {}) {
-        const updatedDate = new Date().toISOString();
+        const updatedDate = Number(new Date());
 
         for (const chain in networks) {
             networks[chain].id = `${ecosystem}:${chain}`;
             networks[chain].ecosystem = ecosystem?.toUpperCase() || '';
             networks[chain].chain = chain;
-            // networks[chain].updated_at = updatedDate;
+            networks[chain].updated_at = updatedDate;
             networks[chain].value = JSON.stringify(networks[chain]);
         }
 
@@ -121,7 +128,7 @@ class IndexedDBService {
 
     async saveCosmologyAssets(store, configs) {
         try {
-            const updatedDate = new Date().toISOString();
+            const updatedDate = Number(new Date());
 
             for (const config of configs) {
                 config.updated_at = updatedDate;
@@ -139,10 +146,10 @@ class IndexedDBService {
 
     async saveTokensObj(store, tokens, { network, ecosystem } = {}) {
         const formatTokensObj = (tokens) => {
-            const updatedDate = new Date().toISOString();
+            const updatedDate = Number(new Date());
             for (const tokenContract in tokens) {
                 formatRecord(ecosystem, network, tokens[tokenContract]);
-                tokens[tokenContract]['updated_at'] = updatedDate;
+                tokens[tokenContract].updated_at = updatedDate;
                 tokens[tokenContract].value = JSON.stringify(tokens[tokenContract]);
             }
             return tokens;

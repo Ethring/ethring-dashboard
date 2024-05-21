@@ -17,38 +17,43 @@ const apiClient = new ApiClient({
 });
 
 const axiosInstance = apiClient.getInstance();
+const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
-const isTwoDaysPassed = (list: any) => {
-    const [token] = Object.values(list);
+const isTwoDaysPassed = (list: any, store: string, chain: string) => {
+    let token = null;
+
+    if (Array.isArray(list)) token = list[0];
+    else if (typeof list === 'object') token = Object.values(list)[0];
 
     const { updated_at: updatedAt = null } = token || {};
 
     const now = new Date().getTime();
 
-    const isTwoDays = Math.abs(now - new Date(updatedAt).getTime()) / (1000 * 60 * 60 * 24) > 2;
+    if (!updatedAt) return false;
 
-    const isListHasData = Object.keys(list).length;
-    const isHaveTwoDays = !isTwoDays;
-    const isHaveUpdatedAt = updatedAt;
+    const isTwoDays = Math.abs(now - new Date(updatedAt).getTime()) / DAY_IN_MS > 2;
 
-    return isListHasData && isHaveTwoDays && isHaveUpdatedAt;
+    const isListEmpty = Array.isArray(list) ? !list.length : !Object.keys(list).length;
+
+    if (!isListEmpty && !isTwoDays && updatedAt) return true;
+
+    return false;
 };
 
 export const getConfigsByEcosystems = async (ecosystem = ECOSYSTEMS.EVM, { isCosmology = false } = {}) => {
     let query = '';
 
+    if (ecosystem === ECOSYSTEMS.COSMOS) query = '/all';
+    else if (isCosmology) query = '/all?cosmology=true';
+
     const store = isCosmology ? DB_TABLES.COSMOLOGY_NETWORKS : DB_TABLES.NETWORKS;
 
     const list = await indexedDB.getAllObjectFrom(store, 'ecosystem', ecosystem, { index: 'chain' });
 
-    if (ecosystem === ECOSYSTEMS.COSMOS) query = '/all';
-
-    if (isCosmology) query = '/all?cosmology=true';
-
-    if (isTwoDaysPassed(list)) return list;
+    if (isTwoDaysPassed(list, store, ecosystem)) return list;
 
     try {
-        await indexedDB.clearTable(store);
+        await indexedDB.bulkDeleteByKeys(store, 'ecosystem', ecosystem);
 
         const { data, status }: AxiosResponse = await axiosInstance.get(`networks/${ecosystem.toLowerCase()}${query}`);
 
@@ -68,7 +73,7 @@ export const getCosmologyTokensConfig = async () => {
 
     const list = await indexedDB.getAllListFrom(store);
 
-    if (isTwoDaysPassed(list)) return list;
+    if (isTwoDaysPassed(list, store, 'cosmology')) return list;
 
     try {
         await indexedDB.clearTable(store);
@@ -89,7 +94,7 @@ export const getTokensConfigByChain = async (chain: string, ecosystem: string) =
 
     const list = await indexedDB.getAllObjectFrom(store, 'chain', chain);
 
-    if (isTwoDaysPassed(list)) return list;
+    if (isTwoDaysPassed(list, store, chain)) return list;
 
     try {
         await indexedDB.clearTable(store);
