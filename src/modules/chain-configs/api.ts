@@ -44,7 +44,7 @@ export const getConfigsByEcosystems = async (ecosystem = ECOSYSTEMS.EVM, { isCos
     let query = '';
 
     if (ecosystem === ECOSYSTEMS.COSMOS) query = '/all';
-    else if (isCosmology) query = '/all?cosmology=true';
+    if (isCosmology) query = '/all?cosmology=true';
 
     const store = isCosmology ? DB_TABLES.COSMOLOGY_NETWORKS : DB_TABLES.NETWORKS;
 
