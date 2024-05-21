@@ -5,7 +5,7 @@ import { init, useOnboard } from '@web3-onboard/vue';
 
 import { useLocalStorage } from '@vueuse/core';
 
-import { ECOSYSTEMS, EVM_CHAINS, BASE_ABI, SILO_EXECUTE_ABI, BEEFY_DEPOSIT_ABI, web3OnBoardConfig } from '@/core/wallet-adapter/config';
+import { ECOSYSTEMS, BASE_ABI, SILO_EXECUTE_ABI, BEEFY_DEPOSIT_ABI, web3OnBoardConfig } from '@/core/wallet-adapter/config';
 
 import AdapterBase from '@/core/wallet-adapter/utils/AdapterBase';
 
@@ -95,7 +95,7 @@ export class EthereumAdapter extends AdapterBase {
         for (const { id } of chains) {
             if (!id) continue;
 
-            const chainInfo = EVM_CHAINS[+id] || {};
+            const chainInfo = this.store.getters['configs/getChainConfigByChainId'](id, ECOSYSTEMS.EVM) || {};
 
             if (!chainInfo) continue;
 

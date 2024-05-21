@@ -18,6 +18,22 @@ const apiClient = new ApiClient({
 
 const axiosInstance = apiClient.getInstance();
 
+const isTwoDaysPassed = (list: any) => {
+    const [token] = Object.values(list);
+
+    const { updated_at: updatedAt = null } = token || {};
+
+    const now = new Date().getTime();
+
+    const isTwoDays = Math.abs(now - new Date(updatedAt).getTime()) / (1000 * 60 * 60 * 24) > 2;
+
+    const isListHasData = Object.keys(list).length;
+    const isHaveTwoDays = !isTwoDays;
+    const isHaveUpdatedAt = updatedAt;
+
+    return isListHasData && isHaveTwoDays && isHaveUpdatedAt;
+};
+
 export const getConfigsByEcosystems = async (ecosystem = ECOSYSTEMS.EVM, { isCosmology = false } = {}) => {
     let query = '';
 
@@ -29,9 +45,11 @@ export const getConfigsByEcosystems = async (ecosystem = ECOSYSTEMS.EVM, { isCos
 
     if (isCosmology) query = '/all?cosmology=true';
 
-    if (Object.keys(list).length) return list;
+    if (isTwoDaysPassed(list)) return list;
 
     try {
+        await indexedDB.clearTable(store);
+
         const { data, status }: AxiosResponse = await axiosInstance.get(`networks/${ecosystem.toLowerCase()}${query}`);
 
         if (status !== HttpStatusCode.Ok) return {};
@@ -50,9 +68,11 @@ export const getCosmologyTokensConfig = async () => {
 
     const list = await indexedDB.getAllListFrom(store);
 
-    if (Object.keys(list).length) return list;
+    if (isTwoDaysPassed(list)) return list;
 
     try {
+        await indexedDB.clearTable(store);
+
         const { data }: AxiosResponse = await axiosInstance.get(`networks/cosmos/all/tokens`);
 
         await indexedDB.saveCosmologyAssets(store, data);
@@ -69,9 +89,11 @@ export const getTokensConfigByChain = async (chain: string, ecosystem: string) =
 
     const list = await indexedDB.getAllObjectFrom(store, 'chain', chain);
 
-    if (Object.keys(list).length) return list;
+    if (isTwoDaysPassed(list)) return list;
 
     try {
+        await indexedDB.clearTable(store);
+
         const { data }: AxiosResponse = await axiosInstance.get(`networks/${chain}/tokens`);
 
         const formatted = await indexedDB.saveTokensObj(store, data, { network: chain, ecosystem });
