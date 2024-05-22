@@ -97,7 +97,7 @@ export const getTokensConfigByChain = async (chain: string, ecosystem: string) =
     if (isTwoDaysPassed(list, store, chain)) return list;
 
     try {
-        await indexedDB.clearTable(store);
+        await indexedDB.bulkDeleteByKeys(store, 'chain', chain);
 
         const { data }: AxiosResponse = await axiosInstance.get(`networks/${chain}/tokens`);
 
