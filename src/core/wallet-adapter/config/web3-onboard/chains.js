@@ -1,3 +1,5 @@
+// TODO: REMOVE THIS FILE AFTER INTEGRATION TO API
+
 const EVM_CHAINS = {
     1: {
         net: 'eth',
@@ -176,6 +178,30 @@ const EVM_CHAINS = {
         coingecko_id: 'fantom',
         explorers: ['https://ftmscan.com'],
         nodes: ['https://rpc.ftm.tools', 'https://fantom.publicnode.com'],
+        derivation_path: {
+            default: "m/44'/60'/0'/0",
+            additional: "m/44'/137'/0'/0",
+        },
+    },
+    324: {
+        net: 'zksync',
+        name: 'zkSync',
+        native_token: {
+            logo: 'https://pulsar-images.s3.eu-west-1.amazonaws.com/tokens/Ethereum.png',
+            coingecko_id: 'ethereum',
+            verified: true,
+            decimals: 18,
+            name: 'Ether',
+            symbol: 'ETH',
+        },
+        chain_id: 324,
+        main_standards: ['erc20'],
+        address_validating: '^0x([a-fA-F0-9]{40})$',
+        logo: 'https://s2.coinmarketcap.com/static/img/coins/64x64/24091.png',
+        coingecko_id: 'zksync',
+        ecosystem: 'evm',
+        explorers: ['https://explorer.zksync.io'],
+        nodes: ['https://zksync.drpc.org', 'https://mainnet.era.zksync.io'],
         derivation_path: {
             default: "m/44'/60'/0'/0",
             additional: "m/44'/137'/0'/0",
