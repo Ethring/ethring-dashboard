@@ -208,6 +208,7 @@ export class EthereumAdapter extends AdapterBase {
         for (const chain of chains) {
             chain.walletName = this.getWalletModule();
             chain.ecosystem = ECOSYSTEMS.EVM;
+            chain.isSupportedChain = true;
         }
 
         return chains;

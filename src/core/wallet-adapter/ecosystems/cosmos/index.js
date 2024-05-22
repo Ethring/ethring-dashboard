@@ -465,7 +465,7 @@ export class CosmosAdapter extends AdapterBase {
         return currentChain;
     }
 
-    getChainList() {
+    getChainList(store, allChains = false) {
         const chainList = this.walletManager?.chainRecords.map((record) => {
             const { chain, assetList = {} } = record || {};
 
@@ -489,12 +489,15 @@ export class CosmosAdapter extends AdapterBase {
                 name: chain.pretty_name,
                 walletName: this.walletName,
                 walletModule: this.walletName,
+                isSupportedChain: isDefaultChain(chain),
             };
 
             return chainRecord;
         });
 
-        return _.values(chainList).filter(isDefaultChain);
+        return allChains
+            ? _.orderBy(_.values(chainList), [(elem) => elem.isSupportedChain], ['desc'])
+            : _.values(chainList).filter(isDefaultChain);
     }
 
     getWalletLogo(walletModule) {

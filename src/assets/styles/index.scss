@@ -134,6 +134,10 @@ li.ecosystem-item {
     min-height: 58px;
     max-height: 80px;
     padding: 0 12px !important;
+
+    .soon {
+        right: 64px !important;
+    }
 }
 
 .connect-wallet__ecosystems {
@@ -149,8 +153,8 @@ li.ecosystem-item {
         max-width: 400px;
         border-radius: 16px;
 
-        &:hover {
-            background-color: var(--#{$prefix}adapter-ecosystem-connect-hover) !important;
+        .soon {
+            right: 20px !important;
         }
     }
 
@@ -165,6 +169,11 @@ li.ecosystem-item {
     .wallets-item {
         padding: 0 25px;
         border-radius: 16px;
+
+        &__logo:nth-child(2),
+        &__logo:nth-child(3) {
+            margin-left: -24px;
+        }
     }
 }
 
