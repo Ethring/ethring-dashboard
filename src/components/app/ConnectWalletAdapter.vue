@@ -49,7 +49,7 @@ export default {
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    height: 50vh;
+    height: 55vh;
     gap: 2.5rem;
 
     &__top {

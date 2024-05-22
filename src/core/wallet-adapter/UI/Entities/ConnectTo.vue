@@ -8,6 +8,7 @@
 
         <div class="wallets-item__info">
             <h4 class="name">{{ name }}</h4>
+            <span v-if="disabled" class="soon">soon</span>
         </div>
     </div>
 </template>
@@ -20,6 +21,7 @@ import Ledger from '@/assets/icons/wallets/ledger.svg';
 import Coinbase from '@/assets/icons/wallets/coinbase.svg';
 import Keplr from '@/assets/icons/wallets/keplr.svg';
 import Leap from '@/assets/icons/wallets/leap.svg';
+import Abstract from '@/assets/icons/wallets/abstract.svg';
 
 export default {
     name: 'ConnectTo',
@@ -29,6 +31,7 @@ export default {
         Coinbase,
         Keplr,
         Leap,
+        Abstract,
         PlusOutlined,
     },
     props: {
@@ -67,8 +70,22 @@ export default {
     min-width: 300px;
 
     &.disabled {
-        opacity: 0.5;
         cursor: not-allowed;
+        background: var(--#{$prefix}select-bg-color) !important;
+        border: 1px solid var(--#{$prefix}select-bg-color);
+
+        .name {
+            color: var(--#{$prefix}description-text);
+        }
+
+        .soon {
+            position: absolute;
+            right: 20px;
+            top: 8px;
+
+            font-weight: 600;
+            color: var(--#{$prefix}sub-text);
+        }
     }
 
     &:hover:not(.disabled) {

@@ -413,14 +413,14 @@ function useAdapter() {
     };
 
     // * Get Chain List by Ecosystem
-    const getChainListByEcosystem = (ecosystem: keyof typeof ECOSYSTEMS): ChainConfig[] => {
+    const getChainListByEcosystem = (ecosystem: keyof typeof ECOSYSTEMS, allChains: boolean = false): ChainConfig[] => {
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
         if (!adapter) return [];
 
         if (!adapter.getChainList) return [];
 
-        return adapter.getChainList(store);
+        return adapter.getChainList(store, allChains);
     };
 
     // * Get Chain by Chain ID
