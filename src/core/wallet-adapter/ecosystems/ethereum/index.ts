@@ -11,6 +11,7 @@ import AdapterBase from '@/core/wallet-adapter/utils/AdapterBase';
 
 import { errorRegister } from '@/shared/utils/errors';
 import { validateEthAddress } from '@/core/wallet-adapter/utils/validations';
+import { getBlocknativeConfig } from '@/modules/chain-configs/api';
 
 let web3Onboard: any = null;
 
@@ -33,15 +34,14 @@ export class EthereumAdapter extends AdapterBase {
 
     constructor() {
         super();
-        const initOptions = web3OnBoardConfig as InitOptions;
-        !web3Onboard && (web3Onboard = init(initOptions));
-        web3Onboard.state.select('wallets').subscribe(() => this.setAddressForChains());
-
-        const ethersProvider = this.getProvider();
     }
 
-    init(store: any) {
+    async init(store: any) {
         this.store = store;
+        const initOptions = web3OnBoardConfig as InitOptions;
+        initOptions.chains = await getBlocknativeConfig();
+        !web3Onboard && (web3Onboard = init(initOptions));
+        web3Onboard.state.select('wallets').subscribe(() => this.setAddressForChains());
     }
 
     isLocked(): boolean {

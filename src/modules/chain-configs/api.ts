@@ -109,3 +109,13 @@ export const getTokensConfigByChain = async (chain: string, ecosystem: string) =
         return {};
     }
 };
+
+export const getBlocknativeConfig = async () => {
+    try {
+        const { data }: AxiosResponse = await axiosInstance.get('networks/chain-list');
+        return data || [];
+    } catch (error) {
+        logger.error('Error while getting blocknative config from API', error);
+        return [];
+    }
+};
