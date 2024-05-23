@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { isNaN } from 'lodash';
 
 import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
 import { ICreateTransaction } from '@/core/transaction-manager/types/Transaction';
@@ -66,7 +66,7 @@ export default class DexOperation extends BaseOperation {
         if (this.getParamByField('fromNet') === this.getParamByField('toNet')) this.service = new BridgeDexService(ServiceType.dex);
         else this.service = new BridgeDexService(ServiceType.bridgedex);
 
-        if (_.isNaN(Number(this.params.amount)) && Number(this.params.amount) <= 0) {
+        if (isNaN(Number(this.params.amount)) && Number(this.params.amount) <= 0) {
             console.warn('Amount is required');
             return;
         }

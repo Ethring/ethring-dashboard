@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { isFinite } from 'lodash';
 import BigNumber from 'bignumber.js';
 
 import { computed, onMounted, onUnmounted, watch } from 'vue';
@@ -454,7 +454,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
 
                     const fromAmount = operation.getParamByField('amount');
 
-                    if (isNeedFromAmount && (!fromAmount || _.isFinite(fromAmount) || fromAmount <= 0))
+                    if (isNeedFromAmount && (!fromAmount || isFinite(fromAmount) || fromAmount <= 0))
                         quoteErrorMessage.value = 'Please Fill all from token amounts';
                 }
             }

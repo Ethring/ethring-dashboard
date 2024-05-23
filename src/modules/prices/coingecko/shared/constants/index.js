@@ -17,4 +17,5 @@ export const PLATFORMS = {
     [CHAIN_IDS.FANTOM]: 'fantom',
     [CHAIN_IDS.AVALANCHE]: 'avalanche',
     [CHAIN_IDS.ARBITRUM]: 'arbitrum-one',
+    [CHAIN_IDS.ZKSYNC]: 'zksync',
 };

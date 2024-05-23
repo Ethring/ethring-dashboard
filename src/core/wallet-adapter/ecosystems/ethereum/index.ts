@@ -1,16 +1,17 @@
-import * as ethers from 'ethers';
+import { providers, Contract, utils } from 'ethers';
 
 import { InitOptions, ConnectOptions } from '@web3-onboard/core';
 import { init, useOnboard } from '@web3-onboard/vue';
 
 import { useLocalStorage } from '@vueuse/core';
 
-import { ECOSYSTEMS, EVM_CHAINS, BASE_ABI, SILO_EXECUTE_ABI, BEEFY_DEPOSIT_ABI, web3OnBoardConfig } from '@/core/wallet-adapter/config';
+import { ECOSYSTEMS, BASE_ABI, SILO_EXECUTE_ABI, BEEFY_DEPOSIT_ABI, web3OnBoardConfig } from '@/core/wallet-adapter/config';
 
 import AdapterBase from '@/core/wallet-adapter/utils/AdapterBase';
 
 import { errorRegister } from '@/shared/utils/errors';
 import { validateEthAddress } from '@/core/wallet-adapter/utils/validations';
+import { getBlocknativeConfig } from '@/modules/chain-configs/api';
 
 let web3Onboard: any = null;
 
@@ -33,15 +34,14 @@ export class EthereumAdapter extends AdapterBase {
 
     constructor() {
         super();
-        const initOptions = web3OnBoardConfig as InitOptions;
-        !web3Onboard && (web3Onboard = init(initOptions));
-        web3Onboard.state.select('wallets').subscribe(() => this.setAddressForChains());
-
-        const ethersProvider = this.getProvider();
     }
 
-    init(store: any) {
+    async init(store: any) {
         this.store = store;
+        const initOptions = web3OnBoardConfig as InitOptions;
+        initOptions.chains = await getBlocknativeConfig();
+        !web3Onboard && (web3Onboard = init(initOptions));
+        web3Onboard.state.select('wallets').subscribe(() => this.setAddressForChains());
     }
 
     isLocked(): boolean {
@@ -95,7 +95,7 @@ export class EthereumAdapter extends AdapterBase {
         for (const { id } of chains) {
             if (!id) continue;
 
-            const chainInfo = EVM_CHAINS[+id] || {};
+            const chainInfo = this.store.getters['configs/getChainConfigByChainId'](id, ECOSYSTEMS.EVM) || {};
 
             if (!chainInfo) continue;
 
@@ -271,14 +271,14 @@ export class EthereumAdapter extends AdapterBase {
         return validateEthAddress(address, validation);
     }
 
-    getProvider(): ethers.providers.Web3Provider | null {
+    getProvider(): providers.Web3Provider | null {
         const { connectedWallet } = useOnboard();
 
         const { provider } = connectedWallet.value || {};
 
         if (!provider) return null;
 
-        const ethersProvider = new ethers.providers.Web3Provider(provider, 'any');
+        const ethersProvider = new providers.Web3Provider(provider, 'any');
 
         return ethersProvider;
     }
@@ -311,7 +311,7 @@ export class EthereumAdapter extends AdapterBase {
         if (!ethersProvider) throw new Error('EVM provider is not available');
 
         try {
-            const value = !token?.address ? ethers.utils.parseEther(amount) : ethers.utils.parseUnits('0');
+            const value = !token?.address ? utils.parseEther(amount) : utils.parseUnits('0');
 
             const nonce = await ethersProvider.getTransactionCount(fromAddress);
 
@@ -329,7 +329,7 @@ export class EthereumAdapter extends AdapterBase {
             const res = await this.callContractMethod({
                 contractAddress,
                 method: 'transfer',
-                args: [toAddress, ethers.utils.parseUnits(amount, token.decimals)],
+                args: [toAddress, utils.parseUnits(amount, token.decimals)],
             });
 
             return {
@@ -367,7 +367,7 @@ export class EthereumAdapter extends AdapterBase {
 
             const signer = ethersProvider.getSigner();
 
-            const contract = new ethers.Contract(contractAddress, ABI, ethersProvider);
+            const contract = new Contract(contractAddress, ABI, ethersProvider);
             contract.connect(signer);
 
             const response = {

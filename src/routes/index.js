@@ -18,6 +18,14 @@ export const routes = [
         component: () => import('@/pages/Dashboard.vue'),
     },
     {
+        path: '/connect-wallet',
+        name: 'Connect wallet',
+        meta: {
+            key: 'connect-wallet',
+        },
+        component: () => import('@/pages/Dashboard.vue'),
+    },
+    {
         path: '/send',
         name: 'Zomet - Send',
         meta: {

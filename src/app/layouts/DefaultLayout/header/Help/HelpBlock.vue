@@ -24,7 +24,7 @@
 import { computed, inject } from 'vue';
 import { useStore } from 'vuex';
 
-import _ from 'lodash';
+import { pick } from 'lodash';
 
 import { SyncOutlined } from '@ant-design/icons-vue';
 
@@ -79,7 +79,7 @@ export default {
             for (const { account, addresses } of connectedWallets.value) {
                 store.dispatch('tokens/setIsInitCall', { account, time: null });
 
-                const list = _.pick(addresses, Object.values(DP_CHAINS)) || {};
+                const list = pick(addresses, Object.values(DP_CHAINS)) || {};
 
                 await updateBalanceForAccount(account, list);
             }

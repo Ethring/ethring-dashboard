@@ -5,7 +5,6 @@ import { resolve } from 'path'; // * Path for resolving the paths
 // * Plugins
 import vue from '@vitejs/plugin-vue';
 import svgLoader from 'vite-svg-loader';
-import eslintPlugin from 'vite-plugin-eslint';
 
 import EnvironmentPlugin from 'vite-plugin-environment';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -31,7 +30,8 @@ export default defineConfig({
     // * ========= Settings for build (vite build) =========
     build: {
         manifest: true,
-        minify: isProduction,
+        minify: 'terser',
+        cssMinify: 'lightningcss',
         sourcemap: !isProduction,
         chunkSizeWarningLimit: MAX_CHUNK_SIZE_PER_FILE,
         rollupOptions: {
@@ -43,7 +43,7 @@ export default defineConfig({
                 assetFileNames: '[ext]/[name]-[hash].[ext]',
                 manualChunks: {
                     vue: ['vue', 'vue-router', 'vuex', 'vue3-click-away', 'vue-debounce', '@vueuse/rxjs', '@vueuse/core'],
-                    sentry: ['@sentry/vue', '@sentry/tracing'],
+                    sentry: ['@sentry/vue', '@sentry/browser'],
                     mixpanel: ['mixpanel-browser'],
                     axios: ['axios', 'axios-extensions'],
                     utils: ['bignumber.js', 'lodash', 'moment', 'socket.io-client', '@osmonauts/helpers'],
@@ -51,7 +51,6 @@ export default defineConfig({
                     'ant-design-icons': ['@ant-design/icons-vue'],
                     '@cosmology-cosmos-kit': ['@cosmos-kit/core'],
                     '@cosmology-wallets-keplr': ['@cosmos-kit/keplr', '@cosmos-kit/keplr-extension', '@cosmos-kit/keplr-mobile'],
-                    '@cosmology-wallets-leap': ['@cosmos-kit/leap', '@cosmos-kit/leap-extension', '@cosmos-kit/leap-mobile'],
                     '@cosmjs-stargate': ['@cosmjs/cosmwasm-stargate', '@cosmjs/stargate'],
 
                     // Stargazejs

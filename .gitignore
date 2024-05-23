@@ -6,6 +6,9 @@ node_modules
 /tests/extensions-data/metamask-*
 /tests/extensions-data/keplr-*
 
+# Local test screenshots
+/tests/**/**-darwin.png
+
 # local env files
 .env
 .env.local

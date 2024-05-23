@@ -3,8 +3,7 @@ import { ChainConfig } from '@/modules/chain-configs/types/chain-config';
 
 import PricesModule from '@/modules/prices';
 
-export const setNativeTokensPrices = async (store, ecosystem: string) => {
-    const configList = computed<ChainConfig[]>(() => store.getters['configs/getConfigsListByEcosystem'](ecosystem));
+export const setNativeTokensPrices = async (configList: ChainConfig[]) => {
     const coingeckoIds = [];
 
     const getCoingeckoId = (network: ChainConfig) => {
@@ -14,7 +13,7 @@ export const setNativeTokensPrices = async (store, ecosystem: string) => {
         return tokenCoingeckoID || networkCoingeckoID;
     };
 
-    for (const network of configList.value) {
+    for (const network of configList) {
         const { native_token } = network || {};
 
         if (native_token.price) continue;
@@ -28,7 +27,7 @@ export const setNativeTokensPrices = async (store, ecosystem: string) => {
     const ids = coingeckoIds.join(','); // * Convert array to string for request
     const prices = await PricesModule.Coingecko.marketCapForNativeCoin(ids); // * Get prices for all native tokens
 
-    for (const network of configList.value) {
+    for (const network of configList) {
         const { native_token } = network || {};
 
         if (native_token.price) continue;

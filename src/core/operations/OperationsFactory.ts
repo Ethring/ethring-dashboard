@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { isNaN, isEqual } from 'lodash';
 import BigNumber from 'bignumber.js';
 
 import {
@@ -26,7 +26,7 @@ interface IOperationDependencies {
 }
 
 const isAmountCorrect = (amount: string): boolean => {
-    if (_.isNaN(Number(amount))) return false;
+    if (isNaN(Number(amount))) return false;
 
     if (BigNumber(amount).isLessThanOrEqualTo(0)) return false;
 
@@ -505,8 +505,8 @@ export default class OperationFactory implements IOperationFactory {
             const { from: depFrom, to: depTo } = dependOperation.getTokens();
             const { from: opFrom, to: opTo } = operation.getTokens() || {};
 
-            const isDepSrc = _.isEqual(dependencyParamKey, 'amount');
-            const isOpSrc = _.isEqual(paramKey, 'amount');
+            const isDepSrc = isEqual(dependencyParamKey, 'amount');
+            const isOpSrc = isEqual(paramKey, 'amount');
 
             const depToken = isDepSrc ? depFrom : depTo;
             const opToken = isOpSrc ? opFrom : opTo;

@@ -2,7 +2,7 @@
 
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
-import { captureException } from '@/app/modules/sentry';
+import { captureSentryException } from '@/app/modules/sentry';
 
 interface ApiConfig {
     baseURL: string;
@@ -52,7 +52,7 @@ class ApiClient {
             }
         }
 
-        if (error.response && error.response.status === 400) captureException(error);
+        if (error.response && error.response.status === 400) captureSentryException(error);
 
         return Promise.reject(error);
     }

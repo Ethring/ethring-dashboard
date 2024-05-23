@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { describe, expect, test } from 'vitest';
 
-import * as ChromeLauncher from 'chrome-launcher';
+import { launch } from 'chrome-launcher';
 
 import lighthouse from 'lighthouse';
 import { ReportGenerator } from 'lighthouse/report/generator/report-generator';
@@ -14,7 +14,7 @@ const flags = {
 
 async function runLighthouse(url) {
     // Launch Chrome with specified flags
-    const chrome = await ChromeLauncher.launch(flags);
+    const chrome = await launch(flags);
 
     const options = {
         port: chrome.port,

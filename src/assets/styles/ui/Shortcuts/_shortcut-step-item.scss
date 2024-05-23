@@ -3,7 +3,6 @@
     border-radius: 8px;
     border: 1px solid transparent;
     padding: 8px;
-    // max-height: 56px;
 
     display: flex !important;
     flex-direction: row-reverse;
@@ -12,10 +11,6 @@
 }
 
 .ant-steps {
-    .ant-steps-item-container {
-        // height: 56px;
-    }
-
     .ant-steps-item {
         $antStepItemHeight: 75px;
         min-height: $antStepItemHeight;

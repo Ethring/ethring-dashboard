@@ -1,8 +1,8 @@
-import _ from 'lodash';
+import { toLower } from 'lodash';
 import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
 
 export const formatRecord = (ecosystem: string, chain: string, token: any) => {
-    if (![ECOSYSTEMS.COSMOS].includes(ecosystem?.toUpperCase())) token.address = _.toLower(token.address);
+    if (![ECOSYSTEMS.COSMOS].includes(ecosystem?.toUpperCase())) token.address = toLower(token.address);
 
     token.id = `${chain}:tokens__${token.address}:${token.symbol}`;
     token.chain = chain;

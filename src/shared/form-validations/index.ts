@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { isNaN, isEmpty, isEqual } from 'lodash';
 import { computed } from 'vue';
 import { useStore } from 'vuex';
 import { AddressByChainHash } from '../models/types/Address';
@@ -27,71 +27,71 @@ const useInputValidation = () => {
 
     // ? Check if the source amount is set
     const isSrcAmountSet = computed(() => {
-        return srcAmount.value && srcAmount.value > 0 && !_.isNaN(srcAmount.value) && !_.isEmpty(srcAmount.value);
+        return srcAmount.value && srcAmount.value > 0 && !isNaN(srcAmount.value) && !isEmpty(srcAmount.value);
     });
 
     // ? Check if the destination amount is set
     const isDstAmountSet = computed(() => {
-        return dstAmount.value && dstAmount.value > 0 && !_.isNaN(dstAmount.value) && !_.isEmpty(dstAmount.value);
+        return dstAmount.value && dstAmount.value > 0 && !isNaN(dstAmount.value) && !isEmpty(dstAmount.value);
     });
 
     // ? Check if src token is set
     const isSrcTokenSet = computed(() => {
-        return !_.isEmpty(selectedSrcToken.value) && !_.isEmpty(selectedSrcToken.value?.id);
+        return !isEmpty(selectedSrcToken.value) && !isEmpty(selectedSrcToken.value?.id);
     });
 
     // ? Check if src token address is set
     const isSrcTokenAddressSet = computed(() => {
-        return !_.isEmpty(selectedSrcToken.value?.address);
+        return !isEmpty(selectedSrcToken.value?.address);
     });
 
     // ? Check if dst token is set
     const isDstTokenSet = computed(() => {
-        return !_.isEmpty(selectedDstToken.value) || !_.isEmpty(selectedDstToken.value?.id);
+        return !isEmpty(selectedDstToken.value) || !isEmpty(selectedDstToken.value?.id);
     });
 
     // ? Check if dst token address is set
     const isDstTokenAddressSet = computed(() => {
-        return !_.isEmpty(selectedDstToken.value?.address);
+        return !isEmpty(selectedDstToken.value?.address);
     });
 
     // ? Check if Source Network is set
     const isSrcNetworkSet = computed(() => {
-        return !_.isEmpty(selectedSrcNetwork.value) || !_.isEmpty(selectedSrcNetwork.value?.net);
+        return !isEmpty(selectedSrcNetwork.value) || !isEmpty(selectedSrcNetwork.value?.net);
     });
 
     // ? Check if Destination Network is set
     const isDstNetworkSet = computed(() => {
-        return !_.isEmpty(selectedDstNetwork.value) || !_.isEmpty(selectedDstNetwork.value?.net);
+        return !isEmpty(selectedDstNetwork.value) || !isEmpty(selectedDstNetwork.value?.net);
     });
 
     // ? Check if the selected source token chain is correct
     const isSrcTokenChainCorrect = computed(() => {
-        return isSrcTokenSet.value && isSrcNetworkSet.value && _.isEqual(selectedSrcToken.value?.chain, selectedSrcNetwork.value?.net);
+        return isSrcTokenSet.value && isSrcNetworkSet.value && isEqual(selectedSrcToken.value?.chain, selectedSrcNetwork.value?.net);
     });
 
     // ? Check if the selected destination token chain is correct
     const isDstTokenChainCorrect = computed(() => {
-        return isDstTokenSet.value && isDstNetworkSet.value && _.isEqual(selectedDstToken.value?.chain, selectedDstNetwork.value?.net);
+        return isDstTokenSet.value && isDstNetworkSet.value && isEqual(selectedDstToken.value?.chain, selectedDstNetwork.value?.net);
     });
 
     const isDstTokenChainCorrectSwap = computed(() => {
-        return isDstTokenSet.value && isSrcNetworkSet.value && _.isEqual(selectedDstToken.value?.chain, selectedSrcNetwork.value?.net);
+        return isDstTokenSet.value && isSrcNetworkSet.value && isEqual(selectedDstToken.value?.chain, selectedSrcNetwork.value?.net);
     });
 
     // ? Check if the receiver address is set
     const isReceiverAddressSet = computed(() => {
-        return !_.isEmpty(receiverAddress.value);
+        return !isEmpty(receiverAddress.value);
     });
 
     // ? Check if the selected source and destination tokens are the same
     const isSameToken = computed(() => {
-        return isSrcTokenSet.value && isDstTokenSet.value && _.isEqual(selectedSrcToken.value?.id, selectedDstToken.value?.id);
+        return isSrcTokenSet.value && isDstTokenSet.value && isEqual(selectedSrcToken.value?.id, selectedDstToken.value?.id);
     });
 
     // ? Check if the selected source and destination networks are the same
     const isSameNetwork = computed(() => {
-        return isSrcNetworkSet.value && isDstNetworkSet.value && _.isEqual(selectedSrcNetwork.value?.net, selectedDstNetwork.value?.net);
+        return isSrcNetworkSet.value && isDstNetworkSet.value && isEqual(selectedSrcNetwork.value?.net, selectedDstNetwork.value?.net);
     });
 
     // ? Check if the selected source and destination tokens are the same
@@ -102,12 +102,12 @@ const useInputValidation = () => {
     // ? Check if the quote route is set
     const isQuoteRouteSet = computed(() => {
         if (!quoteRoutes.value?.length) return false;
-        return !_.isEmpty(quoteRoutes.value);
+        return !isEmpty(quoteRoutes.value);
     });
 
     // ? Check if the quote route is selected
     const isQuoteRouteSelected = computed(() => {
-        return !_.isEmpty(selectedRoute.value);
+        return !isEmpty(selectedRoute.value);
     });
 
     // ? Check if the quote route is correct
@@ -121,7 +121,7 @@ const useInputValidation = () => {
 
         const srcAddressByChain = store.getters['adapters/getAddressesByEcosystem'](srcEcosystem) as AddressByChainHash;
 
-        return !_.isEmpty(srcEcosystem) && _.isEmpty(srcAddressByChain);
+        return !isEmpty(srcEcosystem) && isEmpty(srcAddressByChain);
     });
 
     // ? Check if the destination addresses are empty
@@ -130,7 +130,7 @@ const useInputValidation = () => {
 
         const dstAddressByChain = store.getters['adapters/getAddressesByEcosystem'](dstEcosystem) as AddressByChainHash;
 
-        return !_.isEmpty(dstEcosystem) && _.isEmpty(dstAddressByChain);
+        return !isEmpty(dstEcosystem) && isEmpty(dstAddressByChain);
     });
 
     return {
