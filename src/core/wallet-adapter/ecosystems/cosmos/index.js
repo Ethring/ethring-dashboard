@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import _ from 'lodash';
+import { values, orderBy } from 'lodash';
 
 import { cosmos, cosmwasm } from 'osmojs';
 
@@ -7,7 +7,6 @@ import { SigningStargateClient, GasPrice } from '@cosmjs/stargate';
 
 import { Logger, WalletManager } from '@cosmos-kit/core';
 import { wallets as KeplrWallets } from '@cosmos-kit/keplr';
-// import { wallets as LeapWallets } from '@cosmos-kit/leap';
 
 // * Utils
 import BigNumber from 'bignumber.js';
@@ -79,8 +78,8 @@ export class CosmosAdapter extends AdapterBase {
         // * Get chains
         // ========= Init Cosmos Chains =========
         const chains = await getConfigsByEcosystems(ECOSYSTEMS.COSMOS, { isCosmology: true });
-        const activeChains = _.values(chains).filter(isActiveChain);
-        const defaultChains = _.values(activeChains).filter(isDefaultChain);
+        const activeChains = values(chains).filter(isActiveChain);
+        const defaultChains = values(activeChains).filter(isDefaultChain);
 
         this.store = store;
 
@@ -489,6 +488,8 @@ export class CosmosAdapter extends AdapterBase {
                 name: chain.pretty_name,
                 walletName: this.walletName,
                 walletModule: this.walletName,
+                coingecko_id: this.chainsFromStore[chain.chain_name]?.coingecko_id,
+                native_token: this.chainsFromStore[chain.chain_name]?.native_token,
                 isSupportedChain: isDefaultChain(chain),
             };
 
@@ -496,8 +497,8 @@ export class CosmosAdapter extends AdapterBase {
         });
 
         return allChains
-            ? _.orderBy(_.values(chainList), [(elem) => elem.isSupportedChain], ['desc'])
-            : _.values(chainList).filter(isDefaultChain);
+            ? orderBy(values(chainList), [(elem) => elem.isSupportedChain], ['desc'])
+            : values(chainList).filter(isDefaultChain);
     }
 
     getWalletLogo(walletModule) {

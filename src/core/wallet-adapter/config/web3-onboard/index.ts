@@ -6,7 +6,6 @@ import CoinbaseWalletModule from '@web3-onboard/coinbase';
 import LedgerModule from '@web3-onboard/ledger';
 
 import appMetadata from '@/core/wallet-adapter/config/web3-onboard/meta-data';
-import { chainConfig } from '@/core/wallet-adapter/config/web3-onboard/chains';
 
 const WALLETS_ORDER = [
     ProviderLabel.MetaMask,
@@ -91,5 +90,5 @@ export default {
     },
     appMetadata,
     theme: 'light',
-    chains: chainConfig,
+    chains: [],
 };

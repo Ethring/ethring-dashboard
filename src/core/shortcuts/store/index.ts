@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { isEmpty } from 'lodash';
 
 import { IShortcutOp } from '../core/ShortcutOp';
 import { IShortcutData } from '../core/Shortcut';
@@ -173,7 +173,7 @@ export default {
 
                 const setStatus = (step: OperationStep) => {
                     // Status by operation status
-                    step.status = _.isEmpty(step.status) ? ShortcutStatus.wait : step.status;
+                    step.status = isEmpty(step.status) ? ShortcutStatus.wait : step.status;
 
                     const isCurrentStep = state.currentStepId === step.id;
 

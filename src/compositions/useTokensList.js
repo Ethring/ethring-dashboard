@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { unionBy, orderBy, find } from 'lodash';
 
 import { computed } from 'vue';
 
@@ -123,7 +123,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
         // Target tokens list with or without balance
         if (onlyWithBalance && account) allTokens = tokensWithBalanceVerified;
-        else allTokens = _.unionBy(tokensWithBalanceVerified, tokensListFromNet, (tkn) => tkn.address?.toLowerCase());
+        else allTokens = unionBy(tokensWithBalanceVerified, tokensListFromNet, (tkn) => tkn.address?.toLowerCase());
 
         // Set native token info
         allTokens = setNativeTokenInfo(allTokens);
@@ -137,7 +137,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
                 tkn.selected = fromToken?.id === tkn.id || toToken?.id === tkn.id;
             }
 
-        const sortedList = _.orderBy(
+        const sortedList = orderBy(
             allTokens,
 
             [
@@ -174,7 +174,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
                 onlyWithBalance: false,
             });
 
-            return _.find(tokens, (token) => token.id.toLowerCase() === tokenId.toLowerCase());
+            return find(tokens, (token) => token.id.toLowerCase() === tokenId.toLowerCase());
         } catch (error) {
             console.error('getTokenById', error);
         }

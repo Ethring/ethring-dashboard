@@ -1,5 +1,5 @@
 import { useStore } from 'vuex';
-import _ from 'lodash';
+import { isEqual, startsWith, uniq, isEmpty } from 'lodash';
 
 import { ITransaction, ITransactionResponse } from '@/core/transaction-manager/types/Transaction';
 import { SHORTCUT_STATUSES, STATUSES } from '@/shared/models/enums/statuses.enum';
@@ -260,15 +260,15 @@ const useModuleOperations = (module: ModuleType) => {
         console.debug('Current ecosystem:', currentChainInfo.value?.ecosystem);
         console.debug('Current chain:', currentChainInfo.value?.chain_id);
 
-        const isEcosystemEqual = () => _.isEqual(currentChainInfo.value?.ecosystem, tx.getEcosystem());
+        const isEcosystemEqual = () => isEqual(currentChainInfo.value?.ecosystem, tx.getEcosystem());
 
         const isChainsEqual = () => {
             const { ecosystem, chain_id = '' } = currentChainInfo.value || {};
 
-            if ([ECOSYSTEMS.EVM].includes(ecosystem) && typeof chain_id === 'string' && _.startsWith(chain_id, '0x'))
-                return _.isEqual(`${+chain_id}`, +tx.getChainId());
+            if ([ECOSYSTEMS.EVM].includes(ecosystem) && typeof chain_id === 'string' && startsWith(chain_id, '0x'))
+                return isEqual(`${+chain_id}`, +tx.getChainId());
 
-            return _.isEqual(`${chain_id}`, tx.getChainId());
+            return isEqual(`${chain_id}`, tx.getChainId());
         };
 
         const isEverythingCorrect = () => {
@@ -659,7 +659,7 @@ const useModuleOperations = (module: ModuleType) => {
             ids.push(...tokenIds);
         }
 
-        tokenIdsUnique = _.uniq(ids);
+        tokenIdsUnique = uniq(ids);
 
         operation.setParamByField('tokenIds', tokenIdsUnique);
     };
@@ -1020,7 +1020,7 @@ const useModuleOperations = (module: ModuleType) => {
         const isWithMemo = isSendWithMemo.value && isMemoAllowed.value && !memo.value;
         const isWithAddress = isSendToAnotherAddress.value && (isAddressError.value || !isReceiverAddressSet.value);
 
-        const isQuoteErrorExist = _.isEmpty(quoteErrorMessage.value) ? false : true;
+        const isQuoteErrorExist = isEmpty(quoteErrorMessage.value) ? false : true;
 
         // * Common
         const isDisabled =

@@ -15,7 +15,7 @@
 import { onMounted, watch, computed, inject, onBeforeMount, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 
-import _ from 'lodash';
+import { pick } from 'lodash';
 
 import Socket from '@/app/modules/socket';
 
@@ -64,6 +64,7 @@ export default {
             connectedWallets,
             connectLastConnectedWallet,
             getAddressesWithChainsByEcosystem,
+            getChainListByEcosystem,
         } = useAdapter();
 
         const isShowRoutesModal = computed(() => store.getters['app/modal']('routesModal'));
@@ -71,7 +72,7 @@ export default {
         const getAddressesWithChains = async (ecosystem) => {
             const chainAddresses = await getAddressesWithChainsByEcosystem(ecosystem);
 
-            return _.pick(chainAddresses, Object.values(DP_CHAINS)) || {};
+            return pick(chainAddresses, Object.values(DP_CHAINS)) || {};
         };
 
         const callSubscription = async () => {
@@ -97,7 +98,7 @@ export default {
                 if (!wallet) continue;
 
                 const { account, ecosystem, addresses } = wallet || {};
-                const list = _.pick(addresses, Object.values(DP_CHAINS)) || {};
+                const list = pick(addresses, Object.values(DP_CHAINS)) || {};
 
                 store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses: list });
 
@@ -143,8 +144,8 @@ export default {
 
             await initAdapter();
 
-            await setNativeTokensPrices(store, ECOSYSTEMS.EVM);
-            await setNativeTokensPrices(store, ECOSYSTEMS.COSMOS);
+            await setNativeTokensPrices(getChainListByEcosystem(ECOSYSTEMS.EVM));
+            await setNativeTokensPrices(getChainListByEcosystem(ECOSYSTEMS.COSMOS));
         });
 
         onBeforeUnmount(() => {

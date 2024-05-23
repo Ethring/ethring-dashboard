@@ -3,7 +3,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import BigNumber from 'bignumber.js';
 import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
-import _ from 'lodash';
+import { startsWith, debounce } from 'lodash';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import useBridgeDexService from '@/modules/bridge-dex/compositions';
 import useChainTokenManger from './useChainTokenManager';
@@ -227,7 +227,7 @@ export default function useModule(moduleType: ModuleType) {
 
         resetQuoteRoutes();
 
-        _.debounce(() => (isDirectionSwapped.value = false), 1500)();
+        debounce(() => (isDirectionSwapped.value = false), 1500)();
     };
 
     // =================================================================================================================
@@ -252,7 +252,7 @@ export default function useModule(moduleType: ModuleType) {
     const handleOnSetAmount = (amount: string | number) => {
         if (srcAmount.value === amount) return;
 
-        if (amount && _.startsWith(amount.toString(), '.') && amount.toString().length > 1) return (srcAmount.value = `0${amount}`);
+        if (amount && startsWith(amount.toString(), '.') && amount.toString().length > 1) return (srcAmount.value = `0${amount}`);
 
         srcAmount.value = amount;
     };

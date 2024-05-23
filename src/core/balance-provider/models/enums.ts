@@ -24,6 +24,7 @@ export enum DP_CHAINS {
     OPTIMISM = 'optimism',
     DOGECOIN = 'dogecoin',
     POLYGON = 'polygon',
+    ZKSYNC = 'zksync',
 
     // Cosmos Ecosystem
     COSMOS = 'cosmoshub',

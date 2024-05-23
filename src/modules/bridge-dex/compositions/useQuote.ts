@@ -18,7 +18,7 @@ import { calculateFeeByCurrency, calculateFeeInNativeToUsd } from '@/shared/calc
 import { AddressByChainHash } from '@/shared/models/types/Address';
 
 import logger from '@/shared/logger';
-import _ from 'lodash';
+import { isEqual } from 'lodash';
 import useInputValidation from '@/shared/form-validations';
 
 /**
@@ -376,7 +376,7 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
 
             // * If the params are not changed, return
             if (
-                _.isEqual(
+                isEqual(
                     { ...params, isReloadRoutes: isReloadRoutes.value, ownerAddresses: {} },
                     { ...oldParams, isReloadRoutes: oldIsReloadRoutes, ownerAddresses: {} },
                 )
@@ -386,10 +386,6 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
             try {
                 await makeQuoteRoutes(params);
                 isReloadRoutes.value && (isReloadRoutes.value = false);
-
-                // _.debounce(async () => {
-                //     await makeQuoteRoutes(params);
-                // }, 1000)();
             } catch (error) {
                 logger.error('useBridgeDexQuote -> makeQuoteRoutes', error);
             }

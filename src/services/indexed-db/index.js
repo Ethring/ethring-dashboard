@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { values } from 'lodash';
 
 import Dexie from 'dexie';
 
@@ -41,6 +41,18 @@ class IndexedDBService {
 
         this.db.on('populate', () => {
             logger.debug('Database is populated');
+        });
+    }
+
+    async clearTable(tableName) {
+        if (!this.db[tableName]) return;
+        await this.db.table(tableName).clear();
+    }
+
+    async bulkDeleteByKeys(tableName, key, value) {
+        if (!this.db[tableName]) return;
+        await this.db.transaction('rw', this.db[tableName], async () => {
+            await this.db[tableName].where(key).equals(value).delete();
         });
     }
 
@@ -94,17 +106,19 @@ class IndexedDBService {
     // ==========================================================================
 
     async saveNetworksObj(store, networks, { ecosystem } = {}) {
+        const updatedDate = Number(new Date());
+
         for (const chain in networks) {
             networks[chain].id = `${ecosystem}:${chain}`;
             networks[chain].ecosystem = ecosystem?.toUpperCase() || '';
             networks[chain].chain = chain;
-
+            networks[chain].updated_at = updatedDate;
             networks[chain].value = JSON.stringify(networks[chain]);
         }
 
         try {
             await this.db.transaction('rw', this.db[store], async () => {
-                await this.db[store].bulkPut(_.values(networks));
+                await this.db[store].bulkPut(values(networks));
                 logger.debug(`All ${ecosystem} networks saved`);
             });
         } catch (error) {
@@ -114,6 +128,13 @@ class IndexedDBService {
 
     async saveCosmologyAssets(store, configs) {
         try {
+            const updatedDate = Number(new Date());
+
+            for (const config of configs) {
+                config.updated_at = updatedDate;
+                config.value = JSON.stringify(config);
+            }
+
             await this.db.transaction('rw', this.db[store], async () => {
                 await this.db[store].bulkPut(configs);
                 logger.debug(`All cosmology tokens saved`);
@@ -125,8 +146,10 @@ class IndexedDBService {
 
     async saveTokensObj(store, tokens, { network, ecosystem } = {}) {
         const formatTokensObj = (tokens) => {
+            const updatedDate = Number(new Date());
             for (const tokenContract in tokens) {
                 formatRecord(ecosystem, network, tokens[tokenContract]);
+                tokens[tokenContract].updated_at = updatedDate;
                 tokens[tokenContract].value = JSON.stringify(tokens[tokenContract]);
             }
             return tokens;
@@ -135,7 +158,7 @@ class IndexedDBService {
         const formattedTokensObject = formatTokensObj(tokens);
 
         await this.db.transaction('rw', this.db[store], async () => {
-            await this.db[store].bulkPut(_.values(formattedTokensObject));
+            await this.db[store].bulkPut(values(formattedTokensObject));
             logger.debug(`[tokens] All tokens for network: ${ecosystem} - ${network} saved`);
         });
 
@@ -156,7 +179,7 @@ class IndexedDBService {
         }
     }
 
-    async getAllObjectFrom(store, key = 'id', value = null, { index = 'id', isArray = false } = {}) {
+    async getAllObjectFrom(store, key = 'id', value = '', { index = 'id', isArray = false } = {}) {
         if (!this.db[store]) return null;
 
         try {

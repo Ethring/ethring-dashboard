@@ -6,4 +6,5 @@ export const CHAIN_IDS = {
     FANTOM: 250,
     ARBITRUM: 42161,
     AVALANCHE: 43114,
+    ZKSYNC: 324,
 };

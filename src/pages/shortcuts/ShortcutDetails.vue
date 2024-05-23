@@ -50,7 +50,7 @@
 </template>
 
 <script lang="ts">
-import _ from 'lodash';
+import { isEmpty } from 'lodash';
 
 import { computed, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
@@ -110,7 +110,7 @@ export default {
         });
 
         onMounted(() => {
-            if (_.isEmpty(shortcut.value)) return router.push('/shortcuts');
+            if (isEmpty(shortcut.value)) return router.push('/shortcuts');
         });
 
         watch(shortcutStatus, (newVal) => {
