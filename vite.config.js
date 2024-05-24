@@ -43,7 +43,7 @@ export default defineConfig({
                 assetFileNames: '[ext]/[name]-[hash].[ext]',
                 manualChunks: {
                     vue: ['vue', 'vue-router', 'vuex', 'vue3-click-away', 'vue-debounce', '@vueuse/rxjs', '@vueuse/core'],
-                    sentry: ['@sentry/vue', '@sentry/browser'],
+                    sentry: ['@sentry/vue'],
                     mixpanel: ['mixpanel-browser'],
                     axios: ['axios', 'axios-extensions'],
                     utils: ['bignumber.js', 'lodash', 'moment', 'socket.io-client', '@osmonauts/helpers'],
