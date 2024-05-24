@@ -9,6 +9,7 @@ import { ModuleType } from '@/shared/models/enums/modules.enum';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import useBridgeDexService from '@/modules/bridge-dex/compositions';
 import useChainTokenManger from './useChainTokenManager';
+import { IChainInfo } from '@/core/wallet-adapter/models/ecosystem-adapter';
 
 export default function useModule(moduleType: ModuleType) {
     const store = useStore();
@@ -16,7 +17,7 @@ export default function useModule(moduleType: ModuleType) {
     useChainTokenManger(moduleType);
 
     const selectedSrcNetwork = computed({
-        get: () => store.getters['tokenOps/srcNetwork'],
+        get: (): IChainInfo => store.getters['tokenOps/srcNetwork'],
         set: (value) => store.dispatch('tokenOps/setSrcNetwork', value),
     });
 
@@ -90,7 +91,7 @@ export default function useModule(moduleType: ModuleType) {
     });
 
     const selectedDstNetwork = computed({
-        get: () => store.getters['tokenOps/dstNetwork'],
+        get: (): IChainInfo => store.getters['tokenOps/dstNetwork'],
         set: (value) => store.dispatch('tokenOps/setDstNetwork', value),
     });
 

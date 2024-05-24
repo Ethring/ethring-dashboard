@@ -400,7 +400,7 @@ const useModuleOperations = (module: ModuleType) => {
                 });
 
                 ops.getOperationByKey(`${module}_0`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
-                ops.getOperationByKey(`${module}_0`).setChainId(selectedSrcNetwork.value?.chain_id);
+                ops.getOperationByKey(`${module}_0`).setChainId(selectedSrcNetwork.value?.chain_id as string);
                 ops.getOperationByKey(`${module}_0`).setAccount(account);
 
                 ops.getOperationByKey(`${module}_0`).setToken('from', selectedSrcToken.value);
@@ -440,17 +440,18 @@ const useModuleOperations = (module: ModuleType) => {
                         [selectedDstNetwork.value?.net || selectedSrcNetwork.value.net]: receiverAddress.value,
                     };
                 } else {
-                    const receiverAddressValue = addressByChain.value[selectedDstNetwork.value?.net || selectedSrcNetwork.value.net];
+                    const receiverAddressValue = addressByChain.value[selectedDstNetwork.value?.net || selectedSrcNetwork.value?.net];
+                    const network = selectedDstNetwork.value?.net || selectedSrcNetwork.value?.net;
 
                     params.receiverAddress = {
-                        [selectedDstNetwork.value?.net || selectedSrcNetwork.value.net]: receiverAddress.value || receiverAddressValue,
+                        [network]: receiverAddress.value || receiverAddressValue,
                     };
                 }
 
                 ops.setParams(module, index, params);
 
                 ops.getOperationByKey(`${module}_${index}`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
-                ops.getOperationByKey(`${module}_${index}`).setChainId(selectedSrcNetwork.value?.chain_id);
+                ops.getOperationByKey(`${module}_${index}`).setChainId(selectedSrcNetwork.value?.chain_id as string);
                 ops.getOperationByKey(`${module}_${index}`).setAccount(account);
                 selectedSrcToken.value && ops.getOperationByKey(`${module}_${index}`).setToken('from', selectedSrcToken.value);
                 selectedDstToken.value && ops.getOperationByKey(`${module}_${index}`).setToken('to', selectedDstToken.value);
@@ -476,7 +477,7 @@ const useModuleOperations = (module: ModuleType) => {
                 ops.getOperationByKey(`${module}_0`).setParamByField('count', contractCallCount.value);
 
                 ops.getOperationByKey(`${module}_0`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
-                ops.getOperationByKey(`${module}_0`).setChainId(selectedSrcNetwork.value?.chain_id);
+                ops.getOperationByKey(`${module}_0`).setChainId(selectedSrcNetwork.value?.chain_id as string);
                 ops.getOperationByKey(`${module}_0`).setAccount(account);
 
                 ops.getOperationByKey(`${module}_0`).setToken('from', selectedSrcToken.value);
