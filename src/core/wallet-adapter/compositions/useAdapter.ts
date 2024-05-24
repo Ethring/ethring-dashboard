@@ -93,7 +93,9 @@ function useAdapter() {
 
     const currentChainInfo = computed<ChainInfo>(() => (mainAdapter.value ? mainAdapter.value.getCurrentChain(store) : null));
 
-    const chainList = computed<ChainConfig[]>(() => (mainAdapter.value ? mainAdapter.value.getChainList(store) : []));
+    const chainList = computed<ChainConfig[]>(() =>
+        mainAdapter.value || walletAccount.value ? mainAdapter.value.getChainList(store) : getAllChainsList(),
+    );
 
     const walletAddress = computed<string>(() => (mainAdapter.value ? mainAdapter.value.getAccountAddress() : null));
     const walletAccount = computed<string>(() => (mainAdapter.value ? mainAdapter.value.getAccount() : null));
@@ -268,6 +270,18 @@ function useAdapter() {
             console.log('Failed to set chain', error);
             return false;
         }
+    };
+
+    // * Get All Chains for Ecosystems
+    const getAllChainsList = () => {
+        const chains = [];
+
+        for (const ecosystem in ECOSYSTEMS) {
+            const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
+            chains.push(...adapter.getChainList(store));
+        }
+
+        return chains;
     };
 
     // * Disconnect Wallet by Ecosystem
@@ -577,6 +591,7 @@ function useAdapter() {
         getAddressesWithChainsByEcosystem,
         getChainListByEcosystem,
         getChainByChainId,
+        getAllChainsList,
 
         getTxExplorerLink,
         getTokenExplorerLink,

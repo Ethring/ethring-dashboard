@@ -5,12 +5,13 @@ import { init, useOnboard } from '@web3-onboard/vue';
 
 import { useLocalStorage } from '@vueuse/core';
 
-import { ECOSYSTEMS, EVM_CHAINS, BASE_ABI, SILO_EXECUTE_ABI, BEEFY_DEPOSIT_ABI, web3OnBoardConfig } from '@/core/wallet-adapter/config';
+import { ECOSYSTEMS, BASE_ABI, SILO_EXECUTE_ABI, BEEFY_DEPOSIT_ABI, web3OnBoardConfig } from '@/core/wallet-adapter/config';
 
 import AdapterBase from '@/core/wallet-adapter/utils/AdapterBase';
 
 import { errorRegister } from '@/shared/utils/errors';
 import { validateEthAddress } from '@/core/wallet-adapter/utils/validations';
+import { getBlocknativeConfig } from '@/modules/chain-configs/api';
 
 let web3Onboard: any = null;
 
@@ -33,15 +34,14 @@ export class EthereumAdapter extends AdapterBase {
 
     constructor() {
         super();
-        const initOptions = web3OnBoardConfig as InitOptions;
-        !web3Onboard && (web3Onboard = init(initOptions));
-        web3Onboard.state.select('wallets').subscribe(() => this.setAddressForChains());
-
-        const ethersProvider = this.getProvider();
     }
 
-    init(store: any) {
+    async init(store: any) {
         this.store = store;
+        const initOptions = web3OnBoardConfig as InitOptions;
+        initOptions.chains = await getBlocknativeConfig();
+        !web3Onboard && (web3Onboard = init(initOptions));
+        web3Onboard.state.select('wallets').subscribe(() => this.setAddressForChains());
     }
 
     isLocked(): boolean {
@@ -95,7 +95,7 @@ export class EthereumAdapter extends AdapterBase {
         for (const { id } of chains) {
             if (!id) continue;
 
-            const chainInfo = EVM_CHAINS[+id] || {};
+            const chainInfo = this.store.getters['configs/getChainConfigByChainId'](id, ECOSYSTEMS.EVM) || {};
 
             if (!chainInfo) continue;
 
@@ -250,10 +250,14 @@ export class EthereumAdapter extends AdapterBase {
 
         const icon = await exist.getIcon();
 
-        const index = connectedWalletsStorage.value.findIndex((wallet) => wallet.walletModule === walletModule);
+        const index = connectedWalletsStorage.value.findIndex((wallet) => wallet?.walletModule === walletModule);
 
         if (index !== -1) {
-            connectedWallet = { ...connectedWalletsStorage.value[index], icon };
+            connectedWallet = {
+                ...connectedWalletsStorage.value[index],
+                icon,
+            };
+
             connectedWalletsStorage.value[index] = connectedWallet;
         }
 

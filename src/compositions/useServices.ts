@@ -1,4 +1,4 @@
-import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 import BigNumber from 'bignumber.js';
 import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
@@ -49,6 +49,8 @@ export default function useModule(moduleType: ModuleType) {
         set: (value) => store.dispatch(`tokenOps/setSelectedService`, value),
     });
 
+    const isConfigsLoading = computed(() => store.getters['configs/isConfigLoading']);
+
     const isWaitingTxStatusForModule = computed(() => store.getters['txManager/isWaitingTxStatusForModule'](moduleType));
 
     // =================================================================================================================
@@ -61,9 +63,11 @@ export default function useModule(moduleType: ModuleType) {
     const txError = ref('');
     const txErrorTitle = ref('Transaction error');
 
+    const module = ref('');
+
     // =================================================================================================================
 
-    const { walletAccount, currentChainInfo } = useAdapter();
+    const { walletAccount, currentChainInfo, chainList } = useAdapter();
 
     // =================================================================================================================
 
@@ -117,6 +121,7 @@ export default function useModule(moduleType: ModuleType) {
         get: () => store.getters['tokenOps/contractCallCount'],
         set: (value) => store.dispatch('tokenOps/setContractCallCount', value),
     });
+
     const slippage = computed({
         get: () => store.getters['tokenOps/slippage'],
         set: (value) => store.dispatch('tokenOps/setSlippage', value),
@@ -192,9 +197,7 @@ export default function useModule(moduleType: ModuleType) {
     };
 
     const checkSelectedNetwork = () => {
-        // if (!walletAccount.value && !currentChainInfo.value) {
-        //     return (opTitle.value = 'tokenOperations.connectWallet');
-        // }
+        if (!walletAccount.value && !currentChainInfo.value) return (opTitle.value = 'tokenOperations.connectWallet');
 
         const isSameWithCurrent = currentChainInfo.value && currentChainInfo.value.net === selectedSrcNetwork.value?.net;
 
@@ -256,10 +259,28 @@ export default function useModule(moduleType: ModuleType) {
 
     const toggleRoutesModal = () => store.dispatch('app/toggleModal', 'routesModal');
 
-    watch(isNeedApprove, () => {
-        checkSelectedNetwork();
+    const callOnMounted = () => {
+        const isAccountAuth = walletAccount.value && currentChainInfo.value;
 
+        const currentChain = store.getters['configs/getChainConfigByChainId'](currentChainInfo.value?.chain, ECOSYSTEMS.EVM);
+
+        if (isAccountAuth && !selectedSrcNetwork.value?.net && Object.keys(currentChain).length)
+            selectedSrcNetwork.value = currentChainInfo.value;
+        else if (!selectedSrcNetwork.value?.net && chainList.value?.length) selectedSrcNetwork.value = chainList.value[0];
+    };
+
+    watch(isNeedApprove, () => {
         if (isNeedApprove.value) opTitle.value = 'tokenOperations.approve';
+    });
+
+    onMounted(() => {
+        module.value = moduleType;
+
+        checkSelectedNetwork();
+    });
+
+    watch(walletAccount, () => {
+        checkSelectedNetwork();
     });
 
     watch(selectedRoute, () => {
@@ -273,7 +294,10 @@ export default function useModule(moduleType: ModuleType) {
     onBeforeUnmount(() => {
         // Clear all data
         store.dispatch('tokenOps/resetFields');
+        checkSelectedNetwork();
     });
+
+    watch([isConfigsLoading, module], () => callOnMounted());
 
     return {
         // Main information for operation

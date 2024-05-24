@@ -1,7 +1,5 @@
 import ApiClient from '@/modules/pendle-silo/api/axios';
 import { ISwapExactTokenForPTRequest, ISwapExactTokenForPTResponse } from '@/modules/pendle-silo/models/request';
-import BigNumber from 'bignumber.js';
-
 export interface IPendleApi {
     swapExactTokenForPT(params: ISwapExactTokenForPTRequest): Promise<any>;
     addLiquiditySingleToken(params: ISwapExactTokenForPTRequest): Promise<any>;
@@ -17,10 +15,6 @@ class PendleApi implements IPendleApi {
             const response = await ApiClient.get(`/${this.VERSION}/swapExactTokenForPt`, { params });
 
             const swapExactTokenForPTResponse = response.data as ISwapExactTokenForPTResponse;
-
-            const { data } = swapExactTokenForPTResponse;
-
-            data.amountPtOut = BigNumber(data.amountPtOut).dividedBy(1e18).toString();
 
             return swapExactTokenForPTResponse;
         } catch (error) {

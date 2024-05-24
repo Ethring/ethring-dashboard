@@ -482,7 +482,7 @@ export class CosmosAdapter extends AdapterBase {
     }
 
     getChainList() {
-        const chainList = this.walletManager.chainRecords.map((record) => {
+        const chainList = this.walletManager?.chainRecords.map((record) => {
             const { chain, assetList = {} } = record || {};
 
             const { assets = [] } = assetList || {};
@@ -576,7 +576,7 @@ export class CosmosAdapter extends AdapterBase {
 
     // * Simulate transaction
     async simulateTxGas(client = SigningStargateClient, msg, { rpc }) {
-        const GAS_ADJUSTMENT = 1.45;
+        const GAS_ADJUSTMENT = 1.6;
 
         const msgs = Array.isArray(msg) ? msg : [msg];
         const [tx] = msgs || [];

@@ -1,7 +1,7 @@
 <template>
     <div class="layout-page">
         <div class="layout-page__content">
-            <UnsupportedResult v-if="currentChainInfo && !currentChainInfo.net" />
+            <UnsupportedResult v-if="!component" />
             <template v-else>
                 <div class="layout-page-tab">
                     <router-link
@@ -105,10 +105,6 @@ export default {
             if (isConnecting.value) return;
 
             if (isConfigLoading.value) return;
-
-            const isStay = await redirectOrStay(route.path, currentChainInfo.value);
-
-            if (!isStay || !walletAccount.value) return router.push('/main');
 
             return;
         };

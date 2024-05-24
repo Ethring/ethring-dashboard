@@ -223,3 +223,16 @@
     font-size: var(--#{$prefix}default-fs);
     height: fit-content;
 }
+
+.step-operation-info {
+    .timer-for-operation {
+        position: absolute;
+        right: 30px;
+        top: 0;
+        bottom: 0;
+        margin: auto 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}

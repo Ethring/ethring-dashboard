@@ -2114,6 +2114,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationType: TRANSACTION_TYPES.SWAP_TOKEN_TO_PT,
                 layoutComponent: 'PendleSiloLayout',
                 isShowLayout: true,
+                waitTime: 2,
                 includeChains: ['arbitrum'],
                 includeTokens: {
                     arbitrum: ['arbitrum:tokens__native:ETH'],
@@ -2122,6 +2123,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationParams: {
                     net: 'arbitrum',
                     fromNet: 'arbitrum',
+                    toNet: null,
                     fromToken: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
                     toToken: '0x2416092f143378750bb29b79ed961ab195cceea5',
                     marketAddress: '0x5e03c94fc5fb2e21882000a96df0b63d2c4312e2',
@@ -2174,6 +2176,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationType: TRANSACTION_TYPES.CALL_CONTRACT_METHOD,
                 layoutComponent: 'PendleSiloLayout',
                 isShowLayout: true,
+                waitTime: 8.5,
                 includeChains: ['arbitrum'],
                 includeTokens: {
                     arbitrum: ['arbitrum:tokens__native:ETH', 'arbitrum:tokens__0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9:USDT'],
@@ -2245,6 +2248,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationType: TRANSACTION_TYPES.CALL_CONTRACT_METHOD,
                 layoutComponent: 'PendleSiloLayout',
                 isShowLayout: true,
+                waitTime: 1,
                 includeChains: ['arbitrum'],
                 includeTokens: {
                     arbitrum: ['arbitrum:tokens__native:ETH', 'arbitrum:tokens__0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9:USDT'],
@@ -2326,6 +2330,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationType: TRANSACTION_TYPES.ADD_LIQUIDITY_SINGLE_TOKEN,
                 layoutComponent: 'PendleSiloLayout',
                 isShowLayout: true,
+                waitTime: 2,
                 includeChains: ['arbitrum'],
                 includeTokens: {
                     arbitrum: ['arbitrum:tokens__native:ETH', 'arbitrum:tokens__0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9:USDT'],
@@ -2377,6 +2382,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationType: TRANSACTION_TYPES.CALL_CONTRACT_METHOD,
                 layoutComponent: 'PendleSiloLayout',
                 isShowLayout: true,
+                waitTime: 8.5,
                 includeChains: ['arbitrum'],
                 includeTokens: {
                     arbitrum: ['arbitrum:tokens__native:ETH'],
@@ -2448,6 +2454,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationType: TRANSACTION_TYPES.CALL_CONTRACT_METHOD,
                 layoutComponent: 'PendleSiloLayout',
                 isShowLayout: true,
+                waitTime: 1,
                 includeChains: ['arbitrum'],
                 includeTokens: {
                     arbitrum: ['arbitrum:tokens__native:ETH'],
@@ -2456,6 +2463,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationParams: {
                     net: 'arbitrum',
                     fromNet: 'arbitrum',
+                    toNet: null,
                     fromToken: '0x5E03C94Fc5Fb2E21882000A96Df0b63d2c4312e2',
                     tokenAddress: '0x5E03C94Fc5Fb2E21882000A96Df0b63d2c4312e2',
                     contractAddress: '0xdccb85017a996faF5242648B46940E80DE0A36a5',

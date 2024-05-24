@@ -92,10 +92,16 @@ export default {
         };
 
         const updateBalanceForAllAccounts = async () => {
-            for (const { account, ecosystem, addresses } of connectedWallets.value) {
+            for (const wallet of connectedWallets.value) {
+                // ?Skip if wallet is undefined or null
+                if (!wallet) continue;
+
+                const { account, ecosystem, addresses } = wallet || {};
                 const list = _.pick(addresses, Object.values(DP_CHAINS)) || {};
+
                 store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses: list });
 
+                // * Calling update balance for each account
                 await updateBalanceForAccount(account, list);
             }
         };

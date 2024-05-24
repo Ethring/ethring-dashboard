@@ -130,6 +130,23 @@ export default class OperationFactory implements IOperationFactory {
             index: this.operationsMap.size - 1,
         };
     }
+
+    setWaitTimeByKey(key: string, time: number): void {
+        if (!this.operationsMap.has(key)) {
+            console.warn(`Operation with key ${key} not found`);
+            return;
+        }
+
+        const operation = this.operationsMap.get(key) as IBaseOperation;
+
+        if (!operation) {
+            console.warn(`Operation with key ${key} not found`);
+            return;
+        }
+
+        operation.setWaitTime(time);
+    }
+
     setOperationToGroup(group: string, operationKey: string): void {
         if (this.groupOps.has(group)) {
             const existingGroupOps = this.groupOps.get(group) || [];

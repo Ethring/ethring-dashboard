@@ -3,6 +3,7 @@ export interface ChainConfig {
     net: string;
     name: string;
     chain_id: number | string;
+    chain?: string;
     logo: string;
     coingecko_id: string;
 

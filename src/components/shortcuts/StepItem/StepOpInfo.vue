@@ -81,22 +81,32 @@
                     <InfoCircleOutlined class="step-operation-info-additional" />
                 </a-popover>
             </template>
+
+            <template v-if="isShowTimer">
+                <a-progress type="circle" :percent="percentageToDisplay" :size="25" class="timer-for-operation">
+                    <template #format>
+                        <span>{{ secondToDisplay }}</span>
+                    </template>
+                </a-progress>
+            </template>
         </div>
     </div>
 </template>
 <script lang="ts">
 import { useStore } from 'vuex';
-import { computed, ref, h } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import { InfoCircleOutlined } from '@ant-design/icons-vue';
 
 import StepAdditionalInfo from './StepAdditionalInfo.vue';
 
-import { IBaseOperation } from '@/core/operations/models/Operations';
+import { IBaseOperation, IOperationFactory } from '@/core/operations/models/Operations';
 import { IShortcutOp } from '@/core/shortcuts/core/ShortcutOp';
 
-import { SHORTCUT_STATUSES } from '@/shared/models/enums/statuses.enum';
+import { SHORTCUT_STATUSES, STATUSES } from '@/shared/models/enums/statuses.enum';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
+import { onMounted } from 'vue';
+import OperationFactory from '@/core/operations/OperationsFactory';
 
 export default {
     name: 'StepOpInfo',
@@ -121,15 +131,14 @@ export default {
     setup(props) {
         const store = useStore();
 
-        const factory = computed(() => store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId));
+        const factory = computed<IOperationFactory>(() => store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId));
 
         const shortcutStatus = computed(() => store.getters['shortcuts/getShortcutStatus'](props.shortcutId));
         const isTransactionSigning = computed(() => store.getters['txManager/isTransactionSigning']);
 
         const operation = computed<IBaseOperation>(() => {
-            if (!factory.value) return null;
-
-            return factory.value.getOperationById(props.operationId);
+            if (!factory.value) return {} as IBaseOperation;
+            return factory.value.getOperationById(props.operationId) as IBaseOperation;
         });
 
         const shortcutOpInfo = computed<IShortcutOp>(() => {
@@ -208,6 +217,41 @@ export default {
             return operation.value.getToken('from')?.amount || operation.value.getParamByField('amount');
         });
 
+        const percentageToDisplay = ref(100);
+        const secondToDisplay = ref(operation.value.getWaitTime());
+        const timer = ref();
+
+        const startTimer = () => {
+            timer.value = setInterval(() => {
+                const step = 100 / operation.value.getWaitTime();
+                percentageToDisplay.value -= step;
+                secondToDisplay.value -= 1;
+            }, 1000);
+        };
+
+        const isShowTimer = ref(false);
+
+        watch(
+            () => factory.value.getOperationsStatusById(props.operationId),
+            () => {
+                if (factory.value.getOperationsStatusById(props.operationId) === STATUSES.SUCCESS) {
+                    isShowTimer.value = true;
+                    percentageToDisplay.value = 100;
+                    secondToDisplay.value = operation.value.getWaitTime();
+                    startTimer();
+                }
+            },
+        );
+
+        watch(percentageToDisplay, () => {
+            if (percentageToDisplay.value <= 0 && timer.value) {
+                clearInterval(timer.value);
+                percentageToDisplay.value = operation.value.getWaitTime();
+                secondToDisplay.value = operation.value.getWaitTime();
+                isShowTimer.value = false;
+            }
+        });
+
         return {
             factory,
 
@@ -225,6 +269,10 @@ export default {
             handleOnConfirm,
             shortcutOpInfo,
             handleOnMax,
+
+            percentageToDisplay,
+            secondToDisplay,
+            isShowTimer,
         };
     },
 };

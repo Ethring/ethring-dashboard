@@ -4,10 +4,7 @@ import { BalanceType, AssetBalance, IntegrationBalance, NftBalance, RecordList, 
 import { Type, IntegrationBalanceType } from './models/enums';
 
 export const getTotalBalance = (records: AssetBalance[], balance = BigNumber(0)) => {
-    const totalSum = records.reduce((acc, token) => {
-        return acc.plus(token.balanceUsd || 0);
-    }, BigNumber(0));
-
+    const totalSum = records.reduce((acc, token) => acc.plus(token.balanceUsd || 0), BigNumber(0));
     return balance.plus(totalSum);
 };
 
@@ -49,10 +46,10 @@ export const getTotalBalanceByDiff = (records: AssetBalance[], totalBalance = Bi
     let depositTotalUsd = BigNumber(0);
 
     for (const token of records)
-        if (token.balanceType === IntegrationBalanceType.BORROW) borrowTotalUsd = borrowTotalUsd.plus(token.balanceUsd);
-        else depositTotalUsd = depositTotalUsd.plus(token.balanceUsd);
+        if (token.balanceType === IntegrationBalanceType.BORROW) borrowTotalUsd = borrowTotalUsd.plus(token.balanceUsd || 0);
+        else depositTotalUsd = depositTotalUsd.plus(token.balanceUsd || 0);
 
-    totalBalance = totalBalance.plus(depositTotalUsd.minus(borrowTotalUsd));
+    totalBalance = totalBalance.plus(depositTotalUsd.minus(borrowTotalUsd || 0));
 
     return totalBalance;
 };
