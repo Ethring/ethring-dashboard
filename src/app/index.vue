@@ -24,6 +24,8 @@ import ReleaseNotes from '@/app/layouts/DefaultLayout/header/ReleaseNotes.vue';
 
 import WalletsModal from '@/core/wallet-adapter/UI/Modal/WalletsModal';
 import AddressModal from '@/core/wallet-adapter/UI/Modal/AddressModal';
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
+
 import KadoModal from '@/components/app/modals/KadoModal.vue';
 import SelectModal from '@/components/app/modals/SelectModal.vue';
 import BridgeDexRoutesModal from '@/components/app/modals/BridgeDexRoutesModal.vue';
@@ -35,7 +37,7 @@ import { trackingBalanceUpdate } from '@/services/track-update-balance';
 import { setNativeTokensPrices } from '@/core/balance-provider/native-token';
 
 import { DP_CHAINS } from '@/core/balance-provider/models/enums';
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
 export default {
     name: 'App',
@@ -50,7 +52,6 @@ export default {
     },
 
     setup() {
-        const useAdapter = inject('useAdapter');
         const store = useStore();
         const mixpanel = inject('mixpanel');
 
@@ -62,6 +63,7 @@ export default {
             walletAccount,
             currentChainInfo,
             connectedWallets,
+            getDefaultAddress,
             connectLastConnectedWallet,
             getAddressesWithChainsByEcosystem,
         } = useAdapter();
@@ -70,19 +72,20 @@ export default {
 
         const getAddressesWithChains = async (ecosystem) => {
             const chainAddresses = await getAddressesWithChainsByEcosystem(ecosystem);
-
             return _.pick(chainAddresses, Object.values(DP_CHAINS)) || {};
         };
 
         const callSubscription = async () => {
             const { ecosystem } = currentChainInfo.value || {};
 
-            if (JSON.stringify(await getAddressesWithChains(ecosystem)) !== '{}' && walletAddress.value) {
+            console.log('getDefaultAddress()', getDefaultAddress());
+            if (JSON.stringify(await getAddressesWithChains(ecosystem)) !== '{}' && getDefaultAddress()) {
                 Socket.setAddresses(await getAddressesWithChains(ecosystem), ecosystem, {
                     walletAccount: walletAccount.value,
                 });
 
-                identify(mixpanel, walletAddress.value);
+                identify(mixpanel, getDefaultAddress());
+
                 callTrackEvent(mixpanel, 'connect-wallet', {
                     Ecosystem: currentChainInfo.value.ecosystem,
                     WalletProvider: currentChainInfo.value.walletModule,
@@ -97,7 +100,7 @@ export default {
                 if (!wallet) continue;
 
                 const { account, ecosystem, addresses } = wallet || {};
-                const list = _.pick(addresses, Object.values(DP_CHAINS)) || {};
+                const list = addresses;
 
                 store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses: list });
 
@@ -143,8 +146,8 @@ export default {
 
             await initAdapter();
 
-            await setNativeTokensPrices(store, ECOSYSTEMS.EVM);
-            await setNativeTokensPrices(store, ECOSYSTEMS.COSMOS);
+            await setNativeTokensPrices(store, Ecosystem.EVM);
+            await setNativeTokensPrices(store, Ecosystem.COSMOS);
         });
 
         onBeforeUnmount(() => {

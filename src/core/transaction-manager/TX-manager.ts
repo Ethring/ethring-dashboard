@@ -10,7 +10,8 @@ import { SocketEvents } from '@/shared/models/enums/socket-events.enum';
 import { handleTransactionStatus } from './shared/utils/tx-statuses';
 import { STATUSES } from '@/shared/models/enums/statuses.enum';
 import { delay } from '@/shared/utils/helpers';
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+
+import { Ecosystem, Ecosystems } from '@/shared/models/enums/ecosystems.enum';
 
 interface ITransaction {
     id: string | number;
@@ -23,7 +24,7 @@ interface ITransaction {
     setTransaction: (transaction: ITransactionResponse) => void;
     getTxId: () => string | number;
     getTransaction: () => ITransactionResponse;
-    getEcosystem: () => keyof typeof ECOSYSTEMS;
+    getEcosystem: () => Ecosystems;
     getChainId: () => string;
     updateTransactionById: (id: number, transaction: ITransactionResponse) => Promise<ITransactionResponse>;
     prepare: () => Promise<void>;
@@ -81,8 +82,8 @@ export class Transaction implements ITransaction {
         return this.transaction;
     }
 
-    getEcosystem() {
-        return this.ecosystem as keyof typeof ECOSYSTEMS;
+    getEcosystem(): Ecosystems {
+        return this.ecosystem as Ecosystems;
     }
 
     getChainId() {

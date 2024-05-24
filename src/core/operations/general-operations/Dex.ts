@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+import { Ecosystem, Ecosystems } from '@/shared/models/enums/ecosystems.enum';
 import { ICreateTransaction } from '@/core/transaction-manager/types/Transaction';
 
 import BridgeDexService from '@/modules/bridge-dex';
@@ -97,7 +97,7 @@ export default class DexOperation extends BaseOperation {
     }
 
     async performTx(ecosystem: string, { serviceId }: PerformTxParams): Promise<IBridgeDexTransaction | null> {
-        if (this.getParamByField('fromNet') === this.getParamByField('toNet') && ecosystem !== ECOSYSTEMS.COSMOS)
+        if (this.getParamByField('fromNet') === this.getParamByField('toNet') && ecosystem !== Ecosystem.COSMOS)
             this.service = new BridgeDexService(ServiceType.dex);
         else this.service = new BridgeDexService(ServiceType.bridgedex);
 

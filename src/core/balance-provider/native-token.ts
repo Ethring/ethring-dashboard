@@ -1,13 +1,14 @@
 import { computed } from 'vue';
-import { ChainConfig } from '@/modules/chain-configs/types/chain-config';
+import { Store } from 'vuex';
+import { IChainConfig } from '@/shared/models/types/chain-config';
 
 import PricesModule from '@/modules/prices';
 
-export const setNativeTokensPrices = async (store, ecosystem: string) => {
-    const configList = computed<ChainConfig[]>(() => store.getters['configs/getConfigsListByEcosystem'](ecosystem));
+export const setNativeTokensPrices = async (store: Store<any>, ecosystem: string) => {
+    const configList = computed<IChainConfig[]>(() => store.getters['configs/getConfigsListByEcosystem'](ecosystem));
     const coingeckoIds = [];
 
-    const getCoingeckoId = (network: ChainConfig) => {
+    const getCoingeckoId = (network: IChainConfig) => {
         const { native_token, coingecko_id: networkCoingeckoID } = network || {};
         const { coingecko_id: tokenCoingeckoID } = native_token;
 

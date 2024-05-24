@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 import { DP_COSMOS } from '@/core/balance-provider/models/enums';
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
 import { BalanceType, AssetBalance, IntegrationBalance, NftBalance, RecordList, RecordOptions } from '@/core/balance-provider/models/types';
 
@@ -62,7 +62,7 @@ const formatNft = (type: BalanceType, record: NftBalance, opt: RecordOptions = {
 const cosmosChainTokens = (record: AssetBalance, opt: RecordOptions = {}) => {
     const { chain, store, logo } = opt;
 
-    const configFromStore = store.state?.configs?.chains[ECOSYSTEMS.COSMOS] || {};
+    const configFromStore = store.state?.configs?.chains[Ecosystem.COSMOS] || {};
 
     const { native_token: nativeToken } = configFromStore[chain] || {};
 

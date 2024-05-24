@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { AxiosResponse, HttpStatusCode } from 'axios';
 import ApiClient from '@/shared/axios';
 
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+import { Ecosystem, Ecosystems } from '@/shared/models/enums/ecosystems.enum';
 
 import IndexedDBService from '@/services/indexed-db';
 
@@ -40,10 +40,10 @@ const isTwoDaysPassed = (list: any, store: string, chain: string) => {
     return false;
 };
 
-export const getConfigsByEcosystems = async (ecosystem = ECOSYSTEMS.EVM, { isCosmology = false } = {}) => {
+export const getConfigsByEcosystems = async (ecosystem = Ecosystem.EVM, { isCosmology = false } = {}) => {
     let query = '';
 
-    if (ecosystem === ECOSYSTEMS.COSMOS) query = '/all';
+    if (ecosystem === Ecosystem.COSMOS) query = '/all';
     if (isCosmology) query = '/all?cosmology=true';
 
     const store = isCosmology ? DB_TABLES.COSMOLOGY_NETWORKS : DB_TABLES.NETWORKS;

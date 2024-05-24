@@ -7,7 +7,7 @@
 <script>
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
 import ConnectTo from '../Entities/ConnectTo';
 
@@ -20,12 +20,12 @@ export default {
         const TO_CONNECT = [
             {
                 name: 'adapter.ethereumWallets',
-                ecosystem: ECOSYSTEMS.EVM,
+                ecosystem: Ecosystem.EVM,
                 logos: ['Metamask', 'Coinbase', 'Ledger'],
             },
             {
                 name: 'adapter.cosmosWallets',
-                ecosystem: ECOSYSTEMS.COSMOS,
+                ecosystem: Ecosystem.COSMOS,
                 logos: ['Keplr', 'Leap', 'Ledger'],
             },
         ];

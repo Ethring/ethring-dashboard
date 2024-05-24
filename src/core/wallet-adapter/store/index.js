@@ -3,7 +3,7 @@ import * as GETTERS from './getters';
 
 import { useLocalStorage } from '@vueuse/core';
 
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 import EcosystemAdapter from '@/core/wallet-adapter/ecosystems';
 
 const LAST_CONNECTED_WALLET_KEY = 'adapter:lastConnectedWallet';
@@ -19,8 +19,8 @@ const lastConnectedWalletStorage = useLocalStorage(LAST_CONNECTED_WALLET_KEY, {}
 const isConnectedStorage = useLocalStorage(
     IS_CONNECTED_KEY,
     {
-        [ECOSYSTEMS.EVM]: false,
-        [ECOSYSTEMS.COSMOS]: false,
+        [Ecosystem.EVM]: false,
+        [Ecosystem.COSMOS]: false,
     },
     { mergeDefaults: true },
 );
@@ -52,8 +52,8 @@ export default {
     namespaced: true,
     state: {
         adapters: {
-            [ECOSYSTEMS.EVM]: EcosystemAdapter(ECOSYSTEMS.EVM),
-            [ECOSYSTEMS.COSMOS]: EcosystemAdapter(ECOSYSTEMS.COSMOS),
+            [Ecosystem.EVM]: EcosystemAdapter(Ecosystem.EVM),
+            [Ecosystem.COSMOS]: EcosystemAdapter(Ecosystem.COSMOS),
         },
 
         modals: {
@@ -71,23 +71,23 @@ export default {
         lastConnectedWallet: lastConnectedWalletStorage.value,
 
         isConnected: {
-            [ECOSYSTEMS.EVM]: isConnectedStorage.value[ECOSYSTEMS.EVM],
-            [ECOSYSTEMS.COSMOS]: isConnectedStorage.value[ECOSYSTEMS.COSMOS],
+            [Ecosystem.EVM]: isConnectedStorage.value[Ecosystem.EVM],
+            [Ecosystem.COSMOS]: isConnectedStorage.value[Ecosystem.COSMOS],
         },
 
         addressesByEcosystem: {
-            [ECOSYSTEMS.EVM]: addressesByEcosystemStorage.value[ECOSYSTEMS.EVM] || {},
-            [ECOSYSTEMS.COSMOS]: addressesByEcosystemStorage.value[ECOSYSTEMS.COSMOS] || {},
+            [Ecosystem.EVM]: addressesByEcosystemStorage.value[Ecosystem.EVM] || {},
+            [Ecosystem.COSMOS]: addressesByEcosystemStorage.value[Ecosystem.COSMOS] || {},
         },
 
         addressesByEcosystemList: {
-            [ECOSYSTEMS.EVM]: addressesByEcosystemListStorage.value[ECOSYSTEMS.EVM] || {},
-            [ECOSYSTEMS.COSMOS]: addressesByEcosystemListStorage.value[ECOSYSTEMS.COSMOS] || {},
+            [Ecosystem.EVM]: addressesByEcosystemListStorage.value[Ecosystem.EVM] || {},
+            [Ecosystem.COSMOS]: addressesByEcosystemListStorage.value[Ecosystem.COSMOS] || {},
         },
 
         accountByEcosystem: {
-            [ECOSYSTEMS.EVM]: getAccountByEcosystem(ECOSYSTEMS.EVM),
-            [ECOSYSTEMS.COSMOS]: getAccountByEcosystem(ECOSYSTEMS.COSMOS),
+            [Ecosystem.EVM]: getAccountByEcosystem(Ecosystem.EVM),
+            [Ecosystem.COSMOS]: getAccountByEcosystem(Ecosystem.COSMOS),
         },
     },
     getters: {
@@ -104,7 +104,11 @@ export default {
 
         [GETTERS.CURRENT_ADAPTER]: (state) => state.adapters[state.ecosystem] || null,
 
-        [GETTERS.ADAPTER_BY_ECOSYSTEM]: (state) => (ecosystem) => state.adapters[ecosystem] || null,
+        [GETTERS.ADAPTER_BY_ECOSYSTEM]: (state) => (ecosystem) => {
+            if (!ecosystem) return null;
+            ecosystem = ecosystem.toUpperCase();
+            return state.adapters[ecosystem] || null;
+        },
 
         [GETTERS.CONNECTED_WALLETS]: (state) => state.wallets,
         [GETTERS.LAST_CONNECTED_WALLET]: (state) => state.lastConnectedWallet,
@@ -249,18 +253,18 @@ export default {
             state.ecosystem = null;
             state.lastConnectedWallet = {};
 
-            state.addressesByEcosystem[ECOSYSTEMS.EVM] = {};
-            state.addressesByEcosystemList[ECOSYSTEMS.EVM] = {};
+            state.addressesByEcosystem[Ecosystem.EVM] = {};
+            state.addressesByEcosystemList[Ecosystem.EVM] = {};
 
-            state.addressesByEcosystem[ECOSYSTEMS.COSMOS] = {};
-            state.addressesByEcosystemList[ECOSYSTEMS.COSMOS] = {};
+            state.addressesByEcosystem[Ecosystem.COSMOS] = {};
+            state.addressesByEcosystemList[Ecosystem.COSMOS] = {};
 
             connectedWalletsStorage.value = [];
             lastConnectedWalletStorage.value = {};
 
             isConnectedStorage.value = {
-                [ECOSYSTEMS.EVM]: false,
-                [ECOSYSTEMS.COSMOS]: false,
+                [Ecosystem.EVM]: false,
+                [Ecosystem.COSMOS]: false,
             };
 
             addressesByEcosystemListStorage.value = {};

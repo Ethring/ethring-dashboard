@@ -10,7 +10,7 @@ import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 import useInputValidation from '@/shared/form-validations';
 import logger from '@/shared/logger';
-import { ChainConfig } from '@/modules/chain-configs/types/chain-config';
+import { IChainConfig } from '@/shared/models/types/chain-config';
 import { IAsset } from '@/shared/models/fields/module-fields';
 
 export default function useChainTokenManger(moduleType: ModuleType) {
@@ -80,7 +80,7 @@ export default function useChainTokenManger(moduleType: ModuleType) {
     );
 
     // =================================================================================================================
-    const setTokenOnChangeForNet = async (srcNet: ChainConfig, srcToken: IAsset, { isSameNet = false, excludeTokens = [] } = {}) => {
+    const setTokenOnChangeForNet = async (srcNet: IChainConfig, srcToken: IAsset, { isSameNet = false, excludeTokens = [] } = {}) => {
         const getTokensParams = {
             srcNet,
             isSameNet,

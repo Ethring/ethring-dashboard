@@ -58,7 +58,7 @@ import CheckIcon from '@/assets/icons/form-icons/check-circle.svg';
 
 import { MoreOutlined } from '@ant-design/icons-vue';
 
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
 import { cutAddress } from '@/shared/utils/address';
 
@@ -98,7 +98,7 @@ export default {
         const chainInfo = computed(() => getChainByChainId(props.wallet.ecosystem, selectedChain.value));
 
         watch(currentChainInfo, () => {
-            if (props.wallet.ecosystem === ECOSYSTEMS.EVM && currentChainInfo.value?.ecosystem === ECOSYSTEMS.EVM)
+            if (props.wallet.ecosystem === Ecosystem.EVM && currentChainInfo.value?.ecosystem === Ecosystem.EVM)
                 selectedChain.value = currentChainInfo.value.chain_id;
         });
 
@@ -143,7 +143,7 @@ export default {
         };
 
         const handleOnCopyAddress = (ecosystem) => {
-            if (ecosystem === ECOSYSTEMS.EVM) return copy(props.wallet.address);
+            if (ecosystem === Ecosystem.EVM) return copy(props.wallet.address);
 
             action('SET_MODAL_ECOSYSTEM', ecosystem);
             return action('SET_MODAL_STATE', { name: 'addresses', isOpen: true });

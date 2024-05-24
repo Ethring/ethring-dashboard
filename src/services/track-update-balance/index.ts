@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 import { computed } from 'vue';
 
-import { ChainConfig } from '@/modules/chain-configs/types/chain-config';
+import { IChainConfig } from '@/shared/models/types/chain-config';
 import { updateBalanceByChain } from '@/core/balance-provider';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import { delay } from '@/shared/utils/helpers';
@@ -19,7 +19,7 @@ export const trackingBalanceUpdate = (store: any) => {
 
     const { walletAccount, getAllChainsList } = useAdapter();
 
-    const chains = computed<ChainConfig[]>(() => getAllChainsList());
+    const chains = computed<IChainConfig[]>(() => getAllChainsList());
 
     const srcToken = computed({
         get: () => store.getters['tokenOps/srcToken'],
@@ -47,7 +47,7 @@ export const trackingBalanceUpdate = (store: any) => {
 
         const config = chains.value.find(
             ({ net, chain_id, chain: configChain }) => net == chain || chain_id == chain || configChain === chain,
-        ) as ChainConfig;
+        ) as IChainConfig;
 
         if (!config) console.warn('CONFIG NOT FOUND for balance update', chain);
 

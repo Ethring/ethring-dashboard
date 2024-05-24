@@ -9,7 +9,7 @@ import { Transaction, TransactionList } from '@/core/transaction-manager/TX-mana
 import { computed, onUnmounted, ref, watch } from 'vue';
 
 // Config
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+import { Ecosystem, Ecosystems } from '@/shared/models/enums/ecosystems.enum';
 
 // Types
 import { AddressByChainHash } from '@/shared/models/types/Address';
@@ -224,7 +224,7 @@ const useModuleOperations = (module: ModuleType) => {
         return null;
     });
 
-    const connectWalletByEcosystem = async (ecosystem: keyof typeof ECOSYSTEMS) => {
+    const connectWalletByEcosystem = async (ecosystem: Ecosystems) => {
         return await connectByEcosystems(ecosystem);
     };
 
@@ -265,7 +265,7 @@ const useModuleOperations = (module: ModuleType) => {
         const isChainsEqual = () => {
             const { ecosystem, chain_id = '' } = currentChainInfo.value || {};
 
-            if ([ECOSYSTEMS.EVM].includes(ecosystem) && typeof chain_id === 'string' && _.startsWith(chain_id, '0x'))
+            if ([Ecosystem.EVM].includes(ecosystem as Ecosystem) && typeof chain_id === 'string' && _.startsWith(chain_id, '0x'))
                 return _.isEqual(`${+chain_id}`, +tx.getChainId());
 
             return _.isEqual(`${chain_id}`, tx.getChainId());
@@ -427,7 +427,7 @@ const useModuleOperations = (module: ModuleType) => {
                     amount: srcAmount.value,
                     outputAmount: dstAmount.value,
                     memo: memo.value,
-                    serviceId: selectedRoute.value.serviceId,
+                    serviceId: selectedRoute.value?.serviceId,
                     type,
                     slippageTolerance: slippage.value,
                     receiverAddress: receiverAddress.value,
@@ -897,7 +897,7 @@ const useModuleOperations = (module: ModuleType) => {
 
             // Getting token ids from wasm events
             try {
-                if ([ModuleType.nft].includes(operation.getModule() as ModuleType) && ECOSYSTEMS.COSMOS === operation.getEcosystem())
+                if ([ModuleType.nft].includes(operation.getModule() as ModuleType) && Ecosystem.COSMOS === operation.getEcosystem())
                     getNftTokenIds(operation);
             } catch (error) {
                 /* empty */
@@ -949,6 +949,11 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
 
     const handleOnConfirm = async () => {
+        if (!selectedSrcNetwork.value) {
+            console.warn('Source network not found');
+            return;
+        }
+
         if (!walletAddress.value) return await connectWalletByEcosystem(selectedSrcNetwork.value.ecosystem);
 
         try {
