@@ -2,7 +2,7 @@ import { values, orderBy } from 'lodash';
 
 import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
 
-import { getConfigsByEcosystems, getTokensConfigByChain } from '@/modules/chain-configs/api';
+import { getConfigsByEcosystems, getLastUpdated, getTokensConfigByChain } from '@/modules/chain-configs/api';
 
 import IndexedDBService from '@/services/indexed-db';
 
@@ -14,6 +14,7 @@ const TYPES = {
     SET_CONFIG_LOADING: 'SET_CONFIG_LOADING',
     SET_TOKENS_BY_CHAIN: 'SET_TOKENS_BY_CHAIN',
     SET_CHAIN_CONFIG: 'SET_CHAIN_CONFIG',
+    SET_LAST_UPDATED: 'SET_LAST_UPDATED',
 };
 
 const configsDB = new IndexedDBService('configs');
@@ -28,6 +29,8 @@ export default {
             [ECOSYSTEMS.EVM]: {},
             [ECOSYSTEMS.COSMOS]: {},
         },
+
+        lastUpdated: null,
     }),
 
     getters: {
@@ -92,26 +95,32 @@ export default {
         [TYPES.SET_CONFIG_LOADING](state, value) {
             state.isConfigLoading = value || false;
         },
+
+        [TYPES.SET_LAST_UPDATED](state, lastUpdated) {
+            state.lastUpdated = lastUpdated;
+        },
     },
 
     actions: {
         async initConfigs({ dispatch }) {
+            await dispatch('setLastUpdated');
             await dispatch('initChainsByEcosystems', ECOSYSTEMS.COSMOS);
             await dispatch('initChainsByEcosystems', ECOSYSTEMS.EVM);
         },
 
         async initChainsByEcosystems({ commit, dispatch, state }, ecosystem) {
-            const response = await getConfigsByEcosystems(ecosystem);
+            const response = await getConfigsByEcosystems(ecosystem, { lastUpdated: state.lastUpdated });
 
             for (const chain in response) {
                 if (!state.chains[ecosystem][chain]) commit(TYPES.SET_CHAIN_CONFIG, { chain, ecosystem, config: response[chain] });
 
-                if (Object.values(DP_CHAINS).includes(chain)) dispatch('initTokensByChain', { chain, ecosystem });
+                if (Object.values(DP_CHAINS).includes(chain))
+                    dispatch('initTokensByChain', { chain, ecosystem, lastUpdated: state.lastUpdated });
             }
         },
 
-        async initTokensByChain({}, { chain, ecosystem }) {
-            await getTokensConfigByChain(chain, ecosystem);
+        async initTokensByChain({}, { chain, ecosystem, lastUpdated }) {
+            await getTokensConfigByChain(chain, ecosystem, { lastUpdated });
         },
 
         async getTokensListForChain({}, chain) {
@@ -134,6 +143,12 @@ export default {
 
         setConfigLoading({ commit }, value) {
             commit(TYPES.SET_CONFIG_LOADING, value);
+        },
+
+        async setLastUpdated({ commit }) {
+            const lastUpdated = await getLastUpdated();
+
+            commit(TYPES.SET_LAST_UPDATED, lastUpdated);
         },
     },
 };

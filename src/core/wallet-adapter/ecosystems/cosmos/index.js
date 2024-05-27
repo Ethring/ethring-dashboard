@@ -75,21 +75,23 @@ export class CosmosAdapter extends AdapterBase {
     }
 
     async init(store) {
+        this.store = store;
+        const lastUpdated = store?.state?.configs?.lastUpdated || null;
+
         // * Get chains
         // ========= Init Cosmos Chains =========
-        const chains = await getConfigsByEcosystems(ECOSYSTEMS.COSMOS, { isCosmology: true });
+        const chains = await getConfigsByEcosystems(ECOSYSTEMS.COSMOS, { isCosmology: true, lastUpdated });
         const activeChains = values(chains).filter(isActiveChain);
         const defaultChains = values(activeChains).filter(isDefaultChain);
 
-        this.store = store;
-
         this.chainsFromStore = store?.state?.configs?.chains[ECOSYSTEMS.COSMOS] || {};
 
-        const assets = await getCosmologyTokensConfig();
+        const assets = await getCosmologyTokensConfig({ lastUpdated });
 
         await Promise.all(
             defaultChains.map(
-                async ({ chain_name }) => (this.ibcAssetsByChain[chain_name] = await getTokensConfigByChain(chain_name, ECOSYSTEMS.COSMOS)),
+                async ({ chain_name }) =>
+                    (this.ibcAssetsByChain[chain_name] = await getTokensConfigByChain(chain_name, ECOSYSTEMS.COSMOS, { lastUpdated })),
             ),
         );
 
