@@ -103,11 +103,7 @@ export default {
 
     actions: {
         async initConfigs({ dispatch }) {
-            await Promise.all([
-                await dispatch('setLastUpdated'),
-                dispatch('initChainsByEcosystems', Ecosystem.COSMOS),
-                dispatch('initChainsByEcosystems', Ecosystem.EVM),
-            ]);
+            await Promise.all([dispatch('initChainsByEcosystems', Ecosystem.COSMOS), dispatch('initChainsByEcosystems', Ecosystem.EVM)]);
         },
 
         async initChainsByEcosystems({ commit, dispatch, state }, ecosystem) {

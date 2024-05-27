@@ -152,30 +152,24 @@ export class CosmosAdapter implements ICosmosAdapter {
 
         const lastUpdated = store?.state?.configs?.lastUpdated || null;
 
+        // * Get chains
+
+        // ========= Init Cosmos Chains =========
         const [chains, assets] = await Promise.all([
-            await getConfigsByEcosystems(Ecosystem.COSMOS, { isCosmology: true, lastUpdated }),
+            getConfigsByEcosystems(Ecosystem.COSMOS, { isCosmology: true, lastUpdated }),
             getCosmologyTokensConfig({ lastUpdated }),
         ]);
 
-        // * Get chains
-        // ========= Init Cosmos Chains =========
         const activeChains = lodashValues(chains).filter(isActiveChain);
         const defaultChains = lodashValues(activeChains).filter(isDefaultChain);
-
-        this.chainsFromStore = store?.state?.configs?.chains[Ecosystem.COSMOS] || {};
-
-        await Promise.all(
-            defaultChains.map(
-                async ({ chain_name }) =>
-                    (this.ibcAssetsByChain[chain_name] = await getTokensConfigByChain(chain_name, Ecosystem.COSMOS, { lastUpdated })),
-            ),
-        );
 
         this.differentSlip44 = activeChains.filter(({ slip44 }) => slip44 != this.STANDARD_SLIP_44);
         this.chainsFromStore = this.store.state?.configs?.chains[Ecosystem.COSMOS] || {};
 
         await Promise.all(
-            defaultChains.map((c) => (this.ibcAssetsByChain[c.chain_name] = getTokensConfigByChain(c.chain_name, Ecosystem.COSMOS))),
+            defaultChains.map(
+                (c) => (this.ibcAssetsByChain[c.chain_name] = getTokensConfigByChain(c.chain_name, Ecosystem.COSMOS, { lastUpdated })),
+            ),
         );
 
         // ========= Init WalletManager =========

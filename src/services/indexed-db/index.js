@@ -108,7 +108,7 @@ class IndexedDBService {
     async saveNetworksObj(store, networks, { ecosystem, lastUpdated } = {}) {
         const updatedDate = Number(new Date());
         const lastUpdatedDate = new Date(lastUpdated);
-        const dateToSave = lastUpdatedDate > new Date(0) ? lastUpdatedDate : updatedDate;
+        const dateToSave = lastUpdated ? lastUpdatedDate : updatedDate;
 
         for (const chain in networks) {
             networks[chain].id = `${ecosystem}:${chain}`;
@@ -132,7 +132,7 @@ class IndexedDBService {
         try {
             const updatedDate = Number(new Date());
             const lastUpdatedDate = new Date(lastUpdated);
-            const dateToSave = lastUpdatedDate > new Date(0) ? lastUpdatedDate : updatedDate;
+            const dateToSave = lastUpdated ? lastUpdatedDate : updatedDate;
 
             for (const config of configs) {
                 config.updated_at = Number(dateToSave);
@@ -152,7 +152,7 @@ class IndexedDBService {
         const formatTokensObj = (tokens) => {
             const updatedDate = Number(new Date());
             const lastUpdatedDate = new Date(lastUpdated);
-            const dateToSave = lastUpdatedDate > new Date(0) ? lastUpdatedDate : updatedDate;
+            const dateToSave = lastUpdated ? lastUpdatedDate : updatedDate;
 
             for (const tokenContract in tokens) {
                 formatRecord(ecosystem, network, tokens[tokenContract]);

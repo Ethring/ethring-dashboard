@@ -139,6 +139,7 @@ export default {
         // ==========================================================================================
 
         onBeforeMount(async () => {
+            await store.dispatch('configs/setLastUpdated');
             await store.dispatch('configs/setConfigLoading', true);
 
             await store.dispatch('configs/initConfigs');
