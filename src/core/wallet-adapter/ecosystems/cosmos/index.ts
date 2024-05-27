@@ -150,13 +150,26 @@ export class CosmosAdapter implements ICosmosAdapter {
     async init(store?: any) {
         store && (this.store = store);
 
+        const lastUpdated = store?.state?.configs?.lastUpdated || null;
+
         const [chains, assets] = await Promise.all([
-            getConfigsByEcosystems(Ecosystem.COSMOS, { isCosmology: true }),
-            getCosmologyTokensConfig(),
+            await getConfigsByEcosystems(Ecosystem.COSMOS, { isCosmology: true, lastUpdated }),
+            getCosmologyTokensConfig({ lastUpdated }),
         ]);
 
+        // * Get chains
+        // ========= Init Cosmos Chains =========
         const activeChains = lodashValues(chains).filter(isActiveChain);
         const defaultChains = lodashValues(activeChains).filter(isDefaultChain);
+
+        this.chainsFromStore = store?.state?.configs?.chains[Ecosystem.COSMOS] || {};
+
+        await Promise.all(
+            defaultChains.map(
+                async ({ chain_name }) =>
+                    (this.ibcAssetsByChain[chain_name] = await getTokensConfigByChain(chain_name, Ecosystem.COSMOS, { lastUpdated })),
+            ),
+        );
 
         this.differentSlip44 = activeChains.filter(({ slip44 }) => slip44 != this.STANDARD_SLIP_44);
         this.chainsFromStore = this.store.state?.configs?.chains[Ecosystem.COSMOS] || {};

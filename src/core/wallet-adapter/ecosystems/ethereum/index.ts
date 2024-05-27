@@ -224,7 +224,7 @@ export class EthereumAdapter implements IEthereumAdapter {
             this.addressByNetwork[net] = {
                 address: mainAddress,
                 logo,
-                nativeTokenLogo: native_token.logo,
+                nativeTokenLogo: native_token?.logo,
             };
         }
     }

@@ -17,9 +17,8 @@ const apiClient = new ApiClient({
 });
 
 const axiosInstance = apiClient.getInstance();
-const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
-const isTwoDaysPassed = (list: any, store: string, chain: string) => {
+const isNeedToUpdate = (list: any, store: string, chain: string, lastUpdated?: string | null) => {
     let token = null;
 
     if (Array.isArray(list)) token = list[0];
@@ -27,20 +26,25 @@ const isTwoDaysPassed = (list: any, store: string, chain: string) => {
 
     const { updated_at: updatedAt = null } = token || {};
 
+    if (!updatedAt) return true;
     const now = new Date().getTime();
+    const timeToCheck = lastUpdated ? Number(new Date(lastUpdated)) : now;
 
-    if (!updatedAt) return false;
-
-    const isTwoDays = Math.abs(now - new Date(updatedAt).getTime()) / DAY_IN_MS > 2;
-
+    const isLastUpdateTimeEqual = timeToCheck === updatedAt;
     const isListEmpty = Array.isArray(list) ? !list.length : !Object.keys(list).length;
 
-    if (!isListEmpty && !isTwoDays && updatedAt) return true;
+    if (!isListEmpty && isLastUpdateTimeEqual && updatedAt) return false;
 
-    return false;
+    return true;
 };
 
-export const getConfigsByEcosystems = async (ecosystem = Ecosystem.EVM, { isCosmology = false } = {}) => {
+export const getConfigsByEcosystems = async (
+    ecosystem = Ecosystem.EVM,
+    { isCosmology = false, lastUpdated = null }: { isCosmology?: boolean; lastUpdated?: string | null } = {
+        isCosmology: false,
+        lastUpdated: null,
+    },
+) => {
     let query = '';
 
     if (ecosystem === Ecosystem.COSMOS) query = '/all';
@@ -50,7 +54,7 @@ export const getConfigsByEcosystems = async (ecosystem = Ecosystem.EVM, { isCosm
 
     const list = await indexedDB.getAllObjectFrom(store, 'ecosystem', ecosystem, { index: 'chain' });
 
-    if (isTwoDaysPassed(list, store, ecosystem)) return list;
+    if (!isNeedToUpdate(list, store, ecosystem, lastUpdated)) return list;
 
     try {
         await indexedDB.bulkDeleteByKeys(store, 'ecosystem', ecosystem);
@@ -59,7 +63,7 @@ export const getConfigsByEcosystems = async (ecosystem = Ecosystem.EVM, { isCosm
 
         if (status !== HttpStatusCode.Ok) return {};
 
-        if (!_.isEqual(list, data)) await indexedDB.saveNetworksObj(store, data, { ecosystem });
+        if (!_.isEqual(list, data)) await indexedDB.saveNetworksObj(store, data, { ecosystem, lastUpdated });
 
         return data;
     } catch (err) {
@@ -68,19 +72,19 @@ export const getConfigsByEcosystems = async (ecosystem = Ecosystem.EVM, { isCosm
     }
 };
 
-export const getCosmologyTokensConfig = async () => {
+export const getCosmologyTokensConfig = async ({ lastUpdated } = { lastUpdated: null }) => {
     const store = DB_TABLES.COSMOLOGY_TOKENS;
 
     const list = await indexedDB.getAllListFrom(store);
 
-    if (isTwoDaysPassed(list, store, 'cosmology')) return list;
+    if (!isNeedToUpdate(list, store, 'cosmology', lastUpdated)) return list;
 
     try {
         await indexedDB.clearTable(store);
 
         const { data }: AxiosResponse = await axiosInstance.get(`networks/cosmos/all/tokens`);
 
-        await indexedDB.saveCosmologyAssets(store, data);
+        await indexedDB.saveCosmologyAssets(store, data, { lastUpdated });
 
         return data;
     } catch (err) {
@@ -89,19 +93,19 @@ export const getCosmologyTokensConfig = async () => {
     }
 };
 
-export const getTokensConfigByChain = async (chain: string, ecosystem: string) => {
+export const getTokensConfigByChain = async (chain: string, ecosystem: string, { lastUpdated } = { lastUpdated: null }) => {
     const store = DB_TABLES.TOKENS;
 
     const list = await indexedDB.getAllObjectFrom(store, 'chain', chain);
 
-    if (isTwoDaysPassed(list, store, chain)) return list;
+    if (!isNeedToUpdate(list, store, chain, lastUpdated)) return list;
 
     try {
         await indexedDB.bulkDeleteByKeys(store, 'chain', chain);
 
         const { data }: AxiosResponse = await axiosInstance.get(`networks/${chain}/tokens`);
 
-        const formatted = await indexedDB.saveTokensObj(store, data, { network: chain, ecosystem });
+        const formatted = await indexedDB.saveTokensObj(store, data, { network: chain, ecosystem, lastUpdated });
 
         return formatted;
     } catch (err) {
@@ -117,5 +121,15 @@ export const getBlocknativeConfig = async () => {
     } catch (error) {
         logger.error('Error while getting blocknative config from API', error);
         return [];
+    }
+};
+
+export const getLastUpdated = async () => {
+    try {
+        const { data }: AxiosResponse = await axiosInstance.get('networks/last-updated');
+        return data || null;
+    } catch (error) {
+        logger.error('Error while getting last updated from API', error);
+        return {};
     }
 };

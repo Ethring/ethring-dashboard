@@ -280,15 +280,12 @@ export default {
             isConnectedStorage.value[ecosystem] = isConnected;
         },
         [TYPES.SET_ADDRESSES_BY_ECOSYSTEM](state, { ecosystem, addresses }) {
-            !state.addressesByEcosystem[ecosystem] && (state.addressesByEcosystem[ecosystem] = {});
-            state.addressesByEcosystem[ecosystem] = {
-                ...state.addressesByEcosystem[ecosystem],
-                ...addresses,
-            };
-
+            state.addressesByEcosystem[ecosystem] && delete state.addressesByEcosystem[ecosystem];
+            state.addressesByEcosystem[ecosystem] = addresses;
             addressesByEcosystemStorage.value[ecosystem] = state.addressesByEcosystem[ecosystem];
         },
         [TYPES.SET_ADDRESSES_BY_ECOSYSTEM_LIST](state, { ecosystem, addresses }) {
+            state.addressesByEcosystemList[ecosystem] && delete state.addressesByEcosystemList[ecosystem];
             state.addressesByEcosystemList[ecosystem] = addresses;
             addressesByEcosystemListStorage.value[ecosystem] = addresses;
         },

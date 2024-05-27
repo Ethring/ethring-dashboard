@@ -105,14 +105,16 @@ class IndexedDBService {
     // ======================= SETTERS FOR CONFIGS ==============================
     // ==========================================================================
 
-    async saveNetworksObj(store, networks, { ecosystem } = {}) {
+    async saveNetworksObj(store, networks, { ecosystem, lastUpdated } = {}) {
         const updatedDate = Number(new Date());
+        const lastUpdatedDate = new Date(lastUpdated);
+        const dateToSave = lastUpdatedDate > new Date(0) ? lastUpdatedDate : updatedDate;
 
         for (const chain in networks) {
             networks[chain].id = `${ecosystem}:${chain}`;
             networks[chain].ecosystem = ecosystem?.toUpperCase() || '';
             networks[chain].chain = chain;
-            networks[chain].updated_at = updatedDate;
+            networks[chain].updated_at = Number(dateToSave);
             networks[chain].value = JSON.stringify(networks[chain]);
         }
 
@@ -126,12 +128,14 @@ class IndexedDBService {
         }
     }
 
-    async saveCosmologyAssets(store, configs) {
+    async saveCosmologyAssets(store, configs, { lastUpdated } = {}) {
         try {
             const updatedDate = Number(new Date());
+            const lastUpdatedDate = new Date(lastUpdated);
+            const dateToSave = lastUpdatedDate > new Date(0) ? lastUpdatedDate : updatedDate;
 
             for (const config of configs) {
-                config.updated_at = updatedDate;
+                config.updated_at = Number(dateToSave);
                 config.value = JSON.stringify(config);
             }
 
@@ -144,12 +148,15 @@ class IndexedDBService {
         }
     }
 
-    async saveTokensObj(store, tokens, { network, ecosystem } = {}) {
+    async saveTokensObj(store, tokens, { network, ecosystem, lastUpdated } = {}) {
         const formatTokensObj = (tokens) => {
             const updatedDate = Number(new Date());
+            const lastUpdatedDate = new Date(lastUpdated);
+            const dateToSave = lastUpdatedDate > new Date(0) ? lastUpdatedDate : updatedDate;
+
             for (const tokenContract in tokens) {
                 formatRecord(ecosystem, network, tokens[tokenContract]);
-                tokens[tokenContract].updated_at = updatedDate;
+                tokens[tokenContract].updated_at = Number(dateToSave);
                 tokens[tokenContract].value = JSON.stringify(tokens[tokenContract]);
             }
             return tokens;
