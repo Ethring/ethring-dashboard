@@ -21,6 +21,11 @@ export interface IBaseAdapter {
      */
     store: Store<any>;
 
+    /**
+     * Current using wallet provider name
+     */
+    walletName: string | null;
+
     // ****************************************************
     // * Public methods
     // ****************************************************

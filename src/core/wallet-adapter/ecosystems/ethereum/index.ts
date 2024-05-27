@@ -69,6 +69,7 @@ export class EthereumAdapter implements IEthereumAdapter {
     // * Adapter properties
     // ****************************************************
     store: any;
+    walletName: string | null = null;
     walletManager: OnboardAPI | any;
     addressByNetwork: IAddressByNetwork = {};
     DEFAULT_CHAIN: string = 'eth';
@@ -94,7 +95,10 @@ export class EthereumAdapter implements IEthereumAdapter {
         const initOptions = web3OnBoardConfig as InitOptions;
         initOptions.chains = await getBlocknativeConfig();
         this.walletManager = init(initOptions);
-        this.walletManager.state.select('wallets').subscribe(() => this.setAddressForChains());
+        this.walletManager.state.select('wallets').subscribe((wallet: any) => {
+            if (!wallet?.length && this.walletName) this.connectWallet(this.walletName);
+            this.setAddressForChains();
+        });
     }
 
     isLocked(): boolean {
@@ -123,13 +127,16 @@ export class EthereumAdapter implements IEthereumAdapter {
 
         let connectionOption: ConnectOptions | undefined = undefined;
 
-        if (walletName)
+        if (walletName) {
             connectionOption = {
                 autoSelect: {
                     label: walletName,
                     disableModals: true,
                 },
             };
+
+            this.walletName = walletName;
+        }
 
         try {
             await connectWallet(connectionOption);
@@ -155,6 +162,7 @@ export class EthereumAdapter implements IEthereumAdapter {
 
         try {
             Logger.info('Disconnecting wallet:', label);
+            if (label === this.walletName) this.walletName = null;
             await disconnectWallet({ label });
             this.addressByNetwork = {};
         } catch (error) {
