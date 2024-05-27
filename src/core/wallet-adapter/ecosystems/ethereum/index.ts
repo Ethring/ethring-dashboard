@@ -12,6 +12,7 @@ import AdapterBase from '@/core/wallet-adapter/utils/AdapterBase';
 import { errorRegister } from '@/shared/utils/errors';
 import { validateEthAddress } from '@/core/wallet-adapter/utils/validations';
 import { getBlocknativeConfig } from '@/modules/chain-configs/api';
+import { isDefaultChain } from '@/core/wallet-adapter/utils';
 
 let web3Onboard: any = null;
 
@@ -208,7 +209,7 @@ export class EthereumAdapter extends AdapterBase {
         for (const chain of chains) {
             chain.walletName = this.getWalletModule();
             chain.ecosystem = ECOSYSTEMS.EVM;
-            chain.isSupportedChain = true;
+            chain.isSupportedChain = isDefaultChain(chain);
         }
 
         return chains;
