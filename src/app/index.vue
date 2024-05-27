@@ -100,7 +100,7 @@ export default {
                 if (!wallet) continue;
 
                 const { account, ecosystem, addresses } = wallet || {};
-                const list = addresses;
+                const list = _.pick(addresses, Object.values(DP_CHAINS)) || {};
 
                 store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses: list });
 
