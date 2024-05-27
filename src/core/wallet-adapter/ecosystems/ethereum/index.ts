@@ -5,6 +5,8 @@ import { init, useOnboard } from '@web3-onboard/vue';
 
 import { useLocalStorage } from '@vueuse/core';
 
+import { values, orderBy } from 'lodash';
+
 import { ECOSYSTEMS, BASE_ABI, SILO_EXECUTE_ABI, BEEFY_DEPOSIT_ABI, web3OnBoardConfig } from '@/core/wallet-adapter/config';
 
 import AdapterBase from '@/core/wallet-adapter/utils/AdapterBase';
@@ -107,7 +109,7 @@ export class EthereumAdapter extends AdapterBase {
             this.addressByNetwork[net] = {
                 address: mainAddress,
                 logo,
-                nativeTokenLogo: native_token.logo,
+                nativeTokenLogo: native_token?.logo,
             };
         }
     }
@@ -212,7 +214,7 @@ export class EthereumAdapter extends AdapterBase {
             chain.isSupportedChain = isDefaultChain(chain);
         }
 
-        return chains;
+        return chains ? orderBy(values(chains), [(elem) => elem.isSupportedChain], ['desc']) : values(chains).filter(isDefaultChain);
     }
 
     async setChain(chainInfo: any): Promise<boolean> {
