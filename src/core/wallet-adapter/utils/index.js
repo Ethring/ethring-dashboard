@@ -1,6 +1,6 @@
 import { bech32 } from 'bech32';
 
-import { DATA_PROVIDER_COSMOS_CHAINS } from '@/core/balance-provider/models/enums';
+import { DP_CHAINS } from '@/core/balance-provider/models/enums';
 
 function decodeBech32(address) {
     const decoded = bech32.decode(address);
@@ -36,6 +36,6 @@ export const isActiveChain = ({ network_type, status, explorers, staking, chain_
     );
 };
 
-export const isDefaultChain = ({ chain_name }) => {
-    return DATA_PROVIDER_COSMOS_CHAINS.includes(chain_name);
+export const isDefaultChain = ({ chain }) => {
+    return Object.values(DP_CHAINS).includes(chain);
 };

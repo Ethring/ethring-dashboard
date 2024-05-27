@@ -5,6 +5,8 @@ import { init, useOnboard } from '@web3-onboard/vue';
 
 import { useLocalStorage } from '@vueuse/core';
 
+import { values, orderBy } from 'lodash';
+
 import { ECOSYSTEMS, BASE_ABI, SILO_EXECUTE_ABI, BEEFY_DEPOSIT_ABI, web3OnBoardConfig } from '@/core/wallet-adapter/config';
 
 import AdapterBase from '@/core/wallet-adapter/utils/AdapterBase';
@@ -12,6 +14,7 @@ import AdapterBase from '@/core/wallet-adapter/utils/AdapterBase';
 import { errorRegister } from '@/shared/utils/errors';
 import { validateEthAddress } from '@/core/wallet-adapter/utils/validations';
 import { getBlocknativeConfig } from '@/modules/chain-configs/api';
+import { isDefaultChain } from '@/core/wallet-adapter/utils';
 
 let web3Onboard: any = null;
 
@@ -106,7 +109,7 @@ export class EthereumAdapter extends AdapterBase {
             this.addressByNetwork[net] = {
                 address: mainAddress,
                 logo,
-                nativeTokenLogo: native_token.logo,
+                nativeTokenLogo: native_token?.logo,
             };
         }
     }
@@ -208,10 +211,10 @@ export class EthereumAdapter extends AdapterBase {
         for (const chain of chains) {
             chain.walletName = this.getWalletModule();
             chain.ecosystem = ECOSYSTEMS.EVM;
-            chain.isSupportedChain = true;
+            chain.isSupportedChain = isDefaultChain(chain);
         }
 
-        return chains;
+        return chains ? orderBy(values(chains), [(elem) => elem.isSupportedChain], ['desc']) : values(chains).filter(isDefaultChain);
     }
 
     async setChain(chainInfo: any): Promise<boolean> {
