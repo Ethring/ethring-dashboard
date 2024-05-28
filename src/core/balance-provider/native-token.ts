@@ -14,9 +14,7 @@ export const setNativeTokensPrices = async (configList: IChainConfig[]) => {
 
     for (const network of configList) {
         const { native_token } = network || {};
-
-        if (native_token.price) continue;
-
+        if (native_token?.price) continue;
         const id = getCoingeckoId(network);
         coingeckoIds.push(id);
     }
