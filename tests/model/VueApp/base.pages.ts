@@ -357,12 +357,12 @@ class SuperSwapPage extends BasePage {
 
     async setNetworkTo(netName: string) {
         await this.page.getByTestId(DATA_QA_LOCATORS.SELECT_NETWORK).nth(2).click();
-        await this.page.getByTestId(DATA_QA_LOCATORS.TOKEN_RECORD).filter({ hasText: netName }).click();
+        await this.page.getByTestId(DATA_QA_LOCATORS.TOKEN_RECORD).filter({ hasText: netName }).first().click();
     }
 
     async setTokenTo(tokenName: string) {
         await this.page.getByTestId(DATA_QA_LOCATORS.SELECT_NETWORK).nth(3).click();
-        await this.page.getByTestId(DATA_QA_LOCATORS.TOKEN_RECORD).filter({ hasText: tokenName }).click();
+        await this.page.getByTestId(DATA_QA_LOCATORS.TOKEN_RECORD).filter({ hasText: tokenName }).first().click();
     }
 
     async setAmount(amount: string) {
