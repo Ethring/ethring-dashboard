@@ -299,13 +299,7 @@ export class CosmosAdapter implements ICosmosAdapter {
 
     async getSupportedEcosystemChains(chainRecords: IChainRecord[], chainWallet: any) {
         try {
-            const enablePromises = chainRecords.map(async (chainRecord: any) => {
-                if (!chainRecord.chain) return null;
-                if (!chainRecord?.client) return null;
-                await chainWallet?.client?.enable(chainRecord.chain.chain_id);
-            });
-
-            await Promise.all(enablePromises);
+            await Promise.all(chainRecords.map(async (chainRecord: any) => await chainWallet?.client?.enable(chainRecord.chain.chain_id)));
         } catch (error) {
             logger.log('Error while approving chains', error);
         }
@@ -342,11 +336,9 @@ export class CosmosAdapter implements ICosmosAdapter {
             await chainWallet.initClient();
             await chainWallet.connect(true);
 
-            const isConnected = chainWallet.isWalletConnected;
-
-            if (!isConnected)
+            if (!chainWallet.isWalletConnected)
                 return {
-                    isConnected: false,
+                    isConnected: chainWallet.isWalletConnected,
                     walletName: walletName,
                 };
 
@@ -357,7 +349,7 @@ export class CosmosAdapter implements ICosmosAdapter {
             await chainWallet.update({ connect: true });
 
             return {
-                isConnected: isConnected,
+                isConnected: chainWallet.isWalletConnected,
                 walletName: walletName,
             };
         } catch (error) {
@@ -391,15 +383,17 @@ export class CosmosAdapter implements ICosmosAdapter {
             const walletList: WalletRepo[] = this.walletManager.walletRepos;
             const mainAccount = this.getAccount();
 
-            if (!walletList || !mainAccount) return null;
+            if (!walletList) return null;
 
             const promises = walletList.map(async (wallet: WalletRepo) => {
-                if (!this.addressByNetwork[mainAccount]) this.addressByNetwork[mainAccount] = {};
+                if (!mainAccount) return;
+
+                !this.addressByNetwork && (this.addressByNetwork = {});
+                !this.addressByNetwork[mainAccount] && (this.addressByNetwork[mainAccount] = {});
 
                 const { chainName } = wallet;
 
                 if (!Object.values(DP_CHAINS).includes(chainName as any)) return;
-
                 if (!isDifferentSlip44(chainName, this.differentSlip44)) return;
 
                 const diffChain = wallet.getWallet(walletName) as any;
@@ -407,15 +401,10 @@ export class CosmosAdapter implements ICosmosAdapter {
                 if (!diffChain) return;
 
                 diffChain.activate();
-
                 await diffChain.initClient();
                 await diffChain.connect(false);
 
-                const isConnected = diffChain.isWalletConnected;
-
-                if (!diffChain.address) return;
-
-                if (isConnected)
+                if (diffChain.isWalletConnected)
                     this.addressByNetwork[mainAccount][chainName] = {
                         address: diffChain.address,
                         logo: diffChain.chain.logo,
@@ -431,29 +420,26 @@ export class CosmosAdapter implements ICosmosAdapter {
     }
 
     async setAddressForChains(walletName: string | null): Promise<void> {
-        if (!walletName) walletName = this.walletName;
-        if (!this.addressByNetwork) this.addressByNetwork = {};
         if (!this.walletManager) return;
+        if (!walletName) walletName = this.walletName;
 
         const mainAccount = this.getAccount();
         const cosmosWallet = this.walletManager.getChainWallet(this.DEFAULT_CHAIN, walletName as string);
 
         cosmosWallet.activate(); // * Activate wallet
-        await cosmosWallet.connect(true); // * Connect wallet to get address
+        await cosmosWallet.connect(false); // * Connect wallet to get address
         const mainAddress = cosmosWallet.address; // * Get address
 
         // !IMPORTANT: If address or account not found, return
         if (!mainAccount || !mainAddress) return;
 
         // !IMPORTANT: If addressByNetwork for mainAccount not found, create new object
-        if (!this.addressByNetwork[mainAccount]) this.addressByNetwork[mainAccount] = {};
+        !this.addressByNetwork && (this.addressByNetwork = {});
+        !this.addressByNetwork[mainAccount] && (this.addressByNetwork[mainAccount] = {});
 
-        const promises = this.walletManager.chainRecords.map(async (cr) => {
+        const promises = this.walletManager.chainRecords.map((cr) => {
             const { chain } = cr as IChainRecord;
             const { bech32_prefix, chain_name } = chain as IChain;
-
-            // !IMPORTANT: If chain_name not found, return
-            if (!chain_name) return undefined;
 
             // !IMPORTANT: If chain_name is not default chain, return
             if (isDifferentSlip44(chain_name, this.differentSlip44)) return undefined;
