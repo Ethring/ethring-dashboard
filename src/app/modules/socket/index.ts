@@ -8,7 +8,7 @@ import { handleTransactionStatus } from '@/core/transaction-manager/shared/utils
 
 import logger from '@/shared/logger';
 import { AddressByChain } from '@/shared/models/types/Address';
-import _ from 'lodash';
+import { keys } from 'lodash';
 
 const TX_MANAGER_URL = process.env.TX_MANAGER_API || undefined;
 
@@ -98,7 +98,7 @@ class SocketInstance {
 
         // !Removing another account addresses for the same ecosystem
         if (ecosystem === 'COSMOS' && this.socket.addresses[ecosystem])
-            _.keys(this.socket.addresses[ecosystem]).forEach((targetKey: string) => {
+            keys(this.socket.addresses[ecosystem]).forEach((targetKey: string) => {
                 if (!this.socket.addresses) return logger.warn('[Socket] Addresses are not set');
                 if (!this.socket.addresses[ecosystem]) return logger.warn('[Socket] Addresses are not set');
                 if (!targetKey.startsWith(walletAccount)) delete this.socket.addresses[ecosystem][targetKey];

@@ -1,6 +1,6 @@
 <template>
     <a-menu-item v-for="record in TO_CONNECT" :key="record.ecosystem" class="ecosystem-item">
-        <ConnectTo :name="$t(record.name)" :connect="() => connect(record.ecosystem)" :logos="record.logos" />
+        <ConnectTo :name="$t(record.name)" :connect="() => connect(record.ecosystem)" :logos="record.logos" :disabled="record.disabled" />
     </a-menu-item>
 </template>
 
@@ -18,6 +18,13 @@ export default {
     },
     setup() {
         const TO_CONNECT = [
+            {
+                name: 'adapter.abstractAccount',
+                ecosystem: null,
+                logos: ['Abstract'],
+                disabled: true,
+            },
+
             {
                 name: 'adapter.ethereumWallets',
                 ecosystem: Ecosystem.EVM,

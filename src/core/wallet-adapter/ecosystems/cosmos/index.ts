@@ -1,6 +1,7 @@
 import { values as lodashValues } from 'lodash';
 import { ref } from 'vue';
 import { Store } from 'vuex';
+import { values, orderBy } from 'lodash';
 
 // * Cosmos SDK
 import { cosmos, cosmwasm } from 'osmojs';
@@ -13,7 +14,6 @@ import type { Asset, AssetList, Chain } from '@chain-registry/types';
 
 // * Cosmos-kit (Wallet)
 import { wallets as KeplrWallets } from '@cosmos-kit/keplr';
-// import { wallets as LeapWallets } from '@cosmos-kit/leap';
 
 // * Utils
 import BigNumber from 'bignumber.js';
@@ -160,8 +160,8 @@ export class CosmosAdapter implements ICosmosAdapter {
             getCosmologyTokensConfig({ lastUpdated }),
         ]);
 
-        const activeChains = lodashValues(chains).filter(isActiveChain);
-        const defaultChains = lodashValues(activeChains).filter(isDefaultChain);
+        const activeChains = values(chains).filter(isActiveChain);
+        const defaultChains = values(activeChains).filter(isDefaultChain);
 
         this.differentSlip44 = activeChains.filter(({ slip44 }) => slip44 != this.STANDARD_SLIP_44);
         this.chainsFromStore = this.store.state?.configs?.chains[Ecosystem.COSMOS] || {};
@@ -556,9 +556,8 @@ export class CosmosAdapter implements ICosmosAdapter {
         };
     }
 
-    getChainList(): IChainInfo[] {
+    getChainList(allChains: boolean = false): IChainInfo[] {
         if (!this.walletManager) return [];
-
         const chainList = this.walletManager?.chainRecords.map((record) => {
             const { chain } = record as IChainRecord;
 
@@ -582,12 +581,17 @@ export class CosmosAdapter implements ICosmosAdapter {
                 walletModule: this.walletName,
                 logo: chain?.logo,
                 coingecko_id: asset?.coingecko_id || null,
+                isSupportedChain: isDefaultChain(chain as any),
             } as unknown as IChainInfo;
 
             return chainRecord;
         });
 
-        return lodashValues(chainList).filter((chain) => isDefaultChain({ chain_name: chain?.chain })) as IChainInfo[];
+        if (!chainList.length) return [];
+
+        if (!allChains) return chainList.filter((chain) => isDefaultChain(chain as any)) as IChainInfo[];
+
+        return orderBy(values(chainList), [(elem: IChainInfo) => elem.isSupportedChain], ['desc']) as IChainInfo[];
     }
 
     async getWalletLogo(walletModule: string): Promise<string | null> {

@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { filter, slice } from 'lodash';
 
 import { ref, computed, inject, nextTick, watch } from 'vue';
 import { useStore } from 'vuex';
@@ -170,7 +170,7 @@ export default function useSelectModal(type) {
     // =================================================================================================================
 
     const searchInTokens = (list = [], value) => {
-        return _.filter(
+        return filter(
             list,
             (elem) => searchByKey(elem, value, 'name') || searchByKey(elem, value, 'symbol') || searchByKey(elem, value, 'address'),
         );
@@ -222,7 +222,7 @@ export default function useSelectModal(type) {
 
         isLoadMore.value = list.value.length > MAX_OPTIONS_PER_PAGE && currentIndex.value <= records.length;
 
-        return _.slice(records, 0, currentIndex.value);
+        return slice(records, 0, currentIndex.value);
     });
 
     watch([isOpen, selectedNetwork, selectedTokenFrom], async () => {

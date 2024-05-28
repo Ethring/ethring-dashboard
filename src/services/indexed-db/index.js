@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { values } from 'lodash';
 
 import Dexie from 'dexie';
 
@@ -120,7 +120,7 @@ class IndexedDBService {
 
         try {
             await this.db.transaction('rw', this.db[store], async () => {
-                await this.db[store].bulkPut(_.values(networks));
+                await this.db[store].bulkPut(values(networks));
                 logger.debug(`All ${ecosystem} networks saved`);
             });
         } catch (error) {
@@ -165,7 +165,7 @@ class IndexedDBService {
         const formattedTokensObject = formatTokensObj(tokens);
 
         await this.db.transaction('rw', this.db[store], async () => {
-            await this.db[store].bulkPut(_.values(formattedTokensObject));
+            await this.db[store].bulkPut(values(formattedTokensObject));
             logger.debug(`[tokens] All tokens for network: ${ecosystem} - ${network} saved`);
         });
 

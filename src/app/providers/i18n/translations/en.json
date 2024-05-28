@@ -19,6 +19,8 @@
         "releaseNotes": "Read release notes",
         "switchTheme": "Switch theme",
         "buyCrypto": "Buy crypto",
+        "allNetworks": "All networks",
+        "supportedNetworks": "Supported networks",
         "nft": {
             "description": "Description",
             "collectionName": "Collection name",
@@ -65,7 +67,8 @@
         "copyAddressTooltip": "Copy address to clipboard",
         "copiedAddressTooltip": "Address copied",
         "copied": "Copied",
-        "unsupportedNetwork": "Unsupported network"
+        "unsupportedNetwork": "Unsupported network",
+        "abstractAccount": "Abstract Account"
     },
     "actionTokens": "Tokens",
     "actionTransactions": "Transactions",
@@ -126,6 +129,7 @@
         "noAvailableRoute": "Possible explanations for this could be limited liquidity, an insufficiently selected amount, excessively high gas costs, or the availability of routes for the chosen combination",
         "unknownGas": "unknown gas fee",
         "pendingTransactions": "Transaction successfully sent to blockchain, but the transaction still pending. Please wait for confirmation.",
+        "verifiedToken": "This token has a good reputation from the community",
         "connectWallet": "Connect wallet"
     },
     "simpleSend": {
@@ -180,5 +184,6 @@
         "warningRange": "Please set a slippage value that is within 0.1% to 20%",
         "warningLess01": "Slippage bellow 0.1% may result in a failed transaction",
         "warningMoreThan2": "Your transaction may be frontrun and result in an unfavorable trade"
-    }
+    },
+    "pageNotFound": "Page not found"
 }

@@ -1,5 +1,5 @@
 import { Mixpanel } from 'mixpanel-browser';
-import { captureException } from '@/app/modules/sentry';
+import { captureSentryException } from '@/app/modules/sentry';
 
 export function callTrackEvent(mixpanel: Mixpanel, eventName: string, params: Record<string, any>) {
     if (!process.env.MIXPANEL_TOKEN) return;
@@ -13,7 +13,7 @@ export function callTrackEvent(mixpanel: Mixpanel, eventName: string, params: Re
     try {
         mixpanel.track(eventName, params);
     } catch (e) {
-        captureException(e);
+        captureSentryException(e);
         console.error('callTrackEvent: ', e);
     }
 }
@@ -24,7 +24,7 @@ export function identify(mixpanel: Mixpanel, trackId: string) {
     try {
         mixpanel.identify(trackId);
     } catch (e) {
-        captureException(e);
+        captureSentryException(e);
         console.error('identify: ', e);
     }
 }
@@ -35,7 +35,7 @@ export function reset(mixpanel: Mixpanel) {
     try {
         mixpanel.reset();
     } catch (e) {
-        captureException(e);
+        captureSentryException(e);
         console.error('identify: ', e);
     }
 }

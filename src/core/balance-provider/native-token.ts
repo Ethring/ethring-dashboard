@@ -1,11 +1,8 @@
-import { computed } from 'vue';
-import { Store } from 'vuex';
 import { IChainConfig } from '@/shared/models/types/chain-config';
 
 import PricesModule from '@/modules/prices';
 
-export const setNativeTokensPrices = async (store: Store<any>, ecosystem: string) => {
-    const configList = computed<IChainConfig[]>(() => store.getters['configs/getConfigsListByEcosystem'](ecosystem));
+export const setNativeTokensPrices = async (configList: IChainConfig[]) => {
     const coingeckoIds = [];
 
     const getCoingeckoId = (network: IChainConfig) => {
@@ -15,7 +12,7 @@ export const setNativeTokensPrices = async (store: Store<any>, ecosystem: string
         return tokenCoingeckoID || networkCoingeckoID;
     };
 
-    for (const network of configList.value) {
+    for (const network of configList) {
         const { native_token } = network || {};
 
         if (native_token.price) continue;
@@ -29,7 +26,7 @@ export const setNativeTokensPrices = async (store: Store<any>, ecosystem: string
     const ids = coingeckoIds.join(','); // * Convert array to string for request
     const prices = await PricesModule.Coingecko.marketCapForNativeCoin(ids); // * Get prices for all native tokens
 
-    for (const network of configList.value) {
+    for (const network of configList) {
         const { native_token } = network || {};
 
         if (native_token.price) continue;

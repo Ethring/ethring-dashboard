@@ -1,14 +1,16 @@
-import _ from 'lodash';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
+import { startsWith, debounce } from 'lodash';
+
 import BigNumber from 'bignumber.js';
 
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import useBridgeDexService from '@/modules/bridge-dex/compositions';
 import useChainTokenManger from './useChainTokenManager';
+
 import { IChainInfo } from '@/core/wallet-adapter/models/ecosystem-adapter';
 
 export default function useModule(moduleType: ModuleType) {
@@ -229,32 +231,32 @@ export default function useModule(moduleType: ModuleType) {
 
         resetQuoteRoutes();
 
-        _.debounce(() => (isDirectionSwapped.value = false), 1500)();
+        debounce(() => (isDirectionSwapped.value = false), 1500)();
     };
 
     // =================================================================================================================
 
     // * Select Network and Token Modals
 
-    const openSelectModal = (selectFor, { direction, type }) => {
+    const openSelectModal = (selectFor: any, { direction, type }: any) => {
         direction && (targetDirection.value = direction);
         type && (selectType.value = type);
 
         return store.dispatch('app/toggleSelectModal', { type: selectFor, module: moduleType });
     };
 
-    const handleOnSelectNetwork = ({ direction, type }) => {
+    const handleOnSelectNetwork = ({ direction, type }: any) => {
         return openSelectModal('network', { direction, type });
     };
 
-    const handleOnSelectToken = ({ direction, type }) => {
+    const handleOnSelectToken = ({ direction, type }: any) => {
         return openSelectModal('token', { direction, type });
     };
 
     const handleOnSetAmount = (amount: string | number) => {
         if (srcAmount.value === amount) return;
 
-        if (amount && _.startsWith(amount.toString(), '.') && amount.toString().length > 1) return (srcAmount.value = `0${amount}`);
+        if (amount && startsWith(amount.toString(), '.') && amount.toString().length > 1) return (srcAmount.value = `0${amount}`);
 
         srcAmount.value = amount;
     };
@@ -267,7 +269,7 @@ export default function useModule(moduleType: ModuleType) {
         const currentChain = store.getters['configs/getChainConfigByChainId'](currentChainInfo.value?.chain, Ecosystem.EVM);
 
         if (isAccountAuth && !selectedSrcNetwork.value?.net && Object.keys(currentChain).length)
-            selectedSrcNetwork.value = currentChainInfo.value;
+            selectedSrcNetwork.value = currentChainInfo.value as IChainInfo;
         else if (!selectedSrcNetwork.value?.net && chainList.value?.length) selectedSrcNetwork.value = chainList.value[0];
     };
 

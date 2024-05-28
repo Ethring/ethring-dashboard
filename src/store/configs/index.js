@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { values, orderBy } from 'lodash';
 
 import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
@@ -38,12 +38,12 @@ export default {
 
         getConfigsByEcosystems: (state) => (ecosystem) => state.chains[ecosystem] || {},
 
-        getConfigsListByEcosystem: (state) => (ecosystem) => _.values(state.chains[ecosystem]) || [],
+        getConfigsListByEcosystem: (state) => (ecosystem) => values(state.chains[ecosystem]) || [],
 
         getChainConfigByChainId: (state) => (chainId, ecosystem) => {
             if (!state.chains[ecosystem]) return {};
 
-            const chainList = _.values(state.chains[ecosystem]);
+            const chainList = values(state.chains[ecosystem]);
 
             let cId = chainId;
 
@@ -57,7 +57,7 @@ export default {
         getChainConfigByChainOrNet: (state) => (chainOrNet, ecosystem) => {
             if (!state.chains[ecosystem]) return {};
 
-            const chainList = _.values(state.chains[ecosystem]);
+            const chainList = values(state.chains[ecosystem]);
 
             const chain = chainList.find((chain) => chain.chain === chainOrNet || chain.net === chainOrNet);
 
@@ -123,7 +123,7 @@ export default {
 
         async getTokensListForChain({}, chain) {
             const list = await configsDB.getAllObjectFrom(DB_TABLES.TOKENS, 'chain', chain, { isArray: true });
-            return _.orderBy(list, ['name'], ['asc']).map((item) => {
+            return orderBy(list, ['name'], ['asc']).map((item) => {
                 if (item.ecosystem === Ecosystem.COSMOS) return item;
                 if (item.id && item.id.includes('tokens__')) {
                     const [chain, prefixAddress, symbol] = item.id.split(':');

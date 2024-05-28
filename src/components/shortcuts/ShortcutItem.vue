@@ -23,7 +23,7 @@
                         <span class="author" @click="openProfile">{{ item.author.name }}</span>
                     </a-col>
                     <div class="avatar">
-                        <ZometLogo />
+                        <img :src="item.author.avatar" :alt="item.author.name" />
                     </div>
                 </a-row>
             </a-row>
@@ -77,7 +77,6 @@ import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
 import ShortcutPlaceHolder from '@/assets/icons/dashboard/shortcut.svg';
-import ZometLogo from '@/assets/icons/sidebar/logo.svg';
 import LikeIcon from '@/assets/icons/dashboard/heart.svg';
 import MultiIcon from '@/assets/icons/module-icons/multi.svg';
 
@@ -90,7 +89,6 @@ export default {
     name: 'ShortcutItem',
     components: {
         ShortcutPlaceHolder,
-        ZometLogo,
         LikeIcon,
         MultiIcon,
 
@@ -114,7 +112,7 @@ export default {
 
         const openShortcut = () => router.push('/shortcuts/' + props.item.id);
 
-        const openProfile = () => router.push('/shortcuts/profile/' + props.item.author.name);
+        const openProfile = () => router.push('/shortcuts/profile/' + props.item.author.id);
 
         const selectTag = (tag) => store.dispatch('shortcutsList/setFilterTags', tag);
 

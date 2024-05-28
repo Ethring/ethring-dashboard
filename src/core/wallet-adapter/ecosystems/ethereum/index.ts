@@ -1,11 +1,12 @@
-import _ from 'lodash';
 import { Store } from 'vuex';
 import * as ethers from 'ethers';
+import { values, orderBy } from 'lodash';
 import { useLocalStorage } from '@vueuse/core';
 
 // * Web3-onboard (Blocknative)
 import { InitOptions, ConnectOptions, OnboardAPI } from '@web3-onboard/core';
 import { init, useOnboard } from '@web3-onboard/vue';
+import { providers, Contract, utils } from 'ethers';
 
 // * Types
 import { IEthereumAdapter, IAddressByNetwork, IChainInfo } from '@/core/wallet-adapter/models/ecosystem-adapter';
@@ -21,6 +22,7 @@ import { errorRegister } from '@/shared/utils/errors';
 import { validateEthAddress } from '@/core/wallet-adapter/utils/validations';
 import { IChainConfig } from '@/shared/models/types/chain-config';
 import { getBlocknativeConfig } from '@/modules/chain-configs/api';
+import { isDefaultChain } from '@/core/wallet-adapter/utils';
 
 // *****************************************************************
 // * Constants
@@ -221,6 +223,7 @@ export class EthereumAdapter implements IEthereumAdapter {
             const { net, logo, native_token } = chainInfo || {};
 
             if (!this.addressByNetwork[net]) this.addressByNetwork[net] = null;
+
             this.addressByNetwork[net] = {
                 address: mainAddress,
                 logo,
@@ -377,7 +380,7 @@ export class EthereumAdapter implements IEthereumAdapter {
         return chainsInfo.evm[chain] || null;
     }
 
-    getChainList(): IChainConfig[] {
+    getChainList(allChains: boolean = false): IChainConfig[] {
         if (!this.store) return [];
         if (!this.store.getters['configs/getConfigsListByEcosystem']) return [];
 
@@ -385,11 +388,16 @@ export class EthereumAdapter implements IEthereumAdapter {
 
         if (!chains.length) return [];
 
-        return chains.map((chain: any) => {
+        const chainList = chains.map((chain: any) => {
             chain.walletName = chain.walletModule = this.getWalletModule();
             chain.ecosystem = Ecosystem.EVM;
+            chain.isSupportedChain = isDefaultChain(chain);
             return chain;
         });
+
+        if (!allChains) return chainList.filter(isDefaultChain);
+
+        return orderBy(chainList, [(elem) => elem.isSupportedChain], ['desc']);
     }
 
     async setChain(chainInfo: IChainInfo): Promise<boolean> {
@@ -411,7 +419,7 @@ export class EthereumAdapter implements IEthereumAdapter {
     // * Transaction methods
     // ****************************************************
 
-    getProvider(): ethers.providers.Web3Provider | null {
+    getProvider(): providers.Web3Provider | null {
         const { connectedWallet } = useOnboard();
 
         const { provider } = connectedWallet.value || {};
@@ -455,7 +463,7 @@ export class EthereumAdapter implements IEthereumAdapter {
         if (!ethersProvider) throw new Error('EVM provider is not available');
 
         try {
-            const value = !token?.address ? ethers.utils.parseEther(amount) : ethers.utils.parseUnits('0');
+            const value = !token?.address ? utils.parseEther(amount) : utils.parseUnits('0');
 
             const nonce = await ethersProvider.getTransactionCount(fromAddress);
 
@@ -473,7 +481,7 @@ export class EthereumAdapter implements IEthereumAdapter {
             const res = await this.callContractMethod({
                 contractAddress,
                 method: 'transfer',
-                args: [toAddress, ethers.utils.parseUnits(amount, token.decimals)],
+                args: [toAddress, utils.parseUnits(amount, token.decimals)],
             });
 
             return {

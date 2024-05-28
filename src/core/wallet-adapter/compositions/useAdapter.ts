@@ -465,14 +465,14 @@ function useAdapter(): IAdapter {
     };
 
     // * Get Chain List by Ecosystem
-    const getChainListByEcosystem = (ecosystem: Ecosystems): IChainConfig[] => {
+    const getChainListByEcosystem = (ecosystem: Ecosystems, allChains?: boolean): IChainConfig[] => {
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
         if (!adapter) return [];
 
         if (!adapter.getChainList) return [];
 
-        return adapter.getChainList();
+        return adapter.getChainList(allChains);
     };
 
     // * Get Chain by Chain ID

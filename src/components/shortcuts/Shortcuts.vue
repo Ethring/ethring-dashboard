@@ -56,7 +56,7 @@ import { Empty } from 'ant-design-vue';
 
 import { searchByKey } from '@/shared/utils/helpers';
 
-import _ from 'lodash';
+import { filter } from 'lodash';
 
 export default {
     name: 'Shortcuts',
@@ -109,7 +109,7 @@ export default {
         };
 
         const searchShortcut = (list = [], value) => {
-            return _.filter(list, (elem) => searchByKey(elem, value, 'name'));
+            return filter(list, (elem) => searchByKey(elem, value, 'name'));
         };
 
         watch(shortcuts, (newShortcuts) => {

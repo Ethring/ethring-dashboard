@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { lowerCase } from 'lodash';
 
 import { DP_COSMOS } from '@/core/balance-provider/models/enums';
 import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
@@ -73,12 +73,12 @@ const cosmosChainTokens = (record: AssetBalance, opt: RecordOptions = {}) => {
 
     if (!record.base && record.address && record.address.length <= 5) record.base = record.address;
 
-    const isNativeBySymbol = _.lowerCase(record.symbol) === _.lowerCase(nativeToken?.symbol);
+    const isNativeBySymbol = lowerCase(record.symbol) === lowerCase(nativeToken?.symbol);
 
     if (isNativeBySymbol) {
         record.id = `${chain}:${Type.tokens}__native:${record.symbol}`;
-        record.base = _.lowerCase(record.base);
-        record.address = _.lowerCase(record.address);
+        record.base = lowerCase(record.base);
+        record.address = lowerCase(record.address);
         record.logo = logo;
     }
 

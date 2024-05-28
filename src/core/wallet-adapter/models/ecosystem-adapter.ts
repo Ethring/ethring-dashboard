@@ -164,7 +164,7 @@ export interface IBaseAdapter {
      * @param store - The Vuex store instance.
      * @returns An array of chain objects.
      */
-    getChainList(): IChainInfo[];
+    getChainList(allChains?: boolean): IChainInfo[];
 
     /**
      * Sets or changes the chain.
@@ -346,4 +346,5 @@ export interface IAddressByNetwork {
 export interface IChainInfo extends IChainConfig {
     walletModule?: string;
     walletName?: string;
+    isSupportedChain?: boolean;
 }

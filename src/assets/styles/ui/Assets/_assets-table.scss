@@ -51,13 +51,6 @@
     .ant-collapse-item:hover,
     .ant-collapse-item.active-panel {
         border-color: var(--#{$prefix}assets-arrow-hover-color) !important;
-        // .ant-collapse-arrow {
-        // background-color: var(--#{$prefix}assets-arrow-hover-color) !important;
-        // border-color: var(--#{$prefix}white) !important;
-        // svg {
-        //     fill: var(--#{$prefix}white) !important;
-        // }
-        // }
     }
 }
 

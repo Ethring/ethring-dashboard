@@ -15,7 +15,7 @@
 import { onMounted, watch, computed, inject, onBeforeMount, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 
-import _ from 'lodash';
+import { pick } from 'lodash';
 
 import Socket from '@/app/modules/socket';
 
@@ -66,13 +66,15 @@ export default {
             getDefaultAddress,
             connectLastConnectedWallet,
             getAddressesWithChainsByEcosystem,
+            getChainListByEcosystem,
         } = useAdapter();
 
         const isShowRoutesModal = computed(() => store.getters['app/modal']('routesModal'));
 
         const getAddressesWithChains = async (ecosystem) => {
             const chainAddresses = await getAddressesWithChainsByEcosystem(ecosystem);
-            return _.pick(chainAddresses, Object.values(DP_CHAINS)) || {};
+
+            return pick(chainAddresses, Object.values(DP_CHAINS)) || {};
         };
 
         const callSubscription = async () => {
@@ -100,7 +102,7 @@ export default {
                 if (!wallet) continue;
 
                 const { account, ecosystem, addresses } = wallet || {};
-                const list = _.pick(addresses, Object.values(DP_CHAINS)) || {};
+                const list = pick(addresses, Object.values(DP_CHAINS)) || {};
 
                 store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses: list });
 
@@ -140,6 +142,7 @@ export default {
 
         onBeforeMount(async () => {
             await store.dispatch('configs/setLastUpdated');
+
             await store.dispatch('configs/setConfigLoading', true);
 
             await store.dispatch('configs/initConfigs');
@@ -147,8 +150,10 @@ export default {
 
             await initAdapter();
 
-            await setNativeTokensPrices(store, Ecosystem.EVM);
-            await setNativeTokensPrices(store, Ecosystem.COSMOS);
+            await Promise.all([
+                setNativeTokensPrices(getChainListByEcosystem(Ecosystem.EVM)),
+                setNativeTokensPrices(getChainListByEcosystem(Ecosystem.COSMOS)),
+            ]);
         });
 
         onBeforeUnmount(() => {

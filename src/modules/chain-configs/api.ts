@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { isEqual } from 'lodash';
 import { AxiosResponse, HttpStatusCode } from 'axios';
 import ApiClient from '@/shared/axios';
 
@@ -63,7 +63,7 @@ export const getConfigsByEcosystems = async (
 
         if (status !== HttpStatusCode.Ok) return {};
 
-        if (!_.isEqual(list, data)) await indexedDB.saveNetworksObj(store, data, { ecosystem, lastUpdated });
+        if (!isEqual(list, data)) await indexedDB.saveNetworksObj(store, data, { ecosystem, lastUpdated });
 
         return data;
     } catch (err) {

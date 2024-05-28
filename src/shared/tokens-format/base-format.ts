@@ -1,8 +1,8 @@
-import _ from 'lodash';
+import { toLower } from 'lodash';
 import { Ecosystem, Ecosystems } from '@/shared/models/enums/ecosystems.enum';
 
 export const formatRecord = (ecosystem: Ecosystems, chain: string, token: any) => {
-    if (![Ecosystem.COSMOS as string].includes(ecosystem?.toUpperCase())) token.address = _.toLower(token.address);
+    if (![Ecosystem.COSMOS as string].includes(ecosystem?.toUpperCase())) token.address = toLower(token.address);
 
     token.id = `${chain}:tokens__${token.address}:${token.symbol}`;
     token.chain = chain;

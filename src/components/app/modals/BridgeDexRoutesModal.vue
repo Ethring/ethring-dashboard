@@ -10,13 +10,6 @@
             >
                 <div class="routes-service">
                     <div class="routes-modal__row">
-                        <!-- <div class="routes-modal__row" v-for="(elem, j) in item.routes" :key="j" v-if="item.routes">
-                            <div class="routes-service__icon">
-                                <img :src="elem.service?.icon" alt="service-logo" />
-                            </div>
-                            <h3 class="routes-service__name">{{ elem }}</h3>
-                             <h1 v-if="j != item.routes.length - 1">-</h1>
-                        </div> -->
                         <div v-if="services[item.serviceId]" class="routes-modal__row">
                             <div class="routes-service__icon">
                                 <ServiceIcon
@@ -30,7 +23,6 @@
                                 />
                             </div>
                             <h3 class="routes-service__name">{{ services[item.serviceId].name }}</h3>
-                            <!-- <h1 v-if="j != item.routes.length - 1">-</h1> -->
                         </div>
                         <p v-for="(status, k) in getRouteStatus(item)" :key="k" class="routes-service__status" :class="status.class">
                             {{ status.value }}

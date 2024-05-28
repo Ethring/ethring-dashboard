@@ -1,5 +1,5 @@
 import { IUpdateBalanceByHash } from '@/shared/models/types/UpdateBalance';
-import _ from 'lodash';
+import { values } from 'lodash';
 
 const TYPES = {
     SET_UPDATE_BALANCE_FOR_ADDRESS: 'SET_UPDATE_BALANCE_FOR_ADDRESS',
@@ -32,7 +32,7 @@ export default {
     }),
 
     getters: {
-        getQueueToUpdate: (state: IState) => _.values(state.queueToUpdate).filter((queue) => queue.startTimestamp === 0),
+        getQueueToUpdate: (state: IState) => values(state.queueToUpdate).filter((queue) => queue.startTimestamp === 0),
     },
 
     mutations: {
