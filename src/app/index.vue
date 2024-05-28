@@ -91,7 +91,6 @@ export default {
                 callTrackEvent(mixpanel, 'connect-wallet', {
                     Ecosystem: currentChainInfo.value.ecosystem,
                     WalletProvider: currentChainInfo.value.walletModule,
-                    WalletProviderAccount: walletAccount.value,
                 });
             }
         };

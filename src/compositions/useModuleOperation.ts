@@ -1,4 +1,5 @@
 import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 import { isEqual, startsWith, uniq, isEmpty } from 'lodash';
 
 import { ITransaction, ITransactionResponse } from '@/core/transaction-manager/types/Transaction';
@@ -42,6 +43,7 @@ import { IChainConfig } from '@/shared/models/types/chain-config';
 
 const useModuleOperations = (module: ModuleType) => {
     const store = useStore();
+    const route = useRouter();
 
     const currentModule = ref(module);
 
@@ -774,8 +776,7 @@ const useModuleOperations = (module: ModuleType) => {
 
                 // * Track every tx
                 callTrackEvent(mixpanel, 'module-app launch', {
-                    Modules: txInstance.type === TRANSACTION_TYPES.TRANSFER ? 'send' : txInstance.transaction.module,
-                    ServiceType: txInstance.type,
+                    Modules: route.currentRoute.value.params.id,
                     ServiceId: txInstance.type === TRANSACTION_TYPES.TRANSFER ? 'send' : txInstance.transaction.metaData.params.serviceId,
                     RequestId: txInstance.requestID,
                 });
