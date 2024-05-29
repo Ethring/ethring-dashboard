@@ -372,6 +372,7 @@ const useModuleOperations = (module: ModuleType) => {
                 ownerAddress: srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value,
                 amount: srcAmount.value,
                 serviceId: selectedRoute.value.serviceId,
+                routeId: selectedRoute.value.routeId,
                 dstAmount: dstAmount.value,
             });
 
@@ -431,6 +432,7 @@ const useModuleOperations = (module: ModuleType) => {
                     outputAmount: dstAmount.value,
                     memo: memo.value,
                     serviceId: selectedRoute.value?.serviceId,
+                    routeId: selectedRoute.value?.routeId,
                     type,
                     slippageTolerance: slippage.value,
                     receiverAddress: receiverAddress.value,
@@ -1097,6 +1099,19 @@ const useModuleOperations = (module: ModuleType) => {
 
         isForceCallConfirm.value = false;
     });
+
+    // =================================================================================================================
+
+    watch(selectedRoute, () => {
+        if (!selectedRoute.value) return;
+    });
+
+    store.watch(
+        (state) => state.bridgeDexAPI.routeTimerSeconds,
+        (value) => {
+            console.log('useModuleOperations -> store.watch -> value', value);
+        },
+    );
 
     // ===============================================================================================
     // * On unmounted

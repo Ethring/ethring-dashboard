@@ -23,6 +23,11 @@ export default function useModule(moduleType: ModuleType) {
         set: (value) => store.dispatch('tokenOps/setSrcNetwork', value),
     });
 
+    const isTransactionSigning = computed({
+        get: () => store.getters['txManager/isTransactionSigning'],
+        set: (value) => store.dispatch('txManager/setTransactionSigning', value),
+    });
+
     // =================================================================================================================
     // * Bridge Dex Service Composition
     // =================================================================================================================
@@ -52,6 +57,11 @@ export default function useModule(moduleType: ModuleType) {
         get: () => store.getters[`tokenOps/selectedService`],
         set: (value) => store.dispatch(`tokenOps/setSelectedService`, value),
     });
+
+    const routeTimer = computed<{
+        seconds: number;
+        percent: number;
+    }>(() => store.getters['bridgeDexAPI/getRouteTimerSeconds'](selectedRoute.value?.routeId));
 
     const isConfigsLoading = computed(() => store.getters['configs/isConfigLoading']);
 
@@ -273,6 +283,23 @@ export default function useModule(moduleType: ModuleType) {
         else if (!selectedSrcNetwork.value?.net && chainList.value?.length) selectedSrcNetwork.value = chainList.value[0];
     };
 
+    const getEstimateInfo = async (isReload = false) => {
+        if (isReload && (isQuoteLoading.value || isTransactionSigning.value)) return;
+
+        dstAmount.value = null;
+        store.dispatch('bridgeDexAPI/setReloadRoutes', isReload);
+    };
+
+    const clearRouteTimer = async () => {
+        store.dispatch('bridgeDexAPI/clearRouteTimer', {
+            routeId: selectedRoute.value?.routeId,
+        });
+
+        resetQuoteRoutes();
+
+        await getEstimateInfo(true);
+    };
+
     watch(isNeedApprove, () => {
         if (isNeedApprove.value) opTitle.value = 'tokenOperations.approve';
     });
@@ -295,13 +322,20 @@ export default function useModule(moduleType: ModuleType) {
         if (!isQuoteLoading.value) nextTick(() => inputFocus());
     });
 
+    watch([isConfigsLoading, module], () => callOnMounted());
+
+    watch(
+        () => routeTimer.value.seconds,
+        async () => {
+            if (routeTimer.value.seconds === 0) await clearRouteTimer();
+        },
+    );
+
     onBeforeUnmount(() => {
         // Clear all data
         store.dispatch('tokenOps/resetFields');
         checkSelectedNetwork();
     });
-
-    watch([isConfigsLoading, module], () => callOnMounted());
 
     return {
         // Main information for operation
@@ -372,6 +406,7 @@ export default function useModule(moduleType: ModuleType) {
         // setTokenOnChange,
         checkSelectedNetwork,
         handleOnSwapDirections,
+        getEstimateInfo,
 
         // Bridge Dex
         isAllowanceLoading,
@@ -382,6 +417,7 @@ export default function useModule(moduleType: ModuleType) {
         otherRoutes,
         fees,
         selectedRoute,
+        routeTimer,
 
         makeApproveRequest,
         makeSwapRequest,
