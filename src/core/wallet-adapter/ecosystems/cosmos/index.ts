@@ -5,7 +5,9 @@ import { values, orderBy } from 'lodash';
 
 // * Cosmos SDK
 import { cosmos, cosmwasm } from 'osmojs';
-import { SigningStargateClient, GasPrice } from '@cosmjs/stargate';
+
+import { SigningStargateClient, StargateClient, GasPrice } from '@cosmjs/stargate';
+import { Decimal } from '@cosmjs/math';
 import { OfflineSigner } from '@cosmjs/proto-signing';
 
 // * Cosmos-kit (Cosmology sdk)
@@ -554,6 +556,7 @@ export class CosmosAdapter implements ICosmosAdapter {
             if (!this.walletName && mainWallet) this.walletName = mainWallet.walletName;
 
             const asset = this.getNativeTokenByChain(chain.chain_name);
+            const logo = chain.logo_URIs?.png || chain.logo_URIs?.svg || chain.logo_URIs?.jpeg || null;
 
             const chainRecord = {
                 ...chain,
@@ -565,7 +568,7 @@ export class CosmosAdapter implements ICosmosAdapter {
                 name: chain.pretty_name,
                 walletName: this.walletName,
                 walletModule: this.walletName,
-                logo: chain?.logo,
+                logo: chain.logo ? chain.logo : logo,
                 coingecko_id: asset?.coingecko_id || null,
                 isSupportedChain: isDefaultChain(chain as any),
             } as unknown as IChainInfo;
@@ -657,15 +660,21 @@ export class CosmosAdapter implements ICosmosAdapter {
     }
 
     // * Simulate transaction
-    async simulateTxGas(client: SigningStargateClient, msg: any) {
+    async simulateTxGas(client: SigningStargateClient, msg: any, { rpc }: any) {
         const GAS_ADJUSTMENT = 1.6;
+
+        const msgs = Array.isArray(msg) ? msg : [msg];
+        const [tx] = msgs || [];
+        const typeUrl = tx?.typeUrl || '';
 
         try {
             const msgs = Array.isArray(msg) ? msg : [msg];
 
-            const simGas = await client.simulate(this.getAccountAddress() as string, msgs, undefined);
+            const signerAccount = await client?.signer?.getAccounts();
 
-            if (!simGas) return null;
+            const [account] = signerAccount || [];
+
+            const simGas = await client.simulate(account.address, msgs, undefined);
 
             const adjustedGas = BigNumber(simGas).multipliedBy(GAS_ADJUSTMENT).toString();
 
@@ -675,51 +684,65 @@ export class CosmosAdapter implements ICosmosAdapter {
 
             return adjustedGas;
         } catch (error) {
-            logger.error('[COSMOS -> getTransactionFee -> simulateTxGas]', error);
-            return null;
+            logger.warn('[COSMOS -> getTransactionFee -> simulateTxGas]', error);
+            logger.log('Trying to get gas from block', typeUrl);
+
+            try {
+                const stargateClient = await StargateClient.connect(rpc);
+
+                // Get latest block
+                const latestBlock = await stargateClient.getBlock();
+                const { header } = latestBlock || {};
+                const { height = 0 } = header || {};
+
+                const query = `message.action='${typeUrl}' AND tx.height<=${height} AND tx.height>${height - 100}`;
+                const txs = await stargateClient.searchTx(query);
+
+                if (!txs || !txs.length) return null;
+
+                const [transaction] = txs || [];
+                console.log('transaction', transaction);
+
+                return transaction?.gasWanted || transaction?.gasUsed || null;
+            } catch (error) {
+                logger.error('[COSMOS -> getTransactionFee -> searchInBlock gas from block]', error);
+                return null;
+            }
         }
     }
 
-    async estimateFeeTx(msg: any) {
-        const chainWallet = this._getCurrentWallet();
-
-        if (!chainWallet || !chainWallet.value) return errorRegister('Chain wallet not found');
-
-        try {
-            const msgs = Array.isArray(msg) ? msg : [msg];
-            const estimatedFee = await chainWallet.value.estimateFee(msgs);
-
-            if (estimatedFee) return estimatedFee;
-        } catch (error) {
-            logger.error('[COSMOS -> getTransactionFee -> estimateFee]', error);
-        }
-    }
-
-    async getTransactionFee(client: any, msg: any) {
+    async getTransactionFee(client: any, msg: any, { rpc }: any) {
         // SimulateTx to get gas for transaction
         logger.debug('[COSMOS -> getTransactionFee] SimulateTx to get gas for transaction');
+
+        const gasToCoin = (gas: any) => {
+            const { gasPrice } = client;
+            const { amount = 0 } = gasPrice || {};
+            const { atomics, fractionalDigits } = amount || {};
+
+            const gasPriceAmount = BigNumber(atomics)
+                .dividedBy(10 ** fractionalDigits)
+                .toString();
+
+            const decimalsBN = BigNumber(10).pow(fractionalDigits);
+
+            return BigNumber(gas).multipliedBy(gasPriceAmount).dividedBy(decimalsBN).toString();
+        };
+
         try {
-            const simulatedGas = await this.simulateTxGas(client, msg);
+            const simulatedGas = await this.simulateTxGas(client, msg, { rpc });
+            console.log('gasToCoin', gasToCoin(simulatedGas));
 
             if (simulatedGas)
                 return {
                     gas: simulatedGas,
+                    gasToCoin: gasToCoin(simulatedGas),
                 };
         } catch (error) {
             logger.warn('[COSMOS -> getTransactionFee -> simulateTxFee]', error);
         }
 
-        logger.debug('[COSMOS -> getTransactionFee] SimulateTx not found, Use EstimateFee');
-        // EstimateFee to get gas for transaction
-        try {
-            const estimatedFee = await this.estimateFeeTx(msg);
-
-            if (estimatedFee) return estimatedFee;
-        } catch (error) {
-            logger.warn('[COSMOS -> getTransactionFee -> estimateFee]', error);
-        }
-
-        logger.warn('[COSMOS -> getTransactionFee] Fee not found, Use default fee');
+        logger.debug('[COSMOS -> getTransactionFee] SimulateTx not found, Use default fee');
 
         return null;
     }
@@ -727,6 +750,7 @@ export class CosmosAdapter implements ICosmosAdapter {
     async prepareDelegateTransaction({ fromAddress, toAddress, amount, token, memo }: IPrepareTxCosmos) {
         const fee = this.setDefaultFeeForTx();
 
+        console.log('prepareDelegateTransaction', fromAddress, toAddress, amount, token, memo);
         try {
             const { delegate } = cosmos.staking.v1beta1.MessageComposer.withTypeUrl;
 
@@ -1011,7 +1035,7 @@ export class CosmosAdapter implements ICosmosAdapter {
 
         // Try to get estimated fee
         try {
-            const estimatedFee: any = await this.getTransactionFee(signClient.client, msg);
+            const estimatedFee: any = await this.getTransactionFee(signClient.client, msg, { rpc: signClient.rpc });
 
             if (estimatedFee) fee.gas = estimatedFee.gas;
 
@@ -1122,9 +1146,14 @@ export class CosmosAdapter implements ICosmosAdapter {
         const { assets = [] } = assetList;
         const [asset] = assets;
 
+        const logo = asset.logo_URIs?.png || asset.logo_URIs?.svg || asset.logo_URIs?.jpeg || null;
+
         asset.decimals = asset.denom_units[1].exponent;
 
-        return asset;
+        return {
+            ...asset,
+            logo,
+        };
     }
 
     _getTimeoutTimestamp() {
@@ -1198,7 +1227,8 @@ export class CosmosAdapter implements ICosmosAdapter {
             if (this.chainsFromStore[chain_name]) {
                 const { svg, png } = logo_URIs || {};
                 const logoFromStore = this.chainsFromStore[chain_name]?.logo;
-                cr.chain.logo = cr.logo = logoFromStore || svg || png;
+                cr.chain.logo = logoFromStore || svg || png;
+                cr.logo = logoFromStore || svg || png;
             }
         }
     }

@@ -15,6 +15,7 @@ import { Ecosystem, Ecosystems } from '@/shared/models/enums/ecosystems.enum';
 import OperationsFactory from '@/core/operations/OperationsFactory';
 import DexOperation from '@/core/operations/general-operations/Dex';
 import TransferOperation from '@/core/operations/general-operations/Transfer';
+import StakeOperation from '@/core/operations/general-operations/Stake';
 import ApproveOperation from '@/core/operations/general-operations/Approve';
 import MultipleContractExec from '@/core/operations/stargaze-nft/MultipleExec';
 import PendleSwapTokenForPT from '@/core/operations/pendle-silo/SwapTokenForPT';
@@ -33,6 +34,8 @@ import { AddressByChainHash } from '@/shared/models/types/Address';
 import { SHORTCUT_STATUSES } from '@/shared/models/enums/statuses.enum';
 import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 import CallContractMethod from '@/core/operations/evm-contract-ops/CallContractMethod';
+import { String } from 'lightningcss';
+import { delay } from '@/shared/utils/helpers';
 
 const useShortcuts = (Shortcut: IShortcutData) => {
     // Create a new instance of the Shortcut class
@@ -43,7 +46,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     // * Wallet adapter and tokens list
     // ****************************************************************************************************
 
-    const { getChainByChainId, isConnecting, connectedWallets } = useAdapter();
+    const { getChainByChainId, isConnecting, connectedWallets, walletAccount } = useAdapter();
     const { getTokenById } = useTokensList();
 
     // ****************************************************************************************************
@@ -160,8 +163,11 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                 registerResponse && ({ key } = registerResponse);
                 break;
             case TRANSACTION_TYPES.TRANSFER:
-            case TRANSACTION_TYPES.STAKE:
                 registerResponse = operationsFactory.value.registerOperation(moduleType, TransferOperation, { id, name, make });
+                registerResponse && ({ key } = registerResponse);
+                break;
+            case TRANSACTION_TYPES.STAKE:
+                registerResponse = operationsFactory.value.registerOperation(moduleType, StakeOperation, { id, name, make });
                 registerResponse && ({ key } = registerResponse);
                 break;
             case TRANSACTION_TYPES.APPROVE:
@@ -349,7 +355,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             switch (field) {
                 case 'srcNetwork':
                 case 'dstNetwork':
-                    const srcDstNet = getChainByChainId(ecosystem, chainId);
+                    const srcDstNet = getChainByChainId(ecosystem as Ecosystems, chainId as string);
 
                     isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value: srcDstNet }));
 
@@ -371,13 +377,15 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                     break;
                 case 'srcToken':
                 case 'dstToken':
-                    const tokenNet = getChainByChainId(ecosystem, chain);
+                    const tokenNet = getChainByChainId(ecosystem as Ecosystems, chain as string);
                     const token = (await getTokenById(tokenNet, id)) as IAsset;
 
                     const target = field === 'srcToken' ? 'from' : 'to';
+                    const params = token;
 
-                    operationsFactory.value?.getOperationById(targetOpId)?.setToken(target, { ...token, amount });
-                    isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value: token }));
+                    amount && (params.amount = amount);
+                    operationsFactory.value?.getOperationById(targetOpId)?.setToken(target, params);
+                    isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value: params }));
                     break;
                 case 'receiverAddress':
                     operationsFactory.value?.getOperationById(targetOpId)?.setParamByField('receiverAddress', address);
@@ -474,7 +482,12 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     // * Set the shortcut when the component is mounted
     // * Perform the shortcut when the component is mounted
     // ====================================================================================================
-    onMounted(async () => {
+    const initShortcut = async () => {
+        if (isConfigLoading.value) {
+            console.warn('Config is loading');
+            return;
+        }
+
         if (!CurrentShortcut.id) {
             console.warn('No shortcut id found');
             return;
@@ -543,7 +556,11 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         }
 
         isShortcutLoading.value = false;
-    });
+    };
+
+    onMounted(async () => await initShortcut());
+
+    watch(isConfigLoading, async () => await initShortcut());
 
     // ====================================================================================================
     // * Update operation fields when the srcNetwork, dstNetwork, srcToken, dstToken, srcAmount, dstAmount change
@@ -661,7 +678,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         }
     });
 
-    watch([currentOp, isConfigLoading], async () => await callOnWatchOnMounted());
+    watch(currentOp, async () => await callOnWatchOnMounted());
 
     watch(
         [isConfigLoading, isConnecting, connectedWallets],
@@ -703,30 +720,48 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         await performDisabledOrHiddenFields(currentOp.value.id, currentOp.value.moduleType, currentOp.value.params);
     });
 
+    const setOperationAccount = (stepId: string, { force = false }: { force?: boolean } = {}) => {
+        const operationById = operationsFactory.value.getOperationById(stepId);
+        const operationByKey = operationsFactory.value.getOperationByKey(stepId);
+
+        const operation = operationById || operationByKey;
+
+        if (!operation) {
+            console.warn('Operation not found with id:', stepId);
+            return;
+        }
+
+        const { net, fromNet } = operation.getParams();
+
+        if (!net && !fromNet) {
+            console.warn('No network found for operation:', stepId);
+            return;
+        }
+
+        const network = net || fromNet;
+
+        if (force) return operation.setAccount(addressesByChain.value[network]);
+
+        if (!operation.getAccount()) {
+            console.log('ACCOUNT NOT SET', stepId, network, addressesByChain.value[network]);
+            return operation.setAccount(addressesByChain.value[network]);
+        }
+    };
+
     store.watch(
-        (state, getters) => getters['shortcuts/getCurrentStepId'],
+        (getters) => getters['shortcuts/getCurrentStepId'],
         async (stepId) => {
             if (!stepId) return;
-
-            const operation = operationsFactory.value.getOperationById(stepId);
-
-            if (!operation) return;
-
-            if (operation.getParamByField('fromNet')) return;
-
-            console.log(`ACCOUNT for :${stepId} =`, operation.getAccount());
-
-            if (!operation.getAccount()) {
-                console.log(
-                    'ACCOUNT NOT SET',
-                    stepId,
-                    operation.getParamByField('fromNet'),
-                    addressesByChain.value[operation.getParamByField('fromNet')],
-                );
-                operation.setAccount(addressesByChain.value[operation.getParamByField('fromNet')]);
-            }
+            setOperationAccount(stepId);
         },
     );
+
+    watch(walletAccount, async (account, oldAccount) => {
+        if (!operationsFactory.value) return;
+        if (account === oldAccount) return;
+        await delay(1000);
+        operationsFactory.value.getOperationOrder().forEach((id) => setOperationAccount(id, { force: true }));
+    });
 
     // ====================================================================================================
     // * Reset the module states when the component is unmounted

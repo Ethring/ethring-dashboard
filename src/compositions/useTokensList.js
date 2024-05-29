@@ -68,6 +68,12 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
             if (!nativeToken) return [];
 
+            if (!nativeToken?.logo && network.ecosystem === Ecosystem.COSMOS) {
+                const { logo_URIs } = nativeToken || {};
+                const { png, svg } = logo_URIs || {};
+                nativeToken.logo = png || svg || network.logo;
+            }
+
             const searchId = `${network.net}:tokens__native:${nativeToken.symbol}`;
 
             const baseToken = allTokens.find(({ id }) => id === searchId);
@@ -87,8 +93,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
             if (!tokenInfo.name) tokenInfo.name = nativeToken.symbol;
 
             if (network.ecosystem === Ecosystem.COSMOS) {
-                if (!baseToken) tokenInfo.logo = network.logo;
-
+                !tokenInfo.logo && (tokenInfo.logo = nativeToken.logo || network.logo);
                 tokenInfo.address = nativeToken.base;
                 tokenInfo.base = nativeToken.base;
             }
