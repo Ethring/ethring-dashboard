@@ -1,3 +1,4 @@
+import { values } from 'lodash';
 import { Ref, ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
@@ -147,7 +148,7 @@ function useAdapter(): IAdapter {
     const currentChainInfo = computed<IChainInfo>(() => (mainAdapter.value ? mainAdapter.value.getCurrentChain(store) : null));
 
     const chainList = computed<IChainConfig[]>(() =>
-        mainAdapter.value || walletAccount.value ? mainAdapter.value.getChainList() : getAllChainsList(),
+        mainAdapter.value && walletAccount.value ? mainAdapter.value.getChainList() : getAllChainsList(),
     );
 
     const walletAddress = computed<string | null>(() => (mainAdapter.value ? mainAdapter.value.getAccountAddress() : null));
@@ -325,14 +326,18 @@ function useAdapter(): IAdapter {
 
     // * Get All Chains for Ecosystems
     const getAllChainsList = () => {
-        const chains = [];
+        const chainsHash = {} as Record<string, IChainConfig>;
 
         for (const ecosystem in Ecosystem) {
             const chainList = getChainListByEcosystem(ecosystem as Ecosystems);
-            chains.push(...chainList);
+            if (!chainList?.length) continue;
+            chainList.forEach((chain) => {
+                if (chainsHash[chain.net]) return;
+                chainsHash[chain.net] = chain;
+            });
         }
 
-        return chains;
+        return values(chainsHash);
     };
 
     // * Disconnect Wallet by Ecosystem
