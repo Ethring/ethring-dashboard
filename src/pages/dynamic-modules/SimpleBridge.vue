@@ -6,6 +6,7 @@
                 :is-quote-loading="isQuoteLoading"
                 :is-transaction-signing="isTransactionSigning"
                 :get-estimate-info="getEstimateInfo"
+                :route-timer="routeTimer"
             />
             <Slippage />
         </a-row>
@@ -176,6 +177,7 @@ export default {
             otherRoutes,
             selectedRoute,
             quoteErrorMessage,
+            routeTimer,
 
             // --------------------------------
 
@@ -330,6 +332,7 @@ export default {
             toggleRoutesModal,
 
             getEstimateInfo,
+            routeTimer,
 
             fees,
             selectedRoute,

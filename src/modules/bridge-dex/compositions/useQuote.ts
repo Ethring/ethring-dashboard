@@ -230,7 +230,7 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
             // * If there is only one route, set it as selected
             if (routes.length === 1 && !routeFromAPI) routeFromAPI = routes[0];
 
-            store.dispatch('bridgeDexAPI/setRouteTimer', { type: requestParams.type, routeId: routeFromAPI.routeId });
+            store.dispatch('bridgeDexAPI/setRouteTimer', { type: serviceType, routeId: routeFromAPI.routeId });
 
             store.dispatch('bridgeDexAPI/setSelectedRoute', {
                 serviceType: targetType,

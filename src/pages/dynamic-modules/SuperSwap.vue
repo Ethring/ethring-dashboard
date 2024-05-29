@@ -6,6 +6,7 @@
                 :is-quote-loading="isQuoteLoading"
                 :is-transaction-signing="isTransactionSigning"
                 :get-estimate-info="getEstimateInfo"
+                :route-timer="routeTimer"
             />
             <Slippage />
         </a-row>
@@ -199,6 +200,7 @@ export default {
             selectedRoute,
             otherRoutes,
             quoteErrorMessage,
+            routeTimer,
 
             // --------------------------------
             selectedSrcToken,
@@ -355,6 +357,7 @@ export default {
             selectedRoute,
             otherRoutes,
             isAddressError,
+            routeTimer,
             handleOnSetAmount,
 
             isDisableSelect,
