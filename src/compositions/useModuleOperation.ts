@@ -1,4 +1,5 @@
 import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 import { isEqual, startsWith, uniq, isEmpty } from 'lodash';
 
 import { ITransaction, ITransactionResponse } from '@/core/transaction-manager/types/Transaction';
@@ -9,7 +10,7 @@ import { Transaction, TransactionList } from '@/core/transaction-manager/TX-mana
 import { computed, onUnmounted, ref, watch } from 'vue';
 
 // Config
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+import { Ecosystem, Ecosystems } from '@/shared/models/enums/ecosystems.enum';
 
 // Types
 import { AddressByChainHash } from '@/shared/models/types/Address';
@@ -38,9 +39,11 @@ import useTransactions from '@/core/transaction-manager/compositions/useTransact
 
 import { callTrackEvent } from '@/app/modules/mixpanel/track';
 import mixpanel from 'mixpanel-browser';
+import { IChainConfig } from '@/shared/models/types/chain-config';
 
 const useModuleOperations = (module: ModuleType) => {
     const store = useStore();
+    const route = useRouter();
 
     const currentModule = ref(module);
 
@@ -224,7 +227,7 @@ const useModuleOperations = (module: ModuleType) => {
         return null;
     });
 
-    const connectWalletByEcosystem = async (ecosystem: keyof typeof ECOSYSTEMS) => {
+    const connectWalletByEcosystem = async (ecosystem: Ecosystems) => {
         return await connectByEcosystems(ecosystem);
     };
 
@@ -265,7 +268,7 @@ const useModuleOperations = (module: ModuleType) => {
         const isChainsEqual = () => {
             const { ecosystem, chain_id = '' } = currentChainInfo.value || {};
 
-            if ([ECOSYSTEMS.EVM].includes(ecosystem) && typeof chain_id === 'string' && startsWith(chain_id, '0x'))
+            if ([Ecosystem.EVM].includes(ecosystem as Ecosystem) && typeof chain_id === 'string' && startsWith(chain_id, '0x'))
                 return isEqual(`${+chain_id}`, +tx.getChainId());
 
             return isEqual(`${chain_id}`, tx.getChainId());
@@ -309,7 +312,7 @@ const useModuleOperations = (module: ModuleType) => {
             },
             [METHODS.ECOSYSTEM_CONNECTED_CHAIN_NOT_CORRECT]: async () => {
                 console.debug('Ecosystem is connected, but chain is not correct, try to switch', tx.getChainId());
-                const chainInfo = getChainByChainId(tx.getEcosystem(), tx.getChainId());
+                const chainInfo = getChainByChainId(tx.getEcosystem(), tx.getChainId()) as IChainConfig;
                 const changed = await setChain(chainInfo);
                 await delay(1200); // ! Wait for chain switch
                 if (!changed) throw new Error(generateError());
@@ -358,6 +361,7 @@ const useModuleOperations = (module: ModuleType) => {
 
     const createOpsByModule = () => {
         const ops = new OperationsFactory();
+        const account = srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value;
 
         if (isNeedApprove.value) {
             ops.registerOperation(module, ApproveOperation);
@@ -372,13 +376,12 @@ const useModuleOperations = (module: ModuleType) => {
             });
 
             ops.getOperationByKey(`${module}_0`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
-            ops.getOperationByKey(`${module}_0`).setChainId(selectedSrcNetwork.value?.chain_id);
-            ops.getOperationByKey(`${module}_0`).setAccount(srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value);
+            ops.getOperationByKey(`${module}_0`).setChainId(selectedSrcNetwork.value?.chain_id as string);
+
+            ops.getOperationByKey(`${module}_0`).setAccount(account as string);
 
             ops.getOperationByKey(`${module}_0`).setToken('from', selectedSrcToken.value);
         }
-
-        const account = srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value;
 
         switch (module) {
             case ModuleType.stake:
@@ -400,8 +403,8 @@ const useModuleOperations = (module: ModuleType) => {
                 });
 
                 ops.getOperationByKey(`${module}_0`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
-                ops.getOperationByKey(`${module}_0`).setChainId(selectedSrcNetwork.value?.chain_id);
-                ops.getOperationByKey(`${module}_0`).setAccount(account);
+                ops.getOperationByKey(`${module}_0`).setChainId(selectedSrcNetwork.value?.chain_id as string);
+                ops.getOperationByKey(`${module}_0`).setAccount(account as string);
 
                 ops.getOperationByKey(`${module}_0`).setToken('from', selectedSrcToken.value);
                 ops.getOperationByKey(`${module}_0`).setToken('to', selectedDstToken.value);
@@ -427,7 +430,7 @@ const useModuleOperations = (module: ModuleType) => {
                     amount: srcAmount.value,
                     outputAmount: dstAmount.value,
                     memo: memo.value,
-                    serviceId: selectedRoute.value.serviceId,
+                    serviceId: selectedRoute.value?.serviceId,
                     type,
                     slippageTolerance: slippage.value,
                     receiverAddress: receiverAddress.value,
@@ -440,18 +443,19 @@ const useModuleOperations = (module: ModuleType) => {
                         [selectedDstNetwork.value?.net || selectedSrcNetwork.value.net]: receiverAddress.value,
                     };
                 } else {
-                    const receiverAddressValue = addressByChain.value[selectedDstNetwork.value?.net || selectedSrcNetwork.value.net];
+                    const receiverAddressValue = addressByChain.value[selectedDstNetwork.value?.net || selectedSrcNetwork.value?.net];
+                    const network = selectedDstNetwork.value?.net || selectedSrcNetwork.value?.net;
 
                     params.receiverAddress = {
-                        [selectedDstNetwork.value?.net || selectedSrcNetwork.value.net]: receiverAddress.value || receiverAddressValue,
+                        [network]: receiverAddress.value || receiverAddressValue,
                     };
                 }
 
                 ops.setParams(module, index, params);
 
                 ops.getOperationByKey(`${module}_${index}`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
-                ops.getOperationByKey(`${module}_${index}`).setChainId(selectedSrcNetwork.value?.chain_id);
-                ops.getOperationByKey(`${module}_${index}`).setAccount(account);
+                ops.getOperationByKey(`${module}_${index}`).setChainId(selectedSrcNetwork.value?.chain_id as string);
+                ops.getOperationByKey(`${module}_${index}`).setAccount(account as string);
                 selectedSrcToken.value && ops.getOperationByKey(`${module}_${index}`).setToken('from', selectedSrcToken.value);
                 selectedDstToken.value && ops.getOperationByKey(`${module}_${index}`).setToken('to', selectedDstToken.value);
 
@@ -476,8 +480,8 @@ const useModuleOperations = (module: ModuleType) => {
                 ops.getOperationByKey(`${module}_0`).setParamByField('count', contractCallCount.value);
 
                 ops.getOperationByKey(`${module}_0`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
-                ops.getOperationByKey(`${module}_0`).setChainId(selectedSrcNetwork.value?.chain_id);
-                ops.getOperationByKey(`${module}_0`).setAccount(account);
+                ops.getOperationByKey(`${module}_0`).setChainId(selectedSrcNetwork.value?.chain_id as string);
+                ops.getOperationByKey(`${module}_0`).setAccount(account as string);
 
                 ops.getOperationByKey(`${module}_0`).setToken('from', selectedSrcToken.value);
                 ops.getOperationByKey(`${module}_0`).setToken('to', selectedDstToken.value);
@@ -559,18 +563,20 @@ const useModuleOperations = (module: ModuleType) => {
 
         const approveOperation = operations.getOperationByKey(key as string);
 
+        const account = srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value;
+
         approveOperation.setParams({
             net: selectedSrcNetwork.value?.net,
             tokenAddress: selectedSrcToken.value?.address,
-            ownerAddress: srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value,
+            ownerAddress: account as string,
             amount: srcAmount.value,
             serviceId: selectedRoute.value.serviceId,
             dstAmount: dstAmount.value,
         });
 
         approveOperation.setEcosystem(selectedSrcNetwork.value?.ecosystem);
-        approveOperation.setChainId(selectedSrcNetwork.value?.chain_id);
-        approveOperation.setAccount(srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value);
+        approveOperation.setChainId(selectedSrcNetwork.value?.chain_id as string);
+        approveOperation.setAccount(account as string);
         selectedSrcToken.value && approveOperation.setToken('from', selectedSrcToken.value);
     };
 
@@ -770,8 +776,7 @@ const useModuleOperations = (module: ModuleType) => {
 
                 // * Track every tx
                 callTrackEvent(mixpanel, 'module-app launch', {
-                    Modules: txInstance.type === TRANSACTION_TYPES.TRANSFER ? 'send' : txInstance.transaction.module,
-                    ServiceType: txInstance.type,
+                    Modules: route.currentRoute.value.params.id,
                     ServiceId: txInstance.type === TRANSACTION_TYPES.TRANSFER ? 'send' : txInstance.transaction.metaData.params.serviceId,
                     RequestId: txInstance.requestID,
                 });
@@ -897,7 +902,7 @@ const useModuleOperations = (module: ModuleType) => {
 
             // Getting token ids from wasm events
             try {
-                if ([ModuleType.nft].includes(operation.getModule() as ModuleType) && ECOSYSTEMS.COSMOS === operation.getEcosystem())
+                if ([ModuleType.nft].includes(operation.getModule() as ModuleType) && Ecosystem.COSMOS === operation.getEcosystem())
                     getNftTokenIds(operation);
             } catch (error) {
                 /* empty */
@@ -949,6 +954,11 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
 
     const handleOnConfirm = async () => {
+        if (!selectedSrcNetwork.value) {
+            console.warn('Source network not found');
+            return;
+        }
+
         if (!walletAddress.value) return await connectWalletByEcosystem(selectedSrcNetwork.value.ecosystem);
 
         try {

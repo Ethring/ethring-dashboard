@@ -38,14 +38,16 @@
 </template>
 
 <script>
-import { ref, inject } from 'vue';
+import { ref } from 'vue';
+
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
 import SelectRecord from '@/components/ui/Select/SelectRecord';
 import TokenIcon from '@/components/ui/Tokens/TokenIcon';
 
 import ArrowUpIcon from '@/assets/icons/module-icons/pointer-up.svg';
 
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
 export default {
     name: 'SupportedNetworks',
@@ -55,17 +57,16 @@ export default {
         ArrowUpIcon,
     },
     setup() {
-        const useAdapter = inject('useAdapter');
         const { getChainListByEcosystem } = useAdapter();
 
         const supportedEcosystems = [
             {
                 name: 'EVM',
-                networks: getChainListByEcosystem(ECOSYSTEMS.EVM),
+                networks: getChainListByEcosystem(Ecosystem.EVM, true),
             },
             {
                 name: 'Cosmos',
-                networks: getChainListByEcosystem(ECOSYSTEMS.COSMOS, true),
+                networks: getChainListByEcosystem(Ecosystem.COSMOS, true),
             },
         ];
 

@@ -21,7 +21,8 @@ import { computed, inject, ref } from 'vue';
 
 import { KADO_EVM_NETWORKS, KADO_COSMOS_NETWORKS, KADO_DEFAULT_COSMOS, KADO_ACTIONS, KADO_URL } from '@/config/kadoConstants';
 
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
+
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
@@ -48,8 +49,8 @@ export default {
         });
 
         const URLS = {
-            [ECOSYSTEMS.EVM]: `${BASE_URL}&onRevCurrency=USDC&onToAddress=${walletAddress.value}&networkList=${KADO_EVM_NETWORKS}&productList=${KADO_ACTIONS}`,
-            [ECOSYSTEMS.COSMOS]: `${BASE_URL}&onRevCurrency=ATOM&network=${KADO_DEFAULT_COSMOS}&onToAddress=${walletAddress.value}&networkList=${KADO_COSMOS_NETWORKS}&productList=${KADO_ACTIONS}`,
+            [Ecosystem.EVM]: `${BASE_URL}&onRevCurrency=USDC&onToAddress=${walletAddress.value}&networkList=${KADO_EVM_NETWORKS}&productList=${KADO_ACTIONS}`,
+            [Ecosystem.COSMOS]: `${BASE_URL}&onRevCurrency=ATOM&network=${KADO_DEFAULT_COSMOS}&onToAddress=${walletAddress.value}&networkList=${KADO_COSMOS_NETWORKS}&productList=${KADO_ACTIONS}`,
         };
 
         const IFRAME_URL = computed(() => {

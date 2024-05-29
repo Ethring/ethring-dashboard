@@ -4,7 +4,8 @@ import { computed } from 'vue';
 
 import { useStore } from 'vuex';
 
-import { ECOSYSTEMS, NATIVE_CONTRACT } from '@/core/wallet-adapter/config';
+import { NATIVE_CONTRACT } from '@/core/wallet-adapter/config';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
 export default function useTokensList({ network = null, fromToken = null, toToken = null } = {}) {
     const store = useStore();
@@ -85,7 +86,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
             if (!tokenInfo.name) tokenInfo.name = nativeToken.symbol;
 
-            if (network.ecosystem === ECOSYSTEMS.COSMOS) {
+            if (network.ecosystem === Ecosystem.COSMOS) {
                 if (!baseToken) tokenInfo.logo = network.logo;
 
                 tokenInfo.address = nativeToken.base;
@@ -132,7 +133,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
         if (fromToken || toToken)
             for (const tkn of allTokens) {
-                if (network.ecosystem === ECOSYSTEMS.COSMOS && tkn.address && !tkn.base) tkn.base = tkn.address;
+                if (network.ecosystem === Ecosystem.COSMOS && tkn.address && !tkn.base) tkn.base = tkn.address;
 
                 tkn.selected = fromToken?.id === tkn.id || toToken?.id === tkn.id;
             }

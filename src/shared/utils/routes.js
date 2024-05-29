@@ -1,4 +1,4 @@
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
 // const NOT_SUPPORT_COSMOS = ['/super-swap'];
 const NOT_SUPPORT_COSMOS = [];
@@ -8,7 +8,7 @@ export default (path, currentChainInfo) => {
 
     if (!ecosystem) return false;
 
-    if (ecosystem === ECOSYSTEMS.COSMOS && NOT_SUPPORT_COSMOS.includes(path)) return false;
+    if (ecosystem === Ecosystem.COSMOS && NOT_SUPPORT_COSMOS.includes(path)) return false;
 
     return true;
 };

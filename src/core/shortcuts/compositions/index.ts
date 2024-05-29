@@ -9,7 +9,7 @@ import { StepProps } from 'ant-design-vue';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import useTokensList from '@/compositions/useTokensList';
 
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+import { Ecosystem, Ecosystems } from '@/shared/models/enums/ecosystems.enum';
 
 // Operations
 import OperationsFactory from '@/core/operations/OperationsFactory';
@@ -128,8 +128,8 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     // * Address by chain
     // ****************************************************************************************************
     const addressesByChain = computed(() => {
-        const src = store.getters['adapters/getAddressesByEcosystem'](ECOSYSTEMS.EVM) as AddressByChainHash;
-        const dst = store.getters['adapters/getAddressesByEcosystem'](ECOSYSTEMS.COSMOS) as AddressByChainHash;
+        const src = store.getters['adapters/getAddressesByEcosystem'](Ecosystem.EVM) as AddressByChainHash;
+        const dst = store.getters['adapters/getAddressesByEcosystem'](Ecosystem.COSMOS) as AddressByChainHash;
 
         return { ...src, ...dst };
     });

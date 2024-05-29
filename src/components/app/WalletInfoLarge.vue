@@ -34,7 +34,7 @@ import { computed, inject } from 'vue';
 import { useStore } from 'vuex';
 import { useClipboard } from '@vueuse/core';
 
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
 import { cutAddress } from '@/shared/utils/address';
 
@@ -45,6 +45,7 @@ import LinesBack from '@/assets/images/wallet-info/lines.svg';
 import EyeOpenIcon from '@/assets/icons/dashboard/eyeOpen.svg';
 import EyeCloseIcon from '@/assets/icons/dashboard/eye.svg';
 import CopyIcon from '@/assets/icons/platform-icons/copy.svg';
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
 export default {
     name: 'WalletInfo',
@@ -57,7 +58,6 @@ export default {
     },
     setup() {
         const store = useStore();
-        const useAdapter = inject('useAdapter');
 
         const { copy, copied } = useClipboard();
 
@@ -74,7 +74,7 @@ export default {
         const toggleViewBalance = () => store.dispatch('app/toggleViewBalance');
 
         const handleOnCopyAddress = () => {
-            if (currentChainInfo.value.ecosystem === ECOSYSTEMS.EVM) return copy(walletAccount.value);
+            if (currentChainInfo.value.ecosystem === Ecosystem.EVM) return copy(walletAccount.value);
 
             action('SET_MODAL_ECOSYSTEM', currentChainInfo.value.ecosystem);
             return action('SET_MODAL_STATE', { name: 'addresses', isOpen: true });

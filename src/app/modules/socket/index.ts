@@ -1,6 +1,6 @@
 import { Socket, io } from 'socket.io-client';
 
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+import { Ecosystem, Ecosystems } from '@/shared/models/enums/ecosystems.enum';
 
 import { SocketEvents } from '@/shared/models/enums/socket-events.enum';
 
@@ -11,8 +11,6 @@ import { AddressByChain } from '@/shared/models/types/Address';
 import { keys } from 'lodash';
 
 const TX_MANAGER_URL = process.env.TX_MANAGER_API || undefined;
-
-type Ecosystems = keyof typeof ECOSYSTEMS;
 
 interface CustomSocket extends Socket {
     addresses?: {
@@ -89,7 +87,7 @@ class SocketInstance {
         for (const chain in addresses) {
             const { address } = addresses[chain] || {};
 
-            const targetKey = ecosystem === ECOSYSTEMS.EVM ? walletAccount : `${walletAccount}-${chain}`;
+            const targetKey = ecosystem === Ecosystem.EVM ? walletAccount : `${walletAccount}-${chain}`;
 
             if (!this.socket.addresses[ecosystem][targetKey]) {
                 this.socket.emit(SocketEvents['address-subscribe'], address);

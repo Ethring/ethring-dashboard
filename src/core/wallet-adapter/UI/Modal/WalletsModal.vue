@@ -30,7 +30,7 @@ import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
 import WalletItem from '@/core/wallet-adapter/UI/Entities/WalletItem';
 
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
 import CloseIcon from '@/assets/icons/module-icons/wallet-modal-close.svg';
 
@@ -54,10 +54,10 @@ export default {
             if (e.target === modal || closeBtn) return action('SET_MODAL_STATE', { name: 'wallets', isOpen: false });
         };
 
-        const chainList = computed(() => getChainListByEcosystem(ECOSYSTEMS.COSMOS));
+        const chainList = computed(() => getChainListByEcosystem(Ecosystem.COSMOS));
 
         const connect = async (wallet) => {
-            const status = await connectTo(ECOSYSTEMS.COSMOS, wallet, selectedChain.value);
+            const status = await connectTo(Ecosystem.COSMOS, wallet, selectedChain.value);
 
             status && action('SET_MODAL_STATE', { name: 'wallets', isOpen: false });
 
@@ -68,7 +68,7 @@ export default {
             isOpen,
             chainList,
             selectedChain,
-            ecosystem: ECOSYSTEMS.COSMOS,
+            ecosystem: Ecosystem.COSMOS,
             getWalletsModuleByEcosystem,
 
             close,
