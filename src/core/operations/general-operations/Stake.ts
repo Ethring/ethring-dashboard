@@ -10,6 +10,9 @@ import { ICreateTransaction } from '@/core/transaction-manager/types/Transaction
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
 import { getActionByTxType } from '../shared/utils';
+import { IAdapter } from '@/core/wallet-adapter/compositions/useAdapter';
+import AdapterFacade from '@/core/wallet-adapter/ecosystems';
+import BigNumber from 'bignumber.js';
 
 export default class TransferOperation extends BaseOperation {
     module: keyof typeof ModuleType = ModuleType.send;
@@ -20,7 +23,7 @@ export default class TransferOperation extends BaseOperation {
 
     constructor() {
         super();
-        super.setTxType(TRANSACTION_TYPES.TRANSFER);
+        super.setTxType(TRANSACTION_TYPES.STAKE);
     }
 
     async performTx(ecosystem: Ecosystems): Promise<IBridgeDexTransaction> {
@@ -31,7 +34,7 @@ export default class TransferOperation extends BaseOperation {
         const params = {
             fromAddress: ownerAddresses[network],
             toAddress: this.params.receiverAddress,
-            amount: this.params.amount,
+            amount: this.params.outputAmount || this.params.amount,
             token: this.getToken('from'),
             memo: this.params.memo,
         };
@@ -60,6 +63,34 @@ export default class TransferOperation extends BaseOperation {
             return;
         }
 
-        this.setParamByField('outputAmount', this.getParamByField('amount'));
+        const adapter = AdapterFacade(this.getEcosystem());
+
+        if (!adapter) return;
+
+        // Try to get estimated fee
+        try {
+            const perform = await this.performTx(this.getEcosystem());
+
+            const tx = await adapter.prepareDelegateTransaction(perform.transaction);
+
+            const signClient = await adapter.getSignClientByChain(this.getChainId());
+
+            const { msg, fee } = tx;
+
+            const estimatedFee = await adapter.getTransactionFee(signClient.client, msg, { rpc: signClient.rpc });
+
+            if (estimatedFee) fee.gas = estimatedFee.gas;
+
+            if (estimatedFee?.amount) fee.amount = estimatedFee.amount;
+
+            // Set estimated fee
+
+            const outputAmount = BigNumber(this.getParamByField('amount')).minus(estimatedFee.gasToCoin).toFixed(6);
+            this.setParamByField('outputAmount', outputAmount);
+            this.setParamByField('amount', outputAmount);
+        } catch (error) {
+            console.error('[COSMOS -> signSend -> estimate]', error);
+            this.setParamByField('outputAmount', this.getParamByField('amount'));
+        }
     }
 }
