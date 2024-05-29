@@ -41,6 +41,7 @@ export default defineConfig({
                 chunkFileNames: 'js/[name]-[hash].js',
                 entryFileNames: 'js/[name]-[hash].js',
                 assetFileNames: '[ext]/[name]-[hash].[ext]',
+                compact: true,
                 manualChunks: {
                     vue: ['vue', 'vue-router', 'vuex', 'vue3-click-away', 'vue-debounce', '@vueuse/rxjs', '@vueuse/core'],
                     sentry: ['@sentry/vue'],
