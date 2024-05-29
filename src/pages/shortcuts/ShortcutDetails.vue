@@ -28,7 +28,7 @@
                 <a-row :gutter="[16, 16]">
                     <a-col :md="24" :lg="12">
                         <div class="steps-content">
-                            <component :is="shortcutLayout" />
+                            <component :is="shortcutLayout" :is-hide-actions="isShortcutLoading || shortcut?.isComingSoon" />
 
                             <div v-if="shortcut?.isComingSoon" class="coming-soon">
                                 <p class="coming-soon__title">{{ $t('shortcuts.comingSoon') }}</p>
@@ -50,7 +50,7 @@
 </template>
 
 <script lang="ts">
-import _ from 'lodash';
+import { isEmpty } from 'lodash';
 
 import { computed, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
@@ -110,7 +110,7 @@ export default {
         });
 
         onMounted(() => {
-            if (_.isEmpty(shortcut.value)) return router.push('/shortcuts');
+            if (isEmpty(shortcut.value)) return router.push('/shortcuts');
         });
 
         watch(shortcutStatus, (newVal) => {

@@ -1,30 +1,30 @@
 <template>
-    <div class="not-found">404</div>
+    <div class="not-found">
+        <NotFoundIcon />
+        <div class="not-found__text">{{ $t('pageNotFound') }}</div>
+    </div>
 </template>
 <script>
-import { onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import NotFoundIcon from '@/assets/icons/dashboard/not-found.svg';
 
 export default {
     name: 'NotFound',
-    setup() {
-        const router = useRouter();
-
-        onMounted(() => {
-            router.push('/main');
-        });
+    components: {
+        NotFoundIcon,
     },
+    setup() {},
 };
 </script>
 <style lang="scss" scoped>
 .not-found {
-    width: 100%;
-    height: 100vh;
+    text-align: center;
+    margin-top: 20vh;
 
-    @include pageFlexRow;
-    justify-content: center;
-
-    font-weight: 700;
-    font-size: 100px;
+    &__text {
+        margin-top: 32px;
+        font-size: var(--#{$prefix}h1-fs);
+        font-weight: 400;
+        color: var(--#{$prefix}mute-apr-text);
+    }
 }
 </style>

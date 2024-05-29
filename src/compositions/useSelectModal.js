@@ -1,16 +1,16 @@
-import _ from 'lodash';
+import { filter, slice } from 'lodash';
 
 import { ref, computed, inject, nextTick, watch } from 'vue';
 import { useStore } from 'vuex';
 
 import useTokenList from '@/compositions/useTokensList';
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
 import { searchByKey } from '@/shared/utils/helpers';
 import { assignPriceInfo } from '@/shared/utils/prices';
 
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
 
 export default function useSelectModal(type) {
     const TYPES = {
@@ -25,7 +25,6 @@ export default function useSelectModal(type) {
     // =================================================================================================================
 
     const store = useStore();
-    const useAdapter = inject('useAdapter');
 
     const CurrentStepId = computed(() => store.getters['shortcuts/getCurrentStepId']);
     const CurrentShortcut = computed(() => store.getters['shortcuts/getCurrentShortcutId']);
@@ -58,7 +57,7 @@ export default function useSelectModal(type) {
         return [];
     });
 
-    const { chainList, getChainListByEcosystem } = useAdapter();
+    const { chainList, getAllChainsList } = useAdapter();
     const { getTokensList } = useTokenList();
 
     // =================================================================================================================
@@ -171,7 +170,7 @@ export default function useSelectModal(type) {
     // =================================================================================================================
 
     const searchInTokens = (list = [], value) => {
-        return _.filter(
+        return filter(
             list,
             (elem) => searchByKey(elem, value, 'name') || searchByKey(elem, value, 'symbol') || searchByKey(elem, value, 'address'),
         );
@@ -182,8 +181,7 @@ export default function useSelectModal(type) {
 
         let list = chainList.value || [];
 
-        if (module.value === ModuleType.superSwap)
-            list = [...getChainListByEcosystem(ECOSYSTEMS.EVM), ...getChainListByEcosystem(ECOSYSTEMS.COSMOS)];
+        if (module.value === ModuleType.superSwap) list = getAllChainsList();
 
         for (const chain of list)
             chain.selected = chain.net === selectedSrcNetwork.value?.net || chain.net === selectedDstNetwork.value?.net;
@@ -224,7 +222,7 @@ export default function useSelectModal(type) {
 
         isLoadMore.value = list.value.length > MAX_OPTIONS_PER_PAGE && currentIndex.value <= records.length;
 
-        return _.slice(records, 0, currentIndex.value);
+        return slice(records, 0, currentIndex.value);
     });
 
     watch([isOpen, selectedNetwork, selectedTokenFrom], async () => {

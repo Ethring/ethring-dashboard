@@ -13,4 +13,10 @@ export enum AvailableShortcuts {
 
 export enum ShortcutAuthor {
     ZometApp = 'zomet.app',
+    CitadelOne = 'citadelOne',
+    Defigeek = 'defigeek',
+    Stride = 'stride',
+    WitcherCrypto = 'witcherCrypto',
+    Neshtedle = 'neshtedle',
+    Pavlutsky = 'pavlutsky',
 }

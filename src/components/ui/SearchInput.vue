@@ -87,15 +87,6 @@ export default {
         width: 100%;
     }
 
-    span {
-        display: block;
-
-        font-style: normal;
-        font-weight: 400;
-        font-size: var(--#{$prefix}small-lg-fs);
-        color: var(--#{$prefix}base-text);
-    }
-
     &__logo {
         @include pageFlexRow;
         justify-content: center;

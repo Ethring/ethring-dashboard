@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { flatMap, orderBy, values } from 'lodash';
 
 import BigNumber from 'bignumber.js';
 
@@ -102,12 +102,12 @@ export default {
             if (account === BUNDLED_ACCOUNT) {
                 const allData = [];
 
-                for (const acc in state[type]) if (state[type][acc]) allData.push(..._.flatMap(state[type][acc]));
+                for (const acc in state[type]) if (state[type][acc]) allData.push(...flatMap(state[type][acc]));
 
                 return allData;
             }
 
-            const allForAccount = _.flatMap(state[type][account]) || [];
+            const allForAccount = flatMap(state[type][account]) || [];
             return allForAccount;
         },
 
@@ -146,7 +146,7 @@ export default {
                 return grouped;
             }, {});
 
-            return _.orderBy(_.values(platforms), (integration) => +integration?.totalGroupBalance || 0, ['desc']);
+            return orderBy(values(platforms), (integration) => +integration?.totalGroupBalance || 0, ['desc']);
         },
 
         getNFTsByCollection: (state, getters) => (account) => {
@@ -182,7 +182,7 @@ export default {
                 return grouped;
             }, {});
 
-            return _.orderBy(_.values(collections), (collection) => +collection?.totalGroupBalance || 0, ['desc']);
+            return orderBy(values(collections), (collection) => +collection?.totalGroupBalance || 0, ['desc']);
         },
 
         nativeTokens: (state) => state.nativeTokens,

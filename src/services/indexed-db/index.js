@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { values } from 'lodash';
 
 import Dexie from 'dexie';
 
@@ -105,20 +105,22 @@ class IndexedDBService {
     // ======================= SETTERS FOR CONFIGS ==============================
     // ==========================================================================
 
-    async saveNetworksObj(store, networks, { ecosystem } = {}) {
+    async saveNetworksObj(store, networks, { ecosystem, lastUpdated } = {}) {
         const updatedDate = Number(new Date());
+        const lastUpdatedDate = new Date(lastUpdated);
+        const dateToSave = lastUpdated ? lastUpdatedDate : updatedDate;
 
         for (const chain in networks) {
             networks[chain].id = `${ecosystem}:${chain}`;
             networks[chain].ecosystem = ecosystem?.toUpperCase() || '';
             networks[chain].chain = chain;
-            networks[chain].updated_at = updatedDate;
+            networks[chain].updated_at = Number(dateToSave);
             networks[chain].value = JSON.stringify(networks[chain]);
         }
 
         try {
             await this.db.transaction('rw', this.db[store], async () => {
-                await this.db[store].bulkPut(_.values(networks));
+                await this.db[store].bulkPut(values(networks));
                 logger.debug(`All ${ecosystem} networks saved`);
             });
         } catch (error) {
@@ -126,12 +128,14 @@ class IndexedDBService {
         }
     }
 
-    async saveCosmologyAssets(store, configs) {
+    async saveCosmologyAssets(store, configs, { lastUpdated } = {}) {
         try {
             const updatedDate = Number(new Date());
+            const lastUpdatedDate = new Date(lastUpdated);
+            const dateToSave = lastUpdated ? lastUpdatedDate : updatedDate;
 
             for (const config of configs) {
-                config.updated_at = updatedDate;
+                config.updated_at = Number(dateToSave);
                 config.value = JSON.stringify(config);
             }
 
@@ -144,12 +148,15 @@ class IndexedDBService {
         }
     }
 
-    async saveTokensObj(store, tokens, { network, ecosystem } = {}) {
+    async saveTokensObj(store, tokens, { network, ecosystem, lastUpdated } = {}) {
         const formatTokensObj = (tokens) => {
             const updatedDate = Number(new Date());
+            const lastUpdatedDate = new Date(lastUpdated);
+            const dateToSave = lastUpdated ? lastUpdatedDate : updatedDate;
+
             for (const tokenContract in tokens) {
                 formatRecord(ecosystem, network, tokens[tokenContract]);
-                tokens[tokenContract].updated_at = updatedDate;
+                tokens[tokenContract].updated_at = Number(dateToSave);
                 tokens[tokenContract].value = JSON.stringify(tokens[tokenContract]);
             }
             return tokens;
@@ -158,7 +165,7 @@ class IndexedDBService {
         const formattedTokensObject = formatTokensObj(tokens);
 
         await this.db.transaction('rw', this.db[store], async () => {
-            await this.db[store].bulkPut(_.values(formattedTokensObject));
+            await this.db[store].bulkPut(values(formattedTokensObject));
             logger.debug(`[tokens] All tokens for network: ${ecosystem} - ${network} saved`);
         });
 

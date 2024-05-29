@@ -1,19 +1,14 @@
-import { BaseOpParams, PerformOptionalParams } from '@/core/operations/models/Operations';
-import { STATUSES } from '@/shared/models/enums/statuses.enum';
+import { BaseOpParams } from '@/core/operations/models/Operations';
 import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 
 import { AllQuoteParams } from '@/modules/bridge-dex/models/Request.type';
 import { BaseOperation } from '@/core/operations/BaseOperation';
 import { Ecosystems } from '@/modules/bridge-dex/enums/Ecosystem.enum';
 import { IBridgeDexTransaction } from '@/modules/bridge-dex/models/Response.interface';
-import { ICreateTransaction } from '@/core/transaction-manager/types/Transaction';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
-import { getActionByTxType } from '../shared/utils';
-import PendleApi, { IPendleApi } from '@/modules/pendle-silo/api';
-import { ISwapExactTokenForPTRequest } from '@/modules/pendle-silo/models/request';
-import BigNumber from 'bignumber.js';
-import * as ethers from 'ethers';
+
+import { utils } from 'ethers';
 
 export default class CallContractMethod extends BaseOperation {
     module: keyof typeof ModuleType = ModuleType.pendleSilo;
@@ -36,7 +31,7 @@ export default class CallContractMethod extends BaseOperation {
         for (const key of argKeys)
             switch (key) {
                 case 'amount':
-                    argsToCall.push(ethers.utils.parseUnits(this.getParamByField(key), 18).toBigInt());
+                    argsToCall.push(utils.parseUnits(this.getParamByField(key), 18).toBigInt());
                     break;
 
                 case 'owner':

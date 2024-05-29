@@ -1,12 +1,11 @@
-import * as Sentry from '@sentry/vue';
-import { BrowserTracing } from '@sentry/browser';
+import { init, replayIntegration, browserTracingIntegration, captureException } from '@sentry/vue';
 
 import { ignorePatterns } from './tx-ignore.json';
 
-export default function useSentry(app, Router) {
+export default function useSentry(app, router) {
     if (!process.env.SENTRY_DSN) return;
 
-    return Sentry.init({
+    return init({
         app,
         dsn: process.env.SENTRY_DSN,
         tunnel: new URL(process.env.SENTRY_DSN).origin + '/tunnel',
@@ -21,12 +20,7 @@ export default function useSentry(app, Router) {
         // sessions when an error occurs.
         replaysOnErrorSampleRate: 1.0,
 
-        integrations: [
-            new BrowserTracing({
-                routingInstrumentation: Sentry.vueRouterInstrumentation(Router),
-            }),
-            new Sentry.Replay(),
-        ],
+        integrations: [browserTracingIntegration({ router }), replayIntegration()],
         tracesSampleRate: 0.5,
     });
 }
@@ -53,7 +47,7 @@ export const captureTransactionException = ({ error, ...args }) => {
 
     errorInstance.name = `Sign and send transaction error | ${module} | TX-ID: ${id}`;
 
-    return Sentry.captureException(errorInstance, {
+    return captureException(errorInstance, {
         tags: {
             module,
         },
@@ -64,8 +58,8 @@ export const captureTransactionException = ({ error, ...args }) => {
     });
 };
 
-export const captureException = (error) => {
+export const captureSentryException = (error) => {
     if (!process.env.SENTRY_DSN) return;
 
-    return Sentry.captureException(error);
+    return captureException(error);
 };

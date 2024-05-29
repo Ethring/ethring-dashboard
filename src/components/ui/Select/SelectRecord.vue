@@ -1,6 +1,8 @@
 <template>
     <div class="select-network" data-qa="select-network" :class="{ disabled }">
-        <div class="network" :class="{ 'default-network-logo': !name }">
+        <MultiIcon v-if="isAllNetworks" class="network" />
+
+        <div v-else class="network" :class="{ 'default-network-logo': !name }">
             <TokenIcon :token="current" class="network-logo" />
         </div>
 
@@ -21,13 +23,14 @@
 import { computed } from 'vue';
 
 import TokenIcon from '@/components/ui/Tokens/TokenIcon.vue';
-
+import MultiIcon from '@/assets/icons/dashboard/multi.svg';
 import ArrowDownIcon from '@/assets/icons/form-icons/drop-down.svg';
 
 export default {
     name: 'SelectRecord',
     components: {
         TokenIcon,
+        MultiIcon,
         ArrowDownIcon,
     },
     props: {
@@ -41,6 +44,10 @@ export default {
             type: String,
         },
         disabled: {
+            type: Boolean,
+            default: false,
+        },
+        isAllNetworks: {
             type: Boolean,
             default: false,
         },

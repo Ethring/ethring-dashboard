@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { isEmpty } from 'lodash';
 
 import { IShortcutOp } from '../core/ShortcutOp';
 import { IShortcutData } from '../core/Shortcut';
@@ -15,6 +15,7 @@ import StepOp from '@/components/shortcuts/StepItem/StepOp.vue';
 import { ShortcutStatus, StepStatusIcons } from '../core/types/ShortcutType';
 import { StepProps } from 'ant-design-vue';
 import { h } from 'vue';
+import { IBaseOperation } from '@/core/operations/models/Operations';
 
 const TYPES = {
     SET_SHORTCUT: 'SET_SHORTCUT',
@@ -173,7 +174,7 @@ export default {
 
                 const setStatus = (step: OperationStep) => {
                     // Status by operation status
-                    step.status = _.isEmpty(step.status) ? ShortcutStatus.wait : step.status;
+                    step.status = isEmpty(step.status) ? ShortcutStatus.wait : step.status;
 
                     const isCurrentStep = state.currentStepId === step.id;
 
@@ -207,23 +208,22 @@ export default {
                     .map((operation, index) => {
                         const step = operation as OperationStep;
 
-                        const operationInstance = state.shortcutOps[shortcutId].getOperationById(step.operationId);
-
                         step.index = index;
 
                         if (!step.id && step.operationId) step.id = step.operationId;
 
-                        step.icon = StepStatusIcons[state.shortcutOps[shortcutId].getOperationsStatusByKey(step.moduleIndex)];
+                        step.icon = StepStatusIcons[state.shortcutOps[shortcutId].getOperationsStatusByKey(step.moduleIndex)] as any;
 
                         setStatus(step);
 
                         // ================================================================================
                         // * Operation chain info
                         // ================================================================================
+                        const operationInstance = state.shortcutOps[shortcutId].getOperationById(step.operationId) as IBaseOperation;
 
                         const assetChain = {
-                            symbol: operationInstance.getToken('from')?.chain,
-                            logo: rootGetters['configs/getChainLogoByNet'](operationInstance.getToken('from')?.chain),
+                            symbol: operationInstance.tokens.from?.symbol,
+                            logo: rootGetters['configs/getChainLogoByNet'](operationInstance.tokens.from?.chain),
                         };
 
                         return {

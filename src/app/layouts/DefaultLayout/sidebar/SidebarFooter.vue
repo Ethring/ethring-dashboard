@@ -41,9 +41,8 @@ export default {
                 },
                 {
                     name: 'discord',
-                    link: '',
+                    link: 'https://discord.com/invite/fneF9WCG7u',
                     icon: 'DiscordIcon',
-                    disabled: true,
                 },
                 {
                     name: 'git-book',

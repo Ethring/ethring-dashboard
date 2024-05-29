@@ -51,7 +51,7 @@
                 <img v-if="imageUrl" :src="imageUrl" class="custom-avatar" />
 
                 <div v-else-if="author.avatar" class="avatar">
-                    <ZometLogo />
+                    <img :src="author.avatar" :alt="author.name" />
                 </div>
                 <img v-else :src="imgMask" class="avatar" />
             </a-upload>
@@ -77,7 +77,6 @@
 import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 
-import ZometLogo from '@/assets/icons/sidebar/logo.svg';
 import ImgMask from '@/assets/images/placeholder/mask.png';
 
 import VerifiedIcon from '@/assets/icons/form-icons/check-circle.svg';
@@ -92,8 +91,6 @@ import { IAuthor } from '@/core/shortcuts/data/authors';
 export default {
     name: 'ShortcutProfile',
     components: {
-        ZometLogo,
-
         VerifiedIcon,
         TwitterIcon,
         ArrowIcon,

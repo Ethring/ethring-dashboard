@@ -7,7 +7,7 @@ import { ServiceTypes } from '@/modules/bridge-dex/enums/ServiceType.enum';
 import { GetAllowanceParams } from '@/modules/bridge-dex/models/Request.type';
 
 import { IQuoteRoute, ErrorResponse } from '@/modules/bridge-dex/models/Response.interface';
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+import { Ecosystem, Ecosystems } from '@/shared/models/enums/ecosystems.enum';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
 import { Allowance } from '@/modules/bridge-dex/models/Request.type';
@@ -48,7 +48,7 @@ const useBridgeDexAllowance = (targetType: ServiceTypes, bridgeDexService: Bridg
     // ===========================================================================================
 
     const addressByChain = computed<AddressByChainHash>(() => {
-        return store.getters['adapters/getAddressesByEcosystem'](ECOSYSTEMS.EVM) as AddressByChainHash;
+        return store.getters['adapters/getAddressesByEcosystem'](Ecosystem.EVM) as AddressByChainHash;
     });
 
     // ===========================================================================================
@@ -78,7 +78,7 @@ const useBridgeDexAllowance = (targetType: ServiceTypes, bridgeDexService: Bridg
     // ===========================================================================================
 
     const isAllowToMakeRequest = computed(() => {
-        const isEVM = selectedSrcNetwork.value && selectedSrcNetwork.value.ecosystem === ECOSYSTEMS.EVM;
+        const isEVM = selectedSrcNetwork.value && selectedSrcNetwork.value.ecosystem === Ecosystem.EVM;
 
         const isServiceSelected =
             selectedRoute.value &&
@@ -185,7 +185,7 @@ const useBridgeDexAllowance = (targetType: ServiceTypes, bridgeDexService: Bridg
         await makeAllowanceRequest(selectedRoute.value.serviceId, {
             net: selectedSrcNetwork.value.net,
             tokenAddress: selectedSrcToken.value.address,
-            ownerAddress: addressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value,
+            ownerAddress: (addressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value) as string,
         });
     });
 

@@ -134,6 +134,10 @@ li.ecosystem-item {
     min-height: 58px;
     max-height: 80px;
     padding: 0 12px !important;
+
+    .soon {
+        right: 64px !important;
+    }
 }
 
 .connect-wallet__ecosystems {
@@ -149,8 +153,8 @@ li.ecosystem-item {
         max-width: 400px;
         border-radius: 16px;
 
-        &:hover {
-            background-color: var(--#{$prefix}adapter-ecosystem-connect-hover) !important;
+        .soon {
+            right: 20px !important;
         }
     }
 
@@ -165,6 +169,11 @@ li.ecosystem-item {
     .wallets-item {
         padding: 0 25px;
         border-radius: 16px;
+
+        &__logo:nth-child(2),
+        &__logo:nth-child(3) {
+            margin-left: -24px;
+        }
     }
 }
 
@@ -229,54 +238,6 @@ li.ecosystem-item {
         transform: translateY(0);
     }
 }
-
-// .search-select-token {
-//   position: absolute;
-//   // z-index: -200;
-
-//   top: 0;
-//   left: 0;
-//   right: 0;
-//   bottom: 0;
-
-//   // transform: translateX(-150%);
-
-//   background-color: var(--#{$prefix}main-background);
-
-//   &.open {
-//     animation: openSearch 0.8s ease-in-out;
-//     animation-fill-mode: forwards;
-//     opacity: 1;
-//   }
-
-//   &.close {
-//     opacity: 1;
-//     animation: closeSearch 0.6s ease-in-out;
-//     animation-fill-mode: forwards;
-//   }
-// }
-
-// @keyframes openSearch {
-//   0% {
-//     z-index: -200;
-//     transform: translateX(-150%);
-//   }
-//   100% {
-//     z-index: 998;
-//     transform: translateX(0);
-//   }
-// }
-
-// @keyframes closeSearch {
-//   0% {
-//     z-index: 998;
-//     transform: translateX(0);
-//   }
-//   100% {
-//     z-index: -200;
-//     transform: translateX(-150%);
-//   }
-// }
 
 .mt-8 {
     margin-top: 8px;

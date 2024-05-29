@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { pickBy } from 'lodash';
 
 import { Field, FieldAttr } from '@/shared/models/enums/fields.enum';
 import { IFieldState } from '@/shared/models/fields/module-fields';
@@ -132,7 +132,7 @@ export default {
         getDisabledFieldsForModule: (state: IState) => (module: ModuleType) => {
             if (!state[module]) return {};
 
-            return _.pickBy(state[module], (field: IFieldState) => field[FieldAttr.disabled]);
+            return pickBy(state[module], (field: IFieldState) => field[FieldAttr.disabled]);
         },
 
         getIsNeedInputFocus: (state: IState) => state.isNeedInputFocus,

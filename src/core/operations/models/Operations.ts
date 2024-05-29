@@ -197,5 +197,10 @@ export interface IOperationFactory {
     getOperationsStatusById(id: string): STATUSES;
     getOperationsStatusByKey(key: string): STATUSES;
 
+    getFirstOperation(): IBaseOperation;
+    getLastOperation(): IBaseOperation;
+
+    getOperationsStatusById(id: string): STATUSES | null;
+
     // getOperation(module: string, operationIndex: number): IBaseOperation;
 }
