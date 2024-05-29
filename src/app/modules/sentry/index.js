@@ -1,9 +1,8 @@
-import { init, Replay, vueRouterInstrumentation, captureException } from '@sentry/vue';
-import { BrowserTracing } from '@sentry/browser';
+import { init, replayIntegration, browserTracingIntegration, captureException } from '@sentry/vue';
 
 import { ignorePatterns } from './tx-ignore.json';
 
-export default function useSentry(app, Router) {
+export default function useSentry(app, router) {
     if (!process.env.SENTRY_DSN) return;
 
     return init({
@@ -21,12 +20,7 @@ export default function useSentry(app, Router) {
         // sessions when an error occurs.
         replaysOnErrorSampleRate: 1.0,
 
-        integrations: [
-            new BrowserTracing({
-                routingInstrumentation: vueRouterInstrumentation(Router),
-            }),
-            new Replay(),
-        ],
+        integrations: [browserTracingIntegration({ router }), replayIntegration()],
         tracesSampleRate: 0.5,
     });
 }
