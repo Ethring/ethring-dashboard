@@ -49,12 +49,17 @@ export default class DexOperation extends BaseOperation {
             return this.flow;
         }
 
-        const isSameNetwork = this.params.fromNet === this.params.toNet;
+        const isSameNetwork = this.getParamByField('fromNet') === this.getParamByField('toNet');
+
+        const txType = isSameNetwork ? TRANSACTION_TYPES.DEX : TRANSACTION_TYPES.BRIDGE;
+        const makeAction = isSameNetwork ? TRANSACTION_TYPES.SWAP : TRANSACTION_TYPES.DEX;
+
+        this.setTxType(txType);
 
         this.flow = [
             {
-                make: isSameNetwork ? TRANSACTION_TYPES.SWAP : TRANSACTION_TYPES.BRIDGE,
-                type: isSameNetwork ? TRANSACTION_TYPES.DEX : TRANSACTION_TYPES.BRIDGE,
+                make: makeAction,
+                type: txType,
                 moduleIndex: this.getModule(),
             },
         ];
@@ -73,7 +78,7 @@ export default class DexOperation extends BaseOperation {
 
         const serviceId = this.getParamByField('serviceId');
 
-        if (this.params.toToken?.address) this.params.toToken = this.params.toToken?.address;
+        if (this.tokens.to?.address) this.params.toToken = this.tokens.to?.address;
 
         const { best = null, routes } = (await this.service.callMethod('getQuote', this.params)) as IQuoteRoutes;
 

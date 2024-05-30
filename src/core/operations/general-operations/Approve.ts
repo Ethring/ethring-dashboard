@@ -2,7 +2,7 @@ import { PerformOptionalParams, PerformTxParams } from '@/core/operations/models
 
 import { IBridgeDexTransaction } from '@/modules/bridge-dex/models/Response.interface';
 import { Ecosystems } from '@/modules/bridge-dex/enums/Ecosystem.enum';
-import { GetApproveTxParams } from '@/modules/bridge-dex/models/Request.type';
+import { GetAllowanceParams, GetApproveTxParams } from '@/modules/bridge-dex/models/Request.type';
 import { ICreateTransaction } from '@/core/transaction-manager/types/Transaction';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
 import { STATUSES } from '@/shared/models/enums/statuses.enum';
@@ -57,11 +57,39 @@ export default class ApproveOperation extends DexOperation {
     onSuccess = async (store: any): Promise<void> => {
         console.log('Approve success', 'Update allowance');
 
-        await store.dispatch('bridgeDexAPI/setServiceAllowance', {
-            serviceId: this.getParamByField('serviceId'),
-            owner: this.getParamByField('ownerAddress'),
-            token: this.getParamByField('tokenAddress'),
-            value: null,
-        });
+        try {
+            await this.getAllowance(store);
+        } catch (error) {
+            console.error('ApproveOperation onSuccess error', error);
+        }
     };
+
+    async getAllowance(store: any): Promise<void> {
+        console.log('ApproveOperation getAllowance, update allowance');
+
+        store.dispatch('bridgeDexAPI/setLoaderStateByType', { type: 'allowance', value: true });
+
+        const params = {
+            net: this.params.net,
+            tokenAddress: this.params.tokenAddress,
+            ownerAddress: this.params.ownerAddress,
+        } as GetAllowanceParams;
+
+        try {
+            const allowance = await this.service.getAllowance(params);
+
+            console.log('New allowance', allowance);
+
+            store.dispatch('bridgeDexAPI/setServiceAllowance', {
+                serviceId: this.params.serviceId,
+                owner: params.ownerAddress,
+                token: params.tokenAddress,
+                value: allowance,
+            });
+        } catch (error) {
+            console.error('ApproveOperation getAllowance error', error);
+        } finally {
+            store.dispatch('bridgeDexAPI/setLoaderStateByType', { type: 'allowance', value: false });
+        }
+    }
 }
