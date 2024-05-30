@@ -75,6 +75,7 @@ export class EthereumAdapter implements IEthereumAdapter {
     walletManager: OnboardAPI | any;
     addressByNetwork: IAddressByNetwork = {};
     DEFAULT_CHAIN: string = 'eth';
+    initialized: boolean = false;
 
     private constructor() {
         this.store = null;
@@ -93,6 +94,7 @@ export class EthereumAdapter implements IEthereumAdapter {
     // ****************************************************
 
     async init(store: Store<any>): Promise<void> {
+        if (this.initialized) return;
         this.store = store;
         const initOptions = web3OnBoardConfig as InitOptions;
         initOptions.chains = await getBlocknativeConfig();
@@ -101,6 +103,7 @@ export class EthereumAdapter implements IEthereumAdapter {
             if (!wallet?.length && this.walletName) this.connectWallet(this.walletName);
             this.setAddressForChains();
         });
+        this.initialized = true;
     }
 
     isLocked(): boolean {
