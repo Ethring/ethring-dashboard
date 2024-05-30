@@ -1,4 +1,4 @@
-import _ from 'lodash/object';
+import { pick } from 'lodash/object';
 
 import BridgeDexApi from '@/modules/bridge-dex/api';
 
@@ -59,7 +59,7 @@ class BridgeDexService<T extends ServiceType> implements IBridgeDexService {
     }
 
     async getSwapTx(params: GetSwapTxParams) {
-        const requestParams = _.pick(params, QuoteParamsKeys[this.type]) as SwapTxParams<T>;
+        const requestParams = pick(params, QuoteParamsKeys[this.type]) as SwapTxParams<T>;
 
         requestParams.type = this.type;
 
@@ -77,7 +77,7 @@ class BridgeDexService<T extends ServiceType> implements IBridgeDexService {
     }
 
     async getQuote(params: AllQuoteParams, { withServiceId = false } = {}) {
-        const requestParams = _.pick(params, QuoteParamsKeys[this.type]) as QuoteParams<T>;
+        const requestParams = pick(params, QuoteParamsKeys[this.type]) as QuoteParams<T>;
 
         requestParams.type = this.type;
 

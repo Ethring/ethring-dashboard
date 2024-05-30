@@ -15,7 +15,7 @@
 import { onMounted, watch, computed, inject, onBeforeMount, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 
-import _ from 'lodash';
+import { pick } from 'lodash';
 
 import Socket from '@/app/modules/socket';
 
@@ -24,6 +24,8 @@ import ReleaseNotes from '@/app/layouts/DefaultLayout/header/ReleaseNotes.vue';
 
 import WalletsModal from '@/core/wallet-adapter/UI/Modal/WalletsModal';
 import AddressModal from '@/core/wallet-adapter/UI/Modal/AddressModal';
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
+
 import KadoModal from '@/components/app/modals/KadoModal.vue';
 import SelectModal from '@/components/app/modals/SelectModal.vue';
 import BridgeDexRoutesModal from '@/components/app/modals/BridgeDexRoutesModal.vue';
@@ -35,7 +37,7 @@ import { trackingBalanceUpdate } from '@/services/track-update-balance';
 import { setNativeTokensPrices } from '@/core/balance-provider/native-token';
 
 import { DP_CHAINS } from '@/core/balance-provider/models/enums';
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
 export default {
     name: 'App',
@@ -50,7 +52,6 @@ export default {
     },
 
     setup() {
-        const useAdapter = inject('useAdapter');
         const store = useStore();
         const mixpanel = inject('mixpanel');
 
@@ -62,8 +63,10 @@ export default {
             walletAccount,
             currentChainInfo,
             connectedWallets,
+            getDefaultAddress,
             connectLastConnectedWallet,
             getAddressesWithChainsByEcosystem,
+            getChainListByEcosystem,
         } = useAdapter();
 
         const isShowRoutesModal = computed(() => store.getters['app/modal']('routesModal'));
@@ -71,22 +74,23 @@ export default {
         const getAddressesWithChains = async (ecosystem) => {
             const chainAddresses = await getAddressesWithChainsByEcosystem(ecosystem);
 
-            return _.pick(chainAddresses, Object.values(DP_CHAINS)) || {};
+            return pick(chainAddresses, Object.values(DP_CHAINS)) || {};
         };
 
         const callSubscription = async () => {
             const { ecosystem } = currentChainInfo.value || {};
 
-            if (JSON.stringify(await getAddressesWithChains(ecosystem)) !== '{}' && walletAddress.value) {
+            console.log('getDefaultAddress()', getDefaultAddress());
+            if (JSON.stringify(await getAddressesWithChains(ecosystem)) !== '{}' && getDefaultAddress()) {
                 Socket.setAddresses(await getAddressesWithChains(ecosystem), ecosystem, {
                     walletAccount: walletAccount.value,
                 });
 
-                identify(mixpanel, walletAddress.value);
+                identify(mixpanel, getDefaultAddress());
+
                 callTrackEvent(mixpanel, 'connect-wallet', {
                     Ecosystem: currentChainInfo.value.ecosystem,
                     WalletProvider: currentChainInfo.value.walletModule,
-                    WalletProviderAccount: walletAccount.value,
                 });
             }
         };
@@ -97,7 +101,7 @@ export default {
                 if (!wallet) continue;
 
                 const { account, ecosystem, addresses } = wallet || {};
-                const list = _.pick(addresses, Object.values(DP_CHAINS)) || {};
+                const list = pick(addresses, Object.values(DP_CHAINS)) || {};
 
                 store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses: list });
 
@@ -136,6 +140,8 @@ export default {
         // ==========================================================================================
 
         onBeforeMount(async () => {
+            await store.dispatch('configs/setLastUpdated');
+
             await store.dispatch('configs/setConfigLoading', true);
 
             await store.dispatch('configs/initConfigs');
@@ -143,8 +149,10 @@ export default {
 
             await initAdapter();
 
-            await setNativeTokensPrices(store, ECOSYSTEMS.EVM);
-            await setNativeTokensPrices(store, ECOSYSTEMS.COSMOS);
+            await Promise.all([
+                setNativeTokensPrices(getChainListByEcosystem(Ecosystem.EVM)),
+                setNativeTokensPrices(getChainListByEcosystem(Ecosystem.COSMOS)),
+            ]);
         });
 
         onBeforeUnmount(() => {

@@ -1,8 +1,8 @@
-import _ from 'lodash';
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+import { toLower } from 'lodash';
+import { Ecosystem, Ecosystems } from '@/shared/models/enums/ecosystems.enum';
 
-export const formatRecord = (ecosystem: string, chain: string, token: any) => {
-    if (![ECOSYSTEMS.COSMOS].includes(ecosystem?.toUpperCase())) token.address = _.toLower(token.address);
+export const formatRecord = (ecosystem: Ecosystems, chain: string, token: any) => {
+    if (![Ecosystem.COSMOS as string].includes(ecosystem?.toUpperCase())) token.address = toLower(token.address);
 
     token.id = `${chain}:tokens__${token.address}:${token.symbol}`;
     token.chain = chain;
@@ -10,7 +10,7 @@ export const formatRecord = (ecosystem: string, chain: string, token: any) => {
     token.balance = 0;
     token.balanceUsd = 0;
 
-    if (token.ecosystem === ECOSYSTEMS.COSMOS) token.base = token.address;
+    if (token.ecosystem === Ecosystem.COSMOS) token.base = token.address;
 
     return token;
 };

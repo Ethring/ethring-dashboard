@@ -42,6 +42,14 @@ class AdapterBase {
     static validateAddress() {
         throw new Error('Method not implemented.');
     }
+
+    static async prepareDelegateTransaction() {
+        throw new Error('Method not implemented.');
+    }
+
+    static async getSignClientByChain() {
+        throw new Error('Method not implemented.');
+    }
 }
 
 export default AdapterBase;

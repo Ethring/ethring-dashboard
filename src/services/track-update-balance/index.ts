@@ -1,8 +1,8 @@
-import _ from 'lodash';
+import { toLower, isEqual } from 'lodash';
 
 import { computed } from 'vue';
 
-import { ChainConfig } from '@/modules/chain-configs/types/chain-config';
+import { IChainConfig } from '@/shared/models/types/chain-config';
 import { updateBalanceByChain } from '@/core/balance-provider';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import { delay } from '@/shared/utils/helpers';
@@ -19,7 +19,7 @@ export const trackingBalanceUpdate = (store: any) => {
 
     const { walletAccount, getAllChainsList } = useAdapter();
 
-    const chains = computed<ChainConfig[]>(() => getAllChainsList());
+    const chains = computed<IChainConfig[]>(() => getAllChainsList());
 
     const srcToken = computed({
         get: () => store.getters['tokenOps/srcToken'],
@@ -47,7 +47,7 @@ export const trackingBalanceUpdate = (store: any) => {
 
         const config = chains.value.find(
             ({ net, chain_id, chain: configChain }) => net == chain || chain_id == chain || configChain === chain,
-        ) as ChainConfig;
+        ) as IChainConfig;
 
         if (!config) console.warn('CONFIG NOT FOUND for balance update', chain);
 
@@ -79,14 +79,14 @@ export const trackingBalanceUpdate = (store: any) => {
 
         if (srcToken.value) {
             const srcTokenData = tokens.find(
-                ({ id = '', address = '' }) => id === srcToken.value?.id || _.toLower(address) === _.toLower(srcToken.value?.address || ''),
+                ({ id = '', address = '' }) => id === srcToken.value?.id || toLower(address) === toLower(srcToken.value?.address || ''),
             );
             if (srcTokenData) srcToken.value.balance = srcTokenData.balance;
         }
 
         if (dstToken.value) {
             const dstTokenData = tokens.find(
-                ({ id = '', address = '' }) => id === dstToken.value?.id || _.toLower(address) === _.toLower(dstToken.value?.address || ''),
+                ({ id = '', address = '' }) => id === dstToken.value?.id || toLower(address) === toLower(dstToken.value?.address || ''),
             );
             if (dstTokenData) dstToken.value.balance = dstTokenData.balance;
         }
@@ -95,7 +95,7 @@ export const trackingBalanceUpdate = (store: any) => {
     store.watch(
         () => store.getters['updateBalance/getQueueToUpdate'],
         async (queues: IQueue[], oldQueues: IQueue[]) => {
-            if (_.isEqual(queues, oldQueues)) return;
+            if (isEqual(queues, oldQueues)) return;
 
             // ========================================
             // Wait for {N} sec before processing next

@@ -200,7 +200,7 @@ class BasePage {
         // console.log('>>> FINISH');
     }
 
-    async handleRequestWithModification(route: Route, method: string, httpData: Object, wsData: Object) {
+    async handleRequestWithModification(route: Route, method: string, httpData: object, wsData: object) {
         if (route.request().method() === method) {
             const body = JSON.parse(route.request().postData());
             body.expectedDataHttp = httpData;
@@ -213,7 +213,7 @@ class BasePage {
         }
     }
 
-    async handleGetRequest(route: Route, method: string, httpData: Object) {
+    async handleGetRequest(route: Route, method: string, httpData: object) {
         if (route.request().method() === method) {
             const headers = route.request().headers();
             headers['Content-Type'] = 'application/json';
@@ -231,7 +231,7 @@ class BasePage {
      * @param {Object} dataToReturnInHttpResponse - This object was returned from stub-tx-manager as HTTP response.
      * @param {Object} dataToReturnInWsResponse - This object was returned from stub-tx-manager as WS event.
      */
-    async modifyDataByPostTxRequest(dataToReturnInHttpResponse: Object, dataToReturnInWsResponse: Object) {
+    async modifyDataByPostTxRequest(dataToReturnInHttpResponse: object, dataToReturnInWsResponse: object) {
         return await this.page.route(/\/transactions$/, (route) =>
             this.handleRequestWithModification(route, 'POST', dataToReturnInHttpResponse, dataToReturnInWsResponse),
         );
@@ -242,7 +242,7 @@ class BasePage {
      *
      * @param {Object} dataToReturnInHttpResponse - This object was returned from stub-tx-manager as HTTP response.
      */
-    async modifyDataByGetTxRequest(dataToReturnInHttpResponse: Object) {
+    async modifyDataByGetTxRequest(dataToReturnInHttpResponse: object) {
         return await this.page.route(/\/transactions\/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/, (route) => {
             this.handleGetRequest(route, 'GET', dataToReturnInHttpResponse);
         });
@@ -254,7 +254,7 @@ class BasePage {
      * @param {Object} dataToReturnInHttpResponse - This object was returned from stub-tx-manager as HTTP response.
      * @param {Object} dataToReturnInWsResponse - This object was returned from stub-tx-manager as WS event.
      */
-    async modifyDataByPutTxRequest(dataToReturnInHttpResponse: Object, dataToReturnInWsResponse: Object) {
+    async modifyDataByPutTxRequest(dataToReturnInHttpResponse: object, dataToReturnInWsResponse: object) {
         return await this.page.route(/\/transactions\/\d+$/, (route) =>
             this.handleRequestWithModification(route, 'PUT', dataToReturnInHttpResponse, dataToReturnInWsResponse),
         );
@@ -334,10 +334,6 @@ class SendPage extends BasePage {
         await this.setAmount(amount);
         await this.clickConfirm();
     }
-
-    async getTokenTo() {
-        return await this.page.locator(`(//*[@data-qa="${DATA_QA_LOCATORS.SELECT_TOKEN}"]/div[@class="token"])[2]`).textContent();
-    }
 }
 
 class SuperSwapPage extends BasePage {
@@ -357,12 +353,12 @@ class SuperSwapPage extends BasePage {
 
     async setNetworkTo(netName: string) {
         await this.page.getByTestId(DATA_QA_LOCATORS.SELECT_NETWORK).nth(2).click();
-        await this.page.getByTestId(DATA_QA_LOCATORS.TOKEN_RECORD).filter({ hasText: netName }).click();
+        await this.page.getByTestId(DATA_QA_LOCATORS.TOKEN_RECORD).filter({ hasText: netName }).first().click();
     }
 
     async setTokenTo(tokenName: string) {
         await this.page.getByTestId(DATA_QA_LOCATORS.SELECT_NETWORK).nth(3).click();
-        await this.page.getByTestId(DATA_QA_LOCATORS.TOKEN_RECORD).filter({ hasText: tokenName }).click();
+        await this.page.getByTestId(DATA_QA_LOCATORS.TOKEN_RECORD).filter({ hasText: tokenName }).first().click();
     }
 
     async setAmount(amount: string) {
@@ -387,10 +383,6 @@ class SuperSwapPage extends BasePage {
 
     async openRouteInfo() {
         await this.page.getByTestId(DATA_QA_LOCATORS.ROUTE_INFO).click();
-    }
-
-    async getTokenTo() {
-        return await this.page.locator(`(//*[@data-qa="${DATA_QA_LOCATORS.SELECT_TOKEN}"]/div[@class="token"])[2]`).textContent();
     }
 }
 
@@ -427,10 +419,6 @@ class SwapPage extends BasePage {
 
     async getTokenFrom() {
         return await this.page.locator(`(//*[@data-qa="${DATA_QA_LOCATORS.SELECT_TOKEN}"]/div[@class="token"])[1]`).textContent();
-    }
-
-    async getTokenTo() {
-        return await this.page.locator(`(//*[@data-qa="${DATA_QA_LOCATORS.SELECT_TOKEN}"]/div[@class="token"])[2]`).textContent();
     }
 
     async openSlippageDropdown() {

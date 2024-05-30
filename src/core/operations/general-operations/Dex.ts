@@ -1,6 +1,6 @@
-import _ from 'lodash';
+import { isNaN } from 'lodash';
 
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+import { Ecosystem, Ecosystems } from '@/shared/models/enums/ecosystems.enum';
 import { ICreateTransaction } from '@/core/transaction-manager/types/Transaction';
 
 import BridgeDexService from '@/modules/bridge-dex';
@@ -49,12 +49,17 @@ export default class DexOperation extends BaseOperation {
             return this.flow;
         }
 
-        const isSameNetwork = this.params.fromNet === this.params.toNet;
+        const isSameNetwork = this.getParamByField('fromNet') === this.getParamByField('toNet');
+
+        const txType = isSameNetwork ? TRANSACTION_TYPES.DEX : TRANSACTION_TYPES.BRIDGE;
+        const makeAction = isSameNetwork ? TRANSACTION_TYPES.SWAP : TRANSACTION_TYPES.DEX;
+
+        this.setTxType(txType);
 
         this.flow = [
             {
-                make: isSameNetwork ? TRANSACTION_TYPES.SWAP : TRANSACTION_TYPES.BRIDGE,
-                type: isSameNetwork ? TRANSACTION_TYPES.DEX : TRANSACTION_TYPES.BRIDGE,
+                make: makeAction,
+                type: txType,
                 moduleIndex: this.getModule(),
             },
         ];
@@ -66,14 +71,14 @@ export default class DexOperation extends BaseOperation {
         if (this.getParamByField('fromNet') === this.getParamByField('toNet')) this.service = new BridgeDexService(ServiceType.dex);
         else this.service = new BridgeDexService(ServiceType.bridgedex);
 
-        if (_.isNaN(Number(this.params.amount)) && Number(this.params.amount) <= 0) {
+        if (isNaN(Number(this.params.amount)) && Number(this.params.amount) <= 0) {
             console.warn('Amount is required');
             return;
         }
 
         const serviceId = this.getParamByField('serviceId');
 
-        if (this.params.toToken?.address) this.params.toToken = this.params.toToken?.address;
+        if (this.tokens.to?.address) this.params.toToken = this.tokens.to?.address;
 
         const { best = null, routes } = (await this.service.callMethod('getQuote', this.params)) as IQuoteRoutes;
 
@@ -97,7 +102,7 @@ export default class DexOperation extends BaseOperation {
     }
 
     async performTx(ecosystem: string, { serviceId }: PerformTxParams): Promise<IBridgeDexTransaction | null> {
-        if (this.getParamByField('fromNet') === this.getParamByField('toNet') && ecosystem !== ECOSYSTEMS.COSMOS)
+        if (this.getParamByField('fromNet') === this.getParamByField('toNet') && ecosystem !== Ecosystem.COSMOS)
             this.service = new BridgeDexService(ServiceType.dex);
         else this.service = new BridgeDexService(ServiceType.bridgedex);
 

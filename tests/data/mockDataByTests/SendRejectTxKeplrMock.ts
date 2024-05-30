@@ -406,7 +406,6 @@ const mockPostTransactionsWsByCreateEventSwapRejectKeplr = {
                 mars: 'mars19a4sxyjf9mn0qzkck7rryx6mxyl85clqzzmf78',
                 terra2: 'terra1g29cl4ejy8js9l6rnevsanln324scrkvh7qcr2',
                 osmosis: 'osmo19a4sxyjf9mn0qzkck7rryx6mxyl85clqhy3qaw',
-                crescent: 'cre19a4sxyjf9mn0qzkck7rryx6mxyl85clqmh3473',
                 stargaze: 'stars19a4sxyjf9mn0qzkck7rryx6mxyl85clqtr4dqd',
                 cosmoshub: 'cosmos19a4sxyjf9mn0qzkck7rryx6mxyl85clqllzstu',
                 injective: 'inj1695qevzf3nf6aklamstg26ukp3nwz0rn2c4qxn',

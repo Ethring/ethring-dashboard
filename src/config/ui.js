@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
 const MAIN_DASHBOARD = {
     icon: 'overviewIcon',
@@ -62,7 +62,7 @@ const SIDEBAR_MODULES = [MAIN_DASHBOARD, SHORTCUT, SEND, SWAP, BRIDGE, SUPER_SWA
 const SIDEBAR_MODULES_UN_AUTH = [MAIN_DASHBOARD, SHORTCUT, SEND, SWAP, BRIDGE, SUPER_SWAP];
 
 const defaultConfig = {
-    [ECOSYSTEMS.EVM]: {
+    [Ecosystem.EVM]: {
         sidebar: SIDEBAR_MODULES,
         send: {
             component: 'SimpleSend',
@@ -83,7 +83,7 @@ const defaultConfig = {
             component: 'Shortcut',
         },
     },
-    [ECOSYSTEMS.COSMOS]: {
+    [Ecosystem.COSMOS]: {
         sidebar: SIDEBAR_MODULES,
         send: {
             component: 'SimpleSend',

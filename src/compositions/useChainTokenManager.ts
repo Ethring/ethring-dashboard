@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { isEqual, isEmpty } from 'lodash';
 
 import { ref, computed, watch, onBeforeUnmount, onMounted } from 'vue';
 import { useStore } from 'vuex';
@@ -10,7 +10,7 @@ import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 import useInputValidation from '@/shared/form-validations';
 import logger from '@/shared/logger';
-import { ChainConfig } from '@/modules/chain-configs/types/chain-config';
+import { IChainConfig } from '@/shared/models/types/chain-config';
 import { IAsset } from '@/shared/models/fields/module-fields';
 
 export default function useChainTokenManger(moduleType: ModuleType) {
@@ -80,7 +80,7 @@ export default function useChainTokenManger(moduleType: ModuleType) {
     );
 
     // =================================================================================================================
-    const setTokenOnChangeForNet = async (srcNet: ChainConfig, srcToken: IAsset, { isSameNet = false, excludeTokens = [] } = {}) => {
+    const setTokenOnChangeForNet = async (srcNet: IChainConfig, srcToken: IAsset, { isSameNet = false, excludeTokens = [] } = {}) => {
         const getTokensParams = {
             srcNet,
             isSameNet,
@@ -228,7 +228,7 @@ export default function useChainTokenManger(moduleType: ModuleType) {
         const { ecosystem } = currentChainInfo.value || {};
         const { ecosystem: srcEcosystem } = selectedSrcNetwork.value || {};
 
-        const isDiffEcosystem = !_.isEqual(ecosystem, srcEcosystem);
+        const isDiffEcosystem = !isEqual(ecosystem, srcEcosystem);
 
         if (process.env.NODE_ENV === 'debug') {
             console.debug('----------- ON CHANGE ACCOUNT -----------');
@@ -269,7 +269,7 @@ export default function useChainTokenManger(moduleType: ModuleType) {
     const unWatchAcc = watch(walletAccount, async () => await onChangeAccount());
 
     const unWatchSrcDstNetwork = watch([selectedSrcNetwork, selectedDstNetwork], async ([newSrc, newDst], [oldSrc, oldDst]) => {
-        const isNewSrcDstSame = !_.isEmpty(newSrc) && !_.isEmpty(newDst) && _.isEqual(newSrc.net, newDst.net);
+        const isNewSrcDstSame = !isEmpty(newSrc) && !isEmpty(newDst) && isEqual(newSrc.net, newDst.net);
         const isSameNetwork = [ModuleType.bridge].includes(moduleType) && isNewSrcDstSame;
 
         if (process.env.NODE_ENV === 'debug') {
@@ -296,7 +296,7 @@ export default function useChainTokenManger(moduleType: ModuleType) {
             [selectedSrcToken.value, selectedDstToken.value] = [selectedDstToken.value, selectedSrcToken.value];
         }
 
-        if (!_.isEmpty(newSrc)) {
+        if (!isEmpty(newSrc)) {
             selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
 
             if ([ModuleType.swap].includes(moduleType))
@@ -306,7 +306,7 @@ export default function useChainTokenManger(moduleType: ModuleType) {
                 } as any);
         }
 
-        if (!_.isEmpty(newDst)) selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
+        if (!isEmpty(newDst)) selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
     });
 
     const unWatchSrcDstToken = watch([selectedSrcToken, selectedDstToken], async () => {

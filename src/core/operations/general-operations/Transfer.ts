@@ -21,10 +21,6 @@ export default class TransferOperation extends BaseOperation {
     constructor() {
         super();
         super.setTxType(TRANSACTION_TYPES.TRANSFER);
-
-        const isStake = this.getModule() === ModuleType.stake;
-
-        isStake ? this.setTxType(TRANSACTION_TYPES.STAKE) : this.setTxType(TRANSACTION_TYPES.TRANSFER);
     }
 
     async performTx(ecosystem: Ecosystems): Promise<IBridgeDexTransaction> {
@@ -47,10 +43,6 @@ export default class TransferOperation extends BaseOperation {
     }
 
     getOperationFlow(): TxOperationFlow[] {
-        const isStake = this.getModule() === ModuleType.stake;
-
-        isStake ? this.setTxType(TRANSACTION_TYPES.STAKE) : this.setTxType(TRANSACTION_TYPES.TRANSFER);
-
         this.flow = [
             {
                 type: this.transactionType,

@@ -7,6 +7,7 @@
             <div class="dashboard__wallet">
                 <WalletInfoLarge />
             </div>
+            <SupportedNetworks />
             <KeepAlive>
                 <Assets />
             </KeepAlive>
@@ -22,12 +23,15 @@ import Assets from '@/components/app/Assets';
 import ConnectWalletAdapter from '@/components/app/ConnectWalletAdapter.vue';
 import WalletInfoLarge from '@/components/app/WalletInfoLarge';
 
+import SupportedNetworks from '@/components/app/SupportedNetworks';
+
 export default {
     name: 'Dashboard',
     components: {
         WalletInfoLarge,
         ConnectWalletAdapter,
         Assets,
+        SupportedNetworks,
     },
     setup() {
         const useAdapter = inject('useAdapter');

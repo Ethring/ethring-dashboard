@@ -1,6 +1,6 @@
 import { Socket, io } from 'socket.io-client';
 
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+import { Ecosystem, Ecosystems } from '@/shared/models/enums/ecosystems.enum';
 
 import { SocketEvents } from '@/shared/models/enums/socket-events.enum';
 
@@ -8,11 +8,9 @@ import { handleTransactionStatus } from '@/core/transaction-manager/shared/utils
 
 import logger from '@/shared/logger';
 import { AddressByChain } from '@/shared/models/types/Address';
-import _ from 'lodash';
+import { keys } from 'lodash';
 
 const TX_MANAGER_URL = process.env.TX_MANAGER_API || undefined;
-
-type Ecosystems = keyof typeof ECOSYSTEMS;
 
 interface CustomSocket extends Socket {
     addresses?: {
@@ -89,7 +87,7 @@ class SocketInstance {
         for (const chain in addresses) {
             const { address } = addresses[chain] || {};
 
-            const targetKey = ecosystem === ECOSYSTEMS.EVM ? walletAccount : `${walletAccount}-${chain}`;
+            const targetKey = ecosystem === Ecosystem.EVM ? walletAccount : `${walletAccount}-${chain}`;
 
             if (!this.socket.addresses[ecosystem][targetKey]) {
                 this.socket.emit(SocketEvents['address-subscribe'], address);
@@ -100,7 +98,7 @@ class SocketInstance {
 
         // !Removing another account addresses for the same ecosystem
         if (ecosystem === 'COSMOS' && this.socket.addresses[ecosystem])
-            _.keys(this.socket.addresses[ecosystem]).forEach((targetKey: string) => {
+            keys(this.socket.addresses[ecosystem]).forEach((targetKey: string) => {
                 if (!this.socket.addresses) return logger.warn('[Socket] Addresses are not set');
                 if (!this.socket.addresses[ecosystem]) return logger.warn('[Socket] Addresses are not set');
                 if (!targetKey.startsWith(walletAccount)) delete this.socket.addresses[ecosystem][targetKey];

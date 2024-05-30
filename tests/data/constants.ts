@@ -5,7 +5,6 @@ export const EVM_NETWORKS = ['eth', 'arbitrum', 'optimism', 'bsc', 'polygon', 'f
 
 export const COSMOS_WALLETS_BY_PROTOCOL_SEED = {
     cosmoshub: 'cosmos1e9dvrk7n69hsupdnf6q5d0h6k6e33lnjq6vrmz',
-    crescent: 'cre1e9dvrk7n69hsupdnf6q5d0h6k6e33lnjyjlxw0',
     juno: 'juno1e9dvrk7n69hsupdnf6q5d0h6k6e33lnjkg0cu7',
     mars: 'mars1e9dvrk7n69hsupdnf6q5d0h6k6e33lnja846we',
     osmosis: 'osmo1e9dvrk7n69hsupdnf6q5d0h6k6e33lnjgplnds',
@@ -16,7 +15,6 @@ export const COSMOS_WALLETS_BY_PROTOCOL_SEED = {
 
 export const COSMOS_WALLETS_BY_SEED_MOCK_TX = {
     cosmoshub: 'cosmos1aascfnuh7dpup8cmyph2l0wgee9d2lchdlx00r',
-    crescent: 'cre1aascfnuh7dpup8cmyph2l0wgee9d2lchfh426w',
     juno: 'juno1aascfnuh7dpup8cmyph2l0wgee9d2lchmd95gl',
     mars: 'mars1aascfnuh7dpup8cmyph2l0wgee9d2lchszlk6c',
     osmosis: 'osmo1aascfnuh7dpup8cmyph2l0wgee9d2lch9y4le3',
@@ -27,7 +25,6 @@ export const COSMOS_WALLETS_BY_SEED_MOCK_TX = {
 
 export const COSMOS_WALLETS_BY_EMPTY_WALLET = {
     cosmoshub: 'cosmos1asutnqnxzu8pmzsfet4dla47nwpyuqujg9ews3',
-    crescent: 'cre1asutnqnxzu8pmzsfet4dla47nwpyuqujvd2t9u',
     juno: 'juno1asutnqnxzu8pmzsfet4dla47nwpyuquj7h64hd',
     mars: 'mars1asutnqnxzu8pmzsfet4dla47nwpyuquj4cqh92',
     osmosis: 'osmo1asutnqnxzu8pmzsfet4dla47nwpyuqujq727xr',
@@ -38,7 +35,6 @@ export const COSMOS_WALLETS_BY_EMPTY_WALLET = {
 
 export const COSMOS_WALLET_BY_SHORTCUT = {
     cosmoshub: 'cosmos14urxph3lj0zpfks6psw5ynppwtcc6766kcc26x',
-    crescent: 'cre14urxph3lj0zpfks6psw5ynppwtcc6766jst00t',
     juno: 'juno14urxph3lj0zpfks6psw5ynppwtcc6766q2m3a6',
     mars: 'mars14urxph3lj0zpfks6psw5ynppwtcc6766t9pn0a',
     osmosis: 'osmo14urxph3lj0zpfks6psw5ynppwtcc67667rt6v5',

@@ -1,6 +1,6 @@
 <template>
     <a-form class="super-swap superswap-panel">
-        <a-row v-if="!fieldStates.isReload?.hide" class="panel-control">
+        <a-row v-if="!isHideActions && !fieldStates.isReload?.hide" class="panel-control">
             <div
                 class="reload-btn"
                 :class="{ active: dstAmount && !isQuoteLoading && !isTransactionSigning }"
@@ -10,7 +10,6 @@
             </div>
             <Slippage />
         </a-row>
-
         <a-form-item class="switch-direction-wrap">
             <a-form-item>
                 <SwapField
@@ -161,6 +160,12 @@ export default {
         SwitchDirection,
         EstimatePreviewInfo,
         Slippage,
+    },
+    props: {
+        isHideActions: {
+            type: Boolean,
+            default: false,
+        },
     },
     setup() {
         const store = useStore();

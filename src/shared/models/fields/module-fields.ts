@@ -1,7 +1,7 @@
 import { Field, FieldAttr } from '@/shared/models/enums/fields.enum';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 
-import { ChainConfig } from '@/modules/chain-configs/types/chain-config';
+import { IChainConfig } from '@/shared/models/types/chain-config';
 import { AssetBalance } from '@/core/balance-provider/models/types';
 
 export interface AllowanceByService {
@@ -10,7 +10,7 @@ export interface AllowanceByService {
     };
 }
 
-export interface INetwork extends ChainConfig {}
+export interface INetwork extends IChainConfig {}
 
 export interface IAsset extends AssetBalance {
     allowanceByService?: AllowanceByService;

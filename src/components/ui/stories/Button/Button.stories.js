@@ -15,7 +15,7 @@ export default {
 };
 
 const Template = (args) => ({
-    components: { Button },
+    components: { UiButton },
     setup() {
         return { args };
     },

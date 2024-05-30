@@ -67,6 +67,7 @@ variables:
     - oc secrets link default auth-docker --for=pull
   after_script:
     - echo "Report deployed here - https://zomet-test-reports.$OPENSHIFT_ROUTE/$REPORT_TYPE-$CI_COMMIT_SHORT_SHA/"
+    - echo "Report list deployed here - https://zomet-test-reports.$OPENSHIFT_ROUTE/$REPORT_TYPE-$CI_COMMIT_SHORT_SHA/report-list.html"
 
 Update snapshot:
   stage: test_ui
@@ -173,6 +174,7 @@ Run performance tests:
   artifacts:
     paths:
       - ./tests/performance/performance-report.html
+      - ./tests/performance/performance-report-list.html
 
 Build perf tests report image:
   extends: .buildReportsImageJob

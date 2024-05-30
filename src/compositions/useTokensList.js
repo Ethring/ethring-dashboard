@@ -1,10 +1,11 @@
-import _ from 'lodash';
+import { unionBy, orderBy, find } from 'lodash';
 
 import { computed } from 'vue';
 
 import { useStore } from 'vuex';
 
-import { ECOSYSTEMS, NATIVE_CONTRACT } from '@/core/wallet-adapter/config';
+import { NATIVE_CONTRACT } from '@/core/wallet-adapter/config';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
 export default function useTokensList({ network = null, fromToken = null, toToken = null } = {}) {
     const store = useStore();
@@ -67,6 +68,12 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
             if (!nativeToken) return [];
 
+            if (!nativeToken?.logo && network.ecosystem === Ecosystem.COSMOS) {
+                const { logo_URIs } = nativeToken || {};
+                const { png, svg } = logo_URIs || {};
+                nativeToken.logo = png || svg || network.logo;
+            }
+
             const searchId = `${network.net}:tokens__native:${nativeToken.symbol}`;
 
             const baseToken = allTokens.find(({ id }) => id === searchId);
@@ -85,9 +92,8 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
             if (!tokenInfo.name) tokenInfo.name = nativeToken.symbol;
 
-            if (network.ecosystem === ECOSYSTEMS.COSMOS) {
-                if (!baseToken) tokenInfo.logo = network.logo;
-
+            if (network.ecosystem === Ecosystem.COSMOS) {
+                !tokenInfo.logo && (tokenInfo.logo = nativeToken.logo || network.logo);
                 tokenInfo.address = nativeToken.base;
                 tokenInfo.base = nativeToken.base;
             }
@@ -123,7 +129,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
         // Target tokens list with or without balance
         if (onlyWithBalance && account) allTokens = tokensWithBalanceVerified;
-        else allTokens = _.unionBy(tokensWithBalanceVerified, tokensListFromNet, (tkn) => tkn.address?.toLowerCase());
+        else allTokens = unionBy(tokensWithBalanceVerified, tokensListFromNet, (tkn) => tkn.address?.toLowerCase());
 
         // Set native token info
         allTokens = setNativeTokenInfo(allTokens);
@@ -132,12 +138,12 @@ export default function useTokensList({ network = null, fromToken = null, toToke
 
         if (fromToken || toToken)
             for (const tkn of allTokens) {
-                if (network.ecosystem === ECOSYSTEMS.COSMOS && tkn.address && !tkn.base) tkn.base = tkn.address;
+                if (network.ecosystem === Ecosystem.COSMOS && tkn.address && !tkn.base) tkn.base = tkn.address;
 
                 tkn.selected = fromToken?.id === tkn.id || toToken?.id === tkn.id;
             }
 
-        const sortedList = _.orderBy(
+        const sortedList = orderBy(
             allTokens,
 
             [
@@ -174,7 +180,7 @@ export default function useTokensList({ network = null, fromToken = null, toToke
                 onlyWithBalance: false,
             });
 
-            return _.find(tokens, (token) => token.id.toLowerCase() === tokenId.toLowerCase());
+            return find(tokens, (token) => token.id.toLowerCase() === tokenId.toLowerCase());
         } catch (error) {
             console.error('getTokenById', error);
         }

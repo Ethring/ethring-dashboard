@@ -2,7 +2,8 @@ import { DISALLOW_TO_UPDATE_STATUES, DISALLOW_UPDATE_TYPES } from '@/shared/mode
 import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 
 import { SocketEvents } from '@/shared/models/enums/socket-events.enum';
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+
+import { Ecosystem, Ecosystems } from '@/shared/models/enums/ecosystems.enum';
 import { IUpdateBalanceByHash } from '../../shared/models/types/UpdateBalance';
 
 export const detectUpdateForAccount = async (socketEvent: string, store: any, transaction: any = {}) => {
@@ -14,7 +15,7 @@ export const detectUpdateForAccount = async (socketEvent: string, store: any, tr
     if (DISALLOW_TO_UPDATE_STATUES.includes(status) || DISALLOW_UPDATE_TYPES.includes(type) || !txHash) return;
 
     const isBridge = type === TRANSACTION_TYPES.BRIDGE;
-    const isCosmosBridge = ecosystem === ECOSYSTEMS.COSMOS && [TRANSACTION_TYPES.BRIDGE, TRANSACTION_TYPES.DEX].includes(type);
+    const isCosmosBridge = ecosystem === Ecosystem.COSMOS && [TRANSACTION_TYPES.BRIDGE, TRANSACTION_TYPES.DEX].includes(type);
 
     const { fromNet = '', toNet = '', receiverAddress = null } = params || {};
 

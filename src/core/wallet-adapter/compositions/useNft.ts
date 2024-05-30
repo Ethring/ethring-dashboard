@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js';
 import { watch, computed, ref } from 'vue';
 
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
 import { contracts } from 'stargazejs';
 
@@ -137,7 +137,7 @@ export default function useNft(ecosystem: 'EVM' | 'COSMOS'): IUseNFT {
         chain: string,
     ): Promise<{ client: SigningStargateClient | null; cosmWasmClient: CosmWasmClient | null; rpc: string }> => {
         try {
-            if ([ECOSYSTEMS.EVM].includes(ecosystem as any)) return { client: null, cosmWasmClient: null, rpc: '' };
+            if ([Ecosystem.EVM].includes(ecosystem as any)) return { client: null, cosmWasmClient: null, rpc: '' };
             const { client, rpc } = (await adapter.getSignClientByChain(chain)) || { client: null, rpc: '' };
             const cosmWasmClient = await CosmWasmClient.connect(rpc);
 
@@ -246,7 +246,7 @@ export default function useNft(ecosystem: 'EVM' | 'COSMOS'): IUseNFT {
 
         // * PRICE *
 
-        const nativeToken = store.getters['configs/getNativeTokenByChain'](chain, ECOSYSTEMS.COSMOS);
+        const nativeToken = store.getters['configs/getNativeTokenByChain'](chain, Ecosystem.COSMOS);
 
         const { symbol, decimals, price } = nativeToken || {};
 
@@ -427,7 +427,10 @@ export default function useNft(ecosystem: 'EVM' | 'COSMOS'): IUseNFT {
 
             let userAddress = '';
 
-            if (currentOp.value?.id) userAddress = operationsFactory.value.getOperationById(currentOp.value.id).getAccount();
+            if (currentOp.value?.id) {
+                const operation = operationsFactory.value.getOperationById(currentOp.value.id);
+                operation && (userAddress = operation.getAccount());
+            }
 
             let availablePerAddressLimit = per_address_limit;
 
@@ -475,8 +478,9 @@ export default function useNft(ecosystem: 'EVM' | 'COSMOS'): IUseNFT {
             if (end_time) response.time.endTime = moment.unix(+end_time.slice(0, 10)).format('YYYY-MM-DD HH:mm:ss');
 
             if (currentOp.value?.id && minterAddress.value) {
-                operationsFactory.value.getOperationById(currentOp.value.id).setParamByField('minter', minterAddress.value);
-                operationsFactory.value.getOperationById(currentOp.value.id).setParamByField('funds', funds);
+                const operation = operationsFactory.value.getOperationById(currentOp.value.id);
+                operation && operation.setParamByField('collectionAddress', contractAddress);
+                operation && operation.setParamByField('minterAddress', minterAddress.value);
             }
 
             return response;

@@ -42,7 +42,7 @@
                             </a-input-number>
                         </template>
                         <Amount
-                            :value="operation.getToken('from')?.amount || operation.getParamByField('amount')"
+                            :value="fromAmount"
                             :symbol="operation.getToken('from')?.symbol"
                             type="currency"
                             :class="{
@@ -211,6 +211,12 @@ export default {
             editedAmount.value = operation.value.getToken('from')?.balance || 0;
         };
 
+        const fromAmount = computed(() => {
+            if (operation.value.getModule() === ModuleType.stake) return operation.value.getParamByField('outputAmount');
+
+            return operation.value.getToken('from')?.amount || operation.value.getParamByField('amount');
+        });
+
         const percentageToDisplay = ref(100);
         const secondToDisplay = ref(operation.value.getWaitTime());
         const timer = ref();
@@ -248,6 +254,9 @@ export default {
 
         return {
             factory,
+
+            fromAmount,
+
             operation,
             assetChain,
             additionalTooltips,

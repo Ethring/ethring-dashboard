@@ -10,7 +10,7 @@ import { TxOperationFlow } from '@/shared/models/types/Operations';
 import PendleApi, { IPendleApi } from '@/modules/pendle-silo/api';
 import { ISwapExactTokenForPTRequest } from '@/modules/pendle-silo/models/request';
 import BigNumber from 'bignumber.js';
-import * as ethers from 'ethers';
+import { utils } from 'ethers';
 
 export default class PendleAddLiquiditySingleToken extends BaseOperation {
     module: keyof typeof ModuleType = ModuleType.pendleSilo;
@@ -38,7 +38,7 @@ export default class PendleAddLiquiditySingleToken extends BaseOperation {
 
         const tokenIn = address || '0x0000000000000000000000000000000000000000';
 
-        const value = !address ? ethers.utils.parseEther(this.getParamByField('amount')) : ethers.utils.parseUnits('0');
+        const value = !address ? utils.parseEther(this.getParamByField('amount')) : utils.parseUnits('0');
         const amountBN = BigInt(BigNumber(this.getParamByField('amount')).multipliedBy(`1e${decimals}`).toString());
 
         const params: ISwapExactTokenForPTRequest = {

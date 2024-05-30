@@ -4,6 +4,7 @@ import { TEST_CONST, getTestVar } from '../envHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage } from '../model/MetaMask/MetaMask.pages';
 import { FIVE_SECONDS, ONE_SECOND, confirmConnectMmWallet } from '../__fixtures__/fixtureHelper';
 import util from 'util';
+import { estimateMockDataByUnAuthUser } from '../data/mockHelper';
 const sleep = util.promisify(setTimeout);
 
 testMetaMask.describe('SuperSwap e2e tests', () => {
@@ -54,21 +55,20 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
         },
     );
 
-    testMetaMask.skip(
-        'Case#2: Verifying data reset when navigating to swap page',
-        async ({ page, superSwapPageBalanceMock: superSwapPage }) => {
-            const netTo = 'Arbitrum One';
+    testMetaMask('Case#: Verifying data reset when navigating to swap page', async ({ page, superSwapPageBalanceMock: superSwapPage }) => {
+        const netTo = 'Arbitrum';
 
-            await superSwapPage.setNetworkTo(netTo);
-            const tokenInSuperSwap = superSwapPage.getTokenTo();
+        await superSwapPage.setNetworkTo(netTo); // set default token to use network
 
-            const swapPage = await superSwapPage.goToModule('swap');
+        const swapPage = await superSwapPage.goToModule('swap');
 
-            // const currentTokenTo = await swapPage.getTokenTo();
+        const currentTokenTo = await swapPage.page
+            .locator(`//*[@data-qa="select-token"]/div[contains(@class, 'token-symbol')]`)
+            .nth(1)
+            .textContent();
 
-            // expect(tokenInSuperSwap).not.toBe(currentTokenTo);
-        },
-    );
+        expect(currentTokenTo).toBe('Select'); // default text if token not set
+    });
 
     testMetaMask.skip(
         'Case#5: Super Swap tx:swap net:Polygon from:Matic to:1inch Cancel wallet change',
@@ -94,77 +94,39 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
         },
     );
 
-    testMetaMask('Case#: SuperSwap estimate route without authorization', async ({ browser, context, page, unauthSuperSwapPage }) => {
-        await unauthSuperSwapPage.waitDetachedLoader();
+    testMetaMask(
+        'Case#: SuperSwap estimate route without authorization',
+        async ({ browser, context, page, unauthSuperSwapPage: superSwapPage }) => {
+            await superSwapPage.waitDetachedLoader();
 
-        await unauthSuperSwapPage.goToModule('superSwap');
+            await superSwapPage.goToModule('superSwap');
 
-        const TO_NET = 'Polygon';
-        const TO_TOKEN = 'MATIC';
-        const AMOUNT = '2';
+            const TO_NET = 'Polygon';
+            const TO_TOKEN = 'MATIC';
+            const AMOUNT = '2';
 
-        await sleep(FIVE_SECONDS);
+            await sleep(FIVE_SECONDS);
 
-        await expect(unauthSuperSwapPage.page).toHaveScreenshot({
-            maxDiffPixelRatio: 0.01,
-        });
+            await expect(superSwapPage.getBaseContentElement()).toHaveScreenshot({
+                mask: await superSwapPage.page.locator('div.token-icon').all(),
+            });
 
-        await unauthSuperSwapPage.setNetToAndTokenTo(TO_NET, TO_TOKEN);
+            await superSwapPage.setNetToAndTokenTo(TO_NET, TO_TOKEN);
 
-        const estimateMockData = {
-            ok: true,
-            data: {
-                best: 'squid',
-                priority: 'bestReturn',
-                routes: [
-                    {
-                        fromAmount: 2,
-                        toAmount: '8826.590812322721754362',
-                        gasEstimated: 587000,
-                        fee: [
-                            {
-                                currency: 'USD',
-                                amount: '10.775',
-                            },
-                        ],
-                        serviceId: 'squid',
-                        bestFee: false,
-                        bestReturn: true,
-                    },
-                    {
-                        fromAmount: 2,
-                        toAmount: '8799.055875619975516211',
-                        gasEstimated: null,
-                        fee: [
-                            {
-                                currency: 'USD',
-                                amount: '4.39662926715736607966',
-                            },
-                        ],
-                        serviceId: 'debridge',
-                        bestFee: true,
-                        bestReturn: false,
-                    },
-                ],
-            },
-            error: '',
-            errorData: [
-                {
-                    error: 'Insufficient liquidity',
-                    serviceId: 'skip',
-                },
-            ],
-        };
+            await superSwapPage.mockEstimateBridgeRequest(estimateMockDataByUnAuthUser, 200);
 
-        await unauthSuperSwapPage.mockEstimateBridgeRequest(estimateMockData, 200);
+            await superSwapPage.setAmount(AMOUNT);
 
-        await unauthSuperSwapPage.setAmount(AMOUNT);
+            // Estimate route without authorization
+            await superSwapPage.openRouteInfo();
 
-        // Estimate route without authorization
-        await unauthSuperSwapPage.openRouteInfo();
+            await superSwapPage.waitDetachedSkeleton();
 
-        await unauthSuperSwapPage.waitDetachedSkeleton();
+            await expect(superSwapPage.getBaseContentElement()).toHaveScreenshot({
+                mask: await superSwapPage.page.locator('div.token-icon').all(),
+            });
+        },
+    );
 
-        await expect(unauthSuperSwapPage.page).toHaveScreenshot();
-    });
+    // TODO 'Correct test case is next: sign one tx by service debridge (as example), then set data to tx use any other service. Check params in request "getAllowance"' testMetaMask('Case#: Check request params', async ({ browser, context, page, superSwapPageBalanceMock: superSwapPage }) => {    });
 });

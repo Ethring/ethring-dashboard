@@ -201,6 +201,11 @@ export default {
         },
 
         resetSelectedRoute({ commit }: { commit: any }, value: { serviceType: ServiceTypes }) {
+            commit(TYPES.SET_QUOTE_ROUTES, {
+                serviceType: value.serviceType,
+                value: null,
+            });
+
             commit(TYPES.SET_SELECTED_ROUTE, {
                 serviceType: value.serviceType,
                 value: null,

@@ -1,8 +1,8 @@
-import _ from 'lodash';
+import { values, orderBy } from 'lodash';
 
-import { ECOSYSTEMS } from '@/core/wallet-adapter/config';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
-import { getConfigsByEcosystems, getTokensConfigByChain } from '@/modules/chain-configs/api';
+import { getConfigsByEcosystems, getLastUpdated, getTokensConfigByChain } from '@/modules/chain-configs/api';
 
 import IndexedDBService from '@/services/indexed-db';
 
@@ -14,6 +14,7 @@ const TYPES = {
     SET_CONFIG_LOADING: 'SET_CONFIG_LOADING',
     SET_TOKENS_BY_CHAIN: 'SET_TOKENS_BY_CHAIN',
     SET_CHAIN_CONFIG: 'SET_CHAIN_CONFIG',
+    SET_LAST_UPDATED: 'SET_LAST_UPDATED',
 };
 
 const configsDB = new IndexedDBService('configs');
@@ -25,9 +26,11 @@ export default {
         isConfigLoading: true,
 
         chains: {
-            [ECOSYSTEMS.EVM]: {},
-            [ECOSYSTEMS.COSMOS]: {},
+            [Ecosystem.EVM]: {},
+            [Ecosystem.COSMOS]: {},
         },
+
+        lastUpdated: null,
     }),
 
     getters: {
@@ -35,12 +38,12 @@ export default {
 
         getConfigsByEcosystems: (state) => (ecosystem) => state.chains[ecosystem] || {},
 
-        getConfigsListByEcosystem: (state) => (ecosystem) => _.values(state.chains[ecosystem]) || [],
+        getConfigsListByEcosystem: (state) => (ecosystem) => values(state.chains[ecosystem]) || [],
 
         getChainConfigByChainId: (state) => (chainId, ecosystem) => {
             if (!state.chains[ecosystem]) return {};
 
-            const chainList = _.values(state.chains[ecosystem]);
+            const chainList = values(state.chains[ecosystem]);
 
             let cId = chainId;
 
@@ -54,7 +57,7 @@ export default {
         getChainConfigByChainOrNet: (state) => (chainOrNet, ecosystem) => {
             if (!state.chains[ecosystem]) return {};
 
-            const chainList = _.values(state.chains[ecosystem]);
+            const chainList = values(state.chains[ecosystem]);
 
             const chain = chainList.find((chain) => chain.chain === chainOrNet || chain.net === chainOrNet);
 
@@ -92,32 +95,36 @@ export default {
         [TYPES.SET_CONFIG_LOADING](state, value) {
             state.isConfigLoading = value || false;
         },
+
+        [TYPES.SET_LAST_UPDATED](state, lastUpdated) {
+            state.lastUpdated = lastUpdated;
+        },
     },
 
     actions: {
         async initConfigs({ dispatch }) {
-            await dispatch('initChainsByEcosystems', ECOSYSTEMS.COSMOS);
-            await dispatch('initChainsByEcosystems', ECOSYSTEMS.EVM);
+            await Promise.all([dispatch('initChainsByEcosystems', Ecosystem.COSMOS), dispatch('initChainsByEcosystems', Ecosystem.EVM)]);
         },
 
         async initChainsByEcosystems({ commit, dispatch, state }, ecosystem) {
-            const response = await getConfigsByEcosystems(ecosystem);
+            const response = await getConfigsByEcosystems(ecosystem, { lastUpdated: state.lastUpdated });
 
             for (const chain in response) {
                 if (!state.chains[ecosystem][chain]) commit(TYPES.SET_CHAIN_CONFIG, { chain, ecosystem, config: response[chain] });
 
-                if (Object.values(DP_CHAINS).includes(chain)) dispatch('initTokensByChain', { chain, ecosystem });
+                if (Object.values(DP_CHAINS).includes(chain))
+                    dispatch('initTokensByChain', { chain, ecosystem, lastUpdated: state.lastUpdated });
             }
         },
 
-        async initTokensByChain({}, { chain, ecosystem }) {
-            await getTokensConfigByChain(chain, ecosystem);
+        async initTokensByChain({}, { chain, ecosystem, lastUpdated }) {
+            await getTokensConfigByChain(chain, ecosystem, { lastUpdated });
         },
 
         async getTokensListForChain({}, chain) {
             const list = await configsDB.getAllObjectFrom(DB_TABLES.TOKENS, 'chain', chain, { isArray: true });
-            return _.orderBy(list, ['name'], ['asc']).map((item) => {
-                if (item.ecosystem === ECOSYSTEMS.COSMOS) return item;
+            return orderBy(list, ['name'], ['asc']).map((item) => {
+                if (item.ecosystem === Ecosystem.COSMOS) return item;
                 if (item.id && item.id.includes('tokens__')) {
                     const [chain, prefixAddress, symbol] = item.id.split(':');
 
@@ -134,6 +141,12 @@ export default {
 
         setConfigLoading({ commit }, value) {
             commit(TYPES.SET_CONFIG_LOADING, value);
+        },
+
+        async setLastUpdated({ commit }) {
+            const lastUpdated = await getLastUpdated();
+
+            commit(TYPES.SET_LAST_UPDATED, lastUpdated);
         },
     },
 };

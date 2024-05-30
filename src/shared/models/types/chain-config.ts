@@ -1,9 +1,16 @@
-export interface ChainConfig {
-    ecosystem: string;
+import { Ecosystems } from '@/shared/models/enums/ecosystems.enum';
+
+export interface IChainConfig {
+    id: string;
+
+    ecosystem: Ecosystems;
     net: string;
     name: string;
+
     chain_id: number | string;
-    chain?: string;
+    chain?: string | number;
+    chainName?: string;
+
     logo: string;
     coingecko_id: string;
 

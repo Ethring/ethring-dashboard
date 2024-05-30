@@ -16,7 +16,7 @@
             :on-reset="resetAmount"
             :amount-value="srcAmount"
             :disabled-select="fieldStates.srcToken.disabled"
-            :disabled="fieldStates.srcAmount.disabled"
+            :disabled="fieldStates.srcAmount.disabled || true"
             class="select-amount"
             @set-amount="handleOnSetAmount"
             @click-token="onSelectToken"
