@@ -73,8 +73,8 @@ interface IState {
 
     routeTimerSeconds: {
         [key: string]: {
-            seconds: number;
-            percent: number;
+            seconds: number | null;
+            percent: number | null;
         };
     };
 }
@@ -216,10 +216,10 @@ export default {
             state.routeTimer[routeId] = setInterval(() => {
                 const step = 100 / QUOTE_AVAILABLE_TIME;
 
-                state.routeTimerSeconds[routeId].seconds -= 1;
-                state.routeTimerSeconds[routeId].percent -= step;
+                state.routeTimerSeconds[routeId].seconds = (state.routeTimerSeconds[routeId].seconds as number) - 1;
+                state.routeTimerSeconds[routeId].percent = (state.routeTimerSeconds[routeId].percent as number) - step;
 
-                if (state.routeTimerSeconds[routeId].seconds <= 0) {
+                if ((state.routeTimerSeconds[routeId].seconds as number) <= 0) {
                     clearInterval(state.routeTimer[routeId]);
                     state.selectedRoute[type]?.routeId === routeId && (state.quoteErrorMessage = 'Quote expired, please refresh routes.');
                 }
@@ -276,6 +276,8 @@ export default {
 
         clearRouteTimer({ state, commit }: { state: IState; commit: any }, { routeId }: { routeId: string }) {
             clearInterval(state.routeTimer[routeId]);
+            state.routeTimer[routeId] = null;
+            state.routeTimerSeconds[routeId] = { seconds: null, percent: null };
         },
     },
 };

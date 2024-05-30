@@ -548,7 +548,6 @@ export class EthereumAdapter implements IEthereumAdapter {
     async signSend(transaction: any): Promise<any> {
         const ethersProvider = this.getProvider();
 
-        console.log('Transaction to sign:', transaction);
         // Check timer
         const txTimerID = this.store.getters['txManager/txTimerID'];
 
@@ -566,6 +565,7 @@ export class EthereumAdapter implements IEthereumAdapter {
             const signer = ethersProvider.getSigner();
 
             console.log('TRANSACTION TO SIGN:', transaction);
+
             const txn = await signer.sendTransaction(transaction);
 
             console.log('Transaction sent:', txn);
