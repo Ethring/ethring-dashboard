@@ -869,6 +869,8 @@ const useModuleOperations = (module: ModuleType) => {
         // * #4 - On success execute transaction
         // ===============================================================================================
         txInstance.onSuccess = async () => {
+            console.log('Success sign and execute transaction', moduleIndex);
+
             if (!checkOpIsExist()) return;
 
             const operation = operations.getOperationByKey(moduleIndex);
@@ -879,8 +881,12 @@ const useModuleOperations = (module: ModuleType) => {
 
             updateOperationStatus(STATUSES.SUCCESS, { moduleIndex, operationId, hash: txHash as string });
 
-            // * On success by transaction type
-            if (operation && operation.onSuccess) await operation.onSuccess(store);
+            try {
+                // * On success by transaction type
+                if (operation && operation.onSuccess) await operation.onSuccess(store);
+            } catch (error) {
+                console.error('useModuleOperations -> operation -> onSuccess -> error', error);
+            }
 
             if (index === flowCount) {
                 isTransactionSigning.value = false;
@@ -894,11 +900,11 @@ const useModuleOperations = (module: ModuleType) => {
         txInstance.onSuccessSignTransaction = async () => {
             console.log('Success sign and send transaction');
 
-            updateOperationStatus(STATUSES.SUCCESS, { moduleIndex, operationId, hash: txInstance.getTransaction().txHash as string });
-
             if (!checkOpIsExist()) return;
 
             const operation = operations.getOperationByKey(moduleIndex);
+
+            updateOperationStatus(STATUSES.SUCCESS, { moduleIndex, operationId, hash: txInstance.getTransaction().txHash as string });
 
             // Getting token ids from wasm events
             try {

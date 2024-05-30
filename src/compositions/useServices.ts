@@ -274,7 +274,8 @@ export default function useModule(moduleType: ModuleType) {
     };
 
     watch(isNeedApprove, () => {
-        if (isNeedApprove.value) opTitle.value = 'tokenOperations.approve';
+        if (isNeedApprove.value) return (opTitle.value = 'tokenOperations.approve');
+        opTitle.value = DEFAULT_TITLE;
     });
 
     onMounted(() => {
