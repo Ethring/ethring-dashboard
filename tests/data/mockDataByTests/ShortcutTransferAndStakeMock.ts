@@ -48,7 +48,6 @@ export const MOCK_OWNER_ADDRESS = {
     axelar: 'axelar14urxph3lj0zpfks6psw5ynppwtcc6766jkwz38',
     nyx: 'n14urxph3lj0zpfks6psw5ynppwtcc6766yu0g9r',
     passage: 'pasg14urxph3lj0zpfks6psw5ynppwtcc67664qpshe',
-    crescent: 'cre14urxph3lj0zpfks6psw5ynppwtcc6766jst00t',
     osmosis: 'osmo14urxph3lj0zpfks6psw5ynppwtcc67667rt6v5',
     dydx: 'dydx14urxph3lj0zpfks6psw5ynppwtcc6766lpkw63',
     onomy: 'onomy14urxph3lj0zpfks6psw5ynppwtcc6766vevutr',

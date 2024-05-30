@@ -872,7 +872,6 @@ const mockBalanceCosmosWallet = {
     injective: emptyBalanceMockData,
     mars: emptyBalanceMockData,
     terra2: emptyBalanceMockData,
-    crescent: emptyBalanceMockData,
     juno: emptyBalanceMockData,
     osmosis: {
         ok: true,
