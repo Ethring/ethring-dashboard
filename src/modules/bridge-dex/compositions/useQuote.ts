@@ -28,7 +28,7 @@ import useInputValidation from '@/shared/form-validations';
  *
  * @important This composition is used in the useBridgeDexService composition, QUOTE available for all networks
  *
- * @param {ServiceTypes} targetType - The target service type (bridge, dex, bridgedex)
+ * @param {ServiceTypes} targetType - The target service type (superswap, dex, bridgedex)
  * @param {BridgeDexService<any>} bridgeDexService - The BridgeDexService instance for the target service type
  *
  * @returns {Object} - Object containing the following:
@@ -131,6 +131,8 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     // * Utils
     // ===========================================================================================
     const resetQuoteRoutes = () => {
+        if (!targetType || !selectedRoute.value) return;
+
         store.dispatch('bridgeDexAPI/setQuoteRoutes', {
             serviceType: targetType,
             value: null,
@@ -241,7 +243,7 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
                 best,
                 routes,
             };
-        } catch (error) {
+        } catch (error: any) {
             console.error('useBridgeDexQuote -> makeQuoteRoutes', error);
             quoteErrorMessage.value = error?.message || 'An error occurred while making a quote request';
 

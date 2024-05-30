@@ -906,13 +906,6 @@ const useModuleOperations = (module: ModuleType) => {
 
             updateOperationStatus(STATUSES.SUCCESS, { moduleIndex, operationId, hash: txInstance.getTransaction().txHash as string });
 
-            try {
-                // * On success by transaction type
-                if (operation && operation.onSuccess) await operation.onSuccess(store);
-            } catch (error) {
-                console.error('useModuleOperations -> operation -> onSuccess -> error', error);
-            }
-
             // Getting token ids from wasm events
             try {
                 if ([ModuleType.nft].includes(operation.getModule() as ModuleType) && Ecosystem.COSMOS === operation.getEcosystem())
