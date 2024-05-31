@@ -871,7 +871,7 @@ const useModuleOperations = (module: ModuleType) => {
         // * #4 - On success execute transaction
         // ===============================================================================================
         txInstance.onSuccess = async () => {
-            console.log('Success execute transaction', moduleIndex);
+            console.log('Success sign and execute transaction', moduleIndex);
 
             if (!checkOpIsExist()) return;
 

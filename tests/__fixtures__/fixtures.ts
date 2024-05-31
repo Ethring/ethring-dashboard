@@ -24,9 +24,9 @@ import {
     METAMASK_DEFAULT_URL_NODE,
 } from '../data/constants';
 import { mockBalanceData, marketCapNativeEvmTokens } from '../data/mockHelper';
-import { mockTxReceipt } from 'tests/data/mockDataByTests/ShortcutTransferAndStakeMock';
-import { MOCK_EVM_TX_HASH } from 'tests/data/mockDataByTests/ShortcutTransferAndStakeMock';
-import { mockMetaMaskSignTransaction } from 'tests/model/MetaMask/MetaMask.pages';
+// import { mockTxReceipt } from 'tests/data/mockDataByTests/ShortcutTransferAndStakeMock';
+// import { MOCK_EVM_TX_HASH } from 'tests/data/mockDataByTests/ShortcutTransferAndStakeMock';
+// import { mockMetaMaskSignTransaction } from 'tests/model/MetaMask/MetaMask.pages';
 
 const ADDRESS_BY_TX = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
 const SEED_PHRASE_BY_TX = getTestVar(TEST_CONST.SEED_BY_MOCK_TX);
@@ -69,7 +69,7 @@ export const testMetaMask = base.extend<{
     superSwapPageBalanceMock: SuperSwapPage;
     unauthSuperSwapPage: SuperSwapPage;
 }>({
-    context: async ({ }, use) => {
+    context: async ({}, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -104,19 +104,19 @@ export const testMetaMask = base.extend<{
     },
     dashboard: async ({ context }, use) => {
         const zometPage = await authByMm(context, SEED_PHRASE_BY_TX);
-        await use(zometPage);
+        await use(zometPage as DashboardPage);
     },
     dashboardEmptyWallet: async ({ context }, use) => {
         const zometPage = await authByMmMockEmptyWallets(context, SEED_EMPTY_WALLET, EMPTY_ETH_ADDRESS);
-        await use(zometPage);
+        await use(zometPage as DashboardPage);
     },
     dashboardAllBalanceError: async ({ context }, use) => {
         const zometPage = await authByMmMockErrorBalance(context, SEED_EMPTY_WALLET, EMPTY_ETH_ADDRESS);
-        await use(zometPage);
+        await use(zometPage as DashboardPage);
     },
     dashboardProtocol: async ({ context }, use) => {
         const zometPage = await authMmCoingeckoAndBalanceMock(context, SEED_PHRASE_BY_PROTOCOL, ADDRESS_BY_PROTOCOL, mockBalanceData);
-        await use(zometPage);
+        await use(zometPage as DashboardPage);
     },
     swapPage: async ({ context }, use) => {
         const zometPage = await authByMm(context, SEED_PHRASE_BY_TX);
@@ -167,7 +167,7 @@ export const testMetaMask = base.extend<{
         });
 
         await zometPage.goToPage();
-        await use(zometPage);
+        await use(zometPage as SuperSwapPage);
     },
 });
 
@@ -175,7 +175,7 @@ export const testMetaMaskMockTx = base.extend<{
     context: BrowserContext;
     sendPage: SendPage;
 }>({
-    context: async ({ }, use) => {
+    context: async ({}, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -211,7 +211,7 @@ export const testKeplr = base.extend<{
     sendPage: SendPage;
     swapPage: SwapPage;
 }>({
-    context: async ({ }, use) => {
+    context: async ({}, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -248,7 +248,7 @@ export const testKeplr = base.extend<{
     },
     dashboardProtocol: async ({ context }, use) => {
         const zometPage = await authByKeplrErrorJunoBalanceMock(context, SEED_PHRASE_BY_PROTOCOL, COSMOS_WALLETS_BY_PROTOCOL_SEED);
-        await use(zometPage);
+        await use(zometPage as DashboardPage);
     },
     swapPage: async ({ context }, use) => {
         const zometPage = await authByKeplr(context, SEED_PHRASE_BY_TX, COSMOS_WALLETS_BY_SEED_MOCK_TX);
@@ -262,7 +262,7 @@ export const testMetaMaskAndKeplr = base.extend<{
     authPage: BasePage;
     shortcutPage: ShortcutPage;
 }>({
-    context: async ({ }, use) => {
+    context: async ({}, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,

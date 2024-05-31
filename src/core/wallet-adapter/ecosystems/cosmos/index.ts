@@ -111,6 +111,7 @@ export class CosmosAdapter implements ICosmosAdapter {
     store: any | Store<any>;
     walletManager: WalletManager | undefined;
     addressByNetwork: { [key: string]: IAddressByNetwork } = {};
+    initialized: boolean = false;
 
     // ****************************************************
     // * Constants
@@ -150,6 +151,8 @@ export class CosmosAdapter implements ICosmosAdapter {
     }
 
     async init(store?: any) {
+        if (this.initialized) return;
+
         store && (this.store = store);
 
         const lastUpdated = store?.state?.configs?.lastUpdated || null;
@@ -208,6 +211,8 @@ export class CosmosAdapter implements ICosmosAdapter {
         this.setChainLogos();
 
         this.walletManager.onMounted();
+
+        this.initialized = true;
     }
 
     getConnectedWallets() {

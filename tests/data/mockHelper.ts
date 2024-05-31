@@ -9,7 +9,7 @@ const errorGetBalanceMockData = {
 const errorEstimateSwap = {
     ok: false,
     data: null,
-    error: "No routes available",
+    error: 'No routes available',
 };
 
 const mockBalanceData = {
@@ -872,7 +872,6 @@ const mockBalanceCosmosWallet = {
     injective: emptyBalanceMockData,
     mars: emptyBalanceMockData,
     terra2: emptyBalanceMockData,
-    crescent: emptyBalanceMockData,
     juno: emptyBalanceMockData,
     osmosis: {
         ok: true,
@@ -1270,6 +1269,51 @@ const estimateSwapMockData = {
     errorData: [],
 };
 
+const estimateMockDataByUnAuthUser = {
+    ok: true,
+    data: {
+        best: 'squid',
+        priority: 'bestReturn',
+        routes: [
+            {
+                fromAmount: 2,
+                toAmount: '8826.590812322721754362',
+                gasEstimated: 587000,
+                fee: [
+                    {
+                        currency: 'USD',
+                        amount: '10.775',
+                    },
+                ],
+                serviceId: 'squid',
+                bestFee: false,
+                bestReturn: true,
+            },
+            {
+                fromAmount: 2,
+                toAmount: '8799.055875619975516211',
+                gasEstimated: null,
+                fee: [
+                    {
+                        currency: 'USD',
+                        amount: '4.39662926715736607966',
+                    },
+                ],
+                serviceId: 'debridge',
+                bestFee: true,
+                bestReturn: false,
+            },
+        ],
+    },
+    error: '',
+    errorData: [
+        {
+            error: 'Insufficient liquidity',
+            serviceId: 'skip',
+        },
+    ],
+};
+
 export {
     mockBalanceData,
     marketCapMockData,
@@ -1280,5 +1324,6 @@ export {
     errorGetBalanceMockData,
     errorEstimateSwap,
     mockBalanceCosmosWallet,
-    estimateSwapMockData
+    estimateSwapMockData,
+    estimateMockDataByUnAuthUser,
 };

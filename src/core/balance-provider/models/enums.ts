@@ -29,7 +29,6 @@ export enum DP_CHAINS {
     // Cosmos Ecosystem
     COSMOS = 'cosmoshub',
     COSMOSHUB = 'cosmos',
-    CRESCENT = 'crescent',
     JUNO = 'juno',
     INJECTIVE = 'injective',
     KUJIRA = 'kujira',
@@ -48,7 +47,6 @@ export const DP_COSMOS = {
     [DP_CHAINS.COSMOS]: 'cosmos',
     [DP_CHAINS.COSMOSHUB]: 'cosmoshub',
 
-    [DP_CHAINS.CRESCENT]: 'crescent',
     [DP_CHAINS.JUNO]: 'juno',
     [DP_CHAINS.INJECTIVE]: 'injective',
     [DP_CHAINS.KUJIRA]: 'kujira',
@@ -60,7 +58,6 @@ export const DP_COSMOS = {
 
 export const DATA_PROVIDER_COSMOS_CHAINS = [
     DP_CHAINS.COSMOS,
-    DP_CHAINS.CRESCENT,
     DP_CHAINS.JUNO,
     DP_CHAINS.INJECTIVE,
     DP_CHAINS.KUJIRA,

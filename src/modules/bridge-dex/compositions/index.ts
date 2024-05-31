@@ -1,4 +1,4 @@
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 
 import BridgeDexService from '@/modules/bridge-dex';
@@ -40,13 +40,11 @@ const useBridgeDexService = (type: ModuleTypes) => {
     // * Quote Routes List by ServiceType (bridge, dex, bridgedex)
     // ===========================================================================================
 
-    store.dispatch('bridgeDexAPI/setTargetServiceType', TARGET_TYPE);
-
     const quoteRoutes = computed<IQuoteRoute[]>(() => store.getters['bridgeDexAPI/getQuoteRouteList'](TARGET_TYPE));
     const selectedRoute = computed<IQuoteRoute>(() => store.getters['bridgeDexAPI/getSelectedRoute'](TARGET_TYPE));
+
     const otherRoutes = computed<IQuoteRoute[]>(() => {
         if (!quoteRoutes.value || !selectedRoute.value) return [];
-
         return quoteRoutes.value.filter((route: IQuoteRoute) => route.serviceId !== selectedRoute.value.serviceId);
     });
 
@@ -54,6 +52,14 @@ const useBridgeDexService = (type: ModuleTypes) => {
     // * Reset selected route on mount
     // ===========================================================================================
     onMounted(() => {
+        if (!TARGET_TYPE) return store.dispatch('bridgeDexAPI/setTargetServiceType', null);
+        store.dispatch('bridgeDexAPI/setTargetServiceType', TARGET_TYPE);
+        store.dispatch('bridgeDexAPI/resetSelectedRoute', { serviceType: TARGET_TYPE });
+    });
+
+    onUnmounted(() => {
+        if (!TARGET_TYPE) return store.dispatch('bridgeDexAPI/setTargetServiceType', null);
+        store.dispatch('bridgeDexAPI/setTargetServiceType', TARGET_TYPE);
         store.dispatch('bridgeDexAPI/resetSelectedRoute', { serviceType: TARGET_TYPE });
     });
 
