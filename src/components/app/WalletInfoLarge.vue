@@ -19,7 +19,7 @@
 
                 <div v-else class="balance">
                     <Amount :value="totalBalance" :decimals="3" type="usd" symbol="$" />
-                    <div v-if="currentChainInfo" class="balance__hide" @click="toggleViewBalance">
+                    <div class="balance__hide" @click="toggleViewBalance">
                         <EyeOpenIcon v-if="showBalance" />
                         <EyeCloseIcon v-else />
                     </div>
@@ -30,7 +30,7 @@
     </div>
 </template>
 <script>
-import { computed, inject } from 'vue';
+import { computed } from 'vue';
 import { useStore } from 'vuex';
 import { useClipboard } from '@vueuse/core';
 
@@ -45,6 +45,7 @@ import LinesBack from '@/assets/images/wallet-info/lines.svg';
 import EyeOpenIcon from '@/assets/icons/dashboard/eyeOpen.svg';
 import EyeCloseIcon from '@/assets/icons/dashboard/eye.svg';
 import CopyIcon from '@/assets/icons/platform-icons/copy.svg';
+
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
 export default {

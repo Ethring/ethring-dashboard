@@ -10,7 +10,7 @@ const SHOW_BALANCE_KEY = 'user-settings:show-balances';
 const getShowBalance = () => JSON.parse(window.localStorage.getItem(SHOW_BALANCE_KEY));
 const setShowBalance = (showBalance) => localStorage.setItem(SHOW_BALANCE_KEY, JSON.stringify(showBalance));
 
-const cutAddressMock = vi.fn(() => {});
+const cutAddressMock = vi.fn(() => { });
 
 const storeMock = {
     getters: {
@@ -22,18 +22,11 @@ const storeMock = {
     dispatch: vi.fn(),
 };
 
-const useAdapterMock = () => ({
-    walletAccount: '0x',
-    currentChainInfo: { ecosystem: 'EVM' },
-    action: vi.fn(),
-});
-
 describe('Show/hide balances', () => {
     const wrapper = shallowMount(WalletInfoLarge, {
         global: {
             provide: {
                 store: storeMock,
-                useAdapter: useAdapterMock,
                 cutAddress: cutAddressMock,
             },
             mocks: {
@@ -51,8 +44,7 @@ describe('Show/hide balances', () => {
         localStorage.clear();
     });
 
-    // TODO: Fix test with components
-    test.skip('Case #1. Check show/hide balance icon', () => {
+    test('Case #1. Check show/hide balance icon', () => {
         const showBalance = true;
         setShowBalance(showBalance);
 
