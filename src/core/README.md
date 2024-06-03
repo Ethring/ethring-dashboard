@@ -4,14 +4,14 @@ This folder contains the core functionality of the Zomet Dashboard project.
 
 ## Table of Contents
 
-- [Description](#description)
-- [Main Components](#main-components)
-  - [Modules](#modules)
-    - [`transaction-manager`](#transaction-manager)
-    - [`wallet-adapter`](#wallet-adapter)
-    - [`operations`](#operations)
-    - [`shortcuts`](#shortcuts)
-    - [`balance-provider`](#balance-provider)
+-   [Description](#description)
+-   [Main Components](#main-components)
+    -   [Modules](#modules)
+        -   [`transaction-manager`](#transaction-manager)
+        -   [`wallet-adapter`](#wallet-adapter)
+        -   [`operations`](#operations)
+        -   [`shortcuts`](#shortcuts)
+        -   [`balance-provider`](#balance-provider)
 
 ## Description
 

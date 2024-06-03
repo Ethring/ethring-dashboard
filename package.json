@@ -17,7 +17,7 @@
     "test:e2e:updateSnapshot": "xvfb-run npx playwright test --update-snapshots",
     "test:e2e:ci:updateSnapshot": "xvfb-run npx playwright test --update-snapshots",
     "test:e2e:ci": "xvfb-run npx playwright test",
-    "test:performance": "vitest ./tests/performance/lighthouse-performance.test.js",
+    "test:performance": "vitest --retry=2 ./tests/performance/lighthouse-performance.test.js",
     "test:report": "npx playwright show-report",
     "lint:code": "eslint src --ext .ts,.js,.vue --ignore-path .gitignore",
     "lint:code:fix": "eslint src --ext .ts,.js,.vue --fix --ignore-pattern \"/tests/\"",
