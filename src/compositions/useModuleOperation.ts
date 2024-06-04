@@ -110,6 +110,8 @@ const useModuleOperations = (module: ModuleType) => {
         contractCallCount,
         slippage,
         opTitle,
+
+        getEstimateInfo,
     } = moduleInstance;
 
     const { signAndSend } = useTransactions();
@@ -1034,7 +1036,8 @@ const useModuleOperations = (module: ModuleType) => {
             throw error;
         } finally {
             isTransactionSigning.value = false;
-            if (selectedRoute.value?.routeId) quoteErrorMessage.value = 'Quote expired, refresh the route';
+            // * if selected route exist, refresh it
+            if (selectedRoute.value) await getEstimateInfo(true);
         }
     };
 
