@@ -69,11 +69,6 @@
         span {
             text-transform: capitalize;
         }
-
-        &:hover {
-            background-color: var(--#{$prefix}small-btn-bg-color) !important;
-            color: var(--#{$prefix}primary) !important;
-        }
     }
 
     .steps-content {
