@@ -16,7 +16,6 @@ $turquoise: #3fdfae;
 $surfieGreen: #0d7e71;
 
 $kellyGreen: #52c41a;
-
 //  ===========================================================================
 //  SECONDARY COLORS
 //  ===========================================================================
@@ -218,6 +217,7 @@ $collapse-border-color: $geyser;
 // Info
 $success: $kellyGreen;
 $success-op-01: rgba($success, 0.1);
+$success-color: #5aec99;
 
 $danger: $wildWatermelon;
 $danger-op-01: rgba($danger, 0.1);
@@ -445,6 +445,7 @@ $theme-colors: (
 
     'success': $success,
     'success-op-01': $success-op-01,
+    'success-color': $success-color,
 
     'danger': $danger,
     'danger-op-01': $danger-op-01,
