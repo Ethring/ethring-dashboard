@@ -141,13 +141,19 @@ $top-bar-spacing: 63px;
             border-radius: 8px;
             max-width: 520px;
             width: 100%;
-            padding: 18px;
+            padding: 10px;
             margin: auto;
+
+            code {
+                display: block;
+                min-height: 60px !important;
+                overflow-y: auto !important;
+            }
         }
 
         p {
             color: var(--#{$prefix}base-text);
-            font-size: var(--#{$prefix}h5-fs);
+            font-size: var(--#{$prefix}h6-fs);
             margin-bottom: 8px;
         }
 
