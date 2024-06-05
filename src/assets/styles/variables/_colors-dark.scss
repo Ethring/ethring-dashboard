@@ -183,6 +183,7 @@ $collapse-border-color: $charade;
 // Info
 $success: $kellyGreen;
 $success-op-01: rgba($success, 0.1);
+$success-color: #5aec99;
 
 $danger: $wildWatermelon;
 $danger-op-01: rgba($danger, 0.1);
@@ -392,6 +393,7 @@ $theme-colors-dark: (
 
     'success': $success,
     'success-op-01': $success-op-01,
+    'success-color': $success-color,
 
     'danger': $danger,
     'danger-op-01': $danger-op-01,

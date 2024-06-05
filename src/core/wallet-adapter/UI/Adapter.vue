@@ -1,18 +1,19 @@
 <template>
-    <a-dropdown :arrow="{ pointAtCenter: true }" placement="bottom" class="wallet-adapter-container">
+    <a-dropdown v-model:open="open" :arrow="{ pointAtCenter: true }" placement="bottom" class="wallet-adapter-container">
         <AccountCenter v-if="walletAddress" class="ant-dropdown-link" />
         <NotConnected v-else class="ant-dropdown-link" />
 
         <template #overlay>
             <a-menu class="adapter__dropdown">
-                <ConnectToEcosystems />
                 <AdapterDropdown v-if="walletAddress" />
+                <ConnectToEcosystems :close="() => (open = false)" />
             </a-menu>
         </template>
     </a-dropdown>
 </template>
 
 <script>
+import { ref } from 'vue';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
 import AccountCenter from '@/core/wallet-adapter/UI/Widgets/AccountCenter';
@@ -32,7 +33,10 @@ export default {
     setup() {
         const { walletAddress, connectedWallets } = useAdapter();
 
+        const open = ref(false);
+
         return {
+            open,
             walletAddress,
             connectedWallets,
         };

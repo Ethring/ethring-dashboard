@@ -71,7 +71,7 @@ export default {
     border: 1px solid var(--#{$prefix}adapter-connected-border-color);
     border-radius: 16px;
 
-    padding: 16px;
+    padding: 8px;
 
     max-height: 80px;
 
@@ -104,7 +104,7 @@ export default {
 
     .check-icon {
         margin-left: auto;
-        background-color: var(--#{$prefix}adapter-connected-icon-color);
+        background-color: var(--#{$prefix}success-color);
         border-radius: 50%;
         width: 20px;
         height: 20px;
@@ -121,7 +121,7 @@ export default {
 
     &.connected,
     &.connected > .icon {
-        border-color: var(--#{$prefix}adapter-connected-icon-color);
+        border-color: var(--#{$prefix}success-color);
     }
 
     &.connecting {

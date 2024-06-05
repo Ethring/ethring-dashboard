@@ -241,7 +241,7 @@ function useAdapter(): IAdapter {
     const connectByEcosystems = async (ecosystem: Ecosystems) => {
         if (!ecosystem) return false;
 
-        if (ecosystem === Ecosystem.COSMOS) return await adaptersDispatch(TYPES.SET_MODAL_STATE, { name: 'wallets', isOpen: true });
+        await adaptersDispatch(TYPES.SET_MODAL_STATE, { name: 'wallets', isOpen: ecosystem === Ecosystem.COSMOS });
 
         try {
             const status = await connectTo(ecosystem);

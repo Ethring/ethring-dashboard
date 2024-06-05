@@ -49,8 +49,7 @@ export default {
 </script>
 <style lang="scss">
 .connected-wallets {
-    margin-top: 12px;
-    margin: 12px 16px 0;
+    margin: 0 16px 16px;
 
     &-label {
         @include pageFlexRow;
