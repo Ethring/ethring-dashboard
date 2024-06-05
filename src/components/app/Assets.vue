@@ -150,9 +150,9 @@ export default {
         });
 
         const allCollapsedActiveKeys = computed(() => {
-            if (!allIntegrationsByPlatforms.value.length) return ['assets', 'nfts'];
-
             const keys = ['assets', 'nfts'];
+
+            if (!allIntegrationsByPlatforms.value.length) return keys;
 
             allIntegrationsByPlatforms.value.map((item) => {
                 keys.push(item.platform);
@@ -193,13 +193,14 @@ export default {
         };
 
         const updateCollapsedAssets = () => {
-            if (allCollapsedActiveKeys.value.length && allIntegrationsByPlatforms.value.length) {
-                const list = allCollapsedActiveKeys.value.filter((key) => !collapsedAssets.value.includes(key));
+            if (!collapsedAssets.value.length) collapseActiveKey.value = allCollapsedActiveKeys.value;
 
-                collapseActiveKey.value = collapsedAssets.value ? list : allCollapsedActiveKeys.value;
-            } else if (!collapsedAssets.value.length) {
-                collapseActiveKey.value = allCollapsedActiveKeys.value;
-            }
+            const list = allCollapsedActiveKeys.value.filter((key) => !collapsedAssets.value.includes(key));
+            collapseActiveKey.value = list;
+        };
+
+        const updateCollapsedKey = (item) => {
+            if (!collapsedAssets.value.includes(item.platform)) collapseActiveKey.value.push(item.platform);
         };
 
         onMounted(async () => {
@@ -212,6 +213,8 @@ export default {
         onBeforeUnmount(() => {
             window.removeEventListener('keydown', handleKeyDown);
             keyPressCombination.value = '';
+
+            updateCollapsedAssets();
         });
 
         watch(collapseActiveKey, () => {
@@ -221,12 +224,7 @@ export default {
 
         watch(walletAccount, () => {
             store.dispatch('app/setCollapsedAssets', []);
-            updateCollapsedAssets();
         });
-
-        const updateCollapsedKey = (item) => {
-            if (!collapsedAssets.value.includes(item.platform)) collapseActiveKey.value.push(item.platform);
-        };
 
         return {
             isLoadingForChain,
