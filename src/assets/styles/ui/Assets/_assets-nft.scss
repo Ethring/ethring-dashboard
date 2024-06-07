@@ -37,6 +37,23 @@
     padding-bottom: 24px;
 }
 
+.nft-info-show-more {
+    @include pageFlexRow;
+    justify-content: center;
+    margin-bottom: 10px;
+
+    button {
+        background: transparent;
+        border-color: var(--#{$prefix}border-color);
+
+        span {
+            color: var(--#{$prefix}primary-text);
+            font-size: var(--#{$prefix}small-sm-fs);
+            font-weight: 600;
+        }
+    }
+}
+
 .nft-item {
     padding: 8px;
     border-color: var(--#{$prefix}border-secondary-color);

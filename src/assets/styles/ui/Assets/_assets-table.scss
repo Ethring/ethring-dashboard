@@ -52,6 +52,23 @@
     .ant-collapse-item.active-panel {
         border-color: var(--#{$prefix}assets-arrow-hover-color) !important;
     }
+
+    &-show-more {
+        @include pageFlexRow;
+        justify-content: center;
+        margin-top: 20px;
+
+        button {
+            background: transparent;
+            border-color: var(--#{$prefix}border-color);
+
+            span {
+                color: var(--#{$prefix}primary-text);
+                font-size: var(--#{$prefix}small-sm-fs);
+                font-weight: 600;
+            }
+        }
+    }
 }
 
 .assets-table {
