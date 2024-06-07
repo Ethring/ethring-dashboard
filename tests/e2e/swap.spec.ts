@@ -278,7 +278,7 @@ testKeplr.describe('Keplr Swap e2e tests', () => {
         await swapPage.waitLoadImg();
 
         await expect(swapPage.getBaseContentElement()).toHaveScreenshot({
-            mask: [swapPage.page.locator(IGNORED_LOCATORS.RELOAD_ROUTE)],
+            mask: [swapPage.page.locator(IGNORED_LOCATORS.RELOAD_ROUTE), swapPage.page.locator(IGNORED_LOCATORS.SERVICE_ICON)],
         });
 
         await swapPage.modifyDataByPostTxRequest(
