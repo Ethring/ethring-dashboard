@@ -1,13 +1,15 @@
-import { flatMap, orderBy, values } from 'lodash';
+import { flatMap, orderBy, values, filter } from 'lodash';
+import { useLocalStorage } from '@vueuse/core';
 
 import BigNumber from 'bignumber.js';
 
 import { IntegrationBalanceType, Type } from '@/core/balance-provider/models/enums';
-import { getTotalBalance, getIntegrationsBalance, getTotalBalanceByType } from '@/core/balance-provider/calculation';
+import { getTotalBalance, getIntegrationsBalance, getTotalBalanceByType, filterSmallBalances } from '@/core/balance-provider/calculation';
 
 import IndexedDBService from '@/services/indexed-db';
 
 const balancesDB = new IndexedDBService('balances', 2);
+const minBalanceStorage = useLocalStorage('dashboard:minBalance', 0, { mergeDefaults: true });
 
 const BALANCE_ALLOW_TYPES = ['tokens', 'integrations'];
 
@@ -36,6 +38,8 @@ const TYPES = {
     SET_TARGET_ACCOUNT: 'SET_TARGET_ACCOUNT',
 
     REMOVE_BALANCE_FOR_ACCOUNT: 'REMOVE_BALANCE_FOR_ACCOUNT',
+
+    SET_MIN_BALANCE: 'SET_MIN_BALANCE',
 };
 
 export default {
@@ -60,6 +64,8 @@ export default {
         totalBalances: {},
 
         nativeTokens: {},
+
+        minBalance: minBalanceStorage.value,
     }),
 
     getters: {
@@ -94,28 +100,44 @@ export default {
 
         targetAccount: (state) => state.targetAccount,
 
-        getAccountBalanceByType: (state) => (account, type) => {
-            if (!state[type]) return [];
+        getAccountBalanceByType:
+            (state) =>
+            (account, type, allBalances = false) => {
+                if (!state[type]) return [];
 
-            if (!state[type][account] && account !== BUNDLED_ACCOUNT) return [];
+                if (!state[type][account] && account !== BUNDLED_ACCOUNT) return [];
 
-            if (account === BUNDLED_ACCOUNT) {
-                const allData = [];
+                if (account === BUNDLED_ACCOUNT) {
+                    const allData = [];
 
-                for (const acc in state[type]) if (state[type][acc]) allData.push(...flatMap(state[type][acc]));
+                    for (const acc in state[type]) if (state[type][acc]) allData.push(...flatMap(state[type][acc]));
 
-                return allData;
-            }
+                    return allData;
+                }
 
-            const allForAccount = flatMap(state[type][account]) || [];
-            return allForAccount;
-        },
+                const allForAccount = flatMap(state[type][account]) || [];
+
+                if (type === Type.tokens && !allBalances) {
+                    const allTokens = filter(allForAccount, (elem) => +elem.balanceUsd >= +state.minBalance);
+
+                    const assetsBalance = getTotalBalance(allTokens);
+                    state.assetsBalances[account] = assetsBalance.toNumber() || 0;
+
+                    return allTokens;
+                }
+
+                return allForAccount;
+            },
 
         getIntegrationsByPlatforms: (state, getters) => (account) => {
             const allIntegrations = getters.getAccountBalanceByType(account, 'integrations');
 
             const platforms = allIntegrations.reduce((grouped, integration) => {
                 const { platform, type, balances = [], logo = null, healthRate = null, leverageRate } = integration;
+
+                const filteredBalances = balances.filter((elem) => filterSmallBalances(elem, state.minBalance));
+
+                if (!filteredBalances.length) return grouped;
 
                 if (!grouped[platform])
                     grouped[platform] = {
@@ -129,18 +151,18 @@ export default {
 
                 const platformData = grouped[platform];
 
-                platformData.data.push(integration);
+                platformData.data.push({ ...integration, balances: filteredBalances });
                 platformData.healthRate = healthRate || null;
                 platformData.logoURI = logo || null;
 
-                for (const balance of balances) balance.leverageRate = leverageRate || null;
+                for (const balance of filteredBalances) balance.leverageRate = leverageRate || null;
 
                 platformData.totalGroupBalance = BigNumber(platformData.totalGroupBalance)
-                    .plus(getTotalBalanceByType(balances, type))
+                    .plus(getTotalBalanceByType(filteredBalances, type))
                     .toString();
 
                 platformData.totalRewardsBalance = BigNumber(platformData.totalRewardsBalance)
-                    .plus(getTotalBalanceByType(balances, IntegrationBalanceType.PENDING))
+                    .plus(getTotalBalanceByType(filteredBalances, IntegrationBalanceType.PENDING))
                     .toString();
 
                 return grouped;
@@ -177,12 +199,16 @@ export default {
                     .multipliedBy(token.price || 0)
                     .toString();
 
-                collectionData.nfts.push(nft);
+                if (+collectionData.floorPriceUsd >= +state.minBalance) collectionData.nfts.push(nft);
 
                 return grouped;
             }, {});
 
-            return orderBy(values(collections), (collection) => +collection?.totalGroupBalance || 0, ['desc']);
+            return orderBy(
+                values(collections).filter((elem) => elem.nfts.length),
+                (collection) => +collection?.totalGroupBalance || 0,
+                ['desc'],
+            );
         },
 
         nativeTokens: (state) => state.nativeTokens,
@@ -205,6 +231,7 @@ export default {
 
         totalBalances: (state) => state.totalBalances,
         assetsBalances: (state) => state.assetsBalances,
+        minBalance: (state) => state.minBalance,
 
         getTotalBalanceByType: (state) => (account, balanceType) => {
             if (!state[balanceType]) return 0;
@@ -226,6 +253,9 @@ export default {
             !state[type] && (state[type] = {});
             !state[type][account] && (state[type][account] = {});
             !state[type][account][chain] && (state[type][account][chain] = {});
+
+            if (type === Type.tokens)
+                data = data.filter((token) => BigNumber(token.balance).toFixed(8, BigNumber.ROUND_DOWN) !== '0.00000000');
 
             return (state[type][account][chain] = data);
         },
@@ -264,8 +294,8 @@ export default {
 
             if (!state.totalBalances[account]) state.totalBalances[account] = 0;
 
-            const allTokens = getters.getAccountBalanceByType(account, 'tokens');
-            const allIntegrations = getters.getAccountBalanceByType(account, 'integrations');
+            const allTokens = getters.getAccountBalanceByType(account, Type.tokens, type === Type.tokens);
+            const allIntegrations = getters.getAccountBalanceByType(account, Type.integrations);
 
             if (BALANCE_ALLOW_TYPES.includes(type)) {
                 const assetsBalance = getTotalBalance(allTokens);
@@ -275,8 +305,6 @@ export default {
                 const totalBalance = BigNumber(assetsBalance).plus(integrationsBalance).toNumber();
 
                 state.totalBalances[account] = totalBalance;
-
-                type === 'tokens' && (state.assetsBalances[account] = assetsBalance.toNumber() || 0);
             }
         },
         [TYPES.SET_IS_INIT_CALLED](state, { account, time }) {
@@ -294,6 +322,9 @@ export default {
             state.nfts[account] && delete state.nfts[account];
             state.assetsBalances[account] && delete state.assetsBalances[account];
             state.totalBalances[account] && delete state.totalBalances[account];
+        },
+        [TYPES.SET_MIN_BALANCE](state, value) {
+            state.minBalance = value;
         },
     },
 
@@ -333,6 +364,10 @@ export default {
         },
         removeBalanceForAccount({ commit }, value) {
             commit(TYPES.REMOVE_BALANCE_FOR_ACCOUNT, value);
+        },
+        setMinBalance({ commit }, value) {
+            commit(TYPES.SET_MIN_BALANCE, value);
+            minBalanceStorage.value = value;
         },
     },
 };

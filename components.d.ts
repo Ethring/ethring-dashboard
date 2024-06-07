@@ -81,6 +81,7 @@ declare module 'vue' {
     EstimateStats: typeof import('./src/components/ui/EstimatePanel/EstimateStats.vue')['default']
     ExpandNftInfo: typeof import('./src/components/app/assets/NFT/ExpandNftInfo.vue')['default']
     ExternalLink: typeof import('./src/components/ui/ExternalLink.vue')['default']
+    HideBalances: typeof import('./src/components/app/HideBalances.vue')['default']
     KadoModal: typeof import('./src/components/app/modals/KadoModal.vue')['default']
     LoadingOverlay: typeof import('./src/components/ui/LoadingOverlay.vue')['default']
     LogoLoading: typeof import('./src/components/ui/LogoLoading.vue')['default']
