@@ -1,5 +1,6 @@
 export enum AvailableShortcuts {
     CitadelOneStake = 'SC-citadel-one-stake',
+    PostHumanStake = 'SC-post-human-stake',
     AirdropFarmingPortfolio = 'airdrop-farming-portfolio',
     StakeToCitadelOne = 'SC-stake-to-citadel-one',
     SwapToAtomAndStars = 'SC-swap-to-atom-and-stars',

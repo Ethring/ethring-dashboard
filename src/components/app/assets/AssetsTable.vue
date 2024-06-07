@@ -8,9 +8,11 @@
         :bordered="false"
         :loading="loading"
         :scroll="{ x: 700 }"
-        :row-key="(record) => record?.id || `${type}-${record?.balanceType}-${record?.name}-${record?.address}-${record?.symbol}`"
-        :row-expandable="(record) => record.nfts && record.nfts.length > 0"
+        :row-key="rowKey"
+        :expanded-row-keys="expandedRowKeys"
         :show-expand-column="data[0]?.nfts && data[0]?.nfts.length > 0 ? true : false"
+        :row-expandable="(record) => record?.nfts && record.nfts?.length > 0"
+        @expand="onExpand"
     >
         <template #headerCell="{ title, column }">
             <p v-if="column && column.name">
@@ -19,16 +21,17 @@
         </template>
 
         <template #bodyCell="{ column, record }">
-            <AssetItem :item="record" :column="column.dataIndex" :type="type" />
+            <AssetItem v-if="record && column" :item="record" :column="column.dataIndex" :type="type" />
         </template>
 
         <template #expandedRowRender="{ record }">
-            <ExpandNftInfo :record="record" />
+            <ExpandNftInfo v-if="record" :record="record" />
         </template>
     </a-table>
 </template>
 
 <script lang="js">
+import { ref, computed } from 'vue';
 import AssetItem from '@/components/app/assets/AssetItem.vue';
 import ExpandNftInfo from '@/components/app/assets/NFT/ExpandNftInfo.vue';
 
@@ -62,6 +65,23 @@ export default {
             type: Boolean,
             required: false,
         },
+    },
+    setup(props) {
+        const expandedRowKeys = ref([]);
+
+        const rowKey = (record) =>
+            record?.id || `${props.type}-${record?.balanceType}-${record?.name}-${record?.address}-${record?.symbol}`;
+
+        const onExpand = (expanded, record) => {
+            if (expanded) expandedRowKeys.value = [rowKey(record)];
+            else expandedRowKeys.value = [];
+        };
+
+        return {
+            expandedRowKeys,
+            rowKey,
+            onExpand,
+        };
     },
 };
 </script>
