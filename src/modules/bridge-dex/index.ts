@@ -87,7 +87,14 @@ class BridgeDexService<T extends ServiceType> implements IBridgeDexService {
         withServiceId && this.serviceId && (requestParams.serviceId = this.serviceId);
 
         try {
-            return (await this.api.getQuote(requestParams)) as IQuoteRoutes;
+            const routes = (await this.api.getQuote(requestParams)) as IQuoteRoutes;
+
+            routes.routes = routes.routes.map((route) => {
+                route.routeId = routes.routeId;
+                return route;
+            });
+
+            return routes;
         } catch (error) {
             logger.error('(MODULE) -> [BRIDGE_DEX_SERVICE] Error fetching quote', error);
             throw error as ErrorResponse;

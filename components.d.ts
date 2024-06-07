@@ -89,6 +89,7 @@ declare module 'vue' {
     NFTInfo: typeof import('./src/components/app/assets/NFT/NFT-Info.vue')['default']
     NFTItem: typeof import('./src/components/app/assets/NFT/NFT-Item.vue')['default']
     NumberTooltip: typeof import('./src/components/ui/NumberTooltip.vue')['default']
+    ReloadRoute: typeof import('./src/components/ui/ReloadRoute.vue')['default']
     Result: typeof import('./src/components/ui/Result.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

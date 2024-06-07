@@ -149,7 +149,7 @@ testMetaMask.describe('Swap e2e tests', () => {
             const INDEX_ARBITRUM = EVM_NETWORKS.indexOf(NET.toLowerCase());
             const INDEX_ETH = EVM_NETWORKS.indexOf(NET_ETH.toLowerCase());
 
-            let EMPTY_BALANCE_NETS_MOCK = [...EVM_NETWORKS];
+            const EMPTY_BALANCE_NETS_MOCK = [...EVM_NETWORKS];
             EMPTY_BALANCE_NETS_MOCK.splice(INDEX_ARBITRUM, 1);
             EMPTY_BALANCE_NETS_MOCK.splice(INDEX_ETH, 1);
 
@@ -229,7 +229,9 @@ testMetaMask.describe('Swap e2e tests', () => {
             await estimatePromise;
 
             await sleep(FIVE_SECONDS);
-            await expect(swapPage.getBaseContentElement()).toHaveScreenshot({ mask: [swapPage.page.locator('div.service-icon')] });
+            await expect(swapPage.getBaseContentElement()).toHaveScreenshot({
+                mask: [swapPage.page.locator('div.service-icon'), swapPage.page.locator(IGNORED_LOCATORS.RELOAD_ROUTE)],
+            });
 
             await swapPage.openTokenPageTo();
             await swapPage.page.getByTestId('token-record').nth(0).hover();
@@ -275,7 +277,9 @@ testKeplr.describe('Keplr Swap e2e tests', () => {
         await swapPage.waitDetachedSkeleton();
         await swapPage.waitLoadImg();
 
-        await expect(swapPage.getBaseContentElement()).toHaveScreenshot();
+        await expect(swapPage.getBaseContentElement()).toHaveScreenshot({
+            mask: [swapPage.page.locator(IGNORED_LOCATORS.RELOAD_ROUTE), swapPage.page.locator(IGNORED_LOCATORS.SERVICE_ICON)],
+        });
 
         await swapPage.modifyDataByPostTxRequest(
             mockPostTransactionsRouteSwapRejectKeplr,

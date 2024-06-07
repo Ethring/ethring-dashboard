@@ -148,7 +148,7 @@ function useAdapter(): IAdapter {
     const currentChainInfo = computed<IChainInfo>(() => (mainAdapter.value ? mainAdapter.value.getCurrentChain(store) : null));
 
     const chainList = computed<IChainConfig[]>(() =>
-        mainAdapter.value || walletAccount.value ? mainAdapter.value.getChainList() : getAllChainsList(),
+        mainAdapter.value && walletAccount.value ? mainAdapter.value.getChainList() : getAllChainsList(),
     );
 
     const walletAddress = computed<string | null>(() => (mainAdapter.value ? mainAdapter.value.getAccountAddress() : null));

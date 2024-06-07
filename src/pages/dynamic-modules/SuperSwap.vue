@@ -1,13 +1,13 @@
 <template>
     <a-form class="super-swap superswap-panel">
         <a-row v-if="!isHideActions && !fieldStates.isReload?.hide" class="panel-control">
-            <div
-                class="reload-btn"
-                :class="{ active: dstAmount && !isQuoteLoading && !isTransactionSigning }"
-                @click="() => getEstimateInfo(true)"
-            >
-                <SyncOutlined :spin="isQuoteLoading" />
-            </div>
+            <ReloadRoute
+                :dst-amount="dstAmount"
+                :is-quote-loading="isQuoteLoading"
+                :is-transaction-signing="isTransactionSigning"
+                :get-estimate-info="getEstimateInfo"
+                :route-timer="routeTimer"
+            />
             <Slippage />
         </a-row>
         <a-form-item class="switch-direction-wrap">
@@ -134,10 +134,10 @@ import Checkbox from '@/components/ui/Checkbox';
 import UiButton from '@/components/ui/Button.vue';
 import SwitchDirection from '@/components/ui/SwitchDirection.vue';
 import Slippage from '@/components/ui/Slippage.vue';
+import ReloadRoute from '@/components/ui/ReloadRoute.vue';
 import SwapField from '@/components/ui/SuperSwap/SwapField.vue';
 
 // Icons
-import { SyncOutlined } from '@ant-design/icons-vue';
 
 // Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
@@ -153,7 +153,7 @@ export default {
         UiButton,
         Checkbox,
         SwapField,
-        SyncOutlined,
+        ReloadRoute,
 
         SelectRecord,
         SelectAddressInput,
@@ -200,6 +200,7 @@ export default {
             selectedRoute,
             otherRoutes,
             quoteErrorMessage,
+            routeTimer,
 
             // --------------------------------
             selectedSrcToken,
@@ -232,6 +233,7 @@ export default {
             handleOnSelectNetwork,
             toggleRoutesModal,
             handleOnSetAmount,
+            getEstimateInfo,
             fieldStates,
         } = moduleInstance;
 
@@ -277,13 +279,6 @@ export default {
         });
 
         // =================================================================================================================
-
-        const getEstimateInfo = async (isReload = false) => {
-            if (isReload && (isQuoteLoading.value || isTransactionSigning.value)) return;
-
-            dstAmount.value = null;
-            store.dispatch('bridgeDexAPI/setReloadRoutes', isReload);
-        };
 
         watch(srcAmount, async () => {
             if (!selectedDstToken.value || !srcAmount.value) return (isQuoteLoading.value = false);
@@ -362,6 +357,7 @@ export default {
             selectedRoute,
             otherRoutes,
             isAddressError,
+            routeTimer,
             handleOnSetAmount,
 
             isDisableSelect,
