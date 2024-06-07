@@ -53,3 +53,7 @@ export const getTotalBalanceByDiff = (records: AssetBalance[], totalBalance = Bi
 
     return totalBalance;
 };
+
+export const filterSmallBalances = (token: AssetBalance, minBalance: number) => {
+    return +token.balanceUsd >= +minBalance && BigNumber(token.balance).toFixed(8, BigNumber.ROUND_DOWN) !== '0.00000000';
+};
