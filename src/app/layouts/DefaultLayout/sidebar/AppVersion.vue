@@ -18,8 +18,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .app-version {
-    // color: var(--#{$prefix}sidebar-text) !important;
-    color: var(--#{$prefix}sidebar-text); // TODO: Remove this line after fixing the color
+    color: var(--#{$prefix}sidebar-text) !important;
     background-color: transparent;
     font-family: Poppins, sans-serif !important;
     width: 48px;

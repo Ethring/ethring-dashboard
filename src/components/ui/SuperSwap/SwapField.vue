@@ -41,7 +41,11 @@
                 <a-skeleton-input v-if="isAmountLoading" active size="small" class="balance-skeleton" />
                 <Amount v-else :value="payTokenPrice || 0" :decimals="3" type="usd" symbol="$" />
 
-                <span v-if="!isAmountLoading && percentage && !isNaN(percentage)" class="percentage">
+                <span
+                    v-if="!isAmountLoading && percentage && !isNaN(percentage)"
+                    class="percentage"
+                    :class="{ 'percentage-minus': percentage < 0 }"
+                >
                     (<span>{{ percentage }}%</span>)
                 </span>
             </div>

@@ -7,7 +7,7 @@
             <div class="dashboard__wallet">
                 <WalletInfoLarge />
             </div>
-            <SupportedNetworks />
+            <a-row class="dashboard__options"> <HideBalances /> <SupportedNetworks /></a-row>
             <KeepAlive>
                 <Assets />
             </KeepAlive>
@@ -18,12 +18,13 @@
 <script>
 import { inject } from 'vue';
 
-import Assets from '@/components/app/Assets';
+import Assets from '@/components/app/Assets.vue';
 
 import ConnectWalletAdapter from '@/components/app/ConnectWalletAdapter.vue';
-import WalletInfoLarge from '@/components/app/WalletInfoLarge';
+import WalletInfoLarge from '@/components/app/WalletInfoLarge.vue';
 
-import SupportedNetworks from '@/components/app/SupportedNetworks';
+import SupportedNetworks from '@/components/app/SupportedNetworks.vue';
+import HideBalances from '@/components/app/HideBalances.vue';
 
 export default {
     name: 'Dashboard',
@@ -32,6 +33,7 @@ export default {
         ConnectWalletAdapter,
         Assets,
         SupportedNetworks,
+        HideBalances,
     },
     setup() {
         const useAdapter = inject('useAdapter');
@@ -55,9 +57,9 @@ export default {
         z-index: 1;
     }
 
-    &__actions {
-        margin: 15px 0;
-        z-index: 1;
+    &__options {
+        justify-content: flex-end;
+        gap: 8px;
     }
 }
 </style>

@@ -6,6 +6,7 @@
         width: 180px;
 
         background-color: var(--#{$prefix}search-bg-color);
+        border-color: var(--#{$prefix}search-bg-color);
     }
 }
 

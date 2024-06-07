@@ -307,6 +307,13 @@ export default function useTransactions() {
             throw new Error(response.error);
         }
 
+        if (response && response.rawLog?.includes('failed to execute message')) {
+            closeNotification(`tx-${id}`);
+            console.error('useTransactions -> signAndSend -> Transaction error from provider', response?.rawLog);
+            store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
+            throw new Error(response.rawLog);
+        }
+
         if (response && response.isCanceled) {
             closeNotification(`tx-${id}`);
             console.error('useTransactions -> signAndSend -> Transaction canceled');

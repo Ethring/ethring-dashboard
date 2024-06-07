@@ -120,6 +120,10 @@
         span {
             color: var(--#{$prefix}sub-text);
         }
+
+        &-minus span {
+            color: var(--#{$prefix}description-text);
+        }
     }
 }
 
