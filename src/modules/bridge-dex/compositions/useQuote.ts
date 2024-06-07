@@ -220,18 +220,23 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
 
             const withServiceId = requestParams.serviceId ? true : false;
 
+            if (selectedRoute.value && selectedRoute.value.routeId)
+                store.dispatch('bridgeDexAPI/clearRouteTimer', { routeId: selectedRoute.value.routeId });
+
             const { best = null, routes = [] } = await bridgeDexService.getQuote(requestParams, { withServiceId });
 
-            let selectedRoute = routes.find(({ serviceId }) => serviceId === best);
+            let routeFromAPI = routes.find(({ serviceId }) => serviceId === best) as IQuoteRoute;
 
             if (!routes.length) return resetQuoteRoutes();
 
             // * If there is only one route, set it as selected
-            if (routes.length === 1 && !selectedRoute) selectedRoute = routes[0];
+            if (routes.length === 1 && !routeFromAPI) routeFromAPI = routes[0];
+
+            store.dispatch('bridgeDexAPI/setRouteTimer', { type: serviceType, routeId: routeFromAPI.routeId });
 
             store.dispatch('bridgeDexAPI/setSelectedRoute', {
                 serviceType: targetType,
-                value: selectedRoute,
+                value: routeFromAPI,
             });
 
             store.dispatch('bridgeDexAPI/setQuoteRoutes', {
@@ -403,6 +408,9 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     // ===========================================================================================
     onUnmounted(() => {
         isQuoteLoading.value = false;
+        if (selectedRoute.value && selectedRoute.value.routeId)
+            store.dispatch('bridgeDexAPI/clearRouteTimer', { routeId: selectedRoute.value.routeId });
+
         unWatchChanges();
         unWatchLoading();
     });

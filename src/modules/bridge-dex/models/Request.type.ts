@@ -2,6 +2,7 @@ import { ServiceTypes, ServiceType } from '@/modules/bridge-dex/enums/ServiceTyp
 
 type ServiceTypeParams = {
     type: ServiceTypes;
+    routeId?: string;
 };
 
 type ServiceIdParams = {
@@ -10,6 +11,7 @@ type ServiceIdParams = {
 
 type ServiceIdOptional = {
     serviceId?: string;
+    routeId?: string;
 };
 
 export type OwnerAddresses = {
@@ -83,6 +85,7 @@ export const DexKeys: DexAllowedKeys[] = [
     'net',
     'slippageTolerance',
     'receiverAddress',
+    'routeId',
 ];
 
 export const BridgedexKeys: BridgedexAllowedKeys[] = [
@@ -96,6 +99,7 @@ export const BridgedexKeys: BridgedexAllowedKeys[] = [
     'toNet',
     'slippageTolerance',
     'receiverAddress',
+    'routeId',
 ];
 
 export const AllQuoteParamsKeys = [
@@ -109,6 +113,7 @@ export const AllQuoteParamsKeys = [
     'serviceId',
     'ownerAddresses',
     'slippageTolerance',
+    'routeId',
 ];
 
 export const QuoteParamsKeys = {

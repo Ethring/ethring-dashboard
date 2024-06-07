@@ -6,6 +6,8 @@ import { ServiceType, ServiceTypes } from '@/modules/bridge-dex/enums/ServiceTyp
 
 import { IQuoteRoute, IQuoteRoutes } from '@/modules/bridge-dex/models/Response.interface';
 
+const QUOTE_AVAILABLE_TIME = 60;
+
 const TYPES = {
     SET_SERVICES: 'SET_SERVICES',
 
@@ -26,6 +28,8 @@ const TYPES = {
     SET_LOADER_STATE_BY_TYPE: 'SET_LOADER_STATE_BY_TYPE',
 
     SET_QUOTE_ERROR_MESSAGE: 'SET_QUOTE_ERROR_MESSAGE',
+
+    SET_ROUTE_TIMER: 'SET_ROUTE_TIMER',
 };
 
 interface IState {
@@ -62,6 +66,17 @@ interface IState {
             };
         };
     };
+
+    routeTimer: {
+        [key: string]: any;
+    };
+
+    routeTimerSeconds: {
+        [key: string]: {
+            seconds: number | null;
+            percent: number | null;
+        };
+    };
 }
 
 export default {
@@ -91,6 +106,10 @@ export default {
         selectedServiceType: null,
 
         quoteErrorMessage: '',
+
+        routeTimer: {},
+
+        routeTimerSeconds: {},
     }),
 
     getters: {
@@ -145,6 +164,12 @@ export default {
         getSelectedServiceType: (state: IState) => state.selectedServiceType,
 
         getQuoteErrorMessage: (state: IState) => state.quoteErrorMessage,
+
+        // ******************
+
+        // * Getters for Route Timer
+        getRouteTimer: (state: IState) => (routeId: string) => state.routeTimer[routeId] || null,
+        getRouteTimerSeconds: (state: IState) => (routeId: string) => state.routeTimerSeconds[routeId] || { seconds: 0, percent: 0 },
     },
 
     mutations: {
@@ -181,6 +206,24 @@ export default {
         },
         [TYPES.SET_QUOTE_ERROR_MESSAGE](state: IState, value: string) {
             state.quoteErrorMessage = value;
+        },
+        [TYPES.SET_ROUTE_TIMER](state: IState, { routeId, type }: { routeId: string; type: string }) {
+            state.routeTimerSeconds[routeId] = {
+                seconds: QUOTE_AVAILABLE_TIME,
+                percent: 100,
+            };
+
+            state.routeTimer[routeId] = setInterval(() => {
+                const step = 100 / QUOTE_AVAILABLE_TIME;
+
+                state.routeTimerSeconds[routeId].seconds = (state.routeTimerSeconds[routeId].seconds as number) - 1;
+                state.routeTimerSeconds[routeId].percent = (state.routeTimerSeconds[routeId].percent as number) - step;
+
+                if ((state.routeTimerSeconds[routeId].seconds as number) <= 0) {
+                    clearInterval(state.routeTimer[routeId]);
+                    state.selectedRoute[type]?.routeId === routeId && (state.quoteErrorMessage = 'Quote expired, please refresh routes.');
+                }
+            }, 1000);
         },
     },
     actions: {
@@ -230,6 +273,16 @@ export default {
 
         setQuoteErrorMessage({ commit }: { commit: any }, value: string) {
             commit(TYPES.SET_QUOTE_ERROR_MESSAGE, value);
+        },
+
+        setRouteTimer({ state, commit }: { state: IState; commit: any }, { routeId, type }: { routeId: string; type: string }) {
+            commit(TYPES.SET_ROUTE_TIMER, { routeId, type });
+        },
+
+        clearRouteTimer({ state, commit }: { state: IState; commit: any }, { routeId }: { routeId: string }) {
+            clearInterval(state.routeTimer[routeId]);
+            state.routeTimer[routeId] = null;
+            state.routeTimerSeconds[routeId] = { seconds: null, percent: null };
         },
     },
 };

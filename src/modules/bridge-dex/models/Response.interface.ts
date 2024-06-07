@@ -15,6 +15,7 @@ type FeeInfo = {
 
 export interface IQuoteRoute {
     serviceId: string;
+    routeId: string;
 
     fromAmount: string;
     toAmount: string;
@@ -25,11 +26,15 @@ export interface IQuoteRoute {
 
 export interface IQuoteRoutes {
     best: string;
+    priority: string;
+    routeId: string;
     routes: IQuoteRoute[];
 }
 
 export type QuoteRoutes = {
     best: string;
+    priority: string;
+    routeId: string;
     routes: IQuoteRoute[];
 };
 

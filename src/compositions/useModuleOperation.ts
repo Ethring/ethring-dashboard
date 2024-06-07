@@ -110,6 +110,8 @@ const useModuleOperations = (module: ModuleType) => {
         contractCallCount,
         slippage,
         opTitle,
+
+        getEstimateInfo,
     } = moduleInstance;
 
     const { signAndSend } = useTransactions();
@@ -372,6 +374,7 @@ const useModuleOperations = (module: ModuleType) => {
                 ownerAddress: srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value,
                 amount: srcAmount.value,
                 serviceId: selectedRoute.value.serviceId,
+                routeId: selectedRoute.value.routeId,
                 dstAmount: dstAmount.value,
             });
 
@@ -431,6 +434,7 @@ const useModuleOperations = (module: ModuleType) => {
                     outputAmount: dstAmount.value,
                     memo: memo.value,
                     serviceId: selectedRoute.value?.serviceId,
+                    routeId: selectedRoute.value?.routeId,
                     type,
                     slippageTolerance: slippage.value,
                     receiverAddress: receiverAddress.value,
@@ -979,6 +983,16 @@ const useModuleOperations = (module: ModuleType) => {
 
         isTransactionSigning.value = true;
 
+        // * Clear route timer if exist
+        try {
+            if (selectedRoute.value?.routeId)
+                await store.dispatch('bridgeDexAPI/clearRouteTimer', {
+                    routeId: selectedRoute.value.routeId,
+                });
+        } catch (error) {
+            console.error('useModuleOperations -> handleOnConfirm -> clearRouteTimer -> error', error);
+        }
+
         // ===============================================================================================
         // * Get operations
         // ===============================================================================================
@@ -1022,6 +1036,8 @@ const useModuleOperations = (module: ModuleType) => {
             throw error;
         } finally {
             isTransactionSigning.value = false;
+            // * if selected route exist, refresh it
+            if (selectedRoute.value) await getEstimateInfo(true);
         }
     };
 
@@ -1103,6 +1119,19 @@ const useModuleOperations = (module: ModuleType) => {
 
         isForceCallConfirm.value = false;
     });
+
+    // =================================================================================================================
+
+    watch(selectedRoute, () => {
+        if (!selectedRoute.value) return;
+    });
+
+    store.watch(
+        (state) => state.bridgeDexAPI.routeTimerSeconds,
+        (value) => {
+            console.log('useModuleOperations -> store.watch -> value', value);
+        },
+    );
 
     // ===============================================================================================
     // * On unmounted

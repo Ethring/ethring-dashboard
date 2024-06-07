@@ -246,7 +246,7 @@ $top-bar-spacing: 63px;
         transition: 0.2s ease-in-out;
     }
 
-    &.active:hover {
+    &.active:not(.timer):hover {
         background-color: var(--#{$prefix}icon-logo-bg-hover);
         opacity: 1;
 

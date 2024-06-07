@@ -1,13 +1,13 @@
 <template>
     <a-form class="simple-bridge">
         <a-row class="panel-control">
-            <div
-                class="reload-btn"
-                :class="{ active: dstAmount && !isQuoteLoading && !isTransactionSigning }"
-                @click="() => getEstimateInfo(true)"
-            >
-                <SyncOutlined :spin="isQuoteLoading" />
-            </div>
+            <ReloadRoute
+                :dst-amount="dstAmount"
+                :is-quote-loading="isQuoteLoading"
+                :is-transaction-signing="isTransactionSigning"
+                :get-estimate-info="getEstimateInfo"
+                :route-timer="routeTimer"
+            />
             <Slippage />
         </a-row>
         <a-form-item>
@@ -113,6 +113,7 @@ import SwitchDirection from '@/components/ui/SwitchDirection.vue';
 
 // Select components
 import SelectRecord from '@/components/ui/Select/SelectRecord';
+import ReloadRoute from '@/components/ui/ReloadRoute.vue';
 
 // Input components
 import SelectAddressInput from '@/components/ui/Select/SelectAddressInput';
@@ -123,9 +124,6 @@ import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewIn
 
 // Slippage Component
 import Slippage from '@/components/ui/Slippage.vue';
-
-// Icons
-import { SyncOutlined } from '@ant-design/icons-vue';
 
 // Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
@@ -148,7 +146,7 @@ export default {
         EstimatePreviewInfo,
 
         Slippage,
-        SyncOutlined,
+        ReloadRoute,
     },
     setup() {
         const store = useStore();
@@ -179,6 +177,7 @@ export default {
             otherRoutes,
             selectedRoute,
             quoteErrorMessage,
+            routeTimer,
 
             // --------------------------------
 
@@ -214,6 +213,7 @@ export default {
             handleOnSelectNetwork,
             handleOnSetAmount,
             toggleRoutesModal,
+            getEstimateInfo,
         } = moduleInstance;
 
         const { isSrcAmountSet, isDstTokenSet } = useInputValidation();
@@ -278,13 +278,6 @@ export default {
             if (clearAddress.value) setTimeout(() => (clearAddress.value = false));
         };
 
-        const getEstimateInfo = async (isReload = false) => {
-            if (isReload && (isQuoteLoading.value || isTransactionSigning.value)) return;
-
-            dstAmount.value = null;
-            store.dispatch('bridgeDexAPI/setReloadRoutes', isReload);
-        };
-
         // =================================================================================================================
 
         watch(srcAmount, () => resetAmounts(DIRECTIONS.SOURCE, srcAmount.value));
@@ -339,6 +332,7 @@ export default {
             toggleRoutesModal,
 
             getEstimateInfo,
+            routeTimer,
 
             fees,
             selectedRoute,
