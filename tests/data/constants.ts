@@ -84,6 +84,8 @@ export enum DATA_QA_LOCATORS {
     SLIPPAGE_ICON = 'slippage-icon',
     SLIPPAGE_CUSTOM = 'slippage-custom',
     SLIPPAGE_CUSTOM_INPUT = 'slippage-custom-input',
+
+    RELOAD_ROUTE = 'reload-route',
 }
 
 export enum IGNORED_LOCATORS {
@@ -97,6 +99,7 @@ export enum IGNORED_LOCATORS {
     TOKEN_ICON_3 = 'div.token-icon > img[alt="Polygon"]',
     TOKEN_ICON_4 = 'div.token-icon > img[alt="Stader MaticX"]',
     TRANSACTION_PROGRESS = 'div.notification-progress-line',
+    RELOAD_ROUTE = 'div[data-qa="reload-route"]',
 }
 
 export enum URL_MOCK_PATTERNS {

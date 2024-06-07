@@ -1,6 +1,7 @@
 <template>
     <div
         class="reload-btn mr-8"
+        data-qa="reload-route"
         :class="{
             active: dstAmount && !isQuoteLoading && !isTransactionSigning,
             timer: routeTimer.seconds && !isQuoteLoading,
