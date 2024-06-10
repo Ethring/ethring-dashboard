@@ -27,6 +27,10 @@ const useInputValidation = () => {
 
     // ? Check if the source amount is set
     const isSrcAmountSet = computed(() => {
+        if (!srcAmount.value) return false;
+
+        if (srcAmount.value && srcAmount.value < 0) return false;
+
         return srcAmount.value && srcAmount.value > 0 && !isNaN(srcAmount.value) && !isEmpty(srcAmount.value);
     });
 

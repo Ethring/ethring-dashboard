@@ -1,4 +1,4 @@
-import { isFinite } from 'lodash';
+import { isEqual, isFinite } from 'lodash';
 import BigNumber from 'bignumber.js';
 
 import { computed, onMounted, onUnmounted, watch } from 'vue';
@@ -34,7 +34,6 @@ import { AddressByChainHash } from '@/shared/models/types/Address';
 import { SHORTCUT_STATUSES } from '@/shared/models/enums/statuses.enum';
 import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 import CallContractMethod from '@/core/operations/evm-contract-ops/CallContractMethod';
-import { String } from 'lightningcss';
 import { delay } from '@/shared/utils/helpers';
 
 const useShortcuts = (Shortcut: IShortcutData) => {
@@ -140,7 +139,10 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     // ****************************************************************************************************
     // * Main process operation function
     // ****************************************************************************************************
-    const processOperation = async (operation: IShortcutOp, { addToFactory = false }: { addToFactory: boolean }) => {
+    const processOperation = async (
+        operation: IShortcutOp,
+        { addToFactory = false, updateInStore = false }: { addToFactory: boolean; updateInStore: boolean },
+    ) => {
         let key: string = '';
         let registerResponse = null;
 
@@ -148,7 +150,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
 
         if (!addToFactory)
             return await performFields(moduleType, params, {
-                isUpdateInStore: currentOp.value?.id === id,
+                isUpdateInStore: updateInStore,
                 id,
             });
 
@@ -217,7 +219,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     // ****************************************************************************************************
     // * Perform the shortcut operations
     // ****************************************************************************************************
-    const performShortcut = async (addToFactory = false) => {
+    const performShortcut = async (addToFactory = false, updateInStore = false) => {
         if (!operationsFactory.value) {
             console.warn('No operations factory found');
             return;
@@ -228,7 +230,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         for (const shortcutOperation of operations) {
             const { id: opId, dependencies: opDeps = null } = shortcutOperation as any;
 
-            await processOperation(shortcutOperation as IShortcutOp, { addToFactory });
+            await processOperation(shortcutOperation as IShortcutOp, { addToFactory, updateInStore });
 
             opDeps && operationsFactory.value.setDependencies(opId, opDeps);
         }
@@ -237,48 +239,52 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     // ****************************************************************************************************
     // * Perform the shortcut operations state
     // ****************************************************************************************************
-    const performDisabledOrHiddenFields = async (opId: string, module: string, fields: IOperationParam[]) => {
-        if (!fields) return;
+    const performDisabledOrHiddenFields = (opId: string, module: string, fields: IOperationParam[]) => {
+        const isUpdateInStore = currentOp.value?.id === opId;
+        if (!isUpdateInStore) return;
+
+        if (!fields.length) return;
         if (!opId) return;
         if (!module) return;
 
-        const isUpdateInStore = currentOp.value?.id === opId;
+        const setDisabled = (field: string, value: boolean) => {
+            store.dispatch('moduleStates/setDisabledField', {
+                module,
+                field,
+                attr: 'disabled',
+                value,
+            });
+        };
 
-        if (!isUpdateInStore) return;
+        const setHide = (field: string, value: boolean) => {
+            store.dispatch('moduleStates/setHideField', {
+                module,
+                field,
+                attr: 'hide',
+                value,
+            });
+        };
 
         for (const field of fields) {
             const { name, disabled = false, hide = false } = field || {};
-
-            await store.dispatch('moduleStates/setDisabledField', {
-                module,
-                field: name,
-                attr: 'disabled',
-                value: disabled,
-            });
-
-            await store.dispatch('moduleStates/setHideField', {
-                module,
-                field: name,
-                attr: 'hide',
-                value: hide,
-            });
+            setDisabled(name, disabled);
+            setHide(name, hide);
         }
     };
 
     // ****************************************************************************************************
     // * Check the minimum amount
     // ****************************************************************************************************
-    const checkMinAmount = async () => {
+    const checkMinAmount = () => {
         const amount = firstOperation.value.getParamByField('amount') || 0;
 
         if (!amount) return true;
-        if (!CurrentShortcut.minUsdAmount) return true;
+
+        if (CurrentShortcut.minUsdAmount === undefined || CurrentShortcut.minUsdAmount === null) return true;
 
         const fromToken = firstOperation.value.getToken('from');
 
         const { price = 0 } = fromToken || {};
-
-        if (!price) return true;
 
         const amountToUsd = BigNumber(amount)
             .multipliedBy(price || 0)
@@ -411,7 +417,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         params: IOperationParam[],
         { isUpdateInStore = false, id: targetOpId }: { isUpdateInStore: boolean; id: string },
     ) => {
-        await performDisabledOrHiddenFields(targetOpId, moduleType, params);
+        performDisabledOrHiddenFields(targetOpId, moduleType, params);
         await performDefaultValues(params, { targetOpId, isUpdateInStore });
     };
 
@@ -432,13 +438,16 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     const callEstimate = async () => {
         isQuoteLoading.value = true;
 
-        const isMinAmountAccepted = await checkMinAmount();
+        const isMinAmountAccepted = checkMinAmount();
 
-        if (!isMinAmountAccepted) return (isQuoteLoading.value = false);
-
-        quoteErrorMessage.value = '';
+        if (!isMinAmountAccepted) {
+            console.log('MIN AMOUNT NOT ACCEPTED', quoteErrorMessage.value);
+            isQuoteLoading.value = false;
+            return;
+        }
 
         try {
+            quoteErrorMessage.value = '';
             await operationsFactory.value.estimateOutput();
         } catch (error) {
             const { message = 'Error in evaluating output data' } = error || ({} as any);
@@ -468,14 +477,14 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             }
 
             console.table(flow);
-
-            isQuoteLoading.value = false;
         }
 
         if (currentOp.value?.id) {
             const outputAmount = operationsFactory.value.getOperationById(currentOp.value.id)?.getParamByField('outputAmount');
             outputAmount && store.dispatch(`tokenOps/setFieldValue`, { field: 'dstAmount', value: outputAmount });
         }
+
+        isQuoteLoading.value = false;
     };
 
     // ====================================================================================================
@@ -524,7 +533,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         if (CurrentShortcut?.isComingSoon) isShortcutLoading.value = false;
         else isShortcutLoading.value = true;
 
-        await performShortcut(true);
+        await performShortcut(true, true);
 
         const [order] = operationsFactory.value.getOperationOrder() || [];
 
@@ -556,6 +565,12 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         }
 
         isShortcutLoading.value = false;
+    };
+
+    const initDisabledOrHiddenFields = () => {
+        const { moduleType, params } = currentOp.value || {};
+
+        performDisabledOrHiddenFields(currentStepId.value, moduleType, params);
     };
 
     onMounted(async () => await initShortcut());
@@ -667,6 +682,24 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             if (!operationsFactory.value) return;
             if (!operationsFactory.value.getOperationById(currentOp.value.id)) return;
             operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('amount', srcAmount);
+        },
+    );
+
+    // ====================================================================================================
+    // * Watch for changes in the srcNetwork, srcToken, srcAmount and make an estimate output request
+    // ====================================================================================================
+    store.watch(
+        (state, getters) => [getters['tokenOps/srcNetwork'], getters['tokenOps/srcToken'], getters['tokenOps/srcAmount']],
+        async ([srcNet, srcToken, srcAmount]) => {
+            if (!srcNet?.net) return;
+            if (!srcToken?.id) return;
+            if (!srcAmount) return;
+            if (!currentOp.value?.id) return;
+
+            operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('fromNet', srcNet.net);
+            operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('fromToken', srcToken.address);
+            operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('amount', srcAmount);
+
             await callEstimate();
         },
     );
@@ -678,27 +711,26 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         }
     });
 
-    watch(currentOp, async () => await callOnWatchOnMounted());
+    watch([isConfigLoading, isConnecting, connectedWallets], async ([isConfig, isConnect, wallets], [, , oldWallets]) => {
+        initDisabledOrHiddenFields();
 
-    watch(
-        [isConfigLoading, isConnecting, connectedWallets],
-        async ([isConfig, isConnect, wallets], [oldIsConfig, oldIsConnect, oldWallets]) => {
-            if (isConfig === oldIsConfig && isConnect === oldIsConnect && wallets.length === oldWallets.length)
-                return console.log('Old and new values are the same');
+        if (isEqual(wallets, oldWallets)) return;
 
-            if (!isConfig || !isConnect || wallets.length > 0) await performShortcut(false);
-        },
-    );
+        if (!isConfig || !isConnect || wallets.length > 0) await performShortcut(false, false);
+    });
 
     store.watch(
         (state, getters) => getters['shortcuts/getCurrentOperation'](CurrentShortcut.id, currentStepId.value),
         async () => await callOnWatchOnMounted(),
     );
 
-    watch(isQuoteLoading, async () => {
+    watch(isQuoteLoading, (loading, oldLoading) => {
+        if (loading === oldLoading) return;
+
         if (isQuoteLoading.value || !currentOp.value?.id) return;
 
         const operation = operationsFactory.value.getOperationById(currentOp.value.id);
+
         if (!operation) return;
 
         const quoteRoute = operation.getQuoteRoute();
@@ -717,7 +749,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             value: [quoteRoute],
         });
 
-        await performDisabledOrHiddenFields(currentOp.value.id, currentOp.value.moduleType, currentOp.value.params);
+        setTimeout(() => initDisabledOrHiddenFields());
     });
 
     const setOperationAccount = (stepId: string, { force = false }: { force?: boolean } = {}) => {
@@ -759,7 +791,8 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     watch(walletAccount, async (account, oldAccount) => {
         if (!operationsFactory.value) return;
         if (account === oldAccount) return;
-        await delay(1000);
+
+        await delay(100);
         operationsFactory.value.getOperationOrder().forEach((id) => setOperationAccount(id, { force: true }));
     });
 
