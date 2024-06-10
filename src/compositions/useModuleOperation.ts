@@ -249,7 +249,7 @@ const useModuleOperations = (module: ModuleType) => {
             type: 'error',
             title: 'Transaction canceled',
             description: 'Your transaction has been canceled because the response from the node took too long. Please try again.',
-            duration: 6,
+            duration: 5,
             progress: true,
         });
     };
@@ -931,14 +931,15 @@ const useModuleOperations = (module: ModuleType) => {
 
             const errorMessage = error?.message || JSON.stringify(error);
 
-            showNotification({
-                key: 'tx-error',
-                type: 'error',
-                title: 'Transaction error',
-                description: errorMessage,
-                duration: 6,
-                progress: true,
-            });
+            if (errorMessage !== 'Transaction canceled')
+                showNotification({
+                    key: 'tx-error',
+                    type: 'error',
+                    title: 'Transaction error',
+                    description: errorMessage,
+                    duration: 6,
+                    progress: true,
+                });
 
             updateOperationStatus(STATUSES.FAILED, { moduleIndex, operationId, hash: txInstance.getTransaction()?.txHash as string });
 

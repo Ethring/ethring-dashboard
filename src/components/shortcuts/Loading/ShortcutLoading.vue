@@ -56,6 +56,7 @@
 import { defineComponent, h, computed, ref, watch, onMounted, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
+import useNotification from '@/compositions/useNotification';
 
 import { LoadingOutlined } from '@ant-design/icons-vue';
 
@@ -95,6 +96,8 @@ export default defineComponent({
         const { connectedWallet } = useAdapter();
 
         const store = useStore();
+
+        const { closeNotification } = useNotification();
 
         const shortcutStatus = computed<STATUS_TYPE>(() => store.getters['shortcuts/getShortcutStatus'](props.shortcutId));
 
@@ -147,6 +150,7 @@ export default defineComponent({
 
         const handleOnTryAgain = () => {
             console.log('CALLING TRY AGAIN', shortcutIndex.value, shortcutStatus.value, operationsCount.value - 1);
+            closeNotification('tx-error');
 
             const flow = factory.value.getFullOperationFlow();
 
