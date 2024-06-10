@@ -703,6 +703,7 @@ const useModuleOperations = (module: ModuleType) => {
         // Create transaction instance
         const txInstance = new Transaction(type);
 
+        txInstance.setIndex(index || 0);
         txInstance.setWaitTime(operation.getWaitTime());
 
         // if is first transaction in group, set transaction id

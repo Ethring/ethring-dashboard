@@ -42,6 +42,7 @@ interface ITransaction {
 export class Transaction implements ITransaction {
     id: string | number = '';
     type: string = '';
+    index: number = 0;
     requestID: string = '';
     chainId: string = '';
     waitTime: number = 0;
@@ -56,6 +57,10 @@ export class Transaction implements ITransaction {
 
     setId(id: string | number) {
         this.id = id;
+    }
+
+    setIndex(index: number) {
+        this.index = index;
     }
 
     setChainId(chainId: string) {
@@ -139,12 +144,18 @@ export class TransactionList {
     socket: Socket;
     store: any;
 
+    currentIndex: number;
+    checkStatus: boolean;
+
     constructor(socket: Socket, store: any) {
         this.head = null;
         this.tail = null;
 
         this.socket = socket;
         this.store = store;
+
+        this.currentIndex = 0;
+        this.checkStatus = true;
     }
 
     // ===========================================================================================
@@ -204,6 +215,56 @@ export class TransactionList {
     }
 
     // ===========================================================================================
+    // * Timer worker for transaction status checker
+    // ===========================================================================================
+
+    setupWorkerForTxStatus(resolve: (data: ITransactionResponse) => void, reject: () => void) {
+        const worker = this.store.getters['txManager/txTimerWorker'];
+
+        if (!worker) {
+            console.warn('Tx status check timer worker not found');
+            return;
+        }
+
+        worker.postMessage('start_timer');
+
+        worker.onmessage = async (event: MessageEvent) => {
+            if (!event.data) return;
+
+            const { timerID } = event.data || {};
+
+            if (timerID) this.store.dispatch('txManager/setTxTimerID', timerID);
+            if (event.data === 'timer_expired') await this.checkTxStatus(resolve, reject);
+        };
+    }
+
+    // ===========================================================================================
+    // * Check transaction status by GET request
+    // ===========================================================================================
+
+    async checkTxStatus(resolve: (data: ITransactionResponse) => void, reject: () => void) {
+        try {
+            if (!this.checkStatus) return;
+
+            const transactions = (await getTransactionsByRequestID(this.requestID)) || [];
+          
+            const status = await handleTransactionStatus(
+                transactions[this.currentIndex],
+                this.store,
+                SocketEvents.update_transaction_status,
+            );
+            
+            if (status === STATUSES.IN_PROGRESS)
+                setTimeout(() => {
+                    this.checkTxStatus(resolve, reject);
+                }, 15000);
+            else resolve(transactions[this.currentIndex]);
+        } catch {
+            reject();
+        }
+    }
+
+    // ===========================================================================================
     // * Wait for Pending Transaction
     // ===========================================================================================
 
@@ -224,10 +285,12 @@ export class TransactionList {
     // ===========================================================================================
     async waitForTransaction(txHash: string): Promise<ITransactionResponse> {
         return new Promise((resolve, reject) => {
+            this.setupWorkerForTxStatus(resolve, reject);
+
             for (const event of this._events)
                 this.socket.on(event, async (data: ITransactionResponse) => {
                     const status = await handleTransactionStatus(data, this.store, event);
-
+                    
                     if (STATUSES.SUCCESS === status && data.txHash === txHash) return resolve(data);
 
                     if ([STATUSES.FAILED, STATUSES.REJECTED].includes(status) && data.txHash === txHash) return reject(data);
@@ -260,6 +323,8 @@ export class TransactionList {
 
         while (current) {
             try {
+                this.currentIndex = current.transaction.index;
+                this.checkStatus = true;
                 // ? Prepare the transaction
                 await current.transaction.prepare();
                 // ? Set the transaction execute parameters
@@ -274,11 +339,11 @@ export class TransactionList {
 
             try {
                 const hash = await current.transaction.execute();
-
                 if (!hash) return;
 
                 if (current.transaction.onSuccessSignTransaction) {
                     await this.waitForTransaction(hash);
+                    this.checkStatus = false;
                     await current.transaction.onSuccessSignTransaction();
                     current.transaction.setTransaction({ ...current.transaction.getTransaction(), txHash: hash });
                 }
@@ -298,6 +363,7 @@ export class TransactionList {
             } finally {
                 current = current.next;
                 this.store.dispatch('txManager/setTxTimerID', null);
+                this.store.dispatch('txManager/setTxStatusTimerID', null);
             }
         }
 
