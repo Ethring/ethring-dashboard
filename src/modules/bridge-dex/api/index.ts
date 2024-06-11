@@ -80,6 +80,8 @@ class BridgeDexApi<T extends ServiceType> {
         try {
             const { type, ...params } = requestParams;
 
+            if (params.routeId) delete params.routeId;
+
             if (type === ServiceType.superswap)
                 return (await ApiClient.post(`/services/${ServiceType.bridgedex}/getQuote`, params)) as IQuoteRoutes;
 
