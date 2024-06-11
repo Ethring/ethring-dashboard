@@ -204,8 +204,6 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
         // !If the quote is loading, return
         if (isQuoteLoading.value) return;
 
-        if (quoteErrorMessage.value) return;
-
         const isDex = serviceType === ServiceType.dex;
         const isSameToken = requestParams.fromToken === requestParams.toToken;
 
