@@ -24,6 +24,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 serviceId: 'squid',
                 layoutComponent: 'SuperSwap',
                 isShowLayout: true,
+                waitTime: 10,
                 excludeChains: ['osmosis', 'cosmoshub', 'eth', 'fantom', 'injective', 'stargaze'],
                 includeTokens: {
                     bsc: [
@@ -308,7 +309,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                                 {
                                     dependencyParamKey: 'outputAmount',
                                     paramKey: 'amount',
-                                    usePercentage: 100,
+                                    usePercentage: 80,
                                 },
                             ],
                         },
@@ -430,7 +431,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                                 {
                                     dependencyParamKey: 'outputAmount',
                                     paramKey: 'amount',
-                                    usePercentage: 100,
+                                    usePercentage: 80,
                                 },
                             ],
                         },
@@ -483,6 +484,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 serviceId: 'squid',
                 layoutComponent: 'SuperSwap',
                 isShowLayout: true,
+                waitTime: 10,
                 excludeChains: ['osmosis', 'cosmoshub', 'eth', 'fantom', 'injective', 'stargaze'],
                 includeTokens: {
                     bsc: [
@@ -767,7 +769,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                                 {
                                     dependencyParamKey: 'outputAmount',
                                     paramKey: 'amount',
-                                    usePercentage: 100,
+                                    usePercentage: 80,
                                 },
                             ],
                         },
@@ -889,7 +891,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                                 {
                                     dependencyParamKey: 'outputAmount',
                                     paramKey: 'amount',
-                                    usePercentage: 100,
+                                    usePercentage: 80,
                                 },
                             ],
                         },
