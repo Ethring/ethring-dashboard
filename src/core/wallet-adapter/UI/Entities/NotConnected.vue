@@ -25,6 +25,7 @@ export default {
     cursor: pointer;
 
     width: fit-content !important;
+    height: 50px;
     margin-left: auto;
 
     transition: 0.2s;

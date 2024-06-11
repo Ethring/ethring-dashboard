@@ -247,13 +247,13 @@ export class TransactionList {
             if (!this.checkStatus) return;
 
             const transactions = (await getTransactionsByRequestID(this.requestID)) || [];
-          
+
             const status = await handleTransactionStatus(
                 transactions[this.currentIndex],
                 this.store,
                 SocketEvents.update_transaction_status,
             );
-            
+
             if (status === STATUSES.IN_PROGRESS)
                 setTimeout(() => {
                     this.checkTxStatus(resolve, reject);
@@ -290,7 +290,7 @@ export class TransactionList {
             for (const event of this._events)
                 this.socket.on(event, async (data: ITransactionResponse) => {
                     const status = await handleTransactionStatus(data, this.store, event);
-                    
+
                     if (STATUSES.SUCCESS === status && data.txHash === txHash) return resolve(data);
 
                     if ([STATUSES.FAILED, STATUSES.REJECTED].includes(status) && data.txHash === txHash) return reject(data);
