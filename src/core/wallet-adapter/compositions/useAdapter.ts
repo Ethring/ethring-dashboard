@@ -354,8 +354,6 @@ function useAdapter(): IAdapter {
 
         await adapter.disconnectWallet(walletModule);
 
-        if (!connectedWallets.value.length) router.push('/connect-wallet');
-
         await storeWalletInfo();
     };
 
@@ -367,7 +365,6 @@ function useAdapter(): IAdapter {
             adapter.disconnectAllWallets && (await adapter.disconnectAllWallets());
         }
 
-        router.push('/connect-wallet');
         adaptersDispatch(TYPES.DISCONNECT_ALL_WALLETS);
         reset(mixpanel);
     };

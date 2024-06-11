@@ -57,7 +57,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
     },
     [AvailableShortcuts.StakeToCitadelOne]: {
         id: AvailableShortcuts.StakeToCitadelOne,
-        name: 'Stake to the Citadel.one validator',
+        name: 'Staking $ATOM, $OSMO, $STARS to Citadel.one',
         logoURI: '/img/icons/shortcuts/stake-c1.svg',
         keywords: ['citadel', 'one', 'staking'],
         tags: ['COSMOS', 'STAKE'],

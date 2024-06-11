@@ -34,7 +34,6 @@
                                 class="editable-amount-input"
                                 :controls="false"
                                 :min="0"
-                                :max="operation.getToken('from')?.balance ? operation.getToken('from')?.balance : Infinity"
                             >
                                 <template v-if="operation.getToken('from')?.balance" #addonAfter>
                                     <span class="max-balance" @click="handleOnMax">MAX: {{ operation.getToken('from')?.balance }}</span>
@@ -105,8 +104,6 @@ import { IShortcutOp } from '@/core/shortcuts/core/ShortcutOp';
 
 import { SHORTCUT_STATUSES, STATUSES } from '@/shared/models/enums/statuses.enum';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
-import { onMounted } from 'vue';
-import OperationFactory from '@/core/operations/OperationsFactory';
 
 export default {
     name: 'StepOpInfo',
@@ -181,8 +178,11 @@ export default {
         });
 
         const handleOnConfirm = () => {
-            if (!editedAmount.value) editedAmount.value = 0;
             console.log('handleOnConfirm', editedAmount.value.toString());
+
+            if (!editedAmount.value) editedAmount.value = 0;
+            operation.value.setParamByField('amount', editedAmount.value.toString());
+
             const opsFullFlow = factory.value.getFullOperationFlow() || {};
 
             const [firstOp] = opsFullFlow || [];
@@ -190,10 +190,8 @@ export default {
             const { moduleIndex } = firstOp || {};
 
             if (moduleIndex === operation.value.getUniqueId()) {
-                operation.value.setParamByField('amount', editedAmount.value.toString());
                 store.dispatch(`tokenOps/setFieldValue`, { field: 'srcAmount', value: editedAmount.value.toString() });
             } else {
-                operation.value.setParamByField('amount', editedAmount.value.toString());
                 console.log('setIsCallEstimate', props.shortcutId, true);
                 store.dispatch('shortcuts/setIsCallEstimate', {
                     shortcutId: props.shortcutId,
@@ -212,7 +210,7 @@ export default {
         };
 
         const fromAmount = computed(() => {
-            if (operation.value.getModule() === ModuleType.stake) return operation.value.getParamByField('outputAmount');
+            if (operation.value.getModule() === ModuleType.stake) return operation.value.getParamByField('amount');
 
             return operation.value.getToken('from')?.amount || operation.value.getParamByField('amount');
         });

@@ -29,18 +29,22 @@
 }
 
 .editable-amount-input {
-    border: 1px solid var(--#{$prefix}select-active-border-color);
+    width: 100%;
+    border-color: var(--#{$prefix}select-active-border-color) !important;
     background: transparent;
-    border-radius: 8px;
 
     .ant-input-number-input {
         color: var(--#{$prefix}primary-text);
         font-family: 'Poppins', sans-serif !important;
         transition: 0.2s ease-in-out;
         text-overflow: ellipsis;
+        input {
+            border: none !important;
+        }
     }
 
     .ant-input-number-group-addon {
+        border-color: var(--#{$prefix}select-active-border-color) !important;
         color: var(--#{$prefix}primary-text);
 
         .max-balance {
@@ -93,5 +97,32 @@
 
     path {
         fill: $wildWatermelon;
+    }
+}
+
+.ant-popconfirm-message-title-only {
+    font-weight: 500 !important;
+}
+
+.ant-popconfirm-description {
+    margin-inline-start: 0px !important;
+}
+
+.ant-popconfirm-buttons {
+    .ant-btn-default {
+        background-color: 1px solid var(--#{$prefix}main-background) !important;
+        border: 1px solid var(--#{$prefix}primary-text) !important;
+        span {
+            transition: all 0.2s;
+            color: var(--#{$prefix}primary-text) !important;
+        }
+
+        &:hover {
+            border: 1px solid var(--#{$prefix}sub-text) !important;
+
+            span {
+                color: var(--#{$prefix}sub-text) !important;
+            }
+        }
     }
 }
