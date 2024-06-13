@@ -105,22 +105,21 @@ export default function useChainTokenManger(moduleType: ModuleType) {
         // * 1. Get tokens list for the source network
         tokensList.value = await getTokensList(getTokensParams);
 
+        // * If the tokens list is empty, then return null
+        if (!tokensList.value?.length) return null;
+
         // * 2. Is the source token is found in the tokens list, then set the source token to the found token
         const { id: targetId } = srcToken || {};
         const isTokenFound = tokensList.value?.find((tkn) => tkn?.id === targetId);
 
-        if (isTokenFound) {
-            srcToken = isTokenFound;
-            return srcToken;
-        }
+        if (isTokenFound) return isTokenFound;
 
         // * 3. If the source token is not found, then set the source token to the default token
         const [defaultSrcToken = null] = tokensList.value;
 
-        if (defaultSrcToken) {
-            srcToken = defaultSrcToken;
-            return srcToken;
-        }
+        if (srcNet?.chain !== srcToken?.chain && defaultSrcToken) return defaultSrcToken;
+
+        if (defaultSrcToken) return defaultSrcToken;
 
         return srcToken;
     };

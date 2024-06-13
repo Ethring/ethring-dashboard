@@ -220,6 +220,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     // * Perform the shortcut operations
     // ****************************************************************************************************
     const performShortcut = async (addToFactory = false, updateInStore = false) => {
+        // ! if no operations factory found, return
         if (!operationsFactory.value) {
             console.warn('No operations factory found');
             return;
@@ -227,11 +228,13 @@ const useShortcuts = (Shortcut: IShortcutData) => {
 
         const { operations = [] } = CurrentShortcut || {};
 
+        // ! if operations already exists in the factory, no need to add them again
         if (operationsFactory.value.getOperationsIds().size >= operations.length) {
             console.warn('Operations already exists');
             return;
         }
 
+        // * Process the operations
         for (const shortcutOperation of operations) {
             const { id: opId, dependencies: opDeps = null } = shortcutOperation as any;
 
