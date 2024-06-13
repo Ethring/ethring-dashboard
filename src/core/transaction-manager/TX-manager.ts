@@ -219,7 +219,7 @@ export class TransactionList {
     // ===========================================================================================
 
     setupWorkerForTxStatus(resolve: (data: ITransactionResponse) => void, reject: () => void) {
-        const worker = this.store.getters['txManager/txTimerWorker'];
+        const worker = this.store.getters['txManager/txStatusTimerWorker'];
 
         if (!worker) {
             console.warn('Tx status check timer worker not found');
@@ -233,7 +233,7 @@ export class TransactionList {
 
             const { timerID } = event.data || {};
 
-            if (timerID) this.store.dispatch('txManager/setTxTimerID', timerID);
+            if (timerID) this.store.dispatch('txManager/setTxStatusTimerID', timerID);
             if (event.data === 'timer_expired') await this.checkTxStatus(resolve, reject);
         };
     }

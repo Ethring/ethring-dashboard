@@ -52,7 +52,7 @@
 
             <div class="balance-value">
                 <a-skeleton-input v-if="isTokenLoading" active size="small" class="balance-skeleton" />
-                <div v-else-if="!hideMax && !isTokenLoading && token" class="balance-value-row" @click.stop="setMax">
+                <div v-else-if="!isTokenLoading && token" class="balance-value-row" @click.stop="setMax">
                     <span class="balance-label"> {{ $t('tokenOperations.balance') }}: </span>
                     <Amount :value="token?.balance || 0" :decimals="3" type="currency" :symbol="token?.symbol" />
                 </div>
@@ -129,6 +129,8 @@ export default {
         const symbolForReplace = ref(null);
 
         const setMax = () => {
+            if (props.hideMax) return;
+
             amount.value = props.token?.balance;
             emit('setAmount', BigNumber(props.token?.balance).toFixed());
         };
@@ -136,6 +138,8 @@ export default {
         const onInput = () => emit('setAmount', amount.value);
 
         const checkBalanceAllowed = () => {
+            if (props.hideMax) return;
+
             const isBalanceAllowed = +amount.value > +props.token?.balance;
             error.value = isBalanceAllowed;
         };
