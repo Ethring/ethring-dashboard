@@ -227,6 +227,11 @@ const useShortcuts = (Shortcut: IShortcutData) => {
 
         const { operations = [] } = CurrentShortcut || {};
 
+        if (operationsFactory.value.getOperationsIds().size >= operations.length) {
+            console.warn('Operations already exists');
+            return;
+        }
+
         for (const shortcutOperation of operations) {
             const { id: opId, dependencies: opDeps = null } = shortcutOperation as any;
 
