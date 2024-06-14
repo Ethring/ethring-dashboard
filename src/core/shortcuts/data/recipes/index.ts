@@ -2988,6 +2988,77 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
             } as IShortcutOp,
         ],
     },
+    [AvailableShortcuts.Debridge]: {
+        id: AvailableShortcuts.Debridge,
+        operations: [
+            {
+                id: 'bridge-evm-tokens',
+                name: 'Bridge Tokens',
+                type: ShortcutType.operation,
+                make: TRANSACTION_TYPES.BRIDGE,
+                moduleType: ModuleType.superSwap,
+                operationType: TRANSACTION_TYPES.BRIDGE,
+                serviceId: 'debridge',
+                layoutComponent: 'SuperSwap',
+                isShowLayout: true,
+                excludeChains: ['osmosis', 'cosmoshub', 'injective', 'stargaze', 'juno', 'terra2', 'mars'],
+                ecosystems: ['EVM'],
+                operationParams: {
+                    fromNet: 'bsc',
+                    toNet: 'eth',
+                    fromToken: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+                    toToken: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+                },
+                params: [
+                    {
+                        name: 'srcNetwork',
+                        hide: false,
+                        disabled: false,
+                        ecosystem: 'EVM',
+                        chainId: 56,
+                    },
+                    {
+                        name: 'srcToken',
+                        disabled: false,
+                        hide: false,
+                        chain: 'bsc',
+                        address: null,
+                        id: 'bsc:tokens__native:BNB',
+                    },
+                    {
+                        name: 'dstNetwork',
+                        disabled: false,
+                        hide: false,
+                        ecosystem: 'EVM',
+                        chainId: 1,
+                    },
+                    {
+                        name: 'dstToken',
+                        disabled: false,
+                        hide: false,
+                        id: 'eth:tokens__native:ETH',
+                        chain: 'eth',
+                        address: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+                    },
+                    {
+                        name: 'switchDirection',
+                        disabled: true,
+                        hide: true,
+                    },
+                    {
+                        name: 'isSendToAnotherAddress',
+                        hide: true,
+                        disabled: true,
+                    },
+                    {
+                        name: 'isReload',
+                        hide: true,
+                        disabled: true,
+                    },
+                ],
+            } as IShortcutOp,
+        ],
+    },
 };
 
 export const getRecipeById = (id: string): IRecipesWithOperations => {

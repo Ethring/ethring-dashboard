@@ -131,6 +131,7 @@ export default {
             store.dispatch('tokens/setTargetAccount', walletAccount.value);
             callSubscription();
             setTimeout(callInit, 1000);
+            if (currentChainInfo.value?.ecosystem === Ecosystem.EVM) store.dispatch('shortcuts/loadDebridgeInfo', walletAddress.value);
         });
 
         const unWatchLoading = watch(isConfigLoading, async () => {

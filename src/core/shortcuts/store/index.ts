@@ -16,6 +16,7 @@ import { ShortcutStatus, StepStatusIcons } from '../core/types/ShortcutType';
 import { StepProps } from 'ant-design-vue';
 import { h } from 'vue';
 import { IBaseOperation } from '@/core/operations/models/Operations';
+import DebridgeApi from '@/modules/debridge/api';
 
 const TYPES = {
     SET_SHORTCUT: 'SET_SHORTCUT',
@@ -30,6 +31,8 @@ const TYPES = {
     SET_IS_SHORTCUT_LOADING: 'SET_IS_SHORTCUT_LOADING',
     SET_IS_REQUESTING_NFT: 'SET_IS_REQUESTING_NFT',
     SET_IS_CALL_ESTIMATE: 'SET_IS_CALL_ESTIMATE',
+
+    SET_DEBRIDGE_INFO: 'SET_DEBRIDGE_INFO',
 };
 
 const DISABLED_STATUS = [ShortcutStatus.finish, ShortcutStatus.error];
@@ -62,6 +65,9 @@ interface IState {
     isCallEstimate: {
         [key: string]: boolean;
     };
+    deBridgeInfo: {
+        [key: string]: string;
+    };
 }
 
 export default {
@@ -84,6 +90,8 @@ export default {
 
         isRequestingNfts: {},
         isCallEstimate: {},
+
+        deBridgeInfo: {},
     }),
 
     // ================================================================================
@@ -108,6 +116,8 @@ export default {
         getShortcut: (state: IState) => (shortcut: string) => {
             return state.shortcut[shortcut];
         },
+
+        getDeBridgeInfo: (state: IState) => (address: string) => state.deBridgeInfo[address],
 
         getShortcutOpInfoById: (state: IState) => (shortcutId: string, operationId: string) => {
             // ! if shortcut id is not provided, return null
@@ -157,102 +167,102 @@ export default {
 
         getShortcutOpsFlow:
             (state: IState) =>
-            (shortcutId: string): TxOperationFlow[] => {
-                return state.shortcutOps[shortcutId].getFullOperationFlow();
-            },
+                (shortcutId: string): TxOperationFlow[] => {
+                    return state.shortcutOps[shortcutId].getFullOperationFlow();
+                },
 
         getShortcutSteps:
             (state: IState, _g: any, _rs: any, rootGetters: any) =>
-            (shortcutId: string): StepProps[] => {
-                if (!shortcutId || !state.shortcutOps[shortcutId]) return [];
-                if (!state.shortcutOps[shortcutId].getFullOperationFlow) return [];
-                if (typeof state.shortcutOps[shortcutId].getFullOperationFlow !== 'function') return [];
+                (shortcutId: string): StepProps[] => {
+                    if (!shortcutId || !state.shortcutOps[shortcutId]) return [];
+                    if (!state.shortcutOps[shortcutId].getFullOperationFlow) return [];
+                    if (typeof state.shortcutOps[shortcutId].getFullOperationFlow !== 'function') return [];
 
-                const operationFactory = state.shortcutOps[shortcutId] as OperationsFactory;
+                    const operationFactory = state.shortcutOps[shortcutId] as OperationsFactory;
 
-                let hasError = false;
+                    let hasError = false;
 
-                const setStatus = (step: OperationStep) => {
-                    // Status by operation status
-                    step.status = isEmpty(step.status) ? ShortcutStatus.wait : step.status;
+                    const setStatus = (step: OperationStep) => {
+                        // Status by operation status
+                        step.status = isEmpty(step.status) ? ShortcutStatus.wait : step.status;
 
-                    const isCurrentStep = state.currentStepId === step.id;
+                        const isCurrentStep = state.currentStepId === step.id;
 
-                    // Check if operation has error
-                    hasError = [STATUSES.FAILED, STATUSES.REJECTED].includes(
-                        state.shortcutOps[shortcutId].getOperationsStatusByKey(step.moduleIndex),
-                    );
+                        // Check if operation has error
+                        hasError = [STATUSES.FAILED, STATUSES.REJECTED].includes(
+                            state.shortcutOps[shortcutId].getOperationsStatusByKey(step.moduleIndex),
+                        );
 
-                    if (isCurrentStep) {
-                        step.icon = StepStatusIcons[STATUSES.SIGNING];
-                        step.status = ShortcutStatus.process;
-                    }
+                        if (isCurrentStep) {
+                            step.icon = StepStatusIcons[STATUSES.SIGNING];
+                            step.status = ShortcutStatus.process;
+                        }
 
-                    // Set Estimating icon
-                    if (isCurrentStep && STATUSES.ESTIMATING === state.shortcutOps[shortcutId].getOperationsStatusByKey(step.moduleIndex))
-                        step.icon = StepStatusIcons[STATUSES.ESTIMATING];
-                    // Set In Progress icon
-                    else if (
-                        isCurrentStep &&
-                        state.shortcutOps[shortcutId].getOperationsStatusByKey(step.moduleIndex) === STATUSES.IN_PROGRESS
-                    )
-                        step.icon = StepStatusIcons[STATUSES.IN_PROGRESS];
-                    // Set Failed icon
-                    else if (hasError && isCurrentStep) step.icon = StepStatusIcons[STATUSES.FAILED];
-                };
+                        // Set Estimating icon
+                        if (isCurrentStep && STATUSES.ESTIMATING === state.shortcutOps[shortcutId].getOperationsStatusByKey(step.moduleIndex))
+                            step.icon = StepStatusIcons[STATUSES.ESTIMATING];
+                        // Set In Progress icon
+                        else if (
+                            isCurrentStep &&
+                            state.shortcutOps[shortcutId].getOperationsStatusByKey(step.moduleIndex) === STATUSES.IN_PROGRESS
+                        )
+                            step.icon = StepStatusIcons[STATUSES.IN_PROGRESS];
+                        // Set Failed icon
+                        else if (hasError && isCurrentStep) step.icon = StepStatusIcons[STATUSES.FAILED];
+                    };
 
-                // Get the full operation flow from the factory and filter out the approve operation
-                return operationFactory
-                    .getFullOperationFlow()
-                    .filter((op) => op.type !== TRANSACTION_TYPES.APPROVE)
-                    .map((operation, index) => {
-                        const step = operation as OperationStep;
+                    // Get the full operation flow from the factory and filter out the approve operation
+                    return operationFactory
+                        .getFullOperationFlow()
+                        .filter((op) => op.type !== TRANSACTION_TYPES.APPROVE)
+                        .map((operation, index) => {
+                            const step = operation as OperationStep;
 
-                        step.index = index;
+                            step.index = index;
 
-                        if (!step.id && step.operationId) step.id = step.operationId;
+                            if (!step.id && step.operationId) step.id = step.operationId;
 
-                        step.icon = StepStatusIcons[state.shortcutOps[shortcutId].getOperationsStatusByKey(step.moduleIndex)] as any;
+                            step.icon = StepStatusIcons[state.shortcutOps[shortcutId].getOperationsStatusByKey(step.moduleIndex)] as any;
 
-                        setStatus(step);
-
-                        // ================================================================================
-                        // * Operation chain info
-                        // ================================================================================
-                        const operationInstance = state.shortcutOps[shortcutId].getOperationById(step.operationId) as IBaseOperation;
-
-                        const assetChain = {
-                            symbol: operationInstance.tokens.from?.symbol,
-                            logo: rootGetters['configs/getChainLogoByNet'](operationInstance.tokens.from?.chain),
-                        };
-
-                        return {
-                            // ================================================================================
-                            // * Shortcut operation info component, title & token from/to chain info
-                            // ================================================================================\
-
-                            title: h(StepOpInfo, {
-                                label: operation.title as string,
-                                shortcutId,
-                                operationId: step.operationId,
-                            }),
+                            setStatus(step);
 
                             // ================================================================================
-                            // * Shortcut operation icon component & from chain info
+                            // * Operation chain info
                             // ================================================================================
-                            description: h(StepOp, {
-                                operationType: step.make,
-                                assetChain,
-                            }),
+                            const operationInstance = state.shortcutOps[shortcutId].getOperationById(step.operationId) as IBaseOperation;
 
-                            icon: step.icon,
-                            status: step.status,
+                            const assetChain = {
+                                symbol: operationInstance.tokens.from?.symbol,
+                                logo: rootGetters['configs/getChainLogoByNet'](operationInstance.tokens.from?.chain),
+                            };
 
-                            // Disable step if it's not current step
-                            disabled: DISABLED_STATUS.includes(step.status as ShortcutStatus) || step.index !== state.currentIndex,
-                        } as StepProps;
-                    });
-            },
+                            return {
+                                // ================================================================================
+                                // * Shortcut operation info component, title & token from/to chain info
+                                // ================================================================================\
+
+                                title: h(StepOpInfo, {
+                                    label: operation.title as string,
+                                    shortcutId,
+                                    operationId: step.operationId,
+                                }),
+
+                                // ================================================================================
+                                // * Shortcut operation icon component & from chain info
+                                // ================================================================================
+                                description: h(StepOp, {
+                                    operationType: step.make,
+                                    assetChain,
+                                }),
+
+                                icon: step.icon,
+                                status: step.status,
+
+                                // Disable step if it's not current step
+                                disabled: DISABLED_STATUS.includes(step.status as ShortcutStatus) || step.index !== state.currentIndex,
+                            } as StepProps;
+                        });
+                },
     },
 
     // ================================================================================
@@ -295,6 +305,9 @@ export default {
         [TYPES.SET_IS_CALL_ESTIMATE](state: IState, { shortcutId, value }: { shortcutId: string; value: boolean }) {
             !state.isCallEstimate[shortcutId] && (state.isCallEstimate[shortcutId] = false);
             state.isCallEstimate[shortcutId] = value;
+        },
+        [TYPES.SET_DEBRIDGE_INFO](state: IState, value: any) {
+            state.deBridgeInfo = value;
         },
     },
 
@@ -382,6 +395,24 @@ export default {
         },
         setIsCallEstimate({ commit }: any, { shortcutId, value }: { shortcutId: string; value: boolean }) {
             commit(TYPES.SET_IS_CALL_ESTIMATE, { shortcutId, value });
+        },
+        async loadDebridgeInfo({ state, commit }: any, address: string) {
+            if (state.deBridgeInfo[address]) return state.deBridgeInfo[address];
+
+            const service = new DebridgeApi();
+
+            const pointsInfo = await service.getDebridgePoints(address);
+            const multiplierInfo = await service.getMultiplierInfo(address);
+
+            const data = {
+                ...state.deBridgeInfo,
+                [address]: {
+                    points: pointsInfo?.totalPoints || 0,
+                    multiplier: multiplierInfo?.finalMultiplier || 1,
+                },
+            };
+
+            commit(TYPES.SET_DEBRIDGE_INFO, data);
         },
     },
 };

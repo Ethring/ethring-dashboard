@@ -5,11 +5,12 @@ export enum AvailableShortcuts {
     PendleBeefy = 'SC-pendle-beefy',
     StakeToCitadelOne = 'SC-stake-to-citadel-one',
     SwapToAtomAndStars = 'SC-swap-to-atom-and-stars',
+    Debridge = 'SC-debridge',
     MintCollectionWithTransfer = 'SC-mint-collection-with-transfer',
+    SellEverything = 'SC-sell-everything-in-one-click',
+    WithdrawDydx = 'SC-withdraw-dYdX-usdc-rewards-to-usdt-on-tron',
+    ConvertTia = 'SC-convert-tia-to-sttia',
     AirdropFarmingPortfolio = 'airdrop-farming-portfolio',
-    SellEverything = 'sell-everything-in-one-click',
-    WithdrawDydx = 'withdraw-dYdX-usdc-rewards-to-usdt-on-tron',
-    ConvertTia = 'convert-tia-to-sttia',
 }
 
 export enum ShortcutAuthor {
@@ -20,4 +21,5 @@ export enum ShortcutAuthor {
     WitcherCrypto = 'witcherCrypto',
     Neshtedle = 'neshtedle',
     Pavlutsky = 'pavlutsky',
+    DeBridge = 'deBridge',
 }

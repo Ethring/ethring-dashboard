@@ -96,6 +96,18 @@ const AUTHORS: Record<string, IAuthor> = {
             },
         ],
     },
+    [ShortcutAuthor.DeBridge]: {
+        id: 'deBridge',
+        name: 'deBridge',
+        avatar: 'https://pbs.twimg.com/profile_images/1559577296390225921/12MIVISa_400x400.png',
+        socials: [
+            {
+                type: 'x.com',
+                nickname: 'deBridgeFinance',
+                link: 'https://twitter.com/deBridgeFinance',
+            },
+        ],
+    },
 };
 export const getAuthorById = (id: string): IAuthor => {
     if (!AUTHORS[id])
