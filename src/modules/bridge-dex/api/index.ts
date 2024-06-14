@@ -90,6 +90,8 @@ class BridgeDexApi<T extends ServiceType> {
                 return {} as IQuoteRoutes;
             }
 
+            params.routeId && delete params.routeId;
+
             return (await ApiClient.post(`/services/${type}/getQuote`, params)) as IQuoteRoutes;
         } catch (error) {
             logger.error('(API) -> [BRIDGE_DEX_API] Error fetching quote', error);

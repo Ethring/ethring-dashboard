@@ -79,8 +79,18 @@ export default function useChainTokenManger(moduleType: ModuleType) {
         store.getters['tokens/loadingByChain'](walletAccount.value, selectedDstNetwork.value?.net),
     );
 
+    // ****************************************************************************************************************
+    // * Methods
+    // ****************************************************************************************************************
+
     // =================================================================================================================
     const setTokenOnChangeForNet = async (srcNet: IChainConfig, srcToken: IAsset, { isSameNet = false, excludeTokens = [] } = {}) => {
+        // ************************************************
+        // 1. Get tokens list for the source network
+        // 2. Is the source token is found in the tokens list, then set the source token to the found token
+        // 3. If the source token is not found, then set the source token to the default token
+        // ************************************************
+
         const getTokensParams = {
             srcNet,
             isSameNet,
@@ -92,25 +102,26 @@ export default function useChainTokenManger(moduleType: ModuleType) {
 
         excludeTokens.length ? (getTokensParams.exclude = excludeTokens) : null;
 
+        // * 1. Get tokens list for the source network
         tokensList.value = await getTokensList(getTokensParams);
 
+        // * If the tokens list is empty, then return null
+        if (!tokensList.value?.length) return null;
+
+        // * 2. Is the source token is found in the tokens list, then set the source token to the found token
+        const { id: targetId } = srcToken || {};
+        const isTokenFound = tokensList.value?.find((tkn) => tkn?.id === targetId);
+
+        if (isTokenFound) return isTokenFound;
+
+        // * 3. If the source token is not found, then set the source token to the default token
         const [defaultSrcToken = null] = tokensList.value;
 
-        if (!srcToken?.id && defaultSrcToken) return defaultSrcToken;
+        if (srcNet?.chain !== srcToken?.chain && defaultSrcToken) return defaultSrcToken;
 
-        const { id: targetId } = srcToken || {};
+        if (defaultSrcToken) return defaultSrcToken;
 
-        const searchTokens = [targetId];
-
-        const updatedList = tokensList.value?.filter((tkn) => searchTokens.includes(tkn?.id)) || [];
-
-        if (!updatedList.length) return defaultSrcToken;
-
-        const [tkn = null] = updatedList;
-
-        if (!tkn) return defaultSrcToken;
-
-        return tkn;
+        return srcToken;
     };
 
     const chainManagerByModule = () => {
@@ -141,10 +152,10 @@ export default function useChainTokenManger(moduleType: ModuleType) {
                 // * If the chain list is empty, then the destination network is not set
                 if (!chainList.value?.length) break;
 
-                const [dst] = chainList.value?.filter(({ net }) => net !== selectedSrcNetwork.value?.net) || [];
+                const dstNetwork = chainList.value?.find(({ net }) => net !== selectedSrcNetwork.value?.net) || null;
 
-                if (moduleType === ModuleType.bridge) selectedDstNetwork.value = dst;
-                else !isDstNetworkSet.value && (selectedDstNetwork.value = dst);
+                if (moduleType === ModuleType.bridge && dstNetwork) selectedDstNetwork.value = dstNetwork;
+                else !isDstNetworkSet.value && (selectedDstNetwork.value = dstNetwork);
 
                 break;
         }
