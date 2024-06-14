@@ -102,7 +102,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         isActive: false,
     },
     [AvailableShortcuts.SellEverything]: {
-        id: 'sell-everything-in-one-click',
+        id: AvailableShortcuts.SellEverything,
         name: 'Rage Quit - Sell everything in one click',
         logoURI: '/img/icons/shortcuts/rage-quite.svg',
         keywords: ['sell', 'swap', 'bridge'],
@@ -118,7 +118,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         isActive: true,
     },
     [AvailableShortcuts.WithdrawDydx]: {
-        id: 'withdraw-dYdX-usdc-rewards-to-usdt-on-tron',
+        id: AvailableShortcuts.WithdrawDydx,
         name: 'Withdraw dYdX USDC to USDT TRC20',
         logoURI: '/img/icons/shortcuts/dydx.svg',
         keywords: ['stake', 'swap', 'bridge'],
@@ -134,7 +134,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         isActive: true,
     },
     [AvailableShortcuts.ConvertTia]: {
-        id: 'convert-tia-to-sttia',
+        id: AvailableShortcuts.ConvertTia,
         name: 'Convert TIA to stTiA',
         logoURI: '/img/icons/shortcuts/convert-tia.svg',
         keywords: ['swap', 'bridge'],
@@ -180,6 +180,21 @@ const META_DATA: Record<string, IShortcutMeta> = {
         website: 'https://pendle.finance/',
         minUsdAmount: 1.5,
         author: getAuthorById(ShortcutAuthor.ZometApp),
+        isActive: true,
+    },
+    [AvailableShortcuts.Debridge]: {
+        id: AvailableShortcuts.Debridge,
+        name: 'Earn points for every deBridge transaction',
+        logoURI: '/img/icons/shortcuts/rage-quite.svg',
+        keywords: ['deBridge', 'points'],
+        tags: ['deBridge', 'bridge'],
+        ecosystems: ['EVM'],
+        type: 'bridge',
+        description: 'Earn points for every transaction made through the deBridge service.',
+        wallpaper: '/img/wallpapers/debridge.png',
+        website: 'https://debridge.finance/',
+        minUsdAmount: 2,
+        author: getAuthorById(ShortcutAuthor.DeBridge),
         isActive: true,
     },
 };

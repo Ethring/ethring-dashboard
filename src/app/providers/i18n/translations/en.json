@@ -177,7 +177,8 @@
             "initLoading": "Please wait we are preparing our application for you"
         },
         "comingSoon": "Coming Soon",
-        "comingSoonDescription": "Stay tuned for updates on what's coming next!"
+        "comingSoonDescription": "Stay tuned for updates on what's coming next!",
+        "points": "DeBridge points"
     },
     "slippage": {
         "description": "The maximum amount of additional slippage",

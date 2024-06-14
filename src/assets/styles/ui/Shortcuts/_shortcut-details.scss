@@ -1,4 +1,6 @@
 .shortcut-details {
+    position: relative;
+
     .wallpaper {
         max-width: inherit;
         width: 100%;
@@ -109,5 +111,16 @@
         button {
             margin: auto;
         }
+    }
+
+    &__points {
+        position: absolute;
+        right: 0;
+        width: fit-content;
+        padding: 4px;
+        margin-top: -34px;
+        border-radius: 4px;
+        border: 1px solid var(--#{$prefix}balance-text);
+        color: var(--#{$prefix}primary-text);
     }
 }
