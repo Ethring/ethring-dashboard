@@ -49,7 +49,7 @@ testMetaMask.describe('Swap e2e tests', () => {
             await swapPage.openTokenPageFrom();
             await imagePromiseTokenFrom; // wait load last token image
 
-            await swapPage.page.getByTestId('token-record').nth(2).hover();
+            await swapPage.page.getByTestId('token-record').nth(0).hover();
             await expect(swapPage.getSelectModalContent()).toHaveScreenshot(); // must be hover to last token in list
 
             await swapPage.setTokenInTokensList(TOKEN_FROM);
