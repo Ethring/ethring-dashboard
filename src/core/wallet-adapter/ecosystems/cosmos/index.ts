@@ -335,9 +335,19 @@ export class CosmosAdapter implements ICosmosAdapter {
             };
         }
 
-        try {
-            const chainWallet = this.walletManager.getChainWallet(chain, walletName);
+        let chainWallet: any = null;
 
+        try {
+            chainWallet = this.walletManager.getChainWallet(chain, walletName);
+        } catch (error) {
+            logger.warn('[COSMOS -> connectWallet -> GET CHAIN WALLET]', error, this.walletManager?.isError);
+            return {
+                isConnected: false,
+                walletName: walletName,
+            };
+        }
+
+        try {
             await this.getSupportedEcosystemChains(this.walletManager.chainRecords as IChainRecord[], chainWallet.client);
 
             await chainWallet.initClient();

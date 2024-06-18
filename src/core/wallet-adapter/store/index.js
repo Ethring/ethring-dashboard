@@ -71,8 +71,8 @@ export default {
         lastConnectedWallet: lastConnectedWalletStorage.value,
 
         isConnected: {
-            [Ecosystem.EVM]: isConnectedStorage.value[Ecosystem.EVM],
-            [Ecosystem.COSMOS]: isConnectedStorage.value[Ecosystem.COSMOS],
+            [Ecosystem.EVM]: isConnectedStorage.value[Ecosystem.EVM] || false,
+            [Ecosystem.COSMOS]: isConnectedStorage.value[Ecosystem.COSMOS] || false,
         },
 
         addressesByEcosystem: {
@@ -266,6 +266,8 @@ export default {
                 [Ecosystem.EVM]: false,
                 [Ecosystem.COSMOS]: false,
             };
+
+            state.isConnected = isConnectedStorage.value;
 
             addressesByEcosystemListStorage.value = {};
             addressesByEcosystemStorage.value = {};

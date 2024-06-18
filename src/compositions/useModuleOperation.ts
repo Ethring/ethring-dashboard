@@ -7,7 +7,7 @@ import { SHORTCUT_STATUSES, STATUSES } from '@/shared/models/enums/statuses.enum
 import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 // Transaction manager
 import { Transaction, TransactionList } from '@/core/transaction-manager/TX-manager';
-import { computed, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
 // Config
 import { Ecosystem, Ecosystems } from '@/shared/models/enums/ecosystems.enum';
@@ -215,7 +215,10 @@ const useModuleOperations = (module: ModuleType) => {
         const isSuperSwap = [ModuleType.superSwap, ModuleType.shortcut].includes(currentModule.value);
 
         // ! If not super swap, return
-        if (!isSuperSwap) return null;
+        if (!isSuperSwap) {
+            opTitle.value = `tokenOperations.confirm`;
+            return null;
+        }
 
         const { ecosystem: srcEcosystem } = selectedSrcNetwork.value || {};
         const { ecosystem: dstEcosystem } = selectedDstNetwork.value || {};
@@ -223,17 +226,26 @@ const useModuleOperations = (module: ModuleType) => {
         const isSrcEmpty = isSuperSwap && isSrcAddressesEmpty.value;
         const isDstEmpty = isSuperSwap && isDstAddressesEmpty.value;
 
-        if (isSrcEmpty) return srcEcosystem;
-        if (isDstEmpty) return dstEcosystem;
+        if (!isSrcEmpty && !isDstEmpty) {
+            opTitle.value = `tokenOperations.confirm`;
+            return null;
+        }
 
-        opTitle.value = 'tokenOperations.confirm';
+        if (isSrcEmpty && isDstEmpty) return srcEcosystem;
 
-        return null;
+        if (isSrcEmpty) {
+            opTitle.value = `tokenOperations.pleaseConnectWallet${srcEcosystem}`;
+            return srcEcosystem;
+        }
+        if (isDstEmpty) {
+            opTitle.value = `tokenOperations.pleaseConnectWallet${dstEcosystem}`;
+            return dstEcosystem;
+        }
+
+        opTitle.value = `tokenOperations.pleaseConnectWallet${srcEcosystem}`;
+
+        return Ecosystem.EVM;
     });
-
-    const connectWalletByEcosystem = async (ecosystem: Ecosystems) => {
-        return await connectByEcosystems(ecosystem);
-    };
 
     // ===============================================================================================
     // * Handle on cancel by timeout
@@ -968,7 +980,7 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
 
     const handleOnConfirm = async () => {
-        isTransactionSigning.value = true;
+        if (!walletAddress.value) return await connectByEcosystems(selectedSrcNetwork.value?.ecosystem || Ecosystem.EVM);
 
         if (!selectedSrcNetwork.value) {
             console.warn('Source network not found');
@@ -976,13 +988,10 @@ const useModuleOperations = (module: ModuleType) => {
         }
 
         try {
-            if (!walletAddress.value) return await connectWalletByEcosystem(selectedSrcNetwork.value.ecosystem);
-            if (ecosystemToConnect.value) return await connectWalletByEcosystem(ecosystemToConnect.value);
+            if (ecosystemToConnect.value) return await connectByEcosystems(ecosystemToConnect.value);
         } catch (error) {
             console.error('useModuleOperations -> handleOnConfirm -> connectWalletByEcosystem -> error', error);
             throw error;
-        } finally {
-            isTransactionSigning.value = false;
         }
 
         isTransactionSigning.value = true;
@@ -1049,9 +1058,7 @@ const useModuleOperations = (module: ModuleType) => {
     // * Confirm button state for each module
     // ===============================================================================================
     const isDisableConfirmButton = computed(() => {
-        if (ecosystemToConnect.value) return false;
-
-        if (!walletAddress.value) return false;
+        if (ecosystemToConnect.value && !getConnectedStatus(ecosystemToConnect.value as Ecosystems)) return false;
 
         const isWithMemo = isSendWithMemo.value && isMemoAllowed.value && !memo.value;
         const isWithAddress = isSendToAnotherAddress.value && (isAddressError.value || !isReceiverAddressSet.value);
@@ -1111,12 +1118,6 @@ const useModuleOperations = (module: ModuleType) => {
     // * Watchers
     // ===============================================================================================
 
-    const unWatchEcosystem = watch(ecosystemToConnect, () => {
-        if (!ecosystemToConnect.value) return;
-
-        opTitle.value = `tokenOperations.pleaseConnectWallet${ecosystemToConnect.value}`;
-    });
-
     const unWatchIsForceCallConfirm = watch(isForceCallConfirm, (value) => {
         if (!value) return;
 
@@ -1138,12 +1139,15 @@ const useModuleOperations = (module: ModuleType) => {
         },
     );
 
+    onMounted(() => {
+        if (ecosystemToConnect.value) setTimeout(() => (opTitle.value = `tokenOperations.pleaseConnectWallet${ecosystemToConnect.value}`));
+    });
+
     // ===============================================================================================
     // * On unmounted
     // ===============================================================================================
 
     onUnmounted(() => {
-        unWatchEcosystem();
         unWatchIsForceCallConfirm();
     });
 

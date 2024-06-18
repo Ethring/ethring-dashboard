@@ -450,7 +450,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
 
         if (!isMinAmountAccepted) {
             console.log('MIN AMOUNT NOT ACCEPTED', quoteErrorMessage.value);
-            isQuoteLoading.value = false;
+            setTimeout(() => (isQuoteLoading.value = false));
             return;
         }
 
@@ -674,6 +674,8 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             const operation = operationsFactory.value.getOperationById(id) as IBaseOperation;
             operation.setParamByField('ownerAddresses', addressesByChain.value);
         }
+
+        setTimeout(() => initDisabledOrHiddenFields());
     });
 
     // ====================================================================================================
@@ -735,16 +737,19 @@ const useShortcuts = (Shortcut: IShortcutData) => {
 
         if (loading === oldLoading) return;
 
-        if (isQuoteLoading.value || !currentOp.value?.id) return;
+        if (!currentOp.value?.id) return;
+
+        if (loading) return;
 
         const operation = operationsFactory.value.getOperationById(currentOp.value.id);
 
         if (!operation) return;
 
-        if (!operation.getServiceType) return callInitDisabledOrHiddenFields();
-
         const quoteRoute = operation.getQuoteRoute();
+
         if (!quoteRoute) return callInitDisabledOrHiddenFields();
+
+        if (!operation.getServiceType) return callInitDisabledOrHiddenFields();
 
         store.dispatch('bridgeDexAPI/setSelectedRoute', {
             serviceType: operation.getServiceType(),
