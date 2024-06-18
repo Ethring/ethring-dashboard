@@ -211,11 +211,11 @@ const useModuleOperations = (module: ModuleType) => {
     // * Connect by ecosystem
     // ===============================================================================================
 
-    const ecosystemToConnect = computed(() => {
+    const ecosystemToConnect = computed<Ecosystems | null>(() => {
         const isSuperSwap = [ModuleType.superSwap, ModuleType.shortcut].includes(currentModule.value);
 
         // ! If not super swap, return
-        if (!isSuperSwap) return;
+        if (!isSuperSwap) return null;
 
         const { ecosystem: srcEcosystem } = selectedSrcNetwork.value || {};
         const { ecosystem: dstEcosystem } = selectedDstNetwork.value || {};
@@ -223,7 +223,8 @@ const useModuleOperations = (module: ModuleType) => {
         const isSrcEmpty = isSuperSwap && isSrcAddressesEmpty.value;
         const isDstEmpty = isSuperSwap && isDstAddressesEmpty.value;
 
-        if (isSrcEmpty || isDstEmpty) return isSrcEmpty ? srcEcosystem : dstEcosystem;
+        if (isSrcEmpty) return srcEcosystem;
+        if (isDstEmpty) return dstEcosystem;
 
         opTitle.value = 'tokenOperations.confirm';
 
@@ -967,15 +968,15 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
 
     const handleOnConfirm = async () => {
+        isTransactionSigning.value = true;
+
         if (!selectedSrcNetwork.value) {
             console.warn('Source network not found');
             return;
         }
 
-        if (!walletAddress.value) return await connectWalletByEcosystem(selectedSrcNetwork.value.ecosystem);
-
         try {
-            isTransactionSigning.value = true;
+            if (!walletAddress.value) return await connectWalletByEcosystem(selectedSrcNetwork.value.ecosystem);
             if (ecosystemToConnect.value) return await connectWalletByEcosystem(ecosystemToConnect.value);
         } catch (error) {
             console.error('useModuleOperations -> handleOnConfirm -> connectWalletByEcosystem -> error', error);

@@ -185,6 +185,8 @@ export default {
             }
 
             error.value = false;
+
+            isInput.value = false;
         });
 
         watch(
