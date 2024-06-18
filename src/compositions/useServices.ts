@@ -90,6 +90,11 @@ export default function useModule(moduleType: ModuleType) {
         set: (value) => store.dispatch('tokenOps/setSelectType', value),
     });
 
+    const isInput = computed({
+        get: () => store.getters['tokenOps/isInput'],
+        set: (value) => store.dispatch('tokenOps/setIsInput', value),
+    });
+
     // =================================================================================================================
 
     const selectedSrcToken = computed({
@@ -380,6 +385,7 @@ export default function useModule(moduleType: ModuleType) {
         isShowEstimateInfo,
 
         // Errors
+        isInput,
         txError,
         txErrorTitle,
         isBalanceError,

@@ -81,6 +81,7 @@ const useModuleOperations = (module: ModuleType) => {
     const moduleInstance = useServices(currentModule.value);
 
     const {
+        isInput,
         isNeedApprove,
         isAllowanceLoading,
         isQuoteLoading,
@@ -1058,6 +1059,7 @@ const useModuleOperations = (module: ModuleType) => {
 
         // * Common
         const isDisabled =
+            isInput.value ||
             isLoading.value ||
             isEstimating.value ||
             isQuoteLoading.value ||

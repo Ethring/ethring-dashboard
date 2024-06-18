@@ -68,6 +68,7 @@
 </template>
 <script>
 import { ref, watch, computed, onUpdated, onUnmounted } from 'vue';
+import { useStore } from 'vuex';
 
 import BigNumber from 'bignumber.js';
 
@@ -146,6 +147,13 @@ export default {
     },
     emits: ['setAmount', 'setToken', 'clickToken'],
     setup(props, { emit }) {
+        const store = useStore();
+
+        const isInput = computed({
+            get: () => store.getters['tokenOps/isInput'],
+            set: (value) => store.dispatch('tokenOps/setIsInput', value),
+        });
+
         const active = ref(false);
         const focused = ref(false);
         const placeholder = ref('0');
@@ -184,7 +192,8 @@ export default {
 
         const onInput = () => {
             active.value = false;
-            return emit('setAmount', amount.value);
+            emit('setAmount', amount.value);
+            isInput.value = false;
         };
 
         const onBlur = () => {
@@ -209,6 +218,8 @@ export default {
         // =================================================================================================================
 
         const unWatchAmount = watch(amount, (val) => {
+            isInput.value = true;
+
             amount.value = val;
 
             if (val === '' || !val?.toString()) return emit('setAmount', null);
