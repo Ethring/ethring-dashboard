@@ -181,12 +181,12 @@ export default {
 
                 amount.value = formatInputNumber(val);
 
+                isInput.value = false;
+
                 return checkBalanceAllowed();
             }
 
             error.value = false;
-
-            isInput.value = false;
         });
 
         watch(
