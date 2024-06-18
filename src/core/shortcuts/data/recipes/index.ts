@@ -25,7 +25,19 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 layoutComponent: 'SuperSwap',
                 isShowLayout: true,
                 waitTime: 80,
-                excludeChains: ['osmosis', 'cosmoshub', 'eth', 'fantom', 'injective', 'stargaze'],
+                excludeChains: [
+                    'zksync',
+                    'arbitrum',
+                    'optimism',
+                    'avalanche',
+                    'polygon',
+                    'osmosis',
+                    'cosmoshub',
+                    'eth',
+                    'fantom',
+                    'injective',
+                    'stargaze',
+                ],
                 includeTokens: {
                     bsc: [
                         'bsc:tokens__native:BNB',
@@ -487,7 +499,19 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 layoutComponent: 'SuperSwap',
                 isShowLayout: true,
                 waitTime: 80,
-                excludeChains: ['osmosis', 'cosmoshub', 'eth', 'fantom', 'injective', 'stargaze'],
+                excludeChains: [
+                    'zksync',
+                    'arbitrum',
+                    'optimism',
+                    'avalanche',
+                    'polygon',
+                    'osmosis',
+                    'cosmoshub',
+                    'eth',
+                    'fantom',
+                    'injective',
+                    'stargaze',
+                ],
                 includeTokens: {
                     bsc: [
                         'bsc:tokens__native:BNB',
