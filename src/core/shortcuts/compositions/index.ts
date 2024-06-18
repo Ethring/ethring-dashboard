@@ -477,9 +477,8 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                 const shortcutOpInfo = store.getters['shortcuts/getShortcutOpInfoById'](CurrentShortcut.id, operationId);
                 const { isNeedFromAmount = true } = shortcutOpInfo || {};
                 const fromAmount = operation.getParamByField('amount');
-                const isAmountValid = fromAmount || !isFinite(fromAmount) || fromAmount > 0;
 
-                if (isNeedFromAmount && isAmountValid && !quoteErrorMessage.value)
+                if (isNeedFromAmount && (!fromAmount || isFinite(fromAmount) || fromAmount <= 0))
                     quoteErrorMessage.value = 'Please Fill all from token amounts';
             }
 
