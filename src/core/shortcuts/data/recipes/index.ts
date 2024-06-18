@@ -143,6 +143,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                         isShowLayout: true,
                         editableFromAmount: false,
                         isNeedFromAmount: true,
+                        waitTime: 5,
                         dependencies: {
                             operationId: 'bridge-eth-to-osmo',
                             operationParams: [
@@ -210,6 +211,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                         operationType: TRANSACTION_TYPES.BRIDGE,
                         moduleType: ModuleType.superSwap,
                         layoutComponent: 'SuperSwap',
+                        waitTime: 5,
                         operationParams: {
                             fromToken: 'uosmo',
                             toToken: 'ustars',
@@ -370,7 +372,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                                 {
                                     dependencyParamKey: 'outputAmount',
                                     paramKey: 'amount',
-                                    usePercentage: 30,
+                                    usePercentage: 35,
                                 },
                             ],
                         },
@@ -603,6 +605,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                         isShowLayout: true,
                         editableFromAmount: false,
                         isNeedFromAmount: true,
+                        waitTime: 5,
                         dependencies: {
                             operationId: 'bridge-eth-to-osmo',
                             operationParams: [
@@ -676,6 +679,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                             fromNet: 'osmosis',
                             toNet: 'stargaze',
                         },
+                        waitTime: 5,
                         ecosystems: ['COSMOS'],
                         editableFromAmount: false,
                         isNeedFromAmount: true,
@@ -830,7 +834,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                                 {
                                     dependencyParamKey: 'outputAmount',
                                     paramKey: 'amount',
-                                    usePercentage: 30,
+                                    usePercentage: 35,
                                 },
                             ],
                         },
