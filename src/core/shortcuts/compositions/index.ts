@@ -732,6 +732,8 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     );
 
     watch(isQuoteLoading, (loading, oldLoading) => {
+        const callInitDisabledOrHiddenFields = () => setTimeout(() => initDisabledOrHiddenFields());
+
         if (loading === oldLoading) return;
 
         if (isQuoteLoading.value || !currentOp.value?.id) return;
@@ -740,11 +742,10 @@ const useShortcuts = (Shortcut: IShortcutData) => {
 
         if (!operation) return;
 
+        if (!operation.getServiceType) return callInitDisabledOrHiddenFields();
+
         const quoteRoute = operation.getQuoteRoute();
-
-        if (!quoteRoute) return;
-
-        if (!operation.getServiceType) return;
+        if (!quoteRoute) return callInitDisabledOrHiddenFields();
 
         store.dispatch('bridgeDexAPI/setSelectedRoute', {
             serviceType: operation.getServiceType(),
@@ -756,7 +757,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             value: [quoteRoute],
         });
 
-        setTimeout(() => initDisabledOrHiddenFields());
+        callInitDisabledOrHiddenFields();
     });
 
     const setOperationAccount = (stepId: string, { force = false }: { force?: boolean } = {}) => {
