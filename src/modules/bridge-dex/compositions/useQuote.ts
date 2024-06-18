@@ -20,6 +20,7 @@ import { AddressByChainHash } from '@/shared/models/types/Address';
 import logger from '@/shared/logger';
 import { isEqual } from 'lodash';
 import useInputValidation from '@/shared/form-validations';
+import { useRoute } from 'vue-router';
 
 /**
  *
@@ -41,6 +42,8 @@ import useInputValidation from '@/shared/form-validations';
  */
 const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDexService<any>) => {
     const store = useStore();
+
+    const route = useRoute();
 
     const serviceType = ServiceType[targetType];
 
@@ -195,6 +198,9 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     // ===========================================================================================
 
     const makeQuoteRoutes = async (requestParams: AllQuoteParams) => {
+        // !If the route is shortcuts, return because the request is not needed, the shortcuts has own logic for making a quote request
+        if (route.path.startsWith('/shortcuts')) return;
+
         // !If the request is not allowed, return
         if (!isAllowToMakeRequest()) {
             quoteErrorMessage.value = 'Please select the correct source and destination tokens';

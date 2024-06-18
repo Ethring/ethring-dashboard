@@ -765,7 +765,6 @@ export class CosmosAdapter implements ICosmosAdapter {
     async prepareDelegateTransaction({ fromAddress, toAddress, amount, token, memo }: IPrepareTxCosmos) {
         const fee = this.setDefaultFeeForTx();
 
-        console.log('prepareDelegateTransaction', fromAddress, toAddress, amount, token, memo);
         try {
             const { delegate } = cosmos.staking.v1beta1.MessageComposer.withTypeUrl;
 
@@ -1076,6 +1075,8 @@ export class CosmosAdapter implements ICosmosAdapter {
             const tx = [this.getAccountAddress(), msgs, fee];
 
             if (memo && memo !== undefined) tx.push(memo);
+
+            console.log('TRANSACTION TO SIGN COSMOS', tx);
 
             const response = await signClient.client.signAndBroadcast(...tx);
 

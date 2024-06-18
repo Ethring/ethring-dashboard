@@ -129,11 +129,15 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     // ****************************************************************************************************
     // * Address by chain
     // ****************************************************************************************************
-    const addressesByChain = computed(() => {
-        const src = store.getters['adapters/getAddressesByEcosystem'](Ecosystem.EVM) as AddressByChainHash;
-        const dst = store.getters['adapters/getAddressesByEcosystem'](Ecosystem.COSMOS) as AddressByChainHash;
 
-        return { ...src, ...dst };
+    const evmAddresses = computed(() => store.getters['adapters/getAddressesByEcosystem'](Ecosystem.EVM) as AddressByChainHash);
+    const cosmosAddresses = computed(() => store.getters['adapters/getAddressesByEcosystem'](Ecosystem.COSMOS) as AddressByChainHash);
+
+    const addressesByChain = computed(() => {
+        return {
+            ...evmAddresses.value,
+            ...cosmosAddresses.value,
+        };
     });
 
     // ****************************************************************************************************
@@ -444,6 +448,8 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     };
 
     const callEstimate = async () => {
+        if (isQuoteLoading.value) return;
+
         isQuoteLoading.value = true;
 
         const isMinAmountAccepted = checkMinAmount();
@@ -669,14 +675,19 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     // ====================================================================================================
     // * Watch for changes in the addressesByChain, and update the ownerAddresses field in the operations
     // ====================================================================================================
-    watch(addressesByChain, () => {
-        for (const id of opIds.value) {
-            const operation = operationsFactory.value.getOperationById(id) as IBaseOperation;
-            operation.setParamByField('ownerAddresses', addressesByChain.value);
-        }
+    watch(
+        () => addressesByChain.value,
+        () => {
+            setTimeout(() => {
+                for (const id of opIds.value) {
+                    const operation = operationsFactory.value.getOperationById(id) as IBaseOperation;
+                    operation.setParamByField('ownerAddresses', addressesByChain.value);
+                }
+            });
 
-        setTimeout(() => initDisabledOrHiddenFields());
-    });
+            setTimeout(() => initDisabledOrHiddenFields());
+        },
+    );
 
     // ====================================================================================================
     // * Watch for changes in the srcAmount, and make an estimate output request

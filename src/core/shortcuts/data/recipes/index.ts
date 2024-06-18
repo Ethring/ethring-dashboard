@@ -24,7 +24,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 serviceId: 'squid',
                 layoutComponent: 'SuperSwap',
                 isShowLayout: true,
-                waitTime: 75,
+                waitTime: 80,
                 excludeChains: ['osmosis', 'cosmoshub', 'eth', 'fantom', 'injective', 'stargaze'],
                 includeTokens: {
                     bsc: [
@@ -486,7 +486,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 serviceId: 'squid',
                 layoutComponent: 'SuperSwap',
                 isShowLayout: true,
-                waitTime: 75,
+                waitTime: 80,
                 excludeChains: ['osmosis', 'cosmoshub', 'eth', 'fantom', 'injective', 'stargaze'],
                 includeTokens: {
                     bsc: [
