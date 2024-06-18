@@ -470,18 +470,17 @@ const useShortcuts = (Shortcut: IShortcutData) => {
 
                 const operation = operationsFactory.value.getOperationByKey(moduleIndex);
 
+                if (!operationId) continue;
+
                 if (!operation) continue;
 
-                if (operationId) {
-                    const shortcutOpInfo = store.getters['shortcuts/getShortcutOpInfoById'](CurrentShortcut.id, operationId);
+                const shortcutOpInfo = store.getters['shortcuts/getShortcutOpInfoById'](CurrentShortcut.id, operationId);
+                const { isNeedFromAmount = true } = shortcutOpInfo || {};
+                const fromAmount = operation.getParamByField('amount');
+                const isAmountValid = fromAmount || !isFinite(fromAmount) || fromAmount > 0;
 
-                    const { isNeedFromAmount = true } = shortcutOpInfo || {};
-
-                    const fromAmount = operation.getParamByField('amount');
-
-                    if (isNeedFromAmount && (!fromAmount || isFinite(fromAmount) || fromAmount <= 0))
-                        quoteErrorMessage.value = 'Please Fill all from token amounts';
-                }
+                if (isNeedFromAmount && isAmountValid && !quoteErrorMessage.value)
+                    quoteErrorMessage.value = 'Please Fill all from token amounts';
             }
 
             console.table(flow);
