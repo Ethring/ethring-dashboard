@@ -193,7 +193,6 @@ export default {
         const onInput = () => {
             active.value = false;
             emit('setAmount', amount.value);
-            isInput.value = false;
         };
 
         const onBlur = () => {
@@ -222,11 +221,16 @@ export default {
 
             amount.value = val;
 
-            if (val === '' || !val?.toString()) return emit('setAmount', null);
+            if (val === '' || !val?.toString()) {
+                isInput.value = false;
+                return emit('setAmount', null);
+            }
 
             if (symbolForReplace.value) val = val.replace(symbolForReplace.value, '.');
 
-            return (amount.value = formatInputNumber(val));
+            amount.value = formatInputNumber(val);
+
+            return (isInput.value = false);
         });
 
         watch(
