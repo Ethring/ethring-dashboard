@@ -35,7 +35,7 @@ export const trackingBalanceUpdate = (store: any) => {
         const { address = null, chain = null, hash, startTimestamp } = queueWallet || {};
 
         if (!address || !chain) {
-            console.warn('Invalid address or chain for balance update');
+            console.warn('Invalid address or chain for balance update', { address, chain });
             return;
         }
 

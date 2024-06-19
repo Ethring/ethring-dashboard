@@ -30,7 +30,7 @@
                 :class="{ disabled }"
                 :bordered="false"
                 :placeholder="placeholder"
-                :disabled="disabled"
+                :disabled="disabled || label === 'To'"
                 @focus="focused = true"
                 @blur="onBlur"
             />

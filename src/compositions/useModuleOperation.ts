@@ -1128,10 +1128,6 @@ const useModuleOperations = (module: ModuleType) => {
 
     // =================================================================================================================
 
-    watch(selectedRoute, () => {
-        if (!selectedRoute.value) return;
-    });
-
     store.watch(
         (state) => state.bridgeDexAPI.routeTimerSeconds,
         (value) => {
@@ -1149,6 +1145,8 @@ const useModuleOperations = (module: ModuleType) => {
 
     onUnmounted(() => {
         unWatchIsForceCallConfirm();
+        isTransactionSigning.value = false;
+        isQuoteLoading.value = false;
     });
 
     return {
