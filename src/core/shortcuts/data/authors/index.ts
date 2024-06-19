@@ -51,7 +51,7 @@ const AUTHORS: Record<string, IAuthor> = {
     [ShortcutAuthor.Neshtedle]: {
         id: 'neshtedle',
         name: 'Neshtedle',
-        avatar: 'https://pbs.twimg.com/profile_images/1778258375098167296/6MxlYA3t_400x400.jpg',
+        avatar: 'https://pbs.twimg.com/profile_images/1801402989191528448/qMgXjc8D_400x400.jpg',
         socials: [
             {
                 type: 'x.com',
