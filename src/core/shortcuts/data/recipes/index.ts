@@ -384,7 +384,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                                 {
                                     dependencyParamKey: 'outputAmount',
                                     paramKey: 'amount',
-                                    usePercentage: 35,
+                                    usePercentage: 25,
                                 },
                             ],
                         },
@@ -858,7 +858,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                                 {
                                     dependencyParamKey: 'outputAmount',
                                     paramKey: 'amount',
-                                    usePercentage: 35,
+                                    usePercentage: 25,
                                 },
                             ],
                         },
