@@ -675,15 +675,17 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     // ====================================================================================================
     watch(
         () => addressesByChain.value,
-        () => {
-            setTimeout(() => {
-                for (const id of opIds.value) {
-                    const operation = operationsFactory.value.getOperationById(id) as IBaseOperation;
-                    operation.setParamByField('ownerAddresses', addressesByChain.value);
-                }
-            });
-
+        (addresses, oldAddresses) => {
             setTimeout(() => initDisabledOrHiddenFields());
+
+            if (isEqual(addresses, oldAddresses)) return console.warn('NO CHANGE IN ADDRESSES BY CHAIN');
+
+            console.warn('ADDRESSES BY CHAIN CHANGED', addresses);
+
+            for (const id of opIds.value) {
+                const operation = operationsFactory.value.getOperationById(id) as IBaseOperation;
+                operation.setParamByField('ownerAddresses', addressesByChain.value);
+            }
         },
     );
 

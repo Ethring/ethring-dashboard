@@ -901,7 +901,7 @@ const useModuleOperations = (module: ModuleType) => {
 
             updateOperationStatus(STATUSES.SUCCESS, { moduleIndex, operationId, hash: txHash as string });
 
-            if (selectedRoute.value.serviceId)
+            if (selectedRoute.value?.serviceId)
                 await makeAllowanceRequest(selectedRoute.value.serviceId, {
                     net: selectedSrcNetwork.value.net,
                     tokenAddress: selectedSrcToken.value.address,
