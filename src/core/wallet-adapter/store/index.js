@@ -28,7 +28,7 @@ const isConnectedStorage = useLocalStorage(
 const getAccountByEcosystem = (ecosystem) => {
     if (!connectedWalletsStorage.value.length) return null;
 
-    const result = connectedWalletsStorage.value.find((wallet) => wallet?.ecosystem === ecosystem);
+    const result = connectedWalletsStorage.value.find((wallet) => wallet?.ecosystem.toLowerCase() === ecosystem.toLowerCase());
 
     if (!result) return null;
 

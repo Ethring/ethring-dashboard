@@ -662,6 +662,12 @@ const useShortcuts = (Shortcut: IShortcutData) => {
 
         await delay(100);
         operationsFactory.value.getOperationOrder().forEach((id) => setOperationAccount(id, { force: true }));
+
+        for (const operation of CurrentShortcut.operations)
+            await performFields(operation.moduleType, operation.params, {
+                isUpdateInStore: false,
+                id: operation.id,
+            });
     });
 
     // ====================================================================================================
