@@ -99,7 +99,7 @@ export default {
     &.active {
         top: 0;
 
-        z-index: 999;
+        z-index: 9999;
         opacity: 1;
     }
 
@@ -107,7 +107,7 @@ export default {
         position: relative;
         z-index: 1000;
 
-        min-width: 448px;
+        min-width: 488px;
         min-height: 448px;
         margin: auto;
         border-radius: 16px;
@@ -116,7 +116,7 @@ export default {
         .top {
             @include pageFlexRow;
             justify-content: space-between;
-            padding: 16px;
+            padding: 8px 16px;
             border-bottom: 1px solid var(--#{$prefix}border-color-op-05);
 
             .close {
@@ -124,8 +124,8 @@ export default {
                 justify-content: center;
                 position: relative;
                 overflow: hidden;
-                height: 32px;
-                width: 32px;
+                height: 28px;
+                width: 28px;
                 border-radius: 50%;
                 cursor: pointer;
 

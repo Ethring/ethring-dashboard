@@ -410,7 +410,6 @@ export default {
             white-space: nowrap;
             text-overflow: ellipsis;
             overflow: hidden;
-            max-width: 360px;
             gap: 8px;
         }
     }
@@ -434,5 +433,9 @@ export default {
 
 .services-icon {
     margin-left: 10px;
+}
+
+.route-error {
+    flex-wrap: nowrap;
 }
 </style>

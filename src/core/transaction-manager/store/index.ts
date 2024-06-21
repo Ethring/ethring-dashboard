@@ -4,6 +4,7 @@ import { ITransactionResponse } from '@/core/transaction-manager/types/Transacti
 import TimerWorker from '@/timer-worker.js?worker';
 
 const worker = new TimerWorker();
+const statusWorker = new TimerWorker();
 
 const TYPES = {
     SET_TRANSACTION_FOR_SIGN: 'SET_TRANSACTION_FOR_SIGN',
@@ -16,6 +17,7 @@ const TYPES = {
     SET_IS_WAITING_TX_STATUS_FOR_MODULE: 'SET_IS_WAITING_TX_STATUS_FOR_MODULE',
 
     SET_TX_TIMER_ID: 'SET_TX_TIMER_ID',
+    SET_TX_STATUS_TIMER_ID: 'SET_TX_STATUS_TIMER_ID',
 };
 
 interface IState {
@@ -40,6 +42,10 @@ interface IState {
     txTimerID: number | null;
 
     txTimerWorker: TimerWorker | null;
+
+    txStatusTimerID: number | null;
+
+    txStatusTimerWorker: TimerWorker | null;
 }
 
 export default {
@@ -58,6 +64,9 @@ export default {
 
         txTimerID: null,
         txTimerWorker: worker,
+
+        txStatusTimerID: null,
+        txStatusTimerWorker: statusWorker,
     }),
 
     getters: {
@@ -69,6 +78,9 @@ export default {
 
         txTimerID: (state: IState) => state.txTimerID,
         txTimerWorker: (state: IState) => state.txTimerWorker,
+
+        txStatusTimerID: (state: IState) => state.txStatusTimerID,
+        txStatusTimerWorker: (state: IState) => state.txStatusTimerWorker,
     },
 
     mutations: {
@@ -114,6 +126,10 @@ export default {
         [TYPES.SET_TX_TIMER_ID](state: IState, timerID: number | null) {
             state.txTimerID = timerID;
         },
+
+        [TYPES.SET_TX_STATUS_TIMER_ID](state: IState, timerID: number | null) {
+            state.txStatusTimerID = timerID;
+        },
     },
 
     actions: {
@@ -144,6 +160,11 @@ export default {
         setTxTimerID({ state, commit }: any, value: number) {
             if (!value && state.txTimerID) state.txTimerWorker.postMessage({ clearTimer: true, timerID: state.txTimerID });
             commit(TYPES.SET_TX_TIMER_ID, value);
+        },
+        setTxStatusTimerID({ state, commit }: any, value: number) {
+            if (!value && state.txStatusTimerID)
+                state.txStatusTimerWorker.postMessage({ clearTimer: true, timerID: state.txStatusTimerID });
+            commit(TYPES.SET_TX_STATUS_TIMER_ID, value);
         },
     },
 };

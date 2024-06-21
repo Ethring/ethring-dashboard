@@ -48,6 +48,8 @@ export const handleTransactionStatus = async (transaction, store, event) => {
     if (FINISHED_STATUSES.includes(status)) await store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
     else await store.dispatch('txManager/setCurrentRequestID', null);
 
+    store.dispatch('txManager/setTxStatusTimerID', null);
+
     statusNotification(status, { store, id, metaData, txHash, explorerLink, successCallback });
 
     return status;

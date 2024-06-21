@@ -129,8 +129,9 @@
         "noAvailableRoute": "Possible explanations for this could be limited liquidity, an insufficiently selected amount, excessively high gas costs, or the availability of routes for the chosen combination",
         "unknownGas": "unknown gas fee",
         "pendingTransactions": "Transaction successfully sent to blockchain, but the transaction still pending. Please wait for confirmation.",
-        "verifiedToken": "This token has a good reputation from the community",
-        "connectWallet": "Connect wallet"
+        "connectWallet": "Connect wallet",
+        "showMore": "Show more",
+        "verifiedToken": "This token has a good reputation from the community"
     },
     "simpleSend": {
         "title": "Send"
@@ -176,7 +177,8 @@
             "initLoading": "Please wait we are preparing our application for you"
         },
         "comingSoon": "Coming Soon",
-        "comingSoonDescription": "Stay tuned for updates on what's coming next!"
+        "comingSoonDescription": "Stay tuned for updates on what's coming next!",
+        "points": "DeBridge points"
     },
     "slippage": {
         "description": "The maximum amount of additional slippage",

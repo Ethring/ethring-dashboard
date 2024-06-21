@@ -245,7 +245,7 @@ export default function useSelectModal(type) {
                 srcToken: selectedTokenFrom.value,
                 dstToken: selectedTokenTo.value,
                 isSameNet,
-                onlyWithBalance: isFromSelect.value,
+                onlyWithBalance: module.value === ModuleType.send,
                 exclude,
             });
 

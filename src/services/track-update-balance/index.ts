@@ -35,7 +35,7 @@ export const trackingBalanceUpdate = (store: any) => {
         const { address = null, chain = null, hash, startTimestamp } = queueWallet || {};
 
         if (!address || !chain) {
-            console.warn('Invalid address or chain for balance update');
+            console.warn('Invalid address or chain for balance update', { address, chain });
             return;
         }
 
@@ -77,14 +77,14 @@ export const trackingBalanceUpdate = (store: any) => {
 
         const tokens = store.getters['tokens/getTokensListForChain'](config.net, { account: targetAccount });
 
-        if (srcToken.value) {
+        if (srcToken.value && config.net === srcToken.value.net) {
             const srcTokenData = tokens.find(
                 ({ id = '', address = '' }) => id === srcToken.value?.id || toLower(address) === toLower(srcToken.value?.address || ''),
             );
             if (srcTokenData) srcToken.value.balance = srcTokenData.balance;
         }
 
-        if (dstToken.value) {
+        if (dstToken.value && config.net === dstToken.value.net) {
             const dstTokenData = tokens.find(
                 ({ id = '', address = '' }) => id === dstToken.value?.id || toLower(address) === toLower(dstToken.value?.address || ''),
             );

@@ -16,7 +16,13 @@ export default {
     components: {
         ConnectTo,
     },
-    setup() {
+    props: {
+        close: {
+            type: Function,
+            default: () => {},
+        },
+    },
+    setup(props) {
         const TO_CONNECT = [
             {
                 name: 'adapter.abstractAccount',
@@ -39,8 +45,13 @@ export default {
 
         const { connectByEcosystems } = useAdapter();
 
+        const connect = (ecosystem) => {
+            props.close();
+            connectByEcosystems(ecosystem);
+        };
+
         return {
-            connect: connectByEcosystems,
+            connect,
             TO_CONNECT,
         };
     },

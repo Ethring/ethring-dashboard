@@ -16,7 +16,7 @@ const getAvailableShortcuts = () => {
     return availableShortcuts;
 };
 
-const getAllShortcuts = (type: RequestDataType = 'ALL', limit: number = 10, offset: number = 0) => {
+const getAllShortcuts = (type: RequestDataType = 'ALL', limit: number = 12, offset: number = 0) => {
     const availableShortcuts = getAvailableShortcuts();
 
     switch (type) {

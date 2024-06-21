@@ -1,0 +1,39 @@
+.hide-balances {
+    align-items: center;
+    width: 180px;
+    height: 40px;
+    border-radius: 24px;
+    padding-left: 10px;
+    background: var(--#{$prefix}select-bg-color);
+    border: 1px solid var(--#{$prefix}select-bg-color);
+    transition: 0.2s ease-in-out;
+    box-shadow: none;
+
+    &:hover {
+        border-color: var(--#{$prefix}btn-bg-color-hover) !important;
+    }
+
+    .ant-input-number {
+        height: 36px !important;
+    }
+
+    input {
+        margin-top: -0.5px;
+        height: 36px !important;
+        width: 90px !important;
+        font-weight: 500;
+        color: var(--#{$prefix}primary-text) !important;
+        font-size: var(--#{$prefix}h6-fs) !important;
+    }
+
+    .ant-input-number-prefix {
+        color: var(--#{$prefix}unlock-text) !important;
+        font-size: var(--#{$prefix}h6-fs) !important;
+        font-weight: 500;
+        margin-left: 8px;
+    }
+}
+
+.ant-input-number-affix-wrapper-focused {
+    border: 1px solid var(--#{$prefix}btn-bg-color-hover) !important;
+}

@@ -335,9 +335,19 @@ export class CosmosAdapter implements ICosmosAdapter {
             };
         }
 
-        try {
-            const chainWallet = this.walletManager.getChainWallet(chain, walletName);
+        let chainWallet: any = null;
 
+        try {
+            chainWallet = this.walletManager.getChainWallet(chain, walletName);
+        } catch (error) {
+            logger.warn('[COSMOS -> connectWallet -> GET CHAIN WALLET]', error, this.walletManager?.isError);
+            return {
+                isConnected: false,
+                walletName: walletName,
+            };
+        }
+
+        try {
             await this.getSupportedEcosystemChains(this.walletManager.chainRecords as IChainRecord[], chainWallet.client);
 
             await chainWallet.initClient();
@@ -755,7 +765,6 @@ export class CosmosAdapter implements ICosmosAdapter {
     async prepareDelegateTransaction({ fromAddress, toAddress, amount, token, memo }: IPrepareTxCosmos) {
         const fee = this.setDefaultFeeForTx();
 
-        console.log('prepareDelegateTransaction', fromAddress, toAddress, amount, token, memo);
         try {
             const { delegate } = cosmos.staking.v1beta1.MessageComposer.withTypeUrl;
 
@@ -1066,6 +1075,8 @@ export class CosmosAdapter implements ICosmosAdapter {
             const tx = [this.getAccountAddress(), msgs, fee];
 
             if (memo && memo !== undefined) tx.push(memo);
+
+            console.log('TRANSACTION TO SIGN COSMOS', tx);
 
             const response = await signClient.client.signAndBroadcast(...tx);
 

@@ -52,6 +52,14 @@ export default {
     height: 55vh;
     gap: 2.5rem;
 
+    @media (max-height: 800px) {
+        height: 60vh;
+    }
+
+    @media (max-height: 600px) {
+        height: 70vh;
+    }
+
     &__top {
         @include pageFlexRow;
         justify-content: center;

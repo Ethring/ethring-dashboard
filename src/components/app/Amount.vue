@@ -31,7 +31,7 @@ import { useStore } from 'vuex';
 
 import Censorship from './Censorship.vue';
 
-import { formatNumber } from '@/shared/utils/numbers';
+import { formatNumber, formatUsdNumber } from '@/shared/utils/numbers';
 
 export default {
     name: 'Amount',
@@ -67,9 +67,7 @@ export default {
         const isInteger = computed(() => !Number.isInteger(+props.value));
 
         const displayValue = computed(() => {
-            if (!props.value) return '0';
-
-            if (Number.isNaN(+props.value)) return '~0';
+            if (props.symbol === '$') return formatUsdNumber(props.value);
 
             return formatNumber(props.value, props.decimals);
         });
@@ -100,6 +98,7 @@ export default {
     .symbol {
         font-weight: 400;
         color: var(--#{$prefix}secondary-text);
+        text-wrap: nowrap;
     }
 
     .value {

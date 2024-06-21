@@ -22,6 +22,8 @@ export default function useSentry(app, router) {
 
         integrations: [browserTracingIntegration({ router }), replayIntegration()],
         tracesSampleRate: 0.5,
+
+        ignoreErrors: ignorePatterns,
     });
 }
 

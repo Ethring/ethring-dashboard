@@ -5,7 +5,7 @@ import { notification, Progress } from 'ant-design-vue';
 import { LoadingOutlined, DoubleRightOutlined } from '@ant-design/icons-vue';
 import ExternalLinkIcon from '@/assets/icons/module-icons/external-link.svg';
 
-const MAX_TEXT_LENGTH = 100;
+const MAX_TEXT_LENGTH = 110;
 
 export default function useNotification() {
     const openExplorer = (explorer, key) => {

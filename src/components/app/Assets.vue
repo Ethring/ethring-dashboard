@@ -18,10 +18,14 @@
 
                 <AssetsTable
                     type="Asset"
-                    :data="allTokensInAccount"
+                    :data="visibleAssets"
                     :columns="[DEFAULT_NAME_COLUMN, ...DEFAULT_COLUMNS]"
                     :loading="isLoadingByAccount || isLoadingForChain"
                 />
+
+                <div v-if="allTokensInAccount.length > visibleAssets.length" class="assets-block-show-more">
+                    <UiButton :title="$t('tokenOperations.showMore')" @click="handleAssetLoadMore" />
+                </div>
             </a-collapse-panel>
 
             <a-collapse-panel
@@ -66,7 +70,11 @@
                     />
                 </template>
 
-                <AssetsTable :data="allNFTsByCollection" type="NFTS" :columns="NFT_COLUMNS" :loading="allNFTsByCollection.length <= 0" />
+                <AssetsTable :data="visibleNFTs" type="NFTS" :columns="NFT_COLUMNS" :loading="allNFTsByCollection.length <= 0" />
+
+                <div v-if="allNFTsByCollection.length > visibleNFTs.length" class="assets-block-show-more">
+                    <UiButton :title="$t('tokenOperations.showMore')" @click="handleLoadMore" />
+                </div>
             </a-collapse-panel>
         </a-collapse>
     </div>
@@ -81,6 +89,8 @@ import BigNumber from 'bignumber.js';
 import AssetsTable from './assets/AssetsTable';
 import AssetGroupHeader from './assets/AssetGroupHeader';
 
+import UiButton from '@/components/ui/Button.vue';
+
 import ArrowDownIcon from '@/assets/icons/form-icons/arrow-down.svg';
 
 import { getFormattedName } from '@/shared/utils/assets';
@@ -90,6 +100,7 @@ export default {
     components: {
         AssetGroupHeader,
         AssetsTable,
+        UiButton,
 
         ArrowDownIcon,
     },
@@ -104,6 +115,12 @@ export default {
         const { walletAccount, currentChainInfo } = useAdapter();
 
         const keyPressCombination = ref('');
+
+        const MAX_NFTS_PER_PAGE = 5;
+        const MAX_ASSETS_PER_PAGE = 10;
+
+        const currentIndex = ref(MAX_NFTS_PER_PAGE);
+        const currentAssetIndex = ref(MAX_ASSETS_PER_PAGE);
 
         const collapsedAssets = computed(() => store.getters['app/collapsedAssets']);
 
@@ -150,9 +167,9 @@ export default {
         });
 
         const allCollapsedActiveKeys = computed(() => {
-            if (!allIntegrationsByPlatforms.value.length) return ['assets', 'nfts'];
-
             const keys = ['assets', 'nfts'];
+
+            if (!allIntegrationsByPlatforms.value.length) return keys;
 
             allIntegrationsByPlatforms.value.map((item) => {
                 keys.push(item.platform);
@@ -193,13 +210,14 @@ export default {
         };
 
         const updateCollapsedAssets = () => {
-            if (allCollapsedActiveKeys.value.length && allIntegrationsByPlatforms.value.length) {
-                const list = allCollapsedActiveKeys.value.filter((key) => !collapsedAssets.value.includes(key));
+            if (!collapsedAssets.value.length) collapseActiveKey.value = allCollapsedActiveKeys.value;
 
-                collapseActiveKey.value = collapsedAssets.value ? list : allCollapsedActiveKeys.value;
-            } else if (!collapsedAssets.value.length) {
-                collapseActiveKey.value = allCollapsedActiveKeys.value;
-            }
+            const list = allCollapsedActiveKeys.value.filter((key) => !collapsedAssets.value.includes(key));
+            collapseActiveKey.value = list;
+        };
+
+        const updateCollapsedKey = (item) => {
+            if (!collapsedAssets.value.includes(item.platform)) collapseActiveKey.value.push(item.platform);
         };
 
         onMounted(async () => {
@@ -212,6 +230,8 @@ export default {
         onBeforeUnmount(() => {
             window.removeEventListener('keydown', handleKeyDown);
             keyPressCombination.value = '';
+
+            updateCollapsedAssets();
         });
 
         watch(collapseActiveKey, () => {
@@ -221,12 +241,31 @@ export default {
 
         watch(walletAccount, () => {
             store.dispatch('app/setCollapsedAssets', []);
-            updateCollapsedAssets();
         });
 
-        const updateCollapsedKey = (item) => {
-            if (!collapsedAssets.value.includes(item.platform)) collapseActiveKey.value.push(item.platform);
+        const handleLoadMore = () => {
+            currentIndex.value += MAX_NFTS_PER_PAGE;
         };
+
+        const handleAssetLoadMore = () => {
+            currentAssetIndex.value += MAX_ASSETS_PER_PAGE;
+        };
+
+        const sortedTokens = computed(() => {
+            return allTokensInAccount.value.slice().sort((a, b) => b.balanceUsd - a.balanceUsd);
+        });
+
+        const sortedNFTs = computed(() => {
+            return allNFTsByCollection.value.slice().sort((a, b) => b.balanceUsd - a.balanceUsd);
+        });
+
+        const visibleAssets = computed(() => {
+            return sortedTokens.value.slice(0, currentAssetIndex.value);
+        });
+
+        const visibleNFTs = computed(() => {
+            return sortedNFTs.value.slice(0, currentIndex.value);
+        });
 
         return {
             isLoadingForChain,
@@ -306,6 +345,11 @@ export default {
                     sorter: (a, b) => a.floorPriceUsd - b.floorPriceUsd,
                 },
             ],
+
+            handleLoadMore,
+            handleAssetLoadMore,
+            visibleNFTs,
+            visibleAssets,
         };
     },
 };

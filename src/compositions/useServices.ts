@@ -12,9 +12,11 @@ import useBridgeDexService from '@/modules/bridge-dex/compositions';
 import useChainTokenManger from './useChainTokenManager';
 
 import { IChainInfo } from '@/core/wallet-adapter/models/ecosystem-adapter';
+import { useRoute } from 'vue-router';
 
 export default function useModule(moduleType: ModuleType) {
     const store = useStore();
+    const pathRoute = useRoute();
 
     useChainTokenManger(moduleType);
 
@@ -88,6 +90,11 @@ export default function useModule(moduleType: ModuleType) {
     const selectType = computed({
         get: () => store.getters['tokenOps/selectType'],
         set: (value) => store.dispatch('tokenOps/setSelectType', value),
+    });
+
+    const isInput = computed({
+        get: () => store.getters['tokenOps/isInput'],
+        set: (value) => store.dispatch('tokenOps/setIsInput', value),
     });
 
     // =================================================================================================================
@@ -286,7 +293,8 @@ export default function useModule(moduleType: ModuleType) {
     const getEstimateInfo = async (isReload = false) => {
         if (isReload && (isQuoteLoading.value || isTransactionSigning.value)) return;
 
-        dstAmount.value = null;
+        if (dstAmount.value && isReload) dstAmount.value = '';
+
         store.dispatch('bridgeDexAPI/setReloadRoutes', isReload);
     };
 
@@ -316,7 +324,8 @@ export default function useModule(moduleType: ModuleType) {
     });
 
     watch(selectedRoute, () => {
-        if (selectedRoute.value) dstAmount.value = selectedRoute.value.toAmount;
+        if (pathRoute.path.startsWith('/shortcuts')) return;
+        if (selectedRoute.value && selectedRoute.value?.toAmount) dstAmount.value = selectedRoute.value.toAmount;
     });
 
     watch(isQuoteLoading, () => {
@@ -328,6 +337,7 @@ export default function useModule(moduleType: ModuleType) {
     watch(
         () => routeTimer.value.seconds,
         async () => {
+            if (pathRoute.path.startsWith('/shortcuts')) return;
             if (routeTimer.value.seconds === 0) await clearRouteTimer();
         },
     );
@@ -380,6 +390,7 @@ export default function useModule(moduleType: ModuleType) {
         isShowEstimateInfo,
 
         // Errors
+        isInput,
         txError,
         txErrorTitle,
         isBalanceError,

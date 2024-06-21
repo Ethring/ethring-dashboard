@@ -20,6 +20,7 @@ import { AddressByChainHash } from '@/shared/models/types/Address';
 import logger from '@/shared/logger';
 import { isEqual } from 'lodash';
 import useInputValidation from '@/shared/form-validations';
+import { useRoute } from 'vue-router';
 
 /**
  *
@@ -41,6 +42,8 @@ import useInputValidation from '@/shared/form-validations';
  */
 const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDexService<any>) => {
     const store = useStore();
+
+    const route = useRoute();
 
     const serviceType = ServiceType[targetType];
 
@@ -149,30 +152,36 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     // ===========================================================================================
     // !Validation
     // ===========================================================================================
-
-    // ?Check if the module is send
-    const isSendModule = computed(() => {
-        return modules.includes(ModuleType.send) && !isDstTokenChainCorrectSwap.value && !isDstTokenChainCorrect.value;
-    });
-
-    // ?Check if the module is super swap
-    const isSuperSwapModule = computed(() => {
-        const isSame = isSameNetwork.value && isSrcTokenChainCorrect.value && isDstTokenChainCorrectSwap.value;
-        const isDifferent = isSrcTokenChainCorrect.value && isDstTokenChainCorrect.value;
-
-        return modules.includes(ModuleType.superSwap) && !isSameToken.value && (isSame || isDifferent) && !isSameTokenSameNet.value;
-    });
-
     // ?Check if the request is allowed
-    const isAllowToMakeRequest = computed(() => {
-        const isSwap = isSrcTokenChainCorrect.value && isDstTokenChainCorrectSwap.value;
+    const isAllowToMakeRequest = () => {
+        const defaultValidation = () => {
+            return isSrcTokenChainCorrect.value && isDstTokenChainCorrect.value && isSrcAmountSet.value;
+        };
 
-        if (modules.includes(ModuleType.send)) return false;
-        else if (modules.includes(ModuleType.swap) && !isSameToken.value) return isSwap && isSrcAmountSet.value;
-        else if (modules.includes(ModuleType.superSwap)) return isSuperSwapModule.value && isSrcAmountSet.value;
+        const superSwapValidation = () => {
+            if (isSameNetwork.value && isSameToken.value) return false;
+            return defaultValidation();
+        };
 
-        return isSrcTokenChainCorrect.value && isDstTokenChainCorrect.value && isSrcAmountSet.value;
-    });
+        const swapValidation = () => {
+            if (isSameToken.value) return false;
+            return isSrcTokenChainCorrect.value && isDstTokenChainCorrectSwap.value && isSrcAmountSet.value;
+        };
+
+        switch (true) {
+            case modules.includes(ModuleType.send):
+                return false; // !If the module is send, return false, because the request is not allowed
+
+            case modules.includes(ModuleType.superSwap):
+                return superSwapValidation();
+
+            case modules.includes(ModuleType.swap):
+                return swapValidation();
+
+            default:
+                return defaultValidation();
+        }
+    };
 
     const isShowEstimateInfo = computed(() => {
         const mainRequired = isQuoteRouteSet.value && isQuoteRouteSelected.value && isSrcAmountSet.value && isDstAmountSet.value;
@@ -189,14 +198,17 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     // ===========================================================================================
 
     const makeQuoteRoutes = async (requestParams: AllQuoteParams) => {
-        // !If the quote is loading, return
-        if (isQuoteLoading.value) return;
+        // !If the route is shortcuts, return because the request is not needed, the shortcuts has own logic for making a quote request
+        if (route.path.startsWith('/shortcuts')) return;
 
         // !If the request is not allowed, return
-        if (!isAllowToMakeRequest.value) {
+        if (!isAllowToMakeRequest()) {
             quoteErrorMessage.value = 'Please select the correct source and destination tokens';
             return (isQuoteLoading.value = false);
         }
+
+        // !If the quote is loading, return
+        if (isQuoteLoading.value) return;
 
         const isDex = serviceType === ServiceType.dex;
         const isSameToken = requestParams.fromToken === requestParams.toToken;
@@ -205,6 +217,12 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
 
         // !If it's a dex and the tokens are the same, return
         if (isDex && isSameToken) {
+            resetQuoteRoutes();
+            return (isQuoteLoading.value = false);
+        }
+
+        // !If the tokens & networks are the same, return
+        if (isSameToken && isSameNetwork.value) {
             resetQuoteRoutes();
             return (isQuoteLoading.value = false);
         }
@@ -243,6 +261,8 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
                 serviceType: targetType,
                 value: routes,
             });
+
+            if (selectedRoute.value && selectedRoute.value.toAmount) store.dispatch('tokenOps/setDstAmount', selectedRoute.value.toAmount);
 
             return {
                 best,
@@ -295,7 +315,7 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
             toSymbol,
         };
 
-        if (isAllowToMakeRequest.value) return rateFee;
+        if (isAllowToMakeRequest()) return rateFee;
 
         return emptyFee.value;
     });
@@ -314,7 +334,7 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
 
         const targetFee = nativeTokenFeeToUsd.isZero() ? usdFee : nativeTokenFeeToUsd;
 
-        if (isAllowToMakeRequest.value) return targetFee.toString();
+        if (isAllowToMakeRequest()) return targetFee.toString();
 
         return null;
     });
@@ -340,7 +360,7 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
             [oldIsReloadRoutes, oldSrcAmount, oldSelectedSrcNetwork, oldSelectedDstNetwork, oldSelectedSrcToken, oldSelectedDstToken],
         ) => {
             // Return if the module is send or the selected destination token is not set or the request is not allowed
-            if (isSendModule.value || !isAllowToMakeRequest.value) {
+            if (!isAllowToMakeRequest()) {
                 resetQuoteRoutes();
                 return;
             }
@@ -356,8 +376,8 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
                 toNet: selectedDstNetwork.value?.net,
 
                 // others
-                fromToken: selectedSrcToken.value.address,
-                toToken: selectedDstToken.value.address,
+                fromToken: selectedSrcToken.value?.address,
+                toToken: selectedDstToken.value?.address,
 
                 ownerAddresses: addressByChain.value,
 
@@ -384,8 +404,20 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
             // * If the params are not changed, return
             if (
                 isEqual(
-                    { ...params, isReloadRoutes: isReloadRoutes.value, ownerAddresses: {} },
-                    { ...oldParams, isReloadRoutes: oldIsReloadRoutes, ownerAddresses: {} },
+                    {
+                        ...params,
+                        fromToken: selectedSrcToken.value?.id,
+                        toToken: selectedDstToken.value?.id,
+                        isReloadRoutes: isReloadRoutes.value,
+                        ownerAddresses: {},
+                    },
+                    {
+                        ...oldParams,
+                        fromToken: oldSelectedSrcToken?.id,
+                        toToken: oldSelectedDstToken?.id,
+                        isReloadRoutes: oldIsReloadRoutes,
+                        ownerAddresses: {},
+                    },
                 )
             )
                 return;
@@ -408,6 +440,8 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     // ===========================================================================================
     onUnmounted(() => {
         isQuoteLoading.value = false;
+        quoteErrorMessage.value = '';
+
         if (selectedRoute.value && selectedRoute.value.routeId)
             store.dispatch('bridgeDexAPI/clearRouteTimer', { routeId: selectedRoute.value.routeId });
 

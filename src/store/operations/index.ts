@@ -57,6 +57,8 @@ const TYPES = {
     SET_CONTRACT_CALL_COUNT: 'SET_CONTRACT_CALL_COUNT',
 
     SET_FUNDS: 'SET_FUNDS',
+
+    SET_IS_INPUT: 'SET_IS_INPUT',
 };
 
 const fieldSetter = {
@@ -98,6 +100,8 @@ interface IState extends IFields {
     isForceCallConfirm: {
         [key in ModuleType]?: boolean;
     };
+
+    isInput: boolean;
 }
 
 export default {
@@ -138,6 +142,8 @@ export default {
 
         [Field.funds]: null,
         [Field.slippage]: slippageFromStore.value || 1,
+
+        isInput: false,
 
         isForceCallConfirm: {
             [ModuleType.send]: false,
@@ -221,6 +227,8 @@ export default {
         },
 
         slippage: (state: IState): number => state[Field.slippage],
+
+        isInput: (state: IState): boolean => state.isInput,
     },
 
     mutations: {
@@ -318,6 +326,10 @@ export default {
         [TYPES.SET_SLIPPAGE](state: IState, value: number) {
             state[Field.slippage] = value;
         },
+
+        [TYPES.SET_IS_INPUT](state: IState, value: boolean) {
+            state.isInput = value;
+        },
     },
 
     actions: {
@@ -400,6 +412,10 @@ export default {
         setSlippage({ commit }, value: number) {
             slippageFromStore.value = value;
             commit(TYPES.SET_SLIPPAGE, value);
+        },
+
+        setIsInput({ commit }, value: boolean) {
+            commit(TYPES.SET_IS_INPUT, value);
         },
     },
 };

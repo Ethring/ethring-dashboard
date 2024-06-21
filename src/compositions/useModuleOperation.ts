@@ -7,7 +7,7 @@ import { SHORTCUT_STATUSES, STATUSES } from '@/shared/models/enums/statuses.enum
 import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 // Transaction manager
 import { Transaction, TransactionList } from '@/core/transaction-manager/TX-manager';
-import { computed, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
 // Config
 import { Ecosystem, Ecosystems } from '@/shared/models/enums/ecosystems.enum';
@@ -81,6 +81,7 @@ const useModuleOperations = (module: ModuleType) => {
     const moduleInstance = useServices(currentModule.value);
 
     const {
+        isInput,
         isNeedApprove,
         isAllowanceLoading,
         isQuoteLoading,
@@ -112,6 +113,7 @@ const useModuleOperations = (module: ModuleType) => {
         opTitle,
 
         getEstimateInfo,
+        makeAllowanceRequest,
     } = moduleInstance;
 
     const { signAndSend } = useTransactions();
@@ -210,11 +212,14 @@ const useModuleOperations = (module: ModuleType) => {
     // * Connect by ecosystem
     // ===============================================================================================
 
-    const ecosystemToConnect = computed(() => {
+    const ecosystemToConnect = computed<Ecosystems | null>(() => {
         const isSuperSwap = [ModuleType.superSwap, ModuleType.shortcut].includes(currentModule.value);
 
         // ! If not super swap, return
-        if (!isSuperSwap) return;
+        if (!isSuperSwap) {
+            opTitle.value = `tokenOperations.confirm`;
+            return null;
+        }
 
         const { ecosystem: srcEcosystem } = selectedSrcNetwork.value || {};
         const { ecosystem: dstEcosystem } = selectedDstNetwork.value || {};
@@ -222,16 +227,26 @@ const useModuleOperations = (module: ModuleType) => {
         const isSrcEmpty = isSuperSwap && isSrcAddressesEmpty.value;
         const isDstEmpty = isSuperSwap && isDstAddressesEmpty.value;
 
-        if (isSrcEmpty || isDstEmpty) return isSrcEmpty ? srcEcosystem : dstEcosystem;
+        if (!isSrcEmpty && !isDstEmpty) {
+            opTitle.value = `tokenOperations.confirm`;
+            return null;
+        }
 
-        opTitle.value = 'tokenOperations.confirm';
+        if (isSrcEmpty && isDstEmpty) return srcEcosystem;
 
-        return null;
+        if (isSrcEmpty) {
+            opTitle.value = `tokenOperations.pleaseConnectWallet${srcEcosystem}`;
+            return srcEcosystem;
+        }
+        if (isDstEmpty) {
+            opTitle.value = `tokenOperations.pleaseConnectWallet${dstEcosystem}`;
+            return dstEcosystem;
+        }
+
+        opTitle.value = `tokenOperations.pleaseConnectWallet${srcEcosystem}`;
+
+        return Ecosystem.EVM;
     });
-
-    const connectWalletByEcosystem = async (ecosystem: Ecosystems) => {
-        return await connectByEcosystems(ecosystem);
-    };
 
     // ===============================================================================================
     // * Handle on cancel by timeout
@@ -249,7 +264,7 @@ const useModuleOperations = (module: ModuleType) => {
             type: 'error',
             title: 'Transaction canceled',
             description: 'Your transaction has been canceled because the response from the node took too long. Please try again.',
-            duration: 6,
+            duration: 5,
             progress: true,
         });
     };
@@ -707,6 +722,7 @@ const useModuleOperations = (module: ModuleType) => {
         // Create transaction instance
         const txInstance = new Transaction(type);
 
+        txInstance.setIndex(index || 0);
         txInstance.setWaitTime(operation.getWaitTime());
 
         // if is first transaction in group, set transaction id
@@ -885,6 +901,13 @@ const useModuleOperations = (module: ModuleType) => {
 
             updateOperationStatus(STATUSES.SUCCESS, { moduleIndex, operationId, hash: txHash as string });
 
+            if (selectedRoute.value.serviceId)
+                await makeAllowanceRequest(selectedRoute.value.serviceId, {
+                    net: selectedSrcNetwork.value.net,
+                    tokenAddress: selectedSrcToken.value.address,
+                    ownerAddress: (addressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value) as string,
+                });
+
             try {
                 // * On success by transaction type
                 if (operation && operation.onSuccess) await operation.onSuccess(store);
@@ -931,14 +954,15 @@ const useModuleOperations = (module: ModuleType) => {
 
             const errorMessage = error?.message || JSON.stringify(error);
 
-            showNotification({
-                key: 'tx-error',
-                type: 'error',
-                title: 'Transaction error',
-                description: errorMessage,
-                duration: 6,
-                progress: true,
-            });
+            if (errorMessage !== 'Transaction canceled')
+                showNotification({
+                    key: 'tx-error',
+                    type: 'error',
+                    title: 'Transaction error',
+                    description: errorMessage,
+                    duration: 6,
+                    progress: true,
+                });
 
             updateOperationStatus(STATUSES.FAILED, { moduleIndex, operationId, hash: txInstance.getTransaction()?.txHash as string });
 
@@ -964,21 +988,18 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
 
     const handleOnConfirm = async () => {
+        if (!walletAddress.value) return await connectByEcosystems(selectedSrcNetwork.value?.ecosystem || Ecosystem.EVM);
+
         if (!selectedSrcNetwork.value) {
             console.warn('Source network not found');
             return;
         }
 
-        if (!walletAddress.value) return await connectWalletByEcosystem(selectedSrcNetwork.value.ecosystem);
-
         try {
-            isTransactionSigning.value = true;
-            if (ecosystemToConnect.value) return await connectWalletByEcosystem(ecosystemToConnect.value);
+            if (ecosystemToConnect.value) return await connectByEcosystems(ecosystemToConnect.value);
         } catch (error) {
             console.error('useModuleOperations -> handleOnConfirm -> connectWalletByEcosystem -> error', error);
             throw error;
-        } finally {
-            isTransactionSigning.value = false;
         }
 
         isTransactionSigning.value = true;
@@ -1045,9 +1066,7 @@ const useModuleOperations = (module: ModuleType) => {
     // * Confirm button state for each module
     // ===============================================================================================
     const isDisableConfirmButton = computed(() => {
-        if (ecosystemToConnect.value) return false;
-
-        if (!walletAddress.value) return false;
+        if (ecosystemToConnect.value && !getConnectedStatus(ecosystemToConnect.value as Ecosystems)) return false;
 
         const isWithMemo = isSendWithMemo.value && isMemoAllowed.value && !memo.value;
         const isWithAddress = isSendToAnotherAddress.value && (isAddressError.value || !isReceiverAddressSet.value);
@@ -1056,6 +1075,7 @@ const useModuleOperations = (module: ModuleType) => {
 
         // * Common
         const isDisabled =
+            isInput.value ||
             isLoading.value ||
             isEstimating.value ||
             isQuoteLoading.value ||
@@ -1106,12 +1126,6 @@ const useModuleOperations = (module: ModuleType) => {
     // * Watchers
     // ===============================================================================================
 
-    const unWatchEcosystem = watch(ecosystemToConnect, () => {
-        if (!ecosystemToConnect.value) return;
-
-        opTitle.value = `tokenOperations.pleaseConnectWallet${ecosystemToConnect.value}`;
-    });
-
     const unWatchIsForceCallConfirm = watch(isForceCallConfirm, (value) => {
         if (!value) return;
 
@@ -1122,10 +1136,6 @@ const useModuleOperations = (module: ModuleType) => {
 
     // =================================================================================================================
 
-    watch(selectedRoute, () => {
-        if (!selectedRoute.value) return;
-    });
-
     store.watch(
         (state) => state.bridgeDexAPI.routeTimerSeconds,
         (value) => {
@@ -1133,13 +1143,18 @@ const useModuleOperations = (module: ModuleType) => {
         },
     );
 
+    onMounted(() => {
+        if (ecosystemToConnect.value) setTimeout(() => (opTitle.value = `tokenOperations.pleaseConnectWallet${ecosystemToConnect.value}`));
+    });
+
     // ===============================================================================================
     // * On unmounted
     // ===============================================================================================
 
     onUnmounted(() => {
-        unWatchEcosystem();
         unWatchIsForceCallConfirm();
+        isTransactionSigning.value = false;
+        isQuoteLoading.value = false;
     });
 
     return {

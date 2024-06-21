@@ -127,7 +127,7 @@ $top-bar-spacing: 63px;
 
     &-subtitle {
         .value {
-            font-size: var(--#{$prefix}h3-fs);
+            font-size: var(--#{$prefix}h4-fs);
             color: var(--#{$prefix}sub-text);
         }
     }
@@ -141,13 +141,19 @@ $top-bar-spacing: 63px;
             border-radius: 8px;
             max-width: 520px;
             width: 100%;
-            padding: 18px;
+            padding: 10px;
             margin: auto;
+
+            code {
+                display: block;
+                max-height: 80px !important;
+                overflow-y: auto !important;
+            }
         }
 
         p {
             color: var(--#{$prefix}base-text);
-            font-size: var(--#{$prefix}h5-fs);
+            font-size: var(--#{$prefix}h6-fs);
             margin-bottom: 8px;
         }
 
@@ -409,7 +415,6 @@ $top-bar-spacing: 63px;
     svg {
         fill: var(--#{$prefix}sub-text);
         width: 16px;
-        height: 10px;
     }
 
     &:hover {

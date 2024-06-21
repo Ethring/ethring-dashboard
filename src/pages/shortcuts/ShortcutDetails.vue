@@ -19,6 +19,11 @@
             <p v-if="shortcut.minUsdAmount && shortcut.minUsdAmount > 0">
                 {{ $t('shortcuts.minUsdAmount') }}: ${{ shortcut.minUsdAmount }}
             </p>
+
+            <p v-if="shortcut.id === AvailableShortcuts.Debridge && deBridgeInfo && deBridgeInfo.points" class="shortcut-details__points">
+                {{ $t('shortcuts.points') }}: {{ Math.round(deBridgeInfo.points) }}
+                <span class="shortcut-item__tag">{{ deBridgeInfo.multiplier }}x</span>
+            </p>
         </div>
 
         <a-divider />
@@ -55,6 +60,7 @@ import { isEmpty } from 'lodash';
 import { computed, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
 import ArrowIcon from '@/assets/icons/form-icons/arrow-back.svg';
 import LikeIcon from '@/assets/icons/dashboard/heart.svg';
@@ -68,6 +74,7 @@ import SuccessShortcutModal from '@/components/app/modals/SuccessShortcutModal.v
 import useShortcuts from '@/core/shortcuts/compositions/index';
 
 import { SHORTCUT_STATUSES, STATUSES } from '@/shared/models/enums/statuses.enum';
+import { AvailableShortcuts } from '@/core/shortcuts/data/shortcuts.ts';
 
 export default {
     name: 'ShortcutDetails',
@@ -83,6 +90,7 @@ export default {
 
         const router = useRouter();
         const route = useRoute();
+        const { walletAddress } = useAdapter();
 
         const shortcut = computed(() => store.getters['shortcutsList/getShortcutById'](route.params.id));
 
@@ -109,6 +117,8 @@ export default {
             };
         });
 
+        const deBridgeInfo = computed(() => store.getters['shortcuts/getDeBridgeInfo'](walletAddress.value));
+
         onMounted(() => {
             if (isEmpty(shortcut.value)) return router.push('/shortcuts');
         });
@@ -130,6 +140,8 @@ export default {
             STATUSES,
             wallpaper,
             LikeIcon,
+            deBridgeInfo,
+            AvailableShortcuts,
         };
     },
 };

@@ -45,7 +45,7 @@ export interface IAdapter {
     // ****************************************************
 
     connectTo: (ecosystem: Ecosystems, ...args: any[]) => Promise<boolean>;
-    connectByEcosystems: (ecosystem: Ecosystems) => Promise<void>;
+    connectByEcosystems: (ecosystem: Ecosystems) => Promise<boolean>;
 
     disconnectWallet: (ecosystem: Ecosystems, wallet: IConnectedWallet) => Promise<void>;
     disconnectAllWallets: () => Promise<void>;
@@ -211,7 +211,7 @@ function useAdapter(): IAdapter {
     }
 
     // * Connect to Wallet by Ecosystem
-    const connectTo = async (ecosystem: Ecosystems, walletModule?: string, chainName?: string) => {
+    const connectTo = async (ecosystem: Ecosystems, walletModule?: string, chainName?: string): Promise<boolean> => {
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
         try {
@@ -238,10 +238,10 @@ function useAdapter(): IAdapter {
     };
 
     // * Connect to Wallet by Ecosystems
-    const connectByEcosystems = async (ecosystem: Ecosystems) => {
+    const connectByEcosystems = async (ecosystem: Ecosystems): Promise<boolean> => {
         if (!ecosystem) return false;
 
-        if (ecosystem === Ecosystem.COSMOS) return await adaptersDispatch(TYPES.SET_MODAL_STATE, { name: 'wallets', isOpen: true });
+        await adaptersDispatch(TYPES.SET_MODAL_STATE, { name: 'wallets', isOpen: ecosystem === Ecosystem.COSMOS });
 
         try {
             const status = await connectTo(ecosystem);
@@ -354,8 +354,6 @@ function useAdapter(): IAdapter {
 
         await adapter.disconnectWallet(walletModule);
 
-        if (!connectedWallets.value.length) router.push('/connect-wallet');
-
         await storeWalletInfo();
     };
 
@@ -367,7 +365,6 @@ function useAdapter(): IAdapter {
             adapter.disconnectAllWallets && (await adapter.disconnectAllWallets());
         }
 
-        router.push('/connect-wallet');
         adaptersDispatch(TYPES.DISCONNECT_ALL_WALLETS);
         reset(mixpanel);
     };
@@ -576,6 +573,8 @@ function useAdapter(): IAdapter {
     };
 
     const getConnectedStatus = (ecosystem: Ecosystems): boolean => {
+        if (!ecosystem) return false;
+
         const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
 
         if (adapter.isLocked()) {

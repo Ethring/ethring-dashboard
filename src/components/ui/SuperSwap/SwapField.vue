@@ -30,7 +30,7 @@
                 :class="{ disabled }"
                 :bordered="false"
                 :placeholder="placeholder"
-                :disabled="disabled"
+                :disabled="disabled || label === 'To'"
                 @focus="focused = true"
                 @blur="onBlur"
             />
@@ -41,14 +41,18 @@
                 <a-skeleton-input v-if="isAmountLoading" active size="small" class="balance-skeleton" />
                 <Amount v-else :value="payTokenPrice || 0" :decimals="3" type="usd" symbol="$" />
 
-                <span v-if="!isAmountLoading && percentage && !isNaN(percentage)" class="percentage">
+                <span
+                    v-if="!isAmountLoading && percentage && !isNaN(percentage)"
+                    class="percentage"
+                    :class="{ 'percentage-minus': percentage < 0 }"
+                >
                     (<span>{{ percentage }}%</span>)
                 </span>
             </div>
 
             <div class="balance-value">
                 <a-skeleton-input v-if="isTokenLoading" active size="small" class="balance-skeleton" />
-                <div v-else-if="!hideMax && !isTokenLoading && token" class="balance-value-row" @click.stop="setMax">
+                <div v-else-if="!isTokenLoading && token" class="balance-value-row" @click.stop="setMax">
                     <span class="balance-label"> {{ $t('tokenOperations.balance') }}: </span>
                     <Amount :value="token?.balance || 0" :decimals="3" type="currency" :symbol="token?.symbol" />
                 </div>
@@ -58,6 +62,7 @@
 </template>
 <script>
 import { ref, watch, computed } from 'vue';
+import { useStore } from 'vuex';
 
 import Amount from '@/components/app/Amount';
 
@@ -117,6 +122,13 @@ export default {
     },
     emits: ['setAmount'],
     setup(props, { emit }) {
+        const store = useStore();
+
+        const isInput = computed({
+            get: () => store.getters['tokenOps/isInput'],
+            set: (value) => store.dispatch('tokenOps/setIsInput', value),
+        });
+
         const amount = ref(props.value);
 
         const placeholder = ref('0');
@@ -125,13 +137,20 @@ export default {
         const symbolForReplace = ref(null);
 
         const setMax = () => {
+            if (props.hideMax) return;
+
             amount.value = props.token?.balance;
             emit('setAmount', BigNumber(props.token?.balance).toFixed());
         };
 
-        const onInput = () => emit('setAmount', amount.value);
+        const onInput = () => {
+            emit('setAmount', amount.value);
+            isInput.value = false;
+        };
 
         const checkBalanceAllowed = () => {
+            if (props.hideMax) return;
+
             const isBalanceAllowed = +amount.value > +props.token?.balance;
             error.value = isBalanceAllowed;
         };
@@ -155,10 +174,14 @@ export default {
         const payTokenPrice = computed(() => BigNumber(amount.value * +selectedToken.value?.price || 0).toFixed() || 0);
 
         watch(amount, (val) => {
+            isInput.value = true;
+
             if (val) {
                 if (symbolForReplace.value) val = val.replace(symbolForReplace.value, '.');
 
                 amount.value = formatInputNumber(val);
+
+                isInput.value = false;
 
                 return checkBalanceAllowed();
             }

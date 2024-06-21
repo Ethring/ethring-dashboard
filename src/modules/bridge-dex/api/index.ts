@@ -80,6 +80,8 @@ class BridgeDexApi<T extends ServiceType> {
         try {
             const { type, ...params } = requestParams;
 
+            if (params.routeId) delete params.routeId;
+
             if (type === ServiceType.superswap)
                 return (await ApiClient.post(`/services/${ServiceType.bridgedex}/getQuote`, params)) as IQuoteRoutes;
 
@@ -87,6 +89,8 @@ class BridgeDexApi<T extends ServiceType> {
                 logger.error('(API) -> [BRIDGE_DEX_API] Error fetching quote: No service type provided');
                 return {} as IQuoteRoutes;
             }
+
+            params.routeId && delete params.routeId;
 
             return (await ApiClient.post(`/services/${type}/getQuote`, params)) as IQuoteRoutes;
         } catch (error) {
