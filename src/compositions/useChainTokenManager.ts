@@ -260,7 +260,7 @@ export default function useChainTokenManger(moduleType: ModuleType) {
 
         // * If the ecosystem is different, and the module is not SuperSwap,
         // * then the selected network is reset to the current network
-        if (isDiffEcosystem && !isSuperSwap.value) selectedSrcNetwork.value = currentChainInfo.value;
+        if (isDiffEcosystem && !isSuperSwap.value && currentChainInfo.value) selectedSrcNetwork.value = currentChainInfo.value;
 
         // * If the ecosystem is different, and the module is Bridge or SuperSwap
         if (!isSuperSwap.value && isDiffEcosystem && isNeedDstNetwork.value && chainList.value?.length && selectedSrcNetwork.value?.net) {
