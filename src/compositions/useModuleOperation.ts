@@ -113,6 +113,7 @@ const useModuleOperations = (module: ModuleType) => {
         opTitle,
 
         getEstimateInfo,
+        makeAllowanceRequest,
     } = moduleInstance;
 
     const { signAndSend } = useTransactions();
@@ -899,6 +900,13 @@ const useModuleOperations = (module: ModuleType) => {
             operation.setParamByField('endTime', Number(new Date()));
 
             updateOperationStatus(STATUSES.SUCCESS, { moduleIndex, operationId, hash: txHash as string });
+
+            if (selectedRoute.value.serviceId)
+                await makeAllowanceRequest(selectedRoute.value.serviceId, {
+                    net: selectedSrcNetwork.value.net,
+                    tokenAddress: selectedSrcToken.value.address,
+                    ownerAddress: (addressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value) as string,
+                });
 
             try {
                 // * On success by transaction type
