@@ -215,7 +215,7 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
 
     const ecosystemToConnect = computed<Ecosystems | null>(() => {
-        const isSuperSwap = [ModuleType.superSwap, ModuleType.shortcut].includes(currentModule.value);
+        const isSuperSwap = [ModuleType.superSwap, ModuleType.shortcut, ModuleType.liquidityProvider].includes(currentModule.value);
 
         // ! If not super swap, return
         if (!isSuperSwap) {

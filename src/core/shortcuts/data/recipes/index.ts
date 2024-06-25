@@ -3101,12 +3101,6 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 isShowLayout: true,
                 waitTime: 6.5,
                 includeChains: ['arbitrum'],
-                // includeTokens: {
-                //     arbitrum: [
-                //         'arbitrum:tokens__0x82af49447d8a07e3bd95bd0d56f35241523fbab1:WETH',
-                //         'arbitrum:tokens__0x5979d7b546e38e414f7e9822514be443a4800529:WSTETH',
-                //     ],
-                // },
                 ecosystems: ['EVM'],
                 operationParams: {
                     net: 'arbitrum',
