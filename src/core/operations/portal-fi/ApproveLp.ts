@@ -78,8 +78,9 @@ export default class ApproveLpOperation extends BaseOperation {
         const { net, ownerAddresses = {}, from } = this.params as any;
 
         const { address } = from || {};
-        const tokenIn = address || '0x0000000000000000000000000000000000000000';
+        const tokenIn = address || '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
+        if (tokenIn === '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee') return Number.MAX_SAFE_INTEGER;
         if (this.allowance[tokenIn]) return this.allowance[tokenIn];
 
         const params: IGetAllowanceRequest = {

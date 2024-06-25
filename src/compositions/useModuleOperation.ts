@@ -572,7 +572,7 @@ const useModuleOperations = (module: ModuleType) => {
 
         const account = srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value;
 
-        if (firstInGroup.isNeedApprove) {
+        if (firstInGroup.transactionType === TRANSACTION_TYPES.APPROVE) {
             firstInGroup.setParams({
                 net: selectedSrcNetwork.value?.net,
                 tokenAddress: selectedSrcToken.value?.address,
@@ -583,8 +583,6 @@ const useModuleOperations = (module: ModuleType) => {
             });
             return;
         }
-
-        firstInGroup.setNeedApprove(true);
 
         const beforeId = firstInGroup.getUniqueId();
 

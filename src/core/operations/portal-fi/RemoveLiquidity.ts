@@ -88,7 +88,7 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
             const { net, poolID, slippageTolerance } = this.params as any;
 
             const tokenOut = store.getters['tokenOps/srcToken'];
-            this.outputToken = tokenOut.address;
+            this.outputToken = tokenOut.address || '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
             // Check allowance
             this.approveService.params = { ...this.params, from: { address: poolID } };

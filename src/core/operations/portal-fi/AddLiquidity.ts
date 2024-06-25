@@ -43,7 +43,7 @@ export default class PortalFiAddLiquidity extends BaseOperation {
             const { from } = this.getTokens();
 
             const { address } = from || {};
-            const tokenIn = address || '0x0000000000000000000000000000000000000000';
+            const tokenIn = address || '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
             const params: IGetQuoteAddLiquidityRequest = {
                 net,
@@ -88,7 +88,7 @@ export default class PortalFiAddLiquidity extends BaseOperation {
             const { from } = this.getTokens();
 
             const { address } = from || {};
-            const tokenIn = address || '0x0000000000000000000000000000000000000000';
+            const tokenIn = address || '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
             // Check allowance
             this.approveService.params = { ...this.params, from };

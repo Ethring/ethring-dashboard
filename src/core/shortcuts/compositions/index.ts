@@ -791,8 +791,6 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             if (isEqual(srcAmount, oldAmount)) return;
 
             if (srcAmount) {
-                console.log(srcAmount, oldAmount, currentOp.value.id, '--srcAmount, oldAmount');
-
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('amount', srcAmount);
                 await callEstimate('watch:srcAmount');
             }

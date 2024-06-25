@@ -8,7 +8,7 @@ import {
     IGetRemoveLiquidityTxRequest,
     IGetUserBalancePoolListRequest,
     IGetPoolListRequest,
-    IGetUsersPoolListResponse
+    IGetUsersPoolListResponse,
 } from '@/modules/portal-fi/models/request.ts';
 
 export interface IPortalFiApi {
