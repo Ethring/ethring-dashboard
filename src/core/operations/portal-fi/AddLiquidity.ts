@@ -11,6 +11,7 @@ import { IGetQuoteAddLiquidityRequest } from '@/modules/portal-fi/models/request
 import ApproveLpOperation from './ApproveLp';
 
 import BigNumber from 'bignumber.js';
+import { formatNumber } from '@/shared/utils/numbers';
 
 export default class PortalFiAddLiquidity extends BaseOperation {
     module: keyof typeof ModuleType = ModuleType.liquidityProvider;
@@ -48,7 +49,7 @@ export default class PortalFiAddLiquidity extends BaseOperation {
             const params: IGetQuoteAddLiquidityRequest = {
                 net,
                 poolID,
-                amount,
+                amount: formatNumber(amount, from?.decimals),
                 slippageTolerance,
                 tokenAddress: tokenIn,
                 ownerAddress: ownerAddresses[net],
@@ -99,7 +100,7 @@ export default class PortalFiAddLiquidity extends BaseOperation {
             const params: IGetQuoteAddLiquidityRequest = {
                 net,
                 poolID,
-                amount,
+                amount: formatNumber(amount, from?.decimals),
                 slippageTolerance,
                 tokenAddress: tokenIn,
             };
