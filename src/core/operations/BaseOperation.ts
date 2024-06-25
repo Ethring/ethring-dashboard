@@ -44,6 +44,7 @@ export class BaseOperation implements IBaseOperation {
     waitTime: number = 3.5;
 
     flow: TxOperationFlow[] = [];
+    isNeedApprove: boolean = false;
 
     constructor() {
         this.service = null;
@@ -278,6 +279,10 @@ export class BaseOperation implements IBaseOperation {
 
     getWaitTime(): number {
         return this.waitTime || 3.5;
+    }
+
+    setNeedApprove(flag: boolean): void {
+        this.isNeedApprove = flag;
     }
 
     static async estimateOutput(): Promise<void> {

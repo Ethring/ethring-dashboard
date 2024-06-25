@@ -197,6 +197,21 @@ const META_DATA: Record<string, IShortcutMeta> = {
         author: getAuthorById(ShortcutAuthor.DeBridge),
         isActive: true,
     },
+    [AvailableShortcuts.AddLiquidity]: {
+        id: AvailableShortcuts.AddLiquidity,
+        name: 'Add liquidity for pool: wstETH/WETH',
+        logoURI: '/img/icons/shortcuts/rage-quite.svg',
+        keywords: ['liquidity', 'pool'],
+        tags: ['liquidity', 'pool'],
+        ecosystems: ['EVM'],
+        type: 'liquidity',
+        description: 'Provide liquidity for the pool and earn money.',
+        wallpaper: 'https://i.imgur.com/TzfbhhA.png',
+        website: 'https://app.balancer.fi/#/ethereum',
+        minUsdAmount: 1,
+        author: getAuthorById(ShortcutAuthor.ZometApp),
+        isActive: true,
+    },
 };
 
 export const getShortcutMetaById = (id: string): IShortcutMeta => {

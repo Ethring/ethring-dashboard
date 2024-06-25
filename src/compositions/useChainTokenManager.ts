@@ -79,6 +79,26 @@ export default function useChainTokenManger(moduleType: ModuleType) {
         store.getters['tokens/loadingByChain'](walletAccount.value, selectedDstNetwork.value?.net),
     );
 
+    // =================================================================================================================
+
+    const CurrentStepId = computed(() => store.getters['shortcuts/getCurrentStepId']);
+    const CurrentShortcut = computed(() => store.getters['shortcuts/getCurrentShortcutId']);
+
+    const CurrentOperation = computed(() => {
+        if (!CurrentShortcut.value) return null;
+        if (!CurrentStepId.value) return null;
+
+        return store.getters['shortcuts/getCurrentOperation'](CurrentShortcut.value);
+    });
+
+    const includeTokenList = computed(() => {
+        const { includeTokens = {} } = CurrentOperation.value || {};
+
+        if (includeTokens[selectedSrcNetwork.value?.net]) return includeTokens[selectedSrcNetwork.value?.net];
+
+        return [];
+    });
+
     // ****************************************************************************************************************
     // * Methods
     // ****************************************************************************************************************
@@ -104,6 +124,12 @@ export default function useChainTokenManger(moduleType: ModuleType) {
 
         // * 1. Get tokens list for the source network
         tokensList.value = await getTokensList(getTokensParams);
+
+        let filteredTokenList: any[] = [];
+        if (includeTokenList.value.length)
+            filteredTokenList = tokensList.value.filter((token) => includeTokenList.value.includes(token.id));
+
+        if (filteredTokenList?.length) tokensList.value = filteredTokenList;
 
         // * If the tokens list is empty, then return null
         if (!tokensList.value?.length) return null;

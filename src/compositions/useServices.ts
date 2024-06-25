@@ -35,7 +35,7 @@ export default function useModule(moduleType: ModuleType) {
     // =================================================================================================================
     const {
         isAllowanceLoading,
-        isNeedApprove,
+        isNeedApprove: isNeedApproveDex,
         isQuoteLoading,
         quoteErrorMessage,
         fees,
@@ -182,6 +182,19 @@ export default function useModule(moduleType: ModuleType) {
         set: (value) => store.dispatch('moduleStates/setIsNeedInputFocus', value),
     });
 
+    // =================================================================================================================
+
+    const isNeedAddLpApprove = computed({
+        get: () => store.getters['moduleStates/isNeedApproveLP'],
+        set: (value) => store.dispatch('moduleStates/setIsNeedApproveLP', value),
+    });
+
+    const isNeedRemoveLpApprove = computed({
+        get: () => store.getters['moduleStates/isNeedRemoveLpApprove'],
+        set: (value) => store.dispatch('moduleStates/setIsNeedRemoveLPApprove', value),
+    });
+
+    const isNeedApprove = computed(() => (moduleType === ModuleType.liquidityProvider ? isNeedAddLpApprove.value : isNeedApproveDex.value));
     // =================================================================================================================
 
     const estimateErrorTitle = ref('');
@@ -423,6 +436,7 @@ export default function useModule(moduleType: ModuleType) {
         // Bridge Dex
         isAllowanceLoading,
         isNeedApprove,
+        isNeedRemoveLpApprove,
         isQuoteLoading,
         quoteErrorMessage,
         quoteRoutes,

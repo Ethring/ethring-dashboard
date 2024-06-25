@@ -20,6 +20,7 @@ import OperationsFactory from '@/core/operations/OperationsFactory';
 import ApproveOperation from '@/core/operations/general-operations/Approve';
 import TransferOperation from '@/core/operations/general-operations/Transfer';
 import DexOperation from '@/core/operations/general-operations/Dex';
+import ApproveLpOperation from '@/core/operations/portal-fi/ApproveLp';
 
 import { IBaseOperation } from '@/core/operations/models/Operations';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
@@ -83,6 +84,7 @@ const useModuleOperations = (module: ModuleType) => {
     const {
         isInput,
         isNeedApprove,
+        isNeedRemoveLpApprove,
         isAllowanceLoading,
         isQuoteLoading,
         isLoading,
@@ -566,17 +568,73 @@ const useModuleOperations = (module: ModuleType) => {
         if (!isNeedApprove.value) return;
 
         const firstOpKeyByOrder = operations.getFirstOperationByOrder();
-
         const firstInGroup = operations.getOperationByKey(firstOpKeyByOrder);
 
-        if (firstInGroup.transactionType === TRANSACTION_TYPES.APPROVE) return;
+        const account = srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value;
+
+        if (firstInGroup.isNeedApprove) {
+            firstInGroup.setParams({
+                net: selectedSrcNetwork.value?.net,
+                tokenAddress: selectedSrcToken.value?.address,
+                ownerAddress: account as string,
+                amount: srcAmount.value,
+                serviceId: selectedRoute.value?.serviceId,
+                dstAmount: dstAmount.value,
+            });
+            return;
+        }
+
+        firstInGroup.setNeedApprove(true);
 
         const beforeId = firstInGroup.getUniqueId();
 
         firstOp.value = firstInGroup;
 
         const { key } =
-            operations.registerOperation(module, ApproveOperation, {
+            operations.registerOperation(
+                firstInGroup.module,
+                firstInGroup.module === ModuleType.liquidityProvider ? ApproveLpOperation : ApproveOperation,
+                {
+                    before: beforeId,
+                },
+            ) || {};
+
+        const approveOperation = operations.getOperationByKey(key as string);
+
+        approveOperation.setParams({
+            net: selectedSrcNetwork.value?.net,
+            tokenAddress: selectedSrcToken.value?.address,
+            ownerAddress: account as string,
+            amount: srcAmount.value,
+            serviceId: selectedRoute.value?.serviceId,
+            dstAmount: dstAmount.value,
+        });
+
+        approveOperation.setEcosystem(selectedSrcNetwork.value?.ecosystem);
+        approveOperation.setChainId(selectedSrcNetwork.value?.chain_id as string);
+        approveOperation.setAccount(account as string);
+        selectedSrcToken.value && approveOperation.setToken('from', selectedSrcToken.value);
+    };
+
+    const insertOrPassApproveLpOp = (operations: OperationsFactory): void => {
+        if (!isNeedRemoveLpApprove.value) return;
+
+        const operationsFlow = operations.getFullOperationFlow();
+
+        const removeLpExist = operationsFlow.find((op) => op.type === TRANSACTION_TYPES.REMOVE_LIQUIDITY);
+
+        if (!removeLpExist) return;
+
+        const opInGroup = operations.getOperationByKey(removeLpExist.moduleIndex);
+
+        if (opInGroup.isNeedApprove) return;
+
+        opInGroup.setNeedApprove(true);
+
+        const beforeId = opInGroup.getUniqueId();
+
+        const { key } =
+            operations.registerOperation(opInGroup.module, ApproveLpOperation, {
                 before: beforeId,
             }) || {};
 
@@ -586,16 +644,15 @@ const useModuleOperations = (module: ModuleType) => {
 
         approveOperation.setParams({
             net: selectedSrcNetwork.value?.net,
-            tokenAddress: selectedSrcToken.value?.address,
+            tokenAddress: opInGroup.params.poolID,
             ownerAddress: account as string,
-            amount: srcAmount.value,
-            serviceId: selectedRoute.value.serviceId,
-            dstAmount: dstAmount.value,
+            amount: +opInGroup.params.amount,
         });
 
         approveOperation.setEcosystem(selectedSrcNetwork.value?.ecosystem);
         approveOperation.setChainId(selectedSrcNetwork.value?.chain_id as string);
         approveOperation.setAccount(account as string);
+
         selectedSrcToken.value && approveOperation.setToken('from', selectedSrcToken.value);
     };
 
@@ -692,11 +749,14 @@ const useModuleOperations = (module: ModuleType) => {
     const callNextOperation = (operation: IBaseOperation) => {
         const isApprove = operation.transactionType === TRANSACTION_TYPES.APPROVE;
 
-        if (!isApprove && isShortcutOpsExist())
+        if (!isApprove && isShortcutOpsExist()) {
+            console.log(currentShortcutId.value, currentStepId.value, '----currentShortcutId.value');
+
             store.dispatch('shortcuts/nextStep', {
                 shortcutId: currentShortcutId.value,
                 stepId: currentStepId.value,
             });
+        }
     };
 
     const processTxOperation = (
@@ -1022,6 +1082,7 @@ const useModuleOperations = (module: ModuleType) => {
 
         // ! Check if operation need to approve
         insertOrPassApproveOp(operations);
+        insertOrPassApproveLpOp(operations);
 
         const opsFullFlow = operations.getFullOperationFlow();
 

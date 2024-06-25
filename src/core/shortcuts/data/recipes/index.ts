@@ -3087,6 +3087,163 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
             } as IShortcutOp,
         ],
     },
+    [AvailableShortcuts.AddLiquidity]: {
+        id: AvailableShortcuts.AddLiquidity,
+        operations: [
+            {
+                id: 'provide-liquidity',
+                name: 'Add liquidity for pool',
+                type: ShortcutType.operation,
+                moduleType: ModuleType.liquidityProvider,
+                make: TRANSACTION_TYPES.DEPOSIT,
+                operationType: TRANSACTION_TYPES.ADD_LIQUIDITY,
+                layoutComponent: 'AddLiquidityLayout',
+                isShowLayout: true,
+                waitTime: 6.5,
+                includeChains: ['arbitrum'],
+                includeTokens: {
+                    arbitrum: [
+                        'arbitrum:tokens__0x82af49447d8a07e3bd95bd0d56f35241523fbab1:WETH',
+                        'arbitrum:tokens__0x5979d7b546e38e414f7e9822514be443a4800529:WSTETH',
+                    ],
+                },
+                ecosystems: ['EVM'],
+                operationParams: {
+                    net: 'arbitrum',
+                    poolID: '0x9791d590788598535278552eecd4b211bfc790cb',
+                    slippageTolerance: '1',
+                },
+                dependencies: {
+                    operationId: 'provide-liquidity',
+                    operationParams: [
+                        {
+                            dependencyParamKey: 'slippageTolerance',
+                            paramKey: 'slippageTolerance',
+                        },
+                    ],
+                },
+                params: [
+                    {
+                        name: 'srcNetwork',
+                        hide: false,
+                        disabled: false,
+                        ecosystem: 'EVM',
+                        chainId: 42161,
+                    },
+                    {
+                        name: 'srcToken',
+                        hide: true,
+                        disabled: false,
+                        ecosystem: 'EVM',
+                        chain: 'arbitrum',
+                    },
+                    {
+                        name: 'dstToken',
+                        value: {
+                            id: 'arbitrum:pool__0x9791d590788598535278552eecd4b211bfc790cb:wstETH-WETH-BPT',
+                            chain: 'arbitrum',
+                            ecosystem: 'EVM',
+                            symbol: 'wstETH-WETH-BPT',
+                            address: '0x9791d590788598535278552eecd4b211bfc790cb',
+                            name: 'Balancer wstETH-WETH Stable Pool',
+                            decimals: 18,
+                            standard: 'erc20',
+                            logo: null,
+                            balance: 0,
+                            balanceUsd: 0,
+                            amount: null,
+                        },
+                        hide: true,
+                        disabled: false,
+                        ecosystem: 'EVM',
+                        chain: 'arbitrum',
+                    },
+                    {
+                        name: 'isReload',
+                        hide: false,
+                    },
+                ],
+            } as IShortcutOp,
+            {
+                id: 'remove-liquidity',
+                name: 'Remove liquidity from pool',
+                type: ShortcutType.operation,
+                moduleType: ModuleType.liquidityProvider,
+                make: TRANSACTION_TYPES.DEPOSIT,
+                operationType: TRANSACTION_TYPES.REMOVE_LIQUIDITY,
+                layoutComponent: 'AddLiquidityLayout',
+                isShowLayout: true,
+                waitTime: 1,
+                includeChains: ['arbitrum'],
+                includeTokens: {
+                    arbitrum: [
+                        'arbitrum:tokens__0x82af49447d8a07e3bd95bd0d56f35241523fbab1:WETH',
+                        'arbitrum:tokens__0x5979d7b546e38e414f7e9822514be443a4800529:WSTETH',
+                    ],
+                },
+                ecosystems: ['EVM'],
+                operationParams: {
+                    net: 'arbitrum',
+                    poolID: '0x9791d590788598535278552eecd4b211bfc790cb',
+                    slippageTolerance: '1',
+                },
+                dependencies: {
+                    operationId: 'provide-liquidity',
+                    operationParams: [
+                        {
+                            dependencyParamKey: 'outputAmount',
+                            paramKey: 'amount',
+                        },
+                        {
+                            dependencyParamKey: 'slippageTolerance',
+                            paramKey: 'slippageTolerance',
+                        },
+                    ],
+                },
+                params: [
+                    {
+                        name: 'srcNetwork',
+                        hide: false,
+                        disabled: false,
+                        ecosystem: 'EVM',
+                        chainId: 42161,
+                    },
+                    {
+                        name: 'srcToken',
+                        value: {
+                            id: 'arbitrum:pool__0x9791d590788598535278552eecd4b211bfc790cb:wstETH-WETH-BPT',
+                            chain: 'arbitrum',
+                            ecosystem: 'EVM',
+                            symbol: 'wstETH-WETH-BPT',
+                            address: '0x9791d590788598535278552eecd4b211bfc790cb',
+                            name: 'Balancer wstETH-WETH Stable Pool',
+                            decimals: 18,
+                            standard: 'erc20',
+                            logo: null,
+                            balance: 0,
+                            balanceUsd: 0,
+                            amount: null,
+                        },
+                        hide: true,
+                        disabled: false,
+                        ecosystem: 'EVM',
+                        chain: 'arbitrum',
+                    },
+                    {
+                        name: 'dstToken',
+                        hide: true,
+                        disabled: false,
+                        ecosystem: 'EVM',
+                        chain: 'arbitrum',
+                    },
+                    {
+                        name: 'isReload',
+                        hide: false,
+                    },
+                ],
+            } as IShortcutOp,
+        ],
+    },
 };
 
 export const getRecipeById = (id: string): IRecipesWithOperations => {

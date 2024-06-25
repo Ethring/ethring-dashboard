@@ -20,6 +20,8 @@ import ApproveOperation from '@/core/operations/general-operations/Approve';
 import MultipleContractExec from '@/core/operations/stargaze-nft/MultipleExec';
 import PendleSwapTokenForPT from '@/core/operations/pendle-silo/SwapTokenForPT';
 import PendleAddLiquiditySingleToken from '@/core/operations/pendle-beefy/AddLiquiditySingleToken';
+import AddLiquidity from '@/core/operations/portal-fi/AddLiquidity';
+import RemoveLiquidity from '@/core/operations/portal-fi/RemoveLiquidity';
 
 import { IBaseOperation } from '@/core/operations/models/Operations';
 
@@ -206,6 +208,14 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                 registerResponse = operationsFactory.value.registerOperation(moduleType, PendleAddLiquiditySingleToken, { id, name, make });
                 registerResponse && ({ key } = registerResponse);
                 break;
+            case TRANSACTION_TYPES.ADD_LIQUIDITY:
+                registerResponse = operationsFactory.value.registerOperation(moduleType, AddLiquidity, { id, name, make });
+                registerResponse && ({ key } = registerResponse);
+                break;
+            case TRANSACTION_TYPES.REMOVE_LIQUIDITY:
+                registerResponse = operationsFactory.value.registerOperation(moduleType, RemoveLiquidity, { id, name, make });
+                registerResponse && ({ key } = registerResponse);
+                break;
         }
 
         if (!key) return;
@@ -370,7 +380,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                     ? operationsFactory.value?.getOperationById(targetOpId)?.setParamByField(fieldsAssociated[field], value)
                     : null;
 
-                return;
+                continue;
             }
 
             switch (field) {
@@ -398,6 +408,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                     break;
                 case 'srcToken':
                 case 'dstToken':
+                    if (!id) break;
                     const tokenNet = getChainByChainId(ecosystem as Ecosystems, chain as string);
                     const token = (await getTokenById(tokenNet, id)) as IAsset;
 
@@ -468,7 +479,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         try {
             isQuoteLoading.value = true;
             quoteErrorMessage.value = '';
-            await operationsFactory.value.estimateOutput();
+            await operationsFactory.value.estimateOutput(store);
         } catch (error) {
             const { message = 'Error in evaluating output data' } = error || ({} as any);
             quoteErrorMessage.value = message;
@@ -779,7 +790,9 @@ const useShortcuts = (Shortcut: IShortcutData) => {
 
             if (isEqual(srcAmount, oldAmount)) return;
 
-            if (srcAmount && (srcAmount !== null || srcAmount !== undefined)) {
+            if (srcAmount) {
+                console.log(srcAmount, oldAmount, currentOp.value.id, '--srcAmount, oldAmount');
+
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('amount', srcAmount);
                 await callEstimate('watch:srcAmount');
             }
@@ -855,7 +868,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             if (!currentOp.value?.id) return;
 
             // * Set the srcNet in the operation if the srcNet is exist and not equal to the oldSrcNet
-            if (oldSrcNet?.net !== srcNet?.net && srcNet?.net !== null && srcNet?.net !== undefined) {
+            if (oldSrcNet?.net !== srcNet?.net && srcNet?.net) {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setEcosystem(srcNet.ecosystem);
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setChainId(srcNet.chain_id || srcNet.net);
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('net', srcNet.net);
@@ -864,17 +877,22 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             }
 
             // * Set the dstNet in the operation if the dstNet is exist and not equal to the oldDstNet
-            if (oldDstNet?.net !== dstNetwork?.net && dstNetwork?.net !== null && dstNetwork?.net !== undefined)
+            if (oldDstNet?.net !== dstNetwork?.net && dstNetwork?.net)
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('toNet', dstNetwork.net);
 
+            const { params = [] } = currentOp.value;
+
+            const srcTokenField = params.find((param) => param.name === 'srcToken');
+            const dstTokenField = params.find((param) => param.name === 'dstToken');
+
             // * Set the srcToken in the operation if the srcToken is exist and not equal to the oldSrcToken
-            if (oldSrcToken?.id !== srcToken?.id && srcToken?.id !== null && srcToken?.id !== undefined && !CurrentShortcut.isComingSoon) {
+            if (oldSrcToken?.id !== srcToken?.id && srcToken?.id && !CurrentShortcut.isComingSoon && srcTokenField) {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('fromToken', srcToken.address);
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setToken('from', srcToken);
             }
 
             // * Set the dstToken in the operation if the dstToken is exist and not equal to the oldDstToken
-            if (oldDstToken?.id !== dstToken?.id && dstToken?.id !== null && dstToken?.id !== undefined && !CurrentShortcut.isComingSoon) {
+            if (oldDstToken?.id !== dstToken?.id && dstToken?.id && !CurrentShortcut.isComingSoon && dstTokenField) {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('toToken', dstToken.address);
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setToken('to', dstToken);
             }
