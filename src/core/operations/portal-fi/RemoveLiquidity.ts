@@ -7,7 +7,7 @@ import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
 
 import PortalFiApi, { IPortalFiApi } from '@/modules/portal-fi/api';
-import { IGetRemoveLiquidityTxRequest, IGetQuoteAddLiquidityRequest, IGetUsersPoolListResponse } from '@/modules/portal-fi/models/request';
+import { IGetQuoteAddLiquidityRequest, IGetUsersPoolListResponse } from '@/modules/portal-fi/models/request';
 import ApproveLpOperation from './ApproveLp';
 
 import BigNumber from 'bignumber.js';
@@ -20,7 +20,7 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
     flow: TxOperationFlow[] = [];
 
     service: IPortalFiApi;
-    outputToken: string = '';
+    tokenAddress: string = '';
     approveService: ApproveLpOperation;
 
     constructor() {
@@ -40,12 +40,12 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
         try {
             const { net, poolID, ownerAddresses = {}, slippageTolerance } = this.params as any;
 
-            const params: IGetRemoveLiquidityTxRequest = {
+            const params: IGetQuoteAddLiquidityRequest = {
                 net,
                 poolID,
                 amount,
                 slippageTolerance,
-                outputToken: this.outputToken,
+                tokenAddress: this.tokenAddress,
                 ownerAddress: ownerAddresses[net],
             };
 
@@ -88,7 +88,7 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
             const { net, poolID, slippageTolerance } = this.params as any;
 
             const tokenOut = store.getters['tokenOps/srcToken'];
-            this.outputToken = tokenOut.address || '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+            this.tokenAddress = tokenOut.address || '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
             // Check allowance
             this.approveService.params = { ...this.params, from: { address: poolID } };
@@ -101,7 +101,7 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
                 poolID,
                 amount,
                 slippageTolerance,
-                tokenAddress: tokenOut.address,
+                tokenAddress: this.tokenAddress,
             };
 
             const response = await this.service.getQuoteRemoveLiquidity(params);

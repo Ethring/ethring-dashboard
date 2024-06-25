@@ -5,7 +5,6 @@ import {
     IGetQuoteRemoveLiquidityResponse,
     IGetAllowanceRequest,
     IGetAllowanceResponse,
-    IGetRemoveLiquidityTxRequest,
     IGetUserBalancePoolListRequest,
     IGetPoolListRequest,
     IGetUsersPoolListResponse,
@@ -17,7 +16,7 @@ export interface IPortalFiApi {
     getAllowance(params: IGetAllowanceRequest): Promise<any>;
     getApproveTx(params: IGetAllowanceRequest): Promise<any>;
     getAddLiquidityTx(params: IGetQuoteAddLiquidityRequest): Promise<any>;
-    getRemoveLiquidityTx(params: IGetRemoveLiquidityTxRequest): Promise<any>;
+    getRemoveLiquidityTx(params: IGetQuoteAddLiquidityRequest): Promise<any>;
     getUserBalancePoolList(params: IGetUserBalancePoolListRequest): Promise<IGetUsersPoolListResponse[]>;
     getPoolList(params: IGetPoolListRequest): Promise<any>;
 }
@@ -98,7 +97,7 @@ class PortalFiApi implements IPortalFiApi {
     }
 
     // get remove liquidity tx
-    async getRemoveLiquidityTx(params: IGetRemoveLiquidityTxRequest): Promise<any> {
+    async getRemoveLiquidityTx(params: IGetQuoteAddLiquidityRequest): Promise<any> {
         try {
             const response = await ApiClient.get(`/getRemoveLiquidityTx`, { params });
 

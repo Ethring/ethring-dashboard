@@ -45,16 +45,6 @@ export interface IGetQuoteRemoveLiquidityResponse {
     sender?: string;
 }
 
-export interface IGetRemoveLiquidityTxRequest {
-    net: string;
-    poolID: string;
-    outputToken: string;
-    amount: number;
-    slippageTolerance?: number;
-    ownerAddress?: string;
-    gasPrice?: number;
-}
-
 export interface IGetUserBalancePoolListRequest {
     net: string;
     ownerAddress: string;
