@@ -35,7 +35,7 @@ export default function useModule(moduleType: ModuleType) {
     // =================================================================================================================
     const {
         isAllowanceLoading,
-        isNeedApprove: isNeedApproveDex,
+        isNeedApprove,
         isQuoteLoading,
         quoteErrorMessage,
         fees,
@@ -193,8 +193,6 @@ export default function useModule(moduleType: ModuleType) {
         get: () => store.getters['moduleStates/isNeedRemoveLpApprove'],
         set: (value) => store.dispatch('moduleStates/setIsNeedRemoveLPApprove', value),
     });
-
-    const isNeedApprove = computed(() => (moduleType === ModuleType.liquidityProvider ? isNeedAddLpApprove.value : isNeedApproveDex.value));
     // =================================================================================================================
 
     const estimateErrorTitle = ref('');
@@ -326,6 +324,11 @@ export default function useModule(moduleType: ModuleType) {
         opTitle.value = DEFAULT_TITLE;
     });
 
+    watch(isNeedAddLpApprove, () => {
+        if (isNeedAddLpApprove.value) return (opTitle.value = 'tokenOperations.approve');
+        opTitle.value = DEFAULT_TITLE;
+    });
+
     onMounted(() => {
         module.value = moduleType;
 
@@ -436,6 +439,7 @@ export default function useModule(moduleType: ModuleType) {
         // Bridge Dex
         isAllowanceLoading,
         isNeedApprove,
+        isNeedAddLpApprove,
         isNeedRemoveLpApprove,
         isQuoteLoading,
         quoteErrorMessage,

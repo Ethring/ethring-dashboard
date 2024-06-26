@@ -84,6 +84,7 @@ const useModuleOperations = (module: ModuleType) => {
     const {
         isInput,
         isNeedApprove,
+        isNeedAddLpApprove,
         isNeedRemoveLpApprove,
         isAllowanceLoading,
         isQuoteLoading,
@@ -215,7 +216,7 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
 
     const ecosystemToConnect = computed<Ecosystems | null>(() => {
-        const isSuperSwap = [ModuleType.superSwap, ModuleType.shortcut, ModuleType.liquidityProvider].includes(currentModule.value);
+        const isSuperSwap = [ModuleType.superSwap, ModuleType.shortcut].includes(currentModule.value);
 
         // ! If not super swap, return
         if (!isSuperSwap) {
@@ -564,11 +565,17 @@ const useModuleOperations = (module: ModuleType) => {
         }
     };
 
-    const insertOrPassApproveOp = (operations: OperationsFactory): void => {
-        if (!isNeedApprove.value) return;
+    const checkNeedApprove = (operation: IBaseOperation) => {
+        if (operation.module === ModuleType.liquidityProvider) return isNeedAddLpApprove.value;
 
+        return isNeedApprove.value;
+    };
+
+    const insertOrPassApproveOp = (operations: OperationsFactory): void => {
         const firstOpKeyByOrder = operations.getFirstOperationByOrder();
         const firstInGroup = operations.getOperationByKey(firstOpKeyByOrder);
+
+        if (!checkNeedApprove(firstInGroup)) return;
 
         const account = srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value;
 
@@ -965,7 +972,7 @@ const useModuleOperations = (module: ModuleType) => {
                 await makeAllowanceRequest(selectedRoute.value.serviceId, {
                     net: selectedSrcNetwork.value.net,
                     tokenAddress: selectedSrcToken.value.address,
-                    ownerAddress: (addressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value) as string,
+                    ownerAddress: (addressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value) as string,
                 });
 
             try {
