@@ -848,6 +848,14 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         },
     );
 
+    // Helper function to set token parameters
+    const setTokenParams = (operation: IBaseOperation | null, type: 'from' | 'to', token: IAsset) => {
+        if (!token?.id || CurrentShortcut.isComingSoon) return;
+
+        operation?.setParamByField(`${type}Token`, token.address);
+        operation?.setToken(type, token);
+    };
+
     // ====================================================================================================
     // * Watch for changes in the SRC: Network, Token | DST: Network, Token to update the operation fields
     // ====================================================================================================
@@ -858,42 +866,34 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             getters['tokenOps/dstNetwork'],
             getters['tokenOps/dstToken'],
         ],
-        async ([srcNet, srcToken, dstNetwork, dstToken], [oldSrcNet, oldSrcToken, oldDstNet, oldDstToken]) => {
-            // ! if config is loading, return
-            if (isConfigLoading.value) return;
+        async ([srcNet, srcToken, dstNet, dstToken], [oldSrcNet, oldSrcToken, oldDstNet, oldDstToken]) => {
+            // if config is loading or no operation found, return
+            if (isConfigLoading.value || !currentOp.value?.id) return;
 
-            // ! if no operation found, return
-            if (!currentOp.value?.id) return;
+            const operation = operationsFactory.value.getOperationById(currentOp.value.id);
 
-            // * Set the srcNet in the operation if the srcNet is exist and not equal to the oldSrcNet
+            // Update srcNet if necessary
             if (oldSrcNet?.net !== srcNet?.net && srcNet?.net) {
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setEcosystem(srcNet.ecosystem);
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setChainId(srcNet.chain_id || srcNet.net);
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('net', srcNet.net);
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('fromNet', srcNet.net);
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setAccount(addressesByChain.value[srcNet.net]);
+                operation?.setEcosystem(srcNet.ecosystem);
+                operation?.setChainId(srcNet.chain_id || srcNet.net);
+                operation?.setParamByField('net', srcNet.net);
+                operation?.setParamByField('fromNet', srcNet.net);
+                operation?.setAccount(addressesByChain.value[srcNet.net]);
             }
 
-            // * Set the dstNet in the operation if the dstNet is exist and not equal to the oldDstNet
-            if (oldDstNet?.net !== dstNetwork?.net && dstNetwork?.net)
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('toNet', dstNetwork.net);
+            // Update dstNet if necessary
+            if (oldDstNet?.net !== dstNet?.net && dstNet?.net) operation?.setParamByField('toNet', dstNet.net);
 
             const { params = [] } = currentOp.value;
 
             const srcTokenField = params.find((param) => param.name === 'srcToken');
             const dstTokenField = params.find((param) => param.name === 'dstToken');
 
-            // * Set the srcToken in the operation if the srcToken is exist and not equal to the oldSrcToken
-            if (oldSrcToken?.id !== srcToken?.id && srcToken?.id && !CurrentShortcut.isComingSoon && srcTokenField) {
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('fromToken', srcToken.address);
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setToken('from', srcToken);
-            }
+            // Update srcToken if necessary
+            if (oldSrcToken?.id !== srcToken?.id && !srcTokenField?.value) setTokenParams(operation, 'from', srcToken);
 
-            // * Set the dstToken in the operation if the dstToken is exist and not equal to the oldDstToken
-            if (oldDstToken?.id !== dstToken?.id && dstToken?.id && !CurrentShortcut.isComingSoon && dstTokenField) {
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('toToken', dstToken.address);
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setToken('to', dstToken);
-            }
+            // Update dstToken if necessary
+            if (oldDstToken?.id !== dstToken?.id && !dstTokenField?.value) setTokenParams(operation, 'to', dstToken);
         },
     );
 
@@ -917,39 +917,6 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             // * Set the contractCallCount in the operation if the contractCallCount is exist and not equal to the oldContractCallCount
             if (oldContractCallCount !== contractCallCount)
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('count', contractCallCount);
-        },
-    );
-
-    // Watch for changes in srcToken and dstToken
-    store.watch(
-        (state, getters) => [getters['tokenOps/srcToken'], getters['tokenOps/dstToken']],
-        async ([srcToken, dstToken]) => {
-            if (!currentOp.value?.id) return;
-
-            const { params = [] } = currentOp.value;
-
-            const srcTokenField = params.find((param) => param.name === 'srcToken');
-            const dstTokenField = params.find((param) => param.name === 'dstToken');
-
-            if (srcTokenField && 'value' in srcTokenField) {
-                console.log('SRC TOKEN FIELD is pre-set');
-                return;
-            }
-
-            if (currentOp.value?.id && srcToken?.id && !CurrentShortcut.isComingSoon) {
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('fromToken', srcToken.address);
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setToken('from', srcToken);
-            }
-
-            if (dstTokenField && 'value' in dstTokenField) {
-                console.log('DST TOKEN FIELD is pre-set');
-                return;
-            }
-
-            if (currentOp.value?.id && dstToken?.id && !CurrentShortcut.isComingSoon) {
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('toToken', dstToken.address);
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setToken('to', dstToken);
-            }
         },
     );
 

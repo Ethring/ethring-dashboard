@@ -608,6 +608,7 @@ const useModuleOperations = (module: ModuleType) => {
             dstAmount: dstAmount.value,
         });
 
+        approveOperation.setName(`Approve ${selectedSrcToken.value?.symbol}`);
         approveOperation.setEcosystem(selectedSrcNetwork.value?.ecosystem);
         approveOperation.setChainId(selectedSrcNetwork.value?.chain_id as string);
         approveOperation.setAccount(account as string);
@@ -647,11 +648,12 @@ const useModuleOperations = (module: ModuleType) => {
             amount: +opInGroup.params.amount,
         });
 
+        approveOperation.setName(`Approve ${opInGroup.tokens.from?.symbol}`);
         approveOperation.setEcosystem(selectedSrcNetwork.value?.ecosystem);
         approveOperation.setChainId(selectedSrcNetwork.value?.chain_id as string);
         approveOperation.setAccount(account as string);
 
-        selectedSrcToken.value && approveOperation.setToken('from', selectedSrcToken.value);
+        opInGroup.tokens.from && approveOperation.setToken('from', opInGroup.tokens.from);
     };
 
     const updateOperationStatus = (
