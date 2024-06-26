@@ -3087,11 +3087,11 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
             } as IShortcutOp,
         ],
     },
-    [AvailableShortcuts.AddLiquidity]: {
-        id: AvailableShortcuts.AddLiquidity,
+    [AvailableShortcuts.AddLiquidityPool1]: {
+        id: AvailableShortcuts.AddLiquidityPool2,
         operations: [
             {
-                id: 'provide-liquidity',
+                id: 'provide-liquidity-wstETH-WETH-BPT',
                 name: 'Add liquidity for pool',
                 type: ShortcutType.operation,
                 moduleType: ModuleType.liquidityProvider,
@@ -3106,9 +3106,10 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     net: 'arbitrum',
                     poolID: '0x9791d590788598535278552eecd4b211bfc790cb',
                     slippageTolerance: '1',
+                    decimals: 18,
                 },
                 dependencies: {
-                    operationId: 'provide-liquidity',
+                    operationId: 'provide-liquidity-wstETH-WETH-BPT',
                     operationParams: [
                         {
                             dependencyParamKey: 'slippageTolerance',
@@ -3159,7 +3160,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 ],
             } as IShortcutOp,
             {
-                id: 'remove-liquidity',
+                id: 'remove-liquidity-wstETH-WETH-BPT',
                 name: 'Remove liquidity from pool',
                 type: ShortcutType.operation,
                 moduleType: ModuleType.liquidityProvider,
@@ -3174,9 +3175,10 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     net: 'arbitrum',
                     poolID: '0x9791d590788598535278552eecd4b211bfc790cb',
                     slippageTolerance: '1',
+                    decimals: 18,
                 },
                 dependencies: {
-                    operationId: 'provide-liquidity',
+                    operationId: 'provide-liquidity-wstETH-WETH-BPT',
                     operationParams: [
                         {
                             dependencyParamKey: 'outputAmount',
@@ -3205,6 +3207,153 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                             symbol: 'wstETH-WETH-BPT',
                             address: '0x9791d590788598535278552eecd4b211bfc790cb',
                             name: 'Balancer wstETH-WETH Stable Pool',
+                            decimals: 18,
+                            standard: 'erc20',
+                            logo: null,
+                            balance: 0,
+                            balanceUsd: 0,
+                            amount: null,
+                        },
+                        hide: true,
+                        disabled: false,
+                        ecosystem: 'EVM',
+                        chain: 'arbitrum',
+                    },
+                    {
+                        name: 'dstToken',
+                        hide: true,
+                        disabled: false,
+                        ecosystem: 'EVM',
+                        chain: 'arbitrum',
+                    },
+                    {
+                        name: 'isReload',
+                        hide: false,
+                    },
+                ],
+            } as IShortcutOp,
+        ],
+    },
+    [AvailableShortcuts.AddLiquidityPool2]: {
+        id: AvailableShortcuts.AddLiquidityPool2,
+        operations: [
+            {
+                id: 'provide-liquidity-WBTC/WETH-LP',
+                name: 'Add liquidity for pool',
+                type: ShortcutType.operation,
+                moduleType: ModuleType.liquidityProvider,
+                make: TRANSACTION_TYPES.DEPOSIT,
+                operationType: TRANSACTION_TYPES.ADD_LIQUIDITY,
+                layoutComponent: 'AddLiquidityLayout',
+                isShowLayout: true,
+                waitTime: 6.5,
+                ecosystems: ['EVM'],
+                includeChains: ['arbitrum'],
+                operationParams: {
+                    net: 'arbitrum',
+                    poolID: '0x515e252b2b5c22b4b2b6df66c2ebeea871aa4d69',
+                    slippageTolerance: '1',
+                    decimals: 18,
+                },
+                dependencies: {
+                    operationId: 'provide-liquidity-WBTC/WETH-LP',
+                    operationParams: [
+                        {
+                            dependencyParamKey: 'slippageTolerance',
+                            paramKey: 'slippageTolerance',
+                        },
+                    ],
+                },
+                params: [
+                    {
+                        name: 'srcNetwork',
+                        hide: false,
+                        disabled: false,
+                        ecosystem: 'EVM',
+                        chainId: 42161,
+                    },
+                    {
+                        name: 'srcToken',
+                        hide: true,
+                        disabled: false,
+                        ecosystem: 'EVM',
+                        chain: 'arbitrum',
+                    },
+                    {
+                        name: 'dstToken',
+                        value: {
+                            id: 'arbitrum:pool__0x515e252b2b5c22b4b2b6df66c2ebeea871aa4d69:WBTC/WETH-LP',
+                            chain: 'arbitrum',
+                            ecosystem: 'EVM',
+                            symbol: 'WBTC/WETH-LP',
+                            address: '0x515e252b2b5c22b4b2b6df66c2ebeea871aa4d69',
+                            name: 'SushiSwap v2 WBTC/WETH',
+                            decimals: 18,
+                            standard: 'erc20',
+                            logo: null,
+                            balance: 0,
+                            balanceUsd: 0,
+                            amount: null,
+                        },
+                        hide: true,
+                        disabled: false,
+                        ecosystem: 'EVM',
+                        chain: 'arbitrum',
+                    },
+                    {
+                        name: 'isReload',
+                        hide: false,
+                    },
+                ],
+            } as IShortcutOp,
+            {
+                id: 'remove-liquidity-WBTC/WETH-LP',
+                name: 'Remove liquidity from pool',
+                type: ShortcutType.operation,
+                moduleType: ModuleType.liquidityProvider,
+                make: TRANSACTION_TYPES.DEPOSIT,
+                operationType: TRANSACTION_TYPES.REMOVE_LIQUIDITY,
+                layoutComponent: 'AddLiquidityLayout',
+                isShowLayout: true,
+                waitTime: 1,
+                ecosystems: ['EVM'],
+                includeChains: ['arbitrum'],
+                operationParams: {
+                    net: 'arbitrum',
+                    poolID: '0x515e252b2b5c22b4b2b6df66c2ebeea871aa4d69',
+                    slippageTolerance: '1',
+                    decimals: 18,
+                },
+                dependencies: {
+                    operationId: 'provide-liquidity-WBTC/WETH-LP',
+                    operationParams: [
+                        {
+                            dependencyParamKey: 'outputAmount',
+                            paramKey: 'amount',
+                        },
+                        {
+                            dependencyParamKey: 'slippageTolerance',
+                            paramKey: 'slippageTolerance',
+                        },
+                    ],
+                },
+                params: [
+                    {
+                        name: 'srcNetwork',
+                        hide: false,
+                        disabled: false,
+                        ecosystem: 'EVM',
+                        chainId: 42161,
+                    },
+                    {
+                        name: 'srcToken',
+                        value: {
+                            id: 'arbitrum:pool__0x515e252b2b5c22b4b2b6df66c2ebeea871aa4d69:WBTC/WETH-LP',
+                            chain: 'arbitrum',
+                            ecosystem: 'EVM',
+                            symbol: 'WBTC/WETH-LP',
+                            address: '0x515e252b2b5c22b4b2b6df66c2ebeea871aa4d69',
+                            name: 'SushiSwap v2 WBTC/WETH',
                             decimals: 18,
                             standard: 'erc20',
                             logo: null,

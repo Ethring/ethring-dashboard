@@ -653,6 +653,7 @@ const useModuleOperations = (module: ModuleType) => {
             tokenAddress: opInGroup.params.poolID,
             ownerAddress: account as string,
             amount: +opInGroup.params.amount,
+            typeLp: TRANSACTION_TYPES.REMOVE_LIQUIDITY,
         });
 
         approveOperation.setName(`Approve ${opInGroup.tokens.from?.symbol}`);
@@ -756,14 +757,11 @@ const useModuleOperations = (module: ModuleType) => {
     const callNextOperation = (operation: IBaseOperation) => {
         const isApprove = operation.transactionType === TRANSACTION_TYPES.APPROVE;
 
-        if (!isApprove && isShortcutOpsExist()) {
-            console.log(currentShortcutId.value, currentStepId.value, '----currentShortcutId.value');
-
+        if (!isApprove && isShortcutOpsExist())
             store.dispatch('shortcuts/nextStep', {
                 shortcutId: currentShortcutId.value,
                 stepId: currentStepId.value,
             });
-        }
     };
 
     const processTxOperation = (

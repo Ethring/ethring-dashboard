@@ -8,6 +8,7 @@ import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum'
 
 import { IGetAllowanceRequest } from '@/modules/portal-fi/models/request';
 import PortalFiApi, { IPortalFiApi } from '@/modules/portal-fi/api';
+import { formatNumber } from '@/shared/utils/numbers';
 
 type Allowance = {
     [key: string]: number;
@@ -30,10 +31,11 @@ export default class ApproveLpOperation extends BaseOperation {
         const amount = this.getParamByField('amount');
 
         const { net, ownerAddress, tokenAddress } = this.params as any;
+        const { from } = this.getTokens();
 
         const params: IGetAllowanceRequest = {
             net,
-            amount,
+            amount: formatNumber(amount, from?.decimals),
             tokenAddress,
             ownerAddress,
         };
@@ -48,6 +50,13 @@ export default class ApproveLpOperation extends BaseOperation {
         }
     }
 
+    onSuccess = async (store: Storage): Promise<void> => {
+        console.log('Approve success', 'Update allowance');
+        this.allowance = {};
+
+        this.checkAllowance(store);
+    };
+
     getOperationFlow(): TxOperationFlow[] {
         this.flow = [
             {
@@ -60,13 +69,21 @@ export default class ApproveLpOperation extends BaseOperation {
         return this.flow;
     }
 
-    checkAllowance = async (): Promise<void> => {
+    checkAllowance = async (store: Storage): Promise<void> => {
         try {
             const amount = this.getParamByField('amount');
 
             const allowance = await this.getAllowance();
 
             this.isNeedApprove = +allowance < +amount;
+
+            const { typeLp } = this.params as any;
+            console.log(typeLp, this.isNeedApprove, '---- this.isNeedApprove');
+
+            if (typeLp === TRANSACTION_TYPES.REMOVE_LIQUIDITY)
+                return store.dispatch('moduleStates/setIsNeedRemoveLPApprove', this.isNeedApprove);
+
+            store.dispatch('moduleStates/setIsNeedApproveLP', this.isNeedApprove);
         } catch (error) {
             console.error('ApproveOperation onSuccess error', error);
         }
@@ -75,7 +92,13 @@ export default class ApproveLpOperation extends BaseOperation {
     async getAllowance(): Promise<void | number> {
         console.log('ApproveOperation getAllowance, update allowance');
 
-        const { net, ownerAddresses = {}, from } = this.params as any;
+        const { net, ownerAddress } = this.params as any;
+        let from = this.params.from;
+
+        if (!from) {
+            const tokens = this.getTokens();
+            from = tokens.from;
+        }
 
         const { address } = from || {};
         const tokenIn = address || '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
@@ -86,11 +109,12 @@ export default class ApproveLpOperation extends BaseOperation {
         const params: IGetAllowanceRequest = {
             net,
             tokenAddress: tokenIn,
-            ownerAddress: ownerAddresses[net],
+            ownerAddress,
         };
 
         try {
             const allowance = await this.service.getAllowance(params);
+
             this.allowance[tokenIn] = allowance.data;
 
             return allowance.data;

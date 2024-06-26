@@ -92,10 +92,13 @@ export default class PortalFiAddLiquidity extends BaseOperation {
             const tokenIn = address || '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
             // Check allowance
-            this.approveService.params = { ...this.params, from };
-            await this.approveService.checkAllowance();
-
-            store.dispatch('moduleStates/setIsNeedApproveLP', this.approveService.isNeedApprove);
+            this.approveService.params = {
+                ...this.params,
+                from,
+                typeLp: TRANSACTION_TYPES.ADD_LIQUIDITY,
+                ownerAddress: this.params.ownerAddresses[net],
+            };
+            await this.approveService.checkAllowance(store);
 
             const params: IGetQuoteAddLiquidityRequest = {
                 net,
@@ -106,10 +109,11 @@ export default class PortalFiAddLiquidity extends BaseOperation {
             };
 
             const response = await this.service.getQuoteAddLiquidity(params);
+            const { outputAmount, outputTokenDecimals } = response.data;
 
-            const outputAmount = BigNumber(response.data?.outputAmount).dividedBy(`1e${response.data?.outputTokenDecimals}`).toFixed(8);
+            const amountOutput = formatNumber(BigNumber(outputAmount).dividedBy(`1e${outputTokenDecimals}`).toFixed(), outputTokenDecimals);
 
-            this.setParamByField('outputAmount', outputAmount);
+            this.setParamByField('outputAmount', amountOutput);
         } catch (error) {
             console.error('LiquidityProvider.estimateOutput', error);
             throw error;

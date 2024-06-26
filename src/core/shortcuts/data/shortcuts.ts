@@ -11,7 +11,8 @@ export enum AvailableShortcuts {
     WithdrawDydx = 'SC-withdraw-dYdX-usdc-rewards-to-usdt-on-tron',
     ConvertTia = 'SC-convert-tia-to-sttia',
     AirdropFarmingPortfolio = 'airdrop-farming-portfolio',
-    AddLiquidity = 'SC-add-liquidity',
+    AddLiquidityPool1 = 'SC-add-liquidity-pool-1',
+    AddLiquidityPool2 = 'SC-add-liquidity-pool-2',
 }
 
 export enum ShortcutAuthor {

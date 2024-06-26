@@ -39,12 +39,12 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
         }
 
         try {
-            const { net, poolID, ownerAddresses = {}, slippageTolerance } = this.params as any;
+            const { net, poolID, ownerAddresses = {}, slippageTolerance, decimals } = this.params as any;
 
             const params: IGetQuoteAddLiquidityRequest = {
                 net,
                 poolID,
-                amount,
+                amount: formatNumber(amount, decimals),
                 slippageTolerance,
                 tokenAddress: this.tokenAddress,
                 ownerAddress: ownerAddresses[net],
@@ -54,7 +54,7 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
 
             const poolBalance = userBalancePoolList?.find((elem: IGetUsersPoolListResponse) => elem.address === poolID);
 
-            if (poolBalance && poolBalance.balance < +amount) params.amount = poolBalance.balance;
+            if (poolBalance && poolBalance.balance < +amount) params.amount = formatNumber(poolBalance.balance, decimals);
 
             const response = await this.service.getRemoveLiquidityTx(params);
 
@@ -92,10 +92,13 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
             this.tokenAddress = tokenOut.address || '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
             // Check allowance
-            this.approveService.params = { ...this.params, from: { address: poolID } };
-            await this.approveService.checkAllowance();
-
-            store.dispatch('moduleStates/setIsNeedRemoveLPApprove', this.approveService.isNeedApprove);
+            this.approveService.params = {
+                ...this.params,
+                from: { address: poolID },
+                typeLp: TRANSACTION_TYPES.REMOVE_LIQUIDITY,
+                ownerAddress: this.params.ownerAddresses[net],
+            };
+            await this.approveService.checkAllowance(store);
 
             const params: IGetQuoteAddLiquidityRequest = {
                 net,
@@ -107,9 +110,11 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
 
             const response = await this.service.getQuoteRemoveLiquidity(params);
 
-            const outputAmount = BigNumber(response.data?.outputAmount).dividedBy(`1e${response.data?.outputTokenDecimals}`).toFixed(8);
+            const { outputAmount, outputTokenDecimals } = response.data;
 
-            this.setParamByField('outputAmount', outputAmount);
+            const amountOutput = formatNumber(BigNumber(outputAmount).dividedBy(`1e${outputTokenDecimals}`).toFixed(), outputTokenDecimals);
+
+            this.setParamByField('outputAmount', amountOutput);
         } catch (error) {
             console.error('LiquidityProvider.estimateOutput', error);
             throw error;

@@ -1,7 +1,15 @@
 <template>
     <a-form>
-        <a-form-item class="panel-control">
-            <Slippage />
+        <a-form-item>
+            <a-row justify="space-between">
+                <SelectRecord
+                    :disabled="isDisableSelect"
+                    :current="selectedSrcNetwork"
+                    :placeholder="$t('tokenOperations.selectNetwork')"
+                    @click="onSelectNetwork"
+                />
+                <Slippage />
+            </a-row>
         </a-form-item>
         <SelectAmountInput
             :value="selectedSrcToken"
@@ -43,6 +51,9 @@ import SelectAmountInput from '@/components/ui/Select/SelectAmountInput';
 // Slippage Component
 import Slippage from '@/components/ui/Slippage.vue';
 
+// Select Components
+import SelectRecord from '@/components/ui/Select/SelectRecord';
+
 // Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
@@ -55,6 +66,7 @@ export default {
         SelectAmountInput,
         EstimatePreviewInfo,
         Slippage,
+        SelectRecord,
     },
     setup() {
         // * Init module operations, and get all necessary data, (methods, states, etc.) for the module
