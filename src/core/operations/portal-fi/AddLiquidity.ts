@@ -47,7 +47,8 @@ export default class PortalFiAddLiquidity extends BaseOperation {
             const tokenIn = address || '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
             const params: IGetQuoteAddLiquidityRequest = {
-                net,
+                from: net,
+                to: net,
                 poolID,
                 amount: formatNumber(amount, from?.decimals),
                 slippageTolerance,
@@ -101,7 +102,8 @@ export default class PortalFiAddLiquidity extends BaseOperation {
             await this.approveService.checkAllowance(store);
 
             const params: IGetQuoteAddLiquidityRequest = {
-                net,
+                from: net,
+                to: net,
                 poolID,
                 amount: formatNumber(amount, from?.decimals),
                 slippageTolerance,

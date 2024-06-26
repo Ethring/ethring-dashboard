@@ -227,6 +227,21 @@ const META_DATA: Record<string, IShortcutMeta> = {
         author: getAuthorById(ShortcutAuthor.ZometApp),
         isActive: true,
     },
+    // [AvailableShortcuts.RemoveLiquidityPool]: {
+    //     id: AvailableShortcuts.RemoveLiquidityPool,
+    //     name: 'Remove liquidity from pool',
+    //     logoURI: '/img/icons/shortcuts/rage-quite.svg',
+    //     keywords: ['liquidity', 'pool'],
+    //     tags: ['liquidity', 'pool'],
+    //     ecosystems: ['EVM'],
+    //     type: 'liquidity',
+    //     description: 'Remove liquidity from pool',
+    //     wallpaper: 'https://i.imgur.com/TzfbhhA.png',
+    //     website: 'https://app.balancer.fi/#/ethereum',
+    //     minUsdAmount: 1,
+    //     author: getAuthorById(ShortcutAuthor.ZometApp),
+    //     isActive: true,
+    // },
 };
 
 export const getShortcutMetaById = (id: string): IShortcutMeta => {

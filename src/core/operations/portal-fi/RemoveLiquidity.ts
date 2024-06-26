@@ -42,7 +42,8 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
             const { net, poolID, ownerAddresses = {}, slippageTolerance, decimals } = this.params as any;
 
             const params: IGetQuoteAddLiquidityRequest = {
-                net,
+                from: net,
+                to: net,
                 poolID,
                 amount: formatNumber(amount, decimals),
                 slippageTolerance,
@@ -101,7 +102,8 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
             await this.approveService.checkAllowance(store);
 
             const params: IGetQuoteAddLiquidityRequest = {
-                net,
+                from: net,
+                to: net,
                 poolID,
                 amount: formatNumber(amount, tokenOut.decimals),
                 slippageTolerance,

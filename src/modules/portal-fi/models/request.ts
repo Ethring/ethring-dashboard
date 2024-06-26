@@ -11,7 +11,8 @@ export interface IGetAllowanceResponse {
 }
 
 export interface IGetQuoteAddLiquidityRequest {
-    net: string;
+    from: string;
+    to: string;
     poolID: string;
     tokenAddress: string;
     amount: number;
