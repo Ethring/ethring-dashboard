@@ -817,37 +817,6 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         },
     );
 
-    // ====================================================================================================
-    // * Watch for changes in the SRC: Network, Token | DST: Network, Token and call the estimate output
-    // ====================================================================================================
-    store.watch(
-        (state, getters) => [
-            getters['tokenOps/srcNetwork'],
-            getters['tokenOps/srcToken'],
-            getters['tokenOps/dstNetwork'],
-            getters['tokenOps/dstToken'],
-        ],
-        async ([srcNet, srcToken, dstNetwork, dstToken], [oldSrcNet, oldSrcToken, oldDstNet, oldDstToken]) => {
-            // ! if config is loading, return
-            if (isConfigLoading.value) return;
-
-            // ! if no operation found, return
-            if (!currentOp.value?.id) return;
-
-            // ! if no srcNet, srcToken, srcAmount found, return
-            if (
-                isEqual(
-                    [srcNet?.net, srcToken?.id, dstNetwork?.net, dstToken?.id],
-                    [oldSrcNet?.net, oldSrcToken?.id, oldDstNet?.net, oldDstToken?.id],
-                )
-            )
-                return;
-
-            // * Call the estimate output if the srcNet, srcToken, srcAmount are set
-            if (srcNet?.net && srcToken?.id) await callEstimate('watch:srcNet,srcToken');
-        },
-    );
-
     // Helper function to set token parameters
     const setTokenParams = (operation: IBaseOperation | null, type: 'from' | 'to', token: IAsset) => {
         if (!token?.id || CurrentShortcut.isComingSoon) return;
@@ -896,6 +865,37 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             // Update dstToken if necessary
             if ((oldDstToken?.id !== dstToken?.id || oldDstToken?.balance !== dstToken?.balance) && !dstTokenField?.value)
                 setTokenParams(operation, 'to', dstToken);
+        },
+    );
+
+    // ====================================================================================================
+    // * Watch for changes in the SRC: Network, Token | DST: Network, Token and call the estimate output
+    // ====================================================================================================
+    store.watch(
+        (state, getters) => [
+            getters['tokenOps/srcNetwork'],
+            getters['tokenOps/srcToken'],
+            getters['tokenOps/dstNetwork'],
+            getters['tokenOps/dstToken'],
+        ],
+        async ([srcNet, srcToken, dstNetwork, dstToken], [oldSrcNet, oldSrcToken, oldDstNet, oldDstToken]) => {
+            // ! if config is loading, return
+            if (isConfigLoading.value) return;
+
+            // ! if no operation found, return
+            if (!currentOp.value?.id) return;
+
+            // ! if no srcNet, srcToken, srcAmount found, return
+            if (
+                isEqual(
+                    [srcNet?.net, srcToken?.id, dstNetwork?.net, dstToken?.id],
+                    [oldSrcNet?.net, oldSrcToken?.id, oldDstNet?.net, oldDstToken?.id],
+                )
+            )
+                return;
+
+            // * Call the estimate output if the srcNet, srcToken, srcAmount are set
+            if (srcNet?.net && srcToken?.id) await callEstimate('watch:srcNet,srcToken');
         },
     );
 

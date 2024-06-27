@@ -9,6 +9,7 @@ import {
     IGetPoolListRequest,
     IGetUsersPoolListResponse,
 } from '@/modules/portal-fi/models/request.ts';
+import { errorRegister } from '@/shared/utils/errors';
 
 export interface IPortalFiApi {
     getQuoteAddLiquidity(params: IGetQuoteAddLiquidityRequest): Promise<any>;
@@ -34,7 +35,7 @@ class PortalFiApi implements IPortalFiApi {
         } catch (error) {
             console.error('PortalFiApi.getAllowance', error);
 
-            throw error;
+            throw Error(errorRegister(error).error);
         }
     }
 
@@ -49,7 +50,7 @@ class PortalFiApi implements IPortalFiApi {
         } catch (error) {
             console.error('PortalFiApi.getApproveTx', error);
 
-            throw error;
+            throw Error(errorRegister(error).error);
         }
     }
 
@@ -64,7 +65,7 @@ class PortalFiApi implements IPortalFiApi {
         } catch (error) {
             console.error('PortalFiApi.getQuoteAddLiquidity', error);
 
-            throw error;
+            throw Error(errorRegister(error).error);
         }
     }
 
@@ -79,7 +80,7 @@ class PortalFiApi implements IPortalFiApi {
         } catch (error) {
             console.error('PortalFiApi.getQuoteRemoveLiquidity', error);
 
-            throw error;
+            throw Error(errorRegister(error).error);
         }
     }
 
@@ -92,7 +93,7 @@ class PortalFiApi implements IPortalFiApi {
         } catch (error) {
             console.error('PortalFiApi.getAddLiquidityTx', error);
 
-            throw error;
+            throw Error(errorRegister(error).error);
         }
     }
 
@@ -105,7 +106,7 @@ class PortalFiApi implements IPortalFiApi {
         } catch (error) {
             console.error('PortalFiApi.getRemoveLiquidityTx', error);
 
-            throw error;
+            throw Error(errorRegister(error).error);
         }
     }
 
@@ -118,7 +119,7 @@ class PortalFiApi implements IPortalFiApi {
         } catch (error) {
             console.error('PortalFiApi.getUserBalancePoolList', error);
 
-            throw error;
+            throw Error(errorRegister(error).error);
         }
     }
 
@@ -131,7 +132,7 @@ class PortalFiApi implements IPortalFiApi {
         } catch (error) {
             console.error('PortalFiApi.getPoolList', error);
 
-            throw error;
+            throw Error(errorRegister(error).error);
         }
     }
 }

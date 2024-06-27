@@ -78,7 +78,6 @@ export default class ApproveLpOperation extends BaseOperation {
             this.isNeedApprove = +allowance < +amount;
 
             const { typeLp } = this.params as any;
-            console.log(typeLp, this.isNeedApprove, '---- this.isNeedApprove');
 
             if (typeLp === TRANSACTION_TYPES.REMOVE_LIQUIDITY)
                 return store.dispatch('moduleStates/setIsNeedRemoveLPApprove', this.isNeedApprove);

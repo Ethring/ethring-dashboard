@@ -3088,7 +3088,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
         ],
     },
     [AvailableShortcuts.AddLiquidityPool1]: {
-        id: AvailableShortcuts.AddLiquidityPool2,
+        id: AvailableShortcuts.AddLiquidityPool1,
         operations: [
             {
                 id: 'provide-liquidity-wstETH-WETH-BPT',
@@ -3135,7 +3135,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     {
                         name: 'dstToken',
                         value: {
-                            id: 'arbitrum:pool__0x9791d590788598535278552eecd4b211bfc790cb:wstETH-WETH-BPT',
+                            id: 'arbitrum:pools__0x9791d590788598535278552eecd4b211bfc790cb:wstETH-WETH-BPT',
                             chain: 'arbitrum',
                             ecosystem: 'EVM',
                             symbol: 'wstETH-WETH-BPT',
@@ -3201,7 +3201,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     {
                         name: 'srcToken',
                         value: {
-                            id: 'arbitrum:pool__0x9791d590788598535278552eecd4b211bfc790cb:wstETH-WETH-BPT',
+                            id: 'arbitrum:pools__0x9791d590788598535278552eecd4b211bfc790cb:wstETH-WETH-BPT',
                             chain: 'arbitrum',
                             ecosystem: 'EVM',
                             symbol: 'wstETH-WETH-BPT',
@@ -3282,10 +3282,10 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     {
                         name: 'dstToken',
                         value: {
-                            id: 'arbitrum:pool__0x515e252b2b5c22b4b2b6df66c2ebeea871aa4d69:WBTC/WETH-LP',
+                            id: 'arbitrum:pools__0x515e252b2b5c22b4b2b6df66c2ebeea871aa4d69:WBTC/WETH',
                             chain: 'arbitrum',
                             ecosystem: 'EVM',
-                            symbol: 'WBTC/WETH-LP',
+                            symbol: 'WBTC/WETH',
                             address: '0x515e252b2b5c22b4b2b6df66c2ebeea871aa4d69',
                             name: 'SushiSwap v2 WBTC/WETH',
                             decimals: 18,
@@ -3348,10 +3348,10 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     {
                         name: 'srcToken',
                         value: {
-                            id: 'arbitrum:pool__0x515e252b2b5c22b4b2b6df66c2ebeea871aa4d69:WBTC/WETH-LP',
+                            id: 'arbitrum:pools__0x515e252b2b5c22b4b2b6df66c2ebeea871aa4d69:WBTC/WETH',
                             chain: 'arbitrum',
                             ecosystem: 'EVM',
-                            symbol: 'WBTC/WETH-LP',
+                            symbol: 'WBTC/WETH',
                             address: '0x515e252b2b5c22b4b2b6df66c2ebeea871aa4d69',
                             name: 'SushiSwap v2 WBTC/WETH',
                             decimals: 18,
@@ -3361,6 +3361,63 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                             balanceUsd: 0,
                             amount: null,
                         },
+                        hide: true,
+                        disabled: false,
+                        ecosystem: 'EVM',
+                        chain: 'arbitrum',
+                    },
+                    {
+                        name: 'dstToken',
+                        hide: true,
+                        disabled: false,
+                        ecosystem: 'EVM',
+                        chain: 'arbitrum',
+                    },
+                    {
+                        name: 'isReload',
+                        hide: false,
+                    },
+                ],
+            } as IShortcutOp,
+        ],
+    },
+    [AvailableShortcuts.RemoveLiquidityPool]: {
+        id: AvailableShortcuts.RemoveLiquidityPool,
+        operations: [
+            {
+                id: 'remove-liquidity-pool',
+                name: 'Remove liquidity from pool',
+                type: ShortcutType.operation,
+                moduleType: ModuleType.liquidityProvider,
+                make: TRANSACTION_TYPES.DEPOSIT,
+                operationType: TRANSACTION_TYPES.REMOVE_LIQUIDITY,
+                layoutComponent: 'RemoveLiquidityLayout',
+                isShowLayout: true,
+                waitTime: 1,
+                ecosystems: ['EVM'],
+                includeChains: ['arbitrum'],
+                operationParams: {
+                    net: 'arbitrum',
+                },
+                dependencies: {
+                    operationId: 'remove-liquidity-pool',
+                    operationParams: [
+                        {
+                            dependencyParamKey: 'slippageTolerance',
+                            paramKey: 'slippageTolerance',
+                        },
+                    ],
+                },
+                params: [
+                    {
+                        name: 'srcNetwork',
+                        hide: false,
+                        disabled: false,
+                        ecosystem: 'EVM',
+                        chainId: 42161,
+                    },
+                    {
+                        name: 'srcToken',
                         hide: true,
                         disabled: false,
                         ecosystem: 'EVM',

@@ -31,7 +31,7 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
         this.approveService = new ApproveLpOperation();
     }
 
-    async performTx() {
+    async performTx(store: Storage) {
         const amount = this.getParamByField('amount');
         if (!amount) {
             console.warn('Amount is required');
@@ -39,12 +39,13 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
         }
 
         try {
-            const { net, poolID, ownerAddresses = {}, slippageTolerance, decimals } = this.params as any;
+            const { net, ownerAddresses = {}, slippageTolerance, decimals } = this.params as any;
+
+            const { from } = this.getTokens();
 
             const params: IGetQuoteAddLiquidityRequest = {
-                from: net,
-                to: net,
-                poolID,
+                net,
+                poolID: from?.address,
                 amount: formatNumber(amount, decimals),
                 slippageTolerance,
                 tokenAddress: this.tokenAddress,
@@ -53,7 +54,7 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
 
             const userBalancePoolList = await this.service.getUserBalancePoolList({ net, ownerAddress: ownerAddresses[net] });
 
-            const poolBalance = userBalancePoolList?.find((elem: IGetUsersPoolListResponse) => elem.address === poolID);
+            const poolBalance = userBalancePoolList?.find((elem: IGetUsersPoolListResponse) => elem.address === from?.address);
 
             if (poolBalance && poolBalance.balance < +amount) params.amount = formatNumber(poolBalance.balance, decimals);
 
@@ -87,24 +88,32 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
         }
 
         try {
-            const { net, poolID, slippageTolerance } = this.params as any;
+            const { net, slippageTolerance, ownerAddresses } = this.params as any;
 
-            const tokenOut = store.getters['tokenOps/srcToken'];
-            this.tokenAddress = tokenOut.address || '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+            const srcToken = store.getters['tokenOps/srcToken'];
+            const dstToken = store.getters['tokenOps/dstToken'];
+
+            const { from } = this.getTokens();
+
+            const tokenOut = from?.address === srcToken?.address ? dstToken : srcToken;
+            if (!tokenOut) throw Error('Select output token');
+            if (!from?.id?.includes('pools')) throw Error('Select lp token');
+
+            this.tokenAddress = tokenOut?.address || '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
             // Check allowance
             this.approveService.params = {
                 ...this.params,
-                from: { address: poolID },
+                from: { address: from?.address },
                 typeLp: TRANSACTION_TYPES.REMOVE_LIQUIDITY,
-                ownerAddress: this.params.ownerAddresses[net],
+                ownerAddress: ownerAddresses[net],
             };
+
             await this.approveService.checkAllowance(store);
 
             const params: IGetQuoteAddLiquidityRequest = {
-                from: net,
-                to: net,
-                poolID,
+                net,
+                poolID: from?.address,
                 amount: formatNumber(amount, tokenOut.decimals),
                 slippageTolerance,
                 tokenAddress: this.tokenAddress,

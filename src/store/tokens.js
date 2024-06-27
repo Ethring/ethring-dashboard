@@ -56,6 +56,7 @@ export default {
         [Type.tokens]: {},
         [Type.integrations]: {},
         [Type.nfts]: {},
+        [Type.pools]: {},
 
         disableLoader: false,
 
@@ -104,7 +105,9 @@ export default {
             (state) =>
             (account, type, allBalances = false) => {
                 if (!state[type]) return [];
-
+                if (type === 'pools') {
+                    console.log(state[type], type, account, '--state[type]');
+                }
                 if (!state[type][account] && account !== BUNDLED_ACCOUNT) return [];
 
                 if (account === BUNDLED_ACCOUNT) {

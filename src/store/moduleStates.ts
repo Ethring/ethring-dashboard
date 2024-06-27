@@ -120,7 +120,7 @@ export default {
 
         isNeedInputFocus: true,
         isNeedApproveLP: false,
-        isNeedRemoveLpApprove: true,
+        isNeedRemoveLpApprove: false,
     }),
 
     getters: {

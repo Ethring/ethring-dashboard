@@ -1,5 +1,7 @@
 import ApiClient from '@/modules/pendle-silo/api/axios';
 import { ISwapExactTokenForPTRequest, ISwapExactTokenForPTResponse } from '@/modules/pendle-silo/models/request';
+import { errorRegister } from '@/shared/utils/errors';
+
 export interface IPendleApi {
     swapExactTokenForPT(params: ISwapExactTokenForPTRequest): Promise<any>;
     addLiquiditySingleToken(params: ISwapExactTokenForPTRequest): Promise<any>;
@@ -20,7 +22,7 @@ class PendleApi implements IPendleApi {
         } catch (error) {
             console.error('PendleApi.swapExactTokenForPT', error);
 
-            throw error;
+            throw Error(errorRegister(error).error);
         }
     }
 
@@ -35,7 +37,7 @@ class PendleApi implements IPendleApi {
         } catch (error) {
             console.error('PendleApi.addLiquiditySingleToken', error);
 
-            throw error;
+            throw Error(errorRegister(error).error);
         }
     }
 }

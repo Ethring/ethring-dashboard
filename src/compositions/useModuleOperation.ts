@@ -650,7 +650,7 @@ const useModuleOperations = (module: ModuleType) => {
 
         approveOperation.setParams({
             net: selectedSrcNetwork.value?.net,
-            tokenAddress: opInGroup.params.poolID,
+            tokenAddress: opInGroup.tokens.from?.address,
             ownerAddress: account as string,
             amount: +opInGroup.params.amount,
             typeLp: TRANSACTION_TYPES.REMOVE_LIQUIDITY,

@@ -23,6 +23,7 @@ import StakeLayout from '@/pages/dynamic-modules/StakeLayout.vue';
 import MintNftLayoutWithTransfer from '@/pages/dynamic-modules/MintNftLayoutWithTransfer.vue';
 import PendleSiloLayout from '@/pages/dynamic-modules/PendleSiloLayout.vue';
 import AddLiquidityLayout from '@/pages/dynamic-modules/AddLiquidityLayout.vue';
+import RemoveLiquidityLayout from '@/pages/dynamic-modules/RemoveLiquidityLayout.vue';
 
 // Service worker
 import '@/registerServiceWorker';
@@ -79,5 +80,6 @@ app.component('StakeLayout', StakeLayout);
 app.component('MintNftLayoutWithTransfer', MintNftLayoutWithTransfer);
 app.component('PendleSiloLayout', PendleSiloLayout);
 app.component('AddLiquidityLayout', AddLiquidityLayout);
+app.component('RemoveLiquidityLayout', RemoveLiquidityLayout);
 
 export default app;

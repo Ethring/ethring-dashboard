@@ -13,6 +13,7 @@ import useChainTokenManger from './useChainTokenManager';
 
 import { IChainInfo } from '@/core/wallet-adapter/models/ecosystem-adapter';
 import { useRoute } from 'vue-router';
+import { AvailableShortcuts } from '@/core/shortcuts/data/shortcuts';
 
 export default function useModule(moduleType: ModuleType) {
     const store = useStore();
@@ -184,6 +185,8 @@ export default function useModule(moduleType: ModuleType) {
 
     // =================================================================================================================
 
+    const CurrentShortcut = computed(() => store.getters['shortcuts/getCurrentShortcutId']);
+
     const isNeedAddLpApprove = computed({
         get: () => store.getters['moduleStates/isNeedApproveLP'],
         set: (value) => store.dispatch('moduleStates/setIsNeedApproveLP', value),
@@ -281,6 +284,10 @@ export default function useModule(moduleType: ModuleType) {
         return openSelectModal('token', { direction, type });
     };
 
+    const handleOnSelectPool = ({ direction, type }: any) => {
+        return openSelectModal('pool', { direction, type });
+    };
+
     const handleOnSetAmount = (amount: string | number) => {
         if (srcAmount.value === amount) return;
 
@@ -329,8 +336,16 @@ export default function useModule(moduleType: ModuleType) {
         opTitle.value = DEFAULT_TITLE;
     });
 
+    watch(isNeedRemoveLpApprove, () => {
+        if (CurrentShortcut.value !== AvailableShortcuts.RemoveLiquidityPool) return;
+        if (isNeedRemoveLpApprove.value) return (opTitle.value = 'tokenOperations.approve');
+        opTitle.value = DEFAULT_TITLE;
+    });
+
     onMounted(() => {
         module.value = moduleType;
+        isNeedAddLpApprove.value = false;
+        isNeedRemoveLpApprove.value = false;
 
         checkSelectedNetwork();
     });
@@ -428,6 +443,7 @@ export default function useModule(moduleType: ModuleType) {
 
         handleOnSelectToken,
         handleOnSelectNetwork,
+        handleOnSelectPool,
 
         handleOnSetAmount,
 

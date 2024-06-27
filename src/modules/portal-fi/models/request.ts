@@ -11,8 +11,7 @@ export interface IGetAllowanceResponse {
 }
 
 export interface IGetQuoteAddLiquidityRequest {
-    from: string;
-    to: string;
+    net: string;
     poolID: string;
     tokenAddress: string;
     amount: number;
@@ -76,9 +75,9 @@ export interface IGetUsersPoolListResponse {
     tokens: [];
     liquidity: number;
     metrics: {
-        apy: string;
-        volumeUsd1d: string;
-        volumeUsd7d: string;
+        apy?: string;
+        volumeUsd1d?: string;
+        volumeUsd7d?: string;
     };
     metadata: any;
     totalSupply: string;

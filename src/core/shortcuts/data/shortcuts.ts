@@ -13,7 +13,7 @@ export enum AvailableShortcuts {
     AirdropFarmingPortfolio = 'airdrop-farming-portfolio',
     AddLiquidityPool1 = 'SC-add-liquidity-pool-1',
     AddLiquidityPool2 = 'SC-add-liquidity-pool-2',
-    // RemoveLiquidityPool = 'SC-remove-liquidity-pool',
+    RemoveLiquidityPool = 'SC-remove-liquidity-pool',
 }
 
 export enum ShortcutAuthor {

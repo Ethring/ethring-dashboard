@@ -1,11 +1,11 @@
 import { filter, slice } from 'lodash';
 
-import { ref, computed, inject, nextTick, watch } from 'vue';
+import { ref, computed, nextTick, watch } from 'vue';
 import { useStore } from 'vuex';
 
 import useTokenList from '@/compositions/useTokensList';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
-
+import usePoolsList from '@/compositions/usePoolList';
 import { searchByKey } from '@/shared/utils/helpers';
 import { assignPriceInfo } from '@/shared/utils/prices';
 
@@ -16,6 +16,7 @@ export default function useSelectModal(type) {
     const TYPES = {
         NETWORK: 'network',
         TOKEN: 'token',
+        POOL: 'pool',
     };
 
     const LIST_CONTAINER = '.select-modal-list-container';
@@ -121,6 +122,7 @@ export default function useSelectModal(type) {
     const HANDLE_ON_SELECT = {
         [TYPES.NETWORK]: handleOnSelectNetwork,
         [TYPES.TOKEN]: handleOnSelectToken,
+        [TYPES.POOL]: handleOnSelectToken,
     };
 
     const handleOnSelect = (e, item) => {
@@ -199,10 +201,13 @@ export default function useSelectModal(type) {
 
     const tokens = ref([]);
 
+    const pools = usePoolsList();
+
     const list = computed(() => {
         const values = {
             [TYPES.NETWORK]: chains.value,
             [TYPES.TOKEN]: tokens.value,
+            [TYPES.POOL]: pools.value,
         };
 
         return values[type.value];

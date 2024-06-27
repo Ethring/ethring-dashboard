@@ -4,10 +4,12 @@ import RequestQueue from '@/core/balance-provider/queue';
 
 import store from '@/app/providers/store.provider';
 
-import { Type } from '@/core/balance-provider/models/enums';
+import { Type, BaseType, POOL_BALANCES_CHAINS } from '@/core/balance-provider/models/enums';
 import { ChainAddresses, BalanceResponse, BalanceType, RecordOptions, ProviderRequestOptions } from '@/core/balance-provider/models/types';
 
 import { storeBalanceForAccount } from '@/core/balance-provider/utils';
+
+import PortalFiApi from '@/modules/portal-fi/api';
 
 export const updateBalanceForAccount = async (account: string, addresses: ChainAddresses, opt: RecordOptions = {}) => {
     const queue = new RequestQueue();
@@ -65,12 +67,25 @@ export const updateBalanceByChain = async (account: string, address: string, cha
 
         if (!balanceForChain) return store.dispatch('tokens/setLoadingByChain', { chain, account, value: false });
 
-        for (const type in Type)
+        for (const type in BaseType)
             await storeBalanceForAccount(type as BalanceType, account, chain, address, balanceForChain[type], { ...opt, store });
+
+        if (POOL_BALANCES_CHAINS.includes(chain)) {
+            const pools = await loadUsersPoolList(chain, address);
+            await storeBalanceForAccount(Type.pools, account, chain, address, pools, { ...opt, store });
+        }
 
         return store.dispatch('tokens/setLoadingByChain', { chain, account, value: false });
     } catch (error) {
         console.error('Error getting balance for chain', chain, error);
         store.dispatch('tokens/setLoadingByChain', { chain, account, value: false });
     }
+};
+
+export const loadUsersPoolList = async (net: string, ownerAddress: string) => {
+    const poolService = new PortalFiApi();
+
+    const response = await poolService.getUserBalancePoolList({ net, ownerAddress });
+
+    return response;
 };
