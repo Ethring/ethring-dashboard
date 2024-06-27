@@ -101,13 +101,13 @@ export default {
 
         targetAccount: (state) => state.targetAccount,
 
+        getPoolsByAccount: (state) => (account) => state.pools[account],
+
         getAccountBalanceByType:
             (state) =>
             (account, type, allBalances = false) => {
                 if (!state[type]) return [];
-                if (type === 'pools') {
-                    console.log(state[type], type, account, '--state[type]');
-                }
+
                 if (!state[type][account] && account !== BUNDLED_ACCOUNT) return [];
 
                 if (account === BUNDLED_ACCOUNT) {

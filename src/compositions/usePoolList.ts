@@ -8,7 +8,7 @@ export default function usePoolList() {
 
     const { walletAccount } = useAdapter();
 
-    const pools = computed(() => store.getters['tokens/getAccountBalanceByType'](walletAccount.value, 'pools') || []);
+    const pools = computed(() => store.getters['tokens/getPoolsByAccount'](walletAccount.value, 'pools') || []);
 
     return pools;
 }

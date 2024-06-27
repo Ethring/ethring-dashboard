@@ -336,7 +336,7 @@ export default function useChainTokenManger(moduleType: ModuleType) {
         if (!isEmpty(newSrc)) {
             selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
 
-            if ([ModuleType.swap].includes(moduleType))
+            if ([ModuleType.swap, ModuleType.shortcut].includes(moduleType))
                 selectedDstToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedDstToken.value, {
                     isSameNet: true,
                     excludeTokens: [selectedSrcToken.value?.id],

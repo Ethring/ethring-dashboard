@@ -3395,7 +3395,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 isShowLayout: true,
                 waitTime: 1,
                 ecosystems: ['EVM'],
-                includeChains: ['arbitrum'],
+                includeChains: ['arbitrum', 'bsc', 'polygon', 'avalanche', 'fantom', 'optimism'],
                 operationParams: {
                     net: 'arbitrum',
                 },

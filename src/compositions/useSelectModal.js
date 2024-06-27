@@ -207,7 +207,7 @@ export default function useSelectModal(type) {
         const values = {
             [TYPES.NETWORK]: chains.value,
             [TYPES.TOKEN]: tokens.value,
-            [TYPES.POOL]: pools.value,
+            [TYPES.POOL]: pools.value[selectedSrcNetwork.value.net],
         };
 
         return values[type.value];
