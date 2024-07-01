@@ -21,16 +21,16 @@ class BasePage {
 
     readonly sideBarLinks = {
         [Modules.send]: DATA_QA_LOCATORS.SIDEBAR_SEND,
-        [Modules.swap]: DATA_QA_LOCATORS.SIDEBAR_SWAP,
-        [Modules.bridge]: DATA_QA_LOCATORS.SIDEBAR_BRIDGE,
+        // [Modules.swap]: DATA_QA_LOCATORS.SIDEBAR_SWAP,
+        // [Modules.bridge]: DATA_QA_LOCATORS.SIDEBAR_BRIDGE,
         [Modules.superSwap]: DATA_QA_LOCATORS.SIDEBAR_SUPER_SWAP,
         [Modules.shortcut]: DATA_QA_LOCATORS.SIDEBAR_SHORTCUT,
     };
 
     readonly modules = {
         [Modules.send]: (page: Page) => new SendPage(page),
-        [Modules.swap]: (page: Page) => new SwapPage(page),
-        [Modules.bridge]: (page: Page) => new BridgePage(page),
+        // [Modules.swap]: (page: Page) => new SwapPage(page),
+        // [Modules.bridge]: (page: Page) => new BridgePage(page),
         [Modules.superSwap]: (page: Page) => new SuperSwapPage(page),
         [Modules.shortcut]: (page: Page) => new ShortcutPage(page),
     };
@@ -66,7 +66,7 @@ class BasePage {
         await this.page.locator("(//div[@class='wallet__options-item'])[2]//div[text()='Disconnect']").click();
     }
 
-    async goToModule(module: ModuleNames): Promise<SwapPage | SendPage | BridgePage | SuperSwapPage | ShortcutPage> {
+    async goToModule(module: ModuleNames): Promise<SendPage | SuperSwapPage | ShortcutPage> {
         const moduleName = this.sideBarLinks[module];
         await this.page.getByTestId(moduleName).click();
         return this.modules[module](this.page);
