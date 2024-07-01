@@ -25,12 +25,11 @@ const closeEmptyPages = async (context: BrowserContext) => {
 
     for (const page of allStartPages) {
         const pageTitle = await page.title();
-        if (!pageTitle) {
+        if (!pageTitle)
             await page.close({
                 reason: 'empty',
                 runBeforeUnload: true,
             });
-        }
     }
 };
 
@@ -102,7 +101,7 @@ export const authMmCoingeckoAndBalanceMock = async (
     context: BrowserContext,
     seed: string,
     address: string,
-    balanceMock: Object = mockBalanceDataBySendTest,
+    balanceMock: object = mockBalanceDataBySendTest,
 ): Promise<DashboardPage> => {
     await addWalletToMm(context, seed);
 
@@ -155,6 +154,34 @@ export const authMmBalanceBySwapAndTokensListMock = async (
     await Promise.all(EVM_NETWORKS.map((network) => zometPage.mockBalanceRequest(network, mockBalanceDataBySwapTest[network], address)));
 
     return __loginByMmAndWaitElement__(context, zometPage);
+};
+
+export const setCustomRpc = async (context: BrowserContext, customRpc: string, networkName: string, indexMmHomePage = 0) => {
+    const metaMaskPage = new MetaMaskHomePage(context.pages()[indexMmHomePage]);
+
+    // add new net
+    await metaMaskPage.gotoSettings();
+    await metaMaskPage.page.locator('.tab-bar__tab__content__title').nth(5).click();
+    await metaMaskPage.page.locator('button.btn-primary').nth(0).click();
+    await metaMaskPage.page.locator(`(//h6[text()='${networkName}']/../../../div[@class])[2]`).click();
+    await metaMaskPage.page.locator("//button[@data-testid='confirmation-submit-button']").click();
+
+    await metaMaskPage.page.locator('//button/h6').nth(1).click();
+
+    // change rpc
+    await metaMaskPage.gotoSettings();
+    await metaMaskPage.page.locator('.tab-bar__tab__content__title').nth(5).click();
+    await metaMaskPage.page.getByText(networkName).click();
+    await metaMaskPage.page.locator('//input[@data-testid="network-form-rpc-url"]').fill('https://evm-fake-node.3ahtim54r.ru/');
+    await metaMaskPage.page.locator('button.button').nth(3).click();
+};
+
+export const setNetworkInMm = async (context: BrowserContext, networkName: string, indexMmHomePage = 0) => {
+    const metaMaskPage = new MetaMaskHomePage(context.pages()[indexMmHomePage]);
+    await metaMaskPage.gotoSettings();
+
+    await metaMaskPage.page.locator('//button[@data-testid="network-display"]').click();
+    await metaMaskPage.page.locator(`//div[@data-testid='${networkName}']`).click();
 };
 
 //======================================= KEPLR STUFF =======================================
@@ -232,7 +259,7 @@ export const authByKeplerAndMmBalanceMock = async (
     context: BrowserContext,
     ethAddress: string,
     ethSeed: string,
-    cosmosAddressesDict: Object,
+    cosmosAddressesDict: object,
     cosmosSeed: string,
 ) => {
     await addWalletToKeplr(context, cosmosSeed);

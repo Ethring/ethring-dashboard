@@ -206,6 +206,12 @@ class BasePage {
             body.expectedDataHttp = httpData;
             body.expectedDataWs = wsData;
 
+            // Set to expected data hash fake transaction from MM
+            if (body.transaction?.hasOwnProperty('txHash') && body.transaction.txHash !== null) {
+                body.expectedDataHttp.data.txHash = body.transaction.txHash;
+                body.expectedDataWs.txHash = body.transaction.txHash;
+            }
+
             const override = { postData: JSON.stringify(body) };
             route.continue(override);
         } else {
@@ -278,6 +284,31 @@ class BasePage {
         await expect(txNotification).toHaveCount(expectNotifyCount);
         await expect(txNotificationTitle).toHaveText(expectedNotificationTitle);
         await expect(txNotificationDesc).toHaveText(expectedNotificationDescription);
+    }
+
+    async waitEventInSocket(waitedEventName: string) {
+        return new Promise<void>((resolve, reject) => {
+            const timeout = setTimeout(() => reject(new Error('Event not received within timeout')), 180000);
+
+            this.page.on('websocket', (ws) => {
+                ws.on('framereceived', (event) => {
+                    try {
+                        const data: string = event.payload;
+                        if (data === '2') return;
+
+                        const responseEventName = JSON.parse(data.substring(2))[0];
+
+                        console.log('>>>', data);
+                        if (waitedEventName === responseEventName) {
+                            clearTimeout(timeout);
+                            resolve();
+                        }
+                    } catch (error) {
+                        console.error('Error parsing WebSocket message:', error);
+                    }
+                });
+            });
+        });
     }
 }
 

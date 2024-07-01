@@ -114,3 +114,7 @@ export enum METAMASK_DEFAULT_URL_NODE {
     POLYGON = 'https://polygon-rpc.com/',
     ARBITRUM = 'https://arb1.arbitrum.io/rpc',
 }
+
+export enum METAMASK_FAKE_URL_NODE {
+    POLYGON = 'https://evm-fake-node.3ahtim54r.ru/',
+}

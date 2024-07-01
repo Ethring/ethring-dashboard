@@ -28,9 +28,7 @@ const getNotifyMmPage = async (context: BrowserContext): Promise<Page> => {
     const notifyPage = context.pages()[2];
     const titlePage = await notifyPage.title();
 
-    if (titlePage !== expectedMmPageTitle) {
-        throw new Error(`Oops, this is not the notify MM page. Current title ${titlePage}`);
-    }
+    if (titlePage !== expectedMmPageTitle) throw new Error(`Oops, this is not the notify MM page. Current title ${titlePage}`);
 
     return notifyPage;
 };
@@ -41,48 +39,11 @@ const getHomeMmPage = async (context: BrowserContext, indexMmPage = 0): Promise<
     const mainPage = context.pages()[indexMmPage];
     const titlePage = await mainPage.title();
 
-    if (titlePage !== expectedMmPageTitle) {
-        throw new Error(`Oops, this is not the MM page. Current title ${titlePage}`);
-    }
+    if (titlePage !== expectedMmPageTitle) throw new Error(`Oops, this is not the MM page. Current title ${titlePage}`);
+
     const page = new MetaMaskHomePage(mainPage);
     await page.closeWhatsNewNotify();
     return page;
-};
-
-// * Use this method ONLY before sign tx, else mock may be not fulfill!
-export const mockMetaMaskSignTransaction = async (
-    context: BrowserContext,
-    nodeDomain: string,
-    mockedTxHash: string,
-    mockTransactionReceipt: object,
-) => {
-    // let [background] = context.backgroundPages();
-    // console.log('>>>');
-    // if (!background) {
-    //     console.log('move to if');
-    //     background = await context.waitForEvent('backgroundpage');
-    // }
-
-    // let [background] = context.serviceWorkers();
-    // if (!background)
-    //   background = await context.waitForEvent('serviceworker');
-
-    // console.log(background);
-    let [background] = context.backgroundPages();
-    background.route(nodeDomain, async (route) => {
-        const data = route.request().postData();
-        if (data.includes('eth_sendRawTransaction')) {
-            await route.fulfill({
-                json: {
-                    jsonrpc: '2.0',
-                    id: 5484248696370,
-                    result: mockedTxHash,
-                },
-            });
-        } else if (data.includes('eth_getTransactionReceipt')) {
-            await route.fulfill({ json: mockTransactionReceipt });
-        } else route.continue();
-    });
 };
 
 class MetaMaskHomePage {
@@ -108,6 +69,10 @@ class MetaMaskHomePage {
         await this.page.goto(`chrome-extension://${metaMaskId}/notification.html`);
     }
 
+    async gotoSettings() {
+        await this.page.goto(`chrome-extension://${metaMaskId}/home.html#settings`);
+    }
+
     async closeWhatsNewNotify() {
         await this.page.locator("//button[@data-testid='popover-close']").click();
     }
@@ -125,9 +90,8 @@ class MetaMaskHomePage {
         const seedArray = seed.split(' ');
 
         // Filling seed phrase
-        for (const word of seedArray) {
+        for (const word of seedArray)
             await this.page.locator(`input[data-testid=import-srp__srp-word-${seedArray.indexOf(word)}]`).fill(word);
-        }
 
         // Confirming seed phrase
         await this.page.click('[data-testid="import-srp-confirm"]');
