@@ -49,49 +49,49 @@ export const routes = [
             ],
         },
     },
-    {
-        path: '/bridge',
-        name: 'Zomet - Bridge',
-        meta: {
-            isAuth: true,
-            key: ModuleType.bridge,
-        },
-        component: () => import('@/layouts/ModulesLayout.vue'),
-        props: {
-            component: 'SimpleBridge',
-            tabs: [
-                {
-                    title: 'simpleSend.title',
-                    active: false,
-                    to: '/send',
-                },
-                {
-                    title: 'simpleBridge.title',
-                    active: true,
-                    to: '/bridge',
-                },
-            ],
-        },
-    },
-    {
-        path: '/swap',
-        name: 'Zomet - Swap',
-        meta: {
-            isAuth: true,
-            key: ModuleType.swap,
-        },
-        component: () => import('@/layouts/ModulesLayout.vue'),
-        props: {
-            component: 'SimpleSwap',
-            tabs: [
-                {
-                    title: 'simpleSwap.title',
-                    active: true,
-                    to: '/swap',
-                },
-            ],
-        },
-    },
+    // {
+    //     path: '/bridge',
+    //     name: 'Zomet - Bridge',
+    //     meta: {
+    //         isAuth: true,
+    //         key: ModuleType.bridge,
+    //     },
+    //     component: () => import('@/layouts/ModulesLayout.vue'),
+    //     props: {
+    //         component: 'SimpleBridge',
+    //         tabs: [
+    //             {
+    //                 title: 'simpleSend.title',
+    //                 active: false,
+    //                 to: '/send',
+    //             },
+    //             {
+    //                 title: 'simpleBridge.title',
+    //                 active: true,
+    //                 to: '/bridge',
+    //             },
+    //         ],
+    //     },
+    // },
+    // {
+    //     path: '/swap',
+    //     name: 'Zomet - Swap',
+    //     meta: {
+    //         isAuth: true,
+    //         key: ModuleType.swap,
+    //     },
+    //     component: () => import('@/layouts/ModulesLayout.vue'),
+    //     props: {
+    //         component: 'SimpleSwap',
+    //         tabs: [
+    //             {
+    //                 title: 'simpleSwap.title',
+    //                 active: true,
+    //                 to: '/swap',
+    //             },
+    //         ],
+    //     },
+    // },
     {
         path: '/super-swap',
         name: 'Zomet - Super Swap',
