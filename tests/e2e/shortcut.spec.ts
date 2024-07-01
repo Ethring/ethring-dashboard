@@ -1,11 +1,8 @@
-import { METAMASK_DEFAULT_URL_NODE } from 'tests/data/constants';
 import { testMetaMask, testMetaMaskAndKeplr } from '../__fixtures__/fixtures';
 import {
     estimateBscOsmoMock,
     estimateCosmoStargazeMock,
     estimateOsmoCosmosMock,
-    estimateArbitrumMock,
-    MOCK_EVM_TX_HASH,
     mockPostTransactionsRouteEvm,
     mockPostTransactionsWsByCreateEventEvm,
     mockPutTransactionsShortcutBscOsmoRouteMockTx,
@@ -22,10 +19,8 @@ import {
 //     mockPutTransactionsWsByUpdateTransactionEventInProgressShortcutPendleBeefyTx,
 // } from '../data/mockDataByTests/ShortcutPendleBeefy';
 
-import { MetaMaskNotifyPage, getNotifyMmPage, mockMetaMaskSignTransaction } from 'tests/model/MetaMask/MetaMask.pages';
+import { MetaMaskNotifyPage, getNotifyMmPage } from '../model/MetaMask/MetaMask.pages';
 import util from 'util';
-import { expect } from '@playwright/test';
-const sleep = util.promisify(setTimeout);
 
 testMetaMaskAndKeplr.skip('Case#: Shortcut transfer and stake', async ({ context, shortcutPage }) => {
     const expectedNotificationTitle = 'BRIDGE 0.002 BNB';
@@ -56,8 +51,6 @@ testMetaMaskAndKeplr.skip('Case#: Shortcut transfer and stake', async ({ context
 
     const notifyMmAddNetwork = new MetaMaskNotifyPage(await getNotifyMmPage(context));
     await notifyMmAddNetwork.changeNetwork();
-
-    await mockMetaMaskSignTransaction(context, METAMASK_DEFAULT_URL_NODE.BSC, MOCK_EVM_TX_HASH, mockTxReceipt);
 
     const notifyMmTx = new MetaMaskNotifyPage(await getNotifyMmPage(context));
     await notifyMmTx.signTx();
@@ -91,8 +84,6 @@ testMetaMaskAndKeplr.skip('Case#: Shortcut transfer and stake', async ({ context
 
 //     const notifyMmAddNetwork = new MetaMaskNotifyPage(await getNotifyMmPage(context));
 //     await notifyMmAddNetwork.changeNetwork();
-
-//     await mockMetaMaskSignTransaction(context, METAMASK_DEFAULT_URL_NODE.ARBITRUM, MOCK_ARBITRUM_TX_HASH, mockTxReceiptPendleStep1);
 
 //     const notifyMmTxSwap = new MetaMaskNotifyPage(await getNotifyMmPage(context));
 //     //   await notifyMmTxSwap.signTx();
