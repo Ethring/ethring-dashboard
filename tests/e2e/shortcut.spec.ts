@@ -7,7 +7,6 @@ import {
     mockPostTransactionsWsByCreateEventEvm,
     mockPutTransactionsShortcutBscOsmoRouteMockTx,
     mockPutTransactionsWsByUpdateTransactionEventInProgressShortcutBscOsmoMockTx,
-    mockTxReceipt,
 } from '../data/mockDataByTests/ShortcutTransferAndStakeMock';
 
 // import {
