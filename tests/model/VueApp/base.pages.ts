@@ -66,6 +66,11 @@ class BasePage {
         await this.page.locator("(//div[@class='wallet__options-item'])[2]//div[text()='Disconnect']").click();
     }
 
+    async disconnectAllWallets() {
+        await this.page.locator('div.wallet-adapter-container').click();
+        await this.page.locator('div.disconnect-all').first().click();
+    }
+
     async goToModule(module: ModuleNames): Promise<SendPage | SuperSwapPage | ShortcutPage> {
         const moduleName = this.sideBarLinks[module];
         await this.page.getByTestId(moduleName).click();
@@ -265,7 +270,6 @@ class BasePage {
      */
     async getPayloadOfPostSwapTxRequest() {
         return await this.page.route(/\/getSwapTx$/, (route) => {
-            console.log(route.request().postData(), '---route.request().postData();');
             return route.request().postData();
         });
     }
