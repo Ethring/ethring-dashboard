@@ -119,6 +119,7 @@ const formatPool = (type: BalanceType, record: PoolBalance, opt: RecordOptions =
 
     record.id = `${record.chain}:${type}__${record?.address}:${record?.symbol}`;
     record.balanceUsd = record.balanceUSD;
+    record.net = record.network;
 
     if (record.images.length) record.logo = record.images[0];
 

@@ -31,7 +31,7 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
         this.approveService = new ApproveLpOperation();
     }
 
-    async performTx(store: Storage) {
+    async performTx() {
         const amount = this.getParamByField('amount');
         if (!amount) {
             console.warn('Amount is required');
@@ -39,7 +39,7 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
         }
 
         try {
-            const { net, ownerAddresses = {}, slippageTolerance } = this.params as any;
+            const { net, ownerAddresses = {}, slippageTolerance, slippage } = this.params as any;
 
             const { from } = this.getTokens();
 
@@ -47,7 +47,7 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
                 net,
                 poolID: from?.address,
                 amount: formatNumber(amount, from?.decimals),
-                slippageTolerance,
+                slippageTolerance: slippage || slippageTolerance,
                 tokenAddress: this.tokenAddress,
                 ownerAddress: ownerAddresses[net],
             };
@@ -88,7 +88,7 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
         }
 
         try {
-            const { net, slippageTolerance, ownerAddresses } = this.params as any;
+            const { net, ownerAddresses, slippageTolerance, slippage } = this.params as any;
 
             const srcToken = store.getters['tokenOps/srcToken'];
             const dstToken = store.getters['tokenOps/dstToken'];
@@ -115,7 +115,7 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
                 net,
                 poolID: from?.address,
                 amount: formatNumber(amount, tokenOut.decimals),
-                slippageTolerance,
+                slippageTolerance: slippage || slippageTolerance,
                 tokenAddress: this.tokenAddress,
             };
 

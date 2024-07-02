@@ -113,6 +113,11 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     // * Config loading state from the store
     const isConfigLoading = computed(() => store.getters['configs/isConfigLoading']);
 
+    const slippage = computed({
+        get: () => store.getters['tokenOps/slippage'],
+        set: (value) => store.dispatch('tokenOps/setSlippage', value),
+    });
+
     // ****************************************************************************************************
     // * Current shortcut properties
     // ****************************************************************************************************
@@ -226,6 +231,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             ...operationParams,
             ownerAddresses: addressesByChain.value,
             serviceId,
+            slippage,
         });
 
         await performFields(moduleType, params, {

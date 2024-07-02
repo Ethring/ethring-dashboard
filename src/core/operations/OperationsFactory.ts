@@ -307,8 +307,6 @@ export default class OperationFactory implements IOperationFactory {
 
             const depValue = dependOperation.getParamByField(dependencyParamKey);
 
-            if (dependencyParamKey === 'slippageTolerance') return operation.setParamByField(paramKey, store.getters['tokenOps/slippage']);
-
             if (!isAmountCorrect(depValue)) return;
 
             if (usePercentage) {
