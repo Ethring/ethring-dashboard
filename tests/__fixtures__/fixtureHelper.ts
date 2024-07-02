@@ -160,7 +160,6 @@ export const setCustomRpc = async (context: BrowserContext, customRpc: string, n
     const metaMaskPage = new MetaMaskHomePage(context.pages()[indexMmHomePage]);
 
     // add new net
-    console.log('>>>', metaMaskPage.page.url());
     await metaMaskPage.gotoSettings();
     await metaMaskPage.page.locator('.tab-bar__tab__content__title').nth(5).click();
     await metaMaskPage.page.locator('button.btn-primary').nth(0).click();
