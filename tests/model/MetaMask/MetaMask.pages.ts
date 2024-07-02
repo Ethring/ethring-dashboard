@@ -5,7 +5,6 @@ import util from 'util';
 
 const sleep = util.promisify(setTimeout);
 
-const metaMaskId = getTestVar(TEST_CONST.MM_ID);
 const metamaskVersion = getTestVar(TEST_CONST.MM_VERSION);
 const password = getTestVar(TEST_CONST.PASS_BY_MM_WALLET);
 
@@ -48,29 +47,39 @@ const getHomeMmPage = async (context: BrowserContext, indexMmPage = 0): Promise<
 
 class MetaMaskHomePage {
     readonly page: Page;
+    mm_home_url: string;
 
     constructor(page: Page) {
         this.page = page;
+        this.mm_home_url = this.getExtensionId(this.page.url());
+    }
+
+    getExtensionId(url: string) {
+        const urlObj = new URL(url);
+        const pathname = urlObj.pathname;
+        const extensionId = pathname.match(/chrome-extension:\/\/(.*)\//)[1];
+        console.log('ex id >>>', extensionId);
+        return extensionId;
     }
 
     async goto() {
-        await this.page.goto(`chrome-extension://${metaMaskId}/home.html`);
+        await this.page.goto(`chrome-extension://${this.mm_home_url}/home.html`);
     }
 
     async goToWelcome() {
-        await this.page.goto(`chrome-extension://${metaMaskId}/home.html#onboarding/welcome`);
+        await this.page.goto(`chrome-extension://${this.mm_home_url}/home.html#onboarding/welcome`);
     }
 
     async gotoSignPage() {
-        await this.page.goto(`chrome-extension://${metaMaskId}/home.html#confirm-transaction/`);
+        await this.page.goto(`chrome-extension://${this.mm_home_url}/home.html#confirm-transaction/`);
     }
 
     async gotoNotificationPage() {
-        await this.page.goto(`chrome-extension://${metaMaskId}/notification.html`);
+        await this.page.goto(`chrome-extension://${this.mm_home_url}/notification.html`);
     }
 
     async gotoSettings() {
-        await this.page.goto(`chrome-extension://${metaMaskId}/home.html#settings`);
+        await this.page.goto(`chrome-extension://${this.mm_home_url}/home.html#settings`);
     }
 
     async closeWhatsNewNotify() {
