@@ -163,7 +163,7 @@ export const setCustomRpc = async (context: BrowserContext, fakeRpcUrl: string, 
     await metaMaskPage.gotoSettings();
     await metaMaskPage.page.locator('.tab-bar__tab__content__title').nth(5).click();
     await metaMaskPage.page.locator('button.btn-primary').nth(0).click();
-    await metaMaskPage.page.locator(`(//h6[text()='${networkName}']/../../../div[@class])[2]`).click();
+    await metaMaskPage.page.locator(`(//h6[text()='${networkName}']/../../../div/button]`).click();
     await metaMaskPage.page.locator("//button[@data-testid='confirmation-submit-button']").click();
 
     await metaMaskPage.page.locator('//button/h6').nth(1).click();

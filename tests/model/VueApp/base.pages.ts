@@ -293,8 +293,9 @@ class BasePage {
             this.page.on('websocket', (ws) => {
                 ws.on('framereceived', (event) => {
                     try {
-                        const data: string = event.payload;
-                        if (data === '2') return;
+                        const data: string | Buffer = event.payload;
+                        if (typeof data !== 'string' || data === '2' || data === '0' || data === '40' || data === '{"type":"connected"}')
+                            return;
 
                         console.log('>>>', data);
                         const responseEventName = JSON.parse(data.substring(2))[0];
