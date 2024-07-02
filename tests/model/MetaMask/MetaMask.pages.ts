@@ -56,8 +56,7 @@ class MetaMaskHomePage {
 
     getExtensionId(url: string) {
         const urlObj = new URL(url);
-        const pathname = urlObj.pathname;
-        const extensionId = pathname.match(/chrome-extension:\/\/(.*)\//)[1];
+        const extensionId = urlObj.host;
         console.log('ex id >>>', extensionId);
         return extensionId;
     }
