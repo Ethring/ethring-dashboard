@@ -1,9 +1,10 @@
 import { TEST_CONST, getTestVar } from '../../envHelper';
-import { mockAddressTo, txHashFromProxyMock } from './constantsMockTxManager';
+import { mockAddressTo } from './constantsMockTxManager';
 
 const ETH_ADDRESS_FROM = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
 const MOCK_TX_ID = '4765';
 const MOCK_REQUEST_ID = 'f6f79e56-2e04-41b1-a69d-4aaa9606d56a';
+const txHashFromProxyMock = '0xd9193bc27c644e2c0db7353daabe4b268b7ba10c707f80de166d55852884a368';
 
 const mockPostTransactionsRouteSendMockTx = {
     ok: true,
@@ -49,7 +50,7 @@ const mockPutTransactionsRouteSendMockTx = {
         id: MOCK_TX_ID,
         requestID: MOCK_REQUEST_ID,
         index: '0',
-        txHash: txHashFromProxyMock,
+        txHash: null,
         ecosystem: 'EVM',
         module: 'send',
         status: 'IN PROGRESS',

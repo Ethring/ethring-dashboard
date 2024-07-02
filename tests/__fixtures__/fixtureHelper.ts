@@ -156,7 +156,7 @@ export const authMmBalanceBySwapAndTokensListMock = async (
     return __loginByMmAndWaitElement__(context, zometPage);
 };
 
-export const setCustomRpc = async (context: BrowserContext, customRpc: string, networkName: string, indexMmHomePage = 0) => {
+export const setCustomRpc = async (context: BrowserContext, fakeRpcUrl: string, networkName: string, indexMmHomePage = 0) => {
     const metaMaskPage = new MetaMaskHomePage(context.pages()[indexMmHomePage]);
 
     // add new net
@@ -172,7 +172,7 @@ export const setCustomRpc = async (context: BrowserContext, customRpc: string, n
     await metaMaskPage.gotoSettings();
     await metaMaskPage.page.locator('.tab-bar__tab__content__title').nth(5).click();
     await metaMaskPage.page.getByText(networkName).click();
-    await metaMaskPage.page.locator('//input[@data-testid="network-form-rpc-url"]').fill('https://evm-fake-node.3ahtim54r.ru/');
+    await metaMaskPage.page.locator('//input[@data-testid="network-form-rpc-url"]').fill(fakeRpcUrl);
     await metaMaskPage.page.locator('button.button').nth(3).click();
 };
 

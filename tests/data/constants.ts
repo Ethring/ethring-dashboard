@@ -116,5 +116,7 @@ export enum METAMASK_DEFAULT_URL_NODE {
 }
 
 export enum METAMASK_FAKE_URL_NODE {
-    POLYGON = 'https://evm-fake-node.3ahtim54r.ru/',
+    POLYGON = 'https://evm-fake-node.3ahtim54r.ru/polygon',
+    BSC = 'https://evm-fake-node.3ahtim54r.ru/bsc',
+    ARBITRUM = 'https://evm-fake-node.3ahtim54r.ru/arbitrum',
 }
