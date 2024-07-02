@@ -294,7 +294,13 @@ class BasePage {
                 ws.on('framereceived', (event) => {
                     try {
                         const data: string | Buffer = event.payload;
-                        if (typeof data !== 'string' || data === '2' || data === '0' || data === '40' || data === '{"type":"connected"}')
+                        if (
+                            typeof data !== 'string' ||
+                            data[0] === '0' ||
+                            data[0] === '2' ||
+                            data[0] === '4' ||
+                            data === '{"type":"connected"}'
+                        )
                             return;
 
                         console.log('>>>', data);

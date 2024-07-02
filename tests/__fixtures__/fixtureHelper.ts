@@ -161,6 +161,7 @@ export const setCustomRpc = async (context: BrowserContext, fakeRpcUrl: string, 
 
     // add new net
     await metaMaskPage.gotoSettings();
+    // await metaMaskPage.addNetwork(networkName);
     await metaMaskPage.page.locator('.tab-bar__tab__content__title').nth(5).click();
     await metaMaskPage.page.locator('button.btn-primary').nth(0).click();
     await metaMaskPage.page.locator(`//h6[text()='${networkName}']/../../../div/button`).click();
