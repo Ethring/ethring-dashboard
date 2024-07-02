@@ -296,9 +296,9 @@ class BasePage {
                         const data: string = event.payload;
                         if (data === '2') return;
 
+                        console.log('>>>', data);
                         const responseEventName = JSON.parse(data.substring(2))[0];
 
-                        console.log('>>>', data);
                         if (waitedEventName === responseEventName) {
                             clearTimeout(timeout);
                             resolve();

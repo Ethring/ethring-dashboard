@@ -13,7 +13,7 @@ import { MetaMaskNotifyPage, getNotifyMmPage } from '../model/MetaMask/MetaMask.
 testMetaMaskAndKeplr('Case#: Shortcut transfer and stake', async ({ context, shortcutPage }) => {
     const expectedNotificationTitle = 'BRIDGE 0.002 BNB';
     const expectedNotificationDesc = 'For 1.186137 OSMO';
-    const networkNameInMM = 'Binance Smart Chain Mainnet';
+    const networkNameInMM = 'BNB Chain';
 
     // const mockGetQuote = {
     //     '"fromToken":"0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee","toToken":"uosmo"': estimateBscOsmoMock,
