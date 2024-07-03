@@ -111,6 +111,7 @@ class BridgeDexService<T extends ServiceType> implements IBridgeDexService {
     }
 
     async callMethod(method: string, params: any): Promise<IBridgeDexTransaction[] | IQuoteRoutes> {
+        // @ts-expect-error-next-line
         if (!this[method as any]) throw new Error(`Method ${method} not found`);
         if (!params) throw new Error('Params are required');
 
@@ -118,6 +119,7 @@ class BridgeDexService<T extends ServiceType> implements IBridgeDexService {
             if (method === 'getQuote' || method === 'getQuoteSuperSwap')
                 return (await this[method](params, { withServiceId: true })) as IQuoteRoutes;
 
+            // @ts-expect-error-next-line
             return (await this[method](params)) as IBridgeDexTransaction[];
         } catch (error) {
             logger.error('(MODULE) -> [BRIDGE_DEX_SERVICE] Error calling method', error);

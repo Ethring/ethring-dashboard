@@ -405,8 +405,16 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                     const params = token;
 
                     amount && (params.amount = amount);
-                    operationsFactory.value?.getOperationById(targetOpId)?.setToken(target, params);
+
+                    const fromToToken = operationsFactory.value?.getOperationById(targetOpId)?.getToken(target);
                     isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value: params }));
+
+                    // * If the token is already set, no need to set it again
+                    if (fromToToken && fromToToken?.id) break;
+
+                    // * If the token is not set, set it
+                    if (!fromToToken) operationsFactory.value?.getOperationById(targetOpId)?.setToken(target, params);
+
                     break;
                 case 'receiverAddress':
                     operationsFactory.value?.getOperationById(targetOpId)?.setParamByField('receiverAddress', address);
@@ -451,11 +459,6 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     };
 
     const callEstimate = async (from: string = 'default') => {
-        console.log('CALLING_ESTIMATE', from, {
-            isQuoteLoading: isQuoteLoading.value,
-            isTransactionSigning: isTransactionSigning.value,
-        });
-
         if (isQuoteLoading.value || isTransactionSigning.value) return;
 
         const isMinAmountAccepted = checkMinAmount();
@@ -867,14 +870,29 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             if (oldDstNet?.net !== dstNetwork?.net && dstNetwork?.net !== null && dstNetwork?.net !== undefined)
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('toNet', dstNetwork.net);
 
+            const fromToken = operationsFactory.value.getOperationById(currentOp.value.id)?.getToken('from');
+            const toToken = operationsFactory.value.getOperationById(currentOp.value.id)?.getToken('to');
+
             // * Set the srcToken in the operation if the srcToken is exist and not equal to the oldSrcToken
-            if (oldSrcToken?.id !== srcToken?.id && srcToken?.id !== null && srcToken?.id !== undefined && !CurrentShortcut.isComingSoon) {
+            if (
+                oldSrcToken?.id !== srcToken?.id &&
+                srcToken?.id !== null &&
+                srcToken?.id !== undefined &&
+                !CurrentShortcut.isComingSoon &&
+                fromToken?.id !== srcToken?.id
+            ) {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('fromToken', srcToken.address);
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setToken('from', srcToken);
             }
 
             // * Set the dstToken in the operation if the dstToken is exist and not equal to the oldDstToken
-            if (oldDstToken?.id !== dstToken?.id && dstToken?.id !== null && dstToken?.id !== undefined && !CurrentShortcut.isComingSoon) {
+            if (
+                oldDstToken?.id !== dstToken?.id &&
+                dstToken?.id !== null &&
+                dstToken?.id !== undefined &&
+                !CurrentShortcut.isComingSoon &&
+                toToken?.id !== dstToken?.id
+            ) {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('toToken', dstToken.address);
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setToken('to', dstToken);
             }
@@ -920,7 +938,10 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                 return;
             }
 
-            if (currentOp.value?.id && srcToken?.id && !CurrentShortcut.isComingSoon) {
+            const fromToken = operationsFactory.value.getOperationById(currentOp.value.id)?.getToken('from');
+            const toToken = operationsFactory.value.getOperationById(currentOp.value.id)?.getToken('to');
+
+            if (currentOp.value?.id && srcToken?.id && !CurrentShortcut.isComingSoon && fromToken?.id !== srcToken?.id) {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('fromToken', srcToken.address);
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setToken('from', srcToken);
             }
@@ -930,7 +951,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                 return;
             }
 
-            if (currentOp.value?.id && dstToken?.id && !CurrentShortcut.isComingSoon) {
+            if (currentOp.value?.id && dstToken?.id && !CurrentShortcut.isComingSoon && toToken?.id !== dstToken?.id) {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('toToken', dstToken.address);
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setToken('to', dstToken);
             }
