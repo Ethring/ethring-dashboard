@@ -1314,6 +1314,65 @@ const estimateMockDataByUnAuthUser = {
     ],
 };
 
+const mockPoolBalanceDataArbitrum = {
+    ok: true,
+    data: [
+        {
+            name: 'Balancer wstETH-WETH Stable Pool',
+            decimals: 18,
+            symbol: 'wstETH-WETH-BPT',
+            price: 3399.2582308574347,
+            address: '0x9791d590788598535278552eecd4b211bfc790cb',
+            addresses: {
+                arbitrum: '0x9791d590788598535278552eecd4b211bfc790cb',
+            },
+            platform: 'balancerv2boosted',
+            network: 'arbitrum',
+            images: [
+                'https://assets.coingecko.com/coins/images/11683/large/Balancer.png?',
+                'https://assets.coingecko.com/coins/images/18834/large/wstETH.png?1696518295',
+                'https://assets.coingecko.com/coins/images/2518/large/weth.png?1696503332',
+            ],
+            tokens: ['0x5979d7b546e38e414f7e9822514be443a4800529', '0x82af49447d8a07e3bd95bd0d56f35241523fbab1'],
+            liquidity: 5698202.093997147,
+            metrics: {
+                apy: '0.002',
+                volumeUsd1d: '3122818.9355621996442758072740507',
+                volumeUsd7d: '24065875.8587800376645501394517849',
+            },
+            metadata: {
+                tags: ['#pool'],
+            },
+            totalSupply: '1676.3075079941257',
+            reserves: ['9.49e-16', '5.88e-16'],
+            balanceUSD: 10,
+            balance: 0.00294848849008212,
+        },
+    ],
+    error: '',
+};
+
+const estimateRemoveLpMockData = {
+    ok: true,
+    data: {
+        outputAmount: '1012591056390839',
+        minOutputAmount: '1002465145826931',
+        outputToken: '0x0000000000000000000000000000000000000000',
+        outputTokenDecimals: 18,
+        context: {
+            slippageTolerancePercentage: 1,
+            inputAmount: '1000000000000000',
+            inputAmountUsd: 3.4068322314952866,
+            inputToken: 'arbitrum:0x9791d590788598535278552eecd4b211bfc790cb',
+            outputToken: 'arbitrum:0x0000000000000000000000000000000000000000',
+            outputAmount: '1012591056390839',
+            outputAmountUsd: 3.406832231495286,
+            minOutputAmountUsd: 3.372763909180334,
+        },
+    },
+    error: '',
+};
+
 export {
     mockBalanceData,
     marketCapMockData,
@@ -1326,4 +1385,6 @@ export {
     mockBalanceCosmosWallet,
     estimateSwapMockData,
     estimateMockDataByUnAuthUser,
+    mockPoolBalanceDataArbitrum,
+    estimateRemoveLpMockData,
 };

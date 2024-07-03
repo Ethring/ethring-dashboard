@@ -1,10 +1,12 @@
-import { METAMASK_DEFAULT_URL_NODE } from 'tests/data/constants';
-import { testMetaMask, testMetaMaskAndKeplr } from '../__fixtures__/fixtures';
+import { expect } from '@playwright/test';
+import util from 'util';
+
+import { METAMASK_DEFAULT_URL_NODE, DATA_QA_LOCATORS } from 'tests/data/constants';
+import { testMetaMaskAndKeplr, testMetaMask } from '../__fixtures__/fixtures';
 import {
     estimateBscOsmoMock,
     estimateCosmoStargazeMock,
     estimateOsmoCosmosMock,
-    estimateArbitrumMock,
     MOCK_EVM_TX_HASH,
     mockPostTransactionsRouteEvm,
     mockPostTransactionsWsByCreateEventEvm,
@@ -13,18 +15,11 @@ import {
     mockTxReceipt,
 } from '../data/mockDataByTests/ShortcutTransferAndStakeMock';
 
-// import {
-//     MOCK_ARBITRUM_TX_HASH,
-//     mockTxReceiptPendleStep1,
-//     mockPostTransactionsWsByCreateEventArbitrum,
-//     mockPostTransactionsRouteArbitrum,
-//     mockPutTransactionsShortcutPendleBeefy,
-//     mockPutTransactionsWsByUpdateTransactionEventInProgressShortcutPendleBeefyTx,
-// } from '../data/mockDataByTests/ShortcutPendleBeefy';
-
 import { MetaMaskNotifyPage, getNotifyMmPage, mockMetaMaskSignTransaction } from 'tests/model/MetaMask/MetaMask.pages';
-import util from 'util';
-import { expect } from '@playwright/test';
+import { FIVE_SECONDS, ONE_SECOND } from '../__fixtures__/fixtureHelper';
+import { TEST_CONST, getTestVar } from '../envHelper';
+import { mockPoolBalanceDataArbitrum, estimateRemoveLpMockData } from '../data/mockHelper';
+
 const sleep = util.promisify(setTimeout);
 
 testMetaMaskAndKeplr.skip('Case#: Shortcut transfer and stake', async ({ context, shortcutPage }) => {
@@ -66,41 +61,55 @@ testMetaMaskAndKeplr.skip('Case#: Shortcut transfer and stake', async ({ context
     // TODO this assert work with wait notification
 });
 
-// testMetaMask.skip('Case#: Shortcut Pendle - Beefy', async ({ context, shortcutPage }) => {
-//     const mockGetQuote = {
-//         '"fromToken":"0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee","toToken":"0x2416092f143378750bb29b79ed961ab195cceea5"':
-//             estimateArbitrumMock,
-//     };
+testMetaMaskAndKeplr('Case#: Shortcut disconnect wallet', async ({ context, shortcutPage }) => {
+    await shortcutPage.clickFirstShortcut();
 
-//     await shortcutPage.clickShortcutById('SC-pendle-beefy');
+    await sleep(FIVE_SECONDS);
 
-//     await shortcutPage.mockEstimateDexRequestByRequestDataMatcher(mockGetQuote);
+    await shortcutPage.disconnectAllWallets();
 
-//     await shortcutPage.setAmount('0.00051');
+    const currentShortcutTitle = await shortcutPage.page.locator(`//div[@class='shortcut-details']//div[@class='title']`).textContent();
 
-//     await shortcutPage.modifyDataByPostTxRequest(mockPostTransactionsRouteArbitrum, mockPostTransactionsWsByCreateEventArbitrum);
+    expect(currentShortcutTitle).toBe('Stake $ATOM with Citadel.one');
+});
 
-//     await shortcutPage.modifyDataByGetTxRequest(mockPostTransactionsRouteArbitrum);
+testMetaMask('Case#: Shortcut remove liquidity from pool', async ({ context, shortcutPage }) => {
+    const NET = 'arbitrum';
+    const ADDRESS = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
+    const RemoveLiquidityPoolID = 'SC-remove-liquidity-pool';
+    const WAITED_BALANCE_URL = `**/srv-portal-fi-add-portal-fi/api/getUserBalancePoolList?net=${NET}**`;
+    const AMOUNT = '0.001';
 
-//     await shortcutPage.modifyDataByPutTxRequest(
-//         mockPutTransactionsShortcutPendleBeefy,
-//         mockPutTransactionsWsByUpdateTransactionEventInProgressShortcutPendleBeefyTx,
-//     );
+    await shortcutPage.mockPoolBalanceRequest(NET, mockPoolBalanceDataArbitrum, ADDRESS);
+    const balancePromise = shortcutPage.page.waitForResponse(WAITED_BALANCE_URL);
 
-//     await shortcutPage.clickConfirm();
+    await balancePromise;
 
-//     const notifyMmAddNetwork = new MetaMaskNotifyPage(await getNotifyMmPage(context));
-//     await notifyMmAddNetwork.changeNetwork();
+    await sleep(FIVE_SECONDS);
 
-//     await mockMetaMaskSignTransaction(context, METAMASK_DEFAULT_URL_NODE.ARBITRUM, MOCK_ARBITRUM_TX_HASH, mockTxReceiptPendleStep1);
+    await shortcutPage.clickShortcutById(RemoveLiquidityPoolID);
 
-//     const notifyMmTxSwap = new MetaMaskNotifyPage(await getNotifyMmPage(context));
-//     //   await notifyMmTxSwap.signTx();
+    const currentTokenFrom = await shortcutPage.page
+        .locator(`//*[@data-qa="select-token"]/div[contains(@class, 'token-symbol')]`)
+        .nth(0)
+        .textContent();
 
-//     // await shortcutPage.modifyDataByPostTxRequest(mockPostTransactionsRouteArbitrum, mockPostTransactionsWsByCreateEventArbitrum);
+    expect(currentTokenFrom).toBe(mockPoolBalanceDataArbitrum.data[0].symbol);
 
-//     // await shortcutPage.modifyDataByGetTxRequest(mockPostTransactionsRouteArbitrum);
+    await sleep(ONE_SECOND);
 
-//     // const notifyMmTxApprove = new MetaMaskNotifyPage(await getNotifyMmPage(context));
-//     // await notifyMmTxApprove.signTx();
-// });
+    await shortcutPage.setAmount(AMOUNT);
+    await shortcutPage.mockEstimateRemoveLpRequest(estimateRemoveLpMockData, 200);
+
+    await sleep(FIVE_SECONDS);
+
+    const inputToValue = await shortcutPage.page.locator('.ant-form-item .base-input').nth(1).inputValue();
+
+    expect(inputToValue).toBe('0.001012591056390839');
+
+    const confirmButtonTitle = await shortcutPage.page.locator('.module-layout-view-btn').textContent();
+
+    expect(confirmButtonTitle).toBe('Approve');
+
+    await shortcutPage.clickConfirm();
+});

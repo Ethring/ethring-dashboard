@@ -68,8 +68,9 @@ export const testMetaMask = base.extend<{
     swapPageMockBalancesAndTokensList: SwapPage;
     superSwapPageBalanceMock: SuperSwapPage;
     unauthSuperSwapPage: SuperSwapPage;
+    shortcutPage: ShortcutPage;
 }>({
-    context: async ({}, use) => {
+    context: async ({ }, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -169,13 +170,18 @@ export const testMetaMask = base.extend<{
         await zometPage.goToPage();
         await use(zometPage as SuperSwapPage);
     },
+    shortcutPage: async ({ browser, context, page }, use) => {
+        const zometPage = await authByMm(context, SEED_PHRASE_BY_TX);
+        const superSwapPage = await zometPage.goToModule('shortcut');
+        await use(superSwapPage as ShortcutPage);
+    },
 });
 
 export const testMetaMaskMockTx = base.extend<{
     context: BrowserContext;
     sendPage: SendPage;
 }>({
-    context: async ({}, use) => {
+    context: async ({ }, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -211,7 +217,7 @@ export const testKeplr = base.extend<{
     sendPage: SendPage;
     swapPage: SwapPage;
 }>({
-    context: async ({}, use) => {
+    context: async ({ }, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,
@@ -262,7 +268,7 @@ export const testMetaMaskAndKeplr = base.extend<{
     authPage: BasePage;
     shortcutPage: ShortcutPage;
 }>({
-    context: async ({}, use) => {
+    context: async ({ }, use) => {
         const context = await chromium.launchPersistentContext('', {
             headless: false,
             ignoreHTTPSErrors: true,

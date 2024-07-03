@@ -115,6 +115,8 @@ export default function useChainTokenManger(moduleType: ModuleType) {
         // ************************************************
 
         if (moduleType === ModuleType.shortcut && !CurrentShortcut.value) return;
+
+        // return pool token, if shortcut is RemoveLiquidityPool
         if (CurrentShortcut.value === AvailableShortcuts.RemoveLiquidityPool && isSrc)
             return pools.value[srcNet?.net]?.length ? pools.value[srcNet?.net][0] : null;
 
