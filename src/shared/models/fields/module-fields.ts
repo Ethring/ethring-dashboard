@@ -15,6 +15,9 @@ export interface INetwork extends IChainConfig {}
 export interface IAsset extends AssetBalance {
     allowanceByService?: AllowanceByService;
     amount?: string;
+    coingecko_id?: string;
+    verified?: boolean;
+    selected?: boolean;
 }
 
 export interface IFields {

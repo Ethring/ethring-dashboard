@@ -27,6 +27,17 @@ export default defineConfig({
     define: {
         'process.env.APP_VERSION': JSON.stringify(packageJson.version) || '1.0.0',
     },
+    test: {
+        coverage: {
+            include: [
+                'src/compositions', // Only include compositions
+                // 'src' // Uncomment to include all files
+            ],
+            exclude: ['src/components'],
+            reporter: ['html', 'text', 'json'],
+        },
+    },
+
     // * ========= Settings for build (vite build) =========
     build: {
         manifest: true,

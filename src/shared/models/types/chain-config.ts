@@ -32,4 +32,6 @@ export interface IChainConfig {
     derivation_path?: { [key: string]: string };
     main_standards?: string[];
     bech32_prefix?: string;
+
+    selected?: boolean;
 }

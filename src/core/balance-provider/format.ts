@@ -80,6 +80,7 @@ const cosmosChainTokens = (record: AssetBalance, opt: RecordOptions = {}) => {
         record.base = lowerCase(record.base);
         record.address = lowerCase(record.address);
         record.logo = logo;
+        record.verified = true;
     }
 
     return record;
@@ -102,6 +103,7 @@ const formatRecord = (type: BalanceType, record: AssetBalance, opt: RecordOption
     if (!record.balanceType && !record.address && !record.id) {
         record.id = `${record.chain}:${type}__native:${record.symbol}`;
         record.logo = nativeTokenLogo;
+        record.verified = true;
     }
 
     return record;
