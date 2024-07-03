@@ -1,4 +1,7 @@
-import { testMetaMask, testMetaMaskAndKeplr } from '../__fixtures__/fixtures';
+import { expect } from '@playwright/test';
+import util from 'util';
+
+import { testMetaMaskAndKeplr } from '../__fixtures__/fixtures';
 import {
     estimateBscOsmoMock,
     estimateCosmoStargazeMock,
@@ -9,17 +12,10 @@ import {
     mockPutTransactionsWsByUpdateTransactionEventInProgressShortcutBscOsmoMockTx,
 } from '../data/mockDataByTests/ShortcutTransferAndStakeMock';
 
-// import {
-//     MOCK_ARBITRUM_TX_HASH,
-//     mockTxReceiptPendleStep1,
-//     mockPostTransactionsWsByCreateEventArbitrum,
-//     mockPostTransactionsRouteArbitrum,
-//     mockPutTransactionsShortcutPendleBeefy,
-//     mockPutTransactionsWsByUpdateTransactionEventInProgressShortcutPendleBeefyTx,
-// } from '../data/mockDataByTests/ShortcutPendleBeefy';
-
 import { MetaMaskNotifyPage, getNotifyMmPage } from '../model/MetaMask/MetaMask.pages';
-import util from 'util';
+import { FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
+
+const sleep = util.promisify(setTimeout);
 
 testMetaMaskAndKeplr.skip('Case#: Shortcut transfer and stake', async ({ context, shortcutPage }) => {
     const expectedNotificationTitle = 'BRIDGE 0.002 BNB';
@@ -58,39 +54,12 @@ testMetaMaskAndKeplr.skip('Case#: Shortcut transfer and stake', async ({ context
     // TODO this assert work with wait notification
 });
 
-// testMetaMask.skip('Case#: Shortcut Pendle - Beefy', async ({ context, shortcutPage }) => {
-//     const mockGetQuote = {
-//         '"fromToken":"0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee","toToken":"0x2416092f143378750bb29b79ed961ab195cceea5"':
-//             estimateArbitrumMock,
-//     };
+testMetaMaskAndKeplr('Case#: Shortcut disconnect wallet', async ({ context, shortcutPage }) => {
+    await shortcutPage.clickFirstShortcut();
 
-//     await shortcutPage.clickShortcutById('SC-pendle-beefy');
+    await sleep(FIVE_SECONDS);
 
-//     await shortcutPage.mockEstimateDexRequestByRequestDataMatcher(mockGetQuote);
+    await shortcutPage.disconnectAllWallets();
 
-//     await shortcutPage.setAmount('0.00051');
-
-//     await shortcutPage.modifyDataByPostTxRequest(mockPostTransactionsRouteArbitrum, mockPostTransactionsWsByCreateEventArbitrum);
-
-//     await shortcutPage.modifyDataByGetTxRequest(mockPostTransactionsRouteArbitrum);
-
-//     await shortcutPage.modifyDataByPutTxRequest(
-//         mockPutTransactionsShortcutPendleBeefy,
-//         mockPutTransactionsWsByUpdateTransactionEventInProgressShortcutPendleBeefyTx,
-//     );
-
-//     await shortcutPage.clickConfirm();
-
-//     const notifyMmAddNetwork = new MetaMaskNotifyPage(await getNotifyMmPage(context));
-//     await notifyMmAddNetwork.changeNetwork();
-
-//     const notifyMmTxSwap = new MetaMaskNotifyPage(await getNotifyMmPage(context));
-//     //   await notifyMmTxSwap.signTx();
-
-//     // await shortcutPage.modifyDataByPostTxRequest(mockPostTransactionsRouteArbitrum, mockPostTransactionsWsByCreateEventArbitrum);
-
-//     // await shortcutPage.modifyDataByGetTxRequest(mockPostTransactionsRouteArbitrum);
-
-//     // const notifyMmTxApprove = new MetaMaskNotifyPage(await getNotifyMmPage(context));
-//     // await notifyMmTxApprove.signTx();
-// });
+    await expect(shortcutPage.page).toHaveScreenshot(); // must be stay at shortcut page
+});
