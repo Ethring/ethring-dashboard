@@ -24,7 +24,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 serviceId: 'squid',
                 layoutComponent: 'SuperSwap',
                 isShowLayout: true,
-                waitTime: 80,
+                waitTime: 5,
                 excludeChains: [
                     'zksync',
                     'arbitrum',

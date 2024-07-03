@@ -1,6 +1,6 @@
 import { values } from 'lodash';
 import { Ref, ref, computed } from 'vue';
-import { useStore } from 'vuex';
+import { useStore, Store } from 'vuex';
 import { useRouter } from 'vue-router';
 
 import * as GETTERS from '@/core/wallet-adapter/store/getters';
@@ -57,6 +57,7 @@ export interface IAdapter {
     // ****************************************************
 
     getDefaultAddress: () => string | null;
+    getAccountByEcosystem: (ecosystem: Ecosystems) => string | null;
     getWalletsModuleByEcosystem: (ecosystem: Ecosystems) => string[];
     getAddressesWithChainsByEcosystem: (ecosystem: Ecosystems, options?: { hash: boolean }) => Promise<Record<string, string>>;
 
@@ -106,9 +107,9 @@ export interface IAdapter {
     getAdapterByEcosystem: (ecosystem: Ecosystems) => any;
 }
 
-function useAdapter(): IAdapter {
+function useAdapter({ tmpStore }: { tmpStore?: Store<any> | null } = { tmpStore: null }): IAdapter {
     // * Store Module
-    const store = useStore();
+    const store = tmpStore || useStore();
     const router = useRouter();
 
     const storeModule = 'adapters';
@@ -669,6 +670,7 @@ function useAdapter(): IAdapter {
 
         // * Address Methods
         getDefaultAddress,
+        getAccountByEcosystem: (ecosystem: Ecosystems) => adaptersGetter(GETTERS.GET_ACCOUNT_BY_ECOSYSTEM)(ecosystem),
         getAddressesWithChainsByEcosystem,
 
         // * Chain Methods

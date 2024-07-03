@@ -422,8 +422,16 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                     const params = token;
 
                     amount && (params.amount = amount);
-                    operationsFactory.value?.getOperationById(targetOpId)?.setToken(target, params);
+
+                    const fromToToken = operationsFactory.value?.getOperationById(targetOpId)?.getToken(target);
                     isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value: params }));
+
+                    // * If the token is already set, no need to set it again
+                    if (fromToToken && fromToToken?.id) break;
+
+                    // * If the token is not set, set it
+                    if (!fromToToken) operationsFactory.value?.getOperationById(targetOpId)?.setToken(target, params);
+
                     break;
                 case 'receiverAddress':
                     operationsFactory.value?.getOperationById(targetOpId)?.setParamByField('receiverAddress', address);
@@ -468,11 +476,6 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     };
 
     const callEstimate = async (from: string = 'default') => {
-        console.log('CALLING_ESTIMATE', from, {
-            isQuoteLoading: isQuoteLoading.value,
-            isTransactionSigning: isTransactionSigning.value,
-        });
-
         if (isQuoteLoading.value || isTransactionSigning.value) return;
 
         const isMinAmountAccepted = checkMinAmount();

@@ -1,10 +1,10 @@
 import { isNaN, isEmpty, isEqual } from 'lodash';
 import { computed } from 'vue';
-import { useStore } from 'vuex';
+import { useStore, Store } from 'vuex';
 import { AddressByChainHash } from '../models/types/Address';
 
-const useInputValidation = () => {
-    const store = useStore();
+const useInputValidation = ({ tmpStore }: { tmpStore: Store<any> | null } = { tmpStore: null }) => {
+    const store = tmpStore || useStore();
 
     // ===========================================================================================
     // * Fields

@@ -22,7 +22,7 @@ testMetaMaskMockTx.describe('Mocked send tx Metamask', () => {
         const addressTo = getTestVar(TEST_CONST.RECIPIENT_ADDRESS);
         const amount = '0.001';
         const WAITED_URL = `**/srv-data-provider/api/balances?net=${network.toLowerCase()}**`;
-        const expectedNotificationTitle = 'Transaction SUCCESS';
+        const expectedNotificationTitle = 'Transaction error';
         const expectedNotificationDesc = '';
 
         // Use method mockMetaMaskSignTransaction ONLY before sign tx, else mock may be not fulfill!

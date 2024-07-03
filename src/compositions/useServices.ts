@@ -231,18 +231,17 @@ export default function useModule(moduleType: ModuleType) {
         if (input && input instanceof HTMLInputElement && isNeedInputFocus.value) input.focus();
     };
 
-    const checkSelectedNetwork = () => {
-        if (!walletAccount.value && !currentChainInfo.value) return (opTitle.value = 'tokenOperations.connectWallet');
+    const checkSelectedNetwork = (): string => {
+        const isSameWithCurrent = currentChainInfo.value && currentChainInfo.value?.net === selectedSrcNetwork.value?.net;
 
-        const isSameWithCurrent = currentChainInfo.value && currentChainInfo.value.net === selectedSrcNetwork.value?.net;
-
-        // setEcosystemService();
-
-        if (isNeedApprove.value) return (opTitle.value = 'tokenOperations.approve');
-
-        if (isSameWithCurrent) return (opTitle.value = DEFAULT_TITLE);
-
-        return (opTitle.value = DEFAULT_TITLE);
+        // 1. If wallet account is not connected
+        if (!walletAccount.value && !currentChainInfo.value) return 'tokenOperations.connectWallet';
+        // 2. If selected token need approve
+        if (isNeedApprove.value) return 'tokenOperations.approve';
+        // 3. If selected network is same with current
+        else if (isSameWithCurrent) return DEFAULT_TITLE;
+        // 4. If selected network is not same with current
+        return DEFAULT_TITLE;
     };
 
     const handleOnSwapDirections = async (withChains = false) => {
@@ -347,12 +346,10 @@ export default function useModule(moduleType: ModuleType) {
         isNeedAddLpApprove.value = false;
         isNeedRemoveLpApprove.value = false;
 
-        checkSelectedNetwork();
+        opTitle.value = checkSelectedNetwork();
     });
 
-    watch(walletAccount, () => {
-        checkSelectedNetwork();
-    });
+    watch(walletAccount, () => (opTitle.value = checkSelectedNetwork()));
 
     watch(selectedRoute, () => {
         if (pathRoute.path.startsWith('/shortcuts')) return;
@@ -376,7 +373,7 @@ export default function useModule(moduleType: ModuleType) {
     onBeforeUnmount(() => {
         // Clear all data
         store.dispatch('tokenOps/resetFields');
-        checkSelectedNetwork();
+        opTitle.value = checkSelectedNetwork();
     });
 
     return {

@@ -652,7 +652,7 @@ const useModuleOperations = (module: ModuleType) => {
             net: selectedSrcNetwork.value?.net,
             tokenAddress: opInGroup.tokens.from?.address,
             ownerAddress: account as string,
-            amount: +opInGroup.params.amount,
+            amount: +opInGroup.params.amount || srcAmount.value,
             typeLp: TRANSACTION_TYPES.REMOVE_LIQUIDITY,
         });
 

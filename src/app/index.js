@@ -30,7 +30,6 @@ import '@/registerServiceWorker';
 
 // Compositions
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
-import useSelectModal from '@/compositions/useSelectModal';
 
 // Directives
 import vueDebounce from 'vue-debounce';
@@ -64,7 +63,7 @@ app.directive(
 );
 
 // * Use compositions
-app.provide('useAdapter', useAdapter).provide('useSelectModal', useSelectModal);
+app.provide('useAdapter', useAdapter);
 
 // * Init modules before app mount
 initSentry(app, Router);
