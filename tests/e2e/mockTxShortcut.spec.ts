@@ -30,8 +30,6 @@ testMetaMaskAndKeplr('Case#: Shortcut transfer and stake', async ({ context, sho
 
     // await shortcutPage.mockEstimateBridgeRequestByRequestDataMatcher(mockGetQuote);
 
-    await shortcutPage.setAmount('0.005');
-
     await shortcutPage.modifyDataByPostTxRequest(mockPostTransactionsRouteEvm, mockPostTransactionsWsByCreateEventEvm);
 
     await shortcutPage.modifyDataByGetTxRequest(mockPostTransactionsRouteEvm);
@@ -41,6 +39,7 @@ testMetaMaskAndKeplr('Case#: Shortcut transfer and stake', async ({ context, sho
         mockPutTransactionsWsByUpdateTransactionEventInProgressShortcutBscOsmoMockTx,
     );
 
+    await shortcutPage.setAmount('0.005');
     await shortcutPage.clickConfirm();
 
     const notifyMmTx = new MetaMaskNotifyPage(await getNotifyMmPage(context));

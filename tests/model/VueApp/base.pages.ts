@@ -299,11 +299,11 @@ class BasePage {
                     try {
                         const data: string | Buffer = event.payload;
                         if (
-                            typeof data !== 'string' ||
-                            data[0] === '0' ||
-                            data[0] === '2' ||
-                            data[0] === '4' ||
-                            data === '{"type":"connected"}'
+                            typeof data !== 'string'
+                            // data[0] === '0' ||
+                            // data[0] === '2' ||
+                            // data[0] === '4' ||
+                            // data === '{"type":"connected"}'
                         )
                             return;
 
@@ -475,7 +475,7 @@ class SwapPage extends BasePage {
 
 class ShortcutPage extends BasePage {
     async setAmount(amount: string) {
-        await sleep(2000);
+        await sleep(4000);
         await this.page.getByTestId(DATA_QA_LOCATORS.INPUT_AMOUNT).nth(0).fill(amount);
     }
 
