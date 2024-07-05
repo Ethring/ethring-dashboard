@@ -282,14 +282,16 @@ export default {
             isConnectedStorage.value[ecosystem] = isConnected;
         },
         [TYPES.SET_ADDRESSES_BY_ECOSYSTEM](state, { ecosystem, addresses }) {
+            if (JSON.stringify(state.addressesByEcosystem[ecosystem]) === JSON.stringify(addresses)) return console.log('NO CHANGE');
             state.addressesByEcosystem[ecosystem] && delete state.addressesByEcosystem[ecosystem];
             state.addressesByEcosystem[ecosystem] = addresses;
             addressesByEcosystemStorage.value[ecosystem] = state.addressesByEcosystem[ecosystem];
         },
         [TYPES.SET_ADDRESSES_BY_ECOSYSTEM_LIST](state, { ecosystem, addresses }) {
+            if (JSON.stringify(state.addressesByEcosystemList[ecosystem]) === JSON.stringify(addresses)) return console.log('NO CHANGE');
             state.addressesByEcosystemList[ecosystem] && delete state.addressesByEcosystemList[ecosystem];
             state.addressesByEcosystemList[ecosystem] = addresses;
-            addressesByEcosystemListStorage.value[ecosystem] = addresses;
+            addressesByEcosystemListStorage.value[ecosystem] = state.addressesByEcosystemList[ecosystem];
         },
         [TYPES.SET_ACCOUNT_BY_ECOSYSTEM](state, { ecosystem, account }) {
             state.accountByEcosystem[ecosystem] = account;
