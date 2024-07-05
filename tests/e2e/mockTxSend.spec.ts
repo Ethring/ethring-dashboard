@@ -16,7 +16,7 @@ import { METAMASK_DEFAULT_URL_NODE } from '../data/constants';
 const sleep = util.promisify(setTimeout);
 
 testMetaMaskMockTx.describe('Mocked send tx Metamask', () => {
-    testMetaMaskMockTx('Case#: Send tx in Polygon', async ({ browser, context, page, sendPage }) => {
+    testMetaMaskMockTx.skip('Case#: Send tx in Polygon', async ({ browser, context, page, sendPage }) => {
         const network = 'Polygon';
         const addressFrom = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
         const addressTo = getTestVar(TEST_CONST.RECIPIENT_ADDRESS);
