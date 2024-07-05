@@ -141,7 +141,7 @@ class MetaMaskHomePage {
         await this.page.locator(`//div[text() = '${networkName}']`).click();
         await this.page.locator('//input[@data-testid="network-form-rpc-url"]').fill(fakeRpcUrl);
         await sleep(3000);
-        await this.page.locator("(//div[@class='networks-tab__network-form']//button)[3]").click();
+        await this.page.locator("(//div[@class='networks-tab__network-form']//button)[3]").click(); // when edit rpc field page has !4! button. Last button is "save"
     }
 }
 
