@@ -39,9 +39,6 @@ testMetaMaskAndKeplr('Case#: Shortcut transfer and stake', async ({ context, sho
 
     await shortcutPage.page.getByText('Metamask').click();
 
-    const notifyMMchangeNet = new MetaMaskNotifyPage(await getNotifyMmPage(context));
-    await notifyMMchangeNet.changeNetworkIfNetAlreadyInMm();
-
     const notifyMmTx = new MetaMaskNotifyPage(await getNotifyMmPage(context));
     await notifyMmTx.signTx();
 

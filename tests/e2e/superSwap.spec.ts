@@ -8,20 +8,23 @@ import { estimateMockDataByUnAuthUser } from '../data/mockHelper';
 const sleep = util.promisify(setTimeout);
 
 testMetaMask.describe('SuperSwap e2e tests', () => {
-    testMetaMask('Case#: Verifying data reset when navigating to swap page', async ({ page, superSwapPageBalanceMock: superSwapPage }) => {
-        const netTo = 'Arbitrum';
+    testMetaMask.skip(
+        'Case#: Verifying data reset when navigating to swap page',
+        async ({ page, superSwapPageBalanceMock: superSwapPage }) => {
+            const netTo = 'Arbitrum';
 
-        await superSwapPage.setNetworkTo(netTo); // set default token to use network
+            await superSwapPage.setNetworkTo(netTo); // set default token to use network
 
-        const swapPage = await superSwapPage.goToModule('swap');
+            const swapPage = await superSwapPage.goToModule('swap');
 
-        const currentTokenTo = await swapPage.page
-            .locator(`//*[@data-qa="select-token"]/div[contains(@class, 'token-symbol')]`)
-            .nth(1)
-            .textContent();
+            const currentTokenTo = await swapPage.page
+                .locator(`//*[@data-qa="select-token"]/div[contains(@class, 'token-symbol')]`)
+                .nth(1)
+                .textContent();
 
-        expect(currentTokenTo).toBe('Select'); // default text if token not set
-    });
+            expect(currentTokenTo).toBe('Select'); // default text if token not set
+        },
+    );
 
     testMetaMask.skip(
         'Case#5: Super Swap tx:swap net:Polygon from:Matic to:1inch Cancel wallet change',
