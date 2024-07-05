@@ -399,7 +399,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                 case 'srcToken':
                 case 'dstToken':
                     const tokenNet = getChainByChainId(ecosystem as Ecosystems, chain as string);
-                    const token = (await getTokenById(tokenNet, id)) as IAsset;
+                    const token = (await getTokenById(tokenNet as any, id as any)) as IAsset;
 
                     const target = field === 'srcToken' ? 'from' : 'to';
                     const params = token;

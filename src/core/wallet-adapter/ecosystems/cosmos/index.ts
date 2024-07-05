@@ -770,9 +770,13 @@ export class CosmosAdapter implements ICosmosAdapter {
 
             const amountFormatted = utils.parseUnits(amount, token.decimals).toString();
 
+            const { base, address } = token;
+
+            const denom = base || address;
+
             const msg = delegate({
                 amount: {
-                    denom: token.base as string,
+                    denom: denom as string,
                     amount: amountFormatted,
                 },
                 delegatorAddress: fromAddress,
