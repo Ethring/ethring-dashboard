@@ -510,7 +510,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                 const { isNeedFromAmount = true } = shortcutOpInfo || {};
                 const fromAmount = operation.getParamByField('amount');
 
-                if (isNeedFromAmount && (!fromAmount || isFinite(fromAmount) || fromAmount <= 0))
+                if (isNeedFromAmount && (!fromAmount || isFinite(fromAmount) || fromAmount <= 0) && !quoteErrorMessage.value)
                     quoteErrorMessage.value = 'Please Fill all from token amounts';
             }
 

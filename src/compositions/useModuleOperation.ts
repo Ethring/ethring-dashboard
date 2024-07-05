@@ -151,6 +151,7 @@ const useModuleOperations = (module: ModuleType) => {
 
     const currentShortcutId = computed(() => store.getters['shortcuts/getCurrentShortcutId']);
     const currentStepId = computed(() => store.getters['shortcuts/getCurrentStepId']);
+    const shortcutStatus = computed(() => store.getters['shortcuts/getShortcutStatus'](currentShortcutId.value));
     const firstOp = ref({} as IBaseOperation);
 
     // ===============================================================================================
@@ -862,7 +863,7 @@ const useModuleOperations = (module: ModuleType) => {
                 // * Track every tx
                 callTrackEvent(mixpanel, 'module-app launch', {
                     Modules: route.currentRoute.value.params.id,
-                    ServiceId: txInstance.type === TRANSACTION_TYPES.TRANSFER ? 'send' : txInstance.transaction.metaData.params.serviceId,
+                    ServiceId: txInstance.type === TRANSACTION_TYPES.TRANSFER ? 'send' : txInstance.transaction.metaData.params?.serviceId,
                     RequestId: txInstance.requestID,
                 });
 
@@ -1071,7 +1072,7 @@ const useModuleOperations = (module: ModuleType) => {
 
         // * Clear route timer if exist
         try {
-            if (selectedRoute.value?.routeId)
+            if (selectedRoute.value?.routeId && !isShortcutOpsExist())
                 await store.dispatch('bridgeDexAPI/clearRouteTimer', {
                     routeId: selectedRoute.value.routeId,
                 });
@@ -1124,7 +1125,7 @@ const useModuleOperations = (module: ModuleType) => {
         } finally {
             isTransactionSigning.value = false;
             // * if selected route exist, refresh it
-            if (selectedRoute.value) await getEstimateInfo(true);
+            if (selectedRoute.value && [SHORTCUT_STATUSES.PENDING].includes(shortcutStatus.value)) await getEstimateInfo(true);
         }
     };
 
