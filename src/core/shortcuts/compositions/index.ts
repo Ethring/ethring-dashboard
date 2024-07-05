@@ -493,7 +493,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                 const { isNeedFromAmount = true } = shortcutOpInfo || {};
                 const fromAmount = operation.getParamByField('amount');
 
-                if (isNeedFromAmount && (!fromAmount || isFinite(fromAmount) || fromAmount <= 0))
+                if (isNeedFromAmount && (!fromAmount || isFinite(fromAmount) || fromAmount <= 0) && !quoteErrorMessage.value)
                     quoteErrorMessage.value = 'Please Fill all from token amounts';
             }
 
@@ -881,7 +881,9 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                 !CurrentShortcut.isComingSoon &&
                 fromToken?.id !== srcToken?.id
             ) {
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('fromToken', srcToken.address);
+                const { base, address } = srcToken || {};
+                const addressToSave = base || address;
+                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('fromToken', addressToSave);
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setToken('from', srcToken);
             }
 
@@ -893,7 +895,9 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                 !CurrentShortcut.isComingSoon &&
                 toToken?.id !== dstToken?.id
             ) {
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('toToken', dstToken.address);
+                const { base, address } = dstToken || {};
+                const addressToSave = base || address;
+                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('toToken', addressToSave);
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setToken('to', dstToken);
             }
         },
@@ -942,7 +946,9 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             const toToken = operationsFactory.value.getOperationById(currentOp.value.id)?.getToken('to');
 
             if (currentOp.value?.id && srcToken?.id && !CurrentShortcut.isComingSoon && fromToken?.id !== srcToken?.id) {
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('fromToken', srcToken.address);
+                const { base, address } = srcToken || {};
+                const addressToSave = base || address;
+                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('fromToken', addressToSave);
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setToken('from', srcToken);
             }
 
@@ -952,7 +958,9 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             }
 
             if (currentOp.value?.id && dstToken?.id && !CurrentShortcut.isComingSoon && toToken?.id !== dstToken?.id) {
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('toToken', dstToken.address);
+                const { base, address } = dstToken || {};
+                const addressToSave = base || address;
+                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('toToken', addressToSave);
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setToken('to', dstToken);
             }
         },
