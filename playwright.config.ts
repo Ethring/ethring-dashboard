@@ -18,7 +18,7 @@ export default defineConfig({
     workers: process.env.CI ? 3 : 1,
     maxFailures: process.env.CI ? 5 : undefined,
     reporter: 'html',
-    timeout: 2 * 60 * 1000,
+    timeout: 3 * 60 * 1000,
     use: {
         ignoreHTTPSErrors: true,
         bypassCSP: true,

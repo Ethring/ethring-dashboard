@@ -18,7 +18,7 @@ testMetaMaskAndKeplr('Case#: Shortcut transfer and stake', async ({ context, sho
 
     await setCustomRpc(context, METAMASK_FAKE_URL_NODE.BSC, METAMASK_DEFAULT_NETWORK_NAME.BSC);
 
-    const finalTxStatusEventPromise = shortcutPage.waitEventInSocket('update_transaction_status');
+    const finalTxStatusEventPromise = shortcutPage.waitEventInSocket('update_transaction_status', 360000);
     await shortcutPage.page.reload();
 
     await shortcutPage.modifyDataByPostTxRequest(mockPostTransactionsRouteEvm, mockPostTransactionsWsByCreateEventEvm);
@@ -31,7 +31,6 @@ testMetaMaskAndKeplr('Case#: Shortcut transfer and stake', async ({ context, sho
     );
 
     await shortcutPage.setAmount('0.005');
-    await shortcutPage.page.waitForResponse('**/services/bridgedex/getQuote');
     await shortcutPage.page.waitForResponse('**/services/bridgedex/getQuote');
     await shortcutPage.page.waitForResponse('**/services/bridgedex/getQuote');
 

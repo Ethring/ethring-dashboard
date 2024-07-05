@@ -290,9 +290,9 @@ class BasePage {
         await expect(txNotificationDesc).toHaveText(expectedNotificationDescription);
     }
 
-    async waitEventInSocket(waitedEventName: string) {
+    async waitEventInSocket(waitedEventName: string, timeoutSec: number = 180000) {
         return new Promise<void>((resolve, reject) => {
-            const timeout = setTimeout(() => reject(new Error('Event not received within timeout')), 180000);
+            const timeout = setTimeout(() => reject(new Error('Event not received within timeout')), timeoutSec);
 
             this.page.on('websocket', (ws) => {
                 ws.on('framereceived', (event) => {
