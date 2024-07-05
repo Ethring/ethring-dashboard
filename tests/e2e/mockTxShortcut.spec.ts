@@ -31,7 +31,16 @@ testMetaMaskAndKeplr('Case#: Shortcut transfer and stake', async ({ context, sho
     );
 
     await shortcutPage.setAmount('0.005');
+    await shortcutPage.page.waitForResponse('**/services/bridgedex/getQuote');
+    await shortcutPage.page.waitForResponse('**/services/bridgedex/getQuote');
+    await shortcutPage.page.waitForResponse('**/services/bridgedex/getQuote');
+
     await shortcutPage.clickConfirm();
+
+    await shortcutPage.page.getByText('Metamask').click();
+
+    const notifyMMchangeNet = new MetaMaskNotifyPage(await getNotifyMmPage(context));
+    await notifyMMchangeNet.changeNetworkIfNetAlreadyInMm();
 
     const notifyMmTx = new MetaMaskNotifyPage(await getNotifyMmPage(context));
     await notifyMmTx.signTx();
