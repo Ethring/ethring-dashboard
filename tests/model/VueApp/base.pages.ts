@@ -211,6 +211,12 @@ class BasePage {
             body.expectedDataHttp = httpData;
             body.expectedDataWs = wsData;
 
+            // Set to expected data hash fake transaction from MM
+            if (body.transaction?.hasOwnProperty('txHash') && body.transaction.txHash !== null) {
+                body.expectedDataHttp.data.txHash = body.transaction.txHash;
+                body.expectedDataWs.txHash = body.transaction.txHash;
+            }
+
             const override = { postData: JSON.stringify(body) };
             route.continue(override);
         } else {
@@ -283,6 +289,38 @@ class BasePage {
         await expect(txNotificationTitle).toHaveText(expectedNotificationTitle);
         await expect(txNotificationDesc).toHaveText(expectedNotificationDescription);
     }
+
+    async waitEventInSocket(waitedEventName: string) {
+        return new Promise<void>((resolve, reject) => {
+            const timeout = setTimeout(() => reject(new Error('Event not received within timeout')), 180000);
+
+            this.page.on('websocket', (ws) => {
+                ws.on('framereceived', (event) => {
+                    try {
+                        const data: string | Buffer = event.payload;
+                        if (
+                            typeof data !== 'string' ||
+                            data[0] === '0' ||
+                            data[0] === '2' ||
+                            data[0] === '40' ||
+                            data === '{"type":"connected"}'
+                        )
+                            return;
+
+                        console.log('>>>', data);
+                        const responseEventName = JSON.parse(data.substring(2))[0];
+
+                        if (waitedEventName === responseEventName) {
+                            clearTimeout(timeout);
+                            resolve();
+                        }
+                    } catch (error) {
+                        console.error('Error parsing WebSocket message:', error);
+                    }
+                });
+            });
+        });
+    }
 }
 
 class DashboardPage extends BasePage {
@@ -346,7 +384,9 @@ class SuperSwapPage extends BasePage {
     }
 
     async setNetworkFrom(netName: string) {
+        await sleep(4000);
         await this.page.getByTestId(DATA_QA_LOCATORS.SELECT_NETWORK).nth(0).click();
+        await sleep(4000);
         await this.page.getByTestId(DATA_QA_LOCATORS.TOKEN_RECORD).filter({ hasText: netName }).click();
     }
 
@@ -371,12 +411,6 @@ class SuperSwapPage extends BasePage {
 
     async setFromNetAndAmount(net: string, amount: string) {
         await this.setNetworkFrom(net);
-        await this.setAmount(amount);
-    }
-
-    async setFromNetTokenAmount(net: string, token: string, amount: string) {
-        await this.setNetworkFrom(net);
-        await this.setTokenFrom(token);
         await this.setAmount(amount);
     }
 
@@ -437,7 +471,7 @@ class SwapPage extends BasePage {
 
 class ShortcutPage extends BasePage {
     async setAmount(amount: string) {
-        await sleep(2000);
+        await sleep(4000);
         await this.page.getByTestId(DATA_QA_LOCATORS.INPUT_AMOUNT).nth(0).fill(amount);
     }
 
