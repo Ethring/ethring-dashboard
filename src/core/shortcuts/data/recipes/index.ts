@@ -2682,7 +2682,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationType: TRANSACTION_TYPES.ADD_LIQUIDITY,
                 layoutComponent: 'AddLiquidityLayout',
                 isShowLayout: true,
-                waitTime: 6.5,
+                waitTime: 8.5,
                 includeChains: ['arbitrum'],
                 ecosystems: ['EVM'],
                 operationParams: {
@@ -2751,7 +2751,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationType: TRANSACTION_TYPES.REMOVE_LIQUIDITY,
                 layoutComponent: 'AddLiquidityLayout',
                 isShowLayout: true,
-                waitTime: 1,
+                waitTime: 5,
                 includeChains: ['arbitrum'],
                 ecosystems: ['EVM'],
                 operationParams: {
@@ -2829,7 +2829,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationType: TRANSACTION_TYPES.ADD_LIQUIDITY,
                 layoutComponent: 'AddLiquidityLayout',
                 isShowLayout: true,
-                waitTime: 6.5,
+                waitTime: 8.5,
                 ecosystems: ['EVM'],
                 includeChains: ['arbitrum'],
                 operationParams: {
@@ -2898,7 +2898,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationType: TRANSACTION_TYPES.REMOVE_LIQUIDITY,
                 layoutComponent: 'AddLiquidityLayout',
                 isShowLayout: true,
-                waitTime: 1,
+                waitTime: 5,
                 ecosystems: ['EVM'],
                 includeChains: ['arbitrum'],
                 operationParams: {
@@ -2976,7 +2976,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationType: TRANSACTION_TYPES.REMOVE_LIQUIDITY,
                 layoutComponent: 'RemoveLiquidityLayout',
                 isShowLayout: true,
-                waitTime: 1,
+                waitTime: 5,
                 ecosystems: ['EVM'],
                 includeChains: ['arbitrum', 'bsc', 'polygon', 'avalanche', 'fantom', 'optimism'],
                 operationParams: {

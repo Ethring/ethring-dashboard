@@ -25,12 +25,11 @@ const closeEmptyPages = async (context: BrowserContext) => {
 
     for (const page of allStartPages) {
         const pageTitle = await page.title();
-        if (!pageTitle) {
+        if (!pageTitle)
             await page.close({
                 reason: 'empty',
                 runBeforeUnload: true,
             });
-        }
     }
 };
 
@@ -102,7 +101,7 @@ export const authMmCoingeckoAndBalanceMock = async (
     context: BrowserContext,
     seed: string,
     address: string,
-    balanceMock: Object = mockBalanceDataBySendTest,
+    balanceMock: object = mockBalanceDataBySendTest,
 ): Promise<DashboardPage> => {
     await addWalletToMm(context, seed);
 
@@ -155,6 +154,21 @@ export const authMmBalanceBySwapAndTokensListMock = async (
     await Promise.all(EVM_NETWORKS.map((network) => zometPage.mockBalanceRequest(network, mockBalanceDataBySwapTest[network], address)));
 
     return __loginByMmAndWaitElement__(context, zometPage);
+};
+
+export const setCustomRpc = async (context: BrowserContext, fakeRpcUrl: string, networkName: string, indexMmHomePage = 0) => {
+    const metaMaskPage = new MetaMaskHomePage(context.pages()[indexMmHomePage]);
+
+    await metaMaskPage.addNetwork(networkName);
+    await metaMaskPage.changeRpc(networkName, fakeRpcUrl);
+};
+
+export const setNetworkInMm = async (context: BrowserContext, networkName: string, indexMmHomePage = 0) => {
+    const metaMaskPage = new MetaMaskHomePage(context.pages()[indexMmHomePage]);
+    await metaMaskPage.gotoSettings();
+
+    await metaMaskPage.page.locator('//button[@data-testid="network-display"]').click();
+    await metaMaskPage.page.locator(`//div[@data-testid='${networkName}']`).click();
 };
 
 //======================================= KEPLR STUFF =======================================
@@ -232,7 +246,7 @@ export const authByKeplerAndMmBalanceMock = async (
     context: BrowserContext,
     ethAddress: string,
     ethSeed: string,
-    cosmosAddressesDict: Object,
+    cosmosAddressesDict: object,
     cosmosSeed: string,
 ) => {
     await addWalletToKeplr(context, cosmosSeed);

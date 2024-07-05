@@ -5,6 +5,7 @@ import { BaseOperation } from '@/core/operations/BaseOperation';
 import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
+import { IBridgeDexTransaction } from '@/modules/bridge-dex/models/Response.interface';
 
 import PortalFiApi, { IPortalFiApi } from '@/modules/portal-fi/api';
 import { IGetQuoteAddLiquidityRequest } from '@/modules/portal-fi/models/request';
@@ -30,12 +31,12 @@ export default class PortalFiAddLiquidity extends BaseOperation {
         this.approveService = new ApproveLpOperation();
     }
 
-    async performTx() {
+    async performTx(): Promise<IBridgeDexTransaction | null> {
         const amount = this.getParamByField('amount');
 
         if (!amount) {
             console.warn('Amount is required');
-            return;
+            return null;
         }
 
         try {
@@ -55,6 +56,8 @@ export default class PortalFiAddLiquidity extends BaseOperation {
                 ownerAddress: ownerAddresses[net],
             };
             const response = await this.service.getAddLiquidityTx(params);
+
+            if (!response.data?.length) return null;
 
             return response.data[0];
         } catch (error) {
@@ -84,7 +87,7 @@ export default class PortalFiAddLiquidity extends BaseOperation {
         }
 
         try {
-            const { net, poolID, slippageTolerance, slippage } = this.params as any;
+            const { net, poolID, slippageTolerance, slippage, ownerAddresses } = this.params as any;
 
             const { from } = this.getTokens();
 
@@ -96,8 +99,9 @@ export default class PortalFiAddLiquidity extends BaseOperation {
                 ...this.params,
                 from,
                 typeLp: TRANSACTION_TYPES.ADD_LIQUIDITY,
-                ownerAddress: this.params.ownerAddresses[net],
+                ownerAddress: ownerAddresses[net],
             };
+
             await this.approveService.checkAllowance(store);
 
             const params: IGetQuoteAddLiquidityRequest = {
@@ -109,7 +113,7 @@ export default class PortalFiAddLiquidity extends BaseOperation {
             };
 
             const response = await this.service.getQuoteAddLiquidity(params);
-            const { outputAmount, outputTokenDecimals } = response.data;
+            const { outputAmount, outputTokenDecimals } = response?.data;
 
             const amountOutput = formatNumber(BigNumber(outputAmount).dividedBy(`1e${outputTokenDecimals}`).toFixed(), outputTokenDecimals);
 

@@ -5,6 +5,7 @@ import { BaseOperation } from '@/core/operations/BaseOperation';
 import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
+import { IBridgeDexTransaction } from '@/modules/bridge-dex/models/Response.interface';
 
 import PortalFiApi, { IPortalFiApi } from '@/modules/portal-fi/api';
 import { IGetQuoteAddLiquidityRequest, IGetUsersPoolListResponse } from '@/modules/portal-fi/models/request';
@@ -31,11 +32,11 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
         this.approveService = new ApproveLpOperation();
     }
 
-    async performTx() {
+    async performTx(): Promise<IBridgeDexTransaction | null> {
         const amount = this.getParamByField('amount');
         if (!amount) {
             console.warn('Amount is required');
-            return;
+            return null;
         }
 
         try {
@@ -59,6 +60,8 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
             if (poolBalance && poolBalance.balance < +amount) params.amount = formatNumber(poolBalance.balance, from?.decimals);
 
             const response = await this.service.getRemoveLiquidityTx(params);
+
+            if (!response.data?.length) return null;
 
             return response.data[0];
         } catch (error) {
@@ -121,7 +124,7 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
 
             const response = await this.service.getQuoteRemoveLiquidity(params);
 
-            const { outputAmount, outputTokenDecimals } = response.data;
+            const { outputAmount, outputTokenDecimals } = response?.data;
 
             const amountOutput = formatNumber(BigNumber(outputAmount).dividedBy(`1e${outputTokenDecimals}`).toFixed(), outputTokenDecimals);
 

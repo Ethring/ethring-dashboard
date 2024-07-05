@@ -26,7 +26,6 @@ import {
 import { mockBalanceData, marketCapNativeEvmTokens } from '../data/mockHelper';
 // import { mockTxReceipt } from 'tests/data/mockDataByTests/ShortcutTransferAndStakeMock';
 // import { MOCK_EVM_TX_HASH } from 'tests/data/mockDataByTests/ShortcutTransferAndStakeMock';
-// import { mockMetaMaskSignTransaction } from 'tests/model/MetaMask/MetaMask.pages';
 
 const ADDRESS_BY_TX = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
 const SEED_PHRASE_BY_TX = getTestVar(TEST_CONST.SEED_BY_MOCK_TX);

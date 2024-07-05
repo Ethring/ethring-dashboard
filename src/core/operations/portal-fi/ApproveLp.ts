@@ -43,6 +43,8 @@ export default class ApproveLpOperation extends BaseOperation {
         try {
             const responseApprove = await this.service.getApproveTx(params);
 
+            if (!responseApprove.data?.length) return null;
+
             return responseApprove.data[0];
         } catch (error) {
             console.error('ApproveOperation performTx error', error);
@@ -116,7 +118,7 @@ export default class ApproveLpOperation extends BaseOperation {
 
             this.allowance[tokenIn] = allowance.data;
 
-            return allowance.data;
+            return allowance?.data || 0;
         } catch (error) {
             console.error('ApproveOperation getAllowance error', error);
         }
