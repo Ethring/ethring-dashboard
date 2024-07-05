@@ -19,7 +19,7 @@ testMetaMaskAndKeplr('Case#: Shortcut disconnect wallet', async ({ context, shor
     expect(currentShortcutTitle).toBe('Stake $ATOM with Citadel.one');
 });
 
-testMetaMask('Case#: Shortcut remove liquidity from pool', async ({ context, shortcutPage }) => {
+testMetaMask.skip('Case#: Shortcut remove liquidity from pool', async ({ context, shortcutPage }) => {
     const NET = 'arbitrum';
     const ADDRESS = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
     const RemoveLiquidityPoolID = 'SC-remove-liquidity-pool';
@@ -54,4 +54,6 @@ testMetaMask('Case#: Shortcut remove liquidity from pool', async ({ context, sho
     expect(confirmButtonTitle).toBe('Approve');
 
     await shortcutPage.clickConfirm();
+
+    // TODO использовать новый кош, так как на этот могут лететь эвенты из тх менеджера во время других тестов. НЕ мокать запрос на получение allowance, подписывать его через фейк evm ноду, далее выполнять сценарий до конца
 });
