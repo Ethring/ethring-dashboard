@@ -7,7 +7,14 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    AAvatar: typeof import('ant-design-vue/es')['Avatar']
+    AInputNumber: typeof import('ant-design-vue/es')['InputNumber']
+    APopconfirm: typeof import('ant-design-vue/es')['Popconfirm']
+    APopover: typeof import('ant-design-vue/es')['Popover']
+    AProgress: typeof import('ant-design-vue/es')['Progress']
     ASkeletonInput: typeof import('ant-design-vue/es')['SkeletonInput']
+    ASpace: typeof import('ant-design-vue/es')['Space']
+    ATag: typeof import('ant-design-vue/es')['Tag']
     ATooltip: typeof import('ant-design-vue/es')['Tooltip']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
