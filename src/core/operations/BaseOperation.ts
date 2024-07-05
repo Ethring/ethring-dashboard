@@ -204,6 +204,10 @@ export class BaseOperation implements IBaseOperation {
                 module === ModuleType.nft && (notification.title = `MINT ${count} NFTs`);
                 break;
 
+            case TRANSACTION_TYPES.REMOVE_LIQUIDITY:
+                notification.title = `REMOVE LIQUIDITY ${fromTokenTitle}`;
+                break;
+
             default:
                 notification.title = `${make} ${fromTokenTitle}`;
                 toTokenTitle && (notification.description = toTokenTitle);

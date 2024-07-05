@@ -18,6 +18,7 @@ import DEX from '@/assets/icons/operations/bridge.svg';
 import EXECUTE_MULTIPLE from '@/assets/icons/operations/nft.svg';
 import MINT from '@/assets/icons/operations/nft.svg';
 import DEPOSIT from '@/assets/icons/operations/deposit.svg';
+import REMOVE_LIQUIDITY from '@/assets/icons/operations/deposit.svg';
 import APPROVE from '@/assets/icons/operations/approve.svg';
 
 import TokenIcon from '@/components/ui/Tokens/TokenIcon.vue';
@@ -31,6 +32,7 @@ export default defineComponent({
         STAKE,
         EXECUTE_MULTIPLE,
         MINT,
+        REMOVE_LIQUIDITY,
         DEPOSIT,
         APPROVE,
 

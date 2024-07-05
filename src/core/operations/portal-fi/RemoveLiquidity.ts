@@ -74,7 +74,7 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
         this.flow = [
             {
                 type: this.transactionType,
-                make: TRANSACTION_TYPES.DEPOSIT,
+                make: TRANSACTION_TYPES.REMOVE_LIQUIDITY,
                 moduleIndex: this.getModule(),
             },
         ];
