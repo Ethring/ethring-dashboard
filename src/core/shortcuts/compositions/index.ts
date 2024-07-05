@@ -868,11 +868,21 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             const dstTokenField = params.find((param) => param.name === 'dstToken');
 
             // Update srcToken if necessary
-            if ((oldSrcToken?.id !== srcToken?.id || oldSrcToken?.address !== srcToken?.address || oldSrcToken?.balance !== srcToken?.balance) && !srcTokenField?.value)
+            if (
+                (oldSrcToken?.id !== srcToken?.id ||
+                    oldSrcToken?.address !== srcToken?.address ||
+                    oldSrcToken?.balance !== srcToken?.balance) &&
+                !srcTokenField?.value
+            )
                 setTokenParams(operation, 'from', srcToken);
 
             // Update dstToken if necessary
-            if ((oldDstToken?.id !== dstToken?.id || oldDstToken?.address !== dstToken?.address || oldDstToken?.balance !== dstToken?.balance) && !dstTokenField?.value)
+            if (
+                (oldDstToken?.id !== dstToken?.id ||
+                    oldDstToken?.address !== dstToken?.address ||
+                    oldDstToken?.balance !== dstToken?.balance) &&
+                !dstTokenField?.value
+            )
                 setTokenParams(operation, 'to', dstToken);
         },
     );

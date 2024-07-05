@@ -293,7 +293,7 @@ export default function useSelectModal(type: ComputedRef<string>, { tmpStore }: 
             case TYPES.TOKEN:
                 return TOKEN_LIST.value || [];
             case TYPES.POOL:
-                return pools.value[selectedSrcNetwork.value.net] || [];
+                return pools.value[selectedSrcNetwork.value?.net] || [];
             default:
                 return [];
         }

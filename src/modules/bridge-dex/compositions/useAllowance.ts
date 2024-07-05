@@ -108,7 +108,7 @@ const useBridgeDexAllowance = (targetType: ServiceTypes, bridgeDexService: Bridg
 
         return store.getters['bridgeDexAPI/getServiceAllowance'](
             selectedRoute.value.serviceId,
-            addressByChain.value[selectedSrcNetwork.value.net],
+            addressByChain.value[selectedSrcNetwork.value?.net],
             selectedSrcToken.value.address,
         );
     });

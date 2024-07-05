@@ -438,7 +438,6 @@ const useModuleOperations = (module: ModuleType) => {
             case ModuleType.bridge:
                 const index = isNeedApprove.value ? 1 : 0;
                 const type = isSameNetwork.value ? ServiceType.dex : ServiceType.bridgedex;
-                // const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value.net] || walletAddress.value;
 
                 ops.registerOperation(module, DexOperation);
 
