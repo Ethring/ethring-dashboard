@@ -120,3 +120,9 @@ export enum METAMASK_FAKE_URL_NODE {
     BSC = 'https://evm-fake-node.3ahtim54r.ru/bsc',
     ARBITRUM = 'https://evm-fake-node.3ahtim54r.ru/arbitrum',
 }
+
+export enum METAMASK_DEFAULT_NETWORK_NAME {
+    POLYGON = 'Polygon Mainnet',
+    BSC = 'BNB Chain',
+    // ARBITRUM = '',
+}

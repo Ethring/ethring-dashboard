@@ -1,6 +1,6 @@
 import { setCustomRpc } from '../__fixtures__/fixtureHelper';
 import { testMetaMaskAndKeplr } from '../__fixtures__/fixtures';
-import { METAMASK_FAKE_URL_NODE } from '../data/constants';
+import { METAMASK_DEFAULT_NETWORK_NAME, METAMASK_FAKE_URL_NODE } from '../data/constants';
 import {
     mockPostTransactionsRouteEvm,
     mockPostTransactionsWsByCreateEventEvm,
@@ -13,22 +13,13 @@ import { MetaMaskNotifyPage, getNotifyMmPage } from '../model/MetaMask/MetaMask.
 testMetaMaskAndKeplr('Case#: Shortcut transfer and stake', async ({ context, shortcutPage }) => {
     const expectedNotificationTitle = 'BRIDGE 0.002 BNB';
     const expectedNotificationDesc = 'For 1.186137 OSMO';
-    const networkNameInMM = 'BNB Chain';
-
-    // const mockGetQuote = {
-    //     '"fromToken":"0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee","toToken":"uosmo"': estimateBscOsmoMock,
-    //     '"fromToken":"uosmo","toToken":"uatom"': estimateOsmoCosmosMock,
-    //     '"fromToken":"uosmo","toToken":"ustars"': estimateCosmoStargazeMock,
-    // };
 
     await shortcutPage.clickFirstShortcut();
 
-    await setCustomRpc(context, METAMASK_FAKE_URL_NODE.BSC, networkNameInMM);
+    await setCustomRpc(context, METAMASK_FAKE_URL_NODE.BSC, METAMASK_DEFAULT_NETWORK_NAME.BSC);
 
     const finalTxStatusEventPromise = shortcutPage.waitEventInSocket('update_transaction_status');
     await shortcutPage.page.reload();
-
-    // await shortcutPage.mockEstimateBridgeRequestByRequestDataMatcher(mockGetQuote);
 
     await shortcutPage.modifyDataByPostTxRequest(mockPostTransactionsRouteEvm, mockPostTransactionsWsByCreateEventEvm);
 

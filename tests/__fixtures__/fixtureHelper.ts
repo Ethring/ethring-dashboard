@@ -159,22 +159,8 @@ export const authMmBalanceBySwapAndTokensListMock = async (
 export const setCustomRpc = async (context: BrowserContext, fakeRpcUrl: string, networkName: string, indexMmHomePage = 0) => {
     const metaMaskPage = new MetaMaskHomePage(context.pages()[indexMmHomePage]);
 
-    // add new net
-    await metaMaskPage.gotoSettings();
-    // await metaMaskPage.addNetwork(networkName);
-    await metaMaskPage.page.locator('.tab-bar__tab__content__title').nth(5).click();
-    await metaMaskPage.page.locator('button.btn-primary').nth(0).click();
-    await metaMaskPage.page.locator(`//h6[text()='${networkName}']/../../../div/button`).click();
-    await metaMaskPage.page.locator("//button[@data-testid='confirmation-submit-button']").click();
-
-    await metaMaskPage.page.locator('//button/h6').nth(1).click();
-
-    // change rpc
-    await metaMaskPage.gotoSettings();
-    await metaMaskPage.page.locator('.tab-bar__tab__content__title').nth(5).click();
-    await metaMaskPage.page.getByText(networkName).click();
-    await metaMaskPage.page.locator('//input[@data-testid="network-form-rpc-url"]').fill(fakeRpcUrl);
-    await metaMaskPage.page.locator('button.button').nth(3).click();
+    await metaMaskPage.addNetwork(networkName);
+    await metaMaskPage.changeRpc(networkName, fakeRpcUrl);
 };
 
 export const setNetworkInMm = async (context: BrowserContext, networkName: string, indexMmHomePage = 0) => {

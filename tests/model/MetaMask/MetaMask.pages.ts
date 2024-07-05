@@ -125,12 +125,23 @@ class MetaMaskHomePage {
         return this.page;
     }
 
-    async addNetwork(network: string) {
-        await this.page.locator('[data-testid="network-display"]').click();
-        await this.page.getByText('Add network').click();
-        await this.page.locator(`//h6[text()='${network}']/../../..//button`).click();
-        await this.page.locator('[data-testid="confirmation-submit-button"]').click();
-        await this.page.locator('button.home__new-network-added__switch-to-button').click();
+    async addNetwork(networkName: string) {
+        await this.gotoSettings();
+        await this.page.locator('.tab-bar__tab__content__title').nth(5).click();
+        await this.page.locator('button.btn-primary').nth(0).click();
+        await this.page.locator(`//h6[text()='${networkName}']/../../../div/button`).click();
+        await this.page.locator("//button[@data-testid='confirmation-submit-button']").click();
+
+        await this.page.locator('//button/h6').nth(1).click();
+    }
+
+    async changeRpc(networkName: string, fakeRpcUrl: string) {
+        await this.gotoSettings();
+        await this.page.locator('.tab-bar__tab__content__title').nth(5).click();
+        await this.page.locator(`//div[text() = '${networkName}']`).click();
+        await this.page.locator('//input[@data-testid="network-form-rpc-url"]').fill(fakeRpcUrl);
+        await sleep(3000);
+        await this.page.locator("(//div[@class='networks-tab__network-form']//button)[2]").click();
     }
 }
 
