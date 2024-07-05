@@ -1,7 +1,7 @@
 import path from 'path';
 import { getTestVar, TEST_CONST } from '../envHelper';
 
-export const EVM_NETWORKS = ['eth', 'arbitrum', 'optimism', 'bsc', 'polygon', 'fantom', 'avalanche'];
+export const EVM_NETWORKS = ['eth', 'arbitrum', 'optimism', 'bsc', 'polygon', 'fantom', 'avalanche', 'zksync'];
 
 export const COSMOS_WALLETS_BY_PROTOCOL_SEED = {
     cosmoshub: 'cosmos1e9dvrk7n69hsupdnf6q5d0h6k6e33lnjq6vrmz',
