@@ -127,16 +127,15 @@ export default {
 
         // ==========================================================================================
 
-        const unWatchAcc = watch(walletAccount, async (account, oldAccount) => {
-            if (!account || !oldAccount) return;
-
+        const unWatchAcc = watch(walletAccount, async () => {
             store.dispatch('tokens/setLoader', true);
             store.dispatch('tokens/setTargetAccount', walletAccount.value);
+
+            await callSubscription();
 
             await delay(1000);
 
             await callInit();
-            await callSubscription();
 
             if (currentChainInfo.value?.ecosystem === Ecosystem.EVM) store.dispatch('shortcuts/loadDebridgeInfo', walletAddress.value);
         });
