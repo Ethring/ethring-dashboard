@@ -41,11 +41,6 @@ export const routes = [
                     active: true,
                     to: '/send',
                 },
-                {
-                    title: 'simpleBridge.title',
-                    active: false,
-                    to: '/bridge',
-                },
             ],
         },
     },
