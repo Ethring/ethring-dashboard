@@ -103,6 +103,11 @@ class BasePage {
         await this.mockRoute(URL, mockData, statusCode);
     }
 
+    async mockPoolBalanceRequest(net: string, mockData: object, address: string, statusCode: number = 200) {
+        const URL = `**/srv-portal-fi-add-portal-fi/api/getUserBalancePoolList?net=${net}&ownerAddress=${address}**`;
+        await this.mockRoute(URL, mockData, statusCode);
+    }
+
     async mockAnyNetworkBalanceRequest(networks: string[], mockData: object, address: string) {
         await Promise.all(networks.map((network) => this.mockBalanceRequest(network, mockData, address)));
     }
@@ -113,6 +118,10 @@ class BasePage {
 
     async mockEstimateBridgeRequest(mockData: object, statusCode = 200) {
         await this.mockRoute(URL_MOCK_PATTERNS.MOCK_BRIDGE, mockData, statusCode);
+    }
+
+    async mockEstimateRemoveLpRequest(mockData: object, statusCode = 200) {
+        await this.mockRoute(URL_MOCK_PATTERNS.MOCK_REMOVE_LP, mockData, statusCode);
     }
 
     async mockTokensList(net: string, tokensList: object) {

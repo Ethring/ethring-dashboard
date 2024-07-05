@@ -287,7 +287,7 @@ export default class OperationFactory implements IOperationFactory {
         return { operationId, operationParams };
     }
 
-    processDependencyParams(opId: string, { isSetParam = false }: { isSetParam: boolean }): void {
+    processDependencyParams(opId: string, { isSetParam = false }: { isSetParam: boolean }, store: Storage): void {
         const operation = this.getOperationById(opId);
         if (!operation) return;
 
@@ -319,7 +319,7 @@ export default class OperationFactory implements IOperationFactory {
         }
     }
 
-    async estimateOutput(): Promise<void> {
+    async estimateOutput(store: Storage | any): Promise<void> {
         const operations = Array.from(this.operationsMap.keys());
 
         const table = [];
@@ -347,14 +347,11 @@ export default class OperationFactory implements IOperationFactory {
                 continue;
             }
 
-            this.processDependencyParams(opId, { isSetParam: true });
+            this.processDependencyParams(opId, { isSetParam: true }, store);
 
             const isSuccessOrFail = [STATUSES.SUCCESS, STATUSES.FAILED].includes(mainStatus as STATUSES);
 
-            if (isSuccessOrFail || !isAmountCorrect(currentOperation.getParamByField('amount'))) {
-                restoreStatus();
-                continue;
-            }
+            if (isSuccessOrFail || !isAmountCorrect(currentOperation.getParamByField('amount'))) restoreStatus();
 
             try {
                 if (!currentOperation.estimateOutput) {
@@ -363,7 +360,7 @@ export default class OperationFactory implements IOperationFactory {
                     continue;
                 }
 
-                await currentOperation.estimateOutput();
+                await currentOperation.estimateOutput(store);
                 restoreStatus();
             } catch (error) {
                 console.warn(`${opId} - ESTIMATE ERROR ############`);
@@ -568,7 +565,7 @@ export default class OperationFactory implements IOperationFactory {
             return score + 1;
         }, 0);
 
-        return Number(BigNumber(successScore).dividedBy(this.operationOrder.length).multipliedBy(100).toFixed(2));
+        return Number(BigNumber(successScore).dividedBy(this.getOperationsCount()).multipliedBy(100).toFixed(2));
     }
 
     getOperationsResult() {

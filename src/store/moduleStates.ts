@@ -9,6 +9,9 @@ const TYPES = {
     RESET_FIELDS: 'RESET_FIELDS',
 
     SET_IS_NEED_INPUT_FOCUS: 'SET_IS_NEED_INPUT_FOCUS',
+
+    SET_IS_NEED_APPROVE_LP: 'SET_IS_NEED_APPROVE_LP',
+    SET_IS_NEED_REMOVE_LP_APPROVE: 'SET_IS_NEED_REMOVE_LP_APPROVE',
 };
 
 class FieldState implements IFieldState {
@@ -41,6 +44,8 @@ interface IState {
     };
 
     isNeedInputFocus: boolean;
+    isNeedApproveLP: boolean;
+    isNeedRemoveLpApprove: boolean;
 }
 
 export default {
@@ -114,6 +119,8 @@ export default {
         },
 
         isNeedInputFocus: true,
+        isNeedApproveLP: false,
+        isNeedRemoveLpApprove: false,
     }),
 
     getters: {
@@ -136,6 +143,9 @@ export default {
         },
 
         getIsNeedInputFocus: (state: IState) => state.isNeedInputFocus,
+
+        isNeedApproveLP: (state: IState) => state.isNeedApproveLP,
+        isNeedRemoveLpApprove: (state: IState) => state.isNeedRemoveLpApprove,
     },
 
     mutations: {
@@ -158,6 +168,12 @@ export default {
 
         [TYPES.SET_IS_NEED_INPUT_FOCUS](state: IState, value: boolean) {
             state.isNeedInputFocus = value;
+        },
+        [TYPES.SET_IS_NEED_APPROVE_LP](state: IState, value: boolean) {
+            state.isNeedApproveLP = value;
+        },
+        [TYPES.SET_IS_NEED_REMOVE_LP_APPROVE](state: IState, value: boolean) {
+            state.isNeedRemoveLpApprove = value;
         },
     },
 
@@ -182,6 +198,14 @@ export default {
 
         setIsNeedInputFocus({ commit }: any, value: boolean) {
             commit(TYPES.SET_IS_NEED_INPUT_FOCUS, value);
+        },
+
+        setIsNeedApproveLP({ commit }: any, value: boolean) {
+            commit(TYPES.SET_IS_NEED_APPROVE_LP, value);
+        },
+
+        setIsNeedRemoveLPApprove({ commit }: any, value: boolean) {
+            commit(TYPES.SET_IS_NEED_REMOVE_LP_APPROVE, value);
         },
     },
 };

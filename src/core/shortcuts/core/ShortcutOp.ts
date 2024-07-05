@@ -31,8 +31,8 @@ export interface IShortcutOp {
 
     operationParams: {
         net?: string | null;
-        fromNet: string;
-        fromToken: string;
+        fromNet?: string;
+        fromToken?: string;
         toNet?: string | null;
         toToken?: string | null;
 
@@ -61,8 +61,8 @@ export default class ShortcutOp implements IShortcutOp {
     waitTime?: number = 3.5;
 
     operationParams: {
-        fromNet: string;
-        fromToken: string;
+        fromNet?: string;
+        fromToken?: string;
         toNet?: string | null;
         toToken?: string | null;
         net?: string | null;

@@ -168,7 +168,7 @@ export default function useTransactions() {
 
         const TARGET_TYPE = TRANSACTION_TYPES[type];
 
-        const isSameNetwork = tokens.from.chain === tokens.to?.chain;
+        const isSameNetwork = tokens.from?.chain === tokens.to?.chain;
 
         if (!DISALLOW_UPDATE_TYPES.includes(type)) {
             await store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });

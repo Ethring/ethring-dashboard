@@ -1,49 +1,42 @@
 <template>
     <a-form>
         <a-form-item>
-            <SwapField
-                v-if="selectedSrcToken && selectedSrcNetwork && selectedSrcToken !== null"
-                name="srcAmount"
-                :value="srcAmount"
-                :label="$t('tokenOperations.from')"
-                :token="selectedSrcToken"
-                :disabled="fieldStates.srcAmount.disabled"
-                @set-amount="handleOnSetAmount"
-            >
+            <a-row justify="space-between">
                 <SelectRecord
-                    v-if="!fieldStates.srcNetwork?.hide"
-                    :placeholder="$t('tokenOperations.selectNetwork')"
+                    :disabled="isDisableSelect"
                     :current="selectedSrcNetwork"
-                    :disabled="fieldStates.srcNetwork.disabled"
-                    @click="() => onSelectNetwork('SOURCE')"
+                    :placeholder="$t('tokenOperations.selectNetwork')"
+                    @click="onSelectNetwork"
                 />
-
-                <SelectRecord
-                    v-if="!fieldStates.srcToken?.hide"
-                    :placeholder="$t('tokenOperations.selectToken')"
-                    :current="selectedSrcToken"
-                    :disabled="fieldStates.srcToken.disabled"
-                    @click="() => onSelectToken(true, 'SOURCE')"
-                />
-            </SwapField>
+                <Slippage />
+            </a-row>
         </a-form-item>
+        <SelectAmountInput
+            :value="selectedSrcToken"
+            :selected-network="selectedSrcNetwork"
+            :error="!!isBalanceError"
+            :label="$t('tokenOperations.asset')"
+            :on-reset="resetAmount"
+            :amount-value="srcAmount"
+            class="select-amount"
+            @set-amount="handleOnSetAmount"
+            @click-token="onSelectToken"
+        />
 
         <EstimatePreviewInfo
             v-if="isShowEstimateInfo"
             :title="$t('tokenOperations.routeInfo')"
-            :error="quoteErrorMessage"
             :is-loading="isQuoteLoading"
             :fee-in-usd="fees[FEE_TYPE.BASE] || 0"
             :main-rate="fees[FEE_TYPE.RATE] || null"
+            :error="quoteErrorMessage"
         />
 
-        <UiButton data-qa="confirm" v-bind="opBtnState" :title="$t(opBtnState.title)" :tip="$t(opBtnState.tip)" @click="handleOnConfirm" />
+        <UiButton data-qa="confirm" v-bind="opBtnState" :title="$t(opTitle)" :tip="$t(opBtnState.tip)" @click="handleOnConfirm" />
     </a-form>
 </template>
-<script lang="ts">
-import { ref, watch, computed, defineComponent } from 'vue';
-import { useStore } from 'vuex';
-import BigNumber from 'bignumber.js';
+<script>
+import { ref, watch, computed } from 'vue';
 
 // Compositions
 import useModuleOperations from '@/compositions/useModuleOperation';
@@ -52,27 +45,30 @@ import useModuleOperations from '@/compositions/useModuleOperation';
 import UiButton from '@/components/ui/Button.vue';
 import EstimatePreviewInfo from '@/components/ui/EstimatePanel/EstimatePreviewInfo.vue';
 
-// Select components
-import SelectRecord from '@/components/ui/Select/SelectRecord.vue';
-import SwapField from '@/components/ui/SuperSwap/SwapField.vue';
+// Input components
+import SelectAmountInput from '@/components/ui/Select/SelectAmountInput';
+
+// Slippage Component
+import Slippage from '@/components/ui/Slippage.vue';
+
+// Select Components
+import SelectRecord from '@/components/ui/Select/SelectRecord';
 
 // Constants
 import { DIRECTIONS, TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
-
 import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
 
-export default defineComponent({
-    name: 'PendleSiloLayout',
+export default {
+    name: 'AddLiquidityLayout',
     components: {
         UiButton,
-        SwapField,
-        SelectRecord,
+        SelectAmountInput,
         EstimatePreviewInfo,
+        Slippage,
+        SelectRecord,
     },
     setup() {
-        const store = useStore();
-
         // * Init module operations, and get all necessary data, (methods, states, etc.) for the module
         // * Also, its necessary to sign the transaction (Transaction manger)
         const { handleOnConfirm, moduleInstance, isDisableConfirmButton, isDisableSelect, isTransactionSigning } = useModuleOperations(
@@ -86,19 +82,15 @@ export default defineComponent({
 
             srcAmount,
 
-            onlyWithBalance,
-
             // - Errors
             isBalanceError,
 
             // - Loading
             isLoading,
+            isTokensLoadingForSrc,
             isShowEstimateInfo,
             isQuoteLoading,
-            isTokensLoadingForSrc,
             fees,
-
-            isNeedInputFocus,
 
             quoteErrorMessage,
 
@@ -113,11 +105,8 @@ export default defineComponent({
             fieldStates,
         } = moduleInstance;
 
-        const isConfigLoading = computed(() => store.getters['configs/isConfigLoading']);
-
         // =================================================================================================================
 
-        const clearAddress = ref(false);
         const resetAmount = ref(false);
 
         // =================================================================================================================
@@ -136,19 +125,10 @@ export default defineComponent({
 
         // =================================================================================================================
 
-        const onSelectNetwork = (direction: keyof typeof DIRECTIONS) =>
-            handleOnSelectNetwork({ direction: DIRECTIONS[direction], type: null });
+        const onSelectToken = () => handleOnSelectToken({ direction: DIRECTIONS.SOURCE, type: TOKEN_SELECT_TYPES.FROM });
+        const onSelectNetwork = () => handleOnSelectNetwork({ direction: DIRECTIONS.SOURCE, type: TOKEN_SELECT_TYPES.FROM });
 
-        const onSelectToken = (withBalance = false, direction: keyof typeof DIRECTIONS) => {
-            onlyWithBalance.value = withBalance;
-
-            handleOnSelectToken({
-                direction: DIRECTIONS[direction],
-                type: withBalance ? TOKEN_SELECT_TYPES.FROM : TOKEN_SELECT_TYPES.TO,
-            });
-        };
-
-        const resetAmounts = async (amount: string | number) => {
+        const resetAmounts = async (amount) => {
             const allowDataTypes = ['string', 'number'];
 
             if (allowDataTypes.includes(typeof amount)) return;
@@ -162,7 +142,7 @@ export default defineComponent({
 
         watch(resetAmount, () => {
             if (resetAmount.value) {
-                handleOnSetAmount('');
+                handleOnSetAmount(null);
                 setTimeout(() => (resetAmount.value = false));
             }
         });
@@ -191,25 +171,25 @@ export default defineComponent({
             isBalanceError,
 
             // Reset
-            clearAddress,
             resetAmount,
 
             // handlers
             onSelectNetwork,
             onSelectToken,
-            isShowEstimateInfo,
+
             handleOnSetAmount,
 
             // Handle Confirm (Transaction signing)
             handleOnConfirm,
 
             fieldStates,
+
             isQuoteLoading,
             fees,
             quoteErrorMessage,
             FEE_TYPE,
-            DIRECTIONS,
+            isShowEstimateInfo,
         };
     },
-});
+};
 </script>

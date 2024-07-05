@@ -5,6 +5,7 @@ import { useStore, Store } from 'vuex';
 
 import useTokenList from '@/compositions/useTokensList';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
+import usePoolsList from '@/compositions/usePoolList';
 
 import { searchByKey } from '@/shared/utils/helpers';
 import { assignPriceInfo } from '@/shared/utils/prices';
@@ -31,6 +32,7 @@ export default function useSelectModal(type: ComputedRef<string>, { tmpStore }: 
     const TYPES = {
         NETWORK: 'network',
         TOKEN: 'token',
+        POOL: 'pool',
     };
 
     // *****************************************************************************************************************
@@ -80,6 +82,12 @@ export default function useSelectModal(type: ComputedRef<string>, { tmpStore }: 
 
     const { chainList, getAllChainsList } = useAdapter({ tmpStore: store });
     const { getTokensList } = useTokenList({ tmpStore: store });
+
+    // *****************************************************************************************************************
+    // * Pools with balances
+    // *****************************************************************************************************************
+
+    const pools = usePoolsList();
 
     // *****************************************************************************************************************
     // * Getters
@@ -284,6 +292,8 @@ export default function useSelectModal(type: ComputedRef<string>, { tmpStore }: 
                 return CHAIN_LIST.value || [];
             case TYPES.TOKEN:
                 return TOKEN_LIST.value || [];
+            case TYPES.POOL:
+                return pools.value[selectedSrcNetwork.value?.net] || [];
             default:
                 return [];
         }

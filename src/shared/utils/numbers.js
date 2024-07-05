@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 
-export const formatNumber = (value, maximumFractionDigits = 6) => {
+export const formatNumber = (value, maximumFractionDigits = 8) => {
     if (!value || +value === 0) return '0';
 
     if (Number.isNaN(Number(value))) return value;

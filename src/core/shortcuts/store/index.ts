@@ -78,7 +78,7 @@ export default {
     // ================================================================================
 
     state: (): IState => ({
-        currentLayout: 'SuperSwap',
+        currentLayout: '',
         currentShortcutId: '',
         currentStepId: '',
         currentIndex: 0,

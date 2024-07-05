@@ -76,16 +76,25 @@ export const trackingBalanceUpdate = (store: any) => {
         await store.dispatch('updateBalance/removeUpdateBalanceForAddress', queueWallet);
 
         const tokens = store.getters['tokens/getTokensListForChain'](config.net, { account: targetAccount });
+        const pools = store.getters['tokens/getPoolsByAccount'](targetAccount);
+
+        const isSrcLpToken = srcToken.value?.id?.includes('pools');
+        const isDstLpToken = dstToken.value?.id?.includes('pools');
+
+        if (isSrcLpToken && !pools[config.net].length) srcToken.value = null;
+        if (isDstLpToken && !pools[config.net].length) dstToken.value = null;
 
         if (srcToken.value && config.net === srcToken.value.net) {
-            const srcTokenData = tokens.find(
+            const list = isSrcLpToken ? pools[config.net] : tokens;
+            const srcTokenData = list.find(
                 ({ id = '', address = '' }) => id === srcToken.value?.id || toLower(address) === toLower(srcToken.value?.address || ''),
             );
             if (srcTokenData) srcToken.value.balance = srcTokenData.balance;
         }
 
         if (dstToken.value && config.net === dstToken.value.net) {
-            const dstTokenData = tokens.find(
+            const list = isDstLpToken ? pools[config.net] : tokens;
+            const dstTokenData = list.find(
                 ({ id = '', address = '' }) => id === dstToken.value?.id || toLower(address) === toLower(dstToken.value?.address || ''),
             );
             if (dstTokenData) dstToken.value.balance = dstTokenData.balance;

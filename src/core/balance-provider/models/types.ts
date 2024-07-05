@@ -133,7 +133,7 @@ export type RecordOptions = RequestOptions & {
 
 export type RecordList = BaseToken[] | IntegrationResponse[] | NftResponse[];
 
-export type BalanceType = Type.tokens | Type.nfts | Type.integrations;
+export type BalanceType = Type.tokens | Type.nfts | Type.integrations | Type.pools;
 
 export type ProviderRequestOptions = {
     fetchTokens?: boolean;

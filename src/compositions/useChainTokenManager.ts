@@ -5,12 +5,14 @@ import { Store, useStore } from 'vuex';
 
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 import useTokensList from '@/compositions/useTokensList';
+import usePoolsList from '@/compositions/usePoolList';
 import useInputValidation from '@/shared/form-validations';
 
 import { TOKEN_SELECT_TYPES } from '@/shared/constants/operations';
 import { ModuleType, LIKE_SUPER_SWAP, IS_NEED_DST_NETWORK } from '@/shared/models/enums/modules.enum';
 import { IChainConfig } from '@/shared/models/types/chain-config';
 import { IAsset } from '@/shared/models/fields/module-fields';
+import { AvailableShortcuts } from '@/core/shortcuts/data/shortcuts';
 
 /**
  * @composition useChainTokenManager
@@ -65,6 +67,9 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
         get: () => store.getters['tokenOps/dstToken'],
         set: (value) => store.dispatch('tokenOps/setDstToken', value),
     });
+
+    const pools = usePoolsList();
+    // =================================================================================================================
 
     // * Current chain info
     const currentNet = computed(() => selectedSrcNetwork.value?.net);
@@ -166,6 +171,26 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
         return store.getters['tokens/loadingByChain'](walletAccount.value, selectedDstNetwork.value.net);
     });
 
+    // =================================================================================================================
+
+    const CurrentStepId = computed(() => store.getters['shortcuts/getCurrentStepId']);
+    const CurrentShortcut = computed(() => store.getters['shortcuts/getCurrentShortcutId']);
+
+    const CurrentOperation = computed(() => {
+        if (!CurrentShortcut.value) return null;
+        if (!CurrentStepId.value) return null;
+
+        return store.getters['shortcuts/getCurrentOperation'](CurrentShortcut.value);
+    });
+
+    const includeTokenList = computed(() => {
+        const { includeTokens = {} } = CurrentOperation.value || {};
+
+        if (includeTokens[selectedSrcNetwork.value?.net]) return includeTokens[selectedSrcNetwork.value?.net];
+
+        return [];
+    });
+
     // ****************************************************************************************************************
     // * Methods
     // ****************************************************************************************************************
@@ -174,9 +199,10 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
     const setTokenOnChangeForNet = async (
         srcNet: IChainConfig,
         srcToken: IAsset,
-        { isSameNet, excludeTokens }: { isSameNet: boolean; excludeTokens: string[] } = {
+        { isSameNet, excludeTokens, isSrc }: { isSameNet?: boolean; excludeTokens?: string[]; isSrc?: boolean } = {
             isSameNet: false,
             excludeTokens: [],
+            isSrc: true,
         },
     ) => {
         // ************************************************
@@ -184,6 +210,12 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
         // 2. Is the source token is found in the tokens list, then set the source token to the found token
         // 3. If the source token is not found, then set the source token to the default token
         // ************************************************
+
+        if (moduleType === ModuleType.shortcut && !CurrentShortcut.value) return;
+
+        // return pool token, if shortcut is RemoveLiquidityPool
+        if (CurrentShortcut.value === AvailableShortcuts.RemoveLiquidityPool && isSrc)
+            return pools.value[srcNet?.net]?.length ? pools.value[srcNet?.net][0] : null;
 
         const getTokensParams = {
             srcNet,
@@ -194,10 +226,16 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
             exclude: [],
         } as any;
 
-        excludeTokens.length ? (getTokensParams.exclude = excludeTokens) : null;
+        excludeTokens?.length ? (getTokensParams.exclude = excludeTokens) : null;
 
         // * 1. Get tokens list for the source network
         tokensList.value = await getTokensList(getTokensParams);
+
+        let filteredTokenList: any[] = [];
+        if (includeTokenList.value.length)
+            filteredTokenList = tokensList.value.filter((token) => includeTokenList.value.includes(token.id));
+
+        if (filteredTokenList?.length) tokensList.value = filteredTokenList;
 
         // * If the tokens list is empty, then return null
         if (!tokensList.value?.length) return null;
@@ -227,6 +265,7 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
         selectedDstToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedDstToken.value, {
             isSameNet,
             excludeTokens,
+            isSrc: false,
         });
     };
 
@@ -353,7 +392,8 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
             if ([ModuleType.swap].includes(moduleType)) await updateDstTokenIfNeed(true, [selectedSrcToken.value?.id]);
         }
 
-        if (!isEmpty(newDst)) selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
+        if (!isEmpty(newDst))
+            selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value, { isSrc: false });
 
         defaultChainMangerByModule();
     };
@@ -388,7 +428,7 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
 
         if ([ModuleType.send].includes(moduleType)) return (selectedDstToken.value = null);
 
-        selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value);
+        selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value, { isSrc: false });
     };
 
     const onChangeLoadingConfig = (loadingState: boolean) => {
