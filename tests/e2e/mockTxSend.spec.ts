@@ -1,5 +1,4 @@
 import { testMetaMaskMockTx } from '../__fixtures__/fixtures';
-import { expect } from '@playwright/test';
 import { mockBalanceDataBySendTest } from '../data/mockHelper';
 import { getTestVar, TEST_CONST } from '../envHelper';
 import { MetaMaskNotifyPage, getNotifyMmPage, mockMetaMaskSignTransaction } from '../model/MetaMask/MetaMask.pages';

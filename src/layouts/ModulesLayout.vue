@@ -23,11 +23,9 @@
 </template>
 <script>
 import { onBeforeUnmount, onMounted, watch, ref, computed, watchEffect } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 
-import SimpleBridge from '@/pages/dynamic-modules/SimpleBridge.vue';
-import SimpleSwap from '@/pages/dynamic-modules/SimpleSwap.vue';
 import SimpleSend from '@/pages/dynamic-modules/SimpleSend.vue';
 import SuperSwap from '@/pages/dynamic-modules/SuperSwap.vue';
 
@@ -35,15 +33,12 @@ import UnsupportedResult from '@/components/ui/UnsupportedResult.vue';
 import OperationResult from '@/components/ui/Result.vue';
 import ArrowUpIcon from '@/assets/icons/module-icons/pointer-up.svg';
 
-import redirectOrStay from '@/shared/utils/routes';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
 export default {
     name: 'ModulesLayout',
     components: {
-        SimpleBridge,
         SimpleSend,
-        SimpleSwap,
         SuperSwap,
         OperationResult,
         UnsupportedResult,
@@ -65,10 +60,9 @@ export default {
 
         const isConfigLoading = computed(() => store.getters['configs/isConfigLoading']);
 
-        const { currentChainInfo, isConnecting, walletAccount } = useAdapter();
+        const { currentChainInfo, isConnecting } = useAdapter();
 
         const router = useRouter();
-        const route = useRoute();
 
         const currentModule = computed(() => {
             const { name, meta } = router.currentRoute.value;
