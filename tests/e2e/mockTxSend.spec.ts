@@ -49,6 +49,9 @@ testMetaMask.describe('Mocked send tx Metamask', () => {
 
         await sendPage.clickConfirm();
 
+        const notifyMMchangeNet = new MetaMaskNotifyPage(await getNotifyMmPage(context));
+        await notifyMMchangeNet.changeNetworkIfNetAlreadyInMm();
+
         const notifyMMtx = new MetaMaskNotifyPage(await getNotifyMmPage(context));
         await notifyMMtx.signTx();
 

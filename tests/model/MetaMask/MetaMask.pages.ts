@@ -187,6 +187,10 @@ class MetaMaskNotifyPage {
         await this.page.click('[data-testid="confirmation-submit-button"]');
         await this.page.click('[data-testid="confirmation-submit-button"]');
     }
+
+    async changeNetworkIfNetAlreadyInMm() {
+        await this.page.click('[data-testid="confirmation-submit-button"]');
+    }
 }
 
 export { metamaskVersion, waitMmNotifyPage, getNotifyMmPage, getHomeMmPage, MetaMaskHomePage, MetaMaskNotifyPage };
