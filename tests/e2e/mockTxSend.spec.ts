@@ -1,23 +1,23 @@
-import { testMetaMaskMockTx } from '../__fixtures__/fixtures';
-import { expect } from '@playwright/test';
+import { testMetaMask } from '../__fixtures__/fixtures';
 import { mockBalanceDataBySendTest } from '../data/mockHelper';
 import { getTestVar, TEST_CONST } from '../envHelper';
-import { MetaMaskNotifyPage, getNotifyMmPage, mockMetaMaskSignTransaction } from '../model/MetaMask/MetaMask.pages';
+import { MetaMaskNotifyPage, getNotifyMmPage } from '../model/MetaMask/MetaMask.pages';
 import util from 'util';
 import {
     mockPostTransactionsRouteSendMockTx,
     mockPostTransactionsWsByCreateEventSendMockTx,
     mockPutTransactionsRouteSendMockTx,
     mockPutTransactionsWsByUpdateTransactionEventInProgressSendMockTx,
-    mockTxReceipt,
 } from '../data/mockDataByTests/SendTxPolygonMock';
-import { METAMASK_DEFAULT_URL_NODE } from '../data/constants';
+import { METAMASK_FAKE_URL_NODE } from '../data/constants';
+import { setCustomRpc } from '../__fixtures__/fixtureHelper';
 
 const sleep = util.promisify(setTimeout);
 
-testMetaMaskMockTx.describe('Mocked send tx Metamask', () => {
-    testMetaMaskMockTx('Case#: Send tx in Polygon', async ({ browser, context, page, sendPage }) => {
+testMetaMask.describe('Mocked send tx Metamask', () => {
+    testMetaMask('Case#: Send tx in Polygon', async ({ browser, context, page, sendPage }) => {
         const network = 'Polygon';
+        const networkNameInMM = 'Polygon Mainnet';
         const addressFrom = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
         const addressTo = getTestVar(TEST_CONST.RECIPIENT_ADDRESS);
         const amount = '0.001';
@@ -25,17 +25,14 @@ testMetaMaskMockTx.describe('Mocked send tx Metamask', () => {
         const expectedNotificationTitle = 'Transaction SUCCESS';
         const expectedNotificationDesc = '';
 
-        // Use method mockMetaMaskSignTransaction ONLY before sign tx, else mock may be not fulfill!
-        await mockMetaMaskSignTransaction(
-            context,
-            METAMASK_DEFAULT_URL_NODE.POLYGON,
-            '0xd9193bc27c644e2c0db7353daabe4b268b7ba10c707f80de166d55852884a368',
-            mockTxReceipt,
-        );
-
         await sendPage.mockBalanceRequest(network.toLowerCase(), mockBalanceDataBySendTest[network.toLowerCase()], addressFrom);
         const balancePromise = sendPage.page.waitForResponse(WAITED_URL);
         await balancePromise;
+
+        await setCustomRpc(context, METAMASK_FAKE_URL_NODE.POLYGON, networkNameInMM);
+
+        const finalTxStatusEventPromise = sendPage.waitEventInSocket('update_transaction_status');
+        await sendPage.page.reload();
 
         await sendPage.changeNetwork(network);
         await sendPage.setAddressTo(addressTo);
@@ -52,14 +49,10 @@ testMetaMaskMockTx.describe('Mocked send tx Metamask', () => {
 
         await sendPage.clickConfirm();
 
-        const notifyMM = new MetaMaskNotifyPage(await getNotifyMmPage(context));
-        await notifyMM.changeNetwork();
-
         const notifyMMtx = new MetaMaskNotifyPage(await getNotifyMmPage(context));
         await notifyMMtx.signTx();
 
-        await sleep(2000);
-
+        await finalTxStatusEventPromise;
         await sendPage.assertNotificationByPage(1, expectedNotificationTitle, expectedNotificationDesc);
     });
 });

@@ -56,6 +56,7 @@ export default {
         [Type.tokens]: {},
         [Type.integrations]: {},
         [Type.nfts]: {},
+        [Type.pools]: {},
 
         disableLoader: false,
 
@@ -99,6 +100,8 @@ export default {
         loadingForChains: (state) => (account) => state.loadingByChain[account] || {},
 
         targetAccount: (state) => state.targetAccount,
+
+        getPoolsByAccount: (state) => (account) => state.pools[account],
 
         getAccountBalanceByType:
             (state) =>

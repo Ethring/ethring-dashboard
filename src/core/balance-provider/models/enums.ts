@@ -12,6 +12,13 @@ export enum Type {
     tokens = 'tokens',
     nfts = 'nfts',
     integrations = 'integrations',
+    pools = 'pools',
+}
+
+export enum BaseType {
+    tokens = 'tokens',
+    nfts = 'nfts',
+    integrations = 'integrations',
 }
 
 // *******************************************************************************************
@@ -267,4 +274,13 @@ export const DATA_PROVIDER_COSMOS_CHAINS = [
     DP_CHAINS.OSMOSIS,
     DP_CHAINS.STARGAZE,
     DP_CHAINS.TERRA2,
+];
+
+export const POOL_BALANCES_CHAINS = [
+    DP_CHAINS.ARBITRUM,
+    DP_CHAINS.AVALANCHE,
+    DP_CHAINS.BSC,
+    DP_CHAINS.OPTIMISM,
+    DP_CHAINS.FANTOM,
+    DP_CHAINS.POLYGON,
 ];

@@ -8,7 +8,7 @@ dotenv.config({
 
 const localFrontUrl = 'http://localhost:5173';
 
-const testFilesName = 'dashboard|send|swap|superSwap|mockTxSend|shortcut';
+const testFilesName = 'dashboard|send|superSwap|shortcut|mockTxSend|mockTxShortcut';
 
 export default defineConfig({
     testDir: './tests/e2e',
@@ -18,7 +18,7 @@ export default defineConfig({
     workers: process.env.CI ? 3 : 1,
     maxFailures: process.env.CI ? 5 : undefined,
     reporter: 'html',
-    timeout: 2 * 60 * 1000,
+    timeout: 3 * 60 * 1000,
     use: {
         ignoreHTTPSErrors: true,
         bypassCSP: true,

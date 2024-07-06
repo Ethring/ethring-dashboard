@@ -1,7 +1,7 @@
 import path from 'path';
 import { getTestVar, TEST_CONST } from '../envHelper';
 
-export const EVM_NETWORKS = ['eth', 'arbitrum', 'optimism', 'bsc', 'polygon', 'fantom', 'avalanche'];
+export const EVM_NETWORKS = ['eth', 'arbitrum', 'optimism', 'bsc', 'polygon', 'fantom', 'avalanche', 'zksync'];
 
 export const COSMOS_WALLETS_BY_PROTOCOL_SEED = {
     cosmoshub: 'cosmos1e9dvrk7n69hsupdnf6q5d0h6k6e33lnjq6vrmz',
@@ -64,8 +64,8 @@ export enum DATA_QA_LOCATORS {
     EVM_ECOSYSTEM_WALLET = 'EVM Ecosystem wallet',
     COSMOS_ECOSYSTEM_WALLET = 'Cosmos Ecosystem wallet',
     SIDEBAR_SEND = 'sidebar-item-send',
-    SIDEBAR_SWAP = 'sidebar-item-swap',
-    SIDEBAR_BRIDGE = 'sidebar-item-bridge',
+    // SIDEBAR_SWAP = 'sidebar-item-swap',
+    // SIDEBAR_BRIDGE = 'sidebar-item-bridge',
     SIDEBAR_SUPER_SWAP = 'sidebar-item-superSwap',
     SIDEBAR_SHORTCUT = 'sidebar-item-shortcut',
     DASHBOARD = 'dashboard',
@@ -105,6 +105,7 @@ export enum IGNORED_LOCATORS {
 export enum URL_MOCK_PATTERNS {
     MOCK_SWAP = '**/services/dex/getQuote**',
     MOCK_BRIDGE = '**/services/bridgedex/getQuote**',
+    MOCK_REMOVE_LP = '**/srv-portal-fi-add-portal-fi/api/getQuoteRemoveLiquidity**',
 }
 
 export const MEMO_BY_KEPLR_TEST = '105371789';
@@ -113,4 +114,16 @@ export enum METAMASK_DEFAULT_URL_NODE {
     BSC = 'https://bsc.publicnode.com/',
     POLYGON = 'https://polygon-rpc.com/',
     ARBITRUM = 'https://arb1.arbitrum.io/rpc',
+}
+
+export enum METAMASK_FAKE_URL_NODE {
+    POLYGON = 'https://evm-fake-node.3ahtim54r.ru/polygon',
+    BSC = 'https://evm-fake-node.3ahtim54r.ru/bsc',
+    ARBITRUM = 'https://evm-fake-node.3ahtim54r.ru/arbitrum',
+}
+
+export enum METAMASK_DEFAULT_NETWORK_NAME {
+    POLYGON = 'Polygon Mainnet',
+    BSC = 'BNB Chain',
+    // ARBITRUM = '',
 }

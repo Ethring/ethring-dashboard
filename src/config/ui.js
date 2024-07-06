@@ -19,23 +19,23 @@ const SEND = {
     type: 'layout',
 };
 
-const BRIDGE = {
-    icon: 'bridgeIcon',
-    title: 'Bridge',
-    key: 'bridge',
-    to: '/bridge',
-    disabled: false,
-    type: 'layout',
-};
+// const BRIDGE = {
+//     icon: 'bridgeIcon',
+//     title: 'Bridge',
+//     key: 'bridge',
+//     to: '/bridge',
+//     disabled: false,
+//     type: 'layout',
+// };
 
-const SWAP = {
-    icon: 'swapIcon',
-    title: 'Swap',
-    key: 'swap',
-    to: '/swap',
-    disabled: false,
-    type: 'layout',
-};
+// const SWAP = {
+//     icon: 'swapIcon',
+//     title: 'Swap',
+//     key: 'swap',
+//     to: '/swap',
+//     disabled: false,
+//     type: 'layout',
+// };
 
 const SUPER_SWAP = {
     icon: 'superSwapIcon',
@@ -57,21 +57,15 @@ const SHORTCUT = {
     type: 'layout',
 };
 
-const SIDEBAR_MODULES = [MAIN_DASHBOARD, SHORTCUT, SEND, SWAP, BRIDGE, SUPER_SWAP];
+const SIDEBAR_MODULES = [MAIN_DASHBOARD, SHORTCUT, SEND, SUPER_SWAP];
 
-const SIDEBAR_MODULES_UN_AUTH = [MAIN_DASHBOARD, SHORTCUT, SEND, SWAP, BRIDGE, SUPER_SWAP];
+const SIDEBAR_MODULES_UN_AUTH = [MAIN_DASHBOARD, SHORTCUT, SEND, SUPER_SWAP];
 
 const defaultConfig = {
     [Ecosystem.EVM]: {
         sidebar: SIDEBAR_MODULES,
         send: {
             component: 'SimpleSend',
-        },
-        swap: {
-            component: 'SimpleSwap',
-        },
-        bridge: {
-            component: 'SimpleBridge',
         },
         superSwap: {
             component: 'SuperSwap',
@@ -87,12 +81,6 @@ const defaultConfig = {
         sidebar: SIDEBAR_MODULES,
         send: {
             component: 'SimpleSend',
-        },
-        swap: {
-            component: 'SimpleSwap',
-        },
-        bridge: {
-            component: 'SimpleBridge',
         },
         superSwap: {
             component: 'SuperSwap',

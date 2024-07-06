@@ -6,13 +6,14 @@ import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 import { BalanceType, AssetBalance, IntegrationBalance, NftBalance, RecordList, RecordOptions } from '@/core/balance-provider/models/types';
 
 import { Type } from '@/core/balance-provider/models/enums';
+import { IGetUsersPoolListResponse as PoolBalance } from '@/modules/portal-fi/models/request';
 
 // * Format facade for balance records, used to format the response from the data provider
 export const formatResponse = (
     type: BalanceType,
     balances: RecordList,
     opt: RecordOptions = {},
-): AssetBalance[] | IntegrationBalance[] | NftBalance[] => {
+): AssetBalance[] | IntegrationBalance[] | NftBalance[] | PoolBalance[] => {
     switch (type) {
         case Type.tokens:
             return balances.map((balance: any) => formatRecord(type, balance as AssetBalance, opt));
@@ -20,6 +21,8 @@ export const formatResponse = (
             return balances.map((integration: any) => formatIntegration(integration, opt));
         case Type.nfts:
             return balances.map((nft: any) => formatNft(type, nft as NftBalance, opt));
+        case Type.pools:
+            return balances.map((pool: any) => formatPool(type, pool as PoolBalance, opt));
     }
 };
 
@@ -80,6 +83,7 @@ const cosmosChainTokens = (record: AssetBalance, opt: RecordOptions = {}) => {
         record.base = lowerCase(record.base);
         record.address = lowerCase(record.address);
         record.logo = logo;
+        record.verified = true;
     }
 
     return record;
@@ -102,7 +106,24 @@ const formatRecord = (type: BalanceType, record: AssetBalance, opt: RecordOption
     if (!record.balanceType && !record.address && !record.id) {
         record.id = `${record.chain}:${type}__native:${record.symbol}`;
         record.logo = nativeTokenLogo;
+        record.verified = true;
     }
+
+    return record;
+};
+
+// * The pool record formatter used to format the response from the portal-fi
+const formatPool = (type: BalanceType, record: PoolBalance, opt: RecordOptions = {}): NftBalance => {
+    const { chain, logo } = opt;
+
+    record.chain = chain;
+    record.chainLogo = logo;
+
+    record.id = `${record.chain}:${type}__${record?.address}:${record?.symbol}`;
+    record.balanceUsd = record.balanceUSD;
+    record.net = record.network;
+
+    if (record.images.length) record.logo = record.images[0];
 
     return record;
 };

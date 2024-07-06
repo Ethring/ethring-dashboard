@@ -8,6 +8,7 @@ export enum ModuleType {
     shortcut = 'shortcut',
     pendleSilo = 'pendleSilo',
     pendleBeefy = 'pendleBeefy',
+    liquidityProvider = 'liquidityProvider',
 }
 
 export type ModuleTypes = keyof typeof ModuleType;
@@ -25,3 +26,9 @@ export enum TOKEN_SELECT_TYPES {
 }
 
 export type TOKEN_SELECT_TYPES_TYPE = keyof typeof TOKEN_SELECT_TYPES;
+
+export const IS_NEED_DST_NETWORK = [ModuleType.bridge, ModuleType.superSwap];
+
+export const LIKE_SUPER_SWAP = [ModuleType.superSwap, ModuleType.pendleSilo, ModuleType.pendleBeefy];
+
+export const IS_NOT_NEED_DST_TOKEN = [ModuleType.send, ModuleType.stake];

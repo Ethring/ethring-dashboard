@@ -91,6 +91,8 @@ export interface IBaseOperation {
 
     quoteRoute?: IQuoteRoute;
 
+    isNeedApprove: boolean;
+
     // Wait Time for Transaction to be processed
     waitTime: number;
     setWaitTime: (time: number) => void;
@@ -145,7 +147,7 @@ export interface IBaseOperation {
     execute?: () => Promise<string>;
 
     // Estimate output
-    estimateOutput?: () => Promise<void>;
+    estimateOutput?: (store?: Storage | any) => Promise<void>;
 
     // Get Flow of operations
     getOperationFlow?: () => TxOperationFlow[];
@@ -167,6 +169,8 @@ export interface IBaseOperation {
     getTxResponse: () => any;
 
     getNotificationInfo: (make: string) => { title: string; description?: string };
+
+    setNeedApprove: (flag: boolean) => void;
 }
 
 export interface IRegisterOperation {

@@ -21,16 +21,16 @@ class BasePage {
 
     readonly sideBarLinks = {
         [Modules.send]: DATA_QA_LOCATORS.SIDEBAR_SEND,
-        [Modules.swap]: DATA_QA_LOCATORS.SIDEBAR_SWAP,
-        [Modules.bridge]: DATA_QA_LOCATORS.SIDEBAR_BRIDGE,
+        // [Modules.swap]: DATA_QA_LOCATORS.SIDEBAR_SWAP,
+        // [Modules.bridge]: DATA_QA_LOCATORS.SIDEBAR_BRIDGE,
         [Modules.superSwap]: DATA_QA_LOCATORS.SIDEBAR_SUPER_SWAP,
         [Modules.shortcut]: DATA_QA_LOCATORS.SIDEBAR_SHORTCUT,
     };
 
     readonly modules = {
         [Modules.send]: (page: Page) => new SendPage(page),
-        [Modules.swap]: (page: Page) => new SwapPage(page),
-        [Modules.bridge]: (page: Page) => new BridgePage(page),
+        // [Modules.swap]: (page: Page) => new SwapPage(page),
+        // [Modules.bridge]: (page: Page) => new BridgePage(page),
         [Modules.superSwap]: (page: Page) => new SuperSwapPage(page),
         [Modules.shortcut]: (page: Page) => new ShortcutPage(page),
     };
@@ -66,7 +66,12 @@ class BasePage {
         await this.page.locator("(//div[@class='wallet__options-item'])[2]//div[text()='Disconnect']").click();
     }
 
-    async goToModule(module: ModuleNames): Promise<SwapPage | SendPage | BridgePage | SuperSwapPage | ShortcutPage> {
+    async disconnectAllWallets() {
+        await this.page.locator('div.wallet-adapter-container').click();
+        await this.page.locator('div.disconnect-all').first().click();
+    }
+
+    async goToModule(module: ModuleNames): Promise<SendPage | SuperSwapPage | ShortcutPage> {
         const moduleName = this.sideBarLinks[module];
         await this.page.getByTestId(moduleName).click();
         return this.modules[module](this.page);
@@ -98,6 +103,11 @@ class BasePage {
         await this.mockRoute(URL, mockData, statusCode);
     }
 
+    async mockPoolBalanceRequest(net: string, mockData: object, address: string, statusCode: number = 200) {
+        const URL = `**/srv-portal-fi-add-portal-fi/api/getUserBalancePoolList?net=${net}&ownerAddress=${address}**`;
+        await this.mockRoute(URL, mockData, statusCode);
+    }
+
     async mockAnyNetworkBalanceRequest(networks: string[], mockData: object, address: string) {
         await Promise.all(networks.map((network) => this.mockBalanceRequest(network, mockData, address)));
     }
@@ -108,6 +118,10 @@ class BasePage {
 
     async mockEstimateBridgeRequest(mockData: object, statusCode = 200) {
         await this.mockRoute(URL_MOCK_PATTERNS.MOCK_BRIDGE, mockData, statusCode);
+    }
+
+    async mockEstimateRemoveLpRequest(mockData: object, statusCode = 200) {
+        await this.mockRoute(URL_MOCK_PATTERNS.MOCK_REMOVE_LP, mockData, statusCode);
     }
 
     async mockTokensList(net: string, tokensList: object) {
@@ -206,6 +220,12 @@ class BasePage {
             body.expectedDataHttp = httpData;
             body.expectedDataWs = wsData;
 
+            // Set to expected data hash fake transaction from MM
+            if (body.transaction?.hasOwnProperty('txHash') && body.transaction.txHash !== null) {
+                body.expectedDataHttp.data.txHash = body.transaction.txHash;
+                body.expectedDataWs.txHash = body.transaction.txHash;
+            }
+
             const override = { postData: JSON.stringify(body) };
             route.continue(override);
         } else {
@@ -265,7 +285,6 @@ class BasePage {
      */
     async getPayloadOfPostSwapTxRequest() {
         return await this.page.route(/\/getSwapTx$/, (route) => {
-            console.log(route.request().postData(), '---route.request().postData();');
             return route.request().postData();
         });
     }
@@ -278,6 +297,38 @@ class BasePage {
         await expect(txNotification).toHaveCount(expectNotifyCount);
         await expect(txNotificationTitle).toHaveText(expectedNotificationTitle);
         await expect(txNotificationDesc).toHaveText(expectedNotificationDescription);
+    }
+
+    async waitEventInSocket(waitedEventName: string, timeoutSec: number = 180000) {
+        return new Promise<void>((resolve, reject) => {
+            const timeout = setTimeout(() => reject(new Error('Event not received within timeout')), timeoutSec);
+
+            this.page.on('websocket', (ws) => {
+                ws.on('framereceived', (event) => {
+                    try {
+                        const data: string | Buffer = event.payload;
+                        if (
+                            typeof data !== 'string' ||
+                            data[0] === '0' ||
+                            data[0] === '2' ||
+                            data[0] === '40' ||
+                            data === '{"type":"connected"}'
+                        )
+                            return;
+
+                        console.log('>>>', data);
+                        const responseEventName = JSON.parse(data.substring(2))[0];
+
+                        if (waitedEventName === responseEventName) {
+                            clearTimeout(timeout);
+                            resolve();
+                        }
+                    } catch (error) {
+                        console.error('Error parsing WebSocket message:', error);
+                    }
+                });
+            });
+        });
     }
 }
 
@@ -342,7 +393,9 @@ class SuperSwapPage extends BasePage {
     }
 
     async setNetworkFrom(netName: string) {
+        await sleep(4000);
         await this.page.getByTestId(DATA_QA_LOCATORS.SELECT_NETWORK).nth(0).click();
+        await sleep(4000);
         await this.page.getByTestId(DATA_QA_LOCATORS.TOKEN_RECORD).filter({ hasText: netName }).click();
     }
 
@@ -367,12 +420,6 @@ class SuperSwapPage extends BasePage {
 
     async setFromNetAndAmount(net: string, amount: string) {
         await this.setNetworkFrom(net);
-        await this.setAmount(amount);
-    }
-
-    async setFromNetTokenAmount(net: string, token: string, amount: string) {
-        await this.setNetworkFrom(net);
-        await this.setTokenFrom(token);
         await this.setAmount(amount);
     }
 
@@ -433,7 +480,7 @@ class SwapPage extends BasePage {
 
 class ShortcutPage extends BasePage {
     async setAmount(amount: string) {
-        await sleep(2000);
+        await sleep(4000);
         await this.page.getByTestId(DATA_QA_LOCATORS.INPUT_AMOUNT).nth(0).fill(amount);
     }
 

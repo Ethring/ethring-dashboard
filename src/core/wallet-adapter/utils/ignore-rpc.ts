@@ -39,6 +39,7 @@ const IGNORE_DOMAINS = [
     'notional.ventures',
     'tienthuattoan.ventures',
     'interstellar-lounge.org',
+    'go.getblock.io',
 ];
 
 const ignoreRegex = new RegExp(IGNORE_DOMAINS.join('|'), 'i');

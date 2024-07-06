@@ -38,6 +38,7 @@ import { setNativeTokensPrices } from '@/core/balance-provider/native-token';
 
 import { DP_CHAINS } from '@/core/balance-provider/models/enums';
 import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
+import { delay } from '@/shared/utils/helpers';
 
 export default {
     name: 'App',
@@ -129,8 +130,13 @@ export default {
         const unWatchAcc = watch(walletAccount, async () => {
             store.dispatch('tokens/setLoader', true);
             store.dispatch('tokens/setTargetAccount', walletAccount.value);
-            callSubscription();
-            setTimeout(callInit, 1000);
+
+            await callSubscription();
+
+            await delay(1000);
+
+            await callInit();
+
             if (currentChainInfo.value?.ecosystem === Ecosystem.EVM) store.dispatch('shortcuts/loadDebridgeInfo', walletAddress.value);
         });
 

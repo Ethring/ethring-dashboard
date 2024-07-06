@@ -5,7 +5,6 @@ import util from 'util';
 
 const sleep = util.promisify(setTimeout);
 
-const metaMaskId = getTestVar(TEST_CONST.MM_ID);
 const metamaskVersion = getTestVar(TEST_CONST.MM_VERSION);
 const password = getTestVar(TEST_CONST.PASS_BY_MM_WALLET);
 
@@ -28,9 +27,7 @@ const getNotifyMmPage = async (context: BrowserContext): Promise<Page> => {
     const notifyPage = context.pages()[2];
     const titlePage = await notifyPage.title();
 
-    if (titlePage !== expectedMmPageTitle) {
-        throw new Error(`Oops, this is not the notify MM page. Current title ${titlePage}`);
-    }
+    if (titlePage !== expectedMmPageTitle) throw new Error(`Oops, this is not the notify MM page. Current title ${titlePage}`);
 
     return notifyPage;
 };
@@ -41,71 +38,46 @@ const getHomeMmPage = async (context: BrowserContext, indexMmPage = 0): Promise<
     const mainPage = context.pages()[indexMmPage];
     const titlePage = await mainPage.title();
 
-    if (titlePage !== expectedMmPageTitle) {
-        throw new Error(`Oops, this is not the MM page. Current title ${titlePage}`);
-    }
+    if (titlePage !== expectedMmPageTitle) throw new Error(`Oops, this is not the MM page. Current title ${titlePage}`);
+
     const page = new MetaMaskHomePage(mainPage);
     await page.closeWhatsNewNotify();
     return page;
 };
 
-// * Use this method ONLY before sign tx, else mock may be not fulfill!
-export const mockMetaMaskSignTransaction = async (
-    context: BrowserContext,
-    nodeDomain: string,
-    mockedTxHash: string,
-    mockTransactionReceipt: object,
-) => {
-    // let [background] = context.backgroundPages();
-    // console.log('>>>');
-    // if (!background) {
-    //     console.log('move to if');
-    //     background = await context.waitForEvent('backgroundpage');
-    // }
-
-    // let [background] = context.serviceWorkers();
-    // if (!background)
-    //   background = await context.waitForEvent('serviceworker');
-
-    // console.log(background);
-    let [background] = context.backgroundPages();
-    background.route(nodeDomain, async (route) => {
-        const data = route.request().postData();
-        if (data.includes('eth_sendRawTransaction')) {
-            await route.fulfill({
-                json: {
-                    jsonrpc: '2.0',
-                    id: 5484248696370,
-                    result: mockedTxHash,
-                },
-            });
-        } else if (data.includes('eth_getTransactionReceipt')) {
-            await route.fulfill({ json: mockTransactionReceipt });
-        } else route.continue();
-    });
-};
-
 class MetaMaskHomePage {
     readonly page: Page;
+    mm_home_url: string;
 
     constructor(page: Page) {
         this.page = page;
+        this.mm_home_url = this.getExtensionId(this.page.url());
+    }
+
+    getExtensionId(url: string) {
+        const urlObj = new URL(url);
+        const extensionId = urlObj.host;
+        return extensionId;
     }
 
     async goto() {
-        await this.page.goto(`chrome-extension://${metaMaskId}/home.html`);
+        await this.page.goto(`chrome-extension://${this.mm_home_url}/home.html`);
     }
 
     async goToWelcome() {
-        await this.page.goto(`chrome-extension://${metaMaskId}/home.html#onboarding/welcome`);
+        await this.page.goto(`chrome-extension://${this.mm_home_url}/home.html#onboarding/welcome`);
     }
 
     async gotoSignPage() {
-        await this.page.goto(`chrome-extension://${metaMaskId}/home.html#confirm-transaction/`);
+        await this.page.goto(`chrome-extension://${this.mm_home_url}/home.html#confirm-transaction/`);
     }
 
     async gotoNotificationPage() {
-        await this.page.goto(`chrome-extension://${metaMaskId}/notification.html`);
+        await this.page.goto(`chrome-extension://${this.mm_home_url}/notification.html`);
+    }
+
+    async gotoSettings() {
+        await this.page.goto(`chrome-extension://${this.mm_home_url}/home.html#settings`);
     }
 
     async closeWhatsNewNotify() {
@@ -125,9 +97,8 @@ class MetaMaskHomePage {
         const seedArray = seed.split(' ');
 
         // Filling seed phrase
-        for (const word of seedArray) {
+        for (const word of seedArray)
             await this.page.locator(`input[data-testid=import-srp__srp-word-${seedArray.indexOf(word)}]`).fill(word);
-        }
 
         // Confirming seed phrase
         await this.page.click('[data-testid="import-srp-confirm"]');
@@ -154,12 +125,23 @@ class MetaMaskHomePage {
         return this.page;
     }
 
-    async addNetwork(network: string) {
-        await this.page.locator('[data-testid="network-display"]').click();
-        await this.page.getByText('Add network').click();
-        await this.page.locator(`//h6[text()='${network}']/../../..//button`).click();
-        await this.page.locator('[data-testid="confirmation-submit-button"]').click();
-        await this.page.locator('button.home__new-network-added__switch-to-button').click();
+    async addNetwork(networkName: string) {
+        await this.gotoSettings();
+        await this.page.locator('.tab-bar__tab__content__title').nth(5).click();
+        await this.page.locator('button.btn-primary').nth(0).click();
+        await this.page.locator(`//h6[text()='${networkName}']/../../../div/button`).click();
+        await this.page.locator("//button[@data-testid='confirmation-submit-button']").click();
+
+        await this.page.locator('//button/h6').nth(1).click();
+    }
+
+    async changeRpc(networkName: string, fakeRpcUrl: string) {
+        await this.gotoSettings();
+        await this.page.locator('.tab-bar__tab__content__title').nth(5).click();
+        await this.page.locator(`//div[text() = '${networkName}']`).click();
+        await this.page.locator('//input[@data-testid="network-form-rpc-url"]').fill(fakeRpcUrl);
+        await sleep(3000);
+        await this.page.locator("(//div[@class='networks-tab__network-form']//button)[3]").click(); // when edit rpc field page has !4! button. Last button is "save"
     }
 }
 
@@ -203,6 +185,10 @@ class MetaMaskNotifyPage {
 
     async changeNetwork() {
         await this.page.click('[data-testid="confirmation-submit-button"]');
+        await this.page.click('[data-testid="confirmation-submit-button"]');
+    }
+
+    async changeNetworkIfNetAlreadyInMm() {
         await this.page.click('[data-testid="confirmation-submit-button"]');
     }
 }

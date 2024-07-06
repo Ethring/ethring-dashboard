@@ -62,9 +62,6 @@ import { ModuleType } from '@/shared/models/enums/modules.enum';
 
 import { FEE_TYPE } from '@/shared/models/enums/fee.enum';
 
-// Types
-import OperationsFactory from '@/core/operations/OperationsFactory';
-
 export default defineComponent({
     name: 'PendleSiloLayout',
     components: {
@@ -75,14 +72,6 @@ export default defineComponent({
     },
     setup() {
         const store = useStore();
-
-        const shortcutModalState = computed(() => store.getters['app/modal']('successShortcutModal'));
-
-        const currentShortcutId = computed(() => store.getters['shortcuts/getCurrentShortcutId']);
-
-        const operationsFactory = computed<OperationsFactory>(() =>
-            store.getters['shortcuts/getShortcutOpsFactory'](currentShortcutId.value),
-        );
 
         // * Init module operations, and get all necessary data, (methods, states, etc.) for the module
         // * Also, its necessary to sign the transaction (Transaction manger)

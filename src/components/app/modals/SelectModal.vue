@@ -45,8 +45,9 @@
     </a-modal>
 </template>
 <script>
-import { computed, inject, ref, onUpdated, nextTick } from 'vue';
+import { computed, ref, onUpdated, nextTick } from 'vue';
 import { useStore } from 'vuex';
+import useSelectModal from '@/compositions/useSelectModal';
 
 import SearchInput from '@/components/ui/SearchInput.vue';
 import SelectOption from '@/components/ui/Select/SelectOption.vue';
@@ -74,7 +75,6 @@ export default {
         const scrollComponent = ref(null);
 
         const store = useStore();
-        const useSelectModal = inject('useSelectModal');
 
         const selectModal = computed(() => store.getters['app/selectModal']);
         const type = computed(() => selectModal.value.type);

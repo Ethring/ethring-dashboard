@@ -20,7 +20,7 @@ export const setNativeTokensPrices = async (configList: IChainConfig[]) => {
 
         const id = getCoingeckoId(network);
 
-        coingeckoIds.push(id);
+        if (!coingeckoIds?.includes(id)) coingeckoIds.push(id);
     }
 
     if (!coingeckoIds.length) return;

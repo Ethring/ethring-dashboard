@@ -22,13 +22,14 @@ import SuperSwap from '@/pages/dynamic-modules/SuperSwap.vue';
 import StakeLayout from '@/pages/dynamic-modules/StakeLayout.vue';
 import MintNftLayoutWithTransfer from '@/pages/dynamic-modules/MintNftLayoutWithTransfer.vue';
 import PendleSiloLayout from '@/pages/dynamic-modules/PendleSiloLayout.vue';
+import AddLiquidityLayout from '@/pages/dynamic-modules/AddLiquidityLayout.vue';
+import RemoveLiquidityLayout from '@/pages/dynamic-modules/RemoveLiquidityLayout.vue';
 
 // Service worker
 import '@/registerServiceWorker';
 
 // Compositions
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
-import useSelectModal from '@/compositions/useSelectModal';
 
 // Directives
 import vueDebounce from 'vue-debounce';
@@ -62,7 +63,7 @@ app.directive(
 );
 
 // * Use compositions
-app.provide('useAdapter', useAdapter).provide('useSelectModal', useSelectModal);
+app.provide('useAdapter', useAdapter);
 
 // * Init modules before app mount
 initSentry(app, Router);
@@ -77,5 +78,7 @@ app.component('StakeLayout', StakeLayout);
 
 app.component('MintNftLayoutWithTransfer', MintNftLayoutWithTransfer);
 app.component('PendleSiloLayout', PendleSiloLayout);
+app.component('AddLiquidityLayout', AddLiquidityLayout);
+app.component('RemoveLiquidityLayout', RemoveLiquidityLayout);
 
 export default app;
