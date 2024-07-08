@@ -475,10 +475,12 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         });
     };
 
-    const callEstimate = async (from: string = 'default') => {
+    const callEstimate = async () => {
         if (isQuoteLoading.value || isTransactionSigning.value) return;
 
         const isMinAmountAccepted = checkMinAmount();
+
+        if (store.getters['tokenOps/srcAmount'] === null) return;
 
         if (!isMinAmountAccepted) {
             console.log('MIN AMOUNT NOT ACCEPTED', quoteErrorMessage.value);
@@ -762,7 +764,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         if (estimate === oldEstimate) return;
 
         if (isCallEstimate.value) {
-            await callEstimate('watch:isCallEstimate');
+            await callEstimate();
             isCallEstimate.value = false;
         }
     });
@@ -801,7 +803,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
 
             if (srcAmount) {
                 operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('amount', srcAmount);
-                await callEstimate('watch:srcAmount');
+                await callEstimate();
             }
         },
     );
@@ -913,8 +915,8 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             )
                 return;
 
-            // * Call the estimate output if the srcNet, srcToken, srcAmount are set
-            if (srcNet?.net && srcToken?.id) await callEstimate('watch:srcNet,srcToken');
+            // * Call the estimate output if the srcNet, srcToken
+            if (srcNet?.net && srcToken?.id) await callEstimate();
         },
     );
 

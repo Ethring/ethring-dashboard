@@ -71,6 +71,8 @@ export default class DexOperation extends BaseOperation {
         if (this.getParamByField('fromNet') === this.getParamByField('toNet')) this.service = new BridgeDexService(ServiceType.dex);
         else this.service = new BridgeDexService(ServiceType.bridgedex);
 
+        if (!this.getParamByField('amount')) return;
+
         if (isNaN(Number(this.params.amount)) && Number(this.params.amount) <= 0) {
             console.warn('Amount is required');
             return;

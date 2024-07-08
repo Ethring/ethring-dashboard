@@ -353,6 +353,12 @@ export default class OperationFactory implements IOperationFactory {
 
             if (isSuccessOrFail || !isAmountCorrect(currentOperation.getParamByField('amount'))) restoreStatus();
 
+            if (!currentOperation.getParamByField('amount')) {
+                console.warn(`Amount is required for operation ${opId}`);
+                restoreStatus();
+                continue;
+            }
+
             try {
                 if (!currentOperation.estimateOutput) {
                     console.warn(`Operation ${opId} not implemented estimateOutput`);
