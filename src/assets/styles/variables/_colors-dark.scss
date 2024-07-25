@@ -95,6 +95,7 @@ $base-amount-text: $springGreen;
 $description-text: $geyser;
 $currency-text: $paleSky;
 $details-text: $perfectLanding;
+$slippage-text: $white;
 
 // Adapter text
 $adapter-label-text: $gulfStream;
@@ -117,6 +118,11 @@ $adapter-logo-secondary-color: $springGreen;
 // Adapter Not Connected
 $adapter-not-connected-bg: $ebonyClay;
 $adapter-not-connected-icon: $geyser;
+
+// Shortcuts
+$shortcut-bg-color: $outerSpace;
+$shortcut-shadow-color: #000000d9;
+$shortcut-shadow-hover-color: #00fc7466;
 
 // Checkbox
 $checkbox-text: $gulfStream;
@@ -247,7 +253,7 @@ $theme-switcher-color: $gulfStream;
 $nav-bar-bg-color: $chineseBlack;
 
 $tag-01: $aquamarine;
-$tag-02: $cyan;
+$tag-02: $blazeOrange;
 $tag-03: $springGreen;
 $tag-selected: $gulfStream;
 
@@ -260,6 +266,11 @@ $card-btn-secondary-color: $gainsboro;
 $shortcut-step-success: $iceberg;
 
 $radio-btn-bg-color: $gulfStream;
+
+// Slppage
+$slippage-active-option: $springGreen;
+$slippage-border-color: $outerSpace;
+
 //  ===========================================================================
 //  THEME MAP
 //  ===========================================================================
@@ -295,6 +306,7 @@ $theme-colors-dark: (
     'description-text': $description-text,
     'currency-text': $currency-text,
     'details-text': $details-text,
+    'slippage-text': $slippage-text,
 
     'assets-border-color': $assets-border-color,
     'assets-header-border-color': $assets-header-border-color,
@@ -440,4 +452,11 @@ $theme-colors-dark: (
 
     'radio-btn-bg-color': $radio-btn-bg-color,
     'white-op-075': $white-op-075,
+
+    'shortcut-bg-color': $shortcut-bg-color,
+    'shortcut-shadow-color': $shortcut-shadow-color,
+    'shortcut-shadow-hover-color': $shortcut-shadow-hover-color,
+
+    'slippage-active-option': $slippage-active-option,
+    'slippage-border-color': $slippage-border-color,
 );

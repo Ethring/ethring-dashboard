@@ -21,7 +21,7 @@
         border: 1px solid var(--#{$prefix}border-secondary-color);
 
         cursor: pointer;
-        transition: 0.2s ease-in-out;
+        transition: 0.1 ease-in-out;
 
         &:hover {
             background-color: var(--#{$prefix}icon-logo-bg-hover);
@@ -39,9 +39,10 @@
 
     &__control {
         width: 356px;
-        background-color: var(--#{$prefix}accordion-bg-color) !important;
+        background-color: var(--#{$prefix}main-background) !important;
         padding: 16px !important;
         border-radius: 16px !important;
+        box-shadow: 0px 4px 40px 0px var(--#{$prefix}shortcut-shadow-color) !important;
 
         .label {
             color: var(--#{$prefix}mute-text);
@@ -53,16 +54,17 @@
             border-radius: 8px;
             padding: 4px;
             margin-right: 8px;
-            border: 1px solid var(--#{$prefix}radio-btn-bg-color);
+            border: 1px solid var(--#{$prefix}slippage-border-color);
+            background-color: var(--#{$prefix}secondary-background);
 
             .ant-radio-button-wrapper {
                 @include pageFlexRow;
 
                 height: 34px;
-                transition: all 0.2s !important;
+                transition: all 0.1s !important;
                 border: none;
-                background-color: var(--#{$prefix}accordion-bg-color) !important;
-                color: var(--#{$prefix}primary-text) !important;
+                background-color: var(--#{$prefix}secondary-background) !important;
+                color: var(--#{$prefix}base-text) !important;
 
                 &:hover {
                     color: var(--#{$prefix}btn-bg-color-hover);
@@ -71,7 +73,8 @@
 
             .ant-radio-button-wrapper-checked {
                 border-radius: 6px;
-                background-color: var(--#{$prefix}radio-btn-bg-color) !important;
+                color: var(--#{$prefix}primary) !important;
+                background-color: var(--#{$prefix}slippage-active-option) !important;
             }
 
             .ant-radio-button-wrapper::before {
@@ -79,14 +82,14 @@
             }
         }
     }
-    .ant-input-number-input-wrap {
-        background: var(--#{$prefix}accordion-bg-color) !important;
+    .ant-input-wrapper {
+        background: var(--#{$prefix}main-background) !important;
     }
     &__input {
-        background: var(--#{$prefix}accordion-bg-color) !important;
+        background: var(--#{$prefix}main-background) !important;
 
-        .ant-input-number {
-            background: var(--#{$prefix}accordion-bg-color) !important;
+        .ant-input {
+            background: var(--#{$prefix}select-bg-color) !important;
 
             border-color: var(--#{$prefix}select-bg-color) !important;
             border-right: none !important;
@@ -101,42 +104,36 @@
             }
 
             &-disabled {
-                background: var(--#{$prefix}select-bg-color) !important;
-                border-color: var(--#{$prefix}select-bg-color) !important;
-
-                input {
-                    background: var(--#{$prefix}select-bg-color) !important;
-                }
+                opacity: 0.7;
             }
         }
 
-        .ant-input-number-disabled + .ant-input-number-group-addon {
-            background: var(--#{$prefix}select-bg-color) !important;
-            border-color: var(--#{$prefix}select-bg-color) !important;
+        .ant-input-disabled + .ant-input-group-addon {
+            opacity: 0.7;
         }
 
         input {
-            height: 40px !important;
+            height: 44px !important;
             font-weight: 500 !important;
-            color: var(--#{$prefix}notification-text) !important;
+            color: var(--#{$prefix}slippage-text) !important;
             text-align: end !important;
-            background: var(--#{$prefix}accordion-bg-color) !important;
+            background: var(--#{$prefix}select-bg-color) !important;
             padding: 0 !important;
             outline: none !important;
         }
 
-        .ant-input-number-group-addon {
-            background: var(--#{$prefix}accordion-bg-color) !important;
+        .ant-input-group-addon {
+            background: var(--#{$prefix}select-bg-color) !important;
             border-color: var(--#{$prefix}select-bg-color) !important;
             border-left: none !important;
-            color: var(--#{$prefix}notification-text);
+            color: var(--#{$prefix}slippage-text);
             font-weight: 500;
         }
 
         .ant-input-affix-wrapper {
             font-weight: 500;
             color: var(--#{$prefix}notification-text);
-            background: var(--#{$prefix}accordion-bg-color) !important;
+            background: var(--#{$prefix}select-bg-color) !important;
             border-color: var(--#{$prefix}radio-btn-bg-color) !important;
         }
 
@@ -170,4 +167,8 @@
 
 .ant-dropdown-arrow {
     right: 12px !important;
+
+    &:after {
+        background-color: var(--#{$prefix}main-background) !important;
+    }
 }

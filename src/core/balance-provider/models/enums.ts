@@ -1,3 +1,8 @@
+export enum Providers {
+    Pulsar = 'Pulsar',
+    GoldRush = 'GoldRush',
+}
+
 export enum IntegrationBalanceType {
     ALL = 'ALL',
     PENDING = 'PENDING_REWARD',
@@ -6,6 +11,16 @@ export enum IntegrationBalanceType {
     BORROW = 'BORROW',
     BORROW_AND_LENDING = 'BORROW_AND_LENDING',
     DEPOSIT_COLLATERAL = 'DEPOSIT_COLLATERAL',
+}
+
+export enum IntegrationDebtType {
+    FARM = 'FARM',
+    LOAN = 'LOAN',
+    SHORT = 'SHORT',
+    MARGIN = 'MARGIN',
+    MARGIN_LONG = 'MARGIN_LONG',
+    MARGIN_SHORT = 'MARGIN_SHORT',
+    LEVERAGE_POSITION = 'LEVERAGE_POSITION',
 }
 
 export enum Type {
@@ -183,6 +198,16 @@ export enum DP_CHAINS {
     DOGECOIN = 'dogecoin',
     POLYGON = 'polygon',
     ZKSYNC = 'zksync',
+    SCROLL = 'scroll',
+    CELO = 'celo',
+    LINEA = 'linea',
+    BASE = 'base',
+    ZORA = 'zora',
+    MOONRIVER = 'moonriver',
+    MANTLE = 'mantle',
+    GNOSIS = 'gnosis',
+    AURORA = 'aurora',
+    BLAST = 'blast',
 
     // Cosmos Ecosystem
     COSMOS = 'cosmoshub',

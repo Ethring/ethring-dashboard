@@ -209,13 +209,9 @@ export default defineComponent({
 
                 const flow = operationsFactory.value.getFullOperationFlow();
 
-                const withoutApprove = flow.filter((op) => op.type !== TRANSACTION_TYPES.APPROVE);
+                const firstOp = flow.find((op) => op.moduleIndex.slice(-1) === '0');
 
-                const firstOp = withoutApprove[0];
-                const lastOp = withoutApprove[withoutApprove.length - 1];
-
-                const firstOpId = operationsFactory.value.getOperationIdByKey(firstOp.moduleIndex);
-                const lastOpId = operationsFactory.value.getOperationIdByKey(lastOp.moduleIndex);
+                const firstOpId = operationsFactory.value.getOperationIdByKey(firstOp?.moduleIndex || flow[0].moduleIndex);
 
                 store.dispatch('shortcuts/setCurrentStepId', firstOpId);
 

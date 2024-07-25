@@ -13,8 +13,8 @@ import { IEthereumAdapter, IAddressByNetwork, IChainInfo } from '@/core/wallet-a
 import { IConnectedWallet } from '@/shared/models/types/Account';
 
 // * Configs
-import { BASE_ABI, SILO_EXECUTE_ABI, BEEFY_DEPOSIT_ABI, web3OnBoardConfig } from '@/core/wallet-adapter/config';
-import { Ecosystem, Ecosystems } from '@/shared/models/enums/ecosystems.enum';
+import { BASE_ABI, SILO_EXECUTE_ABI, BEEFY_DEPOSIT_ABI, EXTRA_FI_ABI, COMPOUND_ABI, web3OnBoardConfig } from '@/core/wallet-adapter/config';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
 // * Utils
 import Logger from '@/shared/logger';
@@ -37,6 +37,8 @@ const ABI_BY_NAME: { [key: string]: any } = {
     DEFAULT: BASE_ABI,
     SILO_EXECUTOR: SILO_EXECUTE_ABI,
     BEEFY_DEPOSIT: BEEFY_DEPOSIT_ABI,
+    EXTRA_FI: EXTRA_FI_ABI,
+    COMPOUND: COMPOUND_ABI,
 };
 
 /**
@@ -501,11 +503,15 @@ export class EthereumAdapter implements IEthereumAdapter {
         method,
         args,
         abi,
+        value,
+        type = 'WRITE',
     }: {
         contractAddress: string;
         method: string;
         args: any[];
         abi?: string;
+        value?: string;
+        type?: string;
     }): Promise<any> {
         const ethersProvider = this.getProvider();
 
@@ -531,9 +537,12 @@ export class EthereumAdapter implements IEthereumAdapter {
                 to: contractAddress,
             } as any;
 
+            if (type === 'READ') return await contract.callStatic[method](...argsToCall);
+
             const populatedTransaction = await contract.populateTransaction[method](...argsToCall);
 
             response.data = populatedTransaction.data;
+            if (value) response.value = value;
 
             const formattedResponse = await this.formatTransactionForSign(response);
 

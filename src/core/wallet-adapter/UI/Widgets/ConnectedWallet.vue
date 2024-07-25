@@ -50,6 +50,7 @@ import { useClipboard } from '@vueuse/core';
 
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
+import { Providers } from '@/core/balance-provider/models/enums';
 import ModuleIcon from '@/core/wallet-adapter/UI/Entities/ModuleIcon.vue';
 
 import DisconnectIcon from '@/assets/icons/form-icons/clear.svg';
@@ -64,6 +65,7 @@ import { cutAddress } from '@/shared/utils/address';
 
 import mixpanel from 'mixpanel-browser';
 import { reset } from '@/app/modules/mixpanel/track';
+import { useStore } from 'vuex';
 
 export default {
     name: 'ConnectedWallet',
@@ -81,6 +83,8 @@ export default {
         },
     },
     setup(props) {
+        const store = useStore();
+
         const selectedChain = ref(props.wallet.chain);
         const { copy, copied } = useClipboard();
         const {
@@ -151,6 +155,10 @@ export default {
 
         const handleOnDisconnectAccount = async (ecosystem, wallet) => {
             await disconnectWallet(ecosystem, wallet);
+
+            for (const provider in Providers)
+                await store.dispatch('tokens/resetIsInitCall', { account: wallet.account, provider: Providers[provider] });
+
             reset(mixpanel);
         };
 

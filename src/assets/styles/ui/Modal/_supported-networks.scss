@@ -42,7 +42,7 @@
 
 .networks-list {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     grid-auto-rows: 58px;
     margin-top: 16px;
     gap: 8px;
@@ -60,6 +60,8 @@
         border: 1px solid var(--#{$prefix}collapse-border-color);
 
         transition: 0.2s ease-in-out;
+
+        // cursor: not-allowed;
         cursor: default;
 
         .name {
@@ -68,6 +70,26 @@
             color: var(--#{$prefix}primary-text);
             font-size: var(--#{$prefix}h6-fs);
             font-weight: 500;
+
+            width: 100px;
+
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        &.disabled .name {
+            width: 70px;
+        }
+
+        &:not(.disabled) {
+            cursor: default;
+            // cursor: pointer;
+        }
+
+        &.active {
+            border-color: var(--#{$prefix}btn-bg-color-hover);
+            background-color: var(--#{$prefix}btn-secondary-hover-op-01);
         }
 
         // &:hover:not(.disabled) {

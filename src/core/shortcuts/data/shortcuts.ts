@@ -9,6 +9,7 @@ export enum AvailableShortcuts {
     AddLiquidityPool1 = 'SC-add-liquidity-pool-1',
     AddLiquidityPool2 = 'SC-add-liquidity-pool-2',
     RemoveLiquidityPool = 'SC-remove-liquidity-pool',
+    JumperSuperfest = 'SC-jumper-superfest',
     MintCollectionWithTransfer = 'SC-mint-collection-with-transfer',
     SellEverything = 'SC-sell-everything-in-one-click',
     WithdrawDydx = 'SC-withdraw-dYdX-usdc-rewards-to-usdt-on-tron',
@@ -25,4 +26,5 @@ export enum ShortcutAuthor {
     Neshtedle = 'neshtedle',
     Pavlutsky = 'pavlutsky',
     DeBridge = 'deBridge',
+    PostHuman = 'PostHuman',
 }

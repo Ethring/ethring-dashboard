@@ -48,6 +48,7 @@
                 :disabled="disabled"
                 @focus="focused = true"
                 @blur="onBlur"
+                @keypress="onKeyPressHandler"
             />
         </a-input-group>
 
@@ -226,7 +227,7 @@ export default {
                 return emit('setAmount', null);
             }
 
-            if (symbolForReplace.value) val = val.replace(symbolForReplace.value, '.');
+            if (symbolForReplace.value) val = val?.toString().replace(symbolForReplace.value, '.');
 
             amount.value = formatInputNumber(val);
 
@@ -280,7 +281,7 @@ export default {
                 if (tkn) {
                     setToken(tkn);
                     active.value = false;
-                    return emit('setAmount', amount.value);
+                    return;
                 }
 
                 amount.value = 0;

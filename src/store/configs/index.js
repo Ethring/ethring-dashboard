@@ -17,7 +17,7 @@ const TYPES = {
     SET_LAST_UPDATED: 'SET_LAST_UPDATED',
 };
 
-const configsDB = new IndexedDBService('configs');
+const configsDB = new IndexedDBService('configs', 3);
 
 export default {
     namespaced: true,
@@ -147,6 +147,34 @@ export default {
             const lastUpdated = await getLastUpdated();
 
             commit(TYPES.SET_LAST_UPDATED, lastUpdated);
+        },
+
+        async getTokenImage({ state, commit }, tokenInfo) {
+            try {
+                const { chain, address } = tokenInfo;
+
+                const [byChain, byAddress] = await Promise.all([
+                    configsDB.searchByKey(DB_TABLES.TOKENS, {
+                        chain,
+                        address,
+                    }),
+                    configsDB.searchByKey(DB_TABLES.TOKENS, {
+                        address,
+                    }),
+                ]);
+
+                if (!byChain && byAddress) {
+                    const isAddressEqual = byAddress.address.toLowerCase() === address.toLowerCase();
+                    const isSymbolEqual = byAddress.symbol.toLowerCase() === tokenInfo.symbol.toLowerCase();
+                    return isAddressEqual && isSymbolEqual ? byAddress.logo : null;
+                }
+
+                if (byChain) return byChain.logo;
+
+                return null;
+            } catch (error) {
+                return null;
+            }
         },
     },
 };

@@ -4,22 +4,24 @@ import RequestQueue from '@/core/balance-provider/queue';
 
 import store from '@/app/providers/store.provider';
 
-import { Type, BaseType, POOL_BALANCES_CHAINS } from '@/core/balance-provider/models/enums';
+import { Type, BaseType, POOL_BALANCES_CHAINS, DP_CHAINS } from '@/core/balance-provider/models/enums';
 import { ChainAddresses, BalanceResponse, BalanceType, RecordOptions, ProviderRequestOptions } from '@/core/balance-provider/models/types';
 
 import { storeBalanceForAccount } from '@/core/balance-provider/utils';
 
 import PortalFiApi from '@/modules/portal-fi/api';
 
+const DEFAULT_PROVIDER = 'Pulsar';
+
 export const updateBalanceForAccount = async (account: string, addresses: ChainAddresses, opt: RecordOptions = {}) => {
     const queue = new RequestQueue();
 
-    let isUpdate = false;
+    let isUpdate = opt.isUpdate || false;
 
-    const isInitCalled = store.getters['tokens/isInitCalled'](account);
+    const isInitCalled = store.getters['tokens/isInitCalled'](account, opt.provider);
 
     if (!isInitCalled) {
-        store.dispatch('tokens/setIsInitCall', { account, time: Date.now() });
+        store.dispatch('tokens/setIsInitCall', { account, provider: opt.provider, time: Date.now() });
         isUpdate = true;
     }
 
@@ -37,7 +39,6 @@ export const updateBalanceForAccount = async (account: string, addresses: ChainA
     // * Get data from API
     for (const chain in addresses) {
         const { address, logo, nativeTokenLogo } = addresses[chain];
-
         queue.add(async () => await updateBalanceByChain(account, address, chain, { ...opt, isUpdate, logo, nativeTokenLogo }));
     }
 };
@@ -45,20 +46,16 @@ export const updateBalanceForAccount = async (account: string, addresses: ChainA
 export const updateBalanceByChain = async (account: string, address: string, chain: string, opt: RecordOptions = {}) => {
     const { isUpdate = false } = opt;
 
-    const isInitCalled = store.getters['tokens/isInitCalled'](account);
+    const isInitCalled = store.getters['tokens/isInitCalled'](account, opt.provider);
 
     if (isInitCalled && !isUpdate) return;
 
     const providerOptions: ProviderRequestOptions = {
-        fetchTokens: true,
-        fetchIntegrations: true,
-        fetchNfts: true,
+        provider: opt.provider || DEFAULT_PROVIDER,
+        fetchTokens: opt.fetchTokens || false,
+        fetchIntegrations: opt.fetchIntegrations || false,
+        fetchNfts: opt.fetchNfts || false,
     };
-
-    if (!isInitCalled && isUpdate) {
-        providerOptions.fetchIntegrations = false;
-        providerOptions.fetchNfts = false;
-    }
 
     try {
         store.dispatch('tokens/setLoadingByChain', { chain, account, value: true });
@@ -68,17 +65,16 @@ export const updateBalanceByChain = async (account: string, address: string, cha
         if (!balanceForChain) return store.dispatch('tokens/setLoadingByChain', { chain, account, value: false });
 
         for (const type in BaseType)
-            await storeBalanceForAccount(type as BalanceType, account, chain, address, balanceForChain[type], { ...opt, store });
+            await storeBalanceForAccount(type as BalanceType, account, chain, address, balanceForChain[type] as any, { ...opt, store });
 
-        if (POOL_BALANCES_CHAINS.includes(chain)) {
+        if (POOL_BALANCES_CHAINS.includes(chain as DP_CHAINS)) {
             const pools = await loadUsersPoolList(chain, address);
             await storeBalanceForAccount(Type.pools, account, chain, address, pools, { ...opt, store });
         }
-
-        return store.dispatch('tokens/setLoadingByChain', { chain, account, value: false });
     } catch (error) {
         console.error('Error getting balance for chain', chain, error);
-        store.dispatch('tokens/setLoadingByChain', { chain, account, value: false });
+    } finally {
+        await store.dispatch('tokens/setLoadingByChain', { chain, account, value: false });
     }
 };
 

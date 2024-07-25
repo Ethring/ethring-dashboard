@@ -131,7 +131,8 @@
         "pendingTransactions": "Transaction successfully sent to blockchain, but the transaction still pending. Please wait for confirmation.",
         "connectWallet": "Connect wallet",
         "showMore": "Show more",
-        "verifiedToken": "This token has a good reputation from the community"
+        "verifiedToken": "This token has a good reputation from the community",
+        "poolAsset": "Pool asset"
     },
     "simpleSend": {
         "title": "Send"

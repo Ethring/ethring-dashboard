@@ -36,7 +36,8 @@ import HelpItem from './HelpItem.vue';
 
 import { updateBalanceForAccount } from '@/core/balance-provider';
 
-import { DP_CHAINS } from '@/core/balance-provider/models/enums';
+import { DP_CHAINS, Providers } from '@/core/balance-provider/models/enums';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
 export default {
     name: 'HelpBlock',
@@ -76,13 +77,43 @@ export default {
         const loadBalances = async () => {
             if (isLoading.value) return;
 
-            for (const { account, addresses } of connectedWallets.value) {
-                store.dispatch('tokens/setIsInitCall', { account, time: null });
+            await store.dispatch('tokens/setLoader', true);
 
+            for (const { account, addresses, ecosystem } of connectedWallets.value) {
                 const list = pick(addresses, Object.values(DP_CHAINS)) || {};
 
-                await updateBalanceForAccount(account, list);
+                switch (ecosystem) {
+                    case Ecosystem.EVM:
+                        await updateBalanceForAccount(account, list, {
+                            provider: Providers.GoldRush,
+                            isUpdate: true,
+                            fetchTokens: true,
+                            fetchIntegrations: false,
+                            fetchNfts: false,
+                        });
+                        await updateBalanceForAccount(account, list, {
+                            provider: Providers.Pulsar,
+                            isUpdate: true,
+                            fetchTokens: false,
+                            fetchIntegrations: true,
+                            fetchNfts: true,
+                        });
+                        break;
+                    case Ecosystem.COSMOS:
+                        await updateBalanceForAccount(account, list, {
+                            provider: Providers.Pulsar,
+                            isUpdate: true,
+                            fetchTokens: true,
+                            fetchIntegrations: true,
+                            fetchNfts: true,
+                        });
+                        break;
+                    default:
+                        break;
+                }
             }
+
+            await store.dispatch('tokens/setLoader', false);
         };
 
         return {

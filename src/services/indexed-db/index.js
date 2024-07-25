@@ -17,7 +17,7 @@ class IndexedDBService {
         [DB_TABLES.NETWORKS]: 'id, ecosystem, chain',
         [DB_TABLES.COSMOLOGY_NETWORKS]: 'id, ecosystem, chain',
 
-        [DB_TABLES.TOKENS]: 'id, ecosystem, chain',
+        [DB_TABLES.TOKENS]: 'id, ecosystem, chain, [chain+address], address',
         [DB_TABLES.COSMOLOGY_TOKENS]: 'chain_name',
     };
 
@@ -42,6 +42,16 @@ class IndexedDBService {
         this.db.on('populate', () => {
             logger.debug('Database is populated');
         });
+    }
+
+    async searchByKey(store, query) {
+        if (!this.db[store]) return null;
+        try {
+            return await this.db[store].where(query).first();
+        } catch (error) {
+            logger.warn(`[IndexedDB](searchByKey): ${store}`, error);
+            return null;
+        }
     }
 
     async clearTable(tableName) {

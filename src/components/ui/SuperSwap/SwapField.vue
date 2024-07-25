@@ -33,6 +33,7 @@
                 :disabled="disabled || label === 'To'"
                 @focus="focused = true"
                 @blur="onBlur"
+                @keypress="onKeyPressHandler"
             />
         </div>
 
@@ -177,7 +178,7 @@ export default {
             isInput.value = true;
 
             if (val) {
-                if (symbolForReplace.value) val = val.replace(symbolForReplace.value, '.');
+                if (symbolForReplace.value) val = val.toString().replace(symbolForReplace.value, '.');
 
                 amount.value = formatInputNumber(val);
 

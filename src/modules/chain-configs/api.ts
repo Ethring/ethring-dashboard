@@ -10,7 +10,7 @@ import logger from '@/shared/logger';
 
 import { DB_TABLES } from '@/shared/constants/indexedDb';
 
-const indexedDB = new IndexedDBService('configs');
+const indexedDB = new IndexedDBService('configs', 3);
 
 const apiClient = new ApiClient({
     baseURL: process.env.CORE_API || '',

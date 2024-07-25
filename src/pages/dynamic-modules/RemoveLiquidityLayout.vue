@@ -15,7 +15,7 @@
             :value="selectedSrcToken"
             :selected-network="selectedSrcNetwork"
             :error="!!isBalanceError"
-            :label="$t('tokenOperations.asset')"
+            :label="$t('tokenOperations.poolAsset')"
             :on-reset="resetAmount"
             :amount-value="srcAmount"
             class="select-amount"
@@ -84,7 +84,7 @@ export default {
         // * Init module operations, and get all necessary data, (methods, states, etc.) for the module
         // * Also, its necessary to sign the transaction (Transaction manger)
         const { handleOnConfirm, moduleInstance, isDisableConfirmButton, isDisableSelect, isTransactionSigning } = useModuleOperations(
-            ModuleType.shortcut,
+            ModuleType.liquidityProvider,
         );
 
         const {

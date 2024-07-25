@@ -57,4 +57,17 @@
             }
         }
     }
+
+    &__skeleton {
+        margin-top: 16px;
+
+        .avatar-skeleton {
+            margin-right: 12px;
+        }
+
+        div {
+            display: flex;
+            align-items: center;
+        }
+    }
 }

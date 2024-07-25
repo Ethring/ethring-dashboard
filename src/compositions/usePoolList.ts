@@ -1,14 +1,17 @@
 import { computed } from 'vue';
 
 import { useStore } from 'vuex';
-import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
+
+import { Ecosystems, Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
 export default function usePoolList() {
     const store = useStore();
 
-    const { walletAccount } = useAdapter();
+    const getAccount = (ecosystem: Ecosystems): string | null => store?.getters['adapters/getAccountByEcosystem'](ecosystem);
 
-    const pools = computed(() => store.getters['tokens/getPoolsByAccount'](walletAccount.value, 'pools') || []);
+    const accountByEcosystem = getAccount(Ecosystem.EVM);
+
+    const pools = computed(() => store?.getters['tokens/getPoolsByAccount'](accountByEcosystem, 'pools') || []);
 
     return pools;
 }

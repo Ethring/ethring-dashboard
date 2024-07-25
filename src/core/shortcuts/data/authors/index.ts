@@ -51,7 +51,7 @@ const AUTHORS: Record<string, IAuthor> = {
     [ShortcutAuthor.Neshtedle]: {
         id: 'neshtedle',
         name: 'Neshtedle',
-        avatar: 'https://pbs.twimg.com/profile_images/1801402989191528448/qMgXjc8D_400x400.jpg',
+        avatar: 'https://pbs.twimg.com/profile_images/1809079843105222658/BeZ_y9_8_400x400.jpg',
         socials: [
             {
                 type: 'x.com',
@@ -105,6 +105,18 @@ const AUTHORS: Record<string, IAuthor> = {
                 type: 'x.com',
                 nickname: 'deBridgeFinance',
                 link: 'https://twitter.com/deBridgeFinance',
+            },
+        ],
+    },
+    [ShortcutAuthor.PostHuman]: {
+        id: 'PostHuman',
+        name: 'Post Human',
+        avatar: 'https://pbs.twimg.com/profile_images/1527765629746434049/WxAtKMni_400x400.jpg',
+        socials: [
+            {
+                type: 'x.com',
+                nickname: 'POSTHUMAN_DVS',
+                link: 'https://x.com/POSTHUMAN_DVS',
             },
         ],
     },

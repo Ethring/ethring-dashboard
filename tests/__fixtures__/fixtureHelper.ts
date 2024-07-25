@@ -16,6 +16,7 @@ import {
 import util from 'util';
 
 export const FIVE_SECONDS = 5000;
+export const TEN_SECONDS = 10000;
 export const ONE_SECOND = 1000;
 
 const sleep = util.promisify(setTimeout);

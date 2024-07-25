@@ -2,7 +2,7 @@ import { testKeplr, testMetaMask, testMetaMaskAndKeplr } from '../__fixtures__/f
 import { test, expect } from '@playwright/test';
 import { emptyBalanceMockData } from '../data/mockHelper';
 import { TEST_CONST, getTestVar } from '../envHelper';
-import { confirmConnectKeplrWallet, confirmConnectMmWallet, FIVE_SECONDS } from '../__fixtures__/fixtureHelper';
+import { confirmConnectKeplrWallet, confirmConnectMmWallet, FIVE_SECONDS, TEN_SECONDS } from '../__fixtures__/fixtureHelper';
 import { EVM_NETWORKS, IGNORED_LOCATORS, COSMOS_WALLETS_BY_EMPTY_WALLET } from '../data/constants';
 import util from 'util';
 
@@ -20,7 +20,7 @@ testMetaMask.describe('Pages snapshot tests with empty wallet', () => {
         const address = getTestVar(TEST_CONST.EMPTY_ETH_ADDRESS);
         await Promise.all(EVM_NETWORKS.map((network) => dashboardEmptyWallet.mockBalanceRequest(network, emptyBalanceMockData, address)));
         await dashboardEmptyWallet.waitDetachedSkeleton();
-        await sleep(FIVE_SECONDS);
+        await sleep(TEN_SECONDS);
         await dashboardEmptyWallet.setFocusToFirstSpan();
         await expect(dashboardEmptyWallet.page).toHaveScreenshot({ mask: [dashboardEmptyWallet.page.locator('span.version')] });
     });
@@ -42,7 +42,7 @@ testMetaMask.describe('MetaMask dashboard', () => {
     testMetaMask('Case#: Check ETH protocol view', async ({ browser, context, page, dashboardProtocol }) => {
         await dashboardProtocol.prepareFoScreenShoot();
         await dashboardProtocol.setFocusToFirstSpan();
-        await sleep(FIVE_SECONDS);
+        await sleep(TEN_SECONDS);
 
         await expect(dashboardProtocol.page).toHaveScreenshot({
             fullPage: true,
@@ -73,7 +73,7 @@ testKeplr.describe('Keplr dashboard', () => {
 });
 
 testMetaMaskAndKeplr('Case#: Check balance request call', async ({ authPage: testPage }) => {
-    /* Case: 
+    /* Case:
     1) Auth by MM and Keplr wallets
     2) Check the balance request calls for all addresses from connected wallets
     3) Disconnect MetaMask (not current wallet)

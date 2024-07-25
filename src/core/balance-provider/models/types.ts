@@ -1,4 +1,4 @@
-import { Type } from './enums';
+import { IntegrationDebtType, Type } from './enums';
 
 type BaseToken = {
     name: string | null;
@@ -16,7 +16,8 @@ type BaseToken = {
     balance: number | string;
 
     balanceType?: string;
-    leverageRate?: number;
+    leverageRate?: number | null;
+    healthRate?: number;
 };
 
 type Validator = {
@@ -45,6 +46,14 @@ export type IntegrationResponse = {
     validator?: Validator;
 
     address?: string;
+
+    apr: number;
+    apy: number;
+
+    debtType: keyof typeof IntegrationDebtType;
+
+    leverageRate: number;
+    healthRate: number;
 };
 
 export type IntegrationBalance = IntegrationResponse & {
@@ -58,6 +67,7 @@ export type AssetBalance = BaseToken & {
     chain: string;
     chainLogo: string;
     base: string | null;
+    verified?: boolean;
 };
 
 // ====================================================
@@ -129,7 +139,7 @@ export type RecordOptions = RequestOptions & {
     chain?: string;
     nativeTokenLogo?: string;
     store?: any;
-};
+} & ProviderRequestOptions;
 
 export type RecordList = BaseToken[] | IntegrationResponse[] | NftResponse[];
 
@@ -139,4 +149,5 @@ export type ProviderRequestOptions = {
     fetchTokens?: boolean;
     fetchIntegrations?: boolean;
     fetchNfts?: boolean;
+    provider?: string;
 };

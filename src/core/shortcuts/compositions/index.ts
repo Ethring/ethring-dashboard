@@ -47,7 +47,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     // * Wallet adapter and tokens list
     // ****************************************************************************************************
 
-    const { getChainByChainId, isConnecting, connectedWallets, walletAccount } = useAdapter();
+    const { getChainByChainId, isConnecting, connectedWallets, walletAccount, currentChainInfo } = useAdapter();
     const { getTokenById } = useTokensList();
 
     // ****************************************************************************************************
@@ -423,14 +423,14 @@ const useShortcuts = (Shortcut: IShortcutData) => {
 
                     amount && (params.amount = amount);
 
-                    const fromToToken = operationsFactory.value?.getOperationById(targetOpId)?.getToken(target);
+                    // const fromToToken = operationsFactory.value?.getOperationById(targetOpId)?.getToken(target);
                     isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value: params }));
 
                     // * If the token is already set, no need to set it again
-                    if (fromToToken && fromToToken?.id) break;
+                    // if (fromToToken && fromToToken?.id) break;
 
                     // * If the token is not set, set it
-                    if (!fromToToken) operationsFactory.value?.getOperationById(targetOpId)?.setToken(target, params);
+                    operationsFactory.value?.getOperationById(targetOpId)?.setToken(target, params);
 
                     break;
                 case 'receiverAddress':
@@ -783,6 +783,17 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         async (stepId) => {
             if (!stepId) return;
             setOperationAccount(stepId);
+        },
+    );
+
+    store.watch(
+        (state, getters) => getters['tokens/getTokensListForChain'](currentChainInfo.value?.chain, { account: walletAccount.value }),
+        async () => {
+            for (const operation of CurrentShortcut.operations)
+                await performFields(operation.moduleType, operation.params, {
+                    isUpdateInStore: false,
+                    id: operation.id,
+                });
         },
     );
 

@@ -25,19 +25,18 @@
                 <a-row :wrap="false" :style="{ marginTop: '10px' }">
                     <a-radio-group v-model:value="activeOption" button-style="solid" class="slippage__control-options">
                         <a-row :wrap="false">
-                            <a-radio-button value="auto" @click="() => (slippage = 1)">Auto</a-radio-button>
+                            <a-radio-button value="auto" @click="() => (slippage = '1')">Auto</a-radio-button>
                             <a-radio-button value="custom" data-qa="slippage-custom">Custom</a-radio-button>
                         </a-row>
                     </a-radio-group>
                     <div class="slippage__input" data-qa="slippage-custom-input">
-                        <a-input-number
+                        <a-input
                             v-model:value="slippage"
                             addon-after="%"
-                            :controls="false"
                             :disabled="isInputDisabled"
                             :min="SLIPPAGE.MIN - 1"
                             :max="SLIPPAGE.MAX + 1"
-                            @change="handleOnChangeSlippage"
+                            @keypress="onKeyPressHandler"
                         />
                     </div>
                 </a-row>
@@ -50,7 +49,7 @@
     </a-dropdown>
 </template>
 <script>
-import { ref, computed, onUnmounted, onMounted } from 'vue';
+import { ref, computed, onUnmounted, onMounted, watch } from 'vue';
 
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
@@ -77,9 +76,9 @@ export default {
         };
 
         // Min & Max slippage values
-        const DEFAULT_SLIPPAGE = 1;
-        const MAX_SLIPPAGE = 20;
-        const MIN_SLIPPAGE = 0.1;
+        const DEFAULT_SLIPPAGE = '1';
+        const MAX_SLIPPAGE = '20';
+        const MIN_SLIPPAGE = '0.1';
 
         const store = useStore();
 
@@ -107,6 +106,7 @@ export default {
         // Active option (Auto or Custom)
         const activeOption = ref(SLIPPAGE_TYPE.AUTO);
 
+        const symbolForReplace = ref(null);
         // ======================================================================
         // * Computed
         // ======================================================================
@@ -164,7 +164,7 @@ export default {
         // Set the default slippage value
         const defaultSlippage = () => {
             // If the slippage is greater than 20, set it to 20 and show the warning;
-            if (slippage.value > 20) slippage.value = 20;
+            if (slippage.value > 20) slippage.value = '20';
             else if (!slippage.value) slippage.value = DEFAULT_SLIPPAGE;
 
             checkAndSetActiveOption();
@@ -173,11 +173,6 @@ export default {
         // Check and set the active option based on the slippage value
         const checkAndSetActiveOption = () =>
             (activeOption.value = `${slippage.value}` === `${DEFAULT_SLIPPAGE}` ? SLIPPAGE_TYPE.AUTO : SLIPPAGE_TYPE.CUSTOM);
-
-        // Format the slippage value and set it
-        const handleOnChangeSlippage = (value = '') => {
-            slippage.value = formatInputNumber(value);
-        };
 
         // ======================================================================
         // * Event Handlers
@@ -191,17 +186,23 @@ export default {
             return defaultSlippage();
         };
 
+        const onKeyPressHandler = (e) => {
+            if (e.code === 'Period' || e.code === 'Comma') symbolForReplace.value = e.key;
+        };
+
+        // Format the slippage value and set it
+        watch(slippage, (val) => {
+            if (symbolForReplace.value) val = val?.replace(symbolForReplace.value, '.');
+
+            slippage.value = formatInputNumber(val);
+        });
+
         // ======================================================================
         // * Mounted
         // ======================================================================
         onMounted(() => {
             // Set the default slippage value
             return defaultSlippage();
-        });
-
-        onUnmounted(() => {
-            // Reset the slippage value
-            slippage.value = DEFAULT_SLIPPAGE;
         });
 
         return {
@@ -217,7 +218,7 @@ export default {
             isShowWarningDot,
 
             handleOpenChange,
-            handleOnChangeSlippage,
+            onKeyPressHandler,
 
             SLIPPAGE: {
                 MAX: MAX_SLIPPAGE,

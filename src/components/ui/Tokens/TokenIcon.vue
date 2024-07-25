@@ -6,11 +6,16 @@
             height: `${height}px`,
         }"
     >
-        <template v-if="token && shouldShowImage">
+        <template v-if="token && imageToShow && shouldShowImage">
             <img
                 :key="token?.symbol"
-                :src="token?.logo"
+                :style="{
+                    width: `${width}px`,
+                    height: `${height}px`,
+                }"
+                :src="imageToShow"
                 :alt="token?.name || token?.symbol"
+                :title="token?.address || token?.name || token?.symbol"
                 loading="lazy"
                 @error="handleOnErrorImg"
                 @load="handleOnLoadImg"
@@ -18,13 +23,16 @@
         </template>
         <template v-else>
             <div class="token-icon__placeholder">
-                <a-avatar :size="+width">{{ token?.symbol || '' }}</a-avatar>
+                <a-avatar :size="+width" :title="token?.address || token?.name || token?.symbol">
+                    {{ token?.symbol || token?.name || '' }}
+                </a-avatar>
             </div>
         </template>
     </div>
 </template>
 <script>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, onUnmounted } from 'vue';
+import { useStore } from 'vuex';
 
 export default {
     name: 'TokenIcon',
@@ -46,32 +54,81 @@ export default {
         },
     },
     setup(props) {
+        const store = useStore();
+
+        const isGetFromStore = ref(false);
+        const imageToShow = ref(props.token?.logo);
         const isShowPlaceholder = ref(!props.token?.logo || false);
 
-        const handleOnErrorImg = () => {
-            isShowPlaceholder.value = true;
-        };
-
-        const handleOnLoadImg = () => {
-            isShowPlaceholder.value = false;
-        };
-
+        const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
         const shouldShowImage = computed(() => !isShowPlaceholder.value);
 
-        onMounted(() => {
-            if (!props.token?.logo) isShowPlaceholder.value = true;
-        });
+        const getImageByAddress = async (token) => {
+            try {
+                return await store.dispatch('configs/getTokenImage', token);
+            } catch (error) {
+                console.error('Error getting token image', error);
+                return null;
+            } finally {
+                isGetFromStore.value = true;
+            }
+        };
 
-        watch(
+        const handleOnLoadImg = () => (isShowPlaceholder.value = false);
+
+        const handleOnErrorImg = async () => {
+            isShowPlaceholder.value = true;
+            await handleOnChangeIsShowPlaceholder(true);
+        };
+
+        const handleOnChangeIsShowPlaceholder = async (value) => {
+            if (!value) return;
+            const { chain = null, address = null } = props.token || {};
+
+            // If the token image is not available, we need to get it from the store
+            // If we already requested the image, we don't need to request it again
+            if (value && chain && address && !isGetFromStore.value) {
+                imageToShow.value = await getImageByAddress(props.token);
+                isShowPlaceholder.value = !imageToShow.value;
+            }
+        };
+
+        // **********************************************************************************
+        // * Watchers
+        // **********************************************************************************
+
+        const unWatchPropsToken = watch(
             () => props.token,
             () => {
-                if (props.token) isShowPlaceholder.value = false;
-                if (!props.token?.logo) isShowPlaceholder.value = true;
+                if (imageToShow.value === props.token?.logo || isGetFromStore.value) return;
+                if (props.token?.logo) imageToShow.value = props.token?.logo;
+                isShowPlaceholder.value = !props.token?.logo;
             },
         );
 
+        watch(isAllTokensLoading, async (value) => {
+            if (value) return;
+            await handleOnChangeIsShowPlaceholder(isShowPlaceholder.value);
+        });
+
+        // **********************************************************************************
+        // * Lifecycle Hooks
+        // **********************************************************************************
+
+        onMounted(async () => {
+            isGetFromStore.value = false;
+            imageToShow.value = props.token?.logo;
+            isShowPlaceholder.value = !imageToShow.value;
+            if (!imageToShow.value) await handleOnChangeIsShowPlaceholder(isShowPlaceholder.value);
+        });
+
+        onUnmounted(() => {
+            unWatchPropsToken();
+        });
+
         return {
             shouldShowImage,
+            imageToShow,
 
             handleOnLoadImg,
             handleOnErrorImg,

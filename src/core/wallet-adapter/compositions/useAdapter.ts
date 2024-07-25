@@ -72,7 +72,7 @@ export interface IAdapter {
     getNativeTokenByChain: (ecosystem: Ecosystems, chain: IChainConfig, store: any) => any;
     getIBCAssets: (ecosystem: Ecosystems, chain: IChainConfig) => any[];
     getWalletLogo: (ecosystem: Ecosystems, module: string) => Promise<string>;
-    getChainListByEcosystem: (ecosystem: Ecosystems) => IChainConfig[];
+    getChainListByEcosystem: (ecosystem: Ecosystems, allChains?: boolean) => IChainConfig[];
     getChainByChainId: (ecosystem: Ecosystems | null, chainId: string | number) => IChainConfig | null;
 
     // ****************************************************
@@ -105,6 +105,8 @@ export interface IAdapter {
     switchEcosystem: (ecosystem: Ecosystems) => Promise<void>;
     getConnectedStatus: (ecosystem: Ecosystems) => boolean;
     getAdapterByEcosystem: (ecosystem: Ecosystems) => any;
+
+    callContractMethod: (transaction: any, ecosystem: Ecosystems) => Promise<void>;
 }
 
 function useAdapter({ tmpStore }: { tmpStore?: Store<any> | null } = { tmpStore: null }): IAdapter {
@@ -364,6 +366,7 @@ function useAdapter({ tmpStore }: { tmpStore?: Store<any> | null } = { tmpStore:
             const adapter = adaptersGetter(GETTERS.ADAPTER_BY_ECOSYSTEM)(ecosystem);
             if (!adapter) continue;
             adapter.disconnectAllWallets && (await adapter.disconnectAllWallets());
+            await store.dispatch('tokens/resetIsInitCall', { isAll: true });
         }
 
         adaptersDispatch(TYPES.DISCONNECT_ALL_WALLETS);
@@ -685,6 +688,7 @@ function useAdapter({ tmpStore }: { tmpStore?: Store<any> | null } = { tmpStore:
         // ******************* Transaction methods *******************
         callTransactionAction,
         signSend,
+        callContractMethod,
 
         // ******************* Explorer methods *******************
         getTxExplorerLink,

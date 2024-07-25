@@ -1,10 +1,11 @@
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { isEqual, startsWith, uniq, isEmpty } from 'lodash';
+import BigNumber from 'bignumber.js';
 
 import { ITransaction, ITransactionResponse } from '@/core/transaction-manager/types/Transaction';
 import { SHORTCUT_STATUSES, STATUSES } from '@/shared/models/enums/statuses.enum';
-import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
+import { TRANSACTION_TYPES, TX_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 // Transaction manager
 import { Transaction, TransactionList } from '@/core/transaction-manager/TX-manager';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
@@ -21,6 +22,7 @@ import ApproveOperation from '@/core/operations/general-operations/Approve';
 import TransferOperation from '@/core/operations/general-operations/Transfer';
 import DexOperation from '@/core/operations/general-operations/Dex';
 import ApproveLpOperation from '@/core/operations/portal-fi/ApproveLp';
+import CallContractMethod from '@/core/operations/evm-contract-ops/CallContractMethod';
 
 import { IBaseOperation } from '@/core/operations/models/Operations';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
@@ -68,8 +70,16 @@ const useModuleOperations = (module: ModuleType) => {
     // * Adapter
     // ===============================================================================================
 
-    const { walletAddress, currentChainInfo, setChain, connectByEcosystems, getChainByChainId, getConnectedStatus, switchEcosystem } =
-        useAdapter();
+    const {
+        walletAddress,
+        currentChainInfo,
+        setChain,
+        connectByEcosystems,
+        getChainByChainId,
+        getConnectedStatus,
+        switchEcosystem,
+        callContractMethod,
+    } = useAdapter();
 
     // ===============================================================================================
     // * Notification
@@ -217,7 +227,7 @@ const useModuleOperations = (module: ModuleType) => {
     // ===============================================================================================
 
     const ecosystemToConnect = computed<Ecosystems | null>(() => {
-        const isSuperSwap = [ModuleType.superSwap, ModuleType.shortcut].includes(currentModule.value);
+        const isSuperSwap = [ModuleType.superSwap, ModuleType.shortcut, ModuleType.liquidityProvider].includes(currentModule.value);
 
         // ! If not super swap, return
         if (!isSuperSwap) {
@@ -571,6 +581,68 @@ const useModuleOperations = (module: ModuleType) => {
         return isNeedApprove.value;
     };
 
+    const checkApproveByContract = async (operations: OperationsFactory, opInGroup: any) => {
+        const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value;
+        const { contractAddress, amount } = opInGroup.params;
+        const { address, decimals, name } = opInGroup.tokens.from;
+
+        const paramsGetAllowance = {
+            method: 'allowance',
+            contractAddress: address,
+            args: [ownerAddress, contractAddress],
+            type: 'READ',
+        };
+
+        const allowance = await callContractMethod(paramsGetAllowance, Ecosystem.EVM);
+
+        const amountIn = Math.round(+BigNumber(amount).multipliedBy(`1e${decimals}`).toFixed());
+
+        const isNeedApprove = BigNumber(allowance?._hex || 0).toNumber() < amountIn;
+
+        if (!isNeedApprove) return;
+
+        registerOperation(operations, opInGroup, `Approve ${name}`, CallContractMethod, TRANSACTION_TYPES.APPROVE, {
+            net: selectedSrcNetwork.value?.net,
+            method: 'approve',
+            contractAddress: address,
+            argKeys: ['spender', 'amount'],
+            spender: contractAddress,
+            abi: 'BASE_ABI',
+            amount,
+        });
+    };
+
+    const registerOperation = (
+        operations: OperationsFactory,
+        operation: IBaseOperation,
+        name: string,
+        operationClass: new () => IBaseOperation,
+        type: TX_TYPES,
+        params: any,
+    ) => {
+        const beforeId = operation.getUniqueId();
+        const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value;
+        operation.setNeedApprove(true);
+
+        const { key } =
+            operations.registerOperation(operation.module, operationClass, {
+                before: beforeId,
+            }) || {};
+
+        const registeredOperation = operations.getOperationByKey(key as string);
+
+        registeredOperation.setParams(params);
+
+        registeredOperation.setName(name);
+        registeredOperation.setEcosystem(selectedSrcNetwork.value?.ecosystem);
+        registeredOperation.setChainId(selectedSrcNetwork.value?.chain_id as string);
+        registeredOperation.setAccount(ownerAddress as string);
+        registeredOperation.setMake(type);
+        operation.tokens.from && registeredOperation.setToken('from', operation.tokens.from);
+
+        return registeredOperation;
+    };
+
     const insertOrPassApproveOp = (operations: OperationsFactory): void => {
         const firstOpKeyByOrder = operations.getFirstOperationByOrder();
         const firstInGroup = operations.getOperationByKey(firstOpKeyByOrder);
@@ -578,90 +650,100 @@ const useModuleOperations = (module: ModuleType) => {
         if (!checkNeedApprove(firstInGroup)) return;
 
         const account = srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value;
-
-        if (firstInGroup.transactionType === TRANSACTION_TYPES.APPROVE) {
-            firstInGroup.setParams({
-                net: selectedSrcNetwork.value?.net,
-                tokenAddress: selectedSrcToken.value?.address,
-                ownerAddress: account as string,
-                amount: srcAmount.value,
-                serviceId: selectedRoute.value?.serviceId,
-                dstAmount: dstAmount.value,
-            });
-            return;
-        }
-
-        const beforeId = firstInGroup.getUniqueId();
-
-        firstOp.value = firstInGroup;
-
-        const { key } =
-            operations.registerOperation(
-                firstInGroup.module,
-                firstInGroup.module === ModuleType.liquidityProvider ? ApproveLpOperation : ApproveOperation,
-                {
-                    before: beforeId,
-                },
-            ) || {};
-
-        const approveOperation = operations.getOperationByKey(key as string);
-
-        approveOperation.setParams({
+        const params = {
             net: selectedSrcNetwork.value?.net,
             tokenAddress: selectedSrcToken.value?.address,
             ownerAddress: account as string,
             amount: srcAmount.value,
             serviceId: selectedRoute.value?.serviceId,
             dstAmount: dstAmount.value,
-        });
+        };
 
-        approveOperation.setName(`Approve ${selectedSrcToken.value?.symbol}`);
-        approveOperation.setEcosystem(selectedSrcNetwork.value?.ecosystem);
-        approveOperation.setChainId(selectedSrcNetwork.value?.chain_id as string);
-        approveOperation.setAccount(account as string);
-        selectedSrcToken.value && approveOperation.setToken('from', selectedSrcToken.value);
+        if (firstInGroup.transactionType === TRANSACTION_TYPES.APPROVE) {
+            firstInGroup.setParams(params);
+            return;
+        }
+
+        registerOperation(
+            operations,
+            firstInGroup,
+            `Approve ${selectedSrcToken.value?.symbol}`,
+            firstInGroup.module === ModuleType.liquidityProvider ? ApproveLpOperation : ApproveOperation,
+            TRANSACTION_TYPES.APPROVE,
+            params,
+        );
     };
 
     const insertOrPassApproveLpOp = (operations: OperationsFactory): void => {
         if (!isNeedRemoveLpApprove.value) return;
 
         const operationsFlow = operations.getFullOperationFlow();
-
         const removeLpExist = operationsFlow.find((op) => op.type === TRANSACTION_TYPES.REMOVE_LIQUIDITY);
-
         if (!removeLpExist) return;
 
         const opInGroup = operations.getOperationByKey(removeLpExist.moduleIndex);
 
+        const createApproveOperation = () => {
+            opInGroup.setNeedApprove(true);
+            const beforeId = opInGroup.getUniqueId();
+
+            const { key } =
+                operations.registerOperation(opInGroup.module, ApproveLpOperation, {
+                    before: beforeId,
+                }) || {};
+
+            return operations.getOperationByKey(key as string);
+        };
+
+        const getApproveOperation = () => {
+            const approveLpExist = operationsFlow.find((op) => op.type === TRANSACTION_TYPES.APPROVE);
+            if (!approveLpExist) return null;
+            return operations.getOperationByKey(approveLpExist.moduleIndex);
+        };
+
+        const setApproveOperationParams = (approveOperation: any) => {
+            const account = srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value;
+
+            approveOperation.setParams({
+                net: selectedSrcNetwork.value?.net,
+                tokenAddress: opInGroup.tokens.from?.address,
+                ownerAddress: account as string,
+                amount: +opInGroup.params.amount || srcAmount.value,
+                typeLp: TRANSACTION_TYPES.REMOVE_LIQUIDITY,
+            });
+
+            approveOperation.setName(`Approve ${opInGroup.tokens.from?.symbol}`);
+            approveOperation.setEcosystem(selectedSrcNetwork.value?.ecosystem);
+            approveOperation.setChainId(selectedSrcNetwork.value?.chain_id as string);
+            approveOperation.setAccount(account as string);
+
+            opInGroup.tokens.from && approveOperation.setToken('from', opInGroup.tokens.from);
+        };
+
+        const approveOperation = opInGroup.isNeedApprove ? getApproveOperation() : createApproveOperation();
+        if (!approveOperation) return;
+
+        setApproveOperationParams(approveOperation);
+    };
+
+    const insertOrPassApproveByContractOp = async (operations: OperationsFactory): Promise<any> => {
+        const operationsFlow = operations.getFullOperationFlow();
+
+        // TODO
+        const opExist = operationsFlow.find((op) => op.operationId === 'supply-usdc');
+        if (!opExist) return;
+
+        const opInGroup = operations.getOperationByKey(opExist.moduleIndex);
+
         if (opInGroup.isNeedApprove) return;
 
-        opInGroup.setNeedApprove(true);
+        // check connected chain on blocknative provider, to call contract methods
+        if (currentChainInfo.value?.net !== selectedSrcNetwork.value?.net) {
+            const chainInfo = getChainByChainId(selectedSrcNetwork.value.ecosystem, selectedSrcNetwork.value.chain_id) as IChainConfig;
+            await setChain(chainInfo);
+        }
 
-        const beforeId = opInGroup.getUniqueId();
-
-        const { key } =
-            operations.registerOperation(opInGroup.module, ApproveLpOperation, {
-                before: beforeId,
-            }) || {};
-
-        const approveOperation = operations.getOperationByKey(key as string);
-
-        const account = srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value;
-
-        approveOperation.setParams({
-            net: selectedSrcNetwork.value?.net,
-            tokenAddress: opInGroup.tokens.from?.address,
-            ownerAddress: account as string,
-            amount: +opInGroup.params.amount || srcAmount.value,
-            typeLp: TRANSACTION_TYPES.REMOVE_LIQUIDITY,
-        });
-
-        approveOperation.setName(`Approve ${opInGroup.tokens.from?.symbol}`);
-        approveOperation.setEcosystem(selectedSrcNetwork.value?.ecosystem);
-        approveOperation.setChainId(selectedSrcNetwork.value?.chain_id as string);
-        approveOperation.setAccount(account as string);
-
-        opInGroup.tokens.from && approveOperation.setToken('from', opInGroup.tokens.from);
+        await checkApproveByContract(operations, opInGroup);
     };
 
     const updateOperationStatus = (
@@ -680,7 +762,6 @@ const useModuleOperations = (module: ModuleType) => {
 
         const firstOpKeyByOrder = operations.getFirstOperationByOrder();
         const firstInGroupByOrder = operations.getOperationByKey(firstOpKeyByOrder);
-        const firstInGroup = operations.getFirstOperation();
 
         if (!operations || !status || !moduleIndex) {
             console.warn('updateOperationStatus -> Error: Missing params', { operations, status, moduleIndex });
@@ -694,7 +775,8 @@ const useModuleOperations = (module: ModuleType) => {
 
         if (hash) operations.getOperationByKey(moduleIndex).setParamByField('txHash', hash);
 
-        if (firstInGroupByOrder.getUniqueId() === moduleIndex) operations.setOperationStatusByKey(firstInGroup.getUniqueId(), status);
+        if (firstInGroupByOrder.getUniqueId() === moduleIndex)
+            operations.setOperationStatusByKey(firstInGroupByOrder.getUniqueId(), status);
 
         if (operationId) return operations.setOperationStatusById(operationId, status);
 
@@ -1088,8 +1170,15 @@ const useModuleOperations = (module: ModuleType) => {
         // ! Check if operation need to approve
         insertOrPassApproveOp(operations);
         insertOrPassApproveLpOp(operations);
+        await insertOrPassApproveByContractOp(operations);
 
         const opsFullFlow = operations.getFullOperationFlow();
+
+        if (!isForceCallConfirm.value)
+            store.dispatch('shortcuts/setCurrentStepId', {
+                stepId: opsFullFlow[0].operationId,
+                shortcutId: currentShortcutId.value,
+            });
 
         printFlow(opsFullFlow); // TODO: Remove this after debug
 
@@ -1123,6 +1212,7 @@ const useModuleOperations = (module: ModuleType) => {
             throw error;
         } finally {
             isTransactionSigning.value = false;
+            isForceCallConfirm.value = false;
             // * if selected route exist, refresh it
             if (selectedRoute.value && [SHORTCUT_STATUSES.PENDING].includes(shortcutStatus.value)) await getEstimateInfo(true);
         }
@@ -1196,8 +1286,6 @@ const useModuleOperations = (module: ModuleType) => {
         if (!value) return;
 
         handleOnConfirm();
-
-        isForceCallConfirm.value = false;
     });
 
     // =================================================================================================================

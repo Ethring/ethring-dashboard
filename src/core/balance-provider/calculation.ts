@@ -8,7 +8,7 @@ export const getTotalBalance = (records: AssetBalance[], balance = BigNumber(0))
     return balance.plus(totalSum);
 };
 
-export const getTotalBalanceByType = (balances: AssetBalance[], type = IntegrationBalanceType.ALL) => {
+export const getTotalBalanceByType = (balances: AssetBalance[], type = IntegrationBalanceType.ALL): string => {
     if (!balances.length) return '0';
 
     if ([IntegrationBalanceType.FUTURES, IntegrationBalanceType.BORROW_AND_LENDING].includes(type)) {

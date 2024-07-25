@@ -50,7 +50,7 @@ export default class PortalFiAddLiquidity extends BaseOperation {
             const params: IGetQuoteAddLiquidityRequest = {
                 net,
                 poolID,
-                amount: formatNumber(amount, from?.decimals),
+                amount: formatNumber(amount, from?.decimals, false),
                 slippageTolerance: slippage || slippageTolerance,
                 tokenAddress: tokenIn,
                 ownerAddress: ownerAddresses[net],
@@ -107,7 +107,7 @@ export default class PortalFiAddLiquidity extends BaseOperation {
             const params: IGetQuoteAddLiquidityRequest = {
                 net,
                 poolID,
-                amount: formatNumber(amount, from?.decimals),
+                amount: formatNumber(amount, from?.decimals, false),
                 slippageTolerance: slippage || slippageTolerance,
                 tokenAddress: tokenIn,
             };

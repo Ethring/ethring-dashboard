@@ -39,6 +39,7 @@ import { setNativeTokensPrices } from '@/core/balance-provider/native-token';
 import { DP_CHAINS } from '@/core/balance-provider/models/enums';
 import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 import { delay } from '@/shared/utils/helpers';
+import { Providers } from '../core/balance-provider/models/enums';
 
 export default {
     name: 'App',
@@ -70,6 +71,8 @@ export default {
             getChainListByEcosystem,
         } = useAdapter();
 
+        const connectedWalletsFromStore = computed(() => store.getters['adapters/getConnectedWallets']);
+
         const isShowRoutesModal = computed(() => store.getters['app/modal']('routesModal'));
 
         const getAddressesWithChains = async (ecosystem) => {
@@ -97,6 +100,8 @@ export default {
         };
 
         const updateBalanceForAllAccounts = async () => {
+            await store.dispatch('tokens/setLoader', true);
+
             for (const wallet of connectedWallets.value) {
                 // ?Skip if wallet is undefined or null
                 if (!wallet) continue;
@@ -106,18 +111,41 @@ export default {
 
                 store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses: list });
 
-                // * Calling update balance for each account
-                await updateBalanceForAccount(account, list);
+                switch (ecosystem) {
+                    case Ecosystem.EVM:
+                        await updateBalanceForAccount(account, list, {
+                            provider: Providers.GoldRush,
+                            fetchIntegrations: false,
+                            fetchNfts: false,
+                        });
+
+                        await updateBalanceForAccount(account, list, {
+                            provider: Providers.Pulsar,
+                            fetchTokens: false,
+                            fetchIntegrations: true,
+                            fetchNfts: true,
+                        });
+
+                        break;
+                    case Ecosystem.COSMOS:
+                        await updateBalanceForAccount(account, list, {
+                            provider: Providers.Pulsar,
+                            fetchTokens: true,
+                            fetchIntegrations: true,
+                            fetchNfts: true,
+                        });
+
+                        break;
+                    default:
+                        break;
+                }
             }
         };
 
         const callInit = async () => {
             const { ecosystem, walletModule } = currentChainInfo.value || {};
 
-            if (!walletModule || !ecosystem || !walletAddress.value || isShowRoutesModal.value) {
-                store.dispatch('tokens/setLoader', false);
-                return setTimeout(callInit, 1000);
-            }
+            if (!walletModule || !ecosystem || !walletAddress.value || isShowRoutesModal.value) return setTimeout(callInit, 1000);
 
             const addressHash = (await getAddressesWithChainsByEcosystem(ecosystem, { hash: true })) || {};
             store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM', { ecosystem, addresses: addressHash });
@@ -127,17 +155,20 @@ export default {
 
         // ==========================================================================================
 
-        const unWatchAcc = watch(walletAccount, async () => {
-            store.dispatch('tokens/setLoader', true);
-            store.dispatch('tokens/setTargetAccount', walletAccount.value);
-
+        const onLoadWallets = async () => {
             await callSubscription();
 
             await delay(1000);
 
             await callInit();
+        };
+
+        const unWatchAcc = watch(walletAccount, async () => {
+            store.dispatch('tokens/setTargetAccount', walletAccount.value);
 
             if (currentChainInfo.value?.ecosystem === Ecosystem.EVM) store.dispatch('shortcuts/loadDebridgeInfo', walletAddress.value);
+
+            await onLoadWallets();
         });
 
         const unWatchLoading = watch(isConfigLoading, async () => {
@@ -156,10 +187,18 @@ export default {
 
             await initAdapter();
 
-            await Promise.all([
-                setNativeTokensPrices(getChainListByEcosystem(Ecosystem.EVM)),
-                setNativeTokensPrices(getChainListByEcosystem(Ecosystem.COSMOS)),
-            ]);
+            const EVM_NETS = getChainListByEcosystem(Ecosystem.EVM);
+            const COSMOS_NETS = getChainListByEcosystem(Ecosystem.COSMOS);
+
+            await Promise.all([setNativeTokensPrices(EVM_NETS), setNativeTokensPrices(COSMOS_NETS)]);
+
+            const NETWORKS = [...getChainListByEcosystem(Ecosystem.EVM, true), ...getChainListByEcosystem(Ecosystem.COSMOS, true)];
+
+            for (const network of NETWORKS)
+                store.dispatch('tokens/setNetworksToShow', {
+                    network: network.net,
+                    isShow: network.isSupportedChain,
+                });
         });
 
         onBeforeUnmount(() => {
@@ -170,9 +209,10 @@ export default {
 
         // ==========================================================================================
         // * Tracking balance update for all accounts
-        onMounted(() => {
+        onMounted(async () => {
             // * Tracking balance update for all accounts
             trackingBalanceUpdate(store);
+            onLoadWallets();
             // if (process.env.NODE_ENV === 'development') {
             //     import('@/app/scripts/development').then(({ default: dev }) => dev());
             // }
