@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js';
 
-export const formatNumber = (value, maximumFractionDigits = 8) => {
+export const formatNumber = (value, maximumFractionDigits = 8, separator = true) => {
     if (!value || +value === 0) return '0';
 
     if (Number.isNaN(Number(value))) return value;
@@ -10,7 +10,7 @@ export const formatNumber = (value, maximumFractionDigits = 8) => {
         roundingMode: 'trunc',
     });
 
-    const formattedNumber = formatter.format(value);
+    let formattedNumber = formatter.format(value);
 
     if (+formattedNumber === 0) {
         const formatter = new Intl.NumberFormat('en-US', {
@@ -18,8 +18,9 @@ export const formatNumber = (value, maximumFractionDigits = 8) => {
             roundingMode: 'trunc',
         });
 
-        return formatter.format(value);
+        formattedNumber = formatter.format(value);
     }
+    if (!separator) return formattedNumber.replace(',', '');
 
     return formattedNumber;
 };

@@ -222,3 +222,31 @@ export const BEEFY_DEPOSIT_ABI = [
     },
     { inputs: [], name: 'depositAll', outputs: [], stateMutability: 'nonpayable', type: 'function' },
 ];
+
+export const EXTRA_FI_ABI = [
+    {
+        inputs: [
+            { internalType: 'uint256', name: 'reserveId', type: 'uint256' },
+            { internalType: 'uint256', name: 'amount', type: 'uint256' },
+            { internalType: 'address', name: 'onBehalfOf', type: 'address' },
+            { internalType: 'uint16', name: 'referralCode', type: 'uint16' },
+        ],
+        name: 'depositAndStake',
+        outputs: [{ internalType: 'uint256', name: 'eTokenAmount', type: 'uint256' }],
+        stateMutability: 'payable',
+        type: 'function',
+    },
+];
+
+export const COMPOUND_ABI = [
+    {
+        inputs: [
+            { internalType: 'address', name: 'asset', type: 'address' },
+            { internalType: 'uint256', name: 'amount', type: 'uint256' },
+        ],
+        name: 'supply',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+];

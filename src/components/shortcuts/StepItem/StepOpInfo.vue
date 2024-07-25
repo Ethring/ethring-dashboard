@@ -13,7 +13,7 @@
                         symbol="NFT"
                         type="currency"
                         :class="{
-                            'editable-amount': shortcutOpInfo.editableFromAmount,
+                            'editable-amount': shortcutOpInfo?.editableFromAmount,
                             'editable-amount-disabled': isEditDisabled,
                         }"
                     />
@@ -45,7 +45,7 @@
                             :symbol="operation.getToken('from')?.symbol"
                             type="currency"
                             :class="{
-                                'editable-amount': shortcutOpInfo.editableFromAmount,
+                                'editable-amount': shortcutOpInfo?.editableFromAmount,
                                 'editable-amount-disabled': isEditDisabled,
                             }"
                         />
@@ -129,6 +129,7 @@ export default {
         const store = useStore();
 
         const factory = computed<IOperationFactory>(() => store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId));
+        const shortcut = computed(() => store.getters['shortcutsList/getShortcutById'](props.shortcutId));
 
         const shortcutStatus = computed(() => store.getters['shortcuts/getShortcutStatus'](props.shortcutId));
         const isTransactionSigning = computed(() => store.getters['txManager/isTransactionSigning']);
@@ -148,7 +149,7 @@ export default {
             return (
                 isTransactionSigning.value ||
                 ![SHORTCUT_STATUSES.PENDING].includes(shortcutStatus.value) ||
-                !shortcutOpInfo.value.editableFromAmount
+                !shortcutOpInfo.value?.editableFromAmount
             );
         });
 
@@ -210,7 +211,8 @@ export default {
         };
 
         const fromAmount = computed(() => {
-            if (operation.value.getModule() === ModuleType.stake) return operation.value.getParamByField('amount');
+            if (operation.value.getModule() === ModuleType.stake && !shortcut.value.isComingSoon)
+                return operation.value.getParamByField('amount');
 
             return operation.value.getToken('from')?.amount || operation.value.getParamByField('amount');
         });

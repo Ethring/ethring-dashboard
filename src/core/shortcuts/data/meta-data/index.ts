@@ -35,7 +35,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
         description: 'Transfer your tokens automatically & stake with POSTHUMAN validator to earn passive income!',
         wallpaper: '/img/wallpapers/SC-post-human-stake.png',
         website: 'https://posthuman.digital/',
-        author: getAuthorById(ShortcutAuthor.ZometApp),
+        author: getAuthorById(ShortcutAuthor.PostHuman),
         minUsdAmount: 1,
         isActive: true,
     },
@@ -152,10 +152,9 @@ const META_DATA: Record<string, IShortcutMeta> = {
     },
     [AvailableShortcuts.PendleEarnFixedYield]: {
         id: AvailableShortcuts.PendleEarnFixedYield,
-        name: 'Earn fixed yield on Pendle',
-        logoURI: '/img/icons/shortcuts/rage-quite.svg',
-        // logoURI: 'https://pendle.finance/images/pendle-logo.svg',
-        // logoURI: 'https://www.pendle.finance/uploads/wp-content/uploads/2022/brandguide/logos/dark-svg/no-glow-cropped.svg',
+        name: 'Earn fixed yield on Silo',
+        logoURI:
+            'https://jumper.exchange/_next/image/?url=https%3A%2F%2Fstrapi.li.finance%2Fuploads%2FAvatar_Silo_Dark_Mode_False_6e6997fd7a.png&w=96&q=75',
         keywords: ['pendle', 'yield', 'fixed'],
         tags: ['PENDLE', 'YIELD'],
         ecosystems: ['EVM'],
@@ -170,7 +169,8 @@ const META_DATA: Record<string, IShortcutMeta> = {
     [AvailableShortcuts.PendleBeefy]: {
         id: AvailableShortcuts.PendleBeefy,
         name: 'Earn fixed yield on Beefy',
-        logoURI: '/img/icons/shortcuts/rage-quite.svg',
+        logoURI:
+            'https://jumper.exchange/_next/image/?url=https%3A%2F%2Fstrapi.li.finance%2Fuploads%2FAvatar_Beefy_Dark_Mode_False_38f50c968b.png&w=96&q=75',
         keywords: ['pendle', 'yield', 'beefy'],
         tags: ['PENDLE', 'BEEFY'],
         ecosystems: ['EVM'],
@@ -185,7 +185,7 @@ const META_DATA: Record<string, IShortcutMeta> = {
     [AvailableShortcuts.Debridge]: {
         id: AvailableShortcuts.Debridge,
         name: 'Earn points for every deBridge transaction',
-        logoURI: '/img/icons/shortcuts/rage-quite.svg',
+        logoURI: 'https://app.debridge.finance/assets/images/bridge.svg',
         keywords: ['deBridge', 'points'],
         tags: ['deBridge', 'bridge'],
         ecosystems: ['EVM'],
@@ -200,7 +200,8 @@ const META_DATA: Record<string, IShortcutMeta> = {
     [AvailableShortcuts.AddLiquidityPool1]: {
         id: AvailableShortcuts.AddLiquidityPool1,
         name: 'Add/remove for Balancer',
-        logoURI: '/img/icons/shortcuts/rage-quite.svg',
+        logoURI:
+            'https://jumper.exchange/_next/image/?url=https%3A%2F%2Fstrapi.li.finance%2Fuploads%2FAvatar_Balancer_Dark_Mode_False_d5317dbe76.png&w=96&q=75',
         keywords: ['liquidity', 'pool', 'Balancer'],
         tags: ['liquidity', 'pool', 'Balancer'],
         ecosystems: ['EVM'],
@@ -239,6 +240,21 @@ const META_DATA: Record<string, IShortcutMeta> = {
         wallpaper: '',
         website: 'https://app.balancer.fi/#/ethereum',
         minUsdAmount: 0,
+        author: getAuthorById(ShortcutAuthor.ZometApp),
+        isActive: true,
+    },
+    [AvailableShortcuts.JumperSuperfest]: {
+        id: AvailableShortcuts.JumperSuperfest,
+        name: 'Emplore superfests and earn rewards',
+        logoURI: '/img/icons/shortcuts/jumper.png',
+        keywords: ['superfest', 'defi'],
+        tags: ['superfest', 'liquidity'],
+        ecosystems: ['EVM'],
+        type: 'liquidity',
+        description: 'Emplore superfests and earn rewards',
+        wallpaper: '/img/wallpapers/jumper.png',
+        website: 'https://jumper.exchange/superfest/',
+        minUsdAmount: 0.1,
         author: getAuthorById(ShortcutAuthor.ZometApp),
         isActive: true,
     },

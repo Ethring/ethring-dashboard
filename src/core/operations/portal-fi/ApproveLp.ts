@@ -28,14 +28,12 @@ export default class ApproveLpOperation extends BaseOperation {
     }
 
     async performTx(): Promise<IBridgeDexTransaction | null> {
-        const amount = this.getParamByField('amount');
-
-        const { net, ownerAddress, tokenAddress } = this.params as any;
+        const { net, ownerAddress, tokenAddress, amount } = this.params as any;
         const { from } = this.getTokens();
 
         const params: IGetAllowanceRequest = {
             net,
-            amount: formatNumber(amount, from?.decimals),
+            amount: formatNumber(amount, from?.decimals, false),
             tokenAddress,
             ownerAddress,
         };

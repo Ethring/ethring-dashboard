@@ -20,7 +20,7 @@ export const getBalancesByAddress = async (
     address: string,
     options: ProviderRequestOptions = {},
 ): Promise<BalanceResponse | null> => {
-    const { fetchTokens = true, fetchIntegrations = true, fetchNfts = true } = options;
+    const { fetchTokens = false, fetchIntegrations = false, fetchNfts = false, provider } = options;
 
     if (!process.env.DATA_PROVIDER_API) return null;
 
@@ -28,7 +28,7 @@ export const getBalancesByAddress = async (
 
     try {
         const { data, status }: AxiosResponse = await axiosInstance.get(
-            `/balances?net=${chain}&address=${address}&tokens=${fetchTokens}&integrations=${fetchIntegrations}&nfts=${fetchNfts}`,
+            `/balances?net=${chain}&address=${address}&tokens=${fetchTokens}&integrations=${fetchIntegrations}&nfts=${fetchNfts}&provider=${provider}`,
         );
 
         if (status !== HttpStatusCode.Ok) return null;
@@ -37,7 +37,7 @@ export const getBalancesByAddress = async (
 
         if (!ok) return null;
 
-        const { tokens, integrations, nfts } = response as BalanceResponse;
+        const { tokens = [], integrations = [], nfts = [] } = (response as BalanceResponse) || {};
 
         return {
             tokens,

@@ -1,3 +1,6 @@
+import BigNumber from 'bignumber.js';
+import { utils } from 'ethers';
+
 import { BaseOpParams } from '@/core/operations/models/Operations';
 import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 
@@ -7,8 +10,6 @@ import { Ecosystems } from '@/modules/bridge-dex/enums/Ecosystem.enum';
 import { IBridgeDexTransaction } from '@/modules/bridge-dex/models/Response.interface';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
-
-import { utils } from 'ethers';
 
 export default class CallContractMethod extends BaseOperation {
     module: keyof typeof ModuleType = ModuleType.pendleSilo;
@@ -23,21 +24,38 @@ export default class CallContractMethod extends BaseOperation {
     }
 
     async performTx(ecosystem: Ecosystems): Promise<IBridgeDexTransaction> {
-        const { argKeys, args, ownerAddresses, fromNet, net } = this.params as any;
+        const { argKeys, ownerAddresses, fromNet, net } = this.params as any;
         const network = net || fromNet;
+        const { from } = this.getTokens();
+        const { address, decimals } = from || {};
 
         const argsToCall = [];
+
+        const amount = this.getParamByField('amount');
+        const amountIn = Math.round(+BigNumber(amount).multipliedBy(`1e${decimals}`).toFixed());
 
         for (const key of argKeys)
             switch (key) {
                 case 'amount':
-                    argsToCall.push(utils.parseUnits(this.getParamByField(key), 18).toBigInt());
+                    argsToCall.push(amountIn);
                     break;
 
                 case 'owner':
+                case 'onBehalfOf':
                     argsToCall.push(ownerAddresses[network]);
                     break;
 
+                case 'referralCode':
+                    argsToCall.push(1234);
+                    break;
+
+                case 'tokenAddress':
+                    argsToCall.push(address);
+                    break;
+
+                case 'reserveId':
+                    argsToCall.push(49);
+                    break;
                 default:
                     argsToCall.push(this.getParamByField(key));
                     break;
@@ -50,6 +68,7 @@ export default class CallContractMethod extends BaseOperation {
                 method: this.getParamByField('method'),
                 args: argsToCall || this.getParamByField('args'),
                 abi: this.getParamByField('abi'),
+                value: !address ? amountIn : null,
             },
         };
     }

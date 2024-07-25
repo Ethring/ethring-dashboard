@@ -147,6 +147,10 @@
             opacity: 1;
         }
     }
+
+    .ant-spin-nested-loading .ant-spin {
+        max-height: fit-content;
+    }
 }
 
 .ant-spin-dot.ant-spin-dot-spin i {

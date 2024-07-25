@@ -1,50 +1,53 @@
 .shortcut-item {
-    min-height: 210px;
-    padding: 16px;
-    background-color: var(--#{$prefix}card-bg-color);
+    border-radius: 16px;
+    box-shadow: 0px 4px 15px 0px var(--#{$prefix}shortcut-shadow-color);
+    background-color: var(--#{$prefix}shortcut-bg-color);
+    border: none !important;
+    transition: box-shadow 0.3s !important;
 
-    &.disabled {
+    cursor: pointer;
+
+    &:not(.disabled):hover {
+        box-shadow: 0px 4px 15px 0px var(--#{$prefix}shortcut-shadow-hover-color);
+    }
+
+    &.disabled > * {
         opacity: 0.5;
         user-select: none;
         cursor: not-allowed;
     }
 
-    &__btn {
-        min-width: 80px;
-        min-height: 30px;
-        height: 30px;
-        border-radius: 4px;
-        text-transform: capitalize;
+    &__header {
+        border-radius: 16px 16px 0 0;
+        padding: 16px;
+        height: 56px;
+    }
 
-        background: var(--#{$prefix}small-btn-bg-color);
-
-        span {
-            font-weight: 600;
-            color: var(--#{$prefix}black);
-        }
+    &__body {
+        background-color: var(--#{$prefix}shortcut-bg-color);
+        padding: 8px 16px 16px;
+        border-radius: 0 0 16px 16px;
     }
 
     &__tag {
-        height: 20px;
-
-        padding: 0px 10px;
-        margin: 2px 0 0 4px;
-
-        border-radius: 24px;
+        margin: 2px 4px;
 
         font-size: var(--#{$prefix}small-sm-fs);
-        font-weight: 500;
+        font-weight: 400;
 
-        color: var(--#{$prefix}black) !important;
-        background: var(--#{$prefix}card-btn-bg-color);
+        color: var(--#{$prefix}mute-text);
         text-transform: capitalize;
 
         transition: all 0.2s;
 
         cursor: pointer;
 
-        &:hover {
-            background: var(--#{$prefix}card-tag-bg-color);
+        $colors: var(--#{$prefix}tag-01), var(--#{$prefix}tag-02), var(--#{$prefix}success);
+
+        @for $i from 1 through length($colors) {
+            &:nth-child(#{$i}) {
+                color: nth($colors, $i);
+            }
         }
     }
 
@@ -53,76 +56,31 @@
         justify-content: center;
 
         border-radius: 50%;
-
-        width: 40px;
-        height: 40px;
+        width: 32px;
+        height: 32px;
+        margin-right: 8px;
         background-color: var(--#{$prefix}logo-bg);
+
+        img {
+            width: 24px;
+            height: 24px;
+        }
     }
 
     .name {
-        margin-left: 8px;
-
-        color: var(--#{$prefix}primary-text);
+        color: var(--#{$prefix}primary);
         font-size: var(--#{$prefix}h6-fs);
         font-weight: 500;
 
-        width: 85%;
+        width: 90%;
         overflow-x: hidden;
         text-overflow: ellipsis;
-    }
-
-    &__block {
-        width: 66%;
-    }
-
-    .author {
-        color: var(--#{$prefix}primary-text);
-        font-size: var(--#{$prefix}small-sm-fs);
-        font-weight: 600;
-        line-height: 16px;
-
-        text-decoration: underline;
-        cursor: pointer;
-
-        transition: all 0.2s;
-
-        &:hover {
-            color: var(--#{$prefix}card-tag-bg-color);
-        }
-    }
-
-    .title {
-        color: var(--#{$prefix}base-text);
-        font-size: var(--#{$prefix}small-sm-fs);
-        font-weight: 400;
-        line-height: 16px;
-    }
-
-    .avatar {
-        @include pageFlexRow;
-        justify-content: center;
-
-        margin-left: 8px;
-
-        aspect-ratio: 1 / 1;
-
-        img {
-            width: 40px;
-            height: 40px;
-
-            border-radius: 50%;
-        }
+        text-wrap: nowrap;
     }
 
     &__info {
-        margin: 10px 0;
-        padding: 10px 0;
-
-        border-top: 1px dashed var(--#{$prefix}border-secondary-color);
-        border-bottom: 1px dashed var(--#{$prefix}border-secondary-color);
-
         div {
-            color: var(--#{$prefix}base-text);
+            color: var(--#{$prefix}mute-text);
             font-size: var(--#{$prefix}small-sm-fs);
         }
 
@@ -131,37 +89,44 @@
                 @include pageFlexRow;
                 justify-content: center;
                 gap: 8px;
+                color: var(--#{$prefix}mute-text);
+                font-size: var(--#{$prefix}small-sm-fs);
+
+                &:hover {
+                    color: var(--#{$prefix}card-tag-bg-color);
+                }
             }
 
             &-logo {
                 width: 16px;
                 height: 16px;
 
-                stroke: var(--#{$prefix}primary-text);
-            }
-        }
-
-        .amount {
-            font-weight: 600;
-            color: var(--#{$prefix}primary-text);
-
-            span {
-                font-weight: 400;
-                color: var(--#{$prefix}base-text);
+                stroke: var(--#{$prefix}mute-text);
             }
         }
     }
 
-    .description {
-        margin: 10px 0;
+    .amount {
+        color: var(--#{$prefix}mute-text);
 
-        color: var(--#{$prefix}details-text);
+        span {
+            font-weight: 500;
+        }
+    }
+
+    .description {
+        margin: 8px 0;
+        padding: 8px 0;
+
+        border-top: 1px dashed var(--#{$prefix}border-secondary-color);
+        border-bottom: 1px dashed var(--#{$prefix}border-secondary-color);
+
+        color: var(--#{$prefix}mute-text);
         font-size: var(--#{$prefix}small-lg-fs);
         font-weight: 400;
         line-height: 20px;
 
-        min-height: 40px;
-        max-height: 40px;
+        height: 54px;
 
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -171,53 +136,22 @@
         text-overflow: ellipsis;
     }
 
-    .favorites {
-        @include pageFlexRow;
+    .benefits {
+        color: var(--#{$prefix}mute-text);
 
-        height: 28px;
-
-        svg {
-            cursor: pointer;
-
-            width: 20px;
-            height: 20px;
-
-            path {
-                stroke: var(--#{$prefix}unlock-text);
-                stroke-width: 1.5px;
-            }
-
-            &:hover {
-                fill: var(--#{$prefix}banner-logo-color);
-                stroke-width: 0;
-                transition: fill 0.1s;
-
-                path {
-                    transition: all 0.1s;
-                    stroke: var(--#{$prefix}banner-logo-color);
-                }
-            }
+        span {
+            font-weight: 500;
+            margin-right: 8px;
         }
 
-        &-icon {
-            &--active {
-                fill: var(--#{$prefix}banner-logo-color);
+        &__icons {
+            margin-left: 16px;
 
-                width: 20px;
-                height: 20px;
-
-                path {
-                    stroke: var(--#{$prefix}banner-logo-color);
-                    stroke-width: 0 !important;
-                }
+            img {
+                width: 24px;
+                height: 24px;
+                margin-left: -8px;
             }
-        }
-
-        &-count {
-            margin-left: 4px;
-            font-size: var(--#{$prefix}small-lg-fs);
-            font-weight: 600;
-            color: var(--#{$prefix}base-amount-text);
         }
     }
 
@@ -227,5 +161,98 @@
         margin: 0;
         min-height: 40px;
         border: none;
+    }
+
+    &__footer {
+        background-color: var(--#{$prefix}select-bg-color);
+        padding: 24px 16px 16px;
+        border-radius: 0 0 16px 16px;
+        margin-top: -10px;
+
+        .author {
+            color: var(--#{$prefix}description-text);
+            font-size: var(--#{$prefix}small-sm-fs);
+            font-weight: 600;
+            line-height: 16px;
+
+            cursor: pointer;
+
+            transition: all 0.2s;
+
+            &:hover {
+                color: var(--#{$prefix}card-tag-bg-color);
+            }
+        }
+
+        .title {
+            color: var(--#{$prefix}notification-text);
+            font-size: var(--#{$prefix}small-sm-fs);
+            font-weight: 400;
+            line-height: 16px;
+        }
+
+        .avatar {
+            @include pageFlexRow;
+            justify-content: center;
+
+            margin-right: 8px;
+
+            aspect-ratio: 1 / 1;
+
+            img {
+                width: 30px;
+                height: 30px;
+
+                border-radius: 50%;
+                border: 1px solid $gulfStream;
+            }
+        }
+
+        .favorites {
+            @include pageFlexRow;
+
+            height: 28px;
+
+            svg {
+                cursor: pointer;
+                transition: all 0.1s;
+
+                width: 20px;
+                height: 20px;
+
+                path {
+                    stroke: var(--#{$prefix}unlock-text);
+                    stroke-width: 1.5px;
+                }
+
+                &:hover {
+                    fill: var(--#{$prefix}danger);
+                    stroke-width: 0;
+                    transition: fill 0.1s;
+
+                    path {
+                        transition: all 0.1s;
+                        stroke: var(--#{$prefix}danger);
+                    }
+                }
+            }
+
+            &-icon {
+                &--active {
+                    fill: var(--#{$prefix}danger);
+
+                    path {
+                        stroke: var(--#{$prefix}danger) !important;
+                    }
+                }
+            }
+
+            &-count {
+                margin-left: 4px;
+                font-size: var(--#{$prefix}small-lg-fs);
+                font-weight: 600;
+                color: var(--#{$prefix}base-amount-text);
+            }
+        }
     }
 }

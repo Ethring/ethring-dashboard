@@ -100,6 +100,11 @@ $assets-arrow-border-color: $gulfStream;
 $assets-arrow-hover-color: $surfieGreen;
 $assets-arrow-bg-color: $iceberg;
 
+// Shortcuts
+$shortcut-bg-color: $white;
+$shortcut-shadow-color: #81808033;
+$shortcut-shadow-hover-color: #81808099;
+
 // Text
 $sub-text: $surfieGreen;
 $mute-text: $trout;
@@ -119,6 +124,7 @@ $base-amount-text: $ebonyClay;
 $description-text: $paleSky;
 $currency-text: $paleSky;
 $details-text: $trout;
+$slippage-text: $gulfStream;
 
 $neutral-gray: $stormGrey;
 $neutral-gray-100: rgba($neutral-gray, 0.3);
@@ -277,8 +283,8 @@ $block-box-shadow: $black-op-02;
 $loader-border-color: $ficus;
 
 $tag-01: $deepCerulean;
-$tag-02: $cyan;
-$tag-03: $lightGreen;
+$tag-02: $blazeOrange;
+$tag-03: $springGreen;
 $tag-selected: $turquoise;
 
 // Percentage bar
@@ -297,6 +303,11 @@ $card-btn-secondary-color: $gainsboro;
 $shortcut-step-success: $iceberg;
 
 $radio-btn-bg-color: $gainsboro;
+
+// Slppage
+$slippage-active-option: $gainsboro;
+$slippage-border-color: $gainsboro;
+
 //  ===========================================================================
 //  THEME MAP
 //  ===========================================================================
@@ -338,6 +349,7 @@ $theme-colors: (
     'description-text': $description-text,
     'currency-text': $currency-text,
     'details-text': $details-text,
+    'slippage-text': $slippage-text,
 
     'neutral-gray': $neutral-gray,
     'neutral-gray-100': $neutral-gray-100,
@@ -493,4 +505,11 @@ $theme-colors: (
 
     'radio-btn-bg-color': $radio-btn-bg-color,
     'white-op-075': $white-op-075,
+
+    'shortcut-bg-color': $shortcut-bg-color,
+    'shortcut-shadow-color': $shortcut-shadow-color,
+    'shortcut-shadow-hover-color': $shortcut-shadow-hover-color,
+
+    'slippage-active-option': $slippage-active-option,
+    'slippage-border-color': $slippage-border-color,
 );

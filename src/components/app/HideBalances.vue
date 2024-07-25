@@ -8,11 +8,12 @@
         @input="handleOnChange"
         @blur="handleSave"
         @mouseleave="handleSave"
+        @keydown.enter="handleSave"
     />
 </template>
 
 <script>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useStore } from 'vuex';
 
 import { formatInputNumber } from '@/shared/utils/input';
@@ -30,15 +31,16 @@ export default {
         const inputValue = ref(minBalance.value);
 
         const handleOnChange = (value = '') => {
+            if (!value) return (inputValue.value = 0);
             inputValue.value = formatInputNumber(value);
         };
 
         const handleSave = () => {
-            if (!inputValue.value) inputValue.value = 0;
             if (inputValue.value === minBalance.value) return;
-
             minBalance.value = inputValue.value;
         };
+
+        watch(inputValue, (value) => handleOnChange(value));
 
         return {
             inputValue,

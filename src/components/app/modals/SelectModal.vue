@@ -17,7 +17,7 @@
                 />
             </a-form>
 
-            <div ref="scrollComponent" class="select-modal-list-container" @scroll="handleScroll">
+            <div v-if="!isLoadingTokenList" ref="scrollComponent" class="select-modal-list-container" @scroll="handleScroll">
                 <SelectOption
                     v-for="option in optionList"
                     :key="option"
@@ -40,6 +40,15 @@
                         <NotFoundIcon />
                     </template>
                 </a-empty>
+            </div>
+            <div v-else class="select-modal__skeleton">
+                <a-space v-for="n in 5" :key="n" class="select-token-option">
+                    <div>
+                        <a-skeleton-avatar active class="avatar-skeleton" />
+                        <a-skeleton-input active size="small" />
+                    </div>
+                    <a-skeleton-input active size="small" />
+                </a-space>
             </div>
         </div>
     </a-modal>
@@ -111,7 +120,8 @@ export default {
         onUpdated(() => {
             nextTick(() => {
                 searchInput.value = document.querySelector('.select-modal-search input');
-                document.querySelector('.select-modal-list-container').scrollTop = '0';
+                const container = document.querySelector('.select-modal-list-container');
+                if (container) container.scrollTop = '0';
                 isModalOpen.value && searchInput.value?.focus();
             });
         });

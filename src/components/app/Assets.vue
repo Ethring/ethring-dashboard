@@ -1,6 +1,13 @@
 <template>
     <div class="assets-section">
-        <a-collapse v-model:activeKey="collapseActiveKey" expand-icon-position="end" class="assets-block" ghost :bordered="false">
+        <a-collapse
+            v-model:activeKey="collapseActiveKey"
+            expand-icon-position="end"
+            class="assets-block"
+            ghost
+            :bordered="false"
+            @change="handleOnChangeActiveKey"
+        >
             <template #expandIcon>
                 <ArrowDownIcon class="arrow" />
             </template>
@@ -23,7 +30,7 @@
                     :loading="isLoadingByAccount || isLoadingForChain"
                 />
 
-                <div v-if="allTokensInAccount.length > visibleAssets.length" class="assets-block-show-more">
+                <div v-if="totalAssets > visibleAssets.length" class="assets-block-show-more">
                     <UiButton :title="$t('tokenOperations.showMore')" @click="handleAssetLoadMore" />
                 </div>
             </a-collapse-panel>
@@ -60,7 +67,7 @@
                 />
             </a-collapse-panel>
 
-            <a-collapse-panel v-show="isAllTokensLoading || allNFTsByCollection.length > 0" key="nfts" class="assets-block-panel">
+            <a-collapse-panel v-show="isAllTokensLoading || totalNFTs > 0" key="nfts" class="assets-block-panel">
                 <template #header>
                     <AssetGroupHeader
                         class="assets-section__group-header"
@@ -70,17 +77,17 @@
                     />
                 </template>
 
-                <AssetsTable :data="visibleNFTs" type="NFTS" :columns="NFT_COLUMNS" :loading="allNFTsByCollection.length <= 0" />
+                <AssetsTable :data="visibleNFTs" type="NFTS" :columns="NFT_COLUMNS" :loading="totalNFTs <= 0" />
 
-                <div v-if="allNFTsByCollection.length > visibleNFTs.length" class="assets-block-show-more">
-                    <UiButton :title="$t('tokenOperations.showMore')" @click="handleLoadMore" />
+                <div v-if="totalNFTs > visibleNFTs.length" class="assets-block-show-more">
+                    <UiButton :title="$t('tokenOperations.showMore')" @click="handleNFTsLoadMore" />
                 </div>
             </a-collapse-panel>
         </a-collapse>
     </div>
 </template>
 <script>
-import { ref, computed, inject, onMounted, onBeforeUnmount, watch } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useStore } from 'vuex';
 import { message } from 'ant-design-vue';
 
@@ -94,6 +101,7 @@ import UiButton from '@/components/ui/Button.vue';
 import ArrowDownIcon from '@/assets/icons/form-icons/arrow-down.svg';
 
 import { getFormattedName } from '@/shared/utils/assets';
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
 export default {
     name: 'Assets',
@@ -107,83 +115,76 @@ export default {
     setup() {
         const store = useStore();
 
-        // TODO: collapse active key by step
         const collapseActiveKey = ref([]);
-
-        const useAdapter = inject('useAdapter');
+        const keyPressCombination = ref('');
 
         const { walletAccount, currentChainInfo } = useAdapter();
 
-        const keyPressCombination = ref('');
-
-        const MAX_NFTS_PER_PAGE = 5;
-        const MAX_ASSETS_PER_PAGE = 10;
-
-        const currentIndex = ref(MAX_NFTS_PER_PAGE);
-        const currentAssetIndex = ref(MAX_ASSETS_PER_PAGE);
-
         const collapsedAssets = computed(() => store.getters['app/collapsedAssets']);
-
         const targetAccount = computed(() => store.getters['tokens/targetAccount'] || walletAccount.value);
 
         const isLoadingForChain = computed(() => store.getters['tokens/loadingByChain'](targetAccount.value, currentChainInfo.value?.net));
-
         const isLoadingByAccount = computed(() => store.getters['tokens/loadingByAccount'](targetAccount.value));
-        // const loadingsByChains = computed(() => store.getters['tokens/loadingForChains'](targetAccount.value));
-
         const isAllTokensLoading = computed(() => store.getters['tokens/loader']);
 
-        // TODO: add bundling
-        // ===================== Balances =====================
-        const allTokensInAccount = computed(() => store.getters['tokens/getAccountBalanceByType'](targetAccount.value, 'tokens') || []);
-        // ===================== Integrations =====================
-        const allIntegrationsByPlatforms = computed(() => store.getters['tokens/getIntegrationsByPlatforms'](targetAccount.value));
-        // ===================== NFTs =====================
-        const allNFTsByCollection = computed(() => store.getters['tokens/getNFTsByCollection'](targetAccount.value) || []);
+        // *********************************************************************************
+        // ****************************** Assets *******************************************
+        // *********************************************************************************
 
-        // ===================== Total Balances =====================
-        const totalBalances = computed(() => store.getters['tokens/getTotalBalanceByType'](targetAccount.value, 'totalBalances') || 0);
-        const totalAssetsBalances = computed(
-            () => store.getters['tokens/getTotalBalanceByType'](targetAccount.value, 'assetsBalances') || 0,
+        const getAccountBalanceByType = (type) => {
+            switch (type) {
+                case 'tokens':
+                    return store.getters['tokens/getAccountBalanceByType'](targetAccount.value, 'tokens') || [];
+                case 'integrations':
+                    return store.getters['tokens/getIntegrationsByPlatforms'](targetAccount.value) || [];
+                case 'nfts':
+                    return store.getters['tokens/getNFTsByCollection'](targetAccount.value) || [];
+                default:
+                    return [];
+            }
+        };
+
+        const totalAssets = computed(() => store.getters['tokens/getCountOfBalances'](targetAccount.value, 'tokens'));
+        const totalNFTs = computed(() => store.getters['tokens/getCountOfBalances'](targetAccount.value, 'nfts'));
+
+        const visibleAssets = computed(() => store.getters['tokens/getVisibleAssets'](targetAccount.value));
+        const visibleNFTs = computed(() => store.getters['tokens/getVisibleNFTs'](targetAccount.value));
+
+        const allIntegrationsByPlatforms = computed(() => getAccountBalanceByType('integrations'));
+        const allNFTsByCollection = computed(() => getAccountBalanceByType('nfts'));
+
+        // *********************************************************************************
+        // ****************************** Total Balances ************************************
+        // *********************************************************************************
+
+        const getTotalBalanceByType = (type) => {
+            switch (type) {
+                case 'nftsBalances':
+                    return store.getters['tokens/getTotalBalanceOfNFTs'](targetAccount.value) || 0;
+                default:
+                    return store.getters['tokens/getTotalBalanceByType'](targetAccount.value, type) || 0;
+            }
+        };
+
+        const totalBalances = computed(() => getTotalBalanceByType('totalBalances'));
+        const totalAssetsBalances = computed(() => getTotalBalanceByType('assetsBalances'));
+        const totalNftBalances = computed(() => getTotalBalanceByType('nftsBalances'));
+
+        const isEmpty = computed(
+            () => !totalAssets.value && !allIntegrationsByPlatforms.value?.length && !isLoadingForChain.value && !isAllTokensLoading.value,
         );
-
-        const isEmpty = computed(() => {
-            return (
-                !allTokensInAccount.value?.length &&
-                !allIntegrationsByPlatforms.value?.length &&
-                !isLoadingForChain.value &&
-                !isAllTokensLoading.value
-            );
-        });
-
-        const totalNftBalances = computed(() => {
-            if (!allNFTsByCollection.value.length) return 0;
-
-            const totalSum = allNFTsByCollection.value.reduce((totalBalance, collection) => {
-                return totalBalance.plus(+collection.totalGroupBalance || 0);
-            }, BigNumber(0));
-
-            return totalSum.toNumber();
-        });
 
         const allCollapsedActiveKeys = computed(() => {
             const keys = ['assets', 'nfts'];
 
-            if (!allIntegrationsByPlatforms.value.length) return keys;
-
-            allIntegrationsByPlatforms.value.map((item) => {
-                keys.push(item.platform);
-            });
+            if (allIntegrationsByPlatforms.value.length) allIntegrationsByPlatforms.value.forEach((item) => keys.push(item.platform));
 
             return keys;
         });
 
         const getAssetsShare = (balance) => {
             if (!balance || !totalBalances.value) return 0;
-
-            const share = BigNumber(balance).dividedBy(totalBalances.value).multipliedBy(100);
-
-            return share.toNumber();
+            return BigNumber(balance).dividedBy(totalBalances.value).multipliedBy(100).toNumber();
         };
 
         const handleKeyDown = async (e) => {
@@ -211,13 +212,32 @@ export default {
 
         const updateCollapsedAssets = () => {
             if (!collapsedAssets.value.length) collapseActiveKey.value = allCollapsedActiveKeys.value;
-
-            const list = allCollapsedActiveKeys.value.filter((key) => !collapsedAssets.value.includes(key));
-            collapseActiveKey.value = list;
+            collapseActiveKey.value = allCollapsedActiveKeys.value.filter((key) => !collapsedAssets.value.includes(key));
         };
 
         const updateCollapsedKey = (item) => {
             if (!collapsedAssets.value.includes(item.platform)) collapseActiveKey.value.push(item.platform);
+        };
+
+        const handleNFTsLoadMore = async () => await store.dispatch('tokens/loadMoreNFTs');
+        const handleAssetLoadMore = async () => await store.dispatch('tokens/loadMoreAssets');
+
+        const handleOnChangeAccount = async (account, oldAccount) => {
+            if (account === oldAccount) return;
+            if (account) {
+                await store.dispatch('app/setCollapsedAssets', []);
+                await store.dispatch('tokens/resetIndexes');
+            }
+        };
+
+        const handleOnChangeActiveKey = async (keys) => {
+            if (!keys.includes('assets')) await store.dispatch('tokens/resetIndexes', { resetAssets: true, resetNFTs: false });
+            if (!keys.includes('nfts')) await store.dispatch('tokens/resetIndexes', { resetAssets: false, resetNFTs: true });
+
+            await store.dispatch(
+                'app/setCollapsedAssets',
+                allCollapsedActiveKeys.value.filter((key) => !collapseActiveKey.value.includes(key)),
+            );
         };
 
         onMounted(async () => {
@@ -225,47 +245,27 @@ export default {
             keyPressCombination.value = '';
 
             updateCollapsedAssets();
+
+            await store.dispatch('tokens/resetIndexes');
         });
 
-        onBeforeUnmount(() => {
+        onBeforeUnmount(async () => {
             window.removeEventListener('keydown', handleKeyDown);
             keyPressCombination.value = '';
 
             updateCollapsedAssets();
+            await store.dispatch('tokens/resetIndexes');
         });
 
-        watch(collapseActiveKey, () => {
-            const hiddenKeys = allCollapsedActiveKeys.value.filter((key) => !collapseActiveKey.value.includes(key));
-            store.dispatch('app/setCollapsedAssets', hiddenKeys);
-        });
+        // watch(collapseActiveKey, async () => {
+        //     console.log('collapseActiveKey', collapseActiveKey.value);
+        //     await store.dispatch(
+        //         'app/setCollapsedAssets',
+        //         allCollapsedActiveKeys.value.filter((key) => !collapseActiveKey.value.includes(key)),
+        //     );
+        // });
 
-        watch(walletAccount, () => {
-            store.dispatch('app/setCollapsedAssets', []);
-        });
-
-        const handleLoadMore = () => {
-            currentIndex.value += MAX_NFTS_PER_PAGE;
-        };
-
-        const handleAssetLoadMore = () => {
-            currentAssetIndex.value += MAX_ASSETS_PER_PAGE;
-        };
-
-        const sortedTokens = computed(() => {
-            return allTokensInAccount.value.slice().sort((a, b) => b.balanceUsd - a.balanceUsd);
-        });
-
-        const sortedNFTs = computed(() => {
-            return allNFTsByCollection.value.slice().sort((a, b) => b.balanceUsd - a.balanceUsd);
-        });
-
-        const visibleAssets = computed(() => {
-            return sortedTokens.value.slice(0, currentAssetIndex.value);
-        });
-
-        const visibleNFTs = computed(() => {
-            return sortedNFTs.value.slice(0, currentIndex.value);
-        });
+        watch(walletAccount, async (account, oldAccount) => await handleOnChangeAccount(account, oldAccount));
 
         return {
             isLoadingForChain,
@@ -273,8 +273,6 @@ export default {
             isAllTokensLoading,
 
             isEmpty,
-
-            allTokensInAccount,
 
             allIntegrationsByPlatforms,
             allNFTsByCollection,
@@ -288,6 +286,8 @@ export default {
 
             collapseActiveKey,
             updateCollapsedKey,
+
+            handleOnChangeActiveKey,
 
             // ===================== Columns =====================
 
@@ -346,10 +346,14 @@ export default {
                 },
             ],
 
-            handleLoadMore,
+            handleNFTsLoadMore,
             handleAssetLoadMore,
+
             visibleNFTs,
+            totalNFTs,
+
             visibleAssets,
+            totalAssets,
         };
     },
 };

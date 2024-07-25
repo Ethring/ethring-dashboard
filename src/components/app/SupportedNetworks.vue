@@ -21,6 +21,10 @@
                 </div>
             </a-row>
 
+            <!-- <a-row justify="start">
+                <Checkbox v-model:value="isSelectAll" label="Select all" />
+            </a-row> -->
+
             <div class="networks-list">
                 <div
                     v-for="network in activeOption.networks"
@@ -29,7 +33,7 @@
                     :class="{ disabled: !network.isSupportedChain }"
                 >
                     <TokenIcon width="36" height="36" :token="network" class="logo" />
-                    <div class="name">{{ network.name }}</div>
+                    <div class="name" :title="network?.name">{{ network.name }}</div>
                     <div v-if="!network.isSupportedChain" class="soon">soon</div>
                 </div>
             </div>
@@ -38,11 +42,13 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
+import { useStore } from 'vuex';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
 import SelectRecord from '@/components/ui/Select/SelectRecord';
+import Checkbox from '@/components/ui/Checkbox';
 import TokenIcon from '@/components/ui/Tokens/TokenIcon';
 
 import ArrowUpIcon from '@/assets/icons/module-icons/pointer-up.svg';
@@ -57,6 +63,11 @@ export default {
         ArrowUpIcon,
     },
     setup() {
+        const store = useStore();
+
+        const isModalOpen = ref(false);
+        // const isSelectAll = ref(true);
+
         const { getChainListByEcosystem } = useAdapter();
 
         const supportedEcosystems = [
@@ -70,14 +81,55 @@ export default {
             },
         ];
 
-        const isModalOpen = ref(false);
         const activeOption = ref(supportedEcosystems[0]);
 
+        // const handleOnClickNetwork = async (network) => {
+        //     if (!network.isSupportedChain) return;
+
+        //     await store.dispatch('tokens/setNetworksToShow', {
+        //         network: network.net,
+        //         isShow: !getShowStatus(network),
+        //     });
+        // };
+
+        const getShowStatus = (network) => {
+            if (!network.isSupportedChain) return false;
+            if (!store.getters['tokens/networksToShow']) return false;
+            return store.getters['tokens/networksToShow'][network.net];
+        };
+
+        // const handleONClickSelectAll = () => {
+        //     const networks = store.getters['tokens/networksToShow'];
+
+        //     if (!isSelectAll.value) {
+        //         for (const network in networks)
+        //             store.dispatch('tokens/setNetworksToShow', {
+        //                 network,
+        //                 isShow: false,
+        //             });
+
+        //         return;
+        //     }
+
+        //     for (const network in networks)
+        //         store.dispatch('tokens/setNetworksToShow', {
+        //             network,
+        //             isShow: true,
+        //         });
+        // };
+
+        // watch(isSelectAll, () => handleONClickSelectAll());
+
         return {
+            // isSelectAll,
             isModalOpen,
             activeOption,
 
             supportedEcosystems,
+
+            getShowStatus,
+            // handleOnClickNetwork,
+            // handleONClickSelectAll,
         };
     },
 };

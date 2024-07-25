@@ -5,7 +5,7 @@ import { formatResponse } from './format';
 import IndexedDBService from '@/services/indexed-db';
 import { Type } from './models/enums';
 
-const balancesDB = new IndexedDBService('balances', 2);
+const balancesDB = new IndexedDBService('balances', 3);
 
 // * Store balance for account in Vuex and IndexedDB by type
 export const storeBalanceForAccount = async (

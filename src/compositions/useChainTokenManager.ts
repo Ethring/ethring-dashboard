@@ -220,7 +220,7 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
         const getTokensParams = {
             srcNet,
             isSameNet,
-            onlyWithBalance: selectType.value === TOKEN_SELECT_TYPES.FROM,
+            onlyWithBalance: moduleType === ModuleType.send,
             srcToken: srcToken,
             dstToken: null,
             exclude: [],

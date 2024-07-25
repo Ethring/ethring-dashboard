@@ -182,6 +182,9 @@ export default function useSelectModal(type: ComputedRef<string>, { tmpStore }: 
             case TYPES.TOKEN:
                 handleOnSelectToken(item);
                 break;
+            case TYPES.POOL:
+                handleOnSelectToken(item);
+                break;
         }
 
         return store.dispatch('app/toggleSelectModal', { type: type.value, module: module.value });
@@ -240,6 +243,7 @@ export default function useSelectModal(type: ComputedRef<string>, { tmpStore }: 
     const getChainListForModules = () => {
         switch (module.value) {
             // return all chains for superSwap, including COSMOS & EVM ecosystems;
+            case ModuleType.liquidityProvider:
             case ModuleType.superSwap:
                 return getAllChainsList();
 
@@ -344,7 +348,9 @@ export default function useSelectModal(type: ComputedRef<string>, { tmpStore }: 
         if (includeTokenList.value.length)
             TOKEN_LIST.value = TOKEN_LIST.value.filter((token: IAsset) => includeTokenList.value.includes(token.id));
 
-        store.dispatch('app/setLoadingTokenList', false);
+        setTimeout(() => {
+            store.dispatch('app/setLoadingTokenList', false);
+        }, 300);
     };
 
     const onChangeIsOpen = async (loadingState: boolean) => {

@@ -485,11 +485,11 @@ class ShortcutPage extends BasePage {
     }
 
     async clickFirstShortcut() {
-        await this.page.getByRole('button', { name: 'Try' }).first().click();
+        await this.page.locator(`//div[@class="shortcut-item__body"]`).nth(0).click();
     }
 
     async clickShortcutById(id: string) {
-        await this.page.locator(`//div[@data-qa="${id}"]//button`).click();
+        await this.page.locator(`//div[@data-qa="${id}"]`).click();
     }
 
     // * @matcherData is object were key is matcher string and value is mocked data

@@ -47,7 +47,7 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
             const params: IGetQuoteAddLiquidityRequest = {
                 net,
                 poolID: from?.address,
-                amount: formatNumber(amount, from?.decimals),
+                amount: formatNumber(amount, from?.decimals, false),
                 slippageTolerance: slippage || slippageTolerance,
                 tokenAddress: this.tokenAddress,
                 ownerAddress: ownerAddresses[net],
@@ -57,7 +57,7 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
 
             const poolBalance = userBalancePoolList?.find((elem: IGetUsersPoolListResponse) => elem.address === from?.address);
 
-            if (poolBalance && poolBalance.balance < +amount) params.amount = formatNumber(poolBalance.balance, from?.decimals);
+            if (poolBalance && poolBalance.balance < +amount) params.amount = formatNumber(poolBalance.balance, from?.decimals, false);
 
             const response = await this.service.getRemoveLiquidityTx(params);
 
@@ -117,7 +117,7 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
             const params: IGetQuoteAddLiquidityRequest = {
                 net,
                 poolID: from?.address,
-                amount: formatNumber(amount, tokenOut.decimals),
+                amount: formatNumber(amount, tokenOut.decimals, false),
                 slippageTolerance: slippage || slippageTolerance,
                 tokenAddress: this.tokenAddress,
             };

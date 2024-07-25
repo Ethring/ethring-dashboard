@@ -50,10 +50,10 @@ const formatIntegration = (integration: IntegrationBalance, opt: RecordOptions =
 
 // * The NFT record formatter used to format the response from the data provider
 const formatNft = (type: BalanceType, record: NftBalance, opt: RecordOptions = {}): NftBalance => {
-    const { chain, logo } = opt;
+    const { chain, logo } = opt || {};
 
-    record.chain = chain;
-    record.chainLogo = logo;
+    record.chain = chain as string;
+    record.chainLogo = logo as string;
 
     if (type === Type.nfts && record.collection)
         record.id = `${record.chain}:${type}__collection__${record.collection?.address}:${record?.tokenId}`;
@@ -63,11 +63,11 @@ const formatNft = (type: BalanceType, record: NftBalance, opt: RecordOptions = {
 
 // * The cosmos chain tokens formatter used to format the response from the data provider, specifically for cosmos chains
 const cosmosChainTokens = (record: AssetBalance, opt: RecordOptions = {}) => {
-    const { chain, store, logo } = opt;
+    const { chain, store, logo } = opt || {};
 
     const configFromStore = store.state?.configs?.chains[Ecosystem.COSMOS] || {};
 
-    const { native_token: nativeToken } = configFromStore[chain] || {};
+    const { native_token: nativeToken } = configFromStore[chain as string] || {};
 
     if (record.address && record.address.startsWith('IBC')) {
         record.address = record.address.replace('IBC', 'ibc');
@@ -76,13 +76,13 @@ const cosmosChainTokens = (record: AssetBalance, opt: RecordOptions = {}) => {
 
     if (!record.base && record.address && record.address.length <= 5) record.base = record.address;
 
-    const isNativeBySymbol = lowerCase(record.symbol) === lowerCase(nativeToken?.symbol);
+    const isNativeBySymbol = record.symbol && lowerCase(record.symbol) === lowerCase(nativeToken?.symbol);
 
     if (isNativeBySymbol) {
         record.id = `${chain}:${Type.tokens}__native:${record.symbol}`;
-        record.base = lowerCase(record.base);
-        record.address = lowerCase(record.address);
-        record.logo = logo;
+        record.base = lowerCase(record.base as string);
+        record.address = lowerCase(record.address as string);
+        record.logo = logo as string;
         record.verified = true;
     }
 
@@ -91,21 +91,21 @@ const cosmosChainTokens = (record: AssetBalance, opt: RecordOptions = {}) => {
 
 // * The base record formatter used to format the response from the data provider
 const formatRecord = (type: BalanceType, record: AssetBalance, opt: RecordOptions = {}): AssetBalance => {
-    const { chain, logo, nativeTokenLogo } = opt;
+    const { chain, logo, nativeTokenLogo } = opt || {};
 
-    record.chain = chain;
-    record.chainLogo = logo;
+    record.chain = chain as string;
+    record.chainLogo = logo as string;
 
-    if (record.symbol.startsWith('IBC.')) record.symbol = record.symbol.replace('IBC.', '') || record.symbol;
+    if (record.symbol && record.symbol.startsWith('IBC.')) record.symbol = record.symbol.replace('IBC.', '') || record.symbol;
 
-    if (DP_COSMOS[chain] && !record.balanceType) record = cosmosChainTokens(record, opt);
+    if (chain && DP_COSMOS[chain] && !record.balanceType) record = cosmosChainTokens(record, opt);
 
     if (type === Type.tokens && !record.balanceType && !record.id && record.address)
         record.id = `${record.chain}:${type}__${record.address}:${record.symbol}`;
 
     if (!record.balanceType && !record.address && !record.id) {
         record.id = `${record.chain}:${type}__native:${record.symbol}`;
-        record.logo = nativeTokenLogo;
+        record.logo = nativeTokenLogo as string;
         record.verified = true;
     }
 
