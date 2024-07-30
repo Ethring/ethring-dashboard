@@ -9,7 +9,7 @@
             <TokenIcon width="32" height="32" :token="record" class="logo" />
 
             <div class="label-container">
-                <div class="row">
+                <div class="row" :class="{ showHover: record.address && tokenExplorerLink }">
                     <span class="top">{{ label }}</span>
                     <a-tooltip>
                         <template v-if="record?.verified" #title> {{ $t('tokenOperations.verifiedToken') }} </template>
@@ -17,30 +17,11 @@
                     /></a-tooltip>
                 </div>
 
-                <div v-if="displayName" class="bottom">
-                    <div class="sub-text-container">
-                        <div class="sub-text" :class="{ showHover: record.address && tokenExplorerLink }">
-                            <template v-if="displayName.length > 25">
-                                <a-tooltip>
-                                    <template #title>{{ displayName }}</template>
-                                    {{ displayName.slice(0, 6) + '...' + displayName.slice(-4) }}
-                                </a-tooltip>
-                            </template>
-                            <template v-else>
-                                {{ displayName }}
-                            </template>
-                        </div>
-
-                        <a-typography-link
-                            v-if="record.address && tokenExplorerLink"
-                            :href="tokenExplorerLink"
-                            target="_blank"
-                            class="link"
-                        >
-                            ({{ displayAddress }})
-                            <ExternalLinkIcon class="link-icon" />
-                        </a-typography-link>
-                    </div>
+                <div class="bottom">
+                    <a-typography-link v-if="record.address && tokenExplorerLink" :href="tokenExplorerLink" target="_blank" class="link">
+                        ({{ displayAddress }})
+                        <ExternalLinkIcon class="link-icon" />
+                    </a-typography-link>
                 </div>
             </div>
         </div>
