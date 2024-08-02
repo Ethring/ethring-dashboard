@@ -124,7 +124,7 @@
         border: 1px solid var(--#{$prefix}balance-text);
         color: var(--#{$prefix}primary-text);
 
-        &-tag{
+        &-tag {
             padding: 2px 4px;
             border-radius: 4px;
 
@@ -136,7 +136,7 @@
             letter-spacing: 1px;
         }
 
-        &-overlay{
+        &-overlay {
             border-radius: 8px;
             padding: 16px !important;
             background-color: var(--#{$prefix}secondary-background) !important;
@@ -158,6 +158,11 @@
                 position: absolute;
                 font-size: 10px;
                 top: -6px;
+            }
+
+            hr {
+                border-bottom: 0;
+                border-color: var(--#{$prefix}select-active-border-color);
             }
         }
     }
