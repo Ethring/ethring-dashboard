@@ -99,7 +99,13 @@ export default {
 
         const unWatchPropsToken = watch(
             () => props.token,
-            () => {
+            (newProps, oldProps) => {
+                // If the token changes, we need to update the image to show
+                if (newProps?.symbol !== oldProps?.symbol) {
+                    isGetFromStore.value = false;
+                    imageToShow.value = newProps?.logo;
+                    isShowPlaceholder.value = !newProps?.logo;
+                }
                 if (imageToShow.value === props.token?.logo || isGetFromStore.value) return;
                 if (props.token?.logo) imageToShow.value = props.token?.logo;
                 isShowPlaceholder.value = !props.token?.logo;
