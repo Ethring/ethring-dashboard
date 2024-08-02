@@ -118,9 +118,47 @@
         right: 0;
         width: fit-content;
         padding: 4px;
-        margin-top: -34px;
+        margin-top: -36px;
         border-radius: 4px;
+        cursor: pointer;
         border: 1px solid var(--#{$prefix}balance-text);
         color: var(--#{$prefix}primary-text);
+
+        &-tag{
+            padding: 2px 4px;
+            border-radius: 4px;
+
+            font-size: var(--#{$prefix}small-sm-fs);
+            font-weight: 400;
+
+            color: var(--#{$prefix}primary);
+            background-color: var(--#{$prefix}tag-03);
+            letter-spacing: 1px;
+        }
+
+        &-overlay{
+            border-radius: 8px;
+            padding: 16px !important;
+            background-color: var(--#{$prefix}secondary-background) !important;
+            box-shadow: 0px 4px 20px 0px $black-op-02;
+
+            p {
+                color: var(--#{$prefix}primary-text);
+            }
+
+            .slippage__control-options {
+                margin: 8px 0;
+
+                .ant-radio-button-wrapper {
+                    width: 110px;
+                }
+            }
+
+            .ended-tag {
+                position: absolute;
+                font-size: 10px;
+                top: -6px;
+            }
+        }
     }
 }

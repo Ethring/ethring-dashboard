@@ -401,13 +401,17 @@ export default {
 
             const service = new DebridgeApi();
 
-            const pointsInfo = await service.getDebridgePoints(address);
+            const pointsInfoS1 = await service.getDebridgePoints(address, 1);
+            const pointsInfoS2 = await service.getDebridgePoints(address, 2);
             const multiplierInfo = await service.getMultiplierInfo(address);
 
             const data = {
                 ...state.deBridgeInfo,
                 [address]: {
-                    points: pointsInfo?.totalPoints || 0,
+                    points: {
+                        s1: pointsInfoS1,
+                        s2: pointsInfoS2,
+                    },
                     multiplier: multiplierInfo?.finalMultiplier || 1,
                 },
             };
