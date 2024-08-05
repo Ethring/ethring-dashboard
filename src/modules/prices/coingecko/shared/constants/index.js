@@ -1,6 +1,6 @@
 export const PLATFORMS = {
     arbitrum: 'arbitrum-one',
-    avalanche: 'avalanche-network',
+    avalanche: 'avalanche',
     base: 'base',
     blast: 'blast',
     bsc: 'binance-smart-chain',
