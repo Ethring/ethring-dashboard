@@ -17,6 +17,7 @@ import { StepProps } from 'ant-design-vue';
 import { h } from 'vue';
 import { IBaseOperation } from '@/core/operations/models/Operations';
 import DebridgeApi from '@/modules/debridge/api';
+import BerachainApi from '@/modules/berachain/api';
 
 const TYPES = {
     SET_SHORTCUT: 'SET_SHORTCUT',
@@ -33,6 +34,7 @@ const TYPES = {
     SET_IS_CALL_ESTIMATE: 'SET_IS_CALL_ESTIMATE',
 
     SET_DEBRIDGE_INFO: 'SET_DEBRIDGE_INFO',
+    SET_VAULTS_INFO: 'SET_VAULTS_INFO',
 };
 
 const DISABLED_STATUS = [ShortcutStatus.finish, ShortcutStatus.error];
@@ -68,6 +70,9 @@ interface IState {
     deBridgeInfo: {
         [key: string]: string;
     };
+    vaults: {
+        [key: string]: string;
+    };
 }
 
 export default {
@@ -92,6 +97,7 @@ export default {
         isCallEstimate: {},
 
         deBridgeInfo: {},
+        vaults: {},
     }),
 
     // ================================================================================
@@ -118,6 +124,7 @@ export default {
         },
 
         getDeBridgeInfo: (state: IState) => (address: string) => state.deBridgeInfo[address],
+        getVaultsInfo: (state: IState) => (address: string) => state.vaults[address],
 
         getShortcutOpInfoById: (state: IState) => (shortcutId: string, operationId: string) => {
             // ! if shortcut id is not provided, return null
@@ -309,6 +316,9 @@ export default {
         [TYPES.SET_DEBRIDGE_INFO](state: IState, value: any) {
             state.deBridgeInfo = value;
         },
+        [TYPES.SET_VAULTS_INFO](state: IState, value: any) {
+            state.vaults = value;
+        },
     },
 
     // ================================================================================
@@ -417,6 +427,18 @@ export default {
             };
 
             commit(TYPES.SET_DEBRIDGE_INFO, data);
+        },
+        async loadUserVaults({ state, commit }: any, address: string) {
+            const service = new BerachainApi();
+
+            const response = await service.getUserVaults(address);
+
+            const data = {
+                ...state.vaults,
+                [address]: response?.userVaults,
+            };
+
+            commit(TYPES.SET_VAULTS_INFO, data);
         },
     },
 };

@@ -88,12 +88,24 @@
             span {
                 @include pageFlexRow;
                 justify-content: center;
-                gap: 8px;
+                margin-right: 4px;
                 color: var(--#{$prefix}mute-text);
                 font-size: var(--#{$prefix}small-sm-fs);
+            }
+
+            &__more {
+                border-radius: 50%;
+                width: 24px;
+                height: 24px;
+
+                font-weight: 600;
+                font-size: var(--#{$prefix}small-xs-fs);
+                color: var(--#{$prefix}primary-text) !important;
+                background-color: var(--#{$prefix}adapter-hover-color);
 
                 &:hover {
-                    color: var(--#{$prefix}card-tag-bg-color);
+                    color: var(--#{$prefix}white) !important;
+                    background-color: var(--#{$prefix}social-border-color);
                 }
             }
 
@@ -255,4 +267,8 @@
             }
         }
     }
+}
+
+.ecosystem__item {
+    color: var(--#{$prefix}base-text);
 }

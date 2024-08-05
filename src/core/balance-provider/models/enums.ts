@@ -208,6 +208,7 @@ export enum DP_CHAINS {
     GNOSIS = 'gnosis',
     AURORA = 'aurora',
     BLAST = 'blast',
+    BERACHAIN = 'berachain',
 
     // Cosmos Ecosystem
     COSMOS = 'cosmoshub',
@@ -308,4 +309,5 @@ export const POOL_BALANCES_CHAINS = [
     DP_CHAINS.OPTIMISM,
     DP_CHAINS.FANTOM,
     DP_CHAINS.POLYGON,
+    DP_CHAINS.BASE,
 ];

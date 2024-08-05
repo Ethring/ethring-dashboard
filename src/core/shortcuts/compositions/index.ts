@@ -22,6 +22,7 @@ import PendleSwapTokenForPT from '@/core/operations/pendle-silo/SwapTokenForPT';
 import PendleAddLiquiditySingleToken from '@/core/operations/pendle-beefy/AddLiquiditySingleToken';
 import AddLiquidity from '@/core/operations/portal-fi/AddLiquidity';
 import RemoveLiquidity from '@/core/operations/portal-fi/RemoveLiquidity';
+import BerachainDEX from '@/core/operations/berachain/Dex';
 
 import { IBaseOperation } from '@/core/operations/models/Operations';
 
@@ -37,6 +38,7 @@ import { SHORTCUT_STATUSES } from '@/shared/models/enums/statuses.enum';
 import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 import CallContractMethod from '@/core/operations/evm-contract-ops/CallContractMethod';
 import { delay } from '@/shared/utils/helpers';
+import { AvailableShortcuts } from '../data/shortcuts';
 
 const useShortcuts = (Shortcut: IShortcutData) => {
     // Create a new instance of the Shortcut class
@@ -47,7 +49,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     // * Wallet adapter and tokens list
     // ****************************************************************************************************
 
-    const { getChainByChainId, isConnecting, connectedWallets, walletAccount, currentChainInfo } = useAdapter();
+    const { getChainByChainId, setChain, isConnecting, connectedWallets, walletAccount, currentChainInfo } = useAdapter();
     const { getTokenById } = useTokensList();
 
     // ****************************************************************************************************
@@ -221,6 +223,10 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                 registerResponse = operationsFactory.value.registerOperation(moduleType, RemoveLiquidity, { id, name, make });
                 registerResponse && ({ key } = registerResponse);
                 break;
+            case TRANSACTION_TYPES.BERACHAIN_DEX:
+                registerResponse = operationsFactory.value.registerOperation(moduleType, BerachainDEX, { id, name, make });
+                registerResponse && ({ key } = registerResponse);
+                break;
         }
 
         if (!key) return;
@@ -307,6 +313,10 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     // * Check the minimum amount
     // ****************************************************************************************************
     const checkMinAmount = () => {
+        const TestnetShortcuts = [AvailableShortcuts.BerachainStake, AvailableShortcuts.BerachainVault] as string[];
+
+        if (TestnetShortcuts.includes(CurrentShortcut.id)) return true;
+
         const amount = firstOperation.value.getParamByField('amount') || 0;
 
         if (!amount) return true;
@@ -346,6 +356,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         },
     ) => {
         if (!targetOpId) return;
+        if (!fields || !fields.length) return;
 
         for (const paramField of fields) {
             const {
@@ -487,6 +498,16 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             return (isQuoteLoading.value = false);
         }
 
+        const currentOperation = operationsFactory.value.getOperationById(currentOp.value.id);
+
+        if (currentChainInfo.value?.net !== currentOperation?.tokens.from?.chain) {
+            const chainInfo = getChainByChainId(
+                currentOperation?.tokens.from.ecosystem,
+                currentOperation?.tokens.from.chain,
+            ) as IChainConfig;
+            await setChain(chainInfo);
+        }
+
         try {
             isQuoteLoading.value = true;
             quoteErrorMessage.value = '';
@@ -545,6 +566,8 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             data: CurrentShortcut,
         });
 
+        if (!CurrentShortcut.operations.length) return;
+
         const [firstOp] = CurrentShortcut.operations;
 
         const { layoutComponent } = firstOp as IShortcutOp;
@@ -579,7 +602,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
 
         if (!stepId) {
             isShortcutLoading.value = false;
-            return router.push('/shortcuts');
+            return; // router.push('/shortcuts');
         }
 
         store.dispatch('shortcuts/setCurrentStepId', {
@@ -894,6 +917,7 @@ const useShortcuts = (Shortcut: IShortcutData) => {
                 (oldDstToken?.id !== dstToken?.id ||
                     oldDstToken?.address !== dstToken?.address ||
                     oldDstToken?.balance !== dstToken?.balance) &&
+                dstTokenField &&
                 !dstTokenField?.value
             )
                 setTokenParams(operation, 'to', dstToken);

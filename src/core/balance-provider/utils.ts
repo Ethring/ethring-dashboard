@@ -24,6 +24,7 @@ export const storeBalanceForAccount = async (
 
     // * Format tokens and save to store
     const formatted = formatResponse(type, balances, { ...opt, chain });
+
     await store.dispatch('tokens/setDataFor', { type, account, chain, data: formatted });
 
     // * Save data to indexedDB cache to load data page faster

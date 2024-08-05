@@ -24,6 +24,8 @@ import MintNftLayoutWithTransfer from '@/pages/dynamic-modules/MintNftLayoutWith
 import PendleSiloLayout from '@/pages/dynamic-modules/PendleSiloLayout.vue';
 import AddLiquidityLayout from '@/pages/dynamic-modules/AddLiquidityLayout.vue';
 import RemoveLiquidityLayout from '@/pages/dynamic-modules/RemoveLiquidityLayout.vue';
+import ClaimBera from '@/pages/dynamic-modules/ClaimBera.vue';
+import ClaimBGTRewards from '@/pages/dynamic-modules/ClaimBGTRewards.vue';
 
 // Service worker
 import '@/registerServiceWorker';
@@ -80,5 +82,7 @@ app.component('MintNftLayoutWithTransfer', MintNftLayoutWithTransfer);
 app.component('PendleSiloLayout', PendleSiloLayout);
 app.component('AddLiquidityLayout', AddLiquidityLayout);
 app.component('RemoveLiquidityLayout', RemoveLiquidityLayout);
+app.component('ClaimBera', ClaimBera);
+app.component('ClaimBGTRewards', ClaimBGTRewards);
 
 export default app;

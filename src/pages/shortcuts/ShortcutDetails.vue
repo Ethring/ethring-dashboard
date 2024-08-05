@@ -100,7 +100,7 @@ import SuccessShortcutModal from '@/components/app/modals/SuccessShortcutModal.v
 import useShortcuts from '@/core/shortcuts/compositions/index';
 
 import { SHORTCUT_STATUSES, STATUSES } from '@/shared/models/enums/statuses.enum';
-import { AvailableShortcuts } from '@/core/shortcuts/data/shortcuts.ts';
+import { AvailableShortcuts } from '@/core/shortcuts/data/shortcuts';
 
 export default {
     name: 'ShortcutDetails',

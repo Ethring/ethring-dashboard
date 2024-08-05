@@ -4,7 +4,7 @@
             label="tokenOperations.validator"
             :on-reset="clearAddress"
             :selected-network="selectedSrcNetwork"
-            :disabled="fieldStates.receiverAddress.disabled"
+            :disabled="fieldStates.receiverAddress.disabled || true"
             @error-status="(status) => (isAddressError = status)"
         />
 
@@ -16,7 +16,7 @@
             :on-reset="resetAmount"
             :amount-value="srcAmount"
             :disabled-select="fieldStates.srcToken.disabled"
-            :disabled="fieldStates.srcAmount.disabled || true"
+            :disabled="fieldStates.srcAmount.disabled || false"
             class="select-amount"
             @set-amount="handleOnSetAmount"
             @click-token="onSelectToken"
