@@ -150,7 +150,7 @@ export default function useSelectModal(type: ComputedRef<string>, { tmpStore }: 
     };
 
     const handleOnSelectToken = (item: IAsset) => {
-        // assignPriceInfo(selectedNetwork.value, item);
+        assignPriceInfo(selectedNetwork.value, item);
 
         if (!selectType.value) return;
 
@@ -245,7 +245,7 @@ export default function useSelectModal(type: ComputedRef<string>, { tmpStore }: 
             // return all chains for superSwap, including COSMOS & EVM ecosystems;
             case ModuleType.liquidityProvider:
             case ModuleType.superSwap:
-                return getAllChainsList();
+                return getAllChainsList().filter((elem) => !elem.isTestNet);
 
             // return default chains for module
             default:

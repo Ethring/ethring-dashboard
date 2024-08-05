@@ -82,7 +82,7 @@ export default {
     mutations: {
         [TYPES.SET_CHAIN_CONFIG](state, { chain, ecosystem, config }) {
             if (!state.chains[ecosystem][chain]) state.chains[ecosystem][chain] = {};
-
+            if (config.net === 'berachain') config.isTestNet = true;
             state.chains[ecosystem][chain] = config;
         },
 

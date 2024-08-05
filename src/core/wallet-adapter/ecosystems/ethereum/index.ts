@@ -1,19 +1,27 @@
 import { Store } from 'vuex';
 import * as ethers from 'ethers';
-import { values, orderBy } from 'lodash';
+import { orderBy } from 'lodash';
 import { useLocalStorage } from '@vueuse/core';
 
 // * Web3-onboard (Blocknative)
 import { InitOptions, ConnectOptions, OnboardAPI } from '@web3-onboard/core';
 import { init, useOnboard } from '@web3-onboard/vue';
-import { providers, Contract, utils } from 'ethers';
+import { providers, utils } from 'ethers';
 
 // * Types
 import { IEthereumAdapter, IAddressByNetwork, IChainInfo } from '@/core/wallet-adapter/models/ecosystem-adapter';
 import { IConnectedWallet } from '@/shared/models/types/Account';
 
 // * Configs
-import { BASE_ABI, SILO_EXECUTE_ABI, BEEFY_DEPOSIT_ABI, EXTRA_FI_ABI, COMPOUND_ABI, web3OnBoardConfig } from '@/core/wallet-adapter/config';
+import {
+    BASE_ABI,
+    SILO_EXECUTE_ABI,
+    BEEFY_DEPOSIT_ABI,
+    EXTRA_FI_ABI,
+    COMPOUND_ABI,
+    BERACHAIN_ABI,
+    web3OnBoardConfig,
+} from '@/core/wallet-adapter/config';
 import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
 // * Utils
@@ -39,6 +47,7 @@ const ABI_BY_NAME: { [key: string]: any } = {
     BEEFY_DEPOSIT: BEEFY_DEPOSIT_ABI,
     EXTRA_FI: EXTRA_FI_ABI,
     COMPOUND: COMPOUND_ABI,
+    BERACHAIN: BERACHAIN_ABI,
 };
 
 /**

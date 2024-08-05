@@ -13,6 +13,7 @@ export enum TRANSACTION_TYPES {
     SEND = 'SEND',
     SIGN = 'SIGN',
     SWAP = 'SWAP',
+    CLAIM = 'CLAIM',
 
     TRANSFER = 'TRANSFER',
 
@@ -27,6 +28,8 @@ export enum TRANSACTION_TYPES {
 
     ADD_LIQUIDITY = 'ADD_LIQUIDITY',
     REMOVE_LIQUIDITY = 'REMOVE_LIQUIDITY',
+
+    BERACHAIN_DEX = 'BERACHAIN_DEX',
 }
 
 export type TX_TYPES = keyof typeof TRANSACTION_TYPES;

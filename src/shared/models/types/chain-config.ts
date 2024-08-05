@@ -34,4 +34,5 @@ export interface IChainConfig {
     bech32_prefix?: string;
 
     selected?: boolean;
+    isTestNet?: boolean;
 }

@@ -336,6 +336,7 @@ function useAdapter({ tmpStore }: { tmpStore?: Store<any> | null } = { tmpStore:
             if (!chainList?.length) continue;
             chainList.forEach((chain) => {
                 if (chainsHash[chain.net]) return;
+                if (chain.net === 'berachain') chain.isTestNet = true;
                 chainsHash[chain.net] = chain;
             });
         }
@@ -455,6 +456,7 @@ function useAdapter({ tmpStore }: { tmpStore?: Store<any> | null } = { tmpStore:
         if (!chains?.length) return null;
 
         const chainInfo = chains.find(({ net, bech32_prefix }) => net === chain || bech32_prefix === chain);
+        if (!chainInfo) return null;
 
         return mainAdapter.value.getTokenExplorerLink(tokenAddress, chainInfo) || null;
     };

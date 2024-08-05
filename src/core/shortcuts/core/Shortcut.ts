@@ -23,6 +23,11 @@ export interface IShortcutData {
     operations?: IShortcutOp[];
     isComingSoon?: boolean;
     isActive?: boolean;
+
+    networksConfig: {
+        fullEcosystems: string[];
+        additionalNetworks: string[];
+    };
 }
 
 export default class Shortcut implements IShortcutData {
@@ -49,6 +54,11 @@ export default class Shortcut implements IShortcutData {
 
     isActive?: boolean = true;
 
+    networksConfig: {
+        fullEcosystems: string[];
+        additionalNetworks: string[];
+    };
+
     constructor(shortcut: IShortcutData) {
         this.id = shortcut.id;
         this.name = shortcut.name;
@@ -62,6 +72,7 @@ export default class Shortcut implements IShortcutData {
         this.wallpaper = shortcut.wallpaper;
         this.isComingSoon = shortcut.isComingSoon;
         this.isActive = shortcut.isActive;
+        this.networksConfig = shortcut.networksConfig;
 
         this.recipes = [];
 

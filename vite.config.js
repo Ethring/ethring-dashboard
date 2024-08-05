@@ -37,7 +37,6 @@ export default defineConfig({
             reporter: ['html', 'text', 'json'],
         },
     },
-
     // * ========= Settings for build (vite build) =========
     build: {
         manifest: true,

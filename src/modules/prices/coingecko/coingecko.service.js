@@ -3,10 +3,10 @@ import { PLATFORMS } from '@/modules/prices/coingecko/shared/constants';
 
 const PROXY_API = process.env.PROXY_API;
 
-const priceByPlatformContracts = async ({ chainId = 56, addresses, currencies = 'usd,btc' } = {}) => {
+const priceByPlatformContracts = async ({ net = 'bsc', addresses, currencies = 'usd,btc' } = {}) => {
     if (!PROXY_API) return {};
 
-    const platform = PLATFORMS[chainId];
+    const platform = PLATFORMS[net];
 
     if (!platform) return {};
 

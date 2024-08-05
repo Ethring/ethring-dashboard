@@ -17,7 +17,7 @@ const filterShortcuts = (state, type) => {
 
     if (state.selectedTags.length)
         list = state.shortcuts.filter((item) => {
-            return item.tags.some((tag) => state.selectedTags.includes(tag));
+            return item.tags.some((tag) => state.selectedTags.includes(tag.toLowerCase()));
         });
 
     if (type === 'all') return list;
@@ -62,9 +62,9 @@ export default {
             commit(TYPES.SET_SELECTED_SHORTCUT, value);
         },
         setFilterTags({ state, commit }, value) {
-            if (state.selectedTags.length > 5 || state.selectedTags.includes(value)) return;
+            if (state.selectedTags.length > 5 || state.selectedTags.includes(value.toLowerCase())) return;
 
-            commit(TYPES.SET_FILTERED_TAGS, [...state.selectedTags, value]);
+            commit(TYPES.SET_FILTERED_TAGS, [...state.selectedTags, value.toLowerCase()]);
         },
         removeFilterTag({ state, commit }, value) {
             const temp = state.selectedTags.filter((item) => item !== value);

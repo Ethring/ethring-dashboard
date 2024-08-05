@@ -132,7 +132,8 @@
         "connectWallet": "Connect wallet",
         "showMore": "Show more",
         "verifiedToken": "This token has a good reputation from the community",
-        "poolAsset": "Pool asset"
+        "poolAsset": "Pool asset",
+        "claimTokens": "Claim tokens"
     },
     "simpleSend": {
         "title": "Send"
@@ -188,5 +189,6 @@
         "warningLess01": "Slippage bellow 0.1% may result in a failed transaction",
         "warningMoreThan2": "Your transaction may be frontrun and result in an unfavorable trade"
     },
-    "pageNotFound": "Page not found"
+    "pageNotFound": "Page not found",
+    "beraAlertMessage": "You need at least <b>0.001 ETH</b> in your wallet on Ethereum Mainnet to use the faucet. You can claim 1 testnet BERA token every 8 hours."
 }

@@ -250,3 +250,167 @@ export const COMPOUND_ABI = [
         type: 'function',
     },
 ];
+
+export const BERACHAIN_ABI = [
+    {
+        inputs: [
+            { internalType: 'uint256', name: 'amount', type: 'uint256' },
+            { internalType: 'address', name: 'caller', type: 'address' },
+        ],
+        name: 'deposit',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [{ internalType: 'uint256', name: 'amount', type: 'uint256' }],
+        name: 'stake',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            { internalType: 'address', name: 'validator', type: 'address' },
+            { internalType: 'uint128', name: 'amount', type: 'uint128' },
+        ],
+        name: 'queueBoost',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        type: 'function',
+        name: 'previewMultiSwap',
+        inputs: [
+            {
+                name: '_steps',
+                type: 'tuple[]',
+                internalType: 'struct SwapHelpers.SwapStep[]',
+                components: [
+                    {
+                        name: 'poolIdx',
+                        type: 'uint256',
+                        internalType: 'uint256',
+                    },
+                    {
+                        name: 'base',
+                        type: 'address',
+                        internalType: 'address',
+                    },
+                    {
+                        name: 'quote',
+                        type: 'address',
+                        internalType: 'address',
+                    },
+                    {
+                        name: 'isBuy',
+                        type: 'bool',
+                        internalType: 'bool',
+                    },
+                ],
+            },
+            {
+                name: '_amount',
+                type: 'uint128',
+                internalType: 'uint128',
+            },
+        ],
+        outputs: [
+            {
+                name: 'out',
+                type: 'uint128',
+                internalType: 'uint128',
+            },
+            {
+                name: 'predictedQty',
+                type: 'uint256',
+                internalType: 'uint256',
+            },
+        ],
+        stateMutability: 'view',
+    },
+    {
+        type: 'function',
+        name: 'multiSwap',
+        inputs: [
+            {
+                name: '_steps',
+                type: 'tuple[]',
+                internalType: 'struct SwapHelpers.SwapStep[]',
+                components: [
+                    {
+                        name: 'poolIdx',
+                        type: 'uint256',
+                        internalType: 'uint256',
+                    },
+                    {
+                        name: 'base',
+                        type: 'address',
+                        internalType: 'address',
+                    },
+                    {
+                        name: 'quote',
+                        type: 'address',
+                        internalType: 'address',
+                    },
+                    {
+                        name: 'isBuy',
+                        type: 'bool',
+                        internalType: 'bool',
+                    },
+                ],
+            },
+            {
+                name: '_amount',
+                type: 'uint128',
+                internalType: 'uint128',
+            },
+            {
+                name: '_minOut',
+                type: 'uint128',
+                internalType: 'uint128',
+            },
+        ],
+        outputs: [
+            {
+                name: 'out',
+                type: 'uint128',
+                internalType: 'uint128',
+            },
+        ],
+        stateMutability: 'payable',
+    },
+    {
+        type: 'function',
+        name: 'getReward',
+        inputs: [
+            {
+                name: 'account',
+                type: 'address',
+                internalType: 'address',
+            },
+        ],
+        outputs: [],
+        stateMutability: 'nonpayable',
+    },
+    {
+        type: 'function',
+        name: 'earned',
+        inputs: [
+            {
+                name: 'account',
+                type: 'address',
+                internalType: 'address',
+            },
+        ],
+        outputs: [
+            {
+                name: '',
+                type: 'uint256',
+                internalType: 'uint256',
+            },
+        ],
+        stateMutability: 'view',
+    },
+];

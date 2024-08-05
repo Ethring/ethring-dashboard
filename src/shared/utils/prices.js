@@ -23,10 +23,10 @@ const getPriceByCoingeckoId = async (coingeckoId) => {
 export const getPriceFromProvider = async (tokenAddress, selectedNetwork, { coingeckoId = null } = {}) => {
     if (coingeckoId) return await getPriceByCoingeckoId(coingeckoId);
 
-    const { chain_id, chainId } = selectedNetwork || {};
+    const { net } = selectedNetwork || {};
 
     const requestPriceFor = {
-        chainId: chain_id || chainId,
+        net,
         addresses: tokenAddress,
     };
 

@@ -7,6 +7,7 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    AAlert: typeof import('ant-design-vue/es')['Alert']
     AAvatar: typeof import('ant-design-vue/es')['Avatar']
     ABadge: typeof import('ant-design-vue/es')['Badge']
     AButton: typeof import('ant-design-vue/es')['Button']
@@ -62,14 +63,12 @@ declare module 'vue' {
     AssetWithChain: typeof import('./src/components/app/assets/AssetWithChain.vue')['default']
     AStatisticCountdown: typeof import('ant-design-vue/es')['StatisticCountdown']
     ASteps: typeof import('ant-design-vue/es')['Steps']
-    ASwitch: typeof import('ant-design-vue/es')['Switch']
     ATable: typeof import('ant-design-vue/es')['Table']
     ATag: typeof import('ant-design-vue/es')['Tag']
     ATooltip: typeof import('ant-design-vue/es')['Tooltip']
     ATypographyLink: typeof import('ant-design-vue/es')['TypographyLink']
     ATypographyText: typeof import('ant-design-vue/es')['TypographyText']
     ATypographyTitle: typeof import('ant-design-vue/es')['TypographyTitle']
-    AUpload: typeof import('ant-design-vue/es')['Upload']
     BridgeDexRoutesModal: typeof import('./src/components/app/modals/BridgeDexRoutesModal.vue')['default']
     Button: typeof import('./src/components/ui/Button.vue')['default']
     Censorship: typeof import('./src/components/app/Censorship.vue')['default']
