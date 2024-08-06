@@ -154,6 +154,8 @@ export default defineComponent({
 
             const flow = factory.value.getFullOperationFlow();
 
+            const currentOp = factory.value.getOperationById(currentStepId.value);
+
             const withoutApprove = flow.filter((op) => op.type !== TRANSACTION_TYPES.APPROVE);
 
             const firstOp = withoutApprove[0];
@@ -208,7 +210,7 @@ export default defineComponent({
             }
 
             return store.dispatch('tokenOps/setCallConfirm', {
-                module: ModuleType.shortcut,
+                module: currentOp?.getModule(),
                 value: true,
             });
         };
