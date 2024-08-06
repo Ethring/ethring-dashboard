@@ -27,7 +27,7 @@
                     type="Asset"
                     :data="visibleAssets"
                     :columns="[DEFAULT_NAME_COLUMN, ...DEFAULT_COLUMNS]"
-                    :loading="isLoadingByAccount || isLoadingForChain"
+                    :loading="isLoadingByAccount && visibleAssets.length === 0"
                 />
 
                 <div v-if="totalAssets > visibleAssets.length" class="assets-block-show-more">
@@ -77,7 +77,7 @@
                     />
                 </template>
 
-                <AssetsTable :data="visibleNFTs" type="NFTS" :columns="NFT_COLUMNS" :loading="totalNFTs <= 0" />
+                <AssetsTable :data="visibleNFTs" type="NFTS" :columns="NFT_COLUMNS" :loading="isLoadingByAccount && totalNFTs <= 0" />
 
                 <div v-if="totalNFTs > visibleNFTs.length" class="assets-block-show-more">
                     <UiButton :title="$t('tokenOperations.showMore')" @click="handleNFTsLoadMore" />
