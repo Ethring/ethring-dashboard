@@ -1228,7 +1228,7 @@ const useModuleOperations = (module: ModuleType) => {
             //claimedItem.value = null;
             isForceCallConfirm.value = false;
             // * if selected route exist, refresh it
-            if (selectedRoute.value && [SHORTCUT_STATUSES.PENDING].includes(shortcutStatus.value)) await getEstimateInfo(true);
+            if (selectedRoute.value && [SHORTCUT_STATUSES.PENDING, null].includes(shortcutStatus.value)) await getEstimateInfo(true);
         }
     };
 
