@@ -410,7 +410,7 @@ const useModuleOperations = (module: ModuleType) => {
 
             ops.getOperationByKey(`${module}_0`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
             ops.getOperationByKey(`${module}_0`).setChainId(selectedSrcNetwork.value?.chain_id as string);
-
+            ops.getOperationByKey(`${module}_0`).setMake(TRANSACTION_TYPES.APPROVE);
             ops.getOperationByKey(`${module}_0`).setAccount(account as string);
 
             ops.getOperationByKey(`${module}_0`).setToken('from', selectedSrcToken.value);
@@ -438,7 +438,7 @@ const useModuleOperations = (module: ModuleType) => {
                 ops.getOperationByKey(`${module}_0`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
                 ops.getOperationByKey(`${module}_0`).setChainId(selectedSrcNetwork.value?.chain_id as string);
                 ops.getOperationByKey(`${module}_0`).setAccount(account as string);
-
+                ops.getOperationByKey(`${module}_0`).setMake(TRANSACTION_TYPES.TRANSFER);
                 ops.getOperationByKey(`${module}_0`).setToken('from', selectedSrcToken.value);
                 ops.getOperationByKey(`${module}_0`).setToken('to', selectedDstToken.value);
 
@@ -489,6 +489,7 @@ const useModuleOperations = (module: ModuleType) => {
                 ops.getOperationByKey(`${module}_${index}`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
                 ops.getOperationByKey(`${module}_${index}`).setChainId(selectedSrcNetwork.value?.chain_id as string);
                 ops.getOperationByKey(`${module}_${index}`).setAccount(account as string);
+                ops.getOperationByKey(`${module}_${index}`).setMake(TRANSACTION_TYPES.DEX);
                 selectedSrcToken.value && ops.getOperationByKey(`${module}_${index}`).setToken('from', selectedSrcToken.value);
                 selectedDstToken.value && ops.getOperationByKey(`${module}_${index}`).setToken('to', selectedDstToken.value);
 
@@ -739,8 +740,14 @@ const useModuleOperations = (module: ModuleType) => {
                 opInGroup.ecosystem !== Ecosystem.EVM ||
                 opInGroup.isNeedApprove ||
                 !opInGroup.tokens.from?.address ||
-                opInGroup.module !== 'shortcut' ||
-                [TRANSACTION_TYPES.STAKE, TRANSACTION_TYPES.CLAIM].includes(opInGroup?.make)
+                [
+                    TRANSACTION_TYPES.STAKE,
+                    TRANSACTION_TYPES.CLAIM,
+                    TRANSACTION_TYPES.DEX,
+                    TRANSACTION_TYPES.TRANSFER,
+                    TRANSACTION_TYPES.BRIDGE,
+                    TRANSACTION_TYPES.APPROVE,
+                ].includes(opInGroup?.make)
             )
                 continue;
 
@@ -862,8 +869,10 @@ const useModuleOperations = (module: ModuleType) => {
         const { index, type, make, moduleIndex, operationId } = flow;
         const operation = operations.getOperationByKey(moduleIndex);
 
-        if (claimedItem.value && currentModule.value === ModuleType.claim)
+        if (claimedItem.value && currentModule.value === ModuleType.claim) {
             operation.params.contractAddress = claimedItem.value?.vaultAddress;
+            operations.getOperationByKey(moduleIndex).setParamByField('amount', claimedItem.value?.bgtEarned);
+        }
 
         const checkOpIsExist = (): boolean => {
             if (!operations.getOperationByKey(moduleIndex)) return false;
@@ -1059,7 +1068,7 @@ const useModuleOperations = (module: ModuleType) => {
 
             updateOperationStatus(STATUSES.SUCCESS, { moduleIndex, operationId, hash: txHash as string });
 
-            if (selectedRoute.value?.serviceId)
+            if (selectedRoute.value?.serviceId && selectedSrcNetwork.value)
                 await makeAllowanceRequest(selectedRoute.value.serviceId, {
                     net: selectedSrcNetwork.value.net,
                     tokenAddress: selectedSrcToken.value.address,
@@ -1225,7 +1234,7 @@ const useModuleOperations = (module: ModuleType) => {
             throw error;
         } finally {
             isTransactionSigning.value = false;
-            //claimedItem.value = null;
+            claimedItem.value = null;
             isForceCallConfirm.value = false;
             // * if selected route exist, refresh it
             if (selectedRoute.value && [SHORTCUT_STATUSES.PENDING].includes(shortcutStatus.value)) await getEstimateInfo(true);

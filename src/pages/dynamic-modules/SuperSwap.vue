@@ -120,7 +120,7 @@
     </a-form>
 </template>
 <script>
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 
 // Compositions
@@ -286,19 +286,28 @@ export default {
             return await getEstimateInfo();
         });
 
-        watch(isDisableSelect, () => {
-            for (const field of ['srcNetwork', 'dstNetwork', 'srcToken', 'dstToken', 'srcAmount', 'dstAmount'])
+        watch(selectedRoute, () => {
+            if (servicesHash.value[selectedRoute.value?.serviceId] && isSendToAnotherAddress.value)
+                isSendToAnotherAddress.value = servicesHash.value[selectedRoute.value?.serviceId].features_support?.receiver;
+        });
+
+        const setDisabledFields = (value) => {
+            ['srcNetwork', 'dstNetwork', 'srcToken', 'dstToken', 'srcAmount', 'dstAmount'].forEach((field) => {
                 store.dispatch('moduleStates/setDisabledField', {
                     module: ModuleType.superSwap,
                     field,
                     attr: 'disabled',
-                    value: isDisableSelect.value,
+                    value,
                 });
+            });
+        };
+
+        watch(isDisableSelect, () => {
+            setDisabledFields(isDisableSelect.value);
         });
 
-        watch(selectedRoute, () => {
-            if (servicesHash.value[selectedRoute.value?.serviceId] && isSendToAnotherAddress.value)
-                isSendToAnotherAddress.value = servicesHash.value[selectedRoute.value?.serviceId].features_support?.receiver;
+        onMounted(() => {
+            setDisabledFields(isDisableSelect.value);
         });
 
         return {
