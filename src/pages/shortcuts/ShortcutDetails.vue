@@ -20,10 +20,36 @@
                 {{ $t('shortcuts.minUsdAmount') }}: ${{ shortcut.minUsdAmount }}
             </p>
 
-            <p v-if="shortcut.id === AvailableShortcuts.Debridge && deBridgeInfo && deBridgeInfo.points" class="shortcut-details__points">
-                {{ $t('shortcuts.points') }}: {{ Math.round(deBridgeInfo.points) }}
-                <span class="shortcut-item__tag">{{ deBridgeInfo.multiplier }}x</span>
-            </p>
+            <a-dropdown
+                v-if="shortcut.id === AvailableShortcuts.Debridge && deBridgeInfo && deBridgeInfo.points"
+                :arrow="{ pointAtCenter: true }"
+                placement="bottom"
+                class="shortcut-details__points-block"
+            >
+                <p class="shortcut-details__points">
+                    {{ Math.round(deBridgeInfo.points.s2?.totalPoints) || 0 }} points
+                    <span class="shortcut-details__points-tag">{{ deBridgeInfo.multiplier }}x</span>
+                </p>
+                <template #overlay>
+                    <a-menu class="shortcut-details__points-overlay">
+                        <p>{{ $t('shortcuts.points') }}:</p>
+                        <a-radio-group v-model:value="activeOption" button-style="solid" class="slippage__control-options">
+                            <a-row :wrap="false">
+                                <a-radio-button value="s2">Season 2</a-radio-button>
+                                <a-radio-button value="s1">Season 1 <span class="ended-tag">Ended</span></a-radio-button>
+                            </a-row>
+                        </a-radio-group>
+                        <p>Points: {{ Math.round(deBridgeInfo.points[activeOption]?.totalPoints) || 0 }}</p>
+                        <p v-if="deBridgeInfo.points[activeOption]?.userRank">
+                            Rank: {{ Math.round(deBridgeInfo.points[activeOption].userRank) }}
+                        </p>
+                        <hr />
+                        <p>
+                            Multiplier: <span class="shortcut-details__points-tag">{{ deBridgeInfo.multiplier }}x</span>
+                        </p>
+                    </a-menu>
+                </template>
+            </a-dropdown>
         </div>
 
         <a-divider />
@@ -57,7 +83,7 @@
 <script lang="ts">
 import { isEmpty } from 'lodash';
 
-import { computed, onMounted, watch } from 'vue';
+import { computed, onMounted, watch, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
@@ -74,7 +100,7 @@ import SuccessShortcutModal from '@/components/app/modals/SuccessShortcutModal.v
 import useShortcuts from '@/core/shortcuts/compositions/index';
 
 import { SHORTCUT_STATUSES, STATUSES } from '@/shared/models/enums/statuses.enum';
-import { AvailableShortcuts } from '@/core/shortcuts/data/shortcuts.ts';
+import { AvailableShortcuts } from '@/core/shortcuts/data/shortcuts';
 
 export default {
     name: 'ShortcutDetails',
@@ -92,6 +118,7 @@ export default {
         const route = useRoute();
         const { walletAddress } = useAdapter();
 
+        const activeOption = ref('s1');
         const shortcut = computed(() => store.getters['shortcutsList/getShortcutById'](route.params.id));
 
         const { shortcutId, shortcutIndex, steps, shortcutLayout, shortcutStatus, isShortcutLoading } = useShortcuts(shortcut.value);
@@ -128,6 +155,7 @@ export default {
         });
 
         return {
+            activeOption,
             isShowLoading,
             shortcut,
             isShortcutLoading,

@@ -75,7 +75,7 @@ export const updateTransaction = async (id, transaction) => {
         });
 
         if (response.status === 200) return response.data.data;
-    } catch {
-        return null;
+    } catch (e) {
+        return e;
     }
 };

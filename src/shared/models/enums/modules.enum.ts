@@ -9,6 +9,7 @@ export enum ModuleType {
     pendleSilo = 'pendleSilo',
     pendleBeefy = 'pendleBeefy',
     liquidityProvider = 'liquidityProvider',
+    claim = 'claim',
 }
 
 export type ModuleTypes = keyof typeof ModuleType;

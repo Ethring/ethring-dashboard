@@ -20,6 +20,7 @@ import MINT from '@/assets/icons/operations/nft.svg';
 import DEPOSIT from '@/assets/icons/operations/deposit.svg';
 import REMOVE_LIQUIDITY from '@/assets/icons/operations/deposit.svg';
 import APPROVE from '@/assets/icons/operations/approve.svg';
+import CLAIM from '@/assets/icons/operations/deposit.svg';
 
 import TokenIcon from '@/components/ui/Tokens/TokenIcon.vue';
 
@@ -35,6 +36,7 @@ export default defineComponent({
         REMOVE_LIQUIDITY,
         DEPOSIT,
         APPROVE,
+        CLAIM,
 
         TokenIcon,
     },

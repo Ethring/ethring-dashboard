@@ -10,6 +10,7 @@ import { Ecosystems } from '@/modules/bridge-dex/enums/Ecosystem.enum';
 import { IBridgeDexTransaction } from '@/modules/bridge-dex/models/Response.interface';
 import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { TxOperationFlow } from '@/shared/models/types/Operations';
+import EthereumAdapter from '@/core/wallet-adapter/ecosystems/ethereum';
 
 export default class CallContractMethod extends BaseOperation {
     module: keyof typeof ModuleType = ModuleType.pendleSilo;
@@ -24,7 +25,7 @@ export default class CallContractMethod extends BaseOperation {
     }
 
     async performTx(ecosystem: Ecosystems): Promise<IBridgeDexTransaction> {
-        const { argKeys, ownerAddresses, fromNet, net } = this.params as any;
+        const { argKeys, ownerAddresses, fromNet, net, receiverAddress } = this.params as any;
         const network = net || fromNet;
         const { from } = this.getTokens();
         const { address, decimals } = from || {};
@@ -32,15 +33,33 @@ export default class CallContractMethod extends BaseOperation {
         const argsToCall = [];
 
         const amount = this.getParamByField('amount');
-        const amountIn = Math.round(+BigNumber(amount).multipliedBy(`1e${decimals}`).toFixed());
+        const amountIn = Math.floor(+BigNumber(amount).multipliedBy(`1e${decimals}`).toFixed());
+        const adapter = EthereumAdapter;
 
         for (const key of argKeys)
             switch (key) {
                 case 'amount':
-                    argsToCall.push(amountIn);
+                    if (!address) {
+                        argsToCall.push(amountIn.toString());
+                        break;
+                    }
+
+                    const paramsBalanceOf = {
+                        method: 'balanceOf',
+                        contractAddress: address,
+                        args: [ownerAddresses[net]],
+                        type: 'READ',
+                    };
+
+                    const balanceHex = await adapter.callContractMethod(paramsBalanceOf);
+
+                    const balance = BigNumber(balanceHex._hex).toNumber();
+
+                    argsToCall.push(balance < amountIn ? balance.toString() : amountIn.toString());
                     break;
 
                 case 'owner':
+                case 'caller':
                 case 'onBehalfOf':
                     argsToCall.push(ownerAddresses[network]);
                     break;
@@ -51,6 +70,10 @@ export default class CallContractMethod extends BaseOperation {
 
                 case 'tokenAddress':
                     argsToCall.push(address);
+                    break;
+
+                case 'validator':
+                    argsToCall.push(receiverAddress);
                     break;
 
                 case 'reserveId':

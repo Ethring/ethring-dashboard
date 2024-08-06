@@ -1,6 +1,6 @@
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { isEqual, startsWith, uniq, isEmpty } from 'lodash';
+import { isEqual, startsWith, uniq, isEmpty, CondPairNullary } from 'lodash';
 import BigNumber from 'bignumber.js';
 
 import { ITransaction, ITransactionResponse } from '@/core/transaction-manager/types/Transaction';
@@ -49,6 +49,7 @@ const useModuleOperations = (module: ModuleType) => {
     const route = useRouter();
 
     const currentModule = ref(module);
+    const claimedItem = ref(null);
 
     const isForceCallConfirm = computed({
         get: () => store.getters['tokenOps/isForceCallConfirm'](currentModule.value),
@@ -519,7 +520,6 @@ const useModuleOperations = (module: ModuleType) => {
                 ops.getOperationByKey(`${module}_0`).setToken('to', selectedDstToken.value);
 
                 break;
-
             default:
                 break;
         }
@@ -531,7 +531,7 @@ const useModuleOperations = (module: ModuleType) => {
 
     const getOperations = (): OperationsFactory => {
         // * If shortcut operations exist, return it
-        if (isShortcutOpsExist()) return shortcutOps.value;
+        if (isShortcutOpsExist() && currentModule.value) return shortcutOps.value;
 
         // * if not, create new operations
         return createOpsByModule();
@@ -575,12 +575,6 @@ const useModuleOperations = (module: ModuleType) => {
         }
     };
 
-    const checkNeedApprove = (operation: IBaseOperation) => {
-        if (operation.module === ModuleType.liquidityProvider) return isNeedAddLpApprove.value;
-
-        return isNeedApprove.value;
-    };
-
     const checkApproveByContract = async (operations: OperationsFactory, opInGroup: any) => {
         const ownerAddress = srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value;
         const { contractAddress, amount } = opInGroup.params;
@@ -609,6 +603,7 @@ const useModuleOperations = (module: ModuleType) => {
             spender: contractAddress,
             abi: 'BASE_ABI',
             amount,
+            ownerAddresses: addressByChain.value as OwnerAddresses,
         });
     };
 
@@ -632,7 +627,7 @@ const useModuleOperations = (module: ModuleType) => {
         const registeredOperation = operations.getOperationByKey(key as string);
 
         registeredOperation.setParams(params);
-
+        registeredOperation.setNeedApprove(true);
         registeredOperation.setName(name);
         registeredOperation.setEcosystem(selectedSrcNetwork.value?.ecosystem);
         registeredOperation.setChainId(selectedSrcNetwork.value?.chain_id as string);
@@ -647,7 +642,13 @@ const useModuleOperations = (module: ModuleType) => {
         const firstOpKeyByOrder = operations.getFirstOperationByOrder();
         const firstInGroup = operations.getOperationByKey(firstOpKeyByOrder);
 
-        if (!checkNeedApprove(firstInGroup)) return;
+        const checkNeedApprove = () => {
+            if (firstInGroup.module === ModuleType.liquidityProvider) return isNeedAddLpApprove.value;
+
+            return isNeedApprove.value;
+        };
+
+        if (!checkNeedApprove()) return;
 
         const account = srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value;
         const params = {
@@ -657,6 +658,7 @@ const useModuleOperations = (module: ModuleType) => {
             amount: srcAmount.value,
             serviceId: selectedRoute.value?.serviceId,
             dstAmount: dstAmount.value,
+            ownerAddresses: addressByChain.value as OwnerAddresses,
         };
 
         if (firstInGroup.transactionType === TRANSACTION_TYPES.APPROVE) {
@@ -710,6 +712,7 @@ const useModuleOperations = (module: ModuleType) => {
                 ownerAddress: account as string,
                 amount: +opInGroup.params.amount || srcAmount.value,
                 typeLp: TRANSACTION_TYPES.REMOVE_LIQUIDITY,
+                ownerAddresses: addressByChain.value as OwnerAddresses,
             });
 
             approveOperation.setName(`Approve ${opInGroup.tokens.from?.symbol}`);
@@ -729,21 +732,26 @@ const useModuleOperations = (module: ModuleType) => {
     const insertOrPassApproveByContractOp = async (operations: OperationsFactory): Promise<any> => {
         const operationsFlow = operations.getFullOperationFlow();
 
-        // TODO
-        const opExist = operationsFlow.find((op) => op.operationId === 'supply-usdc');
-        if (!opExist) return;
+        for (const operation of operationsFlow) {
+            const opInGroup = operations.getOperationByKey(operation.moduleIndex);
 
-        const opInGroup = operations.getOperationByKey(opExist.moduleIndex);
+            if (
+                opInGroup.ecosystem !== Ecosystem.EVM ||
+                opInGroup.isNeedApprove ||
+                !opInGroup.tokens.from?.address ||
+                opInGroup.module !== 'shortcut' ||
+                [TRANSACTION_TYPES.STAKE, TRANSACTION_TYPES.CLAIM].includes(opInGroup?.make)
+            )
+                continue;
 
-        if (opInGroup.isNeedApprove) return;
+            // check connected chain on blocknative provider, to call contract methods
+            if (currentChainInfo.value?.net !== opInGroup.tokens.from?.chain) {
+                const chainInfo = getChainByChainId(selectedSrcNetwork.value.ecosystem, selectedSrcNetwork.value.chain_id) as IChainConfig;
+                await setChain(chainInfo);
+            }
 
-        // check connected chain on blocknative provider, to call contract methods
-        if (currentChainInfo.value?.net !== selectedSrcNetwork.value?.net) {
-            const chainInfo = getChainByChainId(selectedSrcNetwork.value.ecosystem, selectedSrcNetwork.value.chain_id) as IChainConfig;
-            await setChain(chainInfo);
+            await checkApproveByContract(operations, opInGroup);
         }
-
-        await checkApproveByContract(operations, opInGroup);
     };
 
     const updateOperationStatus = (
@@ -853,6 +861,9 @@ const useModuleOperations = (module: ModuleType) => {
     ): void => {
         const { index, type, make, moduleIndex, operationId } = flow;
         const operation = operations.getOperationByKey(moduleIndex);
+
+        if (claimedItem.value && currentModule.value === ModuleType.claim)
+            operation.params.contractAddress = claimedItem.value?.vaultAddress;
 
         const checkOpIsExist = (): boolean => {
             if (!operations.getOperationByKey(moduleIndex)) return false;
@@ -1134,7 +1145,9 @@ const useModuleOperations = (module: ModuleType) => {
     // * Handle on confirm
     // ===============================================================================================
 
-    const handleOnConfirm = async () => {
+    const handleOnConfirm = async (claimItem?: any) => {
+        if (claimItem?.vaultAddress) claimedItem.value = claimItem;
+
         if (!walletAddress.value) return await connectByEcosystems(selectedSrcNetwork.value?.ecosystem || Ecosystem.EVM);
 
         if (!selectedSrcNetwork.value) {
@@ -1212,6 +1225,7 @@ const useModuleOperations = (module: ModuleType) => {
             throw error;
         } finally {
             isTransactionSigning.value = false;
+            //claimedItem.value = null;
             isForceCallConfirm.value = false;
             // * if selected route exist, refresh it
             if (selectedRoute.value && [SHORTCUT_STATUSES.PENDING].includes(shortcutStatus.value)) await getEstimateInfo(true);
@@ -1246,8 +1260,7 @@ const useModuleOperations = (module: ModuleType) => {
         const isSendConfirmDisabled = isDisabled || isAddressError.value || !isReceiverAddressSet.value || isWithMemo;
 
         // * Swap module
-        const isSwapConfirmDisabled =
-            isDisabled || !isDstTokenChainCorrectSwap.value || !isQuoteRouteSelected.value || !isQuoteRouteSet.value;
+        const isSwapConfirmDisabled = isDisabled || !isDstTokenChainCorrectSwap.value;
 
         // * Bridge module
         const isBridgeConfirmDisabled =

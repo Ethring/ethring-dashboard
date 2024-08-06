@@ -1,10 +1,14 @@
 import ApiClient from '@/shared/axios';
 
 // ============== API Client Settings Start ==============
-const DEBRIDGE_SDK_API = 'https://points-api-s2.debridge.finance/api/Points/';
+const BERACHAIN_API = 'https://bartio-bex-router.berachain-devnet.com/';
 
 const apiClient = new ApiClient({
-    baseURL: DEBRIDGE_SDK_API,
+    baseURL: BERACHAIN_API,
+    headers: {
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Site': 'cross-site',
+    },
 });
 
 const axiosInstance = apiClient.getInstance();

@@ -248,17 +248,22 @@ export class TransactionList {
 
             const transactions = (await getTransactionsByRequestID(this.requestID)) || [];
 
-            const status = await handleTransactionStatus(
-                transactions[this.currentIndex],
-                this.store,
-                SocketEvents.update_transaction_status,
-            );
-
-            if (status === STATUSES.IN_PROGRESS)
+            if (transactions[this.currentIndex].status) {
+                const status = await handleTransactionStatus(
+                    transactions[this.currentIndex],
+                    this.store,
+                    SocketEvents.update_transaction_status,
+                );
+                if (status === STATUSES.IN_PROGRESS)
+                    setTimeout(() => {
+                        this.checkTxStatus(resolve, reject);
+                    }, 15000);
+                else resolve(transactions[this.currentIndex]);
+            } else {
                 setTimeout(() => {
                     this.checkTxStatus(resolve, reject);
                 }, 15000);
-            else resolve(transactions[this.currentIndex]);
+            }
         } catch {
             reject();
         }

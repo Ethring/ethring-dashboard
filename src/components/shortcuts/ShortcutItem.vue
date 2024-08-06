@@ -19,24 +19,20 @@
 
         <div class="shortcut-item__body">
             <a-row justify="space-between" class="shortcut-item__info">
-                <a-row align="middle">
-                    <div class="ecosystem">
-                        <a-tooltip v-if="item.ecosystems.length > 1" placement="bottom">
-                            <template #title>
-                                <span v-for="(ecosystem, i) in item.ecosystems" :key="i">
-                                    {{ ecosystem }}
-                                    <span v-if="i < item.ecosystems.length - 1">, </span></span
-                                >
-                            </template>
-                            <span>
-                                <MultiIcon class="ecosystem-logo" />
-                                Multi
-                            </span>
-                        </a-tooltip>
-                        <span v-else
-                            ><img class="ecosystem-logo" :src="getEcosystemLogo(item.ecosystems[0])" />{{ item.ecosystems[0] }}</span
-                        >
-                    </div>
+                <a-row align="middle" class="ecosystem">
+                    <span v-for="(network, i) in networks.slice(0, 2)" :key="i">
+                        <a-avatar :src="network.logo" :size="16" />
+                        {{ network.name }}
+                    </span>
+                    <a-tooltip v-if="networks.length > 2" placement="bottom" :color="theme === 'light' ? 'white' : '#1c1f2c'">
+                        <template #title>
+                            <div v-for="(network, i) in networks.slice(2)" :key="i" class="ecosystem__item">
+                                <a-avatar :src="network.logo" :size="16" />
+                                {{ network.name }}
+                            </div>
+                        </template>
+                        <span class="ecosystem__more"> +{{ networks.length - 2 }}</span>
+                    </a-tooltip>
                 </a-row>
 
                 <a-row align="middle">
@@ -94,26 +90,26 @@
 </template>
 
 <script>
+import { values } from 'lodash';
 import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
 import ShortcutPlaceHolder from '@/assets/icons/dashboard/shortcut.svg';
 import LikeIcon from '@/assets/icons/dashboard/heart.svg';
-import MultiIcon from '@/assets/icons/module-icons/multi.svg';
 import { UserOutlined } from '@ant-design/icons-vue';
 
 import Amount from '@/components/app/Amount.vue';
 
 import { ECOSYSTEM_LOGOS } from '@/core/wallet-adapter/config';
 import { ShortcutTypeColors } from '@/core/shortcuts/core/';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
 export default {
     name: 'ShortcutItem',
     components: {
         ShortcutPlaceHolder,
         LikeIcon,
-        MultiIcon,
         UserOutlined,
         Amount,
     },
@@ -127,7 +123,31 @@ export default {
     setup(props) {
         const store = useStore();
         const router = useRouter();
+
         const isShowPlaceholder = ref(!props.item.author.avatar || false);
+        const theme = computed(() => store.getters['app/theme'] || 'light');
+
+        const chainsInfo = computed(() => ({
+            evm: store.getters['configs/getConfigsByEcosystems'](Ecosystem.EVM),
+            cosmos: store.getters['configs/getConfigsByEcosystems'](Ecosystem.COSMOS),
+        }));
+
+        const networks = computed(() => {
+            const { fullEcosystems, additionalNetworks } = props.item.networksConfig;
+            const list = [];
+            const allNetworks = [...values(chainsInfo.value.evm), ...values(chainsInfo.value.cosmos)];
+
+            fullEcosystems.forEach((ecosystem) => {
+                list.push(...values(chainsInfo.value[ecosystem.toLowerCase()]).filter((elem) => elem.isSupportedChain && !elem.isTestNet));
+            });
+
+            additionalNetworks.forEach((net) => {
+                const network = allNetworks.find((elem) => net === elem.net);
+                if (network) list.push(network);
+            });
+
+            return list;
+        });
 
         const watchList = computed(() => store.getters['shortcutsList/watchList']);
 
@@ -160,6 +180,8 @@ export default {
             watchList,
             ShortcutTypeColors,
             isShowPlaceholder,
+            networks,
+            theme,
 
             addToWatchList,
             openShortcut,

@@ -118,9 +118,101 @@
         right: 0;
         width: fit-content;
         padding: 4px;
-        margin-top: -34px;
+        margin-top: -36px;
         border-radius: 4px;
+        cursor: pointer;
         border: 1px solid var(--#{$prefix}balance-text);
         color: var(--#{$prefix}primary-text);
+
+        &-tag {
+            padding: 2px 4px;
+            border-radius: 4px;
+
+            font-size: var(--#{$prefix}small-sm-fs);
+            font-weight: 400;
+
+            color: var(--#{$prefix}primary);
+            background-color: var(--#{$prefix}tag-03);
+            letter-spacing: 1px;
+        }
+
+        &-overlay {
+            border-radius: 8px;
+            padding: 16px !important;
+            background-color: var(--#{$prefix}secondary-background) !important;
+            box-shadow: 0px 4px 20px 0px $black-op-02;
+
+            p {
+                color: var(--#{$prefix}primary-text);
+            }
+
+            .slippage__control-options {
+                margin: 8px 0;
+
+                .ant-radio-button-wrapper {
+                    width: 110px;
+                }
+            }
+
+            .ended-tag {
+                position: absolute;
+                font-size: 10px;
+                top: -6px;
+            }
+
+            hr {
+                border-bottom: 0;
+                border-color: var(--#{$prefix}select-active-border-color);
+            }
+        }
+    }
+
+    .ant-alert-info {
+        background-color: var(--#{$prefix}info-op-01);
+        color: var(--#{$prefix}info);
+    }
+
+    .ant-alert-error {
+        background-color: var(--#{$prefix}danger-op-01);
+        color: var(--#{$prefix}danger);
+    }
+
+    .ant-alert-success {
+        background-color: var(--#{$prefix}success-op-01);
+        color: var(--#{$prefix}success-text);
+    }
+    .rewards-table {
+        .ant-table {
+            width: 100%;
+            border-color: var(--#{$prefix}assets-border-color) !important;
+            background-color: var(--#{$prefix}secondary-background) !important;
+            border-radius: 0 !important;
+        }
+
+        .ant-table-title,
+        .ant-table-cell,
+        .ant-table-row,
+        .ant-table-container,
+        tr,
+        tbody,
+        td {
+            border-width: 0.1px !important;
+            border-color: var(--#{$prefix}assets-header-border-color) !important;
+            background-color: var(--#{$prefix}secondary-background) !important;
+            color: var(--#{$prefix}primary-text);
+        }
+
+        &__link {
+            margin-left: 8px;
+            cursor: pointer;
+
+            font-size: var(--#{$prefix}default-fs);
+            font-weight: 500;
+            color: var(--#{$prefix}primary-text);
+
+            &:hover {
+                color: var(--#{$prefix}success) !important;
+            }
+        }
     }
 }

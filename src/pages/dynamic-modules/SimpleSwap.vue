@@ -37,11 +37,7 @@
                 @set-amount="handleOnSetAmount"
             />
 
-            <SwitchDirection
-                class="swap-module"
-                :disabled="isQuoteLoading || isDirectionSwapped || isTransactionSigning || !selectedDstToken || !isSwapDirectionAvailable"
-                :on-click-switch="() => handleOnSwapDirections()"
-            />
+            <SwitchDirection class="swap-module" :disabled="true" :on-click-switch="() => handleOnSwapDirections()" />
 
             <SelectAmountInput
                 disabled
@@ -57,22 +53,6 @@
                 @click-token="onSelectToken(false)"
             />
         </div>
-
-        <Checkbox
-            v-model:value="isSendToAnotherAddress"
-            class="mt-8"
-            :disabled="isDisableCheckbox"
-            :label="$t('tokenOperations.chooseAddress')"
-        />
-
-        <SelectAddressInput
-            v-if="isSendToAnotherAddress"
-            class="mt-8"
-            :selected-network="selectedSrcNetwork"
-            :on-reset="isSendToAnotherAddress"
-            :disabled="isDisableSelect"
-            @error-status="(status) => (isAddressError = status)"
-        />
 
         <EstimatePreviewInfo
             v-if="isShowEstimateInfo"
@@ -100,8 +80,6 @@ import useModuleOperations from '@/compositions/useModuleOperation';
 // UI Components
 import UiButton from '@/components/ui/Button.vue';
 import SwitchDirection from '@/components/ui/SwitchDirection.vue';
-import Checkbox from '@/components/ui/Checkbox';
-import SelectAddressInput from '@/components/ui/Select/SelectAddressInput';
 
 // Select Components
 import SelectRecord from '@/components/ui/Select/SelectRecord';
@@ -132,8 +110,6 @@ export default {
         SelectAmountInput,
         ReloadRoute,
         EstimatePreviewInfo,
-        SelectAddressInput,
-        Checkbox,
         Slippage,
     },
 

@@ -20,12 +20,12 @@
         border-color: var(--#{$prefix}btn-bg-color-hover);
         background-color: var(--#{$prefix}btn-secondary-hover-op-01);
 
-        .bottom .sub-text-container .sub-text.showHover {
-            transform: translateY(-100%);
+        .showHover {
+            transform: translateY(0) !important;
         }
 
-        .bottom .sub-text-container .link {
-            transform: translateY(0);
+        .link {
+            transform: translateY(0) !important;
         }
     }
 
@@ -55,7 +55,12 @@
         justify-content: center;
 
         .row {
+            transition: 0.2s ease-in-out;
             gap: 4px;
+        }
+
+        .showHover {
+            transform: translateY(35%);
         }
 
         .top {
@@ -66,37 +71,23 @@
         }
 
         .bottom {
-            .sub-text-container {
-                @include pageFlexRow;
-                overflow: hidden;
-                position: relative;
-                width: 100%;
-                min-width: 150px;
-            }
+            @include pageFlexRow;
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+            min-width: 150px;
 
-            .sub-text,
             .link {
+                transform: translateY(100%);
+
+                display: flex;
+                align-items: center;
+
                 font-style: normal;
                 font-weight: 400;
                 font-size: var(--#{$prefix}small-sm-fs);
                 color: var(--#{$prefix}sub-text);
                 transition: 0.2s ease-in-out;
-            }
-
-            .sub-text {
-                transform: translateY(0);
-            }
-
-            .link {
-                transform: translateY(100%);
-
-                position: absolute;
-                bottom: 0;
-                right: 0;
-                left: 0;
-
-                display: flex;
-                align-items: center;
 
                 svg {
                     width: 18px;

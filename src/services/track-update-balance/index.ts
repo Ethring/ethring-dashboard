@@ -76,7 +76,7 @@ export const trackingBalanceUpdate = (store: any) => {
                     logo: chainLogo,
                     nativeTokenLogo,
                     provider: Providers.Pulsar,
-                    fetchTokens: true,
+                    fetchTokens: false,
                     fetchIntegrations: true,
                     fetchNfts: true,
                 });
@@ -109,6 +109,8 @@ export const trackingBalanceUpdate = (store: any) => {
         }
 
         await store.dispatch('updateBalance/removeUpdateBalanceForAddress', queueWallet);
+
+        if (ecosystem === Ecosystem.EVM) await store.dispatch('shortcuts/loadUserVaults', address);
 
         const tokens = store.getters['tokens/getTokensListForChain'](config.net, { account: targetAccount });
         const pools = store.getters['tokens/getPoolsByAccount'](targetAccount);

@@ -190,6 +190,7 @@ $collapse-border-color: $charade;
 $success: $kellyGreen;
 $success-op-01: rgba($success, 0.1);
 $success-color: #5aec99;
+$success-text: #cce8cd;
 
 $danger: $wildWatermelon;
 $danger-op-01: rgba($danger, 0.1);
@@ -198,8 +199,8 @@ $danger-color: $wildWatermelon;
 $warning: $pizazz;
 $warning-op-01: rgba($warning, 0.1);
 
-$info: $cyan;
-$info-op-01: rgba($info, 0.1);
+$info: #b8e7fb;
+$info-op-01: #071318;
 
 $white: $white;
 
@@ -405,6 +406,7 @@ $theme-colors-dark: (
     'success': $success,
     'success-op-01': $success-op-01,
     'success-color': $success-color,
+    'success-text': $success-text,
 
     'danger': $danger,
     'danger-op-01': $danger-op-01,

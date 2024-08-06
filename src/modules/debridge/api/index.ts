@@ -1,14 +1,14 @@
 import ApiClient from '@/modules/debridge/api/axios';
 
 export interface IDebridgeApi {
-    getDebridgePoints(address: string): Promise<any>;
+    getDebridgePoints(address: string, season: number): Promise<any>;
     getMultiplierInfo(address: string): Promise<any>;
 }
 
 class DebridgeApi implements IDebridgeApi {
-    async getDebridgePoints(address: string): Promise<any> {
+    async getDebridgePoints(address: string, season: number = 1): Promise<any> {
         try {
-            const response = await ApiClient.get(`/${address}/shortSummary`);
+            const response = await ApiClient.get(`/${address}/shortSummary?season=${season}`);
 
             return response.data;
         } catch (error) {

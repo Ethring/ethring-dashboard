@@ -8,7 +8,7 @@
         <div class="input-label">{{ $t(label) }}</div>
 
         <a-input-group compact class="input-group">
-            <div>
+            <div v-if="selectedNetwork" class="mr-8">
                 <TokenIcon :token="selectedNetwork" class="network" width="32" height="32" />
             </div>
             <a-input
@@ -29,7 +29,7 @@
             </a-input>
         </a-input-group>
 
-        <div class="bottom">
+        <div v-if="selectedNetwork" class="bottom">
             <a-tooltip v-if="address" placement="topLeft">
                 <template #title>{{ address }}</template>
                 {{ displayAddress }}

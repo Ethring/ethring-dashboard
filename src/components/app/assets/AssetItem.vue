@@ -6,13 +6,9 @@
 
                 <div class="info">
                     <div class="name">
-                        <template v-if="ibcTag">
-                            {{ ibcTag }}
-                            <a-tag v-if="type === 'Asset'" class="ibc-tag" :bordered="false"> IBC </a-tag>
-                        </template>
-                        <template v-else>
-                            {{ item.name || item.symbol }}
-                        </template>
+                        {{ type === 'NFTS' ? item.name : item.symbol }}
+                        <a-tag v-if="item.testnet" class="ibc-tag" :bordered="false"> Testnet </a-tag>
+                        <a-tag v-if="type === 'Asset' && item.name.includes('IBC')" class="ibc-tag" :bordered="false"> IBC </a-tag>
                     </div>
                     <div v-if="item.balanceType" class="type">{{ getFormattedName(item.balanceType) }}</div>
                     <div v-if="item.unlockTimestamp" class="unlock">
@@ -30,7 +26,7 @@
         </template>
 
         <template v-if="balanceKeys.includes(column)">
-            <Amount :type="item?.symbol ? 'currency' : 'usd'" :value="balance" :symbol="item.symbol || '$'" :decimals="3" />
+            <Amount :type="item?.symbol ? 'currency' : 'usd'" :value="balance" :symbol="type === 'NFTS' ? '$' : null" :decimals="3" />
         </template>
 
         <template v-if="valueKeys.includes(column)">
@@ -99,17 +95,10 @@ export default {
             };
         });
 
-        const ibcTag = computed(() => {
-            if (props.item?.name?.includes('IBC -')) return props.item.name.split('IBC -')[1];
-
-            return null;
-        });
-
         return {
             balance,
             balanceUsd,
 
-            ibcTag,
             tokenChainIcon,
 
             getFormattedName,

@@ -6,4 +6,5 @@ export const ShortcutTypeColors = {
     yield: '#F4E3D9',
     bridge: '#F4D9E8',
     liquidity: '#EAF4D9',
+    claim: '#b5f9da',
 };
