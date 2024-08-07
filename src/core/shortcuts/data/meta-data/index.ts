@@ -396,6 +396,25 @@ const META_DATA: Record<string, IShortcutMeta> = {
         author: getAuthorById(ShortcutAuthor.ZometApp),
         isActive: true,
     },
+    [AvailableShortcuts.MorphoBlueVault]: {
+        id: AvailableShortcuts.MorphoBlueVault,
+        name: 'Add liquidity for Morpho vaults',
+        logoURI: 'https://cdn.morpho.org/v2/assets/icons/butterfly-dark.svg',
+        keywords: ['morpho', 'portal-fi'],
+        tags: ['liquidity', 'rewards'],
+        ecosystems: ['EVM'],
+        networksConfig: {
+            fullEcosystems: [],
+            additionalNetworks: ['base'],
+        },
+        type: 'liquidity',
+        description: 'Add liquidity for Morpho vaults and earn',
+        wallpaper: '/img/wallpapers/morpho.png',
+        website: 'https://morpho.org/',
+        minUsdAmount: 0,
+        author: getAuthorById(ShortcutAuthor.ZometApp),
+        isActive: true,
+    },
 };
 
 export const getShortcutMetaById = (id: string): IShortcutMeta => {

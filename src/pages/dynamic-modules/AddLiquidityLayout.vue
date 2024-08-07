@@ -72,7 +72,7 @@ export default {
         // * Init module operations, and get all necessary data, (methods, states, etc.) for the module
         // * Also, its necessary to sign the transaction (Transaction manger)
         const { handleOnConfirm, moduleInstance, isDisableConfirmButton, isDisableSelect, isTransactionSigning } = useModuleOperations(
-            ModuleType.shortcut,
+            ModuleType.liquidityProvider,
         );
 
         const {
