@@ -11,6 +11,7 @@ export enum AvailableShortcuts {
     BerachainVault = 'SC-berachain-vault',
     ClaimBeraRewards = 'SC-claim-bera-rewards',
     BerachainStake = 'SC-berachain-stake',
+    MorphoBlueVault = 'SC-morpho-blue-vault',
     AddLiquidityPool1 = 'SC-add-liquidity-pool-1',
     AddLiquidityPool2 = 'SC-add-liquidity-pool-2',
     RemoveLiquidityPool = 'SC-remove-liquidity-pool',
