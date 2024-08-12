@@ -1154,7 +1154,6 @@ export class CosmosAdapter implements ICosmosAdapter {
         if (!mainAccount) return null;
         if (!this.addressByNetwork) return addressByNetwork();
         if (!this.walletName) return null;
-        await this.chainsWithDifferentSlip44(this.walletName);
         return this.addressByNetwork[mainAccount] || {};
     }
 
