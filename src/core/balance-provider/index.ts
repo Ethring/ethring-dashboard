@@ -144,8 +144,13 @@ export const loadBalancesFromContract = async (chain: string, account: string, o
         if (token.symbol === 'BGT') {
             const response = await service.getStakedAmount(account);
 
-            if (response?.userValidatorInformations?.length)
-                token.balance = token.balance - +response.userValidatorInformations[0]?.amountQueued;
+            if (response?.userValidatorInformations?.length) {
+                const totalStaked = response?.userValidatorInformations.reduce(
+                    (sum: number, item: any) => (sum = sum + +item.amountQueued),
+                    0,
+                );
+                token.balance = token.balance - totalStaked;
+            }
         }
 
         token.balanceUsd = +token.balance * +token.price;

@@ -11,14 +11,14 @@ interface IShortcutMeta extends IShortcutData {
 const META_DATA: Record<string, IShortcutMeta> = {
     [AvailableShortcuts.CitadelOneStake]: {
         id: AvailableShortcuts.CitadelOneStake,
-        name: 'Stake $ATOM with Citadel.one',
+        name: 'Stake $ATOM, $OSMO, $STARS with Citadel.one',
         logoURI: '/img/icons/shortcuts/stake-c1.svg',
         keywords: ['citadel', 'one', 'staking'],
         tags: ['EVM', 'COSMOS', 'STAKE'],
         ecosystems: ['EVM', 'COSMOS'],
         networksConfig: {
-            fullEcosystems: ['evm'],
-            additionalNetworks: ['cosmos', 'osmosis', 'stargaze'],
+            fullEcosystems: [],
+            additionalNetworks: ['bsc', 'cosmos', 'osmosis', 'stargaze'],
         },
         type: 'stake',
         description: 'Transfer your tokens automatically & stake with Citadel.one validator to earn passive income!',
@@ -36,8 +36,8 @@ const META_DATA: Record<string, IShortcutMeta> = {
         tags: ['EVM', 'COSMOS', 'STAKE'],
         ecosystems: ['EVM', 'COSMOS'],
         networksConfig: {
-            fullEcosystems: ['evm'],
-            additionalNetworks: ['cosmos', 'osmosis', 'stargaze'],
+            fullEcosystems: [],
+            additionalNetworks: ['bsc', 'cosmos', 'osmosis', 'stargaze'],
         },
         type: 'stake',
         description: 'Transfer your tokens automatically & stake with POSTHUMAN validator to earn passive income!',
