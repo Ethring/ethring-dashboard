@@ -10,28 +10,26 @@ const keplrVersion = getTestVar(TEST_CONST.KEPLR_VERSION);
 const password = getTestVar(TEST_CONST.PASS_BY_KEPLR_WALLET);
 const walletName = 'Keplr';
 
-const waitKeplrNotifyPage = async (context: BrowserContext) => {
+const waitKeplrNotifyPage = async (context: BrowserContext, time: number = FIVE_SECONDS) => {
     try {
-        await sleep(FIVE_SECONDS); // wait for page load
+        await sleep(time); // wait for page load
         await context.pages()[2].title();
     } catch (error) {
         console.error('First try get Keplr notify page is failed.', error, ' Second try...');
-        await sleep(FIVE_SECONDS); // wait for page load
+        await sleep(time); // wait for page load
         await context.pages()[2].title();
     }
 };
 
-const getNotifyKeplrPage = async (context: BrowserContext): Promise<Page> => {
+const getNotifyKeplrPage = async (context: BrowserContext, time: number = FIVE_SECONDS): Promise<Page> => {
     const expectedKeplrPageTitle = 'Keplr';
 
-    await waitKeplrNotifyPage(context);
+    await waitKeplrNotifyPage(context, time);
 
     const notifyPage = context.pages()[2];
     const titlePage = await notifyPage.title();
 
-    if (titlePage !== expectedKeplrPageTitle) {
-        throw new Error(`Oops, this is not the notify Keplr page. Current title ${titlePage}`);
-    }
+    if (titlePage !== expectedKeplrPageTitle) throw new Error(`Oops, this is not the notify Keplr page. Current title ${titlePage}`);
 
     return notifyPage;
 };
@@ -42,9 +40,8 @@ const getHomeKeplrPage = async (context: BrowserContext): Promise<KeplrHomePage>
     const mainPage = context.pages()[0];
     const titlePage = await mainPage.title();
 
-    if (titlePage !== expectedKeplrPageTitle) {
-        throw new Error(`Oops, this is not the Keplr page. Current title ${titlePage}`);
-    }
+    if (titlePage !== expectedKeplrPageTitle) throw new Error(`Oops, this is not the Keplr page. Current title ${titlePage}`);
+
     const page = new KeplrHomePage(mainPage);
     return page;
 };
@@ -68,7 +65,7 @@ class KeplrHomePage {
         await this.page.goto(`chrome-extension://${keprlId}/register.html`);
     }
 
-    async addWallet(seed: String) {
+    async addWallet(seed: string) {
         await sleep(FIVE_SECONDS); // wait for page load
 
         // Navigation to import wallet page
@@ -80,9 +77,8 @@ class KeplrHomePage {
         const seedArray = seed.split(' ');
 
         // Filling seed phrase
-        for (const word of seedArray) {
+        for (const word of seedArray)
             await this.page.locator(`div[class="sc-gsnTZi jiaani"]:nth-child(${seedArray.indexOf(word) + 1}) input`).fill(word);
-        }
 
         // Confirming seed phrase
         await this.page.getByText('Import', { exact: true }).click();
