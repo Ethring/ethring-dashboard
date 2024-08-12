@@ -16,7 +16,7 @@ testMetaMaskAndKeplr('Case#: Shortcut disconnect wallet', async ({ context, shor
 
     const currentShortcutTitle = await shortcutPage.page.locator(`//div[@class='shortcut-details']//div[@class='title']`).textContent();
 
-    expect(currentShortcutTitle).toBe('Stake $ATOM with Citadel.one');
+    expect(currentShortcutTitle).toBe('Stake $ATOM, $OSMO, $STARS with Citadel.one');
 });
 
 testMetaMask.skip('Case#: Shortcut remove liquidity from pool', async ({ context, shortcutPage }) => {

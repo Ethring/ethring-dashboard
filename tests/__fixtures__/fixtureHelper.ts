@@ -18,6 +18,7 @@ import util from 'util';
 export const FIVE_SECONDS = 5000;
 export const TEN_SECONDS = 10000;
 export const ONE_SECOND = 1000;
+export const TWO_SECOND = 2000;
 
 const sleep = util.promisify(setTimeout);
 
@@ -235,8 +236,10 @@ export const confirmConnectMmWallet = async (context: BrowserContext, page: Base
 };
 
 export const confirmConnectKeplrWallet = async (context: BrowserContext, page: BasePage) => {
-    const notifyKeplr = new KeplrNotifyPage(await getNotifyKeplrPage(context));
-    await notifyKeplr.assignPage();
+    for (let count = 0; count <= 8; count++) {
+        const notifyKeplr = new KeplrNotifyPage(await getNotifyKeplrPage(context, count > 0 ? TWO_SECOND : FIVE_SECONDS));
+        if (notifyKeplr) await notifyKeplr.assignPage();
+    }
 
     await page.waitMainElementVisible();
 };
