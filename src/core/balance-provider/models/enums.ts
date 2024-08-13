@@ -148,6 +148,7 @@ export enum DP_SDK_PROD_CHAINS_EVM {
     TRON = 'tron',
     PULSE = 'pulse',
     MOONBEAM = 'moonbeam',
+    BERACHAIN = 'berachain',
 }
 
 /**
