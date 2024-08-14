@@ -17,7 +17,7 @@ const waitKeplrNotifyPage = async (context: BrowserContext, time: number = FIVE_
     } catch (error) {
         console.error('First try get Keplr notify page is failed.', error, ' Second try...');
         await sleep(time); // wait for page load
-        await context.pages()[2].title();
+        if (context.pages().length > 2) await context.pages()[2].title();
     }
 };
 
@@ -25,6 +25,8 @@ const getNotifyKeplrPage = async (context: BrowserContext, time: number = FIVE_S
     const expectedKeplrPageTitle = 'Keplr';
 
     await waitKeplrNotifyPage(context, time);
+
+    if (context.pages().length <= 2) throw new Error(`Oops, Keplr's notify page is closed`);
 
     const notifyPage = context.pages()[2];
     const titlePage = await notifyPage.title();

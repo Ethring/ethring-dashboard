@@ -1,4 +1,3 @@
-import { values as lodashValues } from 'lodash';
 import { ref } from 'vue';
 import { Store } from 'vuex';
 import { values, orderBy } from 'lodash';
@@ -7,7 +6,6 @@ import { values, orderBy } from 'lodash';
 import { cosmos, cosmwasm } from 'osmojs';
 
 import { SigningStargateClient, StargateClient, GasPrice } from '@cosmjs/stargate';
-import { Decimal } from '@cosmjs/math';
 import { OfflineSigner } from '@cosmjs/proto-signing';
 
 // * Cosmos-kit (Cosmology sdk)
@@ -26,7 +24,7 @@ import { fromEvent, takeUntil, Subject } from 'rxjs';
 // * Configs
 import { cosmologyConfig } from '@/core/wallet-adapter/config';
 import { DP_CHAINS } from '@/core/balance-provider/models/enums';
-import { Ecosystem, Ecosystems } from '@/shared/models/enums/ecosystems.enum';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
 import { getConfigsByEcosystems, getTokensConfigByChain, getCosmologyTokensConfig } from '@/modules/chain-configs/api';
 
@@ -40,7 +38,6 @@ import { ignoreRPC } from '@/core/wallet-adapter/utils/ignore-rpc';
 // * Types & Interfaces
 import { ICosmosAdapter, IAddressByNetwork, ICosmosFeeTokens, IChainInfo } from '@/core/wallet-adapter/models/ecosystem-adapter';
 import { IPrepareMultipleExecuteCosmos, IPrepareTxCosmos } from '@/core/wallet-adapter/models/ecosystem-transactions';
-import { IConnectedWallet } from '@/shared/models/types/Account';
 
 /**
  * * Interfaces
@@ -166,9 +163,10 @@ export class CosmosAdapter implements ICosmosAdapter {
         ]);
 
         const activeChains = values(chains).filter(isActiveChain);
+
         const defaultChains = values(activeChains).filter(isDefaultChain);
 
-        this.differentSlip44 = activeChains.filter(({ slip44 }) => slip44 != this.STANDARD_SLIP_44);
+        this.differentSlip44 = defaultChains.filter(({ slip44 }) => slip44 != this.STANDARD_SLIP_44);
         this.chainsFromStore = this.store.state?.configs?.chains[Ecosystem.COSMOS] || {};
 
         await Promise.all(
@@ -185,7 +183,7 @@ export class CosmosAdapter implements ICosmosAdapter {
         const [KEPLR_EXT] = KeplrWallets;
 
         this.walletManager = new WalletManager(
-            activeChains,
+            defaultChains,
             [KEPLR_EXT],
             new Logger('INFO'),
             'connect_only',
@@ -195,7 +193,7 @@ export class CosmosAdapter implements ICosmosAdapter {
             this.DEFAULT_NAME_SERVICE,
             undefined,
             {
-                signingStargate: this.getStargateClientOptionsForChains(activeChains),
+                signingStargate: this.getStargateClientOptionsForChains(defaultChains),
             },
             undefined,
             {
@@ -1167,7 +1165,9 @@ export class CosmosAdapter implements ICosmosAdapter {
 
         const logo = asset.logo_URIs?.png || asset.logo_URIs?.svg || asset.logo_URIs?.jpeg || null;
 
-        asset.decimals = asset.denom_units[1].exponent;
+        const { denom_units } = asset;
+
+        asset.decimals = denom_units.length > 1 ? denom_units[1].exponent : 0;
 
         return {
             ...asset,

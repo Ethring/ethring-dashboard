@@ -1,9 +1,9 @@
 import { testKeplr, testMetaMask, testMetaMaskAndKeplr } from '../__fixtures__/fixtures';
-import { test, expect } from '@playwright/test';
+import { expect } from '@playwright/test';
 import { emptyBalanceMockData } from '../data/mockHelper';
 import { TEST_CONST, getTestVar } from '../envHelper';
-import { confirmConnectKeplrWallet, confirmConnectMmWallet, FIVE_SECONDS, TEN_SECONDS } from '../__fixtures__/fixtureHelper';
-import { EVM_NETWORKS, IGNORED_LOCATORS, COSMOS_WALLETS_BY_EMPTY_WALLET } from '../data/constants';
+import { TEN_SECONDS } from '../__fixtures__/fixtureHelper';
+import { EVM_NETWORKS, IGNORED_LOCATORS } from '../data/constants';
 import util from 'util';
 
 const sleep = util.promisify(setTimeout);

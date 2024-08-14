@@ -21,19 +21,12 @@ export function isSVG(str = '') {
     return str?.includes('<svg') || false;
 }
 
-export const isActiveChain = ({ network_type, status, explorers, staking, chain_id }) => {
+export const isActiveChain = ({ network_type, status, staking, chain_id }) => {
     // Constants
     const NET_TYPE = 'mainnet';
     const NET_STATUS = 'live';
-    const MINT_SCAN_EXPLORER = 'https://www.mintscan.io';
 
-    return (
-        network_type === NET_TYPE &&
-        status === NET_STATUS &&
-        explorers?.some(({ url }) => url.startsWith(MINT_SCAN_EXPLORER)) &&
-        staking &&
-        chain_id
-    );
+    return network_type === NET_TYPE && status === NET_STATUS && staking && chain_id;
 };
 
 export const isDefaultChain = ({ chain }) => {
