@@ -145,11 +145,16 @@ export const loadBalancesFromContract = async (chain: string, account: string, o
             const response = await service.getStakedAmount(account);
 
             if (response?.userValidatorInformations?.length) {
-                const totalStaked = response?.userValidatorInformations.reduce(
+                const totalDeposited = response?.userValidatorInformations.reduce(
+                    (sum: number, item: any) => (sum = sum + +item.amountDeposited),
+                    0,
+                );
+                const totalQueued = response?.userValidatorInformations.reduce(
                     (sum: number, item: any) => (sum = sum + +item.amountQueued),
                     0,
                 );
-                token.balance = token.balance - totalStaked;
+                const balance = token.balance - totalDeposited - totalQueued;
+                token.balance = balance < 0 ? 0 : balance;
             }
         }
 
