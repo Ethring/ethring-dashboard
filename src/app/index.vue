@@ -169,6 +169,7 @@ export default {
 
             if (currentChainInfo.value?.ecosystem === Ecosystem.EVM) {
                 store.dispatch('shortcuts/loadDebridgeInfo', walletAddress.value);
+                store.dispatch('shortcuts/loadMitosisPoints', walletAddress.value);
                 store.dispatch('shortcuts/loadUserVaults', walletAddress.value);
             }
 

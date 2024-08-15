@@ -60,6 +60,7 @@ export default class CallContractMethod extends BaseOperation {
 
                 case 'owner':
                 case 'caller':
+                case 'receiver':
                 case 'onBehalfOf':
                     argsToCall.push(ownerAddresses[network]);
                     break;
@@ -113,5 +114,6 @@ export default class CallContractMethod extends BaseOperation {
             console.warn('Amount is required');
             return;
         }
+        if (this.params.isEqualOutput) this.setParamByField('outputAmount', this.params.amount);
     }
 }

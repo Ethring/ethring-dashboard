@@ -415,6 +415,25 @@ const META_DATA: Record<string, IShortcutMeta> = {
         author: getAuthorById(ShortcutAuthor.ZometApp),
         isActive: true,
     },
+    [AvailableShortcuts.MitosisVault]: {
+        id: AvailableShortcuts.MitosisVault,
+        name: 'Add liquidity for Mitosis vaults',
+        logoURI: 'https://mitosis.org/assets/nav-logo.png',
+        keywords: ['mitosis', 'vault'],
+        tags: ['liquidity', 'rewards'],
+        ecosystems: ['EVM'],
+        networksConfig: {
+            fullEcosystems: [],
+            additionalNetworks: ['linea'],
+        },
+        type: 'liquidity',
+        description: 'Deposit weETH to maximize MITO Point rewards',
+        wallpaper: '/img/wallpapers/mitosis.png',
+        website: 'https://mitosis.org/',
+        minUsdAmount: 0,
+        author: getAuthorById(ShortcutAuthor.ZometApp),
+        isActive: true,
+    },
 };
 
 export const getShortcutMetaById = (id: string): IShortcutMeta => {
