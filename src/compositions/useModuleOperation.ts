@@ -48,14 +48,40 @@ const useModuleOperations = (module: ModuleType) => {
     const store = useStore();
     const route = useRouter();
 
+    // ************************************** SHORTCUTS **************************************
+
+    // ===============================================================================================
+    // * Current shortcut
+    // ===============================================================================================
+
+    const currentShortcutId = computed(() => store.getters['shortcuts/getCurrentShortcutId']);
+    const currentStepId = computed(() => store.getters['shortcuts/getCurrentStepId']);
+    const shortcutStatus = computed(() => store.getters['shortcuts/getShortcutStatus'](currentShortcutId.value));
+
+    // ===============================================================================================
+    // * Shortcut operations
+    // ===============================================================================================
+    const shortcutOps = computed<OperationsFactory>(() => store.getters['shortcuts/getShortcutOpsFactory'](currentShortcutId.value));
+
+    const setShortcutStatus = (status: SHORTCUT_STATUSES): void => {
+        if (!shortcutOps.value) return;
+        if (!currentShortcutId.value) return;
+
+        store.dispatch('shortcuts/setShortcutStatus', {
+            status,
+            shortcutId: currentShortcutId.value,
+        });
+    };
+    const isShortcutOpsExist = () => shortcutOps.value && typeof shortcutOps.value.getFullOperationFlow === 'function';
+
     const currentModule = ref(module);
     const claimedItem = ref(null);
 
     const isForceCallConfirm = computed({
-        get: () => store.getters['tokenOps/isForceCallConfirm'](currentModule.value),
+        get: () => store.getters['tokenOps/isForceCallConfirm'](isShortcutOpsExist() ? ModuleType.shortcut : currentModule.value),
         set: (value) =>
             store.dispatch('tokenOps/setCallConfirm', {
-                module: currentModule.value,
+                module: isShortcutOpsExist() ? ModuleType.shortcut : currentModule.value,
                 value,
             }),
     });
@@ -153,42 +179,6 @@ const useModuleOperations = (module: ModuleType) => {
 
     //     return ServiceType[ServiceByModule[module]];
     // });
-
-    // ************************************** SHORTCUTS **************************************
-
-    // ===============================================================================================
-    // * Current shortcut
-    // ===============================================================================================
-
-    const currentShortcutId = computed(() => store.getters['shortcuts/getCurrentShortcutId']);
-    const currentStepId = computed(() => store.getters['shortcuts/getCurrentStepId']);
-    const shortcutStatus = computed(() => store.getters['shortcuts/getShortcutStatus'](currentShortcutId.value));
-    const firstOp = ref({} as IBaseOperation);
-
-    // ===============================================================================================
-    // * Shortcut operations
-    // ===============================================================================================
-    const shortcutOps = computed<OperationsFactory>(() => store.getters['shortcuts/getShortcutOpsFactory'](currentShortcutId.value));
-
-    const setShortcutStatus = (status: SHORTCUT_STATUSES): void => {
-        if (!shortcutOps.value) return;
-        if (!currentShortcutId.value) return;
-
-        store.dispatch('shortcuts/setShortcutStatus', {
-            status,
-            shortcutId: currentShortcutId.value,
-        });
-    };
-
-    // ===============================================================================================
-    // * Shortcut Module type
-    // ===============================================================================================
-    watch(shortcutOps, (value) => {
-        if (!value) return;
-
-        module = ModuleType.shortcut;
-        currentModule.value = ModuleType.shortcut;
-    });
 
     // *************************************** WALLET ADDRESSES ***************************************
 
@@ -527,8 +517,6 @@ const useModuleOperations = (module: ModuleType) => {
 
         return ops;
     };
-
-    const isShortcutOpsExist = () => shortcutOps.value && typeof shortcutOps.value.getFullOperationFlow === 'function';
 
     const getOperations = (): OperationsFactory => {
         // * If shortcut operations exist, return it
