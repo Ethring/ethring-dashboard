@@ -210,7 +210,7 @@ export default defineComponent({
             }
 
             return store.dispatch('tokenOps/setCallConfirm', {
-                module: currentOp?.getModule(),
+                module: ModuleType.shortcut,
                 value: true,
             });
         };
