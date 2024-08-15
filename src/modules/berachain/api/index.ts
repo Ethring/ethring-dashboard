@@ -1,5 +1,4 @@
 import axios from 'axios';
-import BigNumber from 'bignumber.js';
 
 import ApiClient from '@/modules/berachain/api/axios';
 import { IGetRouteRequest } from '@/modules/berachain/models/request';
