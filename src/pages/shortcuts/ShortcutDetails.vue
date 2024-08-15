@@ -20,6 +20,9 @@
                 {{ $t('shortcuts.minUsdAmount') }}: ${{ shortcut.minUsdAmount }}
             </p>
 
+            <p v-if="shortcut.id === AvailableShortcuts.MitosisVault && mitosisInfo" class="shortcut-details__points">
+                Linea: {{ Math.round(mitosisInfo.linea?.xp) || 0 }} points
+            </p>
             <a-dropdown
                 v-if="shortcut.id === AvailableShortcuts.Debridge && deBridgeInfo && deBridgeInfo.points"
                 :arrow="{ pointAtCenter: true }"
@@ -145,6 +148,8 @@ export default {
         });
 
         const deBridgeInfo = computed(() => store.getters['shortcuts/getDeBridgeInfo'](walletAddress.value));
+        const mitosisInfo = computed(() => store.getters['shortcuts/getMitosisInfo'](walletAddress.value));
+        console.log(mitosisInfo, '-mitosisInfo');
 
         onMounted(() => {
             if (isEmpty(shortcut.value)) return router.push('/shortcuts');
@@ -169,6 +174,7 @@ export default {
             wallpaper,
             LikeIcon,
             deBridgeInfo,
+            mitosisInfo,
             AvailableShortcuts,
         };
     },
