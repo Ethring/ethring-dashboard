@@ -1,4 +1,5 @@
 stages:
+  - test_unit
   - test_ui
   - deploy_reports
   - build_docker
