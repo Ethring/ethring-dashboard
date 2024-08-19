@@ -369,6 +369,10 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
         if (!isSuperSwap.value && isDifferentEcosystem.value && isNeedDstNetwork.value && selectedSrcNetwork.value?.net)
             defaultDstNetwork.value && (selectedDstNetwork.value = defaultDstNetwork.value);
 
+        // 5. Set the destination network if the module is Bridge
+        if (!isSuperSwap.value && isNeedDstNetwork.value && !selectedDstNetwork.value)
+            defaultDstNetwork.value && (selectedDstNetwork.value = defaultDstNetwork.value);
+
         // 5. Set the source and destination tokens
         await defaultTokenManagerByModule();
     };

@@ -40,3 +40,24 @@ export const StepStatusIcons = {
 };
 
 export type ShortcutStatuses = keyof typeof ShortcutStatus;
+
+export const ShortcutFieldOpAssociated = {
+    srcNetwork: 'fromNet',
+    dstNetwork: 'toNet',
+    srcToken: 'fromToken',
+    dstToken: 'toToken',
+    receiverAddress: 'receiverAddress',
+    contractAddress: 'contract',
+    memo: 'memo',
+} as Record<string, string>;
+
+export const TokenDestinationByField = {
+    srcToken: 'from',
+    dstToken: 'to',
+} as Record<string, 'from' | 'to'>;
+
+export const FieldsValueAssociated = {
+    receiverAddress: 'address',
+    contractAddress: 'address',
+    memo: 'memo',
+} as Record<string, string>;

@@ -187,12 +187,11 @@ export class EthereumAdapter implements IEthereumAdapter {
     }
 
     async disconnectAllWallets() {
-        const { disconnectConnectedWallet } = useOnboard();
+        const { alreadyConnectedWallets } = useOnboard();
 
         try {
-            await disconnectConnectedWallet();
+            await Promise.all(alreadyConnectedWallets.value.map((wallet: any) => this.disconnectWallet(wallet)));
             this.addressByNetwork = {};
-
             // * Disconnect wallets from store
             await this.disconnectAllWalletsFromStore();
         } catch (error) {

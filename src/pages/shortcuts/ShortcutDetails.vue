@@ -58,9 +58,12 @@
             <a-spin :spinning="isShortcutLoading" size="large">
                 <a-row :gutter="[16, 16]">
                     <a-col :md="24" :lg="12">
-                        <div class="steps-content">
-                            <component :is="shortcutLayout" :is-hide-actions="isShortcutLoading || shortcut?.isComingSoon" />
-
+                        <div v-if="shortcutLayout" class="steps-content">
+                            <component
+                                :is="shortcutLayout"
+                                v-if="shortcutLayout"
+                                :is-hide-actions="isShortcutLoading || shortcut?.isComingSoon"
+                            />
                             <div v-if="shortcut?.isComingSoon" class="coming-soon">
                                 <p class="coming-soon__title">{{ $t('shortcuts.comingSoon') }}</p>
                                 <p class="coming-soon__description">{{ $t('shortcuts.comingSoonDescription') }}</p>

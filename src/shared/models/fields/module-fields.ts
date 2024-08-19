@@ -3,6 +3,7 @@ import { ModuleType } from '@/shared/models/enums/modules.enum';
 
 import { IChainConfig } from '@/shared/models/types/chain-config';
 import { AssetBalance } from '@/core/balance-provider/models/types';
+import { Ecosystems } from '../enums/ecosystems.enum';
 
 export interface AllowanceByService {
     [key: string]: {
@@ -18,13 +19,14 @@ export interface IAsset extends AssetBalance {
     coingecko_id?: string;
     verified?: boolean;
     selected?: boolean;
+    ecosystem?: Ecosystems;
 }
 
 export interface IFields {
-    [Field.srcNetwork]: INetwork;
-    [Field.srcToken]: IAsset;
-    [Field.dstNetwork]: INetwork;
-    [Field.dstToken]: IAsset;
+    [Field.srcNetwork]: INetwork | null;
+    [Field.srcToken]: IAsset | null;
+    [Field.dstNetwork]: INetwork | null;
+    [Field.dstToken]: IAsset | null;
     [Field.srcAmount]: string;
     [Field.dstAmount]: string;
     [Field.switchDirection]: boolean;
@@ -36,7 +38,7 @@ export interface IFields {
     [Field.funds]?: {
         amount: string;
         denom: string;
-    };
+    } | null;
     [Field.slippage]?: number;
 }
 
@@ -112,14 +114,6 @@ export class StakeFields implements IStakeFields {
     [Field.isSendToAnotherAddress]!: boolean;
 }
 
-export const FieldsByModule = {
-    [ModuleType.send]: SendFields,
-    [ModuleType.superSwap]: SuperSwapFields,
-    [ModuleType.swap]: SwapFields,
-    [ModuleType.bridge]: BridgeFields,
-    [ModuleType.stake]: StakeFields,
-};
-
 export class AllFields implements IFields {
     [Field.srcNetwork]!: INetwork;
     [Field.srcToken]!: IAsset;
@@ -131,4 +125,20 @@ export class AllFields implements IFields {
     [Field.receiverAddress]!: string;
     [Field.memo]!: string;
     [Field.isSendToAnotherAddress]!: boolean;
+    [Field.contractAddress]!: string;
+    [Field.contractCallCount]!: number;
+    [Field.funds]!: {
+        amount: string;
+        denom: string;
+    };
+    [Field.slippage]!: number;
 }
+
+export const FieldsByModule = {
+    [ModuleType.send]: SendFields,
+    [ModuleType.superSwap]: SuperSwapFields,
+    [ModuleType.swap]: SwapFields,
+    [ModuleType.bridge]: BridgeFields,
+    [ModuleType.stake]: StakeFields,
+    [ModuleType.shortcut]: AllFields,
+};

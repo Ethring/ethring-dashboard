@@ -126,10 +126,10 @@ export default {
 
         operationResult: {},
 
-        [Field.srcNetwork]: undefined,
-        [Field.srcToken]: undefined,
-        [Field.dstNetwork]: undefined,
-        [Field.dstToken]: undefined,
+        [Field.srcNetwork]: null,
+        [Field.srcToken]: null,
+        [Field.dstNetwork]: null,
+        [Field.dstToken]: null,
         [Field.srcAmount]: '',
         [Field.dstAmount]: '',
         [Field.switchDirection]: false,
