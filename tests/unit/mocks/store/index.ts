@@ -8,6 +8,7 @@ import configStore from '../../../../src/store/configs/index';
 import tokensStore from '../../../../src/store/tokens';
 import moduleStatesStore from '../../../../src/store/moduleStates';
 
+import txManagerStore from '../../../../src/core/transaction-manager/store';
 import adapterStore from '../../../../src/core/wallet-adapter/store/index';
 import shortcutStore from '../../../../src/core/shortcuts/store';
 import bridgeDexAPIStore from '../../../../src/modules/bridge-dex/store';
@@ -80,6 +81,7 @@ export function createTestStore() {
             tokenOps: operationsStore,
             shortcuts: shortcutStore,
             moduleStates: moduleStatesStore,
+            txManager: txManagerStore,
         },
     });
 }

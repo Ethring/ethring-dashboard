@@ -152,7 +152,6 @@ export default {
 
         const deBridgeInfo = computed(() => store.getters['shortcuts/getDeBridgeInfo'](walletAddress.value));
         const mitosisInfo = computed(() => store.getters['shortcuts/getMitosisInfo'](walletAddress.value));
-        console.log(mitosisInfo, '-mitosisInfo');
 
         onMounted(() => {
             if (isEmpty(shortcut.value)) return router.push('/shortcuts');

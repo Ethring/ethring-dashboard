@@ -588,6 +588,7 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
         console.log('UPDATE AMOUNT AND ESTIMATE', amount, oldAmount, isEstimate);
         // if config is loading or no operation found, return
         if (isConfigLoading.value || !currentOp.value?.id) return;
+        if (!operationsFactory.value) return;
 
         const targetAmount = isEstimate ? 'amount' : 'outputAmount';
         const operation = operationsFactory.value.getOperationById(currentOp.value.id);
@@ -607,6 +608,7 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
     ) => {
         // ! if no operation found, return
         if (!currentOp.value?.id) return;
+        if (!operationsFactory.value) return;
 
         // ! if no changes in contractAddress, contractCallCount, return
         if (isEqual([contractAddress, contractCallCount], [oldContractAddress, oldContractCallCount])) return;

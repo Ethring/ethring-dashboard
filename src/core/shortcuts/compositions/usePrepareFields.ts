@@ -1,6 +1,3 @@
-import { isEqual, isFinite } from 'lodash';
-import BigNumber from 'bignumber.js';
-
 import { computed, ComputedRef, onMounted, onUnmounted, watch } from 'vue';
 import { useStore, Store } from 'vuex';
 
@@ -97,23 +94,29 @@ const usePrepareFields = (
     // ****************************************************************************************************
 
     const prepareDisabledField = async (operationId: string, module: string, field: string, value: boolean) => {
-        if (!operationId || !field) return;
+        if (!operationId || !field) return false;
+
         await store.dispatch('moduleStates/setDisabledField', {
             module: module || ModuleType.shortcut,
             field,
             attr: 'disabled',
             value,
         });
+
+        return true;
     };
 
     const prepareHiddenField = async (operationId: string, module: string, field: string, value: boolean) => {
-        if (!operationId || !field) return;
+        if (!operationId || !field) return false;
+
         await store.dispatch('moduleStates/setHideField', {
             module: module || ModuleType.shortcut,
             field,
             attr: 'hide',
             value,
         });
+
+        return true;
     };
 
     // ****************************************************************************************************
@@ -126,14 +129,15 @@ const usePrepareFields = (
         params: any,
         { isUpdateInStore = false }: { isUpdateInStore: boolean },
     ) => {
-        if (!operationId) return;
-        if (!field || !params) return;
+        if (!operationId) return false;
+        if (!field || !params) return false;
+        if (!operationsFactory.value) return false;
 
-        const operationById = operationsFactory.value?.getOperationById(operationId);
-        const operationByKey = operationsFactory.value?.getOperationByKey(field);
+        const operationById = operationsFactory.value.getOperationById(operationId);
+        const operationByKey = operationsFactory.value.getOperationByKey(operationId);
         const operation = operationById || operationByKey;
 
-        if (!operation || JSON.stringify(operation) === '{}') return;
+        if (!operation || JSON.stringify(operation) === '{}') return false;
 
         const isToken = ['srcToken', 'dstToken'].includes(field);
 
@@ -151,7 +155,7 @@ const usePrepareFields = (
             isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value }));
             isToken ? operation.setToken(TokenDestinationByField[field], value) : null;
             ShortcutFieldOpAssociated[field] ? operation.setParamByField(ShortcutFieldOpAssociated[field], value) : null;
-            return;
+            return true;
         }
 
         let valueToSet = null;
@@ -160,11 +164,15 @@ const usePrepareFields = (
         switch (field) {
             case 'srcNetwork':
                 const srcNetwork = getNetwork(ecosystem, chainId as string);
-                if (!srcNetwork) return;
+
+                if (!srcNetwork) {
+                    console.error(`SRC Network not found: ${chainId}`);
+                    return false;
+                }
 
                 const srcChainId: string | number = srcNetwork.chain_id || srcNetwork.net;
 
-                operation.setParamByField('fromNet', srcNetwork?.net);
+                operation.setParamByField(ShortcutFieldOpAssociated[field], srcNetwork?.net);
                 operation.setChainId(srcChainId as string);
                 operation.setEcosystem(srcNetwork.ecosystem as any);
 
@@ -177,9 +185,12 @@ const usePrepareFields = (
 
             case 'dstNetwork':
                 const dstNetwork = getChainByChainId(ecosystem as Ecosystems, chainId as string);
-                if (!dstNetwork) return;
+                if (!dstNetwork) {
+                    console.error(`DST Network not found: ${chainId}`);
+                    return false;
+                }
 
-                operation.setParamByField('toNet', dstNetwork?.net);
+                operation.setParamByField(ShortcutFieldOpAssociated[field], dstNetwork?.net);
 
                 fieldToSet = 'dstNetwork';
                 valueToSet = dstNetwork;
@@ -188,9 +199,17 @@ const usePrepareFields = (
 
             case 'srcToken':
             case 'dstToken':
-                if (!id) return;
+                if (!id) {
+                    console.error(`Token ID not found: ${id}`);
+                    return false;
+                }
+
                 const token = await getTokens(ecosystem, chain as string, id as string);
-                if (!token) return console.error(`Token not found: ${id}`);
+
+                if (!token) {
+                    console.error(`Token not found: ${id}`);
+                    return false;
+                }
 
                 const tokenParams = token;
 
@@ -214,6 +233,8 @@ const usePrepareFields = (
 
         if (isUpdateInStore && fieldToSet && valueToSet)
             await store.dispatch(`tokenOps/setFieldValue`, { field: fieldToSet, value: valueToSet });
+
+        return true;
     };
 
     // ****************************************************************************************************
@@ -225,11 +246,8 @@ const usePrepareFields = (
         params: IOperationParam[],
         { isUpdateInStore, id: targetOpId, from }: { isUpdateInStore: boolean; id: string; from: string },
     ) => {
-        if (isTransactionSigning.value) return;
-        if (!params || !params.length) return;
-
-        // console.log('====================');
-        // console.log('performFields', from);
+        if (isTransactionSigning.value) return false;
+        if (!params || !params.length) return false;
 
         for (const paramField of params) {
             const { name, ...rest } = paramField;
@@ -243,30 +261,35 @@ const usePrepareFields = (
             if (typeof hide !== 'undefined' && currentStepId.value === targetOpId)
                 await prepareHiddenField(targetOpId, moduleType, name, hide);
         }
-        // console.log('====================\n\n\n');
+
+        return true;
     };
 
     const performDisabledOrHiddenFields = async (opId: string, module: string, fields: IOperationParam[]) => {
         const isUpdateInStore = currentOp.value?.id === opId;
-        if (!isUpdateInStore) return;
+        if (!isUpdateInStore) return false;
 
-        if (!fields.length) return;
-        if (!opId) return;
-        if (!module) return;
+        if (!fields.length) return false;
+        if (!opId) return false;
+        if (!module) return false;
 
-        for (const field of fields) {
+        const promises = fields.map((field) => {
             const { name, disabled = false, hide = false } = field || {};
-            await prepareDisabledField(opId, module, name, disabled);
-            await prepareHiddenField(opId, module, name, hide);
-        }
+            prepareDisabledField(opId, module, name, disabled);
+            prepareHiddenField(opId, module, name, hide);
+        });
+
+        await Promise.all(promises);
+
+        return true;
     };
 
     // ====================================================================================================
     // * Call the on watch on mounted
     // ====================================================================================================
     const callPerformOnWatchOnMounted = async () => {
-        if (!currentOp.value) return;
-        if (currentOp.value?.id) return;
+        if (!currentOp.value) return false;
+        if (!currentOp.value?.id) return false;
 
         await store.dispatch('tokenOps/resetFields');
 
@@ -277,6 +300,8 @@ const usePrepareFields = (
             id,
             from: 'callPerformOnWatchOnMounted',
         });
+
+        return true;
     };
 
     return {
