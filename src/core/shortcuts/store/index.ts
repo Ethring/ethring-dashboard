@@ -18,6 +18,7 @@ import { h } from 'vue';
 import { IBaseOperation } from '@/core/operations/models/Operations';
 import DebridgeApi from '@/modules/debridge/api';
 import BerachainApi from '@/modules/berachain/api';
+import MitosisApi from '@/modules/mitosis/api';
 
 const TYPES = {
     SET_SHORTCUT: 'SET_SHORTCUT',
@@ -35,6 +36,7 @@ const TYPES = {
 
     SET_DEBRIDGE_INFO: 'SET_DEBRIDGE_INFO',
     SET_VAULTS_INFO: 'SET_VAULTS_INFO',
+    SET_MITOSIS_POINTS: 'SET_MITOSIS_POINTS',
 };
 
 const DISABLED_STATUS = [ShortcutStatus.finish, ShortcutStatus.error];
@@ -73,6 +75,9 @@ interface IState {
     vaults: {
         [key: string]: string;
     };
+    mitosisOnfo: {
+        [key: string]: string;
+    };
 }
 
 export default {
@@ -98,6 +103,7 @@ export default {
 
         deBridgeInfo: {},
         vaults: {},
+        mitosisOnfo: {},
     }),
 
     // ================================================================================
@@ -125,6 +131,7 @@ export default {
 
         getDeBridgeInfo: (state: IState) => (address: string) => state.deBridgeInfo[address],
         getVaultsInfo: (state: IState) => (address: string) => state.vaults[address],
+        getMitosisInfo: (state: IState) => (address: string) => state.mitosisOnfo[address],
 
         getShortcutOpInfoById: (state: IState) => (shortcutId: string, operationId: string) => {
             // ! if shortcut id is not provided, return null
@@ -319,6 +326,9 @@ export default {
         [TYPES.SET_VAULTS_INFO](state: IState, value: any) {
             state.vaults = value;
         },
+        [TYPES.SET_MITOSIS_POINTS](state: IState, value: any) {
+            state.mitosisOnfo = value;
+        },
     },
 
     // ================================================================================
@@ -442,6 +452,27 @@ export default {
             };
 
             commit(TYPES.SET_VAULTS_INFO, data);
+        },
+        async loadMitosisPoints({ state, commit }: any, address: string) {
+            const service = new MitosisApi();
+
+            const lineaResponse = await service.getLineaPoints(address);
+
+            // const mitosisResponse = await service.getPoints(address);
+            // console.log(mitosisResponse, '---mitosis');
+
+            const data = {
+                ...state.mitosisOnfo,
+                [address]: {
+                    // mitosis: {
+                    //     totalPoints: mitosisResponse?.items[0]?.totalPoints || 0,
+                    //     multiplier: mitosisResponse?.mitoPoints?.boost || 1,
+                    // },
+                    linea: lineaResponse.length ? lineaResponse[0] : null,
+                },
+            };
+
+            commit(TYPES.SET_MITOSIS_POINTS, data);
         },
     },
 };

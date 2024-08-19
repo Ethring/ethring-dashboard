@@ -1,7 +1,7 @@
 import { BrowserContext } from '@playwright/test';
 import { MetaMaskHomePage, MetaMaskNotifyPage, getNotifyMmPage } from '../model/MetaMask/MetaMask.pages';
 import { KeplrHomePage, KeplrNotifyPage, getNotifyKeplrPage } from '../model/Keplr/Keplr.pages';
-import { COSMOS_WALLETS_BY_EMPTY_WALLET, EVM_NETWORKS, KeplrDirPath, MetaMaskDirPath } from '../data/constants';
+import { EVM_NETWORKS, KeplrDirPath, MetaMaskDirPath } from '../data/constants';
 import mockTokensListData from '../data/mockTokensListData';
 import { BasePage, DashboardPage } from '../model/VueApp/base.pages';
 import {
@@ -18,6 +18,7 @@ import util from 'util';
 export const FIVE_SECONDS = 5000;
 export const TEN_SECONDS = 10000;
 export const ONE_SECOND = 1000;
+export const TWO_SECOND = 2000;
 
 const sleep = util.promisify(setTimeout);
 
@@ -215,11 +216,13 @@ export const authByKeplrErrorJunoBalanceMock = async (context: BrowserContext, s
     await zometPage.goToPage();
 
     await zometPage.clickLoginByKeplr();
-    await confirmConnectKeplrWallet(context, zometPage);
 
-    await Promise.all(
-        Object.keys(cosmosWallets).map((network) => zometPage.page.waitForResponse(`**/srv-data-provider/api/balances?net=${network}**`)),
-    );
+    await Promise.all([
+        confirmConnectKeplrWallet(context, zometPage),
+        ...Object.keys(cosmosWallets).map((network) =>
+            zometPage.page.waitForResponse(`**/srv-data-provider/api/balances?net=${network}**`),
+        ),
+    ]);
 
     return zometPage;
 };
@@ -235,8 +238,13 @@ export const confirmConnectMmWallet = async (context: BrowserContext, page: Base
 };
 
 export const confirmConnectKeplrWallet = async (context: BrowserContext, page: BasePage) => {
-    const notifyKeplr = new KeplrNotifyPage(await getNotifyKeplrPage(context));
-    await notifyKeplr.assignPage();
+    for (let count = 0; count <= 10; count++)
+        try {
+            const notifyKeplr = new KeplrNotifyPage(await getNotifyKeplrPage(context, count > 0 ? TWO_SECOND : FIVE_SECONDS));
+            if (notifyKeplr) await notifyKeplr.assignPage();
+        } catch {
+            continue;
+        }
 
     await page.waitMainElementVisible();
 };
@@ -275,7 +283,7 @@ export const authByKeplerAndMmBalanceMock = async (
 
     // Create promise by all COSMOS balance request
     const cosmosBalancePromise = Promise.all(
-        Object.keys(COSMOS_WALLETS_BY_EMPTY_WALLET).map((network) =>
+        Object.keys(cosmosAddressesDict).map((network) =>
             zometPage.page.waitForResponse(`**/srv-data-provider/api/balances?net=${network}**`),
         ),
     );

@@ -62,9 +62,17 @@ const useModuleOperations = (module: ModuleType) => {
     // * Shortcut operations
     // ===============================================================================================
     const shortcutOps = computed<OperationsFactory>(() => store.getters['shortcuts/getShortcutOpsFactory'](currentShortcutId.value));
-    const isShortcutOpsExist = () => shortcutOps.value && typeof shortcutOps.value.getFullOperationFlow === 'function';
 
-    // ************************************** MODULE **************************************
+    const setShortcutStatus = (status: SHORTCUT_STATUSES): void => {
+        if (!shortcutOps.value) return;
+        if (!currentShortcutId.value) return;
+
+        store.dispatch('shortcuts/setShortcutStatus', {
+            status,
+            shortcutId: currentShortcutId.value,
+        });
+    };
+    const isShortcutOpsExist = () => shortcutOps.value && typeof shortcutOps.value.getFullOperationFlow === 'function';
 
     const currentModule = ref(module);
     const claimedItem = ref(null);
@@ -171,16 +179,6 @@ const useModuleOperations = (module: ModuleType) => {
 
     //     return ServiceType[ServiceByModule[module]];
     // });
-
-    const setShortcutStatus = (status: SHORTCUT_STATUSES): void => {
-        if (!shortcutOps.value) return;
-        if (!currentShortcutId.value) return;
-
-        store.dispatch('shortcuts/setShortcutStatus', {
-            status,
-            shortcutId: currentShortcutId.value,
-        });
-    };
 
     // *************************************** WALLET ADDRESSES ***************************************
 

@@ -20,6 +20,7 @@ import {
     EXTRA_FI_ABI,
     COMPOUND_ABI,
     BERACHAIN_ABI,
+    MITOSIS_ABI,
     web3OnBoardConfig,
 } from '@/core/wallet-adapter/config';
 import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
@@ -48,6 +49,7 @@ const ABI_BY_NAME: { [key: string]: any } = {
     EXTRA_FI: EXTRA_FI_ABI,
     COMPOUND: COMPOUND_ABI,
     BERACHAIN: BERACHAIN_ABI,
+    MITOSIS: MITOSIS_ABI,
 };
 
 /**

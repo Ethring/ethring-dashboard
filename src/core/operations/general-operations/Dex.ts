@@ -112,6 +112,9 @@ export default class DexOperation extends BaseOperation {
 
         serviceId && this.service.setServiceId(serviceId);
 
+        if (typeof this.params.toToken !== 'string') this.params.toToken = this.params.toToken?.address;
+        if (typeof this.params.fromToken !== 'string') this.params.fromToken = this.params.fromToken?.address;
+
         const response = await this.service.callMethod('getSwapTx', this.params);
 
         if (Array.isArray(response)) return response[0];

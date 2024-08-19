@@ -2,6 +2,7 @@ import { Page, Route, expect } from '@playwright/test';
 import { FIVE_SECONDS, ONE_SECOND } from '../../__fixtures__/fixtureHelper';
 import { DATA_QA_LOCATORS, URL_MOCK_PATTERNS } from '../../data/constants';
 import util from 'util';
+import { emptyBalanceMockData } from '../../data/mockHelper';
 
 const url: string = '/';
 const sleep = util.promisify(setTimeout);
@@ -100,7 +101,7 @@ class BasePage {
 
     async mockBalanceRequest(net: string, mockData: object, address: string, statusCode: number = 200) {
         const URL = `**/srv-data-provider/api/balances?net=${net}&address=${address}**`;
-        await this.mockRoute(URL, mockData, statusCode);
+        await this.mockRoute(URL, mockData || emptyBalanceMockData, statusCode);
     }
 
     async mockPoolBalanceRequest(net: string, mockData: object, address: string, statusCode: number = 200) {

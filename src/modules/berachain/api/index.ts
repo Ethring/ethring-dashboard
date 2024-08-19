@@ -1,5 +1,4 @@
 import axios from 'axios';
-import BigNumber from 'bignumber.js';
 
 import ApiClient from '@/modules/berachain/api/axios';
 import { IGetRouteRequest } from '@/modules/berachain/models/request';
@@ -51,7 +50,7 @@ class BerachainApi implements IBerachainApi {
                     variables: {
                         address: account,
                     },
-                    query: 'query GetUserValidatorInformation($address: String!) {\n  userValidatorInformations(where: {user: $address}) {\n    id\n    amountQueued\n  }\n}',
+                    query: 'query GetUserValidatorInformation($address: String!) {\n  userValidatorInformations(where: {user: $address}) {\n    id\n    amountQueued\n  amountDeposited\n }\n}',
                 },
             );
             return response.data.data;
