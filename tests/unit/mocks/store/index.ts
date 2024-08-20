@@ -29,7 +29,11 @@ export function createTestStore() {
                         if (!ecosystem) return [];
                         if (!CONNECTED_WALLETS.find((wallet) => wallet.ecosystem === ecosystem)) return [];
                         const wallet = CONNECTED_WALLETS.find((wallet) => wallet.ecosystem === ecosystem);
-                        return wallet?.addresses;
+                        const { addresses } = wallet || {};
+                        const addressesByChain = {};
+                        for (const chain in addresses) addressesByChain[chain] = addresses[chain].address;
+
+                        return addressesByChain;
                     },
                 },
             },

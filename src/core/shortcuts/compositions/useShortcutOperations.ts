@@ -1,4 +1,4 @@
-import { isEqual, isFinite } from 'lodash';
+import { isEqual, isFinite, isNaN, isNumber } from 'lodash';
 import BigNumber from 'bignumber.js';
 
 // ********************* Vue/Vuex *********************
@@ -184,6 +184,11 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
             return false;
         }
 
+        if (!currentShortcut.value) {
+            console.warn('Shortcut not found');
+            return false;
+        }
+
         const { operations } = currentShortcut.value || {};
 
         if (!operations || !operations.length) {
@@ -279,28 +284,63 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
     };
 
     const setOperationAccount = (stepId: string, { force = false }: { force?: boolean } = {}) => {
-        if (!stepId) return console.warn('Step ID not found');
-        if (!operationsFactory.value) return console.warn('Operations Factory not found');
+        console.log('SET OPERATION ACCOUNT', stepId, force);
+        if (!stepId) {
+            console.warn('Step ID not found');
+            return false;
+        }
+
+        if (!operationsFactory.value) {
+            console.warn('Operations Factory not found');
+            return false;
+        }
 
         const operationById = operationsFactory.value.getOperationById(stepId);
         const operationByKey = operationsFactory.value.getOperationByKey(stepId);
 
         const operation = operationById || operationByKey;
 
-        if (!operation || (operation && JSON.stringify(operation) === '{}')) return console.warn('Operation not found with id:', stepId);
+        if (!operation || (operation && JSON.stringify(operation) === '{}')) {
+            console.warn('Operation not found with id:', stepId);
+            return false;
+        }
 
         const { net, fromNet } = operation.getParams();
 
-        if (!net && !fromNet) return console.warn('No network found for operation:', stepId);
+        if (!net && !fromNet) {
+            console.warn('No network found for operation:', stepId);
+            return false;
+        }
 
         const network = net || fromNet;
+        const opAccount = operation.getAccount();
+        const account = addressesByChain.value[network];
 
-        if (force) return operation.setAccount(addressesByChain.value[network]);
-
-        if (!operation.getAccount()) {
-            console.warn('ACCOUNT NOT SET', stepId, network, addressesByChain.value[network]);
-            return operation.setAccount(addressesByChain.value[network]);
+        if (!account) {
+            console.warn('ACCOUNT NOT FOUND', stepId, network, addressesByChain.value[network]);
+            return false;
         }
+
+        if (force) {
+            console.warn('FORCE SET ACCOUNT', stepId, network, addressesByChain.value[network]);
+            operation.setAccount(addressesByChain.value[network]);
+            return true;
+        }
+
+        if (!opAccount) {
+            console.warn('ACCOUNT NOT SET', stepId, network, addressesByChain.value[network]);
+            operation.setAccount(addressesByChain.value[network]);
+            return true;
+        }
+
+        if (opAccount !== account) {
+            console.warn('ACCOUNT NOT MATCHED', stepId, network, addressesByChain.value[network]);
+            operation.setAccount(addressesByChain.value[network]);
+            return true;
+        }
+
+        console.warn('ACCOUNT MATCHED', stepId, network, addressesByChain.value[network]);
+        return false;
     };
 
     // ****************************************************************************************************
@@ -308,18 +348,20 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
     // ****************************************************************************************************
 
     const checkMinAmount = () => {
-        const TestnetShortcuts = [AvailableShortcuts.BerachainStake, AvailableShortcuts.BerachainVault] as string[];
+        if (!operationsFactory.value) return false;
+        if (!currentShortcut.value) return false;
 
+        const { minUsdAmount = 0 } = currentShortcut.value;
+
+        if (minUsdAmount <= 0 || minUsdAmount === null || minUsdAmount === undefined || !isNumber(minUsdAmount)) return true;
+
+        const TestnetShortcuts = [AvailableShortcuts.BerachainStake, AvailableShortcuts.BerachainVault] as string[];
         if (TestnetShortcuts.includes(currentShortcutID)) return true;
 
         const amount = firstOperation.value.getParamByField('amount') || 0;
-
-        if (!amount) return true;
-
-        if (currentShortcut.value.minUsdAmount === undefined || currentShortcut.value.minUsdAmount === null) return true;
+        if (!amount) return false;
 
         const fromToken = firstOperation.value.getToken('from');
-
         const { price = 0 } = fromToken || {};
 
         const amountToUsd = BigNumber(amount)
@@ -370,11 +412,13 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
     };
 
     const handleOnCallEstimateOutput = async () => {
-        if (isQuoteLoading.value || isTransactionSigning.value || isConfigLoading.value || isShortcutLoading.value) return;
+        if (!operationsFactory.value) return false;
+
+        if (isQuoteLoading.value || isTransactionSigning.value || isConfigLoading.value || isShortcutLoading.value) return false;
 
         const isMinAmountAccepted = checkMinAmount();
 
-        if (store.getters['tokenOps/srcAmount'] === null) return;
+        if (store.getters['tokenOps/srcAmount'] === null) return false;
 
         if (!isMinAmountAccepted) {
             console.log('MIN AMOUNT NOT ACCEPTED', quoteErrorMessage.value);
@@ -409,27 +453,16 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
     // ****************************************************************************************************
     const handleOnTryAgain = () => {
         console.log('CALLING TRY AGAIN', shortcutIndex.value, shortcutStatus.value, operationsCount.value - 1);
-        closeNotification('tx-error');
-
-        console.table({
-            firstOpId: firstOperation.value?.getUniqueId(),
-            lastOpId: lastOperation.value?.getUniqueId(),
-            currentStepId: currentStepId.value,
-            shortcutIndex: shortcutIndex.value,
-            operationsCount: operationsCount.value,
-            isNeedToCallConfirm: shortcutIndex.value !== 0 && shortcutStatus.value === STATUSES.FAILED,
-            isLastOp: currentStepId.value === lastOperation.value.getUniqueId() || operationsCount.value - 1 === shortcutIndex.value,
-            isFirstOp: currentStepId.value === lastOperation.value.getUniqueId() || shortcutIndex.value === 0,
-        });
-
-        console.log('-'.repeat(50));
-
-        const isSuccess = [STATUSES.SUCCESS].includes(shortcutStatus.value as any);
 
         const callOnSuccess = () => {
+            console.log('setCallConfirm, for shortcut', 'Success', true, 'resetShortcut');
+
             operationProgress.value = 0;
 
-            store.dispatch('shortcuts/setCurrentStepId', firstOperation.value.getUniqueId());
+            store.dispatch('shortcuts/setCurrentStepId', {
+                stepId: firstOperation.value.getUniqueId(),
+                shortcutId: currentShortcutID,
+            });
 
             store.dispatch('tokenOps/setSrcAmount', null);
             store.dispatch('tokenOps/setDstAmount', null);
@@ -440,21 +473,23 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
             });
         };
 
-        const isFirstOp = currentStepId.value === firstOperation.value.getUniqueId() || shortcutIndex.value === 0;
-
-        if (isFirstOp) {
+        const callOnFailOnFirstOp = () => {
             console.log('setCallConfirm, for shortcut', 'FirstOp', true);
 
             return store.dispatch('shortcuts/setShortcutStatus', {
                 shortcutId: currentShortcutID,
                 status: STATUSES.PENDING,
             });
-        }
+        };
 
-        if (isSuccess) {
-            console.log('setCallConfirm, for shortcut', 'Success', true, 'resetShortcut');
-            return callOnSuccess();
-        }
+        closeNotification('tx-error');
+
+        const isSuccess = [STATUSES.SUCCESS].includes(shortcutStatus.value as any);
+
+        const isFirstOp = currentStepId.value === firstOperation.value.getUniqueId() || shortcutIndex.value === 0;
+
+        if (isFirstOp) return callOnFailOnFirstOp();
+        if (isSuccess) return callOnSuccess();
 
         return store.dispatch('tokenOps/setCallConfirm', {
             module: ModuleType.shortcut,
@@ -473,38 +508,54 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
     // ************************************************************************************************
 
     const handleOnChangeShortcutIndex = async (index: number, oldIndex: number) => {
-        if (index === oldIndex) return;
+        if (index === oldIndex) return false;
+        if (!operationsFactory.value) return false;
         operationProgress.value = updateProgress();
+        return true;
     };
 
     const handleOnChangeOperationStatus = async (status: string, oldStatus: string) => {
-        if (status === oldStatus) return;
+        if (status === oldStatus) return false;
+        if (!operationsFactory.value) return false;
         operationProgress.value = updateProgress();
+        return true;
     };
 
     const handleOnChangeIsCallEstimateOutput = async (estimate: boolean, oldEstimate: boolean) => {
-        if (!estimate) return;
-        if (estimate === oldEstimate) return;
+        if (!operationsFactory.value) return false;
+
+        if (!estimate) return false;
+        if (estimate === oldEstimate) return false;
 
         await handleOnCallEstimateOutput();
 
         isCallEstimate.value = false;
+
+        return true;
     };
 
     const handleOnChangeAddressByChain = async (addressByChain: AddressByChainHash, oldAddressByChain: AddressByChainHash) => {
-        if (isEqual(addressByChain, oldAddressByChain)) return;
+        if (isEqual(addressByChain, oldAddressByChain)) return false;
+        if (!operationsFactory.value) return false;
+        if (!opIds.value) return false;
+        if (!opIds.value.length) return false;
 
         for (const id of opIds.value) {
             const operation = operationsFactory.value.getOperationById(id) as IBaseOperation;
+            if (!operation) continue;
             operation.setParamByField('ownerAddresses', addressesByChain.value);
         }
+
+        return true;
     };
 
     const handleOnChangeCurrentStepId = (stepId: string, oldStepId: string) => {
-        if (stepId === oldStepId) return;
-        if (!stepId) return;
+        if (stepId === oldStepId) return false;
+        if (!operationsFactory.value) return false;
 
         setOperationAccount(stepId);
+
+        return true;
     };
 
     const handleOnUpdateOperationParams = async (
@@ -520,12 +571,21 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
         };
 
         // if config is loading or no operation found, return
-        if (isConfigLoading.value || !currentOp.value?.id) return;
+        if (isConfigLoading.value || !currentOp.value?.id) return false;
+        if (!operationsFactory.value) return false;
 
         const operation = operationsFactory.value.getOperationById(currentOp.value.id);
 
-        // Update srcNet if necessary
+        if (
+            isEqual(
+                [srcNet?.net, srcToken?.id, dstNet?.net, dstToken?.id],
+                [oldSrcNet?.net, oldSrcToken?.id, oldDstNet?.net, oldDstToken?.id],
+            )
+        )
+            return false;
+
         if (oldSrcNet?.net !== srcNet?.net && srcNet?.net) {
+            // Update srcNet if necessary
             operation?.setEcosystem(srcNet.ecosystem);
             operation?.setChainId((srcNet.chain_id || srcNet.net) as string);
             operation?.setParamByField('net', srcNet.net);
@@ -559,17 +619,21 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
             !dstTokenField?.value
         )
             setTokenParams(operation, 'to', dstToken);
+
+        return true;
     };
 
     const handleOnUpdateOperationParamsAndEstimate = async (
         [srcNet, srcToken, dstNet, dstToken]: any,
         [oldSrcNet, oldSrcToken, oldDstNet, oldDstToken]: any,
     ) => {
+        if (!operationsFactory.value) return false;
+
         // ! if config is loading, return
-        if (isConfigLoading.value) return;
+        if (isConfigLoading.value) return false;
 
         // ! if no operation found, return
-        if (!currentOp.value?.id) return;
+        if (!currentOp.value?.id) return false;
 
         // ! if no srcNet, srcToken, srcAmount found, return
         if (
@@ -578,26 +642,37 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
                 [oldSrcNet?.net, oldSrcToken?.id, oldDstNet?.net, oldDstToken?.id],
             )
         )
-            return;
+            return false;
 
         // * Call the estimate output if the srcNet, srcToken
-        if (srcNet?.net && srcToken?.id) await handleOnCallEstimateOutput();
+        if (srcNet?.net && srcToken?.id) {
+            await handleOnCallEstimateOutput();
+            return true;
+        }
+
+        return false;
     };
 
     const updateAmountAndEstimate = async (amount: number, oldAmount: number, isEstimate: boolean = false) => {
-        console.log('UPDATE AMOUNT AND ESTIMATE', amount, oldAmount, isEstimate);
         // if config is loading or no operation found, return
-        if (isConfigLoading.value || !currentOp.value?.id) return;
-        if (!operationsFactory.value) return;
+        if (isConfigLoading.value || !currentOp.value?.id) return false;
+        if (!operationsFactory.value) return false;
 
         const targetAmount = isEstimate ? 'amount' : 'outputAmount';
         const operation = operationsFactory.value.getOperationById(currentOp.value.id);
 
+        if (typeof amount === 'string' && amount === '') return false;
+
+        const isCorrectAmount = isFinite(+amount) && isNumber(+amount) && amount !== null && amount >= 0;
+
         // Update amount if necessary
-        if (!isEqual(amount, oldAmount) && amount && (amount !== null || amount !== undefined)) {
+        if (!isEqual(amount, oldAmount) && isCorrectAmount) {
             operation?.setParamByField(targetAmount, amount);
             isEstimate && (await handleOnCallEstimateOutput());
+            return true;
         }
+
+        return false;
     };
 
     const updateContractParams = async (
@@ -607,11 +682,11 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
         oldContractCallCount: number,
     ) => {
         // ! if no operation found, return
-        if (!currentOp.value?.id) return;
-        if (!operationsFactory.value) return;
+        if (!currentOp.value?.id) return false;
+        if (!operationsFactory.value) return false;
 
         // ! if no changes in contractAddress, contractCallCount, return
-        if (isEqual([contractAddress, contractCallCount], [oldContractAddress, oldContractCallCount])) return;
+        if (isEqual([contractAddress, contractCallCount], [oldContractAddress, oldContractCallCount])) return false;
 
         const operation = operationsFactory.value.getOperationById(currentOp.value.id);
 
@@ -620,6 +695,8 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
 
         // Set the contractCallCount in the operation if the contractCallCount is exist and not equal to the oldContractCallCount
         if (oldContractCallCount !== contractCallCount) operation?.setParamByField('count', contractCallCount);
+
+        return true;
     };
 
     // ****************************************************************************************************
@@ -692,6 +769,7 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
 
     return {
         operationsFactory,
+        currentOp,
         firstOperation,
         lastOperation,
 
@@ -705,12 +783,21 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
         handleOnCallEstimateOutput,
         processShortcutOperation,
 
+        checkMinAmount,
         handleOnTryAgain,
+
+        updateProgress,
 
         // Watcher's Handlers
         handleOnChangeIsCallEstimateOutput,
         handleOnChangeAddressByChain,
         handleOnChangeCurrentStepId,
+        handleOnChangeShortcutIndex,
+        handleOnChangeOperationStatus,
+        handleOnUpdateOperationParams,
+        handleOnUpdateOperationParamsAndEstimate,
+        updateAmountAndEstimate,
+        updateContractParams,
 
         // Operation's Progress
 
