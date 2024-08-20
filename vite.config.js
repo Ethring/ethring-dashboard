@@ -29,13 +29,16 @@ export default defineConfig({
     },
     test: {
         coverage: {
+            enabled: true,
             include: [
-                'src/compositions', // Only include compositions
+                'src/compositions',
+                'src/core/shortcuts/compositions',
                 // 'src' // Uncomment to include all files
             ],
             exclude: ['src/components'],
-            reporter: ['html', 'text', 'json'],
+            reporter: ['html', 'json'],
         },
+        includeTaskLocation: true,
     },
     // * ========= Settings for build (vite build) =========
     build: {

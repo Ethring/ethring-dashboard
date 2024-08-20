@@ -1,13 +1,17 @@
 import { createStore, Store } from 'vuex';
 
-import { chainListMock, tokensList } from '../../mocks/compositions/index';
+import { chainListMock, tokensList, CONNECTED_WALLETS } from '../../mocks/compositions/index';
 
 import appStore from '../../../../src/store/app';
 import operationsStore from '../../../../src/store/operations/index';
 import configStore from '../../../../src/store/configs/index';
 import tokensStore from '../../../../src/store/tokens';
+import moduleStatesStore from '../../../../src/store/moduleStates';
+
+import txManagerStore from '../../../../src/core/transaction-manager/store';
 import adapterStore from '../../../../src/core/wallet-adapter/store/index';
 import shortcutStore from '../../../../src/core/shortcuts/store';
+import bridgeDexAPIStore from '../../../../src/modules/bridge-dex/store';
 
 export function createTestStore() {
     return createStore({
@@ -17,7 +21,23 @@ export function createTestStore() {
         getters: {},
         modules: {
             app: appStore,
-            adapters: adapterStore,
+            adapters: {
+                ...adapterStore,
+                getters: {
+                    ...adapterStore.getters,
+                    getAddressesByEcosystem: (state: any) => (ecosystem: string) => {
+                        if (!ecosystem) return [];
+                        if (!CONNECTED_WALLETS.find((wallet) => wallet.ecosystem === ecosystem)) return [];
+                        const wallet = CONNECTED_WALLETS.find((wallet) => wallet.ecosystem === ecosystem);
+                        const { addresses } = wallet || {};
+                        const addressesByChain = {};
+                        for (const chain in addresses) addressesByChain[chain] = addresses[chain].address;
+
+                        return addressesByChain;
+                    },
+                },
+            },
+            bridgeDexAPI: bridgeDexAPIStore,
             tokens: {
                 ...tokensStore,
                 getters: {
@@ -64,6 +84,8 @@ export function createTestStore() {
             },
             tokenOps: operationsStore,
             shortcuts: shortcutStore,
+            moduleStates: moduleStatesStore,
+            txManager: txManagerStore,
         },
     });
 }

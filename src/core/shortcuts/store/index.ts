@@ -399,11 +399,14 @@ export default {
             commit(TYPES.SET_CURRENT_INDEX, { index: 0 });
 
             for (const shortcut in state.shortcut) {
-                commit(TYPES.SET_SHORTCUT_STATUS, { shortcutId: shortcut, status: SHORTCUT_STATUSES.PENDING });
                 commit(TYPES.SET_CURRENT_STEP_ID, { stepId: null, shortcutId: shortcut });
                 commit(TYPES.SET_CURRENT_SHORTCUT_ID, { shortcutId: null });
 
-                state.shortcutOps[shortcut] = null;
+                delete state.shortcutOps[shortcut];
+                delete state.shortcut[shortcut];
+                delete state.shortcutStatus[shortcut];
+                delete state.isShortcutLoading[shortcut];
+                state.currentLayout = '';
             }
         },
 

@@ -3,8 +3,15 @@ import { ITransactionResponse } from '@/core/transaction-manager/types/Transacti
 
 import TimerWorker from '@/timer-worker.js?worker';
 
-const worker = new TimerWorker();
-const statusWorker = new TimerWorker();
+let worker: TimerWorker;
+let statusWorker: TimerWorker;
+
+try {
+    worker = new TimerWorker();
+    statusWorker = new TimerWorker();
+} catch (error) {
+    console.error('Error in creating worker', error);
+}
 
 const TYPES = {
     SET_TRANSACTION_FOR_SIGN: 'SET_TRANSACTION_FOR_SIGN',

@@ -60,6 +60,9 @@ export default class Shortcut implements IShortcutData {
     };
 
     constructor(shortcut: IShortcutData) {
+        if (!shortcut) throw new Error('Shortcut data is required');
+        if (!shortcut.id) throw new Error('Shortcut id is required');
+
         this.id = shortcut.id;
         this.name = shortcut.name;
         this.logoURI = shortcut.logoURI;

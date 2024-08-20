@@ -1992,7 +1992,8 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                         disabled: true,
                     },
                 ],
-            },
+            } as IShortcutOp,
+
             {
                 id: 'inj-to-usdt',
                 name: 'Sell INJ',
@@ -2055,7 +2056,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                         disabled: true,
                     },
                 ],
-            },
+            } as IShortcutOp,
         ],
     },
     [AvailableShortcuts.WithdrawDydx]: {
@@ -2455,7 +2456,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                         disabled: true,
                     },
                 ],
-            },
+            } as IShortcutOp,
             {
                 id: 'wrap-tia-to-sttia',
                 name: 'Wrap',
@@ -2517,7 +2518,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                         disabled: true,
                     },
                 ],
-            },
+            } as IShortcutOp,
         ],
     },
     [AvailableShortcuts.Debridge]: {
@@ -2609,6 +2610,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationParams: {
                     net: 'arbitrum',
                     poolID: '0x9791d590788598535278552eecd4b211bfc790cb',
+                    fromToken: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
                     slippageTolerance: '1',
                     decimals: 18,
                 },
@@ -2635,6 +2637,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                         disabled: false,
                         ecosystem: 'EVM',
                         chain: 'arbitrum',
+                        id: 'arbitrum:tokens__native:ETH',
                     },
                     {
                         name: 'dstToken',
@@ -2756,6 +2759,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationParams: {
                     net: 'arbitrum',
                     poolID: '0x515e252b2b5c22b4b2b6df66c2ebeea871aa4d69',
+                    fromToken: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
                     slippageTolerance: '1',
                     decimals: 18,
                 },
@@ -2782,6 +2786,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                         disabled: false,
                         ecosystem: 'EVM',
                         chain: 'arbitrum',
+                        id: 'arbitrum:tokens__native:ETH',
                     },
                     {
                         name: 'dstToken',
@@ -2961,6 +2966,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationParams: {
                     net: 'arbitrum',
                     poolID: '0x218337d7dae070e219c44783a64ca107dffc533e',
+                    fromToken: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
                     slippageTolerance: '1',
                     decimals: 18,
                 },
@@ -2987,6 +2993,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                         disabled: false,
                         ecosystem: 'EVM',
                         chain: 'arbitrum',
+                        id: 'arbitrum:tokens__native:ETH',
                     },
                     {
                         name: 'dstToken',
@@ -3035,6 +3042,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationParams: {
                     net: 'arbitrum',
                     poolID: '0x71453d859918a1d59354324c2a70d32e53b97f67',
+                    fromToken: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
                     slippageTolerance: '1',
                     decimals: 18,
                 },
@@ -3112,6 +3120,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationParams: {
                     net: 'optimism',
                     contractAddress: '0x2e44e174f7D53F0212823acC11C01A11d58c5bCB',
+                    fromToken: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
                     method: 'supply',
                     argKeys: ['tokenAddress', 'amount'],
                     abi: 'COMPOUND',
@@ -3704,6 +3713,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationParams: {
                     net: 'base',
                     poolID: '0xa0E430870c4604CcfC7B38Ca7845B1FF653D0ff1',
+                    fromToken: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
                     slippageTolerance: '1',
                     decimals: 18,
                 },

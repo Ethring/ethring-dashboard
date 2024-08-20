@@ -1,72 +1,70 @@
-import { isEqual, isFinite } from 'lodash';
-import BigNumber from 'bignumber.js';
-
-import { computed, onMounted, onUnmounted, watch } from 'vue';
-import { useStore } from 'vuex';
-import { useRouter } from 'vue-router';
+import { isEqual } from 'lodash';
 import { StepProps } from 'ant-design-vue';
 
+// ********************* Vue/Vuex *********************
+import { computed, onBeforeUnmount, onMounted, onUnmounted, watch } from 'vue';
+import { useStore, Store } from 'vuex';
+
+// ********************* Compositions *********************
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
-import useTokensList from '@/compositions/useTokensList';
+import useShortcutOperations from '@/core/shortcuts/compositions/useShortcutOperations';
+import usePrepareFields from '@/core/shortcuts/compositions/usePrepareFields';
 
-import { Ecosystem, Ecosystems } from '@/shared/models/enums/ecosystems.enum';
-
-// Operations
-import OperationsFactory from '@/core/operations/OperationsFactory';
-import DexOperation from '@/core/operations/general-operations/Dex';
-import TransferOperation from '@/core/operations/general-operations/Transfer';
-import StakeOperation from '@/core/operations/general-operations/Stake';
-import ApproveOperation from '@/core/operations/general-operations/Approve';
-import MultipleContractExec from '@/core/operations/stargaze-nft/MultipleExec';
-import PendleSwapTokenForPT from '@/core/operations/pendle-silo/SwapTokenForPT';
-import PendleAddLiquiditySingleToken from '@/core/operations/pendle-beefy/AddLiquiditySingleToken';
-import AddLiquidity from '@/core/operations/portal-fi/AddLiquidity';
-import RemoveLiquidity from '@/core/operations/portal-fi/RemoveLiquidity';
-import BerachainDEX from '@/core/operations/berachain/Dex';
-
-import { IBaseOperation } from '@/core/operations/models/Operations';
-
-// Shortcuts
+// ********************* Shortcuts *********************
 import ShortcutCl, { IShortcutData } from '@/core/shortcuts/core/Shortcut';
 import { IShortcutOp } from '@/core/shortcuts/core/ShortcutOp';
-import { IOperationParam } from '@/core/shortcuts/core/models/Operation';
 
-import { IAsset } from '@/shared/models/fields/module-fields';
+// ********************* Shared Models *********************
 import { ModuleType } from '@/shared/models/enums/modules.enum';
-import { AddressByChainHash } from '@/shared/models/types/Address';
+import { IConnectedWallet } from '@/shared/models/types/Account';
 import { SHORTCUT_STATUSES } from '@/shared/models/enums/statuses.enum';
-import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
-import CallContractMethod from '@/core/operations/evm-contract-ops/CallContractMethod';
 import { delay } from '@/shared/utils/helpers';
-import { AvailableShortcuts } from '../data/shortcuts';
+import { IAsset } from '@/shared/models/fields/module-fields';
 
-const useShortcuts = (Shortcut: IShortcutData) => {
+const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<any> | null } = { tmpStore: null }) => {
+    if (!Shortcut) {
+        console.error('Shortcut data is required');
+        throw new Error('Shortcut data is required');
+    }
+
+    if (!Shortcut?.id) {
+        console.error('Shortcut id is required');
+        throw new Error('Shortcut id is required');
+    }
+
     // Create a new instance of the Shortcut class
-
-    const CurrentShortcut = new ShortcutCl(Shortcut);
-
-    // ****************************************************************************************************
-    // * Wallet adapter and tokens list
-    // ****************************************************************************************************
-
-    const { getChainByChainId, setChain, isConnecting, connectedWallets, walletAccount, currentChainInfo } = useAdapter();
-    const { getTokenById } = useTokensList();
+    const shortcut = new ShortcutCl(Shortcut);
 
     // ****************************************************************************************************
     // * Main store and router
     // ****************************************************************************************************
 
-    const store = useStore();
-    const router = useRouter();
+    const store = tmpStore || useStore();
 
     // ****************************************************************************************************
-    // * Computed properties for the shortcuts
+    // * Wallet adapter and tokens list
     // ****************************************************************************************************
 
-    // const srcNetwork = computed(() => store.getters['tokenOps/srcNetwork']);
-    // const dstNetwork = computed(() => store.getters['tokenOps/dstNetwork']);
-    // const srcToken = computed(() => store.getters['tokenOps/srcToken']);
-    // const dstToken = computed(() => store.getters['tokenOps/dstToken']);
+    const { isConnecting, connectedWallets, walletAccount, currentChainInfo } = useAdapter({
+        tmpStore: store,
+    });
+
+    const {
+        addressesByChain,
+
+        initOperationsFactory,
+
+        operationsFactory,
+        firstOperation,
+        lastOperation,
+
+        processShortcutOperation,
+        setOperationAccount,
+    } = useShortcutOperations(shortcut.id, { tmpStore: store });
+
+    const { callPerformOnWatchOnMounted, performFields, performDisabledOrHiddenFields } = usePrepareFields(shortcut.id, addressesByChain, {
+        tmpStore: store,
+    });
 
     // * Quote error message
     const quoteErrorMessage = computed({
@@ -84,26 +82,10 @@ const useShortcuts = (Shortcut: IShortcutData) => {
             }),
     });
 
-    // * Call estimate state to get the quote
-    const isCallEstimate = computed({
-        get: () => store.getters['shortcuts/getIsCallEstimate'](Shortcut.id),
-        set: (value) =>
-            store.dispatch('shortcuts/setIsCallEstimate', {
-                shortcutId: Shortcut.id,
-                value,
-            }),
-    });
-
     // * Quote loading state from the store
     const isQuoteLoading = computed({
         get: () => store.getters['bridgeDexAPI/getLoaderState']('quote'),
         set: (value) => store.dispatch('bridgeDexAPI/setLoaderStateByType', { type: 'quote', value }),
-    });
-
-    // * Transaction signing state from the store
-    const isTransactionSigning = computed({
-        get: () => store.getters['txManager/isTransactionSigning'],
-        set: (value) => store.dispatch('txManager/setTransactionSigning', value),
     });
 
     // * Shortcut index from the store
@@ -115,872 +97,402 @@ const useShortcuts = (Shortcut: IShortcutData) => {
     // * Config loading state from the store
     const isConfigLoading = computed(() => store.getters['configs/isConfigLoading']);
 
-    const slippage = computed({
-        get: () => store.getters['tokenOps/slippage'],
-        set: (value) => store.dispatch('tokenOps/setSlippage', value),
-    });
-
     // ****************************************************************************************************
     // * Current shortcut properties
     // ****************************************************************************************************
 
     // * Get the current operation from the store
+
     const currentStepId = computed(() => store.getters['shortcuts/getCurrentStepId']);
     const currentOp = computed<IShortcutOp>(() => {
-        if (!CurrentShortcut.id || !currentStepId.value) return null;
-        return store.getters['shortcuts/getCurrentOperation'](CurrentShortcut.id);
+        if (!shortcut.id || !currentStepId.value) return null;
+        return store.getters['shortcuts/getCurrentOperation'](shortcut.id);
     });
+
     const shortcutLayout = computed(() => store.getters['shortcuts/getCurrentLayout']);
-    const shortcutStatus = computed(() => store.getters['shortcuts/getShortcutStatus'](CurrentShortcut.id));
-    const steps = computed<StepProps[]>(() => store.getters['shortcuts/getShortcutSteps'](CurrentShortcut.id));
-
-    // ****************************************************************************************************
-    // * Operations
-    // ****************************************************************************************************
-    const operationsFactory = computed<OperationsFactory>(() => store.getters['shortcuts/getShortcutOpsFactory'](CurrentShortcut.id));
-    const firstOperation = computed<IBaseOperation>(() => operationsFactory.value.getFirstOperation());
-    const opIds = computed(() => operationsFactory.value && Array.from(operationsFactory.value.getOperationsIds().keys()));
-
-    // ****************************************************************************************************
-    // * Address by chain
-    // ****************************************************************************************************
-
-    const evmAddresses = computed(() => store.getters['adapters/getAddressesByEcosystem'](Ecosystem.EVM) as AddressByChainHash);
-    const cosmosAddresses = computed(() => store.getters['adapters/getAddressesByEcosystem'](Ecosystem.COSMOS) as AddressByChainHash);
-
-    const addressesByChain = computed(() => {
-        return {
-            ...evmAddresses.value,
-            ...cosmosAddresses.value,
-        };
-    });
-
-    // ****************************************************************************************************
-    // * Main process operation function
-    // ****************************************************************************************************
-    const processOperation = async (
-        operation: IShortcutOp,
-        { addToFactory = false, updateInStore = false }: { addToFactory: boolean; updateInStore: boolean },
-    ) => {
-        let key: string = '';
-        let registerResponse = null;
-
-        const { id, moduleType, name, operationType, make, operationParams, waitTime = 3.5, serviceId, params = [] } = operation || {};
-
-        if (!addToFactory)
-            return await performFields(moduleType, params, {
-                isUpdateInStore: updateInStore,
-                id,
-            });
-
-        if (!operationsFactory.value) return;
-
-        switch (operationType) {
-            case TRANSACTION_TYPES.BUY:
-            case TRANSACTION_TYPES.WRAP:
-            case TRANSACTION_TYPES.DEX:
-            case TRANSACTION_TYPES.BRIDGE:
-                registerResponse = operationsFactory.value.registerOperation(moduleType, DexOperation, { id, name, make });
-                registerResponse && ({ key } = registerResponse);
-                break;
-            case TRANSACTION_TYPES.TRANSFER:
-                registerResponse = operationsFactory.value.registerOperation(moduleType, TransferOperation, { id, name, make });
-                registerResponse && ({ key } = registerResponse);
-                break;
-            case TRANSACTION_TYPES.STAKE:
-                registerResponse = operationsFactory.value.registerOperation(moduleType, StakeOperation, { id, name, make });
-                registerResponse && ({ key } = registerResponse);
-                break;
-            case TRANSACTION_TYPES.APPROVE:
-                registerResponse = operationsFactory.value.registerOperation(moduleType, ApproveOperation, { id, name, make });
-                registerResponse && ({ key } = registerResponse);
-                break;
-            case TRANSACTION_TYPES.EXECUTE_MULTIPLE:
-                registerResponse = operationsFactory.value.registerOperation(moduleType, MultipleContractExec, { id, name, make });
-                registerResponse && ({ key } = registerResponse);
-                break;
-
-            // * Pendle Operations
-            case TRANSACTION_TYPES.CALL_CONTRACT_METHOD:
-                registerResponse = operationsFactory.value.registerOperation(moduleType, CallContractMethod, { id, name, make });
-                registerResponse && ({ key } = registerResponse);
-                break;
-
-            case TRANSACTION_TYPES.SWAP_TOKEN_TO_PT:
-                registerResponse = operationsFactory.value.registerOperation(moduleType, PendleSwapTokenForPT, { id, name, make });
-                registerResponse && ({ key } = registerResponse);
-                break;
-
-            case TRANSACTION_TYPES.ADD_LIQUIDITY_SINGLE_TOKEN:
-                registerResponse = operationsFactory.value.registerOperation(moduleType, PendleAddLiquiditySingleToken, { id, name, make });
-                registerResponse && ({ key } = registerResponse);
-                break;
-            case TRANSACTION_TYPES.ADD_LIQUIDITY:
-                registerResponse = operationsFactory.value.registerOperation(moduleType, AddLiquidity, { id, name, make });
-                registerResponse && ({ key } = registerResponse);
-                break;
-            case TRANSACTION_TYPES.REMOVE_LIQUIDITY:
-                registerResponse = operationsFactory.value.registerOperation(moduleType, RemoveLiquidity, { id, name, make });
-                registerResponse && ({ key } = registerResponse);
-                break;
-            case TRANSACTION_TYPES.BERACHAIN_DEX:
-                registerResponse = operationsFactory.value.registerOperation(moduleType, BerachainDEX, { id, name, make });
-                registerResponse && ({ key } = registerResponse);
-                break;
-        }
-
-        if (!key) return;
-
-        operationsFactory.value.setWaitTimeByKey(key, waitTime);
-
-        operationsFactory.value.setParamsByKey(key, {
-            ...operationParams,
-            ownerAddresses: addressesByChain.value,
-            serviceId,
-            slippage,
-        });
-
-        await performFields(moduleType, params, {
-            isUpdateInStore: currentOp.value?.id === id,
-            id,
-        });
-
-        registerResponse && (registerResponse = null);
-    };
+    const shortcutStatus = computed(() => store.getters['shortcuts/getShortcutStatus'](shortcut.id));
+    const steps = computed<StepProps[]>(() => store.getters['shortcuts/getShortcutSteps'](shortcut.id));
 
     // ****************************************************************************************************
     // * Perform the shortcut operations
     // ****************************************************************************************************
-    const performShortcut = async (addToFactory = false, updateInStore = false) => {
-        // ! if no operations factory found, return
-        if (!operationsFactory.value) return;
 
-        const { operations = [] } = CurrentShortcut || {};
+    const performShortcut = async (addToFactory = false, isUpdateInStore = false, from: string): Promise<boolean> => {
+        if (!operationsFactory.value) {
+            console.warn('No operations factory found');
+            return false;
+        }
+
+        const { operations = [] } = shortcut || {};
 
         // ! if operations already exists in the factory, no need to add them again
         if (operationsFactory.value.getOperationsIds().size >= operations.length) {
             console.warn('Operations already exists');
-            return;
+            return false;
         }
 
         // * Process the operations
         for (const shortcutOperation of operations) {
             const { id: opId, dependencies: opDeps = null } = shortcutOperation as any;
-
-            await processOperation(shortcutOperation as IShortcutOp, { addToFactory, updateInStore });
-
             opDeps && operationsFactory.value.setDependencies(opId, opDeps);
+
+            if (!addToFactory) continue;
+
+            await processShortcutOperation(shortcutOperation as IShortcutOp);
         }
-    };
 
-    // ****************************************************************************************************
-    // * Perform the shortcut operations state
-    // ****************************************************************************************************
-    const performDisabledOrHiddenFields = (opId: string, module: string, fields: IOperationParam[]) => {
-        const isUpdateInStore = currentOp.value?.id === opId;
-        if (!isUpdateInStore) return;
+        const getFirstOpId = () => {
+            const uniqueId = firstOperation.value?.getUniqueId();
+            if (!uniqueId) return null;
 
-        if (!fields.length) return;
-        if (!opId) return;
-        if (!module) return;
+            const firstOperationID = operationsFactory.value.getOperationIdByKey(uniqueId);
 
-        const setDisabled = (field: string, value: boolean) => {
-            store.dispatch('moduleStates/setDisabledField', {
-                module,
-                field,
-                attr: 'disabled',
-                value,
-            });
+            if (!firstOperationID) return null;
+
+            return firstOperationID;
         };
 
-        const setHide = (field: string, value: boolean) => {
-            store.dispatch('moduleStates/setHideField', {
-                module,
-                field,
-                attr: 'hide',
-                value,
+        for (const shortcutOperation of operations) {
+            const { id: opId, moduleType, params } = shortcutOperation as any;
+
+            const isFirstOperation = opId === getFirstOpId();
+
+            await performFields(moduleType, params, {
+                isUpdateInStore: isFirstOperation ? isUpdateInStore : false,
+                id: opId,
+                from: 'performShortcut -> FOR LOOP',
             });
-        };
-
-        for (const field of fields) {
-            const { name, disabled = false, hide = false } = field || {};
-            setDisabled(name, disabled);
-            setHide(name, hide);
-        }
-    };
-
-    // ****************************************************************************************************
-    // * Check the minimum amount
-    // ****************************************************************************************************
-    const checkMinAmount = () => {
-        const TestnetShortcuts = [AvailableShortcuts.BerachainStake, AvailableShortcuts.BerachainVault] as string[];
-
-        if (TestnetShortcuts.includes(CurrentShortcut.id)) return true;
-
-        const amount = firstOperation.value.getParamByField('amount') || 0;
-
-        if (!amount) return true;
-
-        if (CurrentShortcut.minUsdAmount === undefined || CurrentShortcut.minUsdAmount === null) return true;
-
-        const fromToken = firstOperation.value.getToken('from');
-
-        const { price = 0 } = fromToken || {};
-
-        const amountToUsd = BigNumber(amount)
-            .multipliedBy(price || 0)
-            .toString();
-
-        const isGreaterThanMinAmount = BigNumber(amountToUsd).isGreaterThanOrEqualTo(CurrentShortcut.minUsdAmount);
-
-        const isAmountNaN = isNaN(+amountToUsd);
-
-        if (!isGreaterThanMinAmount)
-            quoteErrorMessage.value =
-                `Min USD amount is: $${CurrentShortcut.minUsdAmount}` + (isAmountNaN ? '' : `,your amount is: $${amountToUsd}`);
-
-        return isGreaterThanMinAmount;
-    };
-
-    // ****************************************************************************************************
-    // * Perform the default values
-    // ****************************************************************************************************
-    const performDefaultValues = async (
-        fields: IOperationParam[],
-        {
-            targetOpId,
-            isUpdateInStore,
-        }: {
-            targetOpId: string;
-            isUpdateInStore: boolean;
-        },
-    ) => {
-        if (!targetOpId) return;
-        if (!fields || !fields.length) return;
-
-        for (const paramField of fields) {
-            const {
-                name: field,
-                ecosystem = null,
-                chainId = null,
-                chain = null,
-                id = null,
-                address,
-                memo,
-                amount = null,
-                value = null,
-            } = paramField || {};
-
-            const fieldsAssociated = {
-                srcNetwork: 'fromNet',
-                dstNetwork: 'toNet',
-                srcToken: 'fromToken',
-                dstToken: 'toToken',
-                receiverAddress: 'receiverAddress',
-                contractAddress: 'contract',
-                memo: 'memo',
-            } as any;
-
-            const isToken = ['srcToken', 'dstToken'].includes(field);
-
-            const tokenDestination = {
-                srcToken: 'from',
-                dstToken: 'to',
-            } as any;
-
-            if (field && value) {
-                isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value }));
-
-                isToken ? operationsFactory.value?.getOperationById(targetOpId)?.setToken(tokenDestination[field], value) : null;
-
-                fieldsAssociated[field]
-                    ? operationsFactory.value?.getOperationById(targetOpId)?.setParamByField(fieldsAssociated[field], value)
-                    : null;
-
-                continue;
-            }
-
-            switch (field) {
-                case 'srcNetwork':
-                case 'dstNetwork':
-                    const srcDstNet = getChainByChainId(ecosystem as Ecosystems, chainId as string);
-
-                    isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value: srcDstNet }));
-
-                    const isSrc = field === 'srcNetwork';
-
-                    if (!srcDstNet) return;
-
-                    const srcChainId = (srcDstNet.chain_id || srcDstNet.net) as string;
-
-                    isSrc
-                        ? operationsFactory.value?.getOperationById(targetOpId)?.setParamByField('fromNet', srcDstNet?.net)
-                        : operationsFactory.value?.getOperationById(targetOpId)?.setParamByField('toNet', srcDstNet?.net);
-
-                    isSrc ? operationsFactory.value?.getOperationById(targetOpId)?.setChainId(srcChainId) : null;
-                    isSrc ? operationsFactory.value?.getOperationById(targetOpId)?.setEcosystem(srcDstNet.ecosystem as any) : null;
-
-                    isSrc ? operationsFactory.value?.getOperationById(targetOpId)?.setAccount(addressesByChain.value[srcDstNet.net]) : null;
-
-                    break;
-                case 'srcToken':
-                case 'dstToken':
-                    if (!id) break;
-                    const tokenNet = getChainByChainId(ecosystem as Ecosystems, chain as string);
-                    const token = (await getTokenById(tokenNet as any, id as any)) as IAsset;
-
-                    const target = field === 'srcToken' ? 'from' : 'to';
-                    const params = token;
-
-                    amount && (params.amount = amount);
-
-                    // const fromToToken = operationsFactory.value?.getOperationById(targetOpId)?.getToken(target);
-                    isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value: params }));
-
-                    // * If the token is already set, no need to set it again
-                    // if (fromToToken && fromToToken?.id) break;
-
-                    // * If the token is not set, set it
-                    operationsFactory.value?.getOperationById(targetOpId)?.setToken(target, params);
-
-                    break;
-                case 'receiverAddress':
-                    operationsFactory.value?.getOperationById(targetOpId)?.setParamByField('receiverAddress', address);
-                    isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value: address }));
-                    break;
-                case 'contractAddress':
-                    operationsFactory.value?.getOperationById(targetOpId)?.setParamByField('contract', address);
-                    isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value: address }));
-                    break;
-                case 'memo':
-                    operationsFactory.value?.getOperationById(targetOpId)?.setParamByField('memo', memo);
-                    isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value: memo }));
-                    break;
-            }
-        }
-    };
-
-    // ****************************************************************************************************
-    // * Perform the fields
-    // ****************************************************************************************************
-    const performFields = async (
-        moduleType: string,
-        params: IOperationParam[],
-        { isUpdateInStore = false, id: targetOpId }: { isUpdateInStore: boolean; id: string },
-    ) => {
-        performDisabledOrHiddenFields(targetOpId, moduleType, params);
-        await performDefaultValues(params, { targetOpId, isUpdateInStore });
-    };
-
-    // ====================================================================================================
-    // * Call the on watch on mounted
-    // ====================================================================================================
-    const callOnWatchOnMounted = async () => {
-        if (!currentOp.value) return;
-
-        await store.dispatch('tokenOps/resetFields');
-
-        await performFields(currentOp.value.moduleType, currentOp.value.params, {
-            isUpdateInStore: true,
-            id: currentOp.value.id,
-        });
-    };
-
-    const callEstimate = async () => {
-        if (isQuoteLoading.value || isTransactionSigning.value) return;
-
-        const isMinAmountAccepted = checkMinAmount();
-
-        if (store.getters['tokenOps/srcAmount'] === null) return;
-
-        if (!isMinAmountAccepted) {
-            console.log('MIN AMOUNT NOT ACCEPTED', quoteErrorMessage.value);
-            return (isQuoteLoading.value = false);
         }
 
-        const currentOperation = operationsFactory.value.getOperationById(currentOp.value.id);
-
-        if (currentChainInfo.value?.net !== currentOperation?.tokens.from?.chain) {
-            const chainInfo = getChainByChainId(
-                currentOperation?.tokens.from.ecosystem,
-                currentOperation?.tokens.from.chain,
-            ) as IChainConfig;
-            await setChain(chainInfo);
-        }
-
-        try {
-            isQuoteLoading.value = true;
-            quoteErrorMessage.value = '';
-            await operationsFactory.value.estimateOutput(store);
-        } catch (error) {
-            const { message = 'Error in evaluating output data' } = error || ({} as any);
-            quoteErrorMessage.value = message;
-        } finally {
-            const flow = operationsFactory.value.getFullOperationFlow();
-
-            const withoutApprove = flow.filter((op) => op.type !== TRANSACTION_TYPES.APPROVE);
-
-            for (const op of withoutApprove) {
-                const { moduleIndex, operationId } = op || {};
-
-                const operation = operationsFactory.value.getOperationByKey(moduleIndex);
-
-                if (!operationId) continue;
-
-                if (!operation) continue;
-
-                const shortcutOpInfo = store.getters['shortcuts/getShortcutOpInfoById'](CurrentShortcut.id, operationId);
-                const { isNeedFromAmount = true } = shortcutOpInfo || {};
-                const fromAmount = operation.getParamByField('amount');
-
-                if (isNeedFromAmount && (!fromAmount || isFinite(fromAmount) || fromAmount <= 0) && !quoteErrorMessage.value)
-                    quoteErrorMessage.value = 'Please Fill all from token amounts';
-            }
-
-            if (currentOp.value?.id) {
-                const outputAmount = operationsFactory.value.getOperationById(currentOp.value.id)?.getParamByField('outputAmount');
-                if (outputAmount && outputAmount > 0) store.dispatch(`tokenOps/setFieldValue`, { field: 'dstAmount', value: outputAmount });
-            }
-
-            isQuoteLoading.value = false;
-        }
+        return true;
     };
 
     // ====================================================================================================
     // * Set the shortcut when the component is mounted
     // * Perform the shortcut when the component is mounted
     // ====================================================================================================
-    const initShortcut = async () => {
+
+    const initShortcutAndLayout = async () => {
         if (isConfigLoading.value) {
             console.warn('Config is loading');
-            return;
+            return false;
         }
 
-        if (!CurrentShortcut.id) {
-            console.warn('No shortcut id found');
-            return;
+        if (!shortcut.id) {
+            console.warn('Shortcut Id not found');
+            return false;
         }
+
+        shortcutIndex.value = 0;
 
         await store.dispatch('shortcuts/setShortcut', {
-            shortcut: CurrentShortcut.id,
-            data: CurrentShortcut,
+            shortcut: shortcut.id,
+            data: shortcut,
         });
 
-        if (!CurrentShortcut.operations.length) return;
+        await store.dispatch('shortcuts/setShortcutStatus', {
+            shortcutId: shortcut.id,
+            status: SHORTCUT_STATUSES.PENDING,
+        });
 
-        const [firstOp] = CurrentShortcut.operations;
+        await store.dispatch('shortcuts/setCurrentShortcutId', {
+            shortcutId: shortcut.id,
+        });
+
+        const [firstOp] = shortcut.operations || [];
+
+        if (!firstOp) {
+            console.warn('No operations found');
+            return false;
+        }
 
         const { layoutComponent } = firstOp as IShortcutOp;
 
         if (layoutComponent)
-            store.dispatch('shortcuts/setCurrentLayout', {
+            await store.dispatch('shortcuts/setCurrentLayout', {
                 layout: layoutComponent,
             });
 
-        store.dispatch('shortcuts/setCurrentShortcutId', {
-            shortcutId: CurrentShortcut.id,
-        });
+        return true;
+    };
 
-        // ====================================================================================================
-        // Set the operations factory to the store
-        // ====================================================================================================
-        await store.dispatch('shortcuts/setShortcutOpsFactory', {
-            shortcutId: CurrentShortcut.id,
-            operations: new OperationsFactory(),
-        });
-
-        shortcutIndex.value = 0;
-
-        if (CurrentShortcut?.isComingSoon) isShortcutLoading.value = false;
-        else isShortcutLoading.value = true;
-
-        await performShortcut(true, true);
-
-        const [order] = operationsFactory.value.getOperationOrder() || [];
-
-        const stepId = operationsFactory.value.getOperationIdByKey(order);
-
-        if (!stepId) {
-            isShortcutLoading.value = false;
-            return; // router.push('/shortcuts');
+    const initShortcutSteps = async () => {
+        if (!shortcut) {
+            console.warn('Shortcut not found');
+            return false;
         }
 
-        store.dispatch('shortcuts/setCurrentStepId', {
-            stepId,
-            shortcutId: CurrentShortcut.id,
-        });
-
-        store.dispatch('shortcuts/setShortcutStatus', {
-            shortcutId: CurrentShortcut.id,
-            status: SHORTCUT_STATUSES.PENDING,
-        });
-
-        if (currentOp.value?.id) {
-            const serviceId = operationsFactory.value.getOperationById(currentOp.value.id)?.getParamByField('serviceId');
-
-            serviceId &&
-                store.dispatch('tokenOps/setServiceId', {
-                    value: serviceId,
-                    module: ModuleType.shortcut,
-                });
+        if (!shortcut.id) {
+            console.warn('Shortcut Id not found');
+            return false;
         }
 
-        isShortcutLoading.value = false;
+        const { operations = [] } = shortcut || {};
+
+        if (!operations || !operations.length) {
+            console.warn('No operations found for the shortcut');
+            return false;
+        }
+
+        const [firstOp] = operations || [];
+
+        await store.dispatch('shortcuts/setCurrentStepId', {
+            stepId: firstOp.id,
+            shortcutId: shortcut.id,
+        });
+
+        return true;
+    };
+
+    const initShortcutService = async () => {
+        if (!shortcut.operations.length) {
+            console.warn('No operations found');
+            return false;
+        }
+
+        if (!operationsFactory.value) {
+            console.warn('No operations factory found');
+            return false;
+        }
+
+        if (!currentOp.value) {
+            console.warn('No current operation found');
+            return false;
+        }
+
+        if (!currentOp.value.id) {
+            console.warn('No current operation id found');
+            return false;
+        }
+
+        const operation = operationsFactory.value.getOperationById(currentOp.value.id);
+
+        if (!operation) {
+            console.warn(`No operation with id: ${currentOp.value.id} found`);
+            return false;
+        }
+
+        const serviceId = operation.getParamByField('serviceId');
+
+        if (!serviceId) {
+            console.warn('No service id found');
+            return false;
+        }
+
+        await store.dispatch('tokenOps/setServiceId', {
+            value: serviceId,
+            module: ModuleType.shortcut,
+        });
     };
 
     const initDisabledOrHiddenFields = () => {
         const { moduleType, params } = currentOp.value || {};
-
         performDisabledOrHiddenFields(currentStepId.value, moduleType, params);
     };
 
-    const setOperationAccount = (stepId: string, { force = false }: { force?: boolean } = {}) => {
-        const operationById = operationsFactory.value.getOperationById(stepId);
-        const operationByKey = operationsFactory.value.getOperationByKey(stepId);
+    // ****************************************************************************************************
+    // * Initializations
+    // ****************************************************************************************************
 
-        const operation = operationById || operationByKey;
-
-        if (!operation) {
-            console.warn('Operation not found with id:', stepId);
-            return;
-        }
-
-        const { net, fromNet } = operation.getParams();
-
-        if (!net && !fromNet) {
-            console.warn('No network found for operation:', stepId);
-            return;
-        }
-
-        const network = net || fromNet;
-
-        if (force) return operation.setAccount(addressesByChain.value[network]);
-
-        if (!operation.getAccount()) {
-            console.log('ACCOUNT NOT SET', stepId, network, addressesByChain.value[network]);
-            return operation.setAccount(addressesByChain.value[network]);
-        }
+    const initializations = async () => {
+        isShortcutLoading.value = true;
+        await initShortcutAndLayout();
+        await initOperationsFactory();
+        await initShortcutSteps();
+        await performShortcut(true, true, 'initializations');
+        await initShortcutService();
+        isShortcutLoading.value = false;
     };
 
-    // ----------------------------------------------------------------------------------------------------
-    // ************************************************************************************************** |
-    // ************************************* ON MOUNTED ************************************************* |
-    // ************************************************************************************************** |
-    // ----------------------------------------------------------------------------------------------------
+    // ****************************************************************************************************
+    // ******************************** WATCHER'S HANDLERS ************************************************
+    // ****************************************************************************************************
 
-    onMounted(async () => await initShortcut());
+    const handleOnChangeTokensList = async (tokenList: IAsset[], oldTokenList: IAsset[]) => {
+        if (!operationsFactory.value) return false;
+        if (!shortcut || !shortcut.operations) return false;
+        if (!shortcut.operations.length) return false;
+        if (isEqual(tokenList, oldTokenList)) return false;
 
-    // ----------------------------------------------------------------------------------------------------
-    // ************************************************************************************************** |
-    // ************************************ ON UNMOUNTED ************************************************ |
-    // ************************************************************************************************** |
-    // ----------------------------------------------------------------------------------------------------
-
-    onUnmounted(() => {
-        quoteErrorMessage.value = '';
-
-        const { moduleType } = currentOp.value || {};
-
-        store.dispatch('moduleStates/resetModuleStates', { module: moduleType });
-
-        store.dispatch('tokenOps/setServiceId', {
-            value: null,
-            module: ModuleType.shortcut,
-        });
-
-        store.dispatch('shortcuts/resetAllShortcuts');
-    });
-
-    // ----------------------------------------------------------------------------------------------------
-    // ************************************************************************************************** |
-    // ************************************** WATCHERS ************************************************** |
-    // ************************************************************************************************** |
-    // ----------------------------------------------------------------------------------------------------
-
-    // ====================================================================================================
-    // * Watch for changes in the wallet account and update the operation account
-    // ====================================================================================================
-
-    watch(walletAccount, async (account, oldAccount) => {
-        if (account === oldAccount) return;
-        if (!operationsFactory.value) return;
-
-        await delay(100);
-        operationsFactory.value.getOperationOrder().forEach((id) => setOperationAccount(id, { force: true }));
-
-        for (const operation of CurrentShortcut.operations)
-            await performFields(operation.moduleType, operation.params, {
+        // * Set the token list for the operations
+        const promises = shortcut.operations.map((operation) =>
+            performFields(operation.moduleType, operation.params, {
                 isUpdateInStore: false,
                 id: operation.id,
-            });
-    });
+                from: 'handleOnChangeTokensList',
+            }),
+        );
 
-    // ====================================================================================================
-    // * Watch for changes in the addressesByChain, and update the ownerAddresses field in the operations
-    // ====================================================================================================
-    watch(
-        () => addressesByChain.value,
-        (addresses, oldAddresses) => {
-            setTimeout(() => initDisabledOrHiddenFields());
+        // * Perform the operation fields
+        await Promise.all(promises);
 
-            if (isEqual(addresses, oldAddresses)) return console.warn('NO CHANGE IN ADDRESSES BY CHAIN');
+        return true;
+    };
 
-            console.warn('ADDRESSES BY CHAIN CHANGED', addresses);
+    const handleOnChangeIsConfigLoading = async (loading: boolean, oldLoading: boolean) => {
+        if (loading === oldLoading) return false;
+        if (loading) return false;
+        await initializations();
+        return true;
+    };
 
-            for (const id of opIds.value) {
-                const operation = operationsFactory.value.getOperationById(id) as IBaseOperation;
-                operation.setParamByField('ownerAddresses', addressesByChain.value);
-            }
-        },
-    );
+    const handleOnChangeWalletAccount = async (account: string | null, oldAccount: string | null) => {
+        if (account === oldAccount) return false;
+        if (!operationsFactory.value) return false;
 
-    // ====================================================================================================
-    // * Loaders and config
-    // ====================================================================================================
+        await delay(100);
 
-    watch(isConfigLoading, async () => await initShortcut());
+        const operationList = operationsFactory.value.getOperationOrder();
 
-    watch(isConnecting, async (isConnect) => {
+        if (!operationList.length) return false;
+
+        operationList.forEach((id) => setOperationAccount(id, { force: true }));
+
+        const promises = shortcut.operations.map((operation) =>
+            performFields(operation.moduleType, operation.params, {
+                isUpdateInStore: false,
+                id: operation.id,
+                from: 'handleChangeWalletAccount',
+            }),
+        );
+
+        await Promise.all(promises);
+
+        return true;
+    };
+
+    const handleOnChangeIsQuoteLoading = async (loading: boolean, oldLoading: boolean) => {
         initDisabledOrHiddenFields();
-        if (!isConnect) await performShortcut(false, false);
-    });
 
-    watch(connectedWallets, async (wallets, oldWallets) => {
-        initDisabledOrHiddenFields();
-        if (isEqual(wallets, oldWallets)) return console.warn('NO CHANGE IN CONNECTED WALLETS');
-        if (wallets.length > 0) await performShortcut(false, false);
-    });
+        if (loading === oldLoading) return false;
+        if (loading) return false;
 
-    watch(isQuoteLoading, (loading, oldLoading) => {
-        const callInitDisabledOrHiddenFields = () => setTimeout(() => initDisabledOrHiddenFields());
-
-        if (loading === oldLoading) return;
-
-        if (!currentOp.value?.id) return;
-
-        if (loading) return;
+        if (!currentOp.value?.id) return false;
 
         const operation = operationsFactory.value.getOperationById(currentOp.value.id);
-
-        if (!operation) return;
+        if (!operation) return false;
 
         const quoteRoute = operation.getQuoteRoute();
 
-        if (!quoteRoute) return callInitDisabledOrHiddenFields();
+        if (!quoteRoute) {
+            initDisabledOrHiddenFields();
+            return false;
+        }
+        if (!operation.getServiceType) {
+            initDisabledOrHiddenFields();
+            return false;
+        }
 
-        if (!operation.getServiceType) return callInitDisabledOrHiddenFields();
-
-        store.dispatch('bridgeDexAPI/setSelectedRoute', {
+        await store.dispatch('bridgeDexAPI/setSelectedRoute', {
             serviceType: operation.getServiceType(),
             value: quoteRoute,
         });
 
-        store.dispatch('bridgeDexAPI/setQuoteRoutes', {
+        await store.dispatch('bridgeDexAPI/setQuoteRoutes', {
             serviceType: operation.getServiceType(),
             value: [quoteRoute],
         });
 
-        callInitDisabledOrHiddenFields();
-    });
+        initDisabledOrHiddenFields();
 
-    watch(isCallEstimate, async (estimate, oldEstimate) => {
-        if (estimate === oldEstimate) return;
-
-        if (isCallEstimate.value) {
-            await callEstimate();
-            isCallEstimate.value = false;
-        }
-    });
-
-    // ====================================================================================================
-    // * Watch for changes in the current operation, and call the on watch on mounted
-    // ====================================================================================================
-
-    store.watch(
-        (state, getters) => getters['shortcuts/getCurrentOperation'](CurrentShortcut.id, currentStepId.value),
-        async () => await callOnWatchOnMounted(),
-    );
-
-    store.watch(
-        (getters) => getters['shortcuts/getCurrentStepId'],
-        async (stepId) => {
-            if (!stepId) return;
-            setOperationAccount(stepId);
-        },
-    );
-
-    store.watch(
-        (state, getters) => getters['tokens/getTokensListForChain'](currentChainInfo.value?.chain, { account: walletAccount.value }),
-        async () => {
-            for (const operation of CurrentShortcut.operations)
-                await performFields(operation.moduleType, operation.params, {
-                    isUpdateInStore: false,
-                    id: operation.id,
-                });
-        },
-    );
-
-    // ====================================================================================================
-    // * Watch for changes in the srcAmount, and make an estimate output request
-    // ====================================================================================================
-    store.watch(
-        (state, getters) => getters['tokenOps/srcAmount'],
-
-        async (srcAmount, oldAmount) => {
-            // ! if config is loading, return
-            if (isConfigLoading.value) return;
-
-            // ! if no operation found, return
-            if (!currentOp.value?.id) return;
-
-            if (isEqual(srcAmount, oldAmount)) return;
-
-            if (srcAmount) {
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('amount', srcAmount);
-                await callEstimate();
-            }
-        },
-    );
-
-    // ====================================================================================================
-    // * Watch for changes in the dstAmount
-    // ====================================================================================================
-    store.watch(
-        (state, getters) => getters['tokenOps/dstAmount'],
-
-        async (dstAmount, oldAmount) => {
-            // ! if config is loading, return
-            if (isConfigLoading.value) return;
-
-            // ! if no operation found, return
-            if (!currentOp.value?.id) return;
-
-            if (isEqual(dstAmount, oldAmount)) return;
-
-            if (dstAmount && (dstAmount !== null || dstAmount !== undefined))
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('outputAmount', dstAmount);
-        },
-    );
-
-    // Helper function to set token parameters
-    const setTokenParams = (operation: IBaseOperation | null, type: 'from' | 'to', token: IAsset) => {
-        if (!token?.id || CurrentShortcut.isComingSoon) return;
-
-        operation?.setParamByField(`${type}Token`, token.address);
-        operation?.setToken(type, token);
+        return true;
     };
 
-    // ====================================================================================================
-    // * Watch for changes in the SRC: Network, Token | DST: Network, Token to update the operation fields
-    // ====================================================================================================
-    store.watch(
-        (state, getters) => [
-            getters['tokenOps/srcNetwork'],
-            getters['tokenOps/srcToken'],
-            getters['tokenOps/dstNetwork'],
-            getters['tokenOps/dstToken'],
-        ],
-        async ([srcNet, srcToken, dstNet, dstToken], [oldSrcNet, oldSrcToken, oldDstNet, oldDstToken]) => {
-            // if config is loading or no operation found, return
-            if (isConfigLoading.value || !currentOp.value?.id) return;
+    const handleOnChangeIsConnecting = async (isConnect: boolean, oldIsConnect: boolean) => {
+        if (isConnect === oldIsConnect) return false;
 
-            const operation = operationsFactory.value.getOperationById(currentOp.value.id);
+        initDisabledOrHiddenFields();
+        if (!isConnect) {
+            await performShortcut(false, false, 'handleOnChangeIsConnecting');
+            return true;
+        }
 
-            // Update srcNet if necessary
-            if (oldSrcNet?.net !== srcNet?.net && srcNet?.net) {
-                operation?.setEcosystem(srcNet.ecosystem);
-                operation?.setChainId(srcNet.chain_id || srcNet.net);
-                operation?.setParamByField('net', srcNet.net);
-                operation?.setParamByField('fromNet', srcNet.net);
-                operation?.setAccount(addressesByChain.value[srcNet.net]);
-            }
+        return false;
+    };
 
-            // Update dstNet if necessary
-            if (oldDstNet?.net !== dstNet?.net && dstNet?.net) operation?.setParamByField('toNet', dstNet.net);
+    const handleOnChangeConnectedWallets = async (wallets: IConnectedWallet[], oldWallets: IConnectedWallet[]): Promise<boolean> => {
+        initDisabledOrHiddenFields();
 
-            const { params = [] } = currentOp.value;
+        if (isEqual(wallets, oldWallets)) {
+            console.warn('NO CHANGE IN CONNECTED WALLETS');
+            return false;
+        }
 
-            const srcTokenField = params.find((param) => param.name === 'srcToken');
-            const dstTokenField = params.find((param) => param.name === 'dstToken');
+        if (wallets.length > 0) {
+            await performShortcut(false, false, 'handleOnChangeConnectedWallets');
+            return true;
+        }
 
-            // Update srcToken if necessary
-            if (
-                (oldSrcToken?.id !== srcToken?.id ||
-                    oldSrcToken?.address !== srcToken?.address ||
-                    oldSrcToken?.balance !== srcToken?.balance) &&
-                !srcTokenField?.value
-            )
-                setTokenParams(operation, 'from', srcToken);
+        return false;
+    };
 
-            // Update dstToken if necessary
-            if (
-                (oldDstToken?.id !== dstToken?.id ||
-                    oldDstToken?.address !== dstToken?.address ||
-                    oldDstToken?.balance !== dstToken?.balance) &&
-                dstTokenField &&
-                !dstTokenField?.value
-            )
-                setTokenParams(operation, 'to', dstToken);
-        },
+    // **************************************************************************************************
+    // ************************************* ON MOUNTED *************************************************
+    // **************************************************************************************************
+
+    onMounted(async () => {
+        isShortcutLoading.value = false;
+        if (isConfigLoading.value) return console.warn('Config is loading');
+        await initializations();
+    });
+
+    // **************************************************************************************************
+    // ************************************** WATCHERS **************************************************
+    // **************************************************************************************************
+
+    // * Watch for changes in the wallet account and update the operation account
+
+    const unWatchWalletAccount = watch(walletAccount, handleOnChangeWalletAccount);
+    const unWatchConfigLoading = watch(isConfigLoading, handleOnChangeIsConfigLoading);
+    const unWatchIsConnecting = watch(isConnecting, handleOnChangeIsConnecting);
+    const unWatchConnectedWallets = watch(connectedWallets, handleOnChangeConnectedWallets);
+    const unWatchIsQuoteLoading = watch(isQuoteLoading, handleOnChangeIsQuoteLoading);
+
+    // * Store watchers
+    const unWatchCurrentOp = store.watch(
+        (state, getters) => getters['shortcuts/getCurrentOperation'](shortcut.id, currentStepId.value),
+        callPerformOnWatchOnMounted,
     );
 
-    // ====================================================================================================
-    // * Watch for changes in the SRC: Network, Token | DST: Network, Token and call the estimate output
-    // ====================================================================================================
-    store.watch(
-        (state, getters) => [
-            getters['tokenOps/srcNetwork'],
-            getters['tokenOps/srcToken'],
-            getters['tokenOps/dstNetwork'],
-            getters['tokenOps/dstToken'],
-        ],
-        async ([srcNet, srcToken, dstNetwork, dstToken], [oldSrcNet, oldSrcToken, oldDstNet, oldDstToken]) => {
-            // ! if config is loading, return
-            if (isConfigLoading.value) return;
-
-            // ! if no operation found, return
-            if (!currentOp.value?.id) return;
-
-            // ! if no srcNet, srcToken, srcAmount found, return
-            if (
-                isEqual(
-                    [srcNet?.net, srcToken?.id, dstNetwork?.net, dstToken?.id],
-                    [oldSrcNet?.net, oldSrcToken?.id, oldDstNet?.net, oldDstToken?.id],
-                )
-            )
-                return;
-
-            // * Call the estimate output if the srcNet, srcToken
-            if (srcNet?.net && srcToken?.id) await callEstimate();
-        },
+    const unWatchTokenList = store.watch(
+        (state, getters) => getters['tokens/getTokensListForChain'](currentChainInfo.value?.chain, { account: walletAccount.value }),
+        handleOnChangeTokensList,
     );
 
-    // ====================================================================================================
-    // * Watch for changes in contractAddress, contractCallCount, dstAmount
-    // ====================================================================================================
+    // **************************************************************************************************
+    // ************************************ ON UNMOUNTED ************************************************
+    // **************************************************************************************************
 
-    store.watch(
-        (state, getters) => [getters['tokenOps/contractAddress'], getters['tokenOps/contractCallCount']],
-        async ([contractAddress, contractCallCount], [oldContractAddress, oldContractCallCount]) => {
-            // ! if no operation found, return
-            if (!currentOp.value?.id) return;
+    onBeforeUnmount(async () => {
+        const { moduleType } = currentOp.value || {};
 
-            // ! if no changes in contractAddress, contractCallCount, dstAmount, return
-            if (isEqual([contractAddress, contractCallCount], [oldContractAddress, oldContractCallCount])) return;
+        // * Unwatch the watchers
+        await Promise.all([
+            store.dispatch('shortcuts/resetAllShortcuts'),
 
-            // * Set the contractAddress in the operation if the contractAddress is exist and not equal to the oldContractAddress
-            if (oldContractAddress !== contractAddress)
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('contract', contractAddress);
+            store.dispatch('moduleStates/resetModuleStates', { module: moduleType || ModuleType.shortcut }),
 
-            // * Set the contractCallCount in the operation if the contractCallCount is exist and not equal to the oldContractCallCount
-            if (oldContractCallCount !== contractCallCount)
-                operationsFactory.value.getOperationById(currentOp.value.id)?.setParamByField('count', contractCallCount);
-        },
-    );
+            store.dispatch('tokenOps/setServiceId', {
+                value: null,
+                module: moduleType || ModuleType.shortcut,
+            }),
+        ]);
+    });
+
+    onUnmounted(() => {
+        quoteErrorMessage.value = '';
+        unWatchIsQuoteLoading();
+        unWatchIsConnecting();
+        unWatchConfigLoading();
+        unWatchWalletAccount();
+        unWatchConnectedWallets();
+        unWatchTokenList();
+        unWatchCurrentOp();
+    });
 
     return {
-        shortcut: CurrentShortcut,
-        shortcutId: CurrentShortcut.id,
+        shortcut,
+        shortcutId: shortcut.id,
         isShortcutLoading,
         shortcutIndex,
         shortcutLayout,
@@ -988,6 +500,24 @@ const useShortcuts = (Shortcut: IShortcutData) => {
         steps,
         currentStepId,
         operationsFactory,
+        currentOp,
+
+        initializations,
+        initShortcutAndLayout,
+        initShortcutService,
+        initShortcutSteps,
+
+        initDisabledOrHiddenFields,
+
+        performShortcut,
+
+        handleOnChangeTokensList,
+        handleOnChangeWalletAccount,
+        handleOnChangeConnectedWallets,
+
+        handleOnChangeIsConnecting,
+        handleOnChangeIsConfigLoading,
+        handleOnChangeIsQuoteLoading,
     };
 };
 

@@ -45,6 +45,9 @@ tests/mockserver2/__pycache__
 
 # Vitest
 /coverage/
+/tests/unit/coverage/
+
+*.tmp
 
 # Vite bundle analyzer
 stats.html

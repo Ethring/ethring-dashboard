@@ -261,7 +261,7 @@ const useModuleOperations = (module: ModuleType) => {
         console.log('useModuleOperations -> handleOnCancel');
         closeNotification(`tx-${tx.getTxId()}`);
         store.dispatch('txManager/setTxTimerID', null);
-        store.dispatch('txManager/setIsWaitingTxStatusForModule', { module, isWaiting: false });
+        store.dispatch('txManager/setIsWaitingTxStatusForModule', { module: currentModule.value, isWaiting: false });
         isTransactionSigning.value = false;
 
         showNotification({
@@ -386,9 +386,9 @@ const useModuleOperations = (module: ModuleType) => {
         const account = srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value;
 
         if (isNeedApprove.value) {
-            ops.registerOperation(module, ApproveOperation);
+            ops.registerOperation(currentModule.value, ApproveOperation);
 
-            ops.setParams(module, 0, {
+            ops.setParams(currentModule.value, 0, {
                 net: selectedSrcNetwork.value?.net,
                 tokenAddress: selectedSrcToken.value?.address,
                 ownerAddress: srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value,
@@ -398,20 +398,20 @@ const useModuleOperations = (module: ModuleType) => {
                 dstAmount: dstAmount.value,
             });
 
-            ops.getOperationByKey(`${module}_0`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
-            ops.getOperationByKey(`${module}_0`).setChainId(selectedSrcNetwork.value?.chain_id as string);
-            ops.getOperationByKey(`${module}_0`).setMake(TRANSACTION_TYPES.APPROVE);
-            ops.getOperationByKey(`${module}_0`).setAccount(account as string);
+            ops.getOperationByKey(`${currentModule.value}_0`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
+            ops.getOperationByKey(`${currentModule.value}_0`).setChainId(selectedSrcNetwork.value?.chain_id as string);
+            ops.getOperationByKey(`${currentModule.value}_0`).setMake(TRANSACTION_TYPES.APPROVE);
+            ops.getOperationByKey(`${currentModule.value}_0`).setAccount(account as string);
 
-            ops.getOperationByKey(`${module}_0`).setToken('from', selectedSrcToken.value);
+            ops.getOperationByKey(`${currentModule.value}_0`).setToken('from', selectedSrcToken.value);
         }
 
-        switch (module) {
+        switch (currentModule.value) {
             case ModuleType.stake:
             case ModuleType.send:
-                ops.registerOperation(module, TransferOperation);
+                ops.registerOperation(currentModule.value, TransferOperation);
 
-                ops.setParams(module, 0, {
+                ops.setParams(currentModule.value, 0, {
                     net: selectedSrcNetwork.value?.net,
                     fromNet: selectedSrcNetwork.value?.net,
                     toNet: selectedDstNetwork.value?.net,
@@ -425,12 +425,12 @@ const useModuleOperations = (module: ModuleType) => {
                     dstAmount: dstAmount.value,
                 });
 
-                ops.getOperationByKey(`${module}_0`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
-                ops.getOperationByKey(`${module}_0`).setChainId(selectedSrcNetwork.value?.chain_id as string);
-                ops.getOperationByKey(`${module}_0`).setAccount(account as string);
-                ops.getOperationByKey(`${module}_0`).setMake(TRANSACTION_TYPES.TRANSFER);
-                ops.getOperationByKey(`${module}_0`).setToken('from', selectedSrcToken.value);
-                ops.getOperationByKey(`${module}_0`).setToken('to', selectedDstToken.value);
+                ops.getOperationByKey(`${currentModule.value}_0`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
+                ops.getOperationByKey(`${currentModule.value}_0`).setChainId(selectedSrcNetwork.value?.chain_id as string);
+                ops.getOperationByKey(`${currentModule.value}_0`).setAccount(account as string);
+                ops.getOperationByKey(`${currentModule.value}_0`).setMake(TRANSACTION_TYPES.TRANSFER);
+                ops.getOperationByKey(`${currentModule.value}_0`).setToken('from', selectedSrcToken.value);
+                ops.getOperationByKey(`${currentModule.value}_0`).setToken('to', selectedDstToken.value);
 
                 break;
 
@@ -440,12 +440,12 @@ const useModuleOperations = (module: ModuleType) => {
                 const index = isNeedApprove.value ? 1 : 0;
                 const type = isSameNetwork.value ? ServiceType.dex : ServiceType.bridgedex;
 
-                ops.registerOperation(module, DexOperation);
+                ops.registerOperation(currentModule.value, DexOperation);
 
                 const params = {
                     net: selectedSrcNetwork.value?.net,
                     fromNet: selectedSrcNetwork.value?.net,
-                    toNet: ModuleType.swap === module ? selectedSrcNetwork.value?.net : selectedDstNetwork.value?.net,
+                    toNet: ModuleType.swap === currentModule.value ? selectedSrcNetwork.value?.net : selectedDstNetwork.value?.net,
                     fromToken: selectedSrcToken.value?.address,
                     toToken: selectedDstToken.value?.address,
                     ownerAddresses: addressByChain.value as OwnerAddresses,
@@ -474,21 +474,21 @@ const useModuleOperations = (module: ModuleType) => {
                     };
                 }
 
-                ops.setParams(module, index, params);
+                ops.setParams(currentModule.value, index, params);
 
-                ops.getOperationByKey(`${module}_${index}`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
-                ops.getOperationByKey(`${module}_${index}`).setChainId(selectedSrcNetwork.value?.chain_id as string);
-                ops.getOperationByKey(`${module}_${index}`).setAccount(account as string);
-                ops.getOperationByKey(`${module}_${index}`).setMake(TRANSACTION_TYPES.DEX);
-                selectedSrcToken.value && ops.getOperationByKey(`${module}_${index}`).setToken('from', selectedSrcToken.value);
-                selectedDstToken.value && ops.getOperationByKey(`${module}_${index}`).setToken('to', selectedDstToken.value);
+                ops.getOperationByKey(`${currentModule.value}_${index}`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
+                ops.getOperationByKey(`${currentModule.value}_${index}`).setChainId(selectedSrcNetwork.value?.chain_id as string);
+                ops.getOperationByKey(`${currentModule.value}_${index}`).setAccount(account as string);
+                ops.getOperationByKey(`${currentModule.value}_${index}`).setMake(TRANSACTION_TYPES.DEX);
+                selectedSrcToken.value && ops.getOperationByKey(`${currentModule.value}_${index}`).setToken('from', selectedSrcToken.value);
+                selectedDstToken.value && ops.getOperationByKey(`${currentModule.value}_${index}`).setToken('to', selectedDstToken.value);
 
                 break;
 
             case ModuleType.nft:
-                ops.registerOperation(module, MultipleContractExec);
+                ops.registerOperation(currentModule.value, MultipleContractExec);
 
-                ops.setParams(module, 0, {
+                ops.setParams(currentModule.value, 0, {
                     net: selectedSrcNetwork.value?.net,
                     fromNet: selectedSrcNetwork.value?.net,
                     fromToken: selectedSrcToken.value?.address,
@@ -500,15 +500,15 @@ const useModuleOperations = (module: ModuleType) => {
                     dstAmount: dstAmount.value,
                 });
 
-                ops.getOperationByKey(`${module}_0`).setParamByField('contract', contractAddress.value);
-                ops.getOperationByKey(`${module}_0`).setParamByField('count', contractCallCount.value);
+                ops.getOperationByKey(`${currentModule.value}_0`).setParamByField('contract', contractAddress.value);
+                ops.getOperationByKey(`${currentModule.value}_0`).setParamByField('count', contractCallCount.value);
 
-                ops.getOperationByKey(`${module}_0`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
-                ops.getOperationByKey(`${module}_0`).setChainId(selectedSrcNetwork.value?.chain_id as string);
-                ops.getOperationByKey(`${module}_0`).setAccount(account as string);
+                ops.getOperationByKey(`${currentModule.value}_0`).setEcosystem(selectedSrcNetwork.value?.ecosystem);
+                ops.getOperationByKey(`${currentModule.value}_0`).setChainId(selectedSrcNetwork.value?.chain_id as string);
+                ops.getOperationByKey(`${currentModule.value}_0`).setAccount(account as string);
 
-                ops.getOperationByKey(`${module}_0`).setToken('from', selectedSrcToken.value);
-                ops.getOperationByKey(`${module}_0`).setToken('to', selectedDstToken.value);
+                ops.getOperationByKey(`${currentModule.value}_0`).setToken('from', selectedSrcToken.value);
+                ops.getOperationByKey(`${currentModule.value}_0`).setToken('to', selectedDstToken.value);
 
                 break;
             default:
@@ -528,6 +528,8 @@ const useModuleOperations = (module: ModuleType) => {
 
     const initTransactionsGroupForOps = async (operations: OperationsFactory): Promise<TransactionList> => {
         const firstInGroup = operations.getFirstOperation();
+
+        if (!firstInGroup) return null;
 
         if (!firstInGroup.getAccount()) {
             console.warn('initTransactionsGroupForOps -> Account not found', firstInGroup);
@@ -1192,7 +1194,13 @@ const useModuleOperations = (module: ModuleType) => {
 
         printFlow(opsFullFlow); // TODO: Remove this after debug
 
-        const txManager = await initTransactionsGroupForOps(operations);
+        let txManager: TransactionList;
+        try {
+            txManager = await initTransactionsGroupForOps(operations);
+        } catch (error) {
+            console.error('useModuleOperations -> handleOnConfirm -> initTransactionsGroupForOps -> error', error);
+            throw error;
+        }
 
         // ===============================================================================================
         // * Process each operation in flow & add to transaction manager
@@ -1263,7 +1271,7 @@ const useModuleOperations = (module: ModuleType) => {
         const isBridgeConfirmDisabled =
             !isQuoteRouteSelected.value || !isQuoteRouteSet.value || isDisabled || !isDstTokenChainCorrect.value || isWithAddress;
 
-        switch (module) {
+        switch (currentModule.value) {
             case ModuleType.send:
                 return isSendConfirmDisabled;
             case ModuleType.swap:

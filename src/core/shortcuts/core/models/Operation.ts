@@ -10,7 +10,7 @@ export interface IOperationParam {
     ecosystem?: string;
     chainId?: string | number;
     chain?: string;
-    address?: string;
+    address?: string | null;
     type?: string;
     memo?: string;
     amount?: string;

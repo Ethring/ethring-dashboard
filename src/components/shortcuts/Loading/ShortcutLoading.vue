@@ -74,6 +74,7 @@ import { ModuleType } from '@/shared/models/enums/modules.enum';
 import { STATUS_TYPE, STATUSES } from '@/shared/models/enums/statuses.enum';
 import { TRANSACTION_TYPES } from '@/core/operations/models/enums/tx-types.enum';
 import OperationFactory from '@/core/operations/OperationsFactory';
+import useShortcutOperations from '../../../core/shortcuts/compositions/useShortcutOperations';
 
 export default defineComponent({
     name: 'ShortcutLoading',
@@ -97,7 +98,9 @@ export default defineComponent({
 
         const store = useStore();
 
-        const { closeNotification } = useNotification();
+        const { handleOnTryAgain, operationStatus, operationsCount, operationProgress, operationProgressStatus } = useShortcutOperations(
+            props.shortcutId,
+        );
 
         const shortcutStatus = computed<STATUS_TYPE>(() => store.getters['shortcuts/getShortcutStatus'](props.shortcutId));
 
@@ -110,28 +113,7 @@ export default defineComponent({
             return [STATUSES.FAILED, STATUSES.SUCCESS].includes(status);
         });
 
-        const isShortcutLoading = computed(() => store.getters['shortcuts/getIsShortcutLoading'](props.shortcutId));
-
         const shortcutIndex = computed(() => store.getters['shortcuts/getShortcutIndex']);
-
-        const currentStepId = computed(() => store.getters['shortcuts/getCurrentStepId']);
-
-        const factory = computed<OperationFactory>(() => {
-            if (isShortcutLoading.value) return null;
-            return store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId);
-        });
-
-        const operationStatus = computed(() => {
-            return factory.value?.getOperationsStatusById(currentStepId.value) || STATUSES.PENDING;
-        });
-
-        const operationsCount = computed<number>(() => {
-            if (!store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId)) return 0;
-            if (typeof store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId).getOperationsCount !== 'function') return 0;
-            return store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId).getOperationsCount() || 0;
-        });
-
-        const operationProgress = ref<number>(0);
 
         const updateProgress = () => {
             if (!store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId)) return 0;
@@ -139,80 +121,6 @@ export default defineComponent({
                 return 0;
 
             return store.getters['shortcuts/getShortcutOpsFactory'](props.shortcutId)?.getPercentageOfSuccessOperations() || 0;
-        };
-
-        const operationProgressStatus = computed(() => {
-            if (operationProgress.value === 100) return 'success';
-            else if (shortcutStatus.value === STATUSES.FAILED) return 'exception';
-
-            return 'active';
-        });
-
-        const handleOnTryAgain = () => {
-            console.log('CALLING TRY AGAIN', shortcutIndex.value, shortcutStatus.value, operationsCount.value - 1);
-            closeNotification('tx-error');
-
-            const flow = factory.value.getFullOperationFlow();
-
-            const currentOp = factory.value.getOperationById(currentStepId.value);
-
-            const withoutApprove = flow.filter((op) => op.type !== TRANSACTION_TYPES.APPROVE);
-
-            const firstOp = withoutApprove[0];
-            const lastOp = withoutApprove[withoutApprove.length - 1];
-
-            const firstOpId = factory.value.getOperationIdByKey(firstOp.moduleIndex);
-            const lastOpId = factory.value.getOperationIdByKey(lastOp.moduleIndex);
-
-            console.table({
-                firstOpId,
-                lastOpId,
-                currentStepId: currentStepId.value,
-                shortcutIndex: shortcutIndex.value,
-                operationsCount: operationsCount.value,
-                isNeedToCallConfirm: shortcutIndex.value !== 0 && shortcutStatus.value === STATUSES.FAILED,
-                isLastOp: currentStepId.value === lastOpId || operationsCount.value - 1 === shortcutIndex.value,
-                isFirstOp: currentStepId.value === firstOpId || shortcutIndex.value === 0,
-            });
-
-            console.log('-'.repeat(50));
-
-            const isSuccess = [STATUSES.SUCCESS].includes(shortcutStatus.value as any);
-
-            const callOnSuccess = () => {
-                operationProgress.value = 0;
-
-                store.dispatch('shortcuts/setCurrentStepId', firstOpId);
-
-                store.dispatch('tokenOps/setSrcAmount', null);
-                store.dispatch('tokenOps/setDstAmount', null);
-
-                return store.dispatch('shortcuts/resetShortcut', {
-                    shortcutId: props.shortcutId,
-                    stepId: firstOpId,
-                });
-            };
-
-            const isFirstOp = currentStepId.value === firstOpId || shortcutIndex.value === 0;
-
-            if (isFirstOp) {
-                console.log('setCallConfirm, for shortcut', 'FirstOp', true);
-
-                return store.dispatch('shortcuts/setShortcutStatus', {
-                    shortcutId: props.shortcutId,
-                    status: STATUSES.PENDING,
-                });
-            }
-
-            if (isSuccess) {
-                console.log('setCallConfirm, for shortcut', 'Success', true, 'resetShortcut');
-                return callOnSuccess();
-            }
-
-            return store.dispatch('tokenOps/setCallConfirm', {
-                module: ModuleType.shortcut,
-                value: true,
-            });
         };
 
         const moduleStatusIcon = computed(() => {
@@ -277,17 +185,6 @@ export default defineComponent({
                 default:
                     return 'Transaction waiting for confirmation';
             }
-        });
-
-        store.watch(
-            (state, getters) => getters['shortcuts/getShortcutIndex'],
-            () => {
-                operationProgress.value = updateProgress();
-            },
-        );
-
-        watch(operationStatus, () => {
-            operationProgress.value = updateProgress();
         });
 
         onMounted(() => {

@@ -97,6 +97,15 @@ Run tests:
   timeout: 20 minutes
   artifacts: *default_artifacts
 
+Run unit tests:
+  stage: test_unit
+  image: node:18.19.0
+  rules:
+    - if: $CI_COMMIT_BRANCH
+  script:
+    - npm ci
+    - npm run test:unit
+
 Build tests report image:
   stage: deploy_reports
   needs:

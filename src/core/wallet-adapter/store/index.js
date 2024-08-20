@@ -262,12 +262,12 @@ export default {
             connectedWalletsStorage.value = [];
             lastConnectedWalletStorage.value = {};
 
-            isConnectedStorage.value = {
+            state.isConnected = {
                 [Ecosystem.EVM]: false,
                 [Ecosystem.COSMOS]: false,
             };
 
-            state.isConnected = isConnectedStorage.value;
+            isConnectedStorage.value = state.isConnected;
 
             addressesByEcosystemListStorage.value = {};
             addressesByEcosystemStorage.value = {};
