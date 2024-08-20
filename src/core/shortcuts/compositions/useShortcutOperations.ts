@@ -208,68 +208,71 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
     // * Perform the operation of the shortcut
     // ****************************************************************************************************
     const processShortcutOperation = async (operation: IShortcutOp) => {
+        if (!operation) return false;
+        if (!operationsFactory.value) return false;
+
         let key: string = '';
         let registerResponse = null;
 
         const { id, moduleType, name, operationType, make, operationParams, waitTime = 3.5, serviceId } = operation || {};
 
-        if (!operationsFactory.value) return;
+        const registerOptions = { id, name, make };
 
         switch (operationType) {
             case TRANSACTION_TYPES.BUY:
             case TRANSACTION_TYPES.WRAP:
             case TRANSACTION_TYPES.DEX:
             case TRANSACTION_TYPES.BRIDGE:
-                registerResponse = operationsFactory.value.registerOperation(moduleType, DexOperation, { id, name, make });
+                registerResponse = operationsFactory.value.registerOperation(moduleType, DexOperation, registerOptions);
                 registerResponse && ({ key } = registerResponse);
                 break;
             case TRANSACTION_TYPES.TRANSFER:
-                registerResponse = operationsFactory.value.registerOperation(moduleType, TransferOperation, { id, name, make });
+                registerResponse = operationsFactory.value.registerOperation(moduleType, TransferOperation, registerOptions);
                 registerResponse && ({ key } = registerResponse);
                 break;
             case TRANSACTION_TYPES.STAKE:
-                registerResponse = operationsFactory.value.registerOperation(moduleType, StakeOperation, { id, name, make });
+                registerResponse = operationsFactory.value.registerOperation(moduleType, StakeOperation, registerOptions);
                 registerResponse && ({ key } = registerResponse);
                 break;
             case TRANSACTION_TYPES.APPROVE:
-                registerResponse = operationsFactory.value.registerOperation(moduleType, ApproveOperation, { id, name, make });
+                registerResponse = operationsFactory.value.registerOperation(moduleType, ApproveOperation, registerOptions);
                 registerResponse && ({ key } = registerResponse);
                 break;
             case TRANSACTION_TYPES.EXECUTE_MULTIPLE:
-                registerResponse = operationsFactory.value.registerOperation(moduleType, MultipleContractExec, { id, name, make });
+                registerResponse = operationsFactory.value.registerOperation(moduleType, MultipleContractExec, registerOptions);
                 registerResponse && ({ key } = registerResponse);
                 break;
 
             // * Pendle Operations
             case TRANSACTION_TYPES.CALL_CONTRACT_METHOD:
-                registerResponse = operationsFactory.value.registerOperation(moduleType, CallContractMethod, { id, name, make });
+                registerResponse = operationsFactory.value.registerOperation(moduleType, CallContractMethod, registerOptions);
                 registerResponse && ({ key } = registerResponse);
                 break;
 
             case TRANSACTION_TYPES.SWAP_TOKEN_TO_PT:
-                registerResponse = operationsFactory.value.registerOperation(moduleType, PendleSwapTokenForPT, { id, name, make });
+                registerResponse = operationsFactory.value.registerOperation(moduleType, PendleSwapTokenForPT, registerOptions);
                 registerResponse && ({ key } = registerResponse);
                 break;
 
             case TRANSACTION_TYPES.ADD_LIQUIDITY_SINGLE_TOKEN:
-                registerResponse = operationsFactory.value.registerOperation(moduleType, PendleAddLiquiditySingleToken, { id, name, make });
+                registerResponse = operationsFactory.value.registerOperation(moduleType, PendleAddLiquiditySingleToken, registerOptions);
                 registerResponse && ({ key } = registerResponse);
                 break;
             case TRANSACTION_TYPES.ADD_LIQUIDITY:
-                registerResponse = operationsFactory.value.registerOperation(moduleType, AddLiquidity, { id, name, make });
+                registerResponse = operationsFactory.value.registerOperation(moduleType, AddLiquidity, registerOptions);
                 registerResponse && ({ key } = registerResponse);
                 break;
             case TRANSACTION_TYPES.REMOVE_LIQUIDITY:
-                registerResponse = operationsFactory.value.registerOperation(moduleType, RemoveLiquidity, { id, name, make });
+                registerResponse = operationsFactory.value.registerOperation(moduleType, RemoveLiquidity, registerOptions);
                 registerResponse && ({ key } = registerResponse);
                 break;
             case TRANSACTION_TYPES.BERACHAIN_DEX:
-                registerResponse = operationsFactory.value.registerOperation(moduleType, BerachainDEX, { id, name, make });
+                registerResponse = operationsFactory.value.registerOperation(moduleType, BerachainDEX, registerOptions);
                 registerResponse && ({ key } = registerResponse);
                 break;
         }
 
-        if (!key) return;
+        if (!key) return false;
 
         operationsFactory.value.setWaitTimeByKey(key, waitTime);
 
@@ -281,10 +284,11 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
         });
 
         registerResponse && (registerResponse = null);
+
+        return true;
     };
 
     const setOperationAccount = (stepId: string, { force = false }: { force?: boolean } = {}) => {
-        console.log('SET OPERATION ACCOUNT', stepId, force);
         if (!stepId) {
             console.warn('Step ID not found');
             return false;
@@ -418,7 +422,9 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
 
         const isMinAmountAccepted = checkMinAmount();
 
-        if (store.getters['tokenOps/srcAmount'] === null) return false;
+        const amount = store.getters['tokenOps/srcAmount'];
+
+        if (amount <= 0 || amount === null || amount === undefined || !isNumber(amount)) return false;
 
         if (!isMinAmountAccepted) {
             console.log('MIN AMOUNT NOT ACCEPTED', quoteErrorMessage.value);

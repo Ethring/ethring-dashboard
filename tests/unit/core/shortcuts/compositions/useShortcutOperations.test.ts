@@ -382,7 +382,6 @@ describe('useOperations', () => {
 
             const operation = operationsFactory.value.getOperationById(currentOp.value.id);
 
-            console.log('operation', operation);
             expect(result).toBe(true);
             expect(operation.getParamByField('outputAmount')).toEqual(amount);
         });
@@ -668,5 +667,88 @@ describe('useOperations', () => {
             const result = await useOperationsMock.handleOnChangeIsCallEstimateOutput(true, false);
             expect(result).toBe(true);
         });
+    });
+
+    describe('processShortcutOperation', () => {
+        test('-> should return false if operationsFactory is not initialized', async () => {
+            const result = await useOperationsMock.processShortcutOperation(null);
+            expect(result).toBe(false);
+        });
+
+        test('-> should return false if Operation is empty', async () => {
+            await useShortcutsMock.initializations();
+            const result = await useOperationsMock.processShortcutOperation(null);
+            expect(result).toBe(false);
+        });
+
+        test('-> should return true if operationsFactory is initialized', async () => {
+            const tmpStore = createTestStore();
+            const mockShortcut = useShortcuts(MOCK_SC_CITADEL_ONE_STAKE, { tmpStore });
+            const mockOperations = useShortcutOperations(MOCK_SC_CITADEL_ONE_STAKE.id, { tmpStore });
+
+            await tmpStore.dispatch('configs/setConfigLoading', false);
+            await mockShortcut.initShortcutAndLayout();
+            await mockOperations.initOperationsFactory();
+            await mockShortcut.initShortcutSteps();
+
+            const [operation] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
+            const result = await mockOperations.processShortcutOperation(operation);
+
+            expect(result).toBe(true);
+        });
+    });
+
+    describe('handleOnCallEstimateOutput', () => {
+        test('-> should return false if operationsFactory is not initialized', async () => {
+            const result = await useOperationsMock.handleOnCallEstimateOutput();
+            expect(result).toBe(false);
+        });
+
+        test('-> should return false if isConfigLoading is true', async () => {
+            await useShortcutsMock.initializations();
+            await store.dispatch('configs/setConfigLoading', true);
+            const result = await useOperationsMock.handleOnCallEstimateOutput();
+            expect(result).toBe(false);
+        });
+
+        test('-> should return false if isTransactionSigning is true', async () => {
+            await useShortcutsMock.initializations();
+            await store.dispatch('txManager/setTransactionSigning', true);
+            const result = await useOperationsMock.handleOnCallEstimateOutput();
+            expect(result).toBe(false);
+        });
+
+        test('-> should return false if isShortcutLoading is true', async () => {
+            await useShortcutsMock.initializations();
+            await store.dispatch('shortcuts/setIsShortcutLoading', {
+                shortcutId: MOCK_SC_CITADEL_ONE_STAKE.id,
+                value: true,
+            });
+            const result = await useOperationsMock.handleOnCallEstimateOutput();
+            expect(result).toBe(false);
+        });
+
+        test('-> should return false if isQuoteLoading is true', async () => {
+            await useShortcutsMock.initializations();
+            await store.dispatch('bridgeDexAPI/setLoaderStateByType', { type: 'quote', value: true });
+            const result = await useOperationsMock.handleOnCallEstimateOutput();
+            expect(result).toBe(false);
+        });
+
+        const CASES = [0, null, undefined, 'some-string'];
+        for (const testCase of CASES)
+            test(`-> should return false if amount is ${testCase}`, async () => {
+                await useShortcutsMock.initializations();
+                await store.dispatch('configs/setConfigLoading', false);
+                await store.dispatch('txManager/setTransactionSigning', false);
+                await store.dispatch('shortcuts/setIsShortcutLoading', {
+                    shortcutId: MOCK_SC_CITADEL_ONE_STAKE.id,
+                    value: false,
+                });
+                await store.dispatch('bridgeDexAPI/setLoaderStateByType', { type: 'quote', value: false });
+                await store.dispatch('tokenOps/setSrcAmount', testCase);
+                const result = await useOperationsMock.handleOnCallEstimateOutput();
+                expect(result).toBe(false);
+            });
     });
 });
