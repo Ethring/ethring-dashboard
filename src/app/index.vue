@@ -71,22 +71,13 @@ export default {
             getChainListByEcosystem,
         } = useAdapter();
 
-        const connectedWalletsFromStore = computed(() => store.getters['adapters/getConnectedWallets']);
-
         const isShowRoutesModal = computed(() => store.getters['app/modal']('routesModal'));
-
-        const getAddressesWithChains = async (ecosystem) => {
-            const chainAddresses = await getAddressesWithChainsByEcosystem(ecosystem);
-
-            return pick(chainAddresses, Object.values(DP_CHAINS)) || {};
-        };
 
         const callSubscription = async () => {
             const { ecosystem } = currentChainInfo.value || {};
 
-            console.log('getDefaultAddress()', getDefaultAddress());
-            if (JSON.stringify(await getAddressesWithChains(ecosystem)) !== '{}' && getDefaultAddress()) {
-                Socket.setAddresses(await getAddressesWithChains(ecosystem), ecosystem, {
+            if (JSON.stringify(await getAddressesWithChainsByEcosystem(ecosystem)) !== '{}' && getDefaultAddress()) {
+                Socket.setAddresses(await getAddressesWithChainsByEcosystem(ecosystem), ecosystem, {
                     walletAccount: walletAccount.value,
                 });
 
@@ -107,20 +98,19 @@ export default {
                 if (!wallet) continue;
 
                 const { account, ecosystem, addresses } = wallet || {};
-                const list = pick(addresses, Object.values(DP_CHAINS)) || {};
 
-                store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses: list });
+                store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses });
 
                 switch (ecosystem) {
                     case Ecosystem.EVM:
-                        await updateBalanceForAccount(account, list, {
+                        await updateBalanceForAccount(account, addresses, {
                             provider: Providers.GoldRush,
                             fetchIntegrations: false,
                             fetchNfts: false,
                             fetchTokens: true,
                         });
 
-                        await updateBalanceForAccount(account, list, {
+                        await updateBalanceForAccount(account, addresses, {
                             provider: Providers.Pulsar,
                             fetchTokens: false,
                             fetchIntegrations: true,
@@ -129,7 +119,7 @@ export default {
 
                         break;
                     case Ecosystem.COSMOS:
-                        await updateBalanceForAccount(account, list, {
+                        await updateBalanceForAccount(account, addresses, {
                             provider: Providers.Pulsar,
                             fetchTokens: true,
                             fetchIntegrations: true,
@@ -149,6 +139,7 @@ export default {
             if (!walletModule || !ecosystem || !walletAddress.value || isShowRoutesModal.value) return setTimeout(callInit, 1000);
 
             const addressHash = (await getAddressesWithChainsByEcosystem(ecosystem, { hash: true })) || {};
+
             store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM', { ecosystem, addresses: addressHash });
 
             await updateBalanceForAllAccounts();

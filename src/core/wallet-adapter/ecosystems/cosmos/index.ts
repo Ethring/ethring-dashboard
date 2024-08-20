@@ -188,7 +188,7 @@ export class CosmosAdapter implements ICosmosAdapter {
             new Logger('INFO'),
             'connect_only',
             true,
-            false,
+            [],
             assets,
             this.DEFAULT_NAME_SERVICE,
             undefined,
