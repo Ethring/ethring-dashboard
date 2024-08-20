@@ -362,10 +362,13 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
         const TestnetShortcuts = [AvailableShortcuts.BerachainStake, AvailableShortcuts.BerachainVault] as string[];
         if (TestnetShortcuts.includes(currentShortcutID)) return true;
 
-        const amount = firstOperation.value.getParamByField('amount') || 0;
+        const operation = operationsFactory.value.getOperationById(currentOp.value.id);
+        if (!operation) return false;
+
+        const amount = operation.getParamByField('amount');
         if (!amount) return false;
 
-        const fromToken = firstOperation.value.getToken('from');
+        const fromToken = operation.getToken('from');
         const { price = 0 } = fromToken || {};
 
         const amountToUsd = BigNumber(amount)
@@ -423,8 +426,7 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
         const isMinAmountAccepted = checkMinAmount();
 
         const amount = store.getters['tokenOps/srcAmount'];
-
-        if (amount <= 0 || amount === null || amount === undefined || !isNumber(amount)) return false;
+        if (amount <= 0 || amount === null || amount === undefined) return false;
 
         if (!isMinAmountAccepted) {
             console.log('MIN AMOUNT NOT ACCEPTED', quoteErrorMessage.value);
