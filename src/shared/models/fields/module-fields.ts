@@ -20,6 +20,7 @@ export interface IAsset extends AssetBalance {
     verified?: boolean;
     selected?: boolean;
     ecosystem?: Ecosystems;
+    denom_units: any;
 }
 
 export interface IFields {

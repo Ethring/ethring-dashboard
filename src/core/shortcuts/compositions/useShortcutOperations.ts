@@ -574,7 +574,12 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
         const setTokenParams = (operation: IBaseOperation | null, type: 'from' | 'to', token: IAsset) => {
             if (!token?.id || currentShortcut.value.isComingSoon) return;
 
-            operation?.setParamByField(`${type}Token`, token.address);
+            const { address, base, denom_units } = token || {};
+
+            let tokenAddress = address;
+            if (denom_units) tokenAddress = base;
+
+            operation?.setParamByField(`${type}Token`, tokenAddress);
             operation?.setToken(type, token);
         };
 
