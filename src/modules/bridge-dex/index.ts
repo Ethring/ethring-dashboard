@@ -76,7 +76,7 @@ class BridgeDexService<T extends ServiceType> implements IBridgeDexService {
         }
     }
 
-    async getQuote(params: AllQuoteParams, { withServiceId = false } = {}) {
+    async getQuote(params: AllQuoteParams, { withServiceId = false, controller = new AbortController() } = {}) {
         const requestParams = pick(params, QuoteParamsKeys[this.type]) as QuoteParams<T>;
 
         requestParams.type = this.type;
@@ -87,7 +87,7 @@ class BridgeDexService<T extends ServiceType> implements IBridgeDexService {
         withServiceId && this.serviceId && (requestParams.serviceId = this.serviceId);
 
         try {
-            const routes = (await this.api.getQuote(requestParams)) as IQuoteRoutes;
+            const routes = (await this.api.getQuote(requestParams, controller)) as IQuoteRoutes;
 
             routes.routes = routes.routes.map((route) => {
                 route.routeId = routes.routeId;

@@ -82,7 +82,7 @@
         <Checkbox
             v-if="!fieldStates.isSendToAnotherAddress?.hide && selectedDstToken && selectedDstNetwork && !isSameNetwork"
             v-model:value="isSendToAnotherAddress"
-            :disabled="isDisableSelect"
+            :disabled="isDisableFields"
             :label="$t('tokenOperations.chooseAddress')"
         />
 
@@ -91,7 +91,7 @@
             class="mt-8"
             :selected-network="selectedDstNetwork"
             :on-reset="isSendToAnotherAddress"
-            :disabled="isDisableSelect"
+            :disabled="isDisableFields"
             @error-status="(status) => (isAddressError = status)"
         />
 
@@ -122,6 +122,7 @@
 <script>
 import { computed, onMounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
+import { useRoute } from 'vue-router';
 
 // Compositions
 import useModuleOperations from '@/compositions/useModuleOperation';
@@ -169,9 +170,14 @@ export default {
     },
     setup() {
         const store = useStore();
+        const pathRoute = useRoute();
 
         const { moduleInstance, isTransactionSigning, isDisableConfirmButton, isDisableSelect, handleOnConfirm } = useModuleOperations(
             ModuleType.superSwap,
+        );
+
+        const isDisableFields = computed(() =>
+            pathRoute.path.startsWith('/shortcuts') ? isDisableSelect.value : isTransactionSigning.value,
         );
 
         // =================================================================================================================
@@ -270,12 +276,12 @@ export default {
         // =================================================================================================================
 
         const isDisableCheckbox = computed(() => {
-            if (!selectedRoute.value) return isDisableSelect.value;
+            if (!selectedRoute.value) return isDisableFields.value;
 
             if (servicesHash.value[selectedRoute.value?.serviceId])
                 return !servicesHash.value[selectedRoute.value?.serviceId].features_support?.receiver;
 
-            return isDisableSelect.value;
+            return isDisableFields.value;
         });
 
         // =================================================================================================================
@@ -302,12 +308,12 @@ export default {
             });
         };
 
-        watch(isDisableSelect, () => {
-            setDisabledFields(isDisableSelect.value);
+        watch(isDisableFields, () => {
+            setDisabledFields(isDisableFields.value);
         });
 
         onMounted(() => {
-            setDisabledFields(isDisableSelect.value);
+            setDisabledFields(isDisableFields.value);
         });
 
         return {
@@ -369,7 +375,7 @@ export default {
             routeTimer,
             handleOnSetAmount,
 
-            isDisableSelect,
+            isDisableFields,
             isAllowanceLoading,
             quoteErrorMessage,
 
