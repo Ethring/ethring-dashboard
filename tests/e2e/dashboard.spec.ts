@@ -55,6 +55,7 @@ testMetaMask.describe('MetaMask dashboard', () => {
                 dashboardProtocol.page.locator(IGNORED_LOCATORS.TOKEN_ICON_2),
                 dashboardProtocol.page.locator(IGNORED_LOCATORS.TOKEN_ICON_3),
                 dashboardProtocol.page.locator(IGNORED_LOCATORS.TOKEN_ICON_4),
+                dashboardProtocol.page.locator(IGNORED_LOCATORS.TOKEN_ICON_5),
             ],
         });
     });

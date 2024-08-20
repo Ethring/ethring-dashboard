@@ -61,7 +61,7 @@ export default defineConfig({
                     'ant-design': ['ant-design-vue'],
                     'ant-design-icons': ['@ant-design/icons-vue'],
                     '@cosmology-cosmos-kit': ['@cosmos-kit/core'],
-                    '@cosmology-wallets-keplr': ['@cosmos-kit/keplr', '@cosmos-kit/keplr-extension', '@cosmos-kit/keplr-mobile'],
+                    '@cosmology-wallets-keplr': ['@cosmos-kit/keplr'],
                     '@cosmjs-stargate': ['@cosmjs/cosmwasm-stargate', '@cosmjs/stargate'],
 
                     // Stargazejs

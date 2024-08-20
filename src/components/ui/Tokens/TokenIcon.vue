@@ -5,6 +5,7 @@
             width: `${width}px`,
             height: `${height}px`,
         }"
+        :data-qa="token?.name || token?.symbol"
     >
         <template v-if="token && imageToShow && shouldShowImage">
             <img

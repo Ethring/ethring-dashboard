@@ -84,9 +84,9 @@ class KeplrHomePage {
 
         // Confirming seed phrase
         await this.page.getByText('Import', { exact: true }).click();
-        await this.page.locator(`form div[class="sc-jdAMXn iRaWtY"] div[class="sc-bZnhIo ArXrE"]:nth-child(1) input`).fill(walletName);
-        await this.page.locator(`form div[class="sc-jdAMXn iRaWtY"] div[class="sc-bZnhIo ArXrE"]:nth-child(3) input`).fill(password);
-        await this.page.locator(`form div[class="sc-jdAMXn iRaWtY"] div[class="sc-bZnhIo ArXrE"]:nth-child(5) input`).fill(password);
+        await this.page.locator(`form div[class="sc-jdAMXn iUiHKD"] div[class="sc-bZnhIo ArXrE"]:nth-child(1) input`).fill(walletName);
+        await this.page.locator(`form div[class="sc-jdAMXn iUiHKD"] div[class="sc-bZnhIo ArXrE"]:nth-child(3) input`).fill(password);
+        await this.page.locator(`form div[class="sc-jdAMXn iUiHKD"] div[class="sc-bZnhIo ArXrE"]:nth-child(5) input`).fill(password);
         await this.page.getByText('Next', { exact: true }).click();
     }
 
