@@ -76,14 +76,16 @@ class BridgeDexApi<T extends ServiceType> {
      * @param {GetQuoteParams} requestParams
      * @returns {Promise<IQuoteRoutes>} Routes with the best quote and all available routes
      */
-    async getQuote(requestParams: QuoteParams<T>): Promise<ResponseBridgeDex> {
+    async getQuote(requestParams: QuoteParams<T>, controller: AbortController): Promise<ResponseBridgeDex> {
         try {
             const { type, ...params } = requestParams;
 
             if (params.routeId) delete params.routeId;
 
             if (type === ServiceType.superswap)
-                return (await ApiClient.post(`/services/${ServiceType.bridgedex}/getQuote`, params)) as IQuoteRoutes;
+                return (await ApiClient.post(`/services/${ServiceType.bridgedex}/getQuote`, params, {
+                    signal: controller.signal,
+                })) as IQuoteRoutes;
 
             if (!type) {
                 logger.error('(API) -> [BRIDGE_DEX_API] Error fetching quote: No service type provided');

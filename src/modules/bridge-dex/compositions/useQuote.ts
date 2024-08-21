@@ -49,6 +49,9 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
 
     const modules: string[] = ModulesByService[targetType] || [];
 
+    let controller = new AbortController();
+    const isCanceledRequest = ref(false);
+
     const {
         isSrcAmountSet,
         isDstAmountSet,
@@ -207,8 +210,11 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
             return (isQuoteLoading.value = false);
         }
 
-        // !If the quote is loading, return
-        if (isQuoteLoading.value) return;
+        // !If the quote is loading, abort previos request call
+        if (isQuoteLoading.value) {
+            controller.abort();
+            controller = new AbortController();
+        }
 
         const isDex = serviceType === ServiceType.dex;
         const isSameToken = requestParams.fromToken === requestParams.toToken;
@@ -241,9 +247,12 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
             if (selectedRoute.value && selectedRoute.value.routeId)
                 store.dispatch('bridgeDexAPI/clearRouteTimer', { routeId: selectedRoute.value.routeId });
 
-            const { best = null, routes = [] } = await bridgeDexService.getQuote(requestParams, { withServiceId });
+            const { best = null, routes = [] } = await bridgeDexService.getQuote(requestParams, { withServiceId, controller });
 
             let routeFromAPI = routes.find(({ serviceId }) => serviceId === best) as IQuoteRoute;
+            isCanceledRequest.value = false;
+
+            if (+routeFromAPI.toAmount <= 0) throw new Error('Failed to get route, try again');
 
             if (!routes.length) return resetQuoteRoutes();
 
@@ -269,14 +278,18 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
                 routes,
             };
         } catch (error: any) {
+            if (error.code === 'ERR_CANCELED') {
+                isCanceledRequest.value = true;
+                return;
+            }
+
             console.error('useBridgeDexQuote -> makeQuoteRoutes', error);
             quoteErrorMessage.value = error?.message || 'An error occurred while making a quote request';
-
-            resetQuoteRoutes();
+            isCanceledRequest.value = false;
 
             throw error as ErrorResponse;
         } finally {
-            isQuoteLoading.value = false;
+            isQuoteLoading.value = isCanceledRequest.value;
 
             if (selectedRoute.value && selectedRoute.value.toAmount) store.dispatch('tokenOps/setDstAmount', selectedRoute.value.toAmount);
         }
@@ -472,67 +485,3 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
 };
 
 export default useBridgeDexQuote;
-
-// const dstAmount = computed(() => store.getters['tokenOps/dstAmount']);
-
-// const prepareFeeInfo = (response) => {
-//     // dstAmount.value = BigNumber(response.toTokenAmount).decimalPlaces(6).toString();
-//     // // const { estimatedTime = {}, protocolFee = null } = selectedService.value || {};
-//     // const { chainId, chain_id, native_token = {} } = selectedSrcNetwork.value || {};
-//     // const { symbol = null, price = 0 } = native_token || 0;
-//     // // * Rate fee
-//     // rateFeeInfo.value = {
-//     //     title: 'tokenOperations.rate',
-//     //     symbolBetween: '~',
-//     //     fromAmount: '1',
-//     //     fromSymbol: selectedSrcToken.value.symbol,
-//     //     toAmount: formatNumber(response.toTokenAmount / response.fromTokenAmount, 6),
-//     //     toSymbol: selectedDstToken.value.symbol,
-//     // };
-//     // // * Base fee
-//     // if (response.fee) {
-//     //     baseFeeInfo.value = {
-//     //         title: 'tokenOperations.networkFee',
-//     //         symbolBetween: '~',
-//     //         fromAmount: formatNumber(response.fee.amount),
-//     //         fromSymbol: response.fee.currency,
-//     //         toAmount: formatNumber(BigNumber(response.fee.amount).multipliedBy(price).toString()),
-//     //         toSymbol: '$',
-//     //     };
-//     // }
-//     // if (moduleType === 'bridge' && selectedSrcNetwork.value?.ecosystem === ECOSYSTEMS.EVM) {
-//     //     baseFeeInfo.value.title = 'tokenOperations.serviceFee';
-//     //     baseFeeInfo.value.toAmount = formatNumber(
-//     //         BigNumber(response.fee?.amount).multipliedBy(selectedSrcToken.value?.price).toString(),
-//     //     );
-//     // }
-//     // // * Time
-//     // const chain = chainId || chain_id;
-//     // if (estimatedTime[chain]) {
-//     //     const time = Math.round(estimatedTime[chain] / 60);
-//     //     estimateTimeInfo.value = {
-//     //         title: 'tokenOperations.time',
-//     //         symbolBetween: '<',
-//     //         fromAmount: '',
-//     //         fromSymbol: '',
-//     //         toAmount: time,
-//     //         toSymbol: 'min',
-//     //     };
-//     // }
-//     // // * Protocol fee
-//     // if (!protocolFee) {
-//     //     return;
-//     // }
-//     // const pFee = protocolFee[chain] || 0;
-//     // if (!pFee) {
-//     //     return;
-//     // }
-//     // protocolFeeInfo.value = {
-//     //     title: 'tokenOperations.protocolFee',
-//     //     symbolBetween: '~',
-//     //     fromAmount: pFee,
-//     //     fromSymbol: symbol,
-//     //     toAmount: BigNumber(pFee).multipliedBy(price).toString(),
-//     //     toSymbol: '$',
-//     // };
-// };
