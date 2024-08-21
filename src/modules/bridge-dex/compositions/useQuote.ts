@@ -137,7 +137,12 @@ const useBridgeDexQuote = (targetType: ServiceTypes, bridgeDexService: BridgeDex
     // * Utils
     // ===========================================================================================
     const resetQuoteRoutes = () => {
-        if (!targetType || !selectedRoute.value) return;
+        if (!targetType) return;
+
+        controller.abort();
+        controller = new AbortController();
+
+        isQuoteLoading.value = false;
 
         store.dispatch('bridgeDexAPI/setQuoteRoutes', {
             serviceType: targetType,
