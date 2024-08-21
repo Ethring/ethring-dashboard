@@ -639,7 +639,7 @@ const useModuleOperations = (module: ModuleType) => {
             return isNeedApprove.value;
         };
 
-        if (!checkNeedApprove()) return;
+        if (!checkNeedApprove()) return firstInGroup.setNeedApprove(true);
 
         const account = srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value;
         const params = {
