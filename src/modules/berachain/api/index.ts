@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 import ApiClient from '@/modules/berachain/api/axios';
 import { IGetRouteRequest } from '@/modules/berachain/models/request';
@@ -98,14 +98,16 @@ class BerachainApi implements IBerachainApi {
                         taskId: task.data.taskId,
                     });
 
-                    await new Promise((resolve) => setTimeout(resolve, 500));
+                    await new Promise((resolve) => setTimeout(resolve, 1000));
                 } catch (error) {
                     console.log(error);
                     break;
                 }
-            while (result.data.status != 'ready');
+            while (result.data.status === 'processing');
 
-            return result.data.solution.token;
+            if (result?.data?.solution?.token) return result.data.solution.token;
+
+            throw new Error('Captcha solver failed');
         } catch (error) {
             throw new Error('Error with captcha');
         }
@@ -124,7 +126,7 @@ class BerachainApi implements IBerachainApi {
                     },
                 },
             );
-        } catch (error) {
+        } catch (error: any | AxiosError) {
             if (error?.response) {
                 if (error?.response?.status == 402)
                     throw new Error(`Wallet: ${address.slice(0, 4)}...${address.slice(-4)} You don't have 0.001 ETH.`);
