@@ -172,11 +172,12 @@ const usePrepareFields = (
 
                 const srcChainId: string | number = srcNetwork.chain_id || srcNetwork.net;
 
-                operation.setParamByField(ShortcutFieldOpAssociated[field], srcNetwork?.net);
-                operation.setChainId(srcChainId as string);
-                operation.setEcosystem(srcNetwork.ecosystem as any);
-
-                operation.setAccount(addressesByChain.value[srcNetwork.net]);
+                // * Set the chain id and ecosystem if not set
+                if (!operation.getChainId()) operation.setChainId(srcChainId as string);
+                if (!operation.getEcosystem()) operation.setEcosystem(srcNetwork.ecosystem as any);
+                if (!operation.getParamByField(ShortcutFieldOpAssociated[field]))
+                    operation.setParamByField(ShortcutFieldOpAssociated[field], srcNetwork?.net);
+                if (!operation.getAccount()) operation.setAccount(addressesByChain.value[srcNetwork.net]);
 
                 fieldToSet = 'srcNetwork';
                 valueToSet = srcNetwork;
@@ -185,12 +186,15 @@ const usePrepareFields = (
 
             case 'dstNetwork':
                 const dstNetwork = getChainByChainId(ecosystem as Ecosystems, chainId as string);
+
                 if (!dstNetwork) {
                     console.error(`DST Network not found: ${chainId}`);
                     return false;
                 }
 
-                operation.setParamByField(ShortcutFieldOpAssociated[field], dstNetwork?.net);
+                // * Set the to chain if not set
+                if (!operation.getParamByField(ShortcutFieldOpAssociated[field]))
+                    operation.setParamByField(ShortcutFieldOpAssociated[field], dstNetwork?.net);
 
                 fieldToSet = 'dstNetwork';
                 valueToSet = dstNetwork;
@@ -200,7 +204,7 @@ const usePrepareFields = (
             case 'srcToken':
             case 'dstToken':
                 if (!id) {
-                    console.error(`Token ID not found: ${id}`);
+                    console.error(`Token ID not found: ${id}`, field);
                     return false;
                 }
 
@@ -215,8 +219,10 @@ const usePrepareFields = (
 
                 if (amount) tokenParams.amount = amount;
 
+                const opToken = operation.getToken(TokenDestinationByField[field]);
+
                 // * If the token is not set, set it
-                operation.setToken(TokenDestinationByField[field], tokenParams);
+                if (!opToken) operation.setToken(TokenDestinationByField[field], tokenParams);
 
                 fieldToSet = field;
                 valueToSet = tokenParams;
@@ -227,7 +233,10 @@ const usePrepareFields = (
                 const setValue = params[FieldsValueAssociated[field]];
                 fieldToSet = field;
                 valueToSet = setValue;
-                operation.setParamByField(setParamKey, setValue);
+
+                // * If the field is not set, set it
+                if (!operation.getParamByField(setParamKey)) operation.setParamByField(setParamKey, setValue);
+
                 break;
         }
 

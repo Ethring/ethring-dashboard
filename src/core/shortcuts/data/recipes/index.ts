@@ -2638,6 +2638,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                         ecosystem: 'EVM',
                         chain: 'arbitrum',
                         id: 'arbitrum:tokens__native:ETH',
+                        address: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
                     },
                     {
                         name: 'dstToken',
@@ -2732,6 +2733,8 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                         disabled: false,
                         ecosystem: 'EVM',
                         chain: 'arbitrum',
+                        id: 'arbitrum:tokens__native:ETH',
+                        address: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
                     },
                     {
                         name: 'isReload',

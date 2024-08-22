@@ -46,7 +46,7 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
 
             const params: IGetQuoteAddLiquidityRequest = {
                 net,
-                poolID: from?.address,
+                poolID: from?.address as string,
                 amount: formatNumber(amount, from?.decimals, false),
                 slippageTolerance: slippage || slippageTolerance,
                 tokenAddress: this.tokenAddress,
@@ -116,7 +116,7 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
 
             const params: IGetQuoteAddLiquidityRequest = {
                 net,
-                poolID: from?.address,
+                poolID: from?.address as string,
                 amount: formatNumber(amount, tokenOut.decimals, false),
                 slippageTolerance: slippage || slippageTolerance,
                 tokenAddress: this.tokenAddress,

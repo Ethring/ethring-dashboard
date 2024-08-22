@@ -222,7 +222,7 @@ describe('usePrepareFields', () => {
             expect(operationById.getChainId()).toBe(`${parameter.chainId}`);
         });
 
-        test('-> should return true without updating field value in Store, with updating in Operation', async () => {
+        test('-> should return true without updating field value in Store and in Operation', async () => {
             await useShortcutsMock.initializations();
             const [operation] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
             const parameter = {
@@ -239,8 +239,8 @@ describe('usePrepareFields', () => {
             };
 
             const result = await usePrepareFieldsMock.prepareValueByField(operation.id, parameter.name, parameter, options);
-
             expect(result).toBe(true);
+
             const { operationsFactory } = useOperationsMock;
 
             const operationById = operationsFactory.value.getOperationById(operation.id);
@@ -249,9 +249,8 @@ describe('usePrepareFields', () => {
 
             if (token) expect(token.id).not.toBe(parameter.id);
 
-            expect(operationById.getToken(TokenDestinationByField[parameter.name]).id).toBe(parameter.id);
-            expect(operationById.getToken(TokenDestinationByField[parameter.name]).chain).toBe(parameter.chain);
-            expect(operationById.getToken(TokenDestinationByField[parameter.name]).address).toBe(parameter.address);
+            expect(operationById.getToken(TokenDestinationByField[parameter.name]).id).not.toBe(parameter.id);
+            expect(operationById.getToken(TokenDestinationByField[parameter.name]).chain).not.toBe(parameter.chain);
         });
     });
 
