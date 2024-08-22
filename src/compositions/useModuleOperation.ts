@@ -710,6 +710,7 @@ const useModuleOperations = (module: ModuleType) => {
             approveOperation.setEcosystem(selectedSrcNetwork.value?.ecosystem);
             approveOperation.setChainId(selectedSrcNetwork.value?.chain_id as string);
             approveOperation.setAccount(account as string);
+            approveOperation.setMake(TRANSACTION_TYPES.APPROVE);
 
             opInGroup.tokens.from && approveOperation.setToken('from', opInGroup.tokens.from);
         };
@@ -737,9 +738,8 @@ const useModuleOperations = (module: ModuleType) => {
                     TRANSACTION_TYPES.TRANSFER,
                     TRANSACTION_TYPES.BRIDGE,
                     TRANSACTION_TYPES.APPROVE,
-                    TRANSACTION_TYPES.REMOVE_LIQUIDITY,
-                    TRANSACTION_TYPES.ADD_LIQUIDITY,
-                ].includes(opInGroup?.make)
+                ].includes(opInGroup?.make) ||
+                [TRANSACTION_TYPES.REMOVE_LIQUIDITY, TRANSACTION_TYPES.ADD_LIQUIDITY].includes(opInGroup?.transactionType)
             )
                 continue;
 
