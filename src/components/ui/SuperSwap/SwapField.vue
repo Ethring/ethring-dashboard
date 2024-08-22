@@ -251,7 +251,7 @@ export default {
     .row,
     .select-row {
         @include pageFlexRow;
-        justify-content: space-between;
+        justify-content: flex-end;
         width: 100%;
 
         & > h3 {

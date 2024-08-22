@@ -206,5 +206,9 @@ export interface IOperationFactory {
 
     getOperationsStatusById(id: string): STATUSES | null;
 
+    removeOperationByKey(key: string): void;
+    removeOperationById(id: string): void;
+    getOperationIdByKey(key: string): string | null;
+
     // getOperation(module: string, operationIndex: number): IBaseOperation;
 }

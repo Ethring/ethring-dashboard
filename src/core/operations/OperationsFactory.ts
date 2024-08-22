@@ -387,14 +387,27 @@ export default class OperationFactory implements IOperationFactory {
     }
     removeOperationById(id: string): void {
         const key = this.operationsIds.get(id) || '';
+
         if (!key) {
             console.warn(`Operation with id ${id} not found`);
             return;
         }
 
-        this.operationsMap.delete(key);
-        this.operationsIds.delete(id);
-        this.operationsIndex.delete(key);
+        if (this.operationsIds.has(id)) this.operationsIds.delete(id);
+        if (this.operationsMap.has(key)) this.operationsMap.delete(key);
+        if (this.operationsStatusByKey.has(key)) this.operationsStatusByKey.delete(key);
+        if (this.operationsIndex.has(key)) this.operationsIndex.delete(key);
+        if (this.operationOrder.includes(key)) this.operationOrder.splice(this.operationOrder.indexOf(key), 1);
+    }
+
+    removeOperationByKey(key: string): void {
+        const id = this.operationsIndex.get(key) || '';
+
+        if (id) this.operationsIds.delete(id);
+        if (this.operationsMap.has(key)) this.operationsMap.delete(key);
+        if (this.operationsStatusByKey.has(key)) this.operationsStatusByKey.delete(key);
+        if (this.operationsIndex.has(key)) this.operationsIndex.delete(key);
+        if (this.operationOrder.includes(key)) this.operationOrder.splice(this.operationOrder.indexOf(key), 1);
     }
 
     resetOperationsStatus(): void {

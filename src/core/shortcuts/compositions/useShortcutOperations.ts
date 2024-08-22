@@ -463,8 +463,6 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
         console.log('CALLING TRY AGAIN', shortcutIndex.value, shortcutStatus.value, operationsCount.value - 1);
 
         const callOnSuccess = () => {
-            console.log('setCallConfirm, for shortcut', 'Success', true, 'resetShortcut');
-
             operationProgress.value = 0;
 
             store.dispatch('shortcuts/setCurrentStepId', {
@@ -482,7 +480,18 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
         };
 
         const callOnFailOnFirstOp = () => {
-            console.log('setCallConfirm, for shortcut', 'FirstOp', true);
+            const id = operationsFactory.value.getOperationIdByKey(firstOperation.value.getUniqueId());
+
+            if (currentStepId.value !== id) {
+                operationsFactory.value.removeOperationByKey(currentStepId.value);
+                operationsFactory.value.removeOperationById(currentStepId.value);
+                operationsFactory.value.resetEstimatedOutputs();
+
+                store.dispatch('shortcuts/setCurrentStepId', {
+                    stepId: id,
+                    shortcutId: currentShortcutID,
+                });
+            }
 
             return store.dispatch('shortcuts/setShortcutStatus', {
                 shortcutId: currentShortcutID,
@@ -648,7 +657,7 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
         // ! if no operation found, return
         if (!currentOp.value?.id) return false;
 
-        // ! if no srcNet, srcToken, srcAmount found, return
+        // !  no srcNet, srcToken, dstNet, dstToken are equal to the oldSrcNet, oldSrcToken, oldDstNet, oldDstToken
         if (
             isEqual(
                 [srcNet?.net, srcToken?.id, dstNet?.net, dstToken?.id],

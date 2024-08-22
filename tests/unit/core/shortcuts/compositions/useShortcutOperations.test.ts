@@ -12,6 +12,7 @@ import { Ecosystem } from '../../../../../src/shared/models/enums/ecosystems.enu
 import { MOCKED_ADAPTER } from '../../../mocks/compositions/index';
 import { ModuleType } from '../../../../../src/shared/models/enums/modules.enum';
 import { SHORTCUT_STATUSES } from '../../../../../src/shared/models/enums/statuses.enum';
+import { delay } from '../../../../../src/shared/utils/helpers';
 
 describe('useOperations', () => {
     let store;
@@ -108,8 +109,8 @@ describe('useOperations', () => {
             const [firstOp] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
             expect(store.getters['shortcuts/getShortcutStatus'](MOCK_SC_CITADEL_ONE_STAKE.id)).toEqual('PENDING');
             expect(store.getters['shortcuts/getCurrentStepId']).toEqual(firstOp.id);
-            expect(store.getters['tokenOps/srcAmount']).toBeNull();
-            expect(store.getters['tokenOps/dstAmount']).toBeNull();
+            expect(store.getters['tokenOps/srcAmount']).toBe('');
+            expect(store.getters['tokenOps/dstAmount']).toBe('');
         });
 
         test('-> should call "setCallConfirm" when operation is not successful on not first step', async () => {
@@ -262,6 +263,7 @@ describe('useOperations', () => {
         test('-> should return false if account exist equal to account from store and "force" is false', async () => {
             await useShortcutsMock.initializations();
             const { setOperationAccount } = useOperationsMock;
+            await delay(1000);
 
             const [firstOp] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
 

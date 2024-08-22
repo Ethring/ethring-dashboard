@@ -152,6 +152,8 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
             return firstOperationID;
         };
 
+        await delay(500);
+
         for (const shortcutOperation of operations) {
             const { id: opId, moduleType, params } = shortcutOperation as any;
 
@@ -185,20 +187,6 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
 
         shortcutIndex.value = 0;
 
-        await store.dispatch('shortcuts/setShortcut', {
-            shortcut: shortcut.id,
-            data: shortcut,
-        });
-
-        await store.dispatch('shortcuts/setShortcutStatus', {
-            shortcutId: shortcut.id,
-            status: SHORTCUT_STATUSES.PENDING,
-        });
-
-        await store.dispatch('shortcuts/setCurrentShortcutId', {
-            shortcutId: shortcut.id,
-        });
-
         const [firstOp] = shortcut.operations || [];
 
         if (!firstOp) {
@@ -212,6 +200,20 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
             await store.dispatch('shortcuts/setCurrentLayout', {
                 layout: layoutComponent,
             });
+
+        await store.dispatch('shortcuts/setShortcut', {
+            shortcut: shortcut.id,
+            data: shortcut,
+        });
+
+        await store.dispatch('shortcuts/setShortcutStatus', {
+            shortcutId: shortcut.id,
+            status: SHORTCUT_STATUSES.PENDING,
+        });
+
+        await store.dispatch('shortcuts/setCurrentShortcutId', {
+            shortcutId: shortcut.id,
+        });
 
         return true;
     };
@@ -301,6 +303,7 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
         await initShortcutSteps();
         await performShortcut(true, true, 'initializations');
         await initShortcutService();
+        await delay(400);
         isShortcutLoading.value = false;
     };
 
@@ -315,16 +318,12 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
         if (isEqual(tokenList, oldTokenList)) return false;
 
         // * Set the token list for the operations
-        const promises = shortcut.operations.map((operation) =>
-            performFields(operation.moduleType, operation.params, {
+        for (const operation of shortcut.operations)
+            await performFields(operation.moduleType, operation.params, {
                 isUpdateInStore: false,
                 id: operation.id,
                 from: 'handleOnChangeTokensList',
-            }),
-        );
-
-        // * Perform the operation fields
-        await Promise.all(promises);
+            });
 
         return true;
     };
@@ -342,21 +341,22 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
 
         await delay(100);
 
+        if (!operationsFactory.value?.getOperationOrder) return false;
+
         const operationList = operationsFactory.value.getOperationOrder();
 
         if (!operationList.length) return false;
 
         operationList.forEach((id) => setOperationAccount(id, { force: true }));
 
-        const promises = shortcut.operations.map((operation) =>
-            performFields(operation.moduleType, operation.params, {
+        for (const operation of shortcut.operations) {
+            const { moduleType, params } = operation;
+            await performFields(moduleType, params, {
                 isUpdateInStore: false,
                 id: operation.id,
                 from: 'handleChangeWalletAccount',
-            }),
-        );
-
-        await Promise.all(promises);
+            });
+        }
 
         return true;
     };

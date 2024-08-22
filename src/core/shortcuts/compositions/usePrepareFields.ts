@@ -59,6 +59,15 @@ const usePrepareFields = (
         set: (value) => store.dispatch('shortcuts/setShortcutIndex', { index: value }),
     });
 
+    const isShortcutLoading = computed({
+        get: () => store.getters['shortcuts/getIsShortcutLoading'](currentShortcutID),
+        set: (value) =>
+            store.dispatch('shortcuts/setIsShortcutLoading', {
+                shortcutId: currentShortcutID,
+                value,
+            }),
+    });
+
     const currentStepId = computed(() => store.getters['shortcuts/getCurrentStepId']);
     const currentShortcut = computed(() => store.getters['shortcuts/getShortcut'](currentShortcutID));
 
@@ -151,10 +160,10 @@ const usePrepareFields = (
         };
 
         // * If the field and value is exist, set the field value in the store and operation
-        if (field && value) {
-            isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value }));
+        if (field && value && value !== null) {
             isToken ? operation.setToken(TokenDestinationByField[field], value) : null;
             ShortcutFieldOpAssociated[field] ? operation.setParamByField(ShortcutFieldOpAssociated[field], value) : null;
+            isUpdateInStore && (await store.dispatch(`tokenOps/setFieldValue`, { field, value }));
             return true;
         }
 
@@ -282,13 +291,11 @@ const usePrepareFields = (
         if (!opId) return false;
         if (!module) return false;
 
-        const promises = fields.map((field) => {
+        for (const field of fields) {
             const { name, disabled = false, hide = false } = field || {};
-            prepareDisabledField(opId, module, name, disabled);
-            prepareHiddenField(opId, module, name, hide);
-        });
-
-        await Promise.all(promises);
+            await prepareDisabledField(opId, module, name, disabled);
+            await prepareHiddenField(opId, module, name, hide);
+        }
 
         return true;
     };
@@ -299,6 +306,9 @@ const usePrepareFields = (
     const callPerformOnWatchOnMounted = async () => {
         if (!currentOp.value) return false;
         if (!currentOp.value?.id) return false;
+        if (isTransactionSigning.value) return false;
+        if (isQuoteLoading.value) return false;
+        if (isShortcutLoading.value) return false;
 
         await store.dispatch('tokenOps/resetFields');
 

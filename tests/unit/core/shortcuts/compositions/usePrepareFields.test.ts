@@ -12,6 +12,7 @@ import { Ecosystem } from '../../../../../src/shared/models/enums/ecosystems.enu
 import { ModuleType } from '../../../../../src/shared/models/enums/modules.enum';
 import { IChainConfig } from '../../../../../src/shared/models/types/chain-config';
 import { ShortcutFieldOpAssociated, TokenDestinationByField } from '../../../../../src/core/shortcuts/core/types/ShortcutType';
+import { delay } from '../../../../../src/shared/utils/helpers';
 
 describe('usePrepareFields', () => {
     let store;
@@ -224,6 +225,7 @@ describe('usePrepareFields', () => {
 
         test('-> should return true without updating field value in Store and in Operation', async () => {
             await useShortcutsMock.initializations();
+            await delay(1000);
             const [operation] = MOCK_SC_CITADEL_ONE_STAKE.recipe.operations;
             const parameter = {
                 name: 'srcToken',

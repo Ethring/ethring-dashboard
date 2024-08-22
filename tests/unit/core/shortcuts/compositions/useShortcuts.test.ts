@@ -235,9 +235,10 @@ describe('useShortcuts', () => {
             });
 
             test('-> should not call "performShortcut" when operations order is empty', async () => {
-                const mock = useShortcuts(MOCK_SC_CITADEL_ONE_STAKE, { tmpStore: store });
-                const { shortcut } = mock;
-                shortcut.operations = [];
+                const mock = useShortcuts(
+                    { ...MOCK_SC_CITADEL_ONE_STAKE, id: 'test-empty', recipe: { operations: [] }, operations: [] },
+                    { tmpStore: store },
+                );
                 await mock.initializations();
                 const result = await mock.handleOnChangeWalletAccount('EVM Test Account', 'EVM Test Account 2');
                 expect(result).toBe(false);

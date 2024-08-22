@@ -721,27 +721,27 @@ const useModuleOperations = (module: ModuleType) => {
     };
 
     const insertOrPassApproveByContractOp = async (operations: OperationsFactory): Promise<any> => {
+        console.log('insertOrPassApproveByContractOp -> operations', operations);
         const operationsFlow = operations.getFullOperationFlow();
+        const NOT_NEED_APPROVE = [
+            TRANSACTION_TYPES.STAKE,
+            TRANSACTION_TYPES.CLAIM,
+            TRANSACTION_TYPES.DEX,
+            TRANSACTION_TYPES.TRANSFER,
+            TRANSACTION_TYPES.BRIDGE,
+            TRANSACTION_TYPES.APPROVE,
+            TRANSACTION_TYPES.REMOVE_LIQUIDITY,
+            TRANSACTION_TYPES.ADD_LIQUIDITY,
+        ];
 
         for (const operation of operationsFlow) {
             const opInGroup = operations.getOperationByKey(operation.moduleIndex);
 
-            if (
-                opInGroup.ecosystem !== Ecosystem.EVM ||
-                opInGroup.isNeedApprove ||
-                !opInGroup.tokens.from?.address ||
-                [
-                    TRANSACTION_TYPES.STAKE,
-                    TRANSACTION_TYPES.CLAIM,
-                    TRANSACTION_TYPES.DEX,
-                    TRANSACTION_TYPES.TRANSFER,
-                    TRANSACTION_TYPES.BRIDGE,
-                    TRANSACTION_TYPES.APPROVE,
-                    TRANSACTION_TYPES.REMOVE_LIQUIDITY,
-                    TRANSACTION_TYPES.ADD_LIQUIDITY,
-                ].includes(opInGroup?.make)
-            )
-                continue;
+            const { make, isNeedApprove, ecosystem, tokens } = opInGroup;
+            const { from } = tokens || {};
+            const { address } = from || {};
+
+            if (ecosystem !== Ecosystem.EVM || isNeedApprove || !address || (make && NOT_NEED_APPROVE.includes(make as any))) continue;
 
             // check connected chain on blocknative provider, to call contract methods
             if (currentChainInfo.value?.net !== opInGroup.tokens.from?.chain) {

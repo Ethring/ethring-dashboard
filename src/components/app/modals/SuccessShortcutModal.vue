@@ -208,19 +208,28 @@ export default defineComponent({
                 nftsList.value = [];
 
                 const flow = operationsFactory.value.getFullOperationFlow();
+                const firstOperation = operationsFactory.value.getFirstOperation();
+                const firstOperationId = operationsFactory.value.getOperationIdByKey(firstOperation.getUniqueId());
 
-                const firstOp = flow.find((op) => op.moduleIndex.slice(-1) === '0');
+                const operationOrder = operationsFactory.value.getOperationOrder();
+                const [firstOpInOrder] = operationOrder;
 
-                const firstOpId = operationsFactory.value.getOperationIdByKey(firstOp?.moduleIndex || flow[0].moduleIndex);
+                if (firstOpInOrder !== firstOperation.getUniqueId()) {
+                    operationsFactory.value.removeOperationByKey(firstOpInOrder as string);
+                    operationsFactory.value.resetEstimatedOutputs();
 
-                store.dispatch('shortcuts/setCurrentStepId', firstOpId);
+                    store.dispatch('shortcuts/setCurrentStepId', {
+                        stepId: firstOperationId,
+                        shortcutId: currentShortcutId.value,
+                    });
+                }
 
                 store.dispatch('tokenOps/setSrcAmount', null);
                 store.dispatch('tokenOps/setDstAmount', null);
 
                 return store.dispatch('shortcuts/resetShortcut', {
                     shortcutId: currentShortcutId.value,
-                    stepId: firstOpId,
+                    stepId: firstOperationId,
                 });
             }
         });

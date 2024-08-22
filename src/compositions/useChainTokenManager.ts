@@ -391,12 +391,12 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
             [selectedSrcToken.value, selectedDstToken.value] = [selectedDstToken.value, selectedSrcToken.value];
         }
 
-        if (!isEmpty(newSrc)) {
+        if (!isEmpty(newSrc) && newSrc?.net !== oldSrc?.net) {
             selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
             if ([ModuleType.swap].includes(moduleType)) await updateDstTokenIfNeed(true, [selectedSrcToken.value?.id]);
         }
 
-        if (!isEmpty(newDst))
+        if (!isEmpty(newDst) && newDst?.net !== oldDst?.net)
             selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value, { isSrc: false });
 
         defaultChainMangerByModule();
