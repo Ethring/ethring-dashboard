@@ -710,6 +710,7 @@ const useModuleOperations = (module: ModuleType) => {
             approveOperation.setEcosystem(selectedSrcNetwork.value?.ecosystem);
             approveOperation.setChainId(selectedSrcNetwork.value?.chain_id as string);
             approveOperation.setAccount(account as string);
+            approveOperation.setMake(TRANSACTION_TYPES.APPROVE);
 
             opInGroup.tokens.from && approveOperation.setToken('from', opInGroup.tokens.from);
         };
@@ -730,18 +731,25 @@ const useModuleOperations = (module: ModuleType) => {
             TRANSACTION_TYPES.TRANSFER,
             TRANSACTION_TYPES.BRIDGE,
             TRANSACTION_TYPES.APPROVE,
-            TRANSACTION_TYPES.REMOVE_LIQUIDITY,
-            TRANSACTION_TYPES.ADD_LIQUIDITY,
         ];
+
+        const TX_TYPES_FOR_APPROVE = [TRANSACTION_TYPES.REMOVE_LIQUIDITY, TRANSACTION_TYPES.ADD_LIQUIDITY];
 
         for (const operation of operationsFlow) {
             const opInGroup = operations.getOperationByKey(operation.moduleIndex);
 
-            const { make, isNeedApprove, ecosystem, tokens } = opInGroup;
+            const { make, isNeedApprove, ecosystem, tokens, transactionType } = opInGroup;
             const { from } = tokens || {};
             const { address } = from || {};
 
-            if (ecosystem !== Ecosystem.EVM || isNeedApprove || !address || (make && NOT_NEED_APPROVE.includes(make as any))) continue;
+            if (
+                ecosystem !== Ecosystem.EVM ||
+                isNeedApprove ||
+                !address ||
+                NOT_NEED_APPROVE.includes(make as any) ||
+                TX_TYPES_FOR_APPROVE.includes(transactionType as any)
+            )
+                continue;
 
             // check connected chain on blocknative provider, to call contract methods
             if (currentChainInfo.value?.net !== opInGroup.tokens.from?.chain) {

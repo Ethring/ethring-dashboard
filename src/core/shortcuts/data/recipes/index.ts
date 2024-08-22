@@ -2642,6 +2642,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     },
                     {
                         name: 'dstToken',
+                        id: 'arbitrum:pools__0x9791d590788598535278552eecd4b211bfc790cb:wstETH-WETH-BPT',
                         value: {
                             id: 'arbitrum:pools__0x9791d590788598535278552eecd4b211bfc790cb:wstETH-WETH-BPT',
                             chain: 'arbitrum',
@@ -2682,7 +2683,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationParams: {
                     net: 'arbitrum',
                     poolID: '0x9791d590788598535278552eecd4b211bfc790cb',
-                    slippageTolerance: '1',
+                    slippageTolerance: '5',
                     decimals: 18,
                 },
                 dependencies: {
@@ -2708,6 +2709,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     },
                     {
                         name: 'srcToken',
+                        id: 'arbitrum:pools__0x9791d590788598535278552eecd4b211bfc790cb:wstETH-WETH-BPT',
                         value: {
                             id: 'arbitrum:pools__0x9791d590788598535278552eecd4b211bfc790cb:wstETH-WETH-BPT',
                             chain: 'arbitrum',
@@ -2784,6 +2786,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     },
                     {
                         name: 'dstToken',
+                        id: 'arbitrum:pools__0x515e252b2b5c22b4b2b6df66c2ebeea871aa4d69:WBTC/WETH',
                         value: {
                             id: 'arbitrum:pools__0x515e252b2b5c22b4b2b6df66c2ebeea871aa4d69:WBTC/WETH',
                             chain: 'arbitrum',
@@ -2824,7 +2827,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 operationParams: {
                     net: 'arbitrum',
                     poolID: '0x515e252b2b5c22b4b2b6df66c2ebeea871aa4d69',
-                    slippageTolerance: '1',
+                    slippageTolerance: '5',
                     decimals: 18,
                 },
                 dependencies: {
@@ -2850,6 +2853,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     },
                     {
                         name: 'srcToken',
+                        id: 'arbitrum:pools__0x515e252b2b5c22b4b2b6df66c2ebeea871aa4d69:WBTC/WETH',
                         value: {
                             id: 'arbitrum:pools__0x515e252b2b5c22b4b2b6df66c2ebeea871aa4d69:WBTC/WETH',
                             chain: 'arbitrum',
@@ -2901,7 +2905,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                 includeChains: ['arbitrum', 'bsc', 'polygon', 'avalanche', 'fantom', 'optimism', 'base'],
                 operationParams: {
                     net: 'arbitrum',
-                    slippageTolerance: '1',
+                    slippageTolerance: '5',
                 },
                 dependencies: {
                     operationId: 'remove-liquidity-pool',
@@ -2991,6 +2995,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     },
                     {
                         name: 'dstToken',
+                        id: 'arbitrum:pools__0x218337d7dae070e219c44783a64ca107dffc533e:ezETH_26sep24',
                         value: {
                             id: 'arbitrum:pools__0x218337d7dae070e219c44783a64ca107dffc533e:ezETH_26sep24',
                             chain: 'arbitrum',
@@ -3066,6 +3071,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     },
                     {
                         name: 'dstToken',
+                        id: 'arbitrum:pools__0x71453d859918a1d59354324c2a70d32e53b97f67:PT_ezETH_26sep24',
                         value: {
                             id: 'arbitrum:pools__0x71453d859918a1d59354324c2a70d32e53b97f67:PT_ezETH_26sep24',
                             chain: 'arbitrum',
@@ -3191,6 +3197,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     },
                     {
                         name: 'dstToken',
+                        id: 'base:pools__0xedc817a28e8b93b03976fbd4a3ddbc9f7d176c22:musdc',
                         value: {
                             id: 'base:pools__0xedc817a28e8b93b03976fbd4a3ddbc9f7d176c22:musdc',
                             chain: 'base',
@@ -3266,6 +3273,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     },
                     {
                         name: 'dstToken',
+                        id: 'base:pools__0x53e240c0f985175da046a62f26d490d1e259036e:susdc',
                         value: {
                             id: 'base:pools__0x53e240c0f985175da046a62f26d490d1e259036e:susdc',
                             chain: 'base',
@@ -3576,6 +3584,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                         disabled: false,
                         ecosystem: 'EVM',
                         chain: 'berachain',
+                        id: 'berachain:tokens__0xbda130737bdd9618301681329bf2e46a016ff9ad:BGT',
                         value: {
                             id: 'berachain:tokens__0xbda130737bdd9618301681329bf2e46a016ff9ad:BGT',
                             name: 'BGT',
@@ -3668,6 +3677,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                         disabled: false,
                         ecosystem: 'EVM',
                         chain: 'berachain',
+                        id: 'berachain:tokens__0xbda130737bdd9618301681329bf2e46a016ff9ad:BGT',
                         value: {
                             id: 'berachain:tokens__0xbda130737bdd9618301681329bf2e46a016ff9ad:BGT',
                             name: 'BGT',
@@ -3743,6 +3753,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     },
                     {
                         name: 'dstToken',
+                        id: 'base:pools__0xa0E430870c4604CcfC7B38Ca7845B1FF653D0ff1:mwETH',
                         value: {
                             id: 'base:pools__0xa0E430870c4604CcfC7B38Ca7845B1FF653D0ff1:mwETH',
                             chain: 'base',
@@ -3820,6 +3831,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     },
                     {
                         name: 'dstToken',
+                        id: 'base:pools__0xc1256Ae5FF1cf2719D4937adb3bbCCab2E00A2Ca:mwUSDC',
                         value: {
                             id: 'base:pools__0xc1256Ae5FF1cf2719D4937adb3bbCCab2E00A2Ca:mwUSDC',
                             chain: 'base',
@@ -3897,6 +3909,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     },
                     {
                         name: 'dstToken',
+                        id: 'base:pools__0xc0c5689e6f4D256E861F65465b691aeEcC0dEb12:gtUSDCc',
                         value: {
                             id: 'base:pools__0xc0c5689e6f4D256E861F65465b691aeEcC0dEb12:gtUSDCc',
                             chain: 'base',
@@ -3974,6 +3987,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     },
                     {
                         name: 'dstToken',
+                        id: 'base:pools__0xbeeF010f9cb27031ad51e3333f9aF9C6B1228183:steakUSDC',
                         value: {
                             id: 'base:pools__0xbeeF010f9cb27031ad51e3333f9aF9C6B1228183:steakUSDC',
                             chain: 'base',
@@ -4051,6 +4065,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     },
                     {
                         name: 'dstToken',
+                        id: 'base:pools__0xeE8F4eC5672F09119b96Ab6fB59C27E1b7e44b61:gtUSDCp',
                         value: {
                             id: 'base:pools__0xeE8F4eC5672F09119b96Ab6fB59C27E1b7e44b61:gtUSDCp',
                             chain: 'base',
@@ -4128,6 +4143,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     },
                     {
                         name: 'dstToken',
+                        id: 'base:pools__0xbEEf050a7485865A7a8d8Ca0CC5f7536b7a3443e:steakETH',
                         value: {
                             id: 'base:pools__0xbEEf050a7485865A7a8d8Ca0CC5f7536b7a3443e:steakETH',
                             chain: 'base',
@@ -4205,6 +4221,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     },
                     {
                         name: 'dstToken',
+                        id: 'base:pools__0x6b13c060F13Af1fdB319F52315BbbF3fb1D88844:gtWETHc',
                         value: {
                             id: 'base:pools__0x6b13c060F13Af1fdB319F52315BbbF3fb1D88844:gtWETHc',
                             chain: 'base',
@@ -4282,6 +4299,7 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                     },
                     {
                         name: 'dstToken',
+                        id: 'base:pools__0x12AFDeFb2237a5963e7BAb3e2D46ad0eee70406e:Re7USDC',
                         value: {
                             id: 'base:pools__0x12AFDeFb2237a5963e7BAb3e2D46ad0eee70406e:Re7USDC',
                             chain: 'base',
