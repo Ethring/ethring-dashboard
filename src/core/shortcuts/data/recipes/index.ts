@@ -4377,11 +4377,6 @@ const RECIPES: Record<string, IRecipesWithOperations> = {
                         id: 'linea:tokens__native:ETH',
                     },
                     {
-                        name: 'dstNetwork',
-                        hide: true,
-                        disabled: true,
-                    },
-                    {
                         name: 'dstToken',
                         hide: false,
                         disabled: true,

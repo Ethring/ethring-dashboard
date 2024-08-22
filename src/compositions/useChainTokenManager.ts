@@ -400,7 +400,7 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
                 await updateDstTokenIfNeed(true, [selectedSrcToken.value?.id]);
         }
 
-        if (!isEmpty(newDst) && newDst?.net !== oldDst?.net)
+        if (!isEmpty(newDst) && newDst?.net !== oldDst?.net && !route?.path?.includes('/shortcuts/'))
             selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value, { isSrc: false });
 
         defaultChainMangerByModule();
@@ -435,8 +435,8 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
         if (!loadingState && !isDstNetworkSet.value) return;
 
         if ([ModuleType.send].includes(moduleType)) return (selectedDstToken.value = null);
-
-        selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value, { isSrc: false });
+        else if (!route?.path?.includes('/shortcuts/'))
+            selectedDstToken.value = await setTokenOnChangeForNet(selectedDstNetwork.value, selectedDstToken.value, { isSrc: false });
     };
 
     const onChangeLoadingConfig = (loadingState: boolean) => {
