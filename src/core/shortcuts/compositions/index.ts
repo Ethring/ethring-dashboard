@@ -431,7 +431,6 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
     // **************************************************************************************************
 
     onMounted(async () => {
-        isShortcutLoading.value = false;
         if (isConfigLoading.value) return console.warn('Config is loading');
         await initializations();
     });

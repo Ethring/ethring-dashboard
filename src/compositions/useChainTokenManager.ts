@@ -13,6 +13,7 @@ import { ModuleType, LIKE_SUPER_SWAP, IS_NEED_DST_NETWORK } from '@/shared/model
 import { IChainConfig } from '@/shared/models/types/chain-config';
 import { IAsset } from '@/shared/models/fields/module-fields';
 import { AvailableShortcuts } from '@/core/shortcuts/data/shortcuts';
+import { useRoute } from 'vue-router';
 
 /**
  * @composition useChainTokenManager
@@ -22,6 +23,8 @@ import { AvailableShortcuts } from '@/core/shortcuts/data/shortcuts';
  * @returns
  */
 export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }: { tmpStore: Store<any> | null } = { tmpStore: null }) {
+    const route = useRoute();
+
     // ****************************************************************************************************************
     // * Store
     // ****************************************************************************************************************
@@ -270,7 +273,7 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
     };
 
     const updateDstTokenForSwap = async () => {
-        if (isDstTokenChangedForSwap.value || !selectedDstToken.value || isAccountChanged.value)
+        if ((isDstTokenChangedForSwap.value || !selectedDstToken.value || isAccountChanged.value) && !route?.path?.includes('/shortcuts/'))
             await updateDstTokenIfNeed(true, [selectedSrcToken.value?.id]);
     };
 
@@ -393,7 +396,8 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
 
         if (!isEmpty(newSrc) && newSrc?.net !== oldSrc?.net) {
             selectedSrcToken.value = await setTokenOnChangeForNet(selectedSrcNetwork.value, selectedSrcToken.value);
-            if ([ModuleType.swap].includes(moduleType)) await updateDstTokenIfNeed(true, [selectedSrcToken.value?.id]);
+            if ([ModuleType.swap].includes(moduleType) && !route?.path?.includes('/shortcuts/'))
+                await updateDstTokenIfNeed(true, [selectedSrcToken.value?.id]);
         }
 
         if (!isEmpty(newDst) && newDst?.net !== oldDst?.net)
@@ -419,7 +423,7 @@ export default function useChainTokenManger(moduleType: ModuleType, { tmpStore }
 
         if (isSameToken.value) selectedDstToken.value = null;
 
-        if ([ModuleType.swap].includes(moduleType) && isSrcTokenChanged.value)
+        if ([ModuleType.swap].includes(moduleType) && isSrcTokenChanged.value && !route?.path?.includes('/shortcuts/'))
             await updateDstTokenIfNeed(true, [selectedSrcToken.value?.id]);
     };
 
