@@ -639,7 +639,7 @@ const useModuleOperations = (module: ModuleType) => {
             return isNeedApprove.value;
         };
 
-        if (!checkNeedApprove()) return firstInGroup.setNeedApprove(true);
+        if (!checkNeedApprove()) return;
 
         const account = srcAddressByChain.value[selectedSrcNetwork.value?.net] || walletAddress.value;
         const params = {
@@ -737,6 +737,8 @@ const useModuleOperations = (module: ModuleType) => {
                     TRANSACTION_TYPES.TRANSFER,
                     TRANSACTION_TYPES.BRIDGE,
                     TRANSACTION_TYPES.APPROVE,
+                    TRANSACTION_TYPES.REMOVE_LIQUIDITY,
+                    TRANSACTION_TYPES.ADD_LIQUIDITY,
                 ].includes(opInGroup?.make)
             )
                 continue;
