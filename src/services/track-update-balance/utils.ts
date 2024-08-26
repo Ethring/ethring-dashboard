@@ -17,12 +17,13 @@ export const detectUpdateForAccount = async (socketEvent: string, store: any, tr
     const isBridge = type === TRANSACTION_TYPES.BRIDGE;
     const isCosmosBridge = ecosystem === Ecosystem.COSMOS && [TRANSACTION_TYPES.BRIDGE, TRANSACTION_TYPES.DEX].includes(type);
 
-    const { fromNet = '', toNet = '', receiverAddress = null } = params || {};
+    const { net = '', fromNet = '', toNet = '', receiverAddress = null } = params || {};
+    const network = net || fromNet;
 
     const chains = [];
 
-    if ((isBridge || isCosmosBridge) && fromNet && toNet) {
-        chains.push(fromNet);
+    if ((isBridge || isCosmosBridge) && network && toNet) {
+        chains.push(network);
         chains.push(toNet);
     } else {
         chains.push(chainId);
@@ -31,7 +32,7 @@ export const detectUpdateForAccount = async (socketEvent: string, store: any, tr
     const storeParams: IUpdateBalanceByHash = {
         hash: txHash,
         addresses: {
-            [fromNet]: account,
+            [network]: account,
         },
     };
 
