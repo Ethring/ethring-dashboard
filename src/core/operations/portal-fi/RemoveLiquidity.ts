@@ -124,9 +124,7 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
 
             const response = await this.service.getQuoteRemoveLiquidity(params);
 
-            const { outputAmount } = response?.data;
-
-            if (outputAmount) this.setParamByField('outputAmount', outputAmount);
+            if (response?.data?.outputAmount) this.setParamByField('outputAmount', response.data.outputAmount);
         } catch (error) {
             console.error('LiquidityProvider.estimateOutput', error);
             throw error;
