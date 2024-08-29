@@ -113,11 +113,9 @@ export default class PortalFiAddLiquidity extends BaseOperation {
             };
 
             const response = await this.service.getQuoteAddLiquidity(params);
-            const { outputAmount, outputTokenDecimals } = response?.data;
+            const { lpTokenAmount } = response?.data;
 
-            const amountOutput = formatNumber(BigNumber(outputAmount).dividedBy(`1e${outputTokenDecimals}`).toFixed(), outputTokenDecimals);
-
-            this.setParamByField('outputAmount', amountOutput);
+            if (lpTokenAmount) this.setParamByField('outputAmount', lpTokenAmount);
         } catch (error) {
             console.error('LiquidityProvider.estimateOutput', error);
             throw error;

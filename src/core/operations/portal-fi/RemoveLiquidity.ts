@@ -124,11 +124,9 @@ export default class PortalFiRemoveLiquidity extends BaseOperation {
 
             const response = await this.service.getQuoteRemoveLiquidity(params);
 
-            const { outputAmount, outputTokenDecimals } = response?.data;
+            const { outputAmount } = response?.data;
 
-            const amountOutput = formatNumber(BigNumber(outputAmount).dividedBy(`1e${outputTokenDecimals}`).toFixed(), outputTokenDecimals);
-
-            this.setParamByField('outputAmount', amountOutput);
+            if (outputAmount) this.setParamByField('outputAmount', outputAmount);
         } catch (error) {
             console.error('LiquidityProvider.estimateOutput', error);
             throw error;
