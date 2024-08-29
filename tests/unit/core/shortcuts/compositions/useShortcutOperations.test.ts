@@ -576,10 +576,12 @@ describe('useOperations', () => {
 
         const srcToken = {
             id: 'srcTestToken',
+            balance: 1,
         };
 
         const dstToken = {
             id: 'dstTestToken',
+            balance: 1,
         };
 
         test('-> should return false if operationsFactory is not initialized', async () => {
@@ -612,6 +614,15 @@ describe('useOperations', () => {
         test('-> should  return true and set params if params are changed and operationsFactory is initialized', async () => {
             await useShortcutsMock.initializations();
             const result = await useOperationsMock.handleOnUpdateOperationParams([srcNetwork, srcToken, dstNetwork, dstToken], []);
+            expect(result).toBe(true);
+        });
+
+        test('-> should return true if src or dst token balance is changed', async () => {
+            await useShortcutsMock.initializations();
+            const result = await useOperationsMock.handleOnUpdateOperationParams(
+                [srcNetwork, srcToken, dstNetwork, dstToken],
+                [srcNetwork, { ...srcToken, balance: 0 }, dstNetwork, { ...dstToken, balance: 0 }],
+            );
             expect(result).toBe(true);
         });
     });

@@ -314,7 +314,6 @@ const useShortcuts = (Shortcut: IShortcutData, { tmpStore }: { tmpStore: Store<a
     const handleOnChangeTokensList = async (tokenList: IAsset[], oldTokenList: IAsset[]) => {
         if (!operationsFactory.value) return false;
         if (!shortcut || !shortcut.operations) return false;
-        if (!shortcut.operations.length) return false;
         if (isEqual(tokenList, oldTokenList)) return false;
 
         // * Set the token list for the operations

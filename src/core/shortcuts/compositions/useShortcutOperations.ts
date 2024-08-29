@@ -366,7 +366,11 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
         if (!operation) return false;
 
         const amount = operation.getParamByField('amount');
-        if (!amount) return false;
+
+        if (!amount) {
+            quoteErrorMessage.value = 'Please Fill amount field';
+            return false;
+        }
 
         const fromToken = operation.getToken('from');
         const { price = 0 } = fromToken || {};
@@ -600,8 +604,8 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
 
         if (
             isEqual(
-                [srcNet?.net, srcToken?.id, dstNet?.net, dstToken?.id],
-                [oldSrcNet?.net, oldSrcToken?.id, oldDstNet?.net, oldDstToken?.id],
+                [srcNet?.net, srcToken?.id, srcToken?.balance, dstNet?.net, dstToken?.id, dstToken?.balance],
+                [oldSrcNet?.net, oldSrcToken?.id, oldSrcToken?.balance, oldDstNet?.net, oldDstToken?.id, oldDstToken?.balance],
             )
         )
             return false;
@@ -693,6 +697,9 @@ const useShortcutOperations = (currentShortcutID: string, { tmpStore }: { tmpSto
             isEstimate && (await handleOnCallEstimateOutput());
             return true;
         }
+
+        operation?.setParamByField(targetAmount, 0);
+        isEstimate && (await handleOnCallEstimateOutput());
 
         return false;
     };
