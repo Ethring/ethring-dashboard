@@ -18,6 +18,8 @@ ARG PROXY_API
 # Backend API
 ARG CORE_API
 ARG TX_MANAGER_API
+# Portal API
+ARG PORTAL_FI_API
 # Others
 ARG RELEASE
 # Error tracking

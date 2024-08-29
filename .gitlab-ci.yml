@@ -42,6 +42,7 @@ include:
       --build-arg KADO_API_KEY
       --build-arg TX_MANAGER_API
       --build-arg NODE_ENV
+      --build-arg PORTAL_FI_API
 
 .deployJob:
   stage: deploy
