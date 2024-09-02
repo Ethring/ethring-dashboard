@@ -377,4 +377,13 @@ describe('useShortcuts', () => {
             expect(result).toBe(false);
         });
     });
+
+    describe('initShortcutMetaInfo', () => {
+        test(`-> shortcut metainfo doesn't call for shortcut ${MOCK_SC_CITADEL_ONE_STAKE.id}`, async () => {
+            const { initShortcutMetaInfo } = useShortcutsMock;
+            const result = await initShortcutMetaInfo();
+
+            expect(result).toBe(false);
+        });
+    });
 });

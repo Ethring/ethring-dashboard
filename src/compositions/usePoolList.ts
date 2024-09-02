@@ -9,9 +9,9 @@ export default function usePoolList() {
 
     const getAccount = (ecosystem: Ecosystems): string | null => store?.getters['adapters/getAccountByEcosystem'](ecosystem);
 
-    const accountByEcosystem = getAccount(Ecosystem.EVM);
+    const accountByEcosystem = computed(() => getAccount(Ecosystem.EVM));
 
-    const pools = computed(() => store?.getters['tokens/getPoolsByAccount'](accountByEcosystem, 'pools') || []);
+    const pools = computed(() => store?.getters['tokens/getPoolsByAccount'](accountByEcosystem.value, 'pools') || []);
 
     return pools;
 }

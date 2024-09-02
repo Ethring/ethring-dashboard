@@ -28,6 +28,8 @@ export interface IShortcutData {
         fullEcosystems: string[];
         additionalNetworks: string[];
     };
+
+    callShortcutMethod?: string;
 }
 
 export default class Shortcut implements IShortcutData {
@@ -59,6 +61,8 @@ export default class Shortcut implements IShortcutData {
         additionalNetworks: string[];
     };
 
+    callShortcutMethod?: string;
+
     constructor(shortcut: IShortcutData) {
         if (!shortcut) throw new Error('Shortcut data is required');
         if (!shortcut.id) throw new Error('Shortcut id is required');
@@ -76,6 +80,7 @@ export default class Shortcut implements IShortcutData {
         this.isComingSoon = shortcut.isComingSoon;
         this.isActive = shortcut.isActive;
         this.networksConfig = shortcut.networksConfig;
+        this.callShortcutMethod = shortcut.callShortcutMethod;
 
         this.recipes = [];
 

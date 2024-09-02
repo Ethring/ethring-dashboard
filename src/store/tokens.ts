@@ -4,11 +4,12 @@ import { useLocalStorage } from '@vueuse/core';
 import BigNumber from 'bignumber.js';
 
 import { IntegrationBalanceType, Type } from '@/core/balance-provider/models/enums';
+import { AssetBalance, IntegrationBalance, NftBalance } from '@/core/balance-provider/models/types';
 import { getTotalBalance, getIntegrationsBalance, getTotalBalanceByType, filterSmallBalances } from '@/core/balance-provider/calculation';
 
 import IndexedDBService from '@/services/indexed-db';
+
 import { IAsset } from '@/shared/models/fields/module-fields';
-import { AssetBalance, IntegrationBalance, NftBalance } from '@/core/balance-provider/models/types';
 
 const balancesDB = new IndexedDBService('balances', 3);
 const minBalanceStorage = useLocalStorage('dashboard:minBalance', 0, { mergeDefaults: true });

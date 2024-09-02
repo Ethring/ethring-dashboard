@@ -110,8 +110,6 @@ export const trackingBalanceUpdate = (store: any) => {
 
         await store.dispatch('updateBalance/removeUpdateBalanceForAddress', queueWallet);
 
-        if (ecosystem === Ecosystem.EVM && config.net === 'berachain') await store.dispatch('shortcuts/loadUserVaults', address);
-
         const tokens = store.getters['tokens/getTokensListForChain'](config.net, { account: targetAccount });
         const pools = store.getters['tokens/getPoolsByAccount'](targetAccount);
 
