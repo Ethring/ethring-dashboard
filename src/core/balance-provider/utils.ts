@@ -3,7 +3,6 @@ import { BalanceType, RecordList, RecordOptions } from './models/types';
 import { formatResponse } from './format';
 
 import IndexedDBService from '@/services/indexed-db';
-import { Type } from './models/enums';
 
 const balancesDB = new IndexedDBService('balances', 3);
 
@@ -19,8 +18,7 @@ export const storeBalanceForAccount = async (
     const { store } = opt;
 
     // if result is empty set loading value for chain
-    if ((!balances || !balances.length) && type !== Type.pools)
-        return store.dispatch('tokens/setLoadingByChain', { chain, account, value: false });
+    if (!balances || !balances.length) return store.dispatch('tokens/setLoadingByChain', { chain, account, value: false });
 
     // * Format tokens and save to store
     const formatted = formatResponse(type, balances, { ...opt, chain });

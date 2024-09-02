@@ -1,4 +1,4 @@
-import ApiClient from '@/modules/portal-fi/api/axios';
+import { PortalApiInstance, DpApiInstance } from '@/modules/portal-fi/api/axios';
 import {
     IGetQuoteAddLiquidityRequest,
     IGetQuoteAddLiquidityResponse,
@@ -8,7 +8,7 @@ import {
     IGetUserBalancePoolListRequest,
     IGetPoolListRequest,
     IGetUsersPoolListResponse,
-} from '@/modules/portal-fi/models/request.ts';
+} from '@/modules/portal-fi/models/request';
 import { errorRegister } from '@/shared/utils/errors';
 
 export interface IPortalFiApi {
@@ -27,7 +27,7 @@ class PortalFiApi implements IPortalFiApi {
     // get allowance amount
     async getAllowance(params: IGetAllowanceRequest): Promise<any> {
         try {
-            const response = await ApiClient.get(`/getAllowance`, { params });
+            const response = await PortalApiInstance.get(`/getAllowance`, { params });
 
             const getAllowanceResponse = response.data as IGetAllowanceResponse;
 
@@ -42,7 +42,7 @@ class PortalFiApi implements IPortalFiApi {
     // get approve tx
     async getApproveTx(params: IGetAllowanceRequest): Promise<any> {
         try {
-            const response = await ApiClient.get(`/getApproveTx`, { params });
+            const response = await PortalApiInstance.get(`/getApproveTx`, { params });
 
             const getApproveResponse = response.data as IGetAllowanceResponse;
 
@@ -57,7 +57,7 @@ class PortalFiApi implements IPortalFiApi {
     // add liquidity for pool estimate
     async getQuoteAddLiquidity(params: IGetQuoteAddLiquidityRequest): Promise<any> {
         try {
-            const response = await ApiClient.get(`/getQuoteAddLiquidity`, { params });
+            const response = await PortalApiInstance.get(`/getQuoteAddLiquidity`, { params });
 
             const addLiquidityResponse = response.data as IGetQuoteAddLiquidityResponse;
 
@@ -72,7 +72,7 @@ class PortalFiApi implements IPortalFiApi {
     // remove liquidity for pool estimate
     async getQuoteRemoveLiquidity(params: IGetQuoteAddLiquidityRequest): Promise<any> {
         try {
-            const response = await ApiClient.get(`/getQuoteRemoveLiquidity`, { params });
+            const response = await PortalApiInstance.get(`/getQuoteRemoveLiquidity`, { params });
 
             const removeLiquidityResponse = response.data as IGetQuoteRemoveLiquidityResponse;
 
@@ -87,7 +87,7 @@ class PortalFiApi implements IPortalFiApi {
     // get add liquidity tx
     async getAddLiquidityTx(params: IGetQuoteAddLiquidityRequest): Promise<any> {
         try {
-            const response = await ApiClient.get(`/getAddLiquidityTx`, { params });
+            const response = await PortalApiInstance.get(`/getAddLiquidityTx`, { params });
 
             return response.data;
         } catch (error) {
@@ -100,7 +100,7 @@ class PortalFiApi implements IPortalFiApi {
     // get remove liquidity tx
     async getRemoveLiquidityTx(params: IGetQuoteAddLiquidityRequest): Promise<any> {
         try {
-            const response = await ApiClient.get(`/getRemoveLiquidityTx`, { params });
+            const response = await PortalApiInstance.get(`/getRemoveLiquidityTx`, { params });
 
             return response.data;
         } catch (error) {
@@ -113,9 +113,11 @@ class PortalFiApi implements IPortalFiApi {
     // get users pool list
     async getUserBalancePoolList(params: IGetUserBalancePoolListRequest): Promise<any> {
         try {
-            const response = await ApiClient.get(`/getUserBalancePoolList`, { params });
+            const response = await DpApiInstance.get(`/balances?provider=Portal&integrations=true`, {
+                params,
+            });
 
-            return response.data?.data as IGetUsersPoolListResponse[];
+            return response.data?.data?.integrations as IGetUsersPoolListResponse[];
         } catch (error) {
             console.error('PortalFiApi.getUserBalancePoolList', error);
 
@@ -126,7 +128,7 @@ class PortalFiApi implements IPortalFiApi {
     // get all pools list
     async getPoolList(params: IGetPoolListRequest): Promise<any> {
         try {
-            const response = await ApiClient.get(`/getPoolList`, { params });
+            const response = await PortalApiInstance.get(`/getPoolList`, { params });
 
             return response.data;
         } catch (error) {

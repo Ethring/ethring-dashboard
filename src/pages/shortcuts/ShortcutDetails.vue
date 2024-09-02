@@ -21,7 +21,7 @@
             </p>
 
             <p v-if="shortcut.id === AvailableShortcuts.MitosisVault && mitosisInfo" class="shortcut-details__points">
-                Linea: {{ Math.round(mitosisInfo.linea?.xp) || 0 }} points
+                Linea: {{ Math.round(mitosisInfo?.xp) || 0 }} points
             </p>
             <a-dropdown
                 v-if="shortcut.id === AvailableShortcuts.Debridge && deBridgeInfo && deBridgeInfo.points"
@@ -89,7 +89,7 @@
 <script lang="ts">
 import { isEmpty } from 'lodash';
 
-import { computed, onMounted, watch, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
@@ -153,12 +153,8 @@ export default {
         const deBridgeInfo = computed(() => store.getters['shortcuts/getDeBridgeInfo'](walletAddress.value));
         const mitosisInfo = computed(() => store.getters['shortcuts/getMitosisInfo'](walletAddress.value));
 
-        onMounted(() => {
+        onMounted(async () => {
             if (isEmpty(shortcut.value)) return router.push('/shortcuts');
-        });
-
-        watch(shortcutStatus, (newVal) => {
-            if (newVal === STATUSES.SUCCESS) store.dispatch('app/toggleModal', 'successShortcutModal');
         });
 
         return {

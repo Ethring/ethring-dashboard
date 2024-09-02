@@ -18,6 +18,9 @@ export const EVM_NETWORKS = [
     'manta',
     'mode',
     'celo',
+    'zora',
+    'scroll',
+    'berachain',
 ];
 
 export const COSMOS_WALLETS_BY_PROTOCOL_SEED = {

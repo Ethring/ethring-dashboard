@@ -40,7 +40,7 @@ export default class PortalFiAddLiquidity extends BaseOperation {
         }
 
         try {
-            const { net, poolID, ownerAddresses = {}, slippageTolerance, slippage } = this.params as any;
+            const { net, poolID, ownerAddresses = {}, slippage } = this.params as any;
 
             const { from } = this.getTokens();
 
@@ -51,7 +51,7 @@ export default class PortalFiAddLiquidity extends BaseOperation {
                 net,
                 poolID,
                 amount: formatNumber(amount, from?.decimals, false),
-                slippageTolerance: slippage || slippageTolerance,
+                slippageTolerance: slippage,
                 tokenAddress: tokenIn,
                 ownerAddress: ownerAddresses[net],
             };
@@ -87,7 +87,7 @@ export default class PortalFiAddLiquidity extends BaseOperation {
         }
 
         try {
-            const { net, poolID, slippageTolerance, slippage, ownerAddresses } = this.params as any;
+            const { net, poolID, ownerAddresses, slippage } = this.params as any;
 
             const { from } = this.getTokens();
 
@@ -108,7 +108,7 @@ export default class PortalFiAddLiquidity extends BaseOperation {
                 net,
                 poolID,
                 amount: formatNumber(amount, from?.decimals, false),
-                slippageTolerance: slippage || slippageTolerance,
+                slippageTolerance: slippage,
                 tokenAddress: tokenIn,
             };
 

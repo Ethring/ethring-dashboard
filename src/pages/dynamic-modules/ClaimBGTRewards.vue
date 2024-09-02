@@ -1,5 +1,5 @@
 <template>
-    <a-table :columns="columns" :data-source="vaults" class="rewards-table" :pagination="false">
+    <a-table :columns="columns" :data-source="vaults" class="rewards-table" :loading="isLoading" :pagination="false">
         <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'vault'">
                 <a-avatar :src="record.logoURI" />
@@ -39,8 +39,10 @@ export default {
 
         const errorMessage = ref(false);
         const successMessage = ref(false);
+        const isLoading = computed(() => store.getters['shortcuts/getIsVaultsLoading']);
 
         const vaults = computed(() => store.getters['shortcuts/getVaultsInfo'](walletAddress.value));
+
         const { handleOnConfirm, isTransactionSigning } = useModuleOperations(ModuleType.claim);
 
         const opBtnState = computed(() => {
@@ -68,6 +70,7 @@ export default {
         ];
 
         return {
+            isLoading,
             opBtnState,
             errorMessage,
             successMessage,

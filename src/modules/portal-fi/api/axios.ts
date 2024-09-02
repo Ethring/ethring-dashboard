@@ -2,12 +2,19 @@ import ApiClient from '@/shared/axios';
 
 // ============== API Client Settings Start ==============
 
-const apiClient = new ApiClient({
+const portalApiClient = new ApiClient({
     baseURL: process.env.PORTAL_FI_API as string,
 });
 
-const axiosInstance = apiClient.getInstance();
+const dpApiClient = new ApiClient({
+    baseURL: process.env.DATA_PROVIDER_API || '',
+    timeout: 10000,
+});
 
-export default axiosInstance;
+const PortalApiInstance = portalApiClient.getInstance();
+
+const DpApiInstance = dpApiClient.getInstance();
+
+export { PortalApiInstance, DpApiInstance };
 
 // ============== API Client Settings End ==============

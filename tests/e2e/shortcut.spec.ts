@@ -23,7 +23,7 @@ testMetaMask.skip('Case#: Shortcut remove liquidity from pool', async ({ context
     const NET = 'arbitrum';
     const ADDRESS = getTestVar(TEST_CONST.ETH_ADDRESS_TX);
     const RemoveLiquidityPoolID = 'SC-remove-liquidity-pool';
-    const WAITED_BALANCE_URL = `**/srv-portal-fi-add-portal-fi/api/getUserBalancePoolList?net=${NET}**`;
+    const WAITED_BALANCE_URL = `**/api/balances?provider=Portal?net=${NET}**`;
     const AMOUNT = '0.001';
 
     await shortcutPage.mockPoolBalanceRequest(NET, mockPoolBalanceDataArbitrum, ADDRESS);

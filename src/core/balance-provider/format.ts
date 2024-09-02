@@ -113,11 +113,11 @@ const formatRecord = (type: BalanceType, record: AssetBalance, opt: RecordOption
 };
 
 // * The pool record formatter used to format the response from the portal-fi
-const formatPool = (type: BalanceType, record: PoolBalance, opt: RecordOptions = {}): NftBalance => {
-    const { chain, logo } = opt;
+const formatPool = (type: BalanceType, record: PoolBalance, opt: RecordOptions = {}): PoolBalance => {
+    const { chain, logo } = opt || {};
 
-    record.chain = chain;
-    record.chainLogo = logo;
+    record.chain = chain as string;
+    record.chainLogo = logo as string;
 
     record.id = `${record.chain}:${type}__${record?.address}:${record?.symbol}`;
     record.balanceUsd = record.balanceUSD;
