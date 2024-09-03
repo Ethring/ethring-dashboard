@@ -58,7 +58,7 @@ testMetaMask.describe('SuperSwap e2e tests', () => {
             await superSwapPage.goToModule('superSwap');
 
             const TO_NET = 'Polygon';
-            const TO_TOKEN = 'MATIC';
+            const TO_TOKEN = 'POL';
             const AMOUNT = '2';
 
             await sleep(FIVE_SECONDS);
