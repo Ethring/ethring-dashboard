@@ -158,11 +158,17 @@ export const authMmBalanceBySwapAndTokensListMock = async (
     return __loginByMmAndWaitElement__(context, zometPage);
 };
 
-export const setCustomRpc = async (context: BrowserContext, fakeRpcUrl: string, networkName: string, indexMmHomePage = 0) => {
+export const setCustomRpc = async (
+    context: BrowserContext,
+    fakeRpcUrl: string,
+    networkName: string,
+    networkSymbol?: string,
+    indexMmHomePage = 0,
+) => {
     const metaMaskPage = new MetaMaskHomePage(context.pages()[indexMmHomePage]);
 
     await metaMaskPage.addNetwork(networkName);
-    await metaMaskPage.changeRpc(networkName, fakeRpcUrl);
+    await metaMaskPage.changeRpc(networkName, fakeRpcUrl, networkSymbol);
 };
 
 export const setNetworkInMm = async (context: BrowserContext, networkName: string, indexMmHomePage = 0) => {
