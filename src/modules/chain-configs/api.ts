@@ -1,16 +1,15 @@
-import { isEqual } from 'lodash';
 import { AxiosResponse, HttpStatusCode } from 'axios';
 import ApiClient from '@/shared/axios';
 
-import { Ecosystem, Ecosystems } from '@/shared/models/enums/ecosystems.enum';
+import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
-import IndexedDBService from '@/services/indexed-db';
+import ConfigsDB from '@/services/indexed-db/configs';
 
 import logger from '@/shared/logger';
 
 import { DB_TABLES } from '@/shared/constants/indexedDb';
 
-const indexedDB = new IndexedDBService('configs', 3);
+const configsDB = new ConfigsDB(1);
 
 const apiClient = new ApiClient({
     baseURL: process.env.CORE_API || '',
@@ -18,7 +17,7 @@ const apiClient = new ApiClient({
 
 const axiosInstance = apiClient.getInstance();
 
-const isNeedToUpdate = (list: any, store: string, chain: string, lastUpdated?: string | null) => {
+const isNeedToUpdate = (list: any, lastUpdated?: string | null) => {
     let token = null;
 
     if (Array.isArray(list)) token = list[0];
@@ -38,6 +37,10 @@ const isNeedToUpdate = (list: any, store: string, chain: string, lastUpdated?: s
     return true;
 };
 
+// * Get the data from indexedDB first if it exists,
+// * then check if it needs to be updated,
+// * if not return the data
+
 export const getConfigsByEcosystems = async (
     ecosystem = Ecosystem.EVM,
     { isCosmology = false, lastUpdated = null }: { isCosmology?: boolean; lastUpdated?: string | null } = {
@@ -52,19 +55,25 @@ export const getConfigsByEcosystems = async (
 
     const store = isCosmology ? DB_TABLES.COSMOLOGY_NETWORKS : DB_TABLES.NETWORKS;
 
-    const list = await indexedDB.getAllObjectFrom(store, 'ecosystem', ecosystem, { index: 'chain' });
-
-    if (!isNeedToUpdate(list, store, ecosystem, lastUpdated)) return list;
+    try {
+        const configsHash = await configsDB.getAllNetworksByEcosystemHash(ecosystem, isCosmology);
+        if (!isNeedToUpdate(configsHash, lastUpdated)) return configsHash;
+    } catch (error) {
+        logger.error('Error while getting networks from indexedDB', error);
+    }
 
     try {
-        await indexedDB.bulkDeleteByKeys(store, 'ecosystem', ecosystem);
+        // ! Clear the table before saving new data
+        await configsDB.bulkDeleteByKeys(store, 'ecosystem', ecosystem);
 
         const { data, status }: AxiosResponse = await axiosInstance.get(`networks/${ecosystem.toLowerCase()}${query}`);
 
         if (status !== HttpStatusCode.Ok) return {};
 
-        if (!isEqual(list, data)) await indexedDB.saveNetworksObj(store, data, { ecosystem, lastUpdated });
+        // * Save the data to indexedDB
+        await configsDB.saveNetworksConfig(store, data, ecosystem, lastUpdated);
 
+        // * Return the data
         return data;
     } catch (err) {
         logger.error('Error while getting networks from API', err);
@@ -75,16 +84,19 @@ export const getConfigsByEcosystems = async (
 export const getCosmologyTokensConfig = async ({ lastUpdated } = { lastUpdated: null }) => {
     const store = DB_TABLES.COSMOLOGY_TOKENS;
 
-    const list = await indexedDB.getAllListFrom(store);
-
-    if (!isNeedToUpdate(list, store, 'cosmology', lastUpdated)) return list;
+    try {
+        const tokensList = await configsDB.getAllCosmologyTokens();
+        if (!isNeedToUpdate(tokensList, lastUpdated)) return tokensList;
+    } catch (error) {
+        logger.error('Error while getting cosmology tokens from indexedDB', error);
+    }
 
     try {
-        await indexedDB.clearTable(store);
+        await configsDB.bulkDeleteByKeys(store, 'chain', 'cosmology');
 
         const { data }: AxiosResponse = await axiosInstance.get(`networks/cosmos/all/tokens`);
 
-        await indexedDB.saveCosmologyAssets(store, data, { lastUpdated });
+        await configsDB.saveCosmologyAssets(data, lastUpdated);
 
         return data;
     } catch (err) {
@@ -96,16 +108,19 @@ export const getCosmologyTokensConfig = async ({ lastUpdated } = { lastUpdated: 
 export const getTokensConfigByChain = async (chain: string, ecosystem: string, { lastUpdated } = { lastUpdated: null }) => {
     const store = DB_TABLES.TOKENS;
 
-    const list = await indexedDB.getAllObjectFrom(store, 'chain', chain);
-
-    if (!isNeedToUpdate(list, store, chain, lastUpdated)) return list;
+    try {
+        const tokensHash = await configsDB.getAllTokensByChainHash(chain);
+        if (!isNeedToUpdate(tokensHash, lastUpdated)) return tokensHash;
+    } catch (error) {
+        logger.error('Error while getting tokens from indexedDB', error);
+    }
 
     try {
-        await indexedDB.bulkDeleteByKeys(store, 'chain', chain);
+        await configsDB.bulkDeleteByKeys(store, 'chain', chain);
 
         const { data }: AxiosResponse = await axiosInstance.get(`networks/${chain}/tokens`);
 
-        const formatted = await indexedDB.saveTokensObj(store, data, { network: chain, ecosystem, lastUpdated });
+        const formatted = await configsDB.saveTokensConfig(data, ecosystem as any, chain, lastUpdated);
 
         return formatted;
     } catch (err) {

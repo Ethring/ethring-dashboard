@@ -50,11 +50,6 @@ export default {
             required: true,
             default: '',
         },
-        value: {
-            type: [String, Number],
-            required: false,
-            default: 0,
-        },
         reward: {
             type: [String, Number],
             default: 0,

@@ -1,12 +1,10 @@
-import { values, orderBy } from 'lodash';
+import { values } from 'lodash';
 
 import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 
 import { getConfigsByEcosystems, getLastUpdated, getTokensConfigByChain } from '@/modules/chain-configs/api';
 
-import IndexedDBService from '@/services/indexed-db';
-
-import { DB_TABLES } from '@/shared/constants/indexedDb';
+import ConfigsDB from '@/services/indexed-db/configs';
 
 import { DP_CHAINS } from '@/core/balance-provider/models/enums';
 
@@ -17,7 +15,7 @@ const TYPES = {
     SET_LAST_UPDATED: 'SET_LAST_UPDATED',
 };
 
-const configsDB = new IndexedDBService('configs', 3);
+const configsDB = new ConfigsDB(1);
 
 export default {
     namespaced: true,
@@ -122,21 +120,11 @@ export default {
         },
 
         async getTokensListForChain({}, chain) {
-            const list = await configsDB.getAllObjectFrom(DB_TABLES.TOKENS, 'chain', chain, { isArray: true });
-            return orderBy(list, ['name'], ['asc']).map((item) => {
-                if (item.ecosystem === Ecosystem.COSMOS) return item;
-                if (item.id && item.id.includes('tokens__')) {
-                    const [chain, prefixAddress, symbol] = item.id.split(':');
-
-                    const [prefix, address] = prefixAddress.split('__');
-
-                    const lowerCaseAddress = address.toLowerCase();
-
-                    item.id = `${chain}:${prefix}__${lowerCaseAddress}:${symbol}`;
-                }
-                if (item.address) item.address = item.address.toLowerCase();
-                return item;
-            });
+            try {
+                return await configsDB.getAllTokensByChain(chain);
+            } catch (error) {
+                return [];
+            }
         },
 
         setConfigLoading({ commit }, value) {
@@ -154,13 +142,8 @@ export default {
                 const { chain, address } = tokenInfo;
 
                 const [byChain, byAddress] = await Promise.all([
-                    configsDB.searchByKey(DB_TABLES.TOKENS, {
-                        chain,
-                        address,
-                    }),
-                    configsDB.searchByKey(DB_TABLES.TOKENS, {
-                        address,
-                    }),
+                    configsDB.getTokenByChainAndAddress(chain, address),
+                    configsDB.getTokenByAddress(address),
                 ]);
 
                 if (!byChain && byAddress) {

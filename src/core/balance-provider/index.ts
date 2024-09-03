@@ -30,17 +30,6 @@ export const updateBalanceForAccount = async (account: string, addresses: ChainA
         isUpdate = true;
     }
 
-    // * Load balances from IndexedDB cache
-    for (const chain in addresses) {
-        const { address } = addresses[chain];
-
-        await store.dispatch('tokens/setLoadingByChain', { chain, account, value: true });
-
-        for (const type in Type) await store.dispatch('tokens/loadFromCache', { account, chain, address, type });
-
-        await store.dispatch('tokens/setLoadingByChain', { chain, account, value: false });
-    }
-
     // * Get data from API
     for (const chain in addresses) {
         const { address, logo, nativeTokenLogo } = addresses[chain];

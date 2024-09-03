@@ -7,7 +7,11 @@
         <a-layout class="layout main-layout" :class="{ collapsed: isCollapsed }">
             <NavBar />
             <a-layout-content class="content main-layout-content" data-qa="content">
-                <router-view />
+                <router-view v-slot="{ Component }">
+                    <keep-alive max="10">
+                        <component :is="Component" />
+                    </keep-alive>
+                </router-view>
             </a-layout-content>
         </a-layout>
     </a-layout>

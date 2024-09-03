@@ -39,7 +39,7 @@ import { setNativeTokensPrices } from '@/core/balance-provider/native-token';
 import { DP_CHAINS } from '@/core/balance-provider/models/enums';
 import { Ecosystem } from '@/shared/models/enums/ecosystems.enum';
 import { delay } from '@/shared/utils/helpers';
-import { Providers } from '../core/balance-provider/models/enums';
+import { Providers, Type } from '../core/balance-provider/models/enums';
 
 export default {
     name: 'App',
@@ -98,6 +98,12 @@ export default {
                 if (!wallet) continue;
 
                 const { account, ecosystem, addresses } = wallet || {};
+
+                // Get balances from cache
+                for (const type in Type) {
+                    if ([Type.nfts, Type.integrations].includes(type)) continue;
+                    await store.dispatch('tokens/loadFromCache', { account, type });
+                }
 
                 store.dispatch('adapters/SET_ADDRESSES_BY_ECOSYSTEM_LIST', { ecosystem, addresses });
 

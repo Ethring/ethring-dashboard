@@ -8,7 +8,7 @@
                     <div class="name">
                         {{ type === 'NFTS' ? item.name : item.symbol }}
                         <a-tag v-if="item.testnet" class="ibc-tag" :bordered="false"> Testnet </a-tag>
-                        <a-tag v-if="type === 'Asset' && item.name.includes('IBC')" class="ibc-tag" :bordered="false"> IBC </a-tag>
+                        <a-tag v-if="type === 'Asset' && item?.name?.includes('IBC')" class="ibc-tag" :bordered="false"> IBC </a-tag>
                     </div>
                     <div v-if="item.balanceType" class="type">{{ getFormattedName(item.balanceType) }}</div>
                     <div v-if="item.unlockTimestamp" class="unlock">

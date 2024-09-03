@@ -74,7 +74,7 @@ export default {
 
         const tooltipValue = computed(() => {
             if (props.type === 'usd') return `${props.symbol} ${props.value || 0}`;
-
+            if (!props.symbol) return `${props.value || 0}`;
             return `${props.value || 0} ${props.symbol}`;
         });
 

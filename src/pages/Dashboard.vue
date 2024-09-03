@@ -7,41 +7,94 @@
             <div class="dashboard__wallet">
                 <WalletInfoLarge />
             </div>
-            <a-row class="dashboard__options"> <HideBalances /> <SupportedNetworks /></a-row>
-            <KeepAlive>
-                <Assets />
-            </KeepAlive>
+
+            <a-row class="dashboard__options" justify="space-between">
+                <a-col>
+                    <a-tabs v-model:activeKey="activeTab" class="dashboard__tabs" @change="handelOnTabChange">
+                        <a-tab-pane key="portfolio">
+                            <template #tab>
+                                <span> {{ $t('dashboard.tabs.portfolio') }} </span>
+                            </template>
+                        </a-tab-pane>
+                        <a-tab-pane key="nfts">
+                            <template #tab>
+                                <span> {{ $t('dashboard.tabs.nfts') }} </span>
+                            </template>
+                        </a-tab-pane>
+                    </a-tabs>
+                </a-col>
+
+                <a-col>
+                    <a-row :gutter="8">
+                        <a-col>
+                            <HideBalances />
+                        </a-col>
+                        <a-col>
+                            <SupportedNetworks />
+                        </a-col>
+                    </a-row>
+                </a-col>
+            </a-row>
+            <router-view v-slot="{ Component }">
+                <keep-alive max="2">
+                    <component :is="Component" />
+                </keep-alive>
+            </router-view>
         </template>
     </div>
 </template>
 
 <script>
-import { inject } from 'vue';
-
-import Assets from '@/components/app/Assets.vue';
+import { ref, onMounted, onActivated, onUnmounted } from 'vue';
 
 import ConnectWalletAdapter from '@/components/app/ConnectWalletAdapter.vue';
 import WalletInfoLarge from '@/components/app/WalletInfoLarge.vue';
 
 import SupportedNetworks from '@/components/app/SupportedNetworks.vue';
 import HideBalances from '@/components/app/HideBalances.vue';
+import { useRouter } from 'vue-router';
+import useAdapter from '@/core/wallet-adapter/compositions/useAdapter';
 
 export default {
     name: 'Dashboard',
     components: {
         WalletInfoLarge,
         ConnectWalletAdapter,
-        Assets,
         SupportedNetworks,
         HideBalances,
     },
     setup() {
-        const useAdapter = inject('useAdapter');
+        const router = useRouter();
+
+        const activeTab = ref('portfolio');
 
         const { walletAccount } = useAdapter();
 
+        const handelOnTabChange = (key) => {
+            if (key === 'nfts') return router.push({ path: `/main/${key}` });
+            return router.push({ path: `/main` });
+        };
+
+        onActivated(() => {
+            const { path } = router.currentRoute.value;
+            if (path.includes('nfts')) activeTab.value = 'nfts';
+            else activeTab.value = 'portfolio';
+        });
+
+        onMounted(() => {
+            const { path } = router.currentRoute.value;
+            if (path.includes('nfts')) activeTab.value = 'nfts';
+            else activeTab.value = 'portfolio';
+        });
+
+        onUnmounted(() => {
+            activeTab.value = 'portfolio';
+        });
+
         return {
+            activeTab,
             walletAccount,
+            handelOnTabChange,
         };
     },
 };
@@ -55,11 +108,6 @@ export default {
     &__controls {
         @include pageFlexRow;
         z-index: 1;
-    }
-
-    &__options {
-        justify-content: flex-end;
-        gap: 8px;
     }
 }
 </style>

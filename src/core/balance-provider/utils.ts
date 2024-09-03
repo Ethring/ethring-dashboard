@@ -2,10 +2,11 @@ import { BalanceType, RecordList, RecordOptions } from './models/types';
 
 import { formatResponse } from './format';
 
-import IndexedDBService from '@/services/indexed-db';
+import BalancesDB from '@/services/indexed-db/balances';
+
 import { Type } from './models/enums';
 
-const balancesDB = new IndexedDBService('balances', 3);
+const balancesDB = new BalancesDB(1);
 
 // * Store balance for account in Vuex and IndexedDB by type
 export const storeBalanceForAccount = async (
@@ -25,8 +26,22 @@ export const storeBalanceForAccount = async (
     // * Format tokens and save to store
     const formatted = formatResponse(type, balances, { ...opt, chain });
 
-    await store.dispatch('tokens/setDataFor', { type, account, chain, data: formatted });
+    try {
+        // * Save data to indexedDB cache to load data page faster
+        await balancesDB.saveBalancesByTypes(formatted, { dataType: type, account, address, chain });
 
-    // * Save data to indexedDB cache to load data page faster
-    await balancesDB.saveBalancesByTypes('balances', formatted, { type, account, chain, address });
+        // * Save data to Vuex store (Only for tokens and pools)
+        if (![Type.integrations, Type.nfts].includes(type))
+            await store.dispatch('tokens/setDataFor', { type, account, chain, data: formatted });
+
+        const { total, assetsBalance } = await balancesDB.getTotalBalance(account);
+
+        // * Save total balance to Vuex store
+        await Promise.all([
+            store.dispatch('tokens/setTotalBalances', { account, data: total }),
+            store.dispatch('tokens/setAssetsBalances', { account, data: assetsBalance }),
+        ]);
+    } catch (error) {
+        console.error(`[storeBalanceForAccount] ${type}`, error);
+    }
 };

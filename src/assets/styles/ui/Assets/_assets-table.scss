@@ -48,8 +48,7 @@
         margin-bottom: 16px;
     }
 
-    .ant-collapse-item:hover,
-    .ant-collapse-item.active-panel {
+    .ant-collapse-item:hover:not(.ant-collapse-item-disabled) .ant-collapse-item.active-panel {
         border-color: var(--#{$prefix}assets-arrow-hover-color) !important;
     }
 
@@ -120,7 +119,7 @@
         }
 
         .name::before {
-            content: '\2022';
+            content: "\2022";
             margin: 0 4px;
             color: var(--#{$prefix}neutral-text);
         }

@@ -10,6 +10,8 @@ const priceByPlatformContracts = async ({ net = 'bsc', addresses, currencies = '
 
     if (!platform) return {};
 
+    if (!addresses) return {};
+
     const url = `${PROXY_API}/token-price/coingecko/${platform}?addresses=${addresses}&currencies=${currencies}`;
 
     const config = {

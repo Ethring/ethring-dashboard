@@ -7,6 +7,10 @@
         "initLoading": "Please wait we are preparing our application for you"
     },
     "dashboard": {
+        "tabs": {
+            "portfolio": "Portfolio",
+            "nfts": "NFTs"
+        },
         "receive": "RECEIVE",
         "send": "SEND",
         "search": "Search",
