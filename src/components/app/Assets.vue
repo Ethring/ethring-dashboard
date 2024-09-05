@@ -28,36 +28,37 @@
                 </div>
             </a-collapse-panel>
 
-            <a-collapse-panel
-                v-for="item in integrationByPlatforms.list"
-                v-show="integrationByPlatforms.list.length > 0"
-                :key="item?.platform"
-                class="assets-block-panel"
-                @vue:mounted="handleOnMountPlatform(item?.platform)"
-            >
-                <template #header>
-                    <AssetGroupHeader
-                        v-if="item?.platform"
-                        class="assets-section__group-header"
-                        :logo-u-r-i="item.logoURI"
-                        :title="item.platform"
-                        :total-balance="item.totalGroupBalance"
-                        :show-rewards="item.totalRewardsBalance > 0"
-                        :reward="item.totalRewardsBalance"
-                        :health-rate="item.healthRate"
-                    />
-                </template>
+            <template v-if="integrationByPlatforms.list.length > 0">
+                <a-collapse-panel
+                    v-for="item in integrationByPlatforms.list"
+                    :key="item?.platform"
+                    class="assets-block-panel"
+                    @vue:mounted="handleOnMountPlatform(item?.platform)"
+                >
+                    <template #header>
+                        <AssetGroupHeader
+                            v-if="item?.platform"
+                            class="assets-section__group-header"
+                            :logo-u-r-i="item.logoURI"
+                            :title="item.platform"
+                            :total-balance="item.totalGroupBalance"
+                            :show-rewards="item.totalRewardsBalance > 0"
+                            :reward="item.totalRewardsBalance"
+                            :health-rate="item.healthRate"
+                        />
+                    </template>
 
-                <AssetsTable
-                    v-for="(groupItem, n) in item.data"
-                    :key="n"
-                    class="protocols-table"
-                    :data="groupItem.balances"
-                    :columns="[{ ...COMMON_NAME_COLUMN, title: groupItem?.name }, ...COMMON_COLUMNS]"
-                    :type="getFormattedName(groupItem.type)"
-                    :name="groupItem?.validator?.name"
-                />
-            </a-collapse-panel>
+                    <AssetsTable
+                        v-for="(groupItem, n) in item.data"
+                        :key="n"
+                        class="protocols-table"
+                        :data="groupItem.balances"
+                        :columns="[{ ...COMMON_NAME_COLUMN, title: groupItem?.name }, ...COMMON_COLUMNS]"
+                        :type="getFormattedName(groupItem.type)"
+                        :name="groupItem?.validator?.name"
+                    />
+                </a-collapse-panel>
+            </template>
         </a-collapse>
     </div>
 </template>
@@ -218,6 +219,7 @@ export default {
         // *********************************************************************************
 
         onMounted(async () => {
+            console.log('Assets mounted');
             handleOnUpdateCollapsedAssets();
             store.dispatch('tokens/resetIndexes');
             await delay(300);
@@ -237,12 +239,16 @@ export default {
         // *********************************************************************************
 
         onUnmounted(() => {
+            console.log('Assets unmounted');
             store.dispatch('tokens/resetIndexes');
             handleOnUpdateCollapsedAssets();
 
             // ! Unwatch the watcher to avoid memory leaks
             unWatchAccount();
             unWatchKeysToRequest();
+
+            // ! Close the IndexedDB connection
+            balancesDB.close();
         });
 
         const COMMON_NAME_COLUMN = {
