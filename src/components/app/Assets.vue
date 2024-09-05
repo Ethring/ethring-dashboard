@@ -219,7 +219,6 @@ export default {
         // *********************************************************************************
 
         onMounted(async () => {
-            console.log('Assets mounted');
             handleOnUpdateCollapsedAssets();
             store.dispatch('tokens/resetIndexes');
             await delay(300);
@@ -239,7 +238,6 @@ export default {
         // *********************************************************************************
 
         onUnmounted(() => {
-            console.log('Assets unmounted');
             store.dispatch('tokens/resetIndexes');
             handleOnUpdateCollapsedAssets();
 

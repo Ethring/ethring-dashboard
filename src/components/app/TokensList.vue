@@ -107,7 +107,6 @@ export default {
         // *********************************************************************************
 
         onMounted(async () => {
-            console.log('Tokens mounted');
             store.dispatch('tokens/resetIndexes');
             store.dispatch('tokens/loadMoreAssets');
 
@@ -127,7 +126,6 @@ export default {
         // *********************************************************************************
 
         onUnmounted(() => {
-            console.log('Tokens unmounted');
             unWatchKeysToRequest();
 
             // * Reset indexes

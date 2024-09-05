@@ -100,7 +100,6 @@ export default {
         };
 
         onMounted(async () => {
-            console.log('NFTs mounted');
             store.dispatch('tokens/resetIndexes');
             await makeRequest();
         });
@@ -118,7 +117,6 @@ export default {
         // *********************************************************************************
 
         onUnmounted(() => {
-            console.log('NFTs unmounted');
             store.dispatch('tokens/resetIndexes');
             unWatchKeysToRequest();
 
